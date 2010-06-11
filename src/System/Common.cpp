@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string>
 #include <stdlib.h>
+#include <pwd.h>
 #include <sys/stat.h>
 #include <signal.h>
 #include "ByteString.h"
@@ -506,6 +507,25 @@ int vsnwritef(char* buffer, unsigned size, const char* format, va_list ap)
 #undef REQUIRE
 }
 
+bool chuser(const char *user)
+{
+#ifdef _WIN32
+	// cannot change user on Windows
+	return true;
+#else
+	if (user != NULL && *user && (getuid() == 0 || geteuid() == 0)) 
+	{
+		struct passwd *pw = getpwnam(user);
+		if (!pw)
+			return false;
+		
+		setuid(pw->pw_uid);
+	}
+
+	return true;
+#endif
+}
+
 static uint32_t const crctab[256] =
 {
   0x00000000,
@@ -573,7 +593,7 @@ uint32_t checksum(const char* buffer, unsigned length)
 	for (i = length; i--; )
 		crc = (crc << 8) ^ crctab[((crc >> 24) ^ *buffer++) & 0xFF];
 	for (i = length; i; i >>= 8)
-		crc = (crc << 8) ^ crctab[((crc >> 24) ^ i) & 0xFF]
+		crc = (crc << 8) ^ crctab[((crc >> 24) ^ i) & 0xFF];
 	crc = ~crc & 0xFFFFFFFF;
 	
 	return crc;

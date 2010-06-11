@@ -77,6 +77,8 @@ int vsnreadf(char* buffer, unsigned size, const char* format, va_list ap);
 int snwritef(char* buffer, unsigned size, const char* format, ...);
 int vsnwritef(char* buffer, unsigned size, const char* format, va_list ap);
 
+bool chuser(const char *username);
+
 uint32_t checksum(const char* buffer, unsigned length);
 
 #endif
