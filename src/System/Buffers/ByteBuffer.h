@@ -44,6 +44,8 @@ public:
 	virtual unsigned	Remaining() const;
 	virtual char*		Position() const;
 	char				CharAt(unsigned i) const;
+	uint32_t			Checksum();
+	
 	virtual void		Rewind();
 	
 protected:

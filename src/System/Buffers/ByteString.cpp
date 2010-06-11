@@ -92,6 +92,11 @@ char ByteString::CharAt(unsigned i) const
 	return *(buffer + i);
 }
 
+uint32_t ByteString::Checksum()
+{
+	return checksum(buffer, length);
+}
+
 void ByteString::SetBuffer(char* buffer_)
 {
 	buffer = buffer_;

@@ -38,6 +38,8 @@ public:
 	char*			Buffer() const;
 	unsigned		Length() const;
 	char			CharAt(unsigned i) const;
+	uint32_t		Checksum();
+
 	void			SetBuffer(char* buffer_);
 	void			SetLength(unsigned length_);
 

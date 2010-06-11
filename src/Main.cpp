@@ -6,7 +6,7 @@ int main(void)
 	
 	s.Writef("hello world");
 	
-	printf("%.*s\n", s.Length(), s.Buffer());
+	printf("%.*s %u\n", s.Length(), s.Buffer(), (unsigned int) s.Checksum());
 	
 	ByteWrap bw = s.WrapRest();
 	bw.Writef("123");
