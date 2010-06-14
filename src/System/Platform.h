@@ -65,6 +65,4 @@ typedef unsigned __int64	uint64_t;
 
 #endif // end Unix
 
-bool		ChangeUser(const char *username);
-
 #endif

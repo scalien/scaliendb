@@ -13,7 +13,6 @@
 		54B7F77511BE5EF30076BC62 /* IOProcessor_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75C11BE5EF30076BC62 /* IOProcessor_Windows.cpp */; };
 		54B7F77811BE5EF30076BC62 /* Socket_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76011BE5EF30076BC62 /* Socket_Windows.cpp */; };
 		54B7F77911BE5EF30076BC62 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76111BE5EF30076BC62 /* Log.cpp */; };
-		54B7F77A11BE5EF30076BC62 /* Platform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76311BE5EF30076BC62 /* Platform.cpp */; };
 		54B7F77C11BE5EF30076BC62 /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
 		54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76911BE5EF30076BC62 /* ThreadPool_Windows.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
@@ -73,7 +72,6 @@
 		54B7F76011BE5EF30076BC62 /* Socket_Windows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Socket_Windows.cpp; sourceTree = "<group>"; };
 		54B7F76111BE5EF30076BC62 /* Log.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Log.cpp; sourceTree = "<group>"; };
 		54B7F76211BE5EF30076BC62 /* Log.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Log.h; sourceTree = "<group>"; };
-		54B7F76311BE5EF30076BC62 /* Platform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Platform.cpp; sourceTree = "<group>"; };
 		54B7F76411BE5EF30076BC62 /* Platform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Platform.h; sourceTree = "<group>"; };
 		54B7F76511BE5EF30076BC62 /* Stopwatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stopwatch.h; sourceTree = "<group>"; };
 		54B7F76711BE5EF30076BC62 /* ThreadPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ThreadPool.h; sourceTree = "<group>"; };
@@ -82,7 +80,6 @@
 		54B7F76D11BE5EF30076BC62 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		54B7F96011BE85950076BC62 /* Time.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Time.cpp; sourceTree = "<group>"; };
 		54B7F96411BE85B10076BC62 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
-		54B7FA1411BE99E70076BC62 /* ByteString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ByteString.h; path = ../ByteString.h; sourceTree = "<group>"; };
 		54FA661811C107BD00FF4EF6 /* ByteBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteBuffer.h; sourceTree = "<group>"; };
 		54FA661C11C107E800FF4EF6 /* ByteWrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteWrap.h; sourceTree = "<group>"; };
 		54FA662011C1081000FF4EF6 /* StaticArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticArray.h; sourceTree = "<group>"; };
@@ -97,6 +94,7 @@
 		54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CdownTimer.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
+		54FA6B1611C275C600FF4EF6 /* ByteString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteString.h; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* Rowscale */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Rowscale; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859E8B029090EE04C91782 /* Rowscale.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Rowscale.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -164,7 +162,6 @@
 				54B7F76211BE5EF30076BC62 /* Log.h */,
 				54B7F76111BE5EF30076BC62 /* Log.cpp */,
 				54B7F76411BE5EF30076BC62 /* Platform.h */,
-				54B7F76311BE5EF30076BC62 /* Platform.cpp */,
 				54B7F76511BE5EF30076BC62 /* Stopwatch.h */,
 				54B7F76711BE5EF30076BC62 /* ThreadPool.h */,
 				54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */,
@@ -222,7 +219,7 @@
 		54FA661711C1079500FF4EF6 /* Buffers */ = {
 			isa = PBXGroup;
 			children = (
-				54B7FA1411BE99E70076BC62 /* ByteString.h */,
+				54FA6B1611C275C600FF4EF6 /* ByteString.h */,
 				54FA668911C10D7800FF4EF6 /* ByteString.cpp */,
 				54FA661811C107BD00FF4EF6 /* ByteBuffer.h */,
 				54FA668F11C10DA600FF4EF6 /* ByteBuffer.cpp */,
@@ -293,7 +290,6 @@
 				54B7F77511BE5EF30076BC62 /* IOProcessor_Windows.cpp in Sources */,
 				54B7F77811BE5EF30076BC62 /* Socket_Windows.cpp in Sources */,
 				54B7F77911BE5EF30076BC62 /* Log.cpp in Sources */,
-				54B7F77A11BE5EF30076BC62 /* Platform.cpp in Sources */,
 				54B7F77C11BE5EF30076BC62 /* ThreadPool_Posix.cpp in Sources */,
 				54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */,
 				54B7F96111BE85950076BC62 /* Time.cpp in Sources */,

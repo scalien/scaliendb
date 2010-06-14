@@ -144,6 +144,11 @@ char ByteBuffer::CharAt(unsigned i) const
 	return *(buffer + i);
 }
 
+uint32_t ByteBuffer::Checksum()
+{
+	return checksum(buffer, length);
+}
+
 void ByteBuffer::Rewind()
 {
 	length = 0;
