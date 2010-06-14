@@ -1,5 +1,7 @@
 #include "ByteWrap.h"
 
+#include "System/Common.h"
+
 ByteWrap::ByteWrap()
 {
 	Init();

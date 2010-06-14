@@ -2,6 +2,7 @@
 #define STATICARRAY_H
 
 #include "ByteWrap.h"
+#include "System/Common.h"
 
 /*
  * StaticArray is a char[n] with pre-allocated space and a length

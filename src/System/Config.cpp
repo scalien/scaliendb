@@ -1,7 +1,7 @@
 #include "Config.h"
 #include "Common.h"
 #include "Log.h"
-
+#include <stdio.h>
 
 ConfigVar::ConfigVar(const char* name_)
 {

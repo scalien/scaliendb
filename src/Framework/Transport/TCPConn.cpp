@@ -1,4 +1,5 @@
 #include "TCPConn.h"
+#include "System/Events/EventLoop.h"
 
 TCPConn::TCPConn() :
  connectTimeout(&onConnectTimeout),
@@ -158,7 +159,7 @@ void TCPConn::Write(const char *data, int count, bool flush)
 
 		if (!buf ||
 			(tcpwrite.active && writeQueue.Size() == 1) || 
-			(buf->Length() > 0 && buf->Remaining() < count))
+			(buf->Length() > 0 && buf->Remaining() < (unsigned)count))
 		{
 			buf = new Buffer;
 			writeQueue.Enqueue(buf);

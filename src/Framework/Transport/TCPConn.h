@@ -1,10 +1,12 @@
 #ifndef TCPCONN_H
 #define TCPCONN_H
 
-#include "System/Events.h"
-#include "System/Buffers.h"
-#include "System/Containers.h"
+#include "System/Events/Callable.h"
+#include "System/Events/CdownTimer.h"
+#include "System/Buffers/DynArray.h"
+#include "System/Containers/Queue.h"
 #include "System/IO/Socket.h"
+#include "System/IO/IOOperation.h"
 
 #define TCP_CONNECT_TIMEOUT 3000
 #define TCP_BUFFER_SIZE		8196

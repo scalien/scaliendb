@@ -1,4 +1,5 @@
 #include "HeapArray.h"
+#include "System/Common.h"
 
 HeapArray::HeapArray()
 {

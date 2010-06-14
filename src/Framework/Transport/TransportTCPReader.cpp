@@ -1,5 +1,4 @@
 #include "TransportTCPReader.h"
-
 #include "System/Common.h"
 
 /* class TransportTCPConn */

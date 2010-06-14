@@ -1,4 +1,7 @@
 #include "ByteBuffer.h"
+#include <stdarg.h>
+
+#include "System/Common.h"
 
 ByteBuffer::ByteBuffer()
 {

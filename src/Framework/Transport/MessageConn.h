@@ -3,6 +3,7 @@
 
 #include "TCPConn.h"
 #include "System/Stopwatch.h"
+#include "System/Events/EventLoop.h"
 
 #define DEFAULT_MESSAGE_SIZE 8196
 

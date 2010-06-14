@@ -1,16 +1,12 @@
 #ifndef BYTESTRING_H
 #define BYTESTRING_H
 
-#include "Common.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdarg.h>
+#include "System/Platform.h"
 
 /* 
  * ByteString is like a char* for non-delimited strings
  * it has a 'buffer' member and a 'length' member
  */
- 
 
 class ByteString
 {

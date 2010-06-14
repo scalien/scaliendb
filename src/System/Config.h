@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "Buffers.h"
+#include "Buffers/DynArray.h"
 #include "Containers/Queue.h"
 
 

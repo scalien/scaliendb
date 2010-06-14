@@ -1,5 +1,7 @@
 #include "ByteString.h"
 
+#include "System/Common.h"
+
 ByteString::ByteString()
 {
 	Init();
