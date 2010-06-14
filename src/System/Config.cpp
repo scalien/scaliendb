@@ -1,107 +1,109 @@
 #include "Config.h"
-#include "Buffers.h"
+#include "Common.h"
 #include "Log.h"
-#include "Containers/Queue.h"
 
-class ConfigVar
+
+ConfigVar::ConfigVar(const char* name_)
 {
-public:
-	ConfigVar(const char* name_)
+	name.Append(name_, strlen(name_));
+	numelem = 0;
+	next = NULL;
+}
+
+
+void ConfigVar::ClearValue()
+{
+	numelem = 0;
+	value.Rewind();
+}
+
+
+void ConfigVar::Append(const char *value_)
+{
+	numelem++;
+	value.Append(value_, strlen(value_) + 1);
+}
+
+
+bool ConfigVar::NameEquals(const char *name_)
+{
+	if (name.Cmp(name_))
+		return true;
+	return false;
+}
+
+
+int ConfigVar::GetIntValue(int)
+{
+	int			ret;
+	unsigned	nread;
+	char		last;
+	
+	ret = (int) strntoint64(value.Buffer(), value.Length(), &nread);
+
+	// value is zero-terminated so we need the second char from the back
+	if (nread == value.Length() - 2)
 	{
-		name.Append(name_, strlen(name_));
-		numelem = 0;
-		next = NULL;
+		last = value.CharAt(value.Length() - 2);
+		if (last == 'K')
+			return ret * 1000;
+		if (last == 'M')
+			return ret * 1000 * 1000;
+		if (last == 'G')
+			return ret * 1000 * 1000 * 1000;
 	}
 
-	void Append(const char *value_)
-	{
-		numelem++;
-		value.Append(value_, strlen(value_) + 1);
-	}
+	return ret;
+}
 
-	bool NameEquals(const char *name_)
+
+const char*	ConfigVar::GetValue()
+{
+	return value.Buffer();
+}
+
+
+bool ConfigVar::GetBoolValue(bool defval)
+{
+	if (value.Cmp("yes") == 0 ||
+		value.Cmp("true") == 0 ||
+		value.Cmp("on") == 0)
 	{
-		if (name.Cmp(name_))
-			return true;
+		return true;
+	}
+	
+	if (value.Cmp("no") == 0 ||
+		value.Cmp("false") == 0 ||
+		value.Cmp("off") == 0)
+	{
 		return false;
 	}
-
-	int GetIntValue(int)
-	{
-		int			ret;
-		unsigned	nread;
-		char		last;
-		
-		ret = (int) strntoint64(value.Buffer(), value.Length(), &nread);
-
-		// value is zero-terminated so we need the second char from the back
-		if (nread == value.Length() - 2)
-		{
-			last = value.CharAt(value.Length() - 2);
-			if (last == 'K')
-				return ret * 1000;
-			if (last == 'M')
-				return ret * 1000 * 1000;
-			if (last == 'G')
-				return ret * 1000 * 1000 * 1000;
-		}
-
-		return ret;
-	}
-
-	const char *GetValue()
-	{
-		return value.Buffer();
-	}
 	
-	bool GetBoolValue(bool defval)
-	{
-		if (value.Cmp("yes") == 0 ||
-			value.Cmp("true") == 0 ||
-			value.Cmp("on") == 0)
-		{
-			return true;
-		}
-		
-		if (value.Cmp("no") == 0 ||
-			value.Cmp("false") == 0 ||
-			value.Cmp("off") == 0)
-		{
-			return false;
-		}
-		
+	return defval;
+}
+
+
+int ConfigVar::GetListNum()
+{
+	return numelem;
+}
+
+
+const char* ConfigVar::GetListValue(int num, const char* defval)
+{
+	const char* p;
+	
+	if (num >= numelem)
 		return defval;
+	
+	p = value.Buffer();
+	for (int i = 0; i < num; i++)
+	{
+		p += strlen(p) + 1;
 	}
 	
-	int GetListNum()
-	{
-		return numelem;
-	}
-	
-	const char* GetListValue(int num, const char* defval)
-	{
-		const char* p;
-		
-		if (num >= numelem)
-			return defval;
-		
-		p = value.Buffer();
-		for (int i = 0; i < num; i++)
-		{
-			p += strlen(p) + 1;
-		}
-		
-		return p;
-	}
-
-	DynArray<256>	name;
-	int				numelem;
-	DynArray<256>	value;
-	ConfigVar*		next;
-};
-
-
-Queue<ConfigVar, &ConfigVar::next> vars;
+	return p;
+}
 
 
 char* ParseToken(char* start, char* token, size_t)
@@ -164,7 +166,7 @@ skipwhite:
 	return p;
 }
 
-bool Config::Init(const char* filename)
+bool ConfigFile::Init(const char* filename_)
 {
 	FILE*		fp;
 	char		buffer[1024];
@@ -174,6 +176,7 @@ bool Config::Init(const char* filename)
 	int			nline;
 	ConfigVar*	var;
 	
+	filename = filename_;
 	fp = fopen(filename, "r");
 	if (!fp)
 		return false;
@@ -220,7 +223,32 @@ bool Config::Init(const char* filename)
 	return true;
 }
 
-void Config::Shutdown()
+bool ConfigFile::Save()
+{
+	FILE*		fp;
+	ConfigVar*	var;
+	
+	
+	fp = fopen(filename, "w");
+	if (!fp)
+		return false;
+	
+	fprintf(fp, "# Automatically generated configuration file. DO NOT EDIT!\n\n");
+	
+	for (var = vars.Head(); var != NULL; var = var->next)
+	{
+		fprintf(fp, "%s = \"%s", var->name.Buffer(), var->GetListValue(0, ""));
+		for (int i = 1; i < var->numelem; i++)
+			fprintf(fp, "\",\"%s", var->GetListValue(i, ""));
+
+		fprintf(fp, "\"\n");
+	}
+	
+	fclose(fp);
+	return true;
+}
+
+void ConfigFile::Shutdown()
 {
 	ConfigVar*	var;
 
@@ -228,7 +256,7 @@ void Config::Shutdown()
 		delete var;
 }
 
-static ConfigVar* GetVar(const char* name)
+ConfigVar* ConfigFile::GetVar(const char* name)
 {
 	ConfigVar* var;
 	
@@ -244,7 +272,7 @@ static ConfigVar* GetVar(const char* name)
 	return NULL;
 }
 
-int Config::GetIntValue(const char* name, int defval)
+int ConfigFile::GetIntValue(const char* name, int defval)
 {
 	ConfigVar* var;
 	
@@ -255,7 +283,7 @@ int Config::GetIntValue(const char* name, int defval)
 	return var->GetIntValue(defval);
 }
 
-const char* Config::GetValue(const char* name, const char* defval)
+const char* ConfigFile::GetValue(const char* name, const char* defval)
 {
 	ConfigVar* var;
 	
@@ -266,7 +294,7 @@ const char* Config::GetValue(const char* name, const char* defval)
 	return var->GetValue();
 }
 
-bool Config::GetBoolValue(const char* name, bool defval)
+bool ConfigFile::GetBoolValue(const char* name, bool defval)
 {
 	ConfigVar* var;
 	
@@ -277,7 +305,7 @@ bool Config::GetBoolValue(const char* name, bool defval)
 	return var->GetBoolValue(defval);
 }
 
-int Config::GetListNum(const char* name)
+int ConfigFile::GetListNum(const char* name)
 {
 	ConfigVar* var;
 	
@@ -288,7 +316,7 @@ int Config::GetListNum(const char* name)
 	return var->GetListNum();
 }
 
-const char* Config::GetListValue(const char* name, int num, const char* defval)
+const char* ConfigFile::GetListValue(const char* name, int num, const char* defval)
 {
 	ConfigVar* var;
 	
@@ -297,5 +325,51 @@ const char* Config::GetListValue(const char* name, int num, const char* defval)
 		return defval;
 	
 	return var->GetListValue(num, defval);
+}
+
+void ConfigFile::SetIntValue(const char* name, int value)
+{
+	char		buf[CS_INT_SIZE(value)];
+	
+	snprintf(buf, sizeof(buf), "%d", value);
+	SetValue(name, buf);
+}
+
+void ConfigFile::SetValue(const char* name, const char *value)
+{
+	ConfigVar*	var;
+
+	var = GetVar(name);
+	if (!var)
+	{
+		var = new ConfigVar(name);
+		vars.Enqueue(var);
+	}
+	else
+		var->ClearValue();
+
+	var->Append(value);
+}
+
+void ConfigFile::SetBoolValue(const char* name, bool value)
+{
+	char	buf[10];
+	
+	snprintf(buf, sizeof(buf), "%s", value ? "true" : "false");
+	SetValue(name, buf);
+}
+
+void ConfigFile::AppendListValue(const char* name, const char* value)
+{
+	ConfigVar*	var;
+
+	var = GetVar(name);
+	if (!var)
+	{
+		var = new ConfigVar(name);
+		vars.Enqueue(var);
+	}
+
+	var->Append(value);
 }
 

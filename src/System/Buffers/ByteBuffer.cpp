@@ -17,12 +17,12 @@ bool ByteBuffer::Cmp(ByteString& a, ByteString& b)
 
 bool ByteBuffer::Cmp(const char* buffer_, unsigned length_)
 {
-	return MEMCMP(buffer, length, buffer_, length_);
+	return MEMCMP(Buffer(), Length(), buffer_, length_);
 }
 
 bool ByteBuffer::Cmp(const char* str)
 {
-	return MEMCMP(buffer, length, str, strlen(str));
+	return MEMCMP(Buffer(), Length(), str, strlen(str));
 }
 
 void ByteBuffer::Lengthen(unsigned k)
@@ -84,6 +84,7 @@ void ByteBuffer::Append(const char* buffer_, unsigned length_)
 	if (length_ > Remaining())
 		Allocate(length_);
 	memcpy(Position(), buffer_, length_);
+	Lengthen(length_);
 }
 
 void ByteBuffer::Append(const char* str)
