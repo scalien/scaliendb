@@ -21,6 +21,7 @@ public:
 	bool				Cmp(const char* str);
 
 	void				Lengthen(unsigned k);
+	void				Shorten(unsigned k);
 	
 	virtual void		Allocate(unsigned size_, bool keepold = true) = 0;
 
@@ -47,7 +48,7 @@ public:
 	uint32_t			Checksum();
 	
 	virtual void		Rewind();
-	
+		
 protected:
 	char*				buffer;
 	unsigned			size;

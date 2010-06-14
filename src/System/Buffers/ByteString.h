@@ -42,7 +42,7 @@ public:
 
 	void			SetBuffer(char* buffer_);
 	void			SetLength(unsigned length_);
-
+	
 protected:
 	char*			buffer;
 	unsigned		length;

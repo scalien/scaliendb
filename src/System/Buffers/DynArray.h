@@ -29,6 +29,8 @@ public:
 	virtual void		Rewind();
 	virtual void		SetLength(unsigned length_);
 	
+	DynArray*			next;
+	
 private:
 	StaticArray<n>		sa;
 	HeapArray			ha;

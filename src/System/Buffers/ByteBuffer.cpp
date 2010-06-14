@@ -30,6 +30,11 @@ void ByteBuffer::Lengthen(unsigned k)
 	SetLength(Length() + k);
 }
 
+void ByteBuffer::Shorten(unsigned k)
+{
+	SetLength(Length() - k);
+}
+
 unsigned ByteBuffer::Writef(const char* fmt, ...)
 {
 	va_list ap;
@@ -100,7 +105,7 @@ void ByteBuffer::Append(ByteString bs)
 void ByteBuffer::SetLength(unsigned length_)
 {
 	length = length_;
-	if (length > size)
+	if (length < 0 || length > size)
 		ASSERT_FAIL();
 }
 

@@ -12,56 +12,48 @@
 
 /* all the cursor-type members of IOOperations are absolute cursors */
 
-#define	TCP_READ	'a'
-#define	TCP_WRITE	'b'
-#define	UDP_READ	'x'
-#define	UDP_WRITE	'y'
-
 #define IO_READ_ANY -1
 
-class IOOperation
+struct IOOperation
 {
-public:
+
 	IOOperation()
 	{
 		fd = INVALID_FD;
 		active = false;
 		pending = false;
 		offset = 0;
-		next = NULL;
 		onComplete = NULL; 
 		onClose = NULL; 
 	}
 
-public:
+	enum Type		{ UDP_WRITE, UDP_READ, TCP_WRITE, TCP_READ };
+	
 	ByteWrap		data;
 	
-	char			type;
+	Type			type;
 	FD				fd;
 	int				offset;
 	
 	bool			active;
 	bool			pending;
-	IOOperation*	next;
 
 	Callable*		onComplete;
 	Callable*		onClose;
 };
 
-class UDPWrite : public IOOperation
+struct UDPWrite : public IOOperation
 {
-public:
 	UDPWrite()
 	: IOOperation()
 	{
 		type = UDP_WRITE;
 	}
 
-public:
 	Endpoint		endpoint;
 };
 
-class UDPRead : public IOOperation
+struct UDPRead : public IOOperation
 {
 public:
 	UDPRead()
@@ -74,9 +66,8 @@ public:
 	Endpoint		endpoint;
 };
 
-class TCPWrite : public IOOperation
+struct TCPWrite : public IOOperation
 {
-public:
 	TCPWrite()
 	: IOOperation()
 	{
@@ -84,14 +75,12 @@ public:
 		transferred = 0;
 	}
 
-public:
 	unsigned	transferred;		/*	the IO subsystem has given the first
 										'transferred' bytes to the kernel */
 };
 
-class TCPRead : public IOOperation
+struct TCPRead : public IOOperation
 {
-public:
 	TCPRead()
 	: IOOperation()
 	{
@@ -100,7 +89,6 @@ public:
 		requested = 0;
 	}
 
-public:
 	bool			listening;		/*	it's a listener */
 	int				requested;		/*	application is requesting the buffer
 										to be filled exactly with a total of

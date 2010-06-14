@@ -139,7 +139,8 @@ bool IOProcessor::Add(IOOperation* ioop)
 	if (ioop->pending)
 		return true;
 	
-	if (ioop->type == TCP_READ || ioop->type == UDP_READ)
+	if (ioop->type == IOOperation::TCP_READ
+	 || ioop->type == IOOperation::UDP_READ)
 		filter = EVFILT_READ;
 	else
 		filter = EVFILT_WRITE;
@@ -197,7 +198,8 @@ bool IOProcessor::Remove(IOOperation* ioop)
 		return false;
 	}
 
-	if (ioop->type == TCP_READ || ioop->type == UDP_READ)
+	if (ioop->type == IOOperation::TCP_READ
+	 || ioop->type == IOOperation::UDP_READ)
 		filter = EVFILT_READ;
 	else
 		filter = EVFILT_WRITE;
@@ -278,13 +280,17 @@ bool IOProcessor::Poll(int sleep)
 			continue; // ioop was removed, just skip it			
 		ioop->active = false;
 		
-		if (ioop->type == TCP_READ && (events[i].filter & EVFILT_READ))
+		if (ioop->type == IOOperation::TCP_READ
+		 && (events[i].filter & EVFILT_READ))
 			ProcessTCPRead(&events[i]);
-		else if (ioop->type == TCP_WRITE && (events[i].filter & EVFILT_WRITE))
+		else if (ioop->type == IOOperation::TCP_WRITE
+		 && (events[i].filter & EVFILT_WRITE))
 			ProcessTCPWrite(&events[i]);
-		else if (ioop->type == UDP_READ && (events[i].filter & EVFILT_READ))
+		else if (ioop->type == IOOperation::UDP_READ
+		 && (events[i].filter & EVFILT_READ))
 			ProcessUDPRead(&events[i]);
-		else if (ioop->type == UDP_WRITE && (events[i].filter & EVFILT_WRITE))
+		else if (ioop->type == IOOperation::UDP_WRITE
+		 && (events[i].filter & EVFILT_WRITE))
 			ProcessUDPWrite(&events[i]);
 	}
 	

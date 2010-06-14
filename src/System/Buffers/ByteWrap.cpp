@@ -27,6 +27,11 @@ void ByteWrap::Wrap(char* buffer_, unsigned size_)
 	length = 0;
 }
 
+void ByteWrap::Wrap(ByteBuffer& buffer)
+{
+	Wrap(buffer.Buffer(), buffer.Size());
+}
+
 void ByteWrap::Allocate(unsigned /*size_*/, bool /*keepold = true*/)
 {
 	ASSERT_FAIL();
