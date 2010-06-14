@@ -5,6 +5,6 @@
 
 uint64_t	Now();
 uint64_t	NowMicro();
-void		Sleep(unsigned long msec);
+void		MSleep(unsigned long msec);
 
 #endif

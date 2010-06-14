@@ -51,9 +51,14 @@ uint64_t NowMicro()
 	return now;
 }
 
-#ifndef _WIN32 // Windows has this
-void Sleep(unsigned long msec)
+#ifndef _WIN32
+void MSleep(unsigned long msec)
 {
 	usleep(msec * 1000);
+}
+#else
+void MSleep(unsigned long msec)
+{
+	Sleep(msec);
 }
 #endif
