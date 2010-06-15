@@ -1,8 +1,39 @@
 #include "System/Buffers/DynArray.h"
+#include "System/Events/Callable.h"
 #include <stdio.h>
+
+class Test
+{
+public:
+	void Callback()
+	{
+		printf("Test::Callback\n");
+	}
+};
+
+void CFunction()
+{
+	printf("CFunction\n");
+}
+
+int CallbackTest()
+{
+	Callable callback;
+	
+	Test test;
+	callback = MFunc<Test, &Test::Callback>(&test);
+	callback.Execute();
+
+	callback = CFunc(CFunction);
+	callback.Execute();
+	
+	return 0;
+}
 
 int main(void)
 {
+	return CallbackTest();
+	
 	StaticArray<>	s;
 	
 	s.Writef("hello world");

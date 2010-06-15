@@ -4,8 +4,8 @@
 #include "ByteString.h"
 
 /*
- * ByteBuffer is an abstract base class (although it could be instantiated)
- * for byte storage objects which provide read/write access to their buffer
+ * ByteBuffer is an abstract base class for byte storage objects which
+ * provide read/write access to their buffer
  */
 
 class ByteBuffer
