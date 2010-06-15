@@ -3,15 +3,9 @@
 
 TCPConn::TCPConn()
 {
-//	 connectTimeout(&onConnectTimeout),
-//	 onRead(this, &TCPConn::OnRead),
-//	 onWrite(this, &TCPConn::OnWrite),
-//	 onClose(this, &TCPConn::OnClose),
-//	 onConnect(this, &TCPConn::OnConnect),
-//	 onConnectTimeout(this, &TCPConn::OnConnectTimeout)
-
 	state = DISCONNECTED;
 	next = NULL;
+	connectTimeout.SetCallable(MFUNC(TCPConn, OnConnectTimeout));
 }
 
 TCPConn::~TCPConn()

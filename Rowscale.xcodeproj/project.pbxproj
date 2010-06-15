@@ -56,7 +56,6 @@
 		541D7E7811C64EB600A6CB16 /* TransportTCPWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransportTCPWriter.h; sourceTree = "<group>"; };
 		541D7E8D11C650FA00A6CB16 /* MessageConn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConn.h; sourceTree = "<group>"; };
 		541D805711C6806B00A6CB16 /* TCPConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPConn.cpp; sourceTree = "<group>"; };
-		541D826111C7A11400A6CB16 /* Old_Callable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Old_Callable.h; sourceTree = "<group>"; };
 		541D826411C7A17D00A6CB16 /* Callable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Callable.h; sourceTree = "<group>"; };
 		54B7F74411BE5EF30076BC62 /* Common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Common.cpp; sourceTree = "<group>"; };
 		54B7F74511BE5EF30076BC62 /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
@@ -217,7 +216,6 @@
 		54B7F74D11BE5EF30076BC62 /* Events */ = {
 			isa = PBXGroup;
 			children = (
-				541D826111C7A11400A6CB16 /* Old_Callable.h */,
 				541D826411C7A17D00A6CB16 /* Callable.h */,
 				54B7F75211BE5EF30076BC62 /* Scheduler.h */,
 				54B7F75111BE5EF30076BC62 /* Scheduler.cpp */,
