@@ -3,6 +3,11 @@
 
 /* class TransportTCPConn */
 
+void TransportTCPConn::SetServer(TransportTCPReader* reader_)
+{
+	reader = reader_;
+}
+	
 void TransportTCPConn::OnMessageRead(const ByteString& message)
 {
 	reader->SetMessage(message);
@@ -26,12 +31,11 @@ void TransportTCPConn::OnClose()
 
 bool TransportTCPReader::Init(int port)
 {
-	onRead = NULL;
 	running = true;
 	return TCPServer<TransportTCPReader, TransportTCPConn>::Init(port);
 }
 
-void TransportTCPReader::SetOnRead(Callable* onRead_)
+void TransportTCPReader::SetOnRead(Callable& onRead_)
 {
 	onRead = onRead_;
 }
@@ -83,33 +87,9 @@ void TransportTCPReader::Continue()
 	}
 }
 
-void TransportTCPReader::OnConnect()
+void TransportTCPReader::InitConn(TransportTCPConn* conn)
 {
-	Log_Trace();
-	
-	TransportTCPConn* conn = new TransportTCPConn(this);
-	
-	if (listener.Accept(&(conn->GetSocket())))
-	{
-		Endpoint endpoint;
-		conn->GetSocket().GetEndpoint(endpoint);
-		
-		Log_Trace("%s connected, fd = %d",
-				  endpoint.ToString(), conn->GetSocket().fd);
-		
-		conn->GetSocket().SetNonblocking();
-		conn->Init(true);
-		if (!running)
-			conn->Stop();
-		conns.Append(conn);
-	}
-	else
-	{
-		Log_Trace("Accept() failed");
-		delete conn;
-	}
-	
-	IOProcessor::Add(&tcpread);
+	conn->SetServer(this);
 }
 
 void TransportTCPReader::OnConnectionClose(TransportTCPConn* conn)

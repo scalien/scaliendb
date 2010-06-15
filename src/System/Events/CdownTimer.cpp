@@ -1,17 +1,17 @@
 #include "CdownTimer.h"
 
-CdownTimer::CdownTimer(Callable* callable_)
-: Timer(callable_)
+CdownTimer::CdownTimer()
+: Timer()
 {
 	delay = 0;
 }
 
-CdownTimer::CdownTimer(uint64_t delay_, Callable* callable_)
-: Timer(callable_)
+void CdownTimer::SetCallable(const Callable& callable_)
 {
-	delay = delay_;
+	Timer::SetCallable(callable_);
+	delay = 0;
 }
-	
+
 void CdownTimer::SetDelay(uint64_t delay_)
 {
 	delay = delay_;

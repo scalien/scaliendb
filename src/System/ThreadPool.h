@@ -15,14 +15,14 @@ public:
 	virtual void	Start() = 0;
 	virtual void	Stop() = 0;
 
-	virtual void	Execute(Callable *callable) = 0;
+	virtual void	Execute(const Callable &callable) = 0;
 	
 	int	NumPending()	{ return numPending; }
 	int	NumActive()		{ return numActive; }
 	int	NumTotal()		{ return numPending + numActive; /* atomicity */ }
 	
 protected:
-	List<Callable*>		callables;
+	List<Callable>		callables;
 	int					numPending;
 	int					numActive;
 	int					numThread;

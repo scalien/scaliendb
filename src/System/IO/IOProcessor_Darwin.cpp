@@ -317,7 +317,7 @@ void ProcessAsyncOp()
 {
 	Log_Trace();
 	
-	static Callable	*callables[256];
+	static Callable	callables[256];
 	int nread;
 	int count;
 	int i;

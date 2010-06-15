@@ -11,6 +11,14 @@
 #define TCP_CONNECT_TIMEOUT 3000
 #define TCP_BUFFER_SIZE		8196
 
+/*
+ * TCPConn is a class for managing a TCP connection
+ * it can Connect(), AsyncRead() or Write()
+ * the Write() function uses a write queue internally
+ * you must override OnRead() and OnClose() and
+ * optionally override OnWrite(), OnConnect(), OnConnectTimeout()
+ */
+
 class TCPConn
 {
 public:
@@ -19,8 +27,8 @@ public:
 	TCPConn();
 	virtual ~TCPConn();
 	
-	void			Init(bool startRead = true);
-	void			Connect(Endpoint &endpoint_, unsigned timeout);
+	void			InitConnected(bool startRead = true);
+	void			Connect(Endpoint &endpoint, unsigned timeout);
 	void			Close();
 
 	Socket&			GetSocket() { return socket; }
@@ -29,14 +37,13 @@ public:
 	unsigned		BytesQueued();
 
 	void			AsyncRead(bool start = true);
-	void			Write(const char* data, int count, bool flush = true);
+	void			Write(const char* buffer, unsigned length, bool flush = true);
 	
-	TCPConn			*next;
+	TCPConn*		next;
 
 protected:
 	typedef DynArray<TCP_BUFFER_SIZE> Buffer;
 	typedef Queue<Buffer, &Buffer::next> BufferQueue;
-
 	
 	State			state;
 	Socket			socket;
@@ -45,19 +52,14 @@ protected:
 	Buffer			readBuffer;
 	BufferQueue		writeQueue;
 	CdownTimer		connectTimeout;
-	
-	MFunc<TCPConn>	onRead;
-	MFunc<TCPConn>	onWrite;
-	MFunc<TCPConn>	onClose;
-	MFunc<TCPConn>	onConnect;
-	MFunc<TCPConn>	onConnectTimeout;
-	
+		
 	virtual void	OnRead() = 0;
 	virtual void	OnWrite();
 	virtual void	OnClose() = 0;
 	virtual void	OnConnect();
 	virtual void	OnConnectTimeout();
 	
+	void			Init(bool startRead = true);
 	void			Append(const char* buffer, unsigned length);
 	void			WritePending();
 };

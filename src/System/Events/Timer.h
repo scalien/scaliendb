@@ -13,9 +13,10 @@ class Timer
 friend class Scheduler;
 
 public:
-	Timer(Callable* callable_);
+	Timer();
 	virtual ~Timer() {}
 		
+	void			SetCallable(const Callable& callable_);
 	void			Set(uint64_t when_);
 
 	uint64_t		When() const;	
@@ -28,7 +29,7 @@ public:
 protected:
     bool			active;
 	uint64_t		when;
-    Callable*		callable;
+    Callable		callable;
 };
 
 /*****************************************************************************/

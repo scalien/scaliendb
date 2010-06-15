@@ -1,76 +1,57 @@
 #ifndef CALLABLE_H
 #define CALLABLE_H
 
-/*
- * Callable is a function that you can Call() on
- */
- 
+#include "System/Common.h"
+#include <stdlib.h>
+
+#define MFUNC(T, Func) MFunc<T, &T::Func>(this)
+
 class Callable
 {
 public:
-	virtual ~Callable() {}
-    virtual void Execute() = 0;
-};
+	Callable() { func = NULL; arg = NULL; }
+	
+	void Execute() const { if (!func) ASSERT_FAIL(); func(arg); }
 
-/*
- * MFunc is for creating Callables from class member functions
- * like MFunc<C>(&obj, &obj->func)
- */
- 
-template<class T>
-class MFunc : public Callable
-{
-public:
-	typedef void (T::*Callback)();
-		
-	MFunc(T* object_, Callback callback_)
-	{
-		object = object_;
-		callback = callback_;
-	}
-	
-	void Execute()
-	{
-		(object->*callback)();
-	}
-	
+protected:
+	Callable(void (*func)(void*), void* arg) : func(func), arg(arg) {}
+
 private:
-	T*			object;
-	Callback	callback;
+	void	(*func)(void*);
+	void	*arg;
 };
 
-/*
- * CFunc is for creating Callables from plain old C functions
- */
 
 class CFunc : public Callable
 {
 public:
-	typedef void (*Callback)();
-		
-	CFunc(Callback callback_)
-	{
-		callback = callback_;
-	}
-	
-	CFunc()
-	{
-		callback = 0;
-	}
-	
-	void Execute()
-	{
-		if (callback)
-			(*callback)();
-	}
+	CFunc(void (*func)(void)) : Callable(Thunk, (void*) func) {}
+
 private:
-	Callback	callback;
+	static void Thunk(void* arg)
+	{
+		void (*cfunc)(void) = (void (*)(void)) arg;
+		cfunc();
+	}
 };
 
-inline void Call(Callable* callable)
+template<class Type, void (Type::*Member)()>
+class MFunc : public Callable
 {
-	if (callable)
-		callable->Execute();
+public:
+	MFunc(Type* obj) : Callable(Thunk, obj) {}
+
+private:
+	static void Thunk(void* arg)
+	{
+		Type* obj = (Type*) arg;
+		(obj->*Member)();
+	}
+};
+
+inline void Call(const Callable& callable)
+{
+	callable.Execute();
 }
 
 #endif

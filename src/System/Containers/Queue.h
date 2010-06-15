@@ -19,12 +19,13 @@ public:
 	
 	T*		Head() const;	
 	T*		Tail() const;
-	int		Size() const;
-
+	int		Length() const;
+	
+	T*		Next(T* t) const;
 private:
 	T*		head;
 	T*		tail;
-	int		size;
+	int		length;
 };
 
 /****************************************************************************/
@@ -32,7 +33,7 @@ private:
 template<class T, T* T::*pnext>
 Queue<T, pnext>::Queue()
 {
-	size = 0;
+	length = 0;
 	head = 0;
 	tail = 0;
 	Clear();
@@ -50,7 +51,7 @@ void Queue<T, pnext>::Enqueue(T* elem)
 	else
 		head = elem;
 	tail = elem;
-	size++;
+	length++;
 }
 
 template<class T, T* T::*pnext>
@@ -64,7 +65,7 @@ T* Queue<T, pnext>::Dequeue()
 		if (tail == elem)
 			tail = 0;
 		elem->*pnext = 0;
-		size--;
+		length--;
 	}
 	return elem;
 }
@@ -93,9 +94,15 @@ T* Queue<T, pnext>::Tail() const
 }
 
 template<class T, T* T::*pnext>
-int Queue<T, pnext>::Size() const
+T* Queue<T, pnext>::Next(T* t) const
 {
-	return size;
+	return t->next;
+}
+
+template<class T, T* T::*pnext>
+int Queue<T, pnext>::Length() const
+{
+	return length;
 }
 
 #endif

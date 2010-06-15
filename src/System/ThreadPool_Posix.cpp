@@ -17,7 +17,7 @@ public:
 	virtual void	Start();
 	virtual void	Stop();
 
-	virtual void	Execute(Callable *callable);
+	virtual void	Execute(const Callable& callable);
 
 protected:
 	pthread_t*		threads;
@@ -48,8 +48,8 @@ void* ThreadPool_Pthread::thread_function(void* param)
 
 void ThreadPool_Pthread::ThreadFunction()
 {	
-	Callable* callable;
-	Callable** it;
+	Callable callable;
+	Callable* it;
 	
 	while (running)
 	{
@@ -137,11 +137,11 @@ void ThreadPool_Pthread::Stop()
 	numActive = 0;
 }
 
-void ThreadPool_Pthread::Execute(Callable* callable)
+void ThreadPool_Pthread::Execute(const Callable& callable)
 {
 	pthread_mutex_lock(&mutex);
 	
-	callables.Append(callable);
+	callables.Append((Callable&)callable);
 	numPending++;
 	
 	pthread_cond_signal(&cond);

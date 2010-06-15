@@ -10,11 +10,10 @@
 class CdownTimer : public Timer
 {
 public:
-	CdownTimer(Callable* callable_);
-	CdownTimer(uint64_t delay_, Callable* callable_);
-	
+	CdownTimer();	
 	virtual	~CdownTimer() {};
 		
+	void			SetCallable(const Callable& callable_);
 	void			SetDelay(uint64_t delay_);
 	uint64_t		GetDelay() const;
 

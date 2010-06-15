@@ -1,10 +1,14 @@
 #include "Timer.h"
 
-Timer::Timer(Callable* callable_)
+Timer::Timer()
 {
 	when = 0;
-	callable = callable_;
 	active = false;
+}
+
+void Timer::SetCallable(const Callable& callable_)
+{
+	callable = callable_;
 }
 	
 void Timer::Set(uint64_t when_)

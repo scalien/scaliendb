@@ -1,14 +1,15 @@
 #include "TCPConn.h"
 #include "System/Events/EventLoop.h"
 
-TCPConn::TCPConn() :
- connectTimeout(&onConnectTimeout),
- onRead(this, &TCPConn::OnRead),
- onWrite(this, &TCPConn::OnWrite),
- onClose(this, &TCPConn::OnClose),
- onConnect(this, &TCPConn::OnConnect),
- onConnectTimeout(this, &TCPConn::OnConnectTimeout)
+TCPConn::TCPConn()
 {
+//	 connectTimeout(&onConnectTimeout),
+//	 onRead(this, &TCPConn::OnRead),
+//	 onWrite(this, &TCPConn::OnWrite),
+//	 onClose(this, &TCPConn::OnClose),
+//	 onConnect(this, &TCPConn::OnConnect),
+//	 onConnectTimeout(this, &TCPConn::OnConnectTimeout)
+
 	state = DISCONNECTED;
 	next = NULL;
 }
@@ -23,23 +24,24 @@ TCPConn::~TCPConn()
 	Close();
 }
 
-
 void TCPConn::Init(bool startRead)
 {
 	Log_Trace();
 	
-	state = CONNECTED;
-	
-	readBuffer.Rewind();
-
 	assert(tcpread.active == false);
 	assert(tcpwrite.active == false);
 
-	tcpwrite.fd = socket.fd;
-	tcpwrite.onComplete = &onWrite;
-	tcpwrite.onClose = &onClose;
+	readBuffer.Rewind();
+	
+	tcpwrite.Set(socket.fd, MFUNC(TCPConn, OnRead), MFUNC(TCPConn, OnClose));
 
 	AsyncRead(startRead);
+}
+
+void TCPConn::InitConnected(bool startRead)
+{
+	Init(startRead);
+	state = CONNECTED;
 }
 
 unsigned TCPConn::BytesQueued()
@@ -48,41 +50,37 @@ unsigned TCPConn::BytesQueued()
 	Buffer* buf;
 	
 	bytes = 0;
-	
-	for (buf = writeQueue.Head(); buf != NULL; buf = buf->next)
+
+	for (buf = writeQueue.Head(); buf != NULL; buf = writeQueue.Next(buf))
 		bytes += buf->Length();
-	
+
 	return bytes;
 }
 
-
-void TCPConn::Connect(Endpoint &endpoint_, unsigned timeout)
+void TCPConn::Connect(Endpoint &endpoint, unsigned timeout)
 {
-	Log_Trace("endpoint_ = %s", endpoint_.ToString());
+	Log_Trace("endpoint_ = %s", endpoint.ToString());
 
 	bool ret;
 
 	if (state != DISCONNECTED)
 		return;
-		
+
 	Init(false);
 	state = CONNECTING;
 
 	socket.Create(Socket::TCP);
 	socket.SetNonblocking();
-	ret = socket.Connect(endpoint_);
-	
-	tcpwrite.fd = socket.fd;
-	tcpwrite.onComplete = &onConnect;
-	// zero indicates for IOProcessor that we are waiting for connect event
-	tcpwrite.data.Rewind();
-	
+	ret = socket.Connect(endpoint);
+
+	tcpwrite.Set(socket.fd, MFUNC(TCPConn, OnConnect), MFUNC(TCPConn, OnClose));	
+	tcpwrite.AsyncConnect();
 	IOProcessor::Add(&tcpwrite);
 
 	if (timeout > 0)
 	{
 		Log_Trace("starting timeout with %d", timeout);
-		
+
 		connectTimeout.SetDelay(timeout);
 		EventLoop::Reset(&connectTimeout);
 	}
@@ -99,7 +97,7 @@ void TCPConn::OnWrite()
 	buf->Rewind();
 	tcpwrite.data.Rewind();
 	
-	if (writeQueue.Size() == 0)
+	if (writeQueue.Length() == 0)
 	{
 		Log_Trace("not posting write");
 		writeQueue.Enqueue(buf);
@@ -118,7 +116,7 @@ void TCPConn::OnConnect()
 	socket.SetNodelay();
 	
 	state = CONNECTED;
-	tcpwrite.onComplete = &onWrite;
+	tcpwrite.onComplete = MFUNC(TCPConn, OnWrite);
 	
 	EventLoop::Remove(&connectTimeout);
 	WritePending();
@@ -133,40 +131,30 @@ void TCPConn::AsyncRead(bool start)
 {
 	Log_Trace();
 	
-	tcpread.fd = socket.fd;
-	tcpread.data.Wrap(readBuffer);
-	tcpread.onComplete = &onRead;
-	tcpread.onClose = &onClose;
-	tcpread.requested = IO_READ_ANY;
+	tcpread.Set(socket.fd, MFUNC(TCPConn, OnRead), MFUNC(TCPConn, OnClose));
+	tcpread.Wrap(readBuffer);
 	if (start)
 		IOProcessor::Add(&tcpread);
 	else
 		Log_Trace("not posting read");
 }
 
-void TCPConn::Write(const char *data, int count, bool flush)
+void TCPConn::Write(const char* buffer, unsigned length, bool flush)
 {
-	//Log_Trace();
-	
-	if (state == DISCONNECTED)
-		return;
-	
 	Buffer* buf;
 
-	if (data && count > 0)
+	if (state == DISCONNECTED || !buffer || length == 0)
+		return;
+		
+	buf = writeQueue.Tail();
+	if (!buf ||
+	 (tcpwrite.active && writeQueue.Length() == 1) || 
+	 (buf->Length() > 0 && buf->Remaining() < length))
 	{
-		buf = writeQueue.Tail();
-
-		if (!buf ||
-			(tcpwrite.active && writeQueue.Size() == 1) || 
-			(buf->Length() > 0 && buf->Remaining() < (unsigned)count))
-		{
-			buf = new Buffer;
-			writeQueue.Enqueue(buf);
-		}
-
-		buf->Append(data, count);
+		buf = new Buffer;
+		writeQueue.Enqueue(buf);
 	}
+	buf->Append(buffer, length);
 
 	if (flush)
 		WritePending();
@@ -174,26 +162,18 @@ void TCPConn::Write(const char *data, int count, bool flush)
 
 void TCPConn::WritePending()
 {
-//	Log_Trace();
-	
-	if (state == DISCONNECTED)
+	Buffer* buf;
+
+	if (state == DISCONNECTED || tcpwrite.active)
 		return;
 
-	
-	Buffer* buf;
-	
-	if (tcpwrite.active)
-		return;
-	
 	buf = writeQueue.Head();
 	
-	if (buf && buf->Length() > 0)
-	{
-		tcpwrite.data.Wrap(*buf);
-		tcpwrite.transferred = 0;
-		
-		IOProcessor::Add(&tcpwrite);
-	}	
+	if (!buf || buf->Length() == 0)
+		return;
+
+	tcpwrite.Wrap(*buf);		
+	IOProcessor::Add(&tcpwrite);
 }
 
 void TCPConn::Close()
@@ -202,11 +182,8 @@ void TCPConn::Close()
 
 	EventLoop::Remove(&connectTimeout);
 
-	if (tcpread.active)
-		IOProcessor::Remove(&tcpread);
-
-	if (tcpwrite.active)
-		IOProcessor::Remove(&tcpwrite);
+	IOProcessor::Remove(&tcpread);
+	IOProcessor::Remove(&tcpwrite);
 
 	socket.Close();
 	state = DISCONNECTED;
@@ -214,10 +191,10 @@ void TCPConn::Close()
 	// Discard unnecessary buffers if there are any.
 	// Keep the last one, so that when the connection
 	// is reused it isn't reallocated.
-	while (writeQueue.Size() > 0)
+	while (writeQueue.Length() > 0)
 	{
 		Buffer* buf = writeQueue.Dequeue();
-		if (writeQueue.Size() == 0)
+		if (writeQueue.Length() == 0)
 		{
 			buf->Rewind();
 			writeQueue.Enqueue(buf);

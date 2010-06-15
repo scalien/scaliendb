@@ -23,8 +23,13 @@ struct IOOperation
 		active = false;
 		pending = false;
 		offset = 0;
-		onComplete = NULL; 
-		onClose = NULL; 
+	}
+	
+	void Set(FD fd_, const Callable& onComplete_, const Callable& onClose_)
+	{
+		fd = fd_;
+		onComplete = onComplete_;
+		onClose = onClose_;
 	}
 
 	enum Type		{ UDP_WRITE, UDP_READ, TCP_WRITE, TCP_READ };
@@ -38,8 +43,8 @@ struct IOOperation
 	bool			active;
 	bool			pending;
 
-	Callable*		onComplete;
-	Callable*		onClose;
+	Callable		onComplete;
+	Callable		onClose;
 };
 
 struct UDPWrite : public IOOperation
@@ -48,6 +53,11 @@ struct UDPWrite : public IOOperation
 	: IOOperation()
 	{
 		type = UDP_WRITE;
+	}
+
+	void Wrap(ByteBuffer& buffer)
+	{
+		data.Wrap(buffer);
 	}
 
 	Endpoint		endpoint;
@@ -68,10 +78,21 @@ public:
 
 struct TCPWrite : public IOOperation
 {
-	TCPWrite()
-	: IOOperation()
+	TCPWrite() : IOOperation()
 	{
 		type = TCP_WRITE;
+		transferred = 0;
+	}
+	
+	void AsyncConnect()
+	{
+		data.Rewind();
+		// zero indicates for IOProcessor that we are waiting for connect event
+	}
+	
+	void Wrap(ByteBuffer& buffer)
+	{
+		data.Wrap(buffer);
 		transferred = 0;
 	}
 
@@ -81,12 +102,24 @@ struct TCPWrite : public IOOperation
 
 struct TCPRead : public IOOperation
 {
-	TCPRead()
-	: IOOperation()
+	TCPRead() : IOOperation()
 	{
 		type = TCP_READ;
 		listening = false;
+		requested = IO_READ_ANY;
+	}
+
+	void Wrap(ByteBuffer& buffer)
+	{
+		data.Wrap(buffer);
 		requested = 0;
+	}
+	
+	void Listen(FD fd_, const Callable& onComplete_)
+	{
+		fd = fd_;
+		onComplete = onComplete_;
+		listening = true;
 	}
 
 	bool			listening;		/*	it's a listener */

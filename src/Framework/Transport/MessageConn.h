@@ -5,20 +5,19 @@
 #include "System/Stopwatch.h"
 #include "System/Events/EventLoop.h"
 
-#define DEFAULT_MESSAGE_SIZE 8196
+#define MESSAGE_SIZE 8196
+#define YIELD_TIME	 10 // msec
 
-template<int bufSize = DEFAULT_MESSAGE_SIZE>
+/*
+ * class MessageConn
+ */
+
+template<int bufSize = MESSAGE_SIZE>
 class MessageConn : public TCPConn
 {
-	typedef MFunc<MessageConn>	Func;
 public:
-	MessageConn() :
-	onResumeRead(this, &MessageConn::OnResumeRead),
-	resumeRead(1, &onResumeRead)
-	{
-		running = true;
-	}
-	
+	MessageConn();
+		
 	virtual void	Init(bool startRead = true);
 	virtual void	OnMessageRead(const ByteString& msg) = 0;
 	virtual void	OnClose() = 0;
@@ -32,18 +31,25 @@ public:
 
 protected:
 	bool			running;
-	Func			onResumeRead;
 	CdownTimer		resumeRead;
-
 };
+
+/*****************************************************************************/
+
+template<int bufSize>
+MessageConn<bufSize>::MessageConn()
+{
+	running = true;
+	resumeRead.SetCallable(MFUNC(MessageConn, OnResumeRead));
+	resumeRead.SetDelay(1);
+}
 
 template<int bufSize>
 void MessageConn<bufSize>::Init(bool startRead)
 {
 	running = true;
-	TCPConn::Init(startRead);
+	TCPConn::InitConnected(startRead);
 }
-
 
 template<int bufSize>
 void MessageConn<bufSize>::OnRead()
@@ -111,9 +117,9 @@ void MessageConn<bufSize>::OnRead()
 		if (tcpread.data.Length() == msgend)
 			break;
 
-		if (Now() - start > 10 && running)
+		if (Now() - start > YIELD_TIME && running)
 		{
-			// let other code run every 10 msec
+			// let other code run every YIELD_TIME msec
 			yield = true;
 			if (resumeRead.IsActive())
 				ASSERT_FAIL();

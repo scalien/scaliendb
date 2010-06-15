@@ -3,6 +3,10 @@
 
 #include "TCPConn.h"
 
+/* 
+ * TransportTCPWriter
+ */
+
 class TransportTCPWriter : public TCPConn
 {
 public:
@@ -21,6 +25,5 @@ private:
 
 	Endpoint		endpoint;
 };
-
 
 #endif
