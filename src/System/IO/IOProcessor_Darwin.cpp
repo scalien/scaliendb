@@ -297,7 +297,7 @@ bool IOProcessor::Poll(int sleep)
 	return true;
 }
 
-bool IOProcessor::Complete(Callable* callable)
+bool IOProcessor::Complete(Callable& callable)
 {
 	Log_Trace();
 
