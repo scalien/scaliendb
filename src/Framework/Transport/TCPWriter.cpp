@@ -1,17 +1,17 @@
-#include "TransportTCPWriter.h"
+#include "TCPWriter.h"
 #include "System/Events/EventLoop.h"
 
 #define CONNECT_TIMEOUT		2000
 
 
-bool TransportTCPWriter::Init(Endpoint &endpoint_)
+bool TCPWriter::Init(Endpoint &endpoint_)
 {
 	endpoint = endpoint_;
 	TCPConn::Connect(endpoint, CONNECT_TIMEOUT);
 	return true;
 }
 
-void TransportTCPWriter::Write(ByteString &bs)
+void TCPWriter::Write(const ByteString &bs)
 {
 	Log_Trace();
 
@@ -29,14 +29,14 @@ void TransportTCPWriter::Write(ByteString &bs)
 		Connect();
 }
 
-void TransportTCPWriter::Connect()
+void TCPWriter::Connect()
 {
 	Log_Trace();
 	
 	TCPConn::Connect(endpoint, CONNECT_TIMEOUT);
 }
 
-void TransportTCPWriter::OnConnect()
+void TCPWriter::OnConnect()
 {
 	TCPConn::OnConnect();
 	
@@ -45,7 +45,7 @@ void TransportTCPWriter::OnConnect()
 	AsyncRead();
 }
 
-void TransportTCPWriter::OnConnectTimeout()
+void TCPWriter::OnConnectTimeout()
 {
 	TCPConn::OnConnectTimeout();
 	
@@ -55,7 +55,7 @@ void TransportTCPWriter::OnConnectTimeout()
 	Connect();
 }
 
-void TransportTCPWriter::OnRead()
+void TCPWriter::OnRead()
 {
 	Log_Trace("endpoint = %s", endpoint.ToString());
 	
@@ -64,7 +64,7 @@ void TransportTCPWriter::OnRead()
 	AsyncRead();
 }
 
-void TransportTCPWriter::OnClose()
+void TCPWriter::OnClose()
 {
 	Log_Trace("endpoint = %s", endpoint.ToString());
 	

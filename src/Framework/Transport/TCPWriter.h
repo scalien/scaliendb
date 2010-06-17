@@ -3,16 +3,18 @@
 
 #include "TCPConn.h"
 
-/* 
- * TransportTCPWriter
- */
+/*************************************************************************************************
 
-class TransportTCPWriter : public TCPConn
+									TCPWriter
+
+ *************************************************************************************************/
+
+class TCPWriter : public TCPConn
 {
 public:
 	
 	virtual bool	Init(Endpoint &endpoint_);
-	virtual void	Write(ByteString &bs);
+	virtual void	Write(const ByteString &bs);
 
 private:
 	void			Connect();
