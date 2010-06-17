@@ -13,8 +13,8 @@
 
 									TCPServer
 
-	TCPServer is a generic class for listening for incoming TCP connections on a port. TCPServer
-	will create connections by instantiating the template class Conn and calling Conn::Init().
+	TCPServer is a template class for listening for incoming TCP connections on a port. TCPServer
+	will create and manage connections given by template parameter Conn.
 
  *************************************************************************************************/
 
