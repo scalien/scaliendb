@@ -19,12 +19,14 @@ public:
 	bool operator==(const ByteString& other) const;
 	bool operator!=(const ByteString& other) const;
 
+	void			Init();
+	void			Clear();
+
 	static bool		Cmp(ByteString& a, ByteString& b);
 	bool			Cmp(const char* buffer_, unsigned length_);
 	bool			Cmp(const char* str);
 
-	void			Init();
-	void			Clear();
+	int				Readf(const char* format, ...) const;
 
 	void			Set(const char* str);
 	void			Set(const void* buffer_, unsigned length_);

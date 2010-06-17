@@ -11,7 +11,7 @@
 class ByteWrap : public ByteBuffer
 {
 public:
-	ByteWrap();	
+	ByteWrap();
 	ByteWrap(char* buffer_, unsigned size_);
 	ByteWrap(char* buffer_, unsigned size_, unsigned length_);
 

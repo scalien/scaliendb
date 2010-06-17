@@ -32,6 +32,16 @@ bool ByteString::operator!=(const ByteString& other) const
 	return !(operator==(other));
 }
 
+void ByteString::Init()
+{
+	buffer = 0; length = 0;
+}
+
+void ByteString::Clear()
+{
+	length = 0;
+}
+
 bool ByteString::Cmp(ByteString& a, ByteString& b)
 {
 	return MEMCMP(a.Buffer(), a.Length(), b.Buffer(), b.Length());
@@ -47,14 +57,16 @@ bool ByteString::Cmp(const char* str)
 	return MEMCMP(buffer, length, str, strlen(str));
 }
 
-void ByteString::Init()
+int ByteString::Readf(const char* format, ...) const
 {
-	buffer = 0; length = 0;
-}
-
-void ByteString::Clear()
-{
-	length = 0;
+	int			read;
+	va_list		ap;
+	
+	va_start(ap, format);
+	read = vsnreadf(buffer, length, format, ap);
+	va_end(ap);
+	
+	return read;
 }
 
 void ByteString::Set(const char* str)
