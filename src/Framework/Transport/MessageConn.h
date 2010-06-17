@@ -8,9 +8,11 @@
 #define MESSAGE_SIZE 8196
 #define YIELD_TIME	 10 // msec
 
-/*
- * class MessageConn
- */
+/*************************************************************************************************
+
+									MessageConn
+
+ *************************************************************************************************/
 
 template<int bufSize = MESSAGE_SIZE>
 class MessageConn : public TCPConn
@@ -34,7 +36,7 @@ protected:
 	CdownTimer		resumeRead;
 };
 
-/*****************************************************************************/
+/*************************************************************************************************/
 
 template<int bufSize>
 MessageConn<bufSize>::MessageConn()

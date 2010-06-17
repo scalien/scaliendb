@@ -9,11 +9,15 @@
 #include "System/Containers/List.h"
 #include "TCPConn.h"
 
-/*
- * TCPServer is a generic class for listening for incoming
- * TCP connections on a port. TCPServer will create connections
- * by instantiating the template class Conn
- */
+/*************************************************************************************************
+
+									TCPServer
+
+	TCPServer is a generic class for listening for incoming TCP connections on a port. TCPServer
+	will create connections by instantiating the template class Conn and calling Conn::Init().
+
+ *************************************************************************************************/
+
 template<class T, class Conn>
 class TCPServer
 {
@@ -40,7 +44,7 @@ protected:
 	List<Conn*>			activeConns;
 };
 
-/****************************************************************************/
+/*************************************************************************************************/
 
 template<class T, class Conn>
 TCPServer<T, Conn>::TCPServer()

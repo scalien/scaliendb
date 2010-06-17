@@ -11,13 +11,15 @@
 #define TCP_CONNECT_TIMEOUT 3000
 #define TCP_BUFFER_SIZE		8196
 
-/*
- * TCPConn is a class for managing a TCP connection
- * it can Connect(), AsyncRead() or Write()
- * the Write() function uses a write queue internally
- * you must override OnRead() and OnClose() and
- * optionally override OnWrite(), OnConnect(), OnConnectTimeout()
- */
+/*************************************************************************************************
+
+									TCPConn
+
+	TCPConn is a class for managing a TCP connection. It can Connect(), AsyncRead() or Write().
+	The Write() function uses a write queue internally. You must override OnRead() and OnClose()
+	and optionally override OnWrite(), OnConnect(), OnConnectTimeout() functions.
+
+ *************************************************************************************************/
 
 class TCPConn
 {
