@@ -8,6 +8,8 @@
 #define ENDPOINT_STRING_SIZE	32
 #define ENDPOINT_SOCKADDR_SIZE	16
 
+typedef uint32_t Address;
+
 class Endpoint
 {
 public:
@@ -22,7 +24,7 @@ public:
 	bool			SetPort(int port);
 	int				GetPort();
 	
-	uint32_t		GetAddress();
+	Address			GetAddress();
 	
 	const char*		ToString();
 	const char*		ToString(char s[ENDPOINT_STRING_SIZE]);

@@ -152,7 +152,7 @@ int Endpoint::GetPort()
 	return ntohs(sa->sin_port);
 }
 
-uint32_t Endpoint::GetAddress()
+Address Endpoint::GetAddress()
 {
 	struct sockaddr_in *sa = (struct sockaddr_in *) &saBuffer;
 
