@@ -34,7 +34,7 @@ int main(void)
 {
 	return CallbackTest();
 	
-	StaticArray<>	s;
+	DynArray<>	s;
 	
 	s.Writef("hello world");
 	

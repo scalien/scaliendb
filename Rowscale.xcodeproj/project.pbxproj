@@ -30,7 +30,6 @@
 		54FA668A11C10D7800FF4EF6 /* ByteString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA668911C10D7800FF4EF6 /* ByteString.cpp */; };
 		54FA669011C10DA600FF4EF6 /* ByteBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA668F11C10DA600FF4EF6 /* ByteBuffer.cpp */; };
 		54FA669511C10DCE00FF4EF6 /* ByteWrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA669411C10DCE00FF4EF6 /* ByteWrap.cpp */; };
-		54FA66BD11C1100500FF4EF6 /* HeapArray.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA66BC11C1100500FF4EF6 /* HeapArray.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		54FA68F911C2429A00FF4EF6 /* CdownTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */; };
 		54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
@@ -124,13 +123,10 @@
 		54B7F96411BE85B10076BC62 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
 		54FA661811C107BD00FF4EF6 /* ByteBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteBuffer.h; sourceTree = "<group>"; };
 		54FA661C11C107E800FF4EF6 /* ByteWrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteWrap.h; sourceTree = "<group>"; };
-		54FA662011C1081000FF4EF6 /* StaticArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StaticArray.h; sourceTree = "<group>"; };
-		54FA662211C1085F00FF4EF6 /* HeapArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeapArray.h; sourceTree = "<group>"; };
 		54FA662511C1088A00FF4EF6 /* DynArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynArray.h; sourceTree = "<group>"; };
 		54FA668911C10D7800FF4EF6 /* ByteString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByteString.cpp; sourceTree = "<group>"; };
 		54FA668F11C10DA600FF4EF6 /* ByteBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByteBuffer.cpp; sourceTree = "<group>"; };
 		54FA669411C10DCE00FF4EF6 /* ByteWrap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByteWrap.cpp; sourceTree = "<group>"; };
-		54FA66BC11C1100500FF4EF6 /* HeapArray.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeapArray.cpp; sourceTree = "<group>"; };
 		54FA68F311C2422A00FF4EF6 /* CdownTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CdownTimer.h; sourceTree = "<group>"; };
 		54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CdownTimer.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
@@ -344,9 +340,6 @@
 				54FA668F11C10DA600FF4EF6 /* ByteBuffer.cpp */,
 				54FA661C11C107E800FF4EF6 /* ByteWrap.h */,
 				54FA669411C10DCE00FF4EF6 /* ByteWrap.cpp */,
-				54FA662011C1081000FF4EF6 /* StaticArray.h */,
-				54FA662211C1085F00FF4EF6 /* HeapArray.h */,
-				54FA66BC11C1100500FF4EF6 /* HeapArray.cpp */,
 				54FA662511C1088A00FF4EF6 /* DynArray.h */,
 			);
 			path = Buffers;
@@ -431,7 +424,6 @@
 				54FA668A11C10D7800FF4EF6 /* ByteString.cpp in Sources */,
 				54FA669011C10DA600FF4EF6 /* ByteBuffer.cpp in Sources */,
 				54FA669511C10DCE00FF4EF6 /* ByteWrap.cpp in Sources */,
-				54FA66BD11C1100500FF4EF6 /* HeapArray.cpp in Sources */,
 				54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */,
 				54FA68F911C2429A00FF4EF6 /* CdownTimer.cpp in Sources */,
 				54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */,
