@@ -27,7 +27,9 @@ void TCPConn::Init(bool startRead)
 
 	readBuffer.Rewind();
 	
-	tcpwrite.Set(socket.fd, MFUNC(TCPConn, OnRead), MFUNC(TCPConn, OnClose));
+	tcpwrite.SetFD(socket.fd);
+	tcpwrite.SetOnComplete(MFUNC(TCPConn, OnRead));
+	tcpwrite.SetOnClose(MFUNC(TCPConn, OnClose));
 
 	AsyncRead(startRead);
 }
@@ -67,7 +69,9 @@ void TCPConn::Connect(Endpoint &endpoint, unsigned timeout)
 	socket.SetNonblocking();
 	ret = socket.Connect(endpoint);
 
-	tcpwrite.Set(socket.fd, MFUNC(TCPConn, OnConnect), MFUNC(TCPConn, OnClose));	
+	tcpwrite.SetFD(socket.fd);
+	tcpwrite.SetOnComplete(MFUNC(TCPConn, OnConnect));
+	tcpwrite.SetOnClose(MFUNC(TCPConn, OnClose));
 	tcpwrite.AsyncConnect();
 	IOProcessor::Add(&tcpwrite);
 
@@ -125,7 +129,9 @@ void TCPConn::AsyncRead(bool start)
 {
 	Log_Trace();
 	
-	tcpread.Set(socket.fd, MFUNC(TCPConn, OnRead), MFUNC(TCPConn, OnClose));
+	tcpread.SetFD(socket.fd);
+	tcpread.SetOnComplete(MFUNC(TCPConn, OnRead));
+	tcpread.SetOnClose(MFUNC(TCPConn, OnClose));
 	tcpread.Wrap(readBuffer);
 	if (start)
 		IOProcessor::Add(&tcpread);
