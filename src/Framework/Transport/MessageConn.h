@@ -14,6 +14,9 @@
 
  *************************************************************************************************/
 
+
+//TODO this is broken for now
+
 template<int bufSize = MESSAGE_SIZE>
 class MessageConn : public TCPConn
 {
