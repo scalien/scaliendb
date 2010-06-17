@@ -25,10 +25,18 @@ struct IOOperation
 		offset = 0;
 	}
 	
-	void Set(FD fd_, const Callable& onComplete_, const Callable& onClose_)
+	void SetFD(FD fd_)
 	{
 		fd = fd_;
+	}
+	
+	void SetOnComplete(const Callable& onComplete_)
+	{
 		onComplete = onComplete_;
+	}
+	
+	void SetOnClose(const Callable& onClose_)
+	{
 		onClose = onClose_;
 	}
 
