@@ -3,6 +3,7 @@
 
 #include <stddef.h>
 #include <assert.h>
+#include "System/Common.h"
 
 template<class T> struct ListNode; // forward
 template<class T> class SortedList; // for friend
@@ -17,6 +18,8 @@ class List
 public:
 	List();
 	~List();
+
+	T&				operator[](int i);
 	
 	void			Prepend(T &t);
 	void			Append(T &t);
@@ -26,7 +29,7 @@ public:
 	
 	T*				Head() const;
 	T*				Tail() const;
-	int				Length() const;
+	unsigned		Length() const;
 	
 	T*				Next(T* t) const;
 	T*				Prev(T* t) const;
@@ -34,7 +37,7 @@ public:
 private:
 	ListNode<T>*	head;
 	ListNode<T>*	tail;
-	int				length;
+	unsigned		length;
 
 	friend class SortedList<T>;
 };
@@ -69,6 +72,17 @@ template<class T>
 List<T>::~List()
 {
 	Clear();
+}
+
+template<class T>
+T& List<T>::operator[](int i)
+{
+	T* it;
+	
+	for (it = Head(); it != NULL && i > 0; it = Next(it), i--)
+		return *it;
+	
+	ASSERT_FAIL();
 }
 
 template<class T>
@@ -188,7 +202,7 @@ T* List<T>::Tail() const
 }
 
 template<class T>
-int List<T>::Length() const
+unsigned List<T>::Length() const
 {
 	return length;
 }
