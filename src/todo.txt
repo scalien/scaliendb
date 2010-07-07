@@ -1,0 +1,18 @@
+
+- fix Get/Set naming convention
+- go through TODOs
+- use one port for all TCP communication
+- no underscores in header declarations
+
++ renamed restartCounter to runID
+
+
+- one or more PaxosLease instances? - one or more ReplicatedLog instances?
+  + we need MANY because of timers
+- one or more Transport instances - or should Transport be part of ReplicationManager
+- where to store the global (?) PaxosLeaseMessage and PaxosMsg
+- use one port or many ports?
+- contextID vs. logID vs. chunkID
+- should ReplicationManager be an ADT?
+
+- pass thru eventhandlers
