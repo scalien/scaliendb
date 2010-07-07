@@ -13,11 +13,11 @@
 		541D868B11C7D8E400A6CB16 /* PaxosLease.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D867F11C7D8E400A6CB16 /* PaxosLease.cpp */; };
 		541D868C11C7D8E400A6CB16 /* PaxosLeaseAcceptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868111C7D8E400A6CB16 /* PaxosLeaseAcceptor.cpp */; };
 		541D868D11C7D8E400A6CB16 /* PaxosLeaseLearner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868411C7D8E400A6CB16 /* PaxosLeaseLearner.cpp */; };
-		541D868E11C7D8E400A6CB16 /* PaxosLeaseMsg.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868611C7D8E400A6CB16 /* PaxosLeaseMsg.cpp */; };
+		541D868E11C7D8E400A6CB16 /* PaxosLeaseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868611C7D8E400A6CB16 /* PaxosLeaseMessage.cpp */; };
 		541D868F11C7D8E400A6CB16 /* PaxosLeaseProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */; };
-		541D86C111C7D9B900A6CB16 /* ReplicationConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D86BF11C7D9B900A6CB16 /* ReplicationConfig.cpp */; };
-		548B9FAF11C923FC0079D99C /* PaxosLeaseTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548B9FAE11C923FC0079D99C /* PaxosLeaseTransport.cpp */; };
-		548BA1E611CA1FA50079D99C /* NodeConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548BA1E511CA1FA50079D99C /* NodeConfig.cpp */; };
+		546E119511D8F4C800867EE1 /* SingleQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119411D8F4C800867EE1 /* SingleQuorum.cpp */; };
+		546E119811D8F4D300867EE1 /* DoubleQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */; };
+		546E14AE11DA2A7500867EE1 /* ReplicationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -40,10 +40,6 @@
 		54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA6B0711C26CAB00FF4EF6 /* Main.cpp */; };
 		8DD76F6A0486A84900D96B5E /* Rowscale.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Rowscale.1 */; };
 		9A0C20D411C7C48600510AB4 /* libdb_cxx-4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */; };
-		9A31560F11C7B32A0052812E /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560411C7B32A0052812E /* Cursor.cpp */; };
-		9A31561111C7B32A0052812E /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560811C7B32A0052812E /* Database.cpp */; };
-		9A31561211C7B32A0052812E /* Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560B11C7B32A0052812E /* Table.cpp */; };
-		9A31561311C7B32A0052812E /* Transaction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560D11C7B32A0052812E /* Transaction.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -75,16 +71,26 @@
 		541D868211C7D8E400A6CB16 /* PaxosLeaseAcceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptor.h; sourceTree = "<group>"; };
 		541D868411C7D8E400A6CB16 /* PaxosLeaseLearner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseLearner.cpp; sourceTree = "<group>"; };
 		541D868511C7D8E400A6CB16 /* PaxosLeaseLearner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearner.h; sourceTree = "<group>"; };
-		541D868611C7D8E400A6CB16 /* PaxosLeaseMsg.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseMsg.cpp; sourceTree = "<group>"; };
-		541D868711C7D8E400A6CB16 /* PaxosLeaseMsg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseMsg.h; sourceTree = "<group>"; };
+		541D868611C7D8E400A6CB16 /* PaxosLeaseMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseMessage.cpp; sourceTree = "<group>"; };
+		541D868711C7D8E400A6CB16 /* PaxosLeaseMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseMessage.h; sourceTree = "<group>"; };
 		541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseProposer.cpp; sourceTree = "<group>"; };
 		541D868911C7D8E400A6CB16 /* PaxosLeaseProposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposer.h; sourceTree = "<group>"; };
-		541D86BF11C7D9B900A6CB16 /* ReplicationConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicationConfig.cpp; sourceTree = "<group>"; };
-		541D86C011C7D9B900A6CB16 /* ReplicationConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationConfig.h; sourceTree = "<group>"; };
-		548B9FA311C923780079D99C /* PaxosLeaseTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseTransport.h; sourceTree = "<group>"; };
-		548B9FAE11C923FC0079D99C /* PaxosLeaseTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseTransport.cpp; sourceTree = "<group>"; };
-		548BA1E411CA1FA50079D99C /* NodeConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NodeConfig.h; sourceTree = "<group>"; };
-		548BA1E511CA1FA50079D99C /* NodeConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NodeConfig.cpp; sourceTree = "<group>"; };
+		546E119011D8F48500867EE1 /* Quorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quorum.h; sourceTree = "<group>"; };
+		546E119311D8F4C800867EE1 /* SingleQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleQuorum.h; sourceTree = "<group>"; };
+		546E119411D8F4C800867EE1 /* SingleQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleQuorum.cpp; sourceTree = "<group>"; };
+		546E119611D8F4D300867EE1 /* DoubleQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleQuorum.h; sourceTree = "<group>"; };
+		546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DoubleQuorum.cpp; sourceTree = "<group>"; };
+		546E141B11DA0AE900867EE1 /* ReplicationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationManager.h; sourceTree = "<group>"; };
+		546E143B11DA0CF600867EE1 /* todo.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
+		546E145711DA173300867EE1 /* ReplicationContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationContext.h; sourceTree = "<group>"; };
+		546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicationManager.cpp; sourceTree = "<group>"; };
+		546E152F11DA3A1000867EE1 /* ReplicationMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationMessage.h; sourceTree = "<group>"; };
+		546E181611DDD4DF00867EE1 /* QuorumTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumTransport.h; sourceTree = "<group>"; };
+		546E182711DE137F00867EE1 /* ReplicationTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationTransport.h; sourceTree = "<group>"; };
+		546E18C311E4C94F00867EE1 /* PriorityQueue2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PriorityQueue2.h; sourceTree = "<group>"; };
+		546E18E411E4CAF100867EE1 /* Queue2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Queue2.h; sourceTree = "<group>"; };
+		546E190411E4D61300867EE1 /* PriorityQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PriorityQueue.h; sourceTree = "<group>"; };
+		548BA2BA11CA7C510079D99C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = src/Framework/Node.h; sourceTree = SOURCE_ROOT; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
 		54AFE33611C8D15100925487 /* PaxosLeaseProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposerState.h; sourceTree = "<group>"; };
@@ -191,8 +197,6 @@
 				9A31560311C7B31C0052812E /* Database */,
 				541D7E7011C64EB600A6CB16 /* Transport */,
 				541D867D11C7D8E400A6CB16 /* Replication */,
-				548BA1E411CA1FA50079D99C /* NodeConfig.h */,
-				548BA1E511CA1FA50079D99C /* NodeConfig.cpp */,
 			);
 			path = Framework;
 			sourceTree = "<group>";
@@ -215,8 +219,13 @@
 		541D867D11C7D8E400A6CB16 /* Replication */ = {
 			isa = PBXGroup;
 			children = (
-				541D86C011C7D9B900A6CB16 /* ReplicationConfig.h */,
-				541D86BF11C7D9B900A6CB16 /* ReplicationConfig.cpp */,
+				546E118F11D8F47900867EE1 /* Quorums */,
+				548BA2BA11CA7C510079D99C /* Node.h */,
+				546E152F11DA3A1000867EE1 /* ReplicationMessage.h */,
+				546E141B11DA0AE900867EE1 /* ReplicationManager.h */,
+				546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */,
+				546E182711DE137F00867EE1 /* ReplicationTransport.h */,
+				546E145711DA173300867EE1 /* ReplicationContext.h */,
 				541D867E11C7D8E400A6CB16 /* PaxosLease */,
 			);
 			path = Replication;
@@ -226,10 +235,8 @@
 			isa = PBXGroup;
 			children = (
 				54AFE33311C8D15100925487 /* States */,
-				541D868711C7D8E400A6CB16 /* PaxosLeaseMsg.h */,
-				541D868611C7D8E400A6CB16 /* PaxosLeaseMsg.cpp */,
-				548B9FA311C923780079D99C /* PaxosLeaseTransport.h */,
-				548B9FAE11C923FC0079D99C /* PaxosLeaseTransport.cpp */,
+				541D868711C7D8E400A6CB16 /* PaxosLeaseMessage.h */,
+				541D868611C7D8E400A6CB16 /* PaxosLeaseMessage.cpp */,
 				541D868011C7D8E400A6CB16 /* PaxosLease.h */,
 				541D867F11C7D8E400A6CB16 /* PaxosLease.cpp */,
 				541D868911C7D8E400A6CB16 /* PaxosLeaseProposer.h */,
@@ -240,6 +247,19 @@
 				541D868411C7D8E400A6CB16 /* PaxosLeaseLearner.cpp */,
 			);
 			path = PaxosLease;
+			sourceTree = "<group>";
+		};
+		546E118F11D8F47900867EE1 /* Quorums */ = {
+			isa = PBXGroup;
+			children = (
+				546E119011D8F48500867EE1 /* Quorum.h */,
+				546E119311D8F4C800867EE1 /* SingleQuorum.h */,
+				546E119411D8F4C800867EE1 /* SingleQuorum.cpp */,
+				546E119611D8F4D300867EE1 /* DoubleQuorum.h */,
+				546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */,
+				546E181611DDD4DF00867EE1 /* QuorumTransport.h */,
+			);
+			path = Quorums;
 			sourceTree = "<group>";
 		};
 		54AFE33311C8D15100925487 /* States */ = {
@@ -259,6 +279,7 @@
 				54B7F74211BE5EF30076BC62 /* System */,
 				54FA6B0711C26CAB00FF4EF6 /* Main.cpp */,
 				54B7F76D11BE5EF30076BC62 /* Version.h */,
+				546E143B11DA0CF600867EE1 /* todo.txt */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -293,6 +314,9 @@
 				54B7F74A11BE5EF30076BC62 /* List.h */,
 				54B7F74C11BE5EF30076BC62 /* SortedList.h */,
 				54B7F74B11BE5EF30076BC62 /* Queue.h */,
+				546E190411E4D61300867EE1 /* PriorityQueue.h */,
+				546E18E411E4CAF100867EE1 /* Queue2.h */,
+				546E18C311E4C94F00867EE1 /* PriorityQueue2.h */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
@@ -348,15 +372,15 @@
 		9A31560311C7B31C0052812E /* Database */ = {
 			isa = PBXGroup;
 			children = (
-				9A31560411C7B32A0052812E /* Cursor.cpp */,
 				9A31560511C7B32A0052812E /* Cursor.h */,
-				9A31560811C7B32A0052812E /* Database.cpp */,
+				9A31560411C7B32A0052812E /* Cursor.cpp */,
 				9A31560911C7B32A0052812E /* Database.h */,
+				9A31560811C7B32A0052812E /* Database.cpp */,
 				9A31560A11C7B32A0052812E /* DatabaseConfig.h */,
-				9A31560B11C7B32A0052812E /* Table.cpp */,
 				9A31560C11C7B32A0052812E /* Table.h */,
-				9A31560D11C7B32A0052812E /* Transaction.cpp */,
+				9A31560B11C7B32A0052812E /* Table.cpp */,
 				9A31560E11C7B32A0052812E /* Transaction.h */,
+				9A31560D11C7B32A0052812E /* Transaction.cpp */,
 			);
 			name = Database;
 			sourceTree = "<group>";
@@ -433,20 +457,16 @@
 				54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */,
 				54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */,
 				541D805811C6806B00A6CB16 /* TCPConn.cpp in Sources */,
-				9A31560F11C7B32A0052812E /* Cursor.cpp in Sources */,
-				9A31561111C7B32A0052812E /* Database.cpp in Sources */,
-				9A31561211C7B32A0052812E /* Table.cpp in Sources */,
-				9A31561311C7B32A0052812E /* Transaction.cpp in Sources */,
 				541D860811C7D6B800A6CB16 /* TCPReader.cpp in Sources */,
 				541D860911C7D6B800A6CB16 /* TCPWriter.cpp in Sources */,
 				541D868B11C7D8E400A6CB16 /* PaxosLease.cpp in Sources */,
 				541D868C11C7D8E400A6CB16 /* PaxosLeaseAcceptor.cpp in Sources */,
 				541D868D11C7D8E400A6CB16 /* PaxosLeaseLearner.cpp in Sources */,
-				541D868E11C7D8E400A6CB16 /* PaxosLeaseMsg.cpp in Sources */,
+				541D868E11C7D8E400A6CB16 /* PaxosLeaseMessage.cpp in Sources */,
 				541D868F11C7D8E400A6CB16 /* PaxosLeaseProposer.cpp in Sources */,
-				541D86C111C7D9B900A6CB16 /* ReplicationConfig.cpp in Sources */,
-				548B9FAF11C923FC0079D99C /* PaxosLeaseTransport.cpp in Sources */,
-				548BA1E611CA1FA50079D99C /* NodeConfig.cpp in Sources */,
+				546E119511D8F4C800867EE1 /* SingleQuorum.cpp in Sources */,
+				546E119811D8F4D300867EE1 /* DoubleQuorum.cpp in Sources */,
+				546E14AE11DA2A7500867EE1 /* ReplicationManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -6,6 +6,7 @@
 #include <sys/stat.h>
 #include <signal.h>
 #include "ByteString.h"
+#include "ByteWrap.h"
 #ifdef _WIN32
 #include "process.h"
 #endif
@@ -198,16 +199,14 @@ void blocksigs()
  * %u (unsigned)		reads an unsigned int
  * %I (int64_t)			reads a signed int64
  * %U (uint64_t)		reads an unsigned int64
- * %M (ByteString* bs)	reads a %u:<%u long buffer> into bs.length and copies
+ * %M (ByteWrap* bw)	reads a %u:<%u long buffer> into bs.length and copies
  *						the buffer into bs.buffer taking into account bs.size
- * %N (ByteString* bs)	same as %M but does not copy the contents, only sets
+ * %N (ByteWrap* bw)	same as %M but does not copy the contents, only sets
  *						bs.buffer and sets bs.length = bs.size to the prefix
  *
  * returns the number of bytes read from buffer, or -1 if the format string did
  * not match the buffer
  */
-
-#if 0
 
 int snreadf(char* buffer, unsigned length, const char* format, ...)
 {
@@ -228,8 +227,8 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 	unsigned*	u;
 	int64_t*	i64;
 	uint64_t*	u64;
-	ByteString*	bs;
-	unsigned	n;
+	ByteWrap*	bw;
+	unsigned	n, l;
 	int			read;
 
 #define ADVANCE(f, b)	{ format += f; buffer += b; length -= b; read += b; }
@@ -283,13 +282,13 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 			}
 			else if (format[1] == 'M') // %M
 			{
-				bs = va_arg(ap, ByteString*);
+				bw = va_arg(ap, ByteWrap*);
 				// read the length prefix
-				bs->length = strntouint64(buffer, length, &n);
+				l = strntouint64(buffer, length, &n);
 				if (n < 1) EXIT();
-				if (bs->length > bs->size)
+				if (l > bw->Size())
 				{
-					bs->length = 0;
+					bw->SetLength(0);
 					EXIT();
 				}
 				ADVANCE(0, n);
@@ -298,15 +297,15 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 				if (buffer[0] != ':') EXIT();
 				ADVANCE(0, 1);
 				// read the message body
-				REQUIRE(bs->length);
-				memcpy(bs->buffer, buffer, bs->length);
-				ADVANCE(2, bs->length);
+				REQUIRE(l);
+				bw->Write(buffer, l);
+				ADVANCE(2, bw->Length());
 			}
 			else if (format[1] == 'N') // %N
 			{
-				bs = va_arg(ap, ByteString*);
+				bw = va_arg(ap, ByteWrap*);
 				// read the length prefix
-				bs->length = strntouint64(buffer, length, &n);
+				l = strntouint64(buffer, length, &n);
 				if (n < 1) EXIT();
 				ADVANCE(0, n);
 				// read the ':'
@@ -314,10 +313,9 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 				if (buffer[0] != ':') EXIT();
 				ADVANCE(0, 1);
 				// read the message body
-				REQUIRE(bs->length);
-				bs->buffer = buffer;
-				bs->size = bs->length;
-				ADVANCE(2, bs->length);
+				REQUIRE(l);
+				bw->Wrap(buffer, l);
+				ADVANCE(2, l);
 			}
 			else
 			{
@@ -364,8 +362,6 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
  * (if size bytes were not enough, snwritef writes size bytes and returns the
  * number of bytes that would have been required)
  */
-
-#endif
 
 int snwritef(char* buffer, unsigned size, const char* format, ...)
 {

@@ -9,32 +9,36 @@
 #include "System/Containers/List.h"
 #include "TCPConn.h"
 
-/*************************************************************************************************
+/*
+===============================================================================
 
-									TCPServer
+ TCPServer
 
-	TCPServer is a template class for listening for incoming TCP connections on a port. TCPServer
-	will create and manage connections given by template parameter Conn.
+ TCPServer is a template class for listening for incoming TCP connections
+ on a port. TCPServer will create and manage connections given by template
+ parameter Conn.
 
- *************************************************************************************************/
+===============================================================================
+*/
 
 template<class T, class Conn>
 class TCPServer
 {
+	typedef Queue<TCPConn, &TCPConn::next> ConnList;
+
 public:
 	TCPServer();
 	~TCPServer();
 	
-	bool		Init(int port_, int backlog_ = 3);
-	void		Close();
-	void		DeleteConn(Conn* conn);
+	bool				Init(int port_, int backlog_ = 3);
+	void				Close();
+	void				DeleteConn(Conn* conn);
 
 protected:
-	void		OnConnect();
-	Conn*		GetConn();
-	void		InitConn(Conn* conn);
+	void				OnConnect();
+	Conn*				GetConn();
+	void				InitConn(Conn* conn);
 
-	typedef Queue<TCPConn, &TCPConn::next> ConnList;
 	
 	TCPRead				tcpread;
 	Socket				listener;
@@ -44,7 +48,9 @@ protected:
 	List<Conn*>			activeConns;
 };
 
-/*************************************************************************************************/
+/*
+===============================================================================
+*/
 
 template<class T, class Conn>
 TCPServer<T, Conn>::TCPServer()

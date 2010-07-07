@@ -8,12 +8,13 @@
 #define MESSAGE_SIZE 8196
 #define YIELD_TIME	 10 // msec
 
-/*************************************************************************************************
+/*
+===============================================================================
 
-									MessageConn
+MessageConn
 
- *************************************************************************************************/
-
+===============================================================================
+*/
 
 //TODO this is broken for now
 
@@ -29,22 +30,24 @@ public:
 	virtual void	OnRead();
 	void			OnResumeRead();
 	
-	virtual void	Stop();
-	virtual void	Continue();
+//	virtual void	Stop();
+//	virtual void	Continue();
 
 	virtual void	Close();
 
 protected:
-	bool			running;
+//	bool			running;
 	CdownTimer		resumeRead;
 };
 
-/*************************************************************************************************/
+/*
+===============================================================================
+*/
 
 template<int bufSize>
 MessageConn<bufSize>::MessageConn()
 {
-	running = true;
+//	running = true;
 	resumeRead.SetCallable(MFUNC(MessageConn, OnResumeRead));
 	resumeRead.SetDelay(1);
 }
@@ -52,7 +55,7 @@ MessageConn<bufSize>::MessageConn()
 template<int bufSize>
 void MessageConn<bufSize>::Init(bool startRead)
 {
-	running = true;
+//	running = true;
 	TCPConn::InitConnected(startRead);
 }
 
@@ -79,7 +82,8 @@ void MessageConn<bufSize>::OnRead()
 	start = Now();
 	yield = false;
 
-	while(running)
+//	while(running)
+	while(true)
 	{
 		msglength = strntouint64(tcpread.data.Buffer() + pos,
 								 tcpread.data.Length() - pos,
@@ -122,7 +126,7 @@ void MessageConn<bufSize>::OnRead()
 		if (tcpread.data.Length() == msgend)
 			break;
 
-		if (Now() - start > YIELD_TIME && running)
+		if (Now() - start > YIELD_TIME/* && running*/)
 		{
 			// let other code run every YIELD_TIME msec
 			yield = true;
@@ -143,7 +147,7 @@ void MessageConn<bufSize>::OnRead()
 	}
 	
 	if (TCPConn::state == TCPConn::CONNECTED
-	 && running && !tcpread.active && !yield)
+	 /*&& running*/ && !tcpread.active && !yield)
 		IOProcessor::Add(&tcpread);
 
 	sw.Stop();
@@ -158,20 +162,20 @@ void MessageConn<bufSize>::OnResumeRead()
 	OnRead();
 }
 
-template<int bufSize>
-void MessageConn<bufSize>::Stop()
-{
-	Log_Trace();
-	running = false;
-}
-
-template<int bufSize>
-void MessageConn<bufSize>::Continue()
-{
-	Log_Trace();
-	running = true;
-	OnRead();
-}
+//template<int bufSize>
+//void MessageConn<bufSize>::Stop()
+//{
+//	Log_Trace();
+//	running = false;
+//}
+//
+//template<int bufSize>
+//void MessageConn<bufSize>::Continue()
+//{
+//	Log_Trace();
+//	running = true;
+//	OnRead();
+//}
 
 template<int bufSize>
 void MessageConn<bufSize>::Close()

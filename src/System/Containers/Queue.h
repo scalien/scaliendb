@@ -2,8 +2,12 @@
 #define QUEUE_H
 
 /*
- * Queue for storing objects with pre-allocated next pointer
- */
+===============================================================================
+
+ Queue for storing objects with pre-allocated next pointer.
+
+===============================================================================
+*/
 
 template<class T, T* T::*pnext>
 class Queue
@@ -28,14 +32,16 @@ private:
 	int		length;
 };
 
-/****************************************************************************/
+/*
+===============================================================================
+*/
 
 template<class T, T* T::*pnext>
 Queue<T, pnext>::Queue()
 {
 	length = 0;
-	head = 0;
-	tail = 0;
+	head = NULL;
+	tail = NULL;
 	Clear();
 }
 
@@ -43,9 +49,9 @@ Queue<T, pnext>::Queue()
 template<class T, T* T::*pnext>
 void Queue<T, pnext>::Enqueue(T* elem)
 {
-	assert(elem != 0);
+	assert(elem != NULL);
 	
-	elem->*pnext = 0;
+	elem->*pnext = NULL;
 	if (tail)
 		tail->*pnext = elem;
 	else
@@ -63,8 +69,8 @@ T* Queue<T, pnext>::Dequeue()
 	{
 		head = elem->*pnext;
 		if (tail == elem)
-			tail = 0;
-		elem->*pnext = 0;
+			tail = NULL;
+		elem->*pnext = NULL;
 		length--;
 	}
 	return elem;

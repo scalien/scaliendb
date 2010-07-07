@@ -22,7 +22,7 @@ void TCPWriter::Write(const ByteString &bs)
 	{
 		llen = snwritef(lbuf, sizeof(lbuf), "%d:", bs.Length());
 		
-		TCPConn::Write(lbuf, llen, false);		
+		TCPConn::Write(lbuf, llen, false);
 		TCPConn::Write(bs.Buffer(), bs.Length());
 	}
 	else if (state == DISCONNECTED && !connectTimeout.IsActive())

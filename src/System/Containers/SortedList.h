@@ -5,8 +5,13 @@
 #include "System/Common.h"
 
 /*
- * SortedList is a generic doubly-linked sorted list
- */
+===============================================================================
+
+ SortedList is a generic doubly-linked sorted list.
+ To use it define LessThan(T &a, T &b).
+
+===============================================================================
+*/
 
 template<class T>
 class SortedList
@@ -29,8 +34,9 @@ protected:
 	List<T>		list;
 };
 
-/****************************************************************************/
-
+/*
+===============================================================================
+*/
 
 template<class T>
 T* SortedList<T>::Remove(T* t)

@@ -1,34 +1,38 @@
-#ifndef TRANSPORTTCPREADER_H
-#define	TRANSPORTTCPREADER_H
+#ifndef TCPREADER_H
+#define	TCPREADER_H
 
 #include "TCPServer.h"
 #include "MessageConn.h"
 
 class TCPReader; // forward
 
-/*************************************************************************************************
+/*
+===============================================================================
 
-									TCPReaderConn
+ TCPReaderConn
 
- *************************************************************************************************/
+===============================================================================
+*/
 
 class TCPReaderConn : public MessageConn<>
 {
 public:
-	void		SetServer(TCPReader* reader_);
+	void			SetServer(TCPReader* reader_);
 		
-	void		OnMessageRead(const ByteString& message);
-	void		OnClose();
+	void			OnMessageRead(const ByteString& message);
+	void			OnClose();
 
 private:
-	TCPReader*	reader;
+	TCPReader*		reader;
 };
 
-/*************************************************************************************************
+/*
+===============================================================================
 
-									TCPReader
+ TCPReader
 
- *************************************************************************************************/
+===============================================================================
+*/
 
 class TCPReader : public TCPServer<TCPReader, TCPReaderConn>
 {
@@ -40,9 +44,9 @@ public:
 
 	void		SetOnRead(const Callable& onRead);
 	void		GetMessage(ByteString& msg_);
-	void		Stop();
-	void		Continue();
-	bool		IsActive();
+//	void		Stop();
+//	void		Continue();
+//	bool		IsActive();
 	void		InitConn(TCPReaderConn* conn);
 	void		OnConnectionClose(TCPReaderConn* conn);
 

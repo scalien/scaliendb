@@ -5,12 +5,16 @@
 #include <assert.h>
 #include "System/Common.h"
 
-template<class T> struct ListNode; // forward
-template<class T> class SortedList; // for friend
+template<class T> struct ListNode;	// forward
+template<class T> class SortedList;	// for friend
 
 /*
- * List is a generic doubly-linked list
- */
+===============================================================================
+
+ List is a generic doubly-linked list.
+
+===============================================================================
+*/
 
 template<class T>
 class List
@@ -42,7 +46,9 @@ private:
 	friend class SortedList<T>;
 };
 
-/****************************************************************************/
+/*
+===============================================================================
+*/
 
 template<class T>
 struct ListNode
