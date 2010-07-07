@@ -70,7 +70,10 @@ void Queue<T, pnext>::EnqueueWithPriority(T* elem)
 	
 	elem->*pnext = NULL;
 	if (prio)
+	{
 		elem->*pnext = prio->*pnext;
+		prio->*pnext = elem;
+	}
 	else
 		head = elem;
 	if (prio == tail)

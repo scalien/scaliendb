@@ -118,7 +118,7 @@ bool Table::Get(Transaction* tx, const char* key, ByteWrap &value)
 
 bool Table::Get(Transaction* tx, const char* key, uint64_t& value)
 {
-	StaticArray<32> ba;
+	DynArray<32> ba;
 	ByteWrap bw;
 	unsigned nread;
 	
