@@ -13,7 +13,6 @@ template<class T, T* T::*pnext>
 class Queue
 {
 public:
-
 	Queue();
 
 	void	Enqueue(T* elem);	
@@ -26,6 +25,7 @@ public:
 	int		Length() const;
 	
 	T*		Next(T* t) const;
+
 private:
 	T*		head;
 	T*		tail;

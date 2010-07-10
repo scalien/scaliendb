@@ -1,6 +1,8 @@
 #ifndef PRIORITYQUEUE_H
 #define PRIORITYQUEUE_H
 
+#include <assert.h>
+
 /*
 ===============================================================================
 
@@ -13,11 +15,10 @@ template<class T, T* T::*pnext>
 class PriorityQueue
 {
 public:
-
-	Queue();
+	PriorityQueue();
 
 	void	Enqueue(T* elem);	
-	void	EnqueueWithPriority(T* elem);	
+	void	EnqueuePriority(T* elem);	
 	T*		Dequeue();
 
 	void	Clear();
@@ -27,6 +28,7 @@ public:
 	int		Length() const;
 	
 	T*		Next(T* t) const;
+
 private:
 	T*		head;
 	T*		tail;
@@ -39,7 +41,7 @@ private:
 */
 
 template<class T, T* T::*pnext>
-Queue<T, pnext>::Queue()
+PriorityQueue<T, pnext>::PriorityQueue()
 {
 	length = 0;
 	head = NULL;
@@ -50,7 +52,7 @@ Queue<T, pnext>::Queue()
 
 
 template<class T, T* T::*pnext>
-void Queue<T, pnext>::Enqueue(T* elem)
+void PriorityQueue<T, pnext>::Enqueue(T* elem)
 {
 	assert(elem != NULL);
 	
@@ -64,7 +66,7 @@ void Queue<T, pnext>::Enqueue(T* elem)
 }
 
 template<class T, T* T::*pnext>
-void Queue<T, pnext>::EnqueueWithPriority(T* elem)
+void PriorityQueue<T, pnext>::EnqueuePriority(T* elem)
 {
 	assert(elem != NULL);
 	
@@ -75,7 +77,10 @@ void Queue<T, pnext>::EnqueueWithPriority(T* elem)
 		prio->*pnext = elem;
 	}
 	else
+	{
+		elem->*pnext = head;
 		head = elem;
+	}
 	if (prio == tail)
 		tail = elem;
 	prio = elem;
@@ -83,7 +88,7 @@ void Queue<T, pnext>::EnqueueWithPriority(T* elem)
 }
 
 template<class T, T* T::*pnext>
-T* Queue<T, pnext>::Dequeue()
+T* PriorityQueue<T, pnext>::Dequeue()
 {
 	T* elem;
 	elem = head;
@@ -101,7 +106,7 @@ T* Queue<T, pnext>::Dequeue()
 }
 
 template<class T, T* T::*pnext>
-void Queue<T, pnext>::Clear()
+void PriorityQueue<T, pnext>::Clear()
 {
 	T* elem;
 
@@ -112,25 +117,25 @@ void Queue<T, pnext>::Clear()
 }
 
 template<class T, T* T::*pnext>
-T* Queue<T, pnext>::Head() const
+T* PriorityQueue<T, pnext>::Head() const
 {
 	return head;
 }
 
 template<class T, T* T::*pnext>
-T* Queue<T, pnext>::Tail() const
+T* PriorityQueue<T, pnext>::Tail() const
 {
 	return tail;
 }
 
 template<class T, T* T::*pnext>
-T* Queue<T, pnext>::Next(T* t) const
+T* PriorityQueue<T, pnext>::Next(T* t) const
 {
 	return t->next;
 }
 
 template<class T, T* T::*pnext>
-int Queue<T, pnext>::Length() const
+int PriorityQueue<T, pnext>::Length() const
 {
 	return length;
 }

@@ -87,9 +87,8 @@
 		546E152F11DA3A1000867EE1 /* ReplicationMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationMessage.h; sourceTree = "<group>"; };
 		546E181611DDD4DF00867EE1 /* QuorumTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumTransport.h; sourceTree = "<group>"; };
 		546E182711DE137F00867EE1 /* ReplicationTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationTransport.h; sourceTree = "<group>"; };
-		546E18C311E4C94F00867EE1 /* PriorityQueue2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PriorityQueue2.h; sourceTree = "<group>"; };
-		546E18E411E4CAF100867EE1 /* Queue2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Queue2.h; sourceTree = "<group>"; };
 		546E190411E4D61300867EE1 /* PriorityQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PriorityQueue.h; sourceTree = "<group>"; };
+		546E1B5311E755D700867EE1 /* BufferQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferQueue.h; sourceTree = "<group>"; };
 		548BA2BA11CA7C510079D99C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = src/Framework/Node.h; sourceTree = SOURCE_ROOT; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
@@ -212,6 +211,7 @@
 				541D860411C7D6B800A6CB16 /* TCPReader.cpp */,
 				541D860711C7D6B800A6CB16 /* TCPWriter.h */,
 				541D860611C7D6B800A6CB16 /* TCPWriter.cpp */,
+				546E1B5311E755D700867EE1 /* BufferQueue.h */,
 			);
 			path = Transport;
 			sourceTree = "<group>";
@@ -220,13 +220,13 @@
 			isa = PBXGroup;
 			children = (
 				546E118F11D8F47900867EE1 /* Quorums */,
+				541D867E11C7D8E400A6CB16 /* PaxosLease */,
 				548BA2BA11CA7C510079D99C /* Node.h */,
 				546E152F11DA3A1000867EE1 /* ReplicationMessage.h */,
 				546E141B11DA0AE900867EE1 /* ReplicationManager.h */,
 				546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */,
 				546E182711DE137F00867EE1 /* ReplicationTransport.h */,
 				546E145711DA173300867EE1 /* ReplicationContext.h */,
-				541D867E11C7D8E400A6CB16 /* PaxosLease */,
 			);
 			path = Replication;
 			sourceTree = "<group>";
@@ -315,8 +315,6 @@
 				54B7F74C11BE5EF30076BC62 /* SortedList.h */,
 				54B7F74B11BE5EF30076BC62 /* Queue.h */,
 				546E190411E4D61300867EE1 /* PriorityQueue.h */,
-				546E18E411E4CAF100867EE1 /* Queue2.h */,
-				546E18C311E4C94F00867EE1 /* PriorityQueue2.h */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
