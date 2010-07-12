@@ -4,7 +4,7 @@ static BufferPool* bufferPool = NULL;
 
 BufferPool* BufferPool::Get()
 {
-	if (bufferPool = NULL)
+	if (bufferPool == NULL)
 		bufferPool = new BufferPool;
 	
 	return bufferPool;
