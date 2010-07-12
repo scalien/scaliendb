@@ -19,7 +19,7 @@ public:
 	ByteWrap ToByteWrap();
 	ByteWrap WrapRest();
 
-	virtual void Allocate(unsigned size_, bool keepold);
+	virtual void Allocate(unsigned size_, bool keepold = true);
 	
 	virtual unsigned	Writef(const char* fmt, ...);
 	virtual unsigned	Appendf(const char* fmt, ...);

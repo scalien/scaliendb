@@ -17,6 +17,7 @@ public:
 
 	virtual void	Init();
 	virtual	void	Wrap(ByteBuffer& buffer);
+	virtual	void	Wrap(ByteString& bs);
 	virtual void	Wrap(char* buffer_, unsigned size_);
 	virtual void	Allocate(unsigned size_, bool keepold = true);
 };

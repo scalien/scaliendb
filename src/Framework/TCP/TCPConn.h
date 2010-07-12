@@ -7,6 +7,7 @@
 #include "System/Containers/Queue.h"
 #include "System/IO/Socket.h"
 #include "System/IO/IOOperation.h"
+#include "TCPWriteProxy.h"
 
 #define TCP_CONNECT_TIMEOUT 3000
 #define TCP_BUFFER_SIZE		8196
@@ -26,6 +27,9 @@
 
 class TCPConn
 {
+protected:
+	typedef DynArray<> Buffer;
+
 public:
 	enum State			{ DISCONNECTED, CONNECTED, CONNECTING };
 
@@ -39,34 +43,31 @@ public:
 	Socket&				GetSocket() { return socket; }
 	const State			GetState() { return state; }
 	
-	unsigned			BytesQueued();
-
 	void				AsyncRead(bool start = true);
-	void				Write(const char* buffer, unsigned length, bool flush = true);
+
+	void				SetWriteProxy(TCPWriteProxy* writeProxy);
+	TCPWriteProxy*		GetWriteProxy();
+	void				OnWritePending(); // for TCPWriteProxy
 	
 	TCPConn*			next;
 
 protected:
-	typedef DynArray<TCP_BUFFER_SIZE>		Buffer;
-	typedef Queue<Buffer, &Buffer::next>	BufferQueue;
-
 	State				state;
 	Socket				socket;
 	TCPRead				tcpread;
 	TCPWrite			tcpwrite;
+	TCPWriteProxy*		writeProxy;
 	Buffer				readBuffer;
-	BufferQueue			writeQueue;
 	CdownTimer			connectTimeout;
 		
+	void				Init(bool startRead = true);
+
 	virtual void		OnRead() = 0;
 	virtual void		OnWrite();
 	virtual void		OnClose() = 0;
 	virtual void		OnConnect();
 	virtual void		OnConnectTimeout();
-	
-	void				Init(bool startRead = true);
-	void				Append(const char* buffer, unsigned length);
-	void				WritePending();
+
 };
 
 #endif

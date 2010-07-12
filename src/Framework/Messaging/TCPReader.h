@@ -1,7 +1,7 @@
 #ifndef TCPREADER_H
 #define	TCPREADER_H
 
-#include "TCPServer.h"
+#include "Framework/TCP/TCPServer.h"
 #include "MessageConn.h"
 
 class TCPReader; // forward

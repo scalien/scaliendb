@@ -1,7 +1,7 @@
 #ifndef TCPWRITER_H
 #define TCPWRITER_H
 
-#include "TCPConn.h"
+#include "Framework/TCP/TCPConn.h"
 
 /*
 ===============================================================================

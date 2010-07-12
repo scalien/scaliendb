@@ -104,6 +104,12 @@ struct TCPWrite : public IOOperation
 		transferred = 0;
 	}
 
+	void Wrap(ByteString& bs)
+	{
+		data.Wrap(bs);
+		transferred = 0;
+	}
+	
 	unsigned	transferred;		/*	the IO subsystem has given the first
 										'transferred' bytes to the kernel */
 };

@@ -16,3 +16,4 @@
 - should ReplicationManager be an ADT?
 
 - pass thru eventhandlers
+- writev vectored write optimalizations

@@ -4,17 +4,13 @@
 TCPConn::TCPConn()
 {
 	state = DISCONNECTED;
+	writeProxy = NULL;
 	next = NULL;
 	connectTimeout.SetCallable(MFUNC(TCPConn, OnConnectTimeout));
 }
 
 TCPConn::~TCPConn()
-{
-	Buffer* buf;
-
-	while ((buf = writeQueue.Dequeue()) != NULL)
-		delete buf;
-	
+{	
 	Close();
 }
 
@@ -40,17 +36,14 @@ void TCPConn::InitConnected(bool startRead)
 	state = CONNECTED;
 }
 
-unsigned TCPConn::BytesQueued()
+void TCPConn::SetWriteProxy(TCPWriteProxy* writeProxy_)
 {
-	unsigned bytes;
-	Buffer* buf;
-	
-	bytes = 0;
+	writeProxy = writeProxy_;
+}
 
-	for (buf = writeQueue.Head(); buf != NULL; buf = writeQueue.Next(buf))
-		bytes += buf->Length();
-
-	return bytes;
+TCPWriteProxy* TCPConn::GetWriteProxy()
+{
+	return writeProxy;
 }
 
 void TCPConn::Connect(Endpoint &endpoint, unsigned timeout)
@@ -89,22 +82,8 @@ void TCPConn::OnWrite()
 	Log_Trace("Written %d bytes", tcpwrite.data.Length());
 	Log_Trace("Written: %.*s", tcpwrite.data.Length(), tcpwrite.data.Buffer());
 
-	Buffer* buf;
-	
-	buf = writeQueue.Dequeue();
-	buf->Rewind();
-	tcpwrite.data.Rewind();
-	
-	if (writeQueue.Length() == 0)
-	{
-		Log_Trace("not posting write");
-		writeQueue.Enqueue(buf);
-	}
-	else
-	{
-		delete buf;
-		WritePending();
-	}
+	assert(writeProxy != NULL);
+	writeProxy->OnNextWritten();
 }
 
 void TCPConn::OnConnect()
@@ -117,7 +96,7 @@ void TCPConn::OnConnect()
 	tcpwrite.onComplete = MFUNC(TCPConn, OnWrite);
 	
 	EventLoop::Remove(&connectTimeout);
-	WritePending();
+	OnWritePending();
 }
 
 void TCPConn::OnConnectTimeout()
@@ -139,40 +118,20 @@ void TCPConn::AsyncRead(bool start)
 		Log_Trace("not posting read");
 }
 
-void TCPConn::Write(const char* buffer, unsigned length, bool flush)
+void TCPConn::OnWritePending()
 {
-	Buffer* buf;
-
-	if (state == DISCONNECTED || !buffer || length == 0)
-		return;
-		
-	buf = writeQueue.Tail();
-	if (!buf ||
-	 (tcpwrite.active && writeQueue.Length() == 1) || 
-	 (buf->Length() > 0 && buf->Remaining() < length))
-	{
-		buf = new Buffer;
-		writeQueue.Enqueue(buf);
-	}
-	buf->Append(buffer, length);
-
-	if (flush)
-		WritePending();
-}
-
-void TCPConn::WritePending()
-{
-	Buffer* buf;
+	ByteString bs;
 
 	if (state == DISCONNECTED || tcpwrite.active)
 		return;
 
-	buf = writeQueue.Head();
+	assert(writeProxy != NULL);
+	bs = writeProxy->GetNext();
 	
-	if (!buf || buf->Length() == 0)
+	if (bs.Length() == 0)
 		return;
 
-	tcpwrite.Wrap(*buf);		
+	tcpwrite.Wrap(bs);
 	IOProcessor::Add(&tcpwrite);
 }
 
@@ -188,22 +147,6 @@ void TCPConn::Close()
 	socket.Close();
 	state = DISCONNECTED;
 	
-	// Discard unnecessary buffers if there are any.
-	// Keep the last one, so that when the connection
-	// is reused it isn't reallocated.
-	while (writeQueue.Length() > 0)
-	{
-		Buffer* buf = writeQueue.Dequeue();
-		if (writeQueue.Length() == 0)
-		{
-			buf->Rewind();
-			writeQueue.Enqueue(buf);
-			break;
-		}
-		else
-			delete buf;
-	}
-	
-	// TODO ? if the last buffer size exceeds some limit, 
-	// reallocate it to a normal value
+	if (writeProxy)
+		writeProxy->OnClose();
 }
