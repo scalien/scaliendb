@@ -1,5 +1,5 @@
 #include "Endpoint.h"
-#include "System/Buffers/Buffer.h"
+#include "System/Buffer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

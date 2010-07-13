@@ -18,7 +18,7 @@
 		546E1F9C11EB827300867EE1 /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F8E11EB827300867EE1 /* BufferPool.cpp */; };
 		546E1F9D11EB827300867EE1 /* TCPConn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9011EB827300867EE1 /* TCPConn.cpp */; };
 		546E1F9E11EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9211EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp */; };
-		546E21A711ECAA0B00867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E21A611ECAA0B00867EE1 /* Buffer.cpp */; };
+		546E238E11ECC5C900867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E238D11ECC5C900867EE1 /* Buffer.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -92,8 +92,8 @@
 		546E1FA611EB827F00867EE1 /* TCPWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPWriter.cpp; sourceTree = "<group>"; };
 		546E1FA711EB827F00867EE1 /* TCPWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPWriter.h; sourceTree = "<group>"; };
 		546E1FC611EC81B200867EE1 /* ListP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListP.h; sourceTree = "<group>"; };
-		546E21A511ECAA0B00867EE1 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
-		546E21A611ECAA0B00867EE1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
+		546E238C11ECC5C900867EE1 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
+		546E238D11ECC5C900867EE1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
 		548BA2BA11CA7C510079D99C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = src/Framework/Node.h; sourceTree = SOURCE_ROOT; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
@@ -297,10 +297,11 @@
 		54B7F74211BE5EF30076BC62 /* System */ = {
 			isa = PBXGroup;
 			children = (
-				54FA661711C1079500FF4EF6 /* Buffers */,
 				54B7F74811BE5EF30076BC62 /* Containers */,
 				54B7F74D11BE5EF30076BC62 /* Events */,
 				54B7F75411BE5EF30076BC62 /* IO */,
+				546E238C11ECC5C900867EE1 /* Buffer.h */,
+				546E238D11ECC5C900867EE1 /* Buffer.cpp */,
 				54B7F74511BE5EF30076BC62 /* Common.h */,
 				54B7F74411BE5EF30076BC62 /* Common.cpp */,
 				54B7F74711BE5EF30076BC62 /* Config.h */,
@@ -362,15 +363,6 @@
 				54B7F76011BE5EF30076BC62 /* Socket_Windows.cpp */,
 			);
 			path = IO;
-			sourceTree = "<group>";
-		};
-		54FA661711C1079500FF4EF6 /* Buffers */ = {
-			isa = PBXGroup;
-			children = (
-				546E21A511ECAA0B00867EE1 /* Buffer.h */,
-				546E21A611ECAA0B00867EE1 /* Buffer.cpp */,
-			);
-			path = Buffers;
 			sourceTree = "<group>";
 		};
 		9A31560311C7B31C0052812E /* Database */ = {
@@ -468,7 +460,7 @@
 				546E1F9C11EB827300867EE1 /* BufferPool.cpp in Sources */,
 				546E1F9D11EB827300867EE1 /* TCPConn.cpp in Sources */,
 				546E1F9E11EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp in Sources */,
-				546E21A711ECAA0B00867EE1 /* Buffer.cpp in Sources */,
+				546E238E11ECC5C900867EE1 /* Buffer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

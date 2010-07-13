@@ -1,7 +1,7 @@
 #ifndef TCPWRITEPROXY_H
 #define TCPWRITEPROXY_H
 
-#include "System/Buffers/Buffer.h"
+#include "System/Buffer.h"
 
 class TCPConn; // forward
 
