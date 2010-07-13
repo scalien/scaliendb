@@ -5,8 +5,7 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include "ByteString.h"
-#include "ByteWrap.h"
+#include "Buffer.h"
 #ifdef _WIN32
 #include "process.h"
 #endif
@@ -199,10 +198,8 @@ void blocksigs()
  * %u (unsigned)		reads an unsigned int
  * %I (int64_t)			reads a signed int64
  * %U (uint64_t)		reads an unsigned int64
- * %M (ByteWrap* bw)	reads a %u:<%u long buffer> into bs.length and copies
- *						the buffer into bs.buffer taking into account bs.size
- * %N (ByteWrap* bw)	same as %M but does not copy the contents, only sets
- *						bs.buffer and sets bs.length = bs.size to the prefix
+ * %M (Buffer* b)		reads a %u:<%u long buffer> into b.length and copies
+ *						the buffer into b.buffer calling Allocate()
  *
  * returns the number of bytes read from buffer, or -1 if the format string did
  * not match the buffer
@@ -227,7 +224,7 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 	unsigned*	u;
 	int64_t*	i64;
 	uint64_t*	u64;
-	ByteWrap*	bw;
+	Buffer*		b;
 	unsigned	n, l;
 	int			read;
 
@@ -282,15 +279,11 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 			}
 			else if (format[1] == 'M') // %M
 			{
-				bw = va_arg(ap, ByteWrap*);
+				b = va_arg(ap, Buffer*);
 				// read the length prefix
 				l = strntouint64(buffer, length, &n);
 				if (n < 1) EXIT();
-				if (l > bw->Size())
-				{
-					bw->SetLength(0);
-					EXIT();
-				}
+				b->Allocate(l);
 				ADVANCE(0, n);
 				// read the ':'
 				REQUIRE(1);
@@ -298,24 +291,8 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 				ADVANCE(0, 1);
 				// read the message body
 				REQUIRE(l);
-				bw->Write(buffer, l);
-				ADVANCE(2, bw->Length());
-			}
-			else if (format[1] == 'N') // %N
-			{
-				bw = va_arg(ap, ByteWrap*);
-				// read the length prefix
-				l = strntouint64(buffer, length, &n);
-				if (n < 1) EXIT();
-				ADVANCE(0, n);
-				// read the ':'
-				REQUIRE(1);
-				if (buffer[0] != ':') EXIT();
-				ADVANCE(0, 1);
-				// read the message body
-				REQUIRE(l);
-				bw->Wrap(buffer, l);
-				ADVANCE(2, l);
+				b->Write(buffer, l);
+				ADVANCE(2, b->GetLength());
 			}
 			else
 			{
@@ -352,9 +329,9 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
  * %I (int64_t)				prints a signed int64
  * %U (uint64_t)			prints an unsigned int64
  * %s (char* p)				copies strlen(p) bytes from p to the output buffer
- * %B (ByteString* bs)		copies bs->length length bytes from bs.buffer to
+ * %B (Buffer* b)			copies bs->length length bytes from bs.buffer to
  *							the output buffer, irrespective of \0 chars
- * %M (ByteString* bs)		same as %u:%B with
+ * %M (Buffer* bs)			same as %u:%B with
  *							(bs->length, bs)
  *
  * snwritef does not null-terminate the resulting buffer
@@ -385,7 +362,7 @@ int vsnwritef(char* buffer, unsigned size, const char* format, va_list ap)
 	uint64_t	u64;
 	char*		p;
 	unsigned	length;
-	ByteString*	bs;
+	Buffer*		b;
 	int			required;
 	char		local[64];
 	bool		ghost;
@@ -461,26 +438,26 @@ int vsnwritef(char* buffer, unsigned size, const char* format, va_list ap)
 				ADVANCE(2, length);
 			} else if (format[1] == 'B') // %B to print a buffer
 			{
-				bs = va_arg(ap, ByteString*);
-				p = bs->Buffer();
-				length = bs->Length();
+				b = va_arg(ap, Buffer*);
+				p = b->GetBuffer();
+				length = b->GetLength();
 				REQUIRE(length);
 				if (ghost) length = size;
 				memcpy(buffer, p, length);
 				ADVANCE(2, length);
 			} else if (format[1] == 'M') // %M to print a message
 			{
-				bs = va_arg(ap, ByteString*);
-				n = snprintf(local, sizeof(local), "%u:", bs->Length());
+				b = va_arg(ap, Buffer*);
+				n = snprintf(local, sizeof(local), "%u:", b->GetLength());
 				if (n < 0) EXIT();
 				REQUIRE(n);
 				if (ghost) n = size;
 				memcpy(buffer, local, n);
 				ADVANCE(0, n);
-				REQUIRE(bs->Length());
-				length = bs->Length();
+				REQUIRE(b->GetLength());
+				length = b->GetLength();
 				if (ghost) length = size;
-				memmove(buffer, bs->Buffer(), length);
+				memmove(buffer, b->GetBuffer(), length);
 				ADVANCE(2, length);
 			}
 			else

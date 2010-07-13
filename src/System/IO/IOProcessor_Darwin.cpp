@@ -349,14 +349,14 @@ void ProcessTCPRead(struct kevent* ev)
 	else
 	{
 		if (tcpread->requested == IO_READ_ANY)
-			readlen = tcpread->data.Remaining();
+			readlen = tcpread->buffer->GetRemaining();
 		else
-			readlen = tcpread->requested - tcpread->data.Length();
+			readlen = tcpread->requested - tcpread->buffer->GetLength();
 		readlen = MIN(ev->data, readlen);
 		if (readlen > 0)
 		{
 			nread = read(tcpread->fd,
-						 tcpread->data.Position(),
+						 tcpread->buffer->GetPosition(),
 						 readlen);
 			
 			if (nread < 0)
@@ -368,9 +368,9 @@ void ProcessTCPRead(struct kevent* ev)
 			}
 			else
 			{
-				tcpread->data.Lengthen(nread);
+				tcpread->buffer->Lengthen(nread);
 				if (tcpread->requested == IO_READ_ANY ||
-				(int) tcpread->data.Length() == tcpread->requested)
+				(int) tcpread->buffer->GetLength() == tcpread->requested)
 					Call(tcpread->onComplete);
 				else
 					IOProcessor::Add(tcpread);
@@ -395,7 +395,7 @@ void ProcessTCPWrite(struct kevent* ev)
 		return;
 	}
 	
-	if (tcpwrite->data.Length() == 0)
+	if (tcpwrite->buffer->GetLength() == 0)
 	{
 		if (ev->flags & EV_EOF)
 			Call(tcpwrite->onClose);
@@ -405,13 +405,13 @@ void ProcessTCPWrite(struct kevent* ev)
 		return;
 	}
 
-	writelen = tcpwrite->data.Length() - tcpwrite->transferred;
+	writelen = tcpwrite->buffer->GetLength() - tcpwrite->transferred;
 	writelen = MIN(ev->data, writelen);
 	
 	if (writelen > 0)
 	{
 		nwrite = write(tcpwrite->fd,
-					   tcpwrite->data.Buffer() + tcpwrite->transferred,
+					   tcpwrite->buffer->GetBuffer() + tcpwrite->transferred,
 					   writelen);
 		
 		if (nwrite < 0)
@@ -424,7 +424,7 @@ void ProcessTCPWrite(struct kevent* ev)
 		else
 		{
 			tcpwrite->transferred += nwrite;
-			if (tcpwrite->transferred == tcpwrite->data.Length())
+			if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
 				Call(tcpwrite->onComplete);
 			else
 				IOProcessor::Add(tcpwrite);
@@ -441,8 +441,8 @@ void ProcessUDPRead(struct kevent* ev)
 	
 	salen = ENDPOINT_SOCKADDR_SIZE;
 	nread = recvfrom(udpread->fd,
-					 udpread->data.Buffer(),
-					 udpread->data.Size(),
+					 udpread->buffer->GetBuffer(),
+					 udpread->buffer->GetSize(),
 					 0,
 					 (sockaddr*) udpread->endpoint.GetSockAddr(),
 					 (socklen_t*)&salen);
@@ -456,7 +456,7 @@ void ProcessUDPRead(struct kevent* ev)
 	}
 	else
 	{
-		udpread->data.SetLength(nread);
+		udpread->buffer->SetLength(nread);
 		Call(udpread->onComplete);
 	}
 					
@@ -471,11 +471,11 @@ void ProcessUDPWrite(struct kevent* ev)
 
 	udpwrite = (UDPWrite*) ev->udata;
 
-	if (ev->data >= (int) udpwrite->data.Length())
+	if (ev->data >= (int) udpwrite->buffer->GetLength())
 	{
 		nwrite = sendto(udpwrite->fd,
-						udpwrite->data.Buffer(),
-						udpwrite->data.Length(),
+						udpwrite->buffer->GetBuffer(),
+						udpwrite->buffer->GetLength(),
 						0,
 						(const sockaddr*) udpwrite->endpoint.GetSockAddr(),
 						ENDPOINT_SOCKADDR_SIZE);
@@ -489,7 +489,7 @@ void ProcessUDPWrite(struct kevent* ev)
 		}
 		else
 		{
-			if (nwrite == (int) udpwrite->data.Length())
+			if (nwrite == (int) udpwrite->buffer->GetLength())
 			{
 				Call(udpwrite->onComplete);
 			}

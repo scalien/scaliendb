@@ -17,3 +17,5 @@
 
 - pass thru eventhandlers
 - writev vectored write optimalizations
+
+- rename TCPReader/Write to MessageReader and MessageWriter

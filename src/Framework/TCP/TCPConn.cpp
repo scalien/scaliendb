@@ -79,8 +79,8 @@ void TCPConn::Connect(Endpoint &endpoint, unsigned timeout)
 
 void TCPConn::OnWrite()
 {
-	Log_Trace("Written %d bytes", tcpwrite.data.Length());
-	Log_Trace("Written: %.*s", tcpwrite.data.Length(), tcpwrite.data.Buffer());
+	Log_Trace("Written %d bytes", tcpwrite.buffer->GetLength());
+	Log_Trace("Written: %.*s", P(tcpwrite.buffer));
 
 	assert(writeProxy != NULL);
 	writeProxy->OnNextWritten();
@@ -111,7 +111,7 @@ void TCPConn::AsyncRead(bool start)
 	tcpread.SetFD(socket.fd);
 	tcpread.SetOnComplete(MFUNC(TCPConn, OnRead));
 	tcpread.SetOnClose(MFUNC(TCPConn, OnClose));
-	tcpread.Wrap(readBuffer);
+	tcpread.buffer = &readBuffer;
 	if (start)
 		IOProcessor::Add(&tcpread);
 	else
@@ -120,18 +120,18 @@ void TCPConn::AsyncRead(bool start)
 
 void TCPConn::OnWritePending()
 {
-	ByteString bs;
+	Buffer* buffer;
 
 	if (state == DISCONNECTED || tcpwrite.active)
 		return;
 
 	assert(writeProxy != NULL);
-	bs = writeProxy->GetNext();
+	buffer = writeProxy->GetNext();
 	
-	if (bs.Length() == 0)
+	if (buffer == NULL)
 		return;
 
-	tcpwrite.Wrap(bs);
+	tcpwrite.SetBuffer(buffer);
 	IOProcessor::Add(&tcpwrite);
 }
 

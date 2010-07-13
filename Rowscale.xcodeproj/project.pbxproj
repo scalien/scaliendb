@@ -18,11 +18,7 @@
 		546E1F9C11EB827300867EE1 /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F8E11EB827300867EE1 /* BufferPool.cpp */; };
 		546E1F9D11EB827300867EE1 /* TCPConn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9011EB827300867EE1 /* TCPConn.cpp */; };
 		546E1F9E11EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9211EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp */; };
-		546E1F9F11EB827300867EE1 /* TCPPooledWriteQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9411EB827300867EE1 /* TCPPooledWriteQueue.cpp */; };
-		546E1FA011EB827300867EE1 /* TCPPriorityWriteQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9611EB827300867EE1 /* TCPPriorityWriteQueue.cpp */; };
-		546E1FA111EB827300867EE1 /* TCPWriteQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9A11EB827300867EE1 /* TCPWriteQueue.cpp */; };
-		546E1FA811EB827F00867EE1 /* TCPReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1FA411EB827F00867EE1 /* TCPReader.cpp */; };
-		546E1FA911EB827F00867EE1 /* TCPWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1FA611EB827F00867EE1 /* TCPWriter.cpp */; };
+		546E21A711ECAA0B00867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E21A611ECAA0B00867EE1 /* Buffer.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -32,9 +28,6 @@
 		54B7F77C11BE5EF30076BC62 /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
 		54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76911BE5EF30076BC62 /* ThreadPool_Windows.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
-		54FA668A11C10D7800FF4EF6 /* ByteString.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA668911C10D7800FF4EF6 /* ByteString.cpp */; };
-		54FA669011C10DA600FF4EF6 /* ByteBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA668F11C10DA600FF4EF6 /* ByteBuffer.cpp */; };
-		54FA669511C10DCE00FF4EF6 /* ByteWrap.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA669411C10DCE00FF4EF6 /* ByteWrap.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		54FA68F911C2429A00FF4EF6 /* CdownTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */; };
 		54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
@@ -84,26 +77,23 @@
 		546E152F11DA3A1000867EE1 /* ReplicationMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationMessage.h; sourceTree = "<group>"; };
 		546E181611DDD4DF00867EE1 /* QuorumTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumTransport.h; sourceTree = "<group>"; };
 		546E182711DE137F00867EE1 /* ReplicationTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationTransport.h; sourceTree = "<group>"; };
-		546E190411E4D61300867EE1 /* PriorityQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PriorityQueue.h; sourceTree = "<group>"; };
+		546E190411E4D61300867EE1 /* PriorityQueueP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PriorityQueueP.h; sourceTree = "<group>"; };
 		546E1F8E11EB827300867EE1 /* BufferPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BufferPool.cpp; sourceTree = "<group>"; };
 		546E1F8F11EB827300867EE1 /* BufferPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferPool.h; sourceTree = "<group>"; };
 		546E1F9011EB827300867EE1 /* TCPConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPConn.cpp; sourceTree = "<group>"; };
 		546E1F9111EB827300867EE1 /* TCPConn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPConn.h; sourceTree = "<group>"; };
 		546E1F9211EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPPooledPriorityWriteQueue.cpp; sourceTree = "<group>"; };
 		546E1F9311EB827300867EE1 /* TCPPooledPriorityWriteQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPPooledPriorityWriteQueue.h; sourceTree = "<group>"; };
-		546E1F9411EB827300867EE1 /* TCPPooledWriteQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPPooledWriteQueue.cpp; sourceTree = "<group>"; };
-		546E1F9511EB827300867EE1 /* TCPPooledWriteQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPPooledWriteQueue.h; sourceTree = "<group>"; };
-		546E1F9611EB827300867EE1 /* TCPPriorityWriteQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPPriorityWriteQueue.cpp; sourceTree = "<group>"; };
-		546E1F9711EB827300867EE1 /* TCPPriorityWriteQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPPriorityWriteQueue.h; sourceTree = "<group>"; };
 		546E1F9811EB827300867EE1 /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
 		546E1F9911EB827300867EE1 /* TCPWriteProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPWriteProxy.h; sourceTree = "<group>"; };
-		546E1F9A11EB827300867EE1 /* TCPWriteQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPWriteQueue.cpp; sourceTree = "<group>"; };
-		546E1F9B11EB827300867EE1 /* TCPWriteQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPWriteQueue.h; sourceTree = "<group>"; };
 		546E1FA311EB827F00867EE1 /* MessageConn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConn.h; sourceTree = "<group>"; };
 		546E1FA411EB827F00867EE1 /* TCPReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPReader.cpp; sourceTree = "<group>"; };
 		546E1FA511EB827F00867EE1 /* TCPReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPReader.h; sourceTree = "<group>"; };
 		546E1FA611EB827F00867EE1 /* TCPWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPWriter.cpp; sourceTree = "<group>"; };
 		546E1FA711EB827F00867EE1 /* TCPWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPWriter.h; sourceTree = "<group>"; };
+		546E1FC611EC81B200867EE1 /* ListP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListP.h; sourceTree = "<group>"; };
+		546E21A511ECAA0B00867EE1 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
+		546E21A611ECAA0B00867EE1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
 		548BA2BA11CA7C510079D99C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = src/Framework/Node.h; sourceTree = SOURCE_ROOT; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
@@ -113,7 +103,7 @@
 		54B7F74611BE5EF30076BC62 /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Config.cpp; sourceTree = "<group>"; };
 		54B7F74711BE5EF30076BC62 /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
 		54B7F74A11BE5EF30076BC62 /* List.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = List.h; sourceTree = "<group>"; };
-		54B7F74B11BE5EF30076BC62 /* Queue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Queue.h; sourceTree = "<group>"; };
+		54B7F74B11BE5EF30076BC62 /* QueueP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueP.h; sourceTree = "<group>"; };
 		54B7F74C11BE5EF30076BC62 /* SortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SortedList.h; sourceTree = "<group>"; };
 		54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventLoop.cpp; sourceTree = "<group>"; };
 		54B7F75011BE5EF30076BC62 /* EventLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventLoop.h; sourceTree = "<group>"; };
@@ -141,17 +131,10 @@
 		54B7F76D11BE5EF30076BC62 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		54B7F96011BE85950076BC62 /* Time.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Time.cpp; sourceTree = "<group>"; };
 		54B7F96411BE85B10076BC62 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
-		54FA661811C107BD00FF4EF6 /* ByteBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteBuffer.h; sourceTree = "<group>"; };
-		54FA661C11C107E800FF4EF6 /* ByteWrap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteWrap.h; sourceTree = "<group>"; };
-		54FA662511C1088A00FF4EF6 /* DynArray.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynArray.h; sourceTree = "<group>"; };
-		54FA668911C10D7800FF4EF6 /* ByteString.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByteString.cpp; sourceTree = "<group>"; };
-		54FA668F11C10DA600FF4EF6 /* ByteBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByteBuffer.cpp; sourceTree = "<group>"; };
-		54FA669411C10DCE00FF4EF6 /* ByteWrap.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ByteWrap.cpp; sourceTree = "<group>"; };
 		54FA68F311C2422A00FF4EF6 /* CdownTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CdownTimer.h; sourceTree = "<group>"; };
 		54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CdownTimer.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
-		54FA6B1611C275C600FF4EF6 /* ByteString.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ByteString.h; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* Rowscale */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Rowscale; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
 		9A31560411C7B32A0052812E /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cursor.cpp; path = Database/Cursor.cpp; sourceTree = "<group>"; };
@@ -270,14 +253,8 @@
 				546E1F9111EB827300867EE1 /* TCPConn.h */,
 				546E1F9011EB827300867EE1 /* TCPConn.cpp */,
 				546E1F9911EB827300867EE1 /* TCPWriteProxy.h */,
-				546E1F9B11EB827300867EE1 /* TCPWriteQueue.h */,
-				546E1F9A11EB827300867EE1 /* TCPWriteQueue.cpp */,
-				546E1F9711EB827300867EE1 /* TCPPriorityWriteQueue.h */,
-				546E1F9611EB827300867EE1 /* TCPPriorityWriteQueue.cpp */,
-				546E1F9511EB827300867EE1 /* TCPPooledWriteQueue.h */,
-				546E1F9411EB827300867EE1 /* TCPPooledWriteQueue.cpp */,
-				546E1F9211EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp */,
 				546E1F9311EB827300867EE1 /* TCPPooledPriorityWriteQueue.h */,
+				546E1F9211EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp */,
 				546E1F9811EB827300867EE1 /* TCPServer.h */,
 			);
 			path = TCP;
@@ -346,8 +323,9 @@
 			children = (
 				54B7F74A11BE5EF30076BC62 /* List.h */,
 				54B7F74C11BE5EF30076BC62 /* SortedList.h */,
-				54B7F74B11BE5EF30076BC62 /* Queue.h */,
-				546E190411E4D61300867EE1 /* PriorityQueue.h */,
+				54B7F74B11BE5EF30076BC62 /* QueueP.h */,
+				546E190411E4D61300867EE1 /* PriorityQueueP.h */,
+				546E1FC611EC81B200867EE1 /* ListP.h */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
@@ -389,13 +367,8 @@
 		54FA661711C1079500FF4EF6 /* Buffers */ = {
 			isa = PBXGroup;
 			children = (
-				54FA6B1611C275C600FF4EF6 /* ByteString.h */,
-				54FA668911C10D7800FF4EF6 /* ByteString.cpp */,
-				54FA661811C107BD00FF4EF6 /* ByteBuffer.h */,
-				54FA668F11C10DA600FF4EF6 /* ByteBuffer.cpp */,
-				54FA661C11C107E800FF4EF6 /* ByteWrap.h */,
-				54FA669411C10DCE00FF4EF6 /* ByteWrap.cpp */,
-				54FA662511C1088A00FF4EF6 /* DynArray.h */,
+				546E21A511ECAA0B00867EE1 /* Buffer.h */,
+				546E21A611ECAA0B00867EE1 /* Buffer.cpp */,
 			);
 			path = Buffers;
 			sourceTree = "<group>";
@@ -476,9 +449,6 @@
 				54B7F77C11BE5EF30076BC62 /* ThreadPool_Posix.cpp in Sources */,
 				54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */,
 				54B7F96111BE85950076BC62 /* Time.cpp in Sources */,
-				54FA668A11C10D7800FF4EF6 /* ByteString.cpp in Sources */,
-				54FA669011C10DA600FF4EF6 /* ByteBuffer.cpp in Sources */,
-				54FA669511C10DCE00FF4EF6 /* ByteWrap.cpp in Sources */,
 				54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */,
 				54FA68F911C2429A00FF4EF6 /* CdownTimer.cpp in Sources */,
 				54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */,
@@ -498,11 +468,7 @@
 				546E1F9C11EB827300867EE1 /* BufferPool.cpp in Sources */,
 				546E1F9D11EB827300867EE1 /* TCPConn.cpp in Sources */,
 				546E1F9E11EB827300867EE1 /* TCPPooledPriorityWriteQueue.cpp in Sources */,
-				546E1F9F11EB827300867EE1 /* TCPPooledWriteQueue.cpp in Sources */,
-				546E1FA011EB827300867EE1 /* TCPPriorityWriteQueue.cpp in Sources */,
-				546E1FA111EB827300867EE1 /* TCPWriteQueue.cpp in Sources */,
-				546E1FA811EB827F00867EE1 /* TCPReader.cpp in Sources */,
-				546E1FA911EB827F00867EE1 /* TCPWriter.cpp in Sources */,
+				546E21A711ECAA0B00867EE1 /* Buffer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

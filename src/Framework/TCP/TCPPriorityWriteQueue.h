@@ -2,8 +2,7 @@
 #define TCPPRIORITYWRITEQUEUE
 
 #include "TCPWriteProxy.h"
-#include "System/Buffers/DynArray.h"
-#include "System/Containers/PriorityQueue.h"
+#include "System/Containers/PriorityQueueP.h"
 
 /*
 ===============================================================================
@@ -17,19 +16,19 @@ class TCPPriorityWriteQueue : public TCPWriteProxy
 {
 protected:
 	typedef DynArray<> Buffer;
-	typedef PriorityQueue<Buffer, &Buffer::next> BufferQueue;
+	typedef PriorityQueueP<Buffer> BufferQueue;
 
 public:
 	TCPPriorityWriteQueue(TCPConn* conn);
 	virtual ~TCPPriorityWriteQueue();
 	
-	virtual void			Write(ByteString& bs);
+	virtual void			Write(Buffer& buffer);
 	virtual void			Write(const char* buffer, unsigned length);
-	void					WritePriority(ByteString& bs);
+	void					WritePriority(Buffer& buffer);
 	void					WritePriority(const char* buffer, unsigned length);
 	void					Flush();
 
-	virtual ByteString		GetNext();
+	virtual Buffer*			GetNext();
 	virtual void			OnNextWritten();	
 	virtual void			OnClose();
 	

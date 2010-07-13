@@ -11,7 +11,7 @@ bool TCPWriter::Init(Endpoint &endpoint_)
 	return true;
 }
 
-void TCPWriter::Write(const ByteString &bs)
+void TCPWriter::Write(Buffer* buffer)
 {
 	Log_Trace();
 
@@ -20,10 +20,10 @@ void TCPWriter::Write(const ByteString &bs)
 	
 	if (state == CONNECTED)
 	{
-		llen = snwritef(lbuf, sizeof(lbuf), "%d:", bs.Length());
+		llen = snwritef(lbuf, sizeof(lbuf), "%d:", buffer->GetLength());
 		
-		TCPConn::Write(lbuf, llen, false);
-		TCPConn::Write(bs.Buffer(), bs.Length());
+		TCPConn::GetWriteProxy()->Write(lbuf, llen, false);
+		TCPConn::GetWriteProxy()->Write(buffer);
 	}
 	else if (state == DISCONNECTED && !connectTimeout.IsActive())
 		Connect();

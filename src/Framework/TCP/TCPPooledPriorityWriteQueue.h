@@ -2,8 +2,7 @@
 #define TCPPOOLEDPRIORITYWRITEQUEUE
 
 #include "TCPWriteProxy.h"
-#include "System/Buffers/DynArray.h"
-#include "System/Containers/PriorityQueue.h"
+#include "System/Containers/PriorityQueueP.h"
 #include "BufferPool.h"
 
 /*
@@ -16,34 +15,33 @@
 
 class TCPPooledPriorityWriteQueue : public TCPWriteProxy
 {
-protected:
-	typedef DynArray<> Buffer;
-	typedef PriorityQueue<Buffer, &Buffer::next> BufferQueue;
-
 public:
 	TCPPooledPriorityWriteQueue(TCPConn* conn, BufferPool* pool = NULL);
 	virtual ~TCPPooledPriorityWriteQueue();
 	
-	virtual void			Write(ByteString& bs);
-	virtual void			Write(const char* buffer, unsigned length);
-	void					WritePriority(ByteString& bs);
-	void					WritePriority(const char* buffer, unsigned length);
-	Buffer*					GetPooledBuffer(unsigned size = 0);
-	void					WritePooled(Buffer* buffer);
-	void					WritePooledPriority(Buffer* buffer);
-	void					Flush();
+	Buffer*						GetPooledBuffer(unsigned size = 0);
 
-	virtual ByteString		GetNext();
-	virtual void			OnNextWritten();	
-	virtual void			OnClose();
+	virtual void				Write(Buffer* buffer);
+	virtual void				Write(const char* buffer, unsigned length);
+
+	void						WritePriority(Buffer* buffer);
+	void						WritePriority(const char* buffer, unsigned length);
+
+	void						WritePooled(Buffer* buffer);
+	void						WritePooledPriority(Buffer* buffer);
+	void						Flush();
+
+	virtual Buffer*				GetNext();
+	virtual void				OnNextWritten();	
+	virtual void				OnClose();
 	
-	unsigned				BytesQueued();
+	unsigned					BytesQueued();
 
 protected:
-	TCPConn*				conn;
-	BufferQueue				queue;
-	bool					writing;
-	BufferPool*				pool;
+	TCPConn*					conn;
+	PriorityQueueP<Buffer>		queue;
+	BufferPool*					pool;
+	bool						writing;
 };
 
 #endif

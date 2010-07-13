@@ -1,5 +1,5 @@
 #include "Endpoint.h"
-#include "System/Buffers/DynArray.h"
+#include "System/Buffers/Buffer.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -107,7 +107,7 @@ bool Endpoint::Set(const char* ip_port, bool resolv)
 	const char*		p;
 	int				port;
 	bool			ret;
-	DynArray<32>	ipbuf;
+	Buffer			ipbuf;
 
 	p = ip_port;
 	
@@ -132,7 +132,7 @@ bool Endpoint::Set(const char* ip_port, bool resolv)
 		return false;
 	}
 
-	ret = Set(ipbuf.Buffer(), port, resolv);
+	ret = Set(ipbuf.GetBuffer(), port, resolv);
 	
 	return ret;
 }

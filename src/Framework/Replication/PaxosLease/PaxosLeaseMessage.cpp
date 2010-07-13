@@ -108,77 +108,77 @@ bool PaxosLeaseMessage::IsLearnChosen() const
 	return (type == PAXOSLEASE_LEARN_CHOSEN);
 }
 
-bool PaxosLeaseMessage::Read(const ByteString& data)
+bool PaxosLeaseMessage::Read(const Buffer* buffer)
 {
 	int read;
 	
-	if (data.Length() < 1)
+	if (buffer->GetLength() < 1)
 		return false;
 	
-	switch (data.CharAt(0))
+	switch (buffer->GetCharAt(0))
 	{
 		case PAXOSLEASE_PREPARE_REQUEST:
-			read = data.Readf("%c:%u:%U:%U", &type, &nodeID, &proposalID, &paxosID);
+			read = buffer->Readf("%c:%u:%U:%U", &type, &nodeID, &proposalID, &paxosID);
 			break;
 		case PAXOSLEASE_PREPARE_REJECTED:
-			read = data.Readf("%c:%u:%U", &type, &nodeID, &proposalID);
+			read = buffer->Readf("%c:%u:%U", &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED:
-			read = data.Readf("%c:%u:%U:%U:%u:%u",
+			read = buffer->Readf("%c:%u:%U:%U:%u:%u",
 			 &type, &nodeID, &proposalID, &acceptedProposalID, &leaseOwner, &duration);
 			break;
 		case PAXOSLEASE_PREPARE_CURRENTLY_OPEN:
-			read = data.Readf("%c:%u:%U", &type, &nodeID, &proposalID);
+			read = buffer->Readf("%c:%u:%U", &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_PROPOSE_REQUEST:
-			read = data.Readf("%c:%u:%U:%u:%u", &type, &nodeID, &proposalID,
+			read = buffer->Readf("%c:%u:%U:%u:%u", &type, &nodeID, &proposalID,
 			 &leaseOwner, &duration);
 			break;
 		case PAXOSLEASE_PROPOSE_REJECTED:
-			read = data.Readf("%c:%u:%U", &type, &nodeID, &proposalID);
+			read = buffer->Readf("%c:%u:%U", &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_PROPOSE_ACCEPTED:
-			read = data.Readf("%c:%u:%U", &type, &nodeID, &proposalID);
+			read = buffer->Readf("%c:%u:%U", &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_LEARN_CHOSEN:
-			read = data.Readf("%c:%u:%u:%u:%U", &type, &nodeID, &leaseOwner,
+			read = buffer->Readf("%c:%u:%u:%u:%U", &type, &nodeID, &leaseOwner,
 			 &duration, &localExpireTime);
 			break;
 		default:
 			return false;
 	}
 
-	return (read == (signed)data.Length() ? true : false);
+	return (read == (signed)buffer->GetLength() ? true : false);
 }
 
-bool PaxosLeaseMessage::Write(ByteBuffer& data) const
+bool PaxosLeaseMessage::Write(Buffer* buffer) const
 {
 	switch (type)
 	{
 		case PAXOSLEASE_PREPARE_REQUEST:
-			return data.Writef("%c:%u:%U:%U", type, nodeID, proposalID, paxosID);
+			return buffer->Writef("%c:%u:%U:%U", type, nodeID, proposalID, paxosID);
 			break;
 		case PAXOSLEASE_PREPARE_REJECTED:
-			return data.Writef("%c:%u:%U", type, nodeID, proposalID);
+			return buffer->Writef("%c:%u:%U", type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED:
-			return data.Writef("%c:%u:%U:%U:%u:%u",
+			return buffer->Writef("%c:%u:%U:%U:%u:%u",
 			 type, nodeID, proposalID, acceptedProposalID, leaseOwner, duration);
 			break;
 		case PAXOSLEASE_PREPARE_CURRENTLY_OPEN:
-			return data.Writef("%c:%u:%U", type, nodeID, proposalID);
+			return buffer->Writef("%c:%u:%U", type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_PROPOSE_REQUEST:
-			return data.Writef("%c:%u:%U:%u:%u", type, nodeID, proposalID, leaseOwner, duration);
+			return buffer->Writef("%c:%u:%U:%u:%u", type, nodeID, proposalID, leaseOwner, duration);
 			break;
 		case PAXOSLEASE_PROPOSE_REJECTED:
-			return data.Writef("%c:%u:%U", type, nodeID, proposalID);
+			return buffer->Writef("%c:%u:%U", type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_PROPOSE_ACCEPTED:
-			return data.Writef("%c:%u:%U", type, nodeID, proposalID);
+			return buffer->Writef("%c:%u:%U", type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_LEARN_CHOSEN:
-			return data.Writef("%c:%u:%u:%u:%U",
+			return buffer->Writef("%c:%u:%u:%u:%U",
 			 type, nodeID, leaseOwner, duration, localExpireTime);
 			break;
 		default:

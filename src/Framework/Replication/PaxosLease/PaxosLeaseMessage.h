@@ -1,8 +1,6 @@
 #ifndef PAXOSLEASEMESSAGE_H
 #define PAXOSLEASEMESSAGE_H
 
-#include "System/Buffers/ByteString.h"
-#include "System/Buffers/ByteBuffer.h"
 #include "Framework/Replication/ReplicationMessage.h"
 
 #define PAXOSLEASE_PREPARE_REQUEST				'1'
@@ -57,8 +55,8 @@ public:
 	bool			IsLearnChosen() const;	
 
 	// implementation of ReplicationMessage interface:
-	bool			Read(const ByteString& data);
-	bool			Write(ByteBuffer& data) const;
+	bool			Read(const Buffer* buffer);
+	bool			Write(Buffer* buffer) const;
 };
 
 #endif

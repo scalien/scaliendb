@@ -3,8 +3,8 @@
 
 #include "System/Events/Callable.h"
 #include "System/Events/CdownTimer.h"
-#include "System/Buffers/DynArray.h"
-#include "System/Containers/Queue.h"
+#include "System/Buffers/Buffer.h"
+#include "System/Containers/QueueP.h"
 #include "System/IO/Socket.h"
 #include "System/IO/IOOperation.h"
 #include "TCPWriteProxy.h"
@@ -27,9 +27,6 @@
 
 class TCPConn
 {
-protected:
-	typedef DynArray<> Buffer;
-
 public:
 	enum State			{ DISCONNECTED, CONNECTED, CONNECTING };
 

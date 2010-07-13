@@ -5,7 +5,7 @@
 #include "System/IO/Socket.h"
 #include "System/IO/IOOperation.h"
 #include "System/IO/IOProcessor.h"
-#include "System/Containers/Queue.h"
+#include "System/Containers/QueueP.h"
 #include "System/Containers/List.h"
 #include "TCPConn.h"
 
@@ -24,7 +24,7 @@
 template<class T, class Conn>
 class TCPServer
 {
-	typedef Queue<TCPConn, &TCPConn::next> ConnList;
+	typedef QueueP<TCPConn> ConnList;
 
 public:
 	TCPServer();

@@ -1,31 +1,39 @@
 #ifndef BUFFERQUEUE_H
 #define BUFFERQUEUE_H
 
-#include "System/Buffers/DynArray.h"
+#include "System/Buffers/Buffer.h"
+#include "System/Containers/ListP.h"
 
-#define	DEFAULT_BUFFERPOOL (BufferPool::Get())
+#define	DEFAULT_BUFFERPOOL			(BufferPool::Get())
+#define TARGET_AVAILABLE_SIZE		10*MB
 
 /*
 ===============================================================================
 
  BufferPool
 
- The default implementation just calls new, Allocate() and delete.
 ===============================================================================
 */
 
 class BufferPool
 {
-protected:
-	typedef DynArray<> Buffer;
-
 public:
 	virtual ~BufferPool() {}
+
+	BufferPool();
 
 	static BufferPool*			Get();
 
 	virtual Buffer*				Acquire(unsigned size);
 	virtual void				Release(Buffer* buffer);
+	
+	virtual unsigned			GetAvailableSize();
+
+private:
+	ListP<Buffer>				available;
+	unsigned					availableSize;
+	
+	Buffer*						Allocate(unsigned size);
 };
 
 #endif

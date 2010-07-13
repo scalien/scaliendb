@@ -16,7 +16,7 @@ class TCPWriter : public TCPConn
 public:
 	
 	virtual bool		Init(Endpoint &endpoint_);
-	virtual void		Write(const ByteString &bs);
+	virtual void		Write(Buffer* buffer);
 
 private:
 	void				Connect();

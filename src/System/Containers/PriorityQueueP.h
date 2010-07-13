@@ -11,11 +11,11 @@
 ===============================================================================
 */
 
-template<class T, T* T::*pnext>
-class PriorityQueue
+template<class T>
+class PriorityQueueP
 {
 public:
-	PriorityQueue();
+	PriorityQueueP();
 
 	void	Enqueue(T* elem);	
 	void	EnqueuePriority(T* elem);	
@@ -40,8 +40,8 @@ private:
 ===============================================================================
 */
 
-template<class T, T* T::*pnext>
-PriorityQueue<T, pnext>::PriorityQueue()
+template<class T>
+PriorityQueueP<T>::PriorityQueueP()
 {
 	length = 0;
 	head = NULL;
@@ -51,34 +51,34 @@ PriorityQueue<T, pnext>::PriorityQueue()
 }
 
 
-template<class T, T* T::*pnext>
-void PriorityQueue<T, pnext>::Enqueue(T* elem)
+template<class T>
+void PriorityQueueP<T>::Enqueue(T* elem)
 {
 	assert(elem != NULL);
 	
-	elem->*pnext = NULL;
+	elem->next = NULL;
 	if (tail)
-		tail->*pnext = elem;
+		tail->next = elem;
 	else
 		head = elem;
 	tail = elem;
 	length++;
 }
 
-template<class T, T* T::*pnext>
-void PriorityQueue<T, pnext>::EnqueuePriority(T* elem)
+template<class T>
+void PriorityQueueP<T>::EnqueuePriority(T* elem)
 {
 	assert(elem != NULL);
 	
-	elem->*pnext = NULL;
+	elem->next = NULL;
 	if (prio)
 	{
-		elem->*pnext = prio->*pnext;
-		prio->*pnext = elem;
+		elem->next = prio->next;
+		prio->next = elem;
 	}
 	else
 	{
-		elem->*pnext = head;
+		elem->next = head;
 		head = elem;
 	}
 	if (prio == tail)
@@ -87,26 +87,26 @@ void PriorityQueue<T, pnext>::EnqueuePriority(T* elem)
 	length++;
 }
 
-template<class T, T* T::*pnext>
-T* PriorityQueue<T, pnext>::Dequeue()
+template<class T>
+T* PriorityQueueP<T>::Dequeue()
 {
 	T* elem;
 	elem = head;
 	if (elem)
 	{
-		head = elem->*pnext;
+		head = dynamic_cast<T*>(elem->next);
 		if (tail == elem)
 			tail = NULL;
 		if (prio == elem)
 			prio = NULL;
-		elem->*pnext = NULL;
+		elem->next = NULL;
 		length--;
 	}
 	return elem;
 }
 
-template<class T, T* T::*pnext>
-void PriorityQueue<T, pnext>::Clear()
+template<class T>
+void PriorityQueueP<T>::Clear()
 {
 	T* elem;
 
@@ -116,26 +116,26 @@ void PriorityQueue<T, pnext>::Clear()
 	} while (elem);
 }
 
-template<class T, T* T::*pnext>
-T* PriorityQueue<T, pnext>::Head() const
+template<class T>
+T* PriorityQueueP<T>::Head() const
 {
 	return head;
 }
 
-template<class T, T* T::*pnext>
-T* PriorityQueue<T, pnext>::Tail() const
+template<class T>
+T* PriorityQueueP<T>::Tail() const
 {
 	return tail;
 }
 
-template<class T, T* T::*pnext>
-T* PriorityQueue<T, pnext>::Next(T* t) const
+template<class T>
+T* PriorityQueueP<T>::Next(T* t) const
 {
-	return t->next;
+	return dynamic_cast<T*>(t->next);
 }
 
-template<class T, T* T::*pnext>
-int PriorityQueue<T, pnext>::Length() const
+template<class T>
+int PriorityQueueP<T>::Length() const
 {
 	return length;
 }

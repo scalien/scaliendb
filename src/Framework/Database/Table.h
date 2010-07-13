@@ -3,14 +3,14 @@
 
 #include "Database.h"
 #include "Cursor.h"
-#include "System/Buffers/ByteWrap.h"
+#include "System/Buffers/Buffer.h"
 
 class TableVisitor
 {
 public:
 	virtual	~TableVisitor() {}
-	virtual bool Accept(const ByteString &key, const ByteString &value) = 0;
-	virtual const ByteString* GetStartKey() { return 0; }
+	virtual bool Accept(const Buffer &key, const Buffer &value) = 0;
+	virtual const Buffer* GetStartKey() { return 0; }
 	virtual void OnComplete() {}
 	virtual bool IsForward() { return true; }
 };
@@ -25,16 +25,19 @@ public:
 	
 	bool		Iterate(Transaction* tx, Cursor& cursor);
 	
-	bool		Get(Transaction* tx, const ByteString &key, ByteWrap &value);
-	bool		Get(Transaction* tx, const char* key, ByteWrap &value);
+	bool		Get(Transaction* tx, const Buffer &key, Buffer &value);
+	bool		Get(Transaction* tx, const char* key, Buffer &value);
+	bool		Get(Transaction* tx, const char* key, unsigned klen, Buffer &value);
 	bool		Get(Transaction* tx, const char* key, uint64_t &value);
-	
-	bool		Set(Transaction* tx, const ByteString &key, const ByteString &value);
-	bool		Set(Transaction* tx, const char* key, const ByteString &value);
+
+	bool		Set(Transaction* tx, const Buffer &key, const Buffer &value);
+	bool		Set(Transaction* tx, const char* key, const Buffer &value);
 	bool		Set(Transaction* tx, const char* key, const char* value);
-	
-	bool		Delete(Transaction* tx, const ByteString &key);
-	bool		Prune(Transaction* tx, const ByteString &prefix);
+	bool		Set(Transaction* tx, const char* key, unsigned klen,
+				 const char* value, unsigned vlen);
+		
+	bool		Delete(Transaction* tx, const Buffer &key);
+	bool		Prune(Transaction* tx, const Buffer &prefix);
 	bool		Truncate(Transaction* tx = NULL);
 	
 	bool		Visit(TableVisitor &tv);

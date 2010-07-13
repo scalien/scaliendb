@@ -1,32 +1,29 @@
 #include <stdio.h>
-#include "System/Containers/PriorityQueue.h"
+#include "Framework/TCP/BufferPool.h"
 
 struct S
 {
 	S(int num_) { num = num_; }
+	
+	bool operator==(const S &other) { return num == other.num; }
 	int		num;
+	
 	S*		next;
+	S*		prev;
 };
 
 int main(void)
 {
-	PriorityQueue<S, &S::next> pq;
-	S* s;
+	Buffer* buf;
 	
-	pq.Enqueue(new S(100));
-	pq.Enqueue(new S(101));
-	pq.Enqueue(new S(102));
-	pq.EnqueuePriority(new S(0));
-	pq.EnqueuePriority(new S(1));
-	pq.EnqueuePriority(new S(2));
-	pq.Enqueue(new S(103));
-	pq.EnqueuePriority(new S(3));
-	
-	
-	while (s = pq.Dequeue())
-	{
-		printf("len: %d\n", pq.Length());
-		printf("%d\n", s->num);
-		delete s;
-	}
+	buf = DEFAULT_BUFFERPOOL->Acquire(100);
+	buf->Write("hello\n");
+	printf("%.*s", P(buf));
+	DEFAULT_BUFFERPOOL->Release(buf);
+	buf = DEFAULT_BUFFERPOOL->Acquire(100);
+	buf->Write("1234\n");
+	printf("%.*s", P(buf));
+	printf("available: %u\n", DEFAULT_BUFFERPOOL->GetAvailableSize());
+	DEFAULT_BUFFERPOOL->Release(buf);
+	printf("available: %u\n", DEFAULT_BUFFERPOOL->GetAvailableSize());
 }

@@ -4,13 +4,69 @@ static BufferPool* bufferPool = NULL;
 
 BufferPool* BufferPool::Get()
 {
-	if (bufferPool = NULL)
+	if (bufferPool == NULL)
 		bufferPool = new BufferPool;
 	
 	return bufferPool;
 }
 
-DynArray<>*	BufferPool::Acquire(unsigned size)
+BufferPool::BufferPool()
+{
+	availableSize = 0;
+}
+
+Buffer*	BufferPool::Acquire(unsigned size)
+{
+	Buffer *it;
+	
+	for (it = available.Head(); it != NULL; it = available.Next(it))
+	{
+		if (it->GetSize() >= size)
+		{
+			available.Remove(it);
+			availableSize -= it->GetSize();
+			assert(size >= 0);
+			return it;	
+		}
+	}
+	
+	if (available.Head() != NULL)
+	{
+		it = available.Head();
+		available.Remove(it);
+		availableSize -= it->GetSize();
+		assert(size >= 0);
+	}
+	else
+		it = new Buffer();
+
+	it->Allocate(size);
+
+	return it;
+}
+
+void BufferPool::Release(Buffer* buffer)
+{
+	if (buffer == NULL)
+		return;
+	
+	buffer->Rewind();
+	
+	if (availableSize < TARGET_AVAILABLE_SIZE)
+	{
+		available.Prepend(buffer);
+		availableSize += buffer->GetSize();
+	}
+	else
+		delete buffer;
+}
+
+unsigned BufferPool::GetAvailableSize()
+{
+	return availableSize;
+}
+
+Buffer*	BufferPool::Allocate(unsigned size)
 {
 	Buffer* buffer;
 	
@@ -18,10 +74,4 @@ DynArray<>*	BufferPool::Acquire(unsigned size)
 	buffer->Allocate(size);
 	
 	return buffer;
-}
-
-void BufferPool::Release(Buffer* buffer)
-{
-	if (buffer)
-		delete buffer;
 }

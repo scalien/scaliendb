@@ -1,6 +1,8 @@
 #ifndef QUEUE_H
 #define QUEUE_H
 
+#include "Common.h"
+
 /*
 ===============================================================================
 
@@ -9,11 +11,11 @@
 ===============================================================================
 */
 
-template<class T, T* T::*pnext>
-class Queue
+template<class T>
+class QueueP
 {
 public:
-	Queue();
+	QueueP();
 
 	void	Enqueue(T* elem);	
 	T*		Dequeue();
@@ -36,8 +38,8 @@ private:
 ===============================================================================
 */
 
-template<class T, T* T::*pnext>
-Queue<T, pnext>::Queue()
+template<class T>
+QueueP<T>::QueueP()
 {
 	length = 0;
 	head = NULL;
@@ -46,67 +48,65 @@ Queue<T, pnext>::Queue()
 }
 
 
-template<class T, T* T::*pnext>
-void Queue<T, pnext>::Enqueue(T* elem)
+template<class T>
+void QueueP<T>::Enqueue(T* elem)
 {
 	assert(elem != NULL);
 	
-	elem->*pnext = NULL;
+	elem->next = NULL;
 	if (tail)
-		tail->*pnext = elem;
+		tail->next = elem;
 	else
 		head = elem;
 	tail = elem;
 	length++;
 }
 
-template<class T, T* T::*pnext>
-T* Queue<T, pnext>::Dequeue()
+template<class T>
+T* QueueP<T>::Dequeue()
 {
 	T* elem;
 	elem = head;
 	if (elem)
 	{
-		head = elem->*pnext;
+		head = dynamic_cast<T*>(elem->next);
 		if (tail == elem)
 			tail = NULL;
-		elem->*pnext = NULL;
+		elem->next = NULL;
 		length--;
 	}
 	return elem;
 }
 
-template<class T, T* T::*pnext>
-void Queue<T, pnext>::Clear()
+template<class T>
+void QueueP<T>::Clear()
 {
 	T* elem;
 
-	do
-	{
-		elem = Dequeue();
-	} while (elem);
+	do elem = Dequeue();
+	while (elem);
 }
 
-template<class T, T* T::*pnext>
-T* Queue<T, pnext>::Head() const
+template<class T>
+T* QueueP<T>::Head() const
 {
 	return head;
 }
 
-template<class T, T* T::*pnext>
-T* Queue<T, pnext>::Tail() const
+template<class T>
+T* QueueP<T>::Tail() const
 {
 	return tail;
 }
 
-template<class T, T* T::*pnext>
-T* Queue<T, pnext>::Next(T* t) const
+template<class T>
+T* QueueP<T>::Next(T* t) const
 {
-	return t->next;
+	return dynamic_cast<T*>(t->next);
 }
 
-template<class T, T* T::*pnext>
-int Queue<T, pnext>::Length() const
+template<class T>
+int QueueP<T>::Length() const
 {
 	return length;
 }

@@ -16,48 +16,43 @@ TCPPooledPriorityWriteQueue::~TCPPooledPriorityWriteQueue()
 	OnClose();
 }
 
-void TCPPooledPriorityWriteQueue::Write(ByteString& bs)
+void TCPPooledPriorityWriteQueue::Write(Buffer* buffer)
 {
-	Write(bs.Buffer(), bs.Length());
+	Write(buffer->GetBuffer(), buffer->GetLength());
 }
 
-void TCPPooledPriorityWriteQueue::Write(const char* buffer, unsigned length)
+void TCPPooledPriorityWriteQueue::Write(const char* p, unsigned length)
 {
-	Buffer* buf;
+	Buffer* buffer;
 
-	if (!buffer || length == 0)
+	if (!p || length == 0)
 		return;
 	
-	buf = pool->Acquire(length);
-	buf->Write(buffer, length);
-	queue.Enqueue(buf);	
+	buffer = pool->Acquire(length);
+	buffer->Write(p, length);
+	queue.Enqueue(buffer);	
 }
 
-void TCPPooledPriorityWriteQueue::WritePriority(ByteString& bs)
+void TCPPooledPriorityWriteQueue::WritePriority(const char* p, unsigned length)
 {
-	WritePriority(bs.Buffer(), bs.Length());
-}
+	Buffer* buffer;
 
-void TCPPooledPriorityWriteQueue::WritePriority(const char* buffer, unsigned length)
-{
-	Buffer* buf;
-
-	if (!buffer || length == 0)
+	if (!p || length == 0)
 		return;
 	
-	buf = pool->Acquire(length);
-	buf->Write(buffer, length);
-	queue.EnqueuePriority(buf);	
+	buffer = pool->Acquire(length);
+	buffer->Write(p, length);
+	queue.EnqueuePriority(buffer);	
 }
 
-DynArray<>* TCPPooledPriorityWriteQueue::GetPooledBuffer(unsigned size)
+Buffer* TCPPooledPriorityWriteQueue::GetPooledBuffer(unsigned size)
 {
 	return pool->Acquire(size);
 }
 
 void TCPPooledPriorityWriteQueue::WritePooled(Buffer* buffer)
 {
-	if (!buffer || buffer->Length() == 0)
+	if (!buffer || buffer->GetLength() == 0)
 	{
 		pool->Release(buffer);
 		return;
@@ -68,7 +63,7 @@ void TCPPooledPriorityWriteQueue::WritePooled(Buffer* buffer)
 
 void TCPPooledPriorityWriteQueue::WritePooledPriority(Buffer* buffer)
 {
-	if (!buffer || buffer->Length() == 0)
+	if (!buffer || buffer->GetLength() == 0)
 	{
 		pool->Release(buffer);
 		return;
@@ -82,15 +77,15 @@ void TCPPooledPriorityWriteQueue::Flush()
 	conn->OnWritePending();
 }
 
-ByteString TCPPooledPriorityWriteQueue::GetNext()
+Buffer* TCPPooledPriorityWriteQueue::GetNext()
 {
 	assert(writing = false);
 	
 	if (queue.Length() == 0)
-		return ByteString();
+		return NULL;
 	
 	writing = true;
-	return queue.Head()->ToByteString();
+	return queue.Head();
 }
 
 void TCPPooledPriorityWriteQueue::OnNextWritten()
@@ -112,12 +107,12 @@ void TCPPooledPriorityWriteQueue::OnClose()
 unsigned TCPPooledPriorityWriteQueue::BytesQueued()
 {
 	unsigned bytes;
-	Buffer* buf;
+	Buffer* buffer;
 	
 	bytes = 0;
 
-	for (buf = queue.Head(); buf != NULL; buf = queue.Next(buf))
-		bytes += buf->Length();
+	for (buffer = queue.Head(); buffer != NULL; buffer = queue.Next(buffer))
+		bytes += buffer->GetLength();
 
 	return bytes;
 }

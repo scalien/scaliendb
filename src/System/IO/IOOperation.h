@@ -6,7 +6,7 @@
 #endif
 
 #include "System/Events/Callable.h"
-#include "ByteWrap.h"
+#include "System/Buffers/Buffer.h"
 #include "Endpoint.h"
 #include "FD.h"
 
@@ -39,10 +39,15 @@ struct IOOperation
 	{
 		onClose = onClose_;
 	}
+	
+	void SetBuffer(Buffer* buffer_)
+	{
+		buffer = buffer_;
+	}
 
 	enum Type		{ UDP_WRITE, UDP_READ, TCP_WRITE, TCP_READ };
 	
-	ByteWrap		data;
+	Buffer*			buffer;
 	
 	Type			type;
 	FD				fd;
@@ -61,11 +66,6 @@ struct UDPWrite : public IOOperation
 	: IOOperation()
 	{
 		type = UDP_WRITE;
-	}
-
-	void Wrap(ByteBuffer& buffer)
-	{
-		data.Wrap(buffer);
 	}
 
 	Endpoint		endpoint;
@@ -94,20 +94,8 @@ struct TCPWrite : public IOOperation
 	
 	void AsyncConnect()
 	{
-		data.Rewind();
+		buffer->Rewind();
 		// zero indicates for IOProcessor that we are waiting for connect event
-	}
-	
-	void Wrap(ByteBuffer& buffer)
-	{
-		data.Wrap(buffer);
-		transferred = 0;
-	}
-
-	void Wrap(ByteString& bs)
-	{
-		data.Wrap(bs);
-		transferred = 0;
 	}
 	
 	unsigned	transferred;		/*	the IO subsystem has given the first
@@ -123,12 +111,6 @@ struct TCPRead : public IOOperation
 		requested = IO_READ_ANY;
 	}
 
-	void Wrap(ByteBuffer& buffer)
-	{
-		data.Wrap(buffer);
-		requested = 0;
-	}
-	
 	void Listen(FD fd_, const Callable& onComplete_)
 	{
 		fd = fd_;

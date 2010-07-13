@@ -2,8 +2,6 @@
 
 #include "Table.h"
 #include "Database.h"
-#include "System/Buffers/ByteWrap.h"
-#include "System/Buffers/StaticArray.h"
 #include "Transaction.h"
 
 Table::Table(Database* database, const char *name, int pageSize) :
@@ -69,9 +67,17 @@ bool Table::Iterate(Transaction* tx, Cursor& cursor)
 		return false;
 }
 
-bool Table::Get(Transaction* tx,
-				const ByteString &key,
-				ByteWrap &value)
+bool Table::Get(Transaction* tx, const Buffer &key, Buffer &value)
+{
+	return Get(tx, key.GetBuffer(), key.GetLength(), value);
+}
+
+bool Table::Get(Transaction* tx, const char* key, Buffer &value)
+{
+	return Get(tx, key, strlen(key), value);
+}
+
+bool Table::Get(Transaction* tx, const char* key, unsigned klen, Buffer &value)
 {
 	Dbt dbtKey;
 	Dbt dbtValue;
@@ -82,13 +88,13 @@ bool Table::Get(Transaction* tx,
 		txn = tx->txn;
 
 	dbtKey.set_flags(DB_DBT_USERMEM);
-	dbtKey.set_data(key.Buffer());
-	dbtKey.set_ulen(key.Length());
-	dbtKey.set_size(key.Length());
+	dbtKey.set_data((void*)key);
+	dbtKey.set_ulen(klen);
+	dbtKey.set_size(klen);
 	
 	dbtValue.set_flags(DB_DBT_USERMEM);
-	dbtValue.set_data(value.Buffer());
-	dbtValue.set_ulen(value.Size());
+	dbtValue.set_data(value.GetBuffer());
+	dbtValue.set_ulen(value.GetSize());
 	
 	ret = db->get(txn, &dbtKey, &dbtValue, 0);
 
@@ -97,7 +103,7 @@ bool Table::Get(Transaction* tx,
 	if (ret == DB_KEYEMPTY || ret == DB_NOTFOUND || ret == DB_PAGE_NOTFOUND)
 		return false;
 	
-	if (dbtValue.get_size() > (size_t) value.Size())
+	if (dbtValue.get_size() > (size_t) value.GetSize())
 		return false;
 
 	value.SetLength(dbtValue.get_size());
@@ -105,41 +111,41 @@ bool Table::Get(Transaction* tx,
 	return true;
 }
 
-bool Table::Get(Transaction* tx, const char* key, ByteWrap &value)
-{
-	int len;
-	
-	len = strlen(key);
-	
-	ByteString bsKey((char*) key, len);
-	
-	return Table::Get(tx, bsKey, value);
-}
-
 bool Table::Get(Transaction* tx, const char* key, uint64_t& value)
 {
-	DynArray<32> ba;
-	ByteWrap bw;
+	Buffer buffer;
 	unsigned nread;
 	
-	bw = ba.ToByteWrap();
-	if (!Get(tx, key, bw))
+	if (!Get(tx, key, buffer))
 		return false;
 	
-	value = strntouint64(ba.Buffer(), ba.Length(), &nread);
+	value = strntouint64(buffer.GetBuffer(), buffer.GetLength(), &nread);
 	
-	if (nread != ba.Length())
+	if (nread != buffer.GetLength())
 		return false;
 	
 	return true;
 }
 
-bool Table::Set(Transaction* tx,
-				const ByteString &key,
-				const ByteString &value)
+bool Table::Set(Transaction* tx, const Buffer &key, const Buffer &value)
 {
-	Dbt dbtKey(key.Buffer(), key.Length());
-	Dbt dbtValue(value.Buffer(), value.Length());
+	return Set(tx, key.GetBuffer(), key.GetLength(), value.GetBuffer(), value.GetLength());
+}
+
+bool Table::Set(Transaction* tx, const char* key, const Buffer &value)
+{
+	return Set(tx, key, strlen(key), value.GetBuffer(), value.GetLength());
+}
+
+bool Table::Set(Transaction* tx, const char* key, const char* value)
+{
+	return Set(tx, key, strlen(key), value, strlen(value));
+}
+
+bool Table::Set(Transaction* tx, const char* key, unsigned klen, const char* value, unsigned vlen)
+{
+	Dbt dbtKey((void*)key, klen);
+	Dbt dbtValue((void*)value, vlen);
 	DbTxn* txn = NULL;
 	int ret;
 
@@ -153,37 +159,9 @@ bool Table::Set(Transaction* tx,
 	return true;
 }
 
-bool Table::Set(Transaction* tx,
-				const char* key,
-				const ByteString &value)
+bool Table::Delete(Transaction* tx, const Buffer &key)
 {
-	int len;
-	
-	len = strlen(key);
-	
-	ByteString bsKey((char*) key, len);
-	
-	return Table::Set(tx, bsKey, value);
-}
-
-bool Table::Set(Transaction* tx,
-				const char* key,
-				const char* value)
-{
-	int len;
-	
-	len = strlen(key);
-	ByteString bsKey((char*) key, len);
-	
-	len = strlen(value);
-	ByteString bsValue((char*) value, len);
-	
-	return Table::Set(tx, bsKey, bsValue);
-}
-
-bool Table::Delete(Transaction* tx, const ByteString &key)
-{
-	Dbt dbtKey(key.Buffer(), key.Length());
+	Dbt dbtKey(key.GetBuffer(), key.GetLength());
 	DbTxn* txn = NULL;
 	int ret;
 
@@ -197,7 +175,7 @@ bool Table::Delete(Transaction* tx, const ByteString &key)
 	return true;
 }
 
-bool Table::Prune(Transaction* tx, const ByteString &prefix)
+bool Table::Prune(Transaction* tx, const Buffer &prefix)
 {
 	Dbc* cursor = NULL;
 	u_int32_t flags = DB_NEXT;
@@ -213,19 +191,19 @@ bool Table::Prune(Transaction* tx, const ByteString &prefix)
 		return false;
 	
 	Dbt key, value;
-	if (prefix.Length() > 0)
+	if (prefix.GetLength() > 0)
 	{
-		key.set_data(prefix.Buffer());
-		key.set_size(prefix.Length());
+		key.set_data(prefix.GetBuffer());
+		key.set_size(prefix.GetLength());
 		flags = DB_SET_RANGE;		
 	}
 	
 	while (cursor->get(&key, &value, flags) == 0)
 	{
-		if (key.get_size() < prefix.Length())
+		if (key.get_size() < prefix.GetLength())
 			break;
 		
-		if (strncmp(prefix.Buffer(), (char*)key.get_data(), prefix.Length()) != 0)
+		if (strncmp(prefix.GetBuffer(), (char*)key.get_data(), prefix.GetLength()) != 0)
 			break;
 		
 		// don't delete keys starting with @@

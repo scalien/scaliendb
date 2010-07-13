@@ -39,12 +39,12 @@ int ConfigVar::GetIntValue(int)
 	unsigned	nread;
 	char		last;
 	
-	ret = (int) strntoint64(value.Buffer(), value.Length(), &nread);
+	ret = (int) strntoint64(value.GetBuffer(), value.GetLength(), &nread);
 
 	// value is zero-terminated so we need the second char from the back
-	if (nread == value.Length() - 2)
+	if (nread == value.GetLength() - 2)
 	{
-		last = value.CharAt(value.Length() - 2);
+		last = value.GetCharAt(value.GetLength() - 2);
 		if (last == 'K')
 			return ret * 1000;
 		if (last == 'M')
@@ -59,7 +59,7 @@ int ConfigVar::GetIntValue(int)
 
 const char*	ConfigVar::GetValue()
 {
-	return value.Buffer();
+	return value.GetBuffer();
 }
 
 
@@ -96,7 +96,7 @@ const char* ConfigVar::GetListValue(int num, const char* defval)
 	if (num >= numelem)
 		return defval;
 	
-	p = value.Buffer();
+	p = value.GetBuffer();
 	for (int i = 0; i < num; i++)
 	{
 		p += strlen(p) + 1;
@@ -237,7 +237,7 @@ bool ConfigFile::Save()
 	
 	for (var = vars.Head(); var != NULL; var = var->next)
 	{
-		fprintf(fp, "%s = \"%s", var->name.Buffer(), var->GetListValue(0, ""));
+		fprintf(fp, "%s = \"%s", var->name.GetBuffer(), var->GetListValue(0, ""));
 		for (int i = 1; i < var->numelem; i++)
 			fprintf(fp, "\",\"%s", var->GetListValue(i, ""));
 
