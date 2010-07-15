@@ -10,6 +10,8 @@ class TCPConnection; // forward
 ===============================================================================
 
  TCPWriteQueue
+ 
+ You must call Flush() after Write() functions to start I/O!
 
 ===============================================================================
 */
@@ -20,7 +22,9 @@ public:
 	TCPWriteQueue(TCPConnection* conn, BufferPool* pool = NULL);
 	virtual ~TCPWriteQueue();
 	
-	Buffer*						GetPooledBuffer(unsigned size = 0);
+	Buffer*						AcquireBuffer(unsigned size = 0);
+	void						ReleaseBuffer(Buffer* buffer);
+	// ReleaseBuffer() if you don't want to write after an AcquireBuffer() after all
 
 	virtual void				Write(Buffer* buffer);
 	virtual void				Write(const char* buffer, unsigned length);

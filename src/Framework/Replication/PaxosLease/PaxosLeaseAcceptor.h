@@ -3,7 +3,6 @@
 
 #include "System/Common.h"
 #include "System/Events/Timer.h"
-#include "Framework/Messaging/TCPWriter.h"
 #include "Framework/Replication/ReplicationContext.h"
 #include "Framework/Replication/Quorums/QuorumTransport.h"
 #include "States/PaxosLeaseAcceptorState.h"

@@ -1,7 +1,13 @@
 #include "TCPReader.h"
 #include "System/Common.h"
 
-/* class TCPReaderConn */
+/*
+===============================================================================
+
+ TCPReaderConn
+
+===============================================================================
+*/
 
 void TCPReaderConn::SetServer(TCPReader* reader_)
 {
@@ -26,8 +32,13 @@ void TCPReaderConn::OnClose()
 	delete this;
 }
 
+/*
+===============================================================================
 
-/* class TransportTCPReader */
+ TCPReader
+
+===============================================================================
+*/
 
 bool TCPReader::Init(int port)
 {
@@ -50,42 +61,42 @@ void TCPReader::GetMessage(ByteString& msg_)
 	msg_ = msg;
 }
 
-//bool TCPReader::IsActive()
-//{
-//	return running;
-//}
-//
-//void TCPReader::Stop()
-//{
-//	Log_Trace();
-//	
-//	TCPReaderConn** it;
-//
-//	running = false;
-//	
-//	for (it = conns.Head(); it != NULL; it = conns.Next(it))
-//	{
-//		(*it)->Stop();
-//		if (running)
-//			break; // user called Continue(), stop looping
-//	}
-//}
-//
-//void TCPReader::Continue()
-//{
-//	Log_Trace();
-//
-//	TCPReaderConn** it;
-//	
-//	running = true;
-//	
-//	for (it = conns.Head(); it != NULL; it = conns.Next(it))
-//	{
-//		(*it)->Continue();
-//		if (!running)
-//			break; // user called Stop(), stop looping
-//	}
-//}
+bool TCPReader::IsActive()
+{
+	return running;
+}
+
+void TCPReader::Stop()
+{
+	Log_Trace();
+	
+	TCPReaderConn** it;
+
+	running = false;
+	
+	for (it = conns.Head(); it != NULL; it = conns.Next(it))
+	{
+		(*it)->Stop();
+		if (running)
+			break; // user called Continue(), stop looping
+	}
+}
+
+void TCPReader::Continue()
+{
+	Log_Trace();
+
+	TCPReaderConn** it;
+	
+	running = true;
+	
+	for (it = conns.Head(); it != NULL; it = conns.Next(it))
+	{
+		(*it)->Continue();
+		if (!running)
+			break; // user called Stop(), stop looping
+	}
+}
 
 void TCPReader::InitConn(TCPReaderConn* conn)
 {

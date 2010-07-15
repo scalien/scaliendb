@@ -252,10 +252,10 @@ bool Table::Visit(TableVisitor &tv)
 		return false;
 	
 	Dbt key, value;
-	if (tv.GetStartKey() && tv.GetStartKey()->Length() > 0)
+	if (tv.GetStartKey() && tv.GetStartKey()->GetLength() > 0)
 	{
 		key.set_data(tv.GetStartKey()->Buffer());
-		key.set_size(tv.GetStartKey()->Length());
+		key.set_size(tv.GetStartKey()->GetLength());
 		flags = DB_SET_RANGE;		
 	}
 	
@@ -271,7 +271,7 @@ bool Table::Visit(TableVisitor &tv)
 		if (!ret)
 			break;
 		
-		if (bsKey.Length() > 2 && bsKey.CharAt(0) == '@' && bsKey.CharAt(1) == '@')
+		if (bsKey.GetLength() > 2 && bsKey.CharAt(0) == '@' && bsKey.CharAt(1) == '@')
 		{
 			key.set_data((void*)"@@~");
 			key.set_size(3);
@@ -299,10 +299,10 @@ bool Table::VisitBackward(TableVisitor &tv)
 		return false;
 	
 	Dbt key, value;
-	if (tv.GetStartKey() && tv.GetStartKey()->Length() > 0)
+	if (tv.GetStartKey() && tv.GetStartKey()->GetLength() > 0)
 	{
 		key.set_data(tv.GetStartKey()->Buffer());
-		key.set_size(tv.GetStartKey()->Length());
+		key.set_size(tv.GetStartKey()->GetLength());
 		flags = DB_SET_RANGE;		
 
 		// as DB_SET_RANGE finds the smallest key greater than or equal to the
@@ -320,7 +320,7 @@ bool Table::VisitBackward(TableVisitor &tv)
 			// if there is a match, call the acceptor, otherwise move to the
 			// previous elem in the database
 			if (memcmp(tv.GetStartKey()->Buffer(), key.get_data(),
-				MIN(tv.GetStartKey()->Length(), key.get_size())) == 0)
+				MIN(tv.GetStartKey()->GetLength(), key.get_size())) == 0)
 			{
 				bsKey.SetLength(key.get_size());
 				bsKey.SetBuffer((char*) key.get_data());

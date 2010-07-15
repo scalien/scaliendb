@@ -16,6 +16,16 @@ TCPWriteQueue::~TCPWriteQueue()
 	OnClose();
 }
 
+Buffer* TCPWriteQueue::AcquireBuffer(unsigned size)
+{
+	return pool->Acquire(size);
+}
+
+void TCPWriteQueue::ReleaseBuffer(Buffer* buffer)
+{
+	return pool->Release(buffer);
+}
+
 void TCPWriteQueue::Write(Buffer* buffer)
 {
 	Write(buffer->GetBuffer(), buffer->GetLength());
@@ -45,9 +55,9 @@ void TCPWriteQueue::WritePriority(const char* p, unsigned length)
 	queue.EnqueuePriority(buffer);	
 }
 
-Buffer* TCPWriteQueue::GetPooledBuffer(unsigned size)
+void TCPWriteQueue::WritePriority(Buffer* buffer)
 {
-	return pool->Acquire(size);
+	WritePriority(buffer->GetBuffer(), buffer->GetLength());
 }
 
 void TCPWriteQueue::WritePooled(Buffer* buffer)
@@ -81,7 +91,7 @@ Buffer* TCPWriteQueue::GetNext()
 {
 	assert(writing = false);
 	
-	if (queue.Length() == 0)
+	if (queue.GetLength() == 0)
 		return NULL;
 	
 	writing = true;
@@ -94,13 +104,13 @@ void TCPWriteQueue::OnNextWritten()
 	writing = false;
 
 	pool->Release(queue.Dequeue());
-	if (queue.Length() > 0)
+	if (queue.GetLength() > 0)
 		conn->OnWritePending();	
 }
 
 void TCPWriteQueue::OnClose()
 {
-	while (queue.Length() > 0)
+	while (queue.GetLength() > 0)
 		pool->Release(queue.Dequeue());
 }
 	

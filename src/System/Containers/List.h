@@ -33,7 +33,7 @@ public:
 	
 	T*				Head() const;
 	T*				Tail() const;
-	unsigned		Length() const;
+	unsigned		GetLength() const;
 	
 	T*				Next(T* t) const;
 	T*				Prev(T* t) const;
@@ -208,7 +208,7 @@ T* List<T>::Tail() const
 }
 
 template<class T>
-unsigned List<T>::Length() const
+unsigned List<T>::GetLength() const
 {
 	return length;
 }

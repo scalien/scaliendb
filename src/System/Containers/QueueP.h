@@ -24,7 +24,7 @@ public:
 	
 	T*		Head() const;	
 	T*		Tail() const;
-	int		Length() const;
+	int		GetLength() const;
 	
 	T*		Next(T* t) const;
 
@@ -106,7 +106,7 @@ T* QueueP<T>::Next(T* t) const
 }
 
 template<class T>
-int QueueP<T>::Length() const
+int QueueP<T>::GetLength() const
 {
 	return length;
 }

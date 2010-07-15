@@ -25,7 +25,7 @@ public:
 	
 	T*				Head() const;
 	T*				Tail() const;
-	int				Length() const;
+	int				GetLength() const;
 	
 	T*				Next(T* t) const;
 	T*				Prev(T* t) const;
@@ -69,9 +69,9 @@ T* SortedList<T>::Tail() const
 }
 
 template<class T>
-int SortedList<T>::Length() const
+int SortedList<T>::GetLength() const
 {
-	return list.Length();
+	return list.GetLength();
 }
 
 template<class T>

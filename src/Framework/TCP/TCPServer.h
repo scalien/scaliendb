@@ -28,7 +28,7 @@ public:
 	TCPServer();
 	~TCPServer();
 	
-	bool					Init(int port_, int backlog_ = 3);
+	bool					Init(int port, int backlog = 3);
 	void					Close();
 	void					DeleteConn(Conn* conn);
 
@@ -107,7 +107,7 @@ void TCPServer<T, Conn>::DeleteConn(Conn* conn)
 	
 	activeConns.Remove(conn);
 
-	if (conns.Length() >= backlog)
+	if (conns.GetLength() >= backlog)
 		delete conn;
 	else
 		conns.Enqueue((TCPConnection*)conn);
@@ -138,7 +138,7 @@ void TCPServer<T, Conn>::OnConnect()
 template<class T, class Conn>
 Conn* TCPServer<T, Conn>::GetConn()
 {
-	if (conns.Length() > 0)
+	if (conns.GetLength() > 0)
 		return dynamic_cast<Conn*>(conns.Dequeue());
 	
 	return new Conn;

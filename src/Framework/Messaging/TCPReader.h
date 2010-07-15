@@ -1,5 +1,5 @@
-#ifndef TCPREADER_H
-#define	TCPREADER_H
+#ifndef MESSAGEREADER_H
+#define	MESSAGEREADER_H
 
 #include "Framework/TCP/TCPServer.h"
 #include "MessageConnection.h"
@@ -44,9 +44,9 @@ public:
 
 	void		SetOnRead(const Callable& onRead);
 	void		GetMessage(ByteString& msg_);
-//	void		Stop();
-//	void		Continue();
-//	bool		IsActive();
+	void		Stop();
+	void		Continue();
+	bool		IsActive();
 	void		InitConn(TCPReaderConn* conn);
 	void		OnConnectionClose(TCPReaderConn* conn);
 

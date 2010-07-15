@@ -1,5 +1,5 @@
-#ifndef TCPWRITER_H
-#define TCPWRITER_H
+#ifndef MESSAGEWRITER_H
+#define MESSAGEWRITER_H
 
 #include "Framework/TCP/TCPConnection.h"
 
@@ -11,13 +11,13 @@
 ===============================================================================
 */
 
-class TCPWriter : public TCPConnection
+class MessageWriter : public TCPConnection
 {
 public:
 	
-	virtual bool		Init(Endpoint &endpoint_);
-	virtual void		Write(Buffer* buffer);
-	virtual void		WritePriority(Buffer* buffer);
+	virtual bool		Init(Endpoint &endpoint);
+	
+	void				WritePrefix(Buffer* prefix, Buffer* message);
 
 private:
 	void				Connect();
