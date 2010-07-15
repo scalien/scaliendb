@@ -5,10 +5,12 @@
 #include <assert.h>
 #include "System/Common.h"
 
+template<class T> class SortedListP;	// for friend
+
 /*
 ===============================================================================
 
- List is a generic singly-linked list assuming pre-defined
+ List is a generic doubly-linked list assuming pre-defined
  next and prev pointers.
 
 ===============================================================================
@@ -40,6 +42,8 @@ private:
 	T*				head;
 	T*				tail;
 	unsigned		length;
+
+	friend class SortedListP<T>;
 };
 
 /*

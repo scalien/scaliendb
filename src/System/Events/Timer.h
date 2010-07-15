@@ -5,8 +5,12 @@
 #include "Callable.h"
 
 /*
- * Timer
- */
+===============================================================================
+
+ Timer
+
+===============================================================================
+*/
 
 class Timer
 {
@@ -16,8 +20,8 @@ public:
 	Timer();
 	virtual ~Timer() {}
 		
-	void			SetCallable(const Callable& callable_);
-	void			Set(uint64_t when_);
+	void			SetCallable(const Callable& callable);
+	void			Set(uint64_t when);
 
 	uint64_t		When() const;	
 	bool			IsActive() const;
@@ -25,6 +29,9 @@ public:
 	void			Execute() const;
 	
 	virtual void	OnAdd() {};
+	
+	Timer*			next;
+	Timer*			prev;
 
 protected:
     bool			active;
@@ -34,9 +41,9 @@ protected:
 
 /*****************************************************************************/
 
-inline bool LessThan(Timer* a, Timer* b)
+inline bool LessThan(const Timer& a, const Timer& b)
 {
-    return (a->When() < b->When());
+    return (a.When() < b.When());
 }
 
 #endif

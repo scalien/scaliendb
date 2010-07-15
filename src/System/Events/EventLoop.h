@@ -7,8 +7,12 @@
 #define SLEEP_MSEC 20
 
 /*
- * EventLoop
- */
+===============================================================================
+
+ EventLoop
+
+===============================================================================
+*/
 
 class EventLoop : public Scheduler
 {
@@ -22,6 +26,5 @@ public:
 	static void			UpdateTime();
 	static void			Stop();
 };
-
 
 #endif

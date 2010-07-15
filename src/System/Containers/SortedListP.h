@@ -1,24 +1,25 @@
-#ifndef SORTEDLIST_H
-#define SORTEDLIST_H
+#ifndef SORTEDLISTP_H
+#define SORTEDLISTP_H
 
-#include "List.h"
+#include "ListP.h"
 #include "System/Common.h"
 
 /*
 ===============================================================================
 
- SortedList is a generic doubly-linked sorted list.
+ SortedListP is a generic doubly-linked sorted list assuming pre-defined
+ next and prev pointers.
  To use it define LessThan(const T &a, const T &b).
 
 ===============================================================================
 */
 
 template<class T>
-class SortedList
+class SortedListP
 {
 public:
 
-	bool			Add(T t, bool unique = false);
+	bool			Add(T* t);
 	T*				Remove(T* t);	
 	bool			Remove(T &t);
 	void			Clear();
@@ -31,7 +32,7 @@ public:
 	T*				Prev(T* t) const;
 
 protected:
-	List<T>		list;
+	ListP<T>		list;
 };
 
 /*
@@ -39,86 +40,79 @@ protected:
 */
 
 template<class T>
-bool SortedList<T>::Add(T t, bool unique)
+bool SortedListP<T>::Add(T* t)
 {
-	ListNode<T>*  node;
-	ListNode<T>** curr = &(list.head);
+	T** curr = &(list.head);
 
 	while(true)
 	{
-		if (*curr == NULL || LessThan(t, (*curr)->data))
+		assert(*curr != t); // it's already linked
+
+		if (*curr == NULL || LessThan(*t, **curr))
 		{
-			node = new ListNode<T>;
-			node->data = t;
-			node->next = *curr;
+			t->next = *curr;
 			if (curr != &(list.head))
-				node->prev =
-				 (ListNode<T>*) ((char*)curr - offsetof(ListNode<T>, next));
+				t->prev = (T*) ((char*)curr - offsetof(T, next));
 			else
-				node->prev = NULL;
+				t->prev = NULL;
 			if (*curr != NULL)
-				(*curr)->prev = node;
+				(*curr)->prev = t;
 			if (*curr == NULL)
-				list.tail = node;
-			*curr = node;
+				list.tail = t;
+			*curr = t;
 			list.length++;		
 			return true;
 		} 
-		else
-		{
-			if (unique && (*curr)->data == t)
-				return false;
-			curr = &(*curr)->next;
-		}
+		curr = &(*curr)->next;
 	}
 	
 	ASSERT_FAIL();
 }
 
 template<class T>
-T* SortedList<T>::Remove(T* t)
+T* SortedListP<T>::Remove(T* t)
 {
 	return list.Remove(t);
 }
 
 template<class T>
-bool SortedList<T>::Remove(T &t)
+bool SortedListP<T>::Remove(T &t)
 {
 	return list.Remove(t);
 }
 
 template<class T>
-void SortedList<T>::Clear()
+void SortedListP<T>::Clear()
 {
 	return list.Clear();
 }
 
 template<class T>
-T* SortedList<T>::Head() const
+T* SortedListP<T>::Head() const
 {
 	return list.Head();
 }
 
 template<class T>
-T* SortedList<T>::Tail() const
+T* SortedListP<T>::Tail() const
 {
 	return list.Tail();
 }
 
 template<class T>
-int SortedList<T>::GetLength() const
+int SortedListP<T>::GetLength() const
 {
 	return list.GetLength();
 }
 
 template<class T>
-T* SortedList<T>::Next(T* t) const
+T* SortedListP<T>::Next(T* t) const
 {
 	return list.Next(t);
 }
 
 template<class T>
-T* SortedList<T>::Prev(T* t) const
+T* SortedListP<T>::Prev(T* t) const
 {
 	return list.Prev(t);
 }

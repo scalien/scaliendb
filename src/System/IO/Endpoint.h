@@ -10,6 +10,14 @@
 
 typedef uint32_t Address;
 
+/*
+===============================================================================
+
+ Endpoint
+
+===============================================================================
+*/
+
 class Endpoint
 {
 public:
@@ -25,11 +33,11 @@ public:
 	int				GetPort();
 	
 	Address			GetAddress();
+	char*			GetSockAddr();
 	
 	const char*		ToString();
 	const char*		ToString(char s[ENDPOINT_STRING_SIZE]);
 
-	char*			GetSockAddr() { return saBuffer; }
 
 private:
 	char			buffer[ENDPOINT_STRING_SIZE];

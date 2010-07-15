@@ -5,13 +5,10 @@ static bool		running;
 
 long EventLoop::RunTimers()
 {
-	Timer** it;
 	Timer* timer;
 	
-	for (it = timers.Head(); it != NULL; it = timers.Head())
+	for (timer = timers.Head(); timer != NULL; timer = timers.Head())
 	{
-		timer = *it;
-		
 		UpdateTime();
 		if (timer->When() <= now)
 		{

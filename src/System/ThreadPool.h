@@ -3,7 +3,15 @@
 
 #include "System/Containers/List.h"
 
-class Callable;
+class Callable; // forward
+
+/*
+===============================================================================
+
+ ThreadPool
+
+===============================================================================
+*/
 
 class ThreadPool
 {
@@ -12,14 +20,14 @@ public:
 
 	virtual ~ThreadPool() {}
 
-	virtual void	Start() = 0;
-	virtual void	Stop() = 0;
+	virtual void		Start() = 0;
+	virtual void		Stop() = 0;
 
-	virtual void	Execute(const Callable &callable) = 0;
+	virtual void		Execute(const Callable &callable) = 0;
 	
-	int	NumPending()	{ return numPending; }
-	int	NumActive()		{ return numActive; }
-	int	NumTotal()		{ return numPending + numActive; /* atomicity */ }
+	int					GetNumPending();
+	int					GetNumActive();
+	int					GetNumTotal();
 	
 protected:
 	List<Callable>		callables;
@@ -28,6 +36,25 @@ protected:
 	int					numThread;
 	bool				running;
 };
+
+/*
+===============================================================================
+*/
+
+int	ThreadPool::GetNumPending()
+{
+	return numPending;
+}
+
+int	ThreadPool::GetNumActive()
+{
+	return numActive;
+}
+
+int	ThreadPool::GetNumTotal()
+{
+	return numPending + numActive; /* atomicity */
+}
 
 
 #endif

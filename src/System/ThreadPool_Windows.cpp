@@ -12,6 +12,13 @@
 #include "ThreadPool.h"
 #include "System/Events/Callable.h"
 
+/*
+===============================================================================
+
+ ThreadPool_Windows
+
+===============================================================================
+*/
 
 class ThreadPool_Windows : public ThreadPool
 {
@@ -24,7 +31,6 @@ public:
 
 	virtual void				Execute(Callable *callable);
 	
-
 private:
 	HANDLE*						threads;
 	CRITICAL_SECTION			critsec;
@@ -32,6 +38,10 @@ private:
 	static unsigned __stdcall	ThreadFunc(void *arg);
 	void						ThreadPoolFunc();
 };
+
+/*
+===============================================================================
+*/
 
 ThreadPool* ThreadPool::Create(int numThread)
 {

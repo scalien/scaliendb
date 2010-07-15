@@ -6,27 +6,40 @@
 #include "System/Log.h"
 #include "System/Events/Callable.h"
 
+/*
+===============================================================================
+
+ ThreadPool_Pthread
+
+===============================================================================
+*/
+
+
 class ThreadPool_Pthread : public ThreadPool
 {
 public:
-	ThreadPool*		Create(int numThread);
-
 	ThreadPool_Pthread(int numThread);
 	~ThreadPool_Pthread();
 
-	virtual void	Start();
-	virtual void	Stop();
+	ThreadPool*			Create(int numThread);
 
-	virtual void	Execute(const Callable& callable);
+	virtual void		Start();
+	virtual void		Stop();
+
+	virtual void		Execute(const Callable& callable);
 
 protected:
-	pthread_t*		threads;
-	pthread_mutex_t	mutex;
-	pthread_cond_t	cond;
+	pthread_t*			threads;
+	pthread_mutex_t		mutex;
+	pthread_cond_t		cond;
 	
-	static void*	thread_function(void *param);
-	void			ThreadFunction();
+	static void*		thread_function(void *param);
+	void				ThreadFunction();
 };
+
+/*
+===============================================================================
+*/
 
 ThreadPool* ThreadPool::Create(int numThread)
 {
@@ -110,9 +123,7 @@ void ThreadPool_Pthread::Start()
 	numActive = numThread;
 	
 	for (i = 0; i < numThread; i++)
-	{
 		pthread_create(&threads[i], NULL, thread_function, this);
-	}
 }
 
 void ThreadPool_Pthread::Stop()

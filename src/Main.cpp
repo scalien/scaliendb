@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "System/Buffers/BufferPool.h"
+#include "System/Containers/SortedListP.h"
 
 struct S
 {
@@ -12,18 +12,24 @@ struct S
 	S*		prev;
 };
 
+bool LessThan(const S& a, const S& b)
+{
+	return a.num < b.num;
+}
+
 int main(void)
 {
-	Buffer* buf;
+	SortedListP<S> list;
 	
-	buf = DEFAULT_BUFFERPOOL->Acquire(100);
-	buf->Write("hello\n");
-	printf("%.*s", P(buf));
-	DEFAULT_BUFFERPOOL->Release(buf);
-	buf = DEFAULT_BUFFERPOOL->Acquire(100);
-	buf->Write("1234\n");
-	printf("%.*s", P(buf));
-	printf("available: %u\n", DEFAULT_BUFFERPOOL->GetAvailableSize());
-	DEFAULT_BUFFERPOOL->Release(buf);
-	printf("available: %u\n", DEFAULT_BUFFERPOOL->GetAvailableSize());
+	list.Add(new S(2));
+	list.Add(new S(1));
+	list.Add(new S(3));
+	list.Add(new S(0));
+
+	printf("%d\n\n", list.GetLength());
+	
+	for (S* s = list.Head(); s != NULL; s = list.Next(s))
+	{
+		printf("%d\n", s->num);
+	}
 }

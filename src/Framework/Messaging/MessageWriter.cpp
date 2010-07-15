@@ -16,24 +16,6 @@ void MessageWriter::WritePrefix(Buffer* prefix, Buffer* message)
 		prefix->Writef("%d:", message->GetLength());
 }
 
-//void MessageWriter::Write(Buffer* buffer)
-//{
-//	Log_Trace();
-//
-//	Buffer prefix;
-//	
-//	if (state == CONNECTED)
-//	{
-//		WritePrefix(&prefix, message);
-//
-//		TCPConnection::GetWriteQueue()->Write(&prefix);
-//		TCPConnection::GetWriteQueue()->Write(buffer);
-//		TCPConnection::GetWriteQueue()->Flush();
-//	}
-//	else if (state == DISCONNECTED && !connectTimeout.IsActive())
-//		Connect();
-//}
-
 void MessageWriter::Connect()
 {
 	Log_Trace();

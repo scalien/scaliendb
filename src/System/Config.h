@@ -4,6 +4,13 @@
 #include "Buffers/Buffer.h"
 #include "Containers/QueueP.h"
 
+/*
+===============================================================================
+
+ ConfigVar
+
+===============================================================================
+*/
 
 class ConfigVar
 {
@@ -25,6 +32,13 @@ public:
 	int					numelem;
 };
 
+/*
+===============================================================================
+
+ ConfigFile
+
+===============================================================================
+*/
 
 class ConfigFile
 {
@@ -45,10 +59,10 @@ public:
 	void				SetBoolValue(const char* name, bool value);
 	void				AppendListValue(const char* name, const char* value);
 
-	const char*			filename;
-private:
-	QueueP<ConfigVar>	vars;
 
+private:
+	const char*			filename;
+	QueueP<ConfigVar>	vars;
 	ConfigVar*			GetVar(const char* name);
 };
 

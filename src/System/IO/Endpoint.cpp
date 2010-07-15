@@ -53,7 +53,9 @@ static bool DNS_ResolveIpv4(const char* name, struct in_addr* addr)
 
 Endpoint::Endpoint()
 {
-	struct sockaddr_in *sa = (struct sockaddr_in *) &saBuffer;
+	struct sockaddr_in *sa;
+	
+	sa = (struct sockaddr_in *) &saBuffer;
 
 	memset((char *) sa, 0, sizeof(sa));
 	sa->sin_family = 0; sa->sin_port = 0; 
@@ -78,7 +80,9 @@ bool Endpoint::operator!=(const Endpoint &other) const
 
 bool Endpoint::Set(const char* ip, int port, bool resolv)
 {
-	struct sockaddr_in *sa = (struct sockaddr_in *) &saBuffer;
+	struct sockaddr_in *sa;
+	
+	sa = (struct sockaddr_in *) &saBuffer;
 
 	memset((char *) sa, 0, sizeof(sa));
 	sa->sin_family = AF_INET;
@@ -139,24 +143,35 @@ bool Endpoint::Set(const char* ip_port, bool resolv)
 
 bool Endpoint::SetPort(int port)
 {
-	struct sockaddr_in *sa = (struct sockaddr_in *) &saBuffer;
+	struct sockaddr_in *sa;
 
+	sa = (struct sockaddr_in *) &saBuffer;
 	sa->sin_port = htons((uint16_t)port);
+
 	return true;
 }
 
 int Endpoint::GetPort()
 {
-	struct sockaddr_in *sa = (struct sockaddr_in *) &saBuffer;
+	struct sockaddr_in *sa;
+	
+	sa = (struct sockaddr_in *) &saBuffer;
 
 	return ntohs(sa->sin_port);
 }
 
 Address Endpoint::GetAddress()
 {
-	struct sockaddr_in *sa = (struct sockaddr_in *) &saBuffer;
+	struct sockaddr_in *sa;
+	
+	sa = (struct sockaddr_in *) &saBuffer;
 
 	return ntohl(sa->sin_addr.s_addr);
+}
+
+char* Endpoint::GetSockAddr()
+{
+	return saBuffer;
 }
 
 const char* Endpoint::ToString()

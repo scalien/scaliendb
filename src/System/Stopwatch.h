@@ -3,19 +3,27 @@
 
 #include "Time.h"
 
+/*
+===============================================================================
+
+ Stopwatch
+
+===============================================================================
+*/
+
 class Stopwatch
 {
 public:
-	Stopwatch () { Reset(); }
+	Stopwatch();
 	
-	void Reset()	{ elapsed = 0; }
-	void Start()	{ started = Now(); }
-	long Stop()		{ elapsed += Now() - started; return elapsed; }
-	long Elapsed()	{ return elapsed; }
+	void	Reset();
+	void	Start();
+	long	Stop();
+	long	Elapsed();
 
 private:
-	long started;
-	long elapsed;
+	long	started;
+	long	elapsed;
 };
 
 #endif
