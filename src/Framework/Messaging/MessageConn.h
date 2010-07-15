@@ -1,7 +1,7 @@
 #ifndef MESSAGECONN_H
 #define MESSAGECONN_H
 
-#include "Framework/TCP/TCPConn.h"
+#include "Framework/TCP/TCPConnection.h"
 #include "System/Stopwatch.h"
 #include "System/Events/EventLoop.h"
 
@@ -19,24 +19,26 @@ MessageConn
 //TODO this is broken for now
 
 template<int bufSize = MESSAGE_SIZE>
-class MessageConn : public TCPConn
+class MessageConn : public TCPConnection
 {
 public:
 	MessageConn();
 		
 	virtual void	Init(bool startRead = true);
-	virtual void	OnMessageRead(const ByteString& msg) = 0;
+	virtual void	OnMessageRead() = 0;
 	virtual void	OnClose() = 0;
 	virtual void	OnRead();
 	void			OnResumeRead();
+
+	Buffer*			GetMessage();
 	
-//	virtual void	Stop();
-//	virtual void	Continue();
+	virtual void	Stop();
+	virtual void	Continue();
 
 	virtual void	Close();
 
 protected:
-//	bool			running;
+	bool			running;
 	CdownTimer		resumeRead;
 };
 
@@ -47,7 +49,7 @@ protected:
 template<int bufSize>
 MessageConn<bufSize>::MessageConn()
 {
-//	running = true;
+	running = true;
 	resumeRead.SetCallable(MFUNC(MessageConn, OnResumeRead));
 	resumeRead.SetDelay(1);
 }
@@ -55,7 +57,7 @@ MessageConn<bufSize>::MessageConn()
 template<int bufSize>
 void MessageConn<bufSize>::Init(bool startRead)
 {
-//	running = true;
+	running = true;
 	TCPConn::InitConnected(startRead);
 }
 
@@ -82,8 +84,7 @@ void MessageConn<bufSize>::OnRead()
 	start = Now();
 	yield = false;
 
-//	while(running)
-	while(true)
+	while(running)
 	{
 		msglength = strntouint64(tcpread.data.Buffer() + pos,
 								 tcpread.data.Length() - pos,
@@ -162,20 +163,20 @@ void MessageConn<bufSize>::OnResumeRead()
 	OnRead();
 }
 
-//template<int bufSize>
-//void MessageConn<bufSize>::Stop()
-//{
-//	Log_Trace();
-//	running = false;
-//}
-//
-//template<int bufSize>
-//void MessageConn<bufSize>::Continue()
-//{
-//	Log_Trace();
-//	running = true;
-//	OnRead();
-//}
+template<int bufSize>
+void MessageConn<bufSize>::Stop()
+{
+	Log_Trace();
+	running = false;
+}
+
+template<int bufSize>
+void MessageConn<bufSize>::Continue()
+{
+	Log_Trace();
+	running = true;
+	OnRead();
+}
 
 template<int bufSize>
 void MessageConn<bufSize>::Close()

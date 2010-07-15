@@ -7,7 +7,7 @@
 #include "System/IO/IOProcessor.h"
 #include "System/Containers/QueueP.h"
 #include "System/Containers/List.h"
-#include "TCPConn.h"
+#include "TCPConnection.h"
 
 /*
 ===============================================================================
@@ -24,28 +24,26 @@
 template<class T, class Conn>
 class TCPServer
 {
-	typedef QueueP<TCPConn> ConnList;
-
 public:
 	TCPServer();
 	~TCPServer();
 	
-	bool				Init(int port_, int backlog_ = 3);
-	void				Close();
-	void				DeleteConn(Conn* conn);
+	bool					Init(int port_, int backlog_ = 3);
+	void					Close();
+	void					DeleteConn(Conn* conn);
 
 protected:
-	void				OnConnect();
-	Conn*				GetConn();
-	void				InitConn(Conn* conn);
+	void					OnConnect();
+	Conn*					GetConn();
+	void					InitConn(Conn* conn);
 
 	
-	TCPRead				tcpread;
-	Socket				listener;
-	int					backlog;
-	ConnList			conns;
-	int					numActive;
-	List<Conn*>			activeConns;
+	TCPRead					tcpread;
+	Socket					listener;
+	int						backlog;
+	int						numActive;
+	List<Conn*>				activeConns;
+	QueueP<TCPConnection>	conns;
 };
 
 /*
@@ -112,7 +110,7 @@ void TCPServer<T, Conn>::DeleteConn(Conn* conn)
 	if (conns.Length() >= backlog)
 		delete conn;
 	else
-		conns.Enqueue((TCPConn*)conn);
+		conns.Enqueue((TCPConnection*)conn);
 }
 
 template<class T, class Conn>

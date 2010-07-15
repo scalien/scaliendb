@@ -1,7 +1,7 @@
 #ifndef TCPWRITER_H
 #define TCPWRITER_H
 
-#include "Framework/TCP/TCPConn.h"
+#include "Framework/TCP/TCPConnection.h"
 
 /*
 ===============================================================================
@@ -11,7 +11,7 @@
 ===============================================================================
 */
 
-class TCPWriter : public TCPConn
+class TCPWriter : public TCPConnection
 {
 public:
 	

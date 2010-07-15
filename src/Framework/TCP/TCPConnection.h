@@ -1,9 +1,9 @@
-#ifndef TCPCONN_H
-#define TCPCONN_H
+#ifndef TCPCONNECTION_H
+#define TCPCONNECTION_H
 
 #include "System/Events/Callable.h"
 #include "System/Events/CdownTimer.h"
-#include "System/Buffer.h"
+#include "System/Buffer/Buffer.h"
 #include "System/Containers/QueueP.h"
 #include "System/IO/Socket.h"
 #include "System/IO/IOOperation.h"
@@ -15,23 +15,18 @@
 /*
 ===============================================================================
 
- TCPConn
-
- TCPConn is a class for managing a TCP connection. It can Connect(),
- AsyncRead() or Write(). The Write() function uses a write queue internally.
- You must override OnRead() and OnClose() and optionally override OnWrite(),
- OnConnect(), OnConnectTimeout() functions.
+ TCPConnection
 
 ===============================================================================
 */
 
-class TCPConn
+class TCPConnection
 {
 public:
 	enum State			{ DISCONNECTED, CONNECTED, CONNECTING };
 
-	TCPConn();
-	virtual ~TCPConn();
+	TCPConnection();
+	virtual ~TCPConnection();
 	
 	void				InitConnected(bool startRead = true);
 	void				Connect(Endpoint &endpoint, unsigned timeout);
@@ -46,7 +41,8 @@ public:
 	TCPWriteProxy*		GetWriteProxy();
 	void				OnWritePending(); // for TCPWriteProxy
 	
-	TCPConn*			next;
+	TCPConnection*		next;
+	TCPConnection*		prev;
 
 protected:
 	State				state;

@@ -1,23 +1,25 @@
-#ifndef TCPPOOLEDPRIORITYWRITEQUEUE
-#define TCPPOOLEDPRIORITYWRITEQUEUE
+#ifndef TCPWRITEQUEUE_H
+#define TCPWRITEQUEUE_H
 
 #include "TCPWriteProxy.h"
 #include "System/Containers/PriorityQueueP.h"
-#include "BufferPool.h"
+#include "System/Buffer/BufferPool.h"
+
+class TCPConnection; // forward
 
 /*
 ===============================================================================
 
- TCPPooledPriorityWriteQueue
+ TCPWriteQueue
 
 ===============================================================================
 */
 
-class TCPPooledPriorityWriteQueue : public TCPWriteProxy
+class TCPWriteQueue : public TCPWriteProxy
 {
 public:
-	TCPPooledPriorityWriteQueue(TCPConn* conn, BufferPool* pool = NULL);
-	virtual ~TCPPooledPriorityWriteQueue();
+	TCPWriteQueue(TCPConnection* conn, BufferPool* pool = NULL);
+	virtual ~TCPWriteQueue();
 	
 	Buffer*						GetPooledBuffer(unsigned size = 0);
 
@@ -38,7 +40,7 @@ public:
 	unsigned					BytesQueued();
 
 protected:
-	TCPConn*					conn;
+	TCPConnection*					conn;
 	PriorityQueueP<Buffer>		queue;
 	BufferPool*					pool;
 	bool						writing;

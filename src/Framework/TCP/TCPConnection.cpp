@@ -1,20 +1,20 @@
-#include "TCPConn.h"
+#include "TCPConnection.h"
 #include "System/Events/EventLoop.h"
 
-TCPConn::TCPConn()
+TCPConnection::TCPConnection()
 {
 	state = DISCONNECTED;
 	writeProxy = NULL;
 	next = NULL;
-	connectTimeout.SetCallable(MFUNC(TCPConn, OnConnectTimeout));
+	connectTimeout.SetCallable(MFUNC(TCPConnection, OnConnectTimeout));
 }
 
-TCPConn::~TCPConn()
+TCPConnection::~TCPConnection()
 {	
 	Close();
 }
 
-void TCPConn::Init(bool startRead)
+void TCPConnection::Init(bool startRead)
 {
 	Log_Trace();
 	
@@ -24,29 +24,29 @@ void TCPConn::Init(bool startRead)
 	readBuffer.Rewind();
 	
 	tcpwrite.SetFD(socket.fd);
-	tcpwrite.SetOnComplete(MFUNC(TCPConn, OnRead));
-	tcpwrite.SetOnClose(MFUNC(TCPConn, OnClose));
+	tcpwrite.SetOnComplete(MFUNC(TCPConnection, OnRead));
+	tcpwrite.SetOnClose(MFUNC(TCPConnection, OnClose));
 
 	AsyncRead(startRead);
 }
 
-void TCPConn::InitConnected(bool startRead)
+void TCPConnection::InitConnected(bool startRead)
 {
 	Init(startRead);
 	state = CONNECTED;
 }
 
-void TCPConn::SetWriteProxy(TCPWriteProxy* writeProxy_)
+void TCPConnection::SetWriteProxy(TCPWriteProxy* writeProxy_)
 {
 	writeProxy = writeProxy_;
 }
 
-TCPWriteProxy* TCPConn::GetWriteProxy()
+TCPWriteProxy* TCPConnection::GetWriteProxy()
 {
 	return writeProxy;
 }
 
-void TCPConn::Connect(Endpoint &endpoint, unsigned timeout)
+void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
 {
 	Log_Trace("endpoint_ = %s", endpoint.ToString());
 
@@ -63,8 +63,8 @@ void TCPConn::Connect(Endpoint &endpoint, unsigned timeout)
 	ret = socket.Connect(endpoint);
 
 	tcpwrite.SetFD(socket.fd);
-	tcpwrite.SetOnComplete(MFUNC(TCPConn, OnConnect));
-	tcpwrite.SetOnClose(MFUNC(TCPConn, OnClose));
+	tcpwrite.SetOnComplete(MFUNC(TCPConnection, OnConnect));
+	tcpwrite.SetOnClose(MFUNC(TCPConnection, OnClose));
 	tcpwrite.AsyncConnect();
 	IOProcessor::Add(&tcpwrite);
 
@@ -77,7 +77,7 @@ void TCPConn::Connect(Endpoint &endpoint, unsigned timeout)
 	}
 }
 
-void TCPConn::OnWrite()
+void TCPConnection::OnWrite()
 {
 	Log_Trace("Written %d bytes", tcpwrite.buffer->GetLength());
 	Log_Trace("Written: %.*s", P(tcpwrite.buffer));
@@ -86,31 +86,31 @@ void TCPConn::OnWrite()
 	writeProxy->OnNextWritten();
 }
 
-void TCPConn::OnConnect()
+void TCPConnection::OnConnect()
 {
 	Log_Trace();
 
 	socket.SetNodelay();
 	
 	state = CONNECTED;
-	tcpwrite.onComplete = MFUNC(TCPConn, OnWrite);
+	tcpwrite.onComplete = MFUNC(TCPConnection, OnWrite);
 	
 	EventLoop::Remove(&connectTimeout);
 	OnWritePending();
 }
 
-void TCPConn::OnConnectTimeout()
+void TCPConnection::OnConnectTimeout()
 {
 	Log_Trace();
 }
 
-void TCPConn::AsyncRead(bool start)
+void TCPConnection::AsyncRead(bool start)
 {
 	Log_Trace();
 	
 	tcpread.SetFD(socket.fd);
-	tcpread.SetOnComplete(MFUNC(TCPConn, OnRead));
-	tcpread.SetOnClose(MFUNC(TCPConn, OnClose));
+	tcpread.SetOnComplete(MFUNC(TCPConnection, OnRead));
+	tcpread.SetOnClose(MFUNC(TCPConnection, OnClose));
 	tcpread.buffer = &readBuffer;
 	if (start)
 		IOProcessor::Add(&tcpread);
@@ -118,7 +118,7 @@ void TCPConn::AsyncRead(bool start)
 		Log_Trace("not posting read");
 }
 
-void TCPConn::OnWritePending()
+void TCPConnection::OnWritePending()
 {
 	Buffer* buffer;
 
@@ -135,7 +135,7 @@ void TCPConn::OnWritePending()
 	IOProcessor::Add(&tcpwrite);
 }
 
-void TCPConn::Close()
+void TCPConnection::Close()
 {
 	Log_Trace();
 

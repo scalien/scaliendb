@@ -1,7 +1,7 @@
 #ifndef CURSOR_HPP
 #define CURSOR_HPP
 
-#include "System/Buffer.h"
+#include "System/Buffer/Buffer.h"
 #include <db_cxx.h>
 
 class Table; // forward

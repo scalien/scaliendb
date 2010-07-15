@@ -1,7 +1,7 @@
 #ifndef BUFFERQUEUE_H
 #define BUFFERQUEUE_H
 
-#include "System/Buffer.h"
+#include "System/Buffer/Buffer.h"
 #include "System/Containers/ListP.h"
 
 #define	DEFAULT_BUFFERPOOL			(BufferPool::Get())

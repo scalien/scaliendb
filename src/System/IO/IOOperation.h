@@ -6,7 +6,7 @@
 #endif
 
 #include "System/Events/Callable.h"
-#include "System/Buffer.h"
+#include "System/Buffer/Buffer.h"
 #include "Endpoint.h"
 #include "FD.h"
 

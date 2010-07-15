@@ -1,7 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-#include "Buffer.h"
+#include "Buffer/Buffer.h"
 #include "Containers/QueueP.h"
 
 

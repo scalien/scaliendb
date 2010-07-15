@@ -1,8 +1,5 @@
 #include "Buffer.h"
-
-#include "Buffer.h"
 #include <stdarg.h>
-
 #include "System/Common.h"
 
 Buffer::Buffer()
