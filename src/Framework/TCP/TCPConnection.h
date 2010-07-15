@@ -3,11 +3,11 @@
 
 #include "System/Events/Callable.h"
 #include "System/Events/CdownTimer.h"
-#include "System/Buffer/Buffer.h"
+#include "System/Buffers/Buffer.h"
 #include "System/Containers/QueueP.h"
 #include "System/IO/Socket.h"
 #include "System/IO/IOOperation.h"
-#include "TCPWriteProxy.h"
+#include "TCPWriteQueue.h"
 
 #define TCP_CONNECT_TIMEOUT 3000
 #define TCP_BUFFER_SIZE		8196
@@ -37,9 +37,8 @@ public:
 	
 	void				AsyncRead(bool start = true);
 
-	void				SetWriteProxy(TCPWriteProxy* writeProxy);
-	TCPWriteProxy*		GetWriteProxy();
-	void				OnWritePending(); // for TCPWriteProxy
+	TCPWriteQueue*		GetWriteQueue();
+	void				OnWritePending(); // for TCPWriteQueue
 	
 	TCPConnection*		next;
 	TCPConnection*		prev;
@@ -49,7 +48,7 @@ protected:
 	Socket				socket;
 	TCPRead				tcpread;
 	TCPWrite			tcpwrite;
-	TCPWriteProxy*		writeProxy;
+	TCPWriteQueue*		writeQueue;
 	Buffer				readBuffer;
 	CdownTimer			connectTimeout;
 		

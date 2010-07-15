@@ -3,7 +3,7 @@
 
 #include "Database.h"
 #include "Cursor.h"
-#include "System/Buffer/Buffer.h"
+#include "System/Buffers/Buffer.h"
 
 class TableVisitor
 {

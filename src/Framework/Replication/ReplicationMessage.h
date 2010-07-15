@@ -1,7 +1,7 @@
 #ifndef REPLICATIONMESSAGE_H
 #define REPLICATIONMESSAGE_H
 
-#include "System/Buffer/Buffer.h"
+#include "System/Buffers/Buffer.h"
 
 /*
 ===============================================================================

@@ -4,9 +4,9 @@
 TCPConnection::TCPConnection()
 {
 	state = DISCONNECTED;
-	writeProxy = NULL;
 	next = NULL;
 	connectTimeout.SetCallable(MFUNC(TCPConnection, OnConnectTimeout));
+	writeQueue = new TCPWriteQueue(this);
 }
 
 TCPConnection::~TCPConnection()
@@ -36,14 +36,9 @@ void TCPConnection::InitConnected(bool startRead)
 	state = CONNECTED;
 }
 
-void TCPConnection::SetWriteProxy(TCPWriteProxy* writeProxy_)
+TCPWriteQueue* TCPConnection::GetWriteQueue()
 {
-	writeProxy = writeProxy_;
-}
-
-TCPWriteProxy* TCPConnection::GetWriteProxy()
-{
-	return writeProxy;
+	return writeQueue;
 }
 
 void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
@@ -82,8 +77,8 @@ void TCPConnection::OnWrite()
 	Log_Trace("Written %d bytes", tcpwrite.buffer->GetLength());
 	Log_Trace("Written: %.*s", P(tcpwrite.buffer));
 
-	assert(writeProxy != NULL);
-	writeProxy->OnNextWritten();
+	assert(writeQueue != NULL);
+	writeQueue->OnNextWritten();
 }
 
 void TCPConnection::OnConnect()
@@ -125,8 +120,8 @@ void TCPConnection::OnWritePending()
 	if (state == DISCONNECTED || tcpwrite.active)
 		return;
 
-	assert(writeProxy != NULL);
-	buffer = writeProxy->GetNext();
+	assert(writeQueue != NULL);
+	buffer = writeQueue->GetNext();
 	
 	if (buffer == NULL)
 		return;
@@ -147,6 +142,6 @@ void TCPConnection::Close()
 	socket.Close();
 	state = DISCONNECTED;
 	
-	if (writeProxy)
-		writeProxy->OnClose();
+	if (writeQueue)
+		writeQueue->OnClose();
 }

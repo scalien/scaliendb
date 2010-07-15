@@ -17,6 +17,7 @@ public:
 	
 	virtual bool		Init(Endpoint &endpoint_);
 	virtual void		Write(Buffer* buffer);
+	virtual void		WritePriority(Buffer* buffer);
 
 private:
 	void				Connect();

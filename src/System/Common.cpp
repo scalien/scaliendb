@@ -5,7 +5,7 @@
 #include <pwd.h>
 #include <sys/stat.h>
 #include <signal.h>
-#include "Buffer/Buffer.h"
+#include "Buffers/Buffer.h"
 #ifdef _WIN32
 #include "process.h"
 #endif

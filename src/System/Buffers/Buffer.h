@@ -2,6 +2,7 @@
 #define BUFFER_H
 
 #include "System/Platform.h"
+#include "ReadBuffer.h"
 
 #define ARRAY_SIZE				128
 #define ALLOC_GRANURALITY		32
@@ -37,6 +38,7 @@ public:
 	void				Write(const char* buffer_, unsigned length_);
 	void				Write(const char* str);
 	void				Write(Buffer& b);
+	void				Write(ReadBuffer& b);
 
 	void				Append(const char* buffer_, unsigned length_);
 	void				Append(const char* str);
@@ -51,7 +53,7 @@ public:
 	unsigned			GetRemaining() const;
 	char*				GetPosition() const;
 	char				GetCharAt(unsigned i) const;
-	uint32_t			GetChecksum();
+	uint32_t			GetChecksum() const;
 	
 	virtual void		Rewind();
 

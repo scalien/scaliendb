@@ -128,6 +128,11 @@ void Buffer::Write(Buffer& b)
 	Write(b.GetBuffer(), b.GetLength());
 }
 
+void Buffer::Write(ReadBuffer& b)
+{
+	Write(b.GetBuffer(), b.GetLength());
+}
+
 void Buffer::Append(const char* buffer_, unsigned length_)
 {
 	if (length_ > GetRemaining())
@@ -193,7 +198,7 @@ char Buffer::GetCharAt(unsigned i) const
 	return *(buffer + i);
 }
 
-uint32_t Buffer::GetChecksum()
+uint32_t Buffer::GetChecksum() const
 {
 	return checksum(buffer, length);
 }

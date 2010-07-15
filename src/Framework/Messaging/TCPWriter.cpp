@@ -7,7 +7,7 @@
 bool TCPWriter::Init(Endpoint &endpoint_)
 {
 	endpoint = endpoint_;
-	TCPConn::Connect(endpoint, CONNECT_TIMEOUT);
+	TCPConnection::Connect(endpoint, CONNECT_TIMEOUT);
 	return true;
 }
 
@@ -22,8 +22,27 @@ void TCPWriter::Write(Buffer* buffer)
 	{
 		llen = snwritef(lbuf, sizeof(lbuf), "%d:", buffer->GetLength());
 		
-		TCPConn::GetWriteProxy()->Write(lbuf, llen, false);
-		TCPConn::GetWriteProxy()->Write(buffer);
+		TCPConnection::GetWriteQueue()->Write(lbuf, llen);
+		TCPConnection::GetWriteQueue()->Write(buffer);
+		TCPConnection::GetWriteQueue()->Flush();
+	}
+	else if (state == DISCONNECTED && !connectTimeout.IsActive())
+		Connect();
+}
+
+void TCPWriter::WritePriority(Buffer* buffer)
+{
+	Log_Trace();
+
+	Buffer prefix;
+	
+	if (state == CONNECTED)
+	{
+		prefix.Writef("%d:", buffer->GetLength());
+
+		TCPConnection::GetWriteQueue()->Write(&prefix);
+		TCPConnection::GetWriteQueue()->Write(buffer);
+		TCPConnection::GetWriteQueue()->Flush();
 	}
 	else if (state == DISCONNECTED && !connectTimeout.IsActive())
 		Connect();
@@ -33,12 +52,12 @@ void TCPWriter::Connect()
 {
 	Log_Trace();
 	
-	TCPConn::Connect(endpoint, CONNECT_TIMEOUT);
+	TCPConnection::Connect(endpoint, CONNECT_TIMEOUT);
 }
 
 void TCPWriter::OnConnect()
 {
-	TCPConn::OnConnect();
+	TCPConnection::OnConnect();
 	
 	Log_Trace("endpoint = %s", endpoint.ToString());
 	
@@ -47,7 +66,7 @@ void TCPWriter::OnConnect()
 
 void TCPWriter::OnConnectTimeout()
 {
-	TCPConn::OnConnectTimeout();
+	TCPConnection::OnConnectTimeout();
 	
 	Log_Trace("endpoint = %s", endpoint.ToString());
 	

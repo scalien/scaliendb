@@ -2,7 +2,7 @@
 #define	TCPREADER_H
 
 #include "Framework/TCP/TCPServer.h"
-#include "MessageConn.h"
+#include "MessageConnection.h"
 
 class TCPReader; // forward
 
@@ -14,7 +14,7 @@ class TCPReader; // forward
 ===============================================================================
 */
 
-class TCPReaderConn : public MessageConn<>
+class TCPReaderConn : public MessageConnection
 {
 public:
 	void			SetServer(TCPReader* reader_);
