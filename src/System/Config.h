@@ -2,7 +2,7 @@
 #define CONFIG_H
 
 #include "Buffers/Buffer.h"
-#include "Containers/QueueP.h"
+#include "Containers/InQueue.h"
 
 /*
 ===============================================================================
@@ -62,7 +62,7 @@ public:
 
 private:
 	const char*			filename;
-	QueueP<ConfigVar>	vars;
+	InQueue<ConfigVar>	vars;
 	ConfigVar*			GetVar(const char* name);
 };
 

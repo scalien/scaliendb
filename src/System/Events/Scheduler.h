@@ -1,7 +1,7 @@
 #ifndef SCHEDULER_H
 #define SCHEDULER_H
 
-#include "System/Containers/SortedListP.h"
+#include "System/Containers/InSortedList.h"
 #include "Timer.h"
 
 /*
@@ -21,7 +21,7 @@ public:
 	static void					Shutdown();
 
 protected:
-	static SortedListP<Timer>	timers;
+	static InSortedList<Timer>	timers;
 };
 
 #endif

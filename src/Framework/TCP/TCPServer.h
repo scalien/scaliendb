@@ -5,7 +5,7 @@
 #include "System/IO/Socket.h"
 #include "System/IO/IOOperation.h"
 #include "System/IO/IOProcessor.h"
-#include "System/Containers/QueueP.h"
+#include "System/Containers/InQueue.h"
 #include "System/Containers/List.h"
 #include "TCPConnection.h"
 
@@ -43,7 +43,7 @@ protected:
 	int						backlog;
 	int						numActive;
 	List<Conn*>				activeConns;
-	QueueP<TCPConnection>	conns;
+	InQueue<TCPConnection>	conns;
 };
 
 /*

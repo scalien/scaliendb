@@ -1,7 +1,7 @@
 #ifndef TCPWRITEQUEUE_H
 #define TCPWRITEQUEUE_H
 
-#include "System/Containers/PriorityQueueP.h"
+#include "System/Containers/InPriorityQueue.h"
 #include "System/Buffers/BufferPool.h"
 
 class TCPConnection; // forward
@@ -44,7 +44,7 @@ public:
 
 protected:
 	TCPConnection*				conn;
-	PriorityQueueP<Buffer>		queue;
+	InPriorityQueue<Buffer>		queue;
 	BufferPool*					pool;
 	bool						writing;
 };

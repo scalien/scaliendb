@@ -1,27 +1,27 @@
-#ifndef LISTP_H
-#define LISTP_H
+#ifndef INLIST_H
+#define INLIST_H
 
 #include <stddef.h>
 #include <assert.h>
 #include "System/Common.h"
 
-template<class T> class SortedListP;	// for friend
+template<class T> class InSortedList;	// for friend
 
 /*
 ===============================================================================
 
- List is a generic doubly-linked list assuming pre-defined
+ InList is a generic doubly-linked list assuming pre-defined
  next and prev pointers.
 
 ===============================================================================
 */
 
 template<class T>
-class ListP
+class InList
 {
 public:
-	ListP();
-	~ListP();
+	InList();
+	~InList();
 
 	T&				operator[](int i);
 	
@@ -43,7 +43,7 @@ private:
 	T*				tail;
 	unsigned		length;
 
-	friend class SortedListP<T>;
+	friend class InSortedList<T>;
 };
 
 /*
@@ -51,7 +51,7 @@ private:
 */
 
 template<class T>
-ListP<T>::ListP()
+InList<T>::InList()
 {
 	head = NULL;
 	tail = NULL;
@@ -59,13 +59,13 @@ ListP<T>::ListP()
 }
 
 template<class T>
-ListP<T>::~ListP()
+InList<T>::~InList()
 {
 	Clear();
 }
 
 template<class T>
-T& ListP<T>::operator[](int i)
+T& InList<T>::operator[](int i)
 {
 	T* it;
 	
@@ -76,7 +76,7 @@ T& ListP<T>::operator[](int i)
 }
 
 template<class T>
-void ListP<T>::Prepend(T* t)
+void InList<T>::Prepend(T* t)
 {
 	t->next = head;
 	if (head != NULL)
@@ -89,7 +89,7 @@ void ListP<T>::Prepend(T* t)
 }
 
 template<class T>
-void ListP<T>::Append(T* t)
+void InList<T>::Append(T* t)
 {
 	t->prev = tail;
 	if (tail != NULL)
@@ -102,7 +102,7 @@ void ListP<T>::Append(T* t)
 }
 
 template<class T>
-T* ListP<T>::Remove(T* t)
+T* InList<T>::Remove(T* t)
 {
 	if (head == t)
 		head = dynamic_cast<T*>(t->next);
@@ -120,7 +120,7 @@ T* ListP<T>::Remove(T* t)
 }
 
 template<class T>
-bool ListP<T>::Remove(T &t)
+bool InList<T>::Remove(T &t)
 {
 	T* it;
 	
@@ -138,7 +138,7 @@ bool ListP<T>::Remove(T &t)
 }
 
 template<class T>
-void ListP<T>::Clear()
+void InList<T>::Clear()
 {
 	T* it;
 	
@@ -148,31 +148,31 @@ void ListP<T>::Clear()
 }
 
 template<class T>
-T* ListP<T>::Head() const
+T* InList<T>::Head() const
 {
 	return head;
 }
 
 template<class T>
-T* ListP<T>::Tail() const
+T* InList<T>::Tail() const
 {
 	return tail;
 }
 
 template<class T>
-unsigned ListP<T>::GetLength() const
+unsigned InList<T>::GetLength() const
 {
 	return length;
 }
 
 template<class T>
-T* ListP<T>::Next(T* t) const
+T* InList<T>::Next(T* t) const
 {
 	return dynamic_cast<T*>(t->next);
 }
 
 template<class T>
-T* ListP<T>::Prev(T* t) const
+T* InList<T>::Prev(T* t) const
 {
 	return dynamic_cast<T*>(t->prev);
 }

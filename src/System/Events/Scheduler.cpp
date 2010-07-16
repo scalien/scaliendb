@@ -1,6 +1,6 @@
 #include "Scheduler.h"
 
-SortedListP<Timer>	Scheduler::timers;
+InSortedList<Timer>	Scheduler::timers;
 
 void Scheduler::Add(Timer* timer)
 {

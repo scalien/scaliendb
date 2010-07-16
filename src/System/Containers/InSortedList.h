@@ -1,13 +1,13 @@
-#ifndef SORTEDLISTP_H
-#define SORTEDLISTP_H
+#ifndef INSORTEDLIST_H
+#define INSORTEDLIST_H
 
-#include "ListP.h"
+#include "InList.h"
 #include "System/Common.h"
 
 /*
 ===============================================================================
 
- SortedListP is a generic doubly-linked sorted list assuming pre-defined
+ InSortedList is a generic doubly-linked sorted list assuming pre-defined
  next and prev pointers.
  To use it define LessThan(const T &a, const T &b).
 
@@ -15,7 +15,7 @@
 */
 
 template<class T>
-class SortedListP
+class InSortedList
 {
 public:
 
@@ -32,7 +32,7 @@ public:
 	T*				Prev(T* t) const;
 
 protected:
-	ListP<T>		list;
+	InList<T>		list;
 };
 
 /*
@@ -40,7 +40,7 @@ protected:
 */
 
 template<class T>
-bool SortedListP<T>::Add(T* t)
+bool InSortedList<T>::Add(T* t)
 {
 	T** curr = &(list.head);
 
@@ -70,49 +70,49 @@ bool SortedListP<T>::Add(T* t)
 }
 
 template<class T>
-T* SortedListP<T>::Remove(T* t)
+T* InSortedList<T>::Remove(T* t)
 {
 	return list.Remove(t);
 }
 
 template<class T>
-bool SortedListP<T>::Remove(T &t)
+bool InSortedList<T>::Remove(T &t)
 {
 	return list.Remove(t);
 }
 
 template<class T>
-void SortedListP<T>::Clear()
+void InSortedList<T>::Clear()
 {
 	return list.Clear();
 }
 
 template<class T>
-T* SortedListP<T>::Head() const
+T* InSortedList<T>::Head() const
 {
 	return list.Head();
 }
 
 template<class T>
-T* SortedListP<T>::Tail() const
+T* InSortedList<T>::Tail() const
 {
 	return list.Tail();
 }
 
 template<class T>
-int SortedListP<T>::GetLength() const
+int InSortedList<T>::GetLength() const
 {
 	return list.GetLength();
 }
 
 template<class T>
-T* SortedListP<T>::Next(T* t) const
+T* InSortedList<T>::Next(T* t) const
 {
 	return list.Next(t);
 }
 
 template<class T>
-T* SortedListP<T>::Prev(T* t) const
+T* InSortedList<T>::Prev(T* t) const
 {
 	return list.Prev(t);
 }

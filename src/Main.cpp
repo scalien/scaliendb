@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "System/Containers/SortedListP.h"
+#include "System/Containers/InSortedList.h"
 
 struct S
 {
@@ -19,7 +19,7 @@ bool LessThan(const S& a, const S& b)
 
 int main(void)
 {
-	SortedListP<S> list;
+	InSortedList<S> list;
 	
 	list.Add(new S(2));
 	list.Add(new S(1));

@@ -1,28 +1,29 @@
-#ifndef QUEUE_H
-#define QUEUE_H
+#ifndef INPRIORITYQUEUE_H
+#define INPRIORITYQUEUE_H
 
-#include "Common.h"
+#include <assert.h>
 
 /*
 ===============================================================================
 
- Queue for storing objects with pre-allocated next pointer.
+ InPriorityQueue for storing objects with pre-allocated next pointer.
 
 ===============================================================================
 */
 
 template<class T>
-class QueueP
+class InPriorityQueue
 {
 public:
-	QueueP();
+	InPriorityQueue();
 
 	void	Enqueue(T* elem);	
+	void	EnqueuePriority(T* elem);	
 	T*		Dequeue();
 
 	void	Clear();
 	
-	T*		Head() const;	
+	T*		Head() const;
 	T*		Tail() const;
 	int		GetLength() const;
 	
@@ -31,6 +32,7 @@ public:
 private:
 	T*		head;
 	T*		tail;
+	T*		prio;
 	int		length;
 };
 
@@ -39,17 +41,18 @@ private:
 */
 
 template<class T>
-QueueP<T>::QueueP()
+InPriorityQueue<T>::InPriorityQueue()
 {
 	length = 0;
 	head = NULL;
 	tail = NULL;
+	prio = NULL;
 	Clear();
 }
 
 
 template<class T>
-void QueueP<T>::Enqueue(T* elem)
+void InPriorityQueue<T>::Enqueue(T* elem)
 {
 	assert(elem != NULL);
 	
@@ -63,7 +66,29 @@ void QueueP<T>::Enqueue(T* elem)
 }
 
 template<class T>
-T* QueueP<T>::Dequeue()
+void InPriorityQueue<T>::EnqueuePriority(T* elem)
+{
+	assert(elem != NULL);
+	
+	elem->next = NULL;
+	if (prio)
+	{
+		elem->next = prio->next;
+		prio->next = elem;
+	}
+	else
+	{
+		elem->next = head;
+		head = elem;
+	}
+	if (prio == tail)
+		tail = elem;
+	prio = elem;
+	length++;
+}
+
+template<class T>
+T* InPriorityQueue<T>::Dequeue()
 {
 	T* elem;
 	elem = head;
@@ -72,6 +97,8 @@ T* QueueP<T>::Dequeue()
 		head = dynamic_cast<T*>(elem->next);
 		if (tail == elem)
 			tail = NULL;
+		if (prio == elem)
+			prio = NULL;
 		elem->next = NULL;
 		length--;
 	}
@@ -79,34 +106,36 @@ T* QueueP<T>::Dequeue()
 }
 
 template<class T>
-void QueueP<T>::Clear()
+void InPriorityQueue<T>::Clear()
 {
 	T* elem;
 
-	do elem = Dequeue();
-	while (elem);
+	do
+	{
+		elem = Dequeue();
+	} while (elem);
 }
 
 template<class T>
-T* QueueP<T>::Head() const
+T* InPriorityQueue<T>::Head() const
 {
 	return head;
 }
 
 template<class T>
-T* QueueP<T>::Tail() const
+T* InPriorityQueue<T>::Tail() const
 {
 	return tail;
 }
 
 template<class T>
-T* QueueP<T>::Next(T* t) const
+T* InPriorityQueue<T>::Next(T* t) const
 {
 	return dynamic_cast<T*>(t->next);
 }
 
 template<class T>
-int QueueP<T>::GetLength() const
+int InPriorityQueue<T>::GetLength() const
 {
 	return length;
 }

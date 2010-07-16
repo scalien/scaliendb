@@ -81,7 +81,7 @@
 		546E152F11DA3A1000867EE1 /* ReplicationMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationMessage.h; sourceTree = "<group>"; };
 		546E181611DDD4DF00867EE1 /* QuorumTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumTransport.h; sourceTree = "<group>"; };
 		546E182711DE137F00867EE1 /* ReplicationTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationTransport.h; sourceTree = "<group>"; };
-		546E190411E4D61300867EE1 /* PriorityQueueP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PriorityQueueP.h; sourceTree = "<group>"; };
+		546E190411E4D61300867EE1 /* InPriorityQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InPriorityQueue.h; sourceTree = "<group>"; };
 		546E1F9011EB827300867EE1 /* TCPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPConnection.cpp; sourceTree = "<group>"; };
 		546E1F9111EB827300867EE1 /* TCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPConnection.h; sourceTree = "<group>"; };
 		546E1F9211EB827300867EE1 /* TCPWriteQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPWriteQueue.cpp; sourceTree = "<group>"; };
@@ -92,7 +92,7 @@
 		546E1FA511EB827F00867EE1 /* TCPReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPReader.h; sourceTree = "<group>"; };
 		546E1FA611EB827F00867EE1 /* MessageWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageWriter.cpp; sourceTree = "<group>"; };
 		546E1FA711EB827F00867EE1 /* MessageWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageWriter.h; sourceTree = "<group>"; };
-		546E1FC611EC81B200867EE1 /* ListP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ListP.h; sourceTree = "<group>"; };
+		546E1FC611EC81B200867EE1 /* InList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InList.h; sourceTree = "<group>"; };
 		546E244011EF48AC00867EE1 /* MessageConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConnection.cpp; sourceTree = "<group>"; };
 		546E254C11EF5CF700867EE1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
 		546E254D11EF5CF700867EE1 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
@@ -101,7 +101,7 @@
 		546E255011EF5CF700867EE1 /* ReadBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReadBuffer.cpp; sourceTree = "<group>"; };
 		546E255111EF5CF700867EE1 /* ReadBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadBuffer.h; sourceTree = "<group>"; };
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
-		546E26E811EF737A00867EE1 /* SortedListP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SortedListP.h; sourceTree = "<group>"; };
+		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
 		548BA2BA11CA7C510079D99C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = src/Framework/Node.h; sourceTree = SOURCE_ROOT; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
@@ -111,7 +111,7 @@
 		54B7F74611BE5EF30076BC62 /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Config.cpp; sourceTree = "<group>"; };
 		54B7F74711BE5EF30076BC62 /* Config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Config.h; sourceTree = "<group>"; };
 		54B7F74A11BE5EF30076BC62 /* List.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = List.h; sourceTree = "<group>"; };
-		54B7F74B11BE5EF30076BC62 /* QueueP.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QueueP.h; sourceTree = "<group>"; };
+		54B7F74B11BE5EF30076BC62 /* InQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InQueue.h; sourceTree = "<group>"; };
 		54B7F74C11BE5EF30076BC62 /* SortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SortedList.h; sourceTree = "<group>"; };
 		54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EventLoop.cpp; sourceTree = "<group>"; };
 		54B7F75011BE5EF30076BC62 /* EventLoop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EventLoop.h; sourceTree = "<group>"; };
@@ -342,11 +342,11 @@
 			isa = PBXGroup;
 			children = (
 				54B7F74A11BE5EF30076BC62 /* List.h */,
-				546E1FC611EC81B200867EE1 /* ListP.h */,
 				54B7F74C11BE5EF30076BC62 /* SortedList.h */,
-				546E26E811EF737A00867EE1 /* SortedListP.h */,
-				54B7F74B11BE5EF30076BC62 /* QueueP.h */,
-				546E190411E4D61300867EE1 /* PriorityQueueP.h */,
+				546E1FC611EC81B200867EE1 /* InList.h */,
+				546E26E811EF737A00867EE1 /* InSortedList.h */,
+				54B7F74B11BE5EF30076BC62 /* InQueue.h */,
+				546E190411E4D61300867EE1 /* InPriorityQueue.h */,
 			);
 			path = Containers;
 			sourceTree = "<group>";

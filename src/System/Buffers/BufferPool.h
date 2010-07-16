@@ -2,7 +2,7 @@
 #define BUFFERQUEUE_H
 
 #include "System/Buffers/Buffer.h"
-#include "System/Containers/ListP.h"
+#include "System/Containers/InList.h"
 
 #define	DEFAULT_BUFFERPOOL			(BufferPool::Get())
 #define TARGET_AVAILABLE_SIZE		10*MB
@@ -30,7 +30,7 @@ public:
 	virtual unsigned			GetAvailableSize();
 
 private:
-	ListP<Buffer>				available;
+	InList<Buffer>				available;
 	unsigned					availableSize;
 	
 	Buffer*						Allocate(unsigned size);
