@@ -14,7 +14,7 @@
 
 class Timer
 {
-friend class Scheduler;
+	friend class Scheduler;
 
 public:
 	Timer();

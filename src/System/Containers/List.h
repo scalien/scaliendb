@@ -19,6 +19,8 @@ template<class T> class SortedList;	// for friend
 template<class T>
 class List
 {
+	friend class SortedList<T>;
+
 public:
 	List();
 	~List();
@@ -42,8 +44,6 @@ private:
 	ListNode<T>*	head;
 	ListNode<T>*	tail;
 	unsigned		length;
-
-	friend class SortedList<T>;
 };
 
 /*

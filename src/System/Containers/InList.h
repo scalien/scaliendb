@@ -19,6 +19,8 @@ template<class T> class InSortedList;	// for friend
 template<class T>
 class InList
 {
+	friend class InSortedList<T>;
+
 public:
 	InList();
 	~InList();
@@ -42,8 +44,6 @@ private:
 	T*				head;
 	T*				tail;
 	unsigned		length;
-
-	friend class InSortedList<T>;
 };
 
 /*

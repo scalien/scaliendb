@@ -34,6 +34,7 @@ public:
 
 	void						WritePooled(Buffer* buffer);
 	void						WritePooledPriority(Buffer* buffer);
+	// WritePooled() functions automatically release buffers after data is written
 	void						Flush();
 
 	virtual Buffer*				GetNext();

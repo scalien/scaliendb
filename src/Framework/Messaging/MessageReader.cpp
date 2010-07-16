@@ -1,27 +1,25 @@
-#include "TCPReader.h"
+#include "MessageReader.h"
 #include "System/Common.h"
 
 /*
 ===============================================================================
 
- TCPReaderConn
+ MessageReaderConnection
 
 ===============================================================================
 */
 
-void TCPReaderConn::SetServer(TCPReader* reader_)
+void MessageReaderConnection::SetServer(MessageReader* reader_)
 {
 	reader = reader_;
 }
 	
-void TCPReaderConn::OnMessageRead(const ByteString& message)
+void MessageReaderConnection::OnMessage()
 {
-	reader->SetMessage(message);
-	
-	Call(reader->onRead);
+	reader->OnMessage(GetMessage());
 }
 	
-void TCPReaderConn::OnClose()
+void MessageReaderConnection::OnClose()
 {
 	Log_Trace();
 	
@@ -35,42 +33,43 @@ void TCPReaderConn::OnClose()
 /*
 ===============================================================================
 
- TCPReader
+ MessageReader
 
 ===============================================================================
 */
 
-bool TCPReader::Init(int port)
+bool MessageReader::Init(int port)
 {
 	running = true;
-	return TCPServer<TCPReader, TCPReaderConn>::Init(port);
+	return TCPServer<MessageReader, MessageReaderConnection>::Init(port);
 }
 
-void TCPReader::SetOnRead(const Callable& onRead_)
+void MessageReader::SetOnRead(const Callable& onRead_)
 {
 	onRead = onRead_;
 }
 
-void TCPReader::SetMessage(const ByteString& msg_)
+void MessageReader::OnMessage(ReadBuffer msg_)
 {
 	msg = msg_;
+	Call(onRead);
 }
 
-void TCPReader::GetMessage(ByteString& msg_)
+ReadBuffer MessageReader::GetMessage()
 {
-	msg_ = msg;
+	return msg;
 }
 
-bool TCPReader::IsActive()
+bool MessageReader::IsActive()
 {
 	return running;
 }
 
-void TCPReader::Stop()
+void MessageReader::Stop()
 {
 	Log_Trace();
 	
-	TCPReaderConn** it;
+	MessageReaderConnection** it;
 
 	running = false;
 	
@@ -82,11 +81,11 @@ void TCPReader::Stop()
 	}
 }
 
-void TCPReader::Continue()
+void MessageReader::Continue()
 {
 	Log_Trace();
 
-	TCPReaderConn** it;
+	MessageReaderConnection** it;
 	
 	running = true;
 	
@@ -98,12 +97,12 @@ void TCPReader::Continue()
 	}
 }
 
-void TCPReader::InitConn(TCPReaderConn* conn)
+void MessageReader::InitConn(MessageReaderConnection* conn)
 {
 	conn->SetServer(this);
 }
 
-void TCPReader::OnConnectionClose(TCPReaderConn* conn)
+void MessageReader::OnConnectionClose(MessageReaderConnection* conn)
 {
 	assert(conns.Remove(conn));
 }

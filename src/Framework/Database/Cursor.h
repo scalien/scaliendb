@@ -8,7 +8,7 @@ class Table; // forward
 
 class Cursor
 {
-friend class Table;
+	friend class Table;
 
 public:
 	bool	Start(const Buffer &key);

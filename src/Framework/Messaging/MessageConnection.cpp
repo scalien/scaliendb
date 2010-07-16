@@ -61,7 +61,7 @@ void MessageConnection::OnRead()
 
 		msg.SetBuffer(tcpread.buffer->GetBuffer() + msgbegin);
 		msg.SetLength(msglength);
-		OnMessageRead();
+		OnMessage();
 		
 		pos = msgend;
 		

@@ -22,7 +22,7 @@ public:
 	MessageConnection();
 		
 	virtual void		Init(bool startRead = true);
-	virtual void		OnMessageRead() = 0;
+	virtual void		OnMessage() = 0;
 	virtual void		OnClose() = 0;
 	virtual void		OnRead();
 	void				OnResumeRead();
