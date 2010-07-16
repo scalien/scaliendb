@@ -51,7 +51,7 @@ bool InSortedList<T>::Add(T* t)
 		if (*curr == NULL || LessThan(*t, **curr))
 		{
 			t->next = *curr;
-			if (curr != &(list.head))
+			if (curr != &(list.head)) // TODO fix this mess
 				t->prev = (T*) ((char*)curr - offsetof(T, next));
 			else
 				t->prev = NULL;
