@@ -18,9 +18,10 @@ class DoubleQuorum : Quorum
 public:
 	DoubleQuorum();
 	
-	void				AddNode(unsigned group, unsigned nodeID); // add nodes in group order!
-	const unsigned*		GetNodes() const;
+	void				AddNode(unsigned group, unsigned nodeID);
+	// add nodes in group order!
 	unsigned			GetNumNodes() const;
+	const unsigned*		GetNodes() const;
 	
 	void				RegisterAccepted(unsigned nodeID);
 	void				RegisterRejected(unsigned nodeID);

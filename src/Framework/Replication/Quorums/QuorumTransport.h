@@ -1,7 +1,9 @@
 #ifndef QUORUMTRANSPORT_H
 #define QUORUMTRANSPORT_H
 
-#include "ReplicationMessage.h"
+#include "Quorum.h"
+#include "Framework/Replication/ReplicationTransport.h"
+#include "Framework/Replication/ReplicationMessage.h"
 
 /*
 ===============================================================================
@@ -14,11 +16,19 @@
 class QuorumTransport
 {
 public:
+	QuorumTransport();
 	virtual ~QuorumTransport() {}
 	
-	virtual ReplicationMessage*	GetMessage() const											= 0;
-	virtual void				SendMessage(unsigned nodeID, const ReplicationMessage* msg)	= 0;
-	virtual void				BroadcastMessage(const ReplicationMessage* msg)				= 0;
+	void					SetReplicationTransport(ReplicationTransport* transport);
+	void					SetQuorum(Quorum* quorum);
+	
+	ReplicationMessage*		GetMessage() const;
+	void					SendMessage(unsigned nodeID, const ReplicationMessage& msg);
+	void					BroadcastMessage(const ReplicationMessage& msg);
+
+private:
+	Quorum*					quorum;
+	ReplicationTransport*	transport;
 };
 
 #endif

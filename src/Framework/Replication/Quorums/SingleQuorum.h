@@ -19,8 +19,8 @@ public:
 	SingleQuorum();
 	
 	void				AddNode(unsigned nodeID);
-	const unsigned*		GetNodes() const;
 	unsigned			GetNumNodes() const;
+	const unsigned*		GetNodes() const;
 	
 	void				RegisterAccepted(unsigned nodeID);
 	void				RegisterRejected(unsigned nodeID);

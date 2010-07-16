@@ -15,14 +15,14 @@ void SingleQuorum::AddNode(unsigned nodeID)
 	numNodes++;
 }
 
-const unsigned* SingleQuorum::GetNodes() const
-{
-	return (const unsigned*) &nodes;
-}
-
 unsigned SingleQuorum::GetNumNodes() const
 {
 	return numNodes;
+}
+
+const unsigned* SingleQuorum::GetNodes() const
+{
+	return (const unsigned*) &nodes;
 }
 
 void SingleQuorum::RegisterAccepted(unsigned)

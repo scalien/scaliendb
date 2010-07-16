@@ -17,8 +17,8 @@ class Quorum
 public:
 	virtual ~Quorum() {}
 
-	virtual const unsigned*	GetNodes() const = 0;
 	virtual unsigned		GetNumNodes() const = 0;
+	virtual const unsigned*	GetNodes() const = 0;
 	
 	virtual void			RegisterAccepted(unsigned nodeID) = 0;
 	virtual void			RegisterRejected(unsigned nodeID) = 0;

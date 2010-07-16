@@ -24,6 +24,7 @@
 		546E256011EF5D8E00867EE1 /* MessageWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1FA611EB827F00867EE1 /* MessageWriter.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		546E284711F0621A00867EE1 /* MessageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1FA411EB827F00867EE1 /* MessageReader.cpp */; };
+		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -103,6 +104,7 @@
 		546E255111EF5CF700867EE1 /* ReadBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadBuffer.h; sourceTree = "<group>"; };
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
+		546E28D311F0816E00867EE1 /* QuorumTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumTransport.cpp; sourceTree = "<group>"; };
 		548BA2BA11CA7C510079D99C /* Node.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Node.h; path = src/Framework/Node.h; sourceTree = SOURCE_ROOT; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
@@ -250,6 +252,7 @@
 				546E119611D8F4D300867EE1 /* DoubleQuorum.h */,
 				546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */,
 				546E181611DDD4DF00867EE1 /* QuorumTransport.h */,
+				546E28D311F0816E00867EE1 /* QuorumTransport.cpp */,
 			);
 			path = Quorums;
 			sourceTree = "<group>";
@@ -487,6 +490,7 @@
 				546E256011EF5D8E00867EE1 /* MessageWriter.cpp in Sources */,
 				546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */,
 				546E284711F0621A00867EE1 /* MessageReader.cpp in Sources */,
+				546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

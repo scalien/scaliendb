@@ -19,14 +19,14 @@ void DoubleQuorum::AddNode(unsigned group, unsigned nodeID)
 	numNodes[group]++;
 }
 
-const unsigned* DoubleQuorum::GetNodes() const
-{
-	return (const unsigned*) &nodes;
-}
-
 unsigned DoubleQuorum::GetNumNodes() const
 {
 	return numNodes[0] + numNodes[1];
+}
+
+const unsigned* DoubleQuorum::GetNodes() const
+{
+	return (const unsigned*) &nodes;
 }
 
 void DoubleQuorum::RegisterAccepted(unsigned nodeID)
