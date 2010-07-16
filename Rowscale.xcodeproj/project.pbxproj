@@ -219,8 +219,8 @@
 				546E152F11DA3A1000867EE1 /* ReplicationMessage.h */,
 				546E141B11DA0AE900867EE1 /* ReplicationManager.h */,
 				546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */,
-				546E182711DE137F00867EE1 /* ReplicationTransport.h */,
 				546E145711DA173300867EE1 /* ReplicationContext.h */,
+				546E182711DE137F00867EE1 /* ReplicationTransport.h */,
 			);
 			path = Replication;
 			sourceTree = "<group>";
