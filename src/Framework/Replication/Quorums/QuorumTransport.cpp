@@ -1,5 +1,15 @@
 #include "QuorumTransport.h"
 
+QuorumTransport::QuorumTransport()
+{
+	priority = false;
+}
+
+void QuorumTransport::SetPriority(bool priority_)
+{
+	priority = priority_;
+}
+
 void QuorumTransport::SetReplicationTransport(ReplicationTransport* transport_)
 {
 	transport = transport_;
@@ -17,7 +27,10 @@ ReplicationMessage*	QuorumTransport::GetMessage() const
 
 void QuorumTransport::SendMessage(unsigned nodeID, const ReplicationMessage& msg)
 {
-	return transport->SendMessage(nodeID, msg);
+	if (priority)
+		return transport->SendPriorityMessage(nodeID, msg);
+	else
+		return transport->SendMessage(nodeID, msg);
 }
 
 void QuorumTransport::BroadcastMessage(const ReplicationMessage& msg)
@@ -31,6 +44,9 @@ void QuorumTransport::BroadcastMessage(const ReplicationMessage& msg)
 	for (i = 0; i < num; i++)
 	{
 		nodeID = nodes[i];
-		return transport->SendMessage(nodeID, msg);
+		if (priority)
+			return transport->SendPriorityMessage(nodeID, msg);
+		else
+			return transport->SendMessage(nodeID, msg);
 	}
 }

@@ -17,16 +17,18 @@ class QuorumTransport
 {
 public:
 	QuorumTransport();
-	virtual ~QuorumTransport() {}
 	
+	void					SetPriority(bool priority);
 	void					SetReplicationTransport(ReplicationTransport* transport);
 	void					SetQuorum(Quorum* quorum);
 	
 	ReplicationMessage*		GetMessage() const;
+
 	void					SendMessage(unsigned nodeID, const ReplicationMessage& msg);
 	void					BroadcastMessage(const ReplicationMessage& msg);
 
 private:
+	bool					priority;
 	Quorum*					quorum;
 	ReplicationTransport*	transport;
 };
