@@ -69,41 +69,41 @@ void PaxosLeaseProposer::OnNewPaxosRound()
 	//	StartPreparing();
 }
 
-void PaxosLeaseProposer::BroadcastMessage(PaxosLeaseMessage* msg)
+void PaxosLeaseProposer::BroadcastMessage(const PaxosLeaseMessage& omsg)
 {
 	Log_Trace();
 	
 	context->GetQuorum()->Reset();
-	context->GetTransport()->BroadcastMessage(msg);
+	context->GetTransport()->BroadcastMessage(omsg);
 }
 
-void PaxosLeaseProposer::OnMessage(PaxosLeaseMessage* msg)
+void PaxosLeaseProposer::OnMessage(const PaxosLeaseMessage& imsg)
 {
-	if (msg->IsPrepareResponse())
-		OnPrepareResponse(msg);
-	else if (msg->IsProposeResponse())
-		OnProposeResponse(msg);
+	if (imsg.IsPrepareResponse())
+		OnPrepareResponse(imsg);
+	else if (imsg.IsProposeResponse())
+		OnProposeResponse(imsg);
 	else
 		ASSERT_FAIL();
 }
 
-void PaxosLeaseProposer::OnPrepareResponse(PaxosLeaseMessage* msg)
+void PaxosLeaseProposer::OnPrepareResponse(const PaxosLeaseMessage& imsg)
 {
 	Log_Trace();
 
-	if (!state.preparing || msg->proposalID != state.proposalID)
+	if (!state.preparing || imsg.proposalID != state.proposalID)
 		return;
 	
-	if (msg->type == PAXOSLEASE_PREPARE_REJECTED)
-		context->GetQuorum()->RegisterRejected(msg->nodeID);
+	if (imsg.type == PAXOSLEASE_PREPARE_REJECTED)
+		context->GetQuorum()->RegisterRejected(imsg.nodeID);
 	else
-		context->GetQuorum()->RegisterAccepted(msg->nodeID);
+		context->GetQuorum()->RegisterAccepted(imsg.nodeID);
 	
-	if (msg->type == PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED && 
-	 msg->acceptedProposalID >= state.highestReceivedProposalID)
+	if (imsg.type == PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED && 
+	 imsg.acceptedProposalID >= state.highestReceivedProposalID)
 	{
-		state.highestReceivedProposalID = msg->acceptedProposalID;
-		state.leaseOwner = msg->leaseOwner;
+		state.highestReceivedProposalID = imsg.acceptedProposalID;
+		state.leaseOwner = imsg.leaseOwner;
 	}
 
 	if (context->GetQuorum()->IsRoundRejected())
@@ -117,8 +117,10 @@ void PaxosLeaseProposer::OnPrepareResponse(PaxosLeaseMessage* msg)
 		StartProposing();	
 }
 
-void PaxosLeaseProposer::OnProposeResponse(PaxosLeaseMessage* msg)
+void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 {
+	PaxosLeaseMessage omsg;
+	
 	Log_Trace();
 
 	if (state.expireTime < Now())
@@ -127,31 +129,30 @@ void PaxosLeaseProposer::OnProposeResponse(PaxosLeaseMessage* msg)
 		return; // already expired, wait for timer
 	}
 	
-	if (!state.proposing || msg->proposalID != state.proposalID)
+	if (!state.proposing || imsg.proposalID != state.proposalID)
 	{
 		Log_Trace("not my proposal");
 		return;
 	}
 	
-	if (msg->type == PAXOSLEASE_PROPOSE_REJECTED)
-		context->GetQuorum()->RegisterRejected(msg->nodeID);
+	if (imsg.type == PAXOSLEASE_PROPOSE_REJECTED)
+		context->GetQuorum()->RegisterRejected(imsg.nodeID);
 	else
-		context->GetQuorum()->RegisterAccepted(msg->nodeID);
+		context->GetQuorum()->RegisterAccepted(imsg.nodeID);
 	
 	// see if we have enough positive replies to advance
 	if (context->GetQuorum()->IsRoundAccepted() && state.expireTime - Now() > 500 /*msec*/)
-	{
+	{		
 		// a majority have accepted our proposal, we have consensus
-		state.proposing = false;
-		msg->LearnChosen(RMAN->GetNodeID(), state.leaseOwner,
-		 state.expireTime - Now(), state.expireTime);
-		
 		EventLoop::Remove(&acquireLeaseTimeout);
-		
 		extendLeaseTimeout.Set(Now() + (state.expireTime - Now()) / 7);
 		EventLoop::Reset(&extendLeaseTimeout);
 	
-		BroadcastMessage(msg);
+		omsg.LearnChosen(RMAN->GetNodeID(), state.leaseOwner,
+		 state.expireTime - Now(), state.expireTime);
+		BroadcastMessage(omsg);
+
+		state.proposing = false;
 		return;
 	}
 	
@@ -161,6 +162,8 @@ void PaxosLeaseProposer::OnProposeResponse(PaxosLeaseMessage* msg)
 
 void PaxosLeaseProposer::StartPreparing()
 {
+	PaxosLeaseMessage omsg;
+
 	Log_Trace();
 
 	EventLoop::Reset(&acquireLeaseTimeout);
@@ -174,14 +177,14 @@ void PaxosLeaseProposer::StartPreparing()
 	if (state.proposalID > highestProposalID)
 		highestProposalID = state.proposalID;
 	
-	PaxosLeaseMessage* msg = (PaxosLeaseMessage*) context->GetTransport()->GetMessage();
-	msg->PrepareRequest(RMAN->GetNodeID(), state.proposalID, context->GetPaxosID());
-	
-	BroadcastMessage(msg);
+	omsg.PrepareRequest(RMAN->GetNodeID(), state.proposalID, context->GetPaxosID());
+	BroadcastMessage(omsg);
 }
 
 void PaxosLeaseProposer::StartProposing()
 {
+	PaxosLeaseMessage omsg;
+	
 	Log_Trace();
 	
 	state.preparing = false;
@@ -193,10 +196,8 @@ void PaxosLeaseProposer::StartProposing()
 	state.duration = MAX_LEASE_TIME;
 	state.expireTime = Now() + state.duration;
 	
-	PaxosLeaseMessage* msg = (PaxosLeaseMessage*) context->GetTransport()->GetMessage();
-	msg->ProposeRequest(RMAN->GetNodeID(), state.proposalID, state.leaseOwner, state.duration);
-
-	BroadcastMessage(msg);
+	omsg.ProposeRequest(RMAN->GetNodeID(), state.proposalID, state.leaseOwner, state.duration);
+	BroadcastMessage(omsg);
 }
 
 void PaxosLeaseProposer::OnAcquireLeaseTimeout()

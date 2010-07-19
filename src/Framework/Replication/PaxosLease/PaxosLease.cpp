@@ -40,15 +40,16 @@ void PaxosLease::Shutdown()
 
 void PaxosLease::OnMessage()
 {
-	PaxosLeaseMessage* msg = (PaxosLeaseMessage*) context->GetTransport()->GetMessage();
-	if ((msg->IsRequest()) && msg->proposalID > proposer.HighestProposalID())
-			proposer.SetHighestProposalID(msg->proposalID);
+	const PaxosLeaseMessage& msg = *((PaxosLeaseMessage*) context->GetTransport()->GetMessage());
+
+	if ((msg.IsRequest()) && msg.proposalID > proposer.HighestProposalID())
+			proposer.SetHighestProposalID(msg.proposalID);
 	
-	if (msg->IsResponse())
+	if (msg.IsResponse())
 		proposer.OnMessage(msg);
-	else if (msg->IsRequest())
+	else if (msg.IsRequest())
 		acceptor.OnMessage(msg);
-	else if (msg->IsLearnChosen())
+	else if (msg.IsLearnChosen())
 		learner.OnMessage(msg);
 	else
 		ASSERT_FAIL();

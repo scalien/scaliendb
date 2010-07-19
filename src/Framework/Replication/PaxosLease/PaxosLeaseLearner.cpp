@@ -10,15 +10,15 @@ void PaxosLeaseLearner::Init(ReplicationContext* context_)
 	state.Init();
 }
 
-void PaxosLeaseLearner::OnMessage(PaxosLeaseMessage* msg)
+void PaxosLeaseLearner::OnMessage(const PaxosLeaseMessage& imsg)
 {
-	if (msg->type == PAXOSLEASE_LEARN_CHOSEN)
-		OnLearnChosen(msg);
+	if (imsg.type == PAXOSLEASE_LEARN_CHOSEN)
+		OnLearnChosen(imsg);
 	else
 		ASSERT_FAIL();
 }
 
-void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage* msg)
+void PaxosLeaseLearner::OnLearnChosen(const PaxosLeaseMessage& imsg)
 {
 	Log_Trace();
 	
@@ -26,10 +26,10 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage* msg)
 		OnLeaseTimeout();
 
 	uint64_t expireTime;
-	if (msg->leaseOwner == RMAN->GetNodeID())
-		expireTime = msg->localExpireTime; // I'm the master
+	if (imsg.leaseOwner == RMAN->GetNodeID())
+		expireTime = imsg.localExpireTime; // I'm the master
 	else
-		expireTime = Now() + msg->duration - 500 /* msec */;
+		expireTime = Now() + imsg.duration - 500 /* msec */;
 		// conservative estimate
 	
 	if (expireTime < Now())
@@ -40,7 +40,7 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage* msg)
 //		Log_Message("Node %d is the master", msg.leaseOwner);
 	
 	state.learned = true;
-	state.leaseOwner = msg->leaseOwner;
+	state.leaseOwner = imsg.leaseOwner;
 	state.expireTime = expireTime;
 	Log_Trace("+++ Node %d has the lease for %" PRIu64 " msec +++",
 		state.leaseOwner, state.expireTime - Now());

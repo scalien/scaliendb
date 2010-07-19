@@ -5,7 +5,7 @@
 
 class Database;				// forward
 class ReplicationMessage;	// forward
-class QuorumTransport; // forward
+class QuorumTransport;		// forward
 
 /*
 ===============================================================================

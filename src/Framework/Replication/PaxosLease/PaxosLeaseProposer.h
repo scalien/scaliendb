@@ -22,7 +22,7 @@ class PaxosLeaseProposer
 public:
 	void						Init(ReplicationContext* context);
 	
-	void						OnMessage(PaxosLeaseMessage* msg);
+	void						OnMessage(const PaxosLeaseMessage& msg);
 	void						OnNewPaxosRound();
 	void						OnAcquireLeaseTimeout();
 	void						OnExtendLeaseTimeout();
@@ -32,9 +32,9 @@ public:
 	void						SetHighestProposalID(uint64_t highestProposalID);
 
 private:
-	void						BroadcastMessage(PaxosLeaseMessage* msg);
-	void						OnPrepareResponse(PaxosLeaseMessage* msg);
-	void						OnProposeResponse(PaxosLeaseMessage* msg);
+	void						BroadcastMessage(const PaxosLeaseMessage& msg);
+	void						OnPrepareResponse(const PaxosLeaseMessage& msg);
+	void						OnProposeResponse(const PaxosLeaseMessage& msg);
 	void						StartPreparing();
 	void						StartProposing();
 

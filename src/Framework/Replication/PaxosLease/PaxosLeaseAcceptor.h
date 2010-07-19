@@ -20,12 +20,12 @@ class PaxosLeaseAcceptor
 {
 public:
 	void						Init(ReplicationContext* context);
-	void						OnMessage(PaxosLeaseMessage* msg);
+	void						OnMessage(const PaxosLeaseMessage& msg);
 	void						OnLeaseTimeout();
 
 private:
-	void						OnPrepareRequest(PaxosLeaseMessage* msg);
-	void						OnProposeRequest(PaxosLeaseMessage* msg);
+	void						OnPrepareRequest(const PaxosLeaseMessage& msg);
+	void						OnProposeRequest(const PaxosLeaseMessage& msg);
 
 	Timer						leaseTimeout;
 	PaxosLeaseAcceptorState		state;
