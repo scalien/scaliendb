@@ -225,9 +225,9 @@
 		541D7E6F11C64EB600A6CB16 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
+				9A31560311C7B31C0052812E /* Database */,
 				546E1F8D11EB827300867EE1 /* TCP */,
 				546E1FA211EB827F00867EE1 /* Messaging */,
-				9A31560311C7B31C0052812E /* Database */,
 				541D867D11C7D8E400A6CB16 /* Replication */,
 			);
 			path = Framework;

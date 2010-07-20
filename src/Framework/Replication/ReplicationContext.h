@@ -1,10 +1,11 @@
 #ifndef REPLICATEDLOG_H
 #define REPLICATEDLOG_H
 
+#include "System/Events/Callable.h"
 #include "Quorums/Quorum.h"
 
 class Database;				// forward
-class Message;	// forward
+class Message;				// forward
 class QuorumTransport;		// forward
 
 /*
@@ -28,6 +29,26 @@ public:
 	virtual Quorum*					GetQuorum() const		= 0;
 	virtual Database*				GetDatabase() const		= 0;
 	virtual QuorumTransport*		GetTransport() const	= 0;
+	
+	void							SetOnMessage(Callable onMessage);
+	void							OnMessage();
+	
+private:
+	Callable						onMessage;
 };
+
+/*
+===============================================================================
+*/
+
+inline void ReplicationContext::SetOnMessage(Callable onMessage_)
+{
+	onMessage = onMessage_;
+}
+
+inline void ReplicationContext::OnMessage()
+{
+	Call(onMessage);
+}
 
 #endif

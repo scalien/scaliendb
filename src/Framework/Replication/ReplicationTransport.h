@@ -37,22 +37,28 @@ class ReplicationTransport
 {
 public:
 
-	void					Init();
-	void					Shutdown();
+	void				Init();
+	void				Shutdown();
 
-	void					AddNode(uint64_t nodeID, const Endpoint& endpoint);
+	void				AddNode(uint64_t nodeID, const Endpoint& endpoint);
 
-	void					SendMessage(uint64_t nodeID, const Message& msg);
-	void					SendPriorityMessage(uint64_t nodeID, const Message& msg);
+	void				SendMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
+	void				SendPriorityMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
 
-//	void					BroadcastMessage(const Message& msg);
-//	void					BroadcastPriorityMessage(const Message& msg);
+//	void				BroadcastMessage(const Message& msg);
+//	void				BroadcastPriorityMessage(const Message& msg);
+
+	ReadBuffer			GetMessage();
 
 private:
-	void					OnRead();
+	void				OnRead();
+	void				OnControlMessage();
+	void				OnPaxosLeaseMessage();
+	void				OnPaxosMessage();
 
-	MessageReader			reader;
-	InList<Node>			nodes;
+	MessageReader		reader;
+	InList<Node>		nodes;
+	ReadBuffer			readBuffer;
 };
 
 #endif

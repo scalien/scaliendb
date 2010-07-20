@@ -26,6 +26,8 @@ public:
 	char				GetCharAt(unsigned i) const;
 	uint32_t			GetChecksum() const;
 	
+	void				Advance(unsigned i);
+	
 private:
 	char*				buffer;
 	unsigned			length;

@@ -7,7 +7,7 @@
 /*
 ===============================================================================
 
- TCPWriter
+ MessageWriter
 
 ===============================================================================
 */
@@ -18,8 +18,8 @@ public:
 	
 	virtual bool		Init(Endpoint &endpoint);
 	
-	void				Write(const Message& msg);
-	void				WritePriority(const Message& msg);
+	void				Write(const Buffer& prefix, const Message& msg);
+	void				WritePriority(const Buffer& prefix, const Message& msg);
 
 private:
 	void				Connect();

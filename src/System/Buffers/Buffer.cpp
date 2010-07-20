@@ -123,12 +123,12 @@ void Buffer::Write(const char* str)
 	Write(str, strlen(str));
 }
 
-void Buffer::Write(Buffer& b)
+void Buffer::Write(const Buffer& b)
 {
 	Write(b.GetBuffer(), b.GetLength());
 }
 
-void Buffer::Write(ReadBuffer& b)
+void Buffer::Write(const ReadBuffer& b)
 {
 	Write(b.GetBuffer(), b.GetLength());
 }

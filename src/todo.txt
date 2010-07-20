@@ -34,3 +34,26 @@
 - ReplicatedDB
 - HTTP
 
+
+
+
+
+
+
+<110>:<xyz>:<100>:<PaxosMsg>
+			^--------------^
+^--------------------------^
+     ReplicatedLogMsg                 (epochID)
+
+
+
+
+
+
+
+
+
+
+
+
+

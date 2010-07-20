@@ -17,8 +17,8 @@ public:
 
 	virtual ~Message() {};
 	
-	virtual bool		Read(const ReadBuffer* buffer)	= 0;
-	virtual bool		Write(Buffer* buffer) const		= 0;
+	virtual bool		Read(const ReadBuffer& buffer)	= 0;
+	virtual bool		Write(Buffer& buffer) const		= 0;
 };
 
 #endif

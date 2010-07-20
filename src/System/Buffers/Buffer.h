@@ -37,8 +37,8 @@ public:
 	
 	void				Write(const char* buffer_, unsigned length_);
 	void				Write(const char* str);
-	void				Write(Buffer& b);
-	void				Write(ReadBuffer& b);
+	void				Write(const Buffer& b);
+	void				Write(const ReadBuffer& b);
 
 	void				Append(const char* buffer_, unsigned length_);
 	void				Append(const char* str);

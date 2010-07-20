@@ -55,8 +55,8 @@ public:
 	bool			IsLearnChosen() const;	
 
 	// implementation of Message interface:
-	bool			Read(const Buffer* buffer);
-	bool			Write(Buffer* buffer) const;
+	bool			Read(const ReadBuffer& buffer);
+	bool			Write(Buffer& buffer) const;
 };
 
 #endif

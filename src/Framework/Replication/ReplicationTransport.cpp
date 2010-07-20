@@ -1,4 +1,6 @@
 #include "ReplicationTransport.h"
+#include "ReplicationManager.h"
+#include "ReplicationContext.h"
 #include "System/Config.h"
 
 void ReplicationTransport::Init()
@@ -39,25 +41,31 @@ void ReplicationTransport::Shutdown()
 		it->writer.Close();
 }
 
-void ReplicationTransport::SendMessage(uint64_t nodeID, const Message& msg)
+void ReplicationTransport::SendMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg)
 {
 	Node*	it;
-	
+
 	for (it = nodes.Head(); it != NULL; it = nodes.Next(it))
 	{
 		if (it->nodeID == nodeID)
-			it->writer.Write(msg);
+		{
+			it->writer.Write(prefix, msg);
+			break;
+		}
 	}
 }
 
-void ReplicationTransport::SendPriorityMessage(uint64_t nodeID, const Message& msg)
+void ReplicationTransport::SendPriorityMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg)
 {
 	Node*	it;
-	
+
 	for (it = nodes.Head(); it != NULL; it = nodes.Next(it))
 	{
 		if (it->nodeID == nodeID)
-			it->writer.WritePriority(msg);
+		{
+			it->writer.WritePriority(prefix, msg);
+			break;
+		}
 	}
 }
 
@@ -69,9 +77,50 @@ void ReplicationTransport::SendPriorityMessage(uint64_t nodeID, const Message& m
 //{
 //}
 
+ReadBuffer ReplicationTransport::GetMessage()
+{
+	return readBuffer;
+}
+
 void ReplicationTransport::OnRead()
 {
-	ReadBuffer readBuffer;
+	char proto;
 	
 	readBuffer = reader.GetMessage();
+	if (readBuffer.GetLength() < 2)
+		return;
+
+	proto = readBuffer.GetCharAt(0);
+	assert(readBuffer.GetCharAt(1) == ':');
+	readBuffer.Advance(2);
+	
+	switch(proto)
+	{
+		case 'C':
+			OnControlMessage();
+			break;
+		case 'L':
+			OnPaxosLeaseMessage();
+			break;
+		case 'P':
+			OnPaxosMessage();
+			break;
+		default:
+			ASSERT_FAIL();
+			break;
+	}
+}
+
+void ReplicationTransport::OnControlMessage()
+{
+}
+
+void ReplicationTransport::OnPaxosLeaseMessage()
+{
+//	assert(GETMYTYPE==CONTROLLER); // TODO
+	RMAN->GetContext(0)->OnMessage();
+}
+
+void ReplicationTransport::OnPaxosMessage()
+{
 }

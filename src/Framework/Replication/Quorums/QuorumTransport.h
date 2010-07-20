@@ -19,16 +19,18 @@ public:
 	QuorumTransport();
 	
 	void					SetPriority(bool priority);
+	void					SetPrefix(const Buffer& prefix);
 	void					SetReplicationTransport(ReplicationTransport* transport);
 	void					SetQuorum(Quorum* quorum);
 	
-	Message*				GetMessage() const;
+	ReadBuffer				GetMessage() const;
 
 	void					SendMessage(uint64_t nodeID, const Message& msg);
 	void					BroadcastMessage(const Message& msg);
 
 private:
 	bool					priority;
+	Buffer					prefix;
 	Quorum*					quorum;
 	ReplicationTransport*	transport;
 };

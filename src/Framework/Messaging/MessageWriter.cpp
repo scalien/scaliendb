@@ -3,7 +3,6 @@
 
 #define CONNECT_TIMEOUT		2000
 
-
 bool MessageWriter::Init(Endpoint &endpoint_)
 {
 	endpoint = endpoint_;
@@ -11,34 +10,38 @@ bool MessageWriter::Init(Endpoint &endpoint_)
 	return true;
 }
 
-void MessageWriter::Write(const Message& msg)
+void MessageWriter::Write(const Buffer& prefix, const Message& msg)
 {
-	Buffer* prefix;
+	unsigned len;
+	Buffer* head;
 	Buffer* buffer;
 	
-	prefix = writer->AcquireBuffer();
+	head = writer->AcquireBuffer();
 	buffer = writer->AcquireBuffer();
 	
-	msg.Write(buffer);
-	prefix->Writef("%d:", buffer->GetLength());
+	msg.Write(*buffer);
+	len = prefix.GetLength() + 1 + buffer->GetLength();
+	head->Writef("%u:%B:", len, &prefix);
 	
-	writer->Write(prefix);
+	writer->Write(head);
 	writer->Write(buffer);
 	writer->Flush();
 }
 
-void MessageWriter::WritePriority(const Message& msg)
+void MessageWriter::WritePriority(const Buffer& prefix, const Message& msg)
 {
-	Buffer* prefix;
+	unsigned len;
+	Buffer* head;
 	Buffer* buffer;
 	
-	prefix = writer->AcquireBuffer();
+	head = writer->AcquireBuffer();
 	buffer = writer->AcquireBuffer();
 	
-	msg.Write(buffer);
-	prefix->Writef("%d:", buffer->GetLength());
+	msg.Write(*buffer);
+	len = prefix.GetLength() + 1 + buffer->GetLength();
+	head->Writef("%u:%B:", len, &prefix);
 	
-	writer->WritePriority(prefix);
+	writer->WritePriority(head);
 	writer->WritePriority(buffer);
 	writer->Flush();
 }

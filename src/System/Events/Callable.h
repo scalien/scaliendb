@@ -19,7 +19,7 @@ class Callable
 public:
 	Callable() { func = NULL; arg = NULL; }
 	
-	void Execute() const { if (!func) ASSERT_FAIL(); func(arg); }
+	void Execute() const { if (!func) return; func(arg); }
 	bool IsSet() const { return func != NULL; }
 
 protected:

@@ -11,6 +11,7 @@ PaxosLease::PaxosLease()
 void PaxosLease::Init(ReplicationContext* context_)
 {
 	context = context_;
+	context->SetOnMessage(MFUNC(PaxosLease, OnMessage));
 	
 	EventLoop::Reset(&startupTimeout);
 	
@@ -40,7 +41,12 @@ void PaxosLease::Shutdown()
 
 void PaxosLease::OnMessage()
 {
-	const PaxosLeaseMessage& msg = *((PaxosLeaseMessage*) context->GetTransport()->GetMessage());
+	ReadBuffer readBuffer;
+	PaxosLeaseMessage msg;
+
+	readBuffer = context->GetTransport()->GetMessage();
+	if (!msg.Read(readBuffer))
+		ASSERT_FAIL();
 
 	if ((msg.IsRequest()) && msg.proposalID > proposer.HighestProposalID())
 			proposer.SetHighestProposalID(msg.proposalID);

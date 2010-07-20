@@ -50,3 +50,11 @@ uint32_t ReadBuffer::GetChecksum() const
 {
 	return checksum(buffer, length);
 }
+
+void ReadBuffer::Advance(unsigned i)
+{
+	buffer += i;
+	length -= i;
+	
+	assert(length > 0);
+}
