@@ -152,7 +152,7 @@
 		54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CdownTimer.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
-		8DD76F6C0486A84900D96B5E /* Rowscale */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Rowscale; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
 		9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpConn.cpp; path = Application/HTTP/HttpConn.cpp; sourceTree = "<group>"; };
 		9A26D68E11F4BDE2006A2814 /* HttpConn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpConn.h; path = Application/HTTP/HttpConn.h; sourceTree = "<group>"; };
@@ -195,7 +195,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		08FB7794FE84155DC02AAC07 /* Rowscale */ = {
+		08FB7794FE84155DC02AAC07 /* ScalienDB */ = {
 			isa = PBXGroup;
 			children = (
 				9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */,
@@ -203,7 +203,7 @@
 				C6859E8C029090F304C91782 /* Documentation */,
 				1AB674ADFE9D54B511CA2CBB /* Products */,
 			);
-			name = Rowscale;
+			name = ScalienDB;
 			sourceTree = "<group>";
 		};
 		08FB7795FE84155DC02AAC07 /* Source */ = {
@@ -217,7 +217,7 @@
 		1AB674ADFE9D54B511CA2CBB /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				8DD76F6C0486A84900D96B5E /* Rowscale */,
+				8DD76F6C0486A84900D96B5E /* ScalienDB */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -472,9 +472,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		8DD76F620486A84900D96B5E /* Rowscale */ = {
+		8DD76F620486A84900D96B5E /* ScalienDB */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "Rowscale" */;
+			buildConfigurationList = 1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "ScalienDB" */;
 			buildPhases = (
 				8DD76F640486A84900D96B5E /* Sources */,
 				8DD76F660486A84900D96B5E /* Frameworks */,
@@ -484,10 +484,10 @@
 			);
 			dependencies = (
 			);
-			name = Rowscale;
+			name = ScalienDB;
 			productInstallPath = "$(HOME)/bin";
-			productName = Rowscale;
-			productReference = 8DD76F6C0486A84900D96B5E /* Rowscale */;
+			productName = ScalienDB;
+			productReference = 8DD76F6C0486A84900D96B5E /* ScalienDB */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -495,14 +495,14 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
-			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Rowscale" */;
+			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
-			mainGroup = 08FB7794FE84155DC02AAC07 /* Rowscale */;
+			mainGroup = 08FB7794FE84155DC02AAC07 /* ScalienDB */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8DD76F620486A84900D96B5E /* Rowscale */,
+				8DD76F620486A84900D96B5E /* ScalienDB */,
 			);
 		};
 /* End PBXProject section */
@@ -589,7 +589,7 @@
 					"-DPLATFORM_DARWIN",
 					"-D__STDC_FORMAT_MACROS",
 				);
-				PRODUCT_NAME = Rowscale;
+				PRODUCT_NAME = ScalienDB;
 			};
 			name = Debug;
 		};
@@ -616,7 +616,7 @@
 					"-DPLATFORM_DARWIN",
 					"-D__STDC_FORMAT_MACROS",
 				);
-				PRODUCT_NAME = Rowscale;
+				PRODUCT_NAME = ScalienDB;
 			};
 			name = Release;
 		};
@@ -686,7 +686,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "Rowscale" */ = {
+		1DEB923108733DC60010E9CD /* Build configuration list for PBXNativeTarget "ScalienDB" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923208733DC60010E9CD /* Debug */,
@@ -695,7 +695,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "Rowscale" */ = {
+		1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
