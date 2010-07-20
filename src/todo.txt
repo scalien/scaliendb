@@ -19,3 +19,18 @@
 - writev vectored write optimalizations
 
 - change * and & to conform to Doom3 standards
+
+- Readf/Writef vs ReadBuffer
+
+
+
+
+
+
+- ReplicatedTransport OnRead stuff - 1
+- Paxos - 1
+- ReplicatedLog - 2
+--------------------------( Framework)
+- ReplicatedDB
+- HTTP
+

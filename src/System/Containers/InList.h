@@ -29,6 +29,7 @@ public:
 	
 	void			Prepend(T* t);
 	void			Append(T* t);
+	T*				Delete(T* t);
 	T*				Remove(T* t);	
 	bool			Remove(T &t);
 	void			Clear();
@@ -101,6 +102,15 @@ void InList<T>::Append(T* t)
 	
 	if (head == NULL)
 		head = t;
+}
+
+template<class T>
+T* InList<T>::Delete(T* t)
+{
+	T* next;
+	next = Remove(t);
+	delete t;
+	return next;
 }
 
 template<class T>

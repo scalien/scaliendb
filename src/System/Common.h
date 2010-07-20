@@ -67,6 +67,7 @@ const char* rprintf(const char* format, ...);
 bool del(const char* wc); // wildcard support
 bool isdir(const char* path);
 
+uint64_t gen_uuid();
 int randint(int min, int max);
 
 void blocksigs();

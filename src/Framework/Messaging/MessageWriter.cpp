@@ -11,9 +11,36 @@ bool MessageWriter::Init(Endpoint &endpoint_)
 	return true;
 }
 
-void MessageWriter::WritePrefix(Buffer* prefix, Buffer* message)
+void MessageWriter::Write(const Message& msg)
 {
-		prefix->Writef("%d:", message->GetLength());
+	Buffer* prefix;
+	Buffer* buffer;
+	
+	prefix = writer->AcquireBuffer();
+	buffer = writer->AcquireBuffer();
+	
+	msg.Write(buffer);
+	prefix->Writef("%d:", buffer->GetLength());
+	
+	writer->Write(prefix);
+	writer->Write(buffer);
+	writer->Flush();
+}
+
+void MessageWriter::WritePriority(const Message& msg)
+{
+	Buffer* prefix;
+	Buffer* buffer;
+	
+	prefix = writer->AcquireBuffer();
+	buffer = writer->AcquireBuffer();
+	
+	msg.Write(buffer);
+	prefix->Writef("%d:", buffer->GetLength());
+	
+	writer->WritePriority(prefix);
+	writer->WritePriority(buffer);
+	writer->Flush();
 }
 
 void MessageWriter::Connect()

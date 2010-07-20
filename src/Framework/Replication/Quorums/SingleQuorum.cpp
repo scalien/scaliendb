@@ -7,7 +7,7 @@ SingleQuorum::SingleQuorum()
 	Reset();
 }
 
-void SingleQuorum::AddNode(unsigned nodeID)
+void SingleQuorum::AddNode(uint64_t nodeID)
 {
 	if (numNodes >= SIZE(nodes))
 		ASSERT_FAIL();
@@ -20,17 +20,17 @@ unsigned SingleQuorum::GetNumNodes() const
 	return numNodes;
 }
 
-const unsigned* SingleQuorum::GetNodes() const
+const uint64_t* SingleQuorum::GetNodes() const
 {
-	return (const unsigned*) &nodes;
+	return (const uint64_t*) &nodes;
 }
 
-void SingleQuorum::RegisterAccepted(unsigned)
+void SingleQuorum::RegisterAccepted(uint64_t)
 {
 	numAccepted++;
 }
 
-void SingleQuorum::RegisterRejected(unsigned)
+void SingleQuorum::RegisterRejected(uint64_t)
 {
 	numRejected++;
 }

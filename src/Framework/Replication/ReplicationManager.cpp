@@ -13,12 +13,7 @@ ReplicationManager* ReplicationManager::Get()
 	return replicationManager;
 }
 
-Node ReplicationManager::GetLocalNode()
-{
-	return Node(); // TODO
-}
-
-unsigned ReplicationManager::GetNodeID() const
+uint64_t ReplicationManager::GetNodeID() const
 {
 	return 0; // TODO
 }
@@ -28,11 +23,11 @@ uint64_t ReplicationManager::GetRunID() const
 	return 0; // TODO
 }
 
-void ReplicationManager::AddNode(const Node& node)
+void ReplicationManager::AddNode(uint64_t nodeID, Endpoint endpoint)
 {
 }
 
-Node ReplicationManager::GetNode(unsigned nodeID) const
+Endpoint ReplicationManager::GetNodeEndpoint(uint64_t nodeID) const
 {
 }
 

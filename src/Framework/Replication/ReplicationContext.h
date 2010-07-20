@@ -4,7 +4,7 @@
 #include "Quorums/Quorum.h"
 
 class Database;				// forward
-class ReplicationMessage;	// forward
+class Message;	// forward
 class QuorumTransport;		// forward
 
 /*

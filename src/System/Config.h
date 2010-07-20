@@ -35,12 +35,12 @@ public:
 /*
 ===============================================================================
 
- ConfigFile
+ Config
 
 ===============================================================================
 */
 
-class ConfigFile
+class Config
 {
 public:
 	bool				Init(const char* filename);
@@ -66,5 +66,6 @@ private:
 	ConfigVar*			GetVar(const char* name);
 };
 
+extern Config configFile;
 
 #endif

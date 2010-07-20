@@ -18,12 +18,12 @@ class SingleQuorum : Quorum
 public:
 	SingleQuorum();
 	
-	void				AddNode(unsigned nodeID);
+	void				AddNode(uint64_t nodeID);
 	unsigned			GetNumNodes() const;
-	const unsigned*		GetNodes() const;
+	const uint64_t*		GetNodes() const;
 	
-	void				RegisterAccepted(unsigned nodeID);
-	void				RegisterRejected(unsigned nodeID);
+	void				RegisterAccepted(uint64_t nodeID);
+	void				RegisterRejected(uint64_t nodeID);
 	void				Reset();
 
 	bool				IsRoundRejected() const;
@@ -31,7 +31,7 @@ public:
 	bool				IsRoundComplete() const;
 
 private:
-	unsigned			nodes[5];
+	uint64_t			nodes[5];
 	unsigned			numNodes;
 	unsigned			numAccepted;
 	unsigned			numRejected;

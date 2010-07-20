@@ -18,13 +18,13 @@ class DoubleQuorum : Quorum
 public:
 	DoubleQuorum();
 	
-	void				AddNode(unsigned group, unsigned nodeID);
+	void				AddNode(unsigned group, uint64_t nodeID);
 	// add nodes in group order!
 	unsigned			GetNumNodes() const;
-	const unsigned*		GetNodes() const;
+	const uint64_t*		GetNodes() const;
 	
-	void				RegisterAccepted(unsigned nodeID);
-	void				RegisterRejected(unsigned nodeID);
+	void				RegisterAccepted(uint64_t nodeID);
+	void				RegisterRejected(uint64_t nodeID);
 	void				Reset();
 
 	bool				IsRoundRejected() const;
@@ -32,7 +32,7 @@ public:
 	bool				IsRoundComplete() const;
 
 private:
-	unsigned			nodes[10]; // 2*5
+	uint64_t			nodes[10]; // 2*5
 	unsigned			numNodes[2];
 	unsigned			numAccepted[2];
 	unsigned			numRejected[2];

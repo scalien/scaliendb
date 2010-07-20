@@ -166,7 +166,7 @@ skipwhite:
 	return p;
 }
 
-bool ConfigFile::Init(const char* filename_)
+bool Config::Init(const char* filename_)
 {
 	FILE*		fp;
 	char		buffer[1024];
@@ -223,7 +223,7 @@ bool ConfigFile::Init(const char* filename_)
 	return true;
 }
 
-bool ConfigFile::Save()
+bool Config::Save()
 {
 	FILE*		fp;
 	ConfigVar*	var;
@@ -248,7 +248,7 @@ bool ConfigFile::Save()
 	return true;
 }
 
-void ConfigFile::Shutdown()
+void Config::Shutdown()
 {
 	ConfigVar*	var;
 
@@ -256,7 +256,7 @@ void ConfigFile::Shutdown()
 		delete var;
 }
 
-ConfigVar* ConfigFile::GetVar(const char* name)
+ConfigVar* Config::GetVar(const char* name)
 {
 	ConfigVar* var;
 	
@@ -272,7 +272,7 @@ ConfigVar* ConfigFile::GetVar(const char* name)
 	return NULL;
 }
 
-int ConfigFile::GetIntValue(const char* name, int defval)
+int Config::GetIntValue(const char* name, int defval)
 {
 	ConfigVar* var;
 	
@@ -283,7 +283,7 @@ int ConfigFile::GetIntValue(const char* name, int defval)
 	return var->GetIntValue(defval);
 }
 
-const char* ConfigFile::GetValue(const char* name, const char* defval)
+const char* Config::GetValue(const char* name, const char* defval)
 {
 	ConfigVar* var;
 	
@@ -294,7 +294,7 @@ const char* ConfigFile::GetValue(const char* name, const char* defval)
 	return var->GetValue();
 }
 
-bool ConfigFile::GetBoolValue(const char* name, bool defval)
+bool Config::GetBoolValue(const char* name, bool defval)
 {
 	ConfigVar* var;
 	
@@ -305,7 +305,7 @@ bool ConfigFile::GetBoolValue(const char* name, bool defval)
 	return var->GetBoolValue(defval);
 }
 
-int ConfigFile::GetListNum(const char* name)
+int Config::GetListNum(const char* name)
 {
 	ConfigVar* var;
 	
@@ -316,7 +316,7 @@ int ConfigFile::GetListNum(const char* name)
 	return var->GetListNum();
 }
 
-const char* ConfigFile::GetListValue(const char* name, int num, const char* defval)
+const char* Config::GetListValue(const char* name, int num, const char* defval)
 {
 	ConfigVar* var;
 	
@@ -327,7 +327,7 @@ const char* ConfigFile::GetListValue(const char* name, int num, const char* defv
 	return var->GetListValue(num, defval);
 }
 
-void ConfigFile::SetIntValue(const char* name, int value)
+void Config::SetIntValue(const char* name, int value)
 {
 	char		buf[CS_INT_SIZE(value)];
 	
@@ -335,7 +335,7 @@ void ConfigFile::SetIntValue(const char* name, int value)
 	SetValue(name, buf);
 }
 
-void ConfigFile::SetValue(const char* name, const char *value)
+void Config::SetValue(const char* name, const char *value)
 {
 	ConfigVar*	var;
 
@@ -351,7 +351,7 @@ void ConfigFile::SetValue(const char* name, const char *value)
 	var->Append(value);
 }
 
-void ConfigFile::SetBoolValue(const char* name, bool value)
+void Config::SetBoolValue(const char* name, bool value)
 {
 	char	buf[10];
 	
@@ -359,7 +359,7 @@ void ConfigFile::SetBoolValue(const char* name, bool value)
 	SetValue(name, buf);
 }
 
-void ConfigFile::AppendListValue(const char* name, const char* value)
+void Config::AppendListValue(const char* name, const char* value)
 {
 	ConfigVar*	var;
 

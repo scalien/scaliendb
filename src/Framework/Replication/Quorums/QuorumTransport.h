@@ -3,7 +3,7 @@
 
 #include "Quorum.h"
 #include "Framework/Replication/ReplicationTransport.h"
-#include "Framework/Replication/ReplicationMessage.h"
+#include "Framework/Messaging/Message.h"
 
 /*
 ===============================================================================
@@ -22,10 +22,10 @@ public:
 	void					SetReplicationTransport(ReplicationTransport* transport);
 	void					SetQuorum(Quorum* quorum);
 	
-	ReplicationMessage*		GetMessage() const;
+	Message*				GetMessage() const;
 
-	void					SendMessage(unsigned nodeID, const ReplicationMessage& msg);
-	void					BroadcastMessage(const ReplicationMessage& msg);
+	void					SendMessage(uint64_t nodeID, const Message& msg);
+	void					BroadcastMessage(const Message& msg);
 
 private:
 	bool					priority;

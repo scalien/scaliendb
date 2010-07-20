@@ -1,12 +1,12 @@
 #include "PaxosLeaseMessage.h"
 
-void PaxosLeaseMessage::Init(char type_, unsigned nodeID_)
+void PaxosLeaseMessage::Init(char type_, uint64_t nodeID_)
 {
 	type = type_;
 	nodeID = nodeID_;
 }
 
-bool PaxosLeaseMessage::PrepareRequest(unsigned nodeID_, uint64_t proposalID_, uint64_t paxosID_)
+bool PaxosLeaseMessage::PrepareRequest(uint64_t nodeID_, uint64_t proposalID_, uint64_t paxosID_)
 {
 	Init(PAXOSLEASE_PREPARE_REQUEST, nodeID_);
 	proposalID = proposalID_;
@@ -15,7 +15,7 @@ bool PaxosLeaseMessage::PrepareRequest(unsigned nodeID_, uint64_t proposalID_, u
 	return true;
 }
 
-bool PaxosLeaseMessage::PrepareRejected(unsigned nodeID_, uint64_t proposalID_)
+bool PaxosLeaseMessage::PrepareRejected(uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(PAXOSLEASE_PREPARE_REJECTED, nodeID_);
 	proposalID = proposalID_;
@@ -23,7 +23,7 @@ bool PaxosLeaseMessage::PrepareRejected(unsigned nodeID_, uint64_t proposalID_)
 	return true;
 }
 
-bool PaxosLeaseMessage::PreparePreviouslyAccepted(unsigned nodeID_, uint64_t proposalID_,
+bool PaxosLeaseMessage::PreparePreviouslyAccepted(uint64_t nodeID_, uint64_t proposalID_,
  uint64_t acceptedProposalID_, unsigned leaseOwner_, unsigned duration_)
 {
 	Init(PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED, nodeID_);
@@ -35,7 +35,7 @@ bool PaxosLeaseMessage::PreparePreviouslyAccepted(unsigned nodeID_, uint64_t pro
 	return true;
 }
 
-bool PaxosLeaseMessage::PrepareCurrentlyOpen(unsigned nodeID_, uint64_t proposalID_)
+bool PaxosLeaseMessage::PrepareCurrentlyOpen(uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(PAXOSLEASE_PREPARE_CURRENTLY_OPEN, nodeID_);
 	proposalID = proposalID_;
@@ -43,7 +43,7 @@ bool PaxosLeaseMessage::PrepareCurrentlyOpen(unsigned nodeID_, uint64_t proposal
 	return true;
 }
 
-bool PaxosLeaseMessage::ProposeRequest(unsigned nodeID_,
+bool PaxosLeaseMessage::ProposeRequest(uint64_t nodeID_,
  uint64_t proposalID_, unsigned int leaseOwner_, unsigned duration_)
 {
 	Init(PAXOSLEASE_PROPOSE_REQUEST, nodeID_);
@@ -54,7 +54,7 @@ bool PaxosLeaseMessage::ProposeRequest(unsigned nodeID_,
 	return true;
 }
 
-bool PaxosLeaseMessage::ProposeRejected(unsigned nodeID_, uint64_t proposalID_)
+bool PaxosLeaseMessage::ProposeRejected(uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(PAXOSLEASE_PROPOSE_REJECTED, nodeID_);
 	proposalID = proposalID_;
@@ -62,7 +62,7 @@ bool PaxosLeaseMessage::ProposeRejected(unsigned nodeID_, uint64_t proposalID_)
 	return true;
 }
 
-bool PaxosLeaseMessage::ProposeAccepted(unsigned nodeID_, uint64_t proposalID_)
+bool PaxosLeaseMessage::ProposeAccepted(uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(PAXOSLEASE_PROPOSE_ACCEPTED, nodeID_);
 	proposalID = proposalID_;
@@ -70,7 +70,7 @@ bool PaxosLeaseMessage::ProposeAccepted(unsigned nodeID_, uint64_t proposalID_)
 	return true;
 }
 
-bool PaxosLeaseMessage::LearnChosen(unsigned nodeID_,
+bool PaxosLeaseMessage::LearnChosen(uint64_t nodeID_,
  unsigned leaseOwner_, unsigned duration_, uint64_t localExpireTime_)
 {
 	Init(PAXOSLEASE_LEARN_CHOSEN, nodeID_);

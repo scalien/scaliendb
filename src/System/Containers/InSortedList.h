@@ -20,7 +20,8 @@ class InSortedList
 public:
 
 	bool			Add(T* t);
-	T*				Remove(T* t);	
+	T*				Delete(T* t);
+	T*				Remove(T* t);
 	bool			Remove(T &t);
 	void			Clear();
 	
@@ -67,6 +68,12 @@ bool InSortedList<T>::Add(T* t)
 	}
 	
 	ASSERT_FAIL();
+}
+
+template<class T>
+T* InSortedList<T>::Delete(T* t)
+{
+	return list.Delete(t);
 }
 
 template<class T>

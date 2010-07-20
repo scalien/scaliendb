@@ -20,12 +20,12 @@ void QuorumTransport::SetQuorum(Quorum* quorum_)
 	quorum = quorum_;
 }
 
-ReplicationMessage*	QuorumTransport::GetMessage() const
+Message*	QuorumTransport::GetMessage() const
 {
 	return transport->GetMessage();
 }
 
-void QuorumTransport::SendMessage(unsigned nodeID, const ReplicationMessage& msg)
+void QuorumTransport::SendMessage(uint64_t nodeID, const Message& msg)
 {
 	if (priority)
 		return transport->SendPriorityMessage(nodeID, msg);
@@ -33,10 +33,10 @@ void QuorumTransport::SendMessage(unsigned nodeID, const ReplicationMessage& msg
 		return transport->SendMessage(nodeID, msg);
 }
 
-void QuorumTransport::BroadcastMessage(const ReplicationMessage& msg)
+void QuorumTransport::BroadcastMessage(const Message& msg)
 {
 	unsigned		num, i, nodeID;
-	const unsigned*	nodes;
+	const uint64_t*	nodes;
 	
 	num = quorum->GetNumNodes();
 	nodes = quorum->GetNodes();

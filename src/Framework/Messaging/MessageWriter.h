@@ -2,6 +2,7 @@
 #define MESSAGEWRITER_H
 
 #include "Framework/TCP/TCPConnection.h"
+#include "Message.h"
 
 /*
 ===============================================================================
@@ -17,7 +18,8 @@ public:
 	
 	virtual bool		Init(Endpoint &endpoint);
 	
-	void				WritePrefix(Buffer* prefix, Buffer* message);
+	void				Write(const Message& msg);
+	void				WritePriority(const Message& msg);
 
 private:
 	void				Connect();

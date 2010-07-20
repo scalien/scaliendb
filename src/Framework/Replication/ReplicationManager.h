@@ -5,6 +5,7 @@
 #include "System/IO/Endpoint.h"
 
 class ReplicationContext;	// forward
+class ReplicationTransport;	// forward
 class Node;					// forward
 
 #define	RMAN (ReplicationManager::Get())
@@ -22,35 +23,22 @@ class ReplicationManager
 public:
 	static ReplicationManager* Get();
 	
-	Node					GetLocalNode();
-	unsigned				GetNodeID() const;
+	uint64_t				GetNodeID() const;
 	uint64_t				GetRunID() const;
 
-	void					AddNode(const Node& node);
-	Node					GetNode(unsigned nodeID) const;
+	void					AddNode(uint64_t nodeID, Endpoint endpoint);
+	Endpoint				GetNodeEndpoint(uint64_t nodeID) const;
 	
 	void					AddContext(ReplicationContext* context);
 	ReplicationContext*		GetContext(unsigned contextID) const;
 
 	uint64_t				NextProposalID(uint64_t proposalID)	const;
+	
+	ReplicationTransport*	GetTransport();
 
 private:
-	unsigned				nodeID;
+	uint64_t				nodeID;
 	uint64_t				runID;	
-};
-
-/*
-===============================================================================
-
- Node
-
-===============================================================================
-*/
-
-struct Node
-{
-	unsigned			nodeID;
-	Endpoint			endpoint;
 };
 
 #endif

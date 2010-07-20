@@ -7,7 +7,7 @@ DoubleQuorum::DoubleQuorum()
 	Reset();
 }
 
-void DoubleQuorum::AddNode(unsigned group, unsigned nodeID)
+void DoubleQuorum::AddNode(unsigned group, uint64_t nodeID)
 {
 	assert(group < 2);
 	if (numNodes[1] > 0)
@@ -24,12 +24,12 @@ unsigned DoubleQuorum::GetNumNodes() const
 	return numNodes[0] + numNodes[1];
 }
 
-const unsigned* DoubleQuorum::GetNodes() const
+const uint64_t* DoubleQuorum::GetNodes() const
 {
-	return (const unsigned*) &nodes;
+	return (const uint64_t*) &nodes;
 }
 
-void DoubleQuorum::RegisterAccepted(unsigned nodeID)
+void DoubleQuorum::RegisterAccepted(uint64_t nodeID)
 {
 #define NID(i) (nodeID == nodes[i])
 	switch(numNodes[0])
@@ -65,7 +65,7 @@ void DoubleQuorum::RegisterAccepted(unsigned nodeID)
 #undef NID
 }
 
-void DoubleQuorum::RegisterRejected(unsigned nodeID)
+void DoubleQuorum::RegisterRejected(uint64_t nodeID)
 {
 #define NID(i) (nodeID == nodes[i])
 	switch(numNodes[0])
