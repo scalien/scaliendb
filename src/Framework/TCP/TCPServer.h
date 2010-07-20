@@ -6,7 +6,7 @@
 #include "System/IO/IOOperation.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Containers/InQueue.h"
-#include "System/Containers/List.h"
+#include "System/Containers/InList.h"
 #include "TCPConnection.h"
 
 /*
@@ -41,9 +41,8 @@ protected:
 	TCPRead					tcpread;
 	Socket					listener;
 	int						backlog;
-	int						numActive;
-	List<Conn*>				activeConns;
-	InQueue<TCPConnection>	conns;
+	InList<Conn>			activeConns;
+	InQueue<Conn>			inactiveConns;
 };
 
 /*
@@ -53,14 +52,13 @@ protected:
 template<class T, class Conn>
 TCPServer<T, Conn>::TCPServer()
 {
-	numActive = 0;
 }
 
 template<class T, class Conn>
 TCPServer<T, Conn>::~TCPServer()
 {
 	Conn* conn;
-	while ((conn = dynamic_cast<Conn*>(conns.Dequeue())) != NULL)
+	while ((conn = inactiveConns.Dequeue()) != NULL)
 		delete conn;
 }
 
@@ -89,10 +87,15 @@ bool TCPServer<T, Conn>::Init(int port_, int backlog_)
 template<class T, class Conn>
 void TCPServer<T, Conn>::Close()
 {
-	Conn** it;
+	Conn* it;
+	Conn* next;
 
-	for (it = activeConns.Head(); it != NULL; it = activeConns.Head())
-		(*it)->OnClose();
+	for (it = activeConns.Head(); it != NULL; /* advanced in body */)
+	{
+		next = activeConns.Next(it);
+		it->OnClose();
+		it = next;
+	}
 
 	listener.Close();
 }
@@ -107,10 +110,10 @@ void TCPServer<T, Conn>::DeleteConn(Conn* conn)
 	
 	activeConns.Remove(conn);
 
-	if (conns.GetLength() >= backlog)
+	if (inactiveConns.GetLength() >= backlog)
 		delete conn;
 	else
-		conns.Enqueue((TCPConnection*)conn);
+		inactiveConns.Enqueue(conn);
 }
 
 template<class T, class Conn>
@@ -138,8 +141,8 @@ void TCPServer<T, Conn>::OnConnect()
 template<class T, class Conn>
 Conn* TCPServer<T, Conn>::GetConn()
 {
-	if (conns.GetLength() > 0)
-		return dynamic_cast<Conn*>(conns.Dequeue());
+	if (inactiveConns.GetLength() > 0)
+		return inactiveConns.Dequeue();
 	
 	return new Conn;
 }

@@ -25,9 +25,7 @@ void MessageReaderConnection::OnClose()
 	
 	Close();
 	
-	reader->OnConnectionClose(this);
-
-	delete this;
+	reader->DeleteConn(this);
 }
 
 /*
@@ -69,13 +67,13 @@ void MessageReader::Stop()
 {
 	Log_Trace();
 	
-	MessageReaderConnection** it;
+	MessageReaderConnection* it;
 
 	running = false;
 	
-	for (it = conns.Head(); it != NULL; it = conns.Next(it))
+	for (it = activeConns.Head(); it != NULL; it = activeConns.Next(it))
 	{
-		(*it)->Stop();
+		it->Stop();
 		if (running)
 			break; // user called Continue(), stop looping
 	}
@@ -85,13 +83,13 @@ void MessageReader::Continue()
 {
 	Log_Trace();
 
-	MessageReaderConnection** it;
+	MessageReaderConnection* it;
 	
 	running = true;
 	
-	for (it = conns.Head(); it != NULL; it = conns.Next(it))
+	for (it = activeConns.Head(); it != NULL; it = activeConns.Next(it))
 	{
-		(*it)->Continue();
+		it->Continue();
 		if (!running)
 			break; // user called Stop(), stop looping
 	}
@@ -102,8 +100,4 @@ void MessageReader::InitConn(MessageReaderConnection* conn)
 	conn->SetServer(this);
 }
 
-void MessageReader::OnConnectionClose(MessageReaderConnection* conn)
-{
-	assert(conns.Remove(conn));
-}
 

@@ -1,6 +1,7 @@
 #ifndef MESSAGEREADER_H
 #define	MESSAGEREADER_H
 
+#include "System/Containers/List.h"
 #include "Framework/TCP/TCPServer.h"
 #include "MessageConnection.h"
 
@@ -37,7 +38,6 @@ private:
 class MessageReader : public TCPServer<MessageReader, MessageReaderConnection>
 {
 	friend class MessageReaderConnection;
-	typedef List<MessageReaderConnection*> ConnList;
 
 public:
 	bool				Init(int port);
@@ -48,14 +48,12 @@ public:
 	void				Continue();
 	bool				IsActive();
 	void				InitConn(MessageReaderConnection* conn);
-	void				OnConnectionClose(MessageReaderConnection* conn);
 
 private:
 	void				OnMessage(ReadBuffer buffer);
 	
 	Callable			onRead;
 	ReadBuffer			msg;
-	ConnList			conns;
 	bool				running;
 };
 
