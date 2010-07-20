@@ -18,6 +18,8 @@ bool SimpleHandler::HandleRequest(HttpConn* conn, const HttpRequest& /*request*/
 
 int main(void)
 {
+//	configFile.Init("");
+	
 	HttpServer		httpServer;
 	SimpleHandler	handler;
 		

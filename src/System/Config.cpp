@@ -3,6 +3,8 @@
 #include "Log.h"
 #include <stdio.h>
 
+Config configFile;
+
 ConfigVar::ConfigVar(const char* name_)
 {
 	name.Append(name_, strlen(name_));
