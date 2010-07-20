@@ -7,7 +7,7 @@
 #include "System/Containers/InQueue.h"
 #include "System/IO/Socket.h"
 #include "System/IO/IOOperation.h"
-#include "TCPWriteQueue.h"
+#include "TCPWriter.h"
 
 #define TCP_CONNECT_TIMEOUT 3000
 #define TCP_BUFFER_SIZE		8196
@@ -37,8 +37,8 @@ public:
 	
 	void				AsyncRead(bool start = true);
 
-	TCPWriteQueue*		GetWriteQueue();
-	void				OnWritePending(); // for TCPWriteQueue
+	TCPWriter*			GetWriter();
+	void				OnWritePending(); // for TCPWriter
 	
 	TCPConnection*		next;
 	TCPConnection*		prev;
@@ -48,7 +48,7 @@ protected:
 	Socket				socket;
 	TCPRead				tcpread;
 	TCPWrite			tcpwrite;
-	TCPWriteQueue*		writeQueue;
+	TCPWriter*			writer;
 	Buffer				readBuffer;
 	CdownTimer			connectTimeout;
 		

@@ -7,16 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		541D868B11C7D8E400A6CB16 /* PaxosLease.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D867F11C7D8E400A6CB16 /* PaxosLease.cpp */; };
-		541D868C11C7D8E400A6CB16 /* PaxosLeaseAcceptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868111C7D8E400A6CB16 /* PaxosLeaseAcceptor.cpp */; };
 		541D868D11C7D8E400A6CB16 /* PaxosLeaseLearner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868411C7D8E400A6CB16 /* PaxosLeaseLearner.cpp */; };
 		541D868E11C7D8E400A6CB16 /* PaxosLeaseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868611C7D8E400A6CB16 /* PaxosLeaseMessage.cpp */; };
-		541D868F11C7D8E400A6CB16 /* PaxosLeaseProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */; };
 		546E119511D8F4C800867EE1 /* SingleQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119411D8F4C800867EE1 /* SingleQuorum.cpp */; };
 		546E119811D8F4D300867EE1 /* DoubleQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */; };
 		546E14AE11DA2A7500867EE1 /* ReplicationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */; };
 		546E1F9D11EB827300867EE1 /* TCPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9011EB827300867EE1 /* TCPConnection.cpp */; };
-		546E1F9E11EB827300867EE1 /* TCPWriteQueue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9211EB827300867EE1 /* TCPWriteQueue.cpp */; };
+		546E1F9E11EB827300867EE1 /* TCPWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9211EB827300867EE1 /* TCPWriter.cpp */; };
 		546E244111EF48AC00867EE1 /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E244011EF48AC00867EE1 /* MessageConnection.cpp */; };
 		546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
@@ -24,7 +21,6 @@
 		546E256011EF5D8E00867EE1 /* MessageWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1FA611EB827F00867EE1 /* MessageWriter.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		546E284711F0621A00867EE1 /* MessageReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1FA411EB827F00867EE1 /* MessageReader.cpp */; };
-		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -44,6 +40,14 @@
 		54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA6B0711C26CAB00FF4EF6 /* Main.cpp */; };
 		8DD76F6A0486A84900D96B5E /* Rowscale.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Rowscale.1 */; };
 		9A0C20D411C7C48600510AB4 /* libdb_cxx-4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */; };
+		9A26D69E11F4BDE2006A2814 /* HttpConn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */; };
+		9A26D69F11F4BDE2006A2814 /* HttpFileHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69011F4BDE2006A2814 /* HttpFileHandler.cpp */; };
+		9A26D6A011F4BDE2006A2814 /* HttpRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69211F4BDE2006A2814 /* HttpRequest.cpp */; };
+		9A26D6A111F4BDE2006A2814 /* HttpServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69411F4BDE2006A2814 /* HttpServer.cpp */; };
+		9A26D6A211F4BDE2006A2814 /* IMF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69611F4BDE2006A2814 /* IMF.cpp */; };
+		9A26D6A311F4BDE2006A2814 /* JSONSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69811F4BDE2006A2814 /* JSONSession.cpp */; };
+		9A26D6A411F4BDE2006A2814 /* Mime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69A11F4BDE2006A2814 /* Mime.cpp */; };
+		9A26D6A511F4BDE2006A2814 /* UrlParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -86,8 +90,8 @@
 		546E190411E4D61300867EE1 /* InPriorityQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InPriorityQueue.h; sourceTree = "<group>"; };
 		546E1F9011EB827300867EE1 /* TCPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPConnection.cpp; sourceTree = "<group>"; };
 		546E1F9111EB827300867EE1 /* TCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPConnection.h; sourceTree = "<group>"; };
-		546E1F9211EB827300867EE1 /* TCPWriteQueue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPWriteQueue.cpp; sourceTree = "<group>"; };
-		546E1F9311EB827300867EE1 /* TCPWriteQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPWriteQueue.h; sourceTree = "<group>"; };
+		546E1F9211EB827300867EE1 /* TCPWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPWriter.cpp; sourceTree = "<group>"; };
+		546E1F9311EB827300867EE1 /* TCPWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPWriter.h; sourceTree = "<group>"; };
 		546E1F9811EB827300867EE1 /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
 		546E1FA311EB827F00867EE1 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
 		546E1FA411EB827F00867EE1 /* MessageReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageReader.cpp; sourceTree = "<group>"; };
@@ -148,6 +152,23 @@
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* Rowscale */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Rowscale; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
+		9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpConn.cpp; path = Application/HTTP/HttpConn.cpp; sourceTree = "<group>"; };
+		9A26D68E11F4BDE2006A2814 /* HttpConn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpConn.h; path = Application/HTTP/HttpConn.h; sourceTree = "<group>"; };
+		9A26D68F11F4BDE2006A2814 /* HttpConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpConsts.h; path = Application/HTTP/HttpConsts.h; sourceTree = "<group>"; };
+		9A26D69011F4BDE2006A2814 /* HttpFileHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpFileHandler.cpp; path = Application/HTTP/HttpFileHandler.cpp; sourceTree = "<group>"; };
+		9A26D69111F4BDE2006A2814 /* HttpFileHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpFileHandler.h; path = Application/HTTP/HttpFileHandler.h; sourceTree = "<group>"; };
+		9A26D69211F4BDE2006A2814 /* HttpRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpRequest.cpp; path = Application/HTTP/HttpRequest.cpp; sourceTree = "<group>"; };
+		9A26D69311F4BDE2006A2814 /* HttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpRequest.h; path = Application/HTTP/HttpRequest.h; sourceTree = "<group>"; };
+		9A26D69411F4BDE2006A2814 /* HttpServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpServer.cpp; path = Application/HTTP/HttpServer.cpp; sourceTree = "<group>"; };
+		9A26D69511F4BDE2006A2814 /* HttpServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpServer.h; path = Application/HTTP/HttpServer.h; sourceTree = "<group>"; };
+		9A26D69611F4BDE2006A2814 /* IMF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IMF.cpp; path = Application/HTTP/IMF.cpp; sourceTree = "<group>"; };
+		9A26D69711F4BDE2006A2814 /* IMF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IMF.h; path = Application/HTTP/IMF.h; sourceTree = "<group>"; };
+		9A26D69811F4BDE2006A2814 /* JSONSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSONSession.cpp; path = Application/HTTP/JSONSession.cpp; sourceTree = "<group>"; };
+		9A26D69911F4BDE2006A2814 /* JSONSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = JSONSession.h; path = Application/HTTP/JSONSession.h; sourceTree = "<group>"; };
+		9A26D69A11F4BDE2006A2814 /* Mime.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Mime.cpp; path = Application/HTTP/Mime.cpp; sourceTree = "<group>"; };
+		9A26D69B11F4BDE2006A2814 /* Mime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mime.h; path = Application/HTTP/Mime.h; sourceTree = "<group>"; };
+		9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UrlParam.cpp; path = Application/HTTP/UrlParam.cpp; sourceTree = "<group>"; };
+		9A26D69D11F4BDE2006A2814 /* UrlParam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UrlParam.h; path = Application/HTTP/UrlParam.h; sourceTree = "<group>"; };
 		9A31560411C7B32A0052812E /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cursor.cpp; path = Database/Cursor.cpp; sourceTree = "<group>"; };
 		9A31560511C7B32A0052812E /* Cursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Cursor.h; path = Database/Cursor.h; sourceTree = "<group>"; };
 		9A31560811C7B32A0052812E /* Database.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Database.cpp; path = Database/Database.cpp; sourceTree = "<group>"; };
@@ -262,8 +283,8 @@
 			children = (
 				546E1F9111EB827300867EE1 /* TCPConnection.h */,
 				546E1F9011EB827300867EE1 /* TCPConnection.cpp */,
-				546E1F9311EB827300867EE1 /* TCPWriteQueue.h */,
-				546E1F9211EB827300867EE1 /* TCPWriteQueue.cpp */,
+				546E1F9311EB827300867EE1 /* TCPWriter.h */,
+				546E1F9211EB827300867EE1 /* TCPWriter.cpp */,
 				546E1F9811EB827300867EE1 /* TCPServer.h */,
 			);
 			path = TCP;
@@ -308,6 +329,7 @@
 		54B7F74111BE5EF30076BC62 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				9A26D68511F4BD5B006A2814 /* Application */,
 				541D7E6F11C64EB600A6CB16 /* Framework */,
 				54B7F74211BE5EF30076BC62 /* System */,
 				54FA6B0711C26CAB00FF4EF6 /* Main.cpp */,
@@ -387,6 +409,38 @@
 				54B7F76011BE5EF30076BC62 /* Socket_Windows.cpp */,
 			);
 			path = IO;
+			sourceTree = "<group>";
+		};
+		9A26D68511F4BD5B006A2814 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				9A26D68711F4BD66006A2814 /* HTTP */,
+			);
+			name = Application;
+			sourceTree = "<group>";
+		};
+		9A26D68711F4BD66006A2814 /* HTTP */ = {
+			isa = PBXGroup;
+			children = (
+				9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */,
+				9A26D68E11F4BDE2006A2814 /* HttpConn.h */,
+				9A26D68F11F4BDE2006A2814 /* HttpConsts.h */,
+				9A26D69011F4BDE2006A2814 /* HttpFileHandler.cpp */,
+				9A26D69111F4BDE2006A2814 /* HttpFileHandler.h */,
+				9A26D69211F4BDE2006A2814 /* HttpRequest.cpp */,
+				9A26D69311F4BDE2006A2814 /* HttpRequest.h */,
+				9A26D69411F4BDE2006A2814 /* HttpServer.cpp */,
+				9A26D69511F4BDE2006A2814 /* HttpServer.h */,
+				9A26D69611F4BDE2006A2814 /* IMF.cpp */,
+				9A26D69711F4BDE2006A2814 /* IMF.h */,
+				9A26D69811F4BDE2006A2814 /* JSONSession.cpp */,
+				9A26D69911F4BDE2006A2814 /* JSONSession.h */,
+				9A26D69A11F4BDE2006A2814 /* Mime.cpp */,
+				9A26D69B11F4BDE2006A2814 /* Mime.h */,
+				9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */,
+				9A26D69D11F4BDE2006A2814 /* UrlParam.h */,
+			);
+			name = HTTP;
 			sourceTree = "<group>";
 		};
 		9A31560311C7B31C0052812E /* Database */ = {
@@ -473,16 +527,13 @@
 				54FA694511C2458A00FF4EF6 /* Socket_Posix.cpp in Sources */,
 				54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */,
 				54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */,
-				541D868B11C7D8E400A6CB16 /* PaxosLease.cpp in Sources */,
-				541D868C11C7D8E400A6CB16 /* PaxosLeaseAcceptor.cpp in Sources */,
 				541D868D11C7D8E400A6CB16 /* PaxosLeaseLearner.cpp in Sources */,
 				541D868E11C7D8E400A6CB16 /* PaxosLeaseMessage.cpp in Sources */,
-				541D868F11C7D8E400A6CB16 /* PaxosLeaseProposer.cpp in Sources */,
 				546E119511D8F4C800867EE1 /* SingleQuorum.cpp in Sources */,
 				546E119811D8F4D300867EE1 /* DoubleQuorum.cpp in Sources */,
 				546E14AE11DA2A7500867EE1 /* ReplicationManager.cpp in Sources */,
 				546E1F9D11EB827300867EE1 /* TCPConnection.cpp in Sources */,
-				546E1F9E11EB827300867EE1 /* TCPWriteQueue.cpp in Sources */,
+				546E1F9E11EB827300867EE1 /* TCPWriter.cpp in Sources */,
 				546E244111EF48AC00867EE1 /* MessageConnection.cpp in Sources */,
 				546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */,
 				546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */,
@@ -490,7 +541,14 @@
 				546E256011EF5D8E00867EE1 /* MessageWriter.cpp in Sources */,
 				546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */,
 				546E284711F0621A00867EE1 /* MessageReader.cpp in Sources */,
-				546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */,
+				9A26D69E11F4BDE2006A2814 /* HttpConn.cpp in Sources */,
+				9A26D69F11F4BDE2006A2814 /* HttpFileHandler.cpp in Sources */,
+				9A26D6A011F4BDE2006A2814 /* HttpRequest.cpp in Sources */,
+				9A26D6A111F4BDE2006A2814 /* HttpServer.cpp in Sources */,
+				9A26D6A211F4BDE2006A2814 /* IMF.cpp in Sources */,
+				9A26D6A311F4BDE2006A2814 /* JSONSession.cpp in Sources */,
+				9A26D6A411F4BDE2006A2814 /* Mime.cpp in Sources */,
+				9A26D6A511F4BDE2006A2814 /* UrlParam.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -506,10 +564,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"_GLIBCXX_DEBUG=1",
-					"_GLIBCXX_DEBUG_PEDANTIC=1",
-				);
+				GCC_PREPROCESSOR_DEFINITIONS = "";
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;

@@ -41,17 +41,17 @@ protected:
 ===============================================================================
 */
 
-int	ThreadPool::GetNumPending()
+inline int ThreadPool::GetNumPending()
 {
 	return numPending;
 }
 
-int	ThreadPool::GetNumActive()
+inline int ThreadPool::GetNumActive()
 {
 	return numActive;
 }
 
-int	ThreadPool::GetNumTotal()
+inline int ThreadPool::GetNumTotal()
 {
 	return numPending + numActive; /* atomicity */
 }

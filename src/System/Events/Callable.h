@@ -20,6 +20,7 @@ public:
 	Callable() { func = NULL; arg = NULL; }
 	
 	void Execute() const { if (!func) ASSERT_FAIL(); func(arg); }
+	bool IsSet() const { return func != NULL; }
 
 protected:
 	Callable(void (*func)(void*), void* arg) : func(func), arg(arg) {}

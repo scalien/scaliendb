@@ -1,5 +1,5 @@
-#ifndef TCPWRITEQUEUE_H
-#define TCPWRITEQUEUE_H
+#ifndef TCPWRITER_H
+#define TCPWRITER_H
 
 #include "System/Containers/InPriorityQueue.h"
 #include "System/Buffers/BufferPool.h"
@@ -9,18 +9,18 @@ class TCPConnection; // forward
 /*
 ===============================================================================
 
- TCPWriteQueue
+ TCPWriter
  
  You must call Flush() after Write() functions to start I/O!
 
 ===============================================================================
 */
 
-class TCPWriteQueue
+class TCPWriter
 {
 public:
-	TCPWriteQueue(TCPConnection* conn, BufferPool* pool = NULL);
-	virtual ~TCPWriteQueue();
+	TCPWriter(TCPConnection* conn, BufferPool* pool = NULL);
+	virtual ~TCPWriter();
 	
 	Buffer*						AcquireBuffer(unsigned size = 0);
 	void						ReleaseBuffer(Buffer* buffer);
@@ -47,7 +47,6 @@ protected:
 	TCPConnection*				conn;
 	InPriorityQueue<Buffer>		queue;
 	BufferPool*					pool;
-	bool						writing;
 };
 
 #endif

@@ -79,6 +79,7 @@ template<class T>
 void InList<T>::Prepend(T* t)
 {
 	t->next = head;
+	t->prev = NULL;
 	if (head != NULL)
 		head->prev = t;
 	head = t;
@@ -92,6 +93,7 @@ template<class T>
 void InList<T>::Append(T* t)
 {
 	t->prev = tail;
+	t->next = NULL;
 	if (tail != NULL)
 		tail->next = t;
 	tail = t;
@@ -106,12 +108,13 @@ T* InList<T>::Remove(T* t)
 {
 	if (head == t)
 		head = dynamic_cast<T*>(t->next);
-	else
-		t->prev->next = t->next;
+	else if (t->prev != NULL)
+		t->prev->next = t->next;	
+		
 	
 	if (tail == t)
 		tail = dynamic_cast<T*>(t->prev);
-	else
+	else if (t->next != NULL)
 		t->next->prev = t->prev;
 	
 	length--;

@@ -1,35 +1,36 @@
 #include <stdio.h>
-#include "System/Containers/InSortedList.h"
 
-struct S
+#include "Application/HTTP/HttpServer.h"
+#include "Application/HTTP/HttpConsts.h"
+#include "System/Events/EventLoop.h"
+
+class SimpleHandler : public HttpHandler
 {
-	S(int num_) { num = num_; }
-	
-	bool operator==(const S &other) { return num == other.num; }
-	int		num;
-	
-	S*		next;
-	S*		prev;
+public:
+	virtual bool	HandleRequest(HttpConn* conn, const HttpRequest& request);
 };
 
-bool LessThan(const S& a, const S& b)
+bool SimpleHandler::HandleRequest(HttpConn* conn, const HttpRequest& /*request*/)
 {
-	return a.num < b.num;
+	conn->Response(HTTP_STATUS_CODE_OK, "hello", 5);
+	return true;
 }
 
 int main(void)
 {
-	InSortedList<S> list;
+	HttpServer		httpServer;
+	SimpleHandler	handler;
+		
+	Log_SetTarget(LOG_TARGET_STDOUT);
+	Log_SetTrace(true);
+	Log_SetTimestamping(true);
 	
-	list.Add(new S(2));
-	list.Add(new S(1));
-	list.Add(new S(3));
-	list.Add(new S(0));
+	IOProcessor::Init(1024);
+	
+	httpServer.Init(8080);
+	httpServer.RegisterHandler(&handler);
 
-	printf("%d\n\n", list.GetLength());
-	
-	for (S* s = list.Head(); s != NULL; s = list.Next(s))
-	{
-		printf("%d\n", s->num);
-	}
+	EventLoop::Init();
+	EventLoop::Run();
+	EventLoop::Shutdown();
 }
