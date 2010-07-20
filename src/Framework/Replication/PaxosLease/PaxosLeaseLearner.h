@@ -21,7 +21,7 @@ class PaxosLeaseLearner
 public:
 	void					Init(ReplicationContext* context);
 
-	void					OnMessage(PaxosLeaseMessage* msg);
+	void					OnMessage(const PaxosLeaseMessage& msg);
 	void					OnLeaseTimeout();
 	bool					IsLeaseOwner();
 	bool					IsLeaseKnown();
@@ -31,7 +31,7 @@ public:
 	void					SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback);
 
 private:
-	void					OnLearnChosen(PaxosLeaseMessage* msg);
+	void					OnLearnChosen(const PaxosLeaseMessage& msg);
 	void					CheckLease();
 
 	Timer					leaseTimeout;

@@ -1,11 +1,13 @@
 #ifndef REPLICATIONMANAGER_H
 #define REPLICATIONMANAGER_H
 
-#include "Node.h"
+#include "System/Common.h"
+#include "System/IO/Endpoint.h"
+
+class ReplicationContext;	// forward
+class Node;					// forward
 
 #define	RMAN (ReplicationManager::Get())
-
-class ReplicationContext; // forward
 
 /*
 ===============================================================================
@@ -35,6 +37,20 @@ public:
 private:
 	unsigned				nodeID;
 	uint64_t				runID;	
+};
+
+/*
+===============================================================================
+
+ Node
+
+===============================================================================
+*/
+
+struct Node
+{
+	unsigned			nodeID;
+	Endpoint			endpoint;
 };
 
 #endif

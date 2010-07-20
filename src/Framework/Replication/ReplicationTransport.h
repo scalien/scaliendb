@@ -15,11 +15,8 @@ class ReplicationTransport
 {
 public:
 
-	ReplicationMessage*		GetMessage() const;
-	
 	void					SendMessage(unsigned nodeID, const ReplicationMessage& msg);
 	void					SendPriorityMessage(unsigned nodeID, const ReplicationMessage& msg);
-
 
 	void					BroadcastMessage(const ReplicationMessage& msg);
 	void					BroadcastPriorityMessage(const ReplicationMessage& msg);
