@@ -31,13 +31,14 @@ Endpoint ReplicationManager::GetNodeEndpoint(uint64_t nodeID) const
 {
 }
 
-//void ReplicationManager::AddContext(ReplicationContext* context)
-//{
-//}
-//
-//ReplicationContext ReplicationManager::GetContext(unsigned contextID) const
-//{
-//}
+void ReplicationManager::AddContext(ReplicationContext* context)
+{
+}
+
+ReplicationContext* ReplicationManager::GetContext(unsigned contextID) const
+{
+	return NULL;
+}
 
 uint64_t ReplicationManager::NextProposalID(uint64_t proposalID) const
 {
