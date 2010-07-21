@@ -40,6 +40,7 @@ protected:
 ===============================================================================
 */
 
+/*
 template<class T>
 bool InSortedList<T>::Add(T* t)
 {
@@ -65,6 +66,40 @@ bool InSortedList<T>::Add(T* t)
 			return true;
 		} 
 		curr = &(*curr)->next;
+	}
+	
+	ASSERT_FAIL();
+}
+*/
+
+template<class T>
+bool InSortedList<T>::Add(T* t)
+{
+	T* curr = list.head;
+
+	while(true)
+	{
+		assert(curr != t); // it's already linked
+
+		if (curr == NULL || LessThan(*t, *curr))
+		{
+			t->next = curr;
+			if (curr != list.head)
+			{
+				curr->prev->next = t;
+				t->prev = curr->prev;
+			}
+			else
+				t->prev = NULL;
+			if (curr != NULL)
+				curr->prev = t;
+			if (curr == NULL)
+				list.tail = t;
+			curr = t;
+			list.length++;		
+			return true;
+		} 
+		curr = curr->next;
 	}
 	
 	ASSERT_FAIL();

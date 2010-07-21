@@ -4,10 +4,15 @@
 #include "System/Buffers/Buffer.h"
 #include "System/Buffers/ReadBuffer.h"
 
-// helper function for parsing url strings, does *not* do url decoding!
-bool UrlParam_Parse(const char* url, char sep, unsigned num, /* ByteString* arg1, ByteString* arg2, */...);
+/*
+===============================================================================
 
-// this class does url decoding
+ UrlParam does url decoding
+ http://en.wikipedia.org/wiki/Percent-encoding
+
+===============================================================================
+*/
+
 class UrlParam
 {
 public:
@@ -22,7 +27,7 @@ public:
 
 	int				GetParamIndex(const char* name, int namelen = -1) const;
 	
-	bool			Get(unsigned num, /* ByteString* */...) const;
+	//bool			Get(unsigned num, /* ByteString* */...) const;
 	bool			GetNamed(const char* name, int namelen, ReadBuffer& bs) const;
 	
 private:

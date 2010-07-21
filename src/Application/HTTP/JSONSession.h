@@ -5,6 +5,14 @@
 
 class HttpConn;
 
+/*
+===============================================================================
+
+ JSONSession parses JSON messages and able to print messages on HttpConn.
+
+===============================================================================
+*/
+
 class JSONSession
 {
 public:

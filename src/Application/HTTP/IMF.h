@@ -2,10 +2,13 @@
 #define IMF_H
 
 /*
- * Internet message format
- * RFC 2822
- * Suitable for parsing HTTP, SIP and MIME headers
- */
+===============================================================================
+
+ Internet message format based on RFC 2822.
+ Suitable for parsing HTTP, SIP and MIME headers.
+
+===============================================================================
+*/
 
 class IMFHeader
 {

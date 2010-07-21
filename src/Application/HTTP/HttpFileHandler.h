@@ -3,6 +3,14 @@
 
 #include "HttpServer.h"
 
+/*
+===============================================================================
+
+ HttpFileHandler serves static files over HTTP.
+
+===============================================================================
+*/
+
 class HttpFileHandler : public HttpHandler
 {
 public:

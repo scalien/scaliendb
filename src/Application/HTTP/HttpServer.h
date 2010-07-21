@@ -4,18 +4,35 @@
 #include "Framework/TCP/TCPServer.h"
 #include "HttpConn.h"
 
-class KeyspaceDB;
-class HttpRequest;
-class HttpServer;
+class KeyspaceDB;	// forward
+class HttpRequest;	// forward
+class HttpServer;	// forward
+
+/*
+===============================================================================
+
+ HttpHandler is the generic handler interface to HttpServer
+
+===============================================================================
+*/
 
 class HttpHandler
 {
 public:
 	virtual ~HttpHandler() {}
+	
 	virtual bool	HandleRequest(HttpConn* conn, const HttpRequest& request) = 0;
 	
 	HttpHandler*	nextHttpHandler;
 };
+
+/*
+===============================================================================
+
+ HttpServer
+
+===============================================================================
+*/
 
 class HttpServer : public TCPServer<HttpServer, HttpConn>
 {

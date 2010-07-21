@@ -4,7 +4,15 @@
 #include "Framework/TCP/TCPConnection.h"
 #include "HttpRequest.h"
 
-class HttpServer;
+class HttpServer;	// forward
+
+/*
+===============================================================================
+
+ HttpConn is a class that represents a HTTP connection.
+
+===============================================================================
+*/
 
 class HttpConn : public TCPConnection
 {
@@ -24,7 +32,7 @@ public:
 
 	HttpServer*		GetServer() { return server; }
 
-	// TCPConn interface
+	// TCPConnection interface
 	virtual void	OnRead();
 	virtual void	OnClose();
 	virtual void	OnWrite();	

@@ -6,6 +6,14 @@
 
 class Table; // forward
 
+/*
+===============================================================================
+
+ Cursor class is a database cursor representation.
+
+===============================================================================
+*/
+
 class Cursor
 {
 	friend class Table;

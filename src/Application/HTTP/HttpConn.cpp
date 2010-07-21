@@ -1,19 +1,13 @@
-// TODOs
-// - Add API key
-
 #include "HttpConn.h"
 #include "Version.h"
 #include "HttpServer.h"
 #include "HttpConsts.h"
 #include "Framework/Database/Database.h"
 
-#define MAX_MESSAGE_SIZE	4096
 #define CS_CR				"\015"
 #define CS_LF				"\012"
 #define CS_CRLF				CS_CR CS_LF
-#define MSG_FAIL			"Unable to process your request at this time"
 #define MSG_NOT_FOUND		"Not found"
-#define PARAMSEP			','
 
 HttpConn::HttpConn()
 {

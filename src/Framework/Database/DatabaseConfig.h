@@ -13,6 +13,14 @@
 #define	DATABASE_CONFIG_TXN_NOSYNC			false
 #define DATABASE_CONFIG_TXN_WRITE_NOSYNC	true
 
+/*
+===============================================================================
+
+ DatabaseConfig
+
+===============================================================================
+*/
+
 class DatabaseConfig
 {
 public:

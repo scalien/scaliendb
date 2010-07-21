@@ -9,8 +9,16 @@
 #include "System/Events/CdownTimer.h"
 #include "DatabaseConfig.h"
 
-class Table;
-class Transaction;
+class Table;		// forward
+class Transaction;	// forward
+
+/*
+===============================================================================
+
+ Database
+
+===============================================================================
+*/
 
 class Database
 {

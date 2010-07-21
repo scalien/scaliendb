@@ -17,48 +17,6 @@
  * by name, it finds it by matching the string 'name=' on every parameter.
  */
 
-/*
-static const char* UrlParam_ParseVarArg(const char* s, char sep, unsigned num, va_list ap)
-{
-	unsigned	length;
-	ByteString* bs;
-
-	while (*s != '\0' && num > 0)
-	{
-		bs = va_arg(ap, ByteString*);
-		bs->buffer = (char*) s;
-		length = 0;
-		while(*s != '\0' && *s != sep)
-		{
-			length++;
-			s++;
-		}
-		bs->length = length;
-		bs->size = length;
-		if (*s == sep)
-			s++;
-		num--;
-	}
-	
-	return s;
-}
-*/
-
-/*
-bool UrlParam_Parse(const char* s, char sep, unsigned num, ...)
-{
-	va_list		ap;	
-	
-	va_start(ap, num);
-	s = UrlParam_ParseVarArg(s, sep, num, ap);
-	va_end(ap);
-	
-	if (num == 0 && *s == '\0')
-		return true;
-	else
-		return false;
-}
-*/
 UrlParam::UrlParam()
 {
 	numParams = 0;
@@ -128,29 +86,6 @@ int UrlParam::GetParamIndex(const char* name, int namelen) const
 	
 	return -1;
 }
-
-/*
-bool UrlParam::Get(unsigned num, ...) const
-{
-	va_list		ap;
-	unsigned	i;
-	ByteString* bs;
-	
-	va_start(ap, num);
-	
-	for (i = 0; i < num; i++)
-	{
-		bs = va_arg(ap, ByteString*);
-		bs->buffer = (char*) GetParam(i);
-		bs->size = GetParamLen(i);
-		bs->length = bs->size;
-	}
-	
-	va_end(ap);
-	
-	return true;
-}
-*/
 
 bool UrlParam::GetNamed(const char* name, int namelen, ReadBuffer& bs) const
 {

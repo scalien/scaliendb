@@ -1,7 +1,7 @@
 #ifndef QUORUM_H
 #define QUORUM_H
 
-#include <stdint.h>
+#include "System/Platform.h"
 
 /*
 ===============================================================================
