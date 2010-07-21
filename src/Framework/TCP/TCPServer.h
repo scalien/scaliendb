@@ -105,9 +105,6 @@ void TCPServer<T, Conn>::DeleteConn(Conn* conn)
 {
 	Log_Trace();
 	
-	numActive--;
-	assert(numActive >= 0);
-	
 	activeConns.Remove(conn);
 
 	if (inactiveConns.GetLength() >= backlog)
@@ -121,7 +118,6 @@ void TCPServer<T, Conn>::OnConnect()
 {
 	T* pT = static_cast<T*>(this);
 	Conn* conn = pT->GetConn();
-	numActive++;
 	if (listener.Accept(&(conn->GetSocket())))
 	{
 		conn->GetSocket().SetNonblocking();
