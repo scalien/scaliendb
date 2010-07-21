@@ -66,6 +66,7 @@ private:
 	ConfigVar*			GetVar(const char* name);
 };
 
+// global config file
 extern Config configFile;
 
 #endif
