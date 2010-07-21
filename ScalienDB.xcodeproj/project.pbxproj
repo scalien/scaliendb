@@ -152,6 +152,9 @@
 		54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CdownTimer.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
+		54FCE7AE11F6E6DE0075BBFF /* PaxosProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosProposerState.h; sourceTree = "<group>"; };
+		54FCE7BA11F6E71A0075BBFF /* PaxosAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosAcceptorState.h; sourceTree = "<group>"; };
+		54FCE7BB11F6E7260075BBFF /* PaxosLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLearnerState.h; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
 		9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpConn.cpp; path = Application/HTTP/HttpConn.cpp; sourceTree = "<group>"; };
@@ -238,6 +241,7 @@
 			children = (
 				546E118F11D8F47900867EE1 /* Quorums */,
 				541D867E11C7D8E400A6CB16 /* PaxosLease */,
+				54FCE7AC11F6E6DE0075BBFF /* Paxos */,
 				546E141B11DA0AE900867EE1 /* ReplicationManager.h */,
 				546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */,
 				546E145711DA173300867EE1 /* ReplicationContext.h */,
@@ -411,6 +415,24 @@
 				54B7F76011BE5EF30076BC62 /* Socket_Windows.cpp */,
 			);
 			path = IO;
+			sourceTree = "<group>";
+		};
+		54FCE7AC11F6E6DE0075BBFF /* Paxos */ = {
+			isa = PBXGroup;
+			children = (
+				54FCE7AD11F6E6DE0075BBFF /* States */,
+			);
+			path = Paxos;
+			sourceTree = "<group>";
+		};
+		54FCE7AD11F6E6DE0075BBFF /* States */ = {
+			isa = PBXGroup;
+			children = (
+				54FCE7AE11F6E6DE0075BBFF /* PaxosProposerState.h */,
+				54FCE7BA11F6E71A0075BBFF /* PaxosAcceptorState.h */,
+				54FCE7BB11F6E7260075BBFF /* PaxosLearnerState.h */,
+			);
+			path = States;
 			sourceTree = "<group>";
 		};
 		9A26D68511F4BD5B006A2814 /* Application */ = {

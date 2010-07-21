@@ -21,7 +21,7 @@ void TCPConnection::Init(bool startRead)
 	assert(tcpread.active == false);
 	assert(tcpwrite.active == false);
 
-	readBuffer.Rewind();
+	readBuffer.Clear();
 	
 	tcpwrite.SetFD(socket.fd);
 	tcpwrite.SetOnComplete(MFUNC(TCPConnection, OnWrite));

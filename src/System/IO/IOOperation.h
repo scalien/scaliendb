@@ -102,7 +102,7 @@ struct TCPWrite : public IOOperation
 	
 	void AsyncConnect()
 	{
-		buffer->Rewind();
+		buffer->Clear();
 		// zero indicates for IOProcessor that we are waiting for connect event
 	}
 	

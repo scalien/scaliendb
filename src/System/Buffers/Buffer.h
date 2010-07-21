@@ -55,7 +55,7 @@ public:
 	char				GetCharAt(unsigned i) const;
 	uint32_t			GetChecksum() const;
 	
-	virtual void		Rewind();
+	virtual void		Clear();
 
 	Buffer*				next;
 	Buffer*				prev;
