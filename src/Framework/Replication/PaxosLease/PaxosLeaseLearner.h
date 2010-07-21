@@ -34,11 +34,11 @@ private:
 	void						OnLearnChosen(const PaxosLeaseMessage& msg);
 	void						CheckLease();
 
+	ReplicationContext*			context;
+	PaxosLeaseLearnerState		state;	
 	Timer						leaseTimeout;
 	Callable					onLearnLeaseCallback;
 	Callable					onLeaseTimeoutCallback;
-	PaxosLeaseLearnerState		state;	
-	ReplicationContext*			context;
 };
 
 #endif

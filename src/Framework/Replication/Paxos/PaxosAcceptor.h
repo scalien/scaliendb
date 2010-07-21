@@ -7,6 +7,14 @@
 #include "Framework/Replication/Quorums/QuorumDatabase.h"
 #include "States/PaxosAcceptorState.h"
 
+/*
+===============================================================================
+
+ PaxosAcceptor
+
+===============================================================================
+*/
+
 class PaxosAcceptor
 {
 public:
@@ -21,10 +29,10 @@ private:
 	void						ReadState();
 	void						WriteState();
 
+	ReplicationContext*			context;
+	PaxosAcceptorState			state;
 	uint64_t					paxosID;
 	uint64_t					senderID;
-	PaxosAcceptorState			state;
-	ReplicationContext*			context;
 	uint64_t					writtenPaxosID;
 };
 

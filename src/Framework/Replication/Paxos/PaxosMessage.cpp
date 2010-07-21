@@ -1,7 +1,7 @@
 #include "PaxosMessage.h"
 #include "System/Common.h"
 
-void PaxosMessage::Init(uint64_t paxosID_, char type_, unsigned nodeID_)
+void PaxosMessage::Init(uint64_t paxosID_, char type_, uint64_t nodeID_)
 {
 	paxosID = paxosID_;
 	nodeID = nodeID_;
@@ -9,7 +9,7 @@ void PaxosMessage::Init(uint64_t paxosID_, char type_, unsigned nodeID_)
 	value = NULL;
 }
 
-bool PaxosMessage::PrepareRequest(uint64_t paxosID_, unsigned nodeID_, uint64_t proposalID_)
+bool PaxosMessage::PrepareRequest(uint64_t paxosID_, uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(paxosID_, PAXOS_PREPARE_REQUEST, nodeID_);
 	proposalID = proposalID_;
@@ -17,7 +17,7 @@ bool PaxosMessage::PrepareRequest(uint64_t paxosID_, unsigned nodeID_, uint64_t 
 	return true;
 }
 
-bool PaxosMessage::PrepareRejected(uint64_t paxosID_, unsigned nodeID_,
+bool PaxosMessage::PrepareRejected(uint64_t paxosID_, uint64_t nodeID_,
  uint64_t proposalID_, uint64_t promisedProposalID_)
 {
 	Init(paxosID_, PAXOS_PREPARE_REJECTED, nodeID_);
@@ -28,7 +28,7 @@ bool PaxosMessage::PrepareRejected(uint64_t paxosID_, unsigned nodeID_,
 }
 
 
-bool PaxosMessage::PreparePreviouslyAccepted(uint64_t paxosID_, unsigned nodeID_,
+bool PaxosMessage::PreparePreviouslyAccepted(uint64_t paxosID_, uint64_t nodeID_,
  uint64_t proposalID_, uint64_t acceptedProposalID_, Buffer* value_)
 {
 	Init(paxosID_, PAXOS_PREPARE_PREVIOUSLY_ACCEPTED, nodeID_);
@@ -39,7 +39,7 @@ bool PaxosMessage::PreparePreviouslyAccepted(uint64_t paxosID_, unsigned nodeID_
 	return true;
 }
 
-bool PaxosMessage::PrepareCurrentlyOpen(uint64_t paxosID_, unsigned nodeID_, uint64_t proposalID_)
+bool PaxosMessage::PrepareCurrentlyOpen(uint64_t paxosID_, uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(paxosID_, PAXOS_PREPARE_CURRENTLY_OPEN, nodeID_);
 	proposalID = proposalID_;
@@ -48,7 +48,7 @@ bool PaxosMessage::PrepareCurrentlyOpen(uint64_t paxosID_, unsigned nodeID_, uin
 }
 
 bool PaxosMessage::ProposeRequest(uint64_t paxosID_,
- unsigned nodeID_, uint64_t proposalID_, Buffer* value_)
+ uint64_t nodeID_, uint64_t proposalID_, Buffer* value_)
 {
 	Init(paxosID_, PAXOS_PROPOSE_REQUEST, nodeID_);
 	proposalID = proposalID_;
@@ -57,7 +57,7 @@ bool PaxosMessage::ProposeRequest(uint64_t paxosID_,
 	return true;
 }
 
-bool PaxosMessage::ProposeRejected(uint64_t paxosID_, unsigned nodeID_, uint64_t proposalID_)
+bool PaxosMessage::ProposeRejected(uint64_t paxosID_, uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(paxosID_, PAXOS_PROPOSE_REJECTED, nodeID_);
 	proposalID = proposalID_;
@@ -65,7 +65,7 @@ bool PaxosMessage::ProposeRejected(uint64_t paxosID_, unsigned nodeID_, uint64_t
 	return true;
 }
 
-bool PaxosMessage::ProposeAccepted(uint64_t paxosID_, unsigned nodeID_, uint64_t proposalID_)
+bool PaxosMessage::ProposeAccepted(uint64_t paxosID_, uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(paxosID_, PAXOS_PROPOSE_ACCEPTED, nodeID_);
 	proposalID = proposalID_;
@@ -73,7 +73,7 @@ bool PaxosMessage::ProposeAccepted(uint64_t paxosID_, unsigned nodeID_, uint64_t
 	return true;
 }
 
-bool PaxosMessage::LearnValue(uint64_t paxosID_, unsigned nodeID_, Buffer* value_)
+bool PaxosMessage::LearnValue(uint64_t paxosID_, uint64_t nodeID_, Buffer* value_)
 {
 	Init(paxosID_, PAXOS_LEARN_VALUE, nodeID_);
 	value = value_;
@@ -81,7 +81,7 @@ bool PaxosMessage::LearnValue(uint64_t paxosID_, unsigned nodeID_, Buffer* value
 	return true;
 }
 
-bool PaxosMessage::LearnProposal(uint64_t paxosID_, unsigned nodeID_, uint64_t proposalID_)
+bool PaxosMessage::LearnProposal(uint64_t paxosID_, uint64_t nodeID_, uint64_t proposalID_)
 {
 	Init(paxosID_, PAXOS_LEARN_PROPOSAL, nodeID_);
 	proposalID = proposalID_;
@@ -89,14 +89,14 @@ bool PaxosMessage::LearnProposal(uint64_t paxosID_, unsigned nodeID_, uint64_t p
 	return true;
 }
 
-bool PaxosMessage::RequestChosen(uint64_t paxosID_, unsigned nodeID_)
+bool PaxosMessage::RequestChosen(uint64_t paxosID_, uint64_t nodeID_)
 {
 	Init(paxosID_, PAXOS_REQUEST_CHOSEN, nodeID_);
 	
 	return true;
 }
 
-bool PaxosMessage::StartCatchup(uint64_t paxosID_, unsigned nodeID_)
+bool PaxosMessage::StartCatchup(uint64_t paxosID_, uint64_t nodeID_)
 {
 	Init(paxosID_, PAXOS_START_CATCHUP, nodeID_);
 	

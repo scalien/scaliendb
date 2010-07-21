@@ -44,6 +44,7 @@
 		54FCE8BD11F6F34A0075BBFF /* PaxosProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCE8BC11F6F34A0075BBFF /* PaxosProposer.cpp */; };
 		54FCEA9811F705F20075BBFF /* PaxosAcceptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCEA9711F705F20075BBFF /* PaxosAcceptor.cpp */; };
 		54FCEAF911F710C20075BBFF /* QuorumDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */; };
+		54FCEC3D11F748110075BBFF /* PaxosLearner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCEC3C11F748110075BBFF /* PaxosLearner.cpp */; };
 		8DD76F6A0486A84900D96B5E /* Rowscale.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Rowscale.1 */; };
 		9A0C20D411C7C48600510AB4 /* libdb_cxx-4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */; };
 		9A26D69E11F4BDE2006A2814 /* HttpConn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */; };
@@ -167,6 +168,8 @@
 		54FCEA9711F705F20075BBFF /* PaxosAcceptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosAcceptor.cpp; sourceTree = "<group>"; };
 		54FCEAF711F710C20075BBFF /* QuorumDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumDatabase.h; sourceTree = "<group>"; };
 		54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumDatabase.cpp; sourceTree = "<group>"; };
+		54FCEC3B11F748110075BBFF /* PaxosLearner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLearner.h; sourceTree = "<group>"; };
+		54FCEC3C11F748110075BBFF /* PaxosLearner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLearner.cpp; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
 		9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpConn.cpp; path = Application/HTTP/HttpConn.cpp; sourceTree = "<group>"; };
@@ -441,6 +444,8 @@
 				54FCE8BC11F6F34A0075BBFF /* PaxosProposer.cpp */,
 				54FCEA9611F705F20075BBFF /* PaxosAcceptor.h */,
 				54FCEA9711F705F20075BBFF /* PaxosAcceptor.cpp */,
+				54FCEC3B11F748110075BBFF /* PaxosLearner.h */,
+				54FCEC3C11F748110075BBFF /* PaxosLearner.cpp */,
 			);
 			path = Paxos;
 			sourceTree = "<group>";
@@ -599,6 +604,7 @@
 				54FCE8BD11F6F34A0075BBFF /* PaxosProposer.cpp in Sources */,
 				54FCEA9811F705F20075BBFF /* PaxosAcceptor.cpp in Sources */,
 				54FCEAF911F710C20075BBFF /* QuorumDatabase.cpp in Sources */,
+				54FCEC3D11F748110075BBFF /* PaxosLearner.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

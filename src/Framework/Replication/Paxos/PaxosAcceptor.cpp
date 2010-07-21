@@ -1,9 +1,5 @@
 #include "PaxosAcceptor.h"
-#include <stdio.h>
-#include <math.h>
-#include <assert.h>
-#include "System/Log.h"
-#include "System/Events/EventLoop.h"
+#include "PaxosProposer.h"
 #include "Framework/Replication/ReplicationManager.h"
 
 void PaxosAcceptor::Init(ReplicationContext* context_)
@@ -11,8 +7,6 @@ void PaxosAcceptor::Init(ReplicationContext* context_)
 	context = context_;
 
 	paxosID = 0;
-	state.Init();
-
 	ReadState();
 }
 

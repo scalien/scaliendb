@@ -27,12 +27,12 @@ struct PaxosAcceptorState
 ===============================================================================
 */
 
-inline void PaxosAcceptorState::Init()
-{
-	promisedProposalID = 0;
-	accepted = false;
-	acceptedProposalID = 0;
-	acceptedValue.Clear();
-}
+//inline void PaxosAcceptorState::Init()
+//{
+//	promisedProposalID = 0;
+//	accepted = false;
+//	acceptedProposalID = 0;
+//	acceptedValue.Clear();
+//}
 
 #endif

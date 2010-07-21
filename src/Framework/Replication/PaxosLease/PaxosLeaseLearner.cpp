@@ -1,12 +1,10 @@
 #include "PaxosLeaseLearner.h"
-#include "System/Platform.h"
-#include "System/Log.h"
-#include "System/Events/EventLoop.h"
 #include "Framework/Replication/ReplicationManager.h"
 
 void PaxosLeaseLearner::Init(ReplicationContext* context_)
 {
 	context = context_;
+
 	state.Init();
 }
 

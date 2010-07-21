@@ -1,11 +1,5 @@
 #include "PaxosProposer.h"
-#include <stdio.h>
-#include <math.h>
-#include <assert.h>
-#include "System/Log.h"
-#include "System/Events/EventLoop.h"
 #include "Framework/Replication/ReplicationManager.h"
-#include "Framework/Replication/Quorums/QuorumTransport.h"
 
 void PaxosProposer::Init(ReplicationContext* context_)
 {
@@ -17,7 +11,6 @@ void PaxosProposer::Init(ReplicationContext* context_)
 	proposeTimeout.SetDelay(PAXOS_TIMEOUT);
 
 	paxosID = 0;
-	
 	state.Init();
 }
 

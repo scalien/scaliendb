@@ -34,24 +34,24 @@ public:
 	uint64_t		promisedProposalID;
 	Buffer*			value;
 
-	void			Init(uint64_t paxosID, char type, unsigned nodeID);
+	void			Init(uint64_t paxosID, char type, uint64_t nodeID);
 		
-	bool			PrepareRequest(uint64_t paxosID, unsigned nodeID, uint64_t proposalID);
-	bool			PrepareRejected(uint64_t paxosID, unsigned nodeID,
+	bool			PrepareRequest(uint64_t paxosID, uint64_t nodeID, uint64_t proposalID);
+	bool			PrepareRejected(uint64_t paxosID, uint64_t nodeID,
 					 uint64_t proposalID, uint64_t promisedProposalID);
 	bool			PreparePreviouslyAccepted(uint64_t paxosID,
-					 unsigned nodeID, uint64_t proposalID,
+					 uint64_t nodeID, uint64_t proposalID,
 					 uint64_t acceptedProposalID, Buffer* value);
 	bool			PrepareCurrentlyOpen(uint64_t paxosID,
-					 unsigned nodeID, uint64_t proposalID);
-	bool			ProposeRequest(uint64_t paxosID, unsigned nodeID,
+					 uint64_t nodeID, uint64_t proposalID);
+	bool			ProposeRequest(uint64_t paxosID, uint64_t nodeID,
 					 uint64_t proposalID, Buffer* value);
-	bool			ProposeRejected(uint64_t paxosID, unsigned nodeID, uint64_t proposalID_);
-	bool			ProposeAccepted(uint64_t paxosID, unsigned nodeID, uint64_t proposalID);
-	bool			LearnProposal(uint64_t paxosID, unsigned nodeID, uint64_t proposalID);
-	bool			LearnValue(uint64_t paxosID, unsigned nodeID, Buffer* value);
-	bool			RequestChosen(uint64_t paxosID, unsigned nodeID);
-	bool			StartCatchup(uint64_t paxosID, unsigned nodeID);
+	bool			ProposeRejected(uint64_t paxosID, uint64_t nodeID, uint64_t proposalID_);
+	bool			ProposeAccepted(uint64_t paxosID, uint64_t nodeID, uint64_t proposalID);
+	bool			LearnProposal(uint64_t paxosID, uint64_t nodeID, uint64_t proposalID);
+	bool			LearnValue(uint64_t paxosID, uint64_t nodeID, Buffer* value);
+	bool			RequestChosen(uint64_t paxosID, uint64_t nodeID);
+	bool			StartCatchup(uint64_t paxosID, uint64_t nodeID);
 
 	bool			IsRequest() const;
 	bool			IsPrepareResponse() const;

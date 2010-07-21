@@ -39,11 +39,11 @@ private:
 	void						StartPreparing();
 	void						StartProposing();
 
-	PaxosLeaseProposerState		state;
 	ReplicationContext*			context;
-	uint64_t					highestProposalID;	
-	Countdown					acquireLeaseTimeout;
+	PaxosLeaseProposerState		state;
 	Timer						extendLeaseTimeout;
+	Countdown					acquireLeaseTimeout;
+	uint64_t					highestProposalID;	
 };
 
 #endif

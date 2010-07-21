@@ -41,11 +41,11 @@ private:
 	void						StartPreparing();
 	void						StartProposing();
 
-	PaxosProposerState			state;
 	ReplicationContext*			context;
-	uint64_t					paxosID;
+	PaxosProposerState			state;
 	Countdown					prepareTimeout;
 	Countdown					proposeTimeout;
+	uint64_t					paxosID;
 };
 
 #endif

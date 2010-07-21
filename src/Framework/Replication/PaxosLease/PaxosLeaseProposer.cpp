@@ -1,21 +1,15 @@
 #include "PaxosLeaseProposer.h"
-#include <stdio.h>
-#include <math.h>
-#include <assert.h>
-#include "System/Log.h"
-#include "System/Events/EventLoop.h"
 #include "Framework/Replication/ReplicationManager.h"
-#include "PaxosLease.h"
 
 void PaxosLeaseProposer::Init(ReplicationContext* context_)
 {
 	context = context_;
 	
-	highestProposalID = 0;
 	acquireLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnAcquireLeaseTimeout));
 	acquireLeaseTimeout.SetDelay(ACQUIRELEASE_TIMEOUT);
 	extendLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnExtendLeaseTimeout));
 	
+	highestProposalID = 0;
 	state.Init();
 }
 

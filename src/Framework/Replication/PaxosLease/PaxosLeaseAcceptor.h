@@ -27,9 +27,9 @@ private:
 	void						OnPrepareRequest(const PaxosLeaseMessage& msg);
 	void						OnProposeRequest(const PaxosLeaseMessage& msg);
 
-	Timer						leaseTimeout;
-	PaxosLeaseAcceptorState		state;
 	ReplicationContext*			context;
+	PaxosLeaseAcceptorState		state;
+	Timer						leaseTimeout;
 };
 
 #endif

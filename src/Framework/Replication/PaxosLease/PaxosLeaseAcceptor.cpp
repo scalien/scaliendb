@@ -1,18 +1,12 @@
 #include "PaxosLeaseAcceptor.h"
-#include <stdio.h>
-#include <math.h>
-#include <assert.h>
-#include "System/Log.h"
-#include "System/Events/EventLoop.h"
-#include "System/Config.h"
-#include "System/Time.h"
 #include "Framework/Replication/ReplicationManager.h"
-#include "PaxosLease.h"
 
 void PaxosLeaseAcceptor::Init(ReplicationContext* context_)
 {
 	context = context_;
+
 	leaseTimeout.SetCallable(MFUNC(PaxosLeaseAcceptor, OnLeaseTimeout));
+
 	state.Init();
 }
 
