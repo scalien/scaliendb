@@ -32,7 +32,7 @@ inline void PaxosAcceptorState::Init()
 	promisedProposalID = 0;
 	accepted = false;
 	acceptedProposalID = 0;
-	acceptedValue.Rewind();
+	acceptedValue.Clear();
 }
 
 #endif

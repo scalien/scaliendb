@@ -38,7 +38,7 @@ inline void PaxosProposerState::Init()
 	proposalID = 0;
 	highestReceivedProposalID =	0;
 	highestPromisedProposalID = 0;
-	value.Rewind();
+	value.Clear();
 	leader = false;
 	numProposals = 0;
 }

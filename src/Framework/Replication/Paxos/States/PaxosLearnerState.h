@@ -26,7 +26,7 @@ struct PaxosLearnerState
 inline void PaxosLearnerState::Init()
 {
 	learned = 0;
-	value.Rewind();
+	value.Clear();
 }
 
 #endif

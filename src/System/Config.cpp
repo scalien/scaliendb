@@ -16,7 +16,7 @@ ConfigVar::ConfigVar(const char* name_)
 void ConfigVar::ClearValue()
 {
 	numelem = 0;
-	value.Rewind();
+	value.Clear();
 }
 
 

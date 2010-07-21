@@ -203,7 +203,7 @@ uint32_t Buffer::GetChecksum() const
 	return checksum(buffer, length);
 }
 
-void Buffer::Rewind()
+void Buffer::Clear()
 {
 	length = 0;
 }

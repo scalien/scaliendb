@@ -50,7 +50,7 @@ void BufferPool::Release(Buffer* buffer)
 	if (buffer == NULL)
 		return;
 	
-	buffer->Rewind();
+	buffer->Clear();
 	
 	if (availableSize < TARGET_AVAILABLE_SIZE)
 	{

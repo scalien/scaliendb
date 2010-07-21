@@ -77,7 +77,7 @@ void MessageWriter::OnRead()
 	Log_Trace("endpoint = %s", endpoint.ToString());
 	
 	// drop any data
-	readBuffer.Rewind();
+	readBuffer.Clear();
 	AsyncRead();
 }
 
