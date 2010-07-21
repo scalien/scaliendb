@@ -7,8 +7,7 @@
 void JSONSession::Init(HttpConn* conn_, const ReadBuffer& jsonCallback_)
 {
 	conn = conn_;
-	jsonCallback.SetBuffer(jsonCallback_.GetBuffer());
-	jsonCallback.SetLength(jsonCallback_.GetLength());
+	jsonCallback = jsonCallback_;
 }
 
 void JSONSession::PrintStatus(const char* status, const char* type_)

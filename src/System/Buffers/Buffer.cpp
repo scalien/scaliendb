@@ -7,6 +7,12 @@ Buffer::Buffer()
 	Init();
 }
 
+Buffer::~Buffer()
+{
+	if (buffer != array)
+		delete[] buffer;
+}
+
 bool Buffer::Cmp(Buffer& a, Buffer& b)
 {
 	return MEMCMP(a.buffer, a.length, b.buffer, b.length);

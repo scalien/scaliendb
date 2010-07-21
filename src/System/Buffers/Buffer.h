@@ -12,7 +12,7 @@
 /*
 ===============================================================================
 
- BufferPool
+ Buffer
 
 ===============================================================================
 */
@@ -21,6 +21,7 @@ class Buffer
 {
 public:
 	Buffer();
+	~Buffer();
 	
 	static bool			Cmp(Buffer& a, Buffer& b);
 	bool				Cmp(const char* buffer_, unsigned length_);
@@ -55,7 +56,7 @@ public:
 	char				GetCharAt(unsigned i) const;
 	uint32_t			GetChecksum() const;
 	
-	virtual void		Clear();
+	void				Clear();
 
 	Buffer*				next;
 	Buffer*				prev;
