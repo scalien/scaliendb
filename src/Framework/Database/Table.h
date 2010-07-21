@@ -3,7 +3,7 @@
 
 #include "Database.h"
 #include "Cursor.h"
-#include "System/Buffers/Buffer.h"
+#include "System/Buffers/ReadBuffer.h"
 
 /*
 ===============================================================================
@@ -17,8 +17,8 @@ class TableVisitor
 {
 public:
 	virtual	~TableVisitor() {}
-	virtual bool Accept(const Buffer &key, const Buffer &value) = 0;
-	virtual const Buffer* GetStartKey() { return 0; }
+	virtual bool Accept(const ReadBuffer &key, const ReadBuffer &value) = 0;
+	virtual const ReadBuffer* GetStartKey() { return 0; }
 	virtual void OnComplete() {}
 	virtual bool IsForward() { return true; }
 };

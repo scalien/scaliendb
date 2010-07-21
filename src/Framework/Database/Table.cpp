@@ -242,7 +242,7 @@ bool Table::Visit(TableVisitor &tv)
 	if (!tv.IsForward())
 		return VisitBackward(tv);
 
-	ByteString bsKey, bsValue;
+	ReadBuffer rbKey, rbValue;
 	Dbc* cursor = NULL;
 	bool ret = true;
 	u_int32_t flags = DB_NEXT;
@@ -254,24 +254,24 @@ bool Table::Visit(TableVisitor &tv)
 	Dbt key, value;
 	if (tv.GetStartKey() && tv.GetStartKey()->GetLength() > 0)
 	{
-		key.set_data(tv.GetStartKey()->Buffer());
+		key.set_data(tv.GetStartKey()->GetBuffer());
 		key.set_size(tv.GetStartKey()->GetLength());
 		flags = DB_SET_RANGE;		
 	}
 	
 	while (cursor->get(&key, &value, flags) == 0)
 	{
-		bsKey.SetLength(key.get_size());
-		bsKey.SetBuffer((char*) key.get_data());
+		rbKey.SetLength(key.get_size());
+		rbKey.SetBuffer((char*) key.get_data());
 		
-		bsValue.SetLength(value.get_size());
-		bsValue.SetBuffer((char*) value.get_data());
+		rbValue.SetLength(value.get_size());
+		rbValue.SetBuffer((char*) value.get_data());
 
-		ret = tv.Accept(bsKey, bsValue);
+		ret = tv.Accept(rbKey, rbValue);
 		if (!ret)
 			break;
 		
-		if (bsKey.GetLength() > 2 && bsKey.CharAt(0) == '@' && bsKey.CharAt(1) == '@')
+		if (rbKey.GetLength() > 2 && rbKey.GetCharAt(0) == '@' && rbKey.GetCharAt(1) == '@')
 		{
 			key.set_data((void*)"@@~");
 			key.set_size(3);
@@ -289,7 +289,7 @@ bool Table::Visit(TableVisitor &tv)
 
 bool Table::VisitBackward(TableVisitor &tv)
 {
-	ByteString bsKey, bsValue;
+	ReadBuffer rbKey, rbValue;
 	Dbc* cursor = NULL;
 	bool ret = true;
 	u_int32_t flags = DB_PREV;
@@ -301,7 +301,7 @@ bool Table::VisitBackward(TableVisitor &tv)
 	Dbt key, value;
 	if (tv.GetStartKey() && tv.GetStartKey()->GetLength() > 0)
 	{
-		key.set_data(tv.GetStartKey()->Buffer());
+		key.set_data(tv.GetStartKey()->GetBuffer());
 		key.set_size(tv.GetStartKey()->GetLength());
 		flags = DB_SET_RANGE;		
 
@@ -319,16 +319,16 @@ bool Table::VisitBackward(TableVisitor &tv)
 		{
 			// if there is a match, call the acceptor, otherwise move to the
 			// previous elem in the database
-			if (memcmp(tv.GetStartKey()->Buffer(), key.get_data(),
+			if (memcmp(tv.GetStartKey()->GetBuffer(), key.get_data(),
 				MIN(tv.GetStartKey()->GetLength(), key.get_size())) == 0)
 			{
-				bsKey.SetLength(key.get_size());
-				bsKey.SetBuffer((char*) key.get_data());
+				rbKey.SetLength(key.get_size());
+				rbKey.SetBuffer((char*) key.get_data());
 				
-				bsValue.SetLength(value.get_size());
-				bsValue.SetBuffer((char*) value.get_data());
+				rbValue.SetLength(value.get_size());
+				rbValue.SetBuffer((char*) value.get_data());
 
-				ret = tv.Accept(bsKey, bsValue);
+				ret = tv.Accept(rbKey, rbValue);
 			}
 		}
 	}
@@ -336,13 +336,13 @@ bool Table::VisitBackward(TableVisitor &tv)
 	flags = DB_PREV;
 	while (ret && cursor->get(&key, &value, flags) == 0)
 	{
-		bsKey.SetLength(key.get_size());
-		bsKey.SetBuffer((char*) key.get_data());
+		rbKey.SetLength(key.get_size());
+		rbKey.SetBuffer((char*) key.get_data());
 		
-		bsValue.SetLength(value.get_size());
-		bsValue.SetBuffer((char*) value.get_data());
+		rbValue.SetLength(value.get_size());
+		rbValue.SetBuffer((char*) value.get_data());
 
-		ret = tv.Accept(bsKey, bsValue);
+		ret = tv.Accept(rbKey, rbValue);
 		if (!ret)
 			break;
 
