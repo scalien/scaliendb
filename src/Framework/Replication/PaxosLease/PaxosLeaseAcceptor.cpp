@@ -26,6 +26,13 @@ void PaxosLeaseAcceptor::OnMessage(const PaxosLeaseMessage& imsg)
 		ASSERT_FAIL();
 }
 
+void PaxosLeaseAcceptor::OnLeaseTimeout()
+{
+	Log_Trace();
+	
+	state.OnLeaseTimeout();
+}
+
 void PaxosLeaseAcceptor::OnPrepareRequest(const PaxosLeaseMessage& imsg)
 {
 	PaxosLeaseMessage omsg;
@@ -89,11 +96,4 @@ void PaxosLeaseAcceptor::OnProposeRequest(const PaxosLeaseMessage& imsg)
 	}
 	
 	context->GetTransport()->SendMessage(imsg.nodeID, omsg);
-}
-
-void PaxosLeaseAcceptor::OnLeaseTimeout()
-{
-	Log_Trace();
-	
-	state.OnLeaseTimeout();
 }

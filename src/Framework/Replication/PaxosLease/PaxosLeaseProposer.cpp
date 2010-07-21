@@ -7,22 +7,40 @@
 #include "Framework/Replication/ReplicationManager.h"
 #include "PaxosLease.h"
 
-//PaxosLeaseProposer::PaxosLeaseProposer() :
-//	onAcquireLeaseTimeout(this, &PLeaseProposer::OnAcquireLeaseTimeout),
-//	acquireLeaseTimeout(ACQUIRELEASE_TIMEOUT, &onAcquireLeaseTimeout),
-//	onExtendLeaseTimeout(this, &PLeaseProposer::OnExtendLeaseTimeout),
-//	extendLeaseTimeout(&onExtendLeaseTimeout)
-// TODO
-//{
-//}
-
 void PaxosLeaseProposer::Init(ReplicationContext* context_)
 {
 	context = context_;
 	
 	highestProposalID = 0;
+	acquireLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnAcquireLeaseTimeout));
+	acquireLeaseTimeout.SetDelay(ACQUIRELEASE_TIMEOUT);
+	extendLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnExtendLeaseTimeout));
 	
 	state.Init();
+}
+
+void PaxosLeaseProposer::OnMessage(const PaxosLeaseMessage& imsg)
+{
+	if (imsg.IsPrepareResponse())
+		OnPrepareResponse(imsg);
+	else if (imsg.IsProposeResponse())
+		OnProposeResponse(imsg);
+	else
+		ASSERT_FAIL();
+}
+
+void PaxosLeaseProposer::OnNewPaxosRound()
+{
+	// since PaxosLease msgs carry the paxosID, and nodes
+	// won't reply if their paxosID is larger than the msg's
+	// if the paxosID increases we must restart the
+	// PaxosLease round, if it's active
+	// only restart if we're masters
+	
+	//Log_Trace();
+	//
+	//if (acquireLeaseTimeout.IsActive() && RLOG->IsMaster())
+	//	StartPreparing();
 }
 
 void PaxosLeaseProposer::StartAcquireLease()
@@ -45,7 +63,7 @@ void PaxosLeaseProposer::StopAcquireLease()
 	EventLoop::Remove(&acquireLeaseTimeout);
 }
 
-uint64_t PaxosLeaseProposer::HighestProposalID()
+uint64_t PaxosLeaseProposer::GetHighestProposalID()
 {
 	return highestProposalID;
 }
@@ -55,36 +73,20 @@ void PaxosLeaseProposer::SetHighestProposalID(uint64_t highestProposalID_)
 	highestProposalID = highestProposalID_;
 }
 
-void PaxosLeaseProposer::OnNewPaxosRound()
+void PaxosLeaseProposer::OnAcquireLeaseTimeout()
 {
-	// since PaxosLease msgs carry the paxosID, and nodes
-	// won't reply if their paxosID is larger than the msg's
-	// if the paxosID increases we must restart the
-	// PaxosLease round, if it's active
-	// only restart if we're masters
-	
-	//Log_Trace();
-	//
-	//if (acquireLeaseTimeout.IsActive() && RLOG->IsMaster())
-	//	StartPreparing();
+	Log_Trace();
+		
+	StartPreparing();
 }
 
-void PaxosLeaseProposer::BroadcastMessage(const PaxosLeaseMessage& omsg)
+void PaxosLeaseProposer::OnExtendLeaseTimeout()
 {
 	Log_Trace();
 	
-	context->GetQuorum()->Reset();
-	context->GetTransport()->BroadcastMessage(omsg);
-}
-
-void PaxosLeaseProposer::OnMessage(const PaxosLeaseMessage& imsg)
-{
-	if (imsg.IsPrepareResponse())
-		OnPrepareResponse(imsg);
-	else if (imsg.IsProposeResponse())
-		OnProposeResponse(imsg);
-	else
-		ASSERT_FAIL();
+	assert(!(state.preparing || state.proposing));
+	
+	StartPreparing();
 }
 
 void PaxosLeaseProposer::OnPrepareResponse(const PaxosLeaseMessage& imsg)
@@ -107,14 +109,11 @@ void PaxosLeaseProposer::OnPrepareResponse(const PaxosLeaseMessage& imsg)
 	}
 
 	if (context->GetQuorum()->IsRoundRejected())
-	{
 		StartPreparing();
-		return;
-	}
-	
-	// see if we have enough positive replies to advance
-	if (context->GetQuorum()->IsRoundAccepted())
+	else if (context->GetQuorum()->IsRoundAccepted())
 		StartProposing();	
+	else if (context->GetQuorum()->IsRoundComplete())
+		StartPreparing();
 }
 
 void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
@@ -126,14 +125,11 @@ void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 	if (state.expireTime < Now())
 	{
 		Log_Trace("already expired, wait for timer");
-		return; // already expired, wait for timer
+		return;
 	}
 	
 	if (!state.proposing || imsg.proposalID != state.proposalID)
-	{
-		Log_Trace("not my proposal");
 		return;
-	}
 	
 	if (imsg.type == PAXOSLEASE_PROPOSE_REJECTED)
 		context->GetQuorum()->RegisterRejected(imsg.nodeID);
@@ -153,11 +149,17 @@ void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 		BroadcastMessage(omsg);
 
 		state.proposing = false;
-		return;
 	}
-	
-	if (context->GetQuorum()->IsRoundComplete())
+	else if (context->GetQuorum()->IsRoundComplete())
 		StartPreparing();
+}
+
+void PaxosLeaseProposer::BroadcastMessage(const PaxosLeaseMessage& omsg)
+{
+	Log_Trace();
+	
+	context->GetQuorum()->Reset();
+	context->GetTransport()->BroadcastMessage(omsg);
 }
 
 void PaxosLeaseProposer::StartPreparing()
@@ -198,20 +200,4 @@ void PaxosLeaseProposer::StartProposing()
 	
 	omsg.ProposeRequest(RMAN->GetNodeID(), state.proposalID, state.leaseOwner, state.duration);
 	BroadcastMessage(omsg);
-}
-
-void PaxosLeaseProposer::OnAcquireLeaseTimeout()
-{
-	Log_Trace();
-		
-	StartPreparing();
-}
-
-void PaxosLeaseProposer::OnExtendLeaseTimeout()
-{
-	Log_Trace();
-	
-	assert(!(state.preparing || state.proposing));
-	
-	StartPreparing();
 }

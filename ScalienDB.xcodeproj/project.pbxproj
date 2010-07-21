@@ -40,6 +40,8 @@
 		54FA694511C2458A00FF4EF6 /* Socket_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75F11BE5EF30076BC62 /* Socket_Posix.cpp */; };
 		54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74611BE5EF30076BC62 /* Config.cpp */; };
 		54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA6B0711C26CAB00FF4EF6 /* Main.cpp */; };
+		54FCE88711F6EE7D0075BBFF /* PaxosMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCE88611F6EE7D0075BBFF /* PaxosMessage.cpp */; };
+		54FCE8BD11F6F34A0075BBFF /* PaxosProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCE8BC11F6F34A0075BBFF /* PaxosProposer.cpp */; };
 		8DD76F6A0486A84900D96B5E /* Rowscale.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Rowscale.1 */; };
 		9A0C20D411C7C48600510AB4 /* libdb_cxx-4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */; };
 		9A26D69E11F4BDE2006A2814 /* HttpConn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */; };
@@ -155,6 +157,10 @@
 		54FCE7AE11F6E6DE0075BBFF /* PaxosProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosProposerState.h; sourceTree = "<group>"; };
 		54FCE7BA11F6E71A0075BBFF /* PaxosAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosAcceptorState.h; sourceTree = "<group>"; };
 		54FCE7BB11F6E7260075BBFF /* PaxosLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLearnerState.h; sourceTree = "<group>"; };
+		54FCE88511F6EE7D0075BBFF /* PaxosMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosMessage.h; sourceTree = "<group>"; };
+		54FCE88611F6EE7D0075BBFF /* PaxosMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosMessage.cpp; sourceTree = "<group>"; };
+		54FCE8BB11F6F34A0075BBFF /* PaxosProposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosProposer.h; sourceTree = "<group>"; };
+		54FCE8BC11F6F34A0075BBFF /* PaxosProposer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosProposer.cpp; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
 		9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpConn.cpp; path = Application/HTTP/HttpConn.cpp; sourceTree = "<group>"; };
@@ -421,6 +427,10 @@
 			isa = PBXGroup;
 			children = (
 				54FCE7AD11F6E6DE0075BBFF /* States */,
+				54FCE88511F6EE7D0075BBFF /* PaxosMessage.h */,
+				54FCE88611F6EE7D0075BBFF /* PaxosMessage.cpp */,
+				54FCE8BB11F6F34A0075BBFF /* PaxosProposer.h */,
+				54FCE8BC11F6F34A0075BBFF /* PaxosProposer.cpp */,
 			);
 			path = Paxos;
 			sourceTree = "<group>";
@@ -575,6 +585,8 @@
 				9A26D6A511F4BDE2006A2814 /* UrlParam.cpp in Sources */,
 				546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */,
 				546E2A4711F4882C00867EE1 /* ReplicationTransport.cpp in Sources */,
+				54FCE88711F6EE7D0075BBFF /* PaxosMessage.cpp in Sources */,
+				54FCE8BD11F6F34A0075BBFF /* PaxosProposer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

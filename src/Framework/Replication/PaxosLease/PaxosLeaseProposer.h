@@ -5,7 +5,6 @@
 #include "System/Events/CdownTimer.h"
 #include "System/Events/Timer.h"
 #include "Framework/Replication/ReplicationContext.h"
-#include "Framework/Replication/Quorums/QuorumTransport.h"
 #include "PaxosLeaseMessage.h"
 #include "States/PaxosLeaseProposerState.h"
 
@@ -24,25 +23,27 @@ public:
 	
 	void						OnMessage(const PaxosLeaseMessage& msg);
 	void						OnNewPaxosRound();
-	void						OnAcquireLeaseTimeout();
-	void						OnExtendLeaseTimeout();
+
 	void						StartAcquireLease();
 	void						StopAcquireLease();
-	uint64_t					HighestProposalID();
+	uint64_t					GetHighestProposalID();
 	void						SetHighestProposalID(uint64_t highestProposalID);
 
 private:
-	void						BroadcastMessage(const PaxosLeaseMessage& msg);
+	void						OnAcquireLeaseTimeout();
+	void						OnExtendLeaseTimeout();
 	void						OnPrepareResponse(const PaxosLeaseMessage& msg);
 	void						OnProposeResponse(const PaxosLeaseMessage& msg);
+
+	void						BroadcastMessage(const PaxosLeaseMessage& msg);
 	void						StartPreparing();
 	void						StartProposing();
 
-	CdownTimer					acquireLeaseTimeout;
-	Timer						extendLeaseTimeout;
-	uint64_t					highestProposalID;	
 	PaxosLeaseProposerState		state;
 	ReplicationContext*			context;
+	uint64_t					highestProposalID;	
+	CdownTimer					acquireLeaseTimeout;
+	Timer						extendLeaseTimeout;
 };
 
 #endif

@@ -3,7 +3,6 @@
 
 #include "System/Events/Timer.h"
 #include "Framework/Replication/ReplicationContext.h"
-#include "Framework/Replication/Quorums/QuorumTransport.h"
 #include "PaxosLeaseMessage.h"
 #include "PaxosLeaseProposer.h"
 #include "PaxosLeaseAcceptor.h"
@@ -27,7 +26,10 @@ public:
 
 	void					Init(ReplicationContext* context);
 	void					Shutdown();
+	
 	void					OnMessage();
+	void					OnNewPaxosRound();
+	
 	void					AcquireLease();
 	bool					IsLeaseOwner();
 	bool					IsLeaseKnown();
@@ -35,15 +37,12 @@ public:
 	uint64_t				GetLeaseEpoch();
 	void					SetOnLearnLease(const Callable& onLearnLeaseCallback);
 	void					SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback);
-	void					Stop();
-	void					Continue();
-	bool					IsActive();
-	void					OnNewPaxosRound();
-	void					OnLearnLease();
-	void					OnLeaseTimeout();
-	void					OnStartupTimeout();
 	
 private:
+	void					OnStartupTimeout();
+	void					OnLearnLease();
+	void					OnLeaseTimeout();
+
 	bool					acquireLease;
 	CdownTimer				startupTimeout;
 	Callable				onLearnLeaseCallback;

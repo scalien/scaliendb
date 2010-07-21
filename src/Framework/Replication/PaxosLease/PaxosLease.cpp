@@ -1,6 +1,7 @@
 #include "PaxosLease.h"
 #include "System/Common.h"
 #include "System/Events/EventLoop.h"
+#include "Framework/Replication/Quorums/QuorumTransport.h"
 
 PaxosLease::PaxosLease()
 {
@@ -61,6 +62,11 @@ void PaxosLease::OnMessage()
 		ASSERT_FAIL();
 }
 
+void PaxosLease::OnNewPaxosRound()
+{
+	proposer.OnNewPaxosRound();
+}
+
 void PaxosLease::AcquireLease()
 {
 	acquireLease = true;
@@ -97,11 +103,10 @@ void PaxosLease::SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback_)
 	onLeaseTimeoutCallback = onLeaseTimeoutCallback_;
 }
 
-void PaxosLease::OnNewPaxosRound()
+void PaxosLease::OnStartupTimeout()
 {
-	proposer.OnNewPaxosRound();
+	Log_Trace();
 }
-
 void PaxosLease::OnLearnLease()
 {
 	Log_Trace();
@@ -118,9 +123,4 @@ void PaxosLease::OnLeaseTimeout()
 	Call(onLeaseTimeoutCallback);
 	if (acquireLease)
 		proposer.StartAcquireLease();
-}
-
-void PaxosLease::OnStartupTimeout()
-{
-	Log_Trace();
 }

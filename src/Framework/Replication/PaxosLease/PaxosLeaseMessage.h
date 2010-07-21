@@ -23,7 +23,6 @@
 class PaxosLeaseMessage : public Message
 {
 public:
-
 	char			type;
 	unsigned		nodeID;
 	uint64_t		proposalID;

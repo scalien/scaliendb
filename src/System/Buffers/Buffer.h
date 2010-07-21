@@ -38,12 +38,12 @@ public:
 	
 	void				Write(const char* buffer_, unsigned length_);
 	void				Write(const char* str);
-	void				Write(const Buffer& b);
-	void				Write(const ReadBuffer& b);
+	void				Write(const Buffer& other);
+	void				Write(const ReadBuffer& other);
 
 	void				Append(const char* buffer_, unsigned length_);
 	void				Append(const char* str);
-	void				Append(Buffer& b);
+	void				Append(Buffer& other);
 
 	void				SetLength(unsigned length_);
 

@@ -129,14 +129,14 @@ void Buffer::Write(const char* str)
 	Write(str, strlen(str));
 }
 
-void Buffer::Write(const Buffer& b)
+void Buffer::Write(const Buffer& other)
 {
-	Write(b.GetBuffer(), b.GetLength());
+	Write(other.GetBuffer(), other.GetLength());
 }
 
-void Buffer::Write(const ReadBuffer& b)
+void Buffer::Write(const ReadBuffer& other)
 {
-	Write(b.GetBuffer(), b.GetLength());
+	Write(other.GetBuffer(), other.GetLength());
 }
 
 void Buffer::Append(const char* buffer_, unsigned length_)
@@ -152,9 +152,9 @@ void Buffer::Append(const char* str)
 	Append(str, strlen(str));
 }
 
-void Buffer::Append(Buffer& b)
+void Buffer::Append(Buffer& other)
 {
-	Append(b.GetBuffer(), b.GetLength());
+	Append(other.GetBuffer(), other.GetLength());
 }
 
 void Buffer::SetLength(unsigned length_)

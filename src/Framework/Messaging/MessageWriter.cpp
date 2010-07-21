@@ -19,7 +19,8 @@ void MessageWriter::Write(const Buffer& prefix, const Message& msg)
 	head = writer->AcquireBuffer();
 	buffer = writer->AcquireBuffer();
 	
-	msg.Write(*buffer);
+	if (!msg.Write(*buffer))
+		ASSERT_FAIL();
 	len = prefix.GetLength() + 1 + buffer->GetLength();
 	head->Writef("%u:%B:", len, &prefix);
 	
@@ -37,7 +38,8 @@ void MessageWriter::WritePriority(const Buffer& prefix, const Message& msg)
 	head = writer->AcquireBuffer();
 	buffer = writer->AcquireBuffer();
 	
-	msg.Write(*buffer);
+	if (!msg.Write(*buffer))
+		ASSERT_FAIL();
 	len = prefix.GetLength() + 1 + buffer->GetLength();
 	head->Writef("%u:%B:", len, &prefix);
 	

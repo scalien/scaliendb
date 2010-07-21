@@ -22,7 +22,6 @@ public:
 	void					Init(ReplicationContext* context);
 
 	void					OnMessage(const PaxosLeaseMessage& msg);
-	void					OnLeaseTimeout();
 	bool					IsLeaseOwner();
 	bool					IsLeaseKnown();
 	int						GetLeaseOwner();
@@ -31,6 +30,7 @@ public:
 	void					SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback);
 
 private:
+	void					OnLeaseTimeout();
 	void					OnLearnChosen(const PaxosLeaseMessage& msg);
 	void					CheckLease();
 
