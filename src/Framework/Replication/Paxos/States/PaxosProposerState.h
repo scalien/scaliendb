@@ -1,46 +1,49 @@
-#ifndef PAXOSLEASEPROPOSERSTATE_H
-#define PAXOSLEASEPROPOSERSTATE_H
+#ifndef PAXOSPROPOSERSTATE_H
+#define PAXOSPROPOSERSTATE_H
 
-#include "System/Platform.h"
+#include <stdint.h>
+#include "System/Buffers/Buffer.h"
 
 /*
 ===============================================================================
 
- PaxosLeaseProposerState
+ PaxosProposerState
 
 ===============================================================================
 */
 
-struct PaxosLeaseProposerState
+struct PaxosProposerState
 {
 	void			Init();
-	bool			Active();	
-	
+	bool			Active();
+
 	bool			preparing;
 	bool			proposing;
 	uint64_t		proposalID;
 	uint64_t		highestReceivedProposalID;
-	unsigned		leaseOwner;
-	unsigned		duration;
-	uint64_t		expireTime;
-
+	uint64_t		highestPromisedProposalID;
+	Buffer			value;
+	bool			leader;		  // multi paxos
+	unsigned		numProposals; // number of proposal runs in this Paxos round
 };
 
 /*
 ===============================================================================
 */
 
-inline void PaxosLeaseProposerState::Init()
+inline void PaxosProposerState::Init()
 {
 	preparing =	false;
 	proposing =	false;
 	proposalID = 0;
 	highestReceivedProposalID =	0;
-	duration = 0;
-	expireTime = 0;
+	highestPromisedProposalID = 0;
+	value.Rewind();
+	leader = false;
+	numProposals = 0;
 }
 
-inline bool PaxosLeaseProposerState::Active()
+inline bool PaxosProposerState::Active()
 {
 	return (preparing || proposing);
 }
