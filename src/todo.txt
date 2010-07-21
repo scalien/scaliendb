@@ -20,7 +20,6 @@
 
 
 
-- ReplicatedTransport OnRead stuff - 1
 - Paxos - 1
 - ReplicatedLog - 1
 - ReplicationManager - 1

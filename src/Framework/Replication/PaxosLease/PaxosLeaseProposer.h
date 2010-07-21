@@ -2,7 +2,7 @@
 #define PAXOSLEASEPROPOSER_H
 
 #include "System/Common.h"
-#include "System/Events/CdownTimer.h"
+#include "System/Events/Countdown.h"
 #include "System/Events/Timer.h"
 #include "Framework/Replication/ReplicationContext.h"
 #include "PaxosLeaseMessage.h"
@@ -42,7 +42,7 @@ private:
 	PaxosLeaseProposerState		state;
 	ReplicationContext*			context;
 	uint64_t					highestProposalID;	
-	CdownTimer					acquireLeaseTimeout;
+	Countdown					acquireLeaseTimeout;
 	Timer						extendLeaseTimeout;
 };
 

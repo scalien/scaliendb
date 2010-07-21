@@ -2,7 +2,7 @@
 #define PAXOSPROPOSER_H
 
 #include "System/Common.h"
-#include "System/Events/CdownTimer.h"
+#include "System/Events/Countdown.h"
 #include "System/Events/Timer.h"
 #include "Framework/Replication/ReplicationContext.h"
 #include "PaxosMessage.h"
@@ -44,8 +44,8 @@ private:
 	PaxosProposerState			state;
 	ReplicationContext*			context;
 	uint64_t					paxosID;
-	CdownTimer					prepareTimeout;
-	CdownTimer					proposeTimeout;
+	Countdown					prepareTimeout;
+	Countdown					proposeTimeout;
 };
 
 #endif

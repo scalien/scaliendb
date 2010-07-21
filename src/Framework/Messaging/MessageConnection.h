@@ -36,7 +36,7 @@ public:
 
 protected:
 	bool				running;
-	CdownTimer			resumeRead;
+	Countdown			resumeRead;
 	ReadBuffer			msg;
 };
 

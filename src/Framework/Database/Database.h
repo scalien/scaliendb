@@ -6,7 +6,7 @@
 #include "System/ThreadPool.h"
 #include "System/Events/Callable.h"
 #include "System/Events/Timer.h"
-#include "System/Events/CdownTimer.h"
+#include "System/Events/Countdown.h"
 #include "DatabaseConfig.h"
 
 class Table;		// forward
@@ -43,7 +43,7 @@ private:
 	Table*			keyspace;
 	ThreadPool*		cpThread;
 	bool			running;
-	CdownTimer		checkpointTimeout;
+	Countdown		checkpointTimeout;
 };
 
 void WarmCache(char* dbPath, unsigned cacheSize);

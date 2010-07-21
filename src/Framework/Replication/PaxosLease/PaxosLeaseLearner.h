@@ -19,26 +19,26 @@
 class PaxosLeaseLearner
 {
 public:
-	void					Init(ReplicationContext* context);
+	void						Init(ReplicationContext* context);
 
-	void					OnMessage(const PaxosLeaseMessage& msg);
-	bool					IsLeaseOwner();
-	bool					IsLeaseKnown();
-	int						GetLeaseOwner();
-	uint64_t				GetLeaseEpoch();
-	void					SetOnLearnLease(const Callable& onLearnLeaseCallback);
-	void					SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback);
+	void						OnMessage(const PaxosLeaseMessage& msg);
+	bool						IsLeaseOwner();
+	bool						IsLeaseKnown();
+	int							GetLeaseOwner();
+	uint64_t					GetLeaseEpoch();
+	void						SetOnLearnLease(const Callable& onLearnLeaseCallback);
+	void						SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback);
 
 private:
-	void					OnLeaseTimeout();
-	void					OnLearnChosen(const PaxosLeaseMessage& msg);
-	void					CheckLease();
+	void						OnLeaseTimeout();
+	void						OnLearnChosen(const PaxosLeaseMessage& msg);
+	void						CheckLease();
 
-	Timer					leaseTimeout;
-	Callable				onLearnLeaseCallback;
-	Callable				onLeaseTimeoutCallback;
-	PaxosLeaseLearnerState	state;	
-	ReplicationContext*		context;
+	Timer						leaseTimeout;
+	Callable					onLearnLeaseCallback;
+	Callable					onLeaseTimeoutCallback;
+	PaxosLeaseLearnerState		state;	
+	ReplicationContext*			context;
 };
 
 #endif

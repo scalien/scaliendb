@@ -2,7 +2,7 @@
 #define TCPCONNECTION_H
 
 #include "System/Events/Callable.h"
-#include "System/Events/CdownTimer.h"
+#include "System/Events/Countdown.h"
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InQueue.h"
 #include "System/IO/Socket.h"
@@ -50,7 +50,7 @@ protected:
 	TCPWrite			tcpwrite;
 	TCPWriter*			writer;
 	Buffer				readBuffer;
-	CdownTimer			connectTimeout;
+	Countdown			connectTimeout;
 		
 	void				Init(bool startRead = true);
 

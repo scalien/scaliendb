@@ -1,21 +1,21 @@
-#ifndef CDOWNTIMER_H
-#define CDOWNTIMER_H
+#ifndef COUNTDOWN_H
+#define COUNTDOWN_H
 
 #include "Timer.h"
 
 /*
 ===============================================================================
 
- CdownTimer
+ Countdown
 
 ===============================================================================
 */
 
-class CdownTimer : public Timer
+class Countdown : public Timer
 {
 public:
-	CdownTimer();	
-	virtual	~CdownTimer() {};
+	Countdown();	
+	virtual	~Countdown() {};
 		
 	void			SetCallable(const Callable& callable);
 	void			SetDelay(uint64_t delay);

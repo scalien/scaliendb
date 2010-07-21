@@ -44,7 +44,7 @@ private:
 	void					OnLeaseTimeout();
 
 	bool					acquireLease;
-	CdownTimer				startupTimeout;
+	Countdown				startupTimeout;
 	Callable				onLearnLeaseCallback;
 	Callable				onLeaseTimeoutCallback;
  	PaxosLeaseProposer		proposer;

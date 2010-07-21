@@ -4,8 +4,7 @@
 #include "System/Events/Callable.h"
 #include "Quorums/Quorum.h"
 
-class Database;				// forward
-class Message;				// forward
+class QuorumDatabase;		// forward
 class QuorumTransport;		// forward
 
 /*
@@ -27,7 +26,7 @@ public:
 	virtual uint64_t				GetPaxosID() const		= 0;
 
 	virtual Quorum*					GetQuorum() const		= 0;
-	virtual Database*				GetDatabase() const		= 0;
+	virtual QuorumDatabase*			GetDatabase() const		= 0;
 	virtual QuorumTransport*		GetTransport() const	= 0;
 	
 	void							SetOnMessage(Callable onMessage);
