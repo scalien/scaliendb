@@ -1,6 +1,12 @@
 #ifndef QUORUMDATABASE_H
 #define QUORUMDATABASE_H
 
+#include "System/Platform.h"
+#include "System/Buffers/Buffer.h"
+#include "Framework/Database/Transaction.h"
+
+class Table;	// forward
+
 /*
 ===============================================================================
 
@@ -24,8 +30,20 @@ public:
 	uint64_t			GetAcceptedProposalID();
 	void				SetAcceptedProposalID(uint64_t acceptedProposalID);
 	
-	Buffer*				GetAcceptedValue();
-	void				SetAcceptedValue(Buffer* acceptedValue);
+	void				GetAcceptedValue(Buffer& acceptedValue);
+	void				SetAcceptedValue(const Buffer& acceptedValue);
+
+	void				Begin();
+	void				Commit();
+	bool				IsActive();
+
+private:
+	Table*				table;
+	Transaction			transaction;
+	Buffer				prefix;
+	
+	uint64_t			GetUint64(const char* name);
+	void				SetUint64(const char* name, uint64_t value);
 };
 
 #endif

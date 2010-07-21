@@ -122,7 +122,7 @@ void PaxosAcceptor::ReadState()
 	if (state.accepted)
 	{
 		state.acceptedProposalID = db->GetAcceptedProposalID();
-		state.acceptedValue.Write(*db->GetAcceptedValue()); // TODO?
+		db->GetAcceptedValue(state.AcceptedValue);
 	}
 }
 
@@ -139,7 +139,7 @@ void PaxosAcceptor::WriteState()
 	if (state.accepted)
 	{
 		db->SetAcceptedProposalID(state.acceptedProposalID);
-		db->SetAcceptedValue(&state.acceptedValue);
+		db->SetAcceptedValue(state.acceptedValue);
 	}
 
 	writtenPaxosID = paxosID;
