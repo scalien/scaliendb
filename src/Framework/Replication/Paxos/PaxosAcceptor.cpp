@@ -116,7 +116,7 @@ void PaxosAcceptor::ReadState()
 	if (state.accepted)
 	{
 		state.acceptedProposalID = db->GetAcceptedProposalID();
-		db->GetAcceptedValue(state.AcceptedValue);
+		db->GetAcceptedValue(state.acceptedValue);
 	}
 }
 
@@ -138,5 +138,9 @@ void PaxosAcceptor::WriteState()
 
 	writtenPaxosID = paxosID;
 
-	db->Commit(MFUNC(PaxosAcceptor, OnStateWritten));
+	db->Commit();
+
+	// this is a different function because it may be necessary to async this
+	// right now this makes writtenPaxosID (and senderID) unecessary
+	OnStateWritten();
 }
