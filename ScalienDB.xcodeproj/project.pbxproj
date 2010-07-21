@@ -33,7 +33,7 @@
 		54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76911BE5EF30076BC62 /* ThreadPool_Windows.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
-		54FA68F911C2429A00FF4EF6 /* CdownTimer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */; };
+		54FA68F911C2429A00FF4EF6 /* Countdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* Countdown.cpp */; };
 		54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
 		54FA692B11C244C100FF4EF6 /* Endpoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75511BE5EF30076BC62 /* Endpoint.cpp */; };
 		54FA694411C2458200FF4EF6 /* IOProcessor_Darwin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75A11BE5EF30076BC62 /* IOProcessor_Darwin.cpp */; };
@@ -152,8 +152,8 @@
 		54B7F76D11BE5EF30076BC62 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		54B7F96011BE85950076BC62 /* Time.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Time.cpp; sourceTree = "<group>"; };
 		54B7F96411BE85B10076BC62 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
-		54FA68F311C2422A00FF4EF6 /* CdownTimer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CdownTimer.h; sourceTree = "<group>"; };
-		54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CdownTimer.cpp; sourceTree = "<group>"; };
+		54FA68F311C2422A00FF4EF6 /* Countdown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Countdown.h; sourceTree = "<group>"; };
+		54FA68F811C2429A00FF4EF6 /* Countdown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Countdown.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
 		54FCE7AE11F6E6DE0075BBFF /* PaxosProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosProposerState.h; sourceTree = "<group>"; };
@@ -407,8 +407,8 @@
 				54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */,
 				54B7F75311BE5EF30076BC62 /* Timer.h */,
 				54FA690A11C2435300FF4EF6 /* Timer.cpp */,
-				54FA68F311C2422A00FF4EF6 /* CdownTimer.h */,
-				54FA68F811C2429A00FF4EF6 /* CdownTimer.cpp */,
+				54FA68F311C2422A00FF4EF6 /* Countdown.h */,
+				54FA68F811C2429A00FF4EF6 /* Countdown.cpp */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -564,7 +564,7 @@
 				54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */,
 				54B7F96111BE85950076BC62 /* Time.cpp in Sources */,
 				54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */,
-				54FA68F911C2429A00FF4EF6 /* CdownTimer.cpp in Sources */,
+				54FA68F911C2429A00FF4EF6 /* Countdown.cpp in Sources */,
 				54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */,
 				54FA692B11C244C100FF4EF6 /* Endpoint.cpp in Sources */,
 				54FA694411C2458200FF4EF6 /* IOProcessor_Darwin.cpp in Sources */,
