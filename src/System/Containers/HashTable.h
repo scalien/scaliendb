@@ -170,7 +170,7 @@ void HashTable<K, V>::Remove(const K& key)
 template<class K, class V>
 size_t HashTable<K, V>::GetHash(const K& key)
 {
-	return Hash(key) & (bucketSize - 1);
+	return Hash(key) % bucketSize;
 }
 
 #endif
