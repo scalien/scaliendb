@@ -9,12 +9,11 @@
 void PaxosAcceptor::Init(ReplicationContext* context_)
 {
 	context = context_;
-	
+
 	paxosID = 0;
 	state.Init();
 
-	if (!ReadState())
-		Log_Message("Database is empty");
+	ReadState();
 }
 
 void PaxosAcceptor::OnMessage(const PaxosMessage& imsg)
@@ -29,82 +28,66 @@ void PaxosAcceptor::OnMessage(const PaxosMessage& imsg)
 
 void PaxosAcceptor::OnPrepareRequest(const PaxosMessage& imsg)
 {
+	PaxosMessage omsg;
+	
 	Log_Trace();
 	
-	if (mdbop.IsActive())
+	if (context->GetDatabase()->IsActive())
 		return;
 
-	msg = msg_;
+	senderID = imsg.nodeID;
 	
-	senderID = msg.nodeID;
+	Log_Trace("state.promisedProposalID: %" PRIu64 " msg.proposalID: %" PRIu64 "",
+	 state.promisedProposalID, imsg.proposalID);
 	
-	Log_Trace("state.promisedProposalID: %" PRIu64 " "
-			   "msg.proposalID: %" PRIu64 "",
-			   state.promisedProposalID, msg.proposalID);
-	
-	if (msg.proposalID < state.promisedProposalID)
+	if (imsg.proposalID < state.promisedProposalID)
 	{
-		msg.PrepareRejected(msg.paxosID,
-			RCONF->GetNodeID(),
-			msg.proposalID,
-			state.promisedProposalID);
-		
-		context->GetTransport()->SendMessage(senderID, msg);
+		omsg.PrepareRejected(imsg.paxosID, RMAN->GetNodeID(),
+		 imsg.proposalID, state.promisedProposalID);
+		context->GetTransport()->SendMessage(senderID, omsg);
 		return;
 	}
 
-	state.promisedProposalID = msg.proposalID;
+	state.promisedProposalID = imsg.proposalID;
 
 	if (!state.accepted)
-		msg.PrepareCurrentlyOpen(msg.paxosID,
-			RCONF->GetNodeID(),
-			msg.proposalID);
+		omsg.PrepareCurrentlyOpen(imsg.paxosID, RMAN->GetNodeID(), imsg.proposalID);
 	else
-		msg.PreparePreviouslyAccepted(msg.paxosID,
-			RCONF->GetNodeID(),
-			msg.proposalID,
-			state.acceptedProposalID,
-			state.acceptedValue);
+		omsg.PreparePreviouslyAccepted(imsg.paxosID, RMAN->GetNodeID(),
+		 imsg.proposalID, state.acceptedProposalID, &state.acceptedValue);
 	
 	WriteState();
-	RLOG->StopPaxos();
+	//RLOG->StopPaxos(); TODO
 }
 
 void PaxosAcceptor::OnProposeRequest(const PaxosMessage& imsg)
 {
+	PaxosMessage omsg;
+	
 	Log_Trace();
 	
-	if (mdbop.IsActive())
+	if (context->GetDatabase()->IsActive())
 		return;
 	
-	msg = msg_;
-	
-	senderID = msg.nodeID;
+	senderID = imsg.nodeID;
 
-	Log_Trace("state.promisedProposalID: %" PRIu64 " "
-				"msg.proposalID: %" PRIu64 "",
-				state.promisedProposalID, msg.proposalID);
+	Log_Trace("state.promisedProposalID: %" PRIu64 " msg.proposalID: %" PRIu64 "",
+	 state.promisedProposalID, imsg.proposalID);
 	
-	if (msg.proposalID < state.promisedProposalID)
+	if (imsg.proposalID < state.promisedProposalID)
 	{
-		msg.ProposeRejected(msg.paxosID,
-			RCONF->GetNodeID(),
-			msg.proposalID);
-		
-		context->GetTransport()->SendMessage(senderID, msg);
+		omsg.ProposeRejected(imsg.paxosID, RMAN->GetNodeID(), imsg.proposalID);
+		context->GetTransport()->SendMessage(senderID, omsg);
 		return;
 	}
 
 	state.accepted = true;
-	state.acceptedProposalID = msg.proposalID;
-	if (!state.acceptedValue.Set(msg.value))
-		ASSERT_FAIL();
-	msg.ProposeAccepted(msg.paxosID,
-		RCONF->GetNodeID(),
-		msg.proposalID);
+	state.acceptedProposalID = imsg.proposalID;
+	state.acceptedValue.Write(*imsg.value);
+	omsg.ProposeAccepted(imsg.paxosID, RMAN->GetNodeID(), imsg.proposalID);
 	
 	WriteState();
-	RLOG->StopPaxos();
+	//RLOG->StopPaxos(); TODO
 }
 
 void PaxosAcceptor::OnStateWritten()
@@ -125,7 +108,7 @@ void PaxosAcceptor::OnStateWritten()
 	context->GetTransport()->SendMessage(senderID, omsg);
 }
 
-bool PaxosAcceptor::ReadState()
+void PaxosAcceptor::ReadState()
 {
 	Log_Trace();
 	
@@ -139,26 +122,27 @@ bool PaxosAcceptor::ReadState()
 	if (state.accepted)
 	{
 		state.acceptedProposalID = db->GetAcceptedProposalID();
-		state.acceptedValue.Write(db->GetAcceptedValue()); // TODO?
+		state.acceptedValue.Write(*db->GetAcceptedValue()); // TODO?
 	}
 }
 
-bool PaxosAcceptor::WriteState()
+void PaxosAcceptor::WriteState()
 {
 	QuorumDatabase* db;
 	
 	db = context->GetDatabase();
 	
+	db->Begin();
 	db->SetPaxosID(paxosID);
 	db->SetAccepted(state.accepted);
 	db->SetPromisedProposalID(state.promisedProposalID);
 	if (state.accepted)
 	{
 		db->SetAcceptedProposalID(state.acceptedProposalID);
-		db->SetAcceptedValue(state.acceptedValue);
+		db->SetAcceptedValue(&state.acceptedValue);
 	}
 
 	writtenPaxosID = paxosID;
 
-	db->Write(MFUNC(PaxosAcceptor, OnStateWritten));
+	db->Commit(MFUNC(PaxosAcceptor, OnStateWritten));
 }

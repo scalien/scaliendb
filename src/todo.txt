@@ -23,7 +23,7 @@
 - Paxos - 1
 - ReplicatedLog - 1
 - ReplicationManager - 1
---------------------------( Framework)
+--------------------------( Framework )
 - ReplicatedDB
 - HTTP
 

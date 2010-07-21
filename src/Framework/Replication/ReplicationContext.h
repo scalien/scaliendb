@@ -4,13 +4,15 @@
 #include "System/Events/Callable.h"
 #include "Quorums/Quorum.h"
 
-class QuorumDatabase;		// forward
-class QuorumTransport;		// forward
+#include "Framework/Replication/Quorums/QuorumDatabase.h"
+#include "Framework/Replication/Quorums/QuorumTransport.h"
 
 /*
 ===============================================================================
 
  ReplicationContext
+ 
+ This should be called QuorumContext.
 
 ===============================================================================
 */

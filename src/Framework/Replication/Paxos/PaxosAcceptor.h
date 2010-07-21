@@ -18,8 +18,8 @@ private:
 	void						OnProposeRequest(const PaxosMessage& msg);
 	void						OnStateWritten();
 
-	bool						ReadState();
-	bool						WriteState();
+	void						ReadState();
+	void						WriteState();
 
 	uint64_t					paxosID;
 	uint64_t					senderID;
