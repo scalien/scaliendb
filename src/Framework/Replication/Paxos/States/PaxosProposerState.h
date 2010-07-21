@@ -1,7 +1,7 @@
 #ifndef PAXOSPROPOSERSTATE_H
 #define PAXOSPROPOSERSTATE_H
 
-#include <stdint.h>
+#include "System/Platform.h"
 #include "System/Buffers/Buffer.h"
 
 /*

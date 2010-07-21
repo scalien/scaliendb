@@ -1,7 +1,7 @@
 #ifndef PAXOSACCEPTORSTATE_H
 #define PAXOSACCEPTORSTATE_H
 
-#include <stdint.h>
+#include "System/Platform.h"
 #include "System/Buffers/Buffer.h"
 
 /*
