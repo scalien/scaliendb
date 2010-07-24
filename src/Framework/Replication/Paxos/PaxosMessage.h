@@ -27,7 +27,7 @@ class PaxosMessage : public Message
 {
 public:
 	uint64_t		paxosID;
-	unsigned		nodeID;
+	uint64_t		nodeID;
 	char			type;
 	uint64_t		proposalID;
 	uint64_t		acceptedProposalID;

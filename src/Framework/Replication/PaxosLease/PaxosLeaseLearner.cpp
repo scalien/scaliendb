@@ -1,19 +1,11 @@
 #include "PaxosLeaseLearner.h"
 #include "Framework/Replication/ReplicationManager.h"
 
-void PaxosLeaseLearner::Init(ReplicationContext* context_)
+void PaxosLeaseLearner::Init(QuorumContext* context_)
 {
 	context = context_;
 
 	state.Init();
-}
-
-void PaxosLeaseLearner::OnMessage(const PaxosLeaseMessage& imsg)
-{
-	if (imsg.type == PAXOSLEASE_LEARN_CHOSEN)
-		OnLearnChosen(imsg);
-	else
-		ASSERT_FAIL();
 }
 
 bool PaxosLeaseLearner::IsLeaseOwner()
@@ -61,6 +53,14 @@ void PaxosLeaseLearner::SetOnLearnLease(const Callable& onLearnLeaseCallback_)
 void PaxosLeaseLearner::SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback_)
 {
 	onLeaseTimeoutCallback = onLeaseTimeoutCallback_;
+}
+
+void PaxosLeaseLearner::OnMessage(const PaxosLeaseMessage& imsg)
+{
+	if (imsg.type == PAXOSLEASE_LEARN_CHOSEN)
+		OnLearnChosen(imsg);
+	else
+		ASSERT_FAIL();
 }
 
 void PaxosLeaseLearner::OnLeaseTimeout()

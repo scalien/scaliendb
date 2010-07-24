@@ -13,7 +13,7 @@
 ===============================================================================
 */
 
-class SingleQuorum : Quorum
+class SingleQuorum : public Quorum
 {
 public:
 	SingleQuorum();
@@ -21,6 +21,27 @@ public:
 	void				AddNode(uint64_t nodeID);
 	unsigned			GetNumNodes() const;
 	const uint64_t*		GetNodes() const;
+	QuorumVote*			NewVote() const;	
+
+private:
+	uint64_t			nodes[5];
+	unsigned			numNodes;
+	unsigned			numAccepted;
+	unsigned			numRejected;
+};
+
+/*
+===============================================================================
+
+ SingleQuroumRound
+
+===============================================================================
+*/
+
+class SingleQuorumVote : public QuorumVote
+{
+public:
+	SingleQuorumVote();
 	
 	void				RegisterAccepted(uint64_t nodeID);
 	void				RegisterRejected(uint64_t nodeID);
@@ -35,6 +56,9 @@ private:
 	unsigned			numNodes;
 	unsigned			numAccepted;
 	unsigned			numRejected;
+	
+	friend class SingleQuorum;
 };
+
 
 #endif

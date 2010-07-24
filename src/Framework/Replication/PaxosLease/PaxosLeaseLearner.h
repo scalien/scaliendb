@@ -3,7 +3,7 @@
 
 #include "System/Common.h"
 #include "System/Events/Timer.h"
-#include "Framework/Replication/ReplicationContext.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/QuorumTransport.h"
 #include "PaxosLeaseMessage.h"
 #include "PaxosLeaseLearnerState.h"
@@ -19,9 +19,8 @@
 class PaxosLeaseLearner
 {
 public:
-	void						Init(ReplicationContext* context);
+	void						Init(QuorumContext* context);
 
-	void						OnMessage(const PaxosLeaseMessage& msg);
 	bool						IsLeaseOwner();
 	bool						IsLeaseKnown();
 	int							GetLeaseOwner();
@@ -29,12 +28,14 @@ public:
 	void						SetOnLearnLease(const Callable& onLearnLeaseCallback);
 	void						SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback);
 
+	void						OnMessage(const PaxosLeaseMessage& msg);
+
 private:
 	void						OnLeaseTimeout();
 	void						OnLearnChosen(const PaxosLeaseMessage& msg);
 	void						CheckLease();
 
-	ReplicationContext*			context;
+	QuorumContext*				context;
 	PaxosLeaseLearnerState		state;	
 	Timer						leaseTimeout;
 	Callable					onLearnLeaseCallback;

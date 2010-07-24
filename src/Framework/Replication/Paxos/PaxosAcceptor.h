@@ -3,7 +3,7 @@
 
 #include "System/Common.h"
 #include "PaxosMessage.h"
-#include "Framework/Replication/ReplicationContext.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/QuorumDatabase.h"
 #include "States/PaxosAcceptorState.h"
 
@@ -18,7 +18,7 @@
 class PaxosAcceptor
 {
 public:
-	void						Init(ReplicationContext* context);
+	void						Init(QuorumContext* context);
 	void						OnMessage(const PaxosMessage& msg);
 
 private:
@@ -29,7 +29,7 @@ private:
 	void						ReadState();
 	void						WriteState();
 
-	ReplicationContext*			context;
+	QuorumContext*				context;
 	PaxosAcceptorState			state;
 	uint64_t					paxosID;
 	uint64_t					senderID;

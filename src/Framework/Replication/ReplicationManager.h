@@ -4,7 +4,7 @@
 #include "System/Common.h"
 #include "System/IO/Endpoint.h"
 
-class ReplicationContext;	// forward
+class QuorumContext;	// forward
 class ReplicationTransport;	// forward
 class Node;					// forward
 
@@ -29,8 +29,8 @@ public:
 	void					AddNode(uint64_t nodeID, Endpoint endpoint);
 	Endpoint				GetNodeEndpoint(uint64_t nodeID) const;
 	
-	void					AddContext(ReplicationContext* context);
-	ReplicationContext*		GetContext(unsigned contextID) const;
+	void					AddContext(QuorumContext* context);
+	QuorumContext*		GetContext(unsigned contextID) const;
 
 	uint64_t				NextProposalID(uint64_t proposalID)	const;
 	

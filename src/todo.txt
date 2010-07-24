@@ -15,7 +15,7 @@
 
 - Readf/Writef vs ReadBuffer
 
-- rename ReplicationContext => QuorumContext (!)
+- rename QuorumContext => QuorumContext (!)
 - PaxosAcceptorState::value should come from a BufferPool (!)
 - Paxos value should have a limit of 100K (=object size limit),
   but this should not limit the KV value size

@@ -4,7 +4,7 @@
 #include "System/Common.h"
 #include "System/Events/Countdown.h"
 #include "System/Events/Timer.h"
-#include "Framework/Replication/ReplicationContext.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 #include "PaxosLeaseMessage.h"
 #include "States/PaxosLeaseProposerState.h"
 
@@ -19,14 +19,13 @@
 class PaxosLeaseProposer
 {
 public:
-	void						Init(ReplicationContext* context);
+	void						Init(QuorumContext* context);
 	
 	void						OnMessage(const PaxosLeaseMessage& msg);
-	void						OnNewPaxosRound();
 
 	void						StartAcquireLease();
 	void						StopAcquireLease();
-	uint64_t					GetHighestProposalID();
+	uint64_t					GetHighestProposalID() const;
 	void						SetHighestProposalID(uint64_t highestProposalID);
 
 private:
@@ -39,7 +38,8 @@ private:
 	void						StartPreparing();
 	void						StartProposing();
 
-	ReplicationContext*			context;
+	QuorumContext*				context;
+	QuorumVote*					vote;
 	PaxosLeaseProposerState		state;
 	Timer						extendLeaseTimeout;
 	Countdown					acquireLeaseTimeout;

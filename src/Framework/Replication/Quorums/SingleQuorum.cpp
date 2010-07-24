@@ -4,7 +4,6 @@
 SingleQuorum::SingleQuorum()
 {
 	numNodes = 0;
-	Reset();
 }
 
 void SingleQuorum::AddNode(uint64_t nodeID)
@@ -25,33 +24,49 @@ const uint64_t* SingleQuorum::GetNodes() const
 	return (const uint64_t*) &nodes;
 }
 
-void SingleQuorum::RegisterAccepted(uint64_t)
+QuorumVote* SingleQuorum::NewVote() const
+{
+	SingleQuorumVote* round;
+	
+	round = new SingleQuorumVote;
+	
+	round->numNodes = numNodes;
+	
+	return round;
+}
+
+SingleQuorumVote::SingleQuorumVote()
+{
+	Reset();
+}
+
+void SingleQuorumVote::RegisterAccepted(uint64_t)
 {
 	numAccepted++;
 }
 
-void SingleQuorum::RegisterRejected(uint64_t)
+void SingleQuorumVote::RegisterRejected(uint64_t)
 {
 	numRejected++;
 }
 
-void SingleQuorum::Reset()
+void SingleQuorumVote::Reset()
 {
 	numAccepted = 0;
 	numRejected = 0;
 }
 
-bool SingleQuorum::IsRoundRejected() const
+bool SingleQuorumVote::IsRoundRejected() const
 {
 	return (numRejected >= ceil((double)(numNodes) / 2));
 }
 
-bool SingleQuorum::IsRoundAccepted() const
+bool SingleQuorumVote::IsRoundAccepted() const
 {
 	return (numAccepted >= ceil((double)(numNodes+1) / 2));
 }
 
-bool SingleQuorum::IsRoundComplete() const
+bool SingleQuorumVote::IsRoundComplete() const
 {
 	return ((numAccepted + numRejected) == numNodes);
 }

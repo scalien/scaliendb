@@ -1,7 +1,7 @@
 #include "PaxosLeaseAcceptor.h"
 #include "Framework/Replication/ReplicationManager.h"
 
-void PaxosLeaseAcceptor::Init(ReplicationContext* context_)
+void PaxosLeaseAcceptor::Init(QuorumContext* context_)
 {
 	context = context_;
 

@@ -1,6 +1,6 @@
 #include "ReplicationTransport.h"
 #include "ReplicationManager.h"
-#include "ReplicationContext.h"
+#include "Quorums/QuorumContext.h"
 #include "System/Config.h"
 
 void ReplicationTransport::Init()
@@ -84,43 +84,35 @@ ReadBuffer ReplicationTransport::GetMessage()
 
 void ReplicationTransport::OnRead()
 {
-	char proto;
+//	char proto;
+//	
+//	readBuffer = reader.GetMessage();
+//	if (readBuffer.GetLength() < 2)
+//		return;
+//
+//	proto = readBuffer.GetCharAt(0);
+//	assert(readBuffer.GetCharAt(1) == ':');
+//	readBuffer.Advance(2);
+//	
+//	switch(proto)
+//	{
+//		case 'C':
+//			OnControlMessage();
+//			break;
+//		case 'L':
+//			OnPaxosLeaseMessage();
+//			break;
+//		case 'P':
+//			OnPaxosMessage();
+//			break;
+//		default:
+//			ASSERT_FAIL();
+//			break;
+//	}
+
+	uint64_t logID;
 	
-	readBuffer = reader.GetMessage();
-	if (readBuffer.GetLength() < 2)
-		return;
-
-	proto = readBuffer.GetCharAt(0);
-	assert(readBuffer.GetCharAt(1) == ':');
-	readBuffer.Advance(2);
+	// TODO: parse
 	
-	switch(proto)
-	{
-		case 'C':
-			OnControlMessage();
-			break;
-		case 'L':
-			OnPaxosLeaseMessage();
-			break;
-		case 'P':
-			OnPaxosMessage();
-			break;
-		default:
-			ASSERT_FAIL();
-			break;
-	}
-}
-
-void ReplicationTransport::OnControlMessage()
-{
-}
-
-void ReplicationTransport::OnPaxosLeaseMessage()
-{
-//	assert(GETMYTYPE==CONTROLLER); // TODO
-	RMAN->GetContext(0)->OnMessage();
-}
-
-void ReplicationTransport::OnPaxosMessage()
-{
+	RMAN->GetContext(logID)->OnMessage();
 }

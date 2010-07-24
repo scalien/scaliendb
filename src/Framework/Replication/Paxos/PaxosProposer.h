@@ -4,7 +4,7 @@
 #include "System/Common.h"
 #include "System/Events/Countdown.h"
 #include "System/Events/Timer.h"
-#include "Framework/Replication/ReplicationContext.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 #include "PaxosMessage.h"
 #include "States/PaxosProposerState.h"
 
@@ -21,7 +21,7 @@
 class PaxosProposer
 {
 public:
-	void						Init(ReplicationContext* context);
+	void						Init(QuorumContext* context);
 	
 	void						OnMessage(const PaxosMessage& msg);
 	void						OnPrepareTimeout();
@@ -41,7 +41,8 @@ private:
 	void						StartPreparing();
 	void						StartProposing();
 
-	ReplicationContext*			context;
+	QuorumContext*				context;
+	QuorumVote*					vote;
 	PaxosProposerState			state;
 	Countdown					prepareTimeout;
 	Countdown					proposeTimeout;

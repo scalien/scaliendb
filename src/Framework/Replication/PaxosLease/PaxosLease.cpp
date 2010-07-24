@@ -9,7 +9,7 @@ PaxosLease::PaxosLease()
 	startupTimeout.SetCallable(MFUNC(PaxosLease, OnStartupTimeout));
 }
 
-void PaxosLease::Init(ReplicationContext* context_)
+void PaxosLease::Init(QuorumContext* context_)
 {
 	context = context_;
 	context->SetOnMessage(MFUNC(PaxosLease, OnMessage));
@@ -24,21 +24,6 @@ void PaxosLease::Init(ReplicationContext* context_)
 	
 	acquireLease = false;
 }
-
-void PaxosLease::Shutdown()
-{
-// TODO
-//	delete reader;
-//
-//	if (writers)
-//	{
-//		for (unsigned i = 0; i < RCONF->GetNumNodes(); i++)
-//			delete writers[i];
-//		
-//		free(writers);
-//	}
-}
-
 
 void PaxosLease::OnMessage()
 {
@@ -60,11 +45,6 @@ void PaxosLease::OnMessage()
 		learner.OnMessage(msg);
 	else
 		ASSERT_FAIL();
-}
-
-void PaxosLease::OnNewPaxosRound()
-{
-	proposer.OnNewPaxosRound();
 }
 
 void PaxosLease::AcquireLease()
@@ -93,25 +73,16 @@ uint64_t PaxosLease::GetLeaseEpoch()
 	return learner.GetLeaseEpoch();
 }
 
-void PaxosLease::SetOnLearnLease(const Callable& onLearnLeaseCallback_)
-{
-	onLearnLeaseCallback = onLearnLeaseCallback_;
-}
-
-void PaxosLease::SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback_)
-{
-	onLeaseTimeoutCallback = onLeaseTimeoutCallback_;
-}
-
 void PaxosLease::OnStartupTimeout()
 {
 	Log_Trace();
 }
+
 void PaxosLease::OnLearnLease()
 {
 	Log_Trace();
 	
-	Call(onLearnLeaseCallback);
+	context->SetMaster(learner.GetLeaseOwner());
 	if (!IsLeaseOwner())
 		proposer.StopAcquireLease();
 }
@@ -120,7 +91,7 @@ void PaxosLease::OnLeaseTimeout()
 {
 	Log_Trace();
 	
-	Call(onLeaseTimeoutCallback);
+	context->SetNoMaster();
 	if (acquireLease)
 		proposer.StartAcquireLease();
 }

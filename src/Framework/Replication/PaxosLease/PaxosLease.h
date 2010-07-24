@@ -2,7 +2,7 @@
 #define PAXOSLEASE_H
 
 #include "System/Events/Timer.h"
-#include "Framework/Replication/ReplicationContext.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 #include "PaxosLeaseMessage.h"
 #include "PaxosLeaseProposer.h"
 #include "PaxosLeaseAcceptor.h"
@@ -24,33 +24,27 @@ class PaxosLease
 public:
 	PaxosLease();
 
-	void					Init(ReplicationContext* context);
-	void					Shutdown();
+	void					Init(QuorumContext* context);
 	
 	void					OnMessage();
-	void					OnNewPaxosRound();
 	
 	void					AcquireLease();
 	bool					IsLeaseOwner();
 	bool					IsLeaseKnown();
 	unsigned				GetLeaseOwner();
 	uint64_t				GetLeaseEpoch();
-	void					SetOnLearnLease(const Callable& onLearnLeaseCallback);
-	void					SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback);
 	
 private:
 	void					OnStartupTimeout();
 	void					OnLearnLease();
 	void					OnLeaseTimeout();
 
-	bool					acquireLease;
-	Countdown				startupTimeout;
-	Callable				onLearnLeaseCallback;
-	Callable				onLeaseTimeoutCallback;
+	QuorumContext*			context;
  	PaxosLeaseProposer		proposer;
 	PaxosLeaseAcceptor		acceptor;
 	PaxosLeaseLearner		learner;
-	ReplicationContext*		context;
+	Countdown				startupTimeout;
+	bool					acquireLease;
 };
 
 #endif

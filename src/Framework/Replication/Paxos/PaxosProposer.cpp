@@ -1,9 +1,10 @@
 #include "PaxosProposer.h"
 #include "Framework/Replication/ReplicationManager.h"
 
-void PaxosProposer::Init(ReplicationContext* context_)
+void PaxosProposer::Init(QuorumContext* context_)
 {
 	context = context_;
+	vote = context->GetQuorum()->NewVote();
 	
 	prepareTimeout.SetCallable(MFUNC(PaxosProposer, OnPrepareTimeout));
 	proposeTimeout.SetCallable(MFUNC(PaxosProposer, OnProposeTimeout));
@@ -84,9 +85,9 @@ void PaxosProposer::OnPrepareResponse(const PaxosMessage& imsg)
 		return;
 	
 	if (imsg.type == PAXOS_PREPARE_REJECTED)
-		context->GetQuorum()->RegisterRejected(imsg.nodeID);
+		vote->RegisterRejected(imsg.nodeID);
 	else
-		context->GetQuorum()->RegisterAccepted(imsg.nodeID);
+		vote->RegisterAccepted(imsg.nodeID);
 	
 	if (imsg.type == PAXOS_PREPARE_REJECTED)
 	{
@@ -106,11 +107,11 @@ void PaxosProposer::OnPrepareResponse(const PaxosMessage& imsg)
 		state.value.Write(*imsg.value);
 	}
 
-	if (context->GetQuorum()->IsRoundRejected())
+	if (vote->IsRoundRejected())
 		StartPreparing();
-	else if (context->GetQuorum()->IsRoundAccepted())
+	else if (vote->IsRoundAccepted())
 		StartProposing();	
-	else if (context->GetQuorum()->IsRoundComplete())
+	else if (vote->IsRoundComplete())
 		StartPreparing();
 }
 
@@ -125,19 +126,19 @@ void PaxosProposer::OnProposeResponse(const PaxosMessage& imsg)
 		return;
 	
 	if (imsg.type == PAXOS_PROPOSE_REJECTED)
-		context->GetQuorum()->RegisterRejected(imsg.nodeID);
+		vote->RegisterRejected(imsg.nodeID);
 	else
-		context->GetQuorum()->RegisterAccepted(imsg.nodeID);
+		vote->RegisterAccepted(imsg.nodeID);
 
 	// see if we have enough positive replies to advance
-	if (context->GetQuorum()->IsRoundAccepted())
+	if (vote->IsRoundAccepted())
 	{
 		// a majority have accepted our proposal, we have consensus
 		StopProposing();
 		omsg.LearnProposal(paxosID, RMAN->GetNodeID(), state.proposalID);
 		BroadcastMessage(omsg);
 	}
-	else if (context->GetQuorum()->IsRoundComplete())
+	else if (vote->IsRoundComplete())
 		StartPreparing();
 }
 
@@ -145,7 +146,7 @@ void PaxosProposer::BroadcastMessage(const PaxosMessage& omsg)
 {
 	Log_Trace();
 	
-	context->GetQuorum()->Reset();
+	vote->Reset();
 	context->GetTransport()->BroadcastMessage(omsg);
 }
 

@@ -52,9 +52,6 @@ public:
 
 private:
 	void			OnRead();
-	void			OnControlMessage();
-	void			OnPaxosLeaseMessage();
-	void			OnPaxosMessage();
 
 	MessageReader	reader;
 	InList<Node>	nodes;

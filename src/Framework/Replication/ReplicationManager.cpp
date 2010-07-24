@@ -31,11 +31,11 @@ Endpoint ReplicationManager::GetNodeEndpoint(uint64_t nodeID) const
 {
 }
 
-void ReplicationManager::AddContext(ReplicationContext* context)
+void ReplicationManager::AddContext(QuorumContext* context)
 {
 }
 
-ReplicationContext* ReplicationManager::GetContext(unsigned contextID) const
+QuorumContext* ReplicationManager::GetContext(unsigned contextID) const
 {
 	return NULL;
 }

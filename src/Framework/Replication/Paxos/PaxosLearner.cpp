@@ -1,7 +1,7 @@
 #include "PaxosLearner.h"
 #include "Framework/Replication/ReplicationManager.h"
 
-void PaxosLearner::Init(ReplicationContext* context_)
+void PaxosLearner::Init(QuorumContext* context_)
 {
 	context = context_;
 

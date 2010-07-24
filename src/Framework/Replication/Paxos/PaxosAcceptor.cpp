@@ -2,7 +2,7 @@
 #include "PaxosProposer.h"
 #include "Framework/Replication/ReplicationManager.h"
 
-void PaxosAcceptor::Init(ReplicationContext* context_)
+void PaxosAcceptor::Init(QuorumContext* context_)
 {
 	context = context_;
 

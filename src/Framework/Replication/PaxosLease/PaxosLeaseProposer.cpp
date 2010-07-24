@@ -1,9 +1,10 @@
 #include "PaxosLeaseProposer.h"
 #include "Framework/Replication/ReplicationManager.h"
 
-void PaxosLeaseProposer::Init(ReplicationContext* context_)
+void PaxosLeaseProposer::Init(QuorumContext* context_)
 {
 	context = context_;
+	vote = context->Newvote();
 	
 	acquireLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnAcquireLeaseTimeout));
 	acquireLeaseTimeout.SetDelay(ACQUIRELEASE_TIMEOUT);
@@ -21,20 +22,6 @@ void PaxosLeaseProposer::OnMessage(const PaxosLeaseMessage& imsg)
 		OnProposeResponse(imsg);
 	else
 		ASSERT_FAIL();
-}
-
-void PaxosLeaseProposer::OnNewPaxosRound()
-{
-	// since PaxosLease msgs carry the paxosID, and nodes
-	// won't reply if their paxosID is larger than the msg's
-	// if the paxosID increases we must restart the
-	// PaxosLease round, if it's active
-	// only restart if we're masters
-	
-	//Log_Trace();
-	//
-	//if (acquireLeaseTimeout.IsActive() && RLOG->IsMaster())
-	//	StartPreparing();
 }
 
 void PaxosLeaseProposer::StartAcquireLease()
@@ -57,7 +44,7 @@ void PaxosLeaseProposer::StopAcquireLease()
 	EventLoop::Remove(&acquireLeaseTimeout);
 }
 
-uint64_t PaxosLeaseProposer::GetHighestProposalID()
+uint64_t PaxosLeaseProposer::GetHighestProposalID() const
 {
 	return highestProposalID;
 }
@@ -91,9 +78,9 @@ void PaxosLeaseProposer::OnPrepareResponse(const PaxosLeaseMessage& imsg)
 		return;
 	
 	if (imsg.type == PAXOSLEASE_PREPARE_REJECTED)
-		context->GetQuorum()->RegisterRejected(imsg.nodeID);
+		vote->RegisterRejected(imsg.nodeID);
 	else
-		context->GetQuorum()->RegisterAccepted(imsg.nodeID);
+		vote->RegisterAccepted(imsg.nodeID);
 	
 	if (imsg.type == PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED && 
 	 imsg.acceptedProposalID >= state.highestReceivedProposalID)
@@ -102,11 +89,11 @@ void PaxosLeaseProposer::OnPrepareResponse(const PaxosLeaseMessage& imsg)
 		state.leaseOwner = imsg.leaseOwner;
 	}
 
-	if (context->GetQuorum()->IsRoundRejected())
+	if (vote->IsvoteRejected())
 		StartPreparing();
-	else if (context->GetQuorum()->IsRoundAccepted())
+	else if (vote->IsvoteAccepted())
 		StartProposing();	
-	else if (context->GetQuorum()->IsRoundComplete())
+	else if (vote->IsvoteComplete())
 		StartPreparing();
 }
 
@@ -126,12 +113,12 @@ void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 		return;
 	
 	if (imsg.type == PAXOSLEASE_PROPOSE_REJECTED)
-		context->GetQuorum()->RegisterRejected(imsg.nodeID);
+		vote->RegisterRejected(imsg.nodeID);
 	else
-		context->GetQuorum()->RegisterAccepted(imsg.nodeID);
+		vote->RegisterAccepted(imsg.nodeID);
 	
 	// see if we have enough positive replies to advance
-	if (context->GetQuorum()->IsRoundAccepted() && state.expireTime - Now() > 500 /*msec*/)
+	if (vote->IsvoteAccepted() && state.expireTime - Now() > 500 /*msec*/)
 	{		
 		// a majority have accepted our proposal, we have consensus
 		EventLoop::Remove(&acquireLeaseTimeout);
@@ -144,7 +131,7 @@ void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 
 		state.proposing = false;
 	}
-	else if (context->GetQuorum()->IsRoundComplete())
+	else if (vote->IsvoteComplete())
 		StartPreparing();
 }
 
@@ -152,7 +139,8 @@ void PaxosLeaseProposer::BroadcastMessage(const PaxosLeaseMessage& omsg)
 {
 	Log_Trace();
 	
-	context->GetQuorum()->Reset();
+	vote->Reset();	
+	
 	context->GetTransport()->BroadcastMessage(omsg);
 }
 

@@ -24,11 +24,11 @@ class PaxosLeaseMessage : public Message
 {
 public:
 	char			type;
-	unsigned		nodeID;
+	uint64_t		nodeID;
 	uint64_t		proposalID;
 	
 	uint64_t		acceptedProposalID;
-	unsigned		leaseOwner;
+	uint64_t		leaseOwner;
 	unsigned		duration;
 	uint64_t		localExpireTime;
 	uint64_t		paxosID; // so only up-to-date nodes can become masters
@@ -38,13 +38,13 @@ public:
 	bool			PrepareRequest(uint64_t nodeID, uint64_t proposalID, uint64_t paxosID);
 	bool			PrepareRejected(uint64_t nodeID, uint64_t proposalID);
 	bool			PreparePreviouslyAccepted(uint64_t nodeID, uint64_t proposalID,
-					 uint64_t acceptedProposalID, unsigned leaseOwner, unsigned duration);
+					 uint64_t acceptedProposalID, uint64_t leaseOwner, unsigned duration);
 	bool			PrepareCurrentlyOpen(uint64_t nodeID, uint64_t proposalID);	
 	bool			ProposeRequest(uint64_t nodeID, uint64_t proposalID,
-					 unsigned leaseOwner, unsigned duration);
+					 uint64_t leaseOwner, unsigned duration);
 	bool			ProposeRejected(uint64_t nodeID, uint64_t proposalID);
 	bool			ProposeAccepted(uint64_t nodeID, uint64_t proposalID);
-	bool			LearnChosen(uint64_t nodeID, unsigned leaseOwner, unsigned duration,
+	bool			LearnChosen(uint64_t nodeID, uint64_t leaseOwner, unsigned duration,
 					 uint64_t localExpireTime);
 	
 	bool			IsRequest() const;

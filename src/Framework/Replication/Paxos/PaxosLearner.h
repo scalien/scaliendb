@@ -2,7 +2,7 @@
 #define PAXOSLEARNER_H
 
 #include "System/Common.h"
-#include "Framework/Replication/ReplicationContext.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 #include "PaxosMessage.h"
 #include "States/PaxosLearnerState.h"
 
@@ -19,7 +19,7 @@
 class PaxosLearner
 {
 public:
-	void						Init(ReplicationContext* context);
+	void						Init(QuorumContext* context);
 	
 	void						RequestChosen(uint64_t nodeID);
 	void						SendChosen(uint64_t nodeID, uint64_t paxosID, const Buffer& value);	
@@ -31,7 +31,7 @@ protected:
 	void						OnLearnChosen(const PaxosMessage& msg);
 	void						OnRequestChosen(const PaxosMessage& msg);
 
-	ReplicationContext*			context;
+	QuorumContext*				context;
 	PaxosLearnerState			state;
 	uint64_t					paxosID;
 	uint64_t					lastRequestChosenTime;
