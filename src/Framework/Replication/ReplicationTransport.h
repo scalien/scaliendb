@@ -45,9 +45,6 @@ public:
 	void			SendMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
 	void			SendPriorityMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
 
-//	void			BroadcastMessage(const Message& msg);
-//	void			BroadcastPriorityMessage(const Message& msg);
-
 	ReadBuffer		GetMessage();
 
 private:

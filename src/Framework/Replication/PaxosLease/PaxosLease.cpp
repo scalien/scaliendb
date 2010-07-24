@@ -3,12 +3,6 @@
 #include "System/Events/EventLoop.h"
 #include "Framework/Replication/Quorums/QuorumTransport.h"
 
-PaxosLease::PaxosLease()
-{
-	startupTimeout.SetDelay(MAX_LEASE_TIME);
-	startupTimeout.SetCallable(MFUNC(PaxosLease, OnStartupTimeout));
-}
-
 void PaxosLease::Init(QuorumContext* context_)
 {
 	context = context_;
@@ -23,26 +17,25 @@ void PaxosLease::Init(QuorumContext* context_)
 	learner.SetOnLeaseTimeout(MFUNC(PaxosLease, OnLeaseTimeout));
 	
 	acquireLease = false;
+
+	startupTimeout.SetDelay(MAX_LEASE_TIME);
+	startupTimeout.SetCallable(MFUNC(PaxosLease, OnStartupTimeout));
+	EventLoop::Add(startupTimeout);
 }
 
-void PaxosLease::OnMessage()
+void PaxosLease::OnMessage(const PaxosLeaseMessage& imsg)
 {
 	ReadBuffer readBuffer;
-	PaxosLeaseMessage msg;
 
-	readBuffer = context->GetTransport()->GetMessage();
-	if (!msg.Read(readBuffer))
-		ASSERT_FAIL();
-
-	if ((msg.IsRequest()) && msg.proposalID > proposer.HighestProposalID())
-			proposer.SetHighestProposalID(msg.proposalID);
+	if ((imsg.IsRequest()) && imsg.proposalID > proposer.HighestProposalID())
+			proposer.SetHighestProposalID(imsg.proposalID);
 	
-	if (msg.IsResponse())
-		proposer.OnMessage(msg);
-	else if (msg.IsRequest())
-		acceptor.OnMessage(msg);
-	else if (msg.IsLearnChosen())
-		learner.OnMessage(msg);
+	if (imsg.IsResponse())
+		proposer.OnMessage(imsg);
+	else if (imsg.IsRequest())
+		acceptor.OnMessage(imsg);
+	else if (imsg.IsLearnChosen())
+		learner.OnMessage(imsg);
 	else
 		ASSERT_FAIL();
 }
@@ -76,6 +69,8 @@ uint64_t PaxosLease::GetLeaseEpoch()
 void PaxosLease::OnStartupTimeout()
 {
 	Log_Trace();
+	
+	AcquireLease();
 }
 
 void PaxosLease::OnLearnLease()

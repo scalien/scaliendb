@@ -31,4 +31,8 @@
 - HTTP
 
 
+- when a chunk is taken away from a data node, it needs to shut down that
+  QuorumContext/ReplicatedLog, so we'll need a Shutdown() function there
+  problem is if there are async (db) operations going on for that chunk
 
+- stremaing ReplicatedLog catchup

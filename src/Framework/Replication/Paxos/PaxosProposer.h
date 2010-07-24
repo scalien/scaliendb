@@ -8,6 +8,8 @@
 #include "PaxosMessage.h"
 #include "States/PaxosProposerState.h"
 
+class ReplicatedLog; // forward
+
 #define PAXOS_TIMEOUT	3000
 
 /*
@@ -27,7 +29,7 @@ public:
 	void						OnPrepareTimeout();
 	void						OnProposeTimeout();
 	
-	bool						Propose(const Buffer& value);
+	void						Propose(const Buffer& value);
 	void						Stop();
 	bool						IsActive();	
 
@@ -47,6 +49,8 @@ private:
 	Countdown					prepareTimeout;
 	Countdown					proposeTimeout;
 	uint64_t					paxosID;
+	
+	friend class ReplicatedLog;
 };
 
 #endif

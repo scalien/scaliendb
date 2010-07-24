@@ -22,6 +22,7 @@ class DataNodeContext : public QuorumContext
 	virtual uint64_t				GetLeader();
 	virtual uint64_t				GetLogID() const;
 	virtual uint64_t				GetPaxosID() const;
+	virtual uint64_t				GetHighestPaxosID() const;
 
 	virtual Quorum*					GetQuorum() const;
 	virtual QuorumDatabase*			GetDatabase() const;
@@ -32,13 +33,16 @@ class DataNodeContext : public QuorumContext
 private:
 	void							OnPaxosLeaseMessage(ReadBuffer buffer);
 	void							OnPaxosMessage(ReadBuffer buffer);
+	void							RegisterPaxosID(uint64_t paxosID);
 
 	DoubleQuorum					quorum;
 	QuorumDatabase					database;
 	QuorumTransport					transport;
 
-	uint64_t						logID;
 	ReplicatedLog					replicatedLog;
 	PaxosLeaseLearner				paxosLeaseLearner;
+
+	uint64_t						logID;
+	uint64_t						highestPaxosID;
 };
 

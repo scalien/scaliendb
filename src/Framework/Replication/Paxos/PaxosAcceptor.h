@@ -7,6 +7,8 @@
 #include "Framework/Replication/Quorums/QuorumDatabase.h"
 #include "States/PaxosAcceptorState.h"
 
+class ReplicatedLog; // forward
+
 /*
 ===============================================================================
 
@@ -34,6 +36,8 @@ private:
 	uint64_t					paxosID;
 	uint64_t					senderID;
 	uint64_t					writtenPaxosID;
+	
+	friend class ReplicatedLog;
 };
 
 #endif

@@ -25,9 +25,10 @@ public:
 	virtual bool					IsLeader()					= 0;
 	virtual bool					IsLeaderKnown()				= 0;
 	virtual uint64_t				GetLeader()					= 0;
-	virtual uint64_t				GetEpoch() const			= 0;
+	virtual uint64_t				GetEpochID() const			= 0;
 	virtual uint64_t				GetLogID() const			= 0;
 	virtual uint64_t				GetPaxosID() const			= 0;
+	virtual uint64_t				GetHighestPaxosID() const	= 0;
 
 	virtual Quorum*					GetQuorum() const			= 0;
 	virtual QuorumDatabase*			GetDatabase() const			= 0;

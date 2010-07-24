@@ -5,9 +5,9 @@ void PaxosLearner::Init(QuorumContext* context_)
 {
 	context = context_;
 
+	state.Init();
 	lastRequestChosenTime = 0;
 	lastRequestChosenPaxosID = 0;
-	state.Init();
 }
 
 void PaxosLearner::RequestChosen(uint64_t nodeID)
@@ -24,17 +24,6 @@ void PaxosLearner::RequestChosen(uint64_t nodeID)
 	lastRequestChosenTime = EventLoop::Now();
 	
 	omsg.RequestChosen(paxosID, RMAN->GetNodeID());
-	
-	context->GetTransport()->SendMessage(nodeID, omsg);
-}
-
-void PaxosLearner::SendChosen(uint64_t nodeID, uint64_t paxosID, const Buffer& value)
-{
-	PaxosMessage omsg;
-
-	Log_Trace();
-	
-	omsg.LearnValue(paxosID, RMAN->GetNodeID(), const_cast<Buffer*>(&value));
 	
 	context->GetTransport()->SendMessage(nodeID, omsg);
 }
@@ -62,14 +51,6 @@ void PaxosLearner::OnLearnChosen(const PaxosMessage& imsg)
 
 	Log_Trace("+++ Consensus for paxosID = %" PRIu64 " is %.*s +++",
 	 paxosID, P(&state.value));
-}
-
-void PaxosLearner::OnRequestChosen(const PaxosMessage& imsg)
-{
-	Log_Trace();
-
-	if (state.learned)
-		SendChosen(imsg.nodeID, paxosID, state.value);
 }
 
 bool PaxosLearner::IsLearned()

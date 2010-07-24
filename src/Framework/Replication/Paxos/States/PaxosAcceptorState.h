@@ -19,6 +19,8 @@ struct PaxosAcceptorState
 	uint64_t		promisedProposalID;
 	bool			accepted;	
 	uint64_t		acceptedProposalID;
+	uint64_t		acceptedRunID;
+	uint64_t		acceptedEpochID;
 	Buffer			acceptedValue;
 
 };

@@ -70,13 +70,14 @@ bool PaxosLeaseMessage::ProposeAccepted(uint64_t nodeID_, uint64_t proposalID_)
 	return true;
 }
 
-bool PaxosLeaseMessage::LearnChosen(uint64_t nodeID_,
- uint64_t leaseOwner_, unsigned duration_, uint64_t localExpireTime_)
+bool PaxosLeaseMessage::LearnChosen(uint64_t nodeID_, uint64_t leaseOwner_,
+ unsigned duration_, uint64_t localExpireTime_, uint64_t paxosID_)
 {
 	Init(PAXOSLEASE_LEARN_CHOSEN, nodeID_);
 	leaseOwner = leaseOwner_;
 	duration = duration_;
 	localExpireTime = localExpireTime_;
+	paxosID = paxosID_;
 
 	return true;
 }
@@ -141,7 +142,7 @@ bool PaxosLeaseMessage::Read(const ReadBuffer& buffer)
 			read = buffer.Readf("%c:%U:%U", &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_LEARN_CHOSEN:
-			read = buffer.Readf("%c:%U:%U:%u:%U", &type, &nodeID, &leaseOwner,
+			read = buffer.Readf("%c:%U:%U:%u:%U:%U", &type, &nodeID, &leaseOwner, &paxosID,
 			 &duration, &localExpireTime);
 			break;
 		default:
@@ -178,8 +179,8 @@ bool PaxosLeaseMessage::Write(Buffer& buffer) const
 			return buffer.Writef("%c:%U:%U", type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_LEARN_CHOSEN:
-			return buffer.Writef("%c:%U:%U:%u:%U",
-			 type, nodeID, leaseOwner, duration, localExpireTime);
+			return buffer.Writef("%c:%U:%U:%u:%U:%U",
+			 type, nodeID, leaseOwner, duration, localExpireTime, paxosID);
 			break;
 		default:
 			return false;

@@ -22,11 +22,9 @@
 class PaxosLease
 {
 public:
-	PaxosLease();
-
 	void					Init(QuorumContext* context);
 	
-	void					OnMessage();
+	void					OnMessage(const PaxosLeaseMessage& msg);
 	
 	void					AcquireLease();
 	bool					IsLeaseOwner();

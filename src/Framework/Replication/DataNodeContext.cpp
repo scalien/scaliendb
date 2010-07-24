@@ -1,11 +1,13 @@
 #include "DataNodeContext.h"
 #include "ReplicationManager.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
+#include "Framework/Replication/Paxos/PaxosMessage.h"
 
 DataNodeContext::DataNodeContext()
 {
 	replicatedLog.Init(this);
 	paxosLeaseLearner.Init(this);
+	highestPaxosID = 0;
 }
 
 void DataNodeContext::SetLogID(uint64_t logID_)
@@ -36,6 +38,11 @@ uint64_t DataNodeContext::GetLogID() const
 uint64_t DataNodeContext::GetPaxosID() const
 {
 	return replicatedLog.GetPaxosID();
+}
+
+uint64_t DataNodeContext::GetHighestPaxosID() const
+{
+	return highestPaxosID;
 }
 
 void DataNodeContext::OnMessage()
@@ -71,11 +78,24 @@ void DataNodeContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 	PaxosLeaseMessage msg;
 	
 	msg.Read(buffer);
-	
-	paxosLeaseLearner.OnMessage(msg);	
+	assert(msg.type == PAXOSLEASE_LEARN_CHOSEN);
+	RegisterPaxosID(msg.paxosID);
+	replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
+	paxosLeaseLearner.OnMessage(msg);
 }
 
 void DataNodeContext::OnPaxosMessage(ReadBuffer buffer)
 {
-	replicatedLog.OnMessage(buffer);
+	PaxosMessage msg;
+	
+	msg.Read(buffer);
+	RegisterPaxosID(msg.paxosID);
+	replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
+	replicatedLog.OnMessage(msg);
+}
+
+void DataNodeContext::RegisterPaxosID(uint64_t paxosID)
+{
+	if (paxosID > highestPaxosID)
+		highestPaxosID = paxosID;
 }

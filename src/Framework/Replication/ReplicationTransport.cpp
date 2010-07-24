@@ -41,7 +41,8 @@ void ReplicationTransport::Shutdown()
 		it->writer.Close();
 }
 
-void ReplicationTransport::SendMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg)
+void ReplicationTransport::SendMessage(uint64_t nodeID,
+ const Buffer& prefix, const Message& msg)
 {
 	Node*	it;
 
@@ -55,7 +56,8 @@ void ReplicationTransport::SendMessage(uint64_t nodeID, const Buffer& prefix, co
 	}
 }
 
-void ReplicationTransport::SendPriorityMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg)
+void ReplicationTransport::SendPriorityMessage(uint64_t nodeID,
+ const Buffer& prefix, const Message& msg)
 {
 	Node*	it;
 
@@ -69,14 +71,6 @@ void ReplicationTransport::SendPriorityMessage(uint64_t nodeID, const Buffer& pr
 	}
 }
 
-//void ReplicationTransport::BroadcastMessage(const Message& msg)
-//{
-//}
-//
-//void ReplicationTransport::BroadcastPriorityMessage(const Message& msg)
-//{
-//}
-
 ReadBuffer ReplicationTransport::GetMessage()
 {
 	return readBuffer;
@@ -84,32 +78,6 @@ ReadBuffer ReplicationTransport::GetMessage()
 
 void ReplicationTransport::OnRead()
 {
-//	char proto;
-//	
-//	readBuffer = reader.GetMessage();
-//	if (readBuffer.GetLength() < 2)
-//		return;
-//
-//	proto = readBuffer.GetCharAt(0);
-//	assert(readBuffer.GetCharAt(1) == ':');
-//	readBuffer.Advance(2);
-//	
-//	switch(proto)
-//	{
-//		case 'C':
-//			OnControlMessage();
-//			break;
-//		case 'L':
-//			OnPaxosLeaseMessage();
-//			break;
-//		case 'P':
-//			OnPaxosMessage();
-//			break;
-//		default:
-//			ASSERT_FAIL();
-//			break;
-//	}
-
 	uint64_t logID;
 	
 	// TODO: parse

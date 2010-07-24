@@ -45,7 +45,7 @@ public:
 	bool			ProposeRejected(uint64_t nodeID, uint64_t proposalID);
 	bool			ProposeAccepted(uint64_t nodeID, uint64_t proposalID);
 	bool			LearnChosen(uint64_t nodeID, uint64_t leaseOwner, unsigned duration,
-					 uint64_t localExpireTime);
+					 uint64_t localExpireTime, uint64_t paxosID);
 	
 	bool			IsRequest() const;
 	bool			IsPrepareResponse() const;
