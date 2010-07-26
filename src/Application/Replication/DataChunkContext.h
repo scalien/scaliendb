@@ -1,3 +1,6 @@
+#ifndef DATACHUNKCONTEXT_H
+#define DATACHUNKCONTEXT_H
+
 #include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/DoubleQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
@@ -5,14 +8,14 @@
 /*
 ===============================================================================
 
- DataNodeContext
+ DataChunkContext
 
 ===============================================================================
 */
 
-class DataNodeContext : public QuorumContext
+class DataChunkContext : public QuorumContext
 {
-	DataNodeContext();
+	DataChunkContext();
 	
 	void							SetLogID(uint64_t logID);
 	
@@ -46,3 +49,4 @@ private:
 	uint64_t						highestPaxosID;
 };
 
+#endif

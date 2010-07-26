@@ -1,66 +1,66 @@
-#include "DataNodeContext.h"
+#include "DataChunkContext.h"
 #include "ReplicationManager.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 
-DataNodeContext::DataNodeContext()
+DataChunkContext::DataChunkContext()
 {
 	replicatedLog.Init(this);
 	paxosLeaseLearner.Init(this);
 	highestPaxosID = 0;
 }
 
-void DataNodeContext::SetLogID(uint64_t logID_)
+void DataChunkContext::SetLogID(uint64_t logID_)
 {
 	logID = logID_;
 }
 
-bool DataNodeContext::IsLeaderKnown()
+bool DataChunkContext::IsLeaderKnown()
 {
 	return paxosLeaseLearner.IsLeaseKnown();
 }
 
-bool DataNodeContext::IsLeader()
+bool DataChunkContext::IsLeader()
 {
 	return paxosLeaseLearner.IsLeaseOwner();
 }
 
-uint64_t DataNodeContext::GetLeader()
+uint64_t DataChunkContext::GetLeader()
 {
 	return paxosLeaseLearner.IsLeaseOwner();
 }
 
-uint64_t DataNodeContext::GetLogID() const
+uint64_t DataChunkContext::GetLogID() const
 {
 	return logID;
 }
 
-uint64_t DataNodeContext::GetPaxosID() const
+uint64_t DataChunkContext::GetPaxosID() const
 {
 	return replicatedLog.GetPaxosID();
 }
 
-uint64_t DataNodeContext::GetHighestPaxosID() const
+uint64_t DataChunkContext::GetHighestPaxosID() const
 {
 	return highestPaxosID;
 }
 
-Quorum* DataNodeContext::GetQuorum()
+Quorum* DataChunkContext::GetQuorum()
 {
 	return &quorum;
 }
 
-QuorumDatabase*	DataNodeContext::GetDatabase()
+QuorumDatabase*	DataChunkContext::GetDatabase()
 {
 	return &database;
 }
 
-QuorumTransport* DataNodeContext::GetTransport()
+QuorumTransport* DataChunkContext::GetTransport()
 {
 	return &transport;
 }
 
-void DataNodeContext::OnMessage()
+void DataChunkContext::OnMessage()
 {
 	char proto;
 	ReadBuffer buffer;
@@ -88,7 +88,7 @@ void DataNodeContext::OnMessage()
 	}
 }
 
-void DataNodeContext::OnPaxosLeaseMessage(ReadBuffer buffer)
+void DataChunkContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
 	PaxosLeaseMessage msg;
 	
@@ -100,7 +100,7 @@ void DataNodeContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 	// TODO: right now PaxosLeaseLearner will not call back
 }
 
-void DataNodeContext::OnPaxosMessage(ReadBuffer buffer)
+void DataChunkContext::OnPaxosMessage(ReadBuffer buffer)
 {
 	PaxosMessage msg;
 	
@@ -110,7 +110,7 @@ void DataNodeContext::OnPaxosMessage(ReadBuffer buffer)
 	replicatedLog.OnMessage(msg);
 }
 
-void DataNodeContext::RegisterPaxosID(uint64_t paxosID)
+void DataChunkContext::RegisterPaxosID(uint64_t paxosID)
 {
 	if (paxosID > highestPaxosID)
 		highestPaxosID = paxosID;
