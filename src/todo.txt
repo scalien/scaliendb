@@ -1,9 +1,5 @@
 
 - go through TODOs
-- no underscores in header declarations
-
-+ renamed restartCounter to runID
-
 
 - one or more PaxosLease instances? - one or more ReplicatedLog instances?
   + we need MANY because of timers
@@ -15,7 +11,6 @@
 
 - Readf/Writef vs ReadBuffer
 
-- rename QuorumContext => QuorumContext (!)
 - PaxosAcceptorState::value should come from a BufferPool (!)
 - Paxos value should have a limit of 100K (=object size limit),
   but this should not limit the KV value size
@@ -36,6 +31,5 @@
   problem is if there are async (db) operations going on for that chunk
 
 - stremaing ReplicatedLog catchup
-- get rid of 3 paxosID in Paxos actors
 - transaction juggling
 
