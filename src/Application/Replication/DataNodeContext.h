@@ -1,7 +1,7 @@
-#include "Quorums/QuorumContext.h"
-#include "Quorums/DoubleQuorum.h"
-#include "ReplicatedLog/ReplicatedLog.h"
-#include "PaxosLease/PaxosLeaseLearner.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
+#include "Framework/Replication/Quorums/DoubleQuorum.h"
+#include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
+#include "Framework/Replication/PaxosLease/PaxosLeaseLearner.h"
 /*
 ===============================================================================
 
