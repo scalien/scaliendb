@@ -48,7 +48,6 @@ private:
 	PaxosProposerState			state;
 	Countdown					prepareTimeout;
 	Countdown					proposeTimeout;
-	uint64_t					paxosID;
 	
 	friend class ReplicatedLog;
 };

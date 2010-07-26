@@ -10,17 +10,13 @@ void ReplicatedLog::Init(QuorumContext* context_)
 	
 	context = context_;
 	
-//	replicatedDB = NULL; // TODO
-	
 	proposer.Init(context);
 	acceptor.Init(context);
-	learner.Init(context);
-	
-	proposer.paxosID = acceptor.paxosID;
-	learner.paxosID = acceptor.paxosID;
+
+	paxosID = 0;
+
 	lastRequestChosenTime = 0;
 	lastRequestChosenPaxosID = 0;
-	enableMultiPaxos.Write("EnableMultiPaxos");
 	
 //	lastStarted = EventLoop::Now();
 //	lastLength = 0;
@@ -28,29 +24,43 @@ void ReplicatedLog::Init(QuorumContext* context_)
 //	thruput = 0;
 		
 //	logCache.Init(acceptor.paxosID); // TODO
+	enableMultiPaxos.Write("EnableMultiPaxos");
+}
+
+void ReplicatedLog::TryAppendNextValue()
+{
+	Buffer* buffer;
+	
+	Log_Trace();
+	
+	if (!context->IsLeader() || proposer.IsActive() || !proposer.state.multi)
+		return;
+	
+	buffer = context->GetNextValue();
+	if (buffer == NULL)
+		return;
+	
+	Append(*buffer);
 }
 
 void ReplicatedLog::Append(const Buffer& value)
 {
 	Log_Trace();
+		
+	if (proposer.IsActive())
+		return;
 	
-//	if (!proposeQueue.Enqueue(value))
-//		ASSERT_FAIL();
-	
-	if (!proposer.IsActive())
-		proposer.Propose(value); //proposer.Propose(*logQueue.Next());
+	proposer.Propose(value);
 }
 
 uint64_t ReplicatedLog::GetPaxosID() const
 {
-	return proposer.paxosID;
+	return paxosID;
 }
 
 void ReplicatedLog::OnMessage(const PaxosMessage& imsg)
 {
 	Log_Trace();
-	
-	assert(learner.state.learned == false);
 	
 	if (imsg.type == PAXOS_PREPARE_REQUEST)
 		OnPrepareRequest(imsg);
@@ -74,7 +84,7 @@ void ReplicatedLog::OnPrepareRequest(const PaxosMessage& imsg)
 {
 	Log_Trace();
 		
-	if (imsg.paxosID == acceptor.paxosID)
+	if (imsg.paxosID == paxosID)
 		acceptor.OnPrepareRequest(imsg);
 
 	OnRequest(imsg);
@@ -84,7 +94,7 @@ void ReplicatedLog::OnPrepareResponse(const PaxosMessage& imsg)
 {
 	Log_Trace();
 	
-	if (imsg.paxosID == proposer.paxosID)
+	if (imsg.paxosID == paxosID)
 		proposer.OnPrepareResponse(imsg);
 }
 
@@ -92,7 +102,7 @@ void ReplicatedLog::OnProposeRequest(const PaxosMessage& imsg)
 {
 	Log_Trace();
 	
-	if (imsg.paxosID == acceptor.paxosID)
+	if (imsg.paxosID == paxosID)
 		acceptor.OnProposeRequest(imsg);
 	
 	OnRequest(imsg);
@@ -102,100 +112,78 @@ void ReplicatedLog::OnProposeResponse(const PaxosMessage& imsg)
 {
 	Log_Trace();
 
-	if (imsg.paxosID == proposer.paxosID)
+	if (imsg.paxosID == paxosID)
 		proposer.OnProposeResponse(imsg);
 }
 
 void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 {
+	uint64_t		runID, epochID;
+	bool			commit;
+	Buffer*			value;
+
 	Log_Trace();
 
-	uint64_t		paxosID;
-	bool			ownAppend, clientAppend, commit;
-
-	if (imsg.paxosID > learner.paxosID)
+	if (imsg.paxosID > paxosID)
 	{
-		//	I am lagging and need to catch-up
-		learner.RequestChosen(imsg.nodeID);
+		RequestChosen(imsg.nodeID); //	I am lagging and need to catch-up
 		return;
 	}
-
-	if (imsg.paxosID < learner.paxosID)
+	else if (imsg.paxosID < paxosID)
 		return;
-	
-	// copy from acceptor
-	if (imsg.type == PAXOS_LEARN_PROPOSAL && acceptor.state.accepted
-	 && acceptor.state.acceptedProposalID == imsg.proposalID)
-	 {
-		// HACK: change message type
-		imsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(),
-		acceptor.state.acceptedRunID, acceptor.state.acceptedEpochID,
-		&acceptor.state.acceptedValue);
-	}
 	
 	if (imsg.type == PAXOS_LEARN_VALUE)
-		learner.OnLearnChosen(imsg);
+	{
+		runID = imsg.runID;
+		epochID = imsg.epochID;
+		value = imsg.value;
+	}
+	else if (imsg.type == PAXOS_LEARN_PROPOSAL && acceptor.state.accepted &&
+	 acceptor.state.acceptedProposalID == imsg.proposalID)
+	 {
+		runID = acceptor.state.acceptedRunID;
+		epochID = acceptor.state.acceptedEpochID;
+		value = &acceptor.state.acceptedValue;
+	}
 	else
 	{
-		learner.RequestChosen(imsg.nodeID);
+		RequestChosen(imsg.nodeID);
 		return;
 	}
 	
-	// save it in the logCache (includes the epoch info)
-	commit = learner.paxosID == (context->GetHighestPaxosID() - 1);
-	logCache.Set(learner.paxosID, learner.state.value, commit);
+	commit = (paxosID == (context->GetHighestPaxosID() - 1));
+	logCache.Set(paxosID, *value, commit);
+
+	NewPaxosRound(); // increments paxosID, clears proposer, acceptor
 	
-	paxosID = learner.paxosID;		// this is the value we
-									// pass to the ReplicatedDB
+	if (context->GetHighestPaxosID() >= paxosID)
+		RequestChosen(imsg.nodeID);
 	
-	NewPaxosRound();
-	// increments paxosID, clears proposer, acceptor, learner
-	
-	if (context->GetHighestPaxosID() > paxosID)
-		learner.RequestChosen(imsg.nodeID);
-	
-	if (imsg.nodeID == RMAN->GetNodeID()
-	 && imsg.runID == RMAN->GetRunID()
-	 && imsg.epochID == context->GetEpochID()
-	 && context->IsLeader())
+	if (imsg.nodeID == RMAN->GetNodeID() && runID == RMAN->GetRunID() &&
+	 epochID == context->GetEpochID() && context->IsLeader())
 	{
-//		logQueue.Pop(); // we just appended this
 		proposer.state.multi = true;
-		ownAppend = true;
 		Log_Trace("Multi paxos enabled");
 	}
 	else
 	{
 		proposer.state.multi = false;
-		ownAppend = false;
 		Log_Trace("Multi paxos disabled");
 	}
 	
-//	if (!GetTransaction()->IsActive())
-//	{
-//		Log_Trace("starting new transaction");
-//		GetTransaction()->Begin();
-//	}
-
-	if (!Buffer::Cmp(*imsg.value, enableMultiPaxos))
-	{
-		clientAppend =
-		 ownAppend && imsg.epochID == context->GetEpochID() && context->IsLeader();
-//		replicatedDB->OnAppend(GetTransaction(), paxosID,  imsg.value, clientAppend);
-	}
-
-//	if (!proposer.IsActive() && logQueue.Length() > 0)
-//		proposer.Propose(*logQueue.Next());
+//	if (!Buffer::Cmp(*imsg.value, enableMultiPaxos))
+//		replicatedDB->OnAppend(GetTransaction(), paxosID - 1,  value, proposer.state.multi);
+	TryAppendNextValue();
 }
 
 void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
 {
+	Buffer*			value;
+	PaxosMessage	omsg;
+	
 	Log_Trace();
-	
-	Buffer* value;
-	PaxosMessage omsg;
-	
-	if (imsg.paxosID >= learner.paxosID)
+
+	if (imsg.paxosID >= GetPaxosID())
 		return;
 	
 	// the node is lagging and needs to catch-up
@@ -209,7 +197,7 @@ void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
 //	else // TODO
 //	{
 //		Log_Trace("Node requested a paxosID I no longer have");
-//		learner.SendStartCatchup(pmsg.nodeID, pmsg.paxosID);
+//		SendStartCatchup(pmsg.nodeID, pmsg.paxosID);
 //	}
 }
 
@@ -217,7 +205,7 @@ void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
 //{
 //	Log_Trace();
 //
-//	if (pmsg.paxosID == learner.paxosID &&
+//	if (pmsg.paxosID == GetPaxosID() &&
 //		replicatedDB != NULL &&
 //		!replicatedDB->IsCatchingUp() &&
 //		masterLease.IsLeaseKnown())
@@ -230,11 +218,10 @@ void ReplicatedLog::OnRequest(const PaxosMessage& imsg)
 {
 	Log_Trace();
 	
-	uint64_t			now;
 	Buffer*			value;
 	PaxosMessage	omsg;
 
-	if (imsg.paxosID < acceptor.paxosID)
+	if (imsg.paxosID < GetPaxosID())
 	{
 		// the node is lagging and needs to catch-up
 		value = logCache.Get(imsg.paxosID);
@@ -246,7 +233,7 @@ void ReplicatedLog::OnRequest(const PaxosMessage& imsg)
 	else // paxosID < msg.paxosID
 	{
 		//	I am lagging and need to catch-up
-		learner.RequestChosen(imsg.nodeID);
+		RequestChosen(imsg.nodeID);
 	}
 }
 
@@ -261,20 +248,16 @@ void ReplicatedLog::NewPaxosRound()
 	
 	EventLoop::Remove(&(proposer.prepareTimeout));
 	EventLoop::Remove(&(proposer.proposeTimeout));
-	proposer.paxosID++;
+
 	proposer.state.Init();
 
-	acceptor.paxosID++;
+	paxosID++;
 	acceptor.state.Init();
-
-	learner.paxosID++;
-	learner.state.Init();
 }
 
 void ReplicatedLog::OnLearnLease()
 {
-	// TODO: register or what?
-	if (context->IsLeader() && !proposer.state.multi && !proposer.IsActive())
+	if (context->IsLeader() && !proposer.IsActive() && !proposer.state.multi)
 	{
 		Log_Trace("Appending EnableMultiPaxos");
 		Append(enableMultiPaxos);
@@ -283,15 +266,7 @@ void ReplicatedLog::OnLearnLease()
 
 void ReplicatedLog::OnLeaseTimeout()
 {
-	// TODO: register or what?
 	proposer.state.multi = false;
-	
-	if (replicatedDB)
-	{
-//		logQueue.Clear();
-		proposer.Stop();
-		replicatedDB->OnMasterLeaseExpired();
-	}
 }
 
 bool ReplicatedLog::IsAppending()
@@ -311,10 +286,10 @@ bool ReplicatedLog::IsAppending()
 
 void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, unsigned nodeID)
 {
-	if (paxosID > learner.paxosID)
+	if (paxosID > GetPaxosID())
 	{
 		//	I am lagging and need to catch-up
-		learner.RequestChosen(nodeID);
+		RequestChosen(nodeID);
 	}
 }
 
@@ -332,3 +307,21 @@ void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, unsigned nodeID)
 //{
 //	return thruput;
 //}
+
+void ReplicatedLog::RequestChosen(uint64_t nodeID)
+{
+	PaxosMessage omsg;
+	
+	Log_Trace();
+	
+	if (lastRequestChosenPaxosID == GetPaxosID() &&
+	 EventLoop::Now() - lastRequestChosenTime < REQUEST_CHOSEN_TIMEOUT)
+		return;
+	
+	lastRequestChosenPaxosID = GetPaxosID();
+	lastRequestChosenTime = EventLoop::Now();
+	
+	omsg.RequestChosen(GetPaxosID(), RMAN->GetNodeID());
+	
+	context->GetTransport()->SendMessage(nodeID, omsg);
+}

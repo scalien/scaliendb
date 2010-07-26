@@ -11,7 +11,6 @@ void PaxosProposer::Init(QuorumContext* context_)
 	prepareTimeout.SetDelay(PAXOS_TIMEOUT);
 	proposeTimeout.SetDelay(PAXOS_TIMEOUT);
 
-	paxosID = 0;
 	state.Init();
 }
 
@@ -139,7 +138,7 @@ void PaxosProposer::OnProposeResponse(const PaxosMessage& imsg)
 	{
 		// a majority have accepted our proposal, we have consensus
 		StopProposing();
-		omsg.LearnProposal(paxosID, RMAN->GetNodeID(), state.proposalID);
+		omsg.LearnProposal(context->GetPaxosID(), RMAN->GetNodeID(), state.proposalID);
 		BroadcastMessage(omsg);
 	}
 	else if (vote->IsRoundComplete())
@@ -183,7 +182,7 @@ void PaxosProposer::StartPreparing()
 	state.proposalID = RMAN->NextProposalID(MAX(state.proposalID, state.highestPromisedProposalID));
 	state.highestReceivedProposalID = 0;
 	
-	omsg.PrepareRequest(paxosID, RMAN->GetNodeID(), state.proposalID);
+	omsg.PrepareRequest(context->GetPaxosID(), RMAN->GetNodeID(), state.proposalID);
 	BroadcastMessage(omsg);
 	
 	EventLoop::Reset(&prepareTimeout);
@@ -199,7 +198,7 @@ void PaxosProposer::StartProposing()
 
 	state.proposing = true;
 	
-	omsg.ProposeRequest(paxosID, RMAN->GetNodeID(), state.proposalID,
+	omsg.ProposeRequest(context->GetPaxosID(), RMAN->GetNodeID(), state.proposalID,
 	 state.proposedRunID, state.proposedEpochID, &state.proposedValue);
 	BroadcastMessage(omsg);
 	

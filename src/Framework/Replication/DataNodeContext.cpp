@@ -45,6 +45,21 @@ uint64_t DataNodeContext::GetHighestPaxosID() const
 	return highestPaxosID;
 }
 
+Quorum* DataNodeContext::GetQuorum()
+{
+	return &quorum;
+}
+
+QuorumDatabase*	DataNodeContext::GetDatabase()
+{
+	return &database;
+}
+
+QuorumTransport* DataNodeContext::GetTransport()
+{
+	return &transport;
+}
+
 void DataNodeContext::OnMessage()
 {
 	char proto;
@@ -82,6 +97,7 @@ void DataNodeContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 	RegisterPaxosID(msg.paxosID);
 	replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
 	paxosLeaseLearner.OnMessage(msg);
+	// TODO: right now PaxosLeaseLearner will not call back
 }
 
 void DataNodeContext::OnPaxosMessage(ReadBuffer buffer)

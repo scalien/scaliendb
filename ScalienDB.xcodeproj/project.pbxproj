@@ -44,7 +44,6 @@
 		54FCE8BD11F6F34A0075BBFF /* PaxosProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCE8BC11F6F34A0075BBFF /* PaxosProposer.cpp */; };
 		54FCEA9811F705F20075BBFF /* PaxosAcceptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCEA9711F705F20075BBFF /* PaxosAcceptor.cpp */; };
 		54FCEAF911F710C20075BBFF /* QuorumDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */; };
-		54FCEC3D11F748110075BBFF /* PaxosLearner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCEC3C11F748110075BBFF /* PaxosLearner.cpp */; };
 		54FCED7311F7626D0075BBFF /* Table.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560B11C7B32A0052812E /* Table.cpp */; };
 		54FCED7411F762710075BBFF /* Transaction.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560D11C7B32A0052812E /* Transaction.cpp */; };
 		54FCED7511F762780075BBFF /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560411C7B32A0052812E /* Cursor.cpp */; };
@@ -166,7 +165,6 @@
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
 		54FCE7AE11F6E6DE0075BBFF /* PaxosProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosProposerState.h; sourceTree = "<group>"; };
 		54FCE7BA11F6E71A0075BBFF /* PaxosAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosAcceptorState.h; sourceTree = "<group>"; };
-		54FCE7BB11F6E7260075BBFF /* PaxosLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLearnerState.h; sourceTree = "<group>"; };
 		54FCE88511F6EE7D0075BBFF /* PaxosMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosMessage.h; sourceTree = "<group>"; };
 		54FCE88611F6EE7D0075BBFF /* PaxosMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosMessage.cpp; sourceTree = "<group>"; };
 		54FCE8BB11F6F34A0075BBFF /* PaxosProposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosProposer.h; sourceTree = "<group>"; };
@@ -175,8 +173,6 @@
 		54FCEA9711F705F20075BBFF /* PaxosAcceptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosAcceptor.cpp; sourceTree = "<group>"; };
 		54FCEAF711F710C20075BBFF /* QuorumDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumDatabase.h; sourceTree = "<group>"; };
 		54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumDatabase.cpp; sourceTree = "<group>"; };
-		54FCEC3B11F748110075BBFF /* PaxosLearner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLearner.h; sourceTree = "<group>"; };
-		54FCEC3C11F748110075BBFF /* PaxosLearner.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLearner.cpp; sourceTree = "<group>"; };
 		54FCED9A11F8549F0075BBFF /* ReplicatedLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicatedLog.cpp; sourceTree = "<group>"; };
 		54FCED9B11F8549F0075BBFF /* ReplicatedLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicatedLog.h; sourceTree = "<group>"; };
 		54FCEDE511F86ABE0075BBFF /* DataNodeContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataNodeContext.h; sourceTree = "<group>"; };
@@ -460,8 +456,6 @@
 				54FCE8BC11F6F34A0075BBFF /* PaxosProposer.cpp */,
 				54FCEA9611F705F20075BBFF /* PaxosAcceptor.h */,
 				54FCEA9711F705F20075BBFF /* PaxosAcceptor.cpp */,
-				54FCEC3B11F748110075BBFF /* PaxosLearner.h */,
-				54FCEC3C11F748110075BBFF /* PaxosLearner.cpp */,
 			);
 			path = Paxos;
 			sourceTree = "<group>";
@@ -471,7 +465,6 @@
 			children = (
 				54FCE7AE11F6E6DE0075BBFF /* PaxosProposerState.h */,
 				54FCE7BA11F6E71A0075BBFF /* PaxosAcceptorState.h */,
-				54FCE7BB11F6E7260075BBFF /* PaxosLearnerState.h */,
 			);
 			path = States;
 			sourceTree = "<group>";
@@ -631,7 +624,6 @@
 				54FCE8BD11F6F34A0075BBFF /* PaxosProposer.cpp in Sources */,
 				54FCEA9811F705F20075BBFF /* PaxosAcceptor.cpp in Sources */,
 				54FCEAF911F710C20075BBFF /* QuorumDatabase.cpp in Sources */,
-				54FCEC3D11F748110075BBFF /* PaxosLearner.cpp in Sources */,
 				54FCED7311F7626D0075BBFF /* Table.cpp in Sources */,
 				54FCED7411F762710075BBFF /* Transaction.cpp in Sources */,
 				54FCED7511F762780075BBFF /* Cursor.cpp in Sources */,

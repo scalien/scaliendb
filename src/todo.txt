@@ -36,3 +36,6 @@
   problem is if there are async (db) operations going on for that chunk
 
 - stremaing ReplicatedLog catchup
+- get rid of 3 paxosID in Paxos actors
+- transaction juggling
+

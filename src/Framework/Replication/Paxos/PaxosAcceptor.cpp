@@ -6,7 +6,6 @@ void PaxosAcceptor::Init(QuorumContext* context_)
 {
 	context = context_;
 
-	paxosID = 0;
 	ReadState();
 }
 
@@ -93,13 +92,14 @@ void PaxosAcceptor::OnStateWritten()
 	
 	PaxosMessage omsg;
 
-	if (writtenPaxosID != paxosID)
+	if (writtenPaxosID != context->GetPaxosID())
 		return;
 
 	if (!state.accepted)
-		omsg.PrepareCurrentlyOpen(paxosID, RMAN->GetNodeID(), state.promisedProposalID);
+		omsg.PrepareCurrentlyOpen(context->GetPaxosID(),
+		 RMAN->GetNodeID(), state.promisedProposalID);
 	else
-		omsg.PreparePreviouslyAccepted(paxosID, RMAN->GetNodeID(),
+		omsg.PreparePreviouslyAccepted(context->GetPaxosID(), RMAN->GetNodeID(),
 		 state.promisedProposalID, state.acceptedProposalID,
 		 state.acceptedRunID, state.acceptedEpochID, &state.acceptedValue);
 
@@ -114,7 +114,7 @@ void PaxosAcceptor::ReadState()
 	
 	db = context->GetDatabase();
 
-	paxosID = db->GetPaxosID();
+	context->SetPaxosID(db->GetPaxosID());
 	state.accepted = db->GetAccepted();
 	state.promisedProposalID = db->GetPromisedProposalID();
 	if (state.accepted)
@@ -133,7 +133,7 @@ void PaxosAcceptor::WriteState()
 	db = context->GetDatabase();
 	
 	db->Begin();
-	db->SetPaxosID(paxosID);
+	db->SetPaxosID(context->GetPaxosID());
 	db->SetAccepted(state.accepted);
 	db->SetPromisedProposalID(state.promisedProposalID);
 	if (state.accepted)
@@ -144,7 +144,7 @@ void PaxosAcceptor::WriteState()
 		db->SetAcceptedValue(state.acceptedValue);
 	}
 
-	writtenPaxosID = paxosID;
+	writtenPaxosID = context->GetPaxosID();
 
 	db->Commit();
 

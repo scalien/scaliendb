@@ -24,9 +24,9 @@ class DataNodeContext : public QuorumContext
 	virtual uint64_t				GetPaxosID() const;
 	virtual uint64_t				GetHighestPaxosID() const;
 
-	virtual Quorum*					GetQuorum() const;
-	virtual QuorumDatabase*			GetDatabase() const;
-	virtual QuorumTransport*		GetTransport() const;
+	virtual Quorum*					GetQuorum();
+	virtual QuorumDatabase*			GetDatabase();
+	virtual QuorumTransport*		GetTransport();
 
 	virtual void					OnMessage();
 
