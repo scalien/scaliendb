@@ -78,16 +78,6 @@ void QuorumDatabase::SetAcceptedRunID(uint64_t acceptedRunID)
 	SetUint64("acceptedRunID", acceptedRunID);
 }
 
-uint64_t QuorumDatabase::GetAcceptedEpochID()
-{
-	return GetUint64("acceptedEpochID");
-}
-
-void QuorumDatabase::SetAcceptedEpochID(uint64_t acceptedEpochID)
-{
-	SetUint64("acceptedEpochID", acceptedEpochID);
-}
-
 void QuorumDatabase::GetAcceptedValue(Buffer& acceptedValue)
 {
 	Buffer		key;

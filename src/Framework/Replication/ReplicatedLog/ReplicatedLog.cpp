@@ -118,7 +118,7 @@ void ReplicatedLog::OnProposeResponse(const PaxosMessage& imsg)
 
 void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 {
-	uint64_t		runID, epochID;
+	uint64_t		runID;
 	bool			commit;
 	Buffer*			value;
 
@@ -135,14 +135,12 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 	if (imsg.type == PAXOS_LEARN_VALUE)
 	{
 		runID = imsg.runID;
-		epochID = imsg.epochID;
 		value = imsg.value;
 	}
 	else if (imsg.type == PAXOS_LEARN_PROPOSAL && acceptor.state.accepted &&
 	 acceptor.state.acceptedProposalID == imsg.proposalID)
 	 {
 		runID = acceptor.state.acceptedRunID;
-		epochID = acceptor.state.acceptedEpochID;
 		value = &acceptor.state.acceptedValue;
 	}
 	else
@@ -159,8 +157,7 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 	if (context->GetHighestPaxosID() >= paxosID)
 		RequestChosen(imsg.nodeID);
 	
-	if (imsg.nodeID == RMAN->GetNodeID() && runID == RMAN->GetRunID() &&
-	 epochID == context->GetEpochID() && context->IsLeader())
+	if (imsg.nodeID == RMAN->GetNodeID() && runID == RMAN->GetRunID() && context->IsLeader())
 	{
 		proposer.state.multi = true;
 		Log_Trace("Multi paxos enabled");

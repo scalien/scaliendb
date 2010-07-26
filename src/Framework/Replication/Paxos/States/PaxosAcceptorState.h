@@ -20,7 +20,6 @@ struct PaxosAcceptorState
 	bool			accepted;	
 	uint64_t		acceptedProposalID;
 	uint64_t		acceptedRunID;
-	uint64_t		acceptedEpochID;
 	Buffer			acceptedValue;
 
 };
@@ -35,7 +34,6 @@ inline void PaxosAcceptorState::Init()
 	accepted = false;
 	acceptedProposalID = 0;
 	acceptedRunID = 0;
-	acceptedEpochID = 0;
 	acceptedValue.Clear();
 }
 

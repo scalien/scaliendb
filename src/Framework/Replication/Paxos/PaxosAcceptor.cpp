@@ -48,7 +48,7 @@ void PaxosAcceptor::OnPrepareRequest(const PaxosMessage& imsg)
 	else
 		omsg.PreparePreviouslyAccepted(imsg.paxosID, RMAN->GetNodeID(),
 		 imsg.proposalID, state.acceptedProposalID,
-		 state.acceptedRunID, state.acceptedEpochID, &state.acceptedValue);
+		 state.acceptedRunID, &state.acceptedValue);
 	
 	WriteState();
 	//RLOG->StopPaxos(); TODO
@@ -78,7 +78,6 @@ void PaxosAcceptor::OnProposeRequest(const PaxosMessage& imsg)
 	state.accepted = true;
 	state.acceptedProposalID = imsg.proposalID;
 	state.acceptedRunID = imsg.runID;
-	state.acceptedEpochID = imsg.epochID;
 	state.acceptedValue.Write(*imsg.value);
 	omsg.ProposeAccepted(imsg.paxosID, RMAN->GetNodeID(), imsg.proposalID);
 	
@@ -101,7 +100,7 @@ void PaxosAcceptor::OnStateWritten()
 	else
 		omsg.PreparePreviouslyAccepted(context->GetPaxosID(), RMAN->GetNodeID(),
 		 state.promisedProposalID, state.acceptedProposalID,
-		 state.acceptedRunID, state.acceptedEpochID, &state.acceptedValue);
+		 state.acceptedRunID, &state.acceptedValue);
 
 	context->GetTransport()->SendMessage(senderID, omsg);
 }
@@ -120,7 +119,6 @@ void PaxosAcceptor::ReadState()
 	if (state.accepted)
 	{
 		state.acceptedRunID = db->GetAcceptedRunID();
-		state.acceptedEpochID = db->GetAcceptedEpochID();
 		state.acceptedProposalID = db->GetAcceptedProposalID();
 		db->GetAcceptedValue(state.acceptedValue);
 	}
@@ -139,7 +137,6 @@ void PaxosAcceptor::WriteState()
 	if (state.accepted)
 	{
 		db->SetAcceptedRunID(state.acceptedRunID);
-		db->SetAcceptedEpochID(state.acceptedEpochID);
 		db->SetAcceptedProposalID(state.acceptedProposalID);
 		db->SetAcceptedValue(state.acceptedValue);
 	}

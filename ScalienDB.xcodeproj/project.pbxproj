@@ -50,7 +50,9 @@
 		54FCED7611F762780075BBFF /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560811C7B32A0052812E /* Database.cpp */; };
 		54FCF0C911FAFE2A0075BBFF /* ReplicatedLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCED9A11F8549F0075BBFF /* ReplicatedLog.cpp */; };
 		54FCF42C11FB31420075BBFF /* LogCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF42B11FB31420075BBFF /* LogCache.cpp */; };
-		54FCF62411FDD98E0075BBFF /* DataChunkContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF62211FDD98E0075BBFF /* DataChunkContext.cpp */; };
+		54FCF6A111FDF4770075BBFF /* ControllerChunkContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69A11FDF4770075BBFF /* ControllerChunkContext.cpp */; };
+		54FCF6A211FDF4770075BBFF /* ControllerConfigContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ControllerConfigContext.cpp */; };
+		54FCF6A311FDF4770075BBFF /* DataChunkContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */; };
 		8DD76F6A0486A84900D96B5E /* Rowscale.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Rowscale.1 */; };
 		9A0C20D411C7C48600510AB4 /* libdb_cxx-4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */; };
 		9A26D69E11F4BDE2006A2814 /* HttpConn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */; };
@@ -177,8 +179,13 @@
 		54FCED9B11F8549F0075BBFF /* ReplicatedLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicatedLog.h; sourceTree = "<group>"; };
 		54FCF42A11FB31420075BBFF /* LogCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogCache.h; sourceTree = "<group>"; };
 		54FCF42B11FB31420075BBFF /* LogCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LogCache.cpp; sourceTree = "<group>"; };
-		54FCF62211FDD98E0075BBFF /* DataChunkContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataChunkContext.cpp; sourceTree = "<group>"; };
-		54FCF62311FDD98E0075BBFF /* DataChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataChunkContext.h; sourceTree = "<group>"; };
+		54FCF69911FDF4770075BBFF /* ConfigDB.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigDB.h; sourceTree = "<group>"; };
+		54FCF69A11FDF4770075BBFF /* ControllerChunkContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerChunkContext.cpp; sourceTree = "<group>"; };
+		54FCF69B11FDF4770075BBFF /* ControllerChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerChunkContext.h; sourceTree = "<group>"; };
+		54FCF69C11FDF4770075BBFF /* ControllerConfigContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerConfigContext.cpp; sourceTree = "<group>"; };
+		54FCF69D11FDF4770075BBFF /* ControllerConfigContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerConfigContext.h; sourceTree = "<group>"; };
+		54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataChunkContext.cpp; sourceTree = "<group>"; };
+		54FCF6A011FDF4770075BBFF /* DataChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataChunkContext.h; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
 		9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpConn.cpp; path = Application/HTTP/HttpConn.cpp; sourceTree = "<group>"; };
@@ -478,21 +485,35 @@
 			path = ReplicatedLog;
 			sourceTree = "<group>";
 		};
-		54FCF62111FDD98E0075BBFF /* Replication */ = {
+		54FCF69811FDF4770075BBFF /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				54FCF62311FDD98E0075BBFF /* DataChunkContext.h */,
-				54FCF62211FDD98E0075BBFF /* DataChunkContext.cpp */,
+				54FCF69B11FDF4770075BBFF /* ControllerChunkContext.h */,
+				54FCF69A11FDF4770075BBFF /* ControllerChunkContext.cpp */,
+				54FCF69D11FDF4770075BBFF /* ControllerConfigContext.h */,
+				54FCF69C11FDF4770075BBFF /* ControllerConfigContext.cpp */,
+				54FCF69911FDF4770075BBFF /* ConfigDB.h */,
 			);
-			name = Replication;
-			path = Application/Replication;
+			name = Controller;
+			path = Application/Controller;
+			sourceTree = "<group>";
+		};
+		54FCF69E11FDF4770075BBFF /* DataNode */ = {
+			isa = PBXGroup;
+			children = (
+				54FCF6A011FDF4770075BBFF /* DataChunkContext.h */,
+				54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */,
+			);
+			name = DataNode;
+			path = Application/DataNode;
 			sourceTree = "<group>";
 		};
 		9A26D68511F4BD5B006A2814 /* Application */ = {
 			isa = PBXGroup;
 			children = (
 				9A26D68711F4BD66006A2814 /* HTTP */,
-				54FCF62111FDD98E0075BBFF /* Replication */,
+				54FCF69811FDF4770075BBFF /* Controller */,
+				54FCF69E11FDF4770075BBFF /* DataNode */,
 			);
 			name = Application;
 			sourceTree = "<group>";
@@ -639,7 +660,9 @@
 				54FCED7611F762780075BBFF /* Database.cpp in Sources */,
 				54FCF0C911FAFE2A0075BBFF /* ReplicatedLog.cpp in Sources */,
 				54FCF42C11FB31420075BBFF /* LogCache.cpp in Sources */,
-				54FCF62411FDD98E0075BBFF /* DataChunkContext.cpp in Sources */,
+				54FCF6A111FDF4770075BBFF /* ControllerChunkContext.cpp in Sources */,
+				54FCF6A211FDF4770075BBFF /* ControllerConfigContext.cpp in Sources */,
+				54FCF6A311FDF4770075BBFF /* DataChunkContext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

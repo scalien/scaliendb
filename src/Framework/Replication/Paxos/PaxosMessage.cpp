@@ -34,13 +34,12 @@ bool PaxosMessage::PrepareRejected(
 bool PaxosMessage::PreparePreviouslyAccepted(
  uint64_t paxosID_, uint64_t nodeID_,
  uint64_t proposalID_, uint64_t acceptedProposalID_,
- uint64_t runID_, uint64_t epochID_, Buffer* value_)
+ uint64_t runID_, Buffer* value_)
 {
 	Init(paxosID_, PAXOS_PREPARE_PREVIOUSLY_ACCEPTED, nodeID_);
 	proposalID = proposalID_;
 	acceptedProposalID = acceptedProposalID_;
 	runID = runID_;
-	epochID = epochID_;
 	value = value_;
 	
 	return true;
@@ -58,12 +57,11 @@ bool PaxosMessage::PrepareCurrentlyOpen(
 
 bool PaxosMessage::ProposeRequest(
  uint64_t paxosID_, uint64_t nodeID_,
- uint64_t proposalID_, uint64_t runID_, uint64_t epochID_, Buffer* value_)
+ uint64_t proposalID_, uint64_t runID_, Buffer* value_)
 {
 	Init(paxosID_, PAXOS_PROPOSE_REQUEST, nodeID_);
 	proposalID = proposalID_;
 	runID = runID_;
-	epochID = epochID_;
 	value = value_;
 	
 	return true;
@@ -91,11 +89,10 @@ bool PaxosMessage::ProposeAccepted(
 
 bool PaxosMessage::LearnValue(
  uint64_t paxosID_, uint64_t nodeID_,
- uint64_t runID_, uint64_t epochID_, Buffer* value_)
+ uint64_t runID_, Buffer* value_)
 {
 	Init(paxosID_, PAXOS_LEARN_VALUE, nodeID_);
 	runID = runID_;
-	epochID = epochID_;
 	value = value_;
 	
 	return true;
@@ -175,16 +172,16 @@ bool PaxosMessage::Read(const ReadBuffer& buffer)
 			 &type, &paxosID, &nodeID, &proposalID, &promisedProposalID);
 			break;
 		case PAXOS_PREPARE_PREVIOUSLY_ACCEPTED:
-			read = buffer.Readf("%c:%U:%U:%U:%U:%U:%U:%M",
-			 &type, &paxosID, &nodeID, &proposalID, &acceptedProposalID, &runID, &epochID, &value);
+			read = buffer.Readf("%c:%U:%U:%U:%U:%U:%M",
+			 &type, &paxosID, &nodeID, &proposalID, &acceptedProposalID, &runID, &value);
 			break;
 		case PAXOS_PREPARE_CURRENTLY_OPEN:
 			read = buffer.Readf("%c:%U:%U:%U",
 			 &type, &paxosID, &nodeID, &proposalID);
 			break;
 		case PAXOS_PROPOSE_REQUEST:
-			read = buffer.Readf("%c:%U:%U:%U:%U:%U:%M",
-			 &type, &paxosID, &nodeID, &proposalID, &runID, &epochID, &value);
+			read = buffer.Readf("%c:%U:%U:%U:%U:%M",
+			 &type, &paxosID, &nodeID, &proposalID, &runID, &value);
 			break;
 		case PAXOS_PROPOSE_REJECTED:
 			read = buffer.Readf("%c:%U:%U:%U",
@@ -199,8 +196,8 @@ bool PaxosMessage::Read(const ReadBuffer& buffer)
 			 &type, &paxosID, &nodeID, &proposalID);
 			break;
 		case PAXOS_LEARN_VALUE:
-			read = buffer.Readf("%c:%U:%U:%U:%U:%M",
-			 &type, &paxosID, &nodeID, &runID, &epochID, &value);
+			read = buffer.Readf("%c:%U:%U:%U:%M",
+			 &type, &paxosID, &nodeID, &runID, &value);
 			break;
 		case PAXOS_REQUEST_CHOSEN:
 			read = buffer.Readf("%c:%U:%U",
@@ -231,16 +228,16 @@ bool PaxosMessage::Write(Buffer& buffer) const
 			 type, paxosID, nodeID, proposalID, promisedProposalID);
 			break;
 		case PAXOS_PREPARE_PREVIOUSLY_ACCEPTED:
-			return buffer.Writef("%c:%U:%U:%U:%U:%U:%U:%M",
-			 type, paxosID, nodeID, proposalID, acceptedProposalID, runID, epochID, &value);
+			return buffer.Writef("%c:%U:%U:%U:%U:%U:%M",
+			 type, paxosID, nodeID, proposalID, acceptedProposalID, runID, &value);
 			break;
 		case PAXOS_PREPARE_CURRENTLY_OPEN:
 			return buffer.Writef("%c:%U:%U:%U",
 			 type, paxosID, nodeID, proposalID);
 			break;
 		case PAXOS_PROPOSE_REQUEST:
-			return buffer.Writef("%c:%U:%U:%U:%U:%U:%M",
-			 type, paxosID, nodeID, proposalID, runID, epochID, &value);
+			return buffer.Writef("%c:%U:%U:%U:%U:%M",
+			 type, paxosID, nodeID, proposalID, runID, &value);
 			break;
 		case PAXOS_PROPOSE_REJECTED:
 			return buffer.Writef("%c:%U:%U:%U",
@@ -255,8 +252,8 @@ bool PaxosMessage::Write(Buffer& buffer) const
 			 type, paxosID, nodeID, proposalID);
 			break;
 		case PAXOS_LEARN_VALUE:
-			return buffer.Writef("%c:%U:%U:%U:%U:%M",
-			 type, paxosID, nodeID, runID, epochID, &value);
+			return buffer.Writef("%c:%U:%U:%U:%M",
+			 type, paxosID, nodeID, runID, &value);
 			break;
 		case PAXOS_REQUEST_CHOSEN:
 			return buffer.Writef("%c:%U:%U",

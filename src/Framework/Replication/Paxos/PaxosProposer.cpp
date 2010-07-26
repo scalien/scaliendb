@@ -50,7 +50,6 @@ void PaxosProposer::Propose(const Buffer& value)
 		ASSERT_FAIL();
 
 	state.proposedRunID = RMAN->GetRunID();
-	state.proposedEpochID = context->GetEpochID();
 	state.proposedValue.Write(value);
 	
 	if (state.multi && state.numProposals == 0)
@@ -65,7 +64,6 @@ void PaxosProposer::Propose(const Buffer& value)
 void PaxosProposer::Stop()
 {
 	state.proposedRunID = 0;
-	state.proposedEpochID = 0;
 	state.proposedValue.Clear();
 	state.preparing = false;
 	state.proposing = false;
@@ -106,7 +104,6 @@ void PaxosProposer::OnPrepareResponse(const PaxosMessage& imsg)
 		 */
 		state.highestReceivedProposalID = imsg.acceptedProposalID;
 		state.proposedRunID = imsg.runID;
-		state.proposedEpochID = imsg.epochID;
 		state.proposedValue.Write(*imsg.value);
 	}
 
@@ -199,7 +196,7 @@ void PaxosProposer::StartProposing()
 	state.proposing = true;
 	
 	omsg.ProposeRequest(context->GetPaxosID(), RMAN->GetNodeID(), state.proposalID,
-	 state.proposedRunID, state.proposedEpochID, &state.proposedValue);
+	 state.proposedRunID, &state.proposedValue);
 	BroadcastMessage(omsg);
 	
 	EventLoop::Reset(&proposeTimeout);

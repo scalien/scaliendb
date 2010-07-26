@@ -10,9 +10,9 @@ DataChunkContext::DataChunkContext()
 	highestPaxosID = 0;
 }
 
-void DataChunkContext::SetLogID(uint64_t logID_)
+void DataChunkContext::SetContextID(uint64_t contextID_)
 {
-	logID = logID_;
+	contextID = contextID_;
 }
 
 bool DataChunkContext::IsLeaderKnown()
@@ -30,9 +30,9 @@ uint64_t DataChunkContext::GetLeader()
 	return paxosLeaseLearner.IsLeaseOwner();
 }
 
-uint64_t DataChunkContext::GetLogID() const
+uint64_t DataChunkContext::GetContextID() const
 {
-	return logID;
+	return contextID;
 }
 
 uint64_t DataChunkContext::GetPaxosID() const

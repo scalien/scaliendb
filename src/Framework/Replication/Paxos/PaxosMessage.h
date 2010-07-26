@@ -30,7 +30,6 @@ public:
 	char			type;
 	uint64_t		nodeID;
 	uint64_t		runID;
-	uint64_t		epochID;
 	uint64_t		proposalID;
 	uint64_t		acceptedProposalID;
 	uint64_t		promisedProposalID;
@@ -49,7 +48,7 @@ public:
 	bool			PreparePreviouslyAccepted(
 					 uint64_t paxosID, uint64_t nodeID,
 					 uint64_t proposalID, uint64_t acceptedProposalID,
-					 uint64_t runID, uint64_t epochID, Buffer* value);
+					 uint64_t runID, Buffer* value);
 
 	bool			PrepareCurrentlyOpen(
 					 uint64_t paxosID, uint64_t nodeID,
@@ -57,7 +56,7 @@ public:
 
 	bool			ProposeRequest(
 					 uint64_t paxosID, uint64_t nodeID,
-					 uint64_t proposalID, uint64_t runID, uint64_t epochID, Buffer* value);
+					 uint64_t proposalID, uint64_t runID, Buffer* value);
 
 	bool			ProposeRejected(
 					 uint64_t paxosID, uint64_t nodeID,
@@ -73,7 +72,7 @@ public:
 
 	bool			LearnValue(
 					 uint64_t paxosID, uint64_t nodeID,
-					 uint64_t runID, uint64_t epochID, Buffer* value);
+					 uint64_t runID, Buffer* value);
 
 	bool			RequestChosen(
 					 uint64_t paxosID, uint64_t nodeID);

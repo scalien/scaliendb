@@ -12,24 +12,50 @@
 - Readf/Writef vs ReadBuffer
 
 - PaxosAcceptorState::value should come from a BufferPool (!)
+
 - Paxos value should have a limit of 100K (=object size limit),
   but this should not limit the KV value size
   eg. a large value is typically a list, but only replicate the small mutation ops
   which involve one object at a time
 
+- data node's ReplicatedLog should only send "header" to control nodes
+  does this mean we need two different ReplicatedLog implementations?
 
-- Paxos - 1
-- ReplicatedLog - 1
-- ReplicationManager - 1
---------------------------( Framework )
-- ReplicatedDB
-- HTTP
-
+- catchup now asks the sender to send the chosen value
+  this won't work for chunk replication if the server is a controller
 
 - when a chunk is taken away from a data node, it needs to shut down that
   QuorumContext/ReplicatedLog, so we'll need a Shutdown() function there
   problem is if there are async (db) operations going on for that chunk
 
 - stremaing ReplicatedLog catchup
+
 - transaction juggling
+
++ I think epochID is unnecessary
+
+
+data:
+-----
+- if not exists: create db
+- context with contextID 1
+- register with controllers
+- ChunkDB: GET / SET
+- HTTP 
+
+
+controller:
+-----------
+- PaxosLease (ControllerConfigContext)
+- ControlDB
+- ChunkDB[logID=1]
+- if receive message from node n with logID l:
+	- if l == 0: SPECIAL CASE, register node
+	- else: check if node n is part of context l
+		- yes: Paxos
+		- no: drop message
+- periodically inform data nodes who the primary is
+//- periodically inform data nodes who the controller master is
+- HTTP
+
 

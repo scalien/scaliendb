@@ -21,13 +21,12 @@ class QuorumContext
 {
 public:
 	virtual ~QuorumContext() {};
-	
-	virtual bool					IsLeader()						= 0;
+
+	virtual bool					IsLeader()						= 0;	
 	virtual bool					IsLeaderKnown()					= 0;
 	virtual uint64_t				GetLeader()						= 0;
 
-	virtual uint64_t				GetEpochID() const				= 0;
-	virtual uint64_t				GetLogID() const				= 0;
+	virtual uint64_t				GetContextID() const			= 0;
 	virtual void					SetPaxosID(uint64_t paxosID)	= 0;
 	virtual uint64_t				GetPaxosID() const				= 0;
 	virtual uint64_t				GetHighestPaxosID() const		= 0;
@@ -37,7 +36,6 @@ public:
 	virtual QuorumTransport*		GetTransport() const			= 0;
 	
 	virtual Buffer*					GetNextValue()					= 0;
-	
 	virtual void					OnMessage()						= 0;
 };
 

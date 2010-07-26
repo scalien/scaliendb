@@ -32,10 +32,7 @@ public:
 	
 	uint64_t			GetAcceptedRunID();
 	void				SetAcceptedRunID(uint64_t acceptedRunID);
-	
-	uint64_t			GetAcceptedEpochID();
-	void				SetAcceptedEpochID(uint64_t acceptedEpochID);
-	
+		
 	void				GetAcceptedValue(Buffer& acceptedValue);
 	void				SetAcceptedValue(const Buffer& acceptedValue);
 

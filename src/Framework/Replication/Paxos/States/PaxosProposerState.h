@@ -24,7 +24,6 @@ struct PaxosProposerState
 	uint64_t		highestPromisedProposalID;
 
 	uint64_t		proposedRunID;
-	uint64_t		proposedEpochID;
 	Buffer			proposedValue;
 
 	bool			multi;		  // multi paxos
@@ -43,7 +42,6 @@ inline void PaxosProposerState::Init()
 	highestReceivedProposalID =	0;
 	highestPromisedProposalID = 0;
 	proposedRunID = 0;
-	proposedEpochID = 0;
 	proposedValue.Clear();
 	multi = false;
 	numProposals = 0;
