@@ -107,11 +107,11 @@ void PaxosProposer::OnPrepareResponse(const PaxosMessage& imsg)
 		state.proposedValue.Write(*imsg.value);
 	}
 
-	if (vote->IsRoundRejected())
+	if (vote->IsRejected())
 		StartPreparing();
-	else if (vote->IsRoundAccepted())
+	else if (vote->IsAccepted())
 		StartProposing();	
-	else if (vote->IsRoundComplete())
+	else if (vote->IsComplete())
 		StartPreparing();
 }
 
@@ -131,14 +131,14 @@ void PaxosProposer::OnProposeResponse(const PaxosMessage& imsg)
 		vote->RegisterAccepted(imsg.nodeID);
 
 	// see if we have enough positive replies to advance
-	if (vote->IsRoundAccepted())
+	if (vote->IsAccepted())
 	{
 		// a majority have accepted our proposal, we have consensus
 		StopProposing();
 		omsg.LearnProposal(context->GetPaxosID(), RMAN->GetNodeID(), state.proposalID);
 		BroadcastMessage(omsg);
 	}
-	else if (vote->IsRoundComplete())
+	else if (vote->IsComplete())
 		StartPreparing();
 }
 

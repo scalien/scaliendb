@@ -5,6 +5,7 @@
 #include "Framework/Replication/Quorums/DoubleQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseLearner.h"
+
 /*
 ===============================================================================
 
@@ -15,7 +16,7 @@
 
 class DataChunkContext : public QuorumContext
 {
-	DataChunkContext();
+	void							Init();
 	
 	void							SetContextID(uint64_t contextID);
 	
@@ -26,7 +27,6 @@ class DataChunkContext : public QuorumContext
 	virtual uint64_t				GetContextID() const;
 
 	virtual uint64_t				GetPaxosID() const;
-	virtual void					SetPaxosID(uint64_t paxosID);
 	virtual uint64_t				GetHighestPaxosID() const;
 
 	virtual Quorum*					GetQuorum();

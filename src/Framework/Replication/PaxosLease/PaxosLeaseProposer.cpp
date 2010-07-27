@@ -1,13 +1,14 @@
 #include "PaxosLeaseProposer.h"
+#include "PaxosLease.h"
 #include "Framework/Replication/ReplicationManager.h"
 
 void PaxosLeaseProposer::Init(QuorumContext* context_)
 {
 	context = context_;
-	vote = context->Newvote();
+	vote = context->GetQuorum()->NewVote();
 	
 	acquireLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnAcquireLeaseTimeout));
-	acquireLeaseTimeout.SetDelay(ACQUIRELEASE_TIMEOUT);
+	acquireLeaseTimeout.SetDelay(PAXOSLEASE_ACQUIRELEASE_TIMEOUT);
 	extendLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnExtendLeaseTimeout));
 	
 	highestProposalID = 0;
@@ -89,11 +90,11 @@ void PaxosLeaseProposer::OnPrepareResponse(const PaxosLeaseMessage& imsg)
 		state.leaseOwner = imsg.leaseOwner;
 	}
 
-	if (vote->IsvoteRejected())
+	if (vote->IsRejected())
 		StartPreparing();
-	else if (vote->IsvoteAccepted())
+	else if (vote->IsAccepted())
 		StartProposing();	
-	else if (vote->IsvoteComplete())
+	else if (vote->IsComplete())
 		StartPreparing();
 }
 
@@ -118,7 +119,7 @@ void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 		vote->RegisterAccepted(imsg.nodeID);
 	
 	// see if we have enough positive replies to advance
-	if (vote->IsvoteAccepted() && state.expireTime - Now() > 500 /*msec*/)
+	if (vote->IsAccepted() && state.expireTime - Now() > 500 /*msec*/)
 	{		
 		// a majority have accepted our proposal, we have consensus
 		EventLoop::Remove(&acquireLeaseTimeout);
@@ -126,12 +127,12 @@ void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 		EventLoop::Reset(&extendLeaseTimeout);
 	
 		omsg.LearnChosen(RMAN->GetNodeID(), state.leaseOwner,
-		 state.expireTime - Now(), state.expireTime);
+		 state.expireTime - Now(), state.expireTime, context->GetPaxosID());
 		BroadcastMessage(omsg);
 
 		state.proposing = false;
 	}
-	else if (vote->IsvoteComplete())
+	else if (vote->IsComplete())
 		StartPreparing();
 }
 
@@ -177,7 +178,7 @@ void PaxosLeaseProposer::StartProposing()
 		return; // no point in getting someone else a lease, wait for OnAcquireLeaseTimeout
 
 	state.proposing = true;
-	state.duration = MAX_LEASE_TIME;
+	state.duration = PAXOSLEASE_MAX_LEASE_TIME;
 	state.expireTime = Now() + state.duration;
 	
 	omsg.ProposeRequest(RMAN->GetNodeID(), state.proposalID, state.leaseOwner, state.duration);

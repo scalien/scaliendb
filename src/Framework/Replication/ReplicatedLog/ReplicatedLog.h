@@ -21,6 +21,8 @@ class ReplicatedLog
 {
 public:
 	void					Init(QuorumContext* context);
+
+	void					TryAppendNextValue();
 	
 	void					OnMessage(const PaxosMessage& msg);
 	uint64_t				GetPaxosID() const;
@@ -37,7 +39,6 @@ public:
 //	uint64_t				GetLastRound_Thruput();
 
 private:
-	void					TryAppendNextValue();
 	void					Append(const Buffer& value);
 
 	void					OnPrepareRequest(const PaxosMessage& msg);

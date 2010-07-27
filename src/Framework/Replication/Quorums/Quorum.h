@@ -18,9 +18,9 @@ class Quorum
 public:
 	virtual ~Quorum() {}
 
-	virtual unsigned			GetNumNodes()	const = 0;
-	virtual const uint64_t*		GetNodes()		const = 0;
-	virtual QuorumVote*			NewVote()		const = 0;
+	virtual unsigned			GetNumNodes()		const	= 0;
+	virtual const uint64_t*		GetNodes()			const	= 0;
+	virtual QuorumVote*			NewVote()			const	= 0;
 };
 
 /*
@@ -41,9 +41,9 @@ public:
 	virtual void				RegisterRejected(uint64_t nodeID)	= 0;
 	virtual void				Reset()								= 0;
 
-	virtual bool				IsRoundRejected() const				= 0;
-	virtual bool				IsRoundAccepted() const				= 0;
-	virtual bool				IsRoundComplete() const				= 0;
+	virtual bool				IsRejected() const				= 0;
+	virtual bool				IsAccepted() const				= 0;
+	virtual bool				IsComplete() const				= 0;
 };
 
 #endif

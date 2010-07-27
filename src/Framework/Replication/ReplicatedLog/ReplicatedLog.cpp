@@ -188,7 +188,7 @@ void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
 	if (value != NULL)
 	{
 		Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
-		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, 0, value);
+		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, value);
 		context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 	}
 //	else // TODO
@@ -224,7 +224,7 @@ void ReplicatedLog::OnRequest(const PaxosMessage& imsg)
 		value = logCache.Get(imsg.paxosID);
 		if (value == NULL)
 			return;
-		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, 0, value);
+		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, value);
 		context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 	}
 	else // paxosID < msg.paxosID

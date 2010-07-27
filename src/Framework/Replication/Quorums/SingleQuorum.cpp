@@ -56,17 +56,17 @@ void SingleQuorumVote::Reset()
 	numRejected = 0;
 }
 
-bool SingleQuorumVote::IsRoundRejected() const
+bool SingleQuorumVote::IsRejected() const
 {
 	return (numRejected >= ceil((double)(numNodes) / 2));
 }
 
-bool SingleQuorumVote::IsRoundAccepted() const
+bool SingleQuorumVote::IsAccepted() const
 {
 	return (numAccepted >= ceil((double)(numNodes+1) / 2));
 }
 
-bool SingleQuorumVote::IsRoundComplete() const
+bool SingleQuorumVote::IsComplete() const
 {
 	return ((numAccepted + numRejected) == numNodes);
 }

@@ -48,9 +48,9 @@ public:
 	void				RegisterRejected(uint64_t nodeID);
 	void				Reset();
 
-	bool				IsRoundRejected() const;
-	bool				IsRoundAccepted() const;	
-	bool				IsRoundComplete() const;
+	bool				IsRejected() const;
+	bool				IsAccepted() const;	
+	bool				IsComplete() const;
 
 private:
 	uint64_t			nodes[14]; // 2*7

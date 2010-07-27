@@ -3,7 +3,7 @@
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 
-DataChunkContext::DataChunkContext()
+void DataChunkContext::Init()
 {
 	replicatedLog.Init(this);
 	paxosLeaseLearner.Init(this);
@@ -58,6 +58,11 @@ QuorumDatabase*	DataChunkContext::GetDatabase()
 QuorumTransport* DataChunkContext::GetTransport()
 {
 	return &transport;
+}
+
+Buffer* DataChunkContext::GetNextValue()
+{
+	// TODO
 }
 
 void DataChunkContext::OnMessage()

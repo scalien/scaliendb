@@ -6,7 +6,6 @@
 void PaxosLease::Init(QuorumContext* context_)
 {
 	context = context_;
-	context->SetOnMessage(MFUNC(PaxosLease, OnMessage));
 	
 	EventLoop::Reset(&startupTimeout);
 	
@@ -18,16 +17,16 @@ void PaxosLease::Init(QuorumContext* context_)
 	
 	acquireLease = false;
 
-	startupTimeout.SetDelay(MAX_LEASE_TIME);
+	startupTimeout.SetDelay(PAXOSLEASE_MAX_LEASE_TIME);
 	startupTimeout.SetCallable(MFUNC(PaxosLease, OnStartupTimeout));
-	EventLoop::Add(startupTimeout);
+	EventLoop::Add(&startupTimeout);
 }
 
 void PaxosLease::OnMessage(const PaxosLeaseMessage& imsg)
 {
 	ReadBuffer readBuffer;
 
-	if ((imsg.IsRequest()) && imsg.proposalID > proposer.HighestProposalID())
+	if ((imsg.IsRequest()) && imsg.proposalID > proposer.GetHighestProposalID())
 			proposer.SetHighestProposalID(imsg.proposalID);
 	
 	if (imsg.IsResponse())
@@ -77,7 +76,8 @@ void PaxosLease::OnLearnLease()
 {
 	Log_Trace();
 	
-	context->SetMaster(learner.GetLeaseOwner());
+	context->OnLearnLease();
+	
 	if (!IsLeaseOwner())
 		proposer.StopAcquireLease();
 }
@@ -86,7 +86,8 @@ void PaxosLease::OnLeaseTimeout()
 {
 	Log_Trace();
 	
-	context->SetNoMaster();
+	context->OnLeaseTimeout();
+	
 	if (acquireLease)
 		proposer.StartAcquireLease();
 }

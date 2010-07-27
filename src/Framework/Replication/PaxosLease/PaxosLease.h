@@ -8,8 +8,8 @@
 #include "PaxosLeaseAcceptor.h"
 #include "PaxosLeaseLearner.h"
 
-#define ACQUIRELEASE_TIMEOUT	2000	// msec
-#define MAX_LEASE_TIME			7000	// msec
+#define PAXOSLEASE_ACQUIRELEASE_TIMEOUT		2000	// msec
+#define PAXOSLEASE_MAX_LEASE_TIME			7000	// msec
 
 /*
 ===============================================================================

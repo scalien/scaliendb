@@ -84,19 +84,19 @@ void DoubleQuorumVote::Reset()
 	numRejected[0] = numAccepted[1] = 0;
 }
 
-bool DoubleQuorumVote::IsRoundRejected() const
+bool DoubleQuorumVote::IsRejected() const
 {
 	return ((numRejected[0] >= ceil((double)(numNodes[0]) / 2)) ||
 			(numRejected[1] >= ceil((double)(numNodes[1]) / 2)));
 }
 
-bool DoubleQuorumVote::IsRoundAccepted() const
+bool DoubleQuorumVote::IsAccepted() const
 {
 	return ((numAccepted[0] >= ceil((double)(numNodes[0]+1) / 2)) &&
 			(numAccepted[1] >= ceil((double)(numNodes[1]+1) / 2)));
 }
 
-bool DoubleQuorumVote::IsRoundComplete() const
+bool DoubleQuorumVote::IsComplete() const
 {
 	return (((numAccepted[0] + numRejected[0]) == numNodes[0]) &&
 			((numAccepted[1] + numRejected[1]) == numNodes[1]));
