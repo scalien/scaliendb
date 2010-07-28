@@ -19,6 +19,9 @@ class ControllerConfigContext : public QuorumContext
 	void							Init();
 	
 	void							SetContextID(uint64_t contextID);
+	void							SetQuorum(SingleQuorum& quorum);
+	void							SetDatabase(QuorumDatabase& database);
+	void							SetTransport(QuorumTransport& transport);
 	
 	// implementation of QuorumContext interface:
 	virtual bool					IsLeaderKnown();

@@ -395,7 +395,7 @@ void ProcessTCPWrite(struct kevent* ev)
 		return;
 	}
 	
-	if (tcpwrite->buffer->GetLength() == 0)
+	if (tcpwrite->buffer == NULL)
 	{
 		if (ev->flags & EV_EOF)
 			Call(tcpwrite->onClose);

@@ -25,7 +25,7 @@ public:
 	InList();
 	~InList();
 
-	T&				operator[](int i);
+	T&				Get(int i);
 	
 	void			Prepend(T* t);
 	void			Append(T* t);
@@ -66,12 +66,17 @@ InList<T>::~InList()
 }
 
 template<class T>
-T& InList<T>::operator[](int i)
+T& InList<T>::Get(int i)
 {
 	T* it;
 	
-	for (it = Head(); it != NULL && i > 0; it = Next(it), i--)
-		return *it;
+	for (it = Head(); it != NULL; it = Next(it))
+	{
+		if (i == 0)
+			return *it;
+		i--;
+	}
+	
 	
 	ASSERT_FAIL();
 }

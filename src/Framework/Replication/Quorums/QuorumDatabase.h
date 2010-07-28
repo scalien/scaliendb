@@ -18,6 +18,8 @@ class Table;	// forward
 class QuorumDatabase
 {
 public:
+	void				Init(Table* table);
+	
 	uint64_t			GetPaxosID();
 	void				SetPaxosID(uint64_t paxosID);
 	

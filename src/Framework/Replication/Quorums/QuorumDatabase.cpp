@@ -3,6 +3,11 @@
 
 #define KEY(key) "/" key
 
+void QuorumDatabase::Init(Table* table_)
+{
+	table = table_;
+}
+
 uint64_t QuorumDatabase::GetPaxosID()
 {
 	return GetUint64("paxosID");

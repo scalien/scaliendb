@@ -19,6 +19,21 @@ void ControllerConfigContext::SetContextID(uint64_t contextID_)
 	contextID = contextID_;
 }
 
+void ControllerConfigContext::SetQuorum(SingleQuorum& quorum_)
+{
+	quorum = quorum_;
+}
+
+void ControllerConfigContext::SetDatabase(QuorumDatabase& database_)
+{
+	database = database_;
+}
+
+void ControllerConfigContext::SetTransport(QuorumTransport& transport_)
+{
+	transport = transport_;
+}
+
 bool ControllerConfigContext::IsLeaderKnown()
 {
 	return paxosLease.IsLeaseKnown();

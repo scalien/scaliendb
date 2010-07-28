@@ -13,31 +13,35 @@ ReplicationManager* ReplicationManager::Get()
 	return replicationManager;
 }
 
+ReplicationTransport* ReplicationManager::GetTransport()
+{
+	return &transport;
+}
+
+void ReplicationManager::SetNodeID(uint64_t nodeID_)
+{
+	nodeID = nodeID_;
+}
+
 uint64_t ReplicationManager::GetNodeID() const
 {
-	return 0; // TODO
+	return nodeID;
 }
 
 uint64_t ReplicationManager::GetRunID() const
 {
-	return 0; // TODO
+	// TODO
+
+	return 0;
 }
 
-void ReplicationManager::AddNode(uint64_t nodeID, Endpoint endpoint)
-{
-}
-
-Endpoint ReplicationManager::GetNodeEndpoint(uint64_t nodeID) const
-{
-}
-
-void ReplicationManager::AddContext(QuorumContext* context)
-{
-}
+//void ReplicationManager::AddContext(QuorumContext* context)
+//{
+//}
 
 QuorumContext* ReplicationManager::GetContext(unsigned contextID) const
 {
-	return NULL;
+	// TODO
 }
 
 uint64_t ReplicationManager::NextProposalID(uint64_t proposalID) const

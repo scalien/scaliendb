@@ -25,7 +25,7 @@ public:
 	List();
 	~List();
 
-	T&				operator[](int i);
+	T&				Get(int i);
 	
 	void			Prepend(T &t);
 	void			Append(T &t);
@@ -81,7 +81,7 @@ List<T>::~List()
 }
 
 template<class T>
-T& List<T>::operator[](int i)
+T& List<T>::Get(int i)
 {
 	T* it;
 	

@@ -33,9 +33,9 @@ public:
 	virtual uint64_t				GetPaxosID() const				= 0;
 	virtual uint64_t				GetHighestPaxosID() const		= 0;
 
-	virtual Quorum*					GetQuorum() const				= 0;
-	virtual QuorumDatabase*			GetDatabase() const				= 0;
-	virtual QuorumTransport*		GetTransport() const			= 0;
+	virtual Quorum*					GetQuorum()						= 0;
+	virtual QuorumDatabase*			GetDatabase()					= 0;
+	virtual QuorumTransport*		GetTransport()					= 0;
 	
 	virtual Buffer*					GetNextValue()					= 0;
 	virtual void					OnMessage()						= 0;

@@ -20,7 +20,6 @@ public:
 	
 	void					SetPriority(bool priority);
 	void					SetPrefix(const Buffer& prefix);
-	void					SetReplicationTransport(ReplicationTransport* transport);
 	void					SetQuorum(Quorum* quorum);
 	
 	ReadBuffer				GetMessage() const;
@@ -32,7 +31,6 @@ private:
 	bool					priority;
 	Buffer					prefix;
 	Quorum*					quorum;
-	ReplicationTransport*	transport;
 };
 
 #endif

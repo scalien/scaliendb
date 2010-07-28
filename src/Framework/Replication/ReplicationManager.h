@@ -3,6 +3,7 @@
 
 #include "System/Common.h"
 #include "System/IO/Endpoint.h"
+#include "ReplicationTransport.h"
 
 class QuorumContext;	// forward
 class ReplicationTransport;	// forward
@@ -23,22 +24,21 @@ class ReplicationManager
 public:
 	static ReplicationManager* Get();
 	
+	ReplicationTransport*	GetTransport();
+
+	void					SetNodeID(uint64_t nodeID);
 	uint64_t				GetNodeID() const;
 	uint64_t				GetRunID() const;
-
-	void					AddNode(uint64_t nodeID, Endpoint endpoint);
-	Endpoint				GetNodeEndpoint(uint64_t nodeID) const;
 	
 	void					AddContext(QuorumContext* context);
-	QuorumContext*		GetContext(unsigned contextID) const;
+	QuorumContext*			GetContext(unsigned contextID) const;
 
 	uint64_t				NextProposalID(uint64_t proposalID)	const;
 	
-	ReplicationTransport*	GetTransport();
-
 private:
 	uint64_t				nodeID;
-	uint64_t				runID;	
+	uint64_t				runID;
+	ReplicationTransport	transport;
 };
 
 #endif

@@ -3,33 +3,46 @@
 #include "Quorums/QuorumContext.h"
 #include "System/Config.h"
 
-void ReplicationTransport::Init()
+void ReplicationTransport::Start()
 {
-	unsigned i;
-	Endpoint endpoint;
-	
-	if (!reader.Init(configFile.GetIntValue("port", 10000)))
-		STOP_FAIL("cannot bind reader port", 1);
+	Node*		it;
+	Endpoint	endpoint;
+
 	reader.SetOnRead(MFUNC(ReplicationTransport, OnRead));
 
+	Log_Trace("%d", RMAN->GetNodeID());
+
+	endpoint = nodes.Get(RMAN->GetNodeID()).endpoint;
+	
+	
+	if (!reader.Init(endpoint.GetPort()))
+		STOP_FAIL("cannot bind reader port", 1);
+
 	// create writers for controllers only
-	for (i = 0; i < (unsigned)configFile.GetListNum("controller.endpoints"); i++)
-	{
-		endpoint.Set(configFile.GetListValue("controller.endpoints", i, ""));
-		AddNode(i, endpoint);
-	}
+	for (it = nodes.Head(); it != NULL; it = nodes.Next(it))
+		it->writer.Init(it->endpoint);
 }
 
-void ReplicationTransport::AddNode(uint64_t nodeID, const Endpoint& endpoint)
+void ReplicationTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
 {
 	Node* node;
 	
 	node = new Node;
-	node->endpoint = endpoint;
 	node->nodeID = nodeID;
-	node->writer.Init(node->endpoint);
+	node->endpoint = endpoint;
 	nodes.Append(node);
 }
+
+unsigned ReplicationTransport::GetNumEndpoints()
+{
+	return nodes.GetLength();
+}
+
+Endpoint ReplicationTransport::GetEndpoint(uint64_t nodeID)
+{
+	return nodes.Get(nodeID).endpoint;
+}
+
 
 void ReplicationTransport::Shutdown()
 {
@@ -81,6 +94,8 @@ void ReplicationTransport::OnRead()
 	uint64_t logID;
 	
 	// TODO: parse
+	
+	logID = 0;
 	
 	RMAN->GetContext(logID)->OnMessage();
 }

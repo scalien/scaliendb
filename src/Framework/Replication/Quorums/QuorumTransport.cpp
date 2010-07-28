@@ -1,4 +1,5 @@
 #include "QuorumTransport.h"
+#include "Framework/Replication/ReplicationManager.h"
 
 QuorumTransport::QuorumTransport()
 {
@@ -15,11 +16,6 @@ void QuorumTransport::SetPrefix(const Buffer& prefix_)
 	prefix.Write(prefix_);
 }
 
-void QuorumTransport::SetReplicationTransport(ReplicationTransport* transport_)
-{
-	transport = transport_;
-}
-
 void QuorumTransport::SetQuorum(Quorum* quorum_)
 {
 	quorum = quorum_;
@@ -27,15 +23,15 @@ void QuorumTransport::SetQuorum(Quorum* quorum_)
 
 ReadBuffer QuorumTransport::GetMessage() const
 {
-	return transport->GetMessage();
+	return RMAN->GetTransport()->GetMessage();
 }
 
 void QuorumTransport::SendMessage(uint64_t nodeID, const Message& msg)
 {
 	if (priority)
-		return transport->SendPriorityMessage(nodeID, prefix, msg);
+		return RMAN->GetTransport()->SendPriorityMessage(nodeID, prefix, msg);
 	else
-		return transport->SendMessage(nodeID, prefix, msg);
+		return RMAN->GetTransport()->SendMessage(nodeID, prefix, msg);
 }
 
 void QuorumTransport::BroadcastMessage(const Message& msg)
@@ -50,8 +46,8 @@ void QuorumTransport::BroadcastMessage(const Message& msg)
 	{
 		nodeID = nodes[i];
 		if (priority)
-			return transport->SendPriorityMessage(nodeID, prefix, msg);
+			return RMAN->GetTransport()->SendPriorityMessage(nodeID, prefix, msg);
 		else
-			return transport->SendMessage(nodeID, prefix, msg);
+			return RMAN->GetTransport()->SendMessage(nodeID, prefix, msg);
 	}
 }

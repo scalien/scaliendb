@@ -1,57 +1,51 @@
-#include <stdio.h>
+#include "System/Config.h"
+#include "Framework/Database/Database.h"
+#include "Framework/Replication/ReplicationManager.h"
+#include "Application/Controller/ControllerConfigContext.h"
 
-#include "Application/HTTP/HttpServer.h"
-#include "Application/HTTP/HttpConsts.h"
-#include "System/Events/EventLoop.h"
-#include "System/Containers/HashTable.h"
-
-size_t Hash(const char* str)
+int main(int argc, char** argv)
 {
-	size_t h;
-	unsigned char *p;
-	
-	h = 0;
-	for (p = (unsigned char *)str; *p != '\0'; p++)
-		h = 37 * h + *p;
-		
-	return h;
-}
+	DatabaseConfig				dbConfig;
+	Database					db;
+	ControllerConfigContext		ctx;
+	SingleQuorum				quorum;
+	QuorumDatabase				qdb;
 
-class SimpleHandler : public HttpHandler
-{
-public:
-	virtual bool	HandleRequest(HttpConn* conn, const HttpRequest& request);
-};
-
-bool SimpleHandler::HandleRequest(HttpConn* conn, const HttpRequest& /*request*/)
-{
-	conn->Response(HTTP_STATUS_CODE_OK, "hello", 5);
-	return true;
-}
-
-int main(void)
-{
-//	configFile.Init("");
-	
-	HttpServer		httpServer;
-	SimpleHandler	handler;
-	HashTable<const char*, const char*> testHash;
-	const char**	pvalue;
-		
 	Log_SetTarget(LOG_TARGET_STDOUT);
 	Log_SetTrace(true);
 	Log_SetTimestamping(true);
-	
-	testHash.Set("hello", "world");
-	testHash.Set("hol", "peru");
-	pvalue = testHash.Get("hol");
-	if (pvalue)
-		Log_Trace("hol = %s", *pvalue);
-	
+		
 	IOProcessor::Init(1024);
+
+	db.Init(dbConfig);
+
+	configFile.Init(argv[1]);
 	
-	httpServer.Init(8080);
-	httpServer.RegisterHandler(&handler);
+	RMAN->SetNodeID(configFile.GetIntValue("nodeID", 0));
+	unsigned numNodes = configFile.GetListNum("controllers");
+	for (unsigned i = 0; i < numNodes; i++)
+	{
+		const char* s = configFile.GetListValue("controllers", i, NULL);
+		Endpoint endpoint;
+		endpoint.Set(s);
+		quorum.AddNode(i);
+
+		// TODO: i will not be a nodeID once we start using UIDs
+		RMAN->GetTransport()->AddEndpoint(i, endpoint);
+	}
+	
+	RMAN->GetTransport()->Start();
+
+//	HttpServer		httpServer;
+//	httpServer.Init(8080);
+//	httpServer.RegisterHandler(&handler);
+
+//	qdb.Init(db.GetTable("keyspace"));
+//	
+//	ctx.SetContextID(0);
+//	ctx.SetQuorum(quorum);
+//	ctx.SetDatabase(qdb);
+//	ctx.SetTransport();
 
 	EventLoop::Init();
 	EventLoop::Run();

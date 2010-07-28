@@ -36,11 +36,12 @@ struct Node
 class ReplicationTransport
 {
 public:
-
-	void			Init();
+	void			Start();
 	void			Shutdown();
 
-	void			AddNode(uint64_t nodeID, const Endpoint& endpoint);
+	void			AddEndpoint(uint64_t nodeID, Endpoint endpoint);
+	unsigned		GetNumEndpoints();
+	Endpoint		GetEndpoint(uint64_t nodeID);
 
 	void			SendMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
 	void			SendPriorityMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);

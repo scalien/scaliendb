@@ -19,6 +19,9 @@ class ControllerChunkContext : public QuorumContext
 	void							Init();
 	
 	void							SetContextID(uint64_t contextID);
+	void							SetQuorum(DoubleQuorum& quorum);
+	void							SetDatabase(QuorumDatabase& database);
+	void							SetTransport(QuorumTransport& transport);
 	
 	// implementation of QuorumContext interface:
 	virtual bool					IsLeaderKnown();
