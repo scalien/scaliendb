@@ -239,14 +239,15 @@ int snreadf(char* buffer, unsigned length, const char* format, ...)
 
 int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 {
-	char*		c;
-	int*		d;
-	unsigned*	u;
-	int64_t*	i64;
-	uint64_t*	u64;
-	Buffer*		b;
-	unsigned	n, l;
-	int			read;
+	char*			c;
+	int*			d;
+	unsigned*		u;
+	int64_t*		i64;
+	uint64_t*		u64;
+	Buffer*			b;
+	ReadBuffer*		rb;
+	unsigned		n, l;
+	int				read;
 
 #define ADVANCE(f, b)	{ format += f; buffer += b; length -= b; read += b; }
 #define EXIT()			{ return -1; }
@@ -299,11 +300,10 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 			}
 			else if (format[1] == 'M') // %M
 			{
-				b = va_arg(ap, Buffer*);
+				rb = va_arg(ap, ReadBuffer*);
 				// read the length prefix
 				l = strntouint64(buffer, length, &n);
 				if (n < 1) EXIT();
-				b->Allocate(l);
 				ADVANCE(0, n);
 				// read the ':'
 				REQUIRE(1);
@@ -311,8 +311,9 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 				ADVANCE(0, 1);
 				// read the message body
 				REQUIRE(l);
-				b->Write(buffer, l);
-				ADVANCE(2, b->GetLength());
+				rb->SetBuffer(buffer);
+				rb->SetLength(l);
+				ADVANCE(2, rb->GetLength());
 			}
 			else
 			{
@@ -374,18 +375,19 @@ int snwritef(char* buffer, unsigned size, const char* format, ...)
 
 int vsnwritef(char* buffer, unsigned size, const char* format, va_list ap)
 {
-	char		c;
-	int			d;
-	unsigned	u;
-	int			n;
-	int64_t		i64;
-	uint64_t	u64;
-	char*		p;
-	unsigned	length;
-	Buffer*		b;
-	int			required;
-	char		local[64];
-	bool		ghost;
+	char			c;
+	int				d;
+	unsigned		u;
+	int				n;
+	int64_t			i64;
+	uint64_t		u64;
+	char*			p;
+	unsigned		length;
+	Buffer*			b;
+	ReadBuffer*		rb;
+	int				required;
+	char			local[64];
+	bool			ghost;
 
 #define ADVANCE(f, b)	{ format += f; if (!ghost) { buffer += b; size -= b; } }
 #define EXIT()			{ return -1; }
@@ -467,17 +469,17 @@ int vsnwritef(char* buffer, unsigned size, const char* format, va_list ap)
 				ADVANCE(2, length);
 			} else if (format[1] == 'M') // %M to print a message
 			{
-				b = va_arg(ap, Buffer*);
-				n = snprintf(local, sizeof(local), "%u:", b->GetLength());
+				rb = va_arg(ap, ReadBuffer*);
+				n = snprintf(local, sizeof(local), "%u:", rb->GetLength());
 				if (n < 0) EXIT();
 				REQUIRE(n);
 				if (ghost) n = size;
 				memcpy(buffer, local, n);
 				ADVANCE(0, n);
-				REQUIRE(b->GetLength());
-				length = b->GetLength();
+				REQUIRE(rb->GetLength());
+				length = rb->GetLength();
 				if (ghost) length = size;
-				memmove(buffer, b->GetBuffer(), length);
+				memmove(buffer, rb->GetBuffer(), length);
 				ADVANCE(2, length);
 			}
 			else

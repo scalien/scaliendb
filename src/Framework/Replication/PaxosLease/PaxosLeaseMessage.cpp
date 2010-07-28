@@ -111,76 +111,91 @@ bool PaxosLeaseMessage::IsLearnChosen() const
 
 bool PaxosLeaseMessage::Read(const ReadBuffer& buffer)
 {
-	int read;
+	int		read;
+	char	proto;
 	
-	if (buffer.GetLength() < 1)
+	if (buffer.GetLength() < 3)
 		return false;
 	
-	switch (buffer.GetCharAt(0))
+	switch (buffer.GetCharAt(2))
 	{
 		case PAXOSLEASE_PREPARE_REQUEST:
-			read = buffer.Readf("%c:%U:%U:%U", &type, &nodeID, &proposalID, &paxosID);
+			read = buffer.Readf("%c:%c:%U:%U:%U",
+			 &proto, &type, &nodeID, &proposalID, &paxosID);
 			break;
 		case PAXOSLEASE_PREPARE_REJECTED:
-			read = buffer.Readf("%c:%U:%U", &type, &nodeID, &proposalID);
+			read = buffer.Readf("%c:%c:%U:%U",
+			 &proto, &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED:
-			read = buffer.Readf("%c:%U:%U:%U:%U:%u",
-			 &type, &nodeID, &proposalID, &acceptedProposalID, &leaseOwner, &duration);
+			read = buffer.Readf("%c:%c:%U:%U:%U:%U:%u",
+			 &proto, &type, &nodeID, &proposalID, &acceptedProposalID, &leaseOwner, &duration);
 			break;
 		case PAXOSLEASE_PREPARE_CURRENTLY_OPEN:
-			read = buffer.Readf("%c:%U:%U", &type, &nodeID, &proposalID);
+			read = buffer.Readf("%c:%c:%U:%U",
+			 &proto, &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_PROPOSE_REQUEST:
-			read = buffer.Readf("%c:%U:%U:%U:%u", &type, &nodeID, &proposalID,
-			 &leaseOwner, &duration);
+			read = buffer.Readf("%c:%c:%U:%U:%U:%u",
+			 &proto, &type, &nodeID, &proposalID, &leaseOwner, &duration);
 			break;
 		case PAXOSLEASE_PROPOSE_REJECTED:
-			read = buffer.Readf("%c:%U:%U", &type, &nodeID, &proposalID);
+			read = buffer.Readf("%c:%c:%U:%U",
+			 &proto, &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_PROPOSE_ACCEPTED:
-			read = buffer.Readf("%c:%U:%U", &type, &nodeID, &proposalID);
+			read = buffer.Readf("%c:%c:%U:%U",
+			 &proto, &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_LEARN_CHOSEN:
-			read = buffer.Readf("%c:%U:%U:%u:%U:%U", &type, &nodeID, &leaseOwner,
-			 &duration, &localExpireTime, &paxosID);
+			read = buffer.Readf("%c:%c:%U:%U:%u:%U:%U",
+			 &proto, &type, &nodeID, &leaseOwner, &duration, &localExpireTime, &paxosID);
 			break;
 		default:
 			return false;
 	}
 
+	assert(proto == PAXOSLEASE_PROTOCOL_ID);
 	return (read == (signed)buffer.GetLength() ? true : false);
 }
 
 bool PaxosLeaseMessage::Write(Buffer& buffer) const
 {
+	const char proto = PAXOSLEASE_PROTOCOL_ID;
+	
 	switch (type)
 	{
 		case PAXOSLEASE_PREPARE_REQUEST:
-			return buffer.Writef("%c:%U:%U:%U", type, nodeID, proposalID, paxosID);
+			return buffer.Writef("%c:%c:%U:%U:%U",
+			 proto, type, nodeID, proposalID, paxosID);
 			break;
 		case PAXOSLEASE_PREPARE_REJECTED:
-			return buffer.Writef("%c:%U:%U", type, nodeID, proposalID);
+			return buffer.Writef("%c:%c:%U:%U",
+			 proto, type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED:
-			return buffer.Writef("%c:%U:%U:%U:%U:%u",
-			 type, nodeID, proposalID, acceptedProposalID, leaseOwner, duration);
+			return buffer.Writef("%c:%c:%U:%U:%U:%U:%u",
+			 proto, type, nodeID, proposalID, acceptedProposalID, leaseOwner, duration);
 			break;
 		case PAXOSLEASE_PREPARE_CURRENTLY_OPEN:
-			return buffer.Writef("%c:%U:%U", type, nodeID, proposalID);
+			return buffer.Writef("%c:%c:%U:%U",
+			 proto, type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_PROPOSE_REQUEST:
-			return buffer.Writef("%c:%U:%U:%U:%u", type, nodeID, proposalID, leaseOwner, duration);
+			return buffer.Writef("%c:%c:%U:%U:%U:%u",
+			 proto, type, nodeID, proposalID, leaseOwner, duration);
 			break;
 		case PAXOSLEASE_PROPOSE_REJECTED:
-			return buffer.Writef("%c:%U:%U", type, nodeID, proposalID);
+			return buffer.Writef("%c:%c:%U:%U",
+			 proto, type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_PROPOSE_ACCEPTED:
-			return buffer.Writef("%c:%U:%U", type, nodeID, proposalID);
+			return buffer.Writef("%c:%c:%U:%U",
+			 proto, type, nodeID, proposalID);
 			break;
 		case PAXOSLEASE_LEARN_CHOSEN:
-			return buffer.Writef("%c:%U:%U:%u:%U:%U",
-			 type, nodeID, leaseOwner, duration, localExpireTime, paxosID);
+			return buffer.Writef("%c:%c:%U:%U:%u:%U:%U",
+			 proto, type, nodeID, leaseOwner, duration, localExpireTime, paxosID);
 			break;
 		default:
 			return false;

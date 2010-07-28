@@ -1,4 +1,5 @@
 #include "ReadBuffer.h"
+#include "Buffer.h"
 
 ReadBuffer::ReadBuffer()
 {
@@ -14,6 +15,12 @@ void ReadBuffer::SetBuffer(char* buffer_)
 void ReadBuffer::SetLength(unsigned length_)
 {
 	length = length_;
+}
+
+void ReadBuffer::Wrap(const Buffer& buffer_)
+{
+	buffer = buffer_.GetBuffer();
+	length = buffer_.GetLength();
 }
 
 int ReadBuffer::Readf(const char* format, ...) const

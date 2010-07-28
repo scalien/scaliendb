@@ -17,15 +17,16 @@ int main(int argc, char** argv)
 	Buffer						prefix;
 	HttpServer					httpServer;
 	
+	configFile.Init(argv[1]);
+
 	Log_SetTarget(LOG_TARGET_STDOUT);
 	Log_SetTrace(true);
 	Log_SetTimestamping(true);
 		
 	IOProcessor::Init(1024);
 
+	dbConfig.dir = configFile.GetValue("database.dir", DATABASE_CONFIG_DIR);
 	db.Init(dbConfig);
-
-	configFile.Init(argv[1]);
 	
 	RMAN->SetNodeID(configFile.GetIntValue("nodeID", 0));
 	unsigned numNodes = configFile.GetListNum("controllers");
@@ -43,7 +44,7 @@ int main(int argc, char** argv)
 	RMAN->GetTransport()->Start();
 
 	qdb.Init(db.GetTable("keyspace"));
-	prefix.Write("L");
+	prefix.Write("0");
 	qtransport.SetPriority(true);
 	qtransport.SetPrefix(prefix);
 	qtransport.SetQuorum(&quorum);

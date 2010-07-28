@@ -6,8 +6,8 @@
 class LogCache
 {
 public:
-	bool			Set(uint64_t paxosID, const Buffer& value, bool commit);
-	Buffer*			Get(uint64_t paxosID);
+	void			Set(uint64_t paxosID, const ReadBuffer& value, bool commit);
+	void			Get(uint64_t paxosID, Buffer& value);
 };
 
 #endif

@@ -21,8 +21,6 @@ void PaxosAcceptor::OnMessage(const PaxosMessage& imsg)
 
 void PaxosAcceptor::OnPrepareRequest(const PaxosMessage& imsg)
 {
-	PaxosMessage omsg;
-	
 	Log_Trace();
 	
 	if (context->GetDatabase()->IsActive())
@@ -48,7 +46,7 @@ void PaxosAcceptor::OnPrepareRequest(const PaxosMessage& imsg)
 	else
 		omsg.PreparePreviouslyAccepted(imsg.paxosID, RMAN->GetNodeID(),
 		 imsg.proposalID, state.acceptedProposalID,
-		 state.acceptedRunID, &state.acceptedValue);
+		 state.acceptedRunID, state.acceptedValue);
 	
 	WriteState();
 	//RLOG->StopPaxos(); TODO
@@ -56,8 +54,6 @@ void PaxosAcceptor::OnPrepareRequest(const PaxosMessage& imsg)
 
 void PaxosAcceptor::OnProposeRequest(const PaxosMessage& imsg)
 {
-	PaxosMessage omsg;
-	
 	Log_Trace();
 	
 	if (context->GetDatabase()->IsActive())
@@ -78,7 +74,7 @@ void PaxosAcceptor::OnProposeRequest(const PaxosMessage& imsg)
 	state.accepted = true;
 	state.acceptedProposalID = imsg.proposalID;
 	state.acceptedRunID = imsg.runID;
-	state.acceptedValue.Write(*imsg.value);
+	state.acceptedValue.Write(imsg.value);
 	omsg.ProposeAccepted(imsg.paxosID, RMAN->GetNodeID(), imsg.proposalID);
 	
 	WriteState();
@@ -89,19 +85,9 @@ void PaxosAcceptor::OnStateWritten()
 {
 	Log_Trace();
 	
-	PaxosMessage omsg;
-
 	if (writtenPaxosID != context->GetPaxosID())
 		return;
-
-	if (!state.accepted)
-		omsg.PrepareCurrentlyOpen(context->GetPaxosID(),
-		 RMAN->GetNodeID(), state.promisedProposalID);
-	else
-		omsg.PreparePreviouslyAccepted(context->GetPaxosID(), RMAN->GetNodeID(),
-		 state.promisedProposalID, state.acceptedProposalID,
-		 state.acceptedRunID, &state.acceptedValue);
-
+	
 	context->GetTransport()->SendMessage(senderID, omsg);
 }
 

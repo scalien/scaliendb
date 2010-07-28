@@ -12,6 +12,8 @@ bool MessageWriter::Init(Endpoint &endpoint_)
 
 void MessageWriter::Write(const Buffer& prefix, const Message& msg)
 {
+	ASSERT_FAIL(); // TODO: priority buffers can interleave! XZCXZCZXCZCZCZCZZXCZXCZ
+	
 	unsigned len;
 	Buffer* head;
 	Buffer* buffer;
@@ -42,6 +44,8 @@ void MessageWriter::WritePriority(const Buffer& prefix, const Message& msg)
 		ASSERT_FAIL();
 	len = prefix.GetLength() + 1 + buffer->GetLength();
 	head->Writef("%u:%B:", len, &prefix);
+	
+	Log_Trace("%.*s%.*s", P(head), P(buffer));
 	
 	writer->WritePriority(head);
 	writer->WritePriority(buffer);

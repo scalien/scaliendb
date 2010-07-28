@@ -9,11 +9,11 @@ void ReplicatedLog::Init(QuorumContext* context_)
 	Log_Trace();
 	
 	context = context_;
+
+	paxosID = 0;
 	
 	proposer.Init(context);
 	acceptor.Init(context);
-
-	paxosID = 0;
 
 	lastRequestChosenTime = 0;
 	lastRequestChosenPaxosID = 0;
@@ -125,7 +125,7 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 {
 	uint64_t		runID;
 	bool			commit;
-	Buffer*			value;
+	ReadBuffer		value;
 
 	Log_Trace();
 
@@ -146,7 +146,7 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 	 acceptor.state.acceptedProposalID == imsg.proposalID)
 	 {
 		runID = acceptor.state.acceptedRunID;
-		value = &acceptor.state.acceptedValue;
+		value.Wrap(acceptor.state.acceptedValue);
 	}
 	else
 	{
@@ -155,7 +155,7 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 	}
 	
 	commit = (paxosID == (context->GetHighestPaxosID() - 1));
-	logCache.Set(paxosID, *value, commit);
+	logCache.Set(paxosID, value, commit);
 
 	NewPaxosRound(); // increments paxosID, clears proposer, acceptor
 	
@@ -180,7 +180,7 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 
 void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
 {
-	Buffer*			value;
+	Buffer			value;
 	PaxosMessage	omsg;
 	
 	Log_Trace();
@@ -189,8 +189,8 @@ void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
 		return;
 	
 	// the node is lagging and needs to catch-up
-	value = logCache.Get(imsg.paxosID);
-	if (value != NULL)
+	logCache.Get(imsg.paxosID, value);
+	if (value.GetLength() != 0)
 	{
 		Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
 		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, value);
@@ -220,14 +220,14 @@ void ReplicatedLog::OnRequest(const PaxosMessage& imsg)
 {
 	Log_Trace();
 	
-	Buffer*			value;
+	Buffer			value;
 	PaxosMessage	omsg;
 
 	if (imsg.paxosID < GetPaxosID())
 	{
 		// the node is lagging and needs to catch-up
-		value = logCache.Get(imsg.paxosID);
-		if (value == NULL)
+		logCache.Get(imsg.paxosID, value);
+		if (value.GetLength() == 0)
 			return;
 		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, value);
 		context->GetTransport()->SendMessage(imsg.nodeID, omsg);
@@ -262,7 +262,7 @@ void ReplicatedLog::OnLearnLease()
 	if (context->IsLeader() && !proposer.IsActive() && !proposer.state.multi)
 	{
 		Log_Trace("Appending EnableMultiPaxos");
-//		Append(enableMultiPaxos); // TODO: commented out for debugging
+		Append(enableMultiPaxos);
 	}
 }
 

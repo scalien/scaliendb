@@ -1,11 +1,11 @@
 #include "LogCache.h"
 
-bool LogCache::Set(uint64_t paxosID, const Buffer& value, bool commit)
+void LogCache::Set(uint64_t paxosID, const ReadBuffer& value, bool commit)
 {
 	// TODO
 }
 
-Buffer* LogCache::Get(uint64_t paxosID)
+void LogCache::Get(uint64_t paxosID, Buffer& value)
 {
 	// TODO
 }

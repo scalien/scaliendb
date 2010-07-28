@@ -6,6 +6,7 @@
 void QuorumDatabase::Init(Table* table_)
 {
 	table = table_;
+	transaction.Set(table);
 }
 
 uint64_t QuorumDatabase::GetPaxosID()

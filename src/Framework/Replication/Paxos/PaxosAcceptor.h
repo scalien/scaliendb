@@ -33,7 +33,7 @@ private:
 
 	QuorumContext*				context;
 	PaxosAcceptorState			state;
-//	uint64_t					paxosID;
+	PaxosMessage				omsg;
 	uint64_t					senderID;
 	uint64_t					writtenPaxosID;
 	

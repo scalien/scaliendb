@@ -99,6 +99,7 @@ void ReplicationTransport::OnRead()
 	
 	readBuffer = reader.GetMessage();
 	Log_Trace("%.*s", P(&readBuffer));
+	readBuffer.Advance(2);
 	
 	logID = 0;
 	

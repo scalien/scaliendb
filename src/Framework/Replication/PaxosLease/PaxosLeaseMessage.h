@@ -3,6 +3,7 @@
 
 #include "Framework/Messaging/Message.h"
 
+#define PAXOSLEASE_PROTOCOL_ID					'L'
 #define PAXOSLEASE_PREPARE_REQUEST				'1'
 #define PAXOSLEASE_PREPARE_REJECTED				'2'
 #define PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED	'3'

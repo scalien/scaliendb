@@ -1,0 +1,2 @@
+rm test/$1/keyspace
+rm test/$1/log*

@@ -3,6 +3,8 @@
 
 #include "Common.h"
 
+class Buffer; // forward
+
 /*
 ===============================================================================
 
@@ -18,6 +20,7 @@ public:
 	
 	void				SetBuffer(char* buffer);
 	void				SetLength(unsigned length);
+	void				Wrap(const Buffer& buffer);
 	
 	int					Readf(const char* format, ...) const;
 

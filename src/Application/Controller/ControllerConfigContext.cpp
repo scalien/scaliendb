@@ -94,7 +94,7 @@ QuorumTransport* ControllerConfigContext::GetTransport()
 
 Buffer* ControllerConfigContext::GetNextValue()
 {
-	// TODO
+	return NULL;
 }
 
 void ControllerConfigContext::OnMessage()
@@ -111,7 +111,6 @@ void ControllerConfigContext::OnMessage()
 
 	proto = buffer.GetCharAt(0);
 	assert(buffer.GetCharAt(1) == ':');
-	buffer.Advance(2);
 	
 	switch(proto)
 	{
@@ -134,10 +133,11 @@ void ControllerConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 	Log_Trace("%.*s", P(&buffer));
 	
 	msg.Read(buffer);
-	RegisterPaxosID(msg.paxosID);
-	if (msg.type == PAXOSLEASE_PREPARE_REQUEST ||
-	 msg.type == PAXOSLEASE_LEARN_CHOSEN)
+	if (msg.type == PAXOSLEASE_PREPARE_REQUEST || msg.type == PAXOSLEASE_LEARN_CHOSEN)
+	{
+		RegisterPaxosID(msg.paxosID);
 		replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
+	}
 	paxosLease.OnMessage(msg);
 	// TODO: right now PaxosLeaseLearner will not call back
 }

@@ -3,6 +3,7 @@
 
 #include "Framework/Messaging/Message.h"
 
+#define PAXOS_PROTOCOL_ID					'P'
 #define PAXOS_PREPARE_REQUEST				'1'
 #define PAXOS_PREPARE_REJECTED				'2'
 #define PAXOS_PREPARE_PREVIOUSLY_ACCEPTED	'3'
@@ -33,7 +34,7 @@ public:
 	uint64_t		proposalID;
 	uint64_t		acceptedProposalID;
 	uint64_t		promisedProposalID;
-	Buffer*			value;
+	ReadBuffer		value;
 
 	void			Init(uint64_t paxosID, char type, uint64_t nodeID);
 		
@@ -48,7 +49,7 @@ public:
 	bool			PreparePreviouslyAccepted(
 					 uint64_t paxosID, uint64_t nodeID,
 					 uint64_t proposalID, uint64_t acceptedProposalID,
-					 uint64_t runID, Buffer* value);
+					 uint64_t runID, const Buffer& value);
 
 	bool			PrepareCurrentlyOpen(
 					 uint64_t paxosID, uint64_t nodeID,
@@ -56,7 +57,7 @@ public:
 
 	bool			ProposeRequest(
 					 uint64_t paxosID, uint64_t nodeID,
-					 uint64_t proposalID, uint64_t runID, Buffer* value);
+					 uint64_t proposalID, uint64_t runID, const Buffer& value);
 
 	bool			ProposeRejected(
 					 uint64_t paxosID, uint64_t nodeID,
@@ -72,7 +73,7 @@ public:
 
 	bool			LearnValue(
 					 uint64_t paxosID, uint64_t nodeID,
-					 uint64_t runID, Buffer* value);
+					 uint64_t runID, const Buffer& value);
 
 	bool			RequestChosen(
 					 uint64_t paxosID, uint64_t nodeID);

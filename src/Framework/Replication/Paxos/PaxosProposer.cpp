@@ -104,7 +104,7 @@ void PaxosProposer::OnPrepareResponse(const PaxosMessage& imsg)
 		 */
 		state.highestReceivedProposalID = imsg.acceptedProposalID;
 		state.proposedRunID = imsg.runID;
-		state.proposedValue.Write(*imsg.value);
+		state.proposedValue.Write(imsg.value);
 	}
 
 	if (vote->IsRejected())
@@ -196,7 +196,7 @@ void PaxosProposer::StartProposing()
 	state.proposing = true;
 	
 	omsg.ProposeRequest(context->GetPaxosID(), RMAN->GetNodeID(), state.proposalID,
-	 state.proposedRunID, &state.proposedValue);
+	 state.proposedRunID, state.proposedValue);
 	BroadcastMessage(omsg);
 	
 	EventLoop::Reset(&proposeTimeout);
