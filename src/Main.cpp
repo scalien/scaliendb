@@ -2,16 +2,20 @@
 #include "Framework/Database/Database.h"
 #include "Framework/Replication/ReplicationManager.h"
 #include "Application/Controller/ControllerConfigContext.h"
+#include "Application/Controller/Controller.h"
+#include "Application/HTTP/HttpServer.h"
 
 int main(int argc, char** argv)
 {
 	DatabaseConfig				dbConfig;
 	Database					db;
 	ControllerConfigContext		ctx;
+	Controller					controller;
 	SingleQuorum				quorum;
 	QuorumDatabase				qdb;
 	QuorumTransport				qtransport;
 	Buffer						prefix;
+	HttpServer					httpServer;
 	
 	Log_SetTarget(LOG_TARGET_STDOUT);
 	Log_SetTrace(true);
@@ -38,10 +42,6 @@ int main(int argc, char** argv)
 	
 	RMAN->GetTransport()->Start();
 
-//	HttpServer		httpServer;
-//	httpServer.Init(8080);
-//	httpServer.RegisterHandler(&handler);
-
 	qdb.Init(db.GetTable("keyspace"));
 	prefix.Write("L");
 	qtransport.SetPriority(true);
@@ -53,6 +53,11 @@ int main(int argc, char** argv)
 	ctx.SetDatabase(qdb);
 	ctx.SetTransport(qtransport);
 	ctx.Start();
+
+	controller.SetContext(&ctx);
+
+	httpServer.Init(configFile.GetIntValue("http.port", 8080));
+	httpServer.RegisterHandler(&controller);
 	
 	RMAN->AddContext(&ctx);
 	

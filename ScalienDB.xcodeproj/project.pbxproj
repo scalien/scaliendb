@@ -64,6 +64,7 @@
 		9A26D6A311F4BDE2006A2814 /* JSONSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69811F4BDE2006A2814 /* JSONSession.cpp */; };
 		9A26D6A411F4BDE2006A2814 /* Mime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69A11F4BDE2006A2814 /* Mime.cpp */; };
 		9A26D6A511F4BDE2006A2814 /* UrlParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */; };
+		9A26DB48120076BA006A2814 /* Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26DB47120076BA006A2814 /* Controller.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -206,6 +207,8 @@
 		9A26D69B11F4BDE2006A2814 /* Mime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mime.h; path = Application/HTTP/Mime.h; sourceTree = "<group>"; };
 		9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UrlParam.cpp; path = Application/HTTP/UrlParam.cpp; sourceTree = "<group>"; };
 		9A26D69D11F4BDE2006A2814 /* UrlParam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UrlParam.h; path = Application/HTTP/UrlParam.h; sourceTree = "<group>"; };
+		9A26DB46120076BA006A2814 /* Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Controller.h; sourceTree = "<group>"; };
+		9A26DB47120076BA006A2814 /* Controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Controller.cpp; sourceTree = "<group>"; };
 		9A31560411C7B32A0052812E /* Cursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Cursor.cpp; path = Database/Cursor.cpp; sourceTree = "<group>"; };
 		9A31560511C7B32A0052812E /* Cursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Cursor.h; path = Database/Cursor.h; sourceTree = "<group>"; };
 		9A31560811C7B32A0052812E /* Database.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Database.cpp; path = Database/Database.cpp; sourceTree = "<group>"; };
@@ -494,6 +497,8 @@
 				54FCF69D11FDF4770075BBFF /* ControllerConfigContext.h */,
 				54FCF69C11FDF4770075BBFF /* ControllerConfigContext.cpp */,
 				54FCF69911FDF4770075BBFF /* ConfigDB.h */,
+				9A26DB46120076BA006A2814 /* Controller.h */,
+				9A26DB47120076BA006A2814 /* Controller.cpp */,
 			);
 			name = Controller;
 			path = Application/Controller;
@@ -665,6 +670,7 @@
 				54FCF78611FEF3BA0075BBFF /* PaxosLeaseAcceptor.cpp in Sources */,
 				54FCF78711FEF3BA0075BBFF /* PaxosLeaseLearner.cpp in Sources */,
 				54FCF8A6120028D70075BBFF /* ControllerConfigContext.cpp in Sources */,
+				9A26DB48120076BA006A2814 /* Controller.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -736,7 +742,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(NATIVE_ARCH)";
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				GCC_C_LANGUAGE_STANDARD = "compiler-default";
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;

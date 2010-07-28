@@ -44,7 +44,7 @@ bool ControllerConfigContext::IsLeader()
 
 uint64_t ControllerConfigContext::GetLeader()
 {
-	return paxosLease.IsLeaseOwner();
+	return paxosLease.GetLeaseOwner();
 }
 
 void ControllerConfigContext::OnLearnLease()

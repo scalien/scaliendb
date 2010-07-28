@@ -22,6 +22,9 @@ void PaxosLease::Init(QuorumContext* context_)
 
 void PaxosLease::OnMessage(const PaxosLeaseMessage& imsg)
 {
+	if (startupTimeout.IsActive())
+		return;
+
 	if ((imsg.IsRequest()) && imsg.proposalID > proposer.GetHighestProposalID())
 			proposer.SetHighestProposalID(imsg.proposalID);
 	
