@@ -116,6 +116,8 @@ void TCPServer<T, Conn>::DeleteConn(Conn* conn)
 template<class T, class Conn>
 void TCPServer<T, Conn>::OnConnect()
 {
+	Log_Trace();
+	
 	T* pT = static_cast<T*>(this);
 	Conn* conn = pT->GetConn();
 	if (listener.Accept(&(conn->GetSocket())))

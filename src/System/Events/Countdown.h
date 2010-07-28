@@ -17,7 +17,6 @@ public:
 	Countdown();	
 	virtual	~Countdown() {};
 		
-	void			SetCallable(const Callable& callable);
 	void			SetDelay(uint64_t delay);
 	uint64_t		GetDelay() const;
 

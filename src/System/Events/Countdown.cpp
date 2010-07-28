@@ -6,12 +6,6 @@ Countdown::Countdown()
 	delay = 0;
 }
 
-void Countdown::SetCallable(const Callable& callable_)
-{
-	Timer::SetCallable(callable_);
-	delay = 0;
-}
-
 void Countdown::SetDelay(uint64_t delay_)
 {
 	delay = delay_;

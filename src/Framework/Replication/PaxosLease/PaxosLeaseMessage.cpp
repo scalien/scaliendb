@@ -142,8 +142,8 @@ bool PaxosLeaseMessage::Read(const ReadBuffer& buffer)
 			read = buffer.Readf("%c:%U:%U", &type, &nodeID, &proposalID);
 			break;
 		case PAXOSLEASE_LEARN_CHOSEN:
-			read = buffer.Readf("%c:%U:%U:%u:%U:%U", &type, &nodeID, &leaseOwner, &paxosID,
-			 &duration, &localExpireTime);
+			read = buffer.Readf("%c:%U:%U:%u:%U:%U", &type, &nodeID, &leaseOwner,
+			 &duration, &localExpireTime, &paxosID);
 			break;
 		default:
 			return false;

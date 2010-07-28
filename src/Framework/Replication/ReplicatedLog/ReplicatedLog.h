@@ -25,9 +25,10 @@ public:
 	void					TryAppendNextValue();
 	
 	void					OnMessage(const PaxosMessage& msg);
+	void					SetPaxosID(uint64_t paxosID);
 	uint64_t				GetPaxosID() const;
 	
-	void					RegisterPaxosID(uint64_t paxosID, unsigned nodeID);
+	void					RegisterPaxosID(uint64_t paxosID, uint64_t nodeID);
 	void					OnMessage();
 	bool					IsAppending();
 	

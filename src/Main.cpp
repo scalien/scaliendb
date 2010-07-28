@@ -10,7 +10,9 @@ int main(int argc, char** argv)
 	ControllerConfigContext		ctx;
 	SingleQuorum				quorum;
 	QuorumDatabase				qdb;
-
+	QuorumTransport				qtransport;
+	Buffer						prefix;
+	
 	Log_SetTarget(LOG_TARGET_STDOUT);
 	Log_SetTrace(true);
 	Log_SetTimestamping(true);
@@ -40,13 +42,20 @@ int main(int argc, char** argv)
 //	httpServer.Init(8080);
 //	httpServer.RegisterHandler(&handler);
 
-//	qdb.Init(db.GetTable("keyspace"));
-//	
-//	ctx.SetContextID(0);
-//	ctx.SetQuorum(quorum);
-//	ctx.SetDatabase(qdb);
-//	ctx.SetTransport();
-
+	qdb.Init(db.GetTable("keyspace"));
+	prefix.Write("L");
+	qtransport.SetPriority(true);
+	qtransport.SetPrefix(prefix);
+	qtransport.SetQuorum(&quorum);
+	
+	ctx.SetContextID(0);
+	ctx.SetQuorum(quorum);
+	ctx.SetDatabase(qdb);
+	ctx.SetTransport(qtransport);
+	ctx.Start();
+	
+	RMAN->AddContext(&ctx);
+	
 	EventLoop::Init();
 	EventLoop::Run();
 	EventLoop::Shutdown();

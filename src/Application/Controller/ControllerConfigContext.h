@@ -16,7 +16,8 @@
 
 class ControllerConfigContext : public QuorumContext
 {
-	void							Init();
+public:
+	void							Start();
 	
 	void							SetContextID(uint64_t contextID);
 	void							SetQuorum(SingleQuorum& quorum);
@@ -32,6 +33,7 @@ class ControllerConfigContext : public QuorumContext
 	virtual void					OnLeaseTimeout();
 
 	virtual uint64_t				GetContextID() const;
+	virtual void					SetPaxosID(uint64_t paxosID);
 	virtual uint64_t				GetPaxosID() const;
 	virtual uint64_t				GetHighestPaxosID() const;
 	

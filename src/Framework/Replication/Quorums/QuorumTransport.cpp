@@ -46,8 +46,8 @@ void QuorumTransport::BroadcastMessage(const Message& msg)
 	{
 		nodeID = nodes[i];
 		if (priority)
-			return RMAN->GetTransport()->SendPriorityMessage(nodeID, prefix, msg);
+			RMAN->GetTransport()->SendPriorityMessage(nodeID, prefix, msg);
 		else
-			return RMAN->GetTransport()->SendMessage(nodeID, prefix, msg);
+			RMAN->GetTransport()->SendMessage(nodeID, prefix, msg);
 	}
 }

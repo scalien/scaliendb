@@ -9,6 +9,8 @@ MessageConnection::MessageConnection()
 
 void MessageConnection::Init(bool startRead)
 {
+	Log_Trace();
+	
 	running = true;
 	TCPConnection::InitConnected(startRead);
 }

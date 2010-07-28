@@ -37,8 +37,6 @@ private:
 
 class MessageReader : public TCPServer<MessageReader, MessageReaderConnection>
 {
-	friend class MessageReaderConnection;
-
 public:
 	bool				Init(int port);
 
@@ -55,6 +53,8 @@ private:
 	Callable			onRead;
 	ReadBuffer			msg;
 	bool				running;
+
+	friend class MessageReaderConnection;
 };
 
 #endif

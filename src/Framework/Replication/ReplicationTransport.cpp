@@ -93,7 +93,12 @@ void ReplicationTransport::OnRead()
 {
 	uint64_t logID;
 	
+	Log_Trace();
+	
 	// TODO: parse
+	
+	readBuffer = reader.GetMessage();
+	Log_Trace("%.*s", P(&readBuffer));
 	
 	logID = 0;
 	

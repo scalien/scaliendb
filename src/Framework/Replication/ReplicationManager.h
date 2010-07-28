@@ -39,6 +39,7 @@ private:
 	uint64_t				nodeID;
 	uint64_t				runID;
 	ReplicationTransport	transport;
+	QuorumContext*			context; // TODO
 };
 
 #endif

@@ -7,8 +7,6 @@ void PaxosLease::Init(QuorumContext* context_)
 {
 	context = context_;
 	
-	EventLoop::Reset(&startupTimeout);
-	
 	proposer.Init(context_);
 	acceptor.Init(context_);
 	learner.Init(context_);
@@ -24,8 +22,6 @@ void PaxosLease::Init(QuorumContext* context_)
 
 void PaxosLease::OnMessage(const PaxosLeaseMessage& imsg)
 {
-	ReadBuffer readBuffer;
-
 	if ((imsg.IsRequest()) && imsg.proposalID > proposer.GetHighestProposalID())
 			proposer.SetHighestProposalID(imsg.proposalID);
 	

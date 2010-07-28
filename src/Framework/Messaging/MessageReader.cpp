@@ -97,7 +97,6 @@ void MessageReader::Continue()
 
 void MessageReader::InitConn(MessageReaderConnection* conn)
 {
+	TCPServer<MessageReader, MessageReaderConnection>::InitConn(conn);
 	conn->SetServer(this);
 }
-
-

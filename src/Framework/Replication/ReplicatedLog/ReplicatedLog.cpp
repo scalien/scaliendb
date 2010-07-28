@@ -53,6 +53,11 @@ void ReplicatedLog::Append(const Buffer& value)
 	proposer.Propose(value);
 }
 
+void ReplicatedLog::SetPaxosID(uint64_t paxosID_)
+{
+	paxosID = paxosID_;
+}
+
 uint64_t ReplicatedLog::GetPaxosID() const
 {
 	return paxosID;
@@ -257,7 +262,7 @@ void ReplicatedLog::OnLearnLease()
 	if (context->IsLeader() && !proposer.IsActive() && !proposer.state.multi)
 	{
 		Log_Trace("Appending EnableMultiPaxos");
-		Append(enableMultiPaxos);
+//		Append(enableMultiPaxos); // TODO: commented out for debugging
 	}
 }
 
@@ -281,7 +286,7 @@ bool ReplicatedLog::IsAppending()
 //	return proposer.state.multi;
 //}
 
-void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, unsigned nodeID)
+void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
 {
 	if (paxosID > GetPaxosID())
 	{

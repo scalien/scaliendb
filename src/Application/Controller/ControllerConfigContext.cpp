@@ -3,15 +3,13 @@
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 
-void ControllerConfigContext::Init()
+void ControllerConfigContext::Start()
 {
 	// TODO: configure quorum from static config file
 	
 	replicatedLog.Init(this);
 	paxosLease.Init(this);
-	highestPaxosID = 0;
-	
-	paxosLease.AcquireLease();
+	highestPaxosID = 0;	
 }
 
 void ControllerConfigContext::SetContextID(uint64_t contextID_)
@@ -64,6 +62,11 @@ uint64_t ControllerConfigContext::GetContextID() const
 	return contextID;
 }
 
+void ControllerConfigContext::SetPaxosID(uint64_t paxosID)
+{
+	replicatedLog.SetPaxosID(paxosID);
+}
+
 uint64_t ControllerConfigContext::GetPaxosID() const
 {
 	return replicatedLog.GetPaxosID();
@@ -101,6 +104,8 @@ void ControllerConfigContext::OnMessage()
 	
 	buffer = transport.GetMessage();
 	
+	Log_Trace("%.*s", P(&buffer));
+	
 	if (buffer.GetLength() < 2)
 		ASSERT_FAIL();
 
@@ -125,10 +130,14 @@ void ControllerConfigContext::OnMessage()
 void ControllerConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
 	PaxosLeaseMessage msg;
+
+	Log_Trace("%.*s", P(&buffer));
 	
 	msg.Read(buffer);
 	RegisterPaxosID(msg.paxosID);
-	replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
+	if (msg.type == PAXOSLEASE_PREPARE_REQUEST ||
+	 msg.type == PAXOSLEASE_LEARN_CHOSEN)
+		replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
 	paxosLease.OnMessage(msg);
 	// TODO: right now PaxosLeaseLearner will not call back
 }

@@ -35,13 +35,14 @@ uint64_t ReplicationManager::GetRunID() const
 	return 0;
 }
 
-//void ReplicationManager::AddContext(QuorumContext* context)
-//{
-//}
+void ReplicationManager::AddContext(QuorumContext* context_)
+{
+	context = context_;
+}
 
 QuorumContext* ReplicationManager::GetContext(unsigned contextID) const
 {
-	// TODO
+	return context;
 }
 
 uint64_t ReplicationManager::NextProposalID(uint64_t proposalID) const

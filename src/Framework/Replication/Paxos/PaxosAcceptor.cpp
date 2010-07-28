@@ -113,6 +113,7 @@ void PaxosAcceptor::ReadState()
 	
 	db = context->GetDatabase();
 
+	context->SetPaxosID(db->GetPaxosID());
 	state.accepted = db->GetAccepted();
 	state.promisedProposalID = db->GetPromisedProposalID();
 	if (state.accepted)
