@@ -11,7 +11,9 @@ void Scheduler::Add(Timer* timer)
 
 void Scheduler::Remove(Timer* timer)
 {
-	timers.Remove(timer);
+	assert(timer->active == (timer->next != timer));
+	if (timer->active)
+		timers.Remove(timer);
 	timer->active = false;
 }
 

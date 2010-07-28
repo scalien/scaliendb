@@ -121,11 +121,14 @@ T* InList<T>::Delete(T* t)
 template<class T>
 T* InList<T>::Remove(T* t)
 {
+	T*	ret;
+	
+	assert(t->next != t || t->prev != t);
+		
 	if (head == t)
 		head = dynamic_cast<T*>(t->next);
 	else if (t->prev != NULL)
 		t->prev->next = t->next;	
-		
 	
 	if (tail == t)
 		tail = dynamic_cast<T*>(t->prev);
@@ -133,8 +136,13 @@ T* InList<T>::Remove(T* t)
 		t->next->prev = t->prev;
 	
 	length--;
+
+	ret = dynamic_cast<T*>(t->next);
+	t->next = t;
+	t->prev = t;
+	Log_Trace("length = %d", length);
 	
-	return dynamic_cast<T*>(t->next);
+	return ret;
 }
 
 template<class T>

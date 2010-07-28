@@ -4,6 +4,9 @@ Timer::Timer()
 {
 	when = 0;
 	active = false;
+
+	next = this;
+	prev = this;
 }
 
 void Timer::SetCallable(const Callable& callable_)

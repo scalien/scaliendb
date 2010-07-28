@@ -56,6 +56,7 @@ bool InSortedList<T>::Add(T* t)
 			{
 				if (curr == NULL)
 				{
+					// end of list
 					list.tail->next = t;
 					t->prev = list.tail;
 				}
@@ -67,6 +68,7 @@ bool InSortedList<T>::Add(T* t)
 			}
 			else
 			{
+				// start of list
 				list.head = t;
 				t->prev = NULL;
 			}
@@ -74,8 +76,8 @@ bool InSortedList<T>::Add(T* t)
 				curr->prev = t;
 			if (curr == NULL)
 				list.tail = t;
-			curr = t;
-			list.length++;		
+			list.length++;
+			Log_Trace("length = %d", list.length);
 			return true;
 		} 
 		curr = curr->next;
