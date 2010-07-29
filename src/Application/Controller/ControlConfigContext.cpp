@@ -2,6 +2,7 @@
 #include "ReplicationManager.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
+#include "ClusterMessage.h"
 
 void ControlConfigContext::Start()
 {
@@ -114,10 +115,13 @@ void ControlConfigContext::OnMessage()
 	
 	switch(proto)
 	{
-		case 'L':
+		case CLUSTER_PROTOCOL_ID:			//'C':
+			OnClusterMessage(buffer);
+			break;
+		case PAXOSLEASE_PROTOCOL_ID:		//'L':
 			OnPaxosLeaseMessage(buffer);
 			break;
-		case 'P':
+		case PAXOS_PROTOCOL_ID:				//'P':
 			OnPaxosMessage(buffer);
 			break;
 		default:
@@ -150,6 +154,15 @@ void ControlConfigContext::OnPaxosMessage(ReadBuffer buffer)
 	RegisterPaxosID(msg.paxosID);
 	replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
 	replicatedLog.OnMessage(msg);
+}
+
+void ControlConfigContext::OnClusterMessage(ReadBuffer buffer)
+{
+//	ClusterMessage msg;
+//	
+//	msg.Read(buffer);
+//	
+//	controller->OnClusterMessage(msg);
 }
 
 void ControlConfigContext::RegisterPaxosID(uint64_t paxosID)

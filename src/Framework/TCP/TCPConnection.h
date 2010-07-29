@@ -44,6 +44,13 @@ public:
 	TCPConnection*		prev;
 
 protected:
+	void				Init(bool startRead = true);
+	virtual void		OnRead() = 0;
+	virtual void		OnWrite();
+	virtual void		OnClose() = 0;
+	virtual void		OnConnect();
+	virtual void		OnConnectTimeout();
+
 	State				state;
 	Socket				socket;
 	TCPRead				tcpread;
@@ -51,15 +58,6 @@ protected:
 	TCPWriter*			writer;
 	Buffer				readBuffer;
 	Countdown			connectTimeout;
-		
-	void				Init(bool startRead = true);
-
-	virtual void		OnRead() = 0;
-	virtual void		OnWrite();
-	virtual void		OnClose() = 0;
-	virtual void		OnConnect();
-	virtual void		OnConnectTimeout();
-
 };
 
 #endif

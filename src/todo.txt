@@ -59,6 +59,9 @@ controller:
 - HTTP
 
 
+NOW:
+- get rid of MessageWriter style prefix in Write
+  instead have Messages know about contextID by context->GetContextID()
 
 - Get in SortedList
 - get rid of function consts

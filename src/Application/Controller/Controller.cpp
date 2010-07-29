@@ -27,3 +27,13 @@ void Controller::SetContext(ControlConfigContext* context_)
 {
 	context = context_;
 }
+
+//void Controller::OnClusterMessage(const ClusterMessage& msg)
+//{
+//	assert(msg.type == CLUSTER_HELLO);
+//	
+//	if (!context->IsLeader())
+//		return;
+//
+//	
+//}

@@ -47,6 +47,7 @@ public:
 private:
 	void							OnPaxosLeaseMessage(ReadBuffer buffer);
 	void							OnPaxosMessage(ReadBuffer buffer);
+	void							OnClusterMessage(ReadBuffer buffer);
 	void							RegisterPaxosID(uint64_t paxosID);
 
 	SingleQuorum					quorum;

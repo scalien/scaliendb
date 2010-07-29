@@ -6,6 +6,7 @@
 
 class ClusterMessage
 {
+public:
 	char		type;
 	
 	uint64_t	nodeID;
@@ -13,4 +14,4 @@ class ClusterMessage
 
 	bool		Read(const ReadBuffer& buffer);
 	bool		Write(Buffer& buffer) const;
-}
+};

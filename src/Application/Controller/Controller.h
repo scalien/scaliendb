@@ -3,6 +3,8 @@
 
 #include "ControlConfigContext.h"
 #include "Application/HTTP/HttpServer.h"
+#include "ClusterMessage.h"
+#include "ConfigMessage.h"
 
 class Controller : public HttpHandler
 {
@@ -12,7 +14,9 @@ public:
 	virtual bool	HandleRequest(HttpConn* conn, const HttpRequest& request);
 	
 	void			SetContext(ControlConfigContext* context);
-	
+
+	//void			OnClusterMessage(const ClusterMessage& msg);
+	void			OnConfigMessage(const ConfigMessage& msg);
 private:
 	ControlConfigContext*	context;
 };

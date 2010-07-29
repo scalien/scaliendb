@@ -152,7 +152,7 @@ void Buffer::Append(const char* str)
 	Append(str, strlen(str));
 }
 
-void Buffer::Append(Buffer& other)
+void Buffer::Append(const Buffer& other)
 {
 	Append(other.GetBuffer(), other.GetLength());
 }

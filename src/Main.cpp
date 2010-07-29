@@ -16,6 +16,8 @@ int main(int argc, char** argv)
 	QuorumTransport				qtransport;
 	Buffer						prefix;
 	HttpServer					httpServer;
+	Endpoint					endpoint;
+	uint64_t					nodeID;
 	
 	configFile.Init(argv[1]);
 
@@ -28,12 +30,17 @@ int main(int argc, char** argv)
 	dbConfig.dir = configFile.GetValue("database.dir", DATABASE_CONFIG_DIR);
 	db.Init(dbConfig);
 	
-	RMAN->SetNodeID(configFile.GetIntValue("nodeID", 0));
+	nodeID = configFile.GetIntValue("nodeID", 0);
+	RMAN->SetNodeID(nodeID);
+	
+	const char* s = configFile.GetListValue("controllers", nodeID, NULL);
+	endpoint.Set(s);
+	RMAN->GetTransport()->Init(nodeID, endpoint);
+	
 	unsigned numNodes = configFile.GetListNum("controllers");
 	for (unsigned i = 0; i < numNodes; i++)
 	{
 		const char* s = configFile.GetListValue("controllers", i, NULL);
-		Endpoint endpoint;
 		endpoint.Set(s);
 		quorum.AddNode(i);
 
@@ -41,8 +48,6 @@ int main(int argc, char** argv)
 		RMAN->GetTransport()->AddEndpoint(i, endpoint);
 	}
 	
-	RMAN->GetTransport()->Start();
-
 	qdb.Init(db.GetTable("keyspace"));
 	prefix.Write("0");
 	qtransport.SetPriority(true);

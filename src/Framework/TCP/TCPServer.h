@@ -36,6 +36,7 @@ protected:
 	void					OnConnect();
 	Conn*					GetConn();
 	void					InitConn(Conn* conn);
+	bool					IsManaged();
 
 	
 	TCPRead					tcpread;
@@ -58,8 +59,13 @@ template<class T, class Conn>
 TCPServer<T, Conn>::~TCPServer()
 {
 	Conn* conn;
-	while ((conn = inactiveConns.Dequeue()) != NULL)
-		delete conn;
+	T* pT = static_cast<T*>(this);
+
+	if (pT->IsManaged())
+	{
+		while ((conn = inactiveConns.Dequeue()) != NULL)
+			delete conn;
+	}
 }
 
 template<class T, class Conn>
@@ -90,13 +96,18 @@ void TCPServer<T, Conn>::Close()
 	Conn* it;
 	Conn* next;
 
-	for (it = activeConns.Head(); it != NULL; /* advanced in body */)
-	{
-		next = activeConns.Next(it);
-		it->OnClose();
-		it = next;
-	}
+	T* pT = static_cast<T*>(this);
 
+	if (pT->IsManaged())
+	{
+		for (it = activeConns.Head(); it != NULL; /* advanced in body */)
+		{
+			next = activeConns.Next(it);
+			it->OnClose();
+			it = next;
+		}
+	}
+	
 	listener.Close();
 }
 
@@ -104,13 +115,20 @@ template<class T, class Conn>
 void TCPServer<T, Conn>::DeleteConn(Conn* conn)
 {
 	Log_Trace();
-	
-	activeConns.Remove(conn);
 
-	if (inactiveConns.GetLength() >= backlog)
-		delete conn;
+	T* pT = static_cast<T*>(this);
+	
+	if (pT->IsManaged())
+	{
+		activeConns.Remove(conn);
+
+		if (inactiveConns.GetLength() >= backlog)
+			delete conn;
+		else
+			inactiveConns.Enqueue(conn);
+	}
 	else
-		inactiveConns.Enqueue(conn);
+		delete conn;
 }
 
 template<class T, class Conn>
@@ -124,7 +142,8 @@ void TCPServer<T, Conn>::OnConnect()
 	{
 		conn->GetSocket().SetNonblocking();
 		conn->GetSocket().SetNodelay();
-		activeConns.Append(conn);
+		if (pT->IsManaged())
+			activeConns.Append(conn);
 		pT->InitConn(conn);
 	}
 	else
@@ -139,7 +158,9 @@ void TCPServer<T, Conn>::OnConnect()
 template<class T, class Conn>
 Conn* TCPServer<T, Conn>::GetConn()
 {
-	if (inactiveConns.GetLength() > 0)
+	T* pT = static_cast<T*>(this);
+
+	if (pT->IsManaged() && inactiveConns.GetLength() > 0)
 		return inactiveConns.Dequeue();
 	
 	return new Conn;
@@ -150,6 +171,12 @@ void TCPServer<T, Conn>::InitConn(Conn* conn)
 {
 	T* pT = static_cast<T*>(this);
 	conn->Init(pT);
+}
+
+template<class T, class Conn>
+bool TCPServer<T, Conn>::IsManaged()
+{
+	return true;
 }
 
 #endif

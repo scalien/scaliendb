@@ -14,7 +14,6 @@
 class Message
 {
 public:
-
 	virtual ~Message() {};
 	
 	virtual bool		Read(const ReadBuffer& buffer)	= 0;
