@@ -23,7 +23,7 @@ bool Controller::HandleRequest(HttpConn* conn, const HttpRequest& request)
 	return true;
 }
 
-void Controller::SetContext(ControllerConfigContext* context_)
+void Controller::SetContext(ControlConfigContext* context_)
 {
 	context = context_;
 }

@@ -1,7 +1,7 @@
 #include "System/Config.h"
 #include "Framework/Database/Database.h"
 #include "Framework/Replication/ReplicationManager.h"
-#include "Application/Controller/ControllerConfigContext.h"
+#include "Application/Controller/ControlConfigContext.h"
 #include "Application/Controller/Controller.h"
 #include "Application/HTTP/HttpServer.h"
 
@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
 	DatabaseConfig				dbConfig;
 	Database					db;
-	ControllerConfigContext		ctx;
+	ControlConfigContext		ctx;
 	Controller					controller;
 	SingleQuorum				quorum;
 	QuorumDatabase				qdb;

@@ -1,5 +1,5 @@
-#ifndef CONTROLLERCHUNKCONTEXT_H
-#define CONTROLLERCHUNKCONTEXT_H 
+#ifndef CONTROLCHUNKCONTEXT_H
+#define CONTROLCHUNKCONTEXT_H 
 
 #include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/DoubleQuorum.h"
@@ -9,12 +9,12 @@
 /*
 ===============================================================================
 
- ControllerChunkContext
+ ControlChunkContext
 
 ===============================================================================
 */
 
-class ControllerChunkContext : public QuorumContext
+class ControlChunkContext : public QuorumContext
 {
 	void							Init();
 	

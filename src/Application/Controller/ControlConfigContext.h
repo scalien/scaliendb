@@ -1,5 +1,5 @@
-#ifndef CONTROLLERCONFIGCONTEXT_H
-#define CONTROLLERCONFIGCONTEXT_H
+#ifndef CONTROLCONFIGCONTEXT_H
+#define CONTROLCONFIGCONTEXT_H
 
 #include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/SingleQuorum.h"
@@ -9,12 +9,12 @@
 /*
 ===============================================================================
 
- ControllerConfigContext
+ ControlConfigContext
 
 ===============================================================================
 */
 
-class ControllerConfigContext : public QuorumContext
+class ControlConfigContext : public QuorumContext
 {
 public:
 	void							Start();
