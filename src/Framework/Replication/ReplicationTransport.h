@@ -2,7 +2,7 @@
 #define REPLICATIONTRANSPORT_H
 
 #include "System/Containers/InList.h"
-#include "Framework/Messaging2/MessageTransport.h"
+#include "Framework/Messaging/MessageTransport.h"
 
 class Message; // forward
 
