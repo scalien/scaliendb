@@ -153,8 +153,7 @@ void UrlParam::AddParam(const char *s, int length)
 		unlen += 1;
 		buffer.Append(&c, 1);
 	}
-	// terminate the string with zero in buffer
-	buffer.Append("", 1);
+	buffer.NullTerminate();
 	
 	params.Append((const char*) &offset, sizeof(int));
 	params.Append((const char*) &unlen, sizeof(int));

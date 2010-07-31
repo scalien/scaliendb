@@ -63,5 +63,5 @@ void ReadBuffer::Advance(unsigned i)
 	buffer += i;
 	length -= i;
 	
-	assert(length > 0);
+	assert(length >= 0);
 }

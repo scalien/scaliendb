@@ -16,6 +16,7 @@
 
 class ControlChunkContext : public QuorumContext
 {
+public:
 	void							Init();
 	
 	void							SetContextID(uint64_t contextID);

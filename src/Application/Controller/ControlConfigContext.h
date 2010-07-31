@@ -5,6 +5,9 @@
 #include "Framework/Replication/Quorums/SingleQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
+#include "ConfigMessage.h"
+
+class Controller; // forward
 
 /*
 ===============================================================================
@@ -19,6 +22,9 @@ class ControlConfigContext : public QuorumContext
 public:
 	void							Start();
 	
+	void							Append(ConfigMessage msg);
+	
+	void							SetController(Controller* controller);
 	void							SetContextID(uint64_t contextID);
 	void							SetQuorum(SingleQuorum& quorum);
 	void							SetDatabase(QuorumDatabase& database);
@@ -41,6 +47,7 @@ public:
 	virtual QuorumDatabase*			GetDatabase();
 	virtual QuorumTransport*		GetTransport();
 	
+	virtual	void					OnAppend(ReadBuffer value);
 	virtual Buffer*					GetNextValue();
 	virtual void					OnMessage();
 
@@ -50,6 +57,7 @@ private:
 	void							OnClusterMessage(ReadBuffer buffer);
 	void							RegisterPaxosID(uint64_t paxosID);
 
+	Controller*						controller;
 	SingleQuorum					quorum;
 	QuorumDatabase					database;
 	QuorumTransport					transport;
@@ -59,6 +67,8 @@ private:
 
 	uint64_t						contextID;
 	uint64_t						highestPaxosID;
+	
+	Buffer							nextValue;
 };
 
 #endif

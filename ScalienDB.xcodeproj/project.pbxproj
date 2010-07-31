@@ -27,9 +27,10 @@
 		54B7F77C11BE5EF30076BC62 /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
 		54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76911BE5EF30076BC62 /* ThreadPool_Windows.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
-		54C8F9621201CC16002DD4D3 /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8F9611201CC16002DD4D3 /* MessageConnection.cpp */; };
-		54C8F96A1201D426002DD4D3 /* MessageServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8F9691201D426002DD4D3 /* MessageServer.cpp */; };
-		54C8F96C1201D751002DD4D3 /* MessageTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8F96B1201D751002DD4D3 /* MessageTransport.cpp */; };
+		54C8FC76120200F1002DD4D3 /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */; };
+		54C8FC77120200F1002DD4D3 /* MessageServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC72120200F1002DD4D3 /* MessageServer.cpp */; };
+		54C8FC78120200F1002DD4D3 /* MessageTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC74120200F1002DD4D3 /* MessageTransport.cpp */; };
+		54C8FD6112043EDD002DD4D3 /* ConfigMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FD6012043EDD002DD4D3 /* ConfigMessage.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		54FA68F911C2429A00FF4EF6 /* Countdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* Countdown.cpp */; };
 		54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
@@ -109,13 +110,7 @@
 		546E1F9211EB827300867EE1 /* TCPWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPWriter.cpp; sourceTree = "<group>"; };
 		546E1F9311EB827300867EE1 /* TCPWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPWriter.h; sourceTree = "<group>"; };
 		546E1F9811EB827300867EE1 /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
-		546E1FA311EB827F00867EE1 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
-		546E1FA411EB827F00867EE1 /* MessageReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageReader.cpp; sourceTree = "<group>"; };
-		546E1FA511EB827F00867EE1 /* MessageReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageReader.h; sourceTree = "<group>"; };
-		546E1FA611EB827F00867EE1 /* MessageWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageWriter.cpp; sourceTree = "<group>"; };
-		546E1FA711EB827F00867EE1 /* MessageWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageWriter.h; sourceTree = "<group>"; };
 		546E1FC611EC81B200867EE1 /* InList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InList.h; sourceTree = "<group>"; };
-		546E244011EF48AC00867EE1 /* MessageConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConnection.cpp; sourceTree = "<group>"; };
 		546E254C11EF5CF700867EE1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
 		546E254D11EF5CF700867EE1 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
 		546E254E11EF5CF700867EE1 /* BufferPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BufferPool.cpp; sourceTree = "<group>"; };
@@ -126,7 +121,6 @@
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
 		546E28D311F0816E00867EE1 /* QuorumTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumTransport.cpp; sourceTree = "<group>"; };
 		546E2A4611F4882C00867EE1 /* ReplicationTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicationTransport.cpp; sourceTree = "<group>"; };
-		546E2CBD11F5E22400867EE1 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
 		54AFE33611C8D15100925487 /* PaxosLeaseProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposerState.h; sourceTree = "<group>"; };
@@ -165,12 +159,14 @@
 		54B7F96411BE85B10076BC62 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
 		54C8F92312017967002DD4D3 /* ConfigMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigMessage.h; sourceTree = "<group>"; };
 		54C8F9241201B652002DD4D3 /* ClusterMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterMessage.h; sourceTree = "<group>"; };
-		54C8F9601201CC16002DD4D3 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
-		54C8F9611201CC16002DD4D3 /* MessageConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConnection.cpp; sourceTree = "<group>"; };
-		54C8F9641201D090002DD4D3 /* MessageTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageTransport.h; sourceTree = "<group>"; };
-		54C8F9681201D426002DD4D3 /* MessageServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageServer.h; sourceTree = "<group>"; };
-		54C8F9691201D426002DD4D3 /* MessageServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageServer.cpp; sourceTree = "<group>"; };
-		54C8F96B1201D751002DD4D3 /* MessageTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageTransport.cpp; sourceTree = "<group>"; };
+		54C8FC6F120200F1002DD4D3 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
+		54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConnection.cpp; sourceTree = "<group>"; };
+		54C8FC71120200F1002DD4D3 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
+		54C8FC72120200F1002DD4D3 /* MessageServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageServer.cpp; sourceTree = "<group>"; };
+		54C8FC73120200F1002DD4D3 /* MessageServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageServer.h; sourceTree = "<group>"; };
+		54C8FC74120200F1002DD4D3 /* MessageTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageTransport.cpp; sourceTree = "<group>"; };
+		54C8FC75120200F1002DD4D3 /* MessageTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageTransport.h; sourceTree = "<group>"; };
+		54C8FD6012043EDD002DD4D3 /* ConfigMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigMessage.cpp; sourceTree = "<group>"; };
 		54FA68F311C2422A00FF4EF6 /* Countdown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Countdown.h; sourceTree = "<group>"; };
 		54FA68F811C2429A00FF4EF6 /* Countdown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Countdown.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
@@ -270,10 +266,9 @@
 		541D7E6F11C64EB600A6CB16 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
+				54C8FC6E120200F1002DD4D3 /* Messaging */,
 				9A31560311C7B31C0052812E /* Database */,
 				546E1F8D11EB827300867EE1 /* TCP */,
-				546E1FA211EB827F00867EE1 /* Messaging */,
-				54C8F95F1201CC02002DD4D3 /* Messaging2 */,
 				541D867D11C7D8E400A6CB16 /* Replication */,
 			);
 			path = Framework;
@@ -339,20 +334,6 @@
 				546E1F9811EB827300867EE1 /* TCPServer.h */,
 			);
 			path = TCP;
-			sourceTree = "<group>";
-		};
-		546E1FA211EB827F00867EE1 /* Messaging */ = {
-			isa = PBXGroup;
-			children = (
-				546E2CBD11F5E22400867EE1 /* Message.h */,
-				546E1FA311EB827F00867EE1 /* MessageConnection.h */,
-				546E244011EF48AC00867EE1 /* MessageConnection.cpp */,
-				546E1FA511EB827F00867EE1 /* MessageReader.h */,
-				546E1FA411EB827F00867EE1 /* MessageReader.cpp */,
-				546E1FA711EB827F00867EE1 /* MessageWriter.h */,
-				546E1FA611EB827F00867EE1 /* MessageWriter.cpp */,
-			);
-			path = Messaging;
 			sourceTree = "<group>";
 		};
 		546E254B11EF5CF700867EE1 /* Buffers */ = {
@@ -463,17 +444,18 @@
 			path = IO;
 			sourceTree = "<group>";
 		};
-		54C8F95F1201CC02002DD4D3 /* Messaging2 */ = {
+		54C8FC6E120200F1002DD4D3 /* Messaging */ = {
 			isa = PBXGroup;
 			children = (
-				54C8F9601201CC16002DD4D3 /* MessageConnection.h */,
-				54C8F9611201CC16002DD4D3 /* MessageConnection.cpp */,
-				54C8F9681201D426002DD4D3 /* MessageServer.h */,
-				54C8F9691201D426002DD4D3 /* MessageServer.cpp */,
-				54C8F9641201D090002DD4D3 /* MessageTransport.h */,
-				54C8F96B1201D751002DD4D3 /* MessageTransport.cpp */,
+				54C8FC6F120200F1002DD4D3 /* Message.h */,
+				54C8FC71120200F1002DD4D3 /* MessageConnection.h */,
+				54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */,
+				54C8FC73120200F1002DD4D3 /* MessageServer.h */,
+				54C8FC72120200F1002DD4D3 /* MessageServer.cpp */,
+				54C8FC75120200F1002DD4D3 /* MessageTransport.h */,
+				54C8FC74120200F1002DD4D3 /* MessageTransport.cpp */,
 			);
-			path = Messaging2;
+			path = Messaging;
 			sourceTree = "<group>";
 		};
 		54FCE7AC11F6E6DE0075BBFF /* Paxos */ = {
@@ -520,6 +502,7 @@
 				9A26DB46120076BA006A2814 /* Controller.h */,
 				9A26DB47120076BA006A2814 /* Controller.cpp */,
 				54C8F92312017967002DD4D3 /* ConfigMessage.h */,
+				54C8FD6012043EDD002DD4D3 /* ConfigMessage.cpp */,
 				54C8F9241201B652002DD4D3 /* ClusterMessage.h */,
 			);
 			name = Controller;
@@ -690,9 +673,10 @@
 				54FCF78711FEF3BA0075BBFF /* PaxosLeaseLearner.cpp in Sources */,
 				54FCF8A6120028D70075BBFF /* ControlConfigContext.cpp in Sources */,
 				9A26DB48120076BA006A2814 /* Controller.cpp in Sources */,
-				54C8F9621201CC16002DD4D3 /* MessageConnection.cpp in Sources */,
-				54C8F96A1201D426002DD4D3 /* MessageServer.cpp in Sources */,
-				54C8F96C1201D751002DD4D3 /* MessageTransport.cpp in Sources */,
+				54C8FC76120200F1002DD4D3 /* MessageConnection.cpp in Sources */,
+				54C8FC77120200F1002DD4D3 /* MessageServer.cpp in Sources */,
+				54C8FC78120200F1002DD4D3 /* MessageTransport.cpp in Sources */,
+				54C8FD6112043EDD002DD4D3 /* ConfigMessage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

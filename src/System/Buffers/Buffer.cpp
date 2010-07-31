@@ -157,6 +157,11 @@ void Buffer::Append(const Buffer& other)
 	Append(other.GetBuffer(), other.GetLength());
 }
 
+void Buffer::NullTerminate()
+{
+	Append("", 1);
+}
+
 void Buffer::SetLength(unsigned length_)
 {
 	length = length_;

@@ -55,13 +55,16 @@ int main(int argc, char** argv)
 	qtransport.SetQuorum(&quorum);
 	
 	ctx.SetContextID(0);
+	ctx.SetController(&controller);
 	ctx.SetQuorum(quorum);
 	ctx.SetDatabase(qdb);
 	ctx.SetTransport(qtransport);
 	ctx.Start();
 
-	controller.SetContext(&ctx);
-
+	controller.Init(db.GetTable("keyspace"));
+	controller.SetConfigContext(&ctx);
+	RMAN->GetTransport()->SetController(&controller); // TODO: hack
+	
 	httpServer.Init(configFile.GetIntValue("http.port", 8080));
 	httpServer.RegisterHandler(&controller);
 	

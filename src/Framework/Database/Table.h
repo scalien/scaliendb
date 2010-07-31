@@ -51,6 +51,7 @@ public:
 	bool		Set(Transaction* tx, const char* key, const char* value);
 	bool		Set(Transaction* tx, const char* key, unsigned klen,
 				 const char* value, unsigned vlen);
+	bool		Set(Transaction* tx, const char* key, uint64_t value);
 		
 	bool		Delete(Transaction* tx, const Buffer &key);
 	bool		Prune(Transaction* tx, const Buffer &prefix);

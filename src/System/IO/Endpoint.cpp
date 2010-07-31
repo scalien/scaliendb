@@ -125,7 +125,7 @@ bool Endpoint::Set(const char* ip_port, bool resolv)
 	}
 
 	ipbuf.Append(ip_port, p - ip_port);
-	ipbuf.Append("", 1);
+	ipbuf.NullTerminate();
 	p++;
 	
 	port = -1;

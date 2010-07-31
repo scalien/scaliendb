@@ -3,6 +3,7 @@
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 #include "ClusterMessage.h"
+#include "Controller.h"
 
 void ControlConfigContext::Start()
 {
@@ -11,6 +12,19 @@ void ControlConfigContext::Start()
 	replicatedLog.Init(this);
 	paxosLease.Init(this);
 	highestPaxosID = 0;	
+}
+
+void ControlConfigContext::Append(ConfigMessage msg)
+{
+	Buffer buffer;
+	msg.Write(nextValue);
+
+	replicatedLog.TryAppendNextValue();
+}
+
+void ControlConfigContext::SetController(Controller* controller_)
+{
+	controller = controller_;
 }
 
 void ControlConfigContext::SetContextID(uint64_t contextID_)
@@ -93,8 +107,20 @@ QuorumTransport* ControlConfigContext::GetTransport()
 	return &transport;
 }
 
+void ControlConfigContext::OnAppend(ReadBuffer value)
+{
+	ConfigMessage msg;
+	msg.Read(value);
+	controller->OnConfigMessage(msg);
+
+	nextValue.Clear();
+}
+
 Buffer* ControlConfigContext::GetNextValue()
 {
+	if (nextValue.GetLength() > 0)
+		return &nextValue;
+	
 	return NULL;
 }
 

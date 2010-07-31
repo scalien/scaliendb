@@ -15,6 +15,7 @@ class MessageTransport;		// forward
 
 struct Node
 {
+	Node()	{ next = prev = this; }
 	enum State
 	{
 		INCOMING,			// incoming connection established, nodeID not sent, node->endpoint == unknown

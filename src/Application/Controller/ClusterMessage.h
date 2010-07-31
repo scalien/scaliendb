@@ -1,3 +1,5 @@
+#ifndef CLUSTERMESSAGE_H
+#define CLUSTERMESSAGE_H
 
 #define CLUSTER_PROTOCOL_ID		'C'
 
@@ -8,10 +10,9 @@ class ClusterMessage
 {
 public:
 	char		type;
-	
-	uint64_t	nodeID;
-	// TODO: stuff for CLUSTER_INFO
 
 	bool		Read(const ReadBuffer& buffer);
 	bool		Write(Buffer& buffer) const;
 };
+
+#endif

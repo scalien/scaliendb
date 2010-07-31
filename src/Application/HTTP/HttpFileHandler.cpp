@@ -35,7 +35,7 @@ bool HttpFileHandler::HandleRequest(HttpConn* conn, const HttpRequest& request)
 		return false;
 	
 	path.Writef("%s%s", documentRoot, request.line.uri);
-	path.Append("", 1);
+	path.NullTerminate();
 	
 	mimeType = MimeTypeFromExtension(strrchr(path.GetBuffer(), '.'));
 	
@@ -56,8 +56,7 @@ bool HttpFileHandler::HandleRequest(HttpConn* conn, const HttpRequest& request)
 		HTTP_HEADER_CONTENT_LENGTH, sizeof(HTTP_HEADER_CONTENT_LENGTH) - 1,
 		tmp.GetBuffer(), tmp.GetLength());
 
-	// zero-terminate
-	ha.Append("", 1);
+	ha.NullTerminate();
 	
 	conn->ResponseHeader(HTTP_STATUS_CODE_OK, true, ha.GetBuffer());
 	

@@ -159,6 +159,14 @@ bool Table::Set(Transaction* tx, const char* key, unsigned klen, const char* val
 	return true;
 }
 
+bool Table::Set(Transaction* tx, const char* key, uint64_t value)
+{
+	Buffer buffer;
+	buffer.Writef("%U", value);
+	
+	return Set(tx, key, buffer);
+}
+
 bool Table::Delete(Transaction* tx, const Buffer &key)
 {
 	Dbt dbtKey(key.GetBuffer(), key.GetLength());

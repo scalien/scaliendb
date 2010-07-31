@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include "ControlConfigContext.h"
+#include "ControlChunkContext.h"
 #include "Application/HTTP/HttpServer.h"
 #include "ClusterMessage.h"
 #include "ConfigMessage.h"
@@ -9,24 +10,28 @@
 class Controller : public HttpHandler
 {
 public:
-
+	void					Init(Table* table);
+	bool					ReadChunkQuorum(uint64_t /*chunkID*/);
+	void					WriteChunkQuorum(const ConfigMessage& msg);
 	// HttpHandler interface
-	virtual bool	HandleRequest(HttpConn* conn, const HttpRequest& request);
+	virtual bool			HandleRequest(HttpConn* conn, const HttpRequest& request);
 	
-	void			SetContext(ControlConfigContext* context);
+	void					SetConfigContext(ControlConfigContext* context);
+	void					SetChunkContext(ControlChunkContext* chunkContext);
 
-	//void			OnClusterMessage(const ClusterMessage& msg);
-	void			OnConfigMessage(const ConfigMessage& msg);
+	void					OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
+	void					OnConfigMessage(const ConfigMessage& msg);
+
 private:
-	ControlConfigContext*	context;
+	ControlChunkContext*	GetChunkContext(uint64_t chunkID);
+	ControlChunkContext*	chunkContext;
+	ControlConfigContext*	configContext;
+	
+	uint64_t				numNodes;
+	uint64_t				nodeIDs[7];
+	Endpoint				endpoints[7];
+	bool					chunkCreated;
+	Table*					table;
 };
-
-//ControlConfigContext => MASTER?
-//ControlConfigContext => CLUSTER_HELLO
-//(3)
-//CONFIG_CREATE_CHUNK => ControlConfigContext => OK => MessageWriter
-//CLUSTER_INFO => DataNodes
-//
-//no PRIMARY
 
 #endif

@@ -3,6 +3,9 @@
 
 #include "Quorum.h"
 
+#define QUORUM_CONTROL_NODE		0
+#define QUORUM_DATA_NODE		1
+
 /*
 ===============================================================================
 

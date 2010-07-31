@@ -44,6 +44,7 @@ public:
 	void				Append(const char* buffer_, unsigned length_);
 	void				Append(const char* str);
 	void				Append(const Buffer& other);
+	void				NullTerminate();
 
 	void				SetLength(unsigned length_);
 

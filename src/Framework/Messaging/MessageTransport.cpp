@@ -74,21 +74,21 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 		if (dup)
 		{
 			if (dup->state == Node::READY)
+			{
 				DeleteNode(node);				// drop current node
+				return;
+			}
 			else
 				DeleteNode(dup);				// drop dup
 		}
-		else
-		{
-			node->state = Node::READY;
-			node->nodeID = nodeID;
-			// HACK TODO
-			epBuffer.Write(buffer);
-			epBuffer.Append("", 1);
-			node->endpoint.Set(epBuffer.GetBuffer());
-			
-			nodes.Append(node);
-		}
+		node->state = Node::READY;
+		node->nodeID = nodeID;
+		// HACK TODO
+		epBuffer.Write(buffer);
+		epBuffer.NullTerminate();
+		node->endpoint.Set(epBuffer.GetBuffer());
+		nodes.Append(node);
+		OnIncomingConnectionReady(node->nodeID, node->endpoint);
 	}
 	else
 	{
@@ -217,7 +217,8 @@ Node* MessageTransport::GetNode(uint64_t nodeID)
 void MessageTransport::DeleteNode(Node* node)
 {
 	node->conn->Close();
-	delete node->conn;
-	nodes.Remove(node);
+	delete node->conn; // TODO: what happens when control returns to OnRead()
+	if (node->next != node) // TODO:
+		nodes.Remove(node);
 	delete node;
 }

@@ -172,9 +172,10 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 		proposer.state.multi = false;
 		Log_Trace("Multi paxos disabled");
 	}
-	
-//	if (!Buffer::Cmp(*imsg.value, enableMultiPaxos))
-//		replicatedDB->OnAppend(GetTransaction(), paxosID - 1,  value, proposer.state.multi);
+
+	if (!MEMCMP(value.GetBuffer(), value.GetLength(),
+	 enableMultiPaxos.GetBuffer(), enableMultiPaxos.GetLength()))
+		context->OnAppend(value);
 	TryAppendNextValue();
 }
 

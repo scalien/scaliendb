@@ -8,9 +8,7 @@ class MessageTransport
 {
 public:
 	void				Init(uint64_t nodeID, Endpoint& endpoint);
-	
-	virtual void		OnMessage(ReadBuffer msg) = 0;
-	
+		
 	void				OnIncomingConnection(MessageConnection* conn);
 	void				OnOutgoingConnection(MessageConnection* conn);
 	void				OnClose(MessageConnection* conn);
@@ -21,6 +19,9 @@ public:
 
 	void				SendMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
 	void				SendPriorityMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
+
+	virtual void		OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)	= 0;
+	virtual void		OnMessage(ReadBuffer msg)										= 0;
 
 private:
 	Node*				GetNode(uint64_t nodeID);
