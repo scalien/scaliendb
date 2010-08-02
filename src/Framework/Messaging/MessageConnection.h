@@ -49,8 +49,8 @@ public:
 
 	void				Write(const Buffer& buffer);
 	void				WritePriority(const Buffer& buffer);
-	void				Write(const Buffer& prefix, const Message& msg);
-	void				WritePriority(const Buffer& prefix, const Message& msg);
+	void				Write(const Buffer& prefix, Message& msg);
+	void				WritePriority(const Buffer& prefix, Message& msg);
 
 	// read:
 	virtual void		OnClose();

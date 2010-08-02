@@ -17,8 +17,8 @@ class HashNode
 friend class HashTable<K, V>;
 public:
 
-	const K&		Key() const { return key; }
-	V&				Value() const { return value; }
+	K&				Key() { return key; }
+	V&				Value() { return value; }
 	
 private:
 	HashNode<K,V>*	next;
@@ -45,17 +45,17 @@ public:
 	
 	void					Clear();
 	
-	V*						Get(const K& key);
-	V*						Set(const K& key, const V& value);
+	V*						Get(K& key);
+	V*						Set(K& key, V& value);
 
-	void					Remove(const K& key);
+	void					Remove(K& key);
 
 private:
 	Node**					buckets;
 	int						bucketSize;
 	int						num;
 	
-	size_t					GetHash(const K& key);
+	size_t					GetHash(K& key);
 };
 
 /*
@@ -98,7 +98,7 @@ void HashTable<K, V>::Clear()
 }
 
 template<class K, class V>
-V* HashTable<K, V>::Get(const K& key)
+V* HashTable<K, V>::Get(K& key)
 {
 	size_t	hash;
 	Node*	node;
@@ -114,7 +114,7 @@ V* HashTable<K, V>::Get(const K& key)
 }
 
 template<class K, class V>
-V* HashTable<K, V>::Set(const K& key, const V& value)
+V* HashTable<K, V>::Set(K& key, V& value)
 {
 	size_t	hash;
 	Node*	node;
@@ -142,7 +142,7 @@ V* HashTable<K, V>::Set(const K& key, const V& value)
 }
 
 template<class K, class V>
-void HashTable<K, V>::Remove(const K& key)
+void HashTable<K, V>::Remove(K& key)
 {
 	size_t	hash;
 	Node*	node;
@@ -168,7 +168,7 @@ void HashTable<K, V>::Remove(const K& key)
 }
 
 template<class K, class V>
-size_t HashTable<K, V>::GetHash(const K& key)
+size_t HashTable<K, V>::GetHash(K& key)
 {
 	return Hash(key) % bucketSize;
 }

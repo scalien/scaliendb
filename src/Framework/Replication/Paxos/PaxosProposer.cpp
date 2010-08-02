@@ -4,13 +4,13 @@
 void PaxosProposer::Init(QuorumContext* context_)
 {
 	context = context_;
-	vote = context->GetQuorum()->NewVote();
 	
 	prepareTimeout.SetCallable(MFUNC(PaxosProposer, OnPrepareTimeout));
 	proposeTimeout.SetCallable(MFUNC(PaxosProposer, OnProposeTimeout));
 	prepareTimeout.SetDelay(PAXOS_TIMEOUT);
 	proposeTimeout.SetDelay(PAXOS_TIMEOUT);
 
+	vote = NULL;
 	state.Init();
 }
 
@@ -142,7 +142,7 @@ void PaxosProposer::OnProposeResponse(const PaxosMessage& imsg)
 		StartPreparing();
 }
 
-void PaxosProposer::BroadcastMessage(const PaxosMessage& omsg)
+void PaxosProposer::BroadcastMessage(PaxosMessage& omsg)
 {
 	Log_Trace();
 	
@@ -174,6 +174,7 @@ void PaxosProposer::StartPreparing()
 
 	StopProposing();
 
+	NewVote();
 	state.preparing = true;
 	state.numProposals++;
 	state.proposalID = RMAN->NextProposalID(MAX(state.proposalID, state.highestPromisedProposalID));
@@ -193,6 +194,7 @@ void PaxosProposer::StartProposing()
 	
 	StopPreparing();
 
+	NewVote();
 	state.proposing = true;
 	
 	omsg.ProposeRequest(context->GetPaxosID(), RMAN->GetNodeID(), state.proposalID,
@@ -200,4 +202,10 @@ void PaxosProposer::StartProposing()
 	BroadcastMessage(omsg);
 	
 	EventLoop::Reset(&proposeTimeout);
+}
+
+void PaxosProposer::NewVote()
+{
+	delete vote;
+	vote = context->GetQuorum()->NewVote();
 }

@@ -133,7 +133,7 @@ unsigned MessageTransport::GetNumEndpoints()
 }
 
 void MessageTransport::SendMessage(uint64_t nodeID,
- const Buffer& prefix, const Message& msg)
+ const Buffer& prefix, Message& msg)
 {
 	Node*	it;
 	
@@ -154,7 +154,7 @@ void MessageTransport::SendMessage(uint64_t nodeID,
 }
 
 void MessageTransport::SendPriorityMessage(uint64_t nodeID,
- const Buffer& prefix, const Message& msg)
+ const Buffer& prefix, Message& msg)
 {
 	Node*	it;
 

@@ -30,9 +30,9 @@ void ReplicationTransport::OnMessage(ReadBuffer msg)
 	
 	readBuffer = msg;
 	Log_Trace("%.*s", P(&readBuffer));
-	readBuffer.Advance(2);
 	
-	logID = 0;
+	logID = readBuffer.GetCharAt(0) - '0'; // TODO: hack
+	readBuffer.Advance(2);
 	
 	RMAN->GetContext(logID)->OnMessage();
 }

@@ -37,11 +37,12 @@ private:
 	void						OnPrepareResponse(const PaxosMessage& msg);
 	void						OnProposeResponse(const PaxosMessage& msg);
 
-	void						BroadcastMessage(const PaxosMessage& msg);
+	void						BroadcastMessage(PaxosMessage& msg);
 	void						StopPreparing();
 	void						StopProposing();
 	void						StartPreparing();
 	void						StartProposing();
+	void						NewVote();
 
 	QuorumContext*				context;
 	QuorumVote*					vote;

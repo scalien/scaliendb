@@ -29,7 +29,6 @@ public:
 	bool					IsLeaseOwner();
 	bool					IsLeaseKnown();
 	unsigned				GetLeaseOwner();
-	uint64_t				GetLeaseEpoch();
 	
 private:
 	void					OnStartupTimeout();

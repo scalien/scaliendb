@@ -24,8 +24,8 @@ public:
 	
 	ReadBuffer				GetMessage() const;
 
-	void					SendMessage(uint64_t nodeID, const Message& msg);
-	void					BroadcastMessage(const Message& msg);
+	void					SendMessage(uint64_t nodeID,Message& msg);
+	void					BroadcastMessage(Message& msg);
 
 private:
 	bool					priority;

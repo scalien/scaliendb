@@ -41,7 +41,7 @@ void MessageConnection::Write(const Buffer& msg)
 	writer->Flush();
 }
 
-void MessageConnection::Write(const Buffer& prefix, const Message& msg)
+void MessageConnection::Write(const Buffer& prefix, Message& msg)
 {
 	ASSERT_FAIL(); // TODO: priority buffers can interleave! XZCXZCZXCZCZCZCZZXCZXCZ
 	
@@ -62,7 +62,7 @@ void MessageConnection::Write(const Buffer& prefix, const Message& msg)
 	writer->Flush();
 }
 
-void MessageConnection::WritePriority(const Buffer& prefix, const Message& msg)
+void MessageConnection::WritePriority(const Buffer& prefix, Message& msg)
 {
 	unsigned len;
 	Buffer* head;

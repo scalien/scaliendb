@@ -4,6 +4,7 @@
 #include "Application/Controller/ControlConfigContext.h"
 #include "Application/Controller/Controller.h"
 #include "Application/DataNode/DataNode.h"
+#include "Application/DataNode/DataChunkContext.h"
 #include "Application/HTTP/HttpServer.h"
 
 int main(int argc, char** argv)
@@ -12,12 +13,14 @@ int main(int argc, char** argv)
 	Database					db;
 	ControlConfigContext		configContext;
 	ControlChunkContext			chunkContext;
+	DataChunkContext			dataContext;
 	Controller					controller;
 	DataNode					dataNode;
 	SingleQuorum				singleQuorum;
 	DoubleQuorum				doubleQuorum;
 	QuorumDatabase				qdb;
-	QuorumTransport				qtransport;
+	QuorumTransport				configTransport;
+	QuorumTransport				chunkTransport;
 	Buffer						prefix;
 	HttpServer					httpServer;
 	Endpoint					endpoint;
@@ -53,8 +56,6 @@ int main(int argc, char** argv)
 	else
 	{
 		dataNode.Init(db.GetTable("keyspace")); // sets RMAN->nodeID
-		httpServer.Init(configFile.GetIntValue("http.port", 8080));
-		httpServer.RegisterHandler(&dataNode);
 		const char* s = configFile.GetValue("endpoint", NULL);
 		endpoint.Set(s);
 		RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
@@ -76,31 +77,52 @@ int main(int argc, char** argv)
 	{
 		qdb.Init(db.GetTable("keyspace"));
 		prefix.Write("0");
-		qtransport.SetPriority(true);
-		qtransport.SetPrefix(prefix);
-		qtransport.SetQuorum(&singleQuorum);
+		configTransport.SetPriority(true);
+		configTransport.SetPrefix(prefix);
+		configTransport.SetQuorum(&singleQuorum);
 		
 		configContext.SetContextID(0);
 		configContext.SetController(&controller);
 		configContext.SetQuorum(singleQuorum);
 		configContext.SetDatabase(qdb);
-		configContext.SetTransport(qtransport);
+		configContext.SetTransport(configTransport);
 		configContext.Start();
-		
+
+		prefix.Write("1");
+		chunkTransport.SetPriority(true);
+		chunkTransport.SetPrefix(prefix);
+		chunkTransport.SetQuorum(&doubleQuorum);
 		chunkContext.SetContextID(1);
 		chunkContext.SetQuorum(doubleQuorum);
 		chunkContext.SetDatabase(qdb); // TODO: hack
-		chunkContext.SetTransport(qtransport);
+		chunkContext.SetTransport(chunkTransport);
 		chunkContext.Start();
 
 		controller.Init(db.GetTable("keyspace"));
-		controller.SetConfigContext(&configContext);
-		controller.SetChunkContext(&chunkContext);
 		RMAN->GetTransport()->SetController(&controller); // TODO: hack
 		RMAN->AddContext(&configContext);
+		RMAN->AddContext(&chunkContext);
 
 		httpServer.Init(configFile.GetIntValue("http.port", 8080));
 		httpServer.RegisterHandler(&controller);
+	}
+	else
+	{
+		qdb.Init(db.GetTable("keyspace"));
+		prefix.Write("1");
+		chunkTransport.SetPriority(true);
+		chunkTransport.SetPrefix(prefix);
+		chunkTransport.SetQuorum(&doubleQuorum);	
+
+		dataContext.SetContextID(1);
+		dataContext.SetQuorum(doubleQuorum);
+		dataContext.SetDatabase(qdb); // TODO: hack
+		dataContext.SetTransport(chunkTransport);
+		dataContext.Start();
+
+		httpServer.Init(configFile.GetIntValue("http.port", 8080));
+		httpServer.RegisterHandler(&dataNode);
+		RMAN->AddContext(&dataContext);
 	}
 	
 	

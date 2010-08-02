@@ -19,9 +19,22 @@ void DataNode::Init(Table* table_)
 
 bool DataNode::HandleRequest(HttpConn* conn, const HttpRequest& request)
 {
-	Buffer buffer;
-
-	buffer.Writef("nodeID: %U", nodeID);
+	Buffer			buffer;
+	QuorumContext*	context;
+	
+	context = RMAN->GetContext(1); // TODO: hack
+	
+	if (context->IsLeaderKnown())
+	{
+		buffer.Writef("ChunkID: 1\nPrimary: %U\nSelf: %U\nPaxosID: %U\n", 
+		 context->GetLeader(),
+		 RMAN->GetNodeID(),
+		 context->GetPaxosID());
+	}
+	else
+	{
+		buffer.Writef("ChunkID: 1\nNo primary, PaxosID: %U\n", context->GetPaxosID());
+	}
 
 	conn->Write(buffer.GetBuffer(), buffer.GetLength());
 	conn->Flush(true);

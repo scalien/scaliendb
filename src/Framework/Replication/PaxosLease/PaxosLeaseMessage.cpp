@@ -159,7 +159,7 @@ bool PaxosLeaseMessage::Read(const ReadBuffer& buffer)
 	return (read == (signed)buffer.GetLength() ? true : false);
 }
 
-bool PaxosLeaseMessage::Write(Buffer& buffer) const
+bool PaxosLeaseMessage::Write(Buffer& buffer)
 {
 	const char proto = PAXOSLEASE_PROTOCOL_ID;
 	

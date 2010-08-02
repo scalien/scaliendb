@@ -26,7 +26,7 @@ ReadBuffer QuorumTransport::GetMessage() const
 	return RMAN->GetTransport()->GetMessage();
 }
 
-void QuorumTransport::SendMessage(uint64_t nodeID, const Message& msg)
+void QuorumTransport::SendMessage(uint64_t nodeID, Message& msg)
 {
 	if (priority)
 		return RMAN->GetTransport()->SendPriorityMessage(nodeID, prefix, msg);
@@ -34,7 +34,7 @@ void QuorumTransport::SendMessage(uint64_t nodeID, const Message& msg)
 		return RMAN->GetTransport()->SendMessage(nodeID, prefix, msg);
 }
 
-void QuorumTransport::BroadcastMessage(const Message& msg)
+void QuorumTransport::BroadcastMessage(Message& msg)
 {
 	unsigned		num, i, nodeID;
 	const uint64_t*	nodes;

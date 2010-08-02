@@ -34,9 +34,10 @@ private:
 	void						OnPrepareResponse(const PaxosLeaseMessage& msg);
 	void						OnProposeResponse(const PaxosLeaseMessage& msg);
 
-	void						BroadcastMessage(const PaxosLeaseMessage& msg);
+	void						BroadcastMessage(PaxosLeaseMessage& msg);
 	void						StartPreparing();
 	void						StartProposing();
+	void						NewVote();
 
 	QuorumContext*				context;
 	QuorumVote*					vote;

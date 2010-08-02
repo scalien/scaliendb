@@ -1,9 +1,15 @@
 #include "ReplicationManager.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 
 #define WIDTH_NODEID				16
 #define WIDTH_RESTART_COUNTER		16
 
 ReplicationManager* replicationManager = NULL;
+
+static uint64_t Hash(uint64_t ID)
+{
+	return ID;
+}
 
 ReplicationManager* ReplicationManager::Get()
 {
@@ -35,17 +41,23 @@ uint64_t ReplicationManager::GetRunID() const
 	return 0;
 }
 
-void ReplicationManager::AddContext(QuorumContext* context_)
+void ReplicationManager::AddContext(QuorumContext* context)
 {
-	context = context_;
+	uint64_t contextID = context->GetContextID();
+	contextMap.Set(contextID, context);
 }
 
-QuorumContext* ReplicationManager::GetContext(unsigned contextID) const
+QuorumContext* ReplicationManager::GetContext(uint64_t contextID)
 {
-	return context;
+	QuorumContext** pcontext;
+	
+	pcontext = contextMap.Get(contextID);
+	assert(pcontext != NULL);
+	
+	return *pcontext;
 }
 
-uint64_t ReplicationManager::NextProposalID(uint64_t proposalID) const
+uint64_t ReplicationManager::NextProposalID(uint64_t proposalID)
 {
 	// <proposal count since restart> <runID> <nodeID>
 	

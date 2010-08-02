@@ -17,8 +17,8 @@ public:
 	void				AddEndpoint(uint64_t nodeID, Endpoint endpoint);
 	unsigned			GetNumEndpoints();
 
-	void				SendMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
-	void				SendPriorityMessage(uint64_t nodeID, const Buffer& prefix, const Message& msg);
+	void				SendMessage(uint64_t nodeID, const Buffer& prefix, Message& msg);
+	void				SendPriorityMessage(uint64_t nodeID, const Buffer& prefix, Message& msg);
 
 	virtual void		OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)	= 0;
 	virtual void		OnMessage(ReadBuffer msg)										= 0;

@@ -17,9 +17,8 @@ struct PaxosLeaseLearnerState
 	void			OnLeaseTimeout();
 	
 	bool			learned;
-	unsigned		leaseOwner;
+	uint64_t		leaseOwner;
 	uint64_t		expireTime;
-	uint64_t		leaseEpoch;
 };
 
 /*
@@ -31,7 +30,6 @@ inline void PaxosLeaseLearnerState::Init()
 	learned		= false;
 	leaseOwner	= 0;
 	expireTime	= 0;
-	leaseEpoch	= 0;
 }
 
 inline void PaxosLeaseLearnerState::OnLeaseTimeout()
@@ -39,7 +37,6 @@ inline void PaxosLeaseLearnerState::OnLeaseTimeout()
 	learned		= false;
 	leaseOwner	= 0;
 	expireTime	= 0;
-	leaseEpoch++;
 }
 
 #endif

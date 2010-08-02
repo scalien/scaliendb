@@ -2,8 +2,9 @@
 #include "ReplicationManager.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
+#include "Application/Controller/ClusterMessage.h"
 
-void DataChunkContext::Init()
+void DataChunkContext::Start()
 {
 	replicatedLog.Init(this);
 	paxosLeaseLearner.Init(this);
@@ -13,6 +14,21 @@ void DataChunkContext::Init()
 void DataChunkContext::SetContextID(uint64_t contextID_)
 {
 	contextID = contextID_;
+}
+
+void DataChunkContext::SetQuorum(DoubleQuorum& quorum_)
+{
+	quorum = quorum_;
+}
+
+void DataChunkContext::SetDatabase(QuorumDatabase& database_)
+{
+	database = database_;
+}
+
+void DataChunkContext::SetTransport(QuorumTransport& transport_)
+{
+	transport = transport_;
 }
 
 bool DataChunkContext::IsLeaderKnown()
@@ -27,7 +43,7 @@ bool DataChunkContext::IsLeader()
 
 uint64_t DataChunkContext::GetLeader()
 {
-	return paxosLeaseLearner.IsLeaseOwner();
+	return paxosLeaseLearner.GetLeaseOwner();
 }
 
 uint64_t DataChunkContext::GetContextID() const
@@ -35,9 +51,25 @@ uint64_t DataChunkContext::GetContextID() const
 	return contextID;
 }
 
+void DataChunkContext::OnLearnLease()
+{
+	replicatedLog.OnLearnLease();
+}
+
+void DataChunkContext::OnLeaseTimeout()
+{
+	replicatedLog.OnLeaseTimeout();
+}
+
+
 uint64_t DataChunkContext::GetPaxosID() const
 {
 	return replicatedLog.GetPaxosID();
+}
+
+void DataChunkContext::SetPaxosID(uint64_t paxosID)
+{
+	replicatedLog.SetPaxosID(paxosID);
 }
 
 uint64_t DataChunkContext::GetHighestPaxosID() const
@@ -60,9 +92,14 @@ QuorumTransport* DataChunkContext::GetTransport()
 	return &transport;
 }
 
-Buffer* DataChunkContext::GetNextValue()
+void DataChunkContext::OnAppend(ReadBuffer value)
 {
 	// TODO
+}
+
+Buffer* DataChunkContext::GetNextValue()
+{
+	return NULL;
 }
 
 void DataChunkContext::OnMessage()
@@ -77,7 +114,6 @@ void DataChunkContext::OnMessage()
 
 	proto = buffer.GetCharAt(0);
 	assert(buffer.GetCharAt(1) == ':');
-	buffer.Advance(2);
 	
 	switch(proto)
 	{
@@ -86,6 +122,9 @@ void DataChunkContext::OnMessage()
 			break;
 		case 'P':
 			OnPaxosMessage(buffer);
+			break;
+		case 'C':
+			OnClusterMessage(buffer);
 			break;
 		default:
 			ASSERT_FAIL();
@@ -113,6 +152,20 @@ void DataChunkContext::OnPaxosMessage(ReadBuffer buffer)
 	RegisterPaxosID(msg.paxosID);
 	replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
 	replicatedLog.OnMessage(msg);
+}
+
+void DataChunkContext::OnClusterMessage(ReadBuffer buffer)
+{
+	ClusterMessage msg;
+		
+	msg.Read(buffer);
+	for (unsigned i = 0; i < msg.numNodes; i++)
+	{
+		Log_Trace("nodeID = %" PRIu64 ", endpoint = %s", 
+		 msg.nodeIDs[i], msg.endpoints[i].ToString());
+		RMAN->GetTransport()->AddEndpoint(msg.nodeIDs[i], msg.endpoints[i]);
+		quorum.AddNode(QUORUM_DATA_NODE, msg.nodeIDs[i]);
+	}
 }
 
 void DataChunkContext::RegisterPaxosID(uint64_t paxosID)

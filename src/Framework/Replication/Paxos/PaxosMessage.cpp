@@ -216,7 +216,7 @@ bool PaxosMessage::Read(const ReadBuffer& buffer)
 
 }
 
-bool PaxosMessage::Write(Buffer& buffer) const
+bool PaxosMessage::Write(Buffer& buffer)
 {
 	const char proto = PAXOS_PROTOCOL_ID;
 	

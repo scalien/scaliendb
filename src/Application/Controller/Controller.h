@@ -16,22 +16,18 @@ public:
 	// HttpHandler interface
 	virtual bool			HandleRequest(HttpConn* conn, const HttpRequest& request);
 	
-	void					SetConfigContext(ControlConfigContext* context);
-	void					SetChunkContext(ControlChunkContext* chunkContext);
-
 	void					OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
 	void					OnConfigMessage(const ConfigMessage& msg);
 
-private:
-	ControlChunkContext*	GetChunkContext(uint64_t chunkID);
-	ControlChunkContext*	chunkContext;
-	ControlConfigContext*	configContext;
-	
+	void					OnPrimaryTimeout();
+
+private:	
 	uint64_t				numNodes;
 	uint64_t				nodeIDs[7];
 	Endpoint				endpoints[7];
 	bool					chunkCreated;
 	Table*					table;
+	Countdown				primaryTimeout;
 };
 
 #endif

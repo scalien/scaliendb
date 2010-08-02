@@ -14,6 +14,11 @@ void DoubleQuorum::AddNode(unsigned group, uint64_t nodeID)
 	assert(numNodes[0] + numNodes[1] < 10);
 	assert(numNodes[0] <= SIZE(nodes));
 	assert(numNodes[1] <= SIZE(nodes));
+	for (unsigned i = 0; i < GetNumNodes(); i++)
+	{
+		if (nodes[i] == nodeID)
+			return;
+	}
 	nodes[numNodes[0] + numNodes[1]] = nodeID;
 	numNodes[group]++;
 }

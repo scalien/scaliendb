@@ -8,6 +8,9 @@ void Controller::Init(Table* table_)
 	chunkCreated = false;
 	table = table_;
 	
+	primaryTimeout.SetCallable(MFUNC(Controller, OnPrimaryTimeout));
+	primaryTimeout.SetDelay(1000); // TODO:
+
 	if (!ReadChunkQuorum(1))
 		return;
 
@@ -58,18 +61,21 @@ void Controller::WriteChunkQuorum(const ConfigMessage& msg)
 
 bool Controller::HandleRequest(HttpConn* conn, const HttpRequest& request)
 {
-	Buffer buffer;
+	Buffer			buffer;
+	QuorumContext*	context;
 	
-	if (configContext->IsLeaderKnown())
+	context = RMAN->GetContext(0);
+	
+	if (context->IsLeaderKnown())
 	{
-		buffer.Writef("Master: %U\nSelf: %U\nPaxosID: %U\n", 
-		 configContext->GetLeader(),
+		buffer.Writef("ChunkID: 0\nMaster: %U\nSelf: %U\nPaxosID: %U\n", 
+		 context->GetLeader(),
 		 RMAN->GetNodeID(),
-		 configContext->GetPaxosID());
+		 context->GetPaxosID());
 	}
 	else
 	{
-		buffer.Writef("No master, PaxosID: %U\n", configContext->GetPaxosID());
+		buffer.Writef("ChunkID: 0\nNo master, PaxosID: %U\n", context->GetPaxosID());
 	}
 
 	conn->Write(buffer.GetBuffer(), buffer.GetLength());
@@ -78,28 +84,10 @@ bool Controller::HandleRequest(HttpConn* conn, const HttpRequest& request)
 	return true;
 }
 
-void Controller::SetConfigContext(ControlConfigContext* configContext_)
-{
-	configContext = configContext_;
-}
-
-void Controller::SetChunkContext(ControlChunkContext* chunkContext_)
-{
-	DoubleQuorum* quorum;
-
-	chunkContext = chunkContext_;
-	
-	if (!chunkCreated)
-		return;
-	
-	// set data nodes in this quorum
-	quorum = (DoubleQuorum*) chunkContext->GetQuorum();
-	for (unsigned i = 0; i < numNodes; i++)
-		quorum->AddNode(QUORUM_DATA_NODE, nodeIDs[i]);
-}
-
 void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
+	ControlConfigContext*	context;
+	
 	Log_Trace();
 	
 	if (nodeID < 10) // TODO: data node
@@ -129,14 +117,17 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 			msg.nodeIDs[i] = nodeIDs[i];
 			msg.endpoints[i] = endpoints[i];
 		}
-		configContext->Append(msg);
+		context = (ControlConfigContext*) RMAN->GetContext(0);
+		context->Append(msg);
 	}
 }
 
 void Controller::OnConfigMessage(const ConfigMessage& msg)
 {
-	DoubleQuorum* quorum;
-	
+	DoubleQuorum*		quorum;
+	ClusterMessage		omsg;
+	QuorumContext*		context;
+
 	Log_Trace();
 	
 	assert(msg.type == CONFIG_CREATE_CHUNK);
@@ -148,20 +139,50 @@ void Controller::OnConfigMessage(const ConfigMessage& msg)
 	WriteChunkQuorum(msg);
 	chunkCreated = true;
 	
-	chunkContext = GetChunkContext(msg.chunkID);
+	context = RMAN->GetContext(msg.chunkID);
 	// set data nodes in this quorum
-	quorum = (DoubleQuorum*) chunkContext->GetQuorum();
+	quorum = (DoubleQuorum*) context->GetQuorum();
 	for (unsigned i = 0; i < numNodes; i++)
 		quorum->AddNode(QUORUM_DATA_NODE, nodeIDs[i]);
-	// TODO: GetVote() issue
+
+	if (!RMAN->GetContext(0)->IsLeader())
+		return;
 	
 	// send CLUSTER_INFO, first is the primary
-	Log_Trace("Should send CLUSTER_INFO");
+	Log_Trace("Sending CLUSTER_INFO");
+	omsg.type = CLUSTER_INFO;
+	omsg.chunkID = msg.chunkID;
+	omsg.numNodes = msg.numNodes;
+	for (unsigned i = 0; i < msg.numNodes; i++)
+	{
+		omsg.nodeIDs[i] = msg.nodeIDs[i];
+		omsg.endpoints[i] = msg.endpoints[i];
+	}
+
+	// send omsg to data nodes
+	for (unsigned i = 0; i < msg.numNodes; i++)
+		context->GetTransport()->SendMessage(msg.nodeIDs[i], omsg);
+	
+	OnPrimaryTimeout();
 }
 
-ControlChunkContext* Controller::GetChunkContext(uint64_t chunkID)
+void Controller::OnPrimaryTimeout()
 {
-	assert(chunkID == 1);
-	
-	return chunkContext;
+	PaxosLeaseMessage	plmsg;
+	uint64_t			nodeID;
+
+	Log_Trace();
+
+	assert(RMAN->GetContext(0)->IsLeader());
+
+	nodeID = nodeIDs[0]; // TODO: hack
+
+	plmsg.LearnChosen(RMAN->GetNodeID(), nodeID, PAXOSLEASE_MAX_LEASE_TIME,
+	 Now() + PAXOSLEASE_MAX_LEASE_TIME, RMAN->GetContext(1)->GetPaxosID());
+
+	// send primary paxos lease msg to data nodes
+	for (unsigned i = 0; i < numNodes; i++)
+		RMAN->GetContext(1)->GetTransport()->SendMessage(nodeIDs[i], plmsg);
+		
+	EventLoop::Add(&primaryTimeout);
 }

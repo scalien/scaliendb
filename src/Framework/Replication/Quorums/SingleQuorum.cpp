@@ -10,6 +10,11 @@ void SingleQuorum::AddNode(uint64_t nodeID)
 {
 	if (numNodes >= SIZE(nodes))
 		ASSERT_FAIL();
+	for (unsigned i = 0; i < GetNumNodes(); i++)
+	{
+		if (nodes[i] == nodeID)
+			return;
+	}
 	nodes[numNodes] = nodeID;
 	numNodes++;
 }

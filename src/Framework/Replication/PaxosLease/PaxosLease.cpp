@@ -59,11 +59,6 @@ unsigned PaxosLease::GetLeaseOwner()
 	return learner.GetLeaseOwner();
 }
 
-uint64_t PaxosLease::GetLeaseEpoch()
-{
-	return learner.GetLeaseEpoch();
-}
-
 void PaxosLease::OnStartupTimeout()
 {
 	Log_Trace();

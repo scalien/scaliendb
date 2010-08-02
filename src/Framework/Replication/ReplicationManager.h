@@ -3,6 +3,7 @@
 
 #include "System/Common.h"
 #include "System/IO/Endpoint.h"
+#include "System/Containers/HashTable.h"
 #include "ReplicationTransport.h"
 
 class QuorumContext;	// forward
@@ -31,15 +32,17 @@ public:
 	uint64_t				GetRunID() const;
 	
 	void					AddContext(QuorumContext* context);
-	QuorumContext*			GetContext(unsigned contextID) const;
+	QuorumContext*			GetContext(uint64_t contextID);
 
-	uint64_t				NextProposalID(uint64_t proposalID)	const;
+	uint64_t				NextProposalID(uint64_t proposalID);
 	
 private:
+	typedef HashTable<uint64_t, QuorumContext*> ContextMap;
+
 	uint64_t				nodeID;
 	uint64_t				runID;
 	ReplicationTransport	transport;
-	QuorumContext*			context; // TODO
+	ContextMap				contextMap;
 };
 
 #endif

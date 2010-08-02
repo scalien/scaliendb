@@ -28,21 +28,11 @@ bool PaxosLeaseLearner::IsLeaseKnown()
 		return false;	
 }
 
-int PaxosLeaseLearner::GetLeaseOwner()
+uint64_t PaxosLeaseLearner::GetLeaseOwner()
 {
 	CheckLease();
 	
-	if (state.learned)
-		return state.leaseOwner;
-	else
-		return -1;
-}
-
-uint64_t PaxosLeaseLearner::GetLeaseEpoch()
-{
-	CheckLease();
-	
-	return state.leaseEpoch;
+	return state.leaseOwner;
 }
 
 void PaxosLeaseLearner::SetOnLearnLease(const Callable& onLearnLeaseCallback_)
@@ -68,6 +58,8 @@ void PaxosLeaseLearner::OnLeaseTimeout()
 //	TODO
 //	if (state.learned && RLOG->IsMasterLeaseActive())
 //		Log_Message("Node %d is no longer the master", state.leaseOwner);
+
+	Log_Trace();
 
 	EventLoop::Remove(&leaseTimeout);
 
@@ -100,7 +92,7 @@ void PaxosLeaseLearner::OnLearnChosen(const PaxosLeaseMessage& imsg)
 	state.learned = true;
 	state.leaseOwner = imsg.leaseOwner;
 	state.expireTime = expireTime;
-	Log_Trace("+++ Node %d has the lease for %" PRIu64 " msec +++",
+	Log_Trace("+++ Node %" PRIu64 " has the lease for %" PRIu64 " msec +++",
 		state.leaseOwner, state.expireTime - Now());
 
 	leaseTimeout.Set(state.expireTime);

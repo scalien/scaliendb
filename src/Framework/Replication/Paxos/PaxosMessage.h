@@ -88,7 +88,7 @@ public:
 
 	// implementation of Message interface:
 	bool			Read(const ReadBuffer& buffer);
-	bool			Write(Buffer& buffer) const;
+	bool			Write(Buffer& buffer);
 };
 
 #endif

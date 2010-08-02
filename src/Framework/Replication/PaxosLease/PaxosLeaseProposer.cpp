@@ -5,12 +5,12 @@
 void PaxosLeaseProposer::Init(QuorumContext* context_)
 {
 	context = context_;
-	vote = context->GetQuorum()->NewVote();
 	
 	acquireLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnAcquireLeaseTimeout));
 	acquireLeaseTimeout.SetDelay(PAXOSLEASE_ACQUIRELEASE_TIMEOUT);
 	extendLeaseTimeout.SetCallable(MFUNC(PaxosLeaseProposer, OnExtendLeaseTimeout));
 	
+	vote = NULL;
 	highestProposalID = 0;
 	state.Init();
 }
@@ -137,7 +137,7 @@ void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 		StartPreparing();
 }
 
-void PaxosLeaseProposer::BroadcastMessage(const PaxosLeaseMessage& omsg)
+void PaxosLeaseProposer::BroadcastMessage(PaxosLeaseMessage& omsg)
 {
 	Log_Trace();
 	
@@ -154,6 +154,7 @@ void PaxosLeaseProposer::StartPreparing()
 
 	EventLoop::Reset(&acquireLeaseTimeout);
 
+	NewVote();	
 	state.proposing = false;
 	state.preparing = true;
 	state.leaseOwner = RMAN->GetNodeID();
@@ -178,10 +179,17 @@ void PaxosLeaseProposer::StartProposing()
 	if (state.leaseOwner != RMAN->GetNodeID())
 		return; // no point in getting someone else a lease, wait for OnAcquireLeaseTimeout
 
+	NewVote();	
 	state.proposing = true;
 	state.duration = PAXOSLEASE_MAX_LEASE_TIME;
 	state.expireTime = Now() + state.duration;
 	
 	omsg.ProposeRequest(RMAN->GetNodeID(), state.proposalID, state.leaseOwner, state.duration);
 	BroadcastMessage(omsg);
+}
+
+void PaxosLeaseProposer::NewVote()
+{
+	delete vote;
+	vote = context->GetQuorum()->NewVote();
 }
