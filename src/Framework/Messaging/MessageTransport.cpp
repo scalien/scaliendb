@@ -72,7 +72,7 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 	{
 		msg.Readf("%U:%M", &nodeID, &buffer);
 		dup = GetNode(nodeID);
-		if (dup)
+		if (dup && nodeID != selfNodeID)
 		{
 			if (dup->state == Node::READY)
 			{
@@ -106,13 +106,13 @@ void MessageTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
 {
 	Node* node;
 	
-	if (nodeID == selfNodeID)
-		return;
-	
 	node = GetNode(nodeID);
 	
 	if (node != NULL)
 		return;
+	
+	if (nodeID == selfNodeID)
+		Log_Trace("connecting to self");
 	
 	node = new Node;
 	node->state = Node::OUTGOING;
@@ -137,36 +137,20 @@ void MessageTransport::SendMessage(uint64_t nodeID,
 {
 	Node*	it;
 	
-	if (nodeID == selfNodeID)
-	{
-		// TODO: huge hack
-		unsigned len;
-		Buffer	head;
-		Buffer	buffer;
-		ReadBuffer rb;
-		
-		if (!msg.Write(buffer))
-			ASSERT_FAIL();
-		len = prefix.GetLength() + 1 + buffer.GetLength();
-		head.Writef("%B:", &prefix);
-		
-		Log_Trace("%.*s%.*s", P(&head), P(&buffer));
-		
-		head.Append(buffer);
-		rb.Wrap(head);
-		OnMessage(rb);		
-	}
-	
 	for (it = nodes.Head(); it != NULL; it = nodes.Next(it))
 	{
 		if (it->nodeID == nodeID)
 		{
 			if (it->state != Node::READY)
-				return;				
+			{
+				Log_Trace("connection to %" PRIu64 " has state: %d", nodeID, it->state);
+				return;
+			}
 			it->conn->Write(prefix, msg);
-			break;
+			return;
 		}
-	}
+	}	
+	Log_Trace("no connection to nodeID %" PRIu64, nodeID);
 }
 
 void MessageTransport::SendPriorityMessage(uint64_t nodeID,
@@ -174,36 +158,20 @@ void MessageTransport::SendPriorityMessage(uint64_t nodeID,
 {
 	Node*	it;
 
-	if (nodeID == selfNodeID)
-	{
-		// TODO: huge hack
-		unsigned len;
-		Buffer	head;
-		Buffer	buffer;
-		ReadBuffer rb;
-		
-		if (!msg.Write(buffer))
-			ASSERT_FAIL();
-		len = prefix.GetLength() + 1 + buffer.GetLength();
-		head.Writef("%B:", &prefix);
-		
-		Log_Trace("%.*s%.*s", P(&head), P(&buffer));
-		
-		head.Append(buffer);
-		rb.Wrap(head);
-		OnMessage(rb);		
-	}
-
 	for (it = nodes.Head(); it != NULL; it = nodes.Next(it))
 	{
 		if (it->nodeID == nodeID)
 		{
 			if (it->state != Node::READY)
+			{
+				Log_Trace("connection to %" PRIu64 " has state: %d", nodeID, it->state);
 				return;
+			}
 			it->conn->WritePriority(prefix, msg);
-			break;
+			return;
 		}
 	}
+	Log_Trace("no connection to nodeID %" PRIu64, nodeID);
 }
 
 Node* MessageTransport::GetNode(uint64_t nodeID)

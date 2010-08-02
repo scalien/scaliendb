@@ -90,7 +90,7 @@ void ReplicatedLog::OnPrepareRequest(const PaxosMessage& imsg)
 	Log_Trace();
 		
 	if (imsg.paxosID == paxosID)
-		acceptor.OnPrepareRequest(imsg);
+		return acceptor.OnPrepareRequest(imsg);
 
 	OnRequest(imsg);
 }
@@ -108,7 +108,7 @@ void ReplicatedLog::OnProposeRequest(const PaxosMessage& imsg)
 	Log_Trace();
 	
 	if (imsg.paxosID == paxosID)
-		acceptor.OnProposeRequest(imsg);
+		return acceptor.OnProposeRequest(imsg);
 	
 	OnRequest(imsg);
 }
@@ -294,6 +294,8 @@ bool ReplicatedLog::IsAppending()
 
 void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
 {
+	Log_Trace();
+	
 	if (paxosID > GetPaxosID())
 	{
 		//	I am lagging and need to catch-up

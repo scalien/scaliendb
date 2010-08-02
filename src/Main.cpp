@@ -88,6 +88,7 @@ int main(int argc, char** argv)
 
 		controller.Init(db.GetTable("keyspace"));
 		controller.SetConfigContext(&ctx);
+		controller.SetChunkContext(FDASFSAFSADF);
 		RMAN->GetTransport()->SetController(&controller); // TODO: hack
 		RMAN->AddContext(&ctx);
 
