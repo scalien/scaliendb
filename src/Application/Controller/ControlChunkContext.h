@@ -6,6 +6,8 @@
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 
+class Controller; // forward
+
 /*
 ===============================================================================
 
@@ -17,8 +19,9 @@
 class ControlChunkContext : public QuorumContext
 {
 public:
-	void							Init();
+	void							Start();
 	
+	void							SetController(Controller* controller);
 	void							SetContextID(uint64_t contextID);
 	void							SetQuorum(DoubleQuorum& quorum);
 	void							SetDatabase(QuorumDatabase& database);
@@ -30,13 +33,18 @@ public:
 	virtual uint64_t				GetLeader();
 	virtual uint64_t				GetContextID() const;
 
+	virtual void					OnLearnLease();
+	virtual void					OnLeaseTimeout();
+
 	virtual uint64_t				GetPaxosID() const;
+	virtual void					SetPaxosID(uint64_t paxosID);
 	virtual uint64_t				GetHighestPaxosID() const;
 
 	virtual Quorum*					GetQuorum();
 	virtual QuorumDatabase*			GetDatabase();
 	virtual QuorumTransport*		GetTransport();
 
+	virtual	void					OnAppend(ReadBuffer value);
 	virtual Buffer*					GetNextValue();
 	virtual void					OnMessage();
 
@@ -44,6 +52,7 @@ private:
 	void							OnPaxosMessage(ReadBuffer buffer);
 	void							RegisterPaxosID(uint64_t paxosID);
 
+	Controller*						controller;
 	DoubleQuorum					quorum;
 	QuorumDatabase					database;
 	QuorumTransport					transport;
@@ -52,6 +61,7 @@ private:
 
 	uint64_t						contextID;
 	uint64_t						highestPaxosID;
+	Buffer							nextValue;
 };
 
 #endif

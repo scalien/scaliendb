@@ -1,0 +1,8 @@
+for ((i = 0; i < 3; i++))
+do
+	rm -f test/control/$i/keyspace
+	rm -f test/control/$i/log*
+	rm -f test/data/$i/keyspace
+	rm -f test/data/$i/log*
+done
+

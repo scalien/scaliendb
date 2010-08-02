@@ -1,67 +1,116 @@
-#include "ControllerChunkContext.h"
+#include "ControlChunkContext.h"
+#include "ConfigMessage.h"
+#include "Controller.h"
 
-void ControllerChunkContext::Init()
+void ControlChunkContext::Start()
 {
 	replicatedLog.Init(this);
 	highestPaxosID = 0;
 }
 
-void ControllerChunkContext::SetContextID(uint64_t contextID_)
+void ControlChunkContext::SetController(Controller* controller_)
+{
+	controller = controller_;
+}
+
+void ControlChunkContext::SetContextID(uint64_t contextID_)
 {
 	contextID = contextID_;
 }
 
-bool ControllerChunkContext::IsLeaderKnown()
+void ControlChunkContext::SetQuorum(DoubleQuorum& quorum_)
+{
+	quorum = quorum_;
+}
+
+void ControlChunkContext::SetDatabase(QuorumDatabase& database_)
+{
+	database = database_;
+}
+
+void ControlChunkContext::SetTransport(QuorumTransport& transport_)
+{
+	transport = transport_;
+}
+
+bool ControlChunkContext::IsLeaderKnown()
 {
 	// TODO: get from ControlDB
 }
 
-bool ControllerChunkContext::IsLeader()
+bool ControlChunkContext::IsLeader()
 {
 	return false;
 }
 
-uint64_t ControllerChunkContext::GetLeader()
+uint64_t ControlChunkContext::GetLeader()
 {
 	// TODO: get from ControlDB
 }
 
-uint64_t ControllerChunkContext::GetContextID() const
+void ControlChunkContext::OnLearnLease()
+{
+	replicatedLog.OnLearnLease();
+}
+
+void ControlChunkContext::OnLeaseTimeout()
+{
+	replicatedLog.OnLeaseTimeout();
+}
+
+uint64_t ControlChunkContext::GetContextID() const
 {
 	return contextID;
 }
 
-uint64_t ControllerChunkContext::GetPaxosID() const
+uint64_t ControlChunkContext::GetPaxosID() const
 {
 	return replicatedLog.GetPaxosID();
 }
 
-uint64_t ControllerChunkContext::GetHighestPaxosID() const
+void ControlChunkContext::SetPaxosID(uint64_t paxosID)
+{
+	replicatedLog.SetPaxosID(paxosID);
+}
+
+uint64_t ControlChunkContext::GetHighestPaxosID() const
 {
 	return highestPaxosID;
 }
 
-Quorum* ControllerChunkContext::GetQuorum()
+Quorum* ControlChunkContext::GetQuorum()
 {
 	return &quorum;
 }
 
-QuorumDatabase*	ControllerChunkContext::GetDatabase()
+QuorumDatabase*	ControlChunkContext::GetDatabase()
 {
 	return &database;
 }
 
-QuorumTransport* ControllerChunkContext::GetTransport()
+QuorumTransport* ControlChunkContext::GetTransport()
 {
 	return &transport;
 }
 
-Buffer* ControllerChunkContext::GetNextValue()
+void ControlChunkContext::OnAppend(ReadBuffer value)
 {
-	// TODO
+	ConfigMessage msg;
+	msg.Read(value);
+	controller->OnConfigMessage(msg);
+
+	nextValue.Clear();	
 }
 
-void ControllerChunkContext::OnMessage()
+Buffer* ControlChunkContext::GetNextValue()
+{
+	if (nextValue.GetLength() > 0)
+		return &nextValue;
+	
+	return NULL;	
+}
+
+void ControlChunkContext::OnMessage()
 {
 	char proto;
 	ReadBuffer buffer;
@@ -86,7 +135,7 @@ void ControllerChunkContext::OnMessage()
 	}
 }
 
-void ControllerChunkContext::OnPaxosMessage(ReadBuffer buffer)
+void ControlChunkContext::OnPaxosMessage(ReadBuffer buffer)
 {
 	PaxosMessage msg;
 	
@@ -96,7 +145,7 @@ void ControllerChunkContext::OnPaxosMessage(ReadBuffer buffer)
 	replicatedLog.OnMessage(msg);
 }
 
-void ControllerChunkContext::RegisterPaxosID(uint64_t paxosID)
+void ControlChunkContext::RegisterPaxosID(uint64_t paxosID)
 {
 	if (paxosID > highestPaxosID)
 		highestPaxosID = paxosID;

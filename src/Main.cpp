@@ -10,10 +10,12 @@ int main(int argc, char** argv)
 {
 	DatabaseConfig				dbConfig;
 	Database					db;
-	ControlConfigContext		ctx;
+	ControlConfigContext		configContext;
+	ControlChunkContext			chunkContext;
 	Controller					controller;
 	DataNode					dataNode;
-	SingleQuorum				quorum;
+	SingleQuorum				singleQuorum;
+	DoubleQuorum				doubleQuorum;
 	QuorumDatabase				qdb;
 	QuorumTransport				qtransport;
 	Buffer						prefix;
@@ -58,14 +60,13 @@ int main(int argc, char** argv)
 		RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
 	}
 
-	
-	
 	unsigned numNodes = configFile.GetListNum("controllers");
 	for (unsigned i = 0; i < numNodes; i++)
 	{
 		const char* s = configFile.GetListValue("controllers", i, NULL);
 		endpoint.Set(s);
-		quorum.AddNode(i);
+		singleQuorum.AddNode(i);
+		doubleQuorum.AddNode(QUORUM_CONTROL_NODE, i);
 
 		// TODO: i will not be a nodeID once we start using UIDs
 		RMAN->GetTransport()->AddEndpoint(i, endpoint);
@@ -77,19 +78,26 @@ int main(int argc, char** argv)
 		prefix.Write("0");
 		qtransport.SetPriority(true);
 		qtransport.SetPrefix(prefix);
-		qtransport.SetQuorum(&quorum);
+		qtransport.SetQuorum(&singleQuorum);
 		
-		ctx.SetContextID(0);
-		ctx.SetController(&controller);
-		ctx.SetQuorum(quorum);
-		ctx.SetDatabase(qdb);
-		ctx.SetTransport(qtransport);
-		ctx.Start();
+		configContext.SetContextID(0);
+		configContext.SetController(&controller);
+		configContext.SetQuorum(singleQuorum);
+		configContext.SetDatabase(qdb);
+		configContext.SetTransport(qtransport);
+		configContext.Start();
+		
+		chunkContext.SetContextID(1);
+		chunkContext.SetQuorum(doubleQuorum);
+		chunkContext.SetDatabase(qdb); // TODO: hack
+		chunkContext.SetTransport(qtransport);
+		chunkContext.Start();
 
 		controller.Init(db.GetTable("keyspace"));
-		controller.SetConfigContext(&ctx);
+		controller.SetConfigContext(&configContext);
+		controller.SetChunkContext(&chunkContext);
 		RMAN->GetTransport()->SetController(&controller); // TODO: hack
-		RMAN->AddContext(&ctx);
+		RMAN->AddContext(&configContext);
 
 		httpServer.Init(configFile.GetIntValue("http.port", 8080));
 		httpServer.RegisterHandler(&controller);
