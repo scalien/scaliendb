@@ -19,7 +19,7 @@ struct Node
 	enum State
 	{
 		INCOMING,			// incoming connection established, nodeID not sent, node->endpoint == unknown
-		CONNECTING,			// connecting in progress
+		OUTGOING,			// connecting in progress
 		READY				// connection established, other side's nodeID known
 	};
 	
@@ -48,6 +48,7 @@ public:
 	void				SetTransport(MessageTransport* transport);
 
 	void				Write(const Buffer& buffer);
+	void				WritePriority(const Buffer& buffer);
 	void				Write(const Buffer& prefix, const Message& msg);
 	void				WritePriority(const Buffer& prefix, const Message& msg);
 

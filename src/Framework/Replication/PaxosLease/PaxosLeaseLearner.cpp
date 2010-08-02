@@ -4,7 +4,7 @@
 void PaxosLeaseLearner::Init(QuorumContext* context_)
 {
 	context = context_;
-
+	leaseTimeout.SetCallable(MFUNC(PaxosLeaseLearner, OnLeaseTimeout));
 	state.Init();
 }
 

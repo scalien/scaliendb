@@ -124,6 +124,7 @@ void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
 		// a majority have accepted our proposal, we have consensus
 		EventLoop::Remove(&acquireLeaseTimeout);
 		extendLeaseTimeout.Set(Now() + (state.expireTime - Now()) / 7);
+		Log_Trace("%d", (int)(extendLeaseTimeout.When() - Now()));
 		EventLoop::Reset(&extendLeaseTimeout);
 	
 		omsg.LearnChosen(RMAN->GetNodeID(), state.leaseOwner,

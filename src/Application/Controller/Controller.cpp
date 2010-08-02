@@ -23,10 +23,10 @@ bool Controller::ReadChunkQuorum(uint64_t /*chunkID*/)
 	
 	for (int i = 0; i < numNodes; i++)
 	{
-		key.Writef("/chunkID:0/nodeID:%d", i);
+		key.Writef("/chunkID:1/nodeID:%d", i);
 		key.NullTerminate();
 		table->Get(NULL, key.GetBuffer(), nodeIDs[i]);
-		key.Writef("/chunkID:0/endpoint:%d", i);
+		key.Writef("/chunkID:1/endpoint:%d", i);
 		key.NullTerminate();
 		table->Get(NULL, key, value);
 		value.NullTerminate();
@@ -41,7 +41,7 @@ void Controller::WriteChunkQuorum(const ConfigMessage& msg)
 	Buffer key, value;
 	Endpoint endpoint;
 	
-	table->Set(NULL, "/chunkID:0/numNodes", msg.numNodes);
+	table->Set(NULL, "/chunkID:1/numNodes", msg.numNodes);
 	
 	for (int i = 0; i < numNodes; i++)
 	{

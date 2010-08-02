@@ -15,6 +15,19 @@ void MessageConnection::SetTransport(MessageTransport* transport_)
 	transport = transport_;
 }
 
+void MessageConnection::WritePriority(const Buffer& msg)
+{
+	Buffer* buffer;
+	
+	buffer = writer->AcquireBuffer();
+	
+	buffer->Writef("%u:", msg.GetLength());
+	buffer->Append(msg);
+	
+	writer->WritePriority(buffer);
+	writer->Flush();
+}
+
 void MessageConnection::Write(const Buffer& msg)
 {
 	Buffer* buffer;
@@ -74,6 +87,10 @@ void MessageConnection::OnClose()
 {
 	Log_Trace();
 	
+	if (connectTimeout.IsActive())
+		return;
+	
+	Close();	
 	transport->OnClose(this);
 }
 

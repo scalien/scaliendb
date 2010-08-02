@@ -28,7 +28,7 @@ struct PaxosLeaseLearnerState
 
 inline void PaxosLeaseLearnerState::Init()
 {
-	learned		= 0;
+	learned		= false;
 	leaseOwner	= 0;
 	expireTime	= 0;
 	leaseEpoch	= 0;
@@ -36,7 +36,7 @@ inline void PaxosLeaseLearnerState::Init()
 
 inline void PaxosLeaseLearnerState::OnLeaseTimeout()
 {
-	learned		= 0;
+	learned		= false;
 	leaseOwner	= 0;
 	expireTime	= 0;
 	leaseEpoch++;

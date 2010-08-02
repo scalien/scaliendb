@@ -23,7 +23,7 @@ void ReplicatedLog::Init(QuorumContext* context_)
 //	lastTook = 0;
 //	thruput = 0;
 		
-//	logCache.Init(acceptor.paxosID); // TODO
+	logCache.Init(context->GetDatabase()->table);
 	enableMultiPaxos.Write("EnableMultiPaxos");
 }
 
@@ -154,6 +154,8 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 		return;
 	}
 	
+	Log_Trace("+++ Value for paxosID = %" PRIu64 ": %.*s +++", imsg.paxosID, P(&value));
+	
 	commit = (paxosID == (context->GetHighestPaxosID() - 1));
 	logCache.Set(paxosID, value, commit);
 
@@ -260,6 +262,9 @@ void ReplicatedLog::NewPaxosRound()
 
 void ReplicatedLog::OnLearnLease()
 {
+	Log_Trace("context->IsLeader()   = %s", (context->IsLeader() ? "true" : "false"));
+	Log_Trace("!proposer.IsActive()  = %s", (!proposer.IsActive() ? "true" : "false"));
+	Log_Trace("!proposer.state.multi = %s", (!proposer.state.multi ? "true" : "false"));
 	if (context->IsLeader() && !proposer.IsActive() && !proposer.state.multi)
 	{
 		Log_Trace("Appending EnableMultiPaxos");

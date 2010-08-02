@@ -33,7 +33,7 @@ void MessageTransport::OnOutgoingConnection(MessageConnection* conn)
 	rb.Wrap(epBuffer);
 	// send my nodeID:endpoint
 	buffer.Writef("%U:%M", selfNodeID, &rb);
-	conn->Write(buffer);
+	conn->WritePriority(buffer);
 	
 	node->state = Node::READY;
 }
@@ -50,9 +50,10 @@ void MessageTransport::OnClose(MessageConnection* conn)
 		// we don't know the other side, delete conn
 		DeleteNode(node);
 	}
-	else
+	else if (node->state == Node::READY)
 	{
 		// node->endpoint contains the other side, connect
+		node->state = Node::OUTGOING;
 		node->conn->Connect(node->endpoint);
 	}
 }
@@ -90,6 +91,10 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 		nodes.Append(node);
 		OnIncomingConnectionReady(node->nodeID, node->endpoint);
 	}
+	else if (node->state == Node::OUTGOING)
+	{
+		ASSERT_FAIL();
+	}
 	else
 	{
 		// pass msg to upper layer
@@ -110,7 +115,7 @@ void MessageTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
 		return;
 	
 	node = new Node;
-	node->state = Node::CONNECTING;
+	node->state = Node::OUTGOING;
 	node->nodeID = nodeID;
 	node->endpoint = endpoint;
 

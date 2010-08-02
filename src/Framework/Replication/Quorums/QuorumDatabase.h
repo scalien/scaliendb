@@ -42,7 +42,7 @@ public:
 	void				Commit();
 	bool				IsActive();
 
-private:
+//private: TODO HACK
 	Table*				table;
 	Transaction			transaction;
 	Buffer				prefix;
