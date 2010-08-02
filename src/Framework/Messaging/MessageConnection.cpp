@@ -97,7 +97,7 @@ void MessageConnection::OnClose()
 void MessageConnection::OnRead()
 {
 	bool			yield;
-	unsigned		pos, msglength, nread, msgbegin, msgend;
+	unsigned		pos, msglength, nread, msgbegin, msgend, required;
 	uint64_t		start;
 	Stopwatch		sw;
 	ReadBuffer		msg;
@@ -118,8 +118,16 @@ void MessageConnection::OnRead()
 		
 		if (msglength > tcpread.buffer->GetSize() - numlen(msglength) - 1)
 		{
-			OnClose();
-			return;
+			Log_Trace();
+			required = msglength + numlen(msglength) + 1;
+			if (required > 10*MB)
+			{
+				Log_Trace();
+				OnClose();
+				return;
+			}
+			tcpread.buffer->Allocate(required);
+			break;
 		}
 		
 		if (nread == 0 || (unsigned) tcpread.buffer->GetLength() - pos <= nread)

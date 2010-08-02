@@ -45,10 +45,10 @@ void Controller::WriteChunkQuorum(const ConfigMessage& msg)
 	
 	for (int i = 0; i < numNodes; i++)
 	{
-		key.Writef("/chunkID:0/nodeID:%d", i);
+		key.Writef("/chunkID:1/nodeID:%d", i);
 		key.NullTerminate();
 		table->Set(NULL, key.GetBuffer(), msg.nodeIDs[i]);
-		key.Writef("/chunkID:0/endpoint:%d", i);
+		key.Writef("/chunkID:1/endpoint:%d", i);
 		key.NullTerminate();
 		endpoint = msg.endpoints[i];
 		value.Write(endpoint.ToString());
@@ -100,6 +100,8 @@ void Controller::SetChunkContext(ControlChunkContext* chunkContext_)
 
 void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
+	Log_Trace();
+	
 	if (nodeID < 10) // TODO: data node
 		return;
 	
@@ -116,6 +118,7 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 	
 	if (numNodes == 3)
 	{
+		Log_Trace("got 3 nodes");
 		// replicate CONFIG_CREATE_CHUNK message with logID 1 and the 3 nodes
 		ConfigMessage msg;
 		msg.type = CONFIG_CREATE_CHUNK;
@@ -133,6 +136,8 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 void Controller::OnConfigMessage(const ConfigMessage& msg)
 {
 	DoubleQuorum* quorum;
+	
+	Log_Trace();
 	
 	assert(msg.type == CONFIG_CREATE_CHUNK);
 	assert(msg.chunkID == 1);

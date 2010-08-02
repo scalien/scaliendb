@@ -9,9 +9,6 @@
 #include "System/IO/IOOperation.h"
 #include "TCPWriter.h"
 
-#define TCP_CONNECT_TIMEOUT 3000
-#define TCP_BUFFER_SIZE		8196
-
 /*
 ===============================================================================
 
