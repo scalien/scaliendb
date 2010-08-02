@@ -1,4 +1,2 @@
-#!/bin/sh
-
 echo -n -e "\033]0;C$1\007"
 build/Debug/ScalienDB test/control/$1/scaliendb.conf
