@@ -1,0 +1,3 @@
+#!/bin/sh
+
+build/Debug/ScalienDB test/control/$1/scaliendb.conf

@@ -23,6 +23,7 @@ int main(int argc, char** argv)
 	bool						isController;
 	const char*					role;
 	
+	randseed();
 	configFile.Init(argv[1]);
 	role = configFile.GetValue("role", "data");
 	if (strcmp(role, "data") == 0)
@@ -33,7 +34,7 @@ int main(int argc, char** argv)
 	Log_SetTarget(LOG_TARGET_STDOUT);
 	Log_SetTrace(true);
 	Log_SetTimestamping(true);
-		
+
 	IOProcessor::Init(1024);
 
 	dbConfig.dir = configFile.GetValue("database.dir", DATABASE_CONFIG_DIR);
@@ -43,11 +44,21 @@ int main(int argc, char** argv)
 	{
 		nodeID = configFile.GetIntValue("nodeID", 0);
 		RMAN->SetNodeID(nodeID);
+		const char* s = configFile.GetListValue("controllers", RMAN->GetNodeID(), NULL);
+		endpoint.Set(s);
+		RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
 	}
+	else
+	{
+		dataNode.Init(db.GetTable("keyspace")); // sets RMAN->nodeID
+		httpServer.Init(configFile.GetIntValue("http.port", 8080));
+		httpServer.RegisterHandler(&dataNode);
+		const char* s = configFile.GetValue("endpoint", NULL);
+		endpoint.Set(s);
+		RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
+	}
+
 	
-	const char* s = configFile.GetListValue("controllers", RMAN->GetNodeID(), NULL);
-	endpoint.Set(s);
-	RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
 	
 	unsigned numNodes = configFile.GetListNum("controllers");
 	for (unsigned i = 0; i < numNodes; i++)
@@ -82,12 +93,6 @@ int main(int argc, char** argv)
 
 		httpServer.Init(configFile.GetIntValue("http.port", 8080));
 		httpServer.RegisterHandler(&controller);
-	}
-	else
-	{
-		dataNode.Init(db.GetTable("keyspace"));
-		httpServer.Init(configFile.GetIntValue("http.port", 8080));
-		httpServer.RegisterHandler(&dataNode);
 	}
 	
 	

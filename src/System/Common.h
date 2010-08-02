@@ -68,6 +68,7 @@ bool del(const char* wc); // wildcard support
 bool isdir(const char* path);
 
 uint64_t gen_uuid();
+void randseed();
 int randint(int min, int max);
 
 void blocksigs();

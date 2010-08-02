@@ -162,8 +162,11 @@ bool isdir(const char* path)
 uint64_t gen_uuid()
 {
 	const unsigned WIDTH_M = 16; // machine TODO
+	const unsigned MASK_M = (1 << WIDTH_M) - 1;
 	const unsigned WIDTH_D = 32; // date
+	const unsigned MASK_D = (1 << WIDTH_D) - 1;
 	const unsigned WIDTH_R = 16; // random
+	const unsigned MASK_R = (1 << MASK_R) - 1;
 	uint64_t uuid;
 	
 	uint64_t m = randint(0, 65535); // TODO
@@ -171,11 +174,16 @@ uint64_t gen_uuid()
 	uint64_t r = randint(0, 65535);
 
 	uuid = 0;
-	uuid |= (m & WIDTH_M) << (WIDTH_D + WIDTH_R);
-	uuid |= (d & WIDTH_D) << (WIDTH_R);
-	uuid |= (r & WIDTH_R);
+	uuid |= (m & MASK_M) << (WIDTH_D + WIDTH_R);
+	uuid |= (d & MASK_D) << (WIDTH_R);
+	uuid |= (r & MASK_R);
 
 	return uuid;
+}
+
+void randseed()
+{
+	srandom((unsigned)Now());
 }
 
 int randint(int min, int max)

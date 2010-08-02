@@ -151,6 +151,7 @@ void Controller::OnConfigMessage(const ConfigMessage& msg)
 	// TODO: GetVote() issue
 	
 	// send CLUSTER_INFO, first is the primary
+	Log_Trace("Should send CLUSTER_INFO");
 }
 
 ControlChunkContext* Controller::GetChunkContext(uint64_t chunkID)
