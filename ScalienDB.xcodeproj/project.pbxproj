@@ -33,6 +33,7 @@
 		54C8FC77120200F1002DD4D3 /* MessageServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC72120200F1002DD4D3 /* MessageServer.cpp */; };
 		54C8FC78120200F1002DD4D3 /* MessageTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC74120200F1002DD4D3 /* MessageTransport.cpp */; };
 		54C8FD6112043EDD002DD4D3 /* ConfigMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FD6012043EDD002DD4D3 /* ConfigMessage.cpp */; };
+		54DD0B8F12086BF30049D33A /* DataMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54DD0B8E12086BF30049D33A /* DataMessage.cpp */; };
 		54E03D7C12072E300033B309 /* DataChunkContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		54FA68F911C2429A00FF4EF6 /* Countdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* Countdown.cpp */; };
@@ -173,6 +174,8 @@
 		54C8FC74120200F1002DD4D3 /* MessageTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageTransport.cpp; sourceTree = "<group>"; };
 		54C8FC75120200F1002DD4D3 /* MessageTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageTransport.h; sourceTree = "<group>"; };
 		54C8FD6012043EDD002DD4D3 /* ConfigMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigMessage.cpp; sourceTree = "<group>"; };
+		54DD0B8D12086BF30049D33A /* DataMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataMessage.h; sourceTree = "<group>"; };
+		54DD0B8E12086BF30049D33A /* DataMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataMessage.cpp; sourceTree = "<group>"; };
 		54FA68F311C2422A00FF4EF6 /* Countdown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Countdown.h; sourceTree = "<group>"; };
 		54FA68F811C2429A00FF4EF6 /* Countdown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Countdown.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
@@ -525,6 +528,8 @@
 				54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */,
 				5481BFC41206BD580070132B /* DataNode.h */,
 				5481BFC31206BD580070132B /* DataNode.cpp */,
+				54DD0B8D12086BF30049D33A /* DataMessage.h */,
+				54DD0B8E12086BF30049D33A /* DataMessage.cpp */,
 			);
 			name = DataNode;
 			path = Application/DataNode;
@@ -691,6 +696,7 @@
 				5481BFC51206BD580070132B /* DataNode.cpp in Sources */,
 				5481C0FF12071BEA0070132B /* ClusterMessage.cpp in Sources */,
 				54E03D7C12072E300033B309 /* DataChunkContext.cpp in Sources */,
+				54DD0B8F12086BF30049D33A /* DataMessage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -701,7 +707,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
+				ARCHS = "$(NATIVE_ARCH)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
@@ -736,6 +742,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
