@@ -17,6 +17,19 @@ Database database;
 
 #define LOG_BUFFER_ALLOC_ERROR "Unable to allocate memory for the log buffer"
 
+inline size_t Hash(const char* s)
+{
+    size_t h;
+    unsigned char *p;
+    
+    h = 0;
+    for (p = (unsigned char *)s; *p != '\0'; p++) {
+        h = 37 * h + *p;
+    }
+    
+    return h;
+}
+
 static void DatabaseError(const DbEnv* /*dbenv*/,
 						  const char* /*errpfx*/,
 						  const char* msg)
@@ -118,8 +131,6 @@ bool Database::Init(const DatabaseConfig& config_)
 	ret = env->set_flags(DB_TXN_WRITE_NOSYNC, config.txnWriteNoSync);
 #endif
 
-	keyspace = new Table(this, "keyspace", config.pageSize);
-
 	Checkpoint();
 	
 	running = true;
@@ -142,7 +153,6 @@ void Database::Shutdown()
 	running = false;
 	cpThread->Stop();
 	delete cpThread;
-	delete keyspace;	
 	env->close(0);
 
 	// Bug #222: On Windows deleting the BDB environment object causes crash
@@ -154,10 +164,19 @@ void Database::Shutdown()
 
 Table* Database::GetTable(const char* name)
 {
-	if (strcmp(name, "keyspace") == 0)
-		return keyspace;
-		
-	return NULL;
+    Table** ptable;
+    Table*  table;
+    
+    ptable = tableMap.Get(name);
+    if (ptable == NULL)
+    {
+        // TODO: better error handling, preferably with a Table::Open function
+        table = new Table(this, name, config.pageSize);
+        tableMap.Set(name, table);
+        return table;
+    }
+    
+	return *ptable;
 }
 
 void Database::OnCheckpointTimeout()
@@ -199,6 +218,7 @@ static void WarmDatabaseCache(char* dbPath, unsigned cacheSize)
 {
 	char filepath[4096];
 
+    // TODO: make this smarter
 	snprintf(filepath, SIZE(filepath), "%s/keyspace", dbPath);
 
 	WarmFileCache(filepath, cacheSize);

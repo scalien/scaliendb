@@ -17,6 +17,8 @@ class Controller;	// forward
 class ReplicationTransport : public MessageTransport
 {
 public:
+	ReplicationTransport();
+	
 	ReadBuffer		GetMessage();
 	void			SetController(Controller* controller);
 

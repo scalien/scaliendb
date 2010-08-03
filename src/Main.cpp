@@ -53,7 +53,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		dataNode.Init(db.GetTable("keyspace")); // sets RMAN->nodeID
+		dataNode.Init(db.GetTable("chunk1")); // sets RMAN->nodeID
 		const char* s = configFile.GetValue("endpoint", NULL);
 		endpoint.Set(s);
 		RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 
 	if (isController)
 	{
-		qdb.Init(db.GetTable("keyspace"));
+		qdb.Init(db.GetTable("chunk0"));
 		prefix.Write("0");
 		configTransport.SetPriority(true);
 		configTransport.SetPrefix(prefix);
@@ -87,7 +87,7 @@ int main(int argc, char** argv)
 		configContext.SetTransport(configTransport);
 		configContext.Start();
 
-		controller.Init(db.GetTable("keyspace"));
+		controller.Init(db.GetTable("chunk0"));
 		RMAN->GetTransport()->SetController(&controller); // TODO: hack
 		RMAN->AddContext(&configContext);
 
@@ -96,7 +96,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		qdb.Init(db.GetTable("keyspace"));
+		qdb.Init(db.GetTable("chunk1"));
 		prefix.Write("1");
 		chunkTransport.SetPriority(true);
 		chunkTransport.SetPrefix(prefix);

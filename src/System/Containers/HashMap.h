@@ -1,7 +1,7 @@
-#ifndef HASH_TABLE_H
-#define HASH_TABLE_H
+#ifndef HASHMAP_H
+#define HASHMAP_H
 
-template<class K, class V> class HashTable;
+template<class K, class V> class HashMap;
 
 /*
 ===============================================================================
@@ -14,7 +14,7 @@ template<class K, class V> class HashTable;
 template<class K, class V>
 class HashNode
 {
-friend class HashTable<K, V>;
+friend class HashMap<K, V>;
 public:
 
 	K&				Key() { return key; }
@@ -29,19 +29,17 @@ private:
 /*
 ===============================================================================
 
- HashTable
-
+ HashMap
 ===============================================================================
 */
 
 template<class K, class V>
-class HashTable
-{
+class HashMap{
 public:
 	typedef HashNode<K, V>	Node;
 
-	HashTable(int bucketSize = 16);
-	~HashTable();
+	HashMap(int bucketSize = 16);
+	~HashMap();
 	
 	void					Clear();
 	
@@ -63,7 +61,7 @@ private:
 */
 
 template<class K, class V>
-HashTable<K, V>::HashTable(int bucketSize_)
+HashMap<K, V>::HashMap(int bucketSize_)
 {
 	num = 0;
 	bucketSize = bucketSize_;
@@ -72,14 +70,14 @@ HashTable<K, V>::HashTable(int bucketSize_)
 }
 
 template<class K, class V>
-HashTable<K, V>::~HashTable()
+HashMap<K, V>::~HashMap()
 {
 	Clear();
 	delete[] buckets;
 }
 
 template<class K, class V>
-void HashTable<K, V>::Clear()
+void HashMap<K, V>::Clear()
 {
 	int		i;
 	Node*	node;
@@ -98,7 +96,7 @@ void HashTable<K, V>::Clear()
 }
 
 template<class K, class V>
-V* HashTable<K, V>::Get(K& key)
+V* HashMap<K, V>::Get(K& key)
 {
 	size_t	hash;
 	Node*	node;
@@ -114,7 +112,7 @@ V* HashTable<K, V>::Get(K& key)
 }
 
 template<class K, class V>
-V* HashTable<K, V>::Set(K& key, V& value)
+V* HashMap<K, V>::Set(K& key, V& value)
 {
 	size_t	hash;
 	Node*	node;
@@ -142,7 +140,7 @@ V* HashTable<K, V>::Set(K& key, V& value)
 }
 
 template<class K, class V>
-void HashTable<K, V>::Remove(K& key)
+void HashMap<K, V>::Remove(K& key)
 {
 	size_t	hash;
 	Node*	node;
@@ -168,7 +166,7 @@ void HashTable<K, V>::Remove(K& key)
 }
 
 template<class K, class V>
-size_t HashTable<K, V>::GetHash(K& key)
+size_t HashMap<K, V>::GetHash(K& key)
 {
 	return Hash(key) % bucketSize;
 }

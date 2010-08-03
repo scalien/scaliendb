@@ -7,6 +7,7 @@
 #include "System/Events/Callable.h"
 #include "System/Events/Timer.h"
 #include "System/Events/Countdown.h"
+#include "System/Containers/HashMap.h"
 #include "DatabaseConfig.h"
 
 class Table;		// forward
@@ -38,12 +39,14 @@ public:
 	void			Checkpoint();
 
 private:
+    typedef HashMap<const char*, Table*> TableMap;
+
 	DatabaseConfig	config;
 	DbEnv*			env;
-	Table*			keyspace;
 	ThreadPool*		cpThread;
 	bool			running;
 	Countdown		checkpointTimeout;
+    TableMap        tableMap;
 };
 
 void WarmCache(char* dbPath, unsigned cacheSize);

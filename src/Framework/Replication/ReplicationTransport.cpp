@@ -4,6 +4,11 @@
 #include "System/Config.h"
 #include "Application/Controller/Controller.h" // TODO
 
+ReplicationTransport::ReplicationTransport()
+{
+	controller = NULL;
+}
+
 ReadBuffer ReplicationTransport::GetMessage()
 {
 	return readBuffer;

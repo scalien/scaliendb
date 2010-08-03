@@ -173,7 +173,6 @@
 		54C8FC74120200F1002DD4D3 /* MessageTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageTransport.cpp; sourceTree = "<group>"; };
 		54C8FC75120200F1002DD4D3 /* MessageTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageTransport.h; sourceTree = "<group>"; };
 		54C8FD6012043EDD002DD4D3 /* ConfigMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigMessage.cpp; sourceTree = "<group>"; };
-		54E03CBC1207216E0033B309 /* HashTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashTable.h; sourceTree = "<group>"; };
 		54FA68F311C2422A00FF4EF6 /* Countdown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Countdown.h; sourceTree = "<group>"; };
 		54FA68F811C2429A00FF4EF6 /* Countdown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Countdown.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
@@ -228,6 +227,7 @@
 		9A31560C11C7B32A0052812E /* Table.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Table.h; path = Database/Table.h; sourceTree = "<group>"; };
 		9A31560D11C7B32A0052812E /* Transaction.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Transaction.cpp; path = Database/Transaction.cpp; sourceTree = "<group>"; };
 		9A31560E11C7B32A0052812E /* Transaction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Transaction.h; path = Database/Transaction.h; sourceTree = "<group>"; };
+		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
 		C6859E8B029090EE04C91782 /* Rowscale.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Rowscale.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -407,7 +407,7 @@
 		54B7F74811BE5EF30076BC62 /* Containers */ = {
 			isa = PBXGroup;
 			children = (
-				54E03CBC1207216E0033B309 /* HashTable.h */,
+				9A46BE48120850FB00D453E0 /* HashMap.h */,
 				54B7F74A11BE5EF30076BC62 /* List.h */,
 				54B7F74C11BE5EF30076BC62 /* SortedList.h */,
 				546E1FC611EC81B200867EE1 /* InList.h */,
@@ -701,6 +701,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
