@@ -1,16 +1,23 @@
-#!/usr/bin/osascript
 tell application "Terminal"
 	activate
-end tell
-menu_click({"Terminal", "View", "Clear Scrollback"})
-tell application "Terminal"
-	set window_id to id of first window whose frontmost is true
+	set window_id to id of first window
 	-- set project path
 	set cd_path to "cd ~/Projects/Scalien/ScalienDB;"
-	
 	-- clear database
-	set cmd to cd_path & "test/clearall"
-	do script cmd in tab 1 of window id window_id
+	set clearall_cmd to cd_path & "test/clearall"
+	-- do script does not block while do shell script does
+	--do script clearall_cmd in tab 1 of window id window_id
+	do shell script clearall_cmd
+	
+	-- clear scrollbacks
+	set twin to first window
+	tell twin
+		repeat with t from 1 to 6
+			set selected of tab t to true
+			my menu_click({"Terminal", "View", "Clear Scrollback"})
+		end repeat
+		set selected of tab 1 to true
+	end tell
 	
 	-- start controllers
 	repeat with c from 0 to 2
