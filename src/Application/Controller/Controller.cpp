@@ -23,17 +23,17 @@ void Controller::ReadChunkQuorum(uint64_t chunkID)
 
 	chunkCreated = false;
 
-	key.Writef("/chunkID:%U/numNodes", chunkID);
+	key.Writef("#/chunkID:%U/numNodes", chunkID);
 	key.NullTerminate();
 	if (!table->Get(NULL, key.GetBuffer(), numNodes))
 		return;
 	
 	for (int i = 0; i < numNodes; i++)
 	{
-		key.Writef("/chunkID:%U/nodeID:%d", chunkID, i);
+		key.Writef("#/chunkID:%U/nodeID:%d", chunkID, i);
 		key.NullTerminate();
 		table->Get(NULL, key.GetBuffer(), nodeIDs[i]);
-		key.Writef("/chunkID:%U/endpoint:%d", chunkID, i);
+		key.Writef("#/chunkID:%U/endpoint:%d", chunkID, i);
 		key.NullTerminate();
 		table->Get(NULL, key, value);
 		value.NullTerminate();
@@ -50,16 +50,16 @@ void Controller::WriteChunkQuorum(const ConfigMessage& msg)
 
 	Log_Trace();
 	
-	key.Writef("/chunkID:%U/numNodes", msg.chunkID);
+	key.Writef("#/chunkID:%U/numNodes", msg.chunkID);
 	key.NullTerminate();
 	table->Set(NULL, key.GetBuffer(), msg.numNodes);
 	
 	for (int i = 0; i < numNodes; i++)
 	{
-		key.Writef("/chunkID:%U/nodeID:%d", msg.chunkID, i);
+		key.Writef("#/chunkID:%U/nodeID:%d", msg.chunkID, i);
 		key.NullTerminate();
 		table->Set(NULL, key.GetBuffer(), msg.nodeIDs[i]);
-		key.Writef("/chunkID:%U/endpoint:%d", msg.chunkID, i);
+		key.Writef("#/chunkID:%U/endpoint:%d", msg.chunkID, i);
 		key.NullTerminate();
 		endpoint = msg.endpoints[i];
 		value.Write(endpoint.ToString());

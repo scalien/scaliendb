@@ -202,6 +202,7 @@
 		54FCF6A011FDF4770075BBFF /* DataChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataChunkContext.h; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
+		9A10D408120874E90009ABA7 /* DataService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataService.h; sourceTree = "<group>"; };
 		9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpConn.cpp; path = Application/HTTP/HttpConn.cpp; sourceTree = "<group>"; };
 		9A26D68E11F4BDE2006A2814 /* HttpConn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpConn.h; path = Application/HTTP/HttpConn.h; sourceTree = "<group>"; };
 		9A26D68F11F4BDE2006A2814 /* HttpConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpConsts.h; path = Application/HTTP/HttpConsts.h; sourceTree = "<group>"; };
@@ -530,6 +531,7 @@
 				5481BFC31206BD580070132B /* DataNode.cpp */,
 				54DD0B8D12086BF30049D33A /* DataMessage.h */,
 				54DD0B8E12086BF30049D33A /* DataMessage.cpp */,
+				9A10D408120874E90009ABA7 /* DataService.h */,
 			);
 			name = DataNode;
 			path = Application/DataNode;
@@ -707,7 +709,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(NATIVE_ARCH)";
+				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;

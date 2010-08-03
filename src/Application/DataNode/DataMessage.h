@@ -21,6 +21,7 @@ public:
 	
 	DataMessage*	prev;
 	DataMessage*	next;
+	void*			ptr;
 
 	// implementation of Message interface:
 	bool			Read(const ReadBuffer& buffer);
