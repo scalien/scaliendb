@@ -2,9 +2,9 @@
 #define DATACHUNKCONTEXT_H
 
 #include "Framework/Replication/Quorums/QuorumContext.h"
-#include "Framework/Replication/Quorums/DoubleQuorum.h"
+#include "Framework/Replication/Quorums/SingleQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
-#include "Framework/Replication/PaxosLease/PaxosLeaseLearner.h"
+#include "Framework/Replication/PaxosLease/PaxosLease.h"
 
 /*
 ===============================================================================
@@ -20,7 +20,6 @@ public:
 	void							Start();
 	
 	void							SetContextID(uint64_t contextID);
-	void							SetQuorum(DoubleQuorum& quorum);
 	void							SetDatabase(QuorumDatabase& database);
 	void							SetTransport(QuorumTransport& transport);
 	
@@ -51,12 +50,12 @@ private:
 	void							OnClusterMessage(ReadBuffer buffer);
 	void							RegisterPaxosID(uint64_t paxosID);
 
-	DoubleQuorum					quorum;
+	SingleQuorum					quorum;
 	QuorumDatabase					database;
 	QuorumTransport					transport;
 
 	ReplicatedLog					replicatedLog;
-	PaxosLeaseLearner				paxosLeaseLearner;
+	PaxosLease						paxosLease;
 
 	uint64_t						contextID;
 	uint64_t						highestPaxosID;

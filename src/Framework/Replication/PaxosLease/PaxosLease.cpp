@@ -13,7 +13,7 @@ void PaxosLease::Init(QuorumContext* context_)
 	learner.SetOnLearnLease(MFUNC(PaxosLease, OnLearnLease));
 	learner.SetOnLeaseTimeout(MFUNC(PaxosLease, OnLeaseTimeout));
 	
-	acquireLease = false;
+	active = false;
 
 	startupTimeout.SetDelay(PAXOSLEASE_MAX_LEASE_TIME);
 	startupTimeout.SetCallable(MFUNC(PaxosLease, OnStartupTimeout));
@@ -40,8 +40,15 @@ void PaxosLease::OnMessage(const PaxosLeaseMessage& imsg)
 
 void PaxosLease::AcquireLease()
 {
-	acquireLease = true;
-	proposer.StartAcquireLease();
+	if (active)
+		return;
+
+	active = true;
+
+	if (startupTimeout.IsActive())
+		return;
+	
+	OnStartupTimeout();
 }
 
 bool PaxosLease::IsLeaseOwner()
@@ -54,7 +61,7 @@ bool PaxosLease::IsLeaseKnown()
 	return learner.IsLeaseKnown();
 }
 
-unsigned PaxosLease::GetLeaseOwner()
+uint64_t PaxosLease::GetLeaseOwner()
 {
 	return learner.GetLeaseOwner();
 }
@@ -63,7 +70,8 @@ void PaxosLease::OnStartupTimeout()
 {
 	Log_Trace();
 	
-	AcquireLease();
+	if (active)
+		proposer.StartAcquireLease();
 }
 
 void PaxosLease::OnLearnLease()
@@ -82,6 +90,6 @@ void PaxosLease::OnLeaseTimeout()
 	
 	context->OnLeaseTimeout();
 	
-	if (acquireLease)
+	if (active)
 		proposer.StartAcquireLease();
 }

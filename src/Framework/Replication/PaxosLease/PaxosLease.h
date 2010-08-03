@@ -26,23 +26,23 @@ public:
 	
 	void					OnMessage(const PaxosLeaseMessage& msg);
 	
+	void					AcquireLease();
+
 	bool					IsLeaseOwner();
 	bool					IsLeaseKnown();
-	unsigned				GetLeaseOwner();
+	uint64_t				GetLeaseOwner();
 	
 private:
 	void					OnStartupTimeout();
 	void					OnLearnLease();
 	void					OnLeaseTimeout();
 
-	void					AcquireLease();
-
 	QuorumContext*			context;
  	PaxosLeaseProposer		proposer;
 	PaxosLeaseAcceptor		acceptor;
 	PaxosLeaseLearner		learner;
 	Countdown				startupTimeout;
-	bool					acquireLease;
+	bool					active;
 };
 
 #endif

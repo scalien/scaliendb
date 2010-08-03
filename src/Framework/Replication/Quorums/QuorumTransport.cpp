@@ -36,7 +36,8 @@ void QuorumTransport::SendMessage(uint64_t nodeID, Message& msg)
 
 void QuorumTransport::BroadcastMessage(Message& msg)
 {
-	unsigned		num, i, nodeID;
+	unsigned		num, i;
+	uint64_t		nodeID;
 	const uint64_t*	nodes;
 	
 	num = quorum->GetNumNodes();

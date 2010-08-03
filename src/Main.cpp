@@ -12,12 +12,10 @@ int main(int argc, char** argv)
 	DatabaseConfig				dbConfig;
 	Database					db;
 	ControlConfigContext		configContext;
-	ControlChunkContext			chunkContext;
 	DataChunkContext			dataContext;
 	Controller					controller;
 	DataNode					dataNode;
 	SingleQuorum				singleQuorum;
-	DoubleQuorum				doubleQuorum;
 	QuorumDatabase				qdb;
 	QuorumTransport				configTransport;
 	QuorumTransport				chunkTransport;
@@ -66,11 +64,12 @@ int main(int argc, char** argv)
 	{
 		const char* s = configFile.GetListValue("controllers", i, NULL);
 		endpoint.Set(s);
-		singleQuorum.AddNode(i);
-		doubleQuorum.AddNode(QUORUM_CONTROL_NODE, i);
 
 		// TODO: i will not be a nodeID once we start using UIDs
 		RMAN->GetTransport()->AddEndpoint(i, endpoint);
+
+		if (isController)
+			singleQuorum.AddNode(i);
 	}
 
 	if (isController)
@@ -88,20 +87,9 @@ int main(int argc, char** argv)
 		configContext.SetTransport(configTransport);
 		configContext.Start();
 
-		prefix.Write("1");
-		chunkTransport.SetPriority(true);
-		chunkTransport.SetPrefix(prefix);
-		chunkTransport.SetQuorum(&doubleQuorum);
-		chunkContext.SetContextID(1);
-		chunkContext.SetQuorum(doubleQuorum);
-		chunkContext.SetDatabase(qdb); // TODO: hack
-		chunkContext.SetTransport(chunkTransport);
-		chunkContext.Start();
-
 		controller.Init(db.GetTable("keyspace"));
 		RMAN->GetTransport()->SetController(&controller); // TODO: hack
 		RMAN->AddContext(&configContext);
-		RMAN->AddContext(&chunkContext);
 
 		httpServer.Init(configFile.GetIntValue("http.port", 8080));
 		httpServer.RegisterHandler(&controller);
@@ -112,10 +100,9 @@ int main(int argc, char** argv)
 		prefix.Write("1");
 		chunkTransport.SetPriority(true);
 		chunkTransport.SetPrefix(prefix);
-		chunkTransport.SetQuorum(&doubleQuorum);	
+		chunkTransport.SetQuorum(dataContext.GetQuorum());	
 
 		dataContext.SetContextID(1);
-		dataContext.SetQuorum(doubleQuorum);
 		dataContext.SetDatabase(qdb); // TODO: hack
 		dataContext.SetTransport(chunkTransport);
 		dataContext.Start();
@@ -124,7 +111,6 @@ int main(int argc, char** argv)
 		httpServer.RegisterHandler(&dataNode);
 		RMAN->AddContext(&dataContext);
 	}
-	
 	
 	EventLoop::Init();
 	EventLoop::Run();

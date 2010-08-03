@@ -20,7 +20,7 @@ struct PaxosLeaseProposerState
 	bool			proposing;
 	uint64_t		proposalID;
 	uint64_t		highestReceivedProposalID;
-	unsigned		leaseOwner;
+	uint64_t		leaseOwner;
 	unsigned		duration;
 	uint64_t		expireTime;
 

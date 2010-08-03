@@ -19,7 +19,6 @@
 		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
 		546E2A4711F4882C00867EE1 /* ReplicationTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E2A4611F4882C00867EE1 /* ReplicationTransport.cpp */; };
 		5481BFC51206BD580070132B /* DataNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5481BFC31206BD580070132B /* DataNode.cpp */; };
-		5481C0F6120719000070132B /* ControlChunkContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69A11FDF4770075BBFF /* ControlChunkContext.cpp */; };
 		5481C0FF12071BEA0070132B /* ClusterMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5481C0FE12071BEA0070132B /* ClusterMessage.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
@@ -690,7 +689,6 @@
 				54C8FC78120200F1002DD4D3 /* MessageTransport.cpp in Sources */,
 				54C8FD6112043EDD002DD4D3 /* ConfigMessage.cpp in Sources */,
 				5481BFC51206BD580070132B /* DataNode.cpp in Sources */,
-				5481C0F6120719000070132B /* ControlChunkContext.cpp in Sources */,
 				5481C0FF12071BEA0070132B /* ClusterMessage.cpp in Sources */,
 				54E03D7C12072E300033B309 /* DataChunkContext.cpp in Sources */,
 			);

@@ -7,18 +7,13 @@
 void DataChunkContext::Start()
 {
 	replicatedLog.Init(this);
-	paxosLeaseLearner.Init(this);
+	paxosLease.Init(this);
 	highestPaxosID = 0;
 }
 
 void DataChunkContext::SetContextID(uint64_t contextID_)
 {
 	contextID = contextID_;
-}
-
-void DataChunkContext::SetQuorum(DoubleQuorum& quorum_)
-{
-	quorum = quorum_;
 }
 
 void DataChunkContext::SetDatabase(QuorumDatabase& database_)
@@ -33,17 +28,17 @@ void DataChunkContext::SetTransport(QuorumTransport& transport_)
 
 bool DataChunkContext::IsLeaderKnown()
 {
-	return paxosLeaseLearner.IsLeaseKnown();
+	return paxosLease.IsLeaseKnown();
 }
 
 bool DataChunkContext::IsLeader()
 {
-	return paxosLeaseLearner.IsLeaseOwner();
+	return paxosLease.IsLeaseOwner();
 }
 
 uint64_t DataChunkContext::GetLeader()
 {
-	return paxosLeaseLearner.GetLeaseOwner();
+	return paxosLease.GetLeaseOwner();
 }
 
 uint64_t DataChunkContext::GetContextID() const
@@ -135,12 +130,16 @@ void DataChunkContext::OnMessage()
 void DataChunkContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
 	PaxosLeaseMessage msg;
+
+	Log_Trace("%.*s", P(&buffer));
 	
 	msg.Read(buffer);
-	assert(msg.type == PAXOSLEASE_LEARN_CHOSEN);
-	RegisterPaxosID(msg.paxosID);
-	replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
-	paxosLeaseLearner.OnMessage(msg);
+	if (msg.type == PAXOSLEASE_PREPARE_REQUEST || msg.type == PAXOSLEASE_LEARN_CHOSEN)
+	{
+		RegisterPaxosID(msg.paxosID);
+		replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
+	}
+	paxosLease.OnMessage(msg);
 	// TODO: right now PaxosLeaseLearner will not call back
 }
 
@@ -164,8 +163,10 @@ void DataChunkContext::OnClusterMessage(ReadBuffer buffer)
 		Log_Trace("nodeID = %" PRIu64 ", endpoint = %s", 
 		 msg.nodeIDs[i], msg.endpoints[i].ToString());
 		RMAN->GetTransport()->AddEndpoint(msg.nodeIDs[i], msg.endpoints[i]);
-		quorum.AddNode(QUORUM_DATA_NODE, msg.nodeIDs[i]);
+		quorum.AddNode(msg.nodeIDs[i]);
 	}
+	
+	paxosLease.AcquireLease();
 }
 
 void DataChunkContext::RegisterPaxosID(uint64_t paxosID)

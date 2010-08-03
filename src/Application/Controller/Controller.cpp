@@ -8,9 +8,6 @@ void Controller::Init(Table* table_)
 	chunkCreated = false;
 	table = table_;
 	
-	primaryTimeout.SetCallable(MFUNC(Controller, OnPrimaryTimeout));
-	primaryTimeout.SetDelay(1000); // TODO:
-
 	if (!ReadChunkQuorum(1))
 		return;
 
@@ -124,9 +121,7 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 
 void Controller::OnConfigMessage(const ConfigMessage& msg)
 {
-	DoubleQuorum*		quorum;
 	ClusterMessage		omsg;
-	QuorumContext*		context;
 
 	Log_Trace();
 	
@@ -139,12 +134,6 @@ void Controller::OnConfigMessage(const ConfigMessage& msg)
 	WriteChunkQuorum(msg);
 	chunkCreated = true;
 	
-	context = RMAN->GetContext(msg.chunkID);
-	// set data nodes in this quorum
-	quorum = (DoubleQuorum*) context->GetQuorum();
-	for (unsigned i = 0; i < numNodes; i++)
-		quorum->AddNode(QUORUM_DATA_NODE, nodeIDs[i]);
-
 	if (!RMAN->GetContext(0)->IsLeader())
 		return;
 	
@@ -160,29 +149,8 @@ void Controller::OnConfigMessage(const ConfigMessage& msg)
 	}
 
 	// send omsg to data nodes
+	Buffer prefix;
+	prefix.Writef("%U", msg.chunkID);
 	for (unsigned i = 0; i < msg.numNodes; i++)
-		context->GetTransport()->SendMessage(msg.nodeIDs[i], omsg);
-	
-	OnPrimaryTimeout();
-}
-
-void Controller::OnPrimaryTimeout()
-{
-	PaxosLeaseMessage	plmsg;
-	uint64_t			nodeID;
-
-	Log_Trace();
-
-	assert(RMAN->GetContext(0)->IsLeader());
-
-	nodeID = nodeIDs[0]; // TODO: hack
-
-	plmsg.LearnChosen(RMAN->GetNodeID(), nodeID, PAXOSLEASE_MAX_LEASE_TIME,
-	 Now() + PAXOSLEASE_MAX_LEASE_TIME, RMAN->GetContext(1)->GetPaxosID());
-
-	// send primary paxos lease msg to data nodes
-	for (unsigned i = 0; i < numNodes; i++)
-		RMAN->GetContext(1)->GetTransport()->SendMessage(nodeIDs[i], plmsg);
-		
-	EventLoop::Add(&primaryTimeout);
+		RMAN->GetTransport()->SendPriorityMessage(msg.nodeIDs[i], prefix, omsg);
 }

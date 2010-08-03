@@ -19,7 +19,7 @@ struct PaxosLeaseAcceptorState
 	uint64_t		promisedProposalID;
 	bool			accepted;
 	uint64_t		acceptedProposalID;
-	unsigned		acceptedLeaseOwner;
+	uint64_t		acceptedLeaseOwner;
 	unsigned		acceptedDuration;
 	uint64_t		acceptedExpireTime;
 };

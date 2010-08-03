@@ -7,11 +7,11 @@
 
 void ControlConfigContext::Start()
 {
-	// TODO: configure quorum from static config file
-	
 	replicatedLog.Init(this);
 	paxosLease.Init(this);
-	highestPaxosID = 0;	
+	highestPaxosID = 0;
+	
+	paxosLease.AcquireLease();
 }
 
 void ControlConfigContext::Append(ConfigMessage msg)

@@ -12,6 +12,8 @@ void MessageTransport::OnIncomingConnection(MessageConnection* conn)
 {
 	Node*	node;
 	
+	Log_Trace();
+	
 	node = new Node;
 	node->state = Node::INCOMING;
 	node->nodeID = 0;
@@ -34,7 +36,7 @@ void MessageTransport::OnOutgoingConnection(MessageConnection* conn)
 	// send my nodeID:endpoint
 	buffer.Writef("%U:%M", selfNodeID, &rb);
 	conn->WritePriority(buffer);
-	
+	Log_Trace("Conn READY to node %" PRIu64 " at %s", node->nodeID, node->endpoint.ToString());
 	node->state = Node::READY;
 }
 
@@ -66,6 +68,8 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 	ReadBuffer	buffer;
 	Buffer		epBuffer;
 	
+	Log_Trace();
+	
 	node = conn->GetNode();
 
 	if (node->state == Node::INCOMING)
@@ -76,11 +80,15 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 		{
 			if (dup->state == Node::READY)
 			{
+				Log_Trace("delete node");
 				DeleteNode(node);				// drop current node
 				return;
 			}
 			else
+			{
+				Log_Trace("delete dup");
 				DeleteNode(dup);				// drop dup
+			}
 		}
 		node->state = Node::READY;
 		node->nodeID = nodeID;
@@ -88,6 +96,7 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 		epBuffer.Write(buffer);
 		epBuffer.NullTerminate();
 		node->endpoint.Set(epBuffer.GetBuffer());
+		Log_Trace("Conn READY to node %" PRIu64 " at %s", node->nodeID, node->endpoint.ToString());
 		nodes.Append(node);
 		OnIncomingConnectionReady(node->nodeID, node->endpoint);
 	}
@@ -105,6 +114,9 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 void MessageTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
 {
 	Node* node;
+	
+	if (selfNodeID < nodeID)
+		return;
 	
 	node = GetNode(nodeID);
 	

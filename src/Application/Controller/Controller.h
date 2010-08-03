@@ -19,15 +19,12 @@ public:
 	void					OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
 	void					OnConfigMessage(const ConfigMessage& msg);
 
-	void					OnPrimaryTimeout();
-
 private:	
 	uint64_t				numNodes;
 	uint64_t				nodeIDs[7];
 	Endpoint				endpoints[7];
 	bool					chunkCreated;
 	Table*					table;
-	Countdown				primaryTimeout;
 };
 
 #endif
