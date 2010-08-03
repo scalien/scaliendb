@@ -147,8 +147,15 @@ bool Database::Init(const DatabaseConfig& config_)
 
 void Database::Shutdown()
 {
+	HashNode<const char*, Table*>*	it;
+	
 	if (!running)
 		return;
+
+	for (it = tableMap.First(); it != NULL; it = tableMap.Next(it))
+		delete it->Value();
+	
+	tableMap.Clear();
 
 	running = false;
 	cpThread->Stop();

@@ -48,6 +48,9 @@ public:
 
 	void					Remove(K& key);
 
+	Node*					First();
+	Node*					Next(Node* it);
+
 private:
 	Node**					buckets;
 	int						bucketSize;
@@ -163,6 +166,39 @@ void HashMap<K, V>::Remove(K& key)
 	}
 	
 	// TODO resize if too big
+}
+
+template<class K, class V>
+HashNode<K, V>* HashMap<K, V>::First()
+{
+	int		i;
+	
+	for (i = 0; i < bucketSize; i++)
+	{
+		if (buckets[i])
+			return buckets[i];
+	}
+	
+	return NULL;
+}
+
+template<class K, class V>
+HashNode<K, V>* HashMap<K, V>::Next(Node* it)
+{
+	int		i;
+	size_t	hash;
+	
+	if (it->next)
+		return it->next;
+
+	hash = GetHash(it->key);
+	for (i = hash + 1; i < bucketSize; i++)
+	{
+		if (buckets[i])
+			return buckets[i];
+	}
+	
+	return NULL;
 }
 
 template<class K, class V>
