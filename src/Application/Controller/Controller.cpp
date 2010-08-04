@@ -28,7 +28,7 @@ void Controller::ReadChunkQuorum(uint64_t chunkID)
 	if (!table->Get(NULL, key.GetBuffer(), numNodes))
 		return;
 	
-	for (int i = 0; i < numNodes; i++)
+	for (unsigned i = 0; i < numNodes; i++)
 	{
 		key.Writef("#/chunkID:%U/nodeID:%d", chunkID, i);
 		key.NullTerminate();
@@ -54,7 +54,7 @@ void Controller::WriteChunkQuorum(const ConfigMessage& msg)
 	key.NullTerminate();
 	table->Set(NULL, key.GetBuffer(), msg.numNodes);
 	
-	for (int i = 0; i < numNodes; i++)
+	for (unsigned i = 0; i < numNodes; i++)
 	{
 		key.Writef("#/chunkID:%U/nodeID:%d", msg.chunkID, i);
 		key.NullTerminate();
@@ -67,7 +67,7 @@ void Controller::WriteChunkQuorum(const ConfigMessage& msg)
 	}
 }
 
-bool Controller::HandleRequest(HttpConn* conn, const HttpRequest& request)
+bool Controller::HandleRequest(HttpConn* conn, const HttpRequest& /*request*/)
 {
 	Buffer			buffer;
 	QuorumContext*	context;

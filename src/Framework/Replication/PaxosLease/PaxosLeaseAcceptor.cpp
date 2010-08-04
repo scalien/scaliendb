@@ -34,7 +34,7 @@ void PaxosLeaseAcceptor::OnPrepareRequest(const PaxosLeaseMessage& imsg)
 	Log_Trace("msg.paxosID: %" PRIu64 ", my.paxosID: %" PRIu64 "",
 	 imsg.paxosID, context->GetPaxosID());
 
-	if (imsg.paxosID < context->GetPaxosID() && (int) imsg.nodeID != context->GetLeader())
+	if (imsg.paxosID < context->GetPaxosID() && imsg.nodeID != context->GetLeader())
 		return; // only up-to-date nodes can become masters
 
 //	RLOG->OnPaxosLeaseMessage(msg.paxosID, msg.nodeID); //TODO

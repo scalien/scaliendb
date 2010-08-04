@@ -161,12 +161,12 @@ bool isdir(const char* path)
 
 uint64_t gen_uuid()
 {
-	const unsigned WIDTH_M = 16; // machine TODO
-	const unsigned MASK_M = (1 << WIDTH_M) - 1;
-	const unsigned WIDTH_D = 32; // date
-	const unsigned MASK_D = (1 << WIDTH_D) - 1;
-	const unsigned WIDTH_R = 16; // random
-	const unsigned MASK_R = (1 << MASK_R) - 1;
+	const uint64_t WIDTH_M = 16; // machine TODO
+	const uint64_t MASK_M = ((uint64_t) 1 << WIDTH_M) - 1;
+	const uint64_t WIDTH_D = 32; // date
+	const uint64_t MASK_D = ((uint64_t) 1 << WIDTH_D) - 1;
+	const uint64_t WIDTH_R = 16; // random
+	const uint64_t MASK_R = ((uint64_t) 1 << MASK_R) - 1;
 	uint64_t uuid;
 	
 	uint64_t m = randint(0, 65535); // TODO
@@ -252,7 +252,6 @@ int vsnreadf(char* buffer, unsigned length, const char* format, va_list ap)
 	unsigned*		u;
 	int64_t*		i64;
 	uint64_t*		u64;
-	Buffer*			b;
 	ReadBuffer*		rb;
 	unsigned		n, l;
 	int				read;

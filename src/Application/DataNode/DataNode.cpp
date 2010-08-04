@@ -60,7 +60,6 @@ bool DataNode::MatchString(const char* s1, unsigned len1, const char* s2, unsign
 
 bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, const UrlParam& params)
 {
-	DataMessage*	msg;
 	Buffer			buffer;
 
 	if (MatchString(cmd, cmdlen, STR_AND_LEN("")))
