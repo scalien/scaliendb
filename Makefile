@@ -30,8 +30,8 @@ BUILD_ROOT = $(BASE_DIR)/build
 SRC_DIR = $(BASE_DIR)/src
 DEB_DIR = $(BUILD_ROOT)/deb
 
-BUILD_DEBUG_DIR = $(BUILD_ROOT)/debug
-BUILD_RELEASE_DIR = $(BUILD_ROOT)/release
+BUILD_DEBUG_DIR = $(BUILD_ROOT)/Debug
+BUILD_RELEASE_DIR = $(BUILD_ROOT)/Release
 
 INSTALL_BIN_DIR = /usr/local/bin
 INSTALL_LIB_DIR = /usr/local/lib
@@ -144,7 +144,7 @@ CLIENTLIBS = \
 
 
 EXECUTABLES = \
-	$(BIN_DIR)/scaliendb
+	$(BUILD_DIR)/ScalienDB
 	
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -288,7 +288,7 @@ $(BIN_DIR)/$(PERL_DIR)/$(PERL_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(
 	-cp -rf $(SRC_DIR)/$(PERL_CLIENT_DIR)/scaliendb_client.pm $(BIN_DIR)/$(PERL_DIR)
 
 # executables	
-$(BIN_DIR)/scaliendb: $(BUILD_DIR) $(LIBS) $(OBJECTS)
+$(BUILD_DIR)/ScalienDB: $(BUILD_DIR) $(LIBS) $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
 $(BIN_DIR)/clienttest: $(BUILD_DIR) $(TEST_OBJECTS) $(BIN_DIR)/$(ALIB)
