@@ -2,6 +2,7 @@
 #define INPRIORITYQUEUE_H
 
 #include <assert.h>
+#include <stdlib.h>
 
 /*
 ===============================================================================
