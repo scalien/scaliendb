@@ -28,6 +28,7 @@ struct IOOperation
 	IOOperation()
 	{
 		fd = INVALID_FD;
+		type = UNKNOWN;
 		active = false;
 		pending = false;
 		offset = 0;
@@ -53,7 +54,7 @@ struct IOOperation
 		buffer = buffer_;
 	}
 
-	enum Type		{ UDP_WRITE, UDP_READ, TCP_WRITE, TCP_READ };
+	enum Type		{ UDP_WRITE, UDP_READ, TCP_WRITE, TCP_READ, UNKNOWN };
 	
 	Buffer*			buffer;
 	
