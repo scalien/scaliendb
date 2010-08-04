@@ -18,7 +18,7 @@
 #include "System/Events/EventLoop.h"
 
 #define	MAX_EVENTS			1024
-#define PIPEOP				'p'
+#define PIPEOP				IOOperation::UNKNOWN
 
 
 class PipeOp : public IOOperation
@@ -28,7 +28,6 @@ public:
 	{
 		type = PIPEOP;
 		pipe[0] = pipe[1] = -1;
-		callback = NULL;
 	}
 	
 	~PipeOp()
@@ -50,8 +49,8 @@ public:
 		}
 	}
 	
-	int			 	pipe[2];
-	CFunc::Callback	callback;
+	int		 	pipe[2];
+	Callable	callback;
 };
 
 class EpollOp
@@ -83,7 +82,7 @@ static void			ProcessUDPRead(UDPRead* udpread);
 static void			ProcessUDPWrite(UDPWrite* udpwrite);
 
 
-bool /*IOProcessor::*/InitPipe(PipeOp &pipeop, CFunc::Callback callback)
+bool /*IOProcessor::*/InitPipe(PipeOp &pipeop, Callable callback)
 {
 	if (pipe(pipeop.pipe) < 0)
 	{
@@ -184,7 +183,7 @@ bool IOProcessor::Init(int maxfd_)
 	}
 
 	
-	if (!InitPipe(asyncPipeOp, ProcessAsyncOp))
+	if (!InitPipe(asyncPipeOp, CFunc(ProcessAsyncOp)))
 		return false;
 
 	return true;
@@ -209,9 +208,9 @@ bool IOProcessor::Add(IOOperation* ioop)
 		return true;
 	
 	filter = EPOLLONESHOT;
-	if (ioop->type == TCP_READ || ioop->type == UDP_READ)
+	if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
 		filter |= EPOLLIN;
-	else if (ioop->type == TCP_WRITE || ioop->type == UDP_WRITE)
+	else if (ioop->type == IOOperation::TCP_WRITE || ioop->type == IOOperation::UDP_WRITE)
 		filter |= EPOLLOUT;
 	
 	return AddEvent(ioop->fd, filter, ioop);
@@ -301,7 +300,7 @@ bool IOProcessor::Remove(IOOperation* ioop)
 	ev.data.ptr = ioop;
 
 	epollOp = &epollOps[ioop->fd];
-	if (ioop->type == TCP_READ || ioop->type == UDP_READ)
+	if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
 	{
 		epollOp->read = NULL;
 		if (epollOp->write)
@@ -407,7 +406,7 @@ bool IOProcessor::Poll(int sleep)
 			{
 				// we never set pipeOps' read to NULL, they're special
 				PipeOp* pipeop = (PipeOp*) ioop;
-				pipeop->callback();
+				Call(pipeop->callback);
 			}
 			else if (ioop->active)
 			{
@@ -431,13 +430,13 @@ bool IOProcessor::Poll(int sleep)
 	return true;
 }
 
-bool IOProcessor::Complete(Callable* callable)
+bool IOProcessor::Complete(Callable& callable)
 {
 	Log_Trace();
 	
 	int nwrite;
 	
-	nwrite = write(asyncPipeOp.pipe[1], &callable, sizeof(Callable*));
+	nwrite = write(asyncPipeOp.pipe[1], &callable, sizeof(Callable));
 	if (nwrite < 0)
 	{
 		Log_Errno();
@@ -456,17 +455,20 @@ void ProcessIOOperation(IOOperation* ioop)
 	
 	switch (ioop->type)
 	{
-	case TCP_READ:
+	case IOOperation::TCP_READ:
 		ProcessTCPRead((TCPRead*) ioop);
 		break;
-	case TCP_WRITE:
+	case IOOperation::TCP_WRITE:
 		ProcessTCPWrite((TCPWrite*) ioop);
 		break;
-	case UDP_READ:
+	case IOOperation::UDP_READ:
 		ProcessUDPRead((UDPRead*) ioop);
 		break;
-	case UDP_WRITE:
+	case IOOperation::UDP_WRITE:
 		ProcessUDPWrite((UDPWrite*) ioop);
+		break;
+	default:
+		/* do nothing */
 		break;
 	}
 }
@@ -474,13 +476,13 @@ void ProcessIOOperation(IOOperation* ioop)
 #define MAX_CALLABLE 256	
 void ProcessAsyncOp()
 {
+	Callable	callables[MAX_CALLABLE];
+	int			nread;
+	int			count;
+	int			i;
+	
 	Log_Trace();
 
-	Callable* callables[MAX_CALLABLE];
-	int nread;
-	int count;
-	int i;
-	
 	while (true)
 	{
 		nread = read(asyncPipeOp.pipe[0], callables, SIZE(callables));
@@ -505,15 +507,15 @@ void ProcessTCPRead(TCPRead* tcpread)
 	}
 	
 	if (tcpread->requested == IO_READ_ANY)
-		readlen = tcpread->data.size - tcpread->data.length;
+		readlen = tcpread->buffer->GetSize() - tcpread->buffer->GetLength();
 	else
-		readlen = tcpread->requested - tcpread->data.length;
+		readlen = tcpread->requested - tcpread->buffer->GetLength();
 	
 	if (readlen <= 0)
 		return;
 
 	nread = read(tcpread->fd,
-				 tcpread->data.buffer + tcpread->data.length,
+				 tcpread->buffer->GetBuffer() + tcpread->buffer->GetLength(),
 				 readlen);
 	
 	if (nread < 0)
@@ -534,9 +536,9 @@ void ProcessTCPRead(TCPRead* tcpread)
 	}
 	else
 	{
-		tcpread->data.length += nread;
+		tcpread->buffer->Lengthen(nread);
 		if (tcpread->requested == IO_READ_ANY || 
-			tcpread->data.length == (unsigned)tcpread->requested)
+			tcpread->buffer->GetLength() == (unsigned)tcpread->requested)
 			Call(tcpread->onComplete);
 		else
 			IOProcessor::Add(tcpread);
@@ -548,7 +550,7 @@ void ProcessTCPWrite(TCPWrite* tcpwrite)
 	int writelen, nwrite;
 
 	// this indicates check for connect() readyness
-	if (tcpwrite->data.length == 0)
+	if (tcpwrite->buffer == NULL)
 	{
 		sockaddr_in sa;
 		socklen_t	socklen = sizeof(sa);
@@ -565,14 +567,14 @@ void ProcessTCPWrite(TCPWrite* tcpwrite)
 		return;
 	}
 
-	writelen = tcpwrite->data.length - tcpwrite->transferred;
+	writelen = tcpwrite->buffer->GetLength() - tcpwrite->transferred;
 	if (writelen <= 0)
 	{
 		ASSERT_FAIL();
 	}
 	
 	nwrite = write(tcpwrite->fd,
-				   tcpwrite->data.buffer + tcpwrite->transferred,
+				   tcpwrite->buffer->GetBuffer() + tcpwrite->transferred,
 				   writelen);
 				   
 	if (nwrite < 0)
@@ -594,7 +596,7 @@ void ProcessTCPWrite(TCPWrite* tcpwrite)
 	else
 	{
 		tcpwrite->transferred += nwrite;
-		if (tcpwrite->transferred == tcpwrite->data.length)
+		if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
 			Call(tcpwrite->onComplete);
 		else
 			IOProcessor::Add(tcpwrite);
@@ -609,8 +611,8 @@ void ProcessUDPRead(UDPRead* udpread)
 	do
 	{
 		nread = recvfrom(udpread->fd,
-						 udpread->data.buffer,
-						 udpread->data.size,
+						 udpread->buffer->GetBuffer(),
+						 udpread->buffer->GetSize(),
 						 0,
 						 (sockaddr*) udpread->endpoint.GetSockAddr(),
 						 &salen);
@@ -633,7 +635,7 @@ void ProcessUDPRead(UDPRead* udpread)
 		}
 		else
 		{
-			udpread->data.length = nread;
+			udpread->buffer->SetLength(nread);
 			Call(udpread->onComplete);
 		}
 	} while (nread > 0);
@@ -645,8 +647,8 @@ void ProcessUDPWrite(UDPWrite* udpwrite)
 	socklen_t	salen = ENDPOINT_SOCKADDR_SIZE;
 
 	nwrite = sendto(udpwrite->fd,
-					udpwrite->data.buffer + udpwrite->offset,
-					udpwrite->data.length - udpwrite->offset,
+					udpwrite->buffer->GetBuffer() + udpwrite->offset,
+					udpwrite->buffer->GetLength() - udpwrite->offset,
 					0,
 					(const sockaddr*) udpwrite->endpoint.GetSockAddr(),
 					salen);
@@ -669,7 +671,7 @@ void ProcessUDPWrite(UDPWrite* udpwrite)
 	}
 	else
 	{
-		if (nwrite == (int)udpwrite->data.length - udpwrite->offset)
+		if (nwrite == (int)udpwrite->buffer->GetLength() - udpwrite->offset)
 		{
 			Call(udpwrite->onComplete);
 		}
