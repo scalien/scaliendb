@@ -13,11 +13,11 @@ public:
 	DataMessage();
 
 	char			type;
-	Buffer			key;
-	Buffer			value;
+	ReadBuffer		key;
+	ReadBuffer		value;
 	
-	void			Get(Buffer& key);
-	void			Set(Buffer& key, Buffer& value);
+	void			Get(ReadBuffer& key);
+	void			Set(ReadBuffer& key, ReadBuffer& value);
 	
 	DataMessage*	prev;
 	DataMessage*	next;

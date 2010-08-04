@@ -2,10 +2,12 @@
 #include "ReplicationManager.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
+#include "Application/DataNode/DataNode.h"
 #include "Application/Controller/ClusterMessage.h"
 
-void DataChunkContext::Start()
+void DataChunkContext::Start(DataNode* dataNode_)
 {
+	dataNode = dataNode_;
 	replicatedLog.Init(this);
 	paxosLease.Init(this);
 	highestPaxosID = 0;
@@ -19,6 +21,7 @@ void DataChunkContext::SetContextID(uint64_t contextID_)
 void DataChunkContext::SetDatabase(QuorumDatabase& database_)
 {
 	database = database_;
+	table = database.table; // TODO: HACK
 }
 
 void DataChunkContext::SetTransport(QuorumTransport& transport_)
@@ -87,14 +90,50 @@ QuorumTransport* DataChunkContext::GetTransport()
 	return &transport;
 }
 
-void DataChunkContext::OnAppend(ReadBuffer value)
+void DataChunkContext::OnAppend(ReadBuffer value, bool ownAppend)
 {
-	// TODO
+	DataMessage		msg;
+	DataMessage*	msgptr;
+	Log_Trace();
+	
+	msg.Read(value);
+	Buffer bkey, bvalue;
+	bkey.Write("$");
+	bkey.Append(msg.key);
+	bvalue.Write(msg.value);
+	table->Set(NULL, bkey, bvalue);
+	
+	if (!ownAppend)
+	{
+		Log_Trace("not my command");
+		return;
+	}
+	
+	Log_Trace("my append");
+	
+	msgptr = messages.Head();
+	dataNode->OnComplete(msgptr, true);
+	messages.Remove(msgptr);
+	delete msgptr;
 }
 
 Buffer* DataChunkContext::GetNextValue()
 {
-	return NULL;
+	DataMessage*	msg;
+
+	msg = messages.Head();
+	
+	if (!msg)
+	{
+		Log_Trace("no data message to be replicated");
+		return NULL;
+	}
+	
+	Log_Trace();
+	
+	msg->Write(nextValue);
+	
+	return &nextValue;
 }
 
 void DataChunkContext::OnMessage()
@@ -173,4 +212,46 @@ void DataChunkContext::RegisterPaxosID(uint64_t paxosID)
 {
 	if (paxosID > highestPaxosID)
 		highestPaxosID = paxosID;
+}
+
+void DataChunkContext::Get(ReadBuffer& key, void* ptr)
+{
+	DataMessage* msg;
+	msg = new DataMessage;
+	msg->Get(key);
+	msg->ptr = ptr;
+
+	if (!IsLeader())
+	{
+		dataNode->OnComplete(msg, false);
+		delete msg;
+		return;
+	}
+	
+	Buffer bkey, bvalue;
+	bkey.Writef("$");
+	bkey.Append(key);
+	bool found = table->Get(NULL, bkey, bvalue);
+	if (found)
+		msg->value.Wrap(bvalue);
+	dataNode->OnComplete(msg, found);
+	delete msg;
+}
+
+void DataChunkContext::Set(ReadBuffer& key, ReadBuffer& value, void* ptr)
+{
+	DataMessage* msg;
+	msg = new DataMessage;
+	msg->Set(key, value);
+	msg->ptr = ptr;
+
+	if (!IsLeader())
+	{
+		dataNode->OnComplete(msg, false);
+		delete msg;
+		return;
+	}
+
+	messages.Append(msg);
+	replicatedLog.TryAppendNextValue();
 }

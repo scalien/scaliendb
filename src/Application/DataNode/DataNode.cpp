@@ -71,25 +71,28 @@ bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, 
 	
 	if (MatchString(cmd, cmdlen, STR_AND_LEN("get"))) 
 	{
-		ASSERT_FAIL();
+		ReadBuffer	key;
+		
+		GET_NAMED_PARAM(params, "key", key);
+
+		DataChunkContext*	context;
+		context = (DataChunkContext*) RMAN->GetContext(1); // TODO: hack
+		context->Get(key, (void*) conn);
+		
+		return true;
 	}
 	else if (MatchString(cmd, cmdlen, STR_AND_LEN("set")))
 	{
-//		msg = new DataMessage;
-//		msg->ptr = (void*) conn;
-//		
-//		// TODO: commands
-//		// put msg in messages
-//		messages.Append(msg);
 		ReadBuffer	key;
 		ReadBuffer	value;
 		
 		GET_NAMED_PARAM(params, "key", key);
 		GET_NAMED_PARAM(params, "value", value);
+
+		DataChunkContext*	context;
+		context = (DataChunkContext*) RMAN->GetContext(1); // TODO: hack
+		context->Set(key, value, (void*) conn);
 		
-		buffer.Writef("key: %M\nvalue: %M\n", &key, &value);
-		conn->Write(buffer.GetBuffer(), buffer.GetLength());
-		conn->Flush(true);
 		return true;
 	}
 	else
@@ -124,18 +127,25 @@ void DataNode::OnComplete(DataMessage* msg, bool status)
 	HttpConn*	conn;
 	Buffer		buffer;
 	
-	assert(msg->type == DATAMESSAGE_SET);
-	
 	conn = (HttpConn*) msg->ptr;
 
-	if (!status)
-		buffer.Write("OK");
+	if (msg->type == DATAMESSAGE_SET)
+	{
+		if (status)
+			buffer.Write("OK");
+		else
+			buffer.Write("FAILED");
+	}
+	else if (msg->type == DATAMESSAGE_GET)
+	{
+		if (status)
+			buffer.Write(msg->value);
+		else
+			buffer.Write("FAILED");
+	}
 	else
-		buffer.Write("FAILED");
+		ASSERT_FAIL();
 
 	conn->Write(buffer.GetBuffer(), buffer.GetLength());
 	conn->Flush(true);
-	
-	messages.Remove(msg);
-	delete msg;
 }

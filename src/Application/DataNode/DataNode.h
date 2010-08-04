@@ -29,7 +29,6 @@ private:
 
 	Table*					table;
 	uint64_t				nodeID;
-	InList<DataMessage>		messages;
 };
 
 #endif

@@ -15,6 +15,7 @@
 struct PaxosAcceptorState
 {
 	void			Init();
+	void			OnNewPaxosRound();
 
 	uint64_t		promisedProposalID;
 	bool			accepted;	
@@ -29,6 +30,11 @@ struct PaxosAcceptorState
 */
 
 inline void PaxosAcceptorState::Init()
+{
+	OnNewPaxosRound();
+}
+
+inline void PaxosAcceptorState::OnNewPaxosRound()
 {
 	promisedProposalID = 0;
 	accepted = false;

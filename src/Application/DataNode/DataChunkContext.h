@@ -5,6 +5,9 @@
 #include "Framework/Replication/Quorums/SingleQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
+#include "Application/DataNode/DataMessage.h"
+
+class DataNode; // forward
 
 /*
 ===============================================================================
@@ -17,7 +20,7 @@
 class DataChunkContext : public QuorumContext
 {
 public:
-	void							Start();
+	void							Start(DataNode* dataNode_);
 	
 	void							SetContextID(uint64_t contextID);
 	void							SetDatabase(QuorumDatabase& database);
@@ -40,9 +43,12 @@ public:
 	virtual QuorumDatabase*			GetDatabase();
 	virtual QuorumTransport*		GetTransport();
 
-	virtual	void					OnAppend(ReadBuffer value);
+	virtual	void					OnAppend(ReadBuffer value, bool ownAppend);
 	virtual Buffer*					GetNextValue();
 	virtual void					OnMessage();
+	
+	void							Get(ReadBuffer& key, void* ptr);
+	void							Set(ReadBuffer& key, ReadBuffer& value, void* ptr);
 
 private:
 	void							OnPaxosLeaseMessage(ReadBuffer buffer);
@@ -59,6 +65,11 @@ private:
 
 	uint64_t						contextID;
 	uint64_t						highestPaxosID;
+	
+	InList<DataMessage>				messages;
+	Buffer							nextValue;
+	Table*							table;
+	DataNode*						dataNode;
 };
 
 #endif

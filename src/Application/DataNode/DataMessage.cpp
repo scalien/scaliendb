@@ -6,14 +6,15 @@ DataMessage::DataMessage()
 	next = this;
 }
 
-void DataMessage::Get(Buffer& key_)
+void DataMessage::Get(ReadBuffer& key_)
 {
+	type = DATAMESSAGE_GET;
 	key = key_;
-	value.Clear();
 }
 
-void DataMessage::Set(Buffer& key_, Buffer& value_)
+void DataMessage::Set(ReadBuffer& key_, ReadBuffer& value_)
 {
+	type = DATAMESSAGE_SET;
 	key = key_;
 	value = value_;
 }
@@ -33,7 +34,6 @@ bool DataMessage::Read(const ReadBuffer& buffer)
 		case DATAMESSAGE_SET:
 			read = buffer.Readf("%c:%M:%M",
 			 &type, &key, &value);
-			ASSERT_FAIL();
 			break;
 		default:
 			return false;

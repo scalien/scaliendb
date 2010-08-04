@@ -18,11 +18,6 @@ void ReplicatedLog::Init(QuorumContext* context_)
 	lastRequestChosenTime = 0;
 	lastRequestChosenPaxosID = 0;
 	
-//	lastStarted = EventLoop::Now();
-//	lastLength = 0;
-//	lastTook = 0;
-//	thruput = 0;
-		
 	logCache.Init(context->GetDatabase()->table);
 	enableMultiPaxos.Write("EnableMultiPaxos");
 }
@@ -124,7 +119,7 @@ void ReplicatedLog::OnProposeResponse(const PaxosMessage& imsg)
 void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 {
 	uint64_t		runID;
-	bool			commit;
+	bool			commit, ownAppend;
 	ReadBuffer		value;
 
 	Log_Trace();
@@ -164,6 +159,7 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 	if (context->GetHighestPaxosID() >= paxosID)
 		RequestChosen(imsg.nodeID);
 	
+	ownAppend = proposer.state.multi;
 	if (imsg.nodeID == RMAN->GetNodeID() && runID == RMAN->GetRunID() && context->IsLeader())
 	{
 		proposer.state.multi = true;
@@ -177,7 +173,9 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 
 	if (!MEMCMP(value.GetBuffer(), value.GetLength(),
 	 enableMultiPaxos.GetBuffer(), enableMultiPaxos.GetLength()))
-		context->OnAppend(value);
+	{
+		context->OnAppend(value, ownAppend);
+	}
 	TryAppendNextValue();
 }
 
@@ -206,19 +204,6 @@ void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
 //	}
 }
 
-//void ReplicatedLog::OnStartCatchup()
-//{
-//	Log_Trace();
-//
-//	if (pmsg.paxosID == GetPaxosID() &&
-//		replicatedDB != NULL &&
-//		!replicatedDB->IsCatchingUp() &&
-//		masterLease.IsLeaseKnown())
-//	{
-//		replicatedDB->OnDoCatchup(masterLease.GetLeaseOwner());
-//	}
-//}
-
 void ReplicatedLog::OnRequest(const PaxosMessage& imsg)
 {
 	Log_Trace();
@@ -244,20 +229,12 @@ void ReplicatedLog::OnRequest(const PaxosMessage& imsg)
 
 void ReplicatedLog::NewPaxosRound()
 {
-//	uint64_t now;
-//	now = EventLoop::Now();
-//	lastTook = ABS(now - lastStarted);
-//	lastLength = learner.state.value.length;
-//	thruput = (uint64_t)(lastLength / (lastTook / 1000.0));
-//	lastStarted = now;
-	
 	EventLoop::Remove(&(proposer.prepareTimeout));
 	EventLoop::Remove(&(proposer.proposeTimeout));
 
-	proposer.state.Init();
-
 	paxosID++;
-	acceptor.state.Init();
+	proposer.state.OnNewPaxosRound();
+	acceptor.state.OnNewPaxosRound();
 }
 
 void ReplicatedLog::OnLearnLease()
@@ -282,16 +259,6 @@ bool ReplicatedLog::IsAppending()
 	return context->IsLeader() && proposer.state.numProposals > 0;
 }
 
-//Transaction* ReplicatedLog::GetTransaction()
-//{
-//	return &acceptor.transaction;
-//}
-
-//bool ReplicatedLog::IsMultiRound()
-//{
-//	return proposer.state.multi;
-//}
-
 void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
 {
 	Log_Trace();
@@ -302,21 +269,6 @@ void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
 		RequestChosen(nodeID);
 	}
 }
-
-//uint64_t ReplicatedLog::GetLastRound_Length()
-//{
-//	return lastLength;
-//}
-//
-//uint64_t ReplicatedLog::GetLastRound_Time()
-//{
-//	return lastTook;
-//}
-//
-//uint64_t ReplicatedLog::GetLastRound_Thruput()
-//{
-//	return thruput;
-//}
 
 void ReplicatedLog::RequestChosen(uint64_t nodeID)
 {

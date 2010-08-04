@@ -15,6 +15,7 @@
 struct PaxosProposerState
 {
 	void			Init();
+	void			OnNewPaxosRound();
 	bool			Active();
 
 	bool			preparing;
@@ -36,6 +37,12 @@ struct PaxosProposerState
 
 inline void PaxosProposerState::Init()
 {
+	OnNewPaxosRound();
+	multi = false;
+}
+
+inline void PaxosProposerState::OnNewPaxosRound()
+{
 	preparing =	false;
 	proposing =	false;
 	proposalID = 0;
@@ -43,7 +50,6 @@ inline void PaxosProposerState::Init()
 	highestPromisedProposalID = 0;
 	proposedRunID = 0;
 	proposedValue.Clear();
-	multi = false;
 	numProposals = 0;
 }
 

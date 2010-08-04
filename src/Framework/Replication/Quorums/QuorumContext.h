@@ -22,25 +22,25 @@ class QuorumContext
 public:
 	virtual ~QuorumContext() {};
 
-	virtual bool					IsLeader()						= 0;	
-	virtual bool					IsLeaderKnown()					= 0;
-	virtual uint64_t				GetLeader()						= 0;
+	virtual bool					IsLeader()										= 0;	
+	virtual bool					IsLeaderKnown()									= 0;
+	virtual uint64_t				GetLeader()										= 0;
 
-	virtual void					OnLearnLease()					= 0;
-	virtual void					OnLeaseTimeout()				= 0;
+	virtual void					OnLearnLease()									= 0;
+	virtual void					OnLeaseTimeout()								= 0;
 
-	virtual uint64_t				GetContextID() const			= 0;
-	virtual void					SetPaxosID(uint64_t paxosID)	= 0;
-	virtual uint64_t				GetPaxosID() const				= 0;
-	virtual uint64_t				GetHighestPaxosID() const		= 0;
+	virtual uint64_t				GetContextID() const							= 0;
+	virtual void					SetPaxosID(uint64_t paxosID)					= 0;
+	virtual uint64_t				GetPaxosID() const								= 0;
+	virtual uint64_t				GetHighestPaxosID() const						= 0;
 
-	virtual Quorum*					GetQuorum()						= 0;
-	virtual QuorumDatabase*			GetDatabase()					= 0;
-	virtual QuorumTransport*		GetTransport()					= 0;
+	virtual Quorum*					GetQuorum()										= 0;
+	virtual QuorumDatabase*			GetDatabase()									= 0;
+	virtual QuorumTransport*		GetTransport()									= 0;
 	
-	virtual	void					OnAppend(ReadBuffer value)		= 0;
-	virtual Buffer*					GetNextValue()					= 0;
-	virtual void					OnMessage()						= 0;
+	virtual	void					OnAppend(ReadBuffer value, bool ownAppend)		= 0;
+	virtual Buffer*					GetNextValue()									= 0;
+	virtual void					OnMessage()										= 0;
 };
 
 #endif

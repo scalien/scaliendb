@@ -107,7 +107,7 @@ QuorumTransport* ControlConfigContext::GetTransport()
 	return &transport;
 }
 
-void ControlConfigContext::OnAppend(ReadBuffer value)
+void ControlConfigContext::OnAppend(ReadBuffer value, bool /*ownAppend*/)
 {
 	ConfigMessage msg;
 	msg.Read(value);

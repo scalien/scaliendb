@@ -34,10 +34,6 @@ public:
 	
 	void					OnLearnLease();
 	void					OnLeaseTimeout();
-//	bool					IsMultiRound();
-//	uint64_t				GetLastRound_Length();
-//	uint64_t				GetLastRound_Time();
-//	uint64_t				GetLastRound_Thruput();
 
 private:
 	void					Append(const Buffer& value);
@@ -60,15 +56,10 @@ private:
 
 	PaxosProposer			proposer;
 	PaxosAcceptor			acceptor;
-//	PaxosLearner			learner;
 
 	LogCache				logCache;
 	uint64_t				paxosID;
 	
-//	uint64_t				lastStarted;
-//	uint64_t				lastLength;
-//	uint64_t				lastTook;
-//	uint64_t				thruput;
 	uint64_t				lastRequestChosenTime;
 	uint64_t				lastRequestChosenPaxosID;
 };

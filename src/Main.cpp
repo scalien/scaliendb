@@ -105,7 +105,7 @@ int main(int argc, char** argv)
 		dataContext.SetContextID(1);
 		dataContext.SetDatabase(qdb); // TODO: hack
 		dataContext.SetTransport(chunkTransport);
-		dataContext.Start();
+		dataContext.Start(&dataNode);
 
 		httpServer.Init(configFile.GetIntValue("http.port", 8080));
 		httpServer.RegisterHandler(&dataNode);
