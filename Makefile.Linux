@@ -1,0 +1,17 @@
+#
+# Scalien Makefile for Linux
+#
+
+INCLUDE = \
+	-I$(KEYSPACE_DIR)/src \
+	-I/usr/include/db4.5 
+
+LDPATH = \
+
+BASE_CFLAGS = -Wall -fPIC $(INCLUDE) -DPLATFORM_$(PLATFORM_UCASE) -D__STDC_FORMAT_MACROS
+BASE_CXXFLAGS = $(BASE_CFLAGS)
+BASE_LDFLAGS = -lpthread -ldb_cxx -lrt $(LDPATH)
+SOLINK = -shared -fPIC -Wl,-soname,$(SONAME)
+SOEXT = so
+SWIG_LDFLAGS = -shared -fPIC 
+BUNDLEEXT = so

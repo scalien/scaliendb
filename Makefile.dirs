@@ -1,0 +1,21 @@
+$(BUILD_DIR):
+	-mkdir -p $(BUILD_DIR) \
+		$(BIN_DIR) \
+		$(BUILD_DIR)/Application/ \
+		$(BUILD_DIR)/Application/HTTP/ \
+		$(BUILD_DIR)/Application/Controller/ \
+		$(BUILD_DIR)/Application/DataNode/ \
+		$(BUILD_DIR)/Framework/Database/ \
+		$(BUILD_DIR)/Framework/Messaging/ \
+		$(BUILD_DIR)/Framework/TCP/ \
+		$(BUILD_DIR)/Framework/Replication/ \
+		$(BUILD_DIR)/Framework/Replication/Quorums \
+		$(BUILD_DIR)/Framework/Replication/PaxosLease \
+		$(BUILD_DIR)/Framework/Replication/PaxosLease\States \
+		$(BUILD_DIR)/Framework/Replication/Paxos \
+		$(BUILD_DIR)/Framework/Replication/ReplicatedLog \
+		$(BUILD_DIR)/System/ \
+		$(BUILD_DIR)/System/Buffers \
+		$(BUILD_DIR)/System/Containers/ \
+		$(BUILD_DIR)/System/Events/ \
+		$(BUILD_DIR)/System/IO/ \

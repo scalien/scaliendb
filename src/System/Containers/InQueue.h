@@ -1,7 +1,7 @@
 #ifndef INQUEUE_H
 #define INQUEUE_H
 
-#include "Common.h"
+#include "System/Common.h"
 
 /*
 ===============================================================================

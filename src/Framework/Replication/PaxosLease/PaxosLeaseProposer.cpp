@@ -1,7 +1,7 @@
 #include "PaxosLeaseProposer.h"
 #include "PaxosLease.h"
 #include "Framework/Replication/ReplicationManager.h"
-#include "Common.h"
+#include "System/Common.h"
 
 void PaxosLeaseProposer::Init(QuorumContext* context_)
 {

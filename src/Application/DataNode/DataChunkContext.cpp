@@ -1,5 +1,5 @@
 #include "DataChunkContext.h"
-#include "ReplicationManager.h"
+#include "Framework/Replication/ReplicationManager.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 #include "Application/DataNode/DataNode.h"

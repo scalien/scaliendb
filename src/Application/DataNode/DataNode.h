@@ -4,7 +4,7 @@
 #include "DataChunkContext.h"
 #include "Application/HTTP/HttpServer.h"
 #include "Application/HTTP/UrlParam.h"
-#include "ClusterMessage.h"
+#include "Application/Controller/ClusterMessage.h"
 #include "DataMessage.h"
 #include "DataService.h"
 

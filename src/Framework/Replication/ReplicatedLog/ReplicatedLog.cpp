@@ -1,5 +1,5 @@
 #include "ReplicatedLog.h"
-#include "ReplicationManager.h"
+#include "Framework/Replication/ReplicationManager.h"
 #include "System/Events/EventLoop.h"
 
 static Buffer enableMultiPaxos;

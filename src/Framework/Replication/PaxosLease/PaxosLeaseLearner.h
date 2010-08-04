@@ -5,8 +5,8 @@
 #include "System/Events/Timer.h"
 #include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/QuorumTransport.h"
+#include "Framework/Replication/PaxosLease/States/PaxosLeaseLearnerState.h"
 #include "PaxosLeaseMessage.h"
-#include "PaxosLeaseLearnerState.h"
 
 /*
 ===============================================================================
