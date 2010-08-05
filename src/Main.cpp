@@ -1,3 +1,4 @@
+#include "Version.h"
 #include "System/Config.h"
 #include "Framework/Database/Database.h"
 #include "Framework/Replication/ReplicationManager.h"
@@ -6,6 +7,37 @@
 #include "Application/DataNode/DataNode.h"
 #include "Application/DataNode/DataChunkContext.h"
 #include "Application/HTTP/HttpServer.h"
+
+#ifdef DEBUG
+#define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING " (DEBUG build date " __DATE__ " " __TIME__ ")"
+#else
+#define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING 
+#endif
+
+void InitLog()
+{
+	int logTargets;
+	
+	logTargets = 0;
+	if (configFile.GetListNum("log.targets") == 0)
+		logTargets = LOG_TARGET_STDOUT;
+	for (int i = 0; i < configFile.GetListNum("log.targets"); i++)
+	{
+		if (strcmp(configFile.GetListValue("log.targets", i, ""), "file") == 0)
+		{
+			logTargets |= LOG_TARGET_FILE;
+			Log_SetOutputFile(configFile.GetValue("log.file", NULL), 
+							configFile.GetBoolValue("log.truncate", false));
+		}
+		if (strcmp(configFile.GetListValue("log.targets", i, NULL), "stdout") == 0)
+			logTargets |= LOG_TARGET_STDOUT;
+		if (strcmp(configFile.GetListValue("log.targets", i, NULL), "stderr") == 0)
+			logTargets |= LOG_TARGET_STDERR;
+	}
+	Log_SetTarget(logTargets);
+	Log_SetTrace(configFile.GetBoolValue("log.trace", false));
+	Log_SetTimestamping(configFile.GetBoolValue("log.timestamping", false));
+}
 
 int main(int argc, char** argv)
 {
@@ -21,6 +53,7 @@ int main(int argc, char** argv)
 	QuorumTransport				chunkTransport;
 	Buffer						prefix;
 	HttpServer					httpServer;
+	int							httpPort;
 	Endpoint					endpoint;
 	uint64_t					nodeID;
 	uint64_t					runID;
@@ -36,12 +69,12 @@ int main(int argc, char** argv)
 	else
 		isController = true;
 
-	Log_SetTarget(LOG_TARGET_STDOUT);
-	Log_SetTrace(true);
-	Log_SetTimestamping(true);
+	InitLog();
+	Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "DATA");
 
 	IOProcessor::Init(1024);
 
+	Log_Message("Opening database...");
 	dbConfig.dir = configFile.GetValue("database.dir", DATABASE_CONFIG_DIR);
 	db.Init(dbConfig);
 
@@ -52,6 +85,11 @@ int main(int argc, char** argv)
 	runID++;
 	table->Set(NULL, "#runID", runID);
 	RMAN->SetRunID(runID);
+	if (runID == 1)
+		Log_Message("Database empty, first run");
+	else
+		Log_Message("Database opened, %u. run", (unsigned) runID);
+
 
 	if (isController)
 	{
@@ -68,7 +106,7 @@ int main(int argc, char** argv)
 		endpoint.Set(s);
 		RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
 	}
-
+	
 	unsigned numNodes = configFile.GetListNum("controllers");
 	for (unsigned i = 0; i < numNodes; i++)
 	{
@@ -101,7 +139,9 @@ int main(int argc, char** argv)
 		RMAN->GetTransport()->SetController(&controller); // TODO: hack
 		RMAN->AddContext(&configContext);
 
-		httpServer.Init(configFile.GetIntValue("http.port", 8080));
+		httpPort = configFile.GetIntValue("http.port", 8080);
+		Log_Message("HTTP Server listening on port %d", httpPort);
+		httpServer.Init(httpPort);
 		httpServer.RegisterHandler(&controller);
 	}
 	else
@@ -117,10 +157,14 @@ int main(int argc, char** argv)
 		dataContext.SetTransport(chunkTransport);
 		dataContext.Start(&dataNode);
 
-		httpServer.Init(configFile.GetIntValue("http.port", 8080));
+		httpPort = configFile.GetIntValue("http.port", 8080);
+		Log_Message("HTTP Server listening on port %d", httpPort);
+		httpServer.Init(httpPort);
 		httpServer.RegisterHandler(&dataNode);
 		RMAN->AddContext(&dataContext);
 	}
+
+	Log_Message("Running, NodeID: %u", (unsigned) RMAN->GetNodeID());
 	
 	EventLoop::Init();
 	EventLoop::Run();

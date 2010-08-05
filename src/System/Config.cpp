@@ -67,16 +67,16 @@ const char*	ConfigVar::GetValue()
 
 bool ConfigVar::GetBoolValue(bool defval)
 {
-	if (value.Cmp("yes") == 0 ||
-		value.Cmp("true") == 0 ||
-		value.Cmp("on") == 0)
+	if (value.Cmp("yes") ||
+		value.Cmp("true") ||
+		value.Cmp("on"))
 	{
 		return true;
 	}
 	
-	if (value.Cmp("no") == 0 ||
-		value.Cmp("false") == 0 ||
-		value.Cmp("off") == 0)
+	if (value.Cmp("no") ||
+		value.Cmp("false") ||
+		value.Cmp("off"))
 	{
 		return false;
 	}
