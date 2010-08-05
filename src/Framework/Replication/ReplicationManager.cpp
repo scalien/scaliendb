@@ -2,7 +2,7 @@
 #include "Framework/Replication/Quorums/QuorumContext.h"
 
 #define WIDTH_NODEID				16
-#define WIDTH_RESTART_COUNTER		16
+#define WIDTH_RUNID					16
 
 ReplicationManager* replicationManager = NULL;
 
@@ -17,6 +17,11 @@ ReplicationManager* ReplicationManager::Get()
 		replicationManager = new ReplicationManager();
 	
 	return replicationManager;
+}
+
+ReplicationManager::ReplicationManager()
+{
+	runID = 0;
 }
 
 ReplicationTransport* ReplicationManager::GetTransport()
@@ -34,11 +39,14 @@ uint64_t ReplicationManager::GetNodeID() const
 	return nodeID;
 }
 
+void ReplicationManager::SetRunID(uint64_t runID_)
+{
+	runID = runID_;
+}
+
 uint64_t ReplicationManager::GetRunID() const
 {
-	// TODO
-
-	return 0;
+	return runID;
 }
 
 void ReplicationManager::AddContext(QuorumContext* context)
@@ -61,14 +69,19 @@ uint64_t ReplicationManager::NextProposalID(uint64_t proposalID)
 {
 	// <proposal count since restart> <runID> <nodeID>
 	
+	assert(nodeID < (1 << WIDTH_NODEID));
+	assert(runID < (1 << WIDTH_RUNID));
+	
 	uint64_t left, middle, right, nextProposalID;
 	
-	left = proposalID >> (WIDTH_NODEID + WIDTH_RESTART_COUNTER);
+	left = proposalID >> (WIDTH_NODEID + WIDTH_RUNID);
 	left++;
-	left = left << (WIDTH_NODEID + WIDTH_RESTART_COUNTER);
+	left = left << (WIDTH_NODEID + WIDTH_RUNID);
 	middle = runID << WIDTH_NODEID;
 	right = nodeID;
 	nextProposalID = left | middle | right;
+	
+	assert(nextProposalID > proposalID);
 	
 	return nextProposalID;
 }

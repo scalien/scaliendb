@@ -507,7 +507,7 @@ void ProcessTCPRead(TCPRead* tcpread)
 	}
 	
 	if (tcpread->requested == IO_READ_ANY)
-		readlen = tcpread->buffer->GetSize() - tcpread->buffer->GetLength();
+		readlen = tcpread->buffer->GetRemaining();
 	else
 		readlen = tcpread->requested - tcpread->buffer->GetLength();
 	
@@ -515,7 +515,7 @@ void ProcessTCPRead(TCPRead* tcpread)
 		return;
 
 	nread = read(tcpread->fd,
-				 tcpread->buffer->GetBuffer() + tcpread->buffer->GetLength(),
+				 tcpread->buffer->GetPosition(),
 				 readlen);
 	
 	if (nread < 0)

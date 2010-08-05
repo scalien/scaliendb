@@ -29,6 +29,7 @@ public:
 
 	void					SetNodeID(uint64_t nodeID);
 	uint64_t				GetNodeID() const;
+	void					SetRunID(uint64_t runID);
 	uint64_t				GetRunID() const;
 	
 	void					AddContext(QuorumContext* context);
@@ -38,6 +39,8 @@ public:
 	
 private:
 	typedef HashMap<uint64_t, QuorumContext*> ContextMap;
+
+	ReplicationManager();
 
 	uint64_t				nodeID;
 	uint64_t				runID;

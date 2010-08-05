@@ -23,8 +23,10 @@ int main(int argc, char** argv)
 	HttpServer					httpServer;
 	Endpoint					endpoint;
 	uint64_t					nodeID;
+	uint64_t					runID;
 	bool						isController;
 	const char*					role;
+	Table*						table;
 	
 	randseed();
 	configFile.Init(argv[1]);
@@ -42,6 +44,14 @@ int main(int argc, char** argv)
 
 	dbConfig.dir = configFile.GetValue("database.dir", DATABASE_CONFIG_DIR);
 	db.Init(dbConfig);
+
+	// Initialize runID
+	runID = 0;
+	table = db.GetTable("system");
+	table->Get(NULL, "#runID", runID);
+	runID++;
+	table->Set(NULL, "#runID", runID);
+	RMAN->SetRunID(runID);
 
 	if (isController)
 	{
