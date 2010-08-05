@@ -2,6 +2,7 @@
 #include "System/Common.h"
 #include "System/Platform.h"
 #include "Framework/Replication/ReplicationManager.h"
+#include "Application/HTTP/HttpConsts.h"
 
 #define GET_NAMED_PARAM(params, name, var) \
 if (!params.GetNamed(name, sizeof("" name) - 1, var)) { return NULL; }
@@ -62,6 +63,8 @@ bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, 
 {
 	Buffer			buffer;
 
+	Log_Trace();
+
 	if (MatchString(cmd, cmdlen, STR_AND_LEN("")))
 	{
 		PrintHello(conn);
@@ -72,6 +75,8 @@ bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, 
 	{
 		ReadBuffer	key;
 		
+		Log_Trace("GET");
+	
 		GET_NAMED_PARAM(params, "key", key);
 
 		DataChunkContext*	context;
@@ -84,6 +89,8 @@ bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, 
 	{
 		ReadBuffer	key;
 		ReadBuffer	value;
+
+		Log_Trace("SET");
 		
 		GET_NAMED_PARAM(params, "key", key);
 		GET_NAMED_PARAM(params, "value", value);
@@ -117,8 +124,8 @@ void DataNode::PrintHello(HttpConn* conn)
 		buffer.Writef("ChunkID: 1\nNo primary, PaxosID: %U\n", context->GetPaxosID());
 	}
 
-	conn->Write(buffer.GetBuffer(), buffer.GetLength());
-	conn->Flush(true);
+	conn->Response(HTTP_STATUS_CODE_OK, buffer.GetBuffer(), buffer.GetLength());
+	//conn->Flush(true);
 }
 
 void DataNode::OnComplete(DataMessage* msg, bool status)
@@ -145,6 +152,6 @@ void DataNode::OnComplete(DataMessage* msg, bool status)
 	else
 		ASSERT_FAIL();
 
-	conn->Write(buffer.GetBuffer(), buffer.GetLength());
-	conn->Flush(true);
+	conn->Response(HTTP_STATUS_CODE_OK, buffer.GetBuffer(), buffer.GetLength());
+	//conn->Flush(true);
 }

@@ -119,7 +119,7 @@ unsigned Buffer::Appendf(const char* fmt, ...)
 void Buffer::Write(const char* buffer_, unsigned length_)
 {
 	if (length_ > size)
-		Allocate(length_);
+		Allocate(length + length_);
 	memcpy(buffer, buffer_, length_);
 	length = length_;
 }

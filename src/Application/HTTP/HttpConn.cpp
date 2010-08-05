@@ -140,6 +140,8 @@ int len, bool close, const char* header)
 				header ? header : "");
 
 	httpHeader->Append(data, len);
+	
+	Log_Trace("buffer = %.*s", P(httpHeader));
 	writer->WritePooled(httpHeader);
 	//Write(data, len);
 	Flush(true);
