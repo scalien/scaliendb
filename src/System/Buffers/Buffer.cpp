@@ -142,7 +142,7 @@ void Buffer::Write(const ReadBuffer& other)
 void Buffer::Append(const char* buffer_, unsigned length_)
 {
 	if (length_ > GetRemaining())
-		Allocate(length_);
+		Allocate(length + length_);
 	memcpy(GetPosition(), buffer_, length_);
 	Lengthen(length_);
 }
