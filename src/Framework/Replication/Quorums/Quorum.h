@@ -37,6 +37,8 @@ public:
 class QuorumVote
 {
 public:
+	virtual ~QuorumVote() {}
+	
 	virtual void				RegisterAccepted(uint64_t nodeID)	= 0;
 	virtual void				RegisterRejected(uint64_t nodeID)	= 0;
 	virtual void				Reset()								= 0;

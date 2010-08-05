@@ -7,6 +7,8 @@
 class MessageTransport
 {
 public:
+	virtual ~MessageTransport() {}
+
 	void				Init(uint64_t nodeID, Endpoint& endpoint);
 		
 	void				OnIncomingConnection(MessageConnection* conn);
