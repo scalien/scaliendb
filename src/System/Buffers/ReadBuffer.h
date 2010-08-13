@@ -18,16 +18,17 @@ class ReadBuffer
 public:
 	ReadBuffer();
 	
+	void				Set(char* buffer, unsigned length);
 	void				SetBuffer(char* buffer);
 	void				SetLength(unsigned length);
-	void				Wrap(const Buffer& buffer);
+	void				Wrap(Buffer& buffer);
 	
-	int					Readf(const char* format, ...) const;
+	int					Readf(const char* format, ...);
 
-	char*				GetBuffer() const;
-	unsigned			GetLength() const;
-	char				GetCharAt(unsigned i) const;
-	uint32_t			GetChecksum() const;
+	char*				GetBuffer();
+	unsigned			GetLength();
+	char				GetCharAt(unsigned i);
+	uint32_t			GetChecksum();
 	
 	void				Advance(unsigned i);
 	
