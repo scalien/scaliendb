@@ -18,7 +18,7 @@ class UrlParam
 public:
 	UrlParam();
 
-	bool			Init(const char* url, char sep);
+	bool			Init(const char* url, int len, char sep);
 
 	int				GetNumParams() const;
 
@@ -32,6 +32,7 @@ public:
 	
 private:
 	const char*		url;
+	int				len;
 	char			sep;
 	Buffer			params;
 	Buffer			buffer;

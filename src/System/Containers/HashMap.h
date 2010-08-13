@@ -43,9 +43,11 @@ public:
 	
 	void					Clear();
 	
-	V*						Get(K& key);
-	V*						Set(K& key, V& value);
+	V*						GetPtr(K& key);
+	bool					Get(K& key, V& value);
+	void					Set(K& key, V& value);
 
+	bool					HasKey(K& key);
 	void					Remove(K& key);
 
 	Node*					First();
@@ -99,7 +101,7 @@ void HashMap<K, V>::Clear()
 }
 
 template<class K, class V>
-V* HashMap<K, V>::Get(K& key)
+V* HashMap<K, V>::GetPtr(K& key)
 {
 	size_t	hash;
 	Node*	node;
@@ -115,7 +117,26 @@ V* HashMap<K, V>::Get(K& key)
 }
 
 template<class K, class V>
-V* HashMap<K, V>::Set(K& key, V& value)
+bool HashMap<K, V>::Get(K& key, V& value)
+{
+	size_t	hash;
+	Node*	node;
+	
+	hash = GetHash(key);
+	for (node = buckets[hash]; node; node = node->next)
+	{
+		if (node->key == key)
+		{
+			value = node->value;
+			return true;
+		}
+	}
+	
+	return false;
+}
+
+template<class K, class V>
+void HashMap<K, V>::Set(K& key, V& value)
 {
 	size_t	hash;
 	Node*	node;
@@ -126,7 +147,7 @@ V* HashMap<K, V>::Set(K& key, V& value)
 		if (node->key == key)
 		{
 			node->value = value;
-			return &node->value;
+			return;
 		}
 	}
 	
@@ -139,7 +160,16 @@ V* HashMap<K, V>::Set(K& key, V& value)
 	num++;
 	
 	// TODO resize if too small
-	return &node->value;
+	return;
+}
+
+template<class K, class V>
+bool HashMap<K, V>::HasKey(K& key)
+{
+	if (GetPtr(key))
+		return true;
+		
+	return false;
 }
 
 template<class K, class V>

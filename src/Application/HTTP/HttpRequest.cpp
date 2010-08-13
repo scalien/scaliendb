@@ -26,8 +26,8 @@ int HttpRequest::Parse(char* buf, int len)
 	if (state == REQUEST_LINE)
 	{
 		reqPos = line.Parse(buf, len, 0);
-		if (reqPos < 0)
-			return 0;
+		if (reqPos <= 0)
+			return reqPos;
 		
 		pos = reqPos;
 		state = HEADER;
@@ -36,8 +36,8 @@ int HttpRequest::Parse(char* buf, int len)
 	if (state == HEADER)
 	{
 		headPos = header.Parse(buf, len, pos);
-		if (headPos < 0)
-			return -1;
+		if (headPos <= 0)
+			return headPos;
 		if (headPos >= len)
 			return -1;
 		

@@ -171,19 +171,17 @@ void Database::Shutdown()
 
 Table* Database::GetTable(const char* name)
 {
-    Table** ptable;
     Table*  table;
     
-    ptable = tableMap.Get(name);
-    if (ptable == NULL)
+    if (!tableMap.Get(name, table))
     {
         // TODO: better error handling, preferably with a Table::Open function
         table = new Table(this, name, config.pageSize);
         tableMap.Set(name, table);
         return table;
     }
-    
-	return *ptable;
+	
+	return table;
 }
 
 void Database::OnCheckpointTimeout()

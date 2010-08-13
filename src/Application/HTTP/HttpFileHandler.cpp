@@ -31,10 +31,10 @@ bool HttpFileHandler::HandleRequest(HttpConn* conn, const HttpRequest& request)
 	size_t			fsize;
 	const char*		mimeType;
 	
-	if (strncmp(request.line.uri, prefix, strlen(prefix)))
+	if (strncmp(request.line.uri.GetBuffer(), prefix, strlen(prefix)))
 		return false;
 	
-	path.Writef("%s%s", documentRoot, request.line.uri);
+	path.Writef("%s%R", documentRoot, &request.line.uri);
 	path.NullTerminate();
 	
 	mimeType = MimeTypeFromExtension(strrchr(path.GetBuffer(), '.'));

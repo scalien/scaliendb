@@ -39,8 +39,18 @@ void HttpConn::OnRead()
 	
 	len = Parse(tcpread.buffer->GetBuffer(), tcpread.buffer->GetLength());
 
-	if (len < 0)
+	if (len == 0)
+	{
+		if (tcpread.buffer->GetSize() > 1*MB)
+		{
+			Flush(); // closes the connection
+			return;
+		}
+			
+		tcpread.offset = tcpread.buffer->GetLength();
+		tcpread.buffer->Allocate(2 * tcpread.buffer->GetLength());
 		IOProcessor::Add(&tcpread);
+	}
 }
 
 
@@ -121,12 +131,14 @@ int len, bool close, const char* header)
 	Buffer		*httpHeader;
 	unsigned	size;
 
-	Log_Message("[%s] HTTP: %s %s %d %d", endpoint.ToString(),
-				request.line.method, request.line.uri, code, len);
+	Log_Message("[%s] HTTP: %.*s %.*s %d %d", endpoint.ToString(),
+				request.line.method.GetLength(), request.line.method.GetBuffer(), 
+				request.line.uri.GetLength(), request.line.uri.GetBuffer(),
+				code, len);
 
 	httpHeader = writer->AcquireBuffer();
 	size = httpHeader->Writef(
-				"%s %d %s" CS_CRLF
+				"%R %d %s" CS_CRLF
 				"Accept-Range: bytes" CS_CRLF
 				"Content-Length: %d" CS_CRLF
 				"Cache-Control: no-cache" CS_CRLF
@@ -134,7 +146,8 @@ int len, bool close, const char* header)
 				"%s"
 				CS_CRLF
 				, 
-				request.line.version, code, Status(code),
+				&request.line.version,
+				code, Status(code),
 				len,
 				close ? "Connection: close" CS_CRLF : "",
 				header ? header : "");
@@ -151,19 +164,22 @@ void HttpConn::ResponseHeader(int code, bool close, const char* header)
 {
 	Buffer*		httpHeader;
 
-	Log_Message("[%s] HTTP: %s %s %d ?",
-				endpoint.ToString(), request.line.method,
-				request.line.uri, code);
+	Log_Message("[%s] HTTP: %.*s %.*s %d ?",
+				endpoint.ToString(), 
+				request.line.method.GetLength(), request.line.method.GetBuffer(),
+				request.line.uri.GetLength(), request.line.uri.GetBuffer(),
+				code);
 
 	httpHeader = writer->AcquireBuffer();
 	httpHeader->Writef(
-				"%s %d %s" CS_CRLF
+				"%R %d %s" CS_CRLF
 				"Cache-Control: no-cache" CS_CRLF
 				"%s"
 				"%s"
 				CS_CRLF
 				, 
-				request.line.version, code, Status(code),
+				&request.line.version,
+				code, Status(code),
 				close ? "Connection: close" CS_CRLF : "",
 				header ? header : "");
 

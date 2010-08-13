@@ -22,9 +22,10 @@ UrlParam::UrlParam()
 	numParams = 0;
 }
 
-bool UrlParam::Init(const char* url_, char sep_)
+bool UrlParam::Init(const char* url_, int len_, char sep_)
 {
 	url = url_;
+	len = len_;
 	sep = sep_;
 
 	numParams = 0;
@@ -103,11 +104,9 @@ bool UrlParam::GetNamed(const char* name, int namelen, ReadBuffer& bs) const
 
 bool UrlParam::Parse()
 {
-	size_t		len;
 	const char*	s;
 	const char*	start;
 	
-	len = strlen(url);
 	buffer.Allocate(len + 1, false);
 	
 	s = start = url;

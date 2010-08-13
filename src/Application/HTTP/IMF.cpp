@@ -13,148 +13,200 @@
 #define strncasecmp _strnicmp
 #endif
 
-static char* SkipWhitespace(char* p, int len)
+// The return values for Skip and Seek functions are the following:
+//
+// -1	error
+// 0	not enough data or not found
+// else	the position after the operation
+static int SkipWhitespace(char* start, int len)
 {
+	char *p;
+	
+	p = start;
+	
 	if (!p)
-		return NULL;
+		return -1;
 
 	if (len <= 0)
-		return NULL;
+		return -1;
 
 	while (p && *p && *p <= ' ')
 	{
-		if (--len == 0)
-			return NULL;
-
 		p++;
+
+		if (p - start == len)
+			return 0;
 	}
 	
 	if (!*p)
-		return NULL;
+		return -1;
 	
-	return p;	
+	return p - start;	
 }
 
-static char* SeekWhitespace(char* p, int len)
+static int SeekWhitespace(char* start, int len)
 {
+	char *p;
+	
+	p = start;
+	
 	if (!p)
-		return NULL;
+		return -1;
 	
 	if (len <= 0)
-		return NULL;
+		return -1;
 	
 	while (p && *p && *p != ' ')
 	{
-		if (--len == 0)
-			return NULL;
-
 		p++;
+
+		if (p - start == len)
+			return 0;
+
 	}
 	
 	if (!*p)
-		return NULL;
+		return -1;
 	
-	return p;	
+	return p - start;
 }
 
-static char* SkipCrlf(char* p, int len)
+static int SkipCrlf(char* start, int len)
 {
-	if (!p)
-		return NULL;
+	char*	p;
 	
+	p = start;
+	
+	if (!p)
+		return -1;
+	
+	if (len < 0)
+		return -1;
+		
 	if (len < 2)
-		return NULL;
+		return 0;
 	
 	while (*p && (*p == CS_CR[0] || *p == CS_LF[0]))
 	{
-		if (--len == 0)
-			return NULL;
-
 		p++;
+
+		if (p - start == len)
+			return 0;
+
 	}
 	
 	if (!*p)
-		return NULL;
+		return -1;
 	
-	return p;	
+	return p - start;
 }
 
-static char* SeekCrlf(char* p, int len)
+static int SeekCrlf(char* start, int len)
 {
+	char*	p;
+	
+	p = start;
+	
 	if (!p)
-		return NULL;
+		return -1;
+	
+	if (len < 0)
+		return -1;
 	
 	if (len < 2)
-		return NULL;
+		return 0;
 	
 	while (*p && (p[0] != CS_CR[0] && p[1] != CS_LF[0]))
 	{
-		if (--len == 0)
-			return NULL;
-
 		p++;
+
+		if (p - start == len)
+			return 0;
 	}
 	
 	if (!*p)
-		return NULL;
+		return -1;
 	
-	return p;	
+	return p - start;	
 }
 
-static char* SeekChar(char* p, int len, char c)
+static int SeekChar(char* start, int len, char c)
 {
+	char*	p;
+	
+	p = start;
+	
 	if (!p)
-		return NULL;
+		return -1;
+	
+	if (len < 0)
+		return -1;
 	
 	if (len < 1)
-		return NULL;
+		return 0;
 	
 	while (*p && *p != c)
 	{
-		if (--len == 0)
-			return NULL;
-		
 		p++;
+
+		if (p - start == len)
+			return 0;
+		
 	}
 	
 	if (!*p)
-		return NULL;
+		return -1;
 	
-	return p;
+	return p - start;
 }
 
-static int LineParse(char* buf, int len, int offs, const char** values[3])
+static int LineParse(char* buf, int len, ReadBuffer* buffers[3])
 {
-	char* p;
+	char*	p;
+	int		pos;
 
 #define remlen (len - (p - buf))
 	// p is set so that in remlen it won't be uninitialized
-	p = buf;	
-	p = SkipWhitespace(buf + offs, remlen);
+	p = buf;
+	pos = 0;
 	
-	*values[0] = p;
-	p = SeekWhitespace(p, remlen);
-	if (!p) return -1;
+	p += pos;
+	pos = SkipWhitespace(p, remlen);
+	if (pos < 0)
+		return pos;
 	
-	*p++ = '\0';
-	p = SkipWhitespace(p, remlen);
-	if (!p) return -1;
+	p += pos;
+	pos = SeekWhitespace(p, remlen);
+	if (pos <= 0) 
+		return pos;
 	
-	*values[1] = p;
-	p = SeekWhitespace(p, remlen);
-	if (!p) return -1;
+	buffers[0]->Set(p, pos);
+
+	p += pos;
+	pos = SkipWhitespace(p, remlen);
+	if (pos <= 0)
+		return pos;
 	
-	*p++ = '\0';
-	p = SkipWhitespace(p, remlen);
-	if (!p) return -1;
+	p += pos;
+	pos = SeekWhitespace(p, remlen);
+	if (pos <= 0)
+		return pos;
+
+	buffers[1]->Set(p, pos);
+
+	p += pos;
+	pos = SkipWhitespace(p, remlen);
+	if (pos <= 0) 
+		return pos;
 	
-	*values[2] = p;
-	p = SeekCrlf(p, remlen);
-	if (!p) return -1;
-	
-	*p = '\0';
-	p += 2;
-	
+	p += pos;
+	pos = SeekCrlf(p, remlen);
+	if (pos <= 0)
+		return pos;
+
+	buffers[2]->Set(p, pos);
+
+	p += pos;		
 	return (int) (p - buf);	
 
 #undef remlen
@@ -162,24 +214,24 @@ static int LineParse(char* buf, int len, int offs, const char** values[3])
 
 int IMFHeader::RequestLine::Parse(char* buf, int len, int offs)
 {
-	const char** values[3];
+	ReadBuffer*	buffers[3];
 	
-	values[0] = &method;
-	values[1] = &uri;
-	values[2] = &version;
+	buffers[0] = &method;
+	buffers[1] = &uri;
+	buffers[2] = &version;
 	
-	return LineParse(buf, len, offs, values);
+	return LineParse(buf + offs, len, buffers);
 }
 
 int IMFHeader::StatusLine::Parse(char* buf, int len, int offs)
 {
-	const char** values[3];
+	ReadBuffer*	buffers[3];
 	
-	values[0] = &version;
-	values[1] = &code;
-	values[2] = &reason;
-	
-	return LineParse(buf, len, offs, values);
+	buffers[0] = &version;
+	buffers[1] = &code;
+	buffers[2] = &reason;
+		
+	return LineParse(buf + offs, len, buffers);
 }
 
 IMFHeader::IMFHeader()
@@ -215,6 +267,7 @@ int IMFHeader::Parse(char* buf, int len, int offs)
 	int nkv = numKeyval;
 	KeyValue* keyvalue;
 	int keylen;
+	int pos;
 
 // macro for calculating remaining length
 #define remlen ((int) (len - (p - buf)))
@@ -222,47 +275,44 @@ int IMFHeader::Parse(char* buf, int len, int offs)
 	data = buf;
 	
 	p = buf + offs;
-	p = SkipCrlf(p, remlen);
-	if (!p)
-		return -1;
+	pos = SkipCrlf(p, remlen);
+	if (pos <= 0)
+		return pos;
+	
+	p += pos;
 	
 	while (p < buf + len) {
-		key = p;
-		p = SeekChar(p, remlen, ':');
-		
-		if (p)
-		{
-			keylen = (int) (p - key);
-			
-			*p++ = '\0';
-			p = SkipWhitespace(p, remlen);
-			
-			value = p;
-			p = SeekCrlf(p, remlen);
-			if (p)
-			{
-				keyvalue = GetKeyValues(nkv);
-				
-				keyvalue[nkv].keyStart = (int) (key - buf);
-				keyvalue[nkv].keyLength = keylen;
-				keyvalue[nkv].valueStart = (int) (value - buf);
-				keyvalue[nkv].valueLength = (int) (p - value);
-				nkv++;
-
-				*p = '\0';
-				p += 2;
-			}
-			else
-			{
-				p = key;
-				break;
-			}
-		}
-		else
-		{
-			p = key;
+		if (remlen == 2 && p[0] == CR && p[1] == LF)
 			break;
-		}
+		
+		key = p;
+		pos = SeekChar(p, remlen, ':');
+		
+		if (pos <= 0)
+			return pos;
+
+		keylen = pos;
+		p += pos + 1;	// skip colon
+		
+		pos = SkipWhitespace(p, remlen);
+		if (pos <= 0)
+			return pos;
+		
+		p += pos;
+		value = p;
+		pos = SeekCrlf(p, remlen);
+		if (pos <= 0)
+			return pos;
+		
+		keyvalue = GetKeyValues(nkv);
+		
+		keyvalue[nkv].keyStart = (int) (key - buf);
+		keyvalue[nkv].keyLength = keylen;
+		keyvalue[nkv].valueStart = (int) (value - buf);
+		keyvalue[nkv].valueLength = pos;
+		nkv++;
+
+		p += pos + 2;	// skip CRLF
 	}
 	
 	numKeyval = nkv;

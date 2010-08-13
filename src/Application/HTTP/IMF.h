@@ -1,6 +1,8 @@
 #ifndef IMF_H
 #define IMF_H
 
+#include "System/Buffers/ReadBuffer.h"
+
 /*
 ===============================================================================
 
@@ -25,12 +27,15 @@ public:
 	class RequestLine
 	{
 	public:
-		const char*	method;
-		int			methodLen;
-		const char* uri;
-		int			uriLen;
-		const char* version;
-		int			versionLen;
+//		const char*	method;
+//		int			methodLen;
+//		const char* uri;
+//		int			uriLen;
+//		const char* version;
+//		int			versionLen;
+		ReadBuffer	method;
+		ReadBuffer	uri;
+		ReadBuffer	version;
 		
 		int Parse(char* buf, int len, int offs);
 	};
@@ -38,12 +43,15 @@ public:
 	class StatusLine
 	{
 	public:
-		const char* version;
-		int			versionLen;
-		const char* code;
-		int			codeLen;
-		const char* reason;
-		int			reasonLen;
+//		const char* version;
+//		int			versionLen;
+//		const char* code;
+//		int			codeLen;
+//		const char* reason;
+//		int			reasonLen;
+		ReadBuffer	version;
+		ReadBuffer	code;
+		ReadBuffer	reason;
 		
 		int Parse(char* buf, int len, int offs);
 	};

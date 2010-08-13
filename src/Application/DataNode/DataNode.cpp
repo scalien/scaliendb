@@ -28,22 +28,22 @@ bool DataNode::HandleRequest(HttpConn* conn, const HttpRequest& request)
 	unsigned	cmdlen;
 	UrlParam	params;
 
-	pos = (char*) request.line.uri;
+	pos = (char*) request.line.uri.GetBuffer();
 	if (*pos == '/') 
 		pos++;
 	
 //	pos = ParseType(pos);
-	qmark = strchr(pos, '?');
+	qmark = strnchr(pos, '?', request.line.uriLen - 1);
 	if (qmark)
 	{
-		params.Init(qmark + 1, '&');
+		params.Init(qmark + 1, request.line.uriLen - 2, '&');
 //		if (type == JSON) 
 //			GET_NAMED_OPT_PARAM(params, "callback", jsonCallback);
 			
 		cmdlen = qmark - pos;
 	}
 	else
-		cmdlen = strlen(pos);
+		cmdlen = request.line.uriLen - 1;
 
 	return ProcessCommand(conn, pos, cmdlen, params);
 }

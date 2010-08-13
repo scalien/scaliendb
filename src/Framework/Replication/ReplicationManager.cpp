@@ -57,12 +57,13 @@ void ReplicationManager::AddContext(QuorumContext* context)
 
 QuorumContext* ReplicationManager::GetContext(uint64_t contextID)
 {
-	QuorumContext** pcontext;
+	QuorumContext* pcontext;
 	
-	pcontext = contextMap.Get(contextID);
-	assert(pcontext != NULL);
+	assert(contextMap.HasKey(contextID));
+	pcontext = NULL;
+	contextMap.Get(contextID, pcontext);
 	
-	return *pcontext;
+	return pcontext;
 }
 
 uint64_t ReplicationManager::NextProposalID(uint64_t proposalID)
