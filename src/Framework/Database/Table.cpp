@@ -28,9 +28,9 @@ database(database)
 	if (db->open(txnid, filename, dbname, type, flags, mode) != 0)
 	{
 		db->close(0);
-		if (isdir(filename))
+		if (IsDirectory(filename))
 		{
-			STOP_FAIL(rprintf(
+			STOP_FAIL(StaticPrint(
 					  "Could not create database file '%s' "
 					  "because a folder '%s' exists",
 					  filename, filename), 1);
@@ -119,7 +119,7 @@ bool Table::Get(Transaction* tx, const char* key, uint64_t& value)
 	if (!Get(tx, key, buffer))
 		return false;
 	
-	value = strntouint64(buffer.GetBuffer(), buffer.GetLength(), &nread);
+	value = BufferToUInt64(buffer.GetBuffer(), buffer.GetLength(), &nread);
 	
 	if (nread != buffer.GetLength())
 		return false;

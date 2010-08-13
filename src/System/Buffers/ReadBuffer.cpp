@@ -17,35 +17,35 @@ void ReadBuffer::SetLength(unsigned length_)
 	length = length_;
 }
 
-void ReadBuffer::Wrap(const Buffer& buffer_)
+void ReadBuffer::Wrap(Buffer& buffer_)
 {
 	buffer = buffer_.GetBuffer();
 	length = buffer_.GetLength();
 }
 
-int ReadBuffer::Readf(const char* format, ...) const
+int ReadBuffer::Readf(const char* format, ...)
 {
 	int			read;
 	va_list		ap;
 	
 	va_start(ap, format);
-	read = vsnreadf(buffer, length, format, ap);
+	read = VReadf(buffer, length, format, ap);
 	va_end(ap);
 	
 	return read;
 }
 
-char* ReadBuffer::GetBuffer() const
+char* ReadBuffer::GetBuffer()
 {
 	return buffer;
 }
 
-unsigned ReadBuffer::GetLength() const
+unsigned ReadBuffer::GetLength()
 {
 	return length;
 }
 
-char ReadBuffer::GetCharAt(unsigned i) const
+char ReadBuffer::GetCharAt(unsigned i)
 {
 	if (i > length - 1)
 		ASSERT_FAIL();
@@ -53,9 +53,9 @@ char ReadBuffer::GetCharAt(unsigned i) const
 	return *(buffer + i);
 }
 
-uint32_t ReadBuffer::GetChecksum() const
+uint32_t ReadBuffer::GetChecksum()
 {
-	return checksum(buffer, length);
+	return ChecksumBuffer(buffer, length);
 }
 
 void ReadBuffer::Advance(unsigned i)

@@ -41,7 +41,7 @@ int ConfigVar::GetIntValue(int)
 	unsigned	nread;
 	char		last;
 	
-	ret = (int) strntoint64(value.GetBuffer(), value.GetLength(), &nread);
+	ret = (int) BufferToInt64(value.GetBuffer(), value.GetLength(), &nread);
 
 	// value is zero-terminated so we need the second char from the back
 	if (nread == value.GetLength() - 2)

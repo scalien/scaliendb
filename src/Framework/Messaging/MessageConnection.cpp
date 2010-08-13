@@ -113,13 +113,13 @@ void MessageConnection::OnRead()
 
 	while(true)
 	{
-		msglength = strntouint64(tcpread.buffer->GetBuffer() + pos,
+		msglength = BufferToUInt64(tcpread.buffer->GetBuffer() + pos,
 		 tcpread.buffer->GetLength() - pos, &nread);
 		
-		if (msglength > tcpread.buffer->GetSize() - numlen(msglength) - 1)
+		if (msglength > tcpread.buffer->GetSize() - NumDigits(msglength) - 1)
 		{
 			Log_Trace();
-			required = msglength + numlen(msglength) + 1;
+			required = msglength + NumDigits(msglength) + 1;
 			if (required > 10*MB)
 			{
 				Log_Trace();

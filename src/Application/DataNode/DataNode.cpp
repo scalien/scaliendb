@@ -13,7 +13,7 @@ void DataNode::Init(Table* table_)
 	
 	if (!table->Get(NULL, "#nodeID", nodeID))
 	{
-		nodeID = randint(0, 64000); //gen_uuid();
+		nodeID = RandomInt(0, 64000); //gen_uuid();
 		Log_Trace("%" PRIu64, nodeID);
 		table->Set(NULL, "#nodeID", nodeID);
 	}

@@ -65,7 +65,7 @@ int Buffer::Readf(const char* format, ...) const
 	va_list		ap;
 	
 	va_start(ap, format);
-	read = vsnreadf(buffer, length, format, ap);
+	read = VReadf(buffer, length, format, ap);
 	va_end(ap);
 	
 	return read;
@@ -79,7 +79,7 @@ unsigned Buffer::Writef(const char* fmt, ...)
 	while (true)
 	{
 		va_start(ap, fmt);
-		required = vsnwritef(buffer, size, fmt, ap);
+		required = VWritef(buffer, size, fmt, ap);
 		va_end(ap);
 		
 		if (required <= size)
@@ -102,7 +102,7 @@ unsigned Buffer::Appendf(const char* fmt, ...)
 	while (true)
 	{
 		va_start(ap, fmt);
-		required = vsnwritef(GetPosition(), GetRemaining(), fmt, ap);
+		required = VWritef(GetPosition(), GetRemaining(), fmt, ap);
 		va_end(ap);
 		
 		// snwritef returns number of bytes required
@@ -129,12 +129,12 @@ void Buffer::Write(const char* str)
 	Write(str, strlen(str));
 }
 
-void Buffer::Write(const Buffer& other)
+void Buffer::Write(Buffer& other)
 {
 	Write(other.GetBuffer(), other.GetLength());
 }
 
-void Buffer::Write(const ReadBuffer& other)
+void Buffer::Write(ReadBuffer& other)
 {
 	Write(other.GetBuffer(), other.GetLength());
 }
@@ -152,12 +152,12 @@ void Buffer::Append(const char* str)
 	Append(str, strlen(str));
 }
 
-void Buffer::Append(const Buffer& other)
+void Buffer::Append(Buffer& other)
 {
 	Append(other.GetBuffer(), other.GetLength());
 }
 
-void Buffer::Append(const ReadBuffer& other)
+void Buffer::Append(ReadBuffer& other)
 {
 	Append(other.GetBuffer(), other.GetLength());
 }
@@ -181,32 +181,32 @@ void Buffer::Init()
 	length = 0;
 }
 
-unsigned Buffer::GetSize() const
+unsigned Buffer::GetSize()
 {
 	return size;
 }
 
-char* Buffer::GetBuffer() const
+char* Buffer::GetBuffer()
 {
 	return buffer;
 }
 
-unsigned Buffer::GetLength() const
+unsigned Buffer::GetLength()
 {
 	return length;
 }
 
-unsigned Buffer::GetRemaining() const
+unsigned Buffer::GetRemaining()
 {
 	return size - length;
 }
 
-char* Buffer::GetPosition() const
+char* Buffer::GetPosition()
 {
 	return buffer + length;
 }
 
-char Buffer::GetCharAt(unsigned i) const
+char Buffer::GetCharAt(unsigned i)
 {
 	if (i > length - 1)
 		ASSERT_FAIL();
@@ -214,9 +214,9 @@ char Buffer::GetCharAt(unsigned i) const
 	return *(buffer + i);
 }
 
-uint32_t Buffer::GetChecksum() const
+uint32_t Buffer::GetChecksum()
 {
-	return checksum(buffer, length);
+	return ChecksumBuffer(buffer, length);
 }
 
 void Buffer::Clear()

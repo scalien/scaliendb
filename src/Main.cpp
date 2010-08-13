@@ -61,7 +61,7 @@ int main(int argc, char** argv)
 	const char*					role;
 	Table*						table;
 	
-	randseed();
+	SeedRandom();
 	configFile.Init(argv[1]);
 	role = configFile.GetValue("role", "data");
 	if (strcmp(role, "data") == 0)

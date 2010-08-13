@@ -9,7 +9,7 @@ class LogCache
 public:
 	void			Init(Table* table);
 	
-	void			Set(uint64_t paxosID, const ReadBuffer& value, bool commit);
+	void			Set(uint64_t paxosID, ReadBuffer& value, bool commit);
 	void			Get(uint64_t paxosID, Buffer& value);
 	
 private:

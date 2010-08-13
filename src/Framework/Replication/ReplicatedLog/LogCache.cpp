@@ -5,7 +5,7 @@ void LogCache::Init(Table* table_)
 	table = table_;
 }
 
-void LogCache::Set(uint64_t paxosID, const ReadBuffer& value, bool commit)
+void LogCache::Set(uint64_t paxosID, ReadBuffer& value, bool commit)
 {
 	Buffer key;
 	

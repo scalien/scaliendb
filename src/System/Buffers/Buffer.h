@@ -38,25 +38,25 @@ public:
 	
 	void				Write(const char* buffer_, unsigned length_);
 	void				Write(const char* str);
-	void				Write(const Buffer& other);
-	void				Write(const ReadBuffer& other);
+	void				Write(Buffer& other);
+	void				Write(ReadBuffer& other);
 
 	void				Append(const char* buffer_, unsigned length_);
 	void				Append(const char* str);
-	void				Append(const Buffer& other);
-	void				Append(const ReadBuffer& other);
+	void				Append(Buffer& other);
+	void				Append(ReadBuffer& other);
 	void				NullTerminate();
 
 	void				SetLength(unsigned length_);
 
 	void				Init();
-	unsigned			GetSize() const;
-	char*				GetBuffer() const;
-	unsigned			GetLength() const;
-	unsigned			GetRemaining() const;
-	char*				GetPosition() const;
-	char				GetCharAt(unsigned i) const;
-	uint32_t			GetChecksum() const;
+	unsigned			GetSize();
+	char*				GetBuffer();
+	unsigned			GetLength();
+	unsigned			GetRemaining();
+	char*				GetPosition();
+	char				GetCharAt(unsigned i);
+	uint32_t			GetChecksum();
 	
 	void				Clear();
 

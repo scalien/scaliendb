@@ -141,7 +141,7 @@ uint64_t QuorumDatabase::GetUint64(const char* name)
 		return false;
 
 	nread = 0;
-	u64 = strntouint64(value.GetBuffer(), value.GetLength(), &nread);
+	u64 = BufferToUInt64(value.GetBuffer(), value.GetLength(), &nread);
 	if (nread != value.GetLength())
 	{
 		Log_Trace();

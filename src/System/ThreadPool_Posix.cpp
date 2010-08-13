@@ -50,7 +50,7 @@ void* ThreadPool_Pthread::thread_function(void* param)
 {
 	ThreadPool_Pthread* tp = (ThreadPool_Pthread*) param;
 	
-	blocksigs();
+	BlockSignals();
 	tp->ThreadFunction();
 	
 	// pthread_exit should be called for cleanup, instead it creates
