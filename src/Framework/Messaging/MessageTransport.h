@@ -11,13 +11,7 @@ public:
 
 	void				Init(uint64_t nodeID, Endpoint& endpoint);
 		
-	void				OnIncomingConnection(MessageConnection* conn);
-	void				OnOutgoingConnection(MessageConnection* conn);
-	void				OnClose(MessageConnection* conn);
-	void				OnRead(MessageConnection* conn, ReadBuffer msg);
-
 	void				AddEndpoint(uint64_t nodeID, Endpoint endpoint);
-	unsigned			GetNumEndpoints();
 
 	void				SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
 	void				SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
@@ -25,14 +19,20 @@ public:
 	virtual void		OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)	= 0;
 	virtual void		OnMessage(ReadBuffer msg)										= 0;
 
+	uint64_t			GetNodeID();
+	Endpoint&			GetEndpoint();
+
 private:
-	Node*				GetNode(uint64_t nodeID);
-	void				DeleteNode(Node* node);
-	
-	InList<Node>		nodes;
-	MessageServer		server;
-	uint64_t			selfNodeID;
-	Endpoint			selfEndpoint;
+	void				AddConnection(MessageConnection* conn);
+	MessageConnection*	GetConnection(uint64_t nodeID);
+	void				DeleteConnection(MessageConnection* conn);
+
+	InList<MessageConnection>	conns;
+	MessageServer				server;
+	uint64_t					nodeID;
+	Endpoint					endpoint;
+
+	friend class MessageConnection;
 };
 
 #endif

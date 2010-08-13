@@ -10,7 +10,6 @@ void MessageServer::InitConn(MessageConnection* conn)
 {
 	conn->SetTransport(transport);
 	conn->InitConnected();
-	transport->OnIncomingConnection(conn);
 }
 
 void MessageServer::SetTransport(MessageTransport* transport_)

@@ -4,9 +4,9 @@
 TCPConnection::TCPConnection()
 {
 	state = DISCONNECTED;
-	next = NULL;
-	connectTimeout.SetCallable(MFUNC(TCPConnection, OnConnectTimeout));
+ 	connectTimeout.SetCallable(MFUNC(TCPConnection, OnConnectTimeout));
 	writer = new TCPWriter(this);
+	next = prev = this;
 }
 
 TCPConnection::~TCPConnection()
