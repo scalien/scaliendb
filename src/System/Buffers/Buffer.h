@@ -24,30 +24,30 @@ public:
 	~Buffer();
 	
 	static bool			Cmp(Buffer& a, Buffer& b);
-	bool				Cmp(const char* buffer_, unsigned length_);
+	bool				Cmp(const char* buffer, unsigned length_);
 	bool				Cmp(const char* str);
 
 	void				Lengthen(unsigned k);
 	void				Shorten(unsigned k);
 	
-	void				Allocate(unsigned size_, bool keepold = true);
+	void				Allocate(unsigned size, bool keepold = true);
 
 	int					Readf(const char* format, ...) const;
 	unsigned			Writef(const char* fmt, ...);
 	unsigned			Appendf(const char* fmt, ...);
 	
-	void				Write(const char* buffer_, unsigned length_);
+	void				Write(const char* buffer, unsigned length);
 	void				Write(const char* str);
 	void				Write(Buffer& other);
 	void				Write(ReadBuffer& other);
 
-	void				Append(const char* buffer_, unsigned length_);
+	void				Append(const char* buffer, unsigned length);
 	void				Append(const char* str);
 	void				Append(Buffer& other);
 	void				Append(ReadBuffer& other);
 	void				NullTerminate();
 
-	void				SetLength(unsigned length_);
+	void				SetLength(unsigned length);
 
 	void				Init();
 	unsigned			GetSize();

@@ -1,7 +1,7 @@
 #ifndef FORMATTING_H
 #define FORMATTING_H
 
-#include "stdarg.h"
+#include <stdarg.h>
 
 int Readf(char* buffer, unsigned size, const char* format, ...);
 int VReadf(char* buffer, unsigned size, const char* format, va_list ap);

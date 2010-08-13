@@ -7,6 +7,12 @@ ReadBuffer::ReadBuffer()
 	length = 0;
 }
 
+void ReadBuffer::Set(char* buffer_, unsigned length_)
+{
+	buffer = buffer_;
+	length = length_;
+}
+
 void ReadBuffer::SetBuffer(char* buffer_)
 {
 	buffer = buffer_;
