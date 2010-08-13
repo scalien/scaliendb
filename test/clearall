@@ -1,9 +1,9 @@
 for ((i = 0; i < 3; i++))
 do
-	rm -f test/control/$i/keyspace
-	rm -f test/control/$i/chunk0
+	rm -f test/control/$i/system
+	rm -f test/control/$i/chunk*
 	rm -f test/control/$i/log*
-	rm -f test/data/$i/keyspace
+	rm -f test/data/$i/system
 	rm -f test/data/$i/log*
 	rm -f test/data/$i/chunk*
 done

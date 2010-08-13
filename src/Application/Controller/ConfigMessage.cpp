@@ -1,16 +1,12 @@
 #include "ConfigMessage.h"
 #include "System/Buffers/Buffer.h"
 
-bool ConfigMessage::Read(const ReadBuffer& buffer_)
+bool ConfigMessage::Read(ReadBuffer buffer)
 {
 	int			read;
 	unsigned	i;
-	Buffer		epBuffer;
 	ReadBuffer	rb;
-	ReadBuffer	buffer;
-	
-	buffer = buffer_;
-	
+		
 	if (buffer.GetLength() < 1)
 		return false;
 	
@@ -22,9 +18,7 @@ bool ConfigMessage::Read(const ReadBuffer& buffer_)
 			for (i = 0; i < numNodes; i++)
 			{
 				read = buffer.Readf(":%U:%#R", &nodeIDs[i], &rb);
-				epBuffer.Write(rb);
-				epBuffer.NullTerminate();
-				endpoints[i].Set(epBuffer.GetBuffer());
+				endpoints[i].Set(rb);
 				buffer.Advance(read);
 			}
 			break;
@@ -36,7 +30,6 @@ bool ConfigMessage::Read(const ReadBuffer& buffer_)
 
 bool ConfigMessage::Write(Buffer& buffer)
 {
-	Buffer			epBuffer;
 	ReadBuffer		rb;
 	unsigned		i;
 	
@@ -46,8 +39,7 @@ bool ConfigMessage::Write(Buffer& buffer)
 			buffer.Writef("%c:%U:%u", type, chunkID, numNodes);
 			for (i = 0; i < numNodes; i++)
 			{
-				epBuffer.Write(endpoints[i].ToString());
-				rb.Wrap(epBuffer);
+				rb = endpoints[i].ToReadBuffer();
 				buffer.Appendf(":%U:%#R", nodeIDs[i], &rb);
 			}
 			return true;

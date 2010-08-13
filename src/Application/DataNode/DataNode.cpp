@@ -114,14 +114,16 @@ void DataNode::PrintHello(HttpConn* conn)
 	
 	if (context->IsLeaderKnown())
 	{
-		buffer.Writef("ChunkID: 1\nPrimary: %U\nSelf: %U\nPaxosID: %U\n", 
-		 context->GetLeader(),
+		buffer.Writef("Self: %U\nPrimary: %U\nPaxosID: %U\nChunkID: 1\n",
 		 RMAN->GetNodeID(),
+		 context->GetLeader(),
 		 context->GetPaxosID());
 	}
 	else
 	{
-		buffer.Writef("ChunkID: 1\nNo primary, PaxosID: %U\n", context->GetPaxosID());
+		buffer.Writef("Self: %U\nNo primary\nPaxosID: %U\nChunkID: 1\n", 
+		 RMAN->GetNodeID(),
+		 context->GetPaxosID());
 	}
 
 	conn->Response(HTTP_STATUS_CODE_OK, buffer.GetBuffer(), buffer.GetLength());

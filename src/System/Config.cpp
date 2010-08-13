@@ -67,16 +67,16 @@ const char*	ConfigVar::GetValue()
 
 bool ConfigVar::GetBoolValue(bool defval)
 {
-	if (value.Cmp("yes") ||
-		value.Cmp("true") ||
-		value.Cmp("on"))
+	if (value.Cmp("yes", sizeof("yes")) ||
+		value.Cmp("true", sizeof("true")) ||
+		value.Cmp("on", sizeof("on")))
 	{
 		return true;
 	}
 	
-	if (value.Cmp("no") ||
-		value.Cmp("false") ||
-		value.Cmp("off"))
+	if (value.Cmp("no", sizeof("no")) ||
+		value.Cmp("false", sizeof("false")) ||
+		value.Cmp("off", sizeof("off")))
 	{
 		return false;
 	}
@@ -195,8 +195,8 @@ bool Config::Init(const char* filename_)
 			continue;
 		}
 		
-		strncpy(name, token, sizeof(name));
-		name[sizeof(name) - 1] = '\0';
+		strncpy(name, token, strlen(token));
+		name[strlen(token)] = '\0';
 		
 		p = ParseToken(p, token, sizeof(token));
 		if (!p || token[0] != '=')
