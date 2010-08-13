@@ -1,6 +1,6 @@
 #include "Cursor.h"
 
-bool Cursor::Start(const Buffer &startKey)
+bool Cursor::Start(Buffer &startKey)
 {
 	Dbt dbkey, dbvalue;
 	int	flags;

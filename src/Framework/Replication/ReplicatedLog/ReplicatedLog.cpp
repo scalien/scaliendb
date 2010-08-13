@@ -38,7 +38,7 @@ void ReplicatedLog::TryAppendNextValue()
 	Append(*buffer);
 }
 
-void ReplicatedLog::Append(const Buffer& value)
+void ReplicatedLog::Append(Buffer& value)
 {
 	Log_Trace();
 		
@@ -53,12 +53,12 @@ void ReplicatedLog::SetPaxosID(uint64_t paxosID_)
 	paxosID = paxosID_;
 }
 
-uint64_t ReplicatedLog::GetPaxosID() const
+uint64_t ReplicatedLog::GetPaxosID()
 {
 	return paxosID;
 }
 
-void ReplicatedLog::OnMessage(const PaxosMessage& imsg)
+void ReplicatedLog::OnMessage(PaxosMessage& imsg)
 {
 	Log_Trace();
 	
@@ -80,7 +80,7 @@ void ReplicatedLog::OnMessage(const PaxosMessage& imsg)
 		ASSERT_FAIL();
 }
 
-void ReplicatedLog::OnPrepareRequest(const PaxosMessage& imsg)
+void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 {
 	Log_Trace();
 		
@@ -90,7 +90,7 @@ void ReplicatedLog::OnPrepareRequest(const PaxosMessage& imsg)
 	OnRequest(imsg);
 }
 
-void ReplicatedLog::OnPrepareResponse(const PaxosMessage& imsg)
+void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
 {
 	Log_Trace();
 	
@@ -98,7 +98,7 @@ void ReplicatedLog::OnPrepareResponse(const PaxosMessage& imsg)
 		proposer.OnPrepareResponse(imsg);
 }
 
-void ReplicatedLog::OnProposeRequest(const PaxosMessage& imsg)
+void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 {
 	Log_Trace();
 	
@@ -108,7 +108,7 @@ void ReplicatedLog::OnProposeRequest(const PaxosMessage& imsg)
 	OnRequest(imsg);
 }
 
-void ReplicatedLog::OnProposeResponse(const PaxosMessage& imsg)
+void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 {
 	Log_Trace();
 
@@ -116,7 +116,7 @@ void ReplicatedLog::OnProposeResponse(const PaxosMessage& imsg)
 		proposer.OnProposeResponse(imsg);
 }
 
-void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
+void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 {
 	uint64_t		runID;
 	bool			commit, ownAppend;
@@ -179,7 +179,7 @@ void ReplicatedLog::OnLearnChosen(const PaxosMessage& imsg)
 	TryAppendNextValue();
 }
 
-void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
+void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 {
 	Buffer			value;
 	PaxosMessage	omsg;
@@ -204,7 +204,7 @@ void ReplicatedLog::OnRequestChosen(const PaxosMessage& imsg)
 //	}
 }
 
-void ReplicatedLog::OnRequest(const PaxosMessage& imsg)
+void ReplicatedLog::OnRequest(PaxosMessage& imsg)
 {
 	Log_Trace();
 	

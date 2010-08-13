@@ -10,7 +10,7 @@ void PaxosLeaseAcceptor::Init(QuorumContext* context_)
 	state.Init();
 }
 
-void PaxosLeaseAcceptor::OnMessage(const PaxosLeaseMessage& imsg)
+void PaxosLeaseAcceptor::OnMessage(PaxosLeaseMessage& imsg)
 {
 	if (imsg.type == PAXOSLEASE_PREPARE_REQUEST)
 		OnPrepareRequest(imsg);
@@ -27,7 +27,7 @@ void PaxosLeaseAcceptor::OnLeaseTimeout()
 	state.OnLeaseTimeout();
 }
 
-void PaxosLeaseAcceptor::OnPrepareRequest(const PaxosLeaseMessage& imsg)
+void PaxosLeaseAcceptor::OnPrepareRequest(PaxosLeaseMessage& imsg)
 {
 	PaxosLeaseMessage omsg;
 	
@@ -61,7 +61,7 @@ void PaxosLeaseAcceptor::OnPrepareRequest(const PaxosLeaseMessage& imsg)
 	context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 }
 
-void PaxosLeaseAcceptor::OnProposeRequest(const PaxosLeaseMessage& imsg)
+void PaxosLeaseAcceptor::OnProposeRequest(PaxosLeaseMessage& imsg)
 {
 	PaxosLeaseMessage omsg;
 

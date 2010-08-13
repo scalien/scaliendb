@@ -21,7 +21,7 @@ class HttpHandler
 public:
 	virtual ~HttpHandler() {}
 	
-	virtual bool	HandleRequest(HttpConn* conn, const HttpRequest& request) = 0;
+	virtual bool	HandleRequest(HttpConn* conn, HttpRequest& request) = 0;
 	
 	HttpHandler*	nextHttpHandler;
 };
@@ -43,7 +43,7 @@ public:
 	void			InitConn(HttpConn* conn);
 
 	void			RegisterHandler(HttpHandler* handler);
-	bool			HandleRequest(HttpConn* conn, const HttpRequest& request);
+	bool			HandleRequest(HttpConn* conn, HttpRequest& request);
 	
 private:
 	HttpHandler*	handlers;

@@ -17,7 +17,7 @@ unsigned NumDigits(int n)
 	return n == 0 ? 1 : (unsigned) floor(log10((float)n) + 1);
 }
 
-int64_t BufferToInt64(const char* buffer, int length, unsigned* nread)
+int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
 {
 	bool	neg;
 	long	i, digit;
@@ -65,7 +65,7 @@ int64_t BufferToInt64(const char* buffer, int length, unsigned* nread)
 		return n;
 }
 
-uint64_t BufferToUInt64(const char* buffer, int length, unsigned* nread)
+uint64_t BufferToUInt64(const char* buffer, unsigned length, unsigned* nread)
 {
 	long		i, digit;
 	uint64_t	n;

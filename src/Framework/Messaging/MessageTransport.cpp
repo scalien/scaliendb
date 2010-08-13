@@ -144,8 +144,7 @@ unsigned MessageTransport::GetNumEndpoints()
 	return nodes.GetLength();
 }
 
-void MessageTransport::SendMessage(uint64_t nodeID,
- const Buffer& prefix, Message& msg)
+void MessageTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
 {
 	Node*	it;
 	
@@ -165,8 +164,7 @@ void MessageTransport::SendMessage(uint64_t nodeID,
 	Log_Trace("no connection to nodeID %" PRIu64, nodeID);
 }
 
-void MessageTransport::SendPriorityMessage(uint64_t nodeID,
- const Buffer& prefix, Message& msg)
+void MessageTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
 {
 	Node*	it;
 

@@ -9,7 +9,7 @@ void PaxosAcceptor::Init(QuorumContext* context_)
 	ReadState();
 }
 
-void PaxosAcceptor::OnMessage(const PaxosMessage& imsg)
+void PaxosAcceptor::OnMessage(PaxosMessage& imsg)
 {
 	if (imsg.type == PAXOS_PREPARE_REQUEST)
 		OnPrepareRequest(imsg);
@@ -19,7 +19,7 @@ void PaxosAcceptor::OnMessage(const PaxosMessage& imsg)
 		ASSERT_FAIL();
 }
 
-void PaxosAcceptor::OnPrepareRequest(const PaxosMessage& imsg)
+void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
 {
 	Log_Trace();
 	
@@ -52,7 +52,7 @@ void PaxosAcceptor::OnPrepareRequest(const PaxosMessage& imsg)
 	//RLOG->StopPaxos(); TODO
 }
 
-void PaxosAcceptor::OnProposeRequest(const PaxosMessage& imsg)
+void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
 {
 	Log_Trace();
 	

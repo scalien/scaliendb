@@ -47,10 +47,10 @@ public:
 	
 	void				SetTransport(MessageTransport* transport);
 
-	void				Write(const Buffer& buffer);
-	void				WritePriority(const Buffer& buffer);
-	void				Write(const Buffer& prefix, Message& msg);
-	void				WritePriority(const Buffer& prefix, Message& msg);
+	void				Write(Buffer& buffer);
+	void				WritePriority(Buffer& buffer);
+	void				Write(Buffer& prefix, Message& msg);
+	void				WritePriority(Buffer& prefix, Message& msg);
 
 	// read:
 	virtual void		OnClose();
@@ -58,7 +58,7 @@ public:
 	void				OnResumeRead();
 
 	// write:
-	void				Connect(const Endpoint& endpoint);
+	void				Connect(Endpoint& endpoint);
 	void				OnConnect();
 	void				OnConnectTimeout();
 

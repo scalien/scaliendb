@@ -15,7 +15,7 @@ void MessageConnection::SetTransport(MessageTransport* transport_)
 	transport = transport_;
 }
 
-void MessageConnection::WritePriority(const Buffer& msg)
+void MessageConnection::WritePriority(Buffer& msg)
 {
 	Buffer* buffer;
 	
@@ -28,7 +28,7 @@ void MessageConnection::WritePriority(const Buffer& msg)
 	writer->Flush();
 }
 
-void MessageConnection::Write(const Buffer& msg)
+void MessageConnection::Write(Buffer& msg)
 {
 	Buffer* buffer;
 	
@@ -41,7 +41,7 @@ void MessageConnection::Write(const Buffer& msg)
 	writer->Flush();
 }
 
-void MessageConnection::Write(const Buffer& prefix, Message& msg)
+void MessageConnection::Write(Buffer& prefix, Message& msg)
 {
 	ASSERT_FAIL(); // TODO: priority buffers can interleave! XZCXZCZXCZCZCZCZZXCZXCZ
 	
@@ -62,7 +62,7 @@ void MessageConnection::Write(const Buffer& prefix, Message& msg)
 	writer->Flush();
 }
 
-void MessageConnection::WritePriority(const Buffer& prefix, Message& msg)
+void MessageConnection::WritePriority(Buffer& prefix, Message& msg)
 {
 	unsigned len;
 	Buffer* head;
@@ -201,7 +201,7 @@ void MessageConnection::Close()
 	TCPConnection::Close();	
 }
 
-void MessageConnection::Connect(const Endpoint& endpoint_)
+void MessageConnection::Connect(Endpoint& endpoint_)
 {
 	Log_Trace();
 	

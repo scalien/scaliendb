@@ -13,12 +13,12 @@ class Controller : public HttpHandler
 public:
 	void					Init(Table* table);
 	void					ReadChunkQuorum(uint64_t /*chunkID*/);
-	void					WriteChunkQuorum(const ConfigMessage& msg);
+	void					WriteChunkQuorum(ConfigMessage& msg);
 	// HttpHandler interface
-	virtual bool			HandleRequest(HttpConn* conn, const HttpRequest& request);
+	virtual bool			HandleRequest(HttpConn* conn, HttpRequest& request);
 	
 	void					OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
-	void					OnConfigMessage(const ConfigMessage& msg);
+	void					OnConfigMessage(ConfigMessage& msg);
 	void					OnSendClusterInfo();
 
 private:	

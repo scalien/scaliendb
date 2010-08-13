@@ -49,7 +49,7 @@ public:
 	bool			PreparePreviouslyAccepted(
 					 uint64_t paxosID, uint64_t nodeID,
 					 uint64_t proposalID, uint64_t acceptedProposalID,
-					 uint64_t runID, const Buffer& value);
+					 uint64_t runID, Buffer& value);
 
 	bool			PrepareCurrentlyOpen(
 					 uint64_t paxosID, uint64_t nodeID,
@@ -57,7 +57,7 @@ public:
 
 	bool			ProposeRequest(
 					 uint64_t paxosID, uint64_t nodeID,
-					 uint64_t proposalID, uint64_t runID, const Buffer& value);
+					 uint64_t proposalID, uint64_t runID, Buffer& value);
 
 	bool			ProposeRejected(
 					 uint64_t paxosID, uint64_t nodeID,
@@ -73,21 +73,21 @@ public:
 
 	bool			LearnValue(
 					 uint64_t paxosID, uint64_t nodeID,
-					 uint64_t runID, const Buffer& value);
+					 uint64_t runID, Buffer& value);
 
 	bool			RequestChosen(
 					 uint64_t paxosID, uint64_t nodeID);
 
 //	bool			StartCatchup(uint64_t paxosID, uint64_t nodeID);
 
-	bool			IsRequest() const;
-	bool			IsPrepareResponse() const;
-	bool			IsProposeResponse() const;
-	bool			IsResponse() const;
-	bool			IsLearn() const;
+	bool			IsRequest();
+	bool			IsPrepareResponse();
+	bool			IsProposeResponse();
+	bool			IsResponse();
+	bool			IsLearn();
 
 	// implementation of Message interface:
-	bool			Read(const ReadBuffer& buffer);
+	bool			Read(ReadBuffer& buffer);
 	bool			Write(Buffer& buffer);
 };
 

@@ -24,7 +24,7 @@ public:
 	void*			ptr;
 
 	// implementation of Message interface:
-	bool			Read(const ReadBuffer& buffer);
+	bool			Read(ReadBuffer& buffer);
 	bool			Write(Buffer& buffer);
 };
 

@@ -67,7 +67,7 @@ bool Table::Iterate(Transaction* tx, Cursor& cursor)
 		return false;
 }
 
-bool Table::Get(Transaction* tx, const Buffer &key, Buffer &value)
+bool Table::Get(Transaction* tx, Buffer &key, Buffer &value)
 {
 	return Get(tx, key.GetBuffer(), key.GetLength(), value);
 }
@@ -127,12 +127,12 @@ bool Table::Get(Transaction* tx, const char* key, uint64_t& value)
 	return true;
 }
 
-bool Table::Set(Transaction* tx, const Buffer &key, const Buffer &value)
+bool Table::Set(Transaction* tx, Buffer &key, Buffer &value)
 {
 	return Set(tx, key.GetBuffer(), key.GetLength(), value.GetBuffer(), value.GetLength());
 }
 
-bool Table::Set(Transaction* tx, const char* key, const Buffer &value)
+bool Table::Set(Transaction* tx, const char* key, Buffer &value)
 {
 	return Set(tx, key, strlen(key), value.GetBuffer(), value.GetLength());
 }
@@ -167,7 +167,7 @@ bool Table::Set(Transaction* tx, const char* key, uint64_t value)
 	return Set(tx, key, buffer);
 }
 
-bool Table::Delete(Transaction* tx, const Buffer &key)
+bool Table::Delete(Transaction* tx, Buffer &key)
 {
 	Dbt dbtKey(key.GetBuffer(), key.GetLength());
 	DbTxn* txn = NULL;
@@ -183,7 +183,7 @@ bool Table::Delete(Transaction* tx, const Buffer &key)
 	return true;
 }
 
-bool Table::Prune(Transaction* tx, const Buffer &prefix)
+bool Table::Prune(Transaction* tx, Buffer &prefix)
 {
 	Dbc* cursor = NULL;
 	u_int32_t flags = DB_NEXT;

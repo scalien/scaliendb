@@ -9,7 +9,7 @@ Timer::Timer()
 	prev = this;
 }
 
-void Timer::SetCallable(const Callable& callable_)
+void Timer::SetCallable(Callable callable_)
 {
 	callable = callable_;
 }
@@ -19,17 +19,17 @@ void Timer::Set(uint64_t when_)
 	when = when_;
 }
 
-bool Timer::IsActive() const
+bool Timer::IsActive()
 {
 	return active;
 }
 
-uint64_t Timer::When() const
+uint64_t Timer::When()
 {
 	return when;
 }
 
-void Timer::Execute() const
+void Timer::Execute()
 {
 	Call(callable);
 }

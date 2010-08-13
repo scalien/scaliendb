@@ -44,7 +44,7 @@ uint64_t DataChunkContext::GetLeader()
 	return paxosLease.GetLeaseOwner();
 }
 
-uint64_t DataChunkContext::GetContextID() const
+uint64_t DataChunkContext::GetContextID()
 {
 	return contextID;
 }
@@ -60,7 +60,7 @@ void DataChunkContext::OnLeaseTimeout()
 }
 
 
-uint64_t DataChunkContext::GetPaxosID() const
+uint64_t DataChunkContext::GetPaxosID()
 {
 	return replicatedLog.GetPaxosID();
 }
@@ -70,7 +70,7 @@ void DataChunkContext::SetPaxosID(uint64_t paxosID)
 	replicatedLog.SetPaxosID(paxosID);
 }
 
-uint64_t DataChunkContext::GetHighestPaxosID() const
+uint64_t DataChunkContext::GetHighestPaxosID()
 {
 	return highestPaxosID;
 }

@@ -25,17 +25,17 @@ class PaxosProposer
 public:
 	void						Init(QuorumContext* context);
 	
-	void						OnMessage(const PaxosMessage& msg);
+	void						OnMessage(PaxosMessage& msg);
 	void						OnPrepareTimeout();
 	void						OnProposeTimeout();
 	
-	void						Propose(const Buffer& value);
+	void						Propose(Buffer& value);
 	void						Stop();
 	bool						IsActive();	
 
 private:
-	void						OnPrepareResponse(const PaxosMessage& msg);
-	void						OnProposeResponse(const PaxosMessage& msg);
+	void						OnPrepareResponse(PaxosMessage& msg);
+	void						OnProposeResponse(PaxosMessage& msg);
 
 	void						BroadcastMessage(PaxosMessage& msg);
 	void						StopPreparing();

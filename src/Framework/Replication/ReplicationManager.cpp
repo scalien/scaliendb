@@ -34,7 +34,7 @@ void ReplicationManager::SetNodeID(uint64_t nodeID_)
 	nodeID = nodeID_;
 }
 
-uint64_t ReplicationManager::GetNodeID() const
+uint64_t ReplicationManager::GetNodeID()
 {
 	return nodeID;
 }
@@ -44,7 +44,7 @@ void ReplicationManager::SetRunID(uint64_t runID_)
 	runID = runID_;
 }
 
-uint64_t ReplicationManager::GetRunID() const
+uint64_t ReplicationManager::GetRunID()
 {
 	return runID;
 }

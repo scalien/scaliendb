@@ -33,7 +33,7 @@ bool PaxosMessage::PrepareRejected(
 bool PaxosMessage::PreparePreviouslyAccepted(
  uint64_t paxosID_, uint64_t nodeID_,
  uint64_t proposalID_, uint64_t acceptedProposalID_,
- uint64_t runID_, const Buffer& value_)
+ uint64_t runID_, Buffer& value_)
 {
 	Init(paxosID_, PAXOS_PREPARE_PREVIOUSLY_ACCEPTED, nodeID_);
 	proposalID = proposalID_;
@@ -56,7 +56,7 @@ bool PaxosMessage::PrepareCurrentlyOpen(
 
 bool PaxosMessage::ProposeRequest(
  uint64_t paxosID_, uint64_t nodeID_,
- uint64_t proposalID_, uint64_t runID_, const Buffer& value_)
+ uint64_t proposalID_, uint64_t runID_, Buffer& value_)
 {
 	Init(paxosID_, PAXOS_PROPOSE_REQUEST, nodeID_);
 	proposalID = proposalID_;
@@ -88,7 +88,7 @@ bool PaxosMessage::ProposeAccepted(
 
 bool PaxosMessage::LearnValue(
  uint64_t paxosID_, uint64_t nodeID_,
- uint64_t runID_, const Buffer& value_)
+ uint64_t runID_, Buffer& value_)
 {
 	Init(paxosID_, PAXOS_LEARN_VALUE, nodeID_);
 	runID = runID_;
@@ -123,37 +123,37 @@ bool PaxosMessage::RequestChosen(
 //	return true;
 //}
 
-bool PaxosMessage::IsRequest() const
+bool PaxosMessage::IsRequest()
 {
 	return (type == PAXOS_PROPOSE_REQUEST ||
 			type == PAXOS_PREPARE_REQUEST);
 }
 
-bool PaxosMessage::IsResponse() const
+bool PaxosMessage::IsResponse()
 {
 	return IsPrepareResponse() || IsProposeResponse();
 }
 
-bool PaxosMessage::IsPrepareResponse() const
+bool PaxosMessage::IsPrepareResponse()
 {
 	return (type == PAXOS_PREPARE_REJECTED ||
 			type == PAXOS_PREPARE_PREVIOUSLY_ACCEPTED ||
 			type == PAXOS_PREPARE_CURRENTLY_OPEN);
 }
 
-bool PaxosMessage::IsProposeResponse() const
+bool PaxosMessage::IsProposeResponse()
 {
 	return (type == PAXOS_PROPOSE_REJECTED ||
 			type == PAXOS_PROPOSE_ACCEPTED);
 }
 
-bool PaxosMessage::IsLearn() const
+bool PaxosMessage::IsLearn()
 {
 	return (type == PAXOS_LEARN_PROPOSAL ||
 			type == PAXOS_LEARN_VALUE);
 }
 
-bool PaxosMessage::Read(const ReadBuffer& buffer)
+bool PaxosMessage::Read(ReadBuffer& buffer)
 {
 	int		read;
 	char	proto;

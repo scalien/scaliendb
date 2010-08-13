@@ -97,7 +97,7 @@ void QuorumDatabase::GetAcceptedValue(Buffer& acceptedValue)
 	ret = table->Get(NULL, key, acceptedValue);
 }
 
-void QuorumDatabase::SetAcceptedValue(const Buffer& acceptedValue)
+void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
 {
 	Buffer		key;
 	int			ret;

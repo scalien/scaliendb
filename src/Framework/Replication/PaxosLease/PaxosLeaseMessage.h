@@ -48,14 +48,14 @@ public:
 	bool			LearnChosen(uint64_t nodeID, uint64_t leaseOwner, unsigned duration,
 					 uint64_t localExpireTime, uint64_t paxosID);
 	
-	bool			IsRequest() const;
-	bool			IsPrepareResponse() const;
-	bool			IsProposeResponse() const;
-	bool			IsResponse() const;
-	bool			IsLearnChosen() const;	
+	bool			IsRequest();
+	bool			IsPrepareResponse();
+	bool			IsProposeResponse();
+	bool			IsResponse();
+	bool			IsLearnChosen();
 
 	// implementation of Message interface:
-	bool			Read(const ReadBuffer& buffer);
+	bool			Read(ReadBuffer& buffer);
 	bool			Write(Buffer& buffer);
 };
 

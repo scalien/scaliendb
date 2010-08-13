@@ -28,9 +28,9 @@ public:
 	ReplicationTransport*	GetTransport();
 
 	void					SetNodeID(uint64_t nodeID);
-	uint64_t				GetNodeID() const;
+	uint64_t				GetNodeID();
 	void					SetRunID(uint64_t runID);
-	uint64_t				GetRunID() const;
+	uint64_t				GetRunID();
 	
 	void					AddContext(QuorumContext* context);
 	QuorumContext*			GetContext(uint64_t contextID);

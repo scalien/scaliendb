@@ -24,14 +24,14 @@ public:
 	bool						IsLeaseOwner();
 	bool						IsLeaseKnown();
 	uint64_t					GetLeaseOwner();
-	void						SetOnLearnLease(const Callable& onLearnLeaseCallback);
-	void						SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback);
+	void						SetOnLearnLease(Callable onLearnLeaseCallback);
+	void						SetOnLeaseTimeout(Callable onLeaseTimeoutCallback);
 
-	void						OnMessage(const PaxosLeaseMessage& msg);
+	void						OnMessage(PaxosLeaseMessage& msg);
 
 private:
 	void						OnLeaseTimeout();
-	void						OnLearnChosen(const PaxosLeaseMessage& msg);
+	void						OnLearnChosen(PaxosLeaseMessage& msg);
 	void						CheckLease();
 
 	QuorumContext*				context;

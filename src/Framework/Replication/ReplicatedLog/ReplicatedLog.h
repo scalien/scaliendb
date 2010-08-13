@@ -24,9 +24,9 @@ public:
 
 	void					TryAppendNextValue();
 	
-	void					OnMessage(const PaxosMessage& msg);
+	void					OnMessage(PaxosMessage& msg);
 	void					SetPaxosID(uint64_t paxosID);
-	uint64_t				GetPaxosID() const;
+	uint64_t				GetPaxosID();
 	
 	void					RegisterPaxosID(uint64_t paxosID, uint64_t nodeID);
 	void					OnMessage();
@@ -36,18 +36,18 @@ public:
 	void					OnLeaseTimeout();
 
 private:
-	void					Append(const Buffer& value);
+	void					Append(Buffer& value);
 
-	void					OnPrepareRequest(const PaxosMessage& msg);
-	void					OnPrepareResponse(const PaxosMessage& msg);
-	void					OnProposeRequest(const PaxosMessage& msg);
-	void					OnProposeResponse(const PaxosMessage& msg);
-	void					OnLearnChosen(const PaxosMessage& msg);
+	void					OnPrepareRequest(PaxosMessage& msg);
+	void					OnPrepareResponse(PaxosMessage& msg);
+	void					OnProposeRequest(PaxosMessage& msg);
+	void					OnProposeResponse(PaxosMessage& msg);
+	void					OnLearnChosen(PaxosMessage& msg);
 	
-	void					OnRequestChosen(const PaxosMessage& msg);
+	void					OnRequestChosen(PaxosMessage& msg);
 //	void					OnStartCatchup();
 
-	void					OnRequest(const PaxosMessage& msg);
+	void					OnRequest(PaxosMessage& msg);
 	void					NewPaxosRound();
 //	void					RequestChosen();
 	void					RequestChosen(uint64_t nodeID);

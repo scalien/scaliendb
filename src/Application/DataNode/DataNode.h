@@ -14,14 +14,14 @@ public:
 	void					Init(Table* table);
 
 	// HttpHandler interface
-	virtual bool			HandleRequest(HttpConn* conn, const HttpRequest& request);
+	virtual bool			HandleRequest(HttpConn* conn, HttpRequest& request);
 	
 	// DataService interface
 	virtual void			OnComplete(DataMessage* msg, bool status);
 
 private:
 	bool					ProcessCommand(HttpConn* conn, const char* cmd, 
-							 unsigned cmdlen, const UrlParam& params);
+							 unsigned cmdlen, UrlParam& params);
 	bool					MatchString(const char* s1, unsigned len1, 
 							 const char* s2, unsigned len2);
 

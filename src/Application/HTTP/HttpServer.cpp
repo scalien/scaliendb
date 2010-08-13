@@ -26,7 +26,7 @@ void HttpServer::RegisterHandler(HttpHandler* handler)
 	handlers = handler;
 }
 
-bool HttpServer::HandleRequest(HttpConn* conn, const HttpRequest& request)
+bool HttpServer::HandleRequest(HttpConn* conn, HttpRequest& request)
 {
 	HttpHandler*	handler;
 	bool			ret;

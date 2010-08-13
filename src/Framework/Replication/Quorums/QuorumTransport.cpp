@@ -11,7 +11,7 @@ void QuorumTransport::SetPriority(bool priority_)
 	priority = priority_;
 }
 
-void QuorumTransport::SetPrefix(const Buffer& prefix_)
+void QuorumTransport::SetPrefix(Buffer& prefix_)
 {
 	prefix.Write(prefix_);
 }
@@ -21,7 +21,7 @@ void QuorumTransport::SetQuorum(Quorum* quorum_)
 	quorum = quorum_;
 }
 
-ReadBuffer QuorumTransport::GetMessage() const
+ReadBuffer QuorumTransport::GetMessage()
 {
 	return RMAN->GetTransport()->GetMessage();
 }

@@ -17,8 +17,8 @@ class TableVisitor
 {
 public:
 	virtual	~TableVisitor() {}
-	virtual bool Accept(const ReadBuffer &key, const ReadBuffer &value) = 0;
-	virtual const ReadBuffer* GetStartKey() { return 0; }
+	virtual bool Accept(ReadBuffer &key, ReadBuffer &value) = 0;
+	virtual ReadBuffer* GetStartKey() { return 0; }
 	virtual void OnComplete() {}
 	virtual bool IsForward() { return true; }
 };
@@ -41,20 +41,20 @@ public:
 	
 	bool		Iterate(Transaction* tx, Cursor& cursor);
 	
-	bool		Get(Transaction* tx, const Buffer &key, Buffer &value);
+	bool		Get(Transaction* tx, Buffer &key, Buffer &value);
 	bool		Get(Transaction* tx, const char* key, Buffer &value);
 	bool		Get(Transaction* tx, const char* key, unsigned klen, Buffer &value);
 	bool		Get(Transaction* tx, const char* key, uint64_t &value);
 
-	bool		Set(Transaction* tx, const Buffer &key, const Buffer &value);
-	bool		Set(Transaction* tx, const char* key, const Buffer &value);
+	bool		Set(Transaction* tx, Buffer &key, Buffer &value);
+	bool		Set(Transaction* tx, const char* key, Buffer &value);
 	bool		Set(Transaction* tx, const char* key, const char* value);
 	bool		Set(Transaction* tx, const char* key, unsigned klen,
 				 const char* value, unsigned vlen);
 	bool		Set(Transaction* tx, const char* key, uint64_t value);
 		
-	bool		Delete(Transaction* tx, const Buffer &key);
-	bool		Prune(Transaction* tx, const Buffer &prefix);
+	bool		Delete(Transaction* tx, Buffer &key);
+	bool		Prune(Transaction* tx, Buffer &prefix);
 	bool		Truncate(Transaction* tx = NULL);
 	
 	bool		Visit(TableVisitor &tv);

@@ -17,10 +17,10 @@
 class Callable
 {
 public:
-	Callable() { func = NULL; arg = NULL; }
+	Callable()			{ func = NULL; arg = NULL; }
 	
-	void Execute() const { if (!func) return; func(arg); }
-	bool IsSet() const { return func != NULL; }
+	void Execute()		{ if (!func) return; func(arg); }
+	bool IsSet()		{ return func != NULL; }
 
 protected:
 	Callable(void (*func)(void*), void* arg) : func(func), arg(arg) {}
@@ -73,7 +73,7 @@ private:
 	}
 };
 
-inline void Call(const Callable& callable)
+inline void Call(Callable& callable)
 {
 	callable.Execute();
 }

@@ -21,7 +21,7 @@ void DataNode::Init(Table* table_)
 	Log_Trace("nodeID = %" PRIu64, nodeID);
 }
 
-bool DataNode::HandleRequest(HttpConn* conn, const HttpRequest& request)
+bool DataNode::HandleRequest(HttpConn* conn, HttpRequest& request)
 {
 	char*		pos;
 	char*		qmark;
@@ -33,17 +33,17 @@ bool DataNode::HandleRequest(HttpConn* conn, const HttpRequest& request)
 		pos++;
 	
 //	pos = ParseType(pos);
-	qmark = strnchr(pos, '?', request.line.uriLen - 1);
+	qmark = FindInBuffer(pos, request.line.uri.GetLength() - 1, '?');
 	if (qmark)
 	{
-		params.Init(qmark + 1, request.line.uriLen - 2, '&');
+		params.Init(qmark + 1, request.line.uri.GetLength() - 2, '&');
 //		if (type == JSON) 
 //			GET_NAMED_OPT_PARAM(params, "callback", jsonCallback);
 			
 		cmdlen = qmark - pos;
 	}
 	else
-		cmdlen = request.line.uriLen - 1;
+		cmdlen = request.line.uri.GetLength() - 1;
 
 	return ProcessCommand(conn, pos, cmdlen, params);
 }
@@ -59,7 +59,7 @@ bool DataNode::MatchString(const char* s1, unsigned len1, const char* s2, unsign
 
 #define STR_AND_LEN(s) s, strlen(s)
 
-bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, const UrlParam& params)
+bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, UrlParam& params)
 {
 	Buffer			buffer;
 

@@ -20,7 +20,7 @@ HttpFileHandler::HttpFileHandler(const char* docroot, const char* prefix_)
 	prefix = prefix_;
 }
 
-bool HttpFileHandler::HandleRequest(HttpConn* conn, const HttpRequest& request)
+bool HttpFileHandler::HandleRequest(HttpConn* conn, HttpRequest& request)
 {
 	Buffer			path;
 	Buffer			tmp;

@@ -72,7 +72,7 @@ void ControlConfigContext::OnLeaseTimeout()
 	replicatedLog.OnLeaseTimeout();
 }
 
-uint64_t ControlConfigContext::GetContextID() const
+uint64_t ControlConfigContext::GetContextID()
 {
 	return contextID;
 }
@@ -82,12 +82,12 @@ void ControlConfigContext::SetPaxosID(uint64_t paxosID)
 	replicatedLog.SetPaxosID(paxosID);
 }
 
-uint64_t ControlConfigContext::GetPaxosID() const
+uint64_t ControlConfigContext::GetPaxosID()
 {
 	return replicatedLog.GetPaxosID();
 }
 
-uint64_t ControlConfigContext::GetHighestPaxosID() const
+uint64_t ControlConfigContext::GetHighestPaxosID()
 {
 	return highestPaxosID;
 }

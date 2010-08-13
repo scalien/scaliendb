@@ -19,7 +19,7 @@ void DataMessage::Set(ReadBuffer& key_, ReadBuffer& value_)
 	value = value_;
 }
 
-bool DataMessage::Read(const ReadBuffer& buffer)
+bool DataMessage::Read(ReadBuffer& buffer)
 {
 	int		read;
 	

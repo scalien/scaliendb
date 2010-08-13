@@ -38,10 +38,10 @@ public:
 	virtual void					OnLearnLease();
 	virtual void					OnLeaseTimeout();
 
-	virtual uint64_t				GetContextID() const;
+	virtual uint64_t				GetContextID();
 	virtual void					SetPaxosID(uint64_t paxosID);
-	virtual uint64_t				GetPaxosID() const;
-	virtual uint64_t				GetHighestPaxosID() const;
+	virtual uint64_t				GetPaxosID();
+	virtual uint64_t				GetHighestPaxosID();
 	
 	virtual Quorum*					GetQuorum();
 	virtual QuorumDatabase*			GetDatabase();

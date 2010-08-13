@@ -21,18 +21,18 @@ class PaxosLeaseProposer
 public:
 	void						Init(QuorumContext* context);
 	
-	void						OnMessage(const PaxosLeaseMessage& msg);
+	void						OnMessage(PaxosLeaseMessage& msg);
 
 	void						StartAcquireLease();
 	void						StopAcquireLease();
-	uint64_t					GetHighestProposalID() const;
+	uint64_t					GetHighestProposalID();
 	void						SetHighestProposalID(uint64_t highestProposalID);
 
 private:
 	void						OnAcquireLeaseTimeout();
 	void						OnExtendLeaseTimeout();
-	void						OnPrepareResponse(const PaxosLeaseMessage& msg);
-	void						OnProposeResponse(const PaxosLeaseMessage& msg);
+	void						OnPrepareResponse(PaxosLeaseMessage& msg);
+	void						OnProposeResponse(PaxosLeaseMessage& msg);
 
 	void						BroadcastMessage(PaxosLeaseMessage& msg);
 	void						StartPreparing();

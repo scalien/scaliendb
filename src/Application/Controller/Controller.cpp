@@ -43,7 +43,7 @@ void Controller::ReadChunkQuorum(uint64_t chunkID)
 	chunkCreated = true;
 }
 
-void Controller::WriteChunkQuorum(const ConfigMessage& msg)
+void Controller::WriteChunkQuorum(ConfigMessage& msg)
 {
 	Buffer key, value;
 	Endpoint endpoint;
@@ -67,7 +67,7 @@ void Controller::WriteChunkQuorum(const ConfigMessage& msg)
 	}
 }
 
-bool Controller::HandleRequest(HttpConn* conn, const HttpRequest& /*request*/)
+bool Controller::HandleRequest(HttpConn* conn, HttpRequest& /*request*/)
 {
 	Buffer			buffer;
 	QuorumContext*	context;
@@ -128,7 +128,7 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 	}
 }
 
-void Controller::OnConfigMessage(const ConfigMessage& msg)
+void Controller::OnConfigMessage(ConfigMessage& msg)
 {
 	Buffer				value;
 	Buffer				key;

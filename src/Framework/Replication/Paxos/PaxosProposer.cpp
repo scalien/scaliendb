@@ -14,7 +14,7 @@ void PaxosProposer::Init(QuorumContext* context_)
 	state.Init();
 }
 
-void PaxosProposer::OnMessage(const PaxosMessage& imsg)
+void PaxosProposer::OnMessage(PaxosMessage& imsg)
 {
 	if (imsg.IsPrepareResponse())
 		OnPrepareResponse(imsg);
@@ -42,7 +42,7 @@ void PaxosProposer::OnProposeTimeout()
 	StartPreparing();
 }
 
-void PaxosProposer::Propose(const Buffer& value)
+void PaxosProposer::Propose(Buffer& value)
 {
 	Log_Trace();
 	
@@ -76,7 +76,7 @@ bool PaxosProposer::IsActive()
 	return (state.preparing || state.proposing);
 }
 
-void PaxosProposer::OnPrepareResponse(const PaxosMessage& imsg)
+void PaxosProposer::OnPrepareResponse(PaxosMessage& imsg)
 {
 	Log_Trace("msg.nodeID = %u", imsg.nodeID);
 
@@ -116,7 +116,7 @@ void PaxosProposer::OnPrepareResponse(const PaxosMessage& imsg)
 }
 
 
-void PaxosProposer::OnProposeResponse(const PaxosMessage& imsg)
+void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
 {
 	PaxosMessage omsg;
 	

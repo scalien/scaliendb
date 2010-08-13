@@ -36,7 +36,7 @@ public:
 	void				SetAcceptedRunID(uint64_t acceptedRunID);
 		
 	void				GetAcceptedValue(Buffer& acceptedValue);
-	void				SetAcceptedValue(const Buffer& acceptedValue);
+	void				SetAcceptedValue(Buffer& acceptedValue);
 
 	void				Begin();
 	void				Commit();

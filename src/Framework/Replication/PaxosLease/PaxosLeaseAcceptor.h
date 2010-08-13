@@ -20,12 +20,12 @@ class PaxosLeaseAcceptor
 {
 public:
 	void						Init(QuorumContext* context);
-	void						OnMessage(const PaxosLeaseMessage& msg);
+	void						OnMessage(PaxosLeaseMessage& msg);
 
 private:
 	void						OnLeaseTimeout();
-	void						OnPrepareRequest(const PaxosLeaseMessage& msg);
-	void						OnProposeRequest(const PaxosLeaseMessage& msg);
+	void						OnPrepareRequest(PaxosLeaseMessage& msg);
+	void						OnProposeRequest(PaxosLeaseMessage& msg);
 
 	QuorumContext*				context;
 	PaxosLeaseAcceptorState		state;

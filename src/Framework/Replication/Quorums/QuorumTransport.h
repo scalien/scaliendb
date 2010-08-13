@@ -19,10 +19,10 @@ public:
 	QuorumTransport();
 	
 	void					SetPriority(bool priority);
-	void					SetPrefix(const Buffer& prefix);
+	void					SetPrefix(Buffer& prefix);
 	void					SetQuorum(Quorum* quorum);
 	
-	ReadBuffer				GetMessage() const;
+	ReadBuffer				GetMessage();
 
 	void					SendMessage(uint64_t nodeID,Message& msg);
 	void					BroadcastMessage(Message& msg);

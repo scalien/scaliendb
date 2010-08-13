@@ -20,13 +20,13 @@ public:
 	Timer();
 	virtual ~Timer() {}
 		
-	void			SetCallable(const Callable& callable);
+	void			SetCallable(Callable callable);
 	void			Set(uint64_t when);
 
-	uint64_t		When() const;	
-	bool			IsActive() const;
+	uint64_t		When();
+	bool			IsActive();
 	
-	void			Execute() const;
+	void			Execute();
 	
 	virtual void	OnAdd() {};
 	
@@ -41,7 +41,7 @@ protected:
 
 /*****************************************************************************/
 
-inline bool LessThan(const Timer& a, const Timer& b)
+inline bool LessThan(Timer& a, Timer& b)
 {
     return (a.When() < b.When());
 }

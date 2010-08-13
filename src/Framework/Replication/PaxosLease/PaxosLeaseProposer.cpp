@@ -16,7 +16,7 @@ void PaxosLeaseProposer::Init(QuorumContext* context_)
 	state.Init();
 }
 
-void PaxosLeaseProposer::OnMessage(const PaxosLeaseMessage& imsg)
+void PaxosLeaseProposer::OnMessage(PaxosLeaseMessage& imsg)
 {
 	if (imsg.IsPrepareResponse())
 		OnPrepareResponse(imsg);
@@ -46,7 +46,7 @@ void PaxosLeaseProposer::StopAcquireLease()
 	EventLoop::Remove(&acquireLeaseTimeout);
 }
 
-uint64_t PaxosLeaseProposer::GetHighestProposalID() const
+uint64_t PaxosLeaseProposer::GetHighestProposalID()
 {
 	return highestProposalID;
 }
@@ -72,7 +72,7 @@ void PaxosLeaseProposer::OnExtendLeaseTimeout()
 	StartPreparing();
 }
 
-void PaxosLeaseProposer::OnPrepareResponse(const PaxosLeaseMessage& imsg)
+void PaxosLeaseProposer::OnPrepareResponse(PaxosLeaseMessage& imsg)
 {
 	Log_Trace();
 
@@ -99,7 +99,7 @@ void PaxosLeaseProposer::OnPrepareResponse(const PaxosLeaseMessage& imsg)
 		StartPreparing();
 }
 
-void PaxosLeaseProposer::OnProposeResponse(const PaxosLeaseMessage& imsg)
+void PaxosLeaseProposer::OnProposeResponse(PaxosLeaseMessage& imsg)
 {
 	PaxosLeaseMessage omsg;
 	

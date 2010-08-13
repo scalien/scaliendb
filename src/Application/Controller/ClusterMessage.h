@@ -20,7 +20,7 @@ public:
 	uint64_t		nodeIDs[7];
 	Endpoint		endpoints[7];
 
-	bool			Read(const ReadBuffer& buffer);
+	bool			Read(ReadBuffer& buffer);
 	bool			Write(Buffer& buffer);
 };
 

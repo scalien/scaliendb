@@ -35,17 +35,17 @@ uint64_t PaxosLeaseLearner::GetLeaseOwner()
 	return state.leaseOwner;
 }
 
-void PaxosLeaseLearner::SetOnLearnLease(const Callable& onLearnLeaseCallback_)
+void PaxosLeaseLearner::SetOnLearnLease(Callable onLearnLeaseCallback_)
 {
 	onLearnLeaseCallback = onLearnLeaseCallback_;
 }
 
-void PaxosLeaseLearner::SetOnLeaseTimeout(const Callable& onLeaseTimeoutCallback_)
+void PaxosLeaseLearner::SetOnLeaseTimeout(Callable onLeaseTimeoutCallback_)
 {
 	onLeaseTimeoutCallback = onLeaseTimeoutCallback_;
 }
 
-void PaxosLeaseLearner::OnMessage(const PaxosLeaseMessage& imsg)
+void PaxosLeaseLearner::OnMessage(PaxosLeaseMessage& imsg)
 {
 	if (imsg.type == PAXOSLEASE_LEARN_CHOSEN)
 		OnLearnChosen(imsg);
@@ -68,7 +68,7 @@ void PaxosLeaseLearner::OnLeaseTimeout()
 	Call(onLeaseTimeoutCallback);
 }
 
-void PaxosLeaseLearner::OnLearnChosen(const PaxosLeaseMessage& imsg)
+void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
 {
 	Log_Trace();
 	

@@ -24,7 +24,7 @@ class PaxosLease
 public:
 	void					Init(QuorumContext* context);
 	
-	void					OnMessage(const PaxosLeaseMessage& msg);
+	void					OnMessage(PaxosLeaseMessage& msg);
 	
 	void					AcquireLease();
 

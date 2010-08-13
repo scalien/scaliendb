@@ -20,7 +20,7 @@ void PaxosLease::Init(QuorumContext* context_)
 	EventLoop::Add(&startupTimeout);
 }
 
-void PaxosLease::OnMessage(const PaxosLeaseMessage& imsg)
+void PaxosLease::OnMessage(PaxosLeaseMessage& imsg)
 {
 	if (startupTimeout.IsActive())
 		return;

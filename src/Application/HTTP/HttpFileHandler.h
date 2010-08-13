@@ -16,7 +16,7 @@ class HttpFileHandler : public HttpHandler
 public:
 	HttpFileHandler(const char* docroot, const char* prefix);
 	
-	virtual bool	HandleRequest(HttpConn* conn, const HttpRequest& request);
+	virtual bool	HandleRequest(HttpConn* conn, HttpRequest& request);
 	
 private:
 	const char*		documentRoot;

@@ -20,15 +20,15 @@ public:
 
 	bool			Init(const char* url, int len, char sep);
 
-	int				GetNumParams() const;
+	int				GetNumParams();
 
-	const char*		GetParam(int nparam) const;
-	int				GetParamLen(int nparam) const;
+	const char*		GetParam(int nparam);
+	int				GetParamLen(int nparam);
 
-	int				GetParamIndex(const char* name, int namelen = -1) const;
+	int				GetParamIndex(const char* name, int namelen = -1);
 	
 	//bool			Get(unsigned num, /* ByteString* */...) const;
-	bool			GetNamed(const char* name, int namelen, ReadBuffer& bs) const;
+	bool			GetNamed(const char* name, int namelen, ReadBuffer& bs);
 	
 private:
 	const char*		url;

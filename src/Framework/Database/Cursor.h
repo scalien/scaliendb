@@ -19,7 +19,7 @@ class Cursor
 	friend class Table;
 
 public:
-	bool	Start(const Buffer &key);
+	bool	Start(Buffer &key);
 	bool	Delete();
 
 	bool	Next(Buffer &key, Buffer &value);

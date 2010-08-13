@@ -1,7 +1,7 @@
 #include "ClusterMessage.h"
 #include "System/Buffers/Buffer.h"
 
-bool ClusterMessage::Read(const ReadBuffer& buffer_)
+bool ClusterMessage::Read(ReadBuffer& buffer_)
 {
 	int			read;
 	unsigned	i;

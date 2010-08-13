@@ -82,34 +82,34 @@ bool PaxosLeaseMessage::LearnChosen(uint64_t nodeID_, uint64_t leaseOwner_,
 	return true;
 }
 
-bool PaxosLeaseMessage::IsRequest() const
+bool PaxosLeaseMessage::IsRequest()
 {
 	return (type == PAXOSLEASE_PROPOSE_REQUEST || type == PAXOSLEASE_PREPARE_REQUEST);
 }
 
-bool PaxosLeaseMessage::IsResponse() const
+bool PaxosLeaseMessage::IsResponse()
 {
 	return IsPrepareResponse() || IsProposeResponse();
 }
 
-bool PaxosLeaseMessage::IsPrepareResponse() const
+bool PaxosLeaseMessage::IsPrepareResponse()
 {
 	return (type == PAXOSLEASE_PREPARE_REJECTED ||
 			type == PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED ||
 			type == PAXOSLEASE_PREPARE_CURRENTLY_OPEN);
 }
 
-bool PaxosLeaseMessage::IsProposeResponse() const
+bool PaxosLeaseMessage::IsProposeResponse()
 {
 	return (type == PAXOSLEASE_PROPOSE_REJECTED || type == PAXOSLEASE_PROPOSE_ACCEPTED);
 }
 
-bool PaxosLeaseMessage::IsLearnChosen() const
+bool PaxosLeaseMessage::IsLearnChosen()
 {
 	return (type == PAXOSLEASE_LEARN_CHOSEN);
 }
 
-bool PaxosLeaseMessage::Read(const ReadBuffer& buffer)
+bool PaxosLeaseMessage::Read(ReadBuffer& buffer)
 {
 	int		read;
 	char	proto;

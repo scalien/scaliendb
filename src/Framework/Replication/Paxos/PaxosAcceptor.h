@@ -21,11 +21,11 @@ class PaxosAcceptor
 {
 public:
 	void						Init(QuorumContext* context);
-	void						OnMessage(const PaxosMessage& msg);
+	void						OnMessage(PaxosMessage& msg);
 
 private:
-	void						OnPrepareRequest(const PaxosMessage& msg);
-	void						OnProposeRequest(const PaxosMessage& msg);
+	void						OnPrepareRequest(PaxosMessage& msg);
+	void						OnProposeRequest(PaxosMessage& msg);
 	void						OnStateWritten();
 
 	void						ReadState();

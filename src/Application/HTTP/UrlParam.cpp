@@ -35,12 +35,12 @@ bool UrlParam::Init(const char* url_, int len_, char sep_)
 	return Parse();
 }
 
-int UrlParam::GetNumParams() const
+int UrlParam::GetNumParams()
 {
 	return numParams;
 }
 
-const char* UrlParam::GetParam(int nparam) const
+const char* UrlParam::GetParam(int nparam)
 {
 	int offset;
 	
@@ -51,7 +51,7 @@ const char* UrlParam::GetParam(int nparam) const
 	return &buffer.GetBuffer()[offset];
 }
 
-int UrlParam::GetParamLen(int nparam) const
+int UrlParam::GetParamLen(int nparam)
 {
 	int length;
 	
@@ -62,7 +62,7 @@ int UrlParam::GetParamLen(int nparam) const
 	return length;
 }
 
-int UrlParam::GetParamIndex(const char* name, int namelen) const
+int UrlParam::GetParamIndex(const char* name, int namelen)
 {
 	int		offset;
 	int		length;
@@ -88,7 +88,7 @@ int UrlParam::GetParamIndex(const char* name, int namelen) const
 	return -1;
 }
 
-bool UrlParam::GetNamed(const char* name, int namelen, ReadBuffer& bs) const
+bool UrlParam::GetNamed(const char* name, int namelen, ReadBuffer& bs)
 {
 	int			n;
 	
