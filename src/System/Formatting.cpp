@@ -334,7 +334,7 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
 				memmove(buffer, b->GetBuffer(), l);
 				ADVANCE(2, l);
 			}
-			else if (format[1] == 'B') // %R
+			else if (format[1] == 'R') // %R
 			{
 				rb = va_arg(ap, ReadBuffer*);
 				p = rb->GetBuffer();
