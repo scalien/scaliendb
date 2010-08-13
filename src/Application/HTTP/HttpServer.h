@@ -3,6 +3,7 @@
 
 #include "Framework/TCP/TCPServer.h"
 #include "HttpConn.h"
+#include "HttpConsts.h"
 
 class KeyspaceDB;	// forward
 class HttpRequest;	// forward

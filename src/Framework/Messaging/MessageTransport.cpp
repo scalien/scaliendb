@@ -24,17 +24,14 @@ void MessageTransport::OnIncomingConnection(MessageConnection* conn)
 void MessageTransport::OnOutgoingConnection(MessageConnection* conn)
 {
 	Buffer		buffer;
-	Buffer		epBuffer;
 	ReadBuffer	rb;
 	Node*		node;
 	
 	node = conn->GetNode();
 	
-	// TODO: get rid of epBuffers!!!!
-	epBuffer.Write(selfEndpoint.ToString()); 
-	rb.Wrap(epBuffer);
+	rb = node->endpoint.ToReadBuffer();
 	// send my nodeID:endpoint
-	buffer.Writef("%U:%M", selfNodeID, &rb);
+	buffer.Writef("%U:%#R", selfNodeID, &rb);
 	conn->WritePriority(buffer);
 	Log_Trace("Conn READY to node %" PRIu64 " at %s", node->nodeID, node->endpoint.ToString());
 	node->state = Node::READY;
@@ -66,7 +63,6 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 	Node*		dup;
 	uint64_t	nodeID;
 	ReadBuffer	buffer;
-	Buffer		epBuffer;
 	
 	Log_Trace();
 	
@@ -74,7 +70,7 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 
 	if (node->state == Node::INCOMING)
 	{
-		msg.Readf("%U:%M", &nodeID, &buffer);
+		msg.Readf("%U:%#R", &nodeID, &buffer);
 		dup = GetNode(nodeID);
 		if (dup && nodeID != selfNodeID)
 		{
@@ -92,10 +88,7 @@ void MessageTransport::OnRead(MessageConnection* conn, ReadBuffer msg)
 		}
 		node->state = Node::READY;
 		node->nodeID = nodeID;
-		// HACK TODO
-		epBuffer.Write(buffer);
-		epBuffer.NullTerminate();
-		node->endpoint.Set(epBuffer.GetBuffer());
+		node->endpoint.Set(buffer);
 		Log_Trace("Conn READY to node %" PRIu64 " at %s", node->nodeID, node->endpoint.ToString());
 		nodes.Append(node);
 		OnIncomingConnectionReady(node->nodeID, node->endpoint);

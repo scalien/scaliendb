@@ -32,7 +32,7 @@ bool DataMessage::Read(ReadBuffer& buffer)
 			ASSERT_FAIL();
 			break;
 		case DATAMESSAGE_SET:
-			read = buffer.Readf("%c:%M:%M",
+			read = buffer.Readf("%c:%#R:%#R",
 			 &type, &key, &value);
 			break;
 		default:
@@ -51,7 +51,7 @@ bool DataMessage::Write(Buffer& buffer)
 			ASSERT_FAIL();
 			break;
 		case DATAMESSAGE_SET:
-			return buffer.Writef("%c:%M:%M",
+			return buffer.Writef("%c:%#R:%#R",
 			 type, &key, &value);
 			break;
 		default:

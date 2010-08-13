@@ -17,6 +17,7 @@ class ReadBuffer
 {
 public:
 	ReadBuffer();
+	ReadBuffer(char* buffer, unsigned length);
 	
 	void				Set(char* buffer, unsigned length);
 	void				SetBuffer(char* buffer);

@@ -3,6 +3,7 @@
 
 #include "System/Platform.h"
 #include "System/Log.h"
+#include "System/Buffers/ReadBuffer.h"
 
 #define ENDPOINT_ANY_ADDRESS	0
 #define ENDPOINT_STRING_SIZE	32
@@ -28,6 +29,7 @@ public:
 	
 	bool			Set(const char* ip, int port, bool resolve = false);
 	bool			Set(const char* ip_port, bool resolve = false);
+	bool			Set(ReadBuffer ip_port, bool resolve = false);
 
 	bool			SetPort(int port);
 	int				GetPort();
@@ -37,7 +39,7 @@ public:
 	
 	const char*		ToString();
 	const char*		ToString(char s[ENDPOINT_STRING_SIZE]);
-
+	ReadBuffer		ToReadBuffer();
 
 private:
 	char			buffer[ENDPOINT_STRING_SIZE];

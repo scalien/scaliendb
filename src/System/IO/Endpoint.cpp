@@ -141,6 +141,42 @@ bool Endpoint::Set(const char* ip_port, bool resolv)
 	return ret;
 }
 
+bool Endpoint::Set(ReadBuffer ip_port, bool resolv)
+{
+	const char*		p;
+	const char*		start;
+	int				port;
+	bool			ret;
+	Buffer			ipbuf;
+
+	start = p = ip_port.GetBuffer();
+	
+	while (p - start < ip_port.GetLength() && *p != ':')
+		p++;
+	
+	if (*p != ':')
+	{
+		Log_Trace("No ':' in host specification");
+		return false;
+	}
+
+	ipbuf.Append(start, p - start);
+	ipbuf.NullTerminate();
+	p++;
+	
+	port = -1;
+	port = atoi(p);
+	if (port < 1 || port > 65535)
+	{
+		Log_Trace("atoi() failed to produce a sensible value");
+		return false;
+	}
+
+	ret = Set(ipbuf.GetBuffer(), port, resolv);
+	
+	return ret;
+}
+
 bool Endpoint::SetPort(int port)
 {
 	struct sockaddr_in *sa;
@@ -194,5 +230,16 @@ const char* Endpoint::ToString(char s[ENDPOINT_STRING_SIZE])
 		ntohs(sa->sin_port));
 	
 	return s;
+}
+
+ReadBuffer Endpoint::ToReadBuffer()
+{
+	size_t len;
+	
+	// TODO: optimize out strlen by doing snprintf directly
+	ToString();
+	len = strlen(buffer);
+	
+	return ReadBuffer(buffer, len);
 }
 

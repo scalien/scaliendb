@@ -172,7 +172,7 @@ bool PaxosMessage::Read(ReadBuffer& buffer)
 			 &proto, &type, &paxosID, &nodeID, &proposalID, &promisedProposalID);
 			break;
 		case PAXOS_PREPARE_PREVIOUSLY_ACCEPTED:
-			read = buffer.Readf("%c:%c:%U:%U:%U:%U:%U:%M",
+			read = buffer.Readf("%c:%c:%U:%U:%U:%U:%U:%#R",
 			 &proto, &type, &paxosID, &nodeID, &proposalID, &acceptedProposalID, &runID, &value);
 			break;
 		case PAXOS_PREPARE_CURRENTLY_OPEN:
@@ -180,7 +180,7 @@ bool PaxosMessage::Read(ReadBuffer& buffer)
 			 &proto, &type, &paxosID, &nodeID, &proposalID);
 			break;
 		case PAXOS_PROPOSE_REQUEST:
-			read = buffer.Readf("%c:%c:%U:%U:%U:%U:%M",
+			read = buffer.Readf("%c:%c:%U:%U:%U:%U:%#R",
 			 &proto, &type, &paxosID, &nodeID, &proposalID, &runID, &value);
 			break;
 		case PAXOS_PROPOSE_REJECTED:
@@ -196,7 +196,7 @@ bool PaxosMessage::Read(ReadBuffer& buffer)
 			 &proto, &type, &paxosID, &nodeID, &proposalID);
 			break;
 		case PAXOS_LEARN_VALUE:
-			read = buffer.Readf("%c:%c:%U:%U:%U:%M",
+			read = buffer.Readf("%c:%c:%U:%U:%U:%#R",
 			 &proto, &type, &paxosID, &nodeID, &runID, &value);
 			break;
 		case PAXOS_REQUEST_CHOSEN:
@@ -231,7 +231,7 @@ bool PaxosMessage::Write(Buffer& buffer)
 			 proto, type, paxosID, nodeID, proposalID, promisedProposalID);
 			break;
 		case PAXOS_PREPARE_PREVIOUSLY_ACCEPTED:
-			return buffer.Writef("%c:%c:%U:%U:%U:%U:%U:%M",
+			return buffer.Writef("%c:%c:%U:%U:%U:%U:%U:%#R",
 			 proto, type, paxosID, nodeID, proposalID, acceptedProposalID, runID, &value);
 			break;
 		case PAXOS_PREPARE_CURRENTLY_OPEN:
@@ -239,7 +239,7 @@ bool PaxosMessage::Write(Buffer& buffer)
 			 proto, type, paxosID, nodeID, proposalID);
 			break;
 		case PAXOS_PROPOSE_REQUEST:
-			return buffer.Writef("%c:%c:%U:%U:%U:%U:%M",
+			return buffer.Writef("%c:%c:%U:%U:%U:%U:%#R",
 			 proto, type, paxosID, nodeID, proposalID, runID, &value);
 			break;
 		case PAXOS_PROPOSE_REJECTED:
@@ -255,7 +255,7 @@ bool PaxosMessage::Write(Buffer& buffer)
 			 proto, type, paxosID, nodeID, proposalID);
 			break;
 		case PAXOS_LEARN_VALUE:
-			return buffer.Writef("%c:%c:%U:%U:%U:%M",
+			return buffer.Writef("%c:%c:%U:%U:%U:%#R",
 			 proto, type, paxosID, nodeID, runID, &value);
 			break;
 		case PAXOS_REQUEST_CHOSEN:

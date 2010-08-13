@@ -86,9 +86,8 @@ bool Controller::HandleRequest(HttpConn* conn, HttpRequest& /*request*/)
 		buffer.Writef("ChunkID: 0\nNo master, PaxosID: %U\n", context->GetPaxosID());
 	}
 
-	conn->Write(buffer.GetBuffer(), buffer.GetLength());
-	conn->Flush(true);
-	
+	conn->Response(HTTP_STATUS_CODE_OK, buffer.GetBuffer(), buffer.GetLength());
+
 	return true;
 }
 

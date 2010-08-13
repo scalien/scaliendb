@@ -23,7 +23,7 @@ bool ClusterMessage::Read(ReadBuffer& buffer_)
 			buffer.Advance(read);
 			for (i = 0; i < numNodes; i++)
 			{
-				read = buffer.Readf(":%U:%M", &nodeIDs[i], &rb);
+				read = buffer.Readf(":%U:%#R", &nodeIDs[i], &rb);
 				epBuffer.Write(rb);
 				epBuffer.NullTerminate();
 				endpoints[i].Set(epBuffer.GetBuffer());
@@ -51,7 +51,7 @@ bool ClusterMessage::Write(Buffer& buffer)
 			{
 				epBuffer.Write(endpoints[i].ToString());
 				rb.Wrap(epBuffer);
-				buffer.Appendf(":%U:%M", nodeIDs[i], &rb);
+				buffer.Appendf(":%U:%#R", nodeIDs[i], &rb);
 			}
 			return true;
 		default:
