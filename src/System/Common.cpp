@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <pwd.h>
 #include <sys/stat.h>
+#include <sys/statvfs.h>
 #include <signal.h>
 #include <math.h>
 #include "Time.h"
@@ -161,6 +162,24 @@ bool IsDirectory(const char* path)
 	if (s.st_mode & S_IFDIR)
 		return true;
 	return false;
+}
+
+int64_t GetFreeDiskSpace(const char* path)
+{
+#ifdef _WIN32
+	ULARGE_INTEGER	bytes;
+	
+	if (!GetDiskFreeSpaceEx(path, &bytes, NULL, NULL))
+		return -1;
+	return bytes.QuadPart;
+#else
+	struct statvfs sv;
+	
+	if (statvfs(path, &sv) < 0)
+		return -1;
+	
+	return ((int64_t) sv.f_bavail * sv.f_frsize);
+#endif
 }
 
 uint64_t GenerateGUID()

@@ -28,6 +28,7 @@ const char*		StaticPrint(const char* format, ...);
 
 bool			Delete(const char* path); // supports wildcards
 bool			IsDirectory(const char* path);
+int64_t			GetFreeDiskSpace(const char* path);	// returns in bytes
 
 uint64_t		GenerateGUID();
 void			SeedRandom();
