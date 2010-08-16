@@ -21,7 +21,10 @@ class Buffer
 {
 public:
 	Buffer();
+	Buffer(const Buffer& other);
 	~Buffer();
+
+	Buffer&				operator=(const Buffer& other);
 	
 	static bool			Cmp(Buffer& a, Buffer& b);
 	bool				Cmp(const char* buffer, unsigned length_);
