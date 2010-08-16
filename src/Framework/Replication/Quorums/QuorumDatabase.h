@@ -34,7 +34,7 @@ public:
 	
 	uint64_t			GetAcceptedRunID();
 	void				SetAcceptedRunID(uint64_t acceptedRunID);
-		
+
 	void				GetAcceptedValue(Buffer& acceptedValue);
 	void				SetAcceptedValue(Buffer& acceptedValue);
 

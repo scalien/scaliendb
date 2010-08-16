@@ -44,71 +44,47 @@ MessageConnection::Progress MessageConnection::GetProgress()
 	return progress;
 }
 
-void MessageConnection::WritePriority(Buffer& msg)
-{
-	Buffer* buffer;
-	
-	buffer = writer->AcquireBuffer();
-	
-	buffer->Writef("%u:", msg.GetLength());
-	buffer->Append(msg);
-	
-	writer->WritePriority(buffer);
-	writer->Flush();
-}
-
 void MessageConnection::Write(Buffer& msg)
 {
 	Buffer* buffer;
 	
 	buffer = writer->AcquireBuffer();
-	
-	buffer->Writef("%u:", msg.GetLength());
-	buffer->Append(msg);
-	
-	writer->Write(buffer);
+	buffer->Writef("%#B", &msg);
+	writer->Write(buffer);	
 	writer->Flush();
 }
 
-void MessageConnection::Write(Buffer& prefix, Message& msg)
+void MessageConnection::WritePriority(Buffer& msg)
 {
-	ASSERT_FAIL(); // TODO: priority buffers can interleave! XZCXZCZXCZCZCZCZZXCZXCZ
-	
-	unsigned len;
-	Buffer* head;
 	Buffer* buffer;
 	
-	head = writer->AcquireBuffer();
 	buffer = writer->AcquireBuffer();
-	
-	if (!msg.Write(*buffer))
-		ASSERT_FAIL();
-	len = prefix.GetLength() + 1 + buffer->GetLength();
-	head->Writef("%u:%B:", len, &prefix);
-	
-	writer->Write(head);
-	writer->Write(buffer);
+	buffer->Writef("%#B", &msg);
+	writer->WritePriority(buffer);	
 	writer->Flush();
 }
 
-void MessageConnection::WritePriority(Buffer& prefix, Message& msg)
+void MessageConnection::Write(Buffer& prefix, Buffer& msg)
 {
-	unsigned len;
-	Buffer* head;
+	unsigned length;
 	Buffer* buffer;
 	
-	head = writer->AcquireBuffer();
 	buffer = writer->AcquireBuffer();
+	length = prefix.GetLength() + 1 + msg.GetLength();
+	buffer->Writef("%u:%B:%B", length, &prefix, &msg);
+	writer->Write(buffer);	
+	writer->Flush();
+}
+
+void MessageConnection::WritePriority(Buffer& prefix, Buffer& msg)
+{
+	unsigned length;
+	Buffer* buffer;
 	
-	if (!msg.Write(*buffer))
-		ASSERT_FAIL();
-	len = prefix.GetLength() + 1 + buffer->GetLength();
-	head->Writef("%u:%B:", len, &prefix);
-	
-	Log_Trace("%.*s%.*s", P(head), P(buffer));
-	
-	writer->WritePriority(head);
-	writer->WritePriority(buffer);
+	buffer = writer->AcquireBuffer();
+	length = prefix.GetLength() + 1 + msg.GetLength();
+	buffer->Writef("%u:%B:%B", length, &prefix, &msg);
+	writer->WritePriority(buffer);	
 	writer->Flush();
 }
 
@@ -128,7 +104,7 @@ void MessageConnection::OnClose()
 	}
 	else if (progress == READY)
 	{
-		// node->endpoint contains the other side, connect
+		// endpoint contains the other side, connect
 		progress = OUTGOING;
 		Connect();
 	}
@@ -254,10 +230,10 @@ void MessageConnection::OnMessage(ReadBuffer& msg)
 		}
 		progress = MessageConnection::READY;
 		this->nodeID = nodeID;
-		endpoint.Set(buffer);
-		Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
+		this->endpoint.Set(buffer);
+		Log_Trace("Conn READY to node %" PRIu64 " at %s", this->nodeID, this->endpoint.ToString());
 		transport->AddConnection(this);
-		transport->OnIncomingConnectionReady(nodeID, endpoint);
+		transport->OnIncomingConnectionReady(this->nodeID, this->endpoint);
 	}
 	else if (progress == MessageConnection::OUTGOING)
 	{

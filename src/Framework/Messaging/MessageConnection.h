@@ -27,8 +27,8 @@ public:
 
 	enum Progress
 	{
-		INCOMING,			// incoming connection established, nodeID not sent, node->endpoint == unknown
-		OUTGOING,			// connecting in progress
+		INCOMING,			// connection established, nodeID not received, endpoint == unknown
+		OUTGOING,			// connecting in progress, nodeID not sent
 		READY				// connection established, other side's nodeID known
 	};
 
@@ -39,13 +39,12 @@ public:
 	void				SetEndpoint(Endpoint& endpoint);
 
 	uint64_t			GetNodeID();
-	Endpoint			GetEndpoint();
 	Progress			GetProgress();
 
-	void				Write(Buffer& buffer);
-	void				WritePriority(Buffer& buffer);
-	void				Write(Buffer& prefix, Message& msg);
-	void				WritePriority(Buffer& prefix, Message& msg);
+	void				Write(Buffer& msg);
+	void				WritePriority(Buffer& msg);
+	void				Write(Buffer& prefix, Buffer& msg);
+	void				WritePriority(Buffer& prefix, Buffer& msg);
 
 	// read:
 	virtual void		OnClose();
@@ -64,7 +63,6 @@ protected:
 	Progress			progress;
 	uint64_t			nodeID;
 	Endpoint			endpoint;
-
 	MessageTransport*	transport;
 	Countdown			resumeRead;
 };

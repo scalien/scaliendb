@@ -8,6 +8,16 @@ void MessageTransport::Init(uint64_t nodeID_, Endpoint& endpoint_)
 	server.SetTransport(this);
 }
 
+uint64_t MessageTransport::GetNodeID()
+{
+	return nodeID;
+}
+
+Endpoint& MessageTransport::GetEndpoint()
+{
+	return endpoint;
+}
+
 void MessageTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
 {
 	MessageConnection* conn;
@@ -47,7 +57,8 @@ void MessageTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg
 		return;
 	}
 	
-	conn->Write(prefix, msg);
+	msg.Write(msgBuffer);
+	conn->Write(prefix, msgBuffer);
 }
 
 void MessageTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
@@ -68,7 +79,8 @@ void MessageTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Mess
 		return;
 	}
 	
-	conn->WritePriority(prefix, msg);
+	msg.Write(msgBuffer);
+	conn->WritePriority(prefix, msgBuffer);
 }
 
 void MessageTransport::AddConnection(MessageConnection* conn)
@@ -97,14 +109,4 @@ void MessageTransport::DeleteConnection(MessageConnection* conn)
 		conns.Remove(conn);
 
 	delete conn; // TODO: what happens when control returns to OnRead()
-}
-
-uint64_t MessageTransport::GetNodeID()
-{
-	return nodeID;
-}
-
-Endpoint& MessageTransport::GetEndpoint()
-{
-	return endpoint;
 }
