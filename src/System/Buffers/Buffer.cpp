@@ -223,3 +223,27 @@ void Buffer::Clear()
 {
 	length = 0;
 }
+
+Buffer::Buffer(const Buffer& other)
+{
+	*this = other;	// call operator=()
+}
+
+Buffer& Buffer::operator=(const Buffer& other)
+{
+	buffer = array;
+	size = other.size;
+	length = other.length;
+	if (other.buffer != other.array)
+	{
+		Allocate(other.size, false);
+		memcpy(buffer, other.buffer, other.size);
+	}
+	else
+	{
+		memcpy(array, other.array, ARRAY_SIZE);
+	}
+
+	
+	return *this;
+}
