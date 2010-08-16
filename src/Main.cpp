@@ -61,8 +61,11 @@ int main(int argc, char** argv)
 	const char*					role;
 	Table*						table;
 	
-	SeedRandom();
-	configFile.Init(argv[1]);
+	if (argc < 2)
+		STOP_FAIL(1, "usage: %s config-file\n", argv[0]);
+
+	if (!configFile.Init(argv[1]))
+		STOP_FAIL(1, "cannot open config file! (%s)", argv[1]);
 	role = configFile.GetValue("role", "data");
 	if (strcmp(role, "data") == 0)
 		isController = false;
@@ -72,11 +75,14 @@ int main(int argc, char** argv)
 	InitLog();
 	Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "DATA");
 
+	SeedRandom();
 	IOProcessor::Init(1024);
 
 	Log_Message("Opening database...");
 	dbConfig.dir = configFile.GetValue("database.dir", DATABASE_CONFIG_DIR);
 	db.Init(dbConfig);
+
+	Log_Message("Free disk space is %s", HumanBytes(GetFreeDiskSpace("/")));
 
 	// Initialize runID
 	runID = 0;

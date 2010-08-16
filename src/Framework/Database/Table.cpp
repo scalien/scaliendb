@@ -30,12 +30,12 @@ database(database)
 		db->close(0);
 		if (IsDirectory(filename))
 		{
-			STOP_FAIL(StaticPrint(
+			STOP_FAIL(1, StaticPrint(
 					  "Could not create database file '%s' "
 					  "because a folder '%s' exists",
-					  filename, filename), 1);
+					  filename, filename));
 		}
-		STOP_FAIL("Could not open database", 1);
+		STOP_FAIL(1, "Could not open database");
 	}
 	Log_Trace();
 }

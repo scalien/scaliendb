@@ -18,6 +18,31 @@ unsigned NumDigits(int n)
 	return n == 0 ? 1 : (unsigned) floor(log10((float)n) + 1);
 }
 
+const char* HumanBytes_(uint64_t bytes, char buf[5])
+{
+	uint64_t	n;
+	const char	units[] = "KMGTP";
+	unsigned	u;
+	double		d;
+	
+	if (bytes == 0)
+	{
+		buf[0] = '0';
+		buf[1] = 0;
+		return buf;
+	}
+	
+	u = 0;
+	while ((d = floor(log10((double)n) + 1)) > 3)
+	{
+		n = n / 1024;
+		u++;
+	}
+	
+	snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
+	return buf;
+}
+
 int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
 {
 	bool	neg;

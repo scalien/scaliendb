@@ -31,10 +31,10 @@
  ==============================================================================
  */
 
-#define STOP_FAIL(msg, code) \
+#define STOP_FAIL(code, ...) \
 { \
 	Log_SetTarget(LOG_TARGET_STDERR|LOG_TARGET_FILE); \
-	Log_Message(msg); \
+	Log_Message(__VA_ARGS__); \
 	_exit(code); \
 }
 
