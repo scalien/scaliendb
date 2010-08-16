@@ -67,7 +67,7 @@ void Controller::WriteChunkQuorum(ConfigMessage& msg)
 	}
 }
 
-bool Controller::HandleRequest(HttpConn* conn, HttpRequest& /*request*/)
+bool Controller::HandleRequest(HTTPConnection* conn, HTTPRequest& /*request*/)
 {
 	Buffer			buffer;
 	QuorumContext*	context;

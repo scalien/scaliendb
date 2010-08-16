@@ -2,52 +2,52 @@
 #define HTTP_SERVER_H
 
 #include "Framework/TCP/TCPServer.h"
-#include "HttpConn.h"
-#include "HttpConsts.h"
+#include "HTTPConnection.h"
+#include "HTTPConsts.h"
 
 class KeyspaceDB;	// forward
-class HttpRequest;	// forward
-class HttpServer;	// forward
+class HTTPRequest;	// forward
+class HTTPServer;	// forward
 
 /*
 ===============================================================================
 
- HttpHandler is the generic handler interface to HttpServer
+ HTTPHandler is the generic handler interface to HTTPServer
 
 ===============================================================================
 */
 
-class HttpHandler
+class HTTPHandler
 {
 public:
-	virtual ~HttpHandler() {}
+	virtual ~HTTPHandler() {}
 	
-	virtual bool	HandleRequest(HttpConn* conn, HttpRequest& request) = 0;
+	virtual bool	HandleRequest(HTTPConnection* conn, HTTPRequest& request) = 0;
 	
-	HttpHandler*	nextHttpHandler;
+	HTTPHandler*	nextHTTPHandler;
 };
 
 /*
 ===============================================================================
 
- HttpServer
+ HTTPServer
 
 ===============================================================================
 */
 
-class HttpServer : public TCPServer<HttpServer, HttpConn>
+class HTTPServer : public TCPServer<HTTPServer, HTTPConnection>
 {
 public:
 	void			Init(int port);
 	void			Shutdown();
 	
-	void			InitConn(HttpConn* conn);
+	void			InitConn(HTTPConnection* conn);
 
-	void			RegisterHandler(HttpHandler* handler);
-	bool			HandleRequest(HttpConn* conn, HttpRequest& request);
+	void			RegisterHandler(HTTPHandler* handler);
+	bool			HandleRequest(HTTPConnection* conn, HTTPRequest& request);
 	
 private:
-	HttpHandler*	handlers;
+	HTTPHandler*	handlers;
 };
 
 #endif

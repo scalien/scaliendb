@@ -2,7 +2,7 @@
 #include "System/Common.h"
 #include "System/Platform.h"
 #include "Framework/Replication/ReplicationManager.h"
-#include "Application/HTTP/HttpConsts.h"
+#include "Application/HTTP/HTTPConsts.h"
 
 #define GET_NAMED_PARAM(params, name, var) \
 if (!params.GetNamed(name, sizeof("" name) - 1, var)) { return NULL; }
@@ -21,7 +21,7 @@ void DataNode::Init(Table* table_)
 	Log_Trace("nodeID = %" PRIu64, nodeID);
 }
 
-bool DataNode::HandleRequest(HttpConn* conn, HttpRequest& request)
+bool DataNode::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
 {
 	char*		pos;
 	char*		qmark;
@@ -59,7 +59,7 @@ bool DataNode::MatchString(const char* s1, unsigned len1, const char* s2, unsign
 
 #define STR_AND_LEN(s) s, strlen(s)
 
-bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, UrlParam& params)
+bool DataNode::ProcessCommand(HTTPConnection* conn, const char* cmd, unsigned cmdlen, UrlParam& params)
 {
 	Buffer			buffer;
 
@@ -105,7 +105,7 @@ bool DataNode::ProcessCommand(HttpConn* conn, const char* cmd, unsigned cmdlen, 
 		return false;
 }
 
-void DataNode::PrintHello(HttpConn* conn)
+void DataNode::PrintHello(HTTPConnection* conn)
 {
 	Buffer			buffer;
 	QuorumContext*	context;
@@ -127,15 +127,14 @@ void DataNode::PrintHello(HttpConn* conn)
 	}
 
 	conn->Response(HTTP_STATUS_CODE_OK, buffer.GetBuffer(), buffer.GetLength());
-	//conn->Flush(true);
 }
 
 void DataNode::OnComplete(DataMessage* msg, bool status)
 {
-	HttpConn*	conn;
+	HTTPConnection*	conn;
 	Buffer		buffer;
 	
-	conn = (HttpConn*) msg->ptr;
+	conn = (HTTPConnection*) msg->ptr;
 
 	if (msg->type == DATAMESSAGE_SET)
 	{
@@ -155,5 +154,4 @@ void DataNode::OnComplete(DataMessage* msg, bool status)
 		ASSERT_FAIL();
 
 	conn->Response(HTTP_STATUS_CODE_OK, buffer.GetBuffer(), buffer.GetLength());
-	//conn->Flush(true);
 }

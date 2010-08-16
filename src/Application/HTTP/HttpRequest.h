@@ -6,12 +6,12 @@
 /*
 ===============================================================================
 
- HttpRequest
+ HTTPRequest
 
 ===============================================================================
 */
 
-class HttpRequest
+class HTTPRequest
 {
 public:
 	typedef IMFHeader::RequestLine RequestLine;

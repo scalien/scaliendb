@@ -1,22 +1,22 @@
 #ifndef HTTP_FILE_HANDLER_H
 #define HTTP_FILE_HANDLER_H
 
-#include "HttpServer.h"
+#include "HTTPServer.h"
 
 /*
 ===============================================================================
 
- HttpFileHandler serves static files over HTTP.
+ HTTPFileHandler serves static files over HTTP.
 
 ===============================================================================
 */
 
-class HttpFileHandler : public HttpHandler
+class HTTPFileHandler : public HTTPHandler
 {
 public:
-	HttpFileHandler(const char* docroot, const char* prefix);
+	HTTPFileHandler(const char* docroot, const char* prefix);
 	
-	virtual bool	HandleRequest(HttpConn* conn, HttpRequest& request);
+	virtual bool	HandleRequest(HTTPConnection* conn, HTTPRequest& request);
 	
 private:
 	const char*		documentRoot;

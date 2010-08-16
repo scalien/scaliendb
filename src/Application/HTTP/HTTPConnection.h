@@ -2,24 +2,24 @@
 #define HTTP_CONN_H
 
 #include "Framework/TCP/TCPConnection.h"
-#include "HttpRequest.h"
+#include "HTTPRequest.h"
 
-class HttpServer;	// forward
+class HTTPServer;	// forward
 
 /*
 ===============================================================================
 
- HttpConn is a class that represents a HTTP connection.
+ HTTPConnection is a class that represents a HTTP connection.
 
 ===============================================================================
 */
 
-class HttpConn : public TCPConnection
+class HTTPConnection : public TCPConnection
 {
 public:
-	HttpConn();
+	HTTPConnection();
 	
-	void			Init(HttpServer* server_);
+	void			Init(HTTPServer* server_);
 	void			SetOnClose(const Callable& callable);
 
 	void			Print(const char* s);
@@ -30,7 +30,7 @@ public:
 					const char* header = NULL);
 	void			Flush(bool closeAfterSend = false);
 
-	HttpServer*		GetServer() { return server; }
+	HTTPServer*		GetServer() { return server; }
 
 	// TCPConnection interface
 	virtual void	OnRead();
@@ -39,8 +39,8 @@ public:
 
 protected:
 	Callable		onCloseCallback;
-	HttpServer*		server;
-	HttpRequest		request;
+	HTTPServer*		server;
+	HTTPRequest		request;
 	Endpoint		endpoint;
 	bool			closeAfterSend;
 

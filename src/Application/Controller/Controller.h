@@ -4,18 +4,18 @@
 #include "ControlConfigContext.h"
 #include "ControlChunkContext.h"
 #include "System/Events/Countdown.h"
-#include "Application/HTTP/HttpServer.h"
+#include "Application/HTTP/HTTPServer.h"
 #include "ClusterMessage.h"
 #include "ConfigMessage.h"
 
-class Controller : public HttpHandler
+class Controller : public HTTPHandler
 {
 public:
 	void					Init(Table* table);
 	void					ReadChunkQuorum(uint64_t /*chunkID*/);
 	void					WriteChunkQuorum(ConfigMessage& msg);
-	// HttpHandler interface
-	virtual bool			HandleRequest(HttpConn* conn, HttpRequest& request);
+	// HTTPHandler interface
+	virtual bool			HandleRequest(HTTPConnection* conn, HTTPRequest& request);
 	
 	void					OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
 	void					OnConfigMessage(ConfigMessage& msg);

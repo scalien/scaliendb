@@ -3,12 +3,12 @@
 
 #include "System/Buffers/ReadBuffer.h"
 
-class HttpConn;
+class HTTPConnection;
 
 /*
 ===============================================================================
 
- JSONSession parses JSON messages and able to print messages on HttpConn.
+ JSONSession parses JSON messages and able to print messages on HTTPConnection.
 
 ===============================================================================
 */
@@ -16,7 +16,7 @@ class HttpConn;
 class JSONSession
 {
 public:
-	void			Init(HttpConn* conn, const ReadBuffer& jsonCallback);
+	void			Init(HTTPConnection* conn, const ReadBuffer& jsonCallback);
 
 	void			PrintStatus(const char* status, const char* type = NULL);
 
@@ -30,7 +30,7 @@ public:
 
 private:
 	ReadBuffer		jsonCallback;
-	HttpConn*		conn;
+	HTTPConnection*		conn;
 };
 
 #endif

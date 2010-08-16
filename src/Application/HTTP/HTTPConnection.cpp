@@ -1,7 +1,7 @@
-#include "HttpConn.h"
+#include "HTTPConnection.h"
 #include "Version.h"
-#include "HttpServer.h"
-#include "HttpConsts.h"
+#include "HTTPServer.h"
+#include "HTTPConsts.h"
 #include "Framework/Database/Database.h"
 
 #define CS_CR				"\015"
@@ -9,12 +9,12 @@
 #define CS_CRLF				CS_CR CS_LF
 #define MSG_NOT_FOUND		"Not found"
 
-HttpConn::HttpConn()
+HTTPConnection::HTTPConnection()
 {
 	server = NULL;
 }
 
-void HttpConn::Init(HttpServer* server_)
+void HTTPConnection::Init(HTTPServer* server_)
 {
 	TCPConnection::InitConnected();
 	
@@ -27,12 +27,12 @@ void HttpConn::Init(HttpServer* server_)
 	closeAfterSend = false;
 }
 
-void HttpConn::SetOnClose(const Callable& callable)
+void HTTPConnection::SetOnClose(const Callable& callable)
 {
 	onCloseCallback = callable;
 }
 
-void HttpConn::OnRead()
+void HTTPConnection::OnRead()
 {
 	Log_Trace();
 	int len;
@@ -54,7 +54,7 @@ void HttpConn::OnRead()
 }
 
 
-void HttpConn::OnClose()
+void HTTPConnection::OnClose()
 {
 	Log_Trace();
 	
@@ -70,7 +70,7 @@ void HttpConn::OnClose()
 }
 
 
-void HttpConn::OnWrite()
+void HTTPConnection::OnWrite()
 {
 	Log_Trace();
 	TCPConnection::OnWrite();
@@ -79,7 +79,7 @@ void HttpConn::OnWrite()
 }
 
 
-void HttpConn::Print(const char* s)
+void HTTPConnection::Print(const char* s)
 {
 	Buffer*			buffer;
 	
@@ -88,7 +88,7 @@ void HttpConn::Print(const char* s)
 	writer->WritePooled(buffer);
 }
 
-void HttpConn::Write(const char* s, unsigned length)
+void HTTPConnection::Write(const char* s, unsigned length)
 {
 	Buffer*			buffer;
 	
@@ -97,7 +97,7 @@ void HttpConn::Write(const char* s, unsigned length)
 	writer->WritePooled(buffer);
 }
 
-int HttpConn::Parse(char* buf, int len)
+int HTTPConnection::Parse(char* buf, int len)
 {
 	int pos;
 	
@@ -115,7 +115,7 @@ int HttpConn::Parse(char* buf, int len)
 }
 
 
-const char* HttpConn::Status(int code)
+const char* HTTPConnection::Status(int code)
 {
 	if (code == HTTP_STATUS_CODE_OK)
 		return "OK";
@@ -125,7 +125,7 @@ const char* HttpConn::Status(int code)
 	return "";
 }
 
-void HttpConn::Response(int code, const char* data,
+void HTTPConnection::Response(int code, const char* data,
 int len, bool close, const char* header)
 {	
 	Buffer		*httpHeader;
@@ -160,7 +160,7 @@ int len, bool close, const char* header)
 	Flush(true);
 }
 
-void HttpConn::ResponseHeader(int code, bool close, const char* header)
+void HTTPConnection::ResponseHeader(int code, bool close, const char* header)
 {
 	Buffer*		httpHeader;
 
@@ -187,7 +187,7 @@ void HttpConn::ResponseHeader(int code, bool close, const char* header)
 	Flush();
 }
 
-void HttpConn::Flush(bool closeAfterSend_)
+void HTTPConnection::Flush(bool closeAfterSend_)
 {
 	writer->Flush();
 	closeAfterSend = closeAfterSend_;

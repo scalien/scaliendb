@@ -1,10 +1,10 @@
 #include "JSONSession.h"
-#include "HttpConn.h"
-#include "HttpConsts.h"
+#include "HTTPConnection.h"
+#include "HTTPConsts.h"
 
 #include <stdio.h>
 
-void JSONSession::Init(HttpConn* conn_, const ReadBuffer& jsonCallback_)
+void JSONSession::Init(HTTPConnection* conn_, const ReadBuffer& jsonCallback_)
 {
 	conn = conn_;
 	jsonCallback = jsonCallback_;

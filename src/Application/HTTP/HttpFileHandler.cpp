@@ -1,5 +1,5 @@
-#include "HttpFileHandler.h"
-#include "HttpConsts.h"
+#include "HTTPFileHandler.h"
+#include "HTTPConsts.h"
 #include "Mime.h"
 
 #include <stdio.h>
@@ -14,13 +14,13 @@ void HttpHeaderAppend(HeaderArray& ha, const char* k, size_t klen, const char* v
 	ha.Append(HTTP_CS_CRLF, 2);
 }
 
-HttpFileHandler::HttpFileHandler(const char* docroot, const char* prefix_)
+HTTPFileHandler::HTTPFileHandler(const char* docroot, const char* prefix_)
 {
 	documentRoot = docroot;
 	prefix = prefix_;
 }
 
-bool HttpFileHandler::HandleRequest(HttpConn* conn, HttpRequest& request)
+bool HTTPFileHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
 {
 	Buffer			path;
 	Buffer			tmp;

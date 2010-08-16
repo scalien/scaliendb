@@ -1,10 +1,10 @@
 #include <stdlib.h>
-#include "HttpRequest.h"
+#include "HTTPRequest.h"
 
 #define CR 13
 #define LF 10
 
-void HttpRequest::Init()
+void HTTPRequest::Init()
 {
 	state = REQUEST_LINE;
 	pos = 0;
@@ -12,12 +12,12 @@ void HttpRequest::Init()
 	header.Init();
 }
 
-void HttpRequest::Free()
+void HTTPRequest::Free()
 {
 	header.Free();
 }
 
-int HttpRequest::Parse(char* buf, int len)
+int HTTPRequest::Parse(char* buf, int len)
 {
 	int reqPos;
 	int headPos;
