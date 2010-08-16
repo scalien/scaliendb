@@ -4,7 +4,6 @@
 #include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Paxos/PaxosProposer.h"
 #include "Framework/Replication/Paxos/PaxosAcceptor.h"
-#include "LogCache.h"
 
 #define REQUEST_CHOSEN_TIMEOUT	7000
 
@@ -51,11 +50,9 @@ private:
 
 	QuorumContext*			context;
 
+	uint64_t				paxosID;
 	PaxosProposer			proposer;
 	PaxosAcceptor			acceptor;
-
-	LogCache				logCache;
-	uint64_t				paxosID;
 	
 	uint64_t				lastRequestChosenTime;
 	uint64_t				lastRequestChosenPaxosID;

@@ -23,7 +23,7 @@ public:
 	uint64_t			GetPaxosID();
 	void				SetPaxosID(uint64_t paxosID);
 	
-	bool				GetAccepted(); // if not accepted => no acceptedProposalID+value
+	bool				GetAccepted();
 	void				SetAccepted(bool accepted);
 	
 	uint64_t			GetPromisedProposalID();
@@ -37,6 +37,9 @@ public:
 
 	void				GetAcceptedValue(Buffer& acceptedValue);
 	void				SetAcceptedValue(Buffer& acceptedValue);
+
+	void				GetLearnedValue(uint64_t paxosID, Buffer& value);
+	void				SetLearnedValue(uint64_t paxosID, ReadBuffer& value);
 
 	void				Begin();
 	void				Commit();

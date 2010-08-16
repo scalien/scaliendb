@@ -53,7 +53,6 @@
 		54FCED7511F762780075BBFF /* Cursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560411C7B32A0052812E /* Cursor.cpp */; };
 		54FCED7611F762780075BBFF /* Database.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A31560811C7B32A0052812E /* Database.cpp */; };
 		54FCF0C911FAFE2A0075BBFF /* ReplicatedLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCED9A11F8549F0075BBFF /* ReplicatedLog.cpp */; };
-		54FCF42C11FB31420075BBFF /* LogCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF42B11FB31420075BBFF /* LogCache.cpp */; };
 		54FCF78311FEF3BA0075BBFF /* PaxosLeaseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868611C7D8E400A6CB16 /* PaxosLeaseMessage.cpp */; };
 		54FCF78411FEF3BA0075BBFF /* PaxosLease.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D867F11C7D8E400A6CB16 /* PaxosLease.cpp */; };
 		54FCF78511FEF3BA0075BBFF /* PaxosLeaseProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */; };
@@ -197,8 +196,6 @@
 		54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumDatabase.cpp; sourceTree = "<group>"; };
 		54FCED9A11F8549F0075BBFF /* ReplicatedLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicatedLog.cpp; sourceTree = "<group>"; };
 		54FCED9B11F8549F0075BBFF /* ReplicatedLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicatedLog.h; sourceTree = "<group>"; };
-		54FCF42A11FB31420075BBFF /* LogCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LogCache.h; sourceTree = "<group>"; };
-		54FCF42B11FB31420075BBFF /* LogCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LogCache.cpp; sourceTree = "<group>"; };
 		54FCF69A11FDF4770075BBFF /* ControlChunkContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControlChunkContext.cpp; sourceTree = "<group>"; };
 		54FCF69B11FDF4770075BBFF /* ControlChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControlChunkContext.h; sourceTree = "<group>"; };
 		54FCF69C11FDF4770075BBFF /* ControlConfigContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControlConfigContext.cpp; sourceTree = "<group>"; };
@@ -508,8 +505,6 @@
 			children = (
 				54FCED9B11F8549F0075BBFF /* ReplicatedLog.h */,
 				54FCED9A11F8549F0075BBFF /* ReplicatedLog.cpp */,
-				54FCF42A11FB31420075BBFF /* LogCache.h */,
-				54FCF42B11FB31420075BBFF /* LogCache.cpp */,
 			);
 			path = ReplicatedLog;
 			sourceTree = "<group>";
@@ -695,7 +690,6 @@
 				54FCED7511F762780075BBFF /* Cursor.cpp in Sources */,
 				54FCED7611F762780075BBFF /* Database.cpp in Sources */,
 				54FCF0C911FAFE2A0075BBFF /* ReplicatedLog.cpp in Sources */,
-				54FCF42C11FB31420075BBFF /* LogCache.cpp in Sources */,
 				54FCF78311FEF3BA0075BBFF /* PaxosLeaseMessage.cpp in Sources */,
 				54FCF78411FEF3BA0075BBFF /* PaxosLease.cpp in Sources */,
 				54FCF78511FEF3BA0075BBFF /* PaxosLeaseProposer.cpp in Sources */,
