@@ -112,7 +112,7 @@ void MessageConnection::OnClose()
 
 void MessageConnection::OnRead()
 {
-	bool			yield;
+	bool			yield, closed;
 	unsigned		pos, msglength, nread, msgbegin, msgend, required;
 	uint64_t		start;
 	Stopwatch		sw;
@@ -167,7 +167,9 @@ void MessageConnection::OnRead()
 
 		msg.SetBuffer(tcpread.buffer->GetBuffer() + msgbegin);
 		msg.SetLength(msglength);
-		OnMessage(msg);
+		closed = OnMessage(msg);
+		if (closed)
+			return;
 
 		pos = msgend;
 		
@@ -204,7 +206,7 @@ void MessageConnection::OnRead()
 	Log_Trace("time spent in OnRead(): %ld", sw.Elapsed());
 }
 
-void MessageConnection::OnMessage(ReadBuffer& msg)
+bool MessageConnection::OnMessage(ReadBuffer& msg)
 {
 	uint64_t			nodeID;
 	ReadBuffer			buffer;
@@ -220,7 +222,7 @@ void MessageConnection::OnMessage(ReadBuffer& msg)
 			{
 				Log_Trace("delete conn");
 				transport->DeleteConnection(this);		// drop current node
-				return;
+				return true;
 			}
 			else
 			{
@@ -236,14 +238,11 @@ void MessageConnection::OnMessage(ReadBuffer& msg)
 		transport->OnIncomingConnectionReady(this->nodeID, this->endpoint);
 	}
 	else if (progress == MessageConnection::OUTGOING)
-	{
 		ASSERT_FAIL();
-	}
 	else
-	{
-		// pass msg to upper layer
-		transport->OnMessage(msg);
-	}
+		transport->OnMessage(msg); // pass msg to upper layer
+	
+	return false;
 }
 
 void MessageConnection::OnResumeRead()

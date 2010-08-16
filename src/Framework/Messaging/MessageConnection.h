@@ -49,7 +49,7 @@ public:
 	// read:
 	virtual void		OnClose();
 	virtual void		OnRead();
-	void				OnMessage(ReadBuffer& msg);
+	bool				OnMessage(ReadBuffer& msg);
 	void				OnResumeRead();
 
 	// write:
