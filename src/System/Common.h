@@ -14,6 +14,7 @@
 #define MB 1000000
 
 unsigned		NumDigits(int n);
+unsigned		NumDigits64(uint64_t n);
 const char*		HumanBytes_(uint64_t bytes, char buf[5]);
 #define			HumanBytes(bytes) HumanBytes_(bytes, (char*) alloca(5))
 

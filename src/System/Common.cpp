@@ -18,12 +18,27 @@ unsigned NumDigits(int n)
 	return n == 0 ? 1 : (unsigned) floor(log10((float)n) + 1);
 }
 
+unsigned NumDigits64(uint64_t n)
+{
+	unsigned	d;
+	
+	if (n == 0)
+		return 1;
+
+	d = 0;
+	while (n > 0)
+	{
+		n = n / 10;
+		d++;
+	}
+	return d;
+}
+
 const char* HumanBytes_(uint64_t bytes, char buf[5])
 {
 	uint64_t	n;
 	const char	units[] = "KMGTP";
 	unsigned	u;
-	double		d;
 	
 	if (bytes == 0)
 	{
@@ -33,7 +48,7 @@ const char* HumanBytes_(uint64_t bytes, char buf[5])
 	}
 	
 	u = 0;
-	while ((d = floor(log10((double)n) + 1)) > 3)
+	while (NumDigits64(n) > 3)
 	{
 		n = n / 1024;
 		u++;
