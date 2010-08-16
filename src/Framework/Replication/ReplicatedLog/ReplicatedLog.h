@@ -6,7 +6,6 @@
 #include "Framework/Replication/Paxos/PaxosAcceptor.h"
 #include "LogCache.h"
 
-#define CATCHUP_TIMEOUT			5000
 #define REQUEST_CHOSEN_TIMEOUT	7000
 
 /*
@@ -43,13 +42,11 @@ private:
 	void					OnProposeRequest(PaxosMessage& msg);
 	void					OnProposeResponse(PaxosMessage& msg);
 	void					OnLearnChosen(PaxosMessage& msg);
-	
+	void					ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value);
 	void					OnRequestChosen(PaxosMessage& msg);
-//	void					OnStartCatchup();
 
 	void					OnRequest(PaxosMessage& msg);
 	void					NewPaxosRound();
-//	void					RequestChosen();
 	void					RequestChosen(uint64_t nodeID);
 
 	QuorumContext*			context;
