@@ -18,7 +18,6 @@ void ReplicatedLog::Init(QuorumContext* context_)
 	lastRequestChosenTime = 0;
 	lastRequestChosenPaxosID = 0;
 	
-	logCache.Init(context->GetDatabase()->table);
 	enableMultiPaxos.Write("EnableMultiPaxos");
 }
 
@@ -153,12 +152,13 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 
 void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value)
 {
-	bool commit, ownAppend;
+	bool ownAppend;
 
 	Log_Trace("+++ Value for paxosID = %" PRIu64 ": %.*s +++", paxosID, P(&value));
 	
-	commit = (paxosID == (context->GetHighestPaxosID() - 1));
-	logCache.Set(paxosID, value, commit);
+	context->GetDatabase()->SetLearnedValue(paxosID, value);
+	if (paxosID == (context->GetHighestPaxosID() - 1))
+		context->GetDatabase()->Commit();
 
 	NewPaxosRound(); // increments paxosID, clears proposer, acceptor
 	
@@ -193,7 +193,7 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 		return;
 	
 	// the node is lagging and needs to catch-up
-	logCache.Get(imsg.paxosID, value);
+	context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
 	if (value.GetLength() != 0)
 	{
 		Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
@@ -217,7 +217,7 @@ void ReplicatedLog::OnRequest(PaxosMessage& imsg)
 	if (imsg.paxosID < GetPaxosID())
 	{
 		// the node is lagging and needs to catch-up
-		logCache.Get(imsg.paxosID, value);
+		context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
 		if (value.GetLength() == 0)
 			return;
 		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, value);

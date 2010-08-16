@@ -108,6 +108,21 @@ void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
 	ret = table->Set(&transaction, key, acceptedValue);
 }
 
+void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
+{
+	Buffer key;
+	key.Writef("learnedValue:%U", paxosID);
+	table->Get(NULL, key, value);
+}
+
+void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
+{
+	Buffer key;
+	
+	key.Writef("learnedValue:%U", paxosID);
+	table->Set(NULL, key.GetBuffer(), key.GetLength(), value.GetBuffer(), value.GetLength());
+}
+
 void QuorumDatabase::Begin()
 {
 	transaction.Begin();
