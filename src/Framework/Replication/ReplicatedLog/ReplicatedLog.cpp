@@ -119,7 +119,6 @@ void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 {
 	uint64_t		runID;
-	bool			commit, ownAppend;
 	ReadBuffer		value;
 
 	Log_Trace();
@@ -148,8 +147,15 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 		RequestChosen(imsg.nodeID);
 		return;
 	}
-	
-	Log_Trace("+++ Value for paxosID = %" PRIu64 ": %.*s +++", imsg.paxosID, P(&value));
+		
+	ProcessLearnChosen(imsg.nodeID, runID, value);
+}
+
+void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value)
+{
+	bool commit, ownAppend;
+
+	Log_Trace("+++ Value for paxosID = %" PRIu64 ": %.*s +++", paxosID, P(&value));
 	
 	commit = (paxosID == (context->GetHighestPaxosID() - 1));
 	logCache.Set(paxosID, value, commit);
@@ -157,10 +163,10 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 	NewPaxosRound(); // increments paxosID, clears proposer, acceptor
 	
 	if (context->GetHighestPaxosID() >= paxosID)
-		RequestChosen(imsg.nodeID);
+		RequestChosen(nodeID);
 	
 	ownAppend = proposer.state.multi;
-	if (imsg.nodeID == RMAN->GetNodeID() && runID == RMAN->GetRunID() && context->IsLeader())
+	if (nodeID == RMAN->GetNodeID() && runID == RMAN->GetRunID() && context->IsLeader())
 	{
 		proposer.state.multi = true;
 		Log_Trace("Multi paxos enabled");
@@ -171,11 +177,8 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 		Log_Trace("Multi paxos disabled");
 	}
 
-	if (!MEMCMP(value.GetBuffer(), value.GetLength(),
-	 enableMultiPaxos.GetBuffer(), enableMultiPaxos.GetLength()))
-	{
+	if (!BUFCMP(&value, &enableMultiPaxos))
 		context->OnAppend(value, ownAppend);
-	}
 	TryAppendNextValue();
 }
 
@@ -197,7 +200,7 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, value);
 		context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 	}
-//	else // TODO
+//	else
 //	{
 //		Log_Trace("Node requested a paxosID I no longer have");
 //		SendStartCatchup(pmsg.nodeID, pmsg.paxosID);
