@@ -108,5 +108,5 @@ void MessageTransport::DeleteConnection(MessageConnection* conn)
 	if (conn->next != conn)
 		conns.Remove(conn);
 
-	delete conn; // TODO: what happens when control returns to OnRead()
+	delete conn;
 }
