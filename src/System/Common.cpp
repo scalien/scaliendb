@@ -46,11 +46,12 @@ const char* HumanBytes_(uint64_t bytes, char buf[5])
 		buf[1] = 0;
 		return buf;
 	}
-	
+
+	n = bytes;
 	u = 0;
 	while (NumDigits64(n) > 3)
 	{
-		n = n / 1024;
+		n = n / KB;
 		u++;
 	}
 	
