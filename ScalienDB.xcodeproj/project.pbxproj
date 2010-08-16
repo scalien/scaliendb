@@ -61,10 +61,10 @@
 		54FCF8A6120028D70075BBFF /* ControlConfigContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ControlConfigContext.cpp */; };
 		8DD76F6A0486A84900D96B5E /* Rowscale.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Rowscale.1 */; };
 		9A0C20D411C7C48600510AB4 /* libdb_cxx-4.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */; };
-		9A26D69E11F4BDE2006A2814 /* HttpConn.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */; };
-		9A26D69F11F4BDE2006A2814 /* HttpFileHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69011F4BDE2006A2814 /* HttpFileHandler.cpp */; };
-		9A26D6A011F4BDE2006A2814 /* HttpRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69211F4BDE2006A2814 /* HttpRequest.cpp */; };
-		9A26D6A111F4BDE2006A2814 /* HttpServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69411F4BDE2006A2814 /* HttpServer.cpp */; };
+		9A26D69E11F4BDE2006A2814 /* HTTPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D68D11F4BDE2006A2814 /* HTTPConnection.cpp */; };
+		9A26D69F11F4BDE2006A2814 /* HTTPFileHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69011F4BDE2006A2814 /* HTTPFileHandler.cpp */; };
+		9A26D6A011F4BDE2006A2814 /* HTTPRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69211F4BDE2006A2814 /* HTTPRequest.cpp */; };
+		9A26D6A111F4BDE2006A2814 /* HTTPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69411F4BDE2006A2814 /* HTTPServer.cpp */; };
 		9A26D6A211F4BDE2006A2814 /* IMF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69611F4BDE2006A2814 /* IMF.cpp */; };
 		9A26D6A311F4BDE2006A2814 /* JSONSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69811F4BDE2006A2814 /* JSONSession.cpp */; };
 		9A26D6A411F4BDE2006A2814 /* Mime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69A11F4BDE2006A2814 /* Mime.cpp */; };
@@ -205,15 +205,15 @@
 		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9A0C20D311C7C48600510AB4 /* libdb_cxx-4.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libdb_cxx-4.6.dylib"; path = "/opt/local/lib/db46/libdb_cxx-4.6.dylib"; sourceTree = "<absolute>"; };
 		9A10D408120874E90009ABA7 /* DataService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataService.h; sourceTree = "<group>"; };
-		9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpConn.cpp; path = Application/HTTP/HttpConn.cpp; sourceTree = "<group>"; };
-		9A26D68E11F4BDE2006A2814 /* HttpConn.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpConn.h; path = Application/HTTP/HttpConn.h; sourceTree = "<group>"; };
-		9A26D68F11F4BDE2006A2814 /* HttpConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpConsts.h; path = Application/HTTP/HttpConsts.h; sourceTree = "<group>"; };
-		9A26D69011F4BDE2006A2814 /* HttpFileHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpFileHandler.cpp; path = Application/HTTP/HttpFileHandler.cpp; sourceTree = "<group>"; };
-		9A26D69111F4BDE2006A2814 /* HttpFileHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpFileHandler.h; path = Application/HTTP/HttpFileHandler.h; sourceTree = "<group>"; };
-		9A26D69211F4BDE2006A2814 /* HttpRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpRequest.cpp; path = Application/HTTP/HttpRequest.cpp; sourceTree = "<group>"; };
-		9A26D69311F4BDE2006A2814 /* HttpRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpRequest.h; path = Application/HTTP/HttpRequest.h; sourceTree = "<group>"; };
-		9A26D69411F4BDE2006A2814 /* HttpServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HttpServer.cpp; path = Application/HTTP/HttpServer.cpp; sourceTree = "<group>"; };
-		9A26D69511F4BDE2006A2814 /* HttpServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HttpServer.h; path = Application/HTTP/HttpServer.h; sourceTree = "<group>"; };
+		9A26D68D11F4BDE2006A2814 /* HTTPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPConnection.cpp; path = Application/HTTP/HTTPConnection.cpp; sourceTree = "<group>"; };
+		9A26D68E11F4BDE2006A2814 /* HTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPConnection.h; path = Application/HTTP/HTTPConnection.h; sourceTree = "<group>"; };
+		9A26D68F11F4BDE2006A2814 /* HTTPConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPConsts.h; path = Application/HTTP/HTTPConsts.h; sourceTree = "<group>"; };
+		9A26D69011F4BDE2006A2814 /* HTTPFileHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPFileHandler.cpp; path = Application/HTTP/HTTPFileHandler.cpp; sourceTree = "<group>"; };
+		9A26D69111F4BDE2006A2814 /* HTTPFileHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPFileHandler.h; path = Application/HTTP/HTTPFileHandler.h; sourceTree = "<group>"; };
+		9A26D69211F4BDE2006A2814 /* HTTPRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPRequest.cpp; path = Application/HTTP/HTTPRequest.cpp; sourceTree = "<group>"; };
+		9A26D69311F4BDE2006A2814 /* HTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPRequest.h; path = Application/HTTP/HTTPRequest.h; sourceTree = "<group>"; };
+		9A26D69411F4BDE2006A2814 /* HTTPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPServer.cpp; path = Application/HTTP/HTTPServer.cpp; sourceTree = "<group>"; };
+		9A26D69511F4BDE2006A2814 /* HTTPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPServer.h; path = Application/HTTP/HTTPServer.h; sourceTree = "<group>"; };
 		9A26D69611F4BDE2006A2814 /* IMF.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = IMF.cpp; path = Application/HTTP/IMF.cpp; sourceTree = "<group>"; };
 		9A26D69711F4BDE2006A2814 /* IMF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = IMF.h; path = Application/HTTP/IMF.h; sourceTree = "<group>"; };
 		9A26D69811F4BDE2006A2814 /* JSONSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSONSession.cpp; path = Application/HTTP/JSONSession.cpp; sourceTree = "<group>"; };
@@ -555,15 +555,15 @@
 		9A26D68711F4BD66006A2814 /* HTTP */ = {
 			isa = PBXGroup;
 			children = (
-				9A26D68D11F4BDE2006A2814 /* HttpConn.cpp */,
-				9A26D68E11F4BDE2006A2814 /* HttpConn.h */,
-				9A26D68F11F4BDE2006A2814 /* HttpConsts.h */,
-				9A26D69011F4BDE2006A2814 /* HttpFileHandler.cpp */,
-				9A26D69111F4BDE2006A2814 /* HttpFileHandler.h */,
-				9A26D69211F4BDE2006A2814 /* HttpRequest.cpp */,
-				9A26D69311F4BDE2006A2814 /* HttpRequest.h */,
-				9A26D69411F4BDE2006A2814 /* HttpServer.cpp */,
-				9A26D69511F4BDE2006A2814 /* HttpServer.h */,
+				9A26D68D11F4BDE2006A2814 /* HTTPConnection.cpp */,
+				9A26D68E11F4BDE2006A2814 /* HTTPConnection.h */,
+				9A26D68F11F4BDE2006A2814 /* HTTPConsts.h */,
+				9A26D69011F4BDE2006A2814 /* HTTPFileHandler.cpp */,
+				9A26D69111F4BDE2006A2814 /* HTTPFileHandler.h */,
+				9A26D69211F4BDE2006A2814 /* HTTPRequest.cpp */,
+				9A26D69311F4BDE2006A2814 /* HTTPRequest.h */,
+				9A26D69411F4BDE2006A2814 /* HTTPServer.cpp */,
+				9A26D69511F4BDE2006A2814 /* HTTPServer.h */,
 				9A26D69611F4BDE2006A2814 /* IMF.cpp */,
 				9A26D69711F4BDE2006A2814 /* IMF.h */,
 				9A26D69811F4BDE2006A2814 /* JSONSession.cpp */,
@@ -671,10 +671,10 @@
 				546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */,
 				546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */,
 				546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */,
-				9A26D69E11F4BDE2006A2814 /* HttpConn.cpp in Sources */,
-				9A26D69F11F4BDE2006A2814 /* HttpFileHandler.cpp in Sources */,
-				9A26D6A011F4BDE2006A2814 /* HttpRequest.cpp in Sources */,
-				9A26D6A111F4BDE2006A2814 /* HttpServer.cpp in Sources */,
+				9A26D69E11F4BDE2006A2814 /* HTTPConnection.cpp in Sources */,
+				9A26D69F11F4BDE2006A2814 /* HTTPFileHandler.cpp in Sources */,
+				9A26D6A011F4BDE2006A2814 /* HTTPRequest.cpp in Sources */,
+				9A26D6A111F4BDE2006A2814 /* HTTPServer.cpp in Sources */,
 				9A26D6A211F4BDE2006A2814 /* IMF.cpp in Sources */,
 				9A26D6A311F4BDE2006A2814 /* JSONSession.cpp in Sources */,
 				9A26D6A411F4BDE2006A2814 /* Mime.cpp in Sources */,

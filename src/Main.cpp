@@ -6,7 +6,7 @@
 #include "Application/Controller/Controller.h"
 #include "Application/DataNode/DataNode.h"
 #include "Application/DataNode/DataChunkContext.h"
-#include "Application/HTTP/HttpServer.h"
+#include "Application/HTTP/HTTPServer.h"
 
 #ifdef DEBUG
 #define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING " (DEBUG build date " __DATE__ " " __TIME__ ")"
@@ -52,7 +52,7 @@ int main(int argc, char** argv)
 	QuorumTransport				configTransport;
 	QuorumTransport				chunkTransport;
 	Buffer						prefix;
-	HttpServer					httpServer;
+	HTTPServer					httpServer;
 	int							httpPort;
 	Endpoint					endpoint;
 	uint64_t					nodeID;
