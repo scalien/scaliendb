@@ -50,7 +50,7 @@ void MessageConnection::Write(Buffer& msg)
 	
 	buffer = writer->AcquireBuffer();
 	buffer->Writef("%#B", &msg);
-	writer->Write(buffer);	
+	writer->WritePooled(buffer);	
 	writer->Flush();
 }
 
@@ -60,7 +60,7 @@ void MessageConnection::WritePriority(Buffer& msg)
 	
 	buffer = writer->AcquireBuffer();
 	buffer->Writef("%#B", &msg);
-	writer->WritePriority(buffer);	
+	writer->WritePooledPriority(buffer);	
 	writer->Flush();
 }
 
@@ -72,7 +72,7 @@ void MessageConnection::Write(Buffer& prefix, Buffer& msg)
 	buffer = writer->AcquireBuffer();
 	length = prefix.GetLength() + 1 + msg.GetLength();
 	buffer->Writef("%u:%B:%B", length, &prefix, &msg);
-	writer->Write(buffer);	
+	writer->WritePooled(buffer);	
 	writer->Flush();
 }
 
@@ -84,7 +84,7 @@ void MessageConnection::WritePriority(Buffer& prefix, Buffer& msg)
 	buffer = writer->AcquireBuffer();
 	length = prefix.GetLength() + 1 + msg.GetLength();
 	buffer->Writef("%u:%B:%B", length, &prefix, &msg);
-	writer->WritePriority(buffer);	
+	writer->WritePooledPriority(buffer);	
 	writer->Flush();
 }
 
