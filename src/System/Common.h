@@ -13,8 +13,12 @@
 #define KB 1000
 #define MB 1000000
 
+#define KiB	1024
+#define MiB (1024*1024)
+
 unsigned		NumDigits(int n);
 unsigned		NumDigits64(uint64_t n);
+
 const char*		HumanBytes_(uint64_t bytes, char buf[5]);
 #define			HumanBytes(bytes) HumanBytes_(bytes, (char*) alloca(5))
 

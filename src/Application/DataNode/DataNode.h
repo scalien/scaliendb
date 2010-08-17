@@ -2,33 +2,21 @@
 #define DATANODE_H
 
 #include "DataChunkContext.h"
-#include "Application/HTTP/HTTPServer.h"
-#include "Application/HTTP/UrlParam.h"
-#include "Application/Controller/ClusterMessage.h"
-#include "DataMessage.h"
+#include "DataHTTPHandler.h"
 #include "DataService.h"
 
-class DataNode : public HTTPHandler, public DataService
+class DataNode
 {
 public:
-	void					Init(Table* table);
+	void				Init(Table* table);
 
-	// HTTPHandler interface
-	virtual bool			HandleRequest(HTTPConnection* conn, HTTPRequest& request);
+	DataService*		GetService();
+	HTTPHandler*		GetHandler();
 	
-	// DataService interface
-	virtual void			OnComplete(DataMessage* msg, bool status);
-
 private:
-	bool					ProcessCommand(HTTPConnection* conn, const char* cmd, 
-							 unsigned cmdlen, UrlParam& params);
-	bool					MatchString(const char* s1, unsigned len1, 
-							 const char* s2, unsigned len2);
-
-	void					PrintHello(HTTPConnection* conn);
-
-	Table*					table;
-	uint64_t				nodeID;
+	Table*				table;
+	uint64_t			nodeID;
+	DataHTTPHandler		httpHandler;
 };
 
 #endif

@@ -1,5 +1,4 @@
 #include "HTTPConnection.h"
-#include "Version.h"
 #include "HTTPServer.h"
 #include "HTTPConsts.h"
 #include "Framework/Database/Database.h"
@@ -48,7 +47,11 @@ void HTTPConnection::OnRead()
 		}
 			
 		tcpread.offset = tcpread.buffer->GetLength();
-		tcpread.buffer->Allocate(2 * tcpread.buffer->GetLength());
+		if (tcpread.buffer->GetSize() < 1*KiB)
+			tcpread.buffer->Allocate(1*KiB);
+		else
+			tcpread.buffer->Allocate(2 * tcpread.buffer->GetLength());
+			
 		IOProcessor::Add(&tcpread);
 	}
 }

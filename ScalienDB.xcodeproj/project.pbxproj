@@ -71,6 +71,7 @@
 		9A26D6A511F4BDE2006A2814 /* UrlParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */; };
 		9A26DB48120076BA006A2814 /* Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26DB47120076BA006A2814 /* Controller.cpp */; };
 		9A87343E12195748000B1319 /* Section.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87343D12195748000B1319 /* Section.cpp */; };
+		9A8735E6121AB70A000B1319 /* DataHTTPHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A8735E5121AB70A000B1319 /* DataHTTPHandler.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -236,6 +237,8 @@
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
 		9A87343C12195748000B1319 /* Section.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Section.h; path = Database/Section.h; sourceTree = "<group>"; };
 		9A87343D12195748000B1319 /* Section.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Section.cpp; path = Database/Section.cpp; sourceTree = "<group>"; };
+		9A8735E4121AB70A000B1319 /* DataHTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataHTTPHandler.h; sourceTree = "<group>"; };
+		9A8735E5121AB70A000B1319 /* DataHTTPHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataHTTPHandler.cpp; sourceTree = "<group>"; };
 		C6859E8B029090EE04C91782 /* Rowscale.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Rowscale.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -537,6 +540,8 @@
 				54DD0B8D12086BF30049D33A /* DataMessage.h */,
 				54DD0B8E12086BF30049D33A /* DataMessage.cpp */,
 				9A10D408120874E90009ABA7 /* DataService.h */,
+				9A8735E4121AB70A000B1319 /* DataHTTPHandler.h */,
+				9A8735E5121AB70A000B1319 /* DataHTTPHandler.cpp */,
 			);
 			name = DataNode;
 			path = Application/DataNode;
@@ -707,6 +712,7 @@
 				54DD0B8F12086BF30049D33A /* DataMessage.cpp in Sources */,
 				548F50A012157A050035ADDB /* Formatting.cpp in Sources */,
 				9A87343E12195748000B1319 /* Section.cpp in Sources */,
+				9A8735E6121AB70A000B1319 /* DataHTTPHandler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

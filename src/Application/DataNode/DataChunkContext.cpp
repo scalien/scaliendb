@@ -112,7 +112,7 @@ void DataChunkContext::OnAppend(ReadBuffer value, bool ownAppend)
 	Log_Trace("my append");
 	
 	msgptr = messages.Head();
-	dataNode->OnComplete(msgptr, true);
+	dataNode->GetService()->OnComplete(msgptr, true);
 	messages.Remove(msgptr);
 	delete msgptr;
 }
@@ -223,7 +223,7 @@ void DataChunkContext::Get(ReadBuffer& key, void* ptr)
 
 	if (!IsLeader())
 	{
-		dataNode->OnComplete(msg, false);
+		dataNode->GetService()->OnComplete(msg, false);
 		delete msg;
 		return;
 	}
@@ -234,7 +234,7 @@ void DataChunkContext::Get(ReadBuffer& key, void* ptr)
 	bool found = table->Get(NULL, bkey, bvalue);
 	if (found)
 		msg->value.Wrap(bvalue);
-	dataNode->OnComplete(msg, found);
+	dataNode->GetService()->OnComplete(msg, found);
 	delete msg;
 }
 
@@ -247,7 +247,7 @@ void DataChunkContext::Set(ReadBuffer& key, ReadBuffer& value, void* ptr)
 
 	if (!IsLeader())
 	{
-		dataNode->OnComplete(msg, false);
+		dataNode->GetService()->OnComplete(msg, false);
 		delete msg;
 		return;
 	}

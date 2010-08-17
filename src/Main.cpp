@@ -166,7 +166,7 @@ int main(int argc, char** argv)
 		httpPort = configFile.GetIntValue("http.port", 8080);
 		Log_Message("HTTP Server listening on port %d", httpPort);
 		httpServer.Init(httpPort);
-		httpServer.RegisterHandler(&dataNode);
+		httpServer.RegisterHandler(dataNode.GetHandler());
 		RMAN->AddContext(&dataContext);
 	}
 
