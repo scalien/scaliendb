@@ -12,6 +12,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/Controller/ConfigMessage.o \
 	$(BUILD_DIR)/Application/Controller/ClusterMessage.o \
 	$(BUILD_DIR)/Application/DataNode/DataChunkContext.o \
+	$(BUILD_DIR)/Application/DataNode/DataHTTPHandler.o \
 	$(BUILD_DIR)/Application/DataNode/DataNode.o \
 	$(BUILD_DIR)/Application/DataNode/DataMessage.o \
 	$(BUILD_DIR)/Framework/Database/Cursor.o \
