@@ -36,22 +36,15 @@ unsigned NumDigits64(uint64_t n)
 
 const char* HumanBytes_(uint64_t bytes, char buf[5])
 {
+	const char	units[] = "kMGTPEZY";
 	uint64_t	n;
-	const char	units[] = "KMGTP";
 	unsigned	u;
 	
-	if (bytes == 0)
-	{
-		buf[0] = '0';
-		buf[1] = 0;
-		return buf;
-	}
-
 	n = bytes;
 	u = 0;
 	while (NumDigits64(n) > 3)
 	{
-		n = n / KB;
+		n = (uint64_t)(n / 1000.0 + 0.5);	// rounding
 		u++;
 	}
 	
