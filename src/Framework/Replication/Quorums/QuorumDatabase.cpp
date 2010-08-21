@@ -1,14 +1,24 @@
 #include "QuorumDatabase.h"
 #include "Framework/Database/Table.h"
 
-#define KEY(key) "/" key
-
-void QuorumDatabase::Init(Table* table_)
+Section* QuorumDatabase::GetSection()
 {
-	table = table_;
-	transaction.Set(table);
-	
-	prefix.Write("#");
+	return section;
+}
+
+void QuorumDatabase::SetSection(Section* section_)
+{
+	section = section_;
+}
+
+Transaction* QuorumDatabase::GetTransaction()
+{
+	return transaction;
+}
+
+void QuorumDatabase::SetTransaction(Transaction* transaction_)
+{
+	transaction = transaction_;
 }
 
 uint64_t QuorumDatabase::GetPaxosID()
@@ -27,10 +37,9 @@ bool QuorumDatabase::GetAccepted()
 	Buffer		value;
 	int			ret;
 
-	key.Write(prefix);
-	key.Append(KEY("accepted"));
+	key.Write("accepted");
 	
-	ret = table->Get(NULL, key, value);
+	ret = section->Get(NULL, key, value);
 	if (!ret)
 		return false;	// not found, return default
 	
@@ -49,11 +58,10 @@ void QuorumDatabase::SetAccepted(bool accepted)
 	Buffer		value;
 	int			ret;
 	
-	key.Write(prefix);
-	key.Append(KEY("accepted"));
+	key.Write("accepted");
 	
 	value.Writef("%d", accepted);
-	ret = table->Set(&transaction, key, value);
+	ret = section->Set(transaction, key, value);
 }
 
 uint64_t QuorumDatabase::GetPromisedProposalID()
@@ -91,10 +99,9 @@ void QuorumDatabase::GetAcceptedValue(Buffer& acceptedValue)
 	Buffer		key;
 	int			ret;
 	
-	key.Write(prefix);
-	key.Append(KEY("acceptedValue"));
+	key.Write("acceptedValue");
 	
-	ret = table->Get(NULL, key, acceptedValue);
+	ret = section->Get(NULL, key, acceptedValue);
 }
 
 void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
@@ -102,17 +109,16 @@ void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
 	Buffer		key;
 	int			ret;
 
-	key.Write(prefix);
-	key.Append(KEY("acceptedValue"));
+	key.Write("acceptedValue");
 
-	ret = table->Set(&transaction, key, acceptedValue);
+	ret = section->Set(transaction, key, acceptedValue);
 }
 
 void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
 {
 	Buffer key;
 	key.Writef("learnedValue:%U", paxosID);
-	table->Get(NULL, key, value);
+	section->Get(NULL, key, value);
 }
 
 void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
@@ -120,17 +126,7 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
 	Buffer key;
 	
 	key.Writef("learnedValue:%U", paxosID);
-	table->Set(NULL, key.GetBuffer(), key.GetLength(), value.GetBuffer(), value.GetLength());
-}
-
-void QuorumDatabase::Begin()
-{
-	transaction.Begin();
-}
-
-void QuorumDatabase::Commit()
-{
-	transaction.Commit();
+	section->Set(NULL, key.GetBuffer(), key.GetLength(), value.GetBuffer(), value.GetLength());
 }
 
 bool QuorumDatabase::IsActive()
@@ -147,11 +143,9 @@ uint64_t QuorumDatabase::GetUint64(const char* name)
 	unsigned	nread;
 	int			ret;
 	
-	key.Write(prefix);
-	key.Append("/");
-	key.Append(name);
+	key.Write(name);
 	
-	ret = table->Get(NULL, key, value);
+	ret = section->Get(NULL, key, value);
 	if (!ret)
 		return false;
 
@@ -172,10 +166,8 @@ void QuorumDatabase::SetUint64(const char* name, uint64_t u64)
 	Buffer	value;
 	int		ret;
 	
-	key.Write(prefix);
-	key.Append("/");
-	key.Append(name);
+	key.Write(name);
 	
 	value.Writef("%U", u64);
-	ret = table->Set(&transaction, key, value);
+	ret = section->Set(transaction, key, value);
 }

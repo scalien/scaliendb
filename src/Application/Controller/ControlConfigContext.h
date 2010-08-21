@@ -49,7 +49,9 @@ public:
 	
 	virtual	void					OnAppend(ReadBuffer value, bool ownAppend);
 	virtual Buffer*					GetNextValue();
-	virtual void					OnMessage();
+	virtual void					OnMessage(ReadBuffer msg);
+
+	virtual void					OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
 
 private:
 	void							OnPaxosLeaseMessage(ReadBuffer buffer);

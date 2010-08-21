@@ -124,12 +124,9 @@ Buffer* ControlConfigContext::GetNextValue()
 	return NULL;
 }
 
-void ControlConfigContext::OnMessage()
+void ControlConfigContext::OnMessage(ReadBuffer buffer)
 {
 	char proto;
-	ReadBuffer buffer;
-	
-	buffer = transport.GetMessage();
 	
 	Log_Trace("%.*s", P(&buffer));
 	
@@ -154,6 +151,11 @@ void ControlConfigContext::OnMessage()
 			ASSERT_FAIL();
 			break;
 	}
+}
+
+void ControlConfigContext::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
+{
+	controller->OnIncomingConnectionReady(nodeID, endpoint);
 }
 
 void ControlConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
@@ -184,11 +186,6 @@ void ControlConfigContext::OnPaxosMessage(ReadBuffer buffer)
 
 void ControlConfigContext::OnClusterMessage(ReadBuffer buffer)
 {
-//	ClusterMessage msg;
-//	
-//	msg.Read(buffer);
-//	
-//	controller->OnClusterMessage(msg);
 }
 
 void ControlConfigContext::RegisterPaxosID(uint64_t paxosID)

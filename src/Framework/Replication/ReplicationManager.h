@@ -6,7 +6,7 @@
 #include "System/Containers/HashMap.h"
 #include "ReplicationTransport.h"
 
-class QuorumContext;	// forward
+class QuorumContext;		// forward
 class ReplicationTransport;	// forward
 class Node;					// forward
 
@@ -29,6 +29,7 @@ public:
 
 	void					SetNodeID(uint64_t nodeID);
 	uint64_t				GetNodeID();
+
 	void					SetRunID(uint64_t runID);
 	uint64_t				GetRunID();
 	
@@ -38,9 +39,9 @@ public:
 	uint64_t				NextProposalID(uint64_t proposalID);
 	
 private:
-	typedef HashMap<uint64_t, QuorumContext*> ContextMap;
-
 	ReplicationManager();
+
+	typedef HashMap<uint64_t, QuorumContext*> ContextMap;
 
 	uint64_t				nodeID;
 	uint64_t				runID;

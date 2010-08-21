@@ -6,7 +6,6 @@
 #include "System/Buffers/ReadBuffer.h"
 
 #define CLUSTER_PROTOCOL_ID		'C'
-
 #define CLUSTER_INFO			'I'
 
 class ClusterMessage : public Message

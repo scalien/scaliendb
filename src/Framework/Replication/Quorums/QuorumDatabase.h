@@ -4,6 +4,7 @@
 #include "System/Platform.h"
 #include "System/Buffers/Buffer.h"
 #include "Framework/Database/Transaction.h"
+#include "Framework/Database/Section.h"
 
 class Table;	// forward
 
@@ -18,7 +19,11 @@ class Table;	// forward
 class QuorumDatabase
 {
 public:
-	void				Init(Table* table);
+	Section*			GetSection();
+	void				SetSection(Section* section);
+	
+	Transaction*		GetTransaction();
+	void				SetTransaction(Transaction* transaction);
 	
 	uint64_t			GetPaxosID();
 	void				SetPaxosID(uint64_t paxosID);
@@ -41,14 +46,11 @@ public:
 	void				GetLearnedValue(uint64_t paxosID, Buffer& value);
 	void				SetLearnedValue(uint64_t paxosID, ReadBuffer& value);
 
-	void				Begin();
-	void				Commit();
 	bool				IsActive();
 
-//private: TODO HACK
-	Table*				table;
-	Transaction			transaction;
-	Buffer				prefix;
+private:
+	Section*			section;
+	Transaction*		transaction;
 	
 	uint64_t			GetUint64(const char* name);
 	void				SetUint64(const char* name, uint64_t value);
