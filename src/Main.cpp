@@ -39,8 +39,85 @@
 //	Log_SetTimestamping(configFile.GetBoolValue("log.timestamping", false));
 //}
 //
+
+#include "Framework/Storage/File.h"
+#include "System/Stopwatch.h"
+#include "stdio.h"
+
 int main(int argc, char** argv)
 {
+#define W(b, rb, s)	b.Write(s); rb.Wrap(b);  
+#define P()			v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());
+	File		file;
+	Buffer		k, v;
+	ReadBuffer	rk, rv;
+	Stopwatch	sw;
+	long		elapsed;
+	unsigned	num, len, ksize, vsize;
+	char*		area;
+	char*		p;
+	
+//	W(k, rk, "ki");
+//	W(v, rv, "atka");
+//	file.Set(rk, rv);
+//
+//	W(k, rk, "hol");
+//	W(v, rv, "budapest");
+//	file.Set(rk, rv);
+//
+//	W(k, rk, "ki");
+//	W(v, rv, "atka");
+//	file.Set(rk, rv);
+//
+//	W(k, rk, "hol");
+//	W(v, rv, "budapest");
+//	file.Set(rk, rv);
+//
+//	W(k, rk, "ki");
+//	file.Get(rk, rv);
+//	P();
+//
+//	W(k, rk, "hol");
+//	file.Get(rk, rv);
+//	P();
+
+	num = 10*1000;
+	ksize = 20;
+	vsize = 128;
+	area = (char*) malloc(num*(ksize+vsize));
+
+	sw.Start();
+	for (int i = 0; i < num; i++)
+	{
+		p = area + i*(ksize+vsize);
+		len = snprintf(p, ksize, "%d", i);
+		rk.SetBuffer(p);
+		rk.SetLength(len);
+		p += ksize;
+		len = snprintf(p, vsize, "%.100f", (float) i);
+		rv.SetBuffer(p);
+		rv.SetLength(len);
+		file.Set(rk, rv, false);
+	}
+	elapsed = sw.Stop();
+	printf("%u sets took %ld msec\n", num, elapsed);
+	printf("Time spent in DataPage sw1: %ld msec\n", DataPage::sw1.Elapsed());
+
+	sw.Start();
+	for (int i = 0; i < 10*1000; i++)
+	{
+		k.Writef("%d", i);
+		rk.Wrap(k);
+		if (file.Get(rk, rv))
+		{
+//			P();
+		}
+		else
+			ASSERT_FAIL();
+	}	
+	elapsed = sw.Stop();
+	printf("%u gets took %ld msec\n", num, elapsed);
+		
 //	DatabaseConfig				dbConfig;
 //	Database					db;
 //	ControlConfigContext		configContext;

@@ -38,4 +38,43 @@ private:
 	unsigned			length;
 };
 
+inline bool LessThan(ReadBuffer a, ReadBuffer b)
+{
+	int i;
+	unsigned min, alen, blen;
+	char *ap, *bp;
+	
+	ap = a.GetBuffer();
+	bp = b.GetBuffer();
+	alen = a.GetLength();
+	blen = b.GetLength();
+	
+	min = MIN(alen, blen);
+	for (i = 0; i < min; i++)
+	{
+		if (ap[i] < bp[i])
+			return true;
+		else if (ap[i] > bp[i])
+			return false;
+	}
+	
+	if (alen < blen)
+		return true;
+	else
+		return false;
+
+//	i = memcmp(a.GetBuffer(), b.GetBuffer(), MIN(alen, blen));
+//	if (i < 0)
+//		return true;
+//	else if (i > 0)
+//		return false;
+//	else
+//	{
+//		if (alen < blen)
+//			return true;
+//		else
+//			return false;
+//	}
+}
+
 #endif

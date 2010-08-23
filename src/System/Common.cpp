@@ -363,3 +363,33 @@ uint32_t ChecksumBuffer(const char* buffer, unsigned length)
 	
 	return crc;
 }
+
+uint64_t ToLittle64(uint64_t num)
+{
+	return num;
+}
+
+uint32_t ToLittle32(uint32_t num)
+{
+	return num;
+}
+
+uint32_t ToLittle16(uint32_t num)
+{
+	return num;
+}
+
+uint64_t FromLittle64(uint64_t num)
+{
+	return num;
+}
+
+uint32_t FromLittle32(uint32_t num)
+{
+	return num;
+}
+
+uint32_t FromLittle16(uint32_t num)
+{
+	return num;
+}

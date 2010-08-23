@@ -21,6 +21,9 @@
 		5481BFC51206BD580070132B /* DataNode.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5481BFC31206BD580070132B /* DataNode.cpp */; };
 		5481C0FF12071BEA0070132B /* ClusterMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5481C0FE12071BEA0070132B /* ClusterMessage.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
+		54AB70F112203CDF00721A0F /* DataPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB70EF12203CDF00721A0F /* DataPage.cpp */; };
+		54AB70F512203CFA00721A0F /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB70F412203CFA00721A0F /* File.cpp */; };
+		54AB70F912203D8400721A0F /* IndexPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB70F812203D8400721A0F /* IndexPage.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -133,6 +136,13 @@
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
+		54AB70EF12203CDF00721A0F /* DataPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataPage.cpp; sourceTree = "<group>"; };
+		54AB70F012203CDF00721A0F /* DataPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataPage.h; sourceTree = "<group>"; };
+		54AB70F312203CFA00721A0F /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
+		54AB70F412203CFA00721A0F /* File.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cpp; sourceTree = "<group>"; };
+		54AB70F712203D8400721A0F /* IndexPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexPage.h; sourceTree = "<group>"; };
+		54AB70F812203D8400721A0F /* IndexPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IndexPage.cpp; sourceTree = "<group>"; };
+		54AB70FF122065F100721A0F /* Page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
 		54AFE33611C8D15100925487 /* PaxosLeaseProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposerState.h; sourceTree = "<group>"; };
@@ -284,6 +294,7 @@
 		541D7E6F11C64EB600A6CB16 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
+				54AB70EE12203CDF00721A0F /* Storage */,
 				54C8FC6E120200F1002DD4D3 /* Messaging */,
 				9A31560311C7B31C0052812E /* Database */,
 				546E1F8D11EB827300867EE1 /* TCP */,
@@ -365,6 +376,20 @@
 				546E254E11EF5CF700867EE1 /* BufferPool.cpp */,
 			);
 			path = Buffers;
+			sourceTree = "<group>";
+		};
+		54AB70EE12203CDF00721A0F /* Storage */ = {
+			isa = PBXGroup;
+			children = (
+				54AB70FF122065F100721A0F /* Page.h */,
+				54AB70F012203CDF00721A0F /* DataPage.h */,
+				54AB70EF12203CDF00721A0F /* DataPage.cpp */,
+				54AB70F712203D8400721A0F /* IndexPage.h */,
+				54AB70F812203D8400721A0F /* IndexPage.cpp */,
+				54AB70F312203CFA00721A0F /* File.h */,
+				54AB70F412203CFA00721A0F /* File.cpp */,
+			);
+			path = Storage;
 			sourceTree = "<group>";
 		};
 		54AFE33311C8D15100925487 /* States */ = {
@@ -713,6 +738,9 @@
 				548F50A012157A050035ADDB /* Formatting.cpp in Sources */,
 				9A87343E12195748000B1319 /* Section.cpp in Sources */,
 				9A8735E6121AB70A000B1319 /* DataHTTPHandler.cpp in Sources */,
+				54AB70F112203CDF00721A0F /* DataPage.cpp in Sources */,
+				54AB70F512203CFA00721A0F /* File.cpp in Sources */,
+				54AB70F912203D8400721A0F /* IndexPage.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -742,10 +770,7 @@
 					src,
 				);
 				INSTALL_PATH = /usr/local/bin;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/opt/local/lib/db46,
-				);
+				LIBRARY_SEARCH_PATHS = "$(inherited)";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
 					"-D__STDC_FORMAT_MACROS",
@@ -768,7 +793,10 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
-				HEADER_SEARCH_PATHS = src;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include/db46,
+					src,
+				);
 				INSTALL_PATH = /usr/local/bin;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
