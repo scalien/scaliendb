@@ -2,42 +2,32 @@
 #include "ReplicationManager.h"
 #include "Quorums/QuorumContext.h"
 #include "System/Config.h"
-#include "Application/Controller/Controller.h" // TODO
 
-ReplicationTransport::ReplicationTransport()
+void ReplicationTransport::RegisterConnectionEvents(uint64_t contextID)
 {
-	controller = NULL;
-}
-
-ReadBuffer ReplicationTransport::GetMessage()
-{
-	return readBuffer;
-}
-
-void ReplicationTransport::SetController(Controller* controller_)
-{
-	controller = controller_;
+	registered.Append(contextID);
 }
 
 void ReplicationTransport::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
-	if (controller)
-		controller->OnIncomingConnectionReady(nodeID, endpoint);
+	uint64_t* it;
+	
+	for (it = registered.Head(); it != NULL; it = registered.Next(it))
+		RMAN->GetContext(*it)->OnIncomingConnectionReady(nodeID, endpoint);
 }
 
 void ReplicationTransport::OnMessage(ReadBuffer msg)
 {
-	uint64_t logID;
+	int			nread;
+	uint64_t	contextID;
 	
-	Log_Trace();
+	Log_Trace("%.*s", P(&msg));
 	
-	// TODO: parse
+	nread = msg.Readf("%U:", &contextID);
+	if (nread < 2)
+		ASSERT_FAIL();
 	
-	readBuffer = msg;
-	Log_Trace("%.*s", P(&readBuffer));
+	msg.Advance(nread);
 	
-	logID = readBuffer.GetCharAt(0) - '0'; // TODO: hack
-	readBuffer.Advance(2);
-	
-	RMAN->GetContext(logID)->OnMessage();
+	RMAN->GetContext(contextID)->OnMessage(msg);
 }

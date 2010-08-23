@@ -20,8 +20,8 @@ void DataChunkContext::SetContextID(uint64_t contextID_)
 
 void DataChunkContext::SetDatabase(QuorumDatabase& database_)
 {
-	database = database_;
-	table = database.table; // TODO: HACK
+//	database = database_;
+//	table = database.table; // TODO: HACK
 }
 
 void DataChunkContext::SetTransport(QuorumTransport& transport_)
@@ -138,32 +138,33 @@ Buffer* DataChunkContext::GetNextValue()
 
 void DataChunkContext::OnMessage()
 {
-	char proto;
-	ReadBuffer buffer;
-	
-	buffer = transport.GetMessage();
-	
-	if (buffer.GetLength() < 2)
-		ASSERT_FAIL();
-
-	proto = buffer.GetCharAt(0);
-	assert(buffer.GetCharAt(1) == ':');
-	
-	switch(proto)
-	{
-		case 'L':
-			OnPaxosLeaseMessage(buffer);
-			break;
-		case 'P':
-			OnPaxosMessage(buffer);
-			break;
-		case 'C':
-			OnClusterMessage(buffer);
-			break;
-		default:
-			ASSERT_FAIL();
-			break;
-	}
+// TODO: commented out
+//	char proto;
+//	ReadBuffer buffer;
+//	
+//	buffer = transport.GetMessage();
+//	
+//	if (buffer.GetLength() < 2)
+//		ASSERT_FAIL();
+//
+//	proto = buffer.GetCharAt(0);
+//	assert(buffer.GetCharAt(1) == ':');
+//	
+//	switch(proto)
+//	{
+//		case 'L':
+//			OnPaxosLeaseMessage(buffer);
+//			break;
+//		case 'P':
+//			OnPaxosMessage(buffer);
+//			break;
+//		case 'C':
+//			OnClusterMessage(buffer);
+//			break;
+//		default:
+//			ASSERT_FAIL();
+//			break;
+//	}
 }
 
 void DataChunkContext::OnPaxosLeaseMessage(ReadBuffer buffer)

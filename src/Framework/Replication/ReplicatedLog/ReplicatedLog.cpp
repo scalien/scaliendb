@@ -158,7 +158,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 	
 	context->GetDatabase()->SetLearnedValue(paxosID, value);
 	if (paxosID == (context->GetHighestPaxosID() - 1))
-		context->GetDatabase()->Commit();
+		context->GetDatabase()->GetTransaction()->Commit();
 
 	NewPaxosRound(); // increments paxosID, clears proposer, acceptor
 	

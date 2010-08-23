@@ -29,6 +29,8 @@ public:
 	
 	void			Prepend(T* t);
 	void			Append(T* t);
+	void			InsertAfter(T* before, T* t);
+
 	T*				Delete(T* t);
 	T*				Remove(T* t);	
 	bool			Remove(T &t);
@@ -108,6 +110,29 @@ void InList<T>::Append(T* t)
 	if (head == NULL)
 		head = t;
 }
+
+template<class T>
+void InList<T>::InsertAfter(T* before, T* t)
+{
+	if (before == NULL)
+	{
+		t->prev = NULL;
+		t->next = head;
+		head = t;
+		if (tail == NULL)
+			tail = t;
+		return;
+	}
+	
+	t->prev = before;
+	t->next = before->next;
+	if (before->next != NULL)
+		before->next->prev = t;
+	before->next = t;
+	if (tail == before)
+		tail = t;
+}
+
 
 template<class T>
 T* InList<T>::Delete(T* t)

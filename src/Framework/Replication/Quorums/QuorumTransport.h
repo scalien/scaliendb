@@ -22,8 +22,6 @@ public:
 	void					SetPrefix(Buffer& prefix);
 	void					SetQuorum(Quorum* quorum);
 	
-	ReadBuffer				GetMessage();
-
 	void					SendMessage(uint64_t nodeID,Message& msg);
 	void					BroadcastMessage(Message& msg);
 

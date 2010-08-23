@@ -21,11 +21,6 @@ void QuorumTransport::SetQuorum(Quorum* quorum_)
 	quorum = quorum_;
 }
 
-ReadBuffer QuorumTransport::GetMessage()
-{
-	return RMAN->GetTransport()->GetMessage();
-}
-
 void QuorumTransport::SendMessage(uint64_t nodeID, Message& msg)
 {
 	if (priority)

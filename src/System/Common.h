@@ -46,4 +46,12 @@ bool			ChangeUser(const char *username);
 
 uint32_t		ChecksumBuffer(const char* buffer, unsigned length);
 
+uint64_t		ToLittle64(uint64_t num);
+uint32_t		ToLittle32(uint32_t num);
+uint32_t		ToLittle16(uint32_t num);
+
+uint64_t		FromLittle64(uint64_t num);
+uint32_t		FromLittle32(uint32_t num);
+uint32_t		FromLittle16(uint32_t num);
+
 #endif
