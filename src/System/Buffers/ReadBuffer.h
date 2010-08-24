@@ -33,14 +33,17 @@ public:
 	
 	void				Advance(unsigned i);
 	
+	static bool			LessThan(ReadBuffer& a, ReadBuffer& b);
+	
 private:
 	char*				buffer;
 	unsigned			length;
 };
 
-inline bool LessThan(ReadBuffer a, ReadBuffer b)
+
+inline bool ReadBuffer::LessThan(ReadBuffer& a, ReadBuffer& b)
 {
-	int i;
+	unsigned i;
 	unsigned min, alen, blen;
 	char *ap, *bp;
 	

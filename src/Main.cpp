@@ -43,11 +43,69 @@
 #include "Framework/Storage/File.h"
 #include "System/Stopwatch.h"
 #include "stdio.h"
+#include "System/Containers/InTreeMap.h"
+
+
+static int KeyCmp(ReadBuffer a, ReadBuffer b)
+{
+	// TODO: this is ineffective
+	if (ReadBuffer::LessThan(a, b))
+		return -1;
+	if (ReadBuffer::LessThan(b, a))
+		return 1;
+	return 0;
+}
+
+static ReadBuffer Key(KeyValue* kv)
+{
+	return kv->key;
+}
+
+int TestTreeMap()
+{
+	InTreeMap<KeyValue, &KeyValue::node>	kvs;
+	ReadBuffer								rb;
+	Buffer									buf;
+	KeyValue*								kv;
+	Stopwatch								sw;
+	long									itime, gtime;
+
+	sw.Start();
+	for (unsigned u = 0; u < 1000000; u++)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = new KeyValue;
+		kv->SetKey(rb, true);
+		kv->SetValue(rb, true);
+		
+		kvs.Insert(kv);
+	}
+	sw.Stop();
+	itime = sw.Elapsed();
+
+	sw.Reset();
+	sw.Start();
+	for (unsigned u = 0; u < 1000000; u++)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = kvs.Get<ReadBuffer>(rb);
+		if (kv == NULL)
+			ASSERT_FAIL();
+	}
+	sw.Stop();
+	gtime = sw.Elapsed();
+	
+	printf("insert time: %ld, get time: %ld\n", itime, gtime);
+
+	return 0;
+}
 
 int main(int argc, char** argv)
 {
 #define W(b, rb, s)	b.Write(s); rb.Wrap(b);  
-#define P()			v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());
+#define PRINT()			v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());
 	File		file;
 	Buffer		k, v;
 	ReadBuffer	rk, rv;
@@ -56,6 +114,8 @@ int main(int argc, char** argv)
 	unsigned	num, len, ksize, vsize;
 	char*		area;
 	char*		p;
+	
+	return TestTreeMap();
 	
 //	W(k, rk, "ki");
 //	W(v, rv, "atka");
@@ -87,7 +147,7 @@ int main(int argc, char** argv)
 	area = (char*) malloc(num*(ksize+vsize));
 
 	sw.Start();
-	for (int i = 0; i < num; i++)
+	for (unsigned i = 0; i < num; i++)
 	{
 		p = area + i*(ksize+vsize);
 		len = snprintf(p, ksize, "%d", i);
@@ -110,7 +170,7 @@ int main(int argc, char** argv)
 		rk.Wrap(k);
 		if (file.Get(rk, rv))
 		{
-//			P();
+			PRINT();
 		}
 		else
 			ASSERT_FAIL();

@@ -27,12 +27,6 @@ public:
 	class RequestLine
 	{
 	public:
-//		const char*	method;
-//		int			methodLen;
-//		const char* uri;
-//		int			uriLen;
-//		const char* version;
-//		int			versionLen;
 		ReadBuffer	method;
 		ReadBuffer	uri;
 		ReadBuffer	version;
@@ -43,12 +37,6 @@ public:
 	class StatusLine
 	{
 	public:
-//		const char* version;
-//		int			versionLen;
-//		const char* code;
-//		int			codeLen;
-//		const char* reason;
-//		int			reasonLen;
 		ReadBuffer	version;
 		ReadBuffer	code;
 		ReadBuffer	reason;

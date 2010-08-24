@@ -1,6 +1,8 @@
 #ifndef INDEXPAGE_H
 #define INDEXPAGE_H
 
+#include "Platform.h"
+
 #include "Common.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Containers/SortedList.h"
@@ -48,6 +50,7 @@ private:
 	SortedList<uint32_t>	freeDataPages;
 };
 
+
 /*
 ===============================================================================
 
@@ -70,11 +73,8 @@ public:
 	
 	KeyIndex*				prev;
 	KeyIndex*				next;
-};
 
-inline bool LessThan(KeyIndex &a, KeyIndex &b)
-{
-	return LessThan(a.key, b.key);
-}
+	static bool				LessThan(KeyIndex &a, KeyIndex &b);
+};
 
 #endif

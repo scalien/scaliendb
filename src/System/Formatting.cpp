@@ -2,8 +2,8 @@
 #include <assert.h>
 #include <string.h>
 #include <math.h>
-#include <stdint.h>
 #include <stdio.h>
+#include "Platform.h"
 #include "Buffers/Buffer.h"
 #include "Buffers/ReadBuffer.h"
 

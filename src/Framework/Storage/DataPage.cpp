@@ -1,5 +1,20 @@
 #include "DataPage.h"
 
+static int KeyCmp(ReadBuffer a, ReadBuffer b)
+{
+	// TODO: this is ineffective
+	if (ReadBuffer::LessThan(a, b))
+		return -1;
+	if (ReadBuffer::LessThan(b, a))
+		return 1;
+	return 0;
+}
+
+static ReadBuffer Key(KeyValue* kv)
+{
+	return kv->key;
+}
+
 DataPage::DataPage()
 {
 	required = DATAPAGE_FIX_OVERHEAD;
@@ -16,7 +31,7 @@ bool DataPage::Get(ReadBuffer& key, ReadBuffer& value)
 	
 	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
 	{
-		if (LessThan(key, it->key))
+		if (ReadBuffer::LessThan(key, it->key))
 			break;
 
 		if (BUFCMP(&it->key, &key))
@@ -25,6 +40,13 @@ bool DataPage::Get(ReadBuffer& key, ReadBuffer& value)
 			return true;
 		}
 	}
+	
+//	it = kvs_.Get<ReadBuffer&>(key);
+//	if (it != NULL)
+//	{
+//		value = it->value;
+//		return true;
+//	}	
 	
 	return false;
 }
@@ -39,7 +61,7 @@ void DataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	sw1.Start();
 	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
 	{
-		if (LessThan(key, it->key))
+		if (ReadBuffer::LessThan(key, it->key))
 			break;
 
 		if (BUFCMP(&it->key, &key))
@@ -64,6 +86,8 @@ void DataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	newKeyValue->SetValue(value, copy);
 	kvs.InsertAfter(it, newKeyValue);
 	required += (DATAPAGE_KV_OVERHEAD + key.GetLength() + value.GetLength());
+
+//	kvs_.Insert(newKeyValue);
 }
 
 void DataPage::Delete(ReadBuffer& key)
@@ -73,7 +97,7 @@ void DataPage::Delete(ReadBuffer& key)
 	// delete from list
 	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
 	{
-		if (LessThan(key, it->key))
+		if (ReadBuffer::LessThan(key, it->key))
 			break;
 
 		if (BUFCMP(&it->key, &key))
@@ -84,6 +108,9 @@ void DataPage::Delete(ReadBuffer& key)
 			break;
 		}
 	}
+	
+	// TODO: Delete is not implemented!
+//	kvs_.Delete<ReadBuffer&>(key);
 }
 
 bool DataPage::IsEmpty()
