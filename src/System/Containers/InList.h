@@ -114,6 +114,8 @@ void InList<T>::Append(T* t)
 template<class T>
 void InList<T>::InsertAfter(T* before, T* t)
 {
+	length++;
+	
 	if (before == NULL)
 	{
 		t->prev = NULL;

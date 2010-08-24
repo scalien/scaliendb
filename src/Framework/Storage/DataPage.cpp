@@ -1,13 +1,9 @@
 #include "DataPage.h"
+#include <stdio.h>
 
 DataPage::DataPage()
 {
 	required = DATAPAGE_FIX_OVERHEAD;
-}
-
-void DataPage::SetPageSize(uint32_t pageSize_)
-{
-	pageSize = pageSize_;
 }
 
 bool DataPage::Get(ReadBuffer& key, ReadBuffer& value)
@@ -99,7 +95,7 @@ ReadBuffer DataPage::FirstKey()
 	return kvs.Head()->key;
 }
 
-bool DataPage::MustSplit()
+bool DataPage::IsOverflowing()
 {
 	if (required <= pageSize)
 		return false;
@@ -143,16 +139,17 @@ DataPage* DataPage::Split()
 	return newPage;
 }
 
-void DataPage::Read(ReadBuffer& buffer)
+void DataPage::Read(ReadBuffer& buffer_)
 {
 	uint32_t	num, len, i;
 	char*		p;
 	KeyValue*	kv;
 
-	required = buffer.GetLength();
-
+	buffer.Write(buffer_);
+	
 	p = buffer.GetBuffer();
 	num = FromLittle32(*((uint32_t*) p));
+//	printf("has %u keys\n", num);
 	p += 4;
 	for (i = 0; i < num; i++)
 	{
@@ -167,9 +164,11 @@ void DataPage::Read(ReadBuffer& buffer)
 		kv->value.SetLength(len);
 		kv->value.SetBuffer(p);
 		p += len;
-		
+//		printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
 		kvs.Append(kv);
 	}
+	
+	required = p - buffer.GetBuffer();
 }
 
 void DataPage::Write(Buffer& buffer)
@@ -177,11 +176,12 @@ void DataPage::Write(Buffer& buffer)
 	KeyValue*	it;
 	char*		p;
 	unsigned	len;
-
-	buffer.Allocate(required);
+	uint32_t	num;
 
 	p = buffer.GetBuffer();
-	*((uint32_t*) p) = ToLittle32(kvs.GetLength());
+	num = kvs.GetLength();
+	*((uint32_t*) p) = ToLittle32(num);
+//	printf("has %u keys\n", num);
 	p += 4;
 	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
 	{
@@ -195,6 +195,7 @@ void DataPage::Write(Buffer& buffer)
 		p += 4;
 		memcpy(p, it->value.GetBuffer(), len);
 		p += len;
+//		printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
 	}
 	
 	buffer.SetLength(required);

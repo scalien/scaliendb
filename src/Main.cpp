@@ -46,8 +46,8 @@
 
 int main(int argc, char** argv)
 {
-#define W(b, rb, s)	b.Write(s); rb.Wrap(b);  
-#define P()			v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());
+#define W(b, rb, s)	{b.Write(s); rb.Wrap(b);}
+#define P()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
 	File		file;
 	Buffer		k, v;
 	ReadBuffer	rk, rv;
@@ -81,10 +81,12 @@ int main(int argc, char** argv)
 //	file.Get(rk, rv);
 //	P();
 
-	num = 10*1000;
+	num = 50*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
+
+	file.Open("testdb");
 
 	sw.Start();
 	for (int i = 0; i < num; i++)
@@ -109,15 +111,15 @@ int main(int argc, char** argv)
 		k.Writef("%d", i);
 		rk.Wrap(k);
 		if (file.Get(rk, rv))
-		{
-//			P();
-		}
+			;//P()
 		else
 			ASSERT_FAIL();
 	}	
 	elapsed = sw.Stop();
 	printf("%u gets took %ld msec\n", num, elapsed);
-		
+	
+	file.Close();
+							
 //	DatabaseConfig				dbConfig;
 //	Database					db;
 //	ControlConfigContext		configContext;

@@ -26,16 +26,14 @@ class DataPage : public Page
 {
 public:
 	DataPage();
-	
-	void					SetPageSize(uint32_t pageSize);
-	
+		
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	void					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
 	bool					IsEmpty();
 	ReadBuffer				FirstKey();
-	bool					MustSplit();
+	bool					IsOverflowing();
 	DataPage*				Split();
 
 	void					Read(ReadBuffer& buffer);
@@ -44,8 +42,8 @@ public:
 	static Stopwatch		sw1;
 	
 private:
+	Buffer					buffer;
 	InList<KeyValue>		kvs;
-	uint32_t				pageSize;
 	uint32_t				required;
 };
 

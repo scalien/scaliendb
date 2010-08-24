@@ -1,4 +1,10 @@
 #include "File.h"
+#include <sys/stat.h>
+#include <fcntl.h>
+#include <unistd.h>
+#include <stdio.h> // REMOVE
+
+#define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
 
 File::File()
 {
@@ -8,8 +14,9 @@ File::File()
 	dataPageSize = DEFAULT_DATAPAGE_SIZE;
 	numDataPageSlots = DEFAULT_NUM_DATAPAGES;
 
-	mustSplit = false;
+	isOverflowing = false;
 	
+	indexPage.SetOffset(INDEXPAGE_OFFSET);
 	indexPage.SetPageSize(indexPageSize);
 	indexPage.SetNumDataPageSlots(numDataPageSlots);
 
@@ -19,25 +26,34 @@ File::File()
 	numDataPages = 0;
 }
 
-//bool File::Create(char* filepath,
-// uint32_t indexPageSize, uint32_t dataPageSize, uint32_t numDataPages)
-//{
-//}
-//
-//void File::Open(char* filepath)
-//{
-//	// read indexPage
-//}
-//
-//void File::Write()
-//{
-//	// for each dirty, write
-//}
-//
-//void File::Flush()
-//{
-//	// sync
-//}
+void File::Open(char* filepath_)
+{
+	struct stat st;
+
+	filepath.Write(filepath_);
+	filepath.NullTerminate();
+
+	fd = open(filepath.GetBuffer(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+
+	if (fd < 0)
+		ASSERT_FAIL();
+
+	fstat(fd, &st);
+	if (st.st_size > 0)
+		Read();
+}
+
+void File::Flush()
+{
+	// sync
+}
+
+void File::Close()
+{
+	Write();
+	
+	close(fd);
+}
 
 bool File::Get(ReadBuffer& key, ReadBuffer& value)
 {
@@ -64,27 +80,29 @@ bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	if (index < 0)
 	{
 		index = 0;
-		if (dataPages[index] == NULL)
-			LoadDataPage(index);
-
-		indexPage.Remove(index);
-		indexPage.Add(key, index, false); // TODO
+		assert(dataPages[index] == NULL);
+		dataPages[index] = new DataPage;
+		dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
+		dataPages[index]->SetPageSize(dataPageSize);
+		numDataPages++;
+		indexPage.Add(key, index, true); // TODO
 		MarkPageDirty(&indexPage);
 	}
 	
 	dataPages[index]->Set(key, value, copy);
 	MarkPageDirty(dataPages[index]);
 	
-	if (dataPages[index]->MustSplit())
+	if (dataPages[index]->IsOverflowing())
 	{
 		if (numDataPages < numDataPageSlots)
 		{
 			newPage = dataPages[index]->Split();
 			numDataPages++;
 			newIndex = indexPage.NextFreeDataPage();
+			newPage->SetOffset(DATAPAGE_OFFSET(newIndex));
 			assert(dataPages[newIndex] == NULL);
 			dataPages[newIndex] = newPage;
-			indexPage.Add(newPage->FirstKey(), newIndex, false); // TODO
+			indexPage.Add(newPage->FirstKey(), newIndex, true); // TODO
 //			if (newPage->MustSplit())
 //			{
 //				if (numDataPages < numDataPageSlots)
@@ -93,14 +111,14 @@ bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 //					assert(newPage->MustSplit() == false);
 // TOOD
 //					newIndex = indexPage.NextFreeDataPage();
-//					indexPage.Add(newPage->FirstKey(), newIndex);
+//					indexPage.Add(newPage->FirstKey(), newIndex, true);
 //				}
 //				else
 //					mustSplit = true;
 //			}
 		}
 		else
-			mustSplit = true;
+			isOverflowing = true;
 	}
 	
 	return true;
@@ -125,14 +143,79 @@ void File::Delete(ReadBuffer& key)
 	}
 }
 
-//bool File::IsEmpty()
-//{
-//}
-//
-//bool File::MustSplit()
-//{
-//	return mustSplit || indexPage.MustSplit();
-//}
+bool File::IsOverflowing()
+{
+	return isOverflowing || indexPage.IsOverflowing();
+}
+
+void File::Read()
+{
+	char*			p;
+	unsigned		i;
+	int				length;
+	Buffer			buffer;
+	ReadBuffer		readBuffer;
+
+	buffer.Allocate(12);
+	if (pread(fd, (void*) buffer.GetBuffer(), 12, 0) < 0)
+		ASSERT_FAIL();
+	p = buffer.GetBuffer();
+	indexPageSize = FromLittle32(*((uint32_t*) p));
+	p += 4;
+	dataPageSize = FromLittle32(*((uint32_t*) p));
+	p += 4;
+	numDataPageSlots = FromLittle32(*((uint32_t*) p));
+	p += 4;
+
+	indexPage.SetOffset(INDEXPAGE_OFFSET);
+	indexPage.SetPageSize(indexPageSize);
+	indexPage.SetNumDataPageSlots(numDataPageSlots);
+	
+	buffer.Allocate(indexPageSize);
+	length = pread(fd, (void*) buffer.GetBuffer(), indexPageSize, INDEXPAGE_OFFSET);
+	if (length < 0)
+		ASSERT_FAIL();
+	buffer.SetLength(length);
+	readBuffer.Wrap(buffer);
+	indexPage.Read(readBuffer);
+	if (dataPages != NULL)
+		free(dataPages);
+	dataPages = (DataPage**) malloc(sizeof(DataPage*) * numDataPageSlots);
+	for (i = 0; i < numDataPageSlots; i++)
+		dataPages[i] = NULL;
+	numDataPages = indexPage.NumEntries();
+}
+
+void File::Write()
+{
+	Buffer			buffer;
+	Page*			it;
+	char*			p;
+
+	buffer.Allocate(12);
+	p = buffer.GetBuffer();
+	*((uint32_t*) p) = ToLittle32(indexPageSize);
+	p += 4;
+	*((uint32_t*) p) = ToLittle32(dataPageSize);
+	p += 4;
+	*((uint32_t*) p) = ToLittle32(numDataPageSlots);
+	p += 4;
+	
+	if (pwrite(fd, (const void *) buffer.GetBuffer(), 12, 0) < 0)
+		ASSERT_FAIL();
+
+	// TODO: write (store) these in offset order
+	for (it = dirtyPages.Head(); it != NULL; it = dirtyPages.Remove(it))
+	{
+		buffer.Allocate(it->GetPageSize());
+		buffer.Zero();
+//		printf("writing at offset %u\n", it->GetOffset());
+		it->Write(buffer);
+		if (pwrite(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
+			ASSERT_FAIL();
+		it->SetDirty(false);
+	}
+}
 
 int32_t File::Locate(ReadBuffer& key)
 {
@@ -151,16 +234,31 @@ int32_t File::Locate(ReadBuffer& key)
 
 void File::LoadDataPage(uint32_t index)
 {
+	Buffer		buffer;
+	ReadBuffer	readBuffer;
+	int			length;
+	
 	dataPages[index] = new DataPage;
+	dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 	dataPages[index]->SetPageSize(dataPageSize);
-	numDataPages++;
+	
+	printf("loading data page at index %u\n", index);
+
+	buffer.Allocate(dataPageSize);
+	printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
+	length = pread(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
+	if (length < 0)
+		ASSERT_FAIL();
+	buffer.SetLength(length);
+	readBuffer.Wrap(buffer);
+	dataPages[index]->Read(readBuffer);
 }
 
 void File::MarkPageDirty(Page* page)
 {
-	if (!page->dirty)
+	if (!page->IsDirty())
 	{
-		page->dirty = true;
+		page->SetDirty(true);
 		dirtyPages.Append(page);
 	}
 }
