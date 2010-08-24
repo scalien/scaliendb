@@ -105,7 +105,6 @@ void DataPage::Delete(ReadBuffer& key)
 		}
 	}
 	
-	// TODO: Delete is not implemented!
 //	kvs_.Delete<ReadBuffer&>(key);
 }
 

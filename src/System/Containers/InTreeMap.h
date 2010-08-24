@@ -42,6 +42,9 @@ public:
 
 	InTreeMap();
 	
+	T*						First();
+	T*						Next(T* t);
+
 	template<typename K>
 	T*						Get(K key);
 	
@@ -49,7 +52,7 @@ public:
 	
 	template<typename K>
 	T*						Delete(K key);
-	
+		
 private:
 	void					DeleteColor(Node* node, Node* parent);
 	void					FixColors(Node* node);
@@ -81,6 +84,43 @@ template<typename T, InTreeNode<T> T::*pnode>
 InTreeMap<T, pnode>::InTreeMap()
 {
 	root = NULL;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::First()
+{
+	Node*	node;
+	
+	if (root == NULL)
+		return NULL;
+
+	node = root;
+	while (node->left)
+		node = node->left;
+
+	return GetElem(node);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Next(T* t)
+{
+	Node*	node;
+	Node*	parent;
+	
+	node = GetNode(t);
+	if (node->right)
+	{
+		node = node->right;
+		while (node->left)
+			node = node->left;
+
+		return GetElem(node);
+	}
+	
+	while ((parent = node->parent) && node == parent->right)
+		node = parent;
+		
+	return GetElem(parent);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
@@ -533,6 +573,8 @@ InTreeNode<T>* InTreeMap<T, pnode>::MaxNode(Node* node)
 template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::GetElem(Node* node)
 {
+	if (node == NULL)
+		return NULL;
 	return node->owner;
 }
 

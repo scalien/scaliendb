@@ -67,6 +67,7 @@ int TestTreeMap()
 	ReadBuffer								rb;
 	Buffer									buf;
 	KeyValue*								kv;
+	KeyValue*								it;
 	Stopwatch								sw;
 	const unsigned							num = 100000;
 	
@@ -94,9 +95,19 @@ int TestTreeMap()
 		if (kv == NULL)
 			ASSERT_FAIL();
 	}
-	sw.Stop();
-		
+	sw.Stop();		
 	printf("get time: %ld\n", sw.Elapsed());
+
+	sw.Reset();
+	sw.Start();
+	for (it = kvs.First(); it != NULL; it = kvs.Next(it))
+	{
+		//printf("it->value = %.*s\n", P(&it->value));
+		kv = it; // dummy op
+	}
+	sw.Stop();		
+	printf("iteration time: %ld\n", sw.Elapsed());
+
 
 	sw.Reset();
 	sw.Start();
@@ -109,8 +120,7 @@ int TestTreeMap()
 		if (kv == NULL)
 			ASSERT_FAIL();
 	}
-	sw.Stop();
-		
+	sw.Stop();		
 	printf("delete time: %ld\n", sw.Elapsed());
 
 	sw.Reset();
@@ -124,7 +134,6 @@ int TestTreeMap()
 			ASSERT_FAIL();
 	}
 	sw.Stop();
-		
 	printf("get time: %ld\n", sw.Elapsed());
 
 	return 0;
