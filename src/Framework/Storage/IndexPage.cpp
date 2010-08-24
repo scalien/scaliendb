@@ -1,9 +1,5 @@
 #include "IndexPage.h"
-
-static bool LessThan(uint32_t a, uint32_t b)
-{
-	return a < b;
-}
+#include <stdio.h>
 
 static bool LessThan(KeyIndex& a, KeyIndex& b)
 {
@@ -30,9 +26,9 @@ void IndexPage::SetNumDataPageSlots(uint32_t numDataPageSlots_)
 	uint32_t i;
 	
 	numDataPageSlots = numDataPageSlots_;
-	
-	assert(freeDataPages.GetLength() == 0);
-	
+
+	freeDataPages.Clear();
+		
 	for (i = 0; i < numDataPageSlots; i++)
 		freeDataPages.Add(i);
 }
@@ -84,12 +80,20 @@ ReadBuffer IndexPage::FirstKey()
 	return keys.Head()->key;
 }
 
+uint32_t IndexPage::NumEntries()
+{
+	return keys.GetLength();
+}
+
 int32_t IndexPage::Locate(ReadBuffer& key)
 {
 	KeyIndex* it;
 	
-	if (keys.GetLength() == 0 || ReadBuffer::LessThan(key, keys.Head()->key))
+	if (keys.GetLength() == 0)
 		return -1;
+		
+	if (ReadBuffer::LessThan(key, keys.Head()->key))
+		return 0;
 	
 	for (it = keys.Head(); it != NULL; it = keys.Next(it))
 	{
@@ -107,18 +111,18 @@ uint32_t IndexPage::NextFreeDataPage()
 	return *freeDataPages.Head();
 }
 
-bool IndexPage::MustSplit()
+bool IndexPage::IsOverflowing()
 {
 	return (required < pageSize);
 }
 
-void IndexPage::Read(ReadBuffer& buffer)
+void IndexPage::Read(ReadBuffer& buffer_)
 {
 	uint32_t	num, len, i;
 	char*		p;
 	KeyIndex*	ki;
 
-	required = buffer.GetLength();
+	buffer.Write(buffer_);
 
 	p = buffer.GetBuffer();
 	num = FromLittle32(*((uint32_t*) p));
@@ -132,7 +136,13 @@ void IndexPage::Read(ReadBuffer& buffer)
 		ki->key.SetBuffer(p);
 		p += len;
 		ki->index = FromLittle32(*((uint32_t*) p));
+//		printf("%.*s => %u\n", ki->key.GetLength(), ki->key.GetBuffer(), ki->index);
+		p += 4;
+		keys.Add(ki);
+		freeDataPages.Remove(ki->index);
 	}
+	
+	required = p - buffer.GetBuffer();
 }
 
 void IndexPage::Write(Buffer& buffer)
@@ -141,17 +151,17 @@ void IndexPage::Write(Buffer& buffer)
 	char*		p;
 	unsigned	len;
 
-	buffer.Allocate(required);
-
 	p = buffer.GetBuffer();
 	*((uint32_t*) p) = ToLittle32(keys.GetLength());
 	p += 4;
 	for (it = keys.Head(); it != NULL; it = keys.Next(it))
 	{
+//		printf("writing index: %.*s => %u\n", it->key.GetLength(), it->key.GetBuffer(), it->index);
 		len = it->key.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
 		memcpy(p, it->key.GetBuffer(), len);
+		p += len;
 		*((uint32_t*) p) = ToLittle32(it->index);
 		p += 4;
 	}

@@ -167,6 +167,11 @@ void Buffer::NullTerminate()
 	Append("", 1);
 }
 
+void Buffer::Zero()
+{
+	memset(buffer, 0, size);
+}
+
 void Buffer::SetLength(unsigned length_)
 {
 	length = length_;

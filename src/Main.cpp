@@ -141,10 +141,12 @@ int main(int argc, char** argv)
 //	file.Get(rk, rv);
 //	P();
 
-	num = 10*1000;
+	num = 50*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
+
+	file.Open("testdb");
 
 	sw.Start();
 	for (unsigned i = 0; i < num; i++)
@@ -177,7 +179,9 @@ int main(int argc, char** argv)
 	}	
 	elapsed = sw.Stop();
 	printf("%u gets took %ld msec\n", num, elapsed);
-		
+	
+	file.Close();
+							
 //	DatabaseConfig				dbConfig;
 //	Database					db;
 //	ControlConfigContext		configContext;

@@ -14,6 +14,12 @@ class KeyIndex; // forward
 #define INDEXPAGE_FIX_OVERHEAD		4
 #define INDEXPAGE_KV_OVERHEAD		8
 
+
+inline bool LessThan(uint32_t a, uint32_t b)
+{
+	return (a < b);
+}
+
 /*
 ===============================================================================
 
@@ -35,15 +41,16 @@ public:
 
 	bool					IsEmpty();
 	ReadBuffer				FirstKey();
+	uint32_t				NumEntries();
 	int32_t					Locate(ReadBuffer& key);
 	uint32_t				NextFreeDataPage();
-	bool					MustSplit();
+	bool					IsOverflowing();
 
 	void					Read(ReadBuffer& buffer);
 	void					Write(Buffer& buffer);
 	
 private:
-	uint32_t				pageSize;
+	Buffer					buffer;
 	uint32_t				numDataPageSlots;
 	uint32_t				required;
 	InSortedList<KeyIndex>	keys;

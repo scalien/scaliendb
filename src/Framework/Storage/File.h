@@ -5,11 +5,13 @@
 #include "DataPage.h"
 
 #define DEFAULT_KEY_LIMIT			1000
-#define DEFAULT_DATAPAGE_SIZE		65536
-#define DEFAULT_NUM_DATAPAGES		256		// 16.7 MB wort of data pages
-#define DEFAULT_INDEXPAGE_SIZE		262144  // to fit 256 keys
+#define DEFAULT_DATAPAGE_SIZE		64*1024
+#define DEFAULT_NUM_DATAPAGES		256			// 16.7 MB wort of data pages
+#define DEFAULT_INDEXPAGE_SIZE		256*1024	// to fit 256 keys
 
-// default total filesize: 4+4+4+262144+256*65536 = 17M
+#define INDEXPAGE_OFFSET			12
+
+// default total filesize: 4+4+4+262144+256*65536 ~= 17M
 
 /*
 ===============================================================================
@@ -24,32 +26,30 @@ class File
 public:
 	File();
 	
-	bool					Create(char* filepath,
-							 uint32_t indexPageSize,
-							 uint32_t dataPageSize,
-							 uint32_t numDataPages);
-
-//	void					Open(char* filepath);
-//	void					Write();
-//	void					Flush();
+	void					Open(char* filepath);
+	void					Flush();
+	void					Close();
 	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
-//	bool					IsEmpty();
-//	bool					MustSplit();
+	bool					IsOverflowing();
 	
 private:
+	void					Read();
+	void					Write();
+
 	int32_t					Locate(ReadBuffer& key);
 	void					LoadDataPage(uint32_t index);
 	void					MarkPageDirty(Page* page);
 	
+	int						fd;
 	uint32_t				indexPageSize;
 	uint32_t				dataPageSize;
 	uint32_t				numDataPageSlots;
-	bool					mustSplit;
-	
+	bool					isOverflowing;
+	Buffer					filepath;
 	IndexPage				indexPage;
 	DataPage**				dataPages;
 	uint32_t				numDataPages;

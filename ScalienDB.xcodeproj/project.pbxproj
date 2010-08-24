@@ -24,6 +24,7 @@
 		54AB70F112203CDF00721A0F /* DataPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB70EF12203CDF00721A0F /* DataPage.cpp */; };
 		54AB70F512203CFA00721A0F /* File.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB70F412203CFA00721A0F /* File.cpp */; };
 		54AB70F912203D8400721A0F /* IndexPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB70F812203D8400721A0F /* IndexPage.cpp */; };
+		54AB7F161224046D00721A0F /* Catalog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB7F151224046D00721A0F /* Catalog.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -143,6 +144,8 @@
 		54AB70F712203D8400721A0F /* IndexPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = IndexPage.h; sourceTree = "<group>"; };
 		54AB70F812203D8400721A0F /* IndexPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = IndexPage.cpp; sourceTree = "<group>"; };
 		54AB70FF122065F100721A0F /* Page.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Page.h; sourceTree = "<group>"; };
+		54AB7F141224046D00721A0F /* Catalog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Catalog.h; sourceTree = "<group>"; };
+		54AB7F151224046D00721A0F /* Catalog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Catalog.cpp; sourceTree = "<group>"; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
 		54AFE33611C8D15100925487 /* PaxosLeaseProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposerState.h; sourceTree = "<group>"; };
@@ -389,6 +392,8 @@
 				54AB70F812203D8400721A0F /* IndexPage.cpp */,
 				54AB70F312203CFA00721A0F /* File.h */,
 				54AB70F412203CFA00721A0F /* File.cpp */,
+				54AB7F141224046D00721A0F /* Catalog.h */,
+				54AB7F151224046D00721A0F /* Catalog.cpp */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -743,6 +748,7 @@
 				54AB70F112203CDF00721A0F /* DataPage.cpp in Sources */,
 				54AB70F512203CFA00721A0F /* File.cpp in Sources */,
 				54AB70F912203D8400721A0F /* IndexPage.cpp in Sources */,
+				54AB7F161224046D00721A0F /* Catalog.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

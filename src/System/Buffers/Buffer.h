@@ -49,6 +49,7 @@ public:
 	void				Append(Buffer& other);
 	void				Append(ReadBuffer& other);
 	void				NullTerminate();
+	void				Zero();
 
 	void				SetLength(unsigned length);
 
