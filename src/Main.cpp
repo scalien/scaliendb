@@ -68,10 +68,10 @@ int TestTreeMap()
 	Buffer									buf;
 	KeyValue*								kv;
 	Stopwatch								sw;
-	long									itime, gtime;
-
+	const unsigned							num = 100000;
+	
 	sw.Start();
-	for (unsigned u = 0; u < 1000000; u++)
+	for (unsigned u = 0; u < num; u++)
 	{
 		buf.Writef("%u", u);
 		rb.Wrap(buf);
@@ -82,11 +82,11 @@ int TestTreeMap()
 		kvs.Insert(kv);
 	}
 	sw.Stop();
-	itime = sw.Elapsed();
+	printf("insert time: %ld\n", sw.Elapsed());
 
 	sw.Reset();
 	sw.Start();
-	for (unsigned u = 0; u < 1000000; u++)
+	for (unsigned u = 0; u < num; u++)
 	{
 		buf.Writef("%u", u);
 		rb.Wrap(buf);
@@ -95,9 +95,37 @@ int TestTreeMap()
 			ASSERT_FAIL();
 	}
 	sw.Stop();
-	gtime = sw.Elapsed();
-	
-	printf("insert time: %ld, get time: %ld\n", itime, gtime);
+		
+	printf("get time: %ld\n", sw.Elapsed());
+
+	sw.Reset();
+	sw.Start();
+	//for (unsigned u = 0; u < num; u++)
+	for (unsigned u = num - 1; u < num; u--)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = kvs.Delete<ReadBuffer>(rb);
+		if (kv == NULL)
+			ASSERT_FAIL();
+	}
+	sw.Stop();
+		
+	printf("delete time: %ld\n", sw.Elapsed());
+
+	sw.Reset();
+	sw.Start();
+	for (unsigned u = 0; u < num; u++)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = kvs.Get<ReadBuffer>(rb);
+		if (kv != NULL)
+			ASSERT_FAIL();
+	}
+	sw.Stop();
+		
+	printf("get time: %ld\n", sw.Elapsed());
 
 	return 0;
 }

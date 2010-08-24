@@ -38,7 +38,7 @@ template<typename T, InTreeNode<T> T::*pnode>
 class InTreeMap
 {
 public:
-	typedef InTreeNode<T>	Node;
+	typedef InTreeNode<T>			Node;
 
 	InTreeMap();
 	
@@ -51,6 +51,7 @@ public:
 	T*						Delete(K key);
 	
 private:
+	void					DeleteColor(Node* node, Node* parent);
 	void					FixColors(Node* node);
 	void					FixUncleColors(Node* node);
 	void					FixRotation(Node* node);
@@ -158,24 +159,172 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 	return NULL;
 }
 
-//template<typename T, InTreeNode<T> T::*pnode>
-//template<typename K>
-//T* InTreeMap<T, pnode>::Delete(K key)
-//{
-//	T*		t;
-//	Node*	node;
-//	Node*	max;
-//	
-//	t = Get<K>(key);
-//	if (t == NULL)
-//		return NULL;
-//	
-//	node = GetNode(t);
-//	if (node->left != NULL && node->right != NULL)
-//	{
-//		max = MaxNode(node->left);
-//	}
-//}
+template<typename T, InTreeNode<T> T::*pnode>
+template<typename K>
+T* InTreeMap<T, pnode>::Delete(K key)
+{
+	T*			t;
+	Node*		node;
+	Node*		child;
+	Node*		parent;
+	int			color;
+	
+	t = Get<K>(key);
+	if (t == NULL)
+		return NULL;
+	
+	node = GetNode(t);
+	if (node->left == NULL)
+		child = node->right;
+	else if (node->right == NULL)
+		child = node->left;
+	else
+	{
+		Node*	old;
+		Node*	left;
+		
+		old = node;
+		
+		// find the smallest bigger node
+		node = node->right;
+		while ((left = node->left) != NULL)
+			node = node->left;
+			
+		if (Parent(old))
+		{
+			if (IsLeftChild(old))
+				Parent(old)->left = node;
+			else
+				Parent(old)->right = node;
+		}
+		else
+			root = node;
+		
+		child = node->right;
+		parent = node->parent;
+		color = node->color;
+		
+		if (parent == old)
+			parent = node;
+		else
+		{
+			if (child)
+				child->parent = parent;
+			parent->left = child;
+			
+			node->right = old->right;
+			old->right->parent = node;
+		}
+		
+		node->parent = old->parent;
+		node->color = old->color;
+		node->left = old->left;
+		old->left->parent = node;
+		
+		goto color;
+	}
+	
+	parent = node->parent;
+	color = node->color;
+	
+	if (child)
+		child->parent = parent;
+	if (parent)
+	{
+		if (parent->left == node)
+			parent->left = child;
+		else
+			parent->right = child;
+	}
+	else
+		root = child;
+
+color:
+	if (color == Node::BLACK)
+		DeleteColor(child, parent);
+		
+	return t;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::DeleteColor(Node* node, Node* parent)
+{
+	Node*	other;
+	
+	while ((node == NULL || node->color == Node::BLACK) && node != root)
+	{
+		if (parent->left == node)
+		{
+			other = parent->right;
+			if (other->color == Node::RED)
+			{
+				other->color = Node::BLACK;
+				parent->color = Node::RED;
+				RotateLeft(parent);
+				other = parent->right;
+			}
+			if ((other->left == NULL || other->left->color == Node::BLACK) &&
+			    (other->right == NULL || other->right->color == Node::BLACK))
+			{
+				other->color = Node::RED;
+				node = parent;
+				parent = node->parent;
+			}
+			else
+			{
+				if (other->right == NULL || other->right->color == Node::BLACK)
+				{
+					other->left->color = Node::BLACK;
+					other->color = Node::RED;
+					RotateRight(other);
+					other = parent->right;
+				}
+				other->color = parent->color;
+				parent->color = Node::BLACK;
+				other->right->color = Node::BLACK;
+				RotateLeft(parent);
+				node = root;
+				break;
+			}
+		}
+		else
+		{
+			other = parent->left;
+			if (other->color == Node::RED)
+			{
+				other->color = Node::BLACK;
+				parent->color = Node::RED;
+				RotateRight(parent);
+				other = parent->left;
+			}
+			if ((other->left == NULL || other->left->color == Node::BLACK) &&
+			    (other->right == NULL || other->right->color == Node::BLACK))
+			{
+				other->color = Node::RED;
+				node = parent;
+				parent = node->parent;
+			}
+			else
+			{
+				if (other->left == NULL || other->left->color == Node::BLACK)
+				{
+					other->right->color = Node::BLACK;
+					other->color = Node::RED;
+					RotateLeft(other);
+					other = parent->left;
+				}
+				other->color = parent->color;
+				parent->color = Node::BLACK;
+				other->left->color = Node::BLACK;
+				RotateRight(parent);
+				node = root;
+				break;
+			}
+		}
+	}
+	if (node)
+		node->color = Node::BLACK;
+}
 
 template<typename T, InTreeNode<T> T::*pnode>
 void InTreeMap<T, pnode>::FixColors(Node* node)
