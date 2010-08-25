@@ -162,6 +162,8 @@ void IndexPage::Write(Buffer& buffer)
 KeyIndex::KeyIndex()
 {
 	keyBuffer = NULL;
+	prev = this;
+	next = this;
 }
 
 KeyIndex::~KeyIndex()

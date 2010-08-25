@@ -10,6 +10,9 @@ File::File()
 {
 	uint32_t i;
 	
+	prev = this;
+	next = this;
+	
 	indexPageSize = DEFAULT_INDEXPAGE_SIZE;
 	dataPageSize = DEFAULT_DATAPAGE_SIZE;
 	numDataPageSlots = DEFAULT_NUM_DATAPAGES;
@@ -24,6 +27,8 @@ File::File()
 	for (i = 0; i < numDataPageSlots; i++)
 		dataPages[i] = NULL;
 	numDataPages = 0;
+	
+	fd = -1;
 }
 
 void File::Open(char* filepath_)
@@ -45,14 +50,18 @@ void File::Open(char* filepath_)
 
 void File::Flush()
 {
-	// sync
 }
 
 void File::Close()
 {
-	Write();
-	
 	close(fd);
+	
+	fd = -1;
+}
+
+bool File::IsOpen()
+{
+	return (fd >= 0);
 }
 
 bool File::Get(ReadBuffer& key, ReadBuffer& value)
@@ -73,7 +82,7 @@ bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	DataPage*	newPage;
 	
 	if (key.GetLength() + value.GetLength() > DATAPAGE_MAX_KV_SIZE(dataPageSize))
-			return false;
+		return false;
 	
 	index = Locate(key);
 	
@@ -191,6 +200,8 @@ void File::Write()
 	Buffer			buffer;
 	Page*			it;
 	char*			p;
+
+	// TODO: avoid all writes if nothing has changed
 
 	buffer.Allocate(12);
 	p = buffer.GetBuffer();

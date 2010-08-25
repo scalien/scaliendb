@@ -30,16 +30,21 @@ public:
 	void					Flush();
 	void					Close();
 	
+	bool					IsOpen();
+	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
 	bool					IsOverflowing();
-	
-private:
+
 	void					Read();
 	void					Write();
 
+	File*					prev;
+	File*					next;
+	
+private:
 	int32_t					Locate(ReadBuffer& key);
 	void					LoadDataPage(uint32_t index);
 	void					MarkPageDirty(Page* page);

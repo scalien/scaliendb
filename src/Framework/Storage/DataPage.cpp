@@ -205,6 +205,8 @@ KeyValue::KeyValue()
 {
 	keyBuffer = NULL;
 	valueBuffer = NULL;
+	prev = this;
+	next = this;
 }
 
 KeyValue::~KeyValue()
