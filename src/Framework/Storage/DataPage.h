@@ -1,7 +1,7 @@
 #ifndef DATAPAGE_H
 #define DATAPAGE_H
 
-#include "Common.h"
+#include "System/Common.h"
 #include "System/Buffers/Buffer.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Containers/InList.h"
@@ -41,7 +41,7 @@ public:
 	KeyValue*				prev;
 	KeyValue*				next;
 
-	InTreeNode<KeyValue>	node;
+	InTreeNode<KeyValue>	treeNode;
 };
 
 inline bool LessThan(KeyValue &a, KeyValue &b)
@@ -80,7 +80,7 @@ private:
 	Buffer					buffer;
 	InList<KeyValue>		kvs;
 	uint32_t				required;
-	InTreeMap<KeyValue, &KeyValue::node>	kvs_;
+	InTreeMap<KeyValue>		kvs_;
 };
 
 

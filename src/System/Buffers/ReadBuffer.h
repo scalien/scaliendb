@@ -26,14 +26,15 @@ public:
 	
 	int					Readf(const char* format, ...);
 
-	char*				GetBuffer();
-	unsigned			GetLength();
+	char*				GetBuffer() const;
+	unsigned			GetLength() const;
 	char				GetCharAt(unsigned i);
 	uint32_t			GetChecksum();
 	
 	void				Advance(unsigned i);
 	
-	static bool			LessThan(ReadBuffer& a, ReadBuffer& b);
+	static bool			LessThan(const ReadBuffer& a, const ReadBuffer& b);
+	static int			Cmp(const ReadBuffer& a, const ReadBuffer& b);
 	
 private:
 	char*				buffer;
@@ -41,43 +42,29 @@ private:
 };
 
 
-inline bool ReadBuffer::LessThan(ReadBuffer& a, ReadBuffer& b)
+inline bool ReadBuffer::LessThan(const ReadBuffer& a, const ReadBuffer& b)
 {
-	unsigned i;
-	unsigned min, alen, blen;
-	char *ap, *bp;
-	
-	ap = a.GetBuffer();
-	bp = b.GetBuffer();
+	return Cmp(a, b) < 0 ? true : false;
+}
+
+inline int ReadBuffer::Cmp(const ReadBuffer& a, const ReadBuffer& b)
+{
+	int ret;
+	unsigned alen, blen;
+
 	alen = a.GetLength();
 	blen = b.GetLength();
+	ret = memcmp(a.GetBuffer(), b.GetBuffer(), MIN(alen, blen));
 	
-	min = MIN(alen, blen);
-	for (i = 0; i < min; i++)
-	{
-		if (ap[i] < bp[i])
-			return true;
-		else if (ap[i] > bp[i])
-			return false;
-	}
-	
+	if (ret != 0)
+		return ret;
+		
 	if (alen < blen)
-		return true;
+		return -1;
+	else if (blen < alen)
+		return 1;
 	else
-		return false;
-
-//	i = memcmp(a.GetBuffer(), b.GetBuffer(), MIN(alen, blen));
-//	if (i < 0)
-//		return true;
-//	else if (i > 0)
-//		return false;
-//	else
-//	{
-//		if (alen < blen)
-//			return true;
-//		else
-//			return false;
-//	}
+		return 0;
 }
 
 #endif

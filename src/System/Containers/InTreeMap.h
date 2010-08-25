@@ -34,7 +34,7 @@ public:
 ===============================================================================
 */
 
-template<typename T, InTreeNode<T> T::*pnode>
+template<typename T, InTreeNode<T> T::*pnode = &T::treeNode>
 class InTreeMap
 {
 public:
@@ -47,8 +47,12 @@ public:
 
 	template<typename K>
 	T*						Get(K key);
+
+	template<typename K>
+	int						Locate(K key, T*& t);
 	
 	T*						Insert(T* t);
+	void					InsertAt(T* t, T* pos, int cmpres);
 	
 	template<typename K>
 	T*						Delete(K key);
@@ -145,6 +149,80 @@ T* InTreeMap<T, pnode>::Get(K key)
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
+template<typename K>
+int InTreeMap<T, pnode>::Locate(K key, T*& t)
+{
+	Node*	node;
+	int		result;
+	
+	result = 0;
+	node = root;
+	while (node)
+	{
+		result = KeyCmp(key, Key(node->owner));
+		if (result < 0)
+		{
+			if (node->left == NULL)
+				break;
+			node = node->left;
+		}
+		else if (result > 0)
+		{
+			if (node->right == NULL)
+				break;
+			node = node->right;
+		}
+		else
+			break;
+	}
+
+	t = GetElem(node);
+	return result;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
+{
+	Node*	node;
+	Node*	curr;
+	
+	node = GetNode(t);
+	node->owner = t;
+	node->left = NULL;
+	node->right = NULL;
+	node->parent = NULL;
+	node->color = Node::RED;
+	if (root == NULL)
+	{
+		assert(pos == NULL && cmpres == 0);
+		root = node;
+		return;
+	}
+	
+	curr = GetNode(pos);
+	if (cmpres < 0)
+	{
+		assert(curr->left == NULL);
+		curr->left = node;
+	}
+	else if (cmpres > 0)
+	{
+		assert(curr->right == NULL);
+		curr->right = node;
+	}
+	else
+	{
+		// overwrite the node and the owner in place
+		node->color = curr->color;
+		ReplaceNode(curr, node);
+		return;
+	}
+	
+	node->parent = curr;
+	FixColors(node);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Insert(T* t)
 {
 	Node*	curr;
@@ -153,6 +231,9 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 	
 	node = &(t->*pnode);
 	node->owner = t;
+	node->left = NULL;
+	node->right = NULL;
+	node->parent = NULL;
 	node->color = Node::RED;
 	if (root == NULL)
 	{

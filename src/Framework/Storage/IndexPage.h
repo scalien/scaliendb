@@ -1,9 +1,8 @@
 #ifndef INDEXPAGE_H
 #define INDEXPAGE_H
 
-#include "Platform.h"
-
-#include "Common.h"
+#include "System/Platform.h"
+#include "System/Common.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Containers/SortedList.h"
 #include "System/Containers/InSortedList.h"

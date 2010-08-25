@@ -46,12 +46,12 @@ int ReadBuffer::Readf(const char* format, ...)
 	return read;
 }
 
-char* ReadBuffer::GetBuffer()
+char* ReadBuffer::GetBuffer() const
 {
 	return buffer;
 }
 
-unsigned ReadBuffer::GetLength()
+unsigned ReadBuffer::GetLength() const
 {
 	return length;
 }
