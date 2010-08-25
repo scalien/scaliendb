@@ -252,6 +252,7 @@
 		9A87343D12195748000B1319 /* Section.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Section.cpp; path = Database/Section.cpp; sourceTree = "<group>"; };
 		9A8735E4121AB70A000B1319 /* DataHTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataHTTPHandler.h; sourceTree = "<group>"; };
 		9A8735E5121AB70A000B1319 /* DataHTTPHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataHTTPHandler.cpp; sourceTree = "<group>"; };
+		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
 		C6859E8B029090EE04C91782 /* Rowscale.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Rowscale.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -458,6 +459,7 @@
 				546E26E811EF737A00867EE1 /* InSortedList.h */,
 				54B7F74B11BE5EF30076BC62 /* InQueue.h */,
 				546E190411E4D61300867EE1 /* InPriorityQueue.h */,
+				9A87370C1222DC77000B1319 /* InTreeMap.h */,
 			);
 			path = Containers;
 			sourceTree = "<group>";

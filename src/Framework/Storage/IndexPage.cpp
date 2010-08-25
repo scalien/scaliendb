@@ -1,6 +1,16 @@
 #include "IndexPage.h"
 #include <stdio.h>
 
+static bool LessThan(KeyIndex& a, KeyIndex& b)
+{
+	return KeyIndex::LessThan(a, b);
+}
+
+bool KeyIndex::LessThan(KeyIndex& a, KeyIndex& b)
+{
+	return ReadBuffer::LessThan(a.key, b.key);
+}
+
 IndexPage::IndexPage()
 {
 	required = INDEXPAGE_FIX_OVERHEAD;
@@ -82,12 +92,12 @@ int32_t IndexPage::Locate(ReadBuffer& key)
 	if (keys.GetLength() == 0)
 		return -1;
 		
-	if (LessThan(key, keys.Head()->key))
+	if (ReadBuffer::LessThan(key, keys.Head()->key))
 		return 0;
 	
 	for (it = keys.Head(); it != NULL; it = keys.Next(it))
 	{
-		if (LessThan(key, it->key))
+		if (ReadBuffer::LessThan(key, it->key))
 			return keys.Prev(it)->index;
 	}
 	

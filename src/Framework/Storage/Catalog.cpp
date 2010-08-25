@@ -160,7 +160,7 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 	if (files.GetLength() == 0)
 		return NULL;
 		
-	if (LessThan(key, files.Head()->key))
+	if (ReadBuffer::LessThan(key, files.Head()->key))
 	{
 		fi = files.Head();
 		goto OpenFile;
@@ -168,7 +168,7 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 	
 	for (fi = files.Head(); fi != NULL; fi = files.Next(fi))
 	{
-		if (LessThan(key, fi->key))
+		if (ReadBuffer::LessThan(key, fi->key))
 		{
 			fi = files.Prev(fi);
 			goto OpenFile;

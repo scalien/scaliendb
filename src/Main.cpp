@@ -43,6 +43,101 @@
 #include "Framework/Storage/Catalog.h"
 #include "System/Stopwatch.h"
 #include "stdio.h"
+#include "System/Containers/InTreeMap.h"
+
+
+static int KeyCmp(ReadBuffer a, ReadBuffer b)
+{
+	// TODO: this is ineffective
+	if (ReadBuffer::LessThan(a, b))
+		return -1;
+	if (ReadBuffer::LessThan(b, a))
+		return 1;
+	return 0;
+}
+
+static ReadBuffer Key(KeyValue* kv)
+{
+	return kv->key;
+}
+
+int TestTreeMap()
+{
+	InTreeMap<KeyValue, &KeyValue::node>	kvs;
+	ReadBuffer								rb;
+	Buffer									buf;
+	KeyValue*								kv;
+	KeyValue*								it;
+	Stopwatch								sw;
+	const unsigned							num = 100000;
+	
+	sw.Start();
+	for (unsigned u = 0; u < num; u++)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = new KeyValue;
+		kv->SetKey(rb, true);
+		kv->SetValue(rb, true);
+		
+		kvs.Insert(kv);
+	}
+	sw.Stop();
+	printf("insert time: %ld\n", sw.Elapsed());
+
+	sw.Reset();
+	sw.Start();
+	for (unsigned u = 0; u < num; u++)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = kvs.Get<ReadBuffer>(rb);
+		if (kv == NULL)
+			ASSERT_FAIL();
+	}
+	sw.Stop();		
+	printf("get time: %ld\n", sw.Elapsed());
+
+	sw.Reset();
+	sw.Start();
+	for (it = kvs.First(); it != NULL; it = kvs.Next(it))
+	{
+		//printf("it->value = %.*s\n", P(&it->value));
+		kv = it; // dummy op
+	}
+	sw.Stop();		
+	printf("iteration time: %ld\n", sw.Elapsed());
+
+
+	sw.Reset();
+	sw.Start();
+	//for (unsigned u = 0; u < num; u++)
+	for (unsigned u = num - 1; u < num; u--)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = kvs.Delete<ReadBuffer>(rb);
+		if (kv == NULL)
+			ASSERT_FAIL();
+	}
+	sw.Stop();		
+	printf("delete time: %ld\n", sw.Elapsed());
+
+	sw.Reset();
+	sw.Start();
+	for (unsigned u = 0; u < num; u++)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = kvs.Get<ReadBuffer>(rb);
+		if (kv != NULL)
+			ASSERT_FAIL();
+	}
+	sw.Stop();
+	printf("get time: %ld\n", sw.Elapsed());
+
+	return 0;
+}
 
 int main(int argc, char** argv)
 {
@@ -57,6 +152,32 @@ int main(int argc, char** argv)
 	char*		area;
 	char*		p;
 	
+//	return TestTreeMap();
+	
+//	W(k, rk, "ki");
+//	W(v, rv, "atka");
+//	file.Set(rk, rv);
+//
+//	W(k, rk, "hol");
+//	W(v, rv, "budapest");
+//	file.Set(rk, rv);
+//
+//	W(k, rk, "ki");
+//	W(v, rv, "atka");
+//	file.Set(rk, rv);
+//
+//	W(k, rk, "hol");
+//	W(v, rv, "budapest");
+//	file.Set(rk, rv);
+//
+//	W(k, rk, "ki");
+//	file.Get(rk, rv);
+//	P();
+//
+//	W(k, rk, "hol");
+//	file.Get(rk, rv);
+//	P();
+
 	num = 50*1000;
 	ksize = 20;
 	vsize = 128;

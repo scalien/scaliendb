@@ -66,7 +66,7 @@ public:
 
 inline bool LessThan(FileIndex &a, FileIndex &b)
 {
-	return LessThan(a.key, b.key);
+	return ReadBuffer::LessThan(a.key, b.key);
 }
 
 #endif
