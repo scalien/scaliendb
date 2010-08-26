@@ -134,7 +134,7 @@ void ThreadPool_Windows::ThreadPoolFunc()
 
 			numActive--;
 			
-			it = callables.Head();
+			it = callables.First();
 			if (it)
 			{
 				callable = *it;

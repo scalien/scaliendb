@@ -52,7 +52,7 @@ void IndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 {
 	KeyIndex* it;
 	
-	for (it = keys.Head(); it != NULL; it = keys.Next(it))
+	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
 		if (it->index == index)
 		{
@@ -68,7 +68,7 @@ void IndexPage::Remove(uint32_t index)
 {
 	KeyIndex* it;
 	
-	for (it = keys.Head(); it != NULL; it = keys.Next(it))
+	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
 		if (it->index == index)
 		{
@@ -93,7 +93,7 @@ ReadBuffer IndexPage::FirstKey()
 	if (keys.GetLength() == 0)
 		ASSERT_FAIL();
 	
-	return keys.Head()->key;
+	return keys.First()->key;
 }
 
 uint32_t IndexPage::NumEntries()
@@ -108,23 +108,23 @@ int32_t IndexPage::Locate(ReadBuffer& key)
 	if (keys.GetLength() == 0)
 		return -1;
 		
-	if (ReadBuffer::LessThan(key, keys.Head()->key))
+	if (ReadBuffer::LessThan(key, keys.First()->key))
 		return 0;
 	
-	for (it = keys.Head(); it != NULL; it = keys.Next(it))
+	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
 		if (ReadBuffer::LessThan(key, it->key))
 			return keys.Prev(it)->index;
 	}
 	
-	return keys.Tail()->index;
+	return keys.Last()->index;
 }
 
 uint32_t IndexPage::NextFreeDataPage()
 {
 	assert(freeDataPages.GetLength() > 0);
 	
-	return *freeDataPages.Head();
+	return *freeDataPages.First();
 }
 
 bool IndexPage::IsOverflowing()
@@ -173,7 +173,7 @@ void IndexPage::Write(Buffer& buffer)
 	p = buffer.GetBuffer();
 	*((uint32_t*) p) = ToLittle32(keys.GetLength());
 	p += 4;
-	for (it = keys.Head(); it != NULL; it = keys.Next(it))
+	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
 //		printf("writing index: %.*s => %u\n", it->key.GetLength(), it->key.GetBuffer(), it->index);
 		len = it->key.GetLength();

@@ -42,6 +42,8 @@ public:
 
 	InTreeMap();
 	
+	unsigned				GetCount();
+	
 	T*						First();
 	T*						Next(T* t);
 
@@ -55,7 +57,9 @@ public:
 	void					InsertAt(T* t, T* pos, int cmpres);
 	
 	template<typename K>
-	T*						Delete(K key);
+	T*						Remove(K key);
+	T*						Remove(T* t);
+
 		
 private:
 	void					DeleteColor(Node* node, Node* parent);
@@ -81,6 +85,7 @@ private:
 	static Node*			GetNode(T* t);
 
 	Node*					root;
+	unsigned				count;
 };
 
 
@@ -88,6 +93,13 @@ template<typename T, InTreeNode<T> T::*pnode>
 InTreeMap<T, pnode>::InTreeMap()
 {
 	root = NULL;
+	count = 0;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+unsigned InTreeMap<T, pnode>::GetCount()
+{
+	return count;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
@@ -194,6 +206,7 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
 	{
 		assert(pos == NULL && cmpres == 0);
 		root = node;
+		count = 1;
 		return;
 	}
 	
@@ -202,11 +215,13 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
 	{
 		assert(curr->left == NULL);
 		curr->left = node;
+		count++;
 	}
 	else if (cmpres > 0)
 	{
 		assert(curr->right == NULL);
 		curr->right = node;
+		count++;
 	}
 	else
 	{
@@ -236,6 +251,7 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 	if (root == NULL)
 	{
 		root = node;
+		count = 1;
 		return NULL;
 	}
 	
@@ -255,6 +271,7 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 			if (curr->left == NULL)
 			{
 				curr->left = node;
+				count++;
 				break;
 			}
 			else
@@ -265,6 +282,7 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 			if (curr->right == NULL)
 			{
 				curr->right = node;
+				count++;
 				break;
 			}
 			else
@@ -280,18 +298,25 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 
 template<typename T, InTreeNode<T> T::*pnode>
 template<typename K>
-T* InTreeMap<T, pnode>::Delete(K key)
+T* InTreeMap<T, pnode>::Remove(K key)
 {
 	T*			t;
-	Node*		node;
-	Node*		child;
-	Node*		parent;
-	int			color;
 	
 	t = Get<K>(key);
 	if (t == NULL)
 		return NULL;
 	
+	return Remove(t);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Remove(T* t)
+{
+	Node*		node;
+	Node*		child;
+	Node*		parent;
+	int			color;
+
 	node = GetNode(t);
 	if (node->left == NULL)
 		child = node->right;
@@ -361,7 +386,8 @@ T* InTreeMap<T, pnode>::Delete(K key)
 color:
 	if (color == Node::BLACK)
 		DeleteColor(child, parent);
-		
+	
+	count--;
 	return t;
 }
 

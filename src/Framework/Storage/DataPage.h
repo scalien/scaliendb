@@ -61,6 +61,7 @@ class DataPage : public Page
 {
 public:
 	DataPage();
+	~DataPage();
 		
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	void					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
@@ -80,7 +81,7 @@ private:
 	Buffer					buffer;
 	InList<KeyValue>		kvs;
 	uint32_t				required;
-	InTreeMap<KeyValue>		kvs_;
+	InTreeMap<KeyValue>		keys;
 };
 
 

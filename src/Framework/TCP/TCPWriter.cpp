@@ -94,7 +94,7 @@ Buffer* TCPWriter::GetNext()
 	if (queue.GetLength() == 0)
 		return NULL;
 	
-	return queue.Head();
+	return queue.First();
 }
 
 void TCPWriter::OnNextWritten()
@@ -119,7 +119,7 @@ unsigned TCPWriter::BytesQueued()
 	
 	bytes = 0;
 
-	for (buffer = queue.Head(); buffer != NULL; buffer = queue.Next(buffer))
+	for (buffer = queue.First(); buffer != NULL; buffer = queue.Next(buffer))
 		bytes += buffer->GetLength();
 
 	return bytes;

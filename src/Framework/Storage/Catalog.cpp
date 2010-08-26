@@ -144,7 +144,7 @@ void Catalog::Write()
 	if (write(fd, (const void *) buffer.GetBuffer(), 4) < 0)
 		ASSERT_FAIL();
 
-	for (it = files.Head(); it != NULL; it = files.Next(it))
+	for (it = files.First(); it != NULL; it = files.Next(it))
 	{		
 		size = 8 + it->key.GetLength();
 		buffer.Allocate(size);
@@ -160,7 +160,7 @@ void Catalog::Write()
 			ASSERT_FAIL();
 	}
 
-	for (it = files.Head(); it != NULL; it = files.Next(it))
+	for (it = files.First(); it != NULL; it = files.Next(it))
 	{
 		if (it->file == NULL)
 			continue;
@@ -175,13 +175,13 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 	if (files.GetLength() == 0)
 		return NULL;
 		
-	if (ReadBuffer::LessThan(key, files.Head()->key))
+	if (ReadBuffer::LessThan(key, files.First()->key))
 	{
-		fi = files.Head();
+		fi = files.First();
 		goto OpenFile;
 	}
 	
-	for (fi = files.Head(); fi != NULL; fi = files.Next(fi))
+	for (fi = files.First(); fi != NULL; fi = files.Next(fi))
 	{
 		if (ReadBuffer::LessThan(key, fi->key))
 		{
@@ -190,7 +190,7 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 		}
 	}
 	
-	fi = files.Tail();
+	fi = files.Last();
 	
 	OpenFile:
 	if (fi->file == NULL)

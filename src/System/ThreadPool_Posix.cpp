@@ -78,7 +78,7 @@ void ThreadPool_Pthread::ThreadFunction()
 			pthread_mutex_unlock(&mutex);
 			break;
 		}
-		it = callables.Head();
+		it = callables.First();
 		if (!it)
 			goto wait;
 			

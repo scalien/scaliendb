@@ -33,8 +33,8 @@ public:
 	bool			Remove(T &t);
 	void			Clear();
 	
-	T*				Head() const;
-	T*				Tail() const;
+	T*				First() const;
+	T*				Last() const;
 	unsigned		GetLength() const;
 	
 	T*				Next(T* t) const;
@@ -85,7 +85,7 @@ T& List<T>::Get(int i)
 {
 	T* it;
 	
-	for (it = Head(); it != NULL && i > 0; it = Next(it), i--)
+	for (it = First(); it != NULL && i > 0; it = Next(it), i--)
 		return *it;
 	
 	ASSERT_FAIL();
@@ -157,7 +157,7 @@ bool List<T>::Remove(T &t)
 {
 	T* it;
 	
-	for (it = Head(); it != NULL; it = Next(it))
+	for (it = First(); it != NULL; it = Next(it))
 	{
 		if (*it == t)
 		{
@@ -190,7 +190,7 @@ void List<T>::Clear()
 }
 
 template<class T>
-T* List<T>::Head() const
+T* List<T>::First() const
 {
 	if (head == NULL)
 		return NULL;
@@ -199,7 +199,7 @@ T* List<T>::Head() const
 }
 
 template<class T>
-T* List<T>::Tail() const
+T* List<T>::Last() const
 {
 	if (tail == NULL)
 		return NULL;

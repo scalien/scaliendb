@@ -16,28 +16,20 @@ DataPage::DataPage()
 	required = DATAPAGE_FIX_OVERHEAD;
 }
 
+DataPage::~DataPage()
+{
+}
+
 bool DataPage::Get(ReadBuffer& key, ReadBuffer& value)
 {
-	KeyValue* it;
+	KeyValue*	kv;
 	
-	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
+	kv = keys.Get<ReadBuffer&>(key);
+	if (kv != NULL)
 	{
-		if (ReadBuffer::LessThan(key, it->key))
-			break;
-
-		if (BUFCMP(&it->key, &key))
-		{
-			value = it->value;
-			return true;
-		}
-	}
-	
-//	it = kvs_.Get<ReadBuffer&>(key);
-//	if (it != NULL)
-//	{
-//		value = it->value;
-//		return true;
-//	}	
+		value = kv->value;
+		return true;
+	}	
 	
 	return false;
 }
@@ -49,75 +41,37 @@ void DataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	KeyValue*	it;
 	KeyValue*	newKeyValue;
 
-	sw1.Start();
-	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
+	int res;
+	it = keys.Locate<ReadBuffer&>(key, res);
+	if (res == 0 && it != NULL)
 	{
-		if (ReadBuffer::LessThan(key, it->key))
-			break;
-
-		if (BUFCMP(&it->key, &key))
-		{
-			// found
-			required -= it->value.GetLength();
-			it->SetValue(value, copy);
-			required += it->value.GetLength();
-			return;
-		}
+		// found
+		required -= it->value.GetLength();
+		it->SetValue(value, copy);
+		required += it->value.GetLength();
+		return;
 	}
-	sw1.Stop();
-	
-	if (it != NULL)
-		it = kvs.Prev(it);
-	else
-		it = kvs.Tail();
-	
+
 	// not found
 	newKeyValue = new KeyValue;
 	newKeyValue->SetKey(key, copy);
 	newKeyValue->SetValue(value, copy);
-	kvs.InsertAfter(it, newKeyValue);
+	keys.InsertAt(newKeyValue, it, res);
 	required += (DATAPAGE_KV_OVERHEAD + key.GetLength() + value.GetLength());
-
-//	int res;
-//	res = kvs_.Locate<ReadBuffer&>(key, it);
-//	if (res == 0 && it != NULL)
-//	{
-//		// found
-//		it->SetValue(value, copy);
-//		return;
-//	}
-//	// not found
-//	newKeyValue = new KeyValue;
-//	newKeyValue->SetKey(key, copy);
-//	newKeyValue->SetValue(value, copy);
-//	kvs_.InsertAt(newKeyValue, it, res);
 }
 
 void DataPage::Delete(ReadBuffer& key)
 {
 	KeyValue*	it;
 
-	// delete from list
-	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
-	{
-		if (ReadBuffer::LessThan(key, it->key))
-			break;
-
-		if (BUFCMP(&it->key, &key))
-		{
-			// found
-			required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
-			kvs.Delete(it);
-			break;
-		}
-	}
-	
-//	kvs_.Delete<ReadBuffer&>(key);
+	it = keys.Remove<ReadBuffer&>(key);
+	if (it)
+		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
 }
 
 bool DataPage::IsEmpty()
 {
-	if (kvs.GetLength() == 0)
+	if (keys.GetCount() == 0)
 		return true;
 	else
 		return false;
@@ -125,7 +79,7 @@ bool DataPage::IsEmpty()
 
 ReadBuffer DataPage::FirstKey()
 {
-	return kvs.Head()->key;
+	return keys.First()->key;
 }
 
 bool DataPage::IsOverflowing()
@@ -140,7 +94,7 @@ DataPage* DataPage::SplitDataPage()
 {
 	DataPage*	newPage;
 	KeyValue*	it;
-	KeyValue*	t;
+	KeyValue*	next;
 	uint32_t	target, sum;
 	
 	if (required > 2 * pageSize)
@@ -148,11 +102,11 @@ DataPage* DataPage::SplitDataPage()
 		
 	target = required / 2;
 	sum = DATAPAGE_FIX_OVERHEAD;
-	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
+	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
 		sum += (it->key.GetLength() + it->value.GetLength() + DATAPAGE_KV_OVERHEAD);
 		if (sum > pageSize || sum >= target)
-			break;
+			break;		
 	}
 	
 	assert(it != NULL);
@@ -163,10 +117,11 @@ DataPage* DataPage::SplitDataPage()
 	{
 		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
 		// TODO: optimize buffer to avoid delete and realloc below
-		t = kvs.Remove(it);
-		newPage->kvs.Append(it);
+		next = keys.Next(it);
+		keys.Remove(it);
+		newPage->keys.Insert(it);
 		newPage->required += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
-		it = t;
+		it = next;
 	}
 	
 	return newPage;
@@ -198,7 +153,7 @@ void DataPage::Read(ReadBuffer& buffer_)
 		kv->value.SetBuffer(p);
 		p += len;
 //		printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
-		kvs.Append(kv);
+		keys.Insert(kv);
 	}
 	
 	required = p - buffer.GetBuffer();
@@ -212,11 +167,11 @@ void DataPage::Write(Buffer& buffer)
 	uint32_t	num;
 
 	p = buffer.GetBuffer();
-	num = kvs.GetLength();
+	num = keys.GetCount();
 	*((uint32_t*) p) = ToLittle32(num);
 //	printf("has %u keys\n", num);
 	p += 4;
-	for (it = kvs.Head(); it != NULL; it = kvs.Next(it))
+	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
 		len = it->key.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);

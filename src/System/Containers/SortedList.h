@@ -23,8 +23,8 @@ public:
 	bool			Remove(T &t);
 	void			Clear();
 	
-	T*				Head() const;
-	T*				Tail() const;
+	T*				First() const;
+	T*				Last() const;
 	int				GetLength() const;
 	
 	T*				Next(T* t) const;
@@ -94,15 +94,15 @@ void SortedList<T>::Clear()
 }
 
 template<class T>
-T* SortedList<T>::Head() const
+T* SortedList<T>::First() const
 {
-	return list.Head();
+	return list.First();
 }
 
 template<class T>
-T* SortedList<T>::Tail() const
+T* SortedList<T>::Last() const
 {
-	return list.Tail();
+	return list.Last();
 }
 
 template<class T>

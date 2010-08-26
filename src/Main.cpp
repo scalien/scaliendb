@@ -171,7 +171,7 @@ int TestTreeMap()
 	{
 		buf.Writef("%u", u);
 		rb.Wrap(buf);
-		kv = kvs.Delete<ReadBuffer&>(rb);
+		kv = kvs.Remove<ReadBuffer&>(rb);
 		if (kv == NULL)
 			ASSERT_FAIL();
 	}

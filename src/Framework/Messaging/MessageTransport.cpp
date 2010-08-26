@@ -92,7 +92,7 @@ MessageConnection* MessageTransport::GetConnection(uint64_t nodeID)
 {
 	MessageConnection* it;
 	
-	for (it = conns.Head(); it != NULL; it = conns.Next(it))
+	for (it = conns.First(); it != NULL; it = conns.Next(it))
 	{
 		if (it->GetNodeID() == nodeID)
 			return it;

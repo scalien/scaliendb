@@ -24,8 +24,8 @@ public:
 
 	void	Clear();
 	
-	T*		Head() const;
-	T*		Tail() const;
+	T*		First() const;
+	T*		Last() const;
 	int		GetLength() const;
 	
 	T*		Next(T* t) const;
@@ -118,13 +118,13 @@ void InPriorityQueue<T>::Clear()
 }
 
 template<class T>
-T* InPriorityQueue<T>::Head() const
+T* InPriorityQueue<T>::First() const
 {
 	return head;
 }
 
 template<class T>
-T* InPriorityQueue<T>::Tail() const
+T* InPriorityQueue<T>::Last() const
 {
 	return tail;
 }

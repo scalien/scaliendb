@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdlib.h>
+#include <stdio.h> // REMOVE
 
 #define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
 
@@ -237,7 +237,7 @@ void File::ReadRest()
 	KeyIndex*		it;
 
 	// TODO make sure this IO occurs in order!
-	for (it = indexPage.keys.Head(); it != NULL; it = indexPage.keys.Next(it))
+	for (it = indexPage.keys.First(); it != NULL; it = indexPage.keys.Next(it))
 		if (dataPages[it->index] == NULL)
 			LoadDataPage(it->index);
 }
@@ -264,7 +264,7 @@ void File::Write()
 	}
 	
 	// TODO: write these in offset order
-	for (it = dirtyPages.Head(); it != NULL; it = dirtyPages.Remove(it))
+	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Remove(it))
 	{
 		buffer.Allocate(it->GetPageSize());
 		buffer.Zero();
@@ -362,7 +362,7 @@ void File::ReorderPages()
 	
 	newDataPages = (DataPage**) malloc(sizeof(DataPage*) * numDataPageSlots);
 	
-	for (it = indexPage.keys.Head(), newIndex = 0; it != NULL; it = indexPage.keys.Next(it), newIndex++)
+	for (it = indexPage.keys.First(), newIndex = 0; it != NULL; it = indexPage.keys.Next(it), newIndex++)
 	{
 		oldIndex = it->index;
 		assert(dataPages[oldIndex] != NULL);

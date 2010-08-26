@@ -237,7 +237,7 @@ bool Config::Save()
 	
 	fprintf(fp, "# Automatically generated configuration file. DO NOT EDIT!\n\n");
 	
-	for (var = vars.Head(); var != NULL; var = var->next)
+	for (var = vars.First(); var != NULL; var = var->next)
 	{
 		fprintf(fp, "%s = \"%s", var->name.GetBuffer(), var->GetListValue(0, ""));
 		for (int i = 1; i < var->numelem; i++)
@@ -262,7 +262,7 @@ ConfigVar* Config::GetVar(const char* name)
 {
 	ConfigVar* var;
 	
-	var = vars.Head();
+	var = vars.First();
 	while (var)
 	{
 		if (var->NameEquals(name))

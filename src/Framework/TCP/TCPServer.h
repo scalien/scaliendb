@@ -100,7 +100,7 @@ void TCPServer<T, Conn>::Close()
 
 	if (pT->IsManaged())
 	{
-		for (it = activeConns.Head(); it != NULL; /* advanced in body */)
+		for (it = activeConns.First(); it != NULL; /* advanced in body */)
 		{
 			next = activeConns.Next(it);
 			it->OnClose();

@@ -111,7 +111,7 @@ void DataChunkContext::OnAppend(ReadBuffer value, bool ownAppend)
 	
 	Log_Trace("my append");
 	
-	msgptr = messages.Head();
+	msgptr = messages.First();
 	dataNode->GetService()->OnComplete(msgptr, true);
 	messages.Remove(msgptr);
 	delete msgptr;
@@ -121,7 +121,7 @@ Buffer* DataChunkContext::GetNextValue()
 {
 	DataMessage*	msg;
 
-	msg = messages.Head();
+	msg = messages.First();
 	
 	if (!msg)
 	{

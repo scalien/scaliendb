@@ -19,7 +19,7 @@ Buffer*	BufferPool::Acquire(unsigned size)
 {
 	Buffer *it;
 	
-	for (it = available.Head(); it != NULL; it = available.Next(it))
+	for (it = available.First(); it != NULL; it = available.Next(it))
 	{
 		if (it->GetSize() >= size)
 		{
@@ -30,9 +30,9 @@ Buffer*	BufferPool::Acquire(unsigned size)
 		}
 	}
 	
-	if (available.Head() != NULL)
+	if (available.First() != NULL)
 	{
-		it = available.Head();
+		it = available.First();
 		available.Remove(it);
 		availableSize -= it->GetSize();
 		assert(size >= 0);

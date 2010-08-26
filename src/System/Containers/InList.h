@@ -36,8 +36,8 @@ public:
 	bool			Remove(T &t);
 	void			Clear();
 	
-	T*				Head() const;
-	T*				Tail() const;
+	T*				First() const;
+	T*				Last() const;
 	unsigned		GetLength() const;
 	
 	T*				Next(T* t) const;
@@ -72,7 +72,7 @@ T& InList<T>::Get(int i)
 {
 	T* it;
 	
-	for (it = Head(); it != NULL; it = Next(it))
+	for (it = First(); it != NULL; it = Next(it))
 	{
 		if (i == 0)
 			return *it;
@@ -177,7 +177,7 @@ bool InList<T>::Remove(T &t)
 {
 	T* it;
 	
-	for (it = Head(); it != NULL; it = Next(it))
+	for (it = First(); it != NULL; it = Next(it))
 	{
 		if (*it == t)
 		{
@@ -195,19 +195,19 @@ void InList<T>::Clear()
 {
 	T* it;
 	
-	for (it = Head(); it != NULL; it = Remove(it));
+	for (it = First(); it != NULL; it = Remove(it));
 	
 	assert(length == 0);
 }
 
 template<class T>
-T* InList<T>::Head() const
+T* InList<T>::First() const
 {
 	return head;
 }
 
 template<class T>
-T* InList<T>::Tail() const
+T* InList<T>::Last() const
 {
 	return tail;
 }

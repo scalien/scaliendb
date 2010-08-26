@@ -7,7 +7,7 @@ long EventLoop::RunTimers()
 {
 	Timer* timer;
 	
-	for (timer = timers.Head(); timer != NULL; timer = timers.Head())
+	for (timer = timers.First(); timer != NULL; timer = timers.First())
 	{
 		UpdateTime();
 		if (timer->When() <= now)

@@ -12,7 +12,7 @@ void ReplicationTransport::OnIncomingConnectionReady(uint64_t nodeID, Endpoint e
 {
 	uint64_t* it;
 	
-	for (it = registered.Head(); it != NULL; it = registered.Next(it))
+	for (it = registered.First(); it != NULL; it = registered.Next(it))
 		RMAN->GetContext(*it)->OnIncomingConnectionReady(nodeID, endpoint);
 }
 

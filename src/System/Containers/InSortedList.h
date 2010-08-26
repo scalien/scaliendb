@@ -25,8 +25,8 @@ public:
 	bool			Remove(T &t);
 	void			Clear();
 	
-	T*				Head() const;
-	T*				Tail() const;
+	T*				First() const;
+	T*				Last() const;
 	int				GetLength() const;
 	
 	T*				Next(T* t) const;
@@ -111,15 +111,15 @@ void InSortedList<T>::Clear()
 }
 
 template<class T>
-T* InSortedList<T>::Head() const
+T* InSortedList<T>::First() const
 {
-	return list.Head();
+	return list.First();
 }
 
 template<class T>
-T* InSortedList<T>::Tail() const
+T* InSortedList<T>::Last() const
 {
-	return list.Tail();
+	return list.Last();
 }
 
 template<class T>

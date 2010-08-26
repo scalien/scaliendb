@@ -49,7 +49,6 @@ void Buffer::Allocate(unsigned size_, bool keepold)
 	size_ = size_ + ALLOC_GRANURALITY - 1;
 	size_ -= size_ % ALLOC_GRANURALITY;
 
-	//newbuffer = new char[size_];
 	if (buffer == array)
 		newbuffer = (char*) malloc(size_);
 	else	

@@ -22,8 +22,8 @@ public:
 
 	void	Clear();
 	
-	T*		Head() const;	
-	T*		Tail() const;
+	T*		First() const;	
+	T*		Last() const;
 	int		GetLength() const;
 	
 	T*		Next(T* t) const;
@@ -88,13 +88,13 @@ void InQueue<T>::Clear()
 }
 
 template<class T>
-T* InQueue<T>::Head() const
+T* InQueue<T>::First() const
 {
 	return head;
 }
 
 template<class T>
-T* InQueue<T>::Tail() const
+T* InQueue<T>::Last() const
 {
 	return tail;
 }
