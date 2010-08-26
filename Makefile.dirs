@@ -7,13 +7,14 @@ $(BUILD_DIR):
 		$(BUILD_DIR)/Application/DataNode/ \
 		$(BUILD_DIR)/Framework/Database/ \
 		$(BUILD_DIR)/Framework/Messaging/ \
-		$(BUILD_DIR)/Framework/TCP/ \
 		$(BUILD_DIR)/Framework/Replication/ \
 		$(BUILD_DIR)/Framework/Replication/Quorums \
 		$(BUILD_DIR)/Framework/Replication/PaxosLease \
 		$(BUILD_DIR)/Framework/Replication/PaxosLease\States \
 		$(BUILD_DIR)/Framework/Replication/Paxos \
 		$(BUILD_DIR)/Framework/Replication/ReplicatedLog \
+		$(BUILD_DIR)/Framework/Storage \
+		$(BUILD_DIR)/Framework/TCP/ \
 		$(BUILD_DIR)/System/ \
 		$(BUILD_DIR)/System/Buffers \
 		$(BUILD_DIR)/System/Containers/ \

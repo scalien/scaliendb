@@ -1,4 +1,6 @@
 #include "Time.h"
+#include "ThreadPool.h"
+#include "Events/Callable.h"
 
 #ifdef _WIN32
 #include <time.h>
@@ -6,6 +8,12 @@
 #else
 #include <sys/time.h>
 #endif
+
+// independent thread clock support
+static int					clockStarted = 0;
+static volatile uint64_t	clockMsec = 0;
+static volatile uint64_t	clockUsec = 0;
+static ThreadPool*			clockThread = NULL;
 
 #ifdef _WIN32
 int gettimeofday (struct timeval *tv, void* tz)
@@ -49,6 +57,65 @@ uint64_t NowMicro()
 	now += tv.tv_usec;
     
 	return now;
+}
+
+uint64_t NowClock()
+{
+	if (!clockStarted)
+		return Now();
+		
+	return clockMsec;
+}
+
+uint64_t NowMicroClock()
+{
+	if (!clockStarted)
+		return NowMicro();
+	
+	return clockUsec;
+}
+
+static void UpdateClock()
+{
+	static struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+	clockMsec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+	clockUsec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+}
+
+static void ClockThread()
+{
+	while (clockStarted)
+	{
+		UpdateClock();
+		MSleep(20);
+	}
+}
+
+void StartClock()
+{
+	struct timeval tv;
+
+	if (clockThread)
+		return;
+	
+	UpdateClock();
+
+	clockStarted = 1;
+	clockThread = ThreadPool::Create(1);
+	clockThread->Start();
+	clockThread->Execute(Callable(CFunc(ClockThread)));
+}
+
+void StopClock()
+{
+	if (!clockThread)
+		return;
+		
+	clockStarted = 0;
+	clockThread->Stop();
+	clockThread = NULL;
 }
 
 #ifndef _WIN32

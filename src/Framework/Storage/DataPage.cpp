@@ -1,14 +1,9 @@
 #include "DataPage.h"
 #include <stdio.h>
 
-static int KeyCmp(ReadBuffer a, ReadBuffer b)
+static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
-	// TODO: this is ineffective
-	if (ReadBuffer::LessThan(a, b))
-		return -1;
-	if (ReadBuffer::LessThan(b, a))
-		return 1;
-	return 0;
+	return ReadBuffer::Cmp(a, b);
 }
 
 static ReadBuffer Key(KeyValue* kv)
@@ -83,7 +78,19 @@ void DataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	kvs.InsertAfter(it, newKeyValue);
 	required += (DATAPAGE_KV_OVERHEAD + key.GetLength() + value.GetLength());
 
-//	kvs_.Insert(newKeyValue);
+//	int res;
+//	res = kvs_.Locate<ReadBuffer&>(key, it);
+//	if (res == 0 && it != NULL)
+//	{
+//		// found
+//		it->SetValue(value, copy);
+//		return;
+//	}
+//	// not found
+//	newKeyValue = new KeyValue;
+//	newKeyValue->SetKey(key, copy);
+//	newKeyValue->SetValue(value, copy);
+//	kvs_.InsertAt(newKeyValue, it, res);
 }
 
 void DataPage::Delete(ReadBuffer& key)

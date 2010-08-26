@@ -45,15 +45,16 @@
 #include "stdio.h"
 #include "System/Containers/InTreeMap.h"
 
+#include <map>
 
-static int KeyCmp(ReadBuffer a, ReadBuffer b)
+static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
-	// TODO: this is ineffective
-	if (ReadBuffer::LessThan(a, b))
-		return -1;
-	if (ReadBuffer::LessThan(b, a))
-		return 1;
-	return 0;
+	return ReadBuffer::Cmp(a, b);
+}
+
+bool operator< (const ReadBuffer& left, const ReadBuffer& right)
+{
+	return ReadBuffer::LessThan(left, right);
 }
 
 static ReadBuffer Key(KeyValue* kv)
@@ -61,29 +62,82 @@ static ReadBuffer Key(KeyValue* kv)
 	return kv->key;
 }
 
+void GenRandomString(ReadBuffer& bs, size_t length)
+{
+	const char set[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	const size_t setsize = sizeof(set) - 1;
+	unsigned int i;
+	static uint64_t d = Now();
+	char* buffer;
+
+	assert(bs.GetLength() >= length);
+	buffer = bs.GetBuffer();
+	
+	for (i = 0; i < length; i++) {
+			// more about why these numbers were chosen:
+			// http://en.wikipedia.org/wiki/Linear_congruential_generator
+			d = (d * 1103515245UL + 12345UL) >> 2;
+			buffer[i] = set[d % setsize];
+	}
+
+	bs.SetLength(length);
+}
+
 int TestTreeMap()
 {
-	InTreeMap<KeyValue, &KeyValue::node>	kvs;
+	InTreeMap<KeyValue>						kvs;
 	ReadBuffer								rb;
+	ReadBuffer								rk;
+	ReadBuffer								rv;
 	Buffer									buf;
 	KeyValue*								kv;
 	KeyValue*								it;
 	Stopwatch								sw;
-	const unsigned							num = 100000;
+	const unsigned							num = 1000000;
+	unsigned								ksize;
+	unsigned								vsize;
+	char*									area;
+	char*									kvarea;
+	char*									p;
+	int										len;
+	int										cmpres;
+	std::map<ReadBuffer, ReadBuffer>		bufmap;
+
+	ksize = 20;
+	vsize = 128;
+	area = (char*) malloc(num*(ksize+vsize));
+	kvarea = (char*) malloc(num * sizeof(KeyValue));
 	
-	sw.Start();
+	//sw.Start();
 	for (unsigned u = 0; u < num; u++)
 	{
-		buf.Writef("%u", u);
-		rb.Wrap(buf);
-		kv = new KeyValue;
-		kv->SetKey(rb, true);
-		kv->SetValue(rb, true);
+		p = area + u*(ksize+vsize);
+		len = snprintf(p, ksize, "%u", u);
+		rk.SetBuffer(p);
+		rk.SetLength(len);
+		p += ksize;
+		len = snprintf(p, vsize, "%.100f", (float) u);
+		rv.SetBuffer(p);
+		rv.SetLength(len);
+
+//		buf.Writef("%u", u);
+//		rb.Wrap(buf);
+//		kv = new KeyValue;
+//		kv->SetKey(rb, true);
+//		kv->SetValue(rb, true);
+
+		kv = (KeyValue*) (kvarea + u * sizeof(KeyValue));
+		kv->SetKey(rk, false);
+		kv->SetValue(rv, false);
 		
+		sw.Start();
 		kvs.Insert(kv);
+		//bufmap.insert(std::pair<ReadBuffer, ReadBuffer>(rk, rv));
+		sw.Stop();
 	}
-	sw.Stop();
 	printf("insert time: %ld\n", sw.Elapsed());
+
+	//return 0;
 
 	sw.Reset();
 	sw.Start();
@@ -91,7 +145,7 @@ int TestTreeMap()
 	{
 		buf.Writef("%u", u);
 		rb.Wrap(buf);
-		kv = kvs.Get<ReadBuffer>(rb);
+		kv = kvs.Get<ReadBuffer&>(rb);
 		if (kv == NULL)
 			ASSERT_FAIL();
 	}
@@ -116,7 +170,7 @@ int TestTreeMap()
 	{
 		buf.Writef("%u", u);
 		rb.Wrap(buf);
-		kv = kvs.Delete<ReadBuffer>(rb);
+		kv = kvs.Delete<ReadBuffer&>(rb);
 		if (kv == NULL)
 			ASSERT_FAIL();
 	}
@@ -129,13 +183,93 @@ int TestTreeMap()
 	{
 		buf.Writef("%u", u);
 		rb.Wrap(buf);
-		kv = kvs.Get<ReadBuffer>(rb);
+		kv = kvs.Get<ReadBuffer&>(rb);
 		if (kv != NULL)
 			ASSERT_FAIL();
 	}
 	sw.Stop();
 	printf("get time: %ld\n", sw.Elapsed());
 
+	sw.Reset();
+	for (unsigned u = 0; u < num; u++)
+	{
+		p = area + u*(ksize+vsize);
+		rk.SetBuffer(p);
+		rk.SetLength(ksize);
+		GenRandomString(rk, ksize);
+		p += ksize;
+		rv.SetBuffer(p);
+		rv.SetLength(vsize);
+		GenRandomString(rv, vsize);
+
+		sw.Start();
+		it = kvs.Locate<ReadBuffer&>(rk, cmpres);
+		if (cmpres == 0 && it != NULL)
+		{
+			// found, overwrite value
+			it->value = rv;
+		}
+		else
+		{
+			kv = (KeyValue*) (kvarea + u * sizeof(KeyValue));
+			kv->SetKey(rk, false);
+			kv->SetValue(rv, false);
+			kvs.InsertAt(kv, it, cmpres);
+		}
+		sw.Stop();
+	}
+	printf("random insert time: %ld\n", sw.Elapsed());
+
+	unsigned u = 0;
+	sw.Reset();
+	sw.Start();
+	for (it = kvs.First(); it != NULL; it = kvs.Next(it))
+	{
+		//printf("it->key = %.*s\n", P(&it->key));
+		//kv = it; // dummy op
+		u++;
+	}
+	sw.Stop();
+	printf("found: %u\n", u);
+	printf("iteration time: %ld\n", sw.Elapsed());
+
+	return 0;
+}
+
+int TestClock()
+{
+	Stopwatch	sw;
+	uint64_t	now;
+	uint64_t	tmp;
+	unsigned	num;
+	
+	num = 10 * 1000 * 1000;
+	
+	sw.Reset();
+	sw.Start();
+	for (unsigned u = 0; u < num; u++)
+		now = NowClock();
+	sw.Stop();
+	printf("Elapsed without clock: %ld msec\n", sw.Elapsed());
+	
+	StartClock();
+	MSleep(100);
+	
+	now = NowClock();
+	sw.Reset();
+	sw.Start();
+	for (unsigned u = 0; u < num; u++)
+	{
+		tmp = NowClock();
+		if (tmp != now)
+		{
+			printf("Clock changed from %ld to %ld\n", now, tmp);
+			now = tmp;
+		}
+	}
+	sw.Stop();
+	printf("Elapsed with clock: %ld msec\n", sw.Elapsed());
+	
 	return 0;
 }
 
@@ -153,6 +287,7 @@ int main(int argc, char** argv)
 	char*		p;
 	
 //	return TestTreeMap();
+	return TestClock();
 	
 //	W(k, rk, "ki");
 //	W(v, rv, "atka");
