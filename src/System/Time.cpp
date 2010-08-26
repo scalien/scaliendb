@@ -95,8 +95,6 @@ static void ClockThread()
 
 void StartClock()
 {
-	struct timeval tv;
-
 	if (clockThread)
 		return;
 	

@@ -2,7 +2,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include <stdio.h> // REMOVE
+#include <stdlib.h>
 
 #define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
 

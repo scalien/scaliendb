@@ -46,6 +46,7 @@
 #include "System/Containers/InTreeMap.h"
 
 #include <map>
+#include <stdlib.h>
 
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -289,7 +290,7 @@ int main(int argc, char** argv)
 	char*		p;
 	
 //	return TestTreeMap();
-	return TestClock();
+//	return TestClock();
 	
 //	W(k, rk, "ki");
 //	W(v, rv, "atka");
