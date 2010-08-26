@@ -25,6 +25,7 @@ class File
 {
 public:
 	File();
+	~File();
 	
 	void					Open(char* filepath);
 	void					Flush();

@@ -32,6 +32,11 @@ File::File()
 	fd = -1;
 }
 
+File::~File()
+{
+	free(dataPages);
+}
+
 void File::Open(char* filepath_)
 {
 	struct stat st;
