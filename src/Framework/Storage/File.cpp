@@ -34,6 +34,8 @@ File::File()
 
 File::~File()
 {
+	for (uint32_t u = 0; u < numDataPages; u++)
+		delete dataPages[u];
 	free(dataPages);
 }
 
