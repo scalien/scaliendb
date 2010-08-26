@@ -240,6 +240,7 @@ int TestClock()
 {
 	Stopwatch	sw;
 	uint64_t	now;
+	uint64_t	tmp;
 	unsigned	num;
 	
 	num = 10 * 1000 * 1000;
@@ -252,11 +253,20 @@ int TestClock()
 	printf("Elapsed without clock: %ld msec\n", sw.Elapsed());
 	
 	StartClock();
+	MSleep(100);
 	
+	now = NowClock();
 	sw.Reset();
 	sw.Start();
 	for (unsigned u = 0; u < num; u++)
-		now = NowClock();
+	{
+		tmp = NowClock();
+		if (tmp != now)
+		{
+			printf("Clock changed from %ld to %ld\n", now, tmp);
+			now = tmp;
+		}
+	}
 	sw.Stop();
 	printf("Elapsed with clock: %ld msec\n", sw.Elapsed());
 	

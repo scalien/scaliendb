@@ -75,24 +75,33 @@ uint64_t NowMicroClock()
 	return clockUsec;
 }
 
+static void UpdateClock()
+{
+	static struct timeval tv;
+
+	gettimeofday(&tv, NULL);
+	clockMsec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
+	clockUsec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+}
+
 static void ClockThread()
 {
-	struct timeval tv;
-
 	while (clockStarted)
 	{
-	    gettimeofday(&tv, NULL);
-		clockMsec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
-		clockUsec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
+		UpdateClock();
 		MSleep(20);
 	}
 }
 
 void StartClock()
 {
+	struct timeval tv;
+
 	if (clockThread)
 		return;
 	
+	UpdateClock();
+
 	clockStarted = 1;
 	clockThread = ThreadPool::Create(1);
 	clockThread->Start();
