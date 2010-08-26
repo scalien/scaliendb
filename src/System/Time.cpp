@@ -75,7 +75,7 @@ uint64_t NowMicroClock()
 	return clockUsec;
 }
 
-static void UpdateClock()
+static inline void UpdateClock()
 {
 	static struct timeval tv;
 

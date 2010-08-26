@@ -263,12 +263,14 @@ int TestClock()
 		tmp = NowClock();
 		if (tmp != now)
 		{
-			printf("Clock changed from %ld to %ld\n", now, tmp);
+			printf("Clock changed from %" PRIu64 " to %" PRIu64 "\n", now, tmp);
 			now = tmp;
 		}
 	}
 	sw.Stop();
 	printf("Elapsed with clock: %ld msec\n", sw.Elapsed());
+	
+	StopClock();
 	
 	return 0;
 }

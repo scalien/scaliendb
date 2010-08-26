@@ -10,7 +10,7 @@ Buffer::Buffer()
 Buffer::~Buffer()
 {
 	if (buffer != array)
-		delete[] buffer;
+		free(buffer);
 }
 
 bool Buffer::Cmp(Buffer& a, Buffer& b)
@@ -48,12 +48,20 @@ void Buffer::Allocate(unsigned size_, bool keepold)
 	size_ = size_ + ALLOC_GRANURALITY - 1;
 	size_ -= size_ % ALLOC_GRANURALITY;
 
-	newbuffer = new char[size_];
+	//newbuffer = new char[size_];
+	if (buffer == array)
+		newbuffer = (char*) malloc(size_);
+	else	
+		newbuffer = (char*) realloc(buffer, size_);
+
 	if (keepold && length > 0)
-		memcpy(newbuffer, buffer, length);
+	{
+		if (newbuffer != buffer)
+			memcpy(newbuffer, buffer, length);
+	}
 	
-	if (buffer != array)
-		delete[] buffer;
+	if (buffer != array && buffer != newbuffer)
+		free(buffer);
 		
 	buffer = newbuffer;
 	size = size_;

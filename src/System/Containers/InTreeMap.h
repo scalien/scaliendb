@@ -38,7 +38,7 @@ template<typename T, InTreeNode<T> T::*pnode = &T::treeNode>
 class InTreeMap
 {
 public:
-	typedef InTreeNode<T>			Node;
+	typedef InTreeNode<T>	Node;
 
 	InTreeMap();
 	
