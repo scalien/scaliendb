@@ -317,7 +317,7 @@ int main(int argc, char** argv)
 //	file.Get(rk, rv);
 //	P();
 
-	num = 1000*1000;
+	num = 100*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));

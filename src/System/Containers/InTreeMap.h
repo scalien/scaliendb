@@ -64,10 +64,12 @@ public:
 	template<typename K>
 	T*						Remove(K key);
 	T*						Remove(T* t);
-
+	
+	void					DeleteTree();
 		
 private:
-	void					DeleteColor(Node* node, Node* parent);
+	void					DeleteInner(Node* inner);
+	void					FixColorsOnRemoval(Node* node, Node* parent);
 	void					FixColors(Node* node);
 	void					FixUncleColors(Node* node);
 	void					FixRotation(Node* node);
@@ -427,14 +429,37 @@ T* InTreeMap<T, pnode>::Remove(T* t)
 
 color:
 	if (color == Node::BLACK)
-		DeleteColor(child, parent);
+		FixColorsOnRemoval(child, parent);
 	
 	count--;
 	return t;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::DeleteColor(Node* node, Node* parent)
+void InTreeMap<T, pnode>::DeleteTree()
+{
+	DeleteInner(root);
+	root = NULL;
+	count = 0;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::DeleteInner(Node* node)
+{
+	T*	t;
+	
+	if (node == NULL)
+		return;
+		
+	DeleteInner(node->left);
+	DeleteInner(node->right);
+	
+	t = GetElem(node);
+	delete t;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::FixColorsOnRemoval(Node* node, Node* parent)
 {
 	Node*	other;
 	
