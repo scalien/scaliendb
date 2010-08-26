@@ -48,6 +48,22 @@ void IndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 	freeDataPages.Remove(index);
 }
 
+void IndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
+{
+	KeyIndex* it;
+	
+	for (it = keys.Head(); it != NULL; it = keys.Next(it))
+	{
+		if (it->index == index)
+		{
+			required -= it->key.GetLength();
+			it->SetKey(key, copy);
+			required -= it->key.GetLength();
+			return;
+		}
+	}
+}
+
 void IndexPage::Remove(uint32_t index)
 {
 	KeyIndex* it;
@@ -113,7 +129,10 @@ uint32_t IndexPage::NextFreeDataPage()
 
 bool IndexPage::IsOverflowing()
 {
-	return (required < pageSize);
+	if (required < pageSize)
+		return false;
+	else
+		return true;
 }
 
 void IndexPage::Read(ReadBuffer& buffer_)

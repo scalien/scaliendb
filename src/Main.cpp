@@ -178,12 +178,12 @@ int main(int argc, char** argv)
 //	file.Get(rk, rv);
 //	P();
 
-	num = 50*1000;
+	num = 100*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
 
-	catalog.Open("users");
+	catalog.Open("dogs");
 
 //	sw.Start();
 //	for (int i = 0; i < num; i++)
@@ -203,12 +203,12 @@ int main(int argc, char** argv)
 //	printf("Time spent in DataPage sw1: %ld msec\n", DataPage::sw1.Elapsed());
 
 	sw.Start();
-	for (int i = 0; i < 10*1000; i++)
+	for (int i = 0; i < num; i++)
 	{
 		k.Writef("%d", i);
 		rk.Wrap(k);
 		if (catalog.Get(rk, rv))
-			PRINT()
+			;//PRINT()
 		else
 			ASSERT_FAIL();
 	}	

@@ -30,15 +30,17 @@ public:
 	void					Flush();
 	void					Close();
 	
-	bool					IsOpen();
-	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
+	ReadBuffer				FirstKey();
+
 	bool					IsOverflowing();
+	File*					SplitFile();
 
 	void					Read();
+	void					ReadRest();
 	void					Write();
 
 	File*					prev;
@@ -48,12 +50,16 @@ private:
 	int32_t					Locate(ReadBuffer& key);
 	void					LoadDataPage(uint32_t index);
 	void					MarkPageDirty(Page* page);
+	void					SplitDataPage(uint32_t index);
+	void					ReorderPages();
+	void					ReorderFile();
 	
 	int						fd;
 	uint32_t				indexPageSize;
 	uint32_t				dataPageSize;
 	uint32_t				numDataPageSlots;
 	bool					isOverflowing;
+	bool					newFile;
 	Buffer					filepath;
 	IndexPage				indexPage;
 	DataPage**				dataPages;

@@ -10,6 +10,7 @@
 #include "Page.h"
 
 class KeyIndex; // forward
+class File;		// forward
 
 #define INDEXPAGE_FIX_OVERHEAD		4
 #define INDEXPAGE_KV_OVERHEAD		8
@@ -37,6 +38,7 @@ public:
 	void					SetNumDataPageSlots(uint32_t numDataPageSlots);
 	
 	void					Add(ReadBuffer key, uint32_t index, bool copy = true);
+	void					Update(ReadBuffer key, uint32_t index, bool copy = true);
 	void					Remove(uint32_t index);
 
 	bool					IsEmpty();
@@ -55,6 +57,8 @@ private:
 	uint32_t				required;
 	InSortedList<KeyIndex>	keys;
 	SortedList<uint32_t>	freeDataPages;
+	
+	friend class File;
 };
 
 

@@ -26,12 +26,14 @@ public:
 	void					Delete(ReadBuffer& key);
 
 private:
+	void					WritePath(Buffer& buffer, uint32_t index);
 	void					Read(uint32_t length);
 	void					Write();
 	FileIndex*				Locate(ReadBuffer& key);
+	void					SplitFile(File* file);
 
 	int						fd;
-	uint32_t				maxFileIndex;
+	uint32_t				nextFileIndex;
 	Buffer					filepath;
 	Buffer					buffer;
 	InSortedList<FileIndex>	files;
@@ -54,7 +56,7 @@ public:
 	void					SetKey(ReadBuffer& key, bool copy);
 
 	Buffer					filepath;
-	File					file;
+	File*					file;
 
 	ReadBuffer				key;
 	Buffer*					keyBuffer;

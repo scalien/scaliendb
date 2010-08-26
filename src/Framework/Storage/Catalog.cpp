@@ -7,7 +7,7 @@ void Catalog::Open(char* filepath_)
 {
 	struct stat st;
 
-	maxFileIndex = 0;
+	nextFileIndex = 0;
 
 	filepath.Write(filepath_);
 	filepath.NullTerminate();
@@ -42,39 +42,58 @@ bool Catalog::Get(ReadBuffer& key, ReadBuffer& value)
 	if (fi == NULL)
 		return false;
 	
-	else return fi->file.Get(key, value);
+	else return fi->file->Get(key, value);
 }
 
 bool Catalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
-	FileIndex*	fi;
-	Buffer		tmp;
+	FileIndex	*fi;
+	Buffer		buffer;
 	
 	fi = Locate(key);
 
 	if (fi == NULL)
 	{
 		fi = new FileIndex;
-		fi->index = maxFileIndex++;
+		fi->index = nextFileIndex++;
+		fi->file = new File;
+		WritePath(buffer, fi->index);
+		fi->file->Open(buffer.GetBuffer());
 		fi->SetKey(key, true); // TODO: buffer management
-		tmp.Write(filepath);
-		tmp.SetLength(filepath.GetLength() - 1); // get rid of trailing \0
-		tmp.Appendf(".%u", fi->index);
-		tmp.NullTerminate();
-		fi->file.Open(tmp.GetBuffer());
 		files.Add(fi);
 	}
 	
-	if (!fi->file.Set(key, value, copy))
+	if (!fi->file->Set(key, value, copy))
 		return false;
-		
-	// TODO: file splitting
+
+	// update index:
+	if (ReadBuffer::LessThan(key, fi->key))
+		fi->SetKey(key, true);
+
+	if (fi->file->IsOverflowing())
+		SplitFile(fi->file);
 	
 	return true;
 }
 
 void Catalog::Delete(ReadBuffer& key)
 {
+	FileIndex* fi;
+	
+	fi = Locate(key);
+
+	if (fi == NULL)
+		return;
+	
+	else return fi->file->Delete(key);
+}
+
+void Catalog::WritePath(Buffer& buffer, uint32_t index)
+{
+	buffer.Write(filepath);
+	buffer.SetLength(filepath.GetLength() - 1); // get rid of trailing \0
+	buffer.Appendf(".%u", index);
+	buffer.NullTerminate();
 }
 
 void Catalog::Read(uint32_t length)
@@ -101,14 +120,9 @@ void Catalog::Read(uint32_t length)
 		fi->key.SetBuffer(p);
 		p += len;
 		files.Add(fi);
-
-		fi->filepath.Write(filepath);
-		fi->filepath.SetLength(filepath.GetLength() - 1); // get rid of trailing \0
-		fi->filepath.Appendf(".%u", fi->index);
-		fi->filepath.NullTerminate();
-		
-		if (fi->index > maxFileIndex)
-			maxFileIndex = fi->index;
+		WritePath(fi->filepath, fi->index);
+		if (fi->index + 1 > nextFileIndex)
+			nextFileIndex = fi->index + 1;
 	}	
 }
 
@@ -131,10 +145,7 @@ void Catalog::Write()
 		ASSERT_FAIL();
 
 	for (it = files.Head(); it != NULL; it = files.Next(it))
-	{
-		if (!it->file.IsOpen())
-			continue;
-		
+	{		
 		size = 8 + it->key.GetLength();
 		buffer.Allocate(size);
 		p = buffer.GetBuffer();
@@ -150,7 +161,11 @@ void Catalog::Write()
 	}
 
 	for (it = files.Head(); it != NULL; it = files.Next(it))
-		it->file.Write();
+	{
+		if (it->file == NULL)
+			continue;
+		it->file->Write(); // only changed data pages are written
+	}
 }
 
 FileIndex* Catalog::Locate(ReadBuffer& key)
@@ -178,14 +193,18 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 	fi = files.Tail();
 	
 	OpenFile:
-	if (!fi->file.IsOpen())
-		fi->file.Open(fi->filepath.GetBuffer());
+	if (fi->file == NULL)
+	{
+		fi->file = new File;
+		fi->file->Open(fi->filepath.GetBuffer());
+	}
 	
 	return fi;
 }
 
 FileIndex::FileIndex()
 {
+	file = NULL;
 	keyBuffer = NULL;
 	prev = this;
 	next = this;
@@ -213,3 +232,21 @@ void FileIndex::SetKey(ReadBuffer& key_, bool copy)
 		key = key_;
 }
 
+void Catalog::SplitFile(File* file)
+{
+	FileIndex*	newFi;
+	Buffer		buffer;
+	ReadBuffer	rb;
+
+	file->ReadRest();
+	newFi = new FileIndex;
+	newFi->file = file->SplitFile();
+	newFi->index = nextFileIndex++;
+	
+	WritePath(buffer, newFi->index);
+	newFi->file->Open(buffer.GetBuffer());
+
+	rb = newFi->file->FirstKey();
+	newFi->SetKey(rb, true); // TODO: buffer management
+	files.Add(newFi);
+}

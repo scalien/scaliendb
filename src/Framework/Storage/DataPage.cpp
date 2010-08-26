@@ -129,7 +129,7 @@ bool DataPage::IsOverflowing()
 		return true;
 }
 
-DataPage* DataPage::Split()
+DataPage* DataPage::SplitDataPage()
 {
 	DataPage*	newPage;
 	KeyValue*	it;

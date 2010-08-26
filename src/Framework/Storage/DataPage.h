@@ -69,7 +69,7 @@ public:
 	bool					IsEmpty();
 	ReadBuffer				FirstKey();
 	bool					IsOverflowing();
-	DataPage*				Split();
+	DataPage*				SplitDataPage();
 
 	void					Read(ReadBuffer& buffer);
 	void					Write(Buffer& buffer);
