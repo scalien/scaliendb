@@ -233,7 +233,33 @@ int TestTreeMap()
 	printf("found: %u\n", u);
 	printf("iteration time: %ld\n", sw.Elapsed());
 
+	return 0;
+}
 
+int TestClock()
+{
+	Stopwatch	sw;
+	uint64_t	now;
+	unsigned	num;
+	
+	num = 10 * 1000 * 1000;
+	
+	sw.Reset();
+	sw.Start();
+	for (unsigned u = 0; u < num; u++)
+		now = NowClock();
+	sw.Stop();
+	printf("Elapsed without clock: %ld msec\n", sw.Elapsed());
+	
+	StartClock();
+	
+	sw.Reset();
+	sw.Start();
+	for (unsigned u = 0; u < num; u++)
+		now = NowClock();
+	sw.Stop();
+	printf("Elapsed with clock: %ld msec\n", sw.Elapsed());
+	
 	return 0;
 }
 
@@ -250,7 +276,8 @@ int main(int argc, char** argv)
 	char*		area;
 	char*		p;
 	
-	return TestTreeMap();
+//	return TestTreeMap();
+	return TestClock();
 	
 //	W(k, rk, "ki");
 //	W(v, rv, "atka");
