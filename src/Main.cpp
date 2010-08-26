@@ -47,6 +47,7 @@
 
 #include <map>
 #include <stdlib.h>
+#include <stdio.h>
 
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -58,7 +59,7 @@ bool operator< (const ReadBuffer& left, const ReadBuffer& right)
 	return ReadBuffer::LessThan(left, right);
 }
 
-static ReadBuffer Key(KeyValue* kv)
+static ReadBuffer& Key(KeyValue* kv)
 {
 	return kv->key;
 }
@@ -316,7 +317,7 @@ int main(int argc, char** argv)
 //	file.Get(rk, rv);
 //	P();
 
-	num = 100*1000;
+	num = 1000*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
@@ -340,6 +341,7 @@ int main(int argc, char** argv)
 	printf("%u sets took %ld msec\n", num, elapsed);
 	printf("Time spent in DataPage sw1: %ld msec\n", DataPage::sw1.Elapsed());
 
+	sw.Reset();
 	sw.Start();
 	for (int i = 0; i < num; i++)
 	{
@@ -353,7 +355,11 @@ int main(int argc, char** argv)
 	elapsed = sw.Stop();
 	printf("%u gets took %ld msec\n", num, elapsed);
 	
+	sw.Reset();
+	sw.Start();
 	catalog.Close();
+	elapsed = sw.Stop();
+	printf("Close() took %ld msec\n", elapsed);
 							
 //	DatabaseConfig				dbConfig;
 //	Database					db;

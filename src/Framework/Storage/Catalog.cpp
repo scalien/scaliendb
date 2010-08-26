@@ -2,6 +2,29 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdio.h>
+
+static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
+{
+	return ReadBuffer::Cmp(a, b);
+}
+
+static ReadBuffer& Key(FileIndex* fi)
+{
+	return fi->key;
+}
+
+Catalog::~Catalog()
+{
+	FileIndex*	it;
+	FileIndex*	next;
+	
+	for (it = files.First(); it != NULL; it = next)
+	{
+		next = files.Next(it);
+		delete it;
+	}
+}
 
 void Catalog::Open(char* filepath_)
 {
@@ -60,7 +83,7 @@ bool Catalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		WritePath(buffer, fi->index);
 		fi->file->Open(buffer.GetBuffer());
 		fi->SetKey(key, true); // TODO: buffer management
-		files.Add(fi);
+		files.Insert(fi);
 	}
 	
 	if (!fi->file->Set(key, value, copy))
@@ -90,9 +113,13 @@ void Catalog::Delete(ReadBuffer& key)
 
 void Catalog::WritePath(Buffer& buffer, uint32_t index)
 {
+	char	buf[30];
+	
+	snprintf(buf, sizeof(buf), ".%010u", index);
+	
 	buffer.Write(filepath);
 	buffer.SetLength(filepath.GetLength() - 1); // get rid of trailing \0
-	buffer.Appendf(".%u", index);
+	buffer.Append(buf);
 	buffer.NullTerminate();
 }
 
@@ -119,7 +146,7 @@ void Catalog::Read(uint32_t length)
 		fi->key.SetLength(len);
 		fi->key.SetBuffer(p);
 		p += len;
-		files.Add(fi);
+		files.Insert(fi);
 		WritePath(fi->filepath, fi->index);
 		if (fi->index + 1 > nextFileIndex)
 			nextFileIndex = fi->index + 1;
@@ -137,7 +164,7 @@ void Catalog::Write()
 	
 	buffer.Allocate(4);
 	p = buffer.GetBuffer();
-	len = files.GetLength();
+	len = files.GetCount();
 	*((uint32_t*) p) = ToLittle32(len);
 	p += 4;
 	
@@ -172,7 +199,7 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 {
 	FileIndex* fi;
 	
-	if (files.GetLength() == 0)
+	if (files.GetCount() == 0)
 		return NULL;
 		
 	if (ReadBuffer::LessThan(key, files.First()->key))
@@ -192,7 +219,7 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 	
 	fi = files.Last();
 	
-	OpenFile:
+OpenFile:
 	if (fi->file == NULL)
 	{
 		fi->file = new File;
@@ -206,14 +233,13 @@ FileIndex::FileIndex()
 {
 	file = NULL;
 	keyBuffer = NULL;
-	prev = this;
-	next = this;
 }
 
 FileIndex::~FileIndex()
 {
 	if (keyBuffer != NULL)
 		delete keyBuffer;
+	delete file;
 }
 
 void FileIndex::SetKey(ReadBuffer& key_, bool copy)
@@ -248,5 +274,5 @@ void Catalog::SplitFile(File* file)
 
 	rb = newFi->file->FirstKey();
 	newFi->SetKey(rb, true); // TODO: buffer management
-	files.Add(newFi);
+	files.Insert(newFi);
 }

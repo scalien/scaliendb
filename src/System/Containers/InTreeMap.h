@@ -1,6 +1,9 @@
 #ifndef INTREEMAP_H
 #define INTREEMAP_H
 
+#include <stdlib.h>
+#include <assert.h>
+
 /*
 ===============================================================================
 
@@ -45,7 +48,9 @@ public:
 	unsigned				GetCount();
 	
 	T*						First();
+	T*						Last();
 	T*						Next(T* t);
+	T*						Prev(T* t);
 
 	template<typename K>
 	T*						Get(K key);
@@ -118,6 +123,21 @@ T* InTreeMap<T, pnode>::First()
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Last()
+{
+	Node*	node;
+	
+	if (root == NULL)
+		return NULL;
+
+	node = root;
+	while (node->right)
+		node = node->right;
+
+	return GetElem(node);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Next(T* t)
 {
 	Node*	node;
@@ -134,6 +154,28 @@ T* InTreeMap<T, pnode>::Next(T* t)
 	}
 	
 	while ((parent = node->parent) && node == parent->right)
+		node = parent;
+		
+	return GetElem(parent);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Prev(T* t)
+{
+	Node*	node;
+	Node*	parent;
+	
+	node = GetNode(t);
+	if (node->left)
+	{
+		node = node->left;
+		while (node->right)
+			node = node->right;
+
+		return GetElem(node);
+	}
+	
+	while ((parent = node->parent) && node == parent->left)
 		node = parent;
 		
 	return GetElem(parent);
@@ -534,7 +576,7 @@ void InTreeMap<T, pnode>::FixRotation(Node* node)
 		grandparent->color = Node::RED;
 	}
 	else
-		ASSERT_FAIL();
+		assert(false);
 
 	if (IsLeftChild(node) && parent && IsLeftChild(parent))
 	{

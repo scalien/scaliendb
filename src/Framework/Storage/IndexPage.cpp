@@ -1,9 +1,14 @@
 #include "IndexPage.h"
 #include <stdio.h>
 
-static bool LessThan(KeyIndex& a, KeyIndex& b)
+static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
-	return KeyIndex::LessThan(a, b);
+	return ReadBuffer::Cmp(a, b);
+}
+
+static ReadBuffer& Key(KeyIndex* kv)
+{
+	return kv->key;
 }
 
 bool KeyIndex::LessThan(KeyIndex& a, KeyIndex& b)
@@ -14,6 +19,18 @@ bool KeyIndex::LessThan(KeyIndex& a, KeyIndex& b)
 IndexPage::IndexPage()
 {
 	required = INDEXPAGE_FIX_OVERHEAD;
+}
+
+IndexPage::~IndexPage()
+{
+	KeyIndex*	it;
+	KeyIndex*	next;
+	
+	for (it = keys.First(); it != NULL; it = next)
+	{
+		next = keys.Next(it);
+		delete it;
+	}
 }
 
 void IndexPage::SetPageSize(uint32_t pageSize_)
@@ -43,7 +60,7 @@ void IndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 	ki->SetKey(key, copy);
 	ki->index = index;
 	
-	keys.Add(ki);
+	keys.Insert(ki);
 	
 	freeDataPages.Remove(index);
 }
@@ -64,25 +81,22 @@ void IndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 	}
 }
 
-void IndexPage::Remove(uint32_t index)
+void IndexPage::Remove(ReadBuffer key)
 {
-	KeyIndex* it;
+	KeyIndex*	it;
 	
-	for (it = keys.First(); it != NULL; it = keys.Next(it))
-	{
-		if (it->index == index)
-		{
-			required -= (INDEXPAGE_KV_OVERHEAD + it->key.GetLength());
-			keys.Delete(it);
-			freeDataPages.Add(index);
-			return;
-		}
-	}
+	it = keys.Remove<ReadBuffer&>(key);
+	if (!it)
+		ASSERT_FAIL();
+	
+	required -= (INDEXPAGE_KV_OVERHEAD + it->key.GetLength());
+	freeDataPages.Add(it->index);
+	delete it;
 }
 
 bool IndexPage::IsEmpty()
 {
-	if (keys.GetLength() == 0)
+	if (keys.GetCount() == 0)
 		return true;
 	else
 		return false;
@@ -90,7 +104,7 @@ bool IndexPage::IsEmpty()
 
 ReadBuffer IndexPage::FirstKey()
 {
-	if (keys.GetLength() == 0)
+	if (keys.GetCount() == 0)
 		ASSERT_FAIL();
 	
 	return keys.First()->key;
@@ -98,26 +112,25 @@ ReadBuffer IndexPage::FirstKey()
 
 uint32_t IndexPage::NumEntries()
 {
-	return keys.GetLength();
+	return keys.GetCount();
 }
 
 int32_t IndexPage::Locate(ReadBuffer& key)
 {
-	KeyIndex* it;
+	KeyIndex*	it;
+	int			cmpres;
 	
-	if (keys.GetLength() == 0)
+	if (keys.GetCount() == 0)
 		return -1;
 		
 	if (ReadBuffer::LessThan(key, keys.First()->key))
-		return 0;
+		return keys.First()->index;
 	
-	for (it = keys.First(); it != NULL; it = keys.Next(it))
-	{
-		if (ReadBuffer::LessThan(key, it->key))
-			return keys.Prev(it)->index;
-	}
-	
-	return keys.Last()->index;
+	it = keys.Locate<ReadBuffer&>(key, cmpres);
+	if (cmpres >= 0)
+		return it->index;
+	else
+		return keys.Prev(it)->index;
 }
 
 uint32_t IndexPage::NextFreeDataPage()
@@ -157,7 +170,7 @@ void IndexPage::Read(ReadBuffer& buffer_)
 		ki->index = FromLittle32(*((uint32_t*) p));
 //		printf("%.*s => %u\n", ki->key.GetLength(), ki->key.GetBuffer(), ki->index);
 		p += 4;
-		keys.Add(ki);
+		keys.Insert(ki);
 		freeDataPages.Remove(ki->index);
 	}
 	
@@ -171,7 +184,7 @@ void IndexPage::Write(Buffer& buffer)
 	unsigned	len;
 
 	p = buffer.GetBuffer();
-	*((uint32_t*) p) = ToLittle32(keys.GetLength());
+	*((uint32_t*) p) = ToLittle32(keys.GetCount());
 	p += 4;
 	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
@@ -191,8 +204,6 @@ void IndexPage::Write(Buffer& buffer)
 KeyIndex::KeyIndex()
 {
 	keyBuffer = NULL;
-	prev = this;
-	next = this;
 }
 
 KeyIndex::~KeyIndex()

@@ -6,7 +6,7 @@ static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 	return ReadBuffer::Cmp(a, b);
 }
 
-static ReadBuffer Key(KeyValue* kv)
+static ReadBuffer& Key(KeyValue* kv)
 {
 	return kv->key;
 }
@@ -18,6 +18,14 @@ DataPage::DataPage()
 
 DataPage::~DataPage()
 {
+	KeyValue*	it;
+	KeyValue*	next;
+	
+	for (it = keys.First(); it != NULL; it = next)
+	{
+		next = keys.Next(it);
+		delete it;
+	}
 }
 
 bool DataPage::Get(ReadBuffer& key, ReadBuffer& value)
@@ -66,7 +74,10 @@ void DataPage::Delete(ReadBuffer& key)
 
 	it = keys.Remove<ReadBuffer&>(key);
 	if (it)
+	{
 		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
+		delete it;
+	}
 }
 
 bool DataPage::IsEmpty()
@@ -193,8 +204,6 @@ KeyValue::KeyValue()
 {
 	keyBuffer = NULL;
 	valueBuffer = NULL;
-	prev = this;
-	next = this;
 }
 
 KeyValue::~KeyValue()

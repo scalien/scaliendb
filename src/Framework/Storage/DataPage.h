@@ -38,9 +38,6 @@ public:
 	Buffer*					keyBuffer;
 	Buffer*					valueBuffer;
 	
-	KeyValue*				prev;
-	KeyValue*				next;
-
 	InTreeNode<KeyValue>	treeNode;
 };
 
@@ -79,7 +76,6 @@ public:
 	
 private:
 	Buffer					buffer;
-	InList<KeyValue>		kvs;
 	uint32_t				required;
 	InTreeMap<KeyValue>		keys;
 };

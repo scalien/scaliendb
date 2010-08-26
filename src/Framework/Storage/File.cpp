@@ -125,7 +125,7 @@ void File::Delete(ReadBuffer& key)
 
 	if (dataPages[index]->IsEmpty())
 	{
-		indexPage.Remove(index);
+		indexPage.Remove(dataPages[index]->FirstKey());
 		MarkPageDirty(&indexPage);
 	}
 }
@@ -166,7 +166,7 @@ File* File::SplitFile()
 		numDataPages--;
 		newFile->numDataPages++;
 
-		indexPage.Remove(index);
+		indexPage.Remove(newFile->dataPages[newIndex]->FirstKey());
 		newFile->indexPage.Add(newFile->dataPages[newIndex]->FirstKey(), newIndex, true);
 	}
 	
@@ -360,7 +360,7 @@ void File::ReorderPages()
 	KeyIndex*		it;
 	DataPage**		newDataPages;
 	
-	newDataPages = (DataPage**) malloc(sizeof(DataPage*) * numDataPageSlots);
+	newDataPages = (DataPage**) calloc(numDataPageSlots, sizeof(DataPage*));
 	
 	for (it = indexPage.keys.First(), newIndex = 0; it != NULL; it = indexPage.keys.Next(it), newIndex++)
 	{
