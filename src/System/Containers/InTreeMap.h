@@ -49,7 +49,7 @@ public:
 	T*						Get(K key);
 
 	template<typename K>
-	int						Locate(K key, T*& t);
+	T*						Locate(K key, int& cmpres);
 	
 	T*						Insert(T* t);
 	void					InsertAt(T* t, T* pos, int cmpres);
@@ -150,23 +150,22 @@ T* InTreeMap<T, pnode>::Get(K key)
 
 template<typename T, InTreeNode<T> T::*pnode>
 template<typename K>
-int InTreeMap<T, pnode>::Locate(K key, T*& t)
+T* InTreeMap<T, pnode>::Locate(K key, int& cmpres)
 {
 	Node*	node;
-	int		result;
 	
-	result = 0;
+	cmpres = 0;
 	node = root;
 	while (node)
 	{
-		result = KeyCmp(key, Key(node->owner));
-		if (result < 0)
+		cmpres = KeyCmp(key, Key(node->owner));
+		if (cmpres < 0)
 		{
 			if (node->left == NULL)
 				break;
 			node = node->left;
 		}
-		else if (result > 0)
+		else if (cmpres > 0)
 		{
 			if (node->right == NULL)
 				break;
@@ -176,8 +175,7 @@ int InTreeMap<T, pnode>::Locate(K key, T*& t)
 			break;
 	}
 
-	t = GetElem(node);
-	return result;
+	return GetElem(node);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>

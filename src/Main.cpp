@@ -203,7 +203,7 @@ int TestTreeMap()
 		GenRandomString(rv, vsize);
 
 		sw.Start();
-		cmpres = kvs.Locate<ReadBuffer&>(rk, it);
+		it = kvs.Locate<ReadBuffer&>(rk, cmpres);
 		if (cmpres == 0 && it != NULL)
 		{
 			// found, overwrite value
@@ -220,14 +220,17 @@ int TestTreeMap()
 	}
 	printf("random insert time: %ld\n", sw.Elapsed());
 
+	unsigned u = 0;
 	sw.Reset();
 	sw.Start();
 	for (it = kvs.First(); it != NULL; it = kvs.Next(it))
 	{
 		//printf("it->key = %.*s\n", P(&it->key));
 		//kv = it; // dummy op
+		u++;
 	}
-	sw.Stop();		
+	sw.Stop();
+	printf("found: %u\n", u);
 	printf("iteration time: %ld\n", sw.Elapsed());
 
 
