@@ -62,7 +62,7 @@ private:
 	void					Write();
 	FileIndex*				Locate(ReadBuffer& key);
 	void					SplitFile(File* file);
-
+	
 	int						fd;
 	uint32_t				nextFileIndex;
 	Buffer					filepath;

@@ -93,17 +93,19 @@ bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		indexPage.Add(key, index, true); // TODO
 		MarkPageDirty(&indexPage);
 	}
+	else
+	{
+		rb = dataPages[index]->FirstKey();
+		if (ReadBuffer::LessThan(key, rb))
+		{
+			printf("Changing index entry for %u to %.*s", index, P(&key));
+			indexPage.Update(key, index, true);
+			MarkPageDirty(&indexPage);
+		}
+	}
 	
 	dataPages[index]->Set(key, value, copy);
 	MarkPageDirty(dataPages[index]);
-	
-	// update index:
-	rb = dataPages[index]->FirstKey();
-	if (ReadBuffer::LessThan(key, rb))
-	{
-		indexPage.Update(key, index, copy);
-		MarkPageDirty(&indexPage);
-	}
 	
 	if (dataPages[index]->IsOverflowing())
 		SplitDataPage(index);
@@ -113,26 +115,44 @@ bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 
 void File::Delete(ReadBuffer& key)
 {
-	int32_t index;
+	bool		updateIndex;
+	int32_t		index;
+	ReadBuffer	firstKey;
 	
 	index = Locate(key);
 	
 	if (index < 0)
 		return;
+
+	updateIndex = false;
+	firstKey = dataPages[index]->FirstKey();
+	if (BUFCMP(&key, &firstKey))
+		updateIndex = true;
 	
 	dataPages[index]->Delete(key);
 	MarkPageDirty(dataPages[index]);
 
 	if (dataPages[index]->IsEmpty())
 	{
-		indexPage.Remove(dataPages[index]->FirstKey());
+		indexPage.Remove(key);
 		MarkPageDirty(&indexPage);
+	}
+	else if (updateIndex)
+	{
+		firstKey = dataPages[index]->FirstKey();
+		indexPage.Update(firstKey, index, true);
+		MarkPageDirty(&indexPage);		
 	}
 }
 
 ReadBuffer File::FirstKey()
 {
 	return indexPage.FirstKey();
+}
+
+bool File::IsEmpty()
+{
+	return indexPage.IsEmpty();
 }
 
 bool File::IsOverflowing()

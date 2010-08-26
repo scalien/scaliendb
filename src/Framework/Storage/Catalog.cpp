@@ -101,14 +101,33 @@ bool Catalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 
 void Catalog::Delete(ReadBuffer& key)
 {
-	FileIndex* fi;
+	bool			updateIndex;
+	FileIndex*		fi;
+	ReadBuffer		firstKey;
 	
 	fi = Locate(key);
 
 	if (fi == NULL)
 		return;
 	
-	else return fi->file->Delete(key);
+	firstKey = fi->file->FirstKey();
+	if (BUFCMP(&key, &firstKey))
+		updateIndex = true;
+	
+	fi->file->Delete(key);
+	
+	if (fi->file->IsEmpty())
+	{
+		fi->file->Close();
+		unlink(fi->filepath.GetBuffer());
+		files.Remove(fi);
+		delete fi;
+	}
+	else if (updateIndex)
+	{
+		firstKey = fi->file->FirstKey();
+		fi->SetKey(firstKey, true);
+	}
 }
 
 void Catalog::WritePath(Buffer& buffer, uint32_t index)

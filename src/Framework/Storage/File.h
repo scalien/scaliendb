@@ -35,6 +35,7 @@ public:
 	void					Delete(ReadBuffer& key);
 
 	ReadBuffer				FirstKey();
+	bool					IsEmpty();
 
 	bool					IsOverflowing();
 	File*					SplitFile();
