@@ -23,14 +23,7 @@ IndexPage::IndexPage()
 
 IndexPage::~IndexPage()
 {
-	KeyIndex*	it;
-	KeyIndex*	next;
-	
-	for (it = keys.First(); it != NULL; it = next)
-	{
-		next = keys.Next(it);
-		delete it;
-	}
+	keys.DeleteTree();
 }
 
 void IndexPage::SetPageSize(uint32_t pageSize_)

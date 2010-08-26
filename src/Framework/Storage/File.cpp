@@ -32,6 +32,13 @@ File::File()
 	fd = -1;
 }
 
+File::~File()
+{
+	for (uint32_t u = 0; u < numDataPages; u++)
+		delete dataPages[u];
+	free(dataPages);
+}
+
 void File::Open(char* filepath_)
 {
 	struct stat st;

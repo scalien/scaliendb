@@ -16,14 +16,7 @@ static ReadBuffer& Key(FileIndex* fi)
 
 Catalog::~Catalog()
 {
-	FileIndex*	it;
-	FileIndex*	next;
-	
-	for (it = files.First(); it != NULL; it = next)
-	{
-		next = files.Next(it);
-		delete it;
-	}
+	files.DeleteTree();
 }
 
 void Catalog::Open(char* filepath_)

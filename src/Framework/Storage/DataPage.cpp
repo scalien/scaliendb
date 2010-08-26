@@ -18,14 +18,7 @@ DataPage::DataPage()
 
 DataPage::~DataPage()
 {
-	KeyValue*	it;
-	KeyValue*	next;
-	
-	for (it = keys.First(); it != NULL; it = next)
-	{
-		next = keys.Next(it);
-		delete it;
-	}
+	keys.DeleteTree();
 }
 
 bool DataPage::Get(ReadBuffer& key, ReadBuffer& value)
