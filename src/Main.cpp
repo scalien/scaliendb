@@ -323,22 +323,22 @@ int main(int argc, char** argv)
 
 	catalog.Open("dogs");
 
-//	sw.Start();
-//	for (int i = 0; i < num; i++)
-//	{
-//		p = area + i*(ksize+vsize);
-//		len = snprintf(p, ksize, "%d", i);
-//		rk.SetBuffer(p);
-//		rk.SetLength(len);
-//		p += ksize;
-//		len = snprintf(p, vsize, "%.100f", (float) i);
-//		rv.SetBuffer(p);
-//		rv.SetLength(len);
-//		catalog.Set(rk, rv, false);
-//	}
-//	elapsed = sw.Stop();
-//	printf("%u sets took %ld msec\n", num, elapsed);
-//	printf("Time spent in DataPage sw1: %ld msec\n", DataPage::sw1.Elapsed());
+	sw.Start();
+	for (int i = 0; i < num; i++)
+	{
+		p = area + i*(ksize+vsize);
+		len = snprintf(p, ksize, "%d", i);
+		rk.SetBuffer(p);
+		rk.SetLength(len);
+		p += ksize;
+		len = snprintf(p, vsize, "%.100f", (float) i);
+		rv.SetBuffer(p);
+		rv.SetLength(len);
+		catalog.Set(rk, rv, false);
+	}
+	elapsed = sw.Stop();
+	printf("%u sets took %ld msec\n", num, elapsed);
+	printf("Time spent in DataPage sw1: %ld msec\n", DataPage::sw1.Elapsed());
 
 	sw.Start();
 	for (int i = 0; i < num; i++)
