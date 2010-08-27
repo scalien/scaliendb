@@ -19,7 +19,7 @@ StorageCatalog::~StorageCatalog()
 	files.DeleteTree();
 }
 
-void StorageCatalog::Open(char* filepath_)
+void StorageCatalog::Open(const char* filepath_)
 {
 	struct stat st;
 

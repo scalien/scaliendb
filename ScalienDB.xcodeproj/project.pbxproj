@@ -77,6 +77,11 @@
 		9A26DB48120076BA006A2814 /* Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26DB47120076BA006A2814 /* Controller.cpp */; };
 		9A87343E12195748000B1319 /* Section.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87343D12195748000B1319 /* Section.cpp */; };
 		9A8735E6121AB70A000B1319 /* DataHTTPHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A8735E5121AB70A000B1319 /* DataHTTPHandler.cpp */; };
+		9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
+		9A87418D12282946000B1319 /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418712282946000B1319 /* StorageTest.cpp */; };
+		9A87418E12282946000B1319 /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
+		9A87418F12282946000B1319 /* TestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418A12282946000B1319 /* TestMain.cpp */; };
+		9A87419012282946000B1319 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -256,6 +261,12 @@
 		9A8735E4121AB70A000B1319 /* DataHTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataHTTPHandler.h; sourceTree = "<group>"; };
 		9A8735E5121AB70A000B1319 /* DataHTTPHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataHTTPHandler.cpp; sourceTree = "<group>"; };
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
+		9A87418612282946000B1319 /* InTreeMapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InTreeMapTest.cpp; path = Test/InTreeMapTest.cpp; sourceTree = "<group>"; };
+		9A87418712282946000B1319 /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
+		9A87418812282946000B1319 /* Test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Test.c; path = Test/Test.c; sourceTree = "<group>"; };
+		9A87418912282946000B1319 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test.h; path = Test/Test.h; sourceTree = "<group>"; };
+		9A87418A12282946000B1319 /* TestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestMain.cpp; path = Test/TestMain.cpp; sourceTree = "<group>"; };
+		9A87418B12282946000B1319 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
 		C6859E8B029090EE04C91782 /* Rowscale.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Rowscale.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -416,6 +427,7 @@
 		54B7F74111BE5EF30076BC62 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				9A87418512282929000B1319 /* Test */,
 				9A26D68511F4BD5B006A2814 /* Application */,
 				541D7E6F11C64EB600A6CB16 /* Framework */,
 				54B7F74211BE5EF30076BC62 /* System */,
@@ -636,6 +648,19 @@
 			name = Database;
 			sourceTree = "<group>";
 		};
+		9A87418512282929000B1319 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				9A87418612282946000B1319 /* InTreeMapTest.cpp */,
+				9A87418712282946000B1319 /* StorageTest.cpp */,
+				9A87418812282946000B1319 /* Test.c */,
+				9A87418912282946000B1319 /* Test.h */,
+				9A87418A12282946000B1319 /* TestMain.cpp */,
+				9A87418B12282946000B1319 /* TimeTest.cpp */,
+			);
+			name = Test;
+			sourceTree = "<group>";
+		};
 		C6859E8C029090F304C91782 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
@@ -755,6 +780,11 @@
 				54AB8722122821EF00721A0F /* StorageCursor.cpp in Sources */,
 				54AB8723122821EF00721A0F /* StorageFile.cpp in Sources */,
 				54AB8724122821EF00721A0F /* StorageIndexPage.cpp in Sources */,
+				9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */,
+				9A87418D12282946000B1319 /* StorageTest.cpp in Sources */,
+				9A87418E12282946000B1319 /* Test.c in Sources */,
+				9A87418F12282946000B1319 /* TestMain.cpp in Sources */,
+				9A87419012282946000B1319 /* TimeTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

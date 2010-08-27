@@ -258,6 +258,20 @@ int RandomInt(int min, int max)
 	return rnd + min;
 }
 
+void RandomBuffer(char* buffer, unsigned length)
+{
+	const char set[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+	const size_t setsize = sizeof(set) - 1;
+	unsigned int i;
+	static uint64_t d = GenerateGUID();
+	
+	for (i = 0; i < length; i++) {
+			// more about why these numbers were chosen:
+			// http://en.wikipedia.org/wiki/Linear_congruential_generator
+			d = (d * 1103515245UL + 12345UL) >> 2;
+			buffer[i] = set[d % setsize];
+	}
+}
 
 void BlockSignals()
 {
