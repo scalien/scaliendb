@@ -106,5 +106,72 @@ int TestStorage()
 	elapsed = sw.Stop();
 	printf("Close() took %ld msec\n", elapsed);
 	
+	free(area);
+	
 	return TEST_SUCCESS;
 }
+
+int TestStorageCapacity()
+{
+	StorageCatalog	catalog;
+	Buffer			k, v;
+	ReadBuffer		rk, rv;
+	Stopwatch		sw;
+	long			elapsed;
+	unsigned		num, len, ksize, vsize;
+	char*			area;
+	char*			p;
+	unsigned		round;
+
+	round = 10;
+	num = 100*1000;
+	ksize = 20;
+	vsize = 128;
+	area = (char*) malloc(num*(ksize+vsize));
+
+	// a million key-value pairs take up 248M disk space
+	for (unsigned r = 0; r < round; r++)
+	{
+		catalog.Open("dogs");
+
+		sw.Start();
+		for (unsigned i = 0; i < num; i++)
+		{
+			p = area + i*(ksize+vsize);
+			len = snprintf(p, ksize, "%d", i + r * num);
+			rk.SetBuffer(p);
+			rk.SetLength(len);
+			p += ksize;
+			len = snprintf(p, vsize, "%.100f", (float) i + r * num);
+			rv.SetBuffer(p);
+			rv.SetLength(len);
+			catalog.Set(rk, rv, false);
+		}
+		elapsed = sw.Stop();
+		printf("%u sets took %ld msec\n", num, elapsed);		
+
+		sw.Restart();
+		for (unsigned i = 0; i < num; i++)
+		{
+			k.Writef("%d", i + r * num);
+			rk.Wrap(k);
+			if (catalog.Get(rk, rv))
+				;//PRINT()
+			else
+				ASSERT_FAIL();
+		}	
+		elapsed = sw.Stop();
+		printf("Round %u: %u gets took %ld msec\n", r, num, elapsed);
+
+		sw.Reset();
+		sw.Start();
+		catalog.Close();
+		elapsed = sw.Stop();
+		printf("Close() took %ld msec\n", elapsed);
+	}
+	
+	free(area);
+
+	return TEST_SUCCESS;
+}
+

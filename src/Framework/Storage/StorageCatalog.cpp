@@ -158,6 +158,7 @@ void StorageCatalog::Read(uint32_t length)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
 	numFiles = FromLittle32(*((uint32_t*) p));
+	assert(numFiles * 8 + 4 <= length);
 	p += 4;
 	for (i = 0; i < numFiles; i++)
 	{

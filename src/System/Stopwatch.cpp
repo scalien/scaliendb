@@ -10,6 +10,12 @@ void Stopwatch::Reset()
 	elapsed = 0;
 }
 
+void Stopwatch::Restart()
+{
+	Reset();
+	Start();
+}
+
 void Stopwatch::Start()
 {
 	started = Now();

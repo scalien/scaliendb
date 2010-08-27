@@ -43,7 +43,7 @@ extern "C" {
 
 
 #define TEST_DECLARE(testfn) extern int testfn();
-#define TEST_FAIL() {TEST_LOG("TEST FAILURE!");_exit(TEST_FAILURE);}
+#define TEST_FAIL() {TEST_LOG("FAILURE!"); return TEST_FAILURE;}
 
 #define TEST_SUCCESS 0
 #define TEST_FAILURE 1

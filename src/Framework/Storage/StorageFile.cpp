@@ -329,8 +329,9 @@ StorageDataPage* StorageFile::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 int32_t StorageFile::Locate(ReadBuffer& key)
 {
 	int32_t	index;
+	Buffer	nextKey;
 	
-	index = indexPage.Locate(key);
+	index = indexPage.Locate(key, &nextKey);
 	
 	if (index < 0)	// file is empty
 		return index;

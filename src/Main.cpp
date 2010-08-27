@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 	char*				p;
 	uint64_t			clock;
 	
-	//return TestMain();
+	return TestMain();
 	
 //	W(k, rk, "ki");
 //	W(v, rv, "atka");
