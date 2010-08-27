@@ -289,6 +289,7 @@ int main(int argc, char** argv)
 	unsigned	num, len, ksize, vsize;
 	char*		area;
 	char*		p;
+	uint64_t	clock;
 	
 //	return TestTreeMap();
 //	return TestClock();
@@ -317,13 +318,16 @@ int main(int argc, char** argv)
 //	file.Get(rk, rv);
 //	P();
 
-	num = 100*1000;
+	StartClock();
+
+	num = 1*1000*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
 
 	catalog.Open("dogs");
 
+	clock = NowClock();
 	sw.Start();
 	for (int i = 0; i < num; i++)
 	{
@@ -336,6 +340,13 @@ int main(int argc, char** argv)
 		rv.SetBuffer(p);
 		rv.SetLength(len);
 		catalog.Set(rk, rv, false);
+
+		if (NowClock() - clock >= 1000)
+		{
+			printf("syncing...\n");
+			catalog.Flush();
+			clock = NowClock();
+		}
 	}
 	elapsed = sw.Stop();
 	printf("%u sets took %ld msec\n", num, elapsed);
@@ -355,16 +366,16 @@ int main(int argc, char** argv)
 	elapsed = sw.Stop();
 	printf("%u gets took %ld msec\n", num, elapsed);
 
-	sw.Reset();
-	sw.Start();
-	for (int i = 0; i < num; i++)
-	{
-		k.Writef("%d", i);
-		rk.Wrap(k);
-		catalog.Delete(rk); 
-	}	
-	elapsed = sw.Stop();
-	printf("%u deletes took %ld msec\n", num, elapsed);
+//	sw.Reset();
+//	sw.Start();
+//	for (int i = 0; i < num; i++)
+//	{
+//		k.Writef("%d", i);
+//		rk.Wrap(k);
+//		catalog.Delete(rk); 
+//	}	
+//	elapsed = sw.Stop();
+//	printf("%u deletes took %ld msec\n", num, elapsed);
 	
 	sw.Reset();
 	sw.Start();
