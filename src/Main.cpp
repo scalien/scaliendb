@@ -361,7 +361,7 @@ int main(int argc, char** argv)
 	{
 		k.Writef("%d", i);
 		rk.Wrap(k);
-		catalog.Delete(rk);
+		catalog.Delete(rk); 
 	}	
 	elapsed = sw.Stop();
 	printf("%u gets took %ld msec\n", num, elapsed);
