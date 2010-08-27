@@ -321,8 +321,9 @@ DataPage* Catalog::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 	if (nextKey.GetLength() != 0)
 		return dataPage;
 	
-	// TODO:
-	ASSERT_FAIL();
-	
+	fi = files.Next(fi);
+	if (fi != NULL)
+		nextKey.Write(fi->key);
+
 	return dataPage;
 }
