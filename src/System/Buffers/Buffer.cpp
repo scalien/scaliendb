@@ -43,7 +43,7 @@ void Buffer::Allocate(unsigned size_, bool keepold)
 {
 	char* newbuffer;
 	
-	if (size_ < size)
+	if (size_ <= size)
 		return;
 	
 	size_ = size_ + ALLOC_GRANURALITY - 1;
@@ -56,13 +56,10 @@ void Buffer::Allocate(unsigned size_, bool keepold)
 
 	if (keepold && length > 0)
 	{
-		if (newbuffer != buffer)
+		if (buffer == array)
 			memcpy(newbuffer, buffer, length);
 	}
 	
-	if (buffer != array && buffer != newbuffer)
-		free(buffer);
-		
 	buffer = newbuffer;
 	size = size_;
 }

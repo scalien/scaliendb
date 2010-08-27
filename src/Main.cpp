@@ -364,7 +364,7 @@ int main(int argc, char** argv)
 		catalog.Delete(rk); 
 	}	
 	elapsed = sw.Stop();
-	printf("%u gets took %ld msec\n", num, elapsed);
+	printf("%u deletes took %ld msec\n", num, elapsed);
 	
 	sw.Reset();
 	sw.Start();

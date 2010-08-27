@@ -298,7 +298,7 @@ void File::Write()
 	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Remove(it))
 	{
 		buffer.Allocate(it->GetPageSize());
-		buffer.Zero();
+ 		buffer.Zero();
 //		printf("writing at offset %u\n", it->GetOffset());
 		it->Write(buffer);
 		if (pwrite(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)

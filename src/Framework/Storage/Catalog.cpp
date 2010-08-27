@@ -102,6 +102,7 @@ void Catalog::Delete(ReadBuffer& key)
 	if (fi == NULL)
 		return;
 	
+	updateIndex = false;
 	firstKey = fi->file->FirstKey();
 	if (BUFCMP(&key, &firstKey))
 		updateIndex = true;
