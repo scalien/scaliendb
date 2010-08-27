@@ -64,7 +64,6 @@ bool Catalog::Get(ReadBuffer& key, ReadBuffer& value)
 bool Catalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
 	FileIndex	*fi;
-	Buffer		buffer;
 	
 	fi = Locate(key);
 
@@ -73,8 +72,8 @@ bool Catalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		fi = new FileIndex;
 		fi->index = nextFileIndex++;
 		fi->file = new File;
-		WritePath(buffer, fi->index);
-		fi->file->Open(buffer.GetBuffer());
+		WritePath(fi->filepath, fi->index);
+		fi->file->Open(fi->filepath.GetBuffer());
 		fi->SetKey(key, true); // TODO: buffer management
 		files.Insert(fi);
 	}
