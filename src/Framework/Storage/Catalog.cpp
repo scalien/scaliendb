@@ -40,11 +40,21 @@ void Catalog::Open(char* filepath_)
 
 void Catalog::Flush()
 {
+	Write(true);
 }
 
 void Catalog::Close()
 {
-	Write();
+	FileIndex*	it;
+	
+	Write(true);
+
+	for (it = files.First(); it != NULL; it = files.Next(it))
+	{
+		if (it->file == NULL)
+			continue;
+		it->file->Close();
+	}
 	
 	close(fd);
 }
@@ -165,7 +175,7 @@ void Catalog::Read(uint32_t length)
 	}	
 }
 
-void Catalog::Write()
+void Catalog::Write(bool flush)
 {
 	char*			p;
 	uint32_t		size, len;
@@ -203,7 +213,7 @@ void Catalog::Write()
 	{
 		if (it->file == NULL)
 			continue;
-		it->file->Write(); // only changed data pages are written
+		it->file->Write(flush); // only changed data pages are written
 	}
 }
 

@@ -273,7 +273,7 @@ void File::ReadRest()
 			LoadDataPage(it->index);
 }
 
-void File::Write()
+void File::Write(bool flush)
 {
 	Buffer			buffer;
 	Page*			it;
@@ -305,6 +305,9 @@ void File::Write()
 			ASSERT_FAIL();
 		it->SetDirty(false);
 	}
+	
+	if (flush)
+		Flush();
 }
 
 int32_t File::Locate(ReadBuffer& key)

@@ -59,7 +59,7 @@ public:
 private:
 	void					WritePath(Buffer& buffer, uint32_t index);
 	void					Read(uint32_t length);
-	void					Write();
+	void					Write(bool flush);
 	FileIndex*				Locate(ReadBuffer& key);
 	void					SplitFile(File* file);
 	

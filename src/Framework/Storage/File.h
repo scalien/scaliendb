@@ -43,7 +43,7 @@ public:
 
 	void					Read();
 	void					ReadRest();
-	void					Write();
+	void					Write(bool flush);
 
 	File*					prev;
 	File*					next;
