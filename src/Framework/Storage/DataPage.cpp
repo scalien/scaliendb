@@ -14,6 +14,7 @@ static ReadBuffer& Key(KeyValue* kv)
 DataPage::DataPage()
 {
 	required = DATAPAGE_FIX_OVERHEAD;
+	numCursors = 0;
 }
 
 DataPage::~DataPage()
@@ -71,6 +72,38 @@ void DataPage::Delete(ReadBuffer& key)
 		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
 		delete it;
 	}
+}
+
+void DataPage::RegisterCursor()
+{
+	numCursors++;
+}
+
+void DataPage::UnregisterCursor()
+{
+	numCursors--;
+	assert(numCursors >= 0);
+}
+
+KeyValue* DataPage::BeginIteration(ReadBuffer& key)
+{
+	KeyValue*	it;
+	int			retcmp;
+	
+	it = keys.Locate(key, retcmp);
+	
+	if (it == NULL)
+		return NULL;
+	
+	if (retcmp <= 0)
+		return it;
+	else
+		return keys.Next(it);
+}
+
+KeyValue* DataPage::Next(KeyValue* it)
+{
+	return keys.Next(it);
 }
 
 bool DataPage::IsEmpty()

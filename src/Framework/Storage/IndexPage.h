@@ -70,7 +70,7 @@ public:
 	bool					IsEmpty();
 	ReadBuffer				FirstKey();
 	uint32_t				NumEntries();
-	int32_t					Locate(ReadBuffer& key);
+	int32_t					Locate(ReadBuffer& key, Buffer* nextKey = NULL);
 	uint32_t				NextFreeDataPage();
 	bool					IsOverflowing();
 

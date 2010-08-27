@@ -59,11 +59,17 @@ class DataPage : public Page
 public:
 	DataPage();
 	~DataPage();
-		
+	
+	// basic ops	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	void					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
+	void					RegisterCursor();
+	void					UnregisterCursor();
+	KeyValue*				BeginIteration(ReadBuffer& key);
+	KeyValue*				Next(KeyValue* it);
+	
 	bool					IsEmpty();
 	ReadBuffer				FirstKey();
 	bool					IsOverflowing();
@@ -78,6 +84,7 @@ private:
 	Buffer					buffer;
 	uint32_t				required;
 	InTreeMap<KeyValue>		keys;
+	uint32_t				numCursors;
 };
 
 

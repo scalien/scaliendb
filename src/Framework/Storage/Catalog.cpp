@@ -295,3 +295,23 @@ void Catalog::SplitFile(File* file)
 	newFi->SetKey(rb, true); // TODO: buffer management
 	files.Insert(newFi);
 }
+
+DataPage* Catalog::CursorBegin(ReadBuffer& key, Buffer& nextKey)
+{
+	FileIndex*	fi;
+	DataPage*	dataPage;
+	
+	fi = Locate(key);
+
+	if (fi == NULL)
+		return NULL;
+	
+	dataPage = fi->file->CursorBegin(key, nextKey);
+	if (nextKey.GetLength() != 0)
+		return dataPage;
+	
+	// TODO:
+	ASSERT_FAIL();
+	
+	return dataPage;
+}

@@ -108,22 +108,35 @@ uint32_t IndexPage::NumEntries()
 	return keys.GetCount();
 }
 
-int32_t IndexPage::Locate(ReadBuffer& key)
+int32_t IndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
 {
 	KeyIndex*	it;
+	uint32_t	index;
 	int			cmpres;
 	
 	if (keys.GetCount() == 0)
 		return -1;
 		
 	if (ReadBuffer::LessThan(key, keys.First()->key))
-		return keys.First()->index;
+	{
+		index = keys.First()->index;
+		it = keys.Next(keys.First());
+		if (it)
+			nextKey->Write(it->key);
+		return index;
+	}
 	
 	it = keys.Locate<ReadBuffer&>(key, cmpres);
 	if (cmpres >= 0)
-		return it->index;
+		index = it->index;
 	else
-		return keys.Prev(it)->index;
+		index = keys.Prev(it)->index;
+
+	it = keys.Next(it);
+	if (it)
+		nextKey->Write(it->key);
+
+	return index;
 }
 
 uint32_t IndexPage::NextFreeDataPage()

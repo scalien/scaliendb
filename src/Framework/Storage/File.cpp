@@ -117,6 +117,7 @@ bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	
 	dataPages[index]->Set(key, value, copy);
 	MarkPageDirty(dataPages[index]);
+	// TODO: do thing for cursors
 	
 	if (dataPages[index]->IsOverflowing())
 		SplitDataPage(index);
@@ -142,6 +143,7 @@ void File::Delete(ReadBuffer& key)
 	
 	dataPages[index]->Delete(key);
 	MarkPageDirty(dataPages[index]);
+	// TODO: do thing for cursors
 
 	if (dataPages[index]->IsEmpty())
 	{
@@ -177,6 +179,8 @@ File* File::SplitFile()
 	uint32_t	index, newIndex, num;
 	
 	assert(numDataPageSlots == numDataPages);
+	
+	// TODO: do thing for cursors
 	
 	newFile = new File;
 	newFile->indexPageSize = indexPageSize;
@@ -307,14 +311,29 @@ void File::Write()
 	}
 }
 
+DataPage* File::CursorBegin(ReadBuffer& key, Buffer& nextKey)
+{
+	int32_t	index;
+	
+	index = indexPage.Locate(key, &nextKey);
+	
+	if (index < 0)	// file is empty
+		return NULL;
+	
+	if (dataPages[index] == NULL)
+		LoadDataPage(index);
+	
+	return dataPages[index];
+}
+
 int32_t File::Locate(ReadBuffer& key)
 {
 	int32_t	index;
 	
 	index = indexPage.Locate(key);
 	
-	if (index < 0)
-		return index; // not in file
+	if (index < 0)	// file is empty
+		return index;
 	
 	if (dataPages[index] == NULL)
 		LoadDataPage(index);

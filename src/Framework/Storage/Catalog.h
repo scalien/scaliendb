@@ -3,7 +3,7 @@
 
 #include "System/Containers/InTreeMap.h"
 #include "File.h"
-
+#include "Cursor.h"
 /*
 ===============================================================================
 
@@ -62,12 +62,16 @@ private:
 	void					Write();
 	FileIndex*				Locate(ReadBuffer& key);
 	void					SplitFile(File* file);
+
+	DataPage*				CursorBegin(ReadBuffer& key, Buffer& nextKey);
 	
 	int						fd;
 	uint32_t				nextFileIndex;
 	Buffer					filepath;
 	Buffer					buffer;
 	InTreeMap<FileIndex>	files;
+	
+	friend class Cursor;
 };
 
 #endif

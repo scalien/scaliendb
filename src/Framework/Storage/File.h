@@ -45,6 +45,8 @@ public:
 	void					ReadRest();
 	void					Write();
 
+	DataPage*				CursorBegin(ReadBuffer& key, Buffer& nextKey);
+
 	File*					prev;
 	File*					next;
 	
