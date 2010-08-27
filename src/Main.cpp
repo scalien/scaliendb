@@ -40,7 +40,7 @@
 //}
 //
 
-#include "Framework/Storage/Catalog.h"
+#include "Framework/Storage/StorageCatalog.h"
 #include "System/Stopwatch.h"
 #include "stdio.h"
 #include "System/Containers/InTreeMap.h"
@@ -280,16 +280,15 @@ int TestClock()
 int main(int argc, char** argv)
 {
 #define PRINT()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
-//	File		file;
-	Catalog		catalog;
-	Buffer		k, v;
-	ReadBuffer	rk, rv;
-	Stopwatch	sw;
-	long		elapsed;
-	unsigned	num, len, ksize, vsize;
-	char*		area;
-	char*		p;
-	uint64_t	clock;
+	StorageCatalog		catalog;
+	Buffer				k, v;
+	ReadBuffer			rk, rv;
+	Stopwatch			sw;
+	long				elapsed;
+	unsigned			num, len, ksize, vsize;
+	char*				area;
+	char*				p;
+	uint64_t			clock;
 	
 //	return TestTreeMap();
 //	return TestClock();
@@ -350,7 +349,6 @@ int main(int argc, char** argv)
 	}
 	elapsed = sw.Stop();
 	printf("%u sets took %ld msec\n", num, elapsed);
-	printf("Time spent in DataPage sw1: %ld msec\n", DataPage::sw1.Elapsed());
 
 	sw.Reset();
 	sw.Start();

@@ -1,8 +1,8 @@
-#ifndef FILE_H
-#define FILE_H
+#ifndef STORAGEFILE_H
+#define STORAGEFILE_H
 
-#include "IndexPage.h"
-#include "DataPage.h"
+#include "StorageIndexPage.h"
+#include "StorageDataPage.h"
 
 #define DEFAULT_KEY_LIMIT			1000
 #define DEFAULT_DATAPAGE_SIZE		64*1024
@@ -16,16 +16,16 @@
 /*
 ===============================================================================
 
- File
+ StorageFile
 
 ===============================================================================
 */
 
-class File
+class StorageFile
 {
 public:
-	File();
-	~File();
+	StorageFile();
+	~StorageFile();
 	
 	void					Open(char* filepath);
 	void					Flush();
@@ -39,21 +39,18 @@ public:
 	bool					IsEmpty();
 
 	bool					IsOverflowing();
-	File*					SplitFile();
+	StorageFile*			SplitFile();
 
 	void					Read();
 	void					ReadRest();
 	void					Write(bool flush);
 
-	DataPage*				CursorBegin(ReadBuffer& key, Buffer& nextKey);
+	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
 
-	File*					prev;
-	File*					next;
-	
 private:
 	int32_t					Locate(ReadBuffer& key);
 	void					LoadDataPage(uint32_t index);
-	void					MarkPageDirty(Page* page);
+	void					MarkPageDirty(StoragePage* page);
 	void					SplitDataPage(uint32_t index);
 	void					ReorderPages();
 	void					ReorderFile();
@@ -65,10 +62,10 @@ private:
 	bool					isOverflowing;
 	bool					newFile;
 	Buffer					filepath;
-	IndexPage				indexPage;
-	DataPage**				dataPages;
+	StorageIndexPage		indexPage;
+	StorageDataPage**		dataPages;
 	uint32_t				numDataPages;
-	InList<Page>			dirtyPages;
+	InList<StoragePage>		dirtyPages;
 };
 
 #endif

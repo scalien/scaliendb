@@ -1,5 +1,5 @@
-#ifndef INDEXPAGE_H
-#define INDEXPAGE_H
+#ifndef STORAGEINDEXPAGE_H
+#define STORAGEINDEXPAGE_H
 
 #include "System/Platform.h"
 #include "System/Common.h"
@@ -7,10 +7,10 @@
 #include "System/Containers/SortedList.h"
 #include "System/Containers/InSortedList.h"
 #include "System/Containers/InTreeMap.h"
-#include "Page.h"
+#include "StoragePage.h"
 
 class KeyIndex; // forward
-class File;		// forward
+class StorageFile;		// forward
 
 #define INDEXPAGE_FIX_OVERHEAD		4
 #define INDEXPAGE_KV_OVERHEAD		8
@@ -49,16 +49,16 @@ public:
 /*
 ===============================================================================
 
- IndexPage
+ StorageIndexPage
 
 ===============================================================================
 */
 
-class IndexPage : public Page
+class StorageIndexPage : public StoragePage
 {
 public:
-	IndexPage();
-	~IndexPage();
+	StorageIndexPage();
+	~StorageIndexPage();
 	
 	void					SetPageSize(uint32_t pageSize);
 	void					SetNumDataPageSlots(uint32_t numDataPageSlots);
@@ -84,7 +84,7 @@ private:
 	InTreeMap<KeyIndex>		keys;
 	SortedList<uint32_t>	freeDataPages;
 	
-	friend class File;
+	friend class StorageFile;
 };
 
 

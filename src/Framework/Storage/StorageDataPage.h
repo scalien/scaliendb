@@ -1,5 +1,5 @@
-#ifndef DATAPAGE_H
-#define DATAPAGE_H
+#ifndef STORAGEDATAPAGE_H
+#define STORAGEDATAPAGE_H
 
 #include "System/Common.h"
 #include "System/Buffers/Buffer.h"
@@ -7,7 +7,7 @@
 #include "System/Containers/InList.h"
 #include "System/Containers/InTreeMap.h"
 #include "System/Stopwatch.h" // TODO REMOVE ME
-#include "Page.h"
+#include "StoragePage.h"
 
 class KeyValue; // forward
 
@@ -54,11 +54,11 @@ inline bool LessThan(KeyValue &a, KeyValue &b)
 ===============================================================================
 */
 
-class DataPage : public Page
+class StorageDataPage : public StoragePage
 {
 public:
-	DataPage();
-	~DataPage();
+	StorageDataPage();
+	~StorageDataPage();
 	
 	// basic ops	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
@@ -73,13 +73,11 @@ public:
 	bool					IsEmpty();
 	ReadBuffer				FirstKey();
 	bool					IsOverflowing();
-	DataPage*				SplitDataPage();
+	StorageDataPage*		SplitDataPage();
 
 	void					Read(ReadBuffer& buffer);
 	void					Write(Buffer& buffer);
 
-	static Stopwatch		sw1;
-	
 private:
 	Buffer					buffer;
 	uint32_t				required;

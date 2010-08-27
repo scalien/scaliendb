@@ -1,9 +1,9 @@
-#ifndef CATALOG_H
-#define CATALOG_H
+#ifndef STORAGECATALOG_H
+#define STORAGECATALOG_H
 
 #include "System/Containers/InTreeMap.h"
-#include "File.h"
-#include "Cursor.h"
+#include "StorageFile.h"
+#include "StorageCursor.h"
 /*
 ===============================================================================
 
@@ -21,7 +21,7 @@ public:
 	void					SetKey(ReadBuffer& key, bool copy);
 
 	Buffer					filepath;
-	File*					file;
+	StorageFile*			file;
 
 	ReadBuffer				key;
 	Buffer*					keyBuffer;
@@ -38,15 +38,15 @@ inline bool LessThan(FileIndex &a, FileIndex &b)
 /*
 ===============================================================================
 
- Catalog
+ StorageCatalog
 
 ===============================================================================
 */
 
-class Catalog
+class StorageCatalog
 {
 public:
-	~Catalog();
+	~StorageCatalog();
 	
 	void					Open(char* filepath);
 	void					Flush();
@@ -61,9 +61,9 @@ private:
 	void					Read(uint32_t length);
 	void					Write(bool flush);
 	FileIndex*				Locate(ReadBuffer& key);
-	void					SplitFile(File* file);
+	void					SplitFile(StorageFile* file);
 
-	DataPage*				CursorBegin(ReadBuffer& key, Buffer& nextKey);
+	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
 	
 	int						fd;
 	uint32_t				nextFileIndex;
@@ -71,7 +71,7 @@ private:
 	Buffer					buffer;
 	InTreeMap<FileIndex>	files;
 	
-	friend class Cursor;
+	friend class StorageCursor;
 };
 
 #endif

@@ -1,4 +1,4 @@
-#include "File.h"
+#include "StorageFile.h"
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -6,13 +6,10 @@
 
 #define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
 
-File::File()
+StorageFile::StorageFile()
 {
 	uint32_t i;
-	
-	prev = this;
-	next = this;
-	
+		
 	indexPageSize = DEFAULT_INDEXPAGE_SIZE;
 	dataPageSize = DEFAULT_DATAPAGE_SIZE;
 	numDataPageSlots = DEFAULT_NUM_DATAPAGES;
@@ -24,7 +21,7 @@ File::File()
 	indexPage.SetPageSize(indexPageSize);
 	indexPage.SetNumDataPageSlots(numDataPageSlots);
 
-	dataPages = (DataPage**) malloc(sizeof(DataPage*) * numDataPageSlots);
+	dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPageSlots);
 	for (i = 0; i < numDataPageSlots; i++)
 		dataPages[i] = NULL;
 	numDataPages = 0;
@@ -32,7 +29,7 @@ File::File()
 	fd = -1;
 }
 
-File::~File()
+StorageFile::~StorageFile()
 {
 	// dirtyPages' destructor automatically calls this
 	// but it is only running after all pages are free'd.
@@ -43,7 +40,7 @@ File::~File()
 	free(dataPages);
 }
 
-void File::Open(char* filepath_)
+void StorageFile::Open(char* filepath_)
 {
 	struct stat st;
 
@@ -60,18 +57,18 @@ void File::Open(char* filepath_)
 		Read();
 }
 
-void File::Flush()
+void StorageFile::Flush()
 {
 }
 
-void File::Close()
+void StorageFile::Close()
 {
 	close(fd);
 	
 	fd = -1;
 }
 
-bool File::Get(ReadBuffer& key, ReadBuffer& value)
+bool StorageFile::Get(ReadBuffer& key, ReadBuffer& value)
 {
 	int32_t index;
 	
@@ -83,7 +80,7 @@ bool File::Get(ReadBuffer& key, ReadBuffer& value)
 	return dataPages[index]->Get(key, value);
 }
 
-bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
+bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
 	int32_t		index;
 	ReadBuffer	rb;
@@ -97,7 +94,7 @@ bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	{
 		index = 0;
 		assert(dataPages[index] == NULL);
-		dataPages[index] = new DataPage;
+		dataPages[index] = new StorageDataPage;
 		dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 		dataPages[index]->SetPageSize(dataPageSize);
 		numDataPages++;
@@ -125,7 +122,7 @@ bool File::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	return true;
 }
 
-void File::Delete(ReadBuffer& key)
+void StorageFile::Delete(ReadBuffer& key)
 {
 	bool		updateIndex;
 	int32_t		index;
@@ -158,31 +155,31 @@ void File::Delete(ReadBuffer& key)
 	}
 }
 
-ReadBuffer File::FirstKey()
+ReadBuffer StorageFile::FirstKey()
 {
 	return indexPage.FirstKey();
 }
 
-bool File::IsEmpty()
+bool StorageFile::IsEmpty()
 {
 	return indexPage.IsEmpty();
 }
 
-bool File::IsOverflowing()
+bool StorageFile::IsOverflowing()
 {
 	return isOverflowing || indexPage.IsOverflowing();
 }
 
-File* File::SplitFile()
+StorageFile* StorageFile::SplitFile()
 {
-	File*		newFile;
-	uint32_t	index, newIndex, num;
+	StorageFile*	newFile;
+	uint32_t		index, newIndex, num;
 	
 	assert(numDataPageSlots == numDataPages);
 	
 	// TODO: do thing for cursors
 	
-	newFile = new File;
+	newFile = new StorageFile;
 	newFile->indexPageSize = indexPageSize;
 	newFile->dataPageSize = dataPageSize;
 	newFile->numDataPageSlots = numDataPageSlots;
@@ -227,7 +224,7 @@ File* File::SplitFile()
 	return newFile;
 }
 
-void File::Read()
+void StorageFile::Read()
 {
 	char*			p;
 	unsigned		i;
@@ -261,13 +258,13 @@ void File::Read()
 	indexPage.Read(readBuffer);
 	if (dataPages != NULL)
 		free(dataPages);
-	dataPages = (DataPage**) malloc(sizeof(DataPage*) * numDataPageSlots);
+	dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPageSlots);
 	for (i = 0; i < numDataPageSlots; i++)
 		dataPages[i] = NULL;
 	numDataPages = indexPage.NumEntries();	
 }
 
-void File::ReadRest()
+void StorageFile::ReadRest()
 {
 	KeyIndex*		it;
 
@@ -277,10 +274,10 @@ void File::ReadRest()
 			LoadDataPage(it->index);
 }
 
-void File::Write(bool flush)
+void StorageFile::Write(bool flush)
 {
 	Buffer			buffer;
-	Page*			it;
+	StoragePage*	it;
 	char*			p;
 
 	if (newFile)
@@ -314,7 +311,7 @@ void File::Write(bool flush)
 		Flush();
 }
 
-DataPage* File::CursorBegin(ReadBuffer& key, Buffer& nextKey)
+StorageDataPage* StorageFile::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 {
 	int32_t	index;
 	
@@ -329,7 +326,7 @@ DataPage* File::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 	return dataPages[index];
 }
 
-int32_t File::Locate(ReadBuffer& key)
+int32_t StorageFile::Locate(ReadBuffer& key)
 {
 	int32_t	index;
 	
@@ -344,13 +341,13 @@ int32_t File::Locate(ReadBuffer& key)
 	return index;
 }
 
-void File::LoadDataPage(uint32_t index)
+void StorageFile::LoadDataPage(uint32_t index)
 {
 	Buffer		buffer;
 	ReadBuffer	readBuffer;
 	int			length;
 	
-	dataPages[index] = new DataPage;
+	dataPages[index] = new StorageDataPage;
 	dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 	dataPages[index]->SetPageSize(dataPageSize);
 	
@@ -366,7 +363,7 @@ void File::LoadDataPage(uint32_t index)
 	dataPages[index]->Read(readBuffer);
 }
 
-void File::MarkPageDirty(Page* page)
+void StorageFile::MarkPageDirty(StoragePage* page)
 {
 	if (!page->IsDirty())
 	{
@@ -375,10 +372,10 @@ void File::MarkPageDirty(Page* page)
 	}
 }
 
-void File::SplitDataPage(uint32_t index)
+void StorageFile::SplitDataPage(uint32_t index)
 {
-	uint32_t	newIndex;
-	DataPage*	newPage;
+	uint32_t			newIndex;
+	StorageDataPage*	newPage;
 
 	if (numDataPages < numDataPageSlots)
 	{
@@ -407,13 +404,13 @@ void File::SplitDataPage(uint32_t index)
 		isOverflowing = true;
 }
 
-void File::ReorderPages()
+void StorageFile::ReorderPages()
 {
-	uint32_t		newIndex, oldIndex, i;
-	KeyIndex*		it;
-	DataPage**		newDataPages;
+	uint32_t			newIndex, oldIndex, i;
+	KeyIndex*			it;
+	StorageDataPage**	newDataPages;
 	
-	newDataPages = (DataPage**) calloc(numDataPageSlots, sizeof(DataPage*));
+	newDataPages = (StorageDataPage**) calloc(numDataPageSlots, sizeof(StorageDataPage*));
 	
 	for (it = indexPage.keys.First(), newIndex = 0; it != NULL; it = indexPage.keys.Next(it), newIndex++)
 	{
@@ -432,7 +429,7 @@ void File::ReorderPages()
 		indexPage.freeDataPages.Add(i);
 }
 
-void File::ReorderFile()
+void StorageFile::ReorderFile()
 {
 	uint32_t index;
 	

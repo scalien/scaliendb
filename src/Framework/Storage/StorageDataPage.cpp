@@ -1,4 +1,4 @@
-#include "DataPage.h"
+#include "StorageDataPage.h"
 #include <stdio.h>
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
@@ -11,18 +11,18 @@ static ReadBuffer& Key(KeyValue* kv)
 	return kv->key;
 }
 
-DataPage::DataPage()
+StorageDataPage::StorageDataPage()
 {
 	required = DATAPAGE_FIX_OVERHEAD;
 	numCursors = 0;
 }
 
-DataPage::~DataPage()
+StorageDataPage::~StorageDataPage()
 {
 	keys.DeleteTree();
 }
 
-bool DataPage::Get(ReadBuffer& key, ReadBuffer& value)
+bool StorageDataPage::Get(ReadBuffer& key, ReadBuffer& value)
 {
 	KeyValue*	kv;
 	
@@ -36,9 +36,7 @@ bool DataPage::Get(ReadBuffer& key, ReadBuffer& value)
 	return false;
 }
 
-Stopwatch DataPage::sw1;
-
-void DataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
+void StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
 	KeyValue*	it;
 	KeyValue*	newKeyValue;
@@ -62,7 +60,7 @@ void DataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	required += (DATAPAGE_KV_OVERHEAD + key.GetLength() + value.GetLength());
 }
 
-void DataPage::Delete(ReadBuffer& key)
+void StorageDataPage::Delete(ReadBuffer& key)
 {
 	KeyValue*	it;
 
@@ -74,18 +72,18 @@ void DataPage::Delete(ReadBuffer& key)
 	}
 }
 
-void DataPage::RegisterCursor()
+void StorageDataPage::RegisterCursor()
 {
 	numCursors++;
 }
 
-void DataPage::UnregisterCursor()
+void StorageDataPage::UnregisterCursor()
 {
 	numCursors--;
 	assert(numCursors >= 0);
 }
 
-KeyValue* DataPage::BeginIteration(ReadBuffer& key)
+KeyValue* StorageDataPage::BeginIteration(ReadBuffer& key)
 {
 	KeyValue*	it;
 	int			retcmp;
@@ -101,12 +99,12 @@ KeyValue* DataPage::BeginIteration(ReadBuffer& key)
 		return keys.Next(it);
 }
 
-KeyValue* DataPage::Next(KeyValue* it)
+KeyValue* StorageDataPage::Next(KeyValue* it)
 {
 	return keys.Next(it);
 }
 
-bool DataPage::IsEmpty()
+bool StorageDataPage::IsEmpty()
 {
 	if (keys.GetCount() == 0)
 		return true;
@@ -114,12 +112,12 @@ bool DataPage::IsEmpty()
 		return false;
 }
 
-ReadBuffer DataPage::FirstKey()
+ReadBuffer StorageDataPage::FirstKey()
 {
 	return keys.First()->key;
 }
 
-bool DataPage::IsOverflowing()
+bool StorageDataPage::IsOverflowing()
 {
 	if (required <= pageSize)
 		return false;
@@ -127,12 +125,12 @@ bool DataPage::IsOverflowing()
 		return true;
 }
 
-DataPage* DataPage::SplitDataPage()
+StorageDataPage* StorageDataPage::SplitDataPage()
 {
-	DataPage*	newPage;
-	KeyValue*	it;
-	KeyValue*	next;
-	uint32_t	target, sum;
+	StorageDataPage*	newPage;
+	KeyValue*			it;
+	KeyValue*			next;
+	uint32_t			target, sum;
 	
 	if (required > 2 * pageSize)
 		ASSERT_FAIL();
@@ -148,7 +146,7 @@ DataPage* DataPage::SplitDataPage()
 	
 	assert(it != NULL);
 	
-	newPage = new DataPage();
+	newPage = new StorageDataPage();
 	newPage->SetPageSize(pageSize);
 	while (it != NULL)
 	{
@@ -164,7 +162,7 @@ DataPage* DataPage::SplitDataPage()
 	return newPage;
 }
 
-void DataPage::Read(ReadBuffer& buffer_)
+void StorageDataPage::Read(ReadBuffer& buffer_)
 {
 	uint32_t	num, len, i;
 	char*		p;
@@ -196,7 +194,7 @@ void DataPage::Read(ReadBuffer& buffer_)
 	required = p - buffer.GetBuffer();
 }
 
-void DataPage::Write(Buffer& buffer)
+void StorageDataPage::Write(Buffer& buffer)
 {
 	KeyValue*	it;
 	char*		p;

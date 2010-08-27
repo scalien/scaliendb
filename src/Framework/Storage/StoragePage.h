@@ -1,5 +1,5 @@
-#ifndef PAGE_H
-#define PAGE_H
+#ifndef STORAGEPAGE_H
+#define STORAGEPAGE_H
 
 #include "System/Buffers/Buffer.h"
 #include "System/Buffers/ReadBuffer.h"
@@ -7,15 +7,15 @@
 /*
 ===============================================================================
 
- Page
+ StoragePage
 
 ===============================================================================
 */
 
-class Page
+class StoragePage
 {
 public:
-	Page()					{ dirty = false; prev = next = this; }
+	StoragePage()			{ dirty = false; prev = next = this; }
 	virtual void			Read(ReadBuffer& buffer)	= 0;
 	virtual void			Write(Buffer& buffer)		= 0;
 
@@ -28,8 +28,8 @@ public:
 	void					SetOffset(uint32_t offset_) { offset = offset_; }
 	uint32_t				GetOffset() { return offset; }
 
-	Page*					prev;
-	Page*					next;
+	StoragePage*			prev;
+	StoragePage*			next;
 
 protected:
 

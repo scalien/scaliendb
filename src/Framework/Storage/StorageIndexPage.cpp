@@ -1,4 +1,4 @@
-#include "IndexPage.h"
+#include "StorageIndexPage.h"
 #include <stdio.h>
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
@@ -16,22 +16,22 @@ bool KeyIndex::LessThan(KeyIndex& a, KeyIndex& b)
 	return ReadBuffer::LessThan(a.key, b.key);
 }
 
-IndexPage::IndexPage()
+StorageIndexPage::StorageIndexPage()
 {
 	required = INDEXPAGE_FIX_OVERHEAD;
 }
 
-IndexPage::~IndexPage()
+StorageIndexPage::~StorageIndexPage()
 {
 	keys.DeleteTree();
 }
 
-void IndexPage::SetPageSize(uint32_t pageSize_)
+void StorageIndexPage::SetPageSize(uint32_t pageSize_)
 {
 	pageSize = pageSize_;
 }
 
-void IndexPage::SetNumDataPageSlots(uint32_t numDataPageSlots_)
+void StorageIndexPage::SetNumDataPageSlots(uint32_t numDataPageSlots_)
 {
 	uint32_t i;
 	
@@ -43,7 +43,7 @@ void IndexPage::SetNumDataPageSlots(uint32_t numDataPageSlots_)
 		freeDataPages.Add(i);
 }
 
-void IndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
+void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 {
 	KeyIndex* ki;
 	
@@ -58,7 +58,7 @@ void IndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 	freeDataPages.Remove(index);
 }
 
-void IndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
+void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 {
 	KeyIndex* it;
 	
@@ -74,7 +74,7 @@ void IndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 	}
 }
 
-void IndexPage::Remove(ReadBuffer key)
+void StorageIndexPage::Remove(ReadBuffer key)
 {
 	KeyIndex*	it;
 	
@@ -87,7 +87,7 @@ void IndexPage::Remove(ReadBuffer key)
 	delete it;
 }
 
-bool IndexPage::IsEmpty()
+bool StorageIndexPage::IsEmpty()
 {
 	if (keys.GetCount() == 0)
 		return true;
@@ -95,7 +95,7 @@ bool IndexPage::IsEmpty()
 		return false;
 }
 
-ReadBuffer IndexPage::FirstKey()
+ReadBuffer StorageIndexPage::FirstKey()
 {
 	if (keys.GetCount() == 0)
 		ASSERT_FAIL();
@@ -103,12 +103,12 @@ ReadBuffer IndexPage::FirstKey()
 	return keys.First()->key;
 }
 
-uint32_t IndexPage::NumEntries()
+uint32_t StorageIndexPage::NumEntries()
 {
 	return keys.GetCount();
 }
 
-int32_t IndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
+int32_t StorageIndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
 {
 	KeyIndex*	it;
 	uint32_t	index;
@@ -139,14 +139,14 @@ int32_t IndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
 	return index;
 }
 
-uint32_t IndexPage::NextFreeDataPage()
+uint32_t StorageIndexPage::NextFreeDataPage()
 {
 	assert(freeDataPages.GetLength() > 0);
 	
 	return *freeDataPages.First();
 }
 
-bool IndexPage::IsOverflowing()
+bool StorageIndexPage::IsOverflowing()
 {
 	if (required < pageSize)
 		return false;
@@ -154,7 +154,7 @@ bool IndexPage::IsOverflowing()
 		return true;
 }
 
-void IndexPage::Read(ReadBuffer& buffer_)
+void StorageIndexPage::Read(ReadBuffer& buffer_)
 {
 	uint32_t	num, len, i;
 	char*		p;
@@ -183,7 +183,7 @@ void IndexPage::Read(ReadBuffer& buffer_)
 	required = p - buffer.GetBuffer();
 }
 
-void IndexPage::Write(Buffer& buffer)
+void StorageIndexPage::Write(Buffer& buffer)
 {
 	KeyIndex*	it;
 	char*		p;

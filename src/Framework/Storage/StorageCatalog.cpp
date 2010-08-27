@@ -1,4 +1,4 @@
-#include "Catalog.h"
+#include "StorageCatalog.h"
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -14,12 +14,12 @@ static ReadBuffer& Key(FileIndex* fi)
 	return fi->key;
 }
 
-Catalog::~Catalog()
+StorageCatalog::~StorageCatalog()
 {
 	files.DeleteTree();
 }
 
-void Catalog::Open(char* filepath_)
+void StorageCatalog::Open(char* filepath_)
 {
 	struct stat st;
 
@@ -38,13 +38,13 @@ void Catalog::Open(char* filepath_)
 		Read(st.st_size);
 }
 
-void Catalog::Flush()
+void StorageCatalog::Flush()
 {
 	Write(false);
 	sync();
 }
 
-void Catalog::Close()
+void StorageCatalog::Close()
 {
 	FileIndex*	it;
 	
@@ -60,7 +60,7 @@ void Catalog::Close()
 	close(fd);
 }
 
-bool Catalog::Get(ReadBuffer& key, ReadBuffer& value)
+bool StorageCatalog::Get(ReadBuffer& key, ReadBuffer& value)
 {
 	FileIndex* fi;
 	
@@ -72,7 +72,7 @@ bool Catalog::Get(ReadBuffer& key, ReadBuffer& value)
 	else return fi->file->Get(key, value);
 }
 
-bool Catalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
+bool StorageCatalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
 	FileIndex	*fi;
 	
@@ -82,7 +82,7 @@ bool Catalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	{
 		fi = new FileIndex;
 		fi->index = nextFileIndex++;
-		fi->file = new File;
+		fi->file = new StorageFile;
 		WritePath(fi->filepath, fi->index);
 		fi->file->Open(fi->filepath.GetBuffer());
 		fi->SetKey(key, true); // TODO: buffer management
@@ -102,7 +102,7 @@ bool Catalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	return true;
 }
 
-void Catalog::Delete(ReadBuffer& key)
+void StorageCatalog::Delete(ReadBuffer& key)
 {
 	bool			updateIndex;
 	FileIndex*		fi;
@@ -134,7 +134,7 @@ void Catalog::Delete(ReadBuffer& key)
 	}
 }
 
-void Catalog::WritePath(Buffer& buffer, uint32_t index)
+void StorageCatalog::WritePath(Buffer& buffer, uint32_t index)
 {
 	char	buf[30];
 	
@@ -146,7 +146,7 @@ void Catalog::WritePath(Buffer& buffer, uint32_t index)
 	buffer.NullTerminate();
 }
 
-void Catalog::Read(uint32_t length)
+void StorageCatalog::Read(uint32_t length)
 {
 	uint32_t	i, numFiles;
 	unsigned	len;
@@ -176,7 +176,7 @@ void Catalog::Read(uint32_t length)
 	}	
 }
 
-void Catalog::Write(bool flush)
+void StorageCatalog::Write(bool flush)
 {
 	char*			p;
 	uint32_t		size, len;
@@ -218,7 +218,7 @@ void Catalog::Write(bool flush)
 	}
 }
 
-FileIndex* Catalog::Locate(ReadBuffer& key)
+FileIndex* StorageCatalog::Locate(ReadBuffer& key)
 {
 	FileIndex*	fi;
 	int			cmpres;
@@ -253,7 +253,7 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 OpenFile:
 	if (fi->file == NULL)
 	{
-		fi->file = new File;
+		fi->file = new StorageFile;
 		fi->file->Open(fi->filepath.GetBuffer());
 	}
 	
@@ -289,7 +289,7 @@ void FileIndex::SetKey(ReadBuffer& key_, bool copy)
 		key = key_;
 }
 
-void Catalog::SplitFile(File* file)
+void StorageCatalog::SplitFile(StorageFile* file)
 {
 	FileIndex*	newFi;
 	ReadBuffer	rb;
@@ -307,10 +307,10 @@ void Catalog::SplitFile(File* file)
 	files.Insert(newFi);
 }
 
-DataPage* Catalog::CursorBegin(ReadBuffer& key, Buffer& nextKey)
+StorageDataPage* StorageCatalog::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 {
-	FileIndex*	fi;
-	DataPage*	dataPage;
+	FileIndex*			fi;
+	StorageDataPage*	dataPage;
 	
 	fi = Locate(key);
 
