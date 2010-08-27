@@ -40,7 +40,8 @@ void Catalog::Open(char* filepath_)
 
 void Catalog::Flush()
 {
-	Write(true);
+	Write(false);
+	sync();
 }
 
 void Catalog::Close()
