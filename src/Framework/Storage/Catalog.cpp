@@ -280,7 +280,6 @@ void FileIndex::SetKey(ReadBuffer& key_, bool copy)
 void Catalog::SplitFile(File* file)
 {
 	FileIndex*	newFi;
-	Buffer		buffer;
 	ReadBuffer	rb;
 
 	file->ReadRest();
@@ -288,8 +287,8 @@ void Catalog::SplitFile(File* file)
 	newFi->file = file->SplitFile();
 	newFi->index = nextFileIndex++;
 	
-	WritePath(buffer, newFi->index);
-	newFi->file->Open(buffer.GetBuffer());
+	WritePath(newFi->filepath, newFi->index);
+	newFi->file->Open(newFi->filepath.GetBuffer());
 
 	rb = newFi->file->FirstKey();
 	newFi->SetKey(rb, true); // TODO: buffer management
