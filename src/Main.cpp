@@ -341,30 +341,30 @@ int main(int argc, char** argv)
 	printf("%u sets took %ld msec\n", num, elapsed);
 	printf("Time spent in DataPage sw1: %ld msec\n", DataPage::sw1.Elapsed());
 
-//	sw.Reset();
-//	sw.Start();
-//	for (int i = 0; i < num; i++)
-//	{
-//		k.Writef("%d", i);
-//		rk.Wrap(k);
-//		if (catalog.Get(rk, rv))
-//			;//PRINT()
-//		else
-//			ASSERT_FAIL();
-//	}	
-//	elapsed = sw.Stop();
-//	printf("%u gets took %ld msec\n", num, elapsed);
+	sw.Reset();
+	sw.Start();
+	for (int i = 0; i < num; i++)
+	{
+		k.Writef("%d", i);
+		rk.Wrap(k);
+		if (catalog.Get(rk, rv))
+			;//PRINT()
+		else
+			ASSERT_FAIL();
+	}	
+	elapsed = sw.Stop();
+	printf("%u gets took %ld msec\n", num, elapsed);
 
-//	sw.Reset();
-//	sw.Start();
-//	for (int i = 0; i < num; i++)
-//	{
-//		k.Writef("%d", i);
-//		rk.Wrap(k);
-//		catalog.Delete(rk);
-//	}	
-//	elapsed = sw.Stop();
-//	printf("%u gets took %ld msec\n", num, elapsed);
+	sw.Reset();
+	sw.Start();
+	for (int i = 0; i < num; i++)
+	{
+		k.Writef("%d", i);
+		rk.Wrap(k);
+		catalog.Delete(rk);
+	}	
+	elapsed = sw.Stop();
+	printf("%u gets took %ld msec\n", num, elapsed);
 	
 	sw.Reset();
 	sw.Start();
