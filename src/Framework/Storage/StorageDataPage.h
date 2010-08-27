@@ -54,6 +54,15 @@ inline bool LessThan(KeyValue &a, KeyValue &b)
 ===============================================================================
 */
 
+// TODO: cursor detachment!!!
+// TODO: cursor detachment!!!
+// TODO: cursor detachment!!!
+// TODO: cursor detachment!!!
+// TODO: cursor detachment!!!
+// TODO: cursor detachment!!!
+// TODO: cursor detachment!!!
+
+
 class StorageDataPage : public StoragePage
 {
 public:
