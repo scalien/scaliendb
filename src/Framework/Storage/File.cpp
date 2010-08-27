@@ -34,6 +34,10 @@ File::File()
 
 File::~File()
 {
+	// dirtyPages' destructor automatically calls this
+	// but it is only running after all pages are free'd.
+	dirtyPages.Clear();
+	
 	for (uint32_t u = 0; u < numDataPages; u++)
 		delete dataPages[u];
 	free(dataPages);

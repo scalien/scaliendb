@@ -209,7 +209,8 @@ void Catalog::Write()
 
 FileIndex* Catalog::Locate(ReadBuffer& key)
 {
-	FileIndex* fi;
+	FileIndex*	fi;
+	int			cmpres;
 	
 	if (files.GetCount() == 0)
 		return NULL;
@@ -220,16 +221,23 @@ FileIndex* Catalog::Locate(ReadBuffer& key)
 		goto OpenFile;
 	}
 	
-	for (fi = files.First(); fi != NULL; fi = files.Next(fi))
-	{
-		if (ReadBuffer::LessThan(key, fi->key))
-		{
-			fi = files.Prev(fi);
-			goto OpenFile;
-		}
-	}
+//	for (fi = files.First(); fi != NULL; fi = files.Next(fi))
+//	{
+//		if (ReadBuffer::LessThan(key, fi->key))
+//		{
+//			fi = files.Prev(fi);
+//			goto OpenFile;
+//		}
+//	}
 	
-	fi = files.Last();
+	fi = files.Locate<ReadBuffer&>(key, cmpres);
+	if (fi)
+	{
+		if (cmpres < 0)
+			fi = files.Prev(fi);
+	}
+	else
+		fi = files.Last();
 	
 OpenFile:
 	if (fi->file == NULL)
