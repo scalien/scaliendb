@@ -17,6 +17,7 @@ public:
 	Stopwatch();
 	
 	void	Reset();
+	void	Restart();
 	void	Start();
 	long	Stop();
 	long	Elapsed();

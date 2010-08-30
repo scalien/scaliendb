@@ -40,6 +40,7 @@ int64_t			GetFreeDiskSpace(const char* path);	// returns in bytes
 uint64_t		GenerateGUID();
 void			SeedRandom();
 int				RandomInt(int min, int max);
+void			RandomBuffer(char* buffer, unsigned length);
 
 void			BlockSignals();
 bool			ChangeUser(const char *username);

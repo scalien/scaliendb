@@ -48,7 +48,7 @@ class StorageCatalog
 public:
 	~StorageCatalog();
 	
-	void					Open(char* filepath);
+	void					Open(const char* filepath);
 	void					Flush();
 	void					Close();
 	
