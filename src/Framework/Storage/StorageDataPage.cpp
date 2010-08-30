@@ -1,4 +1,5 @@
 #include "StorageDataPage.h"
+#include "StorageCursor.h"
 #include <stdio.h>
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
@@ -11,10 +12,10 @@ static ReadBuffer& Key(KeyValue* kv)
 	return kv->key;
 }
 
-StorageDataPage::StorageDataPage()
+StorageDataPage::StorageDataPage(bool detached_)
 {
 	required = DATAPAGE_FIX_OVERHEAD;
-	numCursors = 0;
+	detached = detached_;
 }
 
 StorageDataPage::~StorageDataPage()
@@ -72,15 +73,17 @@ void StorageDataPage::Delete(ReadBuffer& key)
 	}
 }
 
-void StorageDataPage::RegisterCursor()
+void StorageDataPage::RegisterCursor(StorageCursor* cursor)
 {
-	numCursors++;
+	cursors.Append(cursor);
 }
 
-void StorageDataPage::UnregisterCursor()
+void StorageDataPage::UnregisterCursor(StorageCursor* cursor)
 {
-	numCursors--;
-	assert(numCursors >= 0);
+	cursors.Remove(cursor);
+	
+	if (detached && cursors.GetLength() == 0)
+		delete this;
 }
 
 KeyValue* StorageDataPage::BeginIteration(ReadBuffer& key)
@@ -160,6 +163,43 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 	}
 	
 	return newPage;
+}
+
+bool StorageDataPage::HasCursors()
+{
+	return (cursors.GetLength() > 0);
+}
+
+void StorageDataPage::Detach()
+{
+	StorageDataPage*	detached;
+	StorageCursor*		cursor;
+	KeyValue*			it;
+	KeyValue*			kv;
+	int					cmpres;
+	
+	detached = new StorageDataPage(true);
+	
+	detached->cursors = cursors;
+	cursors.ClearMembers();
+	
+	for (it = keys.First(); it != NULL; it = keys.Next(it))
+	{
+		kv = new KeyValue;
+		kv->SetKey(it->key, true);
+		kv->SetValue(it->value, true);
+		detached->keys.Insert(kv);
+	}
+	
+	for (cursor = detached->cursors.First(); cursor != NULL; cursor = detached->cursors.Next(cursor))
+	{
+		cursor->dataPage = detached;
+		if (cursor->current != NULL)
+		{
+			cursor->current = detached->keys.Locate(cursor->current->key, cmpres);
+			assert(cmpres == 0);
+		}
+	}
 }
 
 void StorageDataPage::Read(ReadBuffer& buffer_)

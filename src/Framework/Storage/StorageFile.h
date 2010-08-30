@@ -54,6 +54,7 @@ private:
 	void					SplitDataPage(uint32_t index);
 	void					ReorderPages();
 	void					ReorderFile();
+	void					CopyDataPage(uint32_t index);
 	
 	int						fd;
 	uint32_t				indexPageSize;

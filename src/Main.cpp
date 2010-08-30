@@ -281,6 +281,7 @@ int main(int argc, char** argv)
 {
 #define PRINT()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
 	StorageCatalog		catalog;
+	StorageCursor*		cursor;
 	Buffer				k, v;
 	ReadBuffer			rk, rv;
 	Stopwatch			sw;
@@ -289,80 +290,80 @@ int main(int argc, char** argv)
 	char*				area;
 	char*				p;
 	uint64_t			clock;
-	
-//	return TestTreeMap();
-//	return TestClock();
-	
-//	W(k, rk, "ki");
-//	W(v, rv, "atka");
-//	file.Set(rk, rv);
-//
-//	W(k, rk, "hol");
-//	W(v, rv, "budapest");
-//	file.Set(rk, rv);
-//
-//	W(k, rk, "ki");
-//	W(v, rv, "atka");
-//	file.Set(rk, rv);
-//
-//	W(k, rk, "hol");
-//	W(v, rv, "budapest");
-//	file.Set(rk, rv);
-//
-//	W(k, rk, "ki");
-//	file.Get(rk, rv);
-//	P();
-//
-//	W(k, rk, "hol");
-//	file.Get(rk, rv);
-//	P();
 
 	StartClock();
 
-	num = 1*1000*1000;
+	num = 100*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
 
 	catalog.Open("dogs");
 
-	clock = NowClock();
-	sw.Start();
-	for (int i = 0; i < num; i++)
-	{
-		p = area + i*(ksize+vsize);
-		len = snprintf(p, ksize, "%d", i);
-		rk.SetBuffer(p);
-		rk.SetLength(len);
-		p += ksize;
-		len = snprintf(p, vsize, "%.100f", (float) i);
-		rv.SetBuffer(p);
-		rv.SetLength(len);
-		catalog.Set(rk, rv, false);
+//	clock = NowClock();
+//	sw.Start();
+//	for (int i = 0; i < num; i++)
+//	{
+//		p = area + i*(ksize+vsize);
+//		len = snprintf(p, ksize, "%d", i);
+//		rk.SetBuffer(p);
+//		rk.SetLength(len);
+//		p += ksize;
+//		len = snprintf(p, vsize, "%.100f", (float) i);
+//		rv.SetBuffer(p);
+//		rv.SetLength(len);
+//		catalog.Set(rk, rv, false);
+//
+//		if (NowClock() - clock >= 1000)
+//		{
+//			printf("syncing...\n");
+//			catalog.Flush();
+//			clock = NowClock();
+//		}
+//	}
+//	elapsed = sw.Stop();
+//	printf("%u sets took %ld msec\n", num, elapsed);
 
-		if (NowClock() - clock >= 1000)
-		{
-			printf("syncing...\n");
-			catalog.Flush();
-			clock = NowClock();
-		}
+//	k.Clear();
+//	rk.Wrap(k);
+//	cursor = new StorageCursor(&catalog);
+//	KeyValue* kv = cursor->Begin(rk);
+//	while (kv != NULL)
+//	{
+//		printf("%.*s => %.*s\n", kv->key.GetLength(), kv->key.GetBuffer(), kv->value.GetLength(), kv->value.GetBuffer());
+//		kv = cursor->Next();
+//	}
+//	cursor->Close();
+
+//	sw.Reset();
+//	sw.Start();
+//	for (int i = 0; i < num; i++)
+//	{
+//		k.Writef("%d", i);
+//		rk.Wrap(k);
+//		if (catalog.Get(rk, rv))
+//			PRINT()
+//		else
+//			ASSERT_FAIL();
+//	}	
+//	elapsed = sw.Stop();
+//	printf("%u gets took %ld msec\n", num, elapsed);
+
+	// test COW cursors
+	
+	k.Clear();
+	rk.Wrap(k);
+	cursor = new StorageCursor(&catalog);
+	KeyValue* kv = cursor->Begin(rk);
+	while (kv != NULL)
+	{
+		printf("%.*s => %.*s\n", kv->key.GetLength(), kv->key.GetBuffer(), kv->value.GetLength(), kv->value.GetBuffer());
+		catalog.Delete(rk);
+		kv = cursor->Next();
+		break;
 	}
-	elapsed = sw.Stop();
-	printf("%u sets took %ld msec\n", num, elapsed);
-
-	sw.Reset();
-	sw.Start();
-	for (int i = 0; i < num; i++)
-	{
-		k.Writef("%d", i);
-		rk.Wrap(k);
-		if (catalog.Get(rk, rv))
-			;//PRINT()
-		else
-			ASSERT_FAIL();
-	}	
-	elapsed = sw.Stop();
-	printf("%u gets took %ld msec\n", num, elapsed);
+	cursor->Close();
+	
 
 //	sw.Reset();
 //	sw.Start();

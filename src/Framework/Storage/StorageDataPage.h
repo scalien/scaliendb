@@ -9,7 +9,7 @@
 #include "System/Stopwatch.h" // TODO REMOVE ME
 #include "StoragePage.h"
 
-class KeyValue; // forward
+class StorageCursor; // forward
 
 #define DATAPAGE_FIX_OVERHEAD		4
 #define DATAPAGE_KV_OVERHEAD		8
@@ -54,19 +54,10 @@ inline bool LessThan(KeyValue &a, KeyValue &b)
 ===============================================================================
 */
 
-// TODO: cursor detachment!!!
-// TODO: cursor detachment!!!
-// TODO: cursor detachment!!!
-// TODO: cursor detachment!!!
-// TODO: cursor detachment!!!
-// TODO: cursor detachment!!!
-// TODO: cursor detachment!!!
-
-
 class StorageDataPage : public StoragePage
 {
 public:
-	StorageDataPage();
+	StorageDataPage(bool detached = false);
 	~StorageDataPage();
 	
 	// basic ops	
@@ -74,8 +65,8 @@ public:
 	void					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
-	void					RegisterCursor();
-	void					UnregisterCursor();
+	void					RegisterCursor(StorageCursor* cursor);
+	void					UnregisterCursor(StorageCursor* cursor);
 	KeyValue*				BeginIteration(ReadBuffer& key);
 	KeyValue*				Next(KeyValue* it);
 	
@@ -83,6 +74,8 @@ public:
 	ReadBuffer				FirstKey();
 	bool					IsOverflowing();
 	StorageDataPage*		SplitDataPage();
+	bool					HasCursors();
+	void					Detach();
 
 	void					Read(ReadBuffer& buffer);
 	void					Write(Buffer& buffer);
@@ -91,7 +84,8 @@ private:
 	Buffer					buffer;
 	uint32_t				required;
 	InTreeMap<KeyValue>		keys;
-	uint32_t				numCursors;
+	InList<StorageCursor>	cursors;
+	bool					detached;
 };
 
 

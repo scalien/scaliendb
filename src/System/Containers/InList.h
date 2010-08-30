@@ -35,6 +35,7 @@ public:
 	T*				Remove(T* t);	
 	bool			Remove(T &t);
 	void			Clear();
+	void			ClearMembers();
 	
 	T*				First() const;
 	T*				Last() const;
@@ -198,6 +199,14 @@ void InList<T>::Clear()
 	for (it = First(); it != NULL; it = Remove(it));
 	
 	assert(length == 0);
+}
+
+template<class T>
+void InList<T>::ClearMembers()
+{
+	head = NULL;
+	tail = NULL;
+	length = 0;
 }
 
 template<class T>

@@ -121,7 +121,7 @@ int32_t StorageIndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
 	{
 		index = keys.First()->index;
 		it = keys.Next(keys.First());
-		if (it)
+		if (it && nextKey)
 			nextKey->Write(it->key);
 		return index;
 	}
@@ -133,7 +133,7 @@ int32_t StorageIndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
 		index = keys.Prev(it)->index;
 
 	it = keys.Next(it);
-	if (it)
+	if (it && nextKey)
 		nextKey->Write(it->key);
 
 	return index;

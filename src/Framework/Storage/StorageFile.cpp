@@ -112,9 +112,14 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		}
 	}
 	
+	if (dataPages[index]->HasCursors())
+	{
+		dataPages[index]->Detach();
+		assert(dataPages[index]->HasCursors() == false);
+	}
+	
 	dataPages[index]->Set(key, value, copy);
 	MarkPageDirty(dataPages[index]);
-	// TODO: do thing for cursors
 	
 	if (dataPages[index]->IsOverflowing())
 		SplitDataPage(index);
@@ -137,10 +142,15 @@ void StorageFile::Delete(ReadBuffer& key)
 	firstKey = dataPages[index]->FirstKey();
 	if (BUFCMP(&key, &firstKey))
 		updateIndex = true;
-	
+
+	if (dataPages[index]->HasCursors())
+	{
+		dataPages[index]->Detach();
+		assert(dataPages[index]->HasCursors() == false);
+	}
+
 	dataPages[index]->Delete(key);
 	MarkPageDirty(dataPages[index]);
-	// TODO: do thing for cursors
 
 	if (dataPages[index]->IsEmpty())
 	{
@@ -379,6 +389,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 
 	if (numDataPages < numDataPageSlots)
 	{
+		// make a copy of data
 		newPage = dataPages[index]->SplitDataPage();
 		numDataPages++;
 		newIndex = indexPage.NextFreeDataPage();

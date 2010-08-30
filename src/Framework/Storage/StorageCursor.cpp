@@ -16,7 +16,7 @@ KeyValue* StorageCursor::Begin(ReadBuffer& key)
 	if (dataPage == NULL)
 		return NULL;
 	
-	dataPage->RegisterCursor();
+	dataPage->RegisterCursor(this);
 	
 	current = dataPage->BeginIteration(key);
 	if (current != NULL)
@@ -40,7 +40,9 @@ KeyValue* StorageCursor::Next()
 void StorageCursor::Close()
 {
 	if (dataPage)
-		dataPage->UnregisterCursor();
+		dataPage->UnregisterCursor(this);
+	
+	delete this;
 }
 
 KeyValue* StorageCursor::FromNextPage()
@@ -48,7 +50,7 @@ KeyValue* StorageCursor::FromNextPage()
 	Buffer			buffer;
 	ReadBuffer		key;
 
-	dataPage->UnregisterCursor();
+	dataPage->UnregisterCursor(this);
 	
 	// attempt to advance to next dataPage
 	if (nextKey.GetLength() == 0)
