@@ -198,6 +198,7 @@ void StorageIndexPage::Write(Buffer& buffer)
 	p = buffer.GetBuffer();
 	*((uint32_t*) p) = ToLittle32(pageSize);
 	p += 4;
+	assert(fileIndex != 0);
 	*((uint32_t*) p) = ToLittle32(fileIndex);
 	p += 4;
 	*((uint32_t*) p) = ToLittle32(offset);
@@ -217,6 +218,7 @@ void StorageIndexPage::Write(Buffer& buffer)
 	}
 	
 	buffer.SetLength(required);
+	this->buffer.Write(buffer);
 }
 
 KeyIndex::KeyIndex()

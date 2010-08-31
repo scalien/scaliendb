@@ -151,6 +151,8 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 	
 	newPage = new StorageDataPage();
 	newPage->SetPageSize(pageSize);
+	newPage->SetFileIndex(fileIndex);
+	
 	while (it != NULL)
 	{
 		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
@@ -226,11 +228,20 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 		p += 4;
 		kv->key.SetLength(len);
 		kv->key.SetBuffer(p);
+		// TODO: hack
+		kv->keyBuffer = new Buffer();
+		kv->keyBuffer->Write(kv->key);
+		kv->key.Wrap(*kv->keyBuffer);
 		p += len;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		kv->value.SetLength(len);
 		kv->value.SetBuffer(p);
+		// TODO: hack
+		kv->valueBuffer = new Buffer();
+		kv->valueBuffer->Write(kv->value);
+		kv->value.Wrap(*kv->valueBuffer);
+		
 		p += len;
 //		printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
 		keys.Insert(kv);
@@ -249,6 +260,7 @@ void StorageDataPage::Write(Buffer& buffer)
 	p = buffer.GetBuffer();
 	*((uint32_t*) p) = ToLittle32(pageSize);
 	p += 4;
+	assert(fileIndex != 0);
 	*((uint32_t*) p) = ToLittle32(fileIndex);
 	p += 4;
 	*((uint32_t*) p) = ToLittle32(offset);
@@ -272,6 +284,7 @@ void StorageDataPage::Write(Buffer& buffer)
 	}
 	
 	buffer.SetLength(required);
+	this->buffer.Write(buffer);
 }
 
 KeyValue::KeyValue()

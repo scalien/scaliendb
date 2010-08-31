@@ -16,8 +16,8 @@ class StoragePage
 {
 public:
 	StoragePage();
+	virtual ~StoragePage() {}
 
-	
 	void				SetFileIndex(uint32_t fileIndex);
 	uint32_t			GetFileIndex();
 

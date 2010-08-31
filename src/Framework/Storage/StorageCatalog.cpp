@@ -1,5 +1,5 @@
 #include "StorageCatalog.h"
-#include "Common.h"
+#include "System/Common.h"
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -28,7 +28,6 @@ void StorageCatalog::Open(const char* filepath_)
 	struct stat st;
 
 	nextFileIndex = 1;
-	prevCommitFileIndex = nextFileIndex;
 
 	tocFilepath.Write(filepath_);
 	tocFilepath.NullTerminate();
@@ -55,6 +54,7 @@ void StorageCatalog::Open(const char* filepath_)
 	fstat(tocFD, &st);
 	if (st.st_size > 0)
 		ReadTOC(st.st_size);
+	prevCommitFileIndex = nextFileIndex;
 }
 
 void StorageCatalog::Commit(bool flush)
@@ -91,6 +91,8 @@ void StorageCatalog::Close()
 		it->file->Close();
 	}
 	
+	files.DeleteTree();
+	close(recoveryFD);
 	close(tocFD);
 }
 
@@ -239,11 +241,13 @@ void StorageCatalog::PerformRecovery(uint32_t length)
 		if (length < required)
 			goto TruncateLog;
 
+		buffer.SetLength(4);
 		buffer.Allocate(pageSize);
-		// read rest:
+		// TODO: return value
 		if (read(recoveryFD, (void*) (buffer.GetBuffer() + 4), pageSize - 4) < 0)
 			ASSERT_FAIL();
-		
+
+		buffer.SetLength(pageSize);
 		page = new Buffer;
 		page->Write(buffer);
 		pages.Append(page);
@@ -313,17 +317,18 @@ void StorageCatalog::WriteBackPages(InList<Buffer>& pages)
 	{
 		// parse the header part of page and write it
 
-		p = buffer.GetBuffer();
+		p = page->GetBuffer();
 		pageSize = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		fileIndex = FromLittle32(*((uint32_t*) p));
+		assert(fileIndex != 0);
 		p += 4;
 		offset = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		WritePath(filepath, fileIndex);
 		filepath.NullTerminate();
 		fd = open(filepath.GetBuffer(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-		pwrite(fd, buffer.GetBuffer(), pageSize, offset);
+		pwrite(fd, page->GetBuffer(), pageSize, offset);
 		close(fd);
 	}
 }
@@ -336,24 +341,23 @@ void StorageCatalog::DeleteGarbageFiles()
 	Buffer			buffer;
 	unsigned		len, nread;
 	uint32_t		index;
-	FileIndex*		fi;
 	ReadBuffer		firstKey;
 	
 	dir = opendir(".");
 	
 	while ((dirent = readdir(dir)) != NULL)
 	{
+		len = tocFilepath.GetLength() - 1;
 		buffer.Write(dirent->d_name);
-		if (buffer.GetLength() != tocFilepath.GetLength() + 11)
+		if (buffer.GetLength() != len + 11)
 			continue;
-		if (strncmp(tocFilepath.GetBuffer(), buffer.GetBuffer(), tocFilepath.GetLength()) != 0)
+		if (strncmp(tocFilepath.GetBuffer(), buffer.GetBuffer(), len) != 0)
 			continue;
 		p = buffer.GetBuffer();
-		len = tocFilepath.GetLength();
 		if ((p + len)[0] != '.')
 			continue;
 		p += len + 1;
-		len = buffer.GetLength() - len;
+		len = buffer.GetLength() - len - 1;
 		index = (uint32_t) BufferToUInt64(p, len, &nread);
 		if (nread != len)
 			continue;
@@ -425,21 +429,30 @@ void StorageCatalog::WriteRecoveryPrefix()
 		it->file->WriteRecovery(recoveryFD); // only dirty old data pages' buffer is written
 	}
 	
-	if (write(tocFD, (const void *) marker, 4) < 0)
+	if (write(recoveryFD, (const void *) &marker, 4) < 0)
+	{
+		Log_Errno();
 		ASSERT_FAIL();
+	}
 	
-	if (write(tocFD, (const void *) prevCommitFileIndex, 4) < 0)
+	if (write(recoveryFD, (const void *) &prevCommitFileIndex, 4) < 0)
+	{
+		Log_Errno();
 		ASSERT_FAIL();
+	}
 
-	if (write(tocFD, (const void *) marker, 4) < 0)
+	if (write(recoveryFD, (const void *) &marker, 4) < 0)
+	{
+		Log_Errno();
 		ASSERT_FAIL();
+	}
 }
 
 void StorageCatalog::WriteRecoveryPostfix()
 {
 	uint32_t		marker = RECOVERY_MARKER;
 
-	if (write(tocFD, (const void *) marker, 4) < 0)
+	if (write(recoveryFD, (const void *) &marker, 4) < 0)
 		ASSERT_FAIL();
 }
 
@@ -447,18 +460,16 @@ void StorageCatalog::WriteTOC()
 {
 	char*			p;
 	uint32_t		size, len;
+	uint32_t		tmp;
 	FileIndex		*it;
 
 	lseek(tocFD, 0, SEEK_SET);
 	ftruncate(tocFD, 0);
 	
-	buffer.Allocate(4);
-	p = buffer.GetBuffer();
 	len = files.GetCount();
-	*((uint32_t*) p) = ToLittle32(len);
-	p += 4;
-	
-	if (write(tocFD, (const void *) buffer.GetBuffer(), 4) < 0)
+	tmp = ToLittle32(len);
+
+	if (write(tocFD, (const void *) &tmp, 4) < 0)
 		ASSERT_FAIL();
 
 	for (it = files.First(); it != NULL; it = files.Next(it))
@@ -527,6 +538,7 @@ OpenFile:
 	{
 		fi->file = new StorageFile;
 		fi->file->Open(fi->filepath.GetBuffer());
+		fi->file->SetFileIndex(fi->index);
 	}
 	
 	return fi;

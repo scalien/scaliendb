@@ -66,9 +66,13 @@ void StorageFile::Close()
 
 void StorageFile::SetFileIndex(uint32_t fileIndex_)
 {
+	StoragePage*	it;
+	
 	fileIndex = fileIndex_;
-
+	
 	indexPage.SetFileIndex(fileIndex);
+	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
+		it->SetFileIndex(fileIndex);
 }
 
 //bool StorageFile::IsNew()
@@ -266,6 +270,7 @@ void StorageFile::Read()
 
 	indexPage.SetOffset(INDEXPAGE_OFFSET);
 	indexPage.SetPageSize(indexPageSize);
+	indexPage.SetNew(false);
 	indexPage.SetNumDataPageSlots(numDataPageSlots);
 	
 	buffer.Allocate(indexPageSize);
@@ -386,6 +391,7 @@ void StorageFile::LoadDataPage(uint32_t index)
 	dataPages[index] = new StorageDataPage;
 	dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 	dataPages[index]->SetPageSize(dataPageSize);
+	dataPages[index]->SetNew(false);
 	
 //	printf("loading data page at index %u\n", index);
 

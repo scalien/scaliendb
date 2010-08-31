@@ -44,13 +44,14 @@
 #include "System/Stopwatch.h"
 #include "stdio.h"
 #include "System/Containers/InTreeMap.h"
+#include "Test/Test.h"
 
 #include <map>
 #include <stdlib.h>
 #include <stdio.h>
 
 
-int TestMain();
+TEST_DECLARE(TestMain);
 
 int main(int argc, char** argv)
 {
@@ -66,7 +67,10 @@ int main(int argc, char** argv)
 	char*				p;
 	uint64_t			clock;
 
+	Log_SetTarget(LOG_TARGET_STDOUT);
+	//Log_SetTrace(true);
 	StartClock();
+	return TestMain();
 
 	num = 100*1000;
 	ksize = 20;

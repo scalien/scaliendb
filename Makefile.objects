@@ -45,6 +45,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFile.o \
 	$(BUILD_DIR)/Framework/Storage/StorageCatalog.o \
+	$(BUILD_DIR)/Framework/Storage/StoragePage.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Buffers/BufferPool.o \
@@ -63,3 +64,5 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Stopwatch.o \
 	$(BUILD_DIR)/System/ThreadPool_Posix.o \
 	$(BUILD_DIR)/System/Time.o \
+	$(BUILD_DIR)/Test/Test.o \
+

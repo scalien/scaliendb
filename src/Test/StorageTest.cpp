@@ -165,6 +165,7 @@ TEST_DEFINE(TestStorageCapacity)
 
 		sw.Reset();
 		sw.Start();
+		catalog.Commit();
 		catalog.Close();
 		elapsed = sw.Stop();
 		printf("Close() took %ld msec\n", elapsed);
@@ -175,3 +176,4 @@ TEST_DEFINE(TestStorageCapacity)
 	return TEST_SUCCESS;
 }
 
+TEST_MAIN(TestStorage, TestStorageCapacity);
