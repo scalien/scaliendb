@@ -172,3 +172,5 @@ TEST_DEFINE(TestInTreeMap)
 
 	return 0;
 }
+
+TEST_MAIN(TestInTreeMap);

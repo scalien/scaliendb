@@ -3,6 +3,10 @@
 #include "System/StopWatch.h"
 #include "System/Platform.h"
 
+#include <stdint.h>
+#include <stdio.h>
+#include <inttypes.h>
+
 TEST_DEFINE(TestClock)
 {
 	Stopwatch	sw;
@@ -30,7 +34,7 @@ TEST_DEFINE(TestClock)
 		tmp = NowClock();
 		if (tmp != now)
 		{
-			printf("Clock changed from %" PRIu64 " to %" PRIu64 "\n", now, tmp);
+			//printf("Clock changed from %" PRIu64 " to %" PRIu64 "\n", now, tmp);
 			now = tmp;
 		}
 	}

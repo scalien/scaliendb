@@ -123,8 +123,8 @@ TEST_DEFINE(TestStorageCapacity)
 	char*			p;
 	unsigned		round;
 
-	round = 10;
-	num = 100*1000;
+	round = 100;
+	num = 10*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
@@ -141,6 +141,7 @@ TEST_DEFINE(TestStorageCapacity)
 			len = snprintf(p, ksize, "%d", i + r * num);
 			rk.SetBuffer(p);
 			rk.SetLength(len);
+			//printf("%s\n", p);
 			p += ksize;
 			len = snprintf(p, vsize, "%.100f", (float) i + r * num);
 			rv.SetBuffer(p);
