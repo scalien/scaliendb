@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """
 Scalien Test Framework
 
