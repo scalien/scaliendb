@@ -271,6 +271,8 @@ void StorageCatalog::PerformRecovery(uint32_t length)
 	if (marker != RECOVERY_MARKER)
 		goto TruncateLog;
 
+	// done reading prefix part
+
 	required += 4;	
 	if (length < required)
 	{
@@ -292,8 +294,10 @@ void StorageCatalog::PerformRecovery(uint32_t length)
 	}
 
 TruncateLog:
+	for (page = pages.First(); page != NULL; page = pages.Delete(page));
 	lseek(recoveryFD, 0, SEEK_SET);
 	ftruncate(recoveryFD, 0);	
+	sync();	
 	return;
 }
 
@@ -320,9 +324,8 @@ void StorageCatalog::WriteBackPages(InList<Buffer>& pages)
 		filepath.NullTerminate();
 		fd = open(filepath.GetBuffer(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
 		pwrite(fd, buffer.GetBuffer(), pageSize, offset);
+		close(fd);
 	}
-
-	for (page = pages.First(); page != NULL; page = pages.Delete(page));
 }
 
 void StorageCatalog::DeleteGarbageFiles()
@@ -333,7 +336,7 @@ void StorageCatalog::DeleteGarbageFiles()
 	Buffer			buffer;
 	unsigned		len, nread;
 	uint32_t		index;
-	FileIndex*	fi;
+	FileIndex*		fi;
 	ReadBuffer		firstKey;
 	
 	dir = opendir(".");
@@ -403,14 +406,11 @@ void StorageCatalog::RebuildTOC()
 		fi->file->Close();
 		delete fi->file;
 		fi->file = NULL;
-		
 	}
 	
-	WriteTOC();
-	
-	sync();
-	
 	closedir(dir);
+
+	WriteTOC();	
 }
 
 void StorageCatalog::WriteRecoveryPrefix()

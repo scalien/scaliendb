@@ -304,11 +304,9 @@ void StorageFile::WriteRecovery(int recoveryFD)
 			continue;
 		assert(it->buffer.GetLength() == it->GetPageSize());
 		// it->buffer contains the old page
-		if (pwrite(recoveryFD, it->buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
+		if (write(recoveryFD, it->buffer.GetBuffer(), it->GetPageSize()) < 0)
 			ASSERT_FAIL();
-		it->SetNew(false);
 	}
-
 }
 
 void StorageFile::WriteData()
@@ -344,6 +342,7 @@ void StorageFile::WriteData()
 		if (pwrite(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
 			ASSERT_FAIL();
 		it->SetDirty(false);
+		it->SetNew(false);
 	}
 }
 
