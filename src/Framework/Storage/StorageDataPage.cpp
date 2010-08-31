@@ -164,6 +164,8 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		it = next;
 	}
 	
+	assert(IsEmpty() != true);
+	assert(newPage->IsEmpty() != true);
 	return newPage;
 }
 
@@ -243,11 +245,12 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 		kv->value.Wrap(*kv->valueBuffer);
 		
 		p += len;
-//		printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
+		printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
 		keys.Insert(kv);
 	}
 	
 	required = p - buffer.GetBuffer();
+	assert(IsEmpty() != true);
 }
 
 void StorageDataPage::Write(Buffer& buffer)
@@ -280,7 +283,7 @@ void StorageDataPage::Write(Buffer& buffer)
 		p += 4;
 		memcpy(p, it->value.GetBuffer(), len);
 		p += len;
-//		printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
+		printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
 	}
 	
 	buffer.SetLength(required);
@@ -304,7 +307,10 @@ KeyValue::~KeyValue()
 void KeyValue::SetKey(ReadBuffer& key_, bool copy)
 {
 	if (keyBuffer != NULL && !copy)
+	{
 		delete keyBuffer;
+		keyBuffer = NULL;
+	}
 	
 	if (copy)
 	{
@@ -320,7 +326,10 @@ void KeyValue::SetKey(ReadBuffer& key_, bool copy)
 void KeyValue::SetValue(ReadBuffer& value_, bool copy)
 {
 	if (valueBuffer != NULL && !copy)
+	{
 		delete valueBuffer;
+		valueBuffer = NULL;
+	}
 
 	if (copy)
 	{

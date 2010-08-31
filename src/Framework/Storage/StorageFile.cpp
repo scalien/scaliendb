@@ -105,6 +105,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	if (index < 0)
 	{
 		index = 0;
+		assert(numDataPages == 0);
 		assert(dataPages[index] == NULL);
 		dataPages[index] = new StorageDataPage;
 		dataPages[index]->SetFileIndex(fileIndex);
@@ -214,12 +215,14 @@ StorageFile* StorageFile::SplitFile()
 	num = numDataPages;
 	for (index = numDataPageSlots / 2, newIndex = 0; index < num; index++, newIndex++)
 	{
+		assert(dataPages[index]->IsEmpty() != true);
 		newFile->dataPages[newIndex] = dataPages[index];
 		dataPages[index] = NULL;
 		newFile->dataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));
 
 		numDataPages--;
 		newFile->numDataPages++;
+		assert(newFile->numDataPages < newFile->numDataPageSlots);
 
 		indexPage.Remove(newFile->dataPages[newIndex]->FirstKey());
 		newFile->indexPage.Add(newFile->dataPages[newIndex]->FirstKey(), newIndex, true);
@@ -342,7 +345,7 @@ void StorageFile::WriteData()
 	{
 		buffer.Allocate(it->GetPageSize());
  		buffer.Zero();
-//		printf("writing at offset %u\n", it->GetOffset());
+		printf("writing at offset %u\n", it->GetOffset());
 		it->Write(buffer);
 		if (pwrite(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
 			ASSERT_FAIL();
@@ -393,10 +396,10 @@ void StorageFile::LoadDataPage(uint32_t index)
 	dataPages[index]->SetPageSize(dataPageSize);
 	dataPages[index]->SetNew(false);
 	
-//	printf("loading data page at index %u\n", index);
+	printf("loading data page at index %u\n", index);
 
 	buffer.Allocate(dataPageSize);
-//	printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
+	printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
 	length = pread(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
 	if (length < 0)
 		ASSERT_FAIL();
@@ -425,6 +428,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 		newPage = dataPages[index]->SplitDataPage();
 		newPage->SetFileIndex(fileIndex);
 		numDataPages++;
+		assert(numDataPages <= numDataPageSlots);
 		newIndex = indexPage.NextFreeDataPage();
 		newPage->SetOffset(DATAPAGE_OFFSET(newIndex));
 		assert(dataPages[newIndex] == NULL);

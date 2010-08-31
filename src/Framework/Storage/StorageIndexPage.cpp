@@ -180,7 +180,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 		ki->key.SetBuffer(p);
 		p += len;
 		ki->index = FromLittle32(*((uint32_t*) p));
-//		printf("%.*s => %u\n", ki->key.GetLength(), ki->key.GetBuffer(), ki->index);
+		printf("%.*s => %u\n", ki->key.GetLength(), ki->key.GetBuffer(), ki->index);
 		p += 4;
 		keys.Insert(ki);
 		freeDataPages.Remove(ki->index);
@@ -203,11 +203,12 @@ void StorageIndexPage::Write(Buffer& buffer)
 	p += 4;
 	*((uint32_t*) p) = ToLittle32(offset);
 	p += 4;
+	assert(keys.GetCount() <= numDataPageSlots);
 	*((uint32_t*) p) = ToLittle32(keys.GetCount());
 	p += 4;
 	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
-//		printf("writing index: %.*s => %u\n", it->key.GetLength(), it->key.GetBuffer(), it->index);
+		printf("writing index: %.*s => %u\n", it->key.GetLength(), it->key.GetBuffer(), it->index);
 		len = it->key.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
