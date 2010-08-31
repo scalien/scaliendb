@@ -40,10 +40,11 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Replication/ReplicatedLog/ReplicatedLog.o \
 	$(BUILD_DIR)/Framework/Replication/ReplicationManager.o \
 	$(BUILD_DIR)/Framework/Replication/ReplicationTransport.o \
-	$(BUILD_DIR)/Framework/Storage/DataPage.o \
-	$(BUILD_DIR)/Framework/Storage/IndexPage.o \
-	$(BUILD_DIR)/Framework/Storage/File.o \
-	$(BUILD_DIR)/Framework/Storage/Catalog.o \
+	$(BUILD_DIR)/Framework/Storage/StorageCursor.o \
+	$(BUILD_DIR)/Framework/Storage/StorageDataPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageFile.o \
+	$(BUILD_DIR)/Framework/Storage/StorageCatalog.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Buffers/BufferPool.o \

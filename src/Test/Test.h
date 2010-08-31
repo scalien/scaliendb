@@ -42,7 +42,8 @@ extern "C" {
 #endif
 
 
-#define TEST_DECLARE(testfn) extern int testfn();
+#define TEST_DEFINE(testfn) extern "C" int testfn()
+#define TEST_DECLARE(testfn) extern "C" int testfn()
 #define TEST_FAIL() {TEST_LOG("FAILURE!"); return TEST_FAILURE;}
 
 #define TEST_SUCCESS 0

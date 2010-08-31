@@ -2,7 +2,7 @@
 
 #include "Framework/Storage/StorageCatalog.h"
 
-int TestStorage()
+TEST_DEFINE(TestStorage)
 {
 #define PRINT()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
 	StorageCatalog	catalog;
@@ -111,7 +111,7 @@ int TestStorage()
 	return TEST_SUCCESS;
 }
 
-int TestStorageCapacity()
+TEST_DEFINE(TestStorageCapacity)
 {
 	StorageCatalog	catalog;
 	Buffer			k, v;

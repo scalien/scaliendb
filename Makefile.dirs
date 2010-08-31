@@ -1,6 +1,7 @@
 $(BUILD_DIR):
 	-mkdir -p $(BUILD_DIR) \
 		$(BIN_DIR) \
+		$(BUILD_DIR)/Test/ \
 		$(BUILD_DIR)/Application/ \
 		$(BUILD_DIR)/Application/HTTP/ \
 		$(BUILD_DIR)/Application/Controller/ \

@@ -3,7 +3,7 @@
 #include "System/StopWatch.h"
 #include "System/Platform.h"
 
-int TestClock()
+TEST_DEFINE(TestClock)
 {
 	Stopwatch	sw;
 	uint64_t	now;

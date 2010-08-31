@@ -20,7 +20,7 @@ static ReadBuffer& Key(KeyValue* kv)
 	return kv->key;
 }
 
-int TestInTreeMap()
+TEST_DEFINE(TestInTreeMap)
 {
 	InTreeMap<KeyValue>						kvs;
 	ReadBuffer								rb;
