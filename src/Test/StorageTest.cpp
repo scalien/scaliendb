@@ -68,7 +68,7 @@ int TestStorage()
 		if (NowClock() - clock >= 1000)
 		{
 			printf("syncing...\n");
-			catalog.Flush();
+//			catalog.Flush();
 			clock = NowClock();
 		}
 	}

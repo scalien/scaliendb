@@ -163,6 +163,12 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 	buffer.Write(buffer_);
 
 	p = buffer.GetBuffer();
+	pageSize = FromLittle32(*((uint32_t*) p));
+	p += 4;
+	fileIndex = FromLittle32(*((uint32_t*) p));
+	p += 4;
+	offset = FromLittle32(*((uint32_t*) p));
+	p += 4;
 	num = FromLittle32(*((uint32_t*) p));
 	p += 4;
 	for (i = 0; i < num; i++)
@@ -190,6 +196,12 @@ void StorageIndexPage::Write(Buffer& buffer)
 	unsigned	len;
 
 	p = buffer.GetBuffer();
+	*((uint32_t*) p) = ToLittle32(pageSize);
+	p += 4;
+	*((uint32_t*) p) = ToLittle32(fileIndex);
+	p += 4;
+	*((uint32_t*) p) = ToLittle32(offset);
+	p += 4;
 	*((uint32_t*) p) = ToLittle32(keys.GetCount());
 	p += 4;
 	for (it = keys.First(); it != NULL; it = keys.Next(it))

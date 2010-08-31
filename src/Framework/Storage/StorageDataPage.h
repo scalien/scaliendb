@@ -11,7 +11,7 @@
 
 class StorageCursor; // forward
 
-#define DATAPAGE_FIX_OVERHEAD		4
+#define DATAPAGE_FIX_OVERHEAD		16
 #define DATAPAGE_KV_OVERHEAD		8
 #define DATAPAGE_MAX_KV_SIZE(s)		((s) - (DATAPAGE_FIX_OVERHEAD + DATAPAGE_KV_OVERHEAD))
 
@@ -81,7 +81,6 @@ public:
 	void					Write(Buffer& buffer);
 
 private:
-	Buffer					buffer;
 	uint32_t				required;
 	InTreeMap<KeyValue>		keys;
 	InList<StorageCursor>	cursors;

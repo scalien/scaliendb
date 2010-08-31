@@ -57,16 +57,24 @@ void StorageFile::Open(char* filepath_)
 		Read();
 }
 
-void StorageFile::Flush()
-{
-}
-
 void StorageFile::Close()
 {
 	close(fd);
 	
 	fd = -1;
 }
+
+void StorageFile::SetFileIndex(uint32_t fileIndex_)
+{
+	fileIndex = fileIndex_;
+
+	indexPage.SetFileIndex(fileIndex);
+}
+
+//bool StorageFile::IsNew()
+//{
+//	return newFile;
+//}
 
 bool StorageFile::Get(ReadBuffer& key, ReadBuffer& value)
 {
@@ -95,6 +103,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		index = 0;
 		assert(dataPages[index] == NULL);
 		dataPages[index] = new StorageDataPage;
+		dataPages[index]->SetFileIndex(fileIndex);
 		dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 		dataPages[index]->SetPageSize(dataPageSize);
 		numDataPages++;
@@ -284,7 +293,25 @@ void StorageFile::ReadRest()
 			LoadDataPage(it->index);
 }
 
-void StorageFile::Write(bool flush)
+void StorageFile::WriteRecovery(int recoveryFD)
+{
+	StoragePage*	it;
+
+	// TODO: write these in offset order
+	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
+	{
+		if (it->IsNew())
+			continue;
+		assert(it->buffer.GetLength() == it->GetPageSize());
+		// it->buffer contains the old page
+		if (pwrite(recoveryFD, it->buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
+			ASSERT_FAIL();
+		it->SetNew(false);
+	}
+
+}
+
+void StorageFile::WriteData()
 {
 	Buffer			buffer;
 	StoragePage*	it;
@@ -303,6 +330,8 @@ void StorageFile::Write(bool flush)
 		
 		if (pwrite(fd, (const void *) buffer.GetBuffer(), 12, 0) < 0)
 			ASSERT_FAIL();
+		
+		newFile = false;
 	}
 	
 	// TODO: write these in offset order
@@ -316,9 +345,6 @@ void StorageFile::Write(bool flush)
 			ASSERT_FAIL();
 		it->SetDirty(false);
 	}
-	
-	if (flush)
-		Flush();
 }
 
 StorageDataPage* StorageFile::CursorBegin(ReadBuffer& key, Buffer& nextKey)
@@ -392,6 +418,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 	{
 		// make a copy of data
 		newPage = dataPages[index]->SplitDataPage();
+		newPage->SetFileIndex(fileIndex);
 		numDataPages++;
 		newIndex = indexPage.NextFreeDataPage();
 		newPage->SetOffset(DATAPAGE_OFFSET(newIndex));
@@ -400,16 +427,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 		indexPage.Add(newPage->FirstKey(), newIndex, true); // TODO
 //			if (newPage->MustSplit())
 //			{
-//				if (numDataPages < numDataPageSlots)
-//				{
-//					newPage = newPage->Split();
-//					assert(newPage->MustSplit() == false);
-// TOOD
-//					newIndex = indexPage.NextFreeDataPage();
-//					indexPage.Add(newPage->FirstKey(), newIndex, true);
-//				}
-//				else
-//					mustSplit = true;
+//				TODO
 //			}
 	}
 	else

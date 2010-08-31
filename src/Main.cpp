@@ -153,6 +153,7 @@ int main(int argc, char** argv)
 	
 	sw.Reset();
 	sw.Start();
+	catalog.Commit();
 	catalog.Close();
 	elapsed = sw.Stop();
 	printf("Close() took %ld msec\n", elapsed);

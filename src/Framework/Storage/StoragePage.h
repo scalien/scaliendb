@@ -15,27 +15,39 @@
 class StoragePage
 {
 public:
-	StoragePage()			{ dirty = false; prev = next = this; }
-	virtual void			Read(ReadBuffer& buffer)	= 0;
-	virtual void			Write(Buffer& buffer)		= 0;
+	StoragePage();
 
-	void					SetDirty(bool dirty_) { dirty = dirty_; }
-	bool					IsDirty() { return dirty; }
+	
+	void				SetFileIndex(uint32_t fileIndex);
+	uint32_t			GetFileIndex();
 
-	void					SetPageSize(uint32_t pageSize_) { pageSize = pageSize_; }
-	uint32_t				GetPageSize() { return pageSize; }
+	void				SetOffset(uint32_t offset);
+	uint32_t			GetOffset();
 
-	void					SetOffset(uint32_t offset_) { offset = offset_; }
-	uint32_t				GetOffset() { return offset; }
+	void				SetPageSize(uint32_t pageSize);
+	uint32_t			GetPageSize();
 
-	StoragePage*			prev;
-	StoragePage*			next;
+	void				SetDirty(bool dirty);
+	bool				IsDirty();
+	
+	void				SetNew(bool n);
+	bool				IsNew();
+
+	virtual void		Read(ReadBuffer& buffer)	= 0;
+	virtual void		Write(Buffer& buffer)		= 0;
+
+	StoragePage*		prev;
+	StoragePage*		next;
+
+	Buffer				buffer;
 
 protected:
 
-	bool					dirty;
-	uint32_t				pageSize;
-	uint32_t				offset;
+	uint32_t			fileIndex;
+	uint32_t			offset;
+	uint32_t			pageSize;
+	bool				dirty;
+	bool				newPage;
 };
 
 #endif

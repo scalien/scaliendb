@@ -211,8 +211,13 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 	buffer.Write(buffer_);
 	
 	p = buffer.GetBuffer();
+	pageSize = FromLittle32(*((uint32_t*) p));
+	p += 4;
+	fileIndex = FromLittle32(*((uint32_t*) p));
+	p += 4;
+	offset = FromLittle32(*((uint32_t*) p));
+	p += 4;
 	num = FromLittle32(*((uint32_t*) p));
-//	printf("has %u keys\n", num);
 	p += 4;
 	for (i = 0; i < num; i++)
 	{
@@ -242,9 +247,14 @@ void StorageDataPage::Write(Buffer& buffer)
 	uint32_t	num;
 
 	p = buffer.GetBuffer();
+	*((uint32_t*) p) = ToLittle32(pageSize);
+	p += 4;
+	*((uint32_t*) p) = ToLittle32(fileIndex);
+	p += 4;
+	*((uint32_t*) p) = ToLittle32(offset);
+	p += 4;
 	num = keys.GetCount();
 	*((uint32_t*) p) = ToLittle32(num);
-//	printf("has %u keys\n", num);
 	p += 4;
 	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{

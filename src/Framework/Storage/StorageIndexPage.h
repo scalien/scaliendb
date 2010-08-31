@@ -12,7 +12,7 @@
 class KeyIndex; // forward
 class StorageFile;		// forward
 
-#define INDEXPAGE_FIX_OVERHEAD		4
+#define INDEXPAGE_FIX_OVERHEAD		16
 #define INDEXPAGE_KV_OVERHEAD		8
 
 
@@ -78,7 +78,6 @@ public:
 	void					Write(Buffer& buffer);
 	
 private:
-	Buffer					buffer;
 	uint32_t				numDataPageSlots;
 	uint32_t				required;
 	InTreeMap<KeyIndex>		keys;
