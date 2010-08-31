@@ -18,7 +18,7 @@ public:
 	FileIndex();
 	~FileIndex();
 	
-	void					SetKey(ReadBuffer& key, bool copy);
+	void					SetKey(ReadBuffer key, bool copy);
 
 	Buffer					filepath;
 	StorageFile*			file;
@@ -49,7 +49,7 @@ public:
 	~StorageCatalog();
 	
 	void					Open(const char* filepath);
-	void					Flush();
+	void					Commit(bool flush = true);
 	void					Close();
 	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
@@ -58,16 +58,26 @@ public:
 
 private:
 	void					WritePath(Buffer& buffer, uint32_t index);
-	void					Read(uint32_t length);
-	void					Write(bool flush);
+	void					ReadTOC(uint32_t length);
+	void					PerformRecovery(uint32_t length);
+	void					WriteBackPages(InList<Buffer>& pages);
+	void					DeleteGarbageFiles();
+	void					RebuildTOC();
+	void					WriteRecoveryPrefix();
+	void					WriteRecoveryPostfix();
+	void					WriteTOC();
+	void					WriteData();	
 	FileIndex*				Locate(ReadBuffer& key);
 	void					SplitFile(StorageFile* file);
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
 	
-	int						fd;
+	int						tocFD;
+	int						recoveryFD;
+	uint32_t				prevCommitFileIndex;
 	uint32_t				nextFileIndex;
-	Buffer					filepath;
+	Buffer					tocFilepath;
+	Buffer					recoveryFilepath;
 	Buffer					buffer;
 	InTreeMap<FileIndex>	files;
 	

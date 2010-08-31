@@ -28,8 +28,11 @@ public:
 	~StorageFile();
 	
 	void					Open(char* filepath);
-	void					Flush();
 	void					Close();
+	
+	void					SetFileIndex(uint32_t fileIndex);
+
+//	bool					IsNew();
 	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
@@ -43,7 +46,8 @@ public:
 
 	void					Read();
 	void					ReadRest();
-	void					Write(bool flush);
+	void					WriteRecovery(int recoveryFD);
+	void					WriteData();
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
 
@@ -57,6 +61,7 @@ private:
 	void					CopyDataPage(uint32_t index);
 	
 	int						fd;
+	uint32_t				fileIndex;
 	uint32_t				indexPageSize;
 	uint32_t				dataPageSize;
 	uint32_t				numDataPageSlots;
