@@ -120,7 +120,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		rb = dataPages[index]->FirstKey();
 		if (ReadBuffer::LessThan(key, rb))
 		{
-			printf("Changing index entry for %u to %.*s", index, P(&key));
+//			printf("Changing index entry for %u to %.*s", index, P(&key));
 			indexPage.Update(key, index, true);
 			MarkPageDirty(&indexPage);
 		}
@@ -345,7 +345,7 @@ void StorageFile::WriteData()
 	{
 		buffer.Allocate(it->GetPageSize());
  		buffer.Zero();
-		printf("writing at offset %u\n", it->GetOffset());
+//		printf("writing file %s at offset %u\n", filepath.GetBuffer(), it->GetOffset());
 		it->Write(buffer);
 		if (pwrite(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
 			ASSERT_FAIL();
@@ -396,10 +396,10 @@ void StorageFile::LoadDataPage(uint32_t index)
 	dataPages[index]->SetPageSize(dataPageSize);
 	dataPages[index]->SetNew(false);
 	
-	printf("loading data page at index %u\n", index);
+//	printf("loading data page from %s at index %u\n", filepath.GetBuffer(), index);
 
 	buffer.Allocate(dataPageSize);
-	printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
+//	printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
 	length = pread(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
 	if (length < 0)
 		ASSERT_FAIL();
@@ -434,6 +434,9 @@ void StorageFile::SplitDataPage(uint32_t index)
 		assert(dataPages[newIndex] == NULL);
 		dataPages[newIndex] = newPage;
 		indexPage.Add(newPage->FirstKey(), newIndex, true); // TODO
+		assert(dataPages[index]->IsDirty() == true);
+		assert(newPage->IsDirty() == false);
+		MarkPageDirty(newPage);
 //			if (newPage->MustSplit())
 //			{
 //				TODO

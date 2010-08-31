@@ -245,7 +245,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 		kv->value.Wrap(*kv->valueBuffer);
 		
 		p += len;
-		printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
+//		printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
 		keys.Insert(kv);
 	}
 	
@@ -261,11 +261,13 @@ void StorageDataPage::Write(Buffer& buffer)
 	uint32_t	num;
 
 	p = buffer.GetBuffer();
+	assert(pageSize > 0);
 	*((uint32_t*) p) = ToLittle32(pageSize);
 	p += 4;
 	assert(fileIndex != 0);
 	*((uint32_t*) p) = ToLittle32(fileIndex);
 	p += 4;
+	assert(pageSize != 0);
 	*((uint32_t*) p) = ToLittle32(offset);
 	p += 4;
 	num = keys.GetCount();
@@ -283,7 +285,7 @@ void StorageDataPage::Write(Buffer& buffer)
 		p += 4;
 		memcpy(p, it->value.GetBuffer(), len);
 		p += len;
-		printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
+//		printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
 	}
 	
 	buffer.SetLength(required);
