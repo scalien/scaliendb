@@ -15,6 +15,10 @@
 extern "C" {
 #endif
 
+#ifndef TEST_NAME
+#define TEST_NAME __FILE__
+#endif
+
 // NOTE the token-paste operator (##) behaves specially with __VA_ARGS__ after commas
 #define TEST_LOG(fmt, ...) {printf("%s:%d: " fmt "\n", __func__, __LINE__, ##__VA_ARGS__);}
 #define TEST(testfn) test((testfn_t) testfn, #testfn)
@@ -30,13 +34,14 @@ extern "C" {
 		for (u = 0; u < sizeof(test_functions) / sizeof(void *); u++) { \
 			ret += test_time(test_functions[u], (const char *) &test_names[names[u]]); \
 		} \
-		return test_eval(__FILE__, ret); \
+		return test_eval(TEST_NAME, ret); \
 
 #ifdef TEST_FILE
 #define TEST_MAIN(...) \
 	int main(int, char **) { \
 		TEST_RUN(__VA_ARGS__); \
-	} 
+	}																																																																																																											
+#undef TEST_FILE
 #else
 #define TEST_MAIN(...)
 #endif
