@@ -1,10 +1,8 @@
 #include "StorageTable.h"
 #include "System/Common.h"
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
+#include "System/FileSystem.h"
+
 #include <stdio.h>
-#include <dirent.h>
 
 #define	RECOVERY_MARKER		0		// special as it's an illegal fileIndex
 
@@ -25,8 +23,9 @@ StorageTable::~StorageTable()
 
 void StorageTable::Open(const char* name)
 {
-	struct stat st;
-
+	int64_t	recoverySize;
+	int64_t	tocSize;
+	
 	nextStorageFileIndex = 1;
 
 	this->name.Write(name);
@@ -39,24 +38,24 @@ void StorageTable::Open(const char* name)
 	recoveryFilepath.Append(".recovery");
 	recoveryFilepath.NullTerminate();
 
-	tocFD = open(tocFilepath.GetBuffer(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	tocFD = FS_Open(tocFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
 	if (tocFD < 0)
 		ASSERT_FAIL();
 
-	recoveryFD = open(recoveryFilepath.GetBuffer(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	recoveryFD = FS_Open(recoveryFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
 	if (recoveryFD < 0)
 		ASSERT_FAIL();
 
-	fstat(recoveryFD, &st);
-	if (st.st_size > 0)
+	recoverySize = FS_FileSize(recoveryFD);
+	if (recoverySize > 0)
 	{
-		PerformRecovery(st.st_size);
+		PerformRecovery(recoverySize);
 		return;
 	}
 	
-	fstat(tocFD, &st);
-	if (st.st_size > 0)
-		ReadTOC(st.st_size);
+	tocSize = FS_FileSize(tocFD);
+	if (tocSize > 0)
+		ReadTOC(tocSize);
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
@@ -66,19 +65,19 @@ void StorageTable::Commit(bool flush)
 
 	// to make sure the recovery (prefix) part is written
 	if (flush)
-		sync();
+		FS_Sync();
 
 	WriteTOC();
 	WriteData();
 
 	// to make sure the data is written before we mark it such in the recovery postfix
 	if (flush)
-		sync();
+		FS_Sync();
 
 	WriteRecoveryPostfix();
 	
-	lseek(recoveryFD, 0, SEEK_SET);
-	ftruncate(recoveryFD, 0);
+	FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
+	FS_FileTruncate(recoveryFD, 0);
 
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
@@ -95,10 +94,10 @@ void StorageTable::Close()
 	}
 	
 	files.DeleteTree();
-	close(recoveryFD);
-	close(tocFD);
+	FS_FileClose(recoveryFD);
+	FS_FileClose(tocFD);
 	
-	::Delete(recoveryFilepath.GetBuffer());
+	FS_Delete(recoveryFilepath.GetBuffer());
 }
 
 const char*	StorageTable::GetName()
@@ -170,7 +169,7 @@ void StorageTable::Delete(ReadBuffer& key)
 	if (fi->file->IsEmpty())
 	{
 		fi->file->Close();
-		unlink(fi->filepath.GetBuffer());
+		FS_Delete(fi->filepath.GetBuffer());
 		files.Remove(fi);
 		delete fi;
 	}
@@ -201,7 +200,7 @@ void StorageTable::ReadTOC(uint32_t length)
 	StorageFileIndex*	fi;
 	
 	buffer.Allocate(length);
-	if (read(tocFD, (void*) buffer.GetBuffer(), length) < 0)
+	if (FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length) < 0)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
 	numFiles = FromLittle32(*((uint32_t*) p));
@@ -237,7 +236,7 @@ void StorageTable::PerformRecovery(uint32_t length)
 		required += 4;
 		if (length < required)
 			goto TruncateLog;
-		if (read(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+		if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
 			ASSERT_FAIL();
 		p = buffer.GetBuffer();
 		marker = FromLittle32(*((uint32_t*) p));
@@ -254,7 +253,7 @@ void StorageTable::PerformRecovery(uint32_t length)
 		buffer.SetLength(4);
 		buffer.Allocate(pageSize);
 		// TODO: return value
-		if (read(recoveryFD, (void*) (buffer.GetBuffer() + 4), pageSize - 4) < 0)
+		if (FS_FileRead(recoveryFD, (void*) (buffer.GetBuffer() + 4), pageSize - 4) < 0)
 			ASSERT_FAIL();
 
 		buffer.SetLength(pageSize);
@@ -270,7 +269,7 @@ void StorageTable::PerformRecovery(uint32_t length)
 	if (length < required)
 		goto TruncateLog;
 
-	if (read(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+	if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
 	prevCommitStorageFileIndex = FromLittle32(*((uint32_t*) p));
@@ -278,7 +277,7 @@ void StorageTable::PerformRecovery(uint32_t length)
 	required += 4;	
 	if (length < required)
 		goto TruncateLog;
-	if (read(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+	if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
 	marker = FromLittle32(*((uint32_t*) p));
@@ -295,7 +294,7 @@ void StorageTable::PerformRecovery(uint32_t length)
 		RebuildTOC();
 		goto TruncateLog;
 	}
-	if (read(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+	if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
 	marker = FromLittle32(*((uint32_t*) p));
@@ -337,28 +336,28 @@ void StorageTable::WriteBackPages(InList<Buffer>& pages)
 		p += 4;
 		WritePath(filepath, fileIndex);
 		filepath.NullTerminate();
-		fd = open(filepath.GetBuffer(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
-		pwrite(fd, page->GetBuffer(), pageSize, offset);
-		close(fd);
+		fd = FS_Open(filepath.GetBuffer(), FS_READWRITE | FS_CREATE);
+		FS_FileWriteOffs(fd, page->GetBuffer(), pageSize, offset);
+		FS_FileClose(fd);
 	}
 }
 
 void StorageTable::DeleteGarbageFiles()
 {
 	char*			p;
-	DIR*			dir;
-	struct dirent*	dirent;
+	FS_Dir			dir;
+	FS_DirEntry		dirent;
 	Buffer			buffer;
 	unsigned		len, nread;
 	uint32_t		index;
 	ReadBuffer		firstKey;
 	
-	dir = opendir(".");
+	dir = FS_OpenDir(".");
 	
-	while ((dirent = readdir(dir)) != NULL)
+	while ((dirent = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
 	{
 		len = tocFilepath.GetLength() - 1;
-		buffer.Write(dirent->d_name);
+		buffer.Write(FS_DirEntryName(dirent));
 		if (buffer.GetLength() != len + 11)
 			continue;
 		if (strncmp(tocFilepath.GetBuffer(), buffer.GetBuffer(), len) != 0)
@@ -372,29 +371,28 @@ void StorageTable::DeleteGarbageFiles()
 		if (nread != len)
 			continue;
 		if (index >= prevCommitStorageFileIndex)
-		{
-			::Delete(dirent->d_name);
-		}
+			FS_Delete(FS_DirEntryName(dirent));
 	}
-	closedir(dir);
+
+	FS_CloseDir(dir);
 }
 
 void StorageTable::RebuildTOC()
 {
 	char*			p;
-	DIR*			dir;
-	struct dirent*	dirent;
+	FS_Dir			dir;
+	FS_DirEntry		dirent;
 	Buffer			buffer;
 	unsigned		len, nread;
 	uint32_t		index;
 	StorageFileIndex*	fi;
 	ReadBuffer		firstKey;
 	
-	dir = opendir(".");
+	dir = FS_OpenDir(".");
 	
-	while ((dirent = readdir(dir)) != NULL)
+	while ((dirent = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
 	{
-		buffer.Write(dirent->d_name);
+		buffer.Write(FS_DirEntryName(dirent));
 		if (buffer.GetLength() != tocFilepath.GetLength() + 11)
 			continue;
 		if (strncmp(tocFilepath.GetBuffer(), buffer.GetBuffer(), tocFilepath.GetLength()) != 0)
@@ -410,10 +408,10 @@ void StorageTable::RebuildTOC()
 			continue;
 		fi = new StorageFileIndex;
 		fi->file = new StorageFile;
-		fi->file->Open(dirent->d_name);
+		fi->file->Open(FS_DirEntryName(dirent));
 		if (fi->file->IsEmpty())
 		{
-			::Delete(dirent->d_name);
+			FS_Delete(FS_DirEntryName(dirent));
 			continue;
 		}
 		fi->SetKey(fi->file->FirstKey(), true);
@@ -422,7 +420,7 @@ void StorageTable::RebuildTOC()
 		fi->file = NULL;
 	}
 	
-	closedir(dir);
+	FS_CloseDir(dir);
 
 	WriteTOC();	
 }
@@ -439,19 +437,19 @@ void StorageTable::WriteRecoveryPrefix()
 		it->file->WriteRecovery(recoveryFD); // only dirty old data pages' buffer is written
 	}
 	
-	if (write(recoveryFD, (const void *) &marker, 4) < 0)
+	if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
 	{
 		Log_Errno();
 		ASSERT_FAIL();
 	}
 	
-	if (write(recoveryFD, (const void *) &prevCommitStorageFileIndex, 4) < 0)
+	if (FS_FileWrite(recoveryFD, (const void *) &prevCommitStorageFileIndex, 4) < 0)
 	{
 		Log_Errno();
 		ASSERT_FAIL();
 	}
 
-	if (write(recoveryFD, (const void *) &marker, 4) < 0)
+	if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
 	{
 		Log_Errno();
 		ASSERT_FAIL();
@@ -462,7 +460,7 @@ void StorageTable::WriteRecoveryPostfix()
 {
 	uint32_t		marker = RECOVERY_MARKER;
 
-	if (write(recoveryFD, (const void *) &marker, 4) < 0)
+	if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
 		ASSERT_FAIL();
 }
 
@@ -479,7 +477,7 @@ void StorageTable::WriteTOC()
 	len = files.GetCount();
 	tmp = ToLittle32(len);
 
-	if (write(tocFD, (const void *) &tmp, 4) < 0)
+	if (FS_FileWrite(tocFD, (const void *) &tmp, 4) < 0)
 		ASSERT_FAIL();
 
 	for (it = files.First(); it != NULL; it = files.Next(it))
@@ -494,7 +492,7 @@ void StorageTable::WriteTOC()
 		p += 4;
 		memcpy(p, it->key.GetBuffer(), len);
 		p += len;
-		if (write(tocFD, (const void *) buffer.GetBuffer(), size) < 0)
+		if (FS_FileWrite(tocFD, (const void *) buffer.GetBuffer(), size) < 0)
 			ASSERT_FAIL();
 	}
 }
@@ -638,8 +636,8 @@ void StorageTable::CommitPhase3()
 {
 	WriteRecoveryPostfix();
 	
-	lseek(recoveryFD, 0, SEEK_SET);
-	ftruncate(recoveryFD, 0);
+	FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
+	FS_FileTruncate(recoveryFD, 0);
 
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }

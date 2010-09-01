@@ -1,6 +1,7 @@
 #ifndef STORAGEFILE_H
 #define STORAGEFILE_H
 
+#include "System/IO/FD.h"
 #include "StorageDefaults.h"
 #include "StorageIndexPage.h"
 #include "StorageDataPage.h"
@@ -21,7 +22,7 @@ public:
 	StorageFile();
 	~StorageFile();
 	
-	void					Open(char* filepath);
+	void					Open(const char* filepath);
 	void					Close();
 	
 	void					SetStorageFileIndex(uint32_t fileIndex);
@@ -54,7 +55,7 @@ private:
 	void					ReorderFile();
 	void					CopyDataPage(uint32_t index);
 	
-	int						fd;
+	FD						fd;
 	uint32_t				fileIndex;
 	uint32_t				indexPageSize;
 	uint32_t				dataPageSize;

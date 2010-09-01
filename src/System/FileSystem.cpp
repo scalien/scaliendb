@@ -85,7 +85,27 @@ int64_t FS_FileSize(FD fd)
 	return buf.st_size;
 }
 
-ssize_t	FS_FileWrite(FD fd, const void* buf, size_t count, uint64_t offset)
+ssize_t	FS_FileWrite(FD fd, const void* buf, size_t count)
+{
+	ssize_t	ret;
+	
+	ret = write(fd, buf, count);
+	if (ret < 0)
+		Log_Errno();
+	return ret;
+}
+
+ssize_t FS_FileRead(FD fd, void* buf, size_t count)
+{
+	ssize_t	ret;
+	
+	ret = read(fd, buf, count);
+	if (ret < 0)
+		Log_Errno();
+	return ret;
+}
+
+ssize_t	FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
 {
 	ssize_t	ret;
 	
@@ -95,7 +115,7 @@ ssize_t	FS_FileWrite(FD fd, const void* buf, size_t count, uint64_t offset)
 	return ret;
 }
 
-ssize_t FS_FileRead(FD fd, void* buf, size_t count, uint64_t offset)
+ssize_t FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset)
 {
 	ssize_t	ret;
 	
@@ -173,6 +193,11 @@ bool FS_DeleteDir(const char* filename)
 	return true;
 }
 
+const char*	FS_DirEntryName(FS_DirEntry dirent)
+{
+	return ((struct dirent*) dirent)->d_name;
+}
+
 bool FS_IsDirectory(const char* path)
 {
 	struct stat s;
@@ -191,6 +216,11 @@ int64_t	FS_FreeDiskSpace(const char* path)
 		return -1;
 	
 	return ((int64_t) sv.f_bavail * sv.f_frsize);
+}
+
+void FS_Sync()
+{
+	sync();
 }
 
 #else

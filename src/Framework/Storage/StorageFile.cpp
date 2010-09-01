@@ -1,8 +1,5 @@
 #include "StorageFile.h"
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-#include <stdio.h> // REMOVE
+#include "System/FileSystem.h"
 
 #define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
 
@@ -55,26 +52,23 @@ StorageFile::~StorageFile()
 	free(dataPages);
 }
 
-void StorageFile::Open(char* filepath_)
+void StorageFile::Open(const char* filepath_)
 {
-	struct stat st;
-
 	filepath.Write(filepath_);
 	filepath.NullTerminate();
 
-	fd = open(filepath.GetBuffer(), O_RDWR | O_CREAT, S_IRUSR | S_IWUSR);
+	fd = FS_Open(filepath.GetBuffer(), FS_READWRITE | FS_CREATE);
 
-	if (fd < 0)
+	if (fd == INVALID_FD)
 		ASSERT_FAIL();
 
-	fstat(fd, &st);
-	if (st.st_size > 0)
+	if (FS_FileSize(fd) > 0)
 		Read();
 }
 
 void StorageFile::Close()
 {
-	close(fd);
+	FS_FileClose(fd);
 	
 	fd = -1;
 }
@@ -276,7 +270,7 @@ void StorageFile::Read()
 	newFile = false;
 
 	buffer.Allocate(12);
-	if (pread(fd, (void*) buffer.GetBuffer(), 12, 0) < 0)
+	if (FS_FileReadOffs(fd, (void*) buffer.GetBuffer(), 12, 0) < 0)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
 	indexPageSize = FromLittle32(*((uint32_t*) p));
@@ -292,7 +286,7 @@ void StorageFile::Read()
 	indexPage.SetNumDataPageSlots(numDataPageSlots);
 	
 	buffer.Allocate(indexPageSize);
-	length = pread(fd, (void*) buffer.GetBuffer(), indexPageSize, INDEXPAGE_OFFSET);
+	length = FS_FileReadOffs(fd, (void*) buffer.GetBuffer(), indexPageSize, INDEXPAGE_OFFSET);
 	if (length < 0)
 		ASSERT_FAIL();
 	buffer.SetLength(length);
@@ -326,12 +320,12 @@ void StorageFile::WriteRecovery(int recoveryFD)
 			continue;
 		assert(it->buffer.GetLength() <= it->GetPageSize());
 		// it->buffer contains the old page
-		if (write(recoveryFD, it->buffer.GetBuffer(), it->buffer.GetLength()) < 0)
+		if (FS_FileWrite(recoveryFD, it->buffer.GetBuffer(), it->buffer.GetLength()) < 0)
 		{
 			Log_Errno();
 			ASSERT_FAIL();
 		}
-		lseek(recoveryFD, it->GetPageSize() - it->buffer.GetLength(), SEEK_CUR);
+		FS_FileSeek(recoveryFD, it->GetPageSize() - it->buffer.GetLength(), FS_SEEK_CUR);
 	}
 }
 
@@ -352,7 +346,7 @@ void StorageFile::WriteData()
 		*((uint32_t*) p) = ToLittle32(numDataPageSlots);
 		p += 4;
 		
-		if (pwrite(fd, (const void *) buffer.GetBuffer(), 12, 0) < 0)
+		if (FS_FileWriteOffs(fd, (const void *) buffer.GetBuffer(), 12, 0) < 0)
 			ASSERT_FAIL();
 		
 		newFile = false;
@@ -364,7 +358,7 @@ void StorageFile::WriteData()
  		buffer.Zero();
 //		printf("writing file %s at offset %u\n", filepath.GetBuffer(), it->GetOffset());
 		it->Write(buffer);
-		if (pwrite(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
+		if (FS_FileWriteOffs(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
 			ASSERT_FAIL();
 		it->SetDirty(false);
 		it->SetNew(false);
@@ -417,7 +411,7 @@ void StorageFile::LoadDataPage(uint32_t index)
 
 	buffer.Allocate(dataPageSize);
 //	printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
-	length = pread(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
+	length = FS_FileReadOffs(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
 	if (length < 0)
 		ASSERT_FAIL();
 	buffer.SetLength(length);

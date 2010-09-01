@@ -1,6 +1,7 @@
 #ifndef STORAGETABLE_H
 #define STORAGETABLE_H
 
+#include "System/IO/FD.h"
 #include "System/Containers/InTreeMap.h"
 #include "StorageFile.h"
 #include "StorageCursor.h"
@@ -56,8 +57,8 @@ private:
 	void					CommitPhase2();
 	void					CommitPhase3();
 	
-	int						tocFD;
-	int						recoveryFD;
+	FD						tocFD;
+	FD						recoveryFD;
 	uint32_t				prevCommitStorageFileIndex;
 	uint32_t				nextStorageFileIndex;
 	Buffer					name;
