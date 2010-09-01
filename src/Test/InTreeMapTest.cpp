@@ -100,19 +100,19 @@ TEST_DEFINE(TestInTreeMap)
 	printf("iteration time: %ld\n", sw.Elapsed());
 
 
-	sw.Reset();
-	sw.Start();
-	//for (unsigned u = 0; u < num; u++)
-	for (unsigned u = num - 1; u < num; u--)
-	{
-		buf.Writef("%u", u);
-		rb.Wrap(buf);
-		kv = kvs.Remove<ReadBuffer&>(rb);
-		if (kv == NULL)
-			TEST_FAIL();
-	}
-	sw.Stop();		
-	printf("delete time: %ld\n", sw.Elapsed());
+//	sw.Reset();
+//	sw.Start();
+//	//for (unsigned u = 0; u < num; u++)
+//	for (unsigned u = num - 1; u < num; u--)
+//	{
+//		buf.Writef("%u", u);
+//		rb.Wrap(buf);
+//		kv = kvs.Remove<ReadBuffer&>(rb);
+//		if (kv == NULL)
+//			TEST_FAIL();
+//	}
+//	sw.Stop();		
+//	printf("delete time: %ld\n", sw.Elapsed());
 
 	sw.Reset();
 	sw.Start();

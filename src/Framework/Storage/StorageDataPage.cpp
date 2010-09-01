@@ -65,9 +65,10 @@ void StorageDataPage::Delete(ReadBuffer& key)
 {
 	KeyValue*	it;
 
-	it = keys.Remove<ReadBuffer&>(key);
+	it = keys.Get<ReadBuffer&>(key);
 	if (it)
 	{
+		keys.Remove(it);
 		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
 		delete it;
 	}

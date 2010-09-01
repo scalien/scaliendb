@@ -76,7 +76,7 @@ private:
 	StorageIndexPage		indexPage;
 	StorageDataPage**		dataPages;
 	uint32_t				numDataPages;
-	InList<StoragePage>		dirtyPages;
+	InTreeMap<StoragePage>	dirtyPages;
 };
 
 #endif

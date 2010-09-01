@@ -4,7 +4,6 @@ StoragePage::StoragePage()
 {
 	dirty = false;
 	newPage = true;
-	prev = next = this;
 }
 
 void StoragePage::SetFileIndex(uint32_t fileIndex_)

@@ -6,6 +6,21 @@
 
 #define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
 
+static int KeyCmp(const uint32_t a, const uint32_t b)
+{
+	if (a < b)
+		return -1;
+	else if (a > b)
+		return 1;
+	else
+		return 0;		
+}
+
+static uint32_t Key(StoragePage* page)
+{
+	return page->GetOffset();
+}
+
 StorageFile::StorageFile()
 {
 	uint32_t i;
@@ -340,7 +355,6 @@ void StorageFile::WriteData()
 		newFile = false;
 	}
 	
-	// TODO: write these in offset order
 	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Remove(it))
 	{
 		buffer.Allocate(it->GetPageSize());
@@ -413,7 +427,7 @@ void StorageFile::MarkPageDirty(StoragePage* page)
 	if (!page->IsDirty())
 	{
 		page->SetDirty(true);
-		dirtyPages.Append(page);
+		dirtyPages.Insert(page);
 	}
 }
 

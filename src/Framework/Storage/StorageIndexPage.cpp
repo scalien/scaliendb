@@ -77,10 +77,11 @@ void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 void StorageIndexPage::Remove(ReadBuffer key)
 {
 	KeyIndex*	it;
-	
-	it = keys.Remove<ReadBuffer&>(key);
+
+	it = keys.Get<ReadBuffer&>(key);
 	if (!it)
 		ASSERT_FAIL();
+	keys.Remove(it);
 	
 	required -= (INDEXPAGE_KV_OVERHEAD + it->key.GetLength());
 	freeDataPages.Add(it->index);

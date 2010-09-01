@@ -65,6 +65,7 @@ public:
 	T*						Remove(K key);
 	T*						Remove(T* t);
 	
+	void					Clear();
 	void					DeleteTree();
 		
 private:
@@ -340,18 +341,18 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 	return NULL;
 }
 
-template<typename T, InTreeNode<T> T::*pnode>
-template<typename K>
-T* InTreeMap<T, pnode>::Remove(K key)
-{
-	T*			t;
-	
-	t = Get<K>(key);
-	if (t == NULL)
-		return NULL;
-	
-	return Remove(t);
-}
+//template<typename T, InTreeNode<T> T::*pnode>
+//template<typename K>
+//T* InTreeMap<T, pnode>::Remove(K key)
+//{
+//	T*			t;
+//	
+//	t = Get<K>(key);
+//	if (t == NULL)
+//		return NULL;
+//	
+//	return Remove(t);
+//}
 
 template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Remove(T* t)
@@ -432,7 +433,14 @@ color:
 		FixColorsOnRemoval(child, parent);
 	
 	count--;
-	return t;
+	return Next(t);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::Clear()
+{
+	root = NULL;
+	count = 0;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>

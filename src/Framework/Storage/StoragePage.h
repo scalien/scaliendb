@@ -3,6 +3,7 @@
 
 #include "System/Buffers/Buffer.h"
 #include "System/Buffers/ReadBuffer.h"
+#include "System/Containers/InTreeMap.h"
 
 /*
 ===============================================================================
@@ -18,28 +19,27 @@ public:
 	StoragePage();
 	virtual ~StoragePage() {}
 
-	void				SetFileIndex(uint32_t fileIndex);
-	uint32_t			GetFileIndex();
+	void					SetFileIndex(uint32_t fileIndex);
+	uint32_t				GetFileIndex();
 
-	void				SetOffset(uint32_t offset);
-	uint32_t			GetOffset();
+	void					SetOffset(uint32_t offset);
+	uint32_t				GetOffset();
 
-	void				SetPageSize(uint32_t pageSize);
-	uint32_t			GetPageSize();
+	void					SetPageSize(uint32_t pageSize);
+	uint32_t				GetPageSize();
 
-	void				SetDirty(bool dirty);
-	bool				IsDirty();
+	void					SetDirty(bool dirty);
+	bool					IsDirty();
 	
-	void				SetNew(bool n);
-	bool				IsNew();
+	void					SetNew(bool n);
+	bool					IsNew();
 
-	virtual void		Read(ReadBuffer& buffer)	= 0;
-	virtual void		Write(Buffer& buffer)		= 0;
+	virtual void			Read(ReadBuffer& buffer)	= 0;
+	virtual void			Write(Buffer& buffer)		= 0;
 
-	StoragePage*		prev;
-	StoragePage*		next;
+	InTreeNode<StoragePage>	treeNode;
 
-	Buffer				buffer;
+	Buffer					buffer;
 
 protected:
 
