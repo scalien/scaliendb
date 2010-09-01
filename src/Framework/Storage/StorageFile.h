@@ -35,7 +35,7 @@ public:
 	void					Open(char* filepath);
 	void					Close();
 	
-	void					SetFileIndex(uint32_t fileIndex);
+	void					SetStorageFileIndex(uint32_t fileIndex);
 
 //	bool					IsNew();
 	

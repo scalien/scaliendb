@@ -15,7 +15,7 @@
 class IMFHeader
 {
 public:
-	class KeyValue
+	class StorageKeyValue
 	{
 	public:
 		int keyStart;
@@ -48,8 +48,8 @@ public:
 	enum { KEYVAL_BUFFER_SIZE = 16 };
 	int				numKeyval;
 	int				capKeyval;
-	KeyValue*		keyvalues;
-	KeyValue		keyvalBuffer[KEYVAL_BUFFER_SIZE];
+	StorageKeyValue*		keyvalues;
+	StorageKeyValue		keyvalBuffer[KEYVAL_BUFFER_SIZE];
 	char*			data;	
 	
 	IMFHeader();
@@ -60,7 +60,7 @@ public:
 	int				Parse(char* buf, int len, int offs);
 	const char*		GetField(const char* key);
 	
-	KeyValue*		GetKeyValues(int newSize);
+	StorageKeyValue*		GetStorageKeyValues(int newSize);
 };
 
 

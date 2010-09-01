@@ -6,14 +6,14 @@
 #include <stdio.h>
 #include <dirent.h>
 
-#define		RECOVERY_MARKER		0 // special as it's an illegal fileIndex
+#define	RECOVERY_MARKER		0		// special as it's an illegal fileIndex
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
 	return ReadBuffer::Cmp(a, b);
 }
 
-static ReadBuffer& Key(FileIndex* fi)
+static ReadBuffer& Key(StorageFileIndex* fi)
 {
 	return fi->key;
 }
@@ -27,7 +27,7 @@ void StorageTable::Open(const char* name)
 {
 	struct stat st;
 
-	nextFileIndex = 1;
+	nextStorageFileIndex = 1;
 
 	this->name.Write(name);
 	this->name.NullTerminate();
@@ -57,7 +57,7 @@ void StorageTable::Open(const char* name)
 	fstat(tocFD, &st);
 	if (st.st_size > 0)
 		ReadTOC(st.st_size);
-	prevCommitFileIndex = nextFileIndex;
+	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
 void StorageTable::Commit(bool flush)
@@ -80,12 +80,12 @@ void StorageTable::Commit(bool flush)
 	lseek(recoveryFD, 0, SEEK_SET);
 	ftruncate(recoveryFD, 0);
 
-	prevCommitFileIndex = nextFileIndex;
+	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
 void StorageTable::Close()
 {
-	FileIndex*	it;
+	StorageFileIndex*	it;
 	
 	for (it = files.First(); it != NULL; it = files.Next(it))
 	{
@@ -108,7 +108,7 @@ const char*	StorageTable::GetName()
 
 bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
 {
-	FileIndex* fi;
+	StorageFileIndex* fi;
 	
 	fi = Locate(key);
 
@@ -120,16 +120,16 @@ bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
 
 bool StorageTable::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
-	FileIndex	*fi;
+	StorageFileIndex	*fi;
 	
 	fi = Locate(key);
 
 	if (fi == NULL)
 	{
-		fi = new FileIndex;
-		fi->index = nextFileIndex++;
+		fi = new StorageFileIndex;
+		fi->index = nextStorageFileIndex++;
 		fi->file = new StorageFile;
-		fi->file->SetFileIndex(fi->index);
+		fi->file->SetStorageFileIndex(fi->index);
 		WritePath(fi->filepath, fi->index);
 		fi->file->Open(fi->filepath.GetBuffer());
 		fi->SetKey(key, true); // TODO: buffer management
@@ -152,7 +152,7 @@ bool StorageTable::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 void StorageTable::Delete(ReadBuffer& key)
 {
 	bool			updateIndex;
-	FileIndex*		fi;
+	StorageFileIndex*		fi;
 	ReadBuffer		firstKey;
 	
 	fi = Locate(key);
@@ -198,7 +198,7 @@ void StorageTable::ReadTOC(uint32_t length)
 	uint32_t	i, numFiles;
 	unsigned	len;
 	char*		p;
-	FileIndex*	fi;
+	StorageFileIndex*	fi;
 	
 	buffer.Allocate(length);
 	if (read(tocFD, (void*) buffer.GetBuffer(), length) < 0)
@@ -209,7 +209,7 @@ void StorageTable::ReadTOC(uint32_t length)
 	p += 4;
 	for (i = 0; i < numFiles; i++)
 	{
-		fi = new FileIndex;
+		fi = new StorageFileIndex;
 		fi->index = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		len = FromLittle32(*((uint32_t*) p));
@@ -219,8 +219,8 @@ void StorageTable::ReadTOC(uint32_t length)
 		p += len;
 		files.Insert(fi);
 		WritePath(fi->filepath, fi->index);
-		if (fi->index + 1 > nextFileIndex)
-			nextFileIndex = fi->index + 1;
+		if (fi->index + 1 > nextStorageFileIndex)
+			nextStorageFileIndex = fi->index + 1;
 	}	
 }
 
@@ -264,7 +264,7 @@ void StorageTable::PerformRecovery(uint32_t length)
 	}
 
 	// first marker was hit
-	// read prevCommitFileIndex
+	// read prevCommitStorageFileIndex
 	
 	required += 4;	
 	if (length < required)
@@ -273,7 +273,7 @@ void StorageTable::PerformRecovery(uint32_t length)
 	if (read(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
-	prevCommitFileIndex = FromLittle32(*((uint32_t*) p));
+	prevCommitStorageFileIndex = FromLittle32(*((uint32_t*) p));
 
 	required += 4;	
 	if (length < required)
@@ -371,7 +371,7 @@ void StorageTable::DeleteGarbageFiles()
 		index = (uint32_t) BufferToUInt64(p, len, &nread);
 		if (nread != len)
 			continue;
-		if (index >= prevCommitFileIndex)
+		if (index >= prevCommitStorageFileIndex)
 		{
 			::Delete(dirent->d_name);
 		}
@@ -387,7 +387,7 @@ void StorageTable::RebuildTOC()
 	Buffer			buffer;
 	unsigned		len, nread;
 	uint32_t		index;
-	FileIndex*	fi;
+	StorageFileIndex*	fi;
 	ReadBuffer		firstKey;
 	
 	dir = opendir(".");
@@ -408,7 +408,7 @@ void StorageTable::RebuildTOC()
 		index = (uint32_t) BufferToUInt64(p, len, &nread);
 		if (nread != len)
 			continue;
-		fi = new FileIndex;
+		fi = new StorageFileIndex;
 		fi->file = new StorageFile;
 		fi->file->Open(dirent->d_name);
 		if (fi->file->IsEmpty())
@@ -429,7 +429,7 @@ void StorageTable::RebuildTOC()
 
 void StorageTable::WriteRecoveryPrefix()
 {
-	FileIndex		*it;
+	StorageFileIndex		*it;
 	uint32_t		marker = RECOVERY_MARKER;
 	
 	for (it = files.First(); it != NULL; it = files.Next(it))
@@ -445,7 +445,7 @@ void StorageTable::WriteRecoveryPrefix()
 		ASSERT_FAIL();
 	}
 	
-	if (write(recoveryFD, (const void *) &prevCommitFileIndex, 4) < 0)
+	if (write(recoveryFD, (const void *) &prevCommitStorageFileIndex, 4) < 0)
 	{
 		Log_Errno();
 		ASSERT_FAIL();
@@ -471,7 +471,7 @@ void StorageTable::WriteTOC()
 	char*			p;
 	uint32_t		size, len;
 	uint32_t		tmp;
-	FileIndex		*it;
+	StorageFileIndex		*it;
 
 	lseek(tocFD, 0, SEEK_SET);
 	ftruncate(tocFD, 0);
@@ -501,7 +501,7 @@ void StorageTable::WriteTOC()
 
 void StorageTable::WriteData()
 {
-	FileIndex		*it;
+	StorageFileIndex		*it;
 	
 	for (it = files.First(); it != NULL; it = files.Next(it))
 	{
@@ -511,9 +511,9 @@ void StorageTable::WriteData()
 	}
 }
 
-FileIndex* StorageTable::Locate(ReadBuffer& key)
+StorageFileIndex* StorageTable::Locate(ReadBuffer& key)
 {
-	FileIndex*	fi;
+	StorageFileIndex*	fi;
 	int			cmpres;
 	
 	if (files.GetCount() == 0)
@@ -548,26 +548,26 @@ OpenFile:
 	{
 		fi->file = new StorageFile;
 		fi->file->Open(fi->filepath.GetBuffer());
-		fi->file->SetFileIndex(fi->index);
+		fi->file->SetStorageFileIndex(fi->index);
 	}
 	
 	return fi;
 }
 
-FileIndex::FileIndex()
+StorageFileIndex::StorageFileIndex()
 {
 	file = NULL;
 	keyBuffer = NULL;
 }
 
-FileIndex::~FileIndex()
+StorageFileIndex::~StorageFileIndex()
 {
 	if (keyBuffer != NULL)
 		delete keyBuffer;
 	delete file;
 }
 
-void FileIndex::SetKey(ReadBuffer key_, bool copy)
+void StorageFileIndex::SetKey(ReadBuffer key_, bool copy)
 {
 	if (keyBuffer != NULL && !copy)
 		delete keyBuffer;
@@ -585,14 +585,14 @@ void FileIndex::SetKey(ReadBuffer key_, bool copy)
 
 void StorageTable::SplitFile(StorageFile* file)
 {
-	FileIndex*	newFi;
+	StorageFileIndex*	newFi;
 	ReadBuffer	rb;
 
 	file->ReadRest();
-	newFi = new FileIndex;
+	newFi = new StorageFileIndex;
 	newFi->file = file->SplitFile();
-	newFi->index = nextFileIndex++;
-	newFi->file->SetFileIndex(newFi->index);
+	newFi->index = nextStorageFileIndex++;
+	newFi->file->SetStorageFileIndex(newFi->index);
 	
 	WritePath(newFi->filepath, newFi->index);
 	newFi->file->Open(newFi->filepath.GetBuffer());
@@ -604,7 +604,7 @@ void StorageTable::SplitFile(StorageFile* file)
 
 StorageDataPage* StorageTable::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 {
-	FileIndex*			fi;
+	StorageFileIndex*			fi;
 	StorageDataPage*	dataPage;
 	
 	fi = Locate(key);
@@ -641,5 +641,5 @@ void StorageTable::CommitPhase3()
 	lseek(recoveryFD, 0, SEEK_SET);
 	ftruncate(recoveryFD, 0);
 
-	prevCommitFileIndex = nextFileIndex;
+	prevCommitStorageFileIndex = nextStorageFileIndex;
 }

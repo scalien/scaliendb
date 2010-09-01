@@ -159,6 +159,9 @@
 		54AB8935122C176600721A0F /* StoragePage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StoragePage.cpp; sourceTree = "<group>"; };
 		54AB8D52122E60E800721A0F /* StorageDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageDatabase.h; sourceTree = "<group>"; };
 		54AB8D53122E60E800721A0F /* StorageDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDatabase.cpp; sourceTree = "<group>"; };
+		54AB8F23122E9B7C00721A0F /* StorageFileIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileIndex.h; sourceTree = "<group>"; };
+		54AB8F59122E9E2A00721A0F /* StorageKeyIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageKeyIndex.h; sourceTree = "<group>"; };
+		54AB8F5F122E9ED600721A0F /* StorageKeyValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageKeyValue.h; sourceTree = "<group>"; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
 		54AFE33611C8D15100925487 /* PaxosLeaseProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposerState.h; sourceTree = "<group>"; };
@@ -404,20 +407,23 @@
 		54AB70EE12203CDF00721A0F /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				54AB8D52122E60E800721A0F /* StorageDatabase.h */,
+				54AB8D53122E60E800721A0F /* StorageDatabase.cpp */,
+				54AB8F23122E9B7C00721A0F /* StorageFileIndex.h */,
 				54AB871D122821EF00721A0F /* StorageTable.h */,
 				54AB8715122821EF00721A0F /* StorageTable.cpp */,
 				54AB8717122821EF00721A0F /* StorageFile.h */,
 				54AB8719122821EF00721A0F /* StorageFile.cpp */,
 				54AB871A122821EF00721A0F /* StoragePage.h */,
 				54AB8935122C176600721A0F /* StoragePage.cpp */,
+				54AB8F59122E9E2A00721A0F /* StorageKeyIndex.h */,
 				54AB871F122821EF00721A0F /* StorageIndexPage.h */,
 				54AB871E122821EF00721A0F /* StorageIndexPage.cpp */,
+				54AB8F5F122E9ED600721A0F /* StorageKeyValue.h */,
 				54AB871B122821EF00721A0F /* StorageDataPage.h */,
 				54AB8716122821EF00721A0F /* StorageDataPage.cpp */,
 				54AB871C122821EF00721A0F /* StorageCursor.h */,
 				54AB8718122821EF00721A0F /* StorageCursor.cpp */,
-				54AB8D52122E60E800721A0F /* StorageDatabase.h */,
-				54AB8D53122E60E800721A0F /* StorageDatabase.cpp */,
 			);
 			path = Storage;
 			sourceTree = "<group>";

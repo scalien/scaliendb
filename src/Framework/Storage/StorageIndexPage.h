@@ -8,43 +8,10 @@
 #include "System/Containers/InSortedList.h"
 #include "System/Containers/InTreeMap.h"
 #include "StoragePage.h"
-
-class KeyIndex; // forward
-class StorageFile;		// forward
+#include "StorageKeyIndex.h"
 
 #define INDEXPAGE_FIX_OVERHEAD		16
 #define INDEXPAGE_KV_OVERHEAD		8
-
-
-inline bool LessThan(uint32_t a, uint32_t b)
-{
-	return (a < b);
-}
-
-/*
-===============================================================================
-
- KeyIndex
-
-===============================================================================
-*/
-
-class KeyIndex
-{
-public:
-	KeyIndex();
-	~KeyIndex();
-	
-	void					SetKey(ReadBuffer& key, bool copy);
-
-	ReadBuffer				key;
-	Buffer*					keyBuffer;
-	uint32_t				index;
-
-	InTreeNode<KeyIndex>	treeNode;
-
-	static bool				LessThan(KeyIndex &a, KeyIndex &b);
-};
 
 /*
 ===============================================================================
@@ -56,6 +23,8 @@ public:
 
 class StorageIndexPage : public StoragePage
 {
+	typedef InTreeMap<StorageKeyIndex> KeyIndexMap;
+
 public:
 	StorageIndexPage();
 	~StorageIndexPage();
@@ -80,7 +49,7 @@ public:
 private:
 	uint32_t				numDataPageSlots;
 	uint32_t				required;
-	InTreeMap<KeyIndex>		keys;
+	KeyIndexMap				keys;
 	SortedList<uint32_t>	freeDataPages;
 	
 	friend class StorageFile;

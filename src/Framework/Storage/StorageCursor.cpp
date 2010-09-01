@@ -1,17 +1,17 @@
 #include "StorageCursor.h"
 #include "StorageTable.h"
 
-StorageCursor::StorageCursor(StorageTable* catalog_)
+StorageCursor::StorageCursor(StorageTable* table_)
 {
-	catalog = catalog_;
+	table = table_;
 	dataPage = NULL;
 	current = NULL;
 }
 
-KeyValue* StorageCursor::Begin(ReadBuffer& key)
+StorageKeyValue* StorageCursor::Begin(ReadBuffer& key)
 {
 	nextKey.Clear();
-	dataPage = catalog->CursorBegin(key, nextKey); // sets nextKey
+	dataPage = table->CursorBegin(key, nextKey); // sets nextKey
 	
 	if (dataPage == NULL)
 		return NULL;
@@ -25,7 +25,7 @@ KeyValue* StorageCursor::Begin(ReadBuffer& key)
 	return FromNextPage();
 }
 
-KeyValue* StorageCursor::Next()
+StorageKeyValue* StorageCursor::Next()
 {
 	assert(current != NULL);
 	
@@ -45,7 +45,7 @@ void StorageCursor::Close()
 	delete this;
 }
 
-KeyValue* StorageCursor::FromNextPage()
+StorageKeyValue* StorageCursor::FromNextPage()
 {
 	Buffer			buffer;
 	ReadBuffer		key;

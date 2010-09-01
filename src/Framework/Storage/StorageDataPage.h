@@ -7,43 +7,13 @@
 #include "System/Containers/InList.h"
 #include "System/Containers/InTreeMap.h"
 #include "StoragePage.h"
+#include "StorageKeyValue.h"
 
 class StorageCursor; // forward
 
 #define DATAPAGE_FIX_OVERHEAD		16
 #define DATAPAGE_KV_OVERHEAD		8
 #define DATAPAGE_MAX_KV_SIZE(s)		((s) - (DATAPAGE_FIX_OVERHEAD + DATAPAGE_KV_OVERHEAD))
-
-/*
-===============================================================================
-
- KeyValue
-
-===============================================================================
-*/
-
-class KeyValue
-{
-public:
-	KeyValue();
-	~KeyValue();
-
-	void					SetKey(ReadBuffer& key, bool copy);
-	void					SetValue(ReadBuffer& value, bool copy);
-
-	ReadBuffer				key;
-	ReadBuffer				value;
-	
-	Buffer*					keyBuffer;
-	Buffer*					valueBuffer;
-	
-	InTreeNode<KeyValue>	treeNode;
-};
-
-inline bool LessThan(KeyValue &a, KeyValue &b)
-{
-	return ReadBuffer::LessThan(a.key, b.key);
-}
 
 /*
 ===============================================================================
@@ -66,8 +36,8 @@ public:
 
 	void					RegisterCursor(StorageCursor* cursor);
 	void					UnregisterCursor(StorageCursor* cursor);
-	KeyValue*				BeginIteration(ReadBuffer& key);
-	KeyValue*				Next(KeyValue* it);
+	StorageKeyValue*		BeginIteration(ReadBuffer& key);
+	StorageKeyValue*		Next(StorageKeyValue* it);
 	
 	bool					IsEmpty();
 	ReadBuffer				FirstKey();
@@ -81,7 +51,7 @@ public:
 
 private:
 	uint32_t				required;
-	InTreeMap<KeyValue>		keys;
+	InTreeMap<StorageKeyValue>		keys;
 	InList<StorageCursor>	cursors;
 	bool					detached;
 };

@@ -6,12 +6,12 @@ static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 	return ReadBuffer::Cmp(a, b);
 }
 
-static ReadBuffer& Key(KeyIndex* kv)
+static ReadBuffer& Key(StorageKeyIndex* kv)
 {
 	return kv->key;
 }
 
-bool KeyIndex::LessThan(KeyIndex& a, KeyIndex& b)
+bool StorageKeyIndex::LessThan(StorageKeyIndex& a, StorageKeyIndex& b)
 {
 	return ReadBuffer::LessThan(a.key, b.key);
 }
@@ -45,11 +45,11 @@ void StorageIndexPage::SetNumDataPageSlots(uint32_t numDataPageSlots_)
 
 void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 {
-	KeyIndex* ki;
+	StorageKeyIndex* ki;
 	
 	required += INDEXPAGE_KV_OVERHEAD + key.GetLength();
 
-	ki = new KeyIndex;
+	ki = new StorageKeyIndex;
 	ki->SetKey(key, copy);
 	ki->index = index;
 	
@@ -60,7 +60,7 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 
 void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 {
-	KeyIndex* it;
+	StorageKeyIndex* it;
 	
 	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
@@ -76,7 +76,7 @@ void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 
 void StorageIndexPage::Remove(ReadBuffer key)
 {
-	KeyIndex*	it;
+	StorageKeyIndex*	it;
 
 	it = keys.Get<ReadBuffer&>(key);
 	if (!it)
@@ -111,7 +111,7 @@ uint32_t StorageIndexPage::NumEntries()
 
 int32_t StorageIndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
 {
-	KeyIndex*	it;
+	StorageKeyIndex*	it;
 	uint32_t	index;
 	int			cmpres;
 	
@@ -159,7 +159,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 {
 	uint32_t	num, len, i;
 	char*		p;
-	KeyIndex*	ki;
+	StorageKeyIndex*	ki;
 
 	buffer.Write(buffer_);
 
@@ -174,7 +174,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 	p += 4;
 	for (i = 0; i < num; i++)
 	{
-		ki = new KeyIndex;
+		ki = new StorageKeyIndex;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		ki->key.SetLength(len);
@@ -192,7 +192,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 
 void StorageIndexPage::Write(Buffer& buffer)
 {
-	KeyIndex*	it;
+	StorageKeyIndex*	it;
 	char*		p;
 	unsigned	len;
 
@@ -224,18 +224,18 @@ void StorageIndexPage::Write(Buffer& buffer)
 	this->buffer.Write(buffer);
 }
 
-KeyIndex::KeyIndex()
+StorageKeyIndex::StorageKeyIndex()
 {
 	keyBuffer = NULL;
 }
 
-KeyIndex::~KeyIndex()
+StorageKeyIndex::~StorageKeyIndex()
 {
 	if (keyBuffer != NULL)
 		delete keyBuffer;
 }
 
-void KeyIndex::SetKey(ReadBuffer& key_, bool copy)
+void StorageKeyIndex::SetKey(ReadBuffer& key_, bool copy)
 {
 	if (keyBuffer != NULL && !copy)
 		delete keyBuffer;

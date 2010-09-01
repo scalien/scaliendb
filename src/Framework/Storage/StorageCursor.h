@@ -9,7 +9,7 @@ class StorageDataPage;	// forward
 /*
 ===============================================================================
 
- Catalog
+ StorageCursor
 
 ===============================================================================
 */
@@ -17,22 +17,22 @@ class StorageDataPage;	// forward
 class StorageCursor
 {
 public:
-	StorageCursor(StorageTable* catalog);
+	StorageCursor(StorageTable* table);
 	
-	KeyValue*			Begin(ReadBuffer& key);
-	KeyValue*			Next();
-	void				Close();
+	StorageKeyValue*		Begin(ReadBuffer& key);
+	StorageKeyValue*		Next();
+	void					Close();
 	
-	StorageCursor*		next;
-	StorageCursor*		prev;
+	StorageCursor*			next;
+	StorageCursor*			prev;
 	
 private:
-	KeyValue*			FromNextPage();
+	StorageKeyValue*		FromNextPage();
 
-	StorageTable*		catalog;
-	StorageDataPage*	dataPage;
-	KeyValue*			current;
-	Buffer				nextKey;
+	StorageTable*			table;
+	StorageDataPage*		dataPage;
+	StorageKeyValue*		current;
+	Buffer					nextKey;
 	
 	friend class StorageDataPage;
 };

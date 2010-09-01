@@ -4,36 +4,7 @@
 #include "System/Containers/InTreeMap.h"
 #include "StorageFile.h"
 #include "StorageCursor.h"
-/*
-===============================================================================
-
- FileIndex
-
-===============================================================================
-*/
-
-class FileIndex
-{
-public:
-	FileIndex();
-	~FileIndex();
-	
-	void					SetKey(ReadBuffer key, bool copy);
-
-	Buffer					filepath;
-	StorageFile*			file;
-
-	ReadBuffer				key;
-	Buffer*					keyBuffer;
-	uint32_t				index;
-	
-	InTreeNode<FileIndex>	treeNode;
-};
-
-inline bool LessThan(FileIndex &a, FileIndex &b)
-{
-	return ReadBuffer::LessThan(a.key, b.key);
-}
+#include "StorageFileIndex.h"
 
 class StorageDatabase; // forward
 
@@ -47,15 +18,17 @@ class StorageDatabase; // forward
 
 class StorageTable
 {
+	typedef InTreeMap<StorageFileIndex> FileIndexMap;
+
 public:
 	~StorageTable();
 	
+	const char*				GetName();
+
 	void					Open(const char* name);
 	void					Commit(bool flush = true);
 	void					Close();
-	
-	const char*				GetName();
-	
+		
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
@@ -74,7 +47,7 @@ private:
 	void					WriteRecoveryPostfix();
 	void					WriteTOC();
 	void					WriteData();	
-	FileIndex*				Locate(ReadBuffer& key);
+	StorageFileIndex*		Locate(ReadBuffer& key);
 	void					SplitFile(StorageFile* file);
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
@@ -85,13 +58,13 @@ private:
 	
 	int						tocFD;
 	int						recoveryFD;
-	uint32_t				prevCommitFileIndex;
-	uint32_t				nextFileIndex;
+	uint32_t				prevCommitStorageFileIndex;
+	uint32_t				nextStorageFileIndex;
 	Buffer					name;
 	Buffer					tocFilepath;
 	Buffer					recoveryFilepath;
 	Buffer					buffer;
-	InTreeMap<FileIndex>	files;
+	FileIndexMap			files;
 	
 	friend class StorageCursor;
 	friend class StorageDatabase;

@@ -79,15 +79,15 @@ void StorageFile::Close()
 	fd = -1;
 }
 
-void StorageFile::SetFileIndex(uint32_t fileIndex_)
+void StorageFile::SetStorageFileIndex(uint32_t fileIndex_)
 {
 	StoragePage*	it;
 	
 	fileIndex = fileIndex_;
 	
-	indexPage.SetFileIndex(fileIndex);
+	indexPage.SetStorageFileIndex(fileIndex);
 	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
-		it->SetFileIndex(fileIndex);
+		it->SetStorageFileIndex(fileIndex);
 }
 
 //bool StorageFile::IsNew()
@@ -123,7 +123,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		assert(numDataPages == 0);
 		assert(dataPages[index] == NULL);
 		dataPages[index] = new StorageDataPage;
-		dataPages[index]->SetFileIndex(fileIndex);
+		dataPages[index]->SetStorageFileIndex(fileIndex);
 		dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 		dataPages[index]->SetPageSize(dataPageSize);
 		numDataPages++;
@@ -308,7 +308,7 @@ void StorageFile::Read()
 
 void StorageFile::ReadRest()
 {
-	KeyIndex*		it;
+	StorageKeyIndex*		it;
 
 	// TODO make sure this IO occurs in order!
 	for (it = indexPage.keys.First(); it != NULL; it = indexPage.keys.Next(it))
@@ -443,7 +443,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 	{
 		// make a copy of data
 		newPage = dataPages[index]->SplitDataPage();
-		newPage->SetFileIndex(fileIndex);
+		newPage->SetStorageFileIndex(fileIndex);
 		numDataPages++;
 		assert(numDataPages <= numDataPageSlots);
 		newIndex = indexPage.NextFreeDataPage();
@@ -467,7 +467,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 void StorageFile::ReorderPages()
 {
 	uint32_t			newIndex, oldIndex, i;
-	KeyIndex*			it;
+	StorageKeyIndex*			it;
 	StorageDataPage**	newDataPages;
 	
 	newDataPages = (StorageDataPage**) calloc(numDataPageSlots, sizeof(StorageDataPage*));

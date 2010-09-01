@@ -110,7 +110,7 @@ int main(int argc, char** argv)
 //	k.Clear();
 //	rk.Wrap(k);
 //	cursor = new StorageCursor(&catalog);
-//	KeyValue* kv = cursor->Begin(rk);
+//	StorageKeyValue* kv = cursor->Begin(rk);
 //	while (kv != NULL)
 //	{
 //		printf("%.*s => %.*s\n", kv->key.GetLength(), kv->key.GetBuffer(), kv->value.GetLength(), kv->value.GetBuffer());
@@ -137,7 +137,7 @@ int main(int argc, char** argv)
 	k.Clear();
 	rk.Wrap(k);
 	cursor = new StorageCursor(&catalog);
-	KeyValue* kv = cursor->Begin(rk);
+	StorageKeyValue* kv = cursor->Begin(rk);
 	while (kv != NULL)
 	{
 		printf("%.*s => %.*s\n", kv->key.GetLength(), kv->key.GetBuffer(), kv->value.GetLength(), kv->value.GetBuffer());

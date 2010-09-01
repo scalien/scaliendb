@@ -19,8 +19,8 @@ public:
 	StoragePage();
 	virtual ~StoragePage() {}
 
-	void					SetFileIndex(uint32_t fileIndex);
-	uint32_t				GetFileIndex();
+	void					SetStorageFileIndex(uint32_t fileIndex);
+	uint32_t				GetStorageFileIndex();
 
 	void					SetOffset(uint32_t offset);
 	uint32_t				GetOffset();

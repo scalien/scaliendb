@@ -15,20 +15,20 @@ static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 //	return ReadBuffer::LessThan(left, right);
 //}
 
-static const ReadBuffer& Key(KeyValue* kv)
+static const ReadBuffer& Key(StorageKeyValue* kv)
 {
 	return kv->key;
 }
 
 TEST_DEFINE(TestInTreeMap)
 {
-	InTreeMap<KeyValue>						kvs;
+	InTreeMap<StorageKeyValue>						kvs;
 	ReadBuffer								rb;
 	ReadBuffer								rk;
 	ReadBuffer								rv;
 	Buffer									buf;
-	KeyValue*								kv;
-	KeyValue*								it;
+	StorageKeyValue*								kv;
+	StorageKeyValue*								it;
 	Stopwatch								sw;
 	const unsigned							num = 1000000;
 	unsigned								ksize;
@@ -43,7 +43,7 @@ TEST_DEFINE(TestInTreeMap)
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
-	kvarea = (char*) malloc(num * sizeof(KeyValue));
+	kvarea = (char*) malloc(num * sizeof(StorageKeyValue));
 	
 	//sw.Start();
 	for (unsigned u = 0; u < num; u++)
@@ -59,11 +59,11 @@ TEST_DEFINE(TestInTreeMap)
 
 //		buf.Writef("%u", u);
 //		rb.Wrap(buf);
-//		kv = new KeyValue;
+//		kv = new StorageKeyValue;
 //		kv->SetKey(rb, true);
 //		kv->SetValue(rb, true);
 
-		kv = (KeyValue*) (kvarea + u * sizeof(KeyValue));
+		kv = (StorageKeyValue*) (kvarea + u * sizeof(StorageKeyValue));
 		kv->SetKey(rk, false);
 		kv->SetValue(rv, false);
 		
@@ -149,7 +149,7 @@ TEST_DEFINE(TestInTreeMap)
 		}
 		else
 		{
-			kv = (KeyValue*) (kvarea + u * sizeof(KeyValue));
+			kv = (StorageKeyValue*) (kvarea + u * sizeof(StorageKeyValue));
 			kv->SetKey(rk, false);
 			kv->SetValue(rv, false);
 			kvs.InsertAt(kv, it, cmpres);

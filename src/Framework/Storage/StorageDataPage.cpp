@@ -7,7 +7,7 @@ static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 	return ReadBuffer::Cmp(a, b);
 }
 
-static ReadBuffer& Key(KeyValue* kv)
+static ReadBuffer& Key(StorageKeyValue* kv)
 {
 	return kv->key;
 }
@@ -25,7 +25,7 @@ StorageDataPage::~StorageDataPage()
 
 bool StorageDataPage::Get(ReadBuffer& key, ReadBuffer& value)
 {
-	KeyValue*	kv;
+	StorageKeyValue*	kv;
 	
 	kv = keys.Get<ReadBuffer&>(key);
 	if (kv != NULL)
@@ -39,8 +39,8 @@ bool StorageDataPage::Get(ReadBuffer& key, ReadBuffer& value)
 
 void StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
-	KeyValue*	it;
-	KeyValue*	newKeyValue;
+	StorageKeyValue*	it;
+	StorageKeyValue*	newStorageKeyValue;
 
 	int res;
 	it = keys.Locate<ReadBuffer&>(key, res);
@@ -54,16 +54,16 @@ void StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	}
 
 	// not found
-	newKeyValue = new KeyValue;
-	newKeyValue->SetKey(key, copy);
-	newKeyValue->SetValue(value, copy);
-	keys.InsertAt(newKeyValue, it, res);
+	newStorageKeyValue = new StorageKeyValue;
+	newStorageKeyValue->SetKey(key, copy);
+	newStorageKeyValue->SetValue(value, copy);
+	keys.InsertAt(newStorageKeyValue, it, res);
 	required += (DATAPAGE_KV_OVERHEAD + key.GetLength() + value.GetLength());
 }
 
 void StorageDataPage::Delete(ReadBuffer& key)
 {
-	KeyValue*	it;
+	StorageKeyValue*	it;
 
 	it = keys.Get<ReadBuffer&>(key);
 	if (it)
@@ -87,9 +87,9 @@ void StorageDataPage::UnregisterCursor(StorageCursor* cursor)
 		delete this;
 }
 
-KeyValue* StorageDataPage::BeginIteration(ReadBuffer& key)
+StorageKeyValue* StorageDataPage::BeginIteration(ReadBuffer& key)
 {
-	KeyValue*	it;
+	StorageKeyValue*	it;
 	int			retcmp;
 	
 	it = keys.Locate(key, retcmp);
@@ -103,7 +103,7 @@ KeyValue* StorageDataPage::BeginIteration(ReadBuffer& key)
 		return keys.Next(it);
 }
 
-KeyValue* StorageDataPage::Next(KeyValue* it)
+StorageKeyValue* StorageDataPage::Next(StorageKeyValue* it)
 {
 	return keys.Next(it);
 }
@@ -132,8 +132,8 @@ bool StorageDataPage::IsOverflowing()
 StorageDataPage* StorageDataPage::SplitDataPage()
 {
 	StorageDataPage*	newPage;
-	KeyValue*			it;
-	KeyValue*			next;
+	StorageKeyValue*			it;
+	StorageKeyValue*			next;
 	uint32_t			target, sum;
 	
 	if (required > 2 * pageSize)
@@ -152,7 +152,7 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 	
 	newPage = new StorageDataPage();
 	newPage->SetPageSize(pageSize);
-	newPage->SetFileIndex(fileIndex);
+	newPage->SetStorageFileIndex(fileIndex);
 	
 	while (it != NULL)
 	{
@@ -179,8 +179,8 @@ void StorageDataPage::Detach()
 {
 	StorageDataPage*	detached;
 	StorageCursor*		cursor;
-	KeyValue*			it;
-	KeyValue*			kv;
+	StorageKeyValue*			it;
+	StorageKeyValue*			kv;
 	int					cmpres;
 	
 	detached = new StorageDataPage(true);
@@ -190,7 +190,7 @@ void StorageDataPage::Detach()
 	
 	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
-		kv = new KeyValue;
+		kv = new StorageKeyValue;
 		kv->SetKey(it->key, true);
 		kv->SetValue(it->value, true);
 		detached->keys.Insert(kv);
@@ -211,7 +211,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 {
 	uint32_t	num, len, i;
 	char*		p;
-	KeyValue*	kv;
+	StorageKeyValue*	kv;
 
 	buffer.Write(buffer_);
 	
@@ -226,7 +226,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 	p += 4;
 	for (i = 0; i < num; i++)
 	{
-		kv = new KeyValue;
+		kv = new StorageKeyValue;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		kv->key.SetLength(len);
@@ -256,7 +256,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 
 void StorageDataPage::Write(Buffer& buffer)
 {
-	KeyValue*	it;
+	StorageKeyValue*	it;
 	char*		p;
 	unsigned	len;
 	uint32_t	num;
@@ -294,13 +294,13 @@ void StorageDataPage::Write(Buffer& buffer)
 	this->buffer.Write(buffer);
 }
 
-KeyValue::KeyValue()
+StorageKeyValue::StorageKeyValue()
 {
 	keyBuffer = NULL;
 	valueBuffer = NULL;
 }
 
-KeyValue::~KeyValue()
+StorageKeyValue::~StorageKeyValue()
 {
 	if (keyBuffer != NULL)
 		delete keyBuffer;
@@ -308,7 +308,7 @@ KeyValue::~KeyValue()
 		delete valueBuffer;
 }
 
-void KeyValue::SetKey(ReadBuffer& key_, bool copy)
+void StorageKeyValue::SetKey(ReadBuffer& key_, bool copy)
 {
 	if (keyBuffer != NULL && !copy)
 	{
@@ -327,7 +327,7 @@ void KeyValue::SetKey(ReadBuffer& key_, bool copy)
 		key = key_;
 }
 
-void KeyValue::SetValue(ReadBuffer& value_, bool copy)
+void StorageKeyValue::SetValue(ReadBuffer& value_, bool copy)
 {
 	if (valueBuffer != NULL && !copy)
 	{

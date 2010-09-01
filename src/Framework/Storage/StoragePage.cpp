@@ -6,12 +6,12 @@ StoragePage::StoragePage()
 	newPage = true;
 }
 
-void StoragePage::SetFileIndex(uint32_t fileIndex_)
+void StoragePage::SetStorageFileIndex(uint32_t fileIndex_)
 {
 	fileIndex = fileIndex_;
 }
 
-uint32_t StoragePage::GetFileIndex()
+uint32_t StoragePage::GetStorageFileIndex()
 {
 	return fileIndex;
 }
