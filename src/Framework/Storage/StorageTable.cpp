@@ -39,11 +39,11 @@ void StorageTable::Open(const char* name)
 	recoveryFilepath.NullTerminate();
 
 	tocFD = FS_Open(tocFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
-	if (tocFD < 0)
+	if (tocFD == INVALID_FD)
 		ASSERT_FAIL();
 
 	recoveryFD = FS_Open(recoveryFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
-	if (recoveryFD < 0)
+	if (recoveryFD == INVALID_FD)
 		ASSERT_FAIL();
 
 	recoverySize = FS_FileSize(recoveryFD);
@@ -466,10 +466,10 @@ void StorageTable::WriteRecoveryPostfix()
 
 void StorageTable::WriteTOC()
 {
-	char*			p;
-	uint32_t		size, len;
-	uint32_t		tmp;
-	StorageFileIndex		*it;
+	char*				p;
+	uint32_t			size, len;
+	uint32_t			tmp;
+	StorageFileIndex	*it;
 
 	lseek(tocFD, 0, SEEK_SET);
 	ftruncate(tocFD, 0);

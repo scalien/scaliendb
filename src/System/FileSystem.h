@@ -31,6 +31,7 @@ int64_t		FS_FileSeek(FD fd, uint64_t offset, int whence);
 int			FS_FileTruncate(FD fd, uint64_t length);
 int64_t		FS_FileSize(FD fd);
 ssize_t		FS_FileWrite(FD fd, const void* buf, size_t count);
+ssize_t		FS_FileWriteVector(FD fd, unsigned num, const void** buf, size_t *count);
 ssize_t		FS_FileRead(FD fd, void* buf, size_t count);
 ssize_t		FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset);
 ssize_t		FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset);
