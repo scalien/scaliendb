@@ -70,14 +70,14 @@ class Linker:
 		#print(cmd)
 		try:
 			os.remove(output)
-		except OSError as e:
+		except OSError, e:
 			pass
 		try:
 			ret, stdout, stderr = shell_exec(cmd)
 			if ret != 0:
 				print("Linker error:\n" + stderr)
 				sys.exit(1)
-		except OSError as e:
+		except OSError, e:
 			pass
 		return output
 	
