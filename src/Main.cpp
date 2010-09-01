@@ -70,7 +70,10 @@ int main(int argc, char** argv)
 	Log_SetTarget(LOG_TARGET_STDOUT);
 	//Log_SetTrace(true);
 	StartClock();
+
+#ifdef TEST_FILE
 	return TestMain();
+#endif
 
 	num = 100*1000;
 	ksize = 20;

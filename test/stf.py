@@ -23,8 +23,8 @@ import shlex
 import sys
 import os
 
-LDPATH=["/opt/local/lib/db46", "/usr/local/lib/db4"]
-#LDPATH=["/opt/local/lib/db4"]
+#LDPATH=["/opt/local/lib/db46", "/usr/local/lib/db4"]
+LDPATH=["/opt/local/lib/db46"]
 LDLIBS=["db_cxx", "pthread"]
 BUILD_DIR="build/Release"
 SRC_DIR="src"
@@ -33,7 +33,7 @@ TEST_DIR="Test/"
 class Compiler:
 	def __init__(self, include_dirs, build_dir):
 		self.cc = "/usr/bin/g++"
-		self.cflags = "-Wall "
+		self.cflags = "-Wall -O2 "
 		self.include_dirs = include_dirs
 		self.build_dir = build_dir
 
@@ -43,7 +43,11 @@ class Compiler:
 	def compile(self, cfile, output):
 		include_dirs = prefix_each(" -I", self.include_dirs)
 		cmd = self.cc + " " + self.cflags + " " + include_dirs + " -o " + output + " -c " + cfile
-		shell_exec(cmd)
+		ret, stdout, stderr = shell_exec(cmd)
+		if ret != 0:
+			print("Compiler error:")
+			print("===============\n" + stderr)
+			sys.exit(1)
 		return output
 
 class Linker:
@@ -72,6 +76,7 @@ class Linker:
 			ret, stdout, stderr = shell_exec(cmd)
 			if ret != 0:
 				print("Linker error:\n" + stderr)
+				sys.exit(1)
 		except OSError as e:
 			pass
 		return output

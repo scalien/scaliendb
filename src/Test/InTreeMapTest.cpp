@@ -15,7 +15,7 @@ static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 //	return ReadBuffer::LessThan(left, right);
 //}
 
-static ReadBuffer& Key(KeyValue* kv)
+static const ReadBuffer& Key(KeyValue* kv)
 {
 	return kv->key;
 }
@@ -100,19 +100,20 @@ TEST_DEFINE(TestInTreeMap)
 	printf("iteration time: %ld\n", sw.Elapsed());
 
 
-//	sw.Reset();
-//	sw.Start();
-//	//for (unsigned u = 0; u < num; u++)
-//	for (unsigned u = num - 1; u < num; u--)
-//	{
-//		buf.Writef("%u", u);
-//		rb.Wrap(buf);
-//		kv = kvs.Remove<ReadBuffer&>(rb);
-//		if (kv == NULL)
-//			TEST_FAIL();
-//	}
-//	sw.Stop();		
-//	printf("delete time: %ld\n", sw.Elapsed());
+	sw.Reset();
+	sw.Start();
+	//for (unsigned u = 0; u < num; u++)
+	for (unsigned u = num - 1; u < num; u--)
+	{
+		buf.Writef("%u", u);
+		rb.Wrap(buf);
+		kv = kvs.Get<ReadBuffer&>(rb);
+		if (kv == NULL)
+			TEST_FAIL();
+		kvs.Remove(kv);
+	}
+	sw.Stop();		
+	printf("delete time: %ld\n", sw.Elapsed());
 
 	sw.Reset();
 	sw.Start();
@@ -167,8 +168,11 @@ TEST_DEFINE(TestInTreeMap)
 		u++;
 	}
 	sw.Stop();
-	printf("found: %u\n", u);
+	printf("found: %u, count: %u\n", u, kvs.GetCount());
 	printf("iteration time: %ld\n", sw.Elapsed());
+
+	if (u != kvs.GetCount())
+		return TEST_FAILURE;
 
 	return 0;
 }
