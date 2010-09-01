@@ -51,21 +51,16 @@ class Compiler:
 		return output
 
 class Linker:
-	def __init__(self, ldpaths, ldlibs, build_dir):
+	def __init__(self, ldpaths, ldlibs):
 		self.ld = "g++"
 		self.ldflags = ""
 		self.ldpaths = ldpaths
 		self.ldlibs = ldlibs
-		self.build_dir = build_dir
 	
-	def link(self, objfile):
+	def link(self, objects, output):
 		ldpaths = prefix_each(" -L", self.ldpaths)
 		ldlibs = prefix_each(" -l", self.ldlibs)
-		objects = find_objects(self.build_dir, ["Main.o", "ScalienDB"], ["Test"])
-		objects.append(self.build_dir + "/Test/Test.o")
-		objects.append(objfile)
 		objects = " ".join(objects)
-		output = self.build_dir + "/Test/TestProgram" #+ str(uuid.uuid1())
 		cmd = self.ld + " " + self.ldflags + " " + ldpaths + ldlibs + " -o " + output + " " + objects
 		#print(cmd)
 		try:
@@ -166,13 +161,18 @@ def test_run(file, func = None):
 		output = BUILD_DIR + "/" + TEST_DIR + "TestMain.o"
 	cc.add_cflag("-DTEST_FILE")
 	obj = cc.compile(input, output)
-	ld = Linker(LDPATH, LDLIBS, BUILD_DIR)
-	bin = ld.link(obj)
+	ld = Linker(LDPATH, LDLIBS)
+	objects = find_objects(BUILD_DIR, ["Main.o", "ScalienDB"], ["Test"])
+	objects.append(BUILD_DIR + "/" + TEST_DIR + "Test.o")
+	objects.append(obj)
+	output = BUILD_DIR + "/" + TEST_DIR + "TestProgram" #+ str(uuid.uuid1())
+	bin = ld.link(objects, output)
 	#print(bin)
-	shell_exec(bin, False, False)
+	ret, stdout, stderr = shell_exec(bin, False, False)
+	return ret
 
 if __name__ == "__main__":
 	func = None
 	if len(sys.argv) > 2:
 		func = sys.argv[2]
-	test_run(sys.argv[1], func)
+	sys.exit(test_run(sys.argv[1], func))
