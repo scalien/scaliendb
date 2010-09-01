@@ -8,7 +8,7 @@ TEST_DEFINE(TestMain)
 {
 	TEST_RUN(
 		//TestInTreeMap,
-		//TestStorage,
-		TestStorageCapacity,
+		TestStorage,
+		//TestStorageCapacity,
 	);
 }

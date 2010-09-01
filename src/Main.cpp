@@ -68,8 +68,9 @@ int main(int argc, char** argv)
 	uint64_t			clock;
 
 	Log_SetTarget(LOG_TARGET_STDOUT);
-	//Log_SetTrace(true);
+	Log_SetTrace(true);
 	StartClock();
+#define TEST_FILE
 
 #ifdef TEST_FILE
 	return TestMain();
