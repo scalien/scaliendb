@@ -41,7 +41,7 @@ void StorageDatabase::Close()
 {
 	StorageTable* it;
 	
-	for (it = tables.First(); it != NULL; it = tables.Remove(it))
+	for (it = tables.First(); it != NULL; it = tables.Delete(it))
 		it->Close();
 }
 

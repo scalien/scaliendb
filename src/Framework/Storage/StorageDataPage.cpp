@@ -290,6 +290,7 @@ void StorageDataPage::Write(Buffer& buffer)
 	}
 	
 	buffer.SetLength(required);
+//	this->buffer.Allocate(pageSize);
 	this->buffer.Write(buffer);
 }
 

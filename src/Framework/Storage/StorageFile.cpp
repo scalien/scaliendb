@@ -326,11 +326,12 @@ void StorageFile::WriteRecovery(int recoveryFD)
 			continue;
 		assert(it->buffer.GetLength() <= it->GetPageSize());
 		// it->buffer contains the old page
-		if (write(recoveryFD, it->buffer.GetBuffer(), it->GetPageSize()) < 0)
+		if (write(recoveryFD, it->buffer.GetBuffer(), it->buffer.GetLength()) < 0)
 		{
 			Log_Errno();
 			ASSERT_FAIL();
 		}
+		lseek(recoveryFD, it->GetPageSize() - it->buffer.GetLength(), SEEK_CUR);
 	}
 }
 
