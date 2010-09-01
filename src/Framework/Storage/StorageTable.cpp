@@ -308,9 +308,9 @@ void StorageTable::PerformRecovery(uint32_t length)
 
 TruncateLog:
 	for (page = pages.First(); page != NULL; page = pages.Delete(page));
-	lseek(recoveryFD, 0, SEEK_SET);
-	ftruncate(recoveryFD, 0);	
-	sync();	
+	FS_FileSeek(recoveryFD, 0, SEEK_SET);
+	FS_FileTruncate(recoveryFD, 0);	
+	FS_Sync();	
 	return;
 }
 
