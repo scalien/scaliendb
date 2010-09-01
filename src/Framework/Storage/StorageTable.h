@@ -35,6 +35,8 @@ inline bool LessThan(FileIndex &a, FileIndex &b)
 	return ReadBuffer::LessThan(a.key, b.key);
 }
 
+class StorageDatabase; // forward
+
 /*
 ===============================================================================
 
@@ -48,14 +50,19 @@ class StorageTable
 public:
 	~StorageTable();
 	
-	void					Open(const char* filepath);
+	void					Open(const char* name);
 	void					Commit(bool flush = true);
 	void					Close();
+	
+	const char*				GetName();
 	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
+	StorageTable*			prev;
+	StorageTable*			next;
+	
 private:
 	void					WritePath(Buffer& buffer, uint32_t index);
 	void					ReadTOC(uint32_t length);
@@ -71,17 +78,23 @@ private:
 	void					SplitFile(StorageFile* file);
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
+
+	void					CommitPhase1();
+	void					CommitPhase2();
+	void					CommitPhase3();
 	
 	int						tocFD;
 	int						recoveryFD;
 	uint32_t				prevCommitFileIndex;
 	uint32_t				nextFileIndex;
+	Buffer					name;
 	Buffer					tocFilepath;
 	Buffer					recoveryFilepath;
 	Buffer					buffer;
 	InTreeMap<FileIndex>	files;
 	
 	friend class StorageCursor;
+	friend class StorageDatabase;
 };
 
 #endif

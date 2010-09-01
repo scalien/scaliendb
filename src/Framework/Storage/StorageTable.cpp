@@ -23,16 +23,19 @@ StorageTable::~StorageTable()
 	files.DeleteTree();
 }
 
-void StorageTable::Open(const char* filepath_)
+void StorageTable::Open(const char* name)
 {
 	struct stat st;
 
 	nextFileIndex = 1;
 
-	tocFilepath.Write(filepath_);
+	this->name.Write(name);
+	this->name.NullTerminate();
+
+	tocFilepath.Write(name);
 	tocFilepath.NullTerminate();
 
-	recoveryFilepath.Write(filepath_);
+	recoveryFilepath.Write(name);
 	recoveryFilepath.Append(".recovery");
 	recoveryFilepath.NullTerminate();
 
@@ -96,6 +99,11 @@ void StorageTable::Close()
 	close(tocFD);
 	
 	::Delete(recoveryFilepath.GetBuffer());
+}
+
+const char*	StorageTable::GetName()
+{
+	return name.GetBuffer();
 }
 
 bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
@@ -613,4 +621,25 @@ StorageDataPage* StorageTable::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 		nextKey.Write(fi->key);
 
 	return dataPage;
+}
+
+void StorageTable::CommitPhase1()
+{
+	WriteRecoveryPrefix();
+}
+
+void StorageTable::CommitPhase2()
+{
+	WriteTOC();
+	WriteData();
+}
+
+void StorageTable::CommitPhase3()
+{
+	WriteRecoveryPostfix();
+	
+	lseek(recoveryFD, 0, SEEK_SET);
+	ftruncate(recoveryFD, 0);
+
+	prevCommitFileIndex = nextFileIndex;
 }

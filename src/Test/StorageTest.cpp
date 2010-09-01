@@ -1,48 +1,22 @@
 #include "Test.h"
 
-#include "Framework/Storage/StorageTable.h"
+#include "Framework/Storage/StorageDatabase.h"
 #include "System/Stopwatch.h"
 
 TEST_DEFINE(TestStorage)
 {
 #define PRINT()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
-	StorageTable	catalog;
-	Buffer			k, v;
-	ReadBuffer		rk, rv;
-	Stopwatch		sw;
-	long			elapsed;
-	unsigned		num, len, ksize, vsize;
-	char*			area;
-	char*			p;
-	uint64_t		clock;
+	StorageDatabase		db;
+	StorageTable*		table;
+	Buffer				k, v;
+	ReadBuffer			rk, rv;
+	Stopwatch			sw;
+	long				elapsed;
+	unsigned			num, len, ksize, vsize;
+	char*				area;
+	char*				p;
+	uint64_t			clock;
 	
-//	return TestTreeMap();
-//	return TestClock();
-	
-//	W(k, rk, "ki");
-//	W(v, rv, "atka");
-//	file.Set(rk, rv);
-//
-//	W(k, rk, "hol");
-//	W(v, rv, "budapest");
-//	file.Set(rk, rv);
-//
-//	W(k, rk, "ki");
-//	W(v, rv, "atka");
-//	file.Set(rk, rv);
-//
-//	W(k, rk, "hol");
-//	W(v, rv, "budapest");
-//	file.Set(rk, rv);
-//
-//	W(k, rk, "ki");
-//	file.Get(rk, rv);
-//	P();
-//
-//	W(k, rk, "hol");
-//	file.Get(rk, rv);
-//	P();
-
 	StartClock();
 
 	num = 1*1000*1000;
@@ -50,7 +24,8 @@ TEST_DEFINE(TestStorage)
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
 
-	catalog.Open("dogs");
+	db.Open("test");
+	table = db.GetTable("dogs");
 
 	clock = NowClock();
 	sw.Start();
@@ -64,7 +39,7 @@ TEST_DEFINE(TestStorage)
 		len = snprintf(p, vsize, "%.100f", (float) i);
 		rv.SetBuffer(p);
 		rv.SetLength(len);
-		catalog.Set(rk, rv, false);
+		table->Set(rk, rv, false);
 
 		if (NowClock() - clock >= 1000)
 		{
@@ -82,7 +57,7 @@ TEST_DEFINE(TestStorage)
 	{
 		k.Writef("%d", i);
 		rk.Wrap(k);
-		if (catalog.Get(rk, rv))
+		if (table->Get(rk, rv))
 			;//PRINT()
 		else
 			ASSERT_FAIL();
@@ -103,7 +78,7 @@ TEST_DEFINE(TestStorage)
 	
 	sw.Reset();
 	sw.Start();
-	catalog.Close();
+	db.Close();
 	elapsed = sw.Stop();
 	printf("Close() took %ld msec\n", elapsed);
 	
@@ -114,15 +89,16 @@ TEST_DEFINE(TestStorage)
 
 TEST_DEFINE(TestStorageCapacity)
 {
-	StorageTable	catalog;
-	Buffer			k, v;
-	ReadBuffer		rk, rv;
-	Stopwatch		sw;
-	long			elapsed;
-	unsigned		num, len, ksize, vsize;
-	char*			area;
-	char*			p;
-	unsigned		round;
+	StorageDatabase		db;
+	StorageTable*		table;
+	Buffer				k, v;
+	ReadBuffer			rk, rv;
+	Stopwatch			sw;
+	long				elapsed;
+	unsigned			num, len, ksize, vsize;
+	char*				area;
+	char*				p;
+	unsigned			round;
 
 	round = 100;
 	num = 10*1000;
@@ -133,7 +109,8 @@ TEST_DEFINE(TestStorageCapacity)
 	// a million key-value pairs take up 248M disk space
 	for (unsigned r = 0; r < round; r++)
 	{
-		catalog.Open("dogs");
+		db.Open("test");
+		table = db.GetTable("dogs");
 
 		sw.Start();
 		for (unsigned i = 0; i < num; i++)
@@ -147,7 +124,7 @@ TEST_DEFINE(TestStorageCapacity)
 			len = snprintf(p, vsize, "%.100f", (float) i + r * num);
 			rv.SetBuffer(p);
 			rv.SetLength(len);
-			catalog.Set(rk, rv, false);
+			table->Set(rk, rv, false);
 		}
 		elapsed = sw.Stop();
 		printf("%u sets took %ld msec\n", num, elapsed);		
@@ -157,7 +134,7 @@ TEST_DEFINE(TestStorageCapacity)
 		{
 			k.Writef("%d", i + r * num);
 			rk.Wrap(k);
-			if (catalog.Get(rk, rv))
+			if (table->Get(rk, rv))
 				;//PRINT()
 			else
 				ASSERT_FAIL();
@@ -167,8 +144,9 @@ TEST_DEFINE(TestStorageCapacity)
 
 		sw.Reset();
 		sw.Start();
-		catalog.Commit();
-		catalog.Close();
+		//table->Commit(); or
+		db.Commit();
+		db.Close();
 		elapsed = sw.Stop();
 		printf("Close() took %ld msec\n", elapsed);
 	}
