@@ -437,6 +437,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 		assert(dataPages[index]->IsDirty() == true);
 		assert(newPage->IsDirty() == false);
 		MarkPageDirty(newPage);
+		MarkPageDirty(&indexPage);
 //			if (newPage->MustSplit())
 //			{
 //				TODO
