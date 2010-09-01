@@ -1,4 +1,4 @@
-#include "StorageCatalog.h"
+#include "StorageTable.h"
 #include "System/Common.h"
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -18,12 +18,12 @@ static ReadBuffer& Key(FileIndex* fi)
 	return fi->key;
 }
 
-StorageCatalog::~StorageCatalog()
+StorageTable::~StorageTable()
 {
 	files.DeleteTree();
 }
 
-void StorageCatalog::Open(const char* filepath_)
+void StorageTable::Open(const char* filepath_)
 {
 	struct stat st;
 
@@ -57,7 +57,7 @@ void StorageCatalog::Open(const char* filepath_)
 	prevCommitFileIndex = nextFileIndex;
 }
 
-void StorageCatalog::Commit(bool flush)
+void StorageTable::Commit(bool flush)
 {
 	WriteRecoveryPrefix();
 
@@ -80,7 +80,7 @@ void StorageCatalog::Commit(bool flush)
 	prevCommitFileIndex = nextFileIndex;
 }
 
-void StorageCatalog::Close()
+void StorageTable::Close()
 {
 	FileIndex*	it;
 	
@@ -98,7 +98,7 @@ void StorageCatalog::Close()
 	::Delete(recoveryFilepath.GetBuffer());
 }
 
-bool StorageCatalog::Get(ReadBuffer& key, ReadBuffer& value)
+bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
 {
 	FileIndex* fi;
 	
@@ -110,7 +110,7 @@ bool StorageCatalog::Get(ReadBuffer& key, ReadBuffer& value)
 	else return fi->file->Get(key, value);
 }
 
-bool StorageCatalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
+bool StorageTable::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
 	FileIndex	*fi;
 	
@@ -141,7 +141,7 @@ bool StorageCatalog::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	return true;
 }
 
-void StorageCatalog::Delete(ReadBuffer& key)
+void StorageTable::Delete(ReadBuffer& key)
 {
 	bool			updateIndex;
 	FileIndex*		fi;
@@ -173,7 +173,7 @@ void StorageCatalog::Delete(ReadBuffer& key)
 	}
 }
 
-void StorageCatalog::WritePath(Buffer& buffer, uint32_t index)
+void StorageTable::WritePath(Buffer& buffer, uint32_t index)
 {
 	char	buf[30];
 	
@@ -185,7 +185,7 @@ void StorageCatalog::WritePath(Buffer& buffer, uint32_t index)
 	buffer.NullTerminate();
 }
 
-void StorageCatalog::ReadTOC(uint32_t length)
+void StorageTable::ReadTOC(uint32_t length)
 {
 	uint32_t	i, numFiles;
 	unsigned	len;
@@ -216,7 +216,7 @@ void StorageCatalog::ReadTOC(uint32_t length)
 	}	
 }
 
-void StorageCatalog::PerformRecovery(uint32_t length)
+void StorageTable::PerformRecovery(uint32_t length)
 {
 	char*				p;
 	uint32_t			required, pageSize, marker;
@@ -307,7 +307,7 @@ TruncateLog:
 	return;
 }
 
-void StorageCatalog::WriteBackPages(InList<Buffer>& pages)
+void StorageTable::WriteBackPages(InList<Buffer>& pages)
 {
 	char*		p;
 	int			fd;
@@ -335,7 +335,7 @@ void StorageCatalog::WriteBackPages(InList<Buffer>& pages)
 	}
 }
 
-void StorageCatalog::DeleteGarbageFiles()
+void StorageTable::DeleteGarbageFiles()
 {
 	char*			p;
 	DIR*			dir;
@@ -371,7 +371,7 @@ void StorageCatalog::DeleteGarbageFiles()
 	closedir(dir);
 }
 
-void StorageCatalog::RebuildTOC()
+void StorageTable::RebuildTOC()
 {
 	char*			p;
 	DIR*			dir;
@@ -419,7 +419,7 @@ void StorageCatalog::RebuildTOC()
 	WriteTOC();	
 }
 
-void StorageCatalog::WriteRecoveryPrefix()
+void StorageTable::WriteRecoveryPrefix()
 {
 	FileIndex		*it;
 	uint32_t		marker = RECOVERY_MARKER;
@@ -450,7 +450,7 @@ void StorageCatalog::WriteRecoveryPrefix()
 	}
 }
 
-void StorageCatalog::WriteRecoveryPostfix()
+void StorageTable::WriteRecoveryPostfix()
 {
 	uint32_t		marker = RECOVERY_MARKER;
 
@@ -458,7 +458,7 @@ void StorageCatalog::WriteRecoveryPostfix()
 		ASSERT_FAIL();
 }
 
-void StorageCatalog::WriteTOC()
+void StorageTable::WriteTOC()
 {
 	char*			p;
 	uint32_t		size, len;
@@ -491,7 +491,7 @@ void StorageCatalog::WriteTOC()
 	}
 }
 
-void StorageCatalog::WriteData()
+void StorageTable::WriteData()
 {
 	FileIndex		*it;
 	
@@ -503,7 +503,7 @@ void StorageCatalog::WriteData()
 	}
 }
 
-FileIndex* StorageCatalog::Locate(ReadBuffer& key)
+FileIndex* StorageTable::Locate(ReadBuffer& key)
 {
 	FileIndex*	fi;
 	int			cmpres;
@@ -575,7 +575,7 @@ void FileIndex::SetKey(ReadBuffer key_, bool copy)
 		key = key_;
 }
 
-void StorageCatalog::SplitFile(StorageFile* file)
+void StorageTable::SplitFile(StorageFile* file)
 {
 	FileIndex*	newFi;
 	ReadBuffer	rb;
@@ -594,7 +594,7 @@ void StorageCatalog::SplitFile(StorageFile* file)
 	files.Insert(newFi);
 }
 
-StorageDataPage* StorageCatalog::CursorBegin(ReadBuffer& key, Buffer& nextKey)
+StorageDataPage* StorageTable::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 {
 	FileIndex*			fi;
 	StorageDataPage*	dataPage;

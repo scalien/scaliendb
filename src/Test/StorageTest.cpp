@@ -1,12 +1,12 @@
 #include "Test.h"
 
-#include "Framework/Storage/StorageCatalog.h"
+#include "Framework/Storage/StorageTable.h"
 #include "System/Stopwatch.h"
 
 TEST_DEFINE(TestStorage)
 {
 #define PRINT()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
-	StorageCatalog	catalog;
+	StorageTable	catalog;
 	Buffer			k, v;
 	ReadBuffer		rk, rv;
 	Stopwatch		sw;
@@ -114,7 +114,7 @@ TEST_DEFINE(TestStorage)
 
 TEST_DEFINE(TestStorageCapacity)
 {
-	StorageCatalog	catalog;
+	StorageTable	catalog;
 	Buffer			k, v;
 	ReadBuffer		rk, rv;
 	Stopwatch		sw;

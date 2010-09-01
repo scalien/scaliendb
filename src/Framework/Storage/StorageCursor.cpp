@@ -1,7 +1,7 @@
 #include "StorageCursor.h"
-#include "StorageCatalog.h"
+#include "StorageTable.h"
 
-StorageCursor::StorageCursor(StorageCatalog* catalog_)
+StorageCursor::StorageCursor(StorageTable* catalog_)
 {
 	catalog = catalog_;
 	dataPage = NULL;

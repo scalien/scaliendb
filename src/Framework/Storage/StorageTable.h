@@ -1,5 +1,5 @@
-#ifndef STORAGECATALOG_H
-#define STORAGECATALOG_H
+#ifndef STORAGETABLE_H
+#define STORAGETABLE_H
 
 #include "System/Containers/InTreeMap.h"
 #include "StorageFile.h"
@@ -38,15 +38,15 @@ inline bool LessThan(FileIndex &a, FileIndex &b)
 /*
 ===============================================================================
 
- StorageCatalog
+ StorageTable
 
 ===============================================================================
 */
 
-class StorageCatalog
+class StorageTable
 {
 public:
-	~StorageCatalog();
+	~StorageTable();
 	
 	void					Open(const char* filepath);
 	void					Commit(bool flush = true);

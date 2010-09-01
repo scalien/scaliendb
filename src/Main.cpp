@@ -40,7 +40,7 @@
 //}
 //
 
-#include "Framework/Storage/StorageCatalog.h"
+#include "Framework/Storage/StorageTable.h"
 #include "System/Stopwatch.h"
 #include "stdio.h"
 #include "System/Containers/InTreeMap.h"
@@ -56,7 +56,7 @@ TEST_DECLARE(TestMain);
 int main(int argc, char** argv)
 {
 #define PRINT()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
-	StorageCatalog		catalog;
+	StorageTable		catalog;
 	StorageCursor*		cursor;
 	Buffer				k, v;
 	ReadBuffer			rk, rv;

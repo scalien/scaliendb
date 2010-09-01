@@ -3,7 +3,7 @@
 
 #include "StorageDataPage.h"
 
-class StorageCatalog;	// forward
+class StorageTable;	// forward
 class StorageDataPage;	// forward
 
 /*
@@ -17,7 +17,7 @@ class StorageDataPage;	// forward
 class StorageCursor
 {
 public:
-	StorageCursor(StorageCatalog* catalog);
+	StorageCursor(StorageTable* catalog);
 	
 	KeyValue*			Begin(ReadBuffer& key);
 	KeyValue*			Next();
@@ -29,7 +29,7 @@ public:
 private:
 	KeyValue*			FromNextPage();
 
-	StorageCatalog*		catalog;
+	StorageTable*		catalog;
 	StorageDataPage*	dataPage;
 	KeyValue*			current;
 	Buffer				nextKey;
