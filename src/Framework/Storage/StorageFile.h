@@ -1,22 +1,11 @@
 #ifndef STORAGEFILE_H
 #define STORAGEFILE_H
 
+#include "StorageDefaults.h"
 #include "StorageIndexPage.h"
 #include "StorageDataPage.h"
 
-//#define DEFAULT_KEY_LIMIT			1000
-//#define DEFAULT_DATAPAGE_SIZE		64*1024
-//#define DEFAULT_NUM_DATAPAGES		256			// 16.7 MB wort of data pages
-//#define DEFAULT_INDEXPAGE_SIZE		256*1024	// to fit 256 keys
-
-#define DEFAULT_KEY_LIMIT			100
-#define DEFAULT_DATAPAGE_SIZE		4*1024
-#define DEFAULT_NUM_DATAPAGES		16*256			// 16.7 MB wort of data pages
-#define DEFAULT_INDEXPAGE_SIZE		16+16*256*(100+8)	// to fit 256 keys
-
 #define INDEXPAGE_OFFSET			12
-
-// default total filesize: 4+4+4+262144+256*65536 ~= 17M
 
 /*
 ===============================================================================
