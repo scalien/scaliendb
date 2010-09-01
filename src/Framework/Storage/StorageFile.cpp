@@ -320,7 +320,6 @@ void StorageFile::WriteRecovery(int recoveryFD)
 {
 	StoragePage*	it;
 
-	// TODO: write these in offset order
 	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
 	{
 		if (it->IsNew())

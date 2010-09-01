@@ -1,6 +1,7 @@
 #include "Test.h"
 
 #include "Framework/Storage/StorageCatalog.h"
+#include "System/Stopwatch.h"
 
 TEST_DEFINE(TestStorage)
 {

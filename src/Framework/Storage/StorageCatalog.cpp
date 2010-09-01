@@ -94,6 +94,8 @@ void StorageCatalog::Close()
 	files.DeleteTree();
 	close(recoveryFD);
 	close(tocFD);
+	
+	::Delete(recoveryFilepath.GetBuffer());
 }
 
 bool StorageCatalog::Get(ReadBuffer& key, ReadBuffer& value)
