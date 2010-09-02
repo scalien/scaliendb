@@ -109,6 +109,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	
 	if (index < 0)
 	{
+		// file is empty, allocate first data page
 		index = 0;
 		assert(numDataPages == 0);
 		assert(dataPages[index] == NULL);
@@ -137,7 +138,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		assert(dataPages[index]->HasCursors() == false);
 	}
 	
-	if (!dataPages[index]->Set(key, value, copy))
+	if (!dataPages[index]->Set(key, value, copy)) 
 		return true; // nothing changed
 	
 	MarkPageDirty(dataPages[index]);
@@ -498,6 +499,7 @@ void StorageFile::LoadDataPage(uint32_t index)
 	ReadBuffer	readBuffer;
 	int			length;
 	
+	// load existing data page from disk
 	dataPages[index] = new StorageDataPage;
 	dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 	dataPages[index]->SetPageSize(dataPageSize);
