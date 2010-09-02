@@ -9,7 +9,7 @@
 #include "StoragePage.h"
 #include "StorageKeyValue.h"
 
-class StorageCursor; // forward
+class StorageCursor;	// forward
 
 #define DATAPAGE_FIX_OVERHEAD		16
 #define DATAPAGE_KV_OVERHEAD		8

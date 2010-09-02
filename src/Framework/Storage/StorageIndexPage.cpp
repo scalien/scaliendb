@@ -172,6 +172,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 	p += 4;
 	num = FromLittle32(*((uint32_t*) p));
 	p += 4;
+//	printf("reading index for file %u\n", fileIndex);
 	for (i = 0; i < num; i++)
 	{
 		ki = new StorageKeyIndex;
@@ -181,7 +182,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 		ki->key.SetBuffer(p);
 		p += len;
 		ki->index = FromLittle32(*((uint32_t*) p));
-//		printf("%.*s => %u\n", ki->key.GetLength(), ki->key.GetBuffer(), ki->index);
+//		printf("reading index %.*s => %u\n", ki->key.GetLength(), ki->key.GetBuffer(), ki->index);
 		p += 4;
 		keys.Insert(ki);
 		freeDataPages.Remove(ki->index);
@@ -207,6 +208,7 @@ void StorageIndexPage::Write(Buffer& buffer)
 	assert(keys.GetCount() <= numDataPageSlots);
 	*((uint32_t*) p) = ToLittle32(keys.GetCount());
 	p += 4;
+//	printf("writing index for file %u\n", fileIndex);
 	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
 //		printf("writing index: %.*s => %u\n", it->key.GetLength(), it->key.GetBuffer(), it->index);
@@ -220,34 +222,5 @@ void StorageIndexPage::Write(Buffer& buffer)
 	}
 	
 	buffer.SetLength(required);
-//	this->buffer.Allocate(pageSize);
 	this->buffer.Write(buffer);
 }
-
-StorageKeyIndex::StorageKeyIndex()
-{
-	keyBuffer = NULL;
-}
-
-StorageKeyIndex::~StorageKeyIndex()
-{
-	if (keyBuffer != NULL)
-		delete keyBuffer;
-}
-
-void StorageKeyIndex::SetKey(ReadBuffer& key_, bool copy)
-{
-	if (keyBuffer != NULL && !copy)
-		delete keyBuffer;
-	
-	if (copy)
-	{
-		if (keyBuffer == NULL)
-			keyBuffer = new Buffer; // TODO: allocation strategy
-		keyBuffer->Write(key_);
-		key.Wrap(*keyBuffer);
-	}
-	else
-		key = key_;
-}
-

@@ -153,6 +153,7 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 	newPage = new StorageDataPage();
 	newPage->SetPageSize(pageSize);
 	newPage->SetStorageFileIndex(fileIndex);
+	newPage->buffer.Write(this->buffer);
 	
 	while (it != NULL)
 	{
@@ -160,6 +161,8 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		// TODO: optimize buffer to avoid delete and realloc below
 		next = keys.Next(it);
 		keys.Remove(it);
+		it->SetKey(it->key, true);
+		it->SetValue(it->value, true);
 		newPage->keys.Insert(it);
 		newPage->required += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
 		it = next;
@@ -224,6 +227,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 	p += 4;
 	num = FromLittle32(*((uint32_t*) p));
 	p += 4;
+//	printf("reading datapage for file %u at offset %u\n", fileIndex, offset);
 	for (i = 0; i < num; i++)
 	{
 		kv = new StorageKeyValue;
@@ -231,19 +235,11 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 		p += 4;
 		kv->key.SetLength(len);
 		kv->key.SetBuffer(p);
-		// TODO: hack
-		kv->keyBuffer = new Buffer();
-		kv->keyBuffer->Write(kv->key);
-		kv->key.Wrap(*kv->keyBuffer);
 		p += len;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		kv->value.SetLength(len);
 		kv->value.SetBuffer(p);
-		// TODO: hack
-		kv->valueBuffer = new Buffer();
-		kv->valueBuffer->Write(kv->value);
-		kv->value.Wrap(*kv->valueBuffer);
 		
 		p += len;
 //		printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
@@ -261,6 +257,8 @@ void StorageDataPage::Write(Buffer& buffer)
 	unsigned	len;
 	uint32_t	num;
 
+	this->buffer.Allocate(required);
+
 	p = buffer.GetBuffer();
 	assert(pageSize > 0);
 	*((uint32_t*) p) = ToLittle32(pageSize);
@@ -274,75 +272,44 @@ void StorageDataPage::Write(Buffer& buffer)
 	num = keys.GetCount();
 	*((uint32_t*) p) = ToLittle32(num);
 	p += 4;
+//	printf("writing datapage for file %u at offset %u\n", fileIndex, offset);
 	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
 		len = it->key.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
 		memcpy(p, it->key.GetBuffer(), len);
+
+		if (it->keyBuffer)
+		{
+			delete it->keyBuffer;
+			it->keyBuffer = NULL;
+		}
+		it->key.SetBuffer(this->buffer.GetBuffer() + (p - buffer.GetBuffer()));
+
 		p += len;
 		len = it->value.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
 		memcpy(p, it->value.GetBuffer(), len);
+
+		if (it->valueBuffer)
+		{
+			delete it->valueBuffer;
+			it->valueBuffer = NULL;
+		}
+		it->value.SetBuffer(this->buffer.GetBuffer() + (p - buffer.GetBuffer()));
+
 		p += len;
 //		printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
 	}
 	
 	buffer.SetLength(required);
-//	this->buffer.Allocate(pageSize);
 	this->buffer.Write(buffer);
+
+//	for (it = keys.First(); it != NULL; it = keys.Next(it))
+//	{
+//		printf("written %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
+//	}
+
 }
-
-StorageKeyValue::StorageKeyValue()
-{
-	keyBuffer = NULL;
-	valueBuffer = NULL;
-}
-
-StorageKeyValue::~StorageKeyValue()
-{
-	if (keyBuffer != NULL)
-		delete keyBuffer;
-	if (valueBuffer != NULL)
-		delete valueBuffer;
-}
-
-void StorageKeyValue::SetKey(ReadBuffer& key_, bool copy)
-{
-	if (keyBuffer != NULL && !copy)
-	{
-		delete keyBuffer;
-		keyBuffer = NULL;
-	}
-	
-	if (copy)
-	{
-		if (keyBuffer == NULL)
-			keyBuffer = new Buffer; // TODO: allocation strategy
-		keyBuffer->Write(key_);
-		key.Wrap(*keyBuffer);
-	}
-	else
-		key = key_;
-}
-
-void StorageKeyValue::SetValue(ReadBuffer& value_, bool copy)
-{
-	if (valueBuffer != NULL && !copy)
-	{
-		delete valueBuffer;
-		valueBuffer = NULL;
-	}
-
-	if (copy)
-	{
-		if (valueBuffer == NULL)
-			valueBuffer = new Buffer; // TODO: allocation strategy
-		valueBuffer->Write(value_);
-		value.Wrap(*valueBuffer);
-	}
-	else
-		value = value_;
-}
-

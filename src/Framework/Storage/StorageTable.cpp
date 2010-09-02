@@ -59,13 +59,16 @@ void StorageTable::Open(const char* name)
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
-void StorageTable::Commit(bool flush)
+void StorageTable::Commit(bool recovery, bool flush)
 {
-	WriteRecoveryPrefix();
+	if (recovery)
+	{
+		WriteRecoveryPrefix();
 
-	// to make sure the recovery (prefix) part is written
-	if (flush)
-		FS_Sync();
+		// to make sure the recovery (prefix) part is written
+		if (flush)
+			FS_Sync();
+	}
 
 	WriteTOC();
 	WriteData();
@@ -74,11 +77,13 @@ void StorageTable::Commit(bool flush)
 	if (flush)
 		FS_Sync();
 
-	WriteRecoveryPostfix();
-	
-	FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
-	FS_FileTruncate(recoveryFD, 0);
-
+	if (recovery)
+	{
+		WriteRecoveryPostfix();
+		
+		FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
+		FS_FileTruncate(recoveryFD, 0);
+	}
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
@@ -523,15 +528,6 @@ StorageFileIndex* StorageTable::Locate(ReadBuffer& key)
 		goto OpenFile;
 	}
 	
-//	for (fi = files.First(); fi != NULL; fi = files.Next(fi))
-//	{
-//		if (ReadBuffer::LessThan(key, fi->key))
-//		{
-//			fi = files.Prev(fi);
-//			goto OpenFile;
-//		}
-//	}
-	
 	fi = files.Locate<ReadBuffer&>(key, cmpres);
 	if (fi)
 	{
@@ -550,35 +546,6 @@ OpenFile:
 	}
 	
 	return fi;
-}
-
-StorageFileIndex::StorageFileIndex()
-{
-	file = NULL;
-	keyBuffer = NULL;
-}
-
-StorageFileIndex::~StorageFileIndex()
-{
-	if (keyBuffer != NULL)
-		delete keyBuffer;
-	delete file;
-}
-
-void StorageFileIndex::SetKey(ReadBuffer key_, bool copy)
-{
-	if (keyBuffer != NULL && !copy)
-		delete keyBuffer;
-	
-	if (copy)
-	{
-		if (keyBuffer == NULL)
-			keyBuffer = new Buffer; // TODO: allocation strategy
-		keyBuffer->Write(key_);
-		key.Wrap(*keyBuffer);
-	}
-	else
-		key = key_;
 }
 
 void StorageTable::SplitFile(StorageFile* file)
@@ -639,5 +606,9 @@ void StorageTable::CommitPhase3()
 	FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
 	FS_FileTruncate(recoveryFD, 0);
 
+}
+
+void StorageTable::CommitPhase4()
+{
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }

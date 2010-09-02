@@ -168,7 +168,7 @@ T* InList<T>::Remove(T* t)
 	ret = dynamic_cast<T*>(t->next);
 	t->next = t;
 	t->prev = t;
-	Log_Trace("length = %d", length);
+//	Log_Trace("length = %d", length);
 	
 	return ret;
 }

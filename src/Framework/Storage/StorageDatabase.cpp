@@ -46,15 +46,18 @@ void StorageDatabase::Close()
 		it->Close();
 }
 
-void StorageDatabase::Commit(bool flush)
+void StorageDatabase::Commit(bool recovery, bool flush)
 {
 	StorageTable* it;
 	
-	for (it = tables.First(); it != NULL; it = tables.Next(it))
-		it->CommitPhase1();
-		
-	if (flush)
-		FS_Sync();
+	if (recovery)
+	{
+		for (it = tables.First(); it != NULL; it = tables.Next(it))
+			it->CommitPhase1();
+
+		if (flush)
+			FS_Sync();
+	}	
 
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
 		it->CommitPhase2();
@@ -62,7 +65,12 @@ void StorageDatabase::Commit(bool flush)
 	if (flush)
 		FS_Sync();
 
+	if (recovery)
+	{
+		for (it = tables.First(); it != NULL; it = tables.Next(it))
+			it->CommitPhase3();
+	}
+	
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
-		it->CommitPhase3();
-
+		it->CommitPhase4();
 }
