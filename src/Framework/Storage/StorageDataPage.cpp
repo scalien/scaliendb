@@ -132,8 +132,8 @@ bool StorageDataPage::IsOverflowing()
 StorageDataPage* StorageDataPage::SplitDataPage()
 {
 	StorageDataPage*	newPage;
-	StorageKeyValue*			it;
-	StorageKeyValue*			next;
+	StorageKeyValue*	it;
+	StorageKeyValue*	next;
 	uint32_t			target, sum;
 	
 	if (required > 2 * pageSize)
@@ -257,7 +257,7 @@ void StorageDataPage::Write(Buffer& buffer)
 	unsigned	len;
 	uint32_t	num;
 
-	this->buffer.Allocate(required);
+	this->buffer.Allocate(pageSize);
 
 	p = buffer.GetBuffer();
 	assert(pageSize > 0);

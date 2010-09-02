@@ -45,9 +45,6 @@ public:
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
 	
-	static Stopwatch		sw_reads;
-	static Stopwatch		sw_test;
-
 private:
 	int32_t					Locate(ReadBuffer& key);
 	void					LoadDataPage(uint32_t index);

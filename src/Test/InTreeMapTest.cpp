@@ -22,13 +22,13 @@ static const ReadBuffer& Key(StorageKeyValue* kv)
 
 TEST_DEFINE(TestInTreeMap)
 {
-	InTreeMap<StorageKeyValue>						kvs;
+	InTreeMap<StorageKeyValue>				kvs;
 	ReadBuffer								rb;
 	ReadBuffer								rk;
 	ReadBuffer								rv;
 	Buffer									buf;
-	StorageKeyValue*								kv;
-	StorageKeyValue*								it;
+	StorageKeyValue*						kv;
+	StorageKeyValue*						it;
 	Stopwatch								sw;
 	const unsigned							num = 1000000;
 	unsigned								ksize;

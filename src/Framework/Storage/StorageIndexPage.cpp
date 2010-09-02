@@ -197,6 +197,8 @@ void StorageIndexPage::Write(Buffer& buffer)
 	char*		p;
 	unsigned	len;
 
+	this->buffer.Allocate(pageSize);
+
 	p = buffer.GetBuffer();
 	*((uint32_t*) p) = ToLittle32(pageSize);
 	p += 4;

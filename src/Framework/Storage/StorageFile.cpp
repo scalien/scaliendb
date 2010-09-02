@@ -484,9 +484,6 @@ int32_t StorageFile::Locate(ReadBuffer& key)
 	return index;
 }
 
-Stopwatch StorageFile::sw_reads;
-Stopwatch StorageFile::sw_test;
-
 void StorageFile::LoadDataPage(uint32_t index)
 {
 	Buffer		buffer;
@@ -502,9 +499,7 @@ void StorageFile::LoadDataPage(uint32_t index)
 
 	buffer.Allocate(dataPageSize);
 //	printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
-	sw_reads.Start();
 	length = FS_FileReadOffs(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
-	sw_reads.Stop();
 	if (length < 0)
 		ASSERT_FAIL();
 	buffer.SetLength(length);
