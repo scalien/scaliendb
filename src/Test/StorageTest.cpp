@@ -148,7 +148,7 @@ TEST_DEFINE(TestStorageCapacity)
 
 		sw.Reset();
 		sw.Start();
-		table->Commit(true, false);
+		table->Commit(true /*recovery*/, false /*flush*/);
 		elapsed = sw.Stop();
 		printf("Commit() took %ld msec\n", elapsed);
 	}

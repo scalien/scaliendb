@@ -37,7 +37,7 @@ bool StorageDataPage::Get(ReadBuffer& key, ReadBuffer& value)
 	return false;
 }
 
-void StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
+bool StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
 	StorageKeyValue*	it;
 	StorageKeyValue*	newStorageKeyValue;
@@ -46,11 +46,13 @@ void StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	it = keys.Locate<ReadBuffer&>(key, res);
 	if (res == 0 && it != NULL)
 	{
+		if (BUFCMP(&value, &it->value))
+			return false;
 		// found
 		required -= it->value.GetLength();
 		it->SetValue(value, copy);
 		required += it->value.GetLength();
-		return;
+		return true;
 	}
 
 	// not found
@@ -62,7 +64,8 @@ void StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		
 	if (required == 32814)
 		printf("hello\n");
-
+	
+	return true;
 }
 
 void StorageDataPage::Delete(ReadBuffer& key)

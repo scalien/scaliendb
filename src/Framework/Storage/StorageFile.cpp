@@ -137,7 +137,9 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		assert(dataPages[index]->HasCursors() == false);
 	}
 	
-	dataPages[index]->Set(key, value, copy);
+	if (!dataPages[index]->Set(key, value, copy))
+		return true; // nothing changed
+	
 	MarkPageDirty(dataPages[index]);
 	
 	if (dataPages[index]->IsOverflowing())

@@ -31,7 +31,7 @@ public:
 	
 	// basic ops	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
-	void					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
+	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
 	void					RegisterCursor(StorageCursor* cursor);
