@@ -5,9 +5,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
+#include <sys/uio.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <dirent.h>
+#include <alloca.h>
 
 FD FS_Open(const char* filename, int flags)
 {
@@ -22,7 +24,13 @@ FD FS_Open(const char* filename, int flags)
 	if ((flags & FS_READWRITE) == FS_READWRITE)
 		oflags |= O_RDWR;
 
-	return open(filename, oflags, mode);
+	ret = open(filename, oflags, mode);
+	if (ret < 0)
+	{
+		Log_Errno();
+		return INVALID_FD;
+	}
+	return ret;
 }
 
 void FS_FileClose(FD fd)
@@ -94,6 +102,24 @@ ssize_t	FS_FileWrite(FD fd, const void* buf, size_t count)
 	if (ret < 0)
 		Log_Errno();
 	return ret;
+}
+
+ssize_t	FS_FileWriteVector(FD fd, unsigned num, const void** buf, size_t *count)
+{
+	ssize_t			ret;
+	struct iovec	vecbuf[num];
+	unsigned		i;
+	
+	for (i = 0; i < num; i++)
+	{
+		vecbuf[i].iov_base = (void*) buf[i];
+		vecbuf[i].iov_len = count[i];
+	}
+	
+	ret = writev(fd, vecbuf, num);
+	if (ret < 0)
+		Log_Errno();
+	return ret;	
 }
 
 ssize_t FS_FileRead(FD fd, void* buf, size_t count)

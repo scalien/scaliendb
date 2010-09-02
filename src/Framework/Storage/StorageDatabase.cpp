@@ -1,4 +1,5 @@
 #include "StorageDatabase.h"
+#include "System/FileSystem.h"
 
 void StorageDatabase::Open(const char* dbName)
 {
@@ -55,14 +56,14 @@ void StorageDatabase::Commit(bool recovery, bool flush)
 			it->CommitPhase1();
 
 		if (flush)
-			sync();
+			FS_Sync();
 	}	
 
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
 		it->CommitPhase2();
 
 	if (flush)
-		sync();
+		FS_Sync();
 
 	if (recovery)
 	{

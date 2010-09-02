@@ -422,7 +422,7 @@ void StorageFile::WriteData()
 	Buffer			buffer;
 	StoragePage*	it;
 	char*			p;
-
+	
 	if (newFile)
 	{
 		buffer.Allocate(12);
