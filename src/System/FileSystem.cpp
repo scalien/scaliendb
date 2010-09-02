@@ -107,10 +107,9 @@ ssize_t	FS_FileWrite(FD fd, const void* buf, size_t count)
 ssize_t	FS_FileWriteVector(FD fd, unsigned num, const void** buf, size_t *count)
 {
 	ssize_t			ret;
-	struct iovec*	vecbuf;
+	struct iovec	vecbuf[num];
 	unsigned		i;
 	
-	vecbuf = (struct iovec*) alloca(sizeof(struct iovec) * num);
 	for (i = 0; i < num; i++)
 	{
 		vecbuf[i].iov_base = (void*) buf[i];
