@@ -47,7 +47,8 @@ public:
 	void					Detach();
 
 	void					Read(ReadBuffer& buffer);
-	void					Write(Buffer& buffer);
+	bool					CheckWrite(Buffer& buffer);
+	bool					Write(Buffer& buffer);
 
 private:
 	uint32_t				required;

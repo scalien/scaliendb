@@ -59,6 +59,10 @@ void StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	newStorageKeyValue->SetValue(value, copy);
 	keys.InsertAt(newStorageKeyValue, it, res);
 	required += (DATAPAGE_KV_OVERHEAD + key.GetLength() + value.GetLength());
+		
+	if (required == 32814)
+		printf("hello\n");
+
 }
 
 void StorageDataPage::Delete(ReadBuffer& key)
@@ -147,14 +151,17 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		if (sum > pageSize || sum >= target)
 			break;		
 	}
-	
+		
 	assert(it != NULL);
 	
 	newPage = new StorageDataPage();
 	newPage->SetPageSize(pageSize);
 	newPage->SetStorageFileIndex(fileIndex);
-	newPage->buffer.Write(this->buffer);
-	
+//	newPage->buffer.Write(this->buffer);
+	newPage->buffer.Allocate(pageSize);
+	assert(newPage->required == DATAPAGE_FIX_OVERHEAD);
+	assert(newPage->keys.GetCount() == 0);
+//	printf("\n\n");
 	while (it != NULL)
 	{
 		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
@@ -165,7 +172,27 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		it->SetValue(it->value, true);
 		newPage->keys.Insert(it);
 		newPage->required += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
+//		printf("putting %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
 		it = next;
+	}
+	
+	// CHECK
+	unsigned r = DATAPAGE_FIX_OVERHEAD;
+	unsigned num = 0;
+	for (StorageKeyValue* it = newPage->keys.First(); it != NULL; it = newPage->keys.Next(it))
+	{
+		r += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
+		num++;
+	}	
+	assert(num == newPage->keys.GetCount());
+	assert(newPage->required == r);
+	
+	if (newPage->required == 32814)
+	{
+		Buffer buffer;
+		buffer.Allocate(pageSize);
+		printf("hello\n");
+		newPage->CheckWrite(buffer);
 	}
 	
 	assert(IsEmpty() != true);
@@ -182,8 +209,8 @@ void StorageDataPage::Detach()
 {
 	StorageDataPage*	detached;
 	StorageCursor*		cursor;
-	StorageKeyValue*			it;
-	StorageKeyValue*			kv;
+	StorageKeyValue*	it;
+	StorageKeyValue*	kv;
 	int					cmpres;
 	
 	detached = new StorageDataPage(true);
@@ -216,6 +243,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 	char*		p;
 	StorageKeyValue*	kv;
 
+	buffer.Allocate(pageSize);
 	buffer.Write(buffer_);
 	
 	p = buffer.GetBuffer();
@@ -247,15 +275,73 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 	}
 	
 	required = p - buffer.GetBuffer();
+	this->buffer.SetLength(required);
 	assert(IsEmpty() != true);
 }
 
-void StorageDataPage::Write(Buffer& buffer)
+bool StorageDataPage::CheckWrite(Buffer& buffer)
 {
 	StorageKeyValue*	it;
-	char*		p;
-	unsigned	len;
-	uint32_t	num;
+	char*				p;
+	unsigned			len;
+	uint32_t			num;
+	
+	if (newPage)
+		assert(this->buffer.GetLength() == 0);
+
+	this->buffer.Allocate(pageSize);
+
+	p = buffer.GetBuffer();
+	assert(pageSize > 0);
+	*((uint32_t*) p) = ToLittle32(pageSize);
+	p += 4;
+	assert(fileIndex != 0);
+	*((uint32_t*) p) = ToLittle32(fileIndex);
+	p += 4;
+	assert(pageSize != 0);
+	*((uint32_t*) p) = ToLittle32(offset);
+	p += 4;
+	num = keys.GetCount();
+	*((uint32_t*) p) = ToLittle32(num);
+	p += 4;
+//	printf("writing datapage for file %u at offset %u\n", fileIndex, offset);
+	for (it = keys.First(); it != NULL; it = keys.Next(it))
+	{
+		len = it->key.GetLength();
+		*((uint32_t*) p) = ToLittle32(len);
+		p += 4;
+		memcpy(p, it->key.GetBuffer(), len);
+		p += len;
+		len = it->value.GetLength();
+		*((uint32_t*) p) = ToLittle32(len);
+		p += 4;
+		memcpy(p, it->value.GetBuffer(), len);
+		p += len;
+//		printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
+	}
+	unsigned r = p - buffer.GetBuffer();
+	assert(required == r);
+	buffer.SetLength(required);
+	if (BUFCMP(&buffer, &this->buffer))
+		return false;
+	
+//	for (it = keys.First(); it != NULL; it = keys.Next(it))
+//	{
+//		printf("written %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
+//	}
+	
+	return true;
+}
+
+bool StorageDataPage::Write(Buffer& buffer)
+{
+	StorageKeyValue*	it;
+	char*				p;
+	unsigned			len;
+	uint32_t			num;
+	
+	if (newPage)
+		assert(this->buffer.GetLength() == 0);
 
 	this->buffer.Allocate(pageSize);
 
@@ -303,13 +389,19 @@ void StorageDataPage::Write(Buffer& buffer)
 		p += len;
 //		printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
 	}
-	
+	unsigned r = p - buffer.GetBuffer();
+	assert(required == r);
 	buffer.SetLength(required);
-	this->buffer.Write(buffer);
-
+	if (BUFCMP(&buffer, &this->buffer))
+		return false;
+	
 //	for (it = keys.First(); it != NULL; it = keys.Next(it))
 //	{
 //		printf("written %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
 //	}
-
+	
+	this->buffer.Write(buffer);
+	
+	return true;
 }
+

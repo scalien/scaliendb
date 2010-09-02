@@ -35,7 +35,8 @@ public:
 	bool					IsNew();
 
 	virtual void			Read(ReadBuffer& buffer)	= 0;
-	virtual void			Write(Buffer& buffer)		= 0;
+	virtual bool			CheckWrite(Buffer& buffer)		= 0;
+	virtual bool			Write(Buffer& buffer)		= 0;
 
 	InTreeNode<StoragePage>	treeNode;
 
@@ -43,11 +44,11 @@ public:
 
 protected:
 
-	uint32_t			fileIndex;
-	uint32_t			offset;
-	uint32_t			pageSize;
-	bool				dirty;
-	bool				newPage;
+	uint32_t				fileIndex;
+	uint32_t				offset;
+	uint32_t				pageSize;
+	bool					dirty;
+	bool					newPage;
 };
 
 #endif

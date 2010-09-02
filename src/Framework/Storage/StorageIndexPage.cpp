@@ -191,7 +191,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 	required = p - buffer.GetBuffer();
 }
 
-void StorageIndexPage::Write(Buffer& buffer)
+bool StorageIndexPage::CheckWrite(Buffer& buffer)
 {
 	StorageKeyIndex*	it;
 	char*		p;
@@ -222,7 +222,21 @@ void StorageIndexPage::Write(Buffer& buffer)
 		*((uint32_t*) p) = ToLittle32(it->index);
 		p += 4;
 	}
-	
+	assert(required == (p - buffer.GetBuffer()));
 	buffer.SetLength(required);
+	if (BUFCMP(&buffer, &this->buffer))
+		return false;
+	
+	return true;
+}
+
+bool StorageIndexPage::Write(Buffer& buffer)
+{
+	bool ret;
+	
+	ret = CheckWrite(buffer);
+	
 	this->buffer.Write(buffer);
+	
+	return ret;
 }

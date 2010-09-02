@@ -400,6 +400,7 @@ void StorageFile::ReadRest()
 
 void StorageFile::WriteRecovery(int recoveryFD)
 {
+	Buffer			buffer;
 	StoragePage*	it;
 
 	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
@@ -408,6 +409,9 @@ void StorageFile::WriteRecovery(int recoveryFD)
 			continue;
 		assert(it->buffer.GetLength() <= it->GetPageSize());
 		// it->buffer contains the old page
+		buffer.Allocate(it->GetPageSize());
+		if (!it->CheckWrite(buffer))
+			continue;
 		if (FS_FileWrite(recoveryFD, it->buffer.GetBuffer(), it->buffer.GetLength()) < 0)
 		{
 			Log_Errno();
@@ -445,9 +449,11 @@ void StorageFile::WriteData()
 		buffer.Allocate(it->GetPageSize());
  		buffer.Zero();
 //		printf("writing file %s at offset %u\n", filepath.GetBuffer(), it->GetOffset());
-		it->Write(buffer);
-		if (FS_FileWriteOffs(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
-			ASSERT_FAIL();
+		if (it->Write(buffer))
+		{
+			if (FS_FileWriteOffs(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset()) < 0)
+				ASSERT_FAIL();
+		}
 		it->SetDirty(false);
 		it->SetNew(false);
 	}
