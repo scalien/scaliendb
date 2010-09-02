@@ -100,23 +100,23 @@ TEST_DEFINE(TestStorageCapacity)
 	char*				p;
 	unsigned			round;
 
-	round = 3;
+	round = 10;
 	num = 100*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
 
+	db.Open("test");
 	// a million key-value pairs take up 248M disk space
 	for (unsigned r = 0; r < round; r++)
 	{
-		db.Open("test");
 		table = db.GetTable("dogs");
 
 		sw.Reset();
 		for (unsigned i = 0; i < num; i++)
 		{
 			p = area + i*(ksize+vsize);
-			len = snprintf(p, ksize, "%.10d", i + r * num); // takes 100 ms
+			len = snprintf(p, ksize, "%d", i + r * num); // takes 100 ms
 			rk.SetBuffer(p);
 			rk.SetLength(len);
 			//printf("%s\n", p);
@@ -149,10 +149,10 @@ TEST_DEFINE(TestStorageCapacity)
 		sw.Reset();
 		sw.Start();
 		db.Commit(true, false);
-		db.Close();
 		elapsed = sw.Stop();
 		printf("Commit() took %ld msec\n", elapsed);
 	}
+	db.Close();
 	
 	free(area);
 

@@ -12,7 +12,7 @@ StorageTable* StorageDatabase::GetTable(const char* tableName)
 	
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
 	{
-		if (it->GetName() == tableName)
+		if (MEMCMP(it->GetName(), strlen(it->GetName()), tableName, strlen(tableName)))
 			return it;
 	}
 	
