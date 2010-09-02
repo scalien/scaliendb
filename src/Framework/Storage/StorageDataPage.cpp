@@ -1,5 +1,6 @@
 #include "StorageDataPage.h"
 #include "StorageCursor.h"
+#include "StorageDataCache.h"
 #include <stdio.h>
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
@@ -16,6 +17,7 @@ StorageDataPage::StorageDataPage(bool detached_)
 {
 	required = DATAPAGE_FIX_OVERHEAD;
 	detached = detached_;
+	type = STORAGE_DATA_PAGE;
 }
 
 StorageDataPage::~StorageDataPage()
@@ -157,7 +159,9 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		
 	assert(it != NULL);
 	
-	newPage = new StorageDataPage();
+	//newPage = new StorageDataPage();
+	newPage = DCACHE->GetPage();
+	DCACHE->Checkin(newPage);
 	newPage->SetPageSize(pageSize);
 	newPage->SetStorageFileIndex(fileIndex);
 //	newPage->buffer.Write(this->buffer);

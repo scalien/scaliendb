@@ -40,7 +40,7 @@ extern "C" {
 #define TEST_MAIN(...) \
 	int main(int, char **) { \
 		TEST_RUN(__VA_ARGS__); \
-	}																																																																																																											
+	}
 #undef TEST_FILE
 #else
 #define TEST_MAIN(...)
@@ -50,6 +50,7 @@ extern "C" {
 #define TEST_DEFINE(testfn) extern "C" int testfn()
 #define TEST_DECLARE(testfn) extern "C" int testfn()
 #define TEST_FAIL() {TEST_LOG("FAILURE!"); return TEST_FAILURE;}
+#define TEST_ASSERT(expr) if (!(expr)) TEST_FAIL();
 
 #define TEST_SUCCESS 0
 #define TEST_FAILURE 1

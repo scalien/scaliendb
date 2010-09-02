@@ -61,8 +61,6 @@ public:
 	T*						Insert(T* t);
 	void					InsertAt(T* t, T* pos, int cmpres);
 	
-	template<typename K>
-	T*						Remove(K key);
 	T*						Remove(T* t);
 	
 	void					Clear();
@@ -273,6 +271,7 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
 		// overwrite the node and the owner in place
 		node->color = curr->color;
 		ReplaceNode(curr, node);
+		curr->owner = NULL;
 		return;
 	}
 	
@@ -285,6 +284,7 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 {
 	Node*	curr;
 	Node*	node;
+	T*		owner;
 	int		result;
 	
 	node = &(t->*pnode);
@@ -309,7 +309,9 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 			// replace the old node with the new one
 			node->color = curr->color;
 			ReplaceNode(curr, node);
-			return curr->owner;
+			owner = curr->owner;
+			curr->owner = NULL;
+			return owner;
 		}
 		else if (result < 0)
 		{
@@ -340,19 +342,6 @@ T* InTreeMap<T, pnode>::Insert(T* t)
 	
 	return NULL;
 }
-
-//template<typename T, InTreeNode<T> T::*pnode>
-//template<typename K>
-//T* InTreeMap<T, pnode>::Remove(K key)
-//{
-//	T*			t;
-//	
-//	t = Get<K>(key);
-//	if (t == NULL)
-//		return NULL;
-//	
-//	return Remove(t);
-//}
 
 template<typename T, InTreeNode<T> T::*pnode>
 T* InTreeMap<T, pnode>::Remove(T* t)
@@ -432,6 +421,7 @@ color:
 	if (color == Node::BLACK)
 		FixColorsOnRemoval(child, parent);
 	
+	GetNode(t)->owner = NULL;
 	count--;
 	return Next(t);
 }

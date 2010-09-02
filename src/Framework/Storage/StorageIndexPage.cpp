@@ -19,6 +19,7 @@ bool StorageKeyIndex::LessThan(StorageKeyIndex& a, StorageKeyIndex& b)
 StorageIndexPage::StorageIndexPage()
 {
 	required = INDEXPAGE_FIX_OVERHEAD;
+	type = STORAGE_INDEX_PAGE;
 }
 
 StorageIndexPage::~StorageIndexPage()

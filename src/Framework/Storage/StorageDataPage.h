@@ -10,6 +10,7 @@
 #include "StorageKeyValue.h"
 
 class StorageCursor;	// forward
+class StorageFile;		// forward
 
 #define DATAPAGE_FIX_OVERHEAD		16
 #define DATAPAGE_KV_OVERHEAD		8
@@ -30,31 +31,34 @@ public:
 	~StorageDataPage();
 	
 	// basic ops	
-	bool					Get(ReadBuffer& key, ReadBuffer& value);
-	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
-	void					Delete(ReadBuffer& key);
+	bool						Get(ReadBuffer& key, ReadBuffer& value);
+	bool						Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
+	void						Delete(ReadBuffer& key);
 
-	void					RegisterCursor(StorageCursor* cursor);
-	void					UnregisterCursor(StorageCursor* cursor);
-	StorageKeyValue*		BeginIteration(ReadBuffer& key);
-	StorageKeyValue*		Next(StorageKeyValue* it);
+	void						RegisterCursor(StorageCursor* cursor);
+	void						UnregisterCursor(StorageCursor* cursor);
+	StorageKeyValue*			BeginIteration(ReadBuffer& key);
+	StorageKeyValue*			Next(StorageKeyValue* it);
 	
-	bool					IsEmpty();
-	ReadBuffer				FirstKey();
-	bool					IsOverflowing();
-	StorageDataPage*		SplitDataPage();
-	bool					HasCursors();
-	void					Detach();
+	bool						IsEmpty();
+	ReadBuffer					FirstKey();
+	bool						IsOverflowing();
+	StorageDataPage*			SplitDataPage();
+	bool						HasCursors();
+	void						Detach();
 
-	void					Read(ReadBuffer& buffer);
-	bool					CheckWrite(Buffer& buffer);
-	bool					Write(Buffer& buffer);
+	void						Read(ReadBuffer& buffer);
+	bool						CheckWrite(Buffer& buffer);
+	bool						Write(Buffer& buffer);
 
 private:
-	uint32_t				required;
-	InTreeMap<StorageKeyValue>		keys;
-	InList<StorageCursor>	cursors;
-	bool					detached;
+	friend class StorageDataCache;
+	
+	uint32_t					required;
+	InTreeMap<StorageKeyValue>	keys;
+	InList<StorageCursor>		cursors;
+	bool						detached;
+	StorageFile*				file;
 };
 
 

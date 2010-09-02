@@ -5,6 +5,9 @@
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Containers/InTreeMap.h"
 
+#define STORAGE_DATA_PAGE	'd'
+#define STORAGE_INDEX_PAGE	'i'
+
 /*
 ===============================================================================
 
@@ -34,11 +37,15 @@ public:
 	void					SetNew(bool n);
 	bool					IsNew();
 
+	char					GetType();
+
 	virtual void			Read(ReadBuffer& buffer)	= 0;
-	virtual bool			CheckWrite(Buffer& buffer)		= 0;
+	virtual bool			CheckWrite(Buffer& buffer)	= 0;
 	virtual bool			Write(Buffer& buffer)		= 0;
 
 	InTreeNode<StoragePage>	treeNode;
+	StoragePage*			next;
+	StoragePage*			prev;
 
 	Buffer					buffer;
 
@@ -49,6 +56,7 @@ protected:
 	uint32_t				pageSize;
 	bool					dirty;
 	bool					newPage;
+	char					type;
 };
 
 #endif

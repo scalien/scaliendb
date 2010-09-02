@@ -177,4 +177,101 @@ TEST_DEFINE(TestInTreeMap)
 	return 0;
 }
 
+TEST_DEFINE(TestInTreeMapInsert)
+{
+	InTreeMap<StorageKeyValue>		kvs;
+	ReadBuffer						rb;
+	ReadBuffer						rk;
+	ReadBuffer						rv;
+	Buffer							buf;
+	StorageKeyValue*				kv;
+	StorageKeyValue*				it;
+	char*							p;
+	char*							area;
+	char*							kvarea;
+	int								ksize;
+	int								vsize;
+	int								num = 2;
+	
+	ksize = 20;
+	vsize = 128;
+	area = (char*) malloc(num*(ksize+vsize));
+	kvarea = (char*) malloc(num * sizeof(StorageKeyValue));
+
+	for (int i = 0; i < num; i++)
+	{
+		p = area + i*(ksize+vsize);
+		rk.SetBuffer(p);
+		rk.SetLength(ksize);
+		snprintf(p, ksize, "key");
+		p += ksize;
+		rv.SetBuffer(p);
+		rv.SetLength(vsize);
+		snprintf(p, vsize, "value");
+
+		kv = (StorageKeyValue*) (kvarea + i * sizeof(StorageKeyValue));
+		kv->SetKey(rk, false);
+		kv->SetValue(rv, false);
+		it = kvs.Insert(kv);
+		if (i == 0 && it != NULL)
+			TEST_FAIL();
+		if (i > 0 && it == NULL)
+			TEST_FAIL();
+	}
+
+	free(area);
+	free(kvarea);
+
+	return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestInTreeMapInsertRandom)
+{
+	InTreeMap<StorageKeyValue>		kvs;
+	ReadBuffer						rb;
+	ReadBuffer						rk;
+	ReadBuffer						rv;
+	Buffer							buf;
+	Stopwatch						sw;
+	StorageKeyValue*				kv;
+	StorageKeyValue*				it;
+	char*							p;
+	char*							area;
+	char*							kvarea;
+	int								ksize;
+	int								vsize;
+	int								num = 100000;
+	
+	ksize = 20;
+	vsize = 128;
+	area = (char*) malloc(num*(ksize+vsize));
+	kvarea = (char*) malloc(num * sizeof(StorageKeyValue));
+
+	for (int i = 0; i < num; i++)
+	{
+		p = area + i*(ksize+vsize);
+		rk.SetBuffer(p);
+		rk.SetLength(ksize);
+		RandomBuffer(p, ksize);
+		p += ksize;
+		rv.SetBuffer(p);
+		rv.SetLength(vsize);
+		RandomBuffer(p, vsize);
+
+		kv = (StorageKeyValue*) (kvarea + i * sizeof(StorageKeyValue));
+		kv->SetKey(rk, true);
+		kv->SetValue(rv, true);
+		sw.Start();
+		it = kvs.Insert(kv);
+		sw.Stop();
+	}
+	
+	printf("random insert time: %ld\n", sw.Elapsed());
+
+	free(area);
+	free(kvarea);
+
+	return TEST_SUCCESS;
+}
+
 TEST_MAIN(TestInTreeMap);

@@ -4,6 +4,7 @@ StoragePage::StoragePage()
 {
 	dirty = false;
 	newPage = true;
+	type = 0;
 }
 
 void StoragePage::SetStorageFileIndex(uint32_t fileIndex_)
@@ -54,4 +55,9 @@ void StoragePage::SetNew(bool newPage_)
 bool StoragePage::IsNew()
 {
 	return newPage;
+}
+
+char StoragePage::GetType()
+{
+	return type;
 }

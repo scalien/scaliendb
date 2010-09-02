@@ -68,10 +68,10 @@ public:
 	Buffer*				prev;
 		
 protected:
-	char				array[ARRAY_SIZE];
 	char*				buffer;
 	unsigned			size;
 	unsigned			length;
+	char				array[ARRAY_SIZE];
 };
 
 #endif

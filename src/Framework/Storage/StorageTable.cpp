@@ -61,30 +61,60 @@ void StorageTable::Open(const char* name)
 
 void StorageTable::Commit(bool recovery, bool flush)
 {
+	Stopwatch	sw;
+	long		el1, els1, el2, el3, els2, el4, el5;
+	
+	el1 = els1 = el2 = el3 = els2 = el4 = el5 = 0;
+	
 	if (recovery)
 	{
+		sw.Restart();
 		WriteRecoveryPrefix();
+		sw.Stop();
+		el1 = sw.Elapsed();
 
+		sw.Restart();
 		// to make sure the recovery (prefix) part is written
 		if (flush)
 			FS_Sync();
+		sw.Stop();
+		els1 = sw.Elapsed();
 	}
 
+	sw.Restart();
 	WriteTOC();
+	sw.Stop();
+	el2 = sw.Elapsed();
+	
+	sw.Restart();
 	WriteData();
+	sw.Stop();
+	el3 = sw.Elapsed();
 
+	sw.Restart();
 	// to make sure the data is written before we mark it such in the recovery postfix
 	if (flush)
 		FS_Sync();
+	sw.Stop();
+	els2 = sw.Elapsed();
 
 	if (recovery)
 	{
+		sw.Restart();
 		WriteRecoveryPostfix();
+		sw.Stop();
+		el4 = sw.Elapsed();
 		
+		sw.Restart();
 		FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
 		FS_FileTruncate(recoveryFD, 0);
+		sw.Stop();
+		el5 = sw.Elapsed();
 	}
 	prevCommitStorageFileIndex = nextStorageFileIndex;
+
+	printf("el1 = %ld, els1 = %ld, el2 = %ld, els2 = %ld, el3 = %ld, el4 = %ld, el5 = %ld\n",
+		el1, els1, el2, els2, el3, el4, el5);
 }
 
 void StorageTable::Close()

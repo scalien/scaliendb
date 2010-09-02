@@ -116,7 +116,7 @@ TEST_DEFINE(TestStorageCapacity)
 		for (unsigned i = 0; i < num; i++)
 		{
 			p = area + i*(ksize+vsize);
-			len = snprintf(p, ksize, "%d", i + r * num); // takes 100 ms
+			len = snprintf(p, ksize, "%011d", i + r * num); // takes 100 ms
 			rk.SetBuffer(p);
 			rk.SetLength(len);
 			//printf("%s\n", p);

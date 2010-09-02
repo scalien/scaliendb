@@ -45,6 +45,8 @@ public:
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
 	
+	void					UnloadDataPage(StorageDataPage* page);
+	
 private:
 	int32_t					Locate(ReadBuffer& key);
 	void					LoadDataPage(uint32_t index);
