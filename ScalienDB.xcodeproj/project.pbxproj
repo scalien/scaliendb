@@ -88,6 +88,7 @@
 		9A87418F12282946000B1319 /* TestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418A12282946000B1319 /* TestMain.cpp */; };
 		9A87419012282946000B1319 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
+		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -285,6 +286,7 @@
 		9A87418B12282946000B1319 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
+		9ACF23DE122FDEBE00247703 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
 		C6859E8B029090EE04C91782 /* Rowscale.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Rowscale.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -681,6 +683,7 @@
 		9A87418512282929000B1319 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				9ACF23DE122FDEBE00247703 /* Timings.cpp */,
 				9A87418612282946000B1319 /* InTreeMapTest.cpp */,
 				9A87418712282946000B1319 /* StorageTest.cpp */,
 				9A87418812282946000B1319 /* Test.c */,
@@ -821,6 +824,7 @@
 				54AB90E0122F98CE00721A0F /* StorageKeyValue.cpp in Sources */,
 				54AB90E5122F994B00721A0F /* StorageKeyIndex.cpp in Sources */,
 				54AB90EA122F99C300721A0F /* StorageFileIndex.cpp in Sources */,
+				9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

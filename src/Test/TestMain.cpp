@@ -3,6 +3,7 @@
 TEST_DECLARE(TestStorage);
 TEST_DECLARE(TestStorageCapacity);
 TEST_DECLARE(TestInTreeMap);
+TEST_DECLARE(TestWriteTiming);
 
 TEST_DEFINE(TestMain)
 {
@@ -10,5 +11,6 @@ TEST_DEFINE(TestMain)
 		//TestInTreeMap,
 		//TestStorage,
 		TestStorageCapacity,
+		//TestWriteTiming,
 	);
 }
