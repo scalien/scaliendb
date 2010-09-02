@@ -27,7 +27,7 @@ public:
 	const char*				GetName();
 
 	void					Open(const char* name);
-	void					Commit(bool flush = true);
+	void					Commit(bool recovery = true, bool flush = true);
 	void					Close();
 		
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
@@ -56,6 +56,7 @@ private:
 	void					CommitPhase1();
 	void					CommitPhase2();
 	void					CommitPhase3();
+	void					CommitPhase4();
 	
 	FD						tocFD;
 	FD						recoveryFD;

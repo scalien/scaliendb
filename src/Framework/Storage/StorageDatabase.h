@@ -20,7 +20,7 @@ public:
 	void					CloseTable(const char* tableName);
 	void					Close();
 	
-	void					Commit(bool flush = true);
+	void					Commit(bool recovery = true, bool flush = true);
 	
 private:
 	Buffer					name;

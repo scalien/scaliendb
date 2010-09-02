@@ -3,7 +3,7 @@
 
 #include "StorageDataPage.h"
 
-class StorageTable;	// forward
+class StorageTable;		// forward
 class StorageDataPage;	// forward
 
 /*

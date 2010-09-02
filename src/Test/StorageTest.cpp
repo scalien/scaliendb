@@ -100,8 +100,8 @@ TEST_DEFINE(TestStorageCapacity)
 	char*				p;
 	unsigned			round;
 
-	round = 100;
-	num = 10*1000;
+	round = 3;
+	num = 100*1000;
 	ksize = 20;
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
@@ -112,43 +112,46 @@ TEST_DEFINE(TestStorageCapacity)
 		db.Open("test");
 		table = db.GetTable("dogs");
 
-		sw.Start();
+		sw.Reset();
 		for (unsigned i = 0; i < num; i++)
 		{
 			p = area + i*(ksize+vsize);
-			len = snprintf(p, ksize, "%d", i + r * num);
+			len = snprintf(p, ksize, "%.10d", i + r * num); // takes 100 ms
 			rk.SetBuffer(p);
 			rk.SetLength(len);
 			//printf("%s\n", p);
 			p += ksize;
-			len = snprintf(p, vsize, "%.100f", (float) i + r * num);
+			len = snprintf(p, vsize, "%.100f", (float) i + r * num); // takes 100 ms
 			rv.SetBuffer(p);
 			rv.SetLength(len);
+			sw.Start();
 			table->Set(rk, rv, false);
+			sw.Stop();
 		}
-		elapsed = sw.Stop();
-		printf("%u sets took %ld msec\n", num, elapsed);		
+//		printf("reads took %ld msec\n", StorageFile::sw_reads.Elapsed());
+//		printf("test took %ld msec\n", StorageFile::sw_test.Elapsed());
+		
+		printf("%u sets took %ld msec\n", num, sw.Elapsed());
 
-		sw.Restart();
-		for (unsigned i = 0; i < num; i++)
-		{
-			k.Writef("%d", i + r * num);
-			rk.Wrap(k);
-			if (table->Get(rk, rv))
-				;//PRINT()
-			else
-				ASSERT_FAIL();
-		}	
-		elapsed = sw.Stop();
-		printf("Round %u: %u gets took %ld msec\n", r, num, elapsed);
+//		sw.Restart();
+//		for (unsigned i = 0; i < num; i++)
+//		{
+//			k.Writef("%d", i + r * num);
+//			rk.Wrap(k);
+//			if (table->Get(rk, rv))
+//				;//PRINT()
+//			else
+//				ASSERT_FAIL();
+//		}	
+//		elapsed = sw.Stop();
+//		printf("Round %u: %u gets took %ld msec\n", r, num, elapsed);
 
 		sw.Reset();
 		sw.Start();
-		//table->Commit(); or
-		db.Commit();
+		db.Commit(true, false);
 		db.Close();
 		elapsed = sw.Stop();
-		printf("Close() took %ld msec\n", elapsed);
+		printf("Commit() took %ld msec\n", elapsed);
 	}
 	
 	free(area);

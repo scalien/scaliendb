@@ -1,6 +1,10 @@
 #ifndef STORAGEKEYINDEX_H
 #define STORAGEKEYINDEX_H
 
+#include "System/Buffers/ReadBuffer.h"
+#include "System/Buffers/Buffer.h"
+#include "System/Containers/InTreeMap.h"
+
 /*
 ===============================================================================
 

@@ -1,5 +1,6 @@
 #include "StorageFile.h"
 #include "System/FileSystem.h"
+#include "stdio.h"
 
 #define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
 
@@ -83,11 +84,6 @@ void StorageFile::SetStorageFileIndex(uint32_t fileIndex_)
 	for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
 		it->SetStorageFileIndex(fileIndex);
 }
-
-//bool StorageFile::IsNew()
-//{
-//	return newFile;
-//}
 
 bool StorageFile::Get(ReadBuffer& key, ReadBuffer& value)
 {
@@ -259,6 +255,92 @@ StorageFile* StorageFile::SplitFile()
 	return newFile;
 }
 
+//StorageFile* StorageFile::SplitFile()
+//{
+//	StorageFile*		newFile;
+//	StorageKeyIndex*	it;
+//	StorageKeyIndex*	next;
+//	uint32_t			num, i, index, newIndex;
+//	
+//	assert(numDataPageSlots == numDataPages);
+//	
+//	// TODO: do thing for cursors: 
+//	
+//	newFile = new StorageFile;
+//	newFile->indexPageSize = indexPageSize;
+//	newFile->dataPageSize = dataPageSize;
+//	newFile->numDataPageSlots = numDataPageSlots;
+//	newFile->indexPage.SetPageSize(indexPageSize);
+//	newFile->indexPage.SetNumDataPageSlots(numDataPageSlots);
+//
+//	num = numDataPageSlots / 2;
+//
+//	for (it = indexPage.keys.First(), i = 0; it != NULL; it = indexPage.keys.Next(it), i++)
+//	{
+//		assert(dataPages[it->index] != NULL);
+//		assert(dataPages[it->index]->IsEmpty() != true);
+//		if (i == num)
+//			break;
+//	}
+//
+//	assert(it != NULL);
+//
+//	for (newIndex = 0; it != NULL; newIndex++)
+//	{
+//		index = it->index;
+//		assert(dataPages[index] != NULL);
+//		assert(!dataPages[index]->IsEmpty());
+//		newFile->dataPages[newIndex] = dataPages[index];
+//		if (dataPages[index]->IsDirty())
+//			dirtyPages.Remove((StoragePage*)dataPages[index]);
+//		next = indexPage.keys.Next(it);
+//		indexPage.Remove(dataPages[index]->FirstKey()); // it is deleted here
+//		dataPages[index] = NULL;
+//		newFile->indexPage.Add(newFile->dataPages[newIndex]->FirstKey(), newIndex, true);
+//		newFile->dataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));
+//		numDataPages--;
+//		newFile->numDataPages++;
+//		assert(newFile->numDataPages < newFile->numDataPageSlots);
+//		it = next;
+//	}
+//	// TODO: make sure overflowing page goes to the new file!!!
+//	// TODO: now if a new page gets allocated the old page that was it its position,
+//	//       which was moved to the new file is not written to recovery!
+//	isOverflowing = false;
+//	for (it = indexPage.keys.First(); it != NULL; it = indexPage.keys.Next(it))
+//	{
+//		if (dataPages[it->index]->IsOverflowing())
+//		{
+//			SplitDataPage(it->index);
+//			break;
+//		}
+//	}
+//	assert(isOverflowing == false);
+//	MarkPageDirty(&indexPage);
+//	
+//	newFile->isOverflowing = false;
+//	for (it = newFile->indexPage.keys.First(); it != NULL; it = newFile->indexPage.keys.Next(it))
+//	{
+//		newFile->dataPages[it->index]->SetDirty(false);
+//		newFile->MarkPageDirty(newFile->dataPages[it->index]);
+//	}
+//
+//	for (it = newFile->indexPage.keys.First(); it != NULL; it = newFile->indexPage.keys.Next(it))
+//	{
+//		if (newFile->dataPages[it->index]->IsOverflowing())
+//		{
+//			newFile->SplitDataPage(it->index);
+//			break;
+//		}
+//	}
+//
+//	assert(newFile->isOverflowing == false);
+//	newFile->indexPage.SetDirty(false);
+//	newFile->MarkPageDirty(&newFile->indexPage);
+//		
+//	return newFile;
+//}
+
 void StorageFile::Read()
 {
 	char*			p;
@@ -303,11 +385,17 @@ void StorageFile::Read()
 void StorageFile::ReadRest()
 {
 	StorageKeyIndex*		it;
+	uint32_t*				uit;
+	SortedList<uint32_t>	indexes;
 
-	// TODO make sure this IO occurs in order!
+	// IO occurs in order
+
 	for (it = indexPage.keys.First(); it != NULL; it = indexPage.keys.Next(it))
 		if (dataPages[it->index] == NULL)
-			LoadDataPage(it->index);
+			indexes.Add(it->index);
+
+	for (uint32_t* uit = indexes.First(); uit != NULL; uit = indexes.Next(uit))
+		LoadDataPage(*uit);
 }
 
 void StorageFile::WriteRecovery(int recoveryFD)
@@ -396,6 +484,9 @@ int32_t StorageFile::Locate(ReadBuffer& key)
 	return index;
 }
 
+Stopwatch StorageFile::sw_reads;
+Stopwatch StorageFile::sw_test;
+
 void StorageFile::LoadDataPage(uint32_t index)
 {
 	Buffer		buffer;
@@ -411,7 +502,9 @@ void StorageFile::LoadDataPage(uint32_t index)
 
 	buffer.Allocate(dataPageSize);
 //	printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
+	sw_reads.Start();
 	length = FS_FileReadOffs(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
+	sw_reads.Stop();
 	if (length < 0)
 		ASSERT_FAIL();
 	buffer.SetLength(length);

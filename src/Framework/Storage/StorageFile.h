@@ -5,6 +5,7 @@
 #include "StorageDefaults.h"
 #include "StorageIndexPage.h"
 #include "StorageDataPage.h"
+#include "System/Stopwatch.h"
 
 #define INDEXPAGE_OFFSET			12
 
@@ -27,8 +28,6 @@ public:
 	
 	void					SetStorageFileIndex(uint32_t fileIndex);
 
-//	bool					IsNew();
-	
 	bool					Get(ReadBuffer& key, ReadBuffer& value);
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
@@ -45,6 +44,9 @@ public:
 	void					WriteData();
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
+	
+	static Stopwatch		sw_reads;
+	static Stopwatch		sw_test;
 
 private:
 	int32_t					Locate(ReadBuffer& key);

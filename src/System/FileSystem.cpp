@@ -13,6 +13,7 @@ FD FS_Open(const char* filename, int flags)
 {
 	int		mode;
 	int		oflags;
+	int		ret;
 	
 	mode = S_IRUSR | S_IWUSR;
 	oflags = 0;
