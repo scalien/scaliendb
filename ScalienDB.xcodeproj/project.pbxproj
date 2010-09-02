@@ -28,6 +28,9 @@
 		54AB8724122821EF00721A0F /* StorageIndexPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB871E122821EF00721A0F /* StorageIndexPage.cpp */; };
 		54AB8936122C176600721A0F /* StoragePage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8935122C176600721A0F /* StoragePage.cpp */; };
 		54AB8D54122E60E800721A0F /* StorageDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8D53122E60E800721A0F /* StorageDatabase.cpp */; };
+		54AB90E0122F98CE00721A0F /* StorageKeyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90DF122F98CE00721A0F /* StorageKeyValue.cpp */; };
+		54AB90E5122F994B00721A0F /* StorageKeyIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90E4122F994B00721A0F /* StorageKeyIndex.cpp */; };
+		54AB90EA122F99C300721A0F /* StorageFileIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90E9122F99C300721A0F /* StorageFileIndex.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -164,6 +167,9 @@
 		54AB8F59122E9E2A00721A0F /* StorageKeyIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageKeyIndex.h; sourceTree = "<group>"; };
 		54AB8F5F122E9ED600721A0F /* StorageKeyValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageKeyValue.h; sourceTree = "<group>"; };
 		54AB8FA0122EA01B00721A0F /* StorageDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageDefaults.h; sourceTree = "<group>"; };
+		54AB90DF122F98CE00721A0F /* StorageKeyValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageKeyValue.cpp; sourceTree = "<group>"; };
+		54AB90E4122F994B00721A0F /* StorageKeyIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageKeyIndex.cpp; sourceTree = "<group>"; };
+		54AB90E9122F99C300721A0F /* StorageFileIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileIndex.cpp; sourceTree = "<group>"; };
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
 		54AFE33611C8D15100925487 /* PaxosLeaseProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposerState.h; sourceTree = "<group>"; };
@@ -415,6 +421,7 @@
 				54AB8D52122E60E800721A0F /* StorageDatabase.h */,
 				54AB8D53122E60E800721A0F /* StorageDatabase.cpp */,
 				54AB8F23122E9B7C00721A0F /* StorageFileIndex.h */,
+				54AB90E9122F99C300721A0F /* StorageFileIndex.cpp */,
 				54AB871D122821EF00721A0F /* StorageTable.h */,
 				54AB8715122821EF00721A0F /* StorageTable.cpp */,
 				54AB8717122821EF00721A0F /* StorageFile.h */,
@@ -422,9 +429,11 @@
 				54AB871A122821EF00721A0F /* StoragePage.h */,
 				54AB8935122C176600721A0F /* StoragePage.cpp */,
 				54AB8F59122E9E2A00721A0F /* StorageKeyIndex.h */,
+				54AB90E4122F994B00721A0F /* StorageKeyIndex.cpp */,
 				54AB871F122821EF00721A0F /* StorageIndexPage.h */,
 				54AB871E122821EF00721A0F /* StorageIndexPage.cpp */,
 				54AB8F5F122E9ED600721A0F /* StorageKeyValue.h */,
+				54AB90DF122F98CE00721A0F /* StorageKeyValue.cpp */,
 				54AB871B122821EF00721A0F /* StorageDataPage.h */,
 				54AB8716122821EF00721A0F /* StorageDataPage.cpp */,
 				54AB871C122821EF00721A0F /* StorageCursor.h */,
@@ -809,6 +818,9 @@
 				54AB8936122C176600721A0F /* StoragePage.cpp in Sources */,
 				54AB8D54122E60E800721A0F /* StorageDatabase.cpp in Sources */,
 				9ACF203F122E942900247703 /* FileSystem.cpp in Sources */,
+				54AB90E0122F98CE00721A0F /* StorageKeyValue.cpp in Sources */,
+				54AB90E5122F994B00721A0F /* StorageKeyIndex.cpp in Sources */,
+				54AB90EA122F99C300721A0F /* StorageFileIndex.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
