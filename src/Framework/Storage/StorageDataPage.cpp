@@ -159,9 +159,9 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		
 	assert(it != NULL);
 	
-	//newPage = new StorageDataPage();
-	newPage = DCACHE->GetPage();
-	DCACHE->Checkin(newPage);
+	newPage = new StorageDataPage();
+//	newPage = DCACHE->GetPage();
+//	DCACHE->Checkin(newPage);
 	newPage->SetPageSize(pageSize);
 	newPage->SetStorageFileIndex(fileIndex);
 //	newPage->buffer.Write(this->buffer);

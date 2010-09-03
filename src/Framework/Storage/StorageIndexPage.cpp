@@ -69,7 +69,7 @@ void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 		{
 			required -= it->key.GetLength();
 			it->SetKey(key, copy);
-			required -= it->key.GetLength();
+			required += it->key.GetLength();
 			return;
 		}
 	}
