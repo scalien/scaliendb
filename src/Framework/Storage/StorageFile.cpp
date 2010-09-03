@@ -51,7 +51,10 @@ StorageFile::~StorageFile()
 	dirtyPages.Clear();
 	
 	for (uint32_t u = 0; u < numDataPages; u++)
-		delete dataPages[u];
+	{
+		if (dataPages[u] != NULL)
+			DCACHE->FreePage(dataPages[u]);
+	}
 	free(dataPages);
 }
 
@@ -98,8 +101,8 @@ bool StorageFile::Get(ReadBuffer& key, ReadBuffer& value)
 		return false;
 	
 	ret = dataPages[index]->Get(key, value);
-//	if (ret)
-//		DCACHE->RegisterHit(dataPages[index]);
+	if (ret)
+		DCACHE->RegisterHit(dataPages[index]);
 	return ret;
 }
 
@@ -119,12 +122,13 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		index = 0;
 		assert(numDataPages == 0);
 		assert(dataPages[index] == NULL);
-		dataPages[index] = new StorageDataPage;
-		//dataPages[index] = DCACHE->GetPage();
-		//DCACHE->Checkin(dataPages[index]);
+//		dataPages[index] = new StorageDataPage;
+		dataPages[index] = DCACHE->GetPage();
+		DCACHE->Checkin(dataPages[index]);
 		dataPages[index]->SetStorageFileIndex(fileIndex);
 		dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 		dataPages[index]->SetPageSize(dataPageSize);
+		dataPages[index]->SetFile(this);
 		numDataPages++;
 		indexPage.Add(key, index, true); // TODO
 		MarkPageDirty(&indexPage);
@@ -149,7 +153,8 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	
 	if (!dataPages[index]->Set(key, value, copy))
 	{
-		//DCACHE->RegisterHit(dataPages[index]);
+		if (!dataPages[index]->IsDirty())
+			DCACHE->RegisterHit(dataPages[index]);
 		return true; // nothing changed
 	}
 	
@@ -239,6 +244,8 @@ StorageFile* StorageFile::SplitFile()
 		newFile->dataPages[newIndex] = dataPages[index];
 		dataPages[index] = NULL;
 		newFile->dataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));
+		// TODO: set dataPage file
+//		newFile->dataPages[newIndex]->file = newFile;
 
 		numDataPages--;
 		newFile->numDataPages++;
@@ -438,9 +445,11 @@ void StorageFile::WriteRecovery(int recoveryFD)
 
 void StorageFile::WriteData()
 {
-	Buffer			buffer;
-	StoragePage*	it;
-	char*			p;
+	Buffer					buffer;
+	StoragePage*			it;
+	char*					p;
+	InList<StoragePage>		dirties;
+	StoragePage*			next;
 	
 	if (newFile)
 	{
@@ -471,13 +480,15 @@ void StorageFile::WriteData()
 		}
 		it->SetDirty(false);
 		it->SetNew(false);
+
+		dirties.Append(it);
 	}
 	
-//	for (uint32_t index = 0; index < numDataPageSlots; index++)
-//	{
-//		if (dataPages[index] != NULL && dataPages[index]->treeNode.owner == NULL)
-//			DCACHE->Checkin(dataPages[index]);
-//	}
+	for (it = dirties.First(); it != NULL; it = next)
+	{
+		next = dirties.Remove(it);
+		DCACHE->Checkin((StorageDataPage*) it);
+	}
 }
 
 StorageDataPage* StorageFile::CursorBegin(ReadBuffer& key, Buffer& nextKey)
@@ -527,14 +538,15 @@ void StorageFile::LoadDataPage(uint32_t index)
 	int			length;
 	
 	// load existing data page from disk
-	dataPages[index] = new StorageDataPage;
-	//dataPages[index] = DCACHE->GetPage();
+//	dataPages[index] = new StorageDataPage;
+	dataPages[index] = DCACHE->GetPage();
+	DCACHE->Checkin(dataPages[index]);
+
 	dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 	dataPages[index]->SetPageSize(dataPageSize);
 	dataPages[index]->SetNew(false);
-	
-	//DCACHE->Checkin(dataPages[index]);
-	
+	dataPages[index]->SetFile(this);
+		
 //	printf("loading data page from %s at index %u\n", filepath.GetBuffer(), index);
 
 	buffer.Allocate(dataPageSize);
@@ -551,13 +563,9 @@ void StorageFile::MarkPageDirty(StoragePage* page)
 {
 	if (!page->IsDirty())
 	{
-//		if (page->GetType() == STORAGE_DATA_PAGE)
-//		{
-//			StorageDataPage*	dpage = (StorageDataPage*) page;
-//			
-//			assert(dpage->next != dpage && dpage->prev != dpage);
-//			DCACHE->Checkout(dpage);
-//		}
+		// TODO: HACK
+		if (page->GetType() == STORAGE_DATA_PAGE)
+			DCACHE->Checkout((StorageDataPage*) page);
 		
 		page->SetDirty(true);
 		dirtyPages.Insert(page);
@@ -574,6 +582,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 		// make a copy of data
 		newPage = dataPages[index]->SplitDataPage();
 		newPage->SetStorageFileIndex(fileIndex);
+		newPage->SetFile(this);
 		numDataPages++;
 		assert(numDataPages <= numDataPageSlots);
 		newIndex = indexPage.NextFreeDataPage();
@@ -623,15 +632,21 @@ void StorageFile::ReorderFile()
 {
 	uint32_t index;
 	
-	// there is no need to register or checkout in the DCACHE here
-	// because there is only reordering going on here
 	dirtyPages.Clear();
 	ReorderPages();
 	indexPage.SetDirty(false);
 	MarkPageDirty(&indexPage);
 	for (index = 0; index < numDataPages; index++)
 	{
-		dataPages[index]->SetDirty(false);
+		// if it was dirty, it must be checked in before marked again as dirty
+		if (dataPages[index]->IsDirty())
+		{
+			dataPages[index]->SetDirty(false);
+			DCACHE->Checkin(dataPages[index]);
+		}
+		else
+			dataPages[index]->SetDirty(false);
+
 		MarkPageDirty(dataPages[index]);
 	}
 }

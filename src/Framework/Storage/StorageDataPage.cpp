@@ -18,6 +18,7 @@ StorageDataPage::StorageDataPage(bool detached_)
 	required = DATAPAGE_FIX_OVERHEAD;
 	detached = detached_;
 	type = STORAGE_DATA_PAGE;
+	file = NULL;
 }
 
 StorageDataPage::~StorageDataPage()
@@ -64,9 +65,6 @@ bool StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	keys.InsertAt(newStorageKeyValue, it, res);
 	required += (DATAPAGE_KV_OVERHEAD + key.GetLength() + value.GetLength());
 		
-	if (required == 32814)
-		printf("hello\n");
-	
 	return true;
 }
 
@@ -159,9 +157,9 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		
 	assert(it != NULL);
 	
-	newPage = new StorageDataPage();
-//	newPage = DCACHE->GetPage();
-//	DCACHE->Checkin(newPage);
+//	newPage = new StorageDataPage();
+	newPage = DCACHE->GetPage();
+	DCACHE->Checkin(newPage);
 	newPage->SetPageSize(pageSize);
 	newPage->SetStorageFileIndex(fileIndex);
 //	newPage->buffer.Write(this->buffer);
@@ -193,14 +191,15 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 	}	
 	assert(num == newPage->keys.GetCount());
 	assert(newPage->required == r);
-	
-	if (newPage->required == 32814)
-	{
-		Buffer buffer;
-		buffer.Allocate(pageSize);
-		printf("hello\n");
-		newPage->CheckWrite(buffer);
-	}
+
+	// TODO: WTF?
+//	if (newPage->required == 32814)
+//	{
+//		Buffer buffer;
+//		buffer.Allocate(pageSize);
+//		printf("hello\n");
+//		newPage->CheckWrite(buffer);
+//	}
 	
 	assert(IsEmpty() != true);
 	assert(newPage->IsEmpty() != true);
@@ -242,6 +241,11 @@ void StorageDataPage::Detach()
 			assert(cmpres == 0);
 		}
 	}
+}
+
+void StorageDataPage::SetFile(StorageFile* file_)
+{
+	file = file_;
 }
 
 void StorageDataPage::Read(ReadBuffer& buffer_)

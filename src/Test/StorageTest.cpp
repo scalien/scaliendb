@@ -159,4 +159,98 @@ TEST_DEFINE(TestStorageCapacity)
 	return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestStorageBigTransaction)
+{
+	StorageDatabase		db;
+	StorageTable*		table;
+	Buffer				k, v;
+	ReadBuffer			rk, rv;
+	Stopwatch			sw;
+	long				elapsed;
+	unsigned			num, len, ksize, vsize;
+	char*				area;
+	char*				p;
+
+	num = 1000*1000;
+	ksize = 20;
+	vsize = 128;
+	area = (char*) malloc(num*(ksize+vsize));
+
+	db.Open("test");
+	table = db.GetTable("dogs");
+	sw.Reset();
+	for (unsigned i = 0; i < num; i++)
+	{
+		p = area + i*(ksize+vsize);
+		len = snprintf(p, ksize, "%011d", i); // takes 100 ms
+		rk.SetBuffer(p);
+		rk.SetLength(len);
+		p += ksize;
+		len = snprintf(p, vsize, "%.100f", (float) i); // takes 100 ms
+		rv.SetBuffer(p);
+		rv.SetLength(len);
+		sw.Start();
+		table->Set(rk, rv, false);
+		sw.Stop();
+	}
+	printf("%u sets took %ld msec\n", num, sw.Elapsed());
+	sw.Restart();
+	table->Commit(true /*recovery*/, false /*flush*/);
+	elapsed = sw.Stop();
+	printf("Commit() took %ld msec\n", elapsed);
+
+	db.Close();
+	
+	free(area);
+
+	return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestStorageBigRandomTransaction)
+{
+	StorageDatabase		db;
+	StorageTable*		table;
+	Buffer				k, v;
+	ReadBuffer			rk, rv;
+	Stopwatch			sw;
+	long				elapsed;
+	unsigned			num, len, ksize, vsize;
+	char*				area;
+	char*				p;
+
+	num = 1000*1000;
+	ksize = 20;
+	vsize = 128;
+	area = (char*) malloc(num*(ksize+vsize));
+
+	db.Open("test");
+	table = db.GetTable("dogs");
+	sw.Reset();
+	for (unsigned i = 0; i < num; i++)
+	{
+		p = area + i*(ksize+vsize);
+		RandomBuffer(p, ksize);
+		rk.SetBuffer(p);
+		rk.SetLength(len);
+		p += ksize;
+		RandomBuffer(p, vsize);
+		rv.SetBuffer(p);
+		rv.SetLength(len);
+		sw.Start();
+		table->Set(rk, rv, false);
+		sw.Stop();
+	}
+	printf("%u sets took %ld msec\n", num, sw.Elapsed());
+	sw.Restart();
+	table->Commit(true /*recovery*/, false /*flush*/);
+	elapsed = sw.Stop();
+	printf("Commit() took %ld msec\n", elapsed);
+
+	db.Close();
+	
+	free(area);
+
+	return TEST_SUCCESS;
+}
+
 TEST_MAIN(TestStorage, TestStorageCapacity);

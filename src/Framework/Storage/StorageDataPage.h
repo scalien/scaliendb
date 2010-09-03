@@ -47,6 +47,8 @@ public:
 	bool						HasCursors();
 	void						Detach();
 
+	void						SetFile(StorageFile* file);
+
 	void						Read(ReadBuffer& buffer);
 	bool						CheckWrite(Buffer& buffer);
 	bool						Write(Buffer& buffer);

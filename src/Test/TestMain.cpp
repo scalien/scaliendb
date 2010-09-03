@@ -2,6 +2,8 @@
 
 TEST_DECLARE(TestStorage);
 TEST_DECLARE(TestStorageCapacity);
+TEST_DECLARE(TestStorageBigTransaction);
+TEST_DECLARE(TestStorageBigRandomTransaction);
 TEST_DECLARE(TestInTreeMap);
 TEST_DECLARE(TestInTreeMapInsert);
 TEST_DECLARE(TestWriteTiming);
@@ -15,6 +17,8 @@ TEST_DEFINE(TestMain)
 		//TestInTreeMapInsertRandom,
 		//TestStorage,
 		TestStorageCapacity,
+		//TestStorageBigTransaction,
+		//TestStorageBigRandomTransaction,
 		//TestWriteTiming,
 	);
 }
