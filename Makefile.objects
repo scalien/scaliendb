@@ -70,4 +70,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Time.o \
 	$(BUILD_DIR)/System/FileSystem.o \
 	$(BUILD_DIR)/Test/Test.o \
+	$(BUILD_DIR)/Test/TestMain.o \
+	$(BUILD_DIR)/Test/StorageTest.o \
 
