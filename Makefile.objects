@@ -42,6 +42,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Replication/ReplicationTransport.o \
 	$(BUILD_DIR)/Framework/Storage/StorageCursor.o \
 	$(BUILD_DIR)/Framework/Storage/StorageDatabase.o \
+	$(BUILD_DIR)/Framework/Storage/StorageDataCache.o \
 	$(BUILD_DIR)/Framework/Storage/StorageDataPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageKeyIndex.o \
@@ -70,4 +71,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Time.o \
 	$(BUILD_DIR)/System/FileSystem.o \
 	$(BUILD_DIR)/Test/Test.o \
+	$(BUILD_DIR)/Test/TestMain.o \
+	$(BUILD_DIR)/Test/StorageTest.o \
 
