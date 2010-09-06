@@ -10,8 +10,15 @@ Buffer::Buffer()
 
 Buffer::~Buffer()
 {
-	if (buffer != array)
+	if (buffer != array && !preallocated)
 		free(buffer);
+}
+
+void Buffer::SetPreallocated(char* buffer_, unsigned size_)
+{
+	preallocated = true;
+	buffer = buffer_;
+	size = size_;
 }
 
 bool Buffer::Cmp(Buffer& a, Buffer& b)
@@ -49,7 +56,7 @@ void Buffer::Allocate(unsigned size_, bool keepold)
 	size_ = size_ + ALLOC_GRANURALITY - 1;
 	size_ -= size_ % ALLOC_GRANURALITY;
 
-	if (buffer == array)
+	if (buffer == array || preallocated)
 		newbuffer = (char*) malloc(size_);
 	else	
 		newbuffer = (char*) realloc(buffer, size_);
@@ -62,6 +69,7 @@ void Buffer::Allocate(unsigned size_, bool keepold)
 	
 	buffer = newbuffer;
 	size = size_;
+	preallocated = false;
 }
 
 int Buffer::Readf(const char* format, ...) const
@@ -189,6 +197,7 @@ void Buffer::Init()
 	buffer = array;
 	size = SIZE(array);
 	length = 0;
+	preallocated = false;
 }
 
 unsigned Buffer::GetSize()
@@ -241,19 +250,11 @@ Buffer::Buffer(const Buffer& other)
 
 Buffer& Buffer::operator=(const Buffer& other)
 {
-	buffer = array;
-	size = other.size;
-	length = other.length;
-	if (other.buffer != other.array)
-	{
+	if (other.size != size)
 		Allocate(other.size, false);
-		memcpy(buffer, other.buffer, other.size);
-	}
-	else
-	{
-		memcpy(array, other.array, ARRAY_SIZE);
-	}
-
+	
+	memcpy(buffer, other.buffer, other.size);
+	length = other.length;
 	
 	return *this;
 }

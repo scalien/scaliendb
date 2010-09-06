@@ -25,7 +25,7 @@ private:
 	InList<StorageDataPage>		freeList;
 	InList<StorageDataPage>		lruList;
 	StorageDataPage*			pageArea;
-	Buffer*						bufferArea;
+	char*						bufferArea;
 	unsigned					num;
 };
 

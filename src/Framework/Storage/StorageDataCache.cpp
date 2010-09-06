@@ -12,15 +12,17 @@ StorageDataCache::StorageDataCache()
 	StorageDataPage* page;
 	
 	num = DEFAULT_CACHE_SIZE / DEFAULT_DATAPAGE_SIZE;
+
 	pageArea = (StorageDataPage*) malloc(num * sizeof(StorageDataPage));
-	
 	for (unsigned i = 0; i < num; i++)
 	{
 		page = new ((void*) &pageArea[i]) StorageDataPage();
 		freeList.Append(page);
 	}
 	
-	// TODO: preallocate buffers too
+	bufferArea = (char*) malloc(num * DEFAULT_DATAPAGE_SIZE);
+	for (unsigned i = 0; i < num; i++)
+		pageArea[i].buffer.SetPreallocated(&bufferArea[i * DEFAULT_DATAPAGE_SIZE], DEFAULT_DATAPAGE_SIZE);
 }
 
 StorageDataCache* StorageDataCache::Get()

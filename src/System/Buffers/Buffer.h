@@ -24,6 +24,8 @@ public:
 	Buffer(const Buffer& other);
 	~Buffer();
 
+	void				SetPreallocated(char* buffer, unsigned size);
+
 	Buffer&				operator=(const Buffer& other);
 	
 	static bool			Cmp(Buffer& a, Buffer& b);
@@ -71,6 +73,7 @@ protected:
 	char*				buffer;
 	unsigned			size;
 	unsigned			length;
+	bool				preallocated;
 	char				array[ARRAY_SIZE];
 };
 
