@@ -30,6 +30,29 @@ private:
 	void	*arg;
 };
 
+inline void Call(Callable& callable)
+{
+	callable.Execute();
+}
+
+/*
+===============================================================================
+
+ Deferred
+
+===============================================================================
+*/
+
+class Deferred
+{
+public:
+	Deferred(Callable& c)	{ callable = c; }
+	~Deferred()				{ Call(callable); }
+
+private:
+	Callable				callable;
+};
+
 /*
 ===============================================================================
 
@@ -72,10 +95,5 @@ private:
 		(obj->*Member)();
 	}
 };
-
-inline void Call(Callable& callable)
-{
-	callable.Execute();
-}
 
 #endif

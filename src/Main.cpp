@@ -42,8 +42,8 @@
 
 #include "Framework/Storage/StorageTable.h"
 #include "System/Stopwatch.h"
-#include "stdio.h"
 #include "System/Containers/InTreeMap.h"
+#include "System/Events/Callable.h"
 #include "Test/Test.h"
 
 #include <map>
@@ -66,6 +66,7 @@ int main(int argc, char** argv)
 	char*				area;
 	char*				p;
 	uint64_t			clock;
+	Deferred			stopClock(CFunc(StopClock));
 
 	Log_SetTarget(LOG_TARGET_STDOUT);
 	Log_SetTrace(true);
