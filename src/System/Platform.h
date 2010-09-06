@@ -62,6 +62,7 @@ typedef unsigned __int64	uint64_t;
 #include <stdint.h>
 #include <inttypes.h>
 #include <unistd.h>
+#include <alloca.h>
 
 #endif // end Unix
 
