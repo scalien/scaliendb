@@ -1,4 +1,5 @@
 #include "StorageDatabase.h"
+#include "StorageDataCache.h"
 #include "System/FileSystem.h"
 
 #include <stdio.h>
@@ -6,6 +7,7 @@
 void StorageDatabase::Open(const char* dbName)
 {
 	name.Write(dbName);
+	DCACHE->Init(DEFAULT_CACHE_SIZE);
 }
 
 StorageTable* StorageDatabase::GetTable(const char* tableName)
@@ -46,6 +48,8 @@ void StorageDatabase::Close()
 	
 	for (it = tables.First(); it != NULL; it = tables.Delete(it))
 		it->Close();
+	
+	DCACHE->Shutdown();
 }
 
 void StorageDatabase::Commit(bool recovery, bool flush)

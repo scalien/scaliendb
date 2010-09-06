@@ -154,18 +154,18 @@ T* InList<T>::Remove(T* t)
 	assert(t->next != t || t->prev != t);
 		
 	if (head == t)
-		head = dynamic_cast<T*>(t->next);
+		head = static_cast<T*>(t->next);
 	else if (t->prev != NULL)
 		t->prev->next = t->next;	
 	
 	if (tail == t)
-		tail = dynamic_cast<T*>(t->prev);
+		tail = static_cast<T*>(t->prev);
 	else if (t->next != NULL)
 		t->next->prev = t->prev;
 	
 	length--;
 
-	ret = dynamic_cast<T*>(t->next);
+	ret = static_cast<T*>(t->next);
 	t->next = t;
 	t->prev = t;
 //	Log_Trace("length = %d", length);
@@ -230,13 +230,13 @@ unsigned InList<T>::GetLength() const
 template<class T>
 T* InList<T>::Next(T* t) const
 {
-	return dynamic_cast<T*>(t->next);
+	return static_cast<T*>(t->next);
 }
 
 template<class T>
 T* InList<T>::Prev(T* t) const
 {
-	return dynamic_cast<T*>(t->prev);
+	return static_cast<T*>(t->prev);
 }
 
 #endif

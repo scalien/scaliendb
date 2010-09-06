@@ -9,9 +9,15 @@ static StorageDataCache* storageDataCache = NULL;
 
 StorageDataCache::StorageDataCache()
 {
+	num = 0;
+}
+
+void StorageDataCache::Init(unsigned size)
+{
 	StorageDataPage* page;
 	
-	num = DEFAULT_CACHE_SIZE / DEFAULT_DATAPAGE_SIZE;
+	assert(num == 0);
+	num = size / DEFAULT_DATAPAGE_SIZE;
 
 	pageArea = (StorageDataPage*) malloc(num * sizeof(StorageDataPage));
 	for (unsigned i = 0; i < num; i++)
@@ -23,6 +29,20 @@ StorageDataCache::StorageDataCache()
 	bufferArea = (char*) malloc(num * DEFAULT_DATAPAGE_SIZE);
 	for (unsigned i = 0; i < num; i++)
 		pageArea[i].buffer.SetPreallocated(&bufferArea[i * DEFAULT_DATAPAGE_SIZE], DEFAULT_DATAPAGE_SIZE);
+}
+
+void StorageDataCache::Shutdown()
+{
+	assert(num != 0);
+	
+	lruList.Clear();
+	freeList.Clear();
+	
+	free(pageArea);
+	free(bufferArea);
+
+	delete storageDataCache;
+	storageDataCache = NULL;
 }
 
 StorageDataCache* StorageDataCache::Get()
@@ -63,6 +83,7 @@ StorageDataPage* StorageDataCache::GetPage()
 
 void StorageDataCache::FreePage(StorageDataPage* page)
 {
+	assert(page->next == page && page->prev == page);
 	page->~StorageDataPage();
 	freeList.Append(page);
 }

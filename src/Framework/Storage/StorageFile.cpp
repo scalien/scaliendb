@@ -53,7 +53,12 @@ StorageFile::~StorageFile()
 	for (uint32_t u = 0; u < numDataPages; u++)
 	{
 		if (dataPages[u] != NULL)
+		{
+			if (!dataPages[u]->IsDirty())
+				DCACHE->Checkout(dataPages[u]);
+
 			DCACHE->FreePage(dataPages[u]);
+		}
 	}
 	free(dataPages);
 }

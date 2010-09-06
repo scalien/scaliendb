@@ -11,6 +11,9 @@ class StorageDataCache
 {
 public:
 	static StorageDataCache*	Get();
+	
+	void						Init(unsigned size);
+	void						Shutdown();
 
 	StorageDataPage*			GetPage();
 	void						FreePage(StorageDataPage* page);
