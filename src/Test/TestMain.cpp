@@ -8,6 +8,8 @@ TEST_DECLARE(TestInTreeMap);
 TEST_DECLARE(TestInTreeMapInsert);
 TEST_DECLARE(TestWriteTiming);
 TEST_DECLARE(TestInTreeMapInsertRandom);
+TEST_DECLARE(TestFileSystemDiskSpace);
+
 
 TEST_DEFINE(TestMain)
 {
@@ -16,9 +18,10 @@ TEST_DEFINE(TestMain)
 		//TestInTreeMapInsert,
 		//TestInTreeMapInsertRandom,
 		//TestStorage,
-		TestStorageCapacity,
+		//TestStorageCapacity,
 		//TestStorageBigTransaction,
 		//TestStorageBigRandomTransaction,
 		//TestWriteTiming,
+		TestFileSystemDiskSpace,
 	);
 }

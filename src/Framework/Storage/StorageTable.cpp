@@ -506,8 +506,8 @@ void StorageTable::WriteTOC()
 	uint32_t			tmp;
 	StorageFileIndex	*it;
 
-	lseek(tocFD, 0, SEEK_SET);
-	ftruncate(tocFD, 0);
+	FS_FileSeek(tocFD, 0, FS_SEEK_SET);
+	FS_FileTruncate(tocFD, 0);
 	
 	len = files.GetCount();
 	tmp = ToLittle32(len);
@@ -525,7 +525,8 @@ void StorageTable::WriteTOC()
 		len = it->key.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
-		memcpy(p, it->key.GetBuffer(), len);
+		// TODO: HACK p and key buffer might overlap
+		memmove(p, it->key.GetBuffer(), len);
 		p += len;
 		if (FS_FileWrite(tocFD, (const void *) buffer.GetBuffer(), size) < 0)
 			ASSERT_FAIL();

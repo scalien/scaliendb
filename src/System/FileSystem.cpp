@@ -245,6 +245,16 @@ int64_t	FS_FreeDiskSpace(const char* path)
 	return ((int64_t) sv.f_bavail * sv.f_frsize);
 }
 
+int64_t	FS_DiskSpace(const char* path)
+{
+	struct statvfs sv;
+	
+	if (statvfs(path, &sv) < 0)
+		return -1;
+	
+	return ((int64_t) sv.f_blocks * sv.f_frsize);
+}
+
 void FS_Sync()
 {
 	sync();

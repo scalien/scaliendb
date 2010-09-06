@@ -249,8 +249,7 @@ StorageFile* StorageFile::SplitFile()
 		newFile->dataPages[newIndex] = dataPages[index];
 		dataPages[index] = NULL;
 		newFile->dataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));
-		// TODO: set dataPage file
-//		newFile->dataPages[newIndex]->file = newFile;
+		newFile->dataPages[newIndex]->SetFile(newFile);
 
 		numDataPages--;
 		newFile->numDataPages++;
