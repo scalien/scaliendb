@@ -33,7 +33,7 @@ void StorageDatabase::CloseTable(const char* tableName)
 	
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
 	{
-		if (it->GetName() == tableName)
+		if (strcmp(it->GetName(), tableName) == 0)
 		{
 			it->Close();
 			tables.Delete(it);
