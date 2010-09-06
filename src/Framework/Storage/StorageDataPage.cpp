@@ -162,6 +162,7 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 	DCACHE->Checkin(newPage);
 	newPage->SetPageSize(pageSize);
 	newPage->SetStorageFileIndex(fileIndex);
+	newPage->SetFile(file);
 //	newPage->buffer.Write(this->buffer);
 	newPage->buffer.Allocate(pageSize);
 	assert(newPage->required == DATAPAGE_FIX_OVERHEAD);
