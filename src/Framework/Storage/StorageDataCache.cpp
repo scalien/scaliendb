@@ -64,6 +64,7 @@ StorageDataPage* StorageDataCache::GetPage()
 	{
 		page = freeList.First();
 		freeList.Remove(page);
+		page = new (page) StorageDataPage();
 		return page;
 	}
 	

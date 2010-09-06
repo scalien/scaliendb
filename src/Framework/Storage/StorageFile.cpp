@@ -618,6 +618,7 @@ void StorageFile::ReorderPages()
 	
 	for (it = indexPage.keys.First(), newIndex = 0; it != NULL; it = indexPage.keys.Next(it), newIndex++)
 	{
+		assert(newIndex < numDataPageSlots);
 		oldIndex = it->index;
 		assert(dataPages[oldIndex] != NULL);
 		it->index = newIndex;
