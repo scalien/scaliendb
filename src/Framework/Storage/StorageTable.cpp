@@ -229,13 +229,16 @@ void StorageTable::WritePath(Buffer& buffer, uint32_t index)
 
 void StorageTable::ReadTOC(uint32_t length)
 {
-	uint32_t	i, numFiles;
-	unsigned	len;
-	char*		p;
+	uint32_t			i, numFiles;
+	unsigned			len;
+	char*				p;
 	StorageFileIndex*	fi;
+	int					ret;
 	
 	buffer.Allocate(length);
-	if (FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length) < 0)
+	if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) < 0)
+		ASSERT_FAIL();
+	if (ret != (int)length)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
 	numFiles = FromLittle32(*((uint32_t*) p));
