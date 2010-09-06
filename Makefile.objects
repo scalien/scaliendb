@@ -73,4 +73,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Test/Test.o \
 	$(BUILD_DIR)/Test/TestMain.o \
 	$(BUILD_DIR)/Test/StorageTest.o \
+	$(BUILD_DIR)/Test/FileSystemTest.o \
+
 
