@@ -40,7 +40,7 @@
 //}
 //
 
-#include "Framework/Storage/StorageShard.h"
+#include "Framework/Storage/StorageTable.h"
 #include "System/Stopwatch.h"
 #include "System/Containers/InTreeMap.h"
 #include "System/Events/Callable.h"
@@ -56,7 +56,7 @@ TEST_DECLARE(TestMain);
 int main(int argc, char** argv)
 {
 #define PRINT()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
-	StorageShard		catalog;
+	StorageTable		catalog;
 	StorageCursor*		cursor;
 	Buffer				k, v;
 	ReadBuffer			rk, rv;
@@ -82,7 +82,7 @@ int main(int argc, char** argv)
 	vsize = 128;
 	area = (char*) malloc(num*(ksize+vsize));
 
-	catalog.Open("dogs");
+//	catalog.Open("dogs");
 
 //	clock = NowClock();
 //	sw.Start();
@@ -135,18 +135,19 @@ int main(int argc, char** argv)
 
 	// test COW cursors
 	
-	k.Clear();
-	rk.Wrap(k);
-	cursor = new StorageCursor(&catalog);
-	StorageKeyValue* kv = cursor->Begin(rk);
-	while (kv != NULL)
-	{
-		printf("%.*s => %.*s\n", kv->key.GetLength(), kv->key.GetBuffer(), kv->value.GetLength(), kv->value.GetBuffer());
-		catalog.Delete(rk);
-		kv = cursor->Next();
-		break;
-	}
-	cursor->Close();
+	// TODO: cursors
+//	k.Clear();
+//	rk.Wrap(k);
+//	cursor = new StorageCursor(&catalog);
+//	StorageKeyValue* kv = cursor->Begin(rk);
+//	while (kv != NULL)
+//	{
+//		printf("%.*s => %.*s\n", kv->key.GetLength(), kv->key.GetBuffer(), kv->value.GetLength(), kv->value.GetBuffer());
+//		catalog.Delete(rk);
+//		kv = cursor->Next();
+//		break;
+//	}
+//	cursor->Close();
 	
 
 //	sw.Reset();

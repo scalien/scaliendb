@@ -1,6 +1,7 @@
 #include "StorageShard.h"
 #include "System/Common.h"
 #include "System/FileSystem.h"
+#include "System/Buffers/Buffer.h"
 
 #include <stdio.h>
 
@@ -21,20 +22,42 @@ StorageShard::~StorageShard()
 	files.DeleteTree();
 }
 
-void StorageShard::Open(const char* name)
+void StorageShard::Open(const char* dir, const char* name)
 {
 	int64_t	recoverySize;
 	int64_t	tocSize;
+	Buffer	path;
+	char	sep;
 	
 	nextStorageFileIndex = 1;
 
-	this->name.Write(name);
+	// create shard directory
+	if (*dir == '\0')
+		path.Append(".");
+	else
+		path.Append(dir);
+
+	sep = FS_Separator();
+	if (path.GetBuffer()[path.GetLength() - 1] != sep)
+		path.Append(&sep, 1);
+	
+	path.NullTerminate();
+	if (!FS_IsDirectory(path.GetBuffer()))
+	{
+		if (!FS_CreateDir(path.GetBuffer()))
+			ASSERT_FAIL();
+	}
+
+	this->name.Append(path.GetBuffer(), path.GetLength() - 1);
+	this->name.Append(name);
 	this->name.NullTerminate();
 
-	tocFilepath.Write(name);
+	tocFilepath.Append(path.GetBuffer(), path.GetLength() - 1);
+	tocFilepath.Append(name);
 	tocFilepath.NullTerminate();
 
-	recoveryFilepath.Write(name);
+	recoveryFilepath.Append(path.GetBuffer(), path.GetLength() - 1);
+	recoveryFilepath.Append(name);
 	recoveryFilepath.Append(".recovery");
 	recoveryFilepath.NullTerminate();
 
@@ -54,8 +77,9 @@ void StorageShard::Open(const char* name)
 	}
 	
 	tocSize = FS_FileSize(tocFD);
+	shardSize = tocSize;
 	if (tocSize > 0)
-		ReadTOC(tocSize);
+		shardSize += ReadTOC(tocSize);
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
@@ -140,6 +164,23 @@ const char*	StorageShard::GetName()
 	return name.GetBuffer();
 }
 
+uint64_t StorageShard::GetSize()
+{
+	return shardSize;
+}
+
+bool StorageShard::GetMidpoint(ReadBuffer& key)
+{
+	StorageFileIndex* fi;
+	
+	fi = files.Mid();
+	if (fi == NULL)
+		return false;
+	
+	key = fi->key;
+	return true;
+}
+
 bool StorageShard::Get(ReadBuffer& key, ReadBuffer& value)
 {
 	StorageFileIndex* fi;
@@ -149,12 +190,13 @@ bool StorageShard::Get(ReadBuffer& key, ReadBuffer& value)
 	if (fi == NULL)
 		return false;
 	
-	else return fi->file->Get(key, value);
+	return fi->file->Get(key, value);
 }
 
 bool StorageShard::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
 	StorageFileIndex	*fi;
+	uint64_t			sizeBefore;
 	
 	fi = Locate(key);
 
@@ -170,9 +212,12 @@ bool StorageShard::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		files.Insert(fi);
 	}
 	
+	sizeBefore = fi->file->GetSize();
 	if (!fi->file->Set(key, value, copy))
 		return false;
 
+	shardSize -= sizeBefore;
+	shardSize += fi->file->GetSize();
 	// update index:
 	if (ReadBuffer::LessThan(key, fi->key))
 		fi->SetKey(key, true);
@@ -185,9 +230,11 @@ bool StorageShard::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 
 void StorageShard::Delete(ReadBuffer& key)
 {
-	bool			updateIndex;
-	StorageFileIndex*		fi;
-	ReadBuffer		firstKey;
+	bool				updateIndex;
+	StorageFileIndex*	fi;
+	ReadBuffer			firstKey;
+	uint64_t			sizeBefore;
+	uint64_t			sizeAfter;
 	
 	fi = Locate(key);
 
@@ -199,7 +246,9 @@ void StorageShard::Delete(ReadBuffer& key)
 	if (BUFCMP(&key, &firstKey))
 		updateIndex = true;
 	
+	sizeBefore = fi->file->GetSize();
 	fi->file->Delete(key);
+	sizeAfter = fi->file->GetSize();
 	
 	if (fi->file->IsEmpty())
 	{
@@ -207,12 +256,17 @@ void StorageShard::Delete(ReadBuffer& key)
 		FS_Delete(fi->filepath.GetBuffer());
 		files.Remove(fi);
 		delete fi;
+		shardSize -= sizeBefore;
+
+		return;
 	}
 	else if (updateIndex)
 	{
 		firstKey = fi->file->FirstKey();
 		fi->SetKey(firstKey, true);
 	}
+	
+	shardSize -= (sizeAfter - sizeBefore);
 }
 
 void StorageShard::WritePath(Buffer& buffer, uint32_t index)
@@ -227,13 +281,15 @@ void StorageShard::WritePath(Buffer& buffer, uint32_t index)
 	buffer.NullTerminate();
 }
 
-void StorageShard::ReadTOC(uint32_t length)
+uint64_t StorageShard::ReadTOC(uint32_t length)
 {
 	uint32_t			i, numFiles;
 	unsigned			len;
 	char*				p;
 	StorageFileIndex*	fi;
 	int					ret;
+	uint64_t			totalSize;
+	int64_t				fileSize;
 	
 	buffer.Allocate(length);
 	if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) < 0)
@@ -244,6 +300,7 @@ void StorageShard::ReadTOC(uint32_t length)
 	numFiles = FromLittle32(*((uint32_t*) p));
 	assert(numFiles * 8 + 4 <= length);
 	p += 4;
+	totalSize = 0;
 	for (i = 0; i < numFiles; i++)
 	{
 		fi = new StorageFileIndex;
@@ -258,7 +315,17 @@ void StorageShard::ReadTOC(uint32_t length)
 		WritePath(fi->filepath, fi->index);
 		if (fi->index + 1 > nextStorageFileIndex)
 			nextStorageFileIndex = fi->index + 1;
-	}	
+
+		fileSize = FS_FileSize(fi->filepath.GetBuffer());
+		if (fileSize < 0)
+		{
+			// TODO: error handling
+			ASSERT_FAIL();
+		}
+		totalSize += fileSize;
+	}
+	
+	return totalSize;
 }
 
 void StorageShard::PerformRecovery(uint32_t length)
@@ -585,7 +652,9 @@ OpenFile:
 void StorageShard::SplitFile(StorageFile* file)
 {
 	StorageFileIndex*	newFi;
-	ReadBuffer	rb;
+	ReadBuffer			rb;
+
+	shardSize -= file->GetSize();
 
 	file->ReadRest();
 	newFi = new StorageFileIndex;
@@ -599,6 +668,9 @@ void StorageShard::SplitFile(StorageFile* file)
 	rb = newFi->file->FirstKey();
 	newFi->SetKey(rb, true); // TODO: buffer management
 	files.Insert(newFi);
+	
+	shardSize += file->GetSize();
+	shardSize += newFi->file->GetSize();
 }
 
 StorageDataPage* StorageShard::CursorBegin(ReadBuffer& key, Buffer& nextKey)

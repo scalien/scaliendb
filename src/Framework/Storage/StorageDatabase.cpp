@@ -6,13 +6,28 @@
 
 void StorageDatabase::Open(const char* dbName)
 {
+	char	sep;
+	
 	name.Write(dbName);
 	DCACHE->Init(DEFAULT_CACHE_SIZE);
+
+	path.Append(name);
+
+	sep = FS_Separator();
+	if (path.GetBuffer()[path.GetLength() - 1] != sep)
+		path.Append(&sep, 1);
+	
+	path.NullTerminate();
+	if (!FS_IsDirectory(path.GetBuffer()))
+	{
+		if (!FS_CreateDir(path.GetBuffer()))
+			ASSERT_FAIL();
+	}	
 }
 
-StorageShard* StorageDatabase::GetTable(const char* tableName)
+StorageTable* StorageDatabase::GetTable(const char* tableName)
 {
-	StorageShard* it;
+	StorageTable*	it;
 	
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
 	{
@@ -20,8 +35,8 @@ StorageShard* StorageDatabase::GetTable(const char* tableName)
 			return it;
 	}
 	
-	it = new StorageShard();
-	it->Open(tableName);
+	it = new StorageTable();
+	it->Open(path.GetBuffer(), tableName);
 	tables.Append(it);
 	
 	return it;
@@ -29,7 +44,7 @@ StorageShard* StorageDatabase::GetTable(const char* tableName)
 
 void StorageDatabase::CloseTable(const char* tableName)
 {
-	StorageShard* it;
+	StorageTable* it;
 	
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
 	{
@@ -44,7 +59,7 @@ void StorageDatabase::CloseTable(const char* tableName)
 
 void StorageDatabase::Close()
 {
-	StorageShard* it;
+	StorageTable* it;
 	
 	for (it = tables.First(); it != NULL; it = tables.Delete(it))
 		it->Close();
@@ -54,7 +69,7 @@ void StorageDatabase::Close()
 
 void StorageDatabase::Commit(bool recovery, bool flush)
 {
-	StorageShard*	it;
+	StorageTable*	it;
 	long			el1, els1, el2, els2, el3, el4;
 	Stopwatch		sw;
 

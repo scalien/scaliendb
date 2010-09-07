@@ -49,6 +49,7 @@ public:
 	
 	T*						First();
 	T*						Last();
+	T*						Mid();
 	T*						Next(T* t);
 	T*						Prev(T* t);
 
@@ -136,6 +137,12 @@ T* InTreeMap<T, pnode>::Last()
 		node = node->right;
 
 	return GetElem(node);
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Mid()
+{
+	return GetElem(root);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>

@@ -198,7 +198,7 @@ bool FS_CreateDir(const char* filename)
 {
 	int	ret;
 	
-	ret = mkdir(filename, S_IRUSR | S_IWUSR);
+	ret = mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
 	if (ret < 0)
 	{
 		Log_Errno();
@@ -255,9 +255,29 @@ int64_t	FS_DiskSpace(const char* path)
 	return ((int64_t) sv.f_blocks * sv.f_frsize);
 }
 
+int64_t FS_FileSize(const char* path)
+{
+	int64_t		ret;
+	struct stat	buf;
+	
+	ret = stat(path, &buf);
+	if (ret < 0)
+	{
+		Log_Errno();
+		return ret;
+	}
+	
+	return buf.st_size;
+}
+
 void FS_Sync()
 {
 	sync();
+}
+
+char FS_Separator()
+{
+	return '/';
 }
 
 #else

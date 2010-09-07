@@ -52,6 +52,24 @@ const char* HumanBytes_(uint64_t bytes, char buf[5])
 	return buf;
 }
 
+const char* SIBytes_(uint64_t bytes, char buf[5])
+{
+	const char	units[] = "kMGTPEZY";
+	uint64_t	n;
+	unsigned	u;
+	
+	n = bytes;
+	u = 0;
+	while (NumDigits64(n) > 3)
+	{
+		n = (uint64_t)(n / 1024.0 + 0.5);	// rounding
+		u++;
+	}
+	
+	snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
+	return buf;
+}
+
 int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
 {
 	bool	neg;

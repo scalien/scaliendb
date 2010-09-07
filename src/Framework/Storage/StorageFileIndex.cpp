@@ -16,7 +16,10 @@ StorageFileIndex::~StorageFileIndex()
 void StorageFileIndex::SetKey(ReadBuffer key_, bool copy)
 {
 	if (keyBuffer != NULL && !copy)
+	{
 		delete keyBuffer;
+		keyBuffer = NULL;
+	}
 	
 	if (copy)
 	{

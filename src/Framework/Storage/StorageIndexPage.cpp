@@ -20,6 +20,7 @@ StorageIndexPage::StorageIndexPage()
 {
 	required = INDEXPAGE_FIX_OVERHEAD;
 	type = STORAGE_INDEX_PAGE;
+	maxDataPageIndex = -1;
 }
 
 StorageIndexPage::~StorageIndexPage()
@@ -57,6 +58,9 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 	keys.Insert(ki);
 	
 	freeDataPages.Remove(index);
+	
+	if ((int32_t) index > maxDataPageIndex)
+		maxDataPageIndex = index;
 }
 
 void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
@@ -78,6 +82,9 @@ void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 void StorageIndexPage::Remove(ReadBuffer key)
 {
 	StorageKeyIndex*	it;
+	uint32_t			index;
+	uint32_t			prevIndex;
+	uint32_t*			iit;
 
 	it = keys.Get<ReadBuffer&>(key);
 	if (!it)
@@ -86,7 +93,35 @@ void StorageIndexPage::Remove(ReadBuffer key)
 	
 	required -= (INDEXPAGE_KV_OVERHEAD + it->key.GetLength());
 	freeDataPages.Add(it->index);
+	index = it->index;
 	delete it;
+	
+	// maintain the new highest data page index
+	if ((int32_t) index != maxDataPageIndex)
+		return;
+		
+	// if the last free page is not the last page, then
+	// the last page is the highest page index 
+	iit = freeDataPages.Last();
+	if (*iit < numDataPageSlots - 1)
+	{
+		maxDataPageIndex = numDataPageSlots - 1;
+		return;
+	}
+	
+	// iterate through the free list and find a hole in it
+	prevIndex = *iit;
+	iit = freeDataPages.First();
+	maxDataPageIndex = *iit - 1;
+	for (iit = freeDataPages.Last(); iit != NULL; iit = freeDataPages.Prev(iit))
+	{
+		if (prevIndex - *iit > 1)
+		{
+			maxDataPageIndex = prevIndex - 1;
+			return;
+		}
+		prevIndex = *iit;
+	}
 }
 
 bool StorageIndexPage::IsEmpty()
@@ -108,6 +143,11 @@ ReadBuffer StorageIndexPage::FirstKey()
 uint32_t StorageIndexPage::NumEntries()
 {
 	return keys.GetCount();
+}
+
+int32_t StorageIndexPage::GetMaxDataPageIndex()
+{
+	return maxDataPageIndex;
 }
 
 int32_t StorageIndexPage::Locate(ReadBuffer& key, Buffer* nextKey)

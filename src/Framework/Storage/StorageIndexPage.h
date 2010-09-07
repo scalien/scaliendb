@@ -39,6 +39,7 @@ public:
 	bool					IsEmpty();
 	ReadBuffer				FirstKey();
 	uint32_t				NumEntries();
+	int32_t					GetMaxDataPageIndex();
 	int32_t					Locate(ReadBuffer& key, Buffer* nextKey = NULL);
 	uint32_t				NextFreeDataPage();
 	bool					IsOverflowing();
@@ -50,6 +51,7 @@ public:
 private:
 	uint32_t				numDataPageSlots;
 	uint32_t				required;
+	int32_t					maxDataPageIndex;
 	KeyIndexMap				keys;
 	SortedList<uint32_t>	freeDataPages;
 	

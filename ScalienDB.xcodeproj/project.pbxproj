@@ -91,6 +91,8 @@
 		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
 		9ACF29511235569100247703 /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29501235569100247703 /* FileSystemTest.cpp */; };
+		9ACF29C01236519E00247703 /* StorageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29BF1236519E00247703 /* StorageTable.cpp */; };
+		9ACF2B241236944100247703 /* StorageShardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2B231236944100247703 /* StorageShardIndex.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -292,6 +294,10 @@
 		9ACF2574123010A300247703 /* StorageDataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageDataCache.h; sourceTree = "<group>"; };
 		9ACF2575123010A300247703 /* StorageDataCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDataCache.cpp; sourceTree = "<group>"; };
 		9ACF29501235569100247703 /* FileSystemTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FileSystemTest.cpp; path = Test/FileSystemTest.cpp; sourceTree = "<group>"; };
+		9ACF29BE1236519E00247703 /* StorageTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageTable.h; sourceTree = "<group>"; };
+		9ACF29BF1236519E00247703 /* StorageTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageTable.cpp; sourceTree = "<group>"; };
+		9ACF2B221236944100247703 /* StorageShardIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShardIndex.h; sourceTree = "<group>"; };
+		9ACF2B231236944100247703 /* StorageShardIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShardIndex.cpp; sourceTree = "<group>"; };
 		C6859E8B029090EE04C91782 /* Rowscale.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Rowscale.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -425,28 +431,32 @@
 			isa = PBXGroup;
 			children = (
 				54AB8FA0122EA01B00721A0F /* StorageDefaults.h */,
+				54AB871C122821EF00721A0F /* StorageCursor.h */,
+				54AB8718122821EF00721A0F /* StorageCursor.cpp */,
 				54AB8D52122E60E800721A0F /* StorageDatabase.h */,
 				54AB8D53122E60E800721A0F /* StorageDatabase.cpp */,
+				9ACF2574123010A300247703 /* StorageDataCache.h */,
+				9ACF2575123010A300247703 /* StorageDataCache.cpp */,
+				54AB871B122821EF00721A0F /* StorageDataPage.h */,
+				54AB8716122821EF00721A0F /* StorageDataPage.cpp */,
 				54AB8F23122E9B7C00721A0F /* StorageFileIndex.h */,
 				54AB90E9122F99C300721A0F /* StorageFileIndex.cpp */,
-				54AB871D122821EF00721A0F /* StorageShard.h */,
-				54AB8715122821EF00721A0F /* StorageShard.cpp */,
 				54AB8717122821EF00721A0F /* StorageFile.h */,
 				54AB8719122821EF00721A0F /* StorageFile.cpp */,
-				54AB871A122821EF00721A0F /* StoragePage.h */,
-				54AB8935122C176600721A0F /* StoragePage.cpp */,
 				54AB8F59122E9E2A00721A0F /* StorageKeyIndex.h */,
 				54AB90E4122F994B00721A0F /* StorageKeyIndex.cpp */,
 				54AB871F122821EF00721A0F /* StorageIndexPage.h */,
 				54AB871E122821EF00721A0F /* StorageIndexPage.cpp */,
 				54AB8F5F122E9ED600721A0F /* StorageKeyValue.h */,
 				54AB90DF122F98CE00721A0F /* StorageKeyValue.cpp */,
-				54AB871B122821EF00721A0F /* StorageDataPage.h */,
-				54AB8716122821EF00721A0F /* StorageDataPage.cpp */,
-				54AB871C122821EF00721A0F /* StorageCursor.h */,
-				54AB8718122821EF00721A0F /* StorageCursor.cpp */,
-				9ACF2574123010A300247703 /* StorageDataCache.h */,
-				9ACF2575123010A300247703 /* StorageDataCache.cpp */,
+				54AB871A122821EF00721A0F /* StoragePage.h */,
+				54AB8935122C176600721A0F /* StoragePage.cpp */,
+				54AB871D122821EF00721A0F /* StorageShard.h */,
+				54AB8715122821EF00721A0F /* StorageShard.cpp */,
+				9ACF2B221236944100247703 /* StorageShardIndex.h */,
+				9ACF2B231236944100247703 /* StorageShardIndex.cpp */,
+				9ACF29BE1236519E00247703 /* StorageTable.h */,
+				9ACF29BF1236519E00247703 /* StorageTable.cpp */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -835,6 +845,8 @@
 				9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */,
 				9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */,
 				9ACF29511235569100247703 /* FileSystemTest.cpp in Sources */,
+				9ACF29C01236519E00247703 /* StorageTable.cpp in Sources */,
+				9ACF2B241236944100247703 /* StorageShardIndex.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

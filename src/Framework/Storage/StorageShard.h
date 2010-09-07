@@ -25,8 +25,10 @@ public:
 	~StorageShard();
 	
 	const char*				GetName();
+	uint64_t				GetSize();
+	bool					GetMidpoint(ReadBuffer& key);
 
-	void					Open(const char* name);
+	void					Open(const char* dir, const char* name);
 	void					Commit(bool recovery = true, bool flush = true);
 	void					Close();
 		
@@ -34,12 +36,9 @@ public:
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
-	StorageShard*			prev;
-	StorageShard*			next;
-	
 private:
 	void					WritePath(Buffer& buffer, uint32_t index);
-	void					ReadTOC(uint32_t length);
+	uint64_t				ReadTOC(uint32_t length);
 	void					PerformRecovery(uint32_t length);
 	void					WriteBackPages(InList<Buffer>& pages);
 	void					DeleteGarbageFiles();
@@ -60,6 +59,8 @@ private:
 	
 	FD						tocFD;
 	FD						recoveryFD;
+	uint64_t				shardID;
+	uint64_t				shardSize;
 	uint32_t				prevCommitStorageFileIndex;
 	uint32_t				nextStorageFileIndex;
 	Buffer					name;
@@ -69,7 +70,7 @@ private:
 	FileIndexMap			files;
 	
 	friend class StorageCursor;
-	friend class StorageDatabase;
+	friend class StorageTable;
 };
 
 #endif

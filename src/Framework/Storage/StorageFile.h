@@ -44,8 +44,9 @@ public:
 	void					WriteData();
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
-	
 	void					UnloadDataPage(StorageDataPage* page);
+
+	uint64_t				GetSize();
 	
 private:
 	int32_t					Locate(ReadBuffer& key);
@@ -54,7 +55,6 @@ private:
 	void					SplitDataPage(uint32_t index);
 	void					ReorderPages();
 	void					ReorderFile();
-	void					CopyDataPage(uint32_t index);
 	
 	FD						fd;
 	uint32_t				fileIndex;

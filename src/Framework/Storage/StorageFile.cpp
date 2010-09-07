@@ -510,13 +510,9 @@ StorageDataPage* StorageFile::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 	return dataPages[index];
 }
 
-void StorageFile::UnloadDataPage(StorageDataPage* page)
+uint64_t StorageFile::GetSize()
 {
-	int32_t	index;
-	
-	index = DATAPAGE_INDEX(page->GetOffset());
-	assert(dataPages[index] == page);
-	dataPages[index] = NULL;
+	return indexPageSize + (indexPage.GetMaxDataPageIndex() + 1) * dataPageSize;
 }
 
 int32_t StorageFile::Locate(ReadBuffer& key)
@@ -561,6 +557,15 @@ void StorageFile::LoadDataPage(uint32_t index)
 	buffer.SetLength(length);
 	readBuffer.Wrap(buffer);
 	dataPages[index]->Read(readBuffer);
+}
+
+void StorageFile::UnloadDataPage(StorageDataPage* page)
+{
+	int32_t	index;
+	
+	index = DATAPAGE_INDEX(page->GetOffset());
+	assert(dataPages[index] == page);
+	dataPages[index] = NULL;
 }
 
 void StorageFile::MarkPageDirty(StoragePage* page)
@@ -655,3 +660,4 @@ void StorageFile::ReorderFile()
 		MarkPageDirty(dataPages[index]);
 	}
 }
+

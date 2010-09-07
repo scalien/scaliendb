@@ -16,7 +16,7 @@
 
 class StorageFileIndex
 {
-	typedef InTreeNode<StorageFileIndex> FileIndexMap;
+	typedef InTreeNode<StorageFileIndex> FileIndexNode;
 
 public:
 	StorageFileIndex();
@@ -31,7 +31,7 @@ public:
 	Buffer*					keyBuffer;
 	uint32_t				index;
 	
-	FileIndexMap			treeNode;
+	FileIndexNode			treeNode;
 };
 
 inline bool LessThan(StorageFileIndex &a, StorageFileIndex &b)
