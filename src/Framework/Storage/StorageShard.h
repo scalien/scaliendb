@@ -1,5 +1,5 @@
-#ifndef STORAGETABLE_H
-#define STORAGETABLE_H
+#ifndef STORAGESHARD_H
+#define STORAGESHARD_H
 
 #include "System/IO/FD.h"
 #include "System/Containers/InTreeMap.h"
@@ -12,17 +12,17 @@ class StorageDatabase; // forward
 /*
 ===============================================================================
 
- StorageTable
+ StorageShard
 
 ===============================================================================
 */
 
-class StorageTable
+class StorageShard
 {
 	typedef InTreeMap<StorageFileIndex> FileIndexMap;
 
 public:
-	~StorageTable();
+	~StorageShard();
 	
 	const char*				GetName();
 
@@ -34,8 +34,8 @@ public:
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
-	StorageTable*			prev;
-	StorageTable*			next;
+	StorageShard*			prev;
+	StorageShard*			next;
 	
 private:
 	void					WritePath(Buffer& buffer, uint32_t index);

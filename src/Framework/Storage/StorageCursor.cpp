@@ -1,7 +1,7 @@
 #include "StorageCursor.h"
-#include "StorageTable.h"
+#include "StorageShard.h"
 
-StorageCursor::StorageCursor(StorageTable* table_)
+StorageCursor::StorageCursor(StorageShard* table_)
 {
 	table = table_;
 	dataPage = NULL;

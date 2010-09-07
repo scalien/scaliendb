@@ -10,9 +10,9 @@ void StorageDatabase::Open(const char* dbName)
 	DCACHE->Init(DEFAULT_CACHE_SIZE);
 }
 
-StorageTable* StorageDatabase::GetTable(const char* tableName)
+StorageShard* StorageDatabase::GetTable(const char* tableName)
 {
-	StorageTable* it;
+	StorageShard* it;
 	
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
 	{
@@ -20,7 +20,7 @@ StorageTable* StorageDatabase::GetTable(const char* tableName)
 			return it;
 	}
 	
-	it = new StorageTable();
+	it = new StorageShard();
 	it->Open(tableName);
 	tables.Append(it);
 	
@@ -29,7 +29,7 @@ StorageTable* StorageDatabase::GetTable(const char* tableName)
 
 void StorageDatabase::CloseTable(const char* tableName)
 {
-	StorageTable* it;
+	StorageShard* it;
 	
 	for (it = tables.First(); it != NULL; it = tables.Next(it))
 	{
@@ -44,7 +44,7 @@ void StorageDatabase::CloseTable(const char* tableName)
 
 void StorageDatabase::Close()
 {
-	StorageTable* it;
+	StorageShard* it;
 	
 	for (it = tables.First(); it != NULL; it = tables.Delete(it))
 		it->Close();
@@ -54,7 +54,7 @@ void StorageDatabase::Close()
 
 void StorageDatabase::Commit(bool recovery, bool flush)
 {
-	StorageTable*	it;
+	StorageShard*	it;
 	long			el1, els1, el2, els2, el3, el4;
 	Stopwatch		sw;
 

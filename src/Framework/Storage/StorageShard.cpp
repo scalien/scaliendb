@@ -1,4 +1,4 @@
-#include "StorageTable.h"
+#include "StorageShard.h"
 #include "System/Common.h"
 #include "System/FileSystem.h"
 
@@ -16,12 +16,12 @@ static ReadBuffer& Key(StorageFileIndex* fi)
 	return fi->key;
 }
 
-StorageTable::~StorageTable()
+StorageShard::~StorageShard()
 {
 	files.DeleteTree();
 }
 
-void StorageTable::Open(const char* name)
+void StorageShard::Open(const char* name)
 {
 	int64_t	recoverySize;
 	int64_t	tocSize;
@@ -59,7 +59,7 @@ void StorageTable::Open(const char* name)
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
-void StorageTable::Commit(bool recovery, bool flush)
+void StorageShard::Commit(bool recovery, bool flush)
 {
 	Stopwatch	sw;
 	long		el1, els1, el2, el3, els2, el4, el5;
@@ -117,7 +117,7 @@ void StorageTable::Commit(bool recovery, bool flush)
 		el1, els1, el2, els2, el3, el4, el5);
 }
 
-void StorageTable::Close()
+void StorageShard::Close()
 {
 	StorageFileIndex*	it;
 	
@@ -135,12 +135,12 @@ void StorageTable::Close()
 	FS_Delete(recoveryFilepath.GetBuffer());
 }
 
-const char*	StorageTable::GetName()
+const char*	StorageShard::GetName()
 {
 	return name.GetBuffer();
 }
 
-bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
+bool StorageShard::Get(ReadBuffer& key, ReadBuffer& value)
 {
 	StorageFileIndex* fi;
 	
@@ -152,7 +152,7 @@ bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
 	else return fi->file->Get(key, value);
 }
 
-bool StorageTable::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
+bool StorageShard::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
 	StorageFileIndex	*fi;
 	
@@ -183,7 +183,7 @@ bool StorageTable::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 	return true;
 }
 
-void StorageTable::Delete(ReadBuffer& key)
+void StorageShard::Delete(ReadBuffer& key)
 {
 	bool			updateIndex;
 	StorageFileIndex*		fi;
@@ -215,7 +215,7 @@ void StorageTable::Delete(ReadBuffer& key)
 	}
 }
 
-void StorageTable::WritePath(Buffer& buffer, uint32_t index)
+void StorageShard::WritePath(Buffer& buffer, uint32_t index)
 {
 	char	buf[30];
 	
@@ -227,7 +227,7 @@ void StorageTable::WritePath(Buffer& buffer, uint32_t index)
 	buffer.NullTerminate();
 }
 
-void StorageTable::ReadTOC(uint32_t length)
+void StorageShard::ReadTOC(uint32_t length)
 {
 	uint32_t			i, numFiles;
 	unsigned			len;
@@ -261,7 +261,7 @@ void StorageTable::ReadTOC(uint32_t length)
 	}	
 }
 
-void StorageTable::PerformRecovery(uint32_t length)
+void StorageShard::PerformRecovery(uint32_t length)
 {
 	char*				p;
 	uint32_t			required, pageSize, marker;
@@ -352,7 +352,7 @@ TruncateLog:
 	return;
 }
 
-void StorageTable::WriteBackPages(InList<Buffer>& pages)
+void StorageShard::WriteBackPages(InList<Buffer>& pages)
 {
 	char*		p;
 	int			fd;
@@ -380,7 +380,7 @@ void StorageTable::WriteBackPages(InList<Buffer>& pages)
 	}
 }
 
-void StorageTable::DeleteGarbageFiles()
+void StorageShard::DeleteGarbageFiles()
 {
 	char*			p;
 	FS_Dir			dir;
@@ -415,7 +415,7 @@ void StorageTable::DeleteGarbageFiles()
 	FS_CloseDir(dir);
 }
 
-void StorageTable::RebuildTOC()
+void StorageShard::RebuildTOC()
 {
 	char*			p;
 	FS_Dir			dir;
@@ -463,7 +463,7 @@ void StorageTable::RebuildTOC()
 	WriteTOC();	
 }
 
-void StorageTable::WriteRecoveryPrefix()
+void StorageShard::WriteRecoveryPrefix()
 {
 	StorageFileIndex		*it;
 	uint32_t		marker = RECOVERY_MARKER;
@@ -494,7 +494,7 @@ void StorageTable::WriteRecoveryPrefix()
 	}
 }
 
-void StorageTable::WriteRecoveryPostfix()
+void StorageShard::WriteRecoveryPostfix()
 {
 	uint32_t		marker = RECOVERY_MARKER;
 
@@ -502,7 +502,7 @@ void StorageTable::WriteRecoveryPostfix()
 		ASSERT_FAIL();
 }
 
-void StorageTable::WriteTOC()
+void StorageShard::WriteTOC()
 {
 	char*				p;
 	uint32_t			size, len;
@@ -536,7 +536,7 @@ void StorageTable::WriteTOC()
 	}
 }
 
-void StorageTable::WriteData()
+void StorageShard::WriteData()
 {
 	StorageFileIndex		*it;
 	
@@ -548,7 +548,7 @@ void StorageTable::WriteData()
 	}
 }
 
-StorageFileIndex* StorageTable::Locate(ReadBuffer& key)
+StorageFileIndex* StorageShard::Locate(ReadBuffer& key)
 {
 	StorageFileIndex*	fi;
 	int			cmpres;
@@ -582,7 +582,7 @@ OpenFile:
 	return fi;
 }
 
-void StorageTable::SplitFile(StorageFile* file)
+void StorageShard::SplitFile(StorageFile* file)
 {
 	StorageFileIndex*	newFi;
 	ReadBuffer	rb;
@@ -601,7 +601,7 @@ void StorageTable::SplitFile(StorageFile* file)
 	files.Insert(newFi);
 }
 
-StorageDataPage* StorageTable::CursorBegin(ReadBuffer& key, Buffer& nextKey)
+StorageDataPage* StorageShard::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 {
 	StorageFileIndex*			fi;
 	StorageDataPage*	dataPage;
@@ -622,27 +622,26 @@ StorageDataPage* StorageTable::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 	return dataPage;
 }
 
-void StorageTable::CommitPhase1()
+void StorageShard::CommitPhase1()
 {
 	WriteRecoveryPrefix();
 }
 
-void StorageTable::CommitPhase2()
+void StorageShard::CommitPhase2()
 {
 	WriteTOC();
 	WriteData();
 }
 
-void StorageTable::CommitPhase3()
+void StorageShard::CommitPhase3()
 {
 	WriteRecoveryPostfix();
 	
 	FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
 	FS_FileTruncate(recoveryFD, 0);
-
 }
 
-void StorageTable::CommitPhase4()
+void StorageShard::CommitPhase4()
 {
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }

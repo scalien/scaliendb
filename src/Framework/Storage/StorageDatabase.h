@@ -1,7 +1,7 @@
 #ifndef STORAGEDATABASE_H
 #define STORAGEDATABASE_H
 
-#include "StorageTable.h"
+#include "StorageShard.h"
 
 /*
 ===============================================================================
@@ -16,7 +16,7 @@ class StorageDatabase
 public:
 	void					Open(const char* dbName);
 	
-	StorageTable*			GetTable(const char* tableName);
+	StorageShard*			GetTable(const char* tableName);
 	void					CloseTable(const char* tableName);
 	void					Close();
 	
@@ -24,7 +24,7 @@ public:
 	
 private:
 	Buffer					name;
-	InList<StorageTable>	tables;
+	InList<StorageShard>	tables;
 };
 
 #endif

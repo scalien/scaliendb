@@ -7,7 +7,7 @@ TEST_DEFINE(TestStorage)
 {
 #define PRINT()			{v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
 	StorageDatabase		db;
-	StorageTable*		table;
+	StorageShard*		table;
 	Buffer				k, v;
 	ReadBuffer			rk, rv;
 	Stopwatch			sw;
@@ -90,7 +90,7 @@ TEST_DEFINE(TestStorage)
 TEST_DEFINE(TestStorageCapacity)
 {
 	StorageDatabase		db;
-	StorageTable*		table;
+	StorageShard*		table;
 	Buffer				k, v;
 	ReadBuffer			rk, rv;
 	Stopwatch			sw;
@@ -162,7 +162,7 @@ TEST_DEFINE(TestStorageCapacity)
 TEST_DEFINE(TestStorageBigTransaction)
 {
 	StorageDatabase		db;
-	StorageTable*		table;
+	StorageShard*		table;
 	Buffer				k, v;
 	ReadBuffer			rk, rv;
 	Stopwatch			sw;
@@ -209,7 +209,7 @@ TEST_DEFINE(TestStorageBigTransaction)
 TEST_DEFINE(TestStorageBigRandomTransaction)
 {
 	StorageDatabase		db;
-	StorageTable*		table;
+	StorageShard*		table;
 	Buffer				k, v;
 	ReadBuffer			rk, rv;
 	Stopwatch			sw;
