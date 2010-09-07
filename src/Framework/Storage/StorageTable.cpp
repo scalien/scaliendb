@@ -30,17 +30,35 @@ uint64_t StorageTable::GetSize()
 	return size;
 }
 
-void StorageTable::Open(const char* path_, const char* name_)
+void StorageTable::Open(const char* dir, const char* name_)
 {
 //	int64_t	recoverySize;
 	int64_t	tocSize;
+	char	sep;
 	
-	path.Write(path_);
+	// create table directory
+	if (*dir == '\0')
+		path.Append(".");
+	else
+		path.Append(dir);
+
+	sep = FS_Separator();
+	if (path.GetBuffer()[path.GetLength() - 1] != sep)
+		path.Append(&sep, 1);
+	
+	path.Append(name_);
+	path.Append(&sep, 1);
+	path.NullTerminate();
+	if (!FS_IsDirectory(path.GetBuffer()))
+	{
+		if (!FS_CreateDir(path.GetBuffer()))
+			ASSERT_FAIL();
+	}
 	
 	name.Write(name_);
 	name.NullTerminate();
 
-	tocFilepath.Write(path);
+	tocFilepath.Write(path.GetBuffer(), path.GetLength() - 1);
 	tocFilepath.Append("shards");
 	tocFilepath.NullTerminate();
 
@@ -223,7 +241,7 @@ StorageShardIndex* StorageTable::Locate(ReadBuffer& key)
 	{
 		Buffer	dir;
 		
-		dir.Write(path);
+		dir.Write(path.GetBuffer(), path.GetLength() - 1);
 		dir.Appendf("%U", si->shardID);
 		dir.NullTerminate();
 		
