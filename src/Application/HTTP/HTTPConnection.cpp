@@ -1,7 +1,6 @@
 #include "HTTPConnection.h"
 #include "HTTPServer.h"
 #include "HTTPConsts.h"
-#include "Framework/Database/Database.h"
 
 #define CS_CR				"\015"
 #define CS_LF				"\012"
