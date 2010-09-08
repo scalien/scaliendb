@@ -1,7 +1,11 @@
 #include "StorageTable.h"
+#include "StorageFileHeader.h"
 #include "System/FileSystem.h"
 
-#define LAST_SHARD_KEY	"\377\377\377\377\377\377\377\377"
+#define LAST_SHARD_KEY		"\377\377\377\377\377\377\377\377"
+#define FILE_TYPE			"ScalienDB table index"
+#define FILE_VERSION_MAJOR	0
+#define FILE_VERSION_MINOR	1
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -259,13 +263,16 @@ void StorageTable::ReadTOC(uint32_t length)
 	char*				p;
 	StorageShardIndex*	si;
 	int					ret;
+	StorageFileHeader	header;
 	
 	buffer.Allocate(length);
 	if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) < 0)
 		ASSERT_FAIL();
 	if (ret != (int)length)
 		ASSERT_FAIL();
-	p = buffer.GetBuffer();
+	if (!header.Read(buffer))
+		ASSERT_FAIL();
+	p = buffer.GetBuffer() + STORAGEFILE_HEADER_LENGTH;
 	numFiles = FromLittle32(*((uint32_t*) p));
 	assert(numFiles * 8 + 4 <= length);
 	p += 4;
@@ -294,9 +301,16 @@ void StorageTable::WriteTOC()
 	uint32_t			size, len;
 	uint32_t			tmp;
 	StorageShardIndex	*it;
+	StorageFileHeader	header;
 
 	FS_FileSeek(tocFD, 0, FS_SEEK_SET);
 	FS_FileTruncate(tocFD, 0);
+	
+	header.Init(FILE_TYPE, FILE_VERSION_MAJOR, FILE_VERSION_MINOR, 0);
+	header.Write(buffer);
+
+	if (FS_FileWrite(tocFD, (const void*) buffer.GetBuffer(), buffer.GetLength()) < 0)
+		ASSERT_FAIL();
 	
 	len = shards.GetCount();
 	tmp = ToLittle32(len);

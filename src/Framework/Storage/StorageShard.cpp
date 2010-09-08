@@ -1,4 +1,5 @@
 #include "StorageShard.h"
+#include "StorageFileHeader.h"
 #include "System/Common.h"
 #include "System/FileSystem.h"
 #include "System/Buffers/Buffer.h"
@@ -6,6 +7,9 @@
 #include <stdio.h>
 
 #define	RECOVERY_MARKER		0		// special as it's an illegal fileIndex
+#define FILE_TYPE			"ScalienDB shard index"
+#define FILE_VERSION_MAJOR	0
+#define FILE_VERSION_MINOR	1
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -26,7 +30,6 @@ void StorageShard::Open(const char* dir, const char* name)
 {
 	int64_t	recoverySize;
 	int64_t	tocSize;
-	Buffer	path;
 	char	sep;
 	
 	nextStorageFileIndex = 1;
@@ -53,12 +56,11 @@ void StorageShard::Open(const char* dir, const char* name)
 	this->name.NullTerminate();
 
 	tocFilepath.Append(path.GetBuffer(), path.GetLength() - 1);
-	tocFilepath.Append(name);
+	tocFilepath.Append("index");
 	tocFilepath.NullTerminate();
 
 	recoveryFilepath.Append(path.GetBuffer(), path.GetLength() - 1);
-	recoveryFilepath.Append(name);
-	recoveryFilepath.Append(".recovery");
+	recoveryFilepath.Append("recovery");
 	recoveryFilepath.NullTerminate();
 
 	tocFD = FS_Open(tocFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
@@ -85,60 +87,27 @@ void StorageShard::Open(const char* dir, const char* name)
 
 void StorageShard::Commit(bool recovery, bool flush)
 {
-	Stopwatch	sw;
-	long		el1, els1, el2, el3, els2, el4, el5;
-	
-	el1 = els1 = el2 = el3 = els2 = el4 = el5 = 0;
-	
 	if (recovery)
 	{
-		sw.Restart();
 		WriteRecoveryPrefix();
-		sw.Stop();
-		el1 = sw.Elapsed();
-
-		sw.Restart();
 		// to make sure the recovery (prefix) part is written
 		if (flush)
 			FS_Sync();
-		sw.Stop();
-		els1 = sw.Elapsed();
 	}
 
-	sw.Restart();
 	WriteTOC();
-	sw.Stop();
-	el2 = sw.Elapsed();
-	
-	sw.Restart();
 	WriteData();
-	sw.Stop();
-	el3 = sw.Elapsed();
-
-	sw.Restart();
 	// to make sure the data is written before we mark it such in the recovery postfix
 	if (flush)
 		FS_Sync();
-	sw.Stop();
-	els2 = sw.Elapsed();
 
 	if (recovery)
 	{
-		sw.Restart();
 		WriteRecoveryPostfix();
-		sw.Stop();
-		el4 = sw.Elapsed();
-		
-		sw.Restart();
 		FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
 		FS_FileTruncate(recoveryFD, 0);
-		sw.Stop();
-		el5 = sw.Elapsed();
 	}
 	prevCommitStorageFileIndex = nextStorageFileIndex;
-
-	printf("el1 = %ld, els1 = %ld, el2 = %ld, els2 = %ld, el3 = %ld, el4 = %ld, el5 = %ld\n",
-		el1, els1, el2, els2, el3, el4, el5);
 }
 
 void StorageShard::Close()
@@ -273,10 +242,9 @@ void StorageShard::WritePath(Buffer& buffer, uint32_t index)
 {
 	char	buf[30];
 	
-	snprintf(buf, sizeof(buf), ".%010u", index);
+	snprintf(buf, sizeof(buf), "data.%010u", index);
 	
-	buffer.Write(tocFilepath);
-	buffer.SetLength(tocFilepath.GetLength() - 1); // get rid of trailing \0
+	buffer.Write(path.GetBuffer(), path.GetLength() - 1);
 	buffer.Append(buf);
 	buffer.NullTerminate();
 }
@@ -290,7 +258,16 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
 	int					ret;
 	uint64_t			totalSize;
 	int64_t				fileSize;
+	StorageFileHeader	header;
 	
+	buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
+	if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH)) < 0)
+		ASSERT_FAIL();
+	buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
+	if (!header.Read(buffer))
+		ASSERT_FAIL();
+	
+	length -= STORAGEFILE_HEADER_LENGTH;
 	buffer.Allocate(length);
 	if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) < 0)
 		ASSERT_FAIL();
@@ -457,7 +434,7 @@ void StorageShard::DeleteGarbageFiles()
 	uint32_t		index;
 	ReadBuffer		firstKey;
 	
-	dir = FS_OpenDir(".");
+	dir = FS_OpenDir(path.GetBuffer());
 	
 	while ((dirent = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
 	{
@@ -493,7 +470,7 @@ void StorageShard::RebuildTOC()
 	StorageFileIndex*	fi;
 	ReadBuffer		firstKey;
 	
-	dir = FS_OpenDir(".");
+	dir = FS_OpenDir(path.GetBuffer());
 	
 	while ((dirent = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
 	{
@@ -575,9 +552,16 @@ void StorageShard::WriteTOC()
 	uint32_t			size, len;
 	uint32_t			tmp;
 	StorageFileIndex	*it;
+	StorageFileHeader	header;
 
 	FS_FileSeek(tocFD, 0, FS_SEEK_SET);
 	FS_FileTruncate(tocFD, 0);
+	
+	header.Init(FILE_TYPE, FILE_VERSION_MAJOR, FILE_VERSION_MINOR, 0);
+	header.Write(buffer);
+	
+	if (FS_FileWrite(tocFD, (const void *) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
+		ASSERT_FAIL();
 	
 	len = files.GetCount();
 	tmp = ToLittle32(len);

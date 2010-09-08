@@ -1,10 +1,16 @@
 #include "StorageFile.h"
+#include "StorageFileHeader.h"
 #include "StorageDataCache.h"
 #include "System/FileSystem.h"
 #include "stdio.h"
 
-#define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
-#define DATAPAGE_INDEX(offs) ((offs-INDEXPAGE_OFFSET-indexPageSize)/dataPageSize)
+#define INDEXPAGE_OFFSET	(STORAGEFILE_HEADER_LENGTH+INDEXPAGE_HEADER_SIZE)
+
+#define DATAPAGE_OFFSET(idx) (STORAGEFILE_HEADER_LENGTH+INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
+#define DATAPAGE_INDEX(offs) ((offs-STORAGEFILE_HEADER_LENGTH-INDEXPAGE_OFFSET-indexPageSize)/dataPageSize)
+#define FILE_TYPE			"ScalienDB data file"
+#define FILE_VERSION_MAJOR	0
+#define FILE_VERSION_MINOR	1
 
 static int KeyCmp(const uint32_t a, const uint32_t b)
 {
@@ -81,7 +87,7 @@ void StorageFile::Close()
 {
 	FS_FileClose(fd);
 	
-	fd = -1;
+	fd = INVALID_FD;
 }
 
 void StorageFile::SetStorageFileIndex(uint32_t fileIndex_)
@@ -127,7 +133,6 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 		index = 0;
 		assert(numDataPages == 0);
 		assert(dataPages[index] == NULL);
-//		dataPages[index] = new StorageDataPage;
 		dataPages[index] = DCACHE->GetPage();
 		DCACHE->Checkin(dataPages[index]);
 		dataPages[index]->SetStorageFileIndex(fileIndex);
@@ -281,104 +286,26 @@ StorageFile* StorageFile::SplitFile()
 	return newFile;
 }
 
-//StorageFile* StorageFile::SplitFile()
-//{
-//	StorageFile*		newFile;
-//	StorageKeyIndex*	it;
-//	StorageKeyIndex*	next;
-//	uint32_t			num, i, index, newIndex;
-//	
-//	assert(numDataPageSlots == numDataPages);
-//	
-//	// TODO: do thing for cursors: 
-//	
-//	newFile = new StorageFile;
-//	newFile->indexPageSize = indexPageSize;
-//	newFile->dataPageSize = dataPageSize;
-//	newFile->numDataPageSlots = numDataPageSlots;
-//	newFile->indexPage.SetPageSize(indexPageSize);
-//	newFile->indexPage.SetNumDataPageSlots(numDataPageSlots);
-//
-//	num = numDataPageSlots / 2;
-//
-//	for (it = indexPage.keys.First(), i = 0; it != NULL; it = indexPage.keys.Next(it), i++)
-//	{
-//		assert(dataPages[it->index] != NULL);
-//		assert(dataPages[it->index]->IsEmpty() != true);
-//		if (i == num)
-//			break;
-//	}
-//
-//	assert(it != NULL);
-//
-//	for (newIndex = 0; it != NULL; newIndex++)
-//	{
-//		index = it->index;
-//		assert(dataPages[index] != NULL);
-//		assert(!dataPages[index]->IsEmpty());
-//		newFile->dataPages[newIndex] = dataPages[index];
-//		if (dataPages[index]->IsDirty())
-//			dirtyPages.Remove((StoragePage*)dataPages[index]);
-//		next = indexPage.keys.Next(it);
-//		indexPage.Remove(dataPages[index]->FirstKey()); // it is deleted here
-//		dataPages[index] = NULL;
-//		newFile->indexPage.Add(newFile->dataPages[newIndex]->FirstKey(), newIndex, true);
-//		newFile->dataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));
-//		numDataPages--;
-//		newFile->numDataPages++;
-//		assert(newFile->numDataPages < newFile->numDataPageSlots);
-//		it = next;
-//	}
-//	// TODO: make sure overflowing page goes to the new file!!!
-//	// TODO: now if a new page gets allocated the old page that was it its position,
-//	//       which was moved to the new file is not written to recovery!
-//	isOverflowing = false;
-//	for (it = indexPage.keys.First(); it != NULL; it = indexPage.keys.Next(it))
-//	{
-//		if (dataPages[it->index]->IsOverflowing())
-//		{
-//			SplitDataPage(it->index);
-//			break;
-//		}
-//	}
-//	assert(isOverflowing == false);
-//	MarkPageDirty(&indexPage);
-//	
-//	newFile->isOverflowing = false;
-//	for (it = newFile->indexPage.keys.First(); it != NULL; it = newFile->indexPage.keys.Next(it))
-//	{
-//		newFile->dataPages[it->index]->SetDirty(false);
-//		newFile->MarkPageDirty(newFile->dataPages[it->index]);
-//	}
-//
-//	for (it = newFile->indexPage.keys.First(); it != NULL; it = newFile->indexPage.keys.Next(it))
-//	{
-//		if (newFile->dataPages[it->index]->IsOverflowing())
-//		{
-//			newFile->SplitDataPage(it->index);
-//			break;
-//		}
-//	}
-//
-//	assert(newFile->isOverflowing == false);
-//	newFile->indexPage.SetDirty(false);
-//	newFile->MarkPageDirty(&newFile->indexPage);
-//		
-//	return newFile;
-//}
-
 void StorageFile::Read()
 {
-	char*			p;
-	unsigned		i;
-	int				length;
-	Buffer			buffer;
-	ReadBuffer		readBuffer;
+	char*				p;
+	unsigned			i;
+	int					length;
+	Buffer				buffer;
+	ReadBuffer			readBuffer;
+	StorageFileHeader	header;
 	
 	newFile = false;
 
-	buffer.Allocate(12);
-	if (FS_FileReadOffs(fd, (void*) buffer.GetBuffer(), 12, 0) < 0)
+	buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
+	if (FS_FileRead(fd, (void*) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
+		ASSERT_FAIL();
+	buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
+	if (!header.Read(buffer))
+		ASSERT_FAIL();
+		
+	buffer.Allocate(INDEXPAGE_HEADER_SIZE);
+	if (FS_FileRead(fd, (void*) buffer.GetBuffer(), INDEXPAGE_HEADER_SIZE) < 0)
 		ASSERT_FAIL();
 	p = buffer.GetBuffer();
 	indexPageSize = FromLittle32(*((uint32_t*) p));
@@ -394,7 +321,7 @@ void StorageFile::Read()
 	indexPage.SetNumDataPageSlots(numDataPageSlots);
 	
 	buffer.Allocate(indexPageSize);
-	length = FS_FileReadOffs(fd, (void*) buffer.GetBuffer(), indexPageSize, INDEXPAGE_OFFSET);
+	length = FS_FileRead(fd, (void*) buffer.GetBuffer(), indexPageSize);
 	if (length < 0)
 		ASSERT_FAIL();
 	buffer.SetLength(length);
@@ -424,7 +351,7 @@ void StorageFile::ReadRest()
 		LoadDataPage(*uit);
 }
 
-void StorageFile::WriteRecovery(int recoveryFD)
+void StorageFile::WriteRecovery(FD recoveryFD)
 {
 	Buffer			buffer;
 	StoragePage*	it;
@@ -454,10 +381,17 @@ void StorageFile::WriteData()
 	char*					p;
 	InList<StoragePage>		dirties;
 	StoragePage*			next;
+	StorageFileHeader		header;
 	
 	if (newFile)
 	{
-		buffer.Allocate(12);
+		buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
+		header.Init(FILE_TYPE, FILE_VERSION_MAJOR, FILE_VERSION_MINOR, 0);
+		header.Write(buffer);
+		if (FS_FileWrite(fd, (const void *) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
+			ASSERT_FAIL();
+		
+		buffer.Allocate(INDEXPAGE_OFFSET);
 		p = buffer.GetBuffer();
 		*((uint32_t*) p) = ToLittle32(indexPageSize);
 		p += 4;
@@ -466,7 +400,7 @@ void StorageFile::WriteData()
 		*((uint32_t*) p) = ToLittle32(numDataPageSlots);
 		p += 4;
 		
-		if (FS_FileWriteOffs(fd, (const void *) buffer.GetBuffer(), 12, 0) < 0)
+		if (FS_FileWrite(fd, (const void *) buffer.GetBuffer(), INDEXPAGE_OFFSET) < 0)
 			ASSERT_FAIL();
 		
 		newFile = false;
@@ -491,7 +425,8 @@ void StorageFile::WriteData()
 	for (it = dirties.First(); it != NULL; it = next)
 	{
 		next = dirties.Remove(it);
-		DCACHE->Checkin((StorageDataPage*) it);
+		if (it->GetType() == STORAGE_DATA_PAGE)
+			DCACHE->Checkin((StorageDataPage*) it);
 	}
 }
 
@@ -538,7 +473,6 @@ void StorageFile::LoadDataPage(uint32_t index)
 	int			length;
 	
 	// load existing data page from disk
-//	dataPages[index] = new StorageDataPage;
 	dataPages[index] = DCACHE->GetPage();
 	DCACHE->Checkin(dataPages[index]);
 
@@ -603,10 +537,6 @@ void StorageFile::SplitDataPage(uint32_t index)
 		assert(newPage->IsDirty() == false);
 		MarkPageDirty(newPage);
 		MarkPageDirty(&indexPage);
-//			if (newPage->MustSplit())
-//			{
-//				TODO
-//			}
 	}
 	else
 		isOverflowing = true;
@@ -648,7 +578,7 @@ void StorageFile::ReorderFile()
 	MarkPageDirty(&indexPage);
 	for (index = 0; index < numDataPages; index++)
 	{
-		// if it was dirty, it must be checked in before marked again as dirty
+		// HACK: if it was dirty, it must be checked in before marked again as dirty
 		if (dataPages[index]->IsDirty())
 		{
 			dataPages[index]->SetDirty(false);

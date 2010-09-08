@@ -436,6 +436,7 @@ color:
 template<typename T, InTreeNode<T> T::*pnode>
 void InTreeMap<T, pnode>::Clear()
 {
+	// TODO: Clear recursively like Delete
 	root = NULL;
 	count = 0;
 }

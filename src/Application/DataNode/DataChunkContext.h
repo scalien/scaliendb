@@ -68,7 +68,7 @@ private:
 	
 	InList<DataMessage>				messages;
 	Buffer							nextValue;
-	Table*							table;
+//	Table*							table;
 	DataNode*						dataNode;
 };
 

@@ -60,6 +60,8 @@ StorageDataPage* StorageDataCache::GetPage()
 	
 //	return new StorageDataPage;
 	
+	assert(lruList.GetLength() + freeList.GetLength() <= num);
+	
 	if (freeList.GetLength() > 0)
 	{
 		page = freeList.First();
@@ -84,7 +86,10 @@ StorageDataPage* StorageDataCache::GetPage()
 
 void StorageDataCache::FreePage(StorageDataPage* page)
 {
+	assert(lruList.GetLength() + freeList.GetLength() <= num);
 	assert(page->next == page && page->prev == page);
+	assert(page->detached == false);
+
 	page->~StorageDataPage();
 	freeList.Append(page);
 }
@@ -97,20 +102,18 @@ void StorageDataCache::RegisterHit(StorageDataPage* page)
 
 void StorageDataCache::Checkin(StorageDataPage* page)
 {
-	static unsigned maxLength = 0;
+	assert(lruList.GetLength() + freeList.GetLength() <= num);
 	assert(page->next == page && page->prev == page);
 	assert(page->dirty == false);
-	lruList.Prepend(page);
+	assert(page->detached == false);
 
-//	if (lruList.GetLength() > maxLength)
-//	{
-//		maxLength = lruList.GetLength();
-//		printf("lruList.length = %d\n", maxLength);
-//	}
+	lruList.Prepend(page);
 }
 
 void StorageDataCache::Checkout(StorageDataPage* page)
 {
+	assert(lruList.GetLength() + freeList.GetLength() <= num);
 	assert(page->next != page && page->prev != page);
+
 	lruList.Remove(page);
 }

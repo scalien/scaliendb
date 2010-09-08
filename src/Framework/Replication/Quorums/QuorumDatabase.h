@@ -3,10 +3,6 @@
 
 #include "System/Platform.h"
 #include "System/Buffers/Buffer.h"
-#include "Framework/Database/Transaction.h"
-#include "Framework/Database/Section.h"
-
-class Table;	// forward
 
 /*
 ===============================================================================
@@ -19,12 +15,6 @@ class Table;	// forward
 class QuorumDatabase
 {
 public:
-	Section*			GetSection();
-	void				SetSection(Section* section);
-	
-	Transaction*		GetTransaction();
-	void				SetTransaction(Transaction* transaction);
-	
 	uint64_t			GetPaxosID();
 	void				SetPaxosID(uint64_t paxosID);
 	
@@ -47,11 +37,10 @@ public:
 	void				SetLearnedValue(uint64_t paxosID, ReadBuffer& value);
 
 	bool				IsActive();
+	
+	void				Commit();
 
 private:
-	Section*			section;
-	Transaction*		transaction;
-	
 	uint64_t			GetUint64(const char* name);
 	void				SetUint64(const char* name, uint64_t value);
 };

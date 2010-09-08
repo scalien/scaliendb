@@ -5,7 +5,15 @@
 #include "System/Buffers/Buffer.h"
 #include "StorageDataPage.h"
 
-#define DCACHE StorageDataCache::Get()
+#define DCACHE (StorageDataCache::Get())
+
+/*
+===============================================================================
+
+ StorageDataCache
+
+===============================================================================
+*/
 
 class StorageDataCache
 {

@@ -11,7 +11,7 @@
 class Controller : public HTTPHandler
 {
 public:
-	void					Init(Table* table);
+//	void					Init(Table* table);
 	void					ReadChunkQuorum(uint64_t /*chunkID*/);
 	void					WriteChunkQuorum(ConfigMessage& msg);
 	// HTTPHandler interface
@@ -26,7 +26,7 @@ private:
 	uint64_t				nodeIDs[7];
 	Endpoint				endpoints[7];
 	bool					chunkCreated;
-	Table*					table;
+//	Table*					table;
 	Countdown				clusterInfoTimeout;
 };
 

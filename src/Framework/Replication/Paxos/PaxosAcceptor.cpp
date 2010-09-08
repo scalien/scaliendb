@@ -116,7 +116,6 @@ void PaxosAcceptor::WriteState()
 	
 	db = context->GetDatabase();
 	
-	db->GetTransaction()->Begin();
 	db->SetPaxosID(context->GetPaxosID());
 	db->SetAccepted(state.accepted);
 	db->SetPromisedProposalID(state.promisedProposalID);
@@ -129,7 +128,7 @@ void PaxosAcceptor::WriteState()
 
 	writtenPaxosID = context->GetPaxosID();
 
-	db->GetTransaction()->Commit();
+	db->Commit();
 
 	// this is a different function because it may be necessary to async this
 	// right now this makes writtenPaxosID (and senderID) unecessary

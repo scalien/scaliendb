@@ -12,6 +12,7 @@
 
 #define INDEXPAGE_FIX_OVERHEAD		16
 #define INDEXPAGE_KV_OVERHEAD		8
+#define INDEXPAGE_HEADER_SIZE		12
 
 /*
 ===============================================================================

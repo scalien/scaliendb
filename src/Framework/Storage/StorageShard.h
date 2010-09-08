@@ -64,6 +64,7 @@ private:
 	uint32_t				prevCommitStorageFileIndex;
 	uint32_t				nextStorageFileIndex;
 	Buffer					name;
+	Buffer					path;
 	Buffer					tocFilepath;
 	Buffer					recoveryFilepath;
 	Buffer					buffer;

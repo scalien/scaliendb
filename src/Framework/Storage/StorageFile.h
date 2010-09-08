@@ -7,8 +7,6 @@
 #include "StorageDataPage.h"
 #include "System/Stopwatch.h"
 
-#define INDEXPAGE_OFFSET			12
-
 /*
 ===============================================================================
 
@@ -40,7 +38,7 @@ public:
 
 	void					Read();
 	void					ReadRest();
-	void					WriteRecovery(int recoveryFD);
+	void					WriteRecovery(FD recoveryFD);
 	void					WriteData();
 
 	StorageDataPage*		CursorBegin(ReadBuffer& key, Buffer& nextKey);
