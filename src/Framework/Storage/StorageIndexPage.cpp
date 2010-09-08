@@ -103,7 +103,7 @@ void StorageIndexPage::Remove(ReadBuffer key)
 	maxDataPageIndex = -1;
 	for (it = keys.First(); it != NULL; it = keys.Next(it))
 	{
-		if (it->index > maxDataPageIndex)
+		if ((int32_t) it->index > maxDataPageIndex)
 			maxDataPageIndex = it->index;
 	}
 		
@@ -206,8 +206,8 @@ bool StorageIndexPage::IsOverflowing()
 
 void StorageIndexPage::Read(ReadBuffer& buffer_)
 {
-	uint32_t	num, len, i;
-	char*		p;
+	uint32_t			num, len, i;
+	char*				p;
 	StorageKeyIndex*	ki;
 
 	buffer.Write(buffer_);
@@ -235,6 +235,8 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 		p += 4;
 		keys.Insert(ki);
 		freeDataPages.Remove(ki->index);
+		if ((int32_t) ki->index > maxDataPageIndex)
+			maxDataPageIndex = ki->index;
 	}
 	
 	required = p - buffer.GetBuffer();

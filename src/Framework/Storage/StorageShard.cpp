@@ -26,7 +26,7 @@ StorageShard::~StorageShard()
 	files.DeleteTree();
 }
 
-void StorageShard::Open(const char* dir, const char* name)
+void StorageShard::Open(const char* dir, const char* name_)
 {
 	int64_t	recoverySize;
 	int64_t	tocSize;
@@ -51,9 +51,9 @@ void StorageShard::Open(const char* dir, const char* name)
 			ASSERT_FAIL();
 	}
 
-	this->name.Append(path.GetBuffer(), path.GetLength() - 1);
-	this->name.Append(name);
-	this->name.NullTerminate();
+	name.Append(path.GetBuffer(), path.GetLength() - 1);
+	name.Append(name_);
+	name.NullTerminate();
 
 	tocFilepath.Append(path.GetBuffer(), path.GetLength() - 1);
 	tocFilepath.Append("index");
