@@ -823,16 +823,14 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
-				HEADER_SEARCH_PATHS = (
-					/opt/local/include/db46,
-					src,
-				);
+				HEADER_SEARCH_PATHS = src;
 				INSTALL_PATH = /usr/local/bin;
-				LIBRARY_SEARCH_PATHS = "$(inherited)";
+				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
 					"-D__STDC_FORMAT_MACROS",
 				);
+				PRELINK_LIBS = "";
 				PRODUCT_NAME = ScalienDB;
 			};
 			name = Debug;
@@ -851,19 +849,14 @@
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
-				HEADER_SEARCH_PATHS = (
-					/opt/local/include/db46,
-					src,
-				);
+				HEADER_SEARCH_PATHS = src;
 				INSTALL_PATH = /usr/local/bin;
-				LIBRARY_SEARCH_PATHS = (
-					"$(inherited)",
-					/opt/local/lib/db46,
-				);
+				LIBRARY_SEARCH_PATHS = "";
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
 					"-D__STDC_FORMAT_MACROS",
 				);
+				PRELINK_LIBS = "";
 				PRODUCT_NAME = ScalienDB;
 			};
 			name = Release;
@@ -887,11 +880,8 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				HEADER_SEARCH_PATHS = (
-					/opt/local/include/db46,
-					src,
-				);
-				LIBRARY_SEARCH_PATHS = /opt/local/lib/db46;
+				HEADER_SEARCH_PATHS = src;
+				LIBRARY_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
@@ -922,6 +912,8 @@
 				GCC_WARN_UNUSED_PARAMETER = YES;
 				GCC_WARN_UNUSED_VALUE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
+				HEADER_SEARCH_PATHS = src;
+				LIBRARY_SEARCH_PATHS = "";
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
