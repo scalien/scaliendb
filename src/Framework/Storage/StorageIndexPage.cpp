@@ -83,8 +83,8 @@ void StorageIndexPage::Remove(ReadBuffer key)
 {
 	StorageKeyIndex*	it;
 	uint32_t			index;
-	uint32_t			prevIndex;
-	uint32_t*			iit;
+//	uint32_t			prevIndex;
+//	uint32_t*			iit;
 
 	it = keys.Get<ReadBuffer&>(key);
 	if (!it)

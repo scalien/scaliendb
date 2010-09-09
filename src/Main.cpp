@@ -43,7 +43,7 @@
 #include "Framework/Storage/StorageTable.h"
 #include "System/Stopwatch.h"
 #include "System/Containers/InTreeMap.h"
-#include "System/Events/Callable.h"
+#include "System/Events/Deferred.h"
 #include "Test/Test.h"
 
 #include <map>
@@ -66,10 +66,12 @@ int main(int argc, char** argv)
 	char*				area;
 	char*				p;
 	uint64_t			clock;
-	Deferred			stopClock(CFunc(StopClock));
+	Deferred			stopClock;
+	
 
 	Log_SetTarget(LOG_TARGET_STDOUT);
 	Log_SetTrace(true);
+	stopClock.Set(CFunc(StopClock));
 	StartClock();
 #define TEST_FILE
 

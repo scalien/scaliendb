@@ -1,25 +1,4 @@
 ALL_OBJECTS = \
-	$(BUILD_DIR)/Application/HTTP/HTTPConnection.o \
-	$(BUILD_DIR)/Application/HTTP/HTTPFileHandler.o \
-	$(BUILD_DIR)/Application/HTTP/HTTPRequest.o \
-	$(BUILD_DIR)/Application/HTTP/HTTPServer.o \
-	$(BUILD_DIR)/Application/HTTP/IMF.o \
-	$(BUILD_DIR)/Application/HTTP/JSONSession.o \
-	$(BUILD_DIR)/Application/HTTP/Mime.o \
-	$(BUILD_DIR)/Application/HTTP/UrlParam.o \
-	$(BUILD_DIR)/Application/Controller/ControlConfigContext.o \
-	$(BUILD_DIR)/Application/Controller/Controller.o \
-	$(BUILD_DIR)/Application/Controller/ConfigMessage.o \
-	$(BUILD_DIR)/Application/Controller/ClusterMessage.o \
-	$(BUILD_DIR)/Application/DataNode/DataChunkContext.o \
-	$(BUILD_DIR)/Application/DataNode/DataHTTPHandler.o \
-	$(BUILD_DIR)/Application/DataNode/DataNode.o \
-	$(BUILD_DIR)/Application/DataNode/DataMessage.o \
-	$(BUILD_DIR)/Framework/Database/Cursor.o \
-	$(BUILD_DIR)/Framework/Database/Database.o \
-	$(BUILD_DIR)/Framework/Database/Section.o \
-	$(BUILD_DIR)/Framework/Database/Table.o \
-	$(BUILD_DIR)/Framework/Database/Transaction.o \
 	$(BUILD_DIR)/Framework/Messaging/MessageConnection.o \
 	$(BUILD_DIR)/Framework/Messaging/MessageServer.o \
 	$(BUILD_DIR)/Framework/Messaging/MessageTransport.o \
@@ -48,8 +27,11 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageKeyIndex.o \
 	$(BUILD_DIR)/Framework/Storage/StorageKeyValue.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFile.o \
+	$(BUILD_DIR)/Framework/Storage/StorageFileHeader.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFileIndex.o \
 	$(BUILD_DIR)/Framework/Storage/StoragePage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageShard.o \
+	$(BUILD_DIR)/Framework/Storage/StorageShardIndex.o \
 	$(BUILD_DIR)/Framework/Storage/StorageTable.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
@@ -76,3 +58,19 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Test/FileSystemTest.o \
 
 
+#	$(BUILD_DIR)/Application/HTTP/HTTPConnection.o \
+#	$(BUILD_DIR)/Application/HTTP/HTTPFileHandler.o \
+#	$(BUILD_DIR)/Application/HTTP/HTTPRequest.o \
+#	$(BUILD_DIR)/Application/HTTP/HTTPServer.o \
+#	$(BUILD_DIR)/Application/HTTP/IMF.o \
+#	$(BUILD_DIR)/Application/HTTP/JSONSession.o \
+#	$(BUILD_DIR)/Application/HTTP/Mime.o \
+#	$(BUILD_DIR)/Application/HTTP/UrlParam.o \
+#	$(BUILD_DIR)/Application/DataNode/DataChunkContext.o \
+#	$(BUILD_DIR)/Application/DataNode/DataHTTPHandler.o \
+#	$(BUILD_DIR)/Application/DataNode/DataNode.o \
+#	$(BUILD_DIR)/Application/DataNode/DataMessage.o \
+#	$(BUILD_DIR)/Application/Controller/ControlConfigContext.o \
+#	$(BUILD_DIR)/Application/Controller/Controller.o \
+#	$(BUILD_DIR)/Application/Controller/ConfigMessage.o \
+#	$(BUILD_DIR)/Application/Controller/ClusterMessage.o \

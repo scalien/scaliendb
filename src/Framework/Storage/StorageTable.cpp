@@ -104,8 +104,6 @@ void StorageTable::Open(const char* dir, const char* name_)
 
 void StorageTable::Commit(bool recovery, bool flush)
 {
-	StorageShardIndex*	it;
-	
 	if (recovery)
 	{
 		CommitPhase1();
@@ -135,7 +133,9 @@ void StorageTable::Close()
 	}
 	
 	shards.DeleteTree();
+
 	FS_FileClose(tocFD);
+	tocFD = INVALID_FD;
 }
 
 bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
@@ -256,16 +256,21 @@ void StorageTable::ReadTOC(uint32_t length)
 	StorageShardIndex*	si;
 	int					ret;
 	StorageFileHeader	header;
+	Buffer				headerBuf;
 	
-	buffer.Allocate(length);
+	headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
+	if ((ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH)) < 0)
+		ASSERT_FAIL();
+	if (ret != STORAGEFILE_HEADER_LENGTH)
+		ASSERT_FAIL();
+	headerBuf.SetLength(STORAGEFILE_HEADER_LENGTH);
+	if (!header.Read(headerBuf))
+		ASSERT_FAIL();
+	
+	length -= STORAGEFILE_HEADER_LENGTH;
 	if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) < 0)
 		ASSERT_FAIL();
-	if (ret != (int)length)
-		ASSERT_FAIL();
-	buffer.SetLength(length);
-	if (!header.Read(buffer))
-		ASSERT_FAIL();
-	p = buffer.GetBuffer() + STORAGEFILE_HEADER_LENGTH;
+	p = buffer.GetBuffer();
 	numShards = FromLittle32(*((uint32_t*) p));
 	assert(numShards * 8 + 4 <= length);
 	p += 4;
@@ -276,15 +281,15 @@ void StorageTable::ReadTOC(uint32_t length)
 		p += 4;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
-//		si->startKey.SetLength(len);
-//		si->startKey.SetBuffer(p);
-		si->SetStartKey(ReadBuffer(p, len), true);
+		si->startKey.SetLength(len);
+		si->startKey.SetBuffer(p);
+//		si->SetStartKey(ReadBuffer(p, len), true);
 		p += len;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
-//		si->endKey.SetLength(len);
-//		si->endKey.SetBuffer(p);
-		si->SetEndKey(ReadBuffer(p, len), true);
+		si->endKey.SetLength(len);
+		si->endKey.SetBuffer(p);
+//		si->SetEndKey(ReadBuffer(p, len), true);
 		p += len;
 		shards.Insert(si);
 	}
@@ -297,14 +302,15 @@ void StorageTable::WriteTOC()
 	uint32_t			tmp;
 	StorageShardIndex	*it;
 	StorageFileHeader	header;
+	Buffer				writeBuf;
 
 	FS_FileSeek(tocFD, 0, FS_SEEK_SET);
 	FS_FileTruncate(tocFD, 0);
 	
 	header.Init(FILE_TYPE, FILE_VERSION_MAJOR, FILE_VERSION_MINOR, 0);
-	header.Write(buffer);
+	header.Write(writeBuf);
 
-	if (FS_FileWrite(tocFD, (const void*) buffer.GetBuffer(), buffer.GetLength()) < 0)
+	if (FS_FileWrite(tocFD, (const void*) writeBuf.GetBuffer(), writeBuf.GetLength()) < 0)
 		ASSERT_FAIL();
 	
 	len = shards.GetCount();
@@ -316,23 +322,21 @@ void StorageTable::WriteTOC()
 	for (it = shards.First(); it != NULL; it = shards.Next(it))
 	{		
 		size = 4 + (4+it->startKey.GetLength()) + (4+it->endKey.GetLength());
-		buffer.Allocate(size);
-		p = buffer.GetBuffer();
+		writeBuf.Allocate(size);
+		p = writeBuf.GetBuffer();
 		*((uint32_t*) p) = ToLittle32(it->shardID);
 		p += 4;
 		len = it->startKey.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
-		// TODO: HACK p and startKey buffer might overlap
-		memmove(p, it->startKey.GetBuffer(), len);
+		memcpy(p, it->startKey.GetBuffer(), len);
 		p += len;
 		len = it->endKey.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
-		// TODO: HACK p and key buffer might overlap
-		memmove(p, it->endKey.GetBuffer(), len);
+		memcpy(p, it->endKey.GetBuffer(), len);
 		p += len;
-		if (FS_FileWrite(tocFD, (const void *) buffer.GetBuffer(), size) < 0)
+		if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), size) < 0)
 			ASSERT_FAIL();
 	}
 }

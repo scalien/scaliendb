@@ -285,6 +285,7 @@
 		9A87418912282946000B1319 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test.h; path = Test/Test.h; sourceTree = "<group>"; };
 		9A87418A12282946000B1319 /* TestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestMain.cpp; path = Test/TestMain.cpp; sourceTree = "<group>"; };
 		9A87418B12282946000B1319 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
+		9AABAD3812393327003626AC /* Deferred.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Deferred.h; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9ACF23DE122FDEBE00247703 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
@@ -542,6 +543,7 @@
 				54FA690A11C2435300FF4EF6 /* Timer.cpp */,
 				54FA68F311C2422A00FF4EF6 /* Countdown.h */,
 				54FA68F811C2429A00FF4EF6 /* Countdown.cpp */,
+				9AABAD3812393327003626AC /* Deferred.h */,
 			);
 			path = Events;
 			sourceTree = "<group>";

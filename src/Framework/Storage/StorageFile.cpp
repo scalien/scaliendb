@@ -6,8 +6,8 @@
 
 #define INDEXPAGE_OFFSET	(STORAGEFILE_HEADER_LENGTH+INDEXPAGE_HEADER_SIZE)
 
-#define DATAPAGE_OFFSET(idx) (STORAGEFILE_HEADER_LENGTH+INDEXPAGE_OFFSET+indexPageSize+(idx)*dataPageSize)
-#define DATAPAGE_INDEX(offs) (((offs)-STORAGEFILE_HEADER_LENGTH-INDEXPAGE_OFFSET-indexPageSize)/dataPageSize)
+#define DATAPAGE_OFFSET(idx) (INDEXPAGE_OFFSET+indexPageSize+(idx)*dataPageSize)
+#define DATAPAGE_INDEX(offs) (((offs)-INDEXPAGE_OFFSET-indexPageSize)/dataPageSize)
 #define FILE_TYPE			"ScalienDB data file"
 #define FILE_VERSION_MAJOR	0
 #define FILE_VERSION_MINOR	1
@@ -391,7 +391,7 @@ void StorageFile::WriteData()
 		if (FS_FileWrite(fd, (const void *) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
 			ASSERT_FAIL();
 		
-		buffer.Allocate(INDEXPAGE_OFFSET);
+		buffer.Allocate(INDEXPAGE_HEADER_SIZE);
 		p = buffer.GetBuffer();
 		*((uint32_t*) p) = ToLittle32(indexPageSize);
 		p += 4;
@@ -400,7 +400,7 @@ void StorageFile::WriteData()
 		*((uint32_t*) p) = ToLittle32(numDataPageSlots);
 		p += 4;
 		
-		if (FS_FileWrite(fd, (const void *) buffer.GetBuffer(), INDEXPAGE_OFFSET) < 0)
+		if (FS_FileWrite(fd, (const void *) buffer.GetBuffer(), INDEXPAGE_HEADER_SIZE) < 0)
 			ASSERT_FAIL();
 		
 		newFile = false;
@@ -448,13 +448,10 @@ StorageDataPage* StorageFile::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 uint64_t StorageFile::GetSize()
 {
 	uint64_t	size;
-	int64_t		fsize;
 	
-	size = indexPageSize + (indexPage.GetMaxDataPageIndex() + 1) * dataPageSize;
-	// TODO: remove test code below!
-//	fsize = FS_FileSize(fd);
-//	if (abs(fsize - size) > indexPageSize)
-//		ASSERT_FAIL();
+	size = STORAGEFILE_HEADER_LENGTH + INDEXPAGE_HEADER_SIZE + indexPageSize +
+			(indexPage.GetMaxDataPageIndex() + 1) * dataPageSize;
+
 	return size;
 }
 
