@@ -133,7 +133,9 @@ void StorageTable::Close()
 	}
 	
 	shards.DeleteTree();
+
 	FS_FileClose(tocFD);
+	tocFD = INVALID_FD;
 }
 
 bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)

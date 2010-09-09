@@ -215,7 +215,7 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
 	ReadBuffer			rk, rv;
 	Stopwatch			sw;
 	long				elapsed;
-	unsigned			num, len, ksize, vsize;
+	unsigned			num, ksize, vsize;
 	char*				area;
 	char*				p;
 

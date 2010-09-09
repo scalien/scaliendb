@@ -113,6 +113,7 @@ void StopClock()
 		
 	clockStarted = 0;
 	clockThread->Stop();
+	delete clockThread;
 	clockThread = NULL;
 }
 
