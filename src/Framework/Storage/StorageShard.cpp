@@ -259,12 +259,13 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
 	uint64_t			totalSize;
 	int64_t				fileSize;
 	StorageFileHeader	header;
+	Buffer				headerBuf;
 	
-	buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
-	if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH)) < 0)
+	headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
+	if ((ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH)) < 0)
 		ASSERT_FAIL();
-	buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
-	if (!header.Read(buffer))
+	headerBuf.SetLength(STORAGEFILE_HEADER_LENGTH);
+	if (!header.Read(headerBuf))
 		ASSERT_FAIL();
 	
 	length -= STORAGEFILE_HEADER_LENGTH;
@@ -553,14 +554,15 @@ void StorageShard::WriteTOC()
 	uint32_t			tmp;
 	StorageFileIndex	*it;
 	StorageFileHeader	header;
+	Buffer				writeBuf;
 
 	FS_FileSeek(tocFD, 0, FS_SEEK_SET);
 	FS_FileTruncate(tocFD, 0);
 	
 	header.Init(FILE_TYPE, FILE_VERSION_MAJOR, FILE_VERSION_MINOR, 0);
-	header.Write(buffer);
+	header.Write(writeBuf);
 	
-	if (FS_FileWrite(tocFD, (const void *) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
+	if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
 		ASSERT_FAIL();
 	
 	len = files.GetCount();
@@ -572,17 +574,16 @@ void StorageShard::WriteTOC()
 	for (it = files.First(); it != NULL; it = files.Next(it))
 	{		
 		size = 8 + it->key.GetLength();
-		buffer.Allocate(size);
-		p = buffer.GetBuffer();
+		writeBuf.Allocate(size);
+		p = writeBuf.GetBuffer();
 		*((uint32_t*) p) = ToLittle32(it->index);
 		p += 4;
 		len = it->key.GetLength();
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
-		// TODO: HACK p and key buffer might overlap
-		memmove(p, it->key.GetBuffer(), len);
+		memcpy(p, it->key.GetBuffer(), len);
 		p += len;
-		if (FS_FileWrite(tocFD, (const void *) buffer.GetBuffer(), size) < 0)
+		if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), size) < 0)
 			ASSERT_FAIL();
 	}
 }
