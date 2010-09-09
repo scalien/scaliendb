@@ -1,7 +1,7 @@
 #include "DataHTTPHandler.h"
 #include "DataChunkContext.h"
 #include "Application/HTTP/UrlParam.h"
-#include "Framework/Replication/ReplicationManager.h"
+#include "Framework/Replication/ReplicationConfig.h"
 
 #define GET_NAMED_PARAM(params, name, var) \
 if (!params.GetNamed(name, sizeof("" name) - 1, var)) { return NULL; }
@@ -92,7 +92,7 @@ bool DataHTTPHandler::ProcessCommand(HTTPConnection* conn, const char* cmd, unsi
 		GET_NAMED_PARAM(params, "key", key);
 
 		DataChunkContext*	context;
-		context = (DataChunkContext*) RMAN->GetContext(1); // TODO: hack
+		context = (DataChunkContext*) REPLICATED_CONFIG->GetContext(1); // TODO: hack
 		context->Get(key, (void*) conn);
 		
 		return true;
@@ -108,7 +108,7 @@ bool DataHTTPHandler::ProcessCommand(HTTPConnection* conn, const char* cmd, unsi
 		GET_NAMED_PARAM(params, "value", value);
 
 		DataChunkContext*	context;
-		context = (DataChunkContext*) RMAN->GetContext(1); // TODO: hack
+		context = (DataChunkContext*) REPLICATED_CONFIG->GetContext(1); // TODO: hack
 		context->Set(key, value, (void*) conn);
 		
 		return true;
@@ -122,19 +122,19 @@ void DataHTTPHandler::PrintHello(HTTPConnection* conn)
 	Buffer			buffer;
 	QuorumContext*	context;
 
-	context = RMAN->GetContext(1); // TODO: hack
+	context = REPLICATED_CONFIG->GetContext(1); // TODO: hack
 	
 	if (context->IsLeaderKnown())
 	{
 		buffer.Writef("Self: %U\nPrimary: %U\nPaxosID: %U\nChunkID: 1\n",
-		 RMAN->GetNodeID(),
+		 REPLICATED_CONFIG->GetNodeID(),
 		 context->GetLeader(),
 		 context->GetPaxosID());
 	}
 	else
 	{
 		buffer.Writef("Self: %U\nNo primary\nPaxosID: %U\nChunkID: 1\n", 
-		 RMAN->GetNodeID(),
+		 REPLICATED_CONFIG->GetNodeID(),
 		 context->GetPaxosID());
 	}
 

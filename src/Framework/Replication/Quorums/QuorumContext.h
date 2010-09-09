@@ -3,17 +3,14 @@
 
 #include "System/Events/Callable.h"
 #include "Quorum.h"
-
-#include "Framework/Replication/Quorums/QuorumDatabase.h"
-#include "Framework/Replication/Quorums/QuorumTransport.h"
+#include "QuorumDatabase.h"
+#include "QuorumTransport.h"
 
 /*
 ===============================================================================
 
  QuorumContext
  
- This should be called QuorumContext.
-
 ===============================================================================
 */
 
@@ -41,8 +38,6 @@ public:
 	virtual	void				OnAppend(ReadBuffer value, bool ownAppend)		= 0;
 	virtual Buffer*				GetNextValue()									= 0;
 	virtual void				OnMessage(ReadBuffer msg)						= 0;
-
-	virtual void				OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint) {}
 };
 
 #endif

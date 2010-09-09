@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		546E119511D8F4C800867EE1 /* SingleQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119411D8F4C800867EE1 /* SingleQuorum.cpp */; };
 		546E119811D8F4D300867EE1 /* DoubleQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */; };
-		546E14AE11DA2A7500867EE1 /* ReplicationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */; };
+		546E14AE11DA2A7500867EE1 /* ReplicationConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E14AD11DA2A7500867EE1 /* ReplicationConfig.cpp */; };
 		546E1F9D11EB827300867EE1 /* TCPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9011EB827300867EE1 /* TCPConnection.cpp */; };
 		546E1F9E11EB827300867EE1 /* TCPWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9211EB827300867EE1 /* TCPWriter.cpp */; };
 		546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
@@ -17,7 +17,8 @@
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
-		546E2A4711F4882C00867EE1 /* ReplicationTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E2A4611F4882C00867EE1 /* ReplicationTransport.cpp */; };
+		546E2A4711F4882C00867EE1 /* ContextTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E2A4611F4882C00867EE1 /* ContextTransport.cpp */; };
+		5487B8791239230500C235BA /* ConfigContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
 		54AB8720122821EF00721A0F /* StorageShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8715122821EF00721A0F /* StorageShard.cpp */; };
 		54AB8721122821EF00721A0F /* StorageDataPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8716122821EF00721A0F /* StorageDataPage.cpp */; };
@@ -121,12 +122,12 @@
 		546E119411D8F4C800867EE1 /* SingleQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleQuorum.cpp; sourceTree = "<group>"; };
 		546E119611D8F4D300867EE1 /* DoubleQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleQuorum.h; sourceTree = "<group>"; };
 		546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DoubleQuorum.cpp; sourceTree = "<group>"; };
-		546E141B11DA0AE900867EE1 /* ReplicationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationManager.h; sourceTree = "<group>"; };
+		546E141B11DA0AE900867EE1 /* ReplicationConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationConfig.h; sourceTree = "<group>"; };
 		546E143B11DA0CF600867EE1 /* todo.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
 		546E145711DA173300867EE1 /* QuorumContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumContext.h; sourceTree = "<group>"; };
-		546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicationManager.cpp; sourceTree = "<group>"; };
+		546E14AD11DA2A7500867EE1 /* ReplicationConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicationConfig.cpp; sourceTree = "<group>"; };
 		546E181611DDD4DF00867EE1 /* QuorumTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumTransport.h; sourceTree = "<group>"; };
-		546E182711DE137F00867EE1 /* ReplicationTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationTransport.h; sourceTree = "<group>"; };
+		546E182711DE137F00867EE1 /* ContextTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContextTransport.h; sourceTree = "<group>"; };
 		546E190411E4D61300867EE1 /* InPriorityQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InPriorityQueue.h; sourceTree = "<group>"; };
 		546E1F9011EB827300867EE1 /* TCPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPConnection.cpp; sourceTree = "<group>"; };
 		546E1F9111EB827300867EE1 /* TCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPConnection.h; sourceTree = "<group>"; };
@@ -143,9 +144,10 @@
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
 		546E28D311F0816E00867EE1 /* QuorumTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumTransport.cpp; sourceTree = "<group>"; };
-		546E2A4611F4882C00867EE1 /* ReplicationTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicationTransport.cpp; sourceTree = "<group>"; };
+		546E2A4611F4882C00867EE1 /* ContextTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ContextTransport.cpp; sourceTree = "<group>"; };
 		5481BFC31206BD580070132B /* DataNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataNode.cpp; sourceTree = "<group>"; };
 		5481BFC41206BD580070132B /* DataNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataNode.h; sourceTree = "<group>"; };
+		5487B981123935E300C235BA /* ClusterContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterContext.h; sourceTree = "<group>"; };
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
@@ -248,8 +250,8 @@
 		54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumDatabase.cpp; sourceTree = "<group>"; };
 		54FCED9A11F8549F0075BBFF /* ReplicatedLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicatedLog.cpp; sourceTree = "<group>"; };
 		54FCED9B11F8549F0075BBFF /* ReplicatedLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicatedLog.h; sourceTree = "<group>"; };
-		54FCF69C11FDF4770075BBFF /* ControlConfigContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControlConfigContext.cpp; sourceTree = "<group>"; };
-		54FCF69D11FDF4770075BBFF /* ControlConfigContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControlConfigContext.h; sourceTree = "<group>"; };
+		54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigContext.cpp; sourceTree = "<group>"; };
+		54FCF69D11FDF4770075BBFF /* ConfigContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigContext.h; sourceTree = "<group>"; };
 		54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataChunkContext.cpp; sourceTree = "<group>"; };
 		54FCF6A011FDF4770075BBFF /* DataChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataChunkContext.h; sourceTree = "<group>"; };
 		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -354,10 +356,11 @@
 				541D867E11C7D8E400A6CB16 /* PaxosLease */,
 				54FCE7AC11F6E6DE0075BBFF /* Paxos */,
 				54FCED9911F8549F0075BBFF /* ReplicatedLog */,
-				546E141B11DA0AE900867EE1 /* ReplicationManager.h */,
-				546E14AD11DA2A7500867EE1 /* ReplicationManager.cpp */,
-				546E182711DE137F00867EE1 /* ReplicationTransport.h */,
-				546E2A4611F4882C00867EE1 /* ReplicationTransport.cpp */,
+				546E141B11DA0AE900867EE1 /* ReplicationConfig.h */,
+				546E14AD11DA2A7500867EE1 /* ReplicationConfig.cpp */,
+				5487B981123935E300C235BA /* ClusterContext.h */,
+				546E182711DE137F00867EE1 /* ContextTransport.h */,
+				546E2A4611F4882C00867EE1 /* ContextTransport.cpp */,
 			);
 			path = Replication;
 			sourceTree = "<group>";
@@ -636,8 +639,8 @@
 				54EA52A81238FECA0095BF36 /* SDBPContext.h */,
 				54EA52AF123901850095BF36 /* SDBPControllerContext.h */,
 				54EA52B0123901850095BF36 /* SDBPControllerContext.cpp */,
-				54FCF69D11FDF4770075BBFF /* ControlConfigContext.h */,
-				54FCF69C11FDF4770075BBFF /* ControlConfigContext.cpp */,
+				54FCF69D11FDF4770075BBFF /* ConfigContext.h */,
+				54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */,
 			);
 			name = Controller;
 			path = Application/Controller;
@@ -779,7 +782,7 @@
 				54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */,
 				546E119511D8F4C800867EE1 /* SingleQuorum.cpp in Sources */,
 				546E119811D8F4D300867EE1 /* DoubleQuorum.cpp in Sources */,
-				546E14AE11DA2A7500867EE1 /* ReplicationManager.cpp in Sources */,
+				546E14AE11DA2A7500867EE1 /* ReplicationConfig.cpp in Sources */,
 				546E1F9D11EB827300867EE1 /* TCPConnection.cpp in Sources */,
 				546E1F9E11EB827300867EE1 /* TCPWriter.cpp in Sources */,
 				546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */,
@@ -795,7 +798,7 @@
 				9A26D6A411F4BDE2006A2814 /* Mime.cpp in Sources */,
 				9A26D6A511F4BDE2006A2814 /* UrlParam.cpp in Sources */,
 				546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */,
-				546E2A4711F4882C00867EE1 /* ReplicationTransport.cpp in Sources */,
+				546E2A4711F4882C00867EE1 /* ContextTransport.cpp in Sources */,
 				54FCE88711F6EE7D0075BBFF /* PaxosMessage.cpp in Sources */,
 				54FCE8BD11F6F34A0075BBFF /* PaxosProposer.cpp in Sources */,
 				54FCEA9811F705F20075BBFF /* PaxosAcceptor.cpp in Sources */,
@@ -841,6 +844,7 @@
 				54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */,
 				54EA525C1238F9A60095BF36 /* Controller.cpp in Sources */,
 				54EA52B1123901850095BF36 /* SDBPControllerContext.cpp in Sources */,
+				5487B8791239230500C235BA /* ConfigContext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

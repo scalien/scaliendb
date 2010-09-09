@@ -1,5 +1,5 @@
-#ifndef CLUSTERTRANSPORT_H
-#define CLUSTERTRANSPORT_H
+#ifndef CLUSTECONTEXT_TRANSPORTPORT_H
+#define CLUSTECONTEXT_TRANSPORTPORT_H
 
 #include "Framework/Messaging/Message.h"
 #include "ClusterServer.h"

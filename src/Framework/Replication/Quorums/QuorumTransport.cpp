@@ -1,5 +1,5 @@
 #include "QuorumTransport.h"
-#include "Framework/Replication/ReplicationManager.h"
+#include "Framework/Replication/ContextTransport.h"
 
 QuorumTransport::QuorumTransport()
 {
@@ -24,9 +24,9 @@ void QuorumTransport::SetQuorum(Quorum* quorum_)
 void QuorumTransport::SendMessage(uint64_t nodeID, Message& msg)
 {
 	if (priority)
-		return RMAN->GetTransport()->SendPriorityMessage(nodeID, prefix, msg);
+		return CONTEXT_TRANSPORT->SendPriorityMessage(nodeID, prefix, msg);
 	else
-		return RMAN->GetTransport()->SendMessage(nodeID, prefix, msg);
+		return CONTEXT_TRANSPORT->SendMessage(nodeID, prefix, msg);
 }
 
 void QuorumTransport::BroadcastMessage(Message& msg)
@@ -42,8 +42,8 @@ void QuorumTransport::BroadcastMessage(Message& msg)
 	{
 		nodeID = nodes[i];
 		if (priority)
-			RMAN->GetTransport()->SendPriorityMessage(nodeID, prefix, msg);
+			CONTEXT_TRANSPORT->SendPriorityMessage(nodeID, prefix, msg);
 		else
-			RMAN->GetTransport()->SendMessage(nodeID, prefix, msg);
+			CONTEXT_TRANSPORT->SendMessage(nodeID, prefix, msg);
 	}
 }

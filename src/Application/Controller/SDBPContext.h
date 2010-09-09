@@ -19,9 +19,13 @@ class SDBPContext
 public:
 	virtual ~SDBPContext() {}
 
-	virtual bool	IsValidRequest(ClientRequest& request)								= 0;
-	virtual bool	ProcessRequest(SDBPConnection* conn, ClientRequest& request)		= 0;	
-	virtual void	OnComplete(SDBPConnection* conn, Command& command)					= 0;
+	/* ---------------------------------------------------------------------------------------- */
+	/* SDBPContext interface:																	*/
+	/*																							*/
+	virtual bool	IsValidRequest(ClientRequest& request)									= 0;
+	virtual bool	ProcessRequest(SDBPConnection* conn, ClientRequest& request)			= 0;	
+	virtual void	OnComplete(SDBPConnection* conn, Command& command)						= 0;
+	/* ---------------------------------------------------------------------------------------- */
 };
 
 #endif

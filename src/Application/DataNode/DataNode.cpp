@@ -1,7 +1,7 @@
 #include "DataNode.h"
 #include "System/Common.h"
 #include "System/Platform.h"
-#include "Framework/Replication/ReplicationManager.h"
+#include "Framework/Replication/ReplicationConfig.h"
 #include "Application/HTTP/HTTPConsts.h"
 
 void DataNode::Init(Table* table_)
@@ -14,7 +14,7 @@ void DataNode::Init(Table* table_)
 		Log_Trace("%" PRIu64, nodeID);
 		table->Set(NULL, "#nodeID", nodeID);
 	}
-	RMAN->SetNodeID(nodeID);
+	REPLICATED_CONFIG->SetNodeID(nodeID);
 	httpHandler.Init(this);
 	Log_Trace("nodeID = %" PRIu64, nodeID);
 }

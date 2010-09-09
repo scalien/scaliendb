@@ -1,5 +1,5 @@
 #include "ReplicatedLog.h"
-#include "Framework/Replication/ReplicationManager.h"
+#include "Framework/Replication/ReplicationConfig.h"
 #include "System/Events/EventLoop.h"
 
 static Buffer enableMultiPaxos;
@@ -166,7 +166,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 		RequestChosen(nodeID);
 	
 	ownAppend = proposer.state.multi;
-	if (nodeID == RMAN->GetNodeID() && runID == RMAN->GetRunID() && context->IsLeader())
+	if (nodeID == REPLICATED_CONFIG->GetNodeID() && runID == REPLICATED_CONFIG->GetRunID() && context->IsLeader())
 	{
 		proposer.state.multi = true;
 		Log_Trace("Multi paxos enabled");
@@ -197,7 +197,7 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 	if (value.GetLength() != 0)
 	{
 		Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
-		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, value);
+		omsg.LearnValue(imsg.paxosID, REPLICATED_CONFIG->GetNodeID(), 0, value);
 		context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 	}
 //	else
@@ -220,7 +220,7 @@ void ReplicatedLog::OnRequest(PaxosMessage& imsg)
 		context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
 		if (value.GetLength() == 0)
 			return;
-		omsg.LearnValue(imsg.paxosID, RMAN->GetNodeID(), 0, value);
+		omsg.LearnValue(imsg.paxosID, REPLICATED_CONFIG->GetNodeID(), 0, value);
 		context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 	}
 	else // paxosID < msg.paxosID
@@ -286,7 +286,7 @@ void ReplicatedLog::RequestChosen(uint64_t nodeID)
 	lastRequestChosenPaxosID = GetPaxosID();
 	lastRequestChosenTime = EventLoop::Now();
 	
-	omsg.RequestChosen(GetPaxosID(), RMAN->GetNodeID());
+	omsg.RequestChosen(GetPaxosID(), REPLICATED_CONFIG->GetNodeID());
 	
 	context->GetTransport()->SendMessage(nodeID, omsg);
 }

@@ -1,8 +1,8 @@
 //#include "Version.h"
 //#include "System/Config.h"
 //#include "Framework/Database/Database.h"
-//#include "Framework/Replication/ReplicationManager.h"
-//#include "Application/Controller/ControlConfigContext.h"
+//#include "Framework/Replication/ReplicationConfig.h"
+//#include "Application/Controller/ConfigContext.h"
 //#include "Application/Controller/Controller.h"
 //#include "Application/DataNode/DataNode.h"
 //#include "Application/DataNode/DataChunkContext.h"
@@ -170,7 +170,7 @@ int main(int argc, char** argv)
 							
 //	DatabaseConfig				dbConfig;
 //	Database					db;
-//	ControlConfigContext		configContext;
+//	ConfigContext		configContext;
 //	DataChunkContext			dataContext;
 //	Controller					controller;
 //	DataNode					dataNode;
@@ -217,7 +217,7 @@ int main(int argc, char** argv)
 //	table->Get(NULL, "#runID", runID);
 //	runID++;
 //	table->Set(NULL, "#runID", runID);
-//	RMAN->SetRunID(runID);
+//	REPLICATED_CONFIG->SetRunID(runID);
 //	if (runID == 1)
 //		Log_Message("Database empty, first run");
 //	else
@@ -227,17 +227,17 @@ int main(int argc, char** argv)
 //	if (isController)
 //	{
 //		nodeID = configFile.GetIntValue("nodeID", 0);
-//		RMAN->SetNodeID(nodeID);
-//		const char* s = configFile.GetListValue("controllers", RMAN->GetNodeID(), NULL);
+//		REPLICATED_CONFIG->SetNodeID(nodeID);
+//		const char* s = configFile.GetListValue("controllers", REPLICATED_CONFIG->GetNodeID(), NULL);
 //		endpoint.Set(s);
-//		RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
+//		CONTEXT_TRANSPORT->Init(REPLICATED_CONFIG->GetNodeID(), endpoint);
 //	}
 //	else
 //	{
-//		dataNode.Init(db.GetTable("chunk1")); // sets RMAN->nodeID
+//		dataNode.Init(db.GetTable("chunk1")); // sets REPLICATED_CONFIG->nodeID
 //		const char* s = configFile.GetValue("endpoint", NULL);
 //		endpoint.Set(s);
-//		RMAN->GetTransport()->Init(RMAN->GetNodeID(), endpoint);
+//		CONTEXT_TRANSPORT->Init(REPLICATED_CONFIG->GetNodeID(), endpoint);
 //	}
 //	
 //	unsigned numNodes = configFile.GetListNum("controllers");
@@ -247,7 +247,7 @@ int main(int argc, char** argv)
 //		endpoint.Set(s);
 //
 //		// TODO: i will not be a nodeID once we start using UIDs
-//		RMAN->GetTransport()->AddEndpoint(i, endpoint);
+//		CONTEXT_TRANSPORT->AddEndpoint(i, endpoint);
 //
 //		if (isController)
 //			singleQuorum.AddNode(i);
@@ -270,8 +270,8 @@ int main(int argc, char** argv)
 //		configContext.Start();
 //
 //		controller.Init(db.GetTable("chunk0"));
-//		RMAN->GetTransport()->SetController(&controller); // TODO: hack
-//		RMAN->AddContext(&configContext);
+//		CONTEXT_TRANSPORT->SetController(&controller); // TODO: hack
+//		REPLICATED_CONFIG->AddContext(&configContext);
 //
 //		httpPort = configFile.GetIntValue("http.port", 8080);
 //		Log_Message("HTTP Server listening on port %d", httpPort);
@@ -296,10 +296,10 @@ int main(int argc, char** argv)
 //		Log_Message("HTTP Server listening on port %d", httpPort);
 //		httpServer.Init(httpPort);
 //		httpServer.RegisterHandler(dataNode.GetHandler());
-//		RMAN->AddContext(&dataContext);
+//		REPLICATED_CONFIG->AddContext(&dataContext);
 //	}
 //
-//	Log_Message("Running, NodeID: %u", (unsigned) RMAN->GetNodeID());
+//	Log_Message("Running, NodeID: %u", (unsigned) REPLICATED_CONFIG->GetNodeID());
 //	
 //	EventLoop::Init();
 //	EventLoop::Run();

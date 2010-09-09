@@ -1,7 +1,8 @@
 #include "PaxosLeaseProposer.h"
 #include "PaxosLease.h"
-#include "Framework/Replication/ReplicationManager.h"
 #include "System/Common.h"
+#include "System/Events/EventLoop.h"
+#include "Framework/Replication/ReplicationConfig.h"
 
 void PaxosLeaseProposer::Init(QuorumContext* context_)
 {
@@ -128,7 +129,7 @@ void PaxosLeaseProposer::OnProposeResponse(PaxosLeaseMessage& imsg)
 		Log_Trace("%d", (int)(extendLeaseTimeout.When() - Now()));
 		EventLoop::Reset(&extendLeaseTimeout);
 	
-		omsg.LearnChosen(RMAN->GetNodeID(), state.leaseOwner,
+		omsg.LearnChosen(REPLICATED_CONFIG->GetNodeID(), state.leaseOwner,
 		 state.expireTime - Now(), state.expireTime, context->GetPaxosID());
 		BroadcastMessage(omsg);
 
@@ -158,14 +159,14 @@ void PaxosLeaseProposer::StartPreparing()
 	NewVote();	
 	state.proposing = false;
 	state.preparing = true;
-	state.leaseOwner = RMAN->GetNodeID();
+	state.leaseOwner = REPLICATED_CONFIG->GetNodeID();
 	state.highestReceivedProposalID = 0;
-	state.proposalID = RMAN->NextProposalID(highestProposalID);
+	state.proposalID = REPLICATED_CONFIG->NextProposalID(highestProposalID);
 		
 	if (state.proposalID > highestProposalID)
 		highestProposalID = state.proposalID;
 	
-	omsg.PrepareRequest(RMAN->GetNodeID(), state.proposalID, context->GetPaxosID());
+	omsg.PrepareRequest(REPLICATED_CONFIG->GetNodeID(), state.proposalID, context->GetPaxosID());
 	BroadcastMessage(omsg);
 }
 
@@ -177,7 +178,7 @@ void PaxosLeaseProposer::StartProposing()
 	
 	state.preparing = false;
 
-	if (state.leaseOwner != RMAN->GetNodeID())
+	if (state.leaseOwner != REPLICATED_CONFIG->GetNodeID())
 		return; // no point in getting someone else a lease, wait for OnAcquireLeaseTimeout
 
 	NewVote();	
@@ -185,7 +186,7 @@ void PaxosLeaseProposer::StartProposing()
 	state.duration = PAXOSLEASE_MAX_LEASE_TIME;
 	state.expireTime = Now() + state.duration;
 	
-	omsg.ProposeRequest(RMAN->GetNodeID(), state.proposalID, state.leaseOwner, state.duration);
+	omsg.ProposeRequest(REPLICATED_CONFIG->GetNodeID(), state.proposalID, state.leaseOwner, state.duration);
 	BroadcastMessage(omsg);
 }
 

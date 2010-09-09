@@ -46,7 +46,7 @@ data:
 
 controller:
 -----------
-- PaxosLease (ControlConfigContext)
+- PaxosLease (ConfigContext)
 - ControlDB
 - ChunkDB[logID=1]
 - if receive message from node n with logID l:

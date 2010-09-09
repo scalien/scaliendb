@@ -2,7 +2,6 @@
 #define QUORUMTRANSPORT_H
 
 #include "Quorum.h"
-#include "Framework/Replication/ReplicationTransport.h"
 #include "Framework/Messaging/Message.h"
 
 /*

@@ -1,11 +1,10 @@
-#include "ControlConfigContext.h"
-#include "Framework/Replication/ReplicationManager.h"
+#include "ConfigContext.h"
+#include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
-#include "ClusterMessage.h"
 #include "Controller.h"
 
-void ControlConfigContext::Start()
+void ConfigContext::Start()
 {
 	replicatedLog.Init(this);
 	paxosLease.Init(this);
@@ -14,7 +13,7 @@ void ControlConfigContext::Start()
 	paxosLease.AcquireLease();
 }
 
-void ControlConfigContext::Append(ConfigCommand msg)
+void ConfigContext::Append(ConfigCommand msg)
 {
 	Buffer buffer;
 	msg.Write(nextValue);
@@ -22,101 +21,102 @@ void ControlConfigContext::Append(ConfigCommand msg)
 	replicatedLog.TryAppendNextValue();
 }
 
-void ControlConfigContext::SetController(Controller* controller_)
+void ConfigContext::SetController(Controller* controller_)
 {
 	controller = controller_;
 }
 
-void ControlConfigContext::SetContextID(uint64_t contextID_)
+void ConfigContext::SetContextID(uint64_t contextID_)
 {
 	contextID = contextID_;
 }
 
-void ControlConfigContext::SetQuorum(SingleQuorum& quorum_)
+void ConfigContext::SetQuorum(SingleQuorum& quorum_)
 {
 	quorum = quorum_;
 }
 
-void ControlConfigContext::SetDatabase(QuorumDatabase& database_)
+void ConfigContext::SetDatabase(QuorumDatabase& database_)
 {
 	database = database_;
 }
 
-void ControlConfigContext::SetTransport(QuorumTransport& transport_)
+void ConfigContext::SetTransport(QuorumTransport& transport_)
 {
 	transport = transport_;
 }
 
-bool ControlConfigContext::IsLeaderKnown()
+bool ConfigContext::IsLeaderKnown()
 {
 	return paxosLease.IsLeaseKnown();
 }
 
-bool ControlConfigContext::IsLeader()
+bool ConfigContext::IsLeader()
 {
 	return paxosLease.IsLeaseOwner();
 }
 
-uint64_t ControlConfigContext::GetLeader()
+uint64_t ConfigContext::GetLeader()
 {
 	return paxosLease.GetLeaseOwner();
 }
 
-void ControlConfigContext::OnLearnLease()
+void ConfigContext::OnLearnLease()
 {
 	replicatedLog.OnLearnLease();
 }
 
-void ControlConfigContext::OnLeaseTimeout()
+void ConfigContext::OnLeaseTimeout()
 {
 	replicatedLog.OnLeaseTimeout();
 }
 
-uint64_t ControlConfigContext::GetContextID()
+uint64_t ConfigContext::GetContextID()
 {
 	return contextID;
 }
 
-void ControlConfigContext::SetPaxosID(uint64_t paxosID)
+void ConfigContext::SetPaxosID(uint64_t paxosID)
 {
 	replicatedLog.SetPaxosID(paxosID);
 }
 
-uint64_t ControlConfigContext::GetPaxosID()
+uint64_t ConfigContext::GetPaxosID()
 {
 	return replicatedLog.GetPaxosID();
 }
 
-uint64_t ControlConfigContext::GetHighestPaxosID()
+uint64_t ConfigContext::GetHighestPaxosID()
 {
 	return highestPaxosID;
 }
 
-Quorum* ControlConfigContext::GetQuorum()
+Quorum* ConfigContext::GetQuorum()
 {
 	return &quorum;
 }
 
-QuorumDatabase*	ControlConfigContext::GetDatabase()
+QuorumDatabase*	ConfigContext::GetDatabase()
 {
 	return &database;
 }
 
-QuorumTransport* ControlConfigContext::GetTransport()
+QuorumTransport* ConfigContext::GetTransport()
 {
 	return &transport;
 }
 
-void ControlConfigContext::OnAppend(ReadBuffer value, bool /*ownAppend*/)
+void ConfigContext::OnAppend(ReadBuffer value, bool /*ownAppend*/)
 {
-	ConfigCommand msg;
-	msg.Read(value);
-	controller->OnConfigCommand(msg);
+	ConfigCommand command;
+
+	assert(command.Read(value));
+	controller->OnConfigCommand(command);
 
 	nextValue.Clear();
 }
 
-Buffer* ControlConfigContext::GetNextValue()
+Buffer* ConfigContext::GetNextValue()
 {
 	if (nextValue.GetLength() > 0)
 		return &nextValue;
@@ -124,7 +124,7 @@ Buffer* ControlConfigContext::GetNextValue()
 	return NULL;
 }
 
-void ControlConfigContext::OnMessage(ReadBuffer buffer)
+void ConfigContext::OnMessage(ReadBuffer buffer)
 {
 	char proto;
 	
@@ -138,9 +138,6 @@ void ControlConfigContext::OnMessage(ReadBuffer buffer)
 	
 	switch(proto)
 	{
-		case CLUSTER_PROTOCOL_ID:			//'C':
-			OnClusterMessage(buffer);
-			break;
 		case PAXOSLEASE_PROTOCOL_ID:		//'L':
 			OnPaxosLeaseMessage(buffer);
 			break;
@@ -153,12 +150,7 @@ void ControlConfigContext::OnMessage(ReadBuffer buffer)
 	}
 }
 
-void ControlConfigContext::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
-{
-	controller->OnIncomingConnectionReady(nodeID, endpoint);
-}
-
-void ControlConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
+void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
 	PaxosLeaseMessage msg;
 
@@ -174,7 +166,7 @@ void ControlConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 	// TODO: right now PaxosLeaseLearner will not call back
 }
 
-void ControlConfigContext::OnPaxosMessage(ReadBuffer buffer)
+void ConfigContext::OnPaxosMessage(ReadBuffer buffer)
 {
 	PaxosMessage msg;
 	
@@ -184,11 +176,7 @@ void ControlConfigContext::OnPaxosMessage(ReadBuffer buffer)
 	replicatedLog.OnMessage(msg);
 }
 
-void ControlConfigContext::OnClusterMessage(ReadBuffer buffer)
-{
-}
-
-void ControlConfigContext::RegisterPaxosID(uint64_t paxosID)
+void ConfigContext::RegisterPaxosID(uint64_t paxosID)
 {
 	if (paxosID > highestPaxosID)
 		highestPaxosID = paxosID;

@@ -1,6 +1,8 @@
 #ifndef HASHMAP_H
 #define HASHMAP_H
 
+#include "stdlib.h"
+
 template<class K, class V> class HashMap;
 
 /*

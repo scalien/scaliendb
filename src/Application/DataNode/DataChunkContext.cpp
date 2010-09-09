@@ -1,5 +1,5 @@
 #include "DataChunkContext.h"
-#include "Framework/Replication/ReplicationManager.h"
+#include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 #include "Application/DataNode/DataNode.h"
@@ -202,7 +202,7 @@ void DataChunkContext::OnClusterMessage(ReadBuffer buffer)
 	{
 		Log_Trace("nodeID = %" PRIu64 ", endpoint = %s", 
 		 msg.nodeIDs[i], msg.endpoints[i].ToString());
-		RMAN->GetTransport()->AddEndpoint(msg.nodeIDs[i], msg.endpoints[i]);
+		CONTEXT_TRANSPORT->AddEndpoint(msg.nodeIDs[i], msg.endpoints[i]);
 		quorum.AddNode(msg.nodeIDs[i]);
 	}
 	

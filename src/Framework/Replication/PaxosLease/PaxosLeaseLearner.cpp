@@ -1,5 +1,6 @@
 #include "PaxosLeaseLearner.h"
-#include "Framework/Replication/ReplicationManager.h"
+#include "System/Events/EventLoop.h"
+#include "Framework/Replication/ReplicationConfig.h"
 
 void PaxosLeaseLearner::Init(QuorumContext* context_)
 {
@@ -12,7 +13,7 @@ bool PaxosLeaseLearner::IsLeaseOwner()
 {
 	CheckLease();
 	
-	if (state.learned && state.leaseOwner == RMAN->GetNodeID())
+	if (state.learned && state.leaseOwner == REPLICATED_CONFIG->GetNodeID())
 		return true;
 	
 	return false;		
@@ -76,7 +77,7 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
 		OnLeaseTimeout();
 
 	uint64_t expireTime;
-	if (imsg.leaseOwner == RMAN->GetNodeID())
+	if (imsg.leaseOwner == REPLICATED_CONFIG->GetNodeID())
 		expireTime = imsg.localExpireTime; // I'm the master
 	else
 		expireTime = Now() + imsg.duration - 500 /* msec */;
