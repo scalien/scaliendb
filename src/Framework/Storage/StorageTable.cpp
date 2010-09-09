@@ -104,8 +104,6 @@ void StorageTable::Open(const char* dir, const char* name_)
 
 void StorageTable::Commit(bool recovery, bool flush)
 {
-	StorageShardIndex*	it;
-	
 	if (recovery)
 	{
 		CommitPhase1();

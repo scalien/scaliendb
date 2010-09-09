@@ -232,11 +232,11 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
 		p = area + i*(ksize+vsize);
 		RandomBuffer(p, ksize);
 		rk.SetBuffer(p);
-		rk.SetLength(len);
+		rk.SetLength(ksize);
 		p += ksize;
 		RandomBuffer(p, vsize);
 		rv.SetBuffer(p);
-		rv.SetLength(len);
+		rv.SetLength(vsize);
 		sw.Start();
 		table->Set(rk, rv, false);
 		sw.Stop();
