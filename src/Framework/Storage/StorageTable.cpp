@@ -200,7 +200,51 @@ bool StorageTable::CreateShard(uint64_t shardID, ReadBuffer& startKey_, ReadBuff
 
 bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuffer& startKey)
 {
-	// TODO:
+	StorageShardIndex*	si;
+	StorageShardIndex*	newSi;
+	StorageFileIndex*	fi;
+	Buffer				srcFile;
+	Buffer				dstFile;
+	Buffer				dirName;
+	Buffer				tmp;
+		
+	// write all changes to disk first
+	Commit();
+	
+	dirName.Write(path.GetBuffer(), path.GetLength() - 1);
+	dirName.Appendf("%U", newShardID);
+	dirName.NullTerminate();
+
+	si = Locate(startKey);
+	assert(si != NULL);
+	assert(si->shardID == oldShardID);
+	
+	newSi = new StorageShardIndex;
+	newSi->shard = si->shard->SplitShard(newShardID, startKey);
+	newSi->shard->Open(dirName.GetBuffer(), name.GetBuffer());
+	newSi->shardID = newShardID;
+	newSi->SetStartKey(startKey, true);
+	newSi->SetEndKey(si->endKey, true);
+	shards.Insert(newSi);
+	
+	for (fi = newSi->shard->files.First(); fi != NULL; fi = newSi->shard->files.Next(fi))
+	{
+		if (fi->file == NULL)
+		{
+			si->shard->WritePath(srcFile, fi->index);
+			newSi->shard->WritePath(dstFile, fi->index);
+			if (!FS_Rename(srcFile.GetBuffer(), dstFile.GetBuffer()))
+				ASSERT_FAIL();
+		}
+		else
+		{
+			newSi->shard->WritePath(fi->filepath, fi->index);
+			fi->file->Open(fi->filepath.GetBuffer());
+		}
+	}
+	
+	si->SetEndKey(startKey, true);
+	
 	return true;
 }
 
@@ -218,7 +262,7 @@ StorageShardIndex* StorageTable::Locate(ReadBuffer& key)
 		return NULL;
 	}
 	
-	if (ReadBuffer::Cmp(key, shards.Last()->endKey) > 0)
+	if (ReadBuffer::Cmp(key, shards.Last()->endKey) >= 0)
 	{
 		ASSERT_FAIL();
 		return NULL;

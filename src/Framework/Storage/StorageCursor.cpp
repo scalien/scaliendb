@@ -1,9 +1,9 @@
 #include "StorageCursor.h"
 #include "StorageShard.h"
 
-StorageCursor::StorageCursor(StorageShard* table_)
+StorageCursor::StorageCursor(StorageShard* shard_)
 {
-	table = table_;
+	shard = shard_;
 	dataPage = NULL;
 	current = NULL;
 }
@@ -11,7 +11,7 @@ StorageCursor::StorageCursor(StorageShard* table_)
 StorageKeyValue* StorageCursor::Begin(ReadBuffer& key)
 {
 	nextKey.Clear();
-	dataPage = table->CursorBegin(key, nextKey); // sets nextKey
+	dataPage = shard->CursorBegin(key, nextKey); // sets nextKey
 	
 	if (dataPage == NULL)
 		return NULL;

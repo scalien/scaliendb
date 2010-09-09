@@ -36,7 +36,10 @@ public:
 	bool					Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void					Delete(ReadBuffer& key);
 
+	StorageShard*			SplitShard(uint64_t newShardID, ReadBuffer& startKey);
+
 private:
+	bool					CreateDir(const char* dir, const char* name);
 	void					WritePath(Buffer& buffer, uint32_t index);
 	uint64_t				ReadTOC(uint32_t length);
 	void					PerformRecovery(uint32_t length);

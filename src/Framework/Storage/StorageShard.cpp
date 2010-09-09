@@ -238,6 +238,64 @@ void StorageShard::Delete(ReadBuffer& key)
 	shardSize -= (sizeAfter - sizeBefore);
 }
 
+StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey)
+{
+	StorageShard*		newShard;
+	StorageFileIndex*	fi;
+	StorageFileIndex*	midFi;
+	StorageFileIndex*	newFi;
+	StorageFileIndex*	next;
+	StorageKeyValue*	kv;
+	StorageCursor*		cursor;
+	ReadBuffer			endKey;
+	uint32_t			newIndex;
+	
+	newShard = new StorageShard;
+	newShard->shardID = newShardID;
+	newShard->shardSize = 0;
+	newShard->prevCommitStorageFileIndex = 0;
+	newShard->nextStorageFileIndex = 0;
+	
+	midFi = Locate(startKey);
+	if (midFi == NULL)
+		ASSERT_FAIL();
+	
+	next = files.Remove(midFi);
+	if (next != NULL)
+		endKey = next->key;
+	
+	newIndex = 0;
+	newFi = new StorageFileIndex;
+	newFi->SetKey(startKey, true);
+	newFi->index = newIndex++;
+	newFi->file = new StorageFile;
+	
+	// move all key-values from the old file to the new one
+	cursor = new StorageCursor(this);
+	for (kv = cursor->Begin(startKey); kv != NULL; kv = cursor->Next())
+	{
+		newFi->file->Set(kv->key, kv->value);
+		midFi->file->Delete(kv->key);
+		if (ReadBuffer::Cmp(kv->key, endKey))
+			break;
+	}
+	delete cursor;
+	
+	for (fi = files.First(); fi != NULL; fi = next)
+	{
+		if (ReadBuffer::Cmp(startKey, fi->key) < 0)
+		{
+			next = files.Remove(fi);
+			fi->index = newIndex++;
+			newShard->files.Insert(fi);
+		}
+		else
+			next = files.Next(fi);
+	}
+	
+	return newShard;
+}
+
 void StorageShard::WritePath(Buffer& buffer, uint32_t index)
 {
 	char	buf[30];
@@ -294,6 +352,7 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
 		if (fi->index + 1 > nextStorageFileIndex)
 			nextStorageFileIndex = fi->index + 1;
 
+		fprintf(stderr, "index: %u, key = %.*s\n", fi->index, P(&fi->key));
 		fileSize = FS_FileSize(fi->filepath.GetBuffer());
 		if (fileSize < 0)
 		{
@@ -660,7 +719,7 @@ void StorageShard::SplitFile(StorageFile* file)
 
 StorageDataPage* StorageShard::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 {
-	StorageFileIndex*			fi;
+	StorageFileIndex*	fi;
 	StorageDataPage*	dataPage;
 	
 	fi = Locate(key);
