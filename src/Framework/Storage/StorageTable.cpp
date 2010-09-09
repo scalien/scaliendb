@@ -108,27 +108,19 @@ void StorageTable::Commit(bool recovery, bool flush)
 	
 	if (recovery)
 	{
-		for (it = shards.First(); it != NULL; it = shards.Next(it))
-			it->shard->CommitPhase1();
-
+		CommitPhase1();
 		if (flush)
 			FS_Sync();
 	}
 
-	for (it = shards.First(); it != NULL; it = shards.Next(it))
-		it->shard->CommitPhase2();
-
+	CommitPhase2();
 	if (flush)
 		FS_Sync();
 
 	if (recovery)
-	{
-		for (it = shards.First(); it != NULL; it = shards.Next(it))
-			it->shard->CommitPhase3();
-	}
+		CommitPhase3();
 	
-	for (it = shards.First(); it != NULL; it = shards.Next(it))
-		it->shard->CommitPhase4();
+	CommitPhase4();
 }
 
 void StorageTable::Close()
@@ -258,7 +250,7 @@ StorageShardIndex* StorageTable::Locate(ReadBuffer& key)
 
 void StorageTable::ReadTOC(uint32_t length)
 {
-	uint32_t			i, numFiles;
+	uint32_t			i, numShards;
 	unsigned			len;
 	char*				p;
 	StorageShardIndex*	si;
@@ -270,26 +262,29 @@ void StorageTable::ReadTOC(uint32_t length)
 		ASSERT_FAIL();
 	if (ret != (int)length)
 		ASSERT_FAIL();
+	buffer.SetLength(length);
 	if (!header.Read(buffer))
 		ASSERT_FAIL();
 	p = buffer.GetBuffer() + STORAGEFILE_HEADER_LENGTH;
-	numFiles = FromLittle32(*((uint32_t*) p));
-	assert(numFiles * 8 + 4 <= length);
+	numShards = FromLittle32(*((uint32_t*) p));
+	assert(numShards * 8 + 4 <= length);
 	p += 4;
-	for (i = 0; i < numFiles; i++)
+	for (i = 0; i < numShards; i++)
 	{
 		si = new StorageShardIndex;
 		si->shardID = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
-		si->startKey.SetLength(len);
-		si->startKey.SetBuffer(p);
+//		si->startKey.SetLength(len);
+//		si->startKey.SetBuffer(p);
+		si->SetStartKey(ReadBuffer(p, len), true);
 		p += len;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
-		si->endKey.SetLength(len);
-		si->endKey.SetBuffer(p);
+//		si->endKey.SetLength(len);
+//		si->endKey.SetBuffer(p);
+		si->SetEndKey(ReadBuffer(p, len), true);
 		p += len;
 		shards.Insert(si);
 	}

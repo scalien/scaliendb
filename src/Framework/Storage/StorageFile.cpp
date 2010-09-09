@@ -6,8 +6,8 @@
 
 #define INDEXPAGE_OFFSET	(STORAGEFILE_HEADER_LENGTH+INDEXPAGE_HEADER_SIZE)
 
-#define DATAPAGE_OFFSET(idx) (STORAGEFILE_HEADER_LENGTH+INDEXPAGE_OFFSET+indexPageSize+idx*dataPageSize)
-#define DATAPAGE_INDEX(offs) ((offs-STORAGEFILE_HEADER_LENGTH-INDEXPAGE_OFFSET-indexPageSize)/dataPageSize)
+#define DATAPAGE_OFFSET(idx) (STORAGEFILE_HEADER_LENGTH+INDEXPAGE_OFFSET+indexPageSize+(idx)*dataPageSize)
+#define DATAPAGE_INDEX(offs) (((offs)-STORAGEFILE_HEADER_LENGTH-INDEXPAGE_OFFSET-indexPageSize)/dataPageSize)
 #define FILE_TYPE			"ScalienDB data file"
 #define FILE_VERSION_MAJOR	0
 #define FILE_VERSION_MINOR	1
@@ -447,7 +447,15 @@ StorageDataPage* StorageFile::CursorBegin(ReadBuffer& key, Buffer& nextKey)
 
 uint64_t StorageFile::GetSize()
 {
-	return indexPageSize + (indexPage.GetMaxDataPageIndex() + 1) * dataPageSize;
+	uint64_t	size;
+	int64_t		fsize;
+	
+	size = indexPageSize + (indexPage.GetMaxDataPageIndex() + 1) * dataPageSize;
+	// TODO: remove test code below!
+//	fsize = FS_FileSize(fd);
+//	if (abs(fsize - size) > indexPageSize)
+//		ASSERT_FAIL();
+	return size;
 }
 
 int32_t StorageFile::Locate(ReadBuffer& key)
@@ -588,6 +596,13 @@ void StorageFile::ReorderFile()
 			dataPages[index]->SetDirty(false);
 
 		MarkPageDirty(dataPages[index]);
+	}
+	
+	// truncate back
+	if (numDataPages != numDataPageSlots)
+	{
+		if (fd != INVALID_FD)
+			FS_FileTruncate(fd, DATAPAGE_OFFSET(numDataPages));
 	}
 }
 
