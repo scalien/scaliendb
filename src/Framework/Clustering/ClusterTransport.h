@@ -1,13 +1,13 @@
-#ifndef MESSAGETRANSPORT_H
-#define MESSAGETRANSPORT_H
+#ifndef CLUSTERTRANSPORT_H
+#define CLUSTERTRANSPORT_H
 
-#include "MessageServer.h"
-#include "Message.h"
+#include "Framework/Messaging/Message.h"
+#include "ClusterServer.h"
 
-class MessageTransport
+class ClusterTransport
 {
 public:
-	virtual ~MessageTransport() {}
+	virtual ~ClusterTransport() {}
 	
 	void						Init(uint64_t nodeID, Endpoint& endpoint);
 	
@@ -22,18 +22,18 @@ public:
 	virtual void				OnMessage(ReadBuffer msg)										= 0;
 
 private:
-	// for MessageConnection:
-	void						AddConnection(MessageConnection* conn);
-	MessageConnection*			GetConnection(uint64_t nodeID);
-	void						DeleteConnection(MessageConnection* conn);
+	// for ClusterConnection:
+	void						AddConnection(ClusterConnection* conn);
+	ClusterConnection*			GetConnection(uint64_t nodeID);
+	void						DeleteConnection(ClusterConnection* conn);
 
 	uint64_t					nodeID;
 	Endpoint					endpoint;
 	Buffer						msgBuffer;
-	MessageServer				server;
-	InList<MessageConnection>	conns;
+	ClusterServer				server;
+	InList<ClusterConnection>	conns;
 
-	friend class MessageConnection;
+	friend class ClusterConnection;
 };
 
 #endif

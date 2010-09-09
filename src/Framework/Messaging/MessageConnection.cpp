@@ -1,5 +1,4 @@
 #include "MessageConnection.h"
-#include "MessageTransport.h"
 
 MessageConnection::MessageConnection()
 {
@@ -12,55 +11,39 @@ void MessageConnection::InitConnected(bool startRead)
 	TCPConnection::InitConnected(startRead);
 	
 	Log_Trace();
-
-	progress = INCOMING;
-	nodeID = 0;
 }
 
-void MessageConnection::SetTransport(MessageTransport* transport_)
+void MessageConnection::Connect(Endpoint& endpoint_)
 {
 	Log_Trace();
 	
-	transport = transport_;
-}
-
-void MessageConnection::SetNodeID(uint64_t nodeID_)
-{
-	nodeID = nodeID_;
-}
-
-void MessageConnection::SetEndpoint(Endpoint& endpoint_)
-{
 	endpoint = endpoint_;
+	TCPConnection::Connect(endpoint, MESSAGING_CONNECT_TIMEOUT);
 }
 
-uint64_t MessageConnection::GetNodeID()
+void MessageConnection::Close()
 {
-	return nodeID;
-}
-
-MessageConnection::Progress MessageConnection::GetProgress()
-{
-	return progress;
+	EventLoop::Remove(&resumeRead);
+	TCPConnection::Close();	
 }
 
 void MessageConnection::Write(Buffer& msg)
 {
 	Buffer* buffer;
-	
+
 	buffer = writer->AcquireBuffer();
 	buffer->Writef("%#B", &msg);
-	writer->WritePooled(buffer);	
+	writer->WritePooled(buffer);
 	writer->Flush();
 }
 
 void MessageConnection::WritePriority(Buffer& msg)
 {
 	Buffer* buffer;
-	
+
 	buffer = writer->AcquireBuffer();
 	buffer->Writef("%#B", &msg);
-	writer->WritePooledPriority(buffer);	
+	writer->WritePooledPriority(buffer);
 	writer->Flush();
 }
 
@@ -68,11 +51,11 @@ void MessageConnection::Write(Buffer& prefix, Buffer& msg)
 {
 	unsigned length;
 	Buffer* buffer;
-	
+
 	buffer = writer->AcquireBuffer();
 	length = prefix.GetLength() + 1 + msg.GetLength();
 	buffer->Writef("%u:%B:%B", length, &prefix, &msg);
-	writer->WritePooled(buffer);	
+	writer->WritePooled(buffer);
 	writer->Flush();
 }
 
@@ -80,12 +63,22 @@ void MessageConnection::WritePriority(Buffer& prefix, Buffer& msg)
 {
 	unsigned length;
 	Buffer* buffer;
-	
+
 	buffer = writer->AcquireBuffer();
 	length = prefix.GetLength() + 1 + msg.GetLength();
 	buffer->Writef("%u:%B:%B", length, &prefix, &msg);
-	writer->WritePooledPriority(buffer);	
+	writer->WritePooledPriority(buffer);
 	writer->Flush();
+}
+
+void MessageConnection::OnConnect()
+{
+	Buffer		buffer;
+	ReadBuffer	rb;
+
+	TCPConnection::OnConnect();
+	
+	AsyncRead();		
 }
 
 void MessageConnection::OnClose()
@@ -95,19 +88,7 @@ void MessageConnection::OnClose()
 	if (connectTimeout.IsActive())
 		return;
 	
-	Close();
-	
-	if (progress == INCOMING)
-	{
-		// we don't know the other side, delete conn
-		transport->DeleteConnection(this);
-	}
-	else if (progress == READY)
-	{
-		// endpoint contains the other side, connect
-		progress = OUTGOING;
-		Connect();
-	}
+	Close();	
 }
 
 void MessageConnection::OnRead()
@@ -206,84 +187,11 @@ void MessageConnection::OnRead()
 	Log_Trace("time spent in OnRead(): %ld", sw.Elapsed());
 }
 
-bool MessageConnection::OnMessage(ReadBuffer& msg)
-{
-	uint64_t			nodeID;
-	ReadBuffer			buffer;
-	MessageConnection*	dup;
-
-	if (progress == MessageConnection::INCOMING)
-	{
-		msg.Readf("%U:%#R", &nodeID, &buffer);
-		dup = transport->GetConnection(nodeID);
-		if (dup && nodeID != this->nodeID)
-		{
-			if (dup->progress == READY)
-			{
-				Log_Trace("delete conn");
-				transport->DeleteConnection(this);		// drop current node
-				return true;
-			}
-			else
-			{
-				Log_Trace("delete dup");
-				transport->DeleteConnection(dup);		// drop dup
-			}
-		}
-		progress = MessageConnection::READY;
-		this->nodeID = nodeID;
-		this->endpoint.Set(buffer);
-		Log_Trace("Conn READY to node %" PRIu64 " at %s", this->nodeID, this->endpoint.ToString());
-		transport->AddConnection(this);
-		transport->OnIncomingConnectionReady(this->nodeID, this->endpoint);
-	}
-	else if (progress == MessageConnection::OUTGOING)
-		ASSERT_FAIL();
-	else
-		transport->OnMessage(msg); // pass msg to upper layer
-	
-	return false;
-}
-
 void MessageConnection::OnResumeRead()
 {
 	Log_Trace();
 
 	OnRead();
-}
-
-void MessageConnection::Close()
-{
-	EventLoop::Remove(&resumeRead);
-	TCPConnection::Close();	
-}
-
-void MessageConnection::Connect()
-{
-	Log_Trace();
-	
-	TCPConnection::Connect(endpoint, MESSAGING_CONNECT_TIMEOUT);
-}
-
-void MessageConnection::OnConnect()
-{
-	Buffer		buffer;
-	ReadBuffer	rb;
-
-	TCPConnection::OnConnect();
-	
-	Log_Trace("endpoint = %s", endpoint.ToString());
-	
-	AsyncRead();	
-	
-	rb = transport->GetEndpoint().ToReadBuffer();
-	// send my nodeID:endpoint
-	buffer.Writef("%U:%#R", transport->GetNodeID(), &rb);
-	WritePriority(buffer);
-
-	Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
-
-	progress = READY;
 }
 
 void MessageConnection::OnConnectTimeout()

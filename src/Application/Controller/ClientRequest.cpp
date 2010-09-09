@@ -1,6 +1,25 @@
 #include "ClientRequest.h"
 #include "System/Buffers/Buffer.h"
 
+bool ClientRequest::IsControllerRequest()
+{
+	if (type == CLIENTREQUEST_GET_MASTER ||
+		type == CLIENTREQUEST_CREATE_DATABASE ||
+		type == CLIENTREQUEST_RENAME_DATABASE ||
+		type == CLIENTREQUEST_DELETE_DATABASE ||
+		type == CLIENTREQUEST_CREATE_TABLE ||
+		type == CLIENTREQUEST_RENAME_TABLE ||
+		type == CLIENTREQUEST_DELETE_TABLE)
+			return true;
+}
+
+bool ClientRequest::GetMaster(uint64_t commandID_)
+{
+	type = CLIENTREQUEST_GET_MASTER;
+	commandID = commandID_;
+	return true;
+}
+
 bool ClientRequest::CreateDatabase(
  uint64_t commandID_, ReadBuffer& name_)
 {
@@ -103,6 +122,11 @@ bool ClientRequest::Read(ReadBuffer buffer)
 	
 	switch (buffer.GetCharAt(0))
 	{
+		/* Master query */
+		case CLIENTREQUEST_GET_MASTER:
+			read = buffer.Readf("%c:%U",
+			 &type, &commandID);
+			break;		
 		/* Database management */
 		case CLIENTREQUEST_CREATE_DATABASE:
 			read = buffer.Readf("%c:%U:%#R",
@@ -155,6 +179,11 @@ bool ClientRequest::Write(Buffer& buffer)
 {
 	switch (type)
 	{
+		/* Master query */
+		case CLIENTREQUEST_GET_MASTER:
+			buffer.Writef("%c:%U",
+			 type, commandID);
+			return true;
 		/* Database management */
 		case CLIENTREQUEST_CREATE_DATABASE:
 			buffer.Writef("%c:%U:%#R",

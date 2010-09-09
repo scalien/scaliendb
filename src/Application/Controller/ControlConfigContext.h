@@ -5,7 +5,7 @@
 #include "Framework/Replication/Quorums/SingleQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
-#include "ConfigMessage.h"
+#include "ConfigCommand.h"
 
 class Controller; // forward
 
@@ -22,7 +22,7 @@ class ControlConfigContext : public QuorumContext
 public:
 	void							Start();
 	
-	void							Append(ConfigMessage msg);
+	void							Append(ConfigCommand msg);
 	
 	void							SetController(Controller* controller);
 	void							SetContextID(uint64_t contextID);

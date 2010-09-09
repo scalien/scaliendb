@@ -8,6 +8,14 @@ bool ClientResponse::OK(uint64_t commandID_)
 	return true;
 }
 
+bool ClientResponse::Number(uint64_t commandID_, uint64_t number_)
+{
+	type = CLIENTRESPONSE_NUMBER;
+	commandID = commandID_;
+	number = number_;
+	return true;
+}
+
 bool ClientResponse::Value(uint64_t commandID_, ReadBuffer& value_)
 {
 	type = CLIENTRESPONSE_VALUE;
@@ -43,6 +51,10 @@ bool ClientResponse::Read(ReadBuffer buffer)
 			read = buffer.Readf("%c:%U",
 			 &type, &commandID);
 			break;
+		case CLIENTRESPONSE_NUMBER:
+			read = buffer.Readf("%c:%U:%U",
+			 &type, &commandID, &number);
+			break;
 		case CLIENTRESPONSE_VALUE:
 			read = buffer.Readf("%c:%U:%#R",
 			 &type, &commandID, &value);
@@ -69,6 +81,10 @@ bool ClientResponse::Write(Buffer& buffer)
 		case CLIENTRESPONSE_OK:
 			buffer.Writef("%c:%U",
 			 type, commandID);
+			return true;
+		case CLIENTRESPONSE_NUMBER:
+			buffer.Writef("%c:%U:%U",
+			 type, commandID, number);
 			return true;
 		case CLIENTRESPONSE_VALUE:
 			buffer.Writef("%c:%U:%#R",

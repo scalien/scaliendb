@@ -1,6 +1,6 @@
-#include "MessageTransport.h"
+#include "ClusterTransport.h"
 
-void MessageTransport::Init(uint64_t nodeID_, Endpoint& endpoint_)
+void ClusterTransport::Init(uint64_t nodeID_, Endpoint& endpoint_)
 {
 	nodeID = nodeID_;
 	endpoint = endpoint_;
@@ -8,19 +8,19 @@ void MessageTransport::Init(uint64_t nodeID_, Endpoint& endpoint_)
 	server.SetTransport(this);
 }
 
-uint64_t MessageTransport::GetNodeID()
+uint64_t ClusterTransport::GetNodeID()
 {
 	return nodeID;
 }
 
-Endpoint& MessageTransport::GetEndpoint()
+Endpoint& ClusterTransport::GetEndpoint()
 {
 	return endpoint;
 }
 
-void MessageTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
+void ClusterTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
 {
-	MessageConnection* conn;
+	ClusterConnection* conn;
 
 	if (nodeID < this->nodeID)
 		return;
@@ -32,16 +32,16 @@ void MessageTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
 	if (nodeID == this->nodeID)
 		Log_Trace("connecting to self");
 
-	conn = new MessageConnection;
+	conn = new ClusterConnection;
 	conn->SetTransport(this);
 	conn->SetNodeID(nodeID);
 	conn->SetEndpoint(endpoint);
 	conn->Connect();	
 }
 
-void MessageTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
+void ClusterTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
 {
-	MessageConnection*	conn;
+	ClusterConnection*	conn;
 	
 	conn = GetConnection(nodeID);
 	
@@ -51,7 +51,7 @@ void MessageTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg
 		return;
 	}
 	
-	if (conn->GetProgress() != MessageConnection::READY)
+	if (conn->GetProgress() != ClusterConnection::READY)
 	{
 		Log_Trace("connection to %" PRIu64 " has progress: %d", nodeID, conn->GetProgress());
 		return;
@@ -61,9 +61,9 @@ void MessageTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg
 	conn->Write(prefix, msgBuffer);
 }
 
-void MessageTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
+void ClusterTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
 {
-	MessageConnection*	conn;
+	ClusterConnection*	conn;
 	
 	conn = GetConnection(nodeID);
 	
@@ -73,7 +73,7 @@ void MessageTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Mess
 		return;
 	}
 	
-	if (conn->GetProgress() != MessageConnection::READY)
+	if (conn->GetProgress() != ClusterConnection::READY)
 	{
 		Log_Trace("connection to %" PRIu64 " has progress: %d", nodeID, conn->GetProgress());
 		return;
@@ -83,14 +83,14 @@ void MessageTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Mess
 	conn->WritePriority(prefix, msgBuffer);
 }
 
-void MessageTransport::AddConnection(MessageConnection* conn)
+void ClusterTransport::AddConnection(ClusterConnection* conn)
 {
 	conns.Append(conn);
 }
 
-MessageConnection* MessageTransport::GetConnection(uint64_t nodeID)
+ClusterConnection* ClusterTransport::GetConnection(uint64_t nodeID)
 {
-	MessageConnection* it;
+	ClusterConnection* it;
 	
 	for (it = conns.First(); it != NULL; it = conns.Next(it))
 	{
@@ -101,7 +101,7 @@ MessageConnection* MessageTransport::GetConnection(uint64_t nodeID)
 	return NULL;
 }
 
-void MessageTransport::DeleteConnection(MessageConnection* conn)
+void ClusterTransport::DeleteConnection(ClusterConnection* conn)
 {
 	conn->Close();
 

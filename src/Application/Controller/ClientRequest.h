@@ -4,6 +4,8 @@
 #include "System/Platform.h"
 #include "System/Buffers/ReadBuffer.h"
 
+#define CLIENTREQUEST_GET_MASTER		'm'
+
 #define CLIENTREQUEST_CREATE_DATABASE	'C'
 #define CLIENTREQUEST_RENAME_DATABASE	'R'
 #define CLIENTREQUEST_DELETE_DATABASE	'D'
@@ -36,6 +38,12 @@ public:
 	ReadBuffer	name;
 	ReadBuffer	key;
 	ReadBuffer	value;
+
+	bool		IsControllerRequest();
+	bool		IsShardServerRequest();
+	
+	/* Master query */
+	bool		GetMaster(uint64_t commandID);
 	
 	/* Database management */
 	bool		CreateDatabase(

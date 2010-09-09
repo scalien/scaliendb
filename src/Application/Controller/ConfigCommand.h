@@ -1,6 +1,7 @@
-#ifndef CONFIGMESSAGE_H
-#define CONFIGMESSAGE_H
+#ifndef CONFIGCOMMAND_H
+#define CONFIGCOMMAND_H
 
+#include "Command.h"
 #include "System/Platform.h"
 #include "System/IO/Endpoint.h"
 #include "System/Buffers/ReadBuffer.h"
@@ -21,12 +22,12 @@
 /*
 ===============================================================================
 
- ConfigMessage
+ ConfigCommand
 
 ===============================================================================
 */
 
-class ConfigMessage
+class ConfigCommand : public Command
 {
 public:
 	/* Variables */

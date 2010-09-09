@@ -62,13 +62,11 @@ void HTTPConnection::OnClose()
 	
 	Close();
 	request.Free();
-	if (closeAfterSend)
-	{
-		if (onCloseCallback.IsSet())
-			Call(onCloseCallback);
-		else
-			server->DeleteConn(this);
-	}
+
+	if (onCloseCallback.IsSet())
+		Call(onCloseCallback);
+
+	server->DeleteConn(this);
 }
 
 

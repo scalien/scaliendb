@@ -9,7 +9,7 @@ class HTTPServer;	// forward
 /*
 ===============================================================================
 
- HTTPConnection is a class that represents a HTTP connection.
+ HTTPConnection
 
 ===============================================================================
 */

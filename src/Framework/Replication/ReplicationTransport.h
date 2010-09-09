@@ -2,7 +2,7 @@
 #define REPLICATIONTRANSPORT_H
 
 #include "System/Containers/List.h"
-#include "Framework/Messaging/MessageTransport.h"
+#include "Framework/Clustering/ClusterTransport.h"
 
 /*
 ===============================================================================
@@ -12,7 +12,7 @@
 ===============================================================================
 */
 
-class ReplicationTransport : public MessageTransport
+class ReplicationTransport : public ClusterTransport
 {
 public:
 	void			RegisterConnectionEvents(uint64_t contextID);

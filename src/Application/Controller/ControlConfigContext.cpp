@@ -14,7 +14,7 @@ void ControlConfigContext::Start()
 	paxosLease.AcquireLease();
 }
 
-void ControlConfigContext::Append(ConfigMessage msg)
+void ControlConfigContext::Append(ConfigCommand msg)
 {
 	Buffer buffer;
 	msg.Write(nextValue);
@@ -109,9 +109,9 @@ QuorumTransport* ControlConfigContext::GetTransport()
 
 void ControlConfigContext::OnAppend(ReadBuffer value, bool /*ownAppend*/)
 {
-	ConfigMessage msg;
+	ConfigCommand msg;
 	msg.Read(value);
-	controller->OnConfigMessage(msg);
+	controller->OnConfigCommand(msg);
 
 	nextValue.Clear();
 }
