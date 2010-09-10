@@ -95,7 +95,7 @@ bool ConfigCommand::DeleteTable(
 	return true;
 }
 
-bool ConfigCommand::Read(ReadBuffer buffer)
+bool ConfigCommand::Read(ReadBuffer& buffer)
 {
 	int			read;
 	ReadBuffer	rb;

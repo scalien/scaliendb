@@ -2,6 +2,7 @@
 #define CONTROLLER_H
 
 #include "ConfigCommand.h"
+#include "ConfigContext.h"
 #include "Framework/Replication/ClusterContext.h"
 
 class ClientConnection; // forward
@@ -17,20 +18,29 @@ class ClientConnection; // forward
 class Controller : public ClusterContext
 {
 public:
+	void			Init();
+	
 	/* For the client side */
-	bool	ProcessGetMasterRequest(ClientConnection* conn);
-	bool	ProcessCommand(ClientConnection* conn, ConfigCommand& command);
+	bool			IsMasterKnown();
+	bool			IsMaster();
+	uint64_t		GetMaster();
+
+	bool			ProcessClientCommand(ClientConnection* conn, ConfigCommand& command);
 
 	/* For ConfigContext */
-	void	OnConfigCommand(ConfigCommand& command);
+	void			OnConfigCommand(ConfigCommand& command);
 
 	/* ---------------------------------------------------------------------------------------- */
-	/* MessageConnection interface:																*/
+	/* ClusterContext interface:																*/
 	/*																							*/
-	void OnClusterMessage(ReadBuffer& msg);
-	void OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
+	void			OnClusterMessage(ReadBuffer& msg);
+	void			OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
+	void			OnAwaitingNodeID(Endpoint endpoint);
 	/* ---------------------------------------------------------------------------------------- */
 
+private:
+	uint64_t		nextNodeID;
+	ConfigContext	configContext;
 };
 
 #endif

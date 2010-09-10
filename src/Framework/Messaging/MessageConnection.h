@@ -29,9 +29,13 @@ public:
 	virtual void		Close();
 
 	void				Write(Buffer& msg);
+	void				Write(Message& msg);
 	void				WritePriority(Buffer& msg);
+	void				WritePriority(Message& msg);
 	void				Write(Buffer& prefix, Buffer& msg);
+	void				Write(Buffer& prefix, Message& msg);
 	void				WritePriority(Buffer& prefix, Buffer& msg);
+	void				WritePriority(Buffer& prefix, Message& msg);
 
 	/* Must implement OnMessage() in derived classes							*/
 	/* OnMessage() returns whether the connection was closed and deleted		*/

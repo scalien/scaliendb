@@ -1,8 +1,7 @@
 #ifndef CLIENTRESPONSE_H
 #define CLIENTRESPONSE_H
 
-#include "System/Platform.h"
-#include "System/Buffers/ReadBuffer.h"
+#include "Framework/Messaging/Message.h"
 
 #define CLIENTRESPONSE_OK				'O'
 #define CLIENTRESPONSE_NUMBER			'n'
@@ -18,7 +17,7 @@
 ===============================================================================
 */
 
-class ClientResponse
+class ClientResponse : public Message
 {
 public:
 	/* Variables */
@@ -35,7 +34,7 @@ public:
 	bool		Failed(uint64_t commandID);
 
 	/* Serialization */
-	bool		Read(ReadBuffer buffer);
+	bool		Read(ReadBuffer& buffer);
 	bool		Write(Buffer& buffer);
 };
 

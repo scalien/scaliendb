@@ -35,12 +35,17 @@ public:
 
 	void					AddQuorumContext(QuorumContext* context);
 	QuorumContext*			GetQuorumContext(uint64_t contextID);
+
+	void					SendClusterMessage(uint64_t nodeID, Message& msg);
+	void					SendMessage(uint64_t nodeID, uint64_t contextID, Message& msg);
+	void					SendPriorityMessage(uint64_t nodeID, uint64_t contextID, Message& msg);	
 	
 private:
 	/* ---------------------------------------------------------------------------------------- */
 	/* ClusterTransport interface:																*/
 	/*																							*/
-	void					OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
+	void					OnConnectionReady(uint64_t nodeID, Endpoint endpoint);
+	void					OnAwaitingNodeID(Endpoint endpoint);
 	void					OnMessage(ReadBuffer msg);
 	/* ---------------------------------------------------------------------------------------- */
 

@@ -1,28 +1,68 @@
 #include "Controller.h"
 #include "ClientConnection.h"
+#include "ConfigCommand.h"
+#include "ClusterMessage.h"
+#include "Framework/Replication/ContextTransport.h"
 
-bool Controller::ProcessGetMasterRequest(ClientConnection* conn)
+void Controller::Init()
 {
-	return true;
+	//nextNodeID = table.GetUint64("nextNodeID");
 }
 
-bool Controller::ProcessCommand(ClientConnection* conn, ConfigCommand& command)
+bool Controller::IsMasterKnown()
+{
+	return configContext.IsLeaderKnown();
+}
+
+bool Controller::IsMaster()
+{
+	return configContext.IsLeader();
+}
+
+uint64_t Controller::GetMaster()
+{
+	return configContext.GetLeader();
+}
+
+bool Controller::ProcessClientCommand(ClientConnection* conn, ConfigCommand& command)
 {
 	return true;
 }
 
 void Controller::OnConfigCommand(ConfigCommand& command)
 {
-}
-
-void Controller::OnClusterMessage(ReadBuffer& msg)
-{
-}
-
-void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
-{
-	if (nodeID == 0)
+	ClusterMessage clusterMessage;
+	
+	if (command.type == CONFIG_REGISTER_SHARDSERVER)
 	{
-		// TODO: assign it a nodeID
-	}	
+		// tell ContextTransport that this connection has a new nodeID
+		CONTEXT_TRANSPORT->SetNodeID(command.endpoint, command.nodeID);
+		
+		// tell the shard server
+		clusterMessage.SetNodeID(command.nodeID);
+		CONTEXT_TRANSPORT->SendClusterMessage(command.nodeID, clusterMessage);
+	}
+}
+
+void Controller::OnClusterMessage(ReadBuffer& /*msg*/)
+{
+}
+
+void Controller::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
+{
+}
+
+void Controller::OnAwaitingNodeID(Endpoint endpoint)
+{	
+	uint64_t		nodeID;
+	ConfigCommand	command;
+	
+	if (!configContext.IsLeader())
+	{
+		return;
+	}
+
+	nodeID = nextNodeID++;
+	command.RegisterShardServer(nodeID, endpoint);
+	configContext.Append(command);		
 }

@@ -11,20 +11,27 @@ public:
 	
 	void						Init(uint64_t nodeID, Endpoint& endpoint);
 	
-	uint64_t					GetNodeID();
-	Endpoint&					GetEndpoint();
-	void						AddEndpoint(uint64_t nodeID, Endpoint endpoint);
+	uint64_t					GetSelfNodeID();
+	Endpoint&					GetSelfEndpoint();
+
+	void						AddEndpoint(uint64_t nodeID, Endpoint& endpoint);
+	bool						SetNodeID(Endpoint& endpoint, uint64_t nodeID);
 	
 	void						SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
 	void						SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
 	
-	virtual void				OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)	= 0;
+	void						DropConnection(uint64_t nodeID);
+	void						DropConnection(Endpoint endpoint);
+	
+	virtual void				OnConnectionReady(uint64_t nodeID, Endpoint endpoint)			= 0;
+	virtual void				OnAwaitingNodeID(Endpoint endpoint)								= 0;
 	virtual void				OnMessage(ReadBuffer msg)										= 0;
 
 private:
 	// for ClusterConnection:
 	void						AddConnection(ClusterConnection* conn);
 	ClusterConnection*			GetConnection(uint64_t nodeID);
+	ClusterConnection*			GetConnection(Endpoint& endpoint);
 	void						DeleteConnection(ClusterConnection* conn);
 
 	uint64_t					nodeID;

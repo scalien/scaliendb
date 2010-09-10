@@ -68,7 +68,7 @@ public:
 				 uint64_t databaseID, uint64_t tableID);
 	
 	/* Serialization */
-	bool		Read(ReadBuffer buffer);
+	bool		Read(ReadBuffer& buffer);
 	bool		Write(Buffer& buffer);
 };
 

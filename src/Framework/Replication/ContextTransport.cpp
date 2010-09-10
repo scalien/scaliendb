@@ -50,23 +50,55 @@ QuorumContext* ContextTransport::GetQuorumContext(uint64_t contextID)
 	return pcontext;
 }
 
-void ContextTransport::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
+void ContextTransport::SendClusterMessage(uint64_t nodeID, Message& msg)
+{
+	Buffer prefix;
+	
+	prefix.Writef("%c:", PROTOCOL_CLUSTER);
+	ClusterTransport::SendMessage(nodeID, prefix, msg);
+}
+
+void ContextTransport::SendMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
+{
+	Buffer prefix;
+	
+	prefix.Writef("%c:%U", PROTOCOL_QUORUM, contextID);
+	ClusterTransport::SendMessage(nodeID, prefix, msg);
+}
+
+void ContextTransport::SendPriorityMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
+{
+	Buffer prefix;
+	
+	prefix.Writef("%c:%U", PROTOCOL_QUORUM, contextID);
+	ClusterTransport::SendPriorityMessage(nodeID, prefix, msg);
+}
+
+void ContextTransport::OnConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
 	if (clusterContext)
 		clusterContext->OnIncomingConnectionReady(nodeID, endpoint);
 }
 
+void ContextTransport::OnAwaitingNodeID(Endpoint endpoint)
+{
+	if (clusterContext)
+		clusterContext->OnAwaitingNodeID(endpoint);
+}
+
 void ContextTransport::OnMessage(ReadBuffer msg)
 {
-	char proto;
+	int			nread;\
+	char		proto;
 	
 	Log_Trace("%.*s", P(&msg));
 	
 	if (msg.GetLength() < 2)
 		ASSERT_FAIL();
 
-	proto = msg.GetCharAt(0);
-	assert(msg.GetCharAt(1) == ':');
+	nread = msg.Readf("%c:", &proto);
+	if (nread < 2)
+		ASSERT_FAIL();
 
 	msg.Advance(2);
 	
