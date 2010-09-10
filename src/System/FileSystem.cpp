@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <dirent.h>
 #include <alloca.h>
+#include <stdio.h>
 
 FD FS_Open(const char* filename, int flags)
 {
@@ -268,6 +269,20 @@ int64_t FS_FileSize(const char* path)
 	}
 	
 	return buf.st_size;
+}
+
+bool FS_Rename(const char* src, const char* dst)
+{
+	int		ret;
+	
+	ret = rename(src, dst);
+	if (ret < 0)
+	{
+		Log_Errno();
+		return false;
+	}
+	
+	return true;
 }
 
 void FS_Sync()

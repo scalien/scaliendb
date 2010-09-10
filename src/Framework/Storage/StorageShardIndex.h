@@ -29,10 +29,10 @@ public:
 	Buffer*					startKeyBuffer;
 	ReadBuffer				endKey;
 	Buffer*					endKeyBuffer;
+	StorageShard*			shard;
 	uint64_t				shardID;
 
 	ShardTreeNode			treeNode;
-	StorageShard*			shard;
 };
 
 #endif

@@ -17,7 +17,7 @@ class StorageDataPage;	// forward
 class StorageCursor
 {
 public:
-	StorageCursor(StorageShard* table);
+	StorageCursor(StorageShard* shard);
 	
 	StorageKeyValue*		Begin(ReadBuffer& key);
 	StorageKeyValue*		Next();
@@ -29,7 +29,7 @@ public:
 private:
 	StorageKeyValue*		FromNextPage();
 
-	StorageShard*			table;
+	StorageShard*			shard;
 	StorageDataPage*		dataPage;
 	StorageKeyValue*		current;
 	Buffer					nextKey;

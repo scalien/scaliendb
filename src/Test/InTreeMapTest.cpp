@@ -274,4 +274,110 @@ TEST_DEFINE(TestInTreeMapInsertRandom)
 	return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestInTreeMapRemoveRandom)
+{
+	InTreeMap<StorageKeyValue>		kvs;
+	ReadBuffer						rb;
+	ReadBuffer						rk;
+	ReadBuffer						rv;
+	Buffer							buf;
+	Stopwatch						sw;
+	StorageKeyValue*				kv;
+	StorageKeyValue*				it;
+	char*							p;
+	char*							area;
+	char*							kvarea;
+	int								ksize;
+	int								vsize;
+	int								len;
+	int								num = 10000;
+	int								numbers[num];
+	
+	ksize = 20;
+	vsize = 128;
+	area = (char*) malloc(num*(ksize+vsize));
+	kvarea = (char*) malloc(num * sizeof(StorageKeyValue));
+
+	for (int i = 0; i < num; i++)
+	{
+		p = area + i*(ksize+vsize);
+		len = snprintf(p, ksize, "%010d", i);
+		rk.SetBuffer(p);
+		rk.SetLength(len);
+		p += len;
+		len = snprintf(p, vsize, "%.100f", (float) i);
+		rv.SetBuffer(p);
+		rv.SetLength(len);
+
+		kv = (StorageKeyValue*) (kvarea + i * sizeof(StorageKeyValue));
+		kv->SetKey(rk, true);
+		kv->SetValue(rv, true);
+		sw.Start();
+		it = kvs.Insert(kv);
+		sw.Stop();
+	}
+	
+	printf("insert time: %ld\n", sw.Elapsed());
+
+	// check if the elements are all in order
+	int count = 0;
+	for (it = kvs.First(); it != NULL; it = kvs.Next(it))
+	{
+		StorageKeyValue* next;
+		
+		count++;
+		next = kvs.Next(it);
+		if (next == NULL)
+			break;
+
+		if (ReadBuffer::Cmp(it->key, next->key) > 0)
+			TEST_FAIL();
+	}
+	if (count != num)
+		TEST_FAIL();
+
+	// shuffle numbers
+	for (int i = 0; i < num; i++)
+		numbers[i] = i;
+	for (int i = 0; i < num; i++)
+	{
+		int rndpos = RandomInt(0, num - 1);
+		int tmp = numbers[i];
+		numbers[i] = numbers[rndpos];
+		numbers[rndpos] = tmp;
+	}
+
+	int max = num - 1;
+	for (int i = 0; i < num; i++)
+	{
+		int j = numbers[i];
+		kv = (StorageKeyValue*) (kvarea + j * sizeof(StorageKeyValue));
+		it = kvs.Remove(kv);
+		if (j == num - 1)
+		{
+			if (it != NULL)
+				TEST_FAIL();
+		}
+		else
+		{
+			if (it && ReadBuffer::Cmp(it->key, kv->key) <= 0)
+				TEST_FAIL();
+			if (!it)
+			{
+				if (j > max)
+					TEST_FAIL();
+				max = j;
+			}
+		}
+	}
+	
+	if (kvs.GetCount() != 0)
+		TEST_FAIL();
+
+	free(area);
+	free(kvarea);
+
+	return TEST_SUCCESS;
+}
+
 TEST_MAIN(TestInTreeMap);

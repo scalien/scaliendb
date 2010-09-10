@@ -50,8 +50,10 @@ bool		FS_IsDirectory(const char* name);
 int64_t		FS_FreeDiskSpace(const char* path);
 int64_t		FS_DiskSpace(const char* path);
 int64_t		FS_FileSize(const char* path);
-char		FS_Separator();
+bool		FS_Rename(const char* src, const char* dst);
 
 void		FS_Sync();
+
+char		FS_Separator();
 
 #endif
