@@ -141,7 +141,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
 	else if (progress == ClusterConnection::OUTGOING)
 		ASSERT_FAIL();
 	else
-		transport->OnMessage(msg); // pass msg to upper layer
+		transport->OnMessage(nodeID, msg); // pass msg to upper layer
 	
 	return false;
 }

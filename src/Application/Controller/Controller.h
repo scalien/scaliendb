@@ -3,7 +3,8 @@
 
 #include "ConfigCommand.h"
 #include "ConfigContext.h"
-#include "Framework/Replication/ClusterContext.h"
+#include "ClusterState.h"
+#include "Application/Common/ClusterContext.h"
 
 class ClientConnection; // forward
 
@@ -33,7 +34,7 @@ public:
 	/* ---------------------------------------------------------------------------------------- */
 	/* ClusterContext interface:																*/
 	/*																							*/
-	void			OnClusterMessage(ReadBuffer& msg);
+	void			OnClusterMessage(uint64_t nodeID, ClusterMessage& msg);
 	void			OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
 	void			OnAwaitingNodeID(Endpoint endpoint);
 	/* ---------------------------------------------------------------------------------------- */
@@ -41,6 +42,7 @@ public:
 private:
 	uint64_t		nextNodeID;
 	ConfigContext	configContext;
+	ClusterState	clusterState;
 };
 
 #endif

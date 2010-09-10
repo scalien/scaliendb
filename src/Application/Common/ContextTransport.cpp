@@ -1,7 +1,7 @@
 #include "ContextTransport.h"
-#include "ReplicationConfig.h"
-#include "Quorums/QuorumContext.h"
 #include "System/Config.h"
+#include "Framework/Replication/ReplicationConfig.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 
 static uint64_t Hash(uint64_t ID)
 {
@@ -86,7 +86,7 @@ void ContextTransport::OnAwaitingNodeID(Endpoint endpoint)
 		clusterContext->OnAwaitingNodeID(endpoint);
 }
 
-void ContextTransport::OnMessage(ReadBuffer msg)
+void ContextTransport::OnMessage(uint64_t nodeID, ReadBuffer msg)
 {
 	int			nread;\
 	char		proto;
@@ -105,7 +105,7 @@ void ContextTransport::OnMessage(ReadBuffer msg)
 	switch (proto)
 	{
 		case PROTOCOL_CLUSTER:
-			OnClusterMessage(msg);
+			OnClusterMessage(nodeID, msg);
 			break;
 		case PROTOCOL_QUORUM:
 			OnQuorumMessage(msg);
@@ -116,10 +116,19 @@ void ContextTransport::OnMessage(ReadBuffer msg)
 	}
 }
 
-void ContextTransport::OnClusterMessage(ReadBuffer& msg)
+void ContextTransport::OnClusterMessage(uint64_t nodeID, ReadBuffer& buffer)
 {
+	ClusterMessage msg;
+	
+	if (!msg.Read(buffer))
+	{
+		// TODO: this DropConnection() happens in the middle of a OnRead() / OnMessage() loop
+		CONTEXT_TRANSPORT->DropConnection(nodeID);
+		return;
+	}
+	
 	if (clusterContext)
-		clusterContext->OnClusterMessage(msg);
+		clusterContext->OnClusterMessage(nodeID, msg);
 }
 
 void ContextTransport::OnQuorumMessage(ReadBuffer& msg)

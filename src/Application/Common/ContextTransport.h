@@ -4,8 +4,8 @@
 #include "System/Containers/HashMap.h"
 #include "System/IO/Endpoint.h"
 #include "Framework/Clustering/ClusterTransport.h"
-#include "Framework/Replication/ClusterContext.h"
 #include "Framework/Replication/Quorums/QuorumContext.h"
+#include "ClusterContext.h"
 
 #define	CONTEXT_TRANSPORT (ContextTransport::Get())
 
@@ -46,10 +46,10 @@ private:
 	/*																							*/
 	void					OnConnectionReady(uint64_t nodeID, Endpoint endpoint);
 	void					OnAwaitingNodeID(Endpoint endpoint);
-	void					OnMessage(ReadBuffer msg);
+	void					OnMessage(uint64_t nodeID, ReadBuffer msg);
 	/* ---------------------------------------------------------------------------------------- */
 
-	void					OnClusterMessage(ReadBuffer& msg);
+	void					OnClusterMessage(uint64_t nodeID, ReadBuffer& msg);
 	void					OnQuorumMessage(ReadBuffer& msg);
 
 	ClusterContext*			clusterContext;

@@ -13,7 +13,7 @@ public:
 	uint64_t	nodeID;
 	
 	void		SetNodeID(uint64_t nodeID);
-
+	
 	bool		Read(ReadBuffer& buffer);
 	bool		Write(Buffer& buffer);
 };

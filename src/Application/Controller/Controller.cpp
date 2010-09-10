@@ -1,6 +1,6 @@
 #include "Controller.h"
 #include "ConfigCommand.h"
-#include "Framework/Replication/ContextTransport.h"
+#include "Application/Common/ContextTransport.h"
 #include "Application/Common/ClientConnection.h"
 #include "Application/Common/ClusterMessage.h"
 
@@ -44,8 +44,9 @@ void Controller::OnConfigCommand(ConfigCommand& command)
 	}
 }
 
-void Controller::OnClusterMessage(ReadBuffer& /*msg*/)
+void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& msg)
 {
+	clusterState.Update(msg);
 }
 
 void Controller::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
