@@ -6,10 +6,8 @@
 class ClusterState
 {
 public:
-	void	Update(ClusterMessage& command);
+	void	Update(uint64_t nodeID, ClusterMessage& command);
 	
-	// list of databases, each with a list of tables
-	//
 	// for each table, we have a replication target
 	// for each table, we have at least one shard
 	//

@@ -111,10 +111,10 @@ void ConfigContext::OnAppend(ReadBuffer value, bool /*ownAppend*/)
 {
 	ConfigCommand command;
 
+	nextValue.Clear();
+
 	assert(command.Read(value));
 	controller->OnConfigCommand(command);
-
-	nextValue.Clear();
 }
 
 Buffer* ConfigContext::GetNextValue()

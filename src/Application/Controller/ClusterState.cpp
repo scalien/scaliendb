@@ -1,5 +1,5 @@
 #include "ClusterState.h"
 
-void ClusterState::Update(ClusterMessage& msg)
+void ClusterState::Update(uint64_t nodeID, ClusterMessage& msg)
 {
 }

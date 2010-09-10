@@ -46,7 +46,10 @@ void Controller::OnConfigCommand(ConfigCommand& command)
 
 void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& msg)
 {
-	clusterState.Update(msg);
+	if (!IsMaster())
+		return;
+	
+	clusterState.Update(nodeID, msg);
 }
 
 void Controller::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
