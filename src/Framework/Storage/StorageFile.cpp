@@ -224,6 +224,11 @@ bool StorageFile::IsEmpty()
 	return indexPage.IsEmpty();
 }
 
+bool StorageFile::IsNew()
+{
+	return newFile;
+}
+
 bool StorageFile::IsOverflowing()
 {
 	return isOverflowing || indexPage.IsOverflowing();
@@ -286,6 +291,66 @@ StorageFile* StorageFile::SplitFile()
 	return newFile;
 }
 
+StorageFile* StorageFile::SplitFileByKey(ReadBuffer& startKey)
+{
+	StorageDataPage*	page;
+	StorageDataPage*	newPage;
+	StorageFile*		newFile;
+	uint32_t			index;
+	uint32_t			splitIndex;
+	int32_t				ret;
+	int					cmp;
+	
+	newFile = new StorageFile;
+	newFile->indexPageSize = indexPageSize;
+	newFile->dataPageSize = dataPageSize;
+	newFile->numDataPageSlots = numDataPageSlots;
+	newFile->indexPage.SetPageSize(indexPageSize);
+	newFile->indexPage.SetNumDataPageSlots(numDataPageSlots);
+
+	ReadRest();
+	ReorderPages();
+	
+	ret = Locate(startKey);
+	assert(ret >= 0);
+	splitIndex = (uint32_t) ret;
+	
+	for (index = 0; index < numDataPageSlots; index++)
+	{
+		page = dataPages[index];
+		if (page == NULL)
+			break;			// the pages are already ordered
+	
+		cmp = ReadBuffer::Cmp(startKey, page->FirstKey());
+		if (cmp <= 0)
+		{
+			if (cmp < 0 && index == splitIndex)
+			{
+				// startKey is not the first key of the page so we have to split it
+				newPage = page->SplitDataPageByKey(startKey);
+				newFile->dataPages[index] = newPage;
+			}
+			else
+			{
+				newFile->dataPages[index] = dataPages[index];
+				indexPage.Remove(dataPages[index]->FirstKey()); 
+				dataPages[index] = NULL;
+				numDataPages--;
+			}
+
+			newFile->dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
+			newFile->dataPages[index]->SetFile(newFile);
+			newFile->indexPage.Add(newFile->dataPages[index]->FirstKey(), index, true);		
+			newFile->numDataPages++;
+		}
+	}
+	
+	ReorderFile();
+	newFile->ReorderFile();
+	
+	return newFile;
+}
+
 void StorageFile::Read()
 {
 	char*				p;
@@ -297,13 +362,15 @@ void StorageFile::Read()
 	
 	newFile = false;
 
+	// read file header
 	buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
 	if (FS_FileRead(fd, (void*) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
 		ASSERT_FAIL();
 	buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
 	if (!header.Read(buffer))
 		ASSERT_FAIL();
-		
+	
+	// read index header
 	buffer.Allocate(INDEXPAGE_HEADER_SIZE);
 	if (FS_FileRead(fd, (void*) buffer.GetBuffer(), INDEXPAGE_HEADER_SIZE) < 0)
 		ASSERT_FAIL();
@@ -320,6 +387,7 @@ void StorageFile::Read()
 	indexPage.SetNew(false);
 	indexPage.SetNumDataPageSlots(numDataPageSlots);
 	
+	// read index page
 	buffer.Allocate(indexPageSize);
 	length = FS_FileRead(fd, (void*) buffer.GetBuffer(), indexPageSize);
 	if (length < 0)
@@ -327,6 +395,8 @@ void StorageFile::Read()
 	buffer.SetLength(length);
 	readBuffer.Wrap(buffer);
 	indexPage.Read(readBuffer);
+	
+	// allocate memory for data page slots
 	if (dataPages != NULL)
 		free(dataPages);
 	dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPageSlots);
@@ -525,6 +595,7 @@ void StorageFile::SplitDataPage(uint32_t index)
 	uint32_t			newIndex;
 	StorageDataPage*	newPage;
 
+	// TODO: split into three when one key-value has pagesize size
 	if (numDataPages < numDataPageSlots)
 	{
 		// make a copy of data

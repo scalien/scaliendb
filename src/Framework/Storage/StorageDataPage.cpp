@@ -157,17 +157,14 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		
 	assert(it != NULL);
 	
-//	newPage = new StorageDataPage();
 	newPage = DCACHE->GetPage();
 	DCACHE->Checkin(newPage);
 	newPage->SetPageSize(pageSize);
 	newPage->SetStorageFileIndex(fileIndex);
 	newPage->SetFile(file);
-//	newPage->buffer.Write(this->buffer);
 	newPage->buffer.Allocate(pageSize);
 	assert(newPage->required == DATAPAGE_FIX_OVERHEAD);
 	assert(newPage->keys.GetCount() == 0);
-//	printf("\n\n");
 	while (it != NULL)
 	{
 		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
@@ -178,32 +175,57 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 		it->SetValue(it->value, true);
 		newPage->keys.Insert(it);
 		newPage->required += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
-//		printf("putting %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
 		it = next;
 	}
 	
 	// CHECK
-	unsigned r = DATAPAGE_FIX_OVERHEAD;
-	unsigned num = 0;
-	for (StorageKeyValue* it = newPage->keys.First(); it != NULL; it = newPage->keys.Next(it))
-	{
-		r += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
-		num++;
-	}	
-	assert(num == newPage->keys.GetCount());
-	assert(newPage->required == r);
-
-	// TODO: WTF?
-//	if (newPage->required == 32814)
+//	unsigned r = DATAPAGE_FIX_OVERHEAD;
+//	unsigned num = 0;
+//	for (StorageKeyValue* it = newPage->keys.First(); it != NULL; it = newPage->keys.Next(it))
 //	{
-//		Buffer buffer;
-//		buffer.Allocate(pageSize);
-//		printf("hello\n");
-//		newPage->CheckWrite(buffer);
-//	}
-	
+//		r += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
+//		num++;
+//	}	
+//
+//	assert(num == newPage->keys.GetCount());
+//	assert(newPage->required == r);
+
 	assert(IsEmpty() != true);
 	assert(newPage->IsEmpty() != true);
+	return newPage;
+}
+
+StorageDataPage* StorageDataPage::SplitDataPageByKey(ReadBuffer& key)
+{
+	StorageDataPage*	newPage;
+	StorageKeyValue*	it;
+	StorageKeyValue*	next;
+	uint32_t			target, sum;
+
+	newPage = DCACHE->GetPage();
+	DCACHE->Checkin(newPage);
+	newPage->SetPageSize(pageSize);
+	newPage->SetStorageFileIndex(fileIndex);
+	newPage->SetFile(file);
+	newPage->buffer.Allocate(pageSize);
+	
+	assert(newPage->required == DATAPAGE_FIX_OVERHEAD);
+	assert(newPage->keys.GetCount() == 0);
+	assert(keys.Get(key) != NULL);
+	
+	for (it = keys.Get(key); it != NULL; it = next)
+	{
+		required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
+		// TODO: optimize buffer to avoid delete and realloc below
+		next = keys.Next(it);
+		keys.Remove(it);
+		it->SetKey(it->key, true);
+		it->SetValue(it->value, true);
+		newPage->keys.Insert(it);
+		newPage->required += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
+		it = next;
+	}
+
 	return newPage;
 }
 
