@@ -356,9 +356,11 @@ T* InTreeMap<T, pnode>::Remove(T* t)
 	Node*		node;
 	Node*		child;
 	Node*		parent;
+	T*			next;
 	int			color;
 
 	node = GetNode(t);
+	next = Next(t);
 	if (node->left == NULL)
 		child = node->right;
 	else if (node->right == NULL)
@@ -430,7 +432,7 @@ color:
 	
 	GetNode(t)->owner = NULL;
 	count--;
-	return Next(t);
+	return next;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>

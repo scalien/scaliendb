@@ -46,7 +46,6 @@ extern "C" {
 #define TEST_MAIN(...)
 #endif
 
-
 #define TEST_DEFINE(testfn) extern "C" int testfn()
 #define TEST_DECLARE(testfn) extern "C" int testfn()
 #define TEST_FAIL() {TEST_LOG("FAILURE!"); return TEST_FAILURE;}
@@ -55,7 +54,7 @@ extern "C" {
 #define TEST_SUCCESS 0
 #define TEST_FAILURE 1
 
-typedef int (*testfn_t)(void);
+typedef int (*testfn_t)();
 
 int test(testfn_t testfn, const char *testname);
 int test_iter(testfn_t testfn, const char *testname, unsigned long niter);

@@ -289,6 +289,7 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
 	char*							kvarea;
 	int								ksize;
 	int								vsize;
+	int								len;
 	int								num = 10000;
 	int								numbers[num];
 	
@@ -300,13 +301,13 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
 	for (int i = 0; i < num; i++)
 	{
 		p = area + i*(ksize+vsize);
+		len = snprintf(p, ksize, "%010d", i);
 		rk.SetBuffer(p);
-		rk.SetLength(ksize);
-		snprintf(p, ksize, "%010d", i);
-		p += ksize;
+		rk.SetLength(len);
+		p += len;
+		len = snprintf(p, vsize, "%.100f", (float) i);
 		rv.SetBuffer(p);
-		rv.SetLength(vsize);
-		snprintf(p, vsize, "%.100f", (float) i);
+		rv.SetLength(len);
 
 		kv = (StorageKeyValue*) (kvarea + i * sizeof(StorageKeyValue));
 		kv->SetKey(rk, true);
@@ -318,18 +319,22 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
 	
 	printf("insert time: %ld\n", sw.Elapsed());
 
-	// check if the elements are in order
+	// check if the elements are all in order
+	int count = 0;
 	for (it = kvs.First(); it != NULL; it = kvs.Next(it))
 	{
 		StorageKeyValue* next;
 		
+		count++;
 		next = kvs.Next(it);
 		if (next == NULL)
 			break;
 
 		if (ReadBuffer::Cmp(it->key, next->key) > 0)
-			TEST_FAIL();		
+			TEST_FAIL();
 	}
+	if (count != num)
+		TEST_FAIL();
 
 	// shuffle numbers
 	for (int i = 0; i < num; i++)
@@ -342,6 +347,7 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
 		numbers[rndpos] = tmp;
 	}
 
+	int max = num - 1;
 	for (int i = 0; i < num; i++)
 	{
 		int j = numbers[i];
@@ -354,10 +360,19 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
 		}
 		else
 		{
-			if (ReadBuffer::Cmp(it->key, kv->key) <= 0)
+			if (it && ReadBuffer::Cmp(it->key, kv->key) <= 0)
 				TEST_FAIL();
+			if (!it)
+			{
+				if (j > max)
+					TEST_FAIL();
+				max = j;
+			}
 		}
 	}
+	
+	if (kvs.GetCount() != 0)
+		TEST_FAIL();
 
 	free(area);
 	free(kvarea);
