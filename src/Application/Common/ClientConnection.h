@@ -19,7 +19,7 @@ class ClientConnection
 public:
 	virtual ~ClientConnection() {}
 	
-	virtual void	OnComplete(Command& command)	= 0;
+	virtual void	OnComplete(Command* command)	= 0;
 	virtual bool	IsActive()						= 0;
 };
 

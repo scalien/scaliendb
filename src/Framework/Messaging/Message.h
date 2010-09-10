@@ -1,6 +1,7 @@
 #ifndef MESSAGE_H
 #define MESSAGE_H
 
+#include "System/Buffers/ReadBuffer.h"
 #include "System/Buffers/Buffer.h"
 
 /*

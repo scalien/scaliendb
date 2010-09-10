@@ -1,8 +1,8 @@
 #include "Controller.h"
-#include "ClientConnection.h"
 #include "ConfigCommand.h"
-#include "ClusterMessage.h"
 #include "Framework/Replication/ContextTransport.h"
+#include "Application/Common/ClientConnection.h"
+#include "Application/Common/ClusterMessage.h"
 
 void Controller::Init()
 {

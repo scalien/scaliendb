@@ -1,8 +1,7 @@
 #ifndef CLIENTREQUEST_H
 #define CLIENTREQUEST_H
 
-#include "System/Platform.h"
-#include "System/Buffers/ReadBuffer.h"
+#include "Framework/Messaging/Message.h"
 
 #define CLIENTREQUEST_GET_MASTER		'm'
 
@@ -26,7 +25,7 @@
 ===============================================================================
 */
 
-class ClientRequest
+class ClientRequest : public Message
 {
 public:
 	/* Variables */
@@ -73,7 +72,7 @@ public:
 				 uint64_t tableID, ReadBuffer& key);
 	
 	/* Serialization */
-	bool		Read(ReadBuffer buffer);
+	bool		Read(ReadBuffer& buffer);
 	bool		Write(Buffer& buffer);
 };
 
