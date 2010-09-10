@@ -1,7 +1,7 @@
 #ifndef SDBPCONTROLLERCONTEXT_H
 #define SDBPCONTROLLERCONTEXT_H
 
-#include "SDBPContext.h"
+#include "Application/SDBP/SDBPContext.h"
 #include "Controller.h"
 
 /*
@@ -22,7 +22,7 @@ public:
 	/*																							*/
 	bool			IsValidRequest(ClientRequest& request);
 	bool			ProcessRequest(SDBPConnection* conn, ClientRequest& request);
-	void			OnComplete(SDBPConnection* conn, Command& command);
+	void			OnComplete(SDBPConnection* conn, Command* command);
 	/* ---------------------------------------------------------------------------------------- */
 
 	ConfigCommand	ConvertRequest(ClientRequest& request);

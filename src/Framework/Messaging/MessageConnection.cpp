@@ -29,7 +29,7 @@ void MessageConnection::Close()
 
 void MessageConnection::Write(Buffer& msg)
 {
-	Buffer* buffer;
+	Buffer*		buffer;
 
 	buffer = writer->AcquireBuffer();
 	buffer->Writef("%#B", &msg);
@@ -37,9 +37,21 @@ void MessageConnection::Write(Buffer& msg)
 	writer->Flush();
 }
 
+void MessageConnection::Write(Message& msg)
+{
+	Buffer		writeBuffer;
+	Buffer*		buffer;
+
+	msg.Write(writeBuffer);
+	buffer = writer->AcquireBuffer();
+	buffer->Writef("%#B", &writeBuffer);
+	writer->WritePooled(buffer);
+	writer->Flush();
+}
+
 void MessageConnection::WritePriority(Buffer& msg)
 {
-	Buffer* buffer;
+	Buffer*		buffer;
 
 	buffer = writer->AcquireBuffer();
 	buffer->Writef("%#B", &msg);
@@ -47,14 +59,40 @@ void MessageConnection::WritePriority(Buffer& msg)
 	writer->Flush();
 }
 
+void MessageConnection::WritePriority(Message& msg)
+{
+	Buffer		writeBuffer;
+	Buffer*		buffer;
+
+	msg.Write(writeBuffer);
+	buffer = writer->AcquireBuffer();
+	buffer->Writef("%#B", &writeBuffer);
+	writer->WritePooledPriority(buffer);
+	writer->Flush();
+}
+
 void MessageConnection::Write(Buffer& prefix, Buffer& msg)
 {
-	unsigned length;
-	Buffer* buffer;
+	unsigned	length;
+	Buffer*		buffer;
 
 	buffer = writer->AcquireBuffer();
 	length = prefix.GetLength() + 1 + msg.GetLength();
 	buffer->Writef("%u:%B:%B", length, &prefix, &msg);
+	writer->WritePooled(buffer);
+	writer->Flush();
+}
+
+void MessageConnection::Write(Buffer& prefix, Message& msg)
+{
+	unsigned	length;
+	Buffer		writeBuffer;
+	Buffer*		buffer;
+
+	msg.Write(writeBuffer);
+	buffer = writer->AcquireBuffer();
+	length = prefix.GetLength() + 1 + writeBuffer.GetLength();
+	buffer->Writef("%u:%B:%B", length, &prefix, &writeBuffer);
 	writer->WritePooled(buffer);
 	writer->Flush();
 }
@@ -67,6 +105,20 @@ void MessageConnection::WritePriority(Buffer& prefix, Buffer& msg)
 	buffer = writer->AcquireBuffer();
 	length = prefix.GetLength() + 1 + msg.GetLength();
 	buffer->Writef("%u:%B:%B", length, &prefix, &msg);
+	writer->WritePooledPriority(buffer);
+	writer->Flush();
+}
+
+void MessageConnection::WritePriority(Buffer& prefix, Message& msg)
+{
+	unsigned	length;
+	Buffer		writeBuffer;
+	Buffer*		buffer;
+
+	msg.Write(writeBuffer);
+	buffer = writer->AcquireBuffer();
+	length = prefix.GetLength() + 1 + writeBuffer.GetLength();
+	buffer->Writef("%u:%B:%B", length, &prefix, &writeBuffer);
 	writer->WritePooledPriority(buffer);
 	writer->Flush();
 }

@@ -1,6 +1,8 @@
 #ifndef COMMAND_H
 #define COMMAND_H
 
+#include "Framework/Messaging/Message.h"
+
 /*
 ===============================================================================
 
@@ -11,7 +13,7 @@
 ===============================================================================
 */
 
-class Command
+class Command : public Message
 {
 };
 

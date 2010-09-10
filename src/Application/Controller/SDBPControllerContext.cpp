@@ -1,5 +1,5 @@
 #include "SDBPControllerContext.h"
-#include "SDBPConnection.h"
+#include "Application/SDBP/SDBPConnection.h"
 
 void SDBPControllerContext::SetController(Controller* controller_)
 {
@@ -13,19 +13,30 @@ bool SDBPControllerContext::IsValidRequest(ClientRequest& request)
 
 bool SDBPControllerContext::ProcessRequest(SDBPConnection* conn, ClientRequest& request)
 {
-	ConfigCommand command;
+	ConfigCommand	command;
+	ClientResponse	response;
 	
 	if (request.type == CLIENTREQUEST_GET_MASTER)
-		return controller->ProcessGetMasterRequest(conn);
+	{
+		if (!controller->IsMasterKnown())
+			response.Failed(request.commandID);
+		else
+			response.Number(request.commandID, controller->GetMaster());
+		conn->Write(response);
+	}
 	
 	command = ConvertRequest(request);
 	
-	return controller->ProcessCommand(conn, command);
+	return controller->ProcessClientCommand(conn, command);
 }
 
-void SDBPControllerContext::OnComplete(SDBPConnection* conn, Command& command)
+void SDBPControllerContext::OnComplete(SDBPConnection* conn, Command* command_)
 {
-	// TODO
+	ConfigCommand* command = (ConfigCommand*) command_;
+	
+	// TODO:
+	
+	delete command;
 }
 
 ConfigCommand SDBPControllerContext::ConvertRequest(ClientRequest& request)

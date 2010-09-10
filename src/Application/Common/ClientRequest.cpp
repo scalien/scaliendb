@@ -11,6 +11,8 @@ bool ClientRequest::IsControllerRequest()
 		type == CLIENTREQUEST_RENAME_TABLE ||
 		type == CLIENTREQUEST_DELETE_TABLE)
 			return true;
+
+	return false;
 }
 
 bool ClientRequest::GetMaster(uint64_t commandID_)
@@ -113,7 +115,7 @@ bool ClientRequest::Delete(
 	return true;
 }
 
-bool ClientRequest::Read(ReadBuffer buffer)
+bool ClientRequest::Read(ReadBuffer& buffer)
 {
 	int			read;
 		

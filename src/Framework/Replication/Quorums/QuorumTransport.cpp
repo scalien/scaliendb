@@ -1,5 +1,5 @@
 #include "QuorumTransport.h"
-#include "Framework/Replication/ContextTransport.h"
+#include "Application/Common/ContextTransport.h"
 
 QuorumTransport::QuorumTransport()
 {
@@ -11,22 +11,22 @@ void QuorumTransport::SetPriority(bool priority_)
 	priority = priority_;
 }
 
-void QuorumTransport::SetPrefix(Buffer& prefix_)
-{
-	prefix.Write(prefix_);
-}
-
 void QuorumTransport::SetQuorum(Quorum* quorum_)
 {
 	quorum = quorum_;
 }
 
+void QuorumTransport::SetContextID(uint64_t contextID_)
+{
+	contextID = contextID_;
+}
+
 void QuorumTransport::SendMessage(uint64_t nodeID, Message& msg)
 {
 	if (priority)
-		return CONTEXT_TRANSPORT->SendPriorityMessage(nodeID, prefix, msg);
+		return CONTEXT_TRANSPORT->SendPriorityMessage(nodeID, contextID, msg);
 	else
-		return CONTEXT_TRANSPORT->SendMessage(nodeID, prefix, msg);
+		return CONTEXT_TRANSPORT->SendMessage(nodeID, contextID, msg);
 }
 
 void QuorumTransport::BroadcastMessage(Message& msg)
@@ -42,8 +42,8 @@ void QuorumTransport::BroadcastMessage(Message& msg)
 	{
 		nodeID = nodes[i];
 		if (priority)
-			CONTEXT_TRANSPORT->SendPriorityMessage(nodeID, prefix, msg);
+			CONTEXT_TRANSPORT->SendPriorityMessage(nodeID, contextID, msg);
 		else
-			CONTEXT_TRANSPORT->SendMessage(nodeID, prefix, msg);
+			CONTEXT_TRANSPORT->SendMessage(nodeID, contextID, msg);
 	}
 }

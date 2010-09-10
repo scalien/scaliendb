@@ -1,7 +1,7 @@
 #include "ContextTransport.h"
-#include "ReplicationConfig.h"
-#include "Quorums/QuorumContext.h"
 #include "System/Config.h"
+#include "Framework/Replication/ReplicationConfig.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 
 static uint64_t Hash(uint64_t ID)
 {
@@ -50,30 +50,62 @@ QuorumContext* ContextTransport::GetQuorumContext(uint64_t contextID)
 	return pcontext;
 }
 
-void ContextTransport::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
+void ContextTransport::SendClusterMessage(uint64_t nodeID, Message& msg)
+{
+	Buffer prefix;
+	
+	prefix.Writef("%c:", PROTOCOL_CLUSTER);
+	ClusterTransport::SendMessage(nodeID, prefix, msg);
+}
+
+void ContextTransport::SendMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
+{
+	Buffer prefix;
+	
+	prefix.Writef("%c:%U", PROTOCOL_QUORUM, contextID);
+	ClusterTransport::SendMessage(nodeID, prefix, msg);
+}
+
+void ContextTransport::SendPriorityMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
+{
+	Buffer prefix;
+	
+	prefix.Writef("%c:%U", PROTOCOL_QUORUM, contextID);
+	ClusterTransport::SendPriorityMessage(nodeID, prefix, msg);
+}
+
+void ContextTransport::OnConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
 	if (clusterContext)
 		clusterContext->OnIncomingConnectionReady(nodeID, endpoint);
 }
 
-void ContextTransport::OnMessage(ReadBuffer msg)
+void ContextTransport::OnAwaitingNodeID(Endpoint endpoint)
 {
-	char proto;
+	if (clusterContext)
+		clusterContext->OnAwaitingNodeID(endpoint);
+}
+
+void ContextTransport::OnMessage(uint64_t nodeID, ReadBuffer msg)
+{
+	int			nread;\
+	char		proto;
 	
 	Log_Trace("%.*s", P(&msg));
 	
 	if (msg.GetLength() < 2)
 		ASSERT_FAIL();
 
-	proto = msg.GetCharAt(0);
-	assert(msg.GetCharAt(1) == ':');
+	nread = msg.Readf("%c:", &proto);
+	if (nread < 2)
+		ASSERT_FAIL();
 
 	msg.Advance(2);
 	
 	switch (proto)
 	{
 		case PROTOCOL_CLUSTER:
-			OnClusterMessage(msg);
+			OnClusterMessage(nodeID, msg);
 			break;
 		case PROTOCOL_QUORUM:
 			OnQuorumMessage(msg);
@@ -84,10 +116,19 @@ void ContextTransport::OnMessage(ReadBuffer msg)
 	}
 }
 
-void ContextTransport::OnClusterMessage(ReadBuffer& msg)
+void ContextTransport::OnClusterMessage(uint64_t nodeID, ReadBuffer& buffer)
 {
+	ClusterMessage msg;
+	
+	if (!msg.Read(buffer))
+	{
+		// TODO: this DropConnection() happens in the middle of a OnRead() / OnMessage() loop
+		CONTEXT_TRANSPORT->DropConnection(nodeID);
+		return;
+	}
+	
 	if (clusterContext)
-		clusterContext->OnClusterMessage(msg);
+		clusterContext->OnClusterMessage(nodeID, msg);
 }
 
 void ContextTransport::OnQuorumMessage(ReadBuffer& msg)

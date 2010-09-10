@@ -18,14 +18,15 @@ public:
 	QuorumTransport();
 	
 	void					SetPriority(bool priority);
-	void					SetPrefix(Buffer& prefix);
 	void					SetQuorum(Quorum* quorum);
+	void					SetContextID(uint64_t contextID);
 	
-	void					SendMessage(uint64_t nodeID,Message& msg);
+	void					SendMessage(uint64_t nodeID, Message& msg);
 	void					BroadcastMessage(Message& msg);
 
 private:
 	bool					priority;
+	uint64_t				contextID;
 	Buffer					prefix;
 	Quorum*					quorum;
 };

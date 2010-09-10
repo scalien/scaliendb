@@ -28,9 +28,19 @@ void ClusterConnection::SetEndpoint(Endpoint& endpoint_)
 	endpoint = endpoint_;
 }
 
+void ClusterConnection::SetProgress(Progress progress_)
+{
+	progress = progress_;
+}
+
 uint64_t ClusterConnection::GetNodeID()
 {
 	return nodeID;
+}
+
+Endpoint ClusterConnection::GetEndpoint()
+{
+	return endpoint;
 }
 
 ClusterConnection::Progress ClusterConnection::GetProgress()
@@ -54,9 +64,9 @@ void ClusterConnection::OnConnect()
 	
 	AsyncRead();	
 	
-	rb = transport->GetEndpoint().ToReadBuffer();
+	rb = transport->GetSelfEndpoint().ToReadBuffer();
 	// send my nodeID:endpoint
-	buffer.Writef("%U:%#R", transport->GetNodeID(), &rb);
+	buffer.Writef("%U:%#R", transport->GetSelfNodeID(), &rb);
 	WritePriority(buffer);
 
 	Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
@@ -88,15 +98,26 @@ void ClusterConnection::OnClose()
 
 bool ClusterConnection::OnMessage(ReadBuffer& msg)
 {
-	uint64_t			nodeID;
+	uint64_t			nodeID_;
 	ReadBuffer			buffer;
 	ClusterConnection*	dup;
 
 	if (progress == ClusterConnection::INCOMING)
 	{
-		msg.Readf("%U:%#R", &nodeID, &buffer);
-		dup = transport->GetConnection(nodeID);
-		if (dup && nodeID != this->nodeID)
+		if (msg.GetCharAt(0) == '*')
+		{
+			msg.Readf("*:%#R", &buffer);
+			endpoint.Set(buffer);
+			progress = ClusterConnection::AWAITING_NODEID;
+			Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
+			transport->AddConnection(this);
+			transport->OnAwaitingNodeID(endpoint);
+			return false;
+		}
+		
+		msg.Readf("%U:%#R", &nodeID_, &buffer);
+		dup = transport->GetConnection(nodeID_);
+		if (dup && nodeID_ != nodeID)
 		{
 			if (dup->progress == READY)
 			{
@@ -111,16 +132,16 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
 			}
 		}
 		progress = ClusterConnection::READY;
-		this->nodeID = nodeID;
-		this->endpoint.Set(buffer);
-		Log_Trace("Conn READY to node %" PRIu64 " at %s", this->nodeID, this->endpoint.ToString());
+		nodeID = nodeID_;
+		endpoint.Set(buffer);
+		Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
 		transport->AddConnection(this);
-		transport->OnIncomingConnectionReady(this->nodeID, this->endpoint);
+		transport->OnConnectionReady(nodeID, endpoint);
 	}
 	else if (progress == ClusterConnection::OUTGOING)
 		ASSERT_FAIL();
 	else
-		transport->OnMessage(msg); // pass msg to upper layer
+		transport->OnMessage(nodeID, msg); // pass msg to upper layer
 	
 	return false;
 }

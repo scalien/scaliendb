@@ -8,15 +8,16 @@ void ConfigContext::Start()
 {
 	replicatedLog.Init(this);
 	paxosLease.Init(this);
+	transport.SetContextID(0);
 	highestPaxosID = 0;
 	
 	paxosLease.AcquireLease();
 }
 
-void ConfigContext::Append(ConfigCommand msg)
+void ConfigContext::Append(ConfigCommand command)
 {
 	Buffer buffer;
-	msg.Write(nextValue);
+	command.Write(nextValue);
 
 	replicatedLog.TryAppendNextValue();
 }
@@ -110,10 +111,10 @@ void ConfigContext::OnAppend(ReadBuffer value, bool /*ownAppend*/)
 {
 	ConfigCommand command;
 
+	nextValue.Clear();
+
 	assert(command.Read(value));
 	controller->OnConfigCommand(command);
-
-	nextValue.Clear();
 }
 
 Buffer* ConfigContext::GetNextValue()

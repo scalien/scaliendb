@@ -38,7 +38,7 @@ bool ClientResponse::Failed(uint64_t commandID_)
 	return true;
 }
 
-bool ClientResponse::Read(ReadBuffer buffer)
+bool ClientResponse::Read(ReadBuffer& buffer)
 {
 	int			read;
 		

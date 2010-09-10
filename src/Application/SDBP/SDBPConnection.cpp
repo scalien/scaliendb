@@ -1,5 +1,6 @@
 #include "SDBPConnection.h"
 #include "SDBPServer.h"
+#include "SDBPContext.h"
 
 SDBPConnection::SDBPConnection()
 {
@@ -27,28 +28,28 @@ void SDBPConnection::SetContext(SDBPContext* context_)
 
 bool SDBPConnection::OnMessage(ReadBuffer& msg)
 {
-	ClientRequest	request;
-	ClientResponse	response;
-	
-	if (!request.Read(msg))
-	{
-		OnClose();
-		return true;
-	}
-
-	if (!context->IsValidRequest(request))
-	{
-		OnClose();
-		return true;
-	}
-
-	if (!context->ProcessRequest(this, request))
-	{
-		response.Failed(request.commandID);
-		SendResponse(response, true);
-	}
-	
-	return false;
+//	ClientRequest	request;
+//	ClientResponse	response;
+//	
+//	if (!request.Read(msg))
+//	{
+//		OnClose();
+//		return true;
+//	}
+//
+//	if (!context->IsValidRequest(request))
+//	{
+//		OnClose();
+//		return true;
+//	}
+//
+//	if (!context->ProcessRequest(this, request))
+//	{
+//		response.Failed(request.commandID);
+//		SendResponse(response, true);
+//	}
+//	
+//	return false;
 }
 
 void SDBPConnection::OnWrite()
@@ -72,7 +73,7 @@ void SDBPConnection::OnClose()
 		server->DeleteConn(this);
 }
 
-void SDBPConnection::OnComplete(Command& command)
+void SDBPConnection::OnComplete(Command* command)
 {
 	context->OnComplete(this, command);
 }

@@ -1,7 +1,7 @@
 #ifndef CONFIGCOMMAND_H
 #define CONFIGCOMMAND_H
 
-#include "Command.h"
+#include "Application/Common/Command.h"
 #include "System/Platform.h"
 #include "System/IO/Endpoint.h"
 #include "System/Buffers/ReadBuffer.h"
@@ -68,7 +68,7 @@ public:
 				 uint64_t databaseID, uint64_t tableID);
 	
 	/* Serialization */
-	bool		Read(ReadBuffer buffer);
+	bool		Read(ReadBuffer& buffer);
 	bool		Write(Buffer& buffer);
 };
 

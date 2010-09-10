@@ -8,17 +8,17 @@ void ClusterTransport::Init(uint64_t nodeID_, Endpoint& endpoint_)
 	server.SetTransport(this);
 }
 
-uint64_t ClusterTransport::GetNodeID()
+uint64_t ClusterTransport::GetSelfNodeID()
 {
 	return nodeID;
 }
 
-Endpoint& ClusterTransport::GetEndpoint()
+Endpoint& ClusterTransport::GetSelfEndpoint()
 {
 	return endpoint;
 }
 
-void ClusterTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
+void ClusterTransport::AddEndpoint(uint64_t nodeID, Endpoint& endpoint)
 {
 	ClusterConnection* conn;
 
@@ -37,6 +37,24 @@ void ClusterTransport::AddEndpoint(uint64_t nodeID, Endpoint endpoint)
 	conn->SetNodeID(nodeID);
 	conn->SetEndpoint(endpoint);
 	conn->Connect();	
+}
+
+bool ClusterTransport::SetNodeID(Endpoint& endpoint, uint64_t nodeID)
+{
+	ClusterConnection* it;
+	
+	for (it = conns.First(); it != NULL; it = conns.Next(it))
+	{
+		if (it->GetEndpoint() == endpoint)
+		{
+			assert(it->GetProgress() == ClusterConnection::AWAITING_NODEID);
+			it->SetNodeID(nodeID);
+			it->SetProgress(ClusterConnection::READY);
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 void ClusterTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
@@ -83,6 +101,30 @@ void ClusterTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Mess
 	conn->WritePriority(prefix, msgBuffer);
 }
 
+void ClusterTransport::DropConnection(uint64_t nodeID)
+{
+	ClusterConnection* conn;
+	
+	conn = GetConnection(nodeID);
+	
+	if (!conn)
+		return;
+		
+	DeleteConnection(conn);
+}
+
+void ClusterTransport::DropConnection(Endpoint endpoint)
+{
+	ClusterConnection* conn;
+	
+	conn = GetConnection(endpoint);
+	
+	if (!conn)
+		return;
+		
+	DeleteConnection(conn);
+}
+
 void ClusterTransport::AddConnection(ClusterConnection* conn)
 {
 	conns.Append(conn);
@@ -94,7 +136,20 @@ ClusterConnection* ClusterTransport::GetConnection(uint64_t nodeID)
 	
 	for (it = conns.First(); it != NULL; it = conns.Next(it))
 	{
-		if (it->GetNodeID() == nodeID)
+		if (it->GetNodeID() == nodeID && it->GetProgress() != ClusterConnection::AWAITING_NODEID)
+			return it;
+	}
+	
+	return NULL;
+}
+
+ClusterConnection* ClusterTransport::GetConnection(Endpoint& endpoint)
+{
+	ClusterConnection* it;
+	
+	for (it = conns.First(); it != NULL; it = conns.Next(it))
+	{
+		if (it->GetEndpoint() == endpoint)
 			return it;
 	}
 	
