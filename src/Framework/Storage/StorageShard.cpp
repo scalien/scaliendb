@@ -260,7 +260,7 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
 	if (midFi == NULL)
 		ASSERT_FAIL();
 	
-	next = files.Remove(midFi);
+	next = files.Next(midFi);
 	if (next != NULL)
 		endKey = next->key;
 	
@@ -268,20 +268,10 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
 	newFi = new StorageFileIndex;
 	newFi->SetKey(startKey, true);
 	newFi->index = newIndex++;
-	newFi->file = new StorageFile;
+	newFi->file = midFi->file->SplitFileByKey(startKey);
+	newShard->files.Insert(newFi);
 	
-	// move all key-values from the old file to the new one
-	cursor = new StorageCursor(this);
-	for (kv = cursor->Begin(startKey); kv != NULL; kv = cursor->Next())
-	{
-		newFi->file->Set(kv->key, kv->value);
-		midFi->file->Delete(kv->key);
-		if (ReadBuffer::Cmp(kv->key, endKey))
-			break;
-	}
-	delete cursor;
-	
-	for (fi = files.First(); fi != NULL; fi = next)
+	for (fi = next; fi != NULL; fi = next)
 	{
 		if (ReadBuffer::Cmp(startKey, fi->key) < 0)
 		{

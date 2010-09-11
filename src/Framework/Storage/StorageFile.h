@@ -32,9 +32,10 @@ public:
 
 	ReadBuffer				FirstKey();
 	bool					IsEmpty();
-
+	bool					IsNew();
 	bool					IsOverflowing();
 	StorageFile*			SplitFile();
+	StorageFile*			SplitFileByKey(ReadBuffer& key);
 
 	void					Read();
 	void					ReadRest();

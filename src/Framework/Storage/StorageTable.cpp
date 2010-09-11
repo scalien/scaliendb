@@ -229,17 +229,17 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
 	
 	for (fi = newSi->shard->files.First(); fi != NULL; fi = newSi->shard->files.Next(fi))
 	{
-		if (fi->file == NULL)
+		if (fi->file != NULL && fi->file->IsNew())
+		{
+			newSi->shard->WritePath(fi->filepath, fi->index);
+			fi->file->Open(fi->filepath.GetBuffer());
+		}
+		else
 		{
 			si->shard->WritePath(srcFile, fi->index);
 			newSi->shard->WritePath(dstFile, fi->index);
 			if (!FS_Rename(srcFile.GetBuffer(), dstFile.GetBuffer()))
 				ASSERT_FAIL();
-		}
-		else
-		{
-			newSi->shard->WritePath(fi->filepath, fi->index);
-			fi->file->Open(fi->filepath.GetBuffer());
 		}
 	}
 	

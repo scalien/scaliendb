@@ -44,6 +44,7 @@ public:
 	ReadBuffer					FirstKey();
 	bool						IsOverflowing();
 	StorageDataPage*			SplitDataPage();
+	StorageDataPage*			SplitDataPageByKey(ReadBuffer& key);
 	bool						HasCursors();
 	void						Detach();
 
