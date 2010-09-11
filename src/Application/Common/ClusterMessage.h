@@ -5,12 +5,15 @@
 #include "Framework/Messaging/Message.h"
 
 #define			CLUSTER_SET_NODEID		'N'
+#define			PRIMARY_LEASE			'L'
 
 class ClusterMessage : public Message
 {
 public:
 	char		type;
 	uint64_t	nodeID;
+	uint64_t	shardID;
+	unsigned	leaseTime;
 	
 	void		SetNodeID(uint64_t nodeID);
 	

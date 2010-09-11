@@ -24,7 +24,7 @@
 		5487BC41123A5E2000C235BA /* ClientResponse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC3B123A5E2000C235BA /* ClientResponse.cpp */; };
 		5487BC42123A5E2000C235BA /* ClusterMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC3D123A5E2000C235BA /* ClusterMessage.cpp */; };
 		5487BDCF123A738000C235BA /* ContextTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BDCD123A738000C235BA /* ContextTransport.cpp */; };
-		5487BDE0123A74FA00C235BA /* ClusterState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BDDF123A74FA00C235BA /* ClusterState.cpp */; };
+		5487BDE0123A74FA00C235BA /* StateProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BDDF123A74FA00C235BA /* StateProcessor.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
 		54AB8720122821EF00721A0F /* StorageShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8715122821EF00721A0F /* StorageShard.cpp */; };
 		54AB8721122821EF00721A0F /* StorageDataPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8716122821EF00721A0F /* StorageDataPage.cpp */; };
@@ -163,11 +163,17 @@
 		5487BDCC123A738000C235BA /* ContextTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContextTransport.h; sourceTree = "<group>"; };
 		5487BDCD123A738000C235BA /* ContextTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ContextTransport.cpp; sourceTree = "<group>"; };
 		5487BDCE123A738000C235BA /* ClusterContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterContext.h; sourceTree = "<group>"; };
-		5487BDDE123A74FA00C235BA /* ClusterState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterState.h; sourceTree = "<group>"; };
-		5487BDDF123A74FA00C235BA /* ClusterState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterState.cpp; sourceTree = "<group>"; };
+		5487BDDE123A74FA00C235BA /* State.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = State.h; path = src/Application/Controller/State.h; sourceTree = SOURCE_ROOT; };
+		5487BDDF123A74FA00C235BA /* StateProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StateProcessor.cpp; path = src/Application/Controller/StateProcessor.cpp; sourceTree = SOURCE_ROOT; };
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
+		54A861AC123BCE2900ECCBE5 /* ConfigDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigDatabase.h; sourceTree = "<group>"; };
+		54A861AD123BCE2900ECCBE5 /* ConfigShard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigShard.h; sourceTree = "<group>"; };
+		54A861AE123BCE2900ECCBE5 /* ClusterShardServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterShardServer.h; sourceTree = "<group>"; };
+		54A861AF123BCE2900ECCBE5 /* ConfigTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigTable.h; sourceTree = "<group>"; };
+		54A861B1123BCF6D00ECCBE5 /* ClusterShard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterShard.h; sourceTree = "<group>"; };
+		54A861B3123BD57E00ECCBE5 /* StateProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StateProcessor.h; sourceTree = "<group>"; };
 		54AB8715122821EF00721A0F /* StorageShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShard.cpp; sourceTree = "<group>"; };
 		54AB8716122821EF00721A0F /* StorageDataPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDataPage.cpp; sourceTree = "<group>"; };
 		54AB8717122821EF00721A0F /* StorageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFile.h; sourceTree = "<group>"; };
@@ -461,6 +467,21 @@
 			path = Application/Common;
 			sourceTree = "<group>";
 		};
+		54A861AB123BCE2900ECCBE5 /* State */ = {
+			isa = PBXGroup;
+			children = (
+				54A861AC123BCE2900ECCBE5 /* ConfigDatabase.h */,
+				54A861AF123BCE2900ECCBE5 /* ConfigTable.h */,
+				54A861AD123BCE2900ECCBE5 /* ConfigShard.h */,
+				54A861B1123BCF6D00ECCBE5 /* ClusterShard.h */,
+				54A861AE123BCE2900ECCBE5 /* ClusterShardServer.h */,
+				5487BDDE123A74FA00C235BA /* State.h */,
+				54A861B3123BD57E00ECCBE5 /* StateProcessor.h */,
+				5487BDDF123A74FA00C235BA /* StateProcessor.cpp */,
+			);
+			path = State;
+			sourceTree = "<group>";
+		};
 		54AB70EE12203CDF00721A0F /* Storage */ = {
 			isa = PBXGroup;
 			children = (
@@ -659,8 +680,7 @@
 		54FCF69811FDF4770075BBFF /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				5487BDDE123A74FA00C235BA /* ClusterState.h */,
-				5487BDDF123A74FA00C235BA /* ClusterState.cpp */,
+				54A861AB123BCE2900ECCBE5 /* State */,
 				54EA4F6D1237DC9F0095BF36 /* ConfigCommand.h */,
 				54EA4F6E1237DC9F0095BF36 /* ConfigCommand.cpp */,
 				54FCF69D11FDF4770075BBFF /* ConfigContext.h */,
@@ -876,7 +896,7 @@
 				5487BC41123A5E2000C235BA /* ClientResponse.cpp in Sources */,
 				5487BC42123A5E2000C235BA /* ClusterMessage.cpp in Sources */,
 				5487BDCF123A738000C235BA /* ContextTransport.cpp in Sources */,
-				5487BDE0123A74FA00C235BA /* ClusterState.cpp in Sources */,
+				5487BDE0123A74FA00C235BA /* StateProcessor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

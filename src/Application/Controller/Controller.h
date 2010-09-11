@@ -3,8 +3,8 @@
 
 #include "ConfigCommand.h"
 #include "ConfigContext.h"
-#include "ClusterState.h"
 #include "Application/Common/ClusterContext.h"
+#include "State/StateProcessor.h"
 
 class ClientConnection; // forward
 
@@ -42,7 +42,7 @@ public:
 private:
 	uint64_t		nextNodeID;
 	ConfigContext	configContext;
-	ClusterState	clusterState;
+	StateProcessor	stateProcessor;
 };
 
 #endif
