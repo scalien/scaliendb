@@ -11,29 +11,29 @@ bool ConfigCommand::RegisterShardServer(
 	return true;
 }
 
-bool ConfigCommand::SplitShard(
- uint64_t shardID_, uint64_t newShardID_, ReadBuffer& key_)
+bool ConfigCommand::CreateQuorum(
+ uint64_t quorumID_, char productionType_, NodeList& nodes_)
 {
-	type = CONFIG_SPLIT_SHARD;
-	shardID = shardID_;
-	newShardID = newShardID_;
-	key = key_;
+	type = CONFIG_CREATE_QUORUM;
+	quorumID = quorumID_;
+	productionType = productionType_;
+	nodes = nodes_;
 	return true;
 }
 
-bool ConfigCommand::IncreaseShardQuorum(
+bool ConfigCommand::IncreaseQuorum(
  uint64_t shardID_, uint64_t nodeID_)
 {
-	type = CONFIG_INCREASE_SHARDQUORUM;
+	type = CONFIG_INCREASE_QUORUM;
 	shardID = shardID_;
 	nodeID = nodeID_;
 	return true;
 }
 
-bool ConfigCommand::DecreaseShardQuorum(
+bool ConfigCommand::DecreaseQuorum(
  uint64_t shardID_, uint64_t nodeID_)
 {
-	type = CONFIG_DECREASE_SHARDQUORUM;
+	type = CONFIG_DECREASE_QUORUM;
 	shardID = shardID_;
 	nodeID = nodeID_;
 	return true;
@@ -66,12 +66,14 @@ bool ConfigCommand::DeleteDatabase(
 }
 
 bool ConfigCommand::CreateTable(
- uint64_t databaseID_, uint64_t tableID_, uint64_t shardID_, ReadBuffer& name_)
+ uint64_t databaseID_, uint64_t tableID_, uint64_t shardID_,
+ uint64_t quorumID_, ReadBuffer& name_)
 {
 	type = CONFIG_CREATE_TABLE;
 	databaseID = databaseID_;
 	tableID = tableID_;
 	shardID = shardID_;
+	quorumID = quorumID_;
 	name = name_;
 	return true;
 }
@@ -98,6 +100,8 @@ bool ConfigCommand::DeleteTable(
 bool ConfigCommand::Read(ReadBuffer& buffer)
 {
 	int			read;
+	unsigned	numNodes, i;
+	uint64_t	nodeID;
 	ReadBuffer	rb;
 		
 	if (buffer.GetLength() < 1)
@@ -111,16 +115,31 @@ bool ConfigCommand::Read(ReadBuffer& buffer)
 			 &type, &nodeID, &rb);
 			endpoint.Set(rb);
 			break;
-		case CONFIG_SPLIT_SHARD:
-			read = buffer.Readf("%c:%U:%U:%#R",
-			 &type, &shardID, &newShardID, &key);
-			break;
-		case CONFIG_INCREASE_SHARDQUORUM:
+		case CONFIG_CREATE_QUORUM:
+			read = buffer.Readf("%c:%U:%c:%U",
+			 &type, &quorumID, &productionType, numNodes);
+			 if (read < 0 || read == (signed)buffer.GetLength())
+				return false;
+			buffer.Advance(read);
+			for (i = 0; i < numNodes; i++)
+			{
+				read = buffer.Readf(":%U", nodeID);
+				if (read < 0)
+					return false;
+				buffer.Advance(read);
+				nodes.Append(nodeID);
+			}
+			if (buffer.GetLength() == 0)
+				return true;
+			else
+				return false;
+			break;		
+		case CONFIG_INCREASE_QUORUM:
 			read = buffer.Readf("%c:%U:%U",
 			 &type, &shardID, &nodeID);
 			break;
-		case CONFIG_DECREASE_SHARDQUORUM:
-			read = buffer.Readf("%c:%U:%U",
+		case CONFIG_DECREASE_QUORUM:
+			read = buffer.Readf("%c:%U:%U:%u",
 			 &type, &shardID, &nodeID);
 			break;
 
@@ -140,8 +159,8 @@ bool ConfigCommand::Read(ReadBuffer& buffer)
 
 		/* Table management */
 		case CONFIG_CREATE_TABLE:
-			read = buffer.Readf("%c:%U:%U:%U:%#R",
-			 &type, &databaseID, &tableID, &shardID, &name);
+			read = buffer.Readf("%c:%U:%U:%U:%U:%#R",
+			 &type, &databaseID, &tableID, &shardID, &quorumID, &name);
 			break;
 		case CONFIG_RENAME_TABLE:
 			read = buffer.Readf("%c:%U:%U:%#R",
@@ -161,6 +180,7 @@ bool ConfigCommand::Read(ReadBuffer& buffer)
 bool ConfigCommand::Write(Buffer& buffer)
 {
 	ReadBuffer		rb;
+	uint64_t*		it;
 	
 	switch (type)
 	{
@@ -170,15 +190,17 @@ bool ConfigCommand::Write(Buffer& buffer)
 			buffer.Writef("%c:%U:%#R",
 			 type, nodeID, &rb);
 			return true;
-		case CONFIG_SPLIT_SHARD:
-			buffer.Writef("%c:%U:%U:%#R",
-			 type, shardID, newShardID, &key);
+		case CONFIG_CREATE_QUORUM:
+			buffer.Writef("%c:%U:%c:%U",
+			 type, quorumID, productionType, nodes.GetLength());
+			for (it = nodes.First(); it != NULL; it = nodes.Next(it))
+				buffer.Appendf(":%U", *it);
 			break;
-		case CONFIG_INCREASE_SHARDQUORUM:
+		case CONFIG_INCREASE_QUORUM:
 			buffer.Writef("%c:%U:%U",
 			 type, shardID, nodeID);
 			break;
-		case CONFIG_DECREASE_SHARDQUORUM:
+		case CONFIG_DECREASE_QUORUM:
 			buffer.Writef("%c:%U:%U",
 			 type, shardID, nodeID);
 			break;
@@ -199,8 +221,8 @@ bool ConfigCommand::Write(Buffer& buffer)
 
 		/* Table management */
 		case CONFIG_CREATE_TABLE:
-			buffer.Writef("%c:%U:%U:%U:%#R",
-			 type, databaseID, tableID, shardID, &name);
+			buffer.Writef("%c:%U:%U:%U:%U:%#R",
+			 type, databaseID, tableID, shardID, quorumID, &name);
 			break;
 		case CONFIG_RENAME_TABLE:
 			buffer.Writef("%c:%U:%U:%#R",

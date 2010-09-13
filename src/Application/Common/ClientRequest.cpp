@@ -22,11 +22,21 @@ bool ClientRequest::GetMaster(uint64_t commandID_)
 	return true;
 }
 
+bool ClientRequest::CreateQuorum(uint64_t commandID_, char productionType_, NodeList nodes_)
+{
+	type = CLIENTREQUEST_CREATE_QUORUM;
+	commandID = commandID_;
+	productionType = productionType_;
+	nodes = nodes_;
+	return true;
+}
+
 bool ClientRequest::CreateDatabase(
- uint64_t commandID_, ReadBuffer& name_)
+ uint64_t commandID_, char productionType_, ReadBuffer& name_)
 {
 	type = CLIENTREQUEST_CREATE_DATABASE;
 	commandID = commandID_;
+	productionType = productionType_;
 	name = name_;
 	return true;
 }
@@ -51,11 +61,12 @@ bool ClientRequest::DeleteDatabase(
 }
 
 bool ClientRequest::CreateTable(
- uint64_t commandID_, uint64_t databaseID_, ReadBuffer& name_)
+ uint64_t commandID_, uint64_t databaseID_, uint64_t quorumID_, ReadBuffer& name_)
 {
 	type = CLIENTREQUEST_CREATE_TABLE;
 	commandID = commandID_;
 	databaseID = databaseID_;
+	quorumID = quorumID_;
 	name = name_;
 	return true;
 }
@@ -118,6 +129,8 @@ bool ClientRequest::Delete(
 bool ClientRequest::Read(ReadBuffer& buffer)
 {
 	int			read;
+	unsigned	i, numNodes;
+	uint64_t	nodeID;
 		
 	if (buffer.GetLength() < 1)
 		return false;
@@ -128,11 +141,33 @@ bool ClientRequest::Read(ReadBuffer& buffer)
 		case CLIENTREQUEST_GET_MASTER:
 			read = buffer.Readf("%c:%U",
 			 &type, &commandID);
+			break;
+
+		/* Quorum management */
+		case CLIENTREQUEST_CREATE_QUORUM:
+			read = buffer.Readf("%c:%U:%c:%U",
+			 &type, &commandID, &productionType, numNodes);
+			 if (read < 0 || read == (signed)buffer.GetLength())
+				return false;
+			buffer.Advance(read);
+			for (i = 0; i < numNodes; i++)
+			{
+				read = buffer.Readf(":%U", nodeID);
+				if (read < 0)
+					return false;
+				buffer.Advance(read);
+				nodes.Append(nodeID);
+			}
+			if (buffer.GetLength() == 0)
+				return true;
+			else
+				return false;
 			break;		
+
 		/* Database management */
 		case CLIENTREQUEST_CREATE_DATABASE:
-			read = buffer.Readf("%c:%U:%#R",
-			 &type, &commandID, &name);
+			read = buffer.Readf("%c:%U:%c:%#R",
+			 &type, &commandID, &productionType, &name);
 			break;
 		case CLIENTREQUEST_RENAME_DATABASE:
 			read = buffer.Readf("%c:%U:%U:%#R",
@@ -145,8 +180,8 @@ bool ClientRequest::Read(ReadBuffer& buffer)
 			
 		/* Table management */
 		case CLIENTREQUEST_CREATE_TABLE:
-			read = buffer.Readf("%c:%U:%U:%#R",
-			 &type, &commandID, &databaseID, &name);
+			read = buffer.Readf("%c:%U:%U:%U:%#R",
+			 &type, &commandID, &databaseID, &quorumID, &name);
 			break;
 		case CLIENTREQUEST_RENAME_TABLE:
 			read = buffer.Readf("%c:%U:%U:%U:%#R",
@@ -179,6 +214,8 @@ bool ClientRequest::Read(ReadBuffer& buffer)
 
 bool ClientRequest::Write(Buffer& buffer)
 {
+	uint64_t*	it;
+	
 	switch (type)
 	{
 		/* Master query */
@@ -186,10 +223,18 @@ bool ClientRequest::Write(Buffer& buffer)
 			buffer.Writef("%c:%U",
 			 type, commandID);
 			return true;
+
+		/* Quorum management */
+		case CLIENTREQUEST_CREATE_QUORUM:
+			buffer.Writef("%c:%U:%c:%U",
+			 type, commandID, productionType, nodes.GetLength());
+			for (it = nodes.First(); it != NULL; it = nodes.Next(it))
+				buffer.Appendf(":%U", *it);
+
 		/* Database management */
 		case CLIENTREQUEST_CREATE_DATABASE:
-			buffer.Writef("%c:%U:%#R",
-			 type, commandID, &name);
+			buffer.Writef("%c:%U:%c:%#R",
+			 type, commandID, productionType, &name);
 			return true;
 		case CLIENTREQUEST_RENAME_DATABASE:
 			buffer.Writef("%c:%U:%U:%#R",
@@ -202,8 +247,8 @@ bool ClientRequest::Write(Buffer& buffer)
 
 		/* Table management */
 		case CLIENTREQUEST_CREATE_TABLE:
-			buffer.Writef("%c:%U:%U:%#R",
-			 type, commandID, databaseID, &name);
+			buffer.Writef("%c:%U:%U:%U:%#R",
+			 type, commandID, databaseID, quorumID, &name);
 			return true;
 		case CLIENTREQUEST_RENAME_TABLE:
 			buffer.Writef("%c:%U:%U:%U:%#R",

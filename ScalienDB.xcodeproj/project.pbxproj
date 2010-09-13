@@ -175,6 +175,8 @@
 		54A861B3123BD57E00ECCBE5 /* StateProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StateProcessor.h; sourceTree = "<group>"; };
 		54A861C3123E207000ECCBE5 /* ShardServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardServer.cpp; sourceTree = "<group>"; };
 		54A861C4123E207000ECCBE5 /* ShardServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardServer.h; sourceTree = "<group>"; };
+		54A86659123E73D800ECCBE5 /* ConfigQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigQuorum.h; sourceTree = "<group>"; };
+		54A86738123E982800ECCBE5 /* ConfigShardServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigShardServer.h; sourceTree = "<group>"; };
 		54AB8715122821EF00721A0F /* StorageShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShard.cpp; sourceTree = "<group>"; };
 		54AB8716122821EF00721A0F /* StorageDataPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDataPage.cpp; sourceTree = "<group>"; };
 		54AB8717122821EF00721A0F /* StorageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFile.h; sourceTree = "<group>"; };
@@ -460,6 +462,8 @@
 		54A861AB123BCE2900ECCBE5 /* State */ = {
 			isa = PBXGroup;
 			children = (
+				54A86659123E73D800ECCBE5 /* ConfigQuorum.h */,
+				54A86738123E982800ECCBE5 /* ConfigShardServer.h */,
 				54A861AC123BCE2900ECCBE5 /* ConfigDatabase.h */,
 				54A861AF123BCE2900ECCBE5 /* ConfigTable.h */,
 				54A861AD123BCE2900ECCBE5 /* ConfigShard.h */,

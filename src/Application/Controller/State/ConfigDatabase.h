@@ -2,10 +2,11 @@
 #define CONFIGDATABASE_H
 
 #include "System/Common.h"
-#include "System/Containers/InList.h"
+#include "System/Containers/List.h"
 #include "System/Buffers/Buffer.h"
-#include "ConfigTable.h"
 
+#define	CONFIG_DATABASE_PRODUCTION		'P'
+#define	CONFIG_DATABASE_TEST			'T'
 
 /*
 ===============================================================================
@@ -18,15 +19,15 @@
 class ConfigDatabase
 {
 public:
-	typedef InList<ConfigTable> TableList;
-
-	uint64_t		databaseID;
-	Buffer			name;
+	uint64_t			databaseID;
+	Buffer				name;
 	
-	TableList		tables;
+	List<uint64_t>		tables;
 	
-	ConfigDatabase*	prev;
-	ConfigDatabase*	next;
+	char				productionType;
+	
+	ConfigDatabase*		prev;
+	ConfigDatabase*		next;
 };
 
 #endif

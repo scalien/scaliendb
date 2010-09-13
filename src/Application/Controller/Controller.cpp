@@ -59,8 +59,16 @@ uint64_t Controller::GetMaster()
 	return configContext.GetLeader();
 }
 
-bool Controller::ProcessClientCommand(ClientConnection* /*conn*/, ConfigCommand& /*command*/)
+bool Controller::ProcessClientCommand(ClientConnection* /*conn*/, ConfigCommand& command)
 {
+	// TODO:
+	// 1. verify all the IDs
+	// 2. complete the command where necessary
+	
+	if (command.type == CONFIG_CREATE_TABLE)
+	{	
+		// TODO: assign a new shardID
+	}
 	return true;
 }
 
@@ -85,6 +93,8 @@ void Controller::OnConfigCommand(ConfigCommand& command)
 		clusterMessage.SetNodeID(command.nodeID);
 		CONTEXT_TRANSPORT->SendClusterMessage(command.nodeID, clusterMessage);
 	}
+	
+	
 }
 
 void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& /*msg*/)

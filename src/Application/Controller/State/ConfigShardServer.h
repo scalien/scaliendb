@@ -1,28 +1,19 @@
-#ifndef CONFIGTABLE_H
-#define CONFIGTABLE_H
+#ifndef CONFIGQUORUM_H
+#define CONFIGQUORUM_H
 
 #include "System/Common.h"
 #include "System/Containers/List.h"
-#include "System/Buffers/Buffer.h"
+
+#define	CONFIG_QUORUM_PRODUCTION		'P'
+#define	CONFIG_QUORUM_TEST				'T'
 
 /*
 ===============================================================================
 
- ConfigTable
+ ConfigQuorum
 
 ===============================================================================
 */
 
-class ConfigTable
+class ConfigQuorum
 {
-public:	
-	uint64_t		tableID;
-	Buffer			name;
-	
-	List<uint64_t>	shards;
-	
-	ConfigTable*	prev;
-	ConfigTable*	next;
-};
-
-#endif

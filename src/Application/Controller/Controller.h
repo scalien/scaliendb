@@ -19,6 +19,8 @@ class ClientConnection; // forward
 class Controller : public ClusterContext
 {
 public:
+	typedef List<ConfigCommand> CommandList;
+
 	void			Init();
 	
 	/* For the client side */
@@ -47,6 +49,7 @@ private:
 	uint64_t		nextNodeID;
 	ConfigContext	configContext;
 	StateProcessor	stateProcessor;
+	CommandList		commands;
 };
 
 #endif

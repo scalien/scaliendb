@@ -45,9 +45,15 @@ ConfigCommand SDBPControllerContext::ConvertRequest(ClientRequest& request)
 	
 	switch (request.type)
 	{
+		case CLIENTREQUEST_CREATE_QUORUM:
+			command.type = CONFIG_CREATE_QUORUM;
+			command.productionType = request.productionType;
+			command.nodes = request.nodes;
+			break;
 		case CLIENTREQUEST_CREATE_DATABASE:
 			command.type = CONFIG_CREATE_DATABASE;
 			command.name = request.name;
+			command.productionType = request.productionType;
 			break;
 		case CLIENTREQUEST_RENAME_DATABASE:
 			command.type = CONFIG_RENAME_DATABASE;
@@ -61,6 +67,7 @@ ConfigCommand SDBPControllerContext::ConvertRequest(ClientRequest& request)
 		case CLIENTREQUEST_CREATE_TABLE:
 			command.type = CONFIG_CREATE_TABLE;
 			command.databaseID = request.databaseID;
+			command.quorumID = request.quorumID;
 			command.name = request.name;
 			break;
 		case CLIENTREQUEST_RENAME_TABLE:
