@@ -34,8 +34,8 @@ void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 {
 	ClusterConnection* conn;
 
-	if (nodeID < this->nodeID)
-		return;
+//	if (nodeID < this->nodeID)
+//		return;
 	
 	conn = GetConnection(nodeID);
 	if (conn != NULL)
@@ -135,6 +135,22 @@ void ClusterTransport::DropConnection(Endpoint endpoint)
 		return;
 		
 	DeleteConnection(conn);
+}
+
+bool ClusterTransport::GetNextWaiting(Endpoint& endpoint)
+{
+	ClusterConnection* it;
+	
+	for (it = conns.First(); it != NULL; it = conns.Next(it))
+	{
+		if (it->GetProgress() == ClusterConnection::AWAITING_NODEID)
+		{
+			endpoint = it->GetEndpoint();
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 void ClusterTransport::AddConnection(ClusterConnection* conn)

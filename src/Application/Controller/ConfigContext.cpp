@@ -4,13 +4,26 @@
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 #include "Controller.h"
 
-void ConfigContext::Start()
+void ConfigContext::Init(Controller* controller_, unsigned numControllers)
 {
+	uint64_t nodeID;
+	
+	controller = controller_;
+	
+	contextID = 0;
+	for (nodeID = 0; nodeID < numControllers; nodeID++)
+		quorum.AddNode(nodeID);
+
+//	transport.SetPriority(); // TODO
+	transport.SetQuorum(&quorum);
+	transport.SetContextID(contextID);
+	
+	
 	replicatedLog.Init(this);
 	paxosLease.Init(this);
 	transport.SetContextID(0);
-	highestPaxosID = 0;
-	
+	highestPaxosID = 0;	
+
 	paxosLease.AcquireLease();
 }
 
@@ -22,29 +35,9 @@ void ConfigContext::Append(ConfigCommand command)
 	replicatedLog.TryAppendNextValue();
 }
 
-void ConfigContext::SetController(Controller* controller_)
+bool ConfigContext::IsAppending()
 {
-	controller = controller_;
-}
-
-void ConfigContext::SetContextID(uint64_t contextID_)
-{
-	contextID = contextID_;
-}
-
-void ConfigContext::SetQuorum(SingleQuorum& quorum_)
-{
-	quorum = quorum_;
-}
-
-void ConfigContext::SetDatabase(QuorumDatabase& database_)
-{
-	database = database_;
-}
-
-void ConfigContext::SetTransport(QuorumTransport& transport_)
-{
-	transport = transport_;
+	return (nextValue.GetLength() != 0);
 }
 
 bool ConfigContext::IsLeaderKnown()
@@ -65,10 +58,13 @@ uint64_t ConfigContext::GetLeader()
 void ConfigContext::OnLearnLease()
 {
 	replicatedLog.OnLearnLease();
+	
+	controller->OnLearnLease();
 }
 
 void ConfigContext::OnLeaseTimeout()
 {
+	nextValue.Clear();
 	replicatedLog.OnLeaseTimeout();
 }
 

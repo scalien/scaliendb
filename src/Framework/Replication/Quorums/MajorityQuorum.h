@@ -1,22 +1,22 @@
-#ifndef SINGLEQUORUM_H
-#define SINGLEQUORUM_H
+#ifndef MAJORITYQUORUM_H
+#define MAJORITYQUORUM_H
 
 #include "Quorum.h"
 
 /*
 ===============================================================================
 
- SingleQuroum
+ MajorityQuorum
 
  Simple majority vote, the default for Paxos as described by Lamport.
 
 ===============================================================================
 */
 
-class SingleQuorum : public Quorum
+class MajorityQuorum : public Quorum
 {
 public:
-	SingleQuorum();
+	MajorityQuorum();
 	
 	void				AddNode(uint64_t nodeID);
 	unsigned			GetNumNodes() const;
@@ -33,15 +33,15 @@ private:
 /*
 ===============================================================================
 
- SingleQuroumRound
+ MajorityQuorumVote
 
 ===============================================================================
 */
 
-class SingleQuorumVote : public QuorumVote
+class MajorityQuorumVote : public QuorumVote
 {
 public:
-	SingleQuorumVote();
+	MajorityQuorumVote();
 	
 	void				RegisterAccepted(uint64_t nodeID);
 	void				RegisterRejected(uint64_t nodeID);
@@ -57,7 +57,7 @@ private:
 	unsigned			numAccepted;
 	unsigned			numRejected;
 	
-	friend class SingleQuorum;
+	friend class MajorityQuorum;
 };
 
 

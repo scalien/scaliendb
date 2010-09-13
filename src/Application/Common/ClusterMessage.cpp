@@ -8,10 +8,34 @@ void ClusterMessage::SetNodeID(uint64_t nodeID_)
 
 bool ClusterMessage::Read(ReadBuffer& buffer)
 {
-	// TODO:
-}
+	int			read;
+		
+	if (buffer.GetLength() < 1)
+		return false;
+	
+	switch (buffer.GetCharAt(0))
+	{
+		case CLUSTER_SET_NODEID:
+			read = buffer.Readf("%c:%U",
+			 &type, &nodeID);
+			break;		
+		default:
+			return false;
+	}
+	
+	return (read == (signed)buffer.GetLength() ? true : false);}
 
 bool ClusterMessage::Write(Buffer& buffer)
 {
-	// TODO:
+	switch (type)
+	{
+		case CLUSTER_SET_NODEID:
+			buffer.Writef("%c:%U",
+			 type, nodeID);
+			return true;
+		default:
+			return false;
+	}
+	
+	return true;
 }

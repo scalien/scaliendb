@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		546E119511D8F4C800867EE1 /* SingleQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119411D8F4C800867EE1 /* SingleQuorum.cpp */; };
-		546E119811D8F4D300867EE1 /* DoubleQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */; };
+		546E119511D8F4C800867EE1 /* MajorityQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119411D8F4C800867EE1 /* MajorityQuorum.cpp */; };
+		546E119811D8F4D300867EE1 /* DoubleMajorityQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119711D8F4D300867EE1 /* DoubleMajorityQuorum.cpp */; };
 		546E14AE11DA2A7500867EE1 /* ReplicationConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E14AD11DA2A7500867EE1 /* ReplicationConfig.cpp */; };
 		546E1F9D11EB827300867EE1 /* TCPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9011EB827300867EE1 /* TCPConnection.cpp */; };
 		546E1F9E11EB827300867EE1 /* TCPWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E1F9211EB827300867EE1 /* TCPWriter.cpp */; };
@@ -71,7 +71,6 @@
 		54FCF78511FEF3BA0075BBFF /* PaxosLeaseProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */; };
 		54FCF78611FEF3BA0075BBFF /* PaxosLeaseAcceptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868111C7D8E400A6CB16 /* PaxosLeaseAcceptor.cpp */; };
 		54FCF78711FEF3BA0075BBFF /* PaxosLeaseLearner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 541D868411C7D8E400A6CB16 /* PaxosLeaseLearner.cpp */; };
-		8DD76F6A0486A84900D96B5E /* Rowscale.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859E8B029090EE04C91782 /* Rowscale.1 */; };
 		9A26D69E11F4BDE2006A2814 /* HTTPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D68D11F4BDE2006A2814 /* HTTPConnection.cpp */; };
 		9A26D69F11F4BDE2006A2814 /* HTTPFileHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69011F4BDE2006A2814 /* HTTPFileHandler.cpp */; };
 		9A26D6A011F4BDE2006A2814 /* HTTPRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69211F4BDE2006A2814 /* HTTPRequest.cpp */; };
@@ -102,7 +101,6 @@
 			dstPath = /usr/share/man/man1/;
 			dstSubfolderSpec = 0;
 			files = (
-				8DD76F6A0486A84900D96B5E /* Rowscale.1 in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -121,10 +119,10 @@
 		541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseProposer.cpp; sourceTree = "<group>"; };
 		541D868911C7D8E400A6CB16 /* PaxosLeaseProposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposer.h; sourceTree = "<group>"; };
 		546E119011D8F48500867EE1 /* Quorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quorum.h; sourceTree = "<group>"; };
-		546E119311D8F4C800867EE1 /* SingleQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SingleQuorum.h; sourceTree = "<group>"; };
-		546E119411D8F4C800867EE1 /* SingleQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SingleQuorum.cpp; sourceTree = "<group>"; };
-		546E119611D8F4D300867EE1 /* DoubleQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleQuorum.h; sourceTree = "<group>"; };
-		546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DoubleQuorum.cpp; sourceTree = "<group>"; };
+		546E119311D8F4C800867EE1 /* MajorityQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MajorityQuorum.h; sourceTree = "<group>"; };
+		546E119411D8F4C800867EE1 /* MajorityQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MajorityQuorum.cpp; sourceTree = "<group>"; };
+		546E119611D8F4D300867EE1 /* DoubleMajorityQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleMajorityQuorum.h; sourceTree = "<group>"; };
+		546E119711D8F4D300867EE1 /* DoubleMajorityQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DoubleMajorityQuorum.cpp; sourceTree = "<group>"; };
 		546E141B11DA0AE900867EE1 /* ReplicationConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationConfig.h; sourceTree = "<group>"; };
 		546E143B11DA0CF600867EE1 /* todo.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
 		546E145711DA173300867EE1 /* QuorumContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumContext.h; sourceTree = "<group>"; };
@@ -269,7 +267,7 @@
 		54FCF69D11FDF4770075BBFF /* ConfigContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigContext.h; sourceTree = "<group>"; };
 		54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataChunkContext.cpp; sourceTree = "<group>"; };
 		54FCF6A011FDF4770075BBFF /* DataChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataChunkContext.h; sourceTree = "<group>"; };
-		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
+		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = ScalienDB; path = /Users/mtrencseni/Code/ScalienDB/build/Debug/ScalienDB; sourceTree = "<absolute>"; };
 		9A10D408120874E90009ABA7 /* DataService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataService.h; sourceTree = "<group>"; };
 		9A26D68D11F4BDE2006A2814 /* HTTPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPConnection.cpp; path = Application/HTTP/HTTPConnection.cpp; sourceTree = "<group>"; };
 		9A26D68E11F4BDE2006A2814 /* HTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPConnection.h; path = Application/HTTP/HTTPConnection.h; sourceTree = "<group>"; };
@@ -313,7 +311,6 @@
 		9ACF2B231236944100247703 /* StorageShardIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShardIndex.cpp; sourceTree = "<group>"; };
 		9ACF2D701237975900247703 /* StorageFileHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileHeader.h; sourceTree = "<group>"; };
 		9ACF2D711237975900247703 /* StorageFileHeader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileHeader.cpp; sourceTree = "<group>"; };
-		C6859E8B029090EE04C91782 /* Rowscale.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = Rowscale.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -331,8 +328,6 @@
 			isa = PBXGroup;
 			children = (
 				08FB7795FE84155DC02AAC07 /* Source */,
-				C6859E8C029090F304C91782 /* Documentation */,
-				1AB674ADFE9D54B511CA2CBB /* Products */,
 			);
 			name = ScalienDB;
 			sourceTree = "<group>";
@@ -343,14 +338,6 @@
 				54B7F74111BE5EF30076BC62 /* src */,
 			);
 			name = Source;
-			sourceTree = "<group>";
-		};
-		1AB674ADFE9D54B511CA2CBB /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				8DD76F6C0486A84900D96B5E /* ScalienDB */,
-			);
-			name = Products;
 			sourceTree = "<group>";
 		};
 		541D7E6F11C64EB600A6CB16 /* Framework */ = {
@@ -400,10 +387,10 @@
 			isa = PBXGroup;
 			children = (
 				546E119011D8F48500867EE1 /* Quorum.h */,
-				546E119311D8F4C800867EE1 /* SingleQuorum.h */,
-				546E119411D8F4C800867EE1 /* SingleQuorum.cpp */,
-				546E119611D8F4D300867EE1 /* DoubleQuorum.h */,
-				546E119711D8F4D300867EE1 /* DoubleQuorum.cpp */,
+				546E119311D8F4C800867EE1 /* MajorityQuorum.h */,
+				546E119411D8F4C800867EE1 /* MajorityQuorum.cpp */,
+				546E119611D8F4D300867EE1 /* DoubleMajorityQuorum.h */,
+				546E119711D8F4D300867EE1 /* DoubleMajorityQuorum.cpp */,
 				546E181611DDD4DF00867EE1 /* QuorumTransport.h */,
 				546E28D311F0816E00867EE1 /* QuorumTransport.cpp */,
 				54FCEAF711F710C20075BBFF /* QuorumDatabase.h */,
@@ -776,14 +763,6 @@
 			name = Test;
 			sourceTree = "<group>";
 		};
-		C6859E8C029090F304C91782 /* Documentation */ = {
-			isa = PBXGroup;
-			children = (
-				C6859E8B029090EE04C91782 /* Rowscale.1 */,
-			);
-			name = Documentation;
-			sourceTree = "<group>";
-		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -844,8 +823,8 @@
 				54FA694511C2458A00FF4EF6 /* Socket_Posix.cpp in Sources */,
 				54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */,
 				54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */,
-				546E119511D8F4C800867EE1 /* SingleQuorum.cpp in Sources */,
-				546E119811D8F4D300867EE1 /* DoubleQuorum.cpp in Sources */,
+				546E119511D8F4C800867EE1 /* MajorityQuorum.cpp in Sources */,
+				546E119811D8F4D300867EE1 /* DoubleMajorityQuorum.cpp in Sources */,
 				546E14AE11DA2A7500867EE1 /* ReplicationConfig.cpp in Sources */,
 				546E1F9D11EB827300867EE1 /* TCPConnection.cpp in Sources */,
 				546E1F9E11EB827300867EE1 /* TCPWriter.cpp in Sources */,

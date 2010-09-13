@@ -2,7 +2,7 @@
 #define DATACHUNKCONTEXT_H
 
 #include "Framework/Replication/Quorums/QuorumContext.h"
-#include "Framework/Replication/Quorums/SingleQuorum.h"
+#include "Framework/Replication/Quorums/MajorityQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "Application/DataNode/DataMessage.h"
@@ -56,7 +56,7 @@ private:
 	void							OnClusterMessage(ReadBuffer buffer);
 	void							RegisterPaxosID(uint64_t paxosID);
 
-	SingleQuorum					quorum;
+	MajorityQuorum					quorum;
 	QuorumDatabase					database;
 	QuorumTransport					transport;
 

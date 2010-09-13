@@ -1,5 +1,5 @@
-#ifndef DOUBLEQUORUM_H
-#define DOUBLEQUORUM_H
+#ifndef DOUBLEMAJORITYQUORUM_H
+#define DOUBLEMAJORITYQUORUM_H
 
 #include "Quorum.h"
 
@@ -16,10 +16,10 @@
 ===============================================================================
 */
 
-class DoubleQuorum : public Quorum
+class DoubleMajorityQuorum : public Quorum
 {
 public:
-	DoubleQuorum();
+	DoubleMajorityQuorum();
 	
 	void				AddNode(unsigned group, uint64_t nodeID);
 	// add nodes in group order!
@@ -37,15 +37,15 @@ private:
 /*
 ===============================================================================
 
- DoubleQuroumRound
+ DoubleQuroumQuorumVote
 
 ===============================================================================
 */
 
-class DoubleQuorumVote : public QuorumVote
+class DoubleMajorityQuorumVote : public QuorumVote
 {
 public:
-	DoubleQuorumVote();
+	DoubleMajorityQuorumVote();
 	
 	void				RegisterAccepted(uint64_t nodeID);
 	void				RegisterRejected(uint64_t nodeID);
@@ -61,7 +61,7 @@ private:
 	unsigned			numAccepted[2];
 	unsigned			numRejected[2];
 
-	friend class DoubleQuorum;
+	friend class DoubleMajorityQuorum;
 };
 
 

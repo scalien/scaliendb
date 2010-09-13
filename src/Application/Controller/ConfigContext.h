@@ -2,7 +2,7 @@
 #define CONFIGCONTEXT_H
 
 #include "Framework/Replication/Quorums/QuorumContext.h"
-#include "Framework/Replication/Quorums/SingleQuorum.h"
+#include "Framework/Replication/Quorums/MajorityQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "ConfigCommand.h"
@@ -20,15 +20,11 @@ class Controller; // forward
 class ConfigContext : public QuorumContext
 {
 public:
-	void							Start();
+	void							Init(Controller* controller, unsigned numControllers);
+	void							SetController(Controller* controller);
 	
 	void							Append(ConfigCommand command);
-	
-	void							SetController(Controller* controller);
-	void							SetContextID(uint64_t contextID);
-	void							SetQuorum(SingleQuorum& quorum);
-	void							SetDatabase(QuorumDatabase& database);
-	void							SetTransport(QuorumTransport& transport);
+	bool							IsAppending();
 	
 	/* ---------------------------------------------------------------------------------------- */
 	/* QuorumContext interface:																	*/
@@ -60,7 +56,7 @@ private:
 	void							RegisterPaxosID(uint64_t paxosID);
 
 	Controller*						controller;
-	SingleQuorum					quorum;
+	MajorityQuorum					quorum;
 	QuorumDatabase					database;
 	QuorumTransport					transport;
 	ReplicatedLog					replicatedLog;

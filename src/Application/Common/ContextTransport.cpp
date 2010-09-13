@@ -54,11 +54,11 @@ void ContextTransport::SendClusterMessage(uint64_t nodeID, Message& msg)
 {
 	Buffer prefix;
 	
-	prefix.Writef("%c:", PROTOCOL_CLUSTER);
-	ClusterTransport::SendMessage(nodeID, prefix, msg);
+	prefix.Writef("%c", PROTOCOL_CLUSTER);
+	ClusterTransport::SendPriorityMessage(nodeID, prefix, msg);
 }
 
-void ContextTransport::SendMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
+void ContextTransport::SendQuorumMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
 {
 	Buffer prefix;
 	
@@ -66,7 +66,7 @@ void ContextTransport::SendMessage(uint64_t nodeID, uint64_t contextID, Message&
 	ClusterTransport::SendMessage(nodeID, prefix, msg);
 }
 
-void ContextTransport::SendPriorityMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
+void ContextTransport::SendPriorityQuorumMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
 {
 	Buffer prefix;
 	

@@ -1,12 +1,12 @@
-#include "SingleQuorum.h"
+#include "MajorityQuorum.h"
 #include "System/Common.h"
 
-SingleQuorum::SingleQuorum()
+MajorityQuorum::MajorityQuorum()
 {
 	numNodes = 0;
 }
 
-void SingleQuorum::AddNode(uint64_t nodeID)
+void MajorityQuorum::AddNode(uint64_t nodeID)
 {
 	if (numNodes >= SIZE(nodes))
 		ASSERT_FAIL();
@@ -19,59 +19,59 @@ void SingleQuorum::AddNode(uint64_t nodeID)
 	numNodes++;
 }
 
-unsigned SingleQuorum::GetNumNodes() const
+unsigned MajorityQuorum::GetNumNodes() const
 {
 	return numNodes;
 }
 
-const uint64_t* SingleQuorum::GetNodes() const
+const uint64_t* MajorityQuorum::GetNodes() const
 {
 	return (const uint64_t*) &nodes;
 }
 
-QuorumVote* SingleQuorum::NewVote() const
+QuorumVote* MajorityQuorum::NewVote() const
 {
-	SingleQuorumVote* round;
+	MajorityQuorumVote* round;
 	
-	round = new SingleQuorumVote;
+	round = new MajorityQuorumVote;
 	
 	round->numNodes = numNodes;
 	
 	return round;
 }
 
-SingleQuorumVote::SingleQuorumVote()
+MajorityQuorumVote::MajorityQuorumVote()
 {
 	Reset();
 }
 
-void SingleQuorumVote::RegisterAccepted(uint64_t)
+void MajorityQuorumVote::RegisterAccepted(uint64_t)
 {
 	numAccepted++;
 }
 
-void SingleQuorumVote::RegisterRejected(uint64_t)
+void MajorityQuorumVote::RegisterRejected(uint64_t)
 {
 	numRejected++;
 }
 
-void SingleQuorumVote::Reset()
+void MajorityQuorumVote::Reset()
 {
 	numAccepted = 0;
 	numRejected = 0;
 }
 
-bool SingleQuorumVote::IsRejected() const
+bool MajorityQuorumVote::IsRejected() const
 {
 	return (numRejected >= ceil((double)(numNodes) / 2));
 }
 
-bool SingleQuorumVote::IsAccepted() const
+bool MajorityQuorumVote::IsAccepted() const
 {
 	return (numAccepted >= ceil((double)(numNodes+1) / 2));
 }
 
-bool SingleQuorumVote::IsComplete() const
+bool MajorityQuorumVote::IsComplete() const
 {
 	return ((numAccepted + numRejected) == numNodes);
 }

@@ -1,12 +1,12 @@
-#include "DoubleQuorum.h"
+#include "DoubleMajorityQuorum.h"
 #include "System/Common.h"
 
-DoubleQuorum::DoubleQuorum()
+DoubleMajorityQuorum::DoubleMajorityQuorum()
 {
 	numNodes[0] = numNodes[1] = 0;
 }
 
-void DoubleQuorum::AddNode(unsigned group, uint64_t nodeID)
+void DoubleMajorityQuorum::AddNode(unsigned group, uint64_t nodeID)
 {
 	assert(group < 2);
 	if (numNodes[1] > 0)
@@ -23,22 +23,22 @@ void DoubleQuorum::AddNode(unsigned group, uint64_t nodeID)
 	numNodes[group]++;
 }
 
-unsigned DoubleQuorum::GetNumNodes() const
+unsigned DoubleMajorityQuorum::GetNumNodes() const
 {
 	return numNodes[0] + numNodes[1];
 }
 
-const uint64_t* DoubleQuorum::GetNodes() const
+const uint64_t* DoubleMajorityQuorum::GetNodes() const
 {
 	return (const uint64_t*) &nodes;
 }
 
-QuorumVote* DoubleQuorum::NewVote() const
+QuorumVote* DoubleMajorityQuorum::NewVote() const
 {
 	unsigned i;
-	DoubleQuorumVote* round;
+	DoubleMajorityQuorumVote* round;
 	
-	round = new DoubleQuorumVote;
+	round = new DoubleMajorityQuorumVote;
 
 	for (i = 0; i < SIZE(round->nodes); i++)
 		round->nodes[i] = nodes[i];
@@ -46,12 +46,12 @@ QuorumVote* DoubleQuorum::NewVote() const
 	return round;
 }
 
-DoubleQuorumVote::DoubleQuorumVote()
+DoubleMajorityQuorumVote::DoubleMajorityQuorumVote()
 {
 	Reset();
 }
 
-void DoubleQuorumVote::RegisterAccepted(uint64_t nodeID)
+void DoubleMajorityQuorumVote::RegisterAccepted(uint64_t nodeID)
 {
 	unsigned i;
 	
@@ -67,7 +67,7 @@ void DoubleQuorumVote::RegisterAccepted(uint64_t nodeID)
 	numAccepted[1]++;
 }
 
-void DoubleQuorumVote::RegisterRejected(uint64_t nodeID)
+void DoubleMajorityQuorumVote::RegisterRejected(uint64_t nodeID)
 {
 	unsigned i;
 	
@@ -83,25 +83,25 @@ void DoubleQuorumVote::RegisterRejected(uint64_t nodeID)
 	numRejected[1]++;
 }
 
-void DoubleQuorumVote::Reset()
+void DoubleMajorityQuorumVote::Reset()
 {
 	numAccepted[0] = numAccepted[1] = 0;
 	numRejected[0] = numAccepted[1] = 0;
 }
 
-bool DoubleQuorumVote::IsRejected() const
+bool DoubleMajorityQuorumVote::IsRejected() const
 {
 	return ((numRejected[0] >= ceil((double)(numNodes[0]) / 2)) ||
 			(numRejected[1] >= ceil((double)(numNodes[1]) / 2)));
 }
 
-bool DoubleQuorumVote::IsAccepted() const
+bool DoubleMajorityQuorumVote::IsAccepted() const
 {
 	return ((numAccepted[0] >= ceil((double)(numNodes[0]+1) / 2)) &&
 			(numAccepted[1] >= ceil((double)(numNodes[1]+1) / 2)));
 }
 
-bool DoubleQuorumVote::IsComplete() const
+bool DoubleMajorityQuorumVote::IsComplete() const
 {
 	return (((numAccepted[0] + numRejected[0]) == numNodes[0]) &&
 			((numAccepted[1] + numRejected[1]) == numNodes[1]));

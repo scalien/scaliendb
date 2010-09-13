@@ -29,6 +29,7 @@ public:
 	bool			ProcessClientCommand(ClientConnection* conn, ConfigCommand& command);
 
 	/* For ConfigContext */
+	void			OnLearnLease();
 	void			OnConfigCommand(ConfigCommand& command);
 
 	/* ---------------------------------------------------------------------------------------- */
@@ -40,6 +41,9 @@ public:
 	/* ---------------------------------------------------------------------------------------- */
 
 private:
+	void			InitConfigContext();
+	void			TryRegisterShardServer(Endpoint& endpoint);
+	
 	uint64_t		nextNodeID;
 	ConfigContext	configContext;
 	StateProcessor	stateProcessor;

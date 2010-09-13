@@ -1,12 +1,47 @@
 #include "Controller.h"
 #include "ConfigCommand.h"
+#include "System/Config.h"
+#include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/ClientConnection.h"
 #include "Application/Common/ClusterMessage.h"
 
 void Controller::Init()
 {
-	//nextNodeID = table.GetUint64("nextNodeID");
+	unsigned		numControllers;
+	int64_t			nodeID;
+	const char*		str;
+	Endpoint		endpoint;
+	
+	nodeID = configFile.GetIntValue("nodeID", -1);
+	if (nodeID < 0)
+		ASSERT_FAIL();
+	
+	CONTEXT_TRANSPORT->SetSelfNodeID(nodeID);
+	REPLICATION_CONFIG->SetNodeID(nodeID);
+	
+	CONTEXT_TRANSPORT->SetClusterContext(this);
+	
+	InitConfigContext();
+	
+	//TODO:
+	nextNodeID = 100;
+
+	// connect to the controller nodes
+	numControllers = (unsigned) configFile.GetListNum("controllers");
+	for (nodeID = 0; nodeID < numControllers; nodeID++)
+	{
+		str = configFile.GetListValue("controllers", nodeID, "");
+		endpoint.Set(str);
+		CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
+	}
+
+	configContext.Init(this, numControllers);
+	CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
+}
+
+void Controller::InitConfigContext()
+{
 }
 
 bool Controller::IsMasterKnown()
@@ -24,9 +59,17 @@ uint64_t Controller::GetMaster()
 	return configContext.GetLeader();
 }
 
-bool Controller::ProcessClientCommand(ClientConnection* conn, ConfigCommand& command)
+bool Controller::ProcessClientCommand(ClientConnection* /*conn*/, ConfigCommand& /*command*/)
 {
 	return true;
+}
+
+void Controller::OnLearnLease()
+{
+	Endpoint endpoint;
+	
+	if (CONTEXT_TRANSPORT->GetNextWaiting(endpoint))
+		TryRegisterShardServer(endpoint);
 }
 
 void Controller::OnConfigCommand(ConfigCommand& command)
@@ -44,7 +87,7 @@ void Controller::OnConfigCommand(ConfigCommand& command)
 	}
 }
 
-void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& msg)
+void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& /*msg*/)
 {
 	if (!IsMaster())
 		return;	
@@ -55,14 +98,24 @@ void Controller::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpo
 }
 
 void Controller::OnAwaitingNodeID(Endpoint endpoint)
-{	
-	uint64_t		nodeID;
-	ConfigCommand	command;
+{
 	
 	if (!configContext.IsLeader())
-	{
 		return;
-	}
+
+	TryRegisterShardServer(endpoint);
+}
+
+void Controller::TryRegisterShardServer(Endpoint& endpoint)
+{
+	uint64_t		nodeID;
+	ConfigCommand	command;
+
+	// first look at existing endpoint => nodeID mapping
+	// and at least generate a warning?
+
+	if (configContext.IsAppending())
+		return;
 
 	nodeID = nextNodeID++;
 	command.RegisterShardServer(nodeID, endpoint);

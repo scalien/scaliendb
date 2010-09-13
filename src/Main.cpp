@@ -2,6 +2,7 @@
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
+#include "Application/Common/ContextTransport.h"
 #include "Application/Controller/Controller.h"
 #include "Application/ShardServer/ShardServer.h"
 
@@ -10,6 +11,42 @@
 #else
 #define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING
 #endif
+
+void InitLog();
+bool IsController();
+void InitContextTransport();
+
+int main(int argc, char** argv)
+{
+	Controller*			controller;
+	ShardServer*		shardServer;
+	bool				isController;
+	
+	if (argc < 2)
+		ASSERT_FAIL();
+		
+	configFile.Init(argv[1]);
+	InitLog();
+	IOProcessor::Init(1024);
+	InitContextTransport();
+	
+	isController = IsController();	
+	Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
+	if (isController)
+	{
+		controller = new Controller;
+		controller->Init();
+	}
+	else
+	{
+		shardServer = new ShardServer;
+		shardServer->Init();
+	}
+	
+	EventLoop::Init();
+	EventLoop::Run();
+	EventLoop::Shutdown();
+}
 
 void InitLog()
 {
@@ -42,43 +79,22 @@ bool IsController()
 {
 	const char* role;
 	
-	if (strcmp(role, "shard") == 0)
-		return false;
-	else
+	role = configFile.GetValue("role", "");
+	if (strcmp(role, "controller") == 0)
 		return true;
+	else
+		return false;
 }
 
-int main(int argc, char** argv)
+void InitContextTransport()
 {
-	Controller*			controller;
-	ShardServer*		shardServer;
-	bool				isController;
-	
-	if (argc < 2)
+	const char*		str;
+	Endpoint		endpoint;
+
+	// set my endpoint
+	str = configFile.GetValue("endpoint", "");
+	if (str == 0)
 		ASSERT_FAIL();
-		
-	configFile.Init(argv[1]);
-	
-	InitLog();
-
-	isController = IsController();
-	
-	Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "DATA");
-
-	IOProcessor::Init(1024);
-	
-	if (isController)
-	{
-		controller = new Controller;
-		controller->Init();
-	}
-	else
-	{
-		shardServer = new ShardServer;
-		shardServer->Init();
-	}
-	
-	EventLoop::Init();
-	EventLoop::Run();
-	EventLoop::Shutdown();
+	endpoint.Set(str);
+	CONTEXT_TRANSPORT->Init(endpoint);
 }

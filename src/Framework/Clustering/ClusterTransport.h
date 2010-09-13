@@ -30,6 +30,8 @@ public:
 	virtual void				OnAwaitingNodeID(Endpoint endpoint)								= 0;
 	virtual void				OnMessage(uint64_t nodeID, ReadBuffer msg)						= 0;
 
+	bool						GetNextWaiting(Endpoint& endpoint);
+
 private:
 	// for ClusterConnection:
 	void						AddConnection(ClusterConnection* conn);
