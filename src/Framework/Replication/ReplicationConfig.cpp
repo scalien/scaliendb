@@ -58,3 +58,8 @@ uint64_t ReplicationConfig::NextProposalID(uint64_t proposalID)
 	
 	return nextProposalID;
 }
+
+void ReplicationConfig::Commit()
+{
+	// TODO:
+}

@@ -50,7 +50,7 @@ void PaxosProposer::Propose(Buffer& value)
 	if (IsActive())
 		ASSERT_FAIL();
 
-	state.proposedRunID = REPLICATED_CONFIG->GetRunID();
+	state.proposedRunID = REPLICATION_CONFIG->GetRunID();
 	state.proposedValue.Write(value);
 	
 	if (state.multi && state.numProposals == 0)
@@ -136,7 +136,7 @@ void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
 	{
 		// a majority have accepted our proposal, we have consensus
 		StopProposing();
-		omsg.LearnProposal(context->GetPaxosID(), REPLICATED_CONFIG->GetNodeID(), state.proposalID);
+		omsg.LearnProposal(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID);
 		BroadcastMessage(omsg);
 	}
 	else if (vote->IsComplete())
@@ -178,10 +178,10 @@ void PaxosProposer::StartPreparing()
 	NewVote();
 	state.preparing = true;
 	state.numProposals++;
-	state.proposalID = REPLICATED_CONFIG->NextProposalID(MAX(state.proposalID, state.highestPromisedProposalID));
+	state.proposalID = REPLICATION_CONFIG->NextProposalID(MAX(state.proposalID, state.highestPromisedProposalID));
 	state.highestReceivedProposalID = 0;
 	
-	omsg.PrepareRequest(context->GetPaxosID(), REPLICATED_CONFIG->GetNodeID(), state.proposalID);
+	omsg.PrepareRequest(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID);
 	BroadcastMessage(omsg);
 	
 	EventLoop::Reset(&prepareTimeout);
@@ -198,7 +198,7 @@ void PaxosProposer::StartProposing()
 	NewVote();
 	state.proposing = true;
 	
-	omsg.ProposeRequest(context->GetPaxosID(), REPLICATED_CONFIG->GetNodeID(), state.proposalID,
+	omsg.ProposeRequest(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID,
 	 state.proposedRunID, state.proposedValue);
 	BroadcastMessage(omsg);
 	

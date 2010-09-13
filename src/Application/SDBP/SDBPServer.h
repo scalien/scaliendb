@@ -4,6 +4,8 @@
 #include "Framework/TCP/TCPServer.h"
 #include "SDBPConnection.h"
 
+class SDBPContext; // forward
+
 /*
 ===============================================================================
 
@@ -19,6 +21,11 @@ public:
 	void			Shutdown();
 	
 	void			InitConn(SDBPConnection* conn);
+	
+	void			SetContext(SDBPContext* context);
+
+private:
+	SDBPContext*	context;
 };
 
 #endif

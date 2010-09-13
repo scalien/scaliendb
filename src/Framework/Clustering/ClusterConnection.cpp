@@ -65,10 +65,14 @@ void ClusterConnection::OnConnect()
 	AsyncRead();	
 	
 	rb = transport->GetSelfEndpoint().ToReadBuffer();
-	// send my nodeID:endpoint
-	buffer.Writef("%U:%#R", transport->GetSelfNodeID(), &rb);
+	
+	if (transport->IsAwaitingNodeID())
+		buffer.Writef("*:%#R", transport->GetSelfNodeID(), &rb); // send *:endpoint
+	else
+		buffer.Writef("%U:%#R", transport->GetSelfNodeID(), &rb); // send my nodeID:endpoint
+	Log_Trace("sending %.*s", P(&buffer));
 	WritePriority(buffer);
-
+	
 	Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
 
 	progress = READY;

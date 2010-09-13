@@ -92,7 +92,7 @@ bool DataHTTPHandler::ProcessCommand(HTTPConnection* conn, const char* cmd, unsi
 		GET_NAMED_PARAM(params, "key", key);
 
 		DataChunkContext*	context;
-		context = (DataChunkContext*) REPLICATED_CONFIG->GetContext(1); // TODO: hack
+		context = (DataChunkContext*) REPLICATION_CONFIG->GetContext(1); // TODO: hack
 		context->Get(key, (void*) conn);
 		
 		return true;
@@ -108,7 +108,7 @@ bool DataHTTPHandler::ProcessCommand(HTTPConnection* conn, const char* cmd, unsi
 		GET_NAMED_PARAM(params, "value", value);
 
 		DataChunkContext*	context;
-		context = (DataChunkContext*) REPLICATED_CONFIG->GetContext(1); // TODO: hack
+		context = (DataChunkContext*) REPLICATION_CONFIG->GetContext(1); // TODO: hack
 		context->Set(key, value, (void*) conn);
 		
 		return true;
@@ -122,19 +122,19 @@ void DataHTTPHandler::PrintHello(HTTPConnection* conn)
 	Buffer			buffer;
 	QuorumContext*	context;
 
-	context = REPLICATED_CONFIG->GetContext(1); // TODO: hack
+	context = REPLICATION_CONFIG->GetContext(1); // TODO: hack
 	
 	if (context->IsLeaderKnown())
 	{
 		buffer.Writef("Self: %U\nPrimary: %U\nPaxosID: %U\nChunkID: 1\n",
-		 REPLICATED_CONFIG->GetNodeID(),
+		 REPLICATION_CONFIG->GetNodeID(),
 		 context->GetLeader(),
 		 context->GetPaxosID());
 	}
 	else
 	{
 		buffer.Writef("Self: %U\nNo primary\nPaxosID: %U\nChunkID: 1\n", 
-		 REPLICATED_CONFIG->GetNodeID(),
+		 REPLICATION_CONFIG->GetNodeID(),
 		 context->GetPaxosID());
 	}
 

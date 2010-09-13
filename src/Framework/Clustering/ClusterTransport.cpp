@@ -1,11 +1,23 @@
 #include "ClusterTransport.h"
 
-void ClusterTransport::Init(uint64_t nodeID_, Endpoint& endpoint_)
+void ClusterTransport::Init(Endpoint& endpoint_)
 {
-	nodeID = nodeID_;
 	endpoint = endpoint_;
 	server.Init(endpoint.GetPort());
 	server.SetTransport(this);
+	awaitingNodeID = true;
+}
+
+void ClusterTransport::SetSelfNodeID(uint64_t nodeID_)
+{
+	nodeID = nodeID_;
+	awaitingNodeID = false;
+	ReconnectAll(); // so we establish "regular" connections with the nodeID
+}
+
+bool ClusterTransport::IsAwaitingNodeID()
+{
+	return awaitingNodeID;
 }
 
 uint64_t ClusterTransport::GetSelfNodeID()
@@ -18,7 +30,7 @@ Endpoint& ClusterTransport::GetSelfEndpoint()
 	return endpoint;
 }
 
-void ClusterTransport::AddEndpoint(uint64_t nodeID, Endpoint& endpoint)
+void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 {
 	ClusterConnection* conn;
 
@@ -39,7 +51,7 @@ void ClusterTransport::AddEndpoint(uint64_t nodeID, Endpoint& endpoint)
 	conn->Connect();	
 }
 
-bool ClusterTransport::SetNodeID(Endpoint& endpoint, uint64_t nodeID)
+bool ClusterTransport::SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID)
 {
 	ClusterConnection* it;
 	
@@ -164,4 +176,15 @@ void ClusterTransport::DeleteConnection(ClusterConnection* conn)
 		conns.Remove(conn);
 
 	delete conn;
+}
+
+void ClusterTransport::ReconnectAll()
+{
+	ClusterConnection* it;
+	
+	for (it = conns.First(); it != NULL; it = conns.Next(it))
+	{
+		it->Close();
+		it->Connect();
+	}
 }

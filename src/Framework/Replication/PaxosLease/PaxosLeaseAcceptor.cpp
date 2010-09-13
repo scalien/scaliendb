@@ -47,15 +47,15 @@ void PaxosLeaseAcceptor::OnPrepareRequest(PaxosLeaseMessage& imsg)
 	}
 	
 	if (imsg.proposalID < state.promisedProposalID)
-		omsg.PrepareRejected(REPLICATED_CONFIG->GetNodeID(), imsg.proposalID);
+		omsg.PrepareRejected(REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);
 	else
 	{
 		state.promisedProposalID = imsg.proposalID;
 
 		if (!state.accepted)
-			omsg.PrepareCurrentlyOpen(REPLICATED_CONFIG->GetNodeID(), imsg.proposalID);
+			omsg.PrepareCurrentlyOpen(REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);
 		else
-			omsg.PreparePreviouslyAccepted(REPLICATED_CONFIG->GetNodeID(), imsg.proposalID,
+			omsg.PreparePreviouslyAccepted(REPLICATION_CONFIG->GetNodeID(), imsg.proposalID,
 			 state.acceptedProposalID, state.acceptedLeaseOwner, state.acceptedDuration);
 	}
 	
@@ -75,7 +75,7 @@ void PaxosLeaseAcceptor::OnProposeRequest(PaxosLeaseMessage& imsg)
 	}
 	
 	if (imsg.proposalID < state.promisedProposalID)
-		omsg.ProposeRejected(REPLICATED_CONFIG->GetNodeID(), imsg.proposalID);
+		omsg.ProposeRejected(REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);
 	else
 	{
 		state.accepted = true;
@@ -87,7 +87,7 @@ void PaxosLeaseAcceptor::OnProposeRequest(PaxosLeaseMessage& imsg)
 		leaseTimeout.Set(state.acceptedExpireTime);
 		EventLoop::Reset(&leaseTimeout);
 		
-		omsg.ProposeAccepted(REPLICATED_CONFIG->GetNodeID(), imsg.proposalID);
+		omsg.ProposeAccepted(REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);
 	}
 	
 	context->GetTransport()->SendMessage(imsg.nodeID, omsg);

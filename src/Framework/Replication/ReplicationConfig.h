@@ -3,7 +3,7 @@
 
 #include "System/Common.h"
 
-#define	REPLICATED_CONFIG (ReplicationConfig::Get())
+#define	REPLICATION_CONFIG (ReplicationConfig::Get())
 
 /*
 ===============================================================================
@@ -25,6 +25,8 @@ public:
 	uint64_t				GetRunID();
 	
 	uint64_t				NextProposalID(uint64_t proposalID);
+	
+	void					Commit();
 	
 private:
 	ReplicationConfig();

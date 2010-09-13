@@ -36,7 +36,7 @@ void Controller::OnConfigCommand(ConfigCommand& command)
 	if (command.type == CONFIG_REGISTER_SHARDSERVER)
 	{
 		// tell ContextTransport that this connection has a new nodeID
-		CONTEXT_TRANSPORT->SetNodeID(command.endpoint, command.nodeID);
+		CONTEXT_TRANSPORT->SetConnectionNodeID(command.endpoint, command.nodeID);
 		
 		// tell the shard server
 		clusterMessage.SetNodeID(command.nodeID);

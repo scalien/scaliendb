@@ -16,4 +16,10 @@ void SDBPServer::Shutdown()
 void SDBPServer::InitConn(SDBPConnection* conn)
 {
 	conn->Init(this);
+	conn->SetContext(context);
+}
+
+void SDBPServer::SetContext(SDBPContext* context_)
+{
+	context = context_;
 }

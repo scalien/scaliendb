@@ -9,13 +9,16 @@ class ClusterTransport
 public:
 	virtual ~ClusterTransport() {}
 	
-	void						Init(uint64_t nodeID, Endpoint& endpoint);
+	void						Init(Endpoint& endpoint);
 	
+	void						SetSelfNodeID(uint64_t nodeID);
+	
+	bool						IsAwaitingNodeID();
 	uint64_t					GetSelfNodeID();
 	Endpoint&					GetSelfEndpoint();
 
-	void						AddEndpoint(uint64_t nodeID, Endpoint& endpoint);
-	bool						SetNodeID(Endpoint& endpoint, uint64_t nodeID);
+	void						AddNode(uint64_t nodeID, Endpoint& endpoint);
+	bool						SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID);
 	
 	void						SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
 	void						SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
@@ -33,7 +36,9 @@ private:
 	ClusterConnection*			GetConnection(uint64_t nodeID);
 	ClusterConnection*			GetConnection(Endpoint& endpoint);
 	void						DeleteConnection(ClusterConnection* conn);
+	void						ReconnectAll();
 
+	bool						awaitingNodeID;
 	uint64_t					nodeID;
 	Endpoint					endpoint;
 	Buffer						msgBuffer;

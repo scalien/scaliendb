@@ -4,8 +4,8 @@
 #include "System/Common.h"
 #include "Framework/Messaging/Message.h"
 
-#define			CLUSTER_SET_NODEID		'N'
-#define			PRIMARY_LEASE			'L'
+#define			CLUSTER_SET_NODEID			'N'
+#define			CLUSTER_PRIMARY_LEASE		'L'
 
 class ClusterMessage : public Message
 {

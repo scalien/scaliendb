@@ -18,8 +18,11 @@ class ClusterShardServer
 public:
 	typedef InList<ClusterShard> ShardList;
 
-	uint64_t		nodeID;
-	ShardList		shards;
+	uint64_t				nodeID;
+	ShardList				shards;
+	
+	ClusterShardServer*		prev;
+	ClusterShardServer*		next;
 };
 
 #endif
