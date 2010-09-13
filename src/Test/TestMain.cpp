@@ -20,14 +20,19 @@ TEST_DEFINE(TestMain)
 		//TestInTreeMap,
 		//TestInTreeMapInsert,
 		//TestInTreeMapInsertRandom,
-		TestInTreeMapRemoveRandom,
+		//TestInTreeMapRemoveRandom,
 		//TestStorage,
 		//TestStorageCapacity,
 		//TestStorageBigTransaction,
 		//TestStorageBigRandomTransaction,
 		//TestStorageShardSize,
-		//TestStorageShardSplit,
+		TestStorageShardSplit,
 		//TestWriteTiming,
 		//TestFileSystemDiskSpace,
 	);
+}
+
+int main()
+{
+	return TestMain();
 }

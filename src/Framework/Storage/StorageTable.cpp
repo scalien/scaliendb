@@ -7,6 +7,11 @@
 #define FILE_VERSION_MAJOR	0
 #define FILE_VERSION_MINOR	1
 
+#define RECOVERY_OP_DONE	0
+#define RECOVERY_OP_CREATE	1
+#define RECOVERY_OP_COPY	2
+#define RECOVERY_OP_MOVE	3
+
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
 	return ReadBuffer::Cmp(a, b);
@@ -36,7 +41,7 @@ uint64_t StorageTable::GetSize()
 
 void StorageTable::Open(const char* dir, const char* name_)
 {
-//	int64_t	recoverySize;
+	int64_t	recoverySize;
 	int64_t	tocSize;
 	char	sep;
 	
@@ -66,31 +71,30 @@ void StorageTable::Open(const char* dir, const char* name_)
 	tocFilepath.Append("shards");
 	tocFilepath.NullTerminate();
 
-	// TODO: recovery
-//	recoveryFilepath.Write(name);
-//	recoveryFilepath.Append(".recovery");
-//	recoveryFilepath.NullTerminate();
+	recoveryFilepath.Write(path.GetBuffer(), path.GetLength() - 1);
+	recoveryFilepath.Append("recovery");
+	recoveryFilepath.NullTerminate();
 
 	tocFD = FS_Open(tocFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
 	if (tocFD == INVALID_FD)
 		ASSERT_FAIL();
 
-	// TODO: recovery
-//	recoveryFD = FS_Open(recoveryFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
-//	if (recoveryFD == INVALID_FD)
-//		ASSERT_FAIL();
-//
-//	recoverySize = FS_FileSize(recoveryFD);
-//	if (recoverySize > 0)
-//	{
-//		PerformRecovery(recoverySize);
-//		return;
-//	}
+	recoveryFD = FS_Open(recoveryFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
+	if (recoveryFD == INVALID_FD)
+		ASSERT_FAIL();
+
+	recoverySize = FS_FileSize(recoveryFD);
+	if (recoverySize > 0)
+	{
+		PerformRecovery(recoverySize);
+		return;
+	}
 	
 	tocSize = FS_FileSize(tocFD);
 	if (tocSize > 0)
 		ReadTOC(tocSize);
 
+	// TODO: make this controllable
 	// create default shard if not exists
 	if (shards.GetCount() == 0)
 	{
@@ -207,6 +211,7 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
 	Buffer				dstFile;
 	Buffer				dirName;
 	Buffer				tmp;
+	int32_t				oldFileIndex;
 		
 	// write all changes to disk first
 	Commit();
@@ -218,6 +223,8 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
 	si = Locate(startKey);
 	assert(si != NULL);
 	assert(si->shardID == oldShardID);
+
+	WriteRecoveryCreateShard(newShardID);
 	
 	newSi = new StorageShardIndex;
 	newSi->shard = si->shard->SplitShard(newShardID, startKey);
@@ -231,19 +238,33 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
 	{
 		if (fi->file != NULL && fi->file->IsNew())
 		{
+			// TODO: HACK
+			oldFileIndex = si->shard->Locate(startKey)->index;
+			WriteRecoveryCopy(oldShardID, oldFileIndex);
+			
 			newSi->shard->WritePath(fi->filepath, fi->index);
 			fi->file->Open(fi->filepath.GetBuffer());
+			fi->file->WriteData();
 		}
 		else
 		{
-			si->shard->WritePath(srcFile, fi->index);
+			srcFile.Write(fi->filepath);
 			newSi->shard->WritePath(dstFile, fi->index);
+			fi->filepath.Write(srcFile);
+			WriteRecoveryMove(srcFile, dstFile);
 			if (!FS_Rename(srcFile.GetBuffer(), dstFile.GetBuffer()))
 				ASSERT_FAIL();
 		}
 	}
+
+	newSi->shard->WriteTOC();
 	
 	si->SetEndKey(startKey, true);
+	si->shard->WriteTOC();
+	
+	WriteTOC();
+	
+	WriteRecoveryDone();
 	
 	return true;
 }
@@ -292,7 +313,183 @@ StorageShardIndex* StorageTable::Locate(ReadBuffer& key)
 	return si;
 }
 
-void StorageTable::ReadTOC(uint32_t length)
+void StorageTable::PerformRecovery(uint64_t length)
+{
+	char*				p;
+	int32_t				required;
+	uint32_t			op;
+	uint64_t			total;
+	uint64_t			pos;
+	uint64_t			newShardID;
+	bool				recovery;
+	
+	newShardID = 0;
+	pos = 0;
+	recovery = false;
+
+	// first check if the recovery file is written totally and is correct
+	while (true)
+	{
+		required = sizeof(op) + sizeof(total);
+		if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
+			break;
+
+		p = buffer.GetBuffer();
+		op = FromLittle32(*((uint32_t*) p));
+		p += sizeof(op);
+		total = FromLittle64(*((uint64_t*) p));
+		if (op > RECOVERY_OP_MOVE)
+			break;
+		
+		if (FS_FileSeek(recoveryFD, total, FS_SEEK_CUR) < 0)
+			break;
+
+		pos += required;
+		if (pos == length)
+		{
+			if (op == RECOVERY_OP_DONE)
+				break;
+
+			recovery = true;
+			FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
+			break;
+		}
+	}
+	
+	pos = 0;
+	while (recovery)
+	{
+		required = sizeof(op) + sizeof(total);
+		if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
+			ASSERT_FAIL();
+			
+		p = buffer.GetBuffer();
+		op = FromLittle32(*((uint32_t*) p));
+		p += sizeof(op);
+		total = FromLittle64(*((uint64_t*) p));
+		pos += required;
+		
+		switch (op)
+		{
+		case RECOVERY_OP_COPY:
+			PerformRecoveryCopy();
+			break;
+		case RECOVERY_OP_MOVE:
+			PerformRecoveryMove();
+			break;
+		case RECOVERY_OP_CREATE:
+			newShardID = PerformRecoveryCreateShard();
+		default:
+			ASSERT_FAIL();
+		}		
+	}
+
+	if (recovery)
+	{
+		DeleteGarbageShard(newShardID);
+		RebuildTOC();
+	}
+
+	FS_FileSeek(recoveryFD, 0, SEEK_SET);
+	FS_FileTruncate(recoveryFD, 0);	
+	FS_Sync();
+}
+
+void StorageTable::PerformRecoveryCopy()
+{
+	uint64_t		oldShardID;
+	uint32_t		fileIndex;
+	uint64_t		length;
+	int64_t			required;
+	FD				dataFD;
+	Buffer			filename;
+	Buffer			dirname;
+	char*			p;
+	const unsigned	bufsize = 64 * 1024;
+
+	required = sizeof(oldShardID) + sizeof(fileIndex) + sizeof(length);
+	if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
+		ASSERT_FAIL();
+	p = buffer.GetBuffer();
+	
+	oldShardID = FromLittle64(*((uint64_t*) p));
+	p += sizeof(oldShardID);
+	
+	fileIndex = FromLittle32(*((uint32_t*) p));
+	p += sizeof(fileIndex);
+	
+	length = FromLittle64(*((uint64_t*) p));
+	p += sizeof(length);
+	
+	dirname.Write(path.GetBuffer(), path.GetLength() - 1);
+	dirname.Appendf("%U", oldShardID);
+	dirname.NullTerminate();
+	StorageShard::WritePath(filename, dirname, fileIndex);
+	
+	dataFD = FS_Open(filename.GetBuffer(), FS_READWRITE);
+	if (dataFD == INVALID_FD)
+		ASSERT_FAIL();
+	
+	buffer.Allocate(bufsize);
+	required = (int64_t) length;
+	while (required > 0)
+	{
+		unsigned nread = required % bufsize;
+		if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), nread) != nread)
+			ASSERT_FAIL();
+		if (FS_FileWrite(dataFD, (const void *) buffer.GetBuffer(), nread) != nread)
+			ASSERT_FAIL();
+		required -= nread;
+	}
+	
+	FS_FileClose(dataFD);
+}
+
+void StorageTable::PerformRecoveryMove()
+{
+	uint32_t		oldNameLength;
+	uint32_t		newNameLength;
+	int64_t			required;
+	Buffer			oldName;
+	Buffer			newName;
+	char*			p;
+
+	required = sizeof(oldNameLength);
+	if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
+		ASSERT_FAIL();
+	p = buffer.GetBuffer();
+	
+	oldNameLength = FromLittle32(*((uint32_t*) p));
+	p += sizeof(oldNameLength);
+	
+	required = oldNameLength;
+	oldName.Allocate(oldNameLength + 1);
+	if (FS_FileRead(recoveryFD, (void*) oldName.GetBuffer(), required) != required)
+		ASSERT_FAIL();
+
+	oldName.SetLength(oldNameLength);
+	oldName.NullTerminate();
+	
+	required = sizeof(newNameLength);
+	if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
+		ASSERT_FAIL();
+	p = buffer.GetBuffer();
+	
+	newNameLength = FromLittle32(*((uint32_t*) p));
+	p += sizeof(newNameLength);
+	required = newNameLength;
+	newName.Allocate(newNameLength + 1);
+	if (FS_FileRead(recoveryFD, (void*) newName.GetBuffer(), required) != required)
+		ASSERT_FAIL();
+
+	newName.SetLength(newNameLength);
+	newName.NullTerminate();
+
+	// this might fail if crashed while in recovery, but it is OK
+	FS_Rename(newName.GetBuffer(), oldName.GetBuffer());
+}
+
+void StorageTable::ReadTOC(uint64_t length)
 {
 	uint32_t			i, numShards;
 	unsigned			len;
@@ -327,13 +524,11 @@ void StorageTable::ReadTOC(uint32_t length)
 		p += 4;
 		si->startKey.SetLength(len);
 		si->startKey.SetBuffer(p);
-//		si->SetStartKey(ReadBuffer(p, len), true);
 		p += len;
 		len = FromLittle32(*((uint32_t*) p));
 		p += 4;
 		si->endKey.SetLength(len);
 		si->endKey.SetBuffer(p);
-//		si->SetEndKey(ReadBuffer(p, len), true);
 		p += len;
 		shards.Insert(si);
 	}
@@ -383,6 +578,177 @@ void StorageTable::WriteTOC()
 		if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), size) < 0)
 			ASSERT_FAIL();
 	}
+}
+
+void StorageTable::WriteRecoveryDone()
+{
+	uint32_t		op;
+	uint64_t		total;
+	char*			p;
+	int64_t			required;
+
+	p = buffer.GetBuffer();
+
+	op = RECOVERY_OP_COPY;
+	*((uint32_t*) p) = ToLittle32(op);
+	p += sizeof(op);
+	
+	total = 0;
+	*((uint64_t*) p) = ToLittle64(total);
+	
+	required = sizeof(op) + sizeof(total);
+
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
+	
+	FS_FileSeek(recoveryFD, 0, SEEK_SET);
+	FS_FileTruncate(recoveryFD, 0);	
+	FS_Sync();
+}
+
+void StorageTable::WriteRecoveryCreateShard(uint64_t newShardID)
+{
+	uint32_t		op;
+	uint64_t		total;
+	char*			p;
+	int64_t			required;
+
+	p = buffer.GetBuffer();
+
+	op = RECOVERY_OP_CREATE;
+	*((uint32_t*) p) = ToLittle32(op);
+	p += sizeof(op);
+	
+	total = sizeof(newShardID);
+	*((uint64_t*) p) = ToLittle64(total);
+	p += sizeof(total);
+	
+	*((uint64_t*) p) = ToLittle64(newShardID);
+	
+	required = sizeof(op) + sizeof(total) + sizeof(newShardID);
+
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
+}
+
+void StorageTable::WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex)
+{
+	uint32_t		op;
+	uint64_t		length;
+	uint64_t		total;
+	int64_t			required;
+	FD				dataFD;
+	Buffer			filename;
+	Buffer			dirname;
+	int64_t			ret;
+	char*			p;
+	const unsigned	bufsize = 64 * 1024;
+
+	dirname.Write(path.GetBuffer(), path.GetLength() - 1);
+	dirname.Appendf("%U", oldShardID);
+	dirname.NullTerminate();
+	StorageShard::WritePath(filename, dirname, fileIndex);
+
+	dataFD = FS_Open(filename.GetBuffer(), FS_READONLY);
+	if (dataFD == INVALID_FD)
+		ASSERT_FAIL();
+	
+	ret = FS_FileSize(tocFD);
+	if (ret < 0)
+		ASSERT_FAIL();
+	
+	length = (uint64_t) ret;
+	
+	required = sizeof(op) + sizeof(total) + 
+				sizeof(oldShardID) + sizeof(fileIndex) + sizeof(length);
+	total = sizeof(oldShardID) + sizeof(fileIndex) + sizeof(length) + length;
+	buffer.Allocate(required);
+	
+	p = buffer.GetBuffer();
+
+	op = RECOVERY_OP_COPY;
+	*((uint32_t*) p) = ToLittle32(op);
+	p += sizeof(op);
+
+	*((uint64_t*) p) = ToLittle64(total);
+	p += sizeof(total);
+	
+	*((uint64_t*) p) = ToLittle64(oldShardID);
+	p += sizeof(oldShardID);
+	
+	*((uint32_t*) p) = ToLittle32(fileIndex);
+	p += sizeof(fileIndex);
+	
+	*((uint64_t*) p) = ToLittle64(length);
+	p += sizeof(length);
+	
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
+	
+	buffer.Allocate(bufsize);
+	required = length;
+	while (required > 0)
+	{
+		unsigned nread = required % bufsize;
+		if (FS_FileRead(dataFD, (void*) buffer.GetBuffer(), nread) != nread)
+			ASSERT_FAIL();
+		if (FS_FileWrite(recoveryFD, (const void *) buffer.GetBuffer(), nread) != nread)
+			ASSERT_FAIL();
+		required -= nread;
+	}
+
+	FS_FileClose(dataFD);
+}
+
+void StorageTable::WriteRecoveryMove(Buffer& src, Buffer& dst)
+{
+	uint32_t		op;
+	uint64_t		total;
+	uint32_t		oldNameLength;
+	uint32_t		newNameLength;
+	int64_t			required;
+	char*			p;
+	
+	op = RECOVERY_OP_MOVE;
+
+	p = buffer.GetBuffer();
+	*((uint32_t*) p) = ToLittle32(op);
+	required = sizeof(op);	
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
+
+	total = sizeof(oldNameLength) + src.GetLength() - 1 +
+			sizeof(newNameLength) + dst.GetLength() - 1;
+	
+	p = buffer.GetBuffer();
+	*((uint64_t*) p) = ToLittle64(op);
+	required = sizeof(total);
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
+	
+	oldNameLength = src.GetLength() - 1;
+	p = buffer.GetBuffer();
+	*((uint32_t*) p) = ToLittle32(oldNameLength);
+	required = sizeof(oldNameLength);
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
+	
+	p = src.GetBuffer();
+	required = oldNameLength;
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
+		
+	newNameLength = dst.GetLength() - 1;
+	p = buffer.GetBuffer();
+	*((uint32_t*) p) = ToLittle32(newNameLength);
+	required = sizeof(newNameLength);
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
+
+	p = dst.GetBuffer();
+	required = newNameLength;
+	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+		ASSERT_FAIL();
 }
 
 void StorageTable::CommitPhase1()

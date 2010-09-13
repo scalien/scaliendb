@@ -1,7 +1,7 @@
 #ifndef FD_H
 #define FD_H
 
-// File description abstraction
+// File descriptor abstraction
 
 // On Windows the file handle is a pointer, on unices it is a
 // growing index in an array in the process, thus it can be used

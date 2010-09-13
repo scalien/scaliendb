@@ -340,6 +340,8 @@ StorageFile* StorageFile::SplitFileByKey(ReadBuffer& startKey)
 
 			newFile->dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
 			newFile->dataPages[index]->SetFile(newFile);
+			newFile->dataPages[index]->Invalidate();
+			MarkPageDirty(newFile->dataPages[index]);
 			newFile->indexPage.Add(newFile->dataPages[index]->FirstKey(), index, true);		
 			newFile->numDataPages++;
 		}

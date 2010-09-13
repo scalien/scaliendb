@@ -16,8 +16,9 @@
 #define FS_SEEK_CUR				1
 #define FS_SEEK_END				2
 
-#define FS_CREATE				1
-#define FS_READWRITE			2
+#define FS_CREATE				0x0200
+#define FS_READONLY				0x0000
+#define FS_READWRITE			0x0002
 
 #define FS_INVALID_DIR			NULL
 #define FS_INVALID_DIR_ENTRY	0

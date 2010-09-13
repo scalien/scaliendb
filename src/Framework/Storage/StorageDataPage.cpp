@@ -200,7 +200,6 @@ StorageDataPage* StorageDataPage::SplitDataPageByKey(ReadBuffer& key)
 	StorageDataPage*	newPage;
 	StorageKeyValue*	it;
 	StorageKeyValue*	next;
-	uint32_t			target, sum;
 
 	newPage = DCACHE->GetPage();
 	DCACHE->Checkin(newPage);
@@ -439,3 +438,7 @@ bool StorageDataPage::Write(Buffer& buffer)
 	return true;
 }
 
+void StorageDataPage::Invalidate()
+{
+	buffer.Clear();
+}

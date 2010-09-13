@@ -41,6 +41,7 @@ public:
 private:
 	bool					CreateDir(const char* dir, const char* name);
 	void					WritePath(Buffer& buffer, uint32_t index);
+	static void				WritePath(Buffer& buffer, Buffer& path, uint32_t index);
 	uint64_t				ReadTOC(uint32_t length);
 	void					PerformRecovery(uint32_t length);
 	void					WriteBackPages(InList<Buffer>& pages);

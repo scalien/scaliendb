@@ -24,6 +24,8 @@ FD FS_Open(const char* filename, int flags)
 		oflags |= O_CREAT;
 	if ((flags & FS_READWRITE) == FS_READWRITE)
 		oflags |= O_RDWR;
+	if ((flags & FS_READONLY) == FS_READONLY)
+		oflags |= O_RDONLY;
 
 	ret = open(filename, oflags, mode);
 	if (ret < 0)

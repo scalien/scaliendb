@@ -245,9 +245,6 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
 	StorageFileIndex*	midFi;
 	StorageFileIndex*	newFi;
 	StorageFileIndex*	next;
-	StorageKeyValue*	kv;
-	StorageCursor*		cursor;
-	ReadBuffer			endKey;
 	uint32_t			newIndex;
 	
 	newShard = new StorageShard;
@@ -260,20 +257,21 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
 	if (midFi == NULL)
 		ASSERT_FAIL();
 	
-	next = files.Next(midFi);
-	if (next != NULL)
-		endKey = next->key;
-	
-	newIndex = 0;
-	newFi = new StorageFileIndex;
-	newFi->SetKey(startKey, true);
-	newFi->index = newIndex++;
-	newFi->file = midFi->file->SplitFileByKey(startKey);
-	newShard->files.Insert(newFi);
-	
-	for (fi = next; fi != NULL; fi = next)
+	newIndex = 1;
+	fi = midFi;
+	if (ReadBuffer::Cmp(startKey, midFi->key) > 0)
 	{
-		if (ReadBuffer::Cmp(startKey, fi->key) < 0)
+		newFi = new StorageFileIndex;
+		newFi->SetKey(startKey, true);
+		newFi->index = newIndex++;
+		newFi->file = midFi->file->SplitFileByKey(startKey);
+		newShard->files.Insert(newFi);
+		fi = files.Next(midFi);
+	}
+	
+	for (/* fi is initialized earlier */; fi != NULL; fi = next)
+	{
+		if (ReadBuffer::Cmp(startKey, fi->key) <= 0)
 		{
 			next = files.Remove(fi);
 			fi->index = newIndex++;
@@ -287,6 +285,11 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
 }
 
 void StorageShard::WritePath(Buffer& buffer, uint32_t index)
+{
+	return StorageShard::WritePath(buffer, path, index);
+}
+
+void StorageShard::WritePath(Buffer& buffer, Buffer& path, uint32_t index)
 {
 	char	buf[30];
 	
@@ -361,8 +364,8 @@ void StorageShard::PerformRecovery(uint32_t length)
 	uint32_t			required, pageSize, marker;
 	InList<Buffer>		pages;
 	Buffer*				page;
-	required = 0;
-	
+
+	required = 0;	
 	while (true)
 	{
 		required += 4;

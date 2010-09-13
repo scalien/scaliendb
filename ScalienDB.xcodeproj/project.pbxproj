@@ -84,6 +84,45 @@
 		9A87418E12282946000B1319 /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
 		9A87418F12282946000B1319 /* TestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418A12282946000B1319 /* TestMain.cpp */; };
 		9A87419012282946000B1319 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
+		9AABB037123E55DE003626AC /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
+		9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
+		9AABB039123E55DE003626AC /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418712282946000B1319 /* StorageTest.cpp */; };
+		9AABB03A123E55DE003626AC /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
+		9AABB03B123E55DE003626AC /* TestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418A12282946000B1319 /* TestMain.cpp */; };
+		9AABB03C123E55DE003626AC /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
+		9AABB03D123E55DE003626AC /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29501235569100247703 /* FileSystemTest.cpp */; };
+		9AABB03E123E55DE003626AC /* StorageCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8718122821EF00721A0F /* StorageCursor.cpp */; };
+		9AABB03F123E55DE003626AC /* StorageDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8D53122E60E800721A0F /* StorageDatabase.cpp */; };
+		9AABB040123E55DE003626AC /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
+		9AABB041123E55DE003626AC /* StorageDataPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8716122821EF00721A0F /* StorageDataPage.cpp */; };
+		9AABB042123E55DE003626AC /* StorageFileIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90E9122F99C300721A0F /* StorageFileIndex.cpp */; };
+		9AABB043123E55DE003626AC /* StorageFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8719122821EF00721A0F /* StorageFile.cpp */; };
+		9AABB044123E55DE003626AC /* StorageKeyIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90E4122F994B00721A0F /* StorageKeyIndex.cpp */; };
+		9AABB045123E55DE003626AC /* StorageIndexPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB871E122821EF00721A0F /* StorageIndexPage.cpp */; };
+		9AABB046123E55DE003626AC /* StorageKeyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90DF122F98CE00721A0F /* StorageKeyValue.cpp */; };
+		9AABB047123E55DE003626AC /* StoragePage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8935122C176600721A0F /* StoragePage.cpp */; };
+		9AABB048123E55DE003626AC /* StorageShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8715122821EF00721A0F /* StorageShard.cpp */; };
+		9AABB049123E55DE003626AC /* StorageShardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2B231236944100247703 /* StorageShardIndex.cpp */; };
+		9AABB04A123E55DE003626AC /* StorageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29BF1236519E00247703 /* StorageTable.cpp */; };
+		9AABB04B123E55DE003626AC /* StorageFileHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2D711237975900247703 /* StorageFileHeader.cpp */; };
+		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
+		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
+		9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
+		9AABB04F123E55DE003626AC /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
+		9AABB050123E55DE003626AC /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
+		9AABB051123E55DE003626AC /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
+		9AABB052123E55DE003626AC /* Countdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* Countdown.cpp */; };
+		9AABB053123E55DE003626AC /* Endpoint.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75511BE5EF30076BC62 /* Endpoint.cpp */; };
+		9AABB054123E55DE003626AC /* IOProcessor_Darwin.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75A11BE5EF30076BC62 /* IOProcessor_Darwin.cpp */; };
+		9AABB055123E55DE003626AC /* Socket_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75F11BE5EF30076BC62 /* Socket_Posix.cpp */; };
+		9AABB056123E55DE003626AC /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
+		9AABB057123E55DE003626AC /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
+		9AABB058123E55DE003626AC /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74611BE5EF30076BC62 /* Config.cpp */; };
+		9AABB059123E55DE003626AC /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76111BE5EF30076BC62 /* Log.cpp */; };
+		9AABB05A123E55DE003626AC /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
+		9AABB05B123E55DE003626AC /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
+		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
+		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
@@ -269,7 +308,6 @@
 		54FCF69D11FDF4770075BBFF /* ConfigContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigContext.h; sourceTree = "<group>"; };
 		54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataChunkContext.cpp; sourceTree = "<group>"; };
 		54FCF6A011FDF4770075BBFF /* DataChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataChunkContext.h; sourceTree = "<group>"; };
-		8DD76F6C0486A84900D96B5E /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = ScalienDB; path = /Users/mtrencseni/Code/ScalienDB/build/Debug/ScalienDB; sourceTree = "<absolute>"; };
 		9A10D408120874E90009ABA7 /* DataService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataService.h; sourceTree = "<group>"; };
 		9A26D68D11F4BDE2006A2814 /* HTTPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPConnection.cpp; path = Application/HTTP/HTTPConnection.cpp; sourceTree = "<group>"; };
 		9A26D68E11F4BDE2006A2814 /* HTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPConnection.h; path = Application/HTTP/HTTPConnection.h; sourceTree = "<group>"; };
@@ -301,6 +339,8 @@
 		9A87418A12282946000B1319 /* TestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestMain.cpp; path = Test/TestMain.cpp; sourceTree = "<group>"; };
 		9A87418B12282946000B1319 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
 		9AABAD3812393327003626AC /* Deferred.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Deferred.h; sourceTree = "<group>"; };
+		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
+		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9ACF23DE122FDEBE00247703 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
@@ -323,6 +363,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		9AABB009123E5580003626AC /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -330,6 +377,7 @@
 			isa = PBXGroup;
 			children = (
 				08FB7795FE84155DC02AAC07 /* Source */,
+				9AABB212123EA3AF003626AC /* Products */,
 			);
 			name = ScalienDB;
 			sourceTree = "<group>";
@@ -767,6 +815,15 @@
 			name = Test;
 			sourceTree = "<group>";
 		};
+		9AABB212123EA3AF003626AC /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				9AABB211123EA3AF003626AC /* ScalienDB */,
+				9AABB214123EA3AF003626AC /* TestMain */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -785,7 +842,23 @@
 			name = ScalienDB;
 			productInstallPath = "$(HOME)/bin";
 			productName = ScalienDB;
-			productReference = 8DD76F6C0486A84900D96B5E /* ScalienDB */;
+			productReference = 9AABB211123EA3AF003626AC /* ScalienDB */;
+			productType = "com.apple.product-type.tool";
+		};
+		9AABB00A123E5580003626AC /* TestMain */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 9AABB010123E55BA003626AC /* Build configuration list for PBXNativeTarget "TestMain" */;
+			buildPhases = (
+				9AABB008123E5580003626AC /* Sources */,
+				9AABB009123E5580003626AC /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = TestMain;
+			productName = TestMain;
+			productReference = 9AABB214123EA3AF003626AC /* TestMain */;
 			productType = "com.apple.product-type.tool";
 		};
 /* End PBXNativeTarget section */
@@ -797,10 +870,12 @@
 			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
 			mainGroup = 08FB7794FE84155DC02AAC07 /* ScalienDB */;
+			productRefGroup = 9AABB212123EA3AF003626AC /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
 				8DD76F620486A84900D96B5E /* ScalienDB */,
+				9AABB00A123E5580003626AC /* TestMain */,
 			);
 		};
 /* End PBXProject section */
@@ -895,6 +970,52 @@
 				5487BDCF123A738000C235BA /* ContextTransport.cpp in Sources */,
 				5487BDE0123A74FA00C235BA /* StateProcessor.cpp in Sources */,
 				54A861C5123E207000ECCBE5 /* ShardServer.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		9AABB008123E5580003626AC /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9AABB037123E55DE003626AC /* Timings.cpp in Sources */,
+				9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */,
+				9AABB039123E55DE003626AC /* StorageTest.cpp in Sources */,
+				9AABB03A123E55DE003626AC /* Test.c in Sources */,
+				9AABB03B123E55DE003626AC /* TestMain.cpp in Sources */,
+				9AABB03C123E55DE003626AC /* TimeTest.cpp in Sources */,
+				9AABB03D123E55DE003626AC /* FileSystemTest.cpp in Sources */,
+				9AABB03E123E55DE003626AC /* StorageCursor.cpp in Sources */,
+				9AABB03F123E55DE003626AC /* StorageDatabase.cpp in Sources */,
+				9AABB040123E55DE003626AC /* StorageDataCache.cpp in Sources */,
+				9AABB041123E55DE003626AC /* StorageDataPage.cpp in Sources */,
+				9AABB042123E55DE003626AC /* StorageFileIndex.cpp in Sources */,
+				9AABB043123E55DE003626AC /* StorageFile.cpp in Sources */,
+				9AABB044123E55DE003626AC /* StorageKeyIndex.cpp in Sources */,
+				9AABB045123E55DE003626AC /* StorageIndexPage.cpp in Sources */,
+				9AABB046123E55DE003626AC /* StorageKeyValue.cpp in Sources */,
+				9AABB047123E55DE003626AC /* StoragePage.cpp in Sources */,
+				9AABB048123E55DE003626AC /* StorageShard.cpp in Sources */,
+				9AABB049123E55DE003626AC /* StorageShardIndex.cpp in Sources */,
+				9AABB04A123E55DE003626AC /* StorageTable.cpp in Sources */,
+				9AABB04B123E55DE003626AC /* StorageFileHeader.cpp in Sources */,
+				9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */,
+				9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */,
+				9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */,
+				9AABB04F123E55DE003626AC /* Scheduler.cpp in Sources */,
+				9AABB050123E55DE003626AC /* EventLoop.cpp in Sources */,
+				9AABB051123E55DE003626AC /* Timer.cpp in Sources */,
+				9AABB052123E55DE003626AC /* Countdown.cpp in Sources */,
+				9AABB053123E55DE003626AC /* Endpoint.cpp in Sources */,
+				9AABB054123E55DE003626AC /* IOProcessor_Darwin.cpp in Sources */,
+				9AABB055123E55DE003626AC /* Socket_Posix.cpp in Sources */,
+				9AABB056123E55DE003626AC /* Formatting.cpp in Sources */,
+				9AABB057123E55DE003626AC /* Common.cpp in Sources */,
+				9AABB058123E55DE003626AC /* Config.cpp in Sources */,
+				9AABB059123E55DE003626AC /* Log.cpp in Sources */,
+				9AABB05A123E55DE003626AC /* Stopwatch.cpp in Sources */,
+				9AABB05B123E55DE003626AC /* ThreadPool_Posix.cpp in Sources */,
+				9AABB05C123E55DE003626AC /* Time.cpp in Sources */,
+				9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1020,6 +1141,40 @@
 			};
 			name = Release;
 		};
+		9AABB00D123E5581003626AC /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-DPLATFORM_DARWIN",
+					"-D__STDC_FORMAT_MACROS",
+				);
+				PREBINDING = NO;
+				PRODUCT_NAME = TestMain;
+			};
+			name = Debug;
+		};
+		9AABB00E123E5581003626AC /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = TestMain;
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -1037,6 +1192,15 @@
 			buildConfigurations = (
 				1DEB923608733DC60010E9CD /* Debug */,
 				1DEB923708733DC60010E9CD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		9AABB010123E55BA003626AC /* Build configuration list for PBXNativeTarget "TestMain" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				9AABB00D123E5581003626AC /* Debug */,
+				9AABB00E123E5581003626AC /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
