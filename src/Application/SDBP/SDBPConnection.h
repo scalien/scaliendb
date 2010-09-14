@@ -2,7 +2,7 @@
 #define SDBPCONNECTION_H
 
 #include "Framework/Messaging/MessageConnection.h"
-#include "Application/Common/ClientConnection.h"
+#include "Application/Common/ClientSession.h"
 //#include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
 //#include "SDBPContext.h"
@@ -19,7 +19,7 @@ class ClientRequest;
 ===============================================================================
 */
 
-class SDBPConnection : public MessageConnection, public ClientConnection
+class SDBPConnection : public MessageConnection, public ClientSession
 {
 public:
 	SDBPConnection();
@@ -42,7 +42,7 @@ public:
 	/* ---------------------------------------------------------------------------------------- */
 	/* ClientConnection interface																*/
 	/*																							*/
-	virtual void		OnComplete(Command* command);
+	virtual void		OnComplete(Message* message);
 	virtual bool		IsActive();
 	/* ---------------------------------------------------------------------------------------- */
 	

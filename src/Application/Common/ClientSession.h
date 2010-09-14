@@ -1,12 +1,12 @@
-#ifndef CLIENTCONNECTION_H
-#define CLIENTCONNECTION_H
+#ifndef CLIENTSESSION_H
+#define CLIENTSESSION_H
 
-#include "Command.h"
+#include "Framework/Messaging/Message.h"
 
 /*
 ===============================================================================
 
- ClientConnection
+ ClientSession
  
  An ADT that represents connections that takes ScalienDB commands.
  Currently: HTTP, SDBP.
@@ -14,12 +14,12 @@
 ===============================================================================
 */
 
-class ClientConnection
+class ClientSession
 {
 public:
-	virtual ~ClientConnection() {}
+	virtual ~ClientSession() {}
 	
-	virtual void	OnComplete(Command* command)	= 0;
+	virtual void	OnComplete(Message* message)	= 0;
 	virtual bool	IsActive()						= 0;
 };
 

@@ -27,10 +27,9 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers)
 	paxosLease.AcquireLease();
 }
 
-void ConfigContext::Append(ConfigCommand command)
+void ConfigContext::Append(ConfigMessage message)
 {
-	Buffer buffer;
-	command.Write(nextValue);
+	message.Write(nextValue);
 
 	replicatedLog.TryAppendNextValue();
 }
@@ -105,12 +104,12 @@ QuorumTransport* ConfigContext::GetTransport()
 
 void ConfigContext::OnAppend(ReadBuffer value, bool /*ownAppend*/)
 {
-	ConfigCommand command;
+	ConfigMessage message;
 
 	nextValue.Clear();
 
-	assert(command.Read(value));
-	controller->OnConfigCommand(command);
+	assert(message.Read(value));
+	controller->OnConfigMessage(message);
 }
 
 Buffer* ConfigContext::GetNextValue()

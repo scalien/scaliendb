@@ -13,7 +13,7 @@ bool SDBPControllerContext::IsValidRequest(ClientRequest& request)
 
 bool SDBPControllerContext::ProcessRequest(SDBPConnection* conn, ClientRequest& request)
 {
-	ConfigCommand	command;
+	ConfigMessage	message;
 	ClientResponse	response;
 	
 	if (request.type == CLIENTREQUEST_GET_MASTER)
@@ -25,63 +25,63 @@ bool SDBPControllerContext::ProcessRequest(SDBPConnection* conn, ClientRequest& 
 		conn->Write(response);
 	}
 	
-	command = ConvertRequest(request);
+	message = ConvertRequest(request);
 	
-	return controller->ProcessClientCommand(conn, command);
+	return controller->ProcessClientCommand(conn, message);
 }
 
-void SDBPControllerContext::OnComplete(SDBPConnection* conn, Command* command_)
+void SDBPControllerContext::OnComplete(SDBPConnection* conn, Message* message_)
 {
-	ConfigCommand* command = (ConfigCommand*) command_;
+	ConfigMessage* message = (ConfigMessage*) message_;
 	
 	// TODO:
 	
-	delete command;
+	delete message;
 }
 
-ConfigCommand SDBPControllerContext::ConvertRequest(ClientRequest& request)
+ConfigMessage SDBPControllerContext::ConvertRequest(ClientRequest& request)
 {
-	ConfigCommand command;
+	ConfigMessage message;
 	
 	switch (request.type)
 	{
 		case CLIENTREQUEST_CREATE_QUORUM:
-			command.type = CONFIG_CREATE_QUORUM;
-			command.productionType = request.productionType;
-			command.nodes = request.nodes;
+			message.type = CONFIG_CREATE_QUORUM;
+			message.productionType = request.productionType;
+			message.nodes = request.nodes;
 			break;
 		case CLIENTREQUEST_CREATE_DATABASE:
-			command.type = CONFIG_CREATE_DATABASE;
-			command.name = request.name;
-			command.productionType = request.productionType;
+			message.type = CONFIG_CREATE_DATABASE;
+			message.name = request.name;
+			message.productionType = request.productionType;
 			break;
 		case CLIENTREQUEST_RENAME_DATABASE:
-			command.type = CONFIG_RENAME_DATABASE;
-			command.databaseID = request.databaseID;
-			command.name = request.name;
+			message.type = CONFIG_RENAME_DATABASE;
+			message.databaseID = request.databaseID;
+			message.name = request.name;
 			break;
 		case CLIENTREQUEST_DELETE_DATABASE:
-			command.type = CONFIG_DELETE_DATABASE;
-			command.databaseID = request.databaseID;
+			message.type = CONFIG_DELETE_DATABASE;
+			message.databaseID = request.databaseID;
 			break;
 		case CLIENTREQUEST_CREATE_TABLE:
-			command.type = CONFIG_CREATE_TABLE;
-			command.databaseID = request.databaseID;
-			command.quorumID = request.quorumID;
-			command.name = request.name;
+			message.type = CONFIG_CREATE_TABLE;
+			message.databaseID = request.databaseID;
+			message.quorumID = request.quorumID;
+			message.name = request.name;
 			break;
 		case CLIENTREQUEST_RENAME_TABLE:
-			command.type = CONFIG_RENAME_TABLE;
-			command.databaseID = request.databaseID;
-			command.tableID = request.tableID;
-			command.name = request.name;
+			message.type = CONFIG_RENAME_TABLE;
+			message.databaseID = request.databaseID;
+			message.tableID = request.tableID;
+			message.name = request.name;
 			break;
 		case CLIENTREQUEST_DELETE_TABLE:
-			command.type = CONFIG_DELETE_TABLE;
-			command.databaseID = request.databaseID;
-			command.tableID = request.tableID;
+			message.type = CONFIG_DELETE_TABLE;
+			message.databaseID = request.databaseID;
+			message.tableID = request.tableID;
 			break;
 	}
 	
-	return command;
+	return message;
 }

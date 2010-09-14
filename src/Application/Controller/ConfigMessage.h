@@ -1,11 +1,11 @@
-#ifndef CONFIGCOMMAND_H
-#define CONFIGCOMMAND_H
+#ifndef CONFIGMESSAGE_H
+#define CONFIGMESSAGE_H
 
 #include "System/Platform.h"
 #include "System/IO/Endpoint.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Containers/List.h"
-#include "Application/Common/Command.h"
+#include "Framework/Messaging/Message.h"
 
 #define CONFIG_REGISTER_SHARDSERVER		'S'
 #define CONFIG_CREATE_QUORUM			'Q'
@@ -23,12 +23,12 @@
 /*
 ===============================================================================
 
- ConfigCommand
+ ConfigMessage
 
 ===============================================================================
 */
 
-class ConfigCommand : public Command
+class ConfigMessage : public Message
 {
 public:
 	typedef List<uint64_t> NodeList;
@@ -45,8 +45,8 @@ public:
 	Endpoint		endpoint;
 	NodeList		nodes;
 	
-	ConfigCommand*	prev;
-	ConfigCommand*	next;
+	ConfigMessage*	prev;
+	ConfigMessage*	next;
 
 	/* Cluster management */
 	bool			RegisterShardServer(

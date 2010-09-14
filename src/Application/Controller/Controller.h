@@ -1,12 +1,11 @@
 #ifndef CONTROLLER_H
 #define CONTROLLER_H
 
-#include "ConfigCommand.h"
+#include "ConfigMessage.h"
 #include "ConfigContext.h"
 #include "Application/Common/ClusterContext.h"
-#include "State/StateProcessor.h"
 
-class ClientConnection; // forward
+class ClientSession; // forward
 
 /*
 ===============================================================================
@@ -19,7 +18,7 @@ class ClientConnection; // forward
 class Controller : public ClusterContext
 {
 public:
-	typedef List<ConfigCommand> CommandList;
+	typedef List<ConfigMessage> MessageList;
 
 	void			Init();
 	
@@ -28,11 +27,11 @@ public:
 	bool			IsMaster();
 	uint64_t		GetMaster();
 
-	bool			ProcessClientCommand(ClientConnection* conn, ConfigCommand& command);
+	bool			ProcessClientCommand(ClientSession* conn, ConfigMessage& message);
 
 	/* For ConfigContext */
 	void			OnLearnLease();
-	void			OnConfigCommand(ConfigCommand& command);
+	void			OnConfigMessage(ConfigMessage& message);
 
 	/* ---------------------------------------------------------------------------------------- */
 	/* ClusterContext interface:																*/
@@ -48,8 +47,7 @@ private:
 	
 	uint64_t		nextNodeID;
 	ConfigContext	configContext;
-	StateProcessor	stateProcessor;
-	CommandList		commands;
+	MessageList		messages;
 };
 
 #endif

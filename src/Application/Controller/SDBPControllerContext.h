@@ -22,10 +22,10 @@ public:
 	/*																							*/
 	bool			IsValidRequest(ClientRequest& request);
 	bool			ProcessRequest(SDBPConnection* conn, ClientRequest& request);
-	void			OnComplete(SDBPConnection* conn, Command* command);
+	void			OnComplete(SDBPConnection* conn, Message* message);
 	/* ---------------------------------------------------------------------------------------- */
 
-	ConfigCommand	ConvertRequest(ClientRequest& request);
+	ConfigMessage	ConvertRequest(ClientRequest& request);
 	
 private:
 	Controller*		controller;

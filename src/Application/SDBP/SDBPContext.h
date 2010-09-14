@@ -2,7 +2,7 @@
 #define SDBPCONTEXT_H
 
 #include "Application/Common/ClientRequest.h"
-#include "Application/Common/Command.h"
+#include "Framework/Messaging/Message.h"
 
 class SDBPConnection; // forward
 
@@ -24,7 +24,7 @@ public:
 	/*																							*/
 	virtual bool	IsValidRequest(ClientRequest& request)									= 0;
 	virtual bool	ProcessRequest(SDBPConnection* conn, ClientRequest& request)			= 0;	
-	virtual void	OnComplete(SDBPConnection* conn, Command* command)						= 0;
+	virtual void	OnComplete(SDBPConnection* conn, Message* message)						= 0;
 	/* ---------------------------------------------------------------------------------------- */
 };
 

@@ -8,7 +8,7 @@
 #include "ConfigTable.h"
 #include "ConfigShard.h"
 #include "ConfigShardServer.h"
-#include "Application/Controller/ConfigCommand.h"
+#include "Application/Controller/ConfigMessage.h"
 
 /*
 ===============================================================================
@@ -42,7 +42,7 @@ public:
 	void				Read();
 	void				Write();
 
-	void				Update(ConfigCommand& command);
+	void				Update(ConfigMessage& message);
 };
 
 #endif

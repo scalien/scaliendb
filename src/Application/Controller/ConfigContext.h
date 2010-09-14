@@ -5,7 +5,7 @@
 #include "Framework/Replication/Quorums/MajorityQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
-#include "ConfigCommand.h"
+#include "ConfigMessage.h"
 
 class Controller; // forward
 
@@ -23,7 +23,7 @@ public:
 	void							Init(Controller* controller, unsigned numControllers);
 	void							SetController(Controller* controller);
 	
-	void							Append(ConfigCommand command);
+	void							Append(ConfigMessage message);
 	bool							IsAppending();
 	
 	/* ---------------------------------------------------------------------------------------- */

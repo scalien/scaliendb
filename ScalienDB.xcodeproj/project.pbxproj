@@ -48,7 +48,7 @@
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		54C8FC76120200F1002DD4D3 /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */; };
 		54DD0B8F12086BF30049D33A /* DataMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54DD0B8E12086BF30049D33A /* DataMessage.cpp */; };
-		54EA4F731237DC9F0095BF36 /* ConfigCommand.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA4F6E1237DC9F0095BF36 /* ConfigCommand.cpp */; };
+		54EA4F731237DC9F0095BF36 /* ConfigMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */; };
 		54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501B1237E83E0095BF36 /* ClusterServer.cpp */; };
 		54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501D1237E83E0095BF36 /* ClusterTransport.cpp */; };
 		54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA50261237E9A30095BF36 /* ClusterConnection.cpp */; };
@@ -82,7 +82,6 @@
 		9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
 		9A87418D12282946000B1319 /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418712282946000B1319 /* StorageTest.cpp */; };
 		9A87418E12282946000B1319 /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
-		9A87418F12282946000B1319 /* TestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418A12282946000B1319 /* TestMain.cpp */; };
 		9A87419012282946000B1319 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
 		9AABB037123E55DE003626AC /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
@@ -190,14 +189,13 @@
 		5487BC29123A5D0C00C235BA /* SDBPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPServer.h; sourceTree = "<group>"; };
 		5487BC2A123A5D0C00C235BA /* SDBPContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPContext.h; sourceTree = "<group>"; };
 		5487BC2C123A5D2500C235BA /* SDBPServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPServer.cpp; sourceTree = "<group>"; };
-		5487BC38123A5E2000C235BA /* ClientConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientConnection.h; sourceTree = "<group>"; };
+		5487BC38123A5E2000C235BA /* ClientSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientSession.h; sourceTree = "<group>"; };
 		5487BC39123A5E2000C235BA /* ClientRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientRequest.cpp; sourceTree = "<group>"; };
 		5487BC3A123A5E2000C235BA /* ClientRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientRequest.h; sourceTree = "<group>"; };
 		5487BC3B123A5E2000C235BA /* ClientResponse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientResponse.cpp; sourceTree = "<group>"; };
 		5487BC3C123A5E2000C235BA /* ClientResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientResponse.h; sourceTree = "<group>"; };
 		5487BC3D123A5E2000C235BA /* ClusterMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterMessage.cpp; sourceTree = "<group>"; };
 		5487BC3E123A5E2000C235BA /* ClusterMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterMessage.h; sourceTree = "<group>"; };
-		5487BC3F123A5E2000C235BA /* Command.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Command.h; sourceTree = "<group>"; };
 		5487BDCC123A738000C235BA /* ContextTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContextTransport.h; sourceTree = "<group>"; };
 		5487BDCD123A738000C235BA /* ContextTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ContextTransport.cpp; sourceTree = "<group>"; };
 		5487BDCE123A738000C235BA /* ClusterContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterContext.h; sourceTree = "<group>"; };
@@ -277,8 +275,8 @@
 		54C8FC71120200F1002DD4D3 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
 		54DD0B8D12086BF30049D33A /* DataMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataMessage.h; sourceTree = "<group>"; };
 		54DD0B8E12086BF30049D33A /* DataMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataMessage.cpp; sourceTree = "<group>"; };
-		54EA4F6D1237DC9F0095BF36 /* ConfigCommand.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigCommand.h; sourceTree = "<group>"; };
-		54EA4F6E1237DC9F0095BF36 /* ConfigCommand.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigCommand.cpp; sourceTree = "<group>"; };
+		54EA4F6D1237DC9F0095BF36 /* ConfigMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigMessage.h; sourceTree = "<group>"; };
+		54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigMessage.cpp; sourceTree = "<group>"; };
 		54EA501A1237E83E0095BF36 /* ClusterServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterServer.h; sourceTree = "<group>"; };
 		54EA501B1237E83E0095BF36 /* ClusterServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterServer.cpp; sourceTree = "<group>"; };
 		54EA501C1237E83E0095BF36 /* ClusterTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterTransport.h; sourceTree = "<group>"; };
@@ -490,14 +488,13 @@
 		5487BC37123A5E2000C235BA /* Common */ = {
 			isa = PBXGroup;
 			children = (
-				5487BC38123A5E2000C235BA /* ClientConnection.h */,
+				5487BC38123A5E2000C235BA /* ClientSession.h */,
 				5487BC3A123A5E2000C235BA /* ClientRequest.h */,
 				5487BC39123A5E2000C235BA /* ClientRequest.cpp */,
 				5487BC3C123A5E2000C235BA /* ClientResponse.h */,
 				5487BC3B123A5E2000C235BA /* ClientResponse.cpp */,
 				5487BC3E123A5E2000C235BA /* ClusterMessage.h */,
 				5487BC3D123A5E2000C235BA /* ClusterMessage.cpp */,
-				5487BC3F123A5E2000C235BA /* Command.h */,
 				5487BDCE123A738000C235BA /* ClusterContext.h */,
 				5487BDCC123A738000C235BA /* ContextTransport.h */,
 				5487BDCD123A738000C235BA /* ContextTransport.cpp */,
@@ -731,8 +728,8 @@
 			isa = PBXGroup;
 			children = (
 				54A861AB123BCE2900ECCBE5 /* State */,
-				54EA4F6D1237DC9F0095BF36 /* ConfigCommand.h */,
-				54EA4F6E1237DC9F0095BF36 /* ConfigCommand.cpp */,
+				54EA4F6D1237DC9F0095BF36 /* ConfigMessage.h */,
+				54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */,
 				54FCF69D11FDF4770075BBFF /* ConfigContext.h */,
 				54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */,
 				9A26DB46120076BA006A2814 /* Controller.h */,
@@ -938,7 +935,6 @@
 				9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */,
 				9A87418D12282946000B1319 /* StorageTest.cpp in Sources */,
 				9A87418E12282946000B1319 /* Test.c in Sources */,
-				9A87418F12282946000B1319 /* TestMain.cpp in Sources */,
 				9A87419012282946000B1319 /* TimeTest.cpp in Sources */,
 				54AB8936122C176600721A0F /* StoragePage.cpp in Sources */,
 				54AB8D54122E60E800721A0F /* StorageDatabase.cpp in Sources */,
@@ -953,7 +949,7 @@
 				9ACF2B241236944100247703 /* StorageShardIndex.cpp in Sources */,
 				9ACF2D721237975900247703 /* StorageFileHeader.cpp in Sources */,
 				9ACF2EBA1237D1B400247703 /* QuorumDatabase.cpp in Sources */,
-				54EA4F731237DC9F0095BF36 /* ConfigCommand.cpp in Sources */,
+				54EA4F731237DC9F0095BF36 /* ConfigMessage.cpp in Sources */,
 				54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */,
 				54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */,
 				54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */,

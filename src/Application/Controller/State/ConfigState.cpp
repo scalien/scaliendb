@@ -13,6 +13,6 @@ void ConfigState::Write()
 {
 }
 
-void ConfigState::Update(ConfigCommand& command)
+void ConfigState::Update(ConfigMessage& message)
 {
 }

@@ -1,7 +1,7 @@
-#include "ConfigCommand.h"
+#include "ConfigMessage.h"
 #include "System/Buffers/Buffer.h"
 
-bool ConfigCommand::RegisterShardServer(
+bool ConfigMessage::RegisterShardServer(
  uint64_t nodeID_, Endpoint& endpoint_)
 {
 	type = CONFIG_REGISTER_SHARDSERVER;
@@ -11,7 +11,7 @@ bool ConfigCommand::RegisterShardServer(
 	return true;
 }
 
-bool ConfigCommand::CreateQuorum(
+bool ConfigMessage::CreateQuorum(
  uint64_t quorumID_, char productionType_, NodeList& nodes_)
 {
 	type = CONFIG_CREATE_QUORUM;
@@ -21,7 +21,7 @@ bool ConfigCommand::CreateQuorum(
 	return true;
 }
 
-bool ConfigCommand::IncreaseQuorum(
+bool ConfigMessage::IncreaseQuorum(
  uint64_t shardID_, uint64_t nodeID_)
 {
 	type = CONFIG_INCREASE_QUORUM;
@@ -30,7 +30,7 @@ bool ConfigCommand::IncreaseQuorum(
 	return true;
 }
 
-bool ConfigCommand::DecreaseQuorum(
+bool ConfigMessage::DecreaseQuorum(
  uint64_t shardID_, uint64_t nodeID_)
 {
 	type = CONFIG_DECREASE_QUORUM;
@@ -39,7 +39,7 @@ bool ConfigCommand::DecreaseQuorum(
 	return true;
 }
 
-bool ConfigCommand::CreateDatabase(
+bool ConfigMessage::CreateDatabase(
  uint64_t databaseID_, ReadBuffer& name_)
 {
 	type = CONFIG_CREATE_DATABASE;
@@ -48,7 +48,7 @@ bool ConfigCommand::CreateDatabase(
 	return true;
 }
 
-bool ConfigCommand::RenameDatabase(
+bool ConfigMessage::RenameDatabase(
  uint64_t databaseID_, ReadBuffer& name_)
 {
 	type = CONFIG_RENAME_DATABASE;
@@ -57,7 +57,7 @@ bool ConfigCommand::RenameDatabase(
 	return true;
 }
 
-bool ConfigCommand::DeleteDatabase(
+bool ConfigMessage::DeleteDatabase(
  uint64_t databaseID_)
 {
 	type = CONFIG_DELETE_DATABASE;
@@ -65,7 +65,7 @@ bool ConfigCommand::DeleteDatabase(
 	return true;
 }
 
-bool ConfigCommand::CreateTable(
+bool ConfigMessage::CreateTable(
  uint64_t databaseID_, uint64_t tableID_, uint64_t shardID_,
  uint64_t quorumID_, ReadBuffer& name_)
 {
@@ -78,7 +78,7 @@ bool ConfigCommand::CreateTable(
 	return true;
 }
 
-bool ConfigCommand::RenameTable(
+bool ConfigMessage::RenameTable(
  uint64_t databaseID_, uint64_t tableID_, ReadBuffer& name_)
 {
 	type = CONFIG_RENAME_TABLE;
@@ -88,7 +88,7 @@ bool ConfigCommand::RenameTable(
 	return true;
 }
 
-bool ConfigCommand::DeleteTable(
+bool ConfigMessage::DeleteTable(
  uint64_t databaseID_, uint64_t tableID_)
 {
 	type = CONFIG_DELETE_TABLE;
@@ -97,7 +97,7 @@ bool ConfigCommand::DeleteTable(
 	return true;
 }
 
-bool ConfigCommand::Read(ReadBuffer& buffer)
+bool ConfigMessage::Read(ReadBuffer& buffer)
 {
 	int			read;
 	unsigned	numNodes, i;
@@ -177,7 +177,7 @@ bool ConfigCommand::Read(ReadBuffer& buffer)
 	return (read == (signed)buffer.GetLength() ? true : false);
 }
 
-bool ConfigCommand::Write(Buffer& buffer)
+bool ConfigMessage::Write(Buffer& buffer)
 {
 	ReadBuffer		rb;
 	uint64_t*		it;

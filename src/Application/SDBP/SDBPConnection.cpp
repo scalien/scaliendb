@@ -73,9 +73,9 @@ void SDBPConnection::OnClose()
 		server->DeleteConn(this);
 }
 
-void SDBPConnection::OnComplete(Command* command)
+void SDBPConnection::OnComplete(Message* message)
 {
-	context->OnComplete(this, command);
+	context->OnComplete(this, message);
 }
 
 bool SDBPConnection::IsActive()

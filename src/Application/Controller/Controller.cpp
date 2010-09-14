@@ -1,9 +1,9 @@
 #include "Controller.h"
-#include "ConfigCommand.h"
+#include "ConfigMessage.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
-#include "Application/Common/ClientConnection.h"
+#include "Application/Common/ClientSession.h"
 #include "Application/Common/ClusterMessage.h"
 
 void Controller::Init()
@@ -59,13 +59,13 @@ uint64_t Controller::GetMaster()
 	return configContext.GetLeader();
 }
 
-bool Controller::ProcessClientCommand(ClientConnection* /*conn*/, ConfigCommand& command)
+bool Controller::ProcessClientCommand(ClientSession* /*conn*/, ConfigMessage& message)
 {
 	// TODO:
 	// 1. verify all the IDs
-	// 2. complete the command where necessary
+	// 2. complete the message where necessary
 	
-	if (command.type == CONFIG_CREATE_TABLE)
+	if (message.type == CONFIG_CREATE_TABLE)
 	{	
 		// TODO: assign a new shardID
 	}
@@ -80,18 +80,18 @@ void Controller::OnLearnLease()
 		TryRegisterShardServer(endpoint);
 }
 
-void Controller::OnConfigCommand(ConfigCommand& command)
+void Controller::OnConfigMessage(ConfigMessage& message)
 {
 	ClusterMessage clusterMessage;
 	
-	if (command.type == CONFIG_REGISTER_SHARDSERVER)
+	if (message.type == CONFIG_REGISTER_SHARDSERVER)
 	{
 		// tell ContextTransport that this connection has a new nodeID
-		CONTEXT_TRANSPORT->SetConnectionNodeID(command.endpoint, command.nodeID);
+		CONTEXT_TRANSPORT->SetConnectionNodeID(message.endpoint, message.nodeID);
 		
 		// tell the shard server
-		clusterMessage.SetNodeID(command.nodeID);
-		CONTEXT_TRANSPORT->SendClusterMessage(command.nodeID, clusterMessage);
+		clusterMessage.SetNodeID(message.nodeID);
+		CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
 	}
 	
 	
@@ -119,7 +119,7 @@ void Controller::OnAwaitingNodeID(Endpoint endpoint)
 void Controller::TryRegisterShardServer(Endpoint& endpoint)
 {
 	uint64_t		nodeID;
-	ConfigCommand	command;
+	ConfigMessage	message;
 
 	// first look at existing endpoint => nodeID mapping
 	// and at least generate a warning?
@@ -128,6 +128,6 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 		return;
 
 	nodeID = nextNodeID++;
-	command.RegisterShardServer(nodeID, endpoint);
-	configContext.Append(command);		
+	message.RegisterShardServer(nodeID, endpoint);
+	configContext.Append(message);		
 }
