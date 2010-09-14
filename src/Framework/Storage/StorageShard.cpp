@@ -492,13 +492,13 @@ void StorageShard::WriteBackPages(InList<Buffer>& pages)
 	}
 }
 
-// TODO: fix directory structure
 void StorageShard::DeleteGarbageFiles()
 {
 	char*			p;
 	FS_Dir			dir;
 	FS_DirEntry		dirent;
 	Buffer			buffer;
+	Buffer			tmp;
 	unsigned		len, nread;
 	uint32_t		index;
 	ReadBuffer		firstKey;
@@ -509,20 +509,26 @@ void StorageShard::DeleteGarbageFiles()
 	{
 		len = tocFilepath.GetLength() - 1;
 		buffer.Write(FS_DirEntryName(dirent));
-		if (buffer.GetLength() != len + 11)
+		if (buffer.GetLength() != sizeof(DATAFILE_PREFIX) - 1 + DATAFILE_PADDING)
 			continue;
-		if (strncmp(tocFilepath.GetBuffer(), buffer.GetBuffer(), len) != 0)
+		if (strncmp(DATAFILE_PREFIX, buffer.GetBuffer(), sizeof(DATAFILE_PREFIX) - 1) != 0)
 			continue;
 		p = buffer.GetBuffer();
-		if ((p + len)[0] != '.')
+		len = sizeof(DATAFILE_PREFIX) - 2;
+		if (p[len] != '.')
 			continue;
 		p += len + 1;
-		len = buffer.GetLength() - len - 1;
+		len = buffer.GetLength() - (len + 1);
 		index = (uint32_t) BufferToUInt64(p, len, &nread);
 		if (nread != len)
 			continue;
+
+		tmp.Write(path.GetBuffer(), path.GetLength() - 1);
+		tmp.Append(FS_DirEntryName(dirent));
+		tmp.NullTerminate();
+
 		if (index >= prevCommitStorageFileIndex)
-			FS_Delete(FS_DirEntryName(dirent));
+			FS_Delete(tmp.GetBuffer());
 	}
 
 	FS_CloseDir(dir);
