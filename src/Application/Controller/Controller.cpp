@@ -24,9 +24,6 @@ void Controller::Init()
 	
 	InitConfigContext();
 	
-	//TODO:
-	nextNodeID = 100;
-
 	// connect to the controller nodes
 	numControllers = (unsigned) configFile.GetListNum("controllers");
 	for (nodeID = 0; nodeID < numControllers; nodeID++)
@@ -130,14 +127,14 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 	uint64_t		nodeID;
 	ConfigMessage	message;
 
-	// first look at existing endpoint => nodeID mapping
-	// and at least generate a warning?
-
 	if (configContext.IsAppending())
 		return;
 
-	nodeID = nextNodeID++;
-	message.RegisterShardServer(nodeID, endpoint);
+	message.RegisterShardServer(0, endpoint);
+	if (!configState.CompleteMessage(message))
+	{
+		// TODO: ?
+	}
 	configContext.Append(message);		
 }
 

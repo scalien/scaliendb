@@ -48,7 +48,6 @@ private:
 	void			TryRegisterShardServer(Endpoint& endpoint);
 	void			SendClientReply(ConfigMessage& message);
 	
-	uint64_t		nextNodeID;
 	ConfigContext	configContext;
 	MessageList		configMessages;
 	ConfigState		configState;
