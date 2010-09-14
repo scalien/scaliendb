@@ -206,34 +206,6 @@ bool Delete(const char* path)
 #endif
 }
 
-bool IsDirectory(const char* path)
-{
-	struct stat s;
-	if (stat(path, &s) != 0)
-		return false;
-	if (s.st_mode & S_IFDIR)
-		return true;
-	return false;
-}
-
-int64_t GetFreeDiskSpace(const char* path)
-{
-#ifdef _WIN32
-	ULARGE_INTEGER	bytes;
-	
-	if (!GetDiskFreeSpaceEx(path, &bytes, NULL, NULL))
-		return -1;
-	return bytes.QuadPart;
-#else
-	struct statvfs sv;
-	
-	if (statvfs(path, &sv) < 0)
-		return -1;
-	
-	return ((int64_t) sv.f_bavail * sv.f_frsize);
-#endif
-}
-
 uint64_t GenerateGUID()
 {
 	const uint64_t WIDTH_M = 16; // machine TODO

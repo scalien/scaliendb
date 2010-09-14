@@ -5,14 +5,12 @@ StorageShardIndex::StorageShardIndex()
 {
 	shard = NULL;
 	startKeyBuffer = NULL;
-	endKeyBuffer = NULL;
 }
 
 StorageShardIndex::~StorageShardIndex()
 {
 	delete shard;
 	delete startKeyBuffer;
-	delete endKeyBuffer;
 }
 
 void StorageShardIndex::SetStartKey(ReadBuffer key_, bool copy)
@@ -33,23 +31,3 @@ void StorageShardIndex::SetStartKey(ReadBuffer key_, bool copy)
 	else
 		startKey = key_;
 }
-
-void StorageShardIndex::SetEndKey(ReadBuffer key_, bool copy)
-{
-	if (endKeyBuffer != NULL && !copy)
-	{
-		delete endKeyBuffer;
-		endKeyBuffer = NULL;
-	}
-	
-	if (copy)
-	{
-		if (endKeyBuffer == NULL)
-			endKeyBuffer = new Buffer; // TODO: allocation strategy
-		endKeyBuffer->Write(key_);
-		endKey.Wrap(*endKeyBuffer);
-	}
-	else
-		endKey = key_;
-}
-

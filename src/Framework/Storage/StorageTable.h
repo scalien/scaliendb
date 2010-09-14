@@ -30,7 +30,7 @@ public:
 	bool				Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
 	void				Delete(ReadBuffer& key);
 
-	bool				CreateShard(uint64_t shardID, ReadBuffer& startKey, ReadBuffer& endKey);
+	bool				CreateShard(uint64_t shardID, ReadBuffer& startKey);
 	bool				SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuffer& startKey);
 
 	StorageTable*		next;
@@ -38,15 +38,27 @@ public:
 
 private:
 	StorageShardIndex*	Locate(ReadBuffer& key);
-	void				ReadTOC(uint32_t length);
+	void				PerformRecovery(uint64_t length);
+	void				PerformRecoveryCreateShard(uint64_t& oldShardID, uint64_t& newShardID);
+	void				PerformRecoveryCopy();
+	void				PerformRecoveryMove();
+	void				ReadTOC(uint64_t length);
+	void				RebuildTOC();
 	void				WriteTOC();
+	void				WriteRecoveryDone();
+	void				WriteRecoveryCreateShard(uint64_t oldShardID, uint64_t newShardID);
+	void				WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex);
+	void				WriteRecoveryMove(Buffer& src, Buffer& dst);
+	void				DeleteGarbageShard(uint64_t shardID);
 	void				CommitPhase1();
 	void				CommitPhase2();
 	void				CommitPhase3();
 	void				CommitPhase4();
 
 	FD					tocFD;
+	FD					recoveryFD;
 	Buffer				tocFilepath;
+	Buffer				recoveryFilepath;
 	Buffer				name;
 	Buffer				path;
 	Buffer				buffer;

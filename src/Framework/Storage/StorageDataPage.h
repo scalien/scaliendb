@@ -53,6 +53,7 @@ public:
 	void						Read(ReadBuffer& buffer);
 	bool						CheckWrite(Buffer& buffer);
 	bool						Write(Buffer& buffer);
+	void						Invalidate();
 
 private:
 	friend class StorageDataCache;
