@@ -10,6 +10,8 @@
 #define FILE_TYPE			"ScalienDB shard index"
 #define FILE_VERSION_MAJOR	0
 #define FILE_VERSION_MINOR	1
+#define DATAFILE_PREFIX		"data."
+#define DATAFILE_PADDING	10
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -82,6 +84,8 @@ void StorageShard::Open(const char* dir, const char* name_)
 	shardSize = tocSize;
 	if (tocSize > 0)
 		shardSize += ReadTOC(tocSize);
+	else
+		shardSize += RebuildTOC();
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
@@ -148,6 +152,17 @@ bool StorageShard::GetMidpoint(ReadBuffer& key)
 	
 	key = fi->key;
 	return true;
+}
+
+ReadBuffer StorageShard::FirstKey()
+{
+	StorageFileIndex*	fi;
+	
+	fi = files.First();
+	if (fi == NULL)
+		return ReadBuffer();
+	
+	return fi->key;
 }
 
 bool StorageShard::Get(ReadBuffer& key, ReadBuffer& value)
@@ -293,7 +308,7 @@ void StorageShard::WritePath(Buffer& buffer, Buffer& path, uint32_t index)
 {
 	char	buf[30];
 	
-	snprintf(buf, sizeof(buf), "data.%010u", index);
+	snprintf(buf, sizeof(buf), DATAFILE_PREFIX "%0*u", DATAFILE_PADDING, index);
 	
 	buffer.Write(path.GetBuffer(), path.GetLength() - 1);
 	buffer.Append(buf);
@@ -477,6 +492,7 @@ void StorageShard::WriteBackPages(InList<Buffer>& pages)
 	}
 }
 
+// TODO: fix directory structure
 void StorageShard::DeleteGarbageFiles()
 {
 	char*			p;
@@ -512,52 +528,67 @@ void StorageShard::DeleteGarbageFiles()
 	FS_CloseDir(dir);
 }
 
-void StorageShard::RebuildTOC()
+uint64_t StorageShard::RebuildTOC()
 {
-	char*			p;
-	FS_Dir			dir;
-	FS_DirEntry		dirent;
-	Buffer			buffer;
-	unsigned		len, nread;
-	uint32_t		index;
+	char*				p;
+	FS_Dir				dir;
+	FS_DirEntry			dirent;
+	Buffer				buffer;
+	Buffer				tmp;
+	unsigned			len, nread;
+	uint32_t			index;
 	StorageFileIndex*	fi;
-	ReadBuffer		firstKey;
+	ReadBuffer			firstKey;
+	uint64_t			totalSize;
 	
+	totalSize = 0;
 	dir = FS_OpenDir(path.GetBuffer());
 	
 	while ((dirent = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
 	{
 		buffer.Write(FS_DirEntryName(dirent));
-		if (buffer.GetLength() != tocFilepath.GetLength() + 11)
+		if (buffer.GetLength() != sizeof(DATAFILE_PREFIX) - 1 + DATAFILE_PADDING)
 			continue;
-		if (strncmp(tocFilepath.GetBuffer(), buffer.GetBuffer(), tocFilepath.GetLength()) != 0)
+		if (strncmp(DATAFILE_PREFIX, buffer.GetBuffer(), sizeof(DATAFILE_PREFIX) - 1) != 0)
 			continue;
 		p = buffer.GetBuffer();
-		len = tocFilepath.GetLength();
-		if ((p + len)[0] != '.')
+		len = sizeof(DATAFILE_PREFIX) - 2;
+		if (p[len] != '.')
 			continue;
 		p += len + 1;
-		len = buffer.GetLength() - len;
+		len = buffer.GetLength() - (len + 1);
 		index = (uint32_t) BufferToUInt64(p, len, &nread);
 		if (nread != len)
 			continue;
+			
+		tmp.Write(path.GetBuffer(), path.GetLength() - 1);
+		tmp.Append(FS_DirEntryName(dirent));
+		tmp.NullTerminate();
+		
 		fi = new StorageFileIndex;
 		fi->file = new StorageFile;
-		fi->file->Open(FS_DirEntryName(dirent));
+		fi->file->Open(tmp.GetBuffer());
 		if (fi->file->IsEmpty())
 		{
-			FS_Delete(FS_DirEntryName(dirent));
+			FS_Delete(tmp.GetBuffer());
 			continue;
 		}
+		else
+			totalSize += FS_FileSize(tmp.GetBuffer());
+
 		fi->SetKey(fi->file->FirstKey(), true);
 		fi->file->Close();
 		delete fi->file;
 		fi->file = NULL;
+		fi->index = index;
+
+		files.Insert(fi);
 	}
 	
 	FS_CloseDir(dir);
 
-	WriteTOC();	
+	WriteTOC();
+	return totalSize;
 }
 
 void StorageShard::WriteRecoveryPrefix()

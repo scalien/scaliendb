@@ -185,6 +185,8 @@ FS_Dir FS_OpenDir(const char* filename)
 
 FS_DirEntry	FS_ReadDir(FS_Dir dir)
 {
+	if ((DIR*) dir == NULL)
+		return FS_INVALID_DIR_ENTRY;
 	return (FS_DirEntry) readdir((DIR*) dir);
 }
 
@@ -192,6 +194,9 @@ void FS_CloseDir(FS_Dir dir)
 {
 	int ret;
 	
+	if ((DIR*) dir == NULL)
+		return;
+		
 	ret = closedir((DIR*) dir);
 	if (ret < 0)
 		Log_Errno();
@@ -226,6 +231,16 @@ bool FS_DeleteDir(const char* filename)
 const char*	FS_DirEntryName(FS_DirEntry dirent)
 {
 	return ((struct dirent*) dirent)->d_name;
+}
+
+bool FS_IsFile(const char* path)
+{
+	struct stat s;
+	if (stat(path, &s) != 0)
+		return false;
+	if (s.st_mode & S_IFREG)
+		return true;
+	return false;
 }
 
 bool FS_IsDirectory(const char* path)

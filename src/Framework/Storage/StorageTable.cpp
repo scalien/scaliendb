@@ -2,6 +2,8 @@
 #include "StorageFileHeader.h"
 #include "System/FileSystem.h"
 
+#include <ctype.h>
+
 #define LAST_SHARD_KEY		"\377\377\377\377\377\377\377\377"
 #define FILE_TYPE			"ScalienDB table index"
 #define FILE_VERSION_MAJOR	0
@@ -224,7 +226,7 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
 	assert(si != NULL);
 	assert(si->shardID == oldShardID);
 
-	WriteRecoveryCreateShard(newShardID);
+	WriteRecoveryCreateShard(oldShardID, newShardID);
 	
 	newSi = new StorageShardIndex;
 	newSi->shard = si->shard->SplitShard(newShardID, startKey);
@@ -320,9 +322,11 @@ void StorageTable::PerformRecovery(uint64_t length)
 	uint32_t			op;
 	uint64_t			total;
 	uint64_t			pos;
+	uint64_t			oldShardID;
 	uint64_t			newShardID;
 	bool				recovery;
 	
+	oldShardID = 0;
 	newShardID = 0;
 	pos = 0;
 	recovery = false;
@@ -344,7 +348,7 @@ void StorageTable::PerformRecovery(uint64_t length)
 		if (FS_FileSeek(recoveryFD, total, FS_SEEK_CUR) < 0)
 			break;
 
-		pos += required;
+		pos += required + total;
 		if (pos == length)
 		{
 			if (op == RECOVERY_OP_DONE)
@@ -367,8 +371,8 @@ void StorageTable::PerformRecovery(uint64_t length)
 		op = FromLittle32(*((uint32_t*) p));
 		p += sizeof(op);
 		total = FromLittle64(*((uint64_t*) p));
-		pos += required;
-		
+		pos += required + total;
+	
 		switch (op)
 		{
 		case RECOVERY_OP_COPY:
@@ -378,10 +382,14 @@ void StorageTable::PerformRecovery(uint64_t length)
 			PerformRecoveryMove();
 			break;
 		case RECOVERY_OP_CREATE:
-			newShardID = PerformRecoveryCreateShard();
+			PerformRecoveryCreateShard(oldShardID, newShardID);
+			break;
 		default:
 			ASSERT_FAIL();
 		}		
+
+		if (pos == length)
+			break;		
 	}
 
 	if (recovery)
@@ -393,6 +401,31 @@ void StorageTable::PerformRecovery(uint64_t length)
 	FS_FileSeek(recoveryFD, 0, SEEK_SET);
 	FS_FileTruncate(recoveryFD, 0);	
 	FS_Sync();
+}
+
+void StorageTable::PerformRecoveryCreateShard(uint64_t& oldShardID, uint64_t& newShardID)
+{
+	int64_t				required;
+	Buffer				oldName;
+	char*				p;
+
+	required = sizeof(oldShardID) + sizeof(newShardID);
+	if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
+		ASSERT_FAIL();
+	p = buffer.GetBuffer();
+	
+	oldShardID = FromLittle64(*((uint64_t*) p));
+	p += sizeof(oldShardID);
+
+	newShardID = FromLittle64(*((uint64_t*) p));
+	p += sizeof(newShardID);
+	
+	// delete TOC file from old shard
+	oldName.Write(path.GetBuffer(), path.GetLength() - 1);
+	oldName.Appendf("%U/index", oldShardID);
+	oldName.NullTerminate();
+	
+	FS_Delete(oldName.GetBuffer());
 }
 
 void StorageTable::PerformRecoveryCopy()
@@ -487,6 +520,58 @@ void StorageTable::PerformRecoveryMove()
 
 	// this might fail if crashed while in recovery, but it is OK
 	FS_Rename(newName.GetBuffer(), oldName.GetBuffer());
+}
+
+void StorageTable::RebuildTOC()
+{
+	FS_Dir				dir;
+	FS_DirEntry			dirent;
+	Buffer				fullname;
+	Buffer				buffer;
+	unsigned			i;
+	StorageShardIndex*	si;
+	ReadBuffer			firstKey;
+	bool				isShardDir;
+	
+	dir = FS_OpenDir(path.GetBuffer());
+	
+	while ((dirent = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
+	{
+		fullname.Write(path.GetBuffer(), path.GetLength() - 1);
+		fullname.Append(FS_DirEntryName(dirent));
+		fullname.NullTerminate();
+
+		if (!FS_IsDirectory(fullname.GetBuffer()))
+			continue;
+
+		buffer.Write(FS_DirEntryName(dirent));
+		isShardDir = true;
+		for (i = 0; i < buffer.GetLength(); i++)
+		{
+			if (!isdigit(buffer.GetCharAt(i)))
+			{
+				isShardDir = false;
+				break;
+			}
+		}
+		if (!isShardDir)
+			continue;
+		
+		si = new StorageShardIndex;
+		si->shard = new StorageShard;
+		si->shard->Open(fullname.GetBuffer(), FS_DirEntryName(dirent));
+		si->SetStartKey(si->shard->FirstKey(), true);
+		// TODO: HACK endKey is missing from shards!
+		si->SetEndKey(ReadBuffer((char*)LAST_SHARD_KEY, sizeof(LAST_SHARD_KEY) - 1), true);
+		si->shard->Close();
+		delete si->shard;
+		si->shard = NULL;
+		shards.Insert(si);
+	}
+	
+	FS_CloseDir(dir);
+
+	WriteTOC();	
 }
 
 void StorageTable::ReadTOC(uint64_t length)
@@ -606,7 +691,7 @@ void StorageTable::WriteRecoveryDone()
 	FS_Sync();
 }
 
-void StorageTable::WriteRecoveryCreateShard(uint64_t newShardID)
+void StorageTable::WriteRecoveryCreateShard(uint64_t oldShardID, uint64_t newShardID)
 {
 	uint32_t		op;
 	uint64_t		total;
@@ -619,15 +704,19 @@ void StorageTable::WriteRecoveryCreateShard(uint64_t newShardID)
 	*((uint32_t*) p) = ToLittle32(op);
 	p += sizeof(op);
 	
-	total = sizeof(newShardID);
+	total = sizeof(oldShardID) + sizeof(newShardID);
 	*((uint64_t*) p) = ToLittle64(total);
 	p += sizeof(total);
+
+	*((uint64_t*) p) = ToLittle64(oldShardID);
+	p += sizeof(oldShardID);
 	
 	*((uint64_t*) p) = ToLittle64(newShardID);
+	p += sizeof(newShardID);
 	
-	required = sizeof(op) + sizeof(total) + sizeof(newShardID);
+	required = sizeof(op) + sizeof(total) + total;
 
-	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
+	if (FS_FileWrite(recoveryFD, (const void*) buffer.GetBuffer(), required) != required)
 		ASSERT_FAIL();
 }
 
@@ -721,7 +810,7 @@ void StorageTable::WriteRecoveryMove(Buffer& src, Buffer& dst)
 			sizeof(newNameLength) + dst.GetLength() - 1;
 	
 	p = buffer.GetBuffer();
-	*((uint64_t*) p) = ToLittle64(op);
+	*((uint64_t*) p) = ToLittle64(total);
 	required = sizeof(total);
 	if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
 		ASSERT_FAIL();
@@ -751,6 +840,41 @@ void StorageTable::WriteRecoveryMove(Buffer& src, Buffer& dst)
 		ASSERT_FAIL();
 }
 
+void StorageTable::DeleteGarbageShard(uint64_t shardID)
+{
+	const char*		p;
+	FS_Dir			dir;
+	FS_DirEntry		dirent;
+	Buffer			tmp;
+	Buffer			dirname;
+	char			sep;
+	
+	sep = FS_Separator();
+		
+	dirname.Write(path.GetBuffer(), path.GetLength() - 1);
+	dirname.Appendf("%U", shardID);
+	dirname.NullTerminate();
+
+	dir = FS_OpenDir(dirname.GetBuffer());
+	
+	while ((dirent = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
+	{
+		p = FS_DirEntryName(dirent);
+		if (p[0] == '.')
+			continue;
+
+		tmp.Write(dirname.GetBuffer(), dirname.GetLength() - 1);
+		tmp.Append(&sep, 1);
+		tmp.Append(p);
+		tmp.NullTerminate();
+
+		FS_Delete(tmp.GetBuffer());
+	}
+
+	FS_CloseDir(dir);
+	FS_DeleteDir(dirname.GetBuffer());
+}
+
 void StorageTable::CommitPhase1()
 {
 	StorageShardIndex*	si;
@@ -763,9 +887,6 @@ void StorageTable::CommitPhase2()
 {
 	StorageShardIndex*	si;
 	
-	// TODO: recovery
-	WriteTOC();
-
 	for (si = shards.First(); si != NULL; si = shards.Next(si))
 		si->shard->CommitPhase2();
 }

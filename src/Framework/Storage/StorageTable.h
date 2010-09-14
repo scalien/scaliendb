@@ -39,16 +39,17 @@ public:
 private:
 	StorageShardIndex*	Locate(ReadBuffer& key);
 	void				PerformRecovery(uint64_t length);
+	void				PerformRecoveryCreateShard(uint64_t& oldShardID, uint64_t& newShardID);
 	void				PerformRecoveryCopy();
 	void				PerformRecoveryMove();
-	uint64_t			PerformRecoveryCreateShard();
 	void				ReadTOC(uint64_t length);
+	void				RebuildTOC();
 	void				WriteTOC();
-	
 	void				WriteRecoveryDone();
-	void				WriteRecoveryCreateShard(uint64_t newShardID);
+	void				WriteRecoveryCreateShard(uint64_t oldShardID, uint64_t newShardID);
 	void				WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex);
 	void				WriteRecoveryMove(Buffer& src, Buffer& dst);
+	void				DeleteGarbageShard(uint64_t shardID);
 	void				CommitPhase1();
 	void				CommitPhase2();
 	void				CommitPhase3();

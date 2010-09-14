@@ -27,6 +27,7 @@ public:
 	const char*				GetName();
 	uint64_t				GetSize();
 	bool					GetMidpoint(ReadBuffer& key);
+	ReadBuffer				FirstKey();
 
 	void					Open(const char* dir, const char* name);
 	void					Commit(bool recovery = true, bool flush = true);
@@ -46,7 +47,7 @@ private:
 	void					PerformRecovery(uint32_t length);
 	void					WriteBackPages(InList<Buffer>& pages);
 	void					DeleteGarbageFiles();
-	void					RebuildTOC();
+	uint64_t				RebuildTOC();
 	void					WriteRecoveryPrefix();
 	void					WriteRecoveryPostfix();
 	void					WriteTOC();

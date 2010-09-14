@@ -47,6 +47,7 @@ bool		FS_DeleteDir(const char* name);
 
 const char*	FS_DirEntryName(FS_DirEntry dirent);
 
+bool		FS_IsFile(const char* name);
 bool		FS_IsDirectory(const char* name);
 int64_t		FS_FreeDiskSpace(const char* path);
 int64_t		FS_DiskSpace(const char* path);
