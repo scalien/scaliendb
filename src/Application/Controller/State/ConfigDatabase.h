@@ -19,6 +19,8 @@
 class ConfigDatabase
 {
 public:
+	ConfigDatabase()	{ prev = next = this; }
+
 	uint64_t			databaseID;
 	Buffer				name;
 	

@@ -18,13 +18,11 @@
 class ConfigQuorum
 {
 public:
-	uint64_t			quorumID;
+	ConfigQuorum()		{ prev = next = this; }
 
-	unsigned			numNodes;
-	List<uint64_t>		nodeIDs;
-	
+	uint64_t			quorumID;
+	List<uint64_t>		nodes;	
 	List<uint64_t>		shards;
-	
 	char				productionType;
 	
 	/* ---------------------------------------------------------------------------------------- */

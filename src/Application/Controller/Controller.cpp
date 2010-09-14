@@ -61,14 +61,20 @@ uint64_t Controller::GetMaster()
 
 bool Controller::ProcessClientCommand(ClientSession* /*conn*/, ConfigMessage& message)
 {
+	ConfigMessage*	pmessage;
 	// TODO:
 	// 1. verify all the IDs
 	// 2. complete the message where necessary
 	
-	if (message.type == CONFIG_CREATE_TABLE)
-	{	
-		// TODO: assign a new shardID
+	if (!configState.CompleteMessage(message))
+	{
+		// TODO: send failed to conn
 	}
+	
+	pmessage = new ConfigMessage;
+	*pmessage = message;
+	configMessages.Append(pmessage);
+	
 	return true;
 }
 
@@ -82,7 +88,8 @@ void Controller::OnLearnLease()
 
 void Controller::OnConfigMessage(ConfigMessage& message)
 {
-	ClusterMessage clusterMessage;
+	bool			status;
+	ClusterMessage	clusterMessage;
 	
 	if (message.type == CONFIG_REGISTER_SHARDSERVER)
 	{
@@ -94,7 +101,9 @@ void Controller::OnConfigMessage(ConfigMessage& message)
 		CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
 	}
 	
+	status = configState.OnMessage(message);
 	
+	SendClientReply(message);
 }
 
 void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& /*msg*/)
@@ -130,4 +139,8 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 	nodeID = nextNodeID++;
 	message.RegisterShardServer(nodeID, endpoint);
 	configContext.Append(message);		
+}
+
+void Controller::SendClientReply(ConfigMessage& message)
+{
 }

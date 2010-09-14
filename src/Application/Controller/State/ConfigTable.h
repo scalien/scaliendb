@@ -15,7 +15,10 @@
 
 class ConfigTable
 {
-public:	
+public:
+	ConfigTable()	{ prev = next = this; }
+
+	uint64_t		databaseID;
 	uint64_t		tableID;
 	Buffer			name;
 	

@@ -16,6 +16,8 @@
 class ConfigShardServer
 {
 public:
+	ConfigShardServer()	{ prev = next = this; }
+
 	uint64_t			nodeID;
 	Endpoint			endpoint;
 	

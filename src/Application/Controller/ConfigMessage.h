@@ -33,6 +33,8 @@ class ConfigMessage : public Message
 public:
 	typedef List<uint64_t> NodeList;
 
+	ConfigMessage()	{ prev = next = this; }
+
 	/* Variables */
 	char			type;
 	char			productionType;

@@ -3,7 +3,9 @@
 
 #include "ConfigMessage.h"
 #include "ConfigContext.h"
+#include "System/Containers/InList.h"
 #include "Application/Common/ClusterContext.h"
+#include "State/ConfigState.h"
 
 class ClientSession; // forward
 
@@ -18,7 +20,7 @@ class ClientSession; // forward
 class Controller : public ClusterContext
 {
 public:
-	typedef List<ConfigMessage> MessageList;
+	typedef InList<ConfigMessage> MessageList;
 
 	void			Init();
 	
@@ -44,10 +46,12 @@ public:
 private:
 	void			InitConfigContext();
 	void			TryRegisterShardServer(Endpoint& endpoint);
+	void			SendClientReply(ConfigMessage& message);
 	
 	uint64_t		nextNodeID;
 	ConfigContext	configContext;
-	MessageList		messages;
+	MessageList		configMessages;
+	ConfigState		configState;
 };
 
 #endif
