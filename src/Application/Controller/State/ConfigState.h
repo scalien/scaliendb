@@ -37,7 +37,7 @@ public:
 	
 	uint64_t			nextQuorumID;
 	uint64_t			nextDatabaseID;
-	uint64_t			tableID;
+	uint64_t			nextTableID;
 	uint64_t			nextShardID;
 	uint64_t			nextNodeID;
 	
@@ -50,6 +50,14 @@ public:
 	void				Write();
 
 private:
+	ConfigQuorum*		GetQuorum(uint64_t quorumID);
+	ConfigDatabase*		GetDatabase(uint64_t databaseID);
+	ConfigDatabase*		GetDatabase(ReadBuffer& name);
+	ConfigTable*		GetTable(uint64_t tableID);
+	ConfigTable*		GetTable(uint64_t databaseID, ReadBuffer& name);
+	ConfigShard*		GetShard(uint64_t shardID);
+	ConfigShardServer*	GetShardServer(uint64_t nodeID);
+
 	bool				CompleteRegisterShardServer(ConfigMessage& message);
 	bool				CompleteCreateQuorum(ConfigMessage& message);
 	bool				CompleteIncreaseQuorum(ConfigMessage& message);

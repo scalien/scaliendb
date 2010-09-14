@@ -32,6 +32,7 @@ public:
 	T*				Remove(T* t);	
 	bool			Remove(T &t);
 	void			Clear();
+	void			ClearMembers();
 	
 	T*				First() const;
 	T*				Last() const;
@@ -187,6 +188,14 @@ void List<T>::Clear()
 	head = tail = NULL;
 	
 	assert(length == 0);
+}
+
+template<class T>
+void List<T>::ClearMembers()
+{
+	head = NULL;
+	tail = NULL;
+	length = 0;
 }
 
 template<class T>

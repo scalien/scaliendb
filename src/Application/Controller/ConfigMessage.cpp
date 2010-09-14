@@ -18,6 +18,7 @@ bool ConfigMessage::CreateQuorum(
 	quorumID = quorumID_;
 	productionType = productionType_;
 	nodes = nodes_;
+	nodes_.ClearMembers();
 	return true;
 }
 
