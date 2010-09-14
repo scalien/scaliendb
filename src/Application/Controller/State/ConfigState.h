@@ -1,5 +1,5 @@
-#ifndef CLUSTERSTATE_H
-#define CLUSTERSTATE_H
+#ifndef CONFIGSTATE_H
+#define CONFIGSTATE_H
 
 #include "System/Common.h"
 #include "System/Containers/InList.h"
@@ -7,38 +7,42 @@
 #include "ConfigDatabase.h"
 #include "ConfigTable.h"
 #include "ConfigShard.h"
-#include "ClusterShardServer.h"
+#include "ConfigShardServer.h"
 #include "Application/Controller/ConfigCommand.h"
-#include "Application/Common/ClusterMessage.h"
 
 /*
 ===============================================================================
 
- State
+ ConfigState
 
 ===============================================================================
 */
 
-class State
+class ConfigState
 {
 public:
 	typedef InList<ConfigQuorum>		QuorumList;
 	typedef InList<ConfigDatabase>		DatabaseList;
 	typedef InList<ConfigTable>			TableList;
 	typedef InList<ConfigShard>			ShardList;
+	typedef InList<ConfigShardServer>	ShardServerList;
 
 	// config data:
+	
 	QuorumList			quorums;
 	DatabaseList		databases;
 	TableList			tables;
 	ShardList			shards;
+	ShardServerList		shardServers;
 	
 	uint64_t			nextNodeID;
 	
-	void				Init() { nextNodeID = 100; }
+	void				Init();
 	
-	void				Update(uint64_t nodeID, ClusterMessage& command);
-	bool				GetMessage(ClusterMessage& msg);
+	void				Read();
+	void				Write();
+
+	void				Update(ConfigCommand& command);
 };
 
 #endif
