@@ -265,7 +265,7 @@ int IMFHeader::Parse(char* buf, int len, int offs)
 	char* key;
 	char* value;
 	int nkv = numKeyval;
-	StorageKeyValue* keyvalue;
+	KeyValue* keyvalue;
 	int keylen;
 	int pos;
 
@@ -304,7 +304,7 @@ int IMFHeader::Parse(char* buf, int len, int offs)
 		if (pos <= 0)
 			return pos;
 		
-		keyvalue = GetStorageKeyValues(nkv);
+		keyvalue = GetKeyValues(nkv);
 		
 		keyvalue[nkv].keyStart = (int) (key - buf);
 		keyvalue[nkv].keyLength = keylen;
@@ -324,7 +324,7 @@ int IMFHeader::Parse(char* buf, int len, int offs)
 
 const char* IMFHeader::GetField(const char* key)
 {
-	StorageKeyValue* keyval;
+	KeyValue* keyval;
 	int i;
 	
 	if (!data)
@@ -344,16 +344,16 @@ const char* IMFHeader::GetField(const char* key)
 }
 
 
-IMFHeader::StorageKeyValue* IMFHeader::GetStorageKeyValues(int newSize)
+IMFHeader::KeyValue* IMFHeader::GetKeyValues(int newSize)
 {
-	StorageKeyValue* newkv;
+	KeyValue* newkv;
 	
 	if (newSize < capKeyval)
 		return keyvalues;
 	
 	capKeyval *= 2;
-	newkv = new StorageKeyValue[capKeyval];
-	memcpy(newkv, keyvalues, numKeyval * sizeof(StorageKeyValue));
+	newkv = new KeyValue[capKeyval];
+	memcpy(newkv, keyvalues, numKeyval * sizeof(KeyValue));
 	
 	if (keyvalues != keyvalBuffer)
 		delete[] keyvalues;

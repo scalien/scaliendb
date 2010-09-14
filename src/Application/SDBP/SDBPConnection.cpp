@@ -73,7 +73,7 @@ void SDBPConnection::OnClose()
 		server->DeleteConn(this);
 }
 
-void SDBPConnection::OnComplete(Message* message)
+void SDBPConnection::OnComplete(Message* message, bool status)
 {
 	context->OnComplete(this, message);
 }

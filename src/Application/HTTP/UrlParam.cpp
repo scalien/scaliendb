@@ -110,7 +110,7 @@ bool UrlParam::Parse()
 	buffer.Allocate(len + 1, false);
 	
 	s = start = url;
-	while (*s)
+	while (s - url < len)
 	{
 		if (*s == sep)
 		{

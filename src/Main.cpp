@@ -3,7 +3,7 @@
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
 #include "Application/Common/ContextTransport.h"
-#include "Application/Controller/Controller.h"
+#include "Application/Controller/ControllerApp.h"
 #include "Application/ShardServer/ShardServer.h"
 
 #ifdef DEBUG
@@ -18,7 +18,7 @@ void InitContextTransport();
 
 int main(int argc, char** argv)
 {
-	Controller*			controller;
+	ControllerApp*		controller;
 	ShardServer*		shardServer;
 	bool				isController;
 	
@@ -34,7 +34,7 @@ int main(int argc, char** argv)
 	Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
 	if (isController)
 	{
-		controller = new Controller;
+		controller = new ControllerApp;
 		controller->Init();
 	}
 	else

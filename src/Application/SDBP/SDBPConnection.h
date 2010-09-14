@@ -42,7 +42,7 @@ public:
 	/* ---------------------------------------------------------------------------------------- */
 	/* ClientConnection interface																*/
 	/*																							*/
-	virtual void		OnComplete(Message* message);
+	virtual void		OnComplete(Message* message, bool status);
 	virtual bool		IsActive();
 	/* ---------------------------------------------------------------------------------------- */
 	

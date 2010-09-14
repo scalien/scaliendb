@@ -19,8 +19,8 @@ class ClientSession
 public:
 	virtual ~ClientSession() {}
 	
-	virtual void	OnComplete(Message* message)	= 0;
-	virtual bool	IsActive()						= 0;
+	virtual void	OnComplete(Message* message, bool status)	= 0;
+	virtual bool	IsActive()									= 0;
 };
 
 #endif
