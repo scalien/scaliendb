@@ -191,7 +191,7 @@ bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 	for (it = message.nodes.First(); it != NULL; it = message.nodes.Next(it))
 	{
 		if (GetShardServer(*it) == NULL)
-			return false; // shard server does not exist
+			return false; // no such shard server
 	}
 
 	message.quorumID = nextQuorumID++;
@@ -285,11 +285,11 @@ bool ConfigState::CompleteCreateTable(ConfigMessage& message)
 	
 	itQuorum = GetQuorum(message.quorumID);	
 	if (itQuorum == NULL)
-		return false; // quorum not found
+		return false; // no such quorum
 
 	itDatabase = GetDatabase(message.databaseID);
 	if (itDatabase == NULL)
-		return false; // database not found
+		return false; // no such database
 
 	itTable = GetTable(message.databaseID, message.name);
 	if (itTable != NULL)
@@ -307,11 +307,11 @@ bool ConfigState::CompleteRenameTable(ConfigMessage& message)
 
 	itDatabase = GetDatabase(message.databaseID);
 	if (itDatabase == NULL)
-		return false; // database not found
+		return false; // no such database
 
 	itTable = GetTable(message.tableID);
 	if (itTable == NULL)
-		return false; // table not found
+		return false; // no such table
 	itTable = GetTable(message.databaseID, message.name);
 	if (itTable != NULL);
 		return false; // table with name exists in database
@@ -326,11 +326,11 @@ bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
 
 	itDatabase = GetDatabase(message.databaseID);
 	if (itDatabase == NULL)
-		return false; // database not found
+		return false; // no such database
 
 	itTable = GetTable(message.tableID);
 	if (itTable == NULL)
-		return false; // table not found
+		return false; // no such table
 
 	return true;
 }
@@ -373,6 +373,7 @@ bool ConfigState::OnIncreaseQuorum(ConfigMessage& message)
 		
 	List<uint64_t>& nodes = itQuorum->nodes;
 	
+	// make sure node is not already in quorum
 	for (itNodeID = nodes.First(); itNodeID != NULL; itNodeID = nodes.Next(itNodeID))
 	{
 		if (*itNodeID == message.nodeID)
@@ -394,6 +395,7 @@ bool ConfigState::OnDecreaseQuorum(ConfigMessage& message)
 	
 	List<uint64_t>& nodes = itQuorum->nodes;
 	
+	// make sure node is in quorum
 	for (itNodeID = nodes.First(); itNodeID != NULL; itNodeID = nodes.Next(itNodeID))
 	{
 		if (*itNodeID == message.nodeID)
@@ -411,8 +413,10 @@ bool ConfigState::OnCreateDatabase(ConfigMessage& message)
 	ConfigDatabase*	it;
 	
 	it = GetDatabase(message.databaseID);
+	// make sure database with ID does not exist
 	assert(it == NULL);
 	it = GetDatabase(message.name);
+	// make sure database with name does not exist
 	assert(it == NULL);
 		
 	it = new ConfigDatabase;
@@ -427,8 +431,10 @@ bool ConfigState::OnRenameDatabase(ConfigMessage& message)
 	ConfigDatabase*	it;
 
 	it = GetDatabase(message.name);
+	// make sure database with name does not exist
 	assert(it == NULL);
 	it = GetDatabase(message.databaseID);
+	// make sure database with ID exists
 	assert(it != NULL);
 	
 	it->name.Write(message.name);
@@ -440,6 +446,7 @@ bool ConfigState::OnDeleteDatabase(ConfigMessage& message)
 	ConfigDatabase*	it;
 
 	it = GetDatabase(message.databaseID);
+	// make sure database with ID exists
 	assert(it != NULL);
 
 	databases.Delete(it);
@@ -454,17 +461,22 @@ bool ConfigState::OnCreateTable(ConfigMessage& message)
 	ConfigShard*	itShard;
 
 	itQuorum = GetQuorum(message.quorumID);
+	// make sure quorum exists
 	assert(itQuorum != NULL);
 
 	itDatabase = GetDatabase(message.databaseID);
+	// make sure database exists
 	assert(itDatabase != NULL);
 
 	itTable = GetTable(message.tableID);
+	// make sure table with ID does not exist
 	assert(itTable == NULL);
 	itTable = GetTable(message.databaseID, message.name);
+	// make sure table with name in database does not exist
 	assert(itTable == NULL);
 
 	itShard = GetShard(message.shardID);
+	// make sure shard does not exist
 	assert(itShard == NULL);
 	
 	itShard = new ConfigShard;
@@ -488,10 +500,13 @@ bool ConfigState::OnRenameTable(ConfigMessage& message)
 	ConfigTable*	itTable;
 	
 	itDatabase = GetDatabase(message.databaseID);
+	// make sure database exists
 	assert(itDatabase != NULL);
 	itTable = GetTable(message.tableID);
+	// make sure table with ID exists
 	assert(itTable != NULL);
 	itTable = GetTable(message.databaseID, message.name);
+	// make sure table with name does not exist
 	assert(itTable == NULL);
 	
 	itTable->name.Write(message.name);
@@ -504,8 +519,10 @@ bool ConfigState::OnDeleteTable(ConfigMessage& message)
 	ConfigTable*	itTable;
 	
 	itDatabase = GetDatabase(message.databaseID);
+	// make sure database exists
 	assert(itDatabase != NULL);
 	itTable = GetTable(message.tableID);
+	// make sure table exists
 	assert(itTable != NULL);
 	
 	tables.Delete(itTable);
