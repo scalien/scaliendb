@@ -15,7 +15,7 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
 	{
 		/* Cluster management */
 		case CONFIG_REGISTER_SHARDSERVER:
-			return CompleteShardServer(message);
+			return CompleteRegisterShardServer(message);
 		case CONFIG_CREATE_QUORUM:
 			return CompleteCreateQuorum(message);
 		case CONFIG_INCREASE_QUORUM:
