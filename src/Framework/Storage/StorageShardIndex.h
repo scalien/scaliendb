@@ -23,12 +23,9 @@ public:
 	~StorageShardIndex();
 
 	void					SetStartKey(ReadBuffer key, bool copy);
-	void					SetEndKey(ReadBuffer key, bool copy);
 
 	ReadBuffer				startKey;
 	Buffer*					startKeyBuffer;
-	ReadBuffer				endKey;
-	Buffer*					endKeyBuffer;
 	StorageShard*			shard;
 	uint64_t				shardID;
 

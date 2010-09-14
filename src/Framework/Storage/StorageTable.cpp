@@ -92,18 +92,20 @@ void StorageTable::Open(const char* dir, const char* name_)
 		return;
 	}
 	
+	// TODO: there is no recovery while rebuilding the TOC
 	tocSize = FS_FileSize(tocFD);
 	if (tocSize > 0)
 		ReadTOC(tocSize);
+	else
+		RebuildTOC();
 
 	// TODO: make this controllable
 	// create default shard if not exists
 	if (shards.GetCount() == 0)
 	{
 		ReadBuffer	startKey;
-		ReadBuffer	endKey;
 		
-		CreateShard(0, startKey, endKey);
+		CreateShard(0, startKey);
 	}
 
 }
@@ -184,20 +186,13 @@ void StorageTable::Delete(ReadBuffer& key)
 	si->shard->Delete(key);
 }
 
-bool StorageTable::CreateShard(uint64_t shardID, ReadBuffer& startKey_, ReadBuffer& endKey_)
+bool StorageTable::CreateShard(uint64_t shardID, ReadBuffer& startKey_)
 {
-	ReadBuffer			endKey;
 	StorageShardIndex*	si;
-
-	if (endKey_.GetLength() == 0)
-		endKey.Set((char*) LAST_SHARD_KEY, sizeof(LAST_SHARD_KEY) - 1);
-	else
-		endKey = endKey_;
 	
 	// TODO: check if the shard or the key interval already exists
 	si = new StorageShardIndex;
 	si->SetStartKey(startKey_, true);
-	si->SetEndKey(endKey, true);
 	si->shardID = shardID;
 	shards.Insert(si);
 	
@@ -233,7 +228,6 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
 	newSi->shard->Open(dirName.GetBuffer(), name.GetBuffer());
 	newSi->shardID = newShardID;
 	newSi->SetStartKey(startKey, true);
-	newSi->SetEndKey(si->endKey, true);
 	shards.Insert(newSi);
 	
 	for (fi = newSi->shard->files.First(); fi != NULL; fi = newSi->shard->files.Next(fi))
@@ -253,6 +247,7 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
 			srcFile.Write(fi->filepath);
 			newSi->shard->WritePath(dstFile, fi->index);
 			fi->filepath.Write(srcFile);
+			// TODO: HACK it would be better to store shardIDs here instead of paths
 			WriteRecoveryMove(srcFile, dstFile);
 			if (!FS_Rename(srcFile.GetBuffer(), dstFile.GetBuffer()))
 				ASSERT_FAIL();
@@ -260,8 +255,6 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
 	}
 
 	newSi->shard->WriteTOC();
-	
-	si->SetEndKey(startKey, true);
 	si->shard->WriteTOC();
 	
 	WriteTOC();
@@ -284,13 +277,7 @@ StorageShardIndex* StorageTable::Locate(ReadBuffer& key)
 		ASSERT_FAIL();
 		return NULL;
 	}
-	
-	if (ReadBuffer::Cmp(key, shards.Last()->endKey) >= 0)
-	{
-		ASSERT_FAIL();
-		return NULL;
-	}
-	
+		
 	si = shards.Locate<ReadBuffer&>(key, cmpres);
 	if (si)
 	{
@@ -463,6 +450,7 @@ void StorageTable::PerformRecoveryCopy()
 	if (dataFD == INVALID_FD)
 		ASSERT_FAIL();
 	
+	// copy the file back to the original shard
 	buffer.Allocate(bufsize);
 	required = (int64_t) length;
 	while (required > 0)
@@ -561,8 +549,6 @@ void StorageTable::RebuildTOC()
 		si->shard = new StorageShard;
 		si->shard->Open(fullname.GetBuffer(), FS_DirEntryName(dirent));
 		si->SetStartKey(si->shard->FirstKey(), true);
-		// TODO: HACK endKey is missing from shards!
-		si->SetEndKey(ReadBuffer((char*)LAST_SHARD_KEY, sizeof(LAST_SHARD_KEY) - 1), true);
 		si->shard->Close();
 		delete si->shard;
 		si->shard = NULL;
@@ -609,12 +595,6 @@ void StorageTable::ReadTOC(uint64_t length)
 		p += 4;
 		si->startKey.SetLength(len);
 		si->startKey.SetBuffer(p);
-		p += len;
-		len = FromLittle32(*((uint32_t*) p));
-		p += 4;
-		si->endKey.SetLength(len);
-		si->endKey.SetBuffer(p);
-		p += len;
 		shards.Insert(si);
 	}
 }
@@ -645,7 +625,7 @@ void StorageTable::WriteTOC()
 
 	for (it = shards.First(); it != NULL; it = shards.Next(it))
 	{		
-		size = 4 + (4+it->startKey.GetLength()) + (4+it->endKey.GetLength());
+		size = 4 + (4+it->startKey.GetLength());
 		writeBuf.Allocate(size);
 		p = writeBuf.GetBuffer();
 		*((uint32_t*) p) = ToLittle32(it->shardID);
@@ -654,11 +634,6 @@ void StorageTable::WriteTOC()
 		*((uint32_t*) p) = ToLittle32(len);
 		p += 4;
 		memcpy(p, it->startKey.GetBuffer(), len);
-		p += len;
-		len = it->endKey.GetLength();
-		*((uint32_t*) p) = ToLittle32(len);
-		p += 4;
-		memcpy(p, it->endKey.GetBuffer(), len);
 		p += len;
 		if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), size) < 0)
 			ASSERT_FAIL();
