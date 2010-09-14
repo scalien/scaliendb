@@ -66,5 +66,19 @@
 /*
  ==============================================================================
  */
+ 
+#define STR_AND_LEN(s) s, strlen(s)
+
+/*
+ ==============================================================================
+
+  It is  a common idiom to use const char string literals (CSL) in the code, 
+  and the length of const literals are known at compile time.
+ 
+ ============================================================================== 
+ */
+
+#define CSLLEN(s) (sizeof(s "") - 1)
+#define STR_AND_CSLLEN(s) s, CSLLEN(s)
 
 #endif
