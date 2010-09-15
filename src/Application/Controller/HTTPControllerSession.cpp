@@ -126,13 +126,13 @@ ConfigMessage* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 			return NULL;
 		next++;
 		tmp.Advance(next - tmp.GetBuffer());
-		nodes.Append(*new uint64_t(nodeID));
+		nodes.Append(nodeID);
 	}
 	
 	nodeID = BufferToUInt64(tmp.GetBuffer(), tmp.GetLength(), &nread);
 	if (nread != tmp.GetLength())
 		return NULL;
-	nodes.Append(*new uint64_t(nodeID));
+	nodes.Append(nodeID);
 
 	message = new ConfigMessage;
 	message->CreateQuorum(quorumID, productionType, nodes);
