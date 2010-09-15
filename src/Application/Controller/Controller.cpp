@@ -63,6 +63,8 @@ bool Controller::ProcessClientCommand(ClientSession* /*conn*/, ConfigMessage& me
 	// 1. verify all the IDs
 	// 2. complete the message where necessary
 	
+	return false;
+	
 	if (!configState.CompleteMessage(message))
 	{
 		// TODO: send failed to conn

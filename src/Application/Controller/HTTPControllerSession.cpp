@@ -1,35 +1,24 @@
 #include "HTTPControllerSession.h"
 #include "Controller.h"
-
 #include "Application/HTTP/UrlParam.h"
-
-#define MSG_FAIL			"Unable to process your request at this time"
-
-#define MATCH_COMMAND(cmd, csl) \
-	MEMCMP(cmd.GetBuffer(), cmd.GetLength(), csl, sizeof(csl) - 1)
-
-#define GET_NAMED_PARAM(params, name, var) \
-	if (!params.GetNamed(name, sizeof("" name) - 1, var)) { return NULL; }
-
-#define GET_NAMED_U64_PARAM(params, name, var) \
-	{ \
-		ReadBuffer	tmp; \
-		unsigned	nread; \
-		if (!params.GetNamed(name, sizeof("" name) - 1, tmp)) \
-			return NULL; \
-		var = BufferToUInt64(tmp.GetBuffer(), tmp.GetLength(), &nread); \
-		if (nread != tmp.GetLength()) \
-			return NULL; \
-	}
-
-void HTTPControllerSession::SetConnection(HTTPConnection* conn_)
-{
-	conn = conn_;
-}
 
 void HTTPControllerSession::SetController(Controller* controller_)
 {
 	controller = controller_;
+}
+
+void HTTPControllerSession::SetConnection(HTTPConnection* conn_)
+{
+	session.SetConnection(conn_);
+}
+
+bool HTTPControllerSession::HandleRequest(HTTPRequest& request)
+{
+	ReadBuffer	cmd;
+	UrlParam	params;
+	
+	session.ParseRequest(request, cmd, params);
+	return ProcessCommand(cmd, params);
 }
 
 void HTTPControllerSession::OnComplete(Message* message, bool status)
@@ -47,69 +36,21 @@ bool HTTPControllerSession::IsActive()
 	return true;
 }
 
-bool HTTPControllerSession::HandleRequest(HTTPRequest& request)
-{
-	char*		qmark;
-	UrlParam	params;
-	ReadBuffer	rb;
-	ReadBuffer	cmd;
-	
-	rb = request.line.uri;
-	if (rb.GetCharAt(0) == '/')
-		rb.Advance(1);
-	
-	ParseType(rb);
-	cmd = rb;
-	qmark = FindInBuffer(rb.GetBuffer(), rb.GetLength() - 1, '?');
-	if (qmark)
-	{
-		rb.Advance(qmark - rb.GetBuffer() + 1);
-		params.Init(rb.GetBuffer(), rb.GetLength(), '&');
-		cmd.SetLength(qmark - cmd.GetBuffer());
-	}
-		
-	return ProcessCommand(cmd, params);
-}
-
 void HTTPControllerSession::PrintStatus()
 {
 	// TODO: print something
-}
-
-void HTTPControllerSession::ResponseFail()
-{
-	conn->Response(HTTP_STATUS_CODE_OK, MSG_FAIL, sizeof(MSG_FAIL) - 1);
-}
-
-void HTTPControllerSession::ParseType(ReadBuffer& rb)
-{
-	const char	JSON_PREFIX[] = "json/";
-	const char	HTML_PREFIX[] = "html/";
-	
-	type = PLAIN;
-	
-	if (MATCH_COMMAND(rb, JSON_PREFIX))
-	{
-		type = JSON;
-		rb.Advance(sizeof(JSON_PREFIX) - 1);
-	}
-	else if (MATCH_COMMAND(rb, HTML_PREFIX))
-	{
-		type = HTML;
-		rb.Advance(sizeof(HTML_PREFIX) - 1);
-	}
 }
 
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
 {
 	ConfigMessage*	message;
 	
-	if (MATCH_COMMAND(cmd, ""))
+	if (HTTP_MATCH_COMMAND(cmd, ""))
 	{
 		PrintStatus();
 		return true;
 	}
-	else if (MATCH_COMMAND(cmd, "getmaster"))
+	else if (HTTP_MATCH_COMMAND(cmd, "getmaster"))
 	{
 		ProcessGetMaster();
 		return true;
@@ -121,7 +62,7 @@ bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
 
 	if (!controller->ProcessClientCommand(this, *message))
 	{
-		ResponseFail();
+		session.ResponseFail();
 		delete message;
 		return true;
 	}
@@ -136,23 +77,23 @@ void HTTPControllerSession::ProcessGetMaster()
 
 ConfigMessage* HTTPControllerSession::ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params)
 {
-	if (MATCH_COMMAND(cmd, "createquorum"))
+	if (HTTP_MATCH_COMMAND(cmd, "createquorum"))
 		return ProcessCreateQuorum(params);
-	if (MATCH_COMMAND(cmd, "increasequorum"))
+	if (HTTP_MATCH_COMMAND(cmd, "increasequorum"))
 		return ProcessIncreaseQuorum(params);
-	if (MATCH_COMMAND(cmd, "decreasequorum"))
+	if (HTTP_MATCH_COMMAND(cmd, "decreasequorum"))
 		return ProcessDecreaseQuorum(params);
-	if (MATCH_COMMAND(cmd, "createdatabase"))
+	if (HTTP_MATCH_COMMAND(cmd, "createdatabase"))
 		return ProcessCreateDatabase(params);
-	if (MATCH_COMMAND(cmd, "renamedatabase"))
+	if (HTTP_MATCH_COMMAND(cmd, "renamedatabase"))
 		return ProcessRenameDatabase(params);
-	if (MATCH_COMMAND(cmd, "deletedatabase"))
+	if (HTTP_MATCH_COMMAND(cmd, "deletedatabase"))
 		return ProcessDeleteDatabase(params);
-	if (MATCH_COMMAND(cmd, "createtable"))
+	if (HTTP_MATCH_COMMAND(cmd, "createtable"))
 		return ProcessCreateTable(params);
-	if (MATCH_COMMAND(cmd, "renametable"))
+	if (HTTP_MATCH_COMMAND(cmd, "renametable"))
 		return ProcessRenameTable(params);
-	if (MATCH_COMMAND(cmd, "deletetable"))
+	if (HTTP_MATCH_COMMAND(cmd, "deletetable"))
 		return ProcessDeleteTable(params);
 	
 	return NULL;
@@ -169,15 +110,15 @@ ConfigMessage* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 	unsigned		nread;
 	uint64_t		nodeID;
 	
-	GET_NAMED_U64_PARAM(params, "quorumID", quorumID);
-	GET_NAMED_PARAM(params, "productionType", tmp);
+	HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+	HTTP_GET_PARAM(params, "productionType", tmp);
 	if (tmp.GetLength() > 1)
 		return NULL;
 
 	// TODO: validate values for productionType
 	productionType = tmp.GetCharAt(0);
 	
-	GET_NAMED_PARAM(params, "nodes", tmp);
+	HTTP_GET_PARAM(params, "nodes", tmp);
 	while ((next = FindInBuffer(tmp.GetBuffer(), tmp.GetLength(), ',')) != NULL)
 	{
 		nodeID = BufferToUInt64(tmp.GetBuffer(), tmp.GetLength(), &nread);
@@ -185,13 +126,13 @@ ConfigMessage* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 			return NULL;
 		next++;
 		tmp.Advance(next - tmp.GetBuffer());
-		nodes.Append(nodeID);
+		nodes.Append(*new uint64_t(nodeID));
 	}
 	
 	nodeID = BufferToUInt64(tmp.GetBuffer(), tmp.GetLength(), &nread);
 	if (nread != tmp.GetLength())
 		return NULL;
-	nodes.Append(nodeID);
+	nodes.Append(*new uint64_t(nodeID));
 
 	message = new ConfigMessage;
 	message->CreateQuorum(quorumID, productionType, nodes);
@@ -205,8 +146,8 @@ ConfigMessage* HTTPControllerSession::ProcessIncreaseQuorum(UrlParam& params)
 	uint64_t		shardID;
 	uint64_t		nodeID;
 	
-	GET_NAMED_U64_PARAM(params, "shardID", shardID);
-	GET_NAMED_U64_PARAM(params, "nodeID", nodeID);
+	HTTP_GET_U64_PARAM(params, "shardID", shardID);
+	HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
 
 	message = new ConfigMessage;
 	message->IncreaseQuorum(shardID, nodeID);
@@ -220,8 +161,8 @@ ConfigMessage* HTTPControllerSession::ProcessDecreaseQuorum(UrlParam& params)
 	uint64_t		shardID;
 	uint64_t		nodeID;
 	
-	GET_NAMED_U64_PARAM(params, "shardID", shardID);
-	GET_NAMED_U64_PARAM(params, "nodeID", nodeID);
+	HTTP_GET_U64_PARAM(params, "shardID", shardID);
+	HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
 
 	message = new ConfigMessage;
 	message->DecreaseQuorum(shardID, nodeID);
@@ -235,8 +176,8 @@ ConfigMessage* HTTPControllerSession::ProcessCreateDatabase(UrlParam& params)
 	uint64_t		databaseID;
 	ReadBuffer		name;
 	
-	GET_NAMED_U64_PARAM(params, "databaseID", databaseID);
-	GET_NAMED_PARAM(params, "name", name);
+	HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+	HTTP_GET_PARAM(params, "name", name);
 
 	message = new ConfigMessage;
 	message->CreateDatabase(databaseID, name);
@@ -250,8 +191,8 @@ ConfigMessage* HTTPControllerSession::ProcessRenameDatabase(UrlParam& params)
 	uint64_t		databaseID;
 	ReadBuffer		name;
 	
-	GET_NAMED_U64_PARAM(params, "databaseID", databaseID);
-	GET_NAMED_PARAM(params, "name", name);
+	HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+	HTTP_GET_PARAM(params, "name", name);
 
 	message = new ConfigMessage;
 	message->RenameDatabase(databaseID, name);
@@ -264,7 +205,7 @@ ConfigMessage* HTTPControllerSession::ProcessDeleteDatabase(UrlParam& params)
 	ConfigMessage*	message;
 	uint64_t		databaseID;
 	
-	GET_NAMED_U64_PARAM(params, "databaseID", databaseID);
+	HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
 
 	message = new ConfigMessage;
 	message->DeleteDatabase(databaseID);
@@ -281,11 +222,11 @@ ConfigMessage* HTTPControllerSession::ProcessCreateTable(UrlParam& params)
 	uint64_t		quorumID;
 	ReadBuffer		name;
 	
-	GET_NAMED_U64_PARAM(params, "databaseID", databaseID);
-	GET_NAMED_U64_PARAM(params, "tableID", tableID);
-	GET_NAMED_U64_PARAM(params, "shardID", shardID);
-	GET_NAMED_U64_PARAM(params, "quorumID", quorumID);
-	GET_NAMED_PARAM(params, "name", name);
+	HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+	HTTP_GET_U64_PARAM(params, "tableID", tableID);
+	HTTP_GET_U64_PARAM(params, "shardID", shardID);
+	HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+	HTTP_GET_PARAM(params, "name", name);
 
 	message = new ConfigMessage;
 	message->CreateTable(databaseID, tableID, shardID, quorumID, name);
@@ -300,9 +241,9 @@ ConfigMessage* HTTPControllerSession::ProcessRenameTable(UrlParam& params)
 	uint64_t		tableID;
 	ReadBuffer		name;
 	
-	GET_NAMED_U64_PARAM(params, "databaseID", databaseID);
-	GET_NAMED_U64_PARAM(params, "tableID", tableID);
-	GET_NAMED_PARAM(params, "name", name);
+	HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+	HTTP_GET_U64_PARAM(params, "tableID", tableID);
+	HTTP_GET_PARAM(params, "name", name);
 
 	message = new ConfigMessage;
 	message->RenameTable(databaseID, tableID, name);
@@ -317,8 +258,8 @@ ConfigMessage* HTTPControllerSession::ProcessDeleteTable(UrlParam& params)
 	uint64_t		tableID;
 	ReadBuffer		name;
 	
-	GET_NAMED_U64_PARAM(params, "databaseID", databaseID);
-	GET_NAMED_U64_PARAM(params, "tableID", tableID);
+	HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+	HTTP_GET_U64_PARAM(params, "tableID", tableID);
 
 	message = new ConfigMessage;
 	message->DeleteTable(databaseID, tableID);

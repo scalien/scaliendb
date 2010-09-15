@@ -30,7 +30,7 @@ public:
 
 private:
 	ReadBuffer		jsonCallback;
-	HTTPConnection*		conn;
+	HTTPConnection*	conn;
 };
 
 #endif

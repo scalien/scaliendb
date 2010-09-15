@@ -125,6 +125,7 @@
 		9AABB460123FB311003626AC /* HTTPControllerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */; };
 		9AABB48E123FBFFE003626AC /* HTTPControllerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */; };
 		9AABB50E123FDCDD003626AC /* ControllerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB50D123FDCDD003626AC /* ControllerApp.cpp */; };
+		9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
@@ -347,6 +348,8 @@
 		9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPControllerSession.cpp; sourceTree = "<group>"; };
 		9AABB50C123FDCDD003626AC /* ControllerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerApp.h; sourceTree = "<group>"; };
 		9AABB50D123FDCDD003626AC /* ControllerApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerApp.cpp; sourceTree = "<group>"; };
+		9AABB5D7123FF1F4003626AC /* HTTPSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPSession.h; sourceTree = "<group>"; };
+		9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPSession.cpp; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9ACF23DE122FDEBE00247703 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
@@ -507,6 +510,8 @@
 				5487BDCE123A738000C235BA /* ClusterContext.h */,
 				5487BDCC123A738000C235BA /* ContextTransport.h */,
 				5487BDCD123A738000C235BA /* ContextTransport.cpp */,
+				9AABB5D7123FF1F4003626AC /* HTTPSession.h */,
+				9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */,
 			);
 			name = Common;
 			path = Application/Common;
@@ -982,6 +987,7 @@
 				9AABB460123FB311003626AC /* HTTPControllerContext.cpp in Sources */,
 				9AABB48E123FBFFE003626AC /* HTTPControllerSession.cpp in Sources */,
 				9AABB50E123FDCDD003626AC /* ControllerApp.cpp in Sources */,
+				9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

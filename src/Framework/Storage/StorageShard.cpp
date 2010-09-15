@@ -84,8 +84,6 @@ void StorageShard::Open(const char* dir, const char* name_)
 	shardSize = tocSize;
 	if (tocSize > 0)
 		shardSize += ReadTOC(tocSize);
-	else
-		shardSize += RebuildTOC();
 	prevCommitStorageFileIndex = nextStorageFileIndex;
 }
 
