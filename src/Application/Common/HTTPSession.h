@@ -5,7 +5,7 @@
 
 #define HTTP_MATCH_COMMAND(cmd, csl) \
 	((sizeof(csl) == 1 && cmd.GetLength() == 0) || \
-	(memcmp(cmd.GetBuffer(), csl, MIN(cmd.GetLength(), sizeof(csl) - 1)) == 0))
+	(sizeof(csl) > 1 && cmd.GetLength() > 0 && memcmp(cmd.GetBuffer(), csl, MIN(cmd.GetLength() + 1, sizeof(csl)) - 1) == 0))
 
 #define HTTP_GET_OPT_PARAM(params, name, var) \
 	params.GetNamed(name, sizeof("" name) - 1, var)
@@ -45,16 +45,24 @@ public:
 		HTML,
 		JSON
 	};
+	
+	HTTPSession();
 
 	void				SetConnection(HTTPConnection* conn);
 	bool				ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& params);
 	void				ParseType(ReadBuffer& cmd);
 
 	void				ResponseFail();
+	
+	void				PrintLine(ReadBuffer& line);
+	void				PrintPair(const ReadBuffer& key, const ReadBuffer& value);
+	void				PrintPair(const char* key, const char* value);
+	void				Flush();
 
 	HTTPConnection*		conn;
 	Type				type;
 	JSONSession			json;
+	bool				headerSent;
 }; 
 
 #endif

@@ -34,6 +34,5 @@ TEST_DEFINE(TestMain)
 
 int main()
 {
-	TEST_LOG("sizeof(\"\") = %lu", sizeof(""));
 	return TestMain();
 }

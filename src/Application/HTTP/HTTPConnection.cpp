@@ -184,7 +184,7 @@ void HTTPConnection::ResponseHeader(int code, bool close, const char* header)
 				header ? header : "");
 
 	writer->WritePooled(httpHeader);
-	Flush();
+	//Flush();
 }
 
 void HTTPConnection::Flush(bool closeAfterSend_)

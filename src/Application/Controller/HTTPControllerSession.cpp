@@ -1,6 +1,7 @@
 #include "HTTPControllerSession.h"
 #include "Controller.h"
 #include "Application/HTTP/UrlParam.h"
+#include "Version.h"
 
 void HTTPControllerSession::SetController(Controller* controller_)
 {
@@ -39,6 +40,16 @@ bool HTTPControllerSession::IsActive()
 void HTTPControllerSession::PrintStatus()
 {
 	// TODO: print something
+	Buffer		buf;
+
+	session.PrintPair("ScalienDB", "Controller");
+	session.PrintPair("Version", VERSION_STRING);
+
+	buf.Writef("%d", (int) controller->GetMaster());
+	buf.NullTerminate();
+	session.PrintPair("Master", buf.GetBuffer());
+	
+	session.Flush();
 }
 
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
@@ -72,7 +83,6 @@ bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
 
 void HTTPControllerSession::ProcessGetMaster()
 {
-	// TODO: print master
 }
 
 ConfigMessage* HTTPControllerSession::ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params)
@@ -118,6 +128,7 @@ ConfigMessage* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 	// TODO: validate values for productionType
 	productionType = tmp.GetCharAt(0);
 	
+	// parse comma separated nodeID values
 	HTTP_GET_PARAM(params, "nodes", tmp);
 	while ((next = FindInBuffer(tmp.GetBuffer(), tmp.GetLength(), ',')) != NULL)
 	{

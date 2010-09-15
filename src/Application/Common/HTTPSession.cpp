@@ -6,9 +6,17 @@
 
 #define MSG_FAIL	 "Unable to process your request at this time"
 
+HTTPSession::HTTPSession()
+{
+	headerSent = false;
+	conn = NULL;
+	type = PLAIN;
+}
+
 void HTTPSession::SetConnection(HTTPConnection* conn_)
 {
 	conn = conn_;
+	json.Init(conn);
 }
 
 bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& params)
@@ -33,8 +41,7 @@ bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& 
 		if (type == JSON)
 		{
 			HTTP_GET_OPT_PARAM(params, "callback", jsonCallback);
-			if (jsonCallback.GetLength() > 0)
-				json.Init(conn, jsonCallback);
+			json.SetCallbackPrefix(jsonCallback);
 		}
 	}
 	
@@ -62,8 +69,65 @@ void HTTPSession::ParseType(ReadBuffer& rb)
 
 void HTTPSession::ResponseFail()
 {
+	assert(headerSent == false);
+	
 	if (type == JSON)
 		json.PrintStatus("error", MSG_FAIL);
 	else
 		conn->Response(HTTP_STATUS_CODE_OK, MSG_FAIL, sizeof(MSG_FAIL) - 1);
 }
+
+void HTTPSession::PrintLine(ReadBuffer& line)
+{
+	if (!headerSent)
+	{
+		if (type == JSON)
+			json.Start();
+		else
+			conn->ResponseHeader(HTTP_STATUS_CODE_OK, false);
+
+		headerSent = true;
+	}
+	
+	if (type == JSON)
+		json.PrintString(line.GetBuffer(), line.GetLength());
+	else
+		conn->Write(line.GetBuffer(), line.GetLength());
+}
+
+void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)
+{
+	if (!headerSent)
+	{
+		if (type == JSON)
+			json.Start();
+		else
+			conn->ResponseHeader(HTTP_STATUS_CODE_OK, false);
+
+		headerSent = true;
+	}
+
+	if (type == JSON)
+		json.PrintPair(key.GetBuffer(), key.GetLength(), value.GetBuffer(), value.GetLength());
+	else
+	{
+		conn->Write(key.GetBuffer(), key.GetLength());
+		conn->Print(": ");
+		conn->Write(value.GetBuffer(), value.GetLength());
+		conn->Print("\n");
+	}
+}
+
+void HTTPSession::PrintPair(const char* key, const char* value)
+{
+	PrintPair(ReadBuffer(key), ReadBuffer(value));
+}
+
+void HTTPSession::Flush()
+{
+	if (type == JSON)
+		json.End();
+	
+	conn->Flush(true);
+}
+
