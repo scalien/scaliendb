@@ -26,12 +26,12 @@ public:
 	List<uint64_t>		shards;
 	char				productionType;
 	
-	/* ---------------------------------------------------------------------------------------- */
-	/*																							*/
-	/* Not replicated, only stored by the MASTER in-memory										*/
+	// ========================================================================================
+	//
+	// Not replicated, only stored by the MASTER in-memory
 	bool				hasPrimary;
 	uint64_t			primaryID;
-	/* ---------------------------------------------------------------------------------------- */
+	// ========================================================================================
 
 	ConfigQuorum*		prev;
 	ConfigQuorum*		next;

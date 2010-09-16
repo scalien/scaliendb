@@ -1,7 +1,7 @@
 #include "ConfigState.h"
 
-#define HAS_PRIMARY_YES		'Y'
-#define HAS_PRIMARY_NO		'N'
+#define HAS_LEADER_YES		'Y'
+#define HAS_LEADER_NO		'N'
 
 #define READ_SEPARATOR()	\
 	read = buffer.Readf(":");		\
@@ -59,10 +59,25 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
 
 bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
 {
+	char		c;
 	int			read;
 	ReadBuffer	buffer;
 	
 	buffer = buffer_; // because of Advance()
+
+	hasMaster = false;
+	if (withVolatile)
+	{
+		READ_SEPARATOR();
+		c = HAS_LEADER_NO;
+		buffer.Readf("%c", &c);
+		CHECK_ADVANCE(1);
+		if (c == HAS_LEADER_YES)
+		{
+			READ_SEPARATOR();
+			buffer.Readf("%U", &masterID);
+		}
+	}
 	
 	if (!ReadQuorums(buffer, withVolatile))
 		return false;
@@ -84,6 +99,15 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
 
 bool ConfigState::Write(Buffer& buffer, bool withVolatile)
 {
+	if (withVolatile)
+	{
+		buffer.Appendf(":");
+		if (hasMaster)
+			buffer.Appendf("P:%U", masterID);
+		else
+			buffer.Appendf("N");
+	}
+
 	WriteQuorums(buffer, withVolatile);
 	buffer.Appendf(":");
 	WriteDatabases(buffer);
@@ -794,10 +818,10 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
 	if (withVolatile)
 	{
 		READ_SEPARATOR();
-		c = HAS_PRIMARY_NO;
+		c = HAS_LEADER_NO;
 		buffer.Readf("%c", &c);
 		CHECK_ADVANCE(1);
-		if (c == HAS_PRIMARY_YES)
+		if (c == HAS_LEADER_YES)
 		{
 			READ_SEPARATOR();
 			buffer.Readf("%U", &quorum.primaryID);

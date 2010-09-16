@@ -26,9 +26,9 @@ public:
 	void							Append(ConfigMessage* message);
 	bool							IsAppending();
 	
-	/* ---------------------------------------------------------------------------------------- */
-	/* QuorumContext interface:																	*/
-	/*																							*/
+	// ========================================================================================
+	// QuorumContext interface:
+	//
 	virtual bool					IsLeaderKnown();
 	virtual bool					IsLeader();
 	virtual uint64_t				GetLeader();
@@ -48,7 +48,7 @@ public:
 	virtual	void					OnAppend(ReadBuffer value, bool ownAppend);
 	virtual Buffer*					GetNextValue();
 	virtual void					OnMessage(ReadBuffer msg);
-	/* ---------------------------------------------------------------------------------------- */
+	// ========================================================================================
 
 private:
 	void							OnPaxosLeaseMessage(ReadBuffer buffer);

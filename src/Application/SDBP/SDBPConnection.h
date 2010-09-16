@@ -27,24 +27,24 @@ public:
 	void				Init(SDBPServer* server);
 	void				SetContext(SDBPContext* context);
 
-	/* ---------------------------------------------------------------------------------------- */
-	/* MessageConnection interface:																*/
-	/*																							*/
-	/* OnMessage() returns whether the connection was closed and deleted						*/
+	// ========================================================================================
+	// MessageConnection interface:
+	//
+	// OnMessage() returns whether the connection was closed and deleted
 	bool				OnMessage(ReadBuffer& msg);
-	/* Must overrise OnWrite(), to handle closeAfterSend()										*/
+	// Must overrise OnWrite(), to handle closeAfterSend()
 	void				OnWrite();
-	/* Must override OnClose() to prevent the default behaviour, which is to call Close(),		*/
-	/* in case numPendingOps > 0																*/
+	// Must override OnClose() to prevent the default behaviour, which is to call Close(),
+	// in case numPendingOps > 0
 	void				OnClose();
-	/* ---------------------------------------------------------------------------------------- */
+	// ========================================================================================
 
-	/* ---------------------------------------------------------------------------------------- */
-	/* ClientConnection interface																*/
-	/*																							*/
+	// ========================================================================================
+	// ClientConnection interface
+	//
 	virtual void		OnComplete(Message* message, bool status);
 	virtual bool		IsActive();
-	/* ---------------------------------------------------------------------------------------- */
+	// ========================================================================================
 	
 	void				SendResponse(ClientResponse& response, bool closeAfterSend = false);
 

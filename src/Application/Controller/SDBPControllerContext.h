@@ -17,13 +17,13 @@ class SDBPControllerContext : public SDBPContext
 public:
 	void			SetController(Controller* controller);
 
-	/* ---------------------------------------------------------------------------------------- */
-	/* SDBPContext interface:																	*/
-	/*																							*/
+	// ========================================================================================
+	// SDBPContext interface:
+	//
 	bool			IsValidRequest(ClientRequest& request);
 	bool			ProcessRequest(SDBPConnection* conn, ClientRequest& request);
 	void			OnComplete(SDBPConnection* conn, Message* message);
-	/* ---------------------------------------------------------------------------------------- */
+	// ========================================================================================
 
 	ConfigMessage	ConvertRequest(ClientRequest& request);
 	

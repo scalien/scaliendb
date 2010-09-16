@@ -35,13 +35,13 @@ public:
 	void			OnLearnLease();
 	void			OnConfigMessage(ConfigMessage& message);
 
-	/* ---------------------------------------------------------------------------------------- */
-	/* ClusterContext interface:																*/
-	/*																							*/
+	// ========================================================================================
+	// ClusterContext interface:
+	//
 	void			OnClusterMessage(uint64_t nodeID, ClusterMessage& msg);
 	void			OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
 	void			OnAwaitingNodeID(Endpoint endpoint);
-	/* ---------------------------------------------------------------------------------------- */
+	// ========================================================================================
 
 private:
 	void			InitConfigContext();

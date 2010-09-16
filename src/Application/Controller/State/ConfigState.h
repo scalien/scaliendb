@@ -27,7 +27,12 @@ public:
 	typedef InList<ConfigShard>			ShardList;
 	typedef InList<ConfigShardServer>	ShardServerList;
 
-	// config data:
+	// ========================================================================================
+	//
+	// Not replicated, only stored by the MASTER in-memory
+	bool				hasMaster;
+	uint64_t			masterID;
+	// ========================================================================================
 	
 	QuorumList			quorums;
 	DatabaseList		databases;
