@@ -50,6 +50,7 @@ private:
 	void				WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex);
 	void				WriteRecoveryMove(Buffer& src, Buffer& dst);
 	void				DeleteGarbageShard(uint64_t shardID);
+	void				RebuildShardTOC(uint64_t shardID);
 	void				CommitPhase1();
 	void				CommitPhase2();
 	void				CommitPhase3();

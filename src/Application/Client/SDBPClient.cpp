@@ -1,5 +1,6 @@
 #include "SDBPClient.h"
 #include "SDBPClientConnection.h"
+#include "SDBPClientConsts.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
 
@@ -55,9 +56,7 @@ void SDBPClient::SetMaster(int64_t master_, uint64_t nodeID)
 			// node became the master
 			Log_Message("Node %d is the master", nodeID);
 			master = master_;
-
-			// TODO: connectivity status
-			//connectivityStatus = SUCCESS;
+			connectivityStatus = SDBP_SUCCESS;
 			
 			// TODO: it is similar to ResendRequests
 			//SendRequest(nodeID, safeCommands);
@@ -70,9 +69,7 @@ void SDBPClient::SetMaster(int64_t master_, uint64_t nodeID)
 		// node lost its mastership
 		Log_Message("Node %d lost its mastership", nodeID);
 		master = -1;
-		
-		// TODO: connectivity status
-		//connectivityStatus = KEYSPACE_NOMASTER;
+		connectivityStatus = SDBP_NOMASTER;
 		
 		if (!IsSafe())
 			return;
@@ -93,12 +90,12 @@ void SDBPClient::UpdateConnectivityStatus()
 
 void SDBPClient::OnGlobalTimeout()
 {
-	// timeoutStatus = SDBP_GLOBAL_TIMEOUT;
+	timeoutStatus = SDBP_GLOBAL_TIMEOUT;
 }
 
 void SDBPClient::OnMasterTimeout()
 {
-	// timeoutStatus = SDBP_MASTER_TIMEOUT;
+	timeoutStatus = SDBP_MASTER_TIMEOUT;
 }
 
 bool SDBPClient::IsSafe()

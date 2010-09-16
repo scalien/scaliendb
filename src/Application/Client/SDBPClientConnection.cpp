@@ -1,5 +1,6 @@
 #include "SDBPClientConnection.h"
 #include "SDBPClient.h"
+#include "SDBPClientConsts.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
@@ -91,9 +92,8 @@ void SDBPClientConnection::OnConnect()
 	MessageConnection::OnConnect();
 	SendGetMaster();
 	
-	// TODO: connectivity status
-//	if (client.connectivityStatus == SCDBCLIENT_NOCONNECTION)
-//		client.connectivityStatus == SCDBCLIENT_NOMASTER;
+	if (client->connectivityStatus == SDBP_NOCONNECTION)
+		client->connectivityStatus = SDBP_NOMASTER;
 }
 
 void SDBPClientConnection::OnConnectTimeout()

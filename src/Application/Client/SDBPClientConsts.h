@@ -1,0 +1,22 @@
+#ifndef SDBPCLIENTCONSTS_H
+#define SDBPCLIENTCONSTS_H
+
+#define SDBP_SUCCESS			0
+#define SDBP_API_ERROR			-1
+
+#define SDBP_PARTIAL			-101
+#define SDBP_FAILURE			-102
+
+#define SDBP_NOMASTER			-201
+#define SDBP_NOCONNECTION		-202
+
+#define SDBP_MASTER_TIMEOUT		-301
+#define SDBP_GLOBAL_TIMEOUT		-302
+
+#define SDBP_NOSERVICE			-401
+#define SDBP_FAILED				-402
+
+#define SDBP_DEFAULT_TIMEOUT	120*1000 // msec
+
+
+#endif

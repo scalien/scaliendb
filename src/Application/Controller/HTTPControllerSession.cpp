@@ -39,7 +39,6 @@ bool HTTPControllerSession::IsActive()
 
 void HTTPControllerSession::PrintStatus()
 {
-	// TODO: print something
 	Buffer		buf;
 
 	session.PrintPair("ScalienDB", "Controller");
