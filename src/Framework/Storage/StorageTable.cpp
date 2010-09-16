@@ -92,12 +92,9 @@ void StorageTable::Open(const char* dir, const char* name_)
 		return;
 	}
 	
-	// TODO: there is no recovery while rebuilding the TOC
 	tocSize = FS_FileSize(tocFD);
 	if (tocSize > 0)
 		ReadTOC(tocSize);
-	else
-		RebuildTOC();
 
 	// TODO: make this controllable
 	// create default shard if not exists

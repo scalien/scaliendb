@@ -59,6 +59,7 @@ uint64_t Controller::GetMaster()
 bool Controller::ProcessClientCommand(ClientSession* /*conn*/, ConfigMessage& message)
 {
 	ConfigMessage*	pmessage;
+
 	if (!configState.CompleteMessage(message))
 	{
 		// TODO: send failed to conn

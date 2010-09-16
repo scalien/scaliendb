@@ -2,6 +2,7 @@
 #define HTTPCONTROLLERSESSION_H
 
 #include "Application/Common/ClientSession.h"
+#include "Application/Common/HTTPSession.h"
 #include "HTTPControllerContext.h"
 
 class Controller;		// forward
@@ -20,26 +21,17 @@ class HTTPControllerSession : public ClientSession
 {
 public:
 
-	void				SetConnection(HTTPConnection* conn);
 	void				SetController(Controller* controller);
+	void				SetConnection(HTTPConnection* conn);
+
+	bool				HandleRequest(HTTPRequest& request);
 
 	// ClientSession interface
 	virtual void		OnComplete(Message* message, bool status);
 	virtual bool		IsActive();
 
-	bool				HandleRequest(HTTPRequest& request);
-
 private:
-	enum Type
-	{
-		PLAIN,
-		HTML,
-		JSON
-	};
-
 	void				PrintStatus();
-	void				ResponseFail();
-	void				ParseType(ReadBuffer& cmd);
 	bool				ProcessCommand(ReadBuffer& cmd, UrlParam& params);
 	void				ProcessGetMaster();
 	ConfigMessage*		ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params);
@@ -54,9 +46,7 @@ private:
 	ConfigMessage*		ProcessDeleteTable(UrlParam& params);
 
 	Controller*			controller;
-	// Generic HTTPSession
-	HTTPConnection*		conn;
-	Type				type;
+	HTTPSession			session;
 };
 
 #endif

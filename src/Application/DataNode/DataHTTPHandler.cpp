@@ -3,7 +3,7 @@
 #include "Application/HTTP/UrlParam.h"
 #include "Framework/Replication/ReplicationConfig.h"
 
-#define GET_NAMED_PARAM(params, name, var) \
+#define HTTP_GET_PARAM(params, name, var) \
 if (!params.GetNamed(name, sizeof("" name) - 1, var)) { return NULL; }
 
 void DataHTTPHandler::Init(DataNode* dataNode_)
@@ -89,7 +89,7 @@ bool DataHTTPHandler::ProcessCommand(HTTPConnection* conn, const char* cmd, unsi
 		
 		Log_Trace("GET");
 	
-		GET_NAMED_PARAM(params, "key", key);
+		HTTP_GET_PARAM(params, "key", key);
 
 		DataChunkContext*	context;
 		context = (DataChunkContext*) REPLICATION_CONFIG->GetContext(1); // TODO: hack
@@ -104,8 +104,8 @@ bool DataHTTPHandler::ProcessCommand(HTTPConnection* conn, const char* cmd, unsi
 
 		Log_Trace("SET");
 		
-		GET_NAMED_PARAM(params, "key", key);
-		GET_NAMED_PARAM(params, "value", value);
+		HTTP_GET_PARAM(params, "key", key);
+		HTTP_GET_PARAM(params, "value", value);
 
 		DataChunkContext*	context;
 		context = (DataChunkContext*) REPLICATION_CONFIG->GetContext(1); // TODO: hack
