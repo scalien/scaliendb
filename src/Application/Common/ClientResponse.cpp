@@ -71,7 +71,7 @@ bool ClientResponse::Read(ReadBuffer& buffer)
 			if (configState)
 				delete configState;
 			configState = new ConfigState;
-			return configState->Read(buffer);
+			return configState->Read(buffer, true);
 		case CLIENTRESPONSE_NOTMASTER:
 			read = buffer.Readf("%c:%U",
 			 &type, &commandID);
@@ -104,7 +104,7 @@ bool ClientResponse::Write(Buffer& buffer)
 			 type, commandID, &value);
 			return true;
 		case CLIENTRESPONSE_GET_CONFIG_STATE:
-			return configState->Write(buffer);
+			return configState->Write(buffer, true);
 		case CLIENTRESPONSE_NOTMASTER:
 			buffer.Writef("%c:%U",
 			 type, commandID);
