@@ -379,6 +379,7 @@ void StorageTable::PerformRecovery(uint64_t length)
 	if (recovery)
 	{
 		DeleteGarbageShard(newShardID);
+		RebuildShardTOC(oldShardID);
 		RebuildTOC();
 	}
 
@@ -847,12 +848,36 @@ void StorageTable::DeleteGarbageShard(uint64_t shardID)
 	FS_DeleteDir(dirname.GetBuffer());
 }
 
+void StorageTable::RebuildShardTOC(uint64_t shardID)
+{
+	StorageShardIndex*	si;
+	Buffer				fullname;
+	Buffer				shardName;
+	
+	fullname.Write(path.GetBuffer(), path.GetLength() - 1);
+	fullname.Appendf("%U", shardID);
+	fullname.NullTerminate();
+	
+	shardName.Writef("%U", shardID);
+	shardName.NullTerminate();
+	
+	si = new StorageShardIndex;
+	si->shard = new StorageShard;
+	si->shard->Open(fullname.GetBuffer(), shardName.GetBuffer());
+	si->shard->RebuildTOC();
+	si->shard->Close();
+	delete si;
+}
+
 void StorageTable::CommitPhase1()
 {
 	StorageShardIndex*	si;
 	
 	for (si = shards.First(); si != NULL; si = shards.Next(si))
-		si->shard->CommitPhase1();
+	{
+		if (si->shard != NULL)
+			si->shard->CommitPhase1();
+	}
 }
 
 void StorageTable::CommitPhase2()
@@ -860,7 +885,10 @@ void StorageTable::CommitPhase2()
 	StorageShardIndex*	si;
 	
 	for (si = shards.First(); si != NULL; si = shards.Next(si))
-		si->shard->CommitPhase2();
+	{
+		if (si->shard != NULL)
+			si->shard->CommitPhase2();
+	}
 }
 
 void StorageTable::CommitPhase3()
@@ -868,7 +896,10 @@ void StorageTable::CommitPhase3()
 	StorageShardIndex*	si;
 	
 	for (si = shards.First(); si != NULL; si = shards.Next(si))
-		si->shard->CommitPhase3();
+	{
+		if (si->shard != NULL)
+			si->shard->CommitPhase3();
+	}
 }
 
 void StorageTable::CommitPhase4()
@@ -876,7 +907,10 @@ void StorageTable::CommitPhase4()
 	StorageShardIndex*	si;
 	
 	for (si = shards.First(); si != NULL; si = shards.Next(si))
-		si->shard->CommitPhase4();
+	{
+		if (si->shard != NULL)
+			si->shard->CommitPhase4();
+	}
 }
 
 

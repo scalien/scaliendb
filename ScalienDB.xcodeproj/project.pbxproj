@@ -356,6 +356,7 @@
 		9AABB81E12411592003626AC /* SDBPClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClient.cpp; path = Application/Client/SDBPClient.cpp; sourceTree = "<group>"; };
 		9AABB82012412575003626AC /* SDBPClientConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientConnection.h; path = Application/Client/SDBPClientConnection.h; sourceTree = "<group>"; };
 		9AABB82112412575003626AC /* SDBPClientConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientConnection.cpp; path = Application/Client/SDBPClientConnection.cpp; sourceTree = "<group>"; };
+		9AABB8871242314F003626AC /* SDBPClientConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientConsts.h; path = Application/Client/SDBPClientConsts.h; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9ACF23DE122FDEBE00247703 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
@@ -853,6 +854,7 @@
 				9AABB81E12411592003626AC /* SDBPClient.cpp */,
 				9AABB82012412575003626AC /* SDBPClientConnection.h */,
 				9AABB82112412575003626AC /* SDBPClientConnection.cpp */,
+				9AABB8871242314F003626AC /* SDBPClientConsts.h */,
 			);
 			name = Client;
 			sourceTree = "<group>";
