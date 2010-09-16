@@ -29,17 +29,22 @@ public:
 	ReadBuffer		value;
 	ConfigState*	configState;
 	
+	ClientResponse();
+	~ClientResponse();
+	
+	ConfigState*	TransferConfigState();
+		
 	/* Responses */
-	bool		OK(uint64_t commandID);
-	bool		Number(uint64_t commandID, uint64_t number);
-	bool		Value(uint64_t commandID, ReadBuffer& value);
-	bool		GetConfigStateResponse(uint64_t commandID, ConfigState* configState);
-	bool		NotMaster(uint64_t commandID);
-	bool		Failed(uint64_t commandID);
+	bool			OK(uint64_t commandID);
+	bool			Number(uint64_t commandID, uint64_t number);
+	bool			Value(uint64_t commandID, ReadBuffer& value);
+	bool			GetConfigStateResponse(uint64_t commandID, ConfigState* configState);
+	bool			NotMaster(uint64_t commandID);
+	bool			Failed(uint64_t commandID);
 
 	/* Serialization */
-	bool		Read(ReadBuffer& buffer);
-	bool		Write(Buffer& buffer);	
+	bool			Read(ReadBuffer& buffer);
+	bool			Write(Buffer& buffer);	
 };
 
 #endif
