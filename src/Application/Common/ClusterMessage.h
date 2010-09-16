@@ -6,6 +6,15 @@
 
 #define			CLUSTER_SET_NODEID			'N'
 #define			CLUSTER_PRIMARY_LEASE		'L'
+#define			CLUSTER_CONFIG_INFO			'C'
+
+/*
+===============================================================================================
+
+ ClusterMessage
+
+===============================================================================================
+*/
 
 class ClusterMessage : public Message
 {

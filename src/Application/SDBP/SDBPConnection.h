@@ -3,20 +3,18 @@
 
 #include "Framework/Messaging/MessageConnection.h"
 #include "Application/Common/ClientSession.h"
-//#include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
-//#include "SDBPContext.h"
 
 class SDBPContext;
 class SDBPServer;
 class ClientRequest;
 
 /*
-===============================================================================
+===============================================================================================
 
  SDBPConnection
 
-===============================================================================
+===============================================================================================
 */
 
 class SDBPConnection : public MessageConnection, public ClientSession
