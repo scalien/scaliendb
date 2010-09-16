@@ -212,7 +212,7 @@ bool PaxosMessage::Read(ReadBuffer& buffer)
 	}
 	
 	assert(proto == PAXOS_PROTOCOL_ID);
-	return (read == (signed)buffer.GetLength() ? true : false);
+	return (read == (signed)buffer.GetLength());
 
 }
 

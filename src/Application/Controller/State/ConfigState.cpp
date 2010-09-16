@@ -76,7 +76,7 @@ bool ConfigState::Read(ReadBuffer& buffer_)
 	if (!ReadShardServers(buffer))
 		return false;
 
-	return (read == (signed)buffer_.GetLength() ? true : false);
+	return (read == (signed)buffer_.GetLength());
 }
 
 bool ConfigState::Write(Buffer& buffer)
