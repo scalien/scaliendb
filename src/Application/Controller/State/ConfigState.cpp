@@ -1,5 +1,15 @@
 #include "ConfigState.h"
 
+#define READ_SEPARATOR()	\
+	read = buffer.Readf(":");		\
+	if (read < 1) return false;	\
+	buffer.Advance(read);
+
+#define CHECK_ADVANCE(n)	\
+	if (read < n)			\
+		return false;		\
+	buffer.Advance(read)
+
 void ConfigState::Init()
 {
 	nextQuorumID = 1;
@@ -44,12 +54,43 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
 	}
 }
 
-void ConfigState::Read()
+bool ConfigState::Read(ReadBuffer& buffer_)
 {
+	int			read;
+	ReadBuffer	buffer;
+	
+	buffer = buffer_; // because of Advance()
+	
+	if (!ReadQuorums(buffer))
+		return false;
+	READ_SEPARATOR();
+	if (!ReadDatabases(buffer))
+		return false;
+	READ_SEPARATOR();
+	if (!ReadTables(buffer))
+		return false;
+	READ_SEPARATOR();
+	if (!ReadShards(buffer))
+		return false;
+	READ_SEPARATOR();
+	if (!ReadShardServers(buffer))
+		return false;
+
+	return (read == (signed)buffer_.GetLength() ? true : false);
 }
 
-void ConfigState::Write()
+bool ConfigState::Write(Buffer& buffer)
 {
+	WriteQuorums(buffer);
+	buffer.Appendf(":");
+	WriteDatabases(buffer);
+	buffer.Appendf(":");
+	WriteTables(buffer);
+	buffer.Appendf(":");
+	WriteShards(buffer);
+	buffer.Appendf(":");
+	WriteShardServers(buffer);
+	return true;
 }
 
 bool ConfigState::OnMessage(ConfigMessage& message)
@@ -557,3 +598,316 @@ bool ConfigState::OnDeleteTable(ConfigMessage& message)
 	tables.Delete(itTable);
 	return true;
 }
+
+bool ConfigState::ReadQuorums(ReadBuffer& buffer)
+{
+	int				read;
+	unsigned		num, i;
+	ConfigQuorum*	quorum;
+	
+	read = buffer.Readf("%u", &num);
+	CHECK_ADVANCE(1);
+	
+	for (i = 0; i < num; i++)
+	{
+		READ_SEPARATOR();
+		quorum = new ConfigQuorum;
+		if (!ReadQuorum(*quorum, buffer))
+			return false;
+	}
+	
+	return true;
+}
+
+void ConfigState::WriteQuorums(Buffer& buffer)
+{
+	ConfigQuorum*	it;
+
+	// write number of quorums
+	buffer.Appendf("%u", quorums.GetLength());
+
+	for (it = quorums.First(); it != NULL; it = quorums.Next(it))
+	{
+		buffer.Appendf(":");
+		WriteQuorum(*it, buffer);
+	}
+}
+
+bool ConfigState::ReadDatabases(ReadBuffer& buffer)
+{
+	int				read;
+	unsigned		num, i;
+	ConfigDatabase*	database;
+	
+	read = buffer.Readf("%u", &num);
+	CHECK_ADVANCE(1);
+	
+	for (i = 0; i < num; i++)
+	{
+		READ_SEPARATOR();
+		database = new ConfigDatabase;
+		if (!ReadDatabase(*database, buffer))
+			return false;
+	}
+	
+	return true;
+}
+
+void ConfigState::WriteDatabases(Buffer& buffer)
+{
+	ConfigDatabase*	it;
+	
+	// write number of databases
+	buffer.Appendf("%u", databases.GetLength());
+	
+	for (it = databases.First(); it != NULL; it = databases.Next(it))
+	{
+		buffer.Appendf(":");
+		WriteDatabase(*it, buffer);
+	}
+}
+
+bool ConfigState::ReadTables(ReadBuffer& buffer)
+{
+	int				read;
+	unsigned		num, i;
+	ConfigTable*	table;
+	
+	read = buffer.Readf("%u", &num);
+	CHECK_ADVANCE(1);
+	
+	for (i = 0; i < num; i++)
+	{
+		READ_SEPARATOR();
+		table = new ConfigTable;
+		if (!ReadTable(*table, buffer))
+			return false;
+	}
+	
+	return true;
+}
+
+void ConfigState::WriteTables(Buffer& buffer)
+{
+	ConfigTable*	it;
+	
+	// write number of databases
+	buffer.Appendf("%u", tables.GetLength());
+	
+	for (it = tables.First(); it != NULL; it = tables.Next(it))
+	{
+		buffer.Appendf(":");
+		WriteTable(*it, buffer);
+	}
+}
+
+bool ConfigState::ReadShards(ReadBuffer& buffer)
+{
+	int				read;
+	unsigned		num, i;
+	ConfigShard*	shard;
+	
+	read = buffer.Readf("%u", &num);
+	CHECK_ADVANCE(1);
+	
+	for (i = 0; i < num; i++)
+	{
+		READ_SEPARATOR();
+		shard = new ConfigShard;
+		if (!ReadShard(*shard, buffer))
+			return false;
+	}
+	
+	return true;
+}
+
+void ConfigState::WriteShards(Buffer& buffer)
+{
+	ConfigShard*	it;
+	
+	// write number of databases
+	buffer.Appendf("%u", shards.GetLength());
+	
+	for (it = shards.First(); it != NULL; it = shards.Next(it))
+	{
+		buffer.Appendf(":");
+		WriteShard(*it, buffer);
+	}
+}
+
+bool ConfigState::ReadShardServers(ReadBuffer& buffer)
+{
+	int					read;
+	unsigned			num, i;
+	ConfigShardServer*	shardServer;
+	
+	read = buffer.Readf("%u", &num);
+	CHECK_ADVANCE(1);
+	
+	for (i = 0; i < num; i++)
+	{
+		READ_SEPARATOR();
+		shardServer = new ConfigShardServer;
+		if (!ReadShardServer(*shardServer, buffer))
+			return false;
+	}
+	
+	return true;
+}
+
+void ConfigState::WriteShardServers(Buffer& buffer)
+{
+	ConfigShardServer*	it;
+	
+	// write number of databases
+	buffer.Appendf("%u", shardServers.GetLength());
+	
+	for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
+	{
+		buffer.Appendf(":");
+		WriteShardServer(*it, buffer);
+	}
+}
+
+bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer)
+{
+	int read;
+	
+	read = buffer.Readf("%U:%c", &quorum.quorumID, &quorum.productionType);
+	CHECK_ADVANCE(3);
+	READ_SEPARATOR();
+	if (!ReadIDList(quorum.activeNodes, buffer))
+		return false;
+	READ_SEPARATOR();
+	if (!ReadIDList(quorum.inactiveNodes, buffer))
+		return false;
+	READ_SEPARATOR();
+	if (!ReadIDList(quorum.shards, buffer))
+		return false;
+	READ_SEPARATOR();
+	
+	return true;
+}
+
+void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer)
+{
+	buffer.Appendf("%U:%c", quorum.quorumID, quorum.productionType);
+	buffer.Appendf(":");
+	WriteIDList(quorum.activeNodes, buffer);
+	buffer.Appendf(":");
+	WriteIDList(quorum.inactiveNodes, buffer);
+	buffer.Appendf(":");
+	WriteIDList(quorum.shards, buffer);
+}
+
+bool ConfigState::ReadDatabase(ConfigDatabase& database, ReadBuffer& buffer)
+{
+	int read;
+	
+	read = buffer.Readf("%U:%#B:%c", &database.databaseID, &database.name, &database.productionType);
+	CHECK_ADVANCE(5);
+	READ_SEPARATOR();
+	if (!ReadIDList(database.tables, buffer))
+		return false;
+		
+	return true;
+}
+
+void ConfigState::WriteDatabase(ConfigDatabase& database, Buffer& buffer)
+{
+	buffer.Appendf("%U:%#B:%c", database.databaseID, &database.name, database.productionType);
+	buffer.Appendf(":");
+	WriteIDList(database.tables, buffer);
+}
+
+bool ConfigState::ReadTable(ConfigTable& table, ReadBuffer& buffer)
+{
+	int read;
+	
+	read = buffer.Readf("%U:%U:%#B", &table.databaseID, &table.tableID, &table.name);
+	CHECK_ADVANCE(5);
+	if (!ReadIDList(table.shards, buffer))
+		return false;
+	
+	return true;
+}
+
+void ConfigState::WriteTable(ConfigTable& table, Buffer& buffer)
+{
+	buffer.Appendf("%U:%U:%#B", table.databaseID, table.tableID, &table.name);
+	buffer.Appendf(":");
+	WriteIDList(table.shards, buffer);
+}
+
+bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer)
+{
+	int read;
+	
+	read = buffer.Readf("%U:%U:%U:%U:%#B:%#B",
+	 &shard.quorumID, &shard.databaseID, &shard.tableID,
+	 &shard.shardID, &shard.firstKey, &shard.lastKey);
+	CHECK_ADVANCE(11);
+	return true;
+}
+
+void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer)
+{
+	buffer.Appendf("%U:%U:%U:%U:%#B:%#B",
+	 shard.quorumID, shard.databaseID, shard.tableID,
+	 shard.shardID, &shard.firstKey, &shard.lastKey);
+}
+
+bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& buffer)
+{
+	int			read;
+	ReadBuffer	rb;
+
+	read = buffer.Readf("%U:%#R", &shardServer.nodeID, &rb);
+	CHECK_ADVANCE(3);
+	shardServer.endpoint.Set(rb);
+	return true;
+}
+
+void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffer)
+{
+	ReadBuffer endpoint;
+	
+	endpoint = shardServer.endpoint.ToReadBuffer();
+	buffer.Appendf("%U:%#R", shardServer.nodeID, &endpoint);
+}
+
+bool ConfigState::ReadIDList(List<uint64_t>& IDs, ReadBuffer& buffer)
+{
+	uint64_t	ID;
+	unsigned	i, num;
+	int			read;
+	
+	num = 0;
+	read = buffer.Readf("%u", &num);
+	CHECK_ADVANCE(1);
+	
+	for (i = 0; i < num; i++)
+	{
+		READ_SEPARATOR();
+		read = buffer.Readf("%U", &ID);
+		CHECK_ADVANCE(1);
+		IDs.Append(ID);
+	}
+	
+	return true;
+}
+
+void ConfigState::WriteIDList(List<uint64_t>& IDs, Buffer& buffer)
+{
+	uint64_t*	it;
+	
+	// write number of items
+	
+	buffer.Appendf("%u", IDs.GetLength());
+	
+	for (it = IDs.First(); it != NULL; it = IDs.Next(it))
+		buffer.Appendf(":%U", *it);
+}
+
+#undef READ_SEPARATOR
+#undef CHECK_READ

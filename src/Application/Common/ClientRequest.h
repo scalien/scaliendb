@@ -6,6 +6,8 @@
 
 #define CLIENTREQUEST_GET_MASTER		'm'
 
+#define CLIENTREQUEST_GET_CONFIG_STATE	'A'
+
 #define CLIENTREQUEST_CREATE_QUORUM		'Q'
 
 #define CLIENTREQUEST_CREATE_DATABASE	'C'
@@ -57,10 +59,14 @@ public:
 	bool		GetMaster(
 				 uint64_t commandID);
 
+	/* Get config state: databases, tables, shards, quora */
+	bool		GetConfigState(
+				 uint64_t commandID);
+
 	/* Quorum management */
 	bool		CreateQuorum(
-				 uint64_t commandID, char productionType, NodeList nodes);
-	
+				 uint64_t commandID, char productionType, NodeList nodes);	
+				 
 	/* Database management */
 	bool		CreateDatabase(
 				 uint64_t commandID, char productionType, ReadBuffer& name);

@@ -24,6 +24,14 @@ bool ClientResponse::Value(uint64_t commandID_, ReadBuffer& value_)
 	return true;
 }
 
+bool ClientResponse::GetConfigStateResponse(uint64_t commandID_, ConfigState* configState_)
+{
+	type = CLIENTRESPONSE_GET_CONFIG_STATE;
+	commandID = commandID_;
+	configState = configState_;
+	return true;
+}
+
 bool ClientResponse::NotMaster(uint64_t commandID_)
 {
 	type = CLIENTRESPONSE_NOTMASTER;
@@ -59,6 +67,11 @@ bool ClientResponse::Read(ReadBuffer& buffer)
 			read = buffer.Readf("%c:%U:%#R",
 			 &type, &commandID, &value);
 			break;
+		case CLIENTRESPONSE_GET_CONFIG_STATE:
+			if (configState)
+				delete configState;
+			configState = new ConfigState;
+			return configState->Read(buffer);
 		case CLIENTRESPONSE_NOTMASTER:
 			read = buffer.Readf("%c:%U",
 			 &type, &commandID);
@@ -90,6 +103,8 @@ bool ClientResponse::Write(Buffer& buffer)
 			buffer.Writef("%c:%U:%#R",
 			 type, commandID, &value);
 			return true;
+		case CLIENTRESPONSE_GET_CONFIG_STATE:
+			return configState->Write(buffer);
 		case CLIENTRESPONSE_NOTMASTER:
 			buffer.Writef("%c:%U",
 			 type, commandID);

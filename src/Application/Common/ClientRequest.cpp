@@ -22,6 +22,13 @@ bool ClientRequest::GetMaster(uint64_t commandID_)
 	return true;
 }
 
+bool ClientRequest::GetConfigState(uint64_t commandID_)
+{
+	type = CLIENTREQUEST_GET_CONFIG_STATE;
+	commandID = commandID_;
+	return true;
+}
+
 bool ClientRequest::CreateQuorum(uint64_t commandID_, char productionType_, NodeList nodes_)
 {
 	type = CLIENTREQUEST_CREATE_QUORUM;
@@ -143,6 +150,12 @@ bool ClientRequest::Read(ReadBuffer& buffer)
 			 &type, &commandID);
 			break;
 
+		/* Get config state: databases, tables, shards, quora */
+		case CLIENTREQUEST_GET_CONFIG_STATE:
+			read = buffer.Readf("%c:%U",
+			 &type, &commandID);
+			break;
+
 		/* Quorum management */
 		case CLIENTREQUEST_CREATE_QUORUM:
 			read = buffer.Readf("%c:%U:%c:%U",
@@ -220,6 +233,12 @@ bool ClientRequest::Write(Buffer& buffer)
 	{
 		/* Master query */
 		case CLIENTREQUEST_GET_MASTER:
+			buffer.Writef("%c:%U",
+			 type, commandID);
+			return true;
+
+		/* Get config state: databases, tables, shards, quora */
+		case CLIENTREQUEST_GET_CONFIG_STATE:
 			buffer.Writef("%c:%U",
 			 type, commandID);
 			return true;

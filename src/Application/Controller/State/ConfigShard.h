@@ -22,6 +22,9 @@ public:
 	uint64_t		tableID;
 	uint64_t		shardID;
 	
+	Buffer			firstKey;
+	Buffer			lastKey;
+	
 	ConfigShard*	prev;
 	ConfigShard*	next;
 };
