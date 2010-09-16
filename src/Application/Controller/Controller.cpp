@@ -59,10 +59,6 @@ uint64_t Controller::GetMaster()
 bool Controller::ProcessClientCommand(ClientSession* /*conn*/, ConfigMessage& message)
 {
 	ConfigMessage*	pmessage;
-	// TODO:
-	// 1. verify all the IDs
-	// 2. complete the message where necessary
-	
 	if (!configState.CompleteMessage(message))
 	{
 		// TODO: send failed to conn
@@ -71,6 +67,9 @@ bool Controller::ProcessClientCommand(ClientSession* /*conn*/, ConfigMessage& me
 	pmessage = new ConfigMessage;
 	*pmessage = message;
 	configMessages.Append(pmessage);
+	
+	if (!configContext.IsAppending())
+		configContext.Append(configMessages.First());
 	
 	return true;
 }
@@ -124,18 +123,21 @@ void Controller::OnAwaitingNodeID(Endpoint endpoint)
 
 void Controller::TryRegisterShardServer(Endpoint& endpoint)
 {
-	uint64_t		nodeID;
-	ConfigMessage	message;
+	ConfigMessage*	message;
 
 	if (configContext.IsAppending())
 		return;
 
-	message.RegisterShardServer(0, endpoint);
-	if (!configState.CompleteMessage(message))
+	message->RegisterShardServer(0, endpoint);
+	if (!configState.CompleteMessage(*message))
 	{
 		// TODO: ?
 	}
-	configContext.Append(message);		
+
+	configMessages.Append(message);
+	
+	if (!configContext.IsAppending())
+		configContext.Append(configMessages.First());
 }
 
 void Controller::SendClientReply(ConfigMessage& message)

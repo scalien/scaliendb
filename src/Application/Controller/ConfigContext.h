@@ -23,7 +23,7 @@ public:
 	void							Init(Controller* controller, unsigned numControllers);
 	void							SetController(Controller* controller);
 	
-	void							Append(ConfigMessage message);
+	void							Append(ConfigMessage* message);
 	bool							IsAppending();
 	
 	/* ---------------------------------------------------------------------------------------- */

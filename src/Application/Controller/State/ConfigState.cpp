@@ -208,13 +208,21 @@ bool ConfigState::CompleteIncreaseQuorum(ConfigMessage& message)
 	if (itQuorum == NULL)
 		return false; // no such quorum
 	
-	List<uint64_t>& nodes = itQuorum->nodes;
+	List<uint64_t>& activeNodes = itQuorum->activeNodes;
 	
-	for (itNodeID = nodes.First(); itNodeID != NULL; itNodeID = nodes.Next(itNodeID))
+	for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
 	{
 		if (*itNodeID == message.nodeID)
 			return false; // node already in quorum
 	}
+
+	List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+	for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
+	{
+		if (*itNodeID == message.nodeID)
+			return false; // node already in quorum
+	}
+
 	
 	return true;
 }
@@ -228,9 +236,15 @@ bool ConfigState::CompleteDecreaseQuorum(ConfigMessage& message)
 	if (itQuorum == NULL)
 		return false; // no such quorum
 	
-	List<uint64_t>& nodes = itQuorum->nodes;
-	
-	for (itNodeID = nodes.First(); itNodeID != NULL; itNodeID = nodes.Next(itNodeID))
+	List<uint64_t>& activeNodes = itQuorum->activeNodes;
+	for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
+	{
+		if (*itNodeID == message.nodeID)
+			return true; // node in quorum
+	}
+
+	List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+	for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
 	{
 		if (*itNodeID == message.nodeID)
 			return true; // node in quorum
@@ -357,7 +371,7 @@ bool ConfigState::OnCreateQuorum(ConfigMessage& message)
 		
 	it = new ConfigQuorum;
 	it->quorumID = message.quorumID;
-	it->nodes = message.nodes;
+	it->activeNodes = message.nodes;
 	it->productionType = message.productionType;
 	return true;
 }
@@ -371,16 +385,22 @@ bool ConfigState::OnIncreaseQuorum(ConfigMessage& message)
 	// make sure quorum exists
 	assert(itQuorum != NULL);
 		
-	List<uint64_t>& nodes = itQuorum->nodes;
-	
 	// make sure node is not already in quorum
-	for (itNodeID = nodes.First(); itNodeID != NULL; itNodeID = nodes.Next(itNodeID))
+	List<uint64_t>& activeNodes = itQuorum->activeNodes;
+	for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
+	{
+		if (*itNodeID == message.nodeID)
+			ASSERT_FAIL();
+	}
+
+	List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+	for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
 	{
 		if (*itNodeID == message.nodeID)
 			ASSERT_FAIL();
 	}
 	
-	nodes.Append(message.nodeID);
+	inactiveNodes.Append(message.nodeID);
 	return true;
 }
 
@@ -393,14 +413,23 @@ bool ConfigState::OnDecreaseQuorum(ConfigMessage& message)
 	// make sure quorum exists
 	assert(itQuorum != NULL);
 	
-	List<uint64_t>& nodes = itQuorum->nodes;
-	
 	// make sure node is in quorum
-	for (itNodeID = nodes.First(); itNodeID != NULL; itNodeID = nodes.Next(itNodeID))
+	List<uint64_t>& activeNodes = itQuorum->activeNodes;
+	for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
 	{
 		if (*itNodeID == message.nodeID)
 		{
-			nodes.Remove(itNodeID);
+			activeNodes.Remove(itNodeID);
+			return true;
+		}
+	}
+
+	List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+	for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
+	{
+		if (*itNodeID == message.nodeID)
+		{
+			inactiveNodes.Remove(itNodeID);
 			return true;
 		}
 	}

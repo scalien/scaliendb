@@ -27,9 +27,9 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers)
 	paxosLease.AcquireLease();
 }
 
-void ConfigContext::Append(ConfigMessage message)
+void ConfigContext::Append(ConfigMessage* message)
 {
-	message.Write(nextValue);
+	message->Write(nextValue);
 
 	replicatedLog.TryAppendNextValue();
 }

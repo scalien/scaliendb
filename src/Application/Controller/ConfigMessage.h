@@ -11,6 +11,8 @@
 #define CONFIG_CREATE_QUORUM			'Q'
 #define CONFIG_INCREASE_QUORUM			'P'
 #define CONFIG_DECREASE_QUORUM			'M'
+#define CONFIG_ACTIVATE_QUORUM_SERVER	'p'
+#define CONFIG_DEACTIVATE_QUORUM_SERVER	'm'
 
 #define CONFIG_CREATE_DATABASE			'C'
 #define CONFIG_RENAME_DATABASE			'R'
@@ -56,9 +58,14 @@ public:
 	bool			CreateQuorum(
 					 uint64_t quorumID, char productionType, NodeList& nodes);
 	bool			IncreaseQuorum(
-					 uint64_t shardID, uint64_t nodeID);
+					 uint64_t quorumID, uint64_t nodeID);
 	bool			DecreaseQuorum(
-					 uint64_t shardID, uint64_t nodeID);
+					 uint64_t quorumID, uint64_t nodeID);
+	bool			ActivateQuorumServer(
+					 uint64_t quorumID, uint64_t nodeID);
+	bool			DeactivateQuorumServer(
+					 uint64_t quorumID, uint64_t nodeID);
+
 
 	/* Database management*/
 	bool			CreateDatabase(

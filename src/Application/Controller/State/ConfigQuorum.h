@@ -21,7 +21,8 @@ public:
 	ConfigQuorum()		{ prev = next = this; }
 
 	uint64_t			quorumID;
-	List<uint64_t>		nodes;	
+	List<uint64_t>		activeNodes;	
+	List<uint64_t>		inactiveNodes;	
 	List<uint64_t>		shards;
 	char				productionType;
 	

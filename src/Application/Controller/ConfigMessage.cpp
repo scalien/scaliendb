@@ -23,19 +23,37 @@ bool ConfigMessage::CreateQuorum(
 }
 
 bool ConfigMessage::IncreaseQuorum(
- uint64_t shardID_, uint64_t nodeID_)
+ uint64_t quorumID_, uint64_t nodeID_)
 {
 	type = CONFIG_INCREASE_QUORUM;
-	shardID = shardID_;
+	quorumID = quorumID_;
 	nodeID = nodeID_;
 	return true;
 }
 
 bool ConfigMessage::DecreaseQuorum(
- uint64_t shardID_, uint64_t nodeID_)
+ uint64_t quorumID_, uint64_t nodeID_)
 {
 	type = CONFIG_DECREASE_QUORUM;
-	shardID = shardID_;
+	quorumID = quorumID_;
+	nodeID = nodeID_;
+	return true;
+}
+
+bool ConfigMessage::ActivateQuorumServer(
+ uint64_t quorumID_, uint64_t nodeID_)
+{
+	type = CONFIG_ACTIVATE_QUORUM_SERVER;
+	quorumID = quorumID_;
+	nodeID = nodeID_;
+	return true;
+}
+
+bool ConfigMessage::DeactivateQuorumServer(
+ uint64_t quorumID_, uint64_t nodeID_)
+{
+	type = CONFIG_DEACTIVATE_QUORUM_SERVER;
+	quorumID = quorumID_;
 	nodeID = nodeID_;
 	return true;
 }
@@ -134,14 +152,22 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
 				return true;
 			else
 				return false;
-			break;		
+			break;
 		case CONFIG_INCREASE_QUORUM:
 			read = buffer.Readf("%c:%U:%U",
-			 &type, &shardID, &nodeID);
+			 &type, &quorumID, &nodeID);
 			break;
 		case CONFIG_DECREASE_QUORUM:
 			read = buffer.Readf("%c:%U:%U:%u",
-			 &type, &shardID, &nodeID);
+			 &type, &quorumID, &nodeID);
+			break;
+		case CONFIG_ACTIVATE_QUORUM_SERVER:
+			read = buffer.Readf("%c:%U:%U",
+			 &type, &quorumID, &nodeID);
+			break;
+		case CONFIG_DEACTIVATE_QUORUM_SERVER:
+			read = buffer.Readf("%c:%U:%U:%u",
+			 &type, &quorumID, &nodeID);
 			break;
 
 		/* Database management */
@@ -199,11 +225,11 @@ bool ConfigMessage::Write(Buffer& buffer)
 			break;
 		case CONFIG_INCREASE_QUORUM:
 			buffer.Writef("%c:%U:%U",
-			 type, shardID, nodeID);
+			 type, quorumID, nodeID);
 			break;
 		case CONFIG_DECREASE_QUORUM:
 			buffer.Writef("%c:%U:%U",
-			 type, shardID, nodeID);
+			 type, quorumID, nodeID);
 			break;
 
 		/* Database management */
