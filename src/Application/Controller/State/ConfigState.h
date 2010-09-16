@@ -43,13 +43,6 @@ public:
 	
 	void				Init();
 
-	bool				CompleteMessage(ConfigMessage& message);
-	bool				OnMessage(ConfigMessage& message);
-	
-	bool				Read(ReadBuffer& buffer);
-	bool				Write(Buffer& buffer);
-
-private:
 	ConfigQuorum*		GetQuorum(uint64_t quorumID);
 	ConfigDatabase*		GetDatabase(uint64_t databaseID);
 	ConfigDatabase*		GetDatabase(ReadBuffer& name);
@@ -58,6 +51,13 @@ private:
 	ConfigShard*		GetShard(uint64_t shardID);
 	ConfigShardServer*	GetShardServer(uint64_t nodeID);
 
+	bool				CompleteMessage(ConfigMessage& message);
+	bool				OnMessage(ConfigMessage& message);
+	
+	bool				Read(ReadBuffer& buffer, bool withVolatile = false);
+	bool				Write(Buffer& buffer, bool withVolatile = false);
+
+private:
 	bool				CompleteRegisterShardServer(ConfigMessage& message);
 	bool				CompleteCreateQuorum(ConfigMessage& message);
 	bool				CompleteIncreaseQuorum(ConfigMessage& message);
@@ -80,8 +80,8 @@ private:
 	bool				OnRenameTable(ConfigMessage& message);
 	bool				OnDeleteTable(ConfigMessage& message);
 
-	bool				ReadQuorums(ReadBuffer& buffer);
-	void				WriteQuorums(Buffer& buffer);
+	bool				ReadQuorums(ReadBuffer& buffer, bool withVolatile);
+	void				WriteQuorums(Buffer& buffer, bool withVolatile);
 
 	bool				ReadDatabases(ReadBuffer& buffer);
 	void				WriteDatabases(Buffer& buffer);
@@ -95,8 +95,8 @@ private:
 	bool				ReadShardServers(ReadBuffer& buffer);
 	void				WriteShardServers(Buffer& buffer);
 	
-	bool				ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer);
-	void				WriteQuorum(ConfigQuorum& quorum, Buffer& buffer);
+	bool				ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool withVolatile);
+	void				WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVolatile);
 
 	bool				ReadDatabase(ConfigDatabase& database, ReadBuffer& buffer);
 	void				WriteDatabase(ConfigDatabase& database, Buffer& buffer);

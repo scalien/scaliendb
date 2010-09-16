@@ -1,5 +1,8 @@
 #include "ConfigState.h"
 
+#define HAS_PRIMARY_YES		'Y'
+#define HAS_PRIMARY_NO		'N'
+
 #define READ_SEPARATOR()	\
 	read = buffer.Readf(":");		\
 	if (read < 1) return false;	\
@@ -54,14 +57,14 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
 	}
 }
 
-bool ConfigState::Read(ReadBuffer& buffer_)
+bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
 {
 	int			read;
 	ReadBuffer	buffer;
 	
 	buffer = buffer_; // because of Advance()
 	
-	if (!ReadQuorums(buffer))
+	if (!ReadQuorums(buffer, withVolatile))
 		return false;
 	READ_SEPARATOR();
 	if (!ReadDatabases(buffer))
@@ -79,9 +82,9 @@ bool ConfigState::Read(ReadBuffer& buffer_)
 	return (read == (signed)buffer_.GetLength());
 }
 
-bool ConfigState::Write(Buffer& buffer)
+bool ConfigState::Write(Buffer& buffer, bool withVolatile)
 {
-	WriteQuorums(buffer);
+	WriteQuorums(buffer, withVolatile);
 	buffer.Appendf(":");
 	WriteDatabases(buffer);
 	buffer.Appendf(":");
@@ -599,7 +602,7 @@ bool ConfigState::OnDeleteTable(ConfigMessage& message)
 	return true;
 }
 
-bool ConfigState::ReadQuorums(ReadBuffer& buffer)
+bool ConfigState::ReadQuorums(ReadBuffer& buffer, bool withVolatile)
 {
 	int				read;
 	unsigned		num, i;
@@ -612,14 +615,14 @@ bool ConfigState::ReadQuorums(ReadBuffer& buffer)
 	{
 		READ_SEPARATOR();
 		quorum = new ConfigQuorum;
-		if (!ReadQuorum(*quorum, buffer))
+		if (!ReadQuorum(*quorum, buffer, withVolatile))
 			return false;
 	}
 	
 	return true;
 }
 
-void ConfigState::WriteQuorums(Buffer& buffer)
+void ConfigState::WriteQuorums(Buffer& buffer, bool withVolatile)
 {
 	ConfigQuorum*	it;
 
@@ -629,7 +632,7 @@ void ConfigState::WriteQuorums(Buffer& buffer)
 	for (it = quorums.First(); it != NULL; it = quorums.Next(it))
 	{
 		buffer.Appendf(":");
-		WriteQuorum(*it, buffer);
+		WriteQuorum(*it, buffer, withVolatile);
 	}
 }
 
@@ -769,9 +772,10 @@ void ConfigState::WriteShardServers(Buffer& buffer)
 	}
 }
 
-bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer)
+bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool withVolatile)
 {
-	int read;
+	int		read;
+	char	c;
 	
 	read = buffer.Readf("%U:%c", &quorum.quorumID, &quorum.productionType);
 	CHECK_ADVANCE(3);
@@ -786,10 +790,24 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer)
 		return false;
 	READ_SEPARATOR();
 	
+	quorum.hasPrimary = false;
+	if (withVolatile)
+	{
+		READ_SEPARATOR();
+		c = HAS_PRIMARY_NO;
+		buffer.Readf("%c", &c);
+		CHECK_ADVANCE(1);
+		if (c == HAS_PRIMARY_YES)
+		{
+			READ_SEPARATOR();
+			buffer.Readf("%U", &quorum.primaryID);
+		}
+	}
+	
 	return true;
 }
 
-void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer)
+void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVolatile)
 {
 	buffer.Appendf("%U:%c", quorum.quorumID, quorum.productionType);
 	buffer.Appendf(":");
@@ -798,6 +816,15 @@ void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer)
 	WriteIDList(quorum.inactiveNodes, buffer);
 	buffer.Appendf(":");
 	WriteIDList(quorum.shards, buffer);
+
+	if (withVolatile)
+	{
+		buffer.Appendf(":");
+		if (quorum.hasPrimary)
+			buffer.Appendf("P:%U", quorum.primaryID);
+		else
+			buffer.Appendf("N");
+	}
 }
 
 bool ConfigState::ReadDatabase(ConfigDatabase& database, ReadBuffer& buffer)
