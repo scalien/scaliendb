@@ -38,7 +38,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
 	
 	switch (msg.type)
 	{
-		case CLUSTER_SET_NODEID:
+		case CLUSTERMESSAGE_SET_NODEID:
 			if (!awaitingNodeID)
 				return;
 			awaitingNodeID = false;

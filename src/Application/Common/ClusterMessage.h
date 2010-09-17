@@ -3,10 +3,12 @@
 
 #include "System/Common.h"
 #include "Framework/Messaging/Message.h"
+#include "Application/Controller/State/ConfigState.h"
 
-#define			CLUSTER_SET_NODEID			'N'
-#define			CLUSTER_PRIMARY_LEASE		'L'
-#define			CLUSTER_CONFIG_INFO			'C'
+#define	CLUSTERMESSAGE_SET_NODEID		'N' // master => shard server
+#define	CLUSTERMESSAGE_SET_CONFIG_STATE	'C' // master => shard server
+#define	CLUSTERMESSAGE_REQUEST_LEASE	'R' // shard server => master, also serves as heartbeat
+#define	CLUSTERMESSAGE_RECEIVE_LEASE	'r' // master => shard server
 
 /*
 ===============================================================================================
@@ -19,15 +21,23 @@
 class ClusterMessage : public Message
 {
 public:
-	char		type;
-	uint64_t	nodeID;
-	uint64_t	shardID;
-	unsigned	leaseTime;
+	char			type;
+	uint64_t		nodeID;
+	uint64_t		quorumID;
+	uint64_t		shardID;
+	uint64_t		proposalID;
+	unsigned		duration;
+	ConfigState*	configState;
 	
-	void		SetNodeID(uint64_t nodeID);
+	bool			SetNodeID(uint64_t nodeID);
+	bool			SetConfigState(ConfigState* configState);
+	bool			RequestLease(uint64_t nodeID, uint64_t quorumID,
+					 uint64_t proposalID, unsigned duration);
+	bool			ReceiveLease(uint64_t nodeID, uint64_t quorumID,
+					 uint64_t proposalID, unsigned duration);
 	
-	bool		Read(ReadBuffer& buffer);
-	bool		Write(Buffer& buffer);
+	bool			Read(ReadBuffer& buffer);
+	bool			Write(Buffer& buffer);
 };
 
 #endif

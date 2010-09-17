@@ -31,6 +31,7 @@ public:
 	// Not replicated, only stored by the MASTER in-memory
 	bool				hasPrimary;
 	uint64_t			primaryID;
+	//
 	// ========================================================================================
 
 	ConfigQuorum*		prev;
