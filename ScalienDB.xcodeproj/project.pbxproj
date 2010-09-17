@@ -754,8 +754,6 @@
 				54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */,
 				54FCF69D11FDF4770075BBFF /* ConfigContext.h */,
 				54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */,
-				9AABB50C123FDCDD003626AC /* ControllerApp.h */,
-				9AABB50D123FDCDD003626AC /* ControllerApp.cpp */,
 				9A26DB46120076BA006A2814 /* Controller.h */,
 				9A26DB47120076BA006A2814 /* Controller.cpp */,
 				54EA52AF123901850095BF36 /* SDBPControllerContext.h */,
@@ -764,6 +762,8 @@
 				9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */,
 				9AABB48C123FBFFE003626AC /* HTTPControllerSession.h */,
 				9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */,
+				9AABB50C123FDCDD003626AC /* ControllerApp.h */,
+				9AABB50D123FDCDD003626AC /* ControllerApp.cpp */,
 			);
 			name = Controller;
 			path = Application/Controller;

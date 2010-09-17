@@ -18,5 +18,5 @@ uint64_t Countdown::GetDelay() const
 
 void Countdown::OnAdd()
 {
-	when = Now() + delay;
+	expireTime = Now() + delay;
 }

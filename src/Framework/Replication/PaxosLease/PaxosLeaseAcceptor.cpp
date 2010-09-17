@@ -84,7 +84,7 @@ void PaxosLeaseAcceptor::OnProposeRequest(PaxosLeaseMessage& imsg)
 		state.acceptedDuration = imsg.duration;
 		state.acceptedExpireTime = Now() + state.acceptedDuration;
 		
-		leaseTimeout.Set(state.acceptedExpireTime);
+		leaseTimeout.SetExpireTime(state.acceptedExpireTime);
 		EventLoop::Reset(&leaseTimeout);
 		
 		omsg.ProposeAccepted(REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);

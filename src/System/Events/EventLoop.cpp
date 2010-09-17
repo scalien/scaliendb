@@ -10,13 +10,13 @@ long EventLoop::RunTimers()
 	for (timer = timers.First(); timer != NULL; timer = timers.First())
 	{
 		UpdateTime();
-		if (timer->When() <= now)
+		if (timer->GetExpireTime() <= now)
 		{
 			Remove(timer);
 			timer->Execute();
 		}
 		else
-			return timer->When() - now;
+			return timer->GetExpireTime() - now;
 	}
 
 	return -1; // no timers to wait for

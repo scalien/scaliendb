@@ -96,7 +96,7 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
 	Log_Trace("+++ Node %" PRIu64 " has the lease for %" PRIu64 " msec +++",
 		state.leaseOwner, state.expireTime - Now());
 
-	leaseTimeout.Set(state.expireTime);
+	leaseTimeout.SetExpireTime(state.expireTime);
 	EventLoop::Reset(&leaseTimeout);
 	
 	Call(onLearnLeaseCallback);

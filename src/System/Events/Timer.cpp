@@ -2,7 +2,7 @@
 
 Timer::Timer()
 {
-	when = 0;
+	expireTime = 0;
 	active = false;
 
 	next = this;
@@ -14,9 +14,9 @@ void Timer::SetCallable(Callable callable_)
 	callable = callable_;
 }
 	
-void Timer::Set(uint64_t when_)
+void Timer::SetExpireTime(uint64_t expireTime_)
 {
-	when = when_;
+	expireTime = expireTime_;
 }
 
 bool Timer::IsActive()
@@ -24,9 +24,9 @@ bool Timer::IsActive()
 	return active;
 }
 
-uint64_t Timer::When()
+uint64_t Timer::GetExpireTime()
 {
-	return when;
+	return expireTime;
 }
 
 void Timer::Execute()

@@ -21,9 +21,9 @@ public:
 	virtual ~Timer() {}
 		
 	void			SetCallable(Callable callable);
-	void			Set(uint64_t when);
+	void			SetExpireTime(uint64_t when);
 
-	uint64_t		When();
+	uint64_t		GetExpireTime();
 	bool			IsActive();
 	
 	void			Execute();
@@ -35,7 +35,7 @@ public:
 
 protected:
     bool			active;
-	uint64_t		when;
+	uint64_t		expireTime;
     Callable		callable;
 };
 
@@ -43,7 +43,7 @@ protected:
 
 inline bool LessThan(Timer& a, Timer& b)
 {
-    return (a.When() < b.When());
+    return (a.GetExpireTime() < b.GetExpireTime());
 }
 
 #endif
