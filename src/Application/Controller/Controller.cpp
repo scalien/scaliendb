@@ -103,10 +103,23 @@ void Controller::OnConfigMessage(ConfigMessage& message)
 	SendClientReply(message);
 }
 
-void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& /*msg*/)
+void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
 	if (!IsMaster())
 		return;	
+
+	switch (message.type)
+	{
+		case CLUSTERMESSAGE_SET_NODEID:
+			ASSERT_FAIL();
+		case CLUSTERMESSAGE_SET_CONFIG_STATE:
+			ASSERT_FAIL();
+		case CLUSTERMESSAGE_REQUEST_LEASE:
+			OnRequestLease(message);
+			break;
+		case CLUSTERMESSAGE_RECEIVE_LEASE:
+			ASSERT_FAIL();
+	}
 }
 
 void Controller::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
@@ -142,5 +155,9 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 }
 
 void Controller::SendClientReply(ConfigMessage& message)
+{
+}
+
+void Controller::OnRequestLease(ClusterMessage& message)
 {
 }

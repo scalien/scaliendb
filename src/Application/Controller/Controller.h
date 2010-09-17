@@ -47,6 +47,7 @@ private:
 	void			InitConfigContext();
 	void			TryRegisterShardServer(Endpoint& endpoint);
 	void			SendClientReply(ConfigMessage& message);
+	void			OnRequestLease(ClusterMessage& message);
 	
 	ConfigContext	configContext;
 	MessageList		configMessages;
