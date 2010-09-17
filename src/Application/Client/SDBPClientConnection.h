@@ -41,15 +41,17 @@ private:
 	typedef List<ClientRequest*> RequestList;
 
 	bool			ProcessResponse(ClientResponse* resp);
+	bool			ProcessGetConfigState(ClientResponse* resp);
 	bool			ProcessGetMaster(ClientResponse* resp);
 	bool			ProcessCommandResponse(ClientResponse* resp);
+	ClientRequest*	RemoveRequest(uint64_t commandID);
 
 	SDBPClient*		client;
 	uint64_t		nodeID;
 	Endpoint		endpoint;
 	uint64_t		getMasterTime;
 	Countdown		getMasterTimeout;
-	RequestList		getMasterRequests;
+	RequestList		requests;
 };
 
 #endif

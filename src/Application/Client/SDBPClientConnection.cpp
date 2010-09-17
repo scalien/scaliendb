@@ -42,8 +42,8 @@ void SDBPClientConnection::SendGetMaster()
 	
 	if (state == CONNECTED)
 	{
-		request = client->CreateGetMasterRequest();
-		getMasterRequests.Append(request);
+		request = client->CreateGetConfigState();
+		requests.Append(request);
 		Send(request);
 		EventLoop::Reset(&getMasterTimeout);
 	}
@@ -109,7 +109,7 @@ void SDBPClientConnection::OnClose()
 	Log_Trace();
 	
 	// delete getmaster requests
-	getMasterRequests.Clear();
+	requests.Clear();
 	
 	// resend requests without response from the client
 	if (state == CONNECTED)
@@ -131,39 +131,42 @@ void SDBPClientConnection::OnClose()
 
 bool SDBPClientConnection::ProcessResponse(ClientResponse* resp)
 {
-	switch (resp->commandID % 10)
-	{
-	case SDBP_MOD_GETMASTER:
-		return ProcessGetMaster(resp);
+	if (resp->type == CLIENTRESPONSE_GET_CONFIG_STATE)
+		return ProcessGetConfigState(resp);
 
-	case SDBP_MOD_COMMAND:
-		return ProcessCommandResponse(resp);
+	return ProcessCommandResponse(resp);
+}
+
+bool SDBPClientConnection::ProcessGetConfigState(ClientResponse* resp)
+{
+	ClientRequest*	req;
+
+	if (resp->configState)
+	{
+		assert(resp->configState->nodeID == nodeID);
+		
+		req = RemoveRequest(resp->commandID);
+		assert(req != NULL);
+		delete req;
+		
+		client->SetMaster(resp->configState->nodeID, nodeID);
+		client->SetConfigState(resp->TransferConfigState());
 	}
-	
-	ASSERT_FAIL();
-	
-	return true;
+	return false;
 }
 
 bool SDBPClientConnection::ProcessGetMaster(ClientResponse* resp)
 {
 	Log_Trace();
 
-	ClientRequest**	it;
 	ClientRequest*	req;
 	
-	// find the request by commandID
-	for (it = getMasterRequests.First(); it != NULL; it = getMasterRequests.Next(it))
-	{
-		if ((*it)->commandID == resp->commandID)
-			break;
-	}
-
-	if (it == NULL)
+	req = RemoveRequest(resp->commandID);
+	if (req == NULL)
 		return false;	// not found
 		
-	req = *it;
 	assert(req->type == CLIENTREQUEST_GET_MASTER);
+	delete req;
 
 	getMasterTime = EventLoop::Now();
 	Log_Trace("getMasterTime = %" PRIu64, getMasterTime);
@@ -172,10 +175,7 @@ bool SDBPClientConnection::ProcessGetMaster(ClientResponse* resp)
 		client->SetMaster((int64_t) resp->number, nodeID);
 	else
 		client->SetMaster(-1, nodeID);
-	
-	getMasterRequests.Remove(it);
-	delete req;
-	
+		
 	return false;
 }
 
@@ -193,4 +193,24 @@ bool SDBPClientConnection::ProcessCommandResponse(ClientResponse* resp)
 	// TODO: pair commands to results
 	
 	return false;
+}
+
+ClientRequest* SDBPClientConnection::RemoveRequest(uint64_t commandID)
+{
+	ClientRequest**	it;
+	
+	// find the request by commandID
+	for (it = requests.First(); it != NULL; it = requests.Next(it))
+	{
+		if ((*it)->commandID == commandID)
+		{
+			requests.Remove(it);
+			break;
+		}
+	}
+
+	if (it != NULL)
+		return *it;
+		
+	return NULL;
 }

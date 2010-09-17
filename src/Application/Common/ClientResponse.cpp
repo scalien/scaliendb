@@ -1,6 +1,25 @@
 #include "ClientResponse.h"
 #include "System/Buffers/Buffer.h"
 
+ClientResponse::ClientResponse()
+{
+	configState = NULL;
+}
+
+ClientResponse::~ClientResponse()
+{
+	delete configState;
+}
+
+ConfigState* ClientResponse::TransferConfigState()
+{
+	ConfigState*	ret;
+	
+	ret = configState;
+	configState = NULL;
+	return ret;
+}
+
 bool ClientResponse::OK(uint64_t commandID_)
 {
 	type = CLIENTRESPONSE_OK;

@@ -3,7 +3,10 @@
 
 #include "System/Platform.h"
 #include "System/Buffers/ReadBuffer.h"
+#include "System/Containers/List.h"
 #include "System/Events/Countdown.h"
+#include "Application/Controller/State/ConfigState.h"
+#include "SDBPClientShardConnection.h"
 
 class SDBPClientResult;
 class ClientRequest;
@@ -56,6 +59,10 @@ public:
 	int					Delete(const ReadBuffer& key, bool remove = false);
 
 private:
+	typedef List<ClientRequest*> RequestList;
+	typedef SDBPClientShardConnection ShardConnection;
+	typedef InList<SDBPClientShardConnection> ShardConnList;
+	friend class SDBPClientConnection;
 	// Controller connections
 	// ShardServer connections
 	// ClusterState
@@ -66,12 +73,18 @@ private:
 	uint64_t			NextCommandID();
 	uint64_t			NextMasterCommandID();
 	ClientRequest*		CreateGetMasterRequest();
+	ClientRequest*		CreateGetConfigState();
 	void				ResendRequests(uint64_t nodeID);
 	void				SetMaster(int64_t master, uint64_t nodeID);
 	void				UpdateConnectivityStatus();
 	void				OnGlobalTimeout();
 	void				OnMasterTimeout();
 	bool				IsSafe();
+	void				SetConfigState(ConfigState* configState);
+	void				ConnectShardServers();
+	void				AssignRequestsToQuorums();
+	ShardConnection*	GetShardConnection(uint64_t nodeID);
+	uint64_t			GetQuorumID(uint64_t tableID, ReadBuffer& key);
 	
 	int64_t				master;
 	uint64_t			commandID;
@@ -80,8 +93,11 @@ private:
 	int					timeoutStatus;
 	Countdown			globalTimeout;
 	Countdown			masterTimeout;
+	ConfigState*		configState;
+	RequestList			safeRequests;
+	RequestList			dirtyRequests;
+	ShardConnList		shardConnections;
 	
-	friend class SDBPClientConnection;
 };
 
 #endif
