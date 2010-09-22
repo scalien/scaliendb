@@ -3,7 +3,9 @@
 
 #include "Controller.h"
 #include "HTTPControllerContext.h"
+#include "SDBPControllerContext.h"
 #include "Application/HTTP/HTTPServer.h"
+#include "Application/SDBP/SDBPServer.h"
 
 /*
 ===============================================================================================
@@ -20,8 +22,11 @@ public:
 
 private:
 	Controller				controller;
-	HTTPServer				httpServer;
-	HTTPControllerContext	httpContext;
+
+//	HTTPServer				httpServer;
+//	HTTPControllerContext	httpContext;
+
+	SDBPServer				sdbpServer;
 };
 
 #endif

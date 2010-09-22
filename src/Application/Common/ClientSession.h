@@ -1,7 +1,7 @@
 #ifndef CLIENTSESSION_H
 #define CLIENTSESSION_H
 
-#include "Framework/Messaging/Message.h"
+class ClientRequest; // forward
 
 /*
 ===============================================================================================
@@ -19,8 +19,8 @@ class ClientSession
 public:
 	virtual ~ClientSession() {}
 	
-	virtual void	OnComplete(Message* message, bool status)	= 0;
-	virtual bool	IsActive()									= 0;
+	virtual void	OnComplete(ClientRequest* request, bool last)		= 0;
+	virtual bool	IsActive()											= 0;
 };
 
 #endif

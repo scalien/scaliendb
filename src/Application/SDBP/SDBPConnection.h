@@ -38,20 +38,17 @@ public:
 	// ========================================================================================
 
 	// ========================================================================================
-	// ClientConnection interface
+	// ClientSession interface
 	//
-	virtual void		OnComplete(Message* message, bool status);
+	virtual void		OnComplete(ClientRequest* request, bool last);
 	virtual bool		IsActive();
 	// ========================================================================================
 	
-	void				SendResponse(ClientResponse& response, bool closeAfterSend = false);
-
 private:
 	SDBPServer*			server;
 	SDBPContext*		context;
-	unsigned			numPendingOps;
-	bool				closeAfterSend;
-	Buffer				writeBuffer;
+	unsigned			numPending;
+	
 };
 
 #endif

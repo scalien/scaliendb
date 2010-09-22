@@ -2,7 +2,10 @@
 #define SDBPCONTROLLERCONTEXT_H
 
 #include "Application/SDBP/SDBPContext.h"
-#include "Controller.h"
+#include "State/ConfigState.h"
+#include "ConfigMessage.h"
+
+class Controller;
 
 /*
 ===============================================================================================
@@ -15,20 +18,13 @@
 class SDBPControllerContext : public SDBPContext
 {
 public:
-	void			SetController(Controller* controller);
-
-	// ========================================================================================
-	// SDBPContext interface:
-	//
-	bool			IsValidRequest(ClientRequest& request);
-	bool			ProcessRequest(SDBPConnection* conn, ClientRequest& request);
-	void			OnComplete(SDBPConnection* conn, Message* message);
-	// ========================================================================================
-
-	ConfigMessage	ConvertRequest(ClientRequest& request);
+	void					SetController(Controller* controller);
 	
+		
 private:
-	Controller*		controller;
+	SDBPConnection*			connection;
+	Controller*				controller;
+	uint64_t				getConfigStateCommandID;
 };
 
 

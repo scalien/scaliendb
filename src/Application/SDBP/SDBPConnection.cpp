@@ -1,11 +1,14 @@
 #include "SDBPConnection.h"
 #include "SDBPServer.h"
 #include "SDBPContext.h"
+#include "SDBPClientRequest.h"
+#include "SDBPClientResponse.h"
 
 SDBPConnection::SDBPConnection()
 {
 	server = NULL;
 	context = NULL;
+	numPending = 0;
 }
 
 void SDBPConnection::Init(SDBPServer* server_)
@@ -15,7 +18,6 @@ void SDBPConnection::Init(SDBPServer* server_)
 	MessageConnection::InitConnected();
 	
 	server = server_;
-	closeAfterSend = false;
 	
 	socket.GetEndpoint(remote);
 	Log_Message("[%s] Keyspace: client connected", remote.ToString());
@@ -28,28 +30,22 @@ void SDBPConnection::SetContext(SDBPContext* context_)
 
 bool SDBPConnection::OnMessage(ReadBuffer& msg)
 {
-//	ClientRequest	request;
-//	ClientResponse	response;
-//	
-//	if (!request.Read(msg))
-//	{
-//		OnClose();
-//		return true;
-//	}
-//
-//	if (!context->IsValidRequest(request))
-//	{
-//		OnClose();
-//		return true;
-//	}
-//
-//	if (!context->ProcessRequest(this, request))
-//	{
-//		response.Failed(request.commandID);
-//		SendResponse(response, true);
-//	}
-//	
-//	return false;
+	SDBPClientRequest	sdbpRequest;
+	ClientRequest*	request;
+
+	request = new ClientRequest;
+	request->session = this;
+	sdbpRequest.request = request;
+	if (!sdbpRequest.Read(msg) || !context->IsValidClientRequest(request))
+	{
+		delete request;
+		OnClose();
+		return true;
+	}
+	sdbpRequest.request = NULL;
+	numPending++;
+	context->OnClientRequest(request);
+	return false;
 }
 
 void SDBPConnection::OnWrite()
@@ -57,7 +53,7 @@ void SDBPConnection::OnWrite()
 	Log_Trace();
 	
 	MessageConnection::OnWrite();
-	if (closeAfterSend && !tcpwrite.active)
+	if (!tcpwrite.active)
 		OnClose();
 }
 
@@ -65,17 +61,32 @@ void SDBPConnection::OnClose()
 {
 	Endpoint remote;
 	
-	Log_Trace("numpending: %d", numPendingOps);
+	Log_Trace("numpending: %d", numPending);
 	Log_Message("[%s] Keyspace: client disconnected", remote.ToString());
 
 	Close();
-	if (numPendingOps == 0)
+	
+	context->OnClientClose(this);
+	
+	if (numPending == 0)
 		server->DeleteConn(this);
 }
 
-void SDBPConnection::OnComplete(Message* message, bool status)
+void SDBPConnection::OnComplete(ClientRequest* request, bool last)
 {
-	context->OnComplete(this, message);
+	SDBPClientResponse sdbpResponse;
+
+	if (last)
+		numPending--;
+
+	if (state == TCPConnection::CONNECTED)
+	{
+		sdbpResponse.response = &request->response;
+		Write(sdbpResponse);
+	}
+
+	if (last)
+		delete request;
 }
 
 bool SDBPConnection::IsActive()
@@ -84,11 +95,4 @@ bool SDBPConnection::IsActive()
 		return false;
 
 	return true;
-}
-
-void SDBPConnection::SendResponse(ClientResponse& response, bool closeAfterSend_)
-{
-	response.Write(writeBuffer);
-	Write(writeBuffer);
-	closeAfterSend = closeAfterSend_;
 }

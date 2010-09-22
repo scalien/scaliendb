@@ -1,7 +1,7 @@
 #ifndef CLIENTRESPONSE_H
 #define CLIENTRESPONSE_H
 
-#include "Framework/Messaging/Message.h"
+#include "System/Buffers/ReadBuffer.h"
 #include "Application/Controller/State/ConfigState.h"
 
 #define CLIENTRESPONSE_OK				'O'
@@ -11,6 +11,8 @@
 #define CLIENTRESPONSE_NOTMASTER		'N'
 #define CLIENTRESPONSE_FAILED			'F'
 
+class ClientRequest; // forward
+
 /*
 ===============================================================================================
 
@@ -19,12 +21,13 @@
 ===============================================================================================
 */
 
-class ClientResponse : public Message
+class ClientResponse
 {
 public:
+	ClientRequest*	request;
+	
 	/* Variables */
 	char			type;
-	uint64_t		commandID;
 	uint64_t		number;
 	ReadBuffer		value;
 	ConfigState*	configState;
@@ -35,16 +38,12 @@ public:
 	ConfigState*	TransferConfigState();
 		
 	/* Responses */
-	bool			OK(uint64_t commandID);
-	bool			Number(uint64_t commandID, uint64_t number);
-	bool			Value(uint64_t commandID, ReadBuffer& value);
-	bool			GetConfigStateResponse(uint64_t commandID, ConfigState* configState);
-	bool			NotMaster(uint64_t commandID);
-	bool			Failed(uint64_t commandID);
-
-	/* Serialization */
-	bool			Read(ReadBuffer& buffer);
-	bool			Write(Buffer& buffer);	
+	bool			OK();
+	bool			Number(uint64_t number);
+	bool			Value(ReadBuffer& value);
+	bool			GetConfigStateResponse(ConfigState* configState);
+	bool			NotMaster();
+	bool			Failed();
 };
 
 #endif

@@ -4,28 +4,11 @@
 #include "Framework/TCP/TCPServer.h"
 #include "HTTPConnection.h"
 #include "HTTPConsts.h"
+#include "HTTPHandler.h"
 
 class KeyspaceDB;	// forward
 class HTTPRequest;	// forward
 class HTTPServer;	// forward
-
-/*
-===============================================================================================
-
- HTTPHandler is the generic handler interface to HTTPServer
-
-===============================================================================================
-*/
-
-class HTTPHandler
-{
-public:
-	virtual ~HTTPHandler() {}
-	
-	virtual bool	HandleRequest(HTTPConnection* conn, HTTPRequest& request) = 0;
-	
-	HTTPHandler*	nextHTTPHandler;
-};
 
 /*
 ===============================================================================================

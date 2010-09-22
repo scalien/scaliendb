@@ -26,9 +26,12 @@ public:
 
 	bool				HandleRequest(HTTPRequest& request);
 
+	// ========================================================================================
 	// ClientSession interface
+	//
 	virtual void		OnComplete(Message* message, bool status);
 	virtual bool		IsActive();
+	// ========================================================================================
 
 private:
 	void				PrintStatus();

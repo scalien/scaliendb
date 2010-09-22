@@ -3,14 +3,17 @@
 
 #include "ConfigMessage.h"
 #include "ConfigContext.h"
+#include "SDBPControllerContext.h"
 #include "System/Containers/InList.h"
 #include "System/Containers/InSortedList.h"
 #include "System/Events/Timer.h"
 #include "Application/Common/ClusterContext.h"
+#include "Application/Common/ClientRequest.h"
 #include "State/ConfigState.h"
 
-class ClientSession;	// forward
-class PrimaryLease;		// forward
+class ClientSession;			// forward
+class PrimaryLease;				// forward
+
 /*
 ===============================================================================================
 
@@ -19,24 +22,26 @@ class PrimaryLease;		// forward
 ===============================================================================================
 */
 
-class Controller : public ClusterContext
+class Controller : public ClusterContext, public SDBPContext
 {
 public:
-	typedef InList<ConfigMessage> MessageList;
-	typedef InSortedList<PrimaryLease> LeaseList;
+	typedef InList<ConfigMessage>		MessageList;
+	typedef InSortedList<PrimaryLease>	LeaseList;
+	typedef InList<ClientRequest>		RequestList;
 
 	void			Init();
 	
-	/* For the client side */
-	bool			IsMasterKnown();
-	bool			IsMaster();
-	uint64_t		GetMaster();
+	// ========================================================================================
+	// SDBPContext interface:
+	//
+	bool			IsValidClientRequest(ClientRequest* request);
+	void			OnClientRequest(ClientRequest* request);
+	void			OnClientClose(ClientSession* session);
+	// ========================================================================================
 
-	bool			ProcessClientCommand(ClientSession* conn, ConfigMessage& message);
-
-	/* For ConfigContext */
+	// For ConfigContext
 	void			OnLearnLease();
-	void			OnConfigMessage(ConfigMessage& message);
+	void			OnAppend(ConfigMessage& message, bool ownAppend);
 
 	// ========================================================================================
 	// ClusterContext interface:
@@ -47,6 +52,8 @@ public:
 	// ========================================================================================
 
 private:
+	void			FromRequest(ClientRequest* request, ConfigMessage* message);
+	void			ToResponse(ConfigMessage* message, ClientResponse* response);
 	void			OnPrimaryLeaseTimeout();
 	void			InitConfigContext();
 	void			TryRegisterShardServer(Endpoint& endpoint);
@@ -61,6 +68,8 @@ private:
 	ConfigState		configState;
 	LeaseList		primaryLeases;
 	Timer			primaryLeaseTimeout;
+	RequestList		requests;
+	RequestList		listenRequests;
 };
 
 class PrimaryLease

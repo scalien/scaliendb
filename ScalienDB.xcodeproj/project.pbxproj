@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		546224EE1249030D00759E58 /* SDBPClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546224ED1249030D00759E58 /* SDBPClientRequest.cpp */; };
+		546225121249074000759E58 /* SDBPClientResponse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546225111249074000759E58 /* SDBPClientResponse.cpp */; };
 		546E119511D8F4C800867EE1 /* MajorityQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119411D8F4C800867EE1 /* MajorityQuorum.cpp */; };
 		546E119811D8F4D300867EE1 /* DoubleMajorityQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119711D8F4D300867EE1 /* DoubleMajorityQuorum.cpp */; };
 		546E14AE11DA2A7500867EE1 /* ReplicationConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E14AD11DA2A7500867EE1 /* ReplicationConfig.cpp */; };
@@ -53,7 +55,6 @@
 		54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501D1237E83E0095BF36 /* ClusterTransport.cpp */; };
 		54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA50261237E9A30095BF36 /* ClusterConnection.cpp */; };
 		54EA525C1238F9A60095BF36 /* Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26DB47120076BA006A2814 /* Controller.cpp */; };
-		54EA52B1123901850095BF36 /* SDBPControllerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA52B0123901850095BF36 /* SDBPControllerContext.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		54FA68F911C2429A00FF4EF6 /* Countdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* Countdown.cpp */; };
 		54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
@@ -122,8 +123,6 @@
 		9AABB05B123E55DE003626AC /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
-		9AABB460123FB311003626AC /* HTTPControllerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */; };
-		9AABB48E123FBFFE003626AC /* HTTPControllerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */; };
 		9AABB50E123FDCDD003626AC /* ControllerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB50D123FDCDD003626AC /* ControllerApp.cpp */; };
 		9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */; };
 		9AABB91912426830003626AC /* SDBPClientShardConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB91812426830003626AC /* SDBPClientShardConnection.cpp */; };
@@ -161,6 +160,11 @@
 		541D868711C7D8E400A6CB16 /* PaxosLeaseMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseMessage.h; sourceTree = "<group>"; };
 		541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseProposer.cpp; sourceTree = "<group>"; };
 		541D868911C7D8E400A6CB16 /* PaxosLeaseProposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposer.h; sourceTree = "<group>"; };
+		546223BA1248C46700759E58 /* HTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPHandler.h; sourceTree = "<group>"; };
+		546224BC1249027800759E58 /* SDBPClientRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPClientRequest.h; sourceTree = "<group>"; };
+		546224ED1249030D00759E58 /* SDBPClientRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPClientRequest.cpp; sourceTree = "<group>"; };
+		546225101249074000759E58 /* SDBPClientResponse.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPClientResponse.h; sourceTree = "<group>"; };
+		546225111249074000759E58 /* SDBPClientResponse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPClientResponse.cpp; sourceTree = "<group>"; };
 		546E119011D8F48500867EE1 /* Quorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quorum.h; sourceTree = "<group>"; };
 		546E119311D8F4C800867EE1 /* MajorityQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MajorityQuorum.h; sourceTree = "<group>"; };
 		546E119411D8F4C800867EE1 /* MajorityQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MajorityQuorum.cpp; sourceTree = "<group>"; };
@@ -500,6 +504,10 @@
 				5487BC2C123A5D2500C235BA /* SDBPServer.cpp */,
 				5487BC27123A5D0C00C235BA /* SDBPConnection.h */,
 				5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */,
+				546224BC1249027800759E58 /* SDBPClientRequest.h */,
+				546224ED1249030D00759E58 /* SDBPClientRequest.cpp */,
+				546225101249074000759E58 /* SDBPClientResponse.h */,
+				546225111249074000759E58 /* SDBPClientResponse.cpp */,
 			);
 			name = SDBP;
 			path = Application/SDBP;
@@ -810,6 +818,7 @@
 				9A26D69011F4BDE2006A2814 /* HTTPFileHandler.cpp */,
 				9A26D69311F4BDE2006A2814 /* HTTPRequest.h */,
 				9A26D69211F4BDE2006A2814 /* HTTPRequest.cpp */,
+				546223BA1248C46700759E58 /* HTTPHandler.h */,
 				9A26D69511F4BDE2006A2814 /* HTTPServer.h */,
 				9A26D69411F4BDE2006A2814 /* HTTPServer.cpp */,
 				9A26D69711F4BDE2006A2814 /* IMF.h */,
@@ -997,7 +1006,6 @@
 				54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */,
 				54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */,
 				54EA525C1238F9A60095BF36 /* Controller.cpp in Sources */,
-				54EA52B1123901850095BF36 /* SDBPControllerContext.cpp in Sources */,
 				5487B8791239230500C235BA /* ConfigContext.cpp in Sources */,
 				5487BC2B123A5D0C00C235BA /* SDBPConnection.cpp in Sources */,
 				5487BC2D123A5D2500C235BA /* SDBPServer.cpp in Sources */,
@@ -1007,10 +1015,10 @@
 				5487BDCF123A738000C235BA /* ContextTransport.cpp in Sources */,
 				54A861C5123E207000ECCBE5 /* ShardServer.cpp in Sources */,
 				54A867D1123F94B500ECCBE5 /* ConfigState.cpp in Sources */,
-				9AABB460123FB311003626AC /* HTTPControllerContext.cpp in Sources */,
-				9AABB48E123FBFFE003626AC /* HTTPControllerSession.cpp in Sources */,
 				9AABB50E123FDCDD003626AC /* ControllerApp.cpp in Sources */,
 				9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */,
+				546224EE1249030D00759E58 /* SDBPClientRequest.cpp in Sources */,
+				546225121249074000759E58 /* SDBPClientResponse.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -102,14 +102,14 @@ QuorumTransport* ConfigContext::GetTransport()
 	return &transport;
 }
 
-void ConfigContext::OnAppend(ReadBuffer value, bool /*ownAppend*/)
+void ConfigContext::OnAppend(ReadBuffer value, bool ownAppend)
 {
 	ConfigMessage message;
 
 	nextValue.Clear();
 
 	assert(message.Read(value));
-	controller->OnConfigMessage(message);
+	controller->OnAppend(message, ownAppend);
 }
 
 Buffer* ConfigContext::GetNextValue()

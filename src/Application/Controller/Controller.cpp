@@ -1,5 +1,6 @@
 #include "Controller.h"
 #include "ConfigMessage.h"
+#include "SDBPControllerContext.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
@@ -40,38 +41,63 @@ void Controller::Init()
 	CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
 }
 
-bool Controller::IsMasterKnown()
+bool Controller::IsValidClientRequest(ClientRequest* request)
 {
-	return configContext.IsLeaderKnown();
+	 return request->IsControllerRequest();
 }
 
-bool Controller::IsMaster()
+void Controller::OnClientRequest(ClientRequest* request)
 {
-	return configContext.IsLeader();
-}
+	ConfigMessage*	message;
 
-uint64_t Controller::GetMaster()
-{
-	return configContext.GetLeader();
-}
-
-bool Controller::ProcessClientCommand(ClientSession* /*conn*/, ConfigMessage& message)
-{
-	ConfigMessage*	pmessage;
-
-	if (!configState.CompleteMessage(message))
+	if (!request->IsControllerRequest())
 	{
-		// TODO: send failed to conn
+		request->response.Failed();
+		request->OnComplete();
+		return;
+	}
+	else if (request->type == CLIENTREQUEST_GET_MASTER)
+	{
+		if (configContext.IsLeaderKnown())
+			request->response.Number(configContext.GetLeader());
+		request->OnComplete();
+		return;
+	}
+	else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
+	{
+		listenRequests.Append(request);
+		request->response.GetConfigStateResponse(&configState);
+		request->OnComplete(false);
+		return;
 	}
 	
-	pmessage = new ConfigMessage;
-	*pmessage = message;
-	configMessages.Append(pmessage);
+	message = new ConfigMessage;
+	FromRequest(request, message);
+	
+	if (!configState.CompleteMessage(*message))
+	{
+		delete message;
+		request->response.Failed();
+		request->OnComplete();
+		return;
+	}
+	
+	requests.Append(request);
+	configMessages.Append(message);
 	
 	if (!configContext.IsAppending())
-		configContext.Append(configMessages.First());
+		configContext.Append(configMessages.First());	
+}
+
+void Controller::OnClientClose(ClientSession* session)
+{
+	ClientRequest*	it;
 	
-	return true;
+	for (it = listenRequests.First(); it != NULL; it = listenRequests.Next(it))
+	{
+		if (it->session == session)
+			it->OnComplete();
+	}
 }
 
 void Controller::OnLearnLease()
@@ -82,7 +108,7 @@ void Controller::OnLearnLease()
 		TryRegisterShardServer(endpoint);
 }
 
-void Controller::OnConfigMessage(ConfigMessage& message)
+void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
 {
 	bool			status;
 	ClusterMessage	clusterMessage;
@@ -90,8 +116,7 @@ void Controller::OnConfigMessage(ConfigMessage& message)
 	if (message.type == CONFIG_REGISTER_SHARDSERVER)
 	{
 		// tell ContextTransport that this connection has a new nodeID
-		CONTEXT_TRANSPORT->SetConnectionNodeID(message.endpoint, message.nodeID);
-		
+		CONTEXT_TRANSPORT->SetConnectionNodeID(message.endpoint, message.nodeID);		
 		// tell the shard server
 		clusterMessage.SetNodeID(message.nodeID);
 		CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
@@ -99,12 +124,18 @@ void Controller::OnConfigMessage(ConfigMessage& message)
 	
 	status = configState.OnMessage(message);
 	
-	SendClientReply(message);
+	if (ownAppend)
+	{
+		assert(configMessages.GetLength() > 0);
+		assert(configMessages.First()->type == message.type);
+		configMessages.Remove(configMessages.First());
+		SendClientReply(message);
+	}
 }
 
 void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
-	if (!IsMaster())
+	if (!configContext.IsLeader())
 		return;	
 
 	switch (message.type)
@@ -134,28 +165,83 @@ void Controller::OnAwaitingNodeID(Endpoint endpoint)
 	TryRegisterShardServer(endpoint);
 }
 
+void Controller::FromRequest(ClientRequest* request, ConfigMessage* message)
+{
+	switch (request->type)
+	{
+		case CLIENTREQUEST_CREATE_QUORUM:
+			message->type = CONFIG_CREATE_QUORUM;
+			message->productionType = request->productionType;
+			message->nodes = request->nodes;
+			return;
+		case CLIENTREQUEST_CREATE_DATABASE:
+			message->type = CONFIG_CREATE_DATABASE;
+			message->name = request->name;
+			message->productionType = request->productionType;
+			return;
+		case CLIENTREQUEST_RENAME_DATABASE:
+			message->type = CONFIG_RENAME_DATABASE;
+			message->databaseID = request->databaseID;
+			message->name = request->name;
+			return;
+		case CLIENTREQUEST_DELETE_DATABASE:
+			message->type = CONFIG_DELETE_DATABASE;
+			message->databaseID = request->databaseID;
+			return;
+		case CLIENTREQUEST_CREATE_TABLE:
+			message->type = CONFIG_CREATE_TABLE;
+			message->databaseID = request->databaseID;
+			message->quorumID = request->quorumID;
+			message->name = request->name;
+			return;
+		case CLIENTREQUEST_RENAME_TABLE:
+			message->type = CONFIG_RENAME_TABLE;
+			message->databaseID = request->databaseID;
+			message->tableID = request->tableID;
+			message->name = request->name;
+			return;
+		case CLIENTREQUEST_DELETE_TABLE:
+			message->type = CONFIG_DELETE_TABLE;
+			message->databaseID = request->databaseID;
+			message->tableID = request->tableID;
+			return;
+		default:
+			ASSERT_FAIL();
+	}
+}
+
+void Controller::ToResponse(ConfigMessage* message, ClientResponse* response)
+{
+	// TODO
+}
+
 void Controller::OnPrimaryLeaseTimeout()
 {
 	uint64_t		now;
-	PrimaryLease*	it;
 	ConfigQuorum*	quorum;
+	PrimaryLease*	itLease;
+	ClientRequest*	itRequest;
 	
 	now = EventLoop::Now();
-	
-	for (it = primaryLeases.First(); it != NULL;)
+
+	for (itLease = primaryLeases.First(); itLease != NULL;)
 	{
-		if (it->expireTime < now)
+		if (itLease->expireTime < now)
 		{
-			quorum = configState.GetQuorum(it->quorumID);
+			quorum = configState.GetQuorum(itLease->quorumID);
 			quorum->hasPrimary = false;
 			quorum->primaryID = 0;
-			it = primaryLeases.Delete(it);
+			itLease = primaryLeases.Delete(itLease);
 		}
 	}
-	
+
 	UpdatePrimaryLeaseTimer();
-	
-	// TODO: should the controller inform someone about this?
+
+	for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
+	{
+		itRequest->response.GetConfigStateResponse(&configState);
+		itRequest->OnComplete(false);
+	}
 }
 
 void Controller::InitConfigContext()
@@ -171,9 +257,7 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 
 	message->RegisterShardServer(0, endpoint);
 	if (!configState.CompleteMessage(*message))
-	{
-		// TODO: ?
-	}
+		ASSERT_FAIL();
 
 	configMessages.Append(message);
 	
@@ -183,6 +267,15 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 
 void Controller::SendClientReply(ConfigMessage& message)
 {
+	ClientRequest* request;
+	
+	assert(requests.GetLength() > 0);
+	
+	request = requests.First();
+	requests.Remove(request);
+	
+	ToResponse(&message, &request->response);
+	request->OnComplete();
 }
 
 void Controller::OnRequestLease(ClusterMessage& message)

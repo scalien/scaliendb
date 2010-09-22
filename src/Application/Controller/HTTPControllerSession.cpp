@@ -70,7 +70,7 @@ bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
 	if (!message)
 		return false;
 
-	if (!controller->ProcessClientCommand(this, *message))
+	if (!controller->OnClientRequest(this, *message))
 	{
 		session.ResponseFail();
 		delete message;
