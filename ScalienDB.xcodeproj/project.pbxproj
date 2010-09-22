@@ -19,6 +19,8 @@
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
+		5483882E124A598C005F0FB4 /* HTTPControllerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */; };
+		5483882F124A5990005F0FB4 /* HTTPControllerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */; };
 		5487B8791239230500C235BA /* ConfigContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */; };
 		5487BC2B123A5D0C00C235BA /* SDBPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */; };
 		5487BC2D123A5D2500C235BA /* SDBPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC2C123A5D2500C235BA /* SDBPServer.cpp */; };
@@ -1042,6 +1044,8 @@
 				9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */,
 				546224EE1249030D00759E58 /* SDBPRequestMessage.cpp in Sources */,
 				546225121249074000759E58 /* SDBPResponseMessage.cpp in Sources */,
+				5483882E124A598C005F0FB4 /* HTTPControllerContext.cpp in Sources */,
+				5483882F124A5990005F0FB4 /* HTTPControllerSession.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
