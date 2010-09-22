@@ -36,55 +36,27 @@ class ClientRequest
 public:
 	typedef List<uint64_t> NodeList;
 	
-	ClientRequest()
-	{
-		session = NULL; response.request = this;
-		prev = next = this;
-	}
+	ClientRequest();
 	
-	void OnComplete(bool last = true)
-	{
-		if (!session)
-			ASSERT_FAIL();
-		session->OnComplete(this, last);
-	}
-	
-	ClientResponse	response;
-	ClientSession*	session;
+	void OnComplete(bool last = true);
 
-	/* Variables */
-	char			type;
-	char			productionType;
-	uint64_t		commandID;
-	uint64_t		quorumID;
-	uint64_t		databaseID;
-	uint64_t		tableID;
-	uint64_t		shardID;
-	ReadBuffer		name;
-	ReadBuffer		key;
-	ReadBuffer		value;
-	NodeList		nodes;
-	
-	ClientRequest*	prev;
-	ClientRequest*	next;
-	
 	bool			IsControllerRequest();
 	bool			IsShardServerRequest();
 	bool			IsSafeRequest();
 	
-	/* Master query */
+	// Master query
 	bool			GetMaster(
 					 uint64_t commandID);
 
-	/* Get config state: databases, tables, shards, quora */
+	// Get config state: databases, tables, shards, quora
 	bool			GetConfigState(
 					 uint64_t commandID);
 
-	/* Quorum management */
+	// Quorum management
 	bool			CreateQuorum(
 					 uint64_t commandID, char productionType, NodeList nodes);	
 				 
-	/* Database management */
+	// Database management
 	bool			CreateDatabase(
 					 uint64_t commandID, char productionType, ReadBuffer& name);
 	bool			RenameDatabase(
@@ -92,7 +64,7 @@ public:
 	bool			DeleteDatabase(
 					 uint64_t commandID, uint64_t databaseID);
 	
-	/* Table management */
+	// Table management
 	bool			CreateTable(
 					 uint64_t commandID, uint64_t databaseID, uint64_t quorumID, ReadBuffer& name);
 	bool			RenameTable(
@@ -100,7 +72,7 @@ public:
 	bool			DeleteTable(
 					 uint64_t commandID, uint64_t databaseID, uint64_t tableID);
 	
-	/* Data operations */
+	// Data operations
 	bool			Set(
 					 uint64_t commandID, uint64_t databaseID,
 					 uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
@@ -110,6 +82,26 @@ public:
 	bool			Delete(
 					 uint64_t commandID, uint64_t databaseID,
 					 uint64_t tableID, ReadBuffer& key);	
+
+	// Variables
+	ClientResponse	response;
+	ClientSession*	session;
+
+	char			type;
+	char			productionType;
+	uint64_t		commandID;
+	uint64_t		quorumID;
+	uint64_t		databaseID;
+	uint64_t		tableID;
+	uint64_t		shardID;
+	Buffer			name;
+	Buffer			key;
+	Buffer			value;
+	NodeList		nodes;
+	
+	ClientRequest*	prev;
+	ClientRequest*	next;
+
 };
 
 #endif

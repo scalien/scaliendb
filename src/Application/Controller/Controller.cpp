@@ -215,13 +215,13 @@ void Controller::FromClientRequest(ClientRequest* request, ConfigMessage* messag
 			return;
 		case CLIENTREQUEST_CREATE_DATABASE:
 			message->type = CONFIG_CREATE_DATABASE;
-			message->name = request->name;
+			message->name.Wrap(request->name);
 			message->productionType = request->productionType;
 			return;
 		case CLIENTREQUEST_RENAME_DATABASE:
 			message->type = CONFIG_RENAME_DATABASE;
 			message->databaseID = request->databaseID;
-			message->name = request->name;
+			message->name.Wrap(request->name);
 			return;
 		case CLIENTREQUEST_DELETE_DATABASE:
 			message->type = CONFIG_DELETE_DATABASE;
@@ -231,13 +231,13 @@ void Controller::FromClientRequest(ClientRequest* request, ConfigMessage* messag
 			message->type = CONFIG_CREATE_TABLE;
 			message->databaseID = request->databaseID;
 			message->quorumID = request->quorumID;
-			message->name = request->name;
+			message->name.Wrap(request->name);
 			return;
 		case CLIENTREQUEST_RENAME_TABLE:
 			message->type = CONFIG_RENAME_TABLE;
 			message->databaseID = request->databaseID;
 			message->tableID = request->tableID;
-			message->name = request->name;
+			message->name.Wrap(request->name);
 			return;
 		case CLIENTREQUEST_DELETE_TABLE:
 			message->type = CONFIG_DELETE_TABLE;

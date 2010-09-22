@@ -26,7 +26,7 @@ public:
 
 	void				SetPreallocated(char* buffer, unsigned size);
 
-	Buffer&				operator=(const Buffer& other);
+//	Buffer&				operator=(const Buffer& other);
 	
 	static bool			Cmp(Buffer& a, Buffer& b);
 	bool				Cmp(const char* buffer, unsigned length_);
@@ -45,7 +45,7 @@ public:
 	void				Write(const char* str);
 	void				Write(Buffer& other);
 	void				Write(ReadBuffer& other);
-
+	
 	void				Append(const char* buffer, unsigned length);
 	void				Append(const char* str);
 	void				Append(Buffer& other);

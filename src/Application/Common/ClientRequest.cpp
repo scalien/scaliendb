@@ -1,6 +1,20 @@
 #include "ClientRequest.h"
 #include "System/Buffers/Buffer.h"
 
+ClientRequest::ClientRequest()
+{
+	session = NULL;
+	response.request = this;
+	prev = next = this;
+}
+
+void ClientRequest::OnComplete(bool last)
+{
+	if (!session)
+		ASSERT_FAIL();
+	session->OnComplete(this, last);
+}
+
 bool ClientRequest::IsControllerRequest()
 {
 	if (type == CLIENTREQUEST_GET_MASTER ||
@@ -51,7 +65,7 @@ bool ClientRequest::CreateDatabase(
 	type = CLIENTREQUEST_CREATE_DATABASE;
 	commandID = commandID_;
 	productionType = productionType_;
-	name = name_;
+	name.Write(name_);
 	return true;
 }
 
@@ -61,7 +75,7 @@ bool ClientRequest::RenameDatabase(
 	type = CLIENTREQUEST_RENAME_DATABASE;
 	commandID = commandID_;
 	databaseID = databaseID_;
-	name = name_;
+	name.Write(name_);
 	return true;
 }
 
@@ -81,7 +95,7 @@ bool ClientRequest::CreateTable(
 	commandID = commandID_;
 	databaseID = databaseID_;
 	quorumID = quorumID_;
-	name = name_;
+	name.Write(name_);
 	return true;
 }
 
@@ -92,7 +106,7 @@ bool ClientRequest::RenameTable(
 	commandID = commandID_;
 	databaseID = databaseID_;
 	tableID = tableID_;
-	name = name_;
+	name.Write(name_);
 	return true;
 }
 
@@ -113,8 +127,8 @@ bool ClientRequest::Set(
 	commandID = commandID_;
 	databaseID = databaseID_;
 	tableID = tableID_;
-	key = key_;
-	value = value_;
+	key.Write(key_);
+	value.Write(value_);
 	return true;
 }
 
@@ -125,7 +139,7 @@ bool ClientRequest::Get(
 	commandID = commandID_;
 	databaseID = databaseID_;
 	tableID = tableID_;
-	key = key_;
+	key.Write(key_);
 	return true;
 }
 
@@ -136,6 +150,6 @@ bool ClientRequest::Delete(
 	commandID = commandID_;
 	databaseID = databaseID_;
 	tableID = tableID_;
-	key = key_;
+	key.Write(key_);
 	return true;
 }
