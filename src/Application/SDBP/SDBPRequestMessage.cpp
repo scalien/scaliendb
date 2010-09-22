@@ -1,6 +1,6 @@
-#include "SDBPClientRequest.h"
+#include "SDBPRequestMessage.h"
 
-bool SDBPClientRequest::Read(ReadBuffer& buffer)
+bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 {
 	int			read;
 	unsigned	i, numNodes;
@@ -101,7 +101,7 @@ bool SDBPClientRequest::Read(ReadBuffer& buffer)
 	return (read == (signed)buffer.GetLength() ? true : false);
 }
 
-bool SDBPClientRequest::Write(Buffer& buffer)
+bool SDBPRequestMessage::Write(Buffer& buffer)
 {
 	uint64_t*	it;
 	

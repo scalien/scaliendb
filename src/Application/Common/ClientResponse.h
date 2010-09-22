@@ -29,6 +29,7 @@ public:
 	/* Variables */
 	char			type;
 	uint64_t		number;
+	uint64_t		commandID;
 	ReadBuffer		value;
 	ConfigState*	configState;
 	

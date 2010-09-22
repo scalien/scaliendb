@@ -3,6 +3,8 @@
 #include "SDBPClientConsts.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
+#include "Application/SDBP/SDBPRequestMessage.h"
+#include "Application/SDBP/SDBPResponseMessage.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 
 #define GETMASTER_TIMEOUT	1000
@@ -33,9 +35,11 @@ void ControllerConnection::Send(ClientRequest* request)
 {
 	Log_Trace("type = %c, nodeID = %u", request->type, (unsigned) nodeID);
 
+	SDBPRequestMessage	msg;
+
 	// TODO: ClientRequest::nodeID is missing
-	
-	Write(*request);
+	msg.request = request;
+	Write(msg);
 }
 
 void ControllerConnection::SendGetConfigState()
@@ -74,14 +78,16 @@ void ControllerConnection::OnGetConfigStateTimeout()
 	SendGetConfigState();
 }
 
-bool ControllerConnection::OnMessage(ReadBuffer& msg)
+bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
 {
-	ClientResponse*	resp;
+	SDBPResponseMessage	msg;
+	ClientResponse*		resp;
 	
 	Log_Trace();
 	
 	resp = new ClientResponse;
-	if (resp->Read(msg))
+	msg.response = resp;
+	if (msg.Read(rbuf))
 	{
 		if (!ProcessResponse(resp))
 			delete resp;
@@ -90,6 +96,11 @@ bool ControllerConnection::OnMessage(ReadBuffer& msg)
 		delete resp;
 		
 	return false;
+}
+
+void ControllerConnection::OnWrite()
+{
+	// TODO: what to do?
 }
 
 void ControllerConnection::OnConnect()
@@ -184,9 +195,9 @@ bool ControllerConnection::ProcessCommandResponse(ClientResponse* resp)
 {
 	Log_Trace();
 	
-	if (resp->type == CLIENTRESPONSE_NOTMASTER)
+	if (resp->type == CLIENTRESPONSE_NOSERVICE)
 	{
-		Log_Trace("NOTMASTER");
+		Log_Trace("NOSERVICE");
 		client->SetMaster(-1, nodeID);
 		return false;
 	}

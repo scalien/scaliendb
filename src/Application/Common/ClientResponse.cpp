@@ -49,7 +49,7 @@ bool ClientResponse::GetConfigStateResponse(ConfigState* configState_)
 
 bool ClientResponse::NotMaster()
 {
-	type = CLIENTRESPONSE_NOTMASTER;
+	type = CLIENTRESPONSE_NOSERVICE;
 	return true;
 }
 

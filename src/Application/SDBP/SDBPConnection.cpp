@@ -1,8 +1,8 @@
 #include "SDBPConnection.h"
 #include "SDBPServer.h"
 #include "SDBPContext.h"
-#include "SDBPClientRequest.h"
-#include "SDBPClientResponse.h"
+#include "SDBPRequestMessage.h"
+#include "SDBPResponseMessage.h"
 
 SDBPConnection::SDBPConnection()
 {
@@ -30,8 +30,8 @@ void SDBPConnection::SetContext(SDBPContext* context_)
 
 bool SDBPConnection::OnMessage(ReadBuffer& msg)
 {
-	SDBPClientRequest	sdbpRequest;
-	ClientRequest*	request;
+	SDBPRequestMessage	sdbpRequest;
+	ClientRequest*		request;
 
 	request = new ClientRequest;
 	request->session = this;
@@ -74,7 +74,7 @@ void SDBPConnection::OnClose()
 
 void SDBPConnection::OnComplete(ClientRequest* request, bool last)
 {
-	SDBPClientResponse sdbpResponse;
+	SDBPResponseMessage sdbpResponse;
 
 	if (last)
 		numPending--;

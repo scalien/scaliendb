@@ -32,7 +32,7 @@ void ShardConnection::SendRequest(Request* request)
 
 	msg.request = request;
 	// TODO: buffering
-	Write(*request);
+	Write(msg);
 
 	request->numTry++;
 }
@@ -40,6 +40,16 @@ void ShardConnection::SendRequest(Request* request)
 void ShardConnection::SendSubmit()
 {
 	// TODO: submit request
+}
+
+uint64_t ShardConnection::GetNodeID()
+{
+	return nodeID;
+}
+
+Endpoint& ShardConnection::GetEndpoint()
+{
+	return endpoint;
 }
 
 void ShardConnection::SetQuorumMembership(uint64_t quorumID)
@@ -58,16 +68,18 @@ void ShardConnection::ClearQuorumMemberships()
 	quorums.Clear();
 }
 
-bool ShardConnection::OnMessage(ReadBuffer& msg)
+bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 {
-	ClientResponse*	resp;
-	Request*		it;
-	uint64_t		quorumID;
+	ClientResponse*		resp;
+	SDBPResponseMessage	msg;
+	Request*			it;
+	uint64_t			quorumID;
 	
 	Log_Trace();
 	
 	resp = new ClientResponse;
-	if (!resp->Read(msg))
+	msg.response = resp;
+	if (!msg.Read(rbuf))
 	{
 		delete resp;
 		return false;
