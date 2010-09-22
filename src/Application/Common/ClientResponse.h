@@ -43,7 +43,7 @@ public:
 	bool			Number(uint64_t number);
 	bool			Value(ReadBuffer& value);
 	bool			GetConfigStateResponse(ConfigState* configState);
-	bool			NotMaster();
+	bool			NoService();
 	bool			Failed();
 };
 

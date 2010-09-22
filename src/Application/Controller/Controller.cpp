@@ -107,7 +107,25 @@ void Controller::OnLearnLease()
 
 void Controller::OnLeaseTimeout()
 {
-	// TODO: fail ops
+	ConfigMessage*	itMessage;
+	ClientRequest*	itRequest;
+	
+	for (itRequest = requests.First(); itRequest != NULL; itRequest = requests.Remove(itRequest))
+	{
+		itRequest->response.NoService();
+		itRequest->OnComplete();
+	}
+	assert(requests.GetLength() == 0);
+	
+	for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Remove(itRequest))
+	{
+		itRequest->response.NoService();
+		itRequest->OnComplete();
+	}
+	assert(listenRequests.GetLength() == 0);
+
+	for (itMessage = configMessages.First(); itMessage != NULL; itMessage = configMessages.Delete(itMessage));
+	assert(configMessages.GetLength() == 0);
 }
 
 void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
