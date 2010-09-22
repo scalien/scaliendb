@@ -72,7 +72,7 @@ void Controller::OnClientRequest(ClientRequest* request)
 	}
 	
 	message = new ConfigMessage;
-	FromRequest(request, message);
+	FromClientRequest(request, message);
 	
 	if (!configState.CompleteMessage(*message))
 	{
@@ -84,9 +84,7 @@ void Controller::OnClientRequest(ClientRequest* request)
 	
 	requests.Append(request);
 	configMessages.Append(message);
-	
-	if (!configContext.IsAppending())
-		configContext.Append(configMessages.First());	
+	TryAppend();
 }
 
 void Controller::OnClientClose(ClientSession* session)
@@ -108,9 +106,13 @@ void Controller::OnLearnLease()
 		TryRegisterShardServer(endpoint);
 }
 
+void Controller::OnLeaseTimeout()
+{
+	// TODO: fail ops
+}
+
 void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
 {
-	bool			status;
 	ClusterMessage	clusterMessage;
 	
 	if (message.type == CONFIG_REGISTER_SHARDSERVER)
@@ -122,15 +124,19 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
 		CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
 	}
 	
-	status = configState.OnMessage(message);
+	configState.OnMessage(message);
 	
 	if (ownAppend)
 	{
 		assert(configMessages.GetLength() > 0);
 		assert(configMessages.First()->type == message.type);
-		configMessages.Remove(configMessages.First());
-		SendClientReply(message);
+		if (configMessages.First()->fromClient)
+			SendClientResponse(message);
+		configMessages.Delete(configMessages.First());
 	}
+	
+	if (configContext.IsLeader())
+		UpdateListeners();
 }
 
 void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
@@ -165,8 +171,16 @@ void Controller::OnAwaitingNodeID(Endpoint endpoint)
 	TryRegisterShardServer(endpoint);
 }
 
-void Controller::FromRequest(ClientRequest* request, ConfigMessage* message)
+void Controller::TryAppend()
 {
+	if (!configContext.IsAppending())
+		configContext.Append(configMessages.First());
+}
+
+void Controller::FromClientRequest(ClientRequest* request, ConfigMessage* message)
+{
+	message->fromClient = true;
+	
 	switch (request->type)
 	{
 		case CLIENTREQUEST_CREATE_QUORUM:
@@ -210,9 +224,34 @@ void Controller::FromRequest(ClientRequest* request, ConfigMessage* message)
 	}
 }
 
-void Controller::ToResponse(ConfigMessage* message, ClientResponse* response)
+void Controller::ToClientResponse(ConfigMessage* message, ClientResponse* response)
 {
-	// TODO
+	switch (response->request->type)
+	{
+		case CLIENTREQUEST_CREATE_QUORUM:
+			response->Number(message->quorumID);
+			return;
+		case CLIENTREQUEST_CREATE_DATABASE:
+			response->Number(message->databaseID);
+			return;
+		case CLIENTREQUEST_RENAME_DATABASE:
+			response->OK();
+			return;
+		case CLIENTREQUEST_DELETE_DATABASE:
+			response->OK();
+			return;
+		case CLIENTREQUEST_CREATE_TABLE:
+			response->Number(message->tableID);
+			return;
+		case CLIENTREQUEST_RENAME_TABLE:
+			response->OK();
+			return;
+		case CLIENTREQUEST_DELETE_TABLE:
+			response->OK();
+			return;
+		default:
+			ASSERT_FAIL();
+	}
 }
 
 void Controller::OnPrimaryLeaseTimeout()
@@ -220,7 +259,6 @@ void Controller::OnPrimaryLeaseTimeout()
 	uint64_t		now;
 	ConfigQuorum*	quorum;
 	PrimaryLease*	itLease;
-	ClientRequest*	itRequest;
 	
 	now = EventLoop::Now();
 
@@ -236,12 +274,7 @@ void Controller::OnPrimaryLeaseTimeout()
 	}
 
 	UpdatePrimaryLeaseTimer();
-
-	for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
-	{
-		itRequest->response.GetConfigStateResponse(&configState);
-		itRequest->OnComplete(false);
-	}
+	UpdateListeners();
 }
 
 void Controller::InitConfigContext()
@@ -255,17 +288,17 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 	if (configContext.IsAppending())
 		return;
 
+	message = new ConfigMessage;
+	message->fromClient = false;
 	message->RegisterShardServer(0, endpoint);
 	if (!configState.CompleteMessage(*message))
 		ASSERT_FAIL();
 
 	configMessages.Append(message);
-	
-	if (!configContext.IsAppending())
-		configContext.Append(configMessages.First());
+	TryAppend();
 }
 
-void Controller::SendClientReply(ConfigMessage& message)
+void Controller::SendClientResponse(ConfigMessage& message)
 {
 	ClientRequest* request;
 	
@@ -274,8 +307,9 @@ void Controller::SendClientReply(ConfigMessage& message)
 	request = requests.First();
 	requests.Remove(request);
 	
-	ToResponse(&message, &request->response);
+	ToClientResponse(&message, &request->response);
 	request->OnComplete();
+	
 }
 
 void Controller::OnRequestLease(ClusterMessage& message)
@@ -375,5 +409,16 @@ void Controller::UpdatePrimaryLeaseTimer()
 		EventLoop::Remove(&primaryLeaseTimeout);
 		primaryLeaseTimeout.SetExpireTime(primaryLease->expireTime);
 		EventLoop::Add(&primaryLeaseTimeout);
+	}
+}
+
+void Controller::UpdateListeners()
+{
+	ClientRequest* it;
+	
+	for (it = listenRequests.First(); it != NULL; it = listenRequests.Next(it))
+	{
+		it->response.GetConfigStateResponse(&configState);
+		it->OnComplete(false);
 	}
 }

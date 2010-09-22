@@ -49,6 +49,8 @@ public:
 	Endpoint		endpoint;
 	NodeList		nodes;
 	
+	bool			fromClient;
+	
 	ConfigMessage*	prev;
 	ConfigMessage*	next;
 

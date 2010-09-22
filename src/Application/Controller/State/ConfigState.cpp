@@ -120,7 +120,7 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
 	return true;
 }
 
-bool ConfigState::OnMessage(ConfigMessage& message)
+void ConfigState::OnMessage(ConfigMessage& message)
 {
 	switch (message.type)
 	{
@@ -417,7 +417,7 @@ bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
 	return true;
 }
 
-bool ConfigState::OnRegisterShardServer(ConfigMessage& message)
+void ConfigState::OnRegisterShardServer(ConfigMessage& message)
 {
 	ConfigShardServer*	it;
 	
@@ -427,10 +427,9 @@ bool ConfigState::OnRegisterShardServer(ConfigMessage& message)
 	it = new ConfigShardServer;
 	it->nodeID = message.nodeID;
 	it->endpoint = message.endpoint;
-	return true;
 }
 
-bool ConfigState::OnCreateQuorum(ConfigMessage& message)
+void ConfigState::OnCreateQuorum(ConfigMessage& message)
 {
 	ConfigQuorum*	it;
 	
@@ -441,10 +440,9 @@ bool ConfigState::OnCreateQuorum(ConfigMessage& message)
 	it->quorumID = message.quorumID;
 	it->activeNodes = message.nodes;
 	it->productionType = message.productionType;
-	return true;
 }
 
-bool ConfigState::OnIncreaseQuorum(ConfigMessage& message)
+void ConfigState::OnIncreaseQuorum(ConfigMessage& message)
 {
 	ConfigQuorum*	itQuorum;
 	uint64_t*		itNodeID;
@@ -469,10 +467,9 @@ bool ConfigState::OnIncreaseQuorum(ConfigMessage& message)
 	}
 	
 	inactiveNodes.Append(message.nodeID);
-	return true;
 }
 
-bool ConfigState::OnDecreaseQuorum(ConfigMessage& message)
+void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
 {
 	ConfigQuorum*	itQuorum;
 	uint64_t*		itNodeID;
@@ -488,7 +485,7 @@ bool ConfigState::OnDecreaseQuorum(ConfigMessage& message)
 		if (*itNodeID == message.nodeID)
 		{
 			activeNodes.Remove(itNodeID);
-			return true;
+			return;
 		}
 	}
 
@@ -498,14 +495,14 @@ bool ConfigState::OnDecreaseQuorum(ConfigMessage& message)
 		if (*itNodeID == message.nodeID)
 		{
 			inactiveNodes.Remove(itNodeID);
-			return true;
+			return;
 		}
 	}
 	
 	ASSERT_FAIL();
 }
 
-bool ConfigState::OnCreateDatabase(ConfigMessage& message)
+void ConfigState::OnCreateDatabase(ConfigMessage& message)
 {
 	ConfigDatabase*	it;
 	
@@ -520,10 +517,9 @@ bool ConfigState::OnCreateDatabase(ConfigMessage& message)
 	it->databaseID = message.databaseID;
 	it->name.Write(message.name);
 	databases.Append(it);
-	return true;
 }
 
-bool ConfigState::OnRenameDatabase(ConfigMessage& message)
+void ConfigState::OnRenameDatabase(ConfigMessage& message)
 {
 	ConfigDatabase*	it;
 
@@ -535,10 +531,9 @@ bool ConfigState::OnRenameDatabase(ConfigMessage& message)
 	assert(it != NULL);
 	
 	it->name.Write(message.name);
-	return true;
 }
 
-bool ConfigState::OnDeleteDatabase(ConfigMessage& message)
+void ConfigState::OnDeleteDatabase(ConfigMessage& message)
 {
 	ConfigDatabase*	it;
 
@@ -547,10 +542,9 @@ bool ConfigState::OnDeleteDatabase(ConfigMessage& message)
 	assert(it != NULL);
 
 	databases.Delete(it);
-	return true;
 }
 
-bool ConfigState::OnCreateTable(ConfigMessage& message)
+void ConfigState::OnCreateTable(ConfigMessage& message)
 {
 	ConfigQuorum*	itQuorum;
 	ConfigDatabase*	itDatabase;
@@ -588,10 +582,9 @@ bool ConfigState::OnCreateTable(ConfigMessage& message)
 	itTable->tableID = message.tableID;
 	itTable->shards.Append(message.shardID);
 	tables.Append(itTable);
-	return true;
 }
 
-bool ConfigState::OnRenameTable(ConfigMessage& message)
+void ConfigState::OnRenameTable(ConfigMessage& message)
 {
 	ConfigDatabase*	itDatabase;
 	ConfigTable*	itTable;
@@ -607,10 +600,9 @@ bool ConfigState::OnRenameTable(ConfigMessage& message)
 	assert(itTable == NULL);
 	
 	itTable->name.Write(message.name);
-	return true;
 }
 
-bool ConfigState::OnDeleteTable(ConfigMessage& message)
+void ConfigState::OnDeleteTable(ConfigMessage& message)
 {
 	ConfigDatabase*	itDatabase;
 	ConfigTable*	itTable;
@@ -623,7 +615,6 @@ bool ConfigState::OnDeleteTable(ConfigMessage& message)
 	assert(itTable != NULL);
 	
 	tables.Delete(itTable);
-	return true;
 }
 
 bool ConfigState::ReadQuorums(ReadBuffer& buffer, bool withVolatile)

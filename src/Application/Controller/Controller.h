@@ -41,6 +41,7 @@ public:
 
 	// For ConfigContext
 	void			OnLearnLease();
+	void			OnLeaseTimeout();
 	void			OnAppend(ConfigMessage& message, bool ownAppend);
 
 	// ========================================================================================
@@ -52,16 +53,18 @@ public:
 	// ========================================================================================
 
 private:
-	void			FromRequest(ClientRequest* request, ConfigMessage* message);
-	void			ToResponse(ConfigMessage* message, ClientResponse* response);
+	void			TryAppend();
+	void			FromClientRequest(ClientRequest* request, ConfigMessage* message);
+	void			ToClientResponse(ConfigMessage* message, ClientResponse* response);
 	void			OnPrimaryLeaseTimeout();
 	void			InitConfigContext();
 	void			TryRegisterShardServer(Endpoint& endpoint);
-	void			SendClientReply(ConfigMessage& message);
+	void			SendClientResponse(ConfigMessage& message);
 	void			OnRequestLease(ClusterMessage& message);
 	void			AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
 	void			ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
 	void			UpdatePrimaryLeaseTimer();
+	void			UpdateListeners();
 	
 	ConfigContext	configContext;
 	MessageList		configMessages;

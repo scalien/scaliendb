@@ -58,7 +58,7 @@ public:
 	ConfigShardServer*	GetShardServer(uint64_t nodeID);
 
 	bool				CompleteMessage(ConfigMessage& message);
-	bool				OnMessage(ConfigMessage& message);
+	void				OnMessage(ConfigMessage& message);
 	
 	bool				Read(ReadBuffer& buffer, bool withVolatile = false);
 	bool				Write(Buffer& buffer, bool withVolatile = false);
@@ -75,16 +75,16 @@ private:
 	bool				CompleteRenameTable(ConfigMessage& message);
 	bool				CompleteDeleteTable(ConfigMessage& message);
 
-	bool				OnRegisterShardServer(ConfigMessage& message);
-	bool				OnCreateQuorum(ConfigMessage& message);
-	bool				OnIncreaseQuorum(ConfigMessage& message);
-	bool				OnDecreaseQuorum(ConfigMessage& message);
-	bool				OnCreateDatabase(ConfigMessage& message);
-	bool				OnRenameDatabase(ConfigMessage& message);
-	bool				OnDeleteDatabase(ConfigMessage& message);
-	bool				OnCreateTable(ConfigMessage& message);
-	bool				OnRenameTable(ConfigMessage& message);
-	bool				OnDeleteTable(ConfigMessage& message);
+	void				OnRegisterShardServer(ConfigMessage& message);
+	void				OnCreateQuorum(ConfigMessage& message);
+	void				OnIncreaseQuorum(ConfigMessage& message);
+	void				OnDecreaseQuorum(ConfigMessage& message);
+	void				OnCreateDatabase(ConfigMessage& message);
+	void				OnRenameDatabase(ConfigMessage& message);
+	void				OnDeleteDatabase(ConfigMessage& message);
+	void				OnCreateTable(ConfigMessage& message);
+	void				OnRenameTable(ConfigMessage& message);
+	void				OnDeleteTable(ConfigMessage& message);
 
 	bool				ReadQuorums(ReadBuffer& buffer, bool withVolatile);
 	void				WriteQuorums(Buffer& buffer, bool withVolatile);

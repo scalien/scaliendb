@@ -57,7 +57,6 @@ uint64_t ConfigContext::GetLeader()
 void ConfigContext::OnLearnLease()
 {
 	replicatedLog.OnLearnLease();
-	
 	controller->OnLearnLease();
 }
 
@@ -65,6 +64,7 @@ void ConfigContext::OnLeaseTimeout()
 {
 	nextValue.Clear();
 	replicatedLog.OnLeaseTimeout();
+	controller->OnLeaseTimeout();
 }
 
 uint64_t ConfigContext::GetContextID()
