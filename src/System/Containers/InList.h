@@ -28,6 +28,7 @@ public:
 	T&				Get(int i);
 	
 	void			Prepend(T* t);
+	void			PrependList(InList<T>& list);
 	void			Append(T* t);
 	void			InsertAfter(T* before, T* t);
 
@@ -96,6 +97,25 @@ void InList<T>::Prepend(T* t)
 	
 	if (tail == NULL)
 		tail = t;
+}
+
+template<class T>
+void InList<T>::PrependList(InList<T>& list)
+{
+	if (list.length == 0)
+		return;
+	
+	if (length == 0)
+	{
+		*this = list;
+		list.ClearMembers();
+		return;
+	}
+
+	list.tail->next = head;
+	head->prev = list.tail;
+	head = list.head;
+	list.ClearMembers();
 }
 
 template<class T>

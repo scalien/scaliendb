@@ -17,6 +17,11 @@ bool ClientRequest::IsControllerRequest()
 	return false;
 }
 
+bool ClientRequest::IsSafeRequest()
+{
+	return true;
+}
+
 bool ClientRequest::GetMaster(uint64_t commandID_)
 {
 	type = CLIENTREQUEST_GET_MASTER;

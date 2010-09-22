@@ -1,4 +1,4 @@
-#include "SDBPClientConnection.h"
+#include "SDBPControllerConnection.h"
 #include "SDBPClient.h"
 #include "SDBPClientConsts.h"
 #include "Application/Common/ClientRequest.h"
@@ -8,18 +8,20 @@
 #define GETMASTER_TIMEOUT	1000
 #define RECONNECT_TIMEOUT	2000
 
-void SDBPClientConnection::Init(SDBPClient* client_, uint64_t nodeID_, Endpoint& endpoint_)
+using namespace SDBPClient;
+
+ControllerConnection::ControllerConnection(Client* client_, uint64_t nodeID_, Endpoint& endpoint_)
 {
 	client = client_;
 	nodeID = nodeID_;
 	endpoint = endpoint_;
-	getMasterTime = 0;
-	getMasterTimeout.SetDelay(GETMASTER_TIMEOUT);
-	getMasterTimeout.SetCallable(MFUNC(SDBPClientConnection, OnGetMasterTimeout));
+	getConfigStateTime = 0;
+	getConfigStateTimeout.SetDelay(GETMASTER_TIMEOUT);
+	getConfigStateTimeout.SetCallable(MFUNC(ControllerConnection, OnGetConfigStateTimeout));
 	Connect();
 }
 
-void SDBPClientConnection::Connect()
+void ControllerConnection::Connect()
 {
 	// TODO: MessageConnection::Connect does not support timeout parameter
 	//MessageConnection::Connect(endpoint, RECONNECT_TIMEOUT);
@@ -27,7 +29,7 @@ void SDBPClientConnection::Connect()
 	MessageConnection::Connect(endpoint);
 }
 
-void SDBPClientConnection::Send(ClientRequest* request)
+void ControllerConnection::Send(ClientRequest* request)
 {
 	Log_Trace("type = %c, nodeID = %u", request->type, (unsigned) nodeID);
 
@@ -36,26 +38,31 @@ void SDBPClientConnection::Send(ClientRequest* request)
 	Write(*request);
 }
 
-void SDBPClientConnection::SendGetMaster()
+void ControllerConnection::SendGetConfigState()
 {
-	ClientRequest*	request;
+	Request*	request;
 	
 	if (state == CONNECTED)
 	{
 		request = client->CreateGetConfigState();
 		requests.Append(request);
 		Send(request);
-		EventLoop::Reset(&getMasterTimeout);
+		EventLoop::Reset(&getConfigStateTimeout);
 	}
 	else
 		ASSERT_FAIL();
 }
 
-void SDBPClientConnection::OnGetMasterTimeout()
+uint64_t ControllerConnection::GetNodeID()
+{
+	return nodeID;
+}
+
+void ControllerConnection::OnGetConfigStateTimeout()
 {
 	Log_Trace();
 	
-	if (EventLoop::Now() - getMasterTime > PAXOSLEASE_MAX_LEASE_TIME)
+	if (EventLoop::Now() - getConfigStateTime > PAXOSLEASE_MAX_LEASE_TIME)
 	{
 		Log_Trace();
 		
@@ -64,10 +71,10 @@ void SDBPClientConnection::OnGetMasterTimeout()
 		return;
 	}
 	
-	SendGetMaster();
+	SendGetConfigState();
 }
 
-bool SDBPClientConnection::OnMessage(ReadBuffer& msg)
+bool ControllerConnection::OnMessage(ReadBuffer& msg)
 {
 	ClientResponse*	resp;
 	
@@ -85,51 +92,45 @@ bool SDBPClientConnection::OnMessage(ReadBuffer& msg)
 	return false;
 }
 
-void SDBPClientConnection::OnConnect()
+void ControllerConnection::OnConnect()
 {
 	Log_Trace();
 
 	MessageConnection::OnConnect();
-	SendGetMaster();
-	
-	if (client->connectivityStatus == SDBP_NOCONNECTION)
-		client->connectivityStatus = SDBP_NOMASTER;
+	client->OnControllerConnected(this);
 }
 
-void SDBPClientConnection::OnConnectTimeout()
+void ControllerConnection::OnClose()
 {
 	Log_Trace();
 	
-	OnClose();
-	Connect();
-}
-
-void SDBPClientConnection::OnClose()
-{
-	Log_Trace();
+	Request*	it;
+	Request*	next;
 	
-	// delete getmaster requests
-	requests.Clear();
-	
-	// resend requests without response from the client
+	// resend requests without response
 	if (state == CONNECTED)
-		client->ResendRequests(nodeID);
+	{
+		for (it = requests.First(); it != NULL; it = next)
+		{
+			next = requests.Remove(it);
+			client->ReassignRequest(it);
+		}
+	}
 	
 	// close socket
-	Close();
+	MessageConnection::OnClose();
 	
 	// clear timers
-	EventLoop::Remove(&getMasterTimeout);
-	EventLoop::Reset(&connectTimeout);
+	EventLoop::Remove(&getConfigStateTimeout);
 	
 	// update the master in the client
 	client->SetMaster(-1, nodeID);
 	
 	// update the client connectivity status
-	client->UpdateConnectivityStatus();
+	client->OnControllerDisconnected(this);
 }
 
-bool SDBPClientConnection::ProcessResponse(ClientResponse* resp)
+bool ControllerConnection::ProcessResponse(ClientResponse* resp)
 {
 	if (resp->type == CLIENTRESPONSE_GET_CONFIG_STATE)
 		return ProcessGetConfigState(resp);
@@ -137,25 +138,25 @@ bool SDBPClientConnection::ProcessResponse(ClientResponse* resp)
 	return ProcessCommandResponse(resp);
 }
 
-bool SDBPClientConnection::ProcessGetConfigState(ClientResponse* resp)
+bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
 {
 	ClientRequest*	req;
 
 	if (resp->configState)
 	{
-		assert(resp->configState->nodeID == nodeID);
+		assert(resp->configState->masterID == nodeID);
 		
 		req = RemoveRequest(resp->commandID);
 		assert(req != NULL);
 		delete req;
 		
-		client->SetMaster(resp->configState->nodeID, nodeID);
+		client->SetMaster(resp->configState->masterID, nodeID);
 		client->SetConfigState(resp->TransferConfigState());
 	}
 	return false;
 }
 
-bool SDBPClientConnection::ProcessGetMaster(ClientResponse* resp)
+bool ControllerConnection::ProcessGetMaster(ClientResponse* resp)
 {
 	Log_Trace();
 
@@ -168,8 +169,8 @@ bool SDBPClientConnection::ProcessGetMaster(ClientResponse* resp)
 	assert(req->type == CLIENTREQUEST_GET_MASTER);
 	delete req;
 
-	getMasterTime = EventLoop::Now();
-	Log_Trace("getMasterTime = %" PRIu64, getMasterTime);
+	getConfigStateTime = EventLoop::Now();
+	Log_Trace("getConfigStateTime = %" PRIu64, getConfigStateTime);
 	
 	if (resp->type == CLIENTRESPONSE_OK)
 		client->SetMaster((int64_t) resp->number, nodeID);
@@ -179,7 +180,7 @@ bool SDBPClientConnection::ProcessGetMaster(ClientResponse* resp)
 	return false;
 }
 
-bool SDBPClientConnection::ProcessCommandResponse(ClientResponse* resp)
+bool ControllerConnection::ProcessCommandResponse(ClientResponse* resp)
 {
 	Log_Trace();
 	
@@ -195,14 +196,14 @@ bool SDBPClientConnection::ProcessCommandResponse(ClientResponse* resp)
 	return false;
 }
 
-ClientRequest* SDBPClientConnection::RemoveRequest(uint64_t commandID)
+Request* ControllerConnection::RemoveRequest(uint64_t commandID)
 {
-	ClientRequest**	it;
+	Request*	it;
 	
 	// find the request by commandID
 	for (it = requests.First(); it != NULL; it = requests.Next(it))
 	{
-		if ((*it)->commandID == commandID)
+		if (it->commandID == commandID)
 		{
 			requests.Remove(it);
 			break;
@@ -210,7 +211,7 @@ ClientRequest* SDBPClientConnection::RemoveRequest(uint64_t commandID)
 	}
 
 	if (it != NULL)
-		return *it;
+		return it;
 		
 	return NULL;
 }

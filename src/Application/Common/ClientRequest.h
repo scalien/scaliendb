@@ -70,6 +70,7 @@ public:
 	
 	bool			IsControllerRequest();
 	bool			IsShardServerRequest();
+	bool			IsSafeRequest();
 	
 	/* Master query */
 	bool			GetMaster(
@@ -108,7 +109,15 @@ public:
 					 uint64_t tableID, ReadBuffer& key);
 	bool			Delete(
 					 uint64_t commandID, uint64_t databaseID,
+<<<<<<< Updated upstream
 					 uint64_t tableID, ReadBuffer& key);	
+=======
+					 uint64_t tableID, ReadBuffer& key);
+	
+	/* Serialization */
+	bool			Read(ReadBuffer& buffer);
+	bool			Write(Buffer& buffer);
+>>>>>>> Stashed changes
 };
 
 #endif

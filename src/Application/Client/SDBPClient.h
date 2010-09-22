@@ -4,27 +4,32 @@
 #include "System/Platform.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Containers/List.h"
+#include "System/Containers/InTreeMap.h"
+#include "System/Containers/HashMap.h"
 #include "System/Events/Countdown.h"
 #include "Application/Controller/State/ConfigState.h"
-#include "SDBPClientShardConnection.h"
+#include "SDBPShardConnection.h"
+#include "SDBPControllerConnection.h"
+#include "SDBPResult.h"
 
-class SDBPClientResult;
-class ClientRequest;
-class ClientResponse;
+namespace SDBPClient
+{
+
+class ControllerConnection;
 
 /*
 ===============================================================================================
 
- SDBPClient
+ SDBPClient::Client
 
 ===============================================================================================
 */
 
-class SDBPClient
+class Client
 {
 public:
-	SDBPClient();
-	~SDBPClient();
+	Client();
+	~Client();
 
 	int					Init(int nodec, const char* nodev[]);
 	void				Shutdown();
@@ -38,31 +43,30 @@ public:
 	int					GetMaster();
 	void				DistributeDirty(bool dd);
 	
-	SDBPClientResult*	GetResult();
+	Result*				GetResult();
 
 	int					TransportStatus();
 	int					ConnectivityStatus();
 	int					TimeoutStatus();
 	int					CommandStatus();
 	
-	bool				UseDatabase(ReadBuffer& database);
-	bool				UseTable(ReadBuffer& table);
+	int					GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
+	int					GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& table);
 	
-	// commands that return a Result
-	int					Get(const ReadBuffer& key, bool dirty = false);
-	int					DirtyGet(const ReadBuffer& key);
+	int					Get(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
+	int					Set(uint64_t databaseID, uint64_t tableID, 
+							ReadBuffer& key,
+							ReadBuffer& value);
 
-	// write commands
-	int					Set(const ReadBuffer& key,
-							const ReadBuffer& value);
-
-	int					Delete(const ReadBuffer& key, bool remove = false);
+	int					Delete(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
 
 private:
-	typedef List<ClientRequest*> RequestList;
-	typedef SDBPClientShardConnection ShardConnection;
-	typedef InList<SDBPClientShardConnection> ShardConnList;
-	friend class SDBPClientConnection;
+	typedef InList<Request> RequestList;
+	typedef InTreeMap<ShardConnection> ShardConnectionMap;
+	typedef HashMap<uint64_t, RequestList*> RequestListMap;
+	friend class ControllerConnection;
+	friend class ShardConnection;
+	friend class Table;
 	// Controller connections
 	// ShardServer connections
 	// ClusterState
@@ -70,34 +74,48 @@ private:
 	//	- ShardMap:	shard => nodeID
 	//	- NodeMap:	nodeID => ClientConnection
 	
+	void				EventLoop();
+	bool				IsDone();
 	uint64_t			NextCommandID();
-	uint64_t			NextMasterCommandID();
-	ClientRequest*		CreateGetMasterRequest();
-	ClientRequest*		CreateGetConfigState();
-	void				ResendRequests(uint64_t nodeID);
+	Request*			CreateGetConfigState();
 	void				SetMaster(int64_t master, uint64_t nodeID);
 	void				UpdateConnectivityStatus();
 	void				OnGlobalTimeout();
 	void				OnMasterTimeout();
 	bool				IsSafe();
 	void				SetConfigState(ConfigState* configState);
-	void				ConnectShardServers();
+
+	void				ReassignRequest(Request* req);
 	void				AssignRequestsToQuorums();
+	bool				GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID);
+	void				AddRequestToQuorum(Request* req, bool end = true);
+	void				SendQuorumRequests(ShardConnection* conn, uint64_t quorumID);
+	void				InvalidateQuorum(uint64_t quorumID);
+	void				InvalidateQuorumRequests(uint64_t quorumID);
+
+	void				ConnectShardServers();
 	ShardConnection*	GetShardConnection(uint64_t nodeID);
-	uint64_t			GetQuorumID(uint64_t tableID, ReadBuffer& key);
+
+	void				OnControllerConnected(ControllerConnection* conn);
+	void				OnControllerDisconnected(ControllerConnection* conn);
 	
-	int64_t				master;
-	uint64_t			commandID;
-	uint64_t			masterCommandID;
-	int					connectivityStatus;
-	int					timeoutStatus;
-	Countdown			globalTimeout;
-	Countdown			masterTimeout;
-	ConfigState*		configState;
-	RequestList			safeRequests;
-	RequestList			dirtyRequests;
-	ShardConnList		shardConnections;
-	
+	int64_t					master;
+	uint64_t				commandID;
+	uint64_t				masterCommandID;
+	uint64_t				masterTime;
+	int						connectivityStatus;
+	int						timeoutStatus;
+	Countdown				globalTimeout;
+	Countdown				masterTimeout;
+	ConfigState*			configState;
+	Result*					result;
+	RequestList				requests;
+	ShardConnectionMap		shardConnections;
+	ControllerConnection**	controllerConnections;
+	int						numControllers;
+	RequestListMap			quorumRequests;
 };
+
+};	// namespace
 
 #endif
