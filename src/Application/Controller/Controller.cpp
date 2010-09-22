@@ -40,6 +40,11 @@ void Controller::Init()
 	CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
 }
 
+int64_t Controller::GetMaster()
+{
+	return (int64_t) configContext.GetLeader();
+}
+
 bool Controller::IsValidClientRequest(ClientRequest* request)
 {
 	 return request->IsControllerRequest();
@@ -59,6 +64,9 @@ void Controller::OnClientRequest(ClientRequest* request)
 	{
 		if (configContext.IsLeaderKnown())
 			request->response.Number(configContext.GetLeader());
+		else
+			request->response.NoService();
+			
 		request->OnComplete();
 		return;
 	}

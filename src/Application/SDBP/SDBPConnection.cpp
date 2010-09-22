@@ -42,7 +42,6 @@ bool SDBPConnection::OnMessage(ReadBuffer& msg)
 		OnClose();
 		return true;
 	}
-	sdbpRequest.request = NULL;
 	numPending++;
 	context->OnClientRequest(request);
 	return false;

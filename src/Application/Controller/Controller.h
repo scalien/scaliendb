@@ -30,6 +30,9 @@ public:
 	typedef InList<ClientRequest>		RequestList;
 
 	void			Init();
+
+	// shortcut function for simple status output
+	int64_t			GetMaster();
 	
 	// ========================================================================================
 	// SDBPContext interface:

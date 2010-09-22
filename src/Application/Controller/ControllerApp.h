@@ -22,8 +22,8 @@ public:
 private:
 	Controller				controller;
 
-//	HTTPServer				httpServer;
-//	HTTPControllerContext	httpContext;
+	HTTPServer				httpServer;
+	HTTPControllerContext	httpContext;
 
 	SDBPServer				sdbpServer;
 };

@@ -6,7 +6,7 @@
 #include "HTTPControllerContext.h"
 
 class Controller;		// forward
-class ConfigMessage;	// forward
+class ClientRequest;	// forward
 class UrlParam;			// forward
 
 /*
@@ -29,24 +29,25 @@ public:
 	// ========================================================================================
 	// ClientSession interface
 	//
-	virtual void		OnComplete(Message* message, bool status);
+	virtual void		OnComplete(ClientRequest* request, bool last);
 	virtual bool		IsActive();
 	// ========================================================================================
 
 private:
 	void				PrintStatus();
 	bool				ProcessCommand(ReadBuffer& cmd, UrlParam& params);
-	void				ProcessGetMaster();
-	ConfigMessage*		ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params);
-	ConfigMessage*		ProcessCreateQuorum(UrlParam& params);
-	ConfigMessage*		ProcessIncreaseQuorum(UrlParam& params);
-	ConfigMessage*		ProcessDecreaseQuorum(UrlParam& params);
-	ConfigMessage*		ProcessCreateDatabase(UrlParam& params);
-	ConfigMessage*		ProcessRenameDatabase(UrlParam& params);
-	ConfigMessage*		ProcessDeleteDatabase(UrlParam& params);
-	ConfigMessage*		ProcessCreateTable(UrlParam& params);
-	ConfigMessage*		ProcessRenameTable(UrlParam& params);
-	ConfigMessage*		ProcessDeleteTable(UrlParam& params);
+	ClientRequest*		ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params);
+	ClientRequest*		ProcessGetMaster(UrlParam& params);
+	ClientRequest*		ProcessGetState(UrlParam& params);
+	ClientRequest*		ProcessCreateQuorum(UrlParam& params);
+//	ClientRequest*		ProcessIncreaseQuorum(UrlParam& params);
+//	ClientRequest*		ProcessDecreaseQuorum(UrlParam& params);
+	ClientRequest*		ProcessCreateDatabase(UrlParam& params);
+	ClientRequest*		ProcessRenameDatabase(UrlParam& params);
+	ClientRequest*		ProcessDeleteDatabase(UrlParam& params);
+	ClientRequest*		ProcessCreateTable(UrlParam& params);
+	ClientRequest*		ProcessRenameTable(UrlParam& params);
+	ClientRequest*		ProcessDeleteTable(UrlParam& params);
 
 	Controller*			controller;
 	HTTPSession			session;

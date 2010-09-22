@@ -54,7 +54,7 @@ public:
 
 	void				ResponseFail();
 	
-	void				PrintLine(ReadBuffer& line);
+	void				PrintLine(const ReadBuffer& line);
 	void				PrintPair(const ReadBuffer& key, const ReadBuffer& value);
 	void				PrintPair(const char* key, const char* value);
 	void				Flush();

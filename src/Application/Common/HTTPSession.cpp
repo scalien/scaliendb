@@ -77,7 +77,7 @@ void HTTPSession::ResponseFail()
 		conn->Response(HTTP_STATUS_CODE_OK, MSG_FAIL, sizeof(MSG_FAIL) - 1);
 }
 
-void HTTPSession::PrintLine(ReadBuffer& line)
+void HTTPSession::PrintLine(const ReadBuffer& line)
 {
 	if (!headerSent)
 	{
