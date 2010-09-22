@@ -70,6 +70,7 @@ public:
 	
 	bool			IsControllerRequest();
 	bool			IsShardServerRequest();
+	bool			IsSafeRequest();
 	
 	/* Master query */
 	bool			GetMaster(

@@ -1,7 +1,7 @@
-#include "SDBPClientResponse.h"
+#include "SDBPResponseMessage.h"
 #include "Application/Common/ClientRequest.h"
 
-bool SDBPClientResponse::Read(ReadBuffer& buffer)
+bool SDBPResponseMessage::Read(ReadBuffer& buffer)
 {
 	int			read;
 		
@@ -27,7 +27,7 @@ bool SDBPClientResponse::Read(ReadBuffer& buffer)
 				delete response->configState;
 			response->configState = new ConfigState;
 			return response->configState->Read(buffer, true);
-		case CLIENTRESPONSE_NOTMASTER:
+		case CLIENTRESPONSE_NOSERVICE:
 			read = buffer.Readf("%c:%U",
 			 &response->type, &response->request->commandID);
 			break;
@@ -42,7 +42,7 @@ bool SDBPClientResponse::Read(ReadBuffer& buffer)
 	return (read == (signed)buffer.GetLength() ? true : false);
 }
 
-bool SDBPClientResponse::Write(Buffer& buffer)
+bool SDBPResponseMessage::Write(Buffer& buffer)
 {
 	switch (response->type)
 	{
@@ -60,7 +60,7 @@ bool SDBPClientResponse::Write(Buffer& buffer)
 			return true;
 		case CLIENTRESPONSE_GET_CONFIG_STATE:
 			return response->configState->Write(buffer, true);
-		case CLIENTRESPONSE_NOTMASTER:
+		case CLIENTRESPONSE_NOSERVICE:
 			buffer.Writef("%c:%U",
 			 response->type, response->request->commandID);
 			return true;

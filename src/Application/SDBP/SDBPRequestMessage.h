@@ -1,10 +1,10 @@
-#ifndef SDBPCLIENTREQUEST_H
-#define SDBPCLIENTREQUEST_H
+#ifndef SDBPREQUESTMESSAGE_H
+#define SDBPREQUESTMESSAGE_H
 
 #include "Framework/Messaging/Message.h"
 #include "Application/Common/ClientRequest.h"
 
-class SDBPClientRequest : public Message
+class SDBPRequestMessage : public Message
 {
 public:
 	ClientRequest*	request;

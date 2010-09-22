@@ -36,7 +36,8 @@ private:
 */
 
 template<class K, class V>
-class HashMap{
+class HashMap
+{
 public:
 	typedef HashNode<K, V>	Node;
 
