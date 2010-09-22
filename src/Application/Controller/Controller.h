@@ -3,12 +3,12 @@
 
 #include "ConfigMessage.h"
 #include "ConfigContext.h"
-#include "SDBPControllerContext.h"
 #include "System/Containers/InList.h"
 #include "System/Containers/InSortedList.h"
 #include "System/Events/Timer.h"
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
+#include "Application/SDBP/SDBPContext.h"
 #include "State/ConfigState.h"
 
 class ClientSession;			// forward

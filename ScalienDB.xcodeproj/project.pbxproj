@@ -307,8 +307,6 @@
 		54EA501D1237E83E0095BF36 /* ClusterTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterTransport.cpp; sourceTree = "<group>"; };
 		54EA50251237E9A30095BF36 /* ClusterConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterConnection.h; sourceTree = "<group>"; };
 		54EA50261237E9A30095BF36 /* ClusterConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterConnection.cpp; sourceTree = "<group>"; };
-		54EA52AF123901850095BF36 /* SDBPControllerContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPControllerContext.h; sourceTree = "<group>"; };
-		54EA52B0123901850095BF36 /* SDBPControllerContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPControllerContext.cpp; sourceTree = "<group>"; };
 		54FA68F311C2422A00FF4EF6 /* Countdown.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Countdown.h; sourceTree = "<group>"; };
 		54FA68F811C2429A00FF4EF6 /* Countdown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Countdown.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
@@ -784,8 +782,6 @@
 				54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */,
 				9A26DB46120076BA006A2814 /* Controller.h */,
 				9A26DB47120076BA006A2814 /* Controller.cpp */,
-				54EA52AF123901850095BF36 /* SDBPControllerContext.h */,
-				54EA52B0123901850095BF36 /* SDBPControllerContext.cpp */,
 				9AABB45E123FB311003626AC /* HTTPControllerContext.h */,
 				9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */,
 				9AABB48C123FBFFE003626AC /* HTTPControllerSession.h */,

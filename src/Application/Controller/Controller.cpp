@@ -1,6 +1,5 @@
 #include "Controller.h"
 #include "ConfigMessage.h"
-#include "SDBPControllerContext.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
