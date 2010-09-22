@@ -31,8 +31,8 @@ public:
 
 	void			Init();
 
-	// shortcut function for simple status output
 	int64_t			GetMaster();
+	uint64_t		GetNodeID();
 	
 	// ========================================================================================
 	// SDBPContext interface:
@@ -60,7 +60,6 @@ private:
 	void			FromClientRequest(ClientRequest* request, ConfigMessage* message);
 	void			ToClientResponse(ConfigMessage* message, ClientResponse* response);
 	void			OnPrimaryLeaseTimeout();
-	void			InitConfigContext();
 	void			TryRegisterShardServer(Endpoint& endpoint);
 	void			SendClientResponse(ConfigMessage& message);
 	void			OnRequestLease(ClusterMessage& message);

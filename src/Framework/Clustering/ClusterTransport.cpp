@@ -34,8 +34,8 @@ void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 {
 	ClusterConnection* conn;
 
-//	if (nodeID < this->nodeID)
-//		return;
+	if (nodeID < this->nodeID)
+		return;
 	
 	conn = GetConnection(nodeID);
 	if (conn != NULL)

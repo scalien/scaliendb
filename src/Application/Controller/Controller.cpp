@@ -25,8 +25,6 @@ void Controller::Init()
 	
 	CONTEXT_TRANSPORT->SetClusterContext(this);
 	
-	InitConfigContext();
-	
 	// connect to the controller nodes
 	numControllers = (unsigned) configFile.GetListNum("controllers");
 	for (nodeID = 0; nodeID < numControllers; nodeID++)
@@ -36,6 +34,7 @@ void Controller::Init()
 		CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
 	}
 
+	configState.Init();
 	configContext.Init(this, numControllers);
 	CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
 }
@@ -43,6 +42,11 @@ void Controller::Init()
 int64_t Controller::GetMaster()
 {
 	return (int64_t) configContext.GetLeader();
+}
+
+uint64_t Controller::GetNodeID()
+{
+	return REPLICATION_CONFIG->GetNodeID();
 }
 
 bool Controller::IsValidClientRequest(ClientRequest* request)
@@ -123,15 +127,17 @@ void Controller::OnLeaseTimeout()
 	ConfigMessage*	itMessage;
 	ClientRequest*	itRequest;
 	
-	for (itRequest = requests.First(); itRequest != NULL; itRequest = requests.Remove(itRequest))
+	for (itRequest = requests.First(); itRequest != NULL; itRequest = requests.First())
 	{
+		requests.Remove(itRequest);
 		itRequest->response.NoService();
 		itRequest->OnComplete();
 	}
 	assert(requests.GetLength() == 0);
 	
-	for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Remove(itRequest))
+	for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.First())
 	{
+		listenRequests.Remove(itRequest);
 		itRequest->response.NoService();
 		itRequest->OnComplete();
 	}
@@ -193,8 +199,7 @@ void Controller::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpo
 }
 
 void Controller::OnAwaitingNodeID(Endpoint endpoint)
-{
-	
+{	
 	if (!configContext.IsLeader())
 		return;
 
@@ -217,6 +222,7 @@ void Controller::FromClientRequest(ClientRequest* request, ConfigMessage* messag
 			message->type = CONFIG_CREATE_QUORUM;
 			message->productionType = request->productionType;
 			message->nodes = request->nodes;
+			request->nodes.ClearMembers();
 			return;
 		case CLIENTREQUEST_CREATE_DATABASE:
 			message->type = CONFIG_CREATE_DATABASE;
@@ -305,10 +311,6 @@ void Controller::OnPrimaryLeaseTimeout()
 
 	UpdatePrimaryLeaseTimer();
 	UpdateListeners();
-}
-
-void Controller::InitConfigContext()
-{
 }
 
 void Controller::TryRegisterShardServer(Endpoint& endpoint)

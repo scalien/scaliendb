@@ -427,6 +427,8 @@ void ConfigState::OnRegisterShardServer(ConfigMessage& message)
 	it = new ConfigShardServer;
 	it->nodeID = message.nodeID;
 	it->endpoint = message.endpoint;
+	
+	shardServers.Append(it);
 }
 
 void ConfigState::OnCreateQuorum(ConfigMessage& message)
@@ -439,7 +441,10 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
 	it = new ConfigQuorum;
 	it->quorumID = message.quorumID;
 	it->activeNodes = message.nodes;
+	message.nodes.ClearMembers();
 	it->productionType = message.productionType;
+	
+	quorums.Append(it);
 }
 
 void ConfigState::OnIncreaseQuorum(ConfigMessage& message)

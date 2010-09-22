@@ -80,6 +80,10 @@ void HTTPControllerSession::PrintStatus()
 	session.PrintPair("ScalienDB", "Controller");
 	session.PrintPair("Version", VERSION_STRING);
 
+	buf.Writef("%d", (int) controller->GetNodeID());
+	buf.NullTerminate();
+	session.PrintPair("NodeID", buf.GetBuffer());	
+
 	buf.Writef("%d", (int) controller->GetMaster());
 	buf.NullTerminate();
 	session.PrintPair("Master", buf.GetBuffer());
@@ -166,7 +170,6 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 	unsigned		nread;
 	uint64_t		nodeID;
 	
-	HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
 	HTTP_GET_PARAM(params, "productionType", tmp);
 	if (tmp.GetLength() > 1)
 		return NULL;
@@ -193,6 +196,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 
 	request = new ClientRequest;
 	request->CreateQuorum(0, productionType, nodes);
+	nodes.ClearMembers();
 	
 	return request;
 }
