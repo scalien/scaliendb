@@ -49,6 +49,8 @@ private:
 	ClientRequest*		ProcessRenameTable(UrlParam& params);
 	ClientRequest*		ProcessDeleteTable(UrlParam& params);
 
+	void				OnConnectionClose();
+
 	Controller*			controller;
 	HTTPSession			session;
 };

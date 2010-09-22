@@ -97,11 +97,16 @@ void Controller::OnClientRequest(ClientRequest* request)
 void Controller::OnClientClose(ClientSession* session)
 {
 	ClientRequest*	it;
+	ClientRequest*	next;
 	
-	for (it = listenRequests.First(); it != NULL; it = listenRequests.Next(it))
+	for (it = listenRequests.First(); it != NULL; it = next)
 	{
+		next = listenRequests.Next(it);
 		if (it->session == session)
+		{
+			listenRequests.Remove(it);
 			it->OnComplete();
+		}
 	}
 }
 
