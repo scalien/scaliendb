@@ -43,7 +43,7 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 				return true;
 			else
 				return false;
-			break;		
+			break;
 
 		/* Database management */
 		case CLIENTREQUEST_CREATE_DATABASE:
