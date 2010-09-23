@@ -48,12 +48,13 @@ public:
     uint64_t            nextNodeID;
     
     void                Init();
-
+    
     ConfigQuorum*       GetQuorum(uint64_t quorumID);
     ConfigDatabase*     GetDatabase(uint64_t databaseID);
-    ConfigDatabase*     GetDatabase(ReadBuffer& name);
+    ConfigDatabase*     GetDatabase(ReadBuffer name);
     ConfigTable*        GetTable(uint64_t tableID);
-    ConfigTable*        GetTable(uint64_t databaseID, ReadBuffer& name);
+    ConfigTable*        GetTable(uint64_t databaseID, ReadBuffer name);
+    ConfigShard*        GetShard(uint64_t tableID, ReadBuffer key);
     ConfigShard*        GetShard(uint64_t shardID);
     ConfigShardServer*  GetShardServer(uint64_t nodeID);
 

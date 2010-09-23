@@ -19,6 +19,7 @@ public:
     ReadBuffer();
     ReadBuffer(char* buffer, unsigned length);
     ReadBuffer(const char* s);
+    ReadBuffer(Buffer& buffer);
     
     void                Set(char* buffer, unsigned length);
     void                SetBuffer(char* buffer);

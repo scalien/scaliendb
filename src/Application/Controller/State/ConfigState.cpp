@@ -184,7 +184,7 @@ ConfigDatabase* ConfigState::GetDatabase(uint64_t databaseID)
     return NULL;
 }
 
-ConfigDatabase* ConfigState::GetDatabase(ReadBuffer& name)
+ConfigDatabase* ConfigState::GetDatabase(ReadBuffer name)
 {
     ConfigDatabase* it;
     
@@ -210,7 +210,7 @@ ConfigTable* ConfigState::GetTable(uint64_t tableID)
     return NULL;
 }
 
-ConfigTable* ConfigState::GetTable(uint64_t databaseID, ReadBuffer& name)
+ConfigTable* ConfigState::GetTable(uint64_t databaseID, ReadBuffer name)
 {
     ConfigTable*    it;
     

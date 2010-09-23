@@ -49,71 +49,6 @@ uint64_t Controller::GetNodeID()
     return REPLICATION_CONFIG->GetNodeID();
 }
 
-bool Controller::IsValidClientRequest(ClientRequest* request)
-{
-     return request->IsControllerRequest();
-}
-
-void Controller::OnClientRequest(ClientRequest* request)
-{
-    ConfigMessage*  message;
-
-    if (!request->IsControllerRequest())
-    {
-        request->response.Failed();
-        request->OnComplete();
-        return;
-    }
-    else if (request->type == CLIENTREQUEST_GET_MASTER)
-    {
-        if (configContext.IsLeaderKnown())
-            request->response.Number(configContext.GetLeader());
-        else
-            request->response.NoService();
-            
-        request->OnComplete();
-        return;
-    }
-    else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
-    {
-        listenRequests.Append(request);
-        request->response.GetConfigStateResponse(&configState);
-        request->OnComplete(false);
-        return;
-    }
-    
-    message = new ConfigMessage;
-    FromClientRequest(request, message);
-    
-    if (!configState.CompleteMessage(*message))
-    {
-        delete message;
-        request->response.Failed();
-        request->OnComplete();
-        return;
-    }
-    
-    requests.Append(request);
-    configMessages.Append(message);
-    TryAppend();
-}
-
-void Controller::OnClientClose(ClientSession* session)
-{
-    ClientRequest*  it;
-    ClientRequest*  next;
-    
-    for (it = listenRequests.First(); it != NULL; it = next)
-    {
-        next = listenRequests.Next(it);
-        if (it->session == session)
-        {
-            listenRequests.Remove(it);
-            it->OnComplete();
-        }
-    }
-}
-
 void Controller::OnLearnLease()
 {
     Endpoint endpoint;
@@ -173,6 +108,65 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
     
     if (configContext.IsLeader())
         UpdateListeners();
+}
+
+bool Controller::IsValidClientRequest(ClientRequest* request)
+{
+     return request->IsControllerRequest();
+}
+
+void Controller::OnClientRequest(ClientRequest* request)
+{
+    ConfigMessage*  message;
+
+    if (request->type == CLIENTREQUEST_GET_MASTER)
+    {
+        if (configContext.IsLeaderKnown())
+            request->response.Number(configContext.GetLeader());
+        else
+            request->response.NoService();
+            
+        request->OnComplete();
+        return;
+    }
+    else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
+    {
+        listenRequests.Append(request);
+        request->response.GetConfigStateResponse(&configState);
+        request->OnComplete(false);
+        return;
+    }
+    
+    message = new ConfigMessage;
+    FromClientRequest(request, message);
+    
+    if (!configState.CompleteMessage(*message))
+    {
+        delete message;
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
+    
+    requests.Append(request);
+    configMessages.Append(message);
+    TryAppend();
+}
+
+void Controller::OnClientClose(ClientSession* session)
+{
+    ClientRequest*  it;
+    ClientRequest*  next;
+    
+    for (it = listenRequests.First(); it != NULL; it = next)
+    {
+        next = listenRequests.Next(it);
+        if (it->session == session)
+        {
+            listenRequests.Remove(it);
+            it->OnComplete();
+        }
+    }
 }
 
 void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)

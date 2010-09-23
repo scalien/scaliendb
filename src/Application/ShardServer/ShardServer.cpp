@@ -1,6 +1,7 @@
 #include "ShardServer.h"
-#include "Application/Common/ContextTransport.h"
+#include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
+#include "Application/Common/ContextTransport.h"
 
 void ShardServer::Init()
 {
@@ -35,6 +36,49 @@ void ShardServer::Init()
 void ShardServer::OnAppend(ConfigMessage& message, bool ownAppend)
 {
     // TODO: xxx
+}
+
+bool ShardServer::IsValidClientRequest(ClientRequest* request)
+{
+     return request->IsShardServerRequest();
+}
+
+void ShardServer::OnClientRequest(ClientRequest* request)
+{
+    DataMessage*    message;
+    ConfigShard*    shard;
+    QuorumData*     quorumData;
+    
+    shard = configState.GetShard(request->tableID, ReadBuffer(request->key));
+    if (!shard)
+    {
+        // TODO: noservice
+        return;
+    }
+
+    quorumData = LocateQuorum(shard->quorumID);
+    if (!quorumData)
+    {
+        // TODO: noservice
+        return;
+    }
+    
+    if (request->type == CLIENTREQUEST_GET)
+    {
+        // TODO: xxx
+        return;
+    }
+
+    message = new DataMessage;
+    FromClientRequest(request, message);
+    
+    quorumData->requests.Append(request);
+    quorumData->dataMessages.Append(message);
+    TryAppend(quorumData);
+}
+
+void ShardServer::OnClientClose(ClientSession* /*session*/)
+{
 }
 
 void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)

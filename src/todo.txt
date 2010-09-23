@@ -3,7 +3,7 @@
 
 - one or more PaxosLease instances? - one or more ReplicatedLog instances?
   + we need MANY because of timers
-- contextID vs. logID vs. chunkID
+- contextID vs. logID vs. quorumID
 
 - writev vectored write optimalizations
 

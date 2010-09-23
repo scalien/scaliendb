@@ -18,6 +18,11 @@ ReadBuffer::ReadBuffer(const char* s)
     length = strlen(s);
 }
 
+ReadBuffer::ReadBuffer(Buffer& buffer)
+{
+    Wrap(buffer);
+}
+
 void ReadBuffer::Set(char* buffer_, unsigned length_)
 {
     buffer = buffer_;
