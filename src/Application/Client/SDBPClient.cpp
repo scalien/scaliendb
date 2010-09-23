@@ -332,8 +332,10 @@ void Client::ReassignRequest(Request* req)
 {
     uint64_t        quorumID;
     ConfigQuorum*   quorum;
+    ReadBuffer      key;
     
-    if (!GetQuorumID(req->tableID, req->key, quorumID))
+    key.Wrap(req->key);
+    if (!GetQuorumID(req->tableID, key, quorumID))
         ASSERT_FAIL();
 
     // reassign the request to the new quorum

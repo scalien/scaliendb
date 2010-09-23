@@ -21,7 +21,7 @@ extern "C" {
 
 // NOTE the token-paste operator (##) behaves specially with __VA_ARGS__ after commas
 #define TEST_LOG(fmt, ...) {printf("%s:%d: " fmt "\n", __func__, __LINE__, ##__VA_ARGS__);}
-#define TEST(testfn) test((testfn_t) testfn, #testfn)
+#define TEST_CALL(testfn) test((testfn_t) testfn, #testfn)
 #define TESTARG(testfn) (testfn),(#testfn)
 #define TEST_RUN(...) \
         testfn_t test_functions[] = {__VA_ARGS__}; \
