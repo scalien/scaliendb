@@ -2,7 +2,7 @@
 #define HTTPCONTROLLERSESSION_H
 
 #include "Application/Common/ClientSession.h"
-#include "Application/Common/HTTPSession.h"
+#include "Application/HTTP/HTTPSession.h"
 #include "HTTPControllerContext.h"
 
 class Controller;		// forward

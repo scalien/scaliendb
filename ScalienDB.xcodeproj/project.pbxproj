@@ -356,8 +356,8 @@
 		9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPControllerSession.cpp; sourceTree = "<group>"; };
 		9AABB50C123FDCDD003626AC /* ControllerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerApp.h; sourceTree = "<group>"; };
 		9AABB50D123FDCDD003626AC /* ControllerApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerApp.cpp; sourceTree = "<group>"; };
-		9AABB5D7123FF1F4003626AC /* HTTPSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPSession.h; sourceTree = "<group>"; };
-		9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPSession.cpp; sourceTree = "<group>"; };
+		9AABB5D7123FF1F4003626AC /* HTTPSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPSession.h; path = Application/HTTP/HTTPSession.h; sourceTree = "<group>"; };
+		9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPSession.cpp; path = Application/HTTP/HTTPSession.cpp; sourceTree = "<group>"; };
 		9AABB81D12411592003626AC /* SDBPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClient.h; path = Application/Client/SDBPClient.h; sourceTree = "<group>"; };
 		9AABB81E12411592003626AC /* SDBPClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClient.cpp; path = Application/Client/SDBPClient.cpp; sourceTree = "<group>"; };
 		9AABB82012412575003626AC /* SDBPControllerConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPControllerConnection.h; path = Application/Client/SDBPControllerConnection.h; sourceTree = "<group>"; };
@@ -534,8 +534,6 @@
 				5487BDCE123A738000C235BA /* ClusterContext.h */,
 				5487BDCC123A738000C235BA /* ContextTransport.h */,
 				5487BDCD123A738000C235BA /* ContextTransport.cpp */,
-				9AABB5D7123FF1F4003626AC /* HTTPSession.h */,
-				9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */,
 			);
 			name = Common;
 			path = Application/Common;
@@ -809,6 +807,8 @@
 				546223BA1248C46700759E58 /* HTTPHandler.h */,
 				9A26D69511F4BDE2006A2814 /* HTTPServer.h */,
 				9A26D69411F4BDE2006A2814 /* HTTPServer.cpp */,
+				9AABB5D7123FF1F4003626AC /* HTTPSession.h */,
+				9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */,
 				9A26D69711F4BDE2006A2814 /* IMF.h */,
 				9A26D69611F4BDE2006A2814 /* IMF.cpp */,
 				9A26D69911F4BDE2006A2814 /* JSONSession.h */,
