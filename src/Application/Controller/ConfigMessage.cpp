@@ -120,7 +120,7 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
 {
 	int			read;
 	unsigned	numNodes, i;
-	uint64_t	nodeID;
+	uint64_t	nodeID_;
 	ReadBuffer	rb;
 		
 	if (buffer.GetLength() < 1)
@@ -135,18 +135,18 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
 			endpoint.Set(rb);
 			break;
 		case CONFIG_CREATE_QUORUM:
-			read = buffer.Readf("%c:%U:%c:%U",
-			 &type, &quorumID, &productionType, numNodes);
+			read = buffer.Readf("%c:%U:%c:%u",
+			 &type, &quorumID, &productionType, &numNodes);
 			 if (read < 0 || read == (signed)buffer.GetLength())
 				return false;
 			buffer.Advance(read);
 			for (i = 0; i < numNodes; i++)
 			{
-				read = buffer.Readf(":%U", nodeID);
+				read = buffer.Readf(":%U", &nodeID_);
 				if (read < 0)
 					return false;
 				buffer.Advance(read);
-				nodes.Append(nodeID);
+				nodes.Append(nodeID_);
 			}
 			if (buffer.GetLength() == 0)
 				return true;
@@ -208,6 +208,7 @@ bool ConfigMessage::Write(Buffer& buffer)
 {
 	ReadBuffer		rb;
 	uint64_t*		it;
+	unsigned		numNodes;
 	
 	switch (type)
 	{
@@ -218,8 +219,9 @@ bool ConfigMessage::Write(Buffer& buffer)
 			 type, nodeID, &rb);
 			return true;
 		case CONFIG_CREATE_QUORUM:
-			buffer.Writef("%c:%U:%c:%U",
-			 type, quorumID, productionType, nodes.GetLength());
+			numNodes = nodes.GetLength();
+			buffer.Writef("%c:%U:%c:%u",
+			 type, quorumID, productionType, numNodes);
 			for (it = nodes.First(); it != NULL; it = nodes.Next(it))
 				buffer.Appendf(":%U", *it);
 			break;

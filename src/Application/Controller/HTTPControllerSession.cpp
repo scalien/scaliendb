@@ -11,6 +11,7 @@ void HTTPControllerSession::SetController(Controller* controller_)
 void HTTPControllerSession::SetConnection(HTTPConnection* conn_)
 {
 	session.SetConnection(conn_);
+	conn_->SetOnClose(MFUNC(HTTPControllerSession, OnConnectionClose));
 }
 
 bool HTTPControllerSession::HandleRequest(HTTPRequest& request)
@@ -78,6 +79,10 @@ void HTTPControllerSession::PrintStatus()
 
 	session.PrintPair("ScalienDB", "Controller");
 	session.PrintPair("Version", VERSION_STRING);
+
+	buf.Writef("%d", (int) controller->GetNodeID());
+	buf.NullTerminate();
+	session.PrintPair("NodeID", buf.GetBuffer());	
 
 	buf.Writef("%d", (int) controller->GetMaster());
 	buf.NullTerminate();
@@ -165,7 +170,6 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 	unsigned		nread;
 	uint64_t		nodeID;
 	
-	HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
 	HTTP_GET_PARAM(params, "productionType", tmp);
 	if (tmp.GetLength() > 1)
 		return NULL;
@@ -192,6 +196,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 
 	request = new ClientRequest;
 	request->CreateQuorum(0, productionType, nodes);
+	nodes.ClearMembers();
 	
 	return request;
 }
@@ -229,14 +234,21 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 ClientRequest* HTTPControllerSession::ProcessCreateDatabase(UrlParam& params)
 {
 	ClientRequest*	request;
-	uint64_t		databaseID;
+	char			productionType;
 	ReadBuffer		name;
+	ReadBuffer		tmp;
 	
-	HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+	HTTP_GET_PARAM(params, "productionType", tmp);
+	if (tmp.GetLength() > 1)
+		return NULL;
+
+	// TODO: validate values for productionType
+	productionType = tmp.GetCharAt(0);
+
 	HTTP_GET_PARAM(params, "name", name);
 
 	request = new ClientRequest;
-	request->CreateDatabase(0, databaseID, name);
+	request->CreateDatabase(0, productionType, name);
 
 	return request;
 }
@@ -317,4 +329,10 @@ ClientRequest* HTTPControllerSession::ProcessDeleteTable(UrlParam& params)
 	request->DeleteTable(0, databaseID, tableID);
 
 	return request;
+}
+
+void HTTPControllerSession::OnConnectionClose()
+{
+	controller->OnClientClose(this);
+	session.SetConnection(NULL);
 }

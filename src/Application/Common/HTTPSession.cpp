@@ -16,7 +16,8 @@ HTTPSession::HTTPSession()
 void HTTPSession::SetConnection(HTTPConnection* conn_)
 {
 	conn = conn_;
-	json.Init(conn);
+	if (conn != NULL)
+		json.Init(conn);
 }
 
 bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& params)
@@ -70,6 +71,8 @@ void HTTPSession::ParseType(ReadBuffer& rb)
 void HTTPSession::ResponseFail()
 {
 	assert(headerSent == false);
+	if (!conn)
+		return;
 	
 	if (type == JSON)
 		json.PrintStatus("error", MSG_FAIL);
@@ -79,6 +82,9 @@ void HTTPSession::ResponseFail()
 
 void HTTPSession::PrintLine(const ReadBuffer& line)
 {
+	if (!conn)
+		return;
+
 	if (!headerSent)
 	{
 		if (type == JSON)
@@ -97,6 +103,9 @@ void HTTPSession::PrintLine(const ReadBuffer& line)
 
 void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)
 {
+	if (!conn)
+		return;
+
 	if (!headerSent)
 	{
 		if (type == JSON)
@@ -125,6 +134,9 @@ void HTTPSession::PrintPair(const char* key, const char* value)
 
 void HTTPSession::Flush()
 {
+	if (!conn)
+		return;
+
 	if (type == JSON)
 		json.End();
 	
