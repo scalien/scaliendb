@@ -20,6 +20,9 @@ void ConfigState::Init()
     nextTableID = 1;
     nextShardID = 1;
     nextNodeID = 1000;
+    
+    hasMaster = false;
+    masterID = 0;
 }
 
 bool ConfigState::CompleteMessage(ConfigMessage& message)
