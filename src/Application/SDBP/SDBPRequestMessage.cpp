@@ -43,16 +43,16 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 				return true;
 			else
 				return false;
-			break;		
+			break;
 
 		/* Database management */
 		case CLIENTREQUEST_CREATE_DATABASE:
-			read = buffer.Readf("%c:%U:%c:%#R",
+			read = buffer.Readf("%c:%U:%c:%#B",
 			 &request->type, &request->commandID, &request->productionType,
 			 &request->name);
 			break;
 		case CLIENTREQUEST_RENAME_DATABASE:
-			read = buffer.Readf("%c:%U:%U:%#R",
+			read = buffer.Readf("%c:%U:%U:%#B",
 			 &request->type, &request->commandID, &request->databaseID,
 			 &request->name);
 			break;
@@ -63,12 +63,12 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 			
 		/* Table management */
 		case CLIENTREQUEST_CREATE_TABLE:
-			read = buffer.Readf("%c:%U:%U:%U:%#R",
+			read = buffer.Readf("%c:%U:%U:%U:%#B",
 			 &request->type, &request->commandID, &request->databaseID,
 			 &request->quorumID, &request->name);
 			break;
 		case CLIENTREQUEST_RENAME_TABLE:
-			read = buffer.Readf("%c:%U:%U:%U:%#R",
+			read = buffer.Readf("%c:%U:%U:%U:%#B",
 			 &request->type, &request->commandID, &request->databaseID,
 			 &request->tableID, &request->name);
 			break;
@@ -80,17 +80,17 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 			
 		/* Data operations */
 		case CLIENTREQUEST_GET:
-			read = buffer.Readf("%c:%U:%U:%U:%#R",
+			read = buffer.Readf("%c:%U:%U:%U:%#B",
 			 &request->type, &request->commandID, &request->databaseID,
 			 &request->tableID, &request->key);
 			break;
 		case CLIENTREQUEST_SET:
-			read = buffer.Readf("%c:%U:%U:%U:%#R:%#R",
+			read = buffer.Readf("%c:%U:%U:%U:%#B:%#B",
 			 &request->type, &request->commandID, &request->databaseID,
 			 &request->tableID, &request->key, &request->value);
 			break;
 		case CLIENTREQUEST_DELETE:
-			read = buffer.Readf("%c:%U:%U:%U:%#R",
+			read = buffer.Readf("%c:%U:%U:%U:%#B",
 			 &request->type, &request->commandID, &request->databaseID,
 			 &request->tableID, &request->key);
 			break;
@@ -129,12 +129,12 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 
 		/* Database management */
 		case CLIENTREQUEST_CREATE_DATABASE:
-			buffer.Writef("%c:%U:%c:%#R",
+			buffer.Writef("%c:%U:%c:%#B",
 			 request->type, request->commandID, request->productionType,
 			 &request->name);
 			return true;
 		case CLIENTREQUEST_RENAME_DATABASE:
-			buffer.Writef("%c:%U:%U:%#R",
+			buffer.Writef("%c:%U:%U:%#B",
 			 request->type, request->commandID, request->databaseID,
 			 &request->name);
 			return true;
@@ -145,12 +145,12 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 
 		/* Table management */
 		case CLIENTREQUEST_CREATE_TABLE:
-			buffer.Writef("%c:%U:%U:%U:%#R",
+			buffer.Writef("%c:%U:%U:%U:%#B",
 			 request->type, request->commandID, request->databaseID,
 			 request->quorumID, &request->name);
 			return true;
 		case CLIENTREQUEST_RENAME_TABLE:
-			buffer.Writef("%c:%U:%U:%U:%#R",
+			buffer.Writef("%c:%U:%U:%U:%#B",
 			 request->type, request->commandID, request->databaseID,
 			 request->tableID, &request->name);
 			return true;
@@ -162,17 +162,17 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 
 		/* Data operations */
 		case CLIENTREQUEST_GET:
-			buffer.Writef("%c:%U:%U:%U:%#R",
+			buffer.Writef("%c:%U:%U:%U:%#B",
 			 request->type, request->commandID, request->databaseID,
 			 request->tableID, &request->key);
 			return true;
 		case CLIENTREQUEST_SET:
-			buffer.Writef("%c:%U:%U:%U:%#R:%#R",
+			buffer.Writef("%c:%U:%U:%U:%#B:%#B",
 			 request->type, request->commandID, request->databaseID,
 			 request->tableID, &request->key, &request->value);
 			return true;
 		case CLIENTREQUEST_DELETE:
-			buffer.Writef("%c:%U:%U:%U:%#R",
+			buffer.Writef("%c:%U:%U:%U:%#B",
 			 request->type, request->commandID, request->databaseID,
 			 request->tableID, &request->key);
 			return true;

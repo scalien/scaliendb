@@ -51,7 +51,6 @@
 		54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76911BE5EF30076BC62 /* ThreadPool_Windows.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		54C8FC76120200F1002DD4D3 /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */; };
-		54DD0B8F12086BF30049D33A /* DataMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54DD0B8E12086BF30049D33A /* DataMessage.cpp */; };
 		54EA4F731237DC9F0095BF36 /* ConfigMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */; };
 		54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501B1237E83E0095BF36 /* ClusterServer.cpp */; };
 		54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501D1237E83E0095BF36 /* ClusterTransport.cpp */; };
@@ -206,8 +205,6 @@
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
 		546E28D311F0816E00867EE1 /* QuorumTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumTransport.cpp; sourceTree = "<group>"; };
-		5481BFC31206BD580070132B /* DataNode.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataNode.cpp; sourceTree = "<group>"; };
-		5481BFC41206BD580070132B /* DataNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataNode.h; sourceTree = "<group>"; };
 		5487BC27123A5D0C00C235BA /* SDBPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPConnection.h; sourceTree = "<group>"; };
 		5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPConnection.cpp; sourceTree = "<group>"; };
 		5487BC29123A5D0C00C235BA /* SDBPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPServer.h; sourceTree = "<group>"; };
@@ -297,8 +294,6 @@
 		54C8FC6F120200F1002DD4D3 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConnection.cpp; sourceTree = "<group>"; };
 		54C8FC71120200F1002DD4D3 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
-		54DD0B8D12086BF30049D33A /* DataMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataMessage.h; sourceTree = "<group>"; };
-		54DD0B8E12086BF30049D33A /* DataMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataMessage.cpp; sourceTree = "<group>"; };
 		54EA4F6D1237DC9F0095BF36 /* ConfigMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigMessage.h; sourceTree = "<group>"; };
 		54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigMessage.cpp; sourceTree = "<group>"; };
 		54EA501A1237E83E0095BF36 /* ClusterServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterServer.h; sourceTree = "<group>"; };
@@ -325,9 +320,6 @@
 		54FCED9B11F8549F0075BBFF /* ReplicatedLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicatedLog.h; sourceTree = "<group>"; };
 		54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigContext.cpp; sourceTree = "<group>"; };
 		54FCF69D11FDF4770075BBFF /* ConfigContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigContext.h; sourceTree = "<group>"; };
-		54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataChunkContext.cpp; sourceTree = "<group>"; };
-		54FCF6A011FDF4770075BBFF /* DataChunkContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataChunkContext.h; sourceTree = "<group>"; };
-		9A10D408120874E90009ABA7 /* DataService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataService.h; sourceTree = "<group>"; };
 		9A26D68D11F4BDE2006A2814 /* HTTPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPConnection.cpp; path = Application/HTTP/HTTPConnection.cpp; sourceTree = "<group>"; };
 		9A26D68E11F4BDE2006A2814 /* HTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPConnection.h; path = Application/HTTP/HTTPConnection.h; sourceTree = "<group>"; };
 		9A26D68F11F4BDE2006A2814 /* HTTPConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPConsts.h; path = Application/HTTP/HTTPConsts.h; sourceTree = "<group>"; };
@@ -348,8 +340,6 @@
 		9A26DB46120076BA006A2814 /* Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Controller.h; sourceTree = "<group>"; };
 		9A26DB47120076BA006A2814 /* Controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Controller.cpp; sourceTree = "<group>"; };
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
-		9A8735E4121AB70A000B1319 /* DataHTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataHTTPHandler.h; sourceTree = "<group>"; };
-		9A8735E5121AB70A000B1319 /* DataHTTPHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataHTTPHandler.cpp; sourceTree = "<group>"; };
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
 		9A87418612282946000B1319 /* InTreeMapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InTreeMapTest.cpp; path = Test/InTreeMapTest.cpp; sourceTree = "<group>"; };
 		9A87418712282946000B1319 /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
@@ -793,23 +783,6 @@
 			path = Application/Controller;
 			sourceTree = "<group>";
 		};
-		54FCF69E11FDF4770075BBFF /* DataNode */ = {
-			isa = PBXGroup;
-			children = (
-				54FCF6A011FDF4770075BBFF /* DataChunkContext.h */,
-				54FCF69F11FDF4770075BBFF /* DataChunkContext.cpp */,
-				5481BFC41206BD580070132B /* DataNode.h */,
-				5481BFC31206BD580070132B /* DataNode.cpp */,
-				54DD0B8D12086BF30049D33A /* DataMessage.h */,
-				54DD0B8E12086BF30049D33A /* DataMessage.cpp */,
-				9A10D408120874E90009ABA7 /* DataService.h */,
-				9A8735E4121AB70A000B1319 /* DataHTTPHandler.h */,
-				9A8735E5121AB70A000B1319 /* DataHTTPHandler.cpp */,
-			);
-			name = DataNode;
-			path = Application/DataNode;
-			sourceTree = "<group>";
-		};
 		9A26D68511F4BD5B006A2814 /* Application */ = {
 			isa = PBXGroup;
 			children = (
@@ -819,7 +792,6 @@
 				5487BC25123A5C6E00C235BA /* SDBP */,
 				54FCF69811FDF4770075BBFF /* Controller */,
 				54A861C2123E207000ECCBE5 /* ShardServer */,
-				54FCF69E11FDF4770075BBFF /* DataNode */,
 			);
 			name = Application;
 			sourceTree = "<group>";
@@ -998,7 +970,6 @@
 				54FCF78611FEF3BA0075BBFF /* PaxosLeaseAcceptor.cpp in Sources */,
 				54FCF78711FEF3BA0075BBFF /* PaxosLeaseLearner.cpp in Sources */,
 				54C8FC76120200F1002DD4D3 /* MessageConnection.cpp in Sources */,
-				54DD0B8F12086BF30049D33A /* DataMessage.cpp in Sources */,
 				548F50A012157A050035ADDB /* Formatting.cpp in Sources */,
 				54AB8720122821EF00721A0F /* StorageShard.cpp in Sources */,
 				54AB8721122821EF00721A0F /* StorageDataPage.cpp in Sources */,
