@@ -34,6 +34,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/TCP/TCPWriter.o \
 	$(BUILD_DIR)/Framework/Replication/Quorums/MajorityQuorum.o \
 	$(BUILD_DIR)/Framework/Replication/Quorums/DoubleMajorityQuorum.o \
+	$(BUILD_DIR)/Framework/Replication/Quorums/TotalQuorum.o \
 	$(BUILD_DIR)/Framework/Replication/Quorums/QuorumTransport.o \
 	$(BUILD_DIR)/Framework/Replication/Quorums/QuorumDatabase.o \
 	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLeaseMessage.o \
