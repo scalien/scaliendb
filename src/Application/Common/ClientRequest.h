@@ -54,7 +54,7 @@ public:
 
     // Quorum management
     bool            CreateQuorum(
-                     uint64_t commandID, char productionType, NodeList nodes);  
+                     uint64_t commandID, char productionType, NodeList& nodes);  
                  
     // Database management
     bool            CreateDatabase(

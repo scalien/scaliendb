@@ -152,18 +152,15 @@ char* FindInBuffer(const char* buffer, unsigned length, char c)
 {
     size_t  i;
     
-    for (i = 0; i < length && buffer[i]; buffer++)
+    for (i = 0; i < length; i++)
         if (buffer[i] == c) return (char*) (buffer + i);
-    
-    if (c == 0 && i < length && buffer[i] == 0)
-        return (char*) (buffer + i);
-    
+        
     return NULL;
 }
 
 char* FindInCString(const char* s, char c)
 {
-    return FindInBuffer(s, strlen(s), c);
+    return strchr(s, c);
 }
 
 void ReplaceInBuffer(char* buffer, unsigned length, char src, char dst)

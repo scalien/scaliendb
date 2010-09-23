@@ -148,12 +148,11 @@ bool Endpoint::Set(ReadBuffer ip_port, bool resolv)
     int             port;
     bool            ret;
     Buffer          ipbuf;
+    Buffer          portbuf;
 
     start = p = ip_port.GetBuffer();
     
-    while (p - start < ip_port.GetLength() && *p != ':')
-        p++;
-    
+    p = FindInBuffer(ip_port.GetBuffer(), ip_port.GetLength(), ':');
     if (*p != ':')
     {
         Log_Trace("No ':' in host specification");
@@ -162,10 +161,13 @@ bool Endpoint::Set(ReadBuffer ip_port, bool resolv)
 
     ipbuf.Append(start, p - start);
     ipbuf.NullTerminate();
+    
     p++;
+    portbuf.Append(p, ip_port.GetLength() - (p - start));
+    portbuf.NullTerminate();
     
     port = -1;
-    port = atoi(p);
+    port = atoi(portbuf.GetBuffer());
     if (port < 1 || port > 65535)
     {
         Log_Trace("atoi() failed to produce a sensible value");

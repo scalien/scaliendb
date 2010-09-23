@@ -37,7 +37,9 @@ void HTTPConnection::OnRead()
     
     len = Parse(tcpread.buffer->GetBuffer(), tcpread.buffer->GetLength());
 
-    if (len == 0)
+    if (len < 0)
+        OnClose();  // parse error
+    else if (len == 0)
     {
         if (tcpread.buffer->GetSize() > 1*MB)
         {
@@ -102,16 +104,18 @@ int HTTPConnection::Parse(char* buf, int len)
     int pos;
     
     pos = request.Parse(buf, len);
-    if (pos <= 0)
-        return pos;
+    if (pos < 0)
+        return -1;
+    if (pos != len)
+        return 0;
     
     if (server->HandleRequest(this, request))
-        return -1;
+        return 1;
     
     Response(HTTP_STATUS_CODE_NOT_FOUND, MSG_NOT_FOUND, sizeof(MSG_NOT_FOUND) - 1);
     closeAfterSend = true;
         
-    return -1;
+    return 1;
 }
 
 
