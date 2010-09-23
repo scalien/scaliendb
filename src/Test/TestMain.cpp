@@ -32,7 +32,9 @@ TEST_DEFINE(TestMain)
     );
 }
 
+#ifdef TEST
 int main()
 {
     return TestMain();
 }
+#endif

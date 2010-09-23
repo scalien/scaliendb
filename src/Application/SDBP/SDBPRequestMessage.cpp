@@ -25,15 +25,15 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 
         /* Quorum management */
         case CLIENTREQUEST_CREATE_QUORUM:
-            read = buffer.Readf("%c:%U:%c:%U",
+            read = buffer.Readf("%c:%U:%c:%u",
              &request->type, &request->commandID, &request->productionType,
-             numNodes);
+             &numNodes);
             if (read < 0 || read == (signed)buffer.GetLength())
                 return false;
             buffer.Advance(read);
             for (i = 0; i < numNodes; i++)
             {
-                read = buffer.Readf(":%U", nodeID);
+                read = buffer.Readf(":%U", &nodeID);
                 if (read < 0)
                     return false;
                 buffer.Advance(read);
