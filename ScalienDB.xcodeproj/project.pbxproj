@@ -175,7 +175,7 @@
 		541D868711C7D8E400A6CB16 /* PaxosLeaseMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseMessage.h; sourceTree = "<group>"; };
 		541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseProposer.cpp; sourceTree = "<group>"; };
 		541D868911C7D8E400A6CB16 /* PaxosLeaseProposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposer.h; sourceTree = "<group>"; };
-		546223BA1248C46700759E58 /* HTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPHandler.h; sourceTree = "<group>"; };
+		546223BA1248C46700759E58 /* HTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPHandler.h; path = Application/HTTP/HTTPHandler.h; sourceTree = "<group>"; };
 		546224BC1249027800759E58 /* SDBPRequestMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPRequestMessage.h; sourceTree = "<group>"; };
 		546224ED1249030D00759E58 /* SDBPRequestMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPRequestMessage.cpp; sourceTree = "<group>"; };
 		546225101249074000759E58 /* SDBPResponseMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPResponseMessage.h; sourceTree = "<group>"; };
