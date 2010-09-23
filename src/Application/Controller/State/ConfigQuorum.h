@@ -18,7 +18,7 @@
 class ConfigQuorum
 {
 public:
-    ConfigQuorum()      { prev = next = this; }
+    ConfigQuorum()      { prev = next = this; hasPrimary = false; }
 
     uint64_t            quorumID;
     List<uint64_t>      activeNodes;    
