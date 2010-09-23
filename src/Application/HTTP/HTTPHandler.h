@@ -1,6 +1,9 @@
 #ifndef HTTPHANDLER_H
 #define HTTPHANDLER_H
 
+class HTTPConnection;	// forward
+class HTTPRequest;		// forward
+
 /*
 ===============================================================================================
 
