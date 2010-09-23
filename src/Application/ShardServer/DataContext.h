@@ -41,12 +41,12 @@ public:
     virtual uint64_t                GetPaxosID();
     virtual uint64_t                GetHighestPaxosID();
     
-    virtual Quorum*             GetQuorum();
-    virtual QuorumDatabase*     GetDatabase();
+    virtual Quorum*                 GetQuorum();
+    virtual QuorumDatabase*         GetDatabase();
     virtual QuorumTransport*        GetTransport();
     
     virtual void                    OnAppend(ReadBuffer value, bool ownAppend);
-    virtual Buffer*             GetNextValue();
+    virtual Buffer*                 GetNextValue();
     virtual void                    OnMessage(ReadBuffer msg);
     // ========================================================================================
 
@@ -55,13 +55,13 @@ private:
     void                            RegisterPaxosID(uint64_t paxosID);
 
     ShardServer*                    shardServer;
-    TotalQuorum                 quorum;
-    QuorumDatabase              database;
-    QuorumTransport             transport;
+    TotalQuorum                     quorum;
+    QuorumDatabase                  database;
+    QuorumTransport                 transport;
     ReplicatedLog                   replicatedLog;
     uint64_t                        contextID;
     uint64_t                        highestPaxosID;
-    Buffer                      nextValue;
+    Buffer                          nextValue;
 };
 
 #endif
