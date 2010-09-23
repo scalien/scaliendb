@@ -1,15 +1,17 @@
 #include "DataMessage.h"
 
-void DataMessage::Set(ReadBuffer key_, ReadBuffer value_)
+void DataMessage::Set(uint64_t tableID_, ReadBuffer key_, ReadBuffer value_)
 {
     type = DATAMESSAGE_SET;
+    tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
 }
 
-void DataMessage::Delete(ReadBuffer key_)
+void DataMessage::Delete(uint64_t tableID_, ReadBuffer key_)
 {
     type = DATAMESSAGE_DELETE;
+    tableID = tableID_;
     key.Write(key_);
 }
 

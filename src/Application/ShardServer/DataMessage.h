@@ -19,12 +19,13 @@ class DataMessage : public Message
 public:
     // Variables
     char            type;
+    uint64_t        tableID;
     Buffer          key;
     Buffer          value;
 
     // Data management
-    void            Set(ReadBuffer key, ReadBuffer value);
-    void            Delete(ReadBuffer key);
+    void            Set(uint64_t tableID, ReadBuffer key, ReadBuffer value);
+    void            Delete(uint64_t tableID, ReadBuffer key);
 
     // For InList<>
     DataMessage*    prev;

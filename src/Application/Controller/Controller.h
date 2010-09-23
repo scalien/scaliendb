@@ -33,6 +33,11 @@ public:
 
     int64_t         GetMaster();
     uint64_t        GetNodeID();
+
+    // For ConfigContext
+    void            OnLearnLease();
+    void            OnLeaseTimeout();
+    void            OnAppend(ConfigMessage& message, bool ownAppend);
     
     // ========================================================================================
     // SDBPContext interface:
@@ -41,11 +46,6 @@ public:
     void            OnClientRequest(ClientRequest* request);
     void            OnClientClose(ClientSession* session);
     // ========================================================================================
-
-    // For ConfigContext
-    void            OnLearnLease();
-    void            OnLeaseTimeout();
-    void            OnAppend(ConfigMessage& message, bool ownAppend);
 
     // ========================================================================================
     // ClusterContext interface:
@@ -76,6 +76,14 @@ private:
     RequestList     requests;
     RequestList     listenRequests;
 };
+
+/*
+===============================================================================================
+
+ PrimaryLease
+
+===============================================================================================
+*/
 
 class PrimaryLease
 {

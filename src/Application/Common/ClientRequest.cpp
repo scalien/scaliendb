@@ -17,17 +17,27 @@ void ClientRequest::OnComplete(bool last)
 
 bool ClientRequest::IsControllerRequest()
 {
-    if (type == CLIENTREQUEST_GET_MASTER ||
-        type == CLIENTREQUEST_GET_CONFIG_STATE ||
-        type == CLIENTREQUEST_CREATE_QUORUM ||
-        type == CLIENTREQUEST_CREATE_DATABASE ||
-        type == CLIENTREQUEST_RENAME_DATABASE ||
-        type == CLIENTREQUEST_DELETE_DATABASE ||
-        type == CLIENTREQUEST_CREATE_TABLE ||
-        type == CLIENTREQUEST_RENAME_TABLE ||
+    if (type == CLIENTREQUEST_GET_MASTER        ||
+        type == CLIENTREQUEST_GET_CONFIG_STATE  ||
+        type == CLIENTREQUEST_CREATE_QUORUM     ||
+        type == CLIENTREQUEST_CREATE_DATABASE   ||
+        type == CLIENTREQUEST_RENAME_DATABASE   ||
+        type == CLIENTREQUEST_DELETE_DATABASE   ||
+        type == CLIENTREQUEST_CREATE_TABLE      ||
+        type == CLIENTREQUEST_RENAME_TABLE      ||
         type == CLIENTREQUEST_DELETE_TABLE)
             return true;
 
+    return false;
+}
+
+bool ClientRequest::IsShardServerRequest()
+{
+    if (type == CLIENTREQUEST_GET       ||
+        type == CLIENTREQUEST_SET       ||
+        type == CLIENTREQUEST_DELETE)
+            return true;
+    
     return false;
 }
 
