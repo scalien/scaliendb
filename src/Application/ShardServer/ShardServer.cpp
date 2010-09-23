@@ -32,6 +32,11 @@ void ShardServer::Init()
     CONTEXT_TRANSPORT->SetClusterContext(this);
 }
 
+void ShardServer::OnAppend(ConfigMessage& message, bool ownAppend)
+{
+    // TODO: xxx
+}
+
 void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
 {
     Log_Trace();

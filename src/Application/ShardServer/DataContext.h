@@ -21,7 +21,8 @@ class ShardServer; // forward
 class DataContext : public QuorumContext
 {
 public:
-    void                            Init(ShardServer* shardServer, ConfigQuorum* quorum);
+    void                            Init(ShardServer* shardServer,
+                                     uint64_t quorumID, ConfigQuorum* configQuorum);
     
     void                            Append(DataMessage* message);
     bool                            IsAppending();

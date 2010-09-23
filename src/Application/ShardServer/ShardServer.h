@@ -17,6 +17,9 @@ class ShardServer : public ClusterContext
 public:
     void Init();
     
+    // For ConfigContext
+    void            OnAppend(ConfigMessage& message, bool ownAppend);
+
     // ========================================================================================
     // ClusterContext interface:
     //
