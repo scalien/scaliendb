@@ -16,6 +16,7 @@
 
 class DataMessage : public Message
 {
+public:
     // Variables
     char            type;
     Buffer          key;

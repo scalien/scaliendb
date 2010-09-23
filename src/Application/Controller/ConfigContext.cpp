@@ -21,7 +21,7 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers)
     
     replicatedLog.Init(this);
     paxosLease.Init(this);
-    transport.SetContextID(0);
+    transport.SetContextID(contextID);
     highestPaxosID = 0; 
 
     paxosLease.AcquireLease();
