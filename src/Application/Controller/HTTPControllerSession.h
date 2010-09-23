@@ -5,9 +5,9 @@
 #include "Application/HTTP/HTTPSession.h"
 #include "HTTPControllerContext.h"
 
-class Controller;		// forward
-class ClientRequest;	// forward
-class UrlParam;			// forward
+class Controller;       // forward
+class ClientRequest;    // forward
+class UrlParam;         // forward
 
 /*
 ===============================================================================================
@@ -21,38 +21,38 @@ class HTTPControllerSession : public ClientSession
 {
 public:
 
-	void				SetController(Controller* controller);
-	void				SetConnection(HTTPConnection* conn);
+    void                SetController(Controller* controller);
+    void                SetConnection(HTTPConnection* conn);
 
-	bool				HandleRequest(HTTPRequest& request);
+    bool                HandleRequest(HTTPRequest& request);
 
-	// ========================================================================================
-	// ClientSession interface
-	//
-	virtual void		OnComplete(ClientRequest* request, bool last);
-	virtual bool		IsActive();
-	// ========================================================================================
+    // ========================================================================================
+    // ClientSession interface
+    //
+    virtual void        OnComplete(ClientRequest* request, bool last);
+    virtual bool        IsActive();
+    // ========================================================================================
 
 private:
-	void				PrintStatus();
-	bool				ProcessCommand(ReadBuffer& cmd, UrlParam& params);
-	ClientRequest*		ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params);
-	ClientRequest*		ProcessGetMaster(UrlParam& params);
-	ClientRequest*		ProcessGetState(UrlParam& params);
-	ClientRequest*		ProcessCreateQuorum(UrlParam& params);
-//	ClientRequest*		ProcessIncreaseQuorum(UrlParam& params);
-//	ClientRequest*		ProcessDecreaseQuorum(UrlParam& params);
-	ClientRequest*		ProcessCreateDatabase(UrlParam& params);
-	ClientRequest*		ProcessRenameDatabase(UrlParam& params);
-	ClientRequest*		ProcessDeleteDatabase(UrlParam& params);
-	ClientRequest*		ProcessCreateTable(UrlParam& params);
-	ClientRequest*		ProcessRenameTable(UrlParam& params);
-	ClientRequest*		ProcessDeleteTable(UrlParam& params);
+    void                PrintStatus();
+    bool                ProcessCommand(ReadBuffer& cmd, UrlParam& params);
+    ClientRequest*      ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params);
+    ClientRequest*      ProcessGetMaster(UrlParam& params);
+    ClientRequest*      ProcessGetState(UrlParam& params);
+    ClientRequest*      ProcessCreateQuorum(UrlParam& params);
+//  ClientRequest*      ProcessIncreaseQuorum(UrlParam& params);
+//  ClientRequest*      ProcessDecreaseQuorum(UrlParam& params);
+    ClientRequest*      ProcessCreateDatabase(UrlParam& params);
+    ClientRequest*      ProcessRenameDatabase(UrlParam& params);
+    ClientRequest*      ProcessDeleteDatabase(UrlParam& params);
+    ClientRequest*      ProcessCreateTable(UrlParam& params);
+    ClientRequest*      ProcessRenameTable(UrlParam& params);
+    ClientRequest*      ProcessDeleteTable(UrlParam& params);
 
-	void				OnConnectionClose();
+    void                OnConnectionClose();
 
-	Controller*			controller;
-	HTTPSession			session;
+    Controller*         controller;
+    HTTPSession         session;
 };
 
 #endif

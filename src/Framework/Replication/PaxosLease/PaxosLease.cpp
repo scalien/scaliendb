@@ -5,91 +5,91 @@
 
 void PaxosLease::Init(QuorumContext* context_)
 {
-	context = context_;
-	
-	proposer.Init(context_);
-	acceptor.Init(context_);
-	learner.Init(context_);
-	learner.SetOnLearnLease(MFUNC(PaxosLease, OnLearnLease));
-	learner.SetOnLeaseTimeout(MFUNC(PaxosLease, OnLeaseTimeout));
-	
-	active = false;
+    context = context_;
+    
+    proposer.Init(context_);
+    acceptor.Init(context_);
+    learner.Init(context_);
+    learner.SetOnLearnLease(MFUNC(PaxosLease, OnLearnLease));
+    learner.SetOnLeaseTimeout(MFUNC(PaxosLease, OnLeaseTimeout));
+    
+    active = false;
 
-	startupTimeout.SetDelay(PAXOSLEASE_MAX_LEASE_TIME);
-	startupTimeout.SetCallable(MFUNC(PaxosLease, OnStartupTimeout));
-	EventLoop::Add(&startupTimeout);
+    startupTimeout.SetDelay(PAXOSLEASE_MAX_LEASE_TIME);
+    startupTimeout.SetCallable(MFUNC(PaxosLease, OnStartupTimeout));
+    EventLoop::Add(&startupTimeout);
 }
 
 void PaxosLease::OnMessage(PaxosLeaseMessage& imsg)
 {
-	if (startupTimeout.IsActive())
-		return;
+    if (startupTimeout.IsActive())
+        return;
 
-	if ((imsg.IsRequest()) && imsg.proposalID > proposer.GetHighestProposalID())
-			proposer.SetHighestProposalID(imsg.proposalID);
-	
-	if (imsg.IsResponse())
-		proposer.OnMessage(imsg);
-	else if (imsg.IsRequest())
-		acceptor.OnMessage(imsg);
-	else if (imsg.IsLearnChosen())
-		learner.OnMessage(imsg);
-	else
-		ASSERT_FAIL();
+    if ((imsg.IsRequest()) && imsg.proposalID > proposer.GetHighestProposalID())
+            proposer.SetHighestProposalID(imsg.proposalID);
+    
+    if (imsg.IsResponse())
+        proposer.OnMessage(imsg);
+    else if (imsg.IsRequest())
+        acceptor.OnMessage(imsg);
+    else if (imsg.IsLearnChosen())
+        learner.OnMessage(imsg);
+    else
+        ASSERT_FAIL();
 }
 
 void PaxosLease::AcquireLease()
 {
-	if (active)
-		return;
+    if (active)
+        return;
 
-	active = true;
+    active = true;
 
-	if (startupTimeout.IsActive())
-		return;
-	
-	OnStartupTimeout();
+    if (startupTimeout.IsActive())
+        return;
+    
+    OnStartupTimeout();
 }
 
 bool PaxosLease::IsLeaseOwner()
 {
-	return learner.IsLeaseOwner();
+    return learner.IsLeaseOwner();
 }
 
 bool PaxosLease::IsLeaseKnown()
 {
-	return learner.IsLeaseKnown();
+    return learner.IsLeaseKnown();
 }
 
 uint64_t PaxosLease::GetLeaseOwner()
 {
-	return learner.GetLeaseOwner();
+    return learner.GetLeaseOwner();
 }
 
 void PaxosLease::OnStartupTimeout()
 {
-	Log_Trace();
-	
-	if (active)
-		proposer.StartAcquireLease();
+    Log_Trace();
+    
+    if (active)
+        proposer.StartAcquireLease();
 }
 
 void PaxosLease::OnLearnLease()
 {
-	Log_Trace();
-	
-	context->OnLearnLease();
-	
-	if (!IsLeaseOwner())
-		proposer.StopAcquireLease();
+    Log_Trace();
+    
+    context->OnLearnLease();
+    
+    if (!IsLeaseOwner())
+        proposer.StopAcquireLease();
 }
 
 void PaxosLease::OnLeaseTimeout()
 {
-	Log_Trace();
-	
-	context->OnLeaseTimeout();
-	
-	if (active)
-		proposer.StartAcquireLease();
+    Log_Trace();
+    
+    context->OnLeaseTimeout();
+    
+    if (active)
+        proposer.StartAcquireLease();
 }

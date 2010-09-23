@@ -14,16 +14,16 @@
 class Countdown : public Timer
 {
 public:
-	Countdown();	
-	virtual	~Countdown() {};
-		
-	void			SetDelay(uint64_t delay);
-	uint64_t		GetDelay() const;
+    Countdown();    
+    virtual ~Countdown() {};
+        
+    void            SetDelay(uint64_t delay);
+    uint64_t        GetDelay() const;
 
-	virtual void	OnAdd();
-	
+    virtual void    OnAdd();
+    
 private:
-	uint64_t		delay;
+    uint64_t        delay;
 };
 
 #endif

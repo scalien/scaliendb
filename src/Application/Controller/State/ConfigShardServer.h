@@ -16,13 +16,13 @@
 class ConfigShardServer
 {
 public:
-	ConfigShardServer()	{ prev = next = this; }
+    ConfigShardServer() { prev = next = this; }
 
-	uint64_t			nodeID;
-	Endpoint			endpoint;
-	
-	ConfigShardServer*	prev;
-	ConfigShardServer*	next;
+    uint64_t            nodeID;
+    Endpoint            endpoint;
+    
+    ConfigShardServer*  prev;
+    ConfigShardServer*  next;
 };
 
 #endif

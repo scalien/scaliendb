@@ -19,21 +19,21 @@ class InSortedList
 {
 public:
 
-	bool			Add(T* t);
-	T*				Delete(T* t);
-	T*				Remove(T* t);
-	bool			Remove(T &t);
-	void			Clear();
-	
-	T*				First() const;
-	T*				Last() const;
-	int				GetLength() const;
-	
-	T*				Next(T* t) const;
-	T*				Prev(T* t) const;
+    bool            Add(T* t);
+    T*              Delete(T* t);
+    T*              Remove(T* t);
+    bool            Remove(T &t);
+    void            Clear();
+    
+    T*              First() const;
+    T*              Last() const;
+    int             GetLength() const;
+    
+    T*              Next(T* t) const;
+    T*              Prev(T* t) const;
 
 protected:
-	InList<T>		list;
+    InList<T>       list;
 };
 
 /*
@@ -43,101 +43,101 @@ protected:
 template<class T>
 bool InSortedList<T>::Add(T* t)
 {
-	T*	curr = list.head;
+    T*  curr = list.head;
 
-	while(true)
-	{
-		assert(curr != t); // it's already linked
+    while(true)
+    {
+        assert(curr != t); // it's already linked
 
-		if (curr == NULL || LessThan(*t, *curr))
-		{
-			t->next = curr;
-			if (curr != list.head)
-			{
-				if (curr == NULL)
-				{
-					// end of list
-					list.tail->next = t;
-					t->prev = list.tail;
-				}
-				else
-				{
-					curr->prev->next = t;
-					t->prev = curr->prev;
-				}
-			}
-			else
-			{
-				// start of list
-				list.head = t;
-				t->prev = NULL;
-			}
-			if (curr != NULL)
-				curr->prev = t;
-			if (curr == NULL)
-				list.tail = t;
-			list.length++;
-			Log_Trace("length = %d", list.length);
-			return true;
-		} 
-		curr = curr->next;
-	}
-	
-	ASSERT_FAIL();
+        if (curr == NULL || LessThan(*t, *curr))
+        {
+            t->next = curr;
+            if (curr != list.head)
+            {
+                if (curr == NULL)
+                {
+                    // end of list
+                    list.tail->next = t;
+                    t->prev = list.tail;
+                }
+                else
+                {
+                    curr->prev->next = t;
+                    t->prev = curr->prev;
+                }
+            }
+            else
+            {
+                // start of list
+                list.head = t;
+                t->prev = NULL;
+            }
+            if (curr != NULL)
+                curr->prev = t;
+            if (curr == NULL)
+                list.tail = t;
+            list.length++;
+            Log_Trace("length = %d", list.length);
+            return true;
+        } 
+        curr = curr->next;
+    }
+    
+    ASSERT_FAIL();
 }
 
 template<class T>
 T* InSortedList<T>::Delete(T* t)
 {
-	return list.Delete(t);
+    return list.Delete(t);
 }
 
 template<class T>
 T* InSortedList<T>::Remove(T* t)
 {
-	return list.Remove(t);
+    return list.Remove(t);
 }
 
 template<class T>
 bool InSortedList<T>::Remove(T &t)
 {
-	return list.Remove(t);
+    return list.Remove(t);
 }
 
 template<class T>
 void InSortedList<T>::Clear()
 {
-	return list.Clear();
+    return list.Clear();
 }
 
 template<class T>
 T* InSortedList<T>::First() const
 {
-	return list.First();
+    return list.First();
 }
 
 template<class T>
 T* InSortedList<T>::Last() const
 {
-	return list.Last();
+    return list.Last();
 }
 
 template<class T>
 int InSortedList<T>::GetLength() const
 {
-	return list.GetLength();
+    return list.GetLength();
 }
 
 template<class T>
 T* InSortedList<T>::Next(T* t) const
 {
-	return list.Next(t);
+    return list.Next(t);
 }
 
 template<class T>
 T* InSortedList<T>::Prev(T* t) const
 {
-	return list.Prev(t);
+    return list.Prev(t);
 }
 
 #endif

@@ -15,14 +15,14 @@
 class ClusterServer : public TCPServer<ClusterServer, ClusterConnection>
 {
 public:
-	bool				Init(int port);
-	void				InitConn(ClusterConnection* conn);
-	
-	void				SetTransport(ClusterTransport* transport);
-	bool				IsManaged();
+    bool                Init(int port);
+    void                InitConn(ClusterConnection* conn);
+    
+    void                SetTransport(ClusterTransport* transport);
+    bool                IsManaged();
 
-private:	
-	ClusterTransport*	transport;
+private:    
+    ClusterTransport*   transport;
 };
 
 #endif

@@ -12,7 +12,7 @@
 namespace SDBPClient
 {
 
-class Client;	// forward
+class Client;   // forward
 
 /*
 ===============================================================================================
@@ -25,38 +25,38 @@ class Client;	// forward
 class ShardConnection : public MessageConnection
 {
 public:
-	typedef InTreeNode<ShardConnection> TreeNode;
+    typedef InTreeNode<ShardConnection> TreeNode;
 
-	ShardConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
-	
-	void					Connect();
-	void					SendRequest(Request* request);
-	void					SendSubmit();
+    ShardConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
+    
+    void                    Connect();
+    void                    SendRequest(Request* request);
+    void                    SendSubmit();
 
-	uint64_t				GetNodeID();
-	Endpoint&				GetEndpoint();
+    uint64_t                GetNodeID();
+    Endpoint&               GetEndpoint();
 
-	void					SetQuorumMembership(uint64_t quorumID);
-	void					ClearQuorumMembership(uint64_t quorumID);
-	void					ClearQuorumMemberships();
+    void                    SetQuorumMembership(uint64_t quorumID);
+    void                    ClearQuorumMembership(uint64_t quorumID);
+    void                    ClearQuorumMemberships();
 
-	// MessageConnection interface
-	virtual bool			OnMessage(ReadBuffer& msg);
-	virtual void			OnWrite();
-	virtual void			OnConnect();
-	virtual void			OnClose();
+    // MessageConnection interface
+    virtual bool            OnMessage(ReadBuffer& msg);
+    virtual void            OnWrite();
+    virtual void            OnConnect();
+    virtual void            OnClose();
 
-	TreeNode				treeNode;
+    TreeNode                treeNode;
 
 private:
-	void					InvalidateQuorum(uint64_t quorumID);
+    void                    InvalidateQuorum(uint64_t quorumID);
 
-	Client*					client;
-	uint64_t				nodeID;
-	Endpoint				endpoint;
-	SortedList<uint64_t>	quorums;
-	InList<Request>			sentRequests;
-	
+    Client*                 client;
+    uint64_t                nodeID;
+    Endpoint                endpoint;
+    SortedList<uint64_t>    quorums;
+    InList<Request>         sentRequests;
+    
 };
 
 }; // namespace

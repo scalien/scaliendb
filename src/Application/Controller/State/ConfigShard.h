@@ -15,18 +15,18 @@
 class ConfigShard
 {
 public:
-	ConfigShard()	{ prev = next = this; }
+    ConfigShard()   { prev = next = this; }
 
-	uint64_t		quorumID;
-	uint64_t		databaseID;
-	uint64_t		tableID;
-	uint64_t		shardID;
-	
-	Buffer			firstKey;
-	Buffer			lastKey;
-	
-	ConfigShard*	prev;
-	ConfigShard*	next;
+    uint64_t        quorumID;
+    uint64_t        databaseID;
+    uint64_t        tableID;
+    uint64_t        shardID;
+    
+    Buffer          firstKey;
+    Buffer          lastKey;
+    
+    ConfigShard*    prev;
+    ConfigShard*    next;
 };
 
 #endif

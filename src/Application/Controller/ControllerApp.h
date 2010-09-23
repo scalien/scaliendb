@@ -17,15 +17,15 @@
 class ControllerApp
 {
 public:
-	void					Init();
+    void                    Init();
 
 private:
-	Controller				controller;
+    Controller              controller;
 
-	HTTPServer				httpServer;
-	HTTPControllerContext	httpContext;
+    HTTPServer              httpServer;
+    HTTPControllerContext   httpContext;
 
-	SDBPServer				sdbpServer;
+    SDBPServer              sdbpServer;
 };
 
 #endif

@@ -2,32 +2,32 @@
 
 Stopwatch::Stopwatch()
 {
-	Reset();
+    Reset();
 }
 
 void Stopwatch::Reset()
 {
-	elapsed = 0;
+    elapsed = 0;
 }
 
 void Stopwatch::Restart()
 {
-	Reset();
-	Start();
+    Reset();
+    Start();
 }
 
 void Stopwatch::Start()
 {
-	started = Now();
+    started = Now();
 }
 
 long Stopwatch::Stop()
 {
-	elapsed += Now() - started;
-	return elapsed;
+    elapsed += Now() - started;
+    return elapsed;
 }
 
 long Stopwatch::Elapsed()
 {
-	return elapsed;
+    return elapsed;
 }

@@ -12,8 +12,8 @@
 #ifdef _WIN32
 struct FD
 {
-	int			index;
-	intptr_t	sock;
+    int         index;
+    intptr_t    sock;
 };
 
 extern const FD INVALID_FD;

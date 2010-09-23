@@ -16,25 +16,25 @@ class Callable; // forward
 class ThreadPool
 {
 public:
-	static ThreadPool* Create(int numThread);
+    static ThreadPool* Create(int numThread);
 
-	virtual ~ThreadPool() {}
+    virtual ~ThreadPool() {}
 
-	virtual void		Start() = 0;
-	virtual void		Stop() = 0;
+    virtual void        Start() = 0;
+    virtual void        Stop() = 0;
 
-	virtual void		Execute(const Callable &callable) = 0;
-	
-	int					GetNumPending();
-	int					GetNumActive();
-	int					GetNumTotal();
-	
+    virtual void        Execute(const Callable &callable) = 0;
+    
+    int                 GetNumPending();
+    int                 GetNumActive();
+    int                 GetNumTotal();
+    
 protected:
-	List<Callable>		callables;
-	int					numPending;
-	int					numActive;
-	int					numThread;
-	bool				running;
+    List<Callable>      callables;
+    int                 numPending;
+    int                 numActive;
+    int                 numThread;
+    bool                running;
 };
 
 /*
@@ -43,17 +43,17 @@ protected:
 
 inline int ThreadPool::GetNumPending()
 {
-	return numPending;
+    return numPending;
 }
 
 inline int ThreadPool::GetNumActive()
 {
-	return numActive;
+    return numActive;
 }
 
 inline int ThreadPool::GetNumTotal()
 {
-	return numPending + numActive; /* atomicity */
+    return numPending + numActive; /* atomicity */
 }
 
 

@@ -16,18 +16,18 @@
 class TotalQuorum : public Quorum
 {
 public:
-	TotalQuorum();
-	
-	void				AddNode(uint64_t nodeID);
-	unsigned			GetNumNodes() const;
-	const uint64_t*		GetNodes() const;
-	QuorumVote*			NewVote() const;	
+    TotalQuorum();
+    
+    void                AddNode(uint64_t nodeID);
+    unsigned            GetNumNodes() const;
+    const uint64_t*     GetNodes() const;
+    QuorumVote*         NewVote() const;    
 
 private:
-	uint64_t			nodes[5];
-	unsigned			numNodes;
-	unsigned			numAccepted;
-	unsigned			numRejected;
+    uint64_t            nodes[5];
+    unsigned            numNodes;
+    unsigned            numAccepted;
+    unsigned            numRejected;
 };
 
 /*
@@ -41,23 +41,23 @@ private:
 class TotalQuorumVote : public QuorumVote
 {
 public:
-	TotalQuorumVote();
-	
-	void				RegisterAccepted(uint64_t nodeID);
-	void				RegisterRejected(uint64_t nodeID);
-	void				Reset();
+    TotalQuorumVote();
+    
+    void                RegisterAccepted(uint64_t nodeID);
+    void                RegisterRejected(uint64_t nodeID);
+    void                Reset();
 
-	bool				IsRejected() const;
-	bool				IsAccepted() const;
-	bool				IsComplete() const;
+    bool                IsRejected() const;
+    bool                IsAccepted() const;
+    bool                IsComplete() const;
 
 private:
-	uint64_t			nodes[5];
-	unsigned			numNodes;
-	unsigned			numAccepted;
-	unsigned			numRejected;
-	
-	friend class TotalQuorum;
+    uint64_t            nodes[5];
+    unsigned            numNodes;
+    unsigned            numAccepted;
+    unsigned            numRejected;
+    
+    friend class TotalQuorum;
 };
 
 

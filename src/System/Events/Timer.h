@@ -14,29 +14,29 @@
 
 class Timer
 {
-	friend class Scheduler;
+    friend class Scheduler;
 
 public:
-	Timer();
-	virtual ~Timer() {}
-		
-	void			SetCallable(Callable callable);
-	void			SetExpireTime(uint64_t when);
+    Timer();
+    virtual ~Timer() {}
+        
+    void            SetCallable(Callable callable);
+    void            SetExpireTime(uint64_t when);
 
-	uint64_t		GetExpireTime();
-	bool			IsActive();
-	
-	void			Execute();
-	
-	virtual void	OnAdd() {};
-	
-	Timer*			next;
-	Timer*			prev;
+    uint64_t        GetExpireTime();
+    bool            IsActive();
+    
+    void            Execute();
+    
+    virtual void    OnAdd() {};
+    
+    Timer*          next;
+    Timer*          prev;
 
 protected:
-    bool			active;
-	uint64_t		expireTime;
-    Callable		callable;
+    bool            active;
+    uint64_t        expireTime;
+    Callable        callable;
 };
 
 /*****************************************************************************/

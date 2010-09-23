@@ -16,15 +16,15 @@ class SDBPConnection; // forward
 class SDBPContext
 {
 public:
-	virtual ~SDBPContext() {}
+    virtual ~SDBPContext() {}
 
-	// ========================================================================================
-	// SDBPContext interface:
-	//
-	virtual bool	IsValidClientRequest(ClientRequest* request)							= 0;
-	virtual void	OnClientRequest(ClientRequest* request)									= 0;
-	virtual void	OnClientClose(ClientSession* session)									= 0;
-	// ========================================================================================
+    // ========================================================================================
+    // SDBPContext interface:
+    //
+    virtual bool    IsValidClientRequest(ClientRequest* request)                            = 0;
+    virtual void    OnClientRequest(ClientRequest* request)                                 = 0;
+    virtual void    OnClientClose(ClientSession* session)                                   = 0;
+    // ========================================================================================
 };
 
 #endif

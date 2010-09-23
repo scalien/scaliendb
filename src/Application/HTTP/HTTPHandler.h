@@ -1,8 +1,8 @@
 #ifndef HTTPHANDLER_H
 #define HTTPHANDLER_H
 
-class HTTPConnection;	// forward
-class HTTPRequest;		// forward
+class HTTPConnection;   // forward
+class HTTPRequest;      // forward
 
 /*
 ===============================================================================================
@@ -15,11 +15,11 @@ class HTTPRequest;		// forward
 class HTTPHandler
 {
 public:
-	virtual ~HTTPHandler() {}
-	
-	virtual bool	HandleRequest(HTTPConnection* conn, HTTPRequest& request) = 0;
-	
-	HTTPHandler*	nextHTTPHandler;
+    virtual ~HTTPHandler() {}
+    
+    virtual bool    HandleRequest(HTTPConnection* conn, HTTPRequest& request) = 0;
+    
+    HTTPHandler*    nextHTTPHandler;
 };
 
 #endif

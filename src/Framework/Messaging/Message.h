@@ -15,10 +15,10 @@
 class Message
 {
 public:
-	virtual ~Message() {};
-	
-	virtual bool		Read(ReadBuffer& buffer)		= 0;
-	virtual bool		Write(Buffer& buffer)			= 0;
+    virtual ~Message() {};
+    
+    virtual bool        Read(ReadBuffer& buffer)        = 0;
+    virtual bool        Write(Buffer& buffer)           = 0;
 };
 
 #endif

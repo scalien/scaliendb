@@ -18,26 +18,26 @@
 class StorageDataCache
 {
 public:
-	static StorageDataCache*	Get();
-	
-	void						Init(unsigned size);
-	void						Shutdown();
+    static StorageDataCache*    Get();
+    
+    void                        Init(unsigned size);
+    void                        Shutdown();
 
-	StorageDataPage*			GetPage();
-	void						FreePage(StorageDataPage* page);
+    StorageDataPage*            GetPage();
+    void                        FreePage(StorageDataPage* page);
 
-	void						RegisterHit(StorageDataPage* page);
-	void						Checkin(StorageDataPage* page);
-	void						Checkout(StorageDataPage* page);
+    void                        RegisterHit(StorageDataPage* page);
+    void                        Checkin(StorageDataPage* page);
+    void                        Checkout(StorageDataPage* page);
 
 private:
-	StorageDataCache();
-	
-	InList<StorageDataPage>		freeList;
-	InList<StorageDataPage>		lruList;
-	StorageDataPage*			pageArea;
-	char*						bufferArea;
-	unsigned					num;
+    StorageDataCache();
+    
+    InList<StorageDataPage>     freeList;
+    InList<StorageDataPage>     lruList;
+    StorageDataPage*            pageArea;
+    char*                       bufferArea;
+    unsigned                    num;
 };
 
 #endif

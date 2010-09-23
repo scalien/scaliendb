@@ -10,7 +10,7 @@
 
 class ReplicatedLog; // forward
 
-#define PAXOS_TIMEOUT	3000
+#define PAXOS_TIMEOUT   3000
 
 /*
 ===============================================================================
@@ -23,34 +23,34 @@ class ReplicatedLog; // forward
 class PaxosProposer
 {
 public:
-	void						Init(QuorumContext* context);
-	
-	void						OnMessage(PaxosMessage& msg);
-	void						OnPrepareTimeout();
-	void						OnProposeTimeout();
-	
-	void						Propose(Buffer& value);
-	void						Stop();
-	bool						IsActive();	
+    void                        Init(QuorumContext* context);
+    
+    void                        OnMessage(PaxosMessage& msg);
+    void                        OnPrepareTimeout();
+    void                        OnProposeTimeout();
+    
+    void                        Propose(Buffer& value);
+    void                        Stop();
+    bool                        IsActive(); 
 
 private:
-	void						OnPrepareResponse(PaxosMessage& msg);
-	void						OnProposeResponse(PaxosMessage& msg);
+    void                        OnPrepareResponse(PaxosMessage& msg);
+    void                        OnProposeResponse(PaxosMessage& msg);
 
-	void						BroadcastMessage(PaxosMessage& msg);
-	void						StopPreparing();
-	void						StopProposing();
-	void						StartPreparing();
-	void						StartProposing();
-	void						NewVote();
+    void                        BroadcastMessage(PaxosMessage& msg);
+    void                        StopPreparing();
+    void                        StopProposing();
+    void                        StartPreparing();
+    void                        StartProposing();
+    void                        NewVote();
 
-	QuorumContext*				context;
-	QuorumVote*					vote;
-	PaxosProposerState			state;
-	Countdown					prepareTimeout;
-	Countdown					proposeTimeout;
-	
-	friend class ReplicatedLog;
+    QuorumContext*              context;
+    QuorumVote*                 vote;
+    PaxosProposerState          state;
+    Countdown                   prepareTimeout;
+    Countdown                   proposeTimeout;
+    
+    friend class ReplicatedLog;
 };
 
 #endif

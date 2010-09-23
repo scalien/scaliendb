@@ -4,74 +4,74 @@ static BufferPool* bufferPool = NULL;
 
 BufferPool* BufferPool::Get()
 {
-	if (bufferPool == NULL)
-		bufferPool = new BufferPool;
-	
-	return bufferPool;
+    if (bufferPool == NULL)
+        bufferPool = new BufferPool;
+    
+    return bufferPool;
 }
 
 BufferPool::BufferPool()
 {
-	availableSize = 0;
+    availableSize = 0;
 }
 
-Buffer*	BufferPool::Acquire(unsigned size)
+Buffer* BufferPool::Acquire(unsigned size)
 {
-	Buffer *it;
-	
-	for (it = available.First(); it != NULL; it = available.Next(it))
-	{
-		if (it->GetSize() >= size)
-		{
-			available.Remove(it);
-			availableSize -= it->GetSize();
-			assert(size >= 0);
-			return it;	
-		}
-	}
-	
-	if (available.First() != NULL)
-	{
-		it = available.First();
-		available.Remove(it);
-		availableSize -= it->GetSize();
-		assert(size >= 0);
-	}
-	else
-		it = new Buffer();
+    Buffer *it;
+    
+    for (it = available.First(); it != NULL; it = available.Next(it))
+    {
+        if (it->GetSize() >= size)
+        {
+            available.Remove(it);
+            availableSize -= it->GetSize();
+            assert(size >= 0);
+            return it;  
+        }
+    }
+    
+    if (available.First() != NULL)
+    {
+        it = available.First();
+        available.Remove(it);
+        availableSize -= it->GetSize();
+        assert(size >= 0);
+    }
+    else
+        it = new Buffer();
 
-	it->Allocate(size);
+    it->Allocate(size);
 
-	return it;
+    return it;
 }
 
 void BufferPool::Release(Buffer* buffer)
 {
-	if (buffer == NULL)
-		return;
-	
-	buffer->Clear();
-	
-	if (availableSize < TARGET_AVAILABLE_SIZE)
-	{
-		available.Prepend(buffer);
-		availableSize += buffer->GetSize();
-	}
-	else
-		delete buffer;
+    if (buffer == NULL)
+        return;
+    
+    buffer->Clear();
+    
+    if (availableSize < TARGET_AVAILABLE_SIZE)
+    {
+        available.Prepend(buffer);
+        availableSize += buffer->GetSize();
+    }
+    else
+        delete buffer;
 }
 
 unsigned BufferPool::GetAvailableSize()
 {
-	return availableSize;
+    return availableSize;
 }
 
-Buffer*	BufferPool::Allocate(unsigned size)
+Buffer* BufferPool::Allocate(unsigned size)
 {
-	Buffer* buffer;
-	
-	buffer = new Buffer();
-	buffer->Allocate(size);
-	
-	return buffer;
+    Buffer* buffer;
+    
+    buffer = new Buffer();
+    buffer->Allocate(size);
+    
+    return buffer;
 }

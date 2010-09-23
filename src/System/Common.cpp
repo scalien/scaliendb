@@ -15,283 +15,283 @@
 
 unsigned NumDigits(int n)
 {
-	return n == 0 ? 1 : (unsigned) floor(log10((float)n) + 1);
+    return n == 0 ? 1 : (unsigned) floor(log10((float)n) + 1);
 }
 
 unsigned NumDigits64(uint64_t n)
 {
-	unsigned	d;
-	
-	if (n == 0)
-		return 1;
+    unsigned    d;
+    
+    if (n == 0)
+        return 1;
 
-	d = 0;
-	while (n > 0)
-	{
-		n = n / 10;
-		d++;
-	}
-	return d;
+    d = 0;
+    while (n > 0)
+    {
+        n = n / 10;
+        d++;
+    }
+    return d;
 }
 
 const char* HumanBytes_(uint64_t bytes, char buf[5])
 {
-	const char	units[] = "kMGTPEZY";
-	uint64_t	n;
-	unsigned	u;
-	
-	n = bytes;
-	u = 0;
-	while (NumDigits64(n) > 3)
-	{
-		n = (uint64_t)(n / 1000.0 + 0.5);	// rounding
-		u++;
-	}
-	
-	snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
-	return buf;
+    const char  units[] = "kMGTPEZY";
+    uint64_t    n;
+    unsigned    u;
+    
+    n = bytes;
+    u = 0;
+    while (NumDigits64(n) > 3)
+    {
+        n = (uint64_t)(n / 1000.0 + 0.5);   // rounding
+        u++;
+    }
+    
+    snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
+    return buf;
 }
 
 const char* SIBytes_(uint64_t bytes, char buf[5])
 {
-	const char	units[] = "kMGTPEZY";
-	uint64_t	n;
-	unsigned	u;
-	
-	n = bytes;
-	u = 0;
-	while (NumDigits64(n) > 3)
-	{
-		n = (uint64_t)(n / 1024.0 + 0.5);	// rounding
-		u++;
-	}
-	
-	snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
-	return buf;
+    const char  units[] = "kMGTPEZY";
+    uint64_t    n;
+    unsigned    u;
+    
+    n = bytes;
+    u = 0;
+    while (NumDigits64(n) > 3)
+    {
+        n = (uint64_t)(n / 1024.0 + 0.5);   // rounding
+        u++;
+    }
+    
+    snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
+    return buf;
 }
 
 int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
 {
-	bool	neg;
-	long	i, digit;
-	int64_t	n;
-	char	c;
+    bool    neg;
+    long    i, digit;
+    int64_t n;
+    char    c;
 
-	if (buffer == NULL || length < 1)
-	{
-		*nread = 0;
-		return 0;
-	}
-	
-	n = 0;
-	i = 0;
-	c = *buffer;
-	
-#define ADVANCE()	i++; c = buffer[i];
-	if (c == '-')
-	{
-		neg = true;
-		ADVANCE();
-	}
-	else
-		neg = false;
-	
-	while (i < length && c >= '0' && c <= '9')
-	{
-		digit = c - '0';
-		n = n * 10 + digit;
-		ADVANCE();
-	}
+    if (buffer == NULL || length < 1)
+    {
+        *nread = 0;
+        return 0;
+    }
+    
+    n = 0;
+    i = 0;
+    c = *buffer;
+    
+#define ADVANCE()   i++; c = buffer[i];
+    if (c == '-')
+    {
+        neg = true;
+        ADVANCE();
+    }
+    else
+        neg = false;
+    
+    while (i < length && c >= '0' && c <= '9')
+    {
+        digit = c - '0';
+        n = n * 10 + digit;
+        ADVANCE();
+    }
 #undef ADVANCE
-	
-	if (neg && i == 1)
-	{
-		*nread = 0;
-		return 0;
-	}
-	
-	*nread = i;
+    
+    if (neg && i == 1)
+    {
+        *nread = 0;
+        return 0;
+    }
+    
+    *nread = i;
 
-	if (neg)
-		return -n;
-	else
-		return n;
+    if (neg)
+        return -n;
+    else
+        return n;
 }
 
 uint64_t BufferToUInt64(const char* buffer, unsigned length, unsigned* nread)
 {
-	long		i, digit;
-	uint64_t	n;
-	char		c;
+    long        i, digit;
+    uint64_t    n;
+    char        c;
 
-	if (buffer == NULL || length < 1)
-	{
-		*nread = 0;
-		return 0;
-	}
+    if (buffer == NULL || length < 1)
+    {
+        *nread = 0;
+        return 0;
+    }
 
-	n = 0;
-	i = 0;
-	c = *buffer;
-	
-#define ADVANCE()	i++; c = buffer[i];	
-	while (i < length && c >= '0' && c <= '9')
-	{
-		digit = c - '0';
-		n = n * 10 + digit;
-		ADVANCE();
-	}
+    n = 0;
+    i = 0;
+    c = *buffer;
+    
+#define ADVANCE()   i++; c = buffer[i]; 
+    while (i < length && c >= '0' && c <= '9')
+    {
+        digit = c - '0';
+        n = n * 10 + digit;
+        ADVANCE();
+    }
 #undef ADVANCE
-	
-	*nread = i;
+    
+    *nread = i;
 
-	return n;
+    return n;
 }
 
 char* FindInBuffer(const char* buffer, unsigned length, char c)
 {
-	size_t	i;
-	
-	for (i = 0; i < length && buffer[i]; buffer++)
-		if (buffer[i] == c) return (char*) (buffer + i);
-	
-	if (c == 0 && i < length && buffer[i] == 0)
-		return (char*) (buffer + i);
-	
-	return NULL;
+    size_t  i;
+    
+    for (i = 0; i < length && buffer[i]; buffer++)
+        if (buffer[i] == c) return (char*) (buffer + i);
+    
+    if (c == 0 && i < length && buffer[i] == 0)
+        return (char*) (buffer + i);
+    
+    return NULL;
 }
 
 char* FindInCString(const char* s, char c)
 {
-	return FindInBuffer(s, strlen(s), c);
+    return FindInBuffer(s, strlen(s), c);
 }
 
 void ReplaceInBuffer(char* buffer, unsigned length, char src, char dst)
 {
-	unsigned i;
+    unsigned i;
 
-	for (i = 0; i < length; i++)
-		if (buffer[i] == src)
-			buffer[i] = dst;
+    for (i = 0; i < length; i++)
+        if (buffer[i] == src)
+            buffer[i] = dst;
 }
 
 void ReplaceInCString(char* s, char src, char dst)
 {
-	ReplaceInBuffer(s, strlen(s), src, dst);
+    ReplaceInBuffer(s, strlen(s), src, dst);
 }
 
 const char* StaticPrint(const char* format, ...)
 {
-	static char buffer[8*1024];
-	va_list		ap;
-	
-	va_start(ap, format);
-	vsnprintf(buffer, sizeof(buffer), format, ap);
-	va_end(ap);
-	
-	return buffer;
+    static char buffer[8*1024];
+    va_list     ap;
+    
+    va_start(ap, format);
+    vsnprintf(buffer, sizeof(buffer), format, ap);
+    va_end(ap);
+    
+    return buffer;
 }
 
 bool Delete(const char* path)
 {
-	char buf[4096];
-	
-	strcpy(buf, path);
+    char buf[4096];
+    
+    strcpy(buf, path);
 #ifdef _WIN32
-	strrep(buf, '/', '\\');
-	return (_spawnlp(_P_WAIT, "cmd", "/c", "del", buf, NULL) == 0);
+    strrep(buf, '/', '\\');
+    return (_spawnlp(_P_WAIT, "cmd", "/c", "del", buf, NULL) == 0);
 #else
-	snprintf(buf, SIZE(buf), "rm %s", path);
-	return (system(buf) == 0);
+    snprintf(buf, SIZE(buf), "rm %s", path);
+    return (system(buf) == 0);
 #endif
 }
 
 uint64_t GenerateGUID()
 {
-	const uint64_t WIDTH_M = 16; // machine TODO
-	const uint64_t MASK_M = ((uint64_t) 1 << WIDTH_M) - 1;
-	const uint64_t WIDTH_D = 32; // date
-	const uint64_t MASK_D = ((uint64_t) 1 << WIDTH_D) - 1;
-	const uint64_t WIDTH_R = 16; // random
-	const uint64_t MASK_R = ((uint64_t) 1 << WIDTH_R) - 1;
-	uint64_t uuid;
-	
-	uint64_t m = RandomInt(0, 65535); // TODO
-	uint64_t d = Now();
-	uint64_t r = RandomInt(0, 65535);
+    const uint64_t WIDTH_M = 16; // machine TODO
+    const uint64_t MASK_M = ((uint64_t) 1 << WIDTH_M) - 1;
+    const uint64_t WIDTH_D = 32; // date
+    const uint64_t MASK_D = ((uint64_t) 1 << WIDTH_D) - 1;
+    const uint64_t WIDTH_R = 16; // random
+    const uint64_t MASK_R = ((uint64_t) 1 << WIDTH_R) - 1;
+    uint64_t uuid;
+    
+    uint64_t m = RandomInt(0, 65535); // TODO
+    uint64_t d = Now();
+    uint64_t r = RandomInt(0, 65535);
 
-	uuid = 0;
-	uuid |= (m & MASK_M) << (WIDTH_D + WIDTH_R);
-	uuid |= (d & MASK_D) << (WIDTH_R);
-	uuid |= (r & MASK_R);
+    uuid = 0;
+    uuid |= (m & MASK_M) << (WIDTH_D + WIDTH_R);
+    uuid |= (d & MASK_D) << (WIDTH_R);
+    uuid |= (r & MASK_R);
 
-	return uuid;
+    return uuid;
 }
 
 void SeedRandom()
 {
-	srandom((unsigned)Now());
+    srandom((unsigned)Now());
 }
 
 int RandomInt(int min, int max)
 {
-	int		rnd;
-	int		interval;
-	
-	assert(min < max);
+    int     rnd;
+    int     interval;
+    
+    assert(min < max);
 
-	interval = max - min;
+    interval = max - min;
 #ifdef _WIN32
 #define random rand
 #endif
-	rnd = (int)(random() / (float) RAND_MAX * interval + 0.5);
-	return rnd + min;
+    rnd = (int)(random() / (float) RAND_MAX * interval + 0.5);
+    return rnd + min;
 }
 
 void RandomBuffer(char* buffer, unsigned length)
 {
-	const char set[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-	const size_t setsize = sizeof(set) - 1;
-	unsigned int i;
-	static uint64_t d = GenerateGUID();
-	
-	for (i = 0; i < length; i++) {
-			// more about why these numbers were chosen:
-			// http://en.wikipedia.org/wiki/Linear_congruential_generator
-			d = (d * 1103515245UL + 12345UL) >> 2;
-			buffer[i] = set[d % setsize];
-	}
+    const char set[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    const size_t setsize = sizeof(set) - 1;
+    unsigned int i;
+    static uint64_t d = GenerateGUID();
+    
+    for (i = 0; i < length; i++) {
+            // more about why these numbers were chosen:
+            // http://en.wikipedia.org/wiki/Linear_congruential_generator
+            d = (d * 1103515245UL + 12345UL) >> 2;
+            buffer[i] = set[d % setsize];
+    }
 }
 
 void BlockSignals()
 {
 #ifdef _WIN32
-	// dummy
+    // dummy
 #else
-	sigset_t	sigmask;
-	
-	// block all signals
-	sigfillset(&sigmask);
-	pthread_sigmask(SIG_SETMASK, &sigmask, NULL);
+    sigset_t    sigmask;
+    
+    // block all signals
+    sigfillset(&sigmask);
+    pthread_sigmask(SIG_SETMASK, &sigmask, NULL);
 #endif
 }
 
 bool ChangeUser(const char *user)
 {
 #ifdef _WIN32
-	// cannot change user on Windows
-	return true;
+    // cannot change user on Windows
+    return true;
 #else
-	if (user != NULL && *user && (getuid() == 0 || geteuid() == 0)) 
-	{
-		struct passwd *pw = getpwnam(user);
-		if (!pw)
-			return false;
-		
-		setuid(pw->pw_uid);
-	}
+    if (user != NULL && *user && (getuid() == 0 || geteuid() == 0)) 
+    {
+        struct passwd *pw = getpwnam(user);
+        if (!pw)
+            return false;
+        
+        setuid(pw->pw_uid);
+    }
 
-	return true;
+    return true;
 #endif
 }
 
@@ -353,47 +353,47 @@ static uint32_t const crctab[256] =
 
 uint32_t ChecksumBuffer(const char* buffer, unsigned length)
 {
-	unsigned i;
-	uint32_t crc;
-	
-	// produces the same checksum as the GNU cksum command
+    unsigned i;
+    uint32_t crc;
+    
+    // produces the same checksum as the GNU cksum command
 
-	crc = 0;
-	for (i = length; i--; )
-		crc = (crc << 8) ^ crctab[((crc >> 24) ^ *buffer++) & 0xFF];
-	for (i = length; i; i >>= 8)
-		crc = (crc << 8) ^ crctab[((crc >> 24) ^ i) & 0xFF];
-	crc = ~crc & 0xFFFFFFFF;
-	
-	return crc;
+    crc = 0;
+    for (i = length; i--; )
+        crc = (crc << 8) ^ crctab[((crc >> 24) ^ *buffer++) & 0xFF];
+    for (i = length; i; i >>= 8)
+        crc = (crc << 8) ^ crctab[((crc >> 24) ^ i) & 0xFF];
+    crc = ~crc & 0xFFFFFFFF;
+    
+    return crc;
 }
 
 uint64_t ToLittle64(uint64_t num)
 {
-	return num;
+    return num;
 }
 
 uint32_t ToLittle32(uint32_t num)
 {
-	return num;
+    return num;
 }
 
 uint32_t ToLittle16(uint32_t num)
 {
-	return num;
+    return num;
 }
 
 uint64_t FromLittle64(uint64_t num)
 {
-	return num;
+    return num;
 }
 
 uint32_t FromLittle32(uint32_t num)
 {
-	return num;
+    return num;
 }
 
 uint32_t FromLittle16(uint32_t num)
 {
-	return num;
+    return num;
 }

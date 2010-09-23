@@ -3,7 +3,7 @@
 
 #include "Application/HTTP/HTTPServer.h"
 
-class Controller;	// forward
+class Controller;   // forward
 
 /*
 ===============================================================================================
@@ -16,13 +16,13 @@ class Controller;	// forward
 class HTTPControllerContext : public HTTPHandler
 {
 public:
-	void			SetController(Controller* controller);
-	
-	// HTTPHandler interface
-	virtual bool	HandleRequest(HTTPConnection* conn, HTTPRequest& request);
+    void            SetController(Controller* controller);
+    
+    // HTTPHandler interface
+    virtual bool    HandleRequest(HTTPConnection* conn, HTTPRequest& request);
 
 private:
-	Controller*		controller;
+    Controller*     controller;
 };
 
 #endif

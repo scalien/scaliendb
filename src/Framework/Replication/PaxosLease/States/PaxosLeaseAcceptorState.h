@@ -13,15 +13,15 @@
 
 struct PaxosLeaseAcceptorState
 {
-	void			Init();
-	void			OnLeaseTimeout();
+    void            Init();
+    void            OnLeaseTimeout();
 
-	uint64_t		promisedProposalID;
-	bool			accepted;
-	uint64_t		acceptedProposalID;
-	uint64_t		acceptedLeaseOwner;
-	unsigned		acceptedDuration;
-	uint64_t		acceptedExpireTime;
+    uint64_t        promisedProposalID;
+    bool            accepted;
+    uint64_t        acceptedProposalID;
+    uint64_t        acceptedLeaseOwner;
+    unsigned        acceptedDuration;
+    uint64_t        acceptedExpireTime;
 };
 
 /*
@@ -30,22 +30,22 @@ struct PaxosLeaseAcceptorState
 
 inline void PaxosLeaseAcceptorState::Init()
 {
-	promisedProposalID = 0;
+    promisedProposalID = 0;
 
-	accepted = false;
-	acceptedProposalID	= 0;
-	acceptedLeaseOwner	= 0;
-	acceptedDuration	= 0;
-	acceptedExpireTime	= 0;
+    accepted = false;
+    acceptedProposalID  = 0;
+    acceptedLeaseOwner  = 0;
+    acceptedDuration    = 0;
+    acceptedExpireTime  = 0;
 }
 
 inline void PaxosLeaseAcceptorState::OnLeaseTimeout()
 {
-	accepted = false;
-	acceptedProposalID = 0;
-	acceptedLeaseOwner = 0;
-	acceptedDuration   = 0;
-	acceptedExpireTime = 0;
+    accepted = false;
+    acceptedProposalID = 0;
+    acceptedLeaseOwner = 0;
+    acceptedDuration   = 0;
+    acceptedExpireTime = 0;
 }
 
 #endif

@@ -12,17 +12,17 @@ namespace SDBPClient
 class Request : public ClientRequest
 {
 public:
-	typedef List<ClientResponse*> ResponseList;
-	typedef InTreeNode<Request> TreeNode;
+    typedef List<ClientResponse*> ResponseList;
+    typedef InTreeNode<Request> TreeNode;
 
-	ResponseList	responses;
-	TreeNode		treeNode;
-	Request*		next;
-	Request*		prev;
-	int				status;
-	unsigned		numTry;
+    ResponseList    responses;
+    TreeNode        treeNode;
+    Request*        next;
+    Request*        prev;
+    int             status;
+    unsigned        numTry;
 };
 
-};	// namespace
+};  // namespace
 
 #endif

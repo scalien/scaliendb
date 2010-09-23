@@ -19,26 +19,26 @@
 class PaxosLeaseLearner
 {
 public:
-	void						Init(QuorumContext* context);
+    void                        Init(QuorumContext* context);
 
-	bool						IsLeaseOwner();
-	bool						IsLeaseKnown();
-	uint64_t					GetLeaseOwner();
-	void						SetOnLearnLease(Callable onLearnLeaseCallback);
-	void						SetOnLeaseTimeout(Callable onLeaseTimeoutCallback);
+    bool                        IsLeaseOwner();
+    bool                        IsLeaseKnown();
+    uint64_t                    GetLeaseOwner();
+    void                        SetOnLearnLease(Callable onLearnLeaseCallback);
+    void                        SetOnLeaseTimeout(Callable onLeaseTimeoutCallback);
 
-	void						OnMessage(PaxosLeaseMessage& msg);
+    void                        OnMessage(PaxosLeaseMessage& msg);
 
 private:
-	void						OnLeaseTimeout();
-	void						OnLearnChosen(PaxosLeaseMessage& msg);
-	void						CheckLease();
+    void                        OnLeaseTimeout();
+    void                        OnLearnChosen(PaxosLeaseMessage& msg);
+    void                        CheckLease();
 
-	QuorumContext*				context;
-	PaxosLeaseLearnerState		state;	
-	Timer						leaseTimeout;
-	Callable					onLearnLeaseCallback;
-	Callable					onLeaseTimeoutCallback;
+    QuorumContext*              context;
+    PaxosLeaseLearnerState      state;  
+    Timer                       leaseTimeout;
+    Callable                    onLearnLeaseCallback;
+    Callable                    onLeaseTimeoutCallback;
 };
 
 #endif

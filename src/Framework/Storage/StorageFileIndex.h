@@ -16,27 +16,27 @@
 
 class StorageFileIndex
 {
-	typedef InTreeNode<StorageFileIndex> FileIndexNode;
+    typedef InTreeNode<StorageFileIndex> FileIndexNode;
 
 public:
-	StorageFileIndex();
-	~StorageFileIndex();
-	
-	void					SetKey(ReadBuffer key, bool copy);
+    StorageFileIndex();
+    ~StorageFileIndex();
+    
+    void                    SetKey(ReadBuffer key, bool copy);
 
-	Buffer					filepath;
-	StorageFile*			file;
+    Buffer                  filepath;
+    StorageFile*            file;
 
-	ReadBuffer				key;
-	Buffer*					keyBuffer;
-	uint32_t				index;
-	
-	FileIndexNode			treeNode;
+    ReadBuffer              key;
+    Buffer*                 keyBuffer;
+    uint32_t                index;
+    
+    FileIndexNode           treeNode;
 };
 
 inline bool LessThan(StorageFileIndex &a, StorageFileIndex &b)
 {
-	return ReadBuffer::LessThan(a.key, b.key);
+    return ReadBuffer::LessThan(a.key, b.key);
 }
 
 #endif

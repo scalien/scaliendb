@@ -14,13 +14,13 @@
 class HTTPFileHandler : public HTTPHandler
 {
 public:
-	HTTPFileHandler(const char* docroot, const char* prefix);
-	
-	virtual bool	HandleRequest(HTTPConnection* conn, HTTPRequest& request);
-	
+    HTTPFileHandler(const char* docroot, const char* prefix);
+    
+    virtual bool    HandleRequest(HTTPConnection* conn, HTTPRequest& request);
+    
 private:
-	const char*		documentRoot;
-	const char*		prefix;
+    const char*     documentRoot;
+    const char*     prefix;
 };
 
 #endif

@@ -17,22 +17,22 @@
 class Callable
 {
 public:
-	Callable()			{ func = NULL; arg = NULL; }
-	
-	void Execute()		{ if (!func) return; func(arg); }
-	bool IsSet()		{ return func != NULL; }
+    Callable()          { func = NULL; arg = NULL; }
+    
+    void Execute()      { if (!func) return; func(arg); }
+    bool IsSet()        { return func != NULL; }
 
 protected:
-	Callable(void (*func)(void*), void* arg) : func(func), arg(arg) {}
+    Callable(void (*func)(void*), void* arg) : func(func), arg(arg) {}
 
 private:
-	void	(*func)(void*);
-	void	*arg;
+    void    (*func)(void*);
+    void    *arg;
 };
 
 inline void Call(Callable& callable)
 {
-	callable.Execute();
+    callable.Execute();
 }
 
 /*
@@ -46,14 +46,14 @@ inline void Call(Callable& callable)
 class CFunc : public Callable
 {
 public:
-	CFunc(void (*func)(void)) : Callable(Thunk, (void*) func) {}
+    CFunc(void (*func)(void)) : Callable(Thunk, (void*) func) {}
 
 private:
-	static void Thunk(void* arg)
-	{
-		void (*cfunc)(void) = (void (*)(void)) arg;
-		cfunc();
-	}
+    static void Thunk(void* arg)
+    {
+        void (*cfunc)(void) = (void (*)(void)) arg;
+        cfunc();
+    }
 };
 
 /*
@@ -68,14 +68,14 @@ template<class Type, void (Type::*Member)()>
 class MFunc : public Callable
 {
 public:
-	MFunc(Type* obj) : Callable(Thunk, obj) {}
+    MFunc(Type* obj) : Callable(Thunk, obj) {}
 
 private:
-	static void Thunk(void* arg)
-	{
-		Type* obj = (Type*) arg;
-		(obj->*Member)();
-	}
+    static void Thunk(void* arg)
+    {
+        Type* obj = (Type*) arg;
+        (obj->*Member)();
+    }
 };
 
 #endif

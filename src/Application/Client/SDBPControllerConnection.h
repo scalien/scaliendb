@@ -21,38 +21,38 @@ namespace SDBPClient
 class ControllerConnection : public MessageConnection
 {
 public:
-	ControllerConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
-	
-	void			Connect();
-	void			Send(ClientRequest* request);
-	void			SendGetConfigState();
+    ControllerConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
+    
+    void            Connect();
+    void            Send(ClientRequest* request);
+    void            SendGetConfigState();
 
-	uint64_t		GetNodeID();
+    uint64_t        GetNodeID();
 
-	void			OnGetConfigStateTimeout();	
+    void            OnGetConfigStateTimeout();  
 
-	// MessageConnection interface
-	virtual bool	OnMessage(ReadBuffer& msg);
-	virtual void	OnWrite();
-	virtual void	OnConnect();
-	virtual void	OnClose();
-	
+    // MessageConnection interface
+    virtual bool    OnMessage(ReadBuffer& msg);
+    virtual void    OnWrite();
+    virtual void    OnConnect();
+    virtual void    OnClose();
+    
 private:
-	typedef InList<Request> RequestList;
+    typedef InList<Request> RequestList;
 
-	bool			ProcessResponse(ClientResponse* resp);
-	bool			ProcessGetConfigState(ClientResponse* resp);
-	bool			ProcessGetMaster(ClientResponse* resp);
-	bool			ProcessCommandResponse(ClientResponse* resp);
-	Request*		RemoveRequest(uint64_t commandID);
+    bool            ProcessResponse(ClientResponse* resp);
+    bool            ProcessGetConfigState(ClientResponse* resp);
+    bool            ProcessGetMaster(ClientResponse* resp);
+    bool            ProcessCommandResponse(ClientResponse* resp);
+    Request*        RemoveRequest(uint64_t commandID);
 
-	Client*			client;
-	uint64_t		nodeID;
-	Endpoint		endpoint;
-	uint64_t		getConfigStateTime;
-	Countdown		getConfigStateTimeout;
-	bool			getConfigStateSent;
-	RequestList		requests;
+    Client*         client;
+    uint64_t        nodeID;
+    Endpoint        endpoint;
+    uint64_t        getConfigStateTime;
+    Countdown       getConfigStateTimeout;
+    bool            getConfigStateSent;
+    RequestList     requests;
 };
 
 }; // namespace

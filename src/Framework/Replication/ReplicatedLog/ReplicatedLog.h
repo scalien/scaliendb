@@ -5,7 +5,7 @@
 #include "Framework/Replication/Paxos/PaxosProposer.h"
 #include "Framework/Replication/Paxos/PaxosAcceptor.h"
 
-#define REQUEST_CHOSEN_TIMEOUT	7000
+#define REQUEST_CHOSEN_TIMEOUT  7000
 
 /*
 ===============================================================================
@@ -18,43 +18,43 @@
 class ReplicatedLog
 {
 public:
-	void					Init(QuorumContext* context);
+    void                    Init(QuorumContext* context);
 
-	void					TryAppendNextValue();
-	
-	void					OnMessage(PaxosMessage& msg);
-	void					SetPaxosID(uint64_t paxosID);
-	uint64_t				GetPaxosID();
-	
-	void					RegisterPaxosID(uint64_t paxosID, uint64_t nodeID);
-	void					OnMessage();
-	bool					IsAppending();
-	
-	void					OnLearnLease();
-	void					OnLeaseTimeout();
+    void                    TryAppendNextValue();
+    
+    void                    OnMessage(PaxosMessage& msg);
+    void                    SetPaxosID(uint64_t paxosID);
+    uint64_t                GetPaxosID();
+    
+    void                    RegisterPaxosID(uint64_t paxosID, uint64_t nodeID);
+    void                    OnMessage();
+    bool                    IsAppending();
+    
+    void                    OnLearnLease();
+    void                    OnLeaseTimeout();
 
 private:
-	void					Append(Buffer& value);
+    void                    Append(Buffer& value);
 
-	void					OnPrepareRequest(PaxosMessage& msg);
-	void					OnPrepareResponse(PaxosMessage& msg);
-	void					OnProposeRequest(PaxosMessage& msg);
-	void					OnProposeResponse(PaxosMessage& msg);
-	void					OnLearnChosen(PaxosMessage& msg);
-	void					ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value);
-	void					OnRequestChosen(PaxosMessage& msg);
+    void                    OnPrepareRequest(PaxosMessage& msg);
+    void                    OnPrepareResponse(PaxosMessage& msg);
+    void                    OnProposeRequest(PaxosMessage& msg);
+    void                    OnProposeResponse(PaxosMessage& msg);
+    void                    OnLearnChosen(PaxosMessage& msg);
+    void                    ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value);
+    void                    OnRequestChosen(PaxosMessage& msg);
 
-	void					OnRequest(PaxosMessage& msg);
-	void					NewPaxosRound();
-	void					RequestChosen(uint64_t nodeID);
+    void                    OnRequest(PaxosMessage& msg);
+    void                    NewPaxosRound();
+    void                    RequestChosen(uint64_t nodeID);
 
-	QuorumContext*			context;
+    QuorumContext*          context;
 
-	uint64_t				paxosID;
-	PaxosProposer			proposer;
-	PaxosAcceptor			acceptor;
-	
-	uint64_t				lastRequestChosenTime;
-	uint64_t				lastRequestChosenPaxosID;
+    uint64_t                paxosID;
+    PaxosProposer           proposer;
+    PaxosAcceptor           acceptor;
+    
+    uint64_t                lastRequestChosenTime;
+    uint64_t                lastRequestChosenPaxosID;
 };
 #endif

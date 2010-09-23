@@ -2,34 +2,34 @@
 
 Timer::Timer()
 {
-	expireTime = 0;
-	active = false;
+    expireTime = 0;
+    active = false;
 
-	next = this;
-	prev = this;
+    next = this;
+    prev = this;
 }
 
 void Timer::SetCallable(Callable callable_)
 {
-	callable = callable_;
+    callable = callable_;
 }
-	
+    
 void Timer::SetExpireTime(uint64_t expireTime_)
 {
-	expireTime = expireTime_;
+    expireTime = expireTime_;
 }
 
 bool Timer::IsActive()
 {
-	return active;
+    return active;
 }
 
 uint64_t Timer::GetExpireTime()
 {
-	return expireTime;
+    return expireTime;
 }
 
 void Timer::Execute()
 {
-	Call(callable);
+    Call(callable);
 }

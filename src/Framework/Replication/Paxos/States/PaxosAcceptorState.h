@@ -14,14 +14,14 @@
 
 struct PaxosAcceptorState
 {
-	void			Init();
-	void			OnNewPaxosRound();
+    void            Init();
+    void            OnNewPaxosRound();
 
-	uint64_t		promisedProposalID;
-	bool			accepted;	
-	uint64_t		acceptedProposalID;
-	uint64_t		acceptedRunID;
-	Buffer			acceptedValue;
+    uint64_t        promisedProposalID;
+    bool            accepted;   
+    uint64_t        acceptedProposalID;
+    uint64_t        acceptedRunID;
+    Buffer          acceptedValue;
 
 };
 
@@ -31,16 +31,16 @@ struct PaxosAcceptorState
 
 inline void PaxosAcceptorState::Init()
 {
-	OnNewPaxosRound();
+    OnNewPaxosRound();
 }
 
 inline void PaxosAcceptorState::OnNewPaxosRound()
 {
-	promisedProposalID = 0;
-	accepted = false;
-	acceptedProposalID = 0;
-	acceptedRunID = 0;
-	acceptedValue.Clear();
+    promisedProposalID = 0;
+    accepted = false;
+    acceptedProposalID = 0;
+    acceptedRunID = 0;
+    acceptedValue.Clear();
 }
 
 #endif

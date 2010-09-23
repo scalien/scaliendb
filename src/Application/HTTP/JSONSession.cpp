@@ -6,166 +6,166 @@
 
 void JSONSession::Init(HTTPConnection* conn_)
 {
-	conn = conn_;
-	jsonCallback.SetLength(0);
-	depth = 0;
-	depthComma = 0;
+    conn = conn_;
+    jsonCallback.SetLength(0);
+    depth = 0;
+    depthComma = 0;
 }
 
 void JSONSession::SetCallbackPrefix(const ReadBuffer& jsonCallback_)
 {
-	jsonCallback = jsonCallback_;
+    jsonCallback = jsonCallback_;
 }
 
 void JSONSession::Start()
 {
-	conn->ResponseHeader(HTTP_STATUS_CODE_OK, false,
-	 "Content-type: application/json" HTTP_CS_CRLF);
-	
-	if (jsonCallback.GetLength())
-	{
-		conn->Write(jsonCallback.GetBuffer(), jsonCallback.GetLength());
-		conn->Print("(");
-	}
-	
-	PrintObjectStart();
+    conn->ResponseHeader(HTTP_STATUS_CODE_OK, false,
+     "Content-type: application/json" HTTP_CS_CRLF);
+    
+    if (jsonCallback.GetLength())
+    {
+        conn->Write(jsonCallback.GetBuffer(), jsonCallback.GetLength());
+        conn->Print("(");
+    }
+    
+    PrintObjectStart();
 }
 
 void JSONSession::End()
 {
-	PrintObjectEnd();
-	if (jsonCallback.GetLength())
-		conn->Print(")");
+    PrintObjectEnd();
+    if (jsonCallback.GetLength())
+        conn->Print(")");
 }
 
 void JSONSession::PrintStatus(const char* status, const char* type_)
 {
-	Start();
-	
-	conn->Print("{\"status\":\"");
-	conn->Print(status);
-	if (type_)
-	{
-		conn->Print("\",\"type\":\"");
-		conn->Print(type_);
-	}
-	conn->Print("\"}");
+    Start();
+    
+    conn->Print("{\"status\":\"");
+    conn->Print(status);
+    if (type_)
+    {
+        conn->Print("\",\"type\":\"");
+        conn->Print(type_);
+    }
+    conn->Print("\"}");
 
-	End();
-	
-	conn->Flush(true);
+    End();
+    
+    conn->Flush(true);
 }
 
 void JSONSession::PrintString(const char *s, unsigned len)
 {
-	conn->Write("\"", 1);
-	for (unsigned i = 0; i < len; i++)
-	{
-		if (s[i] == '"')
-			conn->Write("\\", 1);
-		conn->Write(s + i, 1);
-	}
-	conn->Write("\"", 1);
+    conn->Write("\"", 1);
+    for (unsigned i = 0; i < len; i++)
+    {
+        if (s[i] == '"')
+            conn->Write("\\", 1);
+        conn->Write(s + i, 1);
+    }
+    conn->Write("\"", 1);
 
-	SetCommaNeeded(true);
+    SetCommaNeeded(true);
 }
 
 void JSONSession::PrintNumber(double number)
 {
-	char		buffer[32];
-	unsigned	len;
-	
-	len = snprintf(buffer, sizeof(buffer), "%lf", number);
-	conn->Write(buffer, len);
+    char        buffer[32];
+    unsigned    len;
+    
+    len = snprintf(buffer, sizeof(buffer), "%lf", number);
+    conn->Write(buffer, len);
 
-	SetCommaNeeded(true);
+    SetCommaNeeded(true);
 }
 
 void JSONSession::PrintBool(bool b)
 {
-	if (b)
-		conn->Write("true", 4);
-	else
-		conn->Write("false", 5);
+    if (b)
+        conn->Write("true", 4);
+    else
+        conn->Write("false", 5);
 
-	SetCommaNeeded(true);
+    SetCommaNeeded(true);
 }
 
 void JSONSession::PrintNull()
 {
-	conn->Write("null", 4);
+    conn->Write("null", 4);
 
-	SetCommaNeeded(true);
+    SetCommaNeeded(true);
 }
 
 void JSONSession::PrintObjectStart()
 {
-	conn->Print("{");
-	depth++;
-	SetCommaNeeded(false);
+    conn->Print("{");
+    depth++;
+    SetCommaNeeded(false);
 }
 
 void JSONSession::PrintObjectEnd()
 {
-	conn->Print("}");
-	depth--;
+    conn->Print("}");
+    depth--;
 }
 
 void JSONSession::PrintArrayStart()
 {
-	conn->Print("[");
-	depth++;
-	SetCommaNeeded(false);
+    conn->Print("[");
+    depth++;
+    SetCommaNeeded(false);
 }
 
 void JSONSession::PrintArrayEnd()
 {
-	conn->Print("]");
-	depth--;
+    conn->Print("]");
+    depth--;
 }
 
 void JSONSession::PrintColon()
 {
-	conn->Print(":");
+    conn->Print(":");
 }
 
 void JSONSession::PrintComma()
 {
-	conn->Print(",");
+    conn->Print(",");
 }
 
 void JSONSession::PrintPair(const char* s, unsigned slen, const char* v, unsigned vlen)
 {
-	if (IsCommaNeeded())
-		PrintComma();
+    if (IsCommaNeeded())
+        PrintComma();
 
-	PrintString(s, slen);
-	PrintColon();
-	PrintString(v, vlen);
-	
-	SetCommaNeeded(true);
+    PrintString(s, slen);
+    PrintColon();
+    PrintString(v, vlen);
+    
+    SetCommaNeeded(true);
 }
 
 bool JSONSession::IsCommaNeeded()
 {
-	uint64_t	mask;
-	
-	mask = 1 << depth;
-	if ((depthComma & mask) == mask)
-		return true;
+    uint64_t    mask;
+    
+    mask = 1 << depth;
+    if ((depthComma & mask) == mask)
+        return true;
 
-	return false;
+    return false;
 }
 
 void JSONSession::SetCommaNeeded(bool needed)
 {
-	uint64_t	mask;
-	
-	assert(depth < sizeof(depthComma) * 8);
-	
-	mask = 1 << depth;
-	if (needed)
-		depthComma |= mask;
-	else
-		depthComma &= ~mask;
+    uint64_t    mask;
+    
+    assert(depth < sizeof(depthComma) * 8);
+    
+    mask = 1 << depth;
+    if (needed)
+        depthComma |= mask;
+    else
+        depthComma &= ~mask;
 }

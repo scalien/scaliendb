@@ -4,209 +4,209 @@
 
 void PaxosProposer::Init(QuorumContext* context_)
 {
-	context = context_;
-	
-	prepareTimeout.SetCallable(MFUNC(PaxosProposer, OnPrepareTimeout));
-	proposeTimeout.SetCallable(MFUNC(PaxosProposer, OnProposeTimeout));
-	prepareTimeout.SetDelay(PAXOS_TIMEOUT);
-	proposeTimeout.SetDelay(PAXOS_TIMEOUT);
+    context = context_;
+    
+    prepareTimeout.SetCallable(MFUNC(PaxosProposer, OnPrepareTimeout));
+    proposeTimeout.SetCallable(MFUNC(PaxosProposer, OnProposeTimeout));
+    prepareTimeout.SetDelay(PAXOS_TIMEOUT);
+    proposeTimeout.SetDelay(PAXOS_TIMEOUT);
 
-	vote = NULL;
-	state.Init();
+    vote = NULL;
+    state.Init();
 }
 
 void PaxosProposer::OnMessage(PaxosMessage& imsg)
 {
-	if (imsg.IsPrepareResponse())
-		OnPrepareResponse(imsg);
-	else if (imsg.IsProposeResponse())
-		OnProposeResponse(imsg);
-	else
-		ASSERT_FAIL();
+    if (imsg.IsPrepareResponse())
+        OnPrepareResponse(imsg);
+    else if (imsg.IsProposeResponse())
+        OnProposeResponse(imsg);
+    else
+        ASSERT_FAIL();
 }
 
 void PaxosProposer::OnPrepareTimeout()
 {
-	Log_Trace();
-	
-	assert(state.preparing);
-	
-	StartPreparing();
+    Log_Trace();
+    
+    assert(state.preparing);
+    
+    StartPreparing();
 }
 
 void PaxosProposer::OnProposeTimeout()
 {
-	Log_Trace();
-	
-	assert(state.proposing);
+    Log_Trace();
+    
+    assert(state.proposing);
 
-	StartPreparing();
+    StartPreparing();
 }
 
 void PaxosProposer::Propose(Buffer& value)
 {
-	Log_Trace();
-	
-	if (IsActive())
-		ASSERT_FAIL();
+    Log_Trace();
+    
+    if (IsActive())
+        ASSERT_FAIL();
 
-	state.proposedRunID = REPLICATION_CONFIG->GetRunID();
-	state.proposedValue.Write(value);
-	
-	if (state.multi && state.numProposals == 0)
-	{
-		state.numProposals++;
-		StartProposing();
-	}
-	else
-		StartPreparing();	
+    state.proposedRunID = REPLICATION_CONFIG->GetRunID();
+    state.proposedValue.Write(value);
+    
+    if (state.multi && state.numProposals == 0)
+    {
+        state.numProposals++;
+        StartProposing();
+    }
+    else
+        StartPreparing();   
 }
 
 void PaxosProposer::Stop()
 {
-	state.proposedRunID = 0;
-	state.proposedValue.Clear();
-	state.preparing = false;
-	state.proposing = false;
-	EventLoop::Remove(&prepareTimeout);
-	EventLoop::Remove(&proposeTimeout);
+    state.proposedRunID = 0;
+    state.proposedValue.Clear();
+    state.preparing = false;
+    state.proposing = false;
+    EventLoop::Remove(&prepareTimeout);
+    EventLoop::Remove(&proposeTimeout);
 }
 
 bool PaxosProposer::IsActive()
 {
-	return (state.preparing || state.proposing);
+    return (state.preparing || state.proposing);
 }
 
 void PaxosProposer::OnPrepareResponse(PaxosMessage& imsg)
 {
-	Log_Trace("msg.nodeID = %u", imsg.nodeID);
+    Log_Trace("msg.nodeID = %u", imsg.nodeID);
 
-	if (!state.preparing || imsg.proposalID != state.proposalID)
-		return;
-	
-	if (imsg.type == PAXOS_PREPARE_REJECTED)
-		vote->RegisterRejected(imsg.nodeID);
-	else
-		vote->RegisterAccepted(imsg.nodeID);
-	
-	if (imsg.type == PAXOS_PREPARE_REJECTED)
-	{
-		if (imsg.promisedProposalID > state.highestPromisedProposalID)
-			state.highestPromisedProposalID = imsg.promisedProposalID;
-	}
-	else if (imsg.type == PAXOS_PREPARE_PREVIOUSLY_ACCEPTED &&
-			 imsg.acceptedProposalID >= state.highestReceivedProposalID)
-	{
-		/* the >= could be replaced by > which would result in less copys
-		 * however this would result in complications in multi paxos
-		 * in the multi paxos steady state this branch is inactive
-		 * it only runs after leader failure
-		 * so it's ok
-		 */
-		state.highestReceivedProposalID = imsg.acceptedProposalID;
-		state.proposedRunID = imsg.runID;
-		state.proposedValue.Write(imsg.value);
-	}
+    if (!state.preparing || imsg.proposalID != state.proposalID)
+        return;
+    
+    if (imsg.type == PAXOS_PREPARE_REJECTED)
+        vote->RegisterRejected(imsg.nodeID);
+    else
+        vote->RegisterAccepted(imsg.nodeID);
+    
+    if (imsg.type == PAXOS_PREPARE_REJECTED)
+    {
+        if (imsg.promisedProposalID > state.highestPromisedProposalID)
+            state.highestPromisedProposalID = imsg.promisedProposalID;
+    }
+    else if (imsg.type == PAXOS_PREPARE_PREVIOUSLY_ACCEPTED &&
+             imsg.acceptedProposalID >= state.highestReceivedProposalID)
+    {
+        /* the >= could be replaced by > which would result in less copys
+         * however this would result in complications in multi paxos
+         * in the multi paxos steady state this branch is inactive
+         * it only runs after leader failure
+         * so it's ok
+         */
+        state.highestReceivedProposalID = imsg.acceptedProposalID;
+        state.proposedRunID = imsg.runID;
+        state.proposedValue.Write(imsg.value);
+    }
 
-	if (vote->IsRejected())
-		StartPreparing();
-	else if (vote->IsAccepted())
-		StartProposing();	
-	else if (vote->IsComplete())
-		StartPreparing();
+    if (vote->IsRejected())
+        StartPreparing();
+    else if (vote->IsAccepted())
+        StartProposing();   
+    else if (vote->IsComplete())
+        StartPreparing();
 }
 
 
 void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
 {
-	PaxosMessage omsg;
-	
-	Log_Trace("msg.nodeID = %u", imsg.nodeID);
-	
-	if (!state.proposing || imsg.proposalID != state.proposalID)
-		return;
-	
-	if (imsg.type == PAXOS_PROPOSE_REJECTED)
-		vote->RegisterRejected(imsg.nodeID);
-	else
-		vote->RegisterAccepted(imsg.nodeID);
+    PaxosMessage omsg;
+    
+    Log_Trace("msg.nodeID = %u", imsg.nodeID);
+    
+    if (!state.proposing || imsg.proposalID != state.proposalID)
+        return;
+    
+    if (imsg.type == PAXOS_PROPOSE_REJECTED)
+        vote->RegisterRejected(imsg.nodeID);
+    else
+        vote->RegisterAccepted(imsg.nodeID);
 
-	// see if we have enough positive replies to advance
-	if (vote->IsAccepted())
-	{
-		// a majority have accepted our proposal, we have consensus
-		StopProposing();
-		omsg.LearnProposal(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID);
-		BroadcastMessage(omsg);
-	}
-	else if (vote->IsComplete())
-		StartPreparing();
+    // see if we have enough positive replies to advance
+    if (vote->IsAccepted())
+    {
+        // a majority have accepted our proposal, we have consensus
+        StopProposing();
+        omsg.LearnProposal(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID);
+        BroadcastMessage(omsg);
+    }
+    else if (vote->IsComplete())
+        StartPreparing();
 }
 
 void PaxosProposer::BroadcastMessage(PaxosMessage& omsg)
 {
-	Log_Trace();
-	
-	vote->Reset();
-	context->GetTransport()->BroadcastMessage(omsg);
+    Log_Trace();
+    
+    vote->Reset();
+    context->GetTransport()->BroadcastMessage(omsg);
 }
 
 void PaxosProposer::StopPreparing()
 {
-	Log_Trace();
+    Log_Trace();
 
-	state.preparing = false;
-	EventLoop::Remove(&prepareTimeout);
+    state.preparing = false;
+    EventLoop::Remove(&prepareTimeout);
 }
 
 void PaxosProposer::StopProposing()
 {
-	Log_Trace();
-	
-	state.proposing = false;
-	EventLoop::Remove(&proposeTimeout);
+    Log_Trace();
+    
+    state.proposing = false;
+    EventLoop::Remove(&proposeTimeout);
 }
 
 void PaxosProposer::StartPreparing()
 {
-	PaxosMessage omsg;
-	
-	Log_Trace();
+    PaxosMessage omsg;
+    
+    Log_Trace();
 
-	StopProposing();
+    StopProposing();
 
-	NewVote();
-	state.preparing = true;
-	state.numProposals++;
-	state.proposalID = REPLICATION_CONFIG->NextProposalID(MAX(state.proposalID, state.highestPromisedProposalID));
-	state.highestReceivedProposalID = 0;
-	
-	omsg.PrepareRequest(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID);
-	BroadcastMessage(omsg);
-	
-	EventLoop::Reset(&prepareTimeout);
+    NewVote();
+    state.preparing = true;
+    state.numProposals++;
+    state.proposalID = REPLICATION_CONFIG->NextProposalID(MAX(state.proposalID, state.highestPromisedProposalID));
+    state.highestReceivedProposalID = 0;
+    
+    omsg.PrepareRequest(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID);
+    BroadcastMessage(omsg);
+    
+    EventLoop::Reset(&prepareTimeout);
 }
 
 void PaxosProposer::StartProposing()
 {
-	PaxosMessage omsg;
-	
-	Log_Trace();
-	
-	StopPreparing();
+    PaxosMessage omsg;
+    
+    Log_Trace();
+    
+    StopPreparing();
 
-	NewVote();
-	state.proposing = true;
-	
-	omsg.ProposeRequest(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID,
-	 state.proposedRunID, state.proposedValue);
-	BroadcastMessage(omsg);
-	
-	EventLoop::Reset(&proposeTimeout);
+    NewVote();
+    state.proposing = true;
+    
+    omsg.ProposeRequest(context->GetPaxosID(), REPLICATION_CONFIG->GetNodeID(), state.proposalID,
+     state.proposedRunID, state.proposedValue);
+    BroadcastMessage(omsg);
+    
+    EventLoop::Reset(&proposeTimeout);
 }
 
 void PaxosProposer::NewVote()
 {
-	delete vote;
-	vote = context->GetQuorum()->NewVote();
+    delete vote;
+    vote = context->GetQuorum()->NewVote();
 }

@@ -6,9 +6,9 @@
 #include "HTTPConsts.h"
 #include "HTTPHandler.h"
 
-class KeyspaceDB;	// forward
-class HTTPRequest;	// forward
-class HTTPServer;	// forward
+class KeyspaceDB;   // forward
+class HTTPRequest;  // forward
+class HTTPServer;   // forward
 
 /*
 ===============================================================================================
@@ -21,16 +21,16 @@ class HTTPServer;	// forward
 class HTTPServer : public TCPServer<HTTPServer, HTTPConnection>
 {
 public:
-	void			Init(int port);
-	void			Shutdown();
-	
-	void			InitConn(HTTPConnection* conn);
+    void            Init(int port);
+    void            Shutdown();
+    
+    void            InitConn(HTTPConnection* conn);
 
-	void			RegisterHandler(HTTPHandler* handler);
-	bool			HandleRequest(HTTPConnection* conn, HTTPRequest& request);
-	
+    void            RegisterHandler(HTTPHandler* handler);
+    bool            HandleRequest(HTTPConnection* conn, HTTPRequest& request);
+    
 private:
-	HTTPHandler*	handlers;
+    HTTPHandler*    handlers;
 };
 
 #endif

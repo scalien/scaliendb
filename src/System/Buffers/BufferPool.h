@@ -4,8 +4,8 @@
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InList.h"
 
-#define	DEFAULT_BUFFERPOOL			(BufferPool::Get())
-#define TARGET_AVAILABLE_SIZE		10*MB
+#define DEFAULT_BUFFERPOOL          (BufferPool::Get())
+#define TARGET_AVAILABLE_SIZE       10*MB
 
 /*
 ===============================================================================
@@ -18,22 +18,22 @@
 class BufferPool
 {
 public:
-	virtual ~BufferPool() {}
+    virtual ~BufferPool() {}
 
-	BufferPool();
+    BufferPool();
 
-	static BufferPool*			Get();
+    static BufferPool*          Get();
 
-	virtual Buffer*				Acquire(unsigned size);
-	virtual void				Release(Buffer* buffer);
-	
-	virtual unsigned			GetAvailableSize();
+    virtual Buffer*             Acquire(unsigned size);
+    virtual void                Release(Buffer* buffer);
+    
+    virtual unsigned            GetAvailableSize();
 
 private:
-	InList<Buffer>				available;
-	unsigned					availableSize;
-	
-	Buffer*						Allocate(unsigned size);
+    InList<Buffer>              available;
+    unsigned                    availableSize;
+    
+    Buffer*                     Allocate(unsigned size);
 };
 
 #endif

@@ -7,10 +7,10 @@
 #include "Framework/Messaging/MessageConnection.h"
 #include "Message.h"
 
-#define MESSAGING_YIELD_TIME			10 // msec
-#define MESSAGING_CONNECT_TIMEOUT		2000
+#define MESSAGING_YIELD_TIME            10 // msec
+#define MESSAGING_CONNECT_TIMEOUT       2000
 
-class ClusterTransport;		// forward
+class ClusterTransport;     // forward
 
 /*
 ===============================================================================
@@ -23,37 +23,37 @@ class ClusterTransport;		// forward
 class ClusterConnection : public MessageConnection
 {
 public:
-	enum Progress
-	{
-		INCOMING,			// connection established, nodeID not received, endpoint == unknown
-		AWAITING_NODEID,	// connection established, other side has no nodeID, endpoint is known
-		OUTGOING,			// connecting in progress, nodeID not sent
-		READY				// connection established, other side's nodeID known
-	};
+    enum Progress
+    {
+        INCOMING,           // connection established, nodeID not received, endpoint == unknown
+        AWAITING_NODEID,    // connection established, other side has no nodeID, endpoint is known
+        OUTGOING,           // connecting in progress, nodeID not sent
+        READY               // connection established, other side's nodeID known
+    };
 
-	void				InitConnected(bool startRead = true);
-	void				SetTransport(ClusterTransport* transport);
+    void                InitConnected(bool startRead = true);
+    void                SetTransport(ClusterTransport* transport);
 
-	void				SetNodeID(uint64_t nodeID);
-	void				SetEndpoint(Endpoint& endpoint);
-	void				SetProgress(Progress progress);
-	
-	uint64_t			GetNodeID();
-	Endpoint			GetEndpoint();
-	Progress			GetProgress();
+    void                SetNodeID(uint64_t nodeID);
+    void                SetEndpoint(Endpoint& endpoint);
+    void                SetProgress(Progress progress);
+    
+    uint64_t            GetNodeID();
+    Endpoint            GetEndpoint();
+    Progress            GetProgress();
 
-	void				Connect();
-	void				OnConnect();
-	void				OnClose();
+    void                Connect();
+    void                OnConnect();
+    void                OnClose();
 
-	/* MessageConnection interface									*/
-	/* Returns whether the connection was closed and deleted		*/
-	virtual bool		OnMessage(ReadBuffer& msg);
+    /* MessageConnection interface                                  */
+    /* Returns whether the connection was closed and deleted        */
+    virtual bool        OnMessage(ReadBuffer& msg);
 
 private:
-	Progress			progress;
-	uint64_t			nodeID;
-	ClusterTransport*	transport;
+    Progress            progress;
+    uint64_t            nodeID;
+    ClusterTransport*   transport;
 };
 
 #endif

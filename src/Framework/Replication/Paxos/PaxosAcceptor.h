@@ -20,24 +20,24 @@ class ReplicatedLog; // forward
 class PaxosAcceptor
 {
 public:
-	void						Init(QuorumContext* context);
-	void						OnMessage(PaxosMessage& msg);
+    void                        Init(QuorumContext* context);
+    void                        OnMessage(PaxosMessage& msg);
 
 private:
-	void						OnPrepareRequest(PaxosMessage& msg);
-	void						OnProposeRequest(PaxosMessage& msg);
-	void						OnStateWritten();
+    void                        OnPrepareRequest(PaxosMessage& msg);
+    void                        OnProposeRequest(PaxosMessage& msg);
+    void                        OnStateWritten();
 
-	void						ReadState();
-	void						WriteState();
+    void                        ReadState();
+    void                        WriteState();
 
-	QuorumContext*				context;
-	PaxosAcceptorState			state;
-	PaxosMessage				omsg;
-	uint64_t					senderID;
-	uint64_t					writtenPaxosID;
-	
-	friend class ReplicatedLog;
+    QuorumContext*              context;
+    PaxosAcceptorState          state;
+    PaxosMessage                omsg;
+    uint64_t                    senderID;
+    uint64_t                    writtenPaxosID;
+    
+    friend class ReplicatedLog;
 };
 
 #endif

@@ -14,18 +14,18 @@
 class StorageDatabase
 {
 public:
-	void					Open(const char* dbName);
-	
-	StorageTable*			GetTable(const char* tableName);
-	void					CloseTable(const char* tableName);
-	void					Close();
-	
-	void					Commit(bool recovery = true, bool flush = true);
-	
+    void                    Open(const char* dbName);
+    
+    StorageTable*           GetTable(const char* tableName);
+    void                    CloseTable(const char* tableName);
+    void                    Close();
+    
+    void                    Commit(bool recovery = true, bool flush = true);
+    
 private:
-	Buffer					name;
-	Buffer					path;
-	InList<StorageTable>	tables;
+    Buffer                  name;
+    Buffer                  path;
+    InList<StorageTable>    tables;
 };
 
 #endif

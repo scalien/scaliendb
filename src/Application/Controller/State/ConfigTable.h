@@ -16,16 +16,16 @@
 class ConfigTable
 {
 public:
-	ConfigTable()	{ prev = next = this; }
+    ConfigTable()   { prev = next = this; }
 
-	uint64_t		databaseID;
-	uint64_t		tableID;
-	Buffer			name;
-	
-	List<uint64_t>	shards;
-	
-	ConfigTable*	prev;
-	ConfigTable*	next;
+    uint64_t        databaseID;
+    uint64_t        tableID;
+    Buffer          name;
+    
+    List<uint64_t>  shards;
+    
+    ConfigTable*    prev;
+    ConfigTable*    next;
 };
 
 #endif

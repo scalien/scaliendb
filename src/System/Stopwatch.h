@@ -14,17 +14,17 @@
 class Stopwatch
 {
 public:
-	Stopwatch();
-	
-	void	Reset();
-	void	Restart();
-	void	Start();
-	long	Stop();
-	long	Elapsed();
+    Stopwatch();
+    
+    void    Reset();
+    void    Restart();
+    void    Start();
+    long    Stop();
+    long    Elapsed();
 
 private:
-	long	started;
-	long	elapsed;
+    long    started;
+    long    elapsed;
 };
 
 #endif

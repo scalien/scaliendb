@@ -15,11 +15,11 @@
 class ClusterContext
 {
 public:
-	virtual ~ClusterContext() {}
-	
-	virtual void OnClusterMessage(uint64_t nodeID, ClusterMessage& msg)				= 0;
-	virtual void OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)		= 0;
-	virtual void OnAwaitingNodeID(Endpoint endpoint)								= 0;
+    virtual ~ClusterContext() {}
+    
+    virtual void OnClusterMessage(uint64_t nodeID, ClusterMessage& msg)             = 0;
+    virtual void OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)      = 0;
+    virtual void OnAwaitingNodeID(Endpoint endpoint)                                = 0;
 };
 
 #endif

@@ -20,35 +20,35 @@ class ClientRequest;
 class SDBPConnection : public MessageConnection, public ClientSession
 {
 public:
-	SDBPConnection();
-	
-	void				Init(SDBPServer* server);
-	void				SetContext(SDBPContext* context);
+    SDBPConnection();
+    
+    void                Init(SDBPServer* server);
+    void                SetContext(SDBPContext* context);
 
-	// ========================================================================================
-	// MessageConnection interface:
-	//
-	// OnMessage() returns whether the connection was closed and deleted
-	bool				OnMessage(ReadBuffer& msg);
-	// Must overrise OnWrite(), to handle closeAfterSend()
-	void				OnWrite();
-	// Must override OnClose() to prevent the default behaviour, which is to call Close(),
-	// in case numPendingOps > 0
-	void				OnClose();
-	// ========================================================================================
+    // ========================================================================================
+    // MessageConnection interface:
+    //
+    // OnMessage() returns whether the connection was closed and deleted
+    bool                OnMessage(ReadBuffer& msg);
+    // Must overrise OnWrite(), to handle closeAfterSend()
+    void                OnWrite();
+    // Must override OnClose() to prevent the default behaviour, which is to call Close(),
+    // in case numPendingOps > 0
+    void                OnClose();
+    // ========================================================================================
 
-	// ========================================================================================
-	// ClientSession interface
-	//
-	virtual void		OnComplete(ClientRequest* request, bool last);
-	virtual bool		IsActive();
-	// ========================================================================================
-	
+    // ========================================================================================
+    // ClientSession interface
+    //
+    virtual void        OnComplete(ClientRequest* request, bool last);
+    virtual bool        IsActive();
+    // ========================================================================================
+    
 private:
-	SDBPServer*			server;
-	SDBPContext*		context;
-	unsigned			numPending;
-	
+    SDBPServer*         server;
+    SDBPContext*        context;
+    unsigned            numPending;
+    
 };
 
 #endif

@@ -16,23 +16,23 @@
 class StorageKeyIndex
 {
 public:
-	StorageKeyIndex();
-	~StorageKeyIndex();
-	
-	void					SetKey(ReadBuffer& key, bool copy);
+    StorageKeyIndex();
+    ~StorageKeyIndex();
+    
+    void                    SetKey(ReadBuffer& key, bool copy);
 
-	ReadBuffer				key;
-	Buffer*					keyBuffer;
-	uint32_t				index;
+    ReadBuffer              key;
+    Buffer*                 keyBuffer;
+    uint32_t                index;
 
-	InTreeNode<StorageKeyIndex>	treeNode;
+    InTreeNode<StorageKeyIndex> treeNode;
 
-	static bool				LessThan(StorageKeyIndex &a, StorageKeyIndex &b);
+    static bool             LessThan(StorageKeyIndex &a, StorageKeyIndex &b);
 };
 
 inline bool LessThan(uint32_t a, uint32_t b)
 {
-	return (a < b);
+    return (a < b);
 }
 
 #endif

@@ -3,20 +3,20 @@
 Countdown::Countdown()
 : Timer()
 {
-	delay = 0;
+    delay = 0;
 }
 
 void Countdown::SetDelay(uint64_t delay_)
 {
-	delay = delay_;
+    delay = delay_;
 }
 
 uint64_t Countdown::GetDelay() const
 {
-	return delay;
+    return delay;
 }
 
 void Countdown::OnAdd()
 {
-	expireTime = Now() + delay;
+    expireTime = Now() + delay;
 }

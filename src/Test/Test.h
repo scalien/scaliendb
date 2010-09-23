@@ -24,23 +24,23 @@ extern "C" {
 #define TEST(testfn) test((testfn_t) testfn, #testfn)
 #define TESTARG(testfn) (testfn),(#testfn)
 #define TEST_RUN(...) \
-		testfn_t test_functions[] = {__VA_ARGS__}; \
-		char test_names[] = #__VA_ARGS__; \
-		int size = sizeof(test_functions) / sizeof(void *); \
-		int names[size]; \
-		test_names_parse(test_functions, test_names, names, size); \
-		unsigned u; \
-		int ret = 0; \
-		for (u = 0; u < sizeof(test_functions) / sizeof(void *); u++) { \
-			ret += test_time(test_functions[u], (const char *) &test_names[names[u]]); \
-		} \
-		return test_eval(TEST_NAME, ret); \
+        testfn_t test_functions[] = {__VA_ARGS__}; \
+        char test_names[] = #__VA_ARGS__; \
+        int size = sizeof(test_functions) / sizeof(void *); \
+        int names[size]; \
+        test_names_parse(test_functions, test_names, names, size); \
+        unsigned u; \
+        int ret = 0; \
+        for (u = 0; u < sizeof(test_functions) / sizeof(void *); u++) { \
+            ret += test_time(test_functions[u], (const char *) &test_names[names[u]]); \
+        } \
+        return test_eval(TEST_NAME, ret); \
 
 #ifdef TEST_FILE
 #define TEST_MAIN(...) \
-	int main(int, char **) { \
-		TEST_RUN(__VA_ARGS__); \
-	}
+    int main(int, char **) { \
+        TEST_RUN(__VA_ARGS__); \
+    }
 #undef TEST_FILE
 #else
 #define TEST_MAIN(...)

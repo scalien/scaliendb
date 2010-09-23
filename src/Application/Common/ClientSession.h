@@ -17,10 +17,10 @@ class ClientRequest; // forward
 class ClientSession
 {
 public:
-	virtual ~ClientSession() {}
-	
-	virtual void	OnComplete(ClientRequest* request, bool last)		= 0;
-	virtual bool	IsActive()											= 0;
+    virtual ~ClientSession() {}
+    
+    virtual void    OnComplete(ClientRequest* request, bool last)       = 0;
+    virtual bool    IsActive()                                          = 0;
 };
 
 #endif

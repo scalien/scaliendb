@@ -5,8 +5,8 @@
 #include "System/Containers/List.h"
 #include "System/Buffers/Buffer.h"
 
-#define	CONFIG_DATABASE_PRODUCTION		'P'
-#define	CONFIG_DATABASE_TEST			'T'
+#define CONFIG_DATABASE_PRODUCTION      'P'
+#define CONFIG_DATABASE_TEST            'T'
 
 /*
 ===============================================================================================
@@ -19,17 +19,17 @@
 class ConfigDatabase
 {
 public:
-	ConfigDatabase()	{ prev = next = this; }
+    ConfigDatabase()    { prev = next = this; }
 
-	uint64_t			databaseID;
-	Buffer				name;
-	
-	List<uint64_t>		tables;
-	
-	char				productionType;
-	
-	ConfigDatabase*		prev;
-	ConfigDatabase*		next;
+    uint64_t            databaseID;
+    Buffer              name;
+    
+    List<uint64_t>      tables;
+    
+    char                productionType;
+    
+    ConfigDatabase*     prev;
+    ConfigDatabase*     next;
 };
 
 #endif

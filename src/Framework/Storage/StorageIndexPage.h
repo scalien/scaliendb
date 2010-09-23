@@ -10,9 +10,9 @@
 #include "StoragePage.h"
 #include "StorageKeyIndex.h"
 
-#define INDEXPAGE_FIX_OVERHEAD		16
-#define INDEXPAGE_KV_OVERHEAD		8
-#define INDEXPAGE_HEADER_SIZE		12
+#define INDEXPAGE_FIX_OVERHEAD      16
+#define INDEXPAGE_KV_OVERHEAD       8
+#define INDEXPAGE_HEADER_SIZE       12
 
 /*
 ===============================================================================
@@ -24,39 +24,39 @@
 
 class StorageIndexPage : public StoragePage
 {
-	typedef InTreeMap<StorageKeyIndex> KeyIndexMap;
+    typedef InTreeMap<StorageKeyIndex> KeyIndexMap;
 
 public:
-	StorageIndexPage();
-	~StorageIndexPage();
-	
-	void					SetPageSize(uint32_t pageSize);
-	void					SetNumDataPageSlots(uint32_t numDataPageSlots);
-	
-	void					Add(ReadBuffer key, uint32_t index, bool copy = true);
-	void					Update(ReadBuffer key, uint32_t index, bool copy = true);
-	void					Remove(ReadBuffer key);
+    StorageIndexPage();
+    ~StorageIndexPage();
+    
+    void                    SetPageSize(uint32_t pageSize);
+    void                    SetNumDataPageSlots(uint32_t numDataPageSlots);
+    
+    void                    Add(ReadBuffer key, uint32_t index, bool copy = true);
+    void                    Update(ReadBuffer key, uint32_t index, bool copy = true);
+    void                    Remove(ReadBuffer key);
 
-	bool					IsEmpty();
-	ReadBuffer				FirstKey();
-	uint32_t				NumEntries();
-	int32_t					GetMaxDataPageIndex();
-	int32_t					Locate(ReadBuffer& key, Buffer* nextKey = NULL);
-	uint32_t				NextFreeDataPage();
-	bool					IsOverflowing();
+    bool                    IsEmpty();
+    ReadBuffer              FirstKey();
+    uint32_t                NumEntries();
+    int32_t                 GetMaxDataPageIndex();
+    int32_t                 Locate(ReadBuffer& key, Buffer* nextKey = NULL);
+    uint32_t                NextFreeDataPage();
+    bool                    IsOverflowing();
 
-	void					Read(ReadBuffer& buffer);
-	bool					CheckWrite(Buffer& buffer);
-	bool					Write(Buffer& buffer);
-	
+    void                    Read(ReadBuffer& buffer);
+    bool                    CheckWrite(Buffer& buffer);
+    bool                    Write(Buffer& buffer);
+    
 private:
-	uint32_t				numDataPageSlots;
-	uint32_t				required;
-	int32_t					maxDataPageIndex;
-	KeyIndexMap				keys;
-	SortedList<uint32_t>	freeDataPages;
-	
-	friend class StorageFile;
+    uint32_t                numDataPageSlots;
+    uint32_t                required;
+    int32_t                 maxDataPageIndex;
+    KeyIndexMap             keys;
+    SortedList<uint32_t>    freeDataPages;
+    
+    friend class StorageFile;
 };
 
 

@@ -16,23 +16,23 @@ TEST_DECLARE(TestFileSystemDiskSpace);
 
 TEST_DEFINE(TestMain)
 {
-	TEST_RUN(
-		//TestInTreeMap,
-		//TestInTreeMapInsert,
-		//TestInTreeMapInsertRandom,
-		//TestInTreeMapRemoveRandom,
-		//TestStorage,
-		//TestStorageCapacity,
-		//TestStorageBigTransaction,
-		//TestStorageBigRandomTransaction,
-		//TestStorageShardSize,
-		TestStorageShardSplit,
-		//TestWriteTiming,
-		//TestFileSystemDiskSpace,
-	);
+    TEST_RUN(
+        //TestInTreeMap,
+        //TestInTreeMapInsert,
+        //TestInTreeMapInsertRandom,
+        //TestInTreeMapRemoveRandom,
+        //TestStorage,
+        //TestStorageCapacity,
+        //TestStorageBigTransaction,
+        //TestStorageBigRandomTransaction,
+        //TestStorageShardSize,
+        TestStorageShardSplit,
+        //TestWriteTiming,
+        //TestFileSystemDiskSpace,
+    );
 }
 
 int main()
 {
-	return TestMain();
+    return TestMain();
 }

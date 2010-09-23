@@ -15,13 +15,13 @@
 class Scheduler
 {
 public:
-	static void					Add(Timer* timer);
-	static void					Remove(Timer* timer);
-	static void					Reset(Timer* timer);
-	static void					Shutdown();
+    static void                 Add(Timer* timer);
+    static void                 Remove(Timer* timer);
+    static void                 Reset(Timer* timer);
+    static void                 Shutdown();
 
 protected:
-	static InSortedList<Timer>	timers;
+    static InSortedList<Timer>  timers;
 };
 
 #endif

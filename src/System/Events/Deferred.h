@@ -14,12 +14,12 @@
 class Deferred
 {
 public:
-	~Deferred()	{ Call(callable); }
+    ~Deferred() { Call(callable); }
 
-	void		Set(Callable c) { callable = c; }
+    void        Set(Callable c) { callable = c; }
 
 private:
-	Callable	callable;
+    Callable    callable;
 };
 
 #endif

@@ -1,15 +1,15 @@
 #ifndef LOG_H
 #define LOG_H
 
-#define LOG_TYPE_ERRNO		0
-#define LOG_TYPE_MSG		1
-#define LOG_TYPE_TRACE		2
+#define LOG_TYPE_ERRNO      0
+#define LOG_TYPE_MSG        1
+#define LOG_TYPE_TRACE      2
 
-#define LOG_TARGET_NOWHERE	0
-#define LOG_TARGET_STDOUT	1
-#define LOG_TARGET_STDERR	2
-#define LOG_TARGET_FILE		4
-#define LOG_TARGET_SYSLOG	8
+#define LOG_TARGET_NOWHERE  0
+#define LOG_TARGET_STDOUT   1
+#define LOG_TARGET_STDERR   2
+#define LOG_TARGET_FILE     4
+#define LOG_TARGET_SYSLOG   8
 
 #ifdef NO_LOGGING // start NO_LOGGING
 
@@ -24,22 +24,22 @@
 #endif
 
 #define Log_Errno() \
-	Log(__FILE__, __LINE__, __func__, LOG_TYPE_ERRNO, "")
+    Log(__FILE__, __LINE__, __func__, LOG_TYPE_ERRNO, "")
 
 #define Log_Message(...)\
-	Log(__FILE__, __LINE__, __func__, LOG_TYPE_MSG, __VA_ARGS__)
+    Log(__FILE__, __LINE__, __func__, LOG_TYPE_MSG, __VA_ARGS__)
 
 #define Log_Trace(...) \
-	Log_Trace_("" __VA_ARGS__)
+    Log_Trace_("" __VA_ARGS__)
 
 #define Log_Trace_(...) \
-	Log(__FILE__, __LINE__, __func__, LOG_TYPE_TRACE, __VA_ARGS__)
+    Log(__FILE__, __LINE__, __func__, LOG_TYPE_TRACE, __VA_ARGS__)
 
 #endif // end LOGGING
 
 #ifdef GCC
 #define ATTRIBUTE_FORMAT_PRINTF(fmt, ellipsis) \
-	__attribute__ ((format (printf, fmt, ellipsis)));
+    __attribute__ ((format (printf, fmt, ellipsis)));
 #else
 #define ATTRIBUTE_FORMAT_PRINTF(fmt, ellipsis)
 #endif

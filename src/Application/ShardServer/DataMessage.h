@@ -3,8 +3,8 @@
 
 #include "Framework/Messaging/Message.h"
 
-#define DATAMESSAGE_SET			'S'
-#define DATAMESSAGE_DELETE		'D'
+#define DATAMESSAGE_SET         'S'
+#define DATAMESSAGE_DELETE      'D'
 
 /*
 ===============================================================================================
@@ -16,22 +16,22 @@
 
 class DataMessage : public Message
 {
-	// Variables
-	char			type;
-	Buffer			key;
-	Buffer			value;
+    // Variables
+    char            type;
+    Buffer          key;
+    Buffer          value;
 
-	// Data management
-	void			Set(ReadBuffer key, ReadBuffer value);
-	void			Delete(ReadBuffer key);
+    // Data management
+    void            Set(ReadBuffer key, ReadBuffer value);
+    void            Delete(ReadBuffer key);
 
-	// For InList<>
-	DataMessage*	prev;
-	DataMessage*	next;
+    // For InList<>
+    DataMessage*    prev;
+    DataMessage*    next;
 
-	// Serialization
-	bool			Read(ReadBuffer& buffer);
-	bool			Write(Buffer& buffer);
+    // Serialization
+    bool            Read(ReadBuffer& buffer);
+    bool            Write(Buffer& buffer);
 };
 
 #endif

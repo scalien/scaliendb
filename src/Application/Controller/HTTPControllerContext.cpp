@@ -3,17 +3,17 @@
 
 void HTTPControllerContext::SetController(Controller* controller_)
 {
-	controller = controller_;
+    controller = controller_;
 }
 
 bool HTTPControllerContext::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
 {
-	HTTPControllerSession*	session;
+    HTTPControllerSession*  session;
 
-	session = new HTTPControllerSession;
-	session->SetController(controller);
-	session->SetConnection(conn);
+    session = new HTTPControllerSession;
+    session->SetController(controller);
+    session->SetConnection(conn);
 
-	return session->HandleRequest(request);
+    return session->HandleRequest(request);
 }
 

@@ -17,15 +17,15 @@ class SDBPContext; // forward
 class SDBPServer : public TCPServer<SDBPServer, SDBPConnection>
 {
 public:
-	void			Init(int port);
-	void			Shutdown();
-	
-	void			InitConn(SDBPConnection* conn);
-	
-	void			SetContext(SDBPContext* context);
+    void            Init(int port);
+    void            Shutdown();
+    
+    void            InitConn(SDBPConnection* conn);
+    
+    void            SetContext(SDBPContext* context);
 
 private:
-	SDBPContext*	context;
+    SDBPContext*    context;
 };
 
 #endif

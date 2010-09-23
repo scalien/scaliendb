@@ -18,83 +18,83 @@ void InitContextTransport();
 
 int main(int argc, char** argv)
 {
-	ControllerApp*		controller;
-	ShardServer*		shardServer;
-	bool				isController;
-	
-	if (argc < 2)
-		ASSERT_FAIL();
-		
-	configFile.Init(argv[1]);
-	InitLog();
-	IOProcessor::Init(1024);
-	InitContextTransport();
-	
-	isController = IsController();	
-	Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
-	if (isController)
-	{
-		controller = new ControllerApp;
-		controller->Init();
-	}
-	else
-	{
-		shardServer = new ShardServer;
-		shardServer->Init();
-	}
-	
-	EventLoop::Init();
-	EventLoop::Run();
-	EventLoop::Shutdown();
+    ControllerApp*      controller;
+    ShardServer*        shardServer;
+    bool                isController;
+
+    if (argc < 2)
+        ASSERT_FAIL();
+        
+    configFile.Init(argv[1]);
+    InitLog();
+    IOProcessor::Init(1024);
+    InitContextTransport();
+    
+    isController = IsController();  
+    Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
+    if (isController)
+    {
+        controller = new ControllerApp;
+        controller->Init();
+    }
+    else
+    {
+        shardServer = new ShardServer;
+        shardServer->Init();
+    }
+    
+    EventLoop::Init();
+    EventLoop::Run();
+    EventLoop::Shutdown();
 }
 
 void InitLog()
 {
-	int logTargets;
+    int logTargets;
 
-	logTargets = 0;
-	if (configFile.GetListNum("log.targets") == 0)
-		logTargets = LOG_TARGET_STDOUT;
+    logTargets = 0;
+    if (configFile.GetListNum("log.targets") == 0)
+        logTargets = LOG_TARGET_STDOUT;
 
-	for (int i = 0; i < configFile.GetListNum("log.targets"); i++)
-	{
-		if (strcmp(configFile.GetListValue("log.targets", i, ""), "file") == 0)
-		{
-			logTargets |= LOG_TARGET_FILE;
-			Log_SetOutputFile(configFile.GetValue("log.file", NULL),
-			configFile.GetBoolValue("log.truncate", false));
-		}
-		if (strcmp(configFile.GetListValue("log.targets", i, NULL), "stdout") == 0)
-			logTargets |= LOG_TARGET_STDOUT;
-		if (strcmp(configFile.GetListValue("log.targets", i, NULL), "stderr") == 0)
-			logTargets |= LOG_TARGET_STDERR;
-	}
-	Log_SetTarget(logTargets);
+    for (int i = 0; i < configFile.GetListNum("log.targets"); i++)
+    {
+        if (strcmp(configFile.GetListValue("log.targets", i, ""), "file") == 0)
+        {
+            logTargets |= LOG_TARGET_FILE;
+            Log_SetOutputFile(configFile.GetValue("log.file", NULL),
+            configFile.GetBoolValue("log.truncate", false));
+        }
+        if (strcmp(configFile.GetListValue("log.targets", i, NULL), "stdout") == 0)
+            logTargets |= LOG_TARGET_STDOUT;
+        if (strcmp(configFile.GetListValue("log.targets", i, NULL), "stderr") == 0)
+            logTargets |= LOG_TARGET_STDERR;
+    }
+    Log_SetTarget(logTargets);
 
-	Log_SetTrace(configFile.GetBoolValue("log.trace", false));
-	Log_SetTimestamping(configFile.GetBoolValue("log.timestamping", false));
+    Log_SetTrace(configFile.GetBoolValue("log.trace", false));
+    Log_SetTimestamping(configFile.GetBoolValue("log.timestamping", false));
 }
 
 bool IsController()
 {
-	const char* role;
-	
-	role = configFile.GetValue("role", "");
-	if (strcmp(role, "controller") == 0)
-		return true;
-	else
-		return false;
+    const char* role;
+    
+    role = configFile.GetValue("role", "");
+    if (strcmp(role, "controller") == 0)
+        return true;
+    else
+        return false;
 }
 
 void InitContextTransport()
 {
-	const char*		str;
-	Endpoint		endpoint;
+    const char*     str;
+    Endpoint        endpoint;
 
-	// set my endpoint
-	str = configFile.GetValue("endpoint", "");
-	if (str == 0)
-		ASSERT_FAIL();
-	endpoint.Set(str);
-	CONTEXT_TRANSPORT->Init(endpoint);
+    // set my endpoint
+    str = configFile.GetValue("endpoint", "");
+    if (str == 0)
+        ASSERT_FAIL();
+    endpoint.Set(str);
+    CONTEXT_TRANSPORT->Init(endpoint);
 }

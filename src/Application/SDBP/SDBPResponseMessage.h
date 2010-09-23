@@ -7,10 +7,10 @@
 class SDBPResponseMessage : public Message
 {
 public:
-	ClientResponse*	response;
-	
-	bool			Read(ReadBuffer& buffer);
-	bool			Write(Buffer& buffer);
+    ClientResponse* response;
+    
+    bool            Read(ReadBuffer& buffer);
+    bool            Write(Buffer& buffer);
 };
 
 #endif

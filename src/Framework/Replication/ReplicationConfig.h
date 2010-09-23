@@ -3,7 +3,7 @@
 
 #include "System/Common.h"
 
-#define	REPLICATION_CONFIG (ReplicationConfig::Get())
+#define REPLICATION_CONFIG (ReplicationConfig::Get())
 
 /*
 ===============================================================================
@@ -16,23 +16,23 @@
 class ReplicationConfig
 {
 public:
-	static ReplicationConfig* Get();
-	
-	void					SetNodeID(uint64_t nodeID);
-	uint64_t				GetNodeID();
+    static ReplicationConfig* Get();
+    
+    void                    SetNodeID(uint64_t nodeID);
+    uint64_t                GetNodeID();
 
-	void					SetRunID(uint64_t runID);
-	uint64_t				GetRunID();
-	
-	uint64_t				NextProposalID(uint64_t proposalID);
-	
-	void					Commit();
-	
+    void                    SetRunID(uint64_t runID);
+    uint64_t                GetRunID();
+    
+    uint64_t                NextProposalID(uint64_t proposalID);
+    
+    void                    Commit();
+    
 private:
-	ReplicationConfig();
+    ReplicationConfig();
 
-	uint64_t				nodeID;
-	uint64_t				runID;
+    uint64_t                nodeID;
+    uint64_t                runID;
 };
 
 #endif

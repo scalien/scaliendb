@@ -19,32 +19,32 @@ namespace SDBPClient
 class Result
 {
 public:
-	void			Close();
-	
-	void			Begin();
-	void			Next();
-	bool			IsEnd();
-	
-	void			AppendRequest(Request* req);
-	bool			AppendRequestResponse(ClientResponse* resp);
+    void            Close();
+    
+    void            Begin();
+    void            Next();
+    bool            IsEnd();
+    
+    void            AppendRequest(Request* req);
+    bool            AppendRequestResponse(ClientResponse* resp);
 
-	int				CommandStatus();
-	int				TransportStatus();
+    int             CommandStatus();
+    int             TransportStatus();
 
-	unsigned		GetRequestCount();
+    unsigned        GetRequestCount();
 
 private:
-	typedef InTreeMap<Request> RequestMap;
-	friend class Client;
-	
-	RequestMap		requests;
-	int				transportStatus;
-	int				timeoutStatus;
-	int				connectivityStatus;
-	unsigned		numCompleted;
-	Request*		requestCursor;
+    typedef InTreeMap<Request> RequestMap;
+    friend class Client;
+    
+    RequestMap      requests;
+    int             transportStatus;
+    int             timeoutStatus;
+    int             connectivityStatus;
+    unsigned        numCompleted;
+    Request*        requestCursor;
 };
 
-};	// namespace
+};  // namespace
 
 #endif
