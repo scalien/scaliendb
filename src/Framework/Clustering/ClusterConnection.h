@@ -5,7 +5,7 @@
 #include "System/Events/EventLoop.h"
 #include "System/Buffers/Buffer.h"
 #include "Framework/Messaging/MessageConnection.h"
-#include "Message.h"
+#include "Framework/Messaging/Message.h"
 
 #define MESSAGING_YIELD_TIME            10 // msec
 #define MESSAGING_CONNECT_TIMEOUT       2000
