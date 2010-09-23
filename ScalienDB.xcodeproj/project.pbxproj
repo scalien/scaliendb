@@ -21,6 +21,7 @@
 		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
 		54838852124A6B1B005F0FB4 /* HTTPControllerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */; };
 		54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */; };
+		54838866124B54B2005F0FB4 /* DataMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54838865124B54B2005F0FB4 /* DataMessage.cpp */; };
 		5487B8791239230500C235BA /* ConfigContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */; };
 		5487BC2B123A5D0C00C235BA /* SDBPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */; };
 		5487BC2D123A5D2500C235BA /* SDBPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC2C123A5D2500C235BA /* SDBPServer.cpp */; };
@@ -51,6 +52,8 @@
 		54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76911BE5EF30076BC62 /* ThreadPool_Windows.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		54C8FC76120200F1002DD4D3 /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */; };
+		54E0BE71124B5E4B00439334 /* DataContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BE70124B5E4B00439334 /* DataContext.cpp */; };
+		54E0BE74124B616000439334 /* TotalQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BE73124B616000439334 /* TotalQuorum.cpp */; };
 		54EA4F731237DC9F0095BF36 /* ConfigMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */; };
 		54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501B1237E83E0095BF36 /* ClusterServer.cpp */; };
 		54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501D1237E83E0095BF36 /* ClusterTransport.cpp */; };
@@ -205,6 +208,8 @@
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
 		546E28D311F0816E00867EE1 /* QuorumTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumTransport.cpp; sourceTree = "<group>"; };
+		54838864124B54B2005F0FB4 /* DataMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataMessage.h; sourceTree = "<group>"; };
+		54838865124B54B2005F0FB4 /* DataMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataMessage.cpp; sourceTree = "<group>"; };
 		5487BC27123A5D0C00C235BA /* SDBPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPConnection.h; sourceTree = "<group>"; };
 		5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPConnection.cpp; sourceTree = "<group>"; };
 		5487BC29123A5D0C00C235BA /* SDBPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPServer.h; sourceTree = "<group>"; };
@@ -294,6 +299,10 @@
 		54C8FC6F120200F1002DD4D3 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConnection.cpp; sourceTree = "<group>"; };
 		54C8FC71120200F1002DD4D3 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
+		54E0BE6F124B5E4B00439334 /* DataContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataContext.h; sourceTree = "<group>"; };
+		54E0BE70124B5E4B00439334 /* DataContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataContext.cpp; sourceTree = "<group>"; };
+		54E0BE72124B616000439334 /* TotalQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TotalQuorum.h; sourceTree = "<group>"; };
+		54E0BE73124B616000439334 /* TotalQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TotalQuorum.cpp; sourceTree = "<group>"; };
 		54EA4F6D1237DC9F0095BF36 /* ConfigMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigMessage.h; sourceTree = "<group>"; };
 		54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigMessage.cpp; sourceTree = "<group>"; };
 		54EA501A1237E83E0095BF36 /* ClusterServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterServer.h; sourceTree = "<group>"; };
@@ -468,6 +477,8 @@
 				546E119011D8F48500867EE1 /* Quorum.h */,
 				546E119311D8F4C800867EE1 /* MajorityQuorum.h */,
 				546E119411D8F4C800867EE1 /* MajorityQuorum.cpp */,
+				54E0BE72124B616000439334 /* TotalQuorum.h */,
+				54E0BE73124B616000439334 /* TotalQuorum.cpp */,
 				546E119611D8F4D300867EE1 /* DoubleMajorityQuorum.h */,
 				546E119711D8F4D300867EE1 /* DoubleMajorityQuorum.cpp */,
 				546E181611DDD4DF00867EE1 /* QuorumTransport.h */,
@@ -560,6 +571,10 @@
 		54A861C2123E207000ECCBE5 /* ShardServer */ = {
 			isa = PBXGroup;
 			children = (
+				54838864124B54B2005F0FB4 /* DataMessage.h */,
+				54838865124B54B2005F0FB4 /* DataMessage.cpp */,
+				54E0BE6F124B5E4B00439334 /* DataContext.h */,
+				54E0BE70124B5E4B00439334 /* DataContext.cpp */,
 				54A861C4123E207000ECCBE5 /* ShardServer.h */,
 				54A861C3123E207000ECCBE5 /* ShardServer.cpp */,
 			);
@@ -1013,6 +1028,9 @@
 				546225121249074000759E58 /* SDBPResponseMessage.cpp in Sources */,
 				54838852124A6B1B005F0FB4 /* HTTPControllerContext.cpp in Sources */,
 				54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */,
+				54838866124B54B2005F0FB4 /* DataMessage.cpp in Sources */,
+				54E0BE71124B5E4B00439334 /* DataContext.cpp in Sources */,
+				54E0BE74124B616000439334 /* TotalQuorum.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

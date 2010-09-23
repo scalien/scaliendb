@@ -3,24 +3,23 @@
 
 #include "System/Platform.h"
 #include "System/IO/Endpoint.h"
-#include "System/Buffers/ReadBuffer.h"
 #include "System/Containers/List.h"
 #include "Framework/Messaging/Message.h"
 
-#define CONFIG_REGISTER_SHARDSERVER		'S'
-#define CONFIG_CREATE_QUORUM			'Q'
-#define CONFIG_INCREASE_QUORUM			'P'
-#define CONFIG_DECREASE_QUORUM			'M'
-#define CONFIG_ACTIVATE_QUORUM_SERVER	'p'
-#define CONFIG_DEACTIVATE_QUORUM_SERVER	'm'
+#define CONFIGMESSAGE_REGISTER_SHARDSERVER		'S'
+#define CONFIGMESSAGE_CREATE_QUORUM				'Q'
+#define CONFIGMESSAGE_INCREASE_QUORUM			'P'
+#define CONFIGMESSAGE_DECREASE_QUORUM			'M'
+#define CONFIGMESSAGE_ACTIVATE_QUORUM_SERVER	'p'
+#define CONFIGMESSAGE_DEACTIVATE_QUORUM_SERVER	'm'
 
-#define CONFIG_CREATE_DATABASE			'C'
-#define CONFIG_RENAME_DATABASE			'R'
-#define CONFIG_DELETE_DATABASE			'D'
+#define CONFIGMESSAGE_CREATE_DATABASE			'C'
+#define CONFIGMESSAGE_RENAME_DATABASE			'R'
+#define CONFIGMESSAGE_DELETE_DATABASE			'D'
 
-#define CONFIG_CREATE_TABLE				'c'
-#define CONFIG_RENAME_TABLE				'r'
-#define CONFIG_DELETE_TABLE				'd'
+#define CONFIGMESSAGE_CREATE_TABLE				'c'
+#define CONFIGMESSAGE_RENAME_TABLE				'r'
+#define CONFIGMESSAGE_DELETE_TABLE				'd'
 
 /*
 ===============================================================================================
@@ -37,7 +36,7 @@ public:
 
 	ConfigMessage()	{ prev = next = this; }
 
-	/* Variables */
+	// Variables
 	char			type;
 	char			productionType;
 	uint64_t		nodeID;
@@ -51,10 +50,11 @@ public:
 	
 	bool			fromClient;
 	
+	// For InList<>
 	ConfigMessage*	prev;
 	ConfigMessage*	next;
 
-	/* Cluster management */
+	// Cluster management
 	bool			RegisterShardServer(
 					 uint64_t nodeID, Endpoint& endpoint);
 	bool			CreateQuorum(
@@ -69,7 +69,7 @@ public:
 					 uint64_t quorumID, uint64_t nodeID);
 
 
-	/* Database management*/
+	// Database management
 	bool			CreateDatabase(
 					 uint64_t databaseID, ReadBuffer& name);
 	bool			RenameDatabase(
@@ -77,7 +77,7 @@ public:
 	bool			DeleteDatabase(
 					 uint64_t databaseID);
 
-	/* Table management*/
+	// Table management
 	bool			CreateTable(
 					 uint64_t databaseID, uint64_t tableID, uint64_t shardID,
 					 uint64_t quorumID, ReadBuffer& name);
@@ -86,7 +86,7 @@ public:
 	bool			DeleteTable(
 					 uint64_t databaseID, uint64_t tableID);
 	
-	/* Serialization */
+	// Serialization
 	bool			Read(ReadBuffer& buffer);
 	bool			Write(Buffer& buffer);
 };

@@ -151,7 +151,7 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
 {
 	ClusterMessage	clusterMessage;
 	
-	if (message.type == CONFIG_REGISTER_SHARDSERVER)
+	if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
 	{
 		// tell ContextTransport that this connection has a new nodeID
 		CONTEXT_TRANSPORT->SetConnectionNodeID(message.endpoint, message.nodeID);		
@@ -219,39 +219,39 @@ void Controller::FromClientRequest(ClientRequest* request, ConfigMessage* messag
 	switch (request->type)
 	{
 		case CLIENTREQUEST_CREATE_QUORUM:
-			message->type = CONFIG_CREATE_QUORUM;
+			message->type = CONFIGMESSAGE_CREATE_QUORUM;
 			message->productionType = request->productionType;
 			message->nodes = request->nodes;
 			request->nodes.ClearMembers();
 			return;
 		case CLIENTREQUEST_CREATE_DATABASE:
-			message->type = CONFIG_CREATE_DATABASE;
+			message->type = CONFIGMESSAGE_CREATE_DATABASE;
 			message->name.Wrap(request->name);
 			message->productionType = request->productionType;
 			return;
 		case CLIENTREQUEST_RENAME_DATABASE:
-			message->type = CONFIG_RENAME_DATABASE;
+			message->type = CONFIGMESSAGE_RENAME_DATABASE;
 			message->databaseID = request->databaseID;
 			message->name.Wrap(request->name);
 			return;
 		case CLIENTREQUEST_DELETE_DATABASE:
-			message->type = CONFIG_DELETE_DATABASE;
+			message->type = CONFIGMESSAGE_DELETE_DATABASE;
 			message->databaseID = request->databaseID;
 			return;
 		case CLIENTREQUEST_CREATE_TABLE:
-			message->type = CONFIG_CREATE_TABLE;
+			message->type = CONFIGMESSAGE_CREATE_TABLE;
 			message->databaseID = request->databaseID;
 			message->quorumID = request->quorumID;
 			message->name.Wrap(request->name);
 			return;
 		case CLIENTREQUEST_RENAME_TABLE:
-			message->type = CONFIG_RENAME_TABLE;
+			message->type = CONFIGMESSAGE_RENAME_TABLE;
 			message->databaseID = request->databaseID;
 			message->tableID = request->tableID;
 			message->name.Wrap(request->name);
 			return;
 		case CLIENTREQUEST_DELETE_TABLE:
-			message->type = CONFIG_DELETE_TABLE;
+			message->type = CONFIGMESSAGE_DELETE_TABLE;
 			message->databaseID = request->databaseID;
 			message->tableID = request->tableID;
 			return;

@@ -1,28 +1,29 @@
-#ifndef CONFIGCONTEXT_H
-#define CONFIGCONTEXT_H
+#ifndef DATACONTEXT_H
+#define DATACONTEXT_H
 
 #include "Framework/Replication/Quorums/QuorumContext.h"
-#include "Framework/Replication/Quorums/MajorityQuorum.h"
+#include "Framework/Replication/Quorums/TotalQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
-#include "ConfigMessage.h"
+#include "Application/Controller/State/ConfigQuorum.h"
+#include "DataMessage.h"
 
-class Controller; // forward
+class ShardServer; // forward
 
 /*
 ===============================================================================================
 
- ConfigContext
+ DataContext
 
 ===============================================================================================
 */
 
-class ConfigContext : public QuorumContext
+class DataContext : public QuorumContext
 {
 public:
-	void							Init(Controller* controller, unsigned numControllers);
+	void							Init(ShardServer* shardServer, ConfigQuorum* quorum);
 	
-	void							Append(ConfigMessage* message);
+	void							Append(DataMessage* message);
 	bool							IsAppending();
 	
 	// ========================================================================================
@@ -40,29 +41,27 @@ public:
 	virtual uint64_t				GetPaxosID();
 	virtual uint64_t				GetHighestPaxosID();
 	
-	virtual Quorum*					GetQuorum();
-	virtual QuorumDatabase*			GetDatabase();
+	virtual Quorum*				GetQuorum();
+	virtual QuorumDatabase*		GetDatabase();
 	virtual QuorumTransport*		GetTransport();
 	
 	virtual	void					OnAppend(ReadBuffer value, bool ownAppend);
-	virtual Buffer*					GetNextValue();
+	virtual Buffer*				GetNextValue();
 	virtual void					OnMessage(ReadBuffer msg);
 	// ========================================================================================
 
 private:
-	void							OnPaxosLeaseMessage(ReadBuffer buffer);
 	void							OnPaxosMessage(ReadBuffer buffer);
 	void							RegisterPaxosID(uint64_t paxosID);
 
-	Controller*						controller;
-	MajorityQuorum					quorum;
-	QuorumDatabase					database;
-	QuorumTransport					transport;
+	ShardServer*					shardServer;
+	TotalQuorum					quorum;
+	QuorumDatabase				database;
+	QuorumTransport				transport;
 	ReplicatedLog					replicatedLog;
-	PaxosLease						paxosLease;
 	uint64_t						contextID;
 	uint64_t						highestPaxosID;
-	Buffer							nextValue;
+	Buffer						nextValue;
 };
 
 #endif

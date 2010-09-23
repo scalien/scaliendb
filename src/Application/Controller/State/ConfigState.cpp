@@ -27,29 +27,29 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
 	switch (message.type)
 	{
 		/* Cluster management */
-		case CONFIG_REGISTER_SHARDSERVER:
+		case CONFIGMESSAGE_REGISTER_SHARDSERVER:
 			return CompleteRegisterShardServer(message);
-		case CONFIG_CREATE_QUORUM:
+		case CONFIGMESSAGE_CREATE_QUORUM:
 			return CompleteCreateQuorum(message);
-		case CONFIG_INCREASE_QUORUM:
+		case CONFIGMESSAGE_INCREASE_QUORUM:
 			return CompleteIncreaseQuorum(message);
-		case CONFIG_DECREASE_QUORUM:
+		case CONFIGMESSAGE_DECREASE_QUORUM:
 			return CompleteDecreaseQuorum(message);
 
 		/* Database management */
-		case CONFIG_CREATE_DATABASE:
+		case CONFIGMESSAGE_CREATE_DATABASE:
 			return CompleteCreateDatabase(message);
-		case CONFIG_RENAME_DATABASE:
+		case CONFIGMESSAGE_RENAME_DATABASE:
 			return CompleteRenameDatabase(message);
-		case CONFIG_DELETE_DATABASE:
+		case CONFIGMESSAGE_DELETE_DATABASE:
 			return CompleteDeleteDatabase(message);
 
 		/* Table management */
-		case CONFIG_CREATE_TABLE:
+		case CONFIGMESSAGE_CREATE_TABLE:
 			return CompleteCreateTable(message);
-		case CONFIG_RENAME_TABLE:
+		case CONFIGMESSAGE_RENAME_TABLE:
 			return CompleteRenameTable(message);
-		case CONFIG_DELETE_TABLE:
+		case CONFIGMESSAGE_DELETE_TABLE:
 			return CompleteDeleteTable(message);
 		
 		default:
@@ -125,29 +125,29 @@ void ConfigState::OnMessage(ConfigMessage& message)
 	switch (message.type)
 	{
 		/* Cluster management */
-		case CONFIG_REGISTER_SHARDSERVER:
+		case CONFIGMESSAGE_REGISTER_SHARDSERVER:
 			return OnRegisterShardServer(message);
-		case CONFIG_CREATE_QUORUM:
+		case CONFIGMESSAGE_CREATE_QUORUM:
 			return OnCreateQuorum(message);
-		case CONFIG_INCREASE_QUORUM:
+		case CONFIGMESSAGE_INCREASE_QUORUM:
 			return OnIncreaseQuorum(message);
-		case CONFIG_DECREASE_QUORUM:
+		case CONFIGMESSAGE_DECREASE_QUORUM:
 			return OnDecreaseQuorum(message);
 
 		/* Database management */
-		case CONFIG_CREATE_DATABASE:
+		case CONFIGMESSAGE_CREATE_DATABASE:
 			return OnCreateDatabase(message);
-		case CONFIG_RENAME_DATABASE:
+		case CONFIGMESSAGE_RENAME_DATABASE:
 			return OnRenameDatabase(message);
-		case CONFIG_DELETE_DATABASE:
+		case CONFIGMESSAGE_DELETE_DATABASE:
 			return OnDeleteDatabase(message);
 
 		/* Table management */
-		case CONFIG_CREATE_TABLE:
+		case CONFIGMESSAGE_CREATE_TABLE:
 			return OnCreateTable(message);
-		case CONFIG_RENAME_TABLE:
+		case CONFIGMESSAGE_RENAME_TABLE:
 			return OnRenameTable(message);
-		case CONFIG_DELETE_TABLE:
+		case CONFIGMESSAGE_DELETE_TABLE:
 			return OnDeleteTable(message);
 		
 		default:
