@@ -37,17 +37,17 @@ bool DataContext::IsAppending()
 
 bool DataContext::IsLeaderKnown()
 {
-    // TODO: xxx
+    return shardServer->IsLeaderKnown(contextID);
 }
 
 bool DataContext::IsLeader()
 {
-    // TODO: xxx
+    return shardServer->IsLeader(contextID);
 }
 
 uint64_t DataContext::GetLeader()
 {
-    // TODO: xxx
+    return shardServer->GetLeader(contextID);
 }
 
 void DataContext::OnLearnLease()
@@ -97,7 +97,7 @@ QuorumTransport* DataContext::GetTransport()
 
 void DataContext::OnAppend(ReadBuffer value, bool ownAppend)
 {
-    ConfigMessage message;
+    DataMessage message;
 
     nextValue.Clear();
 

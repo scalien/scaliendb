@@ -1,18 +1,18 @@
 #include "DataMessage.h"
 
-void DataMessage::Set(uint64_t tableID_, ReadBuffer key_, ReadBuffer value_)
+void DataMessage::Set(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
     type = DATAMESSAGE_SET;
     tableID = tableID_;
-    key.Write(key_);
-    value.Write(value_);
+    key = key_;
+    value = value_;
 }
 
-void DataMessage::Delete(uint64_t tableID_, ReadBuffer key_)
+void DataMessage::Delete(uint64_t tableID_, ReadBuffer& key_)
 {
     type = DATAMESSAGE_DELETE;
     tableID = tableID_;
-    key.Write(key_);
+    key = key_;
 }
 
 bool DataMessage::Read(ReadBuffer& buffer)
@@ -26,11 +26,11 @@ bool DataMessage::Read(ReadBuffer& buffer)
     {
         // Data management
         case DATAMESSAGE_SET:
-            read = buffer.Readf("%c:%#B:%#B",
+            read = buffer.Readf("%c:%#R:%#R",
              &type, &key, &value);
             break;
         case DATAMESSAGE_DELETE:
-            read = buffer.Readf("%c:%#B",
+            read = buffer.Readf("%c:%#R",
              &type, &key);
             break;
         default:
@@ -46,11 +46,11 @@ bool DataMessage::Write(Buffer& buffer)
     {
         // Cluster management
         case DATAMESSAGE_SET:
-            buffer.Writef("%c:%#B:%#B",
+            buffer.Writef("%c:%#R:%#R",
              type, &key, &value);
             break;
         case DATAMESSAGE_DELETE:
-            buffer.Writef("%c:%#B",
+            buffer.Writef("%c:%#R",
              type, &key);
             break;
         default:

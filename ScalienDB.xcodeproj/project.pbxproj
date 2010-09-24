@@ -21,7 +21,6 @@
 		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
 		54838852124A6B1B005F0FB4 /* HTTPControllerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */; };
 		54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */; };
-		54838866124B54B2005F0FB4 /* DataMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54838865124B54B2005F0FB4 /* DataMessage.cpp */; };
 		5487B8791239230500C235BA /* ConfigContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */; };
 		5487BC2B123A5D0C00C235BA /* SDBPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */; };
 		5487BC2D123A5D2500C235BA /* SDBPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC2C123A5D2500C235BA /* SDBPServer.cpp */; };
@@ -30,7 +29,6 @@
 		5487BC42123A5E2000C235BA /* ClusterMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC3D123A5E2000C235BA /* ClusterMessage.cpp */; };
 		5487BDCF123A738000C235BA /* ContextTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BDCD123A738000C235BA /* ContextTransport.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
-		54A861C5123E207000ECCBE5 /* ShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A861C3123E207000ECCBE5 /* ShardServer.cpp */; };
 		54A867D1123F94B500ECCBE5 /* ConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A867D0123F94B500ECCBE5 /* ConfigState.cpp */; };
 		54AB8720122821EF00721A0F /* StorageShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8715122821EF00721A0F /* StorageShard.cpp */; };
 		54AB8721122821EF00721A0F /* StorageDataPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB8716122821EF00721A0F /* StorageDataPage.cpp */; };
@@ -52,8 +50,8 @@
 		54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76911BE5EF30076BC62 /* ThreadPool_Windows.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		54C8FC76120200F1002DD4D3 /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */; };
-		54E0BE71124B5E4B00439334 /* DataContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BE70124B5E4B00439334 /* DataContext.cpp */; };
 		54E0BE74124B616000439334 /* TotalQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BE73124B616000439334 /* TotalQuorum.cpp */; };
+		54E0BFCD124CF55100439334 /* ShardServerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BFC1124CF42C00439334 /* ShardServerApp.cpp */; };
 		54EA4F731237DC9F0095BF36 /* ConfigMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */; };
 		54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501B1237E83E0095BF36 /* ClusterServer.cpp */; };
 		54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501D1237E83E0095BF36 /* ClusterTransport.cpp */; };
@@ -303,6 +301,8 @@
 		54E0BE70124B5E4B00439334 /* DataContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataContext.cpp; sourceTree = "<group>"; };
 		54E0BE72124B616000439334 /* TotalQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TotalQuorum.h; sourceTree = "<group>"; };
 		54E0BE73124B616000439334 /* TotalQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TotalQuorum.cpp; sourceTree = "<group>"; };
+		54E0BFC0124CF42C00439334 /* ShardServerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardServerApp.h; sourceTree = "<group>"; };
+		54E0BFC1124CF42C00439334 /* ShardServerApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardServerApp.cpp; sourceTree = "<group>"; };
 		54EA4F6D1237DC9F0095BF36 /* ConfigMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigMessage.h; sourceTree = "<group>"; };
 		54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigMessage.cpp; sourceTree = "<group>"; };
 		54EA501A1237E83E0095BF36 /* ClusterServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterServer.h; sourceTree = "<group>"; };
@@ -575,6 +575,8 @@
 				54E0BE70124B5E4B00439334 /* DataContext.cpp */,
 				54A861C4123E207000ECCBE5 /* ShardServer.h */,
 				54A861C3123E207000ECCBE5 /* ShardServer.cpp */,
+				54E0BFC0124CF42C00439334 /* ShardServerApp.h */,
+				54E0BFC1124CF42C00439334 /* ShardServerApp.cpp */,
 			);
 			name = ShardServer;
 			path = Application/ShardServer;
@@ -1020,7 +1022,6 @@
 				5487BC41123A5E2000C235BA /* ClientResponse.cpp in Sources */,
 				5487BC42123A5E2000C235BA /* ClusterMessage.cpp in Sources */,
 				5487BDCF123A738000C235BA /* ContextTransport.cpp in Sources */,
-				54A861C5123E207000ECCBE5 /* ShardServer.cpp in Sources */,
 				54A867D1123F94B500ECCBE5 /* ConfigState.cpp in Sources */,
 				9AABB50E123FDCDD003626AC /* ControllerApp.cpp in Sources */,
 				9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */,
@@ -1028,9 +1029,8 @@
 				546225121249074000759E58 /* SDBPResponseMessage.cpp in Sources */,
 				54838852124A6B1B005F0FB4 /* HTTPControllerContext.cpp in Sources */,
 				54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */,
-				54838866124B54B2005F0FB4 /* DataMessage.cpp in Sources */,
-				54E0BE71124B5E4B00439334 /* DataContext.cpp in Sources */,
 				54E0BE74124B616000439334 /* TotalQuorum.cpp in Sources */,
+				54E0BFCD124CF55100439334 /* ShardServerApp.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -249,8 +249,9 @@ Buffer::Buffer(const Buffer& /*other*/)
 //  *this = other;  // call operator=()
 }
 
-//Buffer& Buffer::operator=(const Buffer& other)
-//{
+Buffer& Buffer::operator=(const Buffer& /*other*/)
+{
+    ASSERT_FAIL();
 //  if (other.size != size)
 //      Allocate(other.size, false);
 //  
@@ -258,4 +259,4 @@ Buffer::Buffer(const Buffer& /*other*/)
 //  length = other.length;
 //  
 //  return *this;
-//}
+}

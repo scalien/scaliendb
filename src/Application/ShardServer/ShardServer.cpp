@@ -33,7 +33,7 @@ void ShardServer::Init()
     CONTEXT_TRANSPORT->SetClusterContext(this);
 }
 
-void ShardServer::OnAppend(ConfigMessage& message, bool ownAppend)
+void ShardServer::OnAppend(DataMessage& message, bool ownAppend)
 {
     // TODO: xxx
 }
@@ -52,14 +52,16 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     shard = configState.GetShard(request->tableID, ReadBuffer(request->key));
     if (!shard)
     {
-        // TODO: noservice
+        request->response.Failed();
+        request->OnComplete();
         return;
     }
 
     quorumData = LocateQuorum(shard->quorumID);
     if (!quorumData)
     {
-        // TODO: noservice
+        request->response.NoService();
+        request->OnComplete();
         return;
     }
     
@@ -96,6 +98,8 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
             REPLICATION_CONFIG->Commit();
             Log_Trace("my nodeID is %" PRIu64 "", msg.nodeID);
             break;
+        default:
+            ASSERT_FAIL();
     }
 }
 
@@ -107,4 +111,46 @@ void ShardServer::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endp
 void ShardServer::OnAwaitingNodeID(Endpoint /*endpoint*/)
 {
     // nothing
+}
+
+QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
+{
+}
+
+void ShardServer::TryAppend(QuorumData* quorumData)
+{
+}
+
+void ShardServer::FromClientRequest(ClientRequest* request, DataMessage* message)
+{
+    switch (request->type)
+    {
+        case CLIENTREQUEST_SET:
+            message->type = DATAMESSAGE_SET;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            message->value.Wrap(request->value);
+            return;
+        case CLIENTREQUEST_DELETE:
+            message->type = DATAMESSAGE_DELETE;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            return;
+        default:
+            ASSERT_FAIL();
+    }
+}
+
+void ShardServer::OnRequestLeaseTimeout()
+{
+    QuorumData* quorum;
+    
+    for (quorum = quorums.First(); quorum != NULL; quorum = quorums.Next(quorum))
+    {
+        if (!quorum->isPrimary)
+        {
+            // TODO: try to get lease
+            
+        }
+    }
 }

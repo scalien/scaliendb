@@ -23,11 +23,15 @@ class QuorumData; // forward
 class ShardServer : public ClusterContext, public SDBPContext
 {
 public:
-    typedef InList<QuorumData>      QuorumList;
-    void Init();
+    typedef InList<QuorumData> QuorumList;
+
+    void            Init();
     
     // For ConfigContext
-    void            OnAppend(ConfigMessage& message, bool ownAppend);
+    bool            IsLeaderKnown(uint64_t quorumID);
+    bool            IsLeader(uint64_t quorumID);
+    uint64_t        GetLeader(uint64_t quorumID);
+    void            OnAppend(DataMessage& message, bool ownAppend);
 
     // ========================================================================================
     // SDBPContext interface:
@@ -49,6 +53,7 @@ private:
     QuorumData*     LocateQuorum(uint64_t quorumID);
     void            TryAppend(QuorumData* quorumData);
     void            FromClientRequest(ClientRequest* request, DataMessage* message);
+    void            OnRequestLeaseTimeout();
     
     bool            awaitingNodeID;
     QuorumList      quorums;
@@ -68,6 +73,10 @@ class QuorumData
 public:
     typedef InList<DataMessage>     MessageList;
     typedef InList<ClientRequest>   RequestList;
+
+    QuorumData()    { isPrimary = false; prev = next = this; }
+
+    bool            isPrimary;
 
     MessageList     dataMessages;
     Timer           primaryLeaseTimeout;

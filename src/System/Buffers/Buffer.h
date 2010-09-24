@@ -19,14 +19,15 @@
 
 class Buffer
 {
+private:
+    Buffer(const Buffer& other);
+    Buffer&             operator=(const Buffer& other);
+
 public:
     Buffer();
-    Buffer(const Buffer& other);
     ~Buffer();
 
     void                SetPreallocated(char* buffer, unsigned size);
-
-//  Buffer&             operator=(const Buffer& other);
     
     static bool         Cmp(Buffer& a, Buffer& b);
     bool                Cmp(const char* buffer, unsigned length_);

@@ -20,12 +20,12 @@ public:
     // Variables
     char            type;
     uint64_t        tableID;
-    Buffer          key;
-    Buffer          value;
+    ReadBuffer      key;
+    ReadBuffer      value;
 
     // Data management
-    void            Set(uint64_t tableID, ReadBuffer key, ReadBuffer value);
-    void            Delete(uint64_t tableID, ReadBuffer key);
+    void            Set(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
+    void            Delete(uint64_t tableID, ReadBuffer& key);
 
     // For InList<>
     DataMessage*    prev;

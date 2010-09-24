@@ -4,7 +4,7 @@
 #include "System/IO/IOProcessor.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Controller/ControllerApp.h"
-#include "Application/ShardServer/ShardServer.h"
+#include "Application/ShardServer/ShardServerApp.h"
 
 #ifdef DEBUG
 #define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING " (DEBUG build date " __DATE__ " " __TIME__ ")"
@@ -19,7 +19,7 @@ void InitContextTransport();
 int main(int argc, char** argv)
 {
     ControllerApp*      controller;
-    ShardServer*        shardServer;
+    ShardServerApp*     shardServer;
     bool                isController;
 
     if (argc < 2)
@@ -39,7 +39,7 @@ int main(int argc, char** argv)
     }
     else
     {
-        shardServer = new ShardServer;
+        shardServer = new ShardServerApp;
         shardServer->Init();
     }
     
