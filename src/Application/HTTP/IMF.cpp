@@ -120,7 +120,7 @@ static int SeekCrlf(char* start, int len)
     {
         p++;
 
-        if (p - start == len)
+        if (p - start == len - 1)
             return 0;
     }
     
