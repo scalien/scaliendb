@@ -30,7 +30,7 @@ TEST_DEFINE(TestMain)
         //TestStorageShardSplit,
         //TestWriteTiming,
         //TestFileSystemDiskSpace,
-        //TestArrayListBasic,
+        TestArrayListBasic,
         TestArrayListRemove,
     );
 }

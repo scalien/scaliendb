@@ -162,6 +162,7 @@ ClientRequest* HTTPControllerSession::ProcessGetState(UrlParam& /*params*/)
 ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 {
     typedef ClientRequest::NodeList NodeList;
+    
     ClientRequest*  request;
     char            productionType;
     NodeList        nodes;

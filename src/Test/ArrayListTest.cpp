@@ -14,7 +14,7 @@ TEST_DEFINE(TestArrayListBasic)
     for (i = 0; i <= nodes.GetSize(); i++)
     {
         if (i < nodes.GetSize())
-            TEST_ASSERT(nodes.Append(i))
+            TEST_ASSERT(nodes.Append(i));
         else
             TEST_ASSERT(!nodes.Append(i));
     }
@@ -40,7 +40,7 @@ TEST_DEFINE(TestArrayListRemove)
     for (i = 0; i <= nodes.GetSize(); i++)
     {
         if (i < nodes.GetSize())
-            TEST_ASSERT(nodes.Append(i))
+            TEST_ASSERT(nodes.Append(i));
         else
             TEST_ASSERT(!nodes.Append(i));
     }
