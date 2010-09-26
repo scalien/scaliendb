@@ -381,7 +381,7 @@
 		9AABBAD41243E1CB003626AC /* SDBPClientRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientRequest.h; path = Application/Client/SDBPClientRequest.h; sourceTree = "<group>"; };
 		9AABBAD51243E1CB003626AC /* SDBPClientRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientRequest.cpp; path = Application/Client/SDBPClientRequest.cpp; sourceTree = "<group>"; };
 		9AABC18D124EA494003626AC /* ArrayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayList.h; sourceTree = "<group>"; };
-		9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArrayListTest.cpp; sourceTree = "<group>"; };
+		9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ArrayListTest.cpp; path = Test/ArrayListTest.cpp; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9ACF23DE122FDEBE00247703 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };

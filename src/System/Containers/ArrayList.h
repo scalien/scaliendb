@@ -3,6 +3,14 @@
 
 #include <assert.h>
 
+/*
+===============================================================================
+
+ ArrayList implements the List interface for bounded number of items.
+
+===============================================================================
+*/
+
 template<typename T, unsigned size>
 class ArrayList
 {
@@ -31,6 +39,10 @@ private:
     T           buffer[size];
     unsigned    num;
 };
+
+/*
+===============================================================================
+*/
 
 template<typename T, unsigned size>
 ArrayList<T, size>::ArrayList()
