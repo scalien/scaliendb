@@ -115,6 +115,7 @@ void ShardServer::OnAwaitingNodeID(Endpoint /*endpoint*/)
 
 QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
 {
+    // TODO:
 }
 
 void ShardServer::TryAppend(QuorumData* quorumData)

@@ -216,7 +216,6 @@ void Controller::FromClientRequest(ClientRequest* request, ConfigMessage* messag
             message->type = CONFIGMESSAGE_CREATE_QUORUM;
             message->productionType = request->productionType;
             message->nodes = request->nodes;
-            request->nodes.ClearMembers();
             return;
         case CLIENTREQUEST_CREATE_DATABASE:
             message->type = CONFIGMESSAGE_CREATE_DATABASE;

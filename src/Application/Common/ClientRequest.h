@@ -1,7 +1,7 @@
 #ifndef CLIENTREQUEST_H
 #define CLIENTREQUEST_H
 
-#include "System/Containers/List.h"
+#include "System/Containers/ArrayList.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "ClientResponse.h"
 #include "ClientSession.h"
@@ -34,7 +34,7 @@ class ClientSession; // forward
 class ClientRequest
 {
 public:
-    typedef List<uint64_t> NodeList;
+    typedef ArrayList<uint64_t, CONFIG_MAX_NODES> NodeList;
     
     ClientRequest();
     

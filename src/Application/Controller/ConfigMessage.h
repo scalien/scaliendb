@@ -3,8 +3,10 @@
 
 #include "System/Platform.h"
 #include "System/IO/Endpoint.h"
-#include "System/Containers/List.h"
+#include "System/Containers/ArrayList.h"
 #include "Framework/Messaging/Message.h"
+
+#define CONFIGMESSAGE_MAX_NODES                 7
 
 #define CONFIGMESSAGE_REGISTER_SHARDSERVER      'S'
 #define CONFIGMESSAGE_CREATE_QUORUM             'Q'
@@ -32,7 +34,7 @@
 class ConfigMessage : public Message
 {
 public:
-    typedef List<uint64_t> NodeList;
+    typedef ArrayList<uint64_t, CONFIGMESSAGE_MAX_NODES> NodeList;
 
     ConfigMessage() { prev = next = this; }
 

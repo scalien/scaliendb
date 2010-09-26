@@ -117,8 +117,11 @@ private:
     bool                ReadShardServer(ConfigShardServer& database, ReadBuffer& buffer);
     void                WriteShardServer(ConfigShardServer& shardServer, Buffer& buffer);
 
-    bool                ReadIDList(List<uint64_t>& numbers, ReadBuffer& buffer);
-    void                WriteIDList(List<uint64_t>& numbers, Buffer& buffer);
+    template<typename List>
+    bool                ReadIDList(List& numbers, ReadBuffer& buffer);
+    
+    template<typename List>
+    void                WriteIDList(List& numbers, Buffer& buffer);
 };
 
 #endif

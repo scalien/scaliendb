@@ -223,6 +223,22 @@ ConfigTable* ConfigState::GetTable(uint64_t databaseID, ReadBuffer name)
     return NULL;
 }
 
+ConfigShard* ConfigState::GetShard(uint64_t tableID, ReadBuffer key)
+{
+    ConfigShard*    it;
+    
+    for (it = shards.First(); it != NULL; it = shards.Next(it))
+    {
+        if (it->tableID == tableID)
+        {
+            if (ReadBuffer::Cmp(key, it->firstKey) >= 0 && ReadBuffer::Cmp(key, it->lastKey) <= 0)
+                return it;
+        }
+    }
+    
+    return NULL;
+}
+
 ConfigShard* ConfigState::GetShard(uint64_t shardID)
 {
     ConfigShard*    it;
@@ -279,7 +295,7 @@ bool ConfigState::CompleteIncreaseQuorum(ConfigMessage& message)
     if (itQuorum == NULL)
         return false; // no such quorum
     
-    List<uint64_t>& activeNodes = itQuorum->activeNodes;
+    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
     
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
@@ -287,7 +303,7 @@ bool ConfigState::CompleteIncreaseQuorum(ConfigMessage& message)
             return false; // node already in quorum
     }
 
-    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -307,14 +323,14 @@ bool ConfigState::CompleteDecreaseQuorum(ConfigMessage& message)
     if (itQuorum == NULL)
         return false; // no such quorum
     
-    List<uint64_t>& activeNodes = itQuorum->activeNodes;
+    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
             return true; // node in quorum
     }
 
-    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -444,7 +460,6 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     it = new ConfigQuorum;
     it->quorumID = message.quorumID;
     it->activeNodes = message.nodes;
-    message.nodes.ClearMembers();
     it->productionType = message.productionType;
     
     quorums.Append(it);
@@ -460,14 +475,14 @@ void ConfigState::OnIncreaseQuorum(ConfigMessage& message)
     assert(itQuorum != NULL);
         
     // make sure node is not already in quorum
-    List<uint64_t>& activeNodes = itQuorum->activeNodes;
+    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
             ASSERT_FAIL();
     }
 
-    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -487,7 +502,7 @@ void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
     assert(itQuorum != NULL);
     
     // make sure node is in quorum
-    List<uint64_t>& activeNodes = itQuorum->activeNodes;
+    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -497,7 +512,7 @@ void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
         }
     }
 
-    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -926,7 +941,8 @@ void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffe
     buffer.Appendf("%U:%#R", shardServer.nodeID, &endpoint);
 }
 
-bool ConfigState::ReadIDList(List<uint64_t>& IDs, ReadBuffer& buffer)
+template<typename List>
+bool ConfigState::ReadIDList(List& IDs, ReadBuffer& buffer)
 {
     uint64_t    ID;
     unsigned    i, num;
@@ -947,7 +963,8 @@ bool ConfigState::ReadIDList(List<uint64_t>& IDs, ReadBuffer& buffer)
     return true;
 }
 
-void ConfigState::WriteIDList(List<uint64_t>& IDs, Buffer& buffer)
+template<typename List>
+void ConfigState::WriteIDList(List& IDs, Buffer& buffer)
 {
     uint64_t*   it;
     

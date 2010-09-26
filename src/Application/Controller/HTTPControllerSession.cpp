@@ -161,10 +161,10 @@ ClientRequest* HTTPControllerSession::ProcessGetState(UrlParam& /*params*/)
 
 ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 {
+    typedef ClientRequest::NodeList NodeList;
     ClientRequest*  request;
-    uint64_t        quorumID;
     char            productionType;
-    List<uint64_t>  nodes;
+    NodeList        nodes;
     ReadBuffer      tmp;
     char*           next;
     unsigned        nread;
@@ -196,7 +196,6 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 
     request = new ClientRequest;
     request->CreateQuorum(0, productionType, nodes);
-    nodes.ClearMembers();
     
     return request;
 }

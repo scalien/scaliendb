@@ -3,6 +3,10 @@
 
 #include "System/Common.h"
 #include "System/Containers/List.h"
+#include "System/Containers/ArrayList.h"
+
+// TODO: create ConfigConsts.h and define there
+#define CONFIG_MAX_NODES                7
 
 #define CONFIG_QUORUM_PRODUCTION        'P'
 #define CONFIG_QUORUM_TEST              'T'
@@ -18,11 +22,12 @@
 class ConfigQuorum
 {
 public:
+    typedef ArrayList<uint64_t, CONFIG_MAX_NODES> NodeList;
     ConfigQuorum()      { prev = next = this; hasPrimary = false; }
 
     uint64_t            quorumID;
-    List<uint64_t>      activeNodes;    
-    List<uint64_t>      inactiveNodes;  
+    NodeList            activeNodes;
+    NodeList            inactiveNodes;
     List<uint64_t>      shards;
     char                productionType;
     
