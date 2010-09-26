@@ -141,6 +141,7 @@
 		9AABBB3A1243F3FD003626AC /* SDBPControllerConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB82112412575003626AC /* SDBPControllerConnection.cpp */; };
 		9AABBCD3124A552A003626AC /* SDBPRequestMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546224ED1249030D00759E58 /* SDBPRequestMessage.cpp */; };
 		9AABBCD8124A5542003626AC /* SDBPResponseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546225111249074000759E58 /* SDBPResponseMessage.cpp */; };
+		9AABC194124F4BE5003626AC /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
@@ -379,6 +380,8 @@
 		9AABBA541243CB4F003626AC /* SDBPResult.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPResult.cpp; path = Application/Client/SDBPResult.cpp; sourceTree = "<group>"; };
 		9AABBAD41243E1CB003626AC /* SDBPClientRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientRequest.h; path = Application/Client/SDBPClientRequest.h; sourceTree = "<group>"; };
 		9AABBAD51243E1CB003626AC /* SDBPClientRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientRequest.cpp; path = Application/Client/SDBPClientRequest.cpp; sourceTree = "<group>"; };
+		9AABC18D124EA494003626AC /* ArrayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayList.h; sourceTree = "<group>"; };
+		9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ArrayListTest.cpp; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9ACF23DE122FDEBE00247703 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
@@ -683,6 +686,7 @@
 				54B7F74B11BE5EF30076BC62 /* InQueue.h */,
 				546E190411E4D61300867EE1 /* InPriorityQueue.h */,
 				9A87370C1222DC77000B1319 /* InTreeMap.h */,
+				9AABC18D124EA494003626AC /* ArrayList.h */,
 			);
 			path = Containers;
 			sourceTree = "<group>";
@@ -850,6 +854,7 @@
 				9A87418B12282946000B1319 /* TimeTest.cpp */,
 				9ACF29501235569100247703 /* FileSystemTest.cpp */,
 				9AABB9C71243B3A9003626AC /* ClientTest.cpp */,
+				9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */,
 			);
 			name = Test;
 			sourceTree = "<group>";
@@ -1091,6 +1096,7 @@
 				9AABBB3A1243F3FD003626AC /* SDBPControllerConnection.cpp in Sources */,
 				9AABBCD3124A552A003626AC /* SDBPRequestMessage.cpp in Sources */,
 				9AABBCD8124A5542003626AC /* SDBPResponseMessage.cpp in Sources */,
+				9AABC194124F4BE5003626AC /* ArrayListTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
