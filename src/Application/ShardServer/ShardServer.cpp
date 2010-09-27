@@ -3,6 +3,8 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
 
+#define REQUEST_TIMEOUT 1000
+
 void ShardServer::Init()
 {
     unsigned        numControllers;
@@ -10,13 +12,15 @@ void ShardServer::Init()
     const char*     str;
     Endpoint        endpoint;
 
-    if (REPLICATION_CONFIG->GetNodeID() == 0)
-        awaitingNodeID = true;
-    else
-        awaitingNodeID = false;
+    configState = NULL;
     
     if (REPLICATION_CONFIG->GetNodeID() > 0)
+    {
+        awaitingNodeID = false;
         CONTEXT_TRANSPORT->SetSelfNodeID(REPLICATION_CONFIG->GetNodeID());
+    }
+    else
+        awaitingNodeID = true;
     
     // connect to the controller nodes
     numControllers = (unsigned) configFile.GetListNum("controllers");
@@ -31,6 +35,9 @@ void ShardServer::Init()
     }
 
     CONTEXT_TRANSPORT->SetClusterContext(this);
+    
+    requestTimer.SetDelay(REQUEST_TIMEOUT);
+    requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));
 }
 
 void ShardServer::OnAppend(DataMessage& message, bool ownAppend)
@@ -49,7 +56,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     ConfigShard*    shard;
     QuorumData*     quorumData;
     
-    shard = configState.GetShard(request->tableID, ReadBuffer(request->key));
+    shard = configState->GetShard(request->tableID, ReadBuffer(request->key));
     if (!shard)
     {
         request->response.Failed();
@@ -98,6 +105,11 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
             REPLICATION_CONFIG->Commit();
             Log_Trace("my nodeID is %" PRIu64 "", msg.nodeID);
             break;
+        case CLUSTERMESSAGE_SET_CONFIG_STATE:
+            OnSetConfigState(msg.configState);
+            msg.configState = NULL;
+            Log_Trace("got new configState");
+            break;
         default:
             ASSERT_FAIL();
     }
@@ -115,7 +127,15 @@ void ShardServer::OnAwaitingNodeID(Endpoint /*endpoint*/)
 
 QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
 {
-    // TODO:
+    QuorumData* quorum;
+    
+    for (quorum = quorums.First(); quorum != NULL; quorums.Next(quorum))
+    {
+        if (quorum->quorumID == quorumID)
+            return quorum;
+    }
+    
+    return NULL;
 }
 
 void ShardServer::TryAppend(QuorumData* quorumData)
@@ -154,4 +174,54 @@ void ShardServer::OnRequestLeaseTimeout()
             
         }
     }
+}
+
+void ShardServer::OnSetConfigState(ConfigState* configState_)
+{
+    QuorumData*     qdata;
+    ConfigQuorum*   configQuorum;
+    uint64_t*       nit;
+    uint64_t        nodeID;
+
+    delete configState;
+    configState = configState_;
+    
+    nodeID = REPLICATION_CONFIG->GetNodeID();
+    
+    for (configQuorum = configState->quorums.First();
+     configQuorum != NULL;
+     configState->quorums.Next(configQuorum))
+    {
+        // TODO: removal and inactive nodes
+        for (nit = configQuorum->activeNodes.First();
+         nit != NULL;
+         configQuorum->activeNodes.Next(nit))
+        {
+            if (*nit != nodeID)
+                continue;
+                
+            qdata = LocateQuorum(configQuorum->quorumID);
+            if (qdata == NULL)
+            {
+                qdata = new QuorumData;
+                qdata->quorumID = configQuorum->quorumID;
+                qdata->context.Init(this, configQuorum->quorumID, configQuorum);
+                qdata->isPrimary = false;
+
+                quorums.Append(qdata);
+            }
+            else 
+            {
+                // TODO: update nodeID changes
+            }
+
+            
+            UpdateQuorumShards(qdata, configQuorum->shards);
+        }
+    }
+}
+
+void ShardServer::UpdateQuorumShards(QuorumData* qdata, List<uint64_t>& shards)
+{
+    // TODO:
 }

@@ -4,11 +4,13 @@
 #include "System/Containers/InList.h"
 #include "System/Containers/InSortedList.h"
 #include "System/Events/Timer.h"
+#include "System/Events/Countdown.h"
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
 #include "Application/Controller/State/ConfigState.h" // TODO: move this to Application/Common
 #include "DataMessage.h"
+#include "DataContext.h"
 
 class QuorumData; // forward
 
@@ -54,10 +56,14 @@ private:
     void            TryAppend(QuorumData* quorumData);
     void            FromClientRequest(ClientRequest* request, DataMessage* message);
     void            OnRequestLeaseTimeout();
+    void            OnSetConfigState(ConfigState* configState);
+    void            UpdateQuorumShards(QuorumData* qdata, List<uint64_t>& shards);
     
     bool            awaitingNodeID;
     QuorumList      quorums;
-    ConfigState     configState;
+    ConfigState*    configState;
+    Countdown       requestTimer;
+    Timer           primaryLeaseTimer;
 };
 
 /*
@@ -77,10 +83,12 @@ public:
     QuorumData()    { isPrimary = false; prev = next = this; }
 
     bool            isPrimary;
+    uint64_t        primaryExpireTime;
 
+    uint64_t        quorumID;
     MessageList     dataMessages;
-    Timer           primaryLeaseTimeout;
     RequestList     requests;
+    DataContext     context;
     
     QuorumData*     prev;
     QuorumData*     next;

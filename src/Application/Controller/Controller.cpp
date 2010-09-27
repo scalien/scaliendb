@@ -439,11 +439,24 @@ void Controller::UpdatePrimaryLeaseTimer()
 
 void Controller::UpdateListeners()
 {
-    ClientRequest* it;
+    ClientRequest*                  itRequest;
+    ConfigShardServer*              itShardServer;
+    ConfigState::ShardServerList*   shardServers;
+    ClusterMessage                  message;
     
-    for (it = listenRequests.First(); it != NULL; it = listenRequests.Next(it))
+    // update clients
+    for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
     {
-        it->response.GetConfigStateResponse(&configState);
-        it->OnComplete(false);
+        itRequest->response.GetConfigStateResponse(&configState);
+        itRequest->OnComplete(false);
+    }
+    
+    // update shard servers
+    message.SetConfigState(&configState);
+    shardServers = &configState.shardServers;
+    for (itShardServer = shardServers->First(); itShardServer != NULL; 
+     itShardServer = shardServers->Next(itShardServer))
+    {
+        CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
     }
 }
