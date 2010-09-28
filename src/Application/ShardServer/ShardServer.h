@@ -3,8 +3,11 @@
 
 #include "System/Containers/InList.h"
 #include "System/Containers/InSortedList.h"
+#include "System/Containers/HashMap.h"
 #include "System/Events/Timer.h"
 #include "System/Events/Countdown.h"
+#include "Framework/Storage/StorageDatabase.h"
+#include "Framework/Storage/StorageTable.h"
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
@@ -25,7 +28,11 @@ class QuorumData; // forward
 class ShardServer : public ClusterContext, public SDBPContext
 {
 public:
-    typedef InList<QuorumData> QuorumList;
+    typedef InList<QuorumData>                      QuorumList;
+    typedef ArrayList<uint64_t, CONFIG_MAX_NODES>   NodeList;
+    typedef HashMap<uint64_t, StorageDatabase*>     DatabaseMap;
+    typedef HashMap<uint64_t, StorageTable*>        TableMap;
+    typedef SortedList<QuorumData*>                 LeaseList;
 
     void            Init();
     
@@ -33,7 +40,7 @@ public:
     bool            IsLeaderKnown(uint64_t quorumID);
     bool            IsLeader(uint64_t quorumID);
     uint64_t        GetLeader(uint64_t quorumID);
-    void            OnAppend(DataMessage& message, bool ownAppend);
+    void            OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend);
 
     // ========================================================================================
     // SDBPContext interface:
@@ -56,14 +63,23 @@ private:
     void            TryAppend(QuorumData* quorumData);
     void            FromClientRequest(ClientRequest* request, DataMessage* message);
     void            OnRequestLeaseTimeout();
+    void            OnPrimaryLeaseTimeout();
     void            OnSetConfigState(ConfigState* configState);
-    void            UpdateQuorumShards(QuorumData* qdata, List<uint64_t>& shards);
+    void            OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
+    void            UpdateShards(List<uint64_t>& shards);
+    StorageTable*   LocateTable(uint64_t tableID);
+    void            UpdatePrimaryLeaseTimer();
+    void            OnClientRequestGet(ClientRequest* request);
     
     bool            awaitingNodeID;
     QuorumList      quorums;
+    LeaseList       leases;
     ConfigState*    configState;
     Countdown       requestTimer;
-    Timer           primaryLeaseTimer;
+    Timer           primaryLeaseTimeout;
+    NodeList        controllers;
+    DatabaseMap     databases;
+    TableMap        tables;
 };
 
 /*
@@ -79,6 +95,7 @@ class QuorumData
 public:
     typedef InList<DataMessage>     MessageList;
     typedef InList<ClientRequest>   RequestList;
+    typedef List<uint64_t>          ShardList;
 
     QuorumData()    { isPrimary = false; prev = next = this; }
 
@@ -86,8 +103,10 @@ public:
     uint64_t        primaryExpireTime;
 
     uint64_t        quorumID;
+    uint64_t        proposalID;
     MessageList     dataMessages;
     RequestList     requests;
+    ShardList       shards;
     DataContext     context;
     
     QuorumData*     prev;

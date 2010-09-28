@@ -144,6 +144,7 @@
 		9AABC194124F4BE5003626AC /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */; };
 		9AABC280124F639A003626AC /* ShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A861C3123E207000ECCBE5 /* ShardServer.cpp */; };
 		9AABC283124F63A7003626AC /* DataMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54838865124B54B2005F0FB4 /* DataMessage.cpp */; };
+		9AABC3AF12529466003626AC /* DataContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BE70124B5E4B00439334 /* DataContext.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
@@ -1040,6 +1041,7 @@
 				54E0BFCD124CF55100439334 /* ShardServerApp.cpp in Sources */,
 				9AABC280124F639A003626AC /* ShardServer.cpp in Sources */,
 				9AABC283124F63A7003626AC /* DataMessage.cpp in Sources */,
+				9AABC3AF12529466003626AC /* DataContext.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

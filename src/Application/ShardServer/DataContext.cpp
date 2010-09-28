@@ -23,6 +23,11 @@ void DataContext::Init(ShardServer* shardServer_, uint64_t quorumID, ConfigQuoru
     highestPaxosID = 0; 
 }
 
+void DataContext::UpdateConfig(ConfigQuorum* configQuorum)
+{
+    // TODO: reconfigure quorum
+}
+
 void DataContext::Append(DataMessage* message)
 {
     message->Write(nextValue);
@@ -102,7 +107,7 @@ void DataContext::OnAppend(ReadBuffer value, bool ownAppend)
     nextValue.Clear();
 
     assert(message.Read(value));
-    shardServer->OnAppend(message, ownAppend);
+    shardServer->OnAppend(contextID, message, ownAppend);
 }
 
 Buffer* DataContext::GetNextValue()

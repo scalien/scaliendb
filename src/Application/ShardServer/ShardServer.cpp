@@ -5,6 +5,16 @@
 
 #define REQUEST_TIMEOUT 1000
 
+static size_t Hash(uint64_t h)
+{
+    return h;
+}
+
+static bool LessThan(QuorumData* a, QuorumData* b)
+{
+    return (a->primaryExpireTime < b->primaryExpireTime);
+}
+
 void ShardServer::Init()
 {
     unsigned        numControllers;
@@ -29,6 +39,7 @@ void ShardServer::Init()
         str = configFile.GetListValue("controllers", nodeID, "");
         endpoint.Set(str);
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
+        controllers.Append(nodeID);
         // this will cause the node to connect to the controllers
         // and if my nodeID is not set the MASTER will automatically send
         // me a SetNodeID cluster message
@@ -37,12 +48,80 @@ void ShardServer::Init()
     CONTEXT_TRANSPORT->SetClusterContext(this);
     
     requestTimer.SetDelay(REQUEST_TIMEOUT);
-    requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));
+    requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));    
+    primaryLeaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
 }
 
-void ShardServer::OnAppend(DataMessage& message, bool ownAppend)
+bool ShardServer::IsLeaderKnown(uint64_t quorumID)
 {
-    // TODO: xxx
+    // TODO:
+}
+
+bool ShardServer::IsLeader(uint64_t quorumID)
+{
+    QuorumData*     quorumData;
+    
+    quorumData = LocateQuorum(quorumID);
+    if (quorumData == NULL)
+        return false;
+    
+    return quorumData->isPrimary;
+}
+
+uint64_t ShardServer::GetLeader(uint64_t quorumID)
+{
+    // TODO:
+}
+
+void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend)
+{
+    QuorumData*     quorumData;
+    StorageTable*   table;
+    ClientRequest*  request;
+    
+    quorumData = LocateQuorum(quorumID);
+    if (!quorumData)
+        ASSERT_FAIL();
+        
+    table = LocateTable(message.tableID);
+    if (!table)
+        ASSERT_FAIL();
+    
+    request = NULL;
+    if (ownAppend)
+    {
+        assert(quorumData->dataMessages.GetLength() > 0);
+        assert(quorumData->dataMessages.First()->type == message.type);
+        assert(quorumData->requests.GetLength() > 0);
+        request = quorumData->requests.First();
+    }
+    
+    switch (message.type)
+    {
+    case CLIENTREQUEST_SET:
+        if (!table->Set(message.key, message.value))
+            ASSERT_FAIL();
+        break;
+    case CLIENTREQUEST_DELETE:
+        table->Delete(message.key); // TODO: return status
+        break;
+    default:
+        ASSERT_FAIL();
+        break;
+    }
+
+    if (ownAppend)
+    {
+        if (request)
+        {
+            // TODO: fix responses
+            request->response.OK();
+            request->OnComplete();
+        }
+        
+        quorumData->dataMessages.Delete(quorumData->dataMessages.First());
+        quorumData->requests.Delete(quorumData->requests.First());
+    }
 }
 
 bool ShardServer::IsValidClientRequest(ClientRequest* request)
@@ -73,10 +152,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     }
     
     if (request->type == CLIENTREQUEST_GET)
-    {
-        // TODO: xxx
-        return;
-    }
+        return OnClientRequestGet(request);
 
     message = new DataMessage;
     FromClientRequest(request, message);
@@ -88,6 +164,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
 
 void ShardServer::OnClientClose(ClientSession* /*session*/)
 {
+    // nothing
 }
 
 void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
@@ -108,7 +185,13 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             OnSetConfigState(msg.configState);
             msg.configState = NULL;
-            Log_Trace("got new configState");
+            Log_Trace("got new configState, master is %d", 
+             configState->hasMaster ? (int) configState->masterID : -1);
+            break;
+        case CLUSTERMESSAGE_RECEIVE_LEASE:
+            OnReceiveLease(msg.quorumID, msg.proposalID);
+            Log_Trace("recieved lease, quorumID = %" PRIu64 ", proposalID =  %" PRIu64,
+             msg.quorumID, msg.proposalID);
             break;
         default:
             ASSERT_FAIL();
@@ -140,6 +223,8 @@ QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
 
 void ShardServer::TryAppend(QuorumData* quorumData)
 {
+    if (!quorumData->context.IsAppending())
+        quorumData->context.Append(quorumData->dataMessages.First());
 }
 
 void ShardServer::FromClientRequest(ClientRequest* request, DataMessage* message)
@@ -164,16 +249,44 @@ void ShardServer::FromClientRequest(ClientRequest* request, DataMessage* message
 
 void ShardServer::OnRequestLeaseTimeout()
 {
-    QuorumData* quorum;
+    QuorumData*     quorum;
+    ClusterMessage  msg;
+    uint64_t        nodeID;
+    uint64_t        *nit;
     
+    nodeID = REPLICATION_CONFIG->GetNodeID();
     for (quorum = quorums.First(); quorum != NULL; quorum = quorums.Next(quorum))
     {
-        if (!quorum->isPrimary)
-        {
-            // TODO: try to get lease
-            
-        }
+        quorum->proposalID = REPLICATION_CONFIG->NextProposalID(quorum->proposalID);
+        msg.RequestLease(nodeID, quorum->quorumID, quorum->proposalID, PAXOSLEASE_MAX_LEASE_TIME);
+        
+        // send to all controllers
+        for (nit = controllers.First(); nit != NULL; nit = controllers.Next(nit))
+            CONTEXT_TRANSPORT->SendClusterMessage(*nit, msg);
+
+        // TODO: update timers
     }
+}
+
+void ShardServer::OnPrimaryLeaseTimeout()
+{
+    uint64_t        now;
+    QuorumData**    qit;
+    QuorumData*     quorum;
+    
+    now = EventLoop::Now();
+
+    for (qit = leases.First(); qit != NULL;)
+    {
+        quorum = *qit;
+        if (quorum->primaryExpireTime > now)
+            break;
+
+        quorum->isPrimary = false;
+        qit = leases.Remove(qit);
+    }
+
+    UpdatePrimaryLeaseTimer();
 }
 
 void ShardServer::OnSetConfigState(ConfigState* configState_)
@@ -205,23 +318,127 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
             {
                 qdata = new QuorumData;
                 qdata->quorumID = configQuorum->quorumID;
+                qdata->proposalID = 0;
                 qdata->context.Init(this, configQuorum->quorumID, configQuorum);
                 qdata->isPrimary = false;
 
                 quorums.Append(qdata);
             }
             else 
-            {
-                // TODO: update nodeID changes
-            }
-
+                qdata->context.UpdateConfig(configQuorum);
             
-            UpdateQuorumShards(qdata, configQuorum->shards);
+            UpdateShards(configQuorum->shards);
         }
+    }
+    
+    OnRequestLeaseTimeout();
+}
+
+void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)
+{
+    QuorumData*     quorum;
+    
+    quorum = LocateQuorum(quorumID);
+    if (!quorum)
+        return;
+    
+    if (quorum->proposalID != proposalID)
+        return;
+    
+    quorum->isPrimary = true;
+}
+
+void ShardServer::UpdateShards(List<uint64_t>& shards)
+{
+    uint64_t*           sit;
+    ConfigShard*        shard;
+    StorageDatabase*    database;
+    StorageTable*       table;
+    Buffer              name;
+    ReadBuffer          firstKey;
+
+    // TODO:
+    for (sit = shards.First(); sit != NULL; sit = shards.Next(sit))
+    {
+        shard = configState->GetShard(*sit);
+        assert(shard != NULL);
+        
+        if (!databases.Get(shard->databaseID, database))
+        {
+            name.Writef("%U", shard->databaseID);
+            name.NullTerminate();
+
+            database = new StorageDatabase;
+            database->Open(name.GetBuffer());
+            databases.Set(shard->databaseID, database);
+        }
+        
+        if (!tables.Get(shard->tableID, table))
+        {
+            name.Writef("%U", shard->tableID);
+            name.NullTerminate();
+            
+            table = database->GetTable(name.GetBuffer());
+            assert(table != NULL);
+            tables.Set(shard->tableID, table);
+        }
+        
+        // TODO: check if already exists
+        firstKey.Wrap(shard->firstKey);
+        table->CreateShard(*sit, firstKey);
     }
 }
 
-void ShardServer::UpdateQuorumShards(QuorumData* qdata, List<uint64_t>& shards)
+StorageTable* ShardServer::LocateTable(uint64_t tableID)
 {
-    // TODO:
+    StorageTable*   table;
+    
+    if (!tables.Get(tableID, table))
+        return NULL;
+    return table;
+}
+
+void ShardServer::OnClientRequestGet(ClientRequest* request)
+{
+    StorageTable*   table;
+    ReadBuffer      key;
+    ReadBuffer      value;
+
+    table = LocateTable(request->tableID);
+    if (!table)
+    {
+        request->response.Failed();
+        request->OnComplete();
+        return;            
+    }
+    
+    key.Wrap(request->key);
+    if (!table->Get(key, value))
+    {
+        request->response.Failed();
+        request->OnComplete();
+        return;            
+    }
+    
+    request->response.OK();
+    request->OnComplete();
+}
+
+void ShardServer::UpdatePrimaryLeaseTimer()
+{
+    QuorumData**    qit;
+    QuorumData*     quorum;
+
+    qit = leases.First();
+    if (!qit)
+        return;
+    
+    quorum = *qit;
+    if (quorum->primaryExpireTime < primaryLeaseTimeout.GetExpireTime())
+    {
+        EventLoop::Remove(&primaryLeaseTimeout);
+        primaryLeaseTimeout.SetExpireTime(quorum->primaryExpireTime);
+        EventLoop::Add(&primaryLeaseTimeout);
+    }
+
 }

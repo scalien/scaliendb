@@ -300,6 +300,8 @@ void Controller::OnPrimaryLeaseTimeout()
             quorum->primaryID = 0;
             itLease = primaryLeases.Delete(itLease);
         }
+        else
+            break;
     }
 
     UpdatePrimaryLeaseTimer();
@@ -428,6 +430,8 @@ void Controller::UpdatePrimaryLeaseTimer()
     PrimaryLease* primaryLease;
 
     primaryLease = primaryLeases.First();
+    if (!primaryLease)
+        return;
     
     if (primaryLease->expireTime < primaryLeaseTimeout.GetExpireTime())
     {

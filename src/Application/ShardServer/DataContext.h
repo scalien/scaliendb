@@ -24,6 +24,7 @@ public:
     void                            Init(ShardServer* shardServer,
                                      uint64_t quorumID, ConfigQuorum* configQuorum);
     
+    void                            UpdateConfig(ConfigQuorum* configQuorum);
     void                            Append(DataMessage* message);
     bool                            IsAppending();
     

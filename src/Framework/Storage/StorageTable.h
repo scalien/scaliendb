@@ -32,6 +32,9 @@ public:
 
     bool                CreateShard(uint64_t shardID, ReadBuffer& startKey);
     bool                SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuffer& startKey);
+    // TODO:
+    //bool              DeleteShard(uint64_t shardID);
+    //bool              DeleteAllShards();
 
     StorageTable*       next;
     StorageTable*       prev;
