@@ -96,6 +96,7 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
     }
     
     configState.OnMessage(message);
+    WriteConfigState();
     
     if (ownAppend)
     {
@@ -323,6 +324,24 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 
     configMessages.Append(message);
     TryAppend();
+}
+
+void Controller::ReadConfigState()
+{
+    ReadBuffer value;
+    
+    configDatabase->GetTable("config")->Get(ReadBuffer("state"), value);
+    if (!configState.Read(value))
+    {
+        // TODO: xxx
+    }
+}
+
+void Controller::WriteConfigState()
+{
+    configState.Write(configStateBuffer);
+    configDatabase->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
+    configDatabase->Commit();
 }
 
 void Controller::SendClientResponse(ConfigMessage& message)

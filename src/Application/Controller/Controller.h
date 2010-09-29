@@ -6,6 +6,7 @@
 #include "System/Containers/InList.h"
 #include "System/Containers/InSortedList.h"
 #include "System/Events/Timer.h"
+#include "Framework/Storage/StorageDatabase.h"
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
@@ -29,52 +30,56 @@ public:
     typedef InSortedList<PrimaryLease>  LeaseList;
     typedef InList<ClientRequest>       RequestList;
 
-    void            Init();
+    void                Init();
 
-    int64_t         GetMaster();
-    uint64_t        GetNodeID();
+    int64_t             GetMaster();
+    uint64_t            GetNodeID();
 
     // For ConfigContext
-    void            OnLearnLease();
-    void            OnLeaseTimeout();
-    void            OnAppend(ConfigMessage& message, bool ownAppend);
+    void                OnLearnLease();
+    void                OnLeaseTimeout();
+    void                OnAppend(ConfigMessage& message, bool ownAppend);
     
     // ========================================================================================
     // SDBPContext interface:
     //
-    bool            IsValidClientRequest(ClientRequest* request);
-    void            OnClientRequest(ClientRequest* request);
-    void            OnClientClose(ClientSession* session);
+    bool                IsValidClientRequest(ClientRequest* request);
+    void                OnClientRequest(ClientRequest* request);
+    void                OnClientClose(ClientSession* session);
     // ========================================================================================
 
     // ========================================================================================
     // ClusterContext interface:
     //
-    void            OnClusterMessage(uint64_t nodeID, ClusterMessage& msg);
-    void            OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
-    void            OnAwaitingNodeID(Endpoint endpoint);
+    void                OnClusterMessage(uint64_t nodeID, ClusterMessage& msg);
+    void                OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
+    void                OnAwaitingNodeID(Endpoint endpoint);
     // ========================================================================================
 
 private:
-    void            TryAppend();
-    void            FromClientRequest(ClientRequest* request, ConfigMessage* message);
-    void            ToClientResponse(ConfigMessage* message, ClientResponse* response);
-    void            OnPrimaryLeaseTimeout();
-    void            TryRegisterShardServer(Endpoint& endpoint);
-    void            SendClientResponse(ConfigMessage& message);
-    void            OnRequestLease(ClusterMessage& message);
-    void            AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
-    void            ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
-    void            UpdatePrimaryLeaseTimer();
-    void            UpdateListeners();
+    void                TryAppend();
+    void                FromClientRequest(ClientRequest* request, ConfigMessage* message);
+    void                ToClientResponse(ConfigMessage* message, ClientResponse* response);
+    void                OnPrimaryLeaseTimeout();
+    void                TryRegisterShardServer(Endpoint& endpoint);
+    void                ReadConfigState();
+    void                WriteConfigState();
+    void                SendClientResponse(ConfigMessage& message);
+    void                OnRequestLease(ClusterMessage& message);
+    void                AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
+    void                ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
+    void                UpdatePrimaryLeaseTimer();
+    void                UpdateListeners();
     
-    ConfigContext   configContext;
-    MessageList     configMessages;
-    ConfigState     configState;
-    LeaseList       primaryLeases;
-    Timer           primaryLeaseTimeout;
-    RequestList     requests;
-    RequestList     listenRequests;
+    ConfigContext       configContext;
+    MessageList         configMessages;
+    ConfigState         configState;
+    LeaseList           primaryLeases;
+    Timer               primaryLeaseTimeout;
+    RequestList         requests;
+    RequestList         listenRequests;
+    Buffer              configStateBuffer;
+    StorageDatabase*    configDatabase;
 };
 
 /*

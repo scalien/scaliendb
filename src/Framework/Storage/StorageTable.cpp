@@ -143,7 +143,7 @@ void StorageTable::Close()
     tocFD = INVALID_FD;
 }
 
-bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
+bool StorageTable::Get(ReadBuffer key, ReadBuffer& value)
 {
     StorageShardIndex* si;
     
@@ -155,7 +155,7 @@ bool StorageTable::Get(ReadBuffer& key, ReadBuffer& value)
     return si->shard->Get(key, value);
 }
 
-bool StorageTable::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
+bool StorageTable::Set(ReadBuffer key, ReadBuffer value, bool copy)
 {
     StorageShardIndex   *si;
     
@@ -170,7 +170,7 @@ bool StorageTable::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     return true;
 }
 
-void StorageTable::Delete(ReadBuffer& key)
+void StorageTable::Delete(ReadBuffer key)
 {
     StorageShardIndex*  si;
     ReadBuffer          firstKey;
