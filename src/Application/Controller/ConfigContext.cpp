@@ -4,7 +4,8 @@
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 #include "Controller.h"
 
-void ConfigContext::Init(Controller* controller_, unsigned numControllers)
+void ConfigContext::Init(Controller* controller_, unsigned numControllers, 
+ StorageTable* quorumTable)
 {
     uint64_t nodeID;
     
@@ -18,6 +19,7 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers)
     transport.SetQuorum(&quorum);
     transport.SetContextID(contextID);
     
+    database.Init(quorumTable);
     
     replicatedLog.Init(this);
     paxosLease.Init(this);

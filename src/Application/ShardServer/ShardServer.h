@@ -32,7 +32,6 @@ public:
     typedef ArrayList<uint64_t, CONFIG_MAX_NODES>   NodeList;
     typedef HashMap<uint64_t, StorageDatabase*>     DatabaseMap;
     typedef HashMap<uint64_t, StorageTable*>        TableMap;
-    typedef SortedList<QuorumData*>                 LeaseList;
 
     void            Init();
     
@@ -74,10 +73,8 @@ private:
     
     bool            awaitingNodeID;
     QuorumList      quorums;
-    LeaseList       leases;
     ConfigState*    configState;
     Countdown       requestTimer;
-    Timer           primaryLeaseTimeout;
     NodeList        controllers;
     StorageDatabase systemDatabase;
     DatabaseMap     databases;
@@ -110,6 +107,7 @@ public:
     RequestList     requests;
     ShardList       shards;
     DataContext     context;
+    Timer           leaseTimeout;
     
     QuorumData*     prev;
     QuorumData*     next;

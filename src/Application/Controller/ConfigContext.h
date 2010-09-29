@@ -20,7 +20,8 @@ class Controller; // forward
 class ConfigContext : public QuorumContext
 {
 public:
-    void                            Init(Controller* controller, unsigned numControllers);
+    void                            Init(Controller* controller, unsigned numControllers, 
+                                     StorageTable* quorumTable);
     
     void                            Append(ConfigMessage* message);
     bool                            IsAppending();

@@ -11,11 +11,20 @@ void Controller::Init()
 {
     unsigned        numControllers;
     int64_t         nodeID;
+    uint64_t        runID;
     const char*     str;
     Endpoint        endpoint;
     
     primaryLeaseTimeout.SetCallable(MFUNC(Controller, OnPrimaryLeaseTimeout));
+ 
+    systemDatabase.Open("system");
+    REPLICATION_CONFIG->Init(systemDatabase.GetTable("system"));
     
+    runID = REPLICATION_CONFIG->GetRunID();
+    runID += 1;
+    REPLICATION_CONFIG->SetRunID(runID);
+    REPLICATION_CONFIG->Commit();
+   
     nodeID = configFile.GetIntValue("nodeID", -1);
     if (nodeID < 0)
         ASSERT_FAIL();
@@ -35,10 +44,8 @@ void Controller::Init()
     }
 
     configState.Init();
-    configContext.Init(this, numControllers);
+    configContext.Init(this, numControllers, systemDatabase.GetTable("paxos"));
     CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
-    
-    systemDatabase.Open("system");
 }
 
 int64_t Controller::GetMaster()

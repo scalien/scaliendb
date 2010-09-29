@@ -11,20 +11,24 @@ static size_t Hash(uint64_t h)
     return h;
 }
 
-static bool LessThan(QuorumData* a, QuorumData* b)
-{
-    return (a->primaryExpireTime < b->primaryExpireTime);
-}
-
 void ShardServer::Init()
 {
     unsigned        numControllers;
     uint64_t        nodeID;
+    uint64_t        runID;
     const char*     str;
     Endpoint        endpoint;
 
     configState = NULL;
     
+    systemDatabase.Open(DATABASE_NAME);
+    REPLICATION_CONFIG->Init(systemDatabase.GetTable("system"));
+
+    runID = REPLICATION_CONFIG->GetRunID();
+    runID += 1;
+    REPLICATION_CONFIG->SetRunID(runID);
+    REPLICATION_CONFIG->Commit();
+
     if (REPLICATION_CONFIG->GetNodeID() > 0)
     {
         awaitingNodeID = false;
@@ -47,12 +51,9 @@ void ShardServer::Init()
     }
 
     CONTEXT_TRANSPORT->SetClusterContext(this);
-    
-    systemDatabase.Open(DATABASE_NAME);
-    
+        
     requestTimer.SetDelay(REQUEST_TIMEOUT);
     requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));    
-    primaryLeaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
 }
 
 bool ShardServer::IsLeaderKnown(uint64_t quorumID)
@@ -309,29 +310,25 @@ void ShardServer::OnRequestLeaseTimeout()
         for (nit = controllers.First(); nit != NULL; nit = controllers.Next(nit))
             CONTEXT_TRANSPORT->SendClusterMessage(*nit, msg);
 
-        // TODO: update timers
+        quorum->leaseTimeout.SetExpireTime(EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME);
     }
 }
 
 void ShardServer::OnPrimaryLeaseTimeout()
 {
     uint64_t        now;
-    QuorumData**    qit;
     QuorumData*     quorum;
     
     now = EventLoop::Now();
 
-    for (qit = leases.First(); qit != NULL;)
+    for (quorum = quorums.First(); quorum != NULL; quorum = quorums.Next(quorum))
     {
-        quorum = *qit;
-        if (quorum->primaryExpireTime > now)
-            break;
+        if (quorum->leaseTimeout.GetExpireTime() > now)
+            continue;
 
         quorum->isPrimary = false;
-        qit = leases.Remove(qit);
+        EventLoop::Remove(&quorum->leaseTimeout);
     }
-
-    UpdatePrimaryLeaseTimer();
 }
 
 void ShardServer::OnSetConfigState(ConfigState* configState_)
@@ -367,6 +364,7 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
                 qdata->quorumID = quorumID;
                 qdata->proposalID = 0;
                 qdata->context.Init(this, configQuorum, GetQuorumTable(quorumID));
+                qdata->leaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
                 qdata->isPrimary = false;
 
                 quorums.Append(qdata);
@@ -393,6 +391,7 @@ void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)
         return;
     
     quorum->isPrimary = true;
+    EventLoop::Add(&quorum->leaseTimeout);
 }
 
 void ShardServer::UpdateShards(List<uint64_t>& shards)
@@ -480,21 +479,3 @@ void ShardServer::OnClientRequestGet(ClientRequest* request)
     request->OnComplete();
 }
 
-void ShardServer::UpdatePrimaryLeaseTimer()
-{
-    QuorumData**    qit;
-    QuorumData*     quorum;
-
-    qit = leases.First();
-    if (!qit)
-        return;
-    
-    quorum = *qit;
-    if (quorum->primaryExpireTime < primaryLeaseTimeout.GetExpireTime())
-    {
-        EventLoop::Remove(&primaryLeaseTimeout);
-        primaryLeaseTimeout.SetExpireTime(quorum->primaryExpireTime);
-        EventLoop::Add(&primaryLeaseTimeout);
-    }
-
-}

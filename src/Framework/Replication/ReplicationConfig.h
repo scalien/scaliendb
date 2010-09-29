@@ -2,6 +2,7 @@
 #define REPLICATIONCONFIG_H
 
 #include "System/Common.h"
+#include "Framework/Storage/StorageTable.h"
 
 #define REPLICATION_CONFIG (ReplicationConfig::Get())
 
@@ -18,6 +19,8 @@ class ReplicationConfig
 public:
     static ReplicationConfig* Get();
     
+    void                    Init(StorageTable* table);
+    
     void                    SetNodeID(uint64_t nodeID);
     uint64_t                GetNodeID();
 
@@ -31,6 +34,7 @@ public:
 private:
     ReplicationConfig();
 
+    StorageTable*           table;
     uint64_t                nodeID;
     uint64_t                runID;
 };

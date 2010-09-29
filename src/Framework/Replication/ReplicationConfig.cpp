@@ -18,6 +18,33 @@ ReplicationConfig::ReplicationConfig()
     runID = 0;
 }
 
+void ReplicationConfig::Init(StorageTable* table_)
+{
+    ReadBuffer  value;
+    bool        ret;
+    unsigned    nread;
+    
+    table = table_;
+    
+    ret = table->Get(ReadBuffer("nodeID"), value);
+    nread = 0;
+    nodeID = BufferToUInt64(value.GetBuffer(), value.GetLength(), &nread);
+    if (!ret || nread != value.GetLength())
+    {
+        Log_Message("No nodeID read from database");
+        nodeID = 0;
+    }
+
+    ret = table->Get(ReadBuffer("runID"), value);
+    nread = 0;
+    runID = BufferToUInt64(value.GetBuffer(), value.GetLength(), &nread);
+    if (!ret || nread != value.GetLength())
+    {
+        Log_Message("No runID read from database");
+        runID = 0;
+    }
+}
+
 void ReplicationConfig::SetNodeID(uint64_t nodeID_)
 {
     nodeID = nodeID_;
@@ -61,5 +88,19 @@ uint64_t ReplicationConfig::NextProposalID(uint64_t proposalID)
 
 void ReplicationConfig::Commit()
 {
-    // TODO:
+    Buffer      value;
+    ReadBuffer  rbValue;
+    bool        ret;
+    
+    value.Writef("%U", nodeID);
+    rbValue.Wrap(value);
+    ret = table->Set(ReadBuffer("nodeID"), rbValue);
+    assert(ret == true);
+
+    value.Writef("%U", runID);
+    rbValue.Wrap(value);
+    ret = table->Set(ReadBuffer("runID"), rbValue);
+    assert(ret == true);
+    
+    table->Commit();
 }

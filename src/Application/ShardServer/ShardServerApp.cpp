@@ -3,7 +3,7 @@
 
 void ShardServerApp::Init()
 {
-//    shardServer.Init();
+    shardServer.Init();
     
 //    httpContext.SetShardServer(&shardServer);
 //    httpServer.Init(configFile.GetIntValue("http.port", 8080));
