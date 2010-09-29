@@ -345,6 +345,8 @@ void Controller::WriteConfigState()
     configState.Write(configStateBuffer);
     systemDatabase.GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
     systemDatabase.Commit();
+    
+    // TODO: save to db in a nicer format
 }
 
 void Controller::SendClientResponse(ConfigMessage& message)
