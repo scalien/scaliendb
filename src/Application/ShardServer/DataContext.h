@@ -22,7 +22,8 @@ class DataContext : public QuorumContext
 {
 public:
     void                            Init(ShardServer* shardServer,
-                                     uint64_t quorumID, ConfigQuorum* configQuorum);
+                                     ConfigQuorum* configQuorum,
+                                     StorageTable* quorumTable);
     
     void                            UpdateConfig(ConfigQuorum* configQuorum);
     void                            Append(DataMessage* message);

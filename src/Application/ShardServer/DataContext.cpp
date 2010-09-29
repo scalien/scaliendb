@@ -3,12 +3,13 @@
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 #include "ShardServer.h"
 
-void DataContext::Init(ShardServer* shardServer_, uint64_t quorumID, ConfigQuorum* configQuorum)
+void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
+ StorageTable* table_)
 {
     uint64_t*   it;
     
     shardServer = shardServer_;
-    contextID = quorumID;
+    contextID = configQuorum->quorumID;
   
     for (it = configQuorum->activeNodes.First(); it != NULL; it = configQuorum->activeNodes.Next(it))
         quorum.AddNode(*it);
@@ -17,6 +18,7 @@ void DataContext::Init(ShardServer* shardServer_, uint64_t quorumID, ConfigQuoru
     transport.SetQuorum(&quorum);
     transport.SetContextID(contextID);
     
+    database.Init(table_);
     
     replicatedLog.Init(this);
     transport.SetContextID(contextID);
