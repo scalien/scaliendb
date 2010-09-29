@@ -3,6 +3,7 @@
 
 #include "System/Platform.h"
 #include "System/Buffers/Buffer.h"
+#include "Framework/Storage/StorageTable.h"
 
 /*
 ===============================================================================
@@ -15,6 +16,8 @@
 class QuorumDatabase
 {
 public:
+    void                Init(StorageTable* table);
+
     uint64_t            GetPaxosID();
     void                SetPaxosID(uint64_t paxosID);
     
@@ -43,6 +46,8 @@ public:
 private:
     uint64_t            GetUint64(const char* name);
     void                SetUint64(const char* name, uint64_t value);
+    
+    StorageTable*       table;
 };
 
 #endif

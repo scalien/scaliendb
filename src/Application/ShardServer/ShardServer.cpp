@@ -4,6 +4,7 @@
 #include "Application/Common/ContextTransport.h"
 
 #define REQUEST_TIMEOUT 1000
+#define DATABASE_NAME   "system"
 
 static size_t Hash(uint64_t h)
 {
@@ -47,6 +48,8 @@ void ShardServer::Init()
 
     CONTEXT_TRANSPORT->SetClusterContext(this);
     
+    systemDatabase.Open(DATABASE_NAME);
+    
     requestTimer.SetDelay(REQUEST_TIMEOUT);
     requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));    
     primaryLeaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
@@ -54,7 +57,28 @@ void ShardServer::Init()
 
 bool ShardServer::IsLeaderKnown(uint64_t quorumID)
 {
-    // TODO:
+    QuorumData*     quorumData;
+    ConfigQuorum*   configQuorum;
+    
+    quorumData = LocateQuorum(quorumID);
+    if (quorumData == NULL)
+        return false;
+
+    if (quorumData->isPrimary)
+        return true;
+    
+    configQuorum = configState->GetQuorum(quorumID);
+    if (configQuorum == NULL)
+        return false;
+    
+    if (!configQuorum->hasPrimary)
+        return false;
+    
+    // we already checked this case in quorumData earlier
+    if (configQuorum->primaryID == REPLICATION_CONFIG->GetNodeID())
+        return false;
+    
+    return true;
 }
 
 bool ShardServer::IsLeader(uint64_t quorumID)
@@ -70,7 +94,28 @@ bool ShardServer::IsLeader(uint64_t quorumID)
 
 uint64_t ShardServer::GetLeader(uint64_t quorumID)
 {
-    // TODO:
+    QuorumData*     quorumData;
+    ConfigQuorum*   configQuorum;
+    
+    quorumData = LocateQuorum(quorumID);
+    if (quorumData == NULL)
+        return 0;
+
+    if (quorumData->isPrimary)
+        return REPLICATION_CONFIG->GetNodeID();
+    
+    configQuorum = configState->GetQuorum(quorumID);
+    if (configQuorum == NULL)
+        return 0;
+    
+    if (!configQuorum->hasPrimary)
+        return 0;
+    
+    // we already checked this case in quorumData earlier
+    if (configQuorum->primaryID == REPLICATION_CONFIG->GetNodeID())
+        return 0;
+    
+    return configQuorum->primaryID;
 }
 
 void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend)
@@ -295,6 +340,7 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
     ConfigQuorum*   configQuorum;
     uint64_t*       nit;
     uint64_t        nodeID;
+    uint64_t        quorumID;
 
     delete configState;
     configState = configState_;
@@ -305,7 +351,8 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
      configQuorum != NULL;
      configState->quorums.Next(configQuorum))
     {
-        // TODO: removal and inactive nodes
+        quorumID = configQuorum->quorumID;
+        // TODO: removal and inactive nodes        
         for (nit = configQuorum->activeNodes.First();
          nit != NULL;
          configQuorum->activeNodes.Next(nit))
@@ -313,13 +360,13 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
             if (*nit != nodeID)
                 continue;
                 
-            qdata = LocateQuorum(configQuorum->quorumID);
+            qdata = LocateQuorum(quorumID);
             if (qdata == NULL)
             {
                 qdata = new QuorumData;
-                qdata->quorumID = configQuorum->quorumID;
+                qdata->quorumID = quorumID;
                 qdata->proposalID = 0;
-                qdata->context.Init(this, configQuorum->quorumID, configQuorum);
+                qdata->context.Init(this, configQuorum, GetQuorumTable(quorumID));
                 qdata->isPrimary = false;
 
                 quorums.Append(qdata);
@@ -396,6 +443,15 @@ StorageTable* ShardServer::LocateTable(uint64_t tableID)
     if (!tables.Get(tableID, table))
         return NULL;
     return table;
+}
+
+StorageTable* ShardServer::GetQuorumTable(uint64_t quorumID)
+{
+    Buffer          qname;
+    
+    qname.Writef("%U", quorumID);
+    qname.NullTerminate();
+    return systemDatabase.GetTable(qname.GetBuffer());
 }
 
 void ShardServer::OnClientRequestGet(ClientRequest* request)

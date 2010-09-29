@@ -68,6 +68,7 @@ private:
     void            OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
     void            UpdateShards(List<uint64_t>& shards);
     StorageTable*   LocateTable(uint64_t tableID);
+    StorageTable*   GetQuorumTable(uint64_t quorumID);
     void            UpdatePrimaryLeaseTimer();
     void            OnClientRequestGet(ClientRequest* request);
     
@@ -78,6 +79,7 @@ private:
     Countdown       requestTimer;
     Timer           primaryLeaseTimeout;
     NodeList        controllers;
+    StorageDatabase systemDatabase;
     DatabaseMap     databases;
     TableMap        tables;
 };
