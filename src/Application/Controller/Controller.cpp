@@ -330,13 +330,14 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 
 void Controller::ReadConfigState()
 {
-    ReadBuffer value;
+    bool        ret;
+    ReadBuffer  value;
     
-    systemDatabase.GetTable("config")->Get(ReadBuffer("state"), value);
-    if (!configState.Read(value))
-    {
-        // TODO: xxx
-    }
+    ret =  true;
+    ret &= systemDatabase.GetTable("config")->Get(ReadBuffer("state"), value);
+    ret &= configState.Read(value);
+    if (!ret)
+        Log_Message("Starting with empty database...");
 }
 
 void Controller::WriteConfigState()
