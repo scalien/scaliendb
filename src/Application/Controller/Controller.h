@@ -79,7 +79,7 @@ private:
     RequestList         requests;
     RequestList         listenRequests;
     Buffer              configStateBuffer;
-    StorageDatabase*    configDatabase;
+    StorageDatabase     systemDatabase;
 };
 
 /*

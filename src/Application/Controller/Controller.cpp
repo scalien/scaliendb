@@ -37,6 +37,8 @@ void Controller::Init()
     configState.Init();
     configContext.Init(this, numControllers);
     CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
+    
+    systemDatabase.Open("system");
 }
 
 int64_t Controller::GetMaster()
@@ -330,7 +332,7 @@ void Controller::ReadConfigState()
 {
     ReadBuffer value;
     
-    configDatabase->GetTable("config")->Get(ReadBuffer("state"), value);
+    systemDatabase.GetTable("config")->Get(ReadBuffer("state"), value);
     if (!configState.Read(value))
     {
         // TODO: xxx
@@ -340,8 +342,8 @@ void Controller::ReadConfigState()
 void Controller::WriteConfigState()
 {
     configState.Write(configStateBuffer);
-    configDatabase->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
-    configDatabase->Commit();
+    systemDatabase.GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
+    systemDatabase.Commit();
 }
 
 void Controller::SendClientResponse(ConfigMessage& message)
