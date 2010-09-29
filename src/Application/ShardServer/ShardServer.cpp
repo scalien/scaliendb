@@ -472,10 +472,10 @@ void ShardServer::OnClientRequestGet(ClientRequest* request)
     {
         request->response.Failed();
         request->OnComplete();
-        return;            
+        return;
     }
     
-    request->response.OK();
+    request->response.Value(value);
     request->OnComplete();
 }
 
