@@ -32,7 +32,11 @@ bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& 
     
     ParseType(rb);
     cmd = rb;
-    qmark = FindInBuffer(rb.GetBuffer(), rb.GetLength() - 1, '?');
+
+    qmark = NULL;
+    if (rb.GetLength() > 0)
+        qmark = FindInBuffer(rb.GetBuffer(), rb.GetLength() - 1, '?');
+
     if (qmark)
     {
         rb.Advance(qmark - rb.GetBuffer() + 1);

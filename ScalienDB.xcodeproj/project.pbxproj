@@ -145,6 +145,8 @@
 		9AABC280124F639A003626AC /* ShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A861C3123E207000ECCBE5 /* ShardServer.cpp */; };
 		9AABC283124F63A7003626AC /* DataMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54838865124B54B2005F0FB4 /* DataMessage.cpp */; };
 		9AABC3AF12529466003626AC /* DataContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BE70124B5E4B00439334 /* DataContext.cpp */; };
+		9AABC4D01253A2A8003626AC /* HTTPShardServerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC4CF1253A2A8003626AC /* HTTPShardServerContext.cpp */; };
+		9AABC4D31253A301003626AC /* HTTPShardServerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC4D21253A301003626AC /* HTTPShardServerSession.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
@@ -385,6 +387,10 @@
 		9AABBAD51243E1CB003626AC /* SDBPClientRequest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientRequest.cpp; path = Application/Client/SDBPClientRequest.cpp; sourceTree = "<group>"; };
 		9AABC18D124EA494003626AC /* ArrayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayList.h; sourceTree = "<group>"; };
 		9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ArrayListTest.cpp; path = Test/ArrayListTest.cpp; sourceTree = "<group>"; };
+		9AABC4CE1253A2A8003626AC /* HTTPShardServerContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPShardServerContext.h; sourceTree = "<group>"; };
+		9AABC4CF1253A2A8003626AC /* HTTPShardServerContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPShardServerContext.cpp; sourceTree = "<group>"; };
+		9AABC4D11253A301003626AC /* HTTPShardServerSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPShardServerSession.h; sourceTree = "<group>"; };
+		9AABC4D21253A301003626AC /* HTTPShardServerSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPShardServerSession.cpp; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9ACF23DE122FDEBE00247703 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
@@ -583,6 +589,10 @@
 				54A861C3123E207000ECCBE5 /* ShardServer.cpp */,
 				54E0BFC0124CF42C00439334 /* ShardServerApp.h */,
 				54E0BFC1124CF42C00439334 /* ShardServerApp.cpp */,
+				9AABC4CE1253A2A8003626AC /* HTTPShardServerContext.h */,
+				9AABC4CF1253A2A8003626AC /* HTTPShardServerContext.cpp */,
+				9AABC4D11253A301003626AC /* HTTPShardServerSession.h */,
+				9AABC4D21253A301003626AC /* HTTPShardServerSession.cpp */,
 			);
 			name = ShardServer;
 			path = Application/ShardServer;
@@ -1042,6 +1052,8 @@
 				9AABC280124F639A003626AC /* ShardServer.cpp in Sources */,
 				9AABC283124F63A7003626AC /* DataMessage.cpp in Sources */,
 				9AABC3AF12529466003626AC /* DataContext.cpp in Sources */,
+				9AABC4D01253A2A8003626AC /* HTTPShardServerContext.cpp in Sources */,
+				9AABC4D31253A301003626AC /* HTTPShardServerSession.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

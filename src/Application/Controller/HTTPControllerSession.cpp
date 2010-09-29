@@ -320,7 +320,6 @@ ClientRequest* HTTPControllerSession::ProcessDeleteTable(UrlParam& params)
     ClientRequest*  request;
     uint64_t        databaseID;
     uint64_t        tableID;
-    ReadBuffer      name;
     
     HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
