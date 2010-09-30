@@ -34,6 +34,7 @@ public:
 
     int64_t             GetMaster();
     uint64_t            GetNodeID();
+    ConfigState*        GetConfigState();
 
     // For ConfigContext
     void                OnLearnLease();

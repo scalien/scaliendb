@@ -8,6 +8,7 @@
 class Controller;       // forward
 class ClientRequest;    // forward
 class UrlParam;         // forward
+class ConfigState;      // forward
 
 /*
 ===============================================================================================
@@ -35,6 +36,8 @@ public:
 
 private:
     void                PrintStatus();
+    void                PrintShardServers(ConfigState* configState);
+
     bool                ProcessCommand(ReadBuffer& cmd, UrlParam& params);
     ClientRequest*      ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params);
     ClientRequest*      ProcessGetMaster(UrlParam& params);
@@ -48,7 +51,7 @@ private:
     ClientRequest*      ProcessCreateTable(UrlParam& params);
     ClientRequest*      ProcessRenameTable(UrlParam& params);
     ClientRequest*      ProcessDeleteTable(UrlParam& params);
-
+    
     void                OnConnectionClose();
 
     Controller*         controller;

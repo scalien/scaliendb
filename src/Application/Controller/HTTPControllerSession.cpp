@@ -75,7 +75,8 @@ bool HTTPControllerSession::IsActive()
 
 void HTTPControllerSession::PrintStatus()
 {
-    Buffer      buf;
+    Buffer          buf;
+    ConfigState*    configState;
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
@@ -88,7 +89,35 @@ void HTTPControllerSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
     
+    session.PrintLine("");
+    session.PrintLine("--- Configuration State ---");
+    session.PrintLine("");
+    
+    configState = controller->GetConfigState();
+    PrintShardServers(configState);
+    
     session.Flush();
+}
+
+void HTTPControllerSession::PrintShardServers(ConfigState* configState)
+{
+    ConfigShardServer*      shardServer;
+    Buffer                  buffer;
+    
+    if (configState->shardServers.GetLength() == 0)
+    {
+        session.PrintLine("No shard servers configured");
+    }
+    else
+    {
+        ConfigState::ShardServerList& shardServers = configState->shardServers;
+        for (shardServer = shardServers.First(); shardServer != NULL; shardServer = shardServers.Next(shardServer))
+        {
+            buffer.Writef("%U", shardServer->nodeID);
+            buffer.NullTerminate();
+            session.PrintPair(buffer, shardServer->endpoint.ToReadBuffer());
+        }
+    }
 }
 
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
