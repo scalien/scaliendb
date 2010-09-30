@@ -153,6 +153,24 @@ bool ClusterTransport::GetNextWaiting(Endpoint& endpoint)
     return false;
 }
 
+bool ClusterTransport::IsConnected(uint64_t nodeID)
+{
+    ClusterConnection* it;
+    
+    for (it = conns.First(); it != NULL; it = conns.Next(it))
+    {
+        if (it->GetNodeID() == nodeID)
+        {
+            if (it->GetProgress() == ClusterConnection::READY)
+                return true;
+            else
+                return false;
+        }
+    }
+    
+    return false;
+}
+
 void ClusterTransport::AddConnection(ClusterConnection* conn)
 {
     conns.Append(conn);

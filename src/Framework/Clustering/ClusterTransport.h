@@ -31,6 +31,8 @@ public:
     virtual void                OnMessage(uint64_t nodeID, ReadBuffer msg)                      = 0;
 
     bool                        GetNextWaiting(Endpoint& endpoint);
+    
+    bool                        IsConnected(uint64_t nodeID);
 
 private:
     // for ClusterConnection:

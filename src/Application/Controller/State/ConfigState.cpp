@@ -848,7 +848,6 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
     READ_SEPARATOR();
     if (!ReadIDList(quorum.shards, buffer))
         return false;
-    READ_SEPARATOR();
     
     quorum.hasPrimary = false;
     if (withVolatile)

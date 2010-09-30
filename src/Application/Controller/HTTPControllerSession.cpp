@@ -1,6 +1,7 @@
 #include "HTTPControllerSession.h"
 #include "Controller.h"
 #include "Application/HTTP/UrlParam.h"
+#include "Application/Common/ContextTransport.h"
 #include "Version.h"
 
 void HTTPControllerSession::SetController(Controller* controller_)
@@ -105,6 +106,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
 {
     ConfigShardServer*      it;
     Buffer                  buffer;
+    ReadBuffer              rb;
     
     if (configState->shardServers.GetLength() == 0)
     {
@@ -112,13 +114,17 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
     }
     else
     {
-        session.PrintLine("Shard servers:\n");
+        session.PrintLine("Shard servers:\n\n");
         ConfigState::ShardServerList& shardServers = configState->shardServers;
         for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
-            buffer.Writef("%U", it->nodeID);
-            buffer.NullTerminate();
-            session.PrintPair(buffer.GetBuffer(), it->endpoint.ToReadBuffer());
+            if (CONTEXT_TRANSPORT->IsConnected(it->nodeID))
+                buffer.Writef("+ ");
+            else
+                buffer.Writef("- ");
+            rb = it->endpoint.ToReadBuffer();
+            buffer.Appendf("%U (%R)\n", it->nodeID, &rb);
+            session.PrintLine(buffer);
         }
     }
 }
@@ -134,43 +140,68 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
     if (configState->shardServers.GetLength() == 0 || configState->quorums.GetLength() == 0)
         return;
     
-    session.PrintLine("Quorum matrix:\n");
+    session.PrintLine("Quorum matrix:\n\n");
     ConfigState::ShardServerList& shardServers = configState->shardServers;
     ConfigState::QuorumList& quorums = configState->quorums;
-    buffer.Writef("      ");
+    buffer.Writef("       ");
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
     {
-        buffer.Appendf("  ");
+        buffer.Appendf(" n");
         buffer.Appendf("%U", itShardServer->nodeID);
+    }
+    buffer.Appendf("\n");
+    session.PrintLine(buffer);
+
+    buffer.Writef("      +");
+    for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
+    {
+        buffer.Appendf("------");
     }
     buffer.Appendf("\n");
     session.PrintLine(buffer);
     
     for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = quorums.Next(itQuorum))
     {
-        buffer.Writef("     ");
-        buffer.Appendf("%U", itQuorum->quorumID);
+        if (itQuorum->quorumID < 10)
+            buffer.Writef("   ");
+        else if (itQuorum->quorumID < 100)
+            buffer.Writef("  ");
+        else if (itQuorum->quorumID < 1000)
+            buffer.Writef(" ");
+        else if (itQuorum->quorumID < 10000)
+            buffer.Writef("");
+        buffer.Appendf("q%U |", itQuorum->quorumID);
         ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
         for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
         {
+            found = false;
             for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
             {
-                if (itShardServer->nodeID = *itNodeID)
+                if (itShardServer->nodeID == *itNodeID)
                 {
-                    if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
-                        buffer.Appendf("     P");
-                    else
-                        buffer.Appendf("     X");
                     found = true;
+                    if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
+                        if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                            buffer.Appendf("     P");
+                        else
+                            buffer.Appendf("     p");
+                    else
+                    {
+                        if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                            buffer.Appendf("     +");
+                        else
+                            buffer.Appendf("     -");
+                    }
+                    break;
                 }
             }
             if (!found)
-                buffer.Appendf("      ");
+                buffer.Appendf("     .");
 
         }
+        buffer.Appendf("\n");
+        session.PrintLine(buffer);
     }
-    buffer.Appendf("\n");
-    session.PrintLine(buffer);
 }
 
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
