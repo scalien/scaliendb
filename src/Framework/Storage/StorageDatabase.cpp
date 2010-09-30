@@ -124,6 +124,6 @@ void StorageDatabase::Commit(bool recovery, bool flush)
     sw.Stop();
     el4 = sw.Elapsed();
 
-    printf("el1 = %ld, els1 = %ld, el2 = %ld, els2 = %ld, el3 = %ld, el4 = %ld\n",
+    Log_Trace("el1 = %ld, els1 = %ld, el2 = %ld, els2 = %ld, el3 = %ld, el4 = %ld\n",
         el1, els1, el2, els2, el3, el4);
 }

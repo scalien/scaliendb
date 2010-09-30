@@ -359,7 +359,6 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
         if (fi->index + 1 > nextStorageFileIndex)
             nextStorageFileIndex = fi->index + 1;
 
-        fprintf(stderr, "index: %u, key = %.*s\n", fi->index, P(&fi->key));
         fileSize = FS_FileSize(fi->filepath.GetBuffer());
         if (fileSize < 0)
         {
