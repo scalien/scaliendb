@@ -39,6 +39,7 @@ public:
     bool            IsLeaderKnown(uint64_t quorumID);
     bool            IsLeader(uint64_t quorumID);
     uint64_t        GetLeader(uint64_t quorumID);
+    QuorumList*     GetQuorums();
     void            OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend);
 
     // ========================================================================================
@@ -64,6 +65,7 @@ private:
     void            OnRequestLeaseTimeout();
     void            OnPrimaryLeaseTimeout();
     void            OnSetConfigState(ConfigState* configState);
+    void            ConfigureQuorum(ConfigQuorum* configQuorum, bool active);
     void            OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
     void            UpdateShards(List<uint64_t>& shards);
     StorageTable*   LocateTable(uint64_t tableID);
@@ -76,6 +78,7 @@ private:
     ConfigState*    configState;
     Countdown       requestTimer;
     NodeList        controllers;
+    const char*     databaseDir;
     StorageDatabase systemDatabase;
     DatabaseMap     databases;
     TableMap        tables;
@@ -99,7 +102,7 @@ public:
     QuorumData()    { isPrimary = false; prev = next = this; }
 
     bool            isPrimary;
-    uint64_t        primaryExpireTime;
+    bool            isActive;
 
     uint64_t        quorumID;
     uint64_t        proposalID;

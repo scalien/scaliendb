@@ -83,7 +83,6 @@
 		9A26D6A411F4BDE2006A2814 /* Mime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69A11F4BDE2006A2814 /* Mime.cpp */; };
 		9A26D6A511F4BDE2006A2814 /* UrlParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */; };
 		9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
-		9A87418D12282946000B1319 /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418712282946000B1319 /* StorageTest.cpp */; };
 		9A87418E12282946000B1319 /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
 		9A87419012282946000B1319 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
 		9AABB037123E55DE003626AC /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
@@ -1012,7 +1011,6 @@
 				54AB8723122821EF00721A0F /* StorageFile.cpp in Sources */,
 				54AB8724122821EF00721A0F /* StorageIndexPage.cpp in Sources */,
 				9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */,
-				9A87418D12282946000B1319 /* StorageTest.cpp in Sources */,
 				9A87418E12282946000B1319 /* Test.c in Sources */,
 				9A87419012282946000B1319 /* TimeTest.cpp in Sources */,
 				54AB8936122C176600721A0F /* StoragePage.cpp in Sources */,

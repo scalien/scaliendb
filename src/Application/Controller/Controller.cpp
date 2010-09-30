@@ -17,7 +17,7 @@ void Controller::Init()
     
     primaryLeaseTimeout.SetCallable(MFUNC(Controller, OnPrimaryLeaseTimeout));
  
-    systemDatabase.Open("system");
+    systemDatabase.Open(configFile.GetValue("database.dir", "db"), "system");
     REPLICATION_CONFIG->Init(systemDatabase.GetTable("system"));
     
     runID = REPLICATION_CONFIG->GetRunID();

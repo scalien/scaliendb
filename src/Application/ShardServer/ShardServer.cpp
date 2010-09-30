@@ -21,7 +21,8 @@ void ShardServer::Init()
 
     configState = NULL;
     
-    systemDatabase.Open(DATABASE_NAME);
+    databaseDir = configFile.GetValue("database.dir", "db");
+    systemDatabase.Open(databaseDir, DATABASE_NAME);
     REPLICATION_CONFIG->Init(systemDatabase.GetTable("system"));
 
     runID = REPLICATION_CONFIG->GetRunID();
@@ -117,6 +118,11 @@ uint64_t ShardServer::GetLeader(uint64_t quorumID)
         return 0;
     
     return configQuorum->primaryID;
+}
+
+ShardServer::QuorumList* ShardServer::GetQuorums()
+{
+    return &quorums;
 }
 
 void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend)
@@ -333,50 +339,109 @@ void ShardServer::OnPrimaryLeaseTimeout()
 
 void ShardServer::OnSetConfigState(ConfigState* configState_)
 {
-    QuorumData*     qdata;
-    ConfigQuorum*   configQuorum;
-    uint64_t*       nit;
-    uint64_t        nodeID;
-    uint64_t        quorumID;
+    QuorumData*             quorum;
+    QuorumData*             next;
+    ConfigQuorum*           configQuorum;
+    ConfigQuorum::NodeList* nodes;
+    uint64_t*               nit;
+    uint64_t                nodeID;
+    bool                    found;
 
     delete configState;
     configState = configState_;
     
     nodeID = REPLICATION_CONFIG->GetNodeID();
+
+    // look for removal
+    for (quorum = quorums.First(); quorum != NULL; quorum = next)
+    {
+        configQuorum = configState->GetQuorum(quorum->quorumID);
+        if (configQuorum == NULL)
+        {
+            // TODO: quorum has disappeared?
+            ASSERT_FAIL();
+        }
+        
+        found = false;
+        next = quorums.Next(quorum);
+        
+        nodes = &configQuorum->activeNodes;
+        for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
+        {
+            if (*nit == nodeID)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            continue;
+
+        nodes = &configQuorum->inactiveNodes;
+        for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
+        {
+            if (*nit == nodeID)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (found)
+            continue;
+        
+        next = quorums.Remove(quorum);
+        delete quorum;
+    }
     
+    // check changes in active or inactive node list
     for (configQuorum = configState->quorums.First();
      configQuorum != NULL;
      configState->quorums.Next(configQuorum))
     {
-        quorumID = configQuorum->quorumID;
-        // TODO: removal and inactive nodes        
-        for (nit = configQuorum->activeNodes.First();
-         nit != NULL;
-         configQuorum->activeNodes.Next(nit))
+        for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
         {
             if (*nit != nodeID)
                 continue;
-                
-            qdata = LocateQuorum(quorumID);
-            if (qdata == NULL)
-            {
-                qdata = new QuorumData;
-                qdata->quorumID = quorumID;
-                qdata->proposalID = 0;
-                qdata->context.Init(this, configQuorum, GetQuorumTable(quorumID));
-                qdata->leaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
-                qdata->isPrimary = false;
+            ConfigureQuorum(configQuorum, true);
+        }
 
-                quorums.Append(qdata);
-            }
-            else 
-                qdata->context.UpdateConfig(configQuorum);
-            
-            UpdateShards(configQuorum->shards);
+        for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
+        {
+            if (*nit != nodeID)
+                continue;
+            ConfigureQuorum(configQuorum, false);
         }
     }
     
     OnRequestLeaseTimeout();
+}
+
+void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
+{
+    QuorumData*     quorumData;
+    uint64_t        quorumID;
+    uint64_t        nodeID;
+    
+    nodeID = REPLICATION_CONFIG->GetNodeID();
+    quorumID = configQuorum->quorumID;
+    
+    quorumData = LocateQuorum(quorumID);
+    if (active && quorumData == NULL)
+    {
+        quorumData = new QuorumData;
+        quorumData->quorumID = quorumID;
+        quorumData->proposalID = 0;
+        quorumData->context.Init(this, configQuorum, GetQuorumTable(quorumID));
+        quorumData->leaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
+        quorumData->isPrimary = false;
+        quorumData->isActive = true;
+
+        quorums.Append(quorumData);
+    }
+    else if (quorumData != NULL)
+        quorumData->context.UpdateConfig(configQuorum);
+    
+    UpdateShards(configQuorum->shards);
 }
 
 void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)
@@ -415,7 +480,7 @@ void ShardServer::UpdateShards(List<uint64_t>& shards)
             name.NullTerminate();
 
             database = new StorageDatabase;
-            database->Open(name.GetBuffer());
+            database->Open(databaseDir, name.GetBuffer());
             databases.Set(shard->databaseID, database);
         }
         
