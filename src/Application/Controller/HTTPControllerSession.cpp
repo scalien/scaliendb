@@ -143,6 +143,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
     ConfigQuorum*           itQuorum;
     uint64_t*               itNodeID;
     Buffer                  buffer;
+    uint64_t                ssID;
     
     if (configState->shardServers.GetLength() == 0 || configState->quorums.GetLength() == 0)
         return;
@@ -154,15 +155,16 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
     buffer.Writef("       ");
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
     {
-        if (itShardServer->nodeID < 10)
+        ssID = itShardServer->nodeID - CONFIG_MIN_SHARD_NODE_ID;
+        if (ssID < 10)
             buffer.Appendf("   ");
-        else if (itShardServer->nodeID < 100)
+        else if (ssID < 100)
             buffer.Appendf("  ");
-        else if (itShardServer->nodeID < 1000)
+        else if (ssID < 1000)
             buffer.Appendf(" ");
         else
             buffer.Appendf("");
-        buffer.Appendf("ss%U", itShardServer->nodeID - CONFIG_MIN_SHARD_NODE_ID);
+        buffer.Appendf("ss%U", ssID);
     }
     buffer.Appendf("\n");
     session.Print(buffer);
@@ -233,25 +235,29 @@ void HTTPControllerSession::PrintDatabases(ConfigState* configState)
     ConfigState::DatabaseList& databases = configState->databases;
     for (itDatabase = databases.First(); itDatabase != NULL; itDatabase = databases.Next(itDatabase))
     {
-        buffer.Writef("- %R:\n", &itDatabase->name);
-        session.Print(buffer);
+        buffer.Writef("- %B(d%u)", &itDatabase->name, itDatabase->databaseID);
         List<uint64_t>& tables = itDatabase->tables;
+        if (tables.GetLength() > 0)
+            buffer.Appendf(":\n");
+        else
+            buffer.Appendf("\n");
+        session.Print(buffer);
         for (itTableID = tables.First(); itTableID != NULL; itTableID = tables.Next(itTableID))
         {
             table = configState->GetTable(*itTableID);
-            buffer.Writef("  - %R (", &table->name);
+            buffer.Writef("  - %B(t%U): [", table->tableID, &table->name);
             List<uint64_t>& shards = table->shards;
             for (itShardID = shards.First(); itShardID != NULL; itShardID = shards.Next(itShardID))
             {
-                buffer.Appendf("%U", itShardID);
                 shard = configState->GetShard(*itShardID);
-                buffer.Appendf("-[%U]", shard->quorumID);
+                buffer.Appendf("s%U => q%U", itShardID, shard->quorumID);
                 if (itShardID != NULL)
                     buffer.Appendf(", ");
             }
-            buffer.Appendf(")\n");
+            buffer.Appendf("]");
             session.Print(buffer);
         }
+        session.Print("\n");
     }
 }
 
@@ -263,6 +269,7 @@ void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
     ConfigQuorum*           quorum;
     uint64_t*               itNodeID;
     Buffer                  buffer;
+    uint64_t                ssID;
     
     if (configState->shardServers.GetLength() == 0 ||
      configState->quorums.GetLength() == 0 ||
@@ -276,15 +283,16 @@ void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
     buffer.Writef("       ");
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
     {
-        if (itShardServer->nodeID < 10)
+        ssID = itShardServer->nodeID - CONFIG_MIN_SHARD_NODE_ID;
+        if (ssID < 10)
             buffer.Appendf("   ");
-        else if (itShardServer->nodeID < 100)
+        else if (ssID < 100)
             buffer.Appendf("  ");
-        else if (itShardServer->nodeID < 1000)
+        else if (ssID < 1000)
             buffer.Appendf(" ");
-        else if (itShardServer->nodeID < 10000)
+        else
             buffer.Appendf("");
-        buffer.Appendf("ss%U", itShardServer->nodeID - CONFIG_MIN_SHARD_NODE_ID);
+        buffer.Appendf("ss%U", ssID);
     }
     buffer.Appendf("\n");
     session.Print(buffer);

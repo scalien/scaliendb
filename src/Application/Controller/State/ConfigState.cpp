@@ -106,7 +106,6 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     
     if (withVolatile)
     {
-        buffer.Appendf(":");
         if (hasMaster)
             buffer.Appendf("P:%U", masterID);
         else
