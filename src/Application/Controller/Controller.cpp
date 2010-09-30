@@ -235,8 +235,27 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 
 void Controller::OnAwaitingNodeID(Endpoint endpoint)
 {   
+    ConfigShardServer*              shardServer;
+    ConfigState::ShardServerList*   shardServers;
+    ClusterMessage                  clusterMessage;
+
     if (!configContext.IsLeader())
         return;
+
+    // look for existing endpoint
+    shardServers = &configState.shardServers;
+    for (shardServer = shardServers->First(); shardServer != NULL; shardServer = shardServers->Next(shardServer))
+    {
+        if (shardServer->endpoint == endpoint)
+        {
+            // tell ContextTransport that this connection has a new nodeID
+            CONTEXT_TRANSPORT->SetConnectionNodeID(endpoint, shardServer->nodeID);       
+            // tell the shard server
+            clusterMessage.SetNodeID(shardServer->nodeID);
+            CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
+            return;
+        }
+    }
 
     TryRegisterShardServer(endpoint);
 }
@@ -351,7 +370,7 @@ void Controller::OnPrimaryLeaseTimeout()
 
 void Controller::TryRegisterShardServer(Endpoint& endpoint)
 {
-    ConfigMessage*  message;
+    ConfigMessage*      message;
 
     message = new ConfigMessage;
     message->fromClient = false;

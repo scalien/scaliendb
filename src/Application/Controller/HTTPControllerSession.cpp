@@ -1,5 +1,6 @@
 #include "HTTPControllerSession.h"
 #include "Controller.h"
+#include "System/Config.h"
 #include "Application/HTTP/UrlParam.h"
 #include "Application/Common/ContextTransport.h"
 #include "Version.h"
@@ -89,6 +90,8 @@ void HTTPControllerSession::PrintStatus()
     buf.Writef("%d", (int) controller->GetMaster());
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
+    
+    session.PrintPair("Controllers", configFile.GetValue("controllers", ""));
     
     session.PrintLine("\n");
     session.PrintLine("--- Configuration State ---\n");

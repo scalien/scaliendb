@@ -88,7 +88,7 @@ void ContextTransport::OnAwaitingNodeID(Endpoint endpoint)
 
 void ContextTransport::OnMessage(uint64_t nodeID, ReadBuffer msg)
 {
-    int         nread;\
+    int         nread;
     char        proto;
     
     Log_Trace("%.*s", P(&msg));
