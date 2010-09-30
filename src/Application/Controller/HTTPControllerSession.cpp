@@ -95,13 +95,15 @@ void HTTPControllerSession::PrintStatus()
     
     configState = controller->GetConfigState();
     PrintShardServers(configState);
+    session.PrintLine("");
+    PrintQuorumMatrix(configState);
     
     session.Flush();
 }
 
 void HTTPControllerSession::PrintShardServers(ConfigState* configState)
 {
-    ConfigShardServer*      shardServer;
+    ConfigShardServer*      it;
     Buffer                  buffer;
     
     if (configState->shardServers.GetLength() == 0)
@@ -110,12 +112,57 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
     }
     else
     {
+        session.PrintLine("Shard servers:");
         ConfigState::ShardServerList& shardServers = configState->shardServers;
-        for (shardServer = shardServers.First(); shardServer != NULL; shardServer = shardServers.Next(shardServer))
+        for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
-            buffer.Writef("%U", shardServer->nodeID);
+            buffer.Writef("%U", it->nodeID);
             buffer.NullTerminate();
-            session.PrintPair(buffer, shardServer->endpoint.ToReadBuffer());
+            session.PrintPair(buffer, it->endpoint.ToReadBuffer());
+        }
+    }
+}
+
+void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
+{
+    ConfigShardServer*      itShardServer;
+    ConfigQuorum*           itQuorum;
+    uint64_t*               itNodeID;
+    Buffer                  buffer;
+    
+    if (configState->shardServers.GetLength() == 0 || configState->quorums.GetLength() == 0)
+        return;
+    
+    session.PrintLine("Quorum matrix:");
+    ConfigState::ShardServerList& shardServers = configState->shardServers;
+    ConfigState::QuorumList& quorums = configState->quorums;
+    buffer.Writef("      ");
+    for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
+    {
+        buffer.Appendf("  ");
+        buffer.Appendf("%U", itShardServer->nodeID);
+    }
+    session.PrintLine(buffer);
+    
+    for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = quorums.Next(itQuorum))
+    {
+        buffer.Writef("     ");
+        buffer.Appendf("%U", itQuorum->quorumID);
+        ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+        for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
+        {
+            for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
+            {
+                if (itShardServer->nodeID = *itNodeID)
+                {
+                    if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
+                        buffer.Appendf("     P");
+                    else
+                        buffer.Appendf("     X");
+                }
+                else
+                    buffer.Appendf("      ");
+            }
         }
     }
 }
