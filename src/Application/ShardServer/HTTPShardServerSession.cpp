@@ -67,16 +67,38 @@ bool HTTPShardServerSession::IsActive()
 
 void HTTPShardServerSession::PrintStatus()
 {
-    Buffer      buf;
+    ShardServer::QuorumList*    quorums;
+    QuorumData*                 quorum;
+    Buffer                      keybuf;
+    Buffer                      valbuf;
+    uint64_t                    primaryID;
 
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
 
-    buf.Writef("%d", (int) REPLICATION_CONFIG->GetNodeID());
-    buf.NullTerminate();
-    session.PrintPair("NodeID", buf.GetBuffer());   
+    valbuf.Writef("%U", REPLICATION_CONFIG->GetNodeID());
+    valbuf.NullTerminate();
+    session.PrintPair("NodeID", valbuf.GetBuffer());   
 
-    // TODO: write quorums, shards, and leases
+    // write quorums, shards, and leases
+    quorums = shardServer->GetQuorums();
+    
+    valbuf.Writef("%u", quorums->GetLength());
+    valbuf.NullTerminate();
+    session.PrintPair("Number of quorums", valbuf.GetBuffer());
+    
+    for (quorum = quorums->First(); quorum != NULL; quorums->Next(quorum))
+    {
+        primaryID = shardServer->GetLeader(quorum->quorumID);
+        
+        keybuf.Writef("Quorum #%U", quorum->quorumID);
+        keybuf.NullTerminate();
+        
+        valbuf.Writef("%U", primaryID);
+        valbuf.NullTerminate();
+        
+        session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());
+    }
     
     session.Flush();
 }

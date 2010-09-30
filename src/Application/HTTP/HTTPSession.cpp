@@ -3,8 +3,11 @@
 #include "Application/HTTP/HTTPRequest.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Application/HTTP/HTTPConsts.h"
+#include "Application/HTTP/Mime.h"
 
-#define MSG_FAIL     "Unable to process your request at this time"
+#define MSG_FAIL            "Unable to process your request at this time"
+#define CONTENT_TYPE_PLAIN  HTTP_HEADER_CONTENT_TYPE ": " MIME_TYPE_TEXT_PLAIN HTTP_CS_CRLF
+#define CONTENT_TYPE_HTML   HTTP_HEADER_CONTENT_TYPE ": " MIME_TYPE_TEXT_HTML HTTP_CS_CRLF
 
 HTTPSession::HTTPSession()
 {
@@ -86,6 +89,8 @@ void HTTPSession::ResponseFail()
 
 void HTTPSession::PrintLine(const ReadBuffer& line)
 {
+    Buffer  header;
+    
     if (!conn)
         return;
 
@@ -94,7 +99,8 @@ void HTTPSession::PrintLine(const ReadBuffer& line)
         if (type == JSON)
             json.Start();
         else
-            conn->ResponseHeader(HTTP_STATUS_CODE_OK, false);
+            conn->ResponseHeader(HTTP_STATUS_CODE_OK, false, 
+             type == PLAIN ? CONTENT_TYPE_PLAIN : CONTENT_TYPE_HTML);
 
         headerSent = true;
     }
@@ -115,7 +121,8 @@ void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)
         if (type == JSON)
             json.Start();
         else
-            conn->ResponseHeader(HTTP_STATUS_CODE_OK, false);
+            conn->ResponseHeader(HTTP_STATUS_CODE_OK, false, 
+             type == PLAIN ? CONTENT_TYPE_PLAIN : CONTENT_TYPE_HTML);
 
         headerSent = true;
     }

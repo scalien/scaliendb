@@ -19,6 +19,7 @@ public:
     TotalQuorum();
     
     void                AddNode(uint64_t nodeID);
+    void                ClearNodes();
     unsigned            GetNumNodes() const;
     const uint64_t*     GetNodes() const;
     QuorumVote*         NewVote() const;    

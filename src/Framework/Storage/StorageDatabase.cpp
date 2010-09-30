@@ -4,16 +4,23 @@
 
 #include <stdio.h>
 
-void StorageDatabase::Open(const char* dbName)
+void StorageDatabase::Open(const char* path_, const char* dbName)
 {
     char    sep;
     
     name.Write(dbName);
     DCACHE->Init(DEFAULT_CACHE_SIZE);
 
-    path.Append(name);
+    // try to create parent directory, will fail later when creating the database
+    if (!FS_IsDirectory(path_))
+        FS_CreateDir(path_);
 
     sep = FS_Separator();
+    path.Append(path_);
+    if (path.GetBuffer()[path.GetLength() - 1] != sep)
+        path.Append(&sep, 1);
+    
+    path.Append(name);
     if (path.GetBuffer()[path.GetLength() - 1] != sep)
         path.Append(&sep, 1);
     

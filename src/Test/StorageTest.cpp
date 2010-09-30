@@ -25,7 +25,7 @@ TEST_DEFINE(TestStorage)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    db.Open("db");
+    db.Open(".", "db");
     table = db.GetTable("dogs");
 
     clock = NowClock();
@@ -107,7 +107,7 @@ TEST_DEFINE(TestStorageCapacity)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    db.Open("db");
+    db.Open(".", "db");
     // a million key-value pairs take up 248M disk space
     for (unsigned r = 0; r < round; r++)
     {
@@ -177,7 +177,7 @@ TEST_DEFINE(TestStorageBigTransaction)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    db.Open("db");
+    db.Open(".", "db");
     table = db.GetTable("dogs");
     sw.Reset();
     for (unsigned i = 0; i < num; i++)
@@ -224,7 +224,7 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    db.Open("db");
+    db.Open(".", "db");
     table = db.GetTable("dogs");
     sw.Reset();
     for (unsigned i = 0; i < num; i++)
@@ -273,7 +273,7 @@ TEST_DEFINE(TestStorageShardSize)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    db.Open("db");
+    db.Open(".", "db");
     // a million key-value pairs take up 248M disk space
     for (unsigned r = 0; r < round; r++)
     {
@@ -332,7 +332,7 @@ TEST_DEFINE(TestStorageShardSplit)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    db.Open("db");
+    db.Open(".", "db");
     // a million key-value pairs take up 248M disk space
     for (unsigned r = 0; r < round; r++)
     {

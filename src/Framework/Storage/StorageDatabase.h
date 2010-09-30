@@ -14,7 +14,7 @@
 class StorageDatabase
 {
 public:
-    void                    Open(const char* dbName);
+    void                    Open(const char *path, const char* dbName);
     
     StorageTable*           GetTable(const char* tableName);
     void                    CloseTable(const char* tableName);

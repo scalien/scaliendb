@@ -19,6 +19,11 @@ void TotalQuorum::AddNode(uint64_t nodeID)
     numNodes++;
 }
 
+void TotalQuorum::ClearNodes()
+{
+    numNodes = 0;
+}
+
 unsigned TotalQuorum::GetNumNodes() const
 {
     return numNodes;
