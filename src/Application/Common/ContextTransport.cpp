@@ -80,10 +80,11 @@ void ContextTransport::OnConnectionReady(uint64_t nodeID, Endpoint endpoint)
         clusterContext->OnIncomingConnectionReady(nodeID, endpoint);
 }
 
-void ContextTransport::OnAwaitingNodeID(Endpoint endpoint)
+bool ContextTransport::OnAwaitingNodeID(Endpoint endpoint)
 {
     if (clusterContext)
-        clusterContext->OnAwaitingNodeID(endpoint);
+        return clusterContext->OnAwaitingNodeID(endpoint);
+    return true;
 }
 
 void ContextTransport::OnMessage(uint64_t nodeID, ReadBuffer msg)

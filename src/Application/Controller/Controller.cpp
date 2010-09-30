@@ -67,10 +67,6 @@ ConfigState* Controller::GetConfigState()
 
 void Controller::OnLearnLease()
 {
-    Endpoint endpoint;
-    
-    if (CONTEXT_TRANSPORT->GetNextWaiting(endpoint))
-        TryRegisterShardServer(endpoint);
 }
 
 void Controller::OnLeaseTimeout()
@@ -124,7 +120,7 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
     }
     
     if (configContext.IsLeader())
-        UpdateListeners();
+        UpdateListeners();    
 }
 
 bool Controller::IsValidClientRequest(ClientRequest* request)
@@ -233,15 +229,15 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
     }
 }
 
-void Controller::OnAwaitingNodeID(Endpoint endpoint)
+bool Controller::OnAwaitingNodeID(Endpoint endpoint)
 {   
     ConfigShardServer*              shardServer;
     ConfigState::ShardServerList*   shardServers;
     ClusterMessage                  clusterMessage;
 
     if (!configContext.IsLeader())
-        return;
-
+        return true; // drop connection
+    
     // look for existing endpoint
     shardServers = &configState.shardServers;
     for (shardServer = shardServers->First(); shardServer != NULL; shardServer = shardServers->Next(shardServer))
@@ -258,11 +254,12 @@ void Controller::OnAwaitingNodeID(Endpoint endpoint)
             // send config state
             clusterMessage.SetConfigState(&configState);
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
-            return;
+            return false;
         }
     }
 
     TryRegisterShardServer(endpoint);
+    return false;
 }
 
 void Controller::TryAppend()

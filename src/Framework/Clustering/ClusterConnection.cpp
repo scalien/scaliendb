@@ -106,6 +106,10 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
 
     if (progress == ClusterConnection::INCOMING)
     {
+        // we have no incoming connections if we don't have a nodeID
+        assert(transport->IsAwaitingNodeID() == false);
+
+        // the node at the other end is awaiting its nodeID
         if (msg.GetCharAt(0) == '*')
         {
             msg.Readf("*:%#R", &buffer);
@@ -113,21 +117,27 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             progress = ClusterConnection::AWAITING_NODEID;
             Log_Trace("Conn is awaiting nodeID at %s", endpoint.ToString());
             transport->AddConnection(this);
-            transport->OnAwaitingNodeID(endpoint);
+            if (transport->OnAwaitingNodeID(endpoint))
+            {
+                transport->DeleteConnection(this);
+                return true;
+            }
             return false;
         }
         
+        // both ends have nodeIDs
         msg.Readf("%U:%#R", &nodeID_, &buffer);
         dup = transport->GetConnection(nodeID_);
-        if (dup && nodeID_ != nodeID)
+        if (dup)
         {
-            if (dup->progress == READY)
-            {
-                Log_Trace("delete conn");
-                transport->DeleteConnection(this);      // drop current node
-                return true;
-            }
-            else
+            // if the other connections isn't ready yet, drop it
+            // OR
+            // the other connection is ready
+            // in this case, kill the connection that was initiated by higher nodeID
+            // in other words, since this is an incoming connection:
+            // if nodeID[of initiator] > transport->GetSelfNodeID(): drop
+
+            if (dup->progress != READY || nodeID_ > transport->GetSelfNodeID())
             {
                 Log_Trace("delete dup");
                 transport->DeleteConnection(dup);       // drop dup

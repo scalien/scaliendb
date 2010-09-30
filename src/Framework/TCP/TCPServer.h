@@ -28,7 +28,8 @@ public:
     TCPServer();
     ~TCPServer();
     
-    bool                    Init(int port, int backlog = 3);
+    bool                    Init(int port, bool listen = true, int backlog = 3);
+    bool                    Listen();
     void                    Close();
     void                    DeleteConn(Conn* conn);
 
@@ -69,7 +70,7 @@ TCPServer<T, Conn>::~TCPServer()
 }
 
 template<class T, class Conn>
-bool TCPServer<T, Conn>::Init(int port_, int backlog_)
+bool TCPServer<T, Conn>::Init(int port_, bool listen, int backlog_)
 {
     bool ret;
     
@@ -87,7 +88,17 @@ bool TCPServer<T, Conn>::Init(int port_, int backlog_)
         return false;
 
     tcpread.Listen(listener.fd, MFUNC(TCPServer, OnConnect));
-    return IOProcessor::Add(&tcpread);  
+    
+    if (listen)
+        return IOProcessor::Add(&tcpread);
+    else
+        return true;
+}
+
+template<class T, class Conn>
+bool TCPServer<T, Conn>::Listen()
+{
+    return IOProcessor::Add(&tcpread);
 }
 
 template<class T, class Conn>

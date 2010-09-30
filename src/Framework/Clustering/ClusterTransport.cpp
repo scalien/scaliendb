@@ -13,6 +13,7 @@ void ClusterTransport::SetSelfNodeID(uint64_t nodeID_)
     nodeID = nodeID_;
     awaitingNodeID = false;
     ReconnectAll(); // so we establish "regular" connections with the nodeID
+    server.Listen();
 }
 
 bool ClusterTransport::IsAwaitingNodeID()
@@ -33,9 +34,6 @@ Endpoint& ClusterTransport::GetSelfEndpoint()
 void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 {
     ClusterConnection* conn;
-
-    if (nodeID > this->nodeID)
-        return;
     
     conn = GetConnection(nodeID);
     if (conn != NULL)
@@ -54,16 +52,28 @@ void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 bool ClusterTransport::SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID)
 {
     ClusterConnection* it;
+    ClusterConnection* tdb;
     
-    for (it = conns.First(); it != NULL; it = conns.Next(it))
+    for (it = conns.First(); it != NULL;)
     {
         if (it->GetEndpoint() == endpoint)
         {
-            assert(it->GetProgress() == ClusterConnection::AWAITING_NODEID);
-            it->SetNodeID(nodeID);
-            it->SetProgress(ClusterConnection::READY);
-            return true;
+            if (it->GetProgress() != ClusterConnection::AWAITING_NODEID)
+            {
+                // the node had its db cleared, and this is our old connection to it
+                tdb = it;
+                it = conns.Next(it);
+                DeleteConnection(tdb);
+            }
+            else
+            {
+                it->SetNodeID(nodeID);
+                it->SetProgress(ClusterConnection::READY);
+                return true;
+            }
         }
+        else
+            it = conns.Next(it);
     }
     
     return false;

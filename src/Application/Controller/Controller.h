@@ -54,7 +54,7 @@ public:
     //
     void                OnClusterMessage(uint64_t nodeID, ClusterMessage& msg);
     void                OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
-    void                OnAwaitingNodeID(Endpoint endpoint);
+    bool                OnAwaitingNodeID(Endpoint endpoint);
     // ========================================================================================
 
 private:

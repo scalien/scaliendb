@@ -3,7 +3,7 @@
 
 bool ClusterServer::Init(int port)
 {
-    return TCPServer<ClusterServer, ClusterConnection>::Init(port);
+    return TCPServer<ClusterServer, ClusterConnection>::Init(port, false);
 }
 
 void ClusterServer::InitConn(ClusterConnection* conn)

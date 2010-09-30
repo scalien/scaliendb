@@ -274,9 +274,10 @@ void ShardServer::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endp
     // nothing
 }
 
-void ShardServer::OnAwaitingNodeID(Endpoint /*endpoint*/)
+bool ShardServer::OnAwaitingNodeID(Endpoint /*endpoint*/)
 {
-    // nothing
+    // always drop
+    return true;
 }
 
 QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
