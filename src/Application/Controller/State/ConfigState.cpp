@@ -102,6 +102,8 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
 
 bool ConfigState::Write(Buffer& buffer, bool withVolatile)
 {
+    buffer.Clear();
+    
     if (withVolatile)
     {
         buffer.Appendf(":");
@@ -862,6 +864,9 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
         }
     }
     
+    if (quorum.quorumID >= nextQuorumID)
+        nextQuorumID = quorum.quorumID + 1;    
+    
     return true;
 }
 
@@ -894,7 +899,10 @@ bool ConfigState::ReadDatabase(ConfigDatabase& database, ReadBuffer& buffer)
     READ_SEPARATOR();
     if (!ReadIDList(database.tables, buffer))
         return false;
-        
+
+    if (database.databaseID >= nextDatabaseID)
+        nextDatabaseID = database.databaseID + 1;
+
     return true;
 }
 
@@ -914,6 +922,9 @@ bool ConfigState::ReadTable(ConfigTable& table, ReadBuffer& buffer)
     if (!ReadIDList(table.shards, buffer))
         return false;
     
+    if (table.tableID >= nextTableID)
+        nextTableID = table.tableID + 1;    
+    
     return true;
 }
 
@@ -932,6 +943,10 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer)
      &shard.quorumID, &shard.databaseID, &shard.tableID,
      &shard.shardID, &shard.firstKey, &shard.lastKey);
     CHECK_ADVANCE(11);
+
+    if (shard.shardID >= nextShardID)
+        nextShardID = shard.shardID + 1;
+
     return true;
 }
 
@@ -950,6 +965,10 @@ bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& bu
     read = buffer.Readf("%U:%#R", &shardServer.nodeID, &rb);
     CHECK_ADVANCE(3);
     shardServer.endpoint.Set(rb);
+    
+    if (shardServer.nodeID >= nextNodeID)
+        nextNodeID = shardServer.nodeID + 1;
+    
     return true;
 }
 

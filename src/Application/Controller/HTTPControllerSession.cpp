@@ -118,13 +118,14 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
         {
             buffer.Writef("%U", it->nodeID);
             buffer.NullTerminate();
-            session.PrintPair(buffer, it->endpoint.ToReadBuffer());
+            session.PrintPair(buffer.GetBuffer(), it->endpoint.ToReadBuffer());
         }
     }
 }
 
 void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
 {
+    bool                    found;
     ConfigShardServer*      itShardServer;
     ConfigQuorum*           itQuorum;
     uint64_t*               itNodeID;
@@ -160,10 +161,12 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
                         buffer.Appendf("     P");
                     else
                         buffer.Appendf("     X");
+                    found = true;
                 }
-                else
-                    buffer.Appendf("      ");
             }
+            if (!found)
+                buffer.Appendf("      ");
+
         }
     }
     buffer.Appendf("\n");
