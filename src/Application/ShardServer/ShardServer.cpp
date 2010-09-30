@@ -68,6 +68,8 @@ void ShardServer::Shutdown()
         database = dbNode->Value();
         delete database;
     }
+
+    systemDatabase.Close();
 }
 
 bool ShardServer::IsLeaderKnown(uint64_t quorumID)

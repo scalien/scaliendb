@@ -18,6 +18,7 @@ class ControllerApp
 {
 public:
     void                    Init();
+    void                    Shutdown();
 
 private:
     Controller              controller;

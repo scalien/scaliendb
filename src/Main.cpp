@@ -43,6 +43,11 @@ int main(int argc, char** argv)
     EventLoop::Run();
     EventLoop::Shutdown();
     
+    if (isController)
+        controller.Shutdown();
+    else
+        shardServer.Shutdown();
+    
     DCACHE->Shutdown();
     IOProcessor::Shutdown();
     configFile.Shutdown();

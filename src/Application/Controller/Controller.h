@@ -31,6 +31,7 @@ public:
     typedef InList<ClientRequest>       RequestList;
 
     void                Init();
+    void                Shutdown();
 
     int64_t             GetMaster();
     uint64_t            GetNodeID();
