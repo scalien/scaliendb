@@ -89,13 +89,13 @@ void HTTPControllerSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
     
-    session.PrintLine("");
-    session.PrintLine("--- Configuration State ---");
-    session.PrintLine("");
+    session.PrintLine("\n");
+    session.PrintLine("--- Configuration State ---\n");
+    session.PrintLine("\n");
     
     configState = controller->GetConfigState();
     PrintShardServers(configState);
-    session.PrintLine("");
+    session.PrintLine("\n");
     PrintQuorumMatrix(configState);
     
     session.Flush();
@@ -108,11 +108,11 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
     
     if (configState->shardServers.GetLength() == 0)
     {
-        session.PrintLine("No shard servers configured");
+        session.PrintLine("No shard servers configured\n");
     }
     else
     {
-        session.PrintLine("Shard servers:");
+        session.PrintLine("Shard servers:\n");
         ConfigState::ShardServerList& shardServers = configState->shardServers;
         for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
@@ -133,7 +133,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
     if (configState->shardServers.GetLength() == 0 || configState->quorums.GetLength() == 0)
         return;
     
-    session.PrintLine("Quorum matrix:");
+    session.PrintLine("Quorum matrix:\n");
     ConfigState::ShardServerList& shardServers = configState->shardServers;
     ConfigState::QuorumList& quorums = configState->quorums;
     buffer.Writef("      ");
@@ -142,6 +142,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
         buffer.Appendf("  ");
         buffer.Appendf("%U", itShardServer->nodeID);
     }
+    buffer.Appendf("\n");
     session.PrintLine(buffer);
     
     for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = quorums.Next(itQuorum))
@@ -165,6 +166,8 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
             }
         }
     }
+    buffer.Appendf("\n");
+    session.PrintLine(buffer);
 }
 
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)

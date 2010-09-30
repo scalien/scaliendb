@@ -97,7 +97,7 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
     if (!ReadShardServers(buffer))
         return false;
 
-    return (read == (signed)buffer_.GetLength());
+    return (buffer.GetLength() == 0);
 }
 
 bool ConfigState::Write(Buffer& buffer, bool withVolatile)
@@ -654,7 +654,11 @@ bool ConfigState::ReadQuorums(ReadBuffer& buffer, bool withVolatile)
         READ_SEPARATOR();
         quorum = new ConfigQuorum;
         if (!ReadQuorum(*quorum, buffer, withVolatile))
+        {
+            delete quorum;
             return false;
+        }
+        quorums.Append(quorum);
     }
     
     return true;
@@ -688,7 +692,11 @@ bool ConfigState::ReadDatabases(ReadBuffer& buffer)
         READ_SEPARATOR();
         database = new ConfigDatabase;
         if (!ReadDatabase(*database, buffer))
+        {
+            delete database;
             return false;
+        }
+        databases.Append(database);
     }
     
     return true;
@@ -722,7 +730,11 @@ bool ConfigState::ReadTables(ReadBuffer& buffer)
         READ_SEPARATOR();
         table = new ConfigTable;
         if (!ReadTable(*table, buffer))
+        {
+            delete table;
             return false;
+        }
+        tables.Append(table);
     }
     
     return true;
@@ -756,7 +768,11 @@ bool ConfigState::ReadShards(ReadBuffer& buffer)
         READ_SEPARATOR();
         shard = new ConfigShard;
         if (!ReadShard(*shard, buffer))
+        {
+            delete shard;
             return false;
+        }
+        shards.Append(shard);
     }
     
     return true;
@@ -790,7 +806,11 @@ bool ConfigState::ReadShardServers(ReadBuffer& buffer)
         READ_SEPARATOR();
         shardServer = new ConfigShardServer;
         if (!ReadShardServer(*shardServer, buffer))
+        {
+            delete shardServer;
             return false;
+        }
+        shardServers.Append(shardServer);
     }
     
     return true;

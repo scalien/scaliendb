@@ -46,6 +46,8 @@ void Controller::Init()
     configState.Init();
     configContext.Init(this, numControllers, systemDatabase.GetTable("paxos"));
     CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
+    
+    ReadConfigState();
 }
 
 int64_t Controller::GetMaster()
