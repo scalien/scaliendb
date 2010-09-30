@@ -247,16 +247,16 @@ void HTTPControllerSession::PrintDatabases(ConfigState* configState)
         for (itTableID = tables.First(); itTableID != NULL; itTableID = tables.Next(itTableID))
         {
             table = configState->GetTable(*itTableID);
-            buffer.Writef("  - %B(t%U): [", table->tableID, &table->name);
+            buffer.Writef("  - %B(t%U): [", &table->name, table->tableID);
             List<uint64_t>& shards = table->shards;
             for (itShardID = shards.First(); itShardID != NULL; itShardID = shards.Next(itShardID))
             {
                 shard = configState->GetShard(*itShardID);
-                buffer.Appendf("s%U => q%U", itShardID, shard->quorumID);
-                if (itShardID != NULL)
+                buffer.Appendf("s%U => q%U", *itShardID, shard->quorumID);
+                if (shards.Next(itShardID) != NULL)
                     buffer.Appendf(", ");
             }
-            buffer.Appendf("]");
+            buffer.Appendf("]\n");
             session.Print(buffer);
         }
         session.Print("\n");

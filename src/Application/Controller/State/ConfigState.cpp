@@ -921,6 +921,7 @@ bool ConfigState::ReadTable(ConfigTable& table, ReadBuffer& buffer)
     
     read = buffer.Readf("%U:%U:%#B", &table.databaseID, &table.tableID, &table.name);
     CHECK_ADVANCE(5);
+    READ_SEPARATOR();
     if (!ReadIDList(table.shards, buffer))
         return false;
     
