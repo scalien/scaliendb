@@ -29,6 +29,8 @@ public:
     unsigned        duration;
     ConfigState*    configState;
     
+    ClusterMessage();
+    
     bool            SetNodeID(uint64_t nodeID);
     bool            SetConfigState(ConfigState* configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,

@@ -1,5 +1,10 @@
 #include "ClusterMessage.h"
 
+ClusterMessage::ClusterMessage()
+{
+    configState = NULL;
+}
+
 bool ClusterMessage::SetNodeID(uint64_t nodeID_)
 {
     type = CLUSTERMESSAGE_SET_NODEID;
