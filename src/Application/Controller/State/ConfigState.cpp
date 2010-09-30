@@ -1,7 +1,8 @@
 #include "ConfigState.h"
 
-#define HAS_LEADER_YES      'Y'
-#define HAS_LEADER_NO       'N'
+#define HAS_LEADER_YES          'Y'
+#define HAS_LEADER_NO           'N'
+#define CONFIG_MESSAGE_PREFIX   'C'
 
 #define READ_SEPARATOR()    \
     read = buffer.Readf(":");       \
@@ -71,6 +72,12 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
     hasMaster = false;
     if (withVolatile)
     {
+        // HACK: in volatile mode the prefix is handled by ConfigState
+        // TODO: change convention to Append in every Message::Write
+        read = buffer.Readf("%c", &c);
+        CHECK_ADVANCE(1);
+        assert(c == CONFIG_MESSAGE_PREFIX);
+
         READ_SEPARATOR();
         c = HAS_LEADER_NO;
         buffer.Readf("%c", &c);
@@ -106,10 +113,13 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     
     if (withVolatile)
     {
+        // HACK: in volatile mode the prefix is handled by ConfigState
+        // TODO: change convention to Append in every Message::Write
+        buffer.Appendf("%c:", CONFIG_MESSAGE_PREFIX);
         if (hasMaster)
-            buffer.Appendf("P:%U", masterID);
+            buffer.Appendf("%c:%U", HAS_LEADER_YES, masterID);
         else
-            buffer.Appendf("N");
+            buffer.Appendf("%c", HAS_LEADER_NO);
     }
 
     WriteQuorums(buffer, withVolatile);

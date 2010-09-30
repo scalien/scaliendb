@@ -250,8 +250,13 @@ void Controller::OnAwaitingNodeID(Endpoint endpoint)
         {
             // tell ContextTransport that this connection has a new nodeID
             CONTEXT_TRANSPORT->SetConnectionNodeID(endpoint, shardServer->nodeID);       
+            
             // tell the shard server
             clusterMessage.SetNodeID(shardServer->nodeID);
+            CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
+            
+            // send config state
+            clusterMessage.SetConfigState(&configState);
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             return;
         }
@@ -536,7 +541,8 @@ void Controller::UpdateListeners()
     // update shard servers
     message.SetConfigState(&configState);
     shardServers = &configState.shardServers;
-    for (itShardServer = shardServers->First(); itShardServer != NULL; 
+    for (itShardServer = shardServers->First(); 
+     itShardServer != NULL; 
      itShardServer = shardServers->Next(itShardServer))
     {
         CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
