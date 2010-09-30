@@ -114,6 +114,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
     ConfigShardServer*      it;
     Buffer                  buffer;
     ReadBuffer              rb;
+    uint64_t                ssID;
     
     if (configState->shardServers.GetLength() == 0)
     {
@@ -130,7 +131,8 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
             else
                 buffer.Writef("- ");
             rb = it->endpoint.ToReadBuffer();
-            buffer.Appendf("%U (%R)\n", it->nodeID, &rb);
+            ssID = it->nodeID - CONFIG_MIN_SHARD_NODE_ID;
+            buffer.Appendf("ss%U (%R)\n", ssID, &rb);
             session.Print(buffer);
         }
     }
