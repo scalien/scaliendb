@@ -103,6 +103,8 @@ void HTTPControllerSession::PrintStatus()
     PrintQuorumMatrix(configState);
     session.Print("\n");
     PrintDatabases(configState);
+    session.Print("\n");
+    PrintShardMatrix(configState);
     
     session.Flush();
 }
@@ -148,11 +150,19 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
     session.Print("Quorum matrix:\n\n");
     ConfigState::ShardServerList& shardServers = configState->shardServers;
     ConfigState::QuorumList& quorums = configState->quorums;
+
     buffer.Writef("       ");
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
     {
-        buffer.Appendf(" n");
-        buffer.Appendf("%U", itShardServer->nodeID);
+        if (itShardServer->nodeID < 10)
+            buffer.Appendf("   ");
+        else if (itShardServer->nodeID < 100)
+            buffer.Appendf("  ");
+        else if (itShardServer->nodeID < 1000)
+            buffer.Appendf(" ");
+        else
+            buffer.Appendf("");
+        buffer.Appendf("ss%U", itShardServer->nodeID - CONFIG_MIN_SHARD_NODE_ID);
     }
     buffer.Appendf("\n");
     session.Print(buffer);
@@ -173,7 +183,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
             buffer.Writef("  ");
         else if (itQuorum->quorumID < 1000)
             buffer.Writef(" ");
-        else if (itQuorum->quorumID < 10000)
+        else
             buffer.Writef("");
         buffer.Appendf("q%U |", itQuorum->quorumID);
         ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
@@ -247,7 +257,89 @@ void HTTPControllerSession::PrintDatabases(ConfigState* configState)
 
 void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
 {
-    // TODO: xxx
+    bool                    found;
+    ConfigShardServer*      itShardServer;
+    ConfigShard*            itShard;
+    ConfigQuorum*           quorum;
+    uint64_t*               itNodeID;
+    Buffer                  buffer;
+    
+    if (configState->shardServers.GetLength() == 0 ||
+     configState->quorums.GetLength() == 0 ||
+     configState->shards.GetLength() == 0)
+        return;
+    
+    session.Print("Shard matrix:\n\n");
+    ConfigState::ShardServerList& shardServers = configState->shardServers;
+    ConfigState::ShardList& shards = configState->shards;
+    
+    buffer.Writef("       ");
+    for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
+    {
+        if (itShardServer->nodeID < 10)
+            buffer.Appendf("   ");
+        else if (itShardServer->nodeID < 100)
+            buffer.Appendf("  ");
+        else if (itShardServer->nodeID < 1000)
+            buffer.Appendf(" ");
+        else if (itShardServer->nodeID < 10000)
+            buffer.Appendf("");
+        buffer.Appendf("ss%U", itShardServer->nodeID - CONFIG_MIN_SHARD_NODE_ID);
+    }
+    buffer.Appendf("\n");
+    session.Print(buffer);
+
+    buffer.Writef("      +");
+    for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
+    {
+        buffer.Appendf("------");
+    }
+    buffer.Appendf("\n");
+    session.Print(buffer);
+    
+    for (itShard = shards.First(); itShard != NULL; itShard = shards.Next(itShard))
+    {
+        if (itShard->shardID < 10)
+            buffer.Writef("   ");
+        else if (itShard->shardID < 100)
+            buffer.Writef("  ");
+        else if (itShard->shardID < 1000)
+            buffer.Writef(" ");
+        else
+            buffer.Writef("");
+        buffer.Appendf("s%U |", itShard->shardID);
+        quorum = configState->GetQuorum(itShard->quorumID);
+        ConfigQuorum::NodeList& activeNodes = quorum->activeNodes;
+        for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
+        {
+            found = false;
+            for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
+            {
+                if (itShardServer->nodeID == *itNodeID)
+                {
+                    found = true;
+                    if (quorum->hasPrimary && quorum->primaryID == *itNodeID)
+                        if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                            buffer.Appendf("     P");
+                        else
+                            buffer.Appendf("     p");
+                    else
+                    {
+                        if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                            buffer.Appendf("     +");
+                        else
+                            buffer.Appendf("     -");
+                    }
+                    break;
+                }
+            }
+            if (!found)
+                buffer.Appendf("     .");
+
+        }
+        buffer.Appendf("\n");
+        session.Print(buffer);
+    }
 }
 
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
