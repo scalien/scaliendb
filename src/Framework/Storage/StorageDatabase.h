@@ -28,7 +28,6 @@ private:
     Buffer                  name;
     Buffer                  path;
     InList<StorageTable>    tables;
-    bool                    closed;
 };
 
 #endif

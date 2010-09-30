@@ -38,7 +38,6 @@ private:
     StorageDataPage*            pageArea;
     char*                       bufferArea;
     unsigned                    num;
-    unsigned                    refcount;
 };
 
 #endif
