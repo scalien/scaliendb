@@ -1,5 +1,6 @@
 #include "HTTPShardServerSession.h"
 #include "ShardServer.h"
+#include "System/Config.h"
 #include "Application/HTTP/UrlParam.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Framework/Replication/ReplicationConfig.h"
@@ -80,6 +81,8 @@ void HTTPShardServerSession::PrintStatus()
     valbuf.NullTerminate();
     session.PrintPair("NodeID", valbuf.GetBuffer());   
 
+    session.PrintPair("Controllers", configFile.GetValue("controllers", ""));
+
     // write quorums, shards, and leases
     quorums = shardServer->GetQuorums();
     
@@ -98,7 +101,7 @@ void HTTPShardServerSession::PrintStatus()
         valbuf.NullTerminate();
         
         session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());
-    }
+    }    
     
     session.Flush();
 }

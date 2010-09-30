@@ -19,7 +19,7 @@ void ConfigState::Init()
     nextDatabaseID = 1;
     nextTableID = 1;
     nextShardID = 1;
-    nextNodeID = 1000;
+    nextNodeID = CONFIG_MIN_SHARD_NODE_ID;
     
     hasMaster = false;
     masterID = 0;

@@ -10,6 +10,8 @@
 #include "ConfigShardServer.h"
 #include "Application/Controller/ConfigMessage.h"
 
+#define CONFIG_MIN_SHARD_NODE_ID    100
+
 /*
 ===============================================================================================
 

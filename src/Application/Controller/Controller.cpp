@@ -205,9 +205,32 @@ void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
     }
 }
 
-void Controller::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
+void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
-    // TODO: if it's a shard server, send the configState
+    ClusterMessage      clusterMessage;
+    ConfigShardServer*  shardServer;
+    
+    // if it's a shard server, send the configState
+    if (nodeID >= CONFIG_MIN_SHARD_NODE_ID)
+    {
+        // TODO: send shutdown message in case of bad configuration
+        shardServer = configState.GetShardServer(nodeID);
+        if (shardServer == NULL)
+            return;
+        
+        if (shardServer->endpoint != endpoint)
+        {
+            Log_Message("Badly configured shard server trying to connect"
+             ", nodeID: %" PRIu64
+             ", endpoint: %s",
+             nodeID, endpoint.ToString());
+
+            return;
+        }
+        
+        clusterMessage.SetConfigState(&configState);
+        CONTEXT_TRANSPORT->SendClusterMessage(nodeID, clusterMessage);
+    }
 }
 
 void Controller::OnAwaitingNodeID(Endpoint endpoint)
@@ -330,9 +353,6 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 {
     ConfigMessage*  message;
 
-    if (configContext.IsAppending())
-        return;
-
     message = new ConfigMessage;
     message->fromClient = false;
     message->RegisterShardServer(0, endpoint);
@@ -353,6 +373,8 @@ void Controller::ReadConfigState()
     ret &= configState.Read(value);
     if (!ret)
         Log_Message("Starting with empty database...");
+    
+    Log_Trace("%.*s", P(&value));
 }
 
 void Controller::WriteConfigState()
