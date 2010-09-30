@@ -614,8 +614,11 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     itTable = new ConfigTable;
     itTable->databaseID = message.databaseID;
     itTable->tableID = message.tableID;
+    itTable->name.Write(message.name);
     itTable->shards.Append(message.shardID);
     tables.Append(itTable);
+    
+    itDatabase->tables.Append(message.tableID);
 }
 
 void ConfigState::OnRenameTable(ConfigMessage& message)
@@ -649,6 +652,7 @@ void ConfigState::OnDeleteTable(ConfigMessage& message)
     assert(itTable != NULL);
     
     tables.Delete(itTable);
+    itDatabase->tables.Remove(message.tableID);
 }
 
 bool ConfigState::ReadQuorums(ReadBuffer& buffer, bool withVolatile)
@@ -927,6 +931,7 @@ bool ConfigState::ReadTable(ConfigTable& table, ReadBuffer& buffer)
     
     read = buffer.Readf("%U:%U:%#B", &table.databaseID, &table.tableID, &table.name);
     CHECK_ADVANCE(5);
+    READ_SEPARATOR();
     if (!ReadIDList(table.shards, buffer))
         return false;
     
