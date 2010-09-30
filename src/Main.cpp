@@ -42,6 +42,7 @@ int main(int argc, char** argv)
     EventLoop::Shutdown();
     
     IOProcessor::Shutdown();
+    configFile.Shutdown();
 }
 
 void InitLog()
