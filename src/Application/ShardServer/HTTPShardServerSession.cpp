@@ -36,21 +36,21 @@ void HTTPShardServerSession::OnComplete(ClientRequest* request, bool last)
     switch (response->type)
     {
     case CLIENTRESPONSE_OK:
-        session.PrintLine(ReadBuffer("OK"));
+        session.Print(ReadBuffer("OK"));
         break;
     case CLIENTRESPONSE_NUMBER:
         tmp.Writef("%U", response->number);
         rb.Wrap(tmp);
-        session.PrintLine(rb);
+        session.Print(rb);
         break;
     case CLIENTRESPONSE_VALUE:
-        session.PrintLine(response->value);
+        session.Print(response->value);
         break;
     case CLIENTRESPONSE_NOSERVICE:
-        session.PrintLine(ReadBuffer("NOSERVICE"));
+        session.Print(ReadBuffer("NOSERVICE"));
         break;
     case CLIENTRESPONSE_FAILED:
-        session.PrintLine(ReadBuffer("FAILED"));
+        session.Print(ReadBuffer("FAILED"));
         break;
     }
     

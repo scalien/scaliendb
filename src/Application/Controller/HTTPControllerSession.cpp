@@ -34,15 +34,15 @@ void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
     switch (response->type)
     {
     case CLIENTRESPONSE_OK:
-        session.PrintLine(ReadBuffer("OK"));
+        session.Print(ReadBuffer("OK"));
         break;
     case CLIENTRESPONSE_NUMBER:
         tmp.Writef("%U", response->number);
         rb.Wrap(tmp);
-        session.PrintLine(rb);
+        session.Print(rb);
         break;
     case CLIENTRESPONSE_VALUE:
-        session.PrintLine(response->value);
+        session.Print(response->value);
         break;
     case CLIENTRESPONSE_GET_CONFIG_STATE:
         if (!last)
@@ -50,15 +50,15 @@ void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
             response->configState->Write(tmp, true);
             response->configState = NULL;
             rb.Wrap(tmp);
-            session.PrintLine(rb);
+            session.Print(rb);
             controller->OnClientClose(this);
         }
         break;
     case CLIENTRESPONSE_NOSERVICE:
-        session.PrintLine(ReadBuffer("NOSERVICE"));
+        session.Print(ReadBuffer("NOSERVICE"));
         break;
     case CLIENTRESPONSE_FAILED:
-        session.PrintLine(ReadBuffer("FAILED"));
+        session.Print(ReadBuffer("FAILED"));
         break;
     }
     
@@ -90,14 +90,16 @@ void HTTPControllerSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
     
-    session.PrintLine("\n");
-    session.PrintLine("--- Configuration State ---\n");
-    session.PrintLine("\n");
+    session.Print("\n");
+    session.Print("--- Configuration State ---\n");
+    session.Print("\n");
     
     configState = controller->GetConfigState();
     PrintShardServers(configState);
-    session.PrintLine("\n");
+    session.Print("\n");
     PrintQuorumMatrix(configState);
+    session.Print("\n");
+    PrintDatabases(configState);
     
     session.Flush();
 }
@@ -110,11 +112,11 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
     
     if (configState->shardServers.GetLength() == 0)
     {
-        session.PrintLine("No shard servers configured\n");
+        session.Print("No shard servers configured\n");
     }
     else
     {
-        session.PrintLine("Shard servers:\n\n");
+        session.Print("Shard servers:\n\n");
         ConfigState::ShardServerList& shardServers = configState->shardServers;
         for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
@@ -124,7 +126,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
                 buffer.Writef("- ");
             rb = it->endpoint.ToReadBuffer();
             buffer.Appendf("%U (%R)\n", it->nodeID, &rb);
-            session.PrintLine(buffer);
+            session.Print(buffer);
         }
     }
 }
@@ -140,7 +142,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
     if (configState->shardServers.GetLength() == 0 || configState->quorums.GetLength() == 0)
         return;
     
-    session.PrintLine("Quorum matrix:\n\n");
+    session.Print("Quorum matrix:\n\n");
     ConfigState::ShardServerList& shardServers = configState->shardServers;
     ConfigState::QuorumList& quorums = configState->quorums;
     buffer.Writef("       ");
@@ -150,7 +152,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
         buffer.Appendf("%U", itShardServer->nodeID);
     }
     buffer.Appendf("\n");
-    session.PrintLine(buffer);
+    session.Print(buffer);
 
     buffer.Writef("      +");
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
@@ -158,7 +160,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
         buffer.Appendf("------");
     }
     buffer.Appendf("\n");
-    session.PrintLine(buffer);
+    session.Print(buffer);
     
     for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = quorums.Next(itQuorum))
     {
@@ -200,8 +202,49 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
 
         }
         buffer.Appendf("\n");
-        session.PrintLine(buffer);
+        session.Print(buffer);
     }
+}
+
+void HTTPControllerSession::PrintDatabases(ConfigState* configState)
+{
+    ConfigDatabase*     itDatabase;
+    uint64_t*           itTableID;
+    uint64_t*           itShardID;
+    ConfigTable*        table;
+    ConfigShard*        shard;
+    Buffer              buffer;
+    
+    session.Print("Databases, tables and shards:\n\n");
+    
+    ConfigState::DatabaseList& databases = configState->databases;
+    for (itDatabase = databases.First(); itDatabase != NULL; itDatabase = databases.Next(itDatabase))
+    {
+        buffer.Writef("- %R:\n", &itDatabase->name);
+        session.Print(buffer);
+        List<uint64_t>& tables = itDatabase->tables;
+        for (itTableID = tables.First(); itTableID != NULL; itTableID = tables.Next(itTableID))
+        {
+            table = configState->GetTable(*itTableID);
+            buffer.Writef("  - %R (", &table->name);
+            List<uint64_t>& shards = table->shards;
+            for (itShardID = shards.First(); itShardID != NULL; itShardID = shards.Next(itShardID))
+            {
+                buffer.Appendf("%U", itShardID);
+                shard = configState->GetShard(*itShardID);
+                buffer.Appendf("-[%U]", shard->quorumID);
+                if (itShardID != NULL)
+                    buffer.Appendf(", ");
+            }
+            buffer.Appendf(")\n");
+            session.Print(buffer);
+        }
+    }
+}
+
+void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
+{
+    // TODO: xxx
 }
 
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
