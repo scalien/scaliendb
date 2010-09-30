@@ -405,6 +405,7 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
      configQuorum != NULL;
      configState->quorums.Next(configQuorum))
     {
+        nodes = &configQuorum->activeNodes;
         for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
         {
             if (*nit != nodeID)
@@ -412,6 +413,7 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
             ConfigureQuorum(configQuorum, true);
         }
 
+        nodes = &configQuorum->inactiveNodes;
         for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
         {
             if (*nit != nodeID)
