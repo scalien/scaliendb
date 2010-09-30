@@ -11,6 +11,10 @@ void StorageDatabase::Open(const char* path_, const char* dbName)
     name.Write(dbName);
     DCACHE->Init(DEFAULT_CACHE_SIZE);
 
+    // try to create parent directory, will fail later when creating the database
+    if (!FS_IsDirectory(path_))
+        FS_CreateDir(path_);
+
     sep = FS_Separator();
     path.Append(path_);
     if (path.GetBuffer()[path.GetLength() - 1] != sep)
