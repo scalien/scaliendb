@@ -18,8 +18,8 @@ void InitContextTransport();
 
 int main(int argc, char** argv)
 {
-    ControllerApp*      controller;
-    ShardServerApp*     shardServer;
+    ControllerApp       controller;
+    ShardServerApp      shardServer;
     bool                isController;
 
     if (argc < 2)
@@ -33,15 +33,9 @@ int main(int argc, char** argv)
     isController = IsController();  
     Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
     if (isController)
-    {
-        controller = new ControllerApp;
-        controller->Init();
-    }
+        controller.Init();
     else
-    {
-        shardServer = new ShardServerApp;
-        shardServer->Init();
-    }
+        shardServer.Init();
     
     EventLoop::Init();
     EventLoop::Run();
