@@ -28,8 +28,6 @@ public:
     /* Static instance */
     static ContextTransport* Get();
 
-    ContextTransport();
-
     void            SetClusterContext(ClusterContext* context);
     ClusterContext* GetClusterContext();
 
@@ -41,6 +39,8 @@ public:
     void            SendPriorityQuorumMessage(uint64_t nodeID, uint64_t contextID, Message& msg);   
     
 private:
+    ContextTransport();
+
     // ========================================================================================
     // ClusterTransport interface:
     //
