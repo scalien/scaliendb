@@ -26,6 +26,9 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/ShardServer/DataMessage.o \
 	$(BUILD_DIR)/Application/ShardServer/DataContext.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServer.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardServerApp.o \
+	$(BUILD_DIR)/Application/ShardServer/HTTPShardServerContext.o \
+	$(BUILD_DIR)/Application/ShardServer/HTTPShardServerSession.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterServer.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterConnection.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterTransport.o \
@@ -84,5 +87,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Test/TestMain.o \
 	$(BUILD_DIR)/Test/StorageTest.o \
 	$(BUILD_DIR)/Test/FileSystemTest.o \
+	$(BUILD_DIR)/Test/ArrayListTest.o \
 
 

@@ -585,4 +585,5 @@ void HTTPControllerSession::OnConnectionClose()
 {
     controller->OnClientClose(this);
     session.SetConnection(NULL);
+    delete this;
 }

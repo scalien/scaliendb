@@ -40,6 +40,8 @@ int main(int argc, char** argv)
     EventLoop::Init();
     EventLoop::Run();
     EventLoop::Shutdown();
+    
+    IOProcessor::Shutdown();
 }
 
 void InitLog()
