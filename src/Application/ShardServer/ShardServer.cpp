@@ -62,12 +62,17 @@ void ShardServer::Shutdown()
 {
     DatabaseMap::Node*  dbNode;
     StorageDatabase*    database;
+
+    CONTEXT_TRANSPORT->Shutdown();
+    REPLICATION_CONFIG->Shutdown();
     
     for (dbNode = databases.First(); dbNode != NULL; dbNode = databases.Next(dbNode))
     {
         database = dbNode->Value();
         delete database;
     }
+
+    systemDatabase.Close();
 }
 
 bool ShardServer::IsLeaderKnown(uint64_t quorumID)

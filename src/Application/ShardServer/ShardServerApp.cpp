@@ -12,3 +12,8 @@ void ShardServerApp::Init()
     sdbpServer.Init(configFile.GetIntValue("sdbp.port", 7080));
     sdbpServer.SetContext(&shardServer);
 }
+
+void ShardServerApp::Shutdown()
+{
+    shardServer.Shutdown();
+}

@@ -10,7 +10,6 @@ static StorageDataCache* storageDataCache = NULL;
 StorageDataCache::StorageDataCache()
 {
     num = 0;
-    refcount = 0;
 }
 
 void StorageDataCache::Init(unsigned size)
@@ -18,9 +17,6 @@ void StorageDataCache::Init(unsigned size)
     StorageDataPage* page;
     
     assert(num == 0);
-    refcount += 1;
-    if (refcount > 1)
-        return;
 
     num = size / DEFAULT_DATAPAGE_SIZE;
 
@@ -39,10 +35,7 @@ void StorageDataCache::Init(unsigned size)
 void StorageDataCache::Shutdown()
 {
     assert(num != 0);
-    refcount -= 1;
-    if (refcount > 0)
-        return;
-    
+
     lruList.Clear();
     freeList.Clear();
     

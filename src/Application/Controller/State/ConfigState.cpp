@@ -14,6 +14,12 @@
         return false;       \
     buffer.Advance(read)
 
+ConfigState::~ConfigState()
+{
+    shardServers.DeleteList();
+    quorums.DeleteList();
+}
+
 void ConfigState::Init()
 {
     nextQuorumID = 1;

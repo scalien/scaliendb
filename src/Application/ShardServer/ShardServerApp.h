@@ -18,6 +18,7 @@ class ShardServerApp
 {
 public:
     void                    Init();
+    void                    Shutdown();
 
 private:
     ShardServer             shardServer;

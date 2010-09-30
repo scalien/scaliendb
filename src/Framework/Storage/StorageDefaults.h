@@ -17,6 +17,6 @@
 //#define DEFAULT_NUM_DATAPAGES     16*256          // 16.7 MB wort of data pages
 //#define DEFAULT_INDEXPAGE_SIZE        16+16*256*(100+8)
 
-#define DEFAULT_CACHE_SIZE          (10000UL*DEFAULT_DATAPAGE_SIZE)
+#define STORAGE_DEFAULT_CACHE_SIZE          (1000UL*DEFAULT_DATAPAGE_SIZE)
 
 #endif

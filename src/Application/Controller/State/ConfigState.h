@@ -49,6 +49,8 @@ public:
     uint64_t            nextShardID;
     uint64_t            nextNodeID;
     
+    ~ConfigState();
+    
     void                Init();
     
     ConfigQuorum*       GetQuorum(uint64_t quorumID);

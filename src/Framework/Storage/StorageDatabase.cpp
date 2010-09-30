@@ -14,8 +14,6 @@ void StorageDatabase::Open(const char* path_, const char* dbName)
     char    sep;
     
     name.Write(dbName);
-    DCACHE->Init(DEFAULT_CACHE_SIZE);
-    closed = false;
 
     // try to create parent directory, will fail later when creating the database
     if (!FS_IsDirectory(path_))
@@ -73,17 +71,9 @@ void StorageDatabase::CloseTable(const char* tableName)
 void StorageDatabase::Close()
 {
     StorageTable* it;
-
-    // HACK: for not shutting down DCACE twice
-    if (closed)
-        return;
-    
-    closed = true;
     
     for (it = tables.First(); it != NULL; it = tables.Delete(it))
         it->Close();
-    
-    DCACHE->Shutdown();
 }
 
 void StorageDatabase::Commit(bool recovery, bool flush)

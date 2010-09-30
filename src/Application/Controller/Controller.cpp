@@ -50,6 +50,13 @@ void Controller::Init()
     ReadConfigState();
 }
 
+void Controller::Shutdown()
+{
+    CONTEXT_TRANSPORT->Shutdown();
+    REPLICATION_CONFIG->Shutdown();
+    systemDatabase.Close();
+}
+
 int64_t Controller::GetMaster()
 {
     return (int64_t) configContext.GetLeader();

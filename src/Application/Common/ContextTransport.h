@@ -28,6 +28,8 @@ public:
     /* Static instance */
     static ContextTransport* Get();
 
+    void            Shutdown();
+
     void            SetClusterContext(ClusterContext* context);
     ClusterContext* GetClusterContext();
 

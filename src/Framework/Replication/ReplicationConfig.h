@@ -20,6 +20,7 @@ public:
     static ReplicationConfig* Get();
     
     void                    Init(StorageTable* table);
+    void                    Shutdown();
     
     void                    SetNodeID(uint64_t nodeID);
     uint64_t                GetNodeID();

@@ -2,6 +2,7 @@
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
+#include "Framework/Storage/StorageDataCache.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Controller/ControllerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
@@ -29,6 +30,7 @@ int main(int argc, char** argv)
     InitLog();
     IOProcessor::Init(1024);
     InitContextTransport();
+    DCACHE->Init(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
     
     isController = IsController();  
     Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
@@ -41,6 +43,12 @@ int main(int argc, char** argv)
     EventLoop::Run();
     EventLoop::Shutdown();
     
+    if (isController)
+        controller.Shutdown();
+    else
+        shardServer.Shutdown();
+    
+    DCACHE->Shutdown();
     IOProcessor::Shutdown();
     configFile.Shutdown();
 }
