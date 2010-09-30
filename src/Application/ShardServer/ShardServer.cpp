@@ -58,6 +58,18 @@ void ShardServer::Init()
     requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));    
 }
 
+void ShardServer::Shutdown()
+{
+    DatabaseMap::Node*  dbNode;
+    StorageDatabase*    database;
+    
+    for (dbNode = databases.First(); dbNode != NULL; dbNode = databases.Next(dbNode))
+    {
+        database = dbNode->Value();
+        delete database;
+    }
+}
+
 bool ShardServer::IsLeaderKnown(uint64_t quorumID)
 {
     QuorumData*     quorumData;

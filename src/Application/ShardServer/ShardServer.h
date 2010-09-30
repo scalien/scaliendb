@@ -34,6 +34,7 @@ public:
     typedef HashMap<uint64_t, StorageTable*>        TableMap;
 
     void            Init();
+    void            Shutdown();
     
     // For ConfigContext
     bool            IsLeaderKnown(uint64_t quorumID);

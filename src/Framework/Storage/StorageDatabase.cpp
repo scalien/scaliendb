@@ -4,6 +4,11 @@
 
 #include <stdio.h>
 
+StorageDatabase::~StorageDatabase()
+{
+    Close();
+}
+
 void StorageDatabase::Open(const char* path_, const char* dbName)
 {
     char    sep;

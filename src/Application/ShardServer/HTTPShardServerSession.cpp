@@ -197,4 +197,5 @@ void HTTPShardServerSession::OnConnectionClose()
 {
     shardServer->OnClientClose(this);
     session.SetConnection(NULL);
+    delete this;
 }
