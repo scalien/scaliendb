@@ -75,7 +75,8 @@ bool HTTPControllerSession::IsActive()
 
 void HTTPControllerSession::PrintStatus()
 {
-    Buffer      buf;
+    Buffer          buf;
+    ConfigState*    configState;
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
@@ -88,7 +89,82 @@ void HTTPControllerSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
     
+    session.PrintLine("");
+    session.PrintLine("--- Configuration State ---");
+    session.PrintLine("");
+    
+    configState = controller->GetConfigState();
+    PrintShardServers(configState);
+    session.PrintLine("");
+    PrintQuorumMatrix(configState);
+    
     session.Flush();
+}
+
+void HTTPControllerSession::PrintShardServers(ConfigState* configState)
+{
+    ConfigShardServer*      it;
+    Buffer                  buffer;
+    
+    if (configState->shardServers.GetLength() == 0)
+    {
+        session.PrintLine("No shard servers configured");
+    }
+    else
+    {
+        session.PrintLine("Shard servers:");
+        ConfigState::ShardServerList& shardServers = configState->shardServers;
+        for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
+        {
+            buffer.Writef("%U", it->nodeID);
+            buffer.NullTerminate();
+            session.PrintPair(buffer, it->endpoint.ToReadBuffer());
+        }
+    }
+}
+
+void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
+{
+    ConfigShardServer*      itShardServer;
+    ConfigQuorum*           itQuorum;
+    uint64_t*               itNodeID;
+    Buffer                  buffer;
+    
+    if (configState->shardServers.GetLength() == 0 || configState->quorums.GetLength() == 0)
+        return;
+    
+    session.PrintLine("Quorum matrix:");
+    ConfigState::ShardServerList& shardServers = configState->shardServers;
+    ConfigState::QuorumList& quorums = configState->quorums;
+    buffer.Writef("      ");
+    for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
+    {
+        buffer.Appendf("  ");
+        buffer.Appendf("%U", itShardServer->nodeID);
+    }
+    session.PrintLine(buffer);
+    
+    for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = quorums.Next(itQuorum))
+    {
+        buffer.Writef("     ");
+        buffer.Appendf("%U", itQuorum->quorumID);
+        ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+        for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
+        {
+            for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
+            {
+                if (itShardServer->nodeID = *itNodeID)
+                {
+                    if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
+                        buffer.Appendf("     P");
+                    else
+                        buffer.Appendf("     X");
+                }
+                else
+                    buffer.Appendf("      ");
+            }
+        }
+    }
 }
 
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)

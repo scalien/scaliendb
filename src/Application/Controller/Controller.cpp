@@ -58,6 +58,11 @@ uint64_t Controller::GetNodeID()
     return REPLICATION_CONFIG->GetNodeID();
 }
 
+ConfigState* Controller::GetConfigState()
+{
+    return &configState;
+}
+
 void Controller::OnLearnLease()
 {
     Endpoint endpoint;
@@ -200,6 +205,7 @@ void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 
 void Controller::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
 {
+    // TODO: if it's a shard server, send the configState
 }
 
 void Controller::OnAwaitingNodeID(Endpoint endpoint)
