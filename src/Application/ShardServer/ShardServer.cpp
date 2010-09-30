@@ -29,6 +29,7 @@ void ShardServer::Init()
     runID += 1;
     REPLICATION_CONFIG->SetRunID(runID);
     REPLICATION_CONFIG->Commit();
+    Log_Trace("rundID: %" PRIu64, runID);
 
     if (REPLICATION_CONFIG->GetNodeID() > 0)
     {
@@ -146,16 +147,26 @@ void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppe
         assert(quorumData->dataMessages.First()->type == message.type);
         assert(quorumData->requests.GetLength() > 0);
         request = quorumData->requests.First();
+        if (request)
+            request->response.OK();
     }
     
     switch (message.type)
     {
+    // TODO: differentiate return status (FAILED, NOSERVICE)
     case CLIENTREQUEST_SET:
         if (!table->Set(message.key, message.value))
-            ASSERT_FAIL();
+        {
+            if (request)
+                request->response.Failed();
+        }
         break;
     case CLIENTREQUEST_DELETE:
-        table->Delete(message.key); // TODO: return status
+        if (!table->Delete(message.key))
+        {
+            if (request)
+                request->response.Failed();
+        }
         break;
     default:
         ASSERT_FAIL();
@@ -165,11 +176,7 @@ void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppe
     if (ownAppend)
     {
         if (request)
-        {
-            // TODO: fix responses
-            request->response.OK();
             request->OnComplete();
-        }
         
         quorumData->dataMessages.Delete(quorumData->dataMessages.First());
         quorumData->requests.Delete(quorumData->requests.First());
@@ -468,7 +475,6 @@ void ShardServer::UpdateShards(List<uint64_t>& shards)
     Buffer              name;
     ReadBuffer          firstKey;
 
-    // TODO:
     for (sit = shards.First(); sit != NULL; sit = shards.Next(sit))
     {
         shard = configState->GetShard(*sit);

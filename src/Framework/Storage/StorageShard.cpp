@@ -210,7 +210,7 @@ bool StorageShard::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     return true;
 }
 
-void StorageShard::Delete(ReadBuffer& key)
+bool StorageShard::Delete(ReadBuffer& key)
 {
     bool                updateIndex;
     StorageFileIndex*   fi;
@@ -221,7 +221,7 @@ void StorageShard::Delete(ReadBuffer& key)
     fi = Locate(key);
 
     if (fi == NULL)
-        return;
+        return false;
     
     updateIndex = false;
     firstKey = fi->file->FirstKey();
@@ -240,7 +240,7 @@ void StorageShard::Delete(ReadBuffer& key)
         delete fi;
         shardSize -= sizeBefore;
 
-        return;
+        return true;
     }
     else if (updateIndex)
     {
@@ -249,6 +249,7 @@ void StorageShard::Delete(ReadBuffer& key)
     }
     
     shardSize -= (sizeAfter - sizeBefore);
+    return true;
 }
 
 StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey)

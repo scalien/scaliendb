@@ -27,7 +27,11 @@ void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
 
 void DataContext::UpdateConfig(ConfigQuorum* configQuorum)
 {
-    // TODO: reconfigure quorum
+    uint64_t*   it;
+
+    quorum.ClearNodes();
+    for (it = configQuorum->activeNodes.First(); it != NULL; it = configQuorum->activeNodes.Next(it))
+        quorum.AddNode(*it);
 }
 
 void DataContext::Append(DataMessage* message)

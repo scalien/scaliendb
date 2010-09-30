@@ -28,7 +28,7 @@ public:
         
     bool                Get(ReadBuffer key, ReadBuffer& value);
     bool                Set(ReadBuffer key, ReadBuffer value, bool copy = true);
-    void                Delete(ReadBuffer key);
+    bool                Delete(ReadBuffer key);
 
     bool                CreateShard(uint64_t shardID, ReadBuffer& startKey);
     bool                SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuffer& startKey);

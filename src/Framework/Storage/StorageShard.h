@@ -35,7 +35,7 @@ public:
         
     bool                    Get(ReadBuffer& key, ReadBuffer& value);
     bool                    Set(ReadBuffer& key, ReadBuffer& value, bool copy = true);
-    void                    Delete(ReadBuffer& key);
+    bool                    Delete(ReadBuffer& key);
 
     StorageShard*           SplitShard(uint64_t newShardID, ReadBuffer& startKey);
 
