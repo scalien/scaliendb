@@ -8,19 +8,25 @@ static uint64_t Hash(uint64_t ID)
     return ID;
 }
 
-ContextTransport* replicationTransport = NULL;
+ContextTransport* contextTransport = NULL;
 
 ContextTransport* ContextTransport::Get()
 {
-    if (replicationTransport == NULL)
-        replicationTransport = new ContextTransport();
+    if (contextTransport == NULL)
+        contextTransport = new ContextTransport();
     
-    return replicationTransport;
+    return contextTransport;
 }
 
 ContextTransport::ContextTransport()
 {
     clusterContext = NULL;
+}
+
+void ContextTransport::Shutdown()
+{
+    delete contextTransport;
+    contextTransport = NULL;
 }
 
 void ContextTransport::SetClusterContext(ClusterContext* context)

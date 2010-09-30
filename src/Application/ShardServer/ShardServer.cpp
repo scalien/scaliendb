@@ -62,6 +62,9 @@ void ShardServer::Shutdown()
 {
     DatabaseMap::Node*  dbNode;
     StorageDatabase*    database;
+
+    CONTEXT_TRANSPORT->Shutdown();
+    REPLICATION_CONFIG->Shutdown();
     
     for (dbNode = databases.First(); dbNode != NULL; dbNode = databases.Next(dbNode))
     {

@@ -52,6 +52,8 @@ void Controller::Init()
 
 void Controller::Shutdown()
 {
+    CONTEXT_TRANSPORT->Shutdown();
+    REPLICATION_CONFIG->Shutdown();
     systemDatabase.Close();
 }
 

@@ -3,14 +3,14 @@
 #define WIDTH_NODEID                16
 #define WIDTH_RUNID                 16
 
-ReplicationConfig* replicationManager = NULL;
+ReplicationConfig* replicationConfig = NULL;
 
 ReplicationConfig* ReplicationConfig::Get()
 {
-    if (replicationManager == NULL)
-        replicationManager = new ReplicationConfig();
+    if (replicationConfig == NULL)
+        replicationConfig = new ReplicationConfig();
     
-    return replicationManager;
+    return replicationConfig;
 }
 
 ReplicationConfig::ReplicationConfig()
@@ -43,6 +43,12 @@ void ReplicationConfig::Init(StorageTable* table_)
         Log_Message("No runID read from database");
         runID = 0;
     }
+}
+
+void ReplicationConfig::Shutdown()
+{
+    delete replicationConfig;
+    replicationConfig = NULL;
 }
 
 void ReplicationConfig::SetNodeID(uint64_t nodeID_)
