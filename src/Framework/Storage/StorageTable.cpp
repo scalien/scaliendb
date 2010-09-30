@@ -164,13 +164,10 @@ bool StorageTable::Set(ReadBuffer key, ReadBuffer value, bool copy)
     if (si == NULL)
         return false;
     
-    if (!si->shard->Set(key, value, copy))
-        return false;
-
-    return true;
+    return si->shard->Set(key, value, copy);
 }
 
-void StorageTable::Delete(ReadBuffer key)
+bool StorageTable::Delete(ReadBuffer key)
 {
     StorageShardIndex*  si;
     ReadBuffer          firstKey;
@@ -178,9 +175,9 @@ void StorageTable::Delete(ReadBuffer key)
     si = Locate(key);
 
     if (si == NULL)
-        return;
+        return false;
     
-    si->shard->Delete(key);
+    return si->shard->Delete(key);
 }
 
 bool StorageTable::CreateShard(uint64_t shardID, ReadBuffer& startKey_)
