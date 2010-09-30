@@ -1,6 +1,7 @@
 #ifndef ARRAYLIST_H
 #define ARRAYLIST_H
 
+#include <stdlib.h>
 #include <assert.h>
 
 /*
