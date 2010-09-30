@@ -19,7 +19,7 @@ void StorageDataCache::Init(unsigned size)
     
     assert(num == 0);
     refcount += 1;
-    if (refcount > 0)
+    if (refcount > 1)
         return;
 
     num = size / DEFAULT_DATAPAGE_SIZE;
