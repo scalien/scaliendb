@@ -63,12 +63,13 @@ uint64_t DataContext::GetLeader()
 
 void DataContext::OnLearnLease()
 {
-    ASSERT_FAIL();
+    replicatedLog.OnLearnLease();
 }
 
 void DataContext::OnLeaseTimeout()
 {
-    ASSERT_FAIL();
+    nextValue.Clear();
+    replicatedLog.OnLeaseTimeout();
 }
 
 uint64_t DataContext::GetContextID()
