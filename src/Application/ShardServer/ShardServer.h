@@ -100,7 +100,7 @@ public:
     typedef InList<ClientRequest>   RequestList;
     typedef List<uint64_t>          ShardList;
 
-    QuorumData()    { isPrimary = false; prev = next = this; }
+    QuorumData()    { isPrimary = false; prev = next = this; requestedLeaseExpireTime = 0; }
 
     bool            isPrimary;
     bool            isActive;
@@ -111,6 +111,7 @@ public:
     RequestList     requests;
     ShardList       shards;
     DataContext     context;
+    uint64_t        requestedLeaseExpireTime;
     Timer           leaseTimeout;
     
     QuorumData*     prev;

@@ -341,7 +341,8 @@ void ShardServer::OnRequestLeaseTimeout()
         for (nit = controllers.First(); nit != NULL; nit = controllers.Next(nit))
             CONTEXT_TRANSPORT->SendClusterMessage(*nit, msg);
 
-        quorum->leaseTimeout.SetExpireTime(EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME);
+        // TODO: bug
+        quorum->requestedLeaseExpireTime = EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME;
     }
 }
 
@@ -483,6 +484,7 @@ void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)
         return;
     
     quorum->isPrimary = true;
+    quorum->leaseTimeout.SetExpireTime(quorum->requestedLeaseExpireTime);
     EventLoop::Add(&quorum->leaseTimeout);
 }
 
