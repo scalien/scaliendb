@@ -46,7 +46,8 @@ void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
     conn->SetTransport(this);
     conn->SetNodeID(nodeID);
     conn->SetEndpoint(endpoint);
-    conn->Connect();    
+    conn->Connect();
+    conns.Append(conn);
 }
 
 bool ClusterTransport::SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID)

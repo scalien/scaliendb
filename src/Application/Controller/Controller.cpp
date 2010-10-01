@@ -488,7 +488,7 @@ void Controller::AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
     UpdatePrimaryLeaseTimer();
 
     response.ReceiveLease(message.nodeID, message.quorumID, message.proposalID, duration);
-    CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, message);
+    CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 }
 
 void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
@@ -514,7 +514,7 @@ void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
     UpdatePrimaryLeaseTimer();
 
     response.ReceiveLease(message.nodeID, message.quorumID, message.proposalID, duration);
-    CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, message);
+    CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 }
 
 void Controller::UpdatePrimaryLeaseTimer()

@@ -90,7 +90,7 @@ void HTTPShardServerSession::PrintStatus()
     valbuf.NullTerminate();
     session.PrintPair("Number of quorums", valbuf.GetBuffer());
     
-    for (quorum = quorums->First(); quorum != NULL; quorums->Next(quorum))
+    for (quorum = quorums->First(); quorum != NULL; quorum = quorums->Next(quorum))
     {
         primaryID = shardServer->GetLeader(quorum->quorumID);
         

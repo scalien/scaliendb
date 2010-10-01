@@ -289,7 +289,7 @@ QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
 {
     QuorumData* quorum;
     
-    for (quorum = quorums.First(); quorum != NULL; quorums.Next(quorum))
+    for (quorum = quorums.First(); quorum != NULL; quorum = quorums.Next(quorum))
     {
         if (quorum->quorumID == quorumID)
             return quorum;
@@ -391,7 +391,7 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
         next = quorums.Next(quorum);
         
         nodes = &configQuorum->activeNodes;
-        for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
+        for (nit = nodes->First(); nit != NULL; nit = nodes->Next(nit))
         {
             if (*nit == nodeID)
             {
@@ -403,7 +403,7 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
             continue;
 
         nodes = &configQuorum->inactiveNodes;
-        for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
+        for (nit = nodes->First(); nit != NULL; nit = nodes->Next(nit))
         {
             if (*nit == nodeID)
             {
@@ -421,10 +421,10 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
     // check changes in active or inactive node list
     for (configQuorum = configState->quorums.First();
      configQuorum != NULL;
-     configState->quorums.Next(configQuorum))
+     configQuorum = configState->quorums.Next(configQuorum))
     {
         nodes = &configQuorum->activeNodes;
-        for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
+        for (nit = nodes->First(); nit != NULL; nit = nodes->Next(nit))
         {
             if (*nit != nodeID)
                 continue;
@@ -432,7 +432,7 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
         }
 
         nodes = &configQuorum->inactiveNodes;
-        for (nit = nodes->First(); nit != NULL; nodes->Next(nit))
+        for (nit = nodes->First(); nit != NULL; nit = nodes->Next(nit))
         {
             if (*nit != nodeID)
                 continue;

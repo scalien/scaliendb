@@ -91,7 +91,9 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
         if (c == HAS_LEADER_YES)
         {
             READ_SEPARATOR();
-            buffer.Readf("%U", &masterID);
+            read = buffer.Readf("%U", &masterID);
+            CHECK_ADVANCE(1);
+            hasMaster = true;
         }
         READ_SEPARATOR();
     }
