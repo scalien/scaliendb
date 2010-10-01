@@ -86,7 +86,7 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
 
         READ_SEPARATOR();
         c = HAS_LEADER_NO;
-        buffer.Readf("%c", &c);
+        read = buffer.Readf("%c", &c);
         CHECK_ADVANCE(1);
         if (c == HAS_LEADER_YES)
         {
