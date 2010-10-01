@@ -29,7 +29,6 @@ public:
     NodeList            activeNodes;
     NodeList            inactiveNodes;
     List<uint64_t>      shards;
-    char                productionType;
     
     // ========================================================================================
     //

@@ -297,13 +297,11 @@ void Controller::FromClientRequest(ClientRequest* request, ConfigMessage* messag
     {
         case CLIENTREQUEST_CREATE_QUORUM:
             message->type = CONFIGMESSAGE_CREATE_QUORUM;
-            message->productionType = request->productionType;
             message->nodes = request->nodes;
             return;
         case CLIENTREQUEST_CREATE_DATABASE:
             message->type = CONFIGMESSAGE_CREATE_DATABASE;
             message->name.Wrap(request->name);
-            message->productionType = request->productionType;
             return;
         case CLIENTREQUEST_RENAME_DATABASE:
             message->type = CONFIGMESSAGE_RENAME_DATABASE;

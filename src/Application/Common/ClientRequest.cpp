@@ -60,21 +60,19 @@ bool ClientRequest::GetConfigState(uint64_t commandID_)
     return true;
 }
 
-bool ClientRequest::CreateQuorum(uint64_t commandID_, char productionType_, NodeList& nodes_)
+bool ClientRequest::CreateQuorum(uint64_t commandID_, NodeList& nodes_)
 {
     type = CLIENTREQUEST_CREATE_QUORUM;
     commandID = commandID_;
-    productionType = productionType_;
     nodes = nodes_;
     return true;
 }
 
 bool ClientRequest::CreateDatabase(
- uint64_t commandID_, char productionType_, ReadBuffer& name_)
+ uint64_t commandID_, ReadBuffer& name_)
 {
     type = CLIENTREQUEST_CREATE_DATABASE;
     commandID = commandID_;
-    productionType = productionType_;
     name.Write(name_);
     return true;
 }

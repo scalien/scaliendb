@@ -25,9 +25,8 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 
         /* Quorum management */
         case CLIENTREQUEST_CREATE_QUORUM:
-            read = buffer.Readf("%c:%U:%c:%u",
-             &request->type, &request->commandID, &request->productionType,
-             &numNodes);
+            read = buffer.Readf("%c:%U:%u",
+             &request->type, &request->commandID, &numNodes);
             if (read < 0 || read == (signed)buffer.GetLength())
                 return false;
             buffer.Advance(read);
@@ -47,9 +46,8 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 
         /* Database management */
         case CLIENTREQUEST_CREATE_DATABASE:
-            read = buffer.Readf("%c:%U:%c:%#B",
-             &request->type, &request->commandID, &request->productionType,
-             &request->name);
+            read = buffer.Readf("%c:%U:%#B",
+             &request->type, &request->commandID, &request->name);
             break;
         case CLIENTREQUEST_RENAME_DATABASE:
             read = buffer.Readf("%c:%U:%U:%#B",
@@ -121,17 +119,15 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 
         /* Quorum management */
         case CLIENTREQUEST_CREATE_QUORUM:
-            buffer.Writef("%c:%U:%c:%U",
-             request->type, request->commandID, request->productionType,
-             request->nodes.GetLength());
+            buffer.Writef("%c:%U:%u",
+             request->type, request->commandID, request->nodes.GetLength());
             for (it = request->nodes.First(); it != NULL; it = request->nodes.Next(it))
                 buffer.Appendf(":%U", *it);
 
         /* Database management */
         case CLIENTREQUEST_CREATE_DATABASE:
-            buffer.Writef("%c:%U:%c:%#B",
-             request->type, request->commandID, request->productionType,
-             &request->name);
+            buffer.Writef("%c:%U:%#B",
+             request->type, request->commandID, &request->name);
             return true;
         case CLIENTREQUEST_RENAME_DATABASE:
             buffer.Writef("%c:%U:%U:%#B",

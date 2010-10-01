@@ -40,7 +40,6 @@ public:
 
     // Variables
     char            type;
-    char            productionType;
     uint64_t        nodeID;
     uint64_t        quorumID;
     uint64_t        databaseID;
@@ -60,7 +59,7 @@ public:
     bool            RegisterShardServer(
                      uint64_t nodeID, Endpoint& endpoint);
     bool            CreateQuorum(
-                     uint64_t quorumID, char productionType, NodeList& nodes);
+                     uint64_t quorumID, NodeList& nodes);
     bool            IncreaseQuorum(
                      uint64_t quorumID, uint64_t nodeID);
     bool            DecreaseQuorum(

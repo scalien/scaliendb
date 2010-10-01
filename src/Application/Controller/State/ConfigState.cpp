@@ -480,7 +480,6 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     it = new ConfigQuorum;
     it->quorumID = message.quorumID;
     it->activeNodes = message.nodes;
-    it->productionType = message.productionType;
     
     quorums.Append(it);
 }
@@ -859,7 +858,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
     int     read;
     char    c;
     
-    read = buffer.Readf("%U:%c", &quorum.quorumID, &quorum.productionType);
+    read = buffer.Readf("%U", &quorum.quorumID);
     CHECK_ADVANCE(3);
     READ_SEPARATOR();
     if (!ReadIDList(quorum.activeNodes, buffer))
@@ -894,7 +893,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
 
 void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVolatile)
 {
-    buffer.Appendf("%U:%c", quorum.quorumID, quorum.productionType);
+    buffer.Appendf("%U", quorum.quorumID);
     buffer.Appendf(":");
     WriteIDList(quorum.activeNodes, buffer);
     buffer.Appendf(":");
@@ -916,7 +915,7 @@ bool ConfigState::ReadDatabase(ConfigDatabase& database, ReadBuffer& buffer)
 {
     int read;
     
-    read = buffer.Readf("%U:%#B:%c", &database.databaseID, &database.name, &database.productionType);
+    read = buffer.Readf("%U:%#B", &database.databaseID, &database.name);
     CHECK_ADVANCE(5);
     READ_SEPARATOR();
     if (!ReadIDList(database.tables, buffer))
@@ -930,7 +929,7 @@ bool ConfigState::ReadDatabase(ConfigDatabase& database, ReadBuffer& buffer)
 
 void ConfigState::WriteDatabase(ConfigDatabase& database, Buffer& buffer)
 {
-    buffer.Appendf("%U:%#B:%c", database.databaseID, &database.name, database.productionType);
+    buffer.Appendf("%U:%#B", database.databaseID, &database.name);
     buffer.Appendf(":");
     WriteIDList(database.tables, buffer);
 }

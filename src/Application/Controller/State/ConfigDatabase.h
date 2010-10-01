@@ -26,8 +26,6 @@ public:
     
     List<uint64_t>      tables;
     
-    char                productionType;
-    
     ConfigDatabase*     prev;
     ConfigDatabase*     next;
 };

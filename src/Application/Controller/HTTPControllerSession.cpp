@@ -415,19 +415,11 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
     typedef ClientRequest::NodeList NodeList;
     
     ClientRequest*  request;
-    char            productionType;
     NodeList        nodes;
     ReadBuffer      tmp;
     char*           next;
     unsigned        nread;
     uint64_t        nodeID;
-    
-    HTTP_GET_PARAM(params, "productionType", tmp);
-    if (tmp.GetLength() > 1)
-        return NULL;
-
-    // TODO: validate values for productionType
-    productionType = tmp.GetCharAt(0);
     
     // parse comma separated nodeID values
     HTTP_GET_PARAM(params, "nodes", tmp);
@@ -447,7 +439,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
     nodes.Append(nodeID);
 
     request = new ClientRequest;
-    request->CreateQuorum(0, productionType, nodes);
+    request->CreateQuorum(0, nodes);
     
     return request;
 }
@@ -485,21 +477,13 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 ClientRequest* HTTPControllerSession::ProcessCreateDatabase(UrlParam& params)
 {
     ClientRequest*  request;
-    char            productionType;
     ReadBuffer      name;
     ReadBuffer      tmp;
     
-    HTTP_GET_PARAM(params, "productionType", tmp);
-    if (tmp.GetLength() > 1)
-        return NULL;
-
-    // TODO: validate values for productionType
-    productionType = tmp.GetCharAt(0);
-
     HTTP_GET_PARAM(params, "name", name);
 
     request = new ClientRequest;
-    request->CreateDatabase(0, productionType, name);
+    request->CreateDatabase(0, name);
 
     return request;
 }

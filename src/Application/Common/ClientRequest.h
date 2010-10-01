@@ -54,11 +54,11 @@ public:
 
     // Quorum management
     bool            CreateQuorum(
-                     uint64_t commandID, char productionType, NodeList& nodes);  
+                     uint64_t commandID, NodeList& nodes);  
                  
     // Database management
     bool            CreateDatabase(
-                     uint64_t commandID, char productionType, ReadBuffer& name);
+                     uint64_t commandID, ReadBuffer& name);
     bool            RenameDatabase(
                      uint64_t commandID, uint64_t databaseID, ReadBuffer& name);
     bool            DeleteDatabase(
@@ -88,7 +88,6 @@ public:
     ClientSession*  session;
 
     char            type;
-    char            productionType;
     uint64_t        commandID;
     uint64_t        quorumID;
     uint64_t        databaseID;
