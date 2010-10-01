@@ -485,7 +485,7 @@ void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)
     
     quorum->isPrimary = true;
     quorum->leaseTimeout.SetExpireTime(quorum->requestedLeaseExpireTime);
-    EventLoop::Add(&quorum->leaseTimeout);
+    EventLoop::Reset(&quorum->leaseTimeout);
 }
 
 void ShardServer::UpdateShards(List<uint64_t>& shards)
