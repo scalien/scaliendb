@@ -452,7 +452,7 @@ void Controller::OnRequestLease(ClusterMessage& message)
         if (quorum->primaryID != message.nodeID)
             return;
         else
-            ExtendPrimaryLease(*quorum, message);
+            return ExtendPrimaryLease(*quorum, message);
     }
     
     for (it = quorum->activeNodes.First(); it != NULL; it = quorum->activeNodes.Next(it))
