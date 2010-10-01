@@ -343,7 +343,6 @@ void ShardServer::OnRequestLeaseTimeout()
         for (nit = controllers.First(); nit != NULL; nit = controllers.Next(nit))
             CONTEXT_TRANSPORT->SendClusterMessage(*nit, msg);
 
-        // TODO: bug
         quorum->requestedLeaseExpireTime = EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME;
     }
     
