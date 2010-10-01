@@ -2,7 +2,7 @@
 #define CLIENTRESPONSE_H
 
 #include "System/Buffers/ReadBuffer.h"
-#include "Application/Controller/State/ConfigState.h"
+#include "Application/Common/State/ConfigState.h"
 
 #define CLIENTRESPONSE_OK               'O'
 #define CLIENTRESPONSE_NUMBER           'n'

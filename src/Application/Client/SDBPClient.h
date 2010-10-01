@@ -7,7 +7,7 @@
 #include "System/Containers/InTreeMap.h"
 #include "System/Containers/HashMap.h"
 #include "System/Events/Countdown.h"
-#include "Application/Controller/State/ConfigState.h"
+#include "Application/Common/State/ConfigState.h"
 #include "SDBPShardConnection.h"
 #include "SDBPControllerConnection.h"
 #include "SDBPResult.h"

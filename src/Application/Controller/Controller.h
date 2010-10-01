@@ -10,7 +10,7 @@
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
-#include "State/ConfigState.h"
+#include "Application/Common/State/ConfigState.h"
 
 class ClientSession;            // forward
 class PrimaryLease;             // forward

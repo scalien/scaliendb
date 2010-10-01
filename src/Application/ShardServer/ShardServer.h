@@ -11,7 +11,7 @@
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
-#include "Application/Controller/State/ConfigState.h" // TODO: move this to Application/Common
+#include "Application/Common/State/ConfigState.h" // TODO: move this to Application/Common
 #include "DataMessage.h"
 #include "DataContext.h"
 

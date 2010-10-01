@@ -5,7 +5,7 @@
 #include "Framework/Replication/Quorums/TotalQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
-#include "Application/Controller/State/ConfigQuorum.h"
+#include "Application/Common/State/ConfigQuorum.h"
 #include "DataMessage.h"
 
 class ShardServer; // forward
