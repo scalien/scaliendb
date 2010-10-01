@@ -331,6 +331,8 @@ void ShardServer::OnRequestLeaseTimeout()
     uint64_t        nodeID;
     uint64_t        *nit;
     
+    Log_Trace();
+    
     nodeID = REPLICATION_CONFIG->GetNodeID();
     for (quorum = quorums.First(); quorum != NULL; quorum = quorums.Next(quorum))
     {
