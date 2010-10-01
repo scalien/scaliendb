@@ -531,7 +531,9 @@ void Controller::UpdatePrimaryLeaseTimer()
     if (!primaryLease)
         return;
     
-    if (primaryLease->expireTime < primaryLeaseTimeout.GetExpireTime())
+    // if there is no active primary lease timeout, or the timeout is later then the supposed first
+    if (!primaryLeaseTimeout.IsActive() ||
+     primaryLease->expireTime < primaryLeaseTimeout.GetExpireTime())
     {
         EventLoop::Remove(&primaryLeaseTimeout);
         primaryLeaseTimeout.SetExpireTime(primaryLease->expireTime);
