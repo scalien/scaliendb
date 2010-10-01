@@ -130,7 +130,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
                 buffer.Writef("- ");
             rb = it->endpoint.ToReadBuffer();
             ssID = it->nodeID - CONFIG_MIN_SHARD_NODE_ID;
-            buffer.Appendf("ss%U (%R)\n", ssID, &rb);
+            buffer.Appendf("ss%U (%R)", ssID, &rb);
             session.Print(buffer);
         }
     }
@@ -338,7 +338,6 @@ void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
                 buffer.Appendf("     .");
 
         }
-        buffer.Appendf("\n");
         session.Print(buffer);
     }
 }
