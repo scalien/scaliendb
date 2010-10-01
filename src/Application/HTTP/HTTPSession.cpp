@@ -19,6 +19,7 @@ HTTPSession::HTTPSession()
 void HTTPSession::SetConnection(HTTPConnection* conn_)
 {
     conn = conn_;
+    
     if (conn != NULL)
         json.Init(conn);
 }
@@ -108,7 +109,10 @@ void HTTPSession::Print(const ReadBuffer& line)
     if (type == JSON)
         json.PrintString(line.GetBuffer(), line.GetLength());
     else
+    {
         conn->Write(line.GetBuffer(), line.GetLength());
+        conn->Print("\n");
+    }
 }
 
 void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)

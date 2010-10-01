@@ -43,10 +43,12 @@ protected:
     HTTPRequest     request;
     Endpoint        endpoint;
     bool            closeAfterSend;
+    Buffer*         writeBuffer;
 
     int             Parse(char* buf, int len);
     int             ProcessGetRequest();
-    const char*     Status(int code);   
+    const char*     Status(int code);
+    Buffer*         GetWriteBuffer();
 };
 
 #endif
