@@ -859,7 +859,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
     char    c;
     
     read = buffer.Readf("%U", &quorum.quorumID);
-    CHECK_ADVANCE(3);
+    CHECK_ADVANCE(1);
     READ_SEPARATOR();
     if (!ReadIDList(quorum.activeNodes, buffer))
         return false;

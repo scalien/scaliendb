@@ -346,6 +346,9 @@ void ShardServer::OnRequestLeaseTimeout()
         // TODO: bug
         quorum->requestedLeaseExpireTime = EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME;
     }
+    
+    if (!requestTimer.IsActive())
+        EventLoop::Add(&requestTimer);
 }
 
 void ShardServer::OnPrimaryLeaseTimeout()
