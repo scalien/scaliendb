@@ -74,9 +74,16 @@ ConfigState* Controller::GetConfigState()
 
 void Controller::OnLearnLease()
 {
+    bool updateListeners;
+    
+    updateListeners = false;
+    if (!configState.hasMaster)
+        updateListeners = true;
+
     configState.hasMaster = true;
     configState.masterID = GetMaster();
-    if ((uint64_t) GetMaster() == GetNodeID())
+
+    if (updateListeners && (uint64_t) GetMaster() == GetNodeID())
         UpdateListeners();
 }
 
