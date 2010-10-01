@@ -94,7 +94,8 @@ void ClusterConnection::OnClose()
     {
         // endpoint contains the other side, connect
         progress = OUTGOING;
-        MessageConnection::Connect(endpoint);
+        
+        EventLoop::Reset(&connectTimeout);
     }
 }
 
