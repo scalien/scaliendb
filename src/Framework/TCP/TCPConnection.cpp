@@ -12,6 +12,7 @@ TCPConnection::TCPConnection()
 TCPConnection::~TCPConnection()
 {   
     Close();
+    delete writer;
 }
 
 void TCPConnection::Init(bool startRead)
