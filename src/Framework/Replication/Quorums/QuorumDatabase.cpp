@@ -19,23 +19,21 @@ void QuorumDatabase::SetPaxosID(uint64_t paxosID)
 bool QuorumDatabase::GetAccepted()
 {
     Buffer      key;
-    Buffer      value;
     ReadBuffer  rbKey;
     ReadBuffer  rbValue;
     bool        ret;
 
     key.Write("accepted");
     rbKey.Wrap(key);
-    rbValue.Wrap(value);
 
     ret = table->Get(rbKey, rbValue);
     if (!ret)
       return false;   // not found, return default
 
-    if (value.GetLength() != 1)
+    if (rbValue.GetLength() != 1)
       return false;   // incorrect value, return default
       
-    if (value.GetCharAt(0) == '1')
+    if (rbValue.GetCharAt(0) == '1')
       return true;
 
     return false;
@@ -155,7 +153,7 @@ bool QuorumDatabase::IsActive()
 
 void QuorumDatabase::Commit()
 {
-    // TODO:
+    table->Commit();
 }
 
 uint64_t QuorumDatabase::GetUint64(const char* name)
