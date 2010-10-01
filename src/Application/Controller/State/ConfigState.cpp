@@ -876,7 +876,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
     {
         READ_SEPARATOR();
         c = HAS_LEADER_NO;
-        buffer.Readf("%c", &c);
+        read = buffer.Readf("%c", &c);
         CHECK_ADVANCE(1);
         if (c == HAS_LEADER_YES)
         {
@@ -905,9 +905,9 @@ void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVol
     {
         buffer.Appendf(":");
         if (quorum.hasPrimary)
-            buffer.Appendf("P:%U", quorum.primaryID);
+            buffer.Appendf("%c:%U", HAS_LEADER_YES, quorum.primaryID);
         else
-            buffer.Appendf("N");
+            buffer.Appendf("%c", HAS_LEADER_NO);
     }
 }
 

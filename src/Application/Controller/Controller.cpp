@@ -525,7 +525,8 @@ void Controller::UpdatePrimaryLeaseTimer()
     if (!primaryLease)
         return;
     
-    if (primaryLease->expireTime < primaryLeaseTimeout.GetExpireTime())
+    if (!primaryLeaseTimeout.IsActive() ||
+     primaryLease->expireTime < primaryLeaseTimeout.GetExpireTime())
     {
         EventLoop::Remove(&primaryLeaseTimeout);
         primaryLeaseTimeout.SetExpireTime(primaryLease->expireTime);
