@@ -451,9 +451,11 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
 
 void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
 {
-    QuorumData*     quorumData;
-    uint64_t        quorumID;
-    uint64_t        nodeID;
+    QuorumData*         quorumData;
+    ConfigShardServer*  shardServer;
+    uint64_t*           nit;
+    uint64_t            quorumID;
+    uint64_t            nodeID;
     
     nodeID = REPLICATION_CONFIG->GetNodeID();
     quorumID = configQuorum->quorumID;
@@ -470,9 +472,17 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
         quorumData->isActive = true;
 
         quorums.Append(quorumData);
+        for (nit = configQuorum->activeNodes.First(); nit != NULL; nit = configQuorum->activeNodes.Next(nit))
+        {
+            shardServer = configState->GetShardServer(*nit);
+            assert(shardServer != NULL);
+            CONTEXT_TRANSPORT->AddNode(*nit, shardServer->endpoint);
+        }
+        CONTEXT_TRANSPORT->AddQuorumContext(&quorumData->context);
     }
-    else if (quorumData != NULL)
-        quorumData->context.UpdateConfig(configQuorum);
+    // TODO: add nodes to CONTEXT_TRANSPORT
+//    else if (quorumData != NULL)
+//        quorumData->context.UpdateConfig(configQuorum);
     
     UpdateShards(configQuorum->shards);
 }

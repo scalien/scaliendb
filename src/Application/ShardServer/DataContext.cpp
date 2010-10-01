@@ -6,14 +6,11 @@
 void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
  StorageTable* table_)
 {
-    uint64_t*   it;
-    
     shardServer = shardServer_;
     contextID = configQuorum->quorumID;
   
-    for (it = configQuorum->activeNodes.First(); it != NULL; it = configQuorum->activeNodes.Next(it))
-        quorum.AddNode(*it);
-
+    UpdateConfig(configQuorum);
+    
 //  transport.SetPriority(); // TODO
     transport.SetQuorum(&quorum);
     transport.SetContextID(contextID);
