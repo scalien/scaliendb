@@ -199,7 +199,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
                         if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
                             buffer.Appendf("     P");
                         else
-                            buffer.Appendf("     p");
+                            buffer.Appendf("     !");
                     else
                     {
                         if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
@@ -323,7 +323,7 @@ void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
                         if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
                             buffer.Appendf("     P");
                         else
-                            buffer.Appendf("     p");
+                            buffer.Appendf("     !");
                     else
                     {
                         if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
