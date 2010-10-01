@@ -93,6 +93,7 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
             READ_SEPARATOR();
             buffer.Readf("%U", &masterID);
         }
+        READ_SEPARATOR();
     }
     
     if (!ReadQuorums(buffer, withVolatile))
@@ -123,9 +124,9 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
         // TODO: change convention to Append in every Message::Write
         buffer.Appendf("%c:", CONFIG_MESSAGE_PREFIX);
         if (hasMaster)
-            buffer.Appendf("%c:%U", HAS_LEADER_YES, masterID);
+            buffer.Appendf("%c:%U:", HAS_LEADER_YES, masterID);
         else
-            buffer.Appendf("%c", HAS_LEADER_NO);
+            buffer.Appendf("%c:", HAS_LEADER_NO);
     }
 
     WriteQuorums(buffer, withVolatile);
