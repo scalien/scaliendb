@@ -365,7 +365,7 @@ void Controller::OnPrimaryLeaseTimeout()
     
     now = EventLoop::Now();
 
-    for (itLease = primaryLeases.First(); itLease != NULL;)
+    for (itLease = primaryLeases.First(); itLease != NULL; /* advanced in body */)
     {
         if (itLease->expireTime < now)
         {
