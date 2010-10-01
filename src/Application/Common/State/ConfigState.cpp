@@ -618,6 +618,8 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     // make sure shard does not exist
     assert(itShard == NULL);
     
+    itQuorum->shards.Append(message.shardID);
+    
     itShard = new ConfigShard;
     itShard->quorumID = message.quorumID;
     itShard->databaseID = message.databaseID;
