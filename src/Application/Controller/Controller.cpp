@@ -74,6 +74,8 @@ ConfigState* Controller::GetConfigState()
 
 void Controller::OnLearnLease()
 {
+    configState.hasMaster = true;
+    configState.masterID = GetMaster();
 }
 
 void Controller::OnLeaseTimeout()
@@ -81,6 +83,9 @@ void Controller::OnLeaseTimeout()
     ConfigMessage*  itMessage;
     ClientRequest*  itRequest;
     
+    configState.hasMaster = false;
+    configState.masterID = 0;
+
     for (itRequest = requests.First(); itRequest != NULL; itRequest = requests.First())
     {
         requests.Remove(itRequest);
