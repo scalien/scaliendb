@@ -76,6 +76,8 @@ void Controller::OnLearnLease()
 {
     configState.hasMaster = true;
     configState.masterID = GetMaster();
+    if ((uint64_t) GetMaster() == GetNodeID())
+        UpdateListeners();
 }
 
 void Controller::OnLeaseTimeout()
