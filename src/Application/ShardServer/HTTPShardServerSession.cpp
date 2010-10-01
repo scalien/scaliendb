@@ -94,7 +94,7 @@ void HTTPShardServerSession::PrintStatus()
     {
         primaryID = shardServer->GetLeader(quorum->quorumID);
         
-        keybuf.Writef("Quorum #%U", quorum->quorumID);
+        keybuf.Writef("q%U", quorum->quorumID);
         keybuf.NullTerminate();
         
         valbuf.Writef("%U", primaryID);
