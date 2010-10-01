@@ -14,6 +14,12 @@
         return false;       \
     buffer.Advance(read)
 
+#define LESS_THAN(a, b) \
+    ((b).GetLength() == 0 || ReadBuffer::Cmp(a, b) < 0)
+
+#define GREATER_THAN(a, b) \
+    (ReadBuffer::Cmp(a, b) >= 0)
+
 ConfigState::~ConfigState()
 {
     shardServers.DeleteList();
@@ -251,7 +257,7 @@ ConfigShard* ConfigState::GetShard(uint64_t tableID, ReadBuffer key)
     {
         if (it->tableID == tableID)
         {
-            if (ReadBuffer::Cmp(key, it->firstKey) >= 0 && ReadBuffer::Cmp(key, it->lastKey) <= 0)
+            if (GREATER_THAN(key, it->firstKey) && LESS_THAN(key, it->lastKey))
                 return it;
         }
     }
