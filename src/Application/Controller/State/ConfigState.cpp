@@ -881,7 +881,8 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
         if (c == HAS_LEADER_YES)
         {
             READ_SEPARATOR();
-            buffer.Readf("%U", &quorum.primaryID);
+            read = buffer.Readf("%U", &quorum.primaryID);
+            CHECK_ADVANCE(1);
         }
     }
     
