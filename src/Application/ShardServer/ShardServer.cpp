@@ -355,7 +355,7 @@ void ShardServer::OnPrimaryLeaseTimeout()
 
     for (quorum = quorums.First(); quorum != NULL; quorum = quorums.Next(quorum))
     {
-        if (quorum->leaseTimeout.GetExpireTime() > now)
+        if (now < quorum->leaseTimeout.GetExpireTime())
             continue;
 
         quorum->isPrimary = false;
