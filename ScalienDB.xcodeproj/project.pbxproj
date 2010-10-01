@@ -128,7 +128,6 @@
 		9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */; };
 		9AABB91912426830003626AC /* SDBPShardConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB91812426830003626AC /* SDBPShardConnection.cpp */; };
 		9AABB9C81243B3A9003626AC /* ClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB9C71243B3A9003626AC /* ClientTest.cpp */; };
-		9AABBA2B1243C6F4003626AC /* SDBPClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB81E12411592003626AC /* SDBPClient.cpp */; };
 		9AABBA551243CB4F003626AC /* SDBPResult.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABBA541243CB4F003626AC /* SDBPResult.cpp */; };
 		9AABBAD61243E1CB003626AC /* SDBPClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABBAD51243E1CB003626AC /* SDBPClientRequest.cpp */; };
 		9AABBB281243F007003626AC /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */; };
@@ -145,6 +144,8 @@
 		9AABC3AF12529466003626AC /* DataContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BE70124B5E4B00439334 /* DataContext.cpp */; };
 		9AABC4D01253A2A8003626AC /* HTTPShardServerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC4CF1253A2A8003626AC /* HTTPShardServerContext.cpp */; };
 		9AABC4D31253A301003626AC /* HTTPShardServerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC4D21253A301003626AC /* HTTPShardServerSession.cpp */; };
+		9AABCC6012564924003626AC /* SDBPClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB81E12411592003626AC /* SDBPClient.cpp */; };
+		9AABCC611256492B003626AC /* ConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A71851125636B4001EC082 /* ConfigState.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
@@ -1095,7 +1096,6 @@
 				9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */,
 				9AABB91912426830003626AC /* SDBPShardConnection.cpp in Sources */,
 				9AABB9C81243B3A9003626AC /* ClientTest.cpp in Sources */,
-				9AABBA2B1243C6F4003626AC /* SDBPClient.cpp in Sources */,
 				9AABBA551243CB4F003626AC /* SDBPResult.cpp in Sources */,
 				9AABBAD61243E1CB003626AC /* SDBPClientRequest.cpp in Sources */,
 				9AABBB281243F007003626AC /* MessageConnection.cpp in Sources */,
@@ -1107,6 +1107,8 @@
 				9AABBCD3124A552A003626AC /* SDBPRequestMessage.cpp in Sources */,
 				9AABBCD8124A5542003626AC /* SDBPResponseMessage.cpp in Sources */,
 				9AABC194124F4BE5003626AC /* ArrayListTest.cpp in Sources */,
+				9AABCC6012564924003626AC /* SDBPClient.cpp in Sources */,
+				9AABCC611256492B003626AC /* ConfigState.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

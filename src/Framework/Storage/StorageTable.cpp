@@ -258,6 +258,20 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
     return true;
 }
 
+bool StorageTable::ShardExists(ReadBuffer& startKey)
+{
+    StorageShardIndex* si;
+    
+    si = Locate(startKey);
+    if (!si)
+        return false;
+    
+    if (ReadBuffer::Cmp(si->startKey, startKey) != 0)
+        return false;
+    
+    return true;
+}
+
 StorageShardIndex* StorageTable::Locate(ReadBuffer& key)
 {
     StorageShardIndex*  si;

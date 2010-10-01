@@ -1,6 +1,7 @@
 #include "Test.h"
 
 #include "Framework/Storage/StorageDatabase.h"
+#include "Framework/Storage/StorageDataCache.h"
 #include "System/Stopwatch.h"
 #include "System/Common.h"
 
@@ -331,6 +332,8 @@ TEST_DEFINE(TestStorageShardSplit)
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
+
+    DCACHE->Init(10000000);
 
     db.Open(".", "db");
     // a million key-value pairs take up 248M disk space

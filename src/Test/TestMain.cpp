@@ -27,11 +27,11 @@ TEST_DEFINE(TestMain)
         //TestStorageBigTransaction,
         //TestStorageBigRandomTransaction,
         //TestStorageShardSize,
-        //TestStorageShardSplit,
+        TestStorageShardSplit,
         //TestWriteTiming,
         //TestFileSystemDiskSpace,
-        TestArrayListBasic,
-        TestArrayListRemove,
+        //TestArrayListBasic,
+        //TestArrayListRemove,
     );
 }
 

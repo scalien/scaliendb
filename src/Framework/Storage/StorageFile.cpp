@@ -112,8 +112,9 @@ bool StorageFile::Get(ReadBuffer& key, ReadBuffer& value)
         return false;
     
     ret = dataPages[index]->Get(key, value);
-    if (ret)
+    if (ret && !dataPages[index]->IsDirty())
         DCACHE->RegisterHit(dataPages[index]);
+
     return ret;
 }
 

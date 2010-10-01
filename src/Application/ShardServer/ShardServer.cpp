@@ -149,6 +149,8 @@ void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppe
     StorageTable*   table;
     ClientRequest*  request;
     
+    Log_Trace();
+    
     quorumData = LocateQuorum(quorumID);
     if (!quorumData)
         ASSERT_FAIL();
@@ -164,8 +166,7 @@ void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppe
         assert(quorumData->dataMessages.First()->type == message.type);
         assert(quorumData->requests.GetLength() > 0);
         request = quorumData->requests.First();
-        if (request)
-            request->response.OK();
+        request->response.OK();
     }
     
     switch (message.type)
@@ -192,11 +193,10 @@ void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppe
 
     if (ownAppend)
     {
-        if (request)
-            request->OnComplete();
-        
+        quorumData->requests.Remove(request);
+        // request deletes itself
+        request->OnComplete();
         quorumData->dataMessages.Delete(quorumData->dataMessages.First());
-        quorumData->requests.Delete(quorumData->requests.First());
     }
 }
 
@@ -541,7 +541,8 @@ void ShardServer::UpdateShards(List<uint64_t>& shards)
         
         // TODO: check if already exists
         firstKey.Wrap(shard->firstKey);
-        table->CreateShard(*sit, firstKey);
+        if (!table->ShardExists(firstKey))
+            table->CreateShard(*sit, firstKey);
     }
 }
 
