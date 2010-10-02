@@ -40,6 +40,7 @@ private:
     void                PrintQuorumMatrix(ConfigState* configState);
     void                PrintDatabases(ConfigState* configState);
     void                PrintShardMatrix(ConfigState* configState);
+    void                PrintConfigState();
     bool                ProcessCommand(ReadBuffer& cmd, UrlParam& params);
     ClientRequest*      ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params);
     ClientRequest*      ProcessGetMaster(UrlParam& params);

@@ -107,7 +107,7 @@ void HTTPSession::Print(const ReadBuffer& line)
     }
     
     if (type == JSON)
-        json.PrintString(line.GetBuffer(), line.GetLength());
+        json.PrintString(line);
     else
     {
         conn->Write(line.GetBuffer(), line.GetLength());

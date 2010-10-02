@@ -30,7 +30,7 @@ Socket::Socket()
     listening = false;
 }
 
-bool Socket::Create(Proto proto)
+bool Socket::Create(Proto proto_)
 {
     int     ret, stype, ipproto;
     BOOL    trueval = TRUE;
@@ -41,7 +41,7 @@ bool Socket::Create(Proto proto)
         return false;
     }
 
-    type = proto;
+    proto = proto_;
     listening = false;
 
     if (proto == UDP)
@@ -77,7 +77,7 @@ bool Socket::Create(Proto proto)
     }
 
 
-    // TODO set FD index too!
+    // set FD index too
     IOProcessorRegisterSocket(fd);
 
     return true;

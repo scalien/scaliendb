@@ -24,8 +24,9 @@ public:
 
     void            PrintStatus(const char* status, const char* type = NULL);
 
-    void            PrintString(const char* s, unsigned len);
-    void            PrintNumber(double number);
+    void            PrintString(const ReadBuffer& str);
+    void            PrintNumber(int64_t number);
+    void            PrintFloatNumber(double number);
     void            PrintBool(bool b);
     void            PrintNull();
     

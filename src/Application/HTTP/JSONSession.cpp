@@ -56,10 +56,13 @@ void JSONSession::PrintStatus(const char* status, const char* type_)
     conn->Flush(true);
 }
 
-void JSONSession::PrintString(const char *s, unsigned len)
+void JSONSession::PrintString(const ReadBuffer& str)
 {
+    const char* s;
+    
+    s = str.GetBuffer();
     conn->Write("\"", 1);
-    for (unsigned i = 0; i < len; i++)
+    for (unsigned i = 0; i < str.GetLength(); i++)
     {
         if (s[i] == '"')
             conn->Write("\\", 1);
@@ -70,7 +73,18 @@ void JSONSession::PrintString(const char *s, unsigned len)
     SetCommaNeeded(true);
 }
 
-void JSONSession::PrintNumber(double number)
+void JSONSession::PrintNumber(int64_t number)
+{
+    char        buffer[32];
+    unsigned    len;
+    
+    len = snprintf(buffer, sizeof(buffer), "%" PRIi64, number);
+    conn->Write(buffer, len);
+
+    SetCommaNeeded(true);
+}
+
+void JSONSession::PrintFloatNumber(double number)
 {
     char        buffer[32];
     unsigned    len;
@@ -139,9 +153,9 @@ void JSONSession::PrintPair(const char* s, unsigned slen, const char* v, unsigne
     if (IsCommaNeeded())
         PrintComma();
 
-    PrintString(s, slen);
+    PrintString(ReadBuffer((char *) s, slen));
     PrintColon();
-    PrintString(v, vlen);
+    PrintString(ReadBuffer((char *) v, vlen));
     
     SetCommaNeeded(true);
 }

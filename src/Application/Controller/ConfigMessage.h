@@ -69,7 +69,6 @@ public:
     bool            DeactivateQuorumServer(
                      uint64_t quorumID, uint64_t nodeID);
 
-
     // Database management
     bool            CreateDatabase(
                      uint64_t databaseID, ReadBuffer& name);

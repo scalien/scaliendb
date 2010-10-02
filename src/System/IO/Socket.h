@@ -45,7 +45,7 @@ public:
 
 public: 
     FD              fd;
-    int             type; // TODO rename to proto
+    int             proto;
     bool            listening;
 
 };

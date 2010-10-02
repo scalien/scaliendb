@@ -539,7 +539,7 @@ void ShardServer::UpdateShards(List<uint64_t>& shards)
             tables.Set(shard->tableID, table);
         }
         
-        // TODO: check if already exists
+        // check if key already exists
         firstKey.Wrap(shard->firstKey);
         if (!table->ShardExists(firstKey))
             table->CreateShard(*sit, firstKey);

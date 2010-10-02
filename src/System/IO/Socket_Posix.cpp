@@ -23,7 +23,7 @@ Socket::Socket()
     listening = false;
 }
 
-bool Socket::Create(Proto proto)
+bool Socket::Create(Proto proto_)
 {
     int stype;
     
@@ -33,7 +33,7 @@ bool Socket::Create(Proto proto)
         return false;
     }
     
-    if (proto == UDP)
+    if (proto_ == UDP)
         stype = SOCK_DGRAM;
     else
         stype = SOCK_STREAM;
@@ -45,7 +45,7 @@ bool Socket::Create(Proto proto)
         return false;
     }
         
-    type = proto;
+    proto = proto_;
     listening = false;
     
     return true;

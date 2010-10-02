@@ -1,5 +1,6 @@
 #include "HTTPControllerSession.h"
 #include "Controller.h"
+#include "JSONConfigState.h"
 #include "System/Config.h"
 #include "Application/HTTP/UrlParam.h"
 #include "Application/Common/ContextTransport.h"
@@ -342,6 +343,13 @@ void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
     }
 }
 
+void HTTPControllerSession::PrintConfigState()
+{
+    JSONConfigState jsonConfigState(*controller->GetConfigState(), session.json);
+    jsonConfigState.Write();
+    session.Flush();
+}
+
 bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
 {
     ClientRequest*  request;
@@ -349,6 +357,11 @@ bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
     if (HTTP_MATCH_COMMAND(cmd, ""))
     {
         PrintStatus();
+        return true;
+    }
+    if (HTTP_MATCH_COMMAND(cmd, "getconfigstate"))
+    {
+        PrintConfigState();
         return true;
     }
 
