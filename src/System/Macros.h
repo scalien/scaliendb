@@ -81,4 +81,15 @@
 #define CSLLEN(s) (sizeof(s "") - 1)
 #define STR_AND_CSLLEN(s) s, CSLLEN(s)
 
+/*
+ ==============================================================================
+
+  All the containers use the same convention for iterating through elements,
+  so this macro can be used for the common case.
+ 
+ ============================================================================== 
+ */
+
+#define FOREACH(it, cont) for (it = (cont).First(); it != NULL; it = (cont).Next(it))
+
 #endif

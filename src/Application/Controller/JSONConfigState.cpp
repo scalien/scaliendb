@@ -1,4 +1,5 @@
 #include "JSONConfigState.h"
+#include "System/Macros.h"
 
 #define JSON_STRING(obj, member) \
     json.PrintString(#member); \
@@ -45,7 +46,7 @@ void JSONConfigState::WriteQuorums()
     json.PrintColon();
     json.PrintArrayStart();
 
-    for (quorum = configState.quorums.First(); quorum != NULL; quorum = configState.quorums.Next(quorum))
+    FOREACH(quorum, configState.quorums)
         WriteQuorum(quorum);
 
     json.PrintArrayEnd();
@@ -85,7 +86,7 @@ void JSONConfigState::WriteDatabases()
     json.PrintColon();
     json.PrintArrayStart();
 
-    for (database = configState.databases.First(); database != NULL; database = configState.databases.Next(database))
+    FOREACH(database, configState.databases)
         WriteDatabase(database);
 
     json.PrintArrayEnd();
@@ -112,7 +113,7 @@ void JSONConfigState::WriteTables()
     json.PrintColon();
     json.PrintArrayStart();
 
-    for (table = configState.tables.First(); table != NULL; table = configState.tables.Next(table))
+    FOREACH(table, configState.tables)
         WriteTable(table);
 
     json.PrintArrayEnd();
@@ -141,7 +142,7 @@ void JSONConfigState::WriteShards()
     json.PrintColon();
     json.PrintArrayStart();
 
-    for (shard = configState.shards.First(); shard != NULL; shard = configState.shards.Next(shard))
+    FOREACH(shard, configState.shards)
         WriteShard(shard);
 
     json.PrintArrayEnd();
@@ -174,7 +175,7 @@ void JSONConfigState::WriteShardServers()
     json.PrintColon();
     json.PrintArrayStart();
 
-    for (shardServer = configState.shardServers.First(); shardServer != NULL; shardServer = configState.shardServers.Next(shardServer))
+    FOREACH(shardServer, configState.shardServers)
         WriteShardServer(shardServer);
 
     json.PrintArrayEnd();
@@ -200,7 +201,7 @@ void JSONConfigState::WriteIDList(List& list)
     uint64_t*   it;
     
     json.PrintArrayStart();
-    for (it = list.First(); it != NULL; it = list.Next(it))
+    FOREACH(it, list)
     {
         if (it != list.First())
             json.PrintComma();
