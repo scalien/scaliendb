@@ -421,7 +421,6 @@ void Controller::WriteConfigState()
 {
     configState.Write(configStateBuffer);
     systemDatabase.GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
-    systemDatabase.Commit();
 }
 
 void Controller::SendClientResponse(ConfigMessage& message)
