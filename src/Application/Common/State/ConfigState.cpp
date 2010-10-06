@@ -36,6 +36,12 @@ void ConfigState::Init()
     
     hasMaster = false;
     masterID = 0;
+    
+    quorums.Clear();
+    databases.Clear();
+    tables.Clear();
+    shards.Clear();
+    shardServers.Clear();
 }
 
 bool ConfigState::CompleteMessage(ConfigMessage& message)
@@ -124,7 +130,8 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
 
 bool ConfigState::Write(Buffer& buffer, bool withVolatile)
 {
-    buffer.Clear();
+    // TODO: remove this when there is no more Writefs
+    //buffer.Clear();
     
     if (withVolatile)
     {

@@ -11,6 +11,7 @@
 #include "SDBPShardConnection.h"
 #include "SDBPControllerConnection.h"
 #include "SDBPResult.h"
+#include "SDBPClientConsts.h"
 
 namespace SDBPClient
 {
@@ -83,7 +84,7 @@ private:
     void                OnGlobalTimeout();
     void                OnMasterTimeout();
     bool                IsSafe();
-    void                SetConfigState(ConfigState* configState);
+    void                SetConfigState(ControllerConnection* conn, ConfigState* configState);
 
     void                ReassignRequest(Request* req);
     void                AssignRequestsToQuorums();

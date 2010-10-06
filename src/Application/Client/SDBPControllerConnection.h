@@ -49,6 +49,7 @@ private:
     Client*         client;
     uint64_t        nodeID;
     Endpoint        endpoint;
+    ConfigState     configState;
     uint64_t        getConfigStateTime;
     Countdown       getConfigStateTimeout;
     bool            getConfigStateSent;

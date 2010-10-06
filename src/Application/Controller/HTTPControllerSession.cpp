@@ -49,8 +49,7 @@ void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
     case CLIENTRESPONSE_GET_CONFIG_STATE:
         if (!last)
         {
-            response->configState->Write(tmp, true);
-            response->configState = NULL;
+            response->GetConfigState()->Write(tmp, true);
             rb.Wrap(tmp);
             session.Print(rb);
             controller->OnClientClose(this);

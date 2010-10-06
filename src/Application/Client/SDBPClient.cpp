@@ -94,8 +94,9 @@ void Client::Shutdown()
     controllerConnections = NULL;
     
     delete result;
-    delete configState;
     
+    EventLoop::Remove(&masterTimeout);
+    EventLoop::Remove(&globalTimeout);
     IOProcessor::Shutdown();
 }
 
@@ -119,13 +120,36 @@ uint64_t Client::GetMasterTimeout()
     return masterTimeout.GetDelay();
 }
 
+int Client::TransportStatus()
+{
+    return result->TransportStatus();
+}
+
+int Client::ConnectivityStatus()
+{
+    return connectivityStatus;
+}
+
+int Client::TimeoutStatus()
+{
+    return timeoutStatus;
+}
+
+int Client::CommandStatus()
+{
+    return result->CommandStatus();
+}
+
 // return Command status
 int Client::GetDatabaseID(ReadBuffer& name, uint64_t& databaseID)
 {
     ConfigDatabase* database;
     
     if (configState == NULL)
+    {
+        result->Close();
         EventLoop();
+    }
     
     if (configState == NULL)
         return SDBP_NOSERVICE;
@@ -315,10 +339,12 @@ bool Client::IsSafe()
     return true;
 }
 
-void Client::SetConfigState(ConfigState* configState_)
+void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
 {
-    delete configState;
-    configState = configState_;
+    if (master < 0 || (uint64_t) master == conn->GetNodeID())
+        configState = configState_;
+    else
+        return;
 
     // we know the state of the system, so we can start sending requests
     if (configState)
@@ -333,6 +359,9 @@ void Client::ReassignRequest(Request* req)
     uint64_t        quorumID;
     ConfigQuorum*   quorum;
     ReadBuffer      key;
+    
+    if (!configState)
+        return;
     
     key.Wrap(req->key);
     if (!GetQuorumID(req->tableID, key, quorumID))
@@ -368,6 +397,7 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     ReadBuffer      lastKey;
     uint64_t*       it;
     
+    assert(configState != NULL);
     table = configState->GetTable(tableID);
     assert(table != NULL);
     for (it = table->shards.First(); it != NULL; it = table->shards.Next(it))

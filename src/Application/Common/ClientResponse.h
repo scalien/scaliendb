@@ -32,12 +32,9 @@ public:
     uint64_t        commandID;
     ReadBuffer      value;
     ConfigState*    configState;
-    
+
     ClientResponse();
-    ~ClientResponse();
-    
-    ConfigState*    TransferConfigState();
-        
+            
     /* Responses */
     bool            OK();
     bool            Number(uint64_t number);
