@@ -73,8 +73,8 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
         OnLearnChosen(imsg);
     else if (imsg.type == PAXOS_REQUEST_CHOSEN)
         OnRequestChosen(imsg);
-//  else if (imsg.type == PAXOS_START_CATCHUP)
-//      OnStartCatchup();
+    else if (imsg.type == PAXOS_START_CATCHUP)
+        OnStartCatchup(imsg);
     else
         ASSERT_FAIL();
 }
@@ -194,17 +194,23 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
     
     // the node is lagging and needs to catch-up
     context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
-    if (value.GetLength() != 0)
+    if (value.GetLength() > 0)
     {
         Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
         omsg.LearnValue(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(), 0, value);
-        context->GetTransport()->SendMessage(imsg.nodeID, omsg);
     }
-//  else
-//  {
-//      Log_Trace("Node requested a paxosID I no longer have");
-//      SendStartCatchup(pmsg.nodeID, pmsg.paxosID);
-//  }
+    else
+    {
+        Log_Trace("Node requested a paxosID I no longer have");
+        omsg.StartCatchup(imsg.paxosID, REPLICATION_CONFIG->GetNodeID());
+    }
+    
+    context->GetTransport()->SendMessage(imsg.nodeID, omsg);
+}
+
+void ReplicatedLog::OnStartCatchup(PaxosMessage& /*imsg*/)
+{
+    context->OnStartCatchup();
 }
 
 void ReplicatedLog::OnRequest(PaxosMessage& imsg)

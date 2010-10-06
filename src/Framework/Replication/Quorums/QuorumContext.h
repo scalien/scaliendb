@@ -38,6 +38,7 @@ public:
     virtual void                OnAppend(ReadBuffer value, bool ownAppend)      = 0;
     virtual Buffer*             GetNextValue()                                  = 0;
     virtual void                OnMessage(ReadBuffer msg)                       = 0;
+    virtual void                OnStartCatchup()                                = 0;
 };
 
 #endif

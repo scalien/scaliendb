@@ -122,6 +122,11 @@ Buffer* DataContext::GetNextValue()
     return NULL;
 }
 
+void DataContext::OnStartCatchup()
+{
+    // TODO: xxx
+}
+
 void DataContext::OnMessage(ReadBuffer buffer)
 {
     char proto;

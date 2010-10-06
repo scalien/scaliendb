@@ -148,6 +148,11 @@ void ConfigContext::OnMessage(ReadBuffer buffer)
     }
 }
 
+void ConfigContext::OnStartCatchup()
+{
+    // TODO: xxx
+}
+
 void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
     PaxosLeaseMessage msg;

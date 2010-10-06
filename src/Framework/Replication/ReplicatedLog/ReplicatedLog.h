@@ -41,8 +41,10 @@ private:
     void                    OnProposeRequest(PaxosMessage& msg);
     void                    OnProposeResponse(PaxosMessage& msg);
     void                    OnLearnChosen(PaxosMessage& msg);
-    void                    ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value);
     void                    OnRequestChosen(PaxosMessage& msg);
+    void                    OnStartCatchup(PaxosMessage& msg);
+
+    void                    ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value);
 
     void                    OnRequest(PaxosMessage& msg);
     void                    NewPaxosRound();

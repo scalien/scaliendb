@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		542B34F5125C9B46003FA4F5 /* QuorumDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 542B34F3125C9B46003FA4F5 /* QuorumDatabase.cpp */; };
 		546224EE1249030D00759E58 /* SDBPRequestMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546224ED1249030D00759E58 /* SDBPRequestMessage.cpp */; };
 		546225121249074000759E58 /* SDBPResponseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546225111249074000759E58 /* SDBPResponseMessage.cpp */; };
 		546E119511D8F4C800867EE1 /* MajorityQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E119411D8F4C800867EE1 /* MajorityQuorum.cpp */; };
@@ -154,7 +155,6 @@
 		9ACF29C01236519E00247703 /* StorageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29BF1236519E00247703 /* StorageTable.cpp */; };
 		9ACF2B241236944100247703 /* StorageShardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2B231236944100247703 /* StorageShardIndex.cpp */; };
 		9ACF2D721237975900247703 /* StorageFileHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2D711237975900247703 /* StorageFileHeader.cpp */; };
-		9ACF2EBA1237D1B400247703 /* QuorumDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -181,6 +181,8 @@
 		541D868711C7D8E400A6CB16 /* PaxosLeaseMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseMessage.h; sourceTree = "<group>"; };
 		541D868811C7D8E400A6CB16 /* PaxosLeaseProposer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLeaseProposer.cpp; sourceTree = "<group>"; };
 		541D868911C7D8E400A6CB16 /* PaxosLeaseProposer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposer.h; sourceTree = "<group>"; };
+		542B34F3125C9B46003FA4F5 /* QuorumDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumDatabase.cpp; sourceTree = "<group>"; };
+		542B34F4125C9B46003FA4F5 /* QuorumDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumDatabase.h; sourceTree = "<group>"; };
 		546223BA1248C46700759E58 /* HTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPHandler.h; path = Application/HTTP/HTTPHandler.h; sourceTree = "<group>"; };
 		546224BC1249027800759E58 /* SDBPRequestMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPRequestMessage.h; sourceTree = "<group>"; };
 		546224ED1249030D00759E58 /* SDBPRequestMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPRequestMessage.cpp; sourceTree = "<group>"; };
@@ -327,8 +329,6 @@
 		54FCE8BC11F6F34A0075BBFF /* PaxosProposer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosProposer.cpp; sourceTree = "<group>"; };
 		54FCEA9611F705F20075BBFF /* PaxosAcceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosAcceptor.h; sourceTree = "<group>"; };
 		54FCEA9711F705F20075BBFF /* PaxosAcceptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosAcceptor.cpp; sourceTree = "<group>"; };
-		54FCEAF711F710C20075BBFF /* QuorumDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = QuorumDatabase.h; sourceTree = "<group>"; };
-		54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumDatabase.cpp; sourceTree = "<group>"; };
 		54FCED9A11F8549F0075BBFF /* ReplicatedLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicatedLog.cpp; sourceTree = "<group>"; };
 		54FCED9B11F8549F0075BBFF /* ReplicatedLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicatedLog.h; sourceTree = "<group>"; };
 		54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigContext.cpp; sourceTree = "<group>"; };
@@ -495,8 +495,8 @@
 				546E119711D8F4D300867EE1 /* DoubleMajorityQuorum.cpp */,
 				546E181611DDD4DF00867EE1 /* QuorumTransport.h */,
 				546E28D311F0816E00867EE1 /* QuorumTransport.cpp */,
-				54FCEAF711F710C20075BBFF /* QuorumDatabase.h */,
-				54FCEAF811F710C20075BBFF /* QuorumDatabase.cpp */,
+				542B34F4125C9B46003FA4F5 /* QuorumDatabase.h */,
+				542B34F3125C9B46003FA4F5 /* QuorumDatabase.cpp */,
 				546E145711DA173300867EE1 /* QuorumContext.h */,
 			);
 			path = Quorums;
@@ -1033,7 +1033,6 @@
 				9ACF29C01236519E00247703 /* StorageTable.cpp in Sources */,
 				9ACF2B241236944100247703 /* StorageShardIndex.cpp in Sources */,
 				9ACF2D721237975900247703 /* StorageFileHeader.cpp in Sources */,
-				9ACF2EBA1237D1B400247703 /* QuorumDatabase.cpp in Sources */,
 				54EA4F731237DC9F0095BF36 /* ConfigMessage.cpp in Sources */,
 				54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */,
 				54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */,
@@ -1061,6 +1060,7 @@
 				9AABC4D31253A301003626AC /* HTTPShardServerSession.cpp in Sources */,
 				54A71854125636B4001EC082 /* ConfigState.cpp in Sources */,
 				9AABCD881257D8CE003626AC /* JSONConfigState.cpp in Sources */,
+				542B34F5125C9B46003FA4F5 /* QuorumDatabase.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
