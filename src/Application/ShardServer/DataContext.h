@@ -51,6 +51,7 @@ public:
     virtual void                    OnAppend(ReadBuffer value, bool ownAppend);
     virtual Buffer*                 GetNextValue();
     virtual void                    OnMessage(ReadBuffer msg);
+    virtual void                    OnStartCatchup();
     // ========================================================================================
 
 private:

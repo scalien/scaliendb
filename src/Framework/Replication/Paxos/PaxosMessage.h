@@ -78,7 +78,7 @@ public:
     bool            RequestChosen(
                      uint64_t paxosID, uint64_t nodeID);
 
-//  bool            StartCatchup(uint64_t paxosID, uint64_t nodeID);
+    bool            StartCatchup(uint64_t paxosID, uint64_t nodeID);
 
     bool            IsRequest();
     bool            IsPrepareResponse();

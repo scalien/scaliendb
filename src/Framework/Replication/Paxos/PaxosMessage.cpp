@@ -115,13 +115,13 @@ bool PaxosMessage::RequestChosen(
     return true;
 }
 
-//bool PaxosMessage::StartCatchup(
-// uint64_t paxosID_, uint64_t nodeID_)
-//{
-//  Init(paxosID_, PAXOS_START_CATCHUP, nodeID_);
-//  
-//  return true;
-//}
+bool PaxosMessage::StartCatchup(
+ uint64_t paxosID_, uint64_t nodeID_)
+{
+  Init(paxosID_, PAXOS_START_CATCHUP, nodeID_);
+  
+  return true;
+}
 
 bool PaxosMessage::IsRequest()
 {
