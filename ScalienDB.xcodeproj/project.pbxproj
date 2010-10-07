@@ -574,8 +574,8 @@
 				54A7184E125636B4001EC082 /* ConfigQuorum.h */,
 				54A7184F125636B4001EC082 /* ConfigShard.h */,
 				54A71850125636B4001EC082 /* ConfigShardServer.h */,
-				54A71851125636B4001EC082 /* ConfigState.cpp */,
 				54A71852125636B4001EC082 /* ConfigState.h */,
+				54A71851125636B4001EC082 /* ConfigState.cpp */,
 				54A71853125636B4001EC082 /* ConfigTable.h */,
 			);
 			path = State;
@@ -949,7 +949,6 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,

@@ -15,8 +15,6 @@ bool ClusterMessage::SetNodeID(uint64_t nodeID_)
 bool ClusterMessage::SetConfigState(ConfigState* configState_)
 {
     type = CLUSTERMESSAGE_SET_CONFIG_STATE;
-    if (configState != NULL)
-        delete configState;
     configState = configState_;
     return true;
 }
@@ -43,10 +41,18 @@ bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
     return true;
 }
 
+bool ClusterMessage::ConfigCatchup(uint64_t paxosID_, ConfigState* configState_)
+{
+    type = CLUSTERMESSAGE_CONFIG_CATCHUP;
+    paxosID = paxosID_;
+    configState = configState_;
+    return true;
+}
+
 bool ClusterMessage::Read(ReadBuffer& buffer)
 {
     int             read;
-    ConfigState*    tempState;
+    ReadBuffer      tempBuffer;
         
     if (buffer.GetLength() < 1)
         return false;
@@ -58,16 +64,9 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
              &type, &nodeID);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
-            tempState = new ConfigState;
-            if (!tempState->Read(buffer, true))
-            {
-                delete tempState;
-                return false;
-            }
             type = CLUSTERMESSAGE_SET_CONFIG_STATE;
-            delete configState;
-            configState = tempState;
-            return true;
+            assert(configState != NULL);
+            return configState->Read(buffer, true);
         case CLUSTERMESSAGE_REQUEST_LEASE:
             read = buffer.Readf("%c:%U:%U:%U:%u",
              &type, &nodeID, &quorumID, &proposalID, &duration);
@@ -76,6 +75,13 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U:%U:%u",
              &type, &nodeID, &quorumID, &proposalID, &duration);
             break;
+        case CLUSTERMESSAGE_CONFIG_CATCHUP:
+            tempBuffer = buffer;
+            read = tempBuffer.Readf("%c:%U:", &type, &paxosID);
+            if (read < 4)
+                return false;
+            tempBuffer.Advance(read);
+            return configState->Read(tempBuffer);
         default:
             return false;
     }
@@ -85,6 +91,8 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
 
 bool ClusterMessage::Write(Buffer& buffer)
 {
+    Buffer tempBuffer;
+    
     switch (type)
     {
         case CLUSTERMESSAGE_SET_NODEID:
@@ -100,6 +108,12 @@ bool ClusterMessage::Write(Buffer& buffer)
         case CLUSTERMESSAGE_RECEIVE_LEASE:
             buffer.Writef("%c:%U:%U:%U:%u",
              type, nodeID, quorumID, proposalID, duration);
+            return true;
+        case CLUSTERMESSAGE_CONFIG_CATCHUP:
+            if (!configState->Write(tempBuffer))
+                return false;
+            buffer.Writef("%c:%U:%B",
+             type, paxosID, &tempBuffer);
             return true;
         default:
             return false;

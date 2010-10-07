@@ -150,7 +150,7 @@ void ConfigContext::OnMessage(ReadBuffer buffer)
 
 void ConfigContext::OnStartCatchup()
 {
-    // TODO: xxx
+    controller->OnStartCatchup();
 }
 
 void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
