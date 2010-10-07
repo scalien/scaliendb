@@ -1,21 +1,25 @@
-#ifndef CONFIGCATCHUPMESSAGE_H
-#define CONFIGCATCHUPMESSAGE_H
+#ifndef CATCHUPMESSAGE_H
+#define CATCHUPMESSAGE_H
 
 #include "Framework/Messaging/Message.h"
-#include "Application/Common/State/ConfigState.h"
 
 #define CATCHUP_PROTOCOL_ID     'C'
 
-class ConfigCatchupMessage : public Message
+#define CATCHUP_REQUEST         '1'
+#define CATCHUP_RESPONSE        '2'
+#define CATCHUP_COMMIT          '3'
+
+
+class CatchupMessage : public Message
 {
 public:
     char            type;
     uint64_t        nodeID;
     uint64_t        paxosID;
-    ConfigState     configState;
     
     bool            CatchupRequest(uint64_t nodeID);
-    bool            CatchupResponse(uint64_t paxosID, ConfigState& configState);
+    bool            CatchupResponse(ReadBuffer& key, ReadBuffer& value);
+    bool            Commit(uint64_t paxosID);
 
     // Serialization
     bool            Read(ReadBuffer& buffer);

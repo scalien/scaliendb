@@ -3,8 +3,8 @@
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 #include "Application/Common/ContextTransport.h"
+#include "Application/Common/CatchupMessage.h"
 #include "Controller.h"
-#include "ConfigCatchupMessage.h"
 
 void ConfigContext::Init(Controller* controller_, unsigned numControllers, 
  StorageTable* quorumTable)
@@ -154,7 +154,7 @@ void ConfigContext::OnMessage(ReadBuffer buffer)
 
 void ConfigContext::OnStartCatchup()
 {
-    ConfigCatchupMessage    msg;
+    CatchupMessage    msg;
     
     if (!IsLeaderKnown())
         return;
@@ -190,7 +190,7 @@ void ConfigContext::OnPaxosMessage(ReadBuffer buffer)
     replicatedLog.OnMessage(msg);
 }
 
-void ConfigContext::OnCatchupMessage(ReadBuffer buffer)
+void ConfigContext::OnCatchupMessage(ReadBuffer /*buffer*/)
 {
 //    ConfigCatchupMessage    msg;
 //    
