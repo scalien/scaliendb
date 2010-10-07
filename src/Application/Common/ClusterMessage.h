@@ -9,6 +9,7 @@
 #define CLUSTERMESSAGE_SET_CONFIG_STATE 'C' // master => shard server
 #define CLUSTERMESSAGE_REQUEST_LEASE    'R' // shard server => master, also serves as heartbeat
 #define CLUSTERMESSAGE_RECEIVE_LEASE    'r' // master => shard server
+#define CLUSTERMESSAGE_CONFIG_CATCHUP   'c'
 
 /*
 ===============================================================================================
@@ -23,6 +24,7 @@ class ClusterMessage : public Message
 public:
     char            type;
     uint64_t        nodeID;
+    uint64_t        paxosID;
     uint64_t        quorumID;
     uint64_t        shardID;
     uint64_t        proposalID;
@@ -37,6 +39,7 @@ public:
                      uint64_t proposalID, unsigned duration);
     bool            ReceiveLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, unsigned duration);
+    bool            ConfigCatchup(uint64_t paxosID, ConfigState* configState);
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);
