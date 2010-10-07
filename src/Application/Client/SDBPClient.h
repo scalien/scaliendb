@@ -62,43 +62,37 @@ public:
     int                 Delete(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
 
 private:
-    typedef InList<Request> RequestList;
-    typedef InTreeMap<ShardConnection> ShardConnectionMap;
+    typedef InList<Request>                 RequestList;
+    typedef InTreeMap<ShardConnection>      ShardConnectionMap;
     typedef HashMap<uint64_t, RequestList*> RequestListMap;
-    friend class ControllerConnection;
-    friend class ShardConnection;
-    friend class Table;
-    // Controller connections
-    // ShardServer connections
-    // ClusterState
-    //  - DatabaseMap:  database
-    //  - ShardMap: shard => nodeID
-    //  - NodeMap:  nodeID => ClientConnection
+    friend class    ControllerConnection;
+    friend class    ShardConnection;
+    friend class    Table;
     
-    void                EventLoop();
-    bool                IsDone();
-    uint64_t            NextCommandID();
-    Request*            CreateGetConfigState();
-    void                SetMaster(int64_t master, uint64_t nodeID);
-    void                UpdateConnectivityStatus();
-    void                OnGlobalTimeout();
-    void                OnMasterTimeout();
-    bool                IsSafe();
-    void                SetConfigState(ControllerConnection* conn, ConfigState* configState);
+    void                    EventLoop();
+    bool                    IsDone();
+    uint64_t                NextCommandID();
+    Request*                CreateGetConfigState();
+    void                    SetMaster(int64_t master, uint64_t nodeID);
+    void                    UpdateConnectivityStatus();
+    void                    OnGlobalTimeout();
+    void                    OnMasterTimeout();
+    bool                    IsSafe();
+    void                    SetConfigState(ControllerConnection* conn, ConfigState* configState);
 
-    void                ReassignRequest(Request* req);
-    void                AssignRequestsToQuorums();
-    bool                GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID);
-    void                AddRequestToQuorum(Request* req, bool end = true);
-    void                SendQuorumRequests(ShardConnection* conn, uint64_t quorumID);
-    void                InvalidateQuorum(uint64_t quorumID);
-    void                InvalidateQuorumRequests(uint64_t quorumID);
+    void                    ReassignRequest(Request* req);
+    void                    AssignRequestsToQuorums();
+    bool                    GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID);
+    void                    AddRequestToQuorum(Request* req, bool end = true);
+    void                    SendQuorumRequests(ShardConnection* conn, uint64_t quorumID);
+    void                    InvalidateQuorum(uint64_t quorumID);
+    void                    InvalidateQuorumRequests(uint64_t quorumID);
 
-    void                ConnectShardServers();
-    ShardConnection*    GetShardConnection(uint64_t nodeID);
+    void                    ConnectShardServers();
+    ShardConnection*        GetShardConnection(uint64_t nodeID);
 
-    void                OnControllerConnected(ControllerConnection* conn);
-    void                OnControllerDisconnected(ControllerConnection* conn);
+    void                    OnControllerConnected(ControllerConnection* conn);
+    void                    OnControllerDisconnected(ControllerConnection* conn);
     
     int64_t                 master;
     uint64_t                commandID;

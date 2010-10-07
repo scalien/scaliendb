@@ -48,6 +48,8 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     ConfigShard*        shard;
     ConfigShardServer*  shardServer;
     
+    Init();
+    
     nextQuorumID = other.nextQuorumID;
     nextDatabaseID = other.nextDatabaseID;
     nextTableID = other.nextTableID;
@@ -976,6 +978,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
             READ_SEPARATOR();
             read = buffer.Readf("%U", &quorum.primaryID);
             CHECK_ADVANCE(1);
+            quorum.hasPrimary = true;
         }
     }
     

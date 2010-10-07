@@ -187,6 +187,7 @@ int Client::Get(uint64_t databaseID, uint64_t tableID, ReadBuffer& key)
     
     result->Close();
     result->AppendRequest(req);
+    requests.Append(req);
     
     EventLoop();
     return result->CommandStatus();
@@ -203,6 +204,7 @@ int Client::Set(uint64_t databaseID, uint64_t tableID, ReadBuffer& key, ReadBuff
     
     result->Close();
     result->AppendRequest(req);
+    requests.Append(req);
     
     EventLoop();
     return result->CommandStatus(); 
@@ -219,6 +221,7 @@ int Client::Delete(uint64_t databaseID, uint64_t tableID, ReadBuffer& key)
     
     result->Close();
     result->AppendRequest(req);
+    requests.Append(req);
     
     EventLoop();
     return result->CommandStatus();
@@ -231,6 +234,8 @@ void Client::EventLoop()
         result->transportStatus = SDBP_API_ERROR;
         return;
     }
+
+    AssignRequestsToQuorums();
     
     EventLoop::UpdateTime();
     EventLoop::Reset(&globalTimeout);
@@ -381,10 +386,17 @@ void Client::AssignRequestsToQuorums()
 {
     Request*        it;
     Request*        next;
+    RequestList     requestsCopy;
     
-    for (it = requests.First(); it != NULL; it = next)
+    if (requests.GetLength() == 0)
+        return;
+    
+    requestsCopy = requests;
+    requests.ClearMembers();
+
+    for (it = requestsCopy.First(); it != NULL; it = next)
     {
-        next = requests.Remove(it);
+        next = requestsCopy.Remove(it);
         ReassignRequest(it);
     }
 }
@@ -408,7 +420,8 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
 
         firstKey.Wrap(shard->firstKey);
         lastKey.Wrap(shard->lastKey);
-        if (ReadBuffer::Cmp(key, firstKey) >= 0 && ReadBuffer::Cmp(key, lastKey) < 0)
+        if (ReadBuffer::Cmp(key, firstKey) >= 0 && 
+         (lastKey.GetLength() == 0 || ReadBuffer::Cmp(key, lastKey) < 0))
         {
             quorumID = shard->quorumID;
             return true;

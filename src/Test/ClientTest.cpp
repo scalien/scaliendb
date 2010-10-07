@@ -43,6 +43,9 @@ TEST_DEFINE(TestClientBasic)
     uint64_t        tableID;
     int             ret;
     
+    Log_SetTarget(LOG_TARGET_STDOUT);
+    Log_SetTrace(true);
+    
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
