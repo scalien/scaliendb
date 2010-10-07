@@ -42,7 +42,7 @@ public:
     void                OnLearnLease();
     void                OnLeaseTimeout();
     void                OnAppend(ConfigMessage& message, bool ownAppend);
-    void                OnStartCatchup();
+    void                OnCatchupMessage();
     
     // ========================================================================================
     // SDBPContext interface:

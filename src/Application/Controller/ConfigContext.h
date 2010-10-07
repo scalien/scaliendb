@@ -45,8 +45,9 @@ public:
     virtual QuorumDatabase*         GetDatabase();
     virtual QuorumTransport*        GetTransport();
     
-    virtual void                    OnAppend(ReadBuffer value, bool ownAppend);
     virtual Buffer*                 GetNextValue();
+
+    virtual void                    OnAppend(ReadBuffer value, bool ownAppend);
     virtual void                    OnMessage(ReadBuffer msg);
     virtual void                    OnStartCatchup();
     // ========================================================================================
@@ -54,6 +55,7 @@ public:
 private:
     void                            OnPaxosLeaseMessage(ReadBuffer buffer);
     void                            OnPaxosMessage(ReadBuffer buffer);
+    void                            OnCatchupMessage(ReadBuffer buffer);
     void                            RegisterPaxosID(uint64_t paxosID);
 
     Controller*                     controller;

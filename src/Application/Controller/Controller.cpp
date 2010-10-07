@@ -145,9 +145,10 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
         UpdateListeners();    
 }
 
-void Controller::OnStartCatchup()
+void Controller::OnCatchupMessage()
 {
-    // send 
+    // whom should I catchup from?
+    // send him the ControllerCatchupRequest
 }
 
 bool Controller::IsValidClientRequest(ClientRequest* request)

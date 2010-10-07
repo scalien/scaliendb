@@ -2,6 +2,8 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
+#include "Application/Common/ContextTransport.h"
+#include "Application/Common/CatchupMessage.h"
 #include "Controller.h"
 
 void ConfigContext::Init(Controller* controller_, unsigned numControllers, 
@@ -104,6 +106,14 @@ QuorumTransport* ConfigContext::GetTransport()
     return &transport;
 }
 
+Buffer* ConfigContext::GetNextValue()
+{
+    if (nextValue.GetLength() > 0)
+        return &nextValue;
+    
+    return NULL;
+}
+
 void ConfigContext::OnAppend(ReadBuffer value, bool ownAppend)
 {
     ConfigMessage message;
@@ -112,14 +122,6 @@ void ConfigContext::OnAppend(ReadBuffer value, bool ownAppend)
 
     assert(message.Read(value));
     controller->OnAppend(message, ownAppend);
-}
-
-Buffer* ConfigContext::GetNextValue()
-{
-    if (nextValue.GetLength() > 0)
-        return &nextValue;
-    
-    return NULL;
 }
 
 void ConfigContext::OnMessage(ReadBuffer buffer)
@@ -136,12 +138,14 @@ void ConfigContext::OnMessage(ReadBuffer buffer)
     
     switch(proto)
     {
-        case PAXOSLEASE_PROTOCOL_ID:        //'L':
+        case PAXOSLEASE_PROTOCOL_ID:        // 'L':
             OnPaxosLeaseMessage(buffer);
             break;
-        case PAXOS_PROTOCOL_ID:             //'P':
+        case PAXOS_PROTOCOL_ID:             // 'P':
             OnPaxosMessage(buffer);
             break;
+        case CATCHUP_PROTOCOL_ID:           // 'C'
+            OnCatchupMessage(buffer);
         default:
             ASSERT_FAIL();
             break;
@@ -150,7 +154,14 @@ void ConfigContext::OnMessage(ReadBuffer buffer)
 
 void ConfigContext::OnStartCatchup()
 {
-    controller->OnStartCatchup();
+    CatchupMessage    msg;
+    
+    if (!IsLeaderKnown())
+        return;
+    
+    msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID());
+    
+    CONTEXT_TRANSPORT->SendPriorityQuorumMessage(GetLeader(), contextID, msg);
 }
 
 void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
@@ -177,6 +188,14 @@ void ConfigContext::OnPaxosMessage(ReadBuffer buffer)
     RegisterPaxosID(msg.paxosID);
     replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
     replicatedLog.OnMessage(msg);
+}
+
+void ConfigContext::OnCatchupMessage(ReadBuffer /*buffer*/)
+{
+//    ConfigCatchupMessage    msg;
+//    
+//    msg.Read(buffer);
+//    controller->OnCatchupMessage(msg);
 }
 
 void ConfigContext::RegisterPaxosID(uint64_t paxosID)
