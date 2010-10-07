@@ -35,6 +35,8 @@ void Controller::Init()
     
     CONTEXT_TRANSPORT->SetClusterContext(this);
     
+    catchingUp = false;
+    
     // connect to the controller nodes
     numControllers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numControllers; nodeID++)
@@ -145,10 +147,67 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
         UpdateListeners();    
 }
 
-void Controller::OnCatchupMessage()
+void Controller::OnStartCatchup()
 {
-    // whom should I catchup from?
-    // send him the ControllerCatchupRequest
+    CatchupMessage    msg;
+    
+    if (!configContext.IsLeaderKnown())
+        return;
+    
+    msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID());
+    
+    CONTEXT_TRANSPORT->SendQuorumMessage(
+     configContext.GetLeader(), configContext.GetContextID(), msg);
+     
+    catchingUp = true;
+    
+    // TODO: stop Paxos?
+}
+
+void Controller::OnCatchupMessage(CatchupMessage& imsg)
+{
+    CatchupMessage  omsg;
+    Buffer          buffer;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    bool            hasMaster;
+    uint64_t        masterID;
+    
+    switch (imsg.type)
+    {
+        case CATCHUPMESSAGE_REQUEST:
+            if (!configContext.IsLeader())
+                return;
+            // send configState
+            key.Wrap("state");
+            configState.Write(buffer);
+            value.Wrap(buffer);
+            omsg.KeyValue(key, value);
+            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetContextID(), omsg);
+            omsg.Commit(configContext.GetPaxosID());
+            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetContextID(), omsg);
+            break;
+        case CATCHUPMESSAGE_BEGIN_SHARD:
+            ASSERT_FAIL();
+            break;
+        case CATCHUPMESSAGE_KEYVALUE:
+            if (!catchingUp)
+                return;
+            hasMaster = configState.hasMaster;
+            masterID = configState.masterID;
+            if (!configState.Read(imsg.value))
+                ASSERT_FAIL();
+            configState.hasMaster = hasMaster;
+            configState.masterID = masterID;
+            break;
+        case CATCHUPMESSAGE_COMMIT:
+            if (!catchingUp)
+                return;
+            configContext.SetPaxosID(imsg.paxosID);
+            break;
+        default:
+            ASSERT_FAIL();
+    }
 }
 
 bool Controller::IsValidClientRequest(ClientRequest* request)

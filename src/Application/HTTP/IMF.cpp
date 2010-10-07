@@ -180,7 +180,7 @@ static int LineParse(char* buf, int len, ReadBuffer* buffers[3])
     if (pos <= 0) 
         return pos;
     
-    buffers[0]->Set(p, pos);
+    buffers[0]->Wrap(p, pos);
 
     p += pos;
     pos = SkipWhitespace(p, remlen);
@@ -192,7 +192,7 @@ static int LineParse(char* buf, int len, ReadBuffer* buffers[3])
     if (pos <= 0)
         return pos;
 
-    buffers[1]->Set(p, pos);
+    buffers[1]->Wrap(p, pos);
 
     p += pos;
     pos = SkipWhitespace(p, remlen);
@@ -204,7 +204,7 @@ static int LineParse(char* buf, int len, ReadBuffer* buffers[3])
     if (pos <= 0)
         return pos;
 
-    buffers[2]->Set(p, pos);
+    buffers[2]->Wrap(p, pos);
 
     p += pos;       
     return (int) (p - buf); 

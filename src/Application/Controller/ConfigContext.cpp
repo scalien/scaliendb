@@ -2,7 +2,6 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
-#include "Application/Common/ContextTransport.h"
 #include "Application/Common/CatchupMessage.h"
 #include "Controller.h"
 
@@ -154,14 +153,7 @@ void ConfigContext::OnMessage(ReadBuffer buffer)
 
 void ConfigContext::OnStartCatchup()
 {
-    CatchupMessage    msg;
-    
-    if (!IsLeaderKnown())
-        return;
-    
-    msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID());
-    
-    CONTEXT_TRANSPORT->SendPriorityQuorumMessage(GetLeader(), contextID, msg);
+    controller->OnStartCatchup();
 }
 
 void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
@@ -190,12 +182,12 @@ void ConfigContext::OnPaxosMessage(ReadBuffer buffer)
     replicatedLog.OnMessage(msg);
 }
 
-void ConfigContext::OnCatchupMessage(ReadBuffer /*buffer*/)
+void ConfigContext::OnCatchupMessage(ReadBuffer buffer)
 {
-//    ConfigCatchupMessage    msg;
-//    
-//    msg.Read(buffer);
-//    controller->OnCatchupMessage(msg);
+    CatchupMessage msg;
+    
+    msg.Read(buffer);
+    controller->OnCatchupMessage(msg);
 }
 
 void ConfigContext::RegisterPaxosID(uint64_t paxosID)

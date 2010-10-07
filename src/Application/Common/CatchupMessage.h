@@ -5,9 +5,10 @@
 
 #define CATCHUP_PROTOCOL_ID     'C'
 
-#define CATCHUP_REQUEST         '1'
-#define CATCHUP_RESPONSE        '2'
-#define CATCHUP_COMMIT          '3'
+#define CATCHUPMESSAGE_REQUEST         'R'
+#define CATCHUPMESSAGE_BEGIN_SHARD     'B'
+#define CATCHUPMESSAGE_KEYVALUE        'K'
+#define CATCHUPMESSAGE_COMMIT          'C'
 
 
 class CatchupMessage : public Message
@@ -16,9 +17,12 @@ public:
     char            type;
     uint64_t        nodeID;
     uint64_t        paxosID;
+    ReadBuffer      key;
+    ReadBuffer      value;
     
     bool            CatchupRequest(uint64_t nodeID);
-    bool            CatchupResponse(ReadBuffer& key, ReadBuffer& value);
+    bool            BeginShard(uint64_t shardID);
+    bool            KeyValue(ReadBuffer& key, ReadBuffer& value);
     bool            Commit(uint64_t paxosID);
 
     // Serialization

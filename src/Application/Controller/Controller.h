@@ -12,6 +12,7 @@
 #include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
 #include "Application/Common/State/ConfigState.h"
+#include "Application/Common/CatchupMessage.h"
 
 class ClientSession;            // forward
 class PrimaryLease;             // forward
@@ -42,7 +43,8 @@ public:
     void                OnLearnLease();
     void                OnLeaseTimeout();
     void                OnAppend(ConfigMessage& message, bool ownAppend);
-    void                OnCatchupMessage();
+    void                OnStartCatchup();
+    void                OnCatchupMessage(CatchupMessage& message);
     
     // ========================================================================================
     // SDBPContext interface:
@@ -75,6 +77,7 @@ private:
     void                UpdatePrimaryLeaseTimer();
     void                UpdateListeners();
     
+    bool                catchingUp;
     ConfigContext       configContext;
     MessageList         configMessages;
     ConfigState         configState;
