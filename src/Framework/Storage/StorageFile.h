@@ -7,6 +7,8 @@
 #include "StorageDataPage.h"
 #include "System/Stopwatch.h"
 
+class StorageCursor; // forward
+
 /*
 ===============================================================================
 
@@ -42,7 +44,7 @@ public:
     void                    WriteRecovery(FD recoveryFD);
     void                    WriteData();
 
-    StorageDataPage*        CursorBegin(ReadBuffer& key, Buffer& nextKey);
+    StorageDataPage*        CursorBegin(StorageCursor* cursor, ReadBuffer& key);
     void                    UnloadDataPage(StorageDataPage* page);
 
     uint64_t                GetSize();

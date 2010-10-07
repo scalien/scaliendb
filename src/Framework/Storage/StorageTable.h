@@ -34,6 +34,7 @@ public:
     bool                Delete(ReadBuffer key);
 
     bool                CreateShard(uint64_t shardID, ReadBuffer& startKey);
+    StorageShard*       GetShard(uint64_t shardID);
     bool                SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuffer& startKey);
     
     bool                ShardExists(ReadBuffer& startKey);
@@ -59,6 +60,9 @@ private:
     void                WriteRecoveryMove(Buffer& src, Buffer& dst);
     void                DeleteGarbageShard(uint64_t shardID);
     void                RebuildShardTOC(uint64_t shardID);
+
+    StorageDataPage*    CursorBegin(StorageCursor* cursor, ReadBuffer& key);
+
     void                CommitPhase1();
     void                CommitPhase2();
     void                CommitPhase3();
@@ -74,6 +78,7 @@ private:
     StorageIndexMap     shards;
     StorageDatabase*    database;
     
+    friend class StorageCursor;
     friend class StorageDatabase;
 };
 

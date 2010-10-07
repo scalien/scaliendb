@@ -745,7 +745,7 @@ void StorageShard::SplitFile(StorageFile* file)
     shardSize += newFi->file->GetSize();
 }
 
-StorageDataPage* StorageShard::CursorBegin(ReadBuffer& key, Buffer& nextKey)
+StorageDataPage* StorageShard::CursorBegin(StorageCursor* cursor, ReadBuffer& key)
 {
     StorageFileIndex*   fi;
     StorageDataPage*    dataPage;
@@ -755,13 +755,16 @@ StorageDataPage* StorageShard::CursorBegin(ReadBuffer& key, Buffer& nextKey)
     if (fi == NULL)
         return NULL;
     
-    dataPage = fi->file->CursorBegin(key, nextKey);
-    if (nextKey.GetLength() != 0)
+    if (cursor->bulk && cursor->file != fi->file)
+        fi->file->ReadRest();
+    cursor->file = fi->file;
+    dataPage = fi->file->CursorBegin(cursor, key);
+    if (cursor->nextKey.GetLength() != 0)
         return dataPage;
     
     fi = files.Next(fi);
     if (fi != NULL)
-        nextKey.Write(fi->key);
+        cursor->nextKey.Write(fi->key);
 
     return dataPage;
 }

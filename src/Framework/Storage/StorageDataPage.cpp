@@ -94,7 +94,7 @@ void StorageDataPage::UnregisterCursor(StorageCursor* cursor)
         delete this;
 }
 
-StorageKeyValue* StorageDataPage::BeginIteration(ReadBuffer& key)
+StorageKeyValue* StorageDataPage::CursorBegin(ReadBuffer& key)
 {
     StorageKeyValue*    it;
     int         retcmp;
@@ -110,7 +110,7 @@ StorageKeyValue* StorageDataPage::BeginIteration(ReadBuffer& key)
         return keys.Next(it);
 }
 
-StorageKeyValue* StorageDataPage::Next(StorageKeyValue* it)
+StorageKeyValue* StorageDataPage::CursorNext(StorageKeyValue* it)
 {
     return keys.Next(it);
 }

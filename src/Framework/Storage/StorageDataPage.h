@@ -37,8 +37,8 @@ public:
 
     void                        RegisterCursor(StorageCursor* cursor);
     void                        UnregisterCursor(StorageCursor* cursor);
-    StorageKeyValue*            BeginIteration(ReadBuffer& key);
-    StorageKeyValue*            Next(StorageKeyValue* it);
+    StorageKeyValue*            CursorBegin(ReadBuffer& key);
+    StorageKeyValue*            CursorNext(StorageKeyValue* it);
     
     bool                        IsEmpty();
     ReadBuffer                  FirstKey();

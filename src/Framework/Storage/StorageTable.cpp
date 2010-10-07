@@ -886,6 +886,27 @@ void StorageTable::RebuildShardTOC(uint64_t shardID)
     delete si;
 }
 
+StorageDataPage* StorageTable::CursorBegin(StorageCursor* cursor, ReadBuffer& key)
+{
+    StorageShardIndex*  si;
+    StorageDataPage*    dataPage;
+    
+    si = Locate(key);
+
+    if (si == NULL)
+        return NULL;
+    
+    dataPage = si->shard->CursorBegin(cursor, key);
+    if (cursor->nextKey.GetLength() != 0)
+        return dataPage;
+    
+    si = shards.Next(si);
+    if (si != NULL)
+        cursor->nextKey.Write(si->startKey);
+
+    return dataPage;
+}
+
 void StorageTable::CommitPhase1()
 {
     StorageShardIndex*  si;
