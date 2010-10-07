@@ -86,6 +86,8 @@
 		9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
 		9A87418E12282946000B1319 /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
 		9A87419012282946000B1319 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
+		9A9AA1C7125DC30F00681840 /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */; };
+		9A9AA1C8125DC30F00681840 /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */; };
 		9AABB037123E55DE003626AC /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
 		9AABB039123E55DE003626AC /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418712282946000B1319 /* StorageTest.cpp */; };
@@ -360,6 +362,8 @@
 		9A87418912282946000B1319 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test.h; path = Test/Test.h; sourceTree = "<group>"; };
 		9A87418A12282946000B1319 /* TestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestMain.cpp; path = Test/TestMain.cpp; sourceTree = "<group>"; };
 		9A87418B12282946000B1319 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
+		9A9AA1C5125DC30F00681840 /* StorageEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageEnvironment.h; sourceTree = "<group>"; };
+		9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
 		9AABAD3812393327003626AC /* Deferred.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Deferred.h; sourceTree = "<group>"; };
 		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -629,6 +633,8 @@
 				9ACF29BF1236519E00247703 /* StorageTable.cpp */,
 				9ACF2D701237975900247703 /* StorageFileHeader.h */,
 				9ACF2D711237975900247703 /* StorageFileHeader.cpp */,
+				9A9AA1C5125DC30F00681840 /* StorageEnvironment.h */,
+				9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -1061,6 +1067,7 @@
 				54A71854125636B4001EC082 /* ConfigState.cpp in Sources */,
 				9AABCD881257D8CE003626AC /* JSONConfigState.cpp in Sources */,
 				542B34F5125C9B46003FA4F5 /* QuorumDatabase.cpp in Sources */,
+				9A9AA1C8125DC30F00681840 /* StorageEnvironment.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1122,6 +1129,7 @@
 				9AABC194124F4BE5003626AC /* ArrayListTest.cpp in Sources */,
 				9AABCC6012564924003626AC /* SDBPClient.cpp in Sources */,
 				9AABCC611256492B003626AC /* ConfigState.cpp in Sources */,
+				9A9AA1C7125DC30F00681840 /* StorageEnvironment.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

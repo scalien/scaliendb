@@ -20,10 +20,18 @@
 #define GREATER_THAN(a, b) \
     (ReadBuffer::Cmp(a, b) >= 0)
 
+ConfigState::ConfigState()
+{
+    Init();
+}
+
 ConfigState::~ConfigState()
 {
-    shardServers.DeleteList();
     quorums.DeleteList();
+    databases.DeleteList();
+    tables.DeleteList();
+    shards.DeleteList();
+    shardServers.DeleteList();
 }
 
 void ConfigState::Init()
@@ -42,6 +50,17 @@ void ConfigState::Init()
     tables.Clear();
     shards.Clear();
     shardServers.Clear();
+}
+
+void ConfigState::Transfer(ConfigState& other)
+{
+    other = *this;
+
+    quorums.ClearMembers();
+    databases.ClearMembers();
+    tables.ClearMembers();
+    shards.ClearMembers();
+    shardServers.ClearMembers();
 }
 
 bool ConfigState::CompleteMessage(ConfigMessage& message)

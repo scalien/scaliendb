@@ -82,11 +82,12 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
 {
     SDBPResponseMessage msg;
     ClientResponse*     resp;
+    ConfigState         tmpState;
     
     Log_Trace();
     
     resp = new ClientResponse;
-    resp->configState = &configState;
+    resp->configState = &tmpState;
     msg.response = resp;
     if (msg.Read(rbuf))
     {
@@ -94,12 +95,7 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
             delete resp;
     }
     else
-    {
-        // as we use the connection's ConfigState member as a buffer when parsing
-        // the response, it might be corrupted by now, so we invalidate it at the client
-        client->SetConfigState(this, NULL);
         delete resp;
-    }
         
     return false;
 }
@@ -159,17 +155,18 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
 {
     ClientRequest*  req;
     
-    if (resp->configState)
-    {
-        assert(resp->configState->masterID == nodeID);
-        
-        req = RemoveRequest(resp->commandID);
-        assert(req != NULL);
-        delete req;
-        
-        client->SetMaster(resp->configState->masterID, nodeID);
-        client->SetConfigState(this, resp->configState);
-    }
+    assert(resp->configState->masterID == nodeID);
+    
+    req = RemoveRequest(resp->commandID);
+    assert(req != NULL);
+    delete req;
+    
+    // copy the config state created on stack in OnMessage
+    resp->configState->Transfer(configState);
+    
+    client->SetMaster(configState.masterID, nodeID);
+    client->SetConfigState(this, &configState);
+
     return false;
 }
 

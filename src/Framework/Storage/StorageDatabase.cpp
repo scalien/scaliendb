@@ -13,7 +13,10 @@ void StorageDatabase::Open(const char* path_, const char* dbName)
 {
     char    sep;
     
+    environment = NULL;
+    
     name.Write(dbName);
+    name.NullTerminate();
 
     // try to create parent directory, will fail later when creating the database
     if (!FS_IsDirectory(path_))
@@ -24,7 +27,8 @@ void StorageDatabase::Open(const char* path_, const char* dbName)
     if (path.GetBuffer()[path.GetLength() - 1] != sep)
         path.Append(&sep, 1);
     
-    path.Append(name);
+    // name is null-terminated
+    path.Append(name.GetBuffer(), name.GetLength() - 1);
     if (path.GetBuffer()[path.GetLength() - 1] != sep)
         path.Append(&sep, 1);
     
@@ -34,6 +38,16 @@ void StorageDatabase::Open(const char* path_, const char* dbName)
         if (!FS_CreateDir(path.GetBuffer()))
             ASSERT_FAIL();
     }   
+}
+
+const char* StorageDatabase::GetName()
+{
+    return name.GetBuffer();
+}
+
+StorageEnvironment* StorageDatabase::GetEnvironment()
+{
+    return environment;
 }
 
 StorageTable* StorageDatabase::GetTable(const char* tableName)
@@ -48,6 +62,7 @@ StorageTable* StorageDatabase::GetTable(const char* tableName)
     
     it = new StorageTable();
     it->Open(path.GetBuffer(), tableName);
+    it->database = this;
     tables.Append(it);
     
     return it;

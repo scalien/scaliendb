@@ -49,9 +49,11 @@ public:
     uint64_t            nextShardID;
     uint64_t            nextNodeID;
     
+    ConfigState();
     ~ConfigState();
     
     void                Init();
+    void                Transfer(ConfigState& other);
     
     ConfigQuorum*       GetQuorum(uint64_t quorumID);
     ConfigDatabase*     GetDatabase(uint64_t databaseID);

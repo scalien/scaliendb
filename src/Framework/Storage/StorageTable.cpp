@@ -41,11 +41,18 @@ uint64_t StorageTable::GetSize()
     return size;
 }
 
+StorageDatabase* StorageTable::GetDatabase()
+{
+    return database;
+}
+
 void StorageTable::Open(const char* dir, const char* name_)
 {
     int64_t recoverySize;
     int64_t tocSize;
     char    sep;
+    
+    database = NULL;
     
     // create table directory
     if (*dir == '\0')
@@ -104,7 +111,6 @@ void StorageTable::Open(const char* dir, const char* name_)
         
         CreateShard(0, startKey);
     }
-
 }
 
 void StorageTable::Commit(bool recovery, bool flush)
