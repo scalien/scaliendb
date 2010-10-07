@@ -23,7 +23,11 @@ class ConfigQuorum
 {
 public:
     typedef ArrayList<uint64_t, CONFIG_MAX_NODES> NodeList;
-    ConfigQuorum()      { prev = next = this; hasPrimary = false; }
+
+    ConfigQuorum();
+    ConfigQuorum(const ConfigQuorum& other);
+    
+    ConfigQuorum&       operator=(const ConfigQuorum& other);
 
     uint64_t            quorumID;
     NodeList            activeNodes;
@@ -41,5 +45,35 @@ public:
     ConfigQuorum*       prev;
     ConfigQuorum*       next;
 };
+
+
+inline ConfigQuorum::ConfigQuorum()
+{
+    prev = next = this; hasPrimary = false;
+}
+
+inline ConfigQuorum::ConfigQuorum(const ConfigQuorum& other)
+{
+    *this = other;
+}
+
+inline ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
+{
+    uint64_t*   sit;
+    
+    quorumID = other.quorumID;
+    activeNodes = other.activeNodes;
+    inactiveNodes = other.inactiveNodes;
+    
+    for (sit = other.shards.First(); sit != NULL; sit = other.shards.Next(sit))
+        shards.Append(*sit);
+    
+    hasPrimary = other.hasPrimary;
+    primaryID = other.primaryID;
+    
+    prev = next = this;
+    
+    return *this;
+}
 
 #endif

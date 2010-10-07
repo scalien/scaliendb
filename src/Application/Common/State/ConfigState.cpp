@@ -1,4 +1,5 @@
 #include "ConfigState.h"
+#include "System/Macros.h"
 
 #define HAS_LEADER_YES          'Y'
 #define HAS_LEADER_NO           'N'
@@ -25,6 +26,11 @@ ConfigState::ConfigState()
     Init();
 }
 
+ConfigState::ConfigState(const ConfigState& other)
+{
+    *this = other;
+}
+
 ConfigState::~ConfigState()
 {
     quorums.DeleteList();
@@ -32,6 +38,41 @@ ConfigState::~ConfigState()
     tables.DeleteList();
     shards.DeleteList();
     shardServers.DeleteList();
+}
+
+ConfigState& ConfigState::operator=(const ConfigState& other)
+{
+    ConfigQuorum*       quorum;
+    ConfigDatabase*     database;
+    ConfigTable*        table;
+    ConfigShard*        shard;
+    ConfigShardServer*  shardServer;
+    
+    nextQuorumID = other.nextQuorumID;
+    nextDatabaseID = other.nextDatabaseID;
+    nextTableID = other.nextTableID;
+    nextShardID = other.nextShardID;
+    nextNodeID = other.nextNodeID;
+    
+    hasMaster = other.hasMaster;
+    masterID = other.masterID;
+
+    FOREACH(quorum, other.quorums)
+        quorums.Append(new ConfigQuorum(*quorum));
+    
+    FOREACH(database, other.databases)
+        databases.Append(new ConfigDatabase(*database));
+    
+    FOREACH(table, other.tables)
+        tables.Append(new ConfigTable(*table));
+    
+    FOREACH(shard, other.shards)
+        shards.Append(new ConfigShard(*shard));
+    
+    FOREACH(shardServer, other.shardServers)
+        shardServers.Append(new ConfigShardServer(*shardServer));
+        
+    return *this;
 }
 
 void ConfigState::Init()
@@ -54,8 +95,8 @@ void ConfigState::Init()
 
 void ConfigState::Transfer(ConfigState& other)
 {
-    other = *this;
-
+    other.Init();
+    other = *this; // TODO: copy members
     Init();
 }
 

@@ -260,8 +260,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
             Log_Trace("my nodeID is %" PRIu64 "", msg.nodeID);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
-            OnSetConfigState(msg.configState);
-            msg.configState = NULL;
+            OnSetConfigState(&msg.configState);
             Log_Trace("got new configState, master is %d", 
              configState->hasMaster ? (int) configState->masterID : -1);
             break;

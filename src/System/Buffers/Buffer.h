@@ -19,13 +19,12 @@
 
 class Buffer
 {
-private:
-    Buffer(const Buffer& other);
-    Buffer&             operator=(const Buffer& other);
-
 public:
     Buffer();
+    Buffer(const Buffer& other);
     ~Buffer();
+
+    Buffer&             operator=(const Buffer& other);
 
     void                SetPreallocated(char* buffer, unsigned size);
     

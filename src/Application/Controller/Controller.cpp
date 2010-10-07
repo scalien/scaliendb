@@ -251,7 +251,7 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
             return;
         }
         
-        clusterMessage.SetConfigState(&configState);
+        clusterMessage.SetConfigState(configState);
         CONTEXT_TRANSPORT->SendClusterMessage(nodeID, clusterMessage);
     }
 }
@@ -279,7 +279,7 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             
             // send config state
-            clusterMessage.SetConfigState(&configState);
+            clusterMessage.SetConfigState(configState);
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             return false;
         }
@@ -562,7 +562,7 @@ void Controller::UpdateListeners()
     }
     
     // update shard servers
-    message.SetConfigState(&configState);
+    message.SetConfigState(configState);
     shardServers = &configState.shardServers;
     for (itShardServer = shardServers->First(); 
      itShardServer != NULL; 

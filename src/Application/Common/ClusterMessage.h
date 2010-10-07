@@ -29,17 +29,17 @@ public:
     uint64_t        shardID;
     uint64_t        proposalID;
     unsigned        duration;
-    ConfigState*    configState;
+    ConfigState     configState;
     
     ClusterMessage();
     
     bool            SetNodeID(uint64_t nodeID);
-    bool            SetConfigState(ConfigState* configState);
+    bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, unsigned duration);
     bool            ReceiveLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, unsigned duration);
-    bool            ConfigCatchup(uint64_t paxosID, ConfigState* configState);
+    bool            ConfigCatchup(uint64_t paxosID, ConfigState& configState);
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);
