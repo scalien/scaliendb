@@ -80,7 +80,6 @@ private:
     ConfigState         configState;
     Countdown           requestTimer;
     NodeList            controllers;
-    const char*         databaseDir;
     StorageDatabase*    systemDatabase;
     StorageEnvironment  databaseEnv;
     DatabaseMap         databases;

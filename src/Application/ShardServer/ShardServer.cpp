@@ -19,8 +19,7 @@ void ShardServer::Init()
     const char*     str;
     Endpoint        endpoint;
 
-    databaseDir = configFile.GetValue("database.dir", "db");
-    databaseEnv.Open(databaseDir);
+    databaseEnv.Open(configFile.GetValue("database.dir", "db"));
     systemDatabase = databaseEnv.GetDatabase(DATABASE_NAME);
     REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));
 
@@ -521,8 +520,7 @@ void ShardServer::UpdateShards(List<uint64_t>& shards)
             name.Writef("%U", shard->databaseID);
             name.NullTerminate();
 
-            database = new StorageDatabase;
-            database->Open(databaseDir, name.GetBuffer());
+            database = databaseEnv.GetDatabase(name.GetBuffer());
             databases.Set(shard->databaseID, database);
         }
         
