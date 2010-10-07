@@ -66,7 +66,7 @@ private:
     void                FromClientRequest(ClientRequest* request, DataMessage* message);
     void                OnRequestLeaseTimeout();
     void                OnPrimaryLeaseTimeout();
-    void                OnSetConfigState(ConfigState* configState);
+    void                OnSetConfigState(ConfigState& configState);
     void                ConfigureQuorum(ConfigQuorum* configQuorum, bool active);
     void                OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
     void                UpdateShards(List<uint64_t>& shards);
@@ -77,7 +77,7 @@ private:
     
     bool                awaitingNodeID;
     QuorumList          quorums;
-    ConfigState*        configState;
+    ConfigState         configState;
     Countdown           requestTimer;
     NodeList            controllers;
     const char*         databaseDir;

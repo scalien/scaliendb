@@ -173,7 +173,7 @@ void Controller::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.GetConfigStateResponse(&configState);
+        request->response.GetConfigStateResponse(configState);
         request->OnComplete(false);
         return;
     }
@@ -252,7 +252,7 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
             return;
         }
         
-        clusterMessage.SetConfigState(&configState);
+        clusterMessage.SetConfigState(configState);
         CONTEXT_TRANSPORT->SendClusterMessage(nodeID, clusterMessage);
     }
 }
@@ -280,7 +280,7 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             
             // send config state
-            clusterMessage.SetConfigState(&configState);
+            clusterMessage.SetConfigState(configState);
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             return false;
         }
@@ -426,6 +426,7 @@ void Controller::ReadConfigState()
 
 void Controller::WriteConfigState()
 {
+    configStateBuffer.Clear();
     configState.Write(configStateBuffer);
     systemDatabase->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
 }
@@ -557,12 +558,12 @@ void Controller::UpdateListeners()
     // update clients
     for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
     {
-        itRequest->response.GetConfigStateResponse(&configState);
+        itRequest->response.GetConfigStateResponse(configState);
         itRequest->OnComplete(false);
     }
     
     // update shard servers
-    message.SetConfigState(&configState);
+    message.SetConfigState(configState);
     shardServers = &configState.shardServers;
     for (itShardServer = shardServers->First(); 
      itShardServer != NULL; 

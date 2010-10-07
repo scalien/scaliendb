@@ -243,20 +243,20 @@ void Buffer::Clear()
     length = 0;
 }
 
-Buffer::Buffer(const Buffer& /*other*/)
+Buffer::Buffer(const Buffer& other)
 {
-    ASSERT_FAIL();
-//  *this = other;  // call operator=()
+//    ASSERT_FAIL();
+    *this = other;  // call operator=()
 }
 
-Buffer& Buffer::operator=(const Buffer& /*other*/)
+Buffer& Buffer::operator=(const Buffer& other)
 {
-    ASSERT_FAIL();
-//  if (other.size != size)
-//      Allocate(other.size, false);
-//  
-//  memcpy(buffer, other.buffer, other.size);
-//  length = other.length;
-//  
-//  return *this;
+//    ASSERT_FAIL();
+    if (other.size != size)
+      Allocate(other.size, false);
+
+    memcpy(buffer, other.buffer, other.size);
+    length = other.length;
+
+    return *this;
 }

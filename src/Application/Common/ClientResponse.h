@@ -31,7 +31,7 @@ public:
     uint64_t        number;
     uint64_t        commandID;
     ReadBuffer      value;
-    ConfigState*    configState;
+    ConfigState     configState;
 
     ClientResponse();
             
@@ -39,7 +39,7 @@ public:
     bool            OK();
     bool            Number(uint64_t number);
     bool            Value(ReadBuffer& value);
-    bool            GetConfigStateResponse(ConfigState* configState);
+    bool            GetConfigStateResponse(ConfigState& configState);
     bool            NoService();
     bool            Failed();
 };

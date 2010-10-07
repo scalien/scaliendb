@@ -125,8 +125,8 @@ void ContextTransport::OnMessage(uint64_t nodeID, ReadBuffer msg)
 
 void ContextTransport::OnClusterMessage(uint64_t nodeID, ReadBuffer& buffer)
 {
-    ClusterMessage msg;
-    
+    ClusterMessage  msg;
+
     if (!msg.Read(buffer))
     {
         // TODO: this DropConnection() happens in the middle of a OnRead() / OnMessage() loop

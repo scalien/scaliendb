@@ -50,7 +50,10 @@ public:
     uint64_t            nextNodeID;
     
     ConfigState();
+    ConfigState(const ConfigState& other);
     ~ConfigState();
+    
+    ConfigState&        operator=(const ConfigState& other);
     
     void                Init();
     void                Transfer(ConfigState& other);

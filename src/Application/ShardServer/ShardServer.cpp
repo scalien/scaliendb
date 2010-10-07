@@ -19,8 +19,6 @@ void ShardServer::Init()
     const char*     str;
     Endpoint        endpoint;
 
-    configState = NULL;
-    
     databaseDir = configFile.GetValue("database.dir", "db");
     databaseEnv.Open(databaseDir);
     systemDatabase = databaseEnv.GetDatabase(DATABASE_NAME);
@@ -88,7 +86,7 @@ bool ShardServer::IsLeaderKnown(uint64_t quorumID)
     if (quorumData->isPrimary)
         return true;
     
-    configQuorum = configState->GetQuorum(quorumID);
+    configQuorum = configState.GetQuorum(quorumID);
     if (configQuorum == NULL)
         return false;
     
@@ -125,7 +123,7 @@ uint64_t ShardServer::GetLeader(uint64_t quorumID)
     if (quorumData->isPrimary)
         return REPLICATION_CONFIG->GetNodeID();
     
-    configQuorum = configState->GetQuorum(quorumID);
+    configQuorum = configState.GetQuorum(quorumID);
     if (configQuorum == NULL)
         return 0;
     
@@ -212,7 +210,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     ConfigShard*    shard;
     QuorumData*     quorumData;
     
-    shard = configState->GetShard(request->tableID, ReadBuffer(request->key));
+    shard = configState.GetShard(request->tableID, ReadBuffer(request->key));
     if (!shard)
     {
         request->response.Failed();
@@ -261,9 +259,8 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             OnSetConfigState(msg.configState);
-            msg.configState = NULL;
             Log_Trace("got new configState, master is %d", 
-             configState->hasMaster ? (int) configState->masterID : -1);
+             configState.hasMaster ? (int) configState.masterID : -1);
             break;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
             OnReceiveLease(msg.quorumID, msg.proposalID);
@@ -369,7 +366,7 @@ void ShardServer::OnPrimaryLeaseTimeout()
     }
 }
 
-void ShardServer::OnSetConfigState(ConfigState* configState_)
+void ShardServer::OnSetConfigState(ConfigState& configState_)
 {
     QuorumData*             quorum;
     QuorumData*             next;
@@ -379,7 +376,6 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
     uint64_t                nodeID;
     bool                    found;
 
-    delete configState;
     configState = configState_;
     
     nodeID = REPLICATION_CONFIG->GetNodeID();
@@ -387,7 +383,7 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
     // look for removal
     for (quorum = quorums.First(); quorum != NULL; quorum = next)
     {
-        configQuorum = configState->GetQuorum(quorum->quorumID);
+        configQuorum = configState.GetQuorum(quorum->quorumID);
         if (configQuorum == NULL)
         {
             // TODO: quorum has disappeared?
@@ -426,9 +422,9 @@ void ShardServer::OnSetConfigState(ConfigState* configState_)
     }
     
     // check changes in active or inactive node list
-    for (configQuorum = configState->quorums.First();
+    for (configQuorum = configState.quorums.First();
      configQuorum != NULL;
-     configQuorum = configState->quorums.Next(configQuorum))
+     configQuorum = configState.quorums.Next(configQuorum))
     {
         nodes = &configQuorum->activeNodes;
         for (nit = nodes->First(); nit != NULL; nit = nodes->Next(nit))
@@ -475,7 +471,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
         quorums.Append(quorumData);
         for (nit = configQuorum->activeNodes.First(); nit != NULL; nit = configQuorum->activeNodes.Next(nit))
         {
-            shardServer = configState->GetShardServer(*nit);
+            shardServer = configState.GetShardServer(*nit);
             assert(shardServer != NULL);
             CONTEXT_TRANSPORT->AddNode(*nit, shardServer->endpoint);
         }
@@ -517,7 +513,7 @@ void ShardServer::UpdateShards(List<uint64_t>& shards)
 
     for (sit = shards.First(); sit != NULL; sit = shards.Next(sit))
     {
-        shard = configState->GetShard(*sit);
+        shard = configState.GetShard(*sit);
         assert(shard != NULL);
         
         if (!databases.Get(shard->databaseID, database))

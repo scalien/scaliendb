@@ -2,7 +2,6 @@
 
 ClusterMessage::ClusterMessage()
 {
-    configState = NULL;
 }
 
 bool ClusterMessage::SetNodeID(uint64_t nodeID_)
@@ -12,7 +11,7 @@ bool ClusterMessage::SetNodeID(uint64_t nodeID_)
     return true;
 }
 
-bool ClusterMessage::SetConfigState(ConfigState* configState_)
+bool ClusterMessage::SetConfigState(ConfigState& configState_)
 {
     type = CLUSTERMESSAGE_SET_CONFIG_STATE;
     configState = configState_;
@@ -57,8 +56,7 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             type = CLUSTERMESSAGE_SET_CONFIG_STATE;
-            assert(configState != NULL);
-            return configState->Read(buffer, true);
+            return configState.Read(buffer, true);
         case CLUSTERMESSAGE_REQUEST_LEASE:
             read = buffer.Readf("%c:%U:%U:%U:%u",
              &type, &nodeID, &quorumID, &proposalID, &duration);
@@ -85,7 +83,8 @@ bool ClusterMessage::Write(Buffer& buffer)
              type, nodeID);
             return true;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
-            return configState->Write(buffer, true);
+            buffer.Clear();
+            return configState.Write(buffer, true);
         case CLUSTERMESSAGE_REQUEST_LEASE:
             buffer.Writef("%c:%U:%U:%U:%u",
              type, nodeID, quorumID, proposalID, duration);

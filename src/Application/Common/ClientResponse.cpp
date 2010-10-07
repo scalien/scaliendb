@@ -3,7 +3,6 @@
 
 ClientResponse::ClientResponse()
 {
-    configState = NULL;
 }
 
 bool ClientResponse::OK()
@@ -26,7 +25,7 @@ bool ClientResponse::Value(ReadBuffer& value_)
     return true;
 }
 
-bool ClientResponse::GetConfigStateResponse(ConfigState* configState_)
+bool ClientResponse::GetConfigStateResponse(ConfigState& configState_)
 {
     type = CLIENTRESPONSE_GET_CONFIG_STATE;
     configState = configState_;
