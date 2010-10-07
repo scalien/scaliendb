@@ -22,8 +22,9 @@ void ShardServer::Init()
     configState = NULL;
     
     databaseDir = configFile.GetValue("database.dir", "db");
-    systemDatabase.Open(databaseDir, DATABASE_NAME);
-    REPLICATION_CONFIG->Init(systemDatabase.GetTable("system"));
+    databaseEnv.Open(databaseDir);
+    systemDatabase = databaseEnv.GetDatabase(DATABASE_NAME);
+    REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));
 
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;
@@ -72,7 +73,7 @@ void ShardServer::Shutdown()
         delete database;
     }
 
-    systemDatabase.Close();
+    databaseEnv.Close();
 }
 
 bool ShardServer::IsLeaderKnown(uint64_t quorumID)
@@ -561,7 +562,7 @@ StorageTable* ShardServer::GetQuorumTable(uint64_t quorumID)
     
     qname.Writef("%U", quorumID);
     qname.NullTerminate();
-    return systemDatabase.GetTable(qname.GetBuffer());
+    return systemDatabase->GetTable(qname.GetBuffer());
 }
 
 void ShardServer::OnClientRequestGet(ClientRequest* request)

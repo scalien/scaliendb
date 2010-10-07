@@ -6,6 +6,9 @@
 #include "StorageShard.h"
 #include "StorageShardIndex.h"
 
+class StorageDatabase;      // forward
+class StorageEnvironment;   // forward
+
 /*
 ===============================================================================
 
@@ -21,6 +24,8 @@ public:
 
     const char*         GetName();
     uint64_t            GetSize();
+    StorageDatabase*    GetDatabase();
+    StorageEnvironment* GetEnvironment();
     
     void                Open(const char* path, const char* name);
     void                Commit(bool recovery = true, bool flush = true);
@@ -73,6 +78,7 @@ private:
     Buffer              path;
     Buffer              buffer;
     StorageIndexMap     shards;
+    StorageDatabase*    database;
     
     friend class StorageCursor;
     friend class StorageDatabase;

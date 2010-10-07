@@ -7,6 +7,7 @@
 #include "System/Containers/InSortedList.h"
 #include "System/Events/Timer.h"
 #include "Framework/Storage/StorageDatabase.h"
+#include "Framework/Storage/StorageEnvironment.h"
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
@@ -82,7 +83,8 @@ private:
     RequestList         requests;
     RequestList         listenRequests;
     Buffer              configStateBuffer;
-    StorageDatabase     systemDatabase;
+    StorageDatabase*    systemDatabase;
+    StorageEnvironment  databaseEnv;
 };
 
 /*

@@ -17,8 +17,9 @@ void Controller::Init()
     
     primaryLeaseTimeout.SetCallable(MFUNC(Controller, OnPrimaryLeaseTimeout));
  
-    systemDatabase.Open(configFile.GetValue("database.dir", "db"), "system");
-    REPLICATION_CONFIG->Init(systemDatabase.GetTable("system"));
+    databaseEnv.Open(configFile.GetValue("database.dir", "db"));
+    systemDatabase = databaseEnv.GetDatabase("system");
+    REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));
     
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;
@@ -44,7 +45,7 @@ void Controller::Init()
     }
 
     configState.Init();
-    configContext.Init(this, numControllers, systemDatabase.GetTable("paxos"));
+    configContext.Init(this, numControllers, systemDatabase->GetTable("paxos"));
     CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
     
     ReadConfigState();
@@ -54,7 +55,7 @@ void Controller::Shutdown()
 {
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
-    systemDatabase.Close();
+    databaseEnv.Close();
 }
 
 int64_t Controller::GetMaster()
@@ -414,7 +415,7 @@ void Controller::ReadConfigState()
     ReadBuffer  value;
     
     ret =  true;
-    ret &= systemDatabase.GetTable("config")->Get(ReadBuffer("state"), value);
+    ret &= systemDatabase->GetTable("config")->Get(ReadBuffer("state"), value);
     ret &= configState.Read(value);
     if (!ret)
         Log_Message("Starting with empty database...");
@@ -425,7 +426,7 @@ void Controller::ReadConfigState()
 void Controller::WriteConfigState()
 {
     configState.Write(configStateBuffer);
-    systemDatabase.GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
+    systemDatabase->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
 }
 
 void Controller::SendClientResponse(ConfigMessage& message)

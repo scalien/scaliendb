@@ -1,10 +1,10 @@
 #include "StorageTable.h"
+#include "StorageDatabase.h"
 #include "StorageFileHeader.h"
 #include "System/FileSystem.h"
 
 #include <ctype.h>
 
-#define LAST_SHARD_KEY      "\377\377\377\377\377\377\377\377"
 #define FILE_TYPE           "ScalienDB table index"
 #define FILE_VERSION_MAJOR  0
 #define FILE_VERSION_MINOR  1
@@ -41,11 +41,25 @@ uint64_t StorageTable::GetSize()
     return size;
 }
 
+StorageDatabase* StorageTable::GetDatabase()
+{
+    return database;
+}
+
+StorageEnvironment* StorageTable::GetEnvironment()
+{
+    if (database == NULL)
+        return NULL;
+    return database->GetEnvironment();
+}
+
 void StorageTable::Open(const char* dir, const char* name_)
 {
     int64_t recoverySize;
     int64_t tocSize;
     char    sep;
+    
+    database = NULL;
     
     // create table directory
     if (*dir == '\0')
@@ -104,7 +118,6 @@ void StorageTable::Open(const char* dir, const char* name_)
         
         CreateShard(0, startKey);
     }
-
 }
 
 void StorageTable::Commit(bool recovery, bool flush)
