@@ -36,7 +36,11 @@ TEST_DEFINE(TestClientBasic)
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
     ReadBuffer      databaseName = "mediafilter";
+    ReadBuffer      tableName = "users";
+    ReadBuffer      key = "hol";
+    ReadBuffer      value = "value";
     uint64_t        databaseID;
+    uint64_t        tableID;
     int             ret;
     
     ret = client.Init(SIZE(nodes), nodes);
@@ -49,6 +53,17 @@ TEST_DEFINE(TestClientBasic)
         TEST_CLIENT_FAIL();
     
     if (databaseID != 1)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.GetTableID(tableName, databaseID, tableID);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    if (tableID != 1)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.Set(databaseID, tableID, key, value);
+    if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
     return TEST_SUCCESS;

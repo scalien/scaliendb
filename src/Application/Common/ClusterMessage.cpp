@@ -98,6 +98,7 @@ bool ClusterMessage::Write(Buffer& buffer)
              type, nodeID);
             return true;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
+            buffer.Clear();
             return configState.Write(buffer, true);
         case CLUSTERMESSAGE_REQUEST_LEASE:
             buffer.Writef("%c:%U:%U:%U:%u",
