@@ -105,6 +105,61 @@ TEST_DEFINE(TestClientBasic)
     
     delete result;
     
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientSet)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "mediafilter";
+    ReadBuffer      tableName = "users";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    char            keybuf[32];
+    //char            valbuf[32];
+    uint64_t        databaseID;
+    uint64_t        tableID;
+    int             ret;
+    unsigned        num = 1000000;
+    
+    Log_SetTimestamping(true);
+    Log_SetTarget(LOG_TARGET_STDOUT);
+    Log_SetTrace(true);
+    
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(1000);
+    ret = client.GetDatabaseID(databaseName, databaseID);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    if (databaseID != 1)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.GetTableID(tableName, databaseID, tableID);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    if (tableID != 1)
+        TEST_CLIENT_FAIL();
+
+    for (unsigned i = 0; i < num; i++)
+    {
+        snprintf(keybuf, sizeof(keybuf), "%u", i);
+        key.Wrap(keybuf, sizeof(keybuf));
+        value.Wrap(keybuf, sizeof(keybuf));
+        ret = client.Set(databaseID, tableID, key, value);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+
+    client.Shutdown();
+    
     return TEST_SUCCESS;
 }
 
