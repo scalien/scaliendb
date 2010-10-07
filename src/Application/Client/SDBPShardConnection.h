@@ -35,11 +35,13 @@ public:
 
     uint64_t                GetNodeID();
     Endpoint&               GetEndpoint();
+    bool                    IsWritePending();
 
     void                    SetQuorumMembership(uint64_t quorumID);
     void                    ClearQuorumMembership(uint64_t quorumID);
     void                    ClearQuorumMemberships();
-
+    SortedList<uint64_t>&   GetQuorumList();
+    
     // MessageConnection interface
     virtual bool            OnMessage(ReadBuffer& msg);
     virtual void            OnWrite();
@@ -50,6 +52,7 @@ public:
 
 private:
     void                    InvalidateQuorum(uint64_t quorumID);
+    void                    SendQuorumRequests();
 
     Client*                 client;
     uint64_t                nodeID;

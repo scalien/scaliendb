@@ -34,15 +34,19 @@ using namespace SDBPClient;
 TEST_DEFINE(TestClientBasic)
 {
     Client          client;
+    Result*         result;
     const char*     nodes[] = {"localhost:7080"};
     ReadBuffer      databaseName = "mediafilter";
     ReadBuffer      tableName = "users";
     ReadBuffer      key = "hol";
-    ReadBuffer      value = "value";
+    ReadBuffer      resultKey;
+    ReadBuffer      value = "peru";
+    ReadBuffer      resultValue;
     uint64_t        databaseID;
     uint64_t        tableID;
     int             ret;
     
+    Log_SetTimestamping(true);
     Log_SetTarget(LOG_TARGET_STDOUT);
     Log_SetTrace(true);
     
@@ -68,6 +72,38 @@ TEST_DEFINE(TestClientBasic)
     ret = client.Set(databaseID, tableID, key, value);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
+    
+    ret = client.Get(databaseID, tableID, key);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    result = client.GetResult();
+    if (result == NULL)
+        TEST_CLIENT_FAIL();
+    
+    if (result->GetRequestCount() != 1)
+        TEST_CLIENT_FAIL();
+    
+    for (result->Begin(); !result->IsEnd(); result->Next())
+    {
+        ret = result->Key(resultKey);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+        
+        if (ReadBuffer::Cmp(key, resultKey) != 0)
+            TEST_CLIENT_FAIL();
+        
+        ret = result->Value(resultValue);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+            
+        if (ReadBuffer::Cmp(value, resultValue) != 0)
+            TEST_CLIENT_FAIL();
+            
+        TEST_LOG("key: %.*s, value: %.*s", P(&resultKey), P(&resultValue));
+    }
+    
+    delete result;
     
     return TEST_SUCCESS;
 }

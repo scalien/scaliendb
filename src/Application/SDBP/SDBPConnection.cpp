@@ -52,14 +52,18 @@ void SDBPConnection::OnWrite()
     Log_Trace();
     
     MessageConnection::OnWrite();
-    if (!tcpwrite.active)
-        OnClose();
+
+    // TODO: why is it closed?
+//    if (!tcpwrite.active)
+//        OnClose();
 }
 
 void SDBPConnection::OnClose()
 {
     Endpoint remote;
     
+    socket.GetEndpoint(remote);
+
     Log_Trace("numpending: %d", numPending);
     Log_Message("[%s] SDBP: client disconnected", remote.ToString());
 

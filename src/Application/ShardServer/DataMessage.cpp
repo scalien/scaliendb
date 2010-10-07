@@ -26,12 +26,12 @@ bool DataMessage::Read(ReadBuffer& buffer)
     {
         // Data management
         case DATAMESSAGE_SET:
-            read = buffer.Readf("%c:%#R:%#R",
-             &type, &key, &value);
+            read = buffer.Readf("%c:%U:%#R:%#R",
+             &type, &tableID, &key, &value);
             break;
         case DATAMESSAGE_DELETE:
-            read = buffer.Readf("%c:%#R",
-             &type, &key);
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &tableID, &key);
             break;
         default:
             return false;
@@ -46,12 +46,12 @@ bool DataMessage::Write(Buffer& buffer)
     {
         // Cluster management
         case DATAMESSAGE_SET:
-            buffer.Writef("%c:%#R:%#R",
-             type, &key, &value);
+            buffer.Writef("%c:%U:%#R:%#R",
+             type, tableID, &key, &value);
             break;
         case DATAMESSAGE_DELETE:
-            buffer.Writef("%c:%#R",
-             type, &key);
+            buffer.Writef("%c:%U:%#R",
+             type, tableID, &key);
             break;
         default:
             return false;

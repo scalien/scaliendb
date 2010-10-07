@@ -23,7 +23,7 @@ public:
     
     void                SetBuffer(char* buffer);
     void                SetLength(unsigned length);
-    void                Wrap(char* buffer);
+    void                Wrap(const char* buffer);
     void                Wrap(char* buffer, unsigned length);
     void                Wrap(Buffer& buffer);
     

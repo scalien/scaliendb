@@ -54,6 +54,11 @@ Endpoint& ShardConnection::GetEndpoint()
     return endpoint;
 }
 
+bool ShardConnection::IsWritePending()
+{
+    return tcpwrite.active;
+}
+
 void ShardConnection::SetQuorumMembership(uint64_t quorumID)
 {
     // SortedList takes care of unique IDs
@@ -68,6 +73,11 @@ void ShardConnection::ClearQuorumMembership(uint64_t quorumID)
 void ShardConnection::ClearQuorumMemberships()
 {
     quorums.Clear();
+}
+
+SortedList<uint64_t>& ShardConnection::GetQuorumList()
+{
+    return quorums;
 }
 
 bool ShardConnection::OnMessage(ReadBuffer& rbuf)
@@ -126,25 +136,16 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 
 void ShardConnection::OnWrite()
 {
-    uint64_t*   qit;
-
     MessageConnection::OnWrite();
-    
-    for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
-        client->SendQuorumRequests(this, *qit);
+    SendQuorumRequests();
 }
 
 void ShardConnection::OnConnect()
 {
     Log_Trace();
 
-    uint64_t*   qit;
-    
     MessageConnection::OnConnect();
-
-    // notify the client so that it can assign the requests to the connection
-    for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
-        client->SendQuorumRequests(this, *qit);
+    SendQuorumRequests();
 }
 
 void ShardConnection::OnClose()
@@ -182,4 +183,13 @@ void ShardConnection::InvalidateQuorum(uint64_t quorumID)
     }
     
     client->InvalidateQuorum(quorumID);
+}
+
+void ShardConnection::SendQuorumRequests()
+{
+    uint64_t*   qit;
+    
+    // notify the client so that it can assign the requests to the connection
+    for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
+        client->SendQuorumRequest(this, *qit);
 }

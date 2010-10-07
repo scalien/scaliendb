@@ -65,9 +65,10 @@ private:
     typedef InList<Request>                 RequestList;
     typedef InTreeMap<ShardConnection>      ShardConnectionMap;
     typedef HashMap<uint64_t, RequestList*> RequestListMap;
-    friend class    ControllerConnection;
-    friend class    ShardConnection;
-    friend class    Table;
+
+    friend class            ControllerConnection;
+    friend class            ShardConnection;
+    friend class            Table;
     
     void                    EventLoop();
     bool                    IsDone();
@@ -84,7 +85,8 @@ private:
     void                    AssignRequestsToQuorums();
     bool                    GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID);
     void                    AddRequestToQuorum(Request* req, bool end = true);
-    void                    SendQuorumRequests(ShardConnection* conn, uint64_t quorumID);
+    void                    SendQuorumRequest(ShardConnection* conn, uint64_t quorumID);
+    void                    SendQuorumRequests();
     void                    InvalidateQuorum(uint64_t quorumID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
 
