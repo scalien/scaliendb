@@ -172,7 +172,7 @@ void Controller::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.GetConfigStateResponse(&configState);
+        request->response.GetConfigStateResponse(configState);
         request->OnComplete(false);
         return;
     }
@@ -557,7 +557,7 @@ void Controller::UpdateListeners()
     // update clients
     for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
     {
-        itRequest->response.GetConfigStateResponse(&configState);
+        itRequest->response.GetConfigStateResponse(configState);
         itRequest->OnComplete(false);
     }
     

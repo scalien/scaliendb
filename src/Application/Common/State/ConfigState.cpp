@@ -96,7 +96,27 @@ void ConfigState::Init()
 void ConfigState::Transfer(ConfigState& other)
 {
     other.Init();
-    other = *this; // TODO: copy members
+
+    other.nextQuorumID = nextQuorumID;
+    other.nextDatabaseID = nextDatabaseID;
+    other.nextTableID = nextTableID;
+    other.nextShardID = nextShardID;
+    other.nextNodeID = nextNodeID;
+
+    other.hasMaster = hasMaster;
+    other.masterID = masterID;
+    
+    other.quorums = quorums;
+    quorums.ClearMembers();
+    other.databases = databases;
+    databases.ClearMembers();
+    other.tables = tables;
+    tables.ClearMembers();
+    other.shards = shards;
+    shards.ClearMembers();
+    other.shardServers = shardServers;
+    shardServers.ClearMembers();
+
     Init();
 }
 

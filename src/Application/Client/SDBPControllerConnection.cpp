@@ -82,7 +82,6 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
 {
     SDBPResponseMessage msg;
     ClientResponse*     resp;
-    ConfigState         tmpState;
     
     Log_Trace();
     
@@ -162,7 +161,7 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
     delete req;
     
     // copy the config state created on stack in OnMessage
-    resp->configState->Transfer(configState);
+    resp->configState.Transfer(&configState);
     
     client->SetMaster(configState.masterID, nodeID);
     client->SetConfigState(this, &configState);

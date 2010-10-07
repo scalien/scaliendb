@@ -28,9 +28,9 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             if (read <= 0)
                 return false;
             buffer.Advance(read);
-            if (!response->configState->Read(buffer, true))
+            if (!response->configState.Read(buffer, true))
             {
-                response->configState->Init();
+                response->configState.Init();
                 return false;
             }
             return true;
@@ -68,7 +68,7 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         case CLIENTRESPONSE_GET_CONFIG_STATE:
             buffer.Writef("%c:%U:",
              response->type, response->request->commandID);
-            return response->configState->Write(buffer, true);
+            return response->configState.Write(buffer, true);
         case CLIENTRESPONSE_NOSERVICE:
             buffer.Writef("%c:%U",
              response->type, response->request->commandID);
