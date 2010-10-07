@@ -55,7 +55,7 @@ private:
     StorageFileIndex*       Locate(ReadBuffer& key);
     void                    SplitFile(StorageFile* file);
 
-    StorageDataPage*        CursorBegin(ReadBuffer& key, Buffer& nextKey);
+    StorageDataPage*        CursorBegin(StorageCursor* cursor, ReadBuffer& key);
 
     void                    CommitPhase1();
     void                    CommitPhase2();

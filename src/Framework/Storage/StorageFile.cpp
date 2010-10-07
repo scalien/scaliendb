@@ -1,6 +1,7 @@
 #include "StorageFile.h"
 #include "StorageFileHeader.h"
 #include "StorageDataCache.h"
+#include "StorageCursor.h"
 #include "System/FileSystem.h"
 #include "stdio.h"
 
@@ -503,11 +504,11 @@ void StorageFile::WriteData()
     }
 }
 
-StorageDataPage* StorageFile::CursorBegin(ReadBuffer& key, Buffer& nextKey)
+StorageDataPage* StorageFile::CursorBegin(StorageCursor* cursor, ReadBuffer& key)
 {
     int32_t index;
     
-    index = indexPage.Locate(key, &nextKey);
+    index = indexPage.Locate(key, &cursor->nextKey);
     
     if (index < 0)  // file is empty
         return NULL;

@@ -1,24 +1,44 @@
 #include "StorageCursor.h"
+#include "StorageTable.h"
 #include "StorageShard.h"
+
+StorageCursor::StorageCursor(StorageTable* table_)
+{
+    table = table_;
+    shard = NULL;
+    file = NULL;
+    dataPage = NULL;
+    current = NULL;
+}
 
 StorageCursor::StorageCursor(StorageShard* shard_)
 {
+    table = NULL;
     shard = shard_;
+    file = NULL;
     dataPage = NULL;
     current = NULL;
+}
+
+void StorageCursor::SetBulk(bool bulk_)
+{
+    bulk = bulk_;
 }
 
 StorageKeyValue* StorageCursor::Begin(ReadBuffer& key)
 {
     nextKey.Clear();
-    dataPage = shard->CursorBegin(key, nextKey); // sets nextKey
+    if (table)
+        dataPage = table->CursorBegin(this, key);      // sets nextKey
+    else
+        dataPage = shard->CursorBegin(this, key);      // sets nextKey
     
     if (dataPage == NULL)
         return NULL;
     
     dataPage->RegisterCursor(this);
     
-    current = dataPage->BeginIteration(key);
+    current = dataPage->CursorBegin(key);
     if (current != NULL)
         return current;
     
@@ -29,7 +49,7 @@ StorageKeyValue* StorageCursor::Next()
 {
     assert(current != NULL);
     
-    current = dataPage->Next(current);
+    current = dataPage->CursorNext(current);
     
     if (current != NULL)
         return current;
