@@ -168,6 +168,9 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     WriteShards(buffer);
     buffer.Appendf(":");
     WriteShardServers(buffer);
+    
+    Log_Trace("buffer = %.*s", P(&buffer));
+    
     return true;
 }
 

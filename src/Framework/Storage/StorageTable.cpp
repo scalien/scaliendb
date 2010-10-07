@@ -918,6 +918,8 @@ void StorageTable::CommitPhase1()
 {
     StorageShardIndex*  si;
     
+    Log_Trace("name = %s", name.GetBuffer());
+    
     for (si = shards.First(); si != NULL; si = shards.Next(si))
     {
         if (si->shard != NULL)

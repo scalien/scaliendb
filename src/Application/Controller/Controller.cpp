@@ -420,6 +420,7 @@ void Controller::ReadConfigState()
 
 void Controller::WriteConfigState()
 {
+    configStateBuffer.Clear();
     configState.Write(configStateBuffer);
     systemDatabase->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
 }
