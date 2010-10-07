@@ -202,15 +202,15 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
     else
     {
         Log_Trace("Node requested a paxosID I no longer have");
-        omsg.StartCatchup(imsg.paxosID, REPLICATION_CONFIG->GetNodeID());
+        omsg.StartCatchup(paxosID, REPLICATION_CONFIG->GetNodeID());
     }
-    
     context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 }
 
-void ReplicatedLog::OnStartCatchup(PaxosMessage& /*imsg*/)
+void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
 {
-    context->OnStartCatchup();
+    if (imsg.nodeID == context->GetLeader())
+        context->OnStartCatchup();
 }
 
 void ReplicatedLog::OnRequest(PaxosMessage& imsg)
