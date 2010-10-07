@@ -4,7 +4,11 @@ bool CatchupMessage::CatchupRequest(uint64_t nodeID)
 {
 }
 
-bool CatchupMessage::CatchupResponse(ReadBuffer& key, ReadBuffer& value)
+bool CatchupMessage::BeginShard(uint64_t shardID)
+{
+}
+
+bool CatchupMessage::KeyValue(ReadBuffer& key, ReadBuffer& value)
 {
 }
 

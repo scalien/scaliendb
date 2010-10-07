@@ -9,7 +9,8 @@ ReadBuffer::ReadBuffer()
 
 ReadBuffer::ReadBuffer(char* buffer_, unsigned length_)
 {
-    Set(buffer_, length_);
+    buffer = buffer_;
+    length = length_;
 }
 
 ReadBuffer::ReadBuffer(const char* s)
@@ -23,12 +24,6 @@ ReadBuffer::ReadBuffer(Buffer& buffer)
     Wrap(buffer);
 }
 
-void ReadBuffer::Set(char* buffer_, unsigned length_)
-{
-    buffer = buffer_;
-    length = length_;
-}
-
 void ReadBuffer::SetBuffer(char* buffer_)
 {
     buffer = buffer_;
@@ -36,6 +31,18 @@ void ReadBuffer::SetBuffer(char* buffer_)
 
 void ReadBuffer::SetLength(unsigned length_)
 {
+    length = length_;
+}
+
+void ReadBuffer::Wrap(char* buffer_)
+{
+    buffer = buffer_;
+    length = strlen(buffer);
+}
+
+void ReadBuffer::Wrap(char* buffer_, unsigned length_)
+{
+    buffer = buffer_;
     length = length_;
 }
 

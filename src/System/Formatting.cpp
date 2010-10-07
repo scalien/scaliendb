@@ -136,7 +136,7 @@ int VReadf(char* buffer, unsigned length, const char* format, va_list ap)
             else if (format[1] == 'R') // %R no prefix, points to rest
             {
                 rb = va_arg(ap, ReadBuffer*);
-                rb->Set(buffer, length);
+                rb->Wrap(buffer, length);
                 ADVANCE(2, rb->GetLength());
             }
             else if (length >= 3 && format[1] == '#' && format[2] == 'R') // %#R with prefix, points
