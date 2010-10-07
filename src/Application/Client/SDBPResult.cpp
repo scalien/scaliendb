@@ -73,6 +73,9 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
 
 int Result::CommandStatus()
 {
+    if (!requestCursor)
+        return SDBP_API_ERROR;
+        
     return requestCursor->status;
 }
 

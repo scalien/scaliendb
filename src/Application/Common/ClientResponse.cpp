@@ -6,20 +6,6 @@ ClientResponse::ClientResponse()
     configState = NULL;
 }
 
-ClientResponse::~ClientResponse()
-{
-    delete configState;
-}
-
-ConfigState* ClientResponse::TransferConfigState()
-{
-    ConfigState*    ret;
-    
-    ret = configState;
-    configState = NULL;
-    return ret;
-}
-
 bool ClientResponse::OK()
 {
     type = CLIENTRESPONSE_OK;

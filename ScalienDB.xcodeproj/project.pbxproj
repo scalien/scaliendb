@@ -147,7 +147,6 @@
 		9AABC4D31253A301003626AC /* HTTPShardServerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC4D21253A301003626AC /* HTTPShardServerSession.cpp */; };
 		9AABCC6012564924003626AC /* SDBPClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB81E12411592003626AC /* SDBPClient.cpp */; };
 		9AABCC611256492B003626AC /* ConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A71851125636B4001EC082 /* ConfigState.cpp */; };
-		9AABCD421257CF93003626AC /* JSONConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABCD411257CF93003626AC /* JSONConfigState.cpp */; };
 		9AABCD881257D8CE003626AC /* JSONConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABCD411257CF93003626AC /* JSONConfigState.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
@@ -944,7 +943,14 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				English,
+				Japanese,
+				French,
+				German,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* ScalienDB */;
 			productRefGroup = 9AABB212123EA3AF003626AC /* Products */;
 			projectDirPath = "";
@@ -1116,7 +1122,6 @@
 				9AABC194124F4BE5003626AC /* ArrayListTest.cpp in Sources */,
 				9AABCC6012564924003626AC /* SDBPClient.cpp in Sources */,
 				9AABCC611256492B003626AC /* ConfigState.cpp in Sources */,
-				9AABCD421257CF93003626AC /* JSONConfigState.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

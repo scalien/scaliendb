@@ -86,6 +86,7 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     Log_Trace();
     
     resp = new ClientResponse;
+    resp->configState = &configState;
     msg.response = resp;
     if (msg.Read(rbuf))
     {
@@ -93,7 +94,12 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
             delete resp;
     }
     else
+    {
+        // as we use the connection's ConfigState member as a buffer when parsing
+        // the response, it might be corrupted by now, so we invalidate it at the client
+        client->SetConfigState(this, NULL);
         delete resp;
+    }
         
     return false;
 }
@@ -152,7 +158,7 @@ bool ControllerConnection::ProcessResponse(ClientResponse* resp)
 bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
 {
     ClientRequest*  req;
-
+    
     if (resp->configState)
     {
         assert(resp->configState->masterID == nodeID);
@@ -162,7 +168,7 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
         delete req;
         
         client->SetMaster(resp->configState->masterID, nodeID);
-        client->SetConfigState(resp->TransferConfigState());
+        client->SetConfigState(this, resp->configState);
     }
     return false;
 }
