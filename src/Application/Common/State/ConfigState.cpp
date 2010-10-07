@@ -45,22 +45,18 @@ void ConfigState::Init()
     hasMaster = false;
     masterID = 0;
     
-    quorums.Clear();
-    databases.Clear();
-    tables.Clear();
-    shards.Clear();
-    shardServers.Clear();
+    quorums.DeleteList();
+    databases.DeleteList();
+    tables.DeleteList();
+    shards.DeleteList();
+    shardServers.DeleteList();
 }
 
 void ConfigState::Transfer(ConfigState& other)
 {
     other = *this;
 
-    quorums.ClearMembers();
-    databases.ClearMembers();
-    tables.ClearMembers();
-    shards.ClearMembers();
-    shardServers.ClearMembers();
+    Init();
 }
 
 bool ConfigState::CompleteMessage(ConfigMessage& message)

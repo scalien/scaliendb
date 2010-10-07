@@ -1,4 +1,5 @@
 #include "QuorumDatabase.h"
+#include "Framework/Storage/StorageEnvironment.h"
 
 void QuorumDatabase::Init(StorageTable* table_)
 {
@@ -153,7 +154,7 @@ bool QuorumDatabase::IsActive()
 
 void QuorumDatabase::Commit()
 {
-    table->Commit();
+    table->GetEnvironment()->Commit();
 }
 
 uint64_t QuorumDatabase::GetUint64(const char* name)
