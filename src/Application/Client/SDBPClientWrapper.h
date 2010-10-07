@@ -25,15 +25,15 @@ typedef void * ResultObj;
 
 struct SDBP_NodeParams
 {
-	SDBP_NodeParams(int nodec_);
-	~SDBP_NodeParams();
+    SDBP_NodeParams(int nodec_);
+    ~SDBP_NodeParams();
 
-	void        Close();
-	void        AddNode(const std::string& node);
+    void        Close();
+    void        AddNode(const std::string& node);
 
-	int         nodec;
-	char**      nodes;
-	int         num;
+    int         nodec;
+    char**      nodes;
+    int         num;
 };
 
 
