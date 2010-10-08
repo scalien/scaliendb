@@ -60,8 +60,11 @@ void Controller::Shutdown()
     databaseEnv.Close();
 }
 
+
 int64_t Controller::GetMaster()
 {
+    if (!configContext.IsLeaderKnown())
+        return -1;
     return (int64_t) configContext.GetLeader();
 }
 

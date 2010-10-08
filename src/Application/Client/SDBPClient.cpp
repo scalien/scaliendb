@@ -565,7 +565,12 @@ void Client::ConnectShardServers()
         }
         else
         {
-            assert(ssit->endpoint == shardConn->GetEndpoint());
+            Log_Trace("ssit: %s, shardConn: %s", ssit->endpoint.ToString(), shardConn->GetEndpoint().ToString());
+            // TODO: remove this hack when shardserver's endpoint will be sent correctly in configState
+            Endpoint    endpoint;
+            endpoint = ssit->endpoint;
+            endpoint.SetPort(endpoint.GetPort() + 1);
+            assert(endpoint == shardConn->GetEndpoint());
             shardConn->ClearQuorumMemberships();
         }
     }

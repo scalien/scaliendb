@@ -155,9 +155,9 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
     ClientRequest*  req;
     
     assert(resp->configState.masterID == nodeID);
+    EventLoop::Remove(&getConfigStateTimeout);
     
     req = RemoveRequest(resp->commandID);
-    assert(req != NULL);
     delete req;
     
     // copy the config state created on stack in OnMessage
