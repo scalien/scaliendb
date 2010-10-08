@@ -42,6 +42,8 @@ ConfigState::~ConfigState()
 
 ConfigState& ConfigState::operator=(const ConfigState& other)
 {
+    Log_Trace();
+    
     ConfigQuorum*       quorum;
     ConfigDatabase*     database;
     ConfigTable*        table;
