@@ -75,6 +75,11 @@ uint64_t Controller::GetNodeID()
     return REPLICATION_CONFIG->GetNodeID();
 }
 
+uint64_t Controller::GetReplicationRound()
+{
+    return configContext.GetPaxosID();
+}
+
 ConfigState* Controller::GetConfigState()
 {
     return &configState;

@@ -90,6 +90,10 @@ void HTTPControllerSession::PrintStatus()
     buf.Writef("%d", (int) controller->GetMaster());
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
+
+    buf.Writef("%d", (int) controller->GetReplicationRound());
+    buf.NullTerminate();
+    session.PrintPair("Round", buf.GetBuffer());
     
     session.PrintPair("Controllers", configFile.GetValue("controllers", ""));
     
