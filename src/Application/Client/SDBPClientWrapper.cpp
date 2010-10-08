@@ -41,6 +41,39 @@ void SDBP_NodeParams::AddNode(const std::string& node)
 	nodes[num++] = strdup(node.c_str());
 }
 
+/*
+===============================================================================================
+
+ Result functions
+
+===============================================================================================
+*/
+
+void SDBP_ResultClose(ResultObj result_)
+{
+    Result* result = (Result*) result_;
+    
+    delete result;
+}
+
+std::string SDBP_ResultValue(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    std::string ret;
+    ReadBuffer  value;
+    int         status;
+    
+    if (!result)
+        return ret;
+    
+    status = result->Value(value);
+    if (status < 0)
+        return ret;
+    
+    ret.append(value.GetBuffer(), value.GetLength());
+    
+    return ret;
+}
 
 /*
 ===============================================================================================
@@ -156,4 +189,31 @@ int SDBP_Delete(ClientObj client_, uint64_t databaseID, uint64_t tableID, const 
     ReadBuffer  key = key_.c_str();
 
     return client->Delete(databaseID, tableID, key);
+}
+
+/*
+===============================================================================================
+
+ Grouping commands
+
+===============================================================================================
+*/
+
+bool SDBP_IsBatched(ClientObj client_)
+{
+    // TODO:
+    return false;
+}
+
+/*
+===============================================================================================
+
+ Debugging
+
+===============================================================================================
+*/
+
+void SDBP_SetTrace(bool trace)
+{
+    Log_SetTrace(trace);
 }
