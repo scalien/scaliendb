@@ -5,6 +5,8 @@
 #include "System/Buffers/Buffer.h"
 #include "Framework/Storage/StorageTable.h"
 
+#define DEFAULT_RLOG_CACHE_SIZE     100*1000
+
 /*
 ===============================================================================
 
@@ -16,7 +18,7 @@
 class QuorumDatabase
 {
 public:
-    void                Init(StorageTable* table);
+    void                Init(StorageTable* table, uint64_t logCacheSize);
 
     uint64_t            GetPaxosID();
     void                SetPaxosID(uint64_t paxosID);
@@ -47,7 +49,10 @@ private:
     uint64_t            GetUint64(const char* name);
     void                SetUint64(const char* name, uint64_t value);
     
+    void                DeleteOldRounds(uint64_t paxosID);
+    
     StorageTable*       table;
+    uint64_t            logCacheSize;
 };
 
 #endif

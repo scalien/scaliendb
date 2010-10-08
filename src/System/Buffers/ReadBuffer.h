@@ -36,6 +36,8 @@ public:
     
     void                Advance(unsigned i);
     
+    bool                BeginsWith(const char* s);
+    
     static bool         LessThan(const ReadBuffer& a, const ReadBuffer& b);
     static int          Cmp(const ReadBuffer& a, const ReadBuffer& b);
     

@@ -1,10 +1,11 @@
 #include "QuorumDatabase.h"
 #include "Framework/Storage/StorageEnvironment.h"
 
-void QuorumDatabase::Init(StorageTable* table_)
+void QuorumDatabase::Init(StorageTable* table_, uint64_t logCacheSize_)
 {
     assert(table_ != NULL);
     table = table_;
+    logCacheSize = logCacheSize_;
 }
 
 uint64_t QuorumDatabase::GetPaxosID()
@@ -191,4 +192,34 @@ void QuorumDatabase::SetUint64(const char* name, uint64_t u64)
     value.Wrap(tmp);
 
     ret = table->Set(key, value);
+}
+
+void QuorumDatabase::DeleteOldRounds(uint64_t paxosID)
+{
+    uint64_t            oldPaxosID;
+    int                 read;
+    Buffer              key;
+    StorageKeyValue*    kv;
+    StorageCursor       cursor(table);
+    
+    // start at key "round:"
+    // and delete up to "round:<paxosID - logCacheSize>"
+    
+    key.Writef("round:");
+    kv = cursor.Begin(ReadBuffer(key));
+    
+    while (kv->key.BeginsWith("round:"))
+    {
+        read = kv->key.Readf("round:%U", &oldPaxosID);
+        if (read < 7)
+            break;
+        if (oldPaxosID < (paxosID - logCacheSize))
+            table->Delete(key);
+        else
+            break;
+    }
+    
+    cursor.Close();
+    
+    Commit();
 }

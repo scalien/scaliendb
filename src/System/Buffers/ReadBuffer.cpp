@@ -94,3 +94,18 @@ void ReadBuffer::Advance(unsigned i)
     
     assert(length >= 0);
 }
+
+bool ReadBuffer::BeginsWith(const char* s)
+{
+    unsigned len;
+    
+    len = strlen(s);
+    
+    if (len < length)
+        return false;
+
+    if (strncmp(s, buffer, len) == 0)
+        return true;
+    else
+        return false;
+}

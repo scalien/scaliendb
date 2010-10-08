@@ -6,7 +6,7 @@
 #include "Controller.h"
 
 void ConfigContext::Init(Controller* controller_, unsigned numControllers, 
- StorageTable* quorumTable)
+ StorageTable* quorumTable, uint64_t logCacheSize)
 {
     uint64_t nodeID;
     
@@ -20,7 +20,7 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(quorumTable);
+    database.Init(quorumTable, logCacheSize);
     
     replicatedLog.Init(this);
     paxosLease.Init(this);

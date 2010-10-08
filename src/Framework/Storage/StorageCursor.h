@@ -22,10 +22,10 @@ public:
     StorageCursor(StorageShard* shard);
     
     void                    SetBulk(bool bulk);
-    StorageKeyValue*        Begin(ReadBuffer& key);
+    StorageKeyValue*        Begin(ReadBuffer key);
     StorageKeyValue*        Next();
     void                    Close();
-    
+        
     StorageCursor*          next;
     StorageCursor*          prev;
     

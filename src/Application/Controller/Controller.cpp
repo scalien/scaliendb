@@ -12,6 +12,7 @@ void Controller::Init()
     unsigned        numControllers;
     int64_t         nodeID;
     uint64_t        runID;
+    uint64_t        logCacheSize;
     const char*     str;
     Endpoint        endpoint;
     
@@ -47,7 +48,8 @@ void Controller::Init()
     }
 
     configState.Init();
-    configContext.Init(this, numControllers, systemDatabase->GetTable("paxos"));
+    logCacheSize = configFile.GetIntValue("rlog.cacheSize", DEFAULT_RLOG_CACHE_SIZE);
+    configContext.Init(this, numControllers, systemDatabase->GetTable("paxos"), logCacheSize);
     CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
     
     ReadConfigState();
