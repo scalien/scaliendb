@@ -3,7 +3,6 @@
 
 - one or more PaxosLease instances? - one or more ReplicatedLog instances?
   + we need MANY because of timers
-- contextID vs. logID vs. quorumID
 
 - writev vectored write optimalizations
 
@@ -38,7 +37,7 @@
 data:
 -----
 - if not exists: create db
-- context with contextID 1
+- context with quorumID 1
 - register with controllers
 - ChunkDB: GET / SET
 - HTTP 
@@ -61,7 +60,7 @@ controller:
 
 NOW:
 - get rid of MessageWriter style prefix in Write
-  instead have Messages know about contextID by context->GetContextID()
+  instead have Messages know about quorumID by context->GetQuorumID()
 
 - Get in SortedList
 - get rid of function consts

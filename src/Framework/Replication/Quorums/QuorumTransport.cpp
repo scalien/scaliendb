@@ -6,17 +6,17 @@ void QuorumTransport::SetQuorum(Quorum* quorum_)
     quorum = quorum_;
 }
 
-void QuorumTransport::SetContextID(uint64_t contextID_)
+void QuorumTransport::SetQuorumID(uint64_t quorumID_)
 {
-    contextID = contextID_;
+    quorumID = quorumID_;
 }
 
 void QuorumTransport::SendMessage(uint64_t nodeID, Message& msg, bool priority)
 {
     if (priority)
-        return CONTEXT_TRANSPORT->SendPriorityQuorumMessage(nodeID, contextID, msg);
+        return CONTEXT_TRANSPORT->SendPriorityQuorumMessage(nodeID, quorumID, msg);
     else
-        return CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, contextID, msg);
+        return CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 }
 
 void QuorumTransport::BroadcastMessage(Message& msg, bool priority)
@@ -32,8 +32,8 @@ void QuorumTransport::BroadcastMessage(Message& msg, bool priority)
     {
         nodeID = nodes[i];
         if (priority)
-            CONTEXT_TRANSPORT->SendPriorityQuorumMessage(nodeID, contextID, msg);
+            CONTEXT_TRANSPORT->SendPriorityQuorumMessage(nodeID, quorumID, msg);
         else
-            CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, contextID, msg);
+            CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
     }
 }

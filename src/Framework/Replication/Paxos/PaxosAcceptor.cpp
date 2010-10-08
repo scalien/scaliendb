@@ -19,6 +19,12 @@ void PaxosAcceptor::OnMessage(PaxosMessage& imsg)
         ASSERT_FAIL();
 }
 
+void PaxosAcceptor::OnCatchupComplete()
+{
+    state.Init();
+    WriteState();
+}
+
 void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
 {
     Log_Trace();

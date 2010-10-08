@@ -26,7 +26,7 @@ public:
     virtual void                OnLearnLease()                                  = 0;
     virtual void                OnLeaseTimeout()                                = 0;
 
-    virtual uint64_t            GetContextID()                                  = 0;
+    virtual uint64_t            GetQuorumID()                                  = 0;
     virtual void                SetPaxosID(uint64_t paxosID)                    = 0;
     virtual uint64_t            GetPaxosID()                                    = 0;
     virtual uint64_t            GetHighestPaxosID()                             = 0;
@@ -40,6 +40,10 @@ public:
     virtual void                OnAppend(ReadBuffer value, bool ownAppend)      = 0;
     virtual void                OnMessage(ReadBuffer msg)                       = 0;
     virtual void                OnStartCatchup()                                = 0;
+    virtual void                OnCatchupComplete()                             = 0;
+
+    virtual void                StopReplication()                               = 0;
+    virtual void                ContinueReplication()                           = 0;
 };
 
 #endif

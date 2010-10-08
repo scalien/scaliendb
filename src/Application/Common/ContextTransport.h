@@ -34,11 +34,11 @@ public:
     ClusterContext* GetClusterContext();
 
     void            AddQuorumContext(QuorumContext* context);
-    QuorumContext*  GetQuorumContext(uint64_t contextID);
+    QuorumContext*  GetQuorumContext(uint64_t quorumID);
 
     void            SendClusterMessage(uint64_t nodeID, Message& msg);
-    void            SendQuorumMessage(uint64_t nodeID, uint64_t contextID, Message& msg);
-    void            SendPriorityQuorumMessage(uint64_t nodeID, uint64_t contextID, Message& msg);   
+    void            SendQuorumMessage(uint64_t nodeID, uint64_t quorumID, Message& msg);
+    void            SendPriorityQuorumMessage(uint64_t nodeID, uint64_t quorumID, Message& msg);   
     
 private:
     ContextTransport();

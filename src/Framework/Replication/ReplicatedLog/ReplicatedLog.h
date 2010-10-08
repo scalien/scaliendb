@@ -30,6 +30,7 @@ public:
     void                    OnMessage();
     bool                    IsAppending();
     
+    void                    OnCatchupComplete();
     void                    OnLearnLease();
     void                    OnLeaseTimeout();
 

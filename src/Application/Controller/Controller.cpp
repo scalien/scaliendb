@@ -154,10 +154,12 @@ void Controller::OnStartCatchup()
     if (!configContext.IsLeaderKnown())
         return;
     
+    configContext.StopReplication();
+    
     msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID());
     
     CONTEXT_TRANSPORT->SendQuorumMessage(
-     configContext.GetLeader(), configContext.GetContextID(), msg);
+     configContext.GetLeader(), configContext.GetQuorumID(), msg);
      
     catchingUp = true;
     
@@ -183,9 +185,9 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
             configState.Write(buffer);
             value.Wrap(buffer);
             omsg.KeyValue(key, value);
-            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetContextID(), omsg);
-            omsg.Commit(configContext.GetPaxosID());
-            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetContextID(), omsg);
+            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
+            omsg.Commit(configContext.GetPaxosID() - 1);
+            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
             break;
         case CATCHUPMESSAGE_BEGIN_SHARD:
             ASSERT_FAIL();
@@ -204,6 +206,9 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
             if (!catchingUp)
                 return;
             configContext.SetPaxosID(imsg.paxosID);
+            configContext.OnCatchupComplete();      // this commits
+            catchingUp = false;
+            configContext.ContinueReplication();
             break;
         default:
             ASSERT_FAIL();

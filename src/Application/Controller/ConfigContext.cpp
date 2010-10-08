@@ -12,22 +12,24 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers,
     
     controller = controller_;
     
-    contextID = 0;
+    quorumID = 0;
     for (nodeID = 0; nodeID < numControllers; nodeID++)
         quorum.AddNode(nodeID);
 
 //  transport.SetPriority(); // TODO
     transport.SetQuorum(&quorum);
-    transport.SetContextID(contextID);
+    transport.SetQuorumID(quorumID);
     
     database.Init(quorumTable);
     
     replicatedLog.Init(this);
     paxosLease.Init(this);
-    transport.SetContextID(contextID);
+    transport.SetQuorumID(quorumID);
     highestPaxosID = 0; 
 
     paxosLease.AcquireLease();
+
+    replicationActive = true;
 }
 
 void ConfigContext::Append(ConfigMessage* message)
@@ -70,9 +72,9 @@ void ConfigContext::OnLeaseTimeout()
     controller->OnLeaseTimeout();
 }
 
-uint64_t ConfigContext::GetContextID()
+uint64_t ConfigContext::GetQuorumID()
 {
-    return contextID;
+    return quorumID;
 }
 
 void ConfigContext::SetPaxosID(uint64_t paxosID)
@@ -156,6 +158,19 @@ void ConfigContext::OnStartCatchup()
     controller->OnStartCatchup();
 }
 
+void ConfigContext::OnCatchupComplete()
+{
+    replicatedLog.OnCatchupComplete();
+}
+
+void ConfigContext::StopReplication()
+{
+}
+
+void ConfigContext::ContinueReplication()
+{
+}
+
 void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
     PaxosLeaseMessage msg;
@@ -165,16 +180,23 @@ void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
     msg.Read(buffer);
     if (msg.type == PAXOSLEASE_PREPARE_REQUEST || msg.type == PAXOSLEASE_LEARN_CHOSEN)
     {
-        RegisterPaxosID(msg.paxosID);
-        replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
+        if (replicationActive)
+        {
+            RegisterPaxosID(msg.paxosID);
+            replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
+        }
     }
     paxosLease.OnMessage(msg);
     // TODO: right now PaxosLeaseLearner will not call back
 }
 
+
 void ConfigContext::OnPaxosMessage(ReadBuffer buffer)
 {
     PaxosMessage msg;
+ 
+    if (!replicationActive)
+        return;
     
     msg.Read(buffer);
     RegisterPaxosID(msg.paxosID);

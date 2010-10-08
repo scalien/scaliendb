@@ -41,17 +41,17 @@ ClusterContext* ContextTransport::GetClusterContext()
 
 void ContextTransport::AddQuorumContext(QuorumContext* context)
 {
-    uint64_t contextID = context->GetContextID();
-    contextMap.Set(contextID, context);
+    uint64_t quorumID = context->GetQuorumID();
+    contextMap.Set(quorumID, context);
 }
 
-QuorumContext* ContextTransport::GetQuorumContext(uint64_t contextID)
+QuorumContext* ContextTransport::GetQuorumContext(uint64_t quorumID)
 {
     QuorumContext* pcontext;
     
-    assert(contextMap.HasKey(contextID));
+    assert(contextMap.HasKey(quorumID));
     pcontext = NULL;
-    contextMap.Get(contextID, pcontext);
+    contextMap.Get(quorumID, pcontext);
     
     return pcontext;
 }
@@ -64,19 +64,19 @@ void ContextTransport::SendClusterMessage(uint64_t nodeID, Message& msg)
     ClusterTransport::SendPriorityMessage(nodeID, prefix, msg);
 }
 
-void ContextTransport::SendQuorumMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
+void ContextTransport::SendQuorumMessage(uint64_t nodeID, uint64_t quorumID, Message& msg)
 {
     Buffer prefix;
     
-    prefix.Writef("%c:%U", PROTOCOL_QUORUM, contextID);
+    prefix.Writef("%c:%U", PROTOCOL_QUORUM, quorumID);
     ClusterTransport::SendMessage(nodeID, prefix, msg);
 }
 
-void ContextTransport::SendPriorityQuorumMessage(uint64_t nodeID, uint64_t contextID, Message& msg)
+void ContextTransport::SendPriorityQuorumMessage(uint64_t nodeID, uint64_t quorumID, Message& msg)
 {
     Buffer prefix;
     
-    prefix.Writef("%c:%U", PROTOCOL_QUORUM, contextID);
+    prefix.Writef("%c:%U", PROTOCOL_QUORUM, quorumID);
     ClusterTransport::SendPriorityMessage(nodeID, prefix, msg);
 }
 
@@ -141,13 +141,13 @@ void ContextTransport::OnClusterMessage(uint64_t nodeID, ReadBuffer& buffer)
 void ContextTransport::OnQuorumMessage(ReadBuffer& msg)
 {
     int         nread;
-    uint64_t    contextID;
+    uint64_t    quorumID;
 
-    nread = msg.Readf("%U:", &contextID);
+    nread = msg.Readf("%U:", &quorumID);
     if (nread < 2)
         ASSERT_FAIL();
     
     msg.Advance(nread);
 
-    GetQuorumContext(contextID)->OnMessage(msg);
+    GetQuorumContext(quorumID)->OnMessage(msg);
 }

@@ -246,6 +246,12 @@ void ReplicatedLog::NewPaxosRound()
     acceptor.state.OnNewPaxosRound();
 }
 
+void ReplicatedLog::OnCatchupComplete()
+{
+    acceptor.OnCatchupComplete();
+    NewPaxosRound();
+}
+
 void ReplicatedLog::OnLearnLease()
 {
     Log_Trace("context->IsLeader()   = %s", (context->IsLeader() ? "true" : "false"));

@@ -39,7 +39,7 @@ public:
     virtual void                    OnLearnLease();
     virtual void                    OnLeaseTimeout();
 
-    virtual uint64_t                GetContextID();
+    virtual uint64_t                GetQuorumID();
     virtual void                    SetPaxosID(uint64_t paxosID);
     virtual uint64_t                GetPaxosID();
     virtual uint64_t                GetHighestPaxosID();
@@ -52,6 +52,10 @@ public:
     virtual Buffer*                 GetNextValue();
     virtual void                    OnMessage(ReadBuffer msg);
     virtual void                    OnStartCatchup();
+    virtual void                    OnCatchupComplete();
+
+    virtual void                    StopReplication();
+    virtual void                    ContinueReplication();
     // ========================================================================================
 
 private:
@@ -63,7 +67,7 @@ private:
     QuorumDatabase                  database;
     QuorumTransport                 transport;
     ReplicatedLog                   replicatedLog;
-    uint64_t                        contextID;
+    uint64_t                        quorumID;
     uint64_t                        highestPaxosID;
     Buffer                          nextValue;
 };

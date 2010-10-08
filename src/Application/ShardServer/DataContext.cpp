@@ -7,18 +7,18 @@ void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
  StorageTable* table_)
 {
     shardServer = shardServer_;
-    contextID = configQuorum->quorumID;
+    quorumID = configQuorum->quorumID;
   
     UpdateConfig(configQuorum);
     
 //  transport.SetPriority(); // TODO
     transport.SetQuorum(&quorum);
-    transport.SetContextID(contextID);
+    transport.SetQuorumID(quorumID);
     
     database.Init(table_);
     
     replicatedLog.Init(this);
-    transport.SetContextID(contextID);
+    transport.SetQuorumID(quorumID);
     highestPaxosID = 0; 
 }
 
@@ -45,17 +45,17 @@ bool DataContext::IsAppending()
 
 bool DataContext::IsLeaderKnown()
 {
-    return shardServer->IsLeaderKnown(contextID);
+    return shardServer->IsLeaderKnown(quorumID);
 }
 
 bool DataContext::IsLeader()
 {
-    return shardServer->IsLeader(contextID);
+    return shardServer->IsLeader(quorumID);
 }
 
 uint64_t DataContext::GetLeader()
 {
-    return shardServer->GetLeader(contextID);
+    return shardServer->GetLeader(quorumID);
 }
 
 void DataContext::OnLearnLease()
@@ -69,9 +69,9 @@ void DataContext::OnLeaseTimeout()
     replicatedLog.OnLeaseTimeout();
 }
 
-uint64_t DataContext::GetContextID()
+uint64_t DataContext::GetQuorumID()
 {
-    return contextID;
+    return quorumID;
 }
 
 void DataContext::SetPaxosID(uint64_t paxosID)
@@ -111,7 +111,7 @@ void DataContext::OnAppend(ReadBuffer value, bool ownAppend)
     nextValue.Clear();
 
     assert(message.Read(value));
-    shardServer->OnAppend(contextID, message, ownAppend);
+    shardServer->OnAppend(quorumID, message, ownAppend);
 }
 
 Buffer* DataContext::GetNextValue()
@@ -123,6 +123,21 @@ Buffer* DataContext::GetNextValue()
 }
 
 void DataContext::OnStartCatchup()
+{
+    // TODO: xxx
+}
+
+void DataContext::OnCatchupComplete()
+{
+    // TODO: xxx
+}
+
+void DataContext::StopReplication()
+{
+    // TODO: xxx
+}
+
+void DataContext::ContinueReplication()
 {
     // TODO: xxx
 }

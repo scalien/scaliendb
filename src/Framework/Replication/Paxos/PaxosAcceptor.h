@@ -22,6 +22,7 @@ class PaxosAcceptor
 public:
     void                        Init(QuorumContext* context);
     void                        OnMessage(PaxosMessage& msg);
+    void                        OnCatchupComplete();
 
 private:
     void                        OnPrepareRequest(PaxosMessage& msg);

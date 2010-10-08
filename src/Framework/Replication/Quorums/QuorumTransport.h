@@ -16,13 +16,13 @@ class QuorumTransport
 {
 public:
     void                    SetQuorum(Quorum* quorum);
-    void                    SetContextID(uint64_t contextID);
+    void                    SetQuorumID(uint64_t quorumID);
     
     void                    SendMessage(uint64_t nodeID, Message& msg, bool priority = false);
     void                    BroadcastMessage(Message& msg, bool priority = false);
 
 private:
-    uint64_t                contextID;
+    uint64_t                quorumID;
     Buffer                  prefix;
     Quorum*                 quorum;
 };
