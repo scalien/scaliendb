@@ -9,7 +9,7 @@
 #include "PaxosLeaseLearner.h"
 
 #define PAXOSLEASE_ACQUIRELEASE_TIMEOUT     2000    // msec
-#define PAXOSLEASE_MAX_LEASE_TIME           7000    // msec
+#define PAXOSLEASE_MAX_LEASE_TIME           3000    // msec
 
 /*
 ===============================================================================

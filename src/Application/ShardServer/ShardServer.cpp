@@ -452,17 +452,20 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
     uint64_t*           nit;
     uint64_t            quorumID;
     uint64_t            nodeID;
+    uint64_t            logCacheSize;
     
     nodeID = REPLICATION_CONFIG->GetNodeID();
     quorumID = configQuorum->quorumID;
     
+    logCacheSize = configFile.GetIntValue("rlog.cacheSize", DEFAULT_RLOG_CACHE_SIZE);
+
     quorumData = LocateQuorum(quorumID);
     if (active && quorumData == NULL)
     {
         quorumData = new QuorumData;
         quorumData->quorumID = quorumID;
         quorumData->proposalID = 0;
-        quorumData->context.Init(this, configQuorum, GetQuorumTable(quorumID));
+        quorumData->context.Init(this, configQuorum, GetQuorumTable(quorumID), logCacheSize);
         quorumData->leaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
         quorumData->isPrimary = false;
         quorumData->isActive = true;

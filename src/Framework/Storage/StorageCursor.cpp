@@ -25,7 +25,7 @@ void StorageCursor::SetBulk(bool bulk_)
     bulk = bulk_;
 }
 
-StorageKeyValue* StorageCursor::Begin(ReadBuffer& key)
+StorageKeyValue* StorageCursor::Begin(ReadBuffer key)
 {
     nextKey.Clear();
     if (table)

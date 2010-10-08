@@ -4,7 +4,7 @@
 #include "ShardServer.h"
 
 void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
- StorageTable* table_)
+ StorageTable* table_, uint64_t logCacheSize)
 {
     shardServer = shardServer_;
     quorumID = configQuorum->quorumID;
@@ -15,7 +15,7 @@ void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(table_);
+    database.Init(table_, logCacheSize);
     
     replicatedLog.Init(this);
     transport.SetQuorumID(quorumID);

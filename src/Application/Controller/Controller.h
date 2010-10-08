@@ -37,6 +37,7 @@ public:
 
     int64_t             GetMaster();
     uint64_t            GetNodeID();
+    uint64_t            GetReplicationRound();
     ConfigState*        GetConfigState();
 
     // For ConfigContext
