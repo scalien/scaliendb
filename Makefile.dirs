@@ -4,11 +4,14 @@ $(BUILD_DIR):
 		$(BUILD_DIR)/Test/ \
 		$(BUILD_DIR)/Application/ \
 		$(BUILD_DIR)/Application/Common/ \
+		$(BUILD_DIR)/Application/Common/State \
 		$(BUILD_DIR)/Application/HTTP/ \
 		$(BUILD_DIR)/Application/SDBP/ \
 		$(BUILD_DIR)/Application/Controller/ \
 		$(BUILD_DIR)/Application/Controller/State \
 		$(BUILD_DIR)/Application/ShardServer/ \
+		$(BUILD_DIR)/Application/Client/ \
+		$(BUILD_DIR)/Application/Client/Python \
 		$(BUILD_DIR)/Framework/Clustering/ \
 		$(BUILD_DIR)/Framework/Messaging/ \
 		$(BUILD_DIR)/Framework/Replication/ \

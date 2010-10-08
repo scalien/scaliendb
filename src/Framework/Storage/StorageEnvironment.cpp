@@ -61,7 +61,7 @@ void StorageEnvironment::Commit(bool recovery, bool flush)
         FOREACH (it, databases)
             it->CommitPhase1();
 
-        // TODO: if the OS supports write barriers, then this is not necessary!
+        // TODO: if the OS supports write barriers, then this sync not necessary!
         if (flush)
             FS_Sync();
     }
@@ -79,5 +79,5 @@ void StorageEnvironment::Commit(bool recovery, bool flush)
     }
     
     FOREACH (it, databases)
-    it->CommitPhase4();
+        it->CommitPhase4();
 }

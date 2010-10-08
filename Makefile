@@ -105,6 +105,7 @@ endif
 
 include Makefile.dirs
 include Makefile.objects
+include Makefile.clientlib
 
 KEYSPACE_LIBS =
 	
@@ -128,15 +129,15 @@ TEST_OBJECTS = \
 	$(BUILD_DIR)/Test/ScalienDBClientTest.o
 
 SWIG_WRAPPER_OBJECT = \
-	$(BUILD_DIR)/Application/Keyspace/Client/KeyspaceClientWrap.o
+	$(BUILD_DIR)/Application/Client/SDBPClientWrapper.o
 
 CLIENT_DIR = \
-	Application/Keyspace/Client
+	Application/Client
 
 CLIENT_WRAPPER_FILES = \
 	$(SRC_DIR)/$(CLIENT_DIR)/scaliendb_client.i \
-	$(SRC_DIR)/$(CLIENT_DIR)/ScalienDBClientWrap.h \
-	$(SRC_DIR)/$(CLIENT_DIR)/ScalienDBClientWrap.cpp
+	$(SRC_DIR)/$(CLIENT_DIR)/SDBPClientWrapper.h \
+	$(SRC_DIR)/$(CLIENT_DIR)/SDBPClientWrapper.cpp
 	
 CLIENTLIBS = \
 	$(BIN_DIR)/$(ALIB) \
