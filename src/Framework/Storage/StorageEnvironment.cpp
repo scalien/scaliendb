@@ -56,6 +56,28 @@ void StorageEnvironment::Commit(bool recovery, bool flush)
 {
     StorageDatabase*    it;
     
+    if (recovery)
+    {
+        FOREACH (it, databases)
+            it->CommitPhase1();
+
+        // TODO: if the OS supports write barriers, then this is not necessary!
+        if (flush)
+            FS_Sync();
+    }
+    
     FOREACH (it, databases)
-        it->Commit(recovery, flush);
+        it->CommitPhase2();
+
+    if (flush)
+        FS_Sync();
+    
+    if (recovery)
+    {
+        FOREACH (it, databases)
+            it->CommitPhase3();
+    }
+    
+    FOREACH (it, databases)
+    it->CommitPhase4();
 }

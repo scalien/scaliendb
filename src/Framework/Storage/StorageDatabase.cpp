@@ -93,7 +93,6 @@ void StorageDatabase::Close()
 
 void StorageDatabase::Commit(bool recovery, bool flush)
 {
-    StorageTable*   it;
     long            el1, els1, el2, els2, el3, el4;
     Stopwatch       sw;
 
@@ -102,8 +101,7 @@ void StorageDatabase::Commit(bool recovery, bool flush)
     if (recovery)
     {
         sw.Start();
-        for (it = tables.First(); it != NULL; it = tables.Next(it))
-            it->CommitPhase1();
+        CommitPhase1();
         sw.Stop();
         el1 = sw.Elapsed();
 
@@ -115,8 +113,7 @@ void StorageDatabase::Commit(bool recovery, bool flush)
     }
 
     sw.Restart();
-    for (it = tables.First(); it != NULL; it = tables.Next(it))
-        it->CommitPhase2();
+    CommitPhase2();
     sw.Stop();
     el2 = sw.Elapsed();
 
@@ -129,18 +126,49 @@ void StorageDatabase::Commit(bool recovery, bool flush)
     if (recovery)
     {
         sw.Restart();
-        for (it = tables.First(); it != NULL; it = tables.Next(it))
-            it->CommitPhase3();
+        CommitPhase3();
         sw.Stop();
         el3 = sw.Elapsed();
     }
     
     sw.Restart();
-    for (it = tables.First(); it != NULL; it = tables.Next(it))
-        it->CommitPhase4();
+    CommitPhase4();
     sw.Stop();
     el4 = sw.Elapsed();
 
     Log_Trace("el1 = %ld, els1 = %ld, el2 = %ld, els2 = %ld, el3 = %ld, el4 = %ld",
         el1, els1, el2, els2, el3, el4);
 }
+
+void StorageDatabase::CommitPhase1()
+{
+    StorageTable*   it;
+
+    for (it = tables.First(); it != NULL; it = tables.Next(it))
+        it->CommitPhase1();
+}
+
+void StorageDatabase::CommitPhase2()
+{
+    StorageTable*   it;
+
+    for (it = tables.First(); it != NULL; it = tables.Next(it))
+        it->CommitPhase2();
+}
+
+void StorageDatabase::CommitPhase3()
+{
+    StorageTable*   it;
+
+    for (it = tables.First(); it != NULL; it = tables.Next(it))
+        it->CommitPhase3();
+}
+
+void StorageDatabase::CommitPhase4()
+{
+    StorageTable*   it;
+
+    for (it = tables.First(); it != NULL; it = tables.Next(it))
+        it->CommitPhase4();
+}
+

@@ -150,9 +150,9 @@ TEST_DEFINE(TestClientSet)
 
     for (unsigned i = 0; i < num; i++)
     {
-        snprintf(keybuf, sizeof(keybuf), "%u", i);
-        key.Wrap(keybuf, sizeof(keybuf));
-        value.Wrap(keybuf, sizeof(keybuf));
+        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        key.Wrap(keybuf, ret);
+        value.Wrap(keybuf, ret);
         ret = client.Set(databaseID, tableID, key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
