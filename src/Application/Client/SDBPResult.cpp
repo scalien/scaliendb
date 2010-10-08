@@ -17,6 +17,11 @@ static int KeyCmp(uint64_t a, uint64_t b)
     return 0;
 }
 
+Result::~Result()
+{
+    Close();
+}
+
 void Result::Close()
 {
     transportStatus = SDBP_FAILURE;
@@ -42,6 +47,7 @@ bool Result::IsEnd()
 void Result::AppendRequest(Request* req)
 {
     req->numTry = 0;
+    req->status = SDBP_NOSERVICE;
     requests.Insert(req);
     if (numCompleted > 0)
         transportStatus = SDBP_PARTIAL;
@@ -55,12 +61,13 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     if (!req)
         return false;
 
-    if (resp->type == CLIENTRESPONSE_OK)
-        req->status = SDBP_SUCCESS;
-    else
+    if (resp->type == CLIENTRESPONSE_FAILED)
         req->status = SDBP_FAILED;
+    else
+        req->status = SDBP_SUCCESS;
 
-    req->responses.Append(resp);
+    //req->responses.Append(resp);
+    req->response = *resp;
     numCompleted++;
     
     if (numCompleted == requests.GetCount())
@@ -82,6 +89,33 @@ int Result::CommandStatus()
 int Result::TransportStatus()
 {
     return transportStatus;
+}
+
+int Result::Key(ReadBuffer& key)
+{
+    Request*    request;
+    
+    if (requestCursor == NULL)
+        return SDBP_API_ERROR;
+    
+    request = requestCursor;
+    key.Wrap(request->key);
+    
+    return request->status;
+}
+
+int Result::Value(ReadBuffer& value)
+{
+    Request*    request;
+    
+    if (requestCursor == NULL)
+        return SDBP_API_ERROR;
+    
+    request = requestCursor;
+    // TODO: copy the ReadBuffer!
+    value.Wrap(request->response.value.GetBuffer(), request->response.value.GetLength());
+    
+    return request->status;
 }
 
 unsigned Result::GetRequestCount()

@@ -120,6 +120,15 @@ uint64_t Client::GetMasterTimeout()
     return masterTimeout.GetDelay();
 }
 
+Result* Client::GetResult()
+{
+    Result* tmp;
+    
+    tmp = result;
+    result = new Result;
+    return tmp;
+}
+
 int Client::TransportStatus()
 {
     return result->TransportStatus();
@@ -236,6 +245,7 @@ void Client::EventLoop()
     }
 
     AssignRequestsToQuorums();
+    SendQuorumRequests();
     
     EventLoop::UpdateTime();
     EventLoop::Reset(&globalTimeout);
@@ -448,7 +458,7 @@ void Client::AddRequestToQuorum(Request* req, bool end)
         qrequests->Prepend(req);
 }   
     
-void Client::SendQuorumRequests(ShardConnection* conn, uint64_t quorumID)
+void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
 {
     RequestList*        qrequests;
     Request*            req;
@@ -475,6 +485,28 @@ void Client::SendQuorumRequests(ShardConnection* conn, uint64_t quorumID)
         }
         else
             conn->SendSubmit();
+    }
+}
+
+void Client::SendQuorumRequests()
+{
+    ShardConnection*    conn;
+    uint64_t*           qit;
+    RequestList*        qrequests;
+    
+    for (conn = shardConnections.First(); conn != NULL; conn = shardConnections.Next(conn))
+    {
+        if (conn->IsWritePending())
+            continue;
+
+        SortedList<uint64_t>& quorums = conn->GetQuorumList();
+        for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
+        {
+            if (!quorumRequests.Get(*qit, qrequests))
+                continue;
+            
+            SendQuorumRequest(conn, *qit);
+        }
     }
 }
 

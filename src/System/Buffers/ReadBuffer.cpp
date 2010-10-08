@@ -34,9 +34,9 @@ void ReadBuffer::SetLength(unsigned length_)
     length = length_;
 }
 
-void ReadBuffer::Wrap(char* buffer_)
+void ReadBuffer::Wrap(const char* buffer_)
 {
-    buffer = buffer_;
+    buffer = (char*) buffer_;
     length = strlen(buffer);
 }
 

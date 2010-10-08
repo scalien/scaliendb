@@ -19,6 +19,8 @@ namespace SDBPClient
 class Result
 {
 public:
+    ~Result();
+    
     void            Close();
     
     void            Begin();
@@ -30,6 +32,9 @@ public:
 
     int             CommandStatus();
     int             TransportStatus();
+
+    int             Key(ReadBuffer& key);
+    int             Value(ReadBuffer& value);
 
     unsigned        GetRequestCount();
 

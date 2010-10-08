@@ -89,6 +89,7 @@
 		9A87419012282946000B1319 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
 		9A9AA1C7125DC30F00681840 /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */; };
 		9A9AA1C8125DC30F00681840 /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */; };
+		9A9AA747125E6BB900681840 /* SDBPClientWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */; };
 		9AABB037123E55DE003626AC /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
 		9AABB039123E55DE003626AC /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418712282946000B1319 /* StorageTest.cpp */; };
@@ -367,6 +368,8 @@
 		9A87418B12282946000B1319 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
 		9A9AA1C5125DC30F00681840 /* StorageEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageEnvironment.h; sourceTree = "<group>"; };
 		9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
+		9A9AA745125E6BB900681840 /* SDBPClientWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientWrapper.h; path = Application/Client/SDBPClientWrapper.h; sourceTree = "<group>"; };
+		9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientWrapper.cpp; path = Application/Client/SDBPClientWrapper.cpp; sourceTree = "<group>"; };
 		9AABAD3812393327003626AC /* Deferred.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Deferred.h; sourceTree = "<group>"; };
 		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -906,6 +909,8 @@
 				9AABBA541243CB4F003626AC /* SDBPResult.cpp */,
 				9AABBAD41243E1CB003626AC /* SDBPClientRequest.h */,
 				9AABBAD51243E1CB003626AC /* SDBPClientRequest.cpp */,
+				9A9AA745125E6BB900681840 /* SDBPClientWrapper.h */,
+				9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */,
 			);
 			name = Client;
 			sourceTree = "<group>";
@@ -954,6 +959,7 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1135,6 +1141,7 @@
 				9AABCC6012564924003626AC /* SDBPClient.cpp in Sources */,
 				9AABCC611256492B003626AC /* ConfigState.cpp in Sources */,
 				9A9AA1C7125DC30F00681840 /* StorageEnvironment.cpp in Sources */,
+				9A9AA747125E6BB900681840 /* SDBPClientWrapper.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

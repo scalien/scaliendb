@@ -15,6 +15,7 @@ TEST_DECLARE(TestFileSystemDiskSpace);
 TEST_DECLARE(TestArrayListBasic);
 TEST_DECLARE(TestArrayListRemove);
 TEST_DECLARE(TestClientBasic);
+TEST_DECLARE(TestClientSet);
 
 TEST_DEFINE(TestMain)
 {
@@ -33,7 +34,8 @@ TEST_DEFINE(TestMain)
         //TestFileSystemDiskSpace,
         //TestArrayListBasic,
         //TestArrayListRemove,
-        TestClientBasic,
+        //TestClientBasic,
+        TestClientSet,
     );
 }
 

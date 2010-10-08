@@ -32,42 +32,43 @@ public:
     Client();
     ~Client();
 
-    int                 Init(int nodec, const char* nodev[]);
-    void                Shutdown();
+    int                     Init(int nodec, const char* nodev[]);
+    void                    Shutdown();
 
-    void                SetGlobalTimeout(uint64_t timeout);
-    void                SetMasterTimeout(uint64_t timeout);
-    uint64_t            GetGlobalTimeout();
-    uint64_t            GetMasterTimeout();
+    void                    SetGlobalTimeout(uint64_t timeout);
+    void                    SetMasterTimeout(uint64_t timeout);
+    uint64_t                GetGlobalTimeout();
+    uint64_t                GetMasterTimeout();
 
     // connection state related commands
-    int                 GetMaster();
-    void                DistributeDirty(bool dd);
+    int                     GetMaster();
+    void                    DistributeDirty(bool dd);
     
-    Result*             GetResult();
+    Result*                 GetResult();
 
-    int                 TransportStatus();
-    int                 ConnectivityStatus();
-    int                 TimeoutStatus();
-    int                 CommandStatus();
+    int                     TransportStatus();
+    int                     ConnectivityStatus();
+    int                     TimeoutStatus();
+    int                     CommandStatus();
     
-    int                 GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
-    int                 GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& table);
+    int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
+    int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
     
-    int                 Get(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
-    int                 Set(uint64_t databaseID, uint64_t tableID, 
-                            ReadBuffer& key,
-                            ReadBuffer& value);
+    int                     Get(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
+    int                     Set(uint64_t databaseID, uint64_t tableID, 
+                                ReadBuffer& key,
+                                ReadBuffer& value);
 
-    int                 Delete(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
+    int                     Delete(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
 
 private:
     typedef InList<Request>                 RequestList;
     typedef InTreeMap<ShardConnection>      ShardConnectionMap;
     typedef HashMap<uint64_t, RequestList*> RequestListMap;
-    friend class    ControllerConnection;
-    friend class    ShardConnection;
-    friend class    Table;
+
+    friend class            ControllerConnection;
+    friend class            ShardConnection;
+    friend class            Table;
     
     void                    EventLoop();
     bool                    IsDone();
@@ -84,7 +85,8 @@ private:
     void                    AssignRequestsToQuorums();
     bool                    GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID);
     void                    AddRequestToQuorum(Request* req, bool end = true);
-    void                    SendQuorumRequests(ShardConnection* conn, uint64_t quorumID);
+    void                    SendQuorumRequest(ShardConnection* conn, uint64_t quorumID);
+    void                    SendQuorumRequests();
     void                    InvalidateQuorum(uint64_t quorumID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
 

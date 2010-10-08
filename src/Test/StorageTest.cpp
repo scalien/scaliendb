@@ -369,7 +369,7 @@ TEST_DEFINE(TestStorageShardSplit)
     }
     
     
-    rk.Set(splitKey, sizeof(splitKey) - 1); 
+    rk.Wrap(splitKey, sizeof(splitKey) - 1); 
     table->SplitShard(0, 1, rk);
     
     db.Close();

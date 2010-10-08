@@ -118,13 +118,14 @@ void ControllerConnection::OnClose()
     Request*    it;
     Request*    next;
     
-    // resend requests without response
+    // TODO: resend requests without response
     if (state == CONNECTED)
     {
         for (it = requests.First(); it != NULL; it = next)
         {
             next = requests.Remove(it);
-            client->ReassignRequest(it);
+            // TODO:
+            //client->ReassignRequest(it);
         }
     }
     
