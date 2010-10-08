@@ -92,7 +92,7 @@ void HTTPShardServerSession::PrintStatus()
     
     for (quorum = quorums->First(); quorum != NULL; quorum = quorums->Next(quorum))
     {
-        primaryID = shardServer->GetLeader(quorum->quorumID);
+        primaryID = shardServer->GetLeaseOwner(quorum->quorumID);
         
         keybuf.Writef("q%U", quorum->quorumID);
         keybuf.NullTerminate();

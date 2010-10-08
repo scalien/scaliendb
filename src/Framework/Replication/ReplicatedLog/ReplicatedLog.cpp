@@ -21,13 +21,18 @@ void ReplicatedLog::Init(QuorumContext* context_)
     enableMultiPaxos.Write("EnableMultiPaxos");
 }
 
+bool ReplicatedLog::IsMultiPaxosEnabled()
+{
+    return proposer.state.multi;
+}
+
 void ReplicatedLog::TryAppendNextValue()
 {
     Buffer* buffer;
     
     Log_Trace();
     
-    if (!context->IsLeader() || proposer.IsActive() || !proposer.state.multi)
+    if (!context->IsLeaseOwner() || proposer.IsActive() || !proposer.state.multi)
         return;
     
     buffer = context->GetNextValue();
@@ -166,7 +171,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
         RequestChosen(nodeID);
     
     ownAppend = proposer.state.multi;
-    if (nodeID == REPLICATION_CONFIG->GetNodeID() && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeader())
+    if (nodeID == REPLICATION_CONFIG->GetNodeID() && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
     {
         proposer.state.multi = true;
         Log_Trace("Multi paxos enabled");
@@ -209,7 +214,7 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 
 void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
 {
-    if (imsg.nodeID == context->GetLeader())
+    if (imsg.nodeID == context->GetLeaseOwner())
         context->OnStartCatchup();
 }
 
@@ -254,10 +259,10 @@ void ReplicatedLog::OnCatchupComplete()
 
 void ReplicatedLog::OnLearnLease()
 {
-    Log_Trace("context->IsLeader()   = %s", (context->IsLeader() ? "true" : "false"));
+    Log_Trace("context->IsLeaseOwner()   = %s", (context->IsLeaseOwner() ? "true" : "false"));
     Log_Trace("!proposer.IsActive()  = %s", (!proposer.IsActive() ? "true" : "false"));
     Log_Trace("!proposer.state.multi = %s", (!proposer.state.multi ? "true" : "false"));
-    if (context->IsLeader() && !proposer.IsActive() && !proposer.state.multi)
+    if (context->IsLeaseOwner() && !proposer.IsActive() && !proposer.state.multi)
     {
         Log_Trace("Appending EnableMultiPaxos");
         Append(enableMultiPaxos);
@@ -271,7 +276,7 @@ void ReplicatedLog::OnLeaseTimeout()
 
 bool ReplicatedLog::IsAppending()
 {
-    return context->IsLeader() && proposer.state.numProposals > 0;
+    return context->IsLeaseOwner() && proposer.state.numProposals > 0;
 }
 
 void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)

@@ -65,9 +65,9 @@ void Controller::Shutdown()
 
 int64_t Controller::GetMaster()
 {
-    if (!configContext.IsLeaderKnown())
+    if (!configContext.IsLeaseKnown())
         return -1;
-    return (int64_t) configContext.GetLeader();
+    return (int64_t) configContext.GetLeaseOwner();
 }
 
 uint64_t Controller::GetNodeID()
@@ -153,7 +153,7 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
         configMessages.Delete(configMessages.First());
     }
     
-    if (configContext.IsLeader())
+    if (configContext.IsLeaseOwner())
         UpdateListeners();    
 }
 
@@ -161,7 +161,7 @@ void Controller::OnStartCatchup()
 {
     CatchupMessage    msg;
     
-    if (!configContext.IsLeaderKnown())
+    if (!configContext.IsLeaseKnown() || catchingUp)
         return;
     
     configContext.StopReplication();
@@ -169,11 +169,11 @@ void Controller::OnStartCatchup()
     msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID());
     
     CONTEXT_TRANSPORT->SendQuorumMessage(
-     configContext.GetLeader(), configContext.GetQuorumID(), msg);
+     configContext.GetLeaseOwner(), configContext.GetQuorumID(), msg);
      
     catchingUp = true;
     
-    // TODO: stop Paxos?
+    Log_Message("Catchup started from node %" PRIu64 "", configContext.GetLeaseOwner());
 }
 
 void Controller::OnCatchupMessage(CatchupMessage& imsg)
@@ -188,7 +188,7 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
     switch (imsg.type)
     {
         case CATCHUPMESSAGE_REQUEST:
-            if (!configContext.IsLeader())
+            if (!configContext.IsLeaseOwner())
                 return;
             // send configState
             key.Wrap("state");
@@ -219,6 +219,7 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
             configContext.OnCatchupComplete();      // this commits
             catchingUp = false;
             configContext.ContinueReplication();
+            Log_Message("Catchup complete");
             break;
         default:
             ASSERT_FAIL();
@@ -236,8 +237,8 @@ void Controller::OnClientRequest(ClientRequest* request)
 
     if (request->type == CLIENTREQUEST_GET_MASTER)
     {
-        if (configContext.IsLeaderKnown())
-            request->response.Number(configContext.GetLeader());
+        if (configContext.IsLeaseKnown())
+            request->response.Number(configContext.GetLeaseOwner());
         else
             request->response.NoService();
             
@@ -249,6 +250,13 @@ void Controller::OnClientRequest(ClientRequest* request)
         listenRequests.Append(request);
         request->response.GetConfigStateResponse(configState);
         request->OnComplete(false);
+        return;
+    }
+    
+    if (!configContext.IsLeader())
+    {
+        request->response.Failed();
+        request->OnComplete();
         return;
     }
     
@@ -286,7 +294,7 @@ void Controller::OnClientClose(ClientSession* session)
 
 void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
-    if (!configContext.IsLeader())
+    if (!configContext.IsLeaseOwner())
         return; 
 
     switch (message.type)
@@ -337,7 +345,7 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
     ConfigState::ShardServerList*   shardServers;
     ClusterMessage                  clusterMessage;
 
-    if (!configContext.IsLeader())
+    if (!configContext.IsLeaseOwner())
         return true; // drop connection
     
     // look for existing endpoint

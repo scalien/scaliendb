@@ -19,14 +19,16 @@ class QuorumContext
 public:
     virtual ~QuorumContext() {};
 
-    virtual bool                IsLeader()                                      = 0;    
-    virtual bool                IsLeaderKnown()                                 = 0;
-    virtual uint64_t            GetLeader()                                     = 0;
+    virtual bool                IsLeaseOwner()                                  = 0;    
+    virtual bool                IsLeaseKnown()                                  = 0;
+    virtual uint64_t            GetLeaseOwner()                                 = 0;
+    // multiPaxos    
+    virtual bool                IsLeader()                                      = 0;
 
     virtual void                OnLearnLease()                                  = 0;
     virtual void                OnLeaseTimeout()                                = 0;
 
-    virtual uint64_t            GetQuorumID()                                  = 0;
+    virtual uint64_t            GetQuorumID()                                   = 0;
     virtual void                SetPaxosID(uint64_t paxosID)                    = 0;
     virtual uint64_t            GetPaxosID()                                    = 0;
     virtual uint64_t            GetHighestPaxosID()                             = 0;

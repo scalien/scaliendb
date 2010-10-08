@@ -31,9 +31,11 @@ public:
     // ========================================================================================
     // QuorumContext interface:
     //
-    virtual bool                    IsLeaderKnown();
+    virtual bool                    IsLeaseOwner();
+    virtual bool                    IsLeaseKnown();
+    virtual uint64_t                GetLeaseOwner();
+    // multiPaxos
     virtual bool                    IsLeader();
-    virtual uint64_t                GetLeader();
 
     virtual void                    OnLearnLease();
     virtual void                    OnLeaseTimeout();

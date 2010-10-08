@@ -126,7 +126,7 @@ void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
     ReadBuffer  rbValue;
     bool        ret;
 
-    key.Writef("learnedValue:%U", paxosID);
+    key.Writef("round:%U", paxosID);
     rbKey.Wrap(key);
     
     ret = table->Get(rbKey, rbValue);
@@ -140,11 +140,21 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
 {
     Buffer      key;
     ReadBuffer  rbKey;
+    uint64_t    oldPaxosID;
 
-    key.Writef("learnedValue:%U", paxosID);
+    key.Writef("round:%U", paxosID);
     rbKey.Wrap(key);
 
     table->Set(rbKey, value);
+
+    oldPaxosID = paxosID - logCacheSize;
+    if (oldPaxosID >= 0)
+    {
+        key.Writef("round:%U", oldPaxosID);
+        rbKey.Wrap(key);
+
+        table->Delete(rbKey);
+    }
 }
 
 bool QuorumDatabase::IsActive()
