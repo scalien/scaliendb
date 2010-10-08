@@ -33,6 +33,11 @@ public:
     StorageDatabase*        prev;
     
 private:
+    void                    CommitPhase1();
+    void                    CommitPhase2();
+    void                    CommitPhase3();
+    void                    CommitPhase4();
+
     Buffer                  name;
     Buffer                  path;
     InList<StorageTable>    tables;
