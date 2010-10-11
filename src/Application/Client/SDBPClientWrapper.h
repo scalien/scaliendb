@@ -92,6 +92,9 @@ int             SDBP_Delete(ClientObj client, const std::string& key);
 ===============================================================================================
 */
 
+int             SDBP_Begin(ClientObj client);
+int             SDBP_Submit(ClientObj client);
+int             SDBP_Cancel(ClientObj client);
 bool            SDBP_IsBatched(ClientObj client);
 
 /*

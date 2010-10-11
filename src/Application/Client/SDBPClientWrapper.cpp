@@ -317,6 +317,27 @@ int SDBP_Delete(ClientObj client_, const std::string& key_)
 ===============================================================================================
 */
 
+int SDBP_Begin(ClientObj client_)
+{
+    Client*     client = (Client*) client_;
+    
+    return client->Begin();
+}
+
+int SDBP_Submit(ClientObj client_)
+{
+    Client*     client = (Client*) client_;
+    
+    return client->Submit();
+}
+
+int SDBP_Cancel(ClientObj client_)
+{
+    Client*     client = (Client*) client_;
+    
+    return client->Cancel();
+}
+
 bool SDBP_IsBatched(ClientObj client_)
 {
     Client*     client = (Client*) client_;
