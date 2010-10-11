@@ -229,10 +229,16 @@ int Client::Get(ReadBuffer& key)
     
     req = new Request;
     req->Get(NextCommandID(), databaseID, tableID, key);
+    requests.Append(req);
+    
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
     
     result->Close();
     result->AppendRequest(req);
-    requests.Append(req);
     
     EventLoop();
     return result->CommandStatus();
@@ -248,10 +254,16 @@ int Client::Set(ReadBuffer& key, ReadBuffer& value)
     
     req = new Request;
     req->Set(NextCommandID(), databaseID, tableID, key, value);
+    requests.Append(req);
     
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
+
     result->Close();
     result->AppendRequest(req);
-    requests.Append(req);
     
     EventLoop();
     return result->CommandStatus(); 
@@ -267,13 +279,45 @@ int Client::Delete(ReadBuffer& key)
     
     req = new Request;
     req->Delete(NextCommandID(), databaseID, tableID, key);
+    requests.Append(req);
     
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
+
     result->Close();
     result->AppendRequest(req);
-    requests.Append(req);
     
     EventLoop();
     return result->CommandStatus();
+}
+
+int Client::Begin()
+{
+    result->Close();
+    isBatched = true;
+    
+    return SDBP_SUCCESS;
+}
+
+int Client::Submit()
+{
+    EventLoop();
+    isBatched = false;
+    
+    return result->TransportStatus();
+}
+
+int Client::Cancel()
+{
+    requests.Clear();
+
+    result->Close();
+    isBatched = false;
+    
+    return SDBP_SUCCESS;
 }
 
 bool Client::IsBatched()

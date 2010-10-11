@@ -60,6 +60,9 @@ public:
     int                     Set(ReadBuffer& key, ReadBuffer& value);
     int                     Delete(ReadBuffer& key);
 
+    int                     Begin();
+    int                     Submit();
+    int                     Cancel();
     bool                    IsBatched();
 
 private:
@@ -116,6 +119,7 @@ private:
     uint64_t                databaseID;
     bool                    isTableSet;
     uint64_t                tableID;
+    bool                    isBatched;
 };
 
 };  // namespace

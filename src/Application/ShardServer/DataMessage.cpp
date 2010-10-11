@@ -46,11 +46,11 @@ bool DataMessage::Write(Buffer& buffer)
     {
         // Cluster management
         case DATAMESSAGE_SET:
-            buffer.Writef("%c:%U:%#R:%#R",
+            buffer.Appendf("%c:%U:%#R:%#R",
              type, tableID, &key, &value);
             break;
         case DATAMESSAGE_DELETE:
-            buffer.Writef("%c:%U:%#R",
+            buffer.Appendf("%c:%U:%#R",
              type, tableID, &key);
             break;
         default:

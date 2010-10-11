@@ -42,8 +42,6 @@ TEST_DEFINE(TestClientBasic)
     ReadBuffer      resultKey;
     ReadBuffer      value = "peru";
     ReadBuffer      resultValue;
-    uint64_t        databaseID;
-    uint64_t        tableID;
     int             ret;
     
     Log_SetTimestamping(true);
@@ -55,25 +53,19 @@ TEST_DEFINE(TestClientBasic)
         TEST_CLIENT_FAIL();
 
     client.SetMasterTimeout(1000);
-    ret = client.GetDatabaseID(databaseName, databaseID);
+    ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    if (databaseID != 1)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.GetTableID(tableName, databaseID, tableID);
+    ret = client.UseTable(tableName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    if (tableID != 1)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Set(databaseID, tableID, key, value);
+    ret = client.Set(key, value);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    ret = client.Get(databaseID, tableID, key);
+    ret = client.Get(key);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
@@ -119,9 +111,6 @@ TEST_DEFINE(TestClientSet)
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
-    //char            valbuf[32];
-    uint64_t        databaseID;
-    uint64_t        tableID;
     int             ret;
     unsigned        num = 1000000;
     
@@ -134,29 +123,80 @@ TEST_DEFINE(TestClientSet)
         TEST_CLIENT_FAIL();
 
     client.SetMasterTimeout(1000);
-    ret = client.GetDatabaseID(databaseName, databaseID);
+    ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    if (databaseID != 1)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.GetTableID(tableName, databaseID, tableID);
+    ret = client.UseTable(tableName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    if (tableID != 1)
-        TEST_CLIENT_FAIL();
-
     for (unsigned i = 0; i < num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
-        ret = client.Set(databaseID, tableID, key, value);
+        ret = client.Set(key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
     }
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientBatchedSet)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "mediafilter";
+    ReadBuffer      tableName = "users";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    char            keybuf[32];
+    int             ret;
+    unsigned        num = 100;
+    Stopwatch       sw;
+    
+    Log_SetTimestamping(true);
+    Log_SetTarget(LOG_TARGET_STDOUT);
+    Log_SetTrace(true);
+    
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.Begin();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    for (unsigned i = 0; i < num; i++)
+    {
+        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        key.Wrap(keybuf, ret);
+        value.Wrap(keybuf, ret);
+        ret = client.Set(key, value);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+
+    sw.Start();
+    ret = client.Submit();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    sw.Stop();
+
+    TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (1000.0 / sw.Elapsed()));
 
     client.Shutdown();
     

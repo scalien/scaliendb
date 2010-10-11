@@ -30,7 +30,7 @@ public:
     ShardConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
     
     void                    Connect();
-    void                    SendRequest(Request* request);
+    bool                    SendRequest(Request* request);
     void                    SendSubmit();
 
     uint64_t                GetNodeID();
@@ -59,7 +59,7 @@ private:
     Endpoint                endpoint;
     SortedList<uint64_t>    quorums;
     InList<Request>         sentRequests;
-    
+    Buffer*                 writeBuffer;
 };
 
 }; // namespace

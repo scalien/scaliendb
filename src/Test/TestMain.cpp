@@ -16,6 +16,7 @@ TEST_DECLARE(TestArrayListBasic);
 TEST_DECLARE(TestArrayListRemove);
 TEST_DECLARE(TestClientBasic);
 TEST_DECLARE(TestClientSet);
+TEST_DECLARE(TestClientBatchedSet);
 
 TEST_DEFINE(TestMain)
 {
@@ -35,7 +36,8 @@ TEST_DEFINE(TestMain)
         //TestArrayListBasic,
         //TestArrayListRemove,
         //TestClientBasic,
-        TestClientSet,
+        //TestClientSet,
+        TestClientBatchedSet,
     );
 }
 

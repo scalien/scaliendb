@@ -107,68 +107,68 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
     {
         /* Master query */
         case CLIENTREQUEST_GET_MASTER:
-            buffer.Writef("%c:%U",
+            buffer.Appendf("%c:%U",
              request->type, request->commandID);
             return true;
 
         /* Get config state: databases, tables, shards, quora */
         case CLIENTREQUEST_GET_CONFIG_STATE:
-            buffer.Writef("%c:%U",
+            buffer.Appendf("%c:%U",
              request->type, request->commandID);
             return true;
 
         /* Quorum management */
         case CLIENTREQUEST_CREATE_QUORUM:
-            buffer.Writef("%c:%U:%u",
+            buffer.Appendf("%c:%U:%u",
              request->type, request->commandID, request->nodes.GetLength());
             for (it = request->nodes.First(); it != NULL; it = request->nodes.Next(it))
                 buffer.Appendf(":%U", *it);
 
         /* Database management */
         case CLIENTREQUEST_CREATE_DATABASE:
-            buffer.Writef("%c:%U:%#B",
+            buffer.Appendf("%c:%U:%#B",
              request->type, request->commandID, &request->name);
             return true;
         case CLIENTREQUEST_RENAME_DATABASE:
-            buffer.Writef("%c:%U:%U:%#B",
+            buffer.Appendf("%c:%U:%U:%#B",
              request->type, request->commandID, request->databaseID,
              &request->name);
             return true;
         case CLIENTREQUEST_DELETE_DATABASE:
-            buffer.Writef("%c:%U:%U",
+            buffer.Appendf("%c:%U:%U",
              request->type, request->commandID, request->databaseID);
             return true;
 
         /* Table management */
         case CLIENTREQUEST_CREATE_TABLE:
-            buffer.Writef("%c:%U:%U:%U:%#B",
+            buffer.Appendf("%c:%U:%U:%U:%#B",
              request->type, request->commandID, request->databaseID,
              request->quorumID, &request->name);
             return true;
         case CLIENTREQUEST_RENAME_TABLE:
-            buffer.Writef("%c:%U:%U:%U:%#B",
+            buffer.Appendf("%c:%U:%U:%U:%#B",
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->name);
             return true;
         case CLIENTREQUEST_DELETE_TABLE:
-            buffer.Writef("%c:%U:%U:%U",
+            buffer.Appendf("%c:%U:%U:%U",
              request->type, request->commandID, request->databaseID,
              request->tableID);
             return true;
 
         /* Data operations */
         case CLIENTREQUEST_GET:
-            buffer.Writef("%c:%U:%U:%U:%#B",
+            buffer.Appendf("%c:%U:%U:%U:%#B",
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->key);
             return true;
         case CLIENTREQUEST_SET:
-            buffer.Writef("%c:%U:%U:%U:%#B:%#B",
+            buffer.Appendf("%c:%U:%U:%U:%#B:%#B",
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->key, &request->value);
             return true;
         case CLIENTREQUEST_DELETE:
-            buffer.Writef("%c:%U:%U:%U:%#B",
+            buffer.Appendf("%c:%U:%U:%U:%#B",
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->key);
             return true;

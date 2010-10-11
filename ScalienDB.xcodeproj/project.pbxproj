@@ -423,6 +423,7 @@
 		9AF4C76012631A920036E3B3 /* Result.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Result.java; path = Application/Client/Java/Result.java; sourceTree = "<group>"; };
 		9AF4C76112631A920036E3B3 /* Status.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Status.java; path = Application/Client/Java/Status.java; sourceTree = "<group>"; };
 		9AF4C76412631A920036E3B3 /* Test.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Test.java; path = Application/Client/Java/Test.java; sourceTree = "<group>"; };
+		9AF4C7BD12634CC80036E3B3 /* scaliendb_client_java.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_java.cpp; path = Application/Client/Java/scaliendb_client_java.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -941,6 +942,7 @@
 		9AF4C75712631A7F0036E3B3 /* Java */ = {
 			isa = PBXGroup;
 			children = (
+				9AF4C7BD12634CC80036E3B3 /* scaliendb_client_java.cpp */,
 				9AF4C75912631A920036E3B3 /* Client.java */,
 				9AF4C75E12631A920036E3B3 /* SDBPException.java */,
 				9AF4C75F12631A920036E3B3 /* ListParams.java */,

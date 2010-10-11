@@ -25,7 +25,7 @@ Result::~Result()
 void Result::Close()
 {
     transportStatus = SDBP_FAILURE;
-    requests.Clear();
+    requests.DeleteTree();
     numCompleted = 0;
 }
 

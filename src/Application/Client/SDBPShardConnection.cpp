@@ -4,6 +4,8 @@
 #include "Application/SDBP/SDBPRequestMessage.h"
 #include "Application/SDBP/SDBPResponseMessage.h"
 
+#define CONN_BUFSIZE    4096
+
 using namespace SDBPClient;
 
 static bool LessThan(uint64_t a, uint64_t b)
@@ -18,6 +20,7 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     endpoint = endpoint_;
     // TODO: HACK: see comments in ShardServerApp!
     endpoint.SetPort(endpoint.GetPort() + 1);
+    writeBuffer = NULL;
     Connect();
 }
 
@@ -26,17 +29,32 @@ void ShardConnection::Connect()
     MessageConnection::Connect(endpoint);
 }
 
-void ShardConnection::SendRequest(Request* request)
+bool ShardConnection::SendRequest(Request* request)
 {
     SDBPRequestMessage  msg;
     
     sentRequests.Append(request);
 
     msg.request = request;
-    // TODO: buffering
     Write(msg);
-
     request->numTry++;
+    
+    // TODO: buffering
+//    if (writeBuffer == NULL)
+//        writeBuffer = writer->AcquireBuffer(CONN_BUFSIZE);
+//    
+//    msg.Write(*writeBuffer);
+//    request->numTry++;
+//
+//    if (writeBuffer->GetLength() >= CONN_BUFSIZE)
+//    {
+//        writer->WritePooled(writeBuffer);
+//        writer->Flush();
+//        writeBuffer = NULL;
+//        return false;
+//    }
+
+    return true;
 }
 
 void ShardConnection::SendSubmit()
