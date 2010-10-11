@@ -46,6 +46,16 @@ void StorageDataCache::Shutdown()
     storageDataCache = NULL;
 }
 
+uint64_t StorageDataCache::GetTotalSize()
+{
+    return num * (sizeof(StorageDataPage) + DEFAULT_DATAPAGE_SIZE);
+}
+
+uint64_t StorageDataCache::GetUsedSize()
+{
+    return (num - freeList.GetLength()) * (sizeof(StorageDataPage) + DEFAULT_DATAPAGE_SIZE);
+}
+
 StorageDataCache* StorageDataCache::Get()
 {
     if (storageDataCache == NULL)

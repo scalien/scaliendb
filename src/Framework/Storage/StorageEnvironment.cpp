@@ -33,7 +33,19 @@ void StorageEnvironment::Close()
     for (it = databases.First(); it != NULL; it = databases.Delete(it))
         it->Close();
 }
+
+uint64_t StorageEnvironment::GetSize()
+{
+    StorageDatabase*    it;
+    uint64_t            size;
     
+    size = 0;
+    FOREACH (it, databases)
+        size += it->GetSize();
+    
+    return size;
+}
+
 StorageDatabase* StorageEnvironment::GetDatabase(const char* dbName)
 {
     StorageDatabase*   it;

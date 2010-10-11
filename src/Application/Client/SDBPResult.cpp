@@ -91,7 +91,7 @@ int Result::TransportStatus()
     return transportStatus;
 }
 
-int Result::Key(ReadBuffer& key)
+int Result::GetKey(ReadBuffer& key)
 {
     Request*    request;
     
@@ -104,7 +104,7 @@ int Result::Key(ReadBuffer& key)
     return request->status;
 }
 
-int Result::Value(ReadBuffer& value)
+int Result::GetValue(ReadBuffer& value)
 {
     Request*    request;
     
@@ -116,6 +116,24 @@ int Result::Value(ReadBuffer& value)
     value.Wrap(request->response.value.GetBuffer(), request->response.value.GetLength());
     
     return request->status;
+}
+
+int Result::GetDatabaseID(uint64_t& databaseID)
+{
+    if (requestCursor == NULL)
+        return SDBP_API_ERROR;
+    
+    databaseID = requestCursor->databaseID;
+    return requestCursor->status;
+}
+
+int Result::GetTableID(uint64_t& tableID)
+{
+    if (requestCursor == NULL)
+        return SDBP_API_ERROR;
+    
+    tableID = requestCursor->tableID;
+    return requestCursor->status;
 }
 
 unsigned Result::GetRequestCount()

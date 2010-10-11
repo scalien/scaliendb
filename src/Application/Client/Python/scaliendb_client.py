@@ -130,7 +130,14 @@ SDBP_NodeParams_swigregister = _scaliendb_client.SDBP_NodeParams_swigregister
 SDBP_NodeParams_swigregister(SDBP_NodeParams)
 
 SDBP_ResultClose = _scaliendb_client.SDBP_ResultClose
+SDBP_ResultKey = _scaliendb_client.SDBP_ResultKey
 SDBP_ResultValue = _scaliendb_client.SDBP_ResultValue
+SDBP_ResultDatabaseID = _scaliendb_client.SDBP_ResultDatabaseID
+SDBP_ResultTableID = _scaliendb_client.SDBP_ResultTableID
+SDBP_ResultNext = _scaliendb_client.SDBP_ResultNext
+SDBP_ResultIsEnd = _scaliendb_client.SDBP_ResultIsEnd
+SDBP_ResultTransportStatus = _scaliendb_client.SDBP_ResultTransportStatus
+SDBP_ResultCommandStatus = _scaliendb_client.SDBP_ResultCommandStatus
 SDBP_Create = _scaliendb_client.SDBP_Create
 SDBP_Init = _scaliendb_client.SDBP_Init
 SDBP_Destroy = _scaliendb_client.SDBP_Destroy
@@ -141,6 +148,8 @@ SDBP_GetGlobalTimeout = _scaliendb_client.SDBP_GetGlobalTimeout
 SDBP_GetMasterTimeout = _scaliendb_client.SDBP_GetMasterTimeout
 SDBP_GetDatabaseID = _scaliendb_client.SDBP_GetDatabaseID
 SDBP_GetTableID = _scaliendb_client.SDBP_GetTableID
+SDBP_UseDatabase = _scaliendb_client.SDBP_UseDatabase
+SDBP_UseTable = _scaliendb_client.SDBP_UseTable
 SDBP_Get = _scaliendb_client.SDBP_Get
 SDBP_Set = _scaliendb_client.SDBP_Set
 SDBP_Delete = _scaliendb_client.SDBP_Delete

@@ -1,9 +1,11 @@
 #include "HTTPShardServerSession.h"
 #include "ShardServer.h"
 #include "System/Config.h"
+#include "System/FileSystem.h"
 #include "Application/HTTP/UrlParam.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Framework/Replication/ReplicationConfig.h"
+#include "Framework/Storage/StorageDataCache.h"
 #include "Version.h"
 
 void HTTPShardServerSession::SetShardServer(ShardServer* shardServer_)
@@ -73,6 +75,7 @@ void HTTPShardServerSession::PrintStatus()
     Buffer                      keybuf;
     Buffer                      valbuf;
     uint64_t                    primaryID;
+    uint64_t                    totalSpace, freeSpace, diskUsage;
 
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
@@ -82,6 +85,18 @@ void HTTPShardServerSession::PrintStatus()
     session.PrintPair("NodeID", valbuf.GetBuffer());   
 
     session.PrintPair("Controllers", configFile.GetValue("controllers", ""));
+
+    totalSpace = FS_DiskSpace(configFile.GetValue("database.dir", "db"));
+    freeSpace = FS_FreeDiskSpace(configFile.GetValue("database.dir", "db"));
+    diskUsage = shardServer->GetEnvironment().GetSize();
+    valbuf.Writef("%s (Total %s, Free %s)", 
+     HumanBytes(diskUsage), HumanBytes(totalSpace), HumanBytes(freeSpace));
+    session.PrintPair("Disk usage", valbuf);
+
+    valbuf.Writef("%s (Used %s, %U%%)",
+     HumanBytes(DCACHE->GetTotalSize()), HumanBytes(DCACHE->GetUsedSize()),
+     (uint64_t) (DCACHE->GetUsedSize() / (float) DCACHE->GetTotalSize() * 100.0 + 0.5));
+    session.PrintPair("Cache usage", valbuf);
 
     // write quorums, shards, and leases
     quorums = shardServer->GetQuorums();

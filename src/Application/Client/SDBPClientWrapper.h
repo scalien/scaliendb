@@ -46,7 +46,15 @@ struct SDBP_NodeParams
 */
 
 void            SDBP_ResultClose(ResultObj result);
+std::string     SDBP_ResultKey(ResultObj result);
 std::string     SDBP_ResultValue(ResultObj result);
+uint64_t        SDBP_ResultDatabaseID(ResultObj result);
+uint64_t        SDBP_ResultTableID(ResultObj result);
+void            SDBP_ResultBegin(ResultObj result);
+void            SDBP_ResultNext(ResultObj result);
+bool            SDBP_ResultIsEnd(ResultObj result);
+int				SDBP_ResultTransportStatus(ResultObj result);
+int				SDBP_ResultCommandStatus(ResultObj result);
 
 /*
 ===============================================================================================
@@ -69,15 +77,12 @@ uint64_t        SDBP_GetMasterTimeout(ClientObj client);
 uint64_t        SDBP_GetDatabaseID(ClientObj client, const std::string& name);
 uint64_t        SDBP_GetTableID(ClientObj client, uint64_t databaseID, const std::string& name);
 
-int             SDBP_Get(ClientObj client,
-                 uint64_t databaseID, uint64_t tableID,
-                 const std::string& key);
-int             SDBP_Set(ClientObj client,
-                 uint64_t databaseID, uint64_t tableID,
-                 const std::string& key, const std::string& value);
-int             SDBP_Delete(ClientObj client,
-                 uint64_t databaseID, uint64_t tableID,
-                 const std::string& key);
+int             SDBP_UseDatabase(ClientObj client, const std::string& name);
+int             SDBP_UseTable(ClientObj client, const std::string& name);
+
+int             SDBP_Get(ClientObj client, const std::string& key);
+int             SDBP_Set(ClientObj client, const std::string& key, const std::string& value);
+int             SDBP_Delete(ClientObj client, const std::string& key);
 
 /*
 ===============================================================================================

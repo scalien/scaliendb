@@ -53,13 +53,14 @@ public:
     
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
     int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
+    int                     UseDatabase(ReadBuffer& name);
+    int                     UseTable(ReadBuffer& name);
     
-    int                     Get(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
-    int                     Set(uint64_t databaseID, uint64_t tableID, 
-                                ReadBuffer& key,
-                                ReadBuffer& value);
+    int                     Get(ReadBuffer& key);
+    int                     Set(ReadBuffer& key, ReadBuffer& value);
+    int                     Delete(ReadBuffer& key);
 
-    int                     Delete(uint64_t databaseID, uint64_t tableID, ReadBuffer& key);
+    bool                    IsBatched();
 
 private:
     typedef InList<Request>                 RequestList;
@@ -111,6 +112,10 @@ private:
     ControllerConnection**  controllerConnections;
     int                     numControllers;
     RequestListMap          quorumRequests;
+    bool                    isDatabaseSet;
+    uint64_t                databaseID;
+    bool                    isTableSet;
+    uint64_t                tableID;
 };
 
 };  // namespace

@@ -32,9 +32,12 @@ public:
 
     int             CommandStatus();
     int             TransportStatus();
+    int             TimeoutStatus();
 
-    int             Key(ReadBuffer& key);
-    int             Value(ReadBuffer& value);
+    int             GetKey(ReadBuffer& key);
+    int             GetValue(ReadBuffer& value);
+    int             GetDatabaseID(uint64_t& databaseID);
+    int             GetTableID(uint64_t& tableID);
 
     unsigned        GetRequestCount();
 

@@ -56,6 +56,25 @@ void SDBP_ResultClose(ResultObj result_)
     delete result;
 }
 
+std::string SDBP_ResultKey(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    std::string ret;
+    ReadBuffer  key;
+    int         status;
+    
+    if (!result)
+        return ret;
+    
+    status = result->GetKey(key);
+    if (status < 0)
+        return ret;
+    
+    ret.append(key.GetBuffer(), key.GetLength());
+    
+    return ret;
+}
+
 std::string SDBP_ResultValue(ResultObj result_)
 {
     Result*     result = (Result*) result_;
@@ -66,13 +85,97 @@ std::string SDBP_ResultValue(ResultObj result_)
     if (!result)
         return ret;
     
-    status = result->Value(value);
+    status = result->GetValue(value);
     if (status < 0)
         return ret;
     
     ret.append(value.GetBuffer(), value.GetLength());
     
     return ret;
+}
+
+uint64_t SDBP_ResultDatabaseID(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    ReadBuffer  value;
+    uint64_t    databaseID;
+    int         status;
+    
+    if (!result)
+        return 0;
+    
+    status = result->GetDatabaseID(databaseID);
+    if (status < 0)
+        return 0;
+    
+    return databaseID;
+}
+
+uint64_t SDBP_ResultTableID(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    ReadBuffer  value;
+    uint64_t    tableID;
+    int         status;
+    
+    if (!result)
+        return 0;
+    
+    status = result->GetTableID(tableID);
+    if (status < 0)
+        return 0;
+    
+    return tableID;
+}
+
+void SDBP_ResultBegin(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return;
+    
+    result->Begin();
+}
+
+void SDBP_ResultNext(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return;
+    
+    result->Next();
+}
+
+bool SDBP_ResultIsEnd(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return true;
+    
+    return result->IsEnd();
+}
+
+int SDBP_ResultTransportStatus(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return SDBP_API_ERROR;
+    
+    return result->TransportStatus();
+}
+
+int SDBP_ResultCommandStatus(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return SDBP_API_ERROR;
+    
+    return result->CommandStatus();
 }
 
 /*
@@ -165,30 +268,45 @@ uint64_t SDBP_GetTableID(ClientObj client_, uint64_t databaseID, const std::stri
     return tableID;
 }
 
-int	SDBP_Get(ClientObj client_, uint64_t databaseID, uint64_t tableID, const std::string& key_)
+int SDBP_UseDatabase(ClientObj client_, const std::string& name_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  name = name_.c_str();
+
+    return client->UseDatabase(name);
+}
+
+int SDBP_UseTable(ClientObj client_, const std::string& name_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  name = name_.c_str();
+
+    return client->UseTable(name);
+}
+
+int	SDBP_Get(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key = key_.c_str();
 
-    return client->Get(databaseID, tableID, key);
+    return client->Get(key);
 }
 
-int	SDBP_Set(ClientObj client_, uint64_t databaseID, uint64_t tableID, 
- const std::string& key_, const std::string& value_)
+int	SDBP_Set(ClientObj client_, const std::string& key_, const std::string& value_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key = key_.c_str();
     ReadBuffer  value = value_.c_str();
 
-    return client->Set(databaseID, tableID, key, value);
+    return client->Set(key, value);
 }
 
-int SDBP_Delete(ClientObj client_, uint64_t databaseID, uint64_t tableID, const std::string& key_)
+int SDBP_Delete(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key = key_.c_str();
 
-    return client->Delete(databaseID, tableID, key);
+    return client->Delete(key);
 }
 
 /*
@@ -201,8 +319,9 @@ int SDBP_Delete(ClientObj client_, uint64_t databaseID, uint64_t tableID, const 
 
 bool SDBP_IsBatched(ClientObj client_)
 {
-    // TODO:
-    return false;
+    Client*     client = (Client*) client_;
+    
+    return client->IsBatched();
 }
 
 /*

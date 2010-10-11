@@ -92,4 +92,24 @@
 
 #define FOREACH(it, cont) for (it = (cont).First(); it != NULL; it = (cont).Next(it))
 
+// TODO: write better foreach macro
+//#define FOREACH(it, cont) \
+//    IteratorBase const & iter = MakeIterator((cont).First());
+//
+//struct IteratorBase {};
+//
+//template<typename T>
+//struct Iterator : public IteratorBase
+//{
+//public:
+//    Iterator(T const& iter_) : iter(iter_) {}
+//    mutable T&  iter;
+//};
+//
+//template<typename T>
+//Iterator<T> MakeIterator(T const& t)
+//{
+//    return Iterator<T>(t);
+//}
+
 #endif

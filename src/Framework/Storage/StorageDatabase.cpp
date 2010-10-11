@@ -45,6 +45,18 @@ const char* StorageDatabase::GetName()
     return name.GetBuffer();
 }
 
+uint64_t StorageDatabase::GetSize()
+{
+    StorageTable*   it;
+    uint64_t        size;
+    
+    size = 0;
+    FOREACH (it, tables)
+        size += it->GetSize();
+    
+    return size;
+}
+
 StorageEnvironment* StorageDatabase::GetEnvironment()
 {
     return environment;

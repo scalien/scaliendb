@@ -21,6 +21,7 @@ public:
     void                    Open(const char *path, const char* dbName);
     
     const char*             GetName();
+    uint64_t                GetSize();
     StorageEnvironment*     GetEnvironment();
     
     StorageTable*           GetTable(const char* tableName);

@@ -19,6 +19,7 @@ public:
     bool                    Open(const char *path);
     void                    Close();
     
+    uint64_t                GetSize();
     StorageDatabase*        GetDatabase(const char* dbName);
     
     void                    Commit(bool recovery = true, bool flush = true);

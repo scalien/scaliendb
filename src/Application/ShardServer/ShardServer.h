@@ -44,6 +44,8 @@ public:
     QuorumList*         GetQuorums();
     void                OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend);
 
+    StorageEnvironment& GetEnvironment();
+
     // ========================================================================================
     // SDBPContext interface:
     //

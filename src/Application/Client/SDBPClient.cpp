@@ -36,6 +36,10 @@ Client::Client()
     commandID = 0;
     masterCommandID = 0;
     configState = NULL;
+    isDatabaseSet = false;
+    databaseID = 0;
+    isTableSet = false;
+    tableID = 0;
     globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
 }
@@ -185,11 +189,43 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
     return SDBP_SUCCESS;
 }
 
-int Client::Get(uint64_t databaseID, uint64_t tableID, ReadBuffer& key)
+int Client::UseDatabase(ReadBuffer& name)
+{
+    int         ret;
+
+    isDatabaseSet = false;
+    isTableSet = false;
+    ret = GetDatabaseID(name, databaseID);
+    if (ret != SDBP_SUCCESS)
+        return ret;
+    
+    isDatabaseSet = true;
+    return SDBP_SUCCESS;
+}
+
+int Client::UseTable(ReadBuffer& name)
+{
+    int         ret;
+
+    if (!isDatabaseSet)
+        return SDBP_BADSCHEMA;
+
+    isTableSet = false;
+    ret = GetTableID(name, databaseID, tableID);
+    if (ret != SDBP_SUCCESS)
+        return ret;
+    
+    isTableSet = true;
+    return SDBP_SUCCESS;
+}
+
+int Client::Get(ReadBuffer& key)
 {
     Request*    req;
     
     // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
     
     req = new Request;
     req->Get(NextCommandID(), databaseID, tableID, key);
@@ -202,11 +238,13 @@ int Client::Get(uint64_t databaseID, uint64_t tableID, ReadBuffer& key)
     return result->CommandStatus();
 }
 
-int Client::Set(uint64_t databaseID, uint64_t tableID, ReadBuffer& key, ReadBuffer& value)
+int Client::Set(ReadBuffer& key, ReadBuffer& value)
 {
     Request*    req;
     
     // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
     
     req = new Request;
     req->Set(NextCommandID(), databaseID, tableID, key, value);
@@ -219,11 +257,13 @@ int Client::Set(uint64_t databaseID, uint64_t tableID, ReadBuffer& key, ReadBuff
     return result->CommandStatus(); 
 }
 
-int Client::Delete(uint64_t databaseID, uint64_t tableID, ReadBuffer& key)
+int Client::Delete(ReadBuffer& key)
 {
     Request*    req;
     
     // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
     
     req = new Request;
     req->Delete(NextCommandID(), databaseID, tableID, key);
@@ -234,6 +274,12 @@ int Client::Delete(uint64_t databaseID, uint64_t tableID, ReadBuffer& key)
     
     EventLoop();
     return result->CommandStatus();
+}
+
+bool Client::IsBatched()
+{
+    // TODO:
+    return false;
 }
 
 void Client::EventLoop()

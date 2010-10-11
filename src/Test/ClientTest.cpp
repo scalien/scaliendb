@@ -86,14 +86,14 @@ TEST_DEFINE(TestClientBasic)
     
     for (result->Begin(); !result->IsEnd(); result->Next())
     {
-        ret = result->Key(resultKey);
+        ret = result->GetKey(resultKey);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
         
         if (ReadBuffer::Cmp(key, resultKey) != 0)
             TEST_CLIENT_FAIL();
         
-        ret = result->Value(resultValue);
+        ret = result->GetValue(resultValue);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
             

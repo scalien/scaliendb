@@ -198,6 +198,11 @@ void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppe
     }
 }
 
+StorageEnvironment& ShardServer::GetEnvironment()
+{
+    return databaseEnv;
+}
+
 bool ShardServer::IsValidClientRequest(ClientRequest* request)
 {
      return request->IsShardServerRequest();

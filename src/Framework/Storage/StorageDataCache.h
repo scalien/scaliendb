@@ -23,6 +23,9 @@ public:
     void                        Init(unsigned size);
     void                        Shutdown();
 
+    uint64_t                    GetTotalSize();
+    uint64_t                    GetUsedSize();
+
     StorageDataPage*            GetPage();
     void                        FreePage(StorageDataPage* page);
 
