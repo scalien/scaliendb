@@ -10,6 +10,13 @@
 #define CATCHUPMESSAGE_KEYVALUE        'K'
 #define CATCHUPMESSAGE_COMMIT          'C'
 
+/*
+===============================================================================================
+
+ CatchupMessage
+
+===============================================================================================
+*/
 
 class CatchupMessage : public Message
 {
@@ -17,6 +24,7 @@ public:
     char            type;
     uint64_t        nodeID;
     uint64_t        paxosID;
+    uint64_t        shardID;
     ReadBuffer      key;
     ReadBuffer      value;
     

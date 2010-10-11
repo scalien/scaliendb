@@ -20,6 +20,8 @@ class ReplicatedLog
 public:
     void                    Init(QuorumContext* context);
 
+    bool                    IsMultiPaxosEnabled();
+
     void                    TryAppendNextValue();
     
     void                    OnMessage(PaxosMessage& msg);

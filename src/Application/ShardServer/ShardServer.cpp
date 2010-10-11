@@ -73,7 +73,7 @@ void ShardServer::Shutdown()
     databaseEnv.Close();
 }
 
-bool ShardServer::IsLeaderKnown(uint64_t quorumID)
+bool ShardServer::IsLeaseKnown(uint64_t quorumID)
 {
     QuorumData*     quorumData;
     ConfigQuorum*   configQuorum;
@@ -99,7 +99,7 @@ bool ShardServer::IsLeaderKnown(uint64_t quorumID)
     return true;
 }
 
-bool ShardServer::IsLeader(uint64_t quorumID)
+bool ShardServer::IsLeaseOwner(uint64_t quorumID)
 {
     QuorumData*     quorumData;
     
@@ -110,7 +110,7 @@ bool ShardServer::IsLeader(uint64_t quorumID)
     return quorumData->isPrimary;
 }
 
-uint64_t ShardServer::GetLeader(uint64_t quorumID)
+uint64_t ShardServer::GetLeaseOwner(uint64_t quorumID)
 {
     QuorumData*     quorumData;
     ConfigQuorum*   configQuorum;

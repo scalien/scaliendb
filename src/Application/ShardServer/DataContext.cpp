@@ -43,19 +43,24 @@ bool DataContext::IsAppending()
     return (nextValue.GetLength() != 0);
 }
 
-bool DataContext::IsLeaderKnown()
+bool DataContext::IsLeaseOwner()
 {
-    return shardServer->IsLeaderKnown(quorumID);
+    return shardServer->IsLeaseOwner(quorumID);
+}
+
+bool DataContext::IsLeaseKnown()
+{
+    return shardServer->IsLeaseKnown(quorumID);
+}
+
+uint64_t DataContext::GetLeaseOwner()
+{
+    return shardServer->GetLeaseOwner(quorumID);
 }
 
 bool DataContext::IsLeader()
 {
-    return shardServer->IsLeader(quorumID);
-}
-
-uint64_t DataContext::GetLeader()
-{
-    return shardServer->GetLeader(quorumID);
+    return IsLeaseOwner() && replicatedLog.IsMultiPaxosEnabled();
 }
 
 void DataContext::OnLearnLease()

@@ -37,10 +37,10 @@ public:
     void                Init();
     void                Shutdown();
     
-    // For ConfigContext
-    bool                IsLeaderKnown(uint64_t quorumID);
-    bool                IsLeader(uint64_t quorumID);
-    uint64_t            GetLeader(uint64_t quorumID);
+    // For DataContext
+    bool                IsLeaseKnown(uint64_t quorumID);
+    bool                IsLeaseOwner(uint64_t quorumID);
+    uint64_t            GetLeaseOwner(uint64_t quorumID);
     QuorumList*         GetQuorums();
     void                OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend);
 

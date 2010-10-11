@@ -44,19 +44,24 @@ bool ConfigContext::IsAppending()
     return (nextValue.GetLength() != 0);
 }
 
-bool ConfigContext::IsLeaderKnown()
-{
-    return paxosLease.IsLeaseKnown();
-}
-
-bool ConfigContext::IsLeader()
+bool ConfigContext::IsLeaseOwner()
 {
     return paxosLease.IsLeaseOwner();
 }
 
-uint64_t ConfigContext::GetLeader()
+bool ConfigContext::IsLeaseKnown()
+{
+    return paxosLease.IsLeaseKnown();
+}
+
+uint64_t ConfigContext::GetLeaseOwner()
 {
     return paxosLease.GetLeaseOwner();
+}
+
+bool ConfigContext::IsLeader()
+{
+    return IsLeaseOwner() && replicatedLog.IsMultiPaxosEnabled();
 }
 
 void ConfigContext::OnLearnLease()
