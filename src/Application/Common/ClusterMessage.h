@@ -3,7 +3,7 @@
 
 #include "System/Common.h"
 #include "Framework/Messaging/Message.h"
-#include "Application/Common/State/ConfigState.h"
+#include "Application/ConfigState/ConfigState.h"
 
 #define CLUSTERMESSAGE_SET_NODEID       'N' // master => shard server
 #define CLUSTERMESSAGE_SET_CONFIG_STATE 'C' // master => shard server

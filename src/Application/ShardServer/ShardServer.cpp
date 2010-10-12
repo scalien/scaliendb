@@ -106,7 +106,7 @@ bool ShardServer::IsLeaseOwner(uint64_t quorumID)
     quorumData = LocateQuorum(quorumID);
     if (quorumData == NULL)
         return false;
-    
+     
     return quorumData->isPrimary;
 }
 
@@ -302,8 +302,13 @@ QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
 
 void ShardServer::TryAppend(QuorumData* quorumData)
 {
+    Buffer buffer;
+    
     if (!quorumData->context.IsAppending())
+    {
+        
         quorumData->context.Append(quorumData->dataMessages.First());
+    }
 }
 
 void ShardServer::FromClientRequest(ClientRequest* request, DataMessage* message)

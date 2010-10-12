@@ -11,7 +11,7 @@
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
-#include "Application/Common/State/ConfigState.h"
+#include "Application/ConfigState/ConfigState.h"
 #include "Application/Common/CatchupMessage.h"
 
 class ClientSession;            // forward

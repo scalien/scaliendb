@@ -1,7 +1,7 @@
 #ifndef JSONCONFIGSTATE_H
 #define JSONCONFIGSTATE_H
 
-#include "Application/Common/State/ConfigState.h"
+#include "Application/ConfigState/ConfigState.h"
 #include "Application/HTTP/JSONSession.h"
 
 class JSONConfigState
