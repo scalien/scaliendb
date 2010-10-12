@@ -132,6 +132,14 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
 {
     ClusterMessage  clusterMessage;
     
+    // catchup issue:
+    // when OnAppend() is called, the paxosID is already incremented in ReplicatedLog
+    // (configContext()->GetPaxosID() - 1) is the round of this message
+    // if this paxosID is smaller or equal to configStatePaxosID, that means
+    // our state already includes the mutations due to this round
+    if ((configContext.GetPaxosID() - 1) <= configStatePaxosID)
+        return;
+    
     if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
     {
         // tell ContextTransport that this connection has a new nodeID
@@ -197,6 +205,7 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
             omsg.KeyValue(key, value);
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
             omsg.Commit(configContext.GetPaxosID() - 1);
+            // send the paxosID whose value is in the db
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
             break;
         case CATCHUPMESSAGE_BEGIN_SHARD:
@@ -215,8 +224,9 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
         case CATCHUPMESSAGE_COMMIT:
             if (!catchingUp)
                 return;
-            configContext.SetPaxosID(imsg.paxosID);
-            configContext.OnCatchupComplete();      // this commits
+            configStatePaxosID = imsg.paxosID;
+            WriteConfigState();
+            configContext.OnCatchupComplete(imsg.paxosID);      // this commits
             catchingUp = false;
             configContext.ContinueReplication();
             Log_Message("Catchup complete");
@@ -496,19 +506,31 @@ void Controller::ReadConfigState()
 {
     bool        ret;
     ReadBuffer  value;
+    int         read;
     
     ret =  true;
-    ret &= systemDatabase->GetTable("config")->Get(ReadBuffer("state"), value);
-    ret &= configState.Read(value);
-    if (!ret)
+    
+    if (!systemDatabase->GetTable("config")->Get(ReadBuffer("state"), value))
+    {
         Log_Message("Starting with empty database...");
+        return;
+    }
+    
+    read = value.Readf("%U:", &configStatePaxosID);
+    if (read < 2)
+        ASSERT_FAIL();
+    
+    value.Advance(read);
+    
+    if (!configState.Read(value))
+        ASSERT_FAIL();
     
     Log_Trace("%.*s", P(&value));
 }
 
 void Controller::WriteConfigState()
 {
-    configStateBuffer.Clear();
+    configStateBuffer.Writef("%U:", configStatePaxosID);
     configState.Write(configStateBuffer);
     systemDatabase->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
 }

@@ -118,6 +118,8 @@ void TCPWriter::OnClose()
     if (writeBuffer)
         pool->Release(writeBuffer);
 
+    writeBuffer = NULL;
+    
     while (queue.GetLength() > 0)
         pool->Release(queue.Dequeue());
 }

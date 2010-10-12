@@ -32,7 +32,7 @@ public:
     void                    OnMessage();
     bool                    IsAppending();
     
-    void                    OnCatchupComplete();
+    void                    OnCatchupComplete(uint64_t paxosID);
     void                    OnLearnLease();
     void                    OnLeaseTimeout();
 

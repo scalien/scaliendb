@@ -251,9 +251,12 @@ void ReplicatedLog::NewPaxosRound()
     acceptor.state.OnNewPaxosRound();
 }
 
-void ReplicatedLog::OnCatchupComplete()
+void ReplicatedLog::OnCatchupComplete(uint64_t paxosID_)
 {
-    acceptor.OnCatchupComplete();
+    paxosID = paxosID_;
+    
+    acceptor.OnCatchupComplete(); // commits
+    
     NewPaxosRound();
 }
 

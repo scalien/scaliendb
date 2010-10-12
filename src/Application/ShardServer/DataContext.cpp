@@ -132,7 +132,7 @@ void DataContext::OnStartCatchup()
     // TODO: xxx
 }
 
-void DataContext::OnCatchupComplete()
+void DataContext::OnCatchupComplete(uint64_t /*paxosID*/)
 {
     // TODO: xxx
 }

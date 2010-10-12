@@ -167,6 +167,8 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
     
     buffer = buffer_; // because of Advance()
 
+    Init();
+
     hasMaster = false;
     if (withVolatile)
     {
@@ -564,6 +566,11 @@ void ConfigState::OnRegisterShardServer(ConfigMessage& message)
     it->endpoint = message.endpoint;
     
     shardServers.Append(it);
+    
+    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
+    // usually nextIDs are increased when the ClientRequest is made, but not in this case
+    if (message.nodeID == nextNodeID)
+        nextNodeID++;
 }
 
 void ConfigState::OnCreateQuorum(ConfigMessage& message)
@@ -578,6 +585,11 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     it->activeNodes = message.nodes;
     
     quorums.Append(it);
+
+    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
+    // usually nextIDs are increased when the ClientRequest is made, but not in this case
+    if (message.quorumID == nextQuorumID)
+        nextQuorumID++;
 }
 
 void ConfigState::OnIncreaseQuorum(ConfigMessage& message)
@@ -655,6 +667,11 @@ void ConfigState::OnCreateDatabase(ConfigMessage& message)
     it->databaseID = message.databaseID;
     it->name.Write(message.name);
     databases.Append(it);
+    
+    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
+    // usually nextIDs are increased when the ClientRequest is made, but not in this case
+    if (message.databaseID == nextDatabaseID)
+        nextDatabaseID++;
 }
 
 void ConfigState::OnRenameDatabase(ConfigMessage& message)
@@ -716,6 +733,11 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     itShard->tableID = message.tableID;
     itShard->shardID = message.shardID;
     shards.Append(itShard);
+ 
+    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
+    // usually nextIDs are increased when the ClientRequest is made, but not in this case
+    if (message.shardID == nextShardID)
+        nextShardID++;
     
     itTable = new ConfigTable;
     itTable->databaseID = message.databaseID;
@@ -725,6 +747,11 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     tables.Append(itTable);
     
     itDatabase->tables.Append(message.tableID);
+
+    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
+    // usually nextIDs are increased when the ClientRequest is made, but not in this case
+    if (message.tableID == nextTableID)
+        nextTableID++;
 }
 
 void ConfigState::OnRenameTable(ConfigMessage& message)

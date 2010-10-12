@@ -152,6 +152,7 @@ void ConfigContext::OnMessage(ReadBuffer buffer)
             break;
         case CATCHUP_PROTOCOL_ID:           // 'C'
             OnCatchupMessage(buffer);
+            break;
         default:
             ASSERT_FAIL();
             break;
@@ -163,9 +164,9 @@ void ConfigContext::OnStartCatchup()
     controller->OnStartCatchup();
 }
 
-void ConfigContext::OnCatchupComplete()
+void ConfigContext::OnCatchupComplete(uint64_t paxosID)
 {
-    replicatedLog.OnCatchupComplete();
+    replicatedLog.OnCatchupComplete(paxosID);
 }
 
 void ConfigContext::StopReplication()

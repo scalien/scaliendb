@@ -78,6 +78,7 @@ private:
     void                UpdatePrimaryLeaseTimer();
     void                UpdateListeners();
     
+    uint64_t            configStatePaxosID;
     bool                catchingUp;
     ConfigContext       configContext;
     MessageList         configMessages;

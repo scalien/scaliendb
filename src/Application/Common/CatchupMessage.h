@@ -3,7 +3,7 @@
 
 #include "Framework/Messaging/Message.h"
 
-#define CATCHUP_PROTOCOL_ID     'C'
+#define CATCHUP_PROTOCOL_ID            'C'
 
 #define CATCHUPMESSAGE_REQUEST         'R'
 #define CATCHUPMESSAGE_BEGIN_SHARD     'B'

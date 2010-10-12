@@ -5,7 +5,8 @@
 void PaxosAcceptor::Init(QuorumContext* context_)
 {
     context = context_;
-
+    sendReply = false;
+    
     ReadState();
 }
 
@@ -22,7 +23,7 @@ void PaxosAcceptor::OnMessage(PaxosMessage& imsg)
 void PaxosAcceptor::OnCatchupComplete()
 {
     state.Init();
-    WriteState();
+    WriteState(false);
 }
 
 void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
@@ -54,7 +55,7 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
          imsg.proposalID, state.acceptedProposalID,
          state.acceptedRunID, state.acceptedValue);
     
-    WriteState();
+    WriteState(true);
     //RLOG->StopPaxos(); TODO
 }
 
@@ -83,15 +84,15 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     state.acceptedValue.Write(imsg.value);
     omsg.ProposeAccepted(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);
     
-    WriteState();
-    //RLOG->StopPaxos(); TODO
+    WriteState(true);
+    //TODO: RLOG->StopPaxos();
 }
 
 void PaxosAcceptor::OnStateWritten()
 {
     Log_Trace();
     
-    if (writtenPaxosID != context->GetPaxosID())
+    if (!sendReply || writtenPaxosID != context->GetPaxosID())
         return;
     
     context->GetTransport()->SendMessage(senderID, omsg);
@@ -116,9 +117,11 @@ void PaxosAcceptor::ReadState()
     }
 }
 
-void PaxosAcceptor::WriteState()
+void PaxosAcceptor::WriteState(bool sendReply_)
 {
     QuorumDatabase* db;
+    
+    sendReply = sendReply_; // used in OnStateWritten()
     
     db = context->GetDatabase();
     

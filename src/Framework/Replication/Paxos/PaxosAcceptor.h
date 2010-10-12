@@ -30,8 +30,9 @@ private:
     void                        OnStateWritten();
 
     void                        ReadState();
-    void                        WriteState();
+    void                        WriteState(bool sendReply);
 
+    bool                        sendReply;
     QuorumContext*              context;
     PaxosAcceptorState          state;
     PaxosMessage                omsg;

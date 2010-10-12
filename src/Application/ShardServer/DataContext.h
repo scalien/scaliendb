@@ -53,7 +53,7 @@ public:
     virtual Buffer*                 GetNextValue();
     virtual void                    OnMessage(ReadBuffer msg);
     virtual void                    OnStartCatchup();
-    virtual void                    OnCatchupComplete();
+    virtual void                    OnCatchupComplete(uint64_t paxosID);
 
     virtual void                    StopReplication();
     virtual void                    ContinueReplication();
