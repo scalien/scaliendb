@@ -38,7 +38,9 @@ int HTTPRequest::Parse(char* buf, int len)
         headPos = header.Parse(buf, len, pos);
         if (headPos <= 0)
             return headPos;
-        if (headPos >= len)
+        if (headPos == len)
+            return 0;
+        if (headPos > len)
             return -1;
         
         pos = headPos;
