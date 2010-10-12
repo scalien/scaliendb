@@ -15,7 +15,7 @@ void DataMessage::Delete(uint64_t tableID_, ReadBuffer& key_)
     key = key_;
 }
 
-bool DataMessage::Read(ReadBuffer& buffer)
+int DataMessage::Read(ReadBuffer& buffer)
 {
     int read;
     
@@ -37,7 +37,7 @@ bool DataMessage::Read(ReadBuffer& buffer)
             return false;
     }
     
-    return (read == (signed)buffer.GetLength() ? true : false);
+    return read;
 }
 
 bool DataMessage::Write(Buffer& buffer)

@@ -36,15 +36,18 @@ public:
 
     void                Init();
     void                Shutdown();
+
+    QuorumList*         GetQuorums();
+    StorageEnvironment& GetEnvironment();
+    void                ProcessMessage(QuorumData* quorumData, DataMessage& message, bool ownAppend);
     
-    // For DataContext
+    // ========================================================================================
+    // For DataContext:
+    //
     bool                IsLeaseKnown(uint64_t quorumID);
     bool                IsLeaseOwner(uint64_t quorumID);
     uint64_t            GetLeaseOwner(uint64_t quorumID);
-    QuorumList*         GetQuorums();
-    void                OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend);
-
-    StorageEnvironment& GetEnvironment();
+    void                OnAppend(uint64_t quorumID, ReadBuffer& value, bool ownAppend);
 
     // ========================================================================================
     // SDBPContext interface:
@@ -52,7 +55,6 @@ public:
     bool                IsValidClientRequest(ClientRequest* request);
     void                OnClientRequest(ClientRequest* request);
     void                OnClientClose(ClientSession* session);
-    // ========================================================================================
 
     // ========================================================================================
     // ClusterContext interface:

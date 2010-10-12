@@ -40,7 +40,9 @@ public:
     uint64_t            GetReplicationRound();
     ConfigState*        GetConfigState();
 
-    // For ConfigContext
+    // ========================================================================================
+    // For ConfigContext:
+    //
     void                OnLearnLease();
     void                OnLeaseTimeout();
     void                OnAppend(ConfigMessage& message, bool ownAppend);
@@ -53,7 +55,6 @@ public:
     bool                IsValidClientRequest(ClientRequest* request);
     void                OnClientRequest(ClientRequest* request);
     void                OnClientClose(ClientSession* session);
-    // ========================================================================================
 
     // ========================================================================================
     // ClusterContext interface:

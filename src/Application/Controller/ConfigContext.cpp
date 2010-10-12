@@ -112,12 +112,9 @@ QuorumTransport* ConfigContext::GetTransport()
     return &transport;
 }
 
-Buffer* ConfigContext::GetNextValue()
+Buffer& ConfigContext::GetNextValue()
 {
-    if (nextValue.GetLength() > 0)
-        return &nextValue;
-    
-    return NULL;
+    return nextValue;
 }
 
 void ConfigContext::OnAppend(ReadBuffer value, bool ownAppend)

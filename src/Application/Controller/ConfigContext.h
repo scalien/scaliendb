@@ -47,7 +47,7 @@ public:
     virtual QuorumDatabase*         GetDatabase();
     virtual QuorumTransport*        GetTransport();
     
-    virtual Buffer*                 GetNextValue();
+    virtual Buffer&                 GetNextValue();
 
     virtual void                    OnAppend(ReadBuffer value, bool ownAppend);
     virtual void                    OnMessage(ReadBuffer msg);

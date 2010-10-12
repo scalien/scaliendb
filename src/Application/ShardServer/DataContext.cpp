@@ -31,10 +31,9 @@ void DataContext::UpdateConfig(ConfigQuorum* configQuorum)
         quorum.AddNode(*it);
 }
 
-void DataContext::Append(DataMessage* message)
+void DataContext::Append()
 {
-    message->Write(nextValue);
-
+    assert(nextValue.GetLength() > 0);
     replicatedLog.TryAppendNextValue();
 }
 
@@ -111,20 +110,14 @@ QuorumTransport* DataContext::GetTransport()
 
 void DataContext::OnAppend(ReadBuffer value, bool ownAppend)
 {
-    DataMessage message;
-
     nextValue.Clear();
 
-    assert(message.Read(value));
-    shardServer->OnAppend(quorumID, message, ownAppend);
+    shardServer->OnAppend(quorumID, value, ownAppend);
 }
 
-Buffer* DataContext::GetNextValue()
+Buffer& DataContext::GetNextValue()
 {
-    if (nextValue.GetLength() > 0)
-        return &nextValue;
-    
-    return NULL;
+    return nextValue;
 }
 
 void DataContext::OnStartCatchup()

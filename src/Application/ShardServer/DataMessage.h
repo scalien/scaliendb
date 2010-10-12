@@ -14,7 +14,7 @@
 ===============================================================================================
 */
 
-class DataMessage : public Message
+class DataMessage
 {
 public:
     // Variables
@@ -32,7 +32,7 @@ public:
     DataMessage*    next;
 
     // Serialization
-    bool            Read(ReadBuffer& buffer);
+    int             Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);
 };
 

@@ -25,7 +25,7 @@ public:
                                      StorageTable* quorumTable, uint64_t logCacheSize);
     
     void                            UpdateConfig(ConfigQuorum* configQuorum);
-    void                            Append(DataMessage* message);
+    void                            Append(); // nextValue was filled up using GetNextValue()
     bool                            IsAppending();
     
     // ========================================================================================
@@ -50,7 +50,7 @@ public:
     virtual QuorumTransport*        GetTransport();
     
     virtual void                    OnAppend(ReadBuffer value, bool ownAppend);
-    virtual Buffer*                 GetNextValue();
+    virtual Buffer&                 GetNextValue();
     virtual void                    OnMessage(ReadBuffer msg);
     virtual void                    OnStartCatchup();
     virtual void                    OnCatchupComplete(uint64_t paxosID);

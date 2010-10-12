@@ -28,18 +28,16 @@ bool ReplicatedLog::IsMultiPaxosEnabled()
 
 void ReplicatedLog::TryAppendNextValue()
 {
-    Buffer* buffer;
-    
     Log_Trace();
     
     if (!context->IsLeaseOwner() || proposer.IsActive() || !proposer.state.multi)
         return;
     
-    buffer = context->GetNextValue();
-    if (buffer == NULL)
+    Buffer& value = context->GetNextValue();
+    if (value.GetLength() == 0)
         return;
     
-    Append(*buffer);
+    Append(value);
 }
 
 void ReplicatedLog::Append(Buffer& value)

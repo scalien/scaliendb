@@ -2,6 +2,7 @@
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
+#include "Application/Common/DatabaseConsts.h"
 
 #define REQUEST_TIMEOUT 1000
 #define DATABASE_NAME   "system"
@@ -73,6 +74,65 @@ void ShardServer::Shutdown()
     databaseEnv.Close();
 }
 
+ShardServer::QuorumList* ShardServer::GetQuorums()
+{
+    return &quorums;
+}
+
+StorageEnvironment& ShardServer::GetEnvironment()
+{
+    return databaseEnv;
+}
+
+void ShardServer::ProcessMessage(QuorumData* quorumData, DataMessage& message, bool ownAppend)
+{
+    StorageTable*       table;
+    ClientRequest*      request;
+
+    table = LocateTable(message.tableID);
+    if (!table)
+        ASSERT_FAIL();
+    
+    request = NULL;
+    if (ownAppend)
+    {
+        assert(quorumData->dataMessages.GetLength() > 0);
+        assert(quorumData->dataMessages.First()->type == message.type);
+        assert(quorumData->requests.GetLength() > 0);
+        request = quorumData->requests.First();
+        request->response.OK();
+    }
+    
+    // TODO: differentiate return status (FAILED, NOSERVICE)
+    switch (message.type)
+    {
+        case CLIENTREQUEST_SET:
+            if (!table->Set(message.key, message.value))
+            {
+                if (request)
+                    request->response.Failed();
+            }
+            break;
+        case CLIENTREQUEST_DELETE:
+            if (!table->Delete(message.key))
+            {
+                if (request)
+                    request->response.Failed();
+            }
+            break;
+        default:
+            ASSERT_FAIL();
+            break;
+    }
+
+    if (ownAppend)
+    {
+        quorumData->requests.Remove(request);
+        request->OnComplete(); // request deletes itself
+        quorumData->dataMessages.Delete(quorumData->dataMessages.First());
+    }
+}
+
 bool ShardServer::IsLeaseKnown(uint64_t quorumID)
 {
     QuorumData*     quorumData;
@@ -136,16 +196,11 @@ uint64_t ShardServer::GetLeaseOwner(uint64_t quorumID)
     return configQuorum->primaryID;
 }
 
-ShardServer::QuorumList* ShardServer::GetQuorums()
+void ShardServer::OnAppend(uint64_t quorumID, ReadBuffer& value, bool ownAppend)
 {
-    return &quorums;
-}
-
-void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppend)
-{
-    QuorumData*     quorumData;
-    StorageTable*   table;
-    ClientRequest*  request;
+    int                 read;
+    QuorumData*         quorumData;
+    DataMessage         message;
     
     Log_Trace();
     
@@ -153,54 +208,17 @@ void ShardServer::OnAppend(uint64_t quorumID, DataMessage& message, bool ownAppe
     if (!quorumData)
         ASSERT_FAIL();
         
-    table = LocateTable(message.tableID);
-    if (!table)
-        ASSERT_FAIL();
-    
-    request = NULL;
-    if (ownAppend)
+    while (value.GetLength() > 0)
     {
-        assert(quorumData->dataMessages.GetLength() > 0);
-        assert(quorumData->dataMessages.First()->type == message.type);
-        assert(quorumData->requests.GetLength() > 0);
-        request = quorumData->requests.First();
-        request->response.OK();
-    }
-    
-    switch (message.type)
-    {
-    // TODO: differentiate return status (FAILED, NOSERVICE)
-    case CLIENTREQUEST_SET:
-        if (!table->Set(message.key, message.value))
-        {
-            if (request)
-                request->response.Failed();
-        }
-        break;
-    case CLIENTREQUEST_DELETE:
-        if (!table->Delete(message.key))
-        {
-            if (request)
-                request->response.Failed();
-        }
-        break;
-    default:
-        ASSERT_FAIL();
-        break;
-    }
+        read = message.Read(value);
+        if (read <= 0)
+            ASSERT_FAIL();
 
-    if (ownAppend)
-    {
-        quorumData->requests.Remove(request);
-        // request deletes itself
-        request->OnComplete();
-        quorumData->dataMessages.Delete(quorumData->dataMessages.First());
-    }
-}
+        ProcessMessage(quorumData, message, ownAppend);
 
-StorageEnvironment& ShardServer::GetEnvironment()
-{
-    return databaseEnv;
+        value.Advance(read);
+        assert(value.Readf(":") == 1);
+    }    
 }
 
 bool ShardServer::IsValidClientRequest(ClientRequest* request)
@@ -302,12 +320,28 @@ QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
 
 void ShardServer::TryAppend(QuorumData* quorumData)
 {
-    Buffer buffer;
+    Buffer          singleBuffer;
+    DataMessage*    it;
     
-    if (!quorumData->context.IsAppending())
+    assert(quorumData->dataMessages.GetLength() > 0);
+    
+    if (!quorumData->context.IsAppending() && quorumData->dataMessages.GetLength() > 0)
     {
+        Buffer& value = quorumData->context.GetNextValue();
+        FOREACH(it, quorumData->dataMessages)
+        {
+            singleBuffer.Clear();
+            it->Write(singleBuffer);
+            if (value.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_REPLICATION_SIZE)
+                value.Appendf(":%B", &singleBuffer);
+            else
+                break;
+        }
         
-        quorumData->context.Append(quorumData->dataMessages.First());
+        assert(value.GetLength() > 0);
+        
+        quorumData->context.Append();
+//        quorumData->context.Append(quorumData->dataMessages.First());
     }
 }
 
