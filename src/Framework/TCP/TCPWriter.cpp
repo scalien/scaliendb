@@ -4,6 +4,8 @@
 TCPWriter::TCPWriter(TCPConnection* conn_, BufferPool* pool_)
 {
     conn = conn_;
+    writeBuffer = NULL;
+    
     if (pool_ == NULL)
         pool = DEFAULT_BUFFERPOOL;
     else
@@ -91,36 +93,31 @@ Buffer* TCPWriter::GetNext()
 {
     Log_Trace();
 
+    assert(writeBuffer == NULL);
+
     if (queue.GetLength() == 0)
         return NULL;
     
-    return queue.First();
+    writeBuffer = queue.Dequeue();
+    return writeBuffer;
 }
 
 void TCPWriter::OnNextWritten()
 {
     Log_Trace();
     
-    pool->Release(queue.Dequeue());
+    pool->Release(writeBuffer);
+    writeBuffer = NULL;
+    
     if (queue.GetLength() > 0)
         conn->OnWritePending(); 
 }
 
 void TCPWriter::OnClose()
 {
+    if (writeBuffer)
+        pool->Release(writeBuffer);
+
     while (queue.GetLength() > 0)
         pool->Release(queue.Dequeue());
-}
-    
-unsigned TCPWriter::BytesQueued()
-{
-    unsigned bytes;
-    Buffer* buffer;
-    
-    bytes = 0;
-
-    for (buffer = queue.First(); buffer != NULL; buffer = queue.Next(buffer))
-        bytes += buffer->GetLength();
-
-    return bytes;
 }

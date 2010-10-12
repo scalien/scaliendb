@@ -41,13 +41,12 @@ public:
     virtual Buffer*             GetNext();
     virtual void                OnNextWritten();    
     virtual void                OnClose();
-    
-    unsigned                    BytesQueued();
 
 protected:
     TCPConnection*              conn;
     InPriorityQueue<Buffer>     queue;
     BufferPool*                 pool;
+    Buffer*                     writeBuffer; // this buffer is currently being written!
 };
 
 #endif
