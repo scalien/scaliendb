@@ -237,6 +237,7 @@
 		5487BDCE123A738000C235BA /* ClusterContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterContext.h; sourceTree = "<group>"; };
 		548BDE38125E282B001ED245 /* CatchupMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupMessage.h; sourceTree = "<group>"; };
 		548BDE39125E282B001ED245 /* CatchupMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CatchupMessage.cpp; sourceTree = "<group>"; };
+		548BE6961264C5C8001ED245 /* DatabaseConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseConsts.h; sourceTree = "<group>"; };
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
@@ -581,6 +582,7 @@
 				5487BDCD123A738000C235BA /* ContextTransport.cpp */,
 				548BDE38125E282B001ED245 /* CatchupMessage.h */,
 				548BDE39125E282B001ED245 /* CatchupMessage.cpp */,
+				548BE6961264C5C8001ED245 /* DatabaseConsts.h */,
 			);
 			name = Common;
 			path = Application/Common;

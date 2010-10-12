@@ -1,5 +1,6 @@
 #include "ConfigState.h"
 #include "System/Macros.h"
+#include "Application/Common/DatabaseConsts.h"
 
 #define HAS_LEADER_YES          'Y'
 #define HAS_LEADER_NO           'N'
@@ -462,6 +463,9 @@ bool ConfigState::CompleteCreateDatabase(ConfigMessage& message)
 {
     ConfigDatabase* it;
     
+    if (message.name.GetLength() > DATABASE_NAME_SIZE)
+        return false;
+    
     it = GetDatabase(message.name);
     if (it != NULL)
         return false; // database with name exists
@@ -474,6 +478,9 @@ bool ConfigState::CompleteRenameDatabase(ConfigMessage& message)
 {
     ConfigDatabase* it;
     
+    if (message.name.GetLength() > DATABASE_NAME_SIZE)
+        return false;
+
     it = GetDatabase(message.databaseID);
     if (it == NULL)
         return false; // no such database
@@ -502,6 +509,9 @@ bool ConfigState::CompleteCreateTable(ConfigMessage& message)
     ConfigDatabase* itDatabase;
     ConfigTable*    itTable;
     
+    if (message.name.GetLength() > DATABASE_NAME_SIZE)
+        return false;
+
     itQuorum = GetQuorum(message.quorumID); 
     if (itQuorum == NULL)
         return false; // no such quorum
@@ -523,6 +533,9 @@ bool ConfigState::CompleteRenameTable(ConfigMessage& message)
 {
     ConfigDatabase* itDatabase;
     ConfigTable*    itTable;
+
+    if (message.name.GetLength() > DATABASE_NAME_SIZE)
+        return false;
 
     itDatabase = GetDatabase(message.databaseID);
     if (itDatabase == NULL)
