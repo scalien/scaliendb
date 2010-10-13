@@ -169,12 +169,12 @@ void Controller::OnStartCatchup()
 {
     CatchupMessage    msg;
     
-    if (!configContext.IsLeaseKnown() || catchingUp)
+    if (catchingUp || !configContext.IsLeaseKnown())
         return;
     
     configContext.StopReplication();
     
-    msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID());
+    msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID(), configContext.GetQuorumID());
     
     CONTEXT_TRANSPORT->SendQuorumMessage(
      configContext.GetLeaseOwner(), configContext.GetQuorumID(), msg);
@@ -198,6 +198,7 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
         case CATCHUPMESSAGE_REQUEST:
             if (!configContext.IsLeaseOwner())
                 return;
+            assert(imsg.quorumID == configContext.GetQuorumID());
             // send configState
             key.Wrap("state");
             configState.Write(buffer);

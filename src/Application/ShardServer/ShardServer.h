@@ -11,6 +11,7 @@
 #include "Framework/Storage/StorageTable.h"
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
+#include "Application/Common/CatchupMessage.h"
 #include "Application/SDBP/SDBPContext.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "DataMessage.h"
@@ -48,6 +49,8 @@ public:
     bool                IsLeaseOwner(uint64_t quorumID);
     uint64_t            GetLeaseOwner(uint64_t quorumID);
     void                OnAppend(uint64_t quorumID, ReadBuffer& value, bool ownAppend);
+    void                OnStartCatchup(uint64_t quorumID);
+    void                OnCatchupMessage(CatchupMessage& message);
 
     // ========================================================================================
     // SDBPContext interface:
@@ -79,6 +82,9 @@ private:
     void                UpdatePrimaryLeaseTimer();
     void                OnClientRequestGet(ClientRequest* request);
     
+    // catchingUp is in ShardServer and not in QuorumData because a shard server
+    // should only be catching up in one quorum at a time!
+    bool                catchingUp;
     bool                awaitingNodeID;
     QuorumList          quorums;
     ConfigState         configState;
@@ -105,7 +111,7 @@ public:
     typedef InList<ClientRequest>   RequestList;
     typedef List<uint64_t>          ShardList;
 
-    QuorumData()    { isPrimary = false; prev = next = this; requestedLeaseExpireTime = 0; }
+    QuorumData();
 
     bool            isPrimary;
     bool            isActive;

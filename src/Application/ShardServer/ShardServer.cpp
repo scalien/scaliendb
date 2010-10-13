@@ -3,6 +3,7 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/DatabaseConsts.h"
+#include "Application/Common/CatchupMessage.h"
 
 #define REQUEST_TIMEOUT 1000
 #define DATABASE_NAME   "system"
@@ -52,7 +53,9 @@ void ShardServer::Init()
     }
 
     CONTEXT_TRANSPORT->SetClusterContext(this);
-        
+    
+    catchingUp = false;
+    
     requestTimer.SetDelay(REQUEST_TIMEOUT);
     requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));    
 }
@@ -215,10 +218,85 @@ void ShardServer::OnAppend(uint64_t quorumID, ReadBuffer& value, bool ownAppend)
             ASSERT_FAIL();
 
         ProcessMessage(quorumData, message, ownAppend);
+    }
+}
 
-        value.Advance(read);
-        assert(value.Readf(":") == 1);
-    }    
+void ShardServer::OnStartCatchup(uint64_t quorumID)
+{
+    QuorumData*     quorumData;
+    CatchupMessage  msg;
+
+    quorumData = LocateQuorum(quorumID);
+    if (!quorumData)
+        ASSERT_FAIL();
+
+    if (catchingUp || !quorumData->context.IsLeaseKnown())
+        return;
+    
+    quorumData->context.StopReplication();
+    
+    msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID(), quorumID);
+    
+    CONTEXT_TRANSPORT->SendQuorumMessage(
+     quorumData->context.GetLeaseOwner(), quorumID, msg);
+     
+    catchingUp = true;
+    
+    Log_Message("Catchup started from node %" PRIu64 "", quorumData->context.GetLeaseOwner());
+}
+
+void ShardServer::OnCatchupMessage(CatchupMessage& imsg)
+{
+    CatchupMessage  omsg;
+    Buffer          buffer;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    QuorumData*     quorumData;
+    
+    switch (imsg.type)
+    {
+        case CATCHUPMESSAGE_REQUEST:
+            quorumData = LocateQuorum(imsg.quorumID);
+            if (!quorumData)
+                ASSERT_FAIL();
+
+            if (!quorumData->context.IsLeaseOwner())
+                return;
+//            // send configState
+//            key.Wrap("state");
+//            configState.Write(buffer);
+//            value.Wrap(buffer);
+//            omsg.KeyValue(key, value);
+//            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
+//            omsg.Commit(configContext.GetPaxosID() - 1);
+//            // send the paxosID whose value is in the db
+//            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
+            break;
+        case CATCHUPMESSAGE_BEGIN_SHARD:
+            break;
+        case CATCHUPMESSAGE_KEYVALUE:
+//            if (!catchingUp)
+//                return;
+//            hasMaster = configState.hasMaster;
+//            masterID = configState.masterID;
+//            if (!configState.Read(imsg.value))
+//                ASSERT_FAIL();
+//            configState.hasMaster = hasMaster;
+//            configState.masterID = masterID;
+            break;
+        case CATCHUPMESSAGE_COMMIT:
+            if (!catchingUp)
+                return;
+//            configStatePaxosID = imsg.paxosID;
+//            WriteConfigState();
+//            configContext.OnCatchupComplete(imsg.paxosID);      // this commits
+//            catchingUp = false;
+//            configContext.ContinueReplication();
+//            Log_Message("Catchup complete");
+            break;
+        default:
+            ASSERT_FAIL();
+    }
 }
 
 bool ShardServer::IsValidClientRequest(ClientRequest* request)
@@ -333,7 +411,7 @@ void ShardServer::TryAppend(QuorumData* quorumData)
             singleBuffer.Clear();
             it->Write(singleBuffer);
             if (value.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_REPLICATION_SIZE)
-                value.Appendf(":%B", &singleBuffer);
+                value.Appendf("%B", &singleBuffer);
             else
                 break;
         }
@@ -630,5 +708,12 @@ void ShardServer::OnClientRequestGet(ClientRequest* request)
     
     request->response.Value(value);
     request->OnComplete();
+}
+
+QuorumData::QuorumData()
+{
+    prev = next = this;
+    isPrimary = false;
+    requestedLeaseExpireTime = 0;
 }
 

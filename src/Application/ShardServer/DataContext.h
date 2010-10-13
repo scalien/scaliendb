@@ -61,6 +61,7 @@ public:
 
 private:
     void                            OnPaxosMessage(ReadBuffer buffer);
+    void                            OnCatchupMessage(ReadBuffer buffer);
     void                            RegisterPaxosID(uint64_t paxosID);
 
     ShardServer*                    shardServer;

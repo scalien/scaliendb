@@ -24,11 +24,12 @@ public:
     char            type;
     uint64_t        nodeID;
     uint64_t        paxosID;
+    uint64_t        quorumID;
     uint64_t        shardID;
     ReadBuffer      key;
     ReadBuffer      value;
     
-    bool            CatchupRequest(uint64_t nodeID);
+    bool            CatchupRequest(uint64_t nodeID, uint64_t quorumID);
     bool            BeginShard(uint64_t shardID);
     bool            KeyValue(ReadBuffer& key, ReadBuffer& value);
     bool            Commit(uint64_t paxosID);

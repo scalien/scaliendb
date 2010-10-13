@@ -122,7 +122,7 @@ Buffer& DataContext::GetNextValue()
 
 void DataContext::OnStartCatchup()
 {
-    // TODO: xxx
+    shardServer->OnStartCatchup(quorumID);
 }
 
 void DataContext::OnCatchupComplete(uint64_t /*paxosID*/)
@@ -154,8 +154,11 @@ void DataContext::OnMessage(ReadBuffer buffer)
     
     switch(proto)
     {
-        case PAXOS_PROTOCOL_ID:             //'P':
+        case PAXOS_PROTOCOL_ID:             // 'P':
             OnPaxosMessage(buffer);
+            break;
+        case CATCHUP_PROTOCOL_ID:           // 'C'
+            OnCatchupMessage(buffer);
             break;
         default:
             ASSERT_FAIL();
@@ -171,6 +174,14 @@ void DataContext::OnPaxosMessage(ReadBuffer buffer)
     RegisterPaxosID(msg.paxosID);
     replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
     replicatedLog.OnMessage(msg);
+}
+
+void DataContext::OnCatchupMessage(ReadBuffer buffer)
+{
+    CatchupMessage msg;
+    
+    msg.Read(buffer);
+    shardServer->OnCatchupMessage(msg);
 }
 
 void DataContext::RegisterPaxosID(uint64_t paxosID)

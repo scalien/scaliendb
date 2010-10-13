@@ -1,9 +1,10 @@
 #include "CatchupMessage.h"
 
-bool CatchupMessage::CatchupRequest(uint64_t nodeID_)
+bool CatchupMessage::CatchupRequest(uint64_t nodeID_, uint64_t quorumID_)
 {
     type = CATCHUPMESSAGE_REQUEST;
     nodeID = nodeID_;
+    quorumID = quorumID_;
     return true;
 }
 
@@ -40,8 +41,8 @@ bool CatchupMessage::Read(ReadBuffer& buffer)
     switch (buffer.GetCharAt(2))
     {
         case CATCHUPMESSAGE_REQUEST:
-            read = buffer.Readf("%c:%c:%U",
-             &proto, &type, &nodeID);
+            read = buffer.Readf("%c:%c:%U:%U",
+             &proto, &type, &nodeID, &quorumID);
             break;
         case CATCHUPMESSAGE_BEGIN_SHARD:
             read = buffer.Readf("%c:%c:%U",
@@ -69,8 +70,8 @@ bool CatchupMessage::Write(Buffer& buffer)
     switch (type)
     {
         case CATCHUPMESSAGE_REQUEST:
-            buffer.Writef("%c:%c:%U",
-             proto, type, nodeID);
+            buffer.Writef("%c:%c:%U:%U",
+             proto, type, nodeID, quorumID);
             return true;
         case CATCHUPMESSAGE_BEGIN_SHARD:
             buffer.Writef("%c:%c:%U",
