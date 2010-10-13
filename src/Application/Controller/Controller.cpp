@@ -18,6 +18,7 @@ void Controller::Init()
     
     primaryLeaseTimeout.SetCallable(MFUNC(Controller, OnPrimaryLeaseTimeout));
  
+    databaseEnv.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
     databaseEnv.Open(configFile.GetValue("database.dir", "db"));
     systemDatabase = databaseEnv.GetDatabase("system");
     REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));

@@ -20,7 +20,7 @@ class StorageDataCache
 public:
     static StorageDataCache*    Get();
     
-    void                        Init(unsigned size);
+    void                        Init(uint64_t size);
     void                        Shutdown();
 
     uint64_t                    GetTotalSize();
@@ -40,7 +40,7 @@ private:
     InList<StorageDataPage>     lruList;
     StorageDataPage*            pageArea;
     char*                       bufferArea;
-    unsigned                    num;
+    uint64_t                    num;
 };
 
 #endif
