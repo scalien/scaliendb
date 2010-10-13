@@ -164,7 +164,8 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
     if (configContext.IsLeaseOwner())
         UpdateListeners();
     
-    TryAppend();
+    if (configMessages.GetLength() > 0)
+        TryAppend();
 }
 
 void Controller::OnStartCatchup()
@@ -387,6 +388,8 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
 
 void Controller::TryAppend()
 {
+    assert(configMessages.GetLength() > 0);
+    
     if (!configContext.IsAppending())
         configContext.Append(configMessages.First());
 }

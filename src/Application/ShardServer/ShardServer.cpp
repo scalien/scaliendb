@@ -220,7 +220,8 @@ void ShardServer::OnAppend(uint64_t quorumID, ReadBuffer& value, bool ownAppend)
         ProcessMessage(quorumData, message, ownAppend);
     }
     
-    TryAppend(quorumData);
+    if (quorumData->dataMessages.GetLength() > 0)
+        TryAppend(quorumData);
 }
 
 void ShardServer::OnStartCatchup(uint64_t quorumID)
