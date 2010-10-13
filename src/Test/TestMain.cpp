@@ -7,7 +7,7 @@ TEST_START(TestMain);
 //TEST_ADD(TestStorageBigRandomTransaction);
 //TEST_ADD(TestStorageShardSize);
 //TEST_ADD(TestStorageShardSplit);
-//TEST_ADD(TestStorageFileSplit);
+TEST_ADD(TestStorageFileSplit);
 TEST_ADD(TestStorageFileThreeWaySplit);
 //TEST_ADD(TestInTreeMap);
 //TEST_ADD(TestInTreeMapInsert);

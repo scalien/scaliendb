@@ -141,15 +141,12 @@ StorageDataPage* StorageDataPage::SplitDataPage()
     StorageDataPage*    newPage;
     StorageKeyValue*    it;
     StorageKeyValue*    next;
-    uint32_t            target, sum, half, avg, kvsize;
+    uint32_t            target, sum, kvsize;
     
     if (required > 2 * pageSize)
         ASSERT_FAIL();
     
-    // TODO: make this more readable
-    half = (required - DATAPAGE_FIX_OVERHEAD) / 2 + DATAPAGE_FIX_OVERHEAD;
-    avg = (uint32_t)((required - DATAPAGE_FIX_OVERHEAD) / (float) keys.GetCount() + 0.5) + DATAPAGE_FIX_OVERHEAD;
-    target = MAX(half, avg);
+    target = (required - DATAPAGE_FIX_OVERHEAD) / 2 + DATAPAGE_FIX_OVERHEAD;
     sum = DATAPAGE_FIX_OVERHEAD;
     for (it = keys.First(); it != NULL; it = keys.Next(it))
     {
