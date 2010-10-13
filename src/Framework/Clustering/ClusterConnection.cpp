@@ -74,6 +74,7 @@ void ClusterConnection::OnConnect()
     Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
 
     progress = READY;
+    OnWriteReadyness();
 }
 
 void ClusterConnection::OnClose()
@@ -150,6 +151,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
         transport->AddConnection(this);
         transport->OnConnectionReady(nodeID, endpoint);
+        transport->OnWriteReadyness(this);
     }
     else if (progress == ClusterConnection::OUTGOING)
         ASSERT_FAIL();
@@ -157,4 +159,12 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         transport->OnMessage(nodeID, msg); // pass msg to upper layer
     
     return false;
+}
+
+void ClusterConnection::OnWriteReadyness()
+{
+    if (progress != ClusterConnection::READY)
+        return;
+    
+    transport->OnWriteReadyness(this);
 }

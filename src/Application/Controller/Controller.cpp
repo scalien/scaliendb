@@ -36,7 +36,7 @@ void Controller::Init()
     
     CONTEXT_TRANSPORT->SetClusterContext(this);
     
-    catchingUp = false;
+    isCatchingUp = false;
     
     // connect to the controller nodes
     numControllers = (unsigned) configFile.GetListNum("controllers");
@@ -172,7 +172,7 @@ void Controller::OnStartCatchup()
 {
     CatchupMessage    msg;
     
-    if (catchingUp || !configContext.IsLeaseKnown())
+    if (isCatchingUp || !configContext.IsLeaseKnown())
         return;
     
     configContext.StopReplication();
@@ -182,7 +182,7 @@ void Controller::OnStartCatchup()
     CONTEXT_TRANSPORT->SendQuorumMessage(
      configContext.GetLeaseOwner(), configContext.GetQuorumID(), msg);
      
-    catchingUp = true;
+    isCatchingUp = true;
     
     Log_Message("Catchup started from node %" PRIu64 "", configContext.GetLeaseOwner());
 }
@@ -199,7 +199,7 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
     switch (imsg.type)
     {
         case CATCHUPMESSAGE_REQUEST:
-            if (!configContext.IsLeaseOwner())
+            if (!configContext.IsLeader())
                 return;
             assert(imsg.quorumID == configContext.GetQuorumID());
             // send configState
@@ -216,7 +216,7 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
             ASSERT_FAIL();
             break;
         case CATCHUPMESSAGE_KEYVALUE:
-            if (!catchingUp)
+            if (!isCatchingUp)
                 return;
             hasMaster = configState.hasMaster;
             masterID = configState.masterID;
@@ -226,12 +226,12 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
             configState.masterID = masterID;
             break;
         case CATCHUPMESSAGE_COMMIT:
-            if (!catchingUp)
+            if (!isCatchingUp)
                 return;
             configStatePaxosID = imsg.paxosID;
             WriteConfigState();
             configContext.OnCatchupComplete(imsg.paxosID);      // this commits
-            catchingUp = false;
+            isCatchingUp = false;
             configContext.ContinueReplication();
             Log_Message("Catchup complete");
             break;

@@ -50,10 +50,14 @@ public:
     /* Returns whether the connection was closed and deleted        */
     virtual bool        OnMessage(ReadBuffer& msg);
 
+    virtual void        OnWriteReadyness();
+
 private:
     Progress            progress;
     uint64_t            nodeID;
     ClusterTransport*   transport;
+    
+    friend class ClusterTransport;
 };
 
 #endif

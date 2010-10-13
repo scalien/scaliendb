@@ -25,7 +25,7 @@ public:
     StorageKeyValue*        Begin(ReadBuffer key);
     StorageKeyValue*        Next();
     void                    Close();
-        
+            
     StorageCursor*          next;
     StorageCursor*          prev;
     

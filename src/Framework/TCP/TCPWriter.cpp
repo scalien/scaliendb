@@ -110,7 +110,9 @@ void TCPWriter::OnNextWritten()
     writeBuffer = NULL;
     
     if (queue.GetLength() > 0)
-        conn->OnWritePending(); 
+        conn->OnWritePending();
+    else
+        conn->OnWriteReadyness();
 }
 
 void TCPWriter::OnClose()

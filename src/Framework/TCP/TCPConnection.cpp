@@ -93,6 +93,8 @@ void TCPConnection::OnConnect()
     
     EventLoop::Remove(&connectTimeout);
     OnWritePending();
+    
+    OnWriteReadyness();
 }
 
 void TCPConnection::OnConnectTimeout()

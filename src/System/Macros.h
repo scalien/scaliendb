@@ -92,6 +92,8 @@
 
 #define FOREACH(it, cont) for (it = (cont).First(); it != NULL; it = (cont).Next(it))
 
+#define PAIR(A, a, B, b) class { public: A a; B b; }
+
 // TODO: write better foreach macro
 //#define FOREACH(it, cont) \
 //    IteratorBase const & iter = MakeIterator((cont).First());

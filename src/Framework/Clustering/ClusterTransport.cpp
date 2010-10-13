@@ -182,6 +182,30 @@ bool ClusterTransport::IsConnected(uint64_t nodeID)
     return false;
 }
 
+void ClusterTransport::RegisterWriteReadyness(uint64_t nodeID, Callable callable)
+{
+    WriteReadyness wr;
+    
+    wr.nodeID = nodeID;
+    wr.callable = callable;
+    
+    writeReadynessList.Append(wr);
+}
+
+void ClusterTransport::UnregisterWriteReadyness(uint64_t nodeID, Callable callable)
+{
+    WriteReadyness* it;
+    
+    FOREACH(it, writeReadynessList)
+    {
+        if (it->nodeID == nodeID && it->callable == callable)
+            writeReadynessList.Remove(it);
+        return;
+    }
+    
+    ASSERT_FAIL();
+}
+
 void ClusterTransport::AddConnection(ClusterConnection* conn)
 {
     conns.Append(conn);
@@ -231,5 +255,18 @@ void ClusterTransport::ReconnectAll()
     {
         it->Close();
         it->Connect();
+    }
+}
+
+void ClusterTransport::OnWriteReadyness(ClusterConnection* conn)
+{
+    WriteReadyness* it;
+    
+    assert(conn->progress == ClusterConnection::READY);
+    
+    FOREACH(it, writeReadynessList)
+    {
+        if (it->nodeID == conn->nodeID)
+            Call(it->callable);
     }
 }

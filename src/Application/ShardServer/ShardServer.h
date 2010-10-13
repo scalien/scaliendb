@@ -6,9 +6,10 @@
 #include "System/Containers/HashMap.h"
 #include "System/Events/Timer.h"
 #include "System/Events/Countdown.h"
-#include "Framework/Storage/StorageDatabase.h"
 #include "Framework/Storage/StorageEnvironment.h"
+#include "Framework/Storage/StorageDatabase.h"
 #include "Framework/Storage/StorageTable.h"
+#include "Framework/Storage/StorageCursor.h"
 #include "Application/Common/ClusterContext.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/CatchupMessage.h"
@@ -41,6 +42,7 @@ public:
     QuorumList*         GetQuorums();
     StorageEnvironment& GetEnvironment();
     void                ProcessMessage(QuorumData* quorumData, DataMessage& message, bool ownAppend);
+    void                OnWriteReadyness();
     
     // ========================================================================================
     // For DataContext:
@@ -78,14 +80,12 @@ private:
     void                OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
     void                UpdateShards(List<uint64_t>& shards);
     StorageTable*       LocateTable(uint64_t tableID);
+    StorageShard*       LocateShard(uint64_t shardID);
     StorageTable*       GetQuorumTable(uint64_t quorumID);
     void                UpdatePrimaryLeaseTimer();
     void                OnClientRequestGet(ClientRequest* request);
     
-    // catchingUp is in ShardServer and not in QuorumData because a shard server
-    // should only be catching up in one quorum at a time!
-    bool                catchingUp;
-    bool                awaitingNodeID;
+    bool                isAwaitingNodeID;
     QuorumList          quorums;
     ConfigState         configState;
     Countdown           requestTimer;
@@ -94,6 +94,15 @@ private:
     StorageEnvironment  databaseEnv;
     DatabaseMap         databases;
     TableMap            tables;
+
+    // isSendingCatchup & isCatchingUp is in ShardServer and not in QuorumData because a shard server
+    // should only be doing catchup stuff one quorum at a time!
+    bool                isSendingCatchup;   // whether I'm helping someone to catchup
+    bool                isCatchingUp;       // whether I'm catching up
+    StorageCursor*      catchupCursor;
+    CatchupMessage      catchupRequest;
+    uint64_t            catchupShardID;
+    uint64_t            catchupPaxosID;
 };
 
 /*

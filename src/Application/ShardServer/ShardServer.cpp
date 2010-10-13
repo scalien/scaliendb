@@ -33,11 +33,11 @@ void ShardServer::Init()
 
     if (REPLICATION_CONFIG->GetNodeID() > 0)
     {
-        awaitingNodeID = false;
+        isAwaitingNodeID = false;
         CONTEXT_TRANSPORT->SetSelfNodeID(REPLICATION_CONFIG->GetNodeID());
     }
     else
-        awaitingNodeID = true;
+        isAwaitingNodeID = true;
     
     // connect to the controller nodes
     numControllers = (unsigned) configFile.GetListNum("controllers");
@@ -54,7 +54,9 @@ void ShardServer::Init()
 
     CONTEXT_TRANSPORT->SetClusterContext(this);
     
-    catchingUp = false;
+    isSendingCatchup = false;
+    isCatchingUp = false;
+    catchupCursor = NULL;
     
     requestTimer.SetDelay(REQUEST_TIMEOUT);
     requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));    
@@ -134,6 +136,74 @@ void ShardServer::ProcessMessage(QuorumData* quorumData, DataMessage& message, b
         request->OnComplete(); // request deletes itself
         quorumData->dataMessages.Delete(quorumData->dataMessages.First());
     }
+}
+
+void ShardServer::OnWriteReadyness()
+{
+    uint64_t            *it;
+    CatchupMessage      msg;
+    QuorumData*         quorumData;
+    StorageShard*       shard;
+    StorageKeyValue*    kv;
+
+    kv = catchupCursor->Next();
+    if (kv)
+    {
+        msg.KeyValue(kv->key, kv->value);
+        CONTEXT_TRANSPORT->SendQuorumMessage(
+         catchupRequest.nodeID, catchupRequest.quorumID, msg);
+        return;
+    }
+
+    // kv was NULL, at end of current shard
+    assert(catchupCursor != NULL);
+    delete catchupCursor;
+
+    // find next shard
+    quorumData = LocateQuorum(catchupRequest.quorumID);
+    if (!quorumData)
+        ASSERT_FAIL();
+
+    // iterate to current, which is catchupShardID
+    FOREACH(it, quorumData->shards)
+    {
+        if (*it == catchupShardID)
+            break;
+    }
+    assert(it != NULL);
+    // move to next
+    it = quorumData->shards.Next(it);
+
+    if (it)
+    {
+        // there is a next shard, start sending it now
+        catchupShardID = *it;
+        shard = LocateShard(catchupShardID);
+        assert(shard != NULL);
+        catchupCursor = new StorageCursor(shard);
+        msg.BeginShard(catchupShardID);
+        CONTEXT_TRANSPORT->SendQuorumMessage(
+        catchupRequest.nodeID, catchupRequest.quorumID, msg);
+        // send first KV
+        kv = catchupCursor->Begin(ReadBuffer());
+        if (kv)
+        {
+            msg.KeyValue(kv->key, kv->value);
+            CONTEXT_TRANSPORT->SendQuorumMessage(
+             catchupRequest.nodeID, catchupRequest.quorumID, msg);
+        }
+    }
+    else
+    {
+        // there is no next shard, we're all done, send commit
+        msg.Commit(catchupPaxosID);
+        // send the paxosID whose value is in the db
+        CONTEXT_TRANSPORT->SendQuorumMessage(
+         catchupRequest.nodeID, catchupRequest.quorumID, msg);
+        
+        CONTEXT_TRANSPORT->UnregisterWriteReadyness(
+         catchupRequest.nodeID, MFUNC(ShardServer, OnWriteReadyness));
+    }    
 }
 
 bool ShardServer::IsLeaseKnown(uint64_t quorumID)
@@ -233,7 +303,7 @@ void ShardServer::OnStartCatchup(uint64_t quorumID)
     if (!quorumData)
         ASSERT_FAIL();
 
-    if (catchingUp || !quorumData->context.IsLeaseKnown())
+    if (isCatchingUp || !quorumData->context.IsLeaseKnown())
         return;
     
     quorumData->context.StopReplication();
@@ -243,59 +313,82 @@ void ShardServer::OnStartCatchup(uint64_t quorumID)
     CONTEXT_TRANSPORT->SendQuorumMessage(
      quorumData->context.GetLeaseOwner(), quorumID, msg);
      
-    catchingUp = true;
+    isCatchingUp = true;
     
     Log_Message("Catchup started from node %" PRIu64 "", quorumData->context.GetLeaseOwner());
 }
 
 void ShardServer::OnCatchupMessage(CatchupMessage& imsg)
 {
-    CatchupMessage  omsg;
-    Buffer          buffer;
-    ReadBuffer      key;
-    ReadBuffer      value;
-    QuorumData*     quorumData;
+    CatchupMessage      omsg;
+    Buffer              buffer;
+    ReadBuffer          key;
+    ReadBuffer          value;
+    QuorumData*         quorumData;
+    StorageShard*       shard;
+    StorageKeyValue*    kv;
     
     switch (imsg.type)
     {
         case CATCHUPMESSAGE_REQUEST:
-            quorumData = LocateQuorum(imsg.quorumID);
+            if (isSendingCatchup)
+                return;
+            catchupRequest = imsg;
+            catchupPaxosID = quorumData->context.GetPaxosID() - 1;
+
+            quorumData = LocateQuorum(catchupRequest.quorumID);
             if (!quorumData)
                 ASSERT_FAIL();
 
-            if (!quorumData->context.IsLeaseOwner())
+            if (!quorumData->context.IsLeader())
                 return;
-//            // send configState
-//            key.Wrap("state");
-//            configState.Write(buffer);
-//            value.Wrap(buffer);
-//            omsg.KeyValue(key, value);
-//            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
-//            omsg.Commit(configContext.GetPaxosID() - 1);
-//            // send the paxosID whose value is in the db
-//            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
+
+            if (quorumData->shards.GetLength() == 0)
+            {
+                // no shards in quorums, send Commit
+                omsg.Commit(catchupPaxosID);
+                // send the paxosID whose value is in the db
+                CONTEXT_TRANSPORT->SendQuorumMessage(
+                 catchupRequest.nodeID, catchupRequest.quorumID, omsg);
+                break;
+            }
+            
+            // use the WriteReadyness mechanism to send the KVs
+            // OnWriteReadyness() will be called when the next KVs can be sent
+            CONTEXT_TRANSPORT->RegisterWriteReadyness(
+             catchupRequest.nodeID, MFUNC(ShardServer, OnWriteReadyness));
+
+            catchupShardID = *quorumData->shards.First();
+            shard = LocateShard(catchupShardID);
+            assert(shard != NULL);
+            catchupCursor = new StorageCursor(shard);
+            omsg.BeginShard(catchupShardID);
+            CONTEXT_TRANSPORT->SendQuorumMessage(
+                 catchupRequest.nodeID, catchupRequest.quorumID, omsg);
+            // send first KV
+            kv = catchupCursor->Begin(ReadBuffer());
+            if (kv)
+            {
+                omsg.KeyValue(kv->key, kv->value);
+                CONTEXT_TRANSPORT->SendQuorumMessage(
+                 catchupRequest.nodeID, catchupRequest.quorumID, omsg);
+            }
+            isSendingCatchup = true;
             break;
         case CATCHUPMESSAGE_BEGIN_SHARD:
+            if (!isCatchingUp)
+                return;
+            // TODO: xxx
             break;
         case CATCHUPMESSAGE_KEYVALUE:
-//            if (!catchingUp)
-//                return;
-//            hasMaster = configState.hasMaster;
-//            masterID = configState.masterID;
-//            if (!configState.Read(imsg.value))
-//                ASSERT_FAIL();
-//            configState.hasMaster = hasMaster;
-//            configState.masterID = masterID;
+            if (!isCatchingUp)
+                return;
+            // TODO: xxx
             break;
         case CATCHUPMESSAGE_COMMIT:
-            if (!catchingUp)
+            if (!isCatchingUp)
                 return;
-//            configStatePaxosID = imsg.paxosID;
-//            WriteConfigState();
-//            configContext.OnCatchupComplete(imsg.paxosID);      // this commits
-//            catchingUp = false;
-//            configContext.ContinueReplication();
-//            Log_Message("Catchup complete");
+            // TODO: xxx
             break;
         default:
             ASSERT_FAIL();
@@ -352,9 +445,9 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
     switch (msg.type)
     {
         case CLUSTERMESSAGE_SET_NODEID:
-            if (!awaitingNodeID)
+            if (!isAwaitingNodeID)
                 return;
-            awaitingNodeID = false;
+            isAwaitingNodeID = false;
             CONTEXT_TRANSPORT->SetSelfNodeID(msg.nodeID);
             REPLICATION_CONFIG->SetNodeID(msg.nodeID);
             REPLICATION_CONFIG->Commit();
@@ -676,6 +769,12 @@ StorageTable* ShardServer::LocateTable(uint64_t tableID)
     if (!tables.Get(tableID, table))
         return NULL;
     return table;
+}
+
+StorageShard* ShardServer::LocateShard(uint64_t /*shardID*/)
+{
+    // TODO: xxx
+    return NULL;
 }
 
 StorageTable* ShardServer::GetQuorumTable(uint64_t quorumID)

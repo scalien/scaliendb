@@ -610,12 +610,12 @@
 				54E0BE70124B5E4B00439334 /* DataContext.cpp */,
 				54A861C4123E207000ECCBE5 /* ShardServer.h */,
 				54A861C3123E207000ECCBE5 /* ShardServer.cpp */,
-				54E0BFC0124CF42C00439334 /* ShardServerApp.h */,
-				54E0BFC1124CF42C00439334 /* ShardServerApp.cpp */,
 				9AABC4CE1253A2A8003626AC /* HTTPShardServerContext.h */,
 				9AABC4CF1253A2A8003626AC /* HTTPShardServerContext.cpp */,
 				9AABC4D11253A301003626AC /* HTTPShardServerSession.h */,
 				9AABC4D21253A301003626AC /* HTTPShardServerSession.cpp */,
+				54E0BFC0124CF42C00439334 /* ShardServerApp.h */,
+				54E0BFC1124CF42C00439334 /* ShardServerApp.cpp */,
 			);
 			name = ShardServer;
 			path = Application/ShardServer;
@@ -832,10 +832,10 @@
 				9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */,
 				9AABB48C123FBFFE003626AC /* HTTPControllerSession.h */,
 				9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */,
-				9AABB50C123FDCDD003626AC /* ControllerApp.h */,
-				9AABB50D123FDCDD003626AC /* ControllerApp.cpp */,
 				9AABCD401257CF93003626AC /* JSONConfigState.h */,
 				9AABCD411257CF93003626AC /* JSONConfigState.cpp */,
+				9AABB50C123FDCDD003626AC /* ControllerApp.h */,
+				9AABB50D123FDCDD003626AC /* ControllerApp.cpp */,
 			);
 			name = Controller;
 			path = Application/Controller;

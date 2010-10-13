@@ -39,6 +39,8 @@ public:
     
     TCPConnection*      next;
     TCPConnection*      prev;
+    
+    virtual void        OnWriteReadyness() {} // called when the write queue is empty
 
 protected:
     void                Init(bool startRead = true);

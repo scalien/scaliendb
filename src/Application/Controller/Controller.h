@@ -80,7 +80,7 @@ private:
     void                UpdateListeners();
     
     uint64_t            configStatePaxosID;
-    bool                catchingUp;
+    bool                isCatchingUp;
     ConfigContext       configContext;
     MessageList         configMessages;
     ConfigState         configState;

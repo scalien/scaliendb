@@ -1,11 +1,13 @@
 #ifndef CLUSTERTRANSPORT_H
 #define CLUSTERTRANSPORT_H
 
+#include "System/Containers/List.h"
 #include "Framework/Messaging/Message.h"
 #include "ClusterServer.h"
 
 class ClusterTransport
 {
+    typedef PAIR(uint64_t, nodeID, Callable, callable) WriteReadyness;
 public:
     virtual ~ClusterTransport() {}
     
@@ -34,6 +36,9 @@ public:
     
     bool                        IsConnected(uint64_t nodeID);
 
+    void                        RegisterWriteReadyness(uint64_t nodeID, Callable callable);
+    void                        UnregisterWriteReadyness(uint64_t nodeID, Callable callable);
+
 private:
     // for ClusterConnection:
     void                        AddConnection(ClusterConnection* conn);
@@ -41,6 +46,7 @@ private:
     ClusterConnection*          GetConnection(Endpoint& endpoint);
     void                        DeleteConnection(ClusterConnection* conn);
     void                        ReconnectAll();
+    void                        OnWriteReadyness(ClusterConnection* conn);
 
     bool                        awaitingNodeID;
     uint64_t                    nodeID;
@@ -48,6 +54,7 @@ private:
     Buffer                      msgBuffer;
     ClusterServer               server;
     InList<ClusterConnection>   conns;
+    List<WriteReadyness>        writeReadynessList;
 
     friend class ClusterConnection;
 };
