@@ -162,7 +162,9 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
     }
     
     if (configContext.IsLeaseOwner())
-        UpdateListeners();    
+        UpdateListeners();
+    
+    TryAppend();
 }
 
 void Controller::OnStartCatchup()
