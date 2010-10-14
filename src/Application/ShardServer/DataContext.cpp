@@ -26,9 +26,14 @@ void DataContext::UpdateConfig(ConfigQuorum* configQuorum)
 {
     uint64_t*   it;
 
+    Log_Trace("Reconfiguring quorum");
+
     quorum.ClearNodes();
-    for (it = configQuorum->activeNodes.First(); it != NULL; it = configQuorum->activeNodes.Next(it))
+    FOREACH(it, configQuorum->activeNodes)
+    {
+        Log_Trace("Adding %" PRIu64 "", *it);
         quorum.AddNode(*it);
+    }
 }
 
 void DataContext::Append()
