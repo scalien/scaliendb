@@ -5,7 +5,7 @@ CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/Application/Client/SDBPResult.o \
 	$(BUILD_DIR)/Application/Common/ClientRequest.o \
 	$(BUILD_DIR)/Application/Common/ClientResponse.o \
-	$(BUILD_DIR)/Application/Common/State/ConfigState.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigState.o \
 	$(BUILD_DIR)/Application/SDBP/SDBPRequestMessage.o \
 	$(BUILD_DIR)/Application/SDBP/SDBPResponseMessage.o \
 	$(BUILD_DIR)/Framework/Messaging/MessageConnection.o \

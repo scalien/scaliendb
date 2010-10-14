@@ -1,5 +1,6 @@
 package com.scalien.scaliendb;
 
+import java.math.BigInteger;
 import java.util.TreeMap;
 
 public class Result
@@ -22,6 +23,11 @@ public class Result
 		return scaliendb_client.SDBP_ResultValue(cptr);
 	}
 	
+    public long getNumber() {
+        BigInteger bi = scaliendb_client.SDBP_ResultNumber(cptr);
+        return bi.longValue();
+    }
+    
 	public void begin() {
 		scaliendb_client.SDBP_ResultBegin(cptr);
 	}

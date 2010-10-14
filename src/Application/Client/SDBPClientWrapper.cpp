@@ -94,6 +94,23 @@ std::string SDBP_ResultValue(ResultObj result_)
     return ret;
 }
 
+uint64_t SDBP_ResultNumber(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    ReadBuffer  value;
+    uint64_t    number;
+    int         status;
+    
+    if (!result)
+        return 0;
+    
+    status = result->GetNumber(number);
+    if (status < 0)
+        return 0;
+    
+    return number;
+}
+
 uint64_t SDBP_ResultDatabaseID(ResultObj result_)
 {
     Result*     result = (Result*) result_;
@@ -238,6 +255,38 @@ uint64_t SDBP_GetMasterTimeout(ClientObj client_)
     Client* client = (Client*) client_;
 
     return client->GetMasterTimeout();
+}
+
+int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)
+{
+    Client*                 client = (Client*) client_;
+    ClientRequest::NodeList nodes;
+    uint64_t                nodeID;
+    unsigned                nread;
+    
+    for (int i = 0; i < params.nodec; i++)
+    {
+        nodeID = BufferToUInt64(params.nodes[i], strlen(params.nodes[i]), &nread);
+        nodes.Append(nodeID);
+    }
+    
+    return client->CreateQuorum(nodes);
+}
+
+int SDBP_CreateDatabase(ClientObj client_, const std::string& name_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  name = name_.c_str();
+    
+    return client->CreateDatabase(name);
+}
+
+int SDBP_CreateTable(ClientObj client_, uint64_t databaseID, uint64_t quorumID, const std::string& name_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  name = name_.c_str();
+
+    return client->CreateTable(databaseID, quorumID, name);
 }
 
 uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)

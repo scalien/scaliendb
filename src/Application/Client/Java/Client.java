@@ -51,6 +51,48 @@ public class Client
 		BigInteger bi = scaliendb_client.SDBP_GetMasterTimeout(cptr);
 		return bi.longValue();
 	}
+    
+    public long createQuorum(long[] nodes) throws SDBPException {
+		SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
+		for (int i = 0; i < nodes.length; i++) {
+			nodeParams.AddNode(Long.toString(nodes[i]));
+		}
+        
+        int status = scaliendb_client.SDBP_CreateQuorum(cptr, nodeParams);
+        nodeParams.Close();
+
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+        
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getNumber();
+    }
+    
+    public long createDatabase(String name) throws SDBPException {
+        int status = scaliendb_client.SDBP_CreateDatabase(cptr, name);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+        
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getNumber();
+    }
+    
+    public long createTable(long databaseID, long quorumID, String name) throws SDBPException {
+        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
+        BigInteger biQuorumID = BigInteger.valueOf(quorumID);
+        int status = scaliendb_client.SDBP_CreateTable(cptr, biDatabaseID, biQuorumID, name);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+        
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getNumber();
+    }
 
     public void useDatabase(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_UseDatabase(cptr, name);

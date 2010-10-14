@@ -118,6 +118,19 @@ int Result::GetValue(ReadBuffer& value)
     return request->status;
 }
 
+int Result::GetNumber(uint64_t& number)
+{
+    Request*    request;
+    
+    if (requestCursor == NULL)
+        return SDBP_API_ERROR;
+    
+    request = requestCursor;
+    number = request->response.number;
+    
+    return request->status;
+}
+
 int Result::GetDatabaseID(uint64_t& databaseID)
 {
     if (requestCursor == NULL)

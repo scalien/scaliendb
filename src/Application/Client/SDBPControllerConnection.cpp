@@ -100,7 +100,7 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
 
 void ControllerConnection::OnWrite()
 {
-    // TODO: what to do?
+    MessageConnection::OnWrite();
 }
 
 void ControllerConnection::OnConnect()
@@ -205,6 +205,7 @@ bool ControllerConnection::ProcessCommandResponse(ClientResponse* resp)
     }
     
     // TODO: pair commands to results
+    client->result->AppendRequestResponse(resp);
     
     return false;
 }

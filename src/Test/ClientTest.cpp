@@ -199,4 +199,70 @@ TEST_DEFINE(TestClientBatchedSet)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientCreateTable)
+{
+    typedef ClientRequest::NodeList NodeList;
+
+    Client          client;
+    Result*         result;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "mediafilter";
+    ReadBuffer      tableName = "users";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    int             ret;
+    Stopwatch       sw;
+    NodeList        quorumNodes;
+    uint64_t        quorumID;
+    uint64_t        databaseID;
+//    uint64_t        tableID;
+    uint64_t        defaultQuorumNodeID = 100;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    
+    // quorum
+    quorumNodes.Append(defaultQuorumNodeID);
+    ret = client.CreateQuorum(quorumNodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    result = client.GetResult();
+    if (result == NULL)
+        TEST_CLIENT_FAIL();
+    
+    ret = result->GetNumber(quorumID);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    delete result;
+    
+    // database
+    ret = client.CreateDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    result = client.GetResult();
+    if (result == NULL)
+        TEST_CLIENT_FAIL();
+    
+    ret = result->GetNumber(databaseID);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    delete result;
+    
+    // table
+    ret = client.CreateTable(databaseID, quorumID, tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_MAIN(TestClientBasic);

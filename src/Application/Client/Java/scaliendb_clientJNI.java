@@ -32,6 +32,7 @@ class scaliendb_clientJNI {
   public final static native void SDBP_ResultClose(long jarg1);
   public final static native String SDBP_ResultKey(long jarg1);
   public final static native String SDBP_ResultValue(long jarg1);
+  public final static native java.math.BigInteger SDBP_ResultNumber(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultDatabaseID(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultTableID(long jarg1);
   public final static native void SDBP_ResultBegin(long jarg1);
@@ -47,6 +48,9 @@ class scaliendb_clientJNI {
   public final static native void SDBP_SetMasterTimeout(long jarg1, java.math.BigInteger jarg2);
   public final static native java.math.BigInteger SDBP_GetGlobalTimeout(long jarg1);
   public final static native java.math.BigInteger SDBP_GetMasterTimeout(long jarg1);
+  public final static native int SDBP_CreateQuorum(long jarg1, long jarg2, SDBP_NodeParams jarg2_);
+  public final static native int SDBP_CreateDatabase(long jarg1, String jarg2);
+  public final static native int SDBP_CreateTable(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3, String jarg4);
   public final static native java.math.BigInteger SDBP_GetDatabaseID(long jarg1, String jarg2);
   public final static native java.math.BigInteger SDBP_GetTableID(long jarg1, java.math.BigInteger jarg2, String jarg3);
   public final static native int SDBP_UseDatabase(long jarg1, String jarg2);
@@ -54,6 +58,9 @@ class scaliendb_clientJNI {
   public final static native int SDBP_Get(long jarg1, String jarg2);
   public final static native int SDBP_Set(long jarg1, String jarg2, String jarg3);
   public final static native int SDBP_Delete(long jarg1, String jarg2);
+  public final static native int SDBP_Begin(long jarg1);
+  public final static native int SDBP_Submit(long jarg1);
+  public final static native int SDBP_Cancel(long jarg1);
   public final static native boolean SDBP_IsBatched(long jarg1);
   public final static native void SDBP_SetTrace(boolean jarg1);
 }

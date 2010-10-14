@@ -85,7 +85,7 @@ void ClusterConnection::OnClose()
     if (connectTimeout.IsActive())
         return;
     
-    Close();
+    MessageConnection::Close();
     
     if (progress == INCOMING)
     {

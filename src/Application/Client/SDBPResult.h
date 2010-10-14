@@ -36,6 +36,8 @@ public:
 
     int             GetKey(ReadBuffer& key);
     int             GetValue(ReadBuffer& value);
+    int             GetNumber(uint64_t& number);
+    
     int             GetDatabaseID(uint64_t& databaseID);
     int             GetTableID(uint64_t& tableID);
 

@@ -123,6 +123,8 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->type, request->commandID, request->nodes.GetLength());
             for (it = request->nodes.First(); it != NULL; it = request->nodes.Next(it))
                 buffer.Appendf(":%U", *it);
+            return true;
+            
 
         /* Database management */
         case CLIENTREQUEST_CREATE_DATABASE:

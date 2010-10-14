@@ -7,11 +7,17 @@ import java.util.Map;
 public class Test {
         public static void main(String[] args) {
                 try {
+                        final String databaseName = "mediafilter";
+                        final String tableName = "users";
                         String[] nodes = {"127.0.0.1:7080"};
                         //Client.setTrace(true);
                         Client ks = new Client(nodes);
-                        ks.useDatabase("mediafilter");
-                        ks.useTable("users");
+                        long[] quorumNodes = {100, 101, 102};
+                        long quorumID = ks.createQuorum(quorumNodes);
+                        long databaseID = ks.createDatabase(databaseName);
+                        long tableID = ks.createTable(databaseID, quorumID, tableName);
+                        ks.useDatabase(databaseName);
+                        ks.useTable(tableName);
                         String hol = ks.get("hol");
                         System.out.println(hol);
                         

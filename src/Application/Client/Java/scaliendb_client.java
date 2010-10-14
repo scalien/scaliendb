@@ -37,6 +37,10 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ResultValue(SWIGTYPE_p_void.getCPtr(result));
   }
 
+  public static java.math.BigInteger SDBP_ResultNumber(SWIGTYPE_p_void result) {
+    return scaliendb_clientJNI.SDBP_ResultNumber(SWIGTYPE_p_void.getCPtr(result));
+  }
+
   public static java.math.BigInteger SDBP_ResultDatabaseID(SWIGTYPE_p_void result) {
     return scaliendb_clientJNI.SDBP_ResultDatabaseID(SWIGTYPE_p_void.getCPtr(result));
   }
@@ -99,6 +103,18 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetMasterTimeout(SWIGTYPE_p_void.getCPtr(client));
   }
 
+  public static int SDBP_CreateQuorum(SWIGTYPE_p_void client, SDBP_NodeParams params) {
+    return scaliendb_clientJNI.SDBP_CreateQuorum(SWIGTYPE_p_void.getCPtr(client), SDBP_NodeParams.getCPtr(params), params);
+  }
+
+  public static int SDBP_CreateDatabase(SWIGTYPE_p_void client, String name) {
+    return scaliendb_clientJNI.SDBP_CreateDatabase(SWIGTYPE_p_void.getCPtr(client), name);
+  }
+
+  public static int SDBP_CreateTable(SWIGTYPE_p_void client, java.math.BigInteger databaseID, java.math.BigInteger quorumID, String name) {
+    return scaliendb_clientJNI.SDBP_CreateTable(SWIGTYPE_p_void.getCPtr(client), databaseID, quorumID, name);
+  }
+
   public static java.math.BigInteger SDBP_GetDatabaseID(SWIGTYPE_p_void client, String name) {
     return scaliendb_clientJNI.SDBP_GetDatabaseID(SWIGTYPE_p_void.getCPtr(client), name);
   }
@@ -125,6 +141,18 @@ public class scaliendb_client {
 
   public static int SDBP_Delete(SWIGTYPE_p_void client, String key) {
     return scaliendb_clientJNI.SDBP_Delete(SWIGTYPE_p_void.getCPtr(client), key);
+  }
+
+  public static int SDBP_Begin(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_Begin(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static int SDBP_Submit(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_Submit(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static int SDBP_Cancel(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_Cancel(SWIGTYPE_p_void.getCPtr(client));
   }
 
   public static boolean SDBP_IsBatched(SWIGTYPE_p_void client) {

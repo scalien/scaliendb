@@ -7,6 +7,7 @@
 #include "System/Containers/InTreeMap.h"
 #include "System/Containers/HashMap.h"
 #include "System/Events/Countdown.h"
+#include "Application/Common/ClientRequest.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "SDBPShardConnection.h"
 #include "SDBPControllerConnection.h"
@@ -35,25 +36,27 @@ public:
     int                     Init(int nodec, const char* nodev[]);
     void                    Shutdown();
 
+    // timeout
     void                    SetGlobalTimeout(uint64_t timeout);
     void                    SetMasterTimeout(uint64_t timeout);
     uint64_t                GetGlobalTimeout();
     uint64_t                GetMasterTimeout();
-
-    // connection state related commands
-    int                     GetMaster();
-    void                    DistributeDirty(bool dd);
     
+    // result
     Result*                 GetResult();
 
+    // status
     int                     TransportStatus();
     int                     ConnectivityStatus();
     int                     TimeoutStatus();
     int                     CommandStatus();
     
     // controller commands
-    //int                     
+    int                     CreateQuorum(ClientRequest::NodeList& nodes);
+    int                     CreateDatabase(ReadBuffer& name);
+    int                     CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name);
     
+    // shard server commands
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
     int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
     int                     UseDatabase(ReadBuffer& name);

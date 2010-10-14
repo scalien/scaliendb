@@ -219,6 +219,81 @@ int Client::UseTable(ReadBuffer& name)
     return SDBP_SUCCESS;
 }
 
+int Client::CreateQuorum(ClientRequest::NodeList& nodes)
+{
+    Request*    req;
+
+    if (configState == NULL)
+    {
+        result->Close();
+        EventLoop();
+    }
+    
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    req = new Request;
+    req->CreateQuorum(NextCommandID(), nodes);
+    
+    requests.Append(req);
+    
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
+int Client::CreateDatabase(ReadBuffer& name)
+{
+    Request*    req;
+
+    if (configState == NULL)
+    {
+        result->Close();
+        EventLoop();
+    }
+    
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    req = new Request;
+    req->CreateDatabase(NextCommandID(), name);
+    
+    requests.Append(req);
+    
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
+int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name)
+{
+    Request*    req;
+
+    if (configState == NULL)
+    {
+        result->Close();
+        EventLoop();
+    }
+    
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    req = new Request;
+    req->CreateTable(NextCommandID(), databaseID, quorumID, name);
+    
+    requests.Append(req);
+    
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
 int Client::Get(ReadBuffer& key)
 {
     Request*    req;
@@ -467,6 +542,16 @@ void Client::ReassignRequest(Request* req)
     
     if (!configState)
         return;
+    
+    if (req->IsControllerRequest())
+    {
+        if (master >= 0)
+            controllerConnections[master]->Send(req);
+        else
+            requests.Append(req);
+
+        return;
+    }
     
     key.Wrap(req->key);
     if (!GetQuorumID(req->tableID, key, quorumID))
