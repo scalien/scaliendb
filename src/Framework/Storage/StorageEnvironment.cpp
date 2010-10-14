@@ -34,6 +34,7 @@ bool StorageEnvironment::Open(const char *path_)
     path.Append(path_);
     if (path.GetBuffer()[path.GetLength() - 1] != sep)
         path.Append(&sep, 1);
+    path.NullTerminate();
     
     return true;
 }
