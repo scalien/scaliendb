@@ -1,6 +1,7 @@
 #include "Test.h"
 
-#include "Framework/Storage/StorageDatabase.h"
+#include "Framework/Storage/StorageEnvironment.h"
+#include "Framework/Storage/StorageDataPage.h"
 #include "Framework/Storage/StorageDataCache.h"
 #include "System/Stopwatch.h"
 #include "System/Common.h"
@@ -376,6 +377,113 @@ TEST_DEFINE(TestStorageShardSplit)
     
     free(area);
 
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestStorageFileSplit)
+{
+    StorageEnvironment  env;
+    StorageDatabase*    db;
+    StorageTable*       table;
+    char                keyvalue[DATAPAGE_MAX_KV_SIZE(DEFAULT_DATAPAGE_SIZE) / 2 + 1];
+    ReadBuffer          key;
+    ReadBuffer          value;
+
+    env.InitCache(STORAGE_DEFAULT_CACHE_SIZE);
+    env.Open("db");
+    db = env.GetDatabase("test");
+    table = db->GetTable("split");
+
+    // key is empty
+    if (!table->ShardExists(key))
+        table->CreateShard(0, key);
+
+    // init keyvalues
+    for (unsigned i = 0; i < sizeof(keyvalue); i++)
+        keyvalue[i] = i % 10 + '0';
+    
+    key.SetBuffer(keyvalue);
+    key.SetLength(DEFAULT_KEY_LIMIT);
+    
+    value.SetBuffer(keyvalue + DEFAULT_KEY_LIMIT);
+    value.SetLength(sizeof(keyvalue) - DEFAULT_KEY_LIMIT);
+
+    // first delete any existing values
+    for (unsigned char i = 1; i <= 3; i++)
+    {
+        memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
+        table->Delete(key);
+    }
+    
+    table->Commit();
+    
+    for (int i = 1; i <= 3; i++)
+    {
+        memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
+        table->Set(key, value, true);
+    }
+    
+    table->Commit();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestStorageFileThreeWaySplit)
+{
+    StorageEnvironment  env;
+    StorageDatabase*    db;
+    StorageTable*       table;
+    char                keyvalue[DATAPAGE_MAX_KV_SIZE(DEFAULT_DATAPAGE_SIZE)];
+    ReadBuffer          key;
+    ReadBuffer          value;
+    unsigned            i;
+
+    env.InitCache(STORAGE_DEFAULT_CACHE_SIZE);
+    env.Open("db");
+    db = env.GetDatabase("test");
+    table = db->GetTable("threewaysplit");
+
+    // key is empty
+    if (!table->ShardExists(key))
+        table->CreateShard(0, key);
+
+    // init keyvalues
+    for (i = 0; i < sizeof(keyvalue); i++)
+        keyvalue[i] = i % 10 + '0';
+    
+    key.SetBuffer(keyvalue);
+    key.SetLength(DEFAULT_KEY_LIMIT);
+    
+    value.SetBuffer(keyvalue + DEFAULT_KEY_LIMIT);
+
+    // first delete any existing values
+    for (unsigned char i = 1; i <= 3; i++)
+    {
+        memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
+        table->Delete(key);
+    }
+    
+    table->Commit();
+
+    i = 1;
+    memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
+    // TODO: -4 is a correction that yet to be investigated
+    value.SetLength((sizeof(keyvalue) / 2) - DEFAULT_KEY_LIMIT - 4);
+    table->Set(key, value, true);
+
+    i = 3;
+    memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
+    value.SetLength((sizeof(keyvalue) / 2) - DEFAULT_KEY_LIMIT - 4);
+    table->Set(key, value, true);
+
+    // insert between '1' and '3' a new value which has PAGESIZE size
+    i = 2;
+    memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
+    value.SetLength(sizeof(keyvalue) - DEFAULT_KEY_LIMIT);
+    table->Set(key, value, true);
+    
+    table->Commit();
+    
     return TEST_SUCCESS;
 }
 

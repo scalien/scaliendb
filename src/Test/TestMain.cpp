@@ -1,45 +1,27 @@
-#include "Test.h"
+#include "TestFunction.h"
 
-TEST_DECLARE(TestStorage);
-TEST_DECLARE(TestStorageCapacity);
-TEST_DECLARE(TestStorageBigTransaction);
-TEST_DECLARE(TestStorageBigRandomTransaction);
-TEST_DECLARE(TestStorageShardSize);
-TEST_DECLARE(TestStorageShardSplit);
-TEST_DECLARE(TestInTreeMap);
-TEST_DECLARE(TestInTreeMapInsert);
-TEST_DECLARE(TestInTreeMapInsertRandom);
-TEST_DECLARE(TestInTreeMapRemoveRandom);
-TEST_DECLARE(TestWriteTiming);
-TEST_DECLARE(TestFileSystemDiskSpace);
-TEST_DECLARE(TestArrayListBasic);
-TEST_DECLARE(TestArrayListRemove);
-TEST_DECLARE(TestClientBasic);
-TEST_DECLARE(TestClientSet);
-TEST_DECLARE(TestClientBatchedSet);
+TEST_START(TestMain);
+//TEST_ADD(TestStorage);
+//TEST_ADD(TestStorageCapacity);
+//TEST_ADD(TestStorageBigTransaction);
+//TEST_ADD(TestStorageBigRandomTransaction);
+//TEST_ADD(TestStorageShardSize);
+//TEST_ADD(TestStorageShardSplit);
+TEST_ADD(TestStorageFileSplit);
+TEST_ADD(TestStorageFileThreeWaySplit);
+//TEST_ADD(TestInTreeMap);
+//TEST_ADD(TestInTreeMapInsert);
+//TEST_ADD(TestInTreeMapInsertRandom);
+//TEST_ADD(TestInTreeMapRemoveRandom);
+//TEST_ADD(TestWriteTiming);
+//TEST_ADD(TestFileSystemDiskSpace);
+//TEST_ADD(TestArrayListBasic);
+//TEST_ADD(TestArrayListRemove);
+//TEST_ADD(TestClientBasic);
+//TEST_ADD(TestClientSet);
+//TEST_ADD(TestClientBatchedSet);
+TEST_EXECUTE();
 
-TEST_DEFINE(TestMain)
-{
-    TEST_RUN(
-        //TestInTreeMap,
-        //TestInTreeMapInsert,
-        //TestInTreeMapInsertRandom,
-        //TestInTreeMapRemoveRandom,
-        //TestStorage,
-        //TestStorageCapacity,
-        //TestStorageBigTransaction,
-        //TestStorageBigRandomTransaction,
-        //TestStorageShardSize,
-        //TestStorageShardSplit,
-        //TestWriteTiming,
-        //TestFileSystemDiskSpace,
-        //TestArrayListBasic,
-        //TestArrayListRemove,
-        //TestClientBasic,
-        //TestClientSet,
-        TestClientBatchedSet,
-    );
-}
 
 #ifdef TEST
 int main()

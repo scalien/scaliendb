@@ -14,7 +14,10 @@
 class StorageEnvironment
 {
 public:
+    StorageEnvironment();
     ~StorageEnvironment();
+
+    void                    InitCache(uint64_t size);
     
     bool                    Open(const char *path);
     void                    Close();
@@ -28,6 +31,7 @@ private:
     Buffer                  name;
     Buffer                  path;
     InList<StorageDatabase> databases;
+    bool                    manageCache;
 };
 
 #endif

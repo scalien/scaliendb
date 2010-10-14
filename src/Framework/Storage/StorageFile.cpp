@@ -599,7 +599,6 @@ void StorageFile::SplitDataPage(uint32_t index)
     uint32_t            newIndex;
     StorageDataPage*    newPage;
 
-    // TODO: split into three when one key-value has pagesize size
     if (numDataPages < numDataPageSlots)
     {
         // make a copy of data
@@ -617,6 +616,10 @@ void StorageFile::SplitDataPage(uint32_t index)
         assert(newPage->IsDirty() == false);
         MarkPageDirty(newPage);
         MarkPageDirty(&indexPage);
+        
+        // if the newly splitted page does not fit to a data page, split it again
+        if (newPage->IsOverflowing())
+            SplitDataPage(newIndex);
     }
     else
         isOverflowing = true;

@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     InitLog();
     IOProcessor::Init(1024);
     InitContextTransport();
-    DCACHE->Init(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
+    //DCACHE->Init(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
     
     isController = IsController();  
     Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
@@ -48,7 +48,7 @@ int main(int argc, char** argv)
     else
         shardServer.Shutdown();
     
-    DCACHE->Shutdown();
+    //DCACHE->Shutdown();
     IOProcessor::Shutdown();
     configFile.Shutdown();
 }

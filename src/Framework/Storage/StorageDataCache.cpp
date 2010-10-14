@@ -12,7 +12,7 @@ StorageDataCache::StorageDataCache()
     num = 0;
 }
 
-void StorageDataCache::Init(unsigned size)
+void StorageDataCache::Init(uint64_t size)
 {
     StorageDataPage* page;
     

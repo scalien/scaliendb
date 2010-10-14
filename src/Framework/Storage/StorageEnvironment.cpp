@@ -1,10 +1,22 @@
 #include "StorageEnvironment.h"
+#include "StorageDataCache.h"
 #include "System/Macros.h"
 #include "System/FileSystem.h"
+
+StorageEnvironment::StorageEnvironment()
+{
+    manageCache = false;
+}
 
 StorageEnvironment::~StorageEnvironment()
 {
     Close();
+}
+
+void StorageEnvironment::InitCache(uint64_t cacheSize)
+{
+    DCACHE->Init(cacheSize);
+    manageCache = true;
 }
 
 bool StorageEnvironment::Open(const char *path_)
@@ -17,7 +29,7 @@ bool StorageEnvironment::Open(const char *path_)
         if (!FS_CreateDir(path_))
             return false;
     }
-
+    
     sep = FS_Separator();
     path.Append(path_);
     if (path.GetBuffer()[path.GetLength() - 1] != sep)
@@ -30,8 +42,15 @@ void StorageEnvironment::Close()
 {
     StorageDatabase*    it;
     
+    
     for (it = databases.First(); it != NULL; it = databases.Delete(it))
         it->Close();
+    
+    if (manageCache)
+    {
+        DCACHE->Shutdown();
+        manageCache = false;
+    }
 }
 
 uint64_t StorageEnvironment::GetSize()

@@ -21,6 +21,7 @@ void ShardServer::Init()
     const char*     str;
     Endpoint        endpoint;
 
+    databaseEnv.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
     databaseEnv.Open(configFile.GetValue("database.dir", "db"));
     systemDatabase = databaseEnv.GetDatabase(DATABASE_NAME);
     REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));
@@ -284,8 +285,8 @@ void ShardServer::OnAppend(uint64_t quorumID, ReadBuffer& value, bool ownAppend)
     while (value.GetLength() > 0)
     {
         read = message.Read(value);
-        if (read <= 0)
-            ASSERT_FAIL();
+        assert(read > 0);
+        value.Advance(read);
 
         ProcessMessage(quorumData, message, ownAppend);
     }
@@ -432,6 +433,8 @@ void ShardServer::OnClientRequest(ClientRequest* request)
 
     message = new DataMessage;
     FromClientRequest(request, message);
+    
+    Log_Trace("message.type = %c, message.key = %.*s", message->type, P(&message->key));
     
     quorumData->requests.Append(request);
     quorumData->dataMessages.Append(message);
