@@ -4,7 +4,7 @@ $(BUILD_DIR):
 		$(BUILD_DIR)/Test/ \
 		$(BUILD_DIR)/Application/ \
 		$(BUILD_DIR)/Application/Common/ \
-		$(BUILD_DIR)/Application/Common/State \
+		$(BUILD_DIR)/Application/ConfigState \
 		$(BUILD_DIR)/Application/HTTP/ \
 		$(BUILD_DIR)/Application/SDBP/ \
 		$(BUILD_DIR)/Application/Controller/ \

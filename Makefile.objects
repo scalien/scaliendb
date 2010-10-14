@@ -1,8 +1,10 @@
 ALL_OBJECTS = \
+	$(BUILD_DIR)/Application/Common/CatchupMessage.o \
 	$(BUILD_DIR)/Application/Common/ContextTransport.o \
 	$(BUILD_DIR)/Application/Common/ClientRequest.o \
 	$(BUILD_DIR)/Application/Common/ClientResponse.o \
 	$(BUILD_DIR)/Application/Common/ClusterMessage.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigState.o \
 	$(BUILD_DIR)/Application/HTTP/HTTPConnection.o \
 	$(BUILD_DIR)/Application/HTTP/HTTPFileHandler.o \
 	$(BUILD_DIR)/Application/HTTP/HTTPRequest.o \
@@ -22,7 +24,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/Controller/ControllerApp.o \
 	$(BUILD_DIR)/Application/Controller/HTTPControllerContext.o \
 	$(BUILD_DIR)/Application/Controller/HTTPControllerSession.o \
-	$(BUILD_DIR)/Application/Controller/State/ConfigState.o \
+	$(BUILD_DIR)/Application/Controller/JSONConfigState.o \
 	$(BUILD_DIR)/Application/ShardServer/DataMessage.o \
 	$(BUILD_DIR)/Application/ShardServer/DataContext.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServer.o \
@@ -54,6 +56,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageDatabase.o \
 	$(BUILD_DIR)/Framework/Storage/StorageDataCache.o \
 	$(BUILD_DIR)/Framework/Storage/StorageDataPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageEnvironment.o \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageKeyIndex.o \
 	$(BUILD_DIR)/Framework/Storage/StorageKeyValue.o \
@@ -88,5 +91,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Test/StorageTest.o \
 	$(BUILD_DIR)/Test/FileSystemTest.o \
 	$(BUILD_DIR)/Test/ArrayListTest.o \
+	$(BUILD_DIR)/Test/Timings.o \
+	$(BUILD_DIR)/Test/InTreeMapTest.o \
 
 
