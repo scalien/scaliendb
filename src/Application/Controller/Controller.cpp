@@ -17,6 +17,10 @@ void Controller::Init()
     Endpoint        endpoint;
     
     primaryLeaseTimeout.SetCallable(MFUNC(Controller, OnPrimaryLeaseTimeout));
+
+    heartbeatTimeout.SetCallable(MFUNC(Controller, OnHeartbeatTimeout));
+    heartbeatTimeout.SetDelay(1000);
+    EventLoop::Add(&heartbeatTimeout);
  
     databaseEnv.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
     databaseEnv.Open(configFile.GetValue("database.dir", "db"));
@@ -84,6 +88,28 @@ uint64_t Controller::GetReplicationRound()
 ConfigState* Controller::GetConfigState()
 {
     return &configState;
+}
+
+void Controller::RegisterHeartbeat(uint64_t nodeID)
+{
+    Heartbeat       *it;
+    uint64_t        now;
+    
+    now = Now();
+    
+    FOREACH(it, heartbeats)
+    {
+        if (it->nodeID == nodeID)
+        {
+            it->expireTime = now + HEARTBEAT_EXPIRE_TIME;
+            return;
+        }
+    }
+    
+    it = new Heartbeat();
+    it->nodeID = nodeID;
+    it->expireTime = now + HEARTBEAT_EXPIRE_TIME;
+    heartbeats.Add(it);
 }
 
 void Controller::OnLearnLease()
@@ -161,7 +187,7 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
             SendClientResponse(message);
         configMessages.Delete(configMessages.First());
     }
-    
+        
     if (configContext.IsLeaseOwner())
         UpdateListeners();
     
@@ -307,10 +333,12 @@ void Controller::OnClientClose(ClientSession* session)
     }
 }
 
-void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
+void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
 {
     if (!configContext.IsLeaseOwner())
-        return; 
+        return;
+        
+    RegisterHeartbeat(nodeID);
 
     switch (message.type)
     {
@@ -495,6 +523,92 @@ void Controller::OnPrimaryLeaseTimeout()
     UpdateListeners();
 }
 
+void Controller::OnHeartbeatTimeout()
+{
+    Heartbeat*          itHeartbeat;
+    uint64_t            now;
+    
+    // OnHeartbeatTimeout() arrives every 1000 msec
+    
+    now = Now();
+
+    // first remove nodes from the heartbeats list which have
+    // not sent a heartbeat in HEARTBEAT_EXPIRE_TIME
+    for (itHeartbeat = heartbeats.First(); itHeartbeat != NULL; /* incremented in body */)
+    {
+        if (itHeartbeat->expireTime <= now)
+        {
+            CONTEXT_TRANSPORT->DropConnection(itHeartbeat->nodeID);
+            Log_Trace("Removing node " PRIu64 " from heartbeats", itHeartbeat->nodeID);
+            itHeartbeat = heartbeats.Delete(itHeartbeat);
+        }
+        else
+            break;
+    }
+    
+    if (configContext.IsLeader())
+        DeactivateShardServers();
+
+    EventLoop::Add(&heartbeatTimeout);    
+}
+
+void Controller::DeactivateShardServers()
+{
+    bool                active, found;
+    Heartbeat*          itHeartbeat;
+    ConfigShardServer*  itShardServer;
+    ConfigQuorum*       itQuorum;
+    uint64_t*           itNodeID;
+    ConfigMessage*      itConfigMessage;
+
+    // now check each active shard server from the configState against
+    // the heartbeats list to find inactive servers
+    // and set their state in their respective quorums to inactive
+    FOREACH(itShardServer, configState.shardServers)
+    {
+        active = false;
+        FOREACH(itHeartbeat, heartbeats)
+        {
+            if (itShardServer->nodeID == itHeartbeat->nodeID)
+            {
+                active = true;
+                break;
+            }
+        }
+        if (!active)
+        {
+            FOREACH(itQuorum, configState.quorums)
+            {
+                FOREACH(itNodeID, itQuorum->activeNodes)
+                {
+                    if (*itNodeID == itShardServer->nodeID)
+                    {
+                        // make sure there is no corresponding deactivate message pending
+                        found = false;
+                        FOREACH(itConfigMessage, configMessages)
+                        {
+                            if (itConfigMessage->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
+                             itConfigMessage->quorumID == itQuorum->quorumID &&
+                             itConfigMessage->nodeID == itShardServer->nodeID)
+                            {
+                                found = true;
+                                break;
+                            }
+                        }
+                        if (found)
+                            continue;
+                        itConfigMessage = new ConfigMessage();
+                        itConfigMessage->fromClient = false;
+                        itConfigMessage->DeactivateShardServer(itQuorum->quorumID, itShardServer->nodeID);
+                        configMessages.Append(itConfigMessage);
+                        TryAppend();
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Controller::TryRegisterShardServer(Endpoint& endpoint)
 {
     ConfigMessage*      message;
@@ -511,9 +625,10 @@ void Controller::TryRegisterShardServer(Endpoint& endpoint)
 
 void Controller::ReadConfigState()
 {
-    bool        ret;
-    ReadBuffer  value;
-    int         read;
+    bool                ret;
+    ReadBuffer          value;
+    int                 read;
+    ConfigShardServer*  it;
     
     ret =  true;
     
@@ -531,6 +646,9 @@ void Controller::ReadConfigState()
     
     if (!configState.Read(value))
         ASSERT_FAIL();
+
+    FOREACH(it, configState.shardServers)
+        RegisterHeartbeat(it->nodeID);
     
     Log_Trace("%.*s", P(&value));
 }
@@ -682,31 +800,4 @@ void Controller::UpdateListeners()
     {
         CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
     }
-}
-
-void Controller::RegisterHeartbeat(uint64_t nodeID)
-{
-    Heartbeat       *it;
-    uint64_t        now;
-    
-    now = Now();
-    
-    FOREACH(it, heartbeats)
-    {
-        if (it->nodeID == nodeID)
-        {
-            it->lastHeartbeatTime = now;
-            UpdateHeartbeatTimeout();
-            return;
-        }
-    }
-    
-    it = new Heartbeat();
-    it->nodeID = nodeID;
-    it->lastHeartbeatTime = now;
-    heartbeats.Append(it);
-}
-
-void Controller::UpdateHeartbeatTimeout()
-{
 }

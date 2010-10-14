@@ -127,12 +127,14 @@ void ConfigContext::OnAppend(ReadBuffer value, bool ownAppend)
     controller->OnAppend(message, ownAppend);
 }
 
-void ConfigContext::OnMessage(ReadBuffer buffer)
+void ConfigContext::OnMessage(uint64_t nodeID, ReadBuffer buffer)
 {
     char proto;
     
     Log_Trace("%.*s", P(&buffer));
-    
+
+    controller->RegisterHeartbeat(nodeID);
+
     if (buffer.GetLength() < 2)
         ASSERT_FAIL();
 

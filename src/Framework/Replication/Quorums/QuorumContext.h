@@ -40,7 +40,7 @@ public:
     virtual Buffer&             GetNextValue()                                  = 0;
 
     virtual void                OnAppend(ReadBuffer value, bool ownAppend)      = 0;
-    virtual void                OnMessage(ReadBuffer msg)                       = 0;
+    virtual void                OnMessage(uint64_t nodeID, ReadBuffer msg)      = 0;
     virtual void                OnStartCatchup()                                = 0;
     virtual void                OnCatchupComplete(uint64_t paxosID)             = 0;
 

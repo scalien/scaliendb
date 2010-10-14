@@ -140,7 +140,7 @@ void DataContext::ContinueReplication()
     // TODO: xxx
 }
 
-void DataContext::OnMessage(ReadBuffer buffer)
+void DataContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
 {
     char proto;
     
