@@ -12,8 +12,8 @@
 #define CONFIGMESSAGE_CREATE_QUORUM             'Q'
 #define CONFIGMESSAGE_INCREASE_QUORUM           'P'
 #define CONFIGMESSAGE_DECREASE_QUORUM           'M'
-#define CONFIGMESSAGE_ACTIVATE_QUORUM_SERVER    'p'
-#define CONFIGMESSAGE_DEACTIVATE_QUORUM_SERVER  'm'
+#define CONFIGMESSAGE_ACTIVATE_SHARDSERVER      'p'
+#define CONFIGMESSAGE_DEACTIVATE_SHARDSERVER    'm'
 
 #define CONFIGMESSAGE_CREATE_DATABASE           'C'
 #define CONFIGMESSAGE_RENAME_DATABASE           'R'
@@ -64,9 +64,9 @@ public:
                      uint64_t quorumID, uint64_t nodeID);
     bool            DecreaseQuorum(
                      uint64_t quorumID, uint64_t nodeID);
-    bool            ActivateQuorumServer(
+    bool            ActivateShardServer(
                      uint64_t quorumID, uint64_t nodeID);
-    bool            DeactivateQuorumServer(
+    bool            DeactivateShardServer(
                      uint64_t quorumID, uint64_t nodeID);
 
     // Database management

@@ -138,6 +138,10 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteIncreaseQuorum(message);
         case CONFIGMESSAGE_DECREASE_QUORUM:
             return CompleteDecreaseQuorum(message);
+        case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
+            return CompleteActivateShardServer(message);
+        case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
+            return CompleteDeactivateShardServer(message);
 
         /* Database management */
         case CONFIGMESSAGE_CREATE_DATABASE:
@@ -255,6 +259,10 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnIncreaseQuorum(message);
         case CONFIGMESSAGE_DECREASE_QUORUM:
             return OnDecreaseQuorum(message);
+        case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
+            return OnActivateShardServer(message);
+        case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
+            return OnDeactivateShardServer(message);
 
         /* Database management */
         case CONFIGMESSAGE_CREATE_DATABASE:
@@ -459,6 +467,44 @@ bool ConfigState::CompleteDecreaseQuorum(ConfigMessage& message)
     return false; // node not in quorum
 }
 
+bool ConfigState::CompleteActivateShardServer(ConfigMessage& message)
+{
+    ConfigQuorum*   itQuorum;
+    uint64_t*       itNodeID;
+    
+    itQuorum = GetQuorum(message.quorumID);
+    if (itQuorum == NULL)
+        return false; // no such quorum
+
+    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+    FOREACH(itNodeID, inactiveNodes)
+    {
+        if (*itNodeID == message.nodeID)
+            return true; // active
+    }
+
+    return false; // not active
+}
+
+bool ConfigState::CompleteDeactivateShardServer(ConfigMessage& message)
+{
+    ConfigQuorum*   itQuorum;
+    uint64_t*       itNodeID;
+    
+    itQuorum = GetQuorum(message.quorumID);
+    if (itQuorum == NULL)
+        return false; // no such quorum
+
+    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    FOREACH(itNodeID, activeNodes)
+    {
+        if (*itNodeID == message.nodeID)
+            return true; // inactive
+    }
+
+    return false; // not inactive
+}
+
 bool ConfigState::CompleteCreateDatabase(ConfigMessage& message)
 {
     ConfigDatabase* it;
@@ -658,6 +704,56 @@ void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
         if (*itNodeID == message.nodeID)
         {
             inactiveNodes.Remove(itNodeID);
+            return;
+        }
+    }
+    
+    ASSERT_FAIL();
+}
+
+void ConfigState::OnActivateShardServer(ConfigMessage& message)
+{
+    ConfigQuorum*   itQuorum;
+    uint64_t*       itNodeID;
+    
+    itQuorum = GetQuorum(message.quorumID);
+    // make sure quorum exists
+    assert(itQuorum != NULL);
+    
+    // make sure node is in quorum
+    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    FOREACH(itNodeID, inactiveNodes)
+    {
+        if (*itNodeID == message.nodeID)
+        {
+            inactiveNodes.Remove(itNodeID);
+            activeNodes.Append(message.nodeID);
+            return;
+        }
+    }
+    
+    ASSERT_FAIL();
+}
+
+void ConfigState::OnDeactivateShardServer(ConfigMessage& message)
+{
+    ConfigQuorum*   itQuorum;
+    uint64_t*       itNodeID;
+    
+    itQuorum = GetQuorum(message.quorumID);
+    // make sure quorum exists
+    assert(itQuorum != NULL);
+    
+    // make sure node is in quorum
+    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    FOREACH(itNodeID, activeNodes)
+    {
+        if (*itNodeID == message.nodeID)
+        {
+            activeNodes.Remove(itNodeID);
+            inactiveNodes.Append(message.nodeID);
             return;
         }
     }

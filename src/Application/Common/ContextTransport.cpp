@@ -115,7 +115,7 @@ void ContextTransport::OnMessage(uint64_t nodeID, ReadBuffer msg)
             OnClusterMessage(nodeID, msg);
             break;
         case PROTOCOL_QUORUM:
-            OnQuorumMessage(msg);
+            OnQuorumMessage(nodeID, msg);
             break;
         default:
             ASSERT_FAIL();
@@ -138,7 +138,7 @@ void ContextTransport::OnClusterMessage(uint64_t nodeID, ReadBuffer& buffer)
         clusterContext->OnClusterMessage(nodeID, msg);
 }
 
-void ContextTransport::OnQuorumMessage(ReadBuffer& msg)
+void ContextTransport::OnQuorumMessage(uint64_t nodeID, ReadBuffer& msg)
 {
     int         nread;
     uint64_t    quorumID;
@@ -149,5 +149,5 @@ void ContextTransport::OnQuorumMessage(ReadBuffer& msg)
     
     msg.Advance(nread);
 
-    GetQuorumContext(quorumID)->OnMessage(msg);
+    GetQuorumContext(quorumID)->OnMessage(nodeID, msg);
 }

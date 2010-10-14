@@ -78,6 +78,8 @@ private:
     bool                CompleteCreateQuorum(ConfigMessage& message);
     bool                CompleteIncreaseQuorum(ConfigMessage& message);
     bool                CompleteDecreaseQuorum(ConfigMessage& message);
+    bool                CompleteActivateShardServer(ConfigMessage& message);
+    bool                CompleteDeactivateShardServer(ConfigMessage& message);
     bool                CompleteCreateDatabase(ConfigMessage& message);
     bool                CompleteRenameDatabase(ConfigMessage& message);
     bool                CompleteDeleteDatabase(ConfigMessage& message);
@@ -89,6 +91,8 @@ private:
     void                OnCreateQuorum(ConfigMessage& message);
     void                OnIncreaseQuorum(ConfigMessage& message);
     void                OnDecreaseQuorum(ConfigMessage& message);
+    void                OnActivateShardServer(ConfigMessage& message);
+    void                OnDeactivateShardServer(ConfigMessage& message);
     void                OnCreateDatabase(ConfigMessage& message);
     void                OnRenameDatabase(ConfigMessage& message);
     void                OnDeleteDatabase(ConfigMessage& message);

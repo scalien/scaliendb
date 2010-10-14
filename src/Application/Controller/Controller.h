@@ -18,6 +18,8 @@ class ClientSession;            // forward
 class PrimaryLease;             // forward
 class Heartbeat;                // forward
 
+#define HEARTBEAT_EXPIRE_TIME       7000 //msec
+
 /*
 ===============================================================================================
 
@@ -32,7 +34,7 @@ public:
     typedef InList<ConfigMessage>       MessageList;
     typedef InSortedList<PrimaryLease>  LeaseList;
     typedef InList<ClientRequest>       RequestList;
-    typedef InList<Heartbeat>           HeartbeatList;
+    typedef InSortedList<Heartbeat>     HeartbeatList;
 
     void                Init();
     void                Shutdown();
@@ -41,6 +43,7 @@ public:
     uint64_t            GetNodeID();
     uint64_t            GetReplicationRound();
     ConfigState*        GetConfigState();
+    void                RegisterHeartbeat(uint64_t nodeID);
 
     // ========================================================================================
     // For ConfigContext:
@@ -71,6 +74,9 @@ private:
     void                FromClientRequest(ClientRequest* request, ConfigMessage* message);
     void                ToClientResponse(ConfigMessage* message, ClientResponse* response);
     void                OnPrimaryLeaseTimeout();
+    void                OnHeartbeatTimeout();
+    void                DeactivateShardServers();
+    void                DeactivateNode(uint64_t nodeID);
     void                TryRegisterShardServer(Endpoint& endpoint);
     void                ReadConfigState();
     void                WriteConfigState();
@@ -80,8 +86,6 @@ private:
     void                ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
     void                UpdatePrimaryLeaseTimer();
     void                UpdateListeners();
-    void                RegisterHeartbeat(uint64_t nodeID);
-    void                UpdateHeartbeatTimeout();
     
     uint64_t            configStatePaxosID;
     bool                isCatchingUp;
@@ -89,8 +93,9 @@ private:
     ConfigState         configState;
     MessageList         configMessages;
     LeaseList           primaryLeases;
-    HeartbeatList       heartbeats;
     Timer               primaryLeaseTimeout;
+    HeartbeatList       heartbeats;
+    Countdown           heartbeatTimeout;
     RequestList         requests;
     RequestList         listenRequests;
     Buffer              configStateBuffer;
@@ -139,10 +144,15 @@ public:
     Heartbeat()     { prev = next = this; }
 
     uint64_t        nodeID;
-    uint64_t        lastHeartbeatTime;
+    uint64_t        expireTime;
     
     Heartbeat*      prev;
     Heartbeat*      next;
 };
+
+inline bool LessThan(Heartbeat &a, Heartbeat &b)
+{
+    return (a.expireTime < b.expireTime);
+}
 
 #endif

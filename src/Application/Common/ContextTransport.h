@@ -52,7 +52,7 @@ private:
     // ========================================================================================
 
     void            OnClusterMessage(uint64_t nodeID, ReadBuffer& msg);
-    void            OnQuorumMessage(ReadBuffer& msg);
+    void            OnQuorumMessage(uint64_t nodeID, ReadBuffer& msg);
 
     ClusterContext* clusterContext;
     ContextMap      contextMap;

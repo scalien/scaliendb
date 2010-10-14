@@ -593,11 +593,11 @@
 			children = (
 				548BE6CF1264C92F001ED245 /* ConfigDatabase.h */,
 				548BE6D01264C92F001ED245 /* ConfigQuorum.h */,
+				548BE6D51264C930001ED245 /* ConfigTable.h */,
 				548BE6D11264C92F001ED245 /* ConfigShard.h */,
 				548BE6D21264C930001ED245 /* ConfigShardServer.h */,
-				548BE6D31264C930001ED245 /* ConfigState.cpp */,
 				548BE6D41264C930001ED245 /* ConfigState.h */,
-				548BE6D51264C930001ED245 /* ConfigTable.h */,
+				548BE6D31264C930001ED245 /* ConfigState.cpp */,
 			);
 			name = ConfigState;
 			path = Application/ConfigState;
