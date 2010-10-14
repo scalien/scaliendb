@@ -539,7 +539,7 @@ void Controller::OnHeartbeatTimeout()
         if (itHeartbeat->expireTime <= now)
         {
             CONTEXT_TRANSPORT->DropConnection(itHeartbeat->nodeID);
-            Log_Trace("Removing node " PRIu64 " from heartbeats", itHeartbeat->nodeID);
+            Log_Trace("Removing node %" PRIu64 " from heartbeats", itHeartbeat->nodeID);
             itHeartbeat = heartbeats.Delete(itHeartbeat);
         }
         else
@@ -683,7 +683,7 @@ void Controller::OnRequestLease(ClusterMessage& message)
     
     if (quorum == NULL)
     {
-        Log_Trace("nodeID " PRIu64 " requesting lease for non-existing quorum %" PRIu64 "",
+        Log_Trace("nodeID %" PRIu64 " requesting lease for non-existing quorum %" PRIu64 "",
          message.nodeID, message.quorumID);
         return;
     }
@@ -703,7 +703,7 @@ void Controller::OnRequestLease(ClusterMessage& message)
     
     if (it == NULL)
     {
-        Log_Trace("nodeID " PRIu64 " requesting lease but not active member or quorum %" PRIu64 "",
+        Log_Trace("nodeID %" PRIu64 " requesting lease but not active member or quorum %" PRIu64 "",
          message.nodeID, message.quorumID);
         return;
     }
