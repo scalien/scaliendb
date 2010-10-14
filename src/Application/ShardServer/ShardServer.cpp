@@ -379,11 +379,16 @@ void ShardServer::OnCatchupMessage(CatchupMessage& imsg)
             if (!isCatchingUp)
                 return;
             // TODO: xxx
+            // see if I have a copy of this shard
+            // if yes, truncate it
+            // if no, create it
             break;
         case CATCHUPMESSAGE_KEYVALUE:
             if (!isCatchingUp)
                 return;
             // TODO: xxx
+            // assert that the shard exists
+            // set the KV
             break;
         case CATCHUPMESSAGE_COMMIT:
             if (!isCatchingUp)
