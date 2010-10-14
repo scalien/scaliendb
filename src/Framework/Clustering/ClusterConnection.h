@@ -8,7 +8,6 @@
 #include "Framework/Messaging/Message.h"
 
 #define MESSAGING_YIELD_TIME            10 // msec
-#define MESSAGING_CONNECT_TIMEOUT       2000
 
 class ClusterTransport;     // forward
 

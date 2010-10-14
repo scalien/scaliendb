@@ -95,6 +95,8 @@ void Controller::RegisterHeartbeat(uint64_t nodeID)
     Heartbeat       *it;
     uint64_t        now;
     
+    Log_Trace("Got heartbeat from %" PRIu64 "", nodeID);
+    
     now = Now();
     
     FOREACH(it, heartbeats)
@@ -274,7 +276,10 @@ bool Controller::IsValidClientRequest(ClientRequest* request)
 
 void Controller::OnClientRequest(ClientRequest* request)
 {
+    bool            found;
     ConfigMessage*  message;
+    uint64_t*       itNodeID;
+    Heartbeat*      itHeartbeat;
 
     if (request->type == CLIENTREQUEST_GET_MASTER)
     {
@@ -299,6 +304,29 @@ void Controller::OnClientRequest(ClientRequest* request)
         request->response.Failed();
         request->OnComplete();
         return;
+    }
+    
+    if (request->type == CLIENTREQUEST_CREATE_QUORUM)
+    {
+        // make sure all nodes are currently active
+        FOREACH(itNodeID, request->nodes)
+        {
+            found = false;
+            FOREACH(itHeartbeat, heartbeats)
+            {
+                if (itHeartbeat->nodeID == *itNodeID)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                request->response.Failed();
+                request->OnComplete();
+                return;
+            }
+        }
     }
     
     message = new ConfigMessage;
@@ -344,12 +372,17 @@ void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
     {
         case CLUSTERMESSAGE_SET_NODEID:
             ASSERT_FAIL();
+        case CLUSTERMESSAGE_HEARTBEAT:
+            OnHeartbeat(message);
+            break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             ASSERT_FAIL();
         case CLUSTERMESSAGE_REQUEST_LEASE:
             OnRequestLease(message);
             break;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
+            ASSERT_FAIL();
+        default:
             ASSERT_FAIL();
     }
 }
@@ -672,6 +705,11 @@ void Controller::SendClientResponse(ConfigMessage& message)
     ToClientResponse(&message, &request->response);
     request->OnComplete();
     
+}
+
+void Controller::OnHeartbeat(ClusterMessage& message)
+{
+    RegisterHeartbeat(message.nodeID);
 }
 
 void Controller::OnRequestLease(ClusterMessage& message)
