@@ -5,8 +5,8 @@
 #include "System/Buffers/Buffer.h"
 #include "Framework/Storage/StorageTable.h"
 
-//#define DEFAULT_RLOG_CACHE_SIZE     100*1000
-#define DEFAULT_RLOG_CACHE_SIZE     5
+#define DEFAULT_RLOG_CACHE_SIZE     100*1000
+//#define DEFAULT_RLOG_CACHE_SIZE     5
 
 /*
 ===============================================================================

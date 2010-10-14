@@ -103,7 +103,9 @@ void Controller::RegisterHeartbeat(uint64_t nodeID)
     {
         if (it->nodeID == nodeID)
         {
+            heartbeats.Remove(it);
             it->expireTime = now + HEARTBEAT_EXPIRE_TIME;
+            heartbeats.Add(it);
             return;
         }
     }

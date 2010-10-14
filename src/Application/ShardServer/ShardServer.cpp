@@ -548,10 +548,15 @@ void ShardServer::OnHeartbeatTimeout()
     uint64_t        nodeID;
     ClusterMessage  msg;
     
+    Log_Trace();
+    
     EventLoop::Add(&heartbeatTimeout);
     
     if (CONTEXT_TRANSPORT->IsAwaitingNodeID())
+    {
+        Log_Trace("not sending heartbeat");
         return;
+    }
     
     msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID());
 
@@ -616,24 +621,26 @@ void ShardServer::OnSetConfigState(ConfigState& configState_)
     }
     
     // check changes in active or inactive node list
-    for (configQuorum = configState.quorums.First();
-     configQuorum != NULL;
-     configQuorum = configState.quorums.Next(configQuorum))
+    FOREACH(configQuorum, configState.quorums)
     {
         nodes = &configQuorum->activeNodes;
-        for (nit = nodes->First(); nit != NULL; nit = nodes->Next(nit))
+        FOREACH(nit, *nodes)
         {
-            if (*nit != nodeID)
-                continue;
-            ConfigureQuorum(configQuorum, true);
+            if (*nit == nodeID)
+            {
+                ConfigureQuorum(configQuorum, true);
+                break;
+            }
         }
 
         nodes = &configQuorum->inactiveNodes;
-        for (nit = nodes->First(); nit != NULL; nit = nodes->Next(nit))
+        FOREACH(nit, *nodes)
         {
-            if (*nit != nodeID)
-                continue;
-            ConfigureQuorum(configQuorum, false);
+            if (*nit == nodeID)
+            {
+                ConfigureQuorum(configQuorum, false);
+                break;
+            }
         }
     }
     

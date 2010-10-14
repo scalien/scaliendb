@@ -122,6 +122,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             transport->AddConnection(this);
             if (transport->OnAwaitingNodeID(endpoint))
             {
+                Log_Trace();
                 transport->DeleteConnection(this);
                 return true;
             }
@@ -144,6 +145,12 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             {
                 Log_Trace("delete dup");
                 transport->DeleteConnection(dup);       // drop dup
+            }
+            else if (nodeID_ != transport->GetSelfNodeID())
+            {
+                Log_Trace("delete this");
+                transport->DeleteConnection(this);       // drop this
+                return true;
             }
         }
         progress = ClusterConnection::READY;
