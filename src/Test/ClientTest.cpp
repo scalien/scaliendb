@@ -158,11 +158,7 @@ TEST_DEFINE(TestClientBatchedSet)
     int             ret;
     unsigned        num = 100;
     Stopwatch       sw;
-    
-    Log_SetTimestamping(true);
-    Log_SetTarget(LOG_TARGET_STDOUT);
-    Log_SetTrace(true);
-    
+        
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();

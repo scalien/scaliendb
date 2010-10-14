@@ -27,6 +27,8 @@ TEST_DEFINE(TestStorage)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
+    DCACHE->Init(100000000);
+
     db.Open(".", "db");
     table = db.GetTable("dogs");
 
@@ -46,7 +48,7 @@ TEST_DEFINE(TestStorage)
 
         if (NowClock() - clock >= 1000)
         {
-            printf("syncing...\n");
+            TEST_LOG("syncing...");
             db.Commit();
             clock = NowClock();
         }
@@ -85,6 +87,8 @@ TEST_DEFINE(TestStorage)
     elapsed = sw.Stop();
     printf("Close() took %ld msec\n", elapsed);
     
+    DCACHE->Shutdown();
+    
     free(area);
     
     return TEST_SUCCESS;
@@ -108,6 +112,8 @@ TEST_DEFINE(TestStorageCapacity)
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
+
+    DCACHE->Init(10000000);
 
     db.Open(".", "db");
     // a million key-value pairs take up 248M disk space
@@ -156,6 +162,8 @@ TEST_DEFINE(TestStorageCapacity)
         printf("Commit() took %ld msec\n", elapsed);
     }
     db.Close();
+
+    DCACHE->Shutdown();
     
     free(area);
 
@@ -178,6 +186,8 @@ TEST_DEFINE(TestStorageBigTransaction)
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
+
+    DCACHE->Init(10000000);
 
     db.Open(".", "db");
     table = db.GetTable("dogs");
@@ -203,6 +213,8 @@ TEST_DEFINE(TestStorageBigTransaction)
     printf("Commit() took %ld msec\n", elapsed);
 
     db.Close();
+
+    DCACHE->Shutdown();
     
     free(area);
 
@@ -225,6 +237,8 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
+
+    DCACHE->Init(10000000);
 
     db.Open(".", "db");
     table = db.GetTable("dogs");
@@ -250,6 +264,8 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
     printf("Commit() took %ld msec\n", elapsed);
 
     db.Close();
+
+    DCACHE->Shutdown();
     
     free(area);
 
@@ -274,6 +290,8 @@ TEST_DEFINE(TestStorageShardSize)
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
+
+    DCACHE->Init(10000000);
 
     db.Open(".", "db");
     // a million key-value pairs take up 248M disk space
@@ -308,7 +326,9 @@ TEST_DEFINE(TestStorageShardSize)
         printf("Shard size: %s\n", SIBytes(table->GetSize()));
     }
     db.Close();
-    
+
+    DCACHE->Shutdown();
+
     free(area);
 
     return TEST_SUCCESS;
@@ -374,6 +394,7 @@ TEST_DEFINE(TestStorageShardSplit)
     table->SplitShard(0, 1, rk);
     
     db.Close();
+    DCACHE->Shutdown();
     
     free(area);
 

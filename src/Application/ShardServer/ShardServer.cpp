@@ -645,9 +645,18 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
         }
         CONTEXT_TRANSPORT->AddQuorumContext(&quorumData->context);
     }
-    // TODO: add nodes to CONTEXT_TRANSPORT
-//    else if (quorumData != NULL)
-//        quorumData->context.UpdateConfig(configQuorum);
+    else if (quorumData != NULL)
+    {
+        quorumData->context.UpdateConfig(configQuorum);
+
+        // add nodes to CONTEXT_TRANSPORT        
+        for (nit = configQuorum->activeNodes.First(); nit != NULL; nit = configQuorum->activeNodes.Next(nit))
+        {
+            shardServer = configState.GetShardServer(*nit);
+            assert(shardServer != NULL);
+            CONTEXT_TRANSPORT->AddNode(*nit, shardServer->endpoint);
+        }
+    }
     
     UpdateStorageShards(configQuorum->shards);
 }

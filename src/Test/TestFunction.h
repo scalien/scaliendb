@@ -26,6 +26,12 @@ public:
         TestFunction*           testit; \
         int                     ret;
 
+#define TEST_LOG_INIT(targets) \
+    Log_SetTimestamping(true); \
+    Log_SetTarget(targets); \
+    Log_SetTrace(true); 
+
+
 #define TEST_EXECUTE() \
     ret = TEST_SUCCESS; \
     FOREACH(testit, tests) \
