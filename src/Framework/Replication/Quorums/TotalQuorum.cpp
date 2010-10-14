@@ -42,6 +42,8 @@ QuorumVote* TotalQuorum::NewVote() const
     
     round->numNodes = numNodes;
     
+    Log_Trace("creating new vote with numNodes = %u", numNodes);
+    
     return round;
 }
 

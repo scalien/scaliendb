@@ -6,6 +6,7 @@
 #include "Application/ConfigState/ConfigState.h"
 
 #define CLUSTERMESSAGE_SET_NODEID       'N' // master => shard server
+#define CLUSTERMESSAGE_HEARTBEAT        'H' // shard server => controllers
 #define CLUSTERMESSAGE_SET_CONFIG_STATE 'C' // master => shard server
 #define CLUSTERMESSAGE_REQUEST_LEASE    'R' // shard server => master, also serves as heartbeat
 #define CLUSTERMESSAGE_RECEIVE_LEASE    'r' // master => shard server
@@ -33,6 +34,7 @@ public:
     ClusterMessage();
     
     bool            SetNodeID(uint64_t nodeID);
+    bool            Heartbeat(uint64_t nodeID);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, unsigned duration);

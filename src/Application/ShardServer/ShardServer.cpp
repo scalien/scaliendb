@@ -59,8 +59,12 @@ void ShardServer::Init()
     isCatchingUp = false;
     catchupCursor = NULL;
     
+    requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));
     requestTimer.SetDelay(REQUEST_TIMEOUT);
-    requestTimer.SetCallable(MFUNC(ShardServer, OnRequestLeaseTimeout));    
+    
+    heartbeatTimeout.SetCallable(MFUNC(ShardServer, OnHeartbeatTimeout));
+    heartbeatTimeout.SetDelay(HEARTBEAT_TIMEOUT);
+    EventLoop::Add(&heartbeatTimeout);
 }
 
 void ShardServer::Shutdown()
@@ -536,6 +540,24 @@ void ShardServer::OnPrimaryLeaseTimeout()
         EventLoop::Remove(&quorum->leaseTimeout);
         quorum->context.OnLeaseTimeout();
     }
+}
+
+void ShardServer::OnHeartbeatTimeout()
+{
+    unsigned        numControllers;
+    uint64_t        nodeID;
+    ClusterMessage  msg;
+    
+    EventLoop::Add(&heartbeatTimeout);
+    
+    if (CONTEXT_TRANSPORT->IsAwaitingNodeID())
+        return;
+    
+    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID());
+
+    numControllers = (unsigned) configFile.GetListNum("controllers");
+    for (nodeID = 0; nodeID < numControllers; nodeID++)
+        CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
 }
 
 void ShardServer::OnSetConfigState(ConfigState& configState_)

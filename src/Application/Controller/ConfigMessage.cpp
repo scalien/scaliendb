@@ -156,7 +156,7 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
              &type, &quorumID, &nodeID);
             break;
         case CONFIGMESSAGE_DECREASE_QUORUM:
-            read = buffer.Readf("%c:%U:%U:%u",
+            read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &nodeID);
             break;
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
@@ -164,7 +164,7 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
              &type, &quorumID, &nodeID);
             break;
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
-            read = buffer.Readf("%c:%U:%U:%u",
+            read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &nodeID);
             break;
 

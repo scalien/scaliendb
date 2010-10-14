@@ -20,6 +20,8 @@
 
 class QuorumData; // forward
 
+#define HEARTBEAT_TIMEOUT       1000 // msec
+
 /*
 ===============================================================================================
 
@@ -75,6 +77,7 @@ private:
     void                FromClientRequest(ClientRequest* request, DataMessage* message);
     void                OnRequestLeaseTimeout();
     void                OnPrimaryLeaseTimeout();
+    void                OnHeartbeatTimeout();
     void                OnSetConfigState(ConfigState& configState);
     void                ConfigureQuorum(ConfigQuorum* configQuorum, bool active);
     void                OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
@@ -100,6 +103,7 @@ private:
     StorageEnvironment  databaseEnv;
     DatabaseMap         databases;
     TableMap            tables;
+    Countdown           heartbeatTimeout;
 
     // isSendingCatchup & isCatchingUp is in ShardServer and not in QuorumData because a shard server
     // should only be doing catchup stuff one quorum at a time!

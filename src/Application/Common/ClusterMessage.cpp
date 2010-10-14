@@ -11,6 +11,13 @@ bool ClusterMessage::SetNodeID(uint64_t nodeID_)
     return true;
 }
 
+bool ClusterMessage::Heartbeat(uint64_t nodeID_)
+{
+    type = CLUSTERMESSAGE_HEARTBEAT;
+    nodeID = nodeID_;
+    return true;
+}
+
 bool ClusterMessage::SetConfigState(ConfigState& configState_)
 {
     type = CLUSTERMESSAGE_SET_CONFIG_STATE;
@@ -54,6 +61,10 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &type, &nodeID);
             break;
+        case CLUSTERMESSAGE_HEARTBEAT:
+            read = buffer.Readf("%c:%U",
+             &type, &nodeID);
+            break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             type = CLUSTERMESSAGE_SET_CONFIG_STATE;
             return configState.Read(buffer, true);
@@ -79,6 +90,10 @@ bool ClusterMessage::Write(Buffer& buffer)
     switch (type)
     {
         case CLUSTERMESSAGE_SET_NODEID:
+            buffer.Writef("%c:%U",
+             type, nodeID);
+            return true;
+        case CLUSTERMESSAGE_HEARTBEAT:
             buffer.Writef("%c:%U",
              type, nodeID);
             return true;

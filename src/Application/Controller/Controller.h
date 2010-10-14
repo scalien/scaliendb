@@ -81,6 +81,7 @@ private:
     void                ReadConfigState();
     void                WriteConfigState();
     void                SendClientResponse(ConfigMessage& message);
+    void                OnHeartbeat(ClusterMessage& message);
     void                OnRequestLease(ClusterMessage& message);
     void                AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
     void                ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
