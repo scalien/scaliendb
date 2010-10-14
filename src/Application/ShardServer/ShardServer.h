@@ -78,12 +78,18 @@ private:
     void                OnSetConfigState(ConfigState& configState);
     void                ConfigureQuorum(ConfigQuorum* configQuorum, bool active);
     void                OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
-    void                UpdateShards(List<uint64_t>& shards);
+    void                UpdateStorageShards(List<uint64_t>& shards);
     StorageTable*       LocateTable(uint64_t tableID);
     StorageShard*       LocateShard(uint64_t shardID);
     StorageTable*       GetQuorumTable(uint64_t quorumID);
     void                UpdatePrimaryLeaseTimer();
     void                OnClientRequestGet(ClientRequest* request);
+    
+    // Catchup logic
+    void                OnCatchupRequest(CatchupMessage& message);
+    void                OnCatchupBeginShard(CatchupMessage& message);
+    void                OnCatchupKeyValue(CatchupMessage& message);
+    void                OnCatchupCommit(CatchupMessage& message);
     
     bool                isAwaitingNodeID;
     QuorumList          quorums;
@@ -99,10 +105,12 @@ private:
     // should only be doing catchup stuff one quorum at a time!
     bool                isSendingCatchup;   // whether I'm helping someone to catchup
     bool                isCatchingUp;       // whether I'm catching up
-    StorageCursor*      catchupCursor;
-    CatchupMessage      catchupRequest;
-    uint64_t            catchupShardID;
-    uint64_t            catchupPaxosID;
+    StorageCursor*      catchupCursor;      // writer
+    CatchupMessage      catchupRequest;     // writer
+    uint64_t            catchupShardID;     // writer
+    uint64_t            catchupPaxosID;     // writer
+    StorageShard*       catchupShard;       // reader
+    QuorumData*         catchupQuorum;      // reader
 };
 
 /*
