@@ -16,6 +16,7 @@
 
 class ClientSession;            // forward
 class PrimaryLease;             // forward
+class Heartbeat;                // forward
 
 /*
 ===============================================================================================
@@ -31,6 +32,7 @@ public:
     typedef InList<ConfigMessage>       MessageList;
     typedef InSortedList<PrimaryLease>  LeaseList;
     typedef InList<ClientRequest>       RequestList;
+    typedef InList<Heartbeat>           HeartbeatList;
 
     void                Init();
     void                Shutdown();
@@ -78,13 +80,16 @@ private:
     void                ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
     void                UpdatePrimaryLeaseTimer();
     void                UpdateListeners();
+    void                RegisterHeartbeat(uint64_t nodeID);
+    void                UpdateHeartbeatTimeout();
     
     uint64_t            configStatePaxosID;
     bool                isCatchingUp;
     ConfigContext       configContext;
-    MessageList         configMessages;
     ConfigState         configState;
+    MessageList         configMessages;
     LeaseList           primaryLeases;
+    HeartbeatList       heartbeats;
     Timer               primaryLeaseTimeout;
     RequestList         requests;
     RequestList         listenRequests;
@@ -105,6 +110,7 @@ class PrimaryLease
 {
 public:
     PrimaryLease()  { prev = next = this; }
+
     uint64_t        quorumID;
     uint64_t        nodeID;
     uint64_t        expireTime;
@@ -117,5 +123,26 @@ inline bool LessThan(PrimaryLease &a, PrimaryLease &b)
 {
     return (a.expireTime < b.expireTime);
 }
+
+/*
+===============================================================================================
+
+ Heartbeat
+
+===============================================================================================
+*/
+
+class Heartbeat
+{
+public:
+
+    Heartbeat()     { prev = next = this; }
+
+    uint64_t        nodeID;
+    uint64_t        lastHeartbeatTime;
+    
+    Heartbeat*      prev;
+    Heartbeat*      next;
+};
 
 #endif

@@ -683,3 +683,30 @@ void Controller::UpdateListeners()
         CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
     }
 }
+
+void Controller::RegisterHeartbeat(uint64_t nodeID)
+{
+    Heartbeat       *it;
+    uint64_t        now;
+    
+    now = Now();
+    
+    FOREACH(it, heartbeats)
+    {
+        if (it->nodeID == nodeID)
+        {
+            it->lastHeartbeatTime = now;
+            UpdateHeartbeatTimeout();
+            return;
+        }
+    }
+    
+    it = new Heartbeat();
+    it->nodeID = nodeID;
+    it->lastHeartbeatTime = now;
+    heartbeats.Append(it);
+}
+
+void Controller::UpdateHeartbeatTimeout()
+{
+}

@@ -5,9 +5,18 @@
 #include "Framework/Messaging/Message.h"
 #include "ClusterServer.h"
 
+class WriteReadyness;
+
+/*
+===============================================================================================
+
+ ClusterTransport
+
+===============================================================================================
+*/
+
 class ClusterTransport
 {
-    typedef PAIR(uint64_t, nodeID, Callable, callable) WriteReadyness;
 public:
     virtual ~ClusterTransport() {}
     
@@ -54,9 +63,32 @@ private:
     Buffer                      msgBuffer;
     ClusterServer               server;
     InList<ClusterConnection>   conns;
-    List<WriteReadyness>        writeReadynessList;
+    InList<WriteReadyness>      writeReadynessList;
 
     friend class ClusterConnection;
 };
+
+/*
+===============================================================================================
+
+ WriteReadyness
+
+===============================================================================================
+*/
+
+class WriteReadyness
+{
+public:
+    WriteReadyness()
+    {
+        prev = next = this;
+    }
+
+    uint64_t            nodeID;
+    Callable            callable;
+    WriteReadyness*     prev;
+    WriteReadyness*     next;
+};
+
 
 #endif

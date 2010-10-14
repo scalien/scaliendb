@@ -92,6 +92,4 @@
 
 #define FOREACH(it, cont) for (it = (cont).First(); it != NULL; it = (cont).Next(it))
 
-#define PAIR(A, a, B, b) class { public: A a; B b; }
-
 #endif

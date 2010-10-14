@@ -184,10 +184,11 @@ bool ClusterTransport::IsConnected(uint64_t nodeID)
 
 void ClusterTransport::RegisterWriteReadyness(uint64_t nodeID, Callable callable)
 {
-    WriteReadyness wr;
-    
-    wr.nodeID = nodeID;
-    wr.callable = callable;
+    WriteReadyness* wr;
+   
+    wr = new WriteReadyness();
+    wr->nodeID = nodeID;
+    wr->callable = callable;
     
     writeReadynessList.Append(wr);
 }
@@ -199,7 +200,7 @@ void ClusterTransport::UnregisterWriteReadyness(uint64_t nodeID, Callable callab
     FOREACH(it, writeReadynessList)
     {
         if (it->nodeID == nodeID && it->callable == callable)
-            writeReadynessList.Remove(it);
+            writeReadynessList.Delete(it);
         return;
     }
     
