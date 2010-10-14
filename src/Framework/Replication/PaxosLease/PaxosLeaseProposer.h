@@ -19,6 +19,8 @@
 class PaxosLeaseProposer
 {
 public:
+    ~PaxosLeaseProposer();
+    
     void                        Init(QuorumContext* context);
     
     void                        OnMessage(PaxosLeaseMessage& msg);

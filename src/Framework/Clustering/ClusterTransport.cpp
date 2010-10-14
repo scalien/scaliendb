@@ -1,5 +1,11 @@
 #include "ClusterTransport.h"
 
+ClusterTransport::~ClusterTransport()
+{
+    conns.DeleteList();
+    writeReadynessList.DeleteList();
+}
+
 void ClusterTransport::Init(Endpoint& endpoint_)
 {
     endpoint = endpoint_;

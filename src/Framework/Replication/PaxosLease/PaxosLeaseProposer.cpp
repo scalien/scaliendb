@@ -4,6 +4,11 @@
 #include "System/Events/EventLoop.h"
 #include "Framework/Replication/ReplicationConfig.h"
 
+PaxosLeaseProposer::~PaxosLeaseProposer()
+{
+    delete vote;
+}
+
 void PaxosLeaseProposer::Init(QuorumContext* context_)
 {
     context = context_;

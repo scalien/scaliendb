@@ -62,11 +62,11 @@ void Controller::Init()
 
 void Controller::Shutdown()
 {
+    heartbeats.DeleteList();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
     databaseEnv.Close();
 }
-
 
 int64_t Controller::GetMaster()
 {

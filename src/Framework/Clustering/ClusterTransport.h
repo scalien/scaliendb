@@ -18,7 +18,7 @@ class WriteReadyness;
 class ClusterTransport
 {
 public:
-    virtual ~ClusterTransport() {}
+    virtual ~ClusterTransport();
     
     void                        Init(Endpoint& endpoint);
     

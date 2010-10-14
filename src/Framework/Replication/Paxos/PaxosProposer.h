@@ -23,6 +23,8 @@ class ReplicatedLog; // forward
 class PaxosProposer
 {
 public:
+    ~PaxosProposer();
+    
     void                        Init(QuorumContext* context);
     
     void                        OnMessage(PaxosMessage& msg);

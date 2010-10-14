@@ -24,6 +24,7 @@ public:
     T*              Remove(T* t);
     bool            Remove(T &t);
     void            Clear();
+    void            DeleteList();
     
     T*              First() const;
     T*              Last() const;
@@ -108,6 +109,12 @@ template<class T>
 void InSortedList<T>::Clear()
 {
     return list.Clear();
+}
+
+template<class T>
+void InSortedList<T>::DeleteList()
+{
+    return list.DeleteList();
 }
 
 template<class T>

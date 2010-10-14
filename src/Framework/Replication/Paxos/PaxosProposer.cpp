@@ -2,6 +2,11 @@
 #include "System/Events/EventLoop.h"
 #include "Framework/Replication/ReplicationConfig.h"
 
+PaxosProposer::~PaxosProposer()
+{
+    delete vote;
+}
+
 void PaxosProposer::Init(QuorumContext* context_)
 {
     context = context_;
