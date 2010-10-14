@@ -18,9 +18,9 @@ TEST_ADD(TestWriteTiming);
 TEST_ADD(TestFileSystemDiskSpace);
 TEST_ADD(TestArrayListBasic);
 TEST_ADD(TestArrayListRemove);
-TEST_ADD(TestClientBasic);
-TEST_ADD(TestClientSet);
-TEST_ADD(TestClientBatchedSet);
+//TEST_ADD(TestClientBasic);
+//TEST_ADD(TestClientSet);
+//TEST_ADD(TestClientBatchedSet);
 TEST_EXECUTE();
 
 #ifdef TEST

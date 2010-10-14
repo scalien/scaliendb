@@ -50,6 +50,7 @@ ClusterConnection::Progress ClusterConnection::GetProgress()
 
 void ClusterConnection::Connect()
 {
+    progress = OUTGOING;
     MessageConnection::Connect(endpoint);
 }
 
