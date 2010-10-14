@@ -228,6 +228,34 @@ bool FS_DeleteDir(const char* filename)
     return true;
 }
 
+bool FS_RecDeleteDir(const char* path)
+{
+    FS_Dir      dir;
+    FS_DirEntry entry;
+    bool        ret;
+    
+    if (!FS_IsDirectory(path))
+        return false;
+    
+    dir = FS_OpenDir(path);
+    if (dir == FS_INVALID_DIR)
+        return false;
+    
+    while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
+    {
+        if (FS_IsDirectory(FS_DirEntryName(entry)))
+            ret = FS_RecDeleteDir(FS_DirEntryName(entry));
+        else
+            ret = FS_Delete(FS_DirEntryName(entry));
+
+        if (!ret)
+            return false;
+    }
+    
+    FS_CloseDir(dir);
+    return FS_DeleteDir(path);
+}
+
 const char* FS_DirEntryName(FS_DirEntry dirent)
 {
     return ((struct dirent*) dirent)->d_name;

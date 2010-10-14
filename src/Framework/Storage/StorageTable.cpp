@@ -202,8 +202,27 @@ bool StorageTable::CreateShard(uint64_t shardID, ReadBuffer& startKey_)
     si->SetStartKey(startKey_, true);
     si->shardID = shardID;
     shards.Insert(si);
-    
+        
     return true;
+}
+
+StorageShard* StorageTable::GetShard(uint64_t shardID)
+{
+    StorageShardIndex*  si;
+    
+    FOREACH (si, shards)
+    {
+        if (si->shardID == shardID)
+        {
+            // TODO: HACK read first key to read it into memory
+            si = Locate(si->startKey);
+            assert(si != NULL);
+        
+            return si->shard;
+        }
+    }
+    
+    return NULL;
 }
 
 bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuffer& startKey)
@@ -285,6 +304,33 @@ bool StorageTable::ShardExists(ReadBuffer& startKey)
     return true;
 }
 
+bool StorageTable::DeleteShard(uint64_t shardID)
+{
+    StorageShardIndex*  si;
+    Buffer              srcDir;
+    Buffer              dstDir;
+    
+    FOREACH (si, shards)
+    {
+        if (si->shardID == shardID)
+        {
+            // rename the directory of the shard
+            GetShardName(srcDir, shardID);
+            GetShardName(dstDir, shardID, "deleted");
+            WriteRecoveryMove(srcDir, dstDir);
+
+            // TODO: error handling
+            FS_RecDeleteDir(dstDir.GetBuffer());
+            FS_Rename(srcDir.GetBuffer(), dstDir.GetBuffer());
+            shards.Remove(si);
+            
+            return true;
+        }
+    }
+    
+    return false;
+}
+
 StorageShardIndex* StorageTable::Locate(ReadBuffer& key)
 {
     StorageShardIndex*  si;
@@ -350,8 +396,7 @@ void StorageTable::PerformRecovery(uint64_t length)
         op = FromLittle32(*((uint32_t*) p));
         p += sizeof(op);
         total = FromLittle64(*((uint64_t*) p));
-        if (op > RECOVERY_OP_MOVE)
-            break;
+        assert(op <= RECOVERY_OP_MOVE);
         
         if (FS_FileSeek(recoveryFD, total, FS_SEEK_CUR) < 0)
             break;
@@ -891,6 +936,14 @@ void StorageTable::RebuildShardTOC(uint64_t shardID)
     si->shard->RebuildTOC();
     si->shard->Close();
     delete si;
+}
+
+void StorageTable::GetShardName(Buffer& shardName, uint64_t shardID, const ReadBuffer& prefix)
+{
+    shardName.Write(path.GetBuffer(), path.GetLength() - 1);
+    shardName.Appendf("%R", &prefix);
+    shardName.Appendf("%U", shardID);
+    shardName.NullTerminate();
 }
 
 StorageDataPage* StorageTable::CursorBegin(StorageCursor* cursor, ReadBuffer& key)

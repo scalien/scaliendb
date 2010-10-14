@@ -20,7 +20,7 @@
 #define FS_READONLY             0x0000
 #define FS_READWRITE            0x0002
 
-#define FS_INVALID_DIR          NULL
+#define FS_INVALID_DIR          0
 #define FS_INVALID_DIR_ENTRY    0
 
 typedef intptr_t FS_Dir;
@@ -44,6 +44,7 @@ FS_DirEntry FS_ReadDir(FS_Dir dir);
 void        FS_CloseDir(FS_Dir dir);
 bool        FS_CreateDir(const char* name);
 bool        FS_DeleteDir(const char* name);
+bool        FS_RecDeleteDir(const char* name);
 
 const char* FS_DirEntryName(FS_DirEntry dirent);
 

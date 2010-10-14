@@ -8,6 +8,7 @@
 
 class StorageDatabase;      // forward
 class StorageEnvironment;   // forward
+class StorageCursor;        // forward
 
 /*
 ===============================================================================
@@ -41,7 +42,7 @@ public:
     
     bool                ShardExists(ReadBuffer& startKey);
     // TODO:
-    //bool              DeleteShard(uint64_t shardID);
+    bool                DeleteShard(uint64_t shardID);
     //bool              DeleteAllShards();
 
     StorageTable*       next;
@@ -53,6 +54,7 @@ private:
     void                PerformRecoveryCreateShard(uint64_t& oldShardID, uint64_t& newShardID);
     void                PerformRecoveryCopy();
     void                PerformRecoveryMove();
+    void                PerformRecoveryDeleteShard(uint64_t& oldShardID);
     void                ReadTOC(uint64_t length);
     void                RebuildTOC();
     void                WriteTOC();
@@ -62,6 +64,7 @@ private:
     void                WriteRecoveryMove(Buffer& src, Buffer& dst);
     void                DeleteGarbageShard(uint64_t shardID);
     void                RebuildShardTOC(uint64_t shardID);
+    void                GetShardName(Buffer& shardName, uint64_t shardID, const ReadBuffer& prefix = "");
 
     StorageDataPage*    CursorBegin(StorageCursor* cursor, ReadBuffer& key);
 

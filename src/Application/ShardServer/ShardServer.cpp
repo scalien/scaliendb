@@ -315,86 +315,26 @@ void ShardServer::OnStartCatchup(uint64_t quorumID)
      quorumData->context.GetLeaseOwner(), quorumID, msg);
      
     isCatchingUp = true;
+    catchupQuorum = quorumData;
     
     Log_Message("Catchup started from node %" PRIu64 "", quorumData->context.GetLeaseOwner());
 }
 
 void ShardServer::OnCatchupMessage(CatchupMessage& imsg)
 {
-    CatchupMessage      omsg;
-    Buffer              buffer;
-    ReadBuffer          key;
-    ReadBuffer          value;
-    QuorumData*         quorumData;
-    StorageShard*       shard;
-    StorageKeyValue*    kv;
-    
     switch (imsg.type)
     {
         case CATCHUPMESSAGE_REQUEST:
-            if (isSendingCatchup)
-                return;
-            catchupRequest = imsg;
-            catchupPaxosID = quorumData->context.GetPaxosID() - 1;
-
-            quorumData = LocateQuorum(catchupRequest.quorumID);
-            if (!quorumData)
-                ASSERT_FAIL();
-
-            if (!quorumData->context.IsLeader())
-                return;
-
-            if (quorumData->shards.GetLength() == 0)
-            {
-                // no shards in quorums, send Commit
-                omsg.Commit(catchupPaxosID);
-                // send the paxosID whose value is in the db
-                CONTEXT_TRANSPORT->SendQuorumMessage(
-                 catchupRequest.nodeID, catchupRequest.quorumID, omsg);
-                break;
-            }
-            
-            // use the WriteReadyness mechanism to send the KVs
-            // OnWriteReadyness() will be called when the next KVs can be sent
-            CONTEXT_TRANSPORT->RegisterWriteReadyness(
-             catchupRequest.nodeID, MFUNC(ShardServer, OnWriteReadyness));
-
-            catchupShardID = *quorumData->shards.First();
-            shard = LocateShard(catchupShardID);
-            assert(shard != NULL);
-            catchupCursor = new StorageCursor(shard);
-            omsg.BeginShard(catchupShardID);
-            CONTEXT_TRANSPORT->SendQuorumMessage(
-                 catchupRequest.nodeID, catchupRequest.quorumID, omsg);
-            // send first KV
-            kv = catchupCursor->Begin(ReadBuffer());
-            if (kv)
-            {
-                omsg.KeyValue(kv->key, kv->value);
-                CONTEXT_TRANSPORT->SendQuorumMessage(
-                 catchupRequest.nodeID, catchupRequest.quorumID, omsg);
-            }
-            isSendingCatchup = true;
+            OnCatchupRequest(imsg);
             break;
         case CATCHUPMESSAGE_BEGIN_SHARD:
-            if (!isCatchingUp)
-                return;
-            // TODO: xxx
-            // see if I have a copy of this shard
-            // if yes, truncate it
-            // if no, create it
+            OnCatchupBeginShard(imsg);
             break;
         case CATCHUPMESSAGE_KEYVALUE:
-            if (!isCatchingUp)
-                return;
-            // TODO: xxx
-            // assert that the shard exists
-            // set the KV
+            OnCatchupKeyValue(imsg);
             break;
         case CATCHUPMESSAGE_COMMIT:
-            if (!isCatchingUp)
-                return;
-            // TODO: xxx
+            OnCatchupCommit(imsg);
             break;
         default:
             ASSERT_FAIL();
@@ -500,6 +440,7 @@ QuorumData* ShardServer::LocateQuorum(uint64_t quorumID)
     return NULL;
 }
 
+// TODO: this should be moved to QuorumData
 void ShardServer::TryAppend(QuorumData* quorumData)
 {
     Buffer          singleBuffer;
@@ -523,7 +464,6 @@ void ShardServer::TryAppend(QuorumData* quorumData)
         assert(value.GetLength() > 0);
         
         quorumData->context.Append();
-//        quorumData->context.Append(quorumData->dataMessages.First());
     }
 }
 
@@ -709,7 +649,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
 //    else if (quorumData != NULL)
 //        quorumData->context.UpdateConfig(configQuorum);
     
-    UpdateShards(configQuorum->shards);
+    UpdateStorageShards(configQuorum->shards);
 }
 
 void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)
@@ -730,7 +670,7 @@ void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)
     quorum->context.OnLearnLease();
 }
 
-void ShardServer::UpdateShards(List<uint64_t>& shards)
+void ShardServer::UpdateStorageShards(List<uint64_t>& shards)
 {
     uint64_t*           sit;
     ConfigShard*        shard;
@@ -779,10 +719,20 @@ StorageTable* ShardServer::LocateTable(uint64_t tableID)
     return table;
 }
 
-StorageShard* ShardServer::LocateShard(uint64_t /*shardID*/)
+StorageShard* ShardServer::LocateShard(uint64_t shardID)
 {
-    // TODO: xxx
-    return NULL;
+    ConfigShard*    shard;
+    StorageTable*   table;
+    
+    shard = configState.GetShard(shardID);
+    if (!shard)
+        return NULL;
+    
+    table = LocateTable(shard->tableID);
+    if (!table)
+        return NULL;
+    
+    return table->GetShard(shardID);
 }
 
 StorageTable* ShardServer::GetQuorumTable(uint64_t quorumID)
@@ -818,6 +768,123 @@ void ShardServer::OnClientRequestGet(ClientRequest* request)
     
     request->response.Value(value);
     request->OnComplete();
+}
+
+void ShardServer::OnCatchupRequest(CatchupMessage& msg)
+{
+    CatchupMessage      omsg;
+    Buffer              buffer;
+    ReadBuffer          key;
+    ReadBuffer          value;
+    QuorumData*         quorumData;
+    StorageShard*       shard;
+    StorageKeyValue*    kv;
+    
+    if (isSendingCatchup)
+        return;
+
+    catchupRequest = msg;
+    catchupPaxosID = quorumData->context.GetPaxosID() - 1;
+
+    quorumData = LocateQuorum(catchupRequest.quorumID);
+    if (!quorumData)
+        ASSERT_FAIL();
+
+    if (!quorumData->context.IsLeader())
+        return;
+
+    if (quorumData->shards.GetLength() == 0)
+    {
+        // no shards in quorums, send Commit
+        omsg.Commit(catchupPaxosID);
+        // send the paxosID whose value is in the db
+        CONTEXT_TRANSPORT->SendQuorumMessage(
+         catchupRequest.nodeID, catchupRequest.quorumID, omsg);
+        return;
+    }
+    
+    // use the WriteReadyness mechanism to send the KVs
+    // OnWriteReadyness() will be called when the next KVs can be sent
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(
+     catchupRequest.nodeID, MFUNC(ShardServer, OnWriteReadyness));
+
+    catchupShardID = *quorumData->shards.First();
+    shard = LocateShard(catchupShardID);
+    assert(shard != NULL);
+    catchupCursor = new StorageCursor(shard);
+    omsg.BeginShard(catchupShardID);
+    CONTEXT_TRANSPORT->SendQuorumMessage(
+     catchupRequest.nodeID, catchupRequest.quorumID, omsg);
+
+    // send first KV
+    kv = catchupCursor->Begin(ReadBuffer());
+    if (kv)
+    {
+        omsg.KeyValue(kv->key, kv->value);
+        CONTEXT_TRANSPORT->SendQuorumMessage(
+         catchupRequest.nodeID, catchupRequest.quorumID, omsg);
+    }
+    isSendingCatchup = true;
+}
+
+void ShardServer::OnCatchupBeginShard(CatchupMessage& msg)
+{
+    ConfigShard*    cshard;
+    StorageTable*   table;
+    ReadBuffer      firstKey;
+
+    if (!isCatchingUp)
+        return;
+
+    cshard = configState.GetShard(msg.shardID);
+    if (!cshard)
+    {
+        ASSERT_FAIL();
+        return;
+    }
+        
+    table = LocateTable(cshard->tableID);
+    if (!table)
+    {
+        ASSERT_FAIL();
+        return;
+    }
+    
+    catchupShard = table->GetShard(msg.shardID);
+    if (catchupShard != NULL)
+        table->DeleteShard(msg.shardID);
+    
+    // shard is either deleted or not yet created, therefore create it on disk
+    firstKey.Wrap(cshard->firstKey);
+    table->CreateShard(msg.shardID, firstKey);
+    catchupShard = table->GetShard(msg.shardID);
+}
+
+void ShardServer::OnCatchupKeyValue(CatchupMessage& msg)
+{
+    if (!isCatchingUp)
+        return;
+    
+    assert(catchupShard != NULL);
+    catchupShard->Set(msg.key, msg.value, true);
+}
+
+void ShardServer::OnCatchupCommit(CatchupMessage& msg)
+{
+    if (!isCatchingUp)
+        return;
+
+    assert(catchupShard != NULL);
+    assert(catchupQuorum != NULL);
+
+    catchupQuorum->context.OnCatchupComplete(msg.paxosID);      // this commits
+    catchupQuorum->context.ContinueReplication();
+    
+    catchupQuorum = NULL;
+    catchupShard = NULL;
+    isCatchingUp = false;
+
+    Log_Message("Catchup complete");
 }
 
 QuorumData::QuorumData()
