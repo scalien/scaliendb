@@ -51,6 +51,9 @@ public:
     int                     TimeoutStatus();
     int                     CommandStatus();
     
+    // controller commands
+    //int                     
+    
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
     int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
     int                     UseDatabase(ReadBuffer& name);

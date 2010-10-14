@@ -368,6 +368,13 @@ void ShardServer::OnClientRequest(ClientRequest* request)
         return;
     }
     
+    if (!quorumData->context.IsLeader())
+    {
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
+
     if (request->type == CLIENTREQUEST_GET)
         return OnClientRequestGet(request);
 
