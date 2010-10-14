@@ -800,8 +800,6 @@ void ShardServer::OnCatchupRequest(CatchupMessage& msg)
         return;
 
     catchupRequest = msg;
-    catchupPaxosID = quorumData->context.GetPaxosID() - 1;
-
     quorumData = LocateQuorum(catchupRequest.quorumID);
     if (!quorumData)
         ASSERT_FAIL();
@@ -809,6 +807,7 @@ void ShardServer::OnCatchupRequest(CatchupMessage& msg)
     if (!quorumData->context.IsLeader())
         return;
 
+    catchupPaxosID = quorumData->context.GetPaxosID() - 1;
     if (quorumData->shards.GetLength() == 0)
     {
         // no shards in quorums, send Commit
