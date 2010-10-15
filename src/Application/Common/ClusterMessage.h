@@ -15,6 +15,28 @@
 /*
 ===============================================================================================
 
+ QuorumPaxosID
+
+===============================================================================================
+*/
+
+class QuorumPaxosID
+{
+public:
+    QuorumPaxosID() { next = prev = this; }
+
+    uint64_t        quorumID;
+    uint64_t        paxosID;
+    
+    QuorumPaxosID*  prev;
+    QuorumPaxosID*  next;
+};
+
+#define MAX_QUORUM_PER_SHARDSERVER  1000
+
+/*
+===============================================================================================
+
  ClusterMessage
 
 ===============================================================================================
@@ -23,18 +45,21 @@
 class ClusterMessage : public Message
 {
 public:
-    char            type;
-    uint64_t        nodeID;
-    uint64_t        quorumID;
-    uint64_t        shardID;
-    uint64_t        proposalID;
-    unsigned        duration;
-    ConfigState     configState;
+typedef ArrayList<QuorumPaxosID, MAX_QUORUM_PER_SHARDSERVER> QuorumPaxosIDList;
+
+    char                type;
+    uint64_t            nodeID;
+    uint64_t            quorumID;
+    uint64_t            shardID;
+    uint64_t            proposalID;
+    unsigned            duration;
+    ConfigState         configState;
+    QuorumPaxosIDList   quorumPaxosIDs;
     
     ClusterMessage();
     
     bool            SetNodeID(uint64_t nodeID);
-    bool            Heartbeat(uint64_t nodeID);
+    bool            Heartbeat(uint64_t nodeID, QuorumPaxosIDList& quorumPaxosIDs);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, unsigned duration);

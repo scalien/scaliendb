@@ -1268,7 +1268,7 @@ void ConfigState::WriteIDList(List& IDs, Buffer& buffer)
     
     buffer.Appendf("%u", IDs.GetLength());
     
-    for (it = IDs.First(); it != NULL; it = IDs.Next(it))
+    FOREACH(it, IDs)
         buffer.Appendf(":%U", *it);
 }
 

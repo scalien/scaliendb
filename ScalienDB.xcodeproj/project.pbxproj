@@ -248,6 +248,7 @@
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
+		54A0B91C12689FA500EF2FC6 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		54A861C3123E207000ECCBE5 /* ShardServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardServer.cpp; sourceTree = "<group>"; };
 		54A861C4123E207000ECCBE5 /* ShardServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardServer.h; sourceTree = "<group>"; };
 		54AB8715122821EF00721A0F /* StorageShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShard.cpp; sourceTree = "<group>"; };
@@ -307,7 +308,6 @@
 		54B7F76D11BE5EF30076BC62 /* Version.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Version.h; sourceTree = "<group>"; };
 		54B7F96011BE85950076BC62 /* Time.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Time.cpp; sourceTree = "<group>"; };
 		54B7F96411BE85B10076BC62 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
-		54C8FC6F120200F1002DD4D3 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
 		54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConnection.cpp; sourceTree = "<group>"; };
 		54C8FC71120200F1002DD4D3 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
 		54E0BE6F124B5E4B00439334 /* DataContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataContext.h; sourceTree = "<group>"; };
@@ -769,7 +769,7 @@
 		54C8FC6E120200F1002DD4D3 /* Messaging */ = {
 			isa = PBXGroup;
 			children = (
-				54C8FC6F120200F1002DD4D3 /* Message.h */,
+				54A0B91C12689FA500EF2FC6 /* Message.h */,
 				54C8FC71120200F1002DD4D3 /* MessageConnection.h */,
 				54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */,
 			);

@@ -544,9 +544,12 @@ void ShardServer::OnPrimaryLeaseTimeout()
 
 void ShardServer::OnHeartbeatTimeout()
 {
-    unsigned        numControllers;
-    uint64_t        nodeID;
-    ClusterMessage  msg;
+    unsigned                            numControllers;
+    uint64_t                            nodeID;
+    ClusterMessage                      msg;
+    QuorumData*                         it;
+    QuorumPaxosID                       quorumPaxosID;
+    ClusterMessage::QuorumPaxosIDList   quorumPaxosIDList;
     
     Log_Trace();
     
@@ -557,8 +560,14 @@ void ShardServer::OnHeartbeatTimeout()
         Log_Trace("not sending heartbeat");
         return;
     }
+    FOREACH(it, quorums)
+    {
+        quorumPaxosID.quorumID = it->quorumID;
+        quorumPaxosID.paxosID = it->context.GetPaxosID();
+        quorumPaxosIDList.Append(quorumPaxosID);
+    }
     
-    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID());
+    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(), quorumPaxosIDList);
 
     numControllers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numControllers; nodeID++)
@@ -639,6 +648,7 @@ void ShardServer::OnSetConfigState(ConfigState& configState_)
             if (*nit == nodeID)
             {
                 ConfigureQuorum(configQuorum, false);
+                TryReplicationCatchup(configQuorum);
                 break;
             }
         }
@@ -695,6 +705,16 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
     }
     
     UpdateStorageShards(configQuorum->shards);
+}
+
+void ShardServer::TryReplicationCatchup(ConfigQuorum* configQuorum)
+{
+    QuorumData*     quorumData;
+
+    quorumData = LocateQuorum(configQuorum->quorumID);
+    if (!quorumData)
+        ASSERT_FAIL();
+
 }
 
 void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)

@@ -80,6 +80,7 @@ private:
     void                OnHeartbeatTimeout();
     void                OnSetConfigState(ConfigState& configState);
     void                ConfigureQuorum(ConfigQuorum* configQuorum, bool active);
+    void                TryReplicationCatchup(ConfigQuorum* configQuorum);
     void                OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
     void                UpdateStorageShards(List<uint64_t>& shards);
     StorageTable*       LocateTable(uint64_t tableID);
