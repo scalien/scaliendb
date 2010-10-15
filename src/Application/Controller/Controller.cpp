@@ -634,8 +634,41 @@ void Controller::TryDeactivateShardServer(uint64_t nodeID)
     }
 }
 
-void Controller::TryActivateShardServer(uint64_t /*nodeID*/)
+void Controller::TryActivateShardServer(uint64_t nodeID)
 {
+    bool                found;
+    ConfigQuorum*       itQuorum;
+    uint64_t*           itNodeID;
+    ConfigMessage*      itConfigMessage;
+
+    FOREACH(itQuorum, configState.quorums)
+    {
+        FOREACH(itNodeID, itQuorum->inactiveNodes)
+        {
+            if (*itNodeID == nodeID)
+            {
+                // make sure there is no corresponding activate message pending
+                found = false;
+                FOREACH(itConfigMessage, configMessages)
+                {
+                    if (itConfigMessage->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
+                     itConfigMessage->quorumID == itQuorum->quorumID &&
+                     itConfigMessage->nodeID == nodeID)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    continue;
+                itConfigMessage = new ConfigMessage();
+                itConfigMessage->fromClient = false;
+                itConfigMessage->ActivateShardServer(itQuorum->quorumID, nodeID);
+                configMessages.Append(itConfigMessage);
+                TryAppend();
+            }
+        }
+    }    
 }
 
 void Controller::TryRegisterShardServer(Endpoint& endpoint)
