@@ -44,6 +44,7 @@ public:
     uint64_t            GetReplicationRound();
     ConfigState*        GetConfigState();
     void                RegisterHeartbeat(uint64_t nodeID);
+    bool                HasHeartbeat(uint64_t nodeID);
 
     // ========================================================================================
     // For ConfigContext:

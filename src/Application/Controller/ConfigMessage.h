@@ -60,10 +60,10 @@ public:
                      uint64_t nodeID, Endpoint& endpoint);
     bool            CreateQuorum(
                      uint64_t quorumID, NodeList& nodes);
-    bool            IncreaseQuorum(
-                     uint64_t quorumID, uint64_t nodeID);
-    bool            DecreaseQuorum(
-                     uint64_t quorumID, uint64_t nodeID);
+//    bool            IncreaseQuorum(
+//                     uint64_t quorumID, uint64_t nodeID);
+//    bool            DecreaseQuorum(
+//                     uint64_t quorumID, uint64_t nodeID);
     bool            ActivateShardServer(
                      uint64_t quorumID, uint64_t nodeID);
     bool            DeactivateShardServer(

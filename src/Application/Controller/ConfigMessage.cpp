@@ -20,23 +20,23 @@ bool ConfigMessage::CreateQuorum(
     return true;
 }
 
-bool ConfigMessage::IncreaseQuorum(
- uint64_t quorumID_, uint64_t nodeID_)
-{
-    type = CONFIGMESSAGE_INCREASE_QUORUM;
-    quorumID = quorumID_;
-    nodeID = nodeID_;
-    return true;
-}
-
-bool ConfigMessage::DecreaseQuorum(
- uint64_t quorumID_, uint64_t nodeID_)
-{
-    type = CONFIGMESSAGE_DECREASE_QUORUM;
-    quorumID = quorumID_;
-    nodeID = nodeID_;
-    return true;
-}
+//bool ConfigMessage::IncreaseQuorum(
+// uint64_t quorumID_, uint64_t nodeID_)
+//{
+//    type = CONFIGMESSAGE_INCREASE_QUORUM;
+//    quorumID = quorumID_;
+//    nodeID = nodeID_;
+//    return true;
+//}
+//
+//bool ConfigMessage::DecreaseQuorum(
+// uint64_t quorumID_, uint64_t nodeID_)
+//{
+//    type = CONFIGMESSAGE_DECREASE_QUORUM;
+//    quorumID = quorumID_;
+//    nodeID = nodeID_;
+//    return true;
+//}
 
 bool ConfigMessage::ActivateShardServer(
  uint64_t quorumID_, uint64_t nodeID_)
@@ -151,14 +151,14 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             else
                 return false;
             break;
-        case CONFIGMESSAGE_INCREASE_QUORUM:
-            read = buffer.Readf("%c:%U:%U",
-             &type, &quorumID, &nodeID);
-            break;
-        case CONFIGMESSAGE_DECREASE_QUORUM:
-            read = buffer.Readf("%c:%U:%U",
-             &type, &quorumID, &nodeID);
-            break;
+//        case CONFIGMESSAGE_INCREASE_QUORUM:
+//            read = buffer.Readf("%c:%U:%U",
+//             &type, &quorumID, &nodeID);
+//            break;
+//        case CONFIGMESSAGE_DECREASE_QUORUM:
+//            read = buffer.Readf("%c:%U:%U",
+//             &type, &quorumID, &nodeID);
+//            break;
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
             read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &nodeID);
@@ -223,14 +223,14 @@ bool ConfigMessage::Write(Buffer& buffer)
             for (it = nodes.First(); it != NULL; it = nodes.Next(it))
                 buffer.Appendf(":%U", *it);
             break;
-        case CONFIGMESSAGE_INCREASE_QUORUM:
-            buffer.Writef("%c:%U:%U",
-             type, quorumID, nodeID);
-            break;
-        case CONFIGMESSAGE_DECREASE_QUORUM:
-            buffer.Writef("%c:%U:%U",
-             type, quorumID, nodeID);
-            break;
+//        case CONFIGMESSAGE_INCREASE_QUORUM:
+//            buffer.Writef("%c:%U:%U",
+//             type, quorumID, nodeID);
+//            break;
+//        case CONFIGMESSAGE_DECREASE_QUORUM:
+//            buffer.Writef("%c:%U:%U",
+//             type, quorumID, nodeID);
+//            break;
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
             buffer.Writef("%c:%U:%U",
              type, quorumID, nodeID);

@@ -116,6 +116,18 @@ void Controller::RegisterHeartbeat(uint64_t nodeID)
     heartbeats.Add(it);
 }
 
+bool Controller::HasHeartbeat(uint64_t nodeID)
+{
+    Heartbeat* it;
+    FOREACH(it, heartbeats)
+    {
+        if (it->nodeID == nodeID)
+            return true;
+    }
+
+    return false;
+}
+
 void Controller::OnLearnLease()
 {
     bool updateListeners;
@@ -278,10 +290,8 @@ bool Controller::IsValidClientRequest(ClientRequest* request)
 
 void Controller::OnClientRequest(ClientRequest* request)
 {
-    bool            found;
     ConfigMessage*  message;
     uint64_t*       itNodeID;
-    Heartbeat*      itHeartbeat;
 
     if (request->type == CLIENTREQUEST_GET_MASTER)
     {
@@ -313,16 +323,7 @@ void Controller::OnClientRequest(ClientRequest* request)
         // make sure all nodes are currently active
         FOREACH(itNodeID, request->nodes)
         {
-            found = false;
-            FOREACH(itHeartbeat, heartbeats)
-            {
-                if (itHeartbeat->nodeID == *itNodeID)
-                {
-                    found = true;
-                    break;
-                }
-            }
-            if (!found)
+            if (!HasHeartbeat(*itNodeID))
             {
                 request->response.Failed();
                 request->OnComplete();
@@ -589,8 +590,7 @@ void Controller::OnHeartbeatTimeout()
 
 void Controller::DeactivateShardServers()
 {
-    bool                active, found;
-    Heartbeat*          itHeartbeat;
+    bool                found;
     ConfigShardServer*  itShardServer;
     ConfigQuorum*       itQuorum;
     uint64_t*           itNodeID;
@@ -601,16 +601,7 @@ void Controller::DeactivateShardServers()
     // and set their state in their respective quorums to inactive
     FOREACH(itShardServer, configState.shardServers)
     {
-        active = false;
-        FOREACH(itHeartbeat, heartbeats)
-        {
-            if (itShardServer->nodeID == itHeartbeat->nodeID)
-            {
-                active = true;
-                break;
-            }
-        }
-        if (!active)
+        if (!HasHeartbeat(itShardServer->nodeID))
         {
             FOREACH(itQuorum, configState.quorums)
             {

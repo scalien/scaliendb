@@ -128,7 +128,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
         ConfigState::ShardServerList& shardServers = configState->shardServers;
         for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
-            if (CONTEXT_TRANSPORT->IsConnected(it->nodeID))
+            if (controller->HasHeartbeat(it->nodeID))
                 buffer.Writef("+ ");
             else
                 buffer.Writef("- ");
