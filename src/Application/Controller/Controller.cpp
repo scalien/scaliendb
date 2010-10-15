@@ -702,7 +702,18 @@ void Controller::SendClientResponse(ConfigMessage& message)
 
 void Controller::OnHeartbeat(ClusterMessage& message)
 {
+    QuorumPaxosID*  it;
+    ConfigQuorum*   quorum;
+    
     RegisterHeartbeat(message.nodeID);
+    FOREACH(it, message.quorumPaxosIDs)
+    {
+        quorum = configState.GetQuorum(it->quorumID);
+        if (!quorum)
+            continue;
+        if (quorum->paxosID < it->paxosID)
+            quorum->paxosID = it->paxosID;
+    }
 }
 
 void Controller::OnRequestLease(ClusterMessage& message)

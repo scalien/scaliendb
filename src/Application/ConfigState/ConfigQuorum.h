@@ -39,6 +39,7 @@ public:
     // Not replicated, only stored by the MASTER in-memory
     bool                hasPrimary;
     uint64_t            primaryID;
+    uint64_t            paxosID;
     //
     // ========================================================================================
 
@@ -49,7 +50,11 @@ public:
 
 inline ConfigQuorum::ConfigQuorum()
 {
-    prev = next = this; hasPrimary = false;
+    prev = next = this;
+    quorumID = 0;
+    hasPrimary = false;
+    primaryID = 0;
+    paxosID = 0;
 }
 
 inline ConfigQuorum::ConfigQuorum(const ConfigQuorum& other)
@@ -70,6 +75,7 @@ inline ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
     
     hasPrimary = other.hasPrimary;
     primaryID = other.primaryID;
+    paxosID = other.paxosID;
     
     prev = next = this;
     
