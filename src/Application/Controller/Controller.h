@@ -76,8 +76,8 @@ private:
     void                ToClientResponse(ConfigMessage* message, ClientResponse* response);
     void                OnPrimaryLeaseTimeout();
     void                OnHeartbeatTimeout();
-    void                DeactivateShardServers();
-    void                DeactivateNode(uint64_t nodeID);
+    void                TryDeactivateShardServer(uint64_t nodeID);
+    void                TryActivateShardServer(uint64_t nodeID);
     void                TryRegisterShardServer(Endpoint& endpoint);
     void                ReadConfigState();
     void                WriteConfigState();

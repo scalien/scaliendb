@@ -561,8 +561,9 @@ void Controller::OnPrimaryLeaseTimeout()
 
 void Controller::OnHeartbeatTimeout()
 {
-    Heartbeat*          itHeartbeat;
     uint64_t            now;
+    Heartbeat*          itHeartbeat;
+    ConfigShardServer*  itShardServer;
     
     // OnHeartbeatTimeout() arrives every 1000 msec
     
@@ -583,56 +584,58 @@ void Controller::OnHeartbeatTimeout()
     }
     
     if (configContext.IsLeader())
-        DeactivateShardServers();
-
+    {
+        FOREACH(itShardServer, configState.shardServers)
+        {
+            if (!HasHeartbeat(itShardServer->nodeID))
+                TryDeactivateShardServer(itShardServer->nodeID);
+            else
+                TryActivateShardServer(itShardServer->nodeID);
+        }
+    }
+    
     EventLoop::Add(&heartbeatTimeout);    
 }
 
-void Controller::DeactivateShardServers()
+void Controller::TryDeactivateShardServer(uint64_t nodeID)
 {
     bool                found;
-    ConfigShardServer*  itShardServer;
     ConfigQuorum*       itQuorum;
     uint64_t*           itNodeID;
     ConfigMessage*      itConfigMessage;
 
-    // now check each active shard server from the configState against
-    // the heartbeats list to find inactive servers
-    // and set their state in their respective quorums to inactive
-    FOREACH(itShardServer, configState.shardServers)
+    FOREACH(itQuorum, configState.quorums)
     {
-        if (!HasHeartbeat(itShardServer->nodeID))
+        FOREACH(itNodeID, itQuorum->activeNodes)
         {
-            FOREACH(itQuorum, configState.quorums)
+            if (*itNodeID == nodeID)
             {
-                FOREACH(itNodeID, itQuorum->activeNodes)
+                // make sure there is no corresponding deactivate message pending
+                found = false;
+                FOREACH(itConfigMessage, configMessages)
                 {
-                    if (*itNodeID == itShardServer->nodeID)
+                    if (itConfigMessage->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
+                     itConfigMessage->quorumID == itQuorum->quorumID &&
+                     itConfigMessage->nodeID == nodeID)
                     {
-                        // make sure there is no corresponding deactivate message pending
-                        found = false;
-                        FOREACH(itConfigMessage, configMessages)
-                        {
-                            if (itConfigMessage->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
-                             itConfigMessage->quorumID == itQuorum->quorumID &&
-                             itConfigMessage->nodeID == itShardServer->nodeID)
-                            {
-                                found = true;
-                                break;
-                            }
-                        }
-                        if (found)
-                            continue;
-                        itConfigMessage = new ConfigMessage();
-                        itConfigMessage->fromClient = false;
-                        itConfigMessage->DeactivateShardServer(itQuorum->quorumID, itShardServer->nodeID);
-                        configMessages.Append(itConfigMessage);
-                        TryAppend();
+                        found = true;
+                        break;
                     }
                 }
+                if (found)
+                    continue;
+                itConfigMessage = new ConfigMessage();
+                itConfigMessage->fromClient = false;
+                itConfigMessage->DeactivateShardServer(itQuorum->quorumID, nodeID);
+                configMessages.Append(itConfigMessage);
+                TryAppend();
             }
         }
     }
+}
+
+void Controller::TryActivateShardServer(uint64_t /*nodeID*/)
+{
 }
 
 void Controller::TryRegisterShardServer(Endpoint& endpoint)
