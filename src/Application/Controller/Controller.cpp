@@ -690,7 +690,6 @@ void Controller::ReadConfigState()
     bool                ret;
     ReadBuffer          value;
     int                 read;
-    ConfigShardServer*  it;
     
     ret =  true;
     
@@ -709,9 +708,6 @@ void Controller::ReadConfigState()
     if (!configState.Read(value))
         ASSERT_FAIL();
 
-    FOREACH(it, configState.shardServers)
-        RegisterHeartbeat(it->nodeID);
-    
     Log_Trace("%.*s", P(&value));
 }
 
@@ -742,6 +738,7 @@ void Controller::OnHeartbeat(ClusterMessage& message)
     ConfigQuorum*   quorum;
     
     RegisterHeartbeat(message.nodeID);
+    
     FOREACH(it, message.quorumPaxosIDs)
     {
         quorum = configState.GetQuorum(it->quorumID);

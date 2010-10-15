@@ -129,9 +129,19 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
         for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
             if (controller->HasHeartbeat(it->nodeID))
-                buffer.Writef("+ ");
+            {
+                if (CONTEXT_TRANSPORT->IsConnected(it->nodeID))
+                    buffer.Writef("+ ");
+                else
+                    buffer.Writef("! ");
+            }
             else
-                buffer.Writef("- ");
+            {
+                if (CONTEXT_TRANSPORT->IsConnected(it->nodeID))
+                    buffer.Writef("* ");
+                else
+                    buffer.Writef("- ");
+            }
             rb = it->endpoint.ToReadBuffer();
             ssID = it->nodeID - CONFIG_MIN_SHARD_NODE_ID;
             buffer.Appendf("ss%U (%R)", ssID, &rb);
@@ -200,13 +210,13 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
                 {
                     found = true;
                     if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
-                        if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                        if (controller->HasHeartbeat(*itNodeID) && CONTEXT_TRANSPORT->IsConnected(*itNodeID))
                             buffer.Appendf("     P");
                         else
                             buffer.Appendf("     !");
                     else
                     {
-                        if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                        if (controller->HasHeartbeat(*itNodeID))
                             buffer.Appendf("     +");
                         else
                             buffer.Appendf("     -");

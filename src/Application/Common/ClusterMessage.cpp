@@ -68,14 +68,17 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
              &type, &nodeID);
             if (read < 3)
                 return false;
+            buffer.Advance(read);
             read = buffer.Readf(":%U", &length);
             if (read < 2)
                 return false;
+            buffer.Advance(read);
             for (i = 0; i < length; i++)
             {
                 read = buffer.Readf(":%U:%U");
                 if (read < 4)
                     return false;
+                buffer.Advance(read);
             }
             return true;
             break;
