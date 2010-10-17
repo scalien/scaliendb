@@ -11,7 +11,7 @@ bool ClusterMessage::SetNodeID(uint64_t nodeID_)
     return true;
 }
 
-bool ClusterMessage::Heartbeat(uint64_t nodeID_, QuorumPaxosIDList& quorumPaxosIDs_)
+bool ClusterMessage::Heartbeat(uint64_t nodeID_, QuorumPaxosID::List& quorumPaxosIDs_)
 {
     type = CLUSTERMESSAGE_HEARTBEAT;
     nodeID = nodeID_;
@@ -52,8 +52,6 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
 {
     int             read;
     ReadBuffer      tempBuffer;
-    QuorumPaxosID   quorumPaxosID;
-    unsigned        i, length;
         
     if (buffer.GetLength() < 1)
         return false;
@@ -70,19 +68,7 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             if (read < 3)
                 return false;
             buffer.Advance(read);
-            read = buffer.Readf(":%U", &length);
-            if (read < 2)
-                return false;
-            buffer.Advance(read);
-            for (i = 0; i < length; i++)
-            {
-                read = buffer.Readf(":%U:%U", &quorumPaxosID.quorumID, &quorumPaxosID.paxosID);
-                if (read < 4)
-                    return false;
-                buffer.Advance(read);
-                quorumPaxosIDs.Append(quorumPaxosID);
-            }
-            return true;
+            return QuorumPaxosID::ReadList(buffer, quorumPaxosIDs);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             type = CLUSTERMESSAGE_SET_CONFIG_STATE;
@@ -104,7 +90,6 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
 
 bool ClusterMessage::Write(Buffer& buffer)
 {
-    QuorumPaxosID*  it;
     Buffer          tempBuffer;
     
     switch (type)
@@ -116,11 +101,7 @@ bool ClusterMessage::Write(Buffer& buffer)
         case CLUSTERMESSAGE_HEARTBEAT:
             buffer.Writef("%c:%U",
              type, nodeID);
-            buffer.Appendf(":%U", quorumPaxosIDs.GetLength());
-            FOREACH(it, quorumPaxosIDs)
-            {
-                buffer.Appendf(":%U:%U", it->quorumID, it->paxosID);
-            }
+            QuorumPaxosID::WriteList(buffer, quorumPaxosIDs);
             return true;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             buffer.Clear();

@@ -21,7 +21,7 @@ class ConfigContext : public QuorumContext
 {
 public:
     void                            Init(Controller* controller, unsigned numControllers, 
-                                     StorageTable* quorumTable, uint64_t logCacheSize);
+                                     StorageTable* quorumTable);
     
     void                            Append(ConfigMessage* message);
     bool                            IsAppending();

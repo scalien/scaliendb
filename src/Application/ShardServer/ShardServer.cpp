@@ -544,12 +544,12 @@ void ShardServer::OnPrimaryLeaseTimeout()
 
 void ShardServer::OnHeartbeatTimeout()
 {
-    unsigned                            numControllers;
-    uint64_t                            nodeID;
-    ClusterMessage                      msg;
-    QuorumData*                         it;
-    QuorumPaxosID                       quorumPaxosID;
-    ClusterMessage::QuorumPaxosIDList   quorumPaxosIDList;
+    unsigned                numControllers;
+    uint64_t                nodeID;
+    ClusterMessage          msg;
+    QuorumData*             it;
+    QuorumPaxosID           quorumPaxosID;
+    QuorumPaxosID::List     quorumPaxosIDList;
     
     Log_Trace();
     
@@ -664,20 +664,17 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
     uint64_t*           nit;
     uint64_t            quorumID;
     uint64_t            nodeID;
-    uint64_t            logCacheSize;
     
     nodeID = REPLICATION_CONFIG->GetNodeID();
     quorumID = configQuorum->quorumID;
     
-    logCacheSize = configFile.GetIntValue("rlog.cacheSize", DEFAULT_RLOG_CACHE_SIZE);
-
     quorumData = LocateQuorum(quorumID);
     if (active && quorumData == NULL)
     {
         quorumData = new QuorumData;
         quorumData->quorumID = quorumID;
         quorumData->proposalID = 0;
-        quorumData->context.Init(this, configQuorum, GetQuorumTable(quorumID), logCacheSize);
+        quorumData->context.Init(this, configQuorum, GetQuorumTable(quorumID));
         quorumData->leaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
         quorumData->isPrimary = false;
         quorumData->isActive = true;

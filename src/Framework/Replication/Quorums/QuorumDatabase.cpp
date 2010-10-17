@@ -1,11 +1,11 @@
 #include "QuorumDatabase.h"
 #include "Framework/Storage/StorageEnvironment.h"
 
-void QuorumDatabase::Init(StorageTable* table_, uint64_t logCacheSize_)
+void QuorumDatabase::Init(StorageTable* table_)
 {
     assert(table_ != NULL);
     table = table_;
-    logCacheSize = logCacheSize_;
+    logCacheSize = RLOG_CACHE_SIZE;
 }
 
 uint64_t QuorumDatabase::GetPaxosID()

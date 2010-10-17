@@ -12,7 +12,6 @@ void Controller::Init()
     unsigned        numControllers;
     int64_t         nodeID;
     uint64_t        runID;
-    uint64_t        logCacheSize;
     const char*     str;
     Endpoint        endpoint;
     
@@ -53,8 +52,7 @@ void Controller::Init()
     }
 
     configState.Init();
-    logCacheSize = configFile.GetIntValue("rlog.cacheSize", DEFAULT_RLOG_CACHE_SIZE);
-    configContext.Init(this, numControllers, systemDatabase->GetTable("paxos"), logCacheSize);
+    configContext.Init(this, numControllers, systemDatabase->GetTable("paxos"));
     CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
     
     ReadConfigState();
@@ -590,7 +588,7 @@ void Controller::OnHeartbeatTimeout()
             if (!HasHeartbeat(itShardServer->nodeID))
                 TryDeactivateShardServer(itShardServer->nodeID);
             else
-                TryActivateShardServer(itShardServer->nodeID);
+                TryActivatingShardServer(itShardServer->nodeID);
         }
     }
     
@@ -637,6 +635,36 @@ void Controller::TryDeactivateShardServer(uint64_t nodeID)
             }
         }
     }
+}
+
+void Controller::TryActivatingShardServer(uint64_t nodeID)
+{
+    uint64_t            paxosID;
+    uint64_t*           itNodeID;
+    ConfigQuorum*       itQuorum;
+    ConfigShardServer*  shardServer;
+
+    shardServer = configState.GetShardServer(nodeID);
+
+    FOREACH(itQuorum, configState.quorums)
+    {
+        if (itQuorum->isActivatingNode)
+            continue;
+
+        FOREACH(itNodeID, itQuorum->inactiveNodes)
+        {
+            if (*itNodeID == nodeID)
+            {
+                paxosID = QuorumPaxosID::GetPaxosID(shardServer->quorumPaxosIDs, itQuorum->quorumID);
+                if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF))
+                {
+                    // the shard server is "almost caught up", start the activation process
+                    itQuorum->isActivatingNode = true;
+                    itQuorum->activatingNodeID = nodeID;
+                }
+            }
+        }
+    }    
 }
 
 void Controller::TryActivateShardServer(uint64_t nodeID)
@@ -739,8 +767,14 @@ void Controller::SendClientResponse(ConfigMessage& message)
 
 void Controller::OnHeartbeat(ClusterMessage& message)
 {
-    QuorumPaxosID*  it;
-    ConfigQuorum*   quorum;
+    QuorumPaxosID*      it;
+    ConfigQuorum*       quorum;
+    ConfigShardServer*  shardServer;
+    
+    shardServer = configState.GetShardServer(message.nodeID);
+    if (!shardServer)
+        return;
+    shardServer->quorumPaxosIDs = message.quorumPaxosIDs;
     
     RegisterHeartbeat(message.nodeID);
     

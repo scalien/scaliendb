@@ -112,8 +112,8 @@ private:
     bool                ReadShards(ReadBuffer& buffer);
     void                WriteShards(Buffer& buffer);
 
-    bool                ReadShardServers(ReadBuffer& buffer);
-    void                WriteShardServers(Buffer& buffer);
+    bool                ReadShardServers(ReadBuffer& buffer, bool withVolatile);
+    void                WriteShardServers(Buffer& buffer, bool withVolatile);
     
     bool                ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool withVolatile);
     void                WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVolatile);
@@ -127,8 +127,10 @@ private:
     bool                ReadShard(ConfigShard& database, ReadBuffer& buffer);
     void                WriteShard(ConfigShard& shard, Buffer& buffer);
 
-    bool                ReadShardServer(ConfigShardServer& database, ReadBuffer& buffer);
-    void                WriteShardServer(ConfigShardServer& shardServer, Buffer& buffer);
+    bool                ReadShardServer(ConfigShardServer& database,
+                         ReadBuffer& buffer, bool withVolatile);
+    void                WriteShardServer(ConfigShardServer& shardServer,
+                         Buffer& buffer, bool withVolatile);
 
     template<typename List>
     bool                ReadIDList(List& numbers, ReadBuffer& buffer);

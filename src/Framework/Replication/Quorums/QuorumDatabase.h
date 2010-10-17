@@ -5,9 +5,10 @@
 #include "System/Buffers/Buffer.h"
 #include "Framework/Storage/StorageTable.h"
 
-#define DEFAULT_RLOG_CACHE_SIZE     100*1000
-//#define DEFAULT_RLOG_CACHE_SIZE     5
-
+//#define RLOG_CACHE_SIZE     100*1000
+//#define RLOG_REACTIVATION_DIFF  1*1000
+#define RLOG_CACHE_SIZE         10
+#define RLOG_REACTIVATION_DIFF  3
 /*
 ===============================================================================
 
@@ -19,7 +20,7 @@
 class QuorumDatabase
 {
 public:
-    void                Init(StorageTable* table, uint64_t logCacheSize);
+    void                Init(StorageTable* table);
 
     uint64_t            GetPaxosID();
     void                SetPaxosID(uint64_t paxosID);

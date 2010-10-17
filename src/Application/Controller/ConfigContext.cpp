@@ -5,8 +5,8 @@
 #include "Application/Common/CatchupMessage.h"
 #include "Controller.h"
 
-void ConfigContext::Init(Controller* controller_, unsigned numControllers, 
- StorageTable* quorumTable, uint64_t logCacheSize)
+void ConfigContext::Init(Controller* controller_, unsigned numControllers,
+ StorageTable* quorumTable)
 {
     uint64_t nodeID;
     
@@ -20,7 +20,7 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(quorumTable, logCacheSize);
+    database.Init(quorumTable);
     
     replicatedLog.Init(this);
     paxosLease.Init(this);

@@ -2,8 +2,6 @@
 #include "System/Macros.h"
 #include "Application/Common/DatabaseConsts.h"
 
-#define HAS_LEADER_YES          'Y'
-#define HAS_LEADER_NO           'N'
 #define CONFIG_MESSAGE_PREFIX   'C'
 
 #define READ_SEPARATOR()    \
@@ -184,10 +182,10 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
         assert(c == CONFIG_MESSAGE_PREFIX);
 
         READ_SEPARATOR();
-        c = HAS_LEADER_NO;
+        c = NO;
         read = buffer.Readf("%c", &c);
         CHECK_ADVANCE(1);
-        if (c == HAS_LEADER_YES)
+        if (c == YES)
         {
             READ_SEPARATOR();
             read = buffer.Readf("%U", &masterID);
@@ -209,7 +207,7 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
     if (!ReadShards(buffer))
         return false;
     READ_SEPARATOR();
-    if (!ReadShardServers(buffer))
+    if (!ReadShardServers(buffer, withVolatile))
         return false;
 
     return (buffer.GetLength() == 0);
@@ -226,9 +224,9 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
         // TODO: change convention to Append in every Message::Write
         buffer.Appendf("%c:", CONFIG_MESSAGE_PREFIX);
         if (hasMaster)
-            buffer.Appendf("%c:%U:", HAS_LEADER_YES, masterID);
+            buffer.Appendf("%c:%U:", YES, masterID);
         else
-            buffer.Appendf("%c:", HAS_LEADER_NO);
+            buffer.Appendf("%c:", NO);
     }
 
     WriteQuorums(buffer, withVolatile);
@@ -239,7 +237,7 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     buffer.Appendf(":");
     WriteShards(buffer);
     buffer.Appendf(":");
-    WriteShardServers(buffer);
+    WriteShardServers(buffer, withVolatile);
     
     Log_Trace("buffer = %.*s", P(&buffer));
     
@@ -1049,7 +1047,7 @@ void ConfigState::WriteShards(Buffer& buffer)
     }
 }
 
-bool ConfigState::ReadShardServers(ReadBuffer& buffer)
+bool ConfigState::ReadShardServers(ReadBuffer& buffer, bool withVolatile)
 {
     int                 read;
     unsigned            num, i;
@@ -1062,7 +1060,7 @@ bool ConfigState::ReadShardServers(ReadBuffer& buffer)
     {
         READ_SEPARATOR();
         shardServer = new ConfigShardServer;
-        if (!ReadShardServer(*shardServer, buffer))
+        if (!ReadShardServer(*shardServer, buffer, withVolatile))
         {
             delete shardServer;
             return false;
@@ -1073,7 +1071,7 @@ bool ConfigState::ReadShardServers(ReadBuffer& buffer)
     return true;
 }
 
-void ConfigState::WriteShardServers(Buffer& buffer)
+void ConfigState::WriteShardServers(Buffer& buffer, bool withVolatile)
 {
     ConfigShardServer*  it;
     
@@ -1083,7 +1081,7 @@ void ConfigState::WriteShardServers(Buffer& buffer)
     for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
     {
         buffer.Appendf(":");
-        WriteShardServer(*it, buffer);
+        WriteShardServer(*it, buffer, withVolatile);
     }
 }
 
@@ -1105,14 +1103,26 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
         return false;
     
     quorum.hasPrimary = false;
+    quorum.activatingNodeID = false;
     if (withVolatile)
     {
-        read = buffer.Readf(":%U:", &quorum.paxosID);
-        CHECK_ADVANCE(3);
-        c = HAS_LEADER_NO;
+        c = NO;
         read = buffer.Readf("%c", &c);
         CHECK_ADVANCE(1);
-        if (c == HAS_LEADER_YES)
+        if (c == YES)
+        {
+            READ_SEPARATOR();
+            read = buffer.Readf("%U", &quorum.activatingNodeID);
+            CHECK_ADVANCE(1);
+            quorum.activatingNodeID = true;
+        }
+        
+        read = buffer.Readf(":%U:", &quorum.paxosID);
+        CHECK_ADVANCE(3);
+        c = NO;
+        read = buffer.Readf("%c", &c);
+        CHECK_ADVANCE(1);
+        if (c == YES)
         {
             READ_SEPARATOR();
             read = buffer.Readf("%U", &quorum.primaryID);
@@ -1139,11 +1149,16 @@ void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVol
 
     if (withVolatile)
     {
+        if (quorum.activatingNodeID)
+            buffer.Appendf("%c:%U", YES, quorum.activatingNodeID);
+        else
+            buffer.Appendf("%c", NO);
+
         buffer.Appendf(":%U:", quorum.paxosID);
         if (quorum.hasPrimary)
-            buffer.Appendf("%c:%U", HAS_LEADER_YES, quorum.primaryID);
+            buffer.Appendf("%c:%U", YES, quorum.primaryID);
         else
-            buffer.Appendf("%c", HAS_LEADER_NO);
+            buffer.Appendf("%c", NO);
     }
 }
 
@@ -1215,7 +1230,7 @@ void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer)
      shard.shardID, &shard.firstKey, &shard.lastKey);
 }
 
-bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& buffer)
+bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& buffer, bool withVolatile)
 {
     int         read;
     ReadBuffer  rb;
@@ -1227,15 +1242,21 @@ bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& bu
     if (shardServer.nodeID >= nextNodeID)
         nextNodeID = shardServer.nodeID + 1;
     
-    return true;
+    if (withVolatile)
+        return QuorumPaxosID::ReadList(buffer, shardServer.quorumPaxosIDs);
+    else
+        return true;
 }
 
-void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffer)
+void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffer, bool withVolatile)
 {
     ReadBuffer endpoint;
     
     endpoint = shardServer.endpoint.ToReadBuffer();
     buffer.Appendf("%U:%#R", shardServer.nodeID, &endpoint);
+    
+    if (withVolatile)
+        QuorumPaxosID::WriteList(buffer, shardServer.quorumPaxosIDs);
 }
 
 template<typename List>

@@ -37,6 +37,9 @@ public:
     // ========================================================================================
     //
     // Not replicated, only stored by the MASTER in-memory
+    bool                isActivatingNode;
+    uint64_t            activatingNodeID;
+    
     bool                hasPrimary;
     uint64_t            primaryID;
     uint64_t            paxosID;
@@ -52,6 +55,8 @@ inline ConfigQuorum::ConfigQuorum()
 {
     prev = next = this;
     quorumID = 0;
+    isActivatingNode = false;
+    activatingNodeID = 0;
     hasPrimary = false;
     primaryID = 0;
     paxosID = 0;

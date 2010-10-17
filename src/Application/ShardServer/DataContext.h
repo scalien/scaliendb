@@ -22,7 +22,7 @@ class DataContext : public QuorumContext
 {
 public:
     void                            Init(ShardServer* shardServer, ConfigQuorum* configQuorum,
-                                     StorageTable* quorumTable, uint64_t logCacheSize);
+                                     StorageTable* quorumTable);
     
     void                            UpdateConfig(ConfigQuorum* configQuorum);
     void                            Append(); // nextValue was filled up using GetNextValue()

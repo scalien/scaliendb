@@ -15,23 +15,6 @@
 /*
 ===============================================================================================
 
- QuorumPaxosID
-
-===============================================================================================
-*/
-
-class QuorumPaxosID
-{
-public:
-    uint64_t        quorumID;
-    uint64_t        paxosID;    
-};
-
-#define MAX_QUORUM_PER_SHARDSERVER  1000
-
-/*
-===============================================================================================
-
  ClusterMessage
 
 ===============================================================================================
@@ -40,8 +23,6 @@ public:
 class ClusterMessage : public Message
 {
 public:
-typedef ArrayList<QuorumPaxosID, MAX_QUORUM_PER_SHARDSERVER> QuorumPaxosIDList;
-
     char                type;
     uint64_t            nodeID;
     uint64_t            quorumID;
@@ -49,12 +30,12 @@ typedef ArrayList<QuorumPaxosID, MAX_QUORUM_PER_SHARDSERVER> QuorumPaxosIDList;
     uint64_t            proposalID;
     unsigned            duration;
     ConfigState         configState;
-    QuorumPaxosIDList   quorumPaxosIDs;
+    QuorumPaxosID::List quorumPaxosIDs;
     
     ClusterMessage();
     
     bool            SetNodeID(uint64_t nodeID);
-    bool            Heartbeat(uint64_t nodeID, QuorumPaxosIDList& quorumPaxosIDs);
+    bool            Heartbeat(uint64_t nodeID, QuorumPaxosID::List& quorumPaxosIDs);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, unsigned duration);

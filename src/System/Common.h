@@ -10,11 +10,14 @@
 #include "Formatting.h"
 #include "Log.h"
 
-#define KB 1000
-#define MB 1000000
+#define KB      1000
+#define MB      1000000
 
-#define KiB 1024
-#define MiB (1024*1024)
+#define KiB     1024
+#define MiB     (1024*1024)
+
+#define YES     'Y'
+#define NO      'N'
 
 unsigned        NumDigits(int n);
 unsigned        NumDigits64(uint64_t n);
