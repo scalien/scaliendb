@@ -827,9 +827,10 @@ void Controller::OnRequestLease(ClusterMessage& message)
 
 void Controller::AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
-    unsigned        duration;
-    PrimaryLease*   primaryLease;
-    ClusterMessage  response;
+    unsigned                duration;
+    PrimaryLease*           primaryLease;
+    ClusterMessage          response;
+    ConfigQuorum::NodeList  activeNodes;
 
     quorum.hasPrimary = true;
     quorum.primaryID = message.nodeID;
@@ -843,15 +844,20 @@ void Controller::AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
 
     UpdatePrimaryLeaseTimer();
 
-    response.ReceiveLease(message.nodeID, message.quorumID, message.proposalID, duration);
+    activeNodes = quorum.activeNodes;
+    if (quorum.activatingNodeID)
+        activeNodes.Append(quorum.activatingNodeID);
+    response.ReceiveLease(message.nodeID, message.quorumID,
+     message.proposalID, duration, activeNodes);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 }
 
 void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
-    unsigned        duration;
-    PrimaryLease*   it;
-    ClusterMessage  response;
+    unsigned                duration;
+    PrimaryLease*           it;
+    ClusterMessage          response;
+    ConfigQuorum::NodeList  activeNodes;
 
     duration = MIN(message.duration, PAXOSLEASE_MAX_LEASE_TIME);
 
@@ -869,7 +875,11 @@ void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
     primaryLeases.Add(it);
     UpdatePrimaryLeaseTimer();
 
-    response.ReceiveLease(message.nodeID, message.quorumID, message.proposalID, duration);
+    activeNodes = quorum.activeNodes;
+    if (quorum.activatingNodeID)
+        activeNodes.Append(quorum.activatingNodeID);
+    response.ReceiveLease(message.nodeID, message.quorumID,
+     message.proposalID, duration, activeNodes);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 }
 

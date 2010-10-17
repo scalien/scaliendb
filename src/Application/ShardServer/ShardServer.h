@@ -81,7 +81,7 @@ private:
     void                OnSetConfigState(ConfigState& configState);
     void                ConfigureQuorum(ConfigQuorum* configQuorum, bool active);
     void                TryReplicationCatchup(ConfigQuorum* configQuorum);
-    void                OnReceiveLease(uint64_t quorumID, uint64_t proposalID);
+    void                OnReceiveLease(ClusterMessage& msg);
     void                UpdateStorageShards(List<uint64_t>& shards);
     StorageTable*       LocateTable(uint64_t tableID);
     StorageShard*       LocateShard(uint64_t shardID);
@@ -146,6 +146,7 @@ public:
     DataContext     context;
     uint64_t        requestedLeaseExpireTime;
     Timer           leaseTimeout;
+    uint64_t        configID;
     
     QuorumData*     prev;
     QuorumData*     next;

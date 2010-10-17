@@ -27,24 +27,26 @@ bool ClusterMessage::SetConfigState(ConfigState& configState_)
 }
 
 bool ClusterMessage::RequestLease(uint64_t nodeID_, uint64_t quorumID_,
- uint64_t proposalID_, unsigned duration_)
+ uint64_t proposalID_, unsigned duration_, uint64_t configID_)
 {
     type = CLUSTERMESSAGE_REQUEST_LEASE;
     nodeID = nodeID_;
     quorumID = quorumID_;
     proposalID = proposalID_;
     duration = duration_;
+    configID = configID_;
     return true;
 }
 
 bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
- uint64_t proposalID_, unsigned duration_)
+ uint64_t proposalID_, unsigned duration_, ConfigQuorum::NodeList activeNodes_)
 {
     type = CLUSTERMESSAGE_RECEIVE_LEASE;
     nodeID = nodeID_;
     quorumID = quorumID_;
     proposalID = proposalID_;
     duration = duration_;
+    activeNodes = activeNodes_;
     return true;
 }
 
@@ -74,13 +76,20 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             type = CLUSTERMESSAGE_SET_CONFIG_STATE;
             return configState.Read(buffer, true);
         case CLUSTERMESSAGE_REQUEST_LEASE:
-            read = buffer.Readf("%c:%U:%U:%U:%u",
-             &type, &nodeID, &quorumID, &proposalID, &duration);
+            read = buffer.Readf("%c:%U:%U:%U:%u:%U",
+             &type, &nodeID, &quorumID, &proposalID, &duration, configID);
             break;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
-            read = buffer.Readf("%c:%U:%U:%U:%u",
+            read = buffer.Readf("%c:%U:%U:%U:%u:",
              &type, &nodeID, &quorumID, &proposalID, &duration);
-            break;
+             if (read < 9)
+                return false;
+            buffer.Advance(read);
+            read = buffer.Readf(":");
+            if (read != 1)
+                return false;
+            buffer.Advance(read);
+            return ConfigState::ReadIDList<ConfigQuorum::NodeList>(activeNodes, buffer);
         default:
             return false;
     }
@@ -107,12 +116,14 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Clear();
             return configState.Write(buffer, true);
         case CLUSTERMESSAGE_REQUEST_LEASE:
-            buffer.Writef("%c:%U:%U:%U:%u",
-             type, nodeID, quorumID, proposalID, duration);
+            buffer.Writef("%c:%U:%U:%U:%u:%U",
+             type, nodeID, quorumID, proposalID, duration, configID);
             return true;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
             buffer.Writef("%c:%U:%U:%U:%u",
              type, nodeID, quorumID, proposalID, duration);
+             buffer.Appendf(":");
+            ConfigState::WriteIDList<ConfigQuorum::NodeList>(activeNodes, buffer);
             return true;
         default:
             return false;

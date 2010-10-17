@@ -418,7 +418,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
              configState.hasMaster ? (int) configState.masterID : -1);
             break;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
-            OnReceiveLease(msg.quorumID, msg.proposalID);
+            OnReceiveLease(msg);
             Log_Trace("recieved lease, quorumID = %" PRIu64 ", proposalID =  %" PRIu64,
              msg.quorumID, msg.proposalID);
             break;
@@ -511,7 +511,8 @@ void ShardServer::OnRequestLeaseTimeout()
     for (quorum = quorums.First(); quorum != NULL; quorum = quorums.Next(quorum))
     {
         quorum->proposalID = REPLICATION_CONFIG->NextProposalID(quorum->proposalID);
-        msg.RequestLease(nodeID, quorum->quorumID, quorum->proposalID, PAXOSLEASE_MAX_LEASE_TIME);
+        msg.RequestLease(nodeID, quorum->quorumID, quorum->proposalID,
+         PAXOSLEASE_MAX_LEASE_TIME, quorum->configID);
         
         // send to all controllers
         for (nit = controllers.First(); nit != NULL; nit = controllers.Next(nit))
@@ -715,17 +716,18 @@ void ShardServer::TryReplicationCatchup(ConfigQuorum* configQuorum)
     // TODO: xxx
 }
 
-void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)
+void ShardServer::OnReceiveLease(ClusterMessage& msg)
 {
     QuorumData*     quorum;
     
-    quorum = LocateQuorum(quorumID);
+    quorum = LocateQuorum(msg.quorumID);
     if (!quorum)
         return;
     
-    if (quorum->proposalID != proposalID)
+    if (quorum->proposalID != msg.proposalID)
         return;
     
+    quorum->configID = msg.configID;
     quorum->isPrimary = true;
     quorum->leaseTimeout.SetExpireTime(quorum->requestedLeaseExpireTime);
     EventLoop::Reset(&quorum->leaseTimeout);
@@ -954,5 +956,6 @@ QuorumData::QuorumData()
     prev = next = this;
     isPrimary = false;
     requestedLeaseExpireTime = 0;
+    configID = 0;
 }
 

@@ -23,14 +23,16 @@
 class ClusterMessage : public Message
 {
 public:
-    char                type;
-    uint64_t            nodeID;
-    uint64_t            quorumID;
-    uint64_t            shardID;
-    uint64_t            proposalID;
-    unsigned            duration;
-    ConfigState         configState;
-    QuorumPaxosID::List quorumPaxosIDs;
+    char                    type;
+    uint64_t                nodeID;
+    uint64_t                quorumID;
+    uint64_t                shardID;
+    uint64_t                proposalID;
+    unsigned                duration;
+    uint64_t                configID;
+    ConfigQuorum::NodeList  activeNodes;
+    QuorumPaxosID::List     quorumPaxosIDs;
+    ConfigState             configState;
     
     ClusterMessage();
     
@@ -38,9 +40,9 @@ public:
     bool            Heartbeat(uint64_t nodeID, QuorumPaxosID::List& quorumPaxosIDs);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
-                     uint64_t proposalID, unsigned duration);
+                     uint64_t proposalID, unsigned duration, uint64_t configID);
     bool            ReceiveLease(uint64_t nodeID, uint64_t quorumID,
-                     uint64_t proposalID, unsigned duration);
+                     uint64_t proposalID, unsigned duration, ConfigQuorum::NodeList activeNodes);
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);

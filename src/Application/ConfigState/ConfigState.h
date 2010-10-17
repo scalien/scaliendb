@@ -73,6 +73,12 @@ public:
     bool                Read(ReadBuffer& buffer, bool withVolatile = false);
     bool                Write(Buffer& buffer, bool withVolatile = false);
 
+    template<typename List>
+    static bool         ReadIDList(List& numbers, ReadBuffer& buffer);
+    
+    template<typename List>
+    static void         WriteIDList(List& numbers, Buffer& buffer);
+
 private:
     bool                CompleteRegisterShardServer(ConfigMessage& message);
     bool                CompleteCreateQuorum(ConfigMessage& message);
@@ -131,12 +137,6 @@ private:
                          ReadBuffer& buffer, bool withVolatile);
     void                WriteShardServer(ConfigShardServer& shardServer,
                          Buffer& buffer, bool withVolatile);
-
-    template<typename List>
-    bool                ReadIDList(List& numbers, ReadBuffer& buffer);
-    
-    template<typename List>
-    void                WriteIDList(List& numbers, Buffer& buffer);
 };
 
 #endif
