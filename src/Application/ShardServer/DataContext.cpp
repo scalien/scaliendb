@@ -6,10 +6,13 @@
 void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
  StorageTable* table_)
 {
+    ConfigQuorum::NodeList  activeNodes;
+    
     shardServer = shardServer_;
     quorumID = configQuorum->quorumID;
   
-    UpdateConfig(configQuorum);
+    activeNodes = configQuorum->GetVolatileActiveNodes();
+    UpdateConfig(activeNodes);
     
 //  transport.SetPriority(); // TODO
     transport.SetQuorum(&quorum);
@@ -22,14 +25,14 @@ void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
     highestPaxosID = 0; 
 }
 
-void DataContext::UpdateConfig(ConfigQuorum* configQuorum)
+void DataContext::UpdateConfig(ConfigQuorum::NodeList& activeNodes)
 {
     uint64_t*   it;
 
     Log_Trace("Reconfiguring quorum");
 
     quorum.ClearNodes();
-    FOREACH(it, configQuorum->activeNodes)
+    FOREACH(it, activeNodes)
     {
         Log_Trace("Adding %" PRIu64 "", *it);
         quorum.AddNode(*it);

@@ -661,6 +661,7 @@ void Controller::TryActivatingShardServer(uint64_t nodeID)
                     // the shard server is "almost caught up", start the activation process
                     itQuorum->isActivatingNode = true;
                     itQuorum->activatingNodeID = nodeID;
+                    itQuorum->configID++;
                 }
             }
         }
@@ -844,9 +845,7 @@ void Controller::AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
 
     UpdatePrimaryLeaseTimer();
 
-    activeNodes = quorum.activeNodes;
-    if (quorum.activatingNodeID)
-        activeNodes.Append(quorum.activatingNodeID);
+    activeNodes = quorum.GetVolatileActiveNodes();
     response.ReceiveLease(message.nodeID, message.quorumID,
      message.proposalID, duration, activeNodes);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
@@ -875,12 +874,14 @@ void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
     primaryLeases.Add(it);
     UpdatePrimaryLeaseTimer();
 
-    activeNodes = quorum.activeNodes;
-    if (quorum.activatingNodeID)
-        activeNodes.Append(quorum.activatingNodeID);
+    activeNodes = quorum.GetVolatileActiveNodes();
     response.ReceiveLease(message.nodeID, message.quorumID,
      message.proposalID, duration, activeNodes);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
+    // keep track of paxosID of shard server
+    // if its able to increase it, the new shard server has successfully joined the quorum
+    if (quorum.isActivatingNode && message.configID == quorum.configID)
+        quorum.activationPaxosID = message.paxosID;
 }
 
 void Controller::UpdatePrimaryLeaseTimer()

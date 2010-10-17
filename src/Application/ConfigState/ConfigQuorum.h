@@ -26,6 +26,8 @@ public:
 
     ConfigQuorum();
     ConfigQuorum(const ConfigQuorum& other);
+
+    NodeList            GetVolatileActiveNodes();
     
     ConfigQuorum&       operator=(const ConfigQuorum& other);
 
@@ -40,6 +42,7 @@ public:
     uint64_t            configID;
     bool                isActivatingNode;
     uint64_t            activatingNodeID;
+    bool                activationPaxosID; // not sent
     
     bool                hasPrimary;
     uint64_t            primaryID;
@@ -50,43 +53,5 @@ public:
     ConfigQuorum*       prev;
     ConfigQuorum*       next;
 };
-
-
-inline ConfigQuorum::ConfigQuorum()
-{
-    prev = next = this;
-    quorumID = 0;
-    configID = 0;
-    isActivatingNode = false;
-    activatingNodeID = 0;
-    hasPrimary = false;
-    primaryID = 0;
-    paxosID = 0;
-}
-
-inline ConfigQuorum::ConfigQuorum(const ConfigQuorum& other)
-{
-    *this = other;
-}
-
-inline ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
-{
-    uint64_t*   sit;
-    
-    quorumID = other.quorumID;
-    activeNodes = other.activeNodes;
-    inactiveNodes = other.inactiveNodes;
-    
-    for (sit = other.shards.First(); sit != NULL; sit = other.shards.Next(sit))
-        shards.Append(*sit);
-    
-    hasPrimary = other.hasPrimary;
-    primaryID = other.primaryID;
-    paxosID = other.paxosID;
-    
-    prev = next = this;
-    
-    return *this;
-}
 
 #endif

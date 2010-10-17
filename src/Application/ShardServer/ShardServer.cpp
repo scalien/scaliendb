@@ -512,7 +512,7 @@ void ShardServer::OnRequestLeaseTimeout()
     {
         quorum->proposalID = REPLICATION_CONFIG->NextProposalID(quorum->proposalID);
         msg.RequestLease(nodeID, quorum->quorumID, quorum->proposalID,
-         PAXOSLEASE_MAX_LEASE_TIME, quorum->configID);
+         quorum->context.GetPaxosID(), quorum->configID, PAXOSLEASE_MAX_LEASE_TIME);
         
         // send to all controllers
         for (nit = controllers.First(); nit != NULL; nit = controllers.Next(nit))
@@ -629,7 +629,7 @@ void ShardServer::OnSetConfigState(ConfigState& configState_)
         next = quorums.Remove(quorum);
         delete quorum;
     }
-    
+
     // check changes in active or inactive node list
     FOREACH(configQuorum, configState.quorums)
     {
@@ -691,7 +691,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
     }
     else if (quorumData != NULL)
     {
-        quorumData->context.UpdateConfig(configQuorum);
+        quorumData->context.UpdateConfig(configQuorum->activeNodes);
 
         // add nodes to CONTEXT_TRANSPORT        
         for (nit = configQuorum->activeNodes.First(); nit != NULL; nit = configQuorum->activeNodes.Next(nit))
@@ -728,6 +728,8 @@ void ShardServer::OnReceiveLease(ClusterMessage& msg)
         return;
     
     quorum->configID = msg.configID;
+    quorum->activeNodes = msg.activeNodes;
+    quorum->context.UpdateConfig(quorum->activeNodes);
     quorum->isPrimary = true;
     quorum->leaseTimeout.SetExpireTime(quorum->requestedLeaseExpireTime);
     EventLoop::Reset(&quorum->leaseTimeout);

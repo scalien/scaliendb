@@ -24,7 +24,7 @@ public:
     void                            Init(ShardServer* shardServer, ConfigQuorum* configQuorum,
                                      StorageTable* quorumTable);
     
-    void                            UpdateConfig(ConfigQuorum* configQuorum);
+    void                            UpdateConfig(ConfigQuorum::NodeList& activeNodes);
     void                            Append(); // nextValue was filled up using GetNextValue()
     bool                            IsAppending();
     

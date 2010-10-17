@@ -1103,7 +1103,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
         return false;
     
     quorum.hasPrimary = false;
-    quorum.activatingNodeID = false;
+    quorum.isActivatingNode = false;
     if (withVolatile)
     {
         buffer.Readf("%U", &quorum.configID);
@@ -1118,7 +1118,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
             READ_SEPARATOR();
             read = buffer.Readf("%U", &quorum.activatingNodeID);
             CHECK_ADVANCE(1);
-            quorum.activatingNodeID = true;
+            quorum.isActivatingNode = true;
         }
         
         read = buffer.Readf(":%U:", &quorum.paxosID);
@@ -1156,7 +1156,7 @@ void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVol
         buffer.Appendf("%U", quorum.configID);
         buffer.Appendf(":");
 
-        if (quorum.activatingNodeID)
+        if (quorum.isActivatingNode)
             buffer.Appendf("%c:%U", YES, quorum.activatingNodeID);
         else
             buffer.Appendf("%c", NO);

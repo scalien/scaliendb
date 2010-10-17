@@ -28,8 +28,9 @@ public:
     uint64_t                quorumID;
     uint64_t                shardID;
     uint64_t                proposalID;
-    unsigned                duration;
+    uint64_t                paxosID;
     uint64_t                configID;
+    unsigned                duration;
     ConfigQuorum::NodeList  activeNodes;
     QuorumPaxosID::List     quorumPaxosIDs;
     ConfigState             configState;
@@ -40,7 +41,7 @@ public:
     bool            Heartbeat(uint64_t nodeID, QuorumPaxosID::List& quorumPaxosIDs);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
-                     uint64_t proposalID, unsigned duration, uint64_t configID);
+                     uint64_t proposalID, uint64_t paxosID, uint64_t configID, unsigned duration);
     bool            ReceiveLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, unsigned duration, ConfigQuorum::NodeList activeNodes);
     

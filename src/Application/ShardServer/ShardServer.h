@@ -147,6 +147,7 @@ public:
     uint64_t        requestedLeaseExpireTime;
     Timer           leaseTimeout;
     uint64_t        configID;
+    ConfigQuorum::NodeList  activeNodes;
     
     QuorumData*     prev;
     QuorumData*     next;

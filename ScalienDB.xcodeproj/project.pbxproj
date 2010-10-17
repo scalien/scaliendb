@@ -30,6 +30,10 @@
 		5487BC41123A5E2000C235BA /* ClientResponse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC3B123A5E2000C235BA /* ClientResponse.cpp */; };
 		5487BC42123A5E2000C235BA /* ClusterMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC3D123A5E2000C235BA /* ClusterMessage.cpp */; };
 		5487BDCF123A738000C235BA /* ContextTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BDCD123A738000C235BA /* ContextTransport.cpp */; };
+		54889564126B3CFE007CC6B2 /* ConfigDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889563126B3CFE007CC6B2 /* ConfigDatabase.cpp */; };
+		54889567126B3D28007CC6B2 /* ConfigQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889566126B3D28007CC6B2 /* ConfigQuorum.cpp */; };
+		5488956A126B3D55007CC6B2 /* ConfigTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889569126B3D55007CC6B2 /* ConfigTable.cpp */; };
+		5488956E126B3D84007CC6B2 /* ConfigShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488956D126B3D84007CC6B2 /* ConfigShard.cpp */; };
 		548BDE3A125E282B001ED245 /* CatchupMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548BDE39125E282B001ED245 /* CatchupMessage.cpp */; };
 		548BE6D61264C930001ED245 /* ConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548BE6D31264C930001ED245 /* ConfigState.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
@@ -237,6 +241,10 @@
 		5487BDCC123A738000C235BA /* ContextTransport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ContextTransport.h; sourceTree = "<group>"; };
 		5487BDCD123A738000C235BA /* ContextTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ContextTransport.cpp; sourceTree = "<group>"; };
 		5487BDCE123A738000C235BA /* ClusterContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterContext.h; sourceTree = "<group>"; };
+		54889563126B3CFE007CC6B2 /* ConfigDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigDatabase.cpp; sourceTree = "<group>"; };
+		54889566126B3D28007CC6B2 /* ConfigQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigQuorum.cpp; sourceTree = "<group>"; };
+		54889569126B3D55007CC6B2 /* ConfigTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigTable.cpp; sourceTree = "<group>"; };
+		5488956D126B3D84007CC6B2 /* ConfigShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigShard.cpp; sourceTree = "<group>"; };
 		548BDE38125E282B001ED245 /* CatchupMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupMessage.h; sourceTree = "<group>"; };
 		548BDE39125E282B001ED245 /* CatchupMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CatchupMessage.cpp; sourceTree = "<group>"; };
 		548BE6961264C5C8001ED245 /* DatabaseConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseConsts.h; sourceTree = "<group>"; };
@@ -594,9 +602,13 @@
 			isa = PBXGroup;
 			children = (
 				548BE6CF1264C92F001ED245 /* ConfigDatabase.h */,
+				54889563126B3CFE007CC6B2 /* ConfigDatabase.cpp */,
 				548BE6D01264C92F001ED245 /* ConfigQuorum.h */,
+				54889566126B3D28007CC6B2 /* ConfigQuorum.cpp */,
 				548BE6D51264C930001ED245 /* ConfigTable.h */,
+				54889569126B3D55007CC6B2 /* ConfigTable.cpp */,
 				548BE6D11264C92F001ED245 /* ConfigShard.h */,
+				5488956D126B3D84007CC6B2 /* ConfigShard.cpp */,
 				548BE6D21264C930001ED245 /* ConfigShardServer.h */,
 				547E27B6126B1602000B8E04 /* ConfigShardServer.cpp */,
 				548BE6D41264C930001ED245 /* ConfigState.h */,
@@ -1125,6 +1137,10 @@
 				548BDE3A125E282B001ED245 /* CatchupMessage.cpp in Sources */,
 				548BE6D61264C930001ED245 /* ConfigState.cpp in Sources */,
 				547E27B7126B1602000B8E04 /* ConfigShardServer.cpp in Sources */,
+				54889564126B3CFE007CC6B2 /* ConfigDatabase.cpp in Sources */,
+				54889567126B3D28007CC6B2 /* ConfigQuorum.cpp in Sources */,
+				5488956A126B3D55007CC6B2 /* ConfigTable.cpp in Sources */,
+				5488956E126B3D84007CC6B2 /* ConfigShard.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

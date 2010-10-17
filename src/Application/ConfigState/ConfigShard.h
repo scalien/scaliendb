@@ -3,6 +3,7 @@
 
 #include "System/Common.h"
 #include "System/Containers/List.h"
+#include "System/Buffers/Buffer.h"
 
 /*
 ===============================================================================================
@@ -31,30 +32,5 @@ public:
     ConfigShard*    prev;
     ConfigShard*    next;
 };
-
-inline ConfigShard::ConfigShard()
-{
-    prev = next = this;
-}
-
-inline ConfigShard::ConfigShard(const ConfigShard& other)
-{
-    *this = other;
-}
-
-inline ConfigShard& ConfigShard::operator=(const ConfigShard& other)
-{
-    quorumID = other.quorumID;
-    databaseID = other.databaseID;
-    tableID = other.tableID;
-    shardID = other.shardID;
-    
-    firstKey = other.firstKey;
-    lastKey = other.lastKey;
-    
-    prev = next = this;
-    
-    return *this;
-}
 
 #endif
