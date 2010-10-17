@@ -367,9 +367,6 @@ void Controller::OnClientClose(ClientSession* session)
 
 void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
 {
-    if (!configContext.IsLeaseOwner())
-        return;
-        
     RegisterHeartbeat(nodeID);
 
     switch (message.type)
@@ -890,6 +887,9 @@ void Controller::OnRequestLease(ClusterMessage& message)
 {
     uint64_t*       it;
     ConfigQuorum*   quorum;
+    
+    if (!configContext.IsLeaseOwner())
+        return;
     
     quorum = configState.GetQuorum(message.quorumID);
     
