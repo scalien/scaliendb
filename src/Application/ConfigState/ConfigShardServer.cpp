@@ -52,3 +52,25 @@ uint64_t QuorumPaxosID::GetPaxosID(List& quorumPaxosIDs, uint64_t quorumID)
     
     return 0;
 }
+
+ConfigShardServer::ConfigShardServer()
+{
+    prev = next = this;
+    nextActivationTime = 0;
+}
+
+ConfigShardServer::ConfigShardServer(const ConfigShardServer& other)
+{
+    *this = other;
+}
+
+ConfigShardServer& ConfigShardServer::operator=(const ConfigShardServer& other)
+{
+    nodeID = other.nodeID;
+    endpoint = other.endpoint;
+    
+    prev = next = this;
+    
+    return *this;
+}
+

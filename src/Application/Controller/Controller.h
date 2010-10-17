@@ -18,7 +18,8 @@ class ClientSession;            // forward
 class PrimaryLease;             // forward
 class Heartbeat;                // forward
 
-#define HEARTBEAT_EXPIRE_TIME       7000 //msec
+#define HEARTBEAT_EXPIRE_TIME           7000        // msec
+#define ACTIVATION_FAILED_PENALTY_TIME  60*60*1000  // msec, 1 hour
 
 /*
 ===============================================================================================
@@ -75,6 +76,7 @@ private:
     void                FromClientRequest(ClientRequest* request, ConfigMessage* message);
     void                ToClientResponse(ConfigMessage* message, ClientResponse* response);
     void                OnPrimaryLeaseTimeout();
+    void                OnActivationTimeout();
     void                OnHeartbeatTimeout();
     void                TryDeactivateShardServer(uint64_t nodeID);
     void                TryActivatingShardServer(uint64_t nodeID);
@@ -88,6 +90,7 @@ private:
     void                AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
     void                ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
     void                UpdatePrimaryLeaseTimer();
+    void                UpdateActivationTimeout();
     void                UpdateListeners();
     
     uint64_t            configStatePaxosID;
@@ -97,6 +100,7 @@ private:
     MessageList         configMessages;
     LeaseList           primaryLeases;
     Timer               primaryLeaseTimeout;
+    Timer               activationTimeout;
     HeartbeatList       heartbeats;
     Countdown           heartbeatTimeout;
     RequestList         requests;
@@ -117,7 +121,7 @@ private:
 class PrimaryLease
 {
 public:
-    PrimaryLease()  { prev = next = this; }
+    PrimaryLease()  { prev = next = this; quorumID = nodeID = expireTime = 0; }
 
     uint64_t        quorumID;
     uint64_t        nodeID;

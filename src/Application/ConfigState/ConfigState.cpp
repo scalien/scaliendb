@@ -711,8 +711,9 @@ void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
 
 void ConfigState::OnActivateShardServer(ConfigMessage& message)
 {
-    ConfigQuorum*   itQuorum;
-    uint64_t*       itNodeID;
+    ConfigQuorum*       itQuorum;
+    uint64_t*           itNodeID;
+    ConfigShardServer*  shardServer;
     
     itQuorum = GetQuorum(message.quorumID);
     // make sure quorum exists
@@ -728,12 +729,22 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
             inactiveNodes.Remove(itNodeID);
             activeNodes.Append(message.nodeID);
 
-            itQuorum->isActivatingNode = false;
-            itQuorum->activatingNodeID = 0;
-            itQuorum->isWatchingPaxosID = false;
-            itQuorum->isReplicatingActivation = false;
-            itQuorum->activationPaxosID = 0;
-            
+            if (itQuorum->isActivatingNode)
+            {
+                shardServer = GetShardServer(itQuorum->activatingNodeID);
+                assert(shardServer != NULL);
+                shardServer->nextActivationTime = 0;
+                
+                Log_Message("Activation succeeded for quorum %" PRIu64 " and shard server %" PRIu64 "",
+                 itQuorum->quorumID, itQuorum->activatingNodeID);
+
+                itQuorum->isActivatingNode = false;
+                itQuorum->activatingNodeID = 0;
+                itQuorum->isWatchingPaxosID = false;
+                itQuorum->isReplicatingActivation = false;
+                itQuorum->activationPaxosID = 0;
+                itQuorum->activationExpireTime = 0;
+            }
             return;
         }
     }

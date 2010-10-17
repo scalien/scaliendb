@@ -45,6 +45,7 @@ public:
     bool                isWatchingPaxosID;          // phase 2, not sent
     bool                isReplicatingActivation;    // phase 3, not sent
     uint64_t            activationPaxosID;          // not sent
+    uint64_t            activationExpireTime;       // not sent
     
     bool                hasPrimary;
     uint64_t            primaryID;

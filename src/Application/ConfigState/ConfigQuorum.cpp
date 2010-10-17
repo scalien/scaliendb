@@ -10,6 +10,7 @@ ConfigQuorum::ConfigQuorum()
     isReplicatingActivation = false;
     activatingNodeID = 0;
     activationPaxosID = 0;
+    activationExpireTime = 0;
     hasPrimary = false;
     primaryID = 0;
     paxosID = 0;

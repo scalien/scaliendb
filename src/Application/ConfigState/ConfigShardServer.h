@@ -22,8 +22,8 @@ public:
     QuorumPaxosID();
     
     uint64_t        quorumID;
-    uint64_t        paxosID;    
-
+    uint64_t        paxosID;
+    
     typedef ArrayList<QuorumPaxosID, MAX_QUORUMS_PER_SHARDSERVER> List;
 
     static bool     ReadList(ReadBuffer& buffer, List& quorumPaxosIDs);
@@ -56,30 +56,12 @@ public:
     //
     // Not replicated, only stored by the MASTER in-memory
     QuorumPaxosID::List quorumPaxosIDs;
+    
+    uint64_t            nextActivationTime;
     // ========================================================================================
     
     ConfigShardServer*  prev;
     ConfigShardServer*  next;
 };
-
-inline ConfigShardServer::ConfigShardServer()
-{
-    prev = next = this;
-}
-
-inline ConfigShardServer::ConfigShardServer(const ConfigShardServer& other)
-{
-    *this = other;
-}
-
-inline ConfigShardServer& ConfigShardServer::operator=(const ConfigShardServer& other)
-{
-    nodeID = other.nodeID;
-    endpoint = other.endpoint;
-    
-    prev = next = this;
-    
-    return *this;
-}
 
 #endif

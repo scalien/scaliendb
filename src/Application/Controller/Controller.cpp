@@ -16,7 +16,8 @@ void Controller::Init()
     Endpoint        endpoint;
     
     primaryLeaseTimeout.SetCallable(MFUNC(Controller, OnPrimaryLeaseTimeout));
-
+    activationTimeout.SetCallable(MFUNC(Controller, OnActivationTimeout));
+    
     heartbeatTimeout.SetCallable(MFUNC(Controller, OnHeartbeatTimeout));
     heartbeatTimeout.SetDelay(1000);
     EventLoop::Add(&heartbeatTimeout);
@@ -146,6 +147,7 @@ void Controller::OnLeaseTimeout()
     ConfigMessage*  itMessage;
     ClientRequest*  itRequest;
     
+    
     configState.hasMaster = false;
     configState.masterID = 0;
 
@@ -192,6 +194,7 @@ void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
     
     configState.OnMessage(message);
     WriteConfigState();
+    UpdateActivationTimeout();
     
     if (ownAppend)
     {
@@ -557,6 +560,44 @@ void Controller::OnPrimaryLeaseTimeout()
     UpdateListeners();
 }
 
+void Controller::OnActivationTimeout()
+{
+    uint64_t            now;
+    ConfigQuorum*       itQuorum;
+    ConfigShardServer*  shardServer;
+    
+    Log_Trace();
+    
+    now = EventLoop::Now();
+    
+    FOREACH(itQuorum, configState.quorums)
+    {
+        if (itQuorum->activationExpireTime > 0 && itQuorum->activationExpireTime < now)
+        {
+            // stop activation
+            
+            assert(itQuorum->isActivatingNode);
+            assert(!itQuorum->isReplicatingActivation);
+
+            shardServer = configState.GetShardServer(itQuorum->activatingNodeID);
+            assert(shardServer != NULL);
+            shardServer->nextActivationTime = now + ACTIVATION_FAILED_PENALTY_TIME;
+
+            itQuorum->isActivatingNode = false;
+            itQuorum->activatingNodeID = 0;
+            itQuorum->isWatchingPaxosID = false;
+            itQuorum->isReplicatingActivation = false;
+            itQuorum->activationPaxosID = 0;
+            itQuorum->activationExpireTime = 0;
+            
+            Log_Message("Activation failed for quorum %" PRIu64 " and shard server %" PRIu64 "",
+             itQuorum->quorumID, itQuorum->activatingNodeID);
+        }
+    }
+    
+    UpdateActivationTimeout();
+}
+
 void Controller::OnHeartbeatTimeout()
 {
     uint64_t            now;
@@ -601,6 +642,7 @@ void Controller::TryDeactivateShardServer(uint64_t nodeID)
     ConfigQuorum*       itQuorum;
     uint64_t*           itNodeID;
     ConfigMessage*      itConfigMessage;
+    ConfigShardServer*  shardServer;
 
     FOREACH(itQuorum, configState.quorums)
     {
@@ -611,11 +653,20 @@ void Controller::TryDeactivateShardServer(uint64_t nodeID)
 
         if (itQuorum->isActivatingNode && itQuorum->activatingNodeID == nodeID)
         {
+            shardServer = configState.GetShardServer(itQuorum->activatingNodeID);
+            assert(shardServer != NULL);
+            shardServer->nextActivationTime = EventLoop::Now() + ACTIVATION_FAILED_PENALTY_TIME;
+
             itQuorum->isActivatingNode = false;
             itQuorum->activatingNodeID = 0;
             itQuorum->isWatchingPaxosID = false;
             itQuorum->isReplicatingActivation = false;
             itQuorum->activationPaxosID = 0;
+            itQuorum->activationExpireTime = 0;
+            UpdateActivationTimeout();
+
+            Log_Message("Activation failed for quorum %" PRIu64 " and shard server %" PRIu64 "",
+             itQuorum->quorumID, itQuorum->activatingNodeID);
         }
 
         FOREACH(itNodeID, itQuorum->activeNodes)
@@ -625,11 +676,20 @@ void Controller::TryDeactivateShardServer(uint64_t nodeID)
                 // if this node was part of an activation process, cancel it
                 if (itQuorum->isActivatingNode)
                 {
+                    shardServer = configState.GetShardServer(itQuorum->activatingNodeID);
+                    assert(shardServer != NULL);
+                    shardServer->nextActivationTime = EventLoop::Now() + ACTIVATION_FAILED_PENALTY_TIME;
+
                     itQuorum->isActivatingNode = false;
                     itQuorum->activatingNodeID = 0;
                     itQuorum->isWatchingPaxosID = false;
                     itQuorum->isReplicatingActivation = false;
                     itQuorum->activationPaxosID = 0;
+                    itQuorum->activationExpireTime = 0;
+                    UpdateActivationTimeout();
+
+                    Log_Message("Activation failed for quorum %" PRIu64 " and shard server %" PRIu64 "",
+                     itQuorum->quorumID, itQuorum->activatingNodeID);
                 }
 
                 // make sure there is no corresponding deactivate message pending
@@ -662,12 +722,23 @@ void Controller::TryActivatingShardServer(uint64_t nodeID)
     uint64_t*           itNodeID;
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
+    uint64_t            now;
 
     shardServer = configState.GetShardServer(nodeID);
+
+    now = EventLoop::Now();
+    if (now < shardServer->nextActivationTime)
+    {
+        Log_Trace("not trying activation due to penalty");
+        return;
+    }
 
     FOREACH(itQuorum, configState.quorums)
     {
         if (itQuorum->isActivatingNode)
+            continue;
+            
+        if (!itQuorum->hasPrimary)
             continue;
 
         FOREACH(itNodeID, itQuorum->inactiveNodes)
@@ -683,6 +754,11 @@ void Controller::TryActivatingShardServer(uint64_t nodeID)
                     itQuorum->isWatchingPaxosID = false;
                     itQuorum->isReplicatingActivation = false;
                     itQuorum->configID++;
+                    itQuorum->activationExpireTime = now + PAXOSLEASE_MAX_LEASE_TIME;
+                    UpdateActivationTimeout();
+
+                    Log_Message("Activation started for quorum %" PRIu64 " and shard server %" PRIu64 "",
+                     itQuorum->quorumID, itQuorum->activatingNodeID);
                 }
             }
         }
@@ -883,14 +959,14 @@ void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
 
     duration = MIN(message.duration, PAXOSLEASE_MAX_LEASE_TIME);
 
-    for (it = primaryLeases.First(); it != NULL; it = primaryLeases.Next(it))
+    FOREACH(it, primaryLeases)
     {
         if (it->quorumID == quorum.quorumID)
             break;
     }
     
     assert(it != NULL);
-    
+        
     primaryLeases.Remove(it);
     duration = MIN(message.duration, PAXOSLEASE_MAX_LEASE_TIME);
     it->expireTime = EventLoop::Now() + duration;
@@ -918,6 +994,8 @@ void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
                 quorum.isWatchingPaxosID = false;
                 // node successfully joined the quorum, tell other Controllers!
                 quorum.isReplicatingActivation = true;
+                quorum.activationExpireTime = 0;
+                UpdateActivationTimeout();
 
                 // make sure there is no corresponding activate message pending
                 found = false;
@@ -959,6 +1037,30 @@ void Controller::UpdatePrimaryLeaseTimer()
         EventLoop::Remove(&primaryLeaseTimeout);
         primaryLeaseTimeout.SetExpireTime(primaryLease->expireTime);
         EventLoop::Add(&primaryLeaseTimeout);
+    }
+}
+
+void Controller::UpdateActivationTimeout()
+{
+    ConfigQuorum*   it;
+    uint64_t        activationExpireTime;
+    
+    Log_Trace();
+    
+    activationExpireTime = 0;
+    FOREACH(it, configState.quorums)
+    {
+        if (it->isActivatingNode && !it->isReplicatingActivation)
+        {
+            if (activationExpireTime == 0 || it->activationExpireTime < activationExpireTime)
+                activationExpireTime = it->activationExpireTime;
+        }
+    }
+    
+    if (activationExpireTime > 0)
+    {
+        activationTimeout.SetExpireTime(activationExpireTime);
+        EventLoop::Reset(&activationTimeout);
     }
 }
 
