@@ -23,13 +23,8 @@
 class QuorumPaxosID
 {
 public:
-    QuorumPaxosID() { next = prev = this; }
-
     uint64_t        quorumID;
-    uint64_t        paxosID;
-    
-    QuorumPaxosID*  prev;
-    QuorumPaxosID*  next;
+    uint64_t        paxosID;    
 };
 
 #define MAX_QUORUM_PER_SHARDSERVER  1000

@@ -201,10 +201,11 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
             buffer.Writef("");
         buffer.Appendf("q%U |", itQuorum->quorumID);
         ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+        ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
         for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
         {
             found = false;
-            for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
+            FOREACH(itNodeID, activeNodes)
             {
                 if (itShardServer->nodeID == *itNodeID)
                 {
@@ -224,8 +225,17 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
                     break;
                 }
             }
+            FOREACH(itNodeID, inactiveNodes)
+            {
+                if (itShardServer->nodeID == *itNodeID)
+                {
+                    found = true;
+                    buffer.Appendf("     i");
+                    break;
+                }
+            }
             if (!found)
-                buffer.Appendf("     .");
+                buffer.Appendf("      ");
 
         }
         session.Print(buffer);

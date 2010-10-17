@@ -713,8 +713,9 @@ void ShardServer::TryReplicationCatchup(ConfigQuorum* configQuorum)
 
     quorumData = LocateQuorum(configQuorum->quorumID);
     if (!quorumData)
-        ASSERT_FAIL();
-
+        return;
+    
+    // TODO: xxx
 }
 
 void ShardServer::OnReceiveLease(uint64_t quorumID, uint64_t proposalID)

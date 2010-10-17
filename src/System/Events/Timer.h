@@ -39,8 +39,6 @@ protected:
     Callable        callable;
 };
 
-/*****************************************************************************/
-
 inline bool LessThan(Timer& a, Timer& b)
 {
     return (a.GetExpireTime() < b.GetExpireTime());

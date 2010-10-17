@@ -52,6 +52,7 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
 {
     int             read;
     ReadBuffer      tempBuffer;
+    QuorumPaxosID   quorumPaxosID;
     unsigned        i, length;
         
     if (buffer.GetLength() < 1)
@@ -75,10 +76,11 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             buffer.Advance(read);
             for (i = 0; i < length; i++)
             {
-                read = buffer.Readf(":%U:%U");
+                read = buffer.Readf(":%U:%U", &quorumPaxosID.quorumID, &quorumPaxosID.paxosID);
                 if (read < 4)
                     return false;
                 buffer.Advance(read);
+                quorumPaxosIDs.Append(quorumPaxosID);
             }
             return true;
             break;
@@ -117,7 +119,7 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Appendf(":%U", quorumPaxosIDs.GetLength());
             FOREACH(it, quorumPaxosIDs)
             {
-                buffer.Writef(":%U:%U", it->quorumID, it->paxosID);
+                buffer.Appendf(":%U:%U", it->quorumID, it->paxosID);
             }
             return true;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:

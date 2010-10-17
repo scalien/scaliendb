@@ -50,7 +50,6 @@ static bool DNS_ResolveIpv4(const char* name, struct in_addr* addr)
     return true;
 }
 
-
 Endpoint::Endpoint()
 {
     struct sockaddr_in *sa;
