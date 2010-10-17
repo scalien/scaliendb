@@ -717,7 +717,7 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
     itQuorum = GetQuorum(message.quorumID);
     // make sure quorum exists
     assert(itQuorum != NULL);
-    
+
     // make sure node is in quorum
     ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
     ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
@@ -727,6 +727,13 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
         {
             inactiveNodes.Remove(itNodeID);
             activeNodes.Append(message.nodeID);
+
+            itQuorum->isActivatingNode = false;
+            itQuorum->activatingNodeID = 0;
+            itQuorum->isWatchingPaxosID = false;
+            itQuorum->isReplicatingActivation = false;
+            itQuorum->activationPaxosID = 0;
+            
             return;
         }
     }

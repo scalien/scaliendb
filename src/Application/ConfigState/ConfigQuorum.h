@@ -40,9 +40,11 @@ public:
     //
     // Not replicated, only stored by the MASTER in-memory
     uint64_t            configID;
-    bool                isActivatingNode;
     uint64_t            activatingNodeID;
-    bool                activationPaxosID; // not sent
+    bool                isActivatingNode;           // phase 1
+    bool                isWatchingPaxosID;          // phase 2, not sent
+    bool                isReplicatingActivation;    // phase 3, not sent
+    uint64_t            activationPaxosID;          // not sent
     
     bool                hasPrimary;
     uint64_t            primaryID;

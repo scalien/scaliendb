@@ -609,10 +609,29 @@ void Controller::TryDeactivateShardServer(uint64_t nodeID)
         if (itQuorum->activeNodes.GetLength() <= 1)
             continue;
 
+        if (itQuorum->isActivatingNode && itQuorum->activatingNodeID == nodeID)
+        {
+            itQuorum->isActivatingNode = false;
+            itQuorum->activatingNodeID = 0;
+            itQuorum->isWatchingPaxosID = false;
+            itQuorum->isReplicatingActivation = false;
+            itQuorum->activationPaxosID = 0;
+        }
+
         FOREACH(itNodeID, itQuorum->activeNodes)
         {
             if (*itNodeID == nodeID)
             {
+                // if this node was part of an activation process, cancel it
+                if (itQuorum->isActivatingNode)
+                {
+                    itQuorum->isActivatingNode = false;
+                    itQuorum->activatingNodeID = 0;
+                    itQuorum->isWatchingPaxosID = false;
+                    itQuorum->isReplicatingActivation = false;
+                    itQuorum->activationPaxosID = 0;
+                }
+
                 // make sure there is no corresponding deactivate message pending
                 found = false;
                 FOREACH(itConfigMessage, configMessages)
@@ -661,6 +680,8 @@ void Controller::TryActivatingShardServer(uint64_t nodeID)
                     // the shard server is "almost caught up", start the activation process
                     itQuorum->isActivatingNode = true;
                     itQuorum->activatingNodeID = nodeID;
+                    itQuorum->isWatchingPaxosID = false;
+                    itQuorum->isReplicatingActivation = false;
                     itQuorum->configID++;
                 }
             }
@@ -668,42 +689,42 @@ void Controller::TryActivatingShardServer(uint64_t nodeID)
     }    
 }
 
-void Controller::TryActivateShardServer(uint64_t nodeID)
-{
-    bool                found;
-    ConfigQuorum*       itQuorum;
-    uint64_t*           itNodeID;
-    ConfigMessage*      itConfigMessage;
-
-    FOREACH(itQuorum, configState.quorums)
-    {
-        FOREACH(itNodeID, itQuorum->inactiveNodes)
-        {
-            if (*itNodeID == nodeID)
-            {
-                // make sure there is no corresponding activate message pending
-                found = false;
-                FOREACH(itConfigMessage, configMessages)
-                {
-                    if (itConfigMessage->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
-                     itConfigMessage->quorumID == itQuorum->quorumID &&
-                     itConfigMessage->nodeID == nodeID)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found)
-                    continue;
-                itConfigMessage = new ConfigMessage();
-                itConfigMessage->fromClient = false;
-                itConfigMessage->ActivateShardServer(itQuorum->quorumID, nodeID);
-                configMessages.Append(itConfigMessage);
-                TryAppend();
-            }
-        }
-    }    
-}
+//void Controller::TryActivateShardServer(uint64_t nodeID)
+//{
+//    bool                found;
+//    ConfigQuorum*       itQuorum;
+//    uint64_t*           itNodeID;
+//    ConfigMessage*      itConfigMessage;
+//
+//    FOREACH(itQuorum, configState.quorums)
+//    {
+//        FOREACH(itNodeID, itQuorum->inactiveNodes)
+//        {
+//            if (*itNodeID == nodeID)
+//            {
+//                // make sure there is no corresponding activate message pending
+//                found = false;
+//                FOREACH(itConfigMessage, configMessages)
+//                {
+//                    if (itConfigMessage->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
+//                     itConfigMessage->quorumID == itQuorum->quorumID &&
+//                     itConfigMessage->nodeID == nodeID)
+//                    {
+//                        found = true;
+//                        break;
+//                    }
+//                }
+//                if (found)
+//                    continue;
+//                itConfigMessage = new ConfigMessage();
+//                itConfigMessage->fromClient = false;
+//                itConfigMessage->ActivateShardServer(itQuorum->quorumID, nodeID);
+//                configMessages.Append(itConfigMessage);
+//                TryAppend();
+//            }
+//        }
+//    }    
+//}
 
 void Controller::TryRegisterShardServer(Endpoint& endpoint)
 {
@@ -853,8 +874,10 @@ void Controller::AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
 
 void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
+    bool                    found;
     unsigned                duration;
     PrimaryLease*           it;
+    ConfigMessage*          itConfigMessage;
     ClusterMessage          response;
     ConfigQuorum::NodeList  activeNodes;
 
@@ -880,8 +903,45 @@ void Controller::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& messag
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
     // keep track of paxosID of shard server
     // if its able to increase it, the new shard server has successfully joined the quorum
-    if (quorum.isActivatingNode && message.configID == quorum.configID)
-        quorum.activationPaxosID = message.paxosID;
+    if (quorum.isActivatingNode && !quorum.isReplicatingActivation && message.configID == quorum.configID)
+    {
+        if (!quorum.isWatchingPaxosID)
+        {
+            // start monitoring its paxosID
+            quorum.activationPaxosID = message.paxosID;
+            quorum.isWatchingPaxosID = true;
+        }
+        else
+        {
+            if (message.paxosID > quorum.activationPaxosID)
+            {
+                quorum.isWatchingPaxosID = false;
+                // node successfully joined the quorum, tell other Controllers!
+                quorum.isReplicatingActivation = true;
+
+                // make sure there is no corresponding activate message pending
+                found = false;
+                FOREACH(itConfigMessage, configMessages)
+                {
+                    if (itConfigMessage->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
+                     itConfigMessage->quorumID == quorum.quorumID &&
+                     itConfigMessage->nodeID == quorum.activatingNodeID)
+                    {
+                        found = true;
+                        break;
+                    }
+                }
+                if (found)
+                    return;
+                    
+                itConfigMessage = new ConfigMessage();
+                itConfigMessage->fromClient = false;
+                itConfigMessage->ActivateShardServer(quorum.quorumID, quorum.activatingNodeID);
+                configMessages.Append(itConfigMessage);
+                TryAppend();
+            }
+        }    
+    }
 }
 
 void Controller::UpdatePrimaryLeaseTimer()

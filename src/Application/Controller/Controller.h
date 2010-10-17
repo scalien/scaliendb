@@ -77,8 +77,8 @@ private:
     void                OnPrimaryLeaseTimeout();
     void                OnHeartbeatTimeout();
     void                TryDeactivateShardServer(uint64_t nodeID);
-    void                TryActivatingShardServer(uint64_t nodeID); // TODO: terrible naming
-    void                TryActivateShardServer(uint64_t nodeID);
+    void                TryActivatingShardServer(uint64_t nodeID);
+//    void                TryActivateShardServer(uint64_t nodeID);
     void                TryRegisterShardServer(Endpoint& endpoint);
     void                ReadConfigState();
     void                WriteConfigState();
