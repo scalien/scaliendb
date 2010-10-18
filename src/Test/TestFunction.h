@@ -3,6 +3,7 @@
 
 #include "Test.h"
 #include "System/Containers/InList.h"
+#include "System/Time.h"
 
 #define TEST_MAKENAME(f) #f
 #define TEST_CONCAT2(a, b) a ## b
@@ -34,12 +35,14 @@ public:
 
 #define TEST_EXECUTE() \
     ret = TEST_SUCCESS; \
+    StartClock(); \
     FOREACH(testit, tests) \
     { \
         ret = test_time(testit->function, testit->name); \
         if (ret != TEST_SUCCESS) \
             break; \
     } \
+    StopClock(); \
     return test_eval(TEST_NAME, ret); \
 }
 

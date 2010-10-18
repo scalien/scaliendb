@@ -285,6 +285,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
     
     p = buffer.GetBuffer();
     pageSize = FromLittle32(*((uint32_t*) p));
+    assert(pageSize != 0);
     p += 4;
     fileIndex = FromLittle32(*((uint32_t*) p));
     p += 4;

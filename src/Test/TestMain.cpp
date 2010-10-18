@@ -2,7 +2,7 @@
 
 TEST_START(TestMain);
 TEST_LOG_INIT(LOG_TARGET_STDOUT);
-//TEST_ADD(TestStorage);
+TEST_ADD(TestStorage);
 //TEST_ADD(TestStorageCapacity);
 //TEST_ADD(TestStorageBigTransaction);
 //TEST_ADD(TestStorageBigRandomTransaction);
@@ -21,7 +21,7 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBasic);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestClientBatchedSet);
-TEST_ADD(TestClientCreateTable);
+//TEST_ADD(TestClientCreateTable);
 TEST_EXECUTE();
 
 #ifdef TEST

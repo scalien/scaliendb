@@ -7,7 +7,7 @@
 #include "Framework/TCP/TCPConnection.h"
 #include "Message.h"
 
-#define MESSAGING_YIELD_TIME            10 // msec
+#define MESSAGING_YIELD_TIME            CLOCK_RESOLUTION // msec
 #define MESSAGING_CONNECT_TIMEOUT       2000
 
 /*

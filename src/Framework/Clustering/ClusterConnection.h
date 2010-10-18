@@ -7,8 +7,6 @@
 #include "Framework/Messaging/MessageConnection.h"
 #include "Framework/Messaging/Message.h"
 
-#define MESSAGING_YIELD_TIME            10 // msec
-
 class ClusterTransport;     // forward
 
 /*

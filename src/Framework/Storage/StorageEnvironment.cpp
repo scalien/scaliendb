@@ -6,6 +6,7 @@
 StorageEnvironment::StorageEnvironment()
 {
     manageCache = false;
+    sync = true;
 }
 
 StorageEnvironment::~StorageEnvironment()
@@ -17,6 +18,11 @@ void StorageEnvironment::InitCache(uint64_t cacheSize)
 {
     DCACHE->Init(cacheSize);
     manageCache = true;
+}
+
+void StorageEnvironment::SetSync(bool sync_)
+{
+    sync = sync_;
 }
 
 bool StorageEnvironment::Open(const char *path_)
@@ -94,14 +100,14 @@ void StorageEnvironment::Commit(bool recovery, bool flush)
             it->CommitPhase1();
 
         // TODO: if the OS supports write barriers, then this sync not necessary!
-        if (flush)
+        if (sync && flush)
             FS_Sync();
     }
     
     FOREACH (it, databases)
         it->CommitPhase2();
 
-    if (flush)
+    if (sync && flush)
         FS_Sync();
     
     if (recovery)

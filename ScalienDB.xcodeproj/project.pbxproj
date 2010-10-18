@@ -164,6 +164,11 @@
 		9ACF2B241236944100247703 /* StorageShardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2B231236944100247703 /* StorageShardIndex.cpp */; };
 		9ACF2D721237975900247703 /* StorageFileHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2D711237975900247703 /* StorageFileHeader.cpp */; };
 		9AF4CA771265F61A0036E3B3 /* ConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548BE6D31264C930001ED245 /* ConfigState.cpp */; };
+		9AF4D160126B92780036E3B3 /* ConfigTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889569126B3D55007CC6B2 /* ConfigTable.cpp */; };
+		9AF4D164126B928B0036E3B3 /* ConfigDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889563126B3CFE007CC6B2 /* ConfigDatabase.cpp */; };
+		9AF4D167126B92970036E3B3 /* ConfigShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 547E27B6126B1602000B8E04 /* ConfigShardServer.cpp */; };
+		9AF4D16A126B92A20036E3B3 /* ConfigQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889566126B3D28007CC6B2 /* ConfigQuorum.cpp */; };
+		9AF4D16D126B92AB0036E3B3 /* ConfigShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488956D126B3D84007CC6B2 /* ConfigShard.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -381,7 +386,7 @@
 		9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
 		9A9AA745125E6BB900681840 /* SDBPClientWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientWrapper.h; path = Application/Client/SDBPClientWrapper.h; sourceTree = "<group>"; };
 		9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientWrapper.cpp; path = Application/Client/SDBPClientWrapper.cpp; sourceTree = "<group>"; };
-		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.interfacer; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
+		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9A9AA9011260558A00681840 /* scaliendb_client_python.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_python.cpp; path = Application/Client/Python/scaliendb_client_python.cpp; sourceTree = "<group>"; };
 		9A9AA9021260558A00681840 /* scaliendb_client.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_client.py; path = Application/Client/Python/scaliendb_client.py; sourceTree = "<group>"; };
 		9A9AA9031260558A00681840 /* scaliendb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb.py; path = Application/Client/Python/scaliendb.py; sourceTree = "<group>"; };
@@ -436,6 +441,8 @@
 		9AF4C76412631A920036E3B3 /* Test.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Test.java; path = Application/Client/Java/Test.java; sourceTree = "<group>"; };
 		9AF4C7BD12634CC80036E3B3 /* scaliendb_client_java.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_java.cpp; path = Application/Client/Java/scaliendb_client_java.cpp; sourceTree = "<group>"; };
 		9AF4CC78126660740036E3B3 /* TestFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestFunction.h; path = Test/TestFunction.h; sourceTree = "<group>"; };
+		9AF4D02E12687DA70036E3B3 /* Database.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Database.java; path = Application/Client/Java/Database.java; sourceTree = "<group>"; };
+		9AF4D030126881380036E3B3 /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Table.java; path = Application/Client/Java/Table.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -969,6 +976,8 @@
 				9AF4C76012631A920036E3B3 /* Result.java */,
 				9AF4C76112631A920036E3B3 /* Status.java */,
 				9AF4C76412631A920036E3B3 /* Test.java */,
+				9AF4D02E12687DA70036E3B3 /* Database.java */,
+				9AF4D030126881380036E3B3 /* Table.java */,
 			);
 			name = Java;
 			sourceTree = "<group>";
@@ -1017,6 +1026,7 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1204,6 +1214,11 @@
 				9A9AA1C7125DC30F00681840 /* StorageEnvironment.cpp in Sources */,
 				9A9AA747125E6BB900681840 /* SDBPClientWrapper.cpp in Sources */,
 				9AF4CA771265F61A0036E3B3 /* ConfigState.cpp in Sources */,
+				9AF4D160126B92780036E3B3 /* ConfigTable.cpp in Sources */,
+				9AF4D164126B928B0036E3B3 /* ConfigDatabase.cpp in Sources */,
+				9AF4D167126B92970036E3B3 /* ConfigShardServer.cpp in Sources */,
+				9AF4D16A126B92A20036E3B3 /* ConfigQuorum.cpp in Sources */,
+				9AF4D16D126B92AB0036E3B3 /* ConfigShard.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

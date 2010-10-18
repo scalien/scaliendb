@@ -156,7 +156,7 @@ TEST_DEFINE(TestClientBatchedSet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 100;
+    unsigned        num = 1000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -192,7 +192,7 @@ TEST_DEFINE(TestClientBatchedSet)
         TEST_CLIENT_FAIL();
     sw.Stop();
 
-    TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (1000.0 / sw.Elapsed()));
+    TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
 
     client.Shutdown();
     
