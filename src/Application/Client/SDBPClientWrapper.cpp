@@ -404,5 +404,14 @@ bool SDBP_IsBatched(ClientObj client_)
 
 void SDBP_SetTrace(bool trace)
 {
-    Log_SetTrace(trace);
+	if (trace)
+	{
+		Log_SetTrace(true);
+		Log_SetTarget(LOG_TARGET_STDOUT);
+	}
+	else
+	{
+		Log_SetTrace(false);
+		Log_SetTarget(LOG_TARGET_NOWHERE);
+	}
 }
