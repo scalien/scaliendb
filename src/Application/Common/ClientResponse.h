@@ -31,9 +31,13 @@ public:
     uint64_t        number;
     uint64_t        commandID;
     ReadBuffer      value;
+    Buffer*         valueBuffer;
     ConfigState     configState;
 
     ClientResponse();
+    ~ClientResponse();
+    
+    void            CopyValue();
             
     /* Responses */
     bool            OK();

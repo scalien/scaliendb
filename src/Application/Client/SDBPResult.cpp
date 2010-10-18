@@ -66,6 +66,9 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     else
         req->status = SDBP_SUCCESS;
 
+    if (resp->type == CLIENTRESPONSE_VALUE)
+        resp->CopyValue();
+
     //req->responses.Append(resp);
     req->response = *resp;
     numCompleted++;

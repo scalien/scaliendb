@@ -3,6 +3,19 @@
 
 ClientResponse::ClientResponse()
 {
+    valueBuffer = NULL;
+}
+
+ClientResponse::~ClientResponse()
+{
+    delete valueBuffer;
+}
+
+void ClientResponse::CopyValue()
+{
+    valueBuffer = new Buffer;
+    valueBuffer->Write(value.GetBuffer(), value.GetLength());
+    value.Wrap(*valueBuffer);
 }
 
 bool ClientResponse::OK()
