@@ -81,7 +81,7 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
              &type, &nodeID, &quorumID, &proposalID, &paxosID, &configID, &duration);
             break;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
-            read = buffer.Readf("%c:%U:%U:%U:%u:",
+            read = buffer.Readf("%c:%U:%U:%U:%u",
              &type, &nodeID, &quorumID, &proposalID, &duration);
              if (read < 9)
                 return false;
@@ -123,7 +123,7 @@ bool ClusterMessage::Write(Buffer& buffer)
         case CLUSTERMESSAGE_RECEIVE_LEASE:
             buffer.Writef("%c:%U:%U:%U:%u",
              type, nodeID, quorumID, proposalID, duration);
-             buffer.Appendf(":");
+            buffer.Appendf(":");
             ConfigState::WriteIDList<ConfigQuorum::NodeList>(activeNodes, buffer);
             return true;
         default:

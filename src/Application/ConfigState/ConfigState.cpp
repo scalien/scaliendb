@@ -1124,7 +1124,8 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
     quorum.isActivatingNode = false;
     if (withVolatile)
     {
-        buffer.Readf("%U", &quorum.configID);
+        READ_SEPARATOR();
+        read = buffer.Readf("%U", &quorum.configID);
         CHECK_ADVANCE(1);
         READ_SEPARATOR();
         
@@ -1171,6 +1172,7 @@ void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVol
 
     if (withVolatile)
     {
+        buffer.Appendf(":");
         buffer.Appendf("%U", quorum.configID);
         buffer.Appendf(":");
 
