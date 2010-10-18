@@ -6,11 +6,17 @@
 #include "System/Stopwatch.h"
 #include "System/Common.h"
 
+#define PRINTKV() \
+{ \
+    v.Write(rv); v.NullTerminate(); k.NullTerminate(); \
+    TEST_LOG("%s => %s", k.GetBuffer(), v.GetBuffer()); \
+}
+
 TEST_DEFINE(TestStorage)
 {
-#define PRINT()         {v.Write(rv); v.NullTerminate(); k.NullTerminate(); printf("%s => %s\n", k.GetBuffer(), v.GetBuffer());}
     StorageDatabase     db;
     StorageTable*       table;
+    StorageDataCache*   cache;
     Buffer              k, v;
     ReadBuffer          rk, rv;
     Stopwatch           sw;
@@ -20,18 +26,32 @@ TEST_DEFINE(TestStorage)
     char*               p;
     uint64_t            clock;
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Initialization
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     StartClock();
 
-    num = 1*1000*1000;
+    num = 100*1000;
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
+    cache = DCACHE;
     DCACHE->Init(100000000);
 
     db.Open(".", "db");
     table = db.GetTable("dogs");
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // test SET
+    //
+    // This test might not work on fast machines, because it commits every 1000 msec, but if there
+    // are more sets between commits than the cache can contain, then it will assert!
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     clock = NowClock();
     sw.Start();
     for (unsigned i = 0; i < num; i++)
@@ -53,9 +73,15 @@ TEST_DEFINE(TestStorage)
             clock = NowClock();
         }
     }
+    db.Commit();
     elapsed = sw.Stop();
-    printf("%u sets took %ld msec\n", num, elapsed);
+    TEST_LOG("%u sets took %ld msec", num, elapsed);
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // test GET
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     sw.Reset();
     sw.Start();
     for (unsigned i = 0; i < num; i++)
@@ -63,32 +89,41 @@ TEST_DEFINE(TestStorage)
         k.Writef("%d", i);
         rk.Wrap(k);
         if (table->Get(rk, rv))
-            ;//PRINT()
+            ;//PRINTKV()
         else
             ASSERT_FAIL();
     }   
     elapsed = sw.Stop();
-    printf("%u gets took %ld msec\n", num, elapsed);
+    TEST_LOG("%u gets took %ld msec", num, elapsed);
 
-//  sw.Reset();
-//  sw.Start();
-//  for (int i = 0; i < num; i++)
-//  {
-//      k.Writef("%d", i);
-//      rk.Wrap(k);
-//      catalog.Delete(rk); 
-//  }   
-//  elapsed = sw.Stop();
-//  printf("%u deletes took %ld msec\n", num, elapsed);
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // test DELETE
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    sw.Reset();
+    sw.Start();
+    for (unsigned i = 0; i < num; i++)
+    {
+        k.Writef("%d", i);
+        rk.Wrap(k);
+        TEST_ASSERT(table->Delete(rk));
+    }   
+    elapsed = sw.Stop();
+    TEST_LOG("%u deletes took %ld msec", num, elapsed);
     
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Shutdown
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     sw.Reset();
     sw.Start();
     db.Close();
     elapsed = sw.Stop();
-    printf("Close() took %ld msec\n", elapsed);
+    TEST_LOG("Close() took %ld msec", elapsed);
     
     DCACHE->Shutdown();
-    
     free(area);
     
     return TEST_SUCCESS;
@@ -107,6 +142,11 @@ TEST_DEFINE(TestStorageCapacity)
     char*               p;
     unsigned            round;
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Initialization
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     round = 10;
     num = 100*1000;
     ksize = 20;
@@ -114,9 +154,14 @@ TEST_DEFINE(TestStorageCapacity)
     area = (char*) malloc(num*(ksize+vsize));
 
     DCACHE->Init(10000000);
-
     db.Open(".", "db");
-    // a million key-value pairs take up 248M disk space
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // test the number of SETs depending on the size of DCACHE and transaction size
+    // e.g. a million key-value pairs take up 248M disk space
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
     for (unsigned r = 0; r < round; r++)
     {
         table = db.GetTable("dogs");
@@ -159,12 +204,16 @@ TEST_DEFINE(TestStorageCapacity)
         sw.Start();
         table->Commit(true /*recovery*/, false /*flush*/);
         elapsed = sw.Stop();
-        printf("Commit() took %ld msec\n", elapsed);
+        TEST_LOG("Commit() took %ld msec", elapsed);
     }
-    db.Close();
 
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Shutdown
+    //
+    ////////////////////////////////////////////////////////////////////////////////////////////////
+    db.Close();
     DCACHE->Shutdown();
-    
     free(area);
 
     return TEST_SUCCESS;

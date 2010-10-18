@@ -565,7 +565,7 @@ void StorageFile::LoadDataPage(uint32_t index)
     buffer.Allocate(dataPageSize);
 //  printf("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
     length = FS_FileReadOffs(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
-    if (length < 0)
+    if (length <= 0)
         ASSERT_FAIL();
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);

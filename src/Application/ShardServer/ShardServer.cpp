@@ -22,6 +22,7 @@ void ShardServer::Init()
     Endpoint        endpoint;
 
     databaseEnv.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
+    databaseEnv.SetSync(configFile.GetBoolValue("database.sync", true));
     databaseEnv.Open(configFile.GetValue("database.dir", "db"));
     systemDatabase = databaseEnv.GetDatabase(DATABASE_NAME);
     REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));

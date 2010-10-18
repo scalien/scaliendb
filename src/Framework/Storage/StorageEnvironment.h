@@ -18,6 +18,7 @@ public:
     ~StorageEnvironment();
 
     void                    InitCache(uint64_t size);
+    void                    SetSync(bool sync);
     
     bool                    Open(const char *path);
     void                    Close();
@@ -32,6 +33,7 @@ private:
     Buffer                  path;
     InList<StorageDatabase> databases;
     bool                    manageCache;
+    bool                    sync;
 };
 
 #endif

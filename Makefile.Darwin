@@ -3,15 +3,13 @@
 #
 
 INCLUDE = \
-	-I$(KEYSPACE_DIR)/src \
-	-I/opt/local/include/db46 \
-	-I/usr/local/include/db4 \
+	-I$(KEYSPACE_DIR)/src
 
 LDPATH = \
 
 BASE_CFLAGS = -Wall $(INCLUDE) -DPLATFORM_$(PLATFORM_UCASE) -D__STDC_FORMAT_MACROS
 BASE_CXXFLAGS = $(BASE_CFLAGS)
-BASE_LDFLAGS = -L/opt/local/lib/db46 -L/usr/local/lib/db4 -lpthread -ldb_cxx $(LDPATH)
+BASE_LDFLAGS = -lpthread -ldb_cxx $(LDPATH)
 SOLINK = -Xlinker -x -fPIC -dylib -undefined dynamic_lookup -bundle
 SOEXT = dylib
 SWIG_LDFLAGS = -bundle -flat_namespace -undefined suppress

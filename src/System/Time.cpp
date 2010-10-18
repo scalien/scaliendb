@@ -89,7 +89,7 @@ static void ClockThread()
     while (clockStarted)
     {
         UpdateClock();
-        MSleep(20);
+        MSleep(CLOCK_RESOLUTION);
     }
 }
 

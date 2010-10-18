@@ -13,9 +13,11 @@ public class Status
 
 	public final static int SDBP_MASTER_TIMEOUT	= -301;
 	public final static int SDBP_GLOBAL_TIMEOUT	= -302;
+    public final static int SDBP_PRIMARY_TIMEOUT= -303;
 
 	public final static int SDBP_NOSERVICE		= -401;
 	public final static int SDBP_FAILED			= -402;
+    public final static int SDBP_BADSCHEMA      = -403;
 	
 	public static String toString(int status)
 	{

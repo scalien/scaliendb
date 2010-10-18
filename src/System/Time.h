@@ -3,6 +3,8 @@
 
 #include "Platform.h"
 
+#define CLOCK_RESOLUTION    20
+
 uint64_t    Now();
 uint64_t    NowMicro();
 

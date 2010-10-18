@@ -4722,6 +4722,26 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_ResultNumber(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ResultObj arg1 = (ResultObj) 0 ;
+  uint64_t result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_ResultNumber",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultNumber" "', argument " "1"" of type '" "ResultObj""'"); 
+  }
+  result = (uint64_t)SDBP_ResultNumber(arg1);
+  resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_ResultDatabaseID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ResultObj arg1 = (ResultObj) 0 ;
@@ -4756,6 +4776,25 @@ SWIGINTERN PyObject *_wrap_SDBP_ResultTableID(PyObject *SWIGUNUSEDPARM(self), Py
   }
   result = (uint64_t)SDBP_ResultTableID(arg1);
   resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_ResultBegin(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ResultObj arg1 = (ResultObj) 0 ;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_ResultBegin",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultBegin" "', argument " "1"" of type '" "ResultObj""'"); 
+  }
+  SDBP_ResultBegin(arg1);
+  resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
   return NULL;
@@ -5017,6 +5056,128 @@ SWIGINTERN PyObject *_wrap_SDBP_GetMasterTimeout(PyObject *SWIGUNUSEDPARM(self),
   resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
   return resultobj;
 fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_CreateQuorum(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  SDBP_NodeParams *arg2 = 0 ;
+  int result;
+  int res1 ;
+  void *argp2 = 0 ;
+  int res2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SDBP_CreateQuorum",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_CreateQuorum" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_SDBP_NodeParams,  0  | 0);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SDBP_CreateQuorum" "', argument " "2"" of type '" "SDBP_NodeParams const &""'"); 
+  }
+  if (!argp2) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_CreateQuorum" "', argument " "2"" of type '" "SDBP_NodeParams const &""'"); 
+  }
+  arg2 = reinterpret_cast< SDBP_NodeParams * >(argp2);
+  result = (int)SDBP_CreateQuorum(arg1,(SDBP_NodeParams const &)*arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_CreateDatabase(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  int result;
+  int res1 ;
+  int res2 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SDBP_CreateDatabase",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_CreateDatabase" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SDBP_CreateDatabase" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_CreateDatabase" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  result = (int)SDBP_CreateDatabase(arg1,(std::string const &)*arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_CreateTable(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  uint64_t arg3 ;
+  std::string *arg4 = 0 ;
+  int result;
+  int res1 ;
+  unsigned long long val2 ;
+  int ecode2 = 0 ;
+  unsigned long long val3 ;
+  int ecode3 = 0 ;
+  int res4 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OOOO:SDBP_CreateTable",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_CreateTable" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  ecode2 = SWIG_AsVal_unsigned_SS_long_SS_long(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_CreateTable" "', argument " "2"" of type '" "uint64_t""'");
+  } 
+  arg2 = static_cast< uint64_t >(val2);
+  ecode3 = SWIG_AsVal_unsigned_SS_long_SS_long(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_CreateTable" "', argument " "3"" of type '" "uint64_t""'");
+  } 
+  arg3 = static_cast< uint64_t >(val3);
+  {
+    std::string *ptr = (std::string *)0;
+    res4 = SWIG_AsPtr_std_string(obj3, &ptr);
+    if (!SWIG_IsOK(res4)) {
+      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SDBP_CreateTable" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_CreateTable" "', argument " "4"" of type '" "std::string const &""'"); 
+    }
+    arg4 = ptr;
+  }
+  result = (int)SDBP_CreateTable(arg1,arg2,arg3,(std::string const &)*arg4);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (SWIG_IsNewObj(res4)) delete arg4;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res4)) delete arg4;
   return NULL;
 }
 
@@ -5298,6 +5459,66 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_Begin(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  int result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_Begin",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_Begin" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  result = (int)SDBP_Begin(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_Submit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  int result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_Submit",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_Submit" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  result = (int)SDBP_Submit(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_Cancel(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  int result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_Cancel",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_Cancel" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  result = (int)SDBP_Cancel(arg1);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_IsBatched(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -5384,8 +5605,10 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_ResultClose", _wrap_SDBP_ResultClose, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultKey", _wrap_SDBP_ResultKey, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultValue", _wrap_SDBP_ResultValue, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultNumber", _wrap_SDBP_ResultNumber, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultDatabaseID", _wrap_SDBP_ResultDatabaseID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultTableID", _wrap_SDBP_ResultTableID, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultBegin", _wrap_SDBP_ResultBegin, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultNext", _wrap_SDBP_ResultNext, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultIsEnd", _wrap_SDBP_ResultIsEnd, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultTransportStatus", _wrap_SDBP_ResultTransportStatus, METH_VARARGS, NULL},
@@ -5398,6 +5621,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_SetMasterTimeout", _wrap_SDBP_SetMasterTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetGlobalTimeout", _wrap_SDBP_GetGlobalTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetMasterTimeout", _wrap_SDBP_GetMasterTimeout, METH_VARARGS, NULL},
+	 { (char *)"SDBP_CreateQuorum", _wrap_SDBP_CreateQuorum, METH_VARARGS, NULL},
+	 { (char *)"SDBP_CreateDatabase", _wrap_SDBP_CreateDatabase, METH_VARARGS, NULL},
+	 { (char *)"SDBP_CreateTable", _wrap_SDBP_CreateTable, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetDatabaseID", _wrap_SDBP_GetDatabaseID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetTableID", _wrap_SDBP_GetTableID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_UseDatabase", _wrap_SDBP_UseDatabase, METH_VARARGS, NULL},
@@ -5405,6 +5631,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_Get", _wrap_SDBP_Get, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Set", _wrap_SDBP_Set, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Delete", _wrap_SDBP_Delete, METH_VARARGS, NULL},
+	 { (char *)"SDBP_Begin", _wrap_SDBP_Begin, METH_VARARGS, NULL},
+	 { (char *)"SDBP_Submit", _wrap_SDBP_Submit, METH_VARARGS, NULL},
+	 { (char *)"SDBP_Cancel", _wrap_SDBP_Cancel, METH_VARARGS, NULL},
 	 { (char *)"SDBP_IsBatched", _wrap_SDBP_IsBatched, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetTrace", _wrap_SDBP_SetTrace, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
