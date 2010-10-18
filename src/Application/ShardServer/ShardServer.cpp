@@ -585,6 +585,8 @@ void ShardServer::OnSetConfigState(ConfigState& configState_)
     uint64_t                nodeID;
     bool                    found;
 
+    Log_Trace();
+
     configState = configState_;
     
     nodeID = REPLICATION_CONFIG->GetNodeID();
@@ -665,6 +667,8 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
     uint64_t*           nit;
     uint64_t            quorumID;
     uint64_t            nodeID;
+    
+    Log_Trace();    
     
     nodeID = REPLICATION_CONFIG->GetNodeID();
     quorumID = configQuorum->quorumID;
