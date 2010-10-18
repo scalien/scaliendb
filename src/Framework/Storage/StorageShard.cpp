@@ -234,10 +234,8 @@ bool StorageShard::Delete(ReadBuffer& key)
     
     if (fi->file->IsEmpty())
     {
-        fi->file->Close();
-        FS_Delete(fi->filepath.GetBuffer());
         files.Remove(fi);
-        delete fi;
+        deletedFiles.Insert(fi);
         shardSize -= sizeBefore;
 
         return true;
@@ -600,7 +598,13 @@ void StorageShard::WriteRecoveryPrefix()
     StorageFileIndex        *it;
     uint32_t        marker = RECOVERY_MARKER;
     
-    for (it = files.First(); it != NULL; it = files.Next(it))
+    FOREACH (it, deletedFiles)
+    {
+        assert(it->file != NULL);
+        it->file->WriteRecovery(recoveryFD);
+    }
+    
+    FOREACH (it, files)
     {
         if (it->file == NULL)
             continue;
@@ -782,10 +786,21 @@ void StorageShard::CommitPhase2()
 
 void StorageShard::CommitPhase3()
 {
+    StorageFileIndex*   fi;
+    StorageFileIndex*   next;
+    
     WriteRecoveryPostfix();
     
     FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
     FS_FileTruncate(recoveryFD, 0);
+    
+    for (fi = deletedFiles.First(); fi != NULL; fi = next)
+    {
+        fi->file->Close();
+        FS_Delete(fi->filepath.GetBuffer());
+        next = deletedFiles.Remove(fi);
+        delete fi;
+    }
 }
 
 void StorageShard::CommitPhase4()

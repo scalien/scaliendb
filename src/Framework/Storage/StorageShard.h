@@ -74,6 +74,7 @@ private:
     Buffer                  recoveryFilepath;
     Buffer                  buffer;
     FileIndexMap            files;
+    FileIndexMap            deletedFiles;
     
     friend class StorageCursor;
     friend class StorageTable;
