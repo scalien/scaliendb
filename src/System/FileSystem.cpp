@@ -281,6 +281,14 @@ bool FS_IsDirectory(const char* path)
     return false;
 }
 
+bool FS_Exists(const char* path)
+{
+    struct stat s;
+    if (stat(path, &s) != 0)
+        return false;
+    return true;
+}
+
 int64_t FS_FreeDiskSpace(const char* path)
 {
     struct statvfs sv;

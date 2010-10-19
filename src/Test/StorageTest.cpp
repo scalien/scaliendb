@@ -3,13 +3,39 @@
 #include "Framework/Storage/StorageEnvironment.h"
 #include "Framework/Storage/StorageDataPage.h"
 #include "Framework/Storage/StorageDataCache.h"
+#include "System/FileSystem.h"
 #include "System/Stopwatch.h"
 #include "System/Common.h"
+
+#define TEST_DATABASE_PATH "."
+#define TEST_DATABASE "db"
 
 #define PRINTKV() \
 { \
     v.Write(rv); v.NullTerminate(); k.NullTerminate(); \
     TEST_LOG("%s => %s", k.GetBuffer(), v.GetBuffer()); \
+}
+
+TEST_DEFINE(TestStorageDeleteTestDatabase)
+{
+    Buffer  path;
+    char    sep;
+    
+    sep = FS_Separator();
+    path.Append(TEST_DATABASE_PATH);
+    path.Append(&sep, 1);
+    path.Append(TEST_DATABASE);
+    path.NullTerminate();
+    
+    if (!FS_Exists(path.GetBuffer()));
+        return TEST_SUCCESS;
+    if (!FS_IsDirectory(path.GetBuffer()))
+        TEST_FAIL();
+        
+    if (!FS_RecDeleteDir(path.GetBuffer()))
+        TEST_FAIL();
+
+    return TEST_SUCCESS;
 }
 
 TEST_DEFINE(TestStorage)
@@ -26,11 +52,7 @@ TEST_DEFINE(TestStorage)
     char*               p;
     uint64_t            clock;
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Initialization
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Initialization ==============================================================================
     StartClock();
 
     num = 100*1000;
@@ -41,17 +63,17 @@ TEST_DEFINE(TestStorage)
     cache = DCACHE;
     DCACHE->Init(100000000);
 
-    db.Open(".", "db");
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
     table = db.GetTable("TestStorageTable");
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //==============================================================================================
     //
-    // test SET
+    // TestStorage SET test
     //
     // This test might not work on fast machines, because it commits every 1000 msec, but if there
     // are more sets between commits than the cache can contain, then it will assert!
     //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //==============================================================================================
     clock = NowClock();
     sw.Start();
     for (unsigned i = 0; i < num; i++)
@@ -77,18 +99,13 @@ TEST_DEFINE(TestStorage)
     elapsed = sw.Stop();
     TEST_LOG("%u sets took %ld msec", num, elapsed);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // test GET
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // GET all keys ================================================================================
     sw.Reset();
     sw.Start();
     for (unsigned i = 0; i < num; i++)
     {
         k.Writef("%d", i);
-        rk.Wrap(k);
-        if (table->Get(rk, rv))
+        if (table->Get(k, rv))
             ;//PRINTKV()
         else
             ASSERT_FAIL();
@@ -96,28 +113,19 @@ TEST_DEFINE(TestStorage)
     elapsed = sw.Stop();
     TEST_LOG("%u gets took %ld msec", num, elapsed);
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // test DELETE
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // DELETE all keys =============================================================================
     sw.Reset();
     sw.Start();
     for (unsigned i = 0; i < num; i++)
     {
         k.Writef("%d", i);
-        rk.Wrap(k);
-        TEST_ASSERT(table->Delete(rk));
+        TEST_ASSERT(table->Delete(k));
     }
     db.Commit();
     elapsed = sw.Stop();
     TEST_LOG("%u deletes took %ld msec", num, elapsed);
     
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Shutdown
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Shutdown ====================================================================================
     sw.Reset();
     sw.Start();
     db.Close();
@@ -143,30 +151,26 @@ TEST_DEFINE(TestStorageCapacity)
     char*               p;
     unsigned            round;
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Initialization
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    round = 10;
+    // Initialization ==============================================================================
+    round = 1000;
     num = 100*1000;
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
     DCACHE->Init(100000000);
-    db.Open(".", "db");
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable("TestStorageCapacity");
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //==============================================================================================
     //
     // test the number of SETs depending on the size of DCACHE and transaction size
     // e.g. a million key-value pairs take up 248M disk space
     //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    //==============================================================================================
     for (unsigned r = 0; r < round; r++)
     {
-        table = db.GetTable("TestStorageCapacityTable");
-
+        // Set key-values ==========================================================================
         sw.Reset();
         for (unsigned i = 0; i < num; i++)
         {
@@ -183,36 +187,37 @@ TEST_DEFINE(TestStorageCapacity)
             table->Set(rk, rv, false);
             sw.Stop();
         }
-//      printf("reads took %ld msec\n", StorageFile::sw_reads.Elapsed());
-//      printf("test took %ld msec\n", StorageFile::sw_test.Elapsed());
-        
-        printf("%u sets took %ld msec\n", num, sw.Elapsed());
+        TEST_LOG("Round %u: %u sets took %ld msec", r, num, sw.Elapsed());
 
-//      sw.Restart();
-//      for (unsigned i = 0; i < num; i++)
-//      {
-//          k.Writef("%d", i + r * num);
-//          rk.Wrap(k);
-//          if (table->Get(rk, rv))
-//              ;//PRINT()
-//          else
-//              ASSERT_FAIL();
-//      }   
-//      elapsed = sw.Stop();
-//      printf("Round %u: %u gets took %ld msec\n", r, num, elapsed);
+        // Read back key-values ====================================================================
+        sw.Restart();
+        for (unsigned i = 0; i < num; i++)
+        {
+            char key[ksize];
+            len = snprintf(key, ksize, "%011d", i + r * num); // takes 100 ms
+            rk.SetBuffer(key);
+            rk.SetLength(len);
+            // TODO: change rk to k for crash!
+            // The problem is that creating and writing files does not use recovery
+            // so if the program crashes while creating new files, the result will
+            // be an inconsistent database.
+            if (table->Get(rk, rv))
+                ;//PRINT()
+            else
+                ASSERT_FAIL();
+        }   
+        elapsed = sw.Stop();
+        TEST_LOG("Round %u: %u gets took %ld msec", r, num, elapsed);
 
+        // Commit changes ==========================================================================
         sw.Reset();
         sw.Start();
         table->Commit(true /*recovery*/, false /*flush*/);
         elapsed = sw.Stop();
-        TEST_LOG("Commit() took %ld msec", elapsed);
+        TEST_LOG("Round %u: Commit() took %ld msec", r, elapsed);
     }
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Shutdown
-    //
-    ////////////////////////////////////////////////////////////////////////////////////////////////
+    // Shutdown ====================================================================================
     db.Close();
     DCACHE->Shutdown();
     free(area);
@@ -224,6 +229,7 @@ TEST_DEFINE(TestStorageBigTransaction)
 {
     StorageDatabase     db;
     StorageTable*       table;
+    StorageDataCache*   cache;
     Buffer              k, v;
     ReadBuffer          rk, rv;
     Stopwatch           sw;
@@ -232,15 +238,20 @@ TEST_DEFINE(TestStorageBigTransaction)
     char*               area;
     char*               p;
 
+    // Initialization ==============================================================================
     num = 100*1000;
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
     DCACHE->Init(100000000);
+    cache = DCACHE;
+    TEST_ASSERT(cache != NULL);
 
-    db.Open(".", "db");
-    table = db.GetTable("dogs");
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable("TestStorageBigTransaction");
+
+    // SET key-values ==============================================================================
     sw.Reset();
     for (unsigned i = 0; i < num; i++)
     {
@@ -256,21 +267,29 @@ TEST_DEFINE(TestStorageBigTransaction)
         table->Set(rk, rv, false);
         sw.Stop();
     }
-    printf("%u sets took %ld msec\n", num, sw.Elapsed());
+    TEST_LOG("%u sets took %ld msec", num, sw.Elapsed());
+
+    // Commit changes ==============================================================================
     sw.Restart();
     table->Commit(true /*recovery*/, false /*flush*/);
     elapsed = sw.Stop();
-    printf("Commit() took %ld msec\n", elapsed);
+    TEST_LOG("Commit() took %ld msec", elapsed);
 
+    // Shutdown ====================================================================================
     db.Close();
-
     DCACHE->Shutdown();
-    
     free(area);
 
     return TEST_SUCCESS;
 }
 
+/*
+====================================================================================================
+
+ TestStorageBigRandomTransaction
+
+====================================================================================================
+*/
 TEST_DEFINE(TestStorageBigRandomTransaction)
 {
     StorageDatabase     db;
@@ -283,15 +302,17 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
     char*               area;
     char*               p;
 
+    // Initialization ==============================================================================
     num = 1000*1000;
     ksize = 20;
-    vsize = 128;
+    vsize = 64;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(10000000);
+    DCACHE->Init((ksize + vsize) * 2 * num);
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable("TestStorageBigRandomTransaction");
 
-    db.Open(".", "db");
-    table = db.GetTable("dogs");
+    // SET key-values ==============================================================================
     sw.Reset();
     for (unsigned i = 0; i < num; i++)
     {
@@ -307,16 +328,17 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
         table->Set(rk, rv, false);
         sw.Stop();
     }
-    printf("%u sets took %ld msec\n", num, sw.Elapsed());
+    TEST_LOG("%u sets took %ld msec", num, sw.Elapsed());
+
+    // Commit changes ==============================================================================
     sw.Restart();
     table->Commit(true /*recovery*/, false /*flush*/);
     elapsed = sw.Stop();
-    printf("Commit() took %ld msec\n", elapsed);
+    TEST_LOG("Commit() took %ld msec", elapsed);
 
+    // Shutdown ====================================================================================
     db.Close();
-
     DCACHE->Shutdown();
-    
     free(area);
 
     return TEST_SUCCESS;
@@ -335,20 +357,22 @@ TEST_DEFINE(TestStorageShardSize)
     char*               p;
     unsigned            round;
 
+    // Initialization ==============================================================================
     round = 10;
-    num = 100*1000;
+    num = 1000*1000;
     ksize = 20;
-    vsize = 128;
+    vsize = 64;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(10000000);
+    DCACHE->Init(100000000);
 
-    db.Open(".", "db");
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable("TestStorageShardSize");
+
+    // SET key-values ==============================================================================
     // a million key-value pairs take up 248M disk space
     for (unsigned r = 0; r < round; r++)
     {
-        table = db.GetTable("dogs");
-
         sw.Reset();
         for (unsigned i = 0; i < num; i++)
         {
@@ -375,10 +399,10 @@ TEST_DEFINE(TestStorageShardSize)
         printf("Commit() took %ld msec\n", elapsed);
         printf("Shard size: %s\n", SIBytes(table->GetSize()));
     }
+
+    // Shutdown ====================================================================================
     db.Close();
-
     DCACHE->Shutdown();
-
     free(area);
 
     return TEST_SUCCESS;
@@ -406,11 +430,11 @@ TEST_DEFINE(TestStorageShardSplit)
 
     DCACHE->Init(10000000);
 
-    db.Open(".", "db");
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable("TestStorageShardSplit");
     // a million key-value pairs take up 248M disk space
     for (unsigned r = 0; r < round; r++)
     {
-        table = db.GetTable("dogs");
 
         sw.Reset();
         for (unsigned i = 0; i < num; i++)
@@ -461,9 +485,9 @@ TEST_DEFINE(TestStorageFileSplit)
     ReadBuffer          value;
 
     env.InitCache(STORAGE_DEFAULT_CACHE_SIZE);
-    env.Open("db");
-    db = env.GetDatabase("test");
-    table = db->GetTable("split");
+    env.Open(TEST_DATABASE_PATH);
+    db = env.GetDatabase(TEST_DATABASE);
+    table = db->GetTable("TestStorageFileSplit");
 
     // key is empty
     if (!table->ShardExists(key))
@@ -510,9 +534,9 @@ TEST_DEFINE(TestStorageFileThreeWaySplit)
     unsigned            i;
 
     env.InitCache(STORAGE_DEFAULT_CACHE_SIZE);
-    env.Open("db");
-    db = env.GetDatabase("test");
-    table = db->GetTable("threewaysplit");
+    env.Open(TEST_DATABASE_PATH);
+    db = env.GetDatabase(TEST_DATABASE);
+    table = db->GetTable("TestStorageFileThreeWaySplit");
 
     // key is empty
     if (!table->ShardExists(key))

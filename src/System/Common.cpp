@@ -230,6 +230,11 @@ void SeedRandom()
     srandom((unsigned)Now());
 }
 
+void SeedRandomWith(uint64_t seed)
+{
+    srandom((unsigned) seed);
+}
+
 int RandomInt(int min, int max)
 {
     int     rnd;

@@ -43,6 +43,7 @@ bool            Delete(const char* path); // supports wildcards
 
 uint64_t        GenerateGUID();
 void            SeedRandom();
+void            SeedRandomWith(uint64_t seed);
 int             RandomInt(int min, int max);
 void            RandomBuffer(char* buffer, unsigned length);
 

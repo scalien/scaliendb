@@ -36,8 +36,8 @@ TEST_DEFINE(TestClientBasic)
     Client          client;
     Result*         result;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "mediafilter";
-    ReadBuffer      tableName = "users";
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
     ReadBuffer      key = "hol";
     ReadBuffer      resultKey;
     ReadBuffer      value = "peru";

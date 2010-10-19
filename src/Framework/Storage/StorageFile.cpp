@@ -122,8 +122,9 @@ bool StorageFile::Get(ReadBuffer& key, ReadBuffer& value)
 
 bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
-    int32_t     index;
-    ReadBuffer  rb;
+    int32_t             index;
+    ReadBuffer          rb;
+    StorageDataPage*    dataPage;
     
     if (key.GetLength() + value.GetLength() > DATAPAGE_MAX_KV_SIZE(dataPageSize))
         return false;
@@ -136,19 +137,20 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         index = 0;
         assert(numDataPages == 0);
         assert(dataPages[index] == NULL);
-        dataPages[index] = DCACHE->GetPage();
-        DCACHE->Checkin(dataPages[index]);
-        dataPages[index]->SetStorageFileIndex(fileIndex);
-        dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
-        dataPages[index]->SetPageSize(dataPageSize);
-        dataPages[index]->SetFile(this);
+        dataPage = dataPages[index] = DCACHE->GetPage();
+        DCACHE->Checkin(dataPage);
+        dataPage->SetStorageFileIndex(fileIndex);
+        dataPage->SetOffset(DATAPAGE_OFFSET(index));
+        dataPage->SetPageSize(dataPageSize);
+        dataPage->SetFile(this);
         numDataPages++;
         indexPage.Add(key, index, true); // TODO
         MarkPageDirty(&indexPage);
     }
     else
     {
-        rb = dataPages[index]->FirstKey();
+        dataPage = dataPages[index];
+        rb = dataPage->FirstKey();
         if (ReadBuffer::LessThan(key, rb))
         {
 //          printf("Changing index entry for %u to %.*s", index, P(&key));
@@ -157,23 +159,23 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         }
     }
     
-    if (dataPages[index]->HasCursors())
+    if (dataPage->HasCursors())
     {
         // no cache because cursor has the detached copy
-        dataPages[index]->Detach();
-        assert(dataPages[index]->HasCursors() == false);
+        dataPage->Detach();
+        assert(dataPage->HasCursors() == false);
     }
     
-    if (!dataPages[index]->Set(key, value, copy))
+    if (!dataPage->Set(key, value, copy))
     {
-        if (!dataPages[index]->IsDirty())
-            DCACHE->RegisterHit(dataPages[index]);
+        if (!dataPage->IsDirty())
+            DCACHE->RegisterHit(dataPage);
         return true; // nothing changed
     }
     
-    MarkPageDirty(dataPages[index]);
+    MarkPageDirty(dataPage);
     
-    if (dataPages[index]->IsOverflowing())
+    if (dataPage->IsOverflowing())
         SplitDataPage(index);
     
     return true;
