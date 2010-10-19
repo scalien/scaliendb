@@ -20,8 +20,9 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestArrayListRemove);
 //TEST_ADD(TestClientBasic);
 //TEST_ADD(TestClientSet);
-TEST_ADD(TestClientBatchedSet);
+//TEST_ADD(TestClientBatchedSet);
 //TEST_ADD(TestClientCreateTable);
+TEST_ADD(TestClientMaro);
 TEST_EXECUTE();
 
 #ifdef TEST
