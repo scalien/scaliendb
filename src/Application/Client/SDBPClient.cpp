@@ -82,6 +82,8 @@ int Client::Init(int nodec, const char* nodev[])
     masterTime = 0;
     commandID = 0;
     masterCommandID = 0;
+        
+    isBatched = false;
     
     return SDBP_SUCCESS;
 }
@@ -186,6 +188,7 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
         return SDBP_BADSCHEMA;
     
     tableID = table->tableID;
+    Log_Trace("%" PRIu64 "", tableID);
     return SDBP_SUCCESS;
 }
 
@@ -214,7 +217,7 @@ int Client::UseTable(ReadBuffer& name)
     ret = GetTableID(name, databaseID, tableID);
     if (ret != SDBP_SUCCESS)
         return ret;
-    
+    Log_Trace("%" PRIu64 "", tableID);
     isTableSet = true;
     return SDBP_SUCCESS;
 }
@@ -328,6 +331,7 @@ int Client::Set(ReadBuffer& key, ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
+    Log_Trace("%" PRIu64 "", tableID);
     req->Set(NextCommandID(), databaseID, tableID, key, value);
     requests.Append(req);
     
@@ -408,7 +412,9 @@ void Client::EventLoop()
         result->transportStatus = SDBP_API_ERROR;
         return;
     }
-
+    
+    Log_Trace("%" PRIu64 "", databaseID);
+    Log_Trace("%" PRIu64 "", tableID);
     AssignRequestsToQuorums();
     SendQuorumRequests();
     
@@ -576,12 +582,16 @@ void Client::AssignRequestsToQuorums()
     if (requests.GetLength() == 0)
         return;
     
+    Log_Trace("%" PRIu64 "", requests.First()->tableID);
+
     requestsCopy = requests;
     requests.ClearMembers();
 
     for (it = requestsCopy.First(); it != NULL; it = next)
     {
+        Log_Trace("%" PRIu64 "", it->tableID);
         next = requestsCopy.Remove(it);
+        Log_Trace("%" PRIu64 "", it->tableID);
         ReassignRequest(it);
     }
 }
@@ -596,6 +606,7 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     
     assert(configState != NULL);
     table = configState->GetTable(tableID);
+    Log_Trace("%" PRIu64 "", tableID);
     assert(table != NULL);
     for (it = table->shards.First(); it != NULL; it = table->shards.Next(it))
     {
@@ -780,5 +791,5 @@ void Client::OnControllerConnected(ControllerConnection* conn)
 void Client::OnControllerDisconnected(ControllerConnection* conn)
 {
     if (master == (int64_t) conn->GetNodeID())
-        SetMaster(conn->GetNodeID(), -1);
+        SetMaster(-1, conn->GetNodeID());
 }
