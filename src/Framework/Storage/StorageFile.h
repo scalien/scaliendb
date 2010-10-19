@@ -64,6 +64,7 @@ private:
     uint32_t                numDataPageSlots;
     bool                    isOverflowing;
     bool                    newFile;
+    bool                    isDeleted;
     Buffer                  filepath;
     StorageIndexPage        indexPage;
     StorageDataPage**       dataPages;

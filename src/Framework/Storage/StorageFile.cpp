@@ -37,6 +37,7 @@ StorageFile::StorageFile()
     numDataPageSlots = DEFAULT_NUM_DATAPAGES;
 
     isOverflowing = false;
+    isDeleted = false;
     newFile = true;
     
     indexPage.SetOffset(INDEXPAGE_OFFSET);

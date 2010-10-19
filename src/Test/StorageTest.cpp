@@ -42,7 +42,7 @@ TEST_DEFINE(TestStorage)
     DCACHE->Init(100000000);
 
     db.Open(".", "db");
-    table = db.GetTable("dogs");
+    table = db.GetTable("TestStorageTable");
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
     //
@@ -108,7 +108,8 @@ TEST_DEFINE(TestStorage)
         k.Writef("%d", i);
         rk.Wrap(k);
         TEST_ASSERT(table->Delete(rk));
-    }   
+    }
+    db.Commit();
     elapsed = sw.Stop();
     TEST_LOG("%u deletes took %ld msec", num, elapsed);
     
@@ -153,7 +154,7 @@ TEST_DEFINE(TestStorageCapacity)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(10000000);
+    DCACHE->Init(100000000);
     db.Open(".", "db");
 
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -164,7 +165,7 @@ TEST_DEFINE(TestStorageCapacity)
     ////////////////////////////////////////////////////////////////////////////////////////////////
     for (unsigned r = 0; r < round; r++)
     {
-        table = db.GetTable("dogs");
+        table = db.GetTable("TestStorageCapacityTable");
 
         sw.Reset();
         for (unsigned i = 0; i < num; i++)
@@ -231,12 +232,12 @@ TEST_DEFINE(TestStorageBigTransaction)
     char*               area;
     char*               p;
 
-    num = 1000*1000;
+    num = 100*1000;
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(10000000);
+    DCACHE->Init(100000000);
 
     db.Open(".", "db");
     table = db.GetTable("dogs");

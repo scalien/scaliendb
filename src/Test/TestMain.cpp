@@ -4,7 +4,7 @@ TEST_START(TestMain);
 TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestStorage);
 //TEST_ADD(TestStorageCapacity);
-//TEST_ADD(TestStorageBigTransaction);
+TEST_ADD(TestStorageBigTransaction);
 //TEST_ADD(TestStorageBigRandomTransaction);
 //TEST_ADD(TestStorageShardSize);
 //TEST_ADD(TestStorageShardSplit);
