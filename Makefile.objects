@@ -5,6 +5,11 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/Common/ClientResponse.o \
 	$(BUILD_DIR)/Application/Common/ClusterMessage.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigState.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigDatabase.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigQuorum.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigTable.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigShard.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigShardServer.o \
 	$(BUILD_DIR)/Application/HTTP/HTTPConnection.o \
 	$(BUILD_DIR)/Application/HTTP/HTTPFileHandler.o \
 	$(BUILD_DIR)/Application/HTTP/HTTPRequest.o \
