@@ -4,6 +4,7 @@ InSortedList<Timer> Scheduler::timers;
 
 void Scheduler::Add(Timer* timer)
 {
+    assert(timer->next == timer->prev && timer->next == timer);
     timer->OnAdd();
     timer->active = true;
     timers.Add(timer);
