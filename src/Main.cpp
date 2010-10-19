@@ -23,9 +23,11 @@ int main(int argc, char** argv)
     bool                isController;
 
     if (argc < 2)
-        ASSERT_FAIL();
+        STOP_FAIL(1, "Config file argument not given, exiting");
         
-    configFile.Init(argv[1]);
+    if (!configFile.Init(argv[1]))
+        STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
+
     InitLog();
     StartClock();
     IOProcessor::Init(1024);
