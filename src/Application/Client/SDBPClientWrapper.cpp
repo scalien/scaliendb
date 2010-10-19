@@ -67,7 +67,7 @@ std::string SDBP_ResultKey(ResultObj result_)
         return ret;
     
     status = result->GetKey(key);
-    if (status <= 0)
+    if (status < 0)
         return ret;
     
     ret.append(key.GetBuffer(), key.GetLength());
@@ -86,7 +86,7 @@ std::string SDBP_ResultValue(ResultObj result_)
         return ret;
     
     status = result->GetValue(value);
-    if (status <= 0)
+    if (status < 0)
         return ret;
     
     ret.append(value.GetBuffer(), value.GetLength());

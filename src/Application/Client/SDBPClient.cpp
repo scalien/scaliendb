@@ -9,6 +9,16 @@
 
 #define MAX_SERVER_NUM  256
 
+#define VALIDATE_CONFIG_STATE() \
+    if (configState == NULL) \
+    { \
+        result->Close(); \
+        EventLoop(); \
+    } \
+    if (configState == NULL) \
+        return SDBP_NOSERVICE; \
+
+
 using namespace SDBPClient;
 
 static uint64_t Hash(uint64_t h)

@@ -115,8 +115,7 @@ int Result::GetValue(ReadBuffer& value)
         return SDBP_API_ERROR;
     
     request = requestCursor;
-    // TODO: copy the ReadBuffer!
-    value.Wrap(request->response.value.GetBuffer(), request->response.value.GetLength());
+    value.Wrap(*request->response.valueBuffer);
     
     return request->status;
 }
