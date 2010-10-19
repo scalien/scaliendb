@@ -3,6 +3,7 @@
 
 #include "Controller.h"
 #include "HTTPControllerContext.h"
+#include "Application/Common/Application.h"
 #include "Application/HTTP/HTTPServer.h"
 #include "Application/SDBP/SDBPServer.h"
 
@@ -14,9 +15,12 @@
 ===============================================================================================
 */
 
-class ControllerApp
+class ControllerApp : public Application
 {
 public:
+    // ========================================================================================
+    // Application interface:
+    //
     void                    Init();
     void                    Shutdown();
 

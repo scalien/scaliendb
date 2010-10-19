@@ -19,8 +19,7 @@ void InitContextTransport();
 
 int main(int argc, char** argv)
 {
-    ControllerApp       controller;
-    ShardServerApp      shardServer;
+    Application*        app;
     bool                isController;
 
     if (argc < 2)
@@ -35,18 +34,18 @@ int main(int argc, char** argv)
     isController = IsController();  
     Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
     if (isController)
-        controller.Init();
+        app = new ControllerApp;
     else
-        shardServer.Init();
+        app = new ShardServerApp;
+    
+    app->Init();
     
     EventLoop::Init();
     EventLoop::Run();
     EventLoop::Shutdown();
     
-    if (isController)
-        controller.Shutdown();
-    else
-        shardServer.Shutdown();
+    app->Shutdown();
+    delete app;
     
     IOProcessor::Shutdown();
     StopClock();

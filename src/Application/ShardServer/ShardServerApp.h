@@ -3,6 +3,7 @@
 
 #include "ShardServer.h"
 #include "HTTPShardServerContext.h"
+#include "Application/Common/Application.h"
 #include "Application/HTTP/HTTPServer.h"
 #include "Application/SDBP/SDBPServer.h"
 
@@ -14,9 +15,12 @@
 ===============================================================================================
 */
 
-class ShardServerApp
+class ShardServerApp : public Application
 {
 public:
+    // ========================================================================================
+    // Application interface:
+    //
     void                    Init();
     void                    Shutdown();
 

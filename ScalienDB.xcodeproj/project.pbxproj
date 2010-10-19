@@ -443,6 +443,7 @@
 		9AF4CC78126660740036E3B3 /* TestFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestFunction.h; path = Test/TestFunction.h; sourceTree = "<group>"; };
 		9AF4D02E12687DA70036E3B3 /* Database.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Database.java; path = Application/Client/Java/Database.java; sourceTree = "<group>"; };
 		9AF4D030126881380036E3B3 /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Table.java; path = Application/Client/Java/Table.java; sourceTree = "<group>"; };
+		9AF4D55E126DF1050036E3B3 /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Application.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -600,6 +601,7 @@
 				548BDE38125E282B001ED245 /* CatchupMessage.h */,
 				548BDE39125E282B001ED245 /* CatchupMessage.cpp */,
 				548BE6961264C5C8001ED245 /* DatabaseConsts.h */,
+				9AF4D55E126DF1050036E3B3 /* Application.h */,
 			);
 			name = Common;
 			path = Application/Common;
