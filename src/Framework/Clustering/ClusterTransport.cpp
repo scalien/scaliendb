@@ -45,7 +45,7 @@ void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
     if (conn != NULL)
         return;
 
-    if (nodeID == this->nodeID)
+    if (!awaitingNodeID && nodeID == this->nodeID)
         Log_Trace("connecting to self");
 
     conn = new ClusterConnection;
