@@ -25,6 +25,11 @@ void StorageCursor::SetBulk(bool bulk_)
     bulk = bulk_;
 }
 
+StorageKeyValue* StorageCursor::Begin()
+{
+    return Begin(ReadBuffer());
+}
+
 StorageKeyValue* StorageCursor::Begin(ReadBuffer key)
 {
     nextKey.Clear();
