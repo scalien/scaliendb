@@ -11,6 +11,9 @@ void ShardServer::Init()
     const char*     str;
     Endpoint        endpoint;
 
+    databaseAdapter.Init(this);
+    heartbeatManager.Init(this);
+    
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;
     REPLICATION_CONFIG->SetRunID(runID);
