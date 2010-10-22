@@ -74,7 +74,7 @@ void ShardCatchupWriter::SendFirst()
 
     assert(quorumProcessor->GetShards().GetLength() > 0);
     shardID = *(quorumProcessor->GetShards().First());
-    shard = quorumProcessor->GetShardServer()->GetDatabaseAdapter().GetShard(shardID);
+    shard = quorumProcessor->GetShardServer()->GetDatabaseAdapter()->GetShard(shardID);
     assert(shard != NULL);
 
     assert(cursor == NULL);
@@ -124,7 +124,7 @@ void ShardCatchupWriter::SendNext()
     }    
 
     shardID = *itShardID;
-    shard = quorumProcessor->GetShardServer()->GetDatabaseAdapter().GetShard(shardID);
+    shard = quorumProcessor->GetShardServer()->GetDatabaseAdapter()->GetShard(shardID);
     assert(shard != NULL);
 
     msg.BeginShard(shardID);

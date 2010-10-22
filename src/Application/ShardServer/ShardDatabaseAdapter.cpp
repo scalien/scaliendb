@@ -32,9 +32,9 @@ void ShardDatabaseAdapter::Shutdown()
     environment.Close();
 }
 
-StorageEnvironment& ShardDatabaseAdapter::GetEnvironment()
+StorageEnvironment* ShardDatabaseAdapter::GetEnvironment()
 {
-    return environment;
+    return &environment;
 }
 
 StorageTable* ShardDatabaseAdapter::GetQuorumTable(uint64_t quorumID)
@@ -60,7 +60,7 @@ StorageShard* ShardDatabaseAdapter::GetShard(uint64_t shardID)
     ConfigShard*    shard;
     StorageTable*   table;
     
-    shard = shardServer->GetConfigState().GetShard(shardID);
+    shard = shardServer->GetConfigState()->GetShard(shardID);
     if (!shard)
         return NULL;
     
@@ -82,7 +82,7 @@ void ShardDatabaseAdapter::SetShards(List<uint64_t>& shards)
 
     for (sit = shards.First(); sit != NULL; sit = shards.Next(sit))
     {
-        shard = shardServer->GetConfigState().GetShard(*sit);
+        shard = shardServer->GetConfigState()->GetShard(*sit);
         assert(shard != NULL);
         
         if (!databases.Get(shard->databaseID, database))

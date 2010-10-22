@@ -26,9 +26,9 @@ public:
     void                    Shutdown();
     
     ShardQuorumProcessor*   GetQuorumProcessor(uint64_t quorumID);
-    QuorumProcessorList&    GetQuorumProcessors();
-    ShardDatabaseAdapter&   GetDatabaseAdapter();
-    ConfigState&            GetConfigState();
+    QuorumProcessorList*    GetQuorumProcessors();
+    ShardDatabaseAdapter*   GetDatabaseAdapter();
+    ConfigState*            GetConfigState();
 
     void                    BroadcastToControllers(Message& message);
 

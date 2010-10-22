@@ -87,7 +87,7 @@ void ShardHTTPClientSession::PrintStatus()
 
     totalSpace = FS_DiskSpace(configFile.GetValue("database.dir", "db"));
     freeSpace = FS_FreeDiskSpace(configFile.GetValue("database.dir", "db"));
-    diskUsage = shardServer->GetDatabaseAdapter().GetEnvironment().GetSize();
+    diskUsage = shardServer->GetDatabaseAdapter()->GetEnvironment()->GetSize();
     valbuf.Writef("%s (Total %s, Free %s)", 
      HumanBytes(diskUsage), HumanBytes(totalSpace), HumanBytes(freeSpace));
     session.PrintPair("Disk usage", valbuf);
@@ -98,14 +98,14 @@ void ShardHTTPClientSession::PrintStatus()
     session.PrintPair("Cache usage", valbuf);
 
     // write quorums, shards, and leases
-    ShardServer::QuorumProcessorList& quorumProcessors = shardServer->GetQuorumProcessors();
+    ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
 
     
-    valbuf.Writef("%u", quorumProcessors.GetLength());
+    valbuf.Writef("%u", quorumProcessors->GetLength());
     valbuf.NullTerminate();
     session.PrintPair("Number of quorums", valbuf.GetBuffer());
     
-    FOREACH(it, quorumProcessors)
+    FOREACH(it, *quorumProcessors)
     {
         primaryID = shardServer->GetLeaseOwner(it->GetQuorumID());
         

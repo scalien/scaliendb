@@ -34,14 +34,14 @@ void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
     if (!isActive)
         return;
 
-    cshard = quorumProcessor->GetShardServer()->GetConfigState().GetShard(msg.shardID);
+    cshard = quorumProcessor->GetShardServer()->GetConfigState()->GetShard(msg.shardID);
     if (!cshard)
     {
         ASSERT_FAIL();
         return;
     }
         
-    table = quorumProcessor->GetShardServer()->GetDatabaseAdapter().GetTable(cshard->tableID);
+    table = quorumProcessor->GetShardServer()->GetDatabaseAdapter()->GetTable(cshard->tableID);
     if (!table)
     {
         ASSERT_FAIL();

@@ -34,8 +34,8 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         return;
     }
 
-    ShardServer::QuorumProcessorList quorumProcessors = shardServer->GetQuorumProcessors();
-    FOREACH(itQuorumProcessor, quorumProcessors)
+    ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
+    FOREACH(itQuorumProcessor, *quorumProcessors)
     {
         quorumPaxosID.quorumID = itQuorumProcessor->GetQuorumID();
         quorumPaxosID.paxosID = itQuorumProcessor->GetPaxosID();

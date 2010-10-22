@@ -24,7 +24,7 @@ public:
     void                    Init(ShardServer* shardServer);
     void                    Shutdown();
     
-    StorageEnvironment&     GetEnvironment();
+    StorageEnvironment*     GetEnvironment();
     
     StorageTable*           GetQuorumTable(uint64_t quorumID);
     

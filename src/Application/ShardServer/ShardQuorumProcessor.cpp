@@ -6,6 +6,8 @@
 
 ShardQuorumProcessor::ShardQuorumProcessor()
 {
+    next = prev = this;
+
     requestLeaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnRequestLeaseTimeout));
     requestLeaseTimeout.SetDelay(PRIMARYLEASE_REQUEST_TIMEOUT);
     
@@ -19,7 +21,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     isPrimary = false;
     proposalID = 0;
     quorumContext.Init(configQuorum, this,
-     shardServer->GetDatabaseAdapter().GetQuorumTable(configQuorum->quorumID));
+     shardServer->GetDatabaseAdapter()->GetQuorumTable(configQuorum->quorumID));
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
 }
 
@@ -201,7 +203,7 @@ void ShardQuorumProcessor::OnClientRequestGet(ClientRequest* request)
     ReadBuffer      key;
     ReadBuffer      value;
 
-    table = shardServer->GetDatabaseAdapter().GetTable(request->tableID);
+    table = shardServer->GetDatabaseAdapter()->GetTable(request->tableID);
     if (!table)
     {
         request->response.Failed();
@@ -246,7 +248,7 @@ void ShardQuorumProcessor::ProcessMessage(ShardMessage& message, bool ownAppend)
     StorageTable*       table;
     ClientRequest*      request;
 
-    table = shardServer->GetDatabaseAdapter().GetTable(message.tableID);
+    table = shardServer->GetDatabaseAdapter()->GetTable(message.tableID);
     if (!table)
         ASSERT_FAIL();
     

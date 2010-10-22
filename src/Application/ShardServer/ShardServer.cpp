@@ -59,19 +59,19 @@ ShardQuorumProcessor* ShardServer::GetQuorumProcessor(uint64_t quorumID)
     return NULL;
 }
 
-ShardServer::QuorumProcessorList& ShardServer::GetQuorumProcessors()
+ShardServer::QuorumProcessorList* ShardServer::GetQuorumProcessors()
 {
-    return quorumProcessors;
+    return &quorumProcessors;
 }
 
-ShardDatabaseAdapter& ShardServer::GetDatabaseAdapter()
+ShardDatabaseAdapter* ShardServer::GetDatabaseAdapter()
 {
-    return databaseAdapter;
+    return &databaseAdapter;
 }
 
-ConfigState& ShardServer::GetConfigState()
+ConfigState* ShardServer::GetConfigState()
 {
-    return configState;
+    return &configState;
 }
 
 void ShardServer::BroadcastToControllers(Message& message)
