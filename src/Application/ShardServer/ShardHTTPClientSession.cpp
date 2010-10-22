@@ -1,4 +1,4 @@
-#include "HTTPShardServerSession.h"
+#include "ShardHTTPClientSession.h"
 #include "ShardServer.h"
 #include "System/Config.h"
 #include "System/FileSystem.h"
@@ -8,18 +8,18 @@
 #include "Framework/Storage/StorageDataCache.h"
 #include "Version.h"
 
-void HTTPShardServerSession::SetShardServer(ShardServer* shardServer_)
+void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
 {
     shardServer = shardServer_;
 }
 
-void HTTPShardServerSession::SetConnection(HTTPConnection* conn_)
+void ShardHTTPClientSession::SetConnection(HTTPConnection* conn_)
 {
     session.SetConnection(conn_);
-    conn_->SetOnClose(MFUNC(HTTPShardServerSession, OnConnectionClose));
+    conn_->SetOnClose(MFUNC(ShardHTTPClientSession, OnConnectionClose));
 }
 
-bool HTTPShardServerSession::HandleRequest(HTTPRequest& request)
+bool ShardHTTPClientSession::HandleRequest(HTTPRequest& request)
 {
     ReadBuffer  cmd;
     UrlParam    params;
@@ -28,7 +28,7 @@ bool HTTPShardServerSession::HandleRequest(HTTPRequest& request)
     return ProcessCommand(cmd, params);
 }
 
-void HTTPShardServerSession::OnComplete(ClientRequest* request, bool last)
+void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
 {
     Buffer          tmp;
     ReadBuffer      rb;
@@ -63,12 +63,12 @@ void HTTPShardServerSession::OnComplete(ClientRequest* request, bool last)
     }
 }
 
-bool HTTPShardServerSession::IsActive()
+bool ShardHTTPClientSession::IsActive()
 {
     return true;
 }
 
-void HTTPShardServerSession::PrintStatus()
+void ShardHTTPClientSession::PrintStatus()
 {
     Buffer                      keybuf;
     Buffer                      valbuf;
@@ -121,7 +121,7 @@ void HTTPShardServerSession::PrintStatus()
     session.Flush();
 }
 
-bool HTTPShardServerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
+bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
 {
     ClientRequest*  request;
     
@@ -141,7 +141,7 @@ bool HTTPShardServerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
     return true;
 }
 
-ClientRequest* HTTPShardServerSession::ProcessShardServerCommand(ReadBuffer& cmd, UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd, UrlParam& params)
 {
     if (HTTP_MATCH_COMMAND(cmd, "get"))
         return ProcessGet(params);
@@ -153,7 +153,7 @@ ClientRequest* HTTPShardServerSession::ProcessShardServerCommand(ReadBuffer& cmd
     return NULL;
 }
 
-ClientRequest* HTTPShardServerSession::ProcessGet(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessGet(UrlParam& params)
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -171,7 +171,7 @@ ClientRequest* HTTPShardServerSession::ProcessGet(UrlParam& params)
     return request;    
 }
 
-ClientRequest* HTTPShardServerSession::ProcessSet(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessSet(UrlParam& params)
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -190,7 +190,7 @@ ClientRequest* HTTPShardServerSession::ProcessSet(UrlParam& params)
     return request;    
 }
 
-ClientRequest* HTTPShardServerSession::ProcessDelete(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessDelete(UrlParam& params)
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -208,7 +208,7 @@ ClientRequest* HTTPShardServerSession::ProcessDelete(UrlParam& params)
     return request;    
 }
 
-void HTTPShardServerSession::OnConnectionClose()
+void ShardHTTPClientSession::OnConnectionClose()
 {
     shardServer->OnClientClose(this);
     session.SetConnection(NULL);

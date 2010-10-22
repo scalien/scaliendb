@@ -2,7 +2,7 @@
 #define SHARDSERVERAPP_H
 
 #include "ShardServer.h"
-#include "HTTPShardServerContext.h"
+#include "ShardHTTPHandler.h"
 #include "Application/Common/Application.h"
 #include "Application/HTTP/HTTPServer.h"
 #include "Application/SDBP/SDBPServer.h"
@@ -28,7 +28,7 @@ private:
     ShardServer             shardServer;
 
     HTTPServer              httpServer;
-    HTTPShardServerContext  httpContext;
+    ShardHTTPHandler        httpContext;
 
     SDBPServer              sdbpServer;
 };

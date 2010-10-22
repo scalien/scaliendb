@@ -11,12 +11,12 @@ class UrlParam;         // forward
 /*
 ===============================================================================================
 
- HTTPShardServerSession
+ ShardHTTPClientSession
 
 ===============================================================================================
 */
 
-class HTTPShardServerSession : public ClientSession
+class ShardHTTPClientSession : public ClientSession
 {
 public:
     void                SetShardServer(ShardServer* shardServer);

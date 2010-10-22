@@ -8,12 +8,12 @@ class ShardServer;
 /*
 ===============================================================================================
 
- HTTPControllerContext
+ ShardHTTPHandler
 
 ===============================================================================================
 */
 
-class HTTPShardServerContext : public HTTPHandler
+class ShardHTTPHandler : public HTTPHandler
 {
 public:
     void            SetShardServer(ShardServer* shardServer);
