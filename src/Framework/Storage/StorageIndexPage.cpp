@@ -47,7 +47,8 @@ void StorageIndexPage::SetNumDataPageSlots(uint32_t numDataPageSlots_)
 
 void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 {
-    StorageKeyIndex* ki;
+    StorageKeyIndex*    ki;
+    bool                ret;
     
     required += INDEXPAGE_KV_OVERHEAD + key.GetLength();
 
@@ -57,7 +58,8 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     
     keys.Insert(ki);
     
-    freeDataPages.Remove(index);
+    ret = freeDataPages.Remove(index);
+    assert(ret == true);
     
     if ((int32_t) index > maxDataPageIndex)
         maxDataPageIndex = index;

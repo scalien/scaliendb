@@ -1,6 +1,38 @@
 #include "FileSystem.h"
 #include "Log.h"
 
+#include <string.h>
+
+/*
+===============================================================================================
+
+ Platform independent functionality
+
+===============================================================================================
+*/
+
+bool FS_IsSpecial(const char* path)
+{
+    size_t  len;
+    
+    len = strlen(path);
+
+    if (len == 1 && path[0] == '.')
+        return true;
+    if (len == 2 && path[0] == '.' && path[1] == '.')
+        return true;
+    
+    return false;
+}
+
+/*
+===============================================================================================
+
+ Unix compatible filesystem
+
+===============================================================================================
+*/
+
 #ifndef PLATFORM_WINDOWS
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -233,21 +265,42 @@ bool FS_RecDeleteDir(const char* path)
     FS_Dir      dir;
     FS_DirEntry entry;
     bool        ret;
+    const char* dirname;
+    size_t      pathlen;
+    size_t      tmplen;
+    char*       tmp;
     
     if (!FS_IsDirectory(path))
+        return false;
+
+    if (FS_IsSpecial(path))
         return false;
     
     dir = FS_OpenDir(path);
     if (dir == FS_INVALID_DIR)
         return false;
     
+    pathlen = strlen(path);
     while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
     {
-        if (FS_IsDirectory(FS_DirEntryName(entry)))
-            ret = FS_RecDeleteDir(FS_DirEntryName(entry));
+        dirname = FS_DirEntryName(entry);
+        if (FS_IsSpecial(dirname))
+            continue;
+        
+        // create relative path in temporary buffer
+        tmplen = pathlen + 1 + strlen(dirname) + 1;
+        tmp = new char[tmplen];
+        memcpy(tmp, path, pathlen);
+        tmp[pathlen] = FS_Separator();
+        memcpy(tmp + pathlen + 1, dirname, strlen(dirname));
+        tmp[tmplen - 1] = '\0';
+        
+        if (FS_IsDirectory(tmp))
+            ret = FS_RecDeleteDir(tmp);
         else
-            ret = FS_Delete(FS_DirEntryName(entry));
+            ret = FS_Delete(tmp);
 
+        delete[] tmp;
         if (!ret)
             return false;
     }
@@ -350,6 +403,14 @@ char FS_Separator()
 
 #else
 
+/*
+===============================================================================================
+
+ Windows filesystem
+
+===============================================================================================
+*/
+
 // TODO: Windows port
 
 int64_t FS_FreeDiskSpace(const char* path)
@@ -359,6 +420,11 @@ int64_t FS_FreeDiskSpace(const char* path)
     if (!GetDiskFreeSpaceEx(path, &bytes, NULL, NULL))
         return -1;
     return bytes.QuadPart;
+}
+
+char FS_Separator()
+{
+    return '\\';
 }
 
 #endif

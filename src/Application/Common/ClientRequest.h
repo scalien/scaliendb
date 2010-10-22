@@ -38,7 +38,8 @@ public:
     
     ClientRequest();
     
-    void OnComplete(bool last = true);
+    void            Init();
+    void            OnComplete(bool last = true);
 
     bool            IsControllerRequest();
     bool            IsShardServerRequest();

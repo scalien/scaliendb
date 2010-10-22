@@ -132,11 +132,11 @@ public:
     typedef InList<DataMessage>     MessageList;
     typedef InList<ClientRequest>   RequestList;
     typedef List<uint64_t>          ShardList;
+    typedef ConfigQuorum::NodeList  NodeList;
 
     QuorumData();
 
     bool            isPrimary;
-    bool            isActive;
 
     uint64_t        quorumID;
     uint64_t        proposalID;
@@ -147,7 +147,7 @@ public:
     uint64_t        requestedLeaseExpireTime;
     Timer           leaseTimeout;
     uint64_t        configID;
-    ConfigQuorum::NodeList  activeNodes;
+    NodeList        activeNodes;
     
     QuorumData*     prev;
     QuorumData*     next;

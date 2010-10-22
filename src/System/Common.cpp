@@ -34,7 +34,7 @@ unsigned NumDigits64(uint64_t n)
     return d;
 }
 
-const char* HumanBytes_(uint64_t bytes, char buf[5])
+const char* HumanBytes(uint64_t bytes, char buf[5])
 {
     const char  units[] = "kMGTPEZY";
     uint64_t    n;
@@ -52,7 +52,7 @@ const char* HumanBytes_(uint64_t bytes, char buf[5])
     return buf;
 }
 
-const char* SIBytes_(uint64_t bytes, char buf[5])
+const char* SIBytes(uint64_t bytes, char buf[5])
 {
     const char  units[] = "kMGTPEZY";
     uint64_t    n;

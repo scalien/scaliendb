@@ -5,6 +5,7 @@ TCPWriter::TCPWriter(TCPConnection* conn_, BufferPool* pool_)
 {
     conn = conn_;
     writeBuffer = NULL;
+    queuedBytes = 0;
     
     if (pool_ == NULL)
         pool = DEFAULT_BUFFERPOOL;
@@ -41,24 +42,8 @@ void TCPWriter::Write(const char* p, unsigned length)
     
     buffer = pool->Acquire(length);
     buffer->Write(p, length);
-    queue.Enqueue(buffer);  
-}
-
-void TCPWriter::WritePriority(const char* p, unsigned length)
-{
-    Buffer* buffer;
-
-    if (!p || length == 0)
-        return;
-    
-    buffer = pool->Acquire(length);
-    buffer->Write(p, length);
-    queue.EnqueuePriority(buffer);  
-}
-
-void TCPWriter::WritePriority(Buffer* buffer)
-{
-    WritePriority(buffer->GetBuffer(), buffer->GetLength());
+    queue.Enqueue(buffer);
+    queuedBytes += buffer->GetLength();
 }
 
 void TCPWriter::WritePooled(Buffer* buffer)
@@ -70,23 +55,23 @@ void TCPWriter::WritePooled(Buffer* buffer)
     }
 
     queue.Enqueue(buffer);
-}
-
-void TCPWriter::WritePooledPriority(Buffer* buffer)
-{
-    if (!buffer || buffer->GetLength() == 0)
-    {
-        pool->Release(buffer);
-        return;
-    }
-    
-    queue.EnqueuePriority(buffer);
+    queuedBytes += buffer->GetLength();
 }
 
 void TCPWriter::Flush()
 {
     Log_Trace();
     conn->OnWritePending();
+}
+
+unsigned TCPWriter::GetQueueLength()
+{
+    return queue.GetLength();
+}
+
+unsigned TCPWriter::GetQueuedBytes()
+{
+    return queuedBytes;
 }
 
 Buffer* TCPWriter::GetNext()
@@ -99,6 +84,7 @@ Buffer* TCPWriter::GetNext()
         return NULL;
     
     writeBuffer = queue.Dequeue();
+    queuedBytes -= writeBuffer->GetLength();
     return writeBuffer;
 }
 
@@ -121,6 +107,7 @@ void TCPWriter::OnClose()
         pool->Release(writeBuffer);
 
     writeBuffer = NULL;
+    queuedBytes = 0;
     
     while (queue.GetLength() > 0)
         pool->Release(queue.Dequeue());

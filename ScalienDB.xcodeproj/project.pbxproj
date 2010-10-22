@@ -89,9 +89,6 @@
 		9A26D6A311F4BDE2006A2814 /* JSONSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69811F4BDE2006A2814 /* JSONSession.cpp */; };
 		9A26D6A411F4BDE2006A2814 /* Mime.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69A11F4BDE2006A2814 /* Mime.cpp */; };
 		9A26D6A511F4BDE2006A2814 /* UrlParam.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */; };
-		9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
-		9A87418E12282946000B1319 /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
-		9A87419012282946000B1319 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
 		9A9AA1C7125DC30F00681840 /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */; };
 		9A9AA1C8125DC30F00681840 /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */; };
 		9A9AA747125E6BB900681840 /* SDBPClientWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */; };
@@ -157,9 +154,7 @@
 		9AABCC6012564924003626AC /* SDBPClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB81E12411592003626AC /* SDBPClient.cpp */; };
 		9AABCD881257D8CE003626AC /* JSONConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABCD411257CF93003626AC /* JSONConfigState.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
-		9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2575123010A300247703 /* StorageDataCache.cpp */; };
-		9ACF29511235569100247703 /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29501235569100247703 /* FileSystemTest.cpp */; };
 		9ACF29C01236519E00247703 /* StorageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29BF1236519E00247703 /* StorageTable.cpp */; };
 		9ACF2B241236944100247703 /* StorageShardIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2B231236944100247703 /* StorageShardIndex.cpp */; };
 		9ACF2D721237975900247703 /* StorageFileHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF2D711237975900247703 /* StorageFileHeader.cpp */; };
@@ -169,6 +164,11 @@
 		9AF4D167126B92970036E3B3 /* ConfigShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 547E27B6126B1602000B8E04 /* ConfigShardServer.cpp */; };
 		9AF4D16A126B92A20036E3B3 /* ConfigQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889566126B3D28007CC6B2 /* ConfigQuorum.cpp */; };
 		9AF4D16D126B92AB0036E3B3 /* ConfigShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488956D126B3D84007CC6B2 /* ConfigShard.cpp */; };
+		9AF4D586126E2D2D0036E3B3 /* StorageRecoveryLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4D585126E2D2D0036E3B3 /* StorageRecoveryLog.cpp */; };
+		9AF4D587126E2D2D0036E3B3 /* StorageRecoveryLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4D585126E2D2D0036E3B3 /* StorageRecoveryLog.cpp */; };
+		9AF4DCAA12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */; };
+		9AF4DCAB12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */; };
+		9AF4DDCE1270C8290036E3B3 /* FormattingTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -444,6 +444,11 @@
 		9AF4D02E12687DA70036E3B3 /* Database.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Database.java; path = Application/Client/Java/Database.java; sourceTree = "<group>"; };
 		9AF4D030126881380036E3B3 /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Table.java; path = Application/Client/Java/Table.java; sourceTree = "<group>"; };
 		9AF4D55E126DF1050036E3B3 /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Application.h; sourceTree = "<group>"; };
+		9AF4D584126E2D2D0036E3B3 /* StorageRecoveryLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageRecoveryLog.h; sourceTree = "<group>"; };
+		9AF4D585126E2D2D0036E3B3 /* StorageRecoveryLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageRecoveryLog.cpp; sourceTree = "<group>"; };
+		9AF4DCA812709FA70036E3B3 /* ClientRequestCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientRequestCache.h; sourceTree = "<group>"; };
+		9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientRequestCache.cpp; sourceTree = "<group>"; };
+		9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FormattingTest.cpp; path = Test/FormattingTest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -589,6 +594,8 @@
 			isa = PBXGroup;
 			children = (
 				5487BC38123A5E2000C235BA /* ClientSession.h */,
+				9AF4DCA812709FA70036E3B3 /* ClientRequestCache.h */,
+				9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */,
 				5487BC3A123A5E2000C235BA /* ClientRequest.h */,
 				5487BC39123A5E2000C235BA /* ClientRequest.cpp */,
 				5487BC3C123A5E2000C235BA /* ClientResponse.h */,
@@ -681,6 +688,8 @@
 				9ACF2D711237975900247703 /* StorageFileHeader.cpp */,
 				9A9AA1C5125DC30F00681840 /* StorageEnvironment.h */,
 				9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */,
+				9AF4D584126E2D2D0036E3B3 /* StorageRecoveryLog.h */,
+				9AF4D585126E2D2D0036E3B3 /* StorageRecoveryLog.cpp */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -922,6 +931,7 @@
 				9ACF29501235569100247703 /* FileSystemTest.cpp */,
 				9AABB9C71243B3A9003626AC /* ClientTest.cpp */,
 				9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */,
+				9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */,
 			);
 			name = Test;
 			sourceTree = "<group>";
@@ -1103,18 +1113,13 @@
 				54AB8722122821EF00721A0F /* StorageCursor.cpp in Sources */,
 				54AB8723122821EF00721A0F /* StorageFile.cpp in Sources */,
 				54AB8724122821EF00721A0F /* StorageIndexPage.cpp in Sources */,
-				9A87418C12282946000B1319 /* InTreeMapTest.cpp in Sources */,
-				9A87418E12282946000B1319 /* Test.c in Sources */,
-				9A87419012282946000B1319 /* TimeTest.cpp in Sources */,
 				54AB8936122C176600721A0F /* StoragePage.cpp in Sources */,
 				54AB8D54122E60E800721A0F /* StorageDatabase.cpp in Sources */,
 				9ACF203F122E942900247703 /* FileSystem.cpp in Sources */,
 				54AB90E0122F98CE00721A0F /* StorageKeyValue.cpp in Sources */,
 				54AB90E5122F994B00721A0F /* StorageKeyIndex.cpp in Sources */,
 				54AB90EA122F99C300721A0F /* StorageFileIndex.cpp in Sources */,
-				9ACF23DF122FDEBE00247703 /* Timings.cpp in Sources */,
 				9ACF2576123010A300247703 /* StorageDataCache.cpp in Sources */,
-				9ACF29511235569100247703 /* FileSystemTest.cpp in Sources */,
 				9ACF29C01236519E00247703 /* StorageTable.cpp in Sources */,
 				9ACF2B241236944100247703 /* StorageShardIndex.cpp in Sources */,
 				9ACF2D721237975900247703 /* StorageFileHeader.cpp in Sources */,
@@ -1153,6 +1158,8 @@
 				54889567126B3D28007CC6B2 /* ConfigQuorum.cpp in Sources */,
 				5488956A126B3D55007CC6B2 /* ConfigTable.cpp in Sources */,
 				5488956E126B3D84007CC6B2 /* ConfigShard.cpp in Sources */,
+				9AF4D587126E2D2D0036E3B3 /* StorageRecoveryLog.cpp in Sources */,
+				9AF4DCAB12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1221,6 +1228,9 @@
 				9AF4D167126B92970036E3B3 /* ConfigShardServer.cpp in Sources */,
 				9AF4D16A126B92A20036E3B3 /* ConfigQuorum.cpp in Sources */,
 				9AF4D16D126B92AB0036E3B3 /* ConfigShard.cpp in Sources */,
+				9AF4D586126E2D2D0036E3B3 /* StorageRecoveryLog.cpp in Sources */,
+				9AF4DCAA12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */,
+				9AF4DDCE1270C8290036E3B3 /* FormattingTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1311,7 +1321,6 @@
 				);
 				PREBINDING = NO;
 				PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES;
-				PRELINK_LIBS = db_cxx;
 				SCAN_ALL_SOURCE_FILES_FOR_INCLUDES = NO;
 				SDKROOT = macosx10.5;
 				USER_HEADER_SEARCH_PATHS = "";
@@ -1375,6 +1384,11 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
 				INSTALL_PATH = /usr/local/bin;
+				OTHER_CPLUSPLUSFLAGS = (
+					"-DPLATFORM_DARWIN",
+					"-D__STDC_FORMAT_MACROS",
+					"-DTEST",
+				);
 				PREBINDING = NO;
 				PRODUCT_NAME = TestMain;
 				ZERO_LINK = NO;

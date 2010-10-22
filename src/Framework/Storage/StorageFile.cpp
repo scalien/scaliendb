@@ -602,6 +602,7 @@ void StorageFile::SplitDataPage(uint32_t index)
     uint32_t            newIndex;
     StorageDataPage*    newPage;
 
+    assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
     if (numDataPages < numDataPageSlots)
     {
         // make a copy of data

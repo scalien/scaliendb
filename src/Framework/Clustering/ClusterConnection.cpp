@@ -70,9 +70,10 @@ void ClusterConnection::OnConnect()
     else
         buffer.Writef("%U:%#R", transport->GetSelfNodeID(), &rb); // send my nodeID:endpoint
     Log_Trace("sending %.*s", P(&buffer));
-    WritePriority(buffer);
+    Write(buffer);
     
     Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
+    Log_Message("[%s]: [%" PRIu64 "] Node connected", endpoint.ToString(), nodeID);
 
     progress = READY;
     OnWriteReadyness();
@@ -85,6 +86,7 @@ void ClusterConnection::OnClose()
     if (connectTimeout.IsActive())
         return;
     
+    Log_Message("[%s]: [%" PRIu64 "] Node disconnected", endpoint.ToString(), nodeID);
     MessageConnection::Close();
     
     if (progress == INCOMING)
@@ -149,7 +151,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             else if (nodeID_ != transport->GetSelfNodeID())
             {
                 Log_Trace("delete this");
-                transport->DeleteConnection(this);       // drop this
+                transport->DeleteConnection(this);      // drop this
                 return true;
             }
         }
@@ -157,6 +159,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         nodeID = nodeID_;
         endpoint.Set(buffer);
         Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
+        Log_Message("[%s]: [%" PRIu64 "] Node connected", endpoint.ToString(), nodeID);
         transport->AddConnection(this);
         transport->OnConnectionReady(nodeID, endpoint);
         transport->OnWriteReadyness(this);

@@ -90,11 +90,11 @@ void HTTPShardServerSession::PrintStatus()
     freeSpace = FS_FreeDiskSpace(configFile.GetValue("database.dir", "db"));
     diskUsage = shardServer->GetEnvironment().GetSize();
     valbuf.Writef("%s (Total %s, Free %s)", 
-     HumanBytes(diskUsage), HumanBytes(totalSpace), HumanBytes(freeSpace));
+     HUMAN_BYTES(diskUsage), HUMAN_BYTES(totalSpace), HUMAN_BYTES(freeSpace));
     session.PrintPair("Disk usage", valbuf);
 
     valbuf.Writef("%s (Used %s, %U%%)",
-     HumanBytes(DCACHE->GetTotalSize()), HumanBytes(DCACHE->GetUsedSize()),
+     HUMAN_BYTES(DCACHE->GetTotalSize()), HUMAN_BYTES(DCACHE->GetUsedSize()),
      (uint64_t) (DCACHE->GetUsedSize() / (float) DCACHE->GetTotalSize() * 100.0 + 0.5));
     session.PrintPair("Cache usage", valbuf);
 

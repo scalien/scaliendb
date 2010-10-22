@@ -14,7 +14,6 @@ void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
     activeNodes = configQuorum->GetVolatileActiveNodes();
     UpdateConfig(activeNodes);
     
-//  transport.SetPriority(); // TODO
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     

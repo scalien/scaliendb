@@ -20,7 +20,7 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     endpoint = endpoint_;
     // TODO: HACK: see comments in ShardServerApp!
     endpoint.SetPort(endpoint.GetPort() + 1);
-    writeBuffer = NULL;
+    autoFlush = false;
     Connect();
 }
 
@@ -38,28 +38,25 @@ bool ShardConnection::SendRequest(Request* request)
     msg.request = request;
     Write(msg);
     request->numTry++;
+    request->requestTime = EventLoop::Now();
+    //request->requestTime = NowClock();
     
-    // TODO: buffering
-//    if (writeBuffer == NULL)
-//        writeBuffer = writer->AcquireBuffer(CONN_BUFSIZE);
-//    
-//    msg.Write(*writeBuffer);
-//    request->numTry++;
-//
-//    if (writeBuffer->GetLength() >= CONN_BUFSIZE)
-//    {
-//        writer->WritePooled(writeBuffer);
-//        writer->Flush();
-//        writeBuffer = NULL;
-//        return false;
-//    }
-
+    // buffer is saturated
+    if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
+        return false;
+    
     return true;
 }
 
 void ShardConnection::SendSubmit()
 {
     // TODO: submit request
+    Flush();
+}
+
+void ShardConnection::Flush()
+{
+    FlushWriteBuffer();
 }
 
 uint64_t ShardConnection::GetNodeID()
@@ -100,25 +97,21 @@ SortedList<uint64_t>& ShardConnection::GetQuorumList()
 
 bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 {
-    ClientResponse*     resp;
     SDBPResponseMessage msg;
     Request*            it;
     uint64_t            quorumID;
     
     Log_Trace();
+    //Log_Message("%.*s", P(&rbuf));
     
-    resp = new ClientResponse;
-    msg.response = resp;
+    msg.response = &response;
     if (!msg.Read(rbuf))
-    {
-        delete resp;
         return false;
-    }
     
     // find the request in sent requests by commandID
     for (it = sentRequests.First(); it != NULL; it = sentRequests.Next(it))
     {
-        if (it->commandID == resp->commandID)
+        if (it->commandID == response.commandID)
         {
             assert(it == sentRequests.First());
             break;
@@ -127,27 +120,21 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     
     // not found
     if (it == NULL)
-    {
-        delete resp;
         return false;
-    }
 
     // TODO: what to do when the first in the queue returns NOSERVICE
     // but the others return OK ?!?
 
     // TODO: invalidate quorum state on NOSERVICE response
-    if (resp->type == CLIENTRESPONSE_NOSERVICE)
+    if (response.type == CLIENTRESPONSE_NOSERVICE)
     {
         quorumID = it->quorumID;
         InvalidateQuorum(quorumID);
-        delete resp;
         return false;
     }
     
     sentRequests.Remove(it);
-
-    if (!client->result->AppendRequestResponse(resp))
-        delete resp;        
+    client->result->AppendRequestResponse(&response);
 
     return false;
 }

@@ -7,6 +7,141 @@
 #include "Buffers/Buffer.h"
 #include "Buffers/ReadBuffer.h"
 
+// this works the same as snprintf(buf, bufsize, "%" PRIu64, value) would do
+static int UInt64ToBuffer(char* buf, size_t bufsize, uint64_t value)
+{
+    char        tmp[CS_INT_SIZE(uint64_t)];
+    unsigned    d;
+
+    // special case
+    if (value == 0)
+    {
+        if (bufsize == 0)
+            return 1;
+            
+        if (bufsize > 0)
+            buf[0] = '0';
+        else
+            buf[0] = 0;
+            
+        if (bufsize > 1)
+            buf[1] = 0;
+
+        return 1;
+    }
+
+    // write digits to reverse order in temp buffer
+    d = 0;
+    while (value > 0)
+    {
+        tmp[d] = '0' + value % 10;
+        d += 1;
+        value /= 10;
+    }
+    
+    // copy the digits
+    for (unsigned i = 0; i < d; i++)
+    {
+        if (i < bufsize)
+            buf[i] = tmp[d - 1 - i];
+    }
+
+    // terminate with zero
+    if (d < bufsize)
+        buf[d] = 0;
+    else
+        buf[bufsize - 1] = 0;
+
+    return d;
+}
+
+static int Int64ToBuffer(char* buf, size_t bufsize, int64_t value)
+{
+    if (value < 0)
+    {
+        if (bufsize == 0)
+            return UInt64ToBuffer(buf, 0, (uint64_t) -value) + 1;
+            
+        if (bufsize == 1)
+        {
+            buf[0] = 0;
+            return UInt64ToBuffer(buf, 0, (uint64_t) -value) + 1;
+        }
+        
+        buf[0] = '-';
+        return UInt64ToBuffer(buf + 1, bufsize - 1, (uint64_t) -value) + 1;
+    }
+    
+    return UInt64ToBuffer(buf, bufsize, (uint64_t) value);
+}
+
+int UIntToBuffer(char* buf, size_t bufsize, unsigned value)
+{
+    char        tmp[CS_INT_SIZE(unsigned)];
+    unsigned    d;
+    
+    // special case
+    if (value == 0)
+    {
+        if (bufsize == 0)
+            return 1;
+            
+        if (bufsize > 0)
+            buf[0] = '0';
+        else
+            buf[0] = 0;
+            
+        if (bufsize > 1)
+            buf[1] = 0;
+
+        return 1;
+    }
+
+    // write digits to reverse order in temp buffer
+    d = 0;
+    while (value > 0)
+    {
+        tmp[d] = '0' + value % 10;
+        d += 1;
+        value /= 10;
+    }
+    
+    // copy the digits
+    for (unsigned i = 0; i < d; i++)
+    {
+        if (i < bufsize)
+            buf[i] = tmp[d - 1 - i];
+    }
+
+    // terminate with zero
+    if (d < bufsize)
+        buf[d] = 0;
+    else
+        buf[bufsize - 1] = 0;
+
+    return d;
+}
+
+int IntToBuffer(char* buf, size_t bufsize, int value)
+{
+    if (value < 0)
+    {
+        if (bufsize == 0)
+            return UIntToBuffer(buf, 0, (unsigned) -value) + 1;
+            
+        if (bufsize == 1)
+        {
+            buf[0] = 0;
+            return UIntToBuffer(buf, 0, (unsigned) -value) + 1;
+        }
+        
+        buf[0] = '-';
+        return UIntToBuffer(buf + 1, bufsize - 1, (unsigned) -value) + 1;
+    }
+    
+    return UIntToBuffer(buf, bufsize, (unsigned) value);
+}
+
 /*
  * Readf is a simple sscanf replacement for working with non-null
  * terminated strings
@@ -263,7 +398,8 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'd') // %d
             {
                 d = va_arg(ap, int);
-                n = snprintf(local, sizeof(local), "%d", d);
+                //n = snprintf(local, sizeof(local), "%d", d);
+                n = IntToBuffer(local, sizeof(local), d);
                 if (n < 0) EXIT();
                 REQUIRE(n);
                 if (ghost) n = size;
@@ -273,7 +409,8 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'u') // %u
             {
                 u = va_arg(ap, unsigned);
-                n = snprintf(local, sizeof(local), "%u", u);
+                //n = snprintf(local, sizeof(local), "%u", u);
+                n = UIntToBuffer(local, sizeof(local), u);
                 if (n < 0) EXIT();
                 REQUIRE(n);
                 if (ghost) n = size;
@@ -283,7 +420,8 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'I') // %I to print an int64_t 
             {
                 i64 = va_arg(ap, int64_t);
-                n = snprintf(local, sizeof(local), "%" PRIi64 "", i64);
+                //n = snprintf(local, sizeof(local), "%" PRIi64 "", i64);
+                n = Int64ToBuffer(local, sizeof(local), i64);
                 if (n < 0) EXIT();
                 REQUIRE(n);
                 if (ghost) n = size;
@@ -293,7 +431,8 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'U') // %U tp print an uint64_t
             {
                 u64 = va_arg(ap, uint64_t);
-                n = snprintf(local, sizeof(local), "%" PRIu64 "", u64);
+                //n = snprintf(local, sizeof(local), "%" PRIu64 "", u64);
+                n = UInt64ToBuffer(local, sizeof(local), u64);
                 if (n < 0) EXIT();
                 REQUIRE(n);
                 if (ghost) n = size;
@@ -322,8 +461,11 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (length >= 3 && format[1] == '#' && format[2] == 'B') // %#B
             {
                 b = va_arg(ap, Buffer*);
-                n = snprintf(local, sizeof(local), "%u:", b->GetLength());
+                //n = snprintf(local, sizeof(local), "%u:", b->GetLength());
+                n = UIntToBuffer(local, sizeof(local), b->GetLength());
                 if (n < 0) EXIT();
+                local[n] = ':';
+                n += 1;
                 REQUIRE(n);
                 if (ghost) n = size;
                 memcpy(buffer, local, n);

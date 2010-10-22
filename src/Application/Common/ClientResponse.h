@@ -38,6 +38,7 @@ public:
     ~ClientResponse();
     
     void            CopyValue();
+    void            Transfer(ClientResponse& other);
             
     /* Responses */
     bool            OK();

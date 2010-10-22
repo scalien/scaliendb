@@ -3,9 +3,19 @@
 
 ClientRequest::ClientRequest()
 {
+    prev = next = this;
+    Init();
+}
+
+void ClientRequest::Init()
+{
     session = NULL;
     response.request = this;
-    prev = next = this;
+    
+    name.Clear();
+    key.Clear();
+    value.Clear();
+    nodes.Clear();
 }
 
 void ClientRequest::OnComplete(bool last)

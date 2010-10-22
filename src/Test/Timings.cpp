@@ -91,3 +91,28 @@ TEST_DEFINE(TestWriteTiming)
     
     return TEST_SUCCESS;
 }
+
+extern int UIntToBuffer(char* buf, size_t bufsize, unsigned value);
+
+TEST_DEFINE(TestSnprintfTiming)
+{
+    Stopwatch       sw;
+    unsigned        num = 10000000;
+    char            buf[32];
+
+    sw.Reset();
+    sw.Start();
+    for (unsigned i = 0; i < num; i++)
+        snprintf(buf, sizeof(buf), "%u", i);
+    sw.Stop();
+    TEST_LOG("snprintf elapsed: %ld, num: %u, num/s: %f", sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
+
+    sw.Reset();
+    sw.Start();
+    for (unsigned i = 0; i < num; i++)
+        UIntToBuffer(buf, sizeof(buf), i);
+    sw.Stop();
+    TEST_LOG("UIntToBuffer elapsed: %ld, num: %u, num/s: %f", sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
+    
+    return TEST_SUCCESS;
+}

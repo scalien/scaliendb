@@ -16,7 +16,6 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers,
     for (nodeID = 0; nodeID < numControllers; nodeID++)
         quorum.AddNode(nodeID);
 
-//  transport.SetPriority(); // TODO
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     

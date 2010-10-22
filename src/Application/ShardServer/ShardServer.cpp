@@ -4,6 +4,7 @@
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/DatabaseConsts.h"
 #include "Application/Common/CatchupMessage.h"
+#include "Application/Common/ClientRequestCache.h"
 
 #define REQUEST_TIMEOUT 1000
 #define DATABASE_NAME   "system"
@@ -20,6 +21,8 @@ void ShardServer::Init()
     uint64_t        runID;
     const char*     str;
     Endpoint        endpoint;
+
+    REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
 
     databaseEnv.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
     databaseEnv.SetSync(configFile.GetBoolValue("database.sync", true));
@@ -75,6 +78,7 @@ void ShardServer::Shutdown()
 
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
+    REQUEST_CACHE->Shutdown();
     
     for (dbNode = databases.First(); dbNode != NULL; dbNode = databases.Next(dbNode))
     {
@@ -118,6 +122,7 @@ void ShardServer::ProcessMessage(QuorumData* quorumData, DataMessage& message, b
     switch (message.type)
     {
         case CLIENTREQUEST_SET:
+            Log_Message("SET: [%" PRIu64 "] %.*s => %.*s", message.tableID, P(&message.key), P(&message.value));
             if (!table->Set(message.key, message.value))
             {
                 if (request)
@@ -411,7 +416,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& msg)
             CONTEXT_TRANSPORT->SetSelfNodeID(msg.nodeID);
             REPLICATION_CONFIG->SetNodeID(msg.nodeID);
             REPLICATION_CONFIG->Commit();
-            Log_Trace("my nodeID is %" PRIu64 "", msg.nodeID);
+            Log_Message("Self nodeID is %" PRIu64 "", msg.nodeID);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             OnSetConfigState(msg.configState);
@@ -683,7 +688,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
         quorumData->context.Init(this, configQuorum, GetQuorumTable(quorumID));
         quorumData->leaseTimeout.SetCallable(MFUNC(ShardServer, OnPrimaryLeaseTimeout));
         quorumData->isPrimary = false;
-        quorumData->isActive = true;
+//        quorumData->isActive = true;
 
         quorums.Append(quorumData);
         for (nit = configQuorum->activeNodes.First(); nit != NULL; nit = configQuorum->activeNodes.Next(nit))

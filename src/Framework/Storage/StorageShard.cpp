@@ -188,6 +188,7 @@ bool StorageShard::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         fi->index = nextStorageFileIndex++;
         fi->file = new StorageFile;
         fi->file->SetStorageFileIndex(fi->index);
+        // TODO: write recovery entry
         WritePath(fi->filepath, fi->index);
         fi->file->Open(fi->filepath.GetBuffer());
         fi->SetKey(key, true); // TODO: buffer management
@@ -595,8 +596,8 @@ uint64_t StorageShard::RebuildTOC()
 
 void StorageShard::WriteRecoveryPrefix()
 {
-    StorageFileIndex        *it;
-    uint32_t        marker = RECOVERY_MARKER;
+    StorageFileIndex*       it;
+    uint32_t                marker = RECOVERY_MARKER;
     
     FOREACH (it, deletedFiles)
     {
@@ -718,6 +719,7 @@ OpenFile:
     if (fi->file == NULL)
     {
         fi->file = new StorageFile;
+        // TODO: write recovery entry
         fi->file->Open(fi->filepath.GetBuffer());
         fi->file->SetStorageFileIndex(fi->index);
     }
@@ -738,6 +740,7 @@ void StorageShard::SplitFile(StorageFile* file)
     newFi->index = nextStorageFileIndex++;
     newFi->file->SetStorageFileIndex(newFi->index);
     
+    // TODO: write recovery entry
     WritePath(newFi->filepath, newFi->index);
     newFi->file->Open(newFi->filepath.GetBuffer());
 

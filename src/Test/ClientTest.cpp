@@ -106,18 +106,14 @@ TEST_DEFINE(TestClientSet)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "mediafilter";
-    ReadBuffer      tableName = "users";
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 1000000;
-    
-    Log_SetTimestamping(true);
-    Log_SetTarget(LOG_TARGET_STDOUT);
-    Log_SetTrace(true);
-    
+    unsigned        num = 500000;
+        
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -150,13 +146,13 @@ TEST_DEFINE(TestClientBatchedSet)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "mediafilter";
-    ReadBuffer      tableName = "users";
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 1000;
+    unsigned        num = 100000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -193,6 +189,158 @@ TEST_DEFINE(TestClientBatchedSet)
     sw.Stop();
 
     TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientBatchedSetRandom)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    char            valbuf[128];
+    char            keybuf[32];
+    int             ret;
+    unsigned        num = 300000;
+    Stopwatch       sw;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.Begin();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    TEST_LOG("Generating random data...");
+    
+    for (unsigned i = 0; i < num; i++)
+    {
+        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        key.Wrap(keybuf, ret);
+        RandomBuffer(valbuf, sizeof(valbuf));
+        value.Wrap(valbuf, sizeof(valbuf));
+        ret = client.Set(key, value);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+
+    TEST_LOG("Generated data, start Submit");
+
+    sw.Start();
+    ret = client.Submit();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    sw.Stop();
+
+    TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientBatchedGet)
+{
+    Client          client;
+    Result*         result;
+    Request*        request;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    char            keybuf[32];
+    int             ret;
+    unsigned        num = 500000;
+    double          minLatency;
+    double          maxLatency;
+    double          avgLatency;
+    double          latency;
+    uint64_t        firstRequestTime;
+    uint64_t        firstResponseTime;
+    Stopwatch       sw;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.Begin();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    for (unsigned i = 0; i < num; i++)
+    {
+        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        key.Wrap(keybuf, ret);
+        value.Wrap(keybuf, ret);
+        ret = client.Get(key);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+
+    sw.Start();
+    ret = client.Submit();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    sw.Stop();
+
+    TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+
+    result = client.GetResult();
+    if (result == NULL)
+        TEST_CLIENT_FAIL();
+    
+    minLatency = (double)(uint64_t) -1;
+    maxLatency = 0;
+    avgLatency = 0;
+    unsigned i;
+    for (i = 1, result->Begin(); !result->IsEnd(); i++, result->Next())
+    {
+        request = result->GetRequestCursor();
+        latency = request->responseTime - request->requestTime;
+        if (latency < minLatency)
+            minLatency = latency;
+        if (latency > maxLatency)
+            maxLatency = latency;
+        avgLatency = ((avgLatency * (i - 1)) + latency) / (double) i;
+        if (i == 1)
+        {
+            firstRequestTime = request->requestTime;
+            firstResponseTime = request->responseTime;
+        }
+        
+        if (request->response.type != CLIENTRESPONSE_VALUE)
+            TEST_CLIENT_FAIL();
+
+        //TEST_LOG("%u: value = %.*s", i, P(&request->response.value));
+    }
+    TEST_LOG("latency avg, min, max: %lf, %lf, %lf", avgLatency, minLatency, maxLatency);
+    TEST_LOG("last-first request time: %" PRIu64, (request->requestTime - firstRequestTime));
+    TEST_LOG("last-first response time: %" PRIu64, (request->responseTime - firstResponseTime));
 
     client.Shutdown();
     
