@@ -6,7 +6,7 @@
 #include "Application/SDBP/SDBPContext.h"
 #include "ShardQuorumProcessor.h"
 #include "ShardDatabaseAdapter.h"
-#include "HeartbeatManager.h"
+#include "ShardHeartbeatManager.h"
 
 /*
 ===============================================================================================
@@ -57,7 +57,7 @@ private:
     ConfigState             configState;
     NodeList                controllers;
     QuorumProcessorList     quorumProcessors;
-    HeartbeatManager        heartbeatManager;
+    ShardHeartbeatManager   heartbeatManager;
     ShardDatabaseAdapter    databaseAdapter;
 };
 

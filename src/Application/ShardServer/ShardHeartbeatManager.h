@@ -1,5 +1,5 @@
-#ifndef HEARTBEATMANAGER_H
-#define HEARTBEATMANAGER_H
+#ifndef SHARDHEARTBEATMANAGER_H
+#define SHARDHEARTBEATMANAGER_H
 
 #include "System/Events/Countdown.h"
 
@@ -10,15 +10,15 @@ class ShardServer;
 /*
 ===============================================================================================
 
- HeartbeatManager
+ ShardHeartbeatManager
 
 ===============================================================================================
 */
 
-class HeartbeatManager
+class ShardHeartbeatManager
 {
 public:
-    HeartbeatManager();
+    ShardHeartbeatManager();
 
     void            Init(ShardServer* shardServer);    
     void            OnHeartbeatTimeout();

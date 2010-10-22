@@ -1,23 +1,23 @@
-#include "HeartbeatManager.h"
+#include "ShardHeartbeatManager.h"
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/ClusterMessage.h"
 #include "ShardServer.h"
 
-HeartbeatManager::HeartbeatManager()
+ShardHeartbeatManager::ShardHeartbeatManager()
 {
-    heartbeatTimeout.SetCallable(MFUNC(HeartbeatManager, OnHeartbeatTimeout));
+    heartbeatTimeout.SetCallable(MFUNC(ShardHeartbeatManager, OnHeartbeatTimeout));
     heartbeatTimeout.SetDelay(HEARTBEAT_TIMEOUT);    
 }
 
-void HeartbeatManager::Init(ShardServer* shardServer_)
+void ShardHeartbeatManager::Init(ShardServer* shardServer_)
 {
     EventLoop::Add(&heartbeatTimeout);
     
     shardServer = shardServer_;
 }
 
-void HeartbeatManager::OnHeartbeatTimeout()
+void ShardHeartbeatManager::OnHeartbeatTimeout()
 {
     ShardQuorumProcessor*   itQuorumProcessor;
     ClusterMessage          msg;
