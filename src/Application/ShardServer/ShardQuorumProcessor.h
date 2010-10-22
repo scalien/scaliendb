@@ -5,8 +5,8 @@
 #include "Application/Common/ClientRequest.h"
 #include "ShardMessage.h"
 #include "ShardQuorumContext.h"
-#include "CatchupReader.h"
-#include "CatchupWriter.h"
+#include "ShardCatchupReader.h"
+#include "ShardCatchupWriter.h"
 
 class ShardServer;
 
@@ -82,8 +82,8 @@ private:
     ShardList               shards;
     ConfigQuorum::NodeList  activeNodes;
     
-    CatchupReader           catchupReader;
-    CatchupWriter           catchupWriter;
+    ShardCatchupReader      catchupReader;
+    ShardCatchupWriter      catchupWriter;
 
     Countdown               requestLeaseTimeout;
     Timer                   leaseTimeout;

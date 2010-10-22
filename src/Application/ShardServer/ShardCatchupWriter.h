@@ -9,12 +9,12 @@ class ShardQuorumProcessor; // forward
 /*
 ===============================================================================================
 
- CatchupWriter
+ ShardCatchupWriter
 
 ===============================================================================================
 */
 
-class CatchupWriter
+class ShardCatchupWriter
 {
 public:
     void                    Init(ShardQuorumProcessor* quorumProcessor);

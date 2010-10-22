@@ -9,12 +9,12 @@ class ShardQuorumProcessor;
 /*
 ===============================================================================================
 
- CatchupReader
+ ShardCatchupReader
 
 ===============================================================================================
 */
 
-class CatchupReader
+class ShardCatchupReader
 {
 public:
     void                    Init(ShardQuorumProcessor* quorumProcessor);

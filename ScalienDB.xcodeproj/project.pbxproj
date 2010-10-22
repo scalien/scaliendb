@@ -35,8 +35,8 @@
 		5488956A126B3D55007CC6B2 /* ConfigTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889569126B3D55007CC6B2 /* ConfigTable.cpp */; };
 		5488956E126B3D84007CC6B2 /* ConfigShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488956D126B3D84007CC6B2 /* ConfigShard.cpp */; };
 		54889864126DBFD4007CC6B2 /* ShardHeartbeatManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889863126DBFD4007CC6B2 /* ShardHeartbeatManager.cpp */; };
-		54889899126DC86E007CC6B2 /* CatchupWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889898126DC86E007CC6B2 /* CatchupWriter.cpp */; };
-		5488999F126DF1F2007CC6B2 /* CatchupReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488999E126DF1F2007CC6B2 /* CatchupReader.cpp */; };
+		54889899126DC86E007CC6B2 /* ShardCatchupWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889898126DC86E007CC6B2 /* ShardCatchupWriter.cpp */; };
+		5488999F126DF1F2007CC6B2 /* ShardCatchupReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488999E126DF1F2007CC6B2 /* ShardCatchupReader.cpp */; };
 		54889A10126F3D60007CC6B2 /* ShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A0F126F3D60007CC6B2 /* ShardServer.cpp */; };
 		54889A15126F402D007CC6B2 /* ShardQuorumContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A13126F402D007CC6B2 /* ShardQuorumContext.cpp */; };
 		54889A1A126F40A3007CC6B2 /* ShardMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A18126F40A3007CC6B2 /* ShardMessage.cpp */; };
@@ -255,10 +255,10 @@
 		5488956D126B3D84007CC6B2 /* ConfigShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigShard.cpp; sourceTree = "<group>"; };
 		54889862126DBFD4007CC6B2 /* ShardHeartbeatManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardHeartbeatManager.h; sourceTree = "<group>"; };
 		54889863126DBFD4007CC6B2 /* ShardHeartbeatManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardHeartbeatManager.cpp; sourceTree = "<group>"; };
-		54889897126DC86E007CC6B2 /* CatchupWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupWriter.h; sourceTree = "<group>"; };
-		54889898126DC86E007CC6B2 /* CatchupWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CatchupWriter.cpp; sourceTree = "<group>"; };
-		5488999D126DF1F1007CC6B2 /* CatchupReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupReader.h; sourceTree = "<group>"; };
-		5488999E126DF1F2007CC6B2 /* CatchupReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CatchupReader.cpp; sourceTree = "<group>"; };
+		54889897126DC86E007CC6B2 /* ShardCatchupWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardCatchupWriter.h; sourceTree = "<group>"; };
+		54889898126DC86E007CC6B2 /* ShardCatchupWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardCatchupWriter.cpp; sourceTree = "<group>"; };
+		5488999D126DF1F1007CC6B2 /* ShardCatchupReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardCatchupReader.h; sourceTree = "<group>"; };
+		5488999E126DF1F2007CC6B2 /* ShardCatchupReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardCatchupReader.cpp; sourceTree = "<group>"; };
 		54889A0E126F3D60007CC6B2 /* ShardServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardServer.h; sourceTree = "<group>"; };
 		54889A0F126F3D60007CC6B2 /* ShardServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardServer.cpp; sourceTree = "<group>"; };
 		54889A13126F402D007CC6B2 /* ShardQuorumContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardQuorumContext.cpp; sourceTree = "<group>"; };
@@ -655,10 +655,10 @@
 				54889A1D126F40F3007CC6B2 /* ShardQuorumProcessor.cpp */,
 				54889862126DBFD4007CC6B2 /* ShardHeartbeatManager.h */,
 				54889863126DBFD4007CC6B2 /* ShardHeartbeatManager.cpp */,
-				54889897126DC86E007CC6B2 /* CatchupWriter.h */,
-				54889898126DC86E007CC6B2 /* CatchupWriter.cpp */,
-				5488999D126DF1F1007CC6B2 /* CatchupReader.h */,
-				5488999E126DF1F2007CC6B2 /* CatchupReader.cpp */,
+				54889897126DC86E007CC6B2 /* ShardCatchupWriter.h */,
+				54889898126DC86E007CC6B2 /* ShardCatchupWriter.cpp */,
+				5488999D126DF1F1007CC6B2 /* ShardCatchupReader.h */,
+				5488999E126DF1F2007CC6B2 /* ShardCatchupReader.cpp */,
 				9AABC4CE1253A2A8003626AC /* HTTPShardServerContext.h */,
 				9AABC4CF1253A2A8003626AC /* HTTPShardServerContext.cpp */,
 				9AABC4D11253A301003626AC /* HTTPShardServerSession.h */,
@@ -1175,8 +1175,8 @@
 				5488956A126B3D55007CC6B2 /* ConfigTable.cpp in Sources */,
 				5488956E126B3D84007CC6B2 /* ConfigShard.cpp in Sources */,
 				54889864126DBFD4007CC6B2 /* ShardHeartbeatManager.cpp in Sources */,
-				54889899126DC86E007CC6B2 /* CatchupWriter.cpp in Sources */,
-				5488999F126DF1F2007CC6B2 /* CatchupReader.cpp in Sources */,
+				54889899126DC86E007CC6B2 /* ShardCatchupWriter.cpp in Sources */,
+				5488999F126DF1F2007CC6B2 /* ShardCatchupReader.cpp in Sources */,
 				54889A10126F3D60007CC6B2 /* ShardServer.cpp in Sources */,
 				54889A15126F402D007CC6B2 /* ShardQuorumContext.cpp in Sources */,
 				54889A1A126F40A3007CC6B2 /* ShardMessage.cpp in Sources */,

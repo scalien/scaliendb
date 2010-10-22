@@ -1,31 +1,31 @@
-#include "CatchupReader.h"
+#include "ShardCatchupReader.h"
 #include "Framework/Storage/StorageTable.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
 
-void CatchupReader::Init(ShardQuorumProcessor* quorumProcessor_)
+void ShardCatchupReader::Init(ShardQuorumProcessor* quorumProcessor_)
 {
     quorumProcessor = quorumProcessor_;
     isActive = false;
 }
 
-bool CatchupReader::IsActive()
+bool ShardCatchupReader::IsActive()
 {
     return isActive;
 }
 
-void CatchupReader::Begin()
+void ShardCatchupReader::Begin()
 {
     isActive = true;
 }
 
-void CatchupReader::Abort()
+void ShardCatchupReader::Abort()
 {
     isActive = false;
 }
 
-void CatchupReader::OnBeginShard(CatchupMessage& msg)
+void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
 {
     ConfigShard*    cshard;
     StorageTable*   table;
@@ -58,7 +58,7 @@ void CatchupReader::OnBeginShard(CatchupMessage& msg)
     shard = table->GetShard(msg.shardID);
 }
 
-void CatchupReader::OnKeyValue(CatchupMessage& msg)
+void ShardCatchupReader::OnKeyValue(CatchupMessage& msg)
 {
     if (!isActive)
         return;
@@ -68,7 +68,7 @@ void CatchupReader::OnKeyValue(CatchupMessage& msg)
     shard->Set(msg.key, msg.value, true);
 }
 
-void CatchupReader::OnCommit(CatchupMessage& /*message*/)
+void ShardCatchupReader::OnCommit(CatchupMessage& /*message*/)
 {
     if (!isActive)
         return;
@@ -81,7 +81,7 @@ void CatchupReader::OnCommit(CatchupMessage& /*message*/)
     Log_Message("Catchup complete");
 }
 
-void CatchupReader::OnAbort(CatchupMessage& /*message*/)
+void ShardCatchupReader::OnAbort(CatchupMessage& /*message*/)
 {
     // TODO: xxx
 }

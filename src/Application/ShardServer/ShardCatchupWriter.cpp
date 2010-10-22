@@ -1,26 +1,26 @@
-#include "CatchupWriter.h"
+#include "ShardCatchupWriter.h"
 #include "Application/Common/ContextTransport.h"
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
 
-void CatchupWriter::Init(ShardQuorumProcessor* quorumProcessor_)
+void ShardCatchupWriter::Init(ShardQuorumProcessor* quorumProcessor_)
 {
     quorumProcessor = quorumProcessor_;
     Reset();
 }
 
-void CatchupWriter::Reset()
+void ShardCatchupWriter::Reset()
 {
     cursor = NULL;
     isActive = false;
 }
 
-bool CatchupWriter::IsActive()
+bool ShardCatchupWriter::IsActive()
 {
     return isActive;
 }
 
-void CatchupWriter::Begin(CatchupMessage& request)
+void ShardCatchupWriter::Begin(CatchupMessage& request)
 {    
     if (isActive)
         return;
@@ -40,13 +40,13 @@ void CatchupWriter::Begin(CatchupMessage& request)
         return;
     }
     
-    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(CatchupWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
     isActive = true;
     
     SendFirst();
 }
 
-void CatchupWriter::Abort()
+void ShardCatchupWriter::Abort()
 {
     CatchupMessage msg;
     
@@ -59,12 +59,12 @@ void CatchupWriter::Abort()
         cursor = NULL;
     }
     
-    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(CatchupWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
 
     Reset();
 }
 
-void CatchupWriter::SendFirst()
+void ShardCatchupWriter::SendFirst()
 {
     CatchupMessage      msg;
     ReadBuffer          key;
@@ -95,7 +95,7 @@ void CatchupWriter::SendFirst()
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 }
 
-void CatchupWriter::SendNext()
+void ShardCatchupWriter::SendNext()
 {
     uint64_t*           itShardID;
     CatchupMessage      msg;
@@ -140,7 +140,7 @@ void CatchupWriter::SendNext()
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 }
 
-void CatchupWriter::Commit()
+void ShardCatchupWriter::Commit()
 {
     CatchupMessage msg;
     
@@ -153,17 +153,17 @@ void CatchupWriter::Commit()
         cursor = NULL;
     }
 
-    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(CatchupWriter, OnWriteReadyness));
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
 
     Reset();
 }
 
-void CatchupWriter::OnWriteReadyness()
+void ShardCatchupWriter::OnWriteReadyness()
 {
     SendNext();
 }
 
-uint64_t* CatchupWriter::NextShard()
+uint64_t* ShardCatchupWriter::NextShard()
 {
     uint64_t* it;
     
