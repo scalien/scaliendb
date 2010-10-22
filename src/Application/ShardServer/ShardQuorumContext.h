@@ -25,6 +25,7 @@ public:
                                      ShardQuorumProcessor* quorumProcessor_, StorageTable* table);
     
     void                            SetActiveNodes(ConfigQuorum::NodeList& activeNodes);
+    void                            TryReplicationCatchup();
     void                            Append(); // nextValue was filled up using GetNextValue()
     bool                            IsAppending();
     
@@ -57,13 +58,13 @@ public:
 
     virtual void                    StopReplication();
     virtual void                    ContinueReplication();
-    // ========================================================================================
 
 private:
     void                            OnPaxosMessage(ReadBuffer buffer);
     void                            OnCatchupMessage(ReadBuffer buffer);
     void                            RegisterPaxosID(uint64_t paxosID);
 
+    bool                            isReplicationActive;
     uint64_t                        quorumID;
     uint64_t                        highestPaxosID;
     ShardQuorumProcessor*           quorumProcessor;

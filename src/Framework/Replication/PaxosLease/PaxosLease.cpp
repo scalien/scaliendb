@@ -20,6 +20,15 @@ void PaxosLease::Init(QuorumContext* context_)
     EventLoop::Add(&startupTimeout);
 }
 
+void PaxosLease::Stop()
+{
+    proposer.Stop();
+}
+
+void PaxosLease::Continue()
+{
+}
+
 void PaxosLease::OnMessage(PaxosLeaseMessage& imsg)
 {
     if (startupTimeout.IsActive())
@@ -71,7 +80,7 @@ void PaxosLease::OnStartupTimeout()
     Log_Trace();
     
     if (active)
-        proposer.StartAcquireLease();
+        proposer.Start();
 }
 
 void PaxosLease::OnLearnLease()
@@ -81,7 +90,7 @@ void PaxosLease::OnLearnLease()
     context->OnLearnLease();
     
     if (!IsLeaseOwner())
-        proposer.StopAcquireLease();
+        proposer.Stop();
 }
 
 void PaxosLease::OnLeaseTimeout()
@@ -91,5 +100,5 @@ void PaxosLease::OnLeaseTimeout()
     context->OnLeaseTimeout();
     
     if (active)
-        proposer.StartAcquireLease();
+        proposer.Start();
 }

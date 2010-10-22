@@ -32,7 +32,7 @@ void PaxosLeaseProposer::OnMessage(PaxosLeaseMessage& imsg)
         ASSERT_FAIL();
 }
 
-void PaxosLeaseProposer::StartAcquireLease()
+void PaxosLeaseProposer::Start()
 {
     Log_Trace();
     
@@ -42,7 +42,7 @@ void PaxosLeaseProposer::StartAcquireLease()
         StartPreparing();
 }
 
-void PaxosLeaseProposer::StopAcquireLease()
+void PaxosLeaseProposer::Stop()
 {
     Log_Trace();
     

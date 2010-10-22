@@ -21,9 +21,24 @@ void ReplicatedLog::Init(QuorumContext* context_)
     enableMultiPaxos.Write("EnableMultiPaxos");
 }
 
+void ReplicatedLog::Stop()
+{
+    proposer.Stop();
+}
+
+void ReplicatedLog::Continue()
+{
+    // nothing
+}
+
 bool ReplicatedLog::IsMultiPaxosEnabled()
 {
     return proposer.state.multi;
+}
+
+bool ReplicatedLog::IsAppending()
+{
+    return context->IsLeaseOwner() && proposer.state.numProposals > 0;
 }
 
 void ReplicatedLog::TryAppendNextValue()
@@ -40,14 +55,10 @@ void ReplicatedLog::TryAppendNextValue()
     Append(value);
 }
 
-void ReplicatedLog::Append(Buffer& value)
+void ReplicatedLog::TryCatchup()
 {
-    Log_Trace();
-        
-    if (proposer.IsActive())
-        return;
-    
-    proposer.Propose(value);
+    if (context->IsLeaseKnown())
+        RequestChosen(context->GetLeaseOwner());
 }
 
 void ReplicatedLog::SetPaxosID(uint64_t paxosID_)
@@ -58,6 +69,17 @@ void ReplicatedLog::SetPaxosID(uint64_t paxosID_)
 uint64_t ReplicatedLog::GetPaxosID()
 {
     return paxosID;
+}
+
+void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
+{
+    Log_Trace();
+    
+    if (paxosID > GetPaxosID())
+    {
+        //  I am lagging and need to catch-up
+        RequestChosen(nodeID);
+    }
 }
 
 void ReplicatedLog::OnMessage(PaxosMessage& imsg)
@@ -80,6 +102,42 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
         OnStartCatchup(imsg);
     else
         ASSERT_FAIL();
+}
+
+void ReplicatedLog::OnCatchupComplete(uint64_t paxosID_)
+{
+    paxosID = paxosID_;
+    
+    acceptor.OnCatchupComplete(); // commits
+    
+    NewPaxosRound();
+}
+
+void ReplicatedLog::OnLearnLease()
+{
+    Log_Trace("context->IsLeaseOwner()   = %s", (context->IsLeaseOwner() ? "true" : "false"));
+    Log_Trace("!proposer.IsActive()  = %s", (!proposer.IsActive() ? "true" : "false"));
+    Log_Trace("!proposer.state.multi = %s", (!proposer.state.multi ? "true" : "false"));
+    if (context->IsLeaseOwner() && !proposer.IsActive() && !proposer.state.multi)
+    {
+        Log_Trace("Appending EnableMultiPaxos");
+        Append(enableMultiPaxos);
+    }
+}
+
+void ReplicatedLog::OnLeaseTimeout()
+{
+    proposer.state.multi = false;
+}
+
+void ReplicatedLog::Append(Buffer& value)
+{
+    Log_Trace();
+        
+    if (proposer.IsActive())
+        return;
+    
+    proposer.Propose(value);
 }
 
 void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
@@ -153,6 +211,37 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     ProcessLearnChosen(imsg.nodeID, runID, value);
 }
 
+void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
+{
+    Buffer          value;
+    PaxosMessage    omsg;
+    
+    Log_Trace();
+
+    if (imsg.paxosID >= GetPaxosID())
+        return;
+    
+    // the node is lagging and needs to catch-up
+    context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
+    if (value.GetLength() > 0)
+    {
+        Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
+        omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
+    }
+    else
+    {
+        Log_Trace("Node requested a paxosID I no longer have");
+        omsg.StartCatchup(paxosID, MY_NODEID);
+    }
+    context->GetTransport()->SendMessage(imsg.nodeID, omsg);
+}
+
+void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
+{
+    if (imsg.nodeID == context->GetLeaseOwner())
+        context->OnStartCatchup();
+}
+
 void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value)
 {
     bool ownAppend;
@@ -183,37 +272,6 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
     if (!BUFCMP(&value, &enableMultiPaxos))
         context->OnAppend(value, ownAppend);
     TryAppendNextValue();
-}
-
-void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
-{
-    Buffer          value;
-    PaxosMessage    omsg;
-    
-    Log_Trace();
-
-    if (imsg.paxosID >= GetPaxosID())
-        return;
-    
-    // the node is lagging and needs to catch-up
-    context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
-    if (value.GetLength() > 0)
-    {
-        Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
-        omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
-    }
-    else
-    {
-        Log_Trace("Node requested a paxosID I no longer have");
-        omsg.StartCatchup(paxosID, MY_NODEID);
-    }
-    context->GetTransport()->SendMessage(imsg.nodeID, omsg);
-}
-
-void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
-{
-    if (imsg.nodeID == context->GetLeaseOwner())
-        context->OnStartCatchup();
 }
 
 void ReplicatedLog::OnRequest(PaxosMessage& imsg)
@@ -247,48 +305,6 @@ void ReplicatedLog::NewPaxosRound()
     paxosID++;
     proposer.state.OnNewPaxosRound();
     acceptor.state.OnNewPaxosRound();
-}
-
-void ReplicatedLog::OnCatchupComplete(uint64_t paxosID_)
-{
-    paxosID = paxosID_;
-    
-    acceptor.OnCatchupComplete(); // commits
-    
-    NewPaxosRound();
-}
-
-void ReplicatedLog::OnLearnLease()
-{
-    Log_Trace("context->IsLeaseOwner()   = %s", (context->IsLeaseOwner() ? "true" : "false"));
-    Log_Trace("!proposer.IsActive()  = %s", (!proposer.IsActive() ? "true" : "false"));
-    Log_Trace("!proposer.state.multi = %s", (!proposer.state.multi ? "true" : "false"));
-    if (context->IsLeaseOwner() && !proposer.IsActive() && !proposer.state.multi)
-    {
-        Log_Trace("Appending EnableMultiPaxos");
-        Append(enableMultiPaxos);
-    }
-}
-
-void ReplicatedLog::OnLeaseTimeout()
-{
-    proposer.state.multi = false;
-}
-
-bool ReplicatedLog::IsAppending()
-{
-    return context->IsLeaseOwner() && proposer.state.numProposals > 0;
-}
-
-void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
-{
-    Log_Trace();
-    
-    if (paxosID > GetPaxosID())
-    {
-        //  I am lagging and need to catch-up
-        RequestChosen(nodeID);
-    }
 }
 
 void ReplicatedLog::RequestChosen(uint64_t nodeID)

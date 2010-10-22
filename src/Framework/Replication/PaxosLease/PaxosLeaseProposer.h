@@ -25,8 +25,9 @@ public:
     
     void                        OnMessage(PaxosLeaseMessage& msg);
 
-    void                        StartAcquireLease();
-    void                        StopAcquireLease();
+    void                        Start();
+    void                        Stop();
+
     uint64_t                    GetHighestProposalID();
     void                        SetHighestProposalID(uint64_t highestProposalID);
 

@@ -24,6 +24,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     replicatedLog.Init(this);
     transport.SetQuorumID(quorumID);
     highestPaxosID = 0;
+    isReplicationActive = true;
 }
 
 void ShardQuorumContext::SetActiveNodes(ConfigQuorum::NodeList& activeNodes)
@@ -38,6 +39,11 @@ void ShardQuorumContext::SetActiveNodes(ConfigQuorum::NodeList& activeNodes)
         Log_Trace("Adding %" PRIu64 "", *it);
         quorum.AddNode(*it);
     }
+}
+
+void ShardQuorumContext::TryReplicationCatchup()
+{
+    replicatedLog.TryCatchup();
 }
 
 void ShardQuorumContext::Append()
@@ -141,12 +147,14 @@ void ShardQuorumContext::OnCatchupComplete(uint64_t paxosID)
 
 void ShardQuorumContext::StopReplication()
 {
-    // TODO: xxx
+    isReplicationActive = false;
+    replicatedLog.Stop();
 }
 
 void ShardQuorumContext::ContinueReplication()
 {
-    // TODO: xxx
+    isReplicationActive = true;
+    replicatedLog.Continue();
 }
 
 void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
@@ -164,6 +172,8 @@ void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
     switch(proto)
     {
         case PAXOS_PROTOCOL_ID:             // 'P':
+            if (!isReplicationActive)
+                break;
             OnPaxosMessage(buffer);
             break;
         case CATCHUP_PROTOCOL_ID:           // 'C'

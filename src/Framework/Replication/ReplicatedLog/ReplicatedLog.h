@@ -20,18 +20,21 @@ class ReplicatedLog
 public:
     void                    Init(QuorumContext* context);
 
+    void                    Stop();
+    void                    Continue();
+
     bool                    IsMultiPaxosEnabled();
+    bool                    IsAppending();
 
     void                    TryAppendNextValue();
+    void                    TryCatchup();
     
-    void                    OnMessage(PaxosMessage& msg);
     void                    SetPaxosID(uint64_t paxosID);
     uint64_t                GetPaxosID();
     
     void                    RegisterPaxosID(uint64_t paxosID, uint64_t nodeID);
-    void                    OnMessage();
-    bool                    IsAppending();
     
+    void                    OnMessage(PaxosMessage& msg);
     void                    OnCatchupComplete(uint64_t paxosID);
     void                    OnLearnLease();
     void                    OnLeaseTimeout();

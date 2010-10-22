@@ -124,13 +124,18 @@ void ShardQuorumProcessor::OnCatchupMessage(CatchupMessage& message)
             break;
         case CATCHUPMESSAGE_COMMIT:
             if (catchupReader.IsActive())
+            {
                 catchupReader.OnCommit(message);
-            quorumContext.OnCatchupComplete(message.paxosID); // this commits
-            quorumContext.ContinueReplication();
+                quorumContext.OnCatchupComplete(message.paxosID); // this commits
+                quorumContext.ContinueReplication();
+            }
             break;
         case CATCHUPMESSAGE_ABORT:
             if (catchupReader.IsActive())
+            {
                 catchupReader.OnAbort(message);
+                quorumContext.ContinueReplication();
+            }
             break;
         default:
             ASSERT_FAIL();
@@ -195,7 +200,12 @@ void ShardQuorumProcessor::SetActiveNodes(ConfigQuorum::NodeList& activeNodes)
 
 void ShardQuorumProcessor::TryReplicationCatchup()
 {
-    // TODO: xxx
+    // this is called if we're an inactive node and we should probably try to catchup
+    
+    if (catchupReader.IsActive())
+        return;
+    
+    quorumContext.TryReplicationCatchup();
 }
 
 void ShardQuorumProcessor::OnClientRequestGet(ClientRequest* request)
