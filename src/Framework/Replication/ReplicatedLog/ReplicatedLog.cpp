@@ -169,7 +169,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
         RequestChosen(nodeID);
     
     ownAppend = proposer.state.multi;
-    if (nodeID == REPLICATION_CONFIG->GetNodeID() && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
+    if (nodeID == MY_NODEID && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
     {
         proposer.state.multi = true;
         Log_Trace("Multi paxos enabled");
@@ -200,12 +200,12 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
     if (value.GetLength() > 0)
     {
         Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
-        omsg.LearnValue(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(), 0, value);
+        omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
     }
     else
     {
         Log_Trace("Node requested a paxosID I no longer have");
-        omsg.StartCatchup(paxosID, REPLICATION_CONFIG->GetNodeID());
+        omsg.StartCatchup(paxosID, MY_NODEID);
     }
     context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 }
@@ -229,7 +229,7 @@ void ReplicatedLog::OnRequest(PaxosMessage& imsg)
         context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
         if (value.GetLength() == 0)
             return;
-        omsg.LearnValue(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(), 0, value);
+        omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
         context->GetTransport()->SendMessage(imsg.nodeID, omsg);
     }
     else // paxosID < msg.paxosID
@@ -304,7 +304,7 @@ void ReplicatedLog::RequestChosen(uint64_t nodeID)
     lastRequestChosenPaxosID = GetPaxosID();
     lastRequestChosenTime = EventLoop::Now();
     
-    omsg.RequestChosen(GetPaxosID(), REPLICATION_CONFIG->GetNodeID());
+    omsg.RequestChosen(GetPaxosID(), MY_NODEID);
     
     context->GetTransport()->SendMessage(nodeID, omsg);
 }

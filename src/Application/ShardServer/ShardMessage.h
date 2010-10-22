@@ -1,20 +1,20 @@
-#ifndef DATAMESSAGE_H
-#define DATAMESSAGE_H
+#ifndef SHARDMESSAGE_H
+#define SHARDMESSAGE_H
 
 #include "Framework/Messaging/Message.h"
 
-#define DATAMESSAGE_SET         'S'
-#define DATAMESSAGE_DELETE      'D'
+#define SHARDMESSAGE_SET        'S'
+#define SHARDMESSAGE_DELETE     'D'
 
 /*
 ===============================================================================================
 
- DataMessage
+ ShardMessage
 
 ===============================================================================================
 */
 
-class DataMessage
+class ShardMessage
 {
 public:
     // Variables
@@ -28,8 +28,8 @@ public:
     void            Delete(uint64_t tableID, ReadBuffer& key);
 
     // For InList<>
-    DataMessage*    prev;
-    DataMessage*    next;
+    ShardMessage*    prev;
+    ShardMessage*    next;
 
     // Serialization
     int             Read(ReadBuffer& buffer);

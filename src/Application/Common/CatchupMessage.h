@@ -9,7 +9,7 @@
 #define CATCHUPMESSAGE_BEGIN_SHARD     'B'
 #define CATCHUPMESSAGE_KEYVALUE        'K'
 #define CATCHUPMESSAGE_COMMIT          'C'
-
+#define CATCHUPMESSAGE_ABORT           'A'
 /*
 ===============================================================================================
 
@@ -33,6 +33,7 @@ public:
     bool            BeginShard(uint64_t shardID);
     bool            KeyValue(ReadBuffer& key, ReadBuffer& value);
     bool            Commit(uint64_t paxosID);
+    bool            Abort();
 
     // Serialization
     bool            Read(ReadBuffer& buffer);

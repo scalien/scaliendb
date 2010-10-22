@@ -6,6 +6,7 @@ ClientRequest::ClientRequest()
     session = NULL;
     response.request = this;
     prev = next = this;
+    Log_Trace();
 }
 
 void ClientRequest::OnComplete(bool last)

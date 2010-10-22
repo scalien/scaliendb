@@ -1,30 +1,30 @@
-#ifndef DATACONTEXT_H
-#define DATACONTEXT_H
+#ifndef SHARDQUORUMCONTEXT_H
+#define SHARDQUORUMCONTEXT_H
 
 #include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/TotalQuorum.h"
 #include "Framework/Replication/ReplicatedLog/ReplicatedLog.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "Application/ConfigState/ConfigQuorum.h"
-#include "DataMessage.h"
+#include "ShardMessage.h"
 
-class ShardServer; // forward
+class ShardQuorumProcessor; // forward
 
 /*
 ===============================================================================================
 
- DataContext
+ ShardQuorumContext
 
 ===============================================================================================
 */
 
-class DataContext : public QuorumContext
+class ShardQuorumContext : public QuorumContext
 {
 public:
-    void                            Init(ShardServer* shardServer, ConfigQuorum* configQuorum,
-                                     StorageTable* quorumTable);
+    void                            Init(ConfigQuorum* configQuorum,
+                                     ShardQuorumProcessor* quorumProcessor_, StorageTable* table);
     
-    void                            UpdateConfig(ConfigQuorum::NodeList& activeNodes);
+    void                            SetActiveNodes(ConfigQuorum::NodeList& activeNodes);
     void                            Append(); // nextValue was filled up using GetNextValue()
     bool                            IsAppending();
     
@@ -64,13 +64,13 @@ private:
     void                            OnCatchupMessage(ReadBuffer buffer);
     void                            RegisterPaxosID(uint64_t paxosID);
 
-    ShardServer*                    shardServer;
+    uint64_t                        quorumID;
+    uint64_t                        highestPaxosID;
+    ShardQuorumProcessor*           quorumProcessor;
     TotalQuorum                     quorum;
     QuorumDatabase                  database;
     QuorumTransport                 transport;
     ReplicatedLog                   replicatedLog;
-    uint64_t                        quorumID;
-    uint64_t                        highestPaxosID;
     Buffer                          nextValue;
 };
 

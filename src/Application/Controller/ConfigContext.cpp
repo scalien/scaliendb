@@ -170,10 +170,12 @@ void ConfigContext::OnCatchupComplete(uint64_t paxosID)
 
 void ConfigContext::StopReplication()
 {
+    // TODO: xxx
 }
 
 void ConfigContext::ContinueReplication()
 {
+    // TODO: xxx
 }
 
 void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)

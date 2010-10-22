@@ -30,6 +30,12 @@ bool CatchupMessage::Commit(uint64_t paxosID_)
     return true;
 }
 
+bool CatchupMessage::Abort()
+{
+    type = CATCHUPMESSAGE_ABORT;
+    return true;
+}
+
 bool CatchupMessage::Read(ReadBuffer& buffer)
 {
     int     read;
@@ -55,6 +61,10 @@ bool CatchupMessage::Read(ReadBuffer& buffer)
         case CATCHUPMESSAGE_COMMIT:
             read = buffer.Readf("%c:%c:%U",
              &proto, &type, &paxosID);
+            break;
+        case CATCHUPMESSAGE_ABORT:
+            read = buffer.Readf("%c:%c",
+             &proto, &type);
             break;
         default:
             return false;
@@ -82,8 +92,8 @@ bool CatchupMessage::Write(Buffer& buffer)
              proto, type, &key, &value);
             return true;
         case CATCHUPMESSAGE_COMMIT:
-            buffer.Writef("%c:%c:%U",
-             proto, type, paxosID);
+            buffer.Writef("%c:%c",
+             proto, type);
             return true;
         default:
             return false;

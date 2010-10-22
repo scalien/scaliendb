@@ -1,0 +1,38 @@
+#ifndef CATCHUPREADER_H
+#define CATCHUPREADER_H
+
+#include "Framework/Storage/StorageShard.h"
+#include "Application/Common/CatchupMessage.h"
+
+class ShardQuorumProcessor;
+
+/*
+===============================================================================================
+
+ CatchupReader
+
+===============================================================================================
+*/
+
+class CatchupReader
+{
+public:
+    void                    Init(ShardQuorumProcessor* quorumProcessor);
+    
+    bool                    IsActive();
+
+    void                    Begin();
+    void                    Abort();    
+    
+    void                    OnBeginShard(CatchupMessage& msg);
+    void                    OnKeyValue(CatchupMessage& msg);
+    void                    OnCommit(CatchupMessage& msg);
+    void                    OnAbort(CatchupMessage& msg);
+
+private:
+    bool                    isActive;
+    StorageShard*           shard;
+    ShardQuorumProcessor*   quorumProcessor;
+};
+
+#endif

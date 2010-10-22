@@ -1,31 +1,32 @@
-#include "DataContext.h"
+#include "ShardQuorumContext.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
+#include "Application/Common/ContextTransport.h"
+#include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
 
-void DataContext::Init(ShardServer* shardServer_, ConfigQuorum* configQuorum,
- StorageTable* table_)
+void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
+ ShardQuorumProcessor* quorumProcessor_, StorageTable* table)
 {
-    ConfigQuorum::NodeList  activeNodes;
+    ConfigQuorum::NodeList activeNodes;
     
-    shardServer = shardServer_;
+    quorumProcessor = quorumProcessor_;
     quorumID = configQuorum->quorumID;
   
     activeNodes = configQuorum->GetVolatileActiveNodes();
-    UpdateConfig(activeNodes);
-    
-//  transport.SetPriority(); // TODO
+    SetActiveNodes(activeNodes);
+
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(table_);
+    database.Init(table);
     
     replicatedLog.Init(this);
     transport.SetQuorumID(quorumID);
-    highestPaxosID = 0; 
+    highestPaxosID = 0;
 }
 
-void DataContext::UpdateConfig(ConfigQuorum::NodeList& activeNodes)
+void ShardQuorumContext::SetActiveNodes(ConfigQuorum::NodeList& activeNodes)
 {
     uint64_t*   it;
 
@@ -39,116 +40,116 @@ void DataContext::UpdateConfig(ConfigQuorum::NodeList& activeNodes)
     }
 }
 
-void DataContext::Append()
+void ShardQuorumContext::Append()
 {
     assert(nextValue.GetLength() > 0);
     replicatedLog.TryAppendNextValue();
 }
 
-bool DataContext::IsAppending()
+bool ShardQuorumContext::IsAppending()
 {
     return (nextValue.GetLength() != 0);
 }
 
-bool DataContext::IsLeaseOwner()
+bool ShardQuorumContext::IsLeaseOwner()
 {
-    return shardServer->IsLeaseOwner(quorumID);
+    return quorumProcessor->IsPrimary();
 }
 
-bool DataContext::IsLeaseKnown()
+bool ShardQuorumContext::IsLeaseKnown()
 {
-    return shardServer->IsLeaseKnown(quorumID);
+    return quorumProcessor->GetShardServer()->IsLeaseKnown(quorumID);
 }
 
-uint64_t DataContext::GetLeaseOwner()
+uint64_t ShardQuorumContext::GetLeaseOwner()
 {
-    return shardServer->GetLeaseOwner(quorumID);
+    return quorumProcessor->GetShardServer()->GetLeaseOwner(quorumID);
 }
 
-bool DataContext::IsLeader()
+bool ShardQuorumContext::IsLeader()
 {
     return IsLeaseOwner() && replicatedLog.IsMultiPaxosEnabled();
 }
 
-void DataContext::OnLearnLease()
+void ShardQuorumContext::OnLearnLease()
 {
     replicatedLog.OnLearnLease();
 }
 
-void DataContext::OnLeaseTimeout()
+void ShardQuorumContext::OnLeaseTimeout()
 {
     nextValue.Clear();
     replicatedLog.OnLeaseTimeout();
 }
 
-uint64_t DataContext::GetQuorumID()
+uint64_t ShardQuorumContext::GetQuorumID()
 {
     return quorumID;
 }
 
-void DataContext::SetPaxosID(uint64_t paxosID)
+void ShardQuorumContext::SetPaxosID(uint64_t paxosID)
 {
     replicatedLog.SetPaxosID(paxosID);
 }
 
-uint64_t DataContext::GetPaxosID()
+uint64_t ShardQuorumContext::GetPaxosID()
 {
     return replicatedLog.GetPaxosID();
 }
 
-uint64_t DataContext::GetHighestPaxosID()
+uint64_t ShardQuorumContext::GetHighestPaxosID()
 {
     return highestPaxosID;
 }
 
-Quorum* DataContext::GetQuorum()
+Quorum* ShardQuorumContext::GetQuorum()
 {
     return &quorum;
 }
 
-QuorumDatabase* DataContext::GetDatabase()
+QuorumDatabase* ShardQuorumContext::GetDatabase()
 {
     return &database;
 }
 
-QuorumTransport* DataContext::GetTransport()
+QuorumTransport* ShardQuorumContext::GetTransport()
 {
     return &transport;
 }
 
-void DataContext::OnAppend(ReadBuffer value, bool ownAppend)
+void ShardQuorumContext::OnAppend(ReadBuffer value, bool ownAppend)
 {
     nextValue.Clear();
 
-    shardServer->OnAppend(quorumID, value, ownAppend);
+    quorumProcessor->OnAppend(value, ownAppend);
 }
 
-Buffer& DataContext::GetNextValue()
+Buffer& ShardQuorumContext::GetNextValue()
 {
     return nextValue;
 }
 
-void DataContext::OnStartCatchup()
+void ShardQuorumContext::OnStartCatchup()
 {
-    shardServer->OnStartCatchup(quorumID);
+    quorumProcessor->OnStartCatchup();
 }
 
-void DataContext::OnCatchupComplete(uint64_t /*paxosID*/)
+void ShardQuorumContext::OnCatchupComplete(uint64_t paxosID)
 {
-    // TODO: xxx
+    replicatedLog.OnCatchupComplete(paxosID);
 }
 
-void DataContext::StopReplication()
-{
-    // TODO: xxx
-}
-
-void DataContext::ContinueReplication()
+void ShardQuorumContext::StopReplication()
 {
     // TODO: xxx
 }
 
-void DataContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
+void ShardQuorumContext::ContinueReplication()
+{
+    // TODO: xxx
+}
+
+void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
 {
     char proto;
     
@@ -174,7 +175,7 @@ void DataContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
     }
 }
 
-void DataContext::OnPaxosMessage(ReadBuffer buffer)
+void ShardQuorumContext::OnPaxosMessage(ReadBuffer buffer)
 {
     PaxosMessage msg;
     
@@ -184,15 +185,15 @@ void DataContext::OnPaxosMessage(ReadBuffer buffer)
     replicatedLog.OnMessage(msg);
 }
 
-void DataContext::OnCatchupMessage(ReadBuffer buffer)
+void ShardQuorumContext::OnCatchupMessage(ReadBuffer buffer)
 {
     CatchupMessage msg;
     
     msg.Read(buffer);
-    shardServer->OnCatchupMessage(msg);
+    quorumProcessor->OnCatchupMessage(msg);
 }
 
-void DataContext::RegisterPaxosID(uint64_t paxosID)
+void ShardQuorumContext::RegisterPaxosID(uint64_t paxosID)
 {
     if (paxosID > highestPaxosID)
         highestPaxosID = paxosID;

@@ -134,7 +134,7 @@ void PaxosLeaseProposer::OnProposeResponse(PaxosLeaseMessage& imsg)
         Log_Trace("%d", (int)(extendLeaseTimeout.GetExpireTime() - Now()));
         EventLoop::Reset(&extendLeaseTimeout);
     
-        omsg.LearnChosen(REPLICATION_CONFIG->GetNodeID(), state.leaseOwner,
+        omsg.LearnChosen(MY_NODEID, state.leaseOwner,
          state.expireTime - Now(), state.expireTime, context->GetPaxosID());
         BroadcastMessage(omsg);
 
@@ -164,14 +164,14 @@ void PaxosLeaseProposer::StartPreparing()
     NewVote();  
     state.proposing = false;
     state.preparing = true;
-    state.leaseOwner = REPLICATION_CONFIG->GetNodeID();
+    state.leaseOwner = MY_NODEID;
     state.highestReceivedProposalID = 0;
     state.proposalID = REPLICATION_CONFIG->NextProposalID(highestProposalID);
         
     if (state.proposalID > highestProposalID)
         highestProposalID = state.proposalID;
     
-    omsg.PrepareRequest(REPLICATION_CONFIG->GetNodeID(), state.proposalID, context->GetPaxosID());
+    omsg.PrepareRequest(MY_NODEID, state.proposalID, context->GetPaxosID());
     BroadcastMessage(omsg);
 }
 
@@ -183,7 +183,7 @@ void PaxosLeaseProposer::StartProposing()
     
     state.preparing = false;
 
-    if (state.leaseOwner != REPLICATION_CONFIG->GetNodeID())
+    if (state.leaseOwner != MY_NODEID)
         return; // no point in getting someone else a lease, wait for OnAcquireLeaseTimeout
 
     NewVote();  
@@ -191,7 +191,7 @@ void PaxosLeaseProposer::StartProposing()
     state.duration = PAXOSLEASE_MAX_LEASE_TIME;
     state.expireTime = Now() + state.duration;
     
-    omsg.ProposeRequest(REPLICATION_CONFIG->GetNodeID(), state.proposalID, state.leaseOwner, state.duration);
+    omsg.ProposeRequest(MY_NODEID, state.proposalID, state.leaseOwner, state.duration);
     BroadcastMessage(omsg);
 }
 

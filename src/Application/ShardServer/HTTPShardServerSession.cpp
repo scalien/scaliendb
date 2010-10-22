@@ -70,17 +70,16 @@ bool HTTPShardServerSession::IsActive()
 
 void HTTPShardServerSession::PrintStatus()
 {
-    ShardServer::QuorumList*    quorums;
-    QuorumData*                 quorum;
     Buffer                      keybuf;
     Buffer                      valbuf;
     uint64_t                    primaryID;
     uint64_t                    totalSpace, freeSpace, diskUsage;
+    ShardQuorumProcessor*       it;
 
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
 
-    valbuf.Writef("%U", REPLICATION_CONFIG->GetNodeID());
+    valbuf.Writef("%U", MY_NODEID);
     valbuf.NullTerminate();
     session.PrintPair("NodeID", valbuf.GetBuffer());   
 
@@ -88,7 +87,7 @@ void HTTPShardServerSession::PrintStatus()
 
     totalSpace = FS_DiskSpace(configFile.GetValue("database.dir", "db"));
     freeSpace = FS_FreeDiskSpace(configFile.GetValue("database.dir", "db"));
-    diskUsage = shardServer->GetEnvironment().GetSize();
+    diskUsage = shardServer->GetDatabaseAdapter().GetEnvironment().GetSize();
     valbuf.Writef("%s (Total %s, Free %s)", 
      HumanBytes(diskUsage), HumanBytes(totalSpace), HumanBytes(freeSpace));
     session.PrintPair("Disk usage", valbuf);
@@ -99,17 +98,18 @@ void HTTPShardServerSession::PrintStatus()
     session.PrintPair("Cache usage", valbuf);
 
     // write quorums, shards, and leases
-    quorums = shardServer->GetQuorums();
+    ShardServer::QuorumProcessorList& quorumProcessors = shardServer->GetQuorumProcessors();
+
     
-    valbuf.Writef("%u", quorums->GetLength());
+    valbuf.Writef("%u", quorumProcessors.GetLength());
     valbuf.NullTerminate();
     session.PrintPair("Number of quorums", valbuf.GetBuffer());
     
-    for (quorum = quorums->First(); quorum != NULL; quorum = quorums->Next(quorum))
+    FOREACH(it, quorumProcessors)
     {
-        primaryID = shardServer->GetLeaseOwner(quorum->quorumID);
+        primaryID = shardServer->GetLeaseOwner(it->GetQuorumID());
         
-        keybuf.Writef("q%U", quorum->quorumID);
+        keybuf.Writef("q%U", it->GetQuorumID());
         keybuf.NullTerminate();
         
         valbuf.Writef("%U", primaryID);

@@ -76,7 +76,7 @@ int64_t Controller::GetMaster()
 
 uint64_t Controller::GetNodeID()
 {
-    return REPLICATION_CONFIG->GetNodeID();
+    return MY_NODEID;
 }
 
 uint64_t Controller::GetReplicationRound()
@@ -221,7 +221,7 @@ void Controller::OnStartCatchup()
     
     configContext.StopReplication();
     
-    msg.CatchupRequest(REPLICATION_CONFIG->GetNodeID(), configContext.GetQuorumID());
+    msg.CatchupRequest(MY_NODEID, configContext.GetQuorumID());
     
     CONTEXT_TRANSPORT->SendQuorumMessage(
      configContext.GetLeaseOwner(), configContext.GetQuorumID(), msg);

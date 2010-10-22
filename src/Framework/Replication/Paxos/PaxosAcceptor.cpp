@@ -40,7 +40,7 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
     
     if (imsg.proposalID < state.promisedProposalID)
     {
-        omsg.PrepareRejected(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(),
+        omsg.PrepareRejected(imsg.paxosID, MY_NODEID,
          imsg.proposalID, state.promisedProposalID);
         context->GetTransport()->SendMessage(senderID, omsg);
         return;
@@ -49,9 +49,9 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
     state.promisedProposalID = imsg.proposalID;
 
     if (!state.accepted)
-        omsg.PrepareCurrentlyOpen(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);
+        omsg.PrepareCurrentlyOpen(imsg.paxosID, MY_NODEID, imsg.proposalID);
     else
-        omsg.PreparePreviouslyAccepted(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(),
+        omsg.PreparePreviouslyAccepted(imsg.paxosID, MY_NODEID,
          imsg.proposalID, state.acceptedProposalID,
          state.acceptedRunID, state.acceptedValue);
     
@@ -73,7 +73,7 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     
     if (imsg.proposalID < state.promisedProposalID)
     {
-        omsg.ProposeRejected(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);
+        omsg.ProposeRejected(imsg.paxosID, MY_NODEID, imsg.proposalID);
         context->GetTransport()->SendMessage(senderID, omsg);
         return;
     }
@@ -82,7 +82,7 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     state.acceptedProposalID = imsg.proposalID;
     state.acceptedRunID = imsg.runID;
     state.acceptedValue.Write(imsg.value);
-    omsg.ProposeAccepted(imsg.paxosID, REPLICATION_CONFIG->GetNodeID(), imsg.proposalID);
+    omsg.ProposeAccepted(imsg.paxosID, MY_NODEID, imsg.proposalID);
     
     WriteState(true);
     //TODO: RLOG->StopPaxos();

@@ -13,7 +13,7 @@ bool PaxosLeaseLearner::IsLeaseOwner()
 {
     CheckLease();
     
-    if (state.learned && state.leaseOwner == REPLICATION_CONFIG->GetNodeID())
+    if (state.learned && state.leaseOwner == MY_NODEID)
         return true;
     
     return false;       
@@ -77,7 +77,7 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
         OnLeaseTimeout();
 
     uint64_t expireTime;
-    if (imsg.leaseOwner == REPLICATION_CONFIG->GetNodeID())
+    if (imsg.leaseOwner == MY_NODEID)
         expireTime = imsg.localExpireTime; // I'm the master
     else
         expireTime = Now() + imsg.duration - 500 /* msec */;

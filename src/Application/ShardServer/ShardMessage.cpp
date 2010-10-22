@@ -1,21 +1,21 @@
-#include "DataMessage.h"
+#include "ShardMessage.h"
 
-void DataMessage::Set(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+void ShardMessage::Set(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
-    type = DATAMESSAGE_SET;
+    type = SHARDMESSAGE_SET;
     tableID = tableID_;
     key = key_;
     value = value_;
 }
 
-void DataMessage::Delete(uint64_t tableID_, ReadBuffer& key_)
+void ShardMessage::Delete(uint64_t tableID_, ReadBuffer& key_)
 {
-    type = DATAMESSAGE_DELETE;
+    type = SHARDMESSAGE_DELETE;
     tableID = tableID_;
     key = key_;
 }
 
-int DataMessage::Read(ReadBuffer& buffer)
+int ShardMessage::Read(ReadBuffer& buffer)
 {
     int read;
     
@@ -25,11 +25,11 @@ int DataMessage::Read(ReadBuffer& buffer)
     switch (buffer.GetCharAt(0))
     {
         // Data management
-        case DATAMESSAGE_SET:
+        case SHARDMESSAGE_SET:
             read = buffer.Readf("%c:%U:%#R:%#R",
              &type, &tableID, &key, &value);
             break;
-        case DATAMESSAGE_DELETE:
+        case SHARDMESSAGE_DELETE:
             read = buffer.Readf("%c:%U:%#R",
              &type, &tableID, &key);
             break;
@@ -40,16 +40,16 @@ int DataMessage::Read(ReadBuffer& buffer)
     return read;
 }
 
-bool DataMessage::Write(Buffer& buffer)
+bool ShardMessage::Write(Buffer& buffer)
 {
     switch (type)
     {
         // Cluster management
-        case DATAMESSAGE_SET:
+        case SHARDMESSAGE_SET:
             buffer.Appendf("%c:%U:%#R:%#R",
              type, tableID, &key, &value);
             break;
-        case DATAMESSAGE_DELETE:
+        case SHARDMESSAGE_DELETE:
             buffer.Appendf("%c:%U:%#R",
              type, tableID, &key);
             break;

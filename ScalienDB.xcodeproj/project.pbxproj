@@ -34,6 +34,14 @@
 		54889567126B3D28007CC6B2 /* ConfigQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889566126B3D28007CC6B2 /* ConfigQuorum.cpp */; };
 		5488956A126B3D55007CC6B2 /* ConfigTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889569126B3D55007CC6B2 /* ConfigTable.cpp */; };
 		5488956E126B3D84007CC6B2 /* ConfigShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488956D126B3D84007CC6B2 /* ConfigShard.cpp */; };
+		54889864126DBFD4007CC6B2 /* HeartbeatManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889863126DBFD4007CC6B2 /* HeartbeatManager.cpp */; };
+		54889899126DC86E007CC6B2 /* CatchupWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889898126DC86E007CC6B2 /* CatchupWriter.cpp */; };
+		5488999F126DF1F2007CC6B2 /* CatchupReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488999E126DF1F2007CC6B2 /* CatchupReader.cpp */; };
+		54889A10126F3D60007CC6B2 /* ShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A0F126F3D60007CC6B2 /* ShardServer.cpp */; };
+		54889A15126F402D007CC6B2 /* ShardQuorumContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A13126F402D007CC6B2 /* ShardQuorumContext.cpp */; };
+		54889A1A126F40A3007CC6B2 /* ShardMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A18126F40A3007CC6B2 /* ShardMessage.cpp */; };
+		54889A1E126F40F3007CC6B2 /* ShardQuorumProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A1D126F40F3007CC6B2 /* ShardQuorumProcessor.cpp */; };
+		54889C4912707C3B007CC6B2 /* ShardDatabaseAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889C4812707C3B007CC6B2 /* ShardDatabaseAdapter.cpp */; };
 		548BDE3A125E282B001ED245 /* CatchupMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548BDE39125E282B001ED245 /* CatchupMessage.cpp */; };
 		548BE6D61264C930001ED245 /* ConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548BE6D31264C930001ED245 /* ConfigState.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
@@ -149,9 +157,6 @@
 		9AABBCD3124A552A003626AC /* SDBPRequestMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546224ED1249030D00759E58 /* SDBPRequestMessage.cpp */; };
 		9AABBCD8124A5542003626AC /* SDBPResponseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546225111249074000759E58 /* SDBPResponseMessage.cpp */; };
 		9AABC194124F4BE5003626AC /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */; };
-		9AABC280124F639A003626AC /* ShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A861C3123E207000ECCBE5 /* ShardServer.cpp */; };
-		9AABC283124F63A7003626AC /* DataMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54838865124B54B2005F0FB4 /* DataMessage.cpp */; };
-		9AABC3AF12529466003626AC /* DataContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54E0BE70124B5E4B00439334 /* DataContext.cpp */; };
 		9AABC4D01253A2A8003626AC /* HTTPShardServerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC4CF1253A2A8003626AC /* HTTPShardServerContext.cpp */; };
 		9AABC4D31253A301003626AC /* HTTPShardServerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABC4D21253A301003626AC /* HTTPShardServerSession.cpp */; };
 		9AABCC6012564924003626AC /* SDBPClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB81E12411592003626AC /* SDBPClient.cpp */; };
@@ -229,8 +234,6 @@
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
 		546E28D311F0816E00867EE1 /* QuorumTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumTransport.cpp; sourceTree = "<group>"; };
 		547E27B6126B1602000B8E04 /* ConfigShardServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigShardServer.cpp; sourceTree = "<group>"; };
-		54838864124B54B2005F0FB4 /* DataMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataMessage.h; sourceTree = "<group>"; };
-		54838865124B54B2005F0FB4 /* DataMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataMessage.cpp; sourceTree = "<group>"; };
 		5487BC27123A5D0C00C235BA /* SDBPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPConnection.h; sourceTree = "<group>"; };
 		5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPConnection.cpp; sourceTree = "<group>"; };
 		5487BC29123A5D0C00C235BA /* SDBPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPServer.h; sourceTree = "<group>"; };
@@ -250,6 +253,22 @@
 		54889566126B3D28007CC6B2 /* ConfigQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigQuorum.cpp; sourceTree = "<group>"; };
 		54889569126B3D55007CC6B2 /* ConfigTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigTable.cpp; sourceTree = "<group>"; };
 		5488956D126B3D84007CC6B2 /* ConfigShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigShard.cpp; sourceTree = "<group>"; };
+		54889862126DBFD4007CC6B2 /* HeartbeatManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HeartbeatManager.h; sourceTree = "<group>"; };
+		54889863126DBFD4007CC6B2 /* HeartbeatManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeartbeatManager.cpp; sourceTree = "<group>"; };
+		54889897126DC86E007CC6B2 /* CatchupWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupWriter.h; sourceTree = "<group>"; };
+		54889898126DC86E007CC6B2 /* CatchupWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CatchupWriter.cpp; sourceTree = "<group>"; };
+		5488999D126DF1F1007CC6B2 /* CatchupReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupReader.h; sourceTree = "<group>"; };
+		5488999E126DF1F2007CC6B2 /* CatchupReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CatchupReader.cpp; sourceTree = "<group>"; };
+		54889A0E126F3D60007CC6B2 /* ShardServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardServer.h; sourceTree = "<group>"; };
+		54889A0F126F3D60007CC6B2 /* ShardServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardServer.cpp; sourceTree = "<group>"; };
+		54889A13126F402D007CC6B2 /* ShardQuorumContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardQuorumContext.cpp; sourceTree = "<group>"; };
+		54889A14126F402D007CC6B2 /* ShardQuorumContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardQuorumContext.h; sourceTree = "<group>"; };
+		54889A18126F40A3007CC6B2 /* ShardMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardMessage.cpp; sourceTree = "<group>"; };
+		54889A19126F40A3007CC6B2 /* ShardMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardMessage.h; sourceTree = "<group>"; };
+		54889A1C126F40F3007CC6B2 /* ShardQuorumProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardQuorumProcessor.h; sourceTree = "<group>"; };
+		54889A1D126F40F3007CC6B2 /* ShardQuorumProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardQuorumProcessor.cpp; sourceTree = "<group>"; };
+		54889C4712707C3B007CC6B2 /* ShardDatabaseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardDatabaseAdapter.h; sourceTree = "<group>"; };
+		54889C4812707C3B007CC6B2 /* ShardDatabaseAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardDatabaseAdapter.cpp; sourceTree = "<group>"; };
 		548BDE38125E282B001ED245 /* CatchupMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupMessage.h; sourceTree = "<group>"; };
 		548BDE39125E282B001ED245 /* CatchupMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CatchupMessage.cpp; sourceTree = "<group>"; };
 		548BE6961264C5C8001ED245 /* DatabaseConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseConsts.h; sourceTree = "<group>"; };
@@ -264,8 +283,6 @@
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
 		54A0B91C12689FA500EF2FC6 /* Message.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Message.h; sourceTree = "<group>"; };
-		54A861C3123E207000ECCBE5 /* ShardServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardServer.cpp; sourceTree = "<group>"; };
-		54A861C4123E207000ECCBE5 /* ShardServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardServer.h; sourceTree = "<group>"; };
 		54AB8715122821EF00721A0F /* StorageShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShard.cpp; sourceTree = "<group>"; };
 		54AB8716122821EF00721A0F /* StorageDataPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDataPage.cpp; sourceTree = "<group>"; };
 		54AB8717122821EF00721A0F /* StorageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFile.h; sourceTree = "<group>"; };
@@ -325,8 +342,6 @@
 		54B7F96411BE85B10076BC62 /* Time.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Time.h; sourceTree = "<group>"; };
 		54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MessageConnection.cpp; sourceTree = "<group>"; };
 		54C8FC71120200F1002DD4D3 /* MessageConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageConnection.h; sourceTree = "<group>"; };
-		54E0BE6F124B5E4B00439334 /* DataContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataContext.h; sourceTree = "<group>"; };
-		54E0BE70124B5E4B00439334 /* DataContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataContext.cpp; sourceTree = "<group>"; };
 		54E0BE72124B616000439334 /* TotalQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TotalQuorum.h; sourceTree = "<group>"; };
 		54E0BE73124B616000439334 /* TotalQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TotalQuorum.cpp; sourceTree = "<group>"; };
 		54E0BFC0124CF42C00439334 /* ShardServerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardServerApp.h; sourceTree = "<group>"; };
@@ -386,7 +401,7 @@
 		9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
 		9A9AA745125E6BB900681840 /* SDBPClientWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientWrapper.h; path = Application/Client/SDBPClientWrapper.h; sourceTree = "<group>"; };
 		9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientWrapper.cpp; path = Application/Client/SDBPClientWrapper.cpp; sourceTree = "<group>"; };
-		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
+		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.interfacer; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9A9AA9011260558A00681840 /* scaliendb_client_python.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_python.cpp; path = Application/Client/Python/scaliendb_client_python.cpp; sourceTree = "<group>"; };
 		9A9AA9021260558A00681840 /* scaliendb_client.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_client.py; path = Application/Client/Python/scaliendb_client.py; sourceTree = "<group>"; };
 		9A9AA9031260558A00681840 /* scaliendb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb.py; path = Application/Client/Python/scaliendb.py; sourceTree = "<group>"; };
@@ -630,18 +645,28 @@
 		54A861C2123E207000ECCBE5 /* ShardServer */ = {
 			isa = PBXGroup;
 			children = (
-				54838864124B54B2005F0FB4 /* DataMessage.h */,
-				54838865124B54B2005F0FB4 /* DataMessage.cpp */,
-				54E0BE6F124B5E4B00439334 /* DataContext.h */,
-				54E0BE70124B5E4B00439334 /* DataContext.cpp */,
-				54A861C4123E207000ECCBE5 /* ShardServer.h */,
-				54A861C3123E207000ECCBE5 /* ShardServer.cpp */,
+				54889A0E126F3D60007CC6B2 /* ShardServer.h */,
+				54889A0F126F3D60007CC6B2 /* ShardServer.cpp */,
+				54889A19126F40A3007CC6B2 /* ShardMessage.h */,
+				54889A18126F40A3007CC6B2 /* ShardMessage.cpp */,
+				54889A14126F402D007CC6B2 /* ShardQuorumContext.h */,
+				54889A13126F402D007CC6B2 /* ShardQuorumContext.cpp */,
+				54889A1C126F40F3007CC6B2 /* ShardQuorumProcessor.h */,
+				54889A1D126F40F3007CC6B2 /* ShardQuorumProcessor.cpp */,
+				54889862126DBFD4007CC6B2 /* HeartbeatManager.h */,
+				54889863126DBFD4007CC6B2 /* HeartbeatManager.cpp */,
+				54889897126DC86E007CC6B2 /* CatchupWriter.h */,
+				54889898126DC86E007CC6B2 /* CatchupWriter.cpp */,
+				5488999D126DF1F1007CC6B2 /* CatchupReader.h */,
+				5488999E126DF1F2007CC6B2 /* CatchupReader.cpp */,
 				9AABC4CE1253A2A8003626AC /* HTTPShardServerContext.h */,
 				9AABC4CF1253A2A8003626AC /* HTTPShardServerContext.cpp */,
 				9AABC4D11253A301003626AC /* HTTPShardServerSession.h */,
 				9AABC4D21253A301003626AC /* HTTPShardServerSession.cpp */,
 				54E0BFC0124CF42C00439334 /* ShardServerApp.h */,
 				54E0BFC1124CF42C00439334 /* ShardServerApp.cpp */,
+				54889C4712707C3B007CC6B2 /* ShardDatabaseAdapter.h */,
+				54889C4812707C3B007CC6B2 /* ShardDatabaseAdapter.cpp */,
 			);
 			name = ShardServer;
 			path = Application/ShardServer;
@@ -1028,7 +1053,6 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1138,9 +1162,6 @@
 				54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */,
 				54E0BE74124B616000439334 /* TotalQuorum.cpp in Sources */,
 				54E0BFCD124CF55100439334 /* ShardServerApp.cpp in Sources */,
-				9AABC280124F639A003626AC /* ShardServer.cpp in Sources */,
-				9AABC283124F63A7003626AC /* DataMessage.cpp in Sources */,
-				9AABC3AF12529466003626AC /* DataContext.cpp in Sources */,
 				9AABC4D01253A2A8003626AC /* HTTPShardServerContext.cpp in Sources */,
 				9AABC4D31253A301003626AC /* HTTPShardServerSession.cpp in Sources */,
 				9AABCD881257D8CE003626AC /* JSONConfigState.cpp in Sources */,
@@ -1153,6 +1174,14 @@
 				54889567126B3D28007CC6B2 /* ConfigQuorum.cpp in Sources */,
 				5488956A126B3D55007CC6B2 /* ConfigTable.cpp in Sources */,
 				5488956E126B3D84007CC6B2 /* ConfigShard.cpp in Sources */,
+				54889864126DBFD4007CC6B2 /* HeartbeatManager.cpp in Sources */,
+				54889899126DC86E007CC6B2 /* CatchupWriter.cpp in Sources */,
+				5488999F126DF1F2007CC6B2 /* CatchupReader.cpp in Sources */,
+				54889A10126F3D60007CC6B2 /* ShardServer.cpp in Sources */,
+				54889A15126F402D007CC6B2 /* ShardQuorumContext.cpp in Sources */,
+				54889A1A126F40A3007CC6B2 /* ShardMessage.cpp in Sources */,
+				54889A1E126F40F3007CC6B2 /* ShardQuorumProcessor.cpp in Sources */,
+				54889C4912707C3B007CC6B2 /* ShardDatabaseAdapter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

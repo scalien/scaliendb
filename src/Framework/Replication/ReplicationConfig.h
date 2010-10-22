@@ -5,6 +5,7 @@
 #include "Framework/Storage/StorageTable.h"
 
 #define REPLICATION_CONFIG (ReplicationConfig::Get())
+#define MY_NODEID          (ReplicationConfig::Get()->GetNodeID())
 
 /*
 ===============================================================================
