@@ -69,7 +69,6 @@ private:
     void                    TryAppend();
 
     bool                    isPrimary;
-//    bool                    isCatchingUp;
     uint64_t                proposalID;
     uint64_t                configID;
     uint64_t                requestedLeaseExpireTime;

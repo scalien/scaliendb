@@ -23,6 +23,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     quorumContext.Init(configQuorum, this,
      shardServer->GetDatabaseAdapter()->GetQuorumTable(configQuorum->quorumID));
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
+    EventLoop::Add(&requestLeaseTimeout);
 }
 
 ShardServer* ShardQuorumProcessor::GetShardServer()
