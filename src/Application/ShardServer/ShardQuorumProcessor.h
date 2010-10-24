@@ -50,7 +50,7 @@ public:
     // ========================================================================================
     // For ShardQuorum:
     //
-    void                    OnAppend(ReadBuffer& value, bool ownAppend);
+    void                    OnAppend(uint64_t paxosID, ReadBuffer& value, bool ownAppend);
     void                    OnStartCatchup();
     void                    OnCatchupMessage(CatchupMessage& message);
     // ========================================================================================
@@ -65,7 +65,8 @@ private:
     void                    OnClientRequestGet(ClientRequest* request);
 
     void                    TransformRequest(ClientRequest* request, ShardMessage* message);
-    void                    ProcessMessage(ShardMessage& message, bool ownAppend);
+    void                    ExecuteMessage(ShardMessage& message, uint64_t paxosID,
+                             uint64_t commandID, bool ownAppend);
     void                    TryAppend();
 
     bool                    isPrimary;

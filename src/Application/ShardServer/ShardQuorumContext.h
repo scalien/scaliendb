@@ -50,7 +50,7 @@ public:
     virtual QuorumDatabase*         GetDatabase();
     virtual QuorumTransport*        GetTransport();
     
-    virtual void                    OnAppend(ReadBuffer value, bool ownAppend);
+    virtual void                    OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend);
     virtual Buffer&                 GetNextValue();
     virtual void                    OnMessage(uint64_t nodeID, ReadBuffer msg);
     virtual void                    OnStartCatchup();

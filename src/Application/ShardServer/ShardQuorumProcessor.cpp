@@ -4,6 +4,31 @@
 #include "Application/Common/ContextTransport.h"
 #include "ShardServer.h"
 
+static void WriteValue(
+Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
+{
+    if (!buffer.Writef("%U:%U:%B", paxosID, commandID, &userValue))
+        ASSERT_FAIL();
+}
+
+//static void WriteValue(
+//Buffer &buffer, uint64_t paxosID, uint64_t commandID, uint64_t userValue)
+//{
+//    if (!buffer.Writef("%U:%U:%U", paxosID, commandID, userValue))
+//        ASSERT_FAIL();
+//}
+
+static void ReadValue(
+ReadBuffer& buffer, uint64_t& paxosID, uint64_t& commandID, ReadBuffer& userValue)
+{
+    int read;
+
+    read = buffer.Readf("%U:%U:%R", &paxosID, &commandID, &userValue);
+    
+    if (read < 4)
+        ASSERT_FAIL();
+}
+
 ShardQuorumProcessor::ShardQuorumProcessor()
 {
     next = prev = this;
@@ -67,20 +92,23 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     quorumContext.OnLearnLease();
 }
 
-void ShardQuorumProcessor::OnAppend(ReadBuffer& value, bool ownAppend)
+void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ownAppend)
 {
     int             read;
     ShardMessage    message;
+    uint64_t        commandID;
     
     Log_Trace();
     
+    commandID = 0;
     while (value.GetLength() > 0)
     {
         read = message.Read(value);
         assert(read > 0);
         value.Advance(read);
 
-        ProcessMessage(message, ownAppend);
+        ExecuteMessage(message, paxosID, commandID, ownAppend);
+        commandID = 0;
     }
     
     if (shardMessages.GetLength() > 0)
@@ -210,9 +238,12 @@ void ShardQuorumProcessor::TryReplicationCatchup()
 
 void ShardQuorumProcessor::OnClientRequestGet(ClientRequest* request)
 {
+    uint64_t        paxosID;
+    uint64_t        commandID;
     StorageTable*   table;
     ReadBuffer      key;
     ReadBuffer      value;
+    ReadBuffer      userValue;
 
     table = shardServer->GetDatabaseAdapter()->GetTable(request->tableID);
     if (!table)
@@ -230,7 +261,9 @@ void ShardQuorumProcessor::OnClientRequestGet(ClientRequest* request)
         return;
     }
     
-    request->response.Value(value);
+    ReadValue(value, paxosID, commandID, userValue);
+    
+    request->response.Value(userValue);
     request->OnComplete();
 }
 
@@ -254,10 +287,12 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
     }
 }
 
-void ShardQuorumProcessor::ProcessMessage(ShardMessage& message, bool ownAppend)
+void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
+ uint64_t paxosID, uint64_t commandID, bool ownAppend)
 {
     StorageTable*       table;
     ClientRequest*      request;
+    Buffer              value;
 
     table = shardServer->GetDatabaseAdapter()->GetTable(message.tableID);
     if (!table)
@@ -277,7 +312,8 @@ void ShardQuorumProcessor::ProcessMessage(ShardMessage& message, bool ownAppend)
     switch (message.type)
     {
         case CLIENTREQUEST_SET:
-            if (!table->Set(message.key, message.value))
+            WriteValue(value, paxosID, commandID, message.value);
+            if (!table->Set(message.key, value))
             {
                 if (request)
                     request->response.Failed();

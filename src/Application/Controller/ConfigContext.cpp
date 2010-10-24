@@ -117,14 +117,14 @@ Buffer& ConfigContext::GetNextValue()
     return nextValue;
 }
 
-void ConfigContext::OnAppend(ReadBuffer value, bool ownAppend)
+void ConfigContext::OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend)
 {
     ConfigMessage message;
 
     nextValue.Clear();
 
     assert(message.Read(value));
-    controller->OnAppend(message, ownAppend);
+    controller->OnAppend(paxosID, message, ownAppend);
 }
 
 void ConfigContext::OnMessage(uint64_t nodeID, ReadBuffer buffer)

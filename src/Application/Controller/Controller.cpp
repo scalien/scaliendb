@@ -171,7 +171,7 @@ void Controller::OnLeaseTimeout()
     assert(configMessages.GetLength() == 0);
 }
 
-void Controller::OnAppend(ConfigMessage& message, bool ownAppend)
+void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool ownAppend)
 {
     ClusterMessage  clusterMessage;
     

@@ -83,5 +83,8 @@ void ShardCatchupReader::OnCommit(CatchupMessage& /*message*/)
 
 void ShardCatchupReader::OnAbort(CatchupMessage& /*message*/)
 {
-    // TODO: xxx
+    shard = NULL;
+    isActive = false;
+
+    Log_Message("Catchup aborted");
 }

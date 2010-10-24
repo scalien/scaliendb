@@ -270,7 +270,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
     }
 
     if (!BUFCMP(&value, &enableMultiPaxos))
-        context->OnAppend(value, ownAppend);
+        context->OnAppend(paxosID - 1, value, ownAppend);
     TryAppendNextValue();
 }
 

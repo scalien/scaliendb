@@ -123,11 +123,11 @@ QuorumTransport* ShardQuorumContext::GetTransport()
     return &transport;
 }
 
-void ShardQuorumContext::OnAppend(ReadBuffer value, bool ownAppend)
+void ShardQuorumContext::OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend)
 {
     nextValue.Clear();
 
-    quorumProcessor->OnAppend(value, ownAppend);
+    quorumProcessor->OnAppend(paxosID, value, ownAppend);
 }
 
 Buffer& ShardQuorumContext::GetNextValue()
