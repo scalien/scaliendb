@@ -5,9 +5,9 @@
 #include "ShardServer.h"
 
 static void WriteValue(
-Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
+Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer& userValue)
 {
-    if (!buffer.Writef("%U:%U:%B", paxosID, commandID, &userValue))
+    if (!buffer.Writef("%U:%U:%R", paxosID, commandID, &userValue))
         ASSERT_FAIL();
 }
 
@@ -277,6 +277,19 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
             message->key.Wrap(request->key);
             message->value.Wrap(request->value);
             break;
+        case CLIENTREQUEST_SET_IF_NOT_EXISTS:
+            message->type = SHARDMESSAGE_SET_IF_NOT_EXISTS;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            message->value.Wrap(request->value);
+            break;
+        case CLIENTREQUEST_TEST_AND_SET:
+            message->type = SHARDMESSAGE_TEST_AND_SET;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            message->test.Wrap(request->test);
+            message->value.Wrap(request->value);
+            break;        
         case CLIENTREQUEST_DELETE:
             message->type = SHARDMESSAGE_DELETE;
             message->tableID = request->tableID;
@@ -290,9 +303,26 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
 void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
  uint64_t paxosID, uint64_t commandID, bool ownAppend)
 {
+    uint64_t            readPaxosID;
+    uint64_t            readCommandID;
     StorageTable*       table;
     ClientRequest*      request;
-    Buffer              value;
+    ReadBuffer          userValue;
+    ReadBuffer          readBuffer;
+    Buffer              buffer;
+
+#define CHECK_CMD()                                             \
+	if (readPaxosID > paxosID ||                                \
+	(readPaxosID == paxosID && readCommandID >= commandID))     \
+		break;
+
+#define FAIL()                                                  \
+    {                                                           \
+    if (request)                                                \
+        request->response.Failed();                             \
+    break;                                                      \
+    }
+
 
     table = shardServer->GetDatabaseAdapter()->GetTable(message.tableID);
     if (!table)
@@ -312,12 +342,27 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
     switch (message.type)
     {
         case CLIENTREQUEST_SET:
-            WriteValue(value, paxosID, commandID, message.value);
-            if (!table->Set(message.key, value))
-            {
-                if (request)
-                    request->response.Failed();
-            }
+            WriteValue(buffer, paxosID, commandID, message.value);
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            break;
+        case CLIENTREQUEST_SET_IF_NOT_EXISTS:
+            if (table->Get(message.key, readBuffer))
+                FAIL();
+            WriteValue(buffer, paxosID, commandID, message.value);
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            break;
+        case CLIENTREQUEST_TEST_AND_SET:
+            if (!table->Get(message.key, readBuffer))
+                FAIL();
+            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+            CHECK_CMD();
+            if (ReadBuffer::Cmp(userValue, message.test) != 0)
+                FAIL();
+            WriteValue(buffer, paxosID, commandID, message.value);
+            if (!table->Set(message.key, buffer))
+                FAIL();            
             break;
         case CLIENTREQUEST_DELETE:
             if (!table->Delete(message.key))
@@ -337,6 +382,8 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
         request->OnComplete(); // request deletes itself
         shardMessages.Delete(shardMessages.First());
     }
+    
+#undef CHECK_CMD
 }
 
 void ShardQuorumProcessor::TryAppend()

@@ -147,6 +147,10 @@ ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd
         return ProcessGet(params);
     if (HTTP_MATCH_COMMAND(cmd, "set"))
         return ProcessSet(params);
+    if (HTTP_MATCH_COMMAND(cmd, "setifnex"))
+        return ProcessSetIfNotExists(params);
+    if (HTTP_MATCH_COMMAND(cmd, "testandset"))
+        return ProcessTestAndSet(params);
     if (HTTP_MATCH_COMMAND(cmd, "delete"))
         return ProcessDelete(params);
     
@@ -186,6 +190,46 @@ ClientRequest* ShardHTTPClientSession::ProcessSet(UrlParam& params)
 
     request = new ClientRequest;
     request->Set(0, databaseID, tableID, key, value);
+
+    return request;    
+}
+
+ClientRequest* ShardHTTPClientSession::ProcessSetIfNotExists(UrlParam& params)
+{
+    ClientRequest*  request;
+    uint64_t        databaseID;
+    uint64_t        tableID;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    
+    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+    HTTP_GET_PARAM(params, "key", key);
+    HTTP_GET_PARAM(params, "value", value);
+
+    request = new ClientRequest;
+    request->SetIfNotExists(0, databaseID, tableID, key, value);
+
+    return request;    
+}
+
+ClientRequest* ShardHTTPClientSession::ProcessTestAndSet(UrlParam& params)
+{
+    ClientRequest*  request;
+    uint64_t        databaseID;
+    uint64_t        tableID;
+    ReadBuffer      key;
+    ReadBuffer      test;
+    ReadBuffer      value;
+    
+    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+    HTTP_GET_PARAM(params, "key", key);
+    HTTP_GET_PARAM(params, "test", test);
+    HTTP_GET_PARAM(params, "value", value);
+
+    request = new ClientRequest;
+    request->TestAndSet(0, databaseID, tableID, key, test, value);
 
     return request;    
 }

@@ -5,7 +5,8 @@
 
 #define HTTP_MATCH_COMMAND(cmd, csl) \
     ((sizeof(csl) == 1 && cmd.GetLength() == 0) || \
-    (sizeof(csl) > 1 && cmd.GetLength() > 0 && memcmp(cmd.GetBuffer(), csl, MIN(cmd.GetLength() + 1, sizeof(csl)) - 1) == 0))
+    (sizeof(csl) > 1 && cmd.GetLength() > 0 && sizeof(csl)-1 == cmd.GetLength() && \
+    memcmp(cmd.GetBuffer(), csl, MIN(cmd.GetLength() + 1, sizeof(csl)) - 1) == 0))
 
 #define HTTP_GET_OPT_PARAM(params, name, var) \
     params.GetNamed(name, sizeof("" name) - 1, var)

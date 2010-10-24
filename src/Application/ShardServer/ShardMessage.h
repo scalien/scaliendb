@@ -3,8 +3,10 @@
 
 #include "Framework/Messaging/Message.h"
 
-#define SHARDMESSAGE_SET        'S'
-#define SHARDMESSAGE_DELETE     'D'
+#define SHARDMESSAGE_SET                    'S'
+#define SHARDMESSAGE_SET_IF_NOT_EXISTS      'I'
+#define SHARDMESSAGE_TEST_AND_SET           's'
+#define SHARDMESSAGE_DELETE                 'D'
 
 /*
 ===============================================================================================
@@ -22,9 +24,12 @@ public:
     uint64_t        tableID;
     ReadBuffer      key;
     ReadBuffer      value;
+    ReadBuffer      test;
 
-    // Data management
+    // Data manipulation
     void            Set(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
+    void            SetIfNotExists(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
+    void            TestAndSet(uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
     void            Delete(uint64_t tableID, ReadBuffer& key);
 
     // For InList<>

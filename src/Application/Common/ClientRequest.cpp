@@ -34,8 +34,10 @@ bool ClientRequest::IsControllerRequest()
 
 bool ClientRequest::IsShardServerRequest()
 {
-    if (type == CLIENTREQUEST_GET       ||
-        type == CLIENTREQUEST_SET       ||
+    if (type == CLIENTREQUEST_GET               ||
+        type == CLIENTREQUEST_SET               ||
+        type == CLIENTREQUEST_SET_IF_NOT_EXISTS ||
+        type == CLIENTREQUEST_TEST_AND_SET      ||
         type == CLIENTREQUEST_DELETE)
             return true;
     
@@ -129,6 +131,17 @@ bool ClientRequest::DeleteTable(
     return true;
 }
 
+bool ClientRequest::Get(
+ uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_)
+{
+    type = CLIENTREQUEST_GET;
+    commandID = commandID_;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    key.Write(key_);
+    return true;
+}
+
 bool ClientRequest::Set(
  uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
@@ -141,14 +154,29 @@ bool ClientRequest::Set(
     return true;
 }
 
-bool ClientRequest::Get(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_)
+bool ClientRequest::SetIfNotExists(
+ uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
-    type = CLIENTREQUEST_GET;
+    type = CLIENTREQUEST_SET_IF_NOT_EXISTS;
     commandID = commandID_;
     databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
+    value.Write(value_);
+    return true;
+}
+
+bool ClientRequest::TestAndSet(
+ uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_,
+ ReadBuffer& key_, ReadBuffer& test_, ReadBuffer& value_)
+{
+    type = CLIENTREQUEST_TEST_AND_SET;
+    commandID = commandID_;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    key.Write(key_);
+    test.Write(test_);
+    value.Write(value_);
     return true;
 }
 

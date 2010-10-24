@@ -17,9 +17,9 @@
 #define CLIENTREQUEST_DELETE_TABLE      'd'
 #define CLIENTREQUEST_GET               'G'
 #define CLIENTREQUEST_SET               'S'
+#define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
+#define CLIENTREQUEST_TEST_AND_SET      's'
 #define CLIENTREQUEST_DELETE            'X'
-#define CLIENTREQUEST_PRODUCTION        'P'
-#define CLIENTREQUEST_TEST              'T'
 
 class ClientSession; // forward
 
@@ -72,13 +72,19 @@ public:
     bool            DeleteTable(
                      uint64_t commandID, uint64_t databaseID, uint64_t tableID);
     
-    // Data operations
-    bool            Set(
-                     uint64_t commandID, uint64_t databaseID,
-                     uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
+    // Data manipulations
     bool            Get(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key);
+    bool            Set(
+                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
+    bool            SetIfNotExists(
+                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
+    bool            TestAndSet(
+                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
     bool            Delete(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key);    
@@ -96,6 +102,7 @@ public:
     Buffer          name;
     Buffer          key;
     Buffer          value;
+    Buffer          test;
     NodeList        nodes;
     
     ClientRequest*  prev;
