@@ -20,6 +20,7 @@
 #define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
 #define CLIENTREQUEST_TEST_AND_SET      's'
 #define CLIENTREQUEST_DELETE            'X'
+#define CLIENTREQUEST_REMOVE            'x'
 
 class ClientSession; // forward
 
@@ -86,6 +87,9 @@ public:
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
     bool            Delete(
+                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t tableID, ReadBuffer& key);    
+    bool            Remove(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key);    
 

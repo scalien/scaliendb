@@ -4,7 +4,7 @@
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"
 
-class ShardServer;       // forward
+class ShardServer;      // forward
 class ClientRequest;    // forward
 class UrlParam;         // forward
 
@@ -41,6 +41,7 @@ private:
     ClientRequest*      ProcessSetIfNotExists(UrlParam& params);
     ClientRequest*      ProcessTestAndSet(UrlParam& params);
     ClientRequest*      ProcessDelete(UrlParam& params);
+    ClientRequest*      ProcessRemove(UrlParam& params);
     void                OnConnectionClose();
 
     ShardServer*        shardServer;

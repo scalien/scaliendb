@@ -295,6 +295,11 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
             message->tableID = request->tableID;
             message->key.Wrap(request->key);
             break;
+        case CLIENTREQUEST_REMOVE:
+            message->type = SHARDMESSAGE_REMOVE;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            break;            
         default:
             ASSERT_FAIL();
     }
@@ -341,19 +346,19 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
     // TODO: differentiate return status (FAILED, NOSERVICE)
     switch (message.type)
     {
-        case CLIENTREQUEST_SET:
+        case SHARDMESSAGE_SET:
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!table->Set(message.key, buffer))
                 FAIL();
             break;
-        case CLIENTREQUEST_SET_IF_NOT_EXISTS:
+        case SHARDMESSAGE_SET_IF_NOT_EXISTS:
             if (table->Get(message.key, readBuffer))
                 FAIL();
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!table->Set(message.key, buffer))
                 FAIL();
             break;
-        case CLIENTREQUEST_TEST_AND_SET:
+        case SHARDMESSAGE_TEST_AND_SET:
             if (!table->Get(message.key, readBuffer))
                 FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
@@ -364,7 +369,19 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
             if (!table->Set(message.key, buffer))
                 FAIL();            
             break;
-        case CLIENTREQUEST_DELETE:
+        case SHARDMESSAGE_DELETE:
+            if (!table->Delete(message.key))
+            {
+                if (request)
+                    request->response.Failed();
+            }
+            break;
+        case SHARDMESSAGE_REMOVE:
+            if (table->Get(message.key, readBuffer))
+            {
+                ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+                request->response.Value(userValue);
+            }
             if (!table->Delete(message.key))
             {
                 if (request)

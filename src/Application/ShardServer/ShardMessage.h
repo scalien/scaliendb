@@ -6,7 +6,8 @@
 #define SHARDMESSAGE_SET                    'S'
 #define SHARDMESSAGE_SET_IF_NOT_EXISTS      'I'
 #define SHARDMESSAGE_TEST_AND_SET           's'
-#define SHARDMESSAGE_DELETE                 'D'
+#define SHARDMESSAGE_DELETE                 'X'
+#define SHARDMESSAGE_REMOVE                 'x'
 
 /*
 ===============================================================================================
@@ -31,10 +32,11 @@ public:
     void            SetIfNotExists(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     void            TestAndSet(uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
     void            Delete(uint64_t tableID, ReadBuffer& key);
+    void            Remove(uint64_t tableID, ReadBuffer& key);
 
     // For InList<>
-    ShardMessage*    prev;
-    ShardMessage*    next;
+    ShardMessage*   prev;
+    ShardMessage*   next;
 
     // Serialization
     int             Read(ReadBuffer& buffer);

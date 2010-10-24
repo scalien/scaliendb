@@ -153,6 +153,8 @@ ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd
         return ProcessTestAndSet(params);
     if (HTTP_MATCH_COMMAND(cmd, "delete"))
         return ProcessDelete(params);
+    if (HTTP_MATCH_COMMAND(cmd, "remove"))
+        return ProcessRemove(params);
     
     return NULL;
 }
@@ -248,6 +250,24 @@ ClientRequest* ShardHTTPClientSession::ProcessDelete(UrlParam& params)
 
     request = new ClientRequest;
     request->Delete(0, databaseID, tableID, key);
+
+    return request;    
+}
+
+ClientRequest* ShardHTTPClientSession::ProcessRemove(UrlParam& params)
+{
+    ClientRequest*  request;
+    uint64_t        databaseID;
+    uint64_t        tableID;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    
+    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+    HTTP_GET_PARAM(params, "key", key);
+
+    request = new ClientRequest;
+    request->Remove(0, databaseID, tableID, key);
 
     return request;    
 }

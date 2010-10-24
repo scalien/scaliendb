@@ -38,7 +38,8 @@ bool ClientRequest::IsShardServerRequest()
         type == CLIENTREQUEST_SET               ||
         type == CLIENTREQUEST_SET_IF_NOT_EXISTS ||
         type == CLIENTREQUEST_TEST_AND_SET      ||
-        type == CLIENTREQUEST_DELETE)
+        type == CLIENTREQUEST_DELETE            ||
+        type == CLIENTREQUEST_REMOVE)
             return true;
     
     return false;
@@ -184,6 +185,17 @@ bool ClientRequest::Delete(
  uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_)
 {
     type = CLIENTREQUEST_DELETE;
+    commandID = commandID_;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    key.Write(key_);
+    return true;
+}
+
+bool ClientRequest::Remove(
+ uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_)
+{
+    type = CLIENTREQUEST_REMOVE;
     commandID = commandID_;
     databaseID = databaseID_;
     tableID = tableID_;
