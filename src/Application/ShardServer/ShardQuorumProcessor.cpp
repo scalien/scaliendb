@@ -5,18 +5,11 @@
 #include "ShardServer.h"
 
 static void WriteValue(
-Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer& userValue)
+Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
 {
     if (!buffer.Writef("%U:%U:%R", paxosID, commandID, &userValue))
         ASSERT_FAIL();
 }
-
-//static void WriteValue(
-//Buffer &buffer, uint64_t paxosID, uint64_t commandID, uint64_t userValue)
-//{
-//    if (!buffer.Writef("%U:%U:%U", paxosID, commandID, userValue))
-//        ASSERT_FAIL();
-//}
 
 static void ReadValue(
 ReadBuffer& buffer, uint64_t& paxosID, uint64_t& commandID, ReadBuffer& userValue)
@@ -289,7 +282,13 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
             message->key.Wrap(request->key);
             message->test.Wrap(request->test);
             message->value.Wrap(request->value);
-            break;        
+            break;
+        case CLIENTREQUEST_ADD:
+            message->type = SHARDMESSAGE_ADD;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            message->number = request->number;
+            break;
         case CLIENTREQUEST_DELETE:
             message->type = SHARDMESSAGE_DELETE;
             message->tableID = request->tableID;
@@ -310,11 +309,14 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
 {
     uint64_t            readPaxosID;
     uint64_t            readCommandID;
+    int64_t             number;
+    unsigned            nread;
     StorageTable*       table;
     ClientRequest*      request;
     ReadBuffer          userValue;
     ReadBuffer          readBuffer;
     Buffer              buffer;
+    Buffer              numberBuffer;
 
 #define CHECK_CMD()                                             \
 	if (readPaxosID > paxosID ||                                \
@@ -364,10 +366,32 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
             if (ReadBuffer::Cmp(userValue, message.test) != 0)
-                FAIL();
+            {
+                if (request)
+                    request->response.Value(userValue);
+                break;
+            }
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!table->Set(message.key, buffer))
-                FAIL();            
+                FAIL();
+            if (request)
+                request->response.Value(message.value);
+            break;
+        case SHARDMESSAGE_ADD:
+            if (!table->Get(message.key, readBuffer))
+                FAIL();
+            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+            CHECK_CMD();
+            number = BufferToInt64(userValue.GetBuffer(), userValue.GetLength(), &nread);
+            if (nread != userValue.GetLength())
+                FAIL();
+            number += message.number;
+            numberBuffer.Writef("%I", number);
+            WriteValue(buffer, paxosID, commandID, ReadBuffer(numberBuffer));
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            if (request)
+                request->response.Number(number);
             break;
         case SHARDMESSAGE_DELETE:
             if (!table->Delete(message.key))

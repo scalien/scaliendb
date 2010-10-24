@@ -151,6 +151,8 @@ ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd
         return ProcessSetIfNotExists(params);
     if (HTTP_MATCH_COMMAND(cmd, "testandset"))
         return ProcessTestAndSet(params);
+    if (HTTP_MATCH_COMMAND(cmd, "add"))
+        return ProcessAdd(params);
     if (HTTP_MATCH_COMMAND(cmd, "delete"))
         return ProcessDelete(params);
     if (HTTP_MATCH_COMMAND(cmd, "remove"))
@@ -232,6 +234,31 @@ ClientRequest* ShardHTTPClientSession::ProcessTestAndSet(UrlParam& params)
 
     request = new ClientRequest;
     request->TestAndSet(0, databaseID, tableID, key, test, value);
+
+    return request;    
+}
+
+ClientRequest* ShardHTTPClientSession::ProcessAdd(UrlParam& params)
+{
+    unsigned        nread;
+    uint64_t        databaseID;
+    uint64_t        tableID;
+    int64_t         number;
+    ClientRequest*  request;
+    ReadBuffer      key;
+    ReadBuffer      numberBuffer;
+    
+    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+    HTTP_GET_PARAM(params, "key", key);
+    HTTP_GET_PARAM(params, "number", numberBuffer);
+
+    number = BufferToInt64(numberBuffer.GetBuffer(), numberBuffer.GetLength(), &nread);
+    if (nread != numberBuffer.GetLength())
+        return NULL;
+
+    request = new ClientRequest;
+    request->Add(0, databaseID, tableID, key, number);
 
     return request;    
 }

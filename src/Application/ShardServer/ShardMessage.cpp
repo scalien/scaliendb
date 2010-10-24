@@ -26,6 +26,14 @@ void ShardMessage::TestAndSet(uint64_t tableID_, ReadBuffer& key_,
     value = value_;
 }
 
+void ShardMessage::Add(uint64_t tableID_, ReadBuffer& key_, int64_t number_)
+{
+    type = SHARDMESSAGE_DELETE;
+    tableID = tableID_;
+    key = key_;
+    number = number_;
+}
+
 void ShardMessage::Delete(uint64_t tableID_, ReadBuffer& key_)
 {
     type = SHARDMESSAGE_DELETE;
@@ -62,6 +70,10 @@ int ShardMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R:%#R:%#R",
              &type, &tableID, &key, &test, &value);
             break;
+        case SHARDMESSAGE_ADD:
+            read = buffer.Readf("%c:%U:%#R:%I",
+             &type, &tableID, &key, &number);
+            break;
         case SHARDMESSAGE_DELETE:
             read = buffer.Readf("%c:%U:%#R",
              &type, &tableID, &key);
@@ -93,6 +105,10 @@ bool ShardMessage::Write(Buffer& buffer)
         case SHARDMESSAGE_SET_IF_NOT_EXISTS:
             buffer.Appendf("%c:%U:%#R:%#R",
              type, tableID, &key, &value);
+            break;
+        case SHARDMESSAGE_ADD:
+            buffer.Appendf("%c:%U:%#R:%I",
+             type, tableID, &key, number);
             break;
         case SHARDMESSAGE_DELETE:
             buffer.Appendf("%c:%U:%#R",

@@ -40,6 +40,7 @@ private:
     ClientRequest*      ProcessSet(UrlParam& params);
     ClientRequest*      ProcessSetIfNotExists(UrlParam& params);
     ClientRequest*      ProcessTestAndSet(UrlParam& params);
+    ClientRequest*      ProcessAdd(UrlParam& params);
     ClientRequest*      ProcessDelete(UrlParam& params);
     ClientRequest*      ProcessRemove(UrlParam& params);
     void                OnConnectionClose();

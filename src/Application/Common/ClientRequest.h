@@ -19,6 +19,7 @@
 #define CLIENTREQUEST_SET               'S'
 #define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
 #define CLIENTREQUEST_TEST_AND_SET      's'
+#define CLIENTREQUEST_ADD               'a'
 #define CLIENTREQUEST_DELETE            'X'
 #define CLIENTREQUEST_REMOVE            'x'
 
@@ -86,6 +87,9 @@ public:
     bool            TestAndSet(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
+    bool            Add(
+                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t tableID, ReadBuffer& key, int64_t number);
     bool            Delete(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key);    
@@ -103,6 +107,7 @@ public:
     uint64_t        databaseID;
     uint64_t        tableID;
     uint64_t        shardID;
+    int64_t         number;
     Buffer          name;
     Buffer          key;
     Buffer          value;
