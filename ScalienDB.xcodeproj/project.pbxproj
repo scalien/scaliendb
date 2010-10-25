@@ -41,7 +41,7 @@
 		54889A15126F402D007CC6B2 /* ShardQuorumContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A13126F402D007CC6B2 /* ShardQuorumContext.cpp */; };
 		54889A1A126F40A3007CC6B2 /* ShardMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A18126F40A3007CC6B2 /* ShardMessage.cpp */; };
 		54889A1E126F40F3007CC6B2 /* ShardQuorumProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889A1D126F40F3007CC6B2 /* ShardQuorumProcessor.cpp */; };
-		54889C4912707C3B007CC6B2 /* ShardDatabaseAdapter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889C4812707C3B007CC6B2 /* ShardDatabaseAdapter.cpp */; };
+		54889C4912707C3B007CC6B2 /* ShardDatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54889C4812707C3B007CC6B2 /* ShardDatabaseManager.cpp */; };
 		5488A1511271B6FE007CC6B2 /* ShardHTTPHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5488A1501271B6FE007CC6B2 /* ShardHTTPHandler.cpp */; };
 		548BDE3A125E282B001ED245 /* CatchupMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548BDE39125E282B001ED245 /* CatchupMessage.cpp */; };
 		548BE6D61264C930001ED245 /* ConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548BE6D31264C930001ED245 /* ConfigState.cpp */; };
@@ -267,8 +267,8 @@
 		54889A19126F40A3007CC6B2 /* ShardMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardMessage.h; sourceTree = "<group>"; };
 		54889A1C126F40F3007CC6B2 /* ShardQuorumProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardQuorumProcessor.h; sourceTree = "<group>"; };
 		54889A1D126F40F3007CC6B2 /* ShardQuorumProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardQuorumProcessor.cpp; sourceTree = "<group>"; };
-		54889C4712707C3B007CC6B2 /* ShardDatabaseAdapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardDatabaseAdapter.h; sourceTree = "<group>"; };
-		54889C4812707C3B007CC6B2 /* ShardDatabaseAdapter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardDatabaseAdapter.cpp; sourceTree = "<group>"; };
+		54889C4712707C3B007CC6B2 /* ShardDatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardDatabaseManager.h; sourceTree = "<group>"; };
+		54889C4812707C3B007CC6B2 /* ShardDatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardDatabaseManager.cpp; sourceTree = "<group>"; };
 		5488A14F1271B6FE007CC6B2 /* ShardHTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardHTTPHandler.h; sourceTree = "<group>"; };
 		5488A1501271B6FE007CC6B2 /* ShardHTTPHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardHTTPHandler.cpp; sourceTree = "<group>"; };
 		548BDE38125E282B001ED245 /* CatchupMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupMessage.h; sourceTree = "<group>"; };
@@ -657,8 +657,8 @@
 				54889A1D126F40F3007CC6B2 /* ShardQuorumProcessor.cpp */,
 				54889862126DBFD4007CC6B2 /* ShardHeartbeatManager.h */,
 				54889863126DBFD4007CC6B2 /* ShardHeartbeatManager.cpp */,
-				54889C4712707C3B007CC6B2 /* ShardDatabaseAdapter.h */,
-				54889C4812707C3B007CC6B2 /* ShardDatabaseAdapter.cpp */,
+				54889C4712707C3B007CC6B2 /* ShardDatabaseManager.h */,
+				54889C4812707C3B007CC6B2 /* ShardDatabaseManager.cpp */,
 				9AABC4D11253A301003626AC /* ShardHTTPClientSession.h */,
 				9AABC4D21253A301003626AC /* ShardHTTPClientSession.cpp */,
 				5488A14F1271B6FE007CC6B2 /* ShardHTTPHandler.h */,
@@ -1180,7 +1180,7 @@
 				54889A15126F402D007CC6B2 /* ShardQuorumContext.cpp in Sources */,
 				54889A1A126F40A3007CC6B2 /* ShardMessage.cpp in Sources */,
 				54889A1E126F40F3007CC6B2 /* ShardQuorumProcessor.cpp in Sources */,
-				54889C4912707C3B007CC6B2 /* ShardDatabaseAdapter.cpp in Sources */,
+				54889C4912707C3B007CC6B2 /* ShardDatabaseManager.cpp in Sources */,
 				5488A1511271B6FE007CC6B2 /* ShardHTTPHandler.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

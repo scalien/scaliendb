@@ -12,12 +12,12 @@ class ShardServer; // forward
 /*
 ===============================================================================================
 
- ShardDatabaseAdapter
+ ShardDatabaseManager
 
 ===============================================================================================
 */
 
-class ShardDatabaseAdapter
+class ShardDatabaseManager
 {
     typedef HashMap<uint64_t, StorageDatabase*>     DatabaseMap;
     typedef HashMap<uint64_t, StorageTable*>        TableMap;

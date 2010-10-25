@@ -1,4 +1,4 @@
-#include "ShardDatabaseAdapter.h"
+#include "ShardDatabaseManager.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "ShardServer.h"
@@ -26,7 +26,7 @@ static size_t Hash(uint64_t h)
     return h;
 }
 
-void ShardDatabaseAdapter::Init(ShardServer* shardServer_)
+void ShardDatabaseManager::Init(ShardServer* shardServer_)
 {
     shardServer = shardServer_;
     environment.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
@@ -36,7 +36,7 @@ void ShardDatabaseAdapter::Init(ShardServer* shardServer_)
     REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));
 }
 
-void ShardDatabaseAdapter::Shutdown()
+void ShardDatabaseManager::Shutdown()
 {
     DatabaseMap::Node*  dbNode;
     StorageDatabase*    database;
@@ -50,12 +50,12 @@ void ShardDatabaseAdapter::Shutdown()
     environment.Close();
 }
 
-StorageEnvironment* ShardDatabaseAdapter::GetEnvironment()
+StorageEnvironment* ShardDatabaseManager::GetEnvironment()
 {
     return &environment;
 }
 
-StorageTable* ShardDatabaseAdapter::GetQuorumTable(uint64_t quorumID)
+StorageTable* ShardDatabaseManager::GetQuorumTable(uint64_t quorumID)
 {
     Buffer name;
     
@@ -64,7 +64,7 @@ StorageTable* ShardDatabaseAdapter::GetQuorumTable(uint64_t quorumID)
     return systemDatabase->GetTable(name.GetBuffer());
 }
 
-StorageTable* ShardDatabaseAdapter::GetTable(uint64_t tableID)
+StorageTable* ShardDatabaseManager::GetTable(uint64_t tableID)
 {
     StorageTable* table;
     
@@ -73,7 +73,7 @@ StorageTable* ShardDatabaseAdapter::GetTable(uint64_t tableID)
     return table;
 }
 
-StorageShard* ShardDatabaseAdapter::GetShard(uint64_t shardID)
+StorageShard* ShardDatabaseManager::GetShard(uint64_t shardID)
 {
     ConfigShard*    shard;
     StorageTable*   table;
@@ -89,7 +89,7 @@ StorageShard* ShardDatabaseAdapter::GetShard(uint64_t shardID)
     return table->GetShard(shardID);
 }
 
-void ShardDatabaseAdapter::SetShards(List<uint64_t>& shards)
+void ShardDatabaseManager::SetShards(List<uint64_t>& shards)
 {
     uint64_t*           sit;
     ConfigShard*        shard;
@@ -141,7 +141,7 @@ void ShardDatabaseAdapter::SetShards(List<uint64_t>& shards)
     break;                                                      \
     }
 
-void ShardDatabaseAdapter::OnClientReadRequest(ClientRequest* request)
+void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
     uint64_t        paxosID;
     uint64_t        commandID;
@@ -170,7 +170,7 @@ void ShardDatabaseAdapter::OnClientReadRequest(ClientRequest* request)
     request->response.Value(userValue);
 }
 
-void ShardDatabaseAdapter::ExecuteWriteMessage(
+void ShardDatabaseManager::ExecuteWriteMessage(
  uint64_t paxosID, uint64_t commandID, ShardMessage& message, ClientRequest* request)
 {
     uint64_t        readPaxosID;

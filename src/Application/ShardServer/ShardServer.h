@@ -5,7 +5,7 @@
 #include "Application/Common/ClusterContext.h"
 #include "Application/SDBP/SDBPContext.h"
 #include "ShardQuorumProcessor.h"
-#include "ShardDatabaseAdapter.h"
+#include "ShardDatabaseManager.h"
 #include "ShardHeartbeatManager.h"
 
 /*
@@ -27,7 +27,7 @@ public:
     
     ShardQuorumProcessor*   GetQuorumProcessor(uint64_t quorumID);
     QuorumProcessorList*    GetQuorumProcessors();
-    ShardDatabaseAdapter*   GetDatabaseAdapter();
+    ShardDatabaseManager*   GetDatabaseAdapter();
     ConfigState*            GetConfigState();
 
     void                    BroadcastToControllers(Message& message);
@@ -58,7 +58,7 @@ private:
     NodeList                controllers;
     QuorumProcessorList     quorumProcessors;
     ShardHeartbeatManager   heartbeatManager;
-    ShardDatabaseAdapter    databaseAdapter;
+    ShardDatabaseManager    databaseAdapter;
 };
 
 #endif
