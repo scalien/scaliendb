@@ -307,7 +307,7 @@ int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name
     return result->CommandStatus();
 }
 
-int Client::Get(ReadBuffer& key)
+int Client::Get(const ReadBuffer& key)
 {
     Request*    req;
     
@@ -316,7 +316,7 @@ int Client::Get(ReadBuffer& key)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    req->Get(NextCommandID(), databaseID, tableID, key);
+    req->Get(NextCommandID(), databaseID, tableID, (ReadBuffer&) key);
     requests.Append(req);
     
     if (isBatched)
@@ -332,7 +332,7 @@ int Client::Get(ReadBuffer& key)
     return result->CommandStatus();
 }
 
-int Client::Set(ReadBuffer& key, ReadBuffer& value)
+int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
 {
     Request*    req;
     
@@ -342,7 +342,85 @@ int Client::Set(ReadBuffer& key, ReadBuffer& value)
     
     req = new Request;
     Log_Trace("%" PRIu64 "", tableID);
-    req->Set(NextCommandID(), databaseID, tableID, key, value);
+    req->Set(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, (ReadBuffer&) value);
+    requests.Append(req);
+    
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
+
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus(); 
+}
+
+int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
+{
+    Request*    req;
+    
+    // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+    
+    req = new Request;
+    Log_Trace("%" PRIu64 "", tableID);
+    req->SetIfNotExists(NextCommandID(), databaseID, tableID, key, value);
+    requests.Append(req);
+    
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
+
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus(); 
+}
+
+int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
+{
+    Request*    req;
+    
+    // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+    
+    req = new Request;
+    Log_Trace("%" PRIu64 "", tableID);
+    req->TestAndSet(NextCommandID(), databaseID, tableID, key, test, value);
+    requests.Append(req);
+    
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
+
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus(); 
+}
+
+int Client::Add(const ReadBuffer& key, int64_t number)
+{
+    Request*    req;
+    
+    // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+    
+    req = new Request;
+    Log_Trace("%" PRIu64 "", tableID);
+    req->Add(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, number);
     requests.Append(req);
     
     if (isBatched)
@@ -368,6 +446,31 @@ int Client::Delete(ReadBuffer& key)
     
     req = new Request;
     req->Delete(NextCommandID(), databaseID, tableID, key);
+    requests.Append(req);
+    
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
+
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
+int Client::Remove(ReadBuffer& key)
+{
+    Request*    req;
+    
+    // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+    
+    req = new Request;
+    req->Remove(NextCommandID(), databaseID, tableID, key);
     requests.Append(req);
     
     if (isBatched)

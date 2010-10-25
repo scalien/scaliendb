@@ -62,9 +62,13 @@ public:
     int                     UseDatabase(ReadBuffer& name);
     int                     UseTable(ReadBuffer& name);
     
-    int                     Get(ReadBuffer& key);
-    int                     Set(ReadBuffer& key, ReadBuffer& value);
+    int                     Get(const ReadBuffer& key);
+    int                     Set(const ReadBuffer& key, const ReadBuffer& value);
+    int                     SetIfNotExists(ReadBuffer& key, ReadBuffer& value);
+    int                     TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
+    int                     Add(const ReadBuffer& key, int64_t number);
     int                     Delete(ReadBuffer& key);
+    int                     Remove(ReadBuffer& key);
 
     int                     Begin();
     int                     Submit();

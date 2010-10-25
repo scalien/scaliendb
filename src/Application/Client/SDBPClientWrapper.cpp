@@ -350,12 +350,47 @@ int	SDBP_Set(ClientObj client_, const std::string& key_, const std::string& valu
     return client->Set(key, value);
 }
 
+int	SDBP_SetIfNotExists(ClientObj client_, const std::string& key_, const std::string& value_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key = key_.c_str();
+    ReadBuffer  value = value_.c_str();
+
+    return client->SetIfNotExists(key, value);
+}
+
+int	SDBP_TestAndSet(ClientObj client_, const std::string& key_, const std::string& test_, const std::string& value_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key = key_.c_str();
+    ReadBuffer  test = test_.c_str();
+    ReadBuffer  value = value_.c_str();
+
+    return client->TestAndSet(key, test, value);
+}
+
+int SDBP_Add(ClientObj client_, const std::string& key_, int64_t number)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key = key_.c_str();
+
+    return client->Add(key, number);
+}
+
 int SDBP_Delete(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key = key_.c_str();
 
     return client->Delete(key);
+}
+
+int SDBP_Remove(ClientObj client_, const std::string& key_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key = key_.c_str();
+
+    return client->Remove(key);
 }
 
 /*

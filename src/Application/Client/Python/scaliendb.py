@@ -55,6 +55,9 @@ class Client:
         def value(self):
             return SDBP_ResultValue(self.cptr)
         
+        def number(self):
+            return SDBP_ResultNumber(self.cptr)
+        
         def database_id(self):
             return SDBP_ResultDatabaseID(self.cptr)
         
@@ -150,6 +153,36 @@ class Client:
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return status
 
+    def set_if_not_exists(self, key, value):
+        status = SDBP_SetIfNotExists(self.cptr, key, value)
+        if status < 0:
+            self.result = Client.Result(SDBP_GetResult(self.cptr))
+            return
+        if SDBP_IsBatched(self.cptr):
+            return
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        return status
+
+    def test_and_set(self, key, test, value):
+        status = SDBP_TestAndSet(self.cptr, key, test, value)
+        if status < 0:
+            self.result = Client.Result(SDBP_GetResult(self.cptr))
+            return
+        if SDBP_IsBatched(self.cptr):
+            return
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        return status
+
+    def add(self, key, value):
+        status = SDBP_Add(self.cptr, key, value)
+        if status < 0:
+            self.result = Client.Result(SDBP_GetResult(self.cptr))
+            return
+        if SDBP_IsBatched(self.cptr):
+            return
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        return self.result.number()
+
     def delete(self, key):
         status = SDBP_Delete(self.cptr, key)
         if status < 0:
@@ -159,6 +192,16 @@ class Client:
             return
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return status
+
+    def remove(self, key):
+        status = SDBP_remove(self.cptr, key)
+        if status < 0:
+            self.result = Client.Result(SDBP_GetResult(self.cptr))
+            return
+        if SDBP_IsBatched(self.cptr):
+            return
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        return self.result.value()
         
     def _set_trace(self, trace):
         SDBP_SetTrace(trace)

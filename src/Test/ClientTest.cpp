@@ -370,5 +370,61 @@ TEST_DEFINE(TestClientMaro)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientAdd)
+{
+    Client          client;
+    Result*         result;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    Buffer          key;
+    ReadBuffer      value;
+    char            keybuf[32];
+    int             ret;
+    unsigned        num = 10;
+    
+    Log_SetTimestamping(true);
+    Log_SetTarget(LOG_TARGET_STDOUT);
+    Log_SetTrace(true);
+    
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(1000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.Set("user_id", "0");
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    for (unsigned i = 0; i < num; i++)
+    {
+        ret = client.Add("user_id", 1);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+    
+    ret = client.Get("user_id");
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    result = client.GetResult();
+    if (result == NULL)
+        TEST_CLIENT_FAIL();
+    
+    result->GetValue(value);
+    TEST_LOG("value: %.*s", P(&value));
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
 
 TEST_MAIN(TestClientBasic);

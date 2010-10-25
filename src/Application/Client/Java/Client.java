@@ -139,7 +139,49 @@ public class Client
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return status;
 	}
-	
+
+	public int setIfNotExists(String key, String value) throws SDBPException {
+		int status = scaliendb_client.SDBP_SetIfNotExists(cptr, key, value);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return status;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+	}
+
+	public int testAndSet(String key, String test, String value) throws SDBPException {
+		int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return status;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+	}
+
+	public long add(String key, long number) throws SDBPException {
+		int status = scaliendb_client.SDBP_Add(cptr, key, number);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return 0;
+                    
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getNumber();
+	}
+
 	public int delete(String key) throws SDBPException {
 		int status = scaliendb_client.SDBP_Delete(cptr, key);
 		if (status < 0) {
@@ -152,6 +194,20 @@ public class Client
 		
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return status;
+	}
+
+	public String remove(String key) throws SDBPException {
+		int status = scaliendb_client.SDBP_Remove(cptr, key);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return "";
+		
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getValue();
 	}
 
 	private boolean isBatched() {

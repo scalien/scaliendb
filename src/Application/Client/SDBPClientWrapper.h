@@ -87,7 +87,11 @@ int             SDBP_UseTable(ClientObj client, const std::string& name);
 
 int             SDBP_Get(ClientObj client, const std::string& key);
 int             SDBP_Set(ClientObj client, const std::string& key, const std::string& value);
+int             SDBP_SetIfNotExists(ClientObj client, const std::string& key, const std::string& value);
+int             SDBP_TestAndSet(ClientObj client, const std::string& key, const std::string& test, const std::string& value);
+int             SDBP_Add(ClientObj client, const std::string& key, int64_t number);
 int             SDBP_Delete(ClientObj client, const std::string& key);
+int             SDBP_Remove(ClientObj client, const std::string& key);
 
 /*
 ===============================================================================================
