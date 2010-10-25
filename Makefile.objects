@@ -30,12 +30,17 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/Controller/HTTPControllerContext.o \
 	$(BUILD_DIR)/Application/Controller/HTTPControllerSession.o \
 	$(BUILD_DIR)/Application/Controller/JSONConfigState.o \
-	$(BUILD_DIR)/Application/ShardServer/DataMessage.o \
-	$(BUILD_DIR)/Application/ShardServer/DataContext.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardMessage.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardQuorumContext.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardCatchupReader.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardCatchupWriter.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardQuorumProcessor.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardHeartbeatManager.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardDatabaseManager.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardHTTPClientSession.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardHTTPHandler.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServer.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServerApp.o \
-	$(BUILD_DIR)/Application/ShardServer/HTTPShardServerContext.o \
-	$(BUILD_DIR)/Application/ShardServer/HTTPShardServerSession.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterServer.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterConnection.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterTransport.o \
@@ -92,7 +97,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Time.o \
 	$(BUILD_DIR)/System/FileSystem.o \
 	$(BUILD_DIR)/Test/Test.o \
-	$(BUILD_DIR)/Test/TestMain.o \
 	$(BUILD_DIR)/Test/StorageTest.o \
 	$(BUILD_DIR)/Test/FileSystemTest.o \
 	$(BUILD_DIR)/Test/ArrayListTest.o \
