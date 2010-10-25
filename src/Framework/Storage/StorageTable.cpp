@@ -174,6 +174,7 @@ bool StorageTable::Set(ReadBuffer key, ReadBuffer value, bool copy)
     
     si = Locate(key);
 
+    //Log_Message("Table.SET [%s.%.*s]: %.*s => %.*s", database->GetName(), P(&name), P(&key), P(&value));
     if (si == NULL)
         return false;
     

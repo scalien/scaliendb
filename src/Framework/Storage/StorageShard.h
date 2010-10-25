@@ -6,6 +6,7 @@
 #include "StorageFile.h"
 #include "StorageCursor.h"
 #include "StorageFileIndex.h"
+#include "StorageRecoveryLog.h"
 
 class StorageDatabase; // forward
 
@@ -39,14 +40,18 @@ public:
 
     StorageShard*           SplitShard(uint64_t newShardID, ReadBuffer& startKey);
 
+    void                    OnRecoveryOp();
+
 private:
     bool                    CreateDir(const char* dir, const char* name);
     void                    WritePath(Buffer& buffer, uint32_t index);
     static void             WritePath(Buffer& buffer, Buffer& path, uint32_t index);
     uint64_t                ReadTOC(uint32_t length);
     void                    PerformRecovery(uint32_t length);
+    void                    PerformRecovery2(uint32_t length);
     void                    WriteBackPages(InList<Buffer>& pages);
     void                    DeleteGarbageFiles();
+    void                    DeleteFiles(List<uint32_t>& files);
     uint64_t                RebuildTOC();
     void                    WriteRecoveryPrefix();
     void                    WriteRecoveryPostfix();
@@ -63,7 +68,7 @@ private:
     void                    CommitPhase4();
     
     FD                      tocFD;
-    FD                      recoveryFD;
+//    FD                      recoveryFD;
     uint64_t                shardID;
     uint64_t                shardSize;
     uint32_t                prevCommitStorageFileIndex;
@@ -75,6 +80,10 @@ private:
     Buffer                  buffer;
     FileIndexMap            files;
     FileIndexMap            deletedFiles;
+    StorageRecoveryLog      recoveryLog;
+    InList<Buffer>          recoveryPages;
+    List<uint32_t>          recoveryFiles;
+    bool                    recoveryCommit;
     
     friend class StorageCursor;
     friend class StorageTable;

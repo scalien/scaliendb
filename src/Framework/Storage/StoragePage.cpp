@@ -4,6 +4,7 @@ StoragePage::StoragePage()
 {
     dirty = false;
     newPage = true;
+    deleted = false;
     type = 0;
     next = prev = this;
 }
@@ -56,6 +57,16 @@ void StoragePage::SetNew(bool newPage_)
 bool StoragePage::IsNew()
 {
     return newPage;
+}
+
+void StoragePage::SetDeleted(bool deleted_)
+{
+    deleted = deleted_;
+}
+
+bool StoragePage::IsDeleted()
+{
+    return deleted;
 }
 
 char StoragePage::GetType()

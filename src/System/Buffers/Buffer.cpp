@@ -175,6 +175,18 @@ void Buffer::Append(ReadBuffer& other)
     Append(other.GetBuffer(), other.GetLength());
 }
 
+void Buffer::AppendLittle32(uint32_t x)
+{
+    x = ToLittle32(x);
+    Append((const char*) &x, sizeof(uint32_t));
+}
+
+void Buffer::AppendLittle64(uint64_t x)
+{
+    x = ToLittle64(x);
+    Append((const char*) &x, sizeof(uint64_t));
+}
+
 void Buffer::NullTerminate()
 {
     Append("", 1);

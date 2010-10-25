@@ -7,7 +7,8 @@
 #include "StorageDataPage.h"
 #include "System/Stopwatch.h"
 
-class StorageCursor; // forward
+class StorageCursor;        // forward
+class StorageRecoveryLog;   // forward
 
 /*
 ===============================================================================
@@ -42,6 +43,7 @@ public:
     void                    Read();
     void                    ReadRest();
     void                    WriteRecovery(FD recoveryFD);
+    void                    WriteRecovery(StorageRecoveryLog& recoveryLog);
     void                    WriteData();
 
     StorageDataPage*        CursorBegin(StorageCursor* cursor, ReadBuffer& key);

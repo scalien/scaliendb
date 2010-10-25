@@ -109,3 +109,23 @@ bool ReadBuffer::BeginsWith(const char* s)
     else
         return false;
 }
+
+bool ReadBuffer::ReadLittle32(uint32_t& x)
+{
+    if (length < sizeof(uint32_t))
+        return false;
+    
+    x = *(uint32_t*) buffer;
+    x = FromLittle32(x);
+    return true;
+}
+
+bool ReadBuffer::ReadLittle64(uint64_t& x)
+{
+    if (length < sizeof(uint64_t))
+        return false;
+    
+    x = *(uint64_t*) buffer;
+    x = FromLittle64(x);
+    return true;
+}

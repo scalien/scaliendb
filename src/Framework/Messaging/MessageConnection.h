@@ -7,11 +7,9 @@
 #include "Framework/TCP/TCPConnection.h"
 #include "Message.h"
 
-// 20 20 
-
 #define MESSAGING_YIELD_TIME            CLOCK_RESOLUTION    // msec
 #define MESSAGING_CONNECT_TIMEOUT       2000
-#define MESSAGING_BUFFER_THRESHOLD      1360                // magic
+#define MESSAGING_BUFFER_THRESHOLD      1360                // tuned to work well with Ethernet
 
 /*
 ===============================================================================

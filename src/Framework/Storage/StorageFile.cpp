@@ -2,6 +2,7 @@
 #include "StorageFileHeader.h"
 #include "StorageDataCache.h"
 #include "StorageCursor.h"
+#include "StorageRecoveryLog.h"
 #include "System/FileSystem.h"
 #include "stdio.h"
 
@@ -143,6 +144,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         dataPage->SetOffset(DATAPAGE_OFFSET(index));
         dataPage->SetPageSize(dataPageSize);
         dataPage->SetFile(this);
+        assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
         numDataPages++;
         indexPage.Add(key, index, true); // TODO
         MarkPageDirty(&indexPage);
@@ -210,6 +212,9 @@ void StorageFile::Delete(ReadBuffer& key)
     {
         indexPage.Remove(key);
         MarkPageDirty(&indexPage);
+        numDataPages--;
+        dataPages[index]->SetDeleted(true);
+        dataPages[index] = NULL;
     }
     else if (updateIndex)
     {
@@ -266,6 +271,8 @@ StorageFile* StorageFile::SplitFile()
         newFile->dataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));
         newFile->dataPages[newIndex]->SetFile(newFile);
 
+        assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
+        assert(newFile->numDataPages == newFile->numDataPageSlots - newFile->indexPage.freeDataPages.GetLength());
         numDataPages--;
         newFile->numDataPages++;
         assert(newFile->numDataPages < newFile->numDataPageSlots);
@@ -337,12 +344,15 @@ StorageFile* StorageFile::SplitFileByKey(ReadBuffer& startKey)
             }
             else
             {
+                assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
                 newFile->dataPages[index] = dataPages[index];
                 indexPage.Remove(dataPages[index]->FirstKey()); 
+                dataPages[index]->SetDeleted(true);
                 dataPages[index] = NULL;
                 numDataPages--;
             }
 
+            assert(newFile->numDataPages == newFile->numDataPageSlots - newFile->indexPage.freeDataPages.GetLength());
             newFile->dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
             newFile->dataPages[index]->SetFile(newFile);
             newFile->dataPages[index]->Invalidate();
@@ -371,7 +381,7 @@ void StorageFile::Read()
 
     // read file header
     buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
-    if (FS_FileRead(fd, (void*) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
+    if (FS_FileRead(fd, (void*) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) != STORAGEFILE_HEADER_LENGTH)
         ASSERT_FAIL();
     buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
     if (!header.Read(buffer))
@@ -379,14 +389,17 @@ void StorageFile::Read()
     
     // read index header
     buffer.Allocate(INDEXPAGE_HEADER_SIZE);
-    if (FS_FileRead(fd, (void*) buffer.GetBuffer(), INDEXPAGE_HEADER_SIZE) < 0)
+    if (FS_FileRead(fd, (void*) buffer.GetBuffer(), INDEXPAGE_HEADER_SIZE) != INDEXPAGE_HEADER_SIZE)
         ASSERT_FAIL();
     p = buffer.GetBuffer();
     indexPageSize = FromLittle32(*((uint32_t*) p));
+    assert(indexPageSize != 0);
     p += 4;
     dataPageSize = FromLittle32(*((uint32_t*) p));
+    assert(dataPageSize != 0);
     p += 4;
     numDataPageSlots = FromLittle32(*((uint32_t*) p));
+    assert(numDataPageSlots != 0);
     p += 4;
 
     indexPage.SetOffset(INDEXPAGE_OFFSET);
@@ -451,6 +464,39 @@ void StorageFile::WriteRecovery(FD recoveryFD)
     }
 }
 
+void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
+{
+    Buffer          buffer;
+    StoragePage*    it;
+
+    if (IsNew())
+    {
+        buffer.AppendLittle32(fileIndex);
+        if (!recoveryLog.WriteOp(RECOVERY_OP_FILE, sizeof(fileIndex), buffer))
+        {
+            Log_Errno();
+            ASSERT_FAIL();
+        }
+        return;
+    }
+
+    for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
+    {
+        if (it->IsNew())
+            continue;
+        assert(it->buffer.GetLength() <= it->GetPageSize());
+        // it->buffer contains the old page
+        buffer.Allocate(it->GetPageSize());
+        if (!it->CheckWrite(buffer))
+            continue;
+        if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer) < 0)
+        {
+            Log_Errno();
+            ASSERT_FAIL();
+        }
+    }
+}
+
 void StorageFile::WriteData()
 {
     Buffer                  buffer;
@@ -503,7 +549,12 @@ void StorageFile::WriteData()
     {
         next = dirties.Remove(it);
         if (it->GetType() == STORAGE_DATA_PAGE)
-            DCACHE->Checkin((StorageDataPage*) it);
+        {
+            if (it->IsDeleted())
+                DCACHE->FreePage((StorageDataPage*) it);
+            else
+                DCACHE->Checkin((StorageDataPage*) it);
+        }
     }
 }
 
@@ -575,6 +626,7 @@ void StorageFile::LoadDataPage(uint32_t index)
     dataPages[index]->Read(readBuffer);
 }
 
+// this is called by DCACHE->FreePage
 void StorageFile::UnloadDataPage(StorageDataPage* page)
 {
     int32_t index;
@@ -588,7 +640,6 @@ void StorageFile::MarkPageDirty(StoragePage* page)
 {
     if (!page->IsDirty())
     {
-        // TODO: HACK
         if (page->GetType() == STORAGE_DATA_PAGE)
             DCACHE->Checkout((StorageDataPage*) page);
         

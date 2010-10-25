@@ -4,6 +4,12 @@
 #include "System/IO/FD.h"
 #include "System/Platform.h"
 #include "System/Buffers/Buffer.h"
+#include "System/Events/Callable.h"
+
+#define RECOVERY_OP_DONE        0
+#define RECOVERY_OP_PAGE        1
+#define RECOVERY_OP_FILE        2
+#define RECOVERY_OP_COMMIT      3
 
 class StorageRecoveryLog
 {
@@ -12,23 +18,28 @@ public:
     bool        Close();
     int64_t     GetFileSize();
 
-    bool        WriteOpHeader(uint32_t op, uint64_t total);
+    bool        WriteOp(uint32_t op, uint32_t dataSize, Buffer& buffer);
+    bool        WriteDone();
 
-    bool        WriteLittle32(uint32_t x);
-    bool        WriteLittle64(uint64_t x);
-    bool        WriteData(ReadBuffer& data);
-    bool        WriteUnbufferedData(ReadBuffer& data);
-
-    bool        Flush();
     bool        Truncate(bool sync = false);
     
-    bool        ReadLittle32(uint32_t& x);
-    bool        ReadLittle64(uint64_t& x);
-    bool        ReadData(Buffer& data, unsigned len);
-
+    bool        Check(uint32_t length);
+    bool        PerformRecovery(Callable callback);
+    uint32_t    GetOp();
+    uint32_t    GetDataSize();
+    int32_t     ReadOpData(Buffer& buffer);
+    void        Fail();
+    
 private:
     FD          fd;
-    Buffer      buffer;
+    Buffer      name;
+
+    // read
+    Callable    callback;
+    uint64_t    length;
+    uint32_t    op;
+    uint32_t    dataSize;
+    bool        failed;
 };
 
 #endif

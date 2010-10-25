@@ -69,11 +69,20 @@ void StorageShard::Open(const char* dir, const char* name_)
     if (tocFD == INVALID_FD)
         ASSERT_FAIL();
 
-    recoveryFD = FS_Open(recoveryFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
-    if (recoveryFD == INVALID_FD)
+//    recoveryFD = FS_Open(recoveryFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
+//    if (recoveryFD == INVALID_FD)
+//        ASSERT_FAIL();
+//
+//    recoverySize = FS_FileSize(recoveryFD);
+//    if (recoverySize > 0)
+//    {
+//        PerformRecovery(recoverySize);
+//        return;
+//    }
+    if (!recoveryLog.Open(recoveryFilepath.GetBuffer()))
         ASSERT_FAIL();
-
-    recoverySize = FS_FileSize(recoveryFD);
+    
+    recoverySize = recoveryLog.GetFileSize();
     if (recoverySize > 0)
     {
         PerformRecovery(recoverySize);
@@ -106,8 +115,9 @@ void StorageShard::Commit(bool recovery, bool flush)
     if (recovery)
     {
         WriteRecoveryPostfix();
-        FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
-        FS_FileTruncate(recoveryFD, 0);
+//        FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
+//        FS_FileTruncate(recoveryFD, 0);
+        recoveryLog.Truncate(false);
     }
     prevCommitStorageFileIndex = nextStorageFileIndex;
 }
@@ -124,10 +134,11 @@ void StorageShard::Close()
     }
     
     files.DeleteTree();
-    FS_FileClose(recoveryFD);
+    recoveryLog.Close();
+//    FS_FileClose(recoveryFD);
     FS_FileClose(tocFD);
     
-    FS_Delete(recoveryFilepath.GetBuffer());
+//    FS_Delete(recoveryFilepath.GetBuffer());
 }
 
 const char* StorageShard::GetName()
@@ -370,95 +381,166 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
     return totalSize;
 }
 
+//void StorageShard::PerformRecovery2(uint32_t length)
+//{
+//    char*               p;
+//    uint32_t            required, pageSize, marker;
+//    InList<Buffer>      pages;
+//    Buffer*             page;
+//
+//    required = 0;   
+//    while (true)
+//    {
+//        required += 4;
+//        if (length < required)
+//            goto TruncateLog;
+//        if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+//            ASSERT_FAIL();
+//        p = buffer.GetBuffer();
+//        marker = FromLittle32(*((uint32_t*) p));
+//        
+//        if (marker == RECOVERY_MARKER)
+//            break;
+//
+//        // it's a page
+//        pageSize = marker;
+//        required += (pageSize - 4);
+//        if (length < required)
+//            goto TruncateLog;
+//
+//        buffer.SetLength(4);
+//        buffer.Allocate(pageSize);
+//        // TODO: return value
+//        if (FS_FileRead(recoveryFD, (void*) (buffer.GetBuffer() + 4), pageSize - 4) < 0)
+//            ASSERT_FAIL();
+//
+//        buffer.SetLength(pageSize);
+//        page = new Buffer;
+//        page->Write(buffer);
+//        pages.Append(page);
+//    }
+//
+//    // first marker was hit
+//    // read prevCommitStorageFileIndex
+//    
+//    required += 4;  
+//    if (length < required)
+//        goto TruncateLog;
+//
+//    if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+//        ASSERT_FAIL();
+//    p = buffer.GetBuffer();
+//    prevCommitStorageFileIndex = FromLittle32(*((uint32_t*) p));
+//
+//    required += 4;  
+//    if (length < required)
+//        goto TruncateLog;
+//    if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+//        ASSERT_FAIL();
+//    p = buffer.GetBuffer();
+//    marker = FromLittle32(*((uint32_t*) p));
+//    if (marker != RECOVERY_MARKER)
+//        goto TruncateLog;
+//
+//    // done reading prefix part
+//
+//    required += 4;  
+//    if (length < required)
+//    {
+//        WriteBackPages(pages);
+//        DeleteGarbageFiles();
+//        RebuildTOC();
+//        goto TruncateLog;
+//    }
+//    if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+//        ASSERT_FAIL();
+//    p = buffer.GetBuffer();
+//    marker = FromLittle32(*((uint32_t*) p));
+//    if (marker != RECOVERY_MARKER)
+//    {
+//        WriteBackPages(pages);
+//        DeleteGarbageFiles();
+//        RebuildTOC();
+//        goto TruncateLog;
+//    }
+//
+//TruncateLog:
+//    for (page = pages.First(); page != NULL; page = pages.Delete(page));
+//    FS_FileSeek(recoveryFD, 0, SEEK_SET);
+//    FS_FileTruncate(recoveryFD, 0); 
+//    FS_Sync();  
+//    return;
+//}
+
 void StorageShard::PerformRecovery(uint32_t length)
 {
-    char*               p;
-    uint32_t            required, pageSize, marker;
-    InList<Buffer>      pages;
-    Buffer*             page;
-
-    required = 0;   
-    while (true)
-    {
-        required += 4;
-        if (length < required)
-            goto TruncateLog;
-        if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
-            ASSERT_FAIL();
-        p = buffer.GetBuffer();
-        marker = FromLittle32(*((uint32_t*) p));
-        
-        if (marker == RECOVERY_MARKER)
-            break;
-
-        // it's a page
-        pageSize = marker;
-        required += (pageSize - 4);
-        if (length < required)
-            goto TruncateLog;
-
-        buffer.SetLength(4);
-        buffer.Allocate(pageSize);
-        // TODO: return value
-        if (FS_FileRead(recoveryFD, (void*) (buffer.GetBuffer() + 4), pageSize - 4) < 0)
-            ASSERT_FAIL();
-
-        buffer.SetLength(pageSize);
-        page = new Buffer;
-        page->Write(buffer);
-        pages.Append(page);
-    }
-
-    // first marker was hit
-    // read prevCommitStorageFileIndex
+    bool    ret;
     
-    required += 4;  
-    if (length < required)
-        goto TruncateLog;
-
-    if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
+    recoveryCommit = false;
+    
+    if (!recoveryLog.Check(length))
         ASSERT_FAIL();
-    p = buffer.GetBuffer();
-    prevCommitStorageFileIndex = FromLittle32(*((uint32_t*) p));
+    
+    ret = recoveryLog.PerformRecovery(MFUNC(StorageShard, OnRecoveryOp));
+    if (!recoveryCommit)
+        DeleteFiles(recoveryFiles);
 
-    required += 4;  
-    if (length < required)
-        goto TruncateLog;
-    if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
-        ASSERT_FAIL();
-    p = buffer.GetBuffer();
-    marker = FromLittle32(*((uint32_t*) p));
-    if (marker != RECOVERY_MARKER)
-        goto TruncateLog;
-
-    // done reading prefix part
-
-    required += 4;  
-    if (length < required)
+    if (recoveryCommit)
     {
-        WriteBackPages(pages);
+        WriteBackPages(recoveryPages);
         DeleteGarbageFiles();
         RebuildTOC();
-        goto TruncateLog;
     }
-    if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), 4) < 0)
-        ASSERT_FAIL();
-    p = buffer.GetBuffer();
-    marker = FromLittle32(*((uint32_t*) p));
-    if (marker != RECOVERY_MARKER)
-    {
-        WriteBackPages(pages);
-        DeleteGarbageFiles();
-        RebuildTOC();
-        goto TruncateLog;
-    }
+    
+    recoveryFiles.Clear();
+    recoveryPages.DeleteList();
+    recoveryLog.Truncate(true);
+}
 
-TruncateLog:
-    for (page = pages.First(); page != NULL; page = pages.Delete(page));
-    FS_FileSeek(recoveryFD, 0, SEEK_SET);
-    FS_FileTruncate(recoveryFD, 0); 
-    FS_Sync();  
-    return;
+void StorageShard::OnRecoveryOp()
+{
+    uint32_t    op;
+    uint32_t    dataSize;
+    uint32_t    fileIndex;
+    Buffer*     buffer;
+    Buffer      tmp;
+    ReadBuffer  rb;
+    
+    op = recoveryLog.GetOp();
+    dataSize = recoveryLog.GetDataSize();
+    
+    switch (op)
+    {
+    case RECOVERY_OP_DONE:
+        break;
+    case RECOVERY_OP_FILE:
+        recoveryLog.ReadOpData(tmp);
+        rb.Wrap(tmp);
+        if (!rb.ReadLittle32(fileIndex))
+            recoveryLog.Fail();
+        else
+            recoveryFiles.Append(fileIndex);
+        break;
+    case RECOVERY_OP_PAGE:
+        buffer = new Buffer;
+        buffer->Allocate(recoveryLog.GetDataSize());
+        if (recoveryLog.ReadOpData(*buffer) < 0)
+        {
+            delete buffer;
+            recoveryLog.Fail();
+        }
+        else
+            recoveryPages.Append(buffer);
+        break;
+    case RECOVERY_OP_COMMIT:
+        recoveryLog.ReadOpData(tmp);
+        rb.Wrap(tmp);
+        if (!rb.ReadLittle32(prevCommitStorageFileIndex))
+            recoveryLog.Fail();
+        else
+            recoveryCommit = true;
+        break;
+    }
 }
 
 void StorageShard::WriteBackPages(InList<Buffer>& pages)
@@ -531,6 +613,18 @@ void StorageShard::DeleteGarbageFiles()
     FS_CloseDir(dir);
 }
 
+void StorageShard::DeleteFiles(List<uint32_t>& files)
+{
+    uint32_t*   file;
+    Buffer      tmp;
+    
+    FOREACH (file, files)
+    {
+        WritePath(tmp, *file);
+        FS_Delete(tmp.GetBuffer());
+    }
+}
+
 uint64_t StorageShard::RebuildTOC()
 {
     char*               p;
@@ -598,45 +692,57 @@ void StorageShard::WriteRecoveryPrefix()
 {
     StorageFileIndex*       it;
     uint32_t                marker = RECOVERY_MARKER;
+    Buffer                  buffer;
     
     FOREACH (it, deletedFiles)
     {
         assert(it->file != NULL);
-        it->file->WriteRecovery(recoveryFD);
+//        it->file->WriteRecovery(recoveryFD);
+        it->file->WriteRecovery(recoveryLog);
     }
     
     FOREACH (it, files)
     {
         if (it->file == NULL)
             continue;
-        it->file->WriteRecovery(recoveryFD); // only dirty old data pages' buffer is written
+        
+//        it->file->WriteRecovery(recoveryFD); // only dirty old data pages' buffer is written
+        it->file->WriteRecovery(recoveryLog);
     }
     
-    if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
+    buffer.AppendLittle32(prevCommitStorageFileIndex);
+    if (!recoveryLog.WriteOp(RECOVERY_OP_COMMIT, sizeof(prevCommitStorageFileIndex), buffer))
     {
         Log_Errno();
         ASSERT_FAIL();
     }
     
-    if (FS_FileWrite(recoveryFD, (const void *) &prevCommitStorageFileIndex, 4) < 0)
-    {
-        Log_Errno();
-        ASSERT_FAIL();
-    }
-
-    if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
-    {
-        Log_Errno();
-        ASSERT_FAIL();
-    }
+//    if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
+//    {
+//        Log_Errno();
+//        ASSERT_FAIL();
+//    }
+//    
+//    if (FS_FileWrite(recoveryFD, (const void *) &prevCommitStorageFileIndex, 4) < 0)
+//    {
+//        Log_Errno();
+//        ASSERT_FAIL();
+//    }
+//
+//    if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
+//    {
+//        Log_Errno();
+//        ASSERT_FAIL();
+//    }
 }
 
 void StorageShard::WriteRecoveryPostfix()
 {
-    uint32_t        marker = RECOVERY_MARKER;
-
-    if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
-        ASSERT_FAIL();
+//    uint32_t        marker = RECOVERY_MARKER;
+//
+//    if (FS_FileWrite(recoveryFD, (const void *) &marker, 4) < 0)
+//        ASSERT_FAIL();
+    recoveryLog.WriteDone();
 }
 
 void StorageShard::WriteTOC()
@@ -794,8 +900,9 @@ void StorageShard::CommitPhase3()
     
     WriteRecoveryPostfix();
     
-    FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
-    FS_FileTruncate(recoveryFD, 0);
+//    FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
+//    FS_FileTruncate(recoveryFD, 0);
+    recoveryLog.Truncate(false);
     
     for (fi = deletedFiles.First(); fi != NULL; fi = next)
     {

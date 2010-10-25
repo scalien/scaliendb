@@ -50,6 +50,8 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     StorageKeyIndex*    ki;
     bool                ret;
     
+    //Log_Message("key = %.*s, index = %u", P(&key), (unsigned) index);
+    
     required += INDEXPAGE_KV_OVERHEAD + key.GetLength();
 
     ki = new StorageKeyIndex;

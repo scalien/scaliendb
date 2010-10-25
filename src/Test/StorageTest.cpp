@@ -365,7 +365,7 @@ TEST_DEFINE(TestStorageShardSize)
     vsize = 64;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(100000000);
+    DCACHE->Init((ksize + vsize) * 4 * num);
 
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
     table = db.GetTable(__func__);
@@ -430,7 +430,7 @@ TEST_DEFINE(TestStorageShardSplit)
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(10000000);
+    DCACHE->Init((ksize + vsize) * 4 * num);
 
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
     table = db.GetTable(__func__);
@@ -569,7 +569,6 @@ TEST_DEFINE(TestStorageFileThreeWaySplit)
 
     i = 1;
     memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
-    // TODO: -4 is a correction that yet to be investigated
     value.SetLength((sizeof(keyvalue) / 2) - DEFAULT_KEY_LIMIT - (DATAPAGE_KV_OVERHEAD / 2));
     table->Set(key, value, true);
 

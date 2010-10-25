@@ -122,7 +122,7 @@ void ShardServer::ProcessMessage(QuorumData* quorumData, DataMessage& message, b
     switch (message.type)
     {
         case CLIENTREQUEST_SET:
-            Log_Message("SET: [%" PRIu64 "] %.*s => %.*s", message.tableID, P(&message.key), P(&message.value));
+            Log_Message("ShardServer.SET: [%" PRIu64 "] %.*s => %.*s", message.tableID, P(&message.key), P(&message.value));
             if (!table->Set(message.key, message.value))
             {
                 if (request)
