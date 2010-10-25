@@ -83,11 +83,23 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->tableID, &request->key);
             break;
         case CLIENTREQUEST_SET:
+        case CLIENTREQUEST_SET_IF_NOT_EXISTS:
             read = buffer.Readf("%c:%U:%U:%U:%#B:%#B",
              &request->type, &request->commandID, &request->databaseID,
              &request->tableID, &request->key, &request->value);
             break;
+        case CLIENTREQUEST_TEST_AND_SET:
+            read = buffer.Readf("%c:%U:%U:%U:%#B:%#B:%#B",
+             &request->type, &request->commandID, &request->databaseID,
+             &request->tableID, &request->key, &request->test, &request->value);
+            break;
+        case CLIENTREQUEST_ADD:
+            read = buffer.Readf("%c:%U:%U:%U:%#B:%I",
+             &request->type, &request->commandID, &request->databaseID,
+             &request->tableID, &request->key, &request->number);
+            break;
         case CLIENTREQUEST_DELETE:
+        case CLIENTREQUEST_REMOVE:
             read = buffer.Readf("%c:%U:%U:%U:%#B",
              &request->type, &request->commandID, &request->databaseID,
              &request->tableID, &request->key);
@@ -165,11 +177,23 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->tableID, &request->key);
             return true;
         case CLIENTREQUEST_SET:
+        case CLIENTREQUEST_SET_IF_NOT_EXISTS:
             buffer.Appendf("%c:%U:%U:%U:%#B:%#B",
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->key, &request->value);
             return true;
+        case CLIENTREQUEST_TEST_AND_SET:
+            buffer.Appendf("%c:%U:%U:%U:%#B:%#B:%#B",
+             request->type, request->commandID, request->databaseID,
+             request->tableID, &request->key, &request->test, &request->value);
+            return true;
+        case CLIENTREQUEST_ADD:
+            buffer.Appendf("%c:%U:%U:%U:%#B:%I",
+             request->type, request->commandID, request->databaseID,
+             request->tableID, &request->key, request->number);
+            return true;
         case CLIENTREQUEST_DELETE:
+        case CLIENTREQUEST_REMOVE:
             buffer.Appendf("%c:%U:%U:%U:%#B",
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->key);
