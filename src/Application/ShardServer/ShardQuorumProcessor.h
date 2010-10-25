@@ -62,8 +62,6 @@ public:
     ShardQuorumProcessor*   next;
 
 private:
-    void                    OnClientRequestGet(ClientRequest* request);
-
     void                    TransformRequest(ClientRequest* request, ShardMessage* message);
     void                    ExecuteMessage(ShardMessage& message, uint64_t paxosID,
                              uint64_t commandID, bool ownAppend);

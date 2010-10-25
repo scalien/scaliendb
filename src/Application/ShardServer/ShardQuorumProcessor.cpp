@@ -4,24 +4,6 @@
 #include "Application/Common/ContextTransport.h"
 #include "ShardServer.h"
 
-static void WriteValue(
-Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
-{
-    if (!buffer.Writef("%U:%U:%R", paxosID, commandID, &userValue))
-        ASSERT_FAIL();
-}
-
-static void ReadValue(
-ReadBuffer& buffer, uint64_t& paxosID, uint64_t& commandID, ReadBuffer& userValue)
-{
-    int read;
-
-    read = buffer.Readf("%U:%U:%R", &paxosID, &commandID, &userValue);
-    
-    if (read < 4)
-        ASSERT_FAIL();
-}
-
 ShardQuorumProcessor::ShardQuorumProcessor()
 {
     next = prev = this;
@@ -198,8 +180,12 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     }
 
     if (request->type == CLIENTREQUEST_GET)
-        return OnClientRequestGet(request);
-
+    {
+        shardServer->GetDatabaseAdapter()->OnClientReadRequest(request);        
+        request->OnComplete();
+        return;
+    }
+    
     message = new ShardMessage;
     TransformRequest(request, message);
     
@@ -227,37 +213,6 @@ void ShardQuorumProcessor::TryReplicationCatchup()
         return;
     
     quorumContext.TryReplicationCatchup();
-}
-
-void ShardQuorumProcessor::OnClientRequestGet(ClientRequest* request)
-{
-    uint64_t        paxosID;
-    uint64_t        commandID;
-    StorageTable*   table;
-    ReadBuffer      key;
-    ReadBuffer      value;
-    ReadBuffer      userValue;
-
-    table = shardServer->GetDatabaseAdapter()->GetTable(request->tableID);
-    if (!table)
-    {
-        request->response.Failed();
-        request->OnComplete();
-        return;            
-    }
-    
-    key.Wrap(request->key);
-    if (!table->Get(key, value))
-    {
-        request->response.Failed();
-        request->OnComplete();
-        return;
-    }
-    
-    ReadValue(value, paxosID, commandID, userValue);
-    
-    request->response.Value(userValue);
-    request->OnComplete();
 }
 
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
@@ -307,34 +262,8 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
 void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
  uint64_t paxosID, uint64_t commandID, bool ownAppend)
 {
-    uint64_t            readPaxosID;
-    uint64_t            readCommandID;
-    int64_t             number;
-    unsigned            nread;
-    StorageTable*       table;
-    ClientRequest*      request;
-    ReadBuffer          userValue;
-    ReadBuffer          readBuffer;
-    Buffer              buffer;
-    Buffer              numberBuffer;
+    ClientRequest* request;
 
-#define CHECK_CMD()                                             \
-	if (readPaxosID > paxosID ||                                \
-	(readPaxosID == paxosID && readCommandID >= commandID))     \
-		break;
-
-#define FAIL()                                                  \
-    {                                                           \
-    if (request)                                                \
-        request->response.Failed();                             \
-    break;                                                      \
-    }
-
-
-    table = shardServer->GetDatabaseAdapter()->GetTable(message.tableID);
-    if (!table)
-        ASSERT_FAIL();
-    
     request = NULL;
     if (ownAppend)
     {
@@ -345,77 +274,7 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
         request->response.OK();
     }
     
-    // TODO: differentiate return status (FAILED, NOSERVICE)
-    switch (message.type)
-    {
-        case SHARDMESSAGE_SET:
-            WriteValue(buffer, paxosID, commandID, message.value);
-            if (!table->Set(message.key, buffer))
-                FAIL();
-            break;
-        case SHARDMESSAGE_SET_IF_NOT_EXISTS:
-            if (table->Get(message.key, readBuffer))
-                FAIL();
-            WriteValue(buffer, paxosID, commandID, message.value);
-            if (!table->Set(message.key, buffer))
-                FAIL();
-            break;
-        case SHARDMESSAGE_TEST_AND_SET:
-            if (!table->Get(message.key, readBuffer))
-                FAIL();
-            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
-            CHECK_CMD();
-            if (ReadBuffer::Cmp(userValue, message.test) != 0)
-            {
-                if (request)
-                    request->response.Value(userValue);
-                break;
-            }
-            WriteValue(buffer, paxosID, commandID, message.value);
-            if (!table->Set(message.key, buffer))
-                FAIL();
-            if (request)
-                request->response.Value(message.value);
-            break;
-        case SHARDMESSAGE_ADD:
-            if (!table->Get(message.key, readBuffer))
-                FAIL();
-            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
-            CHECK_CMD();
-            number = BufferToInt64(userValue.GetBuffer(), userValue.GetLength(), &nread);
-            if (nread != userValue.GetLength())
-                FAIL();
-            number += message.number;
-            numberBuffer.Writef("%I", number);
-            WriteValue(buffer, paxosID, commandID, ReadBuffer(numberBuffer));
-            if (!table->Set(message.key, buffer))
-                FAIL();
-            if (request)
-                request->response.Number(number);
-            break;
-        case SHARDMESSAGE_DELETE:
-            if (!table->Delete(message.key))
-            {
-                if (request)
-                    request->response.Failed();
-            }
-            break;
-        case SHARDMESSAGE_REMOVE:
-            if (table->Get(message.key, readBuffer))
-            {
-                ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
-                request->response.Value(userValue);
-            }
-            if (!table->Delete(message.key))
-            {
-                if (request)
-                    request->response.Failed();
-            }
-            break;
-        default:
-            ASSERT_FAIL();
-            break;
-    }
+    shardServer->GetDatabaseAdapter()->ExecuteWriteMessage(paxosID, commandID, message, request);
 
     if (ownAppend)
     {
@@ -423,8 +282,6 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
         request->OnComplete(); // request deletes itself
         shardMessages.Delete(shardMessages.First());
     }
-    
-#undef CHECK_CMD
 }
 
 void ShardQuorumProcessor::TryAppend()

@@ -4,6 +4,8 @@
 #include "System/Containers/HashMap.h"
 #include "Framework/Storage/StorageEnvironment.h"
 #include "Application/ConfigState/ConfigState.h"
+#include "Application/Common/ClientRequest.h"
+#include "ShardMessage.h"
 
 class ShardServer; // forward
 
@@ -25,13 +27,15 @@ public:
     void                    Shutdown();
     
     StorageEnvironment*     GetEnvironment();
-    
     StorageTable*           GetQuorumTable(uint64_t quorumID);
-    
     StorageTable*           GetTable(uint64_t tableID);
     StorageShard*           GetShard(uint64_t shardID);
 
     void                    SetShards(List<uint64_t>& shards);
+    
+    void                    OnClientReadRequest(ClientRequest* request);
+    void                    ExecuteWriteMessage(uint64_t paxosID,
+                             uint64_t commandID, ShardMessage& message, ClientRequest* request);
     
 private:
     ShardServer*            shardServer;

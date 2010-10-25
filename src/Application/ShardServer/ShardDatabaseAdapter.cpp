@@ -3,6 +3,24 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "ShardServer.h"
 
+static void WriteValue(
+Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
+{
+    if (!buffer.Writef("%U:%U:%R", paxosID, commandID, &userValue))
+        ASSERT_FAIL();
+}
+
+static void ReadValue(
+ReadBuffer& buffer, uint64_t& paxosID, uint64_t& commandID, ReadBuffer& userValue)
+{
+    int read;
+
+    read = buffer.Readf("%U:%U:%R", &paxosID, &commandID, &userValue);
+    
+    if (read < 4)
+        ASSERT_FAIL();
+}
+
 static size_t Hash(uint64_t h)
 {
     return h;
@@ -110,3 +128,137 @@ void ShardDatabaseAdapter::SetShards(List<uint64_t>& shards)
             table->CreateShard(*sit, firstKey);
     }
 }
+
+#define CHECK_CMD()                                             \
+	if (readPaxosID > paxosID ||                                \
+	(readPaxosID == paxosID && readCommandID >= commandID))     \
+		break;
+
+#define FAIL()                                                  \
+    {                                                           \
+    if (request)                                                \
+        request->response.Failed();                             \
+    break;                                                      \
+    }
+
+void ShardDatabaseAdapter::OnClientReadRequest(ClientRequest* request)
+{
+    uint64_t        paxosID;
+    uint64_t        commandID;
+    StorageTable*   table;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    ReadBuffer      userValue;
+
+    table = shardServer->GetDatabaseAdapter()->GetTable(request->tableID);
+    if (!table)
+    {
+        request->response.Failed();
+        return;
+    }
+
+    key.Wrap(request->key);
+    if (!table->Get(key, value))
+    {
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
+    
+    ReadValue(value, paxosID, commandID, userValue);
+    
+    request->response.Value(userValue);
+}
+
+void ShardDatabaseAdapter::ExecuteWriteMessage(
+ uint64_t paxosID, uint64_t commandID, ShardMessage& message, ClientRequest* request)
+{
+    uint64_t        readPaxosID;
+    uint64_t        readCommandID;
+    int64_t         number;
+    unsigned        nread;
+    ReadBuffer      userValue;
+    ReadBuffer      readBuffer;
+    Buffer          buffer;
+    Buffer          numberBuffer;
+    StorageTable*   table;
+
+    table = shardServer->GetDatabaseAdapter()->GetTable(message.tableID);
+    if (!table)
+        ASSERT_FAIL();
+
+    // TODO: differentiate return status (FAILED, NOSERVICE)
+    switch (message.type)
+    {
+        case SHARDMESSAGE_SET:
+            WriteValue(buffer, paxosID, commandID, message.value);
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            break;
+        case SHARDMESSAGE_SET_IF_NOT_EXISTS:
+            if (table->Get(message.key, readBuffer))
+                FAIL();
+            WriteValue(buffer, paxosID, commandID, message.value);
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            break;
+        case SHARDMESSAGE_TEST_AND_SET:
+            if (!table->Get(message.key, readBuffer))
+                FAIL();
+            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+            CHECK_CMD();
+            if (ReadBuffer::Cmp(userValue, message.test) != 0)
+            {
+                if (request)
+                    request->response.Value(userValue);
+                break;
+            }
+            WriteValue(buffer, paxosID, commandID, message.value);
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            if (request)
+                request->response.Value(message.value);
+            break;
+        case SHARDMESSAGE_ADD:
+            if (!table->Get(message.key, readBuffer))
+                FAIL();
+            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+            CHECK_CMD();
+            number = BufferToInt64(userValue.GetBuffer(), userValue.GetLength(), &nread);
+            if (nread != userValue.GetLength())
+                FAIL();
+            number += message.number;
+            numberBuffer.Writef("%I", number);
+            WriteValue(buffer, paxosID, commandID, ReadBuffer(numberBuffer));
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            if (request)
+                request->response.Number(number);
+            break;
+        case SHARDMESSAGE_DELETE:
+            if (!table->Delete(message.key))
+            {
+                if (request)
+                    request->response.Failed();
+            }
+            break;
+        case SHARDMESSAGE_REMOVE:
+            if (table->Get(message.key, readBuffer))
+            {
+                ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+                request->response.Value(userValue);
+            }
+            if (!table->Delete(message.key))
+            {
+                if (request)
+                    request->response.Failed();
+            }
+            break;
+        default:
+            ASSERT_FAIL();
+            break;
+    }
+}
+
+#undef CHECK_CMD
+#undef FAIL
