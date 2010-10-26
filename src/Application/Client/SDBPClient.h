@@ -51,6 +51,8 @@ public:
     int                     TimeoutStatus();
     int                     CommandStatus();
     
+    // config state
+    
     // controller commands
     int                     CreateQuorum(ClientRequest::NodeList& nodes);
     int                     CreateDatabase(ReadBuffer& name);

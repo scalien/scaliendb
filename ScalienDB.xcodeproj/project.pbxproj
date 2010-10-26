@@ -464,6 +464,7 @@
 		9AF4DCA812709FA70036E3B3 /* ClientRequestCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientRequestCache.h; sourceTree = "<group>"; };
 		9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientRequestCache.cpp; sourceTree = "<group>"; };
 		9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FormattingTest.cpp; path = Test/FormattingTest.cpp; sourceTree = "<group>"; };
+		9AF4E5B812771CDC0036E3B3 /* test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = test.py; path = Application/Client/Python/test.py; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -964,6 +965,7 @@
 		9A9AA8F41260556600681840 /* Python */ = {
 			isa = PBXGroup;
 			children = (
+				9AF4E5B812771CDC0036E3B3 /* test.py */,
 				9A9AA9011260558A00681840 /* scaliendb_client_python.cpp */,
 				9A9AA9021260558A00681840 /* scaliendb_client.py */,
 				9A9AA9031260558A00681840 /* scaliendb.py */,
