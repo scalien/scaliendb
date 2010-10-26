@@ -1,0 +1,3 @@
+javac -cp .:scaliendb.jar Setup.java
+javac -cp .:scaliendb.jar WriteMessage.java
+javac -cp .:scaliendb.jar MessageBoard.java

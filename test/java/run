@@ -1,0 +1,1 @@
+java -cp .:scaliendb.jar $1
