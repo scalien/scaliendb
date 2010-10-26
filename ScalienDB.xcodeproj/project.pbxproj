@@ -403,7 +403,7 @@
 		9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
 		9A9AA745125E6BB900681840 /* SDBPClientWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientWrapper.h; path = Application/Client/SDBPClientWrapper.h; sourceTree = "<group>"; };
 		9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientWrapper.cpp; path = Application/Client/SDBPClientWrapper.cpp; sourceTree = "<group>"; };
-		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.interfacer; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
+		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9A9AA9011260558A00681840 /* scaliendb_client_python.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_python.cpp; path = Application/Client/Python/scaliendb_client_python.cpp; sourceTree = "<group>"; };
 		9A9AA9021260558A00681840 /* scaliendb_client.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_client.py; path = Application/Client/Python/scaliendb_client.py; sourceTree = "<group>"; };
 		9A9AA9031260558A00681840 /* scaliendb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb.py; path = Application/Client/Python/scaliendb.py; sourceTree = "<group>"; };
@@ -1065,6 +1065,7 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,

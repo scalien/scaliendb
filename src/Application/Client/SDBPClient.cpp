@@ -583,7 +583,7 @@ Request* Client::CreateGetConfigState()
 
 void Client::SetMaster(int64_t master_, uint64_t nodeID)
 {
-    Log_Trace("known master: %d, set master: %d, nodeID: %d", master, master_, nodeID);
+    Log_Trace("known master: %d, set master: %d, nodeID: %d", (int) master, (int) master_, (int) nodeID);
     
     if (master_ == (int64_t) nodeID)
     {
@@ -626,11 +626,13 @@ void Client::UpdateConnectivityStatus()
 
 void Client::OnGlobalTimeout()
 {
+    Log_Trace();
     timeoutStatus = SDBP_GLOBAL_TIMEOUT;
 }
 
 void Client::OnMasterTimeout()
 {
+    Log_Trace();
     timeoutStatus = SDBP_MASTER_TIMEOUT;
 }
 
@@ -652,6 +654,7 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
     {
         ConnectShardServers();
         AssignRequestsToQuorums();
+        SendQuorumRequests();
     }
 }
 
@@ -800,16 +803,21 @@ void Client::SendQuorumRequests()
     uint64_t*           qit;
     RequestList*        qrequests;
     
+    Log_Trace();
+    
     for (conn = shardConnections.First(); conn != NULL; conn = shardConnections.Next(conn))
     {
         if (conn->IsWritePending())
             continue;
 
         SortedList<uint64_t>& quorums = conn->GetQuorumList();
+        Log_Trace("quorums.length = %u", quorums.GetLength());
         for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
         {
             if (!quorumRequests.Get(*qit, qrequests))
                 continue;
+
+            Log_Trace("qrequests.length = %u", qrequests->GetLength());
             
             SendQuorumRequest(conn, *qit);
         }

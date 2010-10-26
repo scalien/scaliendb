@@ -28,7 +28,8 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBatchedGet);
 //TEST_ADD(TestClientCreateTable);
 //TEST_ADD(TestClientMaro);
-TEST_ADD(TestClientAdd);
+//TEST_ADD(TestClientAdd);
+TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestUnsignedFormatting);
 TEST_EXECUTE();
 

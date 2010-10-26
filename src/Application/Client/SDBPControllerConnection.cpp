@@ -144,7 +144,7 @@ void ControllerConnection::OnClose()
 
 bool ControllerConnection::ProcessResponse(ClientResponse* resp)
 {
-    if (resp->type == CLIENTRESPONSE_GET_CONFIG_STATE)
+    if (resp->type == CLIENTRESPONSE_CONFIG_STATE)
         return ProcessGetConfigState(resp);
 
     return ProcessCommandResponse(resp);
@@ -163,7 +163,10 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
     // copy the config state created on stack in OnMessage
     resp->configState.Transfer(configState);
     
-    client->SetMaster(configState.masterID, nodeID);
+    if (configState.hasMaster)
+        client->SetMaster(configState.masterID, nodeID);
+    else
+        client->SetMaster(-1, nodeID);
     client->SetConfigState(this, &configState);
 
     return false;
