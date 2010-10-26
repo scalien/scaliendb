@@ -7,12 +7,12 @@ client.use_database("message_board")
 client.use_table("messages")
 
 message = {}
-message["author"] = raw_input("author: ")
-message["body"] = raw_input("body: ")
-smessage = pickle.dumps(message)
+author = raw_input("author: ")
+body = raw_input("body: ")
+message = "%s: %s" % (author, body)
 
 index = int(client.add("index", 1))
 
-client.set("%d" % (index - 1), smessage)
+client.set("%d" % (index - 1), message)
 
 print("Message saved.")
