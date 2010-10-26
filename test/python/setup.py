@@ -2,7 +2,7 @@ import scaliendb
 
 client = scaliendb.Client(["127.0.0.1:7080"])
 
-quorum_id = client.create_quorum(["100"])
+quorum_id = client.create_quorum(["100, 101"])
 print("Creating quorum(%s)..." % quorum_id)
 
 database_id = client.create_database("message_board")
