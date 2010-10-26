@@ -38,15 +38,6 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 
 void ShardDatabaseManager::Shutdown()
 {
-    DatabaseMap::Node*  dbNode;
-    StorageDatabase*    database;
-
-    for (dbNode = databases.First(); dbNode != NULL; dbNode = databases.Next(dbNode))
-    {
-        database = dbNode->Value();
-        delete database;
-    }
-
     environment.Close();
 }
 
