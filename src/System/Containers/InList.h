@@ -89,6 +89,8 @@ T& InList<T>::Get(int i)
 template<class T>
 void InList<T>::Prepend(T* t)
 {
+    assert(t->next == t && t->prev == t);
+
     t->next = head;
     t->prev = NULL;
     if (head != NULL)
@@ -122,6 +124,8 @@ void InList<T>::PrependList(InList<T>& list)
 template<class T>
 void InList<T>::Append(T* t)
 {
+    assert(t->next == t && t->prev == t);
+
     t->prev = tail;
     t->next = NULL;
     if (tail != NULL)
@@ -136,6 +140,8 @@ void InList<T>::Append(T* t)
 template<class T>
 void InList<T>::InsertAfter(T* before, T* t)
 {
+    assert(t->next == t && t->prev == t);
+
     length++;
     
     if (before == NULL)

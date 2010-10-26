@@ -23,6 +23,8 @@ class StorageTable
 public:
     typedef InTreeMap<StorageShardIndex> StorageIndexMap;
 
+    StorageTable();
+
     const char*         GetName();
     uint64_t            GetSize();
     StorageDatabase*    GetDatabase();

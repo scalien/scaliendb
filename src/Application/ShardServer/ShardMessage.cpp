@@ -1,5 +1,10 @@
 #include "ShardMessage.h"
 
+ShardMessage::ShardMessage()
+{
+    prev = next = this;
+}
+
 void ShardMessage::Set(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
     type = SHARDMESSAGE_SET;

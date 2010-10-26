@@ -4,6 +4,11 @@
 
 #include <stdio.h>
 
+StorageDatabase::StorageDatabase()
+{
+    prev = next = this;
+}
+
 StorageDatabase::~StorageDatabase()
 {
     Close();

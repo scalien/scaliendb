@@ -210,6 +210,7 @@ void Buffer::Init()
     size = SIZE(array);
     length = 0;
     preallocated = false;
+    prev = next = this;
 }
 
 unsigned Buffer::GetSize()
@@ -269,6 +270,7 @@ Buffer& Buffer::operator=(const Buffer& other)
 
     memcpy(buffer, other.buffer, other.size);
     length = other.length;
+    prev = next = this;
 
     return *this;
 }

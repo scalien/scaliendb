@@ -24,6 +24,11 @@ static const ReadBuffer& Key(StorageShardIndex* si)
     return si->startKey;
 }
 
+StorageTable::StorageTable()
+{
+    prev = next = this;
+}
+
 const char* StorageTable::GetName()
 {
     return name.GetBuffer();

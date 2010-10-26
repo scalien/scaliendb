@@ -239,6 +239,10 @@ Buffer* MessageConnection::AcquireBuffer()
 
 void MessageConnection::FlushWriteBuffer()
 {
+    // TODO: HACK
+    if (writeBuffer == NULL)
+        return;
+        
     if (writer->GetQueueLength() == 0 || writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
     {
         writer->WritePooled(writeBuffer);

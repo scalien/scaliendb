@@ -16,6 +16,7 @@ class StorageEnvironment;   // forward
 class StorageDatabase
 {
 public:
+    StorageDatabase();
     ~StorageDatabase();
     
     void                    Open(const char *path, const char* dbName);

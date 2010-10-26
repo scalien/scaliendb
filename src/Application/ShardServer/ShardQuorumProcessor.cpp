@@ -6,7 +6,7 @@
 
 ShardQuorumProcessor::ShardQuorumProcessor()
 {
-    next = prev = this;
+    prev = next = this;
 
     requestLeaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnRequestLeaseTimeout));
     requestLeaseTimeout.SetDelay(PRIMARYLEASE_REQUEST_TIMEOUT);

@@ -152,12 +152,10 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
     if (!table->Get(key, value))
     {
         request->response.Failed();
-        request->OnComplete();
         return;
     }
     
-    ReadValue(value, paxosID, commandID, userValue);
-    
+    ReadValue(value, paxosID, commandID, userValue);    
     request->response.Value(userValue);
 }
 

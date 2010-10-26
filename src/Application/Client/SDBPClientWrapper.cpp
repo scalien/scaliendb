@@ -13,6 +13,7 @@ using namespace SDBPClient;
 
 SDBP_NodeParams::SDBP_NodeParams(int nodec_)
 {
+    Log_Trace("nodec = %d", nodec_);
     num = 0;
     nodec = nodec_;
     nodes = new char*[nodec];
@@ -38,6 +39,7 @@ void SDBP_NodeParams::AddNode(const std::string& node)
 {
 	if (num > nodec)
 		return;
+    Log_Trace("num = %d, node = %s", num, node.c_str());
 	nodes[num++] = strdup(node.c_str());
 }
 
