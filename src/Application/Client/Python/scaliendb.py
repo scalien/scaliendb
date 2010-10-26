@@ -108,7 +108,6 @@ class Client:
         del self.result
         SDBP_Destroy(self.cptr)
 
-
     def set_global_timeout(self, timeout):
         SDBP_SetGlobalTimeout(self.cptr, long(timeout))
     
@@ -120,6 +119,31 @@ class Client:
     
     def get_master_timeout(self):
         return long(SDBP_GetMasterTimeout(self.cptr))
+
+    def create_quorum(self, nodes):
+        node_params = SDBP_NodeParams(len(nodes))
+        for node in nodes:
+            node_params.AddNode(node)
+        status = SDBP_CreateQuorum(self.cptr, node_params)
+        node_params.Close()
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        if status < 0:
+            return
+        return self.result.number()
+    
+    def create_database(self, name):
+        status = SDBP_CreateDatabase(self.cptr, name)
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        if status < 0:
+            return
+        return self.result.number()
+
+    def create_table(self, database_id, quorum_id, name):
+        status = SDBP_CreateTable(self.cptr, database_id, quorum_id, name)
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        if status < 0:
+            return
+        return self.result.number()
 
     def get_database_id(self, name):
         return long(SDBP_GetDatabaseID(self.cptr, name))
