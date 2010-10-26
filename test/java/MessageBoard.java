@@ -19,6 +19,9 @@ public class MessageBoard
             Database db = new Database(client, "message_board");
             Table table = new Table(client, db, "messages");
 			
+
+			System.out.println("ScalienDB Messageboard sample 0.10");
+
 			long highestSeen = 0;
 			while (true)
 			{
