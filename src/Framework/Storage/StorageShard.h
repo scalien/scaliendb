@@ -68,7 +68,6 @@ private:
     void                    CommitPhase4();
     
     FD                      tocFD;
-//    FD                      recoveryFD;
     uint64_t                shardID;
     uint64_t                shardSize;
     uint32_t                prevCommitStorageFileIndex;

@@ -42,7 +42,6 @@ public:
 
     void                    Read();
     void                    ReadRest();
-    void                    WriteRecovery(FD recoveryFD);
     void                    WriteRecovery(StorageRecoveryLog& recoveryLog);
     void                    WriteData();
 

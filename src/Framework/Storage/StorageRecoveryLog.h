@@ -11,6 +11,14 @@
 #define RECOVERY_OP_FILE        2
 #define RECOVERY_OP_COMMIT      3
 
+/*
+===============================================================================
+
+ StorageRecoveryLog - used for reading and writing the recovery log
+
+===============================================================================
+*/
+
 class StorageRecoveryLog
 {
 public:
