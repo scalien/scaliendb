@@ -37,6 +37,7 @@ public:
 
     virtual void                    OnLearnLease();
     virtual void                    OnLeaseTimeout();
+    virtual void                    OnIsLeader();
 
     virtual uint64_t                GetQuorumID();
     virtual void                    SetPaxosID(uint64_t paxosID);

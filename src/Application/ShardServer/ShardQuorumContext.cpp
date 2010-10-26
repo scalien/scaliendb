@@ -88,6 +88,11 @@ void ShardQuorumContext::OnLeaseTimeout()
     replicatedLog.OnLeaseTimeout();
 }
 
+void ShardQuorumContext::OnIsLeader()
+{
+    // nothing
+}
+
 uint64_t ShardQuorumContext::GetQuorumID()
 {
     return quorumID;

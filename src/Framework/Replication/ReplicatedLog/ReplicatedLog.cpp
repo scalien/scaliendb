@@ -260,6 +260,8 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
     ownAppend = proposer.state.multi;
     if (nodeID == MY_NODEID && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
     {
+        if (!proposer.state.multi)
+            context->OnIsLeader();
         proposer.state.multi = true;
         Log_Trace("Multi paxos enabled");
     }

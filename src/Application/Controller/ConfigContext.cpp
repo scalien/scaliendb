@@ -76,6 +76,11 @@ void ConfigContext::OnLeaseTimeout()
     controller->OnLeaseTimeout();
 }
 
+void ConfigContext::OnIsLeader()
+{
+    controller->OnIsLeader();
+}
+
 uint64_t ConfigContext::GetQuorumID()
 {
     return quorumID;

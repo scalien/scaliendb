@@ -52,6 +52,7 @@ public:
     //
     void                OnLearnLease();
     void                OnLeaseTimeout();
+    void                OnIsLeader();
     void                OnAppend(uint64_t paxosID, ConfigMessage& message, bool ownAppend);
     void                OnStartCatchup();
     void                OnCatchupMessage(CatchupMessage& message);

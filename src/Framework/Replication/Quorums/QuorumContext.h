@@ -27,6 +27,7 @@ public:
 
     virtual void                OnLearnLease()                                                  = 0;
     virtual void                OnLeaseTimeout()                                                = 0;
+    virtual void                OnIsLeader()                                                    = 0;
 
     virtual uint64_t            GetQuorumID()                                                   = 0;
     virtual void                SetPaxosID(uint64_t paxosID)                                    = 0;

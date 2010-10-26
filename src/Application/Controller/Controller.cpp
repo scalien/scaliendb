@@ -133,17 +133,7 @@ bool Controller::HasHeartbeat(uint64_t nodeID)
 
 void Controller::OnLearnLease()
 {
-    bool updateListeners;
-    
-    updateListeners = false;
-    if (!configState.hasMaster)
-        updateListeners = true;
-
-    configState.hasMaster = true;
-    configState.masterID = GetMaster();
-
-    if (updateListeners && (uint64_t) GetMaster() == GetNodeID())
-        UpdateListeners();
+    // nothing
 }
 
 void Controller::OnLeaseTimeout()
@@ -173,6 +163,21 @@ void Controller::OnLeaseTimeout()
 
     for (itMessage = configMessages.First(); itMessage != NULL; itMessage = configMessages.Delete(itMessage));
     assert(configMessages.GetLength() == 0);
+}
+
+void Controller::OnIsLeader()
+{
+    bool updateListeners;
+    
+    updateListeners = false;
+    if (!configState.hasMaster)
+        updateListeners = true;
+
+    configState.hasMaster = true;
+    configState.masterID = GetMaster();
+
+    if (updateListeners && (uint64_t) GetMaster() == GetNodeID())
+        UpdateListeners();
 }
 
 void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool ownAppend)
