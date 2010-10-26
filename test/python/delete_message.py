@@ -2,8 +2,9 @@ import sys
 import pickle
 import scaliendb
 
-if len(sys.argv) < 1:
+if len(sys.argv) <= 1:
 	print("Specify index of message to delete")
+	sys.exit(1)
 
 client = scaliendb.Client(["127.0.0.1:7080"])
 
