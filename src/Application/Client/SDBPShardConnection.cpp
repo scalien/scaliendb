@@ -170,6 +170,8 @@ void ShardConnection::OnClose()
         sentRequests.Remove(it);
         client->AddRequestToQuorum(it, false);
     }
+    
+    SendQuorumRequests();
 }
 
 void ShardConnection::InvalidateQuorum(uint64_t quorumID)
