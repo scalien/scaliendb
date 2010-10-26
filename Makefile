@@ -197,7 +197,11 @@ JAVA_PACKAGE_DIR = com/scalien/scaliendb
 JAVA_PACKAGE = com.scalien.scaliendb
 JAVA_LIB = libscaliendb_client.$(SOEXT)
 JAVA_JAR_FILE = scaliendb.jar
-JAVA_INCLUDE = -I/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers/ -I/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/
+JAVA_INCLUDE = \
+	-I/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers/ \
+	-I/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/ \
+	-I/usr/java/jdk/include/
+
 JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Client.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/SDBPException.java \
