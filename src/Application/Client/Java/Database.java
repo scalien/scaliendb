@@ -10,11 +10,11 @@ public class Database
     
     public Database(Client client_, String name_) throws SDBPException {
         client = client_;
+        name = name_;
         BigInteger bi = scaliendb_client.SDBP_GetDatabaseID(client.getPtr(), name);
         databaseID = bi.longValue();
         if (databaseID == 0)
             throw new SDBPException(Status.toString(Status.SDBP_BADSCHEMA));
-        name = name_;
     }
     
     public long getDatabaseID() {
