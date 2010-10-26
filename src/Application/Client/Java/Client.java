@@ -7,7 +7,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 
-
 public class Client
 {
 	static {
@@ -29,6 +28,10 @@ public class Client
 		int status = scaliendb_client.SDBP_Init(cptr, nodeParams);
 		nodeParams.Close();
 	}
+    
+    SWIGTYPE_p_void getPtr() {
+        return cptr;
+    }
 
 	public void finalize() {
 		scaliendb_client.SDBP_Destroy(cptr);
@@ -204,7 +207,7 @@ public class Client
 		}
 		
 		if (isBatched())
-			return "";
+			return null;
 		
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getValue();
@@ -220,29 +223,21 @@ public class Client
 	
 	public static void main(String[] args) {
 		try {
-			String[] nodes = {"127.0.0.1:7080"};
-			//setTrace(true);
-			Client ks = new Client(nodes);
-            ks.useDatabase("mediafilter");
-            ks.useTable("users");
-			String hol = ks.get("hol");
-			System.out.println(hol);
-			
-//			ArrayList<String> keys = ks.listKeys("", "", 0, false, true);
-//			for (String key : keys)
-//				System.out.println(key);
-//			
-//			Map<String, String> keyvals = ks.listKeyValues("", "", 0, false, true);
-//			Collection c = keyvals.keySet();
-//			Iterator it = c.iterator();
-//			while (it.hasNext()) {
-//				Object key = it.next();
-//				String value = keyvals.get(key);
-//				System.out.println(key + " => " + value);
-//			}
-//			
-//			long cnt = ks.count(new ListParams().setCount(100));
-//			System.out.println(cnt);
+            final String databaseName = "testdb";
+            final String tableName = "testtable";
+            String[] nodes = {"127.0.0.1:7080"};
+
+            Client.setTrace(true);
+            
+            Client client = new Client(nodes);
+            Database db = new Database(client, databaseName);
+            Table table = new Table(client, db, tableName);
+            
+            table.set("a", "0");
+            table.add("a", 10);
+            String value = table.get("a");
+
+            System.out.println(value);
 		} catch (SDBPException e) {
 			System.out.println(e.getMessage());
 		}

@@ -2,6 +2,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/Common/CatchupMessage.o \
 	$(BUILD_DIR)/Application/Common/ContextTransport.o \
 	$(BUILD_DIR)/Application/Common/ClientRequest.o \
+	$(BUILD_DIR)/Application/Common/ClientRequestCache.o \
 	$(BUILD_DIR)/Application/Common/ClientResponse.o \
 	$(BUILD_DIR)/Application/Common/ClusterMessage.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigState.o \
@@ -77,6 +78,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageShard.o \
 	$(BUILD_DIR)/Framework/Storage/StorageShardIndex.o \
 	$(BUILD_DIR)/Framework/Storage/StorageTable.o \
+	$(BUILD_DIR)/Framework/Storage/StorageRecoveryLog.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Buffers/BufferPool.o \
