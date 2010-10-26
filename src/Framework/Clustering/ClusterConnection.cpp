@@ -73,7 +73,6 @@ void ClusterConnection::OnConnect()
     Write(buffer);
     
     Log_Trace("Conn READY to node %" PRIu64 " at %s", nodeID, endpoint.ToString());
-    Log_Message("[%s]: [%" PRIu64 "] Node connected", endpoint.ToString(), nodeID);
 
     progress = READY;
     OnWriteReadyness();

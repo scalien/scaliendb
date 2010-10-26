@@ -136,6 +136,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
             REPLICATION_CONFIG->SetNodeID(message.nodeID);
             REPLICATION_CONFIG->Commit();
             Log_Trace("My nodeID is %" PRIu64 "", message.nodeID);
+            Log_Message("NodeID set to %" PRIu64, message.nodeID);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             OnSetConfigState(message);
