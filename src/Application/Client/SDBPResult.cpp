@@ -1,14 +1,16 @@
 #include "SDBPResult.h"
 #include "SDBPClientConsts.h"
+#include "System/Time.h"
+#include "System/Events/EventLoop.h"
 
 using namespace SDBPClient;
 
-static uint64_t Key(Request* req)
+static inline uint64_t Key(const Request* req)
 {
     return req->commandID;
 }
 
-static int KeyCmp(uint64_t a, uint64_t b)
+static inline int KeyCmp(uint64_t a, uint64_t b)
 {
     if (a < b)
         return -1;
@@ -70,8 +72,12 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
         resp->CopyValue();
 
     //req->responses.Append(resp);
-    req->response = *resp;
+    req->responseTime = EventLoop::Now/*Clock*/();
+    //req->response = *resp;
+    resp->Transfer(req->response);
     numCompleted++;
+    
+//    Log_Message("commandID: %u", (unsigned) req->commandID);
     
     if (numCompleted == requests.GetCount())
         transportStatus = SDBP_SUCCESS;
@@ -154,4 +160,9 @@ int Result::GetTableID(uint64_t& tableID)
 unsigned Result::GetRequestCount()
 {
     return requests.GetCount();
+}
+
+Request* Result::GetRequestCursor()
+{
+    return requestCursor;
 }

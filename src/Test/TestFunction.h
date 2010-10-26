@@ -30,7 +30,7 @@ public:
 #define TEST_LOG_INIT(targets) \
     Log_SetTimestamping(true); \
     Log_SetTarget(targets); \
-    Log_SetTrace(true); 
+    //Log_SetTrace(true); 
 
 
 #define TEST_EXECUTE() \

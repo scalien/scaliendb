@@ -40,6 +40,7 @@ typedef unsigned __int64    uint64_t;
 #define alloca              _alloca
 #define alloca16(x)         ((void*)((((intptr_t)alloca((x) + 15)) + 15) & ~15))
 #define localtime_r(t, tm)  localtime_s(tm, t)
+#define __func__            __FUNCTION__
 
 #else // end Windows, start Unix
 

@@ -32,7 +32,6 @@ public:
     bool                        SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID);
     
     void                        SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
-    void                        SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
     
     void                        DropConnection(uint64_t nodeID);
     void                        DropConnection(Endpoint endpoint);

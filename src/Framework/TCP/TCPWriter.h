@@ -1,7 +1,7 @@
 #ifndef TCPWRITER_H
 #define TCPWRITER_H
 
-#include "System/Containers/InPriorityQueue.h"
+#include "System/Containers/InQueue.h"
 #include "System/Buffers/BufferPool.h"
 
 class TCPConnection; // forward
@@ -29,14 +29,13 @@ public:
     virtual void                Write(Buffer* buffer);
     virtual void                Write(const char* buffer, unsigned length);
 
-    void                        WritePriority(Buffer* buffer);
-    void                        WritePriority(const char* buffer, unsigned length);
-
     // WritePooled() functions automatically release buffers after data is written
     void                        WritePooled(Buffer* buffer);
-    void                        WritePooledPriority(Buffer* buffer);
 
     void                        Flush();
+
+    unsigned                    GetQueueLength();
+    unsigned                    GetQueuedBytes();
 
     virtual Buffer*             GetNext();
     virtual void                OnNextWritten();    
@@ -44,8 +43,9 @@ public:
 
 protected:
     TCPConnection*              conn;
-    InPriorityQueue<Buffer>     queue;
+    InQueue<Buffer>             queue;
     BufferPool*                 pool;
+    unsigned                    queuedBytes;
     Buffer*                     writeBuffer; // this buffer is currently being written!
 };
 

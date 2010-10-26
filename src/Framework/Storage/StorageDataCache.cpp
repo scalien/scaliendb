@@ -21,6 +21,7 @@ void StorageDataCache::Init(uint64_t size)
     num = size / DEFAULT_DATAPAGE_SIZE;
 
     pageArea = (StorageDataPage*) malloc(num * sizeof(StorageDataPage));
+    assert(pageArea != NULL);
     for (unsigned i = 0; i < num; i++)
     {
         page = new ((void*) &pageArea[i]) StorageDataPage();
@@ -28,6 +29,7 @@ void StorageDataCache::Init(uint64_t size)
     }
     
     bufferArea = (char*) malloc(num * DEFAULT_DATAPAGE_SIZE);
+    assert(bufferArea != NULL);
     for (unsigned i = 0; i < num; i++)
         pageArea[i].buffer.SetPreallocated(&bufferArea[i * DEFAULT_DATAPAGE_SIZE], DEFAULT_DATAPAGE_SIZE);
 }

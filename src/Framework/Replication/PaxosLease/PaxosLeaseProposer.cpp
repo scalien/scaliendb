@@ -150,7 +150,7 @@ void PaxosLeaseProposer::BroadcastMessage(PaxosLeaseMessage& omsg)
     
     vote->Reset();  
     
-    context->GetTransport()->BroadcastMessage(omsg, true);
+    context->GetTransport()->BroadcastMessage(omsg);
 }
 
 void PaxosLeaseProposer::StartPreparing()

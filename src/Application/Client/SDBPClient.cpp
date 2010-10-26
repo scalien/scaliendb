@@ -526,6 +526,8 @@ void Client::EventLoop()
         return;
     }
     
+    EventLoop::UpdateTime();
+
     Log_Trace("%" PRIu64 "", databaseID);
     Log_Trace("%" PRIu64 "", tableID);
     AssignRequestsToQuorums();
@@ -695,16 +697,16 @@ void Client::AssignRequestsToQuorums()
     if (requests.GetLength() == 0)
         return;
     
-    Log_Trace("%" PRIu64 "", requests.First()->tableID);
+    //Log_Trace("%" PRIu64 "", requests.First()->tableID);
 
     requestsCopy = requests;
     requests.ClearMembers();
 
     for (it = requestsCopy.First(); it != NULL; it = next)
     {
-        Log_Trace("%" PRIu64 "", it->tableID);
+        //Log_Trace("%" PRIu64 "", it->tableID);
         next = requestsCopy.Remove(it);
-        Log_Trace("%" PRIu64 "", it->tableID);
+        //Log_Trace("%" PRIu64 "", it->tableID);
         ReassignRequest(it);
     }
 }
@@ -719,7 +721,7 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     
     assert(configState != NULL);
     table = configState->GetTable(tableID);
-    Log_Trace("%" PRIu64 "", tableID);
+    //Log_Trace("%" PRIu64 "", tableID);
     assert(table != NULL);
     for (it = table->shards.First(); it != NULL; it = table->shards.Next(it))
     {
@@ -776,13 +778,18 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     // TODO: distribute dirty
     if (!IsSafe() || (quorum->hasPrimary && quorum->primaryID == conn->GetNodeID()))
     {
-        if (qrequests->GetLength() > 0)
+        while (qrequests->GetLength() > 0)
         {   
             req = qrequests->First();
             qrequests->Remove(req);
-            conn->SendRequest(req);
+            if (!conn->SendRequest(req))
+            {
+                conn->Flush();
+                break;
+            }
         }
-        else
+
+        if (qrequests->GetLength() == 0)
             conn->SendSubmit();
     }
 }

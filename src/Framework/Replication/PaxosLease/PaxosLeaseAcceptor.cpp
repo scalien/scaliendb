@@ -59,7 +59,7 @@ void PaxosLeaseAcceptor::OnPrepareRequest(PaxosLeaseMessage& imsg)
              state.acceptedProposalID, state.acceptedLeaseOwner, state.acceptedDuration);
     }
     
-    context->GetTransport()->SendMessage(imsg.nodeID, omsg, true);
+    context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 }
 
 void PaxosLeaseAcceptor::OnProposeRequest(PaxosLeaseMessage& imsg)
@@ -90,5 +90,5 @@ void PaxosLeaseAcceptor::OnProposeRequest(PaxosLeaseMessage& imsg)
         omsg.ProposeAccepted(MY_NODEID, imsg.proposalID);
     }
     
-    context->GetTransport()->SendMessage(imsg.nodeID, omsg, true);
+    context->GetTransport()->SendMessage(imsg.nodeID, omsg);
 }

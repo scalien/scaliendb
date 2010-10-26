@@ -42,6 +42,7 @@ public:
     int             GetTableID(uint64_t& tableID);
 
     unsigned        GetRequestCount();
+    Request*        GetRequestCursor();
 
 private:
     typedef InTreeMap<Request> RequestMap;

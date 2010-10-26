@@ -6,6 +6,7 @@
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/ClientSession.h"
 #include "Application/Common/ClusterMessage.h"
+#include "Application/Common/ClientRequestCache.h"
 
 void Controller::Init()
 {
@@ -14,6 +15,8 @@ void Controller::Init()
     uint64_t        runID;
     const char*     str;
     Endpoint        endpoint;
+
+    REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
     
     primaryLeaseTimeout.SetCallable(MFUNC(Controller, OnPrimaryLeaseTimeout));
     activationTimeout.SetCallable(MFUNC(Controller, OnActivationTimeout));
@@ -64,6 +67,7 @@ void Controller::Shutdown()
     heartbeats.DeleteList();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
+    REQUEST_CACHE->Shutdown();
     databaseEnv.Close();
 }
 
@@ -413,6 +417,8 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
         
         clusterMessage.SetConfigState(configState);
         CONTEXT_TRANSPORT->SendClusterMessage(nodeID, clusterMessage);
+        
+        Log_Message("[%s] Shard server connected (%" PRIu64 ")", endpoint.ToString(), nodeID);
     }
 }
 

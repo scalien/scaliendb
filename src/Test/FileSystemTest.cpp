@@ -10,7 +10,7 @@ TEST_DEFINE(TestFileSystemDiskSpace)
     total = FS_DiskSpace(path);
     free = FS_FreeDiskSpace(path);
 
-    TEST_LOG("Total space: %s, free space: %s", HumanBytes(total), HumanBytes(free));
+    TEST_LOG("Total space: %s, free space: %s", HUMAN_BYTES(total), HUMAN_BYTES(free));
 
     return TEST_SUCCESS;
 }

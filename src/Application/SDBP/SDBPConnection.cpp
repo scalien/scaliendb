@@ -3,12 +3,14 @@
 #include "SDBPContext.h"
 #include "SDBPRequestMessage.h"
 #include "SDBPResponseMessage.h"
+#include "Application/Common/ClientRequestCache.h"
 
 SDBPConnection::SDBPConnection()
 {
     server = NULL;
     context = NULL;
     numPending = 0;
+    autoFlush = false;
 }
 
 void SDBPConnection::Init(SDBPServer* server_)
@@ -33,12 +35,12 @@ bool SDBPConnection::OnMessage(ReadBuffer& msg)
     SDBPRequestMessage  sdbpRequest;
     ClientRequest*      request;
 
-    request = new ClientRequest;
+    request = REQUEST_CACHE->CreateRequest();
     request->session = this;
     sdbpRequest.request = request;
     if (!sdbpRequest.Read(msg) || !context->IsValidClientRequest(request))
     {
-        delete request;
+        REQUEST_CACHE->DeleteRequest(request);
         OnClose();
         return true;
     }
@@ -86,10 +88,12 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     {
         sdbpResponse.response = &request->response;
         Write(sdbpResponse);
+        if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD || last)
+            FlushWriteBuffer();
     }
 
     if (last)
-        delete request;
+        REQUEST_CACHE->DeleteRequest(request);
 }
 
 bool SDBPConnection::IsActive()

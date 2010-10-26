@@ -32,6 +32,7 @@ public:
     void                    Connect();
     bool                    SendRequest(Request* request);
     void                    SendSubmit();
+    void                    Flush();
 
     uint64_t                GetNodeID();
     Endpoint&               GetEndpoint();
@@ -59,7 +60,7 @@ private:
     Endpoint                endpoint;
     SortedList<uint64_t>    quorums;
     InList<Request>         sentRequests;
-    Buffer*                 writeBuffer;
+    ClientResponse          response;
 };
 
 }; // namespace

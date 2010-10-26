@@ -38,7 +38,6 @@ public:
 
     void            SendClusterMessage(uint64_t nodeID, Message& msg);
     void            SendQuorumMessage(uint64_t nodeID, uint64_t quorumID, Message& msg);
-    void            SendPriorityQuorumMessage(uint64_t nodeID, uint64_t quorumID, Message& msg);   
     
 private:
     ContextTransport();

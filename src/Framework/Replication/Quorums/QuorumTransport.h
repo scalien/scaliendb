@@ -18,8 +18,8 @@ public:
     void                    SetQuorum(Quorum* quorum);
     void                    SetQuorumID(uint64_t quorumID);
     
-    void                    SendMessage(uint64_t nodeID, Message& msg, bool priority = false);
-    void                    BroadcastMessage(Message& msg, bool priority = false);
+    void                    SendMessage(uint64_t nodeID, Message& msg);
+    void                    BroadcastMessage(Message& msg);
 
 private:
     uint64_t                quorumID;

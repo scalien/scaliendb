@@ -36,6 +36,9 @@ public:
     
     void                    SetNew(bool n);
     bool                    IsNew();
+    
+    void                    SetDeleted(bool deleted);
+    bool                    IsDeleted();
 
     char                    GetType();
 
@@ -56,6 +59,7 @@ protected:
     uint32_t                pageSize;
     bool                    dirty;
     bool                    newPage;
+    bool                    deleted;
     char                    type;
 };
 

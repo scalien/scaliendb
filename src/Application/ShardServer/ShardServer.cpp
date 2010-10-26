@@ -2,6 +2,9 @@
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
+#include "Application/Common/DatabaseConsts.h"
+#include "Application/Common/CatchupMessage.h"
+#include "Application/Common/ClientRequestCache.h"
 
 void ShardServer::Init()
 {
@@ -13,7 +16,8 @@ void ShardServer::Init()
 
     databaseAdapter.Init(this);
     heartbeatManager.Init(this);
-    
+    REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
+
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;
     REPLICATION_CONFIG->SetRunID(runID);
@@ -44,6 +48,7 @@ void ShardServer::Shutdown()
     databaseAdapter.Shutdown();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
+    REQUEST_CACHE->Shutdown();    
 }
 
 ShardQuorumProcessor* ShardServer::GetQuorumProcessor(uint64_t quorumID)
@@ -308,9 +313,8 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
     Log_Trace();    
     
     quorumID = configQuorum->quorumID;
-
     quorumProcessor = GetQuorumProcessor(quorumID);
-    if (active && quorumProcessor == NULL)
+    if (active && quorumProcessor == NULL)    
     {
         quorumProcessor = new ShardQuorumProcessor;
         quorumProcessor->Init(configQuorum, this);

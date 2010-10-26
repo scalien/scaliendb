@@ -45,6 +45,7 @@ public:
     void                    OnClusterMessage(uint64_t nodeID, ClusterMessage& msg);
     void                    OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint);
     bool                    OnAwaitingNodeID(Endpoint endpoint);
+    // ========================================================================================
 
     bool                    IsLeaseKnown(uint64_t quorumID);
     bool                    IsLeaseOwner(uint64_t quorumID);

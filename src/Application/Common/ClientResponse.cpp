@@ -13,9 +13,23 @@ ClientResponse::~ClientResponse()
 
 void ClientResponse::CopyValue()
 {
-    valueBuffer = new Buffer;
+    if (valueBuffer == NULL)
+        valueBuffer = new Buffer;
+
     valueBuffer->Write(value.GetBuffer(), value.GetLength());
     value.Wrap(*valueBuffer);
+}
+
+void ClientResponse::Transfer(ClientResponse& other)
+{
+    other.type = type;
+    other.number = number;
+    other.commandID = commandID;
+    other.value = value;
+    other.valueBuffer = valueBuffer;
+    other.configState = configState;
+    
+    valueBuffer = NULL;
 }
 
 bool ClientResponse::OK()

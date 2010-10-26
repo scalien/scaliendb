@@ -16,6 +16,7 @@
     TEST_LOG("%s => %s", k.GetBuffer(), v.GetBuffer()); \
 }
 
+// This can be used for ensuring the database is in a blank state
 TEST_DEFINE(TestStorageDeleteTestDatabase)
 {
     Buffer  path;
@@ -27,7 +28,7 @@ TEST_DEFINE(TestStorageDeleteTestDatabase)
     path.Append(TEST_DATABASE);
     path.NullTerminate();
     
-    if (!FS_Exists(path.GetBuffer()));
+    if (!FS_Exists(path.GetBuffer()))
         return TEST_SUCCESS;
     if (!FS_IsDirectory(path.GetBuffer()))
         TEST_FAIL();
@@ -64,7 +65,7 @@ TEST_DEFINE(TestStorage)
     DCACHE->Init(100000000);
 
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
-    table = db.GetTable("TestStorageTable");
+    table = db.GetTable(__func__);
 
     //==============================================================================================
     //
@@ -160,7 +161,7 @@ TEST_DEFINE(TestStorageCapacity)
 
     DCACHE->Init(100000000);
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
-    table = db.GetTable("TestStorageCapacity");
+    table = db.GetTable(__func__);
 
     //==============================================================================================
     //
@@ -239,17 +240,17 @@ TEST_DEFINE(TestStorageBigTransaction)
     char*               p;
 
     // Initialization ==============================================================================
-    num = 100*1000;
+    num = 1000*1000;
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(100000000);
+    DCACHE->Init((ksize + vsize) * 2 * num);
     cache = DCACHE;
     TEST_ASSERT(cache != NULL);
 
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
-    table = db.GetTable("TestStorageBigTransaction");
+    table = db.GetTable(__func__);
 
     // SET key-values ==============================================================================
     sw.Reset();
@@ -310,7 +311,7 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
 
     DCACHE->Init((ksize + vsize) * 2 * num);
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
-    table = db.GetTable("TestStorageBigRandomTransaction");
+    table = db.GetTable(__func__);
 
     // SET key-values ==============================================================================
     sw.Reset();
@@ -364,10 +365,10 @@ TEST_DEFINE(TestStorageShardSize)
     vsize = 64;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(100000000);
+    DCACHE->Init((ksize + vsize) * 4 * num);
 
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
-    table = db.GetTable("TestStorageShardSize");
+    table = db.GetTable(__func__);
 
     // SET key-values ==============================================================================
     // a million key-value pairs take up 248M disk space
@@ -397,7 +398,7 @@ TEST_DEFINE(TestStorageShardSize)
         table->Commit(true /*recovery*/, false /*flush*/);
         elapsed = sw.Stop();
         printf("Commit() took %ld msec\n", elapsed);
-        printf("Shard size: %s\n", SIBytes(table->GetSize()));
+        printf("Shard size: %s\n", SI_BYTES(table->GetSize()));
     }
 
     // Shutdown ====================================================================================
@@ -422,16 +423,19 @@ TEST_DEFINE(TestStorageShardSplit)
     unsigned            round;
     char                splitKey[] = "00000033620";
 
+    // Initialization ==============================================================================
     round = 10;
     num = 100*1000;
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init(10000000);
+    DCACHE->Init((ksize + vsize) * 4 * num);
 
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
-    table = db.GetTable("TestStorageShardSplit");
+    table = db.GetTable(__func__);
+
+    // Write to database in rounds =================================================================
     // a million key-value pairs take up 248M disk space
     for (unsigned r = 0; r < round; r++)
     {
@@ -460,16 +464,16 @@ TEST_DEFINE(TestStorageShardSplit)
         table->Commit(true /*recovery*/, false /*flush*/);
         elapsed = sw.Stop();
         printf("Commit() took %ld msec\n", elapsed);
-        printf("Shard size: %s\n", SIBytes(table->GetSize()));
+        printf("Shard size: %s\n", SI_BYTES(table->GetSize()));
     }
     
-    
+    // Split on a predefined key ===================================================================    
     rk.Wrap(splitKey, sizeof(splitKey) - 1); 
     table->SplitShard(0, 1, rk);
     
+    // Shutdown ====================================================================================
     db.Close();
-    DCACHE->Shutdown();
-    
+    DCACHE->Shutdown();    
     free(area);
 
     return TEST_SUCCESS;
@@ -484,10 +488,11 @@ TEST_DEFINE(TestStorageFileSplit)
     ReadBuffer          key;
     ReadBuffer          value;
 
+    // Initialization ==============================================================================
     env.InitCache(STORAGE_DEFAULT_CACHE_SIZE);
     env.Open(TEST_DATABASE_PATH);
     db = env.GetDatabase(TEST_DATABASE);
-    table = db->GetTable("TestStorageFileSplit");
+    table = db->GetTable(__func__);
 
     // key is empty
     if (!table->ShardExists(key))
@@ -509,16 +514,18 @@ TEST_DEFINE(TestStorageFileSplit)
         memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
         table->Delete(key);
     }
-    
     table->Commit();
     
+    // create three big keyvalue pairs that will definitely split a page
     for (int i = 1; i <= 3; i++)
     {
         memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
         table->Set(key, value, true);
     }
-    
     table->Commit();
+    
+    // Shutdown ====================================================================================
+    env.Close();
     
     return TEST_SUCCESS;
 }
@@ -533,10 +540,11 @@ TEST_DEFINE(TestStorageFileThreeWaySplit)
     ReadBuffer          value;
     unsigned            i;
 
+    // Initialization ==============================================================================
     env.InitCache(STORAGE_DEFAULT_CACHE_SIZE);
     env.Open(TEST_DATABASE_PATH);
     db = env.GetDatabase(TEST_DATABASE);
-    table = db->GetTable("TestStorageFileThreeWaySplit");
+    table = db->GetTable(__func__);
 
     // key is empty
     if (!table->ShardExists(key))
@@ -557,18 +565,16 @@ TEST_DEFINE(TestStorageFileThreeWaySplit)
         memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
         table->Delete(key);
     }
-    
     table->Commit();
 
     i = 1;
     memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
-    // TODO: -4 is a correction that yet to be investigated
-    value.SetLength((sizeof(keyvalue) / 2) - DEFAULT_KEY_LIMIT - 4);
+    value.SetLength((sizeof(keyvalue) / 2) - DEFAULT_KEY_LIMIT - (DATAPAGE_KV_OVERHEAD / 2));
     table->Set(key, value, true);
 
     i = 3;
     memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
-    value.SetLength((sizeof(keyvalue) / 2) - DEFAULT_KEY_LIMIT - 4);
+    value.SetLength((sizeof(keyvalue) / 2) - DEFAULT_KEY_LIMIT - (DATAPAGE_KV_OVERHEAD / 2));
     table->Set(key, value, true);
 
     // insert between '1' and '3' a new value which has PAGESIZE size
@@ -576,8 +582,56 @@ TEST_DEFINE(TestStorageFileThreeWaySplit)
     memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
     value.SetLength(sizeof(keyvalue) - DEFAULT_KEY_LIMIT);
     table->Set(key, value, true);
+
+    table->Commit();
+
+    // Shutdown ====================================================================================
+    env.Close();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestStorageBinaryData)
+{
+    StorageEnvironment  env;
+    StorageDatabase*    db;
+    StorageTable*       table;
+    char                keyvalue[DATAPAGE_MAX_KV_SIZE(DEFAULT_DATAPAGE_SIZE)];
+    ReadBuffer          key;
+    ReadBuffer          value;
+    unsigned            i;
+    unsigned            num;
+
+    // Initialization ==============================================================================
+    num = 100 * 1000;
+    env.InitCache(sizeof(keyvalue) * 2 * num);
+    env.Open(TEST_DATABASE_PATH);
+    db = env.GetDatabase(TEST_DATABASE);
+    table = db->GetTable(__func__);
+
+    // key is empty
+    if (!table->ShardExists(key))
+        table->CreateShard(0, key);
+
+    // init keyvalues
+    for (i = 0; i < sizeof(keyvalue); i++)
+        keyvalue[i] = i % 256;
+    
+    key.SetBuffer(keyvalue);
+    key.SetLength(DEFAULT_KEY_LIMIT);
+    value.SetBuffer(keyvalue + DEFAULT_KEY_LIMIT);
+    value.SetLength((sizeof(keyvalue) / 2) - DEFAULT_KEY_LIMIT - (DATAPAGE_KV_OVERHEAD / 2));
+    
+    for (i = 0; i < num; i++)
+    {
+        snprintf(keyvalue, sizeof(keyvalue), "%u", i);
+        table->Set(key, value, true);        
+    }
     
     table->Commit();
+
+    // Shutdown ====================================================================================
+    env.Close();
     
     return TEST_SUCCESS;
 }

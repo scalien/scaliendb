@@ -108,28 +108,6 @@ void ClusterTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg
     conn->Write(prefix, msgBuffer);
 }
 
-void ClusterTransport::SendPriorityMessage(uint64_t nodeID, Buffer& prefix, Message& msg)
-{
-    ClusterConnection*  conn;
-    
-    conn = GetConnection(nodeID);
-    
-    if (!conn)
-    {
-        Log_Trace("no connection to nodeID %" PRIu64, nodeID);
-        return;
-    }
-    
-    if (conn->GetProgress() != ClusterConnection::READY)
-    {
-        Log_Trace("connection to %" PRIu64 " has progress: %d", nodeID, conn->GetProgress());
-        return;
-    }
-    
-    msg.Write(msgBuffer);
-    conn->WritePriority(prefix, msgBuffer);
-}
-
 void ClusterTransport::DropConnection(uint64_t nodeID)
 {
     ClusterConnection* conn;
