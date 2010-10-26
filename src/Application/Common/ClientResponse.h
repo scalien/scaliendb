@@ -7,7 +7,7 @@
 #define CLIENTRESPONSE_OK               'O'
 #define CLIENTRESPONSE_NUMBER           'n'
 #define CLIENTRESPONSE_VALUE            'V'
-#define CLIENTRESPONSE_GET_CONFIG_STATE 'C'
+#define CLIENTRESPONSE_CONFIG_STATE     'C'
 #define CLIENTRESPONSE_NOSERVICE        'S'
 #define CLIENTRESPONSE_FAILED           'F'
 
@@ -44,7 +44,7 @@ public:
     bool            OK();
     bool            Number(uint64_t number);
     bool            Value(ReadBuffer& value);
-    bool            GetConfigStateResponse(ConfigState& configState);
+    bool            ConfigStateResponse(ConfigState& configState);
     bool            NoService();
     bool            Failed();
 };

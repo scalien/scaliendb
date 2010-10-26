@@ -205,6 +205,9 @@ void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool own
     WriteConfigState();
     UpdateActivationTimeout();
     
+    if (configContext.IsLeaseOwner())
+        UpdateListeners();
+
     if (ownAppend)
     {
         assert(configMessages.GetLength() > 0);
@@ -213,9 +216,6 @@ void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool own
             SendClientResponse(message);
         configMessages.Delete(configMessages.First());
     }
-        
-    if (configContext.IsLeaseOwner())
-        UpdateListeners();
     
     if (configMessages.GetLength() > 0)
         TryAppend();
@@ -316,7 +316,7 @@ void Controller::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.GetConfigStateResponse(configState);
+        request->response.ConfigStateResponse(configState);
         request->OnComplete(false);
         return;
     }
@@ -1085,7 +1085,7 @@ void Controller::UpdateListeners()
     // update clients
     for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
     {
-        itRequest->response.GetConfigStateResponse(configState);
+        itRequest->response.ConfigStateResponse(configState);
         itRequest->OnComplete(false);
     }
     

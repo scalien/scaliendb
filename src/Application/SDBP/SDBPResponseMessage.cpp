@@ -22,7 +22,7 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R",
              &response->type, &response->commandID, &response->value);
             break;
-        case CLIENTRESPONSE_GET_CONFIG_STATE:
+        case CLIENTRESPONSE_CONFIG_STATE:
             read = buffer.Readf("%c:%U:",
              &response->type, &response->commandID);
             if (read <= 0)
@@ -65,7 +65,7 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%#R",
              response->type, response->request->commandID, &response->value);
             return true;
-        case CLIENTRESPONSE_GET_CONFIG_STATE:
+        case CLIENTRESPONSE_CONFIG_STATE:
             buffer.Writef("%c:%U:",
              response->type, response->request->commandID);
             return response->configState.Write(buffer, true);

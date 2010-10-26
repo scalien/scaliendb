@@ -52,9 +52,9 @@ bool ClientResponse::Value(ReadBuffer& value_)
     return true;
 }
 
-bool ClientResponse::GetConfigStateResponse(ConfigState& configState_)
+bool ClientResponse::ConfigStateResponse(ConfigState& configState_)
 {
-    type = CLIENTRESPONSE_GET_CONFIG_STATE;
+    type = CLIENTRESPONSE_CONFIG_STATE;
     configState = configState_;
     return true;
 }

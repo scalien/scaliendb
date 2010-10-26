@@ -46,7 +46,7 @@ void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
     case CLIENTRESPONSE_VALUE:
         session.Print(response->value);
         break;
-    case CLIENTRESPONSE_GET_CONFIG_STATE:
+    case CLIENTRESPONSE_CONFIG_STATE:
         if (!last)
         {
             response->configState.Write(tmp, true);
