@@ -16,7 +16,7 @@ class Callable; // forward
 class IOProcessor
 {
 public:
-    static bool Init(int maxfd);
+    static bool Init(int maxfd, bool blockSignals);
     static void Shutdown();
 
     static bool Add(IOOperation* ioop);

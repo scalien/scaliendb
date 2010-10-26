@@ -154,7 +154,7 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
     return TRUE;
 }
 
-bool IOProcessor::Init(int maxfd)
+bool IOProcessor::Init(int maxfd, bool blockSignals)
 {
     WSADATA     wsaData;
     SOCKET      s;
@@ -167,9 +167,8 @@ bool IOProcessor::Init(int maxfd)
         return true;
 
     // initialize a Console Control Handler routine
-#ifndef KEYSPACE_CLIENTLIB
-    SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
-#endif
+    if (blockSignals)
+        SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 
     // initialize Winsock2 library
     if (WSAStartup(MAKEWORD(2, 2), &wsaData))
@@ -216,7 +215,7 @@ void IOProcessor::Shutdown()
     freeIods = NULL;
     CloseHandle(iocp);
     iocp = NULL;
-
+    SetConsoleCtrlHandler(ConsoleCtrlHandler, FALSE);
 }
 
 static bool RequestReadNotification(IOOperation* ioop)

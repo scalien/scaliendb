@@ -107,26 +107,9 @@ include Makefile.dirs
 include Makefile.objects
 include Makefile.clientlib
 
-KEYSPACE_LIBS =
-	
-SYSTEM_OBJECTS = \
-	$(BUILD_DIR)/System/Events/Scheduler.o \
-	$(BUILD_DIR)/System/IO/Endpoint.o \
-	$(BUILD_DIR)/System/IO/IOProcessor_$(PLATFORM).o \
-	$(BUILD_DIR)/System/IO/Socket.o \
-	$(BUILD_DIR)/System/Log.o \
-	$(BUILD_DIR)/System/Common.o \
-
-FRAMEWORK_OBJECTS = \
-	$(BUILD_DIR)/Framework/Transport/TransportUDPReader.o \
-
 OBJECTS = \
 	$(ALL_OBJECTS) \
 	$(BUILD_DIR)/Main.o
-
-TEST_OBJECTS = \
-	$(BUILD_DIR)/Test/scaliendb_client_test.o \
-	$(BUILD_DIR)/Test/ScalienDBClientTest.o
 
 SWIG_WRAPPER_OBJECT = \
 	$(BUILD_DIR)/Application/Client/SDBPClientWrapper.o

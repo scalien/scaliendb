@@ -66,7 +66,7 @@ int Client::Init(int nodec, const char* nodev[])
         return SDBP_API_ERROR;
 
     // TODO: find out the optimal size of MAX_SERVER_NUM
-    if (!IOProcessor::Init(nodec + MAX_SERVER_NUM))
+    if (!IOProcessor::Init(nodec + MAX_SERVER_NUM, false))
         return SDBP_API_ERROR;
 
     // set default timeouts

@@ -140,7 +140,7 @@ void SetupSignals()
     pthread_sigmask(SIG_SETMASK, &mask, NULL);
 }
 
-bool IOProcessor::Init(int maxfd_)
+bool IOProcessor::Init(int maxfd_, bool blockSignals)
 {
     int i;
     rlimit rl;
@@ -171,9 +171,8 @@ bool IOProcessor::Init(int maxfd_)
         return false;
     }
 
-#ifndef KEYSPACE_CLIENTLIB
-    SetupSignals();
-#endif  
+    if (blockSignals)
+        SetupSignals();
 
     epollOps = new EpollOp[maxfd];
     for (i = 0; i < maxfd; i++)
