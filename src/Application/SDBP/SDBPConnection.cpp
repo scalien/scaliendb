@@ -88,7 +88,9 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     {
         sdbpResponse.response = &request->response;
         Write(sdbpResponse);
-        if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD || last)
+        // TODO: HACK
+        if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD || last ||
+         request->type == CLIENTREQUEST_GET_CONFIG_STATE)
             FlushWriteBuffer();
     }
 
