@@ -441,29 +441,6 @@ void StorageFile::ReadRest()
         LoadDataPage(*uit);
 }
 
-//void StorageFile::WriteRecovery(FD recoveryFD)
-//{
-//    Buffer          buffer;
-//    StoragePage*    it;
-//
-//    for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
-//    {
-//        if (it->IsNew())
-//            continue;
-//        assert(it->buffer.GetLength() <= it->GetPageSize());
-//        // it->buffer contains the old page
-//        buffer.Allocate(it->GetPageSize());
-//        if (!it->CheckWrite(buffer))
-//            continue;
-//        if (FS_FileWrite(recoveryFD, it->buffer.GetBuffer(), it->buffer.GetLength()) < 0)
-//        {
-//            Log_Errno();
-//            ASSERT_FAIL();
-//        }
-//        FS_FileSeek(recoveryFD, it->GetPageSize() - it->buffer.GetLength(), FS_SEEK_CUR);
-//    }
-//}
-
 void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
 {
     Buffer          buffer;
