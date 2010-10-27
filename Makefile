@@ -311,7 +311,9 @@ clienttest:
 clientlib:
 	$(MAKE) clientlibs BUILD="debug"
 
-pythonlib: $(BUILD_DIR) $(CLIENTLIBS) $(PYTHONLIB)
+#pythonlib: $(BUILD_DIR) $(CLIENTLIBS) $(PYTHONLIB)
+pythonlib: $(BUILD_DIR) clientlib
+	$(MAKE) $(PYTHONLIB) BUILD="debug"
 
 javalib: $(BUILD_DIR) $(CLIENTLIBS) $(JAVALIB)
 

@@ -488,6 +488,8 @@ int Client::Remove(ReadBuffer& key)
 
 int Client::Begin()
 {
+    Log_Trace();
+
     result->Close();
     isBatched = true;
     
@@ -496,6 +498,8 @@ int Client::Begin()
 
 int Client::Submit()
 {
+    Log_Trace();
+
     EventLoop();
     isBatched = false;
     
@@ -504,6 +508,8 @@ int Client::Submit()
 
 int Client::Cancel()
 {
+    Log_Trace();
+
     requests.Clear();
 
     result->Close();
@@ -514,8 +520,7 @@ int Client::Cancel()
 
 bool Client::IsBatched()
 {
-    // TODO:
-    return false;
+    return isBatched;
 }
 
 void Client::EventLoop()

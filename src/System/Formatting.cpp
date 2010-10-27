@@ -252,7 +252,7 @@ int VReadf(char* buffer, unsigned length, const char* format, va_list ap)
                 b->Write(buffer, length);
                 ADVANCE(2, b->GetLength());
             }
-            else if (length >= 3 && format[1] == '#' && format[2] == 'B') // %#B with prefix, copies
+            else if (length >= 2 && format[1] == '#' && format[2] == 'B') // %#B with prefix, copies
             {
                 b = va_arg(ap, Buffer*);
                 // read the length prefix
@@ -274,7 +274,7 @@ int VReadf(char* buffer, unsigned length, const char* format, va_list ap)
                 rb->Wrap(buffer, length);
                 ADVANCE(2, rb->GetLength());
             }
-            else if (length >= 3 && format[1] == '#' && format[2] == 'R') // %#R with prefix, points
+            else if (length >= 2 && format[1] == '#' && format[2] == 'R') // %#R with prefix, points
             {
                 rb = va_arg(ap, ReadBuffer*);
                 // read the length prefix

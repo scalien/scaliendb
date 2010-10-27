@@ -213,7 +213,24 @@ public class Client
 		return result.getValue();
 	}
 
-	private boolean isBatched() {
+    public int begin() {
+        return scaliendb_client.SDBP_Begin(cptr);
+    }
+    
+    public int submit() throws SDBPException {
+        int status = scaliendb_client.SDBP_Submit(cptr);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            throw new SDBPException(Status.toString(status));
+        }
+        return status;
+    }
+    
+    public int cancel() {
+        return scaliendb_client.SDBP_Cancel(cptr);
+    }
+
+	public boolean isBatched() {
 		return scaliendb_client.SDBP_IsBatched(cptr);
 	}
 	

@@ -226,6 +226,20 @@ class Client:
             return
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return self.result.value()
+
+    def begin(self):
+        return SDBP_Begin(self.cptr)
+    
+    def submit(self):
+        status = SDBP_Submit(self.cptr)
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        return status
+    
+    def cancel(self):
+        return SDBP_Cancel(self.cptr)
+    
+    def is_batched(self):
+        return SDBP_IsBatched(self.cptr)
         
     def _set_trace(self, trace):
         SDBP_SetTrace(trace)

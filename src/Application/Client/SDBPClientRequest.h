@@ -23,12 +23,8 @@ public:
     typedef List<ClientResponse*> ResponseList;
     typedef InTreeNode<Request> TreeNode;
 
-    Request();
-
     ResponseList    responses;
     TreeNode        treeNode;
-    Request*        next;
-    Request*        prev;
     int             status;
     unsigned        numTry;
     uint64_t        requestTime;
