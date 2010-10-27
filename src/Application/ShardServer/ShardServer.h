@@ -53,7 +53,7 @@ public:
 
 private:
     void                    OnSetConfigState(ClusterMessage& message);
-    void                    ConfigureQuorum(ConfigQuorum* configQuorum, bool active);
+    void                    ConfigureQuorum(ConfigQuorum* configQuorum);
 
     ConfigState             configState;
     NodeList                controllers;

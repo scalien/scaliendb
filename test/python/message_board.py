@@ -2,7 +2,7 @@ import time
 import scaliendb
 
 client = scaliendb.Client(["127.0.0.1:7080"])
-#client._set_trace(True)
+client._set_trace(True)
 
 client.use_database("message_board")
 client.use_table("messages")
@@ -18,7 +18,5 @@ while True:
 			message = client.get("%d" % i)
 			if message is not None:
 				print("%d. %s" % (i, message))
-			else:
-				print("None")
-		highest_seen = index
+				highest_seen = index
 	time.sleep(0.5)

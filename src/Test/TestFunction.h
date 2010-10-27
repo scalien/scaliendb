@@ -12,7 +12,7 @@
 class TestFunction
 {
 public:
-    TestFunction(testfn_t function_, const char* name_) : function(function_), name(name_) {}
+    TestFunction(testfn_t function_, const char* name_) : function(function_), name(name_) { prev = next = this; }
     
     testfn_t        function;
     const char*     name;

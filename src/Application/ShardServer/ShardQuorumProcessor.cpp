@@ -174,6 +174,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 
     if (!quorumContext.IsLeader())
     {
+        Log_Trace();
         request->response.Failed();
         request->OnComplete();
         return;
