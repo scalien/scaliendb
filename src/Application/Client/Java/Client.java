@@ -128,6 +128,20 @@ public class Client
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getValue();
 	}
+
+	public String get(byte[] key) throws SDBPException {
+		int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return null;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getValue();
+	}
 		
 	public int set(String key, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_Set(cptr, key, value);

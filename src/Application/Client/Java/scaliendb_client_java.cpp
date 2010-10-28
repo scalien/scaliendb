@@ -593,6 +593,108 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1No
 }
 
 
+SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_new_1SDBP_1Buffer(JNIEnv *jenv, jclass jcls) {
+  jlong jresult = 0 ;
+  SDBP_Buffer *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  result = (SDBP_Buffer *)new SDBP_Buffer();
+  *(SDBP_Buffer **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Buffer_1SetBuffer(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jbyteArray jarg2, jint jarg3) {
+  SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(SDBP_Buffer **)&jarg1; 
+  {
+    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+  }
+  arg3 = (int)jarg3; 
+  (arg1)->SetBuffer(arg2,arg3);
+  {
+    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+  }
+  
+}
+
+
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Buffer_1data_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jlong jarg2) {
+  SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
+  void *arg2 = (void *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(SDBP_Buffer **)&jarg1; 
+  arg2 = *(void **)&jarg2; 
+  if (arg1) (arg1)->data = arg2;
+  
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Buffer_1data_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jlong jresult = 0 ;
+  SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
+  void *result = 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(SDBP_Buffer **)&jarg1; 
+  result = (void *) ((arg1)->data);
+  *(void **)&jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Buffer_1len_1set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_, jint jarg2) {
+  SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
+  int arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(SDBP_Buffer **)&jarg1; 
+  arg2 = (int)jarg2; 
+  if (arg1) (arg1)->len = arg2;
+  
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Buffer_1len_1get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg1_) {
+  jint jresult = 0 ;
+  SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  (void)jarg1_;
+  arg1 = *(SDBP_Buffer **)&jarg1; 
+  result = (int) ((arg1)->len);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_delete_1SDBP_1Buffer(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(SDBP_Buffer **)&jarg1; 
+  delete arg1;
+  
+}
+
+
 SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultClose(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   ResultObj arg1 = (ResultObj) 0 ;
   
@@ -627,6 +729,40 @@ SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
   arg1 = *(ResultObj *)&jarg1; 
   result = SDBP_ResultValue(arg1);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jbyteArray JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultKeyBuffer(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jbyteArray jresult = 0 ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  SDBP_Buffer result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ResultObj *)&jarg1; 
+  result = SDBP_ResultKeyBuffer(arg1);
+  {
+    jresult = jenv->NewByteArray((&result)->len);
+    jenv->SetByteArrayRegion(jresult, 0, (&result)->len, (jbyte*) (&result)->data);
+  }
+  return jresult;
+}
+
+
+SWIGEXPORT jbyteArray JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultValueBuffer(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jbyteArray jresult = 0 ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  SDBP_Buffer result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ResultObj *)&jarg1; 
+  result = SDBP_ResultValueBuffer(arg1);
+  {
+    jresult = jenv->NewByteArray((&result)->len);
+    jenv->SetByteArrayRegion(jresult, 0, (&result)->len, (jbyte*) (&result)->data);
+  }
   return jresult;
 }
 
@@ -1257,6 +1393,30 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Ge
   jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
   result = (int)SDBP_Get(arg1,(std::string const &)*arg2);
   jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+  }
+  arg3 = (int)jarg3; 
+  result = (int)SDBP_GetCStr(arg1,arg2,arg3);
+  jresult = (jint)result; 
+  {
+    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+  }
+  
   return jresult;
 }
 

@@ -129,9 +129,33 @@ class SDBP_NodeParams(_object):
 SDBP_NodeParams_swigregister = _scaliendb_client.SDBP_NodeParams_swigregister
 SDBP_NodeParams_swigregister(SDBP_NodeParams)
 
+class SDBP_Buffer(_object):
+    __swig_setmethods__ = {}
+    __setattr__ = lambda self, name, value: _swig_setattr(self, SDBP_Buffer, name, value)
+    __swig_getmethods__ = {}
+    __getattr__ = lambda self, name: _swig_getattr(self, SDBP_Buffer, name)
+    __repr__ = _swig_repr
+    def __init__(self, *args): 
+        this = _scaliendb_client.new_SDBP_Buffer(*args)
+        try: self.this.append(this)
+        except: self.this = this
+    def SetBuffer(*args): return _scaliendb_client.SDBP_Buffer_SetBuffer(*args)
+    __swig_setmethods__["data"] = _scaliendb_client.SDBP_Buffer_data_set
+    __swig_getmethods__["data"] = _scaliendb_client.SDBP_Buffer_data_get
+    if _newclass:data = _swig_property(_scaliendb_client.SDBP_Buffer_data_get, _scaliendb_client.SDBP_Buffer_data_set)
+    __swig_setmethods__["len"] = _scaliendb_client.SDBP_Buffer_len_set
+    __swig_getmethods__["len"] = _scaliendb_client.SDBP_Buffer_len_get
+    if _newclass:len = _swig_property(_scaliendb_client.SDBP_Buffer_len_get, _scaliendb_client.SDBP_Buffer_len_set)
+    __swig_destroy__ = _scaliendb_client.delete_SDBP_Buffer
+    __del__ = lambda self : None;
+SDBP_Buffer_swigregister = _scaliendb_client.SDBP_Buffer_swigregister
+SDBP_Buffer_swigregister(SDBP_Buffer)
+
 SDBP_ResultClose = _scaliendb_client.SDBP_ResultClose
 SDBP_ResultKey = _scaliendb_client.SDBP_ResultKey
 SDBP_ResultValue = _scaliendb_client.SDBP_ResultValue
+SDBP_ResultKeyBuffer = _scaliendb_client.SDBP_ResultKeyBuffer
+SDBP_ResultValueBuffer = _scaliendb_client.SDBP_ResultValueBuffer
 SDBP_ResultNumber = _scaliendb_client.SDBP_ResultNumber
 SDBP_ResultDatabaseID = _scaliendb_client.SDBP_ResultDatabaseID
 SDBP_ResultTableID = _scaliendb_client.SDBP_ResultTableID
@@ -156,6 +180,7 @@ SDBP_GetTableID = _scaliendb_client.SDBP_GetTableID
 SDBP_UseDatabase = _scaliendb_client.SDBP_UseDatabase
 SDBP_UseTable = _scaliendb_client.SDBP_UseTable
 SDBP_Get = _scaliendb_client.SDBP_Get
+SDBP_GetCStr = _scaliendb_client.SDBP_GetCStr
 SDBP_Set = _scaliendb_client.SDBP_Set
 SDBP_SetIfNotExists = _scaliendb_client.SDBP_SetIfNotExists
 SDBP_TestAndSet = _scaliendb_client.SDBP_TestAndSet

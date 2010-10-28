@@ -454,7 +454,6 @@
 		9AF4C76012631A920036E3B3 /* Result.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Result.java; path = Application/Client/Java/Result.java; sourceTree = "<group>"; };
 		9AF4C76112631A920036E3B3 /* Status.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Status.java; path = Application/Client/Java/Status.java; sourceTree = "<group>"; };
 		9AF4C76412631A920036E3B3 /* Test.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Test.java; path = Application/Client/Java/Test.java; sourceTree = "<group>"; };
-		9AF4C7BD12634CC80036E3B3 /* scaliendb_client_java.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_java.cpp; path = Application/Client/Java/scaliendb_client_java.cpp; sourceTree = "<group>"; };
 		9AF4CC78126660740036E3B3 /* TestFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestFunction.h; path = Test/TestFunction.h; sourceTree = "<group>"; };
 		9AF4D02E12687DA70036E3B3 /* Database.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Database.java; path = Application/Client/Java/Database.java; sourceTree = "<group>"; };
 		9AF4D030126881380036E3B3 /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Table.java; path = Application/Client/Java/Table.java; sourceTree = "<group>"; };
@@ -465,6 +464,10 @@
 		9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientRequestCache.cpp; sourceTree = "<group>"; };
 		9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FormattingTest.cpp; path = Test/FormattingTest.cpp; sourceTree = "<group>"; };
 		9AF4E5B812771CDC0036E3B3 /* test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = test.py; path = Application/Client/Python/test.py; sourceTree = "<group>"; };
+		9AF4EAAB1279B1EC0036E3B3 /* scaliendb_client_java.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_java.cpp; path = Application/Client/Java/scaliendb_client_java.cpp; sourceTree = "<group>"; };
+		9AF4EB251279D4FF0036E3B3 /* scaliendb_clientJNI.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = scaliendb_clientJNI.java; path = Application/Client/Java/scaliendb_clientJNI.java; sourceTree = "<group>"; };
+		9AF4EB261279D51C0036E3B3 /* SDBP_Buffer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SDBP_Buffer.java; path = Application/Client/Java/SDBP_Buffer.java; sourceTree = "<group>"; };
+		9AF4EB3C1279D5F80036E3B3 /* scaliendb_client.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = scaliendb_client.java; path = Application/Client/Java/scaliendb_client.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1008,7 +1011,10 @@
 		9AF4C75712631A7F0036E3B3 /* Java */ = {
 			isa = PBXGroup;
 			children = (
-				9AF4C7BD12634CC80036E3B3 /* scaliendb_client_java.cpp */,
+				9AF4EB3C1279D5F80036E3B3 /* scaliendb_client.java */,
+				9AF4EB261279D51C0036E3B3 /* SDBP_Buffer.java */,
+				9AF4EB251279D4FF0036E3B3 /* scaliendb_clientJNI.java */,
+				9AF4EAAB1279B1EC0036E3B3 /* scaliendb_client_java.cpp */,
 				9AF4C75912631A920036E3B3 /* Client.java */,
 				9AF4C75E12631A920036E3B3 /* SDBPException.java */,
 				9AF4C75F12631A920036E3B3 /* ListParams.java */,

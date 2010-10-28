@@ -37,6 +37,14 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ResultValue(SWIGTYPE_p_void.getCPtr(result));
   }
 
+  public static byte[] SDBP_ResultKeyBuffer(SWIGTYPE_p_void result) {
+    return scaliendb_clientJNI.SDBP_ResultKeyBuffer(SWIGTYPE_p_void.getCPtr(result));
+}
+
+  public static byte[] SDBP_ResultValueBuffer(SWIGTYPE_p_void result) {
+    return scaliendb_clientJNI.SDBP_ResultValueBuffer(SWIGTYPE_p_void.getCPtr(result));
+}
+
   public static java.math.BigInteger SDBP_ResultNumber(SWIGTYPE_p_void result) {
     return scaliendb_clientJNI.SDBP_ResultNumber(SWIGTYPE_p_void.getCPtr(result));
   }
@@ -133,6 +141,10 @@ public class scaliendb_client {
 
   public static int SDBP_Get(SWIGTYPE_p_void client, String key) {
     return scaliendb_clientJNI.SDBP_Get(SWIGTYPE_p_void.getCPtr(client), key);
+  }
+
+  public static int SDBP_GetCStr(SWIGTYPE_p_void client, byte[] key, int len) {
+    return scaliendb_clientJNI.SDBP_GetCStr(SWIGTYPE_p_void.getCPtr(client), key, len);
   }
 
   public static int SDBP_Set(SWIGTYPE_p_void client, String key, String value) {

@@ -43,6 +43,18 @@ void SDBP_NodeParams::AddNode(const std::string& node)
 	nodes[num++] = strdup(node.c_str());
 }
 
+SDBP_Buffer::SDBP_Buffer()
+{
+    data = NULL;
+    len = 0;
+}
+
+void SDBP_Buffer::SetBuffer(char* data_, int len_)
+{
+    data = data_;
+    len = len_;
+}
+
 /*
 ===============================================================================================
 
@@ -92,6 +104,46 @@ std::string SDBP_ResultValue(ResultObj result_)
         return ret;
     
     ret.append(value.GetBuffer(), value.GetLength());
+    
+    return ret;
+}
+
+SDBP_Buffer SDBP_ResultKeyBuffer(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    ReadBuffer  key;
+    int         status;
+    SDBP_Buffer ret;
+    
+    if (!result)
+        return ret;
+    
+    status = result->GetKey(key);
+    if (status < 0)
+        return ret;
+    
+    ret.data = key.GetBuffer();
+    ret.len = key.GetLength();
+    
+    return ret;
+}
+
+SDBP_Buffer SDBP_ResultValueBuffer(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    ReadBuffer  value;
+    int         status;
+    SDBP_Buffer ret;
+    
+    if (!result)
+        return ret;
+    
+    status = result->GetValue(value);
+    if (status < 0)
+        return ret;
+    
+    ret.data = value.GetBuffer();
+    ret.len = value.GetLength();
     
     return ret;
 }
@@ -339,6 +391,16 @@ int	SDBP_Get(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key = key_.c_str();
+
+    return client->Get(key);
+}
+
+int	SDBP_GetCStr(ClientObj client_, char *key_, int len)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+
+    key.Wrap((char*) key_, len);
 
     return client->Get(key);
 }
