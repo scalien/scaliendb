@@ -52,7 +52,7 @@ public class ConcurrentWords {
 			client.submit();
 			long endTime = System.currentTimeMillis();
 			
-			long wps = (long)(words.size() / (float)(endTime - startTime) * 1000.0 + 0.5);
+			long wps = (long)(randomWords.size() / (float)(endTime - startTime) * 1000.0 + 0.5);
 			System.out.println(randomWords.size() + " words written at " + wps + " word/s");
 			
 		} catch (Exception e) {
