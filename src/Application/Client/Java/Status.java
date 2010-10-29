@@ -44,7 +44,7 @@ public class Status
 			return "SDBP_FAILED";
 		}
 
-		return "<UNKNOWN>";		
+		return "SDBP_UNKNOWN_STATUS";
 	}
 }
 
