@@ -47,6 +47,7 @@ public class ConcurrentWords {
 			for (String word : randomWords)
 				client.setIfNotExists(word, word);
 			
+			System.out.println("Submitting to database...");
 			long startTime = System.currentTimeMillis();
 			client.submit();
 			long endTime = System.currentTimeMillis();
