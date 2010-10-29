@@ -183,7 +183,8 @@ JAVA_JAR_FILE = scaliendb.jar
 JAVA_INCLUDE = \
 	-I/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers/ \
 	-I/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/ \
-	-I/usr/java/jdk/include/
+	-I/usr/java/jdk/include/ \
+	-I/usr/lib/jvm/java-6-sun/include/
 
 JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Client.java \
