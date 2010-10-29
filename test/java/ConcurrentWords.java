@@ -33,15 +33,26 @@ public class ConcurrentWords {
 			Client client = new Client(controllers);
 			//client.setTrace(true);
 
+            if (false) {
+                    long[] nodes = {100};
+                    long quorumID = client.createQuorum(nodes);
+                    long databaseID = client.createDatabase("test");
+                    long tableID = client.createTable(databaseID, quorumID, "words");
+            }
+
             client.useDatabase("test");
             client.useTable("words");
 
 			client.begin();
 			for (String word : randomWords)
 				client.setIfNotExists(word, word);
-			client.submit();
 			
-			System.out.println(randomWords.size() + " words written.");
+			long startTime = System.currentTimeMillis();
+			client.submit();
+			long endTime = System.currentTimeMillis();
+			
+			long wps = (long)(words.size() / (float)(endTime - startTime) * 1000.0 + 0.5);
+			System.out.println(randomWords.size() + " words written at " + wps + " word/s");
 			
 		} catch (Exception e) {
 			System.err.println(e.getMessage());
