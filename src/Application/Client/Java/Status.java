@@ -38,10 +38,14 @@ public class Status
 			return "SDBP_MASTER_TIMEOUT";
 		case SDBP_GLOBAL_TIMEOUT:
 			return "SDBP_GLOBAL_TIMEOUT";
+		case SDBP_PRIMARY_TIMEOUT:
+			return "SDBP_PRIMARY_TIMEOUT";
 		case SDBP_NOSERVICE:
 			return "SDBP_NOSERVICE";
 		case SDBP_FAILED:
 			return "SDBP_FAILED";
+		case SDBP_BADSCHEMA:
+			return "SDBP_BADSCHEMA";
 		}
 
 		return "SDBP_UNKNOWN_STATUS";
