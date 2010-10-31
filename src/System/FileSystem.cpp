@@ -25,6 +25,55 @@ bool FS_IsSpecial(const char* path)
     return false;
 }
 
+bool FS_RecDeleteDir(const char* path)
+{
+    FS_Dir      dir;
+    FS_DirEntry entry;
+    bool        ret;
+    const char* dirname;
+    size_t      pathlen;
+    size_t      tmplen;
+    char*       tmp;
+    
+    if (!FS_IsDirectory(path))
+        return false;
+
+    if (FS_IsSpecial(path))
+        return false;
+    
+    dir = FS_OpenDir(path);
+    if (dir == FS_INVALID_DIR)
+        return false;
+    
+    pathlen = strlen(path);
+    while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
+    {
+        dirname = FS_DirEntryName(entry);
+        if (FS_IsSpecial(dirname))
+            continue;
+        
+        // create relative path in temporary buffer
+        tmplen = pathlen + 1 + strlen(dirname) + 1;
+        tmp = new char[tmplen];
+        memcpy(tmp, path, pathlen);
+        tmp[pathlen] = FS_Separator();
+        memcpy(tmp + pathlen + 1, dirname, strlen(dirname));
+        tmp[tmplen - 1] = '\0';
+        
+        if (FS_IsDirectory(tmp))
+            ret = FS_RecDeleteDir(tmp);
+        else
+            ret = FS_Delete(tmp);
+
+        delete[] tmp;
+        if (!ret)
+            return false;
+    }
+    
+    FS_CloseDir(dir);
+    return FS_DeleteDir(path);
+}
+
 /*
 ===============================================================================================
 
@@ -260,55 +309,6 @@ bool FS_DeleteDir(const char* filename)
     return true;
 }
 
-bool FS_RecDeleteDir(const char* path)
-{
-    FS_Dir      dir;
-    FS_DirEntry entry;
-    bool        ret;
-    const char* dirname;
-    size_t      pathlen;
-    size_t      tmplen;
-    char*       tmp;
-    
-    if (!FS_IsDirectory(path))
-        return false;
-
-    if (FS_IsSpecial(path))
-        return false;
-    
-    dir = FS_OpenDir(path);
-    if (dir == FS_INVALID_DIR)
-        return false;
-    
-    pathlen = strlen(path);
-    while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
-    {
-        dirname = FS_DirEntryName(entry);
-        if (FS_IsSpecial(dirname))
-            continue;
-        
-        // create relative path in temporary buffer
-        tmplen = pathlen + 1 + strlen(dirname) + 1;
-        tmp = new char[tmplen];
-        memcpy(tmp, path, pathlen);
-        tmp[pathlen] = FS_Separator();
-        memcpy(tmp + pathlen + 1, dirname, strlen(dirname));
-        tmp[tmplen - 1] = '\0';
-        
-        if (FS_IsDirectory(tmp))
-            ret = FS_RecDeleteDir(tmp);
-        else
-            ret = FS_Delete(tmp);
-
-        delete[] tmp;
-        if (!ret)
-            return false;
-    }
-    
-    FS_CloseDir(dir);
-    return FS_DeleteDir(path);
-}
-
 const char* FS_DirEntryName(FS_DirEntry dirent)
 {
     return ((struct dirent*) dirent)->d_name;
@@ -411,7 +411,302 @@ char FS_Separator()
 ===============================================================================================
 */
 
+#include <windows.h>
 // TODO: Windows port
+
+struct FS_Dir_Windows
+{
+    HANDLE              handle;
+    LPWIN32_FIND_DATA   findData;
+};
+
+FD FS_Open(const char* filename, int flags)
+{
+    FD      fd;
+    DWORD   dwCreationDisposition;
+    DWORD   dwDesiredAccess;
+    DWORD   dwFlagsAndAttributes;
+    
+    dwCreationDisposition = OPEN_EXISTING;
+    if ((flags & FS_CREATE) == FS_CREATE)
+        dwCreationDisposition = OPEN_ALWAYS;
+    
+    dwDesiredAccess = 0;
+    if ((flags & FS_READONLY) == FS_READONLY)
+        dwDesiredAccess = GENERIC_READ;
+    if ((flags & FS_READWRITE) == FS_READWRITE)
+        dwDesiredAccess = GENERIC_READ | GENERIC_WRITE;
+    
+    // TODO: unbuffered file IO
+    dwFlagsAndAttributes = FILE_ATTRIBUTE_ARCHIVE /* | FILE_FLAG_NO_BUFFERING */;
+    
+    fd = CreateFile(filename, dwDesiredAccess, 0, NULL, 
+     dwCreationDisposition, dwFlagsAndAttributes, NULL);
+    
+    if (fd == INVALID_HANDLE_VALUE)
+    {
+        Log_Errno();
+        fd = INVALID_FD;
+    }
+    
+    return fd;
+}
+
+void FS_FileClose(FD fd)
+{
+    BOOL    ret;
+    
+    ret = CloseHandle(fd);
+    if (!ret)
+        Log_Errno();
+}
+
+int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
+{
+    BOOL            ret;
+    DWORD           dwMoveMethod;
+    LARGE_INTEGER   distanceToMove
+    LARGE_INTEGER   newFilePointer;
+
+    distanceToMove = (LARGE_INTEGER) offset;
+    newFilePointer = 0;
+    dwMoveMethod = -1;
+    switch (whence_)
+    {
+    case FS_SEEK_SET:
+        dwMoveMethod = FILE_BEGIN;
+        break;
+    case FS_SEEK_CUR:
+        dwMoveMethod = FILE_CURRENT;
+        break;
+    case FS_SEEK_END:
+        dwMoveMethod = FILE_END;
+        break;
+    default:
+        return -1;
+    }
+    
+    ret = SetFilePointerEx(fd, distanceToMove, &newFilePointer, dwMoveMethod);
+    if (!ret)
+    {
+        Log_Errno();
+        return -1;
+    }
+    
+    return (int64_t) newFilePointer;
+}
+
+int FS_FileTruncate(FD fd, uint64_t length)
+{
+    BOOL    ret;
+    
+    if (!FS_FileSeek(fd, length, FS_SEEK_SET))
+        return -1;
+
+    ret = SetEndOfFile(fd);
+    if (!ret)
+    {
+        Log_Errno();
+        return -1;
+    }
+    
+    return 0;
+}
+
+ssize_t FS_FileWrite(FD fd, const void* buf, size_t count)
+{
+    BOOL    ret;
+    DWORD   numWritten;
+    
+    ret = WriteFile(fd, buf, (DWORD) count, &numWritten, NULL);
+    if (!ret)
+    {
+        Log_Errno();
+        return -1;
+    }
+    
+    return (ssize_t) numWritten;
+}
+
+ssize_t FS_FileRead(FD fd, void* buf, size_t count)
+{
+    BOOL    ret;
+    DWORD   numRead;
+    
+    ret = ReadFile(fd, buf, (DWORD) count, &numRead, NULL);
+    if (!ret)
+    {
+        Log_Errno();
+        return -1;
+    }
+    return (ssize_t) numRead;
+}
+
+ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
+{
+    BOOL        ret;
+    DWORD       numWritten;
+    OVERLAPPED  overlapped;
+    
+    overlapped.OffsetHigh = offset;
+    ret = WriteFile(fd, buf, (DWORD) count, &numWritten, &overlapped);
+    if (!ret)
+    {
+        Log_Errno();
+        return -1;
+    }
+    
+    return (ssize_t) numWritten;
+}
+
+ssize_t FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset)
+{
+    BOOL    ret;
+    DWORD   numRead;
+    OVERLAPPED  overlapped;
+    
+    overlapped.OffsetHigh = offset;    
+    ret = ReadFile(fd, buf, (DWORD) count, &numRead, &overlapped);
+    if (!ret)
+    {
+        Log_Errno();
+        return -1;
+    }
+    return (ssize_t) numRead;
+}
+
+bool FS_Delete(const char* filename)
+{
+    BOOL    ret;
+    
+    ret = DeleteFile(filename);
+    if (!ret)
+    {
+        Log_Errno();
+        return false;
+    }
+    
+    return true;
+}
+
+FS_Dir FS_OpenDir(const char* filename)
+{
+    FS_Dir_Windows*     dir;
+    
+    dir = new FS_Dir_Windows;
+    dir->handle = FindFirstFile(filename, &dir->findData);
+    if (dir->handle == NULL)
+    {
+        delete dir;
+        Log_Errno();
+        return NULL;
+    }
+    
+    return (FS_Dir) dir;
+}
+
+FS_DirEntry FS_ReadDir(FS_Dir dir_)
+{
+    FS_Dir_Windows*     dir;
+    
+    dir = (FS_Dir_Windows*) dir_;
+    if (dir == NULL)
+        return FS_INVALID_DIR_ENTRY;
+    if (!FindNextFile(dir->handle, &dir->findData))
+        return FS_INVALID_DIR_ENTRY;
+    
+    return (FD_DirEntry) dir->findData;
+}
+
+void FS_CloseDir(FS_Dir dir)
+{
+    BOOL                ret;
+    FS_Dir_Windows*     dir;
+    
+    dir = (FS_Dir_Windows*) dir_;
+    if (dir == NULL)
+        return;
+    
+    ret = FindClose(dir->handle);
+    delete dir;
+
+    if (!ret)
+        Log_Errno();
+}
+
+bool FS_CreateDir(const char* filename)
+{
+    BOOL    ret;
+    
+    ret = CreateDirectory(filename, NULL);
+    if (!ret)
+    {
+        Log_Errno();
+        return false;
+    }
+    return true;
+}
+
+bool FS_DeleteDir(const char* filename)
+{
+    BOOL    ret;
+    
+    ret = RemoveDirectory(filename);
+    if (!ret)
+    {
+        Log_Errno();
+        return false;
+    }
+    return true;
+}
+
+const char* FS_DirEntryName(FS_DirEntry dirent)
+{
+    return ((WIN32_FIND_DATA*) dirent)->cFileName;
+}
+
+bool FS_IsFile(const char* path)
+{
+    GET_FILEEX_INFO_LEVELS      infoLevels;
+    WIN32_FILE_ATTRIBUTE_DATA   attrData;
+    BOOL                        ret;
+
+    ret = GetFileAttributesEx(path, infoLevels, &attrData);
+    if (!ret)
+        return false;
+    if ((attrData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 &&
+     (attrData.dwFileAttributes & FILE_ATTRIBUTE_DEVICE) == 0)
+        return true;
+
+    return false;
+}
+
+bool FS_IsDirectory(const char* path)
+{
+    GET_FILEEX_INFO_LEVELS      infoLevels;
+    WIN32_FILE_ATTRIBUTE_DATA   attrData;
+    BOOL                        ret;
+
+    ret = GetFileAttributesEx(path, infoLevels, &attrData);
+    if (!ret)
+        return false;
+    if ((attrData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
+        return true;
+
+    return false;
+}
+
+bool FS_Exists(const char* path)
+{
+    GET_FILEEX_INFO_LEVELS      infoLevels;
+    WIN32_FILE_ATTRIBUTE_DATA   attrData;
+    BOOL                        ret;
+
+    ret = GetFileAttributesEx(path, infoLevels, &attrData);
+    if (!ret)
+        return false;
+    return true;
+}
 
 int64_t FS_FreeDiskSpace(const char* path)
 {
@@ -420,6 +715,48 @@ int64_t FS_FreeDiskSpace(const char* path)
     if (!GetDiskFreeSpaceEx(path, &bytes, NULL, NULL))
         return -1;
     return bytes.QuadPart;
+}
+
+int64_t FS_DiskSpace(const char* path)
+{
+    ULARGE_INTEGER  bytes;
+    
+    if (!GetDiskFreeSpaceEx(path, NULL, &bytes, NULL))
+        return -1;
+    return bytes.QuadPart;
+}
+
+int64_t FS_FileSize(const char* path)
+{
+    GET_FILEEX_INFO_LEVELS      infoLevels;
+    WIN32_FILE_ATTRIBUTE_DATA   attrData;
+    BOOL                        ret;
+
+    ret = GetFileAttributesEx(path, infoLevels, &attrData);
+    if (!ret)
+        return -1;
+    
+    return (int64_t) attrData.nFileSizeHigh << 32 | attrData.nFileSizeLow;
+}
+
+bool FS_Rename(const char* src, const char* dst)
+{
+    BOOL    ret;
+    
+    ret = MoveFileEx(src, dst, MOVEFILE_WRITE_THROUGH);
+    if (!ret)
+    {
+        Log_Errno();
+        return false;
+    }
+    
+    return true;
+}
+
+void FS_Sync()
+{
+    // TODO: To flush all open files on a volume, call FlushFileBuffers with a handle to the volume.
+    // http://msdn.microsoft.com/en-us/library/aa364439(v=VS.85).aspx
 }
 
 char FS_Separator()
