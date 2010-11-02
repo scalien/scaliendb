@@ -412,7 +412,6 @@ char FS_Separator()
 */
 
 #include <windows.h>
-// TODO: Windows port
 
 struct FS_Dir_Windows
 {

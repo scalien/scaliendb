@@ -10,8 +10,6 @@
 // as an array index in IOProcessor. We emulate this behavior on
 // Windows.
 
-// TODO: rename sock to handle
-
 #ifdef _WIN32
 struct FD
 {
