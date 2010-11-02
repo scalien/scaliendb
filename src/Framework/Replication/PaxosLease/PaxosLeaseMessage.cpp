@@ -166,38 +166,40 @@ bool PaxosLeaseMessage::Write(Buffer& buffer)
     switch (type)
     {
         case PAXOSLEASE_PREPARE_REQUEST:
-            return buffer.Writef("%c:%c:%U:%U:%U",
+            buffer.Writef("%c:%c:%U:%U:%U",
              proto, type, nodeID, proposalID, paxosID);
             break;
         case PAXOSLEASE_PREPARE_REJECTED:
-            return buffer.Writef("%c:%c:%U:%U",
+            buffer.Writef("%c:%c:%U:%U",
              proto, type, nodeID, proposalID);
             break;
         case PAXOSLEASE_PREPARE_PREVIOUSLY_ACCEPTED:
-            return buffer.Writef("%c:%c:%U:%U:%U:%U:%u",
+            buffer.Writef("%c:%c:%U:%U:%U:%U:%u",
              proto, type, nodeID, proposalID, acceptedProposalID, leaseOwner, duration);
             break;
         case PAXOSLEASE_PREPARE_CURRENTLY_OPEN:
-            return buffer.Writef("%c:%c:%U:%U",
+            buffer.Writef("%c:%c:%U:%U",
              proto, type, nodeID, proposalID);
             break;
         case PAXOSLEASE_PROPOSE_REQUEST:
-            return buffer.Writef("%c:%c:%U:%U:%U:%u",
+            buffer.Writef("%c:%c:%U:%U:%U:%u",
              proto, type, nodeID, proposalID, leaseOwner, duration);
             break;
         case PAXOSLEASE_PROPOSE_REJECTED:
-            return buffer.Writef("%c:%c:%U:%U",
+            buffer.Writef("%c:%c:%U:%U",
              proto, type, nodeID, proposalID);
             break;
         case PAXOSLEASE_PROPOSE_ACCEPTED:
-            return buffer.Writef("%c:%c:%U:%U",
+            buffer.Writef("%c:%c:%U:%U",
              proto, type, nodeID, proposalID);
             break;
         case PAXOSLEASE_LEARN_CHOSEN:
-            return buffer.Writef("%c:%c:%U:%U:%u:%U:%U",
+            buffer.Writef("%c:%c:%U:%U:%u:%U:%U",
              proto, type, nodeID, leaseOwner, duration, localExpireTime, paxosID);
             break;
         default:
             return false;
     }
+
+	return true;
 }

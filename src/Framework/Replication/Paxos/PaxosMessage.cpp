@@ -224,50 +224,52 @@ bool PaxosMessage::Write(Buffer& buffer)
     switch (type)
     {
         case PAXOS_PREPARE_REQUEST:
-            return buffer.Writef("%c:%c:%U:%U:%U",
+            buffer.Writef("%c:%c:%U:%U:%U",
              proto, type, paxosID, nodeID, proposalID);
             break;
         case PAXOS_PREPARE_REJECTED:
-            return buffer.Writef("%c:%c:%U:%U:%U:%U",
+            buffer.Writef("%c:%c:%U:%U:%U:%U",
              proto, type, paxosID, nodeID, proposalID, promisedProposalID);
             break;
         case PAXOS_PREPARE_PREVIOUSLY_ACCEPTED:
-            return buffer.Writef("%c:%c:%U:%U:%U:%U:%U:%#R",
+            buffer.Writef("%c:%c:%U:%U:%U:%U:%U:%#R",
              proto, type, paxosID, nodeID, proposalID, acceptedProposalID, runID, &value);
             break;
         case PAXOS_PREPARE_CURRENTLY_OPEN:
-            return buffer.Writef("%c:%c:%U:%U:%U",
+            buffer.Writef("%c:%c:%U:%U:%U",
              proto, type, paxosID, nodeID, proposalID);
             break;
         case PAXOS_PROPOSE_REQUEST:
-            return buffer.Writef("%c:%c:%U:%U:%U:%U:%#R",
+            buffer.Writef("%c:%c:%U:%U:%U:%U:%#R",
              proto, type, paxosID, nodeID, proposalID, runID, &value);
             break;
         case PAXOS_PROPOSE_REJECTED:
-            return buffer.Writef("%c:%c:%U:%U:%U",
+            buffer.Writef("%c:%c:%U:%U:%U",
              proto, type, paxosID, nodeID, proposalID);
             break;
         case PAXOS_PROPOSE_ACCEPTED:
-            return buffer.Writef("%c:%c:%U:%U:%U",
+            buffer.Writef("%c:%c:%U:%U:%U",
              proto, type, paxosID, nodeID, proposalID);
             break;
         case PAXOS_LEARN_PROPOSAL:
-            return buffer.Writef("%c:%c:%U:%U:%U",
+            buffer.Writef("%c:%c:%U:%U:%U",
              proto, type, paxosID, nodeID, proposalID);
             break;
         case PAXOS_LEARN_VALUE:
-            return buffer.Writef("%c:%c:%U:%U:%U:%#R",
+            buffer.Writef("%c:%c:%U:%U:%U:%#R",
              proto, type, paxosID, nodeID, runID, &value);
             break;
         case PAXOS_REQUEST_CHOSEN:
-            return buffer.Writef("%c:%c:%U:%U",
+            buffer.Writef("%c:%c:%U:%U",
              proto, type, paxosID, nodeID);
             break;
         case PAXOS_START_CATCHUP:
-            return buffer.Writef("%c:%c:%U:%U",
+            buffer.Writef("%c:%c:%U:%U",
              proto, type, paxosID, nodeID);
             break;
         default:
             return false;
     }
+    
+	return true;
 }

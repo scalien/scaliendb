@@ -15,21 +15,24 @@
 #ifdef _WIN32
 struct FD
 {
+	bool		operator==(const FD& other);
+	bool		operator!=(const FD& other);
+
     int         index;
-    intptr_t    sock;
-
-    bool        operator==(const FD& other)
-    {
-        if (index == other.index && sock == other.sock)
-            return true;
-        return false;
-    }
-
-    bool        operator!=(const FD& other)
-    {
-        return !operator==(other);
-    }
+    intptr_t    handle;
 };
+
+inline bool FD::operator==(const FD& other)
+{
+    if (index == other.index && handle == other.handle)
+        return true;
+    return false;
+}
+
+inline bool FD::operator!=(const FD& other)
+{
+    return !operator==(other);
+}
 
 extern const FD INVALID_FD;
 

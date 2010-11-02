@@ -35,7 +35,7 @@ bool Socket::Create(Proto proto_)
     int     ret, stype, ipproto;
     BOOL    trueval = TRUE;
 
-    if (fd.sock != INVALID_SOCKET)
+    if (fd.handle != INVALID_SOCKET)
     {
         Log_Trace("Called Create() on existing socket");
         return false;
@@ -56,11 +56,11 @@ bool Socket::Create(Proto proto_)
     }
 
     // create the socket with WSA_FLAG_OVERLAPPED to support async operations
-    fd.sock = WSASocket(AF_INET, stype, ipproto, NULL, 0, WSA_FLAG_OVERLAPPED);
-    if (fd.sock == INVALID_SOCKET)
+    fd.handle = WSASocket(AF_INET, stype, ipproto, NULL, 0, WSA_FLAG_OVERLAPPED);
+    if (fd.handle == INVALID_SOCKET)
         return false;
 
-    if (setsockopt(fd.sock, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&trueval, sizeof(BOOL)))
+    if (setsockopt(fd.handle, SOL_SOCKET, SO_EXCLUSIVEADDRUSE, (char *)&trueval, sizeof(BOOL)))
     {
         ret = WSAGetLastError();
         Log_Trace("error = %d", ret);
@@ -68,7 +68,7 @@ bool Socket::Create(Proto proto_)
         return false;
     }
 
-    if (setsockopt(fd.sock, SOL_SOCKET, SO_SNDBUF, (char *) &SEND_BUFFER_SIZE, sizeof(SEND_BUFFER_SIZE)))
+    if (setsockopt(fd.handle, SOL_SOCKET, SO_SNDBUF, (char *) &SEND_BUFFER_SIZE, sizeof(SEND_BUFFER_SIZE)))
     {
         ret = WSAGetLastError();
         Log_Trace("error = %d", ret);
@@ -93,7 +93,7 @@ bool Socket::Bind(int port)
     sa.sin_port = htons((uint16_t)port);
     sa.sin_addr.s_addr = htonl(INADDR_ANY);
     
-    ret = bind(fd.sock, (struct sockaddr *)&sa, sizeof(struct sockaddr_in));
+    ret = bind(fd.handle, (struct sockaddr *)&sa, sizeof(struct sockaddr_in));
     if (ret < 0)
     {
         Log_Errno();
@@ -108,14 +108,14 @@ bool Socket::SetNonblocking()
 {
     u_long  nonblocking;
 
-    if (fd.sock == INVALID_SOCKET)
+    if (fd.handle == INVALID_SOCKET)
     {
         Log_Trace("SetNonblocking on invalid file descriptor");
         return false;
     }
     
     nonblocking = 1;
-    if (ioctlsocket(fd.sock, FIONBIO, &nonblocking) == SOCKET_ERROR)
+    if (ioctlsocket(fd.handle, FIONBIO, &nonblocking) == SOCKET_ERROR)
         return false;
         
     return true;
@@ -125,7 +125,7 @@ bool Socket::SetNodelay()
 {
     BOOL    nodelay;
     
-    if (fd.sock == INVALID_SOCKET)
+    if (fd.handle == INVALID_SOCKET)
     {
         Log_Trace("SetNodelay on invalid file descriptor");
         return false;
@@ -133,7 +133,7 @@ bool Socket::SetNodelay()
     
     // Nagle algorithm is disabled if TCP_NODELAY is enabled.
     nodelay = TRUE;
-    if (setsockopt(fd.sock, IPPROTO_TCP, TCP_NODELAY, (char *) &nodelay, sizeof(nodelay)) == SOCKET_ERROR)
+    if (setsockopt(fd.handle, IPPROTO_TCP, TCP_NODELAY, (char *) &nodelay, sizeof(nodelay)) == SOCKET_ERROR)
     {
         Log_Trace("setsockopt() failed");
         return false;
@@ -151,7 +151,7 @@ bool Socket::Listen(int port, int backlog)
     if (!Bind(port))
         return false;
     
-    ret = listen(fd.sock, backlog);
+    ret = listen(fd.handle, backlog);
     if (ret < 0)
     {
         Log_Errno();
@@ -196,7 +196,7 @@ bool Socket::GetEndpoint(Endpoint &endpoint)
     int                 len = ENDPOINT_SOCKADDR_SIZE;
     struct sockaddr*    sa = (struct sockaddr*) endpoint.GetSockAddr();
     
-    ret = getpeername(fd.sock, sa, &len);
+    ret = getpeername(fd.handle, sa, &len);
     
     if (ret == SOCKET_ERROR)
     {
@@ -225,7 +225,7 @@ bool Socket::SendTo(void *data, int count, const Endpoint &endpoint)
     const struct sockaddr*  sa = (const struct sockaddr*) ((Endpoint &) endpoint).GetSockAddr();
 
 
-    ret = sendto(fd.sock, (const char*) data, count, 0,
+    ret = sendto(fd.handle, (const char*) data, count, 0,
                  sa,
                  ENDPOINT_SOCKADDR_SIZE);
     
@@ -246,7 +246,7 @@ int Socket::Send(const char* data, int count, int timeout)
     left = count;
     while (left > 0)
     {
-        if ((nwritten = send((SOCKET) fd.sock, (char*) data, count, 0)) == SOCKET_ERROR)
+        if ((nwritten = send((SOCKET) fd.handle, (char*) data, count, 0)) == SOCKET_ERROR)
         {
             // TODO error handling
             if (WSAGetLastError() == WSAEWOULDBLOCK)
@@ -266,7 +266,7 @@ int Socket::Read(char* data, int count, int timeout)
 {
     int     ret;
 
-    ret = recv((SOCKET)fd.sock, (char *)data, count, 0);
+    ret = recv((SOCKET)fd.handle, (char *)data, count, 0);
     // TODO better error handling
     if (ret == SOCKET_ERROR)
     {
@@ -286,15 +286,15 @@ void Socket::Close()
 {
     int ret;
     
-    if (fd.sock != INVALID_SOCKET)
+    if (fd.handle != INVALID_SOCKET)
     {
         IOProcessorUnregisterSocket(fd);
-        ret = closesocket(fd.sock);
+        ret = closesocket(fd.handle);
 
         if (ret < 0)
             Log_Errno();
 
-        fd.sock = INVALID_SOCKET;
+        fd.handle = INVALID_SOCKET;
         fd.index = 0;
     }
 }

@@ -4,7 +4,7 @@
 
 void SDBPServer::Init(int port)
 {
-    if (!TCPServer<SDBPServer, SDBPConnection>::Init(port, CONN_BACKLOG))
+    if (!TCPServer<SDBPServer, SDBPConnection>::Init(port, true, CONN_BACKLOG))
         STOP_FAIL(1, "Cannot initialize SDBPServer");
 }
 

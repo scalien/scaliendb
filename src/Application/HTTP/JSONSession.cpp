@@ -164,7 +164,7 @@ bool JSONSession::IsCommaNeeded()
 {
     uint64_t    mask;
     
-    mask = 1 << depth;
+    mask = (uint64_t) 1 <<  depth;
     if ((depthComma & mask) == mask)
         return true;
 
@@ -177,7 +177,7 @@ void JSONSession::SetCommaNeeded(bool needed)
     
     assert(depth < sizeof(depthComma) * 8);
     
-    mask = 1 << depth;
+    mask = (uint64_t) 1 << depth;
     if (needed)
         depthComma |= mask;
     else

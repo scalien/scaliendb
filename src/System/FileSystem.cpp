@@ -450,7 +450,7 @@ FD FS_Open(const char* filename, int flags)
         fd = INVALID_FD;
     }
     
-    fd.sock = (intptr_t) handle;
+    fd.handle = (intptr_t) handle;
     return fd;
 }
 
@@ -458,7 +458,7 @@ void FS_FileClose(FD fd)
 {
     BOOL    ret;
     
-    ret = CloseHandle((HANDLE)fd.sock);
+    ret = CloseHandle((HANDLE)fd.handle);
     if (!ret)
         Log_Errno();
 }
@@ -488,7 +488,7 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
         return -1;
     }
     
-    ret = SetFilePointerEx((HANDLE)fd.sock, distanceToMove, &newFilePointer, dwMoveMethod);
+    ret = SetFilePointerEx((HANDLE)fd.handle, distanceToMove, &newFilePointer, dwMoveMethod);
     if (!ret)
     {
         Log_Errno();
@@ -505,7 +505,7 @@ int FS_FileTruncate(FD fd, uint64_t length)
     if (!FS_FileSeek(fd, length, FS_SEEK_SET))
         return -1;
 
-    ret = SetEndOfFile((HANDLE)fd.sock);
+    ret = SetEndOfFile((HANDLE)fd.handle);
     if (!ret)
     {
         Log_Errno();
@@ -520,7 +520,7 @@ int64_t FS_FileSize(FD fd)
     BOOL            ret;
     LARGE_INTEGER   fileSize;
 
-    ret = GetFileSizeEx((HANDLE)fd.sock, &fileSize);
+    ret = GetFileSizeEx((HANDLE)fd.handle, &fileSize);
     if (!ret)
     {
         Log_Errno();
@@ -535,7 +535,7 @@ ssize_t FS_FileWrite(FD fd, const void* buf, size_t count)
     BOOL    ret;
     DWORD   numWritten;
     
-    ret = WriteFile((HANDLE)fd.sock, buf, (DWORD) count, &numWritten, NULL);
+    ret = WriteFile((HANDLE)fd.handle, buf, (DWORD) count, &numWritten, NULL);
     if (!ret)
     {
         Log_Errno();
@@ -550,7 +550,7 @@ ssize_t FS_FileRead(FD fd, void* buf, size_t count)
     BOOL    ret;
     DWORD   numRead;
     
-    ret = ReadFile((HANDLE)fd.sock, buf, (DWORD) count, &numRead, NULL);
+    ret = ReadFile((HANDLE)fd.handle, buf, (DWORD) count, &numRead, NULL);
     if (!ret)
     {
         Log_Errno();
@@ -570,7 +570,7 @@ ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
     overlapped.InternalHigh = 0;
     overlapped.Offset = offset & 0xFFFFFFFF;
     overlapped.OffsetHigh = offset >> 32;
-    ret = WriteFile((HANDLE)fd.sock, buf, (DWORD) count, &numWritten, &overlapped);
+    ret = WriteFile((HANDLE)fd.handle, buf, (DWORD) count, &numWritten, &overlapped);
     if (!ret)
     {
         Log_Errno();
@@ -591,7 +591,7 @@ ssize_t FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset)
     overlapped.InternalHigh = 0;
     overlapped.Offset = offset & 0xFFFFFFFF;
     overlapped.OffsetHigh = offset >> 32;
-    ret = ReadFile((HANDLE)fd.sock, buf, (DWORD) count, &numRead, &overlapped);
+    ret = ReadFile((HANDLE)fd.handle, buf, (DWORD) count, &numRead, &overlapped);
     if (!ret)
     {
         Log_Errno();
@@ -620,12 +620,16 @@ FS_Dir FS_OpenDir(const char* filename)
     size_t              len;
     char                path[MAX_PATH];
     
-    len = strlen(filename);
+    // The filename parameter to FindFirstFile should not be NULL, an invalid string 
+	// (for example, an empty string or a string that is missing the terminating 
+	// null character), or end in a trailing backslash (\).
+	if (filename == NULL)
+		return NULL;
+	
+	len = strlen(filename);
     if (len == 0)
         return NULL;
 
-    // filename parameter should not be NULL, an invalid string (for example, an empty string or a
-    // string that is missing the terminating null character), or end in a trailing backslash (\).
     if (filename[len - 1] == '\\')
     {
         memcpy(path, filename, len - 1);
