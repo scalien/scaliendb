@@ -200,7 +200,7 @@ void Buffer::Zero()
 void Buffer::SetLength(unsigned length_)
 {
     length = length_;
-    if (length < 0 || length > size)
+    if (length > size)
         ASSERT_FAIL();
 }
 

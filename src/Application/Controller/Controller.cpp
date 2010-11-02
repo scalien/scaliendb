@@ -161,7 +161,11 @@ void Controller::OnLeaseTimeout()
     }
     assert(listenRequests.GetLength() == 0);
 
-    for (itMessage = configMessages.First(); itMessage != NULL; itMessage = configMessages.Delete(itMessage));
+    for (itMessage = configMessages.First(); itMessage != NULL; 
+     itMessage = configMessages.Delete(itMessage))
+    {
+        /* empty */
+    }
     assert(configMessages.GetLength() == 0);
 }
 

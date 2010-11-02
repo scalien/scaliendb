@@ -89,10 +89,10 @@ uint32_t ReadBuffer::GetChecksum()
 
 void ReadBuffer::Advance(unsigned i)
 {
+    assert(length - i <= length);
+
     buffer += i;
-    length -= i;
-    
-    assert(length >= 0);
+    length -= i;    
 }
 
 bool ReadBuffer::BeginsWith(const char* s)

@@ -223,7 +223,7 @@ void InList<T>::Clear()
 {
     T*  it;
     
-    for (it = First(); it != NULL; it = Remove(it));
+    for (it = First(); it != NULL; it = Remove(it)) { /* empty */ }
     
     assert(length == 0);
 }
@@ -241,7 +241,7 @@ void InList<T>::DeleteList()
 {
     T*  it;
     
-    for (it = First(); it != NULL; it = Delete(it));
+    for (it = First(); it != NULL; it = Delete(it)) { /* empty */ }
     
     assert(length == 0);
 }

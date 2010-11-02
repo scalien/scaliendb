@@ -258,7 +258,7 @@ FS_Dir FS_OpenDir(const char* filename)
     if (dir == NULL)
     {
         Log_Errno();
-        return NULL;
+        return FS_INVALID_DIR;
     }
     
     return (FS_Dir) dir;
@@ -623,14 +623,14 @@ FS_Dir FS_OpenDir(const char* filename)
 	// (for example, an empty string or a string that is missing the terminating 
 	// null character), or end in a trailing backslash (\).
 	if (filename == NULL)
-		return NULL;
+		return FS_INVALID_DIR;
 	
 	len = strlen(filename);
     if (len == 0)
-        return NULL;
+        return FS_INVALID_DIR;
 
     if (len >= MAX_PATH)
-        return NULL;
+        return FS_INVALID_DIR;
 
     if (filename[len - 1] == '\\')
     {
@@ -645,7 +645,7 @@ FS_Dir FS_OpenDir(const char* filename)
     {
         delete dir;
         Log_Errno();
-        return NULL;
+        return FS_INVALID_DIR;
     }
     
     return (FS_Dir) dir;
