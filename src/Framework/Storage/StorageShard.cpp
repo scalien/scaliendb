@@ -444,7 +444,7 @@ void StorageShard::OnRecoveryOp()
 void StorageShard::WriteBackPages(InList<Buffer>& pages)
 {
     char*       p;
-    int         fd;
+    FD          fd;
     uint32_t    pageSize, fileIndex, offset;
     Buffer      filepath;
     Buffer*     page;

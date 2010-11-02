@@ -417,7 +417,7 @@ char FS_Separator()
 struct FS_Dir_Windows
 {
     HANDLE              handle;
-    LPWIN32_FIND_DATA   findData;
+    WIN32_FIND_DATA     findData;
 };
 
 FD FS_Open(const char* filename, int flags)
@@ -426,6 +426,7 @@ FD FS_Open(const char* filename, int flags)
     DWORD   dwCreationDisposition;
     DWORD   dwDesiredAccess;
     DWORD   dwFlagsAndAttributes;
+    HANDLE  handle;
     
     dwCreationDisposition = OPEN_EXISTING;
     if ((flags & FS_CREATE) == FS_CREATE)
@@ -440,15 +441,16 @@ FD FS_Open(const char* filename, int flags)
     // TODO: unbuffered file IO
     dwFlagsAndAttributes = FILE_ATTRIBUTE_ARCHIVE /* | FILE_FLAG_NO_BUFFERING */;
     
-    fd = CreateFile(filename, dwDesiredAccess, 0, NULL, 
+    handle = CreateFile(filename, dwDesiredAccess, 0, NULL, 
      dwCreationDisposition, dwFlagsAndAttributes, NULL);
     
-    if (fd == INVALID_HANDLE_VALUE)
+    if (handle == INVALID_HANDLE_VALUE)
     {
         Log_Errno();
         fd = INVALID_FD;
     }
     
+    fd.sock = (intptr_t) handle;
     return fd;
 }
 
@@ -456,7 +458,7 @@ void FS_FileClose(FD fd)
 {
     BOOL    ret;
     
-    ret = CloseHandle(fd);
+    ret = CloseHandle((HANDLE)fd.sock);
     if (!ret)
         Log_Errno();
 }
@@ -465,11 +467,11 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
 {
     BOOL            ret;
     DWORD           dwMoveMethod;
-    LARGE_INTEGER   distanceToMove
+    LARGE_INTEGER   distanceToMove;
     LARGE_INTEGER   newFilePointer;
 
-    distanceToMove = (LARGE_INTEGER) offset;
-    newFilePointer = 0;
+    distanceToMove.QuadPart = offset;
+    newFilePointer.QuadPart = 0;
     dwMoveMethod = -1;
     switch (whence_)
     {
@@ -486,14 +488,14 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
         return -1;
     }
     
-    ret = SetFilePointerEx(fd, distanceToMove, &newFilePointer, dwMoveMethod);
+    ret = SetFilePointerEx((HANDLE)fd.sock, distanceToMove, &newFilePointer, dwMoveMethod);
     if (!ret)
     {
         Log_Errno();
         return -1;
     }
     
-    return (int64_t) newFilePointer;
+    return (int64_t) newFilePointer.QuadPart;
 }
 
 int FS_FileTruncate(FD fd, uint64_t length)
@@ -503,7 +505,7 @@ int FS_FileTruncate(FD fd, uint64_t length)
     if (!FS_FileSeek(fd, length, FS_SEEK_SET))
         return -1;
 
-    ret = SetEndOfFile(fd);
+    ret = SetEndOfFile((HANDLE)fd.sock);
     if (!ret)
     {
         Log_Errno();
@@ -513,12 +515,27 @@ int FS_FileTruncate(FD fd, uint64_t length)
     return 0;
 }
 
+int64_t FS_FileSize(FD fd)
+{
+    BOOL            ret;
+    LARGE_INTEGER   fileSize;
+
+    ret = GetFileSizeEx((HANDLE)fd.sock, &fileSize);
+    if (!ret)
+    {
+        Log_Errno();
+        return -1;
+    }
+    
+    return fileSize.QuadPart;
+}
+
 ssize_t FS_FileWrite(FD fd, const void* buf, size_t count)
 {
     BOOL    ret;
     DWORD   numWritten;
     
-    ret = WriteFile(fd, buf, (DWORD) count, &numWritten, NULL);
+    ret = WriteFile((HANDLE)fd.sock, buf, (DWORD) count, &numWritten, NULL);
     if (!ret)
     {
         Log_Errno();
@@ -533,7 +550,7 @@ ssize_t FS_FileRead(FD fd, void* buf, size_t count)
     BOOL    ret;
     DWORD   numRead;
     
-    ret = ReadFile(fd, buf, (DWORD) count, &numRead, NULL);
+    ret = ReadFile((HANDLE)fd.sock, buf, (DWORD) count, &numRead, NULL);
     if (!ret)
     {
         Log_Errno();
@@ -548,8 +565,12 @@ ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
     DWORD       numWritten;
     OVERLAPPED  overlapped;
     
-    overlapped.OffsetHigh = offset;
-    ret = WriteFile(fd, buf, (DWORD) count, &numWritten, &overlapped);
+    overlapped.hEvent = NULL;
+    overlapped.Internal = 0;
+    overlapped.InternalHigh = 0;
+    overlapped.Offset = offset & 0xFFFFFFFF;
+    overlapped.OffsetHigh = offset >> 32;
+    ret = WriteFile((HANDLE)fd.sock, buf, (DWORD) count, &numWritten, &overlapped);
     if (!ret)
     {
         Log_Errno();
@@ -561,12 +582,16 @@ ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
 
 ssize_t FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset)
 {
-    BOOL    ret;
-    DWORD   numRead;
+    BOOL        ret;
+    DWORD       numRead;
     OVERLAPPED  overlapped;
     
-    overlapped.OffsetHigh = offset;    
-    ret = ReadFile(fd, buf, (DWORD) count, &numRead, &overlapped);
+    overlapped.hEvent = NULL;
+    overlapped.Internal = 0;
+    overlapped.InternalHigh = 0;
+    overlapped.Offset = offset & 0xFFFFFFFF;
+    overlapped.OffsetHigh = offset >> 32;
+    ret = ReadFile((HANDLE)fd.sock, buf, (DWORD) count, &numRead, &overlapped);
     if (!ret)
     {
         Log_Errno();
@@ -592,10 +617,25 @@ bool FS_Delete(const char* filename)
 FS_Dir FS_OpenDir(const char* filename)
 {
     FS_Dir_Windows*     dir;
+    size_t              len;
+    char                path[MAX_PATH];
     
+    len = strlen(filename);
+    if (len == 0)
+        return NULL;
+
+    // filename parameter should not be NULL, an invalid string (for example, an empty string or a
+    // string that is missing the terminating null character), or end in a trailing backslash (\).
+    if (filename[len - 1] == '\\')
+    {
+        memcpy(path, filename, len - 1);
+        path[len - 1] = '\0';
+        filename = path;
+    }
+
     dir = new FS_Dir_Windows;
     dir->handle = FindFirstFile(filename, &dir->findData);
-    if (dir->handle == NULL)
+    if (dir->handle == INVALID_HANDLE_VALUE)
     {
         delete dir;
         Log_Errno();
@@ -615,10 +655,10 @@ FS_DirEntry FS_ReadDir(FS_Dir dir_)
     if (!FindNextFile(dir->handle, &dir->findData))
         return FS_INVALID_DIR_ENTRY;
     
-    return (FD_DirEntry) dir->findData;
+    return (FS_DirEntry) &dir->findData;
 }
 
-void FS_CloseDir(FS_Dir dir)
+void FS_CloseDir(FS_Dir dir_)
 {
     BOOL                ret;
     FS_Dir_Windows*     dir;
@@ -667,11 +707,10 @@ const char* FS_DirEntryName(FS_DirEntry dirent)
 
 bool FS_IsFile(const char* path)
 {
-    GET_FILEEX_INFO_LEVELS      infoLevels;
     WIN32_FILE_ATTRIBUTE_DATA   attrData;
     BOOL                        ret;
 
-    ret = GetFileAttributesEx(path, infoLevels, &attrData);
+    ret = GetFileAttributesEx(path, GetFileExInfoStandard, &attrData);
     if (!ret)
         return false;
     if ((attrData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == 0 &&
@@ -683,11 +722,10 @@ bool FS_IsFile(const char* path)
 
 bool FS_IsDirectory(const char* path)
 {
-    GET_FILEEX_INFO_LEVELS      infoLevels;
     WIN32_FILE_ATTRIBUTE_DATA   attrData;
     BOOL                        ret;
 
-    ret = GetFileAttributesEx(path, infoLevels, &attrData);
+    ret = GetFileAttributesEx(path, GetFileExInfoStandard, &attrData);
     if (!ret)
         return false;
     if ((attrData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) == FILE_ATTRIBUTE_DIRECTORY)
@@ -698,11 +736,10 @@ bool FS_IsDirectory(const char* path)
 
 bool FS_Exists(const char* path)
 {
-    GET_FILEEX_INFO_LEVELS      infoLevels;
     WIN32_FILE_ATTRIBUTE_DATA   attrData;
     BOOL                        ret;
 
-    ret = GetFileAttributesEx(path, infoLevels, &attrData);
+    ret = GetFileAttributesEx(path, GetFileExInfoStandard, &attrData);
     if (!ret)
         return false;
     return true;
@@ -728,11 +765,10 @@ int64_t FS_DiskSpace(const char* path)
 
 int64_t FS_FileSize(const char* path)
 {
-    GET_FILEEX_INFO_LEVELS      infoLevels;
     WIN32_FILE_ATTRIBUTE_DATA   attrData;
     BOOL                        ret;
 
-    ret = GetFileAttributesEx(path, infoLevels, &attrData);
+    ret = GetFileAttributesEx(path, GetFileExInfoStandard, &attrData);
     if (!ret)
         return -1;
     

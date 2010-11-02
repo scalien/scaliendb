@@ -143,14 +143,16 @@ bool IOProcessorUnregisterSocket(FD& fd)
 
 BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
 {
+    Callable    callable;   // empty
+
     if (terminated)
     {
-        STOP_FAIL("aborting due to user request", 0);
+        STOP_FAIL(0, "aborting due to user request");
         return FALSE;
     }
         
     terminated = true;
-    IOProcessor::Complete(NULL);
+    IOProcessor::Complete(callable);
     return TRUE;
 }
 
@@ -237,7 +239,7 @@ static bool RequestReadNotification(IOOperation* ioop)
     flags = 0;
     memset(&iod->ovlRead, 0, sizeof(OVERLAPPED));
 
-    if (ioop->type == UDP_READ)
+    if (ioop->type == IOOperation::UDP_READ)
         flags |= MSG_PEEK;  // without this, the O/S would discard each incoming UDP packet
                             // as it doesn't fit into the user-supplied (0 length) buffer
 
@@ -352,21 +354,21 @@ bool IOProcessor::Add(IOOperation* ioop)
     }
 
     // empty buffer indicates that we are waiting for accept event
-    if (ioop->type == TCP_READ && ioop->data.buffer == NULL)
+    if (ioop->type == IOOperation::TCP_READ && ((TCPRead*) ioop)->listening)
         return StartAsyncAccept(ioop);
 
     // zero length indicates that we are waiting for connect event
-    if (ioop->type == TCP_WRITE && ioop->data.length == 0)
+    if (ioop->type == IOOperation::TCP_WRITE && ioop->buffer == NULL)
         return StartAsyncConnect(ioop);
 
     switch (ioop->type)
     {
-    case TCP_READ:
-    case UDP_READ:
+    case IOOperation::TCP_READ:
+    case IOOperation::UDP_READ:
         return RequestReadNotification(ioop);
         break;
-    case TCP_WRITE:
-    case UDP_WRITE:
+    case IOOperation::TCP_WRITE:
+    case IOOperation::UDP_WRITE:
         return RequestWriteNotification(ioop);
         break;
     }
@@ -380,7 +382,7 @@ bool IOProcessor::Remove(IOOperation *ioop)
     IODesc*     iod;
     TCPRead*    tcpread;
 
-    if (ioop->type == TCP_READ)
+    if (ioop->type == IOOperation::TCP_READ)
     {
         tcpread = (TCPRead*) ioop;
         if (tcpread->listening)
@@ -398,7 +400,7 @@ bool IOProcessor::Remove(IOOperation *ioop)
         return false;
     }
 
-    if (ioop->type == TCP_READ || ioop->type == UDP_READ)
+    if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
     {
         iod->read = NULL;
         if (iod->write != NULL)
@@ -453,11 +455,11 @@ bool IOProcessor::Poll(int msec)
     {
         if (iod == &callback)
         {
-            Call((Callable*) overlapped);
+            Call(*(Callable*) overlapped);
         }
         // sometimes we get this after closesocket, so check first
         // if iod is in the freelist
-        // TODO clarify which circumstances lead to this issue
+        // TODO: clarify which circumstances lead to this issue
         else if (iod->next == NULL && (iod->read || iod->write))
         {
             if (overlapped == &iod->ovlRead && iod->read)
@@ -468,7 +470,7 @@ bool IOProcessor::Poll(int msec)
 
                 result = WSAGetOverlappedResult(ioop->fd.sock, &iod->ovlRead, &numBytes, FALSE, &flags);
 
-                if (ioop->type == UDP_READ)
+                if (ioop->type == IOOperation::UDP_READ)
                     return ProcessUDPRead((UDPRead*)ioop);
                 else if (result)
                     return ProcessTCPRead((TCPRead*)ioop);
@@ -492,9 +494,9 @@ bool IOProcessor::Poll(int msec)
 
                 result = WSAGetOverlappedResult(ioop->fd.sock, &iod->ovlWrite, &numBytes, FALSE, &flags);
 
-                if (result && ioop->type == TCP_WRITE)
+                if (result && ioop->type == IOOperation::TCP_WRITE)
                     return ProcessTCPWrite((TCPWrite*)ioop);
-                else if (result && ioop->type == UDP_WRITE)
+                else if (result && ioop->type == IOOperation::UDP_WRITE)
                     return ProcessUDPWrite((UDPWrite*)ioop);
                 else
                 {
@@ -523,12 +525,12 @@ bool IOProcessor::Poll(int msec)
     return true;
 }
 
-bool IOProcessor::Complete(Callable *callable)
+bool IOProcessor::Complete(Callable& callable)
 {
     BOOL    ret;
     DWORD   error;
 
-    ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) callable);
+    ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) &callable);
     if (!ret)
     {
         error = GetLastError();
@@ -545,10 +547,8 @@ bool ProcessTCPRead(TCPRead* tcpread)
     DWORD       flags;
     DWORD       error;
     WSABUF      wsabuf;
-    Callable*   callable;
+    Callable    callable;
     DWORD       numBytes;
-
-    callable = NULL;
 
     if (tcpread->listening)
     {
@@ -556,8 +556,8 @@ bool ProcessTCPRead(TCPRead* tcpread)
     }
     else
     {
-        wsabuf.buf = (char*) tcpread->data.buffer + tcpread->data.length;
-        wsabuf.len = tcpread->data.size - tcpread->data.length;
+        wsabuf.buf = (char*) tcpread->buffer->GetBuffer() + tcpread->buffer->GetLength();
+        wsabuf.len = tcpread->buffer->GetSize() - tcpread->buffer->GetLength();
         if (wsabuf.len > MAX_TCP_READ)
             wsabuf.len = MAX_TCP_READ;
 
@@ -578,13 +578,13 @@ bool ProcessTCPRead(TCPRead* tcpread)
             callable = tcpread->onClose;
         else
         {
-            tcpread->data.length += numBytes;
-            assert(tcpread->data.length <= tcpread->data.size);
+            tcpread->buffer->Lengthen(numBytes);
+            assert(tcpread->buffer->GetLength() <= tcpread->buffer->GetSize());
             callable = tcpread->onComplete;
         }
     }
 
-    if (callable)
+    if (callable.IsSet())
     {
         tcpread->active = false;
         Call(callable);
@@ -599,13 +599,11 @@ bool ProcessUDPRead(UDPRead* udpread)
     DWORD       flags;
     DWORD       error;
     WSABUF      wsabuf;
-    Callable*   callable;
+    Callable    callable;
     DWORD       numBytes;
 
-    callable = NULL;
-
-    wsabuf.buf = (char*) udpread->data.buffer;
-    wsabuf.len = udpread->data.size;
+    wsabuf.buf = (char*) udpread->buffer->GetBuffer();
+    wsabuf.len = udpread->buffer->GetSize();
 
     flags = 0;
     ret = WSARecv(udpread->fd.sock, &wsabuf, 1, &numBytes, &flags, NULL, NULL);
@@ -624,12 +622,12 @@ bool ProcessUDPRead(UDPRead* udpread)
         callable = udpread->onClose;
     else
     {
-        udpread->data.length = numBytes;
-        assert(udpread->data.length <= udpread->data.size);
+        udpread->buffer->SetLength(numBytes);
+        assert(udpread->buffer->GetLength() <= udpread->buffer->GetSize());
         callable = udpread->onComplete;
     }
 
-    if (callable)
+    if (callable.IsSet())
     {
         udpread->active = false;
         Call(callable);
@@ -642,21 +640,19 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
 {
     BOOL        ret;
     WSABUF      wsabuf;
-    Callable*   callable;
+    Callable    callable;
     DWORD       numBytes;
     DWORD       error;
 
-    callable = NULL;
-
-    if (tcpwrite->data.length == 0)
+    if (tcpwrite->buffer == NULL)
         callable = tcpwrite->onComplete; // tcp connect case
     else
     {
         // handle tcp write partial writes
-        wsabuf.buf = (char*) tcpwrite->data.buffer + tcpwrite->transferred;
+        wsabuf.buf = (char*) tcpwrite->buffer->GetBuffer() + tcpwrite->transferred;
         // the -1 is actually a windows bug, for more info see:
         // http://support.microsoft.com/kb/823764/EN-US/
-        wsabuf.len = MIN(tcpwrite->data.length - tcpwrite->transferred, SEND_BUFFER_SIZE - 1);
+        wsabuf.len = MIN(tcpwrite->buffer->GetLength() - tcpwrite->transferred, SEND_BUFFER_SIZE - 1);
 
         // perform non-blocking write
         ret = WSASend(tcpwrite->fd.sock, &wsabuf, 1, &numBytes, 0, NULL, NULL);
@@ -676,7 +672,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
         else
         {
             tcpwrite->transferred += numBytes;
-            if (tcpwrite->transferred == tcpwrite->data.length)
+            if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
                 callable = tcpwrite->onComplete;
             else
             {
@@ -686,7 +682,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
         }
     }
 
-    if (callable)
+    if (callable.IsSet())
     {
         tcpwrite->active = false;
         Call(callable);

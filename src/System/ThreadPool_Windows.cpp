@@ -29,13 +29,13 @@ public:
     virtual void                Start();
     virtual void                Stop();
 
-    virtual void                Execute(Callable *callable);
+    virtual void                Execute(const Callable& callable);
     
 private:
     HANDLE*                     threads;
     CRITICAL_SECTION            critsec;
     HANDLE                      event;  
-    static unsigned __stdcall   ThreadFunc(void *arg);
+    static unsigned __stdcall   ThreadFunc(void* arg);
     void                        ThreadPoolFunc();
 };
 
@@ -103,11 +103,11 @@ void ThreadPool_Windows::Stop()
     DeleteCriticalSection(&critsec);
 }
 
-void ThreadPool_Windows::Execute(Callable *callable)
+void ThreadPool_Windows::Execute(const Callable& callable)
 {
     EnterCriticalSection(&critsec);
 
-    callables.Append(callable);
+    callables.Append((Callable&)callable);
     numPending++;
 
     LeaveCriticalSection(&critsec);
@@ -117,19 +117,17 @@ void ThreadPool_Windows::Execute(Callable *callable)
 
 void ThreadPool_Windows::ThreadPoolFunc()
 {
-    Callable*   callable;
-    Callable**  it;
+    Callable    callable;
+    Callable*   it;
 
-    callable = NULL;
     while (running)
     {
-        // TODO simplify the logic here & make it similar to Posix implementation
-        if (!callable && running)
+        // TODO: simplify the logic here & make it similar to Posix implementation
+        if (running)
             WaitForSingleObject(event, INFINITE);
 
-        do
+        while (true)
         {
-            callable = NULL;
             EnterCriticalSection(&critsec);
 
             numActive--;
@@ -141,13 +139,18 @@ void ThreadPool_Windows::ThreadPoolFunc()
                 callables.Remove(it);
                 numPending--;
             }
-            
-            numActive++;
+            else
+            {
+                numActive++;
+                LeaveCriticalSection(&critsec);
+                break;
+            }
 
+            numActive++;
             LeaveCriticalSection(&critsec);
 
             Call(callable);
-        } while (callable);
+        }
     }
 
     // wake up next sleeping thread

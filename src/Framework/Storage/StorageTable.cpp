@@ -458,7 +458,7 @@ void StorageTable::PerformRecovery(uint64_t length)
         RebuildTOC();
     }
 
-    FS_FileSeek(recoveryFD, 0, SEEK_SET);
+    FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
     FS_FileTruncate(recoveryFD, 0); 
     FS_Sync();
 }
@@ -734,7 +734,7 @@ void StorageTable::WriteRecoveryDone()
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
         ASSERT_FAIL();
     
-    FS_FileSeek(recoveryFD, 0, SEEK_SET);
+    FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
     FS_FileTruncate(recoveryFD, 0); 
     FS_Sync();
 }

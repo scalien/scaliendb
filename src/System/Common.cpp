@@ -2,16 +2,17 @@
 #include <stdio.h>
 #include <string>
 #include <stdlib.h>
+#include <math.h>
+#ifndef _WIN32
 #include <pwd.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <signal.h>
-#include <math.h>
-#include "Time.h"
-#ifdef _WIN32
+#else // _WIN32
 #include "process.h"
 #endif
 #include "Macros.h"
+#include "Time.h"
 
 unsigned NumDigits(int n)
 {
@@ -72,10 +73,11 @@ const char* SIBytes(uint64_t bytes, char buf[5])
 
 int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
 {
-    bool    neg;
-    long    i, digit;
-    int64_t n;
-    char    c;
+    bool        neg;
+    long        digit;
+    unsigned    i;
+    int64_t     n;
+    char        c;
 
     if (buffer == NULL || length < 1)
     {
@@ -120,7 +122,8 @@ int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
 
 uint64_t BufferToUInt64(const char* buffer, unsigned length, unsigned* nread)
 {
-    long        i, digit;
+    long        digit;
+    unsigned    i;
     uint64_t    n;
     char        c;
 
@@ -160,7 +163,7 @@ char* FindInBuffer(const char* buffer, unsigned length, char c)
 
 char* FindInCString(const char* s, char c)
 {
-    return strchr(s, c);
+    return (char*) strchr(s, c);
 }
 
 void ReplaceInBuffer(char* buffer, unsigned length, char src, char dst)
@@ -189,20 +192,6 @@ const char* StaticPrint(const char* format, ...)
     return buffer;
 }
 
-bool Delete(const char* path)
-{
-    char buf[4096];
-    
-    strcpy(buf, path);
-#ifdef _WIN32
-    strrep(buf, '/', '\\');
-    return (_spawnlp(_P_WAIT, "cmd", "/c", "del", buf, NULL) == 0);
-#else
-    snprintf(buf, SIZE(buf), "rm %s", path);
-    return (system(buf) == 0);
-#endif
-}
-
 uint64_t GenerateGUID()
 {
     const uint64_t WIDTH_M = 16; // machine TODO
@@ -227,12 +216,12 @@ uint64_t GenerateGUID()
 
 void SeedRandom()
 {
-    srandom((unsigned)Now());
+    srand((unsigned)Now());
 }
 
 void SeedRandomWith(uint64_t seed)
 {
-    srandom((unsigned) seed);
+    srand((unsigned) seed);
 }
 
 int RandomInt(int min, int max)

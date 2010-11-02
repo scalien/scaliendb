@@ -314,7 +314,7 @@ unsigned long iftonl(const char* interface_)
     pos = 0;
     len = strlen(interface_);
     
-    a = strntouint64(interface_ + pos, len - pos, &nread);
+    a = BufferToUInt64(interface_ + pos, len - pos, &nread);
     if (nread < 0 || a > 255)
         return INADDR_NONE;
     
@@ -322,7 +322,7 @@ unsigned long iftonl(const char* interface_)
     if (interface_[pos++] != '.')
         return INADDR_NONE;
     
-    b = strntouint64(interface_ + pos, len - pos, &nread);
+    b = BufferToUInt64(interface_ + pos, len - pos, &nread);
     if (nread < 0 || b > 255)
         return INADDR_NONE;
     
@@ -330,7 +330,7 @@ unsigned long iftonl(const char* interface_)
     if (interface_[pos++] != '.')
         return INADDR_NONE;
 
-    c = strntouint64(interface_ + pos, len - pos, &nread);
+    c = BufferToUInt64(interface_ + pos, len - pos, &nread);
     if (nread < 0 || c > 255)
         return INADDR_NONE;
     
@@ -338,7 +338,7 @@ unsigned long iftonl(const char* interface_)
     if (interface_[pos++] != '.')
         return INADDR_NONE;
 
-    d = strntouint64(interface_ + pos, len - pos, &nread);
+    d = BufferToUInt64(interface_ + pos, len - pos, &nread);
     if (nread < 0 || d > 255)
         return INADDR_NONE;
     

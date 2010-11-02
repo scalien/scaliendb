@@ -30,6 +30,8 @@ typedef unsigned __int16    uint16_t;
 typedef unsigned __int32    uint32_t;
 typedef unsigned __int64    uint64_t;
 
+typedef intptr_t            ssize_t;
+
 // 64bit compatible format string specifiers according to this document
 // http://msdn.microsoft.com/en-us/library/tcxf1dw6.aspx
 #define PRIu64              "I64i"

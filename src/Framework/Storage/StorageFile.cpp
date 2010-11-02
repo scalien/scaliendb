@@ -50,7 +50,7 @@ StorageFile::StorageFile()
         dataPages[i] = NULL;
     numDataPages = 0;
     
-    fd = -1;
+    fd = INVALID_FD;
 }
 
 StorageFile::~StorageFile()
@@ -466,7 +466,7 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
         buffer.Allocate(it->GetPageSize());
         if (!it->CheckWrite(buffer))
             continue;
-        if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer) < 0)
+        if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer))
         {
             Log_Errno();
             ASSERT_FAIL();
