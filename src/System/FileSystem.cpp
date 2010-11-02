@@ -629,6 +629,9 @@ FS_Dir FS_OpenDir(const char* filename)
     if (len == 0)
         return NULL;
 
+    if (len >= MAX_PATH)
+        return NULL;
+
     if (filename[len - 1] == '\\')
     {
         memcpy(path, filename, len - 1);
