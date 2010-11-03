@@ -84,7 +84,7 @@ void HTTPConnection::OnWrite()
 
 void HTTPConnection::Print(const char* s)
 {
-    Write(s, strlen(s));
+    Write(s, (unsigned) strlen(s));
 }
 
 void HTTPConnection::Write(const char* s, unsigned length)
