@@ -7,7 +7,7 @@ public class ConcurrentWords {
    	public static void main(String[] args) {
 		try {
 			final String wordsFile = "/usr/share/dict/words";
-            final String[] controllers = {"127.0.0.1:7080"};
+			final String[] controllers = {"127.0.0.1:7080"};
 
 			System.out.println("Reading words file...");
 			FileInputStream fstream = new FileInputStream(wordsFile);
@@ -33,15 +33,15 @@ public class ConcurrentWords {
 			Client client = new Client(controllers);
 			//client.setTrace(true);
 
-            if (false) {
-                    long[] nodes = {100};
-                    long quorumID = client.createQuorum(nodes);
-                    long databaseID = client.createDatabase("test");
-                    long tableID = client.createTable(databaseID, quorumID, "words");
-            }
+			if (false) {
+			    long[] nodes = {100};
+			    long quorumID = client.createQuorum(nodes);
+			    long databaseID = client.createDatabase("test");
+			    long tableID = client.createTable(databaseID, quorumID, "words");
+			}
 
-            client.useDatabase("test");
-            client.useTable("words");
+			client.useDatabase("test");
+			client.useTable("words");
 
 			client.begin();
 			for (String word : randomWords)

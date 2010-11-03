@@ -60,6 +60,8 @@ void Controller::Init()
     CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
     
     ReadConfigState();
+
+    configStatePaxosID = 0;
 }
 
 void Controller::Shutdown()

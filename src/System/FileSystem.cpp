@@ -440,7 +440,7 @@ FD FS_Open(const char* filename, int flags)
     // TODO: unbuffered file IO
     dwFlagsAndAttributes = FILE_ATTRIBUTE_ARCHIVE /* | FILE_FLAG_NO_BUFFERING */;
     
-    handle = CreateFile(filename, dwDesiredAccess, 0, NULL, 
+    handle = CreateFile(filename, dwDesiredAccess, FILE_SHARE_READ, NULL, 
      dwCreationDisposition, dwFlagsAndAttributes, NULL);
     
     if (handle == INVALID_HANDLE_VALUE)
