@@ -122,7 +122,7 @@ T* ArrayList<T, size>::Remove(T* t)
     
     assert(t >= buffer && t < buffer + num);
     
-    pos = t - buffer;
+    pos = (unsigned) (t - buffer);
     if (pos == num - 1)
     {
         // last elem
@@ -167,7 +167,7 @@ T* ArrayList<T, size>::Next(T* t)
     
     assert(t >= buffer && t < buffer + num);
     
-    pos = t - buffer;
+    pos = (unsigned) (t - buffer);
     if (pos == num - 1)
     {
         // last elem
