@@ -221,10 +221,6 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     // in case of error print the errno message otherwise print our message
     if (type == LOG_TYPE_ERRNO)
     {
-#ifdef _WIN32
-        DWORD error = GetLastError();
-        printf("%u", error);
-#else
 #ifdef _GNU_SOURCE
         // this is a workaround for g++ on Debian Lenny
         // see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=485135
@@ -252,7 +248,6 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
 
         p += ret;
         remaining -= ret;
-#endif // _WIN32
     }
     else
     {

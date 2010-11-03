@@ -622,6 +622,7 @@ FS_Dir FS_OpenDir(const char* filename)
     // The filename parameter to FindFirstFile should not be NULL, an invalid string 
 	// (for example, an empty string or a string that is missing the terminating 
 	// null character), or end in a trailing backslash (\).
+    // http://msdn.microsoft.com/en-us/library/aa364418(VS.85).aspx
 	if (filename == NULL)
 		return FS_INVALID_DIR;
 	

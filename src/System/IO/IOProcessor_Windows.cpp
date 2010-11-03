@@ -11,6 +11,7 @@
 #include <mswsock.h>
 
 // the address buffer passed to AcceptEx() must be 16 more than the max address length (see MSDN)
+// http://msdn.microsoft.com/en-us/library/ms737524(VS.85).aspx
 #define ACCEPT_ADDR_LEN     (sizeof(sockaddr_in) + 16)
 #define MAX_TCP_READ        8192
 
@@ -29,14 +30,15 @@ struct IODesc
     IODesc*         next;               // pointer for free list handling
 };
 
-static HANDLE   iocp = NULL;            // global completion port handle
-static IODesc*  iods;                   // pointer to allocated array of IODesc's
-static IODesc*  freeIods;               // pointer to the free list of IODesc's
-static IODesc   callback;               // special IODesc for handling IOProcessor::Complete events
-const FD        INVALID_FD = {-1, INVALID_SOCKET};  // special FD to indicate invalid value
-unsigned        SEND_BUFFER_SIZE = 8001;
-static volatile bool terminated = false;
-static unsigned     numIOProcClients = 0;
+// globals
+static HANDLE           iocp = NULL;        // global completion port handle
+static IODesc*          iods;               // pointer to allocated array of IODesc's
+static IODesc*          freeIods;           // pointer to the free list of IODesc's
+static IODesc           callback;           // special IODesc for handling IOProcessor::Complete events
+const FD                INVALID_FD = {-1, INVALID_SOCKET};  // special FD to indicate invalid value
+unsigned                SEND_BUFFER_SIZE = 8001;
+static volatile bool    terminated = false;
+static unsigned         numIOProcClients = 0;
 
 static LPFN_CONNECTEX   ConnectEx;
 
@@ -143,7 +145,7 @@ bool IOProcessorUnregisterSocket(FD& fd)
 
 BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
 {
-    Callable    callable;   // empty
+    Callable    emptyCallable;
 
     if (terminated)
     {
@@ -152,7 +154,9 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
     }
         
     terminated = true;
-    IOProcessor::Complete(callable);
+
+    // the point is to wake up the main thread that is waiting for a completion event
+    IOProcessor::Complete(emptyCallable);
     return TRUE;
 }
 
