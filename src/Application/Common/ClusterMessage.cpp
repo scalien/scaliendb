@@ -129,6 +129,4 @@ bool ClusterMessage::Write(Buffer& buffer)
         default:
             return false;
     }
-    
-    return true;
 }

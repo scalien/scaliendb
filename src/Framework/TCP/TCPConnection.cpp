@@ -6,7 +6,7 @@ TCPConnection::TCPConnection()
     state = DISCONNECTED;
     connectTimeout.SetCallable(MFUNC(TCPConnection, OnConnectTimeout));
     writer = new TCPWriter(this);
-    next = prev = this;
+    prev = next = this;
 }
 
 TCPConnection::~TCPConnection()

@@ -22,6 +22,14 @@ public class Result
 	public String getValue() {
 		return scaliendb_client.SDBP_ResultValue(cptr);
 	}
+    
+    public byte[] getKeyData() {
+        return scaliendb_client.SDBP_ResultKeyBuffer(cptr);
+    }
+	
+    public byte[] getValueData() {
+        return scaliendb_client.SDBP_ResultValueBuffer(cptr);
+    }
 	
     public long getNumber() {
         BigInteger bi = scaliendb_client.SDBP_ResultNumber(cptr);

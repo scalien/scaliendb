@@ -30,7 +30,7 @@ public:
     void                Close();
 
     Socket&             GetSocket() { return socket; }
-    const State         GetState() { return state; }
+    State               GetState() { return state; }
     
     void                AsyncRead(bool start = true);
 

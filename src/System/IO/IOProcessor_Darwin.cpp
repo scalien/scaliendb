@@ -79,7 +79,7 @@ void SetupSignals()
 //  AddKq(SIGXFSZ, EVFILT_SIGNAL, NULL);
 }
 
-bool IOProcessor::Init(int maxfd_)
+bool IOProcessor::Init(int maxfd_, bool blockSignals)
 {
     rlimit rl;
 
@@ -95,7 +95,8 @@ bool IOProcessor::Init(int maxfd_)
         return false;
     }
 
-    SetupSignals(); 
+    if (blockSignals)
+        SetupSignals(); 
     
     rl.rlim_cur = maxfd_;
     rl.rlim_max = maxfd_;

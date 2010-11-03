@@ -178,7 +178,7 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     int         ret;
     va_list     ap;
     
-    if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace)
+    if ((type == LOG_TYPE_TRACE /*|| type == LOG_TYPE_ERRNO*/) && !trace)
         return;
 
     buf[maxLine - 1] = 0;
@@ -221,12 +221,11 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     // in case of error print the errno message otherwise print our message
     if (type == LOG_TYPE_ERRNO)
     {
-
+#ifdef _GNU_SOURCE
         // this is a workaround for g++ on Debian Lenny
         // see http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=485135
         // _GNU_SOURCE is unconditionally defined so always the GNU style
         // sterror_r() is used, which is broken
-#ifdef _GNU_SOURCE
         char* err = strerror_r(errno, p, remaining - 1);
         if (err)
         {

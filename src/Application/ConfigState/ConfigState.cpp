@@ -158,7 +158,8 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteDeleteTable(message);
         
         default:
-            ASSERT_FAIL(); 
+            ASSERT_FAIL();
+			return false;
     }
 }
 
@@ -589,7 +590,7 @@ bool ConfigState::CompleteRenameTable(ConfigMessage& message)
     if (itTable == NULL)
         return false; // no such table
     itTable = GetTable(message.databaseID, message.name);
-    if (itTable != NULL);
+    if (itTable != NULL)
         return false; // table with name exists in database
 
     return true;

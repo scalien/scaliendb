@@ -16,7 +16,7 @@ static volatile uint64_t    clockUsec = 0;
 static ThreadPool*          clockThread = NULL;
 
 #ifdef _WIN32
-int gettimeofday (struct timeval *tv, void* tz)
+int gettimeofday (struct timeval *tv, void*)
 {
     union
     {

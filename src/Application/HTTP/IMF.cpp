@@ -41,7 +41,7 @@ static int SkipWhitespace(char* start, int len)
     if (!*p)
         return -1;
     
-    return p - start;   
+    return (int) (p - start);
 }
 
 static int SeekWhitespace(char* start, int len)
@@ -68,7 +68,7 @@ static int SeekWhitespace(char* start, int len)
     if (!*p)
         return -1;
     
-    return p - start;
+    return (int) (p - start);
 }
 
 static int SkipCrlf(char* start, int len)
@@ -98,7 +98,7 @@ static int SkipCrlf(char* start, int len)
     if (!*p)
         return -1;
     
-    return p - start;
+    return (int) (p - start);
 }
 
 static int SeekCrlf(char* start, int len)
@@ -127,7 +127,7 @@ static int SeekCrlf(char* start, int len)
     if (!*p)
         return -1;
     
-    return p - start;   
+    return (int) (p - start);
 }
 
 static int SeekChar(char* start, int len, char c)
@@ -157,7 +157,7 @@ static int SeekChar(char* start, int len, char c)
     if (!*p)
         return -1;
     
-    return p - start;
+    return (int) (p - start);
 }
 
 static int LineParse(char* buf, int len, ReadBuffer* buffers[3])
@@ -165,7 +165,7 @@ static int LineParse(char* buf, int len, ReadBuffer* buffers[3])
     char*   p;
     int     pos;
 
-#define remlen (len - (p - buf))
+#define remlen (int)(len - (p - buf))
     // p is set so that in remlen it won't be uninitialized
     p = buf;
     pos = 0;

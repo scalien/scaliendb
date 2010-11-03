@@ -42,7 +42,7 @@ void JSONConfigState::WriteQuorums()
 {
     ConfigQuorum*   quorum;
     
-    json.PrintString(ReadBuffer("quorums"));
+    json.PrintString("quorums");
     json.PrintColon();
     json.PrintArrayStart();
 
@@ -82,7 +82,7 @@ void JSONConfigState::WriteDatabases()
 {
     ConfigDatabase*   database;
     
-    json.PrintString(ReadBuffer("databases"));
+    json.PrintString("databases");
     json.PrintColon();
     json.PrintArrayStart();
 
@@ -109,7 +109,7 @@ void JSONConfigState::WriteTables()
 {
     ConfigTable*   table;
     
-    json.PrintString(ReadBuffer("tables"));
+    json.PrintString("tables");
     json.PrintColon();
     json.PrintArrayStart();
 
@@ -138,7 +138,7 @@ void JSONConfigState::WriteShards()
 {
     ConfigShard*   shard;
     
-    json.PrintString(ReadBuffer("shards"));
+    json.PrintString("shards");
     json.PrintColon();
     json.PrintArrayStart();
 
@@ -171,7 +171,7 @@ void JSONConfigState::WriteShardServers()
 {
     ConfigShardServer*   shardServer;
     
-    json.PrintString(ReadBuffer("shardServers"));
+    json.PrintString("shardServers");
     json.PrintColon();
     json.PrintArrayStart();
 

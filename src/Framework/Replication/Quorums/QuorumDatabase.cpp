@@ -148,7 +148,7 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
     table->Set(rbKey, value);
 
     oldPaxosID = paxosID - logCacheSize;
-    if (oldPaxosID >= 0)
+    if (paxosID >= logCacheSize)
     {
         key.Writef("round:%U", oldPaxosID);
         rbKey.Wrap(key);

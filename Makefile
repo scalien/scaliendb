@@ -87,13 +87,13 @@ ALIB = $(LIBNAME).a
 
 ifeq ($(BUILD), debug)
 BUILD_DIR = $(BUILD_DEBUG_DIR)
-CFLAGS = $(BASE_CFLAGS) $(DEBUG_CFLAGS)
-CXXFLAGS = $(BASE_CXXFLAGS) $(DEBUG_CFLAGS)
+CFLAGS = $(BASE_CFLAGS) $(DEBUG_CFLAGS) $(EXTRA_CFLAGS)
+CXXFLAGS = $(BASE_CXXFLAGS) $(DEBUG_CFLAGS) $(EXTRA_CFLAGS)
 LDFLAGS = $(BASE_LDFLAGS) $(DEBUG_LDFLAGS)
 else
 BUILD_DIR = $(BUILD_RELEASE_DIR)
-CFLAGS = $(BASE_CFLAGS) $(RELEASE_CFLAGS)
-CXXFLAGS = $(BASE_CXXFLAGS) $(RELEASE_CFLAGS)
+CFLAGS = $(BASE_CFLAGS) $(RELEASE_CFLAGS) $(EXTRA_CFLAGS)
+CXXFLAGS = $(BASE_CXXFLAGS) $(RELEASE_CFLAGS) $(EXTRA_CFLAGS)
 LDFLAGS = $(BASE_LDFLAGS) $(RELEASE_LDFLAGS)
 endif
 
@@ -107,26 +107,9 @@ include Makefile.dirs
 include Makefile.objects
 include Makefile.clientlib
 
-KEYSPACE_LIBS =
-	
-SYSTEM_OBJECTS = \
-	$(BUILD_DIR)/System/Events/Scheduler.o \
-	$(BUILD_DIR)/System/IO/Endpoint.o \
-	$(BUILD_DIR)/System/IO/IOProcessor_$(PLATFORM).o \
-	$(BUILD_DIR)/System/IO/Socket.o \
-	$(BUILD_DIR)/System/Log.o \
-	$(BUILD_DIR)/System/Common.o \
-
-FRAMEWORK_OBJECTS = \
-	$(BUILD_DIR)/Framework/Transport/TransportUDPReader.o \
-
 OBJECTS = \
 	$(ALL_OBJECTS) \
 	$(BUILD_DIR)/Main.o
-
-TEST_OBJECTS = \
-	$(BUILD_DIR)/Test/scaliendb_client_test.o \
-	$(BUILD_DIR)/Test/ScalienDBClientTest.o
 
 SWIG_WRAPPER_OBJECT = \
 	$(BUILD_DIR)/Application/Client/SDBPClientWrapper.o
@@ -197,7 +180,13 @@ JAVA_PACKAGE_DIR = com/scalien/scaliendb
 JAVA_PACKAGE = com.scalien.scaliendb
 JAVA_LIB = libscaliendb_client.$(SOEXT)
 JAVA_JAR_FILE = scaliendb.jar
-JAVA_INCLUDE = -I/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers/ -I/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/
+JAVA_INCLUDE = \
+	-I/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers/ \
+	-I/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/ \
+	-I/usr/java/jdk/include/ \
+	-I/usr/lib/jvm/java-6-sun/include/ \
+	-I/usr/lib/jvm/java-6-sun/include/linux
+
 JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Client.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/SDBPException.java \
@@ -228,8 +217,8 @@ $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(
 
 $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_JAR_FILE): $(SRC_DIR)/$(JAVA_CLIENT_WRAPPER).cpp $(JAVA_SOURCE_FILES)
 	-mkdir -p $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_PACKAGE_DIR)
-	-cp -rf $(SRC_DIR)/$(JAVA_CLIENT_DIR)/*.java $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_PACKAGE_DIR)
-	-cd $(BIN_DIR)/$(JAVA_DIR) && javac $(JAVA_PACKAGE_DIR)/Client.java && jar cf $(JAVA_JAR_FILE) $(JAVA_PACKAGE_DIR)/*.class && rm -rf com
+	cp -rf $(SRC_DIR)/$(JAVA_CLIENT_DIR)/*.java $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_PACKAGE_DIR)
+	cd $(BIN_DIR)/$(JAVA_DIR) && javac $(JAVA_PACKAGE_DIR)/Client.java && jar cf $(JAVA_JAR_FILE) $(JAVA_PACKAGE_DIR)/*.class && rm -rf com
 	
 
 # php wrapper
@@ -318,13 +307,18 @@ debug:
 release:
 	$(MAKE) targets BUILD="release"
 
+check:
+	$(MAKE) targets EXTRA_CFLAGS=-Werror
+
 clienttest:
 	$(MAKE) targets BUILD="release"
 
 clientlib:
 	$(MAKE) clientlibs BUILD="debug"
 
-pythonlib: $(BUILD_DIR) $(CLIENTLIBS) $(PYTHONLIB)
+#pythonlib: $(BUILD_DIR) $(CLIENTLIBS) $(PYTHONLIB)
+pythonlib: $(BUILD_DIR) clientlib
+	$(MAKE) $(PYTHONLIB) BUILD="debug"
 
 javalib: $(BUILD_DIR) $(CLIENTLIBS) $(JAVALIB)
 

@@ -62,7 +62,7 @@ bool StorageRecoveryLog::WriteDone()
 
 bool StorageRecoveryLog::Truncate(bool sync)
 {
-    FS_FileSeek(fd, 0, SEEK_SET);
+    FS_FileSeek(fd, 0, FS_SEEK_SET);
     FS_FileTruncate(fd, 0); 
     if (sync)
         FS_Sync();
@@ -83,7 +83,7 @@ bool StorageRecoveryLog::PerformRecovery(Callable callback_)
     uint64_t    pos;
 
     callback = callback_;
-    FS_FileSeek(fd, 0, SEEK_SET);
+    FS_FileSeek(fd, 0, FS_SEEK_SET);
 
     pos = 0;
     failed = false;

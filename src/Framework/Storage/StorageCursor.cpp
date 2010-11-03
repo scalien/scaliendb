@@ -9,6 +9,7 @@ StorageCursor::StorageCursor(StorageTable* table_)
     file = NULL;
     dataPage = NULL;
     current = NULL;
+    prev = next = this;
 }
 
 StorageCursor::StorageCursor(StorageShard* shard_)
@@ -18,6 +19,7 @@ StorageCursor::StorageCursor(StorageShard* shard_)
     file = NULL;
     dataPage = NULL;
     current = NULL;
+    prev = next = this;
 }
 
 void StorageCursor::SetBulk(bool bulk_)

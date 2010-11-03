@@ -36,6 +36,15 @@ struct SDBP_NodeParams
     int         num;
 };
 
+struct SDBP_Buffer
+{
+    SDBP_Buffer();
+    
+    void        SetBuffer(char* data_, int len_);
+    
+    void*       data;
+    int         len;
+};
 
 /*
 ===============================================================================================
@@ -48,6 +57,8 @@ struct SDBP_NodeParams
 void            SDBP_ResultClose(ResultObj result);
 std::string     SDBP_ResultKey(ResultObj result);
 std::string     SDBP_ResultValue(ResultObj result);
+SDBP_Buffer     SDBP_ResultKeyBuffer(ResultObj result);
+SDBP_Buffer     SDBP_ResultValueBuffer(ResultObj result);
 uint64_t        SDBP_ResultNumber(ResultObj result);
 uint64_t        SDBP_ResultDatabaseID(ResultObj result);
 uint64_t        SDBP_ResultTableID(ResultObj result);
@@ -86,6 +97,7 @@ int             SDBP_UseDatabase(ClientObj client, const std::string& name);
 int             SDBP_UseTable(ClientObj client, const std::string& name);
 
 int             SDBP_Get(ClientObj client, const std::string& key);
+int             SDBP_GetCStr(ClientObj client, char *key, int len);
 int             SDBP_Set(ClientObj client, const std::string& key, const std::string& value);
 int             SDBP_SetIfNotExists(ClientObj client, const std::string& key, const std::string& value);
 int             SDBP_TestAndSet(ClientObj client, const std::string& key, const std::string& test, const std::string& value);

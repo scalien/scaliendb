@@ -114,14 +114,14 @@ bool UrlParam::Parse()
     {
         if (*s == sep)
         {
-            AddParam(start, s - start);
+            AddParam(start, (int) (s - start));
             start = s + 1;
         }
         s++;
     }
     
     if (s - start > 0)
-        AddParam(start, s - start);
+        AddParam(start, (int) (s - start));
     
     return true;
 }
@@ -176,11 +176,11 @@ char UrlParam::HexToChar(char uhex, char lhex)
 char UrlParam::HexdigitToChar(char hexdigit)
 {
     if (hexdigit >= '0' && hexdigit <= '9')
-        return hexdigit - '0';
+        return hexdigit - (char) '0';
     if (hexdigit >= 'a' && hexdigit <= 'f')
-        return hexdigit - 'a' + 10;
+        return hexdigit - (char) 'a' + 10;
     if (hexdigit >= 'A' && hexdigit <= 'F')
-        return hexdigit - 'A' + 10;
+        return hexdigit - (char) 'A' + 10;
     
     return 0;
 }

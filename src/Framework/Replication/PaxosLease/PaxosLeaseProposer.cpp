@@ -135,7 +135,7 @@ void PaxosLeaseProposer::OnProposeResponse(PaxosLeaseMessage& imsg)
         EventLoop::Reset(&extendLeaseTimeout);
     
         omsg.LearnChosen(MY_NODEID, state.leaseOwner,
-         state.expireTime - Now(), state.expireTime, context->GetPaxosID());
+         (unsigned) (state.expireTime - Now()), state.expireTime, context->GetPaxosID());
         BroadcastMessage(omsg);
 
         state.proposing = false;

@@ -52,6 +52,7 @@ template<class T>
 void InQueue<T>::Enqueue(T* elem)
 {
     assert(elem != NULL);
+    assert(elem->next == elem);
     
     elem->next = NULL;
     if (tail)
@@ -72,7 +73,7 @@ T* InQueue<T>::Dequeue()
         head = dynamic_cast<T*>(elem->next);
         if (tail == elem)
             tail = NULL;
-        elem->next = NULL;
+        elem->next = elem;
         length--;
     }
     return elem;

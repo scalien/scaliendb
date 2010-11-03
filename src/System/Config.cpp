@@ -9,9 +9,8 @@ ConfigVar::ConfigVar(const char* name_)
 {
     name.Append(name_, strlen(name_));
     numelem = 0;
-    next = NULL;
+    next = this;
 }
-
 
 void ConfigVar::ClearValue()
 {

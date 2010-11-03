@@ -6,7 +6,7 @@
 
 ShardQuorumProcessor::ShardQuorumProcessor()
 {
-    next = prev = this;
+    prev = next = this;
 
     requestLeaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnRequestLeaseTimeout));
     requestLeaseTimeout.SetDelay(PRIMARYLEASE_REQUEST_TIMEOUT);
@@ -174,6 +174,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 
     if (!quorumContext.IsLeader())
     {
+        Log_Trace();
         request->response.Failed();
         request->OnComplete();
         return;

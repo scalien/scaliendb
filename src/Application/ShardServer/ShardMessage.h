@@ -29,6 +29,9 @@ public:
     ReadBuffer      value;
     ReadBuffer      test;
 
+    // Constructor
+    ShardMessage();
+
     // Data manipulation
     void            Set(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     void            SetIfNotExists(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);

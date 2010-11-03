@@ -25,8 +25,6 @@ public:
 
     ResponseList    responses;
     TreeNode        treeNode;
-    Request*        next;
-    Request*        prev;
     int             status;
     unsigned        numTry;
     uint64_t        requestTime;

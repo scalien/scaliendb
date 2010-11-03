@@ -50,7 +50,7 @@ void Controller::Init()
     numControllers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numControllers; nodeID++)
     {
-        str = configFile.GetListValue("controllers", nodeID, "");
+        str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str);
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
     }
@@ -161,7 +161,11 @@ void Controller::OnLeaseTimeout()
     }
     assert(listenRequests.GetLength() == 0);
 
-    for (itMessage = configMessages.First(); itMessage != NULL; itMessage = configMessages.Delete(itMessage));
+    for (itMessage = configMessages.First(); itMessage != NULL; 
+     itMessage = configMessages.Delete(itMessage))
+    {
+        /* empty */
+    }
     assert(configMessages.GetLength() == 0);
 }
 

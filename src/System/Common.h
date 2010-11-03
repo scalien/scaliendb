@@ -39,8 +39,6 @@ void            ReplaceInCString(char* s, char src, char dst);
 
 const char*     StaticPrint(const char* format, ...);
 
-bool            Delete(const char* path); // supports wildcards
-
 uint64_t        GenerateGUID();
 void            SeedRandom();
 void            SeedRandomWith(uint64_t seed);

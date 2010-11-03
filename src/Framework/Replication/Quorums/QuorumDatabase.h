@@ -5,10 +5,10 @@
 #include "System/Buffers/Buffer.h"
 #include "Framework/Storage/StorageTable.h"
 
-//#define RLOG_CACHE_SIZE     100*1000
-//#define RLOG_REACTIVATION_DIFF  1*1000
-#define RLOG_CACHE_SIZE         10
-#define RLOG_REACTIVATION_DIFF  3
+#define RLOG_CACHE_SIZE     100*1000
+#define RLOG_REACTIVATION_DIFF  1*1000
+//#define RLOG_CACHE_SIZE         10
+//#define RLOG_REACTIVATION_DIFF  3
 /*
 ===============================================================================
 

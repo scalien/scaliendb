@@ -31,7 +31,7 @@ void ShardServer::Init()
     numControllers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numControllers; nodeID++)
     {
-        str = configFile.GetListValue("controllers", nodeID, "");
+        str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str);
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
         controllers.Append(nodeID);
@@ -100,6 +100,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     shard = configState.GetShard(request->tableID, ReadBuffer(request->key));
     if (!shard)
     {
+        Log_Trace();
         request->response.Failed();
         request->OnComplete();
         return;
@@ -136,6 +137,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
             REPLICATION_CONFIG->SetNodeID(message.nodeID);
             REPLICATION_CONFIG->Commit();
             Log_Trace("My nodeID is %" PRIu64 "", message.nodeID);
+            Log_Message("NodeID set to %" PRIu64, message.nodeID);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             OnSetConfigState(message);
@@ -286,7 +288,7 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
         {
             if (*itNodeID == MY_NODEID)
             {
-                ConfigureQuorum(configQuorum, true); // also creates quorum
+                ConfigureQuorum(configQuorum); // also creates quorum
                 break;
             }
         }
@@ -295,15 +297,17 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
         {
             if (*itNodeID == MY_NODEID)
             {
-                ConfigureQuorum(configQuorum, false); // also creates quorum
-                GetQuorumProcessor(configQuorum->quorumID)->TryReplicationCatchup();
+                ConfigureQuorum(configQuorum); // also creates quorum
+                quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
+                assert(quorumProcessor != NULL);
+                quorumProcessor->TryReplicationCatchup();
                 break;
             }
         }
     }
 }
 
-void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
+void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
 {
     uint64_t                quorumID;
     uint64_t*               itNodeID;
@@ -314,7 +318,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
     
     quorumID = configQuorum->quorumID;
     quorumProcessor = GetQuorumProcessor(quorumID);
-    if (active && quorumProcessor == NULL)    
+    if (quorumProcessor == NULL)
     {
         quorumProcessor = new ShardQuorumProcessor;
         quorumProcessor->Init(configQuorum, this);
@@ -327,7 +331,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum, bool active)
             CONTEXT_TRANSPORT->AddNode(*itNodeID, shardServer->endpoint);
         }
     }
-    else if (quorumProcessor != NULL)
+    else
     {
         quorumProcessor->SetActiveNodes(configQuorum->activeNodes);
 

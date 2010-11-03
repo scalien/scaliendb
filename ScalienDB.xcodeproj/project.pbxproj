@@ -403,7 +403,7 @@
 		9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
 		9A9AA745125E6BB900681840 /* SDBPClientWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientWrapper.h; path = Application/Client/SDBPClientWrapper.h; sourceTree = "<group>"; };
 		9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientWrapper.cpp; path = Application/Client/SDBPClientWrapper.cpp; sourceTree = "<group>"; };
-		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.interfacer; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
+		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9A9AA9011260558A00681840 /* scaliendb_client_python.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_python.cpp; path = Application/Client/Python/scaliendb_client_python.cpp; sourceTree = "<group>"; };
 		9A9AA9021260558A00681840 /* scaliendb_client.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_client.py; path = Application/Client/Python/scaliendb_client.py; sourceTree = "<group>"; };
 		9A9AA9031260558A00681840 /* scaliendb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb.py; path = Application/Client/Python/scaliendb.py; sourceTree = "<group>"; };
@@ -454,7 +454,6 @@
 		9AF4C76012631A920036E3B3 /* Result.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Result.java; path = Application/Client/Java/Result.java; sourceTree = "<group>"; };
 		9AF4C76112631A920036E3B3 /* Status.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Status.java; path = Application/Client/Java/Status.java; sourceTree = "<group>"; };
 		9AF4C76412631A920036E3B3 /* Test.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Test.java; path = Application/Client/Java/Test.java; sourceTree = "<group>"; };
-		9AF4C7BD12634CC80036E3B3 /* scaliendb_client_java.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_java.cpp; path = Application/Client/Java/scaliendb_client_java.cpp; sourceTree = "<group>"; };
 		9AF4CC78126660740036E3B3 /* TestFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestFunction.h; path = Test/TestFunction.h; sourceTree = "<group>"; };
 		9AF4D02E12687DA70036E3B3 /* Database.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Database.java; path = Application/Client/Java/Database.java; sourceTree = "<group>"; };
 		9AF4D030126881380036E3B3 /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Table.java; path = Application/Client/Java/Table.java; sourceTree = "<group>"; };
@@ -465,6 +464,10 @@
 		9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClientRequestCache.cpp; sourceTree = "<group>"; };
 		9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FormattingTest.cpp; path = Test/FormattingTest.cpp; sourceTree = "<group>"; };
 		9AF4E5B812771CDC0036E3B3 /* test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = test.py; path = Application/Client/Python/test.py; sourceTree = "<group>"; };
+		9AF4EAAB1279B1EC0036E3B3 /* scaliendb_client_java.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_java.cpp; path = Application/Client/Java/scaliendb_client_java.cpp; sourceTree = "<group>"; };
+		9AF4EB251279D4FF0036E3B3 /* scaliendb_clientJNI.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = scaliendb_clientJNI.java; path = Application/Client/Java/scaliendb_clientJNI.java; sourceTree = "<group>"; };
+		9AF4EB261279D51C0036E3B3 /* SDBP_Buffer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SDBP_Buffer.java; path = Application/Client/Java/SDBP_Buffer.java; sourceTree = "<group>"; };
+		9AF4EB3C1279D5F80036E3B3 /* scaliendb_client.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = scaliendb_client.java; path = Application/Client/Java/scaliendb_client.java; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1008,7 +1011,10 @@
 		9AF4C75712631A7F0036E3B3 /* Java */ = {
 			isa = PBXGroup;
 			children = (
-				9AF4C7BD12634CC80036E3B3 /* scaliendb_client_java.cpp */,
+				9AF4EB3C1279D5F80036E3B3 /* scaliendb_client.java */,
+				9AF4EB261279D51C0036E3B3 /* SDBP_Buffer.java */,
+				9AF4EB251279D4FF0036E3B3 /* scaliendb_clientJNI.java */,
+				9AF4EAAB1279B1EC0036E3B3 /* scaliendb_client_java.cpp */,
 				9AF4C75912631A920036E3B3 /* Client.java */,
 				9AF4C75E12631A920036E3B3 /* SDBPException.java */,
 				9AF4C75F12631A920036E3B3 /* ListParams.java */,
@@ -1065,6 +1071,7 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1363,12 +1370,31 @@
 			buildSettings = {
 				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_TREAT_IMPLICIT_FUNCTION_DECLARATIONS_AS_ERRORS = YES;
 				GCC_TREAT_WARNINGS_AS_ERRORS = NO;
 				GCC_USE_GCC3_PFE_SUPPORT = NO;
+				GCC_VERSION = "";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_GLOBAL_CONSTRUCTORS = YES;
+				GCC_WARN_ABOUT_MISSING_FIELD_INITIALIZERS = YES;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
+				GCC_WARN_EFFECTIVE_CPLUSPLUS_VIOLATIONS = YES;
+				GCC_WARN_FOUR_CHARACTER_CONSTANTS = YES;
+				GCC_WARN_HIDDEN_VIRTUAL_FUNCTIONS = YES;
+				GCC_WARN_INITIALIZER_NOT_FULLY_BRACKETED = YES;
+				GCC_WARN_MISSING_PARENTHESES = YES;
+				GCC_WARN_MULTIPLE_DEFINITION_TYPES_FOR_SELECTOR = YES;
+				GCC_WARN_NON_VIRTUAL_DESTRUCTOR = YES;
+				GCC_WARN_PEDANTIC = NO;
+				GCC_WARN_PROTOTYPE_CONVERSION = YES;
+				GCC_WARN_SHADOW = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
+				GCC_WARN_STRICT_SELECTOR_MATCH = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_PARAMETER = YES;
@@ -1382,6 +1408,7 @@
 					"-D__STDC_FORMAT_MACROS",
 				);
 				PREBINDING = NO;
+				RUN_CLANG_STATIC_ANALYZER = NO;
 				SDKROOT = macosx10.5;
 			};
 			name = Release;

@@ -26,9 +26,11 @@ Result::~Result()
 
 void Result::Close()
 {
+    Log_Trace();
     transportStatus = SDBP_FAILURE;
     requests.DeleteTree();
     numCompleted = 0;
+    requestCursor = NULL;
 }
 
 void Result::Begin()

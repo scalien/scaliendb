@@ -24,6 +24,11 @@ static const ReadBuffer& Key(StorageShardIndex* si)
     return si->startKey;
 }
 
+StorageTable::StorageTable()
+{
+    prev = next = this;
+}
+
 const char* StorageTable::GetName()
 {
     return name.GetBuffer();
@@ -453,7 +458,7 @@ void StorageTable::PerformRecovery(uint64_t length)
         RebuildTOC();
     }
 
-    FS_FileSeek(recoveryFD, 0, SEEK_SET);
+    FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
     FS_FileTruncate(recoveryFD, 0); 
     FS_Sync();
 }
@@ -524,9 +529,9 @@ void StorageTable::PerformRecoveryCopy()
     while (required > 0)
     {
         unsigned nread = required % bufsize;
-        if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), nread) != nread)
+        if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), nread) != (ssize_t) nread)
             ASSERT_FAIL();
-        if (FS_FileWrite(dataFD, (const void *) buffer.GetBuffer(), nread) != nread)
+        if (FS_FileWrite(dataFD, (const void *) buffer.GetBuffer(), nread) != (ssize_t) nread)
             ASSERT_FAIL();
         required -= nread;
     }
@@ -729,7 +734,7 @@ void StorageTable::WriteRecoveryDone()
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
         ASSERT_FAIL();
     
-    FS_FileSeek(recoveryFD, 0, SEEK_SET);
+    FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
     FS_FileTruncate(recoveryFD, 0); 
     FS_Sync();
 }
@@ -822,9 +827,9 @@ void StorageTable::WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex)
     while (required > 0)
     {
         unsigned nread = required % bufsize;
-        if (FS_FileRead(dataFD, (void*) buffer.GetBuffer(), nread) != nread)
+        if (FS_FileRead(dataFD, (void*) buffer.GetBuffer(), nread) != (ssize_t) nread)
             ASSERT_FAIL();
-        if (FS_FileWrite(recoveryFD, (const void *) buffer.GetBuffer(), nread) != nread)
+        if (FS_FileWrite(recoveryFD, (const void *) buffer.GetBuffer(), nread) != (ssize_t) nread)
             ASSERT_FAIL();
         required -= nread;
     }

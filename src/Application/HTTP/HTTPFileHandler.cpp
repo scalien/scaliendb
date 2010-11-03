@@ -8,9 +8,9 @@ typedef Buffer HeaderArray;
 
 void HttpHeaderAppend(HeaderArray& ha, const char* k, size_t klen, const char* v, size_t vlen)
 {
-    ha.Append(k, klen);
+    ha.Append(k, (unsigned) klen);
     ha.Append(": ", 2);
-    ha.Append(v, vlen);
+    ha.Append(v, (unsigned) vlen);
     ha.Append(HTTP_CS_CRLF, 2);
 }
 
@@ -66,7 +66,7 @@ bool HTTPFileHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
         if (feof(fp))
         {
             fclose(fp);
-            conn->Write(buf, nread);
+            conn->Write(buf, (unsigned) nread);
             break;
         }
         if (ferror(fp))
@@ -75,7 +75,7 @@ bool HTTPFileHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
             break;
         }
         
-        conn->Write(buf, nread);
+        conn->Write(buf, (unsigned) nread);
     }
 
     conn->Flush(true);

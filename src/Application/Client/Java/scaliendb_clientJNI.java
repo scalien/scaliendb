@@ -29,9 +29,18 @@ class scaliendb_clientJNI {
   public final static native long SDBP_NodeParams_nodes_get(long jarg1, SDBP_NodeParams jarg1_);
   public final static native void SDBP_NodeParams_num_set(long jarg1, SDBP_NodeParams jarg1_, int jarg2);
   public final static native int SDBP_NodeParams_num_get(long jarg1, SDBP_NodeParams jarg1_);
+  public final static native long new_SDBP_Buffer();
+  public final static native void SDBP_Buffer_SetBuffer(long jarg1, SDBP_Buffer jarg1_, byte[] jarg2, int jarg3);
+  public final static native void SDBP_Buffer_data_set(long jarg1, SDBP_Buffer jarg1_, long jarg2);
+  public final static native long SDBP_Buffer_data_get(long jarg1, SDBP_Buffer jarg1_);
+  public final static native void SDBP_Buffer_len_set(long jarg1, SDBP_Buffer jarg1_, int jarg2);
+  public final static native int SDBP_Buffer_len_get(long jarg1, SDBP_Buffer jarg1_);
+  public final static native void delete_SDBP_Buffer(long jarg1);
   public final static native void SDBP_ResultClose(long jarg1);
   public final static native String SDBP_ResultKey(long jarg1);
   public final static native String SDBP_ResultValue(long jarg1);
+  public final static native byte[] SDBP_ResultKeyBuffer(long jarg1);
+  public final static native byte[] SDBP_ResultValueBuffer(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultNumber(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultDatabaseID(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultTableID(long jarg1);
@@ -56,6 +65,7 @@ class scaliendb_clientJNI {
   public final static native int SDBP_UseDatabase(long jarg1, String jarg2);
   public final static native int SDBP_UseTable(long jarg1, String jarg2);
   public final static native int SDBP_Get(long jarg1, String jarg2);
+  public final static native int SDBP_GetCStr(long jarg1, byte[] jarg2, int jarg3);
   public final static native int SDBP_Set(long jarg1, String jarg2, String jarg3);
   public final static native int SDBP_SetIfNotExists(long jarg1, String jarg2, String jarg3);
   public final static native int SDBP_TestAndSet(long jarg1, String jarg2, String jarg3, String jarg4);
