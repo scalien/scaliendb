@@ -31,7 +31,7 @@ void ShardServer::Init()
     numControllers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numControllers; nodeID++)
     {
-        str = configFile.GetListValue("controllers", nodeID, "");
+        str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str);
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
         controllers.Append(nodeID);

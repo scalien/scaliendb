@@ -7,7 +7,7 @@ INCLUDE = \
 
 LDPATH = \
 
-BASE_CFLAGS = -Wall -W -Wconversion $(INCLUDE) -DPLATFORM_$(PLATFORM_UCASE) -D__STDC_FORMAT_MACROS
+BASE_CFLAGS = -Wall -W $(INCLUDE) -DPLATFORM_$(PLATFORM_UCASE) -D__STDC_FORMAT_MACROS
 BASE_CXXFLAGS = $(BASE_CFLAGS)
 BASE_LDFLAGS = -lpthread $(LDPATH)
 SOLINK = -Xlinker -x -fPIC -dylib -undefined dynamic_lookup -bundle

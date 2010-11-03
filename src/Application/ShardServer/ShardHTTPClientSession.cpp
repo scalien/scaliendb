@@ -94,7 +94,7 @@ void ShardHTTPClientSession::PrintStatus()
 
     valbuf.Writef("%s (Used %s, %U%%)",
      HUMAN_BYTES(DCACHE->GetTotalSize()), HUMAN_BYTES(DCACHE->GetUsedSize()),
-     (uint64_t) (DCACHE->GetUsedSize() / (float) DCACHE->GetTotalSize() * 100.0 + 0.5));
+     (uint64_t) (DCACHE->GetUsedSize() / (double) DCACHE->GetTotalSize() * 100.0 + 0.5));
     session.PrintPair("Cache usage", valbuf);
 
     // write quorums, shards, and leases

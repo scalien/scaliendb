@@ -465,7 +465,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
         if (nread != (unsigned) (next - tmp.GetBuffer()))
             return NULL;
         next++;
-        tmp.Advance(next - tmp.GetBuffer());
+        tmp.Advance((unsigned) (next - tmp.GetBuffer()));
         nodes.Append(nodeID);
     }
     
