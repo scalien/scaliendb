@@ -104,7 +104,7 @@
 		9AABB037123E55DE003626AC /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
 		9AABB039123E55DE003626AC /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418712282946000B1319 /* StorageTest.cpp */; };
-		9AABB03A123E55DE003626AC /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
+		9AABB03A123E55DE003626AC /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.cpp */; };
 		9AABB03B123E55DE003626AC /* TestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418A12282946000B1319 /* TestMain.cpp */; };
 		9AABB03C123E55DE003626AC /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
 		9AABB03D123E55DE003626AC /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29501235569100247703 /* FileSystemTest.cpp */; };
@@ -395,7 +395,7 @@
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
 		9A87418612282946000B1319 /* InTreeMapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InTreeMapTest.cpp; path = Test/InTreeMapTest.cpp; sourceTree = "<group>"; };
 		9A87418712282946000B1319 /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
-		9A87418812282946000B1319 /* Test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Test.c; path = Test/Test.c; sourceTree = "<group>"; };
+		9A87418812282946000B1319 /* Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Test.cpp; path = Test/Test.cpp; sourceTree = "<group>"; };
 		9A87418912282946000B1319 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test.h; path = Test/Test.h; sourceTree = "<group>"; };
 		9A87418A12282946000B1319 /* TestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestMain.cpp; path = Test/TestMain.cpp; sourceTree = "<group>"; };
 		9A87418B12282946000B1319 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
@@ -952,7 +952,7 @@
 				9ACF23DE122FDEBE00247703 /* Timings.cpp */,
 				9A87418612282946000B1319 /* InTreeMapTest.cpp */,
 				9A87418712282946000B1319 /* StorageTest.cpp */,
-				9A87418812282946000B1319 /* Test.c */,
+				9A87418812282946000B1319 /* Test.cpp */,
 				9A87418912282946000B1319 /* Test.h */,
 				9AF4CC78126660740036E3B3 /* TestFunction.h */,
 				9A87418A12282946000B1319 /* TestMain.cpp */,
@@ -1208,7 +1208,7 @@
 				9AABB037123E55DE003626AC /* Timings.cpp in Sources */,
 				9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */,
 				9AABB039123E55DE003626AC /* StorageTest.cpp in Sources */,
-				9AABB03A123E55DE003626AC /* Test.c in Sources */,
+				9AABB03A123E55DE003626AC /* Test.cpp in Sources */,
 				9AABB03B123E55DE003626AC /* TestMain.cpp in Sources */,
 				9AABB03C123E55DE003626AC /* TimeTest.cpp in Sources */,
 				9AABB03D123E55DE003626AC /* FileSystemTest.cpp in Sources */,
