@@ -43,9 +43,9 @@ bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& 
 
     if (qmark)
     {
-        rb.Advance(qmark - rb.GetBuffer() + 1);
+        rb.Advance((unsigned) (qmark - rb.GetBuffer() + 1));
         params.Init(rb.GetBuffer(), rb.GetLength(), '&');
-        cmd.SetLength(qmark - cmd.GetBuffer());
+        cmd.SetLength((unsigned) (qmark - cmd.GetBuffer()));
         
         if (type == JSON)
         {
