@@ -52,6 +52,7 @@ Client::Client()
     tableID = 0;
     globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
+    result = NULL;
 }
 
 Client::~Client()

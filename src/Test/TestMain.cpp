@@ -21,8 +21,8 @@ TEST_START(TestMain);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestArrayListBasic);
 //TEST_ADD(TestArrayListRemove);
-TEST_ADD(TestClientSchemaSet);
-TEST_ADD(TestClientBasic);
+//TEST_ADD(TestClientSchemaSet);
+//TEST_ADD(TestClientBasic);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestClientBatchedSet);
 //TEST_ADD(TestClientBatchedSetRandom);     // TODO: this crashes shard server various ways!
@@ -32,6 +32,7 @@ TEST_ADD(TestClientBasic);
 //TEST_ADD(TestClientAdd);
 //TEST_ADD(TestClientFailover);
 //TEST_ADD(TestUnsignedFormatting);
+TEST_ADD(TestManualBasic);
 TEST_EXECUTE();
 
 #ifdef TEST
