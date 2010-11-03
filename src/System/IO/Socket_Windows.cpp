@@ -238,7 +238,7 @@ bool Socket::SendTo(void *data, int count, const Endpoint &endpoint)
     return true;
 }
 
-int Socket::Send(const char* data, int count, int timeout)
+int Socket::Send(const char* data, int count, int /*timeout*/)
 {
     size_t      left;
     int         nwritten;
@@ -248,7 +248,7 @@ int Socket::Send(const char* data, int count, int timeout)
     {
         if ((nwritten = send((SOCKET) fd.handle, (char*) data, count, 0)) == SOCKET_ERROR)
         {
-            // TODO error handling
+            // TODO: timeout and error handling
             if (WSAGetLastError() == WSAEWOULDBLOCK)
                 return 0;
             
@@ -262,12 +262,12 @@ int Socket::Send(const char* data, int count, int timeout)
     return count;
 }
 
-int Socket::Read(char* data, int count, int timeout)
+int Socket::Read(char* data, int count, int /*timeout*/)
 {
     int     ret;
 
     ret = recv((SOCKET)fd.handle, (char *)data, count, 0);
-    // TODO better error handling
+    // TODO: timeout and better error handling
     if (ret == SOCKET_ERROR)
     {
         if (WSAGetLastError() == WSAEWOULDBLOCK)

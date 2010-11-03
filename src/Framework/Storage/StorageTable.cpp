@@ -529,9 +529,9 @@ void StorageTable::PerformRecoveryCopy()
     while (required > 0)
     {
         unsigned nread = required % bufsize;
-        if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), nread) != nread)
+        if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), nread) != (ssize_t) nread)
             ASSERT_FAIL();
-        if (FS_FileWrite(dataFD, (const void *) buffer.GetBuffer(), nread) != nread)
+        if (FS_FileWrite(dataFD, (const void *) buffer.GetBuffer(), nread) != (ssize_t) nread)
             ASSERT_FAIL();
         required -= nread;
     }
@@ -827,9 +827,9 @@ void StorageTable::WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex)
     while (required > 0)
     {
         unsigned nread = required % bufsize;
-        if (FS_FileRead(dataFD, (void*) buffer.GetBuffer(), nread) != nread)
+        if (FS_FileRead(dataFD, (void*) buffer.GetBuffer(), nread) != (ssize_t) nread)
             ASSERT_FAIL();
-        if (FS_FileWrite(recoveryFD, (const void *) buffer.GetBuffer(), nread) != nread)
+        if (FS_FileWrite(recoveryFD, (const void *) buffer.GetBuffer(), nread) != (ssize_t) nread)
             ASSERT_FAIL();
         required -= nread;
     }

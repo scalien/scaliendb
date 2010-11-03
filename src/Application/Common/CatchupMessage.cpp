@@ -98,6 +98,4 @@ bool CatchupMessage::Write(Buffer& buffer)
         default:
             return false;
     }
-    
-    return true;
 }

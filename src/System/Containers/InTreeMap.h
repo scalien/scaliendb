@@ -308,7 +308,7 @@ T* InTreeMap<T, pnode>::Insert(T* t)
     }
     
     curr = root;
-    while (1)
+    while (true)
     {
         result = KeyCmp(Key(t), Key(curr->owner));
         if (result == 0)

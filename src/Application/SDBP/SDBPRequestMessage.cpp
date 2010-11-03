@@ -198,10 +198,8 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->key);
             return true;
-        
+
         default:
             return false;
     }
-    
-    return true;
 }

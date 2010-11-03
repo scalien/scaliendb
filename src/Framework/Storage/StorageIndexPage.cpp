@@ -277,7 +277,7 @@ bool StorageIndexPage::CheckWrite(Buffer& buffer)
         *((uint32_t*) p) = ToLittle32(it->index);
         p += 4;
     }
-    assert(required == (p - buffer.GetBuffer()));
+    assert(required == (uint32_t)(p - buffer.GetBuffer()));
     buffer.SetLength(required);
     if (BUFCMP(&buffer, &this->buffer))
         return false;

@@ -15,6 +15,8 @@
 #pragma warning(disable: 4267)
 // 'this' : used in base member initializer list
 #pragma warning(disable: 4355)
+// conditional expression is constant
+#pragma warning(disable: 4127)
 
 #include <stddef.h>     // for intptr_t
 #include <malloc.h>     // for _alloca()

@@ -11,10 +11,10 @@ void HTTPControllerSession::SetController(Controller* controller_)
     controller = controller_;
 }
 
-void HTTPControllerSession::SetConnection(HTTPConnection* conn_)
+void HTTPControllerSession::SetConnection(HTTPConnection* conn)
 {
-    session.SetConnection(conn_);
-    conn_->SetOnClose(MFUNC(HTTPControllerSession, OnConnectionClose));
+    session.SetConnection(conn);
+    conn->SetOnClose(MFUNC(HTTPControllerSession, OnConnectionClose));
 }
 
 bool HTTPControllerSession::HandleRequest(HTTPRequest& request)
@@ -462,7 +462,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
     while ((next = FindInBuffer(tmp.GetBuffer(), tmp.GetLength(), ',')) != NULL)
     {
         nodeID = BufferToUInt64(tmp.GetBuffer(), tmp.GetLength(), &nread);
-        if (nread != next - tmp.GetBuffer())
+        if (nread != (unsigned) (next - tmp.GetBuffer()))
             return NULL;
         next++;
         tmp.Advance(next - tmp.GetBuffer());

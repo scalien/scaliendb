@@ -695,7 +695,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
     return true;
 }
 
-bool ProcessUDPWrite(UDPWrite* ioop)
+bool ProcessUDPWrite(UDPWrite*)
 {
     ASSERT_FAIL();
     return false;

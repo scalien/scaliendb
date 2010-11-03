@@ -80,6 +80,4 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         default:
             return false;
     }
-    
-    return true;
 }

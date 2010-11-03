@@ -270,6 +270,7 @@ void BlockSignals()
 bool ChangeUser(const char *user)
 {
 #ifdef _WIN32
+    (void) user;
     // cannot change user on Windows
     return true;
 #else

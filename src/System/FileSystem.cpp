@@ -471,7 +471,7 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
 
     distanceToMove.QuadPart = offset;
     newFilePointer.QuadPart = 0;
-    dwMoveMethod = -1;
+
     switch (whence_)
     {
     case FS_SEEK_SET:
