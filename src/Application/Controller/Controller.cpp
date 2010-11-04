@@ -66,6 +66,7 @@ void Controller::Init()
 
 void Controller::Shutdown()
 {
+    primaryLeases.DeleteList();
     heartbeats.DeleteList();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
