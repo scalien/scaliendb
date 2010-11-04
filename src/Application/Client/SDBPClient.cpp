@@ -19,6 +19,10 @@
         return SDBP_NOSERVICE; \
 
 
+#define VALIDATE_CONTROLLER() \
+    if (numControllers == 0) \
+        return SDBP_API_ERROR;
+
 using namespace SDBPClient;
 
 static uint64_t Hash(uint64_t h)
@@ -50,6 +54,7 @@ Client::Client()
     databaseID = 0;
     isTableSet = false;
     tableID = 0;
+    numControllers = 0;
     globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
     result = NULL;
@@ -171,6 +176,8 @@ int Client::GetDatabaseID(ReadBuffer& name, uint64_t& databaseID)
 {
     ConfigDatabase* database;
     
+    VALIDATE_CONTROLLER();
+    
     if (configState == NULL)
     {
         result->Close();
@@ -193,6 +200,8 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
 {
     ConfigTable*    table;
     
+    VALIDATE_CONTROLLER();
+    
     assert(configState != NULL);
     table = configState->GetTable(databaseID, name);
     if (!table)
@@ -207,6 +216,8 @@ int Client::UseDatabase(ReadBuffer& name)
 {
     int         ret;
 
+    VALIDATE_CONTROLLER();
+    
     isDatabaseSet = false;
     isTableSet = false;
     ret = GetDatabaseID(name, databaseID);
@@ -220,6 +231,8 @@ int Client::UseDatabase(ReadBuffer& name)
 int Client::UseTable(ReadBuffer& name)
 {
     int         ret;
+
+    VALIDATE_CONTROLLER();
 
     if (!isDatabaseSet)
         return SDBP_BADSCHEMA;
@@ -236,6 +249,8 @@ int Client::UseTable(ReadBuffer& name)
 int Client::CreateQuorum(ClientRequest::NodeList& nodes)
 {
     Request*    req;
+
+    VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
@@ -262,6 +277,8 @@ int Client::CreateDatabase(ReadBuffer& name)
 {
     Request*    req;
 
+    VALIDATE_CONTROLLER();
+
     if (configState == NULL)
     {
         result->Close();
@@ -286,6 +303,8 @@ int Client::CreateDatabase(ReadBuffer& name)
 int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name)
 {
     Request*    req;
+
+    VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
