@@ -26,8 +26,7 @@ void ClientRequestCache::Shutdown()
 {
     assert(maxSize != 0);
 
-    // TODO: memleak
-//    freeRequests.DeleteList();
+    freeRequests.DeleteList();
 
     delete clientRequestCache;
     clientRequestCache = NULL;
