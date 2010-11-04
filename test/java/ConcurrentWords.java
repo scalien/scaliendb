@@ -7,7 +7,16 @@ public class ConcurrentWords {
    	public static void main(String[] args) {
 		try {
 			final String wordsFile = "/usr/share/dict/words";
-			final String[] controllers = {"127.0.0.1:7080"};
+			String[] controllers = {"127.0.0.1:7080"};
+			boolean createSchema = false;
+
+			if (args.length > 0) {
+			    controllers[0] = args[0];
+			    if (args.length > 1) {
+			        if (args[1].equals("createSchema"))
+			            createSchema = true;
+			    }
+			}
 
 			System.out.println("Reading words file...");
 			FileInputStream fstream = new FileInputStream(wordsFile);
@@ -33,7 +42,7 @@ public class ConcurrentWords {
 			Client client = new Client(controllers);
 			//client.setTrace(true);
 
-			if (false) {
+			if (createSchema) {
 			    long[] nodes = {100};
 			    long quorumID = client.createQuorum(nodes);
 			    long databaseID = client.createDatabase("test");
