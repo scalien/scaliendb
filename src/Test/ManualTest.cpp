@@ -29,10 +29,10 @@ TEST_DEFINE(TestManualBasic)
     //else
     //    printf("%s\n","Test1 succeeded.");
 
-    if (TEST_SUCCESS != test2())
-        printf("%s\n","Test2 failed.");
-    else
-        printf("%s\n","Test2 succeeded.");
+    //if (TEST_SUCCESS != test2())
+    //    printf("%s\n","Test2 failed.");
+    //else
+    //    printf("%s\n","Test2 succeeded.");
 
     if (TEST_SUCCESS != test3())
         printf("%s\n","Test3 failed.");
@@ -145,8 +145,11 @@ TEST_DEFINE(test2)
     uint64_t        number = 0;
     uint64_t        quorumID = 1;
     uint64_t        databaseID;
+    uint64_t        start;
+    uint64_t        end;
     Result*         result;
     Buffer          tmp;
+    const int       num = 10000;
 
     client.Init(SIZE(nodes),nodes);
     ClientRequest::NodeList quorumNodes;
@@ -182,9 +185,10 @@ TEST_DEFINE(test2)
 
     SeedRandom();
 
+    start = Now();
     client.Begin();
 
-    for (int i=0; i<10000; ++i)
+    for (int i=0; i<num; ++i)
     {
         rnd = RandomInt(0,1000000);
         tmp.Writef("%U", rnd);
@@ -194,6 +198,7 @@ TEST_DEFINE(test2)
     }
 
     client.Submit();
+    end = Now();
 
     result = client.GetResult();
 
@@ -208,25 +213,29 @@ TEST_DEFINE(test2)
     delete result;
 
     printf("%s%i\t%s%i\n","succeeded sets: ",succ,"failed sets: ",fail);
+    printf("elapsed = %lf\n", (double)(num / ((end - start) / 1000.0)));
 
     return TEST_SUCCESS;
 
 }
 TEST_DEFINE(test3)
 {
+    StorageDatabase     db;
+    StorageTable*       table;
+    uint64_t            rnd;
+    uint64_t            psID = 12;
+    uint64_t            start;
+    uint64_t            end;
+    ReadBuffer          rbpsID;
+    ReadBuffer          rbrnd;
+    Buffer              tmp;
+    const int           num = 10000;
 
     DCACHE->Init(10000000);
-    StorageDatabase db;
     db.Open(".","test_direct");
-    StorageTable* table = db.GetTable("randnums");
+    table = db.GetTable("randnums");
 
 // Setting random numbers as keys
-
-    uint64_t    rnd;
-    uint64_t    psID = 12;
-    ReadBuffer  rbpsID;
-    ReadBuffer  rbrnd;
-    Buffer      tmp;
 
     tmp.Writef("%U", psID);
     rbpsID = tmp;
@@ -236,7 +245,8 @@ TEST_DEFINE(test3)
 
     SeedRandom();
 
-    for (int i=0; i<10000; ++i)
+    start = Now();
+    for (int i=0; i<num; ++i)
     {
         rnd = RandomInt(0,1000000);
         tmp.Writef("%U", rnd);
@@ -248,7 +258,10 @@ TEST_DEFINE(test3)
 
     db.Commit();
 
+    end = Now();
+ 
     printf("%s%i\t%s%i\n","succeeded sets: ",succ,"failed sets: ",fail);
+    printf("elapsed = %lf\n", (double)(num / ((end - start) / 1000.0)));
 
     return TEST_SUCCESS;
 }
