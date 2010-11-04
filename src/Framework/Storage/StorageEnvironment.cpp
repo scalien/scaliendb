@@ -33,7 +33,10 @@ bool StorageEnvironment::Open(const char *path_)
     if (!FS_IsDirectory(path_))
     {
         if (!FS_CreateDir(path_))
+        {
+            STOP_FAIL(1, "Cannot create directory: %s", path_);
             return false;
+        }
     }
     
     sep = FS_Separator();
