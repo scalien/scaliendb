@@ -154,7 +154,7 @@ StorageDataPage* StorageDataPage::SplitDataPage()
         sum += kvsize;
         // if kvsize is greater than the target don't put it on a new page unless
         // there is no more space left on the current page
-        if (sum > pageSize || (kvsize < target && sum > target))
+        if (sum > pageSize || ((kvsize + DATAPAGE_FIX_OVERHEAD) < target && sum > target))
             break;
     }
         
@@ -182,16 +182,16 @@ StorageDataPage* StorageDataPage::SplitDataPage()
     }
     
     // CHECK
-//  unsigned r = DATAPAGE_FIX_OVERHEAD;
-//  unsigned num = 0;
-//  for (StorageKeyValue* it = newPage->keys.First(); it != NULL; it = newPage->keys.Next(it))
-//  {
-//      r += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
-//      num++;
-//  }   
-//
-//  assert(num == newPage->keys.GetCount());
-//  assert(newPage->required == r);
+    unsigned r = DATAPAGE_FIX_OVERHEAD;
+    unsigned num = 0;
+    for (StorageKeyValue* it = newPage->keys.First(); it != NULL; it = newPage->keys.Next(it))
+    {
+      r += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
+      num++;
+    }   
+
+    assert(num == newPage->keys.GetCount());
+    assert(newPage->required == r);
 
     assert(IsEmpty() != true);
     assert(newPage->IsEmpty() != true);
