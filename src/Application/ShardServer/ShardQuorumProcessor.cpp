@@ -20,6 +20,8 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     catchupReader.Init(this);
     isPrimary = false;
     proposalID = 0;
+    configID = 0;
+    requestedLeaseExpireTime = 0;
     quorumContext.Init(configQuorum, this,
      shardServer->GetDatabaseAdapter()->GetQuorumTable(configQuorum->quorumID));
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
