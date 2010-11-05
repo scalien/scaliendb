@@ -32,6 +32,8 @@ public:
     StorageShard*           GetShard(uint64_t shardID);
 
     void                    SetShards(List<uint64_t>& shards);
+    void                    RemoveDeletedDatabases();
+    void                    RemoveDeletedTables();
     
     void                    OnClientReadRequest(ClientRequest* request);
     void                    ExecuteWriteMessage(uint64_t paxosID,

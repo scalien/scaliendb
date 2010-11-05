@@ -108,6 +108,37 @@ void StorageDatabase::Close()
         it->Close();
 }
 
+bool StorageDatabase::DeleteTable(StorageTable* table)
+{
+    Buffer  tableName;
+    Buffer  deletedName;
+    char    sep;
+
+    tables.Remove(table);
+
+    table->Close();
+
+    // TODO: recovery and error handling
+
+    sep = FS_Separator();
+    tableName.Write(path.GetBuffer(), path.GetLength() - 1);
+    tableName.Append(&sep, 1);
+    tableName.Append(table->GetName());
+    tableName.NullTerminate();
+
+    deletedName.Write(path.GetBuffer(), path.GetLength() - 1);
+    deletedName.Append(&sep, 1);
+    deletedName.Append("deleted");
+    deletedName.Append(table->GetName());
+    deletedName.NullTerminate();
+    
+    FS_Rename(tableName.GetBuffer(), deletedName.GetBuffer());
+
+    delete table;
+
+    return true;
+}
+
 void StorageDatabase::Commit(bool recovery, bool flush)
 {
     long            el1, els1, el2, els2, el3, el4;

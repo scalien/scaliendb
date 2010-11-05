@@ -300,6 +300,60 @@ int Client::CreateDatabase(ReadBuffer& name)
     return result->CommandStatus();
 }
 
+int Client::RenameDatabase(uint64_t databaseID, const ReadBuffer& name)
+{
+    Request*    req;
+
+    VALIDATE_CONTROLLER();
+
+    if (configState == NULL)
+    {
+        result->Close();
+        EventLoop();
+    }
+    
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    req = new Request;
+    req->RenameDatabase(NextCommandID(), databaseID, (ReadBuffer&) name);
+    
+    requests.Append(req);
+    
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
+int Client::DeleteDatabase(uint64_t databaseID)
+{
+    Request*    req;
+
+    VALIDATE_CONTROLLER();
+
+    if (configState == NULL)
+    {
+        result->Close();
+        EventLoop();
+    }
+    
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    req = new Request;
+    req->DeleteDatabase(NextCommandID(), databaseID);
+    
+    requests.Append(req);
+    
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
 int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name)
 {
     Request*    req;
@@ -317,6 +371,60 @@ int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name
     
     req = new Request;
     req->CreateTable(NextCommandID(), databaseID, quorumID, name);
+    
+    requests.Append(req);
+    
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
+int Client::RenameTable(uint64_t databaseID, uint64_t tableID, ReadBuffer& name)
+{
+    Request*    req;
+
+    VALIDATE_CONTROLLER();
+
+    if (configState == NULL)
+    {
+        result->Close();
+        EventLoop();
+    }
+    
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    req = new Request;
+    req->RenameTable(NextCommandID(), databaseID, tableID, name);
+    
+    requests.Append(req);
+    
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
+int Client::DeleteTable(uint64_t databaseID, uint64_t tableID)
+{
+    Request*    req;
+
+    VALIDATE_CONTROLLER();
+
+    if (configState == NULL)
+    {
+        result->Close();
+        EventLoop();
+    }
+    
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    req = new Request;
+    req->DeleteTable(NextCommandID(), databaseID, tableID);
     
     requests.Append(req);
     
@@ -351,6 +459,7 @@ int Client::Get(const ReadBuffer& key)
     EventLoop();
     return result->CommandStatus();
 }
+
 
 int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
 {

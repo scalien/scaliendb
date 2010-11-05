@@ -120,6 +120,46 @@ void ShardDatabaseManager::SetShards(List<uint64_t>& shards)
     }
 }
 
+void ShardDatabaseManager::RemoveDeletedDatabases()
+{
+    DatabaseMap::Node*      it;
+    DatabaseMap::Node*      next;    
+    ConfigState*            configState;
+
+    configState = shardServer->GetConfigState();
+
+    for (it = databases.First(); it != NULL; it = next)
+    {
+        next = databases.Next(it);
+        if (configState->GetDatabase(it->Key()))
+        {
+            environment.DeleteDatabase(it->Value());
+            databases.Remove(it->Key());
+        }
+    }
+}
+
+void ShardDatabaseManager::RemoveDeletedTables()
+{
+    TableMap::Node*     it;
+    TableMap::Node*     next;    
+    ConfigState*        configState;
+    StorageDatabase*    database;
+
+    configState = shardServer->GetConfigState();
+
+    for (it = tables.First(); it != NULL; it = next)
+    {
+        next = tables.Next(it);
+        if (configState->GetTable(it->Key()))
+        {
+            database = it->Value()->GetDatabase();
+            database->DeleteTable(it->Value());
+            tables.Remove(it->Key());
+        }
+    }
+}
+
 #define CHECK_CMD()                                             \
 	if (readPaxosID > paxosID ||                                \
 	(readPaxosID == paxosID && readCommandID >= commandID))     \
