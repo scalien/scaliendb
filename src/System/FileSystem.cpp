@@ -445,7 +445,10 @@ FD FS_Open(const char* filename, int flags)
     
     if (handle == INVALID_HANDLE_VALUE)
     {
-        Log_Errno();
+        DWORD   error;
+
+        error = GetLastError();
+        Log_Message("error = %u", error);
         fd = INVALID_FD;
     }
     

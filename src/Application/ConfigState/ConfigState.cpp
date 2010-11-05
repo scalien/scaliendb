@@ -816,13 +816,21 @@ void ConfigState::OnRenameDatabase(ConfigMessage& message)
 
 void ConfigState::OnDeleteDatabase(ConfigMessage& message)
 {
-    ConfigDatabase* it;
-
-    it = GetDatabase(message.databaseID);
+    ConfigDatabase* database;
+    ConfigTable*    table;
+    uint64_t*       it;
+    
+    database = GetDatabase(message.databaseID);
     // make sure database with ID exists
-    assert(it != NULL);
+    assert(database != NULL);
 
-    databases.Delete(it);
+    FOREACH(it, database->tables)
+    {
+        table = GetTable(*it);
+        DeleteTable(table);
+    }
+
+    databases.Delete(database);
 }
 
 void ConfigState::OnCreateTable(ConfigMessage& message)
@@ -910,7 +918,7 @@ void ConfigState::OnDeleteTable(ConfigMessage& message)
     // make sure table exists
     assert(itTable != NULL);
     
-    tables.Delete(itTable);
+    DeleteTable(itTable);
     itDatabase->tables.Remove(message.tableID);
 }
 
@@ -1028,6 +1036,20 @@ void ConfigState::WriteTables(Buffer& buffer)
     }
 }
 
+void ConfigState::DeleteTable(ConfigTable* table)
+{
+    ConfigShard*    shard;
+    uint64_t*       it;
+
+    FOREACH(it, table->shards)
+    {
+        shard = GetShard(*it);
+        DeleteShard(shard);
+    }
+
+    tables.Delete(table);
+}
+
 bool ConfigState::ReadShards(ReadBuffer& buffer)
 {
     int             read;
@@ -1102,6 +1124,17 @@ void ConfigState::WriteShardServers(Buffer& buffer, bool withVolatile)
         buffer.Appendf(":");
         WriteShardServer(*it, buffer, withVolatile);
     }
+}
+
+void ConfigState::DeleteShard(ConfigShard* shard)
+{
+    ConfigQuorum*   quorum;
+
+    quorum = GetQuorum(shard->quorumID);
+    assert(quorum != NULL);
+    quorum->shards.Remove(shard->shardID);
+
+    shards.Delete(shard);
 }
 
 bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool withVolatile)

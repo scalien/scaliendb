@@ -26,21 +26,11 @@ TEST_DEFINE(TestClientDeleteDatabase);
 
 TEST_DEFINE(TestManualBasic)
 {
-    //if (TEST_SUCCESS != test1())
-    //    printf("%s\n","Test1 failed.");
-    //else
-    //    printf("%s\n","Test1 succeeded.");
 
-    //if (TEST_SUCCESS != test2())
-    //    printf("%s\n","Test2 failed.");
-    //else
-    //    printf("%s\n","Test2 succeeded.");
-
-    //if (TEST_SUCCESS != test3())
-    //    printf("%s\n","Test3 failed.");
-    //else
-    //    printf("%s\n","Test3 succeeded.");
-
+//    TEST_CALL(test1);
+    TEST_CALL(test2);
+//    TEST_CALL(test3);
+//    TEST_CALL(test_rename);
     TEST_CALL(TestClientDeleteDatabase);
 
     return TEST_SUCCESS;
@@ -50,7 +40,7 @@ TEST_DEFINE(test1)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb_user9";
+    ReadBuffer      databaseName = "testdb_user";
     ReadBuffer      tableName1 = "user";
     ReadBuffer      tableName2 = "user_name";
     ReadBuffer      tableName3 = "user_meta";
@@ -141,7 +131,7 @@ TEST_DEFINE(test2)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb_randnums_27";
+    ReadBuffer      databaseName = "testdb_randnums8";
     ReadBuffer      tableName1 = "randnums";
     ReadBuffer      key = "user_id";
     ReadBuffer      initValue = "0";
@@ -236,7 +226,7 @@ TEST_DEFINE(test3)
     const int           num = 10000;
 
     DCACHE->Init(10000000);
-    db.Open(".","test_direct4");
+    db.Open(".","test_direct7");
     table = db.GetTable("randnums");
 
 // Setting random numbers as keys
@@ -273,19 +263,8 @@ TEST_DEFINE(test_rename)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb_randnums_27";
-    ReadBuffer      tableName1 = "randnums";
-    ReadBuffer      key = "user_id";
-    ReadBuffer      initValue = "0";
-    ReadBuffer      value;
-    uint64_t        number = 0;
-    uint64_t        quorumID = 1;
+    ReadBuffer      databaseName = "test_direct5";
     uint64_t        databaseID;
-    uint64_t        start;
-    uint64_t        end;
-    Result*         result;
-    Buffer          tmp;
-    const int       num = 10000;
 
     client.Init(SIZE(nodes),nodes);
     ClientRequest::NodeList quorumNodes;
@@ -297,7 +276,7 @@ TEST_DEFINE(test_rename)
 
     client.GetDatabaseID(databaseName, databaseID);
 
-    if (client.RenameDatabase(databaseID, "new_name4") != SDBP_SUCCESS)
+    if (client.RenameDatabase(databaseID, "new_name") != SDBP_SUCCESS)
         return TEST_FAILURE;
         
 
@@ -308,7 +287,7 @@ TEST_DEFINE(TestClientDeleteDatabase)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb_randnums_24";
+    ReadBuffer      databaseName = "testdb_randnums8";
     uint64_t        databaseID;
 
     client.Init(SIZE(nodes),nodes);
@@ -325,6 +304,5 @@ TEST_DEFINE(TestClientDeleteDatabase)
     if (client.DeleteDatabase(databaseID) != SDBP_SUCCESS)
         return TEST_FAILURE;
         
-
     return TEST_SUCCESS;
 }

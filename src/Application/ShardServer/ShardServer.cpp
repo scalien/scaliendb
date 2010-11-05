@@ -306,8 +306,8 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
         }
     }
 
-    databaseManager.RemoveDeletedDatabases();
     databaseManager.RemoveDeletedTables();
+    databaseManager.RemoveDeletedDatabases();
 }
 
 void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)

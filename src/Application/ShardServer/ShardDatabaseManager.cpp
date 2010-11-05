@@ -100,6 +100,7 @@ void ShardDatabaseManager::SetShards(List<uint64_t>& shards)
             name.NullTerminate();
 
             database = environment.GetDatabase(name.GetBuffer());
+            assert(database != NULL);
             databases.Set(shard->databaseID, database);
         }
         

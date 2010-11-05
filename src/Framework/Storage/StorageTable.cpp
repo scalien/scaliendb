@@ -102,7 +102,10 @@ void StorageTable::Open(const char* dir, const char* name_)
 
     recoveryFD = FS_Open(recoveryFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
     if (recoveryFD == INVALID_FD)
+    {
+        Log_Message("%s", recoveryFilepath.GetBuffer());
         ASSERT_FAIL();
+    }
 
     recoverySize = FS_FileSize(recoveryFD);
     if (recoverySize > 0)
