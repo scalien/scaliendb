@@ -21,23 +21,17 @@ bool SetIfNotExists(StorageTable* table, ReadBuffer key, ReadBuffer value)
 TEST_DEFINE(test1);
 TEST_DEFINE(test2);
 TEST_DEFINE(test3);
+TEST_DEFINE(test_rename);
+TEST_DEFINE(TestClientDeleteDatabase);
 
 TEST_DEFINE(TestManualBasic)
 {
-    //if (TEST_SUCCESS != test1())
-    //    printf("%s\n","Test1 failed.");
-    //else
-    //    printf("%s\n","Test1 succeeded.");
 
-    //if (TEST_SUCCESS != test2())
-    //    printf("%s\n","Test2 failed.");
-    //else
-    //    printf("%s\n","Test2 succeeded.");
-
-    if (TEST_SUCCESS != test3())
-        printf("%s\n","Test3 failed.");
-    else
-        printf("%s\n","Test3 succeeded.");
+//    TEST_CALL(test1);
+    TEST_CALL(test2);
+//    TEST_CALL(test3);
+//    TEST_CALL(test_rename);
+    TEST_CALL(TestClientDeleteDatabase);
 
     return TEST_SUCCESS;
 }
@@ -46,7 +40,7 @@ TEST_DEFINE(test1)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb_user5";
+    ReadBuffer      databaseName = "testdb_user";
     ReadBuffer      tableName1 = "user";
     ReadBuffer      tableName2 = "user_name";
     ReadBuffer      tableName3 = "user_meta";
@@ -137,7 +131,7 @@ TEST_DEFINE(test2)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb_randnums_20";
+    ReadBuffer      databaseName = "testdb_randnums8";
     ReadBuffer      tableName1 = "randnums";
     ReadBuffer      key = "user_id";
     ReadBuffer      initValue = "0";
@@ -232,7 +226,7 @@ TEST_DEFINE(test3)
     const int           num = 10000;
 
     DCACHE->Init(10000000);
-    db.Open(".","test_direct");
+    db.Open(".","test_direct7");
     table = db.GetTable("randnums");
 
 // Setting random numbers as keys
@@ -263,5 +257,52 @@ TEST_DEFINE(test3)
     printf("%s%i\t%s%i\n","succeeded sets: ",succ,"failed sets: ",fail);
     printf("elapsed = %lf\n", (double)(num / ((end - start) / 1000.0)));
 
+    return TEST_SUCCESS;
+}
+TEST_DEFINE(test_rename)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "test_direct5";
+    uint64_t        databaseID;
+
+    client.Init(SIZE(nodes),nodes);
+    ClientRequest::NodeList quorumNodes;
+    uint64_t nodeID = 100;
+    quorumNodes.Append(nodeID);
+
+    //if (client.CreateDatabase(databaseName) != SDBP_SUCCESS)
+      //  return TEST_FAILURE;
+
+    client.GetDatabaseID(databaseName, databaseID);
+
+    if (client.RenameDatabase(databaseID, "new_name") != SDBP_SUCCESS)
+        return TEST_FAILURE;
+        
+
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientDeleteDatabase)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb_randnums8";
+    uint64_t        databaseID;
+
+    client.Init(SIZE(nodes),nodes);
+    ClientRequest::NodeList quorumNodes;
+    uint64_t nodeID = 100;
+    quorumNodes.Append(nodeID);
+
+    //if (client.CreateDatabase(databaseName) != SDBP_SUCCESS)
+      //  return TEST_FAILURE;
+
+    if (client.GetDatabaseID(databaseName, databaseID) != SDBP_SUCCESS)
+        return TEST_FAILURE;
+
+    if (client.DeleteDatabase(databaseID) != SDBP_SUCCESS)
+        return TEST_FAILURE;
+        
     return TEST_SUCCESS;
 }

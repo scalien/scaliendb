@@ -79,7 +79,7 @@ StorageDatabase* StorageEnvironment::GetDatabase(const char* dbName)
 {
     StorageDatabase*   it;
     
-    for (it = databases.First(); it != NULL; it = databases.Next(it))
+    FOREACH (it, databases)
     {
         if (MEMCMP(it->GetName(), strlen(it->GetName()), dbName, strlen(dbName)))
             return it;
@@ -91,6 +91,37 @@ StorageDatabase* StorageEnvironment::GetDatabase(const char* dbName)
     databases.Append(it);
     
     return it;
+}
+
+bool StorageEnvironment::DeleteDatabase(StorageDatabase* database)
+{
+    Buffer  dbName;
+    Buffer  deletedName;
+    char    sep;
+
+    databases.Remove(database);
+
+    database->Close();
+
+    // TODO: recovery and error handling
+
+    sep = FS_Separator();
+    dbName.Write(path.GetBuffer(), path.GetLength() - 1);
+    dbName.Append(&sep, 1);
+    dbName.Append(database->GetName());
+    dbName.NullTerminate();
+
+    deletedName.Write(path.GetBuffer(), path.GetLength() - 1);
+    deletedName.Append(&sep, 1);
+    deletedName.Append("deleted");
+    deletedName.Append(database->GetName());
+    deletedName.NullTerminate();
+    
+    FS_Rename(dbName.GetBuffer(), deletedName.GetBuffer());
+
+    delete database;
+
+    return true;
 }
     
 void StorageEnvironment::Commit(bool recovery, bool flush)

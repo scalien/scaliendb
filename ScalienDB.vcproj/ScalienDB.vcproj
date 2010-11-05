@@ -1088,6 +1088,30 @@
 				</Filter>
 			</Filter>
 			<Filter
+				Name="TCP"
+				>
+				<File
+					RelativePath="..\src\Framework\TCP\TCPConnection.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\TCP\TCPConnection.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\TCP\TCPServer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\TCP\TCPWriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\TCP\TCPWriter.h"
+					>
+				</File>
+			</Filter>
+			<Filter
 				Name="Storage"
 				>
 				<File
@@ -1220,30 +1244,6 @@
 				</File>
 				<File
 					RelativePath="..\src\Framework\Storage\StorageTable.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="TCP"
-				>
-				<File
-					RelativePath="..\src\Framework\TCP\TCPConnection.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\TCP\TCPConnection.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\TCP\TCPServer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\TCP\TCPWriter.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\TCP\TCPWriter.h"
 					>
 				</File>
 			</Filter>

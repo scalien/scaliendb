@@ -26,6 +26,8 @@ public:
     uint64_t                GetSize();
     StorageDatabase*        GetDatabase(const char* dbName);
     
+    bool                    DeleteDatabase(StorageDatabase* database);
+
     void                    Commit(bool recovery = true, bool flush = true);
     
 private:

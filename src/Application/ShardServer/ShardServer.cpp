@@ -14,7 +14,7 @@ void ShardServer::Init()
     const char*     str;
     Endpoint        endpoint;
 
-    databaseAdapter.Init(this);
+    databaseManager.Init(this);
     heartbeatManager.Init(this);
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
 
@@ -45,7 +45,7 @@ void ShardServer::Init()
 
 void ShardServer::Shutdown()
 {
-    databaseAdapter.Shutdown();
+    databaseManager.Shutdown();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
     REQUEST_CACHE->Shutdown();    
@@ -71,7 +71,7 @@ ShardServer::QuorumProcessorList* ShardServer::GetQuorumProcessors()
 
 ShardDatabaseManager* ShardServer::GetDatabaseAdapter()
 {
-    return &databaseAdapter;
+    return &databaseManager;
 }
 
 ConfigState* ShardServer::GetConfigState()
@@ -305,6 +305,9 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
             }
         }
     }
+
+    databaseManager.RemoveDeletedTables();
+    databaseManager.RemoveDeletedDatabases();
 }
 
 void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
@@ -344,5 +347,5 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
         }
     }
     
-    databaseAdapter.SetShards(configQuorum->shards);
+    databaseManager.SetShards(configQuorum->shards);
 }
