@@ -39,17 +39,24 @@ const char* HumanBytes(uint64_t bytes, char buf[5])
 {
     const char  units[] = "kMGTPEZY";
     uint64_t    n;
+    float       f;
     unsigned    u;
+    unsigned    ndigits;
     
     n = bytes;
+    f = bytes;
     u = 0;
-    while (NumDigits64(n) > 3)
+    while ((ndigits = NumDigits64(n)) > 3)
     {
         n = (uint64_t)(n / 1000.0 + 0.5);   // rounding
+        f = f / 1000.0;
         u++;
     }
-    
-    snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
+
+    if (ndigits == 1 && bytes >= 10)
+        snprintf(buf, 5, "%1.1f%c", f, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
+    else
+        snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
     return buf;
 }
 

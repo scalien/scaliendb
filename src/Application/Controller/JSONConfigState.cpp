@@ -36,6 +36,8 @@ void JSONConfigState::Write()
     WriteShards();
     json.PrintComma();
     WriteShardServers();
+    
+    json.End();
 }
     
 void JSONConfigState::WriteQuorums()
