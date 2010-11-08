@@ -2,7 +2,6 @@
 #include "ShardServer.h"
 #include "System/Config.h"
 #include "System/FileSystem.h"
-#include "Application/HTTP/UrlParam.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StorageDataCache.h"
@@ -22,10 +21,9 @@ void ShardHTTPClientSession::SetConnection(HTTPConnection* conn_)
 bool ShardHTTPClientSession::HandleRequest(HTTPRequest& request)
 {
     ReadBuffer  cmd;
-    UrlParam    params;
     
     session.ParseRequest(request, cmd, params);
-    return ProcessCommand(cmd, params);
+    return ProcessCommand(cmd);
 }
 
 void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
@@ -121,7 +119,7 @@ void ShardHTTPClientSession::PrintStatus()
     session.Flush();
 }
 
-bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
+bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
     
@@ -131,7 +129,7 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
         return true;
     }
 
-    request = ProcessShardServerCommand(cmd, params);
+    request = ProcessShardServerCommand(cmd);
     if (!request)
         return false;
 
@@ -141,27 +139,27 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
     return true;
 }
 
-ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd, UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd)
 {
     if (HTTP_MATCH_COMMAND(cmd, "get"))
-        return ProcessGet(params);
+        return ProcessGet();
     if (HTTP_MATCH_COMMAND(cmd, "set"))
-        return ProcessSet(params);
+        return ProcessSet();
     if (HTTP_MATCH_COMMAND(cmd, "setifnex"))
-        return ProcessSetIfNotExists(params);
+        return ProcessSetIfNotExists();
     if (HTTP_MATCH_COMMAND(cmd, "testandset"))
-        return ProcessTestAndSet(params);
+        return ProcessTestAndSet();
     if (HTTP_MATCH_COMMAND(cmd, "add"))
-        return ProcessAdd(params);
+        return ProcessAdd();
     if (HTTP_MATCH_COMMAND(cmd, "delete"))
-        return ProcessDelete(params);
+        return ProcessDelete();
     if (HTTP_MATCH_COMMAND(cmd, "remove"))
-        return ProcessRemove(params);
+        return ProcessRemove();
     
     return NULL;
 }
 
-ClientRequest* ShardHTTPClientSession::ProcessGet(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessGet()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -179,7 +177,7 @@ ClientRequest* ShardHTTPClientSession::ProcessGet(UrlParam& params)
     return request;    
 }
 
-ClientRequest* ShardHTTPClientSession::ProcessSet(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessSet()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -198,7 +196,7 @@ ClientRequest* ShardHTTPClientSession::ProcessSet(UrlParam& params)
     return request;    
 }
 
-ClientRequest* ShardHTTPClientSession::ProcessSetIfNotExists(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessSetIfNotExists()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -217,7 +215,7 @@ ClientRequest* ShardHTTPClientSession::ProcessSetIfNotExists(UrlParam& params)
     return request;    
 }
 
-ClientRequest* ShardHTTPClientSession::ProcessTestAndSet(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessTestAndSet()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -238,7 +236,7 @@ ClientRequest* ShardHTTPClientSession::ProcessTestAndSet(UrlParam& params)
     return request;    
 }
 
-ClientRequest* ShardHTTPClientSession::ProcessAdd(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessAdd()
 {
     unsigned        nread;
     uint64_t        databaseID;
@@ -263,7 +261,7 @@ ClientRequest* ShardHTTPClientSession::ProcessAdd(UrlParam& params)
     return request;    
 }
 
-ClientRequest* ShardHTTPClientSession::ProcessDelete(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessDelete()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -281,7 +279,7 @@ ClientRequest* ShardHTTPClientSession::ProcessDelete(UrlParam& params)
     return request;    
 }
 
-ClientRequest* ShardHTTPClientSession::ProcessRemove(UrlParam& params)
+ClientRequest* ShardHTTPClientSession::ProcessRemove()
 {
     ClientRequest*  request;
     uint64_t        databaseID;

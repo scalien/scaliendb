@@ -3,10 +3,10 @@
 
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"
+#include "Application/HTTP/UrlParam.h"
 
 class ShardServer;      // forward
 class ClientRequest;    // forward
-class UrlParam;         // forward
 
 /*
 ===============================================================================================
@@ -33,21 +33,21 @@ public:
 
 private:
     void                PrintStatus();
-    bool                ProcessCommand(ReadBuffer& cmd, UrlParam& params);
-    ClientRequest*      ProcessShardServerCommand(ReadBuffer& cmd, UrlParam& params);
-    ClientRequest*      ProcessGetPrimary(UrlParam& params);
-    ClientRequest*      ProcessGet(UrlParam& params);
-    ClientRequest*      ProcessSet(UrlParam& params);
-    ClientRequest*      ProcessSetIfNotExists(UrlParam& params);
-    ClientRequest*      ProcessTestAndSet(UrlParam& params);
-    ClientRequest*      ProcessAdd(UrlParam& params);
-    ClientRequest*      ProcessDelete(UrlParam& params);
-    ClientRequest*      ProcessRemove(UrlParam& params);
+    bool                ProcessCommand(ReadBuffer& cmd);
+    ClientRequest*      ProcessShardServerCommand(ReadBuffer& cmd);
+    ClientRequest*      ProcessGetPrimary();
+    ClientRequest*      ProcessGet();
+    ClientRequest*      ProcessSet();
+    ClientRequest*      ProcessSetIfNotExists();
+    ClientRequest*      ProcessTestAndSet();
+    ClientRequest*      ProcessAdd();
+    ClientRequest*      ProcessDelete();
+    ClientRequest*      ProcessRemove();
     void                OnConnectionClose();
 
     ShardServer*        shardServer;
     HTTPSession         session;
-
+    UrlParam            params;
 };
 
 #endif
