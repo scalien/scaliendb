@@ -314,7 +314,7 @@ check:
 	$(MAKE) targets EXTRA_CFLAGS=-Werror
 
 test:
-	$(MAKE) $(BIN_DIR)/test BUILD="debug"
+	$(MAKE) $(BUILD_DIR)/test BUILD="debug"
 
 clienttest:
 	$(MAKE) targets BUILD="release"
