@@ -33,7 +33,7 @@ TEST_DIR="Test/"
 class Compiler:
 	def __init__(self, include_dirs, build_dir):
 		self.cc = "/usr/bin/g++"
-		self.cflags = "-Wall -O2 "
+		self.cflags = "-Wall -O2 -D__STDC_FORMAT_MACROS "
 		self.include_dirs = include_dirs
 		self.build_dir = build_dir
 
