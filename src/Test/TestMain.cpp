@@ -2,12 +2,12 @@
 
 TEST_START(TestMain);
 //TEST_LOG_INIT(LOG_TARGET_STDOUT);
-//TEST_ADD(TestStorageDeleteTestDatabase);
+TEST_ADD(TestStorageDeleteTestDatabase);
 //TEST_ADD(TestStorage);
 //TEST_ADD(TestStorageCapacity);
 //TEST_ADD(TestStorageBigTransaction);
 //TEST_ADD(TestStorageBigRandomTransaction);
-//TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
+TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
 //TEST_ADD(TestStorageShardSplit);
 //TEST_ADD(TestStorageFileSplit);
 //TEST_ADD(TestStorageFileThreeWaySplit);
@@ -33,7 +33,7 @@ TEST_START(TestMain);
 //TEST_ADD(TestClientFailover);
 //TEST_ADD(TestUnsignedFormatting);
 //TEST_ADD(TestManualBasic);
-TEST_ADD(TestCommonHumanBytes);
+//TEST_ADD(TestCommonHumanBytes);
 TEST_EXECUTE();
 
 #ifdef TEST

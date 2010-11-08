@@ -45,6 +45,7 @@ void ShardServer::Init()
 
 void ShardServer::Shutdown()
 {
+    quorumProcessors.DeleteList();
     databaseManager.Shutdown();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
