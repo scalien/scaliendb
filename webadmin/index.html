@@ -6,7 +6,7 @@
 
 function update()
 {
-	var form = util.elem("updateconfigstate_form");
+	var form = scaliendb.util.elem("updateconfigstate_form");
 	var nodes = form.nodes.value;
 	if (nodes !== scaliendb.controller)
 		scaliendb.controller = nodes;
@@ -15,7 +15,7 @@ function update()
 
 function createDatabase()
 {
-	var form = util.elem("createdatabase_form");
+	var form = scaliendb.util.elem("createdatabase_form");
 	var name = form.name.value;
 	scaliendb.onResponse = onResponse;
 	scaliendb.createDatabase(name);
@@ -23,7 +23,7 @@ function createDatabase()
 
 function createQuorum()
 {
-	var form = util.elem("createquorum_form");
+	var form = scaliendb.util.elem("createquorum_form");
 	var nodes = form.nodes.value;
 	scaliendb.onResponse = onResponse;
 	scaliendb.createQuorum(nodes);
@@ -31,7 +31,7 @@ function createQuorum()
 
 function createTable()
 {
-	var form = util.elem("createtable_form");
+	var form = scaliendb.util.elem("createtable_form");
 	var name = form.name.value;
 	var quorumID = form.quorumID.value;
 	var databaseID = form.databaseID.value;
@@ -51,8 +51,8 @@ function updateConfigState()
 
 function onConfigState(configState)
 {
-	var config_state = util.elem("config_state");
-	util.removeElement("config_state_content");
+	var config_state = scaliendb.util.elem("config_state");
+	scaliendb.util.removeElement("config_state_content");
 	var config_state_content = document.createElement("div");
 	config_state_content.setAttribute("id", "config_state_content");
 
@@ -145,7 +145,7 @@ function updateShardServers(content_div, shardServers)
 
 function toggleDatabasesTable()
 {
-	var databases_table_body = util.elem("databases_table_body");
+	var databases_table_body = scaliendb.util.elem("databases_table_body");
 	if (databases_table_body.style.display == "none")
 		databases_table_body.style.display = "block";
     else
@@ -154,7 +154,7 @@ function toggleDatabasesTable()
 
 function init()
 {
-	var form = util.elem("updateconfigstate_form");
+	var form = scaliendb.util.elem("updateconfigstate_form");
 	form.nodes.value = scaliendb.controller;
 }
 

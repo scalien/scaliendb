@@ -2,24 +2,29 @@ var scaliendb =
 {
 	controller: "http://localhost:8080/json/",
 	onResponse: this.showResult,
-    
+
+    //========================================================================
+	//
+	// ScalienDB Client interface
+	//
+	//========================================================================
 	getConfigState: function(onConfigState)
 	{ 
-		json.rpc(scaliendb.controller, onConfigState, "getconfigstate");
+		this.json.rpc(scaliendb.controller, onConfigState, "getconfigstate");
 	},
 
 	createDatabase: function(name)
 	{ 
 		var params = {};
 		params["name"] = name;
-		json.rpc(scaliendb.controller, scaliendb.onResponse, "createdatabase", params);
+		this.json.rpc(scaliendb.controller, scaliendb.onResponse, "createdatabase", params);
 	},
 	
 	createQuorum: function(nodes)
 	{                                                                                 
 		var params = {};
 		params["nodes"] = nodes;
-		json.rpc(scaliendb.controller, scaliendb.onResponse, "createquorum", params);
+		this.json.rpc(scaliendb.controller, scaliendb.onResponse, "createquorum", params);
 	},
 	
 	createTable: function(databaseID, quorumID, name)
@@ -28,7 +33,7 @@ var scaliendb =
 		params["databaseID"] = databaseID;
 		params["quorumID"] = quorumID;
 		params["name"] = name;
-		json.rpc(scaliendb.controller, scaliendb.onResponse, "createtable", params);
+		this.json.rpc(scaliendb.controller, scaliendb.onResponse, "createtable", params);
 	},
 	
 	showResult: function(data)
@@ -36,141 +41,151 @@ var scaliendb =
 		//alert(data["response"]);
 	},
 		
-	lastJSONmember: null
-}
-
-var json =
-{
-	counter : 0,
-	active : 0,
-	func: {},
-	debug: true,
-
-	get: function(url, userfunc, showload)
+    //========================================================================
+	//
+	// JSON utilities
+	//
+	//========================================================================
+	json:
 	{
-		var id = json.counter++;
+		counter : 0,
+		active : 0,
+		func: {},
+		debug: true,
 
-		url = url.replace(/USERFUNC/g, "json.func[" + id + "]");
-		var scriptTag = document.createElement("script");
-		scriptTag.setAttribute("id", "json" + id);
-		scriptTag.setAttribute("type", "text/javascript");
-		scriptTag.setAttribute("src", url);
-		document.getElementsByTagName("head")[0].appendChild(scriptTag);
-		if (showload)
-			this.active++;
-		util.trace("[" + json.active + "] calling " + url);
-
-		this.func[id] = function(data)
+		get: function(url, userfunc, showload)
 		{
-			if (data == undefined)
-			{
-				if (json.debug)
-					alert("json.func[" + id + "]: empty callback");
-				util.trace("json.func[" + id + "]: empty callback");
-				return;
-			}
+			var id = this.counter++;
 
-			if (data.hasOwnProperty("error"))
-			{
-				if (json.debug)
-					alert("json.func[" + id + "]: " + data.error);
-				util.trace("json.func" + id + ": " + data.error);
+			url = url.replace(/USERFUNC/g, "scaliendb.json.func[" + id + "]");
+			var scriptTag = document.createElement("script");
+			scriptTag.setAttribute("id", "json" + id);
+			scriptTag.setAttribute("type", "text/javascript");
+			scriptTag.setAttribute("src", url);
+			document.getElementsByTagName("head")[0].appendChild(scriptTag);
+			if (showload)
+				this.active++;
+			scaliendb.util.trace("[" + this.active + "] calling " + url);
 
-				if (data.hasOwnProperty("type") && data.type == "session")
+			this.func[id] = function(data)
+			{
+				if (data == undefined)
 				{
-					util.logout();
+					if (this.debug)
+						alert("json.func[" + id + "]: empty callback");
+					scaliendb.util.trace("json.func[" + id + "]: empty callback");
 					return;
 				}
-			}
 
-			util.trace("[" + json.active + "] json callback " + id);			
-			userfunc(data);
-			if (showload)
-				json.active--;
-			util.trace("[" + json.active + "] json callback " + id + " after userfunc");
-			util.removeElement("json" + id);
-			this.func = util.removeKey(this.func, "func" + id);
+				if (data.hasOwnProperty("error"))
+				{
+					if (this.debug)
+						alert("json.func[" + id + "]: " + data.error);
+					scaliendb.util.trace("json.func" + id + ": " + data.error);
+
+					if (data.hasOwnProperty("type") && data.type == "session")
+					{
+						scaliendb.util.logout();
+						return;
+					}
+				}
+
+				scaliendb.util.trace("[" + this.active + "] json callback " + id);			
+				userfunc(data);
+				if (showload)
+					this.active--;
+				scaliendb.util.trace("[" + this.active + "] json callback " + id + " after userfunc");
+				scaliendb.util.removeElement("json" + id);
+				this.func = scaliendb.util.removeKey(this.func, "func" + id);
+			}
+		},
+
+		rpc: function(baseUrl, userfunc, cmd, params)
+		{
+			var url = baseUrl + cmd + "?callback=USERFUNC";
+			for (var name in params)
+			{
+				url += "&" + name + "=";
+				param = params[name];
+				if (typeof(param) != "undefined")
+				{
+					if (typeof(param) == "object" || typeof(param) == "array")
+						var arg = JSON.stringify(param);
+					else
+						var arg = param;
+					var value = encodeURIComponent(arg);
+				}
+				else
+					var value = "";
+				url += value;
+			}                                        
+			this.get(url, userfunc, true);
+		},
+	
+		encode: function(jsobj)
+		{
+			// if (typeof(jsobj) == "undefined")
+			//  	return "";
+		
+			return JSON.stringify(jsobj);
 		}
 	},
 
-	rpc: function(baseUrl, userfunc, cmd, params)
+    //========================================================================
+	//
+	// Other utility functions
+	//
+	//========================================================================	
+	util:
 	{
-		var url = baseUrl + cmd + "?callback=USERFUNC";
-		for (var name in params)
+	 	elem: function(id)
 		{
-			url += "&" + name + "=";
-			param = params[name];
-			if (typeof(param) != "undefined")
-			{
-				if (typeof(param) == "object" || typeof(param) == "array")
-					var arg = JSON.stringify(param);
-				else
-					var arg = param;
-				var value = encodeURIComponent(arg);
-			}
-			else
-				var value = "";
-			url += value;
-		}                                        
-		json.get(url, userfunc, true);
-	},
-	
-	encode: function(jsobj)
-	{
-		// if (typeof(jsobj) == "undefined")
-		//  	return "";
-		
-		return JSON.stringify(jsobj);
-	}
-}
+			return document.getElementById(id);
+		},
 
-var util =
-{
- 	elem: function(id)
-	{
-		return document.getElementById(id);
-	},
+		keys: function(arr)
+		{
+			var r = new Array();
+			for (var key in arr)
+				r.push(key);
+			return r;
+		},
+	
+	   removeKey: function(arr, key)
+		{
+			var n = new Array();
+			for (var i in arr)
+				if (i != key)
+					n.push(arr[i]);	
+			return n;
+		},
+	
+		removeElement: function(id)
+		{
+			e = this.elem(id);
+			e.parentNode.removeChild(e);
+		},
+	
+		padString: function(str, width, pad)
+		{
+			str = "" + str;
+			while (str.length < width)
+				str = pad + str;
+	
+			return str;
+		},
 
-	keys: function(arr)
-	{
-		var r = new Array();
-		for (var key in arr)
-			r.push(key);
-		return r;
-	},
+		escapeQuotes: function(str)
+		{
+			str = str.replace(/'/g, "\\x27");
+			str = str.replace(/\"/g, "\\x22");
+			return str;
+		},
 	
-   removeKey: function(arr, key)
-	{
-		var n = new Array();
-		for (var i in arr)
-			if (i != key)
-				n.push(arr[i]);	
-		return n;
-	},
-	
-	removeElement: function(id)
-	{
-		e = this.elem(id);
-		e.parentNode.removeChild(e);
-	},
-	
-	padString: function(str, width, pad)
-	{
-		str = "" + str;
-		while (str.length < width)
-			str = pad + str;
-	
-		return str;
-	},
-
-	escapeQuotes: function(str)
-	{
-		str = str.replace(/'/g, "\\x27");
-		str = str.replace(/\"/g, "\\x22");
-		return str;
-	},
-	
-	trace: function(msg)
-	{
+		trace: function(msg)
+		{
+		}	
 	}	
 }
+
+
