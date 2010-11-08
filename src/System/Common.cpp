@@ -221,14 +221,18 @@ uint64_t GenerateGUID()
     return uuid;
 }
 
+#ifdef _WIN32
+#define srandom srand
+#endif
+
 void SeedRandom()
 {
-    srand((unsigned)Now());
+    srandom((unsigned)Now());
 }
 
 void SeedRandomWith(uint64_t seed)
 {
-    srand((unsigned) seed);
+    srandom((unsigned) seed);
 }
 
 int RandomInt(int min, int max)

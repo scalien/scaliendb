@@ -6,7 +6,7 @@
 #include <unistd.h>
 #include <sys/uio.h>
 
-TEST_DEFINE(TestBasicWriteTiming)
+TEST_DEFINE(TestTimingBasicWrite)
 {
     Stopwatch       sw;
     unsigned        u;
@@ -28,7 +28,7 @@ TEST_DEFINE(TestBasicWriteTiming)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestWriteTiming)
+TEST_DEFINE(TestTimingWrite)
 {
     Stopwatch       sw;
     unsigned        u;
@@ -94,7 +94,7 @@ TEST_DEFINE(TestWriteTiming)
 
 extern int UIntToBuffer(char* buf, size_t bufsize, unsigned value);
 
-TEST_DEFINE(TestSnprintfTiming)
+TEST_DEFINE(TestTimingSnprintf)
 {
     Stopwatch       sw;
     unsigned        num = 10000000;

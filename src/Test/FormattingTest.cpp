@@ -3,7 +3,7 @@
 
 extern int UIntToBuffer(char* buf, size_t bufsize, unsigned value);
 
-TEST_DEFINE(TestUnsignedFormatting)
+TEST_DEFINE(TestFormattingUnsigned)
 {
     unsigned        num = (unsigned) -1;
     char            ubuf[CS_INT_SIZE(unsigned)];

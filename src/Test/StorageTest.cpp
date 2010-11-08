@@ -17,6 +17,8 @@
 }
 
 // This can be used for ensuring the database is in a blank state
+// It is intentionally named with underscore in order to became first
+// when sorted alphabetically.
 TEST_DEFINE(TestStorageDeleteTestDatabase)
 {
     Buffer  path;
@@ -704,5 +706,89 @@ TEST_DEFINE(TestStorageBinaryData)
     
     return TEST_SUCCESS;
 }
+
+TEST_DEFINE(TestStorageRandomGetSetDelete)
+{
+    StorageDatabase     db;
+    StorageTable*       table;
+    Buffer              k, v;
+    ReadBuffer          rk, rv;
+    Stopwatch           sw;
+    long                elapsed;
+    unsigned            num, len, ksize, vsize;
+    char*               area;
+    char*               p;
+    unsigned            round;
+
+    // Initialization ==============================================================================
+    round = 1000;
+    num = 1000*1000;
+    ksize = 20;
+    vsize = 128;
+    area = (char*) malloc(num*(ksize+vsize));
+
+    DCACHE->Init((ksize + vsize) * 2 * num);
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable(__func__);
+
+    //==============================================================================================
+    //
+    // test the number of SETs depending on the size of DCACHE and transaction size
+    // e.g. a million key-value pairs take up 248M disk space
+    //
+    //==============================================================================================
+    for (unsigned r = 0; r < round; r++)
+    {
+        // Set key-values ==========================================================================
+        sw.Reset();
+        for (unsigned i = 0; i < num; i++)
+        {
+            p = area + i*(ksize+vsize);
+            len = snprintf(p, ksize, "%011d", RandomInt(0, 10 * num));
+            rk.SetBuffer(p);
+            rk.SetLength(len);
+            //printf("%s\n", p);
+            p += ksize;
+            len = snprintf(p, vsize, "%.100f", (float) i); // takes 100 ms
+            rv.SetBuffer(p);
+            rv.SetLength(len);
+            sw.Start();
+            switch (RandomInt(0, 2))
+            {
+            case 0:
+                TEST_LOG("Set, %.*s", P(&rk));
+                table->Set(rk, rv, false);
+                break;
+            case 1:
+                TEST_LOG("Delete, %.*s", P(&rk));
+                table->Delete(rk);
+                break;
+            case 2:
+                TEST_LOG("Get, %.*s", P(&rk));
+                table->Get(rk, rv);
+                break;
+            default:
+                ASSERT_FAIL();
+            }
+            sw.Stop();
+        }
+        TEST_LOG("Round %u: %u sets took %ld msec", r, num, sw.Elapsed());
+
+        // Commit changes ==========================================================================
+        sw.Reset();
+        sw.Start();
+        table->Commit(true /*recovery*/, true /*flush*/);
+        elapsed = sw.Stop();
+        TEST_LOG("Round %u: Commit() took %ld msec", r, elapsed);
+    }
+
+    // Shutdown ====================================================================================
+    db.Close();
+    DCACHE->Shutdown();
+    free(area);
+
+    return TEST_SUCCESS;
+}
+
 
 TEST_MAIN(TestStorage, TestStorageCapacitySet);
