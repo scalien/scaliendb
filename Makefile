@@ -128,7 +128,8 @@ CLIENTLIBS = \
 
 
 EXECUTABLES = \
-	$(BUILD_DIR)/ScalienDB
+	$(BUILD_DIR)/ScalienDB \
+	$(BUILD_DIR)/Test
 	
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -295,8 +296,12 @@ $(BIN_DIR)/clienttest: $(BUILD_DIR) $(TEST_OBJECTS) $(BIN_DIR)/$(ALIB)
 $(BIN_DIR)/bdbtool: $(BUILD_DIR) $(LIBS) $(ALL_OBJECTS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
 	$(CXX) $(LDFLAGS) -o $@ $(ALL_OBJECTS) $(LIBS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
 
-$(BUILD_DIR)/test: $(BUILD_DIR) $(TEST_OBJECTS) $(BIN_DIR)/$(ALIB)
-	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJECTS) $(LIBS) $(BIN_DIR)/$(ALIB)
+$(BUILD_DIR)/TestMain: $(BUILD_DIR) $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/Test/TestMain.o
+	$(CXX) $(LDFLAGS) $(CFLAGS) -o $@ $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/Test/TestMain.o $(LIBS)
+
+$(BUILD_DIR)/Test/TestMain.o: $(SRC_DIR)/Test/TestMain.cpp
+	$(CXX) $(CFLAGS) -o $@ -DTEST -c $(SRC_DIR)/Test/TestMain.cpp
+
 
 ##############################################################################
 #
@@ -313,8 +318,8 @@ release:
 check:
 	$(MAKE) targets EXTRA_CFLAGS=-Werror
 
-test:
-	$(MAKE) $(BUILD_DIR)/test BUILD="debug"
+tester:
+	$(MAKE) testmain BUILD="debug"
 
 clienttest:
 	$(MAKE) targets BUILD="release"
@@ -336,6 +341,8 @@ perllib: $(BUILD_DIR) $(CLIENTLIBS) $(PERLLIB)
 
 #targets: $(BUILD_DIR) executables clientlibs
 targets: $(BUILD_DIR) executables
+
+testmain: $(BUILD_DIR) $(BUILD_DIR)/TestMain
 
 clientlibs: $(BUILD_DIR) $(CLIENTLIBS)
 
