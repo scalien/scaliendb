@@ -226,6 +226,75 @@ TEST_DEFINE(TestStorageCapacity)
     return TEST_SUCCESS;
 }
 
+int UInt64ToBuffer(char* buf, size_t bufsize, uint64_t value);
+TEST_DEFINE(TestStorageCapacitySet)
+{
+    StorageDatabase     db;
+    StorageTable*       table;
+    Buffer              k, v;
+    ReadBuffer          rk, rv;
+    Stopwatch           sw;
+    long                elapsed;
+    unsigned            num, len, ksize, vsize;
+    char*               area;
+    char*               p;
+    unsigned            round;
+
+    // Initialization ==============================================================================
+    round = 1000;
+    num = 100*1000;
+    ksize = 20;
+    vsize = 128;
+    area = (char*) malloc(num*(ksize+vsize));
+
+    DCACHE->Init(100000000);
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable(__func__);
+
+    //==============================================================================================
+    //
+    // test the number of SETs depending on the size of DCACHE and transaction size
+    // e.g. a million key-value pairs take up 248M disk space
+    //
+    //==============================================================================================
+    for (unsigned r = 0; r < round; r++)
+    {
+        // Set key-values ==========================================================================
+        sw.Reset();
+        for (unsigned i = 0; i < num; i++)
+        {
+            p = area + i*(ksize+vsize);
+            len = UInt64ToBuffer(p, ksize, i + r * num);
+            rk.SetBuffer(p);
+            rk.SetLength(len);
+            //printf("%s\n", p);
+            p += ksize;
+            //len = snprintf(p, vsize, "%.100f", (float) i + r * num); // takes 100 ms
+            len = vsize;
+            rv.SetBuffer(p);
+            rv.SetLength(len);
+            sw.Start();
+            table->Set(rk, rv, false);
+            sw.Stop();
+        }
+        TEST_LOG("Round %u: %u sets took %ld msec", r, num, sw.Elapsed());
+
+        // Commit changes ==========================================================================
+        sw.Reset();
+        sw.Start();
+        table->Commit(true /*recovery*/, false /*flush*/);
+        elapsed = sw.Stop();
+        TEST_LOG("Round %u: Commit() took %ld msec", r, elapsed);
+    }
+
+    // Shutdown ====================================================================================
+    db.Close();
+    DCACHE->Shutdown();
+    free(area);
+
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestStorageBigTransaction)
 {
     StorageDatabase     db;
@@ -636,4 +705,4 @@ TEST_DEFINE(TestStorageBinaryData)
     return TEST_SUCCESS;
 }
 
-TEST_MAIN(TestStorage, TestStorageCapacity);
+TEST_MAIN(TestStorage, TestStorageCapacitySet);
