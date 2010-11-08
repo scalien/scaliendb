@@ -64,12 +64,12 @@ void HTTPSession::ParseType(ReadBuffer& rb)
     
     type = PLAIN;
     
-    if (HTTP_MATCH_COMMAND(rb, JSON_PREFIX))
+    if (HTTP_MATCH_PREFIX(rb, JSON_PREFIX))
     {
         type = JSON;
         rb.Advance(sizeof(JSON_PREFIX) - 1);
     }
-    else if (HTTP_MATCH_COMMAND(rb, HTML_PREFIX))
+    else if (HTTP_MATCH_PREFIX(rb, HTML_PREFIX))
     {
         type = HTML;
         rb.Advance(sizeof(HTML_PREFIX) - 1);
@@ -90,7 +90,8 @@ void HTTPSession::ResponseFail()
 
 void HTTPSession::Print(const ReadBuffer& line)
 {
-    Buffer  header;
+    Buffer      header;
+    ReadBuffer  tmp;
     
     if (!conn)
         return;
@@ -107,7 +108,12 @@ void HTTPSession::Print(const ReadBuffer& line)
     }
     
     if (type == JSON)
+    {
+        tmp = "response";
+        json.PrintString(tmp);
+        json.PrintColon();
         json.PrintString(line);
+    }
     else
     {
         conn->Write(line.GetBuffer(), line.GetLength());

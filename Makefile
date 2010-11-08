@@ -295,6 +295,9 @@ $(BIN_DIR)/clienttest: $(BUILD_DIR) $(TEST_OBJECTS) $(BIN_DIR)/$(ALIB)
 $(BIN_DIR)/bdbtool: $(BUILD_DIR) $(LIBS) $(ALL_OBJECTS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
 	$(CXX) $(LDFLAGS) -o $@ $(ALL_OBJECTS) $(LIBS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
 
+$(BUILD_DIR)/test: $(BUILD_DIR) $(TEST_OBJECTS) $(BIN_DIR)/$(ALIB)
+	$(CXX) $(LDFLAGS) -o $@ $(TEST_OBJECTS) $(LIBS) $(BIN_DIR)/$(ALIB)
+
 ##############################################################################
 #
 # Targets
@@ -309,6 +312,9 @@ release:
 
 check:
 	$(MAKE) targets EXTRA_CFLAGS=-Werror
+
+test:
+	$(MAKE) $(BIN_DIR)/test BUILD="debug"
 
 clienttest:
 	$(MAKE) targets BUILD="release"

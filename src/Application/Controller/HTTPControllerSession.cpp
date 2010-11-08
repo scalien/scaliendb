@@ -2,7 +2,6 @@
 #include "Controller.h"
 #include "JSONConfigState.h"
 #include "System/Config.h"
-#include "Application/HTTP/UrlParam.h"
 #include "Application/Common/ContextTransport.h"
 #include "Version.h"
 
@@ -20,10 +19,9 @@ void HTTPControllerSession::SetConnection(HTTPConnection* conn)
 bool HTTPControllerSession::HandleRequest(HTTPRequest& request)
 {
     ReadBuffer  cmd;
-    UrlParam    params;
     
     session.ParseRequest(request, cmd, params);
-    return ProcessCommand(cmd, params);
+    return ProcessCommand(cmd);
 }
 
 void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
@@ -373,7 +371,7 @@ void HTTPControllerSession::PrintConfigState()
     session.Flush();
 }
 
-bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
+bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
     
@@ -388,7 +386,7 @@ bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
         return true;
     }
 
-    request = ProcessControllerCommand(cmd, params);
+    request = ProcessControllerCommand(cmd);
     if (!request)
         return false;
 
@@ -398,35 +396,35 @@ bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd, UrlParam& params)
     return true;
 }
 
-ClientRequest* HTTPControllerSession::ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params)
+ClientRequest* HTTPControllerSession::ProcessControllerCommand(ReadBuffer& cmd)
 {
     if (HTTP_MATCH_COMMAND(cmd, "getmaster"))
-        return ProcessGetMaster(params);
+        return ProcessGetMaster();
     if (HTTP_MATCH_COMMAND(cmd, "getstate"))
-        return ProcessGetState(params);
+        return ProcessGetState();
     if (HTTP_MATCH_COMMAND(cmd, "createquorum"))
-        return ProcessCreateQuorum(params);
+        return ProcessCreateQuorum();
 //  if (HTTP_MATCH_COMMAND(cmd, "increasequorum"))
-//      return ProcessIncreaseQuorum(params);
+//      return ProcessIncreaseQuorum();
 //  if (HTTP_MATCH_COMMAND(cmd, "decreasequorum"))
-//      return ProcessDecreaseQuorum(params);
+//      return ProcessDecreaseQuorum();
     if (HTTP_MATCH_COMMAND(cmd, "createdatabase"))
-        return ProcessCreateDatabase(params);
+        return ProcessCreateDatabase();
     if (HTTP_MATCH_COMMAND(cmd, "renamedatabase"))
-        return ProcessRenameDatabase(params);
+        return ProcessRenameDatabase();
     if (HTTP_MATCH_COMMAND(cmd, "deletedatabase"))
-        return ProcessDeleteDatabase(params);
+        return ProcessDeleteDatabase();
     if (HTTP_MATCH_COMMAND(cmd, "createtable"))
-        return ProcessCreateTable(params);
+        return ProcessCreateTable();
     if (HTTP_MATCH_COMMAND(cmd, "renametable"))
-        return ProcessRenameTable(params);
+        return ProcessRenameTable();
     if (HTTP_MATCH_COMMAND(cmd, "deletetable"))
-        return ProcessDeleteTable(params);
+        return ProcessDeleteTable();
     
     return NULL;
 }
 
-ClientRequest* HTTPControllerSession::ProcessGetMaster(UrlParam& /*params*/)
+ClientRequest* HTTPControllerSession::ProcessGetMaster()
 {
     ClientRequest*  request;
     
@@ -436,7 +434,7 @@ ClientRequest* HTTPControllerSession::ProcessGetMaster(UrlParam& /*params*/)
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessGetState(UrlParam& /*params*/)
+ClientRequest* HTTPControllerSession::ProcessGetState()
 {
     ClientRequest*  request;
     
@@ -446,7 +444,7 @@ ClientRequest* HTTPControllerSession::ProcessGetState(UrlParam& /*params*/)
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
+ClientRequest* HTTPControllerSession::ProcessCreateQuorum()
 {
     typedef ClientRequest::NodeList NodeList;
     
@@ -480,7 +478,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
     return request;
 }
 
-//ClientRequest* HTTPControllerSession::ProcessIncreaseQuorum(UrlParam& params)
+//ClientRequest* HTTPControllerSession::ProcessIncreaseQuorum()
 //{
 //  ClientRequest*  request;
 //  uint64_t        shardID;
@@ -495,7 +493,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 //  return request;
 //}
 //
-//ClientRequest* HTTPControllerSession::ProcessDecreaseQuorum(UrlParam& params)
+//ClientRequest* HTTPControllerSession::ProcessDecreaseQuorum()
 //{
 //  ClientRequest*  request;
 //  uint64_t        shardID;
@@ -510,7 +508,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum(UrlParam& params)
 //  return request;
 //}
 
-ClientRequest* HTTPControllerSession::ProcessCreateDatabase(UrlParam& params)
+ClientRequest* HTTPControllerSession::ProcessCreateDatabase()
 {
     ClientRequest*  request;
     ReadBuffer      name;
@@ -524,7 +522,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateDatabase(UrlParam& params)
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessRenameDatabase(UrlParam& params)
+ClientRequest* HTTPControllerSession::ProcessRenameDatabase()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -539,7 +537,7 @@ ClientRequest* HTTPControllerSession::ProcessRenameDatabase(UrlParam& params)
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessDeleteDatabase(UrlParam& params)
+ClientRequest* HTTPControllerSession::ProcessDeleteDatabase()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -552,7 +550,7 @@ ClientRequest* HTTPControllerSession::ProcessDeleteDatabase(UrlParam& params)
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessCreateTable(UrlParam& params)
+ClientRequest* HTTPControllerSession::ProcessCreateTable()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -569,7 +567,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateTable(UrlParam& params)
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessRenameTable(UrlParam& params)
+ClientRequest* HTTPControllerSession::ProcessRenameTable()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -586,7 +584,7 @@ ClientRequest* HTTPControllerSession::ProcessRenameTable(UrlParam& params)
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessDeleteTable(UrlParam& params)
+ClientRequest* HTTPControllerSession::ProcessDeleteTable()
 {
     ClientRequest*  request;
     uint64_t        databaseID;

@@ -31,6 +31,7 @@ public:
     void            Flush(bool closeAfterSend = false);
 
     HTTPServer*     GetServer() { return server; }
+    Buffer&         GetReadBuffer() { return readBuffer; }
 
     // TCPConnection interface
     virtual void    OnRead();

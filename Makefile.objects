@@ -97,12 +97,14 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Stopwatch.o \
 	$(BUILD_DIR)/System/ThreadPool_Posix.o \
 	$(BUILD_DIR)/System/Time.o \
-	$(BUILD_DIR)/System/FileSystem.o \
+	$(BUILD_DIR)/System/FileSystem.o
+
+TEST_OBJECTS = \
 	$(BUILD_DIR)/Test/Test.o \
 	$(BUILD_DIR)/Test/StorageTest.o \
 	$(BUILD_DIR)/Test/FileSystemTest.o \
 	$(BUILD_DIR)/Test/ArrayListTest.o \
 	$(BUILD_DIR)/Test/Timings.o \
 	$(BUILD_DIR)/Test/InTreeMapTest.o \
-
+	$(BUILD_DIR)/Test/TestMain.o \
 

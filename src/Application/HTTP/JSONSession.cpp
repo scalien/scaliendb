@@ -114,6 +114,9 @@ void JSONSession::PrintNull()
 
 void JSONSession::PrintObjectStart()
 {
+    if (IsCommaNeeded())
+        PrintComma();
+        
     conn->Print("{");
     depth++;
     SetCommaNeeded(false);
@@ -126,10 +129,14 @@ void JSONSession::PrintObjectEnd()
         conn->Print("}");
         depth--;
     }
+    SetCommaNeeded(true);
 }
 
 void JSONSession::PrintArrayStart()
 {
+    if (IsCommaNeeded())
+        PrintComma();
+
     conn->Print("[");
     depth++;
     SetCommaNeeded(false);
@@ -139,11 +146,13 @@ void JSONSession::PrintArrayEnd()
 {
     conn->Print("]");
     depth--;
+    SetCommaNeeded(true);
 }
 
 void JSONSession::PrintColon()
 {
     conn->Print(":");
+    SetCommaNeeded(false);
 }
 
 void JSONSession::PrintComma()
