@@ -114,6 +114,9 @@ void JSONSession::PrintNull()
 
 void JSONSession::PrintObjectStart()
 {
+    if (IsCommaNeeded())
+        PrintComma();
+        
     conn->Print("{");
     depth++;
     SetCommaNeeded(false);
@@ -121,12 +124,19 @@ void JSONSession::PrintObjectStart()
 
 void JSONSession::PrintObjectEnd()
 {
-    conn->Print("}");
-    depth--;
+    if (depth > 0)
+    {
+        conn->Print("}");
+        depth--;
+    }
+    SetCommaNeeded(true);
 }
 
 void JSONSession::PrintArrayStart()
 {
+    if (IsCommaNeeded())
+        PrintComma();
+
     conn->Print("[");
     depth++;
     SetCommaNeeded(false);
@@ -136,11 +146,13 @@ void JSONSession::PrintArrayEnd()
 {
     conn->Print("]");
     depth--;
+    SetCommaNeeded(true);
 }
 
 void JSONSession::PrintColon()
 {
     conn->Print(":");
+    SetCommaNeeded(false);
 }
 
 void JSONSession::PrintComma()
@@ -163,7 +175,9 @@ void JSONSession::PrintPair(const char* s, unsigned slen, const char* v, unsigne
 bool JSONSession::IsCommaNeeded()
 {
     uint64_t    mask;
-    
+
+    // Since the info if you need a comma at a given depth is encoded into an uint64_t as a bitmask
+    // there can be only 64 depth of the JSON object, but is is reasonable.
     mask = (uint64_t) 1 <<  depth;
     if ((depthComma & mask) == mask)
         return true;

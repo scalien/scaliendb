@@ -184,7 +184,6 @@ bool StorageShard::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         fi->index = nextStorageFileIndex++;
         fi->file = new StorageFile;
         fi->file->SetStorageFileIndex(fi->index);
-        // TODO: write recovery entry
         WritePath(fi->filepath, fi->index);
         fi->file->Open(fi->filepath.GetBuffer());
         fi->SetKey(key, true); // TODO: buffer management
@@ -376,16 +375,14 @@ void StorageShard::PerformRecovery(uint32_t length)
         ASSERT_FAIL();
     
     ret = recoveryLog.PerformRecovery(MFUNC(StorageShard, OnRecoveryOp));
-    if (!recoveryCommit)
-    {
-        DeleteFiles(recoveryFiles);
-    }
-    else
+    if (recoveryCommit)
     {
         WriteBackPages(recoveryPages);
         DeleteGarbageFiles();
         RebuildTOC();
     }
+    else
+        DeleteFiles(recoveryFiles);
     
     recoveryFiles.Clear();
     recoveryPages.DeleteList();
@@ -698,7 +695,7 @@ OpenFile:
     if (fi->file == NULL)
     {
         fi->file = new StorageFile;
-        // TODO: write recovery entry
+        WritePath(fi->filepath, fi->index);
         fi->file->Open(fi->filepath.GetBuffer());
         fi->file->SetStorageFileIndex(fi->index);
     }
@@ -719,7 +716,6 @@ void StorageShard::SplitFile(StorageFile* file)
     newFi->index = nextStorageFileIndex++;
     newFi->file->SetStorageFileIndex(newFi->index);
     
-    // TODO: write recovery entry
     WritePath(newFi->filepath, newFi->index);
     newFi->file->Open(newFi->filepath.GetBuffer());
 

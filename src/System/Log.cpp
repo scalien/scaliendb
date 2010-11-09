@@ -178,7 +178,7 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     int         ret;
     va_list     ap;
     
-    if ((type == LOG_TYPE_TRACE /*|| type == LOG_TYPE_ERRNO*/) && !trace)
+    if ((type == LOG_TYPE_TRACE || type == LOG_TYPE_ERRNO) && !trace)
         return;
 
     buf[maxLine - 1] = 0;

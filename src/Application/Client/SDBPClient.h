@@ -56,7 +56,11 @@ public:
     // controller commands
     int                     CreateQuorum(ClientRequest::NodeList& nodes);
     int                     CreateDatabase(ReadBuffer& name);
+    int                     RenameDatabase(uint64_t databaseID, const ReadBuffer& name);
+    int                     DeleteDatabase(uint64_t databaseID);
     int                     CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name);
+    int                     RenameTable(uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
+    int                     DeleteTable(uint64_t databaseID, uint64_t tableID);
     
     // shard server commands
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);

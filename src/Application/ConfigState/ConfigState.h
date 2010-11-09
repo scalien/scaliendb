@@ -115,11 +115,15 @@ private:
     bool                ReadTables(ReadBuffer& buffer);
     void                WriteTables(Buffer& buffer);
 
+    void                DeleteTable(ConfigTable* table);
+
     bool                ReadShards(ReadBuffer& buffer);
     void                WriteShards(Buffer& buffer);
 
     bool                ReadShardServers(ReadBuffer& buffer, bool withVolatile);
     void                WriteShardServers(Buffer& buffer, bool withVolatile);
+
+    void                DeleteShard(ConfigShard* shard);
     
     bool                ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool withVolatile);
     void                WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVolatile);

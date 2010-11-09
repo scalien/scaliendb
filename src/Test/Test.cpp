@@ -1,8 +1,9 @@
 #include "Test.h"
+#include "System/Time.h"
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <sys/time.h>
+
 
 #define TEST_HEAD(testfn, testname) \
     { \
@@ -56,25 +57,22 @@ test_iter(testfn_t testfn, const char *testname, unsigned long niter)
 }
 
 static long
-elapsed_usec(struct timeval start, struct timeval end)
+elapsed_msec(uint64_t start, uint64_t end)
 {
-    return ((end.tv_sec - start.tv_sec) * 1000000 + end.tv_usec - start.tv_usec);   
+    return (long)(end - start);
 }
-
-#define elapsed_msec(start, end) (elapsed_usec((start), (end)) / 1000)
-#define elapsed_sec(start, end) (elapsed_usec((start), (end)) / 1000000)
 
 int
 test_time(testfn_t testfn, const char *testname)
 {
     int res;
-    struct timeval start, end;
+    uint64_t start, end;
     
     TEST_HEAD(testfn, testname);
 
-    gettimeofday(&start, NULL);
+    start = Now();
     res = testfn();
-    gettimeofday(&end, NULL);
+    end = Now();
 
     if (res == 0) {
         printf("test: %s succeeded (elapsed time = %ld ms).\n", testname, elapsed_msec(start, end));
@@ -90,15 +88,15 @@ test_iter_time(testfn_t testfn, const char *testname, unsigned long niter)
 {
     unsigned long i;
     int res = 0;
-    struct timeval start, end;
+    uint64_t start, end;
     
     TEST_HEAD(testfn, testname);
 
-    gettimeofday(&start, NULL);
+    start = Now();
     for (i = 0; i < niter; i++) {
         res += testfn();
     }
-    gettimeofday(&end, NULL);
+    end = Now();
 
     if (res == 0) {
         printf("test: %s succeeded (elapsed time = %ld ms).\n", testname, elapsed_msec(start, end));
@@ -141,15 +139,15 @@ test_system(const char *cmdline)
 }
 
 int
-test_names_parse(testfn_t *test_functions, char *test_names, int *names, int size)
+test_names_parse(testfn_t* /*test_functions*/, char *test_names, int *names, int /*size*/)
 {
-    (void) test_functions;
-    (void) size;
     int i = 0;
     char *p = test_names;
+    char *comma;
+
     while (*p) {
         names[i++] = p - test_names;
-        char *comma = strstr(test_names, ",");
+        comma = strstr(test_names, ",");
         if (comma) {
             *comma = '\0';
             p = comma + 1;

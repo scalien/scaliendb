@@ -510,6 +510,7 @@ void StorageFile::WriteData()
     {
         buffer.Allocate(it->GetPageSize());
         buffer.Zero();
+        buffer.SetLength(0);
 //      printf("writing file %s at offset %u\n", filepath.GetBuffer(), it->GetOffset());
         if (it->Write(buffer))
         {

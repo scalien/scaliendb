@@ -28,6 +28,7 @@ public:
     StorageTable*           GetTable(const char* tableName);
     void                    CloseTable(const char* tableName);
     void                    Close();
+    bool                    DeleteTable(StorageTable* table);
     
     void                    Commit(bool recovery = true, bool flush = true);
     

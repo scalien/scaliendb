@@ -3,11 +3,11 @@
 
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"
+#include "Application/HTTP/UrlParam.h"
 #include "HTTPControllerContext.h"
 
 class Controller;       // forward
 class ClientRequest;    // forward
-class UrlParam;         // forward
 class ConfigState;      // forward
 
 /*
@@ -41,24 +41,25 @@ private:
     void                PrintDatabases(ConfigState* configState);
     void                PrintShardMatrix(ConfigState* configState);
     void                PrintConfigState();
-    bool                ProcessCommand(ReadBuffer& cmd, UrlParam& params);
-    ClientRequest*      ProcessControllerCommand(ReadBuffer& cmd, UrlParam& params);
-    ClientRequest*      ProcessGetMaster(UrlParam& params);
-    ClientRequest*      ProcessGetState(UrlParam& params);
-    ClientRequest*      ProcessCreateQuorum(UrlParam& params);
-//  ClientRequest*      ProcessIncreaseQuorum(UrlParam& params);
-//  ClientRequest*      ProcessDecreaseQuorum(UrlParam& params);
-    ClientRequest*      ProcessCreateDatabase(UrlParam& params);
-    ClientRequest*      ProcessRenameDatabase(UrlParam& params);
-    ClientRequest*      ProcessDeleteDatabase(UrlParam& params);
-    ClientRequest*      ProcessCreateTable(UrlParam& params);
-    ClientRequest*      ProcessRenameTable(UrlParam& params);
-    ClientRequest*      ProcessDeleteTable(UrlParam& params);
+    bool                ProcessCommand(ReadBuffer& cmd);
+    ClientRequest*      ProcessControllerCommand(ReadBuffer& cmd);
+    ClientRequest*      ProcessGetMaster();
+    ClientRequest*      ProcessGetState();
+    ClientRequest*      ProcessCreateQuorum();
+//  ClientRequest*      ProcessIncreaseQuorum();
+//  ClientRequest*      ProcessDecreaseQuorum();
+    ClientRequest*      ProcessCreateDatabase();
+    ClientRequest*      ProcessRenameDatabase();
+    ClientRequest*      ProcessDeleteDatabase();
+    ClientRequest*      ProcessCreateTable();
+    ClientRequest*      ProcessRenameTable();
+    ClientRequest*      ProcessDeleteTable();
     
     void                OnConnectionClose();
 
     Controller*         controller;
     HTTPSession         session;
+    UrlParam            params;
 };
 
 #endif

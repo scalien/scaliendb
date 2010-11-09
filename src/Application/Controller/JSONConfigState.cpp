@@ -36,6 +36,8 @@ void JSONConfigState::Write()
     WriteShards();
     json.PrintComma();
     WriteShardServers();
+    
+    // json.End() is called when the session is flushed
 }
     
 void JSONConfigState::WriteQuorums()

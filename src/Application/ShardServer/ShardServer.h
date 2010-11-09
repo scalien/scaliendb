@@ -59,7 +59,7 @@ private:
     NodeList                controllers;
     QuorumProcessorList     quorumProcessors;
     ShardHeartbeatManager   heartbeatManager;
-    ShardDatabaseManager    databaseAdapter;
+    ShardDatabaseManager    databaseManager;
 };
 
 #endif

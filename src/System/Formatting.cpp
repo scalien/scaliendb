@@ -8,7 +8,7 @@
 #include "Buffers/ReadBuffer.h"
 
 // this works the same as snprintf(buf, bufsize, "%" PRIu64, value) would do
-static int UInt64ToBuffer(char* buf, size_t bufsize, uint64_t value)
+int UInt64ToBuffer(char* buf, size_t bufsize, uint64_t value)
 {
     char        tmp[CS_INT_SIZE(uint64_t)];
     unsigned    d;

@@ -15,6 +15,8 @@
 
 class StorageKeyIndex
 {
+    typedef InTreeNode<StorageKeyIndex> TreeNode;
+    
 public:
     StorageKeyIndex();
     ~StorageKeyIndex();
@@ -25,7 +27,7 @@ public:
     Buffer*                 keyBuffer;
     uint32_t                index;
 
-    InTreeNode<StorageKeyIndex> treeNode;
+    TreeNode                treeNode;
 
     static bool             LessThan(StorageKeyIndex &a, StorageKeyIndex &b);
 };

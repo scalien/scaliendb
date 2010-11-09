@@ -3,8 +3,9 @@
 
 extern int UIntToBuffer(char* buf, size_t bufsize, unsigned value);
 
-TEST_DEFINE(TestUnsignedFormatting)
+TEST_DEFINE(TestFormattingUnsigned)
 {
+#ifndef PLATFORM_WINDOWS
     unsigned        num = (unsigned) -1;
     char            ubuf[CS_INT_SIZE(unsigned)];
     char            usbuf[CS_INT_SIZE(unsigned)];
@@ -22,6 +23,6 @@ TEST_DEFINE(TestUnsignedFormatting)
         if (!MEMCMP(ubuf, ret, usbuf, sret))
             TEST_FAIL();
     }
-    
+#endif
     return TEST_SUCCESS;
 }
