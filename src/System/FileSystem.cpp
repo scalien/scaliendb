@@ -92,6 +92,7 @@ bool FS_RecDeleteDir(const char* path)
 #include <dirent.h>
 #include <alloca.h>
 #include <stdio.h>
+#include <errno.h>
 
 FD FS_Open(const char* filename, int flags)
 {
@@ -210,9 +211,22 @@ ssize_t FS_FileRead(FD fd, void* buf, size_t count)
 {
     ssize_t ret;
     
-    ret = read(fd, buf, count);
-    if (ret < 0)
-        Log_Errno();
+//    ret = read(fd, buf, count);
+//    if (ret < 0)
+//        Log_Errno();
+    while (count != 0 && (ret = read(fd, buf, count)) != 0)
+    {
+        if (ret == -1)
+        {
+            if (errno == EINTR)
+                continue;
+            return ret;
+        }
+        
+        count -= ret;
+        buf = ((char*) buf) + ret;
+    }
+
     return ret;
 }
 

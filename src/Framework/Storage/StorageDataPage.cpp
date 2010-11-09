@@ -1,6 +1,7 @@
 #include "StorageDataPage.h"
 #include "StorageCursor.h"
 #include "StorageDataCache.h"
+#include "StorageDefaults.h"
 #include <stdio.h>
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
@@ -181,17 +182,17 @@ StorageDataPage* StorageDataPage::SplitDataPage()
         it = next;
     }
     
-    // CHECK
+    // CHECK The next block is only needed when debugging to ensure that invariants are maintained
     unsigned r = DATAPAGE_FIX_OVERHEAD;
     unsigned num = 0;
     for (StorageKeyValue* it = newPage->keys.First(); it != NULL; it = newPage->keys.Next(it))
     {
-      r += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
-      num++;
+        r += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
+        num++;
     }   
-
     assert(num == newPage->keys.GetCount());
     assert(newPage->required == r);
+    // CHECK block end
 
     assert(IsEmpty() != true);
     assert(newPage->IsEmpty() != true);
@@ -276,43 +277,58 @@ void StorageDataPage::SetFile(StorageFile* file_)
 
 void StorageDataPage::Read(ReadBuffer& buffer_)
 {
-    uint32_t    num, len, i;
-    char*       p;
+    uint32_t            num, len, i;
     StorageKeyValue*    kv;
+    ReadBuffer          readBuffer;
+    bool                ret;
 
     buffer.Allocate(pageSize);
     buffer.Write(buffer_);
     
-    p = buffer.GetBuffer();
-    pageSize = FromLittle32(*((uint32_t*) p));
+    readBuffer = buffer;
+
+    ret = readBuffer.ReadLittle32(pageSize);
+    assert(ret == true);
     assert(pageSize != 0);
-    p += 4;
-    fileIndex = FromLittle32(*((uint32_t*) p));
-    p += 4;
-    offset = FromLittle32(*((uint32_t*) p));
-    p += 4;
-    num = FromLittle32(*((uint32_t*) p));
-    p += 4;
-//  printf("reading datapage for file %u at offset %u\n", fileIndex, offset);
+
+    readBuffer.Advance(sizeof(uint32_t));
+    ret = readBuffer.ReadLittle32(fileIndex);
+    assert(ret == true);
+
+    readBuffer.Advance(sizeof(uint32_t));
+    ret = readBuffer.ReadLittle32(offset);
+    assert(ret == true);
+
+    readBuffer.Advance(sizeof(uint32_t));
+    ret = readBuffer.ReadLittle32(num);
+    assert(ret == true);
+
+    readBuffer.Advance(sizeof(uint32_t));
+    STORAGE_TRACE("reading datapage for file %u at offset %u\n", fileIndex, offset);
     for (i = 0; i < num; i++)
     {
         kv = new StorageKeyValue;
-        len = FromLittle32(*((uint32_t*) p));
-        p += 4;
+
+        ret = readBuffer.ReadLittle32(len);
+        assert(ret == true);
+        readBuffer.Advance(sizeof(uint32_t));
         kv->key.SetLength(len);
-        kv->key.SetBuffer(p);
-        p += len;
-        len = FromLittle32(*((uint32_t*) p));
-        p += 4;
+        kv->key.SetBuffer(readBuffer.GetBuffer());
+
+        readBuffer.Advance(len);
+        ret = readBuffer.ReadLittle32(len);
+        assert(ret == true);
+
+        readBuffer.Advance(sizeof(uint32_t));
         kv->value.SetLength(len);
-        kv->value.SetBuffer(p);
+        kv->value.SetBuffer(readBuffer.GetBuffer());
         
-        p += len;
-//      printf("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
+        readBuffer.Advance(len);
+        STORAGE_TRACE("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
         keys.Insert(kv);
     }
     
-    required = p - buffer.GetBuffer();
+    required = readBuffer.GetBuffer() - buffer.GetBuffer();
     this->buffer.SetLength(required);
     assert(IsEmpty() != true);
 }
@@ -320,7 +336,6 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 bool StorageDataPage::CheckWrite(Buffer& buffer)
 {
     StorageKeyValue*    it;
-    char*               p;
     unsigned            len;
     uint32_t            num;
     
@@ -329,37 +344,30 @@ bool StorageDataPage::CheckWrite(Buffer& buffer)
 
     this->buffer.Allocate(pageSize);
 
-    p = buffer.GetBuffer();
     assert(pageSize > 0);
-    *((uint32_t*) p) = ToLittle32(pageSize);
-    p += 4;
+    buffer.AppendLittle32(pageSize);
+
     assert(fileIndex != 0);
-    *((uint32_t*) p) = ToLittle32(fileIndex);
-    p += 4;
-    assert(pageSize != 0);
-    *((uint32_t*) p) = ToLittle32(offset);
-    p += 4;
+    buffer.AppendLittle32(fileIndex);
+
+    buffer.AppendLittle32(offset);
+
     num = keys.GetCount();
-    *((uint32_t*) p) = ToLittle32(num);
-    p += 4;
+    buffer.AppendLittle32(num);
+
 //  printf("writing datapage for file %u at offset %u\n", fileIndex, offset);
     for (it = keys.First(); it != NULL; it = keys.Next(it))
     {
         len = it->key.GetLength();
-        *((uint32_t*) p) = ToLittle32(len);
-        p += 4;
-        memcpy(p, it->key.GetBuffer(), len);
-        p += len;
+        buffer.AppendLittle32(len);
+        buffer.Append(it->key.GetBuffer(), it->key.GetLength());
+
         len = it->value.GetLength();
-        *((uint32_t*) p) = ToLittle32(len);
-        p += 4;
-        memcpy(p, it->value.GetBuffer(), len);
-        p += len;
+        buffer.AppendLittle32(len);
+        buffer.Append(it->value.GetBuffer(), it->value.GetLength());
 //      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }
-    unsigned r = p - buffer.GetBuffer();
-    assert(required == r);
-    buffer.SetLength(required);
+    assert(required == buffer.GetLength());
     if (BUFCMP(&buffer, &this->buffer))
         return false;
     
@@ -374,8 +382,8 @@ bool StorageDataPage::CheckWrite(Buffer& buffer)
 bool StorageDataPage::Write(Buffer& buffer)
 {
     StorageKeyValue*    it;
-    char*               p;
     unsigned            len;
+    unsigned            tmpLen;
     uint32_t            num;
     
     if (newPage)
@@ -383,53 +391,49 @@ bool StorageDataPage::Write(Buffer& buffer)
 
     this->buffer.Allocate(pageSize);
 
-    p = buffer.GetBuffer();
     assert(pageSize > 0);
-    *((uint32_t*) p) = ToLittle32(pageSize);
-    p += 4;
+    buffer.AppendLittle32(pageSize);
+
     assert(fileIndex != 0);
-    *((uint32_t*) p) = ToLittle32(fileIndex);
-    p += 4;
-    assert(pageSize != 0);
-    *((uint32_t*) p) = ToLittle32(offset);
-    p += 4;
+    buffer.AppendLittle32(fileIndex);
+
+    buffer.AppendLittle32(offset);
+
     num = keys.GetCount();
-    *((uint32_t*) p) = ToLittle32(num);
-    p += 4;
+    buffer.AppendLittle32(num);
+
 //  printf("writing datapage for file %u at offset %u\n", fileIndex, offset);
     for (it = keys.First(); it != NULL; it = keys.Next(it))
     {
         len = it->key.GetLength();
-        *((uint32_t*) p) = ToLittle32(len);
-        p += 4;
-        memcpy(p, it->key.GetBuffer(), len);
+        buffer.AppendLittle32(len);
+
+        tmpLen = buffer.GetLength();
+        buffer.Append(it->key.GetBuffer(), it->key.GetLength());
 
         if (it->keyBuffer)
         {
             delete it->keyBuffer;
             it->keyBuffer = NULL;
         }
-        it->key.SetBuffer(this->buffer.GetBuffer() + (p - buffer.GetBuffer()));
+        it->key.SetBuffer(this->buffer.GetBuffer() + tmpLen);
 
-        p += len;
         len = it->value.GetLength();
-        *((uint32_t*) p) = ToLittle32(len);
-        p += 4;
-        memcpy(p, it->value.GetBuffer(), len);
+        buffer.AppendLittle32(len);
+
+        tmpLen = buffer.GetLength();
+        buffer.Append(it->value.GetBuffer(), it->value.GetLength());
 
         if (it->valueBuffer)
         {
             delete it->valueBuffer;
             it->valueBuffer = NULL;
         }
-        it->value.SetBuffer(this->buffer.GetBuffer() + (p - buffer.GetBuffer()));
+        it->value.SetBuffer(this->buffer.GetBuffer() + tmpLen);
 
-        p += len;
 //      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }
-    unsigned r = p - buffer.GetBuffer();
-    assert(required == r);
-    buffer.SetLength(required);
+    assert(required == buffer.GetLength());
     if (BUFCMP(&buffer, &this->buffer))
         return false;
     

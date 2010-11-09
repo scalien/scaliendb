@@ -248,7 +248,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
             maxDataPageIndex = ki->index;
     }
     
-    required = tmp.GetLength();
+    required = tmp.GetBuffer() - buffer.GetBuffer();
 }
 
 bool StorageIndexPage::CheckWrite(Buffer& buffer)

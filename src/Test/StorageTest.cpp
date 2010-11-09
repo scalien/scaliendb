@@ -17,9 +17,9 @@
 }
 
 // This can be used for ensuring the database is in a blank state
-// It is intentionally named with underscore in order to became first
-// when sorted alphabetically.
-TEST_DEFINE(TestStorageDeleteTestDatabase)
+// It is intentionally named with zero in the middle of the name in 
+// order to became first when sorted alphabetically.
+TEST_DEFINE(TestStorage0DeleteTestDatabase)
 {
     Buffer  path;
     char    sep;
@@ -41,7 +41,7 @@ TEST_DEFINE(TestStorageDeleteTestDatabase)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestStorage)
+TEST_DEFINE(TestStorageBasic)
 {
     StorageDatabase     db;
     StorageTable*       table;
