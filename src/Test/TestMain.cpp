@@ -15,7 +15,7 @@ TEST_START(TestMain);
 //TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestCommonHumanBytes);
-TEST_ADD(TestCommonRandomDistribution)
+//TEST_ADD(TestCommonRandomDistribution)
 //TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestInTreeMap);
@@ -25,7 +25,7 @@ TEST_ADD(TestCommonRandomDistribution)
 //TEST_ADD(TestManualBasic);
 //TEST_ADD(TestSnprintfTiming);
 //TEST_ADD(TestStorageDeleteTestDatabase);
-//TEST_ADD(TestStorage);
+TEST_ADD(TestStorage);
 //TEST_ADD(TestStorageBigRandomTransaction);
 //TEST_ADD(TestStorageBigTransaction);
 //TEST_ADD(TestStorageBinaryData);

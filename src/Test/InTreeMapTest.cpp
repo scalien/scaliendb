@@ -290,7 +290,7 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
     int                             ksize;
     int                             vsize;
     int                             len;
-    int                             num = 10000;
+    const int                       num = 10000;
     int                             numbers[num];
     
     ksize = 20;

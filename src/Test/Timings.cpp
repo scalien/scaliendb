@@ -3,11 +3,12 @@
 #include "System/Log.h"
 
 #include <fcntl.h>
-#include <unistd.h>
-#include <sys/uio.h>
+
 
 TEST_DEFINE(TestTimingBasicWrite)
 {
+#ifndef PLATFORM_WINDOWS
+
     Stopwatch       sw;
     unsigned        u;
     unsigned        num;
@@ -15,7 +16,7 @@ TEST_DEFINE(TestTimingBasicWrite)
     char            buf[4096];
     
     num = 10*1000*1000;
-    
+
     fd = open("/dev/null", O_RDWR);
     
     sw.Start();
@@ -24,21 +25,21 @@ TEST_DEFINE(TestTimingBasicWrite)
     sw.Stop();
     
     TEST_LOG("elapsed: %ld, num: %u, num/s: %f", sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
-    
+#endif    
     return TEST_SUCCESS;
 }
 
 TEST_DEFINE(TestTimingWrite)
 {
+#ifndef PLATFORM_WINDOWS
     Stopwatch       sw;
     unsigned        u;
-    unsigned        num;
     int             fd;
     char            buf[4096];
     const char      filename[] = "/tmp/test-write.XXXXXX";
     int             ret;
     
-    num = 100*1024;
+    const unsigned num = 100*1024;
     
     {
         fd = open(filename, O_RDWR | O_CREAT);
@@ -88,7 +89,7 @@ TEST_DEFINE(TestTimingWrite)
         
         TEST_LOG("writev elapsed: %ld, num: %u, num/s: %f", sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
     }
-    
+#endif    
     return TEST_SUCCESS;
 }
 

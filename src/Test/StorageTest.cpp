@@ -50,7 +50,7 @@ TEST_DEFINE(TestStorage)
     ReadBuffer          rk, rv;
     Stopwatch           sw;
     long                elapsed;
-    unsigned            num, len, ksize, vsize;
+    unsigned            len;
     char*               area;
     char*               p;
     uint64_t            clock;
@@ -58,9 +58,9 @@ TEST_DEFINE(TestStorage)
     // Initialization ==============================================================================
     StartClock();
 
-    num = 100*1000;
-    ksize = 20;
-    vsize = 128;
+    const unsigned num = 100*1000;
+    const unsigned ksize = 20;
+    const unsigned vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
     cache = DCACHE;
@@ -149,16 +149,16 @@ TEST_DEFINE(TestStorageCapacity)
     ReadBuffer          rk, rv;
     Stopwatch           sw;
     long                elapsed;
-    unsigned            num, len, ksize, vsize;
+    unsigned            len;
     char*               area;
     char*               p;
     unsigned            round;
 
     // Initialization ==============================================================================
     round = 1000;
-    num = 100*1000;
-    ksize = 20;
-    vsize = 128;
+    const unsigned num = 100*1000;
+    const unsigned ksize = 20;
+    const unsigned vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
     DCACHE->Init(100000000);

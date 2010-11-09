@@ -3,9 +3,7 @@
 #include "System/StopWatch.h"
 #include "System/Platform.h"
 
-#include <stdint.h>
 #include <stdio.h>
-#include <inttypes.h>
 
 TEST_DEFINE(TestClock)
 {
