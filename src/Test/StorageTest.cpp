@@ -674,7 +674,7 @@ TEST_DEFINE(TestStorageBinaryData)
     unsigned            num;
 
     // Initialization ==============================================================================
-    num = 100 * 1000;
+    num = 1000;
     env.InitCache(sizeof(keyvalue) * 2 * num);
     env.Open(TEST_DATABASE_PATH);
     db = env.GetDatabase(TEST_DATABASE);

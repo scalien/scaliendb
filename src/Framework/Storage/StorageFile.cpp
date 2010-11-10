@@ -715,7 +715,7 @@ void StorageFile::ReorderFile()
     // truncate back
     if (numDataPages != numDataPageSlots)
     {
-        if (fd != INVALID_FD)
+        if (fd != INVALID_FD && !IsNew())
             FS_FileTruncate(fd, DATAPAGE_OFFSET(numDataPages));
     }
 }

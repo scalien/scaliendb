@@ -14,13 +14,16 @@ StorageDataCache::StorageDataCache()
 
 void StorageDataCache::Init(uint64_t size)
 {
-    StorageDataPage* page;
+    StorageDataPage*    page;
+    size_t              bytes;
     
     assert(num == 0);
 
     num = size / DEFAULT_DATAPAGE_SIZE;
 
-    pageArea = (StorageDataPage*) malloc(num * sizeof(StorageDataPage));
+    bytes = num * sizeof(StorageDataPage);
+    assert((uint64_t) bytes == num * (uint64_t) sizeof(StorageDataPage));
+    pageArea = (StorageDataPage*) malloc(bytes);
     assert(pageArea != NULL);
     for (unsigned i = 0; i < num; i++)
     {
@@ -28,7 +31,9 @@ void StorageDataCache::Init(uint64_t size)
         freeList.Append(page);
     }
     
-    bufferArea = (char*) malloc(num * DEFAULT_DATAPAGE_SIZE);
+    bytes = num * DEFAULT_DATAPAGE_SIZE;
+    assert((uint64_t) bytes == num * (uint64_t) DEFAULT_DATAPAGE_SIZE);
+    bufferArea = (char*) malloc(bytes);
     assert(bufferArea != NULL);
     for (unsigned i = 0; i < num; i++)
         pageArea[i].buffer.SetPreallocated(&bufferArea[i * DEFAULT_DATAPAGE_SIZE], DEFAULT_DATAPAGE_SIZE);
