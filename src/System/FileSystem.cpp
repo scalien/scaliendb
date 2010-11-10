@@ -209,11 +209,9 @@ ssize_t FS_FileWriteVector(FD fd, unsigned num, const void** buf, size_t *count)
 
 ssize_t FS_FileRead(FD fd, void* buf, size_t count)
 {
-    ssize_t ret;
+    ssize_t     ret;
     
-//    ret = read(fd, buf, count);
-//    if (ret < 0)
-//        Log_Errno();
+    ret = 0;
     while (count != 0 && (ret = read(fd, buf, count)) != 0)
     {
         if (ret == -1)
