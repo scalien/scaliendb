@@ -216,7 +216,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     ReadBuffer          tmp;
 
     buffer.Write(buffer_);
-    tmp = buffer_;
+    tmp = buffer;
 
     tmp.ReadLittle32(pageSize);
     tmp.Advance(sizeof(uint32_t));
@@ -279,6 +279,7 @@ bool StorageIndexPage::CheckWrite(Buffer& buffer)
     }
 
     assert(required == buffer.GetLength());
+    assert((unsigned) (maxDataPageIndex + 1) == numDataPageSlots - freeDataPages.GetLength());
     if (BUFCMP(&buffer, &this->buffer))
         return false;
     

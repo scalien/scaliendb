@@ -19,5 +19,6 @@
 #define STORAGE_DEFAULT_CACHE_SIZE          (1000UL*DEFAULT_DATAPAGE_SIZE)
 
 #define STORAGE_TRACE(...)
+//#define STORAGE_TRACE Log_Message
 
 #endif

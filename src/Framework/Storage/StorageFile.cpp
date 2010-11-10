@@ -419,6 +419,9 @@ void StorageFile::Read()
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);
     indexPage.Read(readBuffer);
+
+    // TODO: this is expensive, remove this later
+    assert(GetSize() == (uint64_t) FS_FileSize(fd));
     
     // allocate memory for data page slots
     if (dataPages != NULL)
@@ -540,6 +543,17 @@ void StorageFile::WriteData()
                 DCACHE->Checkin((StorageDataPage*) it);
         }
     }
+
+    
+    // truncate back
+    if (numDataPages != numDataPageSlots)
+    {
+        if (fd != INVALID_FD && !IsNew())
+            FS_FileTruncate(fd, DATAPAGE_OFFSET(numDataPages));
+    }
+    
+    // TODO: this is expensive, remove later
+    assert(GetSize() == (uint64_t) FS_FileSize(fd));
 }
 
 StorageDataPage* StorageFile::CursorBegin(StorageCursor* cursor, ReadBuffer& key)
@@ -710,13 +724,6 @@ void StorageFile::ReorderFile()
             dataPages[index]->SetDirty(false);
 
         MarkPageDirty(dataPages[index]);
-    }
-    
-    // truncate back
-    if (numDataPages != numDataPageSlots)
-    {
-        if (fd != INVALID_FD && !IsNew())
-            FS_FileTruncate(fd, DATAPAGE_OFFSET(numDataPages));
     }
 }
 
