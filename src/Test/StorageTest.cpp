@@ -539,8 +539,11 @@ TEST_DEFINE(TestStorageShardSplit)
     }
     
     // Split on a predefined key ===================================================================    
-    rk.Wrap(splitKey, sizeof(splitKey) - 1); 
-    table->SplitShard(0, 1, rk);
+    rk.Wrap(splitKey, sizeof(splitKey) - 1);
+    
+    // TODO: calculate the new shardID instead of hardcoded value
+    if (!table->GetShard(1))
+        table->SplitShard(0, 1, rk);
     
     // Shutdown ====================================================================================
     db.Close();
