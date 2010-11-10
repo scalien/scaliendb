@@ -1,0 +1,12 @@
+StorageTest
+TestStorage0DeleteTestDatabase
+TestStorageBasic
+TestStorageBigRandomTransaction
+TestStorageBigTransaction
+TestStorageBinaryData
+TestStorageCapacity
+TestStorageFileSplit
+TestStorageFileThreeWaySplit
+TestStorageShardSize
+TestStorageShardSplit
+
