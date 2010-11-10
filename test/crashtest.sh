@@ -8,9 +8,14 @@ infinite_loop()
 	while (:); do
 		echo $* 
                 exec $*
-                if [ "$?" = "6" ]; then
+                EXITSTATUS=$?
+                if [ "$EXITSTATUS" = "6" ]; then
                         DATE=`date`
                         echo "Assert fail at $DATE" >> $CRASHLOGFILE
+                fi
+                if [ "$EXITSTATUS" = "1" ]; then
+                	echo "Test failed" >> $CRASHLOGFILE
+                	exit 1
                 fi
 	done
 }
