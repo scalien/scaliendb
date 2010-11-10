@@ -166,7 +166,7 @@ def test_run(file, funcs = None):
 	#cc.add_cflag("-DTEST_FILE")
 	obj = cc.compile(input, output)
 	ld = Linker(LDPATH, LDLIBS)
-	objects = find_objects(BUILD_DIR, ["Main.o", "ScalienDB", "TestMain", "TestMain.o", "Test.o", "__TestMain.o"], [])
+	objects = find_objects(BUILD_DIR, ["Main.o", "ScalienDB", "TestMain", "TestMain.o", "Test.o", "__TestMain.o", file + ".o"], [])
 	objects.append(BUILD_DIR + "/" + TEST_DIR + "Test.o")
 	objects.append(obj)
 	output = BUILD_DIR + "/" + TEST_DIR + "TestProgram" #+ str(uuid.uuid1())
