@@ -6,8 +6,7 @@ LOGFILE="/tmp/crash-last.log"
 infinite_loop()
 {
 	while (:); do
-		echo $* 
-                exec $*
+                exec $* > $LOGFILE
                 EXITSTATUS=$?
                 if [ "$EXITSTATUS" = "6" ]; then
                         DATE=`date`
