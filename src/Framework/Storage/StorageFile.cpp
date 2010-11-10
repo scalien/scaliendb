@@ -520,7 +520,7 @@ void StorageFile::WriteData()
         if (it->Write(buffer))
         {
             ret = FS_FileWriteOffs(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset());
-            if (ret != it->GetPageSize())
+            if (ret != (int) it->GetPageSize())
                 ASSERT_FAIL();
         }
         it->SetDirty(false);
