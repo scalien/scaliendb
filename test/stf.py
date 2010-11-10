@@ -135,16 +135,18 @@ def tmpfile(name):
 	pass
 
 def create_main(file, testname, funcs):
-	funcs_str = ");TEST_DECLARE(".join(funcs)
+	funcs_str = ");TEST_ADD(".join(funcs)
 	main = """
 	#define TEST_NAME "%s"
-	#include "Test/Test.h"
-	TEST_DECLARE(%s);
-	TEST_MAIN(%s);
+	#include "Test/TestFunction.h"
+	TEST_START(main);
+	TEST_LOG_INIT(LOG_TARGET_STDOUT);
+	TEST_ADD(%s);
+	TEST_EXECUTE();
 	#undef TEST_MAIN
 	#define TEST_MAIN(...)
 	#include "%s"
-	""" % (testname, funcs_str, ",".join(funcs), file)
+	""" % (testname, funcs_str, file)
 	f = tempfile.NamedTemporaryFile(suffix=".cpp")
 	#print(main)
 	f.write(main)
