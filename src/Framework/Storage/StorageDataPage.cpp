@@ -344,6 +344,8 @@ bool StorageDataPage::CheckWrite(Buffer& buffer)
 
     this->buffer.Allocate(pageSize);
 
+    buffer.SetLength(0);
+
     assert(pageSize > 0);
     buffer.AppendLittle32(pageSize);
 
@@ -390,6 +392,8 @@ bool StorageDataPage::Write(Buffer& buffer)
         assert(this->buffer.GetLength() == 0);
 
     this->buffer.Allocate(pageSize);
+
+    buffer.SetLength(0);
 
     assert(pageSize > 0);
     buffer.AppendLittle32(pageSize);

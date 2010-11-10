@@ -258,6 +258,8 @@ bool StorageIndexPage::CheckWrite(Buffer& buffer)
 
     this->buffer.Allocate(pageSize);
 
+    buffer.SetLength(0);
+
     assert(fileIndex != 0);
     assert(keys.GetCount() <= numDataPageSlots);
 

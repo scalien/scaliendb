@@ -7,7 +7,7 @@ test functions as well.
 
 Usage:
 
-	stf.py <TestFileName> [TestFunctionName]
+	stf.py <TestFileName> [TestFunctionName, [TestFunctionName2 [, ...]]
 
 TestFileName must be given without path and extension e.g.
 
@@ -29,6 +29,7 @@ LDLIBS=["db_cxx", "pthread"]
 BUILD_DIR="build/Release"
 SRC_DIR="src"
 TEST_DIR="Test/"
+DEBUGGER="gdb -ex r"
 
 class Compiler:
 	def __init__(self, include_dirs, build_dir):
@@ -133,7 +134,8 @@ def shell_exec(cmd, redirect_output = True, quiet = True):
 def tmpfile(name):
 	pass
 
-def create_main(file, func):
+def create_main(file, testname, funcs):
+	funcs_str = ");TEST_DECLARE(".join(funcs)
 	main = """
 	#define TEST_NAME "%s"
 	#include "Test/Test.h"
@@ -142,23 +144,23 @@ def create_main(file, func):
 	#undef TEST_MAIN
 	#define TEST_MAIN(...)
 	#include "%s"
-	""" % (func, func, func, file)
+	""" % (testname, funcs_str, ",".join(funcs), file)
 	f = tempfile.NamedTemporaryFile(suffix=".cpp")
 	#print(main)
 	f.write(main)
 	f.flush()
 	return f
 
-def test_run(file, func = None):
+def test_run(file, funcs = None):
 	cc = Compiler([SRC_DIR], BUILD_DIR)
-	if func == None:
+	if funcs == None:
 		input = SRC_DIR + "/" + TEST_DIR + file + ".cpp"
 		output = BUILD_DIR + "/" + TEST_DIR + file + ".o"
 	else:
 		cpp = TEST_DIR + file + ".cpp"
-		f = create_main(cpp, func)
+		f = create_main(cpp, file, funcs)
 		input = f.name
-		output = BUILD_DIR + "/" + TEST_DIR + "TestMain.o"
+		output = BUILD_DIR + "/" + TEST_DIR + "__TestMain.o"
 	cc.add_cflag("-DTEST_FILE")
 	obj = cc.compile(input, output)
 	ld = Linker(LDPATH, LDLIBS)
@@ -174,5 +176,5 @@ def test_run(file, func = None):
 if __name__ == "__main__":
 	func = None
 	if len(sys.argv) > 2:
-		func = sys.argv[2]
-	sys.exit(test_run(sys.argv[1], func))
+		funcs = sys.argv[2:]
+	sys.exit(test_run(sys.argv[1], funcs))
