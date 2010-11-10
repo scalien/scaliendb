@@ -315,7 +315,7 @@ debug:
 release:
 	$(MAKE) targets BUILD="release"
 
-check:
+check: clean
 	$(MAKE) targets EXTRA_CFLAGS=-Werror
 
 tester:
