@@ -721,13 +721,13 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
     unsigned            round;
 
     // Initialization ==============================================================================
-    round = 1000;
-    num = 1000*1000;
+    round = 1000 * 1000;
+    num = 1000;
     ksize = 20;
     vsize = 128;
     area = (char*) malloc(num*(ksize+vsize));
 
-    DCACHE->Init((ksize + vsize) * 2 * num);
+    DCACHE->Init((ksize + vsize) * 2 * 1000 * num);
     db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
     table = db.GetTable(__func__);
 
@@ -744,7 +744,7 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
         for (unsigned i = 0; i < num; i++)
         {
             p = area + i*(ksize+vsize);
-            len = snprintf(p, ksize, "%011d", RandomInt(0, 10 * num));
+            len = snprintf(p, ksize, "%011d", RandomInt(0, 10 * 1000 * num));
             rk.SetBuffer(p);
             rk.SetLength(len);
             //printf("%s\n", p);
@@ -753,17 +753,18 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
             rv.SetBuffer(p);
             rv.SetLength(len);
             sw.Start();
-            switch (RandomInt(0, 2))
+            switch (RandomInt(0, 3))
             {
             case 0:
+            case 1:
                 TEST_LOG("Set, %.*s", P(&rk));
                 table->Set(rk, rv, false);
                 break;
-            case 1:
+            case 2:
                 TEST_LOG("Delete, %.*s", P(&rk));
                 table->Delete(rk);
                 break;
-            case 2:
+            case 3:
                 TEST_LOG("Get, %.*s", P(&rk));
                 table->Get(rk, rv);
                 break;

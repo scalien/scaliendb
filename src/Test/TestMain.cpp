@@ -16,7 +16,7 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
-//TEST_ADD(TestCrashStorage);
+TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);
 //TEST_ADD(TestInTreeMap);
@@ -30,7 +30,7 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestStorageBigRandomTransaction);
 //TEST_ADD(TestStorageBigTransaction);
 //TEST_ADD(TestStorageBinaryData);
-TEST_ADD(TestStorageCapacity);
+//TEST_ADD(TestStorageCapacity);
 //TEST_ADD(TestStorageFileSplit);
 //TEST_ADD(TestStorageFileThreeWaySplit);
 //TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
