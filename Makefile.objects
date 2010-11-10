@@ -106,4 +106,5 @@ TEST_OBJECTS = \
 	$(BUILD_DIR)/Test/ArrayListTest.o \
 	$(BUILD_DIR)/Test/Timings.o \
 	$(BUILD_DIR)/Test/InTreeMapTest.o \
+	$(BUILD_DIR)/Test/CrashTest.o 
 
