@@ -1,0 +1,4 @@
+while (:);
+do
+        java -cp .:scaliendb.jar $*
+done
