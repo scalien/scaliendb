@@ -135,6 +135,7 @@ function updateConfigState()
 	scaliendb.getConfigState(onConfigState);
 }
 
+var timer;
 function onConfigState(configState)
 {
 	scaliendb.util.elem("controller").textContent = scaliendb.controller;
@@ -149,7 +150,8 @@ function onConfigState(configState)
 			createDatabaseDivs(configState, configState[key]);
 	}
 	
-	var timer = setTimeout("onTimeout()", 1000);
+	clearTimeout(timer);
+	timer = setTimeout("onTimeout()", 1000);
 }
 
 function onTimeout()
