@@ -52,7 +52,7 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     
     //Log_Message("key = %.*s, index = %u", P(&key), (unsigned) index);
     
-    assert(keys.Get<ReadBuffer&>(key) == NULL);
+    ST_ASSERT(keys.Get<ReadBuffer&>(key) == NULL);
     
     required += INDEXPAGE_KV_OVERHEAD + key.GetLength();
 
@@ -61,10 +61,10 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     ki->index = index;
     
     keys.Insert(ki);
-    assert(keys.GetCount() <= DEFAULT_NUM_DATAPAGES);
+    ST_ASSERT(keys.GetCount() <= DEFAULT_NUM_DATAPAGES);
     
     ret = freeDataPages.Remove(index);
-    assert(ret == true);
+    ST_ASSERT(ret == true);
     
     if ((int32_t) index > maxDataPageIndex)
         maxDataPageIndex = index;
@@ -99,7 +99,7 @@ void StorageIndexPage::Remove(ReadBuffer key)
     if (!it)
         ASSERT_FAIL();
     keys.Remove(it);
-    assert(ReadBuffer::Cmp(key, it->key) == 0);
+    ST_ASSERT(ReadBuffer::Cmp(key, it->key) == 0);
     
     required -= (INDEXPAGE_KV_OVERHEAD + it->key.GetLength());
     freeDataPages.Add(it->index);
@@ -222,8 +222,6 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     ReadBuffer          tmp;
     unsigned            numEmpty;
 
-    ST_ASSERT(false);
-
     buffer.Write(buffer_);
     tmp = buffer;
     
@@ -266,8 +264,8 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     
     required = tmp.GetBuffer() - buffer.GetBuffer();
     
-    assert(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
-    assert(numEmpty <= 1);
+    ST_ASSERT(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
+    ST_ASSERT(numEmpty <= 1);
 }
 
 bool StorageIndexPage::CheckWrite(Buffer& buffer)
@@ -279,8 +277,8 @@ bool StorageIndexPage::CheckWrite(Buffer& buffer)
 
     buffer.SetLength(0);
 
-    assert(fileIndex != 0);
-    assert(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
+    ST_ASSERT(fileIndex != 0);
+    ST_ASSERT(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
 
     buffer.AppendLittle32(pageSize);
     buffer.AppendLittle32(fileIndex);
@@ -297,8 +295,8 @@ bool StorageIndexPage::CheckWrite(Buffer& buffer)
         buffer.AppendLittle32(it->index);
     }
 
-    assert(required == buffer.GetLength());
-    assert((unsigned) (maxDataPageIndex + 1) == numDataPageSlots - freeDataPages.GetLength());
+    ST_ASSERT(required == buffer.GetLength());
+    ST_ASSERT((unsigned) (maxDataPageIndex + 1) == numDataPageSlots - freeDataPages.GetLength());
     if (BUFCMP(&buffer, &this->buffer))
         return false;
     
