@@ -21,6 +21,7 @@ safe_exit()
 
 infinite_loop()
 {
+	echo > $CRASHLOGFILE
 	while (:); do
 		log "Starting '$*'"
         	$* 2>&1 > $LOGFILE
