@@ -61,7 +61,7 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     ki->index = index;
     
     keys.Insert(ki);
-    assert(keys.GetCount() < DEFAULT_NUM_DATAPAGES);
+    assert(keys.GetCount() <= DEFAULT_NUM_DATAPAGES);
     
     ret = freeDataPages.Remove(index);
     assert(ret == true);
