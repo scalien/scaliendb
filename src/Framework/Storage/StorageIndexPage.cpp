@@ -257,6 +257,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     
     required = tmp.GetBuffer() - buffer.GetBuffer();
     
+    assert(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
     assert(numEmpty <= 1);
 }
 
@@ -270,7 +271,7 @@ bool StorageIndexPage::CheckWrite(Buffer& buffer)
     buffer.SetLength(0);
 
     assert(fileIndex != 0);
-    assert(keys.GetCount() <= numDataPageSlots);
+    assert(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
 
     buffer.AppendLittle32(pageSize);
     buffer.AppendLittle32(fileIndex);

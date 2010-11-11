@@ -5,7 +5,7 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestArrayListBasic);
 //TEST_ADD(TestArrayListRemove);
 //TEST_ADD(TestClientAdd);
-TEST_ADD(TestClientAppend);
+//TEST_ADD(TestClientAppend);
 //TEST_ADD(TestClientBasic);
 //TEST_ADD(TestClientBatchedGet);
 //TEST_ADD(TestClientBatchedSet);
@@ -17,7 +17,7 @@ TEST_ADD(TestClientAppend);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
-//TEST_ADD(TestCrashStorage);
+TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);
 //TEST_ADD(TestInTreeMap);
@@ -27,6 +27,7 @@ TEST_ADD(TestClientAppend);
 //TEST_ADD(TestManualBasic);
 //TEST_ADD(TestSnprintfTiming);
 //TEST_ADD(TestStorage0DeleteTestDatabase);
+//TEST_ADD(TestStorageAppend);
 //TEST_ADD(TestStorageBasic);
 //TEST_ADD(TestStorageBigRandomTransaction);
 //TEST_ADD(TestStorageBigTransaction);
@@ -40,7 +41,6 @@ TEST_ADD(TestClientAppend);
 //TEST_ADD(TestTimingBasicWrite);
 //TEST_ADD(TestTimingSnprintf);
 //TEST_ADD(TestTimingWrite);
-//TEST_ADD(TestStorageAppend);
 
 TEST_EXECUTE();
 
