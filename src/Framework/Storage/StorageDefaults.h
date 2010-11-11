@@ -21,4 +21,15 @@
 #define STORAGE_TRACE(...)
 //#define STORAGE_TRACE Log_Message
 
+#ifndef PLATFORM_WINDOWS
+#define ST_ASSERT(expr) \
+{ \
+    if (!(expr)) \
+        PrintStackTrace(); \
+    assert(expr); \
+}
+#else
+#define ST_ASSERT assert
+#endif
+
 #endif

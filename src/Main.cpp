@@ -9,8 +9,20 @@
 
 #ifdef DEBUG
 #define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING " (DEBUG build date " __DATE__ " " __TIME__ ")"
+#ifdef PLATFORM
 #else
 #define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING
+#endif
+
+#ifndef PLATFORM_WINDOWS
+void handler(int sig)
+{
+    void*   array[100];
+    size_t  size;
+    
+    size = backtrace(array, SIZE(array));
+    fprintf(stderr, "Error: SIGSEGV"
+}
 #endif
 
 void InitLog();

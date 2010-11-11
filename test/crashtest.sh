@@ -30,7 +30,7 @@ infinite_loop()
                         log "Assert fail"
                         export ERRORCOUNT=`expr $ERRORCOUNT + 1`
                         if [ $ERRORCOUNT -gt $MAX_ERROR ]; then
-                        	log "Exceeded error count $ERRORCOUNT"
+                        	log "Exceeded error count $MAX_ERROR"
                         	safe_exit 1
                         fi
                 fi

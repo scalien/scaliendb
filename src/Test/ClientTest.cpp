@@ -588,9 +588,9 @@ TEST_DEFINE(TestClientAppend)
     unsigned        num = 10;
     Stopwatch       sw;
     NodeList        quorumNodes;
-    uint64_t        quorumID;
-    uint64_t        databaseID;
-    uint64_t        defaultQuorumNodeID = 100;
+//    uint64_t        quorumID;
+//    uint64_t        databaseID;
+//    uint64_t        defaultQuorumNodeID = 100;
 
     Log_SetTimestamping(true);
     Log_SetTarget(LOG_TARGET_STDOUT);

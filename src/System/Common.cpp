@@ -8,6 +8,7 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <signal.h>
+#include <execinfo.h>
 #else // _WIN32
 #include "process.h"
 #endif
@@ -295,6 +296,19 @@ bool ChangeUser(const char *user)
     }
 
     return true;
+#endif
+}
+
+void PrintStackTrace()
+{
+#ifdef _WIN32
+    // TODO:
+#else
+    void*   array[100];
+    size_t  size;
+    
+    size = backtrace(array, SIZE(array));
+    backtrace_symbols_fd(&array[1], size - 1, STDERR_FILENO);
 #endif
 }
 
