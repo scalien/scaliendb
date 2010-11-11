@@ -27,7 +27,7 @@ infinite_loop()
                 EXITSTATUS=$?
                 if [ "$EXITSTATUS" = "250" ]; then
                         log "Assert fail"
-                        ERRORCOUNT=`expr $ERRORCOUNT + 1`
+                        export ERRORCOUNT=`expr $ERRORCOUNT + 1`
                         if [ $ERRORCOUNT -gt $MAX_ERROR ]; then
                         	safe_exit 1
                         fi
