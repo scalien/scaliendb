@@ -3,12 +3,12 @@
 CRASHLOGFILE="/tmp/crash.log"
 LOGFILE="/tmp/crash-last.log"
 MAX_ERROR=20
-ERRORCOUNT=0
+ERRORCOUNT=1
 
 log()
 {
 	DATE=`date "+%F %T"`
-	echo "$DATE: $*" >> $CRASHLOGFILE
+	echo "$DATE: ($ERRORCOUNT) $*" >> $CRASHLOGFILE
 }
 
 safe_exit()
@@ -28,7 +28,7 @@ infinite_loop()
                 if [ "$EXITSTATUS" = "6" ]; then
                         log "Assert fail"
                         ERRORCOUNT=`expr $ERRORCOUNT + 1`
-                        if [ "$ERRORCOUNT" -gt $MAX_ERROR ]; then
+                        if [ $ERRORCOUNT -gt $MAX_ERROR ]; then
                         	safe_exit 1
                         fi
                 fi
