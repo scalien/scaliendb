@@ -212,7 +212,7 @@ void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool own
     WriteConfigState();
     UpdateActivationTimeout();
     
-    if (configContext.IsLeaseOwner())
+    if (configContext.IsLeader())
         UpdateListeners();
 
     if (ownAppend)
