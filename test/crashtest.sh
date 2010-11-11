@@ -24,7 +24,7 @@ infinite_loop()
 	echo > $CRASHLOGFILE
 	while (:); do
 		log "Starting '$*'"
-        	$* 2>&1 > $LOGFILE
+        	$* > $LOGFILE 2>&1
                 EXITSTATUS=$?
                 if [ "$EXITSTATUS" = "250" ]; then
                         log "Assert fail"
