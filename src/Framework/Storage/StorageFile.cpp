@@ -421,7 +421,7 @@ void StorageFile::Read()
     indexPage.Read(readBuffer);
 
     // TODO: this is expensive, remove this later
-    assert(GetSize() < (uint64_t) FS_FileSize(fd));
+    assert(GetSize() <= (uint64_t) FS_FileSize(fd));
     
     // allocate memory for data page slots
     if (dataPages != NULL)
