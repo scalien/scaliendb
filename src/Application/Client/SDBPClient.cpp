@@ -565,6 +565,32 @@ int Client::Add(const ReadBuffer& key, int64_t number)
     return result->CommandStatus(); 
 }
 
+int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
+{
+    Request*    req;
+    
+    // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+    
+    req = new Request;
+    Log_Trace("%" PRIu64 "", tableID);
+    req->Append(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, (ReadBuffer&) value);
+    requests.Append(req);
+    
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
+
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus(); 
+}
+
 int Client::Delete(ReadBuffer& key)
 {
     Request*    req;

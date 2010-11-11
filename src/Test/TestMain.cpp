@@ -5,6 +5,7 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestArrayListBasic);
 //TEST_ADD(TestArrayListRemove);
 //TEST_ADD(TestClientAdd);
+TEST_ADD(TestClientAppend);
 //TEST_ADD(TestClientBasic);
 //TEST_ADD(TestClientBatchedGet);
 //TEST_ADD(TestClientBatchedSet);
@@ -35,10 +36,12 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestStorageFileThreeWaySplit);
 //TEST_ADD(TestStorageRandomGetSetDelete);
 //TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
-TEST_ADD(TestStorageShardSplit);
+//TEST_ADD(TestStorageShardSplit);
 //TEST_ADD(TestTimingBasicWrite);
 //TEST_ADD(TestTimingSnprintf);
 //TEST_ADD(TestTimingWrite);
+//TEST_ADD(TestStorageAppend);
+
 TEST_EXECUTE();
 
 #ifdef TEST

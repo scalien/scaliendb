@@ -98,6 +98,11 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->type, &request->commandID, &request->databaseID,
              &request->tableID, &request->key, &request->number);
             break;
+        case CLIENTREQUEST_APPEND:
+            read = buffer.Readf("%c:%U:%U:%U:%#B:%#B",
+             &request->type, &request->commandID, &request->databaseID,
+             &request->tableID, &request->key, &request->value);
+            break;
         case CLIENTREQUEST_DELETE:
         case CLIENTREQUEST_REMOVE:
             read = buffer.Readf("%c:%U:%U:%U:%#B",
@@ -192,6 +197,11 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->key, request->number);
             return true;
+        case CLIENTREQUEST_APPEND:
+            buffer.Appendf("%c:%U:%U:%U:%#B:%#B",
+             request->type, request->commandID, request->databaseID,
+             request->tableID, &request->key, &request->value);
+            return true;            
         case CLIENTREQUEST_DELETE:
         case CLIENTREQUEST_REMOVE:
             buffer.Appendf("%c:%U:%U:%U:%#B",

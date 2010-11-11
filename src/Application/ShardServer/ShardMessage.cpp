@@ -39,6 +39,14 @@ void ShardMessage::Add(uint64_t tableID_, ReadBuffer& key_, int64_t number_)
     number = number_;
 }
 
+void ShardMessage::Append(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+{
+    type = SHARDMESSAGE_APPEND;
+    tableID = tableID_;
+    key = key_;
+    value = value_;
+}
+
 void ShardMessage::Delete(uint64_t tableID_, ReadBuffer& key_)
 {
     type = SHARDMESSAGE_DELETE;

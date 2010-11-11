@@ -489,6 +489,27 @@ int SDBP_AddCStr(ClientObj client_, char* key_, int len, int64_t number)
     return client->Add(key, number);
 }
 
+int SDBP_Append(ClientObj client_, const std::string& key_, const std::string& value_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key = key_.c_str();
+    ReadBuffer  value = value_.c_str();
+
+    return client->Append(key, value);
+}
+
+int SDBP_AppendCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+    ReadBuffer  value;
+
+    key.Wrap((char*) key_, lenKey);
+    value.Wrap((char*) value_, lenValue);
+
+    return client->Append(key, value);
+}
+
 int SDBP_Delete(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;

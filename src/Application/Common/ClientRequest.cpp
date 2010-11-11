@@ -205,6 +205,18 @@ bool ClientRequest::Add(
     return true;
 }
 
+bool ClientRequest::Append(
+ uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+{
+    type = CLIENTREQUEST_APPEND;
+    commandID = commandID_;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    key.Write(key_);
+    value.Write(value_);
+    return true;
+}
+
 bool ClientRequest::Delete(
  uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_)
 {

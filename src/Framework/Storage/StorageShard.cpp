@@ -206,6 +206,22 @@ bool StorageShard::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     return true;
 }
 
+bool StorageShard::Append(ReadBuffer& key, ReadBuffer& value)
+{
+    Buffer     newValue;     
+    ReadBuffer oldValue;
+    ReadBuffer rbValue;
+
+    if (Get(key, oldValue) == true)
+        newValue.Append(oldValue);
+    
+    newValue.Append(value);
+
+    rbValue.Wrap(newValue);
+
+    return Set(key, rbValue);
+}
+
 bool StorageShard::Delete(ReadBuffer& key)
 {
     bool                updateIndex;
@@ -671,7 +687,7 @@ void StorageShard::WriteData()
 StorageFileIndex* StorageShard::Locate(ReadBuffer& key)
 {
     StorageFileIndex*   fi;
-    int         cmpres;
+    int                 cmpres;
     
     if (files.GetCount() == 0)
         return NULL;

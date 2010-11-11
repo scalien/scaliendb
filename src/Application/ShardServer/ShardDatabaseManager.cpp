@@ -265,6 +265,11 @@ void ShardDatabaseManager::ExecuteWriteMessage(
             if (request)
                 request->response.Number(number);
             break;
+        case SHARDMESSAGE_APPEND:
+            WriteValue(buffer, paxosID, commandID, message.value);
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            break;
         case SHARDMESSAGE_DELETE:
             if (!table->Delete(message.key))
             {

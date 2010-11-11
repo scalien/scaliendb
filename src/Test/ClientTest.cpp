@@ -573,6 +573,109 @@ TEST_DEFINE(TestClientAdd)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientAppend)
+{
+    typedef ClientRequest::NodeList NodeList;
+
+    Client          client;
+    Result*         result;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    Buffer          key;
+    ReadBuffer      value;
+    int             ret;
+    unsigned        num = 10;
+    Stopwatch       sw;
+    NodeList        quorumNodes;
+    uint64_t        quorumID;
+    uint64_t        databaseID;
+    uint64_t        defaultQuorumNodeID = 100;
+
+    Log_SetTimestamping(true);
+    Log_SetTarget(LOG_TARGET_STDOUT);
+    Log_SetTrace(true);
+ 
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(1000);
+
+    //// quorum
+    //quorumNodes.Append(defaultQuorumNodeID);
+    //ret = client.CreateQuorum(quorumNodes);
+    //if (ret != SDBP_SUCCESS)
+    //    TEST_CLIENT_FAIL();
+    //
+    //result = client.GetResult();
+    //if (result == NULL)
+    //    TEST_CLIENT_FAIL();
+    //
+    //ret = result->GetNumber(quorumID);
+    //if (ret != SDBP_SUCCESS)
+    //    TEST_CLIENT_FAIL();
+    //
+    //delete result;
+
+    // database
+    //ret = client.CreateDatabase(databaseName);
+    //if (ret != SDBP_SUCCESS)
+    //    TEST_CLIENT_FAIL();
+
+    //result = client.GetResult();
+    //if (result == NULL)
+    //    TEST_CLIENT_FAIL();
+    //
+    //ret = result->GetNumber(databaseID);
+    //if (ret != SDBP_SUCCESS)
+    //    TEST_CLIENT_FAIL();
+
+    //delete result;
+    
+    // table
+    //ret = client.CreateTable(databaseID, quorumID, tableName);
+    //if (ret != SDBP_SUCCESS)
+    //    TEST_CLIENT_FAIL();
+
+
+    // set and append
+
+     ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.Set("user2_id", "0");
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    for (unsigned i = 0; i < num; i++)
+    {
+        ret = client.Append("user2_id", "a");
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+    
+    ret = client.Get("user2_id");
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    result = client.GetResult();
+    if (result == NULL)
+        TEST_CLIENT_FAIL();
+    
+    result->GetValue(value);
+    TEST_LOG("value: %.*s", P(&value));
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientSchemaSet)
 {
     Client          client;

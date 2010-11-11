@@ -247,6 +247,12 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
             message->key.Wrap(request->key);
             message->number = request->number;
             break;
+        case CLIENTREQUEST_APPEND:
+            message->type = SHARDMESSAGE_APPEND;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            message->value.Wrap(request->value);
+            break;
         case CLIENTREQUEST_DELETE:
             message->type = SHARDMESSAGE_DELETE;
             message->tableID = request->tableID;

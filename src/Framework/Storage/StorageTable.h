@@ -36,6 +36,7 @@ public:
         
     bool                Get(ReadBuffer key, ReadBuffer& value);
     bool                Set(ReadBuffer key, ReadBuffer value, bool copy = true);
+    bool                Append(ReadBuffer key, ReadBuffer value);
     bool                Delete(ReadBuffer key);
 
     bool                CreateShard(uint64_t shardID, ReadBuffer& startKey);

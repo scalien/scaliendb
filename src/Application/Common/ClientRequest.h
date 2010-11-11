@@ -19,6 +19,7 @@
 #define CLIENTREQUEST_SET               'S'
 #define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
 #define CLIENTREQUEST_TEST_AND_SET      's'
+#define CLIENTREQUEST_APPEND            'p'
 #define CLIENTREQUEST_ADD               'a'
 #define CLIENTREQUEST_DELETE            'X'
 #define CLIENTREQUEST_REMOVE            'x'
@@ -91,6 +92,9 @@ public:
     bool            Add(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key, int64_t number);
+    bool            Append(
+                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            Delete(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key);    
