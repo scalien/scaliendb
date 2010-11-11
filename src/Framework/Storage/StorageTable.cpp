@@ -189,6 +189,18 @@ bool StorageTable::Set(ReadBuffer key, ReadBuffer value, bool copy)
     return si->shard->Set(key, value, copy);
 }
 
+bool StorageTable::Append(ReadBuffer key, ReadBuffer value)
+{
+    StorageShardIndex* si;
+    
+    si = Locate(key);
+
+    if (si == NULL)
+        return false;
+    
+    return si->shard->Append(key, value);
+}
+
 bool StorageTable::Delete(ReadBuffer key)
 {
     StorageShardIndex*  si;

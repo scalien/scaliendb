@@ -65,8 +65,8 @@ uint64_t        SDBP_ResultTableID(ResultObj result);
 void            SDBP_ResultBegin(ResultObj result);
 void            SDBP_ResultNext(ResultObj result);
 bool            SDBP_ResultIsEnd(ResultObj result);
-int				SDBP_ResultTransportStatus(ResultObj result);
-int				SDBP_ResultCommandStatus(ResultObj result);
+int             SDBP_ResultTransportStatus(ResultObj result);
+int             SDBP_ResultCommandStatus(ResultObj result);
 
 /*
 ===============================================================================================
@@ -97,19 +97,21 @@ int             SDBP_UseDatabase(ClientObj client, const std::string& name);
 int             SDBP_UseTable(ClientObj client, const std::string& name);
 
 int             SDBP_Get(ClientObj client, const std::string& key);
-int             SDBP_GetCStr(ClientObj client, char *key, int len);
+int             SDBP_GetCStr(ClientObj client, char* key, int len);
 int             SDBP_Set(ClientObj client, const std::string& key, const std::string& value);
-int             SDBP_SetCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue);
+int             SDBP_SetCStr(ClientObj client_, char* key, int lenKey, char* value, int lenValue);
 int             SDBP_SetIfNotExists(ClientObj client, const std::string& key, const std::string& value);
-int             SDBP_SetIfNotExistsCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue);
+int             SDBP_SetIfNotExistsCStr(ClientObj client, char* key, int lenKey, char* value, int lenValue);
 int             SDBP_TestAndSet(ClientObj client, const std::string& key, const std::string& test, const std::string& value);
-int             SDBP_TestAndSetCStr(ClientObj client_, char* key_, int lenKey, char* test, int lenTest, char* value_, int lenValue);
+int             SDBP_TestAndSetCStr(ClientObj client, char* key, int lenKey, char* test, int lenTest, char* value, int lenValue);
 int             SDBP_Add(ClientObj client, const std::string& key, int64_t number);
-int             SDBP_AddCStr(ClientObj client_, char* key_, int len, int64_t number);
+int             SDBP_AddCStr(ClientObj client_, char* key, int len, int64_t number);
+int             SDBP_Append(ClientObj client, const std::string& key, const std::string& value);
+int             SDBP_AppendCStr(ClientObj client_, char* key, int lenKey, char* value, int lenValue);
 int             SDBP_Delete(ClientObj client, const std::string& key);
-int             SDBP_DeleteCStr(ClientObj client_, char* key_, int len);
+int             SDBP_DeleteCStr(ClientObj client_, char* key, int len);
 int             SDBP_Remove(ClientObj client, const std::string& key);
-int             SDBP_RemoveCStr(ClientObj client_, char* key_, int len);
+int             SDBP_RemoveCStr(ClientObj client_, char* key, int len);
 
 /*
 ===============================================================================================

@@ -796,3 +796,119 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
 
 
 TEST_MAIN(TestStorage, TestStorageCapacitySet);
+
+TEST_DEFINE(TestStorageAppend)
+{
+    StorageDatabase     db;
+    StorageTable*       table;
+    StorageDataCache*   cache;
+    Buffer              k, v;
+    ReadBuffer          rk, rv;
+    Stopwatch           sw;
+    long                elapsed;
+    unsigned            len;
+    char*               area;
+    char*               p;
+    uint64_t            clock;
+    
+    // Initialization ==============================================================================
+    StartClock();
+
+    const unsigned num = 100*1000;
+    const unsigned ksize = 20;
+    const unsigned vsize = 128;
+    area = (char*) malloc(num*(ksize+vsize));
+
+    cache = DCACHE;
+    DCACHE->Init(100000000);
+
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable(__func__);
+
+    //==============================================================================================
+    //
+    // TestStorage SET test
+    //
+    // This test might not work on fast machines, because it commits every 1000 msec, but if there
+    // are more sets between commits than the cache can contain, then it will assert!
+    //
+    //==============================================================================================
+    clock = NowClock();
+    sw.Start();
+    for (unsigned i = 0; i < num; i++)
+    {
+        p = area + i*(ksize+vsize);
+        len = snprintf(p, ksize, "%d", i);
+        rk.SetBuffer(p);
+        rk.SetLength(len);
+        p += ksize;
+        len = snprintf(p, vsize, "%.100f", (float) i);
+        rv.SetBuffer(p);
+        rv.SetLength(len);
+        table->Set(rk, rv, false);
+
+        if (NowClock() - clock >= 1000)
+        {
+            TEST_LOG("syncing...");
+            db.Commit();
+            clock = NowClock();
+        }
+    }
+    db.Commit();
+    elapsed = sw.Stop();
+    TEST_LOG("%u sets took %ld msec", num, elapsed);
+
+    // APPEND "a" to all values ================================================================================
+    rv.SetBuffer("a");
+    sw.Reset();
+    sw.Start();
+    for (unsigned i = 0; i < num; i++)
+    {
+        k.Writef("%d", i);
+        if (table->Append(k, rv))
+            ;//PRINTKV()
+        else
+            ASSERT_FAIL();
+    }   
+    db.Commit();
+    elapsed = sw.Stop();
+    TEST_LOG("%u appends took %ld msec", num, elapsed);
+
+    // GET all keys ================================================================================
+    sw.Reset();
+    sw.Start();
+    for (unsigned i = 0; i < num; i++)
+    {
+        k.Writef("%d", i);
+        if (table->Get(k, rv))
+            ;//PRINTKV()
+        else
+            ASSERT_FAIL();
+    }   
+    elapsed = sw.Stop();
+    TEST_LOG("%u gets took %ld msec", num, elapsed);
+
+    // DELETE all keys =============================================================================
+    sw.Reset();
+    sw.Start();
+    for (unsigned i = 0; i < num; i++)
+    {
+        k.Writef("%d", i);
+        TEST_ASSERT(table->Delete(k));
+    }
+    db.Commit();
+    elapsed = sw.Stop();
+    TEST_LOG("%u deletes took %ld msec", num, elapsed);
+    
+    // Shutdown ====================================================================================
+    sw.Reset();
+    sw.Start();
+    db.Close();
+    elapsed = sw.Stop();
+    TEST_LOG("Close() took %ld msec", elapsed);
+    
+    DCACHE->Shutdown();
+    free(area);
+    
+    return TEST_SUCCESS;
+}

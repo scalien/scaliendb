@@ -214,9 +214,12 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     uint32_t            num, len, i;
     StorageKeyIndex*    ki;
     ReadBuffer          tmp;
+    unsigned            numEmpty;
 
     buffer.Write(buffer_);
     tmp = buffer;
+    
+    maxDataPageIndex = -1;
 
     tmp.ReadLittle32(pageSize);
     tmp.Advance(sizeof(uint32_t));
@@ -228,12 +231,16 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     tmp.Advance(sizeof(uint32_t));
 
     STORAGE_TRACE("reading index for file %u\n", fileIndex);
+    numEmpty = 0;
     for (i = 0; i < num; i++)
     {
         ki = new StorageKeyIndex;
 
         tmp.ReadLittle32(len);
         tmp.Advance(sizeof(uint32_t));
+
+        if (len == 0)
+            numEmpty++;
 
         ki->key.SetLength(len);
         ki->key.SetBuffer(tmp.GetBuffer());
@@ -249,6 +256,9 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     }
     
     required = tmp.GetBuffer() - buffer.GetBuffer();
+    
+    assert(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
+    assert(numEmpty <= 1);
 }
 
 bool StorageIndexPage::CheckWrite(Buffer& buffer)
@@ -261,7 +271,7 @@ bool StorageIndexPage::CheckWrite(Buffer& buffer)
     buffer.SetLength(0);
 
     assert(fileIndex != 0);
-    assert(keys.GetCount() <= numDataPageSlots);
+    assert(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
 
     buffer.AppendLittle32(pageSize);
     buffer.AppendLittle32(fileIndex);

@@ -129,7 +129,7 @@ public class Client
 		return result.getValue();
 	}
 
-	public String get(byte[] key) throws SDBPException {
+	public byte[] getData(byte[] key) throws SDBPException {
 		int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -140,7 +140,7 @@ public class Client
 			return null;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValue();
+		return result.getValueData();
 	}
 		
 	public int set(String key, String value) throws SDBPException {
@@ -157,7 +157,7 @@ public class Client
 		return status;
 	}
 
-		public int set(byte[] key, byte[] value) throws SDBPException {
+    public int set(byte[] key, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -185,7 +185,7 @@ public class Client
 		return status;
 	}
 
-		public int setIfNotExists(byte[] key, byte[] value) throws SDBPException {
+    public int setIfNotExists(byte[] key, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_SetIfNotExistsCStr(cptr, key, key.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -254,7 +254,35 @@ public class Client
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getNumber();
 	}
-	
+
+	public int append(String key, String value) throws SDBPException {
+		int status = scaliendb_client.SDBP_Append(cptr, key, value);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return status;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+	}
+
+    public int append(byte[] key, byte[] value) throws SDBPException {
+		int status = scaliendb_client.SDBP_AppendCStr(cptr, key, key.length, value, value.length);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return status;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+	}
+    
 	public int delete(String key) throws SDBPException {
 		int status = scaliendb_client.SDBP_Delete(cptr, key);
 		if (status < 0) {

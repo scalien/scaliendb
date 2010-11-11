@@ -296,8 +296,8 @@ $(BIN_DIR)/clienttest: $(BUILD_DIR) $(TEST_OBJECTS) $(BIN_DIR)/$(ALIB)
 $(BIN_DIR)/bdbtool: $(BUILD_DIR) $(LIBS) $(ALL_OBJECTS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
 	$(CXX) $(LDFLAGS) -o $@ $(ALL_OBJECTS) $(LIBS) $(BUILD_DIR)/Application/Tools/BDBTool/BDBTool.o
 
-$(BUILD_DIR)/TestMain: $(BUILD_DIR) $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/Test/TestMain.o
-	$(CXX) $(LDFLAGS) $(CFLAGS) -o $@ $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/Test/TestMain.o $(LIBS)
+$(BUILD_DIR)/TestMain: $(BUILD_DIR) $(TEST_OBJECTS) $(ALL_OBJECTS) $(CLIENTLIB_OBJECTS) $(BUILD_DIR)/Test/TestMain.o
+	$(CXX) $(LDFLAGS) $(CFLAGS) -o $@ $(TEST_OBJECTS) $(ALL_OBJECTS) $(CLIENTLIB_OBJECTS) $(BUILD_DIR)/Test/TestMain.o $(LIBS)
 
 $(BUILD_DIR)/Test/TestMain.o: $(SRC_DIR)/Test/TestMain.cpp
 	$(CXX) $(CFLAGS) -o $@ -DTEST -c $(SRC_DIR)/Test/TestMain.cpp

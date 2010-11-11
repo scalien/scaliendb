@@ -70,7 +70,7 @@ ShardServer::QuorumProcessorList* ShardServer::GetQuorumProcessors()
     return &quorumProcessors;
 }
 
-ShardDatabaseManager* ShardServer::GetDatabaseAdapter()
+ShardDatabaseManager* ShardServer::GetDatabaseManager()
 {
     return &databaseManager;
 }

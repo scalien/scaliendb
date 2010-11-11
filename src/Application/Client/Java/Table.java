@@ -29,8 +29,18 @@ public class Table
         useDefaults();
         return client.get(key);
 	}
+
+ 	public byte[] getData(byte[] key) throws SDBPException {
+        useDefaults();
+        return client.getData(key);
+	}
 		
 	public int set(String key, String value) throws SDBPException {
+        useDefaults();
+        return client.set(key, value);
+	}
+
+	public int set(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
         return client.set(key, value);
 	}
@@ -40,7 +50,17 @@ public class Table
         return client.setIfNotExists(key, value);
 	}
 
+	public int setIfNotExists(byte[] key, byte[] value) throws SDBPException {
+        useDefaults();
+        return client.setIfNotExists(key, value);
+	}
+
 	public int testAndSet(String key, String test, String value) throws SDBPException {
+        useDefaults();
+        return client.testAndSet(key, test, value);
+	}
+
+	public int testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
         useDefaults();
         return client.testAndSet(key, test, value);
 	}
@@ -49,13 +69,38 @@ public class Table
         useDefaults();
         return client.add(key, number);
 	}
+
+	public long add(byte[] key, long number) throws SDBPException {
+        useDefaults();
+        return client.add(key, number);
+	}
+
+	public int append(String key, String value) throws SDBPException {
+        useDefaults();
+        return client.append(key, value);
+	}
+
+	public int append(byte[] key, byte[] value) throws SDBPException {
+        useDefaults();
+        return client.append(key, value);
+	}
 	
 	public int delete(String key) throws SDBPException {
         useDefaults();
         return client.delete(key);
 	}
 
+	public int delete(byte[] key) throws SDBPException {
+        useDefaults();
+        return client.delete(key);
+	}
+
 	public String remove(String key) throws SDBPException {
+        useDefaults();
+        return client.remove(key);
+	}
+
+	public String remove(byte[] key) throws SDBPException {
         useDefaults();
         return client.remove(key);
 	}

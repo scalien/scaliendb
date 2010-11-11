@@ -132,7 +132,7 @@ void ShardDatabaseManager::RemoveDeletedDatabases()
     for (it = databases.First(); it != NULL; it = next)
     {
         next = databases.Next(it);
-        if (configState->GetDatabase(it->Key()))
+        if (!configState->GetDatabase(it->Key()))
         {
             environment.DeleteDatabase(it->Value());
             databases.Remove(it->Key());
@@ -152,7 +152,7 @@ void ShardDatabaseManager::RemoveDeletedTables()
     for (it = tables.First(); it != NULL; it = next)
     {
         next = tables.Next(it);
-        if (configState->GetTable(it->Key()))
+        if (!configState->GetTable(it->Key()))
         {
             database = it->Value()->GetDatabase();
             database->DeleteTable(it->Value());
@@ -182,7 +182,7 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
     ReadBuffer      value;
     ReadBuffer      userValue;
 
-    table = shardServer->GetDatabaseAdapter()->GetTable(request->tableID);
+    table = GetTable(request->tableID);
     if (!table)
     {
         request->response.Failed();
@@ -211,11 +211,15 @@ void ShardDatabaseManager::ExecuteWriteMessage(
     ReadBuffer      readBuffer;
     Buffer          buffer;
     Buffer          numberBuffer;
+    Buffer          tmpBuffer;
     StorageTable*   table;
 
-    table = shardServer->GetDatabaseAdapter()->GetTable(message.tableID);
+    table = GetTable(message.tableID);
     if (!table)
         ASSERT_FAIL();
+
+    if (request)
+        request->response.OK();
 
     // TODO: differentiate return status (FAILED, NOSERVICE)
     switch (message.type)
@@ -265,12 +269,20 @@ void ShardDatabaseManager::ExecuteWriteMessage(
             if (request)
                 request->response.Number(number);
             break;
+        case SHARDMESSAGE_APPEND:
+            if (!table->Get(message.key, readBuffer))
+                FAIL();
+            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+            CHECK_CMD();
+            tmpBuffer.Write(userValue);
+            tmpBuffer.Append(message.value);
+            WriteValue(buffer, paxosID, commandID, ReadBuffer(tmpBuffer));
+            if (!table->Set(message.key, buffer))
+                FAIL();
+            break;
         case SHARDMESSAGE_DELETE:
             if (!table->Delete(message.key))
-            {
-                if (request)
-                    request->response.Failed();
-            }
+                FAIL();
             break;
         case SHARDMESSAGE_REMOVE:
             if (table->Get(message.key, readBuffer))
@@ -279,10 +291,7 @@ void ShardDatabaseManager::ExecuteWriteMessage(
                 request->response.Value(userValue);
             }
             if (!table->Delete(message.key))
-            {
-                if (request)
-                    request->response.Failed();
-            }
+                FAIL();
             break;
         default:
             ASSERT_FAIL();

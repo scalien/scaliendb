@@ -462,6 +462,7 @@ FD FS_Open(const char* filename, int flags)
         error = GetLastError();
         Log_Message("error = %u", error);
         fd = INVALID_FD;
+        return fd;
     }
     
     fd.handle = (intptr_t) handle;
