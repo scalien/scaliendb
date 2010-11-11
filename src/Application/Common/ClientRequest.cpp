@@ -49,6 +49,7 @@ bool ClientRequest::IsShardServerRequest()
         type == CLIENTREQUEST_SET_IF_NOT_EXISTS ||
         type == CLIENTREQUEST_TEST_AND_SET      ||
         type == CLIENTREQUEST_ADD               ||
+        type == CLIENTREQUEST_APPEND            ||
         type == CLIENTREQUEST_DELETE            ||
         type == CLIENTREQUEST_REMOVE)
             return true;

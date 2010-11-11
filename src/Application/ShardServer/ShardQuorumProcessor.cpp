@@ -23,7 +23,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     configID = 0;
     requestedLeaseExpireTime = 0;
     quorumContext.Init(configQuorum, this,
-     shardServer->GetDatabaseAdapter()->GetQuorumTable(configQuorum->quorumID));
+     shardServer->GetDatabaseManager()->GetQuorumTable(configQuorum->quorumID));
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     EventLoop::Add(&requestLeaseTimeout);
 }
@@ -184,7 +184,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 
     if (request->type == CLIENTREQUEST_GET)
     {
-        shardServer->GetDatabaseAdapter()->OnClientReadRequest(request);        
+        shardServer->GetDatabaseManager()->OnClientReadRequest(request);        
         request->OnComplete();
         return;
     }
@@ -283,7 +283,7 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
         request->response.OK();
     }
     
-    shardServer->GetDatabaseAdapter()->ExecuteWriteMessage(paxosID, commandID, message, request);
+    shardServer->GetDatabaseManager()->ExecuteWriteMessage(paxosID, commandID, message, request);
 
     if (ownAppend)
     {

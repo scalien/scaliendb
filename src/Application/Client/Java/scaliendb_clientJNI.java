@@ -74,6 +74,8 @@ class scaliendb_clientJNI {
   public final static native int SDBP_TestAndSetCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7);
   public final static native int SDBP_Add(long jarg1, String jarg2, long jarg3);
   public final static native int SDBP_AddCStr(long jarg1, byte[] jarg2, int jarg3, long jarg4);
+  public final static native int SDBP_Append(long jarg1, String jarg2, String jarg3);
+  public final static native int SDBP_AppendCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
   public final static native int SDBP_Delete(long jarg1, String jarg2);
   public final static native int SDBP_DeleteCStr(long jarg1, byte[] jarg2, int jarg3);
   public final static native int SDBP_Remove(long jarg1, String jarg2);

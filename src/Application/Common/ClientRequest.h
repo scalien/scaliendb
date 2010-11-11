@@ -19,8 +19,8 @@
 #define CLIENTREQUEST_SET               'S'
 #define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
 #define CLIENTREQUEST_TEST_AND_SET      's'
-#define CLIENTREQUEST_APPEND            'p'
 #define CLIENTREQUEST_ADD               'a'
+#define CLIENTREQUEST_APPEND            'p'
 #define CLIENTREQUEST_DELETE            'X'
 #define CLIENTREQUEST_REMOVE            'x'
 

@@ -430,6 +430,8 @@ void StorageFile::Read()
     for (i = 0; i < numDataPageSlots; i++)
         dataPages[i] = NULL;
     numDataPages = indexPage.NumEntries();  
+    
+    assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
 }
 
 void StorageFile::ReadRest()

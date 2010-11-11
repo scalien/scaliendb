@@ -85,7 +85,7 @@ void ShardHTTPClientSession::PrintStatus()
 
     totalSpace = FS_DiskSpace(configFile.GetValue("database.dir", "db"));
     freeSpace = FS_FreeDiskSpace(configFile.GetValue("database.dir", "db"));
-    diskUsage = shardServer->GetDatabaseAdapter()->GetEnvironment()->GetSize();
+    diskUsage = shardServer->GetDatabaseManager()->GetEnvironment()->GetSize();
     valbuf.Writef("%s (Total %s, Free %s)", 
      HUMAN_BYTES(diskUsage), HUMAN_BYTES(totalSpace), HUMAN_BYTES(freeSpace));
     session.PrintPair("Disk usage", valbuf);

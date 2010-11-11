@@ -87,6 +87,10 @@ int ShardMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R:%I",
              &type, &tableID, &key, &number);
             break;
+        case SHARDMESSAGE_APPEND:
+            read = buffer.Readf("%c:%U:%#R:%#R",
+             &type, &tableID, &key, &value);
+            break;
         case SHARDMESSAGE_DELETE:
             read = buffer.Readf("%c:%U:%#R",
              &type, &tableID, &key);
@@ -122,6 +126,10 @@ bool ShardMessage::Write(Buffer& buffer)
         case SHARDMESSAGE_ADD:
             buffer.Appendf("%c:%U:%#R:%I",
              type, tableID, &key, number);
+            break;
+        case SHARDMESSAGE_APPEND:
+            buffer.Appendf("%c:%U:%#R:%#R",
+             type, tableID, &key, &value);
             break;
         case SHARDMESSAGE_DELETE:
             buffer.Appendf("%c:%U:%#R",

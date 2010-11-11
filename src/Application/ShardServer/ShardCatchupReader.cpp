@@ -41,7 +41,7 @@ void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
         return;
     }
         
-    table = quorumProcessor->GetShardServer()->GetDatabaseAdapter()->GetTable(cshard->tableID);
+    table = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetTable(cshard->tableID);
     if (!table)
     {
         ASSERT_FAIL();
