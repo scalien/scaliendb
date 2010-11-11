@@ -25,7 +25,7 @@ import os
 
 #LDPATH=["/opt/local/lib/db46", "/usr/local/lib/db4"]
 LDPATH=["/opt/local/lib/db46"]
-LDLIBS=["db_cxx", "pthread"]
+LDLIBS=["pthread"]
 BUILD_DIR="build/Release"
 SRC_DIR="src"
 TEST_DIR="Test/"
