@@ -859,7 +859,7 @@ TEST_DEFINE(TestStorageAppend)
     TEST_LOG("%u sets took %ld msec", num, elapsed);
 
     // APPEND "a" to all values ================================================================================
-    rv.SetBuffer("a");
+    rv.Wrap("a");
     sw.Reset();
     sw.Start();
     for (unsigned i = 0; i < num; i++)
