@@ -157,7 +157,7 @@ public class Client
 		return status;
 	}
 
-		public int set(byte[] key, byte[] value) throws SDBPException {
+    public int set(byte[] key, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -185,7 +185,7 @@ public class Client
 		return status;
 	}
 
-		public int setIfNotExists(byte[] key, byte[] value) throws SDBPException {
+    public int setIfNotExists(byte[] key, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_SetIfNotExistsCStr(cptr, key, key.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));

@@ -65,8 +65,8 @@ uint64_t        SDBP_ResultTableID(ResultObj result);
 void            SDBP_ResultBegin(ResultObj result);
 void            SDBP_ResultNext(ResultObj result);
 bool            SDBP_ResultIsEnd(ResultObj result);
-int				SDBP_ResultTransportStatus(ResultObj result);
-int				SDBP_ResultCommandStatus(ResultObj result);
+int             SDBP_ResultTransportStatus(ResultObj result);
+int             SDBP_ResultCommandStatus(ResultObj result);
 
 /*
 ===============================================================================================
