@@ -395,7 +395,7 @@ int	SDBP_Get(ClientObj client_, const std::string& key_)
     return client->Get(key);
 }
 
-int	SDBP_GetCStr(ClientObj client_, char *key_, int len)
+int	SDBP_GetCStr(ClientObj client_, char* key_, int len)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;
@@ -414,11 +414,35 @@ int	SDBP_Set(ClientObj client_, const std::string& key_, const std::string& valu
     return client->Set(key, value);
 }
 
+int	SDBP_SetCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+    ReadBuffer  value;
+
+    key.Wrap((char*) key_, lenKey);
+    value.Wrap((char*) value_, lenValue);
+
+    return client->Set(key, value);
+}
+
 int	SDBP_SetIfNotExists(ClientObj client_, const std::string& key_, const std::string& value_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key = key_.c_str();
     ReadBuffer  value = value_.c_str();
+
+    return client->SetIfNotExists(key, value);
+}
+
+int	SDBP_SetIfNotExistsCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+    ReadBuffer  value;
+
+    key.Wrap((char*) key_, lenKey);
+    value.Wrap((char*) value_, lenValue);
 
     return client->SetIfNotExists(key, value);
 }
@@ -433,10 +457,34 @@ int	SDBP_TestAndSet(ClientObj client_, const std::string& key_, const std::strin
     return client->TestAndSet(key, test, value);
 }
 
+int	SDBP_TestAndSetCStr(ClientObj client_, char* key_, int lenKey, char* test_, int lenTest, char* value_, int lenValue)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+    ReadBuffer  test;
+    ReadBuffer  value;
+
+    key.Wrap((char*) key_, lenKey);
+    test.Wrap((char*) test_, lenTest);
+    value.Wrap((char*) value_, lenValue);
+
+    return client->TestAndSet(key, test, value);
+}
+
 int SDBP_Add(ClientObj client_, const std::string& key_, int64_t number)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key = key_.c_str();
+
+    return client->Add(key, number);
+}
+
+int SDBP_AddCStr(ClientObj client_, char* key_, int len, int64_t number)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+
+    key.Wrap((char*) key_, len);
 
     return client->Add(key, number);
 }
@@ -449,10 +497,30 @@ int SDBP_Delete(ClientObj client_, const std::string& key_)
     return client->Delete(key);
 }
 
+int SDBP_DeleteCStr(ClientObj client_, char* key_, int len)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+
+    key.Wrap((char*) key_, len);
+
+    return client->Delete(key);
+}
+
 int SDBP_Remove(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key = key_.c_str();
+
+    return client->Remove(key);
+}
+
+int SDBP_RemoveCStr(ClientObj client_, char* key_, int len)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+
+    key.Wrap((char*) key_, len);
 
     return client->Remove(key);
 }

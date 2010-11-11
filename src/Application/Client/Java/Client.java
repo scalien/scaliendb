@@ -157,6 +157,20 @@ public class Client
 		return status;
 	}
 
+		public int set(byte[] key, byte[] value) throws SDBPException {
+		int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.length, value, value.length);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return status;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+	}
+	
 	public int setIfNotExists(String key, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_SetIfNotExists(cptr, key, value);
 		if (status < 0) {
@@ -171,6 +185,20 @@ public class Client
 		return status;
 	}
 
+		public int setIfNotExists(byte[] key, byte[] value) throws SDBPException {
+		int status = scaliendb_client.SDBP_SetIfNotExistsCStr(cptr, key, key.length, value, value.length);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return status;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+	}
+	
 	public int testAndSet(String key, String test, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
 		if (status < 0) {
@@ -185,6 +213,20 @@ public class Client
 		return status;
 	}
 
+	public int testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
+		int status = scaliendb_client.SDBP_TestAndSetCStr(cptr, key, key.length, test, test.length, value, value.length);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return status;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+	}
+	
 	public long add(String key, long number) throws SDBPException {
 		int status = scaliendb_client.SDBP_Add(cptr, key, number);
 		if (status < 0) {
@@ -199,6 +241,20 @@ public class Client
 		return result.getNumber();
 	}
 
+	public long add(byte[] key, long number) throws SDBPException {
+		int status = scaliendb_client.SDBP_AddCStr(cptr, key, key.length, number);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return 0;
+                    
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getNumber();
+	}
+	
 	public int delete(String key) throws SDBPException {
 		int status = scaliendb_client.SDBP_Delete(cptr, key);
 		if (status < 0) {
@@ -213,6 +269,20 @@ public class Client
 		return status;
 	}
 
+	public int delete(byte[] key) throws SDBPException {
+		int status = scaliendb_client.SDBP_DeleteCStr(cptr, key, key.length);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return status;
+		
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+	}
+	
 	public String remove(String key) throws SDBPException {
 		int status = scaliendb_client.SDBP_Remove(cptr, key);
 		if (status < 0) {
@@ -227,6 +297,20 @@ public class Client
 		return result.getValue();
 	}
 
+	public String remove(byte[] key) throws SDBPException {
+		int status = scaliendb_client.SDBP_RemoveCStr(cptr, key, key.length);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return null;
+		
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getValue();
+	}
+	
     public int begin() {
         return scaliendb_client.SDBP_Begin(cptr);
     }
