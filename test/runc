@@ -1,2 +1,6 @@
 echo -n -e "\033]0;C$1\007"
-build/Debug/ScalienDB test/control/$1/scaliendb.conf
+if [ "$RELEASE" = "1" ]; then
+	build/Release/ScalienDB test/control/$1/scaliendb.conf
+else
+	build/Debug/ScalienDB test/control/$1/scaliendb.conf	
+fi
