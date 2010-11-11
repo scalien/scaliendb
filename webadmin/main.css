@@ -258,7 +258,7 @@ span.quorum-number {
 }
 
 span.shard-number {
-	-webkit-border-radius: 8px;
+	-webkit-border-radius: 3px;
 	-moz-border-radius: 8px;
 	padding: 1px 5px;
 	padding-top: 3px;

@@ -23,7 +23,7 @@ infinite_loop()
 {
 	while (:); do
 		log "Starting '$*'"
-        	$* > $LOGFILE
+        	$* 2>&1 > $LOGFILE
                 EXITSTATUS=$?
                 if [ "$EXITSTATUS" = "250" ]; then
                         log "Assert fail"
