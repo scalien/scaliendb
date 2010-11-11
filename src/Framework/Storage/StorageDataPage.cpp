@@ -160,6 +160,7 @@ StorageDataPage* StorageDataPage::SplitDataPage()
     }
         
     assert(it != NULL);
+    assert(it != keys.First());
     
     newPage = DCACHE->GetPage();
     DCACHE->Checkin(newPage);

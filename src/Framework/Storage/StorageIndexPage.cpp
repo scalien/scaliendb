@@ -1,6 +1,5 @@
 #include "StorageIndexPage.h"
 #include "StorageDefaults.h"
-//#include <stdio.h>
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -53,6 +52,8 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     
     //Log_Message("key = %.*s, index = %u", P(&key), (unsigned) index);
     
+    assert(keys.Get<ReadBuffer&>(key) == NULL);
+    
     required += INDEXPAGE_KV_OVERHEAD + key.GetLength();
 
     ki = new StorageKeyIndex;
@@ -60,6 +61,7 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     ki->index = index;
     
     keys.Insert(ki);
+    assert(keys.GetCount() < DEFAULT_NUM_DATAPAGES);
     
     ret = freeDataPages.Remove(index);
     assert(ret == true);
@@ -77,7 +79,9 @@ void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
         if (it->index == index)
         {
             required -= it->key.GetLength();
+            keys.Remove(it);
             it->SetKey(key, copy);
+            keys.Insert(it);
             required += it->key.GetLength();
             return;
         }
@@ -166,8 +170,8 @@ int32_t StorageIndexPage::GetMaxDataPageIndex()
 int32_t StorageIndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
 {
     StorageKeyIndex*    it;
-    uint32_t    index;
-    int         cmpres;
+    uint32_t            index;
+    int                 cmpres;
     
     if (keys.GetCount() == 0)
         return -1;
@@ -203,7 +207,7 @@ uint32_t StorageIndexPage::NextFreeDataPage()
 
 bool StorageIndexPage::IsOverflowing()
 {
-    if (required < pageSize)
+    if (required < pageSize && keys.GetCount() < DEFAULT_NUM_DATAPAGES)
         return false;
     else
         return true;
@@ -213,6 +217,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 {
     uint32_t            num, len, i;
     StorageKeyIndex*    ki;
+    StorageKeyIndex*    oldKi;
     ReadBuffer          tmp;
     unsigned            numEmpty;
 
@@ -249,7 +254,8 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
         tmp.ReadLittle32(ki->index);
         tmp.Advance(sizeof(uint32_t));
 
-        keys.Insert(ki);
+        oldKi = keys.Insert(ki);
+        assert(oldKi == NULL);
         freeDataPages.Remove(ki->index);
         if ((int32_t) ki->index > maxDataPageIndex)
             maxDataPageIndex = ki->index;
