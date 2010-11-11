@@ -62,7 +62,28 @@ void JSONConfigState::WriteQuorum(ConfigQuorum* quorum)
     json.PrintColon();
     json.PrintNumber(quorum->quorumID);
     json.PrintComma();
+
+    json.PrintString("hasPrimary");
+    json.PrintColon();
+    if (quorum->hasPrimary)
+        json.PrintString("true");
+    else
+        json.PrintString("false");
+    json.PrintComma();
+
+    if (quorum->hasPrimary)
+    {
+        json.PrintString("primaryID");
+        json.PrintColon();
+        json.PrintNumber(quorum->primaryID);
+        json.PrintComma();
+    }
     
+    json.PrintString("paxosID");
+    json.PrintColon();
+    json.PrintNumber(quorum->paxosID);
+    json.PrintComma();
+
     json.PrintString("activeNodes");
     json.PrintColon();
     WriteIDList(quorum->activeNodes);
@@ -193,6 +214,19 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintString("endpoint");
     json.PrintColon();
     json.PrintString(server->endpoint.ToReadBuffer());
+    
+//    json.PrintComma();
+//
+//    json.PrintString("heartbeat");
+//    json.PrintColon();
+//    if (controller->HasHeartbeat(server->nodeID))
+//    {
+//        json.PrintString("true");
+//    }
+//    else
+//    {
+//        json.PrintString("false");
+//    }
 
     json.PrintObjectEnd();
 }

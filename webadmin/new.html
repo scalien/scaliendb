@@ -1,0 +1,195 @@
+<html>
+	<head>
+		<title>ScalienDB Management Console</title>
+		<link rel="stylesheet" type="text/css" href="login.css"/>
+		<link rel="stylesheet" type="text/css" href="createQuorum.css"/>
+		<link rel="stylesheet" type="text/css" href="createDatabase.css"/>
+		<link rel="stylesheet" type="text/css" href="createTable.css"/>
+		<link rel="stylesheet" type="text/css" href="main.css"/>
+		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
+		<script language="javascript" type="text/javascript" src="ui.js"></script>
+	</head>
+	<body onload="onLoad()">
+		<!-- login -->
+		<div id="loginContainer">
+		<div class="login-overlay"></div>
+		<div class="login-content">
+			<br/><br/><br/>
+			<span class="login-welcome">Welcome to ScalienDB!</span><br/>
+			<br/><br/><br/>
+			<span class="login-connect">Connect to cluster:</span><br/><br/>
+			<form action="javascript:connect()">
+			<input id="loginCluster" class="login-input" type="text" value="localhost:8080" /><br/><br/><br/>
+			<button type="submit" class="login-button">Connect</button>
+			</form>
+		</div>
+		</div>
+		<!-- create-quorum -->
+		<div id="createQuorumContainer">
+		<div class="create-quorum-overlay"></div>
+		<div class="create-quorum-content">
+			<a href="javascript:hideCreateQuorum()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="create-quorum-welcome">Create new quorum</span><br/>
+			<br/><br/><br/>
+			<span class="create-quorum-shardServers">Shard server list:</span><br/><br/>
+			<form action="javascript:createQuorum()">
+			<input id="createQuorumShardServers" class="create-quorum-input" type="text" value="100, 101, 102" /><br/><br/><br/>
+			<button type="submit" class="create-quorum-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- create-quorum -->
+		<div id="createDatabaseContainer">
+		<div class="create-database-overlay"></div>
+		<div class="create-database-content">
+			<a href="javascript:hideCreateDatabase()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="create-database-welcome">Create new database</span><br/>
+			<br/><br/><br/>
+			<span class="create-database-name">Name:</span><br/><br/>
+			<form action="javascript:createDatabase()">
+			<input id="createDatabaseName" class="create-database-input" type="text" value="testDatabase" /><br/><br/><br/>
+			<button type="submit" class="create-database-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- create-table -->
+		<div id="createTableContainer">
+		<div class="create-table-overlay"></div>
+		<div class="create-table-content">
+			<a href="javascript:hideCreateTable()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="create-table-welcome">Create new table<br/>in database: <span id="createTableDatabase"></span></span><br/>
+			<br/><br/><br/>
+			<form action="javascript:createTable()">
+			<span class="create-table-name">Name:</span><br/><br/>
+			<input id="createTableName" class="create-table-input" type="text" value="testTable" /><br/><br/><br/>
+			<span class="create-table-quorum">Quorum:</span><br/><br/>
+			<input id="createTableQuorum" class="create-table-input" type="text" value="1" /><br/><br/><br/>
+			<button type="submit" class="create-table-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- main -->
+		<div id="mainContainer">
+			<div class="top-header">
+				<span class="scalien-logo"><img src="scalien_logo.png" /></span>
+				<span class="nav-bar">
+					Connected to <span id="controller">...</span>
+					<a class="no-line" href="javascript:updateConfigState()"><span class="refresh-button">refresh</span></a>
+				</span>
+			</div>
+			<div class="tab-head-container">
+				<a class="no-line" href="javascript:activateDashboardTab()"><span id="tabHeadDashboard" class="tab-head tab-head-active">Dashboard</span></a>
+				<a class="no-line" href="javascript:activateQuorumsTab()"><span id="tabHeadQuorums" class="tab-head tab-head-inactive">Quorums</span></a>
+				<a class="no-line" href="javascript:activateSchemaTab()"><span id="tabHeadSchema" class="tab-head tab-head-inactive">Schema</span></a>
+				<span class="tab-head tab-head-inactive">Shardservers</span>
+				<span class="tab-head tab-head-inactive">Log</span>
+				<span class="tab-head tab-head-inactive">Alerts</span>
+			</div>
+			<div class="tab-page-container">
+				<!-- dashboard -->
+				<div id="tabPageDashboard" class="tab-page tab-page-active">
+					<br/>
+					<table class="dashboard-icon">
+						<tr>
+							<td><img src="megaphone.png" /></td>
+							<td><span class="status-message">The ScalienDB cluster is healthy</span></td>
+						</tr>
+					</table>
+					<table class="dashboard-icon">
+						<tr>
+							<td><img src="database.png" /></td>
+							<td>
+							There are <b><span id="numDatabases">0</span> databases</b> in the system,
+							with a total of <b><span id="numTables">0</span> tables</b>
+							and <b><span id="numShards">0</span> shards</b>.<br/>
+							<span id="dashboardStats">
+							The smallest database consists of <span id="minTables">0</span> table(s),
+							the largest consists of <span id="maxTables">0</span> table(s),
+							<b>average is <span id="avgTables">0</span> table per database</b>.<br/>
+							The smallest table consists of <span id="minShards">0</span> shard(s),
+							the largest table consists of <span id="maxShards">0</span> shard(s),
+							<b>average is <span id="avgShards">0</span> shard(s) per table</b>.<br/>
+							</span>
+							</td>
+						</tr>
+					</table>
+					<table class="dashboard-icon">
+						<tr>
+							<td><img src="servers.png" /></td>
+							<td>
+							<!-- The cluster is controlled by <b>3 controller node(s)</b>. -->
+							<!-- The <b>master controller is node 0</b>.<br/> -->
+							The cluster contains <b><span id="numShardServers">0</span>
+							shard server(s)</b> in the system, making up a total of
+							<b><span id="numQuorums">0</span> quorum(s)</b>.<br/><br/>
+							List of shard servers:
+							<div class="shard-server-list" id="shardservers">
+								<span class="healthy shardserver-number">0</span>
+							</div>
+							</td>
+						</tr>
+					</table>
+				</div>
+
+				<!-- quorums -->
+				<div id="tabPageQuorums" class="tab-page tab-page-inactive">
+					<span class="listing">Listing quorums - </span><a class="no-line" href="javascript:showCreateQuorum()"><span class="create-button">create new quorum</span></a><br/><br/>
+					<div id="quorums">
+						<div class="quorum healthy">
+							<table class="quorum">
+								<tr>
+									<td class="quorum-head">
+										<span class="quorum-head">quorum 0</span>
+									</td>
+									<td>
+										Shardservers: <span class="primary shardserver-number">0</span><br/>
+										Shards: <span class="shard-number">1</span><br/>
+										Replication round: 0<br/>
+										Size: 0GB
+									</td>
+									<td class="table-actions">
+										<span class="modify-button">add node</span><br/><br/>
+										<span class="modify-button">remove node</span><br/><br/>
+										<span class="delete-button">delete quorum</span>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
+
+				<!-- schema -->
+				<div id="tabPageSchema" class="tab-page tab-page-inactive">
+					<span class="listing">Listing databases - </span><a class="no-line" href="javascript:showCreateDatabase()"><span class="create-button">create new database</span></a><br/><br/>
+					<div id="databases">
+						<div class="database">
+							<span class="database-head">Listing tables for database	 <b>database</b></span> - <span class="create-button">create new table</span><br/><br/>
+							<div class="table healthy">
+								<table class="table">
+									<tr>
+										<td class="table-head">
+											<span class="table-head">table</span>
+										</td>
+										<td>
+											Shards: <span class="shard-number">1</span><br/>
+											<!-- Mapped quorums: <span class="quorum-number">1</span><br/>
+											Size: 0GB<br/>
+											Replication factor: 0<br/>-->
+										</td>
+										<td class="table-actions">
+											<span class="modify-button">rename table</span><br/><br/>
+											<span class="delete-button">delete table</span>
+										</td>
+									</tr>
+								</table>						
+							</div>
+						</div>
+					</div>
+				</div>				
+			</div>
+		</div>
+	</body>
+</html>

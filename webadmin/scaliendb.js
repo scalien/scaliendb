@@ -118,7 +118,7 @@ var scaliendb =
 				else
 					var value = "";
 				url += value;
-			}                                        
+			}
 			this.get(url, userfunc, true);
 		},
 	
@@ -184,7 +184,30 @@ var scaliendb =
 	
 		trace: function(msg)
 		{
-		}	
+		},
+		
+		startsWith: function(str, s)
+		{
+			return (str.indexOf(s) == 0)
+		},
+		
+		endsWith: function(str, s)
+		{
+			return (str.indexOf(s) == (str.length - s.length));
+		},
+		
+		removeSpaces: function(str)
+		{
+			return str.replace(/ /g,'')
+		},
+	
+		clear: function(node)
+		{
+			while (node.childNodes.length > 0)
+			{
+			    node.removeChild(node.firstChild);
+			}
+		}
 	}	
 }
 
