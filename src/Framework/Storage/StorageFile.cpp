@@ -546,7 +546,6 @@ void StorageFile::WriteData()
         }
     }
 
-    
     // truncate back
     if (numDataPages != numDataPageSlots)
     {

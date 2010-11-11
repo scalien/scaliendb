@@ -99,6 +99,7 @@ void StorageIndexPage::Remove(ReadBuffer key)
     if (!it)
         ASSERT_FAIL();
     keys.Remove(it);
+    assert(ReadBuffer::Cmp(key, it->key) == 0);
     
     required -= (INDEXPAGE_KV_OVERHEAD + it->key.GetLength());
     freeDataPages.Add(it->index);
