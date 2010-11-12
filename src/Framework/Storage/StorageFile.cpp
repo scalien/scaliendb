@@ -136,15 +136,15 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     {
         // file is empty, allocate first data page
         index = 0;
-        assert(numDataPages == 0);
-        assert(dataPages[index] == NULL);
+        ST_ASSERT(numDataPages == 0);
+        ST_ASSERT(dataPages[index] == NULL);
         dataPage = dataPages[index] = DCACHE->GetPage();
         DCACHE->Checkin(dataPage);
         dataPage->SetStorageFileIndex(fileIndex);
         dataPage->SetOffset(DATAPAGE_OFFSET(index));
         dataPage->SetPageSize(dataPageSize);
         dataPage->SetFile(this);
-        assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
+        ST_ASSERT(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
         numDataPages++;
         indexPage.Add(key, index, true); // TODO
         MarkPageDirty(&indexPage);
@@ -165,7 +165,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     {
         // no cache because cursor has the detached copy
         dataPage->Detach();
-        assert(dataPage->HasCursors() == false);
+        ST_ASSERT(dataPage->HasCursors() == false);
     }
     
     if (!dataPage->Set(key, value, copy))
@@ -202,7 +202,7 @@ void StorageFile::Delete(ReadBuffer& key)
     if (dataPages[index]->HasCursors())
     {
         dataPages[index]->Detach();
-        assert(dataPages[index]->HasCursors() == false);
+        ST_ASSERT(dataPages[index]->HasCursors() == false);
     }
 
     dataPages[index]->Delete(key);
@@ -249,7 +249,7 @@ StorageFile* StorageFile::SplitFile()
     StorageFile*    newFile;
     uint32_t        index, newIndex, num;
     
-    assert(numDataPageSlots == numDataPages);
+    ST_ASSERT(numDataPageSlots == numDataPages);
     
     // TODO: do thing for cursors
     
@@ -265,17 +265,17 @@ StorageFile* StorageFile::SplitFile()
     num = numDataPages;
     for (index = numDataPageSlots / 2, newIndex = 0; index < num; index++, newIndex++)
     {
-        assert(dataPages[index]->IsEmpty() != true);
+        ST_ASSERT(dataPages[index]->IsEmpty() != true);
         newFile->dataPages[newIndex] = dataPages[index];
         dataPages[index] = NULL;
         newFile->dataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));
         newFile->dataPages[newIndex]->SetFile(newFile);
 
-        assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
-        assert(newFile->numDataPages == newFile->numDataPageSlots - newFile->indexPage.freeDataPages.GetLength());
+        ST_ASSERT(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
+        ST_ASSERT(newFile->numDataPages == newFile->numDataPageSlots - newFile->indexPage.freeDataPages.GetLength());
         numDataPages--;
         newFile->numDataPages++;
-        assert(newFile->numDataPages < newFile->numDataPageSlots);
+        ST_ASSERT(newFile->numDataPages < newFile->numDataPageSlots);
 
         indexPage.Remove(newFile->dataPages[newIndex]->FirstKey());
         newFile->indexPage.Add(newFile->dataPages[newIndex]->FirstKey(), newIndex, true);
@@ -287,7 +287,7 @@ StorageFile* StorageFile::SplitFile()
         if (dataPages[index]->IsOverflowing())
             SplitDataPage(index);
     }
-    assert(isOverflowing == false);
+    ST_ASSERT(isOverflowing == false);
     
     newFile->isOverflowing = false;
     for (index = 0; index < newFile->numDataPages; index++)
@@ -295,7 +295,7 @@ StorageFile* StorageFile::SplitFile()
         if (newFile->dataPages[index]->IsOverflowing())
             newFile->SplitDataPage(index);
     }
-    assert(newFile->isOverflowing == false);
+    ST_ASSERT(newFile->isOverflowing == false);
     
     ReorderFile();
     newFile->ReorderFile();
@@ -324,7 +324,7 @@ StorageFile* StorageFile::SplitFileByKey(ReadBuffer& startKey)
     ReorderPages();
     
     ret = Locate(startKey);
-    assert(ret >= 0);
+    ST_ASSERT(ret >= 0);
     splitIndex = (uint32_t) ret;
     
     for (index = 0; index < numDataPageSlots; index++)
@@ -344,7 +344,7 @@ StorageFile* StorageFile::SplitFileByKey(ReadBuffer& startKey)
             }
             else
             {
-                assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
+                ST_ASSERT(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
                 newFile->dataPages[index] = dataPages[index];
                 indexPage.Remove(dataPages[index]->FirstKey()); 
                 dataPages[index]->SetDeleted(true);
@@ -352,7 +352,7 @@ StorageFile* StorageFile::SplitFileByKey(ReadBuffer& startKey)
                 numDataPages--;
             }
 
-            assert(newFile->numDataPages == newFile->numDataPageSlots - newFile->indexPage.freeDataPages.GetLength());
+            ST_ASSERT(newFile->numDataPages == newFile->numDataPageSlots - newFile->indexPage.freeDataPages.GetLength());
             newFile->dataPages[index]->SetOffset(DATAPAGE_OFFSET(index));
             newFile->dataPages[index]->SetFile(newFile);
             newFile->dataPages[index]->Invalidate();
@@ -393,18 +393,18 @@ void StorageFile::Read()
         ASSERT_FAIL();
     readBuffer.Wrap(buffer);
     ret = readBuffer.ReadLittle32(indexPageSize);
-    assert(ret == true);
-    assert(indexPageSize != 0);
+    ST_ASSERT(ret == true);
+    ST_ASSERT(indexPageSize != 0);
     
     readBuffer.Advance(sizeof(uint32_t));
     ret = readBuffer.ReadLittle32(dataPageSize);
-    assert(ret == true);
-    assert(dataPageSize != 0);
+    ST_ASSERT(ret == true);
+    ST_ASSERT(dataPageSize != 0);
 
     readBuffer.Advance(sizeof(uint32_t));
     ret = readBuffer.ReadLittle32(numDataPageSlots);
-    assert(ret == true);
-    assert(numDataPageSlots != 0);
+    ST_ASSERT(ret == true);
+    ST_ASSERT(numDataPageSlots != 0);
 
     indexPage.SetOffset(INDEXPAGE_OFFSET);
     indexPage.SetPageSize(indexPageSize);
@@ -421,7 +421,7 @@ void StorageFile::Read()
     indexPage.Read(readBuffer);
 
     // TODO: this is expensive, remove this later
-    assert(GetSize() <= (uint64_t) FS_FileSize(fd));
+    ST_ASSERT(GetSize() <= (uint64_t) FS_FileSize(fd));
     
     // allocate memory for data page slots
     if (dataPages != NULL)
@@ -431,7 +431,7 @@ void StorageFile::Read()
         dataPages[i] = NULL;
     numDataPages = indexPage.NumEntries();  
     
-    assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
+    ST_ASSERT(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
 }
 
 void StorageFile::ReadRest()
@@ -471,7 +471,7 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
     {
         if (it->IsNew())
             continue;
-        assert(it->buffer.GetLength() <= it->GetPageSize());
+        ST_ASSERT(it->buffer.GetLength() <= it->GetPageSize());
         // it->buffer contains the old page
         buffer.Allocate(it->GetPageSize());
         if (!it->CheckWrite(buffer))
@@ -508,7 +508,7 @@ void StorageFile::WriteData()
         buffer.AppendLittle32(dataPageSize);
         buffer.AppendLittle32(numDataPageSlots);
 
-        assert(buffer.GetLength() == INDEXPAGE_HEADER_SIZE);
+        ST_ASSERT(buffer.GetLength() == INDEXPAGE_HEADER_SIZE);
         
         if (FS_FileWrite(fd, (const void *) buffer.GetBuffer(), INDEXPAGE_HEADER_SIZE) != INDEXPAGE_HEADER_SIZE)
             ASSERT_FAIL();
@@ -554,7 +554,7 @@ void StorageFile::WriteData()
     }
     
     // TODO: this is expensive, remove later
-    assert(GetSize() == (uint64_t) FS_FileSize(fd));
+    ST_ASSERT(GetSize() == (uint64_t) FS_FileSize(fd));
 }
 
 StorageDataPage* StorageFile::CursorBegin(StorageCursor* cursor, ReadBuffer& key)
@@ -631,7 +631,7 @@ void StorageFile::UnloadDataPage(StorageDataPage* page)
     int32_t index;
     
     index = DATAPAGE_INDEX(page->GetOffset());
-    assert(dataPages[index] == page);
+    ST_ASSERT(dataPages[index] == page);
     dataPages[index] = NULL;
 }
 
@@ -652,7 +652,7 @@ void StorageFile::SplitDataPage(uint32_t index)
     uint32_t            newIndex;
     StorageDataPage*    newPage;
 
-    assert(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
+    ST_ASSERT(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
     if (numDataPages < numDataPageSlots)
     {
         // make a copy of data
@@ -660,14 +660,14 @@ void StorageFile::SplitDataPage(uint32_t index)
         newPage->SetStorageFileIndex(fileIndex);
         newPage->SetFile(this);
         numDataPages++;
-        assert(numDataPages <= numDataPageSlots);
+        ST_ASSERT(numDataPages <= numDataPageSlots);
         newIndex = indexPage.NextFreeDataPage();
         newPage->SetOffset(DATAPAGE_OFFSET(newIndex));
-        assert(dataPages[newIndex] == NULL);
+        ST_ASSERT(dataPages[newIndex] == NULL);
         dataPages[newIndex] = newPage;
         indexPage.Add(newPage->FirstKey(), newIndex, true); // TODO
-        assert(dataPages[index]->IsDirty() == true);
-        assert(newPage->IsDirty() == false);
+        ST_ASSERT(dataPages[index]->IsDirty() == true);
+        ST_ASSERT(newPage->IsDirty() == false);
         MarkPageDirty(newPage);
         MarkPageDirty(&indexPage);
         
@@ -689,9 +689,9 @@ void StorageFile::ReorderPages()
     
     for (it = indexPage.keys.First(), newIndex = 0; it != NULL; it = indexPage.keys.Next(it), newIndex++)
     {
-        assert(newIndex < numDataPageSlots);
+        ST_ASSERT(newIndex < numDataPageSlots);
         oldIndex = it->index;
-        assert(dataPages[oldIndex] != NULL);
+        ST_ASSERT(dataPages[oldIndex] != NULL);
         it->index = newIndex;
         newDataPages[newIndex] = dataPages[oldIndex];
         newDataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));

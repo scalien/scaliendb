@@ -3,13 +3,17 @@
 
 #include "System/Buffers/Buffer.h"
 #include "System/Platform.h"
+#include "StorageIndexPage.h"
 
 #define STORAGEFILE_TYPE_LENGTH         32
 #define STORAGEFILE_VERSION_LENGTH      4
 #define STORAGEFILE_CRC_LENGTH          4
-#define STORAGEFILE_UNDEFINED_LENGTH    24
+#define STORAGEFILE_UNDEFINED_LENGTH    (STORAGEFILE_HEADER_LENGTH - \
+                                        STORAGEFILE_TYPE_LENGTH - \
+                                        STORAGEFILE_VERSION_LENGTH - \
+                                        STORAGEFILE_CRC_LENGTH)
 
-#define STORAGEFILE_HEADER_LENGTH       64
+#define STORAGEFILE_HEADER_LENGTH       (4096 - INDEXPAGE_HEADER_SIZE)
 
 /*
 ===============================================================================
