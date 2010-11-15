@@ -45,7 +45,6 @@ void StorageIndexPage::SetNumDataPageSlots(uint32_t numDataPageSlots_)
         freeDataPages.Add(i);
 }
 
-// TODO: this should be renamed because it also updates the KeyIndex
 void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 {
     StorageKeyIndex*    ki;
@@ -55,7 +54,6 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     
     ST_ASSERT(keys.Get(key) == NULL);
     
-    ki = keys.Get(key);
     required += INDEXPAGE_KV_OVERHEAD + key.GetLength();
 
     ki = new StorageKeyIndex;
@@ -157,7 +155,9 @@ int32_t StorageIndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
     else
         index = keys.Prev(it)->index;
 
-    it = keys.Next(it);
+    // find nextKey
+    if (cmpres >= 0)
+        it = keys.Next(it);
     if (it && nextKey)
         nextKey->Write(it->key);
 

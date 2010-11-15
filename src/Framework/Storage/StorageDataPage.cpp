@@ -98,7 +98,7 @@ void StorageDataPage::UnregisterCursor(StorageCursor* cursor)
 StorageKeyValue* StorageDataPage::CursorBegin(ReadBuffer& key)
 {
     StorageKeyValue*    it;
-    int         retcmp;
+    int                 retcmp;
     
     it = keys.Locate(key, retcmp);
     

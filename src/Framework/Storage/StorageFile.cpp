@@ -585,9 +585,8 @@ uint64_t StorageFile::GetSize()
 int32_t StorageFile::Locate(ReadBuffer& key)
 {
     int32_t index;
-    Buffer  nextKey;
     
-    index = indexPage.Locate(key, &nextKey);
+    index = indexPage.Locate(key);
     
     if (index < 0)  // file is empty
         return index;
