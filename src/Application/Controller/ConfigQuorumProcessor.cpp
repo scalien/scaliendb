@@ -93,6 +93,93 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     TryAppend();
 }
 
+bool ConfigQuorumProcessor::HasActivateMessage(uint64_t quorumID, uint64_t nodeID)
+{
+    ConfigMessage *it;
+    
+    FOREACH(it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
+         it->quorumID == quorumID && it->nodeID == nodeID)
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+bool ConfigQuorumProcessor::HasDeactivateMessage(uint64_t quorumID, uint64_t nodeID)
+{
+    ConfigMessage *it;
+    
+    FOREACH(it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
+         it->quorumID == quorumID && it->nodeID == nodeID)
+        {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+void ConfigQuorumProcessor::ActivateNode(uint64_t quorumID, uint64_t nodeID)
+{
+    ConfigMessage* message;
+ 
+    if (HasActivateMessage(quorumID, nodeID))
+        return;
+          
+    message = new ConfigMessage();
+    message->fromClient = false;
+    message->ActivateShardServer(quorumID, nodeID);
+    configMessages.Append(message);
+    
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID)
+{
+    ConfigMessage* message;
+
+    if (HasDeactivateMessage(quorumID, nodeID))
+        return;
+    
+    message = new ConfigMessage();
+    message->fromClient = false;
+    message->DeactivateShardServer(quorumID, nodeID);
+    configMessages.Append(message);
+    
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::OnLearnLease()
+{
+    // nothing
+}
+
+void ConfigQuorumProcessor::OnLeaseTimeout()
+{
+}
+
+void ConfigQuorumProcessor::OnIsLeader()
+{
+}
+
+void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, bool ownAppend)
+{
+}
+
+void ConfigQuorumProcessor::OnStartCatchup()
+{
+}
+
+void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& message)
+{
+}
+
 void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessage* message)
 {
     message->fromClient = true;

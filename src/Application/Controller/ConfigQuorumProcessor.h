@@ -31,7 +31,12 @@ public:
     void                    TryAppend();
 
     void                    OnClientRequest(ClientRequest* request);
-    void                    OnClientClose(ClientSession* session);
+
+    bool                    HasActivateMessage(uint64_t quorumID, uint64_t nodeID);
+    bool                    HasDeactivateMessage(uint64_t quorumID, uint64_t nodeID);
+
+    void                    ActivateNode(uint64_t quorumID, uint64_t nodeID);
+    void                    DeactivateNode(uint64_t quorumID, uint64_t nodeID);
 
     // ========================================================================================
     // For ConfigQuorumContext:

@@ -45,23 +45,22 @@ private:
 ===============================================================================================
 */
 
-//class PrimaryLease
-//{
-//public:
-//    PrimaryLease();
-//
-//    uint64_t        quorumID;
-//    uint64_t        nodeID;
-//    uint64_t        expireTime;
-//    
-//    PrimaryLease*   prev;
-//    PrimaryLease*   next;
-//};
-//
-//inline bool LessThan(PrimaryLease &a, PrimaryLease &b)
-//{
-//    return (a.expireTime < b.expireTime);
-//}
+class PrimaryLease
+{
+public:
+    PrimaryLease();
 
+    uint64_t        quorumID;
+    uint64_t        nodeID;
+    uint64_t        expireTime;
+    
+    PrimaryLease*   prev;
+    PrimaryLease*   next;
+};
+
+inline bool LessThan(PrimaryLease &a, PrimaryLease &b)
+{
+    return (a.expireTime < b.expireTime);
+}
 
 #endif

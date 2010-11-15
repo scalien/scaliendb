@@ -13,11 +13,9 @@ void ConfigActivationManager::Init(Controller* controller_)
 
 void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
 {
-    bool                found;
     uint64_t*           itNodeID;
     ConfigState*        configState;
     ConfigQuorum*       itQuorum;
-    ConfigMessage*      itConfigMessage;
     ConfigShardServer*  shardServer;
 
     configState = controller->GetConfigState();
@@ -62,26 +60,8 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                      " and shard server %" PRIu64 "",
                      itQuorum->quorumID, itQuorum->activatingNodeID);
                 }
-
-                // make sure there is no corresponding deactivate message pending
-                found = false;
-                FOREACH(itConfigMessage, configMessages)
-                {
-                    if (itConfigMessage->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
-                     itConfigMessage->quorumID == itQuorum->quorumID &&
-                     itConfigMessage->nodeID == nodeID)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found)
-                    continue;
-                itConfigMessage = new ConfigMessage();
-                itConfigMessage->fromClient = false;
-                itConfigMessage->DeactivateShardServer(itQuorum->quorumID, nodeID);
-                configMessages.Append(itConfigMessage);
-                controller->GetQuorumProcessor()->TryAppend();
+                
+                controller->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
             }
         }
     }
@@ -89,15 +69,14 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
 
 void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
 {
-    uint64_t            now;
     uint64_t            paxosID;
     uint64_t*           itNodeID;
     ConfigState*        configState;
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
-    
-    configState = controller->GetConfigState();
+    uint64_t            now;
 
+    configState = controller->GetConfigState();
     shardServer = configState->GetShardServer(nodeID);
 
     now = EventLoop::Now();
@@ -135,6 +114,35 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
                      itQuorum->quorumID, itQuorum->activatingNodeID);
                 }
             }
+        }
+    }    
+}
+
+void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage& message)
+{
+    if (!quorum.isActivatingNode || quorum.isReplicatingActivation ||
+     message.configID != quorum.configID)
+        return;
+
+
+    if (!quorum.isWatchingPaxosID)
+    {
+        // start monitoring the primary's paxosID
+        quorum.isWatchingPaxosID = true;
+        quorum.activationPaxosID = message.paxosID;
+        controller->OnConfigStateChanged();
+    }
+    else
+    {
+        // if the primary was able to increase its paxosID, the new shardserver joined successfully
+        if (message.paxosID > quorum.activationPaxosID)
+        {
+            quorum.isWatchingPaxosID = false;
+            quorum.isReplicatingActivation = true;
+            quorum.activationExpireTime = 0;
+            controller->OnConfigStateChanged();
+
+            controller->GetQuorumProcessor()->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
         }
     }    
 }

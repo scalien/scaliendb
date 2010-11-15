@@ -2,6 +2,8 @@
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
 #include "Controller.h"
+#include "ConfigQuorumProcessor.h"
+#include "ConfigActivationManager.h"
 
 void ConfigPrimaryLeaseManager::Init(Controller* controller_)
 {
@@ -32,7 +34,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 
     UpdateTimer();
 
-    controller->OnConfigStateChanged(); // UpdateListeners();
+    controller->OnConfigStateChanged();
 }
 
 void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
@@ -101,14 +103,10 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
 
 void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
-    bool                    found;
-    unsigned                duration;
+    uint64_t                duration;
     PrimaryLease*           it;
-    ConfigMessage*          itConfigMessage;
     ClusterMessage          response;
     ConfigQuorum::NodeList  activeNodes;
-
-    duration = MIN(message.duration, PAXOSLEASE_MAX_LEASE_TIME);
 
     FOREACH(it, primaryLeases)
     {
@@ -129,52 +127,7 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
      message.proposalID, duration, activeNodes);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 
-    controller->OnLearnPrimaryLease();
-
-    // keep track of paxosID of shard server
-    // if it's able to increase it, the new shard server has successfully joined the quorum
-    if (quorum.isActivatingNode &&
-     !quorum.isReplicatingActivation && message.configID == quorum.configID)
-    {
-        if (!quorum.isWatchingPaxosID)
-        {
-            // start monitoring its paxosID
-            quorum.activationPaxosID = message.paxosID;
-            quorum.isWatchingPaxosID = true;
-        }
-        else
-        {
-            if (message.paxosID > quorum.activationPaxosID)
-            {
-                quorum.isWatchingPaxosID = false;
-                // node successfully joined the quorum, tell other Controllers!
-                quorum.isReplicatingActivation = true;
-                quorum.activationExpireTime = 0;
-                UpdateActivationTimeout();
-
-                // make sure there is no corresponding activate message pending
-                found = false;
-                FOREACH(itConfigMessage, configMessages)
-                {
-                    if (itConfigMessage->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
-                     itConfigMessage->quorumID == quorum.quorumID &&
-                     itConfigMessage->nodeID == quorum.activatingNodeID)
-                    {
-                        found = true;
-                        break;
-                    }
-                }
-                if (found)
-                    return;
-                    
-                itConfigMessage = new ConfigMessage();
-                itConfigMessage->fromClient = false;
-                itConfigMessage->ActivateShardServer(quorum.quorumID, quorum.activatingNodeID);
-                configMessages.Append(itConfigMessage);
-                TryAppend();
-            }
-        }    
-    }
+   controller->GetActivationManager()->OnExtendLease(quorum, message);
 }
 
 void ConfigPrimaryLeaseManager::UpdateTimer()
@@ -197,10 +150,10 @@ void ConfigPrimaryLeaseManager::UpdateTimer()
     }
 }
 
-//PrimaryLease::PrimaryLease()
-//{
-//    prev = next = this;
-//    quorumID = 0;
-//    nodeID = 0;
-//    expireTime = 0;
-//}
+PrimaryLease::PrimaryLease()
+{
+    prev = next = this;
+    quorumID = 0;
+    nodeID = 0;
+    expireTime = 0;
+}

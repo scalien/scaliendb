@@ -2,6 +2,7 @@
 #define CONFIGACTIVATIoNMANAGER_H
 
 #include "System/Events/Timer.h"
+#include "Application/Common/ClusterMessage.h"
 
 class Controller; // forward
 
@@ -20,6 +21,7 @@ public:
 
     void            TryDeactivateShardServer(uint64_t nodeID);
     void            TryActivateShardServer(uint64_t nodeID);
+    void            OnExtendLease(ConfigQuorum& quorum, ClusterMessage& message);
     
     void            OnActivationTimeout();
 

@@ -17,8 +17,9 @@
 class ClientSession;            // forward
 class PrimaryLease;             // forward
 class Heartbeat;                // forward
-class ConfigHeartbeatManager;         // forward
-class ConfigQuorumProcessor;          // forward
+class ConfigHeartbeatManager;       // forward
+class ConfigQuorumProcessor;        // forward
+class ConfigActivationManager;      // forward
 
 #define HEARTBEAT_EXPIRE_TIME           7000        // msec
 #define ACTIVATION_FAILED_PENALTY_TIME  60*60*1000  // msec, 1 hour
@@ -45,15 +46,19 @@ public:
     bool                IsMaster();
     int64_t             GetMaster();
     uint64_t            GetNodeID();
-    uint64_t            GetReplicationRound();
 
     ConfigState*        GetConfigState();
     
     ConfigHeartbeatManager*     GetHeartbeatManager();
     ConfigQuorumProcessor*      GetQuorumProcessor();
-    void                OnConfigStateChanged();
-    
-    
+    ConfigActivationManager*    GetActivationManager();
+
+    void                OnConfigStateChanged()
+    {
+        UpdateActivationTimeout();
+        UpdateListeners();
+    }
+
 //    void                RegisterHeartbeat(uint64_t nodeID);
 //    bool                HasHeartbeat(uint64_t nodeID);
 
@@ -83,23 +88,11 @@ public:
     // ========================================================================================
 
 private:
-    void                TryAppend();
-    void                FromClientRequest(ClientRequest* request, ConfigMessage* message);
     void                ToClientResponse(ConfigMessage* message, ClientResponse* response);
-    void                OnPrimaryLeaseTimeout();
-    void                OnActivationTimeout();
-    void                OnHeartbeatTimeout();
-    void                TryDeactivateShardServer(uint64_t nodeID);
-    void                TryActivatingShardServer(uint64_t nodeID);
-//    void                TryActivateShardServer(uint64_t nodeID);
     void                TryRegisterShardServer(Endpoint& endpoint);
     void                ReadConfigState();
     void                WriteConfigState();
     void                SendClientResponse(ConfigMessage& message);
-    void                OnHeartbeat(ClusterMessage& message);
-    void                OnRequestLease(ClusterMessage& message);
-    void                AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
-    void                ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
     void                UpdatePrimaryLeaseTimer();
     void                UpdateActivationTimeout();
     void                UpdateListeners();
@@ -120,57 +113,5 @@ private:
     StorageDatabase*    systemDatabase;
     StorageEnvironment  databaseEnv;
 };
-
-/*
-===============================================================================================
-
- PrimaryLease
-
-===============================================================================================
-*/
-
-class PrimaryLease
-{
-public:
-    PrimaryLease()  { prev = next = this; quorumID = nodeID = expireTime = 0; }
-
-    uint64_t        quorumID;
-    uint64_t        nodeID;
-    uint64_t        expireTime;
-    
-    PrimaryLease*   prev;
-    PrimaryLease*   next;
-};
-
-inline bool LessThan(PrimaryLease &a, PrimaryLease &b)
-{
-    return (a.expireTime < b.expireTime);
-}
-
-/*
-===============================================================================================
-
- Heartbeat
-
-===============================================================================================
-*/
-
-class Heartbeat
-{
-public:
-
-    Heartbeat()     { prev = next = this; }
-
-    uint64_t        nodeID;
-    uint64_t        expireTime;
-    
-    Heartbeat*      prev;
-    Heartbeat*      next;
-};
-
-inline bool LessThan(Heartbeat &a, Heartbeat &b)
-{
-    return (a.expireTime < b.expireTime);
-}
 
 #endif

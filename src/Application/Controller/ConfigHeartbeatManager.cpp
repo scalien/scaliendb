@@ -1,6 +1,7 @@
 #include "ConfigHeartbeatManager.h"
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
+#include "ConfigActivationManager.h"
 #include "Controller.h"
 
 void ConfigHeartbeatManager::Init(Controller* controller_)
