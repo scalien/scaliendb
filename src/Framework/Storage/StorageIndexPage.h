@@ -50,6 +50,8 @@ public:
     bool                    Write(Buffer& buffer);
     
 private:
+    void                    UpdateHighestIndex(uint32_t index);
+
     uint32_t                numDataPageSlots;
     uint32_t                required;
     int32_t                 maxDataPageIndex;

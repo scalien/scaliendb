@@ -45,6 +45,7 @@ void StorageIndexPage::SetNumDataPageSlots(uint32_t numDataPageSlots_)
         freeDataPages.Add(i);
 }
 
+// TODO: this should be renamed because it also updates the KeyIndex
 void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
 {
     StorageKeyIndex*    ki;
@@ -52,8 +53,9 @@ void StorageIndexPage::Add(ReadBuffer key, uint32_t index, bool copy)
     
     //Log_Message("key = %.*s, index = %u", P(&key), (unsigned) index);
     
-    ST_ASSERT(keys.Get<ReadBuffer&>(key) == NULL);
+    ST_ASSERT(keys.Get(key) == NULL);
     
+    ki = keys.Get(key);
     required += INDEXPAGE_KV_OVERHEAD + key.GetLength();
 
     ki = new StorageKeyIndex;
@@ -92,8 +94,6 @@ void StorageIndexPage::Remove(ReadBuffer key)
 {
     StorageKeyIndex*    it;
     uint32_t            index;
-//  uint32_t            prevIndex;
-//  uint32_t*           iit;
 
     it = keys.Get<ReadBuffer&>(key);
     ST_ASSERT(it != NULL);
@@ -105,40 +105,7 @@ void StorageIndexPage::Remove(ReadBuffer key)
     index = it->index;
     delete it;
 
-    // maintain the new highest data page index
-    if ((int32_t) index != maxDataPageIndex)
-        return;
-
-    maxDataPageIndex = -1;
-    for (it = keys.First(); it != NULL; it = keys.Next(it))
-    {
-        if ((int32_t) it->index > maxDataPageIndex)
-            maxDataPageIndex = it->index;
-    }
-        
-    // TODO: debug this optimized version
-//  // if the last free page is not the last page, then
-//  // the last page is the highest page index 
-//  iit = freeDataPages.Last();
-//  if (*iit < numDataPageSlots - 1)
-//  {
-//      maxDataPageIndex = numDataPageSlots - 1;
-//      return;
-//  }
-//  
-//  // iterate through the free list and find a hole in it
-//  prevIndex = *iit;
-//  iit = freeDataPages.First();
-//  maxDataPageIndex = *iit - 1;
-//  for (iit = freeDataPages.Last(); iit != NULL; iit = freeDataPages.Prev(iit))
-//  {
-//      if (prevIndex - *iit > 1)
-//      {
-//          maxDataPageIndex = prevIndex - 1;
-//          return;
-//      }
-//      prevIndex = *iit;
-//  }
+    UpdateHighestIndex(index);
 }
 
 bool StorageIndexPage::IsEmpty()
@@ -310,4 +277,46 @@ bool StorageIndexPage::Write(Buffer& buffer)
     this->buffer.Write(buffer);
     
     return ret;
+}
+
+void StorageIndexPage::UpdateHighestIndex(uint32_t index)
+{
+//  uint32_t            prevIndex;
+//  uint32_t*           iit;
+    StorageKeyIndex*    it;
+
+    // maintain the new highest data page index
+    if ((int32_t) index != maxDataPageIndex)
+        return;
+
+    maxDataPageIndex = -1;
+    for (it = keys.First(); it != NULL; it = keys.Next(it))
+    {
+        if ((int32_t) it->index > maxDataPageIndex)
+            maxDataPageIndex = it->index;
+    }
+        
+    // TODO: debug this optimized version
+//  // if the last free page is not the last page, then
+//  // the last page is the highest page index 
+//  iit = freeDataPages.Last();
+//  if (*iit < numDataPageSlots - 1)
+//  {
+//      maxDataPageIndex = numDataPageSlots - 1;
+//      return;
+//  }
+//  
+//  // iterate through the free list and find a hole in it
+//  prevIndex = *iit;
+//  iit = freeDataPages.First();
+//  maxDataPageIndex = *iit - 1;
+//  for (iit = freeDataPages.Last(); iit != NULL; iit = freeDataPages.Prev(iit))
+//  {
+//      if (prevIndex - *iit > 1)
+//      {
+//          maxDataPageIndex = prevIndex - 1;
+//          return;
+//      }
+//      prevIndex = *iit;
+//  }
 }
