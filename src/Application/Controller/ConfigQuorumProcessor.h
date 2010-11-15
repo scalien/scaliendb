@@ -3,6 +3,7 @@
 
 #include "Application/Common/ClusterMessage.h"
 #include "Application/Common/ClientRequest.h"
+#include "Application/Common/CatchupMessage.h"
 #include "ConfigQuorumContext.h"
 
 class Controller; // forward
