@@ -1,5 +1,5 @@
-#ifndef CATCHUPWRITER_H
-#define CATCHUPWRITER_H
+#ifndef SHARDCATCHUPWRITER_H
+#define SHARDCATCHUPWRITER_H
 
 #include "Framework/Storage/StorageCursor.h"
 #include "Application/Common/CatchupMessage.h"

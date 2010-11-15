@@ -1,5 +1,5 @@
-#ifndef HTTPSHARDSERVERSESSION_H
-#define HTTPSHARDSERVERSESSION_H
+#ifndef SHARDHTTPCLIENTSESSION_H
+#define SHARDHTTPCLIENTSESSION_H
 
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"

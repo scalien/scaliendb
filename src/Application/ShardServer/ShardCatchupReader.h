@@ -1,5 +1,5 @@
-#ifndef CATCHUPREADER_H
-#define CATCHUPREADER_H
+#ifndef SHARDCATCHUPREADER_H
+#define SHARDCATCHUPREADER_H
 
 #include "Framework/Storage/StorageShard.h"
 #include "Application/Common/CatchupMessage.h"
