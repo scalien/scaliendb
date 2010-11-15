@@ -382,15 +382,15 @@ void StorageFile::Read()
     // read file header
     buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
     if (FS_FileRead(fd, (void*) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) != STORAGEFILE_HEADER_LENGTH)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
     if (!header.Read(buffer))
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     // read index header
     buffer.Allocate(INDEXPAGE_HEADER_SIZE);
     if (FS_FileRead(fd, (void*) buffer.GetBuffer(), INDEXPAGE_HEADER_SIZE) != INDEXPAGE_HEADER_SIZE)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     readBuffer.Wrap(buffer);
     ret = readBuffer.ReadLittle32(indexPageSize);
     ST_ASSERT(ret == true);
@@ -415,7 +415,7 @@ void StorageFile::Read()
     buffer.Allocate(indexPageSize);
     length = FS_FileRead(fd, (void*) buffer.GetBuffer(), indexPageSize);
     if (length != (int) indexPageSize)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);
     indexPage.Read(readBuffer);
@@ -462,7 +462,7 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
         if (!recoveryLog.WriteOp(RECOVERY_OP_FILE, sizeof(fileIndex), buffer))
         {
             Log_Errno();
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         }
         return;
     }
@@ -479,7 +479,7 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
         if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer))
         {
             Log_Errno();
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         }
     }
 }
@@ -499,7 +499,7 @@ void StorageFile::WriteData()
         header.Init(FILE_TYPE, FILE_VERSION_MAJOR, FILE_VERSION_MINOR, 0);
         header.Write(buffer);
         if (FS_FileWrite(fd, (const void *) buffer.GetBuffer(), STORAGEFILE_HEADER_LENGTH) != STORAGEFILE_HEADER_LENGTH)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         
         buffer.Allocate(INDEXPAGE_HEADER_SIZE);
         buffer.SetLength(0);
@@ -511,7 +511,7 @@ void StorageFile::WriteData()
         ST_ASSERT(buffer.GetLength() == INDEXPAGE_HEADER_SIZE);
         
         if (FS_FileWrite(fd, (const void *) buffer.GetBuffer(), INDEXPAGE_HEADER_SIZE) != INDEXPAGE_HEADER_SIZE)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         
         newFile = false;
     }
@@ -526,7 +526,7 @@ void StorageFile::WriteData()
         {
             ret = FS_FileWriteOffs(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset());
             if (ret != (int) it->GetPageSize())
-                ASSERT_FAIL();
+                ST_ASSERT(false);
         }
         it->SetDirty(false);
         it->SetNew(false);
@@ -618,8 +618,8 @@ void StorageFile::LoadDataPage(uint32_t index)
     buffer.Allocate(dataPageSize);
     STORAGE_TRACE("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
     length = FS_FileReadOffs(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
-    if (length != (int) dataPageSize)
-        ASSERT_FAIL();
+    ST_ASSERT(length == (int) dataPageSize);
+    
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);
     dataPages[index]->Read(readBuffer);

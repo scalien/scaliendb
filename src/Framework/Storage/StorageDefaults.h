@@ -26,8 +26,10 @@
 #define ST_ASSERT(expr) \
 { \
     if (!(expr)) \
+    { \
         PrintStackTrace(); \
-    assert(expr); \
+        assert(expr); \
+    } \
 }
 #else
 #define ST_ASSERT assert

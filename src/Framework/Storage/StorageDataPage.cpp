@@ -144,8 +144,7 @@ StorageDataPage* StorageDataPage::SplitDataPage()
     StorageKeyValue*    next;
     uint32_t            target, sum, kvsize;
     
-    if (required > 2 * pageSize)
-        ASSERT_FAIL();
+    ST_ASSERT(required <= 2 * pageSize);
     
     target = (required - DATAPAGE_FIX_OVERHEAD) / 2 + DATAPAGE_FIX_OVERHEAD;
     sum = DATAPAGE_FIX_OVERHEAD;
@@ -159,8 +158,8 @@ StorageDataPage* StorageDataPage::SplitDataPage()
             break;
     }
         
-    assert(it != NULL);
-    assert(it != keys.First());
+    ST_ASSERT(it != NULL);
+    ST_ASSERT(it != keys.First());
     
     newPage = DCACHE->GetPage();
     DCACHE->Checkin(newPage);
@@ -168,8 +167,8 @@ StorageDataPage* StorageDataPage::SplitDataPage()
     newPage->SetStorageFileIndex(fileIndex);
     newPage->SetFile(file);
     newPage->buffer.Allocate(pageSize);
-    assert(newPage->required == DATAPAGE_FIX_OVERHEAD);
-    assert(newPage->keys.GetCount() == 0);
+    ST_ASSERT(newPage->required == DATAPAGE_FIX_OVERHEAD);
+    ST_ASSERT(newPage->keys.GetCount() == 0);
     while (it != NULL)
     {
         required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
@@ -192,13 +191,13 @@ StorageDataPage* StorageDataPage::SplitDataPage()
         r += (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
         num++;
     }   
-    assert(num == newPage->keys.GetCount());
-    assert(newPage->required == r);
+    ST_ASSERT(num == newPage->keys.GetCount());
+    ST_ASSERT(newPage->required == r);
 #endif
     // CHECK block end
 
-    assert(IsEmpty() != true);
-    assert(newPage->IsEmpty() != true);
+    ST_ASSERT(IsEmpty() != true);
+    ST_ASSERT(newPage->IsEmpty() != true);
     
     return newPage;
 }
@@ -216,9 +215,9 @@ StorageDataPage* StorageDataPage::SplitDataPageByKey(ReadBuffer& key)
     newPage->SetFile(file);
     newPage->buffer.Allocate(pageSize);
     
-    assert(newPage->required == DATAPAGE_FIX_OVERHEAD);
-    assert(newPage->keys.GetCount() == 0);
-    assert(keys.Get(key) != NULL);
+    ST_ASSERT(newPage->required == DATAPAGE_FIX_OVERHEAD);
+    ST_ASSERT(newPage->keys.GetCount() == 0);
+    ST_ASSERT(keys.Get(key) != NULL);
     
     for (it = keys.Get(key); it != NULL; it = next)
     {
@@ -268,7 +267,7 @@ void StorageDataPage::Detach()
         if (cursor->current != NULL)
         {
             cursor->current = detached->keys.Locate(cursor->current->key, cmpres);
-            assert(cmpres == 0);
+            ST_ASSERT(cmpres == 0);
         }
     }
 }
@@ -291,20 +290,20 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
     readBuffer = buffer;
 
     ret = readBuffer.ReadLittle32(pageSize);
-    assert(ret == true);
-    assert(pageSize != 0);
+    ST_ASSERT(ret == true);
+    ST_ASSERT(pageSize != 0);
 
     readBuffer.Advance(sizeof(uint32_t));
     ret = readBuffer.ReadLittle32(fileIndex);
-    assert(ret == true);
+    ST_ASSERT(ret == true);
 
     readBuffer.Advance(sizeof(uint32_t));
     ret = readBuffer.ReadLittle32(offset);
-    assert(ret == true);
+    ST_ASSERT(ret == true);
 
     readBuffer.Advance(sizeof(uint32_t));
     ret = readBuffer.ReadLittle32(num);
-    assert(ret == true);
+    ST_ASSERT(ret == true);
 
     readBuffer.Advance(sizeof(uint32_t));
     STORAGE_TRACE("reading datapage for file %u at offset %u\n", fileIndex, offset);
@@ -313,14 +312,14 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
         kv = new StorageKeyValue;
 
         ret = readBuffer.ReadLittle32(len);
-        assert(ret == true);
+        ST_ASSERT(ret == true);
         readBuffer.Advance(sizeof(uint32_t));
         kv->key.SetLength(len);
         kv->key.SetBuffer(readBuffer.GetBuffer());
 
         readBuffer.Advance(len);
         ret = readBuffer.ReadLittle32(len);
-        assert(ret == true);
+        ST_ASSERT(ret == true);
 
         readBuffer.Advance(sizeof(uint32_t));
         kv->value.SetLength(len);
@@ -333,7 +332,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
     
     required = readBuffer.GetBuffer() - buffer.GetBuffer();
     this->buffer.SetLength(required);
-    assert(IsEmpty() != true);
+    ST_ASSERT(IsEmpty() != true);
 }
 
 bool StorageDataPage::CheckWrite(Buffer& buffer)
@@ -343,16 +342,16 @@ bool StorageDataPage::CheckWrite(Buffer& buffer)
     uint32_t            num;
     
     if (newPage)
-        assert(this->buffer.GetLength() == 0);
+        ST_ASSERT(this->buffer.GetLength() == 0);
 
     this->buffer.Allocate(pageSize);
 
     buffer.SetLength(0);
 
-    assert(pageSize > 0);
+    ST_ASSERT(pageSize > 0);
     buffer.AppendLittle32(pageSize);
 
-    assert(fileIndex != 0);
+    ST_ASSERT(fileIndex != 0);
     buffer.AppendLittle32(fileIndex);
 
     buffer.AppendLittle32(offset);
@@ -372,7 +371,7 @@ bool StorageDataPage::CheckWrite(Buffer& buffer)
         buffer.Append(it->value.GetBuffer(), it->value.GetLength());
 //      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }
-    assert(required == buffer.GetLength());
+    ST_ASSERT(required == buffer.GetLength());
     if (BUFCMP(&buffer, &this->buffer))
         return false;
     
@@ -392,16 +391,16 @@ bool StorageDataPage::Write(Buffer& buffer)
     uint32_t            num;
     
     if (newPage)
-        assert(this->buffer.GetLength() == 0);
+        ST_ASSERT(this->buffer.GetLength() == 0);
 
     this->buffer.Allocate(pageSize);
 
     buffer.SetLength(0);
 
-    assert(pageSize > 0);
+    ST_ASSERT(pageSize > 0);
     buffer.AppendLittle32(pageSize);
 
-    assert(fileIndex != 0);
+    ST_ASSERT(fileIndex != 0);
     buffer.AppendLittle32(fileIndex);
 
     buffer.AppendLittle32(offset);
@@ -440,7 +439,7 @@ bool StorageDataPage::Write(Buffer& buffer)
 
 //      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }
-    assert(required == buffer.GetLength());
+    ST_ASSERT(required == buffer.GetLength());
     if (BUFCMP(&buffer, &this->buffer))
         return false;
     

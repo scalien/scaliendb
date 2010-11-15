@@ -82,7 +82,7 @@ void StorageTable::Open(const char* dir, const char* name_)
     if (!FS_IsDirectory(path.GetBuffer()))
     {
         if (!FS_CreateDir(path.GetBuffer()))
-            ASSERT_FAIL();
+            ST_ASSERT(false);
     }
     
     name.Write(name_);
@@ -98,13 +98,13 @@ void StorageTable::Open(const char* dir, const char* name_)
 
     tocFD = FS_Open(tocFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
     if (tocFD == INVALID_FD)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 
     recoveryFD = FS_Open(recoveryFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
     if (recoveryFD == INVALID_FD)
     {
         Log_Message("%s", recoveryFilepath.GetBuffer());
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     }
 
     recoverySize = FS_FileSize(recoveryFD);
@@ -237,7 +237,7 @@ StorageShard* StorageTable::GetShard(uint64_t shardID)
         {
             // TODO: HACK read first key to read it into memory
             si = Locate(si->startKey);
-            assert(si != NULL);
+            ST_ASSERT(si != NULL);
         
             return si->shard;
         }
@@ -265,8 +265,8 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
     dirName.NullTerminate();
 
     si = Locate(startKey);
-    assert(si != NULL);
-    assert(si->shardID == oldShardID);
+    ST_ASSERT(si != NULL);
+    ST_ASSERT(si->shardID == oldShardID);
 
     WriteRecoveryCreateShard(oldShardID, newShardID);
     
@@ -297,7 +297,7 @@ bool StorageTable::SplitShard(uint64_t oldShardID, uint64_t newShardID, ReadBuff
             // TODO: HACK it would be better to store shardIDs here instead of paths
             WriteRecoveryMove(srcFile, dstFile);
             if (!FS_Rename(srcFile.GetBuffer(), dstFile.GetBuffer()))
-                ASSERT_FAIL();
+                ST_ASSERT(false);
         }
     }
 
@@ -362,7 +362,7 @@ StorageShardIndex* StorageTable::Locate(ReadBuffer& key)
     
     if (ReadBuffer::LessThan(key, shards.First()->startKey))
     {
-        ASSERT_FAIL();
+        ST_ASSERT(false);
         return NULL;
     }
         
@@ -417,7 +417,7 @@ void StorageTable::PerformRecovery(uint64_t length)
         op = FromLittle32(*((uint32_t*) p));
         p += sizeof(op);
         total = FromLittle64(*((uint64_t*) p));
-        assert(op <= RECOVERY_OP_MOVE);
+        ST_ASSERT(op <= RECOVERY_OP_MOVE);
         
         if (FS_FileSeek(recoveryFD, total, FS_SEEK_CUR) < 0)
             break;
@@ -439,7 +439,7 @@ void StorageTable::PerformRecovery(uint64_t length)
     {
         required = sizeof(op) + sizeof(total);
         if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
             
         p = buffer.GetBuffer();
         op = FromLittle32(*((uint32_t*) p));
@@ -459,7 +459,7 @@ void StorageTable::PerformRecovery(uint64_t length)
             PerformRecoveryCreateShard(oldShardID, newShardID);
             break;
         default:
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         }       
 
         if (pos == length)
@@ -486,7 +486,7 @@ void StorageTable::PerformRecoveryCreateShard(uint64_t& oldShardID, uint64_t& ne
 
     required = sizeof(oldShardID) + sizeof(newShardID);
     if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     p = buffer.GetBuffer();
     
     oldShardID = FromLittle64(*((uint64_t*) p));
@@ -517,7 +517,7 @@ void StorageTable::PerformRecoveryCopy()
 
     required = sizeof(oldShardID) + sizeof(fileIndex) + sizeof(length);
     if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     p = buffer.GetBuffer();
     
     oldShardID = FromLittle64(*((uint64_t*) p));
@@ -536,7 +536,7 @@ void StorageTable::PerformRecoveryCopy()
     
     dataFD = FS_Open(filename.GetBuffer(), FS_READWRITE);
     if (dataFD == INVALID_FD)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     // copy the file back to the original shard
     buffer.Allocate(bufsize);
@@ -545,9 +545,9 @@ void StorageTable::PerformRecoveryCopy()
     {
         unsigned nread = required % bufsize;
         if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), nread) != (ssize_t) nread)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         if (FS_FileWrite(dataFD, (const void *) buffer.GetBuffer(), nread) != (ssize_t) nread)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         required -= nread;
     }
     
@@ -565,7 +565,7 @@ void StorageTable::PerformRecoveryMove()
 
     required = sizeof(oldNameLength);
     if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     p = buffer.GetBuffer();
     
     oldNameLength = FromLittle32(*((uint32_t*) p));
@@ -574,14 +574,14 @@ void StorageTable::PerformRecoveryMove()
     required = oldNameLength;
     oldName.Allocate(oldNameLength + 1);
     if (FS_FileRead(recoveryFD, (void*) oldName.GetBuffer(), required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 
     oldName.SetLength(oldNameLength);
     oldName.NullTerminate();
     
     required = sizeof(newNameLength);
     if (FS_FileRead(recoveryFD, (void*) buffer.GetBuffer(), required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     p = buffer.GetBuffer();
     
     newNameLength = FromLittle32(*((uint32_t*) p));
@@ -589,7 +589,7 @@ void StorageTable::PerformRecoveryMove()
     required = newNameLength;
     newName.Allocate(newNameLength + 1);
     if (FS_FileRead(recoveryFD, (void*) newName.GetBuffer(), required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 
     newName.SetLength(newNameLength);
     newName.NullTerminate();
@@ -660,19 +660,19 @@ void StorageTable::ReadTOC(uint64_t length)
     
     headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
     if ((ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH)) < 0)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     if (ret != STORAGEFILE_HEADER_LENGTH)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     headerBuf.SetLength(STORAGEFILE_HEADER_LENGTH);
     if (!header.Read(headerBuf))
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     length -= STORAGEFILE_HEADER_LENGTH;
     if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) < 0)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     p = buffer.GetBuffer();
     numShards = FromLittle32(*((uint32_t*) p));
-    assert(numShards * 8 + 4 <= length);
+    ST_ASSERT(numShards * 8 + 4 <= length);
     p += 4;
     for (i = 0; i < numShards; i++)
     {
@@ -703,13 +703,13 @@ void StorageTable::WriteTOC()
     header.Write(writeBuf);
 
     if (FS_FileWrite(tocFD, (const void*) writeBuf.GetBuffer(), writeBuf.GetLength()) < 0)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     len = shards.GetCount();
     tmp = ToLittle32(len);
 
     if (FS_FileWrite(tocFD, (const void *) &tmp, 4) < 0)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 
     for (it = shards.First(); it != NULL; it = shards.Next(it))
     {       
@@ -724,7 +724,7 @@ void StorageTable::WriteTOC()
         memcpy(p, it->startKey.GetBuffer(), len);
         p += len;
         if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), size) < 0)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
     }
 }
 
@@ -747,7 +747,7 @@ void StorageTable::WriteRecoveryDone()
     required = sizeof(op) + sizeof(total);
 
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     FS_FileSeek(recoveryFD, 0, FS_SEEK_SET);
     FS_FileTruncate(recoveryFD, 0); 
@@ -780,7 +780,7 @@ void StorageTable::WriteRecoveryCreateShard(uint64_t oldShardID, uint64_t newSha
     required = sizeof(op) + sizeof(total) + total;
 
     if (FS_FileWrite(recoveryFD, (const void*) buffer.GetBuffer(), required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 }
 
 void StorageTable::WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex)
@@ -803,11 +803,11 @@ void StorageTable::WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex)
 
     dataFD = FS_Open(filename.GetBuffer(), FS_READONLY);
     if (dataFD == INVALID_FD)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     ret = FS_FileSize(tocFD);
     if (ret < 0)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     length = (uint64_t) ret;
     
@@ -835,7 +835,7 @@ void StorageTable::WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex)
     p += sizeof(length);
     
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     buffer.Allocate(bufsize);
     required = length;
@@ -843,9 +843,9 @@ void StorageTable::WriteRecoveryCopy(uint64_t oldShardID, uint32_t fileIndex)
     {
         unsigned nread = required % bufsize;
         if (FS_FileRead(dataFD, (void*) buffer.GetBuffer(), nread) != (ssize_t) nread)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         if (FS_FileWrite(recoveryFD, (const void *) buffer.GetBuffer(), nread) != (ssize_t) nread)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         required -= nread;
     }
 
@@ -867,7 +867,7 @@ void StorageTable::WriteRecoveryMove(Buffer& src, Buffer& dst)
     *((uint32_t*) p) = ToLittle32(op);
     required = sizeof(op);  
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 
     total = sizeof(oldNameLength) + src.GetLength() - 1 +
             sizeof(newNameLength) + dst.GetLength() - 1;
@@ -876,31 +876,31 @@ void StorageTable::WriteRecoveryMove(Buffer& src, Buffer& dst)
     *((uint64_t*) p) = ToLittle64(total);
     required = sizeof(total);
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     oldNameLength = src.GetLength() - 1;
     p = buffer.GetBuffer();
     *((uint32_t*) p) = ToLittle32(oldNameLength);
     required = sizeof(oldNameLength);
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     p = src.GetBuffer();
     required = oldNameLength;
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
         
     newNameLength = dst.GetLength() - 1;
     p = buffer.GetBuffer();
     *((uint32_t*) p) = ToLittle32(newNameLength);
     required = sizeof(newNameLength);
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 
     p = dst.GetBuffer();
     required = newNameLength;
     if (FS_FileWrite(recoveryFD, (const void*) p, required) != required)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 }
 
 void StorageTable::DeleteGarbageShard(uint64_t shardID)

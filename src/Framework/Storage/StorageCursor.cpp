@@ -54,7 +54,7 @@ StorageKeyValue* StorageCursor::Begin(ReadBuffer key)
 
 StorageKeyValue* StorageCursor::Next()
 {
-    assert(current != NULL);
+    ST_ASSERT(current != NULL);
     
     current = dataPage->CursorNext(current);
     

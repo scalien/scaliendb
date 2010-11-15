@@ -50,7 +50,7 @@ void StorageShard::Open(const char* dir, const char* name_)
     if (!FS_IsDirectory(path.GetBuffer()))
     {
         if (!FS_CreateDir(path.GetBuffer()))
-            ASSERT_FAIL();
+            ST_ASSERT(false);
     }
 
     name.Append(path.GetBuffer(), path.GetLength() - 1);
@@ -67,10 +67,10 @@ void StorageShard::Open(const char* dir, const char* name_)
 
     tocFD = FS_Open(tocFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
     if (tocFD == INVALID_FD)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 
     if (!recoveryLog.Open(recoveryFilepath.GetBuffer()))
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     recoverySize = recoveryLog.GetFileSize();
     if (recoverySize > 0)
@@ -279,7 +279,7 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
     
     midFi = Locate(startKey);
     if (midFi == NULL)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     newIndex = 1;
     fi = midFi;
@@ -338,20 +338,18 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
     
     headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
     if ((ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH)) < 0)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     headerBuf.SetLength(STORAGEFILE_HEADER_LENGTH);
     if (!header.Read(headerBuf))
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     length -= STORAGEFILE_HEADER_LENGTH;
     buffer.Allocate(length);
-    if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) < 0)
-        ASSERT_FAIL();
-    if (ret != (int)length)
-        ASSERT_FAIL();
+    if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) != (ssize_t) length)
+        ST_ASSERT(false);
     p = buffer.GetBuffer();
     numFiles = FromLittle32(*((uint32_t*) p));
-    assert(numFiles * 8 + 4 <= length);
+    ST_ASSERT(numFiles * 8 + 4 <= length);
     p += 4;
     totalSize = 0;
     for (i = 0; i < numFiles; i++)
@@ -373,7 +371,7 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
         if (fileSize < 0)
         {
             // TODO: error handling
-            ASSERT_FAIL();
+            ST_ASSERT(false);
         }
         totalSize += fileSize;
     }
@@ -388,7 +386,7 @@ void StorageShard::PerformRecovery(uint32_t length)
     recoveryCommit = false;
     
     if (!recoveryLog.Check(length))
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     ret = recoveryLog.PerformRecovery(MFUNC(StorageShard, OnRecoveryOp));
     if (recoveryCommit)
@@ -449,7 +447,7 @@ void StorageShard::OnRecoveryOp()
             recoveryCommit = true;
         break;
     default:
-        ASSERT_FAIL();
+        ST_ASSERT(false);
         break;
     }
 }
@@ -470,7 +468,7 @@ void StorageShard::WriteBackPages(InList<Buffer>& pages)
         pageSize = FromLittle32(*((uint32_t*) p));
         p += 4;
         fileIndex = FromLittle32(*((uint32_t*) p));
-        assert(fileIndex != 0);
+        ST_ASSERT(fileIndex != 0);
         p += 4;
         offset = FromLittle32(*((uint32_t*) p));
         p += 4;
@@ -606,7 +604,7 @@ void StorageShard::WriteRecoveryPrefix()
     
     FOREACH (it, deletedFiles)
     {
-        assert(it->file != NULL);
+        ST_ASSERT(it->file != NULL);
         it->file->WriteRecovery(recoveryLog);
     }
     
@@ -622,7 +620,7 @@ void StorageShard::WriteRecoveryPrefix()
     if (!recoveryLog.WriteOp(RECOVERY_OP_COMMIT, sizeof(prevCommitStorageFileIndex), buffer))
     {
         Log_Errno();
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     }
 }
 
@@ -647,13 +645,13 @@ void StorageShard::WriteTOC()
     header.Write(writeBuf);
     
     if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
     
     len = files.GetCount();
     tmp = ToLittle32(len);
 
     if (FS_FileWrite(tocFD, (const void *) &tmp, 4) < 0)
-        ASSERT_FAIL();
+        ST_ASSERT(false);
 
     for (it = files.First(); it != NULL; it = files.Next(it))
     {       
@@ -668,7 +666,7 @@ void StorageShard::WriteTOC()
         memcpy(p, it->key.GetBuffer(), len);
         p += len;
         if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), size) < 0)
-            ASSERT_FAIL();
+            ST_ASSERT(false);
     }
 }
 

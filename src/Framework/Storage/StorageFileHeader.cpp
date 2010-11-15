@@ -1,4 +1,5 @@
 #include "StorageFileHeader.h"
+#include "StorageDefaults.h"
 
 StorageFileHeader::StorageFileHeader()
 {
@@ -48,7 +49,7 @@ bool StorageFileHeader::Write(Buffer& buffer)
     size_t  len;
     char*   p;
     
-    assert(version != 0);
+    ST_ASSERT(version != 0);
     
     buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
     buffer.SetLength(STORAGEFILE_HEADER_LENGTH);

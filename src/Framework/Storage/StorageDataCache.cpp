@@ -17,14 +17,14 @@ void StorageDataCache::Init(uint64_t size)
     StorageDataPage*    page;
     size_t              bytes;
     
-    assert(num == 0);
+    ST_ASSERT(num == 0);
 
     num = size / DEFAULT_DATAPAGE_SIZE;
 
     bytes = num * sizeof(StorageDataPage);
-    assert((uint64_t) bytes == num * (uint64_t) sizeof(StorageDataPage));
+    ST_ASSERT((uint64_t) bytes == num * (uint64_t) sizeof(StorageDataPage));
     pageArea = (StorageDataPage*) malloc(bytes);
-    assert(pageArea != NULL);
+    ST_ASSERT(pageArea != NULL);
     for (unsigned i = 0; i < num; i++)
     {
         page = new ((void*) &pageArea[i]) StorageDataPage();
@@ -32,16 +32,16 @@ void StorageDataCache::Init(uint64_t size)
     }
     
     bytes = num * DEFAULT_DATAPAGE_SIZE;
-    assert((uint64_t) bytes == num * (uint64_t) DEFAULT_DATAPAGE_SIZE);
+    ST_ASSERT((uint64_t) bytes == num * (uint64_t) DEFAULT_DATAPAGE_SIZE);
     bufferArea = (char*) malloc(bytes);
-    assert(bufferArea != NULL);
+    ST_ASSERT(bufferArea != NULL);
     for (unsigned i = 0; i < num; i++)
         pageArea[i].buffer.SetPreallocated(&bufferArea[i * DEFAULT_DATAPAGE_SIZE], DEFAULT_DATAPAGE_SIZE);
 }
 
 void StorageDataCache::Shutdown()
 {
-    assert(num != 0);
+    ST_ASSERT(num != 0);
 
     lruList.Clear();
     freeList.Clear();
@@ -78,7 +78,7 @@ StorageDataPage* StorageDataCache::GetPage()
     
 //  return new StorageDataPage;
     
-    assert(lruList.GetLength() + freeList.GetLength() <= num);
+    ST_ASSERT(lruList.GetLength() + freeList.GetLength() <= num);
     
     if (freeList.GetLength() > 0)
     {
@@ -89,12 +89,12 @@ StorageDataPage* StorageDataCache::GetPage()
     }
     
     // TODO: handle gracefully when ran out of memory
-    assert(lruList.GetLength() > 0);
+    ST_ASSERT(lruList.GetLength() > 0);
     
     page = lruList.Last();
     lruList.Remove(page);
     file = page->file;
-    assert(file != NULL);
+    ST_ASSERT(file != NULL);
     
     file->UnloadDataPage(page);
     page->~StorageDataPage();
@@ -104,9 +104,9 @@ StorageDataPage* StorageDataCache::GetPage()
 
 void StorageDataCache::FreePage(StorageDataPage* page)
 {
-    assert(lruList.GetLength() + freeList.GetLength() <= num);
-    assert(page->next == page && page->prev == page);
-    assert(page->detached == false);
+    ST_ASSERT(lruList.GetLength() + freeList.GetLength() <= num);
+    ST_ASSERT(page->next == page && page->prev == page);
+    ST_ASSERT(page->detached == false);
 
     page->~StorageDataPage();
     freeList.Append(page);
@@ -120,18 +120,18 @@ void StorageDataCache::RegisterHit(StorageDataPage* page)
 
 void StorageDataCache::Checkin(StorageDataPage* page)
 {
-    assert(lruList.GetLength() + freeList.GetLength() <= num);
-    assert(page->next == page && page->prev == page);
-    assert(page->dirty == false);
-    assert(page->detached == false);
+    ST_ASSERT(lruList.GetLength() + freeList.GetLength() <= num);
+    ST_ASSERT(page->next == page && page->prev == page);
+    ST_ASSERT(page->dirty == false);
+    ST_ASSERT(page->detached == false);
 
     lruList.Prepend(page);
 }
 
 void StorageDataCache::Checkout(StorageDataPage* page)
 {
-    assert(lruList.GetLength() + freeList.GetLength() <= num);
-    assert(page->next != page && page->prev != page);
+    ST_ASSERT(lruList.GetLength() + freeList.GetLength() <= num);
+    ST_ASSERT(page->next != page && page->prev != page);
 
     lruList.Remove(page);
 }

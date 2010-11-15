@@ -96,8 +96,7 @@ void StorageIndexPage::Remove(ReadBuffer key)
 //  uint32_t*           iit;
 
     it = keys.Get<ReadBuffer&>(key);
-    if (!it)
-        ASSERT_FAIL();
+    ST_ASSERT(it != NULL);
     keys.Remove(it);
     ST_ASSERT(ReadBuffer::Cmp(key, it->key) == 0);
     
@@ -152,8 +151,7 @@ bool StorageIndexPage::IsEmpty()
 
 ReadBuffer StorageIndexPage::FirstKey()
 {
-    if (keys.GetCount() == 0)
-        ASSERT_FAIL();
+    ST_ASSERT(keys.GetCount() != 0);
     
     return keys.First()->key;
 }
@@ -201,7 +199,7 @@ int32_t StorageIndexPage::Locate(ReadBuffer& key, Buffer* nextKey)
 
 uint32_t StorageIndexPage::NextFreeDataPage()
 {
-    assert(freeDataPages.GetLength() > 0);
+    ST_ASSERT(freeDataPages.GetLength() > 0);
     
     return *freeDataPages.First();
 }
