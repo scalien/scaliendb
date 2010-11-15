@@ -2,7 +2,7 @@
 
 CRASHLOGFILE="/tmp/crash.log"
 LOGFILE="/tmp/crash-last.log"
-MAX_ERROR=20
+MAX_ERROR=1
 ERRORCOUNT=1
 
 log()
