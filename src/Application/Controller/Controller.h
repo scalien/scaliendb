@@ -18,6 +18,7 @@ class ClientSession;            // forward
 class PrimaryLease;             // forward
 class Heartbeat;                // forward
 class ConfigHeartbeatManager;         // forward
+class ConfigQuorumProcessor;          // forward
 
 #define HEARTBEAT_EXPIRE_TIME           7000        // msec
 #define ACTIVATION_FAILED_PENALTY_TIME  60*60*1000  // msec, 1 hour
@@ -48,7 +49,10 @@ public:
 
     ConfigState*        GetConfigState();
     
-    ConfigHeartbeatManager*   GetHeartbeatManager();
+    ConfigHeartbeatManager*     GetHeartbeatManager();
+    ConfigQuorumProcessor*      GetQuorumProcessor();
+    void                OnConfigStateChanged();
+    
     
 //    void                RegisterHeartbeat(uint64_t nodeID);
 //    bool                HasHeartbeat(uint64_t nodeID);

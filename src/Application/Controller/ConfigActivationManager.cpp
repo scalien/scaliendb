@@ -2,6 +2,7 @@
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
 #include "Controller.h"
+#include "ConfigQuorumProcessor.h"
 
 void ConfigActivationManager::Init(Controller* controller_)
 {
@@ -80,7 +81,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                 itConfigMessage->fromClient = false;
                 itConfigMessage->DeactivateShardServer(itQuorum->quorumID, nodeID);
                 configMessages.Append(itConfigMessage);
-                TryAppend();
+                controller->GetQuorumProcessor()->TryAppend();
             }
         }
     }

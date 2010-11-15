@@ -27,10 +27,11 @@ public:
     ConfigQuorum();
     ConfigQuorum(const ConfigQuorum& other);
 
-    NodeList            GetVolatileActiveNodes();
-    
     ConfigQuorum&       operator=(const ConfigQuorum& other);
 
+    void                ClearActivation();
+    NodeList            GetVolatileActiveNodes();
+    
     uint64_t            quorumID;
     NodeList            activeNodes;
     NodeList            inactiveNodes;
@@ -39,11 +40,11 @@ public:
     // ========================================================================================
     //
     // Not replicated, only stored by the MASTER in-memory
-    uint64_t            configID;
-    uint64_t            activatingNodeID;
     bool                isActivatingNode;           // phase 1
     bool                isWatchingPaxosID;          // phase 2, not sent
     bool                isReplicatingActivation;    // phase 3, not sent
+    uint64_t            configID;
+    uint64_t            activatingNodeID;
     uint64_t            activationPaxosID;          // not sent
     uint64_t            activationExpireTime;       // not sent
     
