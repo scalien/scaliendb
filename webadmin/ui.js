@@ -23,37 +23,44 @@ function connect()
 	updateConfigState();
 }
 
+tabs = ["Dashboard", "Quorums", "Schema", "Console"];
+
+function activateTab(name)
+{
+	for (var t in tabs)
+	{
+		var tab = tabs[t];
+		if (tab == name)
+		{
+			scaliendb.util.elem("tabHead" + tab).className = "tab-head tab-head-active";
+			scaliendb.util.elem("tabPage" + tab).className = "tab-page tab-page-active";
+		}
+		else
+		{
+			scaliendb.util.elem("tabHead" + tab).className = "tab-head tab-head-inactive";
+			scaliendb.util.elem("tabPage" + tab).className = "tab-page tab-page-inactive";			
+		}
+	}
+}
+
 function activateDashboardTab()
 {
-	scaliendb.util.elem("tabPageDashboard").className = "tab-page tab-page-active";
-	scaliendb.util.elem("tabPageQuorums").className = "tab-page tab-page-inactive";
-	scaliendb.util.elem("tabPageSchema").className = "tab-page tab-page-inactive";
-
-	scaliendb.util.elem("tabHeadDashboard").className = "tab-head tab-head-active";
-	scaliendb.util.elem("tabHeadQuorums").className = "tab-head tab-head-inactive";
-	scaliendb.util.elem("tabHeadSchema").className = "tab-head tab-head-inactive";
+	activateTab("Dashboard");
 }
 
 function activateQuorumsTab()
 {
-	scaliendb.util.elem("tabPageDashboard").className = "tab-page tab-page-inactive";
-	scaliendb.util.elem("tabPageQuorums").className = "tab-page tab-page-active";
-	scaliendb.util.elem("tabPageSchema").className = "tab-page tab-page-inactive";
-
-	scaliendb.util.elem("tabHeadDashboard").className = "tab-head tab-head-inactive";
-	scaliendb.util.elem("tabHeadQuorums").className = "tab-head tab-head-active";
-	scaliendb.util.elem("tabHeadSchema").className = "tab-head tab-head-inactive";
+	activateTab("Quorums");
 }
 
 function activateSchemaTab()
 {
-	scaliendb.util.elem("tabPageDashboard").className = "tab-page tab-page-inactive";
-	scaliendb.util.elem("tabPageQuorums").className = "tab-page tab-page-inactive";
-	scaliendb.util.elem("tabPageSchema").className = "tab-page tab-page-active";
+	activateTab("Schema");
+}
 
-	scaliendb.util.elem("tabHeadDashboard").className = "tab-head tab-head-inactive";
-	scaliendb.util.elem("tabHeadQuorums").className = "tab-head tab-head-inactive";
-	scaliendb.util.elem("tabHeadSchema").className = "tab-head tab-head-active";
+function activateConsoleTab()
+{
+	activateTab("Console");
 }
 
 function showCreateQuorum()
@@ -502,4 +509,12 @@ function locateQuorum(configState, quorumID)
 	}
 	
 	return null;
+}
+
+function consoleEvalExpression()
+{
+	var consoleForm = scaliendb.util.elem("console-form");
+	var cmd = consoleForm.input.value;
+	consoleForm.output.value += "Executing " + cmd + "\n";
+	eval(cmd);
 }

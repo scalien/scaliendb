@@ -54,7 +54,7 @@ class Compiler:
 class Linker:
 	def __init__(self, ldpaths, ldlibs):
 		self.ld = "g++"
-		self.ldflags = ""
+		self.ldflags = " -rdynamic "
 		self.ldpaths = ldpaths
 		self.ldlibs = ldlibs
 	

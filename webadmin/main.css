@@ -283,3 +283,9 @@ a.no-line {
 img.close {
 	float: right;
 }
+
+input.console-input {
+    border: none;
+	background-color: #EFF5FB;
+	cursor: auto;
+}

@@ -17,14 +17,29 @@ var scaliendb =
 	{ 
 		var params = {};
 		params["name"] = name;
-		this.json.rpc(scaliendb.controller, scaliendb.onResponse, "createdatabase", params);
+		this.rpc("createdatabase", params);
+	},
+	
+	renameDatabase: function(databaseID, name)
+	{ 
+		var params = {};
+		params["databaseID"] = databaseID;
+		params["name"] = name;
+		this.rpc("renamedatabase", params);
+	},
+	
+	deleteDatabase: function(databaseID)
+	{ 
+		var params = {};
+		params["databaseID"] = databaseID;
+		this.rpc("deletedatabase", params);
 	},
 	
 	createQuorum: function(nodes)
 	{                                                                                 
 		var params = {};
 		params["nodes"] = nodes;
-		this.json.rpc(scaliendb.controller, scaliendb.onResponse, "createquorum", params);
+		this.rpc("createquorum", params);
 	},
 	
 	createTable: function(databaseID, quorumID, name)
@@ -33,12 +48,17 @@ var scaliendb =
 		params["databaseID"] = databaseID;
 		params["quorumID"] = quorumID;
 		params["name"] = name;
-		this.json.rpc(scaliendb.controller, scaliendb.onResponse, "createtable", params);
+		this.rpc("createtable", params);
 	},
 	
 	showResult: function(data)
 	{
 		//alert(data["response"]);
+	},
+	
+	rpc: function(name, params)
+	{ 
+		this.json.rpc(scaliendb.controller, scaliendb.onResponse, name, params);
 	},
 		
     //========================================================================
