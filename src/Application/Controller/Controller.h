@@ -2,7 +2,7 @@
 #define CONTROLLER_H
 
 #include "ConfigMessage.h"
-#include "ConfigContext.h"
+#include "ConfigQuorumContext.h"
 #include "System/Containers/InList.h"
 #include "System/Containers/InSortedList.h"
 #include "System/Events/Timer.h"
@@ -17,6 +17,7 @@
 class ClientSession;            // forward
 class PrimaryLease;             // forward
 class Heartbeat;                // forward
+class ConfigHeartbeatManager;         // forward
 
 #define HEARTBEAT_EXPIRE_TIME           7000        // msec
 #define ACTIVATION_FAILED_PENALTY_TIME  60*60*1000  // msec, 1 hour
@@ -40,12 +41,17 @@ public:
     void                Init();
     void                Shutdown();
 
+    bool                IsMaster();
     int64_t             GetMaster();
     uint64_t            GetNodeID();
     uint64_t            GetReplicationRound();
+
     ConfigState*        GetConfigState();
-    void                RegisterHeartbeat(uint64_t nodeID);
-    bool                HasHeartbeat(uint64_t nodeID);
+    
+    ConfigHeartbeatManager*   GetHeartbeatManager();
+    
+//    void                RegisterHeartbeat(uint64_t nodeID);
+//    bool                HasHeartbeat(uint64_t nodeID);
 
     // ========================================================================================
     // For ConfigContext:

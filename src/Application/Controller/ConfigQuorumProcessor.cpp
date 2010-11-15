@@ -1,5 +1,6 @@
 #include "ConfigQuorumProcessor.h"
 #include "Controller.h"
+#include "ConfigHeartbeatManager.h"
 
 void ConfigQuorumProcessor::Init(Controller* controller_,
  unsigned numControllers,  StorageTable* quorumTable)
@@ -50,7 +51,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.ConfigStateResponse(controller->GetConfigState());
+        request->response.ConfigStateResponse(*controller->GetConfigState());
         request->OnComplete(false);
         return;
     }
@@ -67,7 +68,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         // make sure all nodes are currently active
         FOREACH(itNodeID, request->nodes)
         {
-            if (!HasHeartbeat(*itNodeID))
+            if (!controller->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
             {
                 request->response.Failed();
                 request->OnComplete();
@@ -77,9 +78,9 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     }
     
     message = new ConfigMessage;
-    FromClientRequest(request, message);
+    TransformRequest(request, message);
     
-    if (!configState.CompleteMessage(*message))
+    if (!controller->GetConfigState()->CompleteMessage(*message))
     {
         delete message;
         request->response.Failed();
@@ -90,4 +91,49 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     requests.Append(request);
     configMessages.Append(message);
     TryAppend();
+}
+
+void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessage* message)
+{
+    message->fromClient = true;
+    
+    switch (request->type)
+    {
+        case CLIENTREQUEST_CREATE_QUORUM:
+            message->type = CONFIGMESSAGE_CREATE_QUORUM;
+            message->nodes = request->nodes;
+            return;
+        case CLIENTREQUEST_CREATE_DATABASE:
+            message->type = CONFIGMESSAGE_CREATE_DATABASE;
+            message->name.Wrap(request->name);
+            return;
+        case CLIENTREQUEST_RENAME_DATABASE:
+            message->type = CONFIGMESSAGE_RENAME_DATABASE;
+            message->databaseID = request->databaseID;
+            message->name.Wrap(request->name);
+            return;
+        case CLIENTREQUEST_DELETE_DATABASE:
+            message->type = CONFIGMESSAGE_DELETE_DATABASE;
+            message->databaseID = request->databaseID;
+            return;
+        case CLIENTREQUEST_CREATE_TABLE:
+            message->type = CONFIGMESSAGE_CREATE_TABLE;
+            message->databaseID = request->databaseID;
+            message->quorumID = request->quorumID;
+            message->name.Wrap(request->name);
+            return;
+        case CLIENTREQUEST_RENAME_TABLE:
+            message->type = CONFIGMESSAGE_RENAME_TABLE;
+            message->databaseID = request->databaseID;
+            message->tableID = request->tableID;
+            message->name.Wrap(request->name);
+            return;
+        case CLIENTREQUEST_DELETE_TABLE:
+            message->type = CONFIGMESSAGE_DELETE_TABLE;
+            message->databaseID = request->databaseID;
+            message->tableID = request->tableID;
+            return;
+        default:
+            ASSERT_FAIL();
+    }
 }

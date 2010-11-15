@@ -44,6 +44,8 @@ public:
     void                    OnCatchupMessage(CatchupMessage& message);
 
 private:
+    void                    TransformRequest(ClientRequest* request, ConfigMessage* message);
+
     ConfigQuorumContext     quorumContext;
     Controller*             controller;
     

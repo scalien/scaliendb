@@ -4,6 +4,7 @@
 #include "System/Config.h"
 #include "Application/Common/ContextTransport.h"
 #include "Version.h"
+#include "ConfigHeartbeatManager.h"
 
 void HTTPControllerSession::SetController(Controller* controller_)
 {
@@ -126,7 +127,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
         ConfigState::ShardServerList& shardServers = configState->shardServers;
         for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
-            if (controller->HasHeartbeat(it->nodeID))
+            if (controller->GetHeartbeatManager()->HasHeartbeat(it->nodeID))
             {
                 if (CONTEXT_TRANSPORT->IsConnected(it->nodeID))
                     buffer.Writef("+ ");
@@ -209,13 +210,14 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
                 {
                     found = true;
                     if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
-                        if (controller->HasHeartbeat(*itNodeID) && CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                        if (controller->GetHeartbeatManager()->HasHeartbeat(*itNodeID) &&
+                         CONTEXT_TRANSPORT->IsConnected(*itNodeID))
                             buffer.Appendf("     P");
                         else
                             buffer.Appendf("     !");
                     else
                     {
-                        if (controller->HasHeartbeat(*itNodeID))
+                        if (controller->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
                             buffer.Appendf("     +");
                         else
                             buffer.Appendf("     -");

@@ -1,5 +1,5 @@
-#ifndef CONFIGCONTEXT_H
-#define CONFIGCONTEXT_H
+#ifndef CONFIGQUORUMCONTEXT_H
+#define CONFIGQUORUMCONTEXT_H
 
 #include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Replication/Quorums/MajorityQuorum.h"
@@ -7,21 +7,21 @@
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "ConfigMessage.h"
 
-class Controller; // forward
+class ConfigQuorumProcessor; // forward
 
 /*
 ===============================================================================================
 
- ConfigContext
+ ConfigQuorumContext
 
 ===============================================================================================
 */
 
-class ConfigContext : public QuorumContext
+class ConfigQuorumContext : public QuorumContext
 {
 public:
-    void                            Init(Controller* controller, unsigned numControllers, 
-                                     StorageTable* quorumTable);
+    void                            Init(ConfigQuorumProcessor* quorumProcessor,
+                                     unsigned numControllers,  StorageTable* quorumTable);
     
     void                            Append(ConfigMessage* message);
     bool                            IsAppending();
@@ -57,7 +57,6 @@ public:
 
     virtual void                    StopReplication();
     virtual void                    ContinueReplication();
-    // ========================================================================================
 
 private:
     void                            OnPaxosLeaseMessage(ReadBuffer buffer);
@@ -65,16 +64,16 @@ private:
     void                            OnCatchupMessage(ReadBuffer buffer);
     void                            RegisterPaxosID(uint64_t paxosID);
 
-    Controller*                     controller;
+    bool                            isReplicationActive;
+    uint64_t                        quorumID;
+    uint64_t                        highestPaxosID;
+    ConfigQuorumProcessor*          quorumProcessor;
     MajorityQuorum                  quorum;
     QuorumDatabase                  database;
     QuorumTransport                 transport;
     ReplicatedLog                   replicatedLog;
     PaxosLease                      paxosLease;
-    uint64_t                        quorumID;
-    uint64_t                        highestPaxosID;
     Buffer                          nextValue;
-    bool                            replicationActive;
 };
 
 #endif

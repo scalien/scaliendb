@@ -475,51 +475,6 @@ void Controller::TryAppend()
         configContext.Append(configMessages.First());
 }
 
-void Controller::FromClientRequest(ClientRequest* request, ConfigMessage* message)
-{
-    message->fromClient = true;
-    
-    switch (request->type)
-    {
-        case CLIENTREQUEST_CREATE_QUORUM:
-            message->type = CONFIGMESSAGE_CREATE_QUORUM;
-            message->nodes = request->nodes;
-            return;
-        case CLIENTREQUEST_CREATE_DATABASE:
-            message->type = CONFIGMESSAGE_CREATE_DATABASE;
-            message->name.Wrap(request->name);
-            return;
-        case CLIENTREQUEST_RENAME_DATABASE:
-            message->type = CONFIGMESSAGE_RENAME_DATABASE;
-            message->databaseID = request->databaseID;
-            message->name.Wrap(request->name);
-            return;
-        case CLIENTREQUEST_DELETE_DATABASE:
-            message->type = CONFIGMESSAGE_DELETE_DATABASE;
-            message->databaseID = request->databaseID;
-            return;
-        case CLIENTREQUEST_CREATE_TABLE:
-            message->type = CONFIGMESSAGE_CREATE_TABLE;
-            message->databaseID = request->databaseID;
-            message->quorumID = request->quorumID;
-            message->name.Wrap(request->name);
-            return;
-        case CLIENTREQUEST_RENAME_TABLE:
-            message->type = CONFIGMESSAGE_RENAME_TABLE;
-            message->databaseID = request->databaseID;
-            message->tableID = request->tableID;
-            message->name.Wrap(request->name);
-            return;
-        case CLIENTREQUEST_DELETE_TABLE:
-            message->type = CONFIGMESSAGE_DELETE_TABLE;
-            message->databaseID = request->databaseID;
-            message->tableID = request->tableID;
-            return;
-        default:
-            ASSERT_FAIL();
-    }
-}
-
 void Controller::ToClientResponse(ConfigMessage* message, ClientResponse* response)
 {
     switch (response->request->type)
