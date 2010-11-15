@@ -26,7 +26,8 @@ import os
 #LDPATH=["/opt/local/lib/db46", "/usr/local/lib/db4"]
 LDPATH=["/opt/local/lib/db46"]
 LDLIBS=["pthread"]
-BUILD_DIR="build/Release"
+#BUILD_DIR="build/Release"
+BUILD_DIR="build/Debug"
 SRC_DIR="src"
 TEST_DIR="Test/"
 DEBUGGER="gdb -ex r"
@@ -34,7 +35,7 @@ DEBUGGER="gdb -ex r"
 class Compiler:
 	def __init__(self, include_dirs, build_dir):
 		self.cc = "/usr/bin/g++"
-		self.cflags = "-Wall -O2 -D__STDC_FORMAT_MACROS "
+		self.cflags = "-Wall -g -D__STDC_FORMAT_MACROS "
 		self.include_dirs = include_dirs
 		self.build_dir = build_dir
 

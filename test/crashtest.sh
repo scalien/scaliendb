@@ -21,7 +21,7 @@ safe_exit()
 
 infinite_loop()
 {
-	ulimit -n
+	ulimit -n unlimited
 	echo > $CRASHLOGFILE
 	while (:); do
 		log "Starting '$*'"
