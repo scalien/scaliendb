@@ -22,6 +22,7 @@ class ConfigPrimaryLeaseManager
 
 public:
     void            Init(Controller* controller);
+    void            Shutdown();
 
     void            OnPrimaryLeaseTimeout();
     void            OnRequestPrimaryLease(ClusterMessage& message);

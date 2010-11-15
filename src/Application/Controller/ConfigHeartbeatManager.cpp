@@ -13,6 +13,11 @@ void ConfigHeartbeatManager::Init(Controller* controller_)
     EventLoop::Add(&heartbeatTimeout);
 }
 
+void ConfigHeartbeatManager::Shutdown()
+{
+    heartbeats.DeleteList();
+}
+
 void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
 {
     QuorumPaxosID*      it;

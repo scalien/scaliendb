@@ -7,6 +7,7 @@
 #include "Application/Common/ClientSession.h"
 #include "Application/Common/ClusterMessage.h"
 #include "Application/Common/ClientRequestCache.h"
+#include "ConfigQuorumProcessor.h"
 
 void Controller::Init()
 {
@@ -17,13 +18,6 @@ void Controller::Init()
     Endpoint        endpoint;
 
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
-    
-    primaryLeaseTimeout.SetCallable(MFUNC(Controller, OnPrimaryLeaseTimeout));
-    activationTimeout.SetCallable(MFUNC(Controller, OnActivationTimeout));
-    
-    heartbeatTimeout.SetCallable(MFUNC(Controller, OnHeartbeatTimeout));
-    heartbeatTimeout.SetDelay(1000);
-    EventLoop::Add(&heartbeatTimeout);
  
     databaseEnv.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
     databaseEnv.Open(configFile.GetValue("database.dir", "db"));
@@ -56,9 +50,7 @@ void Controller::Init()
     }
 
     configState.Init();
-    configContext.Init(this, numControllers, systemDatabase->GetTable("paxos"));
-    CONTEXT_TRANSPORT->AddQuorumContext(&configContext);
-    
+    quorumProcessor.Init(this, numControllers, systemDatabase->GetTable("paxos"));    
     ReadConfigState();
 
     configStatePaxosID = 0;
@@ -66,8 +58,6 @@ void Controller::Init()
 
 void Controller::Shutdown()
 {
-    primaryLeases.DeleteList();
-    heartbeats.DeleteList();
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
     REQUEST_CACHE->Shutdown();
@@ -76,9 +66,7 @@ void Controller::Shutdown()
 
 int64_t Controller::GetMaster()
 {
-    if (!configContext.IsLeaseKnown())
-        return -1;
-    return (int64_t) configContext.GetLeaseOwner();
+    return quorumProcessor.GetMaster();
 }
 
 uint64_t Controller::GetNodeID()
@@ -93,35 +81,8 @@ ConfigState* Controller::GetConfigState()
 
 void Controller::OnLeaseTimeout()
 {
-    ConfigMessage*  itMessage;
-    ClientRequest*  itRequest;
-    
-    
     configState.hasMaster = false;
-    configState.masterID = 0;
-
-    for (itRequest = requests.First(); itRequest != NULL; itRequest = requests.First())
-    {
-        requests.Remove(itRequest);
-        itRequest->response.NoService();
-        itRequest->OnComplete();
-    }
-    assert(requests.GetLength() == 0);
-    
-    for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.First())
-    {
-        listenRequests.Remove(itRequest);
-        itRequest->response.NoService();
-        itRequest->OnComplete();
-    }
-    assert(listenRequests.GetLength() == 0);
-
-    for (itMessage = configMessages.First(); itMessage != NULL; 
-     itMessage = configMessages.Delete(itMessage))
-    {
-        /* empty */
-    }
-    assert(configMessages.GetLength() == 0);
+    configState.masterID = 0;    
 }
 
 void Controller::OnIsLeader()
@@ -259,23 +220,12 @@ bool Controller::IsValidClientRequest(ClientRequest* request)
 
 void Controller::OnClientClose(ClientSession* session)
 {
-    ClientRequest*  it;
-    ClientRequest*  next;
-    
-    for (it = listenRequests.First(); it != NULL; it = next)
-    {
-        next = listenRequests.Next(it);
-        if (it->session == session)
-        {
-            listenRequests.Remove(it);
-            it->OnComplete();
-        }
-    }
+    quorumProcessor.OnClientClose(session);
 }
 
 void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
 {
-    RegisterHeartbeat(nodeID);
+    heartbeatManager.RegisterHeartbeat(nodeID);
 
     switch (message.type)
     {
@@ -332,7 +282,7 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
     ConfigState::ShardServerList*   shardServers;
     ClusterMessage                  clusterMessage;
 
-    if (!configContext.IsLeaseOwner())
+    if (!quorumProcessor.IsMaster())
         return true; // drop connection
     
     // look for existing endpoint
@@ -357,14 +307,6 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
 
     TryRegisterShardServer(endpoint);
     return false;
-}
-
-void Controller::TryAppend()
-{
-    assert(configMessages.GetLength() > 0);
-    
-    if (!configContext.IsAppending())
-        configContext.Append(configMessages.First());
 }
 
 void Controller::ToClientResponse(ConfigMessage* message, ClientResponse* response)

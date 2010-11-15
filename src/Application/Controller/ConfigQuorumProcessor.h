@@ -25,12 +25,14 @@ public:
                              unsigned numControllers,  StorageTable* quorumTable);
 
     bool                    IsMaster();
+    int64_t                 GetMaster();
     uint64_t                GetQuorumID();
     uint64_t                GetPaxosID();
 
     void                    TryAppend();
 
     void                    OnClientRequest(ClientRequest* request);
+    void                    OnClientClose(ClientSession* session);
 
     bool                    HasActivateMessage(uint64_t quorumID, uint64_t nodeID);
     bool                    HasDeactivateMessage(uint64_t quorumID, uint64_t nodeID);

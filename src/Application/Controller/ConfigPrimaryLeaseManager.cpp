@@ -11,6 +11,11 @@ void ConfigPrimaryLeaseManager::Init(Controller* controller_)
     primaryLeaseTimeout.SetCallable(MFUNC(ConfigPrimaryLeaseManager, OnPrimaryLeaseTimeout));
 }
 
+void ConfigPrimaryLeaseManager::Shutdown()
+{
+    primaryLeases.DeleteList();
+}
+
 void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 {
     uint64_t        now;

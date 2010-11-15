@@ -11,6 +11,10 @@ void ConfigActivationManager::Init(Controller* controller_)
     activationTimeout.SetCallable(MFUNC(ConfigActivationManager, OnActivationTimeout));
 }
 
+void ConfigActivationManager::Shutdown()
+{
+}
+
 void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
 {
     uint64_t*           itNodeID;

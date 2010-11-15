@@ -22,6 +22,7 @@ class ConfigHeartbeatManager
 
 public:
     void                Init(Controller* controller);
+    void                Shutdown();
     
     void                OnHeartbeatMessage(ClusterMessage& message);
     void                OnHeartbeatTimeout();

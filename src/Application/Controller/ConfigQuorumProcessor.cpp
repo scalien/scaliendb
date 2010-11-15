@@ -1,4 +1,5 @@
 #include "ConfigQuorumProcessor.h"
+#include "Application/Common/ContextTransport.h"
 #include "Controller.h"
 #include "ConfigHeartbeatManager.h"
 
@@ -7,12 +8,21 @@ void ConfigQuorumProcessor::Init(Controller* controller_,
 {
     controller = controller_;
     quorumContext.Init(this, numControllers, quorumTable);
+    
+    CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
 }
-
 
 bool ConfigQuorumProcessor::IsMaster()
 {
     return quorumContext.IsLeaseOwner();
+}
+
+int64_t ConfigQuorumProcessor::GetMaster()
+{
+    if (!quorumContext.IsLeaseKnown())
+        return -1;
+
+    return (int64_t) quorumContext.GetLeaseOwner();
 }
 
 uint64_t ConfigQuorumProcessor::GetQuorumID()
@@ -93,6 +103,22 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     TryAppend();
 }
 
+void ConfigQuorumProcessor::OnClientClose(ClientSession* session)
+{
+    ClientRequest*  it;
+    ClientRequest*  next;
+    
+    for (it = listenRequests.First(); it != NULL; it = next)
+    {
+        next = listenRequests.Next(it);
+        if (it->session == session)
+        {
+            listenRequests.Remove(it);
+            it->OnComplete();
+        }
+    }
+}
+
 bool ConfigQuorumProcessor::HasActivateMessage(uint64_t quorumID, uint64_t nodeID)
 {
     ConfigMessage *it;
@@ -162,6 +188,37 @@ void ConfigQuorumProcessor::OnLearnLease()
 
 void ConfigQuorumProcessor::OnLeaseTimeout()
 {
+    ConfigMessage*  itMessage;
+    ClientRequest*  itRequest;
+ 
+    // clear config messages   
+    for (itMessage = configMessages.First(); itMessage != NULL; 
+     itMessage = configMessages.Delete(itMessage))
+    {
+        /* empty */
+    }
+
+    assert(configMessages.GetLength() == 0);
+
+    // clear client requests
+    for (itRequest = requests.First(); itRequest != NULL; itRequest = requests.First())
+    {
+        requests.Remove(itRequest);
+        itRequest->response.NoService();
+        itRequest->OnComplete();
+    }
+    assert(requests.GetLength() == 0);
+
+    // clear listen requests
+    for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.First())
+    {
+        listenRequests.Remove(itRequest);
+        itRequest->response.NoService();
+        itRequest->OnComplete();
+    }
+    assert(listenRequests.GetLength() == 0);
+
+    controller->OnLeaseTimeout();
 }
 
 void ConfigQuorumProcessor::OnIsLeader()
