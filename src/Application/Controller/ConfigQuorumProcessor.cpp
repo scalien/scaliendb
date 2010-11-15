@@ -181,6 +181,48 @@ void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID)
     TryAppend();
 }
 
+void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
+{
+    ConfigMessage*      message;
+
+    message = new ConfigMessage;
+    message->fromClient = false;
+    message->RegisterShardServer(0, endpoint);
+    if (!controller->GetConfigState()->CompleteMessage(*message))
+        ASSERT_FAIL();
+
+    configMessages.Append(message);
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::UpdateListeners()
+{
+    ConfigState*                    configState;
+    ClientRequest*                  itRequest;
+    ConfigShardServer*              itShardServer;
+    ConfigState::ShardServerList*   shardServers;
+    ClusterMessage                  message;
+    
+    configState = controller->GetConfigState();
+    
+    // update clients
+    for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
+    {
+        itRequest->response.ConfigStateResponse(*configState);
+        itRequest->OnComplete(false);
+    }
+    
+    // update shard servers
+    message.SetConfigState(*configState);
+    shardServers = &configState->shardServers;
+    for (itShardServer = shardServers->First(); 
+     itShardServer != NULL; 
+     itShardServer = shardServers->Next(itShardServer))
+    {
+        CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
+    }
+}
+
 void ConfigQuorumProcessor::OnLearnLease()
 {
     // nothing

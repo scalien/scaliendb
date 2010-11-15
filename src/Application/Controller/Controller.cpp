@@ -97,7 +97,7 @@ void Controller::OnIsLeader()
     configState.masterID = GetMaster();
 
     if (updateListeners && (uint64_t) GetMaster() == GetNodeID())
-        UpdateListeners();
+        quorumProcessor.UpdateListeners();
 }
 
 void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool ownAppend)
@@ -109,7 +109,7 @@ void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool own
     // (configContext()->GetPaxosID() - 1) is the round of this message
     // if this paxosID is smaller or equal to configStatePaxosID, that means
     // our state already includes the mutations due to this round
-    if ((configContext.GetPaxosID() - 1) <= configStatePaxosID)
+    if ((quorumProcessor.GetPaxosID() - 1) <= configStatePaxosID)
         return;
     
     if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
@@ -125,8 +125,8 @@ void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool own
     WriteConfigState();
     UpdateActivationTimeout();
     
-    if (configContext.IsLeader())
-        UpdateListeners();
+    if (quorumProcessor.IsMaster())
+        quorumProcessor.UpdateListeners();
 
     if (ownAppend)
     {
@@ -339,55 +339,6 @@ void Controller::ToClientResponse(ConfigMessage* message, ClientResponse* respon
     }
 }
 
-void Controller::TryActivatingShardServer(uint64_t nodeID)
-{
-    uint64_t            paxosID;
-    uint64_t*           itNodeID;
-    ConfigQuorum*       itQuorum;
-    ConfigShardServer*  shardServer;
-    uint64_t            now;
-
-    shardServer = configState.GetShardServer(nodeID);
-
-    now = EventLoop::Now();
-    if (now < shardServer->nextActivationTime)
-    {
-        Log_Trace("not trying activation due to penalty");
-        return;
-    }
-
-    FOREACH(itQuorum, configState.quorums)
-    {
-        if (itQuorum->isActivatingNode)
-            continue;
-            
-        if (!itQuorum->hasPrimary)
-            continue;
-
-        FOREACH(itNodeID, itQuorum->inactiveNodes)
-        {
-            if (*itNodeID == nodeID)
-            {
-                paxosID = QuorumPaxosID::GetPaxosID(shardServer->quorumPaxosIDs, itQuorum->quorumID);
-                if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF))
-                {
-                    // the shard server is "almost caught up", start the activation process
-                    itQuorum->isActivatingNode = true;
-                    itQuorum->activatingNodeID = nodeID;
-                    itQuorum->isWatchingPaxosID = false;
-                    itQuorum->isReplicatingActivation = false;
-                    itQuorum->configID++;
-                    itQuorum->activationExpireTime = now + PAXOSLEASE_MAX_LEASE_TIME;
-                    UpdateActivationTimeout();
-
-                    Log_Message("Activation started for quorum %" PRIu64 " and shard server %" PRIu64 "",
-                     itQuorum->quorumID, itQuorum->activatingNodeID);
-                }
-            }
-        }
-    }    
-}
-
 void Controller::TryRegisterShardServer(Endpoint& endpoint)
 {
     ConfigMessage*      message;
@@ -447,29 +398,4 @@ void Controller::SendClientResponse(ConfigMessage& message)
     ToClientResponse(&message, &request->response);
     request->OnComplete();
     
-}
-
-void Controller::UpdateListeners()
-{
-    ClientRequest*                  itRequest;
-    ConfigShardServer*              itShardServer;
-    ConfigState::ShardServerList*   shardServers;
-    ClusterMessage                  message;
-    
-    // update clients
-    for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
-    {
-        itRequest->response.ConfigStateResponse(configState);
-        itRequest->OnComplete(false);
-    }
-    
-    // update shard servers
-    message.SetConfigState(configState);
-    shardServers = &configState.shardServers;
-    for (itShardServer = shardServers->First(); 
-     itShardServer != NULL; 
-     itShardServer = shardServers->Next(itShardServer))
-    {
-        CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
-    }
 }

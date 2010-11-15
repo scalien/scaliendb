@@ -90,7 +90,7 @@ void HTTPControllerSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
 
-    buf.Writef("%d", (int) controller->GetReplicationRound());
+    buf.Writef("%d", (int) controller->GetQuorumProcessor()->GetPaxosID());
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
     

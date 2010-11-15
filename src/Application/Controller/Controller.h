@@ -50,7 +50,7 @@ public:
     void                        OnConfigStateChanged()
     {
         UpdateActivationTimeout();
-        UpdateListeners();
+        quorumProcessor.UpdateListeners();
     }
 
     // ========================================================================================
@@ -79,13 +79,11 @@ public:
 
 private:
     void                        ToClientResponse(ConfigMessage* message, ClientResponse* response);
-    void                        TryRegisterShardServer(Endpoint& endpoint);
     void                        ReadConfigState();
     void                        WriteConfigState();
     void                        SendClientResponse(ConfigMessage& message);
     void                        UpdatePrimaryLeaseTimer();
     void                        UpdateActivationTimeout();
-    void                        UpdateListeners();
     
     uint64_t                    configStatePaxosID;
     bool                        isCatchingUp;

@@ -1,5 +1,5 @@
 #ifndef CONFIGACTIVATIONMANAGER_H
-#define CONFIGACTIVATIoNMANAGER_H
+#define CONFIGACTIVATIONMANAGER_H
 
 #include "System/Events/Timer.h"
 #include "Application/Common/ClusterMessage.h"
