@@ -25,21 +25,21 @@
     } \
 }
 
-static void DumpKeys(StorageDataPage** dataPages)
-{
-    ReadBuffer  firstKey;
-    
-    for (int i = 0; i < 256; i++)
-    {
-        if (dataPages[i] == NULL)
-            printf("StorageData: %i: NULL\n", i);
-        else
-        {
-            firstKey = dataPages[i]->FirstKey();
-            printf("StorageData: %i: %.*s\n", i, P(&firstKey));
-        }
-    }
-}
+//static void DumpKeys(StorageDataPage** dataPages)
+//{
+//    ReadBuffer  firstKey;
+//    
+//    for (int i = 0; i < 256; i++)
+//    {
+//        if (dataPages[i] == NULL)
+//            printf("StorageData: %i: NULL\n", i);
+//        else
+//        {
+//            firstKey = dataPages[i]->FirstKey();
+//            printf("StorageData: %i: %.*s\n", i, P(&firstKey));
+//        }
+//    }
+//}
 
 static int KeyCmp(const uint32_t a, const uint32_t b)
 {
