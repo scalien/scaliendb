@@ -4,7 +4,7 @@
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"
 #include "Application/HTTP/UrlParam.h"
-#include "HTTPControllerContext.h"
+#include "ConfigHTTPHandler.h"
 
 class ConfigServer;     // forward
 class ClientRequest;    // forward

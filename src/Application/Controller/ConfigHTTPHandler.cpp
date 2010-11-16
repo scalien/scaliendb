@@ -1,4 +1,4 @@
-#include "HTTPControllerContext.h"
+#include "ConfigHTTPHandler.h"
 #include "HTTPControllerSession.h"
 
 void ConfigHTTPHandler::SetConfigServer(ConfigServer* configServer_)
