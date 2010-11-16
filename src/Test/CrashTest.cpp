@@ -6,15 +6,13 @@
 
 TEST_DEFINE(TestStorageRandomGetSetDelete);
 
-static unsigned long    crashSleepTime = 0;
 static bool             crash = false;
 
 static void CrashFunc()
 {
     char*   null;
     
-    crashSleepTime = RandomInt(1000, 10 * 1000);
-    MSleep(crashSleepTime);
+    MSleep((unsigned)(1000.0 / RandomInt(1, 100) - 7) * 1000);
 
     if (crash)
     {

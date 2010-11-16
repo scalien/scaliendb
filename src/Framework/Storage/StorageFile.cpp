@@ -25,21 +25,6 @@
     } \
 }
 
-void StorageFile::AssertIndexConsistency()
-{
-    StorageKeyIndex*    ki;
-    ReadBuffer          firstKey;
-    
-    FOREACH (ki, indexPage.keys)
-    {
-        if (dataPages[ki->index] != NULL)
-        {
-            firstKey = dataPages[ki->index]->FirstKey();
-            ST_ASSERT(BUFCMP(&ki->key, &firstKey));
-        }
-    }
-}
-
 static void DumpKeys(StorageDataPage** dataPages)
 {
     ReadBuffer  firstKey;
@@ -175,8 +160,6 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         return false;
     
     index = Locate(key);
-    if (index >= 0)
-        ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     
     if (index < 0)
     {
@@ -219,7 +202,6 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         if (!dataPage->IsDirty())
             DCACHE->RegisterHit(dataPage);
 
-        ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
         AssertIndexConsistency();
         return true; // nothing changed
     }
@@ -229,7 +211,6 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     if (dataPage->IsOverflowing())
         SplitDataPage(index);
     
-    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     AssertIndexConsistency();
     return true;
 }
@@ -245,7 +226,6 @@ void StorageFile::Delete(ReadBuffer& key)
     if (index < 0)
         return;
 
-    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     AssertIndexConsistency();
 
     updateIndex = false;
@@ -281,7 +261,6 @@ void StorageFile::Delete(ReadBuffer& key)
     else
         STORAGE_TRACE("Delete else");
 
-    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     AssertIndexConsistency();
 }
 
@@ -687,7 +666,6 @@ void StorageFile::LoadDataPage(uint32_t index)
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);
     dataPages[index]->Read(readBuffer);
-    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
 }
 
 // this is called by DCACHE->FreePage
@@ -735,8 +713,6 @@ void StorageFile::SplitDataPage(uint32_t index)
         ST_ASSERT(newPage->IsDirty() == false);
         MarkPageDirty(newPage);
         MarkPageDirty(&indexPage);
-
-        ST_FIRSTKEY_ASSERT(indexPage.IsKey(newIndex, dataPages[newIndex]->FirstKey()) == true);
         
         // if the newly splitted page does not fit to a data page, split it again
         if (newPage->IsOverflowing())
@@ -792,6 +768,21 @@ void StorageFile::ReorderFile()
             dataPages[index]->SetDirty(false);
 
         MarkPageDirty(dataPages[index]);
+    }
+}
+
+void StorageFile::AssertIndexConsistency()
+{
+    StorageKeyIndex*    ki;
+    ReadBuffer          firstKey;
+    
+    FOREACH (ki, indexPage.keys)
+    {
+        if (dataPages[ki->index] != NULL)
+        {
+            firstKey = dataPages[ki->index]->FirstKey();
+            ST_ASSERT(BUFCMP(&ki->key, &firstKey));
+        }
     }
 }
 
