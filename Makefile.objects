@@ -24,13 +24,18 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/SDBP/SDBPConnection.o \
 	$(BUILD_DIR)/Application/SDBP/SDBPRequestMessage.o \
 	$(BUILD_DIR)/Application/SDBP/SDBPResponseMessage.o \
-	$(BUILD_DIR)/Application/Controller/ConfigContext.o \
-	$(BUILD_DIR)/Application/Controller/ConfigMessage.o \
-	$(BUILD_DIR)/Application/Controller/Controller.o \
-	$(BUILD_DIR)/Application/Controller/ControllerApp.o \
-	$(BUILD_DIR)/Application/Controller/HTTPControllerContext.o \
-	$(BUILD_DIR)/Application/Controller/HTTPControllerSession.o \
-	$(BUILD_DIR)/Application/Controller/JSONConfigState.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigQuorumContext.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigQuorumProcessor.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigHeartbeatManager.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigDatabaseManager.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigPrimaryLeaseManager.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigActivationManager.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigMessage.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigServer.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigServerApp.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigHTTPHandler.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigHTTPClientSession.o \
+	$(BUILD_DIR)/Application/ConfigServer/JSONConfigState.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardMessage.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardQuorumContext.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardCatchupReader.o \

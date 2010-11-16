@@ -7,8 +7,7 @@ $(BUILD_DIR):
 		$(BUILD_DIR)/Application/ConfigState \
 		$(BUILD_DIR)/Application/HTTP/ \
 		$(BUILD_DIR)/Application/SDBP/ \
-		$(BUILD_DIR)/Application/Controller/ \
-		$(BUILD_DIR)/Application/Controller/State \
+		$(BUILD_DIR)/Application/ConfigServer/ \
 		$(BUILD_DIR)/Application/ShardServer/ \
 		$(BUILD_DIR)/Application/Client/ \
 		$(BUILD_DIR)/Application/Client/Python \
