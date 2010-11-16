@@ -14,6 +14,13 @@ void ConfigQuorumProcessor::Init(ConfigServer* configServer_,
     isCatchingUp = false;
 }
 
+void ConfigQuorumProcessor::Shutdown()
+{
+    configMessages.DeleteList();
+    requests.DeleteList();
+    listenRequests.DeleteList();
+}
+
 bool ConfigQuorumProcessor::IsMaster()
 {
     return quorumContext.IsLeaseOwner();

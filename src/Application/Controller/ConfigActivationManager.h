@@ -20,7 +20,6 @@ class ConfigActivationManager
 {
 public:
     void            Init(ConfigServer* configServer);
-    void            Shutdown();
 
     void            TryDeactivateShardServer(uint64_t nodeID);
     void            TryActivateShardServer(uint64_t nodeID);

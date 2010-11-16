@@ -46,7 +46,9 @@ void ConfigServer::Init()
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
     }
 
-    quorumProcessor.Init(this, numConfigServers, databaseManager.GetDatabase()->GetTable("paxos"));    
+    quorumProcessor.Init(this, numConfigServers, databaseManager.GetDatabase()->GetTable("paxos"));
+    primaryLeaseManager.Init(this);
+    activationManager.Init(this);
 }
 
 void ConfigServer::Shutdown()
@@ -54,7 +56,9 @@ void ConfigServer::Shutdown()
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
     REQUEST_CACHE->Shutdown();
+    heartbeatManager.Shutdown();
     databaseManager.Shutdown();
+    primaryLeaseManager.Shutdown();
 }
 
 uint64_t ConfigServer::GetNodeID()
