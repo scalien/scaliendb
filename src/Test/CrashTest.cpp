@@ -12,7 +12,7 @@ static void CrashFunc()
 {
     char*   null;
     
-    MSleep((unsigned)(1000.0 / RandomInt(1, 100)) * 1000);
+    MSleep((unsigned)(1000.0 / RandomInt(1, 100) * 1000));
 
     if (crash)
     {
@@ -25,6 +25,8 @@ TEST_DEFINE(TestCrashStorage)
 {
     int         ret;
     ThreadPool* thread;
+    
+    SeedRandom();
     
     crash = true;
     thread = ThreadPool::Create(1);

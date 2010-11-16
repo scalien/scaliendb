@@ -179,6 +179,9 @@
 		9AF4DCAA12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */; };
 		9AF4DCAB12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */; };
 		9AF4DDCE1270C8290036E3B3 /* FormattingTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */; };
+		9AF4FB751292ED980036E3B3 /* CrashTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4FB741292ED980036E3B3 /* CrashTest.cpp */; };
+		9AF4FB771292EDA30036E3B3 /* CommonTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4FB761292EDA30036E3B3 /* CommonTest.cpp */; };
+		9AF4FB791292EDB20036E3B3 /* ManualTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4FB781292EDB20036E3B3 /* ManualTest.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -483,6 +486,9 @@
 		9AF4EB251279D4FF0036E3B3 /* scaliendb_clientJNI.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = scaliendb_clientJNI.java; path = Application/Client/Java/scaliendb_clientJNI.java; sourceTree = "<group>"; };
 		9AF4EB261279D51C0036E3B3 /* SDBP_Buffer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SDBP_Buffer.java; path = Application/Client/Java/SDBP_Buffer.java; sourceTree = "<group>"; };
 		9AF4EB3C1279D5F80036E3B3 /* scaliendb_client.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = scaliendb_client.java; path = Application/Client/Java/scaliendb_client.java; sourceTree = "<group>"; };
+		9AF4FB741292ED980036E3B3 /* CrashTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CrashTest.cpp; path = Test/CrashTest.cpp; sourceTree = "<group>"; };
+		9AF4FB761292EDA30036E3B3 /* CommonTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CommonTest.cpp; path = Test/CommonTest.cpp; sourceTree = "<group>"; };
+		9AF4FB781292EDB20036E3B3 /* ManualTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ManualTest.cpp; path = Test/ManualTest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -974,6 +980,9 @@
 		9A87418512282929000B1319 /* Test */ = {
 			isa = PBXGroup;
 			children = (
+				9AF4FB781292EDB20036E3B3 /* ManualTest.cpp */,
+				9AF4FB761292EDA30036E3B3 /* CommonTest.cpp */,
+				9AF4FB741292ED980036E3B3 /* CrashTest.cpp */,
 				9ACF23DE122FDEBE00247703 /* Timings.cpp */,
 				9A87418612282946000B1319 /* InTreeMapTest.cpp */,
 				9A87418712282946000B1319 /* StorageTest.cpp */,
@@ -1299,6 +1308,9 @@
 				9AF4D586126E2D2D0036E3B3 /* StorageRecoveryLog.cpp in Sources */,
 				9AF4DCAA12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */,
 				9AF4DDCE1270C8290036E3B3 /* FormattingTest.cpp in Sources */,
+				9AF4FB751292ED980036E3B3 /* CrashTest.cpp in Sources */,
+				9AF4FB771292EDA30036E3B3 /* CommonTest.cpp in Sources */,
+				9AF4FB791292EDB20036E3B3 /* ManualTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
