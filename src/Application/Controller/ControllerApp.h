@@ -1,5 +1,5 @@
-#ifndef CONTROLLERAPP_H
-#define CONTROLLERAPP_H
+#ifndef CONFIGSERVERAPP_H
+#define CONFIGSERVERAPP_H
 
 #include "ConfigServer.h"
 #include "ConfigHTTPHandler.h"
