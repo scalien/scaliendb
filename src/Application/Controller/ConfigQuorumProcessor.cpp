@@ -10,6 +10,8 @@ void ConfigQuorumProcessor::Init(Controller* controller_,
     quorumContext.Init(this, numControllers, quorumTable);
     
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
+    
+    isCatchingUp = false;
 }
 
 bool ConfigQuorumProcessor::IsMaster()
@@ -330,10 +332,77 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
 
 void ConfigQuorumProcessor::OnStartCatchup()
 {
+    CatchupMessage msg;
+    
+    if (isCatchingUp || !quorumContext.IsLeaseKnown())
+        return;
+    
+    quorumContext.StopReplication();
+    
+    msg.CatchupRequest(controller->GetNodeID(), quorumContext.GetQuorumID());
+    
+    CONTEXT_TRANSPORT->SendQuorumMessage(
+     quorumContext.GetLeaseOwner(), quorumContext.GetQuorumID(), msg);
+     
+    isCatchingUp = true;
+    
+    Log_Message("Catchup started from node %" PRIu64 "", quorumContext.GetLeaseOwner());
 }
 
-void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& message)
+void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
 {
+    bool            hasMaster;
+    uint64_t        masterID;
+    Buffer          buffer;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    CatchupMessage  omsg;
+    ConfigState*    configState;
+    
+    configState = controller->GetDatabaseManager()->GetConfigState();
+    
+    switch (imsg.type)
+    {
+        case CATCHUPMESSAGE_REQUEST:
+            if (!quorumContext.IsLeader())
+                return;
+            assert(imsg.quorumID == quorumContext.GetQuorumID());
+            // send configState
+            key.Wrap("state");
+            controller->GetDatabaseManager()->GetConfigState()->Write(buffer);
+            value.Wrap(buffer);
+            omsg.KeyValue(key, value);
+            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
+            omsg.Commit(quorumContext.GetPaxosID() - 1);
+            // send the paxosID whose value is in the db
+            CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
+            break;
+        case CATCHUPMESSAGE_BEGIN_SHARD:
+            ASSERT_FAIL();
+            break;
+        case CATCHUPMESSAGE_KEYVALUE:
+            if (!isCatchingUp)
+                return;
+            hasMaster = configState->hasMaster;
+            masterID = configState->masterID;
+            if (!configState->Read(imsg.value))
+                ASSERT_FAIL();
+            configState->hasMaster = hasMaster;
+            configState->masterID = masterID;
+            break;
+        case CATCHUPMESSAGE_COMMIT:
+            if (!isCatchingUp)
+                return;
+            controller->GetDatabaseManager()->SetPaxosID(imsg.paxosID);
+            controller->GetDatabaseManager()->Write();
+            quorumContext.OnCatchupComplete(imsg.paxosID);      // this commits
+            isCatchingUp = false;
+            configContext.ContinueReplication();
+            Log_Message("Catchup complete");
+            break;
+        default:
+            ASSERT_FAIL();
+    }
 }
 
 void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessage* message)

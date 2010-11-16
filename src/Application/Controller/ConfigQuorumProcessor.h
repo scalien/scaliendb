@@ -60,6 +60,8 @@ private:
     void                    TransfromMessage(ConfigMessage* message, ClientResponse* response);
     void                    SendClientResponse(ConfigMessage& message);
 
+    bool                    isCatchupUp;
+
     ConfigQuorumContext     quorumContext;
     Controller*             controller;
     

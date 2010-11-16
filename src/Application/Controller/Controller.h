@@ -49,15 +49,6 @@ public:
     void                        OnConfigStateChanged();
     
     // ========================================================================================
-    // For ConfigContext:
-    //
-//    void                        OnLeaseTimeout();
-//    void                        OnIsLeader();
-//    void                        OnAppend(uint64_t paxosID, ConfigMessage& message, bool ownAppend);
-//    void                        OnStartCatchup();
-//    void                        OnCatchupMessage(CatchupMessage& message);
-    
-    // ========================================================================================
     // SDBPContext interface:
     //
     bool                        IsValidClientRequest(ClientRequest* request);

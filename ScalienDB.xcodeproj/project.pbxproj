@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		540C05FA1281C0C900D9CDD4 /* ConfigCatchupReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 540C05F91281C0C900D9CDD4 /* ConfigCatchupReader.cpp */; };
 		540C060A1281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 540C06091281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp */; };
 		540C062B1282FC6200D9CDD4 /* ConfigActivationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 540C062A1282FC6200D9CDD4 /* ConfigActivationManager.cpp */; };
 		542B34F5125C9B46003FA4F5 /* QuorumDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 542B34F3125C9B46003FA4F5 /* QuorumDatabase.cpp */; };
@@ -195,8 +194,6 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		540C05F81281C0C900D9CDD4 /* ConfigCatchupReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigCatchupReader.h; sourceTree = "<group>"; };
-		540C05F91281C0C900D9CDD4 /* ConfigCatchupReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigCatchupReader.cpp; sourceTree = "<group>"; };
 		540C06081281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigPrimaryLeaseManager.h; sourceTree = "<group>"; };
 		540C06091281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigPrimaryLeaseManager.cpp; sourceTree = "<group>"; };
 		540C06291282FC6200D9CDD4 /* ConfigActivationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigActivationManager.h; sourceTree = "<group>"; };
@@ -908,8 +905,6 @@
 				54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */,
 				54FCF69D11FDF4770075BBFF /* ConfigQuorumContext.h */,
 				54FCF69C11FDF4770075BBFF /* ConfigQuorumContext.cpp */,
-				540C05F81281C0C900D9CDD4 /* ConfigCatchupReader.h */,
-				540C05F91281C0C900D9CDD4 /* ConfigCatchupReader.cpp */,
 				5487008712886C6200A06AD0 /* ConfigQuorumProcessor.h */,
 				5487008812886C6200A06AD0 /* ConfigQuorumProcessor.cpp */,
 				9A26DB46120076BA006A2814 /* Controller.h */,
@@ -1227,7 +1222,6 @@
 				5488A1511271B6FE007CC6B2 /* ShardHTTPHandler.cpp in Sources */,
 				9AF4D587126E2D2D0036E3B3 /* StorageRecoveryLog.cpp in Sources */,
 				9AF4DCAB12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */,
-				540C05FA1281C0C900D9CDD4 /* ConfigCatchupReader.cpp in Sources */,
 				540C060A1281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp in Sources */,
 				540C062B1282FC6200D9CDD4 /* ConfigActivationManager.cpp in Sources */,
 				5487008912886C6200A06AD0 /* ConfigQuorumProcessor.cpp in Sources */,
