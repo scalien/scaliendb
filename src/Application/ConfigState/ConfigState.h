@@ -8,7 +8,7 @@
 #include "ConfigTable.h"
 #include "ConfigShard.h"
 #include "ConfigShardServer.h"
-#include "Application/Controller/ConfigMessage.h"
+#include "Application/ConfigServer/ConfigMessage.h"
 
 #define CONFIG_MIN_SHARD_NODE_ID    100
 

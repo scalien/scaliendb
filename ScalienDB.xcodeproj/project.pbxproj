@@ -898,7 +898,7 @@
 			path = ReplicatedLog;
 			sourceTree = "<group>";
 		};
-		54FCF69811FDF4770075BBFF /* Controller */ = {
+		54FCF69811FDF4770075BBFF /* ConfigServer */ = {
 			isa = PBXGroup;
 			children = (
 				9AABCD401257CF93003626AC /* JSONConfigState.h */,
@@ -926,8 +926,8 @@
 				9AABB50C123FDCDD003626AC /* ConfigServerApp.h */,
 				9AABB50D123FDCDD003626AC /* ConfigServerApp.cpp */,
 			);
-			name = Controller;
-			path = Application/Controller;
+			name = ConfigServer;
+			path = Application/ConfigServer;
 			sourceTree = "<group>";
 		};
 		9A26D68511F4BD5B006A2814 /* Application */ = {
@@ -938,7 +938,7 @@
 				5487BC37123A5E2000C235BA /* Common */,
 				9A26D68711F4BD66006A2814 /* HTTP */,
 				5487BC25123A5C6E00C235BA /* SDBP */,
-				54FCF69811FDF4770075BBFF /* Controller */,
+				54FCF69811FDF4770075BBFF /* ConfigServer */,
 				54A861C2123E207000ECCBE5 /* ShardServer */,
 			);
 			name = Application;
