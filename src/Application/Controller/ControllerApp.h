@@ -2,7 +2,7 @@
 #define CONTROLLERAPP_H
 
 #include "ConfigServer.h"
-#include "HTTPControllerContext.h"
+#include "ConfigHTTPHandler.h"
 #include "Application/Common/Application.h"
 #include "Application/HTTP/HTTPServer.h"
 #include "Application/SDBP/SDBPServer.h"
@@ -10,12 +10,12 @@
 /*
 ===============================================================================================
 
- ControllerApp
+ ConfigServerApp
 
 ===============================================================================================
 */
 
-class ControllerApp : public Application
+class ConfigServerApp : public Application
 {
 public:
     // ========================================================================================

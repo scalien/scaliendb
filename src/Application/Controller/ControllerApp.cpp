@@ -1,7 +1,7 @@
 #include "ControllerApp.h"
 #include "System/Config.h"
 
-void ControllerApp::Init()
+void ConfigServerApp::Init()
 {
     configServer.Init();
     
@@ -13,7 +13,7 @@ void ControllerApp::Init()
     sdbpServer.SetContext(&configServer);
 }
 
-void ControllerApp::Shutdown()
+void ConfigServerApp::Shutdown()
 {
     configServer.Shutdown();
 }

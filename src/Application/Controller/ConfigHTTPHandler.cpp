@@ -1,5 +1,5 @@
 #include "ConfigHTTPHandler.h"
-#include "HTTPControllerSession.h"
+#include "ConfigHTTPClientSession.h"
 
 void ConfigHTTPHandler::SetConfigServer(ConfigServer* configServer_)
 {

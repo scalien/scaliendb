@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     isController = IsController();  
     Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
     if (isController)
-        app = new ControllerApp;
+        app = new ConfigServerApp;
     else
         app = new ShardServerApp;
     
