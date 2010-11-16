@@ -306,7 +306,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
     ST_ASSERT(ret == true);
 
     readBuffer.Advance(sizeof(uint32_t));
-    STORAGE_TRACE("reading datapage for file %u at offset %u\n", fileIndex, offset);
+    STORAGE_TRACE("reading datapage for file %u at offset %u", fileIndex, offset);
     for (i = 0; i < num; i++)
     {
         kv = new StorageKeyValue;
@@ -314,19 +314,23 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
         ret = readBuffer.ReadLittle32(len);
         ST_ASSERT(ret == true);
         readBuffer.Advance(sizeof(uint32_t));
-        kv->key.SetLength(len);
-        kv->key.SetBuffer(readBuffer.GetBuffer());
+        ReadBuffer   rk(readBuffer.GetBuffer(), len);
+        kv->SetKey(rk, true);
+//        kv->key.SetLength(len);
+//        kv->key.SetBuffer(readBuffer.GetBuffer());
 
         readBuffer.Advance(len);
         ret = readBuffer.ReadLittle32(len);
         ST_ASSERT(ret == true);
 
         readBuffer.Advance(sizeof(uint32_t));
-        kv->value.SetLength(len);
-        kv->value.SetBuffer(readBuffer.GetBuffer());
+        ReadBuffer  rv(readBuffer.GetBuffer(), len);
+        kv->SetValue(rv, true);
+//        kv->value.SetLength(len);
+//        kv->value.SetBuffer(readBuffer.GetBuffer());
         
         readBuffer.Advance(len);
-        STORAGE_TRACE("read %.*s => %.*s\n", P(&(kv->key)), P(&(kv->value)));
+        STORAGE_TRACE("read %.*s => %.*s", P(&(kv->key)), P(&(kv->value)));
         keys.Insert(kv);
     }
     
@@ -335,7 +339,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
     ST_ASSERT(IsEmpty() != true);
 }
 
-bool StorageDataPage::CheckWrite(Buffer& buffer)
+bool StorageDataPage::CheckWrite(Buffer& writeBuffer)
 {
     StorageKeyValue*    it;
     unsigned            len;
@@ -346,33 +350,33 @@ bool StorageDataPage::CheckWrite(Buffer& buffer)
 
     this->buffer.Allocate(pageSize);
 
-    buffer.SetLength(0);
+    writeBuffer.SetLength(0);
 
     ST_ASSERT(pageSize > 0);
-    buffer.AppendLittle32(pageSize);
+    writeBuffer.AppendLittle32(pageSize);
 
     ST_ASSERT(fileIndex != 0);
-    buffer.AppendLittle32(fileIndex);
+    writeBuffer.AppendLittle32(fileIndex);
 
-    buffer.AppendLittle32(offset);
+    writeBuffer.AppendLittle32(offset);
 
     num = keys.GetCount();
-    buffer.AppendLittle32(num);
+    writeBuffer.AppendLittle32(num);
 
 //  printf("writing datapage for file %u at offset %u\n", fileIndex, offset);
     for (it = keys.First(); it != NULL; it = keys.Next(it))
     {
         len = it->key.GetLength();
-        buffer.AppendLittle32(len);
-        buffer.Append(it->key.GetBuffer(), it->key.GetLength());
+        writeBuffer.AppendLittle32(len);
+        writeBuffer.Append(it->key.GetBuffer(), it->key.GetLength());
 
         len = it->value.GetLength();
-        buffer.AppendLittle32(len);
-        buffer.Append(it->value.GetBuffer(), it->value.GetLength());
+        writeBuffer.AppendLittle32(len);
+        writeBuffer.Append(it->value.GetBuffer(), it->value.GetLength());
 //      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }
-    ST_ASSERT(required == buffer.GetLength());
-    if (BUFCMP(&buffer, &this->buffer))
+    ST_ASSERT(required == writeBuffer.GetLength());
+    if (BUFCMP(&writeBuffer, &this->buffer))
         return false;
     
 //  for (it = keys.First(); it != NULL; it = keys.Next(it))
@@ -417,12 +421,12 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
         tmpLen = writeBuffer.GetLength();
         writeBuffer.Append(it->key.GetBuffer(), it->key.GetLength());
 
-        if (it->keyBuffer)
-        {
-            delete it->keyBuffer;
-            it->keyBuffer = NULL;
-        }
-        it->key.SetBuffer(buffer.GetBuffer() + tmpLen);
+//        if (it->keyBuffer)
+//        {
+//            delete it->keyBuffer;
+//            it->keyBuffer = NULL;
+//        }
+//        it->key.SetBuffer(buffer.GetBuffer() + tmpLen);
 
         len = it->value.GetLength();
         writeBuffer.AppendLittle32(len);
@@ -430,12 +434,12 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
         tmpLen = writeBuffer.GetLength();
         writeBuffer.Append(it->value.GetBuffer(), it->value.GetLength());
 
-        if (it->valueBuffer)
-        {
-            delete it->valueBuffer;
-            it->valueBuffer = NULL;
-        }
-        it->value.SetBuffer(buffer.GetBuffer() + tmpLen);
+//        if (it->valueBuffer)
+//        {
+//            delete it->valueBuffer;
+//            it->valueBuffer = NULL;
+//        }
+//        it->value.SetBuffer(buffer.GetBuffer() + tmpLen);
 
 //      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }

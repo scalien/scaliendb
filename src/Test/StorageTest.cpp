@@ -761,7 +761,7 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
             case 0:
             case 1:
                 TEST_LOG("Set, %.*s", P(&rk));
-                table->Set(rk, rv, false);
+                table->Set(rk, rv, true);
                 break;
             case 2:
                 TEST_LOG("Delete, %.*s", P(&rk));
