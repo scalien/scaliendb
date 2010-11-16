@@ -13,12 +13,12 @@ class ConfigState;      // forward
 /*
 ===============================================================================================
 
- HTTPControllerSession
+ ConfigHTTPClientSession
 
 ===============================================================================================
 */
 
-class HTTPControllerSession : public ClientSession
+class ConfigHTTPClientSession : public ClientSession
 {
 public:
 

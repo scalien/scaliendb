@@ -8,9 +8,9 @@ void ConfigHTTPHandler::SetConfigServer(ConfigServer* configServer_)
 
 bool ConfigHTTPHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
 {
-    HTTPControllerSession*  session;
+    ConfigHTTPClientSession* session;
 
-    session = new HTTPControllerSession;
+    session = new ConfigHTTPClientSession;
     session->SetConfigServer(configServer);
     session->SetConnection(conn);
 
