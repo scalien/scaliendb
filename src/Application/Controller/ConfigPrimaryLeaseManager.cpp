@@ -28,7 +28,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
     {
         if (itLease->expireTime < now)
         {
-            quorum = controller->GetConfigState()->GetQuorum(itLease->quorumID);
+            quorum = controller->GetDatabaseManager()->GetConfigState()->GetQuorum(itLease->quorumID);
             quorum->hasPrimary = false;
             quorum->primaryID = 0;
             itLease = primaryLeases.Delete(itLease);
@@ -47,7 +47,7 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     uint64_t*       it;
     ConfigQuorum*   quorum;
 
-    quorum = controller->GetConfigState()->GetQuorum(message.quorumID);
+    quorum = controller->GetDatabaseManager()->GetConfigState()->GetQuorum(message.quorumID);
     
     if (quorum == NULL)
     {

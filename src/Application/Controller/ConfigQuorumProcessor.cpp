@@ -61,7 +61,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.ConfigStateResponse(*controller->GetConfigState());
+        request->response.ConfigStateResponse(*controller->GetDatabaseManager()->GetConfigState());
         request->OnComplete(false);
         return;
     }
@@ -90,7 +90,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     message = new ConfigMessage;
     TransformRequest(request, message);
     
-    if (!controller->GetConfigState()->CompleteMessage(*message))
+    if (!controller->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
     {
         delete message;
         request->response.Failed();
@@ -188,7 +188,7 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
     message = new ConfigMessage;
     message->fromClient = false;
     message->RegisterShardServer(0, endpoint);
-    if (!controller->GetConfigState()->CompleteMessage(*message))
+    if (!controller->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
         ASSERT_FAIL();
 
     configMessages.Append(message);
@@ -203,7 +203,7 @@ void ConfigQuorumProcessor::UpdateListeners()
     ConfigState::ShardServerList*   shardServers;
     ClusterMessage                  message;
     
-    configState = controller->GetConfigState();
+    configState = controller->GetDatabaseManager()->GetConfigState();
     
     // update clients
     for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
@@ -272,10 +272,12 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     ClusterMessage  clusterMessage;
     ConfigState*    configState;
     
+    configState = controller->GetDatabaseManager()->GetConfigState();
+    
     // catchup issue:
     // if paxosID is smaller or equal to configStatePaxosID, that means
     // our state already includes the writes in this round
-    if (paxosID - 1 <= configStatePaxosID)
+    if (paxosID - 1 <= controller->GetDatabaseManager()->GetPaxosID())
         return;
     
     if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
@@ -288,7 +290,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     }
     
     configState->OnMessage(message);
-    WriteConfigState();
+    controller->GetDatabaseManager()->Write();
     controller->OnConfigStateChanged(); // UpdateActivationTimeout();
     
     if (IsMaster())

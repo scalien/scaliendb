@@ -17,9 +17,13 @@ class ConfigDatabaseManager
 {
 public:
     void                    Init();
+    void                    Shutdown();
     
     StorageDatabase*        GetDatabase();
     ConfigState*            GetConfigState();
+    
+    void                    SetPaxosID(uint64_t paxosID);
+    uint64_t                GetPaxosID();
     
     void                    Read();
     void                    Write();

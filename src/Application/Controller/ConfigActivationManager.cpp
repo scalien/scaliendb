@@ -22,7 +22,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
 
-    configState = controller->GetConfigState();
+    configState = controller->GetDatabaseManager()->GetConfigState();
 
     FOREACH(itQuorum, configState->quorums)
     {
@@ -80,7 +80,7 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
     ConfigShardServer*  shardServer;
     uint64_t            now;
 
-    configState = controller->GetConfigState();
+    configState = controller->GetDatabaseManager()->GetConfigState();
     shardServer = configState->GetShardServer(nodeID);
 
     now = EventLoop::Now();
@@ -161,7 +161,7 @@ void ConfigActivationManager::OnActivationTimeout()
     Log_Trace();
     
     now = EventLoop::Now();
-    configState = controller->GetConfigState();
+    configState = controller->GetDatabaseManager()->GetConfigState();
     
     FOREACH(itQuorum, configState->quorums)
     {
@@ -201,7 +201,7 @@ void ConfigActivationManager::UpdateTimeout()
     Log_Trace();
     
     activationExpireTime = 0;
-    FOREACH(it, controller->GetConfigState()->quorums)
+    FOREACH(it, controller->GetDatabaseManager()->GetConfigState()->quorums)
     {
         if (it->isActivatingNode && !it->isReplicatingActivation)
         {

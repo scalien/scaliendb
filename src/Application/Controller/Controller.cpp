@@ -48,11 +48,7 @@ void Controller::Init()
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
     }
 
-    configState.Init();
     quorumProcessor.Init(this, numControllers, databaseManager.GetDatabase()->GetTable("paxos"));    
-    ReadConfigState();
-
-    configStatePaxosID = 0;
 }
 
 void Controller::Shutdown()
@@ -60,7 +56,7 @@ void Controller::Shutdown()
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
     REQUEST_CACHE->Shutdown();
-    databaseEnv.Close();
+    databaseManager.Shutdown();
 }
 
 int64_t Controller::GetMaster()
@@ -73,9 +69,9 @@ uint64_t Controller::GetNodeID()
     return MY_NODEID;
 }
 
-ConfigState* Controller::GetConfigState()
+ConfigDatabaseManager* Controller::GetDatabaseManager()
 {
-    return &configState;
+    return &databaseManager;
 }
 
 void Controller::OnConfigStateChanged()
@@ -131,12 +127,15 @@ void Controller::OnStartCatchup()
 
 void Controller::OnCatchupMessage(CatchupMessage& imsg)
 {
-    CatchupMessage  omsg;
+    bool            hasMaster;
+    uint64_t        masterID;
     Buffer          buffer;
     ReadBuffer      key;
     ReadBuffer      value;
-    bool            hasMaster;
-    uint64_t        masterID;
+    CatchupMessage  omsg;
+    ConfigState*    configState;
+    
+    configState = databaseManager.GetConfigState();
     
     switch (imsg.type)
     {
@@ -146,7 +145,7 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
             assert(imsg.quorumID == configContext.GetQuorumID());
             // send configState
             key.Wrap("state");
-            configState.Write(buffer);
+            databaseManager.GetConfigState()->Write(buffer);
             value.Wrap(buffer);
             omsg.KeyValue(key, value);
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, configContext.GetQuorumID(), omsg);
@@ -160,18 +159,18 @@ void Controller::OnCatchupMessage(CatchupMessage& imsg)
         case CATCHUPMESSAGE_KEYVALUE:
             if (!isCatchingUp)
                 return;
-            hasMaster = configState.hasMaster;
-            masterID = configState.masterID;
-            if (!configState.Read(imsg.value))
+            hasMaster = configState->hasMaster;
+            masterID = configState->masterID;
+            if (!configState->Read(imsg.value))
                 ASSERT_FAIL();
-            configState.hasMaster = hasMaster;
-            configState.masterID = masterID;
+            configState->hasMaster = hasMaster;
+            configState->masterID = masterID;
             break;
         case CATCHUPMESSAGE_COMMIT:
             if (!isCatchingUp)
                 return;
-            configStatePaxosID = imsg.paxosID;
-            WriteConfigState();
+            databaseManager.SetPaxosID(imsg.paxosID);
+            databaseManager.Write();
             configContext.OnCatchupComplete(imsg.paxosID);      // this commits
             isCatchingUp = false;
             configContext.ContinueReplication();
@@ -219,12 +218,15 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
     ClusterMessage      clusterMessage;
     ConfigShardServer*  shardServer;
+    ConfigState*        configState;
+    
+    configState = databaseManager.GetConfigState();
     
     // if it's a shard server, send the configState
     if (nodeID >= CONFIG_MIN_SHARD_NODE_ID)
     {
         // TODO: send shutdown message in case of bad configuration
-        shardServer = configState.GetShardServer(nodeID);
+        shardServer = configState->GetShardServer(nodeID);
         if (shardServer == NULL)
             return;
         
@@ -238,7 +240,7 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
             return;
         }
         
-        clusterMessage.SetConfigState(configState);
+        clusterMessage.SetConfigState(*configState);
         CONTEXT_TRANSPORT->SendClusterMessage(nodeID, clusterMessage);
         
         Log_Message("[%s] Shard server connected (%" PRIu64 ")", endpoint.ToString(), nodeID);
@@ -250,12 +252,15 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
     ConfigShardServer*              shardServer;
     ConfigState::ShardServerList*   shardServers;
     ClusterMessage                  clusterMessage;
+    ConfigState*                    configState;
 
     if (!quorumProcessor.IsMaster())
         return true; // drop connection
     
+    configState = databaseManager.GetConfigState();
+    
     // look for existing endpoint
-    shardServers = &configState.shardServers;
+    shardServers = &configState->shardServers;
     for (shardServer = shardServers->First(); shardServer != NULL; shardServer = shardServers->Next(shardServer))
     {
         if (shardServer->endpoint == endpoint)
@@ -268,7 +273,7 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             
             // send config state
-            clusterMessage.SetConfigState(configState);
+            clusterMessage.SetConfigState(*configState);
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             return false;
         }
@@ -276,37 +281,4 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
 
     quorumProcessor.TryRegisterShardServer(endpoint);
     return false;
-}
-
-void Controller::ReadConfigState()
-{
-    bool                ret;
-    ReadBuffer          value;
-    int                 read;
-    
-    ret =  true;
-    
-    if (!systemDatabase->GetTable("config")->Get(ReadBuffer("state"), value))
-    {
-        Log_Message("Starting with empty database...");
-        return;
-    }
-    
-    read = value.Readf("%U:", &configStatePaxosID);
-    if (read < 2)
-        ASSERT_FAIL();
-    
-    value.Advance(read);
-    
-    if (!configState.Read(value))
-        ASSERT_FAIL();
-
-    Log_Trace("%.*s", P(&value));
-}
-
-void Controller::WriteConfigState()
-{
-    configStateBuffer.Writef("%U:", configStatePaxosID);
-    configState.Write(configStateBuffer);
-    systemDatabase->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
 }

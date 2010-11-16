@@ -98,7 +98,7 @@ void HTTPControllerSession::PrintStatus()
     
     session.Print("\n--- Configuration State ---\n");
     
-    configState = controller->GetConfigState();
+    configState = controller->GetDatabaseManager()->GetConfigState();
     PrintShardServers(configState);
     session.Print("");
     PrintQuorumMatrix(configState);
@@ -368,7 +368,7 @@ void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
 
 void HTTPControllerSession::PrintConfigState()
 {
-    JSONConfigState jsonConfigState(*controller->GetConfigState(), session.json);
+    JSONConfigState jsonConfigState(*controller->GetDatabaseManager()->GetConfigState(), session.json);
     jsonConfigState.Write();
     session.Flush();
 }

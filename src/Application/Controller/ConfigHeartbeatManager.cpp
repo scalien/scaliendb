@@ -24,7 +24,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     ConfigQuorum*       quorum;
     ConfigShardServer*  shardServer;
     
-    shardServer = controller->GetConfigState()->GetShardServer(message.nodeID);
+    shardServer = controller->GetDatabaseManager()->GetConfigState()->GetShardServer(message.nodeID);
     if (!shardServer)
         return;
     
@@ -34,7 +34,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     
     FOREACH(it, message.quorumPaxosIDs)
     {
-        quorum = controller->GetConfigState()->GetQuorum(it->quorumID);
+        quorum = controller->GetDatabaseManager()->GetConfigState()->GetQuorum(it->quorumID);
         if (!quorum)
             continue;
             
@@ -69,7 +69,7 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
     
     if (controller->IsMaster())
     {
-        FOREACH(itShardServer, controller->GetConfigState()->shardServers)
+        FOREACH(itShardServer, controller->GetDatabaseManager()->GetConfigState()->shardServers)
         {
             if (!HasHeartbeat(itShardServer->nodeID))
                 controller->GetActivationManager()->TryDeactivateShardServer(itShardServer->nodeID);

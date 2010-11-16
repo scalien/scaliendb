@@ -43,7 +43,7 @@ public:
     int64_t                     GetMaster();
     uint64_t                    GetNodeID();
 
-    ConfigState*                GetConfigState();
+    ConfigDatabaseManager*      GetDatabaseManager();
     ConfigQuorumProcessor*      GetQuorumProcessor();
     ConfigHeartbeatManager*     GetHeartbeatManager();
     ConfigActivationManager*    GetActivationManager();
@@ -74,8 +74,7 @@ public:
     bool                        OnAwaitingNodeID(Endpoint endpoint);
     // ========================================================================================
 
-private:    
-    uint64_t                    configStatePaxosID;
+private:
     bool                        isCatchingUp;
 
     ConfigDatabaseManager       databaseManager;

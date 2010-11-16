@@ -6,6 +6,15 @@ void ConfigDatabaseManager::Init()
     environment.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
     environment.Open(configFile.GetValue("database.dir", "db"));
     database = environment.GetDatabase("system");
+    
+    paxosID = 0;
+    configState.Init();
+    Read();
+}
+
+void ConfigDatabaseManager::Shutdown()
+{
+    environment.Close();
 }
 
 StorageDatabase* ConfigDatabaseManager::GetDatabase()
@@ -16,6 +25,16 @@ StorageDatabase* ConfigDatabaseManager::GetDatabase()
 ConfigState* ConfigDatabaseManager::GetConfigState()
 {
     return &configState;
+}
+
+void ConfigDatabaseManager::SetPaxosID(uint64_t paxosID_)
+{
+    paxosID = paxosID_;
+}
+
+uint64_t ConfigDatabaseManager::GetPaxosID()
+{
+    return paxosID;
 }
 
 void ConfigDatabaseManager::Read()
