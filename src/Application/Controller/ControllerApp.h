@@ -1,7 +1,7 @@
 #ifndef CONTROLLERAPP_H
 #define CONTROLLERAPP_H
 
-#include "Controller.h"
+#include "ConfigServer.h"
 #include "HTTPControllerContext.h"
 #include "Application/Common/Application.h"
 #include "Application/HTTP/HTTPServer.h"

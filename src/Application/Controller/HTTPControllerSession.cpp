@@ -1,5 +1,5 @@
 #include "HTTPControllerSession.h"
-#include "Controller.h"
+#include "ConfigServer.h"
 #include "JSONConfigState.h"
 #include "System/Config.h"
 #include "Application/Common/ContextTransport.h"

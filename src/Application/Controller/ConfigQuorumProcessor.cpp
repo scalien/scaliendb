@@ -1,6 +1,6 @@
 #include "ConfigQuorumProcessor.h"
 #include "Application/Common/ContextTransport.h"
-#include "Controller.h"
+#include "ConfigServer.h"
 #include "ConfigHeartbeatManager.h"
 
 void ConfigQuorumProcessor::Init(ConfigServer* configServer_,

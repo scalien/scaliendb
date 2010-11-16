@@ -1,7 +1,7 @@
 #include "ConfigActivationManager.h"
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
-#include "Controller.h"
+#include "ConfigServer.h"
 #include "ConfigQuorumProcessor.h"
 
 void ConfigActivationManager::Init(ConfigServer* configServer_)

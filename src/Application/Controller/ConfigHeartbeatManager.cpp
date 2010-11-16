@@ -2,7 +2,7 @@
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
 #include "ConfigActivationManager.h"
-#include "Controller.h"
+#include "ConfigServer.h"
 
 void ConfigHeartbeatManager::Init(ConfigServer* configServer_)
 {

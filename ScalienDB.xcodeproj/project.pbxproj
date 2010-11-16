@@ -77,7 +77,7 @@
 		54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501B1237E83E0095BF36 /* ClusterServer.cpp */; };
 		54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501D1237E83E0095BF36 /* ClusterTransport.cpp */; };
 		54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA50261237E9A30095BF36 /* ClusterConnection.cpp */; };
-		54EA525C1238F9A60095BF36 /* Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26DB47120076BA006A2814 /* Controller.cpp */; };
+		54EA525C1238F9A60095BF36 /* ConfigServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26DB47120076BA006A2814 /* ConfigServer.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		54FA68F911C2429A00FF4EF6 /* Countdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* Countdown.cpp */; };
 		54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
@@ -404,8 +404,8 @@
 		9A26D69B11F4BDE2006A2814 /* Mime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mime.h; path = Application/HTTP/Mime.h; sourceTree = "<group>"; };
 		9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UrlParam.cpp; path = Application/HTTP/UrlParam.cpp; sourceTree = "<group>"; };
 		9A26D69D11F4BDE2006A2814 /* UrlParam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UrlParam.h; path = Application/HTTP/UrlParam.h; sourceTree = "<group>"; };
-		9A26DB46120076BA006A2814 /* Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Controller.h; sourceTree = "<group>"; };
-		9A26DB47120076BA006A2814 /* Controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Controller.cpp; sourceTree = "<group>"; };
+		9A26DB46120076BA006A2814 /* ConfigServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigServer.h; sourceTree = "<group>"; };
+		9A26DB47120076BA006A2814 /* ConfigServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigServer.cpp; sourceTree = "<group>"; };
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
 		9A87418612282946000B1319 /* InTreeMapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InTreeMapTest.cpp; path = Test/InTreeMapTest.cpp; sourceTree = "<group>"; };
@@ -907,8 +907,8 @@
 				54FCF69C11FDF4770075BBFF /* ConfigQuorumContext.cpp */,
 				5487008712886C6200A06AD0 /* ConfigQuorumProcessor.h */,
 				5487008812886C6200A06AD0 /* ConfigQuorumProcessor.cpp */,
-				9A26DB46120076BA006A2814 /* Controller.h */,
-				9A26DB47120076BA006A2814 /* Controller.cpp */,
+				9A26DB46120076BA006A2814 /* ConfigServer.h */,
+				9A26DB47120076BA006A2814 /* ConfigServer.cpp */,
 				9AABB45E123FB311003626AC /* HTTPControllerContext.h */,
 				9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */,
 				9AABB48C123FBFFE003626AC /* HTTPControllerSession.h */,
@@ -1184,7 +1184,7 @@
 				54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */,
 				54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */,
 				54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */,
-				54EA525C1238F9A60095BF36 /* Controller.cpp in Sources */,
+				54EA525C1238F9A60095BF36 /* ConfigServer.cpp in Sources */,
 				5487B8791239230500C235BA /* ConfigQuorumContext.cpp in Sources */,
 				5487BC2B123A5D0C00C235BA /* SDBPConnection.cpp in Sources */,
 				5487BC2D123A5D2500C235BA /* SDBPServer.cpp in Sources */,
