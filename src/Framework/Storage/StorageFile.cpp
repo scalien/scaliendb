@@ -180,7 +180,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     {
         dataPage = dataPages[index];
         
-        ST_FIRSTKEY_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
+        ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
         rb = dataPage->FirstKey();
         if (ReadBuffer::LessThan(key, rb))
         {
@@ -225,7 +225,7 @@ void StorageFile::Delete(ReadBuffer& key)
 
     updateIndex = false;
     firstKey = dataPages[index]->FirstKey();
-    ST_FIRSTKEY_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
+    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     if (BUFCMP(&key, &firstKey))
         updateIndex = true;
 
@@ -652,7 +652,7 @@ void StorageFile::LoadDataPage(uint32_t index)
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);
     dataPages[index]->Read(readBuffer);
-    ST_FIRSTKEY_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
+    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
 }
 
 // this is called by DCACHE->FreePage

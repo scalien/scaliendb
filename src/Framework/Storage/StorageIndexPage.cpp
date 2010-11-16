@@ -181,9 +181,14 @@ bool StorageIndexPage::IsOverflowing()
         return true;
 }
 
-bool StorageIndexPage::HasKey(const ReadBuffer& key)
+bool StorageIndexPage::IsKey(uint32_t index, const ReadBuffer& key)
 {
-    if (keys.Get(key) == NULL)
+    StorageKeyIndex*    ki;
+    
+    ki = keys.Get(key);
+    if (ki == NULL)
+        return false;
+    if (ki->index != index)
         return false;
     return true;
 }
