@@ -179,8 +179,6 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     else
     {
         dataPage = dataPages[index];
-        
-        ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
         rb = dataPage->FirstKey();
         if (ReadBuffer::LessThan(key, rb))
         {
@@ -188,6 +186,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
             indexPage.Update(key, index, true);
             MarkPageDirty(&indexPage);
         }
+        ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     }
     
     if (dataPage->HasCursors())
@@ -225,7 +224,6 @@ void StorageFile::Delete(ReadBuffer& key)
 
     updateIndex = false;
     firstKey = dataPages[index]->FirstKey();
-    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     if (BUFCMP(&key, &firstKey))
         updateIndex = true;
 
@@ -252,6 +250,7 @@ void StorageFile::Delete(ReadBuffer& key)
         indexPage.Update(firstKey, index, true);
         MarkPageDirty(&indexPage);      
     }
+    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
 }
 
 ReadBuffer StorageFile::FirstKey()
