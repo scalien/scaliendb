@@ -39,8 +39,6 @@ public:
     void                        Init();
     void                        Shutdown();
 
-    bool                        IsMaster();
-    int64_t                     GetMaster();
     uint64_t                    GetNodeID();
 
     ConfigDatabaseManager*      GetDatabaseManager();
@@ -53,11 +51,11 @@ public:
     // ========================================================================================
     // For ConfigContext:
     //
-    void                        OnLeaseTimeout();
-    void                        OnIsLeader();
-    void                        OnAppend(uint64_t paxosID, ConfigMessage& message, bool ownAppend);
-    void                        OnStartCatchup();
-    void                        OnCatchupMessage(CatchupMessage& message);
+//    void                        OnLeaseTimeout();
+//    void                        OnIsLeader();
+//    void                        OnAppend(uint64_t paxosID, ConfigMessage& message, bool ownAppend);
+//    void                        OnStartCatchup();
+//    void                        OnCatchupMessage(CatchupMessage& message);
     
     // ========================================================================================
     // SDBPContext interface:

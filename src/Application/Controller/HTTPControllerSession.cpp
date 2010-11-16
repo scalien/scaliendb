@@ -86,7 +86,7 @@ void HTTPControllerSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("NodeID", buf.GetBuffer());   
 
-    buf.Writef("%d", (int) controller->GetMaster());
+    buf.Writef("%d", (int) controller->GetQuorumProcessor()->GetMaster());
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
 

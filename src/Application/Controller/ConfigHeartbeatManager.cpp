@@ -67,7 +67,7 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
             break;
     }
     
-    if (controller->IsMaster())
+    if (controller->GetQuorumProcessor()->IsMaster())
     {
         FOREACH(itShardServer, controller->GetDatabaseManager()->GetConfigState()->shardServers)
         {

@@ -232,6 +232,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
 {
     ConfigMessage*  itMessage;
     ClientRequest*  itRequest;
+    ConfigState*    configState;
  
     // clear config messages   
     for (itMessage = configMessages.First(); itMessage != NULL; 
@@ -259,12 +260,30 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
         itRequest->OnComplete();
     }
     assert(listenRequests.GetLength() == 0);
-
-    controller->OnLeaseTimeout();
+    
+    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState->hasMaster = false;
+    configState->masterID = 0;
+    controller->OnConfigStateChanged(); // TODO: is this neccesary?
+    // TODO: tell ActivationManager
 }
 
 void ConfigQuorumProcessor::OnIsLeader()
 {
+    bool            updateListeners;
+    ConfigState*    configState;
+    
+    configState = controller->GetDatabaseManager()->GetConfigState();
+    
+    updateListeners = false;
+    if (!configState->hasMaster)
+        updateListeners = true;
+
+    configState->hasMaster = true;
+    configState->masterID = GetMaster();
+
+    if (updateListeners && (uint64_t) GetMaster() == controller->GetNodeID())
+        UpdateListeners();
 }
 
 void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, bool ownAppend)

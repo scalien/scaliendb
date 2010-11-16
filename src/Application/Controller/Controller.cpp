@@ -59,11 +59,6 @@ void Controller::Shutdown()
     databaseManager.Shutdown();
 }
 
-int64_t Controller::GetMaster()
-{
-    return quorumProcessor.GetMaster();
-}
-
 uint64_t Controller::GetNodeID()
 {
     return MY_NODEID;
@@ -78,32 +73,6 @@ void Controller::OnConfigStateChanged()
 {
     activationManager.UpdateTimeout();
     quorumProcessor.UpdateListeners();
-}
-
-
-void Controller::OnLeaseTimeout()
-{
-    configState.hasMaster = false;
-    configState.masterID = 0;    
-}
-
-void Controller::OnIsLeader()
-{
-    bool updateListeners;
-    
-    updateListeners = false;
-    if (!configState.hasMaster)
-        updateListeners = true;
-
-    configState.hasMaster = true;
-    configState.masterID = GetMaster();
-
-    if (updateListeners && (uint64_t) GetMaster() == GetNodeID())
-        quorumProcessor.UpdateListeners();
-}
-
-void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool ownAppend)
-{
 }
 
 void Controller::OnStartCatchup()
