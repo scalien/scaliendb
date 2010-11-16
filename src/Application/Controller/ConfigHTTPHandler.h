@@ -1,28 +1,28 @@
-#ifndef HTTPCONTROLLERCONTEXT_H
-#define HTTPCONTROLLERCONTEXT_H
+#ifndef CONFIGHTTPHANDLER_H
+#define CONFIGHTTPHANDLER_H
 
 #include "Application/HTTP/HTTPServer.h"
 
-class Controller;   // forward
+class ConfigServer;   // forward
 
 /*
 ===============================================================================================
 
- HTTPControllerContext
+ ConfigHTTPHandler
 
 ===============================================================================================
 */
 
-class HTTPControllerContext : public HTTPHandler
+class ConfigHTTPHandler : public HTTPHandler
 {
 public:
-    void            SetController(Controller* controller);
+    void            SetConfigServer(ConfigServer* configServer);
     
     // HTTPHandler interface
     virtual bool    HandleRequest(HTTPConnection* conn, HTTPRequest& request);
 
 private:
-    Controller*     controller;
+    ConfigServer*   configServer;
 };
 
 #endif

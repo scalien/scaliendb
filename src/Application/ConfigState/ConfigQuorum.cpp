@@ -49,6 +49,16 @@ ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
     return *this;
 }
 
+void ConfigQuorum::ClearActivation()
+{
+    isActivatingNode = false;
+    activatingNodeID = 0;
+    isWatchingPaxosID = false;
+    isReplicatingActivation = false;
+    activationPaxosID = 0;
+    activationExpireTime = 0;    
+}
+
 ConfigQuorum::NodeList ConfigQuorum::GetVolatileActiveNodes()
 {
     NodeList list;

@@ -1,28 +1,28 @@
-#ifndef HTTPCONTROLLERSESSION_H
-#define HTTPCONTROLLERSESSION_H
+#ifndef CONFIGHTTPCLIENTSESSION_H
+#define CONFIGHTTPCLIENTSESSION_H
 
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"
 #include "Application/HTTP/UrlParam.h"
-#include "HTTPControllerContext.h"
+#include "ConfigHTTPHandler.h"
 
-class Controller;       // forward
+class ConfigServer;     // forward
 class ClientRequest;    // forward
 class ConfigState;      // forward
 
 /*
 ===============================================================================================
 
- HTTPControllerSession
+ ConfigHTTPClientSession
 
 ===============================================================================================
 */
 
-class HTTPControllerSession : public ClientSession
+class ConfigHTTPClientSession : public ClientSession
 {
 public:
 
-    void                SetController(Controller* controller);
+    void                SetConfigServer(ConfigServer* configServer);
     void                SetConnection(HTTPConnection* conn);
 
     bool                HandleRequest(HTTPRequest& request);
@@ -42,7 +42,7 @@ private:
     void                PrintShardMatrix(ConfigState* configState);
     void                PrintConfigState();
     bool                ProcessCommand(ReadBuffer& cmd);
-    ClientRequest*      ProcessControllerCommand(ReadBuffer& cmd);
+    ClientRequest*      ProcessConfigCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessGetMaster();
     ClientRequest*      ProcessGetState();
     ClientRequest*      ProcessCreateQuorum();
@@ -57,7 +57,7 @@ private:
     
     void                OnConnectionClose();
 
-    Controller*         controller;
+    ConfigServer*       configServer;
     HTTPSession         session;
     UrlParam            params;
 };

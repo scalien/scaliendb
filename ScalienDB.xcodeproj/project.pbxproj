@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		540C060A1281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 540C06091281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp */; };
+		540C062B1282FC6200D9CDD4 /* ConfigActivationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 540C062A1282FC6200D9CDD4 /* ConfigActivationManager.cpp */; };
 		542B34F5125C9B46003FA4F5 /* QuorumDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 542B34F3125C9B46003FA4F5 /* QuorumDatabase.cpp */; };
 		546224EE1249030D00759E58 /* SDBPRequestMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546224ED1249030D00759E58 /* SDBPRequestMessage.cpp */; };
 		546225121249074000759E58 /* SDBPResponseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546225111249074000759E58 /* SDBPResponseMessage.cpp */; };
@@ -21,9 +23,12 @@
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
 		547E27B7126B1602000B8E04 /* ConfigShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 547E27B6126B1602000B8E04 /* ConfigShardServer.cpp */; };
-		54838852124A6B1B005F0FB4 /* HTTPControllerContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */; };
-		54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */; };
-		5487B8791239230500C235BA /* ConfigContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */; };
+		54838852124A6B1B005F0FB4 /* ConfigHTTPHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB45F123FB311003626AC /* ConfigHTTPHandler.cpp */; };
+		54838853124A6B1B005F0FB4 /* ConfigHTTPClientSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* ConfigHTTPClientSession.cpp */; };
+		5487008912886C6200A06AD0 /* ConfigQuorumProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487008812886C6200A06AD0 /* ConfigQuorumProcessor.cpp */; };
+		548700A7128984D600A06AD0 /* ConfigHeartbeatManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548700A6128984D600A06AD0 /* ConfigHeartbeatManager.cpp */; };
+		5487040212929EE200A06AD0 /* ConfigDatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487040112929EE200A06AD0 /* ConfigDatabaseManager.cpp */; };
+		5487B8791239230500C235BA /* ConfigQuorumContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ConfigQuorumContext.cpp */; };
 		5487BC2B123A5D0C00C235BA /* SDBPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */; };
 		5487BC2D123A5D2500C235BA /* SDBPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC2C123A5D2500C235BA /* SDBPServer.cpp */; };
 		5487BC40123A5E2000C235BA /* ClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC39123A5E2000C235BA /* ClientRequest.cpp */; };
@@ -72,7 +77,7 @@
 		54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501B1237E83E0095BF36 /* ClusterServer.cpp */; };
 		54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA501D1237E83E0095BF36 /* ClusterTransport.cpp */; };
 		54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54EA50261237E9A30095BF36 /* ClusterConnection.cpp */; };
-		54EA525C1238F9A60095BF36 /* Controller.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26DB47120076BA006A2814 /* Controller.cpp */; };
+		54EA525C1238F9A60095BF36 /* ConfigServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A26DB47120076BA006A2814 /* ConfigServer.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		54FA68F911C2429A00FF4EF6 /* Countdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* Countdown.cpp */; };
 		54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
@@ -104,7 +109,7 @@
 		9AABB037123E55DE003626AC /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF23DE122FDEBE00247703 /* Timings.cpp */; };
 		9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418612282946000B1319 /* InTreeMapTest.cpp */; };
 		9AABB039123E55DE003626AC /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418712282946000B1319 /* StorageTest.cpp */; };
-		9AABB03A123E55DE003626AC /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.cpp */; };
+		9AABB03A123E55DE003626AC /* Test.c in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418812282946000B1319 /* Test.c */; };
 		9AABB03B123E55DE003626AC /* TestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418A12282946000B1319 /* TestMain.cpp */; };
 		9AABB03C123E55DE003626AC /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A87418B12282946000B1319 /* TimeTest.cpp */; };
 		9AABB03D123E55DE003626AC /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF29501235569100247703 /* FileSystemTest.cpp */; };
@@ -140,7 +145,7 @@
 		9AABB05B123E55DE003626AC /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
-		9AABB50E123FDCDD003626AC /* ControllerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB50D123FDCDD003626AC /* ControllerApp.cpp */; };
+		9AABB50E123FDCDD003626AC /* ConfigServerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB50D123FDCDD003626AC /* ConfigServerApp.cpp */; };
 		9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */; };
 		9AABB91912426830003626AC /* SDBPShardConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB91812426830003626AC /* SDBPShardConnection.cpp */; };
 		9AABB9C81243B3A9003626AC /* ClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB9C71243B3A9003626AC /* ClientTest.cpp */; };
@@ -174,8 +179,6 @@
 		9AF4DCAA12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */; };
 		9AF4DCAB12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DCA912709FA70036E3B3 /* ClientRequestCache.cpp */; };
 		9AF4DDCE1270C8290036E3B3 /* FormattingTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */; };
-		9AF4ED7F1284C3E20036E3B3 /* CommonTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4ED7E1284C3E10036E3B3 /* CommonTest.cpp */; };
-		9AF4EFC7128878440036E3B3 /* CrashTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AF4EFC6128878430036E3B3 /* CrashTest.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -191,6 +194,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		540C06081281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigPrimaryLeaseManager.h; sourceTree = "<group>"; };
+		540C06091281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigPrimaryLeaseManager.cpp; sourceTree = "<group>"; };
+		540C06291282FC6200D9CDD4 /* ConfigActivationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigActivationManager.h; sourceTree = "<group>"; };
+		540C062A1282FC6200D9CDD4 /* ConfigActivationManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigActivationManager.cpp; sourceTree = "<group>"; };
 		541D826411C7A17D00A6CB16 /* Callable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Callable.h; sourceTree = "<group>"; };
 		541D867F11C7D8E400A6CB16 /* PaxosLease.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosLease.cpp; sourceTree = "<group>"; };
 		541D868011C7D8E400A6CB16 /* PaxosLease.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLease.h; sourceTree = "<group>"; };
@@ -236,6 +243,12 @@
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
 		546E28D311F0816E00867EE1 /* QuorumTransport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = QuorumTransport.cpp; sourceTree = "<group>"; };
 		547E27B6126B1602000B8E04 /* ConfigShardServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigShardServer.cpp; sourceTree = "<group>"; };
+		5487008712886C6200A06AD0 /* ConfigQuorumProcessor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigQuorumProcessor.h; sourceTree = "<group>"; };
+		5487008812886C6200A06AD0 /* ConfigQuorumProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigQuorumProcessor.cpp; sourceTree = "<group>"; };
+		548700A5128984D600A06AD0 /* ConfigHeartbeatManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigHeartbeatManager.h; sourceTree = "<group>"; };
+		548700A6128984D600A06AD0 /* ConfigHeartbeatManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigHeartbeatManager.cpp; sourceTree = "<group>"; };
+		5487040012929EE200A06AD0 /* ConfigDatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigDatabaseManager.h; sourceTree = "<group>"; };
+		5487040112929EE200A06AD0 /* ConfigDatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigDatabaseManager.cpp; sourceTree = "<group>"; };
 		5487BC27123A5D0C00C235BA /* SDBPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPConnection.h; sourceTree = "<group>"; };
 		5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPConnection.cpp; sourceTree = "<group>"; };
 		5487BC29123A5D0C00C235BA /* SDBPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPServer.h; sourceTree = "<group>"; };
@@ -372,8 +385,8 @@
 		54FCEA9711F705F20075BBFF /* PaxosAcceptor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PaxosAcceptor.cpp; sourceTree = "<group>"; };
 		54FCED9A11F8549F0075BBFF /* ReplicatedLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicatedLog.cpp; sourceTree = "<group>"; };
 		54FCED9B11F8549F0075BBFF /* ReplicatedLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicatedLog.h; sourceTree = "<group>"; };
-		54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigContext.cpp; sourceTree = "<group>"; };
-		54FCF69D11FDF4770075BBFF /* ConfigContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigContext.h; sourceTree = "<group>"; };
+		54FCF69C11FDF4770075BBFF /* ConfigQuorumContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigQuorumContext.cpp; sourceTree = "<group>"; };
+		54FCF69D11FDF4770075BBFF /* ConfigQuorumContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigQuorumContext.h; sourceTree = "<group>"; };
 		9A26D68D11F4BDE2006A2814 /* HTTPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPConnection.cpp; path = Application/HTTP/HTTPConnection.cpp; sourceTree = "<group>"; };
 		9A26D68E11F4BDE2006A2814 /* HTTPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPConnection.h; path = Application/HTTP/HTTPConnection.h; sourceTree = "<group>"; };
 		9A26D68F11F4BDE2006A2814 /* HTTPConsts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPConsts.h; path = Application/HTTP/HTTPConsts.h; sourceTree = "<group>"; };
@@ -391,13 +404,13 @@
 		9A26D69B11F4BDE2006A2814 /* Mime.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Mime.h; path = Application/HTTP/Mime.h; sourceTree = "<group>"; };
 		9A26D69C11F4BDE2006A2814 /* UrlParam.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = UrlParam.cpp; path = Application/HTTP/UrlParam.cpp; sourceTree = "<group>"; };
 		9A26D69D11F4BDE2006A2814 /* UrlParam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = UrlParam.h; path = Application/HTTP/UrlParam.h; sourceTree = "<group>"; };
-		9A26DB46120076BA006A2814 /* Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Controller.h; sourceTree = "<group>"; };
-		9A26DB47120076BA006A2814 /* Controller.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Controller.cpp; sourceTree = "<group>"; };
+		9A26DB46120076BA006A2814 /* ConfigServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigServer.h; sourceTree = "<group>"; };
+		9A26DB47120076BA006A2814 /* ConfigServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigServer.cpp; sourceTree = "<group>"; };
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
 		9A87418612282946000B1319 /* InTreeMapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InTreeMapTest.cpp; path = Test/InTreeMapTest.cpp; sourceTree = "<group>"; };
 		9A87418712282946000B1319 /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
-		9A87418812282946000B1319 /* Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Test.cpp; path = Test/Test.cpp; sourceTree = "<group>"; };
+		9A87418812282946000B1319 /* Test.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = Test.c; path = Test/Test.c; sourceTree = "<group>"; };
 		9A87418912282946000B1319 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test.h; path = Test/Test.h; sourceTree = "<group>"; };
 		9A87418A12282946000B1319 /* TestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestMain.cpp; path = Test/TestMain.cpp; sourceTree = "<group>"; };
 		9A87418B12282946000B1319 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
@@ -405,19 +418,19 @@
 		9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
 		9A9AA745125E6BB900681840 /* SDBPClientWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientWrapper.h; path = Application/Client/SDBPClientWrapper.h; sourceTree = "<group>"; };
 		9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientWrapper.cpp; path = Application/Client/SDBPClientWrapper.cpp; sourceTree = "<group>"; };
-		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
+		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.interfacer; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9A9AA9011260558A00681840 /* scaliendb_client_python.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_python.cpp; path = Application/Client/Python/scaliendb_client_python.cpp; sourceTree = "<group>"; };
 		9A9AA9021260558A00681840 /* scaliendb_client.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_client.py; path = Application/Client/Python/scaliendb_client.py; sourceTree = "<group>"; };
 		9A9AA9031260558A00681840 /* scaliendb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb.py; path = Application/Client/Python/scaliendb.py; sourceTree = "<group>"; };
 		9AABAD3812393327003626AC /* Deferred.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Deferred.h; sourceTree = "<group>"; };
 		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
-		9AABB45E123FB311003626AC /* HTTPControllerContext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPControllerContext.h; sourceTree = "<group>"; };
-		9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPControllerContext.cpp; sourceTree = "<group>"; };
-		9AABB48C123FBFFE003626AC /* HTTPControllerSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPControllerSession.h; sourceTree = "<group>"; };
-		9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPControllerSession.cpp; sourceTree = "<group>"; };
-		9AABB50C123FDCDD003626AC /* ControllerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerApp.h; sourceTree = "<group>"; };
-		9AABB50D123FDCDD003626AC /* ControllerApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerApp.cpp; sourceTree = "<group>"; };
+		9AABB45E123FB311003626AC /* ConfigHTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigHTTPHandler.h; sourceTree = "<group>"; };
+		9AABB45F123FB311003626AC /* ConfigHTTPHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigHTTPHandler.cpp; sourceTree = "<group>"; };
+		9AABB48C123FBFFE003626AC /* ConfigHTTPClientSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigHTTPClientSession.h; sourceTree = "<group>"; };
+		9AABB48D123FBFFE003626AC /* ConfigHTTPClientSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigHTTPClientSession.cpp; sourceTree = "<group>"; };
+		9AABB50C123FDCDD003626AC /* ConfigServerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigServerApp.h; sourceTree = "<group>"; };
+		9AABB50D123FDCDD003626AC /* ConfigServerApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigServerApp.cpp; sourceTree = "<group>"; };
 		9AABB5D7123FF1F4003626AC /* HTTPSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPSession.h; path = Application/HTTP/HTTPSession.h; sourceTree = "<group>"; };
 		9AABB5D8123FF1F4003626AC /* HTTPSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = HTTPSession.cpp; path = Application/HTTP/HTTPSession.cpp; sourceTree = "<group>"; };
 		9AABB81D12411592003626AC /* SDBPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClient.h; path = Application/Client/SDBPClient.h; sourceTree = "<group>"; };
@@ -470,8 +483,6 @@
 		9AF4EB251279D4FF0036E3B3 /* scaliendb_clientJNI.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = scaliendb_clientJNI.java; path = Application/Client/Java/scaliendb_clientJNI.java; sourceTree = "<group>"; };
 		9AF4EB261279D51C0036E3B3 /* SDBP_Buffer.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SDBP_Buffer.java; path = Application/Client/Java/SDBP_Buffer.java; sourceTree = "<group>"; };
 		9AF4EB3C1279D5F80036E3B3 /* scaliendb_client.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = scaliendb_client.java; path = Application/Client/Java/scaliendb_client.java; sourceTree = "<group>"; };
-		9AF4ED7E1284C3E10036E3B3 /* CommonTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CommonTest.cpp; path = Test/CommonTest.cpp; sourceTree = "<group>"; };
-		9AF4EFC6128878430036E3B3 /* CrashTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CrashTest.cpp; path = Test/CrashTest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -890,20 +901,30 @@
 		54FCF69811FDF4770075BBFF /* Controller */ = {
 			isa = PBXGroup;
 			children = (
-				54EA4F6D1237DC9F0095BF36 /* ConfigMessage.h */,
-				54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */,
-				54FCF69D11FDF4770075BBFF /* ConfigContext.h */,
-				54FCF69C11FDF4770075BBFF /* ConfigContext.cpp */,
-				9A26DB46120076BA006A2814 /* Controller.h */,
-				9A26DB47120076BA006A2814 /* Controller.cpp */,
-				9AABB45E123FB311003626AC /* HTTPControllerContext.h */,
-				9AABB45F123FB311003626AC /* HTTPControllerContext.cpp */,
-				9AABB48C123FBFFE003626AC /* HTTPControllerSession.h */,
-				9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */,
 				9AABCD401257CF93003626AC /* JSONConfigState.h */,
 				9AABCD411257CF93003626AC /* JSONConfigState.cpp */,
-				9AABB50C123FDCDD003626AC /* ControllerApp.h */,
-				9AABB50D123FDCDD003626AC /* ControllerApp.cpp */,
+				54EA4F6D1237DC9F0095BF36 /* ConfigMessage.h */,
+				54EA4F6E1237DC9F0095BF36 /* ConfigMessage.cpp */,
+				54FCF69D11FDF4770075BBFF /* ConfigQuorumContext.h */,
+				54FCF69C11FDF4770075BBFF /* ConfigQuorumContext.cpp */,
+				5487008712886C6200A06AD0 /* ConfigQuorumProcessor.h */,
+				5487008812886C6200A06AD0 /* ConfigQuorumProcessor.cpp */,
+				548700A5128984D600A06AD0 /* ConfigHeartbeatManager.h */,
+				548700A6128984D600A06AD0 /* ConfigHeartbeatManager.cpp */,
+				5487040012929EE200A06AD0 /* ConfigDatabaseManager.h */,
+				5487040112929EE200A06AD0 /* ConfigDatabaseManager.cpp */,
+				540C06081281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.h */,
+				540C06091281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp */,
+				540C06291282FC6200D9CDD4 /* ConfigActivationManager.h */,
+				540C062A1282FC6200D9CDD4 /* ConfigActivationManager.cpp */,
+				9AABB45E123FB311003626AC /* ConfigHTTPHandler.h */,
+				9AABB45F123FB311003626AC /* ConfigHTTPHandler.cpp */,
+				9AABB48C123FBFFE003626AC /* ConfigHTTPClientSession.h */,
+				9AABB48D123FBFFE003626AC /* ConfigHTTPClientSession.cpp */,
+				9A26DB46120076BA006A2814 /* ConfigServer.h */,
+				9A26DB47120076BA006A2814 /* ConfigServer.cpp */,
+				9AABB50C123FDCDD003626AC /* ConfigServerApp.h */,
+				9AABB50D123FDCDD003626AC /* ConfigServerApp.cpp */,
 			);
 			name = Controller;
 			path = Application/Controller;
@@ -956,7 +977,7 @@
 				9ACF23DE122FDEBE00247703 /* Timings.cpp */,
 				9A87418612282946000B1319 /* InTreeMapTest.cpp */,
 				9A87418712282946000B1319 /* StorageTest.cpp */,
-				9A87418812282946000B1319 /* Test.cpp */,
+				9A87418812282946000B1319 /* Test.c */,
 				9A87418912282946000B1319 /* Test.h */,
 				9AF4CC78126660740036E3B3 /* TestFunction.h */,
 				9A87418A12282946000B1319 /* TestMain.cpp */,
@@ -965,8 +986,6 @@
 				9AABB9C71243B3A9003626AC /* ClientTest.cpp */,
 				9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */,
 				9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */,
-				9AF4ED7E1284C3E10036E3B3 /* CommonTest.cpp */,
-				9AF4EFC6128878430036E3B3 /* CrashTest.cpp */,
 			);
 			name = Test;
 			sourceTree = "<group>";
@@ -1077,7 +1096,6 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1166,20 +1184,20 @@
 				54EA501E1237E83E0095BF36 /* ClusterServer.cpp in Sources */,
 				54EA501F1237E83E0095BF36 /* ClusterTransport.cpp in Sources */,
 				54EA50271237E9A30095BF36 /* ClusterConnection.cpp in Sources */,
-				54EA525C1238F9A60095BF36 /* Controller.cpp in Sources */,
-				5487B8791239230500C235BA /* ConfigContext.cpp in Sources */,
+				54EA525C1238F9A60095BF36 /* ConfigServer.cpp in Sources */,
+				5487B8791239230500C235BA /* ConfigQuorumContext.cpp in Sources */,
 				5487BC2B123A5D0C00C235BA /* SDBPConnection.cpp in Sources */,
 				5487BC2D123A5D2500C235BA /* SDBPServer.cpp in Sources */,
 				5487BC40123A5E2000C235BA /* ClientRequest.cpp in Sources */,
 				5487BC41123A5E2000C235BA /* ClientResponse.cpp in Sources */,
 				5487BC42123A5E2000C235BA /* ClusterMessage.cpp in Sources */,
 				5487BDCF123A738000C235BA /* ContextTransport.cpp in Sources */,
-				9AABB50E123FDCDD003626AC /* ControllerApp.cpp in Sources */,
+				9AABB50E123FDCDD003626AC /* ConfigServerApp.cpp in Sources */,
 				9AABB5D9123FF1F4003626AC /* HTTPSession.cpp in Sources */,
 				546224EE1249030D00759E58 /* SDBPRequestMessage.cpp in Sources */,
 				546225121249074000759E58 /* SDBPResponseMessage.cpp in Sources */,
-				54838852124A6B1B005F0FB4 /* HTTPControllerContext.cpp in Sources */,
-				54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */,
+				54838852124A6B1B005F0FB4 /* ConfigHTTPHandler.cpp in Sources */,
+				54838853124A6B1B005F0FB4 /* ConfigHTTPClientSession.cpp in Sources */,
 				54E0BE74124B616000439334 /* TotalQuorum.cpp in Sources */,
 				54E0BFCD124CF55100439334 /* ShardServerApp.cpp in Sources */,
 				9AABC4D31253A301003626AC /* ShardHTTPClientSession.cpp in Sources */,
@@ -1204,6 +1222,11 @@
 				5488A1511271B6FE007CC6B2 /* ShardHTTPHandler.cpp in Sources */,
 				9AF4D587126E2D2D0036E3B3 /* StorageRecoveryLog.cpp in Sources */,
 				9AF4DCAB12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */,
+				540C060A1281D0A600D9CDD4 /* ConfigPrimaryLeaseManager.cpp in Sources */,
+				540C062B1282FC6200D9CDD4 /* ConfigActivationManager.cpp in Sources */,
+				5487008912886C6200A06AD0 /* ConfigQuorumProcessor.cpp in Sources */,
+				548700A7128984D600A06AD0 /* ConfigHeartbeatManager.cpp in Sources */,
+				5487040212929EE200A06AD0 /* ConfigDatabaseManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1214,7 +1237,7 @@
 				9AABB037123E55DE003626AC /* Timings.cpp in Sources */,
 				9AABB038123E55DE003626AC /* InTreeMapTest.cpp in Sources */,
 				9AABB039123E55DE003626AC /* StorageTest.cpp in Sources */,
-				9AABB03A123E55DE003626AC /* Test.cpp in Sources */,
+				9AABB03A123E55DE003626AC /* Test.c in Sources */,
 				9AABB03B123E55DE003626AC /* TestMain.cpp in Sources */,
 				9AABB03C123E55DE003626AC /* TimeTest.cpp in Sources */,
 				9AABB03D123E55DE003626AC /* FileSystemTest.cpp in Sources */,
@@ -1275,8 +1298,6 @@
 				9AF4D586126E2D2D0036E3B3 /* StorageRecoveryLog.cpp in Sources */,
 				9AF4DCAA12709FA70036E3B3 /* ClientRequestCache.cpp in Sources */,
 				9AF4DDCE1270C8290036E3B3 /* FormattingTest.cpp in Sources */,
-				9AF4ED7F1284C3E20036E3B3 /* CommonTest.cpp in Sources */,
-				9AF4EFC7128878440036E3B3 /* CrashTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

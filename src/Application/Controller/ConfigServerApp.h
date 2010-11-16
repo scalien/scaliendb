@@ -1,8 +1,8 @@
-#ifndef CONTROLLERAPP_H
-#define CONTROLLERAPP_H
+#ifndef CONFIGSERVERAPP_H
+#define CONFIGSERVERAPP_H
 
-#include "Controller.h"
-#include "HTTPControllerContext.h"
+#include "ConfigServer.h"
+#include "ConfigHTTPHandler.h"
 #include "Application/Common/Application.h"
 #include "Application/HTTP/HTTPServer.h"
 #include "Application/SDBP/SDBPServer.h"
@@ -10,12 +10,12 @@
 /*
 ===============================================================================================
 
- ControllerApp
+ ConfigServerApp
 
 ===============================================================================================
 */
 
-class ControllerApp : public Application
+class ConfigServerApp : public Application
 {
 public:
     // ========================================================================================
@@ -25,10 +25,10 @@ public:
     void                    Shutdown();
 
 private:
-    Controller              controller;
+    ConfigServer            configServer;
 
     HTTPServer              httpServer;
-    HTTPControllerContext   httpContext;
+    ConfigHTTPHandler       httpHandler;
 
     SDBPServer              sdbpServer;
 };

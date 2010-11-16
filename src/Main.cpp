@@ -4,7 +4,7 @@
 #include "System/IO/IOProcessor.h"
 #include "Framework/Storage/StorageDataCache.h"
 #include "Application/Common/ContextTransport.h"
-#include "Application/Controller/ControllerApp.h"
+#include "Application/Controller/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
 
 #ifdef DEBUG
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
     isController = IsController();  
     Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
     if (isController)
-        app = new ControllerApp;
+        app = new ConfigServerApp;
     else
         app = new ShardServerApp;
     

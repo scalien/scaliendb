@@ -1,19 +1,19 @@
-#include "ConfigContext.h"
+#include "ConfigQuorumContext.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Replication/PaxosLease/PaxosLeaseMessage.h"
 #include "Framework/Replication/Paxos/PaxosMessage.h"
 #include "Application/Common/CatchupMessage.h"
-#include "Controller.h"
+#include "ConfigQuorumProcessor.h"
 
-void ConfigContext::Init(Controller* controller_, unsigned numControllers,
- StorageTable* quorumTable)
+void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_,
+ unsigned numConfigServers, StorageTable* quorumTable)
 {
     uint64_t nodeID;
     
-    controller = controller_;
+    quorumProcessor = quorumProcessor_;
     
     quorumID = 0;
-    for (nodeID = 0; nodeID < numControllers; nodeID++)
+    for (nodeID = 0; nodeID < numConfigServers; nodeID++)
         quorum.AddNode(nodeID);
 
     transport.SetQuorum(&quorum);
@@ -28,116 +28,116 @@ void ConfigContext::Init(Controller* controller_, unsigned numControllers,
 
     paxosLease.AcquireLease();
 
-    replicationActive = true;
+    isReplicationActive = true;
 }
 
-void ConfigContext::Append(ConfigMessage* message)
+void ConfigQuorumContext::Append(ConfigMessage* message)
 {
     message->Write(nextValue);
 
     replicatedLog.TryAppendNextValue();
 }
 
-bool ConfigContext::IsAppending()
+bool ConfigQuorumContext::IsAppending()
 {
     return (nextValue.GetLength() != 0);
 }
 
-bool ConfigContext::IsLeaseOwner()
+bool ConfigQuorumContext::IsLeaseOwner()
 {
     return paxosLease.IsLeaseOwner();
 }
 
-bool ConfigContext::IsLeaseKnown()
+bool ConfigQuorumContext::IsLeaseKnown()
 {
     return paxosLease.IsLeaseKnown();
 }
 
-uint64_t ConfigContext::GetLeaseOwner()
+uint64_t ConfigQuorumContext::GetLeaseOwner()
 {
     return paxosLease.GetLeaseOwner();
 }
 
-bool ConfigContext::IsLeader()
+bool ConfigQuorumContext::IsLeader()
 {
     return IsLeaseOwner() && replicatedLog.IsMultiPaxosEnabled();
 }
 
-void ConfigContext::OnLearnLease()
+void ConfigQuorumContext::OnLearnLease()
 {
     replicatedLog.OnLearnLease();
-    controller->OnLearnLease();
+    quorumProcessor->OnLearnLease();
 }
 
-void ConfigContext::OnLeaseTimeout()
+void ConfigQuorumContext::OnLeaseTimeout()
 {
     nextValue.Clear();
     replicatedLog.OnLeaseTimeout();
-    controller->OnLeaseTimeout();
+    quorumProcessor->OnLeaseTimeout();
 }
 
-void ConfigContext::OnIsLeader()
+void ConfigQuorumContext::OnIsLeader()
 {
-    controller->OnIsLeader();
+    quorumProcessor->OnIsLeader();
 }
 
-uint64_t ConfigContext::GetQuorumID()
+uint64_t ConfigQuorumContext::GetQuorumID()
 {
     return quorumID;
 }
 
-void ConfigContext::SetPaxosID(uint64_t paxosID)
+void ConfigQuorumContext::SetPaxosID(uint64_t paxosID)
 {
     replicatedLog.SetPaxosID(paxosID);
 }
 
-uint64_t ConfigContext::GetPaxosID()
+uint64_t ConfigQuorumContext::GetPaxosID()
 {
     return replicatedLog.GetPaxosID();
 }
 
-uint64_t ConfigContext::GetHighestPaxosID()
+uint64_t ConfigQuorumContext::GetHighestPaxosID()
 {
     return highestPaxosID;
 }
 
-Quorum* ConfigContext::GetQuorum()
+Quorum* ConfigQuorumContext::GetQuorum()
 {
     return &quorum;
 }
 
-QuorumDatabase* ConfigContext::GetDatabase()
+QuorumDatabase* ConfigQuorumContext::GetDatabase()
 {
     return &database;
 }
 
-QuorumTransport* ConfigContext::GetTransport()
+QuorumTransport* ConfigQuorumContext::GetTransport()
 {
     return &transport;
 }
 
-Buffer& ConfigContext::GetNextValue()
+Buffer& ConfigQuorumContext::GetNextValue()
 {
     return nextValue;
 }
 
-void ConfigContext::OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend)
+void ConfigQuorumContext::OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend)
 {
     ConfigMessage message;
 
     nextValue.Clear();
 
     assert(message.Read(value));
-    controller->OnAppend(paxosID, message, ownAppend);
+    quorumProcessor->OnAppend(paxosID, message, ownAppend);
 }
 
-void ConfigContext::OnMessage(uint64_t nodeID, ReadBuffer buffer)
+void ConfigQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
 {
     char proto;
     
     Log_Trace("%.*s", P(&buffer));
 
-    controller->RegisterHeartbeat(nodeID);
+//    quorumProcessor->RegisterHeartbeat(nodeID);
 
     if (buffer.GetLength() < 2)
         ASSERT_FAIL();
@@ -162,27 +162,27 @@ void ConfigContext::OnMessage(uint64_t nodeID, ReadBuffer buffer)
     }
 }
 
-void ConfigContext::OnStartCatchup()
+void ConfigQuorumContext::OnStartCatchup()
 {
-    controller->OnStartCatchup();
+    quorumProcessor->OnStartCatchup();
 }
 
-void ConfigContext::OnCatchupComplete(uint64_t paxosID)
+void ConfigQuorumContext::OnCatchupComplete(uint64_t paxosID)
 {
     replicatedLog.OnCatchupComplete(paxosID);
 }
 
-void ConfigContext::StopReplication()
+void ConfigQuorumContext::StopReplication()
 {
     // TODO: xxx
 }
 
-void ConfigContext::ContinueReplication()
+void ConfigQuorumContext::ContinueReplication()
 {
     // TODO: xxx
 }
 
-void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
+void ConfigQuorumContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
     PaxosLeaseMessage msg;
 
@@ -191,7 +191,7 @@ void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
     msg.Read(buffer);
     if (msg.type == PAXOSLEASE_PREPARE_REQUEST || msg.type == PAXOSLEASE_LEARN_CHOSEN)
     {
-        if (replicationActive)
+        if (isReplicationActive)
         {
             RegisterPaxosID(msg.paxosID);
             replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);
@@ -202,11 +202,11 @@ void ConfigContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 }
 
 
-void ConfigContext::OnPaxosMessage(ReadBuffer buffer)
+void ConfigQuorumContext::OnPaxosMessage(ReadBuffer buffer)
 {
     PaxosMessage msg;
  
-    if (!replicationActive)
+    if (!isReplicationActive)
         return;
     
     msg.Read(buffer);
@@ -215,15 +215,15 @@ void ConfigContext::OnPaxosMessage(ReadBuffer buffer)
     replicatedLog.OnMessage(msg);
 }
 
-void ConfigContext::OnCatchupMessage(ReadBuffer buffer)
+void ConfigQuorumContext::OnCatchupMessage(ReadBuffer buffer)
 {
     CatchupMessage msg;
     
     msg.Read(buffer);
-    controller->OnCatchupMessage(msg);
+    quorumProcessor->OnCatchupMessage(msg);
 }
 
-void ConfigContext::RegisterPaxosID(uint64_t paxosID)
+void ConfigQuorumContext::RegisterPaxosID(uint64_t paxosID)
 {
     if (paxosID > highestPaxosID)
         highestPaxosID = paxosID;

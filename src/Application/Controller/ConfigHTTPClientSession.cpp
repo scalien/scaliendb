@@ -1,22 +1,23 @@
-#include "HTTPControllerSession.h"
-#include "Controller.h"
+#include "ConfigHTTPClientSession.h"
+#include "ConfigServer.h"
 #include "JSONConfigState.h"
 #include "System/Config.h"
 #include "Application/Common/ContextTransport.h"
 #include "Version.h"
+#include "ConfigHeartbeatManager.h"
 
-void HTTPControllerSession::SetController(Controller* controller_)
+void ConfigHTTPClientSession::SetConfigServer(ConfigServer* configServer_)
 {
-    controller = controller_;
+    configServer = configServer_;
 }
 
-void HTTPControllerSession::SetConnection(HTTPConnection* conn)
+void ConfigHTTPClientSession::SetConnection(HTTPConnection* conn)
 {
     session.SetConnection(conn);
-    conn->SetOnClose(MFUNC(HTTPControllerSession, OnConnectionClose));
+    conn->SetOnClose(MFUNC(ConfigHTTPClientSession, OnConnectionClose));
 }
 
-bool HTTPControllerSession::HandleRequest(HTTPRequest& request)
+bool ConfigHTTPClientSession::HandleRequest(HTTPRequest& request)
 {
     ReadBuffer  cmd;
     
@@ -24,7 +25,7 @@ bool HTTPControllerSession::HandleRequest(HTTPRequest& request)
     return ProcessCommand(cmd);
 }
 
-void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
+void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
 {
     Buffer          tmp;
     ReadBuffer      rb;
@@ -50,7 +51,7 @@ void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
             response->configState.Write(tmp, true);
             rb.Wrap(tmp);
             session.Print(rb);
-            controller->OnClientClose(this);
+            configServer->OnClientClose(this);
         }
         break;
     case CLIENTRESPONSE_NOSERVICE:
@@ -68,12 +69,12 @@ void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
     }
 }
 
-bool HTTPControllerSession::IsActive()
+bool ConfigHTTPClientSession::IsActive()
 {
     return true;
 }
 
-void HTTPControllerSession::PrintStatus()
+void ConfigHTTPClientSession::PrintStatus()
 {
     Buffer          buf;
     ConfigState*    configState;
@@ -81,15 +82,15 @@ void HTTPControllerSession::PrintStatus()
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
 
-    buf.Writef("%d", (int) controller->GetNodeID());
+    buf.Writef("%d", (int) configServer->GetNodeID());
     buf.NullTerminate();
     session.PrintPair("NodeID", buf.GetBuffer());   
 
-    buf.Writef("%d", (int) controller->GetMaster());
+    buf.Writef("%d", (int) configServer->GetQuorumProcessor()->GetMaster());
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
 
-    buf.Writef("%d", (int) controller->GetReplicationRound());
+    buf.Writef("%d", (int) configServer->GetQuorumProcessor()->GetPaxosID());
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
     
@@ -97,7 +98,7 @@ void HTTPControllerSession::PrintStatus()
     
     session.Print("\n--- Configuration State ---\n");
     
-    configState = controller->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     PrintShardServers(configState);
     session.Print("");
     PrintQuorumMatrix(configState);
@@ -109,7 +110,7 @@ void HTTPControllerSession::PrintStatus()
     session.Flush();
 }
 
-void HTTPControllerSession::PrintShardServers(ConfigState* configState)
+void ConfigHTTPClientSession::PrintShardServers(ConfigState* configState)
 {
     ConfigShardServer*      it;
     Buffer                  buffer;
@@ -126,7 +127,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
         ConfigState::ShardServerList& shardServers = configState->shardServers;
         for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
-            if (controller->HasHeartbeat(it->nodeID))
+            if (configServer->GetHeartbeatManager()->HasHeartbeat(it->nodeID))
             {
                 if (CONTEXT_TRANSPORT->IsConnected(it->nodeID))
                     buffer.Writef("+ ");
@@ -148,7 +149,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
     }
 }
 
-void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
+void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
 {
     bool                    found;
     ConfigShardServer*      itShardServer;
@@ -209,13 +210,14 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
                 {
                     found = true;
                     if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
-                        if (controller->HasHeartbeat(*itNodeID) && CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                        if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID) &&
+                         CONTEXT_TRANSPORT->IsConnected(*itNodeID))
                             buffer.Appendf("     P");
                         else
                             buffer.Appendf("     !");
                     else
                     {
-                        if (controller->HasHeartbeat(*itNodeID))
+                        if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
                             buffer.Appendf("     +");
                         else
                             buffer.Appendf("     -");
@@ -240,7 +242,7 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
     }
 }
 
-void HTTPControllerSession::PrintDatabases(ConfigState* configState)
+void ConfigHTTPClientSession::PrintDatabases(ConfigState* configState)
 {
     ConfigDatabase*     itDatabase;
     uint64_t*           itTableID;
@@ -278,7 +280,7 @@ void HTTPControllerSession::PrintDatabases(ConfigState* configState)
     }
 }
 
-void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
+void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
 {
     bool                    found;
     ConfigShardServer*      itShardServer;
@@ -364,14 +366,14 @@ void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
     }
 }
 
-void HTTPControllerSession::PrintConfigState()
+void ConfigHTTPClientSession::PrintConfigState()
 {
-    JSONConfigState jsonConfigState(*controller->GetConfigState(), session.json);
+    JSONConfigState jsonConfigState(*configServer->GetDatabaseManager()->GetConfigState(), session.json);
     jsonConfigState.Write();
     session.Flush();
 }
 
-bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd)
+bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
     
@@ -386,17 +388,17 @@ bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd)
         return true;
     }
 
-    request = ProcessControllerCommand(cmd);
+    request = ProcessConfigCommand(cmd);
     if (!request)
         return false;
 
     request->session = this;
-    controller->OnClientRequest(request);
+    configServer->OnClientRequest(request);
     
     return true;
 }
 
-ClientRequest* HTTPControllerSession::ProcessControllerCommand(ReadBuffer& cmd)
+ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
 {
     if (HTTP_MATCH_COMMAND(cmd, "getmaster"))
         return ProcessGetMaster();
@@ -424,7 +426,7 @@ ClientRequest* HTTPControllerSession::ProcessControllerCommand(ReadBuffer& cmd)
     return NULL;
 }
 
-ClientRequest* HTTPControllerSession::ProcessGetMaster()
+ClientRequest* ConfigHTTPClientSession::ProcessGetMaster()
 {
     ClientRequest*  request;
     
@@ -434,7 +436,7 @@ ClientRequest* HTTPControllerSession::ProcessGetMaster()
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessGetState()
+ClientRequest* ConfigHTTPClientSession::ProcessGetState()
 {
     ClientRequest*  request;
     
@@ -444,7 +446,7 @@ ClientRequest* HTTPControllerSession::ProcessGetState()
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessCreateQuorum()
+ClientRequest* ConfigHTTPClientSession::ProcessCreateQuorum()
 {
     typedef ClientRequest::NodeList NodeList;
     
@@ -478,7 +480,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum()
     return request;
 }
 
-//ClientRequest* HTTPControllerSession::ProcessIncreaseQuorum()
+//ClientRequest* ConfigHTTPClientSession::ProcessIncreaseQuorum()
 //{
 //  ClientRequest*  request;
 //  uint64_t        shardID;
@@ -493,7 +495,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum()
 //  return request;
 //}
 //
-//ClientRequest* HTTPControllerSession::ProcessDecreaseQuorum()
+//ClientRequest* ConfigHTTPClientSession::ProcessDecreaseQuorum()
 //{
 //  ClientRequest*  request;
 //  uint64_t        shardID;
@@ -508,7 +510,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateQuorum()
 //  return request;
 //}
 
-ClientRequest* HTTPControllerSession::ProcessCreateDatabase()
+ClientRequest* ConfigHTTPClientSession::ProcessCreateDatabase()
 {
     ClientRequest*  request;
     ReadBuffer      name;
@@ -522,7 +524,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateDatabase()
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessRenameDatabase()
+ClientRequest* ConfigHTTPClientSession::ProcessRenameDatabase()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -537,7 +539,7 @@ ClientRequest* HTTPControllerSession::ProcessRenameDatabase()
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessDeleteDatabase()
+ClientRequest* ConfigHTTPClientSession::ProcessDeleteDatabase()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -550,7 +552,7 @@ ClientRequest* HTTPControllerSession::ProcessDeleteDatabase()
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessCreateTable()
+ClientRequest* ConfigHTTPClientSession::ProcessCreateTable()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -567,7 +569,7 @@ ClientRequest* HTTPControllerSession::ProcessCreateTable()
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessRenameTable()
+ClientRequest* ConfigHTTPClientSession::ProcessRenameTable()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -584,7 +586,7 @@ ClientRequest* HTTPControllerSession::ProcessRenameTable()
     return request;
 }
 
-ClientRequest* HTTPControllerSession::ProcessDeleteTable()
+ClientRequest* ConfigHTTPClientSession::ProcessDeleteTable()
 {
     ClientRequest*  request;
     uint64_t        databaseID;
@@ -599,9 +601,9 @@ ClientRequest* HTTPControllerSession::ProcessDeleteTable()
     return request;
 }
 
-void HTTPControllerSession::OnConnectionClose()
+void ConfigHTTPClientSession::OnConnectionClose()
 {
-    controller->OnClientClose(this);
+    configServer->OnClientClose(this);
     session.SetConnection(NULL);
     delete this;
 }

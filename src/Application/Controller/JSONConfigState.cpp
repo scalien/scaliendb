@@ -215,19 +215,6 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintColon();
     json.PrintString(server->endpoint.ToReadBuffer());
     
-//    json.PrintComma();
-//
-//    json.PrintString("heartbeat");
-//    json.PrintColon();
-//    if (controller->HasHeartbeat(server->nodeID))
-//    {
-//        json.PrintString("true");
-//    }
-//    else
-//    {
-//        json.PrintString("false");
-//    }
-
     json.PrintObjectEnd();
 }
 
