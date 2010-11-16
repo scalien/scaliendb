@@ -388,7 +388,7 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         return true;
     }
 
-    request = ProcessControllerCommand(cmd);
+    request = ProcessConfigCommand(cmd);
     if (!request)
         return false;
 
@@ -398,7 +398,7 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     return true;
 }
 
-ClientRequest* ConfigHTTPClientSession::ProcessControllerCommand(ReadBuffer& cmd)
+ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
 {
     if (HTTP_MATCH_COMMAND(cmd, "getmaster"))
         return ProcessGetMaster();

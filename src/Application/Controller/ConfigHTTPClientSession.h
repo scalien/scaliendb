@@ -1,5 +1,5 @@
-#ifndef HTTPCONTROLLERSESSION_H
-#define HTTPCONTROLLERSESSION_H
+#ifndef CONFIGHTTPCLIENTSESSION_H
+#define CONFIGHTTPCLIENTSESSION_H
 
 #include "Application/Common/ClientSession.h"
 #include "Application/HTTP/HTTPSession.h"
@@ -42,7 +42,7 @@ private:
     void                PrintShardMatrix(ConfigState* configState);
     void                PrintConfigState();
     bool                ProcessCommand(ReadBuffer& cmd);
-    ClientRequest*      ProcessControllerCommand(ReadBuffer& cmd);
+    ClientRequest*      ProcessConfigCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessGetMaster();
     ClientRequest*      ProcessGetState();
     ClientRequest*      ProcessCreateQuorum();

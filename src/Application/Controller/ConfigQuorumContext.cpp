@@ -6,14 +6,14 @@
 #include "ConfigQuorumProcessor.h"
 
 void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_,
- unsigned numControllers, StorageTable* quorumTable)
+ unsigned numConfigServers, StorageTable* quorumTable)
 {
     uint64_t nodeID;
     
     quorumProcessor = quorumProcessor_;
     
     quorumID = 0;
-    for (nodeID = 0; nodeID < numControllers; nodeID++)
+    for (nodeID = 0; nodeID < numConfigServers; nodeID++)
         quorum.AddNode(nodeID);
 
     transport.SetQuorum(&quorum);

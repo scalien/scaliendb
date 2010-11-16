@@ -23,7 +23,7 @@ class ConfigQuorumProcessor
 
 public:
     void                    Init(ConfigServer* configServer,
-                             unsigned numControllers,  StorageTable* quorumTable);
+                             unsigned numConfigServer,  StorageTable* quorumTable);
 
     bool                    IsMaster();
     int64_t                 GetMaster();

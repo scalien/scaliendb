@@ -11,7 +11,7 @@
 
 void ConfigServer::Init()
 {
-    unsigned        numControllers;
+    unsigned        numConfigServers;
     int64_t         nodeID;
     uint64_t        runID;
     const char*     str;
@@ -37,16 +37,16 @@ void ConfigServer::Init()
     
     CONTEXT_TRANSPORT->SetClusterContext(this);
         
-    // connect to the controller nodes
-    numControllers = (unsigned) configFile.GetListNum("controllers");
-    for (nodeID = 0; nodeID < numControllers; nodeID++)
+    // connect to the configServer nodes
+    numConfigServers = (unsigned) configFile.GetListNum("controllers");
+    for (nodeID = 0; nodeID < numConfigServers; nodeID++)
     {
         str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str);
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
     }
 
-    quorumProcessor.Init(this, numControllers, databaseManager.GetDatabase()->GetTable("paxos"));    
+    quorumProcessor.Init(this, numConfigServers, databaseManager.GetDatabase()->GetTable("paxos"));    
 }
 
 void ConfigServer::Shutdown()
