@@ -159,6 +159,8 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         return false;
     
     index = Locate(key);
+    if (index >= 0)
+        ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     
     if (index < 0)
     {
@@ -224,6 +226,8 @@ void StorageFile::Delete(ReadBuffer& key)
     
     if (index < 0)
         return;
+
+    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
 
     updateIndex = false;
     firstKey = dataPages[index]->FirstKey();
