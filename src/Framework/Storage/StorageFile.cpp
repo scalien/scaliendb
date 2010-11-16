@@ -622,6 +622,7 @@ void StorageFile::LoadDataPage(uint32_t index)
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);
     dataPages[index]->Read(readBuffer);
+    ST_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
 }
 
 // this is called by DCACHE->FreePage

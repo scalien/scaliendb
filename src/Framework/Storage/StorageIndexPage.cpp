@@ -74,6 +74,8 @@ void StorageIndexPage::Update(ReadBuffer key, uint32_t index, bool copy)
 {
     StorageKeyIndex* it;
     
+    ST_ASSERT(keys.Get(key) == NULL);
+
     for (it = keys.First(); it != NULL; it = keys.Next(it))
     {
         if (it->index == index)
@@ -177,6 +179,13 @@ bool StorageIndexPage::IsOverflowing()
         return false;
     else
         return true;
+}
+
+bool StorageIndexPage::HasKey(const ReadBuffer& key)
+{
+    if (keys.Get(key) == NULL)
+        return false;
+    return true;
 }
 
 void StorageIndexPage::Read(ReadBuffer& buffer_)

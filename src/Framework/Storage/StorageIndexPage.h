@@ -44,6 +44,7 @@ public:
     int32_t                 Locate(ReadBuffer& key, Buffer* nextKey = NULL);
     uint32_t                NextFreeDataPage();
     bool                    IsOverflowing();
+    bool                    HasKey(const ReadBuffer& key);
 
     void                    Read(ReadBuffer& buffer);
     bool                    CheckWrite(Buffer& buffer);

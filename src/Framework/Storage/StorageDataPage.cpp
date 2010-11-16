@@ -45,8 +45,8 @@ bool StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
 {
     StorageKeyValue*    it;
     StorageKeyValue*    newStorageKeyValue;
+    int                 res;
 
-    int res;
     it = keys.Locate<ReadBuffer&>(key, res);
     if (res == 0 && it != NULL)
     {
