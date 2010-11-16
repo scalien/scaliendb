@@ -57,6 +57,7 @@ private:
     void                    SplitDataPage(uint32_t index);
     void                    ReorderPages();
     void                    ReorderFile();
+    void                    AssertIndexConsistency();
     
     FD                      fd;
     uint32_t                fileIndex;

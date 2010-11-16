@@ -25,6 +25,20 @@
     } \
 }
 
+void StorageFile::AssertIndexConsistency()
+{
+    StorageKeyIndex*    ki;
+    ReadBuffer          firstKey;
+    
+    FOREACH (ki, indexPage.keys)
+    {
+        if (dataPages[ki->index] != NULL)
+        {
+            firstKey = dataPages[ki->index]->FirstKey();
+            ST_ASSERT(BUFCMP(&ki->key, &firstKey));
+        }
+    }
+}
 
 static void DumpKeys(StorageDataPage** dataPages)
 {
@@ -154,6 +168,8 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     int32_t             index;
     ReadBuffer          rb;
     StorageDataPage*    dataPage;
+
+    AssertIndexConsistency();
     
     if (key.GetLength() + value.GetLength() > DATAPAGE_MAX_KV_SIZE(dataPageSize))
         return false;
@@ -204,6 +220,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
             DCACHE->RegisterHit(dataPage);
 
         ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
+        AssertIndexConsistency();
         return true; // nothing changed
     }
     
@@ -213,6 +230,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         SplitDataPage(index);
     
     ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
+    AssertIndexConsistency();
     return true;
 }
 
@@ -228,6 +246,7 @@ void StorageFile::Delete(ReadBuffer& key)
         return;
 
     ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
+    AssertIndexConsistency();
 
     updateIndex = false;
     firstKey = dataPages[index]->FirstKey();
@@ -261,7 +280,9 @@ void StorageFile::Delete(ReadBuffer& key)
     }
     else
         STORAGE_TRACE("Delete else");
+
     ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
+    AssertIndexConsistency();
 }
 
 ReadBuffer StorageFile::FirstKey()
@@ -532,6 +553,8 @@ void StorageFile::WriteData()
     StoragePage*            next;
     StorageFileHeader       header;
     ssize_t                 ret;
+
+    AssertIndexConsistency();
     
     if (newFile)
     {
@@ -595,6 +618,8 @@ void StorageFile::WriteData()
     
     // TODO: this is expensive, remove later
     ST_ASSERT(GetSize() == (uint64_t) FS_FileSize(fd));
+    
+    AssertIndexConsistency();
 }
 
 StorageDataPage* StorageFile::CursorBegin(StorageCursor* cursor, ReadBuffer& key)
