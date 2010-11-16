@@ -246,15 +246,17 @@ void StorageFile::Delete(ReadBuffer& key)
         numDataPages--;
         dataPages[index]->SetDeleted(true);
         dataPages[index] = NULL;
-        STORAGE_TRACE();
+        STORAGE_TRACE("Delete empty");
     }
     else if (updateIndex)
     {
         firstKey = dataPages[index]->FirstKey();
         indexPage.Update(firstKey, index, true);
         MarkPageDirty(&indexPage);
-        STORAGE_TRACE();
+        STORAGE_TRACE("Delete updateIndex");
     }
+    else
+        STORAGE_TRACE("Delete else");
     ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
 }
 
@@ -555,7 +557,7 @@ void StorageFile::WriteData()
         buffer.Allocate(it->GetPageSize());
         buffer.Zero();
         buffer.SetLength(0);
-        STORAGE_TRACE("writing file %s at offset %u\n", filepath.GetBuffer(), it->GetOffset());
+        //STORAGE_TRACE("writing file %s at offset %u", filepath.GetBuffer(), it->GetOffset());
         if (it->Write(buffer))
         {
             ret = FS_FileWriteOffs(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset());
@@ -646,10 +648,10 @@ void StorageFile::LoadDataPage(uint32_t index)
     dataPages[index]->SetNew(false);
     dataPages[index]->SetFile(this);
         
-    STORAGE_TRACE("loading data page from %s at index %u\n", filepath.GetBuffer(), index);
+    STORAGE_TRACE("loading data page from %s at index %u", filepath.GetBuffer(), index);
 
     buffer.Allocate(dataPageSize);
-    STORAGE_TRACE("reading page %u from %u\n", index, DATAPAGE_OFFSET(index));
+    STORAGE_TRACE("reading page %u from %u", index, DATAPAGE_OFFSET(index));
     length = FS_FileReadOffs(fd, buffer.GetBuffer(), dataPageSize, DATAPAGE_OFFSET(index));
     ST_ASSERT(length == (int) dataPageSize);
     

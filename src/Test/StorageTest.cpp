@@ -726,8 +726,8 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
     // Initialization ==============================================================================
     round = 1000 * 1000;
     num = 1000;
-    ksize = 20;
-    vsize = 128;
+    ksize = 10;
+    vsize = 10;
     area = (char*) malloc(num*(ksize+vsize));
 
     DCACHE->Init((ksize + vsize) * 2 * 1000 * num);
@@ -747,14 +747,14 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
         for (unsigned i = 0; i < num; i++)
         {
             p = area + i*(ksize+vsize);
-            len = snprintf(p, ksize, "%011d", RandomInt(0, 10 * 1000 * num));
+            len = snprintf(p, ksize, "%010d", RandomInt(0, 10 * 1000 * num));
             rk.SetBuffer(p);
             rk.SetLength(len);
             //printf("%s\n", p);
             p += ksize;
-            len = snprintf(p, vsize, "%.100f", (float) i); // takes 100 ms
+            //len = snprintf(p, vsize, "%.100f", (float) i); // takes 100 ms
             rv.SetBuffer(p);
-            rv.SetLength(len);
+            rv.SetLength(vsize);
             sw.Start();
             switch (RandomInt(0, 3))
             {
