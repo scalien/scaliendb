@@ -26,9 +26,9 @@ public:
     
     void            OnActivationTimeout();
 
-private:
     void            UpdateTimeout();
-    
+
+private:    
     Timer           activationTimeout;
     Controller*     controller;
 };

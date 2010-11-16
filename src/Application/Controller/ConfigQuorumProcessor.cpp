@@ -269,6 +269,42 @@ void ConfigQuorumProcessor::OnIsLeader()
 
 void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, bool ownAppend)
 {
+    ClusterMessage  clusterMessage;
+    ConfigState*    configState;
+    
+    // catchup issue:
+    // if paxosID is smaller or equal to configStatePaxosID, that means
+    // our state already includes the writes in this round
+    if (paxosID - 1 <= configStatePaxosID)
+        return;
+    
+    if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
+    {
+        // tell ContextTransport that this connection has a new nodeID
+        CONTEXT_TRANSPORT->SetConnectionNodeID(message.endpoint, message.nodeID);       
+        // tell the shard server
+        clusterMessage.SetNodeID(message.nodeID);
+        CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
+    }
+    
+    configState->OnMessage(message);
+    WriteConfigState();
+    controller->OnConfigStateChanged(); // UpdateActivationTimeout();
+    
+    if (IsMaster())
+        UpdateListeners();
+
+    if (ownAppend)
+    {
+        assert(configMessages.GetLength() > 0);
+        assert(configMessages.First()->type == message.type);
+        if (configMessages.First()->fromClient)
+            SendClientResponse(message);
+        configMessages.Delete(configMessages.First());
+    }
+    
+    if (configMessages.GetLength() > 0)
+        TryAppend();
 }
 
 void ConfigQuorumProcessor::OnStartCatchup()
@@ -322,4 +358,47 @@ void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessa
         default:
             ASSERT_FAIL();
     }
+}
+
+void ConfigQuorumProcessor::TransfromMessage(ConfigMessage* message, ClientResponse* response)
+{
+    switch (response->request->type)
+    {
+        case CLIENTREQUEST_CREATE_QUORUM:
+            response->Number(message->quorumID);
+            return;
+        case CLIENTREQUEST_CREATE_DATABASE:
+            response->Number(message->databaseID);
+            return;
+        case CLIENTREQUEST_RENAME_DATABASE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_DELETE_DATABASE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_CREATE_TABLE:
+            response->Number(message->tableID);
+            return;
+        case CLIENTREQUEST_RENAME_TABLE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_DELETE_TABLE:
+            response->OK();
+            return;
+        default:
+            ASSERT_FAIL();
+    }
+}
+
+void ConfigQuorumProcessor::SendClientResponse(ConfigMessage& message)
+{
+    ClientRequest* request;
+    
+    assert(requests.GetLength() > 0);
+    
+    request = requests.First();
+    requests.Remove(request);
+    
+    TransfromMessage(&message, &request->response);
+    request->OnComplete();
 }

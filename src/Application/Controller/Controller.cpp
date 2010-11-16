@@ -79,6 +79,13 @@ ConfigState* Controller::GetConfigState()
     return &configState;
 }
 
+void Controller::OnConfigStateChanged()
+{
+    activationManager.UpdateTimeout();
+    quorumProcessor.UpdateListeners();
+}
+
+
 void Controller::OnLeaseTimeout()
 {
     configState.hasMaster = false;
@@ -102,43 +109,6 @@ void Controller::OnIsLeader()
 
 void Controller::OnAppend(uint64_t /*paxosID*/, ConfigMessage& message, bool ownAppend)
 {
-    ClusterMessage  clusterMessage;
-    
-    // catchup issue:
-    // when OnAppend() is called, the paxosID is already incremented in ReplicatedLog
-    // (configContext()->GetPaxosID() - 1) is the round of this message
-    // if this paxosID is smaller or equal to configStatePaxosID, that means
-    // our state already includes the mutations due to this round
-    if ((quorumProcessor.GetPaxosID() - 1) <= configStatePaxosID)
-        return;
-    
-    if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
-    {
-        // tell ContextTransport that this connection has a new nodeID
-        CONTEXT_TRANSPORT->SetConnectionNodeID(message.endpoint, message.nodeID);       
-        // tell the shard server
-        clusterMessage.SetNodeID(message.nodeID);
-        CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
-    }
-    
-    configState.OnMessage(message);
-    WriteConfigState();
-    UpdateActivationTimeout();
-    
-    if (quorumProcessor.IsMaster())
-        quorumProcessor.UpdateListeners();
-
-    if (ownAppend)
-    {
-        assert(configMessages.GetLength() > 0);
-        assert(configMessages.First()->type == message.type);
-        if (configMessages.First()->fromClient)
-            SendClientResponse(message);
-        configMessages.Delete(configMessages.First());
-    }
-    
-    if (configMessages.GetLength() > 0)
-        TryAppend();
 }
 
 void Controller::OnStartCatchup()
@@ -225,19 +195,19 @@ void Controller::OnClientClose(ClientSession* session)
 
 void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
 {
-    heartbeatManager.RegisterHeartbeat(nodeID);
+//    heartbeatManager.RegisterHeartbeat(nodeID);
 
     switch (message.type)
     {
         case CLUSTERMESSAGE_SET_NODEID:
             ASSERT_FAIL();
         case CLUSTERMESSAGE_HEARTBEAT:
-            OnHeartbeat(message);
+            heartbeatManager.OnHeartbeatMessage(message);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             ASSERT_FAIL();
         case CLUSTERMESSAGE_REQUEST_LEASE:
-            OnRequestLease(message);
+            primaryLeaseManager.OnRequestPrimaryLease(message);
             break;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
             ASSERT_FAIL();
@@ -305,52 +275,8 @@ bool Controller::OnAwaitingNodeID(Endpoint endpoint)
         }
     }
 
-    TryRegisterShardServer(endpoint);
+    quorumProcessor.TryRegisterShardServer(endpoint);
     return false;
-}
-
-void Controller::ToClientResponse(ConfigMessage* message, ClientResponse* response)
-{
-    switch (response->request->type)
-    {
-        case CLIENTREQUEST_CREATE_QUORUM:
-            response->Number(message->quorumID);
-            return;
-        case CLIENTREQUEST_CREATE_DATABASE:
-            response->Number(message->databaseID);
-            return;
-        case CLIENTREQUEST_RENAME_DATABASE:
-            response->OK();
-            return;
-        case CLIENTREQUEST_DELETE_DATABASE:
-            response->OK();
-            return;
-        case CLIENTREQUEST_CREATE_TABLE:
-            response->Number(message->tableID);
-            return;
-        case CLIENTREQUEST_RENAME_TABLE:
-            response->OK();
-            return;
-        case CLIENTREQUEST_DELETE_TABLE:
-            response->OK();
-            return;
-        default:
-            ASSERT_FAIL();
-    }
-}
-
-void Controller::TryRegisterShardServer(Endpoint& endpoint)
-{
-    ConfigMessage*      message;
-
-    message = new ConfigMessage;
-    message->fromClient = false;
-    message->RegisterShardServer(0, endpoint);
-    if (!configState.CompleteMessage(*message))
-        ASSERT_FAIL();
-
-    configMessages.Append(message);
-    TryAppend();
 }
 
 void Controller::ReadConfigState()
@@ -384,18 +310,4 @@ void Controller::WriteConfigState()
     configStateBuffer.Writef("%U:", configStatePaxosID);
     configState.Write(configStateBuffer);
     systemDatabase->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(configStateBuffer));
-}
-
-void Controller::SendClientResponse(ConfigMessage& message)
-{
-    ClientRequest* request;
-    
-    assert(requests.GetLength() > 0);
-    
-    request = requests.First();
-    requests.Remove(request);
-    
-    ToClientResponse(&message, &request->response);
-    request->OnComplete();
-    
 }

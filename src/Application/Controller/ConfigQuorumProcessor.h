@@ -57,6 +57,8 @@ public:
 
 private:
     void                    TransformRequest(ClientRequest* request, ConfigMessage* message);
+    void                    TransfromMessage(ConfigMessage* message, ClientResponse* response);
+    void                    SendClientResponse(ConfigMessage& message);
 
     ConfigQuorumContext     quorumContext;
     Controller*             controller;

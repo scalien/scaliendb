@@ -47,12 +47,8 @@ public:
     ConfigHeartbeatManager*     GetHeartbeatManager();
     ConfigActivationManager*    GetActivationManager();
 
-    void                        OnConfigStateChanged()
-    {
-        UpdateActivationTimeout();
-        quorumProcessor.UpdateListeners();
-    }
-
+    void                        OnConfigStateChanged();
+    
     // ========================================================================================
     // For ConfigContext:
     //
@@ -78,12 +74,8 @@ public:
     // ========================================================================================
 
 private:
-    void                        ToClientResponse(ConfigMessage* message, ClientResponse* response);
     void                        ReadConfigState();
     void                        WriteConfigState();
-    void                        SendClientResponse(ConfigMessage& message);
-    void                        UpdatePrimaryLeaseTimer();
-    void                        UpdateActivationTimeout();
     
     uint64_t                    configStatePaxosID;
     bool                        isCatchingUp;
@@ -94,6 +86,7 @@ private:
 
     ConfigQuorumProcessor       quorumProcessor;
     ConfigHeartbeatManager      heartbeatManager;
+    ConfigPrimaryLeaseManager   primaryLeaseManager;
     ConfigActivationManager     activationManager;
 };
 
