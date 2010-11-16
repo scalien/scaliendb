@@ -24,7 +24,7 @@
 		546E28D411F0816E00867EE1 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E28D311F0816E00867EE1 /* QuorumTransport.cpp */; };
 		547E27B7126B1602000B8E04 /* ConfigShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 547E27B6126B1602000B8E04 /* ConfigShardServer.cpp */; };
 		54838852124A6B1B005F0FB4 /* ConfigHTTPHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB45F123FB311003626AC /* ConfigHTTPHandler.cpp */; };
-		54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */; };
+		54838853124A6B1B005F0FB4 /* ConfigHTTPClientSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* ConfigHTTPClientSession.cpp */; };
 		5487008912886C6200A06AD0 /* ConfigQuorumProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487008812886C6200A06AD0 /* ConfigQuorumProcessor.cpp */; };
 		548700A7128984D600A06AD0 /* ConfigHeartbeatManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548700A6128984D600A06AD0 /* ConfigHeartbeatManager.cpp */; };
 		5487040212929EE200A06AD0 /* ConfigDatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487040112929EE200A06AD0 /* ConfigDatabaseManager.cpp */; };
@@ -427,8 +427,8 @@
 		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABB45E123FB311003626AC /* ConfigHTTPHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigHTTPHandler.h; sourceTree = "<group>"; };
 		9AABB45F123FB311003626AC /* ConfigHTTPHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigHTTPHandler.cpp; sourceTree = "<group>"; };
-		9AABB48C123FBFFE003626AC /* HTTPControllerSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HTTPControllerSession.h; sourceTree = "<group>"; };
-		9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HTTPControllerSession.cpp; sourceTree = "<group>"; };
+		9AABB48C123FBFFE003626AC /* ConfigHTTPClientSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigHTTPClientSession.h; sourceTree = "<group>"; };
+		9AABB48D123FBFFE003626AC /* ConfigHTTPClientSession.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigHTTPClientSession.cpp; sourceTree = "<group>"; };
 		9AABB50C123FDCDD003626AC /* ControllerApp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerApp.h; sourceTree = "<group>"; };
 		9AABB50D123FDCDD003626AC /* ControllerApp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerApp.cpp; sourceTree = "<group>"; };
 		9AABB5D7123FF1F4003626AC /* HTTPSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = HTTPSession.h; path = Application/HTTP/HTTPSession.h; sourceTree = "<group>"; };
@@ -911,8 +911,8 @@
 				9A26DB47120076BA006A2814 /* ConfigServer.cpp */,
 				9AABB45E123FB311003626AC /* ConfigHTTPHandler.h */,
 				9AABB45F123FB311003626AC /* ConfigHTTPHandler.cpp */,
-				9AABB48C123FBFFE003626AC /* HTTPControllerSession.h */,
-				9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */,
+				9AABB48C123FBFFE003626AC /* ConfigHTTPClientSession.h */,
+				9AABB48D123FBFFE003626AC /* ConfigHTTPClientSession.cpp */,
 				9AABCD401257CF93003626AC /* JSONConfigState.h */,
 				9AABCD411257CF93003626AC /* JSONConfigState.cpp */,
 				9AABB50C123FDCDD003626AC /* ControllerApp.h */,
@@ -1197,7 +1197,7 @@
 				546224EE1249030D00759E58 /* SDBPRequestMessage.cpp in Sources */,
 				546225121249074000759E58 /* SDBPResponseMessage.cpp in Sources */,
 				54838852124A6B1B005F0FB4 /* ConfigHTTPHandler.cpp in Sources */,
-				54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */,
+				54838853124A6B1B005F0FB4 /* ConfigHTTPClientSession.cpp in Sources */,
 				54E0BE74124B616000439334 /* TotalQuorum.cpp in Sources */,
 				54E0BFCD124CF55100439334 /* ShardServerApp.cpp in Sources */,
 				9AABC4D31253A301003626AC /* ShardHTTPClientSession.cpp in Sources */,
