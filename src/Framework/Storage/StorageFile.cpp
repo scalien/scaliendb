@@ -186,7 +186,6 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
             indexPage.Update(key, index, true);
             MarkPageDirty(&indexPage);
         }
-        ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     }
     
     if (dataPage->HasCursors())
@@ -200,6 +199,8 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     {
         if (!dataPage->IsDirty())
             DCACHE->RegisterHit(dataPage);
+
+        ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
         return true; // nothing changed
     }
     
@@ -208,6 +209,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     if (dataPage->IsOverflowing())
         SplitDataPage(index);
     
+    ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
     return true;
 }
 
