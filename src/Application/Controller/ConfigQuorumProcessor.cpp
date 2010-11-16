@@ -397,7 +397,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
             controller->GetDatabaseManager()->Write();
             quorumContext.OnCatchupComplete(imsg.paxosID);      // this commits
             isCatchingUp = false;
-            configContext.ContinueReplication();
+            quorumContext.ContinueReplication();
             Log_Message("Catchup complete");
             break;
         default:

@@ -69,6 +69,21 @@ ConfigDatabaseManager* Controller::GetDatabaseManager()
     return &databaseManager;
 }
 
+ConfigQuorumProcessor* Controller::GetQuorumProcessor()
+{
+    return &quorumProcessor;
+}
+
+ConfigHeartbeatManager* Controller::GetHeartbeatManager()
+{
+    return &heartbeatManager;
+}
+
+ConfigActivationManager* Controller::GetActivationManager()
+{
+    return &activationManager;
+}
+
 void Controller::OnConfigStateChanged()
 {
     activationManager.UpdateTimeout();
@@ -80,12 +95,17 @@ bool Controller::IsValidClientRequest(ClientRequest* request)
      return request->IsControllerRequest();
 }
 
+void Controller::OnClientRequest(ClientRequest* request)
+{
+    quorumProcessor.OnClientRequest(request);
+}
+
 void Controller::OnClientClose(ClientSession* session)
 {
     quorumProcessor.OnClientClose(session);
 }
 
-void Controller::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
+void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
 //    heartbeatManager.RegisterHeartbeat(nodeID);
 
