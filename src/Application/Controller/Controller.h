@@ -14,6 +14,7 @@
 #include "Application/ConfigState/ConfigState.h"
 #include "Application/Common/CatchupMessage.h"
 
+#include "ConfigDatabaseManager.h"
 #include "ConfigQuorumProcessor.h"
 #include "ConfigPrimaryLeaseManager.h"
 #include "ConfigHeartbeatManager.h"
@@ -73,17 +74,11 @@ public:
     bool                        OnAwaitingNodeID(Endpoint endpoint);
     // ========================================================================================
 
-private:
-    void                        ReadConfigState();
-    void                        WriteConfigState();
-    
+private:    
     uint64_t                    configStatePaxosID;
     bool                        isCatchingUp;
-    ConfigState                 configState;
-    Buffer                      configStateBuffer;
-    StorageDatabase*            systemDatabase;
-    StorageEnvironment          databaseEnv;
 
+    ConfigDatabaseManager       databaseManager;
     ConfigQuorumProcessor       quorumProcessor;
     ConfigHeartbeatManager      heartbeatManager;
     ConfigPrimaryLeaseManager   primaryLeaseManager;

@@ -19,10 +19,9 @@ void Controller::Init()
 
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
  
-    databaseEnv.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
-    databaseEnv.Open(configFile.GetValue("database.dir", "db"));
-    systemDatabase = databaseEnv.GetDatabase("system");
-    REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));
+    databaseManager.Init();
+ 
+    REPLICATION_CONFIG->Init(databaseManager.GetDatabase()->GetTable("system"));
     
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;
@@ -50,7 +49,7 @@ void Controller::Init()
     }
 
     configState.Init();
-    quorumProcessor.Init(this, numControllers, systemDatabase->GetTable("paxos"));    
+    quorumProcessor.Init(this, numControllers, databaseManager.GetDatabase()->GetTable("paxos"));    
     ReadConfigState();
 
     configStatePaxosID = 0;

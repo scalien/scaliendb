@@ -28,6 +28,7 @@
 		54838853124A6B1B005F0FB4 /* HTTPControllerSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AABB48D123FBFFE003626AC /* HTTPControllerSession.cpp */; };
 		5487008912886C6200A06AD0 /* ConfigQuorumProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487008812886C6200A06AD0 /* ConfigQuorumProcessor.cpp */; };
 		548700A7128984D600A06AD0 /* ConfigHeartbeatManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548700A6128984D600A06AD0 /* ConfigHeartbeatManager.cpp */; };
+		5487040212929EE200A06AD0 /* ConfigDatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487040112929EE200A06AD0 /* ConfigDatabaseManager.cpp */; };
 		5487B8791239230500C235BA /* ConfigQuorumContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FCF69C11FDF4770075BBFF /* ConfigQuorumContext.cpp */; };
 		5487BC2B123A5D0C00C235BA /* SDBPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */; };
 		5487BC2D123A5D2500C235BA /* SDBPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5487BC2C123A5D2500C235BA /* SDBPServer.cpp */; };
@@ -249,6 +250,8 @@
 		5487008812886C6200A06AD0 /* ConfigQuorumProcessor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigQuorumProcessor.cpp; sourceTree = "<group>"; };
 		548700A5128984D600A06AD0 /* ConfigHeartbeatManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigHeartbeatManager.h; sourceTree = "<group>"; };
 		548700A6128984D600A06AD0 /* ConfigHeartbeatManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigHeartbeatManager.cpp; sourceTree = "<group>"; };
+		5487040012929EE200A06AD0 /* ConfigDatabaseManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigDatabaseManager.h; sourceTree = "<group>"; };
+		5487040112929EE200A06AD0 /* ConfigDatabaseManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ConfigDatabaseManager.cpp; sourceTree = "<group>"; };
 		5487BC27123A5D0C00C235BA /* SDBPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPConnection.h; sourceTree = "<group>"; };
 		5487BC28123A5D0C00C235BA /* SDBPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDBPConnection.cpp; sourceTree = "<group>"; };
 		5487BC29123A5D0C00C235BA /* SDBPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDBPServer.h; sourceTree = "<group>"; };
@@ -925,6 +928,8 @@
 				540C062A1282FC6200D9CDD4 /* ConfigActivationManager.cpp */,
 				548700A5128984D600A06AD0 /* ConfigHeartbeatManager.h */,
 				548700A6128984D600A06AD0 /* ConfigHeartbeatManager.cpp */,
+				5487040012929EE200A06AD0 /* ConfigDatabaseManager.h */,
+				5487040112929EE200A06AD0 /* ConfigDatabaseManager.cpp */,
 			);
 			name = Controller;
 			path = Application/Controller;
@@ -1227,6 +1232,7 @@
 				540C062B1282FC6200D9CDD4 /* ConfigActivationManager.cpp in Sources */,
 				5487008912886C6200A06AD0 /* ConfigQuorumProcessor.cpp in Sources */,
 				548700A7128984D600A06AD0 /* ConfigHeartbeatManager.cpp in Sources */,
+				5487040212929EE200A06AD0 /* ConfigDatabaseManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
