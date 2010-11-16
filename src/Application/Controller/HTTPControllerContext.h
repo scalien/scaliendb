@@ -1,5 +1,5 @@
-#ifndef HTTPCONTROLLERCONTEXT_H
-#define HTTPCONTROLLERCONTEXT_H
+#ifndef CONFIGHTTPHANDLER_H
+#define CONFIGHTTPHANDLER_H
 
 #include "Application/HTTP/HTTPServer.h"
 
@@ -8,12 +8,12 @@ class ConfigServer;   // forward
 /*
 ===============================================================================================
 
- HTTPControllerContext
+ ConfigHTTPHandler
 
 ===============================================================================================
 */
 
-class HTTPControllerContext : public HTTPHandler
+class ConfigHTTPHandler : public HTTPHandler
 {
 public:
     void            SetConfigServer(ConfigServer* configServer);

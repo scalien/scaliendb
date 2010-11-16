@@ -1,12 +1,12 @@
 #include "HTTPControllerContext.h"
 #include "HTTPControllerSession.h"
 
-void HTTPControllerContext::SetConfigServer(ConfigServer* configServer_)
+void ConfigHTTPHandler::SetConfigServer(ConfigServer* configServer_)
 {
     configServer = configServer_;
 }
 
-bool HTTPControllerContext::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
+bool ConfigHTTPHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
 {
     HTTPControllerSession*  session;
 

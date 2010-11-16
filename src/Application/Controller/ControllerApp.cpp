@@ -5,9 +5,9 @@ void ControllerApp::Init()
 {
     configServer.Init();
     
-    httpContext.SetConfigServer(&configServer);
+    httpHandler.SetConfigServer(&configServer);
     httpServer.Init(configFile.GetIntValue("http.port", 8080));
-    httpServer.RegisterHandler(&httpContext);
+    httpServer.RegisterHandler(&httpHandler);
     
     sdbpServer.Init(configFile.GetIntValue("sdbp.port", 7080));
     sdbpServer.SetContext(&configServer);

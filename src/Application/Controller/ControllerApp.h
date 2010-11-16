@@ -28,7 +28,7 @@ private:
     ConfigServer            configServer;
 
     HTTPServer              httpServer;
-    HTTPControllerContext   httpContext;
+    ConfigHTTPHandler       httpHandler;
 
     SDBPServer              sdbpServer;
 };
