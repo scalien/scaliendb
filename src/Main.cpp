@@ -4,7 +4,7 @@
 #include "System/IO/IOProcessor.h"
 #include "Framework/Storage/StorageDataCache.h"
 #include "Application/Common/ContextTransport.h"
-#include "Application/Controller/ControllerApp.h"
+#include "Application/Controller/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
 
 #ifdef DEBUG
