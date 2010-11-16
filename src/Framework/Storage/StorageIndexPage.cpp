@@ -188,6 +188,15 @@ bool StorageIndexPage::HasKey(const ReadBuffer& key)
     return true;
 }
 
+#include <stdio.h>
+void StorageIndexPage::DumpKeys()
+{
+    StorageKeyIndex*    ki;
+
+    FOREACH (ki, keys)
+        printf("StorageIndex: %i: %.*s\n", ki->index, P(&ki->key));
+}
+
 void StorageIndexPage::Read(ReadBuffer& buffer_)
 {
     uint32_t            num, len, i;

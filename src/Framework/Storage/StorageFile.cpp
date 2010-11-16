@@ -14,6 +14,33 @@
 #define FILE_VERSION_MAJOR  0
 #define FILE_VERSION_MINOR  1
 
+#define ST_FIRSTKEY_ASSERT(expr) \
+{ \
+    if (!(expr)) \
+    { \
+        indexPage.DumpKeys(); \
+        DumpKeys(dataPages); \
+        ST_ASSERT(expr); \
+    } \
+}
+
+
+static void DumpKeys(StorageDataPage** dataPages)
+{
+    ReadBuffer  firstKey;
+    
+    for (int i = 0; i < 256; i++)
+    {
+        if (dataPages[i] == NULL)
+            printf("StorageData: %i: NULL\n", i);
+        else
+        {
+            firstKey = dataPages[i]->FirstKey();
+            printf("StorageData: %i: %.*s\n", i, P(&firstKey));
+        }
+    }
+}
+
 static int KeyCmp(const uint32_t a, const uint32_t b)
 {
     if (a < b)
@@ -152,7 +179,8 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     else
     {
         dataPage = dataPages[index];
-        ST_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
+        
+        ST_FIRSTKEY_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
         rb = dataPage->FirstKey();
         if (ReadBuffer::LessThan(key, rb))
         {
@@ -197,7 +225,7 @@ void StorageFile::Delete(ReadBuffer& key)
 
     updateIndex = false;
     firstKey = dataPages[index]->FirstKey();
-    ST_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
+    ST_FIRSTKEY_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
     if (BUFCMP(&key, &firstKey))
         updateIndex = true;
 
@@ -624,7 +652,7 @@ void StorageFile::LoadDataPage(uint32_t index)
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);
     dataPages[index]->Read(readBuffer);
-    ST_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
+    ST_FIRSTKEY_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
 }
 
 // this is called by DCACHE->FreePage

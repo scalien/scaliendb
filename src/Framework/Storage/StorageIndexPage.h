@@ -46,6 +46,8 @@ public:
     bool                    IsOverflowing();
     bool                    HasKey(const ReadBuffer& key);
 
+    void                    DumpKeys();
+
     void                    Read(ReadBuffer& buffer);
     bool                    CheckWrite(Buffer& buffer);
     bool                    Write(Buffer& buffer);
