@@ -152,6 +152,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     else
     {
         dataPage = dataPages[index];
+        ST_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
         rb = dataPage->FirstKey();
         if (ReadBuffer::LessThan(key, rb))
         {
@@ -196,6 +197,7 @@ void StorageFile::Delete(ReadBuffer& key)
 
     updateIndex = false;
     firstKey = dataPages[index]->FirstKey();
+    ST_ASSERT(indexPage.HasKey(dataPages[index]->FirstKey()) == true);
     if (BUFCMP(&key, &firstKey))
         updateIndex = true;
 

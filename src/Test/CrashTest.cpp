@@ -13,7 +13,7 @@ static void CrashFunc()
 {
     char*   null;
     
-    crashSleepTime = RandomInt(1000, 60 * 1000);
+    crashSleepTime = RandomInt(1000, 10 * 1000);
     MSleep(crashSleepTime);
 
     if (crash)
