@@ -6,7 +6,7 @@
 #include "Application/Common/CatchupMessage.h"
 #include "ConfigQuorumContext.h"
 
-class Controller; // forward
+class ConfigServer; // forward
 
 /*
 ===============================================================================================
@@ -22,7 +22,7 @@ class ConfigQuorumProcessor
     typedef InList<ClientRequest>       RequestList;
 
 public:
-    void                    Init(Controller* controller,
+    void                    Init(ConfigServer* configServer,
                              unsigned numControllers,  StorageTable* quorumTable);
 
     bool                    IsMaster();
@@ -63,7 +63,7 @@ private:
     bool                    isCatchingUp;
 
     ConfigQuorumContext     quorumContext;
-    Controller*             controller;
+    ConfigServer*           configServer;
     
     MessageList             configMessages;
     RequestList             requests;

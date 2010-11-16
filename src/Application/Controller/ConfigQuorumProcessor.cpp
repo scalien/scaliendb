@@ -3,10 +3,10 @@
 #include "Controller.h"
 #include "ConfigHeartbeatManager.h"
 
-void ConfigQuorumProcessor::Init(Controller* controller_,
+void ConfigQuorumProcessor::Init(ConfigServer* configServer_,
  unsigned numControllers,  StorageTable* quorumTable)
 {
-    controller = controller_;
+    configServer = configServer_;
     quorumContext.Init(this, numControllers, quorumTable);
     
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
@@ -63,7 +63,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.ConfigStateResponse(*controller->GetDatabaseManager()->GetConfigState());
+        request->response.ConfigStateResponse(*configServer->GetDatabaseManager()->GetConfigState());
         request->OnComplete(false);
         return;
     }
@@ -80,7 +80,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         // make sure all nodes are currently active
         FOREACH(itNodeID, request->nodes)
         {
-            if (!controller->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
+            if (!configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
             {
                 request->response.Failed();
                 request->OnComplete();
@@ -92,7 +92,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     message = new ConfigMessage;
     TransformRequest(request, message);
     
-    if (!controller->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
+    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
     {
         delete message;
         request->response.Failed();
@@ -190,7 +190,7 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
     message = new ConfigMessage;
     message->fromClient = false;
     message->RegisterShardServer(0, endpoint);
-    if (!controller->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
+    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
         ASSERT_FAIL();
 
     configMessages.Append(message);
@@ -205,7 +205,7 @@ void ConfigQuorumProcessor::UpdateListeners()
     ConfigState::ShardServerList*   shardServers;
     ClusterMessage                  message;
     
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     
     // update clients
     for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
@@ -263,10 +263,10 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     }
     assert(listenRequests.GetLength() == 0);
     
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     configState->hasMaster = false;
     configState->masterID = 0;
-    controller->OnConfigStateChanged(); // TODO: is this neccesary?
+    configServer->OnConfigStateChanged(); // TODO: is this neccesary?
     // TODO: tell ActivationManager
 }
 
@@ -275,7 +275,7 @@ void ConfigQuorumProcessor::OnIsLeader()
     bool            updateListeners;
     ConfigState*    configState;
     
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     
     updateListeners = false;
     if (!configState->hasMaster)
@@ -284,7 +284,7 @@ void ConfigQuorumProcessor::OnIsLeader()
     configState->hasMaster = true;
     configState->masterID = GetMaster();
 
-    if (updateListeners && (uint64_t) GetMaster() == controller->GetNodeID())
+    if (updateListeners && (uint64_t) GetMaster() == configServer->GetNodeID())
         UpdateListeners();
 }
 
@@ -293,12 +293,12 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     ClusterMessage  clusterMessage;
     ConfigState*    configState;
     
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     
     // catchup issue:
     // if paxosID is smaller or equal to configStatePaxosID, that means
     // our state already includes the writes in this round
-    if (paxosID - 1 <= controller->GetDatabaseManager()->GetPaxosID())
+    if (paxosID - 1 <= configServer->GetDatabaseManager()->GetPaxosID())
         return;
     
     if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
@@ -311,8 +311,8 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     }
     
     configState->OnMessage(message);
-    controller->GetDatabaseManager()->Write();
-    controller->OnConfigStateChanged(); // UpdateActivationTimeout();
+    configServer->GetDatabaseManager()->Write();
+    configServer->OnConfigStateChanged(); // UpdateActivationTimeout();
     
     if (IsMaster())
         UpdateListeners();
@@ -339,7 +339,7 @@ void ConfigQuorumProcessor::OnStartCatchup()
     
     quorumContext.StopReplication();
     
-    msg.CatchupRequest(controller->GetNodeID(), quorumContext.GetQuorumID());
+    msg.CatchupRequest(configServer->GetNodeID(), quorumContext.GetQuorumID());
     
     CONTEXT_TRANSPORT->SendQuorumMessage(
      quorumContext.GetLeaseOwner(), quorumContext.GetQuorumID(), msg);
@@ -359,7 +359,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
     CatchupMessage  omsg;
     ConfigState*    configState;
     
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     
     switch (imsg.type)
     {
@@ -369,7 +369,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
             assert(imsg.quorumID == quorumContext.GetQuorumID());
             // send configState
             key.Wrap("state");
-            controller->GetDatabaseManager()->GetConfigState()->Write(buffer);
+            configServer->GetDatabaseManager()->GetConfigState()->Write(buffer);
             value.Wrap(buffer);
             omsg.KeyValue(key, value);
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
@@ -393,8 +393,8 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
         case CATCHUPMESSAGE_COMMIT:
             if (!isCatchingUp)
                 return;
-            controller->GetDatabaseManager()->SetPaxosID(imsg.paxosID);
-            controller->GetDatabaseManager()->Write();
+            configServer->GetDatabaseManager()->SetPaxosID(imsg.paxosID);
+            configServer->GetDatabaseManager()->Write();
             quorumContext.OnCatchupComplete(imsg.paxosID);      // this commits
             isCatchingUp = false;
             quorumContext.ContinueReplication();

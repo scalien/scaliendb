@@ -4,9 +4,9 @@
 #include "ConfigActivationManager.h"
 #include "Controller.h"
 
-void ConfigHeartbeatManager::Init(Controller* controller_)
+void ConfigHeartbeatManager::Init(ConfigServer* configServer_)
 {
-    controller = controller_;
+    configServer = configServer_;
     
     heartbeatTimeout.SetCallable(MFUNC(ConfigHeartbeatManager, OnHeartbeatTimeout));
     heartbeatTimeout.SetDelay(1000);
@@ -24,7 +24,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     ConfigQuorum*       quorum;
     ConfigShardServer*  shardServer;
     
-    shardServer = controller->GetDatabaseManager()->GetConfigState()->GetShardServer(message.nodeID);
+    shardServer = configServer->GetDatabaseManager()->GetConfigState()->GetShardServer(message.nodeID);
     if (!shardServer)
         return;
     
@@ -34,7 +34,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     
     FOREACH(it, message.quorumPaxosIDs)
     {
-        quorum = controller->GetDatabaseManager()->GetConfigState()->GetQuorum(it->quorumID);
+        quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(it->quorumID);
         if (!quorum)
             continue;
             
@@ -67,14 +67,14 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
             break;
     }
     
-    if (controller->GetQuorumProcessor()->IsMaster())
+    if (configServer->GetQuorumProcessor()->IsMaster())
     {
-        FOREACH(itShardServer, controller->GetDatabaseManager()->GetConfigState()->shardServers)
+        FOREACH(itShardServer, configServer->GetDatabaseManager()->GetConfigState()->shardServers)
         {
             if (!HasHeartbeat(itShardServer->nodeID))
-                controller->GetActivationManager()->TryDeactivateShardServer(itShardServer->nodeID);
+                configServer->GetActivationManager()->TryDeactivateShardServer(itShardServer->nodeID);
             else
-                controller->GetActivationManager()->TryActivateShardServer(itShardServer->nodeID);
+                configServer->GetActivationManager()->TryActivateShardServer(itShardServer->nodeID);
         }
     }
     

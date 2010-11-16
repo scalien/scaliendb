@@ -1,39 +1,23 @@
-#ifndef CONTROLLER_H
-#define CONTROLLER_H
+#ifndef CONFIGSERVER_H
+#define CONFIGSERVER_H
 
-#include "ConfigMessage.h"
-#include "ConfigQuorumContext.h"
-#include "System/Containers/InList.h"
-#include "System/Containers/InSortedList.h"
-#include "System/Events/Timer.h"
-#include "Framework/Storage/StorageDatabase.h"
-#include "Framework/Storage/StorageEnvironment.h"
 #include "Application/Common/ClusterContext.h"
-#include "Application/Common/ClientRequest.h"
 #include "Application/SDBP/SDBPContext.h"
-#include "Application/ConfigState/ConfigState.h"
-#include "Application/Common/CatchupMessage.h"
-
 #include "ConfigDatabaseManager.h"
 #include "ConfigQuorumProcessor.h"
 #include "ConfigPrimaryLeaseManager.h"
 #include "ConfigHeartbeatManager.h"
 #include "ConfigActivationManager.h"
 
-class ClientSession;            // forward
-
-#define HEARTBEAT_EXPIRE_TIME           7000        // msec
-#define ACTIVATION_FAILED_PENALTY_TIME  60*60*1000  // msec, 1 hour
-
 /*
 ===============================================================================================
 
- Controller
+ ConfigServer
 
 ===============================================================================================
 */
 
-class Controller : public ClusterContext, public SDBPContext
+class ConfigServer : public ClusterContext, public SDBPContext
 {
 public:
     void                        Init();
@@ -64,8 +48,6 @@ public:
     // ========================================================================================
 
 private:
-    bool                        isCatchingUp;
-
     ConfigDatabaseManager       databaseManager;
     ConfigQuorumProcessor       quorumProcessor;
     ConfigHeartbeatManager      heartbeatManager;

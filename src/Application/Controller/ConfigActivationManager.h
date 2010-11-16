@@ -4,7 +4,9 @@
 #include "System/Events/Timer.h"
 #include "Application/Common/ClusterMessage.h"
 
-class Controller; // forward
+class ConfigServer; // forward
+
+#define ACTIVATION_FAILED_PENALTY_TIME  60*60*1000  // msec, 1 hour
 
 /*
 ===============================================================================================
@@ -17,7 +19,7 @@ class Controller; // forward
 class ConfigActivationManager
 {
 public:
-    void            Init(Controller* controller);
+    void            Init(ConfigServer* configServer);
     void            Shutdown();
 
     void            TryDeactivateShardServer(uint64_t nodeID);
@@ -30,7 +32,7 @@ public:
 
 private:    
     Timer           activationTimeout;
-    Controller*     controller;
+    ConfigServer*   configServer;
 };
 
 #endif

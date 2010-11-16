@@ -5,9 +5,9 @@
 #include "ConfigQuorumProcessor.h"
 #include "ConfigActivationManager.h"
 
-void ConfigPrimaryLeaseManager::Init(Controller* controller_)
+void ConfigPrimaryLeaseManager::Init(ConfigServer* configServer_)
 {
-    controller = controller_;
+    configServer = configServer_;
     primaryLeaseTimeout.SetCallable(MFUNC(ConfigPrimaryLeaseManager, OnPrimaryLeaseTimeout));
 }
 
@@ -28,7 +28,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
     {
         if (itLease->expireTime < now)
         {
-            quorum = controller->GetDatabaseManager()->GetConfigState()->GetQuorum(itLease->quorumID);
+            quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(itLease->quorumID);
             quorum->hasPrimary = false;
             quorum->primaryID = 0;
             itLease = primaryLeases.Delete(itLease);
@@ -39,7 +39,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 
     UpdateTimer();
 
-    controller->OnConfigStateChanged();
+    configServer->OnConfigStateChanged();
 }
 
 void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
@@ -47,7 +47,7 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     uint64_t*       it;
     ConfigQuorum*   quorum;
 
-    quorum = controller->GetDatabaseManager()->GetConfigState()->GetQuorum(message.quorumID);
+    quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(message.quorumID);
     
     if (quorum == NULL)
     {
@@ -132,7 +132,7 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
      message.proposalID, duration, activeNodes);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 
-   controller->GetActivationManager()->OnExtendLease(quorum, message);
+   configServer->GetActivationManager()->OnExtendLease(quorum, message);
 }
 
 void ConfigPrimaryLeaseManager::UpdateTimer()

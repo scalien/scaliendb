@@ -6,7 +6,7 @@
 #include "Application/HTTP/UrlParam.h"
 #include "HTTPControllerContext.h"
 
-class Controller;       // forward
+class ConfigServer;     // forward
 class ClientRequest;    // forward
 class ConfigState;      // forward
 
@@ -22,7 +22,7 @@ class HTTPControllerSession : public ClientSession
 {
 public:
 
-    void                SetController(Controller* controller);
+    void                SetConfigServer(ConfigServer* configServer);
     void                SetConnection(HTTPConnection* conn);
 
     bool                HandleRequest(HTTPRequest& request);
@@ -57,7 +57,7 @@ private:
     
     void                OnConnectionClose();
 
-    Controller*         controller;
+    ConfigServer*       configServer;
     HTTPSession         session;
     UrlParam            params;
 };

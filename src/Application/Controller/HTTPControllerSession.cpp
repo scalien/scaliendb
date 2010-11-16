@@ -6,9 +6,9 @@
 #include "Version.h"
 #include "ConfigHeartbeatManager.h"
 
-void HTTPControllerSession::SetController(Controller* controller_)
+void HTTPControllerSession::SetConfigServer(ConfigServer* configServer_)
 {
-    controller = controller_;
+    configServer = configServer_;
 }
 
 void HTTPControllerSession::SetConnection(HTTPConnection* conn)
@@ -51,7 +51,7 @@ void HTTPControllerSession::OnComplete(ClientRequest* request, bool last)
             response->configState.Write(tmp, true);
             rb.Wrap(tmp);
             session.Print(rb);
-            controller->OnClientClose(this);
+            configServer->OnClientClose(this);
         }
         break;
     case CLIENTRESPONSE_NOSERVICE:
@@ -82,15 +82,15 @@ void HTTPControllerSession::PrintStatus()
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
 
-    buf.Writef("%d", (int) controller->GetNodeID());
+    buf.Writef("%d", (int) configServer->GetNodeID());
     buf.NullTerminate();
     session.PrintPair("NodeID", buf.GetBuffer());   
 
-    buf.Writef("%d", (int) controller->GetQuorumProcessor()->GetMaster());
+    buf.Writef("%d", (int) configServer->GetQuorumProcessor()->GetMaster());
     buf.NullTerminate();
     session.PrintPair("Master", buf.GetBuffer());
 
-    buf.Writef("%d", (int) controller->GetQuorumProcessor()->GetPaxosID());
+    buf.Writef("%d", (int) configServer->GetQuorumProcessor()->GetPaxosID());
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
     
@@ -98,7 +98,7 @@ void HTTPControllerSession::PrintStatus()
     
     session.Print("\n--- Configuration State ---\n");
     
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     PrintShardServers(configState);
     session.Print("");
     PrintQuorumMatrix(configState);
@@ -127,7 +127,7 @@ void HTTPControllerSession::PrintShardServers(ConfigState* configState)
         ConfigState::ShardServerList& shardServers = configState->shardServers;
         for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
         {
-            if (controller->GetHeartbeatManager()->HasHeartbeat(it->nodeID))
+            if (configServer->GetHeartbeatManager()->HasHeartbeat(it->nodeID))
             {
                 if (CONTEXT_TRANSPORT->IsConnected(it->nodeID))
                     buffer.Writef("+ ");
@@ -210,14 +210,14 @@ void HTTPControllerSession::PrintQuorumMatrix(ConfigState* configState)
                 {
                     found = true;
                     if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
-                        if (controller->GetHeartbeatManager()->HasHeartbeat(*itNodeID) &&
+                        if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID) &&
                          CONTEXT_TRANSPORT->IsConnected(*itNodeID))
                             buffer.Appendf("     P");
                         else
                             buffer.Appendf("     !");
                     else
                     {
-                        if (controller->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
+                        if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
                             buffer.Appendf("     +");
                         else
                             buffer.Appendf("     -");
@@ -368,7 +368,7 @@ void HTTPControllerSession::PrintShardMatrix(ConfigState* configState)
 
 void HTTPControllerSession::PrintConfigState()
 {
-    JSONConfigState jsonConfigState(*controller->GetDatabaseManager()->GetConfigState(), session.json);
+    JSONConfigState jsonConfigState(*configServer->GetDatabaseManager()->GetConfigState(), session.json);
     jsonConfigState.Write();
     session.Flush();
 }
@@ -393,7 +393,7 @@ bool HTTPControllerSession::ProcessCommand(ReadBuffer& cmd)
         return false;
 
     request->session = this;
-    controller->OnClientRequest(request);
+    configServer->OnClientRequest(request);
     
     return true;
 }
@@ -603,7 +603,7 @@ ClientRequest* HTTPControllerSession::ProcessDeleteTable()
 
 void HTTPControllerSession::OnConnectionClose()
 {
-    controller->OnClientClose(this);
+    configServer->OnClientClose(this);
     session.SetConnection(NULL);
     delete this;
 }

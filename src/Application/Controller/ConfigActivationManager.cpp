@@ -4,9 +4,9 @@
 #include "Controller.h"
 #include "ConfigQuorumProcessor.h"
 
-void ConfigActivationManager::Init(Controller* controller_)
+void ConfigActivationManager::Init(ConfigServer* configServer_)
 {
-    controller = controller_;
+    configServer = configServer_;
     
     activationTimeout.SetCallable(MFUNC(ConfigActivationManager, OnActivationTimeout));
 }
@@ -22,7 +22,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
 
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
 
     FOREACH(itQuorum, configState->quorums)
     {
@@ -65,7 +65,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                      itQuorum->quorumID, itQuorum->activatingNodeID);
                 }
                 
-                controller->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
+                configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
             }
         }
     }
@@ -80,7 +80,7 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
     ConfigShardServer*  shardServer;
     uint64_t            now;
 
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     shardServer = configState->GetShardServer(nodeID);
 
     now = EventLoop::Now();
@@ -134,7 +134,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
         // start monitoring the primary's paxosID
         quorum.isWatchingPaxosID = true;
         quorum.activationPaxosID = message.paxosID;
-        controller->OnConfigStateChanged();
+        configServer->OnConfigStateChanged();
     }
     else
     {
@@ -144,9 +144,9 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
             quorum.isWatchingPaxosID = false;
             quorum.isReplicatingActivation = true;
             quorum.activationExpireTime = 0;
-            controller->OnConfigStateChanged();
+            configServer->OnConfigStateChanged();
 
-            controller->GetQuorumProcessor()->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
+            configServer->GetQuorumProcessor()->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
         }
     }    
 }
@@ -161,7 +161,7 @@ void ConfigActivationManager::OnActivationTimeout()
     Log_Trace();
     
     now = EventLoop::Now();
-    configState = controller->GetDatabaseManager()->GetConfigState();
+    configState = configServer->GetDatabaseManager()->GetConfigState();
     
     FOREACH(itQuorum, configState->quorums)
     {
@@ -186,7 +186,7 @@ void ConfigActivationManager::OnActivationTimeout()
             Log_Message("Activation failed for quorum %" PRIu64 " and shard server %" PRIu64 "",
              itQuorum->quorumID, itQuorum->activatingNodeID);
              
-            controller->OnConfigStateChanged();
+            configServer->OnConfigStateChanged();
         }
     }
     
@@ -201,7 +201,7 @@ void ConfigActivationManager::UpdateTimeout()
     Log_Trace();
     
     activationExpireTime = 0;
-    FOREACH(it, controller->GetDatabaseManager()->GetConfigState()->quorums)
+    FOREACH(it, configServer->GetDatabaseManager()->GetConfigState()->quorums)
     {
         if (it->isActivatingNode && !it->isReplicatingActivation)
         {

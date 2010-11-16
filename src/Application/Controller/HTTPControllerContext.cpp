@@ -1,9 +1,9 @@
 #include "HTTPControllerContext.h"
 #include "HTTPControllerSession.h"
 
-void HTTPControllerContext::SetController(Controller* controller_)
+void HTTPControllerContext::SetConfigServer(ConfigServer* configServer_)
 {
-    controller = controller_;
+    configServer = configServer_;
 }
 
 bool HTTPControllerContext::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
@@ -11,7 +11,7 @@ bool HTTPControllerContext::HandleRequest(HTTPConnection* conn, HTTPRequest& req
     HTTPControllerSession*  session;
 
     session = new HTTPControllerSession;
-    session->SetController(controller);
+    session->SetConfigServer(configServer);
     session->SetConnection(conn);
 
     return session->HandleRequest(request);

@@ -6,7 +6,7 @@
 #include "Application/Common/ClusterMessage.h"
 
 class PrimaryLease; // forward
-class Controller;   // forward
+class ConfigServer; // forward
 
 /*
 ===============================================================================================
@@ -21,7 +21,7 @@ class ConfigPrimaryLeaseManager
     typedef InSortedList<PrimaryLease>  LeaseList;
 
 public:
-    void            Init(Controller* controller);
+    void            Init(ConfigServer* configServer);
     void            Shutdown();
 
     void            OnPrimaryLeaseTimeout();
@@ -33,7 +33,7 @@ private:
     
     void            UpdateTimer();
 
-    Controller*     controller;
+    ConfigServer*   configServer;
     LeaseList       primaryLeases;
     Timer           primaryLeaseTimeout;
 };

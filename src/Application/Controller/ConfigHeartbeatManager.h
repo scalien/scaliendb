@@ -6,7 +6,9 @@
 #include "Application/Common/ClusterMessage.h"
 
 class Heartbeat;    // forward
-class Controller;   // forward
+class ConfigServer;   // forward
+
+#define HEARTBEAT_EXPIRE_TIME           7000        // msec
 
 /*
 ===============================================================================================
@@ -21,7 +23,7 @@ class ConfigHeartbeatManager
     typedef InSortedList<Heartbeat>     HeartbeatList;
 
 public:
-    void                Init(Controller* controller);
+    void                Init(ConfigServer* configServer);
     void                Shutdown();
     
     void                OnHeartbeatMessage(ClusterMessage& message);
@@ -32,7 +34,7 @@ public:
 private:
     void                RegisterHeartbeat(uint64_t nodeID);
 
-    Controller*         controller;
+    ConfigServer*       configServer;
     HeartbeatList       heartbeats;
     Countdown           heartbeatTimeout;
 };

@@ -25,7 +25,7 @@ public:
     void                    Shutdown();
 
 private:
-    Controller              controller;
+    ConfigServer            configServer;
 
     HTTPServer              httpServer;
     HTTPControllerContext   httpContext;

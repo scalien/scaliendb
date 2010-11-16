@@ -9,7 +9,7 @@
 #include "Application/Common/ClientRequestCache.h"
 #include "ConfigQuorumProcessor.h"
 
-void Controller::Init()
+void ConfigServer::Init()
 {
     unsigned        numControllers;
     int64_t         nodeID;
@@ -36,9 +36,7 @@ void Controller::Init()
     REPLICATION_CONFIG->SetNodeID(nodeID);
     
     CONTEXT_TRANSPORT->SetClusterContext(this);
-    
-    isCatchingUp = false;
-    
+        
     // connect to the controller nodes
     numControllers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numControllers; nodeID++)
@@ -51,7 +49,7 @@ void Controller::Init()
     quorumProcessor.Init(this, numControllers, databaseManager.GetDatabase()->GetTable("paxos"));    
 }
 
-void Controller::Shutdown()
+void ConfigServer::Shutdown()
 {
     CONTEXT_TRANSPORT->Shutdown();
     REPLICATION_CONFIG->Shutdown();
@@ -59,53 +57,53 @@ void Controller::Shutdown()
     databaseManager.Shutdown();
 }
 
-uint64_t Controller::GetNodeID()
+uint64_t ConfigServer::GetNodeID()
 {
     return MY_NODEID;
 }
 
-ConfigDatabaseManager* Controller::GetDatabaseManager()
+ConfigDatabaseManager* ConfigServer::GetDatabaseManager()
 {
     return &databaseManager;
 }
 
-ConfigQuorumProcessor* Controller::GetQuorumProcessor()
+ConfigQuorumProcessor* ConfigServer::GetQuorumProcessor()
 {
     return &quorumProcessor;
 }
 
-ConfigHeartbeatManager* Controller::GetHeartbeatManager()
+ConfigHeartbeatManager* ConfigServer::GetHeartbeatManager()
 {
     return &heartbeatManager;
 }
 
-ConfigActivationManager* Controller::GetActivationManager()
+ConfigActivationManager* ConfigServer::GetActivationManager()
 {
     return &activationManager;
 }
 
-void Controller::OnConfigStateChanged()
+void ConfigServer::OnConfigStateChanged()
 {
     activationManager.UpdateTimeout();
     quorumProcessor.UpdateListeners();
 }
 
-bool Controller::IsValidClientRequest(ClientRequest* request)
+bool ConfigServer::IsValidClientRequest(ClientRequest* request)
 {
      return request->IsControllerRequest();
 }
 
-void Controller::OnClientRequest(ClientRequest* request)
+void ConfigServer::OnClientRequest(ClientRequest* request)
 {
     quorumProcessor.OnClientRequest(request);
 }
 
-void Controller::OnClientClose(ClientSession* session)
+void ConfigServer::OnClientClose(ClientSession* session)
 {
     quorumProcessor.OnClientClose(session);
 }
 
-void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
+void ConfigServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
 //    heartbeatManager.RegisterHeartbeat(nodeID);
 
@@ -128,7 +126,7 @@ void Controller::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
     }
 }
 
-void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
+void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
     ClusterMessage      clusterMessage;
     ConfigShardServer*  shardServer;
@@ -161,7 +159,7 @@ void Controller::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
     }
 }
 
-bool Controller::OnAwaitingNodeID(Endpoint endpoint)
+bool ConfigServer::OnAwaitingNodeID(Endpoint endpoint)
 {   
     ConfigShardServer*              shardServer;
     ConfigState::ShardServerList*   shardServers;
