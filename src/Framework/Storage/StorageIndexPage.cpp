@@ -236,8 +236,10 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
         if (len == 0)
             numEmpty++;
 
-        ki->key.SetLength(len);
-        ki->key.SetBuffer(tmp.GetBuffer());
+//        ki->key.SetLength(len);
+//        ki->key.SetBuffer(tmp.GetBuffer());
+        ReadBuffer rb(tmp.GetBuffer(), len);
+        ki->SetKey(rb, true);
         tmp.Advance(len);
 
         tmp.ReadLittle32(ki->index);
@@ -256,36 +258,36 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     ST_ASSERT(numEmpty <= 1);
 }
 
-bool StorageIndexPage::CheckWrite(Buffer& buffer)
+bool StorageIndexPage::CheckWrite(Buffer& writeBuffer)
 {
     StorageKeyIndex*    it;
     unsigned            len;
 
-    this->buffer.Allocate(pageSize);
+    buffer.Allocate(pageSize);
 
-    buffer.SetLength(0);
+    writeBuffer.SetLength(0);
 
     ST_ASSERT(fileIndex != 0);
     ST_ASSERT(keys.GetCount() == numDataPageSlots - freeDataPages.GetLength());
 
-    buffer.AppendLittle32(pageSize);
-    buffer.AppendLittle32(fileIndex);
-    buffer.AppendLittle32(offset);
-    buffer.AppendLittle32(keys.GetCount());
+    writeBuffer.AppendLittle32(pageSize);
+    writeBuffer.AppendLittle32(fileIndex);
+    writeBuffer.AppendLittle32(offset);
+    writeBuffer.AppendLittle32(keys.GetCount());
     STORAGE_TRACE("writing index for file %u\n", fileIndex);
 
     FOREACH (it, keys)
     {
         STORAGE_TRACE("writing index: %.*s => %u\n", it->key.GetLength(), it->key.GetBuffer(), it->index);
         len = it->key.GetLength();
-        buffer.AppendLittle32(len);
-        buffer.Append(it->key.GetBuffer(), len);
-        buffer.AppendLittle32(it->index);
+        writeBuffer.AppendLittle32(len);
+        writeBuffer.Append(it->key.GetBuffer(), len);
+        writeBuffer.AppendLittle32(it->index);
     }
 
-    ST_ASSERT(required == buffer.GetLength());
+    ST_ASSERT(required == writeBuffer.GetLength());
     ST_ASSERT((unsigned) (maxDataPageIndex + 1) == numDataPageSlots - freeDataPages.GetLength());
-    if (BUFCMP(&buffer, &this->buffer))
+    if (BUFCMP(&writeBuffer, &this->buffer))
         return false;
     
     return true;
