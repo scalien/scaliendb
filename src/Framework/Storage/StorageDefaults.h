@@ -1,6 +1,8 @@
 #ifndef STORAGEDEFAULTS_H
 #define STORAGEDEAULTS_H
 
+#include "System/Log.h"
+
 #define DEFAULT_KEY_LIMIT           1000
 #define DEFAULT_DATAPAGE_SIZE       (64*1024)
 #define DEFAULT_NUM_DATAPAGES       256         // 16.7 MB worth of data pages
@@ -18,8 +20,8 @@
 
 #define STORAGE_DEFAULT_CACHE_SIZE          (1000UL*DEFAULT_DATAPAGE_SIZE)
 
-#define STORAGE_TRACE(...)
-//#define STORAGE_TRACE Log_Message
+//#define STORAGE_TRACE(...)
+#define STORAGE_TRACE Log_Message
 
 #ifndef NDEBUG
 #ifndef PLATFORM_WINDOWS

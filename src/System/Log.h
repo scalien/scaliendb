@@ -27,7 +27,7 @@
     Log(__FILE__, __LINE__, __func__, LOG_TYPE_ERRNO, "")
 
 #define Log_Message(...)\
-    Log(__FILE__, __LINE__, __func__, LOG_TYPE_MSG, __VA_ARGS__)
+    Log(__FILE__, __LINE__, __func__, LOG_TYPE_MSG, "" __VA_ARGS__)
 
 #define Log_Trace(...) \
     Log_Trace_("" __VA_ARGS__)

@@ -3,6 +3,7 @@
 #include "StorageDataCache.h"
 #include "StorageCursor.h"
 #include "StorageRecoveryLog.h"
+#include "StorageDefaults.h"
 #include "System/FileSystem.h"
 #include "stdio.h"
 
@@ -245,12 +246,14 @@ void StorageFile::Delete(ReadBuffer& key)
         numDataPages--;
         dataPages[index]->SetDeleted(true);
         dataPages[index] = NULL;
+        STORAGE_TRACE();
     }
     else if (updateIndex)
     {
         firstKey = dataPages[index]->FirstKey();
         indexPage.Update(firstKey, index, true);
-        MarkPageDirty(&indexPage);      
+        MarkPageDirty(&indexPage);
+        STORAGE_TRACE();
     }
     ST_FIRSTKEY_ASSERT(indexPage.IsKey(index, dataPages[index]->FirstKey()) == true);
 }
@@ -701,6 +704,8 @@ void StorageFile::SplitDataPage(uint32_t index)
         ST_ASSERT(newPage->IsDirty() == false);
         MarkPageDirty(newPage);
         MarkPageDirty(&indexPage);
+
+        ST_FIRSTKEY_ASSERT(indexPage.IsKey(newIndex, dataPages[newIndex]->FirstKey()) == true);
         
         // if the newly splitted page does not fit to a data page, split it again
         if (newPage->IsOverflowing())
