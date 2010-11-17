@@ -89,7 +89,8 @@ TEST_DEFINE(TestClientBasic)
         if (ReadBuffer::Cmp(value, resultValue) != 0)
             TEST_CLIENT_FAIL();
             
-        TEST_LOG("key: %.*s, value: %.*s", P(&resultKey), P(&resultValue));
+        TEST_LOG("key: %.*s, value: %.*s", resultKey.GetLength(), resultKey.GetBuffer(), 
+                                            resultValue.GetLength(), resultKey.GetBuffer());
     }
     
     delete result;
@@ -566,7 +567,7 @@ TEST_DEFINE(TestClientAdd)
         TEST_CLIENT_FAIL();
     
     result->GetValue(value);
-    TEST_LOG("value: %.*s", P(&value));
+    TEST_LOG("value: %.*s", value.GetLength(), value.GetBuffer());
 
     client.Shutdown();
     
@@ -669,7 +670,7 @@ TEST_DEFINE(TestClientAppend)
         TEST_CLIENT_FAIL();
     
     result->GetValue(value);
-    TEST_LOG("value: %.*s", P(&value));
+    TEST_LOG("value: %.*s", value.GetLength(), value.GetBuffer());
 
     client.Shutdown();
     
@@ -796,7 +797,7 @@ TEST_DEFINE(TestClientFailover)
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
 
-        TEST_LOG("value = %.*s", P(&value));
+        TEST_LOG("value = %.*s", value.GetLength(), value.GetBuffer());
         
         delete result;
         

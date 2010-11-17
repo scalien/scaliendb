@@ -760,15 +760,15 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
             {
             case 0:
             case 1:
-                TEST_LOG("Set, %.*s", P(&rk));
+                TEST_LOG("Set, %.*s", rk.GetLength(), rk.GetBuffer());
                 table->Set(rk, rv, true);
                 break;
             case 2:
-                TEST_LOG("Delete, %.*s", P(&rk));
+                TEST_LOG("Delete, %.*s", rk.GetLength(), rk.GetBuffer());
                 table->Delete(rk);
                 break;
             case 3:
-                TEST_LOG("Get, %.*s", P(&rk));
+                TEST_LOG("Get, %.*s", rk.GetLength(), rk.GetBuffer());
                 table->Get(rk, rv);
                 break;
             default:
