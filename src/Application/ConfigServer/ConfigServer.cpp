@@ -47,6 +47,7 @@ void ConfigServer::Init()
     }
 
     quorumProcessor.Init(this, numConfigServers, databaseManager.GetDatabase()->GetTable("paxos"));
+    heartbeatManager.Init(this);
     primaryLeaseManager.Init(this);
     activationManager.Init(this);
 }
