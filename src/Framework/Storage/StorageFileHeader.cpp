@@ -46,27 +46,15 @@ bool StorageFileHeader::Read(Buffer& buffer)
 
 bool StorageFileHeader::Write(Buffer& buffer)
 {
-    size_t  len;
-    char*   p;
-    
     ST_ASSERT(version != 0);
     
     buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
     buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
     buffer.Zero();
-    p = buffer.GetBuffer();
 
-    // write type
-    len = strlen(type);
-    memcpy(p, type, len);
-    
-    // write version
-    p += STORAGEFILE_TYPE_LENGTH;
-    *((uint32_t*) p) = ToLittle32(version);
-    
-    // write CRC
-    p += STORAGEFILE_VERSION_LENGTH;
-    *((uint32_t*) p) = ToLittle32(crc);
+    buffer.Append(type, STORAGEFILE_TYPE_LENGTH);
+    buffer.AppendLittle32(version);
+    buffer.AppendLittle32(crc);
     
     return true;
 }

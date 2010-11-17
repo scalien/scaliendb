@@ -136,7 +136,6 @@ TEST_DEFINE(test2)
     ReadBuffer      key = "user_id";
     ReadBuffer      initValue = "0";
     ReadBuffer      value;
-    uint64_t        number = 0;
     uint64_t        quorumID = 1;
     uint64_t        databaseID;
     uint64_t        start;
