@@ -747,7 +747,7 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
         for (unsigned i = 0; i < num; i++)
         {
             p = area + i*(ksize+vsize);
-            len = snprintf(p, ksize, "%010d", RandomInt(0, 10 * 1000 * num));
+            len = snprintf(p, ksize + 1, "%010d", RandomInt(0, 10 * 1000 * num));
             rk.SetBuffer(p);
             rk.SetLength(len);
             //printf("%s\n", p);

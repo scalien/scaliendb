@@ -587,6 +587,8 @@ uint64_t StorageShard::RebuildTOC()
         delete fi->file;
         fi->file = NULL;
         fi->index = index;
+        if (fi->index + 1 > nextStorageFileIndex)
+            nextStorageFileIndex = fi->index + 1;
 
         files.Insert(fi);
     }

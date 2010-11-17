@@ -32,8 +32,6 @@ TEST_DEFINE(TestCrashStorage)
     ThreadPool* thread;
     
     SeedRandom();
-    for (unsigned i = 0; i < 100; i++)
-        TEST_LOG("%u", RandomTimeout());
     
     crash = true;
     thread = ThreadPool::Create(1);
