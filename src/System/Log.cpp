@@ -1,4 +1,5 @@
 #include "Log.h"
+#include "Formatting.h"
 #define _XOPEN_SOURCE 600
 #include <string.h>
 #include <errno.h>
@@ -252,7 +253,7 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     else
     {
         va_start(ap, fmt);
-        ret = vsnprintf(p, remaining, fmt, ap);
+        ret = VWritef(p, remaining, fmt, ap);
         va_end(ap);
         if (ret < 0 || ret >= remaining)
             ret = remaining - 1;

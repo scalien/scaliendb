@@ -36,8 +36,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
             itQuorum->ClearActivation();
             UpdateTimeout();
 
-            Log_Message("Activation failed for quorum %" PRIu64
-             "and shard server %" PRIu64 "",
+            Log_Message("Activation failed for quorum %U and shard server %U",
              itQuorum->quorumID, itQuorum->activatingNodeID);
         }
 
@@ -56,8 +55,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                     itQuorum->ClearActivation();
                     UpdateTimeout();
 
-                    Log_Message("Activation failed for quorum %" PRIu64
-                     " and shard server %" PRIu64 "",
+                    Log_Message("Activation failed for quorum %U and shard server %U",
                      itQuorum->quorumID, itQuorum->activatingNodeID);
                 }
                 
@@ -110,7 +108,7 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
                     itQuorum->activationExpireTime = now + PAXOSLEASE_MAX_LEASE_TIME;
                     UpdateTimeout();
 
-                    Log_Message("Activation started for quorum %" PRIu64 " and shard server %" PRIu64 "",
+                    Log_Message("Activation started for quorum %U and shard server %U",
                      itQuorum->quorumID, itQuorum->activatingNodeID);
                 }
             }
@@ -179,7 +177,7 @@ void ConfigActivationManager::OnActivationTimeout()
             itQuorum->activationPaxosID = 0;
             itQuorum->activationExpireTime = 0;
             
-            Log_Message("Activation failed for quorum %" PRIu64 " and shard server %" PRIu64 "",
+            Log_Message("Activation failed for quorum %U and shard server %U",
              itQuorum->quorumID, itQuorum->activatingNodeID);
              
             configServer->OnConfigStateChanged();

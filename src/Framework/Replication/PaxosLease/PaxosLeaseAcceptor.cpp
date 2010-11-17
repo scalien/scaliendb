@@ -32,8 +32,7 @@ void PaxosLeaseAcceptor::OnPrepareRequest(PaxosLeaseMessage& imsg)
 {
     PaxosLeaseMessage omsg;
     
-    Log_Trace("msg.paxosID: %" PRIu64 ", my.paxosID: %" PRIu64 "",
-     imsg.paxosID, context->GetPaxosID());
+    Log_Trace("msg.paxosID: %U, my.paxosID: %U", imsg.paxosID, context->GetPaxosID());
 
     if (imsg.paxosID < context->GetPaxosID() && imsg.nodeID != context->GetLeaseOwner())
         return; // only up-to-date nodes can become masters

@@ -184,7 +184,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         rb = dataPage->FirstKey();
         if (ReadBuffer::LessThan(key, rb))
         {
-            STORAGE_TRACE("Changing index entry for %u to %.*s", index, P(&key));
+            STORAGE_TRACE("Changing index entry for %u to %R", index, &key);
             indexPage.Update(key, index, true);
             MarkPageDirty(&indexPage);
         }

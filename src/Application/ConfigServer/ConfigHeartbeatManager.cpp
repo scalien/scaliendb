@@ -60,7 +60,7 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
         if (itHeartbeat->expireTime <= now)
         {
             CONTEXT_TRANSPORT->DropConnection(itHeartbeat->nodeID);
-            Log_Trace("Removing node %" PRIu64 " from heartbeats", itHeartbeat->nodeID);
+            Log_Trace("Removing node %U from heartbeats", itHeartbeat->nodeID);
             itHeartbeat = heartbeats.Delete(itHeartbeat);
         }
         else
@@ -99,7 +99,7 @@ void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
     Heartbeat       *it;
     uint64_t        now;
     
-    Log_Trace("Got heartbeat from %" PRIu64 "", nodeID);
+    Log_Trace("Got heartbeat from %U", nodeID);
     
     now = Now();
     

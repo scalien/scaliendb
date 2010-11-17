@@ -128,7 +128,7 @@ const char* HTTPConnection::Status(int code)
 void HTTPConnection::Response(int code, const char* data,
  int len, bool close, const char* header)
 {   
-    Buffer      *buffer;
+    Buffer*     buffer;
     unsigned    size;
 
     Log_Message("[%s] HTTP: %.*s %.*s %d %d", endpoint.ToString(),
@@ -154,7 +154,7 @@ void HTTPConnection::Response(int code, const char* data,
 
     buffer->Append(data, len);
     
-    Log_Trace("buffer = %.*s", P(buffer));
+    Log_Trace("buffer = %B", buffer);
     Flush(true);
 }
 

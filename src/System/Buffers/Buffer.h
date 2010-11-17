@@ -7,8 +7,6 @@
 #define ARRAY_SIZE              128
 #define ALLOC_GRANURALITY       32
 
-#define P(b)                    (b)->GetLength(), (b)->GetBuffer()
-
 /*
 ===============================================================================
 

@@ -208,7 +208,7 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
         return SDBP_BADSCHEMA;
     
     tableID = table->tableID;
-    Log_Trace("%" PRIu64 "", tableID);
+    Log_Trace("%U", tableID);
     return SDBP_SUCCESS;
 }
 
@@ -241,7 +241,7 @@ int Client::UseTable(ReadBuffer& name)
     ret = GetTableID(name, databaseID, tableID);
     if (ret != SDBP_SUCCESS)
         return ret;
-    Log_Trace("%" PRIu64 "", tableID);
+    Log_Trace("%U", tableID);
     isTableSet = true;
     return SDBP_SUCCESS;
 }
@@ -470,7 +470,7 @@ int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%" PRIu64 "", tableID);
+    Log_Trace("%U", tableID);
     req->Set(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, (ReadBuffer&) value);
     requests.Append(req);
     
@@ -496,7 +496,7 @@ int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%" PRIu64 "", tableID);
+    Log_Trace("%U", tableID);
     req->SetIfNotExists(NextCommandID(), databaseID, tableID, key, value);
     requests.Append(req);
     
@@ -522,7 +522,7 @@ int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%" PRIu64 "", tableID);
+    Log_Trace("%U", tableID);
     req->TestAndSet(NextCommandID(), databaseID, tableID, key, test, value);
     requests.Append(req);
     
@@ -548,7 +548,7 @@ int Client::Add(const ReadBuffer& key, int64_t number)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%" PRIu64 "", tableID);
+    Log_Trace("%U", tableID);
     req->Add(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, number);
     requests.Append(req);
     
@@ -574,7 +574,7 @@ int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%" PRIu64 "", tableID);
+    Log_Trace("%U", tableID);
     req->Append(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, (ReadBuffer&) value);
     requests.Append(req);
     
@@ -688,8 +688,8 @@ void Client::EventLoop()
     
     EventLoop::UpdateTime();
 
-    Log_Trace("%" PRIu64 "", databaseID);
-    Log_Trace("%" PRIu64 "", tableID);
+    Log_Trace("%U", databaseID);
+    Log_Trace("%U", tableID);
     AssignRequestsToQuorums();
     SendQuorumRequests();
     
@@ -860,16 +860,16 @@ void Client::AssignRequestsToQuorums()
     if (requests.GetLength() == 0)
         return;
     
-    //Log_Trace("%" PRIu64 "", requests.First()->tableID);
+    //Log_Trace("%U", requests.First()->tableID);
 
     requestsCopy = requests;
     requests.ClearMembers();
 
     for (it = requestsCopy.First(); it != NULL; it = next)
     {
-        //Log_Trace("%" PRIu64 "", it->tableID);
+        //Log_Trace("%U", it->tableID);
         next = requestsCopy.Remove(it);
-        //Log_Trace("%" PRIu64 "", it->tableID);
+        //Log_Trace("%U", it->tableID);
         ReassignRequest(it);
     }
 }
@@ -884,7 +884,7 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     
     assert(configState != NULL);
     table = configState->GetTable(tableID);
-    //Log_Trace("%" PRIu64 "", tableID);
+    //Log_Trace("%U", tableID);
     assert(table != NULL);
     for (it = table->shards.First(); it != NULL; it = table->shards.Next(it))
     {

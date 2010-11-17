@@ -166,7 +166,7 @@ void ShardDatabaseManager::RemoveDeletedTables()
 	(readPaxosID == paxosID && readCommandID >= commandID))     \
 		break;
 
-#define FAIL()                                                  \
+#define RESPONSE_FAIL()                                         \
     {                                                           \
     if (request)                                                \
         request->response.Failed();                             \
@@ -200,7 +200,7 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
     request->response.Value(userValue);
 }
 
-void ShardDatabaseManager::ExecuteWriteMessage(
+void ShardDatabaseManager::ExecuteMessage(
  uint64_t paxosID, uint64_t commandID, ShardMessage& message, ClientRequest* request)
 {
     uint64_t        readPaxosID;
@@ -213,6 +213,7 @@ void ShardDatabaseManager::ExecuteWriteMessage(
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
     StorageTable*   table;
+    StorageShard*   shard;
 
     table = GetTable(message.tableID);
     if (!table)
@@ -227,18 +228,18 @@ void ShardDatabaseManager::ExecuteWriteMessage(
         case SHARDMESSAGE_SET:
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!table->Set(message.key, buffer))
-                FAIL();
+                RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_SET_IF_NOT_EXISTS:
             if (table->Get(message.key, readBuffer))
-                FAIL();
+                RESPONSE_FAIL();
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!table->Set(message.key, buffer))
-                FAIL();
+                RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_TEST_AND_SET:
             if (!table->Get(message.key, readBuffer))
-                FAIL();
+                RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
             if (ReadBuffer::Cmp(userValue, message.test) != 0)
@@ -249,40 +250,40 @@ void ShardDatabaseManager::ExecuteWriteMessage(
             }
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!table->Set(message.key, buffer))
-                FAIL();
+                RESPONSE_FAIL();
             if (request)
                 request->response.Value(message.value);
             break;
         case SHARDMESSAGE_ADD:
             if (!table->Get(message.key, readBuffer))
-                FAIL();
+                RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
             number = BufferToInt64(userValue.GetBuffer(), userValue.GetLength(), &nread);
             if (nread != userValue.GetLength())
-                FAIL();
+                RESPONSE_FAIL();
             number += message.number;
             numberBuffer.Writef("%I", number);
             WriteValue(buffer, paxosID, commandID, ReadBuffer(numberBuffer));
             if (!table->Set(message.key, buffer))
-                FAIL();
+                RESPONSE_FAIL();
             if (request)
                 request->response.Number(number);
             break;
         case SHARDMESSAGE_APPEND:
             if (!table->Get(message.key, readBuffer))
-                FAIL();
+                RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
             tmpBuffer.Write(userValue);
             tmpBuffer.Append(message.value);
             WriteValue(buffer, paxosID, commandID, ReadBuffer(tmpBuffer));
             if (!table->Set(message.key, buffer))
-                FAIL();
+                RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_DELETE:
             if (!table->Delete(message.key))
-                FAIL();
+                RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_REMOVE:
             if (table->Get(message.key, readBuffer))
@@ -291,7 +292,15 @@ void ShardDatabaseManager::ExecuteWriteMessage(
                 request->response.Value(userValue);
             }
             if (!table->Delete(message.key))
-                FAIL();
+                RESPONSE_FAIL();
+            break;
+        case SHARDMESSAGE_SPLIT:
+            shard = GetShard(message.shardID);
+            if (!shard)
+                ASSERT_FAIL();
+            shard->SplitShard(message.newShardID, message.key);
+            Log_Message("Split shard, shard ID: %U, split key: %R , new shardID: %U",
+             message.shardID, &message.key, message.newShardID);
             break;
         default:
             ASSERT_FAIL();

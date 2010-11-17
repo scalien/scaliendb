@@ -108,7 +108,7 @@ void ShardQuorumProcessor::OnStartCatchup()
      
     catchupReader.Begin();
     
-    Log_Message("Catchup started from node %" PRIu64 "", quorumContext.GetLeaseOwner());
+    Log_Message("Catchup started from node %U", quorumContext.GetLeaseOwner());
 }
 
 void ShardQuorumProcessor::OnCatchupMessage(CatchupMessage& message)
@@ -192,7 +192,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     message = new ShardMessage;
     TransformRequest(request, message);
     
-    Log_Trace("message.type = %c, message.key = %.*s", message->type, P(&message->key));
+    Log_Trace("message.type = %c, message.key = %R", message->type, &message->key);
     
     clientRequests.Append(request);
     shardMessages.Append(message);
@@ -220,6 +220,8 @@ void ShardQuorumProcessor::TryReplicationCatchup()
 
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
+    message->fromClient = true;
+    
     switch (request->type)
     {
         case CLIENTREQUEST_SET:
@@ -283,12 +285,15 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
         request->response.OK();
     }
     
-    shardServer->GetDatabaseManager()->ExecuteWriteMessage(paxosID, commandID, message, request);
+    shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, message, request);
 
     if (ownAppend)
     {
-        clientRequests.Remove(request);
-        request->OnComplete(); // request deletes itself
+        if (shardMessages.First()->fromClient)
+        {
+            clientRequests.Remove(request);
+            request->OnComplete(); // request deletes itself
+        }
         shardMessages.Delete(shardMessages.First());
     }
 }

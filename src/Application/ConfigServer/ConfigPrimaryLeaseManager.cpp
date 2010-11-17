@@ -51,7 +51,7 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     
     if (quorum == NULL)
     {
-        Log_Trace("nodeID %" PRIu64 " requesting lease for non-existing quorum %" PRIu64 "",
+        Log_Trace("nodeID %U requesting lease for non-existing quorum %U",
          message.nodeID, message.quorumID);
         return;
     }
@@ -71,7 +71,7 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     
     if (it == NULL)
     {
-        Log_Trace("nodeID %" PRIu64 " requesting lease but not active member or quorum %" PRIu64 "",
+        Log_Trace("nodeID %U requesting lease but not active member or quorum %U",
          message.nodeID, message.quorumID);
         return;
     }

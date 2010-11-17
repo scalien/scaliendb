@@ -94,13 +94,13 @@ void ClusterTransport::SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg
     
     if (!conn)
     {
-        Log_Trace("no connection to nodeID %" PRIu64, nodeID);
+        Log_Trace("no connection to nodeID %U", nodeID);
         return;
     }
     
     if (conn->GetProgress() != ClusterConnection::READY)
     {
-        Log_Trace("connection to %" PRIu64 " has progress: %d", nodeID, conn->GetProgress());
+        Log_Trace("connection to %U has progress: %d", nodeID, conn->GetProgress());
         return;
     }
     

@@ -199,7 +199,7 @@ void StorageIndexPage::DumpKeys()
     StorageKeyIndex*    ki;
 
     FOREACH (ki, keys)
-        printf("StorageIndex: %i: %.*s\n", ki->index, P(&ki->key));
+        printf("StorageIndex: %i: %.*s\n", ki->index, ki->key.GetLength(), ki->key.GetBuffer());
 }
 
 void StorageIndexPage::Read(ReadBuffer& buffer_)

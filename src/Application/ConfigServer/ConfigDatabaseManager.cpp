@@ -60,7 +60,7 @@ void ConfigDatabaseManager::Read()
     if (!configState.Read(value))
         ASSERT_FAIL();
 
-    Log_Trace("%.*s", P(&value));
+    Log_Trace("%R", &value);
 }
 
 void ConfigDatabaseManager::Write()

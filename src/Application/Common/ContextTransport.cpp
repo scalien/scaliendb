@@ -90,7 +90,7 @@ void ContextTransport::OnMessage(uint64_t nodeID, ReadBuffer msg)
     int         nread;
     char        proto;
     
-    Log_Trace("%.*s", P(&msg));
+    Log_Trace("%R", &msg);
     
     if (msg.GetLength() < 2)
         ASSERT_FAIL();
