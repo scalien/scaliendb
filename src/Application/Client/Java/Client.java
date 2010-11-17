@@ -104,6 +104,10 @@ public class Client
         }
     }
     
+    public Database getDatabase(String name) throws SDBPException {
+        return new Database(this, name);
+    }
+    
     public void useTable(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_UseTable(cptr, name);
         if (status < 0) {
@@ -142,6 +146,34 @@ public class Client
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getValueData();
 	}
+    
+    public String get(String key, String defval) {
+		int status = scaliendb_client.SDBP_Get(cptr, key);
+        if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            return defval;
+        }
+        
+        if (isBatched())
+            return defval;
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getValue();
+    }
+
+    public byte[] get(byte[] key, byte[] defval) {
+		int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
+        if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            return defval;
+        }
+        
+        if (isBatched())
+            return defval;
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getValueData();
+    }
 		
 	public int set(String key, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_Set(cptr, key, value);

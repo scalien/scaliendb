@@ -34,6 +34,16 @@ public class Table
         useDefaults();
         return client.get(key);
 	}
+
+ 	public String get(String key, String defval) throws SDBPException {
+        useDefaults();
+        return client.get(key, defval);
+	}
+
+ 	public byte[] get(byte[] key, byte[] defval) throws SDBPException {
+        useDefaults();
+        return client.get(key, defval);
+	}
 		
 	public int set(String key, String value) throws SDBPException {
         useDefaults();
