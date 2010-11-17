@@ -337,16 +337,16 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
     Buffer              headerBuf;
     
     headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
-    if ((ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH)) < 0)
-        ST_ASSERT(false);
+    ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH);
+    ST_ASSERT(ret == STORAGEFILE_HEADER_LENGTH);
     headerBuf.SetLength(STORAGEFILE_HEADER_LENGTH);
     if (!header.Read(headerBuf))
         ST_ASSERT(false);
     
     length -= STORAGEFILE_HEADER_LENGTH;
     buffer.Allocate(length);
-    if ((ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length)) != (ssize_t) length)
-        ST_ASSERT(false);
+    ret = FS_FileRead(tocFD, (void*) buffer.GetBuffer(), length);
+    ST_ASSERT(ret == (ssize_t) length);
     p = buffer.GetBuffer();
     numFiles = FromLittle32(*((uint32_t*) p));
     ST_ASSERT(numFiles * 8 + 4 <= length);
@@ -652,6 +652,8 @@ void StorageShard::WriteTOC()
     {       
         size = 8 + it->key.GetLength();
         writeBuffer.Allocate(size);
+        writeBuffer.SetLength(0);
+        
         writeBuffer.AppendLittle32(it->index);
         writeBuffer.AppendLittle32(it->key.GetLength());
         writeBuffer.Append(it->key);
