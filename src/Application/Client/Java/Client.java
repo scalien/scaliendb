@@ -129,7 +129,7 @@ public class Client
 		return result.getValue();
 	}
 
-	public byte[] getData(byte[] key) throws SDBPException {
+	public byte[] get(byte[] key) throws SDBPException {
 		int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));

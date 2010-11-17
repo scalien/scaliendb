@@ -25,6 +25,12 @@
     } \
 }
 
+#ifndef NDEBUG
+#define ASSERT_INDEX_CONSISTENCY AssertIndexConsistency
+#else
+#define ASSERT_INDEX_CONSISTENCY()
+#endif
+
 //static void DumpKeys(StorageDataPage** dataPages)
 //{
 //    ReadBuffer  firstKey;
@@ -154,7 +160,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     ReadBuffer          rb;
     StorageDataPage*    dataPage;
 
-    AssertIndexConsistency();
+    ASSERT_INDEX_CONSISTENCY();
     
     if (key.GetLength() + value.GetLength() > DATAPAGE_MAX_KV_SIZE(dataPageSize))
         return false;
@@ -202,7 +208,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         if (!dataPage->IsDirty())
             DCACHE->RegisterHit(dataPage);
 
-        AssertIndexConsistency();
+        ASSERT_INDEX_CONSISTENCY();
         return true; // nothing changed
     }
     
@@ -211,7 +217,7 @@ bool StorageFile::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     if (dataPage->IsOverflowing())
         SplitDataPage(index);
     
-    AssertIndexConsistency();
+    ASSERT_INDEX_CONSISTENCY();
     return true;
 }
 
@@ -226,7 +232,7 @@ void StorageFile::Delete(ReadBuffer& key)
     if (index < 0)
         return;
 
-    AssertIndexConsistency();
+    ASSERT_INDEX_CONSISTENCY();
 
     updateIndex = false;
     firstKey = dataPages[index]->FirstKey();
@@ -261,7 +267,7 @@ void StorageFile::Delete(ReadBuffer& key)
     else
         STORAGE_TRACE("Delete else");
 
-    AssertIndexConsistency();
+    ASSERT_INDEX_CONSISTENCY();
 }
 
 ReadBuffer StorageFile::FirstKey()
@@ -533,7 +539,7 @@ void StorageFile::WriteData()
     StorageFileHeader       header;
     ssize_t                 ret;
 
-    AssertIndexConsistency();
+    ASSERT_INDEX_CONSISTENCY();
     
     if (newFile)
     {
@@ -598,7 +604,7 @@ void StorageFile::WriteData()
     // TODO: this is expensive, remove later
     ST_ASSERT(GetSize() == (uint64_t) FS_FileSize(fd));
     
-    AssertIndexConsistency();
+    ASSERT_INDEX_CONSISTENCY();
 }
 
 StorageDataPage* StorageFile::CursorBegin(StorageCursor* cursor, ReadBuffer& key)

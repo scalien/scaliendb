@@ -30,9 +30,9 @@ public class Table
         return client.get(key);
 	}
 
- 	public byte[] getData(byte[] key) throws SDBPException {
+ 	public byte[] get(byte[] key) throws SDBPException {
         useDefaults();
-        return client.getData(key);
+        return client.get(key);
 	}
 		
 	public int set(String key, String value) throws SDBPException {

@@ -646,7 +646,7 @@ void StorageShard::WriteTOC()
     writeBuffer.AppendLittle32(files.GetCount());
     
     ret = FS_FileWrite(tocFD, (const void *) writeBuffer.GetBuffer(), writeBuffer.GetLength());
-    ST_ASSERT(ret == writeBuffer.GetLength());
+    ST_ASSERT(ret == (ssize_t) writeBuffer.GetLength());
     
     for (it = files.First(); it != NULL; it = files.Next(it))
     {       
@@ -656,7 +656,7 @@ void StorageShard::WriteTOC()
         writeBuffer.AppendLittle32(it->key.GetLength());
         writeBuffer.Append(it->key);
         ret = FS_FileWrite(tocFD, (const void *) writeBuffer.GetBuffer(), size);
-        ST_ASSERT(ret == size);
+        ST_ASSERT(ret == (ssize_t) size);
     }
 }
 
