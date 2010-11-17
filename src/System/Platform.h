@@ -1,6 +1,14 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+/*
+===============================================================================================
+
+ Include this instead of platform specific .h files
+
+===============================================================================================
+*/
+
 #ifdef _WIN32 // start Windows
 
 #ifdef _WIN64

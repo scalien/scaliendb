@@ -10,7 +10,7 @@
 #include "Endpoint.h"
 #include "FD.h"
 
-/* all the cursor-type members of IOOperations are absolute cursors */
+// all the cursor-type members of IOOperations are absolute cursors
 
 #define IO_READ_ANY -1
 

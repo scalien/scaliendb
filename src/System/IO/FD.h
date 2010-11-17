@@ -3,6 +3,14 @@
 
 #include "System/Platform.h"
 
+/*
+===============================================================================================
+
+ FD: platform-independent file descriptors
+
+===============================================================================================
+*/
+
 // File descriptor abstraction
 
 // On Windows the file handle is a pointer, on unices it is a

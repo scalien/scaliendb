@@ -1,6 +1,14 @@
 #ifndef LOG_H
 #define LOG_H
 
+/*
+===============================================================================================
+
+ Log: our own logging subsystem, uses Formatting.h
+
+===============================================================================================
+*/
+
 #define LOG_TYPE_ERRNO      0
 #define LOG_TYPE_MSG        1
 #define LOG_TYPE_TRACE      2

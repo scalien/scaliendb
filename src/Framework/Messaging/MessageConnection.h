@@ -12,11 +12,11 @@
 #define MESSAGING_BUFFER_THRESHOLD      1360                // tuned to work well with Ethernet
 
 /*
-===============================================================================
+===============================================================================================
 
 MessageConnection
 
-===============================================================================
+===============================================================================================
 */
 
 class MessageConnection : public TCPConnection
@@ -34,8 +34,8 @@ public:
     void                Write(Buffer& prefix, Buffer& msg);
     void                Write(Buffer& prefix, Message& msg);
 
-    /* Must implement OnMessage() in derived classes                            */
-    /* OnMessage() returns whether the connection was closed and deleted        */
+    // Must implement OnMessage() in derived classes
+    // OnMessage() returns whether the connection was closed and deleted
     virtual bool        OnMessage(ReadBuffer& msg)                              = 0;
     virtual void        OnConnect();
     virtual void        OnClose();

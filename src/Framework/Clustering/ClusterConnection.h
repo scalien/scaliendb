@@ -10,11 +10,11 @@
 class ClusterTransport;     // forward
 
 /*
-===============================================================================
+===============================================================================================
 
  ClusterConnection
 
-===============================================================================
+===============================================================================================
 */
 
 class ClusterConnection : public MessageConnection
@@ -43,8 +43,8 @@ public:
     void                OnConnect();
     void                OnClose();
 
-    /* MessageConnection interface                                  */
-    /* Returns whether the connection was closed and deleted        */
+    // MessageConnection interface
+    // Returns whether the connection was closed and deleted
     virtual bool        OnMessage(ReadBuffer& msg);
 
     virtual void        OnWriteReadyness();
