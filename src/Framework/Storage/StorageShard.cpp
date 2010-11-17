@@ -515,7 +515,7 @@ void StorageShard::DeleteGarbageFiles()
         tmp.Append(FS_DirEntryName(dirent));
         tmp.NullTerminate();
 
-        if (index >= prevCommitStorageFileIndex)
+        if (index > prevCommitStorageFileIndex)
             FS_Delete(tmp.GetBuffer());
     }
 
