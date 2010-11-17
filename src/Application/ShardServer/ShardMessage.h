@@ -10,6 +10,7 @@
 #define SHARDMESSAGE_APPEND                 'p'
 #define SHARDMESSAGE_DELETE                 'X'
 #define SHARDMESSAGE_REMOVE                 'x'
+#define SHARDMESSAGE_SPLIT                  'z'
 
 /*
 ===============================================================================================
@@ -23,8 +24,12 @@ class ShardMessage
 {
 public:
     // Variables
+    bool            fromClient;
+
     char            type;
     uint64_t        tableID;
+    uint64_t        shardID;
+    uint64_t        newShardID;
     int64_t         number;
     ReadBuffer      key;
     ReadBuffer      value;
@@ -41,6 +46,7 @@ public:
     void            Append(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     void            Delete(uint64_t tableID, ReadBuffer& key);
     void            Remove(uint64_t tableID, ReadBuffer& key);
+    void            Split(uint64_t shardID, uint64_t newShardID, ReadBuffer& key);
 
     // Serialization
     int             Read(ReadBuffer& buffer);

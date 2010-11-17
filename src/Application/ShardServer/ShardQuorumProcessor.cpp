@@ -220,6 +220,8 @@ void ShardQuorumProcessor::TryReplicationCatchup()
 
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
+    message->fromClient = true;
+    
     switch (request->type)
     {
         case CLIENTREQUEST_SET:
@@ -283,12 +285,15 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
         request->response.OK();
     }
     
-    shardServer->GetDatabaseManager()->ExecuteWriteMessage(paxosID, commandID, message, request);
+    shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, message, request);
 
     if (ownAppend)
     {
-        clientRequests.Remove(request);
-        request->OnComplete(); // request deletes itself
+        if (shardMessages.First()->fromClient)
+        {
+            clientRequests.Remove(request);
+            request->OnComplete(); // request deletes itself
+        }
         shardMessages.Delete(shardMessages.First());
     }
 }

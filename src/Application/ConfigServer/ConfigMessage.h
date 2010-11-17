@@ -39,6 +39,8 @@ public:
     ConfigMessage() { prev = next = this; }
 
     // Variables
+    bool            fromClient;
+
     char            type;
     uint64_t        nodeID;
     uint64_t        quorumID;
@@ -47,9 +49,7 @@ public:
     uint64_t        shardID;
     ReadBuffer      name;
     Endpoint        endpoint;
-    NodeList        nodes;
-    
-    bool            fromClient;
+    NodeList        nodes;    
     
     // For InList<>
     ConfigMessage*  prev;

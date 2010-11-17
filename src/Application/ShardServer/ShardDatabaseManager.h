@@ -36,7 +36,7 @@ public:
     void                    RemoveDeletedTables();
     
     void                    OnClientReadRequest(ClientRequest* request);
-    void                    ExecuteWriteMessage(uint64_t paxosID,
+    void                    ExecuteMessage(uint64_t paxosID,
                              uint64_t commandID, ShardMessage& message, ClientRequest* request);
     
 private:

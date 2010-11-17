@@ -61,6 +61,14 @@ void ShardMessage::Remove(uint64_t tableID_, ReadBuffer& key_)
     key = key_;
 }
 
+void ShardMessage::Split(uint64_t shardID_, uint64_t newShardID_, ReadBuffer& key_)
+{
+    type = SHARDMESSAGE_SPLIT;
+    shardID = shardID_;
+    newShardID = newShardID_;
+    key = key_;
+}
+
 int ShardMessage::Read(ReadBuffer& buffer)
 {
     int read;
@@ -98,6 +106,10 @@ int ShardMessage::Read(ReadBuffer& buffer)
         case SHARDMESSAGE_REMOVE:
             read = buffer.Readf("%c:%U:%#R",
              &type, &tableID, &key);
+            break;
+        case SHARDMESSAGE_SPLIT:
+            read = buffer.Readf("%c:%U:%U:%#R",
+             &type, &shardID, &newShardID, &key);
             break;
         default:
             return false;
@@ -138,6 +150,10 @@ bool ShardMessage::Write(Buffer& buffer)
         case SHARDMESSAGE_REMOVE:
             buffer.Appendf("%c:%U:%#R",
              type, tableID, &key);
+            break;
+        case SHARDMESSAGE_SPLIT:
+            buffer.Appendf("%c:%U:%U:%#R",
+             type, shardID, newShardID, &key);
             break;
         default:
             return false;
