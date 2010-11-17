@@ -34,7 +34,10 @@ infinite_loop()
                         	log "Exceeded error count $MAX_ERROR"
                         	safe_exit 1
                         fi
+                else
+                	rm core.*
                 fi
+                
                 if [ "$EXITSTATUS" = "1" ]; then
                 	log "Test failed, exiting"
                 	safe_exit 1

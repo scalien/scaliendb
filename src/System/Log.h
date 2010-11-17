@@ -34,7 +34,7 @@
 #define Log_Errno() \
     Log(__FILE__, __LINE__, __func__, LOG_TYPE_ERRNO, "")
 
-#define Log_Message(...)\
+#define Log_Message(...) \
     Log(__FILE__, __LINE__, __func__, LOG_TYPE_MSG, "" __VA_ARGS__)
 
 #define Log_Trace(...) \

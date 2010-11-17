@@ -631,42 +631,32 @@ void StorageShard::WriteRecoveryPostfix()
 
 void StorageShard::WriteTOC()
 {
-    char*               p;
-    uint32_t            size, len;
-    uint32_t            tmp;
+    uint32_t            size;
+    ssize_t             ret;
     StorageFileIndex    *it;
     StorageFileHeader   header;
-    Buffer              writeBuf;
+    Buffer              writeBuffer;
 
     FS_FileSeek(tocFD, 0, FS_SEEK_SET);
     FS_FileTruncate(tocFD, 0);
     
     header.Init(FILE_TYPE, FILE_VERSION_MAJOR, FILE_VERSION_MINOR, 0);
-    header.Write(writeBuf);
+    header.Write(writeBuffer);
     
-    if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH) < 0)
-        ST_ASSERT(false);
+    writeBuffer.AppendLittle32(files.GetCount());
     
-    len = files.GetCount();
-    tmp = ToLittle32(len);
-
-    if (FS_FileWrite(tocFD, (const void *) &tmp, 4) < 0)
-        ST_ASSERT(false);
-
+    ret = FS_FileWrite(tocFD, (const void *) writeBuffer.GetBuffer(), writeBuffer.GetLength());
+    ST_ASSERT(ret == writeBuffer.GetLength());
+    
     for (it = files.First(); it != NULL; it = files.Next(it))
     {       
         size = 8 + it->key.GetLength();
-        writeBuf.Allocate(size);
-        p = writeBuf.GetBuffer();
-        *((uint32_t*) p) = ToLittle32(it->index);
-        p += 4;
-        len = it->key.GetLength();
-        *((uint32_t*) p) = ToLittle32(len);
-        p += 4;
-        memcpy(p, it->key.GetBuffer(), len);
-        p += len;
-        if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), size) < 0)
-            ST_ASSERT(false);
+        writeBuffer.Allocate(size);
+        writeBuffer.AppendLittle32(it->index);
+        writeBuffer.AppendLittle32(it->key.GetLength());
+        writeBuffer.Append(it->key);
+        ret = FS_FileWrite(tocFD, (const void *) writeBuffer.GetBuffer(), size);
+        ST_ASSERT(ret == size);
     }
 }
 

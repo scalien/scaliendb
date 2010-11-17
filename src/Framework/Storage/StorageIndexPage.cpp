@@ -224,7 +224,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     tmp.ReadLittle32(num);
     tmp.Advance(sizeof(uint32_t));
 
-    STORAGE_TRACE("reading index for file %u\n", fileIndex);
+    STORAGE_TRACE("reading index for file %u", fileIndex);
     numEmpty = 0;
     for (i = 0; i < num; i++)
     {
@@ -274,11 +274,11 @@ bool StorageIndexPage::CheckWrite(Buffer& writeBuffer)
     writeBuffer.AppendLittle32(fileIndex);
     writeBuffer.AppendLittle32(offset);
     writeBuffer.AppendLittle32(keys.GetCount());
-    STORAGE_TRACE("writing index for file %u\n", fileIndex);
+    STORAGE_TRACE("writing index for file %u", fileIndex);
 
     FOREACH (it, keys)
     {
-        STORAGE_TRACE("writing index: %.*s => %u\n", it->key.GetLength(), it->key.GetBuffer(), it->index);
+        STORAGE_TRACE("writing index: %.*s => %u", it->key.GetLength(), it->key.GetBuffer(), it->index);
         len = it->key.GetLength();
         writeBuffer.AppendLittle32(len);
         writeBuffer.Append(it->key.GetBuffer(), len);
