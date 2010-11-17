@@ -8,11 +8,16 @@ TEST_DEFINE(TestStorageRandomGetSetDelete);
 
 static bool             crash = false;
 
+unsigned RandomTimeout()
+{
+    return (unsigned)(1000.0 / RandomInt(1, 100) * 1000);
+}
+
 static void CrashFunc()
 {
     char*   null;
     
-    MSleep((unsigned)(1000.0 / RandomInt(1, 100) * 1000));
+    MSleep(RandomTimeout());
 
     if (crash)
     {
@@ -27,6 +32,8 @@ TEST_DEFINE(TestCrashStorage)
     ThreadPool* thread;
     
     SeedRandom();
+    for (unsigned i = 0; i < 100; i++)
+        TEST_LOG("%u", RandomTimeout());
     
     crash = true;
     thread = ThreadPool::Create(1);

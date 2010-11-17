@@ -49,12 +49,13 @@ bool StorageFileHeader::Write(Buffer& buffer)
     ST_ASSERT(version != 0);
     
     buffer.Allocate(STORAGEFILE_HEADER_LENGTH);
-    buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
     buffer.Zero();
 
     buffer.Append(type, STORAGEFILE_TYPE_LENGTH);
     buffer.AppendLittle32(version);
     buffer.AppendLittle32(crc);
+
+    buffer.SetLength(STORAGEFILE_HEADER_LENGTH);
     
     return true;
 }
