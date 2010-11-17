@@ -4,6 +4,14 @@
 #include "Application/ConfigState/ConfigState.h"
 #include "Application/HTTP/JSONSession.h"
 
+/*
+===============================================================================================
+
+ JSONConfigState
+
+===============================================================================================
+*/
+
 class JSONConfigState
 {
 public:
