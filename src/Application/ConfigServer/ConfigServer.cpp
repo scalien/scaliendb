@@ -148,9 +148,7 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
         
         if (shardServer->endpoint != endpoint)
         {
-            Log_Message("Badly configured shard server trying to connect"
-             ", nodeID: %" PRIu64
-             ", endpoint: %s",
+            Log_Message("Badly configured shard server trying to connect, nodeID: %U, endpoint: %s",
              nodeID, endpoint.ToString());
 
             return;
@@ -159,7 +157,7 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
         clusterMessage.SetConfigState(*configState);
         CONTEXT_TRANSPORT->SendClusterMessage(nodeID, clusterMessage);
         
-        Log_Message("[%s] Shard server connected (%" PRIu64 ")", endpoint.ToString(), nodeID);
+        Log_Message("[%s] Shard server connected (%U)", endpoint.ToString(), nodeID);
     }
 }
 

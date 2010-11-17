@@ -240,7 +240,7 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     buffer.Appendf(":");
     WriteShardServers(buffer, withVolatile);
     
-    Log_Trace("buffer = %.*s", P(&buffer));
+    Log_Trace("buffer = %B", &buffer);
     
     return true;
 }
@@ -736,7 +736,7 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
                 assert(shardServer != NULL);
                 shardServer->nextActivationTime = 0;
                 
-                Log_Message("Activation succeeded for quorum %" PRIu64 " and shard server %" PRIu64 "",
+                Log_Message("Activation succeeded for quorum %U and shard server %U",
                  itQuorum->quorumID, itQuorum->activatingNodeID);
 
                 itQuorum->isActivatingNode = false;

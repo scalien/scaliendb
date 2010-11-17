@@ -108,7 +108,7 @@ void ShardQuorumProcessor::OnStartCatchup()
      
     catchupReader.Begin();
     
-    Log_Message("Catchup started from node %" PRIu64 "", quorumContext.GetLeaseOwner());
+    Log_Message("Catchup started from node %U", quorumContext.GetLeaseOwner());
 }
 
 void ShardQuorumProcessor::OnCatchupMessage(CatchupMessage& message)
@@ -192,7 +192,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     message = new ShardMessage;
     TransformRequest(request, message);
     
-    Log_Trace("message.type = %c, message.key = %.*s", message->type, P(&message->key));
+    Log_Trace("message.type = %c, message.key = %R", message->type, &message->key);
     
     clientRequests.Append(request);
     shardMessages.Append(message);

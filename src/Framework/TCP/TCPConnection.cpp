@@ -76,7 +76,7 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
 void TCPConnection::OnWrite()
 {
     Log_Trace("Written %d bytes", tcpwrite.buffer->GetLength());
-    Log_Trace("Written: %.*s", P(tcpwrite.buffer));
+    Log_Trace("Written: %B", tcpwrite.buffer);
 
     assert(writer != NULL);
     writer->OnNextWritten();

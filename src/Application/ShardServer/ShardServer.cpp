@@ -22,7 +22,7 @@ void ShardServer::Init()
     runID += 1;
     REPLICATION_CONFIG->SetRunID(runID);
     REPLICATION_CONFIG->Commit();
-    Log_Trace("rundID: %" PRIu64, runID);
+    Log_Trace("rundID: %U", runID);
 
     if (MY_NODEID > 0)
         CONTEXT_TRANSPORT->SetSelfNodeID(MY_NODEID);
@@ -137,8 +137,8 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
             CONTEXT_TRANSPORT->SetSelfNodeID(message.nodeID);
             REPLICATION_CONFIG->SetNodeID(message.nodeID);
             REPLICATION_CONFIG->Commit();
-            Log_Trace("My nodeID is %" PRIu64 "", message.nodeID);
-            Log_Message("NodeID set to %" PRIu64, message.nodeID);
+            Log_Trace("My nodeID is %U", message.nodeID);
+            Log_Message("NodeID set to %U", message.nodeID);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             OnSetConfigState(message);
@@ -149,7 +149,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
             quorumProcessor = GetQuorumProcessor(message.quorumID);
             if (quorumProcessor)
                 quorumProcessor->OnReceiveLease(message);
-            Log_Trace("Recieved lease, quorumID = %" PRIu64 ", proposalID =  %" PRIu64,
+            Log_Trace("Recieved lease, quorumID = %U, proposalID =  %U",
              message.quorumID, message.proposalID);
             break;
         default:

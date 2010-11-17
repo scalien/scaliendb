@@ -501,6 +501,15 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
                 memmove(buffer, rb->GetBuffer(), l);
                 ADVANCE(3, l);
             }
+            else if (length >= 4 && format[1] == '.' && format[2] == '*' && format[3] == 's') // %.*s
+            {
+                l = va_arg(ap, unsigned);
+                p = va_arg(ap, char*);
+                REQUIRE(l);
+                if (ghost) l = size;
+                memcpy(buffer, p, l);
+                ADVANCE(4, l);
+            }
             else
             {
                 ASSERT_FAIL();

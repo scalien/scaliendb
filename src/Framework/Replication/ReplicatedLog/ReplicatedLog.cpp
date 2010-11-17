@@ -246,7 +246,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 {
     bool ownAppend;
 
-    Log_Trace("+++ Value for paxosID = %" PRIu64 ": %.*s +++", paxosID, P(&value));
+    Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
     
     context->GetDatabase()->SetLearnedValue(paxosID, value);
     if (paxosID == (context->GetHighestPaxosID() - 1))

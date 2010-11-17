@@ -299,8 +299,8 @@ void ShardDatabaseManager::ExecuteMessage(
             if (!shard)
                 ASSERT_FAIL();
             shard->SplitShard(message.newShardID, message.key);
-            Log_Message("Split shard, shard ID: " PRIu64 ", split key: %.*s , new shardID: " PRIu64 "",
-             message.shardID, P(&message.key), message.newShardID);
+            Log_Message("Split shard, shard ID: %U, split key: %R , new shardID: %U",
+             message.shardID, &message.key, message.newShardID);
             break;
         default:
             ASSERT_FAIL();

@@ -135,7 +135,7 @@ void ConfigQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
 {
     char proto;
     
-    Log_Trace("%.*s", P(&buffer));
+    Log_Trace("%R", &buffer);
 
 //    quorumProcessor->RegisterHeartbeat(nodeID);
 
@@ -186,7 +186,7 @@ void ConfigQuorumContext::OnPaxosLeaseMessage(ReadBuffer buffer)
 {
     PaxosLeaseMessage msg;
 
-    Log_Trace("%.*s", P(&buffer));
+    Log_Trace("%R", &buffer);
     
     msg.Read(buffer);
     if (msg.type == PAXOSLEASE_PREPARE_REQUEST || msg.type == PAXOSLEASE_LEARN_CHOSEN)

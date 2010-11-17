@@ -36,7 +36,7 @@ void ShardQuorumContext::SetActiveNodes(ConfigQuorum::NodeList& activeNodes)
     quorum.ClearNodes();
     FOREACH(it, activeNodes)
     {
-        Log_Trace("Adding %" PRIu64 "", *it);
+        Log_Trace("Adding %U", *it);
         quorum.AddNode(*it);
     }
 }
@@ -166,7 +166,7 @@ void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
 {
     char proto;
     
-    Log_Trace("%.*s", P(&buffer));
+    Log_Trace("%R", &buffer);
     
     if (buffer.GetLength() < 2)
         ASSERT_FAIL();

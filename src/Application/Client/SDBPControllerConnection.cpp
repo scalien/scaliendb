@@ -186,7 +186,7 @@ bool ControllerConnection::ProcessGetMaster(ClientResponse* resp)
     delete req;
 
     getConfigStateTime = EventLoop::Now();
-    Log_Trace("getConfigStateTime = %" PRIu64, getConfigStateTime);
+    Log_Trace("getConfigStateTime = %U", getConfigStateTime);
     
     if (resp->type == CLIENTRESPONSE_OK)
         client->SetMaster((int64_t) resp->number, nodeID);
