@@ -16,15 +16,15 @@ class Stopwatch
 public:
     Stopwatch();
     
-    void    Reset();
-    void    Restart();
-    void    Start();
-    long    Stop();
-    long    Elapsed();
+    void        Reset();
+    void        Restart();
+    void        Start();
+    uint64_t    Stop();
+    uint64_t    Elapsed();
 
 private:
-    long    started;
-    long    elapsed;
+    uint64_t    started;
+    uint64_t    elapsed;
 };
 
 #endif

@@ -207,7 +207,7 @@ void MessageConnection::OnRead()
         IOProcessor::Add(&tcpread);
 
     sw.Stop();
-    Log_Trace("time spent in OnRead(): %ld", sw.Elapsed());
+    Log_Trace("time spent in OnRead(): %U", sw.Elapsed());
 }
 
 void MessageConnection::OnResumeRead()

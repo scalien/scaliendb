@@ -21,13 +21,13 @@ void Stopwatch::Start()
     started = Now();
 }
 
-long Stopwatch::Stop()
+uint64_t Stopwatch::Stop()
 {
     elapsed += Now() - started;
     return elapsed;
 }
 
-long Stopwatch::Elapsed()
+uint64_t Stopwatch::Elapsed()
 {
     return elapsed;
 }

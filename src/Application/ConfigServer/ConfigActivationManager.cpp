@@ -122,7 +122,6 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
      message.configID != quorum.configID)
         return;
 
-
     if (!quorum.isWatchingPaxosID)
     {
         // start monitoring the primary's paxosID
