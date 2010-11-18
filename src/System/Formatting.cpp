@@ -182,12 +182,13 @@ int Readf(char* buffer, unsigned length, const char* format, ...)
 
 int VReadf(char* buffer, unsigned length, const char* format, va_list ap)
 {
+    bool*           b;
     char*           c;
     int*            d;
     unsigned*       u;
     int64_t*        i64;
     uint64_t*       u64;
-    Buffer*         b;
+    Buffer*         buf;
     ReadBuffer*     rb;
     unsigned        n, l;
     int             read;
@@ -209,6 +210,13 @@ int VReadf(char* buffer, unsigned length, const char* format, va_list ap)
             {
                 REQUIRE(1);
                 if (buffer[0] != '%') EXIT();
+                ADVANCE(2, 1);
+            }
+            else if (format[1] == 'b') // %b for boolean
+            {
+                REQUIRE(1);
+                b = va_arg(ap, bool*);
+                *b = (buffer[0] == 'T');
                 ADVANCE(2, 1);
             }
             else if (format[1] == 'c') // %c
@@ -248,13 +256,13 @@ int VReadf(char* buffer, unsigned length, const char* format, va_list ap)
             }
             else if (format[1] == 'B') // %B no prefix, copies rest
             {
-                b = va_arg(ap, Buffer*);
-                b->Write(buffer, length);
-                ADVANCE(2, b->GetLength());
+                buf = va_arg(ap, Buffer*);
+                buf->Write(buffer, length);
+                ADVANCE(2, buf->GetLength());
             }
             else if (length >= 2 && format[1] == '#' && format[2] == 'B') // %#B with prefix, copies
             {
-                b = va_arg(ap, Buffer*);
+                buf = va_arg(ap, Buffer*);
                 // read the length prefix
                 l = BufferToUInt64(buffer, length, &n);
                 if (n < 1) EXIT();
@@ -265,8 +273,8 @@ int VReadf(char* buffer, unsigned length, const char* format, va_list ap)
                 ADVANCE(0, 1);
                 // read the message body
                 REQUIRE(l);
-                b->Write(buffer, l);
-                ADVANCE(3, b->GetLength());
+                buf->Write(buffer, l);
+                ADVANCE(3, buf->GetLength());
             }
             else if (format[1] == 'R') // %R no prefix, points to rest
             {
@@ -353,6 +361,7 @@ int Writef(char* buffer, unsigned size, const char* format, ...)
 
 int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
 {
+    bool            b;
     char            c;
     int             d;
     unsigned        u;
@@ -361,7 +370,7 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
     uint64_t        u64;
     char*           p;
     unsigned        l, length;
-    Buffer*         b;
+    Buffer*         buf;
     ReadBuffer*     rb;
     int             required;
     char            local[64];
@@ -387,6 +396,13 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
                 REQUIRE(1);
                 if (!ghost) buffer[0] = '%';
                 ADVANCE(2, (ghost ? 0 : 1));
+            }
+            else if (format[1] == 'b') // %b
+            {
+                REQUIRE(1);
+                b = va_arg(ap, int);
+                if (!ghost) buffer[0] = (b ? 'T' : 'F');
+                ADVANCE(2, 1);
             }
             else if (format[1] == 'c') // %c
             {
@@ -450,9 +466,9 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             }
             else if (format[1] == 'B') // %B
             {
-                b = va_arg(ap, Buffer*);
-                p = b->GetBuffer();
-                l = b->GetLength();
+                buf = va_arg(ap, Buffer*);
+                p = buf->GetBuffer();
+                l = buf->GetLength();
                 REQUIRE(l);
                 if (ghost) l = size;
                 memcpy(buffer, p, l);
@@ -460,9 +476,9 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             }
             else if (length >= 3 && format[1] == '#' && format[2] == 'B') // %#B
             {
-                b = va_arg(ap, Buffer*);
+                buf = va_arg(ap, Buffer*);
                 //n = snprintf(local, sizeof(local), "%u:", b->GetLength());
-                n = UIntToBuffer(local, sizeof(local), b->GetLength());
+                n = UIntToBuffer(local, sizeof(local), buf->GetLength());
                 if (n < 0) EXIT();
                 local[n] = ':';
                 n += 1;
@@ -470,10 +486,10 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
                 if (ghost) n = size;
                 memcpy(buffer, local, n);
                 ADVANCE(0, n);
-                REQUIRE(b->GetLength());
-                l = b->GetLength();
+                REQUIRE(buf->GetLength());
+                l = buf->GetLength();
                 if (ghost) l = size;
-                memmove(buffer, b->GetBuffer(), l);
+                memmove(buffer, buf->GetBuffer(), l);
                 ADVANCE(3, l);
             }
             else if (format[1] == 'R') // %R

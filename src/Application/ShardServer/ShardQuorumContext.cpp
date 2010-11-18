@@ -46,6 +46,11 @@ void ShardQuorumContext::TryReplicationCatchup()
     replicatedLog.TryCatchup();
 }
 
+void ShardQuorumContext::AppendDummy()
+{
+    replicatedLog.TryAppendDummy();
+}
+
 void ShardQuorumContext::Append()
 {
     assert(nextValue.GetLength() > 0);

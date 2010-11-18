@@ -31,6 +31,7 @@ public:
     uint64_t                paxosID;
     uint64_t                configID;
     unsigned                duration;
+    bool                    watchingPaxosID;
     ConfigQuorum::NodeList  activeNodes;
     QuorumPaxosID::List     quorumPaxosIDs;
     ConfigState             configState;
@@ -43,7 +44,8 @@ public:
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, uint64_t paxosID, uint64_t configID, unsigned duration);
     bool            ReceiveLease(uint64_t nodeID, uint64_t quorumID,
-                     uint64_t proposalID, unsigned duration, ConfigQuorum::NodeList activeNodes);
+                     uint64_t proposalID, unsigned duration,
+                     bool watchingPaxosID, ConfigQuorum::NodeList activeNodes);
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);

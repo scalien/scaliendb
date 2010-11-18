@@ -26,6 +26,7 @@ public:
     bool                    IsMultiPaxosEnabled();
     bool                    IsAppending();
 
+    void                    TryAppendDummy();
     void                    TryAppendNextValue();
     void                    TryCatchup();
     

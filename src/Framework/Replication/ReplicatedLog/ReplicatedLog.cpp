@@ -3,6 +3,7 @@
 #include "System/Events/EventLoop.h"
 
 static Buffer enableMultiPaxos;
+static Buffer dummy;
 
 void ReplicatedLog::Init(QuorumContext* context_)
 {
@@ -19,6 +20,7 @@ void ReplicatedLog::Init(QuorumContext* context_)
     lastRequestChosenPaxosID = 0;
     
     enableMultiPaxos.Write("EnableMultiPaxos");
+    dummy.Write("dummy");
 }
 
 void ReplicatedLog::Stop()
@@ -39,6 +41,16 @@ bool ReplicatedLog::IsMultiPaxosEnabled()
 bool ReplicatedLog::IsAppending()
 {
     return context->IsLeaseOwner() && proposer.state.numProposals > 0;
+}
+
+void ReplicatedLog::TryAppendDummy()
+{
+    Log_Trace();
+    
+    if (!context->IsLeaseOwner() || proposer.IsActive() || !proposer.state.multi)
+        return;
+
+    Append(dummy);
 }
 
 void ReplicatedLog::TryAppendNextValue()
@@ -271,7 +283,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
         Log_Trace("Multi paxos disabled");
     }
 
-    if (!BUFCMP(&value, &enableMultiPaxos))
+    if (!BUFCMP(&value, &enableMultiPaxos) && !BUFCMP(&value, &dummy))
         context->OnAppend(paxosID - 1, value, ownAppend);
     TryAppendNextValue();
 }
