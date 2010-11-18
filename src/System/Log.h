@@ -57,7 +57,7 @@ extern "C" {
 #endif
 
 void Log(const char* file, int line, const char* func,
- int type, const char* fmt, ...) ATTRIBUTE_FORMAT_PRINTF(5, 6);
+ int type, const char* fmt, ...);
 bool Log_SetTrace(bool trace);
 void Log_SetTimestamping(bool ts);
 void Log_SetMaxLine(int maxLine);

@@ -141,7 +141,7 @@ def create_main(file, testname, funcs):
 	#define TEST_NAME "%s"
 	#include "Test/TestFunction.h"
 	TEST_START(main);
-	TEST_LOG_INIT(LOG_TARGET_STDOUT);
+	TEST_LOG_INIT(false, LOG_TARGET_STDOUT);
 	TEST_ADD(%s);
 	TEST_EXECUTE();
 	#undef TEST_MAIN

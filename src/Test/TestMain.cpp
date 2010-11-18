@@ -1,7 +1,7 @@
 #include "TestFunction.h"
 
 TEST_START(TestMain);
-TEST_LOG_INIT(LOG_TARGET_STDOUT);
+TEST_LOG_INIT(true, LOG_TARGET_STDOUT);
 //TEST_ADD(TestArrayListBasic);
 //TEST_ADD(TestArrayListRemove);
 //TEST_ADD(TestClientAdd);
@@ -13,7 +13,7 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientCreateTable);
 //TEST_ADD(TestClientFailover);
 //TEST_ADD(TestClientMaro);
-//TEST_ADD(TestClientSchemaSet);
+TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
@@ -36,7 +36,7 @@ TEST_LOG_INIT(LOG_TARGET_STDOUT);
 //TEST_ADD(TestStorageCrashCase1);
 //TEST_ADD(TestStorageFileSplit);
 //TEST_ADD(TestStorageFileThreeWaySplit);
-TEST_ADD(TestStorageRandomGetSetDelete);
+//TEST_ADD(TestStorageRandomGetSetDelete);
 //TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
 //TEST_ADD(TestStorageShardSplit);
 //TEST_ADD(TestTimingBasicWrite);

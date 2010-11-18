@@ -186,7 +186,7 @@ TEST_DEFINE(TestClientBatchedSet)
         TEST_CLIENT_FAIL();
     sw.Stop();
 
-    TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
 
     client.Shutdown();
     
@@ -245,7 +245,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
         TEST_CLIENT_FAIL();
     sw.Stop();
 
-    TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
 
     client.Shutdown();
     
@@ -308,7 +308,7 @@ TEST_DEFINE(TestClientBatchedGet)
         TEST_CLIENT_FAIL();
     sw.Stop();
 
-    TEST_LOG("elapsed: %ld, req/s = %f", sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
 
     result = client.GetResult();
     if (result == NULL)
@@ -681,7 +681,9 @@ TEST_DEFINE(TestClientSchemaSet)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
+    // TODO: change back
+    //const char*     nodes[] = {"localhost:7080"};
+    const char*     nodes[] = {"192.168.137.51:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     Buffer          key;
