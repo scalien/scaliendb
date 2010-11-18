@@ -25,11 +25,8 @@
     } \
 }
 
-#ifdef DEBUG
 #define ASSERT_INDEX_CONSISTENCY AssertIndexConsistency
-#else
-#define ASSERT_INDEX_CONSISTENCY()
-#endif
+//#define ASSERT_INDEX_CONSISTENCY()
 
 //static void DumpKeys(StorageDataPage** dataPages)
 //{
@@ -730,7 +727,6 @@ void StorageFile::ReorderPages()
     {
         ST_ASSERT(newIndex < numDataPageSlots);
         oldIndex = it->index;
-        ST_ASSERT(dataPages[oldIndex] != NULL);
         it->index = newIndex;
         newDataPages[newIndex] = dataPages[oldIndex];
         newDataPages[newIndex]->SetOffset(DATAPAGE_OFFSET(newIndex));
