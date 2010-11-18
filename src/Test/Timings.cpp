@@ -24,7 +24,7 @@ TEST_DEFINE(TestTimingBasicWrite)
         write(fd, buf, sizeof(buf));    
     sw.Stop();
     
-    TEST_LOG("elapsed: %ld, num: %u, num/s: %f", sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
+    TEST_LOG("elapsed: %ld, num: %u, num/s: %f", (long) sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
 #endif    
     return TEST_SUCCESS;
 }
@@ -106,14 +106,14 @@ TEST_DEFINE(TestTimingSnprintf)
     for (unsigned i = 0; i < num; i++)
         snprintf(buf, sizeof(buf), "%u", i);
     sw.Stop();
-    TEST_LOG("snprintf elapsed: %ld, num: %u, num/s: %f", sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
+    TEST_LOG("snprintf elapsed: %ld, num: %u, num/s: %f", (long) sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
 
     sw.Reset();
     sw.Start();
     for (unsigned i = 0; i < num; i++)
         UIntToBuffer(buf, sizeof(buf), i);
     sw.Stop();
-    TEST_LOG("UIntToBuffer elapsed: %ld, num: %u, num/s: %f", sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
+    TEST_LOG("UIntToBuffer elapsed: %ld, num: %u, num/s: %f", (long) sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
     
     return TEST_SUCCESS;
 }

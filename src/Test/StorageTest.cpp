@@ -190,7 +190,7 @@ TEST_DEFINE(TestStorageCapacity)
             table->Set(rk, rv, false);
             sw.Stop();
         }
-        TEST_LOG("Round %u: %u sets took %ld msec", r, num, sw.Elapsed());
+        TEST_LOG("Round %u: %u sets took %ld msec", r, num, (long) sw.Elapsed());
 
         // Read back key-values ====================================================================
         sw.Restart();
@@ -279,7 +279,7 @@ TEST_DEFINE(TestStorageCapacitySet)
             table->Set(rk, rv, false);
             sw.Stop();
         }
-        TEST_LOG("Round %u: %u sets took %ld msec", r, num, sw.Elapsed());
+        TEST_LOG("Round %u: %u sets took %ld msec", r, num, (long) sw.Elapsed());
 
         // Commit changes ==========================================================================
         sw.Reset();
@@ -339,7 +339,7 @@ TEST_DEFINE(TestStorageBigTransaction)
         table->Set(rk, rv, false);
         sw.Stop();
     }
-    TEST_LOG("%u sets took %ld msec", num, sw.Elapsed());
+    TEST_LOG("%u sets took %ld msec", num, (long) sw.Elapsed());
 
     // Commit changes ==============================================================================
     sw.Restart();
@@ -400,7 +400,7 @@ TEST_DEFINE(TestStorageBigRandomTransaction)
         table->Set(rk, rv, false);
         sw.Stop();
     }
-    TEST_LOG("%u sets took %ld msec", num, sw.Elapsed());
+    TEST_LOG("%u sets took %ld msec", num, (long) sw.Elapsed());
 
     // Commit changes ==============================================================================
     sw.Restart();
@@ -462,7 +462,7 @@ TEST_DEFINE(TestStorageShardSize)
             sw.Stop();
         }
         
-        printf("%u sets took %ld msec\n", num, sw.Elapsed());
+        printf("%u sets took %ld msec\n", num, (long) sw.Elapsed());
 
         sw.Reset();
         sw.Start();
@@ -528,7 +528,7 @@ TEST_DEFINE(TestStorageShardSplit)
             sw.Stop();
         }
         
-        printf("%u sets took %ld msec\n", num, sw.Elapsed());
+        printf("%u sets took %ld msec\n", num, (long) sw.Elapsed());
 
         sw.Reset();
         sw.Start();
@@ -776,7 +776,7 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
             }
             sw.Stop();
         }
-        TEST_LOG("Round %u: %u sets took %ld msec", r, num, sw.Elapsed());
+        TEST_LOG("Round %u: %u sets took %ld msec", r, num, (long) sw.Elapsed());
 
         // Commit changes ==========================================================================
         sw.Reset();

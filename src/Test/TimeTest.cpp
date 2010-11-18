@@ -19,7 +19,7 @@ TEST_DEFINE(TestClock)
     for (unsigned u = 0; u < num; u++)
         now = NowClock();
     sw.Stop();
-    printf("Elapsed without clock: %ld msec\n", sw.Elapsed());
+    printf("Elapsed without clock: %ld msec\n", (long) sw.Elapsed());
     
     StartClock();
     MSleep(100);
@@ -37,7 +37,7 @@ TEST_DEFINE(TestClock)
         }
     }
     sw.Stop();
-    printf("Elapsed with clock: %ld msec\n", sw.Elapsed());
+    printf("Elapsed with clock: %ld msec\n", (long) sw.Elapsed());
     
     StopClock();
     

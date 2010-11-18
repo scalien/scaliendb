@@ -72,7 +72,7 @@ TEST_DEFINE(TestInTreeMap)
         //bufmap.insert(std::pair<ReadBuffer, ReadBuffer>(rk, rv));
         sw.Stop();
     }
-    printf("insert time: %ld\n", sw.Elapsed());
+    printf("insert time: %ld\n", (long) sw.Elapsed());
 
     //return 0;
 
@@ -87,7 +87,7 @@ TEST_DEFINE(TestInTreeMap)
             TEST_FAIL();
     }
     sw.Stop();      
-    printf("get time: %ld\n", sw.Elapsed());
+    printf("get time: %ld\n", (long) sw.Elapsed());
 
     sw.Reset();
     sw.Start();
@@ -97,7 +97,7 @@ TEST_DEFINE(TestInTreeMap)
         kv = it; // dummy op
     }
     sw.Stop();      
-    printf("iteration time: %ld\n", sw.Elapsed());
+    printf("iteration time: %ld\n", (long) sw.Elapsed());
 
 
     sw.Reset();
@@ -113,7 +113,7 @@ TEST_DEFINE(TestInTreeMap)
         kvs.Remove(kv);
     }
     sw.Stop();      
-    printf("delete time: %ld\n", sw.Elapsed());
+    printf("delete time: %ld\n", (long) sw.Elapsed());
 
     sw.Reset();
     sw.Start();
@@ -126,7 +126,7 @@ TEST_DEFINE(TestInTreeMap)
             TEST_FAIL();
     }
     sw.Stop();
-    printf("get time: %ld\n", sw.Elapsed());
+    printf("get time: %ld\n", (long) sw.Elapsed());
 
     sw.Reset();
     for (unsigned u = 0; u < num; u++)
@@ -156,7 +156,7 @@ TEST_DEFINE(TestInTreeMap)
         }
         sw.Stop();
     }
-    printf("random insert time: %ld\n", sw.Elapsed());
+    printf("random insert time: %ld\n", (long) sw.Elapsed());
 
     unsigned u = 0;
     sw.Reset();
@@ -169,7 +169,7 @@ TEST_DEFINE(TestInTreeMap)
     }
     sw.Stop();
     printf("found: %u, count: %u\n", u, kvs.GetCount());
-    printf("iteration time: %ld\n", sw.Elapsed());
+    printf("iteration time: %ld\n", (long) sw.Elapsed());
 
     if (u != kvs.GetCount())
         return TEST_FAILURE;
@@ -266,7 +266,7 @@ TEST_DEFINE(TestInTreeMapInsertRandom)
         sw.Stop();
     }
     
-    printf("random insert time: %ld\n", sw.Elapsed());
+    printf("random insert time: %ld\n", (long) sw.Elapsed());
 
     free(area);
     free(kvarea);
@@ -317,7 +317,7 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
         sw.Stop();
     }
     
-    printf("insert time: %ld\n", sw.Elapsed());
+    printf("insert time: %ld\n", (long) sw.Elapsed());
 
     // check if the elements are all in order
     int count = 0;

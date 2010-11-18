@@ -27,10 +27,10 @@ public:
         TestFunction*           testit; \
         int                     ret;
 
-#define TEST_LOG_INIT(targets) \
+#define TEST_LOG_INIT(trace, targets) \
     Log_SetTimestamping(true); \
     Log_SetTarget(targets); \
-    //Log_SetTrace(true); 
+    Log_SetTrace(trace); 
 
 
 #define TEST_EXECUTE() \
