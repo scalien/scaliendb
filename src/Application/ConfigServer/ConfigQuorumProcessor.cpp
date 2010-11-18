@@ -305,7 +305,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     // catchup issue:
     // if paxosID is smaller or equal to configStatePaxosID, that means
     // our state already includes the writes in this round
-    if (paxosID - 1 <= configServer->GetDatabaseManager()->GetPaxosID())
+    if (paxosID <= configServer->GetDatabaseManager()->GetPaxosID())
         return;
     
     if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
