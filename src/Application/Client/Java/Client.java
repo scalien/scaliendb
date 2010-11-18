@@ -377,8 +377,8 @@ public class Client
     
     public int submit() throws SDBPException {
         int status = scaliendb_client.SDBP_Submit(cptr);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             throw new SDBPException(Status.toString(status));
         }
         return status;

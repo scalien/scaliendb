@@ -518,3 +518,7 @@ function consoleEvalExpression()
 	consoleForm.output.value += "Executing " + cmd + "\n";
 	eval(cmd);
 }
+
+function consoleOnKeyDown()
+{
+}
