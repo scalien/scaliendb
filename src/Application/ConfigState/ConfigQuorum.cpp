@@ -5,15 +5,10 @@ ConfigQuorum::ConfigQuorum()
     prev = next = this;
     quorumID = 0;
     configID = 0;
-    isActivatingNode = false;
-    isWatchingPaxosID = false;
-    isReplicatingActivation = false;
-    activatingNodeID = 0;
-    activationPaxosID = 0;
-    activationExpireTime = 0;
     hasPrimary = false;
     primaryID = 0;
     paxosID = 0;
+    ClearActivation();
 }
 
 ConfigQuorum::ConfigQuorum(const ConfigQuorum& other)
@@ -49,14 +44,38 @@ ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
     return *this;
 }
 
+void ConfigQuorum::OnActivationStart(uint64_t nodeID, uint64_t expireTime)
+{
+    assert(isActivatingNode == false);
+    isActivatingNode = true;
+    activatingNodeID = nodeID;
+    isWatchingPaxosID = false;
+    isReplicatingActivation = false;
+    configID++;
+    activationExpireTime = expireTime;
+}
+
+void ConfigQuorum::OnActivationMonitoring(uint64_t paxosID)
+{
+    isWatchingPaxosID = true;
+    activationPaxosID = paxosID;
+}
+
+void ConfigQuorum::OnActivationReplication()
+{
+    isWatchingPaxosID = false;
+    isReplicatingActivation = true;
+    activationExpireTime = 0;
+}
+
 void ConfigQuorum::ClearActivation()
 {
     isActivatingNode = false;
-    activatingNodeID = 0;
     isWatchingPaxosID = false;
     isReplicatingActivation = false;
+    activatingNodeID = 0;
     activationPaxosID = 0;
-    activationExpireTime = 0;    
+    activationExpireTime = 0;
 }
 
 ConfigQuorum::NodeList ConfigQuorum::GetVolatileActiveNodes()

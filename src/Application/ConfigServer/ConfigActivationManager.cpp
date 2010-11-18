@@ -100,12 +100,7 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
                 if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF))
                 {
                     // the shard server is "almost caught up", start the activation process
-                    itQuorum->isActivatingNode = true;
-                    itQuorum->activatingNodeID = nodeID;
-                    itQuorum->isWatchingPaxosID = false;
-                    itQuorum->isReplicatingActivation = false;
-                    itQuorum->configID++;
-                    itQuorum->activationExpireTime = now + PAXOSLEASE_MAX_LEASE_TIME;
+                    itQuorum->OnActivationStart(nodeID, now + PAXOSLEASE_MAX_LEASE_TIME);
                     UpdateTimeout();
 
                     Log_Message("Activation started for quorum %U and shard server %U",
@@ -125,8 +120,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
     if (!quorum.isWatchingPaxosID)
     {
         // start monitoring the primary's paxosID
-        quorum.isWatchingPaxosID = true;
-        quorum.activationPaxosID = message.paxosID;
+        quorum.OnActivationMonitoring(message.paxosID);
         configServer->OnConfigStateChanged();
     }
     else
@@ -134,11 +128,8 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
         // if the primary was able to increase its paxosID, the new shardserver joined successfully
         if (message.paxosID > quorum.activationPaxosID)
         {
-            quorum.isWatchingPaxosID = false;
-            quorum.isReplicatingActivation = true;
-            quorum.activationExpireTime = 0;
+            quorum.OnActivationReplication();
             configServer->OnConfigStateChanged();
-
             configServer->GetQuorumProcessor()->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
         }
     }    
