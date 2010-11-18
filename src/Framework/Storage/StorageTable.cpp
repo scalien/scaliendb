@@ -214,13 +214,21 @@ bool StorageTable::Delete(ReadBuffer key)
     return si->shard->Delete(key);
 }
 
-bool StorageTable::CreateShard(uint64_t shardID, ReadBuffer& startKey_)
+bool StorageTable::CreateShard(uint64_t shardID, ReadBuffer& startKey)
 {
     StorageShardIndex*  si;
     
     // TODO: check if the shard or the key interval already exists
+    si = shards.Get(startKey);
+    if (si != NULL)
+    {
+        ST_ASSERT(si->shardID == shardID);
+        ST_DEBUG_ASSERT(ReadBuffer::Cmp(startKey, si->startKey) == 0);
+        return false;
+    }
+    
     si = new StorageShardIndex;
-    si->SetStartKey(startKey_, true);
+    si->SetStartKey(startKey, true);
     si->shardID = shardID;
     shards.Insert(si);
         

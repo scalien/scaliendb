@@ -50,7 +50,7 @@ void StorageShard::Open(const char* dir, const char* name_)
     if (!FS_IsDirectory(path.GetBuffer()))
     {
         if (!FS_CreateDir(path.GetBuffer()))
-            ST_ASSERT(false);
+            STOP_FAIL(1, "Cannot create directory (%s)", path.GetBuffer())
     }
 
     name.Append(path.GetBuffer(), path.GetLength() - 1);
@@ -67,10 +67,10 @@ void StorageShard::Open(const char* dir, const char* name_)
 
     tocFD = FS_Open(tocFilepath.GetBuffer(), FS_READWRITE | FS_CREATE);
     if (tocFD == INVALID_FD)
-        ST_ASSERT(false);
+        STOP_FAIL(1, "Cannot open file (%s)", tocFilepath.GetBuffer())
 
     if (!recoveryLog.Open(recoveryFilepath.GetBuffer()))
-        ST_ASSERT(false);
+        STOP_FAIL(1, "Cannot open file (%s)", recoveryFilepath.GetBuffer())
     
     recoverySize = recoveryLog.GetFileSize();
     if (recoverySize > 0)
@@ -278,8 +278,7 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
     newShard->nextStorageFileIndex = 0;
     
     midFi = Locate(startKey);
-    if (midFi == NULL)
-        ST_ASSERT(false);
+    ST_ASSERT(midFi != NULL);
     
     newIndex = 1;
     fi = midFi;

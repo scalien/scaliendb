@@ -25,6 +25,7 @@ public:
     bool        Open(const char* filename);
     bool        Close();
     int64_t     GetFileSize();
+    const char* GetFilename();
 
     bool        WriteOp(uint32_t op, uint32_t dataSize, Buffer& buffer);
     bool        WriteDone();

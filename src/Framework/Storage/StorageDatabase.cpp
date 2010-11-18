@@ -41,7 +41,7 @@ void StorageDatabase::Open(const char* path_, const char* dbName)
     if (!FS_IsDirectory(path.GetBuffer()))
     {
         if (!FS_CreateDir(path.GetBuffer()))
-            ST_ASSERT(false);
+            STOP_FAIL(1, "Cannot create database directory (%s)", path.GetBuffer());
     }   
 }
 

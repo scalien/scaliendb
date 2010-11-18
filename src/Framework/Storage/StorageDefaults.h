@@ -23,7 +23,7 @@
 //#define STORAGE_TRACE(...)
 #define STORAGE_TRACE Log_Trace
 
-#ifndef NDEBUG
+#ifdef DEBUG
 #define ST_ASSERT(expr) \
 { \
     if (!(expr)) \
@@ -32,8 +32,10 @@
         assert(expr); \
     } \
 }
+#define ST_DEBUG_ASSERT ST_ASSERT
 #else
-#define ST_ASSERT(expr)
+#define ST_ASSERT assert
+#define ST_DEBUG_ASSERT(expr)
 #endif
 
 #endif
