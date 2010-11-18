@@ -26,6 +26,7 @@ public:
     
     void                            SetActiveNodes(ConfigQuorum::NodeList& activeNodes);
     void                            TryReplicationCatchup();
+    void                            AppendDummy();
     void                            Append(); // nextValue was filled up using GetNextValue()
     bool                            IsAppending();
     

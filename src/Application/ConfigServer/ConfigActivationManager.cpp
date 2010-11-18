@@ -160,12 +160,7 @@ void ConfigActivationManager::OnActivationTimeout()
             assert(shardServer != NULL);
             shardServer->nextActivationTime = now + ACTIVATION_FAILED_PENALTY_TIME;
 
-            itQuorum->isActivatingNode = false;
-            itQuorum->isWatchingPaxosID = false;
-            itQuorum->isReplicatingActivation = false;
-            itQuorum->activatingNodeID = 0;
-            itQuorum->activationPaxosID = 0;
-            itQuorum->activationExpireTime = 0;
+            itQuorum->ClearActivation();
             
             Log_Message("Activation failed for quorum %U and shard server %U",
              itQuorum->quorumID, itQuorum->activatingNodeID);

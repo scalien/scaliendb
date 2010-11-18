@@ -67,6 +67,9 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     EventLoop::Reset(&leaseTimeout);
     
     quorumContext.OnLearnLease();
+    
+    if (message.watchingPaxosID && shardMessages.GetLength() == 0)
+        quorumContext.AppendDummy();
 }
 
 void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ownAppend)
