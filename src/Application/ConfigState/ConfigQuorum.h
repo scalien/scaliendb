@@ -29,7 +29,11 @@ public:
 
     ConfigQuorum&       operator=(const ConfigQuorum& other);
 
+    void                OnActivationStart(uint64_t nodeID, uint64_t expireTime);
+    void                OnActivationMonitoring(uint64_t paxosID);
+    void                OnActivationReplication();
     void                ClearActivation();
+
     NodeList            GetVolatileActiveNodes();
     
     uint64_t            quorumID;
