@@ -739,12 +739,7 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
                 Log_Message("Activation succeeded for quorum %U and shard server %U",
                  itQuorum->quorumID, itQuorum->activatingNodeID);
 
-                itQuorum->isActivatingNode = false;
-                itQuorum->activatingNodeID = 0;
-                itQuorum->isWatchingPaxosID = false;
-                itQuorum->isReplicatingActivation = false;
-                itQuorum->activationPaxosID = 0;
-                itQuorum->activationExpireTime = 0;
+                itQuorum->ClearActivation();
             }
             return;
         }
