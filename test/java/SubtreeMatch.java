@@ -47,7 +47,7 @@ public class SubtreeMatch {
 			value = "TODO";
 
 			client.begin();
-			for (byte[] key : randomKeys)
+			for (String key : randomKeys)
 				client.get(key, value);
 			
 			System.out.println("Submitting 'get's to database...");
@@ -67,7 +67,7 @@ public class SubtreeMatch {
 			}
 
 			client.begin();
-			for (byte[] key : insertKeys)
+			for (String key : insertKeys)
 				client.setIfNotExists(key, value);
 			
 			System.out.println("Submitting 'set's to database...");
