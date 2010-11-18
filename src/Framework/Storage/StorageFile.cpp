@@ -25,8 +25,12 @@
     } \
 }
 
+#ifdef DEBUG
 #define ASSERT_INDEX_CONSISTENCY AssertIndexConsistency
 //#define ASSERT_INDEX_CONSISTENCY()
+#else
+#define ASSERT_INDEX_CONSISTENCY()
+#endif
 
 //static void DumpKeys(StorageDataPage** dataPages)
 //{
