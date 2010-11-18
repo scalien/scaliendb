@@ -19,14 +19,14 @@ public class SubtreeMatch {
 
 			System.out.println("Creating random page...");
 			Random random = new Random(System.nanoTime());
-			ArrayList<byte[]> randomKeys = new ArrayList<byte[]>();
+			ArrayList<String> randomKeys = new ArrayList<String>();
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			for (int i = 0; i < 1000; i++)
 			{
 				long docID = random.nextLong();
 				String rnds = "" + docID;
 				byte[] value = md.digest(rnds.getBytes("UTF-8"));
-				randomKeys.add(value);
+				randomKeys.add(value.toString());
 			}
 
 			System.out.println("Querying random digests from database...");
@@ -48,7 +48,7 @@ public class SubtreeMatch {
 
 			client.begin();
 			for (byte[] key : randomKeys)
-				client.get(key, value.getBytes("UTF-8"));
+				client.get(key, value);
 			
 			System.out.println("Submitting 'get's to database...");
 			long startTime = System.currentTimeMillis();
@@ -58,17 +58,17 @@ public class SubtreeMatch {
 			long getps = (long)(randomKeys.size() / (float)(endTime - startTime) * 1000.0 + 0.5);
 			System.out.println("get/s: " + getps);
 			
- 			ArrayList<byte[]> insertKeys = new ArrayList<byte[]>();
+ 			ArrayList<String> insertKeys = new ArrayList<String>();
    			Result result = client.getResult();
 			for (result.begin(); !result.isEnd(); result.next()) {
 				if (result.getCommandStatus() == Status.SDBP_FAILED) {
-					insertKeys.add(result.getKeyBytes());
+					insertKeys.add(result.getKey());
 				}
 			}
 
 			client.begin();
 			for (byte[] key : insertKeys)
-				client.setIfNotExists(key, value.getBytes("UTF-8"));
+				client.setIfNotExists(key, value);
 			
 			System.out.println("Submitting 'set's to database...");
 			startTime = System.currentTimeMillis();
