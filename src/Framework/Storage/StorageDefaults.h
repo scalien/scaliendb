@@ -24,7 +24,6 @@
 #define STORAGE_TRACE Log_Trace
 
 #ifndef NDEBUG
-#ifndef PLATFORM_WINDOWS
 #define ST_ASSERT(expr) \
 { \
     if (!(expr)) \
@@ -34,10 +33,7 @@
     } \
 }
 #else
-#define ST_ASSERT assert
-#endif
-#else
-#define ST_ASSERT(...)
+#define ST_ASSERT(expr)
 #endif
 
 #endif
