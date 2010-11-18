@@ -1011,6 +1011,7 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
 {
     RequestList*        qrequests;
 
+    qrequests = NULL;
     if (!quorumRequests.Get(quorumID, qrequests))
         ASSERT_FAIL();
     
