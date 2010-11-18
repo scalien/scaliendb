@@ -23,11 +23,11 @@ public class Result
 		return scaliendb_client.SDBP_ResultValue(cptr);
 	}
     
-    public byte[] getKeyData() {
+    public byte[] getKeyBytes() {
         return scaliendb_client.SDBP_ResultKeyBuffer(cptr);
     }
 	
-    public byte[] getValueData() {
+    public byte[] getValueBytes() {
         return scaliendb_client.SDBP_ResultValueBuffer(cptr);
     }
 	

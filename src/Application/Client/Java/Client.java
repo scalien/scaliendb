@@ -144,7 +144,7 @@ public class Client
 			return null;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValueData();
+		return result.getValueBytes();
 	}
     
     public String get(String key, String defval) {
@@ -172,7 +172,7 @@ public class Client
             return defval;
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getValueData();
+        return result.getValueBytes();
     }
 		
 	public int set(String key, String value) throws SDBPException {
