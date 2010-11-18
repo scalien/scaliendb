@@ -345,10 +345,9 @@ bool StorageDataPage::CheckWrite(Buffer& writeBuffer)
     unsigned            len;
     uint32_t            num;
     
-    if (newPage)
-        ST_ASSERT(this->buffer.GetLength() == 0);
+    ST_ASSERT(!newPage || (newPage && this->buffer.GetLength() == 0));
 
-    this->buffer.Allocate(pageSize);
+    buffer.Allocate(pageSize);
 
     writeBuffer.SetLength(0);
 
@@ -379,11 +378,6 @@ bool StorageDataPage::CheckWrite(Buffer& writeBuffer)
     if (BUFCMP(&writeBuffer, &this->buffer))
         return false;
     
-//  for (it = keys.First(); it != NULL; it = keys.Next(it))
-//  {
-//      printf("written %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
-//  }
-    
     return true;
 }
 
@@ -394,8 +388,7 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
     unsigned            tmpLen;
     uint32_t            num;
     
-    if (newPage)
-        ST_ASSERT(this->buffer.GetLength() == 0);
+    ST_ASSERT(!newPage || (newPage && this->buffer.GetLength() == 0));
 
     buffer.Allocate(pageSize);
 
@@ -446,11 +439,6 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
     ST_ASSERT(required == writeBuffer.GetLength());
     if (BUFCMP(&writeBuffer, &this->buffer))
         return false;
-    
-//  for (it = keys.First(); it != NULL; it = keys.Next(it))
-//  {
-//      printf("written %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
-//  }
     
     buffer.Write(writeBuffer);
     

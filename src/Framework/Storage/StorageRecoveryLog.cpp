@@ -31,6 +31,11 @@ int64_t StorageRecoveryLog::GetFileSize()
     return FS_FileSize(fd);
 }
 
+const char* StorageRecoveryLog::GetFilename()
+{
+    return name.GetBuffer();
+}
+
 bool StorageRecoveryLog::WriteOp(uint32_t op, uint32_t dataSize, Buffer& buffer)
 {
     Buffer      tmp;
