@@ -33,7 +33,6 @@ TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestStorageBigTransaction);
 //TEST_ADD(TestStorageBinaryData);
 //TEST_ADD(TestStorageCapacity);
-//TEST_ADD(TestStorageCrashCase1);
 //TEST_ADD(TestStorageFileSplit);
 //TEST_ADD(TestStorageFileThreeWaySplit);
 //TEST_ADD(TestStorageRandomGetSetDelete);
