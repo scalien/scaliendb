@@ -75,10 +75,7 @@ void StorageShard::Open(const char* dir, const char* name_)
     
     recoverySize = recoveryLog.GetFileSize();
     if (recoverySize > 0)
-    {
         PerformRecovery(recoverySize);
-        return;
-    }
     
     tocSize = FS_FileSize(tocFD);
     shardSize = tocSize;
@@ -606,6 +603,8 @@ uint64_t StorageShard::RebuildTOC()
     FS_CloseDir(dir);
 
     WriteTOC();
+    files.DeleteTree();
+    
     return totalSize;
 }
 

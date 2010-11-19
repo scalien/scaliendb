@@ -1013,6 +1013,7 @@ void StorageTable::CommitPhase2()
 {
     StorageShardIndex*  si;
     
+    WriteTOC();
     for (si = shards.First(); si != NULL; si = shards.Next(si))
     {
         if (si->shard != NULL)
