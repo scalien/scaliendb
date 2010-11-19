@@ -3,6 +3,7 @@
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/ClusterMessage.h"
 #include "ShardServer.h"
+#include "System/Config.h"
 
 ShardHeartbeatManager::ShardHeartbeatManager()
 {
@@ -23,6 +24,8 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     ClusterMessage          msg;
     QuorumPaxosID           quorumPaxosID;
     QuorumPaxosID::List     quorumPaxosIDList;
+    unsigned                httpPort;
+    unsigned                sdbpPort;
     
     Log_Trace();
     
@@ -41,7 +44,10 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         quorumPaxosID.paxosID = itQuorumProcessor->GetPaxosID();
         quorumPaxosIDList.Append(quorumPaxosID);
     }
+
+    httpPort = shardServer->GetHTTPPort();
+    sdbpPort = shardServer->GetSDBPPort();
     
-    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(), quorumPaxosIDList);
+    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(), quorumPaxosIDList, httpPort, sdbpPort);
     shardServer->BroadcastToControllers(msg);
 }

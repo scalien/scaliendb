@@ -35,11 +35,14 @@ public:
     ConfigQuorum::NodeList  activeNodes;
     QuorumPaxosID::List     quorumPaxosIDs;
     ConfigState             configState;
+    unsigned                httpPort;
+    unsigned                sdbpPort;
+
     
     ClusterMessage();
     
     bool            SetNodeID(uint64_t nodeID);
-    bool            Heartbeat(uint64_t nodeID, QuorumPaxosID::List& quorumPaxosIDs);
+    bool            Heartbeat(uint64_t nodeID, QuorumPaxosID::List& quorumPaxosIDs, unsigned httpPort, unsigned sdbpPort);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, uint64_t paxosID, uint64_t configID, unsigned duration);

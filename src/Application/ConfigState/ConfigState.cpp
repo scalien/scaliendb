@@ -1299,7 +1299,11 @@ bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& bu
         nextNodeID = shardServer.nodeID + 1;
     
     if (withVolatile)
+    {
+        read = buffer.Readf(":%u:%u", &shardServer.httpPort, &shardServer.sdbpPort);
+        CHECK_ADVANCE(4);
         return QuorumPaxosID::ReadList(buffer, shardServer.quorumPaxosIDs);
+    }
     else
         return true;
 }
@@ -1312,7 +1316,10 @@ void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffe
     buffer.Appendf("%U:%#R", shardServer.nodeID, &endpoint);
     
     if (withVolatile)
+    {
+        buffer.Appendf(":%u:%u",shardServer.httpPort, shardServer.sdbpPort);
         QuorumPaxosID::WriteList(buffer, shardServer.quorumPaxosIDs);
+    }
 }
 
 template<typename List>
