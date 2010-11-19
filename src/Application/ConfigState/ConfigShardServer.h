@@ -58,6 +58,9 @@ public:
     QuorumPaxosID::List quorumPaxosIDs;
     
     uint64_t            nextActivationTime;
+
+    unsigned            httpPort;
+    unsigned            sdbpPort;
     // ========================================================================================
     
     ConfigShardServer*  prev;
