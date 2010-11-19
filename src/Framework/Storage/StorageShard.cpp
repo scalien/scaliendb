@@ -689,7 +689,7 @@ StorageFileIndex* StorageShard::Locate(ReadBuffer& key)
         goto OpenFile;
     }
     
-    fi = files.Locate<ReadBuffer&>(key, cmpres);
+    fi = files.Locate(key, cmpres);
     if (fi)
     {
         if (cmpres < 0)
