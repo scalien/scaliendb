@@ -697,41 +697,33 @@ void StorageTable::ReadTOC(uint64_t length)
 
 void StorageTable::WriteTOC()
 {
-    char*               p;
-    uint32_t            size, len;
-    uint32_t            tmp;
     StorageShardIndex   *it;
     StorageFileHeader   header;
-    Buffer              writeBuf;
+    Buffer              writeBuffer;
+    unsigned            size;
 
     FS_FileSeek(tocFD, 0, FS_SEEK_SET);
     FS_FileTruncate(tocFD, 0);
     
     header.Init(FILE_TYPE, FILE_VERSION_MAJOR, FILE_VERSION_MINOR, 0);
-    header.Write(writeBuf);
+    header.Write(writeBuffer);
 
-    if (FS_FileWrite(tocFD, (const void*) writeBuf.GetBuffer(), writeBuf.GetLength()) < 0)
+    writeBuffer.AppendLittle32(shards.GetCount());
+
+    if (FS_FileWrite(tocFD, (const void*) writeBuffer.GetBuffer(), writeBuffer.GetLength()) < 0)
         ST_ASSERT(false);
     
-    len = shards.GetCount();
-    tmp = ToLittle32(len);
-
-    if (FS_FileWrite(tocFD, (const void *) &tmp, 4) < 0)
-        ST_ASSERT(false);
-
     for (it = shards.First(); it != NULL; it = shards.Next(it))
     {       
-        size = 4 + (4+it->startKey.GetLength());
-        writeBuf.Allocate(size);
-        p = writeBuf.GetBuffer();
-        *((uint32_t*) p) = ToLittle32(it->shardID);
-        p += 4;
-        len = it->startKey.GetLength();
-        *((uint32_t*) p) = ToLittle32(len);
-        p += 4;
-        memcpy(p, it->startKey.GetBuffer(), len);
-        p += len;
-        if (FS_FileWrite(tocFD, (const void *) writeBuf.GetBuffer(), size) < 0)
+        size = 4 + 4 + it->startKey.GetLength();
+        writeBuffer.Allocate(size);
+        writeBuffer.SetLength(0);
+        writeBuffer.AppendLittle32(it->shardID);
+        writeBuffer.AppendLittle32(it->startKey.GetLength());
+        writeBuffer.Append(it->startKey);
+
+        ST_ASSERT(writeBuffer.GetLength() == size);
+        if (FS_FileWrite(tocFD, (const void *) writeBuffer.GetBuffer(), size) < 0)
             ST_ASSERT(false);
     }
 }
