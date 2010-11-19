@@ -23,7 +23,7 @@ public class SubtreeMatch {
 			MessageDigest md = MessageDigest.getInstance("MD5");
 			for (int i = 0; i < 1000; i++)
 			{
-				long docID = random.nextLong();
+				long docID = random.nextInt(100000);
 				String rnds = "" + docID;
 				byte[] value = md.digest(rnds.getBytes("UTF-8"));
 				randomKeys.add(value.toString());

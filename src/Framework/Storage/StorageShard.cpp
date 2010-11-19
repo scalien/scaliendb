@@ -34,6 +34,7 @@ void StorageShard::Open(const char* dir, const char* name_)
     int64_t tocSize;
     char    sep;
     
+    prevCommitStorageFileIndex = 1;
     nextStorageFileIndex = 1;
 
     // create shard directory
@@ -74,9 +75,7 @@ void StorageShard::Open(const char* dir, const char* name_)
     
     recoverySize = recoveryLog.GetFileSize();
     if (recoverySize > 0)
-    {
         PerformRecovery(recoverySize);
-    }
     
     tocSize = FS_FileSize(tocFD);
     shardSize = tocSize;
@@ -334,6 +333,8 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
     StorageFileHeader   header;
     Buffer              headerBuf;
     
+    FS_FileSeek(tocFD, 0, FS_SEEK_SET);
+    
     headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
     FS_FileSeek(tocFD, 0, FS_SEEK_SET);
     ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH);
@@ -545,6 +546,7 @@ uint64_t StorageShard::RebuildTOC()
     StorageFileIndex*   fi;
     ReadBuffer          firstKey;
     uint64_t            totalSize;
+    int64_t             fileSize;
     
     totalSize = 0;
     dir = FS_OpenDir(path.GetBuffer());
@@ -569,17 +571,26 @@ uint64_t StorageShard::RebuildTOC()
         tmp.Write(path.GetBuffer(), path.GetLength() - 1);
         tmp.Append(FS_DirEntryName(dirent));
         tmp.NullTerminate();
-        
+
+        fileSize = FS_FileSize(tmp.GetBuffer());
+        if (fileSize <= 0)
+            continue;
+                
         fi = new StorageFileIndex;
         fi->file = new StorageFile;
         fi->file->Open(tmp.GetBuffer());
         if (fi->file->IsEmpty())
         {
-            FS_Delete(tmp.GetBuffer());
+//            fi->file->Close();
+//            delete fi->file;
+//            fi->file = NULL;
+//            delete fi;
+//            FS_Delete(tmp.GetBuffer());
+            ST_ASSERT(false);
             continue;
         }
         else
-            totalSize += FS_FileSize(tmp.GetBuffer());
+            totalSize += fileSize;
 
         fi->SetKey(fi->file->FirstKey(), true);
         fi->file->Close();
@@ -619,13 +630,12 @@ void StorageShard::WriteRecoveryPrefix()
         
         it->file->WriteRecovery(recoveryLog);
     }
+
+    ST_ASSERT(prevCommitStorageFileIndex >= files.GetCount());
     
     buffer.AppendLittle32(prevCommitStorageFileIndex);
     if (!recoveryLog.WriteOp(RECOVERY_OP_COMMIT, sizeof(prevCommitStorageFileIndex), buffer))
-    {
-        Log_Errno();
-        ST_ASSERT(false);
-    }
+        STOP_FAIL(1, "Failed writing recovery file (%s)", recoveryLog.GetFilename());
 }
 
 void StorageShard::WriteRecoveryPostfix()
@@ -692,7 +702,7 @@ StorageFileIndex* StorageShard::Locate(ReadBuffer& key)
         goto OpenFile;
     }
     
-    fi = files.Locate<ReadBuffer&>(key, cmpres);
+    fi = files.Locate(key, cmpres);
     if (fi)
     {
         if (cmpres < 0)

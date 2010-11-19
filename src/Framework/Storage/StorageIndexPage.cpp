@@ -209,6 +209,7 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
     StorageKeyIndex*    oldKi;
     ReadBuffer          tmp;
     unsigned            numEmpty;
+    bool                removed;
 
     buffer.Write(buffer_);
     tmp = buffer;
@@ -247,7 +248,8 @@ void StorageIndexPage::Read(ReadBuffer& buffer_)
 
         oldKi = keys.Insert(ki);
         ST_ASSERT(oldKi == NULL);
-        freeDataPages.Remove(ki->index);
+        removed = freeDataPages.Remove(ki->index);
+        ST_ASSERT(removed);
         if ((int32_t) ki->index > maxDataPageIndex)
             maxDataPageIndex = ki->index;
     }
@@ -287,19 +289,19 @@ bool StorageIndexPage::CheckWrite(Buffer& writeBuffer)
 
     ST_ASSERT(required == writeBuffer.GetLength());
     ST_ASSERT((unsigned) (maxDataPageIndex + 1) == numDataPageSlots - freeDataPages.GetLength());
-    if (BUFCMP(&writeBuffer, &this->buffer))
+    if (BUFCMP(&writeBuffer, &buffer))
         return false;
     
     return true;
 }
 
-bool StorageIndexPage::Write(Buffer& buffer)
+bool StorageIndexPage::Write(Buffer& writeBuffer)
 {
     bool ret;
     
-    ret = CheckWrite(buffer);
+    ret = CheckWrite(writeBuffer);
     
-    this->buffer.Write(buffer);
+    buffer.Write(writeBuffer);
     
     return ret;
 }

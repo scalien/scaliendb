@@ -330,7 +330,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
 //        kv->value.SetBuffer(readBuffer.GetBuffer());
         
         readBuffer.Advance(len);
-        STORAGE_TRACE("read %R => %R", &kv->key, &kv->value);
+        //STORAGE_TRACE("read %R => %R", &kv->key, &kv->value);
         keys.Insert(kv);
     }
     

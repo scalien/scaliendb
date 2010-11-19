@@ -519,6 +519,11 @@ function consoleEvalExpression()
 	eval(cmd);
 }
 
-function consoleOnKeyDown()
+function consoleOnKeyDown(e)
 {
+	if ((window.event && window.event.keyCode == 13) ||
+	    (e && e.keyCode == 13)
+	{
+		alert("Enter pressed");
+	}
 }

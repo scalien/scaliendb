@@ -17,7 +17,7 @@ TEST_LOG_INIT(true, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
-//TEST_ADD(TestCrashStorage);
+TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);
 //TEST_ADD(TestInTreeMap);
