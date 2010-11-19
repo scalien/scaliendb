@@ -545,6 +545,7 @@ uint64_t StorageShard::RebuildTOC()
     StorageFileIndex*   fi;
     ReadBuffer          firstKey;
     uint64_t            totalSize;
+    int64_t             fileSize;
     
     totalSize = 0;
     dir = FS_OpenDir(path.GetBuffer());
@@ -569,17 +570,26 @@ uint64_t StorageShard::RebuildTOC()
         tmp.Write(path.GetBuffer(), path.GetLength() - 1);
         tmp.Append(FS_DirEntryName(dirent));
         tmp.NullTerminate();
-        
+
+        fileSize = FS_FileSize(tmp.GetBuffer());
+        if (fileSize <= 0)
+            continue;
+                
         fi = new StorageFileIndex;
         fi->file = new StorageFile;
         fi->file->Open(tmp.GetBuffer());
         if (fi->file->IsEmpty())
         {
-            FS_Delete(tmp.GetBuffer());
+//            fi->file->Close();
+//            delete fi->file;
+//            fi->file = NULL;
+//            delete fi;
+//            FS_Delete(tmp.GetBuffer());
+            ST_ASSERT(false);
             continue;
         }
         else
-            totalSize += FS_FileSize(tmp.GetBuffer());
+            totalSize += fileSize;
 
         fi->SetKey(fi->file->FirstKey(), true);
         fi->file->Close();
@@ -616,13 +626,12 @@ void StorageShard::WriteRecoveryPrefix()
         
         it->file->WriteRecovery(recoveryLog);
     }
+
+    ST_ASSERT(prevCommitStorageFileIndex >= files.GetCount());
     
     buffer.AppendLittle32(prevCommitStorageFileIndex);
     if (!recoveryLog.WriteOp(RECOVERY_OP_COMMIT, sizeof(prevCommitStorageFileIndex), buffer))
-    {
-        Log_Errno();
-        ST_ASSERT(false);
-    }
+        STOP_FAIL(1, "Failed writing recovery file (%s)", recoveryLog.GetFilename());
 }
 
 void StorageShard::WriteRecoveryPostfix()

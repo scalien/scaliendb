@@ -289,19 +289,19 @@ bool StorageIndexPage::CheckWrite(Buffer& writeBuffer)
 
     ST_ASSERT(required == writeBuffer.GetLength());
     ST_ASSERT((unsigned) (maxDataPageIndex + 1) == numDataPageSlots - freeDataPages.GetLength());
-    if (BUFCMP(&writeBuffer, &this->buffer))
+    if (BUFCMP(&writeBuffer, &buffer))
         return false;
     
     return true;
 }
 
-bool StorageIndexPage::Write(Buffer& buffer)
+bool StorageIndexPage::Write(Buffer& writeBuffer)
 {
     bool ret;
     
-    ret = CheckWrite(buffer);
+    ret = CheckWrite(writeBuffer);
     
-    this->buffer.Write(buffer);
+    buffer.Write(writeBuffer);
     
     return ret;
 }
