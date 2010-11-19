@@ -710,6 +710,71 @@ TEST_DEFINE(TestStorageBinaryData)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestWindowsSync)
+{
+    StorageDatabase     db;
+    StorageTable*       table;
+    Buffer              k, v;
+    ReadBuffer          rk, rv;
+    Stopwatch           sw;
+    long                elapsed;
+    unsigned            num, len, ksize, vsize;
+    char*               area;
+    char*               p;
+    unsigned            round;
+    bool                found;
+
+    // Initialization ==============================================================================
+    round = 1000 * 1000;
+    num = 1000;
+    ksize = 10;
+    vsize = 10;
+    area = (char*) malloc(num*(ksize+vsize));
+
+    DCACHE->Init((ksize + vsize) * 2 * 1000 * num);
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable(__func__);
+
+    // Get key-values ==========================================================================
+
+    rk.SetBuffer("egyikkulcs");
+    rk.SetLength(10);
+    found = table->Get(rk, rv);
+
+    rk.SetBuffer("masikkulcs");
+    rk.SetLength(10);
+    found = table->Get(rk, rv);
+
+    // Set key-values ==========================================================================
+
+    rk.SetBuffer("egyikkulcs");
+    rk.SetLength(10);
+    rv.SetBuffer("egyikertek");
+    rv.SetLength(10);
+    table->Set(rk, rv, true);
+
+    // Commit changes ==========================================================================
+    table->Commit(true /*recovery*/, true /*flush*/);
+     
+    // Set key-values ==========================================================================
+
+    rk.SetBuffer("masikkulcs");
+    rk.SetLength(10);
+    rv.SetBuffer("masikertek");
+    rv.SetLength(10);
+    table->Set(rk, rv, true);
+
+    // Commit changes ==========================================================================
+    table->Commit(true /*recovery*/, true /*flush*/);
+
+    // Shutdown ====================================================================================
+    db.Close();
+    DCACHE->Shutdown();
+    free(area);
+
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestStorageRandomGetSetDelete)
 {
     StorageDatabase     db;
