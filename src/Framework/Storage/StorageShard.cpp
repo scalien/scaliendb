@@ -333,6 +333,8 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
     StorageFileHeader   header;
     Buffer              headerBuf;
     
+    FS_FileSeek(tocFD, 0, FS_SEEK_SET);
+    
     headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
     ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH);
     ST_ASSERT(ret == STORAGEFILE_HEADER_LENGTH);
