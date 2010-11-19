@@ -34,6 +34,7 @@ void StorageShard::Open(const char* dir, const char* name_)
     int64_t tocSize;
     char    sep;
     
+    prevCommitStorageFileIndex = 1;
     nextStorageFileIndex = 1;
 
     // create shard directory
