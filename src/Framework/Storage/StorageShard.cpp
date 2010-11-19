@@ -76,7 +76,6 @@ void StorageShard::Open(const char* dir, const char* name_)
     if (recoverySize > 0)
     {
         PerformRecovery(recoverySize);
-        return;
     }
     
     tocSize = FS_FileSize(tocFD);
@@ -336,6 +335,7 @@ uint64_t StorageShard::ReadTOC(uint32_t length)
     Buffer              headerBuf;
     
     headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
+    FS_FileSeek(tocFD, 0, FS_SEEK_SET);
     ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH);
     ST_ASSERT(ret == STORAGEFILE_HEADER_LENGTH);
     headerBuf.SetLength(STORAGEFILE_HEADER_LENGTH);
@@ -595,6 +595,9 @@ uint64_t StorageShard::RebuildTOC()
     FS_CloseDir(dir);
 
     WriteTOC();
+
+    files.DeleteTree();
+
     return totalSize;
 }
 

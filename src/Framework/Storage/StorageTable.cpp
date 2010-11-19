@@ -1018,6 +1018,8 @@ void StorageTable::CommitPhase2()
         if (si->shard != NULL)
             si->shard->CommitPhase2();
     }
+
+    WriteTOC();
 }
 
 void StorageTable::CommitPhase3()

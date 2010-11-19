@@ -424,6 +424,10 @@ char FS_Separator()
 */
 
 #include <windows.h>
+#include "System/Containers/List.h"
+#include <stdio.h>
+
+List<intptr_t>    fileHandles;
 
 struct FS_Dir_Windows
 {
@@ -466,6 +470,8 @@ FD FS_Open(const char* filename, int flags)
     }
     
     fd.handle = (intptr_t) handle;
+    fileHandles.Append(fd.handle);
+
     return fd;
 }
 
@@ -473,6 +479,8 @@ void FS_FileClose(FD fd)
 {
     BOOL    ret;
     
+    fileHandles.Remove(fd.handle);
+
     ret = CloseHandle((HANDLE)fd.handle);
     if (!ret)
         Log_Errno();
@@ -517,7 +525,7 @@ int FS_FileTruncate(FD fd, uint64_t length)
 {
     BOOL    ret;
     
-    if (!FS_FileSeek(fd, length, FS_SEEK_SET))
+    if (FS_FileSeek(fd, length, FS_SEEK_SET) != length)
         return -1;
 
     ret = SetEndOfFile((HANDLE)fd.handle);
@@ -651,8 +659,9 @@ FS_Dir FS_OpenDir(const char* filename)
 
     if (filename[len - 1] == '\\')
     {
-        memcpy(path, filename, len - 1);
-        path[len - 1] = '\0';
+        memcpy(path, filename, len);
+        path[len++] = '*';
+        path[len] = '\0';
         filename = path;
     }
 
@@ -677,7 +686,7 @@ FS_DirEntry FS_ReadDir(FS_Dir dir_)
         return FS_INVALID_DIR_ENTRY;
     if (!FindNextFile(dir->handle, &dir->findData))
         return FS_INVALID_DIR_ENTRY;
-    
+
     return (FS_DirEntry) &dir->findData;
 }
 
@@ -814,6 +823,14 @@ bool FS_Rename(const char* src, const char* dst)
 
 void FS_Sync()
 {
+
+    intptr_t* it;
+
+    FOREACH(it, fileHandles)
+    {
+        if (FlushFileBuffers((HANDLE)*it) == 0)
+            printf("FS_Sync() failed!\n");
+    }
     // TODO: To flush all open files on a volume, call FlushFileBuffers with a handle to the volume.
     // http://msdn.microsoft.com/en-us/library/aa364439(v=VS.85).aspx
 }
