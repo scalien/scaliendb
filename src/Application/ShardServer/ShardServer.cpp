@@ -126,7 +126,7 @@ void ShardServer::OnClientClose(ClientSession* /*session*/)
 void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
     ShardQuorumProcessor* quorumProcessor;
-    
+
     Log_Trace();
     
     switch (message.type)
@@ -349,4 +349,14 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     }
     
     databaseManager.SetShards(configQuorum->shards);
+}
+
+unsigned ShardServer::GetHTTPPort()
+{
+    return configFile.GetIntValue("http.port", 8080);
+}
+
+unsigned  ShardServer::GetSDBPPort()
+{
+    return configFile.GetIntValue("sdbp.port", 7080);
 }

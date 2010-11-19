@@ -24,8 +24,8 @@ public:
     void            OnHeartbeatTimeout();
 
 private:
-    Countdown       heartbeatTimeout;
     ShardServer*    shardServer;
+    Countdown       heartbeatTimeout;
 };
 
 #endif

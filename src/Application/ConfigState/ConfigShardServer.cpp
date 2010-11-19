@@ -68,7 +68,9 @@ ConfigShardServer& ConfigShardServer::operator=(const ConfigShardServer& other)
 {
     nodeID = other.nodeID;
     endpoint = other.endpoint;
-    
+    httpPort = other.httpPort;
+    sdbpPort = other.sdbpPort;
+
     prev = next = this;
     
     return *this;

@@ -1044,7 +1044,7 @@ void Client::ConnectShardServers()
             // TODO: remove this hack when shardserver's endpoint will be sent correctly in configState
             Endpoint    endpoint;
             endpoint = ssit->endpoint;
-            endpoint.SetPort(endpoint.GetPort() + 1);
+            endpoint.SetPort(ssit->sdbpPort);
             assert(endpoint == shardConn->GetEndpoint());
             shardConn->ClearQuorumMemberships();
         }
