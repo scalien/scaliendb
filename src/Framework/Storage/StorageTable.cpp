@@ -109,10 +109,7 @@ void StorageTable::Open(const char* dir, const char* name_)
 
     recoverySize = FS_FileSize(recoveryFD);
     if (recoverySize > 0)
-    {
         PerformRecovery(recoverySize);
-        return;
-    }
     
     tocSize = FS_FileSize(tocFD);
     if (tocSize > 0)
@@ -653,7 +650,8 @@ void StorageTable::RebuildTOC()
     
     FS_CloseDir(dir);
 
-    WriteTOC(); 
+    WriteTOC();
+    shards.DeleteTree();
 }
 
 void StorageTable::ReadTOC(uint64_t length)
@@ -665,6 +663,8 @@ void StorageTable::ReadTOC(uint64_t length)
     int                 ret;
     StorageFileHeader   header;
     Buffer              headerBuf;
+    
+    FS_FileSeek(tocFD, 0, FS_SEEK_SET);
     
     headerBuf.Allocate(STORAGEFILE_HEADER_LENGTH);
     if ((ret = FS_FileRead(tocFD, (void*) headerBuf.GetBuffer(), STORAGEFILE_HEADER_LENGTH)) < 0)

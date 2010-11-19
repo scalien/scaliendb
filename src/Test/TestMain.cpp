@@ -39,11 +39,10 @@ TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestStorageRandomGetSetDelete);
 //TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
 //TEST_ADD(TestStorageShardSplit);
+//TEST_ADD(TestStorageWindowsSync);
 //TEST_ADD(TestTimingBasicWrite);
 //TEST_ADD(TestTimingSnprintf);
 //TEST_ADD(TestTimingWrite);
-TEST_ADD(TestWindowsSync);
-
 TEST_EXECUTE();
 
 #ifdef TEST

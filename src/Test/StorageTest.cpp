@@ -710,17 +710,15 @@ TEST_DEFINE(TestStorageBinaryData)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestWindowsSync)
+TEST_DEFINE(TestStorageWindowsSync)
 {
     StorageDatabase     db;
     StorageTable*       table;
     Buffer              k, v;
     ReadBuffer          rk, rv;
     Stopwatch           sw;
-    long                elapsed;
-    unsigned            num, len, ksize, vsize;
+    unsigned            num, ksize, vsize;
     char*               area;
-    char*               p;
     unsigned            round;
     bool                found;
 
@@ -817,7 +815,7 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
             rk.SetLength(len);
             //printf("%s\n", p);
             p += ksize;
-            //len = snprintf(p, vsize, "%.100f", (float) i); // takes 100 ms
+            len = snprintf(p, vsize + 1, "%010d", i); // takes 100 ms
             rv.SetBuffer(p);
             rv.SetLength(vsize);
             sw.Start();
