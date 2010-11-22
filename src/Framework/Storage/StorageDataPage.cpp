@@ -335,7 +335,7 @@ void StorageDataPage::Read(ReadBuffer& buffer_)
     }
     
     required = readBuffer.GetBuffer() - buffer.GetBuffer();
-    this->buffer.SetLength(required);
+    buffer.SetLength(required);
     ST_ASSERT(IsEmpty() != true);
 }
 
@@ -345,7 +345,7 @@ bool StorageDataPage::CheckWrite(Buffer& writeBuffer)
     unsigned            len;
     uint32_t            num;
     
-    ST_ASSERT(!newPage || (newPage && this->buffer.GetLength() == 0));
+    ST_ASSERT(!newPage || (newPage && buffer.GetLength() == 0));
 
     buffer.Allocate(pageSize);
 
@@ -437,7 +437,7 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
 //      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }
     ST_ASSERT(required == writeBuffer.GetLength());
-    if (BUFCMP(&writeBuffer, &this->buffer))
+    if (BUFCMP(&writeBuffer, &buffer))
         return false;
     
     buffer.Write(writeBuffer);
