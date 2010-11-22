@@ -1000,6 +1000,9 @@ TEST_DEFINE(TestStorageCursor)
         prevKey.Write(kv->key);
         prevValue.Write(kv->value);
     }
+
+    db.Close();
+    DCACHE->Shutdown();
         
     return TEST_SUCCESS;
 }
