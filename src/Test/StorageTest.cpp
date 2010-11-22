@@ -857,9 +857,6 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
     return TEST_SUCCESS;
 }
 
-
-TEST_MAIN(TestStorage, TestStorageCapacitySet);
-
 TEST_DEFINE(TestStorageAppend)
 {
     StorageDatabase     db;
@@ -973,5 +970,36 @@ TEST_DEFINE(TestStorageAppend)
     DCACHE->Shutdown();
     free(area);
     
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestStorageCursor)
+{
+    StorageDatabase     db;
+    StorageTable*       table;
+    StorageDataCache*   cache;
+    StorageCursor*      cursor;
+    StorageKeyValue*    kv;
+    Buffer              prevKey, prevValue;
+    Buffer              k, v;
+    ReadBuffer          rk, rv;
+    Stopwatch           sw;
+
+    cache = DCACHE;
+    DCACHE->Init(100000000);
+
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable("TestStorageRandomGetSetDelete");
+    cursor = new StorageCursor(table);
+    
+    for (kv = cursor->Begin(); kv != NULL; kv = cursor->Next())
+    {
+        TEST_ASSERT((prevKey.GetLength() == 0 && kv->key.GetLength() == 0) ||
+         ReadBuffer::Cmp(ReadBuffer(prevKey), kv->key) < 0);
+        
+        prevKey.Write(kv->key);
+        prevValue.Write(kv->value);
+    }
+        
     return TEST_SUCCESS;
 }
