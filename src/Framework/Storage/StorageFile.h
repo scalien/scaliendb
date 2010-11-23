@@ -58,6 +58,7 @@ private:
     void                    ReorderPages();
     void                    ReorderFile();
     void                    AssertIndexConsistency();
+    void                    AssertFileIndexConsistency();
     
     FD                      fd;
     uint32_t                fileIndex;

@@ -28,8 +28,10 @@
 #ifdef DEBUG
 #define ASSERT_INDEX_CONSISTENCY AssertIndexConsistency
 //#define ASSERT_INDEX_CONSISTENCY()
+#define ASSERT_FILEINDEX_CONSISTENCY AssertFileIndexConsistency
 #else
 #define ASSERT_INDEX_CONSISTENCY()
+#define ASSERT_FILEINDEX_CONSISTENCY()
 #endif
 
 //static void DumpKeys(StorageDataPage** dataPages)
@@ -136,6 +138,8 @@ void StorageFile::SetStorageFileIndex(uint32_t fileIndex_)
     indexPage.SetStorageFileIndex(fileIndex);
     for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Next(it))
         it->SetStorageFileIndex(fileIndex);
+    
+    ASSERT_FILEINDEX_CONSISTENCY();
 }
 
 bool StorageFile::Get(ReadBuffer& key, ReadBuffer& value)
@@ -346,7 +350,7 @@ StorageFile* StorageFile::SplitFile()
     
     ReorderFile();
     newFile->ReorderFile();
-        
+
     return newFile;
 }
 
@@ -501,6 +505,8 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
     Buffer          buffer;
     StoragePage*    it;
 
+    ASSERT_FILEINDEX_CONSISTENCY();
+
     if (IsNew())
     {
         buffer.AppendLittle32(fileIndex);
@@ -518,9 +524,12 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
         buffer.Allocate(it->GetPageSize());
         if (!it->CheckWrite(buffer))
             continue;
+        ST_ASSERT(it->buffer.GetLength() >= STORAGEFILE_HEADER_LENGTH);
         if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer))
             STOP_FAIL(1, "Recovery failed when writing file (%s)", recoveryLog.GetFilename());
     }
+
+    ASSERT_FILEINDEX_CONSISTENCY();
 }
 
 void StorageFile::WriteData()
@@ -533,6 +542,7 @@ void StorageFile::WriteData()
     ssize_t                 ret;
 
     ASSERT_INDEX_CONSISTENCY();
+    ASSERT_FILEINDEX_CONSISTENCY();
     
     if (newFile)
     {
@@ -596,6 +606,7 @@ void StorageFile::WriteData()
     
     ST_DEBUG_ASSERT(GetSize() == (uint64_t) FS_FileSize(fd));    
     ASSERT_INDEX_CONSISTENCY();
+    ASSERT_FILEINDEX_CONSISTENCY();
 }
 
 StorageDataPage* StorageFile::CursorBegin(StorageCursor* cursor, ReadBuffer& key)
@@ -782,3 +793,19 @@ void StorageFile::AssertIndexConsistency()
     }
 }
 
+void StorageFile::AssertFileIndexConsistency()
+{
+    uint32_t        index;
+    StoragePage*    page;
+
+    for (index = 0; index < numDataPages; index++)
+    {
+        if (dataPages[index] != NULL)
+            ST_ASSERT(dataPages[index]->GetStorageFileIndex() == fileIndex);
+    }
+    
+    FOREACH (page, dirtyPages)
+    {
+        ST_ASSERT(page->GetStorageFileIndex() == fileIndex);
+    }
+}

@@ -12,7 +12,7 @@ TEST_LOG_INIT(true, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBatchedSetRandom);     // TODO: this crashes shard server various ways!
 //TEST_ADD(TestClientCreateTable);
 //TEST_ADD(TestClientFailover);
-TEST_ADD(TestClientGetAndSet);
+//TEST_ADD(TestClientGetAndSet);
 //TEST_ADD(TestClientMaro);
 //TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);
@@ -36,6 +36,7 @@ TEST_ADD(TestClientGetAndSet);
 //TEST_ADD(TestStorageCapacity);
 //TEST_ADD(TestStorageCursor);
 //TEST_ADD(TestStorageFileSplit);
+TEST_ADD(TestStorageFileSplit2);
 //TEST_ADD(TestStorageFileThreeWaySplit);
 //TEST_ADD(TestStorageRandomGetSetDelete);
 //TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!

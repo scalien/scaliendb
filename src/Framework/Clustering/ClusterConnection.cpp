@@ -93,14 +93,11 @@ void ClusterConnection::OnConnect()
 
 void ClusterConnection::OnClose()
 {
-    Endpoint    remoteEndpoint;
-
     Log_Trace();
     
     if (connectTimeout.IsActive())
         return;
     
-    socket.GetEndpoint(remoteEndpoint);
     MessageConnection::Close();
     if (nodeID != UNDEFINED_NODEID)
         Log_Message("[%s]: [%U] Node disconnected", endpoint.ToString(), nodeID);

@@ -16,6 +16,40 @@
     TEST_LOG("%s => %s", k.GetBuffer(), v.GetBuffer()); \
 }
 
+int TestStorageCursorWalk(const char *name)
+{
+    StorageDatabase     db;
+    StorageTable*       table;
+    StorageDataCache*   cache;
+    StorageCursor*      cursor;
+    StorageKeyValue*    kv;
+    Buffer              prevKey, prevValue;
+    Buffer              k, v;
+    ReadBuffer          rk, rv;
+    Stopwatch           sw;
+
+    cache = DCACHE;
+    DCACHE->Init(100000000);
+
+    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
+    table = db.GetTable(name);
+    cursor = new StorageCursor(table);
+    
+    for (kv = cursor->Begin(); kv != NULL; kv = cursor->Next())
+    {
+        TEST_ASSERT((prevKey.GetLength() == 0 && kv->key.GetLength() == 0) ||
+         ReadBuffer::Cmp(ReadBuffer(prevKey), kv->key) < 0);
+        
+        prevKey.Write(kv->key);
+        prevValue.Write(kv->value);
+    }
+
+    db.Close();
+    DCACHE->Shutdown();
+        
+    return TEST_SUCCESS;
+}
+
 // This can be used for ensuring the database is in a blank state
 // It is intentionally named with zero in the middle of the name in 
 // order to became first when sorted alphabetically.
@@ -604,6 +638,57 @@ TEST_DEFINE(TestStorageFileSplit)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestStorageFileSplit2)
+{
+    StorageEnvironment  env;
+    StorageDatabase*    db;
+    StorageTable*       table;
+    char                keyvalue[100];
+    ReadBuffer          key;
+    ReadBuffer          value;
+    int                 num;
+
+//    TEST_ASSERT(TestStorageCursorWalk(__func__) == TEST_SUCCESS);
+
+    // Initialization ==============================================================================
+    env.InitCache(STORAGE_DEFAULT_CACHE_SIZE);
+    env.Open(TEST_DATABASE_PATH);
+    db = env.GetDatabase(TEST_DATABASE);
+    table = db->GetTable(__func__);
+
+    // key is empty
+    if (!table->ShardExists(key))
+        table->CreateShard(0, key);
+    
+    key.SetBuffer(keyvalue);
+    key.SetLength(10);
+    
+    value.SetBuffer(keyvalue + key.GetLength());
+    value.SetLength(sizeof(keyvalue) - key.GetLength());
+    
+    num = 75*1000;
+    for (int i = 1; i < num; i++)
+    {
+        snprintf(key.GetBuffer(), key.GetLength(), "%09d", i);
+        table->Set(key, value, true);
+    }
+    table->Commit();
+    
+    for (int i = num; i < num + 5000; i++)
+    {
+        snprintf(key.GetBuffer(), key.GetLength(), "%09d", i);
+        table->Set(key, value, true);
+    }
+    table->Commit();
+    
+    // Shutdown ====================================================================================
+    env.Close();
+    
+//    TEST_ASSERT(TestStorageCursorWalk(__func__) == TEST_SUCCESS);
+
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestStorageFileThreeWaySplit)
 {
     StorageEnvironment  env;
@@ -975,34 +1060,5 @@ TEST_DEFINE(TestStorageAppend)
 
 TEST_DEFINE(TestStorageCursor)
 {
-    StorageDatabase     db;
-    StorageTable*       table;
-    StorageDataCache*   cache;
-    StorageCursor*      cursor;
-    StorageKeyValue*    kv;
-    Buffer              prevKey, prevValue;
-    Buffer              k, v;
-    ReadBuffer          rk, rv;
-    Stopwatch           sw;
-
-    cache = DCACHE;
-    DCACHE->Init(100000000);
-
-    db.Open(TEST_DATABASE_PATH, TEST_DATABASE);
-    table = db.GetTable("TestStorageRandomGetSetDelete");
-    cursor = new StorageCursor(table);
-    
-    for (kv = cursor->Begin(); kv != NULL; kv = cursor->Next())
-    {
-        TEST_ASSERT((prevKey.GetLength() == 0 && kv->key.GetLength() == 0) ||
-         ReadBuffer::Cmp(ReadBuffer(prevKey), kv->key) < 0);
-        
-        prevKey.Write(kv->key);
-        prevValue.Write(kv->value);
-    }
-
-    db.Close();
-    DCACHE->Shutdown();
-        
-    return TEST_SUCCESS;
+    return TestStorageCursorWalk("TestStorageRandomGetSetDelete");
 }

@@ -286,6 +286,7 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
         newFi->SetKey(startKey, true);
         newFi->index = newIndex++;
         newFi->file = midFi->file->SplitFileByKey(startKey);
+        newFi->file->SetStorageFileIndex(newFi->index);
         newShard->files.Insert(newFi);
         fi = files.Next(midFi);
     }
@@ -454,24 +455,29 @@ void StorageShard::OnRecoveryOp()
 
 void StorageShard::WriteBackPages(InList<Buffer>& pages)
 {
-    char*       p;
     FD          fd;
     uint32_t    pageSize, fileIndex, offset;
     Buffer      filepath;
     Buffer*     page;
+    ReadBuffer  readBuffer;
+    bool        ret;
     
-    for (page = pages.First(); page != NULL; page = pages.Next(page))
+    FOREACH (page, pages)
     {
-        // parse the header part of page and write it
-
-        p = page->GetBuffer();
-        pageSize = FromLittle32(*((uint32_t*) p));
-        p += 4;
-        fileIndex = FromLittle32(*((uint32_t*) p));
+        readBuffer = *page;
+        ret = readBuffer.ReadLittle32(pageSize);
+        ST_ASSERT(ret);
+        ST_ASSERT(pageSize > 0);
+        
+        readBuffer.Advance(sizeof(uint32_t));
+        ret = readBuffer.ReadLittle32(fileIndex);
+        ST_ASSERT(ret);
         ST_ASSERT(fileIndex != 0);
-        p += 4;
-        offset = FromLittle32(*((uint32_t*) p));
-        p += 4;
+        
+        readBuffer.Advance(sizeof(uint32_t));
+        ret = readBuffer.ReadLittle32(offset);
+        ST_ASSERT(ret);
+
         WritePath(filepath, fileIndex);
         filepath.NullTerminate();
         fd = FS_Open(filepath.GetBuffer(), FS_READWRITE | FS_CREATE);
@@ -631,7 +637,7 @@ void StorageShard::WriteRecoveryPrefix()
         it->file->WriteRecovery(recoveryLog);
     }
 
-    ST_ASSERT(prevCommitStorageFileIndex >= files.GetCount());
+    //ST_ASSERT(prevCommitStorageFileIndex >= files.GetCount());
     
     buffer.AppendLittle32(prevCommitStorageFileIndex);
     if (!recoveryLog.WriteOp(RECOVERY_OP_COMMIT, sizeof(prevCommitStorageFileIndex), buffer))
