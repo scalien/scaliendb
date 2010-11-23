@@ -5,6 +5,7 @@
 #include "System/Events/Callable.h"
 
 TEST_DEFINE(TestStorageRandomGetSetDelete);
+TEST_DEFINE(TestStorageCursor);
 
 static bool             crash = false;
 
@@ -32,6 +33,8 @@ TEST_DEFINE(TestCrashStorage)
     ThreadPool* thread;
     
     SeedRandom();
+    
+    TEST_CALL(TestStorageCursor);
     
     crash = true;
     thread = ThreadPool::Create(1);

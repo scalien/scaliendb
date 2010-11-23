@@ -12,6 +12,7 @@ void ClusterTransport::Init(Endpoint& endpoint_)
     server.Init(endpoint.GetPort());
     server.SetTransport(this);
     awaitingNodeID = true;
+    nodeID = UNDEFINED_NODEID;
 }
 
 void ClusterTransport::SetSelfNodeID(uint64_t nodeID_)
@@ -45,15 +46,15 @@ void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
     if (conn != NULL)
         return;
 
-    if (!awaitingNodeID && nodeID == this->nodeID)
-        Log_Trace("connecting to self");
-
     conn = new ClusterConnection;
     conn->SetTransport(this);
     conn->SetNodeID(nodeID);
     conn->SetEndpoint(endpoint);
     conn->Connect();
     conns.Append(conn);
+
+    if (!awaitingNodeID && nodeID == this->nodeID)
+        Log_Trace("connecting to self");
 }
 
 bool ClusterTransport::SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID)
@@ -136,7 +137,7 @@ bool ClusterTransport::GetNextWaiting(Endpoint& endpoint)
 {
     ClusterConnection* it;
     
-    for (it = conns.First(); it != NULL; it = conns.Next(it))
+    FOREACH (it, conns)
     {
         if (it->GetProgress() == ClusterConnection::AWAITING_NODEID)
         {
@@ -152,7 +153,7 @@ bool ClusterTransport::IsConnected(uint64_t nodeID)
 {
     ClusterConnection* it;
     
-    for (it = conns.First(); it != NULL; it = conns.Next(it))
+    FOREACH (it, conns)
     {
         if (it->GetNodeID() == nodeID)
         {
@@ -199,7 +200,7 @@ ClusterConnection* ClusterTransport::GetConnection(uint64_t nodeID)
 {
     ClusterConnection* it;
     
-    for (it = conns.First(); it != NULL; it = conns.Next(it))
+    FOREACH (it, conns)
     {
         if (it->GetNodeID() == nodeID && it->GetProgress() != ClusterConnection::AWAITING_NODEID)
             return it;
@@ -212,7 +213,7 @@ ClusterConnection* ClusterTransport::GetConnection(Endpoint& endpoint)
 {
     ClusterConnection* it;
     
-    for (it = conns.First(); it != NULL; it = conns.Next(it))
+    FOREACH (it, conns)
     {
         if (it->GetEndpoint() == endpoint)
             return it;
@@ -235,7 +236,7 @@ void ClusterTransport::ReconnectAll()
 {
     ClusterConnection* it;
     
-    for (it = conns.First(); it != NULL; it = conns.Next(it))
+    FOREACH (it, conns)
     {
         it->Close();
         it->Connect();

@@ -244,3 +244,12 @@ ReadBuffer Endpoint::ToReadBuffer()
     return ReadBuffer(buffer, len);
 }
 
+bool Endpoint::IsSet()
+{
+    struct sockaddr_in *sa;
+    
+    sa = (struct sockaddr_in *) &saBuffer;
+    if (sa->sin_port == 0)
+        return false;
+    return true;
+}

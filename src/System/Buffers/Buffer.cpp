@@ -61,6 +61,8 @@ void Buffer::Allocate(unsigned size_, bool keepold)
     else    
         newbuffer = (char*) realloc(buffer, size_);
 
+    assert(newbuffer != NULL);
+
     if (keepold && length > 0)
     {
         if (buffer == array)
@@ -132,7 +134,7 @@ unsigned Buffer::Appendf(const char* fmt, ...)
 void Buffer::Write(const char* buffer_, unsigned length_)
 {
     if (length_ > size)
-        Allocate(length + length_);
+        Allocate(length_);
     memmove(buffer, buffer_, length_);
     length = length_;
 }

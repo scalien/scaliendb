@@ -24,7 +24,7 @@ public:
 
     void                    Init();
     void                    Shutdown();
-    
+
     ShardQuorumProcessor*   GetQuorumProcessor(uint64_t quorumID);
     QuorumProcessorList*    GetQuorumProcessors();
     ShardDatabaseManager*   GetDatabaseManager();
@@ -51,6 +51,9 @@ public:
     bool                    IsLeaseOwner(uint64_t quorumID);
     uint64_t                GetLeaseOwner(uint64_t quorumID);
 
+    unsigned                GetHTTPPort();
+    unsigned                GetSDBPPort();
+
 private:
     void                    OnSetConfigState(ClusterMessage& message);
     void                    ConfigureQuorum(ConfigQuorum* configQuorum);
@@ -60,6 +63,7 @@ private:
     QuorumProcessorList     quorumProcessors;
     ShardHeartbeatManager   heartbeatManager;
     ShardDatabaseManager    databaseManager;
+
 };
 
 #endif

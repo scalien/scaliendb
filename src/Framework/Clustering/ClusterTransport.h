@@ -5,6 +5,8 @@
 #include "Framework/Messaging/Message.h"
 #include "ClusterServer.h"
 
+#define UNDEFINED_NODEID    ((uint64_t)(-1))
+
 class WriteReadyness;
 
 /*

@@ -41,6 +41,9 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
         if (quorum->paxosID < it->paxosID)
             quorum->paxosID = it->paxosID;
     }
+
+    shardServer->httpPort = message.httpPort;
+    shardServer->sdbpPort = message.sdbpPort;
 }
 
 void ConfigHeartbeatManager::OnHeartbeatTimeout()
