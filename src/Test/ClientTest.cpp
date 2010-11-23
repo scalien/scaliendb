@@ -413,6 +413,113 @@ TEST_DEFINE(TestClientCreateTable)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientGetAndSet)
+{
+    // works for empty database
+
+    typedef ClientRequest::NodeList NodeList;
+
+    Client          client;
+    Result*         result;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "test";
+    ReadBuffer      tableName = "tabla";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    ReadBuffer      newVal;
+    ReadBuffer      retBuf;
+    int             ret;
+    Stopwatch       sw;
+    NodeList        quorumNodes;
+    uint64_t        quorumID;
+    uint64_t        databaseID;
+//    uint64_t        tableID;
+    uint64_t        defaultQuorumNodeID = 100;
+    unsigned        num = 25;
+/*        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    
+    // quorum
+    quorumNodes.Append(defaultQuorumNodeID);
+    ret = client.CreateQuorum(quorumNodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    result = client.GetResult();
+    if (result == NULL)
+        TEST_CLIENT_FAIL();
+    
+    ret = result->GetNumber(quorumID);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    delete result;
+    
+    // database
+    ret = client.CreateDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    result = client.GetResult();
+    if (result == NULL)
+        TEST_CLIENT_FAIL();
+    
+    ret = result->GetNumber(databaseID);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    delete result;
+    
+    // table
+    ret = client.CreateTable(databaseID, quorumID, tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    */
+    //set & getandset
+
+   ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(1000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    key.SetBuffer("1234567890123456789012345");
+    value.SetBuffer("1234567890123456789012345");
+    newVal.SetBuffer("abcdefghijabcdefghijabcde");
+
+    for (unsigned i = 0; i < num; i++)
+    {
+        key.SetLength(i+1);
+        value.SetLength(i+1);
+
+        ret = client.Set(key, value);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+
+        newVal.SetLength(i+1);
+        
+        ret = client.GetAndSet(key, newVal);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+
+}
+
 TEST_DEFINE(TestClientMaro)
 {
     Client          client;

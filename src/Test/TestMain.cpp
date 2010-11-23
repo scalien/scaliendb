@@ -12,12 +12,13 @@ TEST_LOG_INIT(true, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBatchedSetRandom);     // TODO: this crashes shard server various ways!
 //TEST_ADD(TestClientCreateTable);
 //TEST_ADD(TestClientFailover);
+TEST_ADD(TestClientGetAndSet);
 //TEST_ADD(TestClientMaro);
 //TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
-TEST_ADD(TestCrashStorage);
+//TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);
 //TEST_ADD(TestInTreeMap);

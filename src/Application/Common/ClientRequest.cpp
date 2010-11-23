@@ -48,6 +48,7 @@ bool ClientRequest::IsShardServerRequest()
         type == CLIENTREQUEST_SET               ||
         type == CLIENTREQUEST_SET_IF_NOT_EXISTS ||
         type == CLIENTREQUEST_TEST_AND_SET      ||
+        type == CLIENTREQUEST_GET_AND_SET       ||
         type == CLIENTREQUEST_ADD               ||
         type == CLIENTREQUEST_APPEND            ||
         type == CLIENTREQUEST_DELETE            ||
@@ -189,6 +190,19 @@ bool ClientRequest::TestAndSet(
     tableID = tableID_;
     key.Write(key_);
     test.Write(test_);
+    value.Write(value_);
+    return true;
+}
+
+bool ClientRequest::GetAndSet(
+ uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_,
+ ReadBuffer& key_, ReadBuffer& value_)
+{
+    type = CLIENTREQUEST_GET_AND_SET;
+    commandID = commandID_;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    key.Write(key_);
     value.Write(value_);
     return true;
 }

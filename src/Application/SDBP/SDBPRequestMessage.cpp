@@ -84,6 +84,7 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
             break;
         case CLIENTREQUEST_SET:
         case CLIENTREQUEST_SET_IF_NOT_EXISTS:
+        case CLIENTREQUEST_GET_AND_SET:
             read = buffer.Readf("%c:%U:%U:%U:%#B:%#B",
              &request->type, &request->commandID, &request->databaseID,
              &request->tableID, &request->key, &request->value);
@@ -183,6 +184,7 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
             return true;
         case CLIENTREQUEST_SET:
         case CLIENTREQUEST_SET_IF_NOT_EXISTS:
+        case CLIENTREQUEST_GET_AND_SET:
             buffer.Appendf("%c:%U:%U:%U:%#B:%#B",
              request->type, request->commandID, request->databaseID,
              request->tableID, &request->key, &request->value);

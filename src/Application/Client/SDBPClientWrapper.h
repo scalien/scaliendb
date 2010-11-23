@@ -104,6 +104,8 @@ int             SDBP_SetIfNotExists(ClientObj client, const std::string& key, co
 int             SDBP_SetIfNotExistsCStr(ClientObj client, char* key, int lenKey, char* value, int lenValue);
 int             SDBP_TestAndSet(ClientObj client, const std::string& key, const std::string& test, const std::string& value);
 int             SDBP_TestAndSetCStr(ClientObj client, char* key, int lenKey, char* test, int lenTest, char* value, int lenValue);
+int             SDBP_GetAndSet(ClientObj client, const std::string& key, const std::string& value);
+int             SDBP_GetAndSet(ClientObj client, char* key, int lenKey, char* value, int lenValue);
 int             SDBP_Add(ClientObj client, const std::string& key, int64_t number);
 int             SDBP_AddCStr(ClientObj client_, char* key, int len, int64_t number);
 int             SDBP_Append(ClientObj client, const std::string& key, const std::string& value);

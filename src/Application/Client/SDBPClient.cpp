@@ -539,6 +539,32 @@ int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
     return result->CommandStatus(); 
 }
 
+int Client::GetAndSet(ReadBuffer& key, ReadBuffer& value)
+{
+    Request*    req;
+    
+    // TODO validations
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+    
+    req = new Request;
+    Log_Trace("%U", tableID);
+    req->GetAndSet(NextCommandID(), databaseID, tableID, key, value);
+    requests.Append(req);
+    
+    if (isBatched)
+    {
+        result->AppendRequest(req);
+        return SDBP_SUCCESS;
+    }
+
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus(); 
+}
+
 int Client::Add(const ReadBuffer& key, int64_t number)
 {
     Request*    req;
@@ -1027,6 +1053,7 @@ void Client::ConnectShardServers()
     InList<ConfigQuorum>*       quorums;
     ShardConnection*            shardConn;
     uint64_t*                   nit;
+    Endpoint                    endpoint;
     
     // TODO: removal of node
     shardServers = &configState->shardServers;
@@ -1035,14 +1062,15 @@ void Client::ConnectShardServers()
         shardConn = shardConnections.Get<uint64_t>(ssit->nodeID);
         if (shardConn == NULL)
         {
-            shardConn = new ShardConnection(this, ssit->nodeID, ssit->endpoint);
+            endpoint = ssit->endpoint;
+            endpoint.SetPort(ssit->sdbpPort);
+            shardConn = new ShardConnection(this, ssit->nodeID, endpoint);
             shardConnections.Insert(shardConn);
         }
         else
         {
             Log_Trace("ssit: %s, shardConn: %s", ssit->endpoint.ToString(), shardConn->GetEndpoint().ToString());
             // TODO: remove this hack when shardserver's endpoint will be sent correctly in configState
-            Endpoint    endpoint;
             endpoint = ssit->endpoint;
             endpoint.SetPort(ssit->sdbpPort);
             assert(endpoint == shardConn->GetEndpoint());
