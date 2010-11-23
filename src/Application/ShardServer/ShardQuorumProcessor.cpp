@@ -334,18 +334,34 @@ void ShardQuorumProcessor::TryAppend()
 {
     Buffer          singleBuffer;
     ShardMessage*   it;
+    bool            first;
     
     assert(shardMessages.GetLength() > 0);
     
+    
     if (!quorumContext.IsAppending() && shardMessages.GetLength() > 0)
     {
-        Buffer& value = quorumContext.GetNextValue();
+        Buffer& value = quorumContext.GetNextValue();        
+        
+        first = true;
         FOREACH(it, shardMessages)
         {
+            // make sure split shard messages are replicated by themselves
+            if (!first && it->type == SHARDMESSAGE_SPLIT_SHARD)
+                break;
+            
+            if (first)
+                first = false;
+
             singleBuffer.Clear();
             it->Write(singleBuffer);
             if (value.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_REPLICATION_SIZE)
+            {
                 value.Appendf("%B", &singleBuffer);
+                // make sure split shard messages are replicated by themselves
+                if (it->type == SHARDMESSAGE_SPLIT_SHARD)
+                    break;
+            }
             else
                 break;
         }
