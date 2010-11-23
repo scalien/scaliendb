@@ -43,6 +43,7 @@ public:
     void                    DeactivateNode(uint64_t quorumID, uint64_t nodeID);
  
     void                    TryRegisterShardServer(Endpoint& endpoint);
+    void                    TryShardSplit(uint64_t shardID, ReadBuffer& splitKey);
        
     void                    UpdateListeners();
 

@@ -50,6 +50,7 @@ void ConfigServer::Init()
     heartbeatManager.Init(this);
     primaryLeaseManager.Init(this);
     activationManager.Init(this);
+    splitShardManager.Init(this);
 }
 
 void ConfigServer::Shutdown()
@@ -118,6 +119,7 @@ void ConfigServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message
             ASSERT_FAIL();
         case CLUSTERMESSAGE_HEARTBEAT:
             heartbeatManager.OnHeartbeatMessage(message);
+            splitShardManager.OnHeartbeatMessage(message);
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             ASSERT_FAIL();

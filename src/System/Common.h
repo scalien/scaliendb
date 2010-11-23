@@ -20,9 +20,11 @@
 
 #define KB      1000
 #define MB      1000000
+#define GB      1000000000
 
 #define KiB     1024
 #define MiB     (1024*1024)
+#define GiB     (1024*1024*1024)
 
 #define YES     'Y'
 #define NO      'N'

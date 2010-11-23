@@ -105,6 +105,8 @@ private:
     void                OnCreateTable(ConfigMessage& message);
     void                OnRenameTable(ConfigMessage& message);
     void                OnDeleteTable(ConfigMessage& message);
+    void                OnSplitShardBegin(ConfigMessage& message);
+    void                OnSplitShardComplete(ConfigMessage& message);
 
     bool                ReadQuorums(ReadBuffer& buffer, bool withVolatile);
     void                WriteQuorums(Buffer& buffer, bool withVolatile);

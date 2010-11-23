@@ -10,7 +10,7 @@
 #define SHARDMESSAGE_APPEND                 'p'
 #define SHARDMESSAGE_DELETE                 'X'
 #define SHARDMESSAGE_REMOVE                 'x'
-#define SHARDMESSAGE_SPLIT                  'z'
+#define SHARDMESSAGE_SPLIT_SHARD            'z'
 
 /*
 ===============================================================================================
@@ -46,7 +46,7 @@ public:
     void            Append(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     void            Delete(uint64_t tableID, ReadBuffer& key);
     void            Remove(uint64_t tableID, ReadBuffer& key);
-    void            Split(uint64_t shardID, uint64_t newShardID, ReadBuffer& key);
+    void            SplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& key);
 
     // Serialization
     int             Read(ReadBuffer& buffer);

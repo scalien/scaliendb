@@ -11,11 +11,13 @@ bool ClusterMessage::SetNodeID(uint64_t nodeID_)
     return true;
 }
 
-bool ClusterMessage::Heartbeat(uint64_t nodeID_, QuorumPaxosID::List& quorumPaxosIDs_)
+bool ClusterMessage::Heartbeat(uint64_t nodeID_,
+QuorumPaxosID::List& quorumPaxosIDs_, QuorumShardInfo::List& quorumShardInfos_)
 {
     type = CLUSTERMESSAGE_HEARTBEAT;
     nodeID = nodeID_;
     quorumPaxosIDs = quorumPaxosIDs_;
+    quorumShardInfos = quorumShardInfos_;
     return true;
 }
 
@@ -73,7 +75,10 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             if (read < 3)
                 return false;
             buffer.Advance(read);
-            return QuorumPaxosID::ReadList(buffer, quorumPaxosIDs);
+            if (!QuorumPaxosID::ReadList(buffer, quorumPaxosIDs))
+                return false;
+            if (!QuorumShardInfo::ReadList(buffer, quorumShardInfos))
+                return false;
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             type = CLUSTERMESSAGE_SET_CONFIG_STATE;
@@ -114,6 +119,7 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U",
              type, nodeID);
             QuorumPaxosID::WriteList(buffer, quorumPaxosIDs);
+            QuorumShardInfo::WriteList(buffer, quorumShardInfos);
             return true;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             buffer.Clear();

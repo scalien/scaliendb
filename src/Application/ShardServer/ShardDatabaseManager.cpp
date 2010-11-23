@@ -294,7 +294,7 @@ void ShardDatabaseManager::ExecuteMessage(
             if (!table->Delete(message.key))
                 RESPONSE_FAIL();
             break;
-        case SHARDMESSAGE_SPLIT:
+        case SHARDMESSAGE_SPLIT_SHARD:
             shard = GetShard(message.shardID);
             if (!shard)
                 ASSERT_FAIL();

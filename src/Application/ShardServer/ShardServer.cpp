@@ -235,13 +235,18 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
 {
     bool                    found;
     uint64_t*               itNodeID;
+    uint64_t*               itConfigShard;
+    ReadBuffer              splitKey;
+    ConfigShard*            configShard;
     ConfigQuorum*           configQuorum;
+    ConfigShardServer*      configShardServer;
     ShardQuorumProcessor*   quorumProcessor;
     ShardQuorumProcessor*   next;
     
     Log_Trace();
 
     configState = message.configState;
+    configShardServer = configState.GetShardServer(MY_NODEID);
     
     // look for removal
     for (quorumProcessor = quorumProcessors.First(); quorumProcessor != NULL; quorumProcessor = next)
@@ -265,8 +270,22 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
             }
         }
         if (found)
+        {
+            if (quorumProcessor->IsPrimary())
+            {
+                // look for shard splits
+                FOREACH(itConfigShard, configQuorum->shards)
+                {
+                    configShard = configState.GetShard(*itConfigShard);
+                    if (configShard->isSplitCreating)
+                    {
+                        splitKey.Wrap(configShard->firstKey);
+                        quorumProcessor->TrySplitShard(configShard->parentShardID, configShard->shardID, splitKey);
+                    }
+                }
+            }
             continue;
-
+        }
         FOREACH(itNodeID, configQuorum->inactiveNodes)
         {
             if (*itNodeID == MY_NODEID)

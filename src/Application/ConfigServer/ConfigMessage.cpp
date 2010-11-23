@@ -114,6 +114,21 @@ bool ConfigMessage::DeleteTable(
     return true;
 }
 
+bool ConfigMessage::SplitShardBegin(uint64_t shardID_, ReadBuffer& firstKey_)
+{
+    type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
+    shardID = shardID_;
+    firstKey = firstKey_;
+    return true;
+}
+
+bool ConfigMessage::SplitShardComplete(uint64_t shardID_)
+{
+    type = CONFIGMESSAGE_SPLIT_SHARD_COMPLETE;
+    shardID = shardID_;
+    return true;
+}
+
 bool ConfigMessage::Read(ReadBuffer& buffer)
 {
     int         read;
@@ -195,6 +210,17 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U",
              &type, &databaseID, &tableID);
             break;
+
+        // Shard management
+        case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &shardID, &firstKey);
+            break;
+        case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
+            read = buffer.Readf("%c:%U",
+             &type, &shardID);
+            break;
+
         default:
             return false;
     }
@@ -267,6 +293,17 @@ bool ConfigMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%U",
              type, databaseID, tableID);
             break;
+            
+        // Shard management
+        case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
+            buffer.Writef("%c:%U:%#R",
+             type, shardID, &firstKey);
+            break;
+        case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
+            buffer.Writef("%c:%U",
+             type, shardID);
+            break;
+        
         default:
             return false;
     }

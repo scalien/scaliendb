@@ -48,10 +48,15 @@ uint64_t ShardQuorumProcessor::GetPaxosID()
     return quorumContext.GetPaxosID();
 }
 
-ShardQuorumProcessor::ShardList& ShardQuorumProcessor::GetShards()
+ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
 {
-    return shards;
+    return shardServer->GetConfigState()->GetQuorum(GetQuorumID());
 }
+
+//ShardQuorumProcessor::ShardList& ShardQuorumProcessor::GetShards()
+//{
+//    return shards;
+//}
 
 void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
 {
@@ -165,7 +170,6 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     requestedLeaseExpireTime = EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME;
     if (!requestLeaseTimeout.IsActive())
         EventLoop::Add(&requestLeaseTimeout);
-
 }
 
 void ShardQuorumProcessor::OnLeaseTimeout()
@@ -220,6 +224,22 @@ void ShardQuorumProcessor::TryReplicationCatchup()
     
     quorumContext.TryReplicationCatchup();
 }
+
+void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& key)
+{
+    ShardMessage*   it;
+    
+    FOREACH(it, shardMessages)
+    {
+        if (it->type == SHARDMESSAGE_SPLIT_SHARD && it->shardID == shardID)
+            return;
+    }
+    
+    it = new ShardMessage;
+    it->SplitShard(shardID, newShardID, key);
+    shardMessages.Append(it);
+}
+
 
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {

@@ -25,6 +25,16 @@ public:
     uint64_t        databaseID;
     uint64_t        tableID;
     uint64_t        shardID;
+
+    // ========================================================================================
+    //
+    // shard splitting
+
+    bool            isSplitCreating;
+    uint64_t        parentShardID;
+
+    // ========================================================================================
+    
     
     Buffer          firstKey;
     Buffer          lastKey;
