@@ -2,6 +2,7 @@
 
 CRASHLOGFILE="/tmp/crash.log"
 LOGFILE="/tmp/crash-last.log"
+PREVLOGFILE="/tmp/crash-prev.log"
 MAX_ERROR=1
 ERRORCOUNT=1
 
@@ -22,6 +23,7 @@ safe_exit()
 infinite_loop()
 {
 	ulimit -c unlimited
+	mv -f $LOGFILE $PREVLOGFILE > /dev/null 2>&1
 	echo > $CRASHLOGFILE
 	while (:); do
 		log "Starting '$*'"
