@@ -8,7 +8,6 @@
 #include "ConfigPrimaryLeaseManager.h"
 #include "ConfigHeartbeatManager.h"
 #include "ConfigActivationManager.h"
-#include "ConfigSplitShardManager.h"
 
 /*
 ===============================================================================================
@@ -30,7 +29,6 @@ public:
     ConfigQuorumProcessor*      GetQuorumProcessor();
     ConfigHeartbeatManager*     GetHeartbeatManager();
     ConfigActivationManager*    GetActivationManager();
-    ConfigSplitShardManager*    GetSplitShardManager();
 
     void                        OnConfigStateChanged();
     
@@ -55,7 +53,6 @@ private:
     ConfigHeartbeatManager      heartbeatManager;
     ConfigPrimaryLeaseManager   primaryLeaseManager;
     ConfigActivationManager     activationManager;
-    ConfigSplitShardManager     splitShardManager;
 };
 
 #endif
