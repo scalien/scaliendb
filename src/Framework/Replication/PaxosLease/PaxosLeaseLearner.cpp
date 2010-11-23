@@ -46,6 +46,11 @@ void PaxosLeaseLearner::SetOnLeaseTimeout(Callable onLeaseTimeoutCallback_)
     onLeaseTimeoutCallback = onLeaseTimeoutCallback_;
 }
 
+void PaxosLeaseLearner::SetOnAcquireLease(Callable onAcquireLeaseCallback_)
+{
+    onAcquireLeaseCallback = onAcquireLeaseCallback_;
+}
+
 void PaxosLeaseLearner::OnMessage(PaxosLeaseMessage& imsg)
 {
     if (imsg.type == PAXOSLEASE_LEARN_CHOSEN)
@@ -71,6 +76,8 @@ void PaxosLeaseLearner::OnLeaseTimeout()
 
 void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
 {
+    bool    leaseAcquired;
+    
     Log_Trace();
     
     if (state.learned && state.expireTime < Now())
@@ -85,10 +92,10 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
     
     if (expireTime < Now())
         return;
-    
-//  TODO
-//  if (!state.learned && RLOG->IsMasterLeaseActive())
-//      Log_Message("Node %d is the master", msg.leaseOwner);
+
+    leaseAcquired = false;
+    if (!state.learned)
+        leaseAcquired = true;
     
     state.learned = true;
     state.leaseOwner = imsg.leaseOwner;
@@ -100,6 +107,12 @@ void PaxosLeaseLearner::OnLearnChosen(PaxosLeaseMessage& imsg)
     EventLoop::Reset(&leaseTimeout);
     
     Call(onLearnLeaseCallback);
+    if (leaseAcquired)
+    {
+        // TODO: HACK
+        Log_Message("Node %U became the master", imsg.leaseOwner);
+        Call(onAcquireLeaseCallback);
+    }
 }
 
 void PaxosLeaseLearner::CheckLease()

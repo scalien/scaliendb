@@ -39,6 +39,7 @@ private:
     void                    OnStartupTimeout();
     void                    OnLearnLease();
     void                    OnLeaseTimeout();
+    void                    OnAcquireLease();
 
     QuorumContext*          context;
     PaxosLeaseProposer      proposer;

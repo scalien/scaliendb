@@ -40,6 +40,8 @@ public:
     const char*     ToString();
     const char*     ToString(char s[ENDPOINT_STRING_SIZE]);
     ReadBuffer      ToReadBuffer();
+    
+    bool            IsSet();
 
 private:
     char            buffer[ENDPOINT_STRING_SIZE];

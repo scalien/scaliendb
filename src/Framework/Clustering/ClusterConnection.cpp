@@ -8,7 +8,7 @@ void ClusterConnection::InitConnected(bool startRead)
     Log_Trace();
 
     progress = INCOMING;
-    nodeID = 0;
+    nodeID = UNDEFINED_NODEID;
 }
 
 void ClusterConnection::SetTransport(ClusterTransport* transport_)
@@ -48,6 +48,14 @@ ClusterConnection::Progress ClusterConnection::GetProgress()
     return progress;
 }
 
+void ClusterConnection::Close()
+{
+    if (state == CONNECTED && nodeID != UNDEFINED_NODEID)
+        Log_Message("[%s]: [%U] Node closed", endpoint.ToString(), nodeID);
+
+    MessageConnection::Close();
+}
+
 void ClusterConnection::Connect()
 {
     progress = OUTGOING;
@@ -74,19 +82,28 @@ void ClusterConnection::OnConnect()
     
     Log_Trace("Conn READY to node %U at %s", nodeID, endpoint.ToString());
 
+    if (nodeID != transport->GetSelfNodeID())
+        Log_Message("[%s]: [%U] Node connected =>", endpoint.ToString(), nodeID);
+    else
+        Log_Message("[%s]: [%U] Node connected to self", endpoint.ToString(), nodeID);
+
     progress = READY;
     OnWriteReadyness();
 }
 
 void ClusterConnection::OnClose()
 {
+    Endpoint    remoteEndpoint;
+
     Log_Trace();
     
     if (connectTimeout.IsActive())
         return;
     
-    Log_Message("[%s]: [%U] Node disconnected", endpoint.ToString(), nodeID);
+    socket.GetEndpoint(remoteEndpoint);
     MessageConnection::Close();
+    if (nodeID != UNDEFINED_NODEID)
+        Log_Message("[%s]: [%U] Node disconnected", endpoint.ToString(), nodeID);
     
     if (progress == INCOMING)
     {
@@ -107,6 +124,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
     uint64_t            nodeID_;
     ReadBuffer          buffer;
     ClusterConnection*  dup;
+    Endpoint            remoteEndpoint;
 
     if (progress == ClusterConnection::INCOMING)
     {
@@ -120,6 +138,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             endpoint.Set(buffer);
             progress = ClusterConnection::AWAITING_NODEID;
             Log_Trace("Conn is awaiting nodeID at %s", endpoint.ToString());
+
             transport->AddConnection(this);
             if (transport->OnAwaitingNodeID(endpoint))
             {
@@ -127,6 +146,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
                 transport->DeleteConnection(this);
                 return true;
             }
+            Log_Message("[%s]: [%U] Node connected <=", endpoint.ToString(), nodeID);
             return false;
         }
         
@@ -158,7 +178,9 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         nodeID = nodeID_;
         endpoint.Set(buffer);
         Log_Trace("Conn READY to node %U at %s", nodeID, endpoint.ToString());
-        Log_Message("[%s]: [%U] Node connected", endpoint.ToString(), nodeID);
+        if (nodeID != transport->GetSelfNodeID())
+            Log_Message("[%s]: [%U] Node connected <=", endpoint.ToString(), nodeID);
+        
         transport->AddConnection(this);
         transport->OnConnectionReady(nodeID, endpoint);
         transport->OnWriteReadyness(this);
