@@ -52,6 +52,7 @@ public:
     uint64_t        shardID;
     ReadBuffer      name;
     ReadBuffer      firstKey;
+    Buffer          splitKey;
     Endpoint        endpoint;
     NodeList        nodes;    
     
@@ -91,7 +92,7 @@ public:
                      uint64_t databaseID, uint64_t tableID);
 
     // Shard management
-    bool            SplitShardBegin(uint64_t shardID, ReadBuffer& firstKey);
+    bool            SplitShardBegin(uint64_t shardID, ReadBuffer& splitKey);
     bool            SplitShardComplete(uint64_t shardID);
     
     // Serialization

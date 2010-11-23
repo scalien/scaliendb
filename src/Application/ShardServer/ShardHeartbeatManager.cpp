@@ -27,8 +27,8 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     ClusterMessage          msg;
     QuorumPaxosID           quorumPaxosID;
     QuorumPaxosID::List     quorumPaxosIDList;
-    QuorumShardInfo         quorumShardInfo;
     QuorumShardInfo::List   quorumShardInfos;
+    QuorumShardInfo         quorumShardInfo;
     StorageShard*           storageShard;
     ConfigState*            configState;
     ConfigQuorum*           configQuorum;
@@ -59,7 +59,10 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
             if (!storageShard)
                 continue;
             
-            quorumShardInfo.quorumID = quorumPaxosID.quorumID;
+            // quorumShardInfo is only sent for shards which have already been split
+            // and "regular" shards
+            
+            quorumShardInfo.quorumID = itQuorumProcessor->GetQuorumID();
             quorumShardInfo.shardID = *itShardID;
             quorumShardInfo.shardSize = storageShard->GetSize();
             storageShard->GetMidpoint(quorumShardInfo.splitKey);
@@ -71,6 +74,7 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     httpPort = shardServer->GetHTTPPort();
     sdbpPort = shardServer->GetSDBPPort();
     
-    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(), quorumPaxosIDList, quorumShardInfos, httpPort, sdbpPort);
+    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(),
+     quorumPaxosIDList, quorumShardInfos, httpPort, sdbpPort);
     shardServer->BroadcastToControllers(msg);
 }

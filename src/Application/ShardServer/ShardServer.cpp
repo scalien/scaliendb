@@ -280,7 +280,8 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
                     if (configShard->isSplitCreating)
                     {
                         splitKey.Wrap(configShard->firstKey);
-                        quorumProcessor->TrySplitShard(configShard->parentShardID, configShard->shardID, splitKey);
+                        quorumProcessor->TrySplitShard(configShard->parentShardID,
+                         configShard->shardID, splitKey);
                     }
                 }
             }

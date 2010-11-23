@@ -938,9 +938,9 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     newShard->shardID = nextShardID++;
     newShard->parentShardID = message.shardID;
     newShard->quorumID = parentShard->quorumID;
-    newShard->databaseID = parentShard->quorumID;
-    newShard->tableID = parentShard->quorumID;
-    newShard->firstKey.Write(message.firstKey);
+    newShard->databaseID = parentShard->databaseID;
+    newShard->tableID = parentShard->tableID;
+    newShard->firstKey.Write(message.splitKey);
     newShard->lastKey.Write(parentShard->lastKey);
     shards.Append(newShard);
     

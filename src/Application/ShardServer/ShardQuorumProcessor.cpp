@@ -225,7 +225,7 @@ void ShardQuorumProcessor::TryReplicationCatchup()
     quorumContext.TryReplicationCatchup();
 }
 
-void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& key)
+void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey)
 {
     ShardMessage*   it;
     
@@ -236,7 +236,7 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     }
     
     it = new ShardMessage;
-    it->SplitShard(shardID, newShardID, key);
+    it->SplitShard(shardID, newShardID, splitKey);
     shardMessages.Append(it);
 }
 
@@ -296,10 +296,13 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
 void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
  uint64_t paxosID, uint64_t commandID, bool ownAppend)
 {
-    ClientRequest* request;
+    ClientRequest*  request;
+    bool            fromClient;
+
+    fromClient = shardMessages.First()->fromClient;
 
     request = NULL;
-    if (ownAppend)
+    if (ownAppend && fromClient)
     {
         assert(shardMessages.GetLength() > 0);
         assert(shardMessages.First()->type == message.type);
@@ -312,7 +315,7 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
 
     if (ownAppend)
     {
-        if (shardMessages.First()->fromClient)
+        if (fromClient)
         {
             clientRequests.Remove(request);
             request->OnComplete(); // request deletes itself

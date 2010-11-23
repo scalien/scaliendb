@@ -34,6 +34,7 @@ public:
     ReadBuffer      key;
     ReadBuffer      value;
     ReadBuffer      test;
+    Buffer          splitKey;
 
     // Constructor
     ShardMessage();
@@ -46,7 +47,8 @@ public:
     void            Append(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     void            Delete(uint64_t tableID, ReadBuffer& key);
     void            Remove(uint64_t tableID, ReadBuffer& key);
-    void            SplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& key);
+
+    void            SplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey);
 
     // Serialization
     int             Read(ReadBuffer& buffer);

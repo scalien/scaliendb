@@ -47,7 +47,8 @@ public:
     void                    OnClientClose(ClientSession* session);
     void                    SetActiveNodes(ConfigQuorum::NodeList& activeNodes);
     void                    TryReplicationCatchup();
-    void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID, ReadBuffer& key);
+    void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
+                             ReadBuffer& splitKey);
     
     // ========================================================================================
     // For ShardQuorum:

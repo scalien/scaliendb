@@ -210,8 +210,7 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
     TryAppend();
 }
 
-void ConfigQuorumProcessor::TryShardSplit(
- uint64_t shardID, ReadBuffer& splitKey)
+void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer& splitKey)
 {
     ConfigMessage* it;
 
@@ -225,6 +224,24 @@ void ConfigQuorumProcessor::TryShardSplit(
     it->fromClient = false;
     
     it->SplitShardBegin(shardID, splitKey);
+    configMessages.Append(it);
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
+{
+    ConfigMessage* it;
+
+    FOREACH(it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_SPLIT_SHARD_COMPLETE && it->shardID == shardID)
+            return;
+    }
+
+    it = new ConfigMessage;
+    it->fromClient = false;
+    
+    it->SplitShardComplete(shardID);
     configMessages.Append(it);
     TryAppend();
 }

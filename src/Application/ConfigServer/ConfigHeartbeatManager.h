@@ -34,8 +34,8 @@ public:
 
 private:
     void                RegisterHeartbeat(uint64_t nodeID);
-    void                TrySplitShard(ClusterMessage& message);
-    bool                 IsSplitCreating(ConfigQuorum* configQuorum);
+    void                TrySplitShardActions(ClusterMessage& message);
+    bool                IsSplitCreating(ConfigQuorum* configQuorum, uint64_t& newShardID);
 
     ConfigServer*       configServer;
     HeartbeatList       heartbeats;
