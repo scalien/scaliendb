@@ -304,13 +304,14 @@ void ShardDatabaseManager::ExecuteMessage(
             if (!table->Delete(message.key))
                 RESPONSE_FAIL();
             break;
-        case SHARDMESSAGE_SPLIT:
+        case SHARDMESSAGE_SPLIT_SHARD:
             shard = GetShard(message.shardID);
             if (!shard)
                 ASSERT_FAIL();
-            shard->SplitShard(message.newShardID, message.key);
-            Log_Message("Split shard, shard ID: %U, split key: %R , new shardID: %U",
-             message.shardID, &message.key, message.newShardID);
+            readBuffer.Wrap(message.splitKey);
+            shard->SplitShard(message.newShardID, readBuffer);
+            Log_Message("Split shard, shard ID: %U, split key: %B , new shardID: %U",
+             message.shardID, &message.splitKey, message.newShardID);
             break;
         default:
             ASSERT_FAIL();

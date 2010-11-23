@@ -23,6 +23,9 @@
 #define CONFIGMESSAGE_RENAME_TABLE              'r'
 #define CONFIGMESSAGE_DELETE_TABLE              'd'
 
+#define CONFIGMESSAGE_SPLIT_SHARD_BEGIN         '1'
+#define CONFIGMESSAGE_SPLIT_SHARD_COMPLETE      '2'
+
 /*
 ===============================================================================================
 
@@ -48,6 +51,8 @@ public:
     uint64_t        tableID;
     uint64_t        shardID;
     ReadBuffer      name;
+    ReadBuffer      firstKey;
+    Buffer          splitKey;
     Endpoint        endpoint;
     NodeList        nodes;    
     
@@ -85,6 +90,10 @@ public:
                      uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
     bool            DeleteTable(
                      uint64_t databaseID, uint64_t tableID);
+
+    // Shard management
+    bool            SplitShardBegin(uint64_t shardID, ReadBuffer& splitKey);
+    bool            SplitShardComplete(uint64_t shardID);
     
     // Serialization
     bool            Read(ReadBuffer& buffer);

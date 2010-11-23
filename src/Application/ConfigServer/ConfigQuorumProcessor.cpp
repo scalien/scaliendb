@@ -192,15 +192,57 @@ void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID)
 
 void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
 {
-    ConfigMessage*      message;
+    ConfigMessage* it;
 
-    message = new ConfigMessage;
-    message->fromClient = false;
-    message->RegisterShardServer(0, endpoint);
-    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
+    FOREACH(it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_REGISTER_SHARDSERVER && it->endpoint == endpoint)
+            return;
+    }
+
+    it = new ConfigMessage;
+    it->fromClient = false;
+    it->RegisterShardServer(0, endpoint);
+    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*it))
         ASSERT_FAIL();
 
-    configMessages.Append(message);
+    configMessages.Append(it);
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer& splitKey)
+{
+    ConfigMessage* it;
+
+    FOREACH(it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_SPLIT_SHARD_BEGIN && it->shardID == shardID)
+            return;
+    }
+
+    it = new ConfigMessage;
+    it->fromClient = false;
+    
+    it->SplitShardBegin(shardID, splitKey);
+    configMessages.Append(it);
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
+{
+    ConfigMessage* it;
+
+    FOREACH(it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_SPLIT_SHARD_COMPLETE && it->shardID == shardID)
+            return;
+    }
+
+    it = new ConfigMessage;
+    it->fromClient = false;
+    
+    it->SplitShardComplete(shardID);
+    configMessages.Append(it);
     TryAppend();
 }
 

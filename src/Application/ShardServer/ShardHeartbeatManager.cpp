@@ -20,12 +20,18 @@ void ShardHeartbeatManager::Init(ShardServer* shardServer_)
 
 void ShardHeartbeatManager::OnHeartbeatTimeout()
 {
+    unsigned                httpPort;
+    unsigned                sdbpPort;
+    uint64_t*               itShardID;
     ShardQuorumProcessor*   itQuorumProcessor;
     ClusterMessage          msg;
     QuorumPaxosID           quorumPaxosID;
     QuorumPaxosID::List     quorumPaxosIDList;
-    unsigned                httpPort;
-    unsigned                sdbpPort;
+    QuorumShardInfo::List   quorumShardInfos;
+    QuorumShardInfo         quorumShardInfo;
+    StorageShard*           storageShard;
+    ConfigState*            configState;
+    ConfigQuorum*           configQuorum;
     
     Log_Trace();
     
@@ -36,6 +42,8 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         Log_Trace("not sending heartbeat");
         return;
     }
+    
+    configState = shardServer->GetConfigState();
 
     ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
     FOREACH(itQuorumProcessor, *quorumProcessors)
@@ -43,11 +51,30 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         quorumPaxosID.quorumID = itQuorumProcessor->GetQuorumID();
         quorumPaxosID.paxosID = itQuorumProcessor->GetPaxosID();
         quorumPaxosIDList.Append(quorumPaxosID);
+        
+        configQuorum = configState->GetQuorum(itQuorumProcessor->GetQuorumID());
+        FOREACH(itShardID, configQuorum->shards)
+        {
+            storageShard = shardServer->GetDatabaseManager()->GetShard(*itShardID);
+            if (!storageShard)
+                continue;
+            
+            // quorumShardInfo is only sent for shards which have already been split
+            // and "regular" shards
+            
+            quorumShardInfo.quorumID = itQuorumProcessor->GetQuorumID();
+            quorumShardInfo.shardID = *itShardID;
+            quorumShardInfo.shardSize = storageShard->GetSize();
+            storageShard->GetMidpoint(quorumShardInfo.splitKey);
+            
+            quorumShardInfos.Append(quorumShardInfo);
+        }
     }
 
     httpPort = shardServer->GetHTTPPort();
     sdbpPort = shardServer->GetSDBPPort();
     
-    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(), quorumPaxosIDList, httpPort, sdbpPort);
+    msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(),
+     quorumPaxosIDList, quorumShardInfos, httpPort, sdbpPort);
     shardServer->BroadcastToControllers(msg);
 }

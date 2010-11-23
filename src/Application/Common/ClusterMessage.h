@@ -34,6 +34,7 @@ public:
     bool                    watchingPaxosID;
     ConfigQuorum::NodeList  activeNodes;
     QuorumPaxosID::List     quorumPaxosIDs;
+    QuorumShardInfo::List   quorumShardInfos;
     ConfigState             configState;
     unsigned                httpPort;
     unsigned                sdbpPort;
@@ -42,7 +43,9 @@ public:
     ClusterMessage();
     
     bool            SetNodeID(uint64_t nodeID);
-    bool            Heartbeat(uint64_t nodeID, QuorumPaxosID::List& quorumPaxosIDs, unsigned httpPort, unsigned sdbpPort);
+    bool            Heartbeat(uint64_t nodeID,
+                     QuorumPaxosID::List& quorumPaxosIDs, QuorumShardInfo::List& quorumShardInfos,
+                     unsigned httpPort, unsigned sdbpPort);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, uint64_t paxosID, uint64_t configID, unsigned duration);

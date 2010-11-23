@@ -53,6 +53,49 @@ uint64_t QuorumPaxosID::GetPaxosID(List& quorumPaxosIDs, uint64_t quorumID)
     return 0;
 }
 
+QuorumShardInfo::QuorumShardInfo()
+{
+    quorumID = 0;
+    shardID = 0;
+    shardSize = 0;
+}
+
+bool QuorumShardInfo::ReadList(ReadBuffer& buffer, List& quorumShardInfos)
+{
+    unsigned        i, length;
+    int             read;
+    QuorumShardInfo quorumShardInfo;
+    
+    read = buffer.Readf(":%u", &length);
+    if (read < 2)
+        return false;
+    buffer.Advance(read);
+    for (i = 0; i < length; i++)
+    {
+        read = buffer.Readf(":%U:%U:%U:%#R",
+         &quorumShardInfo.quorumID, &quorumShardInfo.shardID,
+         &quorumShardInfo.shardSize, &quorumShardInfo.splitKey);
+        if (read < 6)
+            return false;
+        buffer.Advance(read);
+        quorumShardInfos.Append(quorumShardInfo);
+    }
+    return true;
+}
+
+bool QuorumShardInfo::WriteList(Buffer& buffer, List& quorumShardInfos)
+{
+    QuorumShardInfo*  it;
+
+    buffer.Appendf(":%u", quorumShardInfos.GetLength());
+    FOREACH(it, quorumShardInfos)
+    {
+        buffer.Appendf(":%U:%U:%U:%#R", it->quorumID, it->shardID, it->shardSize, &it->splitKey);
+    }
+    
+    return true;
+}
+
 ConfigShardServer::ConfigShardServer()
 {
     prev = next = this;

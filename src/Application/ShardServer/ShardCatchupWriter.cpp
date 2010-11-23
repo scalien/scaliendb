@@ -21,7 +21,7 @@ bool ShardCatchupWriter::IsActive()
 }
 
 void ShardCatchupWriter::Begin(CatchupMessage& request)
-{    
+{
     if (isActive)
         return;
         
@@ -34,7 +34,7 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
 
     paxosID = quorumProcessor->GetPaxosID() - 1;
 
-    if (quorumProcessor->GetShards().GetLength() == 0)
+    if (quorumProcessor->GetConfigQuorum()->shards.GetLength() == 0)
     {
         Commit();
         return;
@@ -72,8 +72,8 @@ void ShardCatchupWriter::SendFirst()
     StorageShard*       shard;
     StorageKeyValue*    kv;
 
-    assert(quorumProcessor->GetShards().GetLength() > 0);
-    shardID = *(quorumProcessor->GetShards().First());
+    assert(quorumProcessor->GetConfigQuorum()->shards.GetLength() > 0);
+    shardID = *(quorumProcessor->GetConfigQuorum()->shards.First());
     shard = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetShard(shardID);
     assert(shard != NULL);
 
@@ -167,7 +167,7 @@ uint64_t* ShardCatchupWriter::NextShard()
 {
     uint64_t* it;
     
-    ShardQuorumProcessor::ShardList& shards = quorumProcessor->GetShards();
+    ShardQuorumProcessor::ShardList& shards = quorumProcessor->GetConfigQuorum()->shards;
 
     FOREACH(it, shards)
     {
@@ -177,6 +177,6 @@ uint64_t* ShardCatchupWriter::NextShard()
     assert(it != NULL);
 
     it = shards.Next(it);
-    
+
     return it;
 }

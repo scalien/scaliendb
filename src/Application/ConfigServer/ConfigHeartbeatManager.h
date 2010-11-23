@@ -5,10 +5,11 @@
 #include "System/Events/Countdown.h"
 #include "Application/Common/ClusterMessage.h"
 
-class Heartbeat;    // forward
-class ConfigServer;   // forward
+class Heartbeat;        // forward
+class ConfigServer;     // forward
 
 #define HEARTBEAT_EXPIRE_TIME           7000        // msec
+#define SHARD_SPLIT_SIZE                1*GB        // msec
 
 /*
 ===============================================================================================
@@ -33,6 +34,8 @@ public:
 
 private:
     void                RegisterHeartbeat(uint64_t nodeID);
+    void                TrySplitShardActions(ClusterMessage& message);
+    bool                IsSplitCreating(ConfigQuorum* configQuorum, uint64_t& newShardID);
 
     ConfigServer*       configServer;
     HeartbeatList       heartbeats;
