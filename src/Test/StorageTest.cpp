@@ -587,7 +587,7 @@ TEST_DEFINE(TestStorageShardSplit)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestStorageFileSplit)
+TEST_DEFINE(TestStoragePageSplit)
 {
     StorageEnvironment  env;
     StorageDatabase*    db;

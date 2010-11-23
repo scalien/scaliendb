@@ -524,7 +524,7 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
         buffer.Allocate(it->GetPageSize());
         if (!it->CheckWrite(buffer))
             continue;
-        ST_ASSERT(it->buffer.GetLength() >= STORAGEFILE_HEADER_LENGTH);
+        ST_ASSERT(it->buffer.GetLength() >= DATAPAGE_FIX_OVERHEAD);
         if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer))
             STOP_FAIL(1, "Recovery failed when writing file (%s)", recoveryLog.GetFilename());
     }
