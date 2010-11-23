@@ -26,6 +26,7 @@ public:
     uint64_t                    GetLeaseOwner();
     void                        SetOnLearnLease(Callable onLearnLeaseCallback);
     void                        SetOnLeaseTimeout(Callable onLeaseTimeoutCallback);
+    void                        SetOnAcquireLease(Callable onAcquireLeaseCallback);
 
     void                        OnMessage(PaxosLeaseMessage& msg);
 
@@ -39,6 +40,7 @@ private:
     Timer                       leaseTimeout;
     Callable                    onLearnLeaseCallback;
     Callable                    onLeaseTimeoutCallback;
+    Callable                    onAcquireLeaseCallback;
 };
 
 #endif

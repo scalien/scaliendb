@@ -39,9 +39,11 @@ public:
     Endpoint            GetEndpoint();
     Progress            GetProgress();
 
-    void                Connect();
-    void                OnConnect();
-    void                OnClose();
+    virtual void        Close();
+
+    virtual void        Connect();
+    virtual void        OnConnect();
+    virtual void        OnClose();
 
     // MessageConnection interface
     // Returns whether the connection was closed and deleted
