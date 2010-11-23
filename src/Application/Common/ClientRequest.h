@@ -19,6 +19,7 @@
 #define CLIENTREQUEST_SET               'S'
 #define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
 #define CLIENTREQUEST_TEST_AND_SET      's'
+#define CLIENTREQUEST_GET_AND_SET       'g'
 #define CLIENTREQUEST_ADD               'a'
 #define CLIENTREQUEST_APPEND            'p'
 #define CLIENTREQUEST_DELETE            'X'
@@ -89,6 +90,9 @@ public:
     bool            TestAndSet(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
+    bool            GetAndSet(
+                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            Add(
                      uint64_t commandID, uint64_t databaseID,
                      uint64_t tableID, ReadBuffer& key, int64_t number);

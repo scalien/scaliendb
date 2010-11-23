@@ -31,6 +31,14 @@ void ShardMessage::TestAndSet(uint64_t tableID_, ReadBuffer& key_,
     value = value_;
 }
 
+void ShardMessage::GetAndSet(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+{
+    type = SHARDMESSAGE_GET_AND_SET;
+    tableID = tableID_;
+    key = key_;
+    value = value_;
+}
+
 void ShardMessage::Add(uint64_t tableID_, ReadBuffer& key_, int64_t number_)
 {
     type = SHARDMESSAGE_DELETE;
@@ -91,6 +99,10 @@ int ShardMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R:%#R:%#R",
              &type, &tableID, &key, &test, &value);
             break;
+        case SHARDMESSAGE_GET_AND_SET:
+            read = buffer.Readf("%c:%U:%#R:%#R",
+             &type, &tableID, &key, &value);
+            break;
         case SHARDMESSAGE_ADD:
             read = buffer.Readf("%c:%U:%#R:%I",
              &type, &tableID, &key, &number);
@@ -127,11 +139,15 @@ bool ShardMessage::Write(Buffer& buffer)
             buffer.Appendf("%c:%U:%#R:%#R",
              type, tableID, &key, &value);
             break;
+        case SHARDMESSAGE_SET_IF_NOT_EXISTS:
+            buffer.Appendf("%c:%U:%#R:%#R",
+             type, tableID, &key, &value);
+            break;
         case SHARDMESSAGE_TEST_AND_SET:
             buffer.Appendf("%c:%U:%#R:%#R:%#R",
              type, tableID, &key, &test, &value);
             break;
-        case SHARDMESSAGE_SET_IF_NOT_EXISTS:
+        case SHARDMESSAGE_GET_AND_SET:
             buffer.Appendf("%c:%U:%#R:%#R",
              type, tableID, &key, &value);
             break;

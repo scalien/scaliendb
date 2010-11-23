@@ -18,8 +18,6 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     client = client_;
     nodeID = nodeID_;
     endpoint = endpoint_;
-    // TODO: HACK: see comments in ShardServerApp!
-    endpoint.SetPort(endpoint.GetPort() + 1);
     autoFlush = false;
     Connect();
 }

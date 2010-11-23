@@ -72,6 +72,7 @@ public:
     int                     Set(const ReadBuffer& key, const ReadBuffer& value);
     int                     SetIfNotExists(ReadBuffer& key, ReadBuffer& value);
     int                     TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
+    int                     GetAndSet(ReadBuffer& key, ReadBuffer& value);
     int                     Add(const ReadBuffer& key, int64_t number);
     int                     Append(const ReadBuffer& key, const ReadBuffer& value);
     int                     Delete(ReadBuffer& key);

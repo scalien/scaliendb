@@ -471,6 +471,27 @@ int	SDBP_TestAndSetCStr(ClientObj client_, char* key_, int lenKey, char* test_, 
     return client->TestAndSet(key, test, value);
 }
 
+int	SDBP_GetAndSet(ClientObj client_, const std::string& key_, const std::string& value_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key = key_.c_str();
+    ReadBuffer  value = value_.c_str();
+
+    return client->GetAndSet(key, value);
+}
+
+int	SDBP_GetAndSetCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+    ReadBuffer  value;
+
+    key.Wrap((char*) key_, lenKey);
+    value.Wrap((char*) value_, lenValue);
+
+    return client->GetAndSet(key, value);
+}
+
 int SDBP_Add(ClientObj client_, const std::string& key_, int64_t number)
 {
     Client*     client = (Client*) client_;

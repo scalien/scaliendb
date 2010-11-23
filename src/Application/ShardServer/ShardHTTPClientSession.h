@@ -40,6 +40,7 @@ private:
     ClientRequest*      ProcessSet();
     ClientRequest*      ProcessSetIfNotExists();
     ClientRequest*      ProcessTestAndSet();
+    ClientRequest*      ProcessGetAndSet();
     ClientRequest*      ProcessAdd();
     ClientRequest*      ProcessDelete();
     ClientRequest*      ProcessRemove();
