@@ -665,6 +665,7 @@ TEST_DEFINE(TestStorageFileSplit2)
     
     value.SetBuffer(keyvalue + key.GetLength());
     value.SetLength(sizeof(keyvalue) - key.GetLength());
+    memset(value.GetBuffer(), 0, value.GetLength());
     
     num = 75*1000;
     for (int i = 1; i < num; i++)
