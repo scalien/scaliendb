@@ -1,4 +1,14 @@
 #!/usr/bin/env python
+"""
+Usage: dbtool.py command [options]
+	
+Command can be any of:
+
+	analyze-recovery | ar	Prints the content of a recovery file
+	analyze-datafile | ad	Prints the content of a data file
+
+See 'dbtool.py help COMMAND' for more information about a specific command.
+"""
 
 import sys
 import struct
@@ -20,6 +30,9 @@ def print_recovery_op(i, op, size, data):
 		print("%d. op = %d, size = %d" % (i, op, size))
 
 def analyze_recovery(filename):
+	"""
+	Usage: dbtool.py analyze-recovery <recovery-file>
+	"""
 	f = open(filename, "r")
 	i = 1
 	while True:
@@ -46,6 +59,9 @@ def print_page(page_header, data):
 	print("pageSize = %d, fileIndex = %d, offset = %d, keys = %d" % (page_size, file_index, offset, key_count))
 
 def analyze_datafile(filename):
+	"""
+	Usage: dbtool.py analyze-datafile <data-file>
+	"""
 	f = open(filename, "r")
 	i = 1
 	datafile_header = f.read(4096 - 12)
@@ -65,11 +81,23 @@ def analyze_datafile(filename):
 			return
 		page_data = f.read(page_size - 16)
 		print_page(page_header, page_data)
-		
+
+def help(command):
+	g = globals()
+	command = command.replace("-", "_")
+	if g.has_key(command):
+	   	print(g[command].__doc__)
+   	else:
+		print("No such command!")
 
 if __name__ == "__main__":
+	if len(sys.argv) < 3:
+		print __doc__
+		sys.exit(1)
 	command = sys.argv[1]
+	function = help
 	if command == "analyze-recovery" or command == "ar":
-		analyze_recovery(sys.argv[2])
+		function = analyze_recovery
 	elif command == "analyze-datafile" or command == "ad":
-		analyze_datafile(sys.argv[2])
+		function = analyze_datafile
+	function(sys.argv[2])
