@@ -258,7 +258,35 @@ public class Client
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return status;
 	}
-	
+
+	public String getAndSet(String key, String value) throws SDBPException {
+		int status = scaliendb_client.SDBP_GetAndSet(cptr, key, value);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return null;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getValue();
+	}
+
+	public byte[] getAndSet(byte[] key, byte[] value) throws SDBPException {
+		int status = scaliendb_client.SDBP_GetAndSetCStr(cptr, key, key.length, value, value.length);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+		
+		if (isBatched())
+			return null;
+				
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return result.getValueBytes();
+	}
+    
 	public long add(String key, long number) throws SDBPException {
 		int status = scaliendb_client.SDBP_Add(cptr, key, number);
 		if (status < 0) {
