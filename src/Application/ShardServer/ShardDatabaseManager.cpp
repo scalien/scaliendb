@@ -257,8 +257,11 @@ void ShardDatabaseManager::ExecuteMessage(
         case SHARDMESSAGE_GET_AND_SET:
             table->Get(message.key, readBuffer);
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
-            request->response.Value(userValue);
-            request->response.CopyValue();
+            if (request)
+            {
+                request->response.Value(userValue);
+                request->response.CopyValue();
+            }
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!table->Set(message.key, buffer))
                 RESPONSE_FAIL();

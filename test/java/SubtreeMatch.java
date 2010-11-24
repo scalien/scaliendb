@@ -68,7 +68,7 @@ public class SubtreeMatch {
 
 			client.begin();
 			for (String key : insertKeys)
-				client.setIfNotExists(key, value);
+				client.getAndSet(key, value);
 			
 			System.out.println("Submitting 'set's to database...");
 			startTime = System.currentTimeMillis();
