@@ -75,7 +75,7 @@ public class SubtreeMatch {
 			client.submit();
 			endTime = System.currentTimeMillis();
 			
-			long setps = (long)(randomKeys.size() / (float)(endTime - startTime) * 1000.0 + 0.5);
+			long setps = (long)(insertKeys.size() / (float)(endTime - startTime) * 1000.0 + 0.5);
 			System.out.println("Total sets: " + insertKeys.size() + ", set/s: " + setps);
 			
 		} catch (Exception e) {
