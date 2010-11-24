@@ -23,9 +23,9 @@ safe_exit()
 infinite_loop()
 {
 	ulimit -c unlimited
-	mv -f $LOGFILE $PREVLOGFILE > /dev/null 2>&1
 	echo > $CRASHLOGFILE
 	while (:); do
+                mv -f $LOGFILE $PREVLOGFILE > /dev/null 2>&1
 		log "Starting '$*'"
         	$* > $LOGFILE 2>&1
                 EXITSTATUS=$?
