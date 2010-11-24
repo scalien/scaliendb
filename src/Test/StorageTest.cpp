@@ -821,19 +821,19 @@ TEST_DEFINE(TestStorageWindowsSync)
 
     // Get key-values ==========================================================================
 
-    rk.SetBuffer("egyikkulcs");
+    rk.SetBuffer((char*) "egyikkulcs");
     rk.SetLength(10);
     found = table->Get(rk, rv);
 
-    rk.SetBuffer("masikkulcs");
+    rk.SetBuffer((char*) "masikkulcs");
     rk.SetLength(10);
     found = table->Get(rk, rv);
 
     // Set key-values ==========================================================================
 
-    rk.SetBuffer("egyikkulcs");
+    rk.SetBuffer((char*) "egyikkulcs");
     rk.SetLength(10);
-    rv.SetBuffer("egyikertek");
+    rv.SetBuffer((char*) "egyikertek");
     rv.SetLength(10);
     table->Set(rk, rv, true);
 
@@ -842,9 +842,9 @@ TEST_DEFINE(TestStorageWindowsSync)
      
     // Set key-values ==========================================================================
 
-    rk.SetBuffer("masikkulcs");
+    rk.SetBuffer((char*) "masikkulcs");
     rk.SetLength(10);
-    rv.SetBuffer("masikertek");
+    rv.SetBuffer((char*) "masikertek");
     rv.SetLength(10);
     table->Set(rk, rv, true);
 

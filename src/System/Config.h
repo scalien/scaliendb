@@ -59,11 +59,11 @@ public:
     void                SetBoolValue(const char* name, bool value);
     void                AppendListValue(const char* name, const char* value);
 
-
 private:
+    ConfigVar*          GetVar(const char* name);
+
     const char*         filename;
     InQueue<ConfigVar>  vars;
-    ConfigVar*          GetVar(const char* name);
 };
 
 // global config file

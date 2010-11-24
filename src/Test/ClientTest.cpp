@@ -420,7 +420,7 @@ TEST_DEFINE(TestClientGetAndSet)
     typedef ClientRequest::NodeList NodeList;
 
     Client          client;
-    Result*         result;
+//    Result*         result;
     const char*     nodes[] = {"localhost:7080"};
     ReadBuffer      databaseName = "test";
     ReadBuffer      tableName = "tabla";
@@ -431,10 +431,10 @@ TEST_DEFINE(TestClientGetAndSet)
     int             ret;
     Stopwatch       sw;
     NodeList        quorumNodes;
-    uint64_t        quorumID;
-    uint64_t        databaseID;
+//    uint64_t        quorumID;
+//    uint64_t        databaseID;
 //    uint64_t        tableID;
-    uint64_t        defaultQuorumNodeID = 100;
+//    uint64_t        defaultQuorumNodeID = 100;
     unsigned        num = 25;
 /*        
     ret = client.Init(SIZE(nodes), nodes);
@@ -494,9 +494,9 @@ TEST_DEFINE(TestClientGetAndSet)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    key.SetBuffer("1234567890123456789012345");
-    value.SetBuffer("1234567890123456789012345");
-    newVal.SetBuffer("abcdefghijabcdefghijabcde");
+    key.SetBuffer((char*) "1234567890123456789012345");
+    value.SetBuffer((char*) "1234567890123456789012345");
+    newVal.SetBuffer((char*) "abcdefghijabcdefghijabcde");
 
     for (unsigned i = 0; i < num; i++)
     {
