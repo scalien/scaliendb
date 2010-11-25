@@ -444,7 +444,7 @@ int Client::Get(const ReadBuffer& key)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    req->Get(NextCommandID(), databaseID, tableID, (ReadBuffer&) key);
+    req->Get(NextCommandID(), tableID, (ReadBuffer&) key);
     requests.Append(req);
     
     if (isBatched)
@@ -471,7 +471,7 @@ int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
     
     req = new Request;
     Log_Trace("%U", tableID);
-    req->Set(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, (ReadBuffer&) value);
+    req->Set(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
     requests.Append(req);
     
     if (isBatched)
@@ -497,7 +497,7 @@ int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
     
     req = new Request;
     Log_Trace("%U", tableID);
-    req->SetIfNotExists(NextCommandID(), databaseID, tableID, key, value);
+    req->SetIfNotExists(NextCommandID(), tableID, key, value);
     requests.Append(req);
     
     if (isBatched)
@@ -523,7 +523,7 @@ int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
     
     req = new Request;
     Log_Trace("%U", tableID);
-    req->TestAndSet(NextCommandID(), databaseID, tableID, key, test, value);
+    req->TestAndSet(NextCommandID(), tableID, key, test, value);
     requests.Append(req);
     
     if (isBatched)
@@ -549,7 +549,7 @@ int Client::GetAndSet(ReadBuffer& key, ReadBuffer& value)
     
     req = new Request;
     Log_Trace("%U", tableID);
-    req->GetAndSet(NextCommandID(), databaseID, tableID, key, value);
+    req->GetAndSet(NextCommandID(), tableID, key, value);
     requests.Append(req);
     
     if (isBatched)
@@ -575,7 +575,7 @@ int Client::Add(const ReadBuffer& key, int64_t number)
     
     req = new Request;
     Log_Trace("%U", tableID);
-    req->Add(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, number);
+    req->Add(NextCommandID(), tableID, (ReadBuffer&) key, number);
     requests.Append(req);
     
     if (isBatched)
@@ -601,7 +601,7 @@ int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
     
     req = new Request;
     Log_Trace("%U", tableID);
-    req->Append(NextCommandID(), databaseID, tableID, (ReadBuffer&) key, (ReadBuffer&) value);
+    req->Append(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
     requests.Append(req);
     
     if (isBatched)
@@ -626,7 +626,7 @@ int Client::Delete(ReadBuffer& key)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    req->Delete(NextCommandID(), databaseID, tableID, key);
+    req->Delete(NextCommandID(), tableID, key);
     requests.Append(req);
     
     if (isBatched)
@@ -651,7 +651,7 @@ int Client::Remove(ReadBuffer& key)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    req->Remove(NextCommandID(), databaseID, tableID, key);
+    req->Remove(NextCommandID(), tableID, key);
     requests.Append(req);
     
     if (isBatched)
