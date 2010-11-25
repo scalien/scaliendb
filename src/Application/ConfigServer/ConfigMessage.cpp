@@ -57,10 +57,9 @@ bool ConfigMessage::DeactivateShardServer(
 }
 
 bool ConfigMessage::CreateDatabase(
- uint64_t databaseID_, ReadBuffer& name_)
+ ReadBuffer& name_)
 {
     type = CONFIGMESSAGE_CREATE_DATABASE;
-    databaseID = databaseID_;
     name = name_;
     return true;
 }
@@ -83,12 +82,11 @@ bool ConfigMessage::DeleteDatabase(
 }
 
 bool ConfigMessage::CreateTable(
- uint64_t databaseID_, uint64_t tableID_, uint64_t shardID_,
+ uint64_t databaseID_, uint64_t shardID_,
  uint64_t quorumID_, ReadBuffer& name_)
 {
     type = CONFIGMESSAGE_CREATE_TABLE;
     databaseID = databaseID_;
-    tableID = tableID_;
     shardID = shardID_;
     quorumID = quorumID_;
     name = name_;
@@ -185,8 +183,8 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
 
         // Database management
         case CONFIGMESSAGE_CREATE_DATABASE:
-            read = buffer.Readf("%c:%U:%#R",
-             &type, &databaseID, &name);
+            read = buffer.Readf("%c:%#R",
+             &type, &name);
             break;
         case CONFIGMESSAGE_RENAME_DATABASE:
             read = buffer.Readf("%c:%U:%#R",
@@ -199,8 +197,8 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
 
         // Table management
         case CONFIGMESSAGE_CREATE_TABLE:
-            read = buffer.Readf("%c:%U:%U:%U:%U:%#R",
-             &type, &databaseID, &tableID, &shardID, &quorumID, &name);
+            read = buffer.Readf("%c:%U:%U:%U:%#R",
+             &type, &databaseID, &shardID, &quorumID, &name);
             break;
         case CONFIGMESSAGE_RENAME_TABLE:
             read = buffer.Readf("%c:%U:%U:%#R",
@@ -268,8 +266,8 @@ bool ConfigMessage::Write(Buffer& buffer)
 
         // Database management
         case CONFIGMESSAGE_CREATE_DATABASE:
-            buffer.Writef("%c:%U:%#R",
-             type, databaseID, &name);
+            buffer.Writef("%c:%#R",
+             type, &name);
             break;
         case CONFIGMESSAGE_RENAME_DATABASE:
             buffer.Writef("%c:%U:%#R",
@@ -282,8 +280,8 @@ bool ConfigMessage::Write(Buffer& buffer)
 
         // Table management
         case CONFIGMESSAGE_CREATE_TABLE:
-            buffer.Writef("%c:%U:%U:%U:%U:%#R",
-             type, databaseID, tableID, shardID, quorumID, &name);
+            buffer.Writef("%c:%U:%U:%U:%#R",
+             type, databaseID, shardID, quorumID, &name);
             break;
         case CONFIGMESSAGE_RENAME_TABLE:
             buffer.Writef("%c:%U:%U:%#R",

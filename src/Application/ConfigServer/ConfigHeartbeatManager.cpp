@@ -192,6 +192,7 @@ bool ConfigHeartbeatManager::IsSplitCreating(ConfigQuorum* configQuorum, uint64_
     FOREACH(itShardID, configQuorum->shards)
     {
         configShard = configState->GetShard(*itShardID);
+        assert(configShard != NULL);
         if (configShard->isSplitCreating)
         {
             newShardID = configShard->shardID;
