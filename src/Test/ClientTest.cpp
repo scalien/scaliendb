@@ -196,8 +196,8 @@ TEST_DEFINE(TestClientBatchedSet)
 TEST_DEFINE(TestClientBatchedSetRandom)
 {
     Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    //const char*     nodes[] = {"192.168.137.51:7080"};
+    //const char*     nodes[] = {"localhost:7080"};
+    const char*     nodes[] = {"192.168.137.51:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     ReadBuffer      key;

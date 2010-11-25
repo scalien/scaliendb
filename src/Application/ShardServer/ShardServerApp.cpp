@@ -16,5 +16,7 @@ void ShardServerApp::Init()
 
 void ShardServerApp::Shutdown()
 {
+    sdbpServer.Shutdown();
+    httpServer.Shutdown();
     shardServer.Shutdown();
 }
