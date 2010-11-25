@@ -98,16 +98,13 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     SDBPResponseMessage msg;
     Request*            it;
     uint64_t            quorumID;
-    
-    Log_Trace();
-    //Log_Message("%.*s", P(&rbuf));
-    
+        
     msg.response = &response;
     if (!msg.Read(rbuf))
         return false;
     
     // find the request in sent requests by commandID
-    for (it = sentRequests.First(); it != NULL; it = sentRequests.Next(it))
+    FOREACH (it, sentRequests)
     {
         if (it->commandID == response.commandID)
         {

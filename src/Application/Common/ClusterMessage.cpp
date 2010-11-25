@@ -45,13 +45,14 @@ bool ClusterMessage::RequestLease(uint64_t nodeID_, uint64_t quorumID_,
 }
 
 bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
- uint64_t proposalID_, unsigned duration_,
+ uint64_t proposalID_, uint64_t configID_, unsigned duration_,
  bool watchingPaxosID_, ConfigQuorum::NodeList activeNodes_)
 {
     type = CLUSTERMESSAGE_RECEIVE_LEASE;
     nodeID = nodeID_;
     quorumID = quorumID_;
     proposalID = proposalID_;
+    configID = configID_;
     duration = duration_;
     activeNodes = activeNodes_;
     watchingPaxosID = watchingPaxosID_;
@@ -92,8 +93,8 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
              &type, &nodeID, &quorumID, &proposalID, &paxosID, &configID, &duration);
             break;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
-            read = buffer.Readf("%c:%U:%U:%U:%u:%b",
-             &type, &nodeID, &quorumID, &proposalID, &duration, &watchingPaxosID);
+            read = buffer.Readf("%c:%U:%U:%U:%U:%u:%b",
+             &type, &nodeID, &quorumID, &proposalID, &configID, &duration, &watchingPaxosID);
              if (read < 9)
                 return false;
             buffer.Advance(read);
@@ -133,8 +134,8 @@ bool ClusterMessage::Write(Buffer& buffer)
              type, nodeID, quorumID, proposalID, paxosID, configID, duration);
             return true;
         case CLUSTERMESSAGE_RECEIVE_LEASE:
-            buffer.Writef("%c:%U:%U:%U:%u:%b",
-             type, nodeID, quorumID, proposalID, duration, watchingPaxosID);
+            buffer.Writef("%c:%U:%U:%U:%U:%u:%b",
+             type, nodeID, quorumID, proposalID, configID, duration, watchingPaxosID);
             buffer.Appendf(":");
             ConfigState::WriteIDList<ConfigQuorum::NodeList>(activeNodes, buffer);
             return true;

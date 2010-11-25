@@ -1,7 +1,7 @@
 #!/bin/sh
 
 echo -n -e "\033]0;D$1\007"
-if [ "$RELEASE" = "1" ]; then
+if [ "$SCALIENDB_RELEASE" = "1" ]; then
 	build/Release/ScalienDB test/shard/$1/scaliendb.conf
 else
 	build/Debug/ScalienDB test/shard/$1/scaliendb.conf	

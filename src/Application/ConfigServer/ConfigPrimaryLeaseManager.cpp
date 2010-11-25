@@ -102,7 +102,7 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
 
     activeNodes = quorum.GetVolatileActiveNodes();
     response.ReceiveLease(message.nodeID, message.quorumID,
-     message.proposalID, duration, false, activeNodes);
+     message.proposalID, quorum.configID, duration, false, activeNodes);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 }
 
@@ -131,7 +131,7 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
 
     activeNodes = quorum.GetVolatileActiveNodes();
     response.ReceiveLease(message.nodeID, message.quorumID,
-     message.proposalID, duration, quorum.isWatchingPaxosID, activeNodes);
+     message.proposalID, quorum.configID, duration, quorum.isWatchingPaxosID, activeNodes);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 
 }

@@ -470,7 +470,6 @@ int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%U", tableID);
     req->Set(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
     requests.Append(req);
     
@@ -496,7 +495,6 @@ int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%U", tableID);
     req->SetIfNotExists(NextCommandID(), tableID, key, value);
     requests.Append(req);
     
@@ -522,7 +520,6 @@ int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%U", tableID);
     req->TestAndSet(NextCommandID(), tableID, key, test, value);
     requests.Append(req);
     
@@ -548,7 +545,6 @@ int Client::GetAndSet(ReadBuffer& key, ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%U", tableID);
     req->GetAndSet(NextCommandID(), tableID, key, value);
     requests.Append(req);
     
@@ -574,7 +570,6 @@ int Client::Add(const ReadBuffer& key, int64_t number)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%U", tableID);
     req->Add(NextCommandID(), tableID, (ReadBuffer&) key, number);
     requests.Append(req);
     
@@ -600,7 +595,6 @@ int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
         return SDBP_BADSCHEMA;
     
     req = new Request;
-    Log_Trace("%U", tableID);
     req->Append(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
     requests.Append(req);
     

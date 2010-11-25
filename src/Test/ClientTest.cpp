@@ -197,6 +197,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
 {
     Client          client;
     const char*     nodes[] = {"localhost:7080"};
+    //const char*     nodes[] = {"192.168.137.51:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
@@ -204,7 +205,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     char            valbuf[128];
     char            keybuf[32];
     int             ret;
-    unsigned        num = 300000;
+    unsigned        num = 10000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -228,8 +229,10 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     
     for (unsigned i = 0; i < num; i++)
     {
-        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
-        key.Wrap(keybuf, ret);
+//        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+//        key.Wrap(keybuf, ret);
+        RandomBuffer(keybuf, sizeof(keybuf));
+        key.Wrap(keybuf, sizeof(keybuf));
         RandomBuffer(valbuf, sizeof(valbuf));
         value.Wrap(valbuf, sizeof(valbuf));
         ret = client.Set(key, value);
