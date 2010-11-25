@@ -34,8 +34,8 @@ void StorageShard::Open(const char* dir, const char* name_)
     int64_t tocSize;
     char    sep;
     
-    prevCommitStorageFileIndex = 1;
     nextStorageFileIndex = 1;
+    prevCommitStorageFileIndex = nextStorageFileIndex - 1;
 
     // create shard directory
     if (*dir == '\0')
@@ -81,7 +81,7 @@ void StorageShard::Open(const char* dir, const char* name_)
     shardSize = tocSize;
     if (tocSize > 0)
         shardSize += ReadTOC(tocSize);
-    prevCommitStorageFileIndex = nextStorageFileIndex;
+    prevCommitStorageFileIndex = nextStorageFileIndex - 1;
 }
 
 void StorageShard::Commit(bool recovery, bool flush)
@@ -105,7 +105,7 @@ void StorageShard::Commit(bool recovery, bool flush)
         WriteRecoveryPostfix();
         recoveryLog.Truncate(false);
     }
-    prevCommitStorageFileIndex = nextStorageFileIndex;
+    prevCommitStorageFileIndex = nextStorageFileIndex - 1;
 }
 
 void StorageShard::Close()
@@ -272,8 +272,8 @@ StorageShard* StorageShard::SplitShard(uint64_t newShardID, ReadBuffer& startKey
     newShard = new StorageShard;
     newShard->shardID = newShardID;
     newShard->shardSize = 0;
+    newShard->nextStorageFileIndex = 1;
     newShard->prevCommitStorageFileIndex = 0;
-    newShard->nextStorageFileIndex = 0;
     
     midFi = Locate(startKey);
     ST_ASSERT(midFi != NULL);
@@ -653,7 +653,7 @@ void StorageShard::WriteTOC()
 {
     uint32_t            size;
     ssize_t             ret;
-    StorageFileIndex    *it;
+    StorageFileIndex*   it;
     StorageFileHeader   header;
     Buffer              writeBuffer;
 
@@ -684,7 +684,7 @@ void StorageShard::WriteTOC()
 
 void StorageShard::WriteData()
 {
-    StorageFileIndex        *it;
+    StorageFileIndex*   it;
     
     for (it = files.First(); it != NULL; it = files.Next(it))
     {
@@ -808,5 +808,5 @@ void StorageShard::CommitPhase3()
 
 void StorageShard::CommitPhase4()
 {
-    prevCommitStorageFileIndex = nextStorageFileIndex;
+    prevCommitStorageFileIndex = nextStorageFileIndex - 1;
 }
