@@ -686,7 +686,7 @@ void StorageShard::WriteData()
 {
     StorageFileIndex*   it;
     
-    for (it = files.First(); it != NULL; it = files.Next(it))
+    FOREACH (it, files)
     {
         if (it->file == NULL)
             continue;
