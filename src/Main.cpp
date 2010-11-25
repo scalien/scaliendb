@@ -53,6 +53,7 @@ int main(int argc, char** argv)
     DEFAULT_BUFFERPOOL->Shutdown();
     StopClock();
     configFile.Shutdown();
+    Log_Shutdown();
 }
 
 void InitLog()

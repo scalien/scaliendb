@@ -100,6 +100,8 @@ ConfigShardServer::ConfigShardServer()
 {
     prev = next = this;
     nextActivationTime = 0;
+    httpPort = 0;
+    sdbpPort = 0;
 }
 
 ConfigShardServer::ConfigShardServer(const ConfigShardServer& other)

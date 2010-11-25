@@ -15,5 +15,7 @@ void ConfigServerApp::Init()
 
 void ConfigServerApp::Shutdown()
 {
+    sdbpServer.Shutdown();
+    httpServer.Shutdown();
     configServer.Shutdown();
 }

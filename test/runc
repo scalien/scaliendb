@@ -1,8 +1,9 @@
 #!/bin/sh
 
-echo -n -e "\033]0;C$1\007"
 if [ "$SCALIENDB_RELEASE" = "1" ]; then
+	echo -n -e "\033]0;Cr-$1\007"
 	build/Release/ScalienDB test/control/$1/scaliendb.conf
 else
-	build/Debug/ScalienDB test/control/$1/scaliendb.conf	
+        echo -n -e "\033]0;Cd-$1\007"
+        build/Debug/ScalienDB test/control/$1/scaliendb.conf	
 fi
