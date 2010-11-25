@@ -415,8 +415,6 @@ TEST_DEFINE(TestClientCreateTable)
 
 TEST_DEFINE(TestClientGetAndSet)
 {
-    // works for empty database
-
     typedef ClientRequest::NodeList NodeList;
 
     Client          client;

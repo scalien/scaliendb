@@ -197,6 +197,16 @@ class Client:
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return status
 
+    def get_and_set(self, key, value):
+        status = SDBP_GetAndSet(self.cptr, key, value)
+        if status < 0:
+            self.result = Client.Result(SDBP_GetResult(self.cptr))
+            return
+        if SDBP_IsBatched(self.cptr):
+            return
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        return self.result.value()
+        
     def add(self, key, value):
         status = SDBP_Add(self.cptr, key, value)
         if status < 0:

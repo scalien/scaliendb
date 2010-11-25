@@ -82,6 +82,7 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
                 return false;
             if (!QuorumShardInfo::ReadList(buffer, quorumShardInfos))
                 return false;
+            return true;
             break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             type = CLUSTERMESSAGE_SET_CONFIG_STATE;

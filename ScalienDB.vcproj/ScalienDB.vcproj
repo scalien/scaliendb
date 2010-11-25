@@ -588,62 +588,102 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="Controller"
+				Name="ConfigServer"
 				>
 				<File
-					RelativePath="..\src\Application\Controller\ConfigContext.cpp"
+					RelativePath="..\src\Application\ConfigServer\ConfigActivationManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\ConfigContext.h"
+					RelativePath="..\src\Application\ConfigServer\ConfigActivationManager.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\ConfigMessage.cpp"
+					RelativePath="..\src\Application\ConfigServer\ConfigDatabaseManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\ConfigMessage.h"
+					RelativePath="..\src\Application\ConfigServer\ConfigDatabaseManager.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\Controller.cpp"
+					RelativePath="..\src\Application\ConfigServer\ConfigHeartbeatManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\Controller.h"
+					RelativePath="..\src\Application\ConfigServer\ConfigHeartbeatManager.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\ControllerApp.cpp"
+					RelativePath="..\src\Application\ConfigServer\ConfigHTTPClientSession.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\ControllerApp.h"
+					RelativePath="..\src\Application\ConfigServer\ConfigHTTPClientSession.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\HTTPControllerContext.cpp"
+					RelativePath="..\src\Application\ConfigServer\ConfigHTTPHandler.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\HTTPControllerContext.h"
+					RelativePath="..\src\Application\ConfigServer\ConfigHTTPHandler.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\HTTPControllerSession.cpp"
+					RelativePath="..\src\Application\ConfigServer\ConfigMessage.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\HTTPControllerSession.h"
+					RelativePath="..\src\Application\ConfigServer\ConfigMessage.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\JSONConfigState.cpp"
+					RelativePath="..\src\Application\ConfigServer\ConfigPrimaryLeaseManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Application\Controller\JSONConfigState.h"
+					RelativePath="..\src\Application\ConfigServer\ConfigPrimaryLeaseManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\ConfigQuorumContext.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\ConfigQuorumContext.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\ConfigQuorumProcessor.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\ConfigQuorumProcessor.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\ConfigServer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\ConfigServer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\ConfigServerApp.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\ConfigServerApp.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\JSONConfigState.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigServer\JSONConfigState.h"
 					>
 				</File>
 			</Filter>

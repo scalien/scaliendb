@@ -523,7 +523,7 @@ bool ConfigState::CompleteCreateDatabase(ConfigMessage& message)
     if (it != NULL)
         return false; // database with name exists
 
-    message.databaseID = nextDatabaseID++;
+    message.databaseID = 0;
     return true;
 }
 
@@ -577,8 +577,8 @@ bool ConfigState::CompleteCreateTable(ConfigMessage& message)
     if (itTable != NULL)
         return false; // table with name exists in database
 
-    message.tableID = nextTableID++;
-    message.shardID = nextShardID++;
+    message.tableID = 0;
+    message.shardID = 0;
     return true;
 }
 
@@ -785,7 +785,7 @@ void ConfigState::OnCreateDatabase(ConfigMessage& message)
 {
     ConfigDatabase* it;
     
-    it = GetDatabase(message.databaseID);
+    it = GetDatabase(nextDatabaseID);
     // make sure database with ID does not exist
     assert(it == NULL);
     it = GetDatabase(message.name);
@@ -793,14 +793,15 @@ void ConfigState::OnCreateDatabase(ConfigMessage& message)
     assert(it == NULL);
         
     it = new ConfigDatabase;
-    it->databaseID = message.databaseID;
+
+    //it->databaseID = message.databaseID;
+    it->databaseID = nextDatabaseID;
     it->name.Write(message.name);
     databases.Append(it);
+
+    message.databaseID = it->databaseID;
     
-    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
-    // usually nextIDs are increased when the ClientRequest is made, but not in this case
-    if (message.databaseID == nextDatabaseID)
-        nextDatabaseID++;
+    nextDatabaseID++;
 }
 
 void ConfigState::OnRenameDatabase(ConfigMessage& message)
@@ -851,7 +852,7 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     // make sure database exists
     assert(itDatabase != NULL);
 
-    itTable = GetTable(message.tableID);
+    itTable = GetTable(nextTableID);
     // make sure table with ID does not exist
     assert(itTable == NULL);
     itTable = GetTable(message.databaseID, message.name);
@@ -861,34 +862,29 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     itShard = GetShard(message.shardID);
     // make sure shard does not exist
     assert(itShard == NULL);
-    
-    itQuorum->shards.Append(message.shardID);
-    
+        
     itShard = new ConfigShard;
     itShard->quorumID = message.quorumID;
     itShard->databaseID = message.databaseID;
-    itShard->tableID = message.tableID;
-    itShard->shardID = message.shardID;
+    itShard->tableID = nextTableID;
+    itShard->shardID = nextShardID;
     shards.Append(itShard);
- 
-    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
-    // usually nextIDs are increased when the ClientRequest is made, but not in this case
-    if (message.shardID == nextShardID)
-        nextShardID++;
+
+    nextShardID++;
     
     itTable = new ConfigTable;
     itTable->databaseID = message.databaseID;
-    itTable->tableID = message.tableID;
+    itTable->tableID = nextTableID;
     itTable->name.Write(message.name);
-    itTable->shards.Append(message.shardID);
+    itTable->shards.Append(itShard->shardID);
     tables.Append(itTable);
     
-    itDatabase->tables.Append(message.tableID);
+    itDatabase->tables.Append(itTable->tableID);
+    itQuorum->shards.Append(itShard->shardID);
 
-    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
-    // usually nextIDs are increased when the ClientRequest is made, but not in this case
-    if (message.tableID == nextTableID)
-        nextTableID++;
+    message.tableID = itTable->tableID;
+
+    nextTableID++;
 }
 
 void ConfigState::OnRenameTable(ConfigMessage& message)

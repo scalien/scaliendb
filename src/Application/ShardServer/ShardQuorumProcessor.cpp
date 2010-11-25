@@ -305,7 +305,10 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
     ClientRequest*  request;
     bool            fromClient;
 
-    fromClient = shardMessages.First()->fromClient;
+    if (ownAppend)
+        fromClient = shardMessages.First()->fromClient;
+    else
+        fromClient = false;
 
     request = NULL;
     if (ownAppend && fromClient)

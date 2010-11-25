@@ -68,14 +68,14 @@ public class SubtreeMatch {
 
 			client.begin();
 			for (String key : insertKeys)
-				client.setIfNotExists(key, value);
+				client.getAndSet(key, value);
 			
 			System.out.println("Submitting 'set's to database...");
 			startTime = System.currentTimeMillis();
 			client.submit();
 			endTime = System.currentTimeMillis();
 			
-			long setps = (long)(randomKeys.size() / (float)(endTime - startTime) * 1000.0 + 0.5);
+			long setps = (long)(insertKeys.size() / (float)(endTime - startTime) * 1000.0 + 0.5);
 			System.out.println("Total sets: " + insertKeys.size() + ", set/s: " + setps);
 			
 		} catch (Exception e) {

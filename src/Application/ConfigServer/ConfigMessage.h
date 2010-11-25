@@ -76,7 +76,7 @@ public:
 
     // Database management
     bool            CreateDatabase(
-                     uint64_t databaseID, ReadBuffer& name);
+                     ReadBuffer& name);
     bool            RenameDatabase(
                      uint64_t databaseID, ReadBuffer& name);
     bool            DeleteDatabase(
@@ -84,7 +84,7 @@ public:
 
     // Table management
     bool            CreateTable(
-                     uint64_t databaseID, uint64_t tableID, uint64_t shardID,
+                     uint64_t databaseID, uint64_t shardID,
                      uint64_t quorumID, ReadBuffer& name);
     bool            RenameTable(
                      uint64_t databaseID, uint64_t tableID, ReadBuffer& name);

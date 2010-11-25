@@ -75,6 +75,16 @@ public class Table
         return client.testAndSet(key, test, value);
 	}
 
+	public String getAndSet(String key, String value) throws SDBPException {
+        useDefaults();
+        return client.getAndSet(key, value);
+	}
+    
+	public byte[] getAndSet(byte[] key, byte[] value) throws SDBPException {
+        useDefaults();
+        return client.getAndSet(key, value);
+	}
+    
 	public long add(String key, long number) throws SDBPException {
         useDefaults();
         return client.add(key, number);
