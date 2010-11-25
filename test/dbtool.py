@@ -60,7 +60,7 @@ def print_indexpage_header(indexpage_header):
 
 def print_page(page_header, data, verbose=0):
 	page_size, file_index, offset, key_count = struct.unpack("<IIII", page_header)
-	print("pageSize = %d, fileIndex = %d, offset = %8d, keys = %d" % (page_size, file_index, offset, key_count))
+	print("pageSize = %6d, fileIndex = %d, offset = %8d, keys = %d" % (page_size, file_index, offset, key_count))
 	if page_size == 64*1024:
 		if verbose > 1:
 			rest = data
@@ -106,6 +106,7 @@ def analyze_datafile(filename, args):
 		verbose = 1
 	if "-vv" in args:
 		verbose = 2
+	offset = 4096
 	while True:
 		page_header = f.read(16)
 		if page_header == "":
@@ -113,12 +114,14 @@ def analyze_datafile(filename, args):
 		if len(page_header) < 16:
 			print("Error")
 			return
+		offset += len(page_header)
 		page_size, = struct.unpack("<I", page_header[:4])
 		if page_size < 65536:
-			print("Error pageSize = %d" % (page_size))
+			print("Error pageSize = %d at offset = %d" % (page_size, offset))
 			return
 		page_data = f.read(page_size - 16)
 		print_page(page_header, page_data, verbose=verbose)
+		offset += len(page_data)
 
 def analyze_shardindex(filename, args):
 	"""
