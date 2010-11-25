@@ -164,17 +164,15 @@ ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd
 ClientRequest* ShardHTTPClientSession::ProcessGet()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     ReadBuffer      key;
     ReadBuffer      value;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
 
     request = new ClientRequest;
-    request->Get(0, databaseID, tableID, key);
+    request->Get(0, tableID, key);
 
     return request;    
 }
@@ -182,18 +180,16 @@ ClientRequest* ShardHTTPClientSession::ProcessGet()
 ClientRequest* ShardHTTPClientSession::ProcessSet()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     ReadBuffer      key;
     ReadBuffer      value;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
     HTTP_GET_PARAM(params, "value", value);
 
     request = new ClientRequest;
-    request->Set(0, databaseID, tableID, key, value);
+    request->Set(0, tableID, key, value);
 
     return request;    
 }
@@ -201,18 +197,16 @@ ClientRequest* ShardHTTPClientSession::ProcessSet()
 ClientRequest* ShardHTTPClientSession::ProcessSetIfNotExists()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     ReadBuffer      key;
     ReadBuffer      value;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
     HTTP_GET_PARAM(params, "value", value);
 
     request = new ClientRequest;
-    request->SetIfNotExists(0, databaseID, tableID, key, value);
+    request->SetIfNotExists(0, tableID, key, value);
 
     return request;    
 }
@@ -220,20 +214,18 @@ ClientRequest* ShardHTTPClientSession::ProcessSetIfNotExists()
 ClientRequest* ShardHTTPClientSession::ProcessTestAndSet()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     ReadBuffer      key;
     ReadBuffer      test;
     ReadBuffer      value;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
     HTTP_GET_PARAM(params, "test", test);
     HTTP_GET_PARAM(params, "value", value);
 
     request = new ClientRequest;
-    request->TestAndSet(0, databaseID, tableID, key, test, value);
+    request->TestAndSet(0, tableID, key, test, value);
 
     return request;    
 }
@@ -241,18 +233,16 @@ ClientRequest* ShardHTTPClientSession::ProcessTestAndSet()
 ClientRequest* ShardHTTPClientSession::ProcessGetAndSet()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     ReadBuffer      key;
     ReadBuffer      value;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
     HTTP_GET_PARAM(params, "value", value);
 
     request = new ClientRequest;
-    request->GetAndSet(0, databaseID, tableID, key, value);
+    request->GetAndSet(0, tableID, key, value);
 
     return request;    
 }
@@ -260,14 +250,12 @@ ClientRequest* ShardHTTPClientSession::ProcessGetAndSet()
 ClientRequest* ShardHTTPClientSession::ProcessAdd()
 {
     unsigned        nread;
-    uint64_t        databaseID;
     uint64_t        tableID;
     int64_t         number;
     ClientRequest*  request;
     ReadBuffer      key;
     ReadBuffer      numberBuffer;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
     HTTP_GET_PARAM(params, "number", numberBuffer);
@@ -277,7 +265,7 @@ ClientRequest* ShardHTTPClientSession::ProcessAdd()
         return NULL;
 
     request = new ClientRequest;
-    request->Add(0, databaseID, tableID, key, number);
+    request->Add(0, tableID, key, number);
 
     return request;    
 }
@@ -285,17 +273,15 @@ ClientRequest* ShardHTTPClientSession::ProcessAdd()
 ClientRequest* ShardHTTPClientSession::ProcessDelete()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     ReadBuffer      key;
     ReadBuffer      value;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
 
     request = new ClientRequest;
-    request->Delete(0, databaseID, tableID, key);
+    request->Delete(0, tableID, key);
 
     return request;    
 }
@@ -303,17 +289,15 @@ ClientRequest* ShardHTTPClientSession::ProcessDelete()
 ClientRequest* ShardHTTPClientSession::ProcessRemove()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     ReadBuffer      key;
     ReadBuffer      value;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
 
     request = new ClientRequest;
-    request->Remove(0, databaseID, tableID, key);
+    request->Remove(0, tableID, key);
 
     return request;    
 }

@@ -146,22 +146,20 @@ bool ClientRequest::DeleteTable(
 }
 
 bool ClientRequest::Get(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_)
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_)
 {
     type = CLIENTREQUEST_GET;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     return true;
 }
 
 bool ClientRequest::Set(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_SET;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
@@ -169,11 +167,10 @@ bool ClientRequest::Set(
 }
 
 bool ClientRequest::SetIfNotExists(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_SET_IF_NOT_EXISTS;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
@@ -181,12 +178,11 @@ bool ClientRequest::SetIfNotExists(
 }
 
 bool ClientRequest::TestAndSet(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t tableID_,
  ReadBuffer& key_, ReadBuffer& test_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_TEST_AND_SET;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     test.Write(test_);
@@ -195,12 +191,11 @@ bool ClientRequest::TestAndSet(
 }
 
 bool ClientRequest::GetAndSet(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t tableID_,
  ReadBuffer& key_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_GET_AND_SET;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
@@ -208,12 +203,11 @@ bool ClientRequest::GetAndSet(
 }
 
 bool ClientRequest::Add(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t tableID_,
  ReadBuffer& key_, int64_t number_)
 {
     type = CLIENTREQUEST_ADD;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     number = number_;
@@ -221,11 +215,10 @@ bool ClientRequest::Add(
 }
 
 bool ClientRequest::Append(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_APPEND;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
@@ -233,22 +226,20 @@ bool ClientRequest::Append(
 }
 
 bool ClientRequest::Delete(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_)
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_)
 {
     type = CLIENTREQUEST_DELETE;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     return true;
 }
 
 bool ClientRequest::Remove(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& key_)
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_)
 {
     type = CLIENTREQUEST_REMOVE;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     key.Write(key_);
     return true;

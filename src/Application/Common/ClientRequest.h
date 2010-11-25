@@ -79,31 +79,31 @@ public:
     
     // Data manipulations
     bool            Get(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key);
     bool            Set(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            SetIfNotExists(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            TestAndSet(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
     bool            GetAndSet(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            Add(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key, int64_t number);
     bool            Append(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            Delete(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key);    
     bool            Remove(
-                     uint64_t commandID, uint64_t databaseID,
+                     uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key);    
 
     // Variables
