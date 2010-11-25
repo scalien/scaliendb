@@ -140,52 +140,23 @@ bool StorageDatabase::DeleteTable(StorageTable* table)
 }
 
 void StorageDatabase::Commit(bool recovery, bool flush)
-{
-    long            el1, els1, el2, els2, el3, el4;
-    Stopwatch       sw;
-
-    el1 = els1 = el2 = els2 = el3 = el4 = 0;
-    
+{    
     if (recovery)
     {
-        sw.Start();
         CommitPhase1();
-        sw.Stop();
-        el1 = sw.Elapsed();
-
-        sw.Restart();
         if (flush)
             FS_Sync();
-        sw.Stop();
-        els1 = sw.Elapsed();
     }
 
-    sw.Restart();
     CommitPhase2();
-    sw.Stop();
-    el2 = sw.Elapsed();
 
-    sw.Restart();
     if (flush)
         FS_Sync();
-    sw.Stop();
-    els2 = sw.Elapsed();
 
     if (recovery)
-    {
-        sw.Restart();
         CommitPhase3();
-        sw.Stop();
-        el3 = sw.Elapsed();
-    }
     
-    sw.Restart();
     CommitPhase4();
-    sw.Stop();
-    el4 = sw.Elapsed();
-
-    Log_Trace("el1 = %ld, els1 = %ld, el2 = %ld, els2 = %ld, el3 = %ld, el4 = %ld",
-        el1, els1, el2, els2, el3, el4);
 }
 
 void StorageDatabase::CommitPhase1()

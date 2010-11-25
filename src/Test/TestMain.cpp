@@ -18,7 +18,7 @@ TEST_LOG_INIT(true, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
-TEST_ADD(TestCrashStorage);
+//TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);
 //TEST_ADD(TestInTreeMap);
@@ -36,10 +36,10 @@ TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestStorageCapacity);
 //TEST_ADD(TestStorageCursor);
 //TEST_ADD(TestStoragePageSplit);
-//TEST_ADD(TestStorageFileSplit2);
+//TEST_ADD(TestStorageFileSplit);
 //TEST_ADD(TestStorageFileThreeWaySplit);
 //TEST_ADD(TestStorageRandomGetSetDelete);
-//TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
+TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
 //TEST_ADD(TestStorageShardSplit);
 //TEST_ADD(TestStorageWindowsSync);
 //TEST_ADD(TestTimingBasicWrite);

@@ -221,7 +221,7 @@ TEST_DEFINE(TestStorageCapacity)
             rv.SetBuffer(p);
             rv.SetLength(len);
             sw.Start();
-            table->Set(rk, rv, false);
+            table->Set(rk, rv, true);
             sw.Stop();
         }
         TEST_LOG("Round %u: %u sets took %ld msec", r, num, (long) sw.Elapsed());
@@ -638,7 +638,7 @@ TEST_DEFINE(TestStoragePageSplit)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestStorageFileSplit2)
+TEST_DEFINE(TestStorageFileSplit)
 {
     StorageEnvironment  env;
     StorageDatabase*    db;

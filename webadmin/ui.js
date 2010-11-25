@@ -522,7 +522,7 @@ function consoleEvalExpression()
 function consoleOnKeyDown(e)
 {
 	if ((window.event && window.event.keyCode == 13) ||
-	    (e && e.keyCode == 13)
+	    (e && e.keyCode == 13))
 	{
 		alert("Enter pressed");
 	}

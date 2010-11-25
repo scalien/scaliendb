@@ -301,6 +301,7 @@ StorageFile* StorageFile::SplitFile()
     uint32_t        index, newIndex, num;
     
     ST_ASSERT(numDataPageSlots == numDataPages);
+    ASSERT_INDEX_CONSISTENCY();
     
     // TODO: do thing for cursors
     
@@ -350,6 +351,9 @@ StorageFile* StorageFile::SplitFile()
     
     ReorderFile();
     newFile->ReorderFile();
+
+    ASSERT_INDEX_CONSISTENCY();
+    newFile->AssertIndexConsistency();
 
     return newFile;
 }
@@ -427,6 +431,8 @@ void StorageFile::Read()
     ReadBuffer          readBuffer;
     StorageFileHeader   header;
     bool                ret;
+
+    ASSERT_INDEX_CONSISTENCY();
     
     newFile = false;
 
@@ -481,6 +487,7 @@ void StorageFile::Read()
     numDataPages = indexPage.NumEntries();  
     
     ST_ASSERT(numDataPages == numDataPageSlots - indexPage.freeDataPages.GetLength());
+    ASSERT_INDEX_CONSISTENCY();
 }
 
 void StorageFile::ReadRest()
@@ -488,6 +495,8 @@ void StorageFile::ReadRest()
     StorageKeyIndex*        it;
     uint32_t*               uit;
     SortedList<uint32_t>    indexes;
+
+    ASSERT_INDEX_CONSISTENCY();
 
     // As IO occurs in order, sort by index rather than by name
     FOREACH (it, indexPage.keys)
@@ -498,6 +507,8 @@ void StorageFile::ReadRest()
 
     FOREACH (uit, indexes)
         LoadDataPage(*uit);
+
+    ASSERT_INDEX_CONSISTENCY();
 }
 
 void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
@@ -567,7 +578,7 @@ void StorageFile::WriteData()
         newFile = false;
     }
     
-    for (it = dirtyPages.First(); it != NULL; it = dirtyPages.Remove(it))
+    for (it = dirtyPages.First(); it != NULL; it = next)
     {
         buffer.Allocate(it->GetPageSize());
         buffer.Zero();
@@ -582,6 +593,7 @@ void StorageFile::WriteData()
         it->SetDirty(false);
         it->SetNew(false);
 
+        next = dirtyPages.Remove(it);
         dirties.Append(it);
     }
     
@@ -654,6 +666,8 @@ void StorageFile::LoadDataPage(uint32_t index)
     Buffer      buffer;
     ReadBuffer  readBuffer;
     int         length;
+
+    ASSERT_INDEX_CONSISTENCY();
     
     // load existing data page from disk
     dataPages[index] = DCACHE->GetPage();
@@ -674,6 +688,8 @@ void StorageFile::LoadDataPage(uint32_t index)
     buffer.SetLength(length);
     readBuffer.Wrap(buffer);
     dataPages[index]->Read(readBuffer);
+
+    ASSERT_INDEX_CONSISTENCY();
 }
 
 // this is called by DCACHE->FreePage
