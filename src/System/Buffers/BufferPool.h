@@ -24,6 +24,8 @@ public:
 
     static BufferPool*          Get();
 
+    void                        Shutdown();
+
     virtual Buffer*             Acquire(unsigned size);
     virtual void                Release(Buffer* buffer);
     

@@ -10,6 +10,13 @@ BufferPool* BufferPool::Get()
     return bufferPool;
 }
 
+void BufferPool::Shutdown()
+{
+    available.DeleteList();
+    delete bufferPool;
+    bufferPool = NULL;
+}
+
 BufferPool::BufferPool()
 {
     availableSize = 0;

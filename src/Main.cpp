@@ -50,6 +50,7 @@ int main(int argc, char** argv)
     delete app;
     
     IOProcessor::Shutdown();
+    DEFAULT_BUFFERPOOL->Shutdown();
     StopClock();
     configFile.Shutdown();
 }
