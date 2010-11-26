@@ -25,12 +25,15 @@ public:
     List();
     ~List();
 
+    List<T>&       operator=(const List<T>& other);
+
     T&              Get(int i);
     
     void            Prepend(T &t);
     void            Append(T &t);
     T*              Remove(T* t);   
     bool            Remove(T &t);
+    void            Copy(List<T>& other) const;
     void            Clear();
     void            ClearMembers();
     
@@ -80,6 +83,20 @@ List<T>::~List()
 {
     Clear();
 }
+
+template<class T>
+List<T>& List<T>::operator=(const List<T>& other)
+{
+    T* it;
+    
+    Clear();
+    
+    for (it = other.First(); it != NULL; it = other.Next(it))
+        Append(*it);
+    
+    return *this;
+}
+
 
 template<class T>
 T& List<T>::Get(int i)
@@ -169,6 +186,15 @@ bool List<T>::Remove(T &t)
     
     // not found
     return false;
+}
+
+template<class T>
+void List<T>::Copy(List<T>& other) const
+{
+    T* it;
+    
+    for (it = First(); it != NULL; it = Next(it))
+        other.Append(*it);
 }
 
 template<class T>

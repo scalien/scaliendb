@@ -12,7 +12,7 @@ bool ClusterMessage::SetNodeID(uint64_t nodeID_)
 }
 
 bool ClusterMessage::Heartbeat(uint64_t nodeID_,
- QuorumPaxosID::List& quorumPaxosIDs_, QuorumShardInfo::List& quorumShardInfos_,
+ List<QuorumPaxosID>& quorumPaxosIDs_, List<QuorumShardInfo>& quorumShardInfos_,
  unsigned httpPort_, unsigned sdbpPort_)
 {
     type = CLUSTERMESSAGE_HEARTBEAT;
@@ -46,7 +46,7 @@ bool ClusterMessage::RequestLease(uint64_t nodeID_, uint64_t quorumID_,
 
 bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
  uint64_t proposalID_, uint64_t configID_, unsigned duration_,
- bool watchingPaxosID_, ConfigQuorum::NodeList activeNodes_)
+ bool watchingPaxosID_, List<uint64_t>& activeNodes_)
 {
     type = CLUSTERMESSAGE_RECEIVE_LEASE;
     nodeID = nodeID_;
@@ -102,7 +102,7 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             if (read != 1)
                 return false;
             buffer.Advance(read);
-            return ConfigState::ReadIDList<ConfigQuorum::NodeList>(activeNodes, buffer);
+            return ConfigState::ReadIDList< List<uint64_t> >(activeNodes, buffer);
         default:
             return false;
     }
@@ -137,7 +137,7 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%U:%U:%U:%u:%b",
              type, nodeID, quorumID, proposalID, configID, duration, watchingPaxosID);
             buffer.Appendf(":");
-            ConfigState::WriteIDList<ConfigQuorum::NodeList>(activeNodes, buffer);
+            ConfigState::WriteIDList< List<uint64_t> >(activeNodes, buffer);
             return true;
         default:
             return false;

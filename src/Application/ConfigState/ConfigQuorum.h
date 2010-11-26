@@ -22,8 +22,6 @@
 class ConfigQuorum
 {
 public:
-    typedef ArrayList<uint64_t, CONFIG_MAX_NODES> NodeList;
-
     ConfigQuorum();
     ConfigQuorum(const ConfigQuorum& other);
 
@@ -34,11 +32,11 @@ public:
     void                OnActivationReplication();
     void                ClearActivation();
 
-    NodeList            GetVolatileActiveNodes();
+    List<uint64_t>      GetVolatileActiveNodes();
     
     uint64_t            quorumID;
-    NodeList            activeNodes;
-    NodeList            inactiveNodes;
+    List<uint64_t>      activeNodes;
+    List<uint64_t>      inactiveNodes;
     List<uint64_t>      shards;
     
     // ========================================================================================

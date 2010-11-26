@@ -54,7 +54,7 @@ public:
     // config state
     
     // controller commands
-    int                     CreateQuorum(ClientRequest::NodeList& nodes);
+    int                     CreateQuorum(List<uint64_t>& nodes);
     int                     CreateDatabase(ReadBuffer& name);
     int                     RenameDatabase(uint64_t databaseID, const ReadBuffer& name);
     int                     DeleteDatabase(uint64_t databaseID);

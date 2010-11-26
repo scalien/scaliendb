@@ -1,7 +1,7 @@
 #ifndef CLIENTREQUEST_H
 #define CLIENTREQUEST_H
 
-#include "System/Containers/ArrayList.h"
+#include "System/Containers/List.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "ClientResponse.h"
 #include "ClientSession.h"
@@ -38,8 +38,6 @@ class ClientSession; // forward
 class ClientRequest
 {
 public:
-    typedef ArrayList<uint64_t, CONFIG_MAX_NODES> NodeList;
-    
     ClientRequest();
     
     void            Init();
@@ -59,7 +57,7 @@ public:
 
     // Quorum management
     bool            CreateQuorum(
-                     uint64_t commandID, NodeList& nodes);  
+                     uint64_t commandID, List<uint64_t>& nodes);  
                  
     // Database management
     bool            CreateDatabase(
@@ -121,7 +119,7 @@ public:
     Buffer          key;
     Buffer          value;
     Buffer          test;
-    NodeList        nodes;
+    List<uint64_t>  nodes;
     
     ClientRequest*  prev;
     ClientRequest*  next;

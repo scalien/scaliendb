@@ -199,8 +199,8 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
         else
             buffer.Writef("");
         buffer.Appendf("q%U |", itQuorum->quorumID);
-        ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
-        ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+        List<uint64_t>& activeNodes = itQuorum->activeNodes;
+        List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
         for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
         {
             found = false;
@@ -334,7 +334,7 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
             buffer.Writef("");
         buffer.Appendf("s%U |", itShard->shardID);
         quorum = configState->GetQuorum(itShard->quorumID);
-        ConfigQuorum::NodeList& activeNodes = quorum->activeNodes;
+        List<uint64_t>& activeNodes = quorum->activeNodes;
         for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
         {
             found = false;
@@ -448,10 +448,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessGetState()
 
 ClientRequest* ConfigHTTPClientSession::ProcessCreateQuorum()
 {
-    typedef ClientRequest::NodeList NodeList;
-    
     ClientRequest*  request;
-    NodeList        nodes;
+    List<uint64_t>  nodes;
     ReadBuffer      tmp;
     char*           next;
     unsigned        nread;

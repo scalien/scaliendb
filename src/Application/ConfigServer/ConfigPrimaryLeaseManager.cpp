@@ -84,7 +84,7 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
     unsigned                duration;
     PrimaryLease*           primaryLease;
     ClusterMessage          response;
-    ConfigQuorum::NodeList  activeNodes;
+    List<uint64_t>          activeNodes;
 
     assert(quorum.hasPrimary == false);
 
@@ -111,7 +111,7 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
     uint64_t                duration;
     PrimaryLease*           it;
     ClusterMessage          response;
-    ConfigQuorum::NodeList  activeNodes;
+    List<uint64_t>          activeNodes;
 
     FOREACH(it, primaryLeases)
     {

@@ -314,7 +314,7 @@ uint64_t SDBP_GetMasterTimeout(ClientObj client_)
 int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)
 {
     Client*                 client = (Client*) client_;
-    ClientRequest::NodeList nodes;
+    List<uint64_t>          nodes;
     uint64_t                nodeID;
     unsigned                nread;
     

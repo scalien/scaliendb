@@ -427,7 +427,7 @@ bool ConfigState::CompleteIncreaseQuorum(ConfigMessage& message)
     if (itQuorum == NULL)
         return false; // no such quorum
     
-    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& activeNodes = itQuorum->activeNodes;
     
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
@@ -435,7 +435,7 @@ bool ConfigState::CompleteIncreaseQuorum(ConfigMessage& message)
             return false; // node already in quorum
     }
 
-    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -455,14 +455,14 @@ bool ConfigState::CompleteDecreaseQuorum(ConfigMessage& message)
     if (itQuorum == NULL)
         return false; // no such quorum
     
-    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& activeNodes = itQuorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
             return true; // node in quorum
     }
 
-    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -481,7 +481,7 @@ bool ConfigState::CompleteActivateShardServer(ConfigMessage& message)
     if (itQuorum == NULL)
         return false; // no such quorum
 
-    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
     FOREACH(itNodeID, inactiveNodes)
     {
         if (*itNodeID == message.nodeID)
@@ -500,7 +500,7 @@ bool ConfigState::CompleteDeactivateShardServer(ConfigMessage& message)
     if (itQuorum == NULL)
         return false; // no such quorum
 
-    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& activeNodes = itQuorum->activeNodes;
     FOREACH(itNodeID, activeNodes)
     {
         if (*itNodeID == message.nodeID)
@@ -666,14 +666,14 @@ void ConfigState::OnIncreaseQuorum(ConfigMessage& message)
     assert(itQuorum != NULL);
         
     // make sure node is not already in quorum
-    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& activeNodes = itQuorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
             ASSERT_FAIL();
     }
 
-    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -693,7 +693,7 @@ void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
     assert(itQuorum != NULL);
     
     // make sure node is in quorum
-    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& activeNodes = itQuorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -703,7 +703,7 @@ void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
         }
     }
 
-    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -727,8 +727,8 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
     assert(itQuorum != NULL);
 
     // make sure node is in quorum
-    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
-    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& activeNodes = itQuorum->activeNodes;
     FOREACH(itNodeID, inactiveNodes)
     {
         if (*itNodeID == message.nodeID)
@@ -764,8 +764,8 @@ void ConfigState::OnDeactivateShardServer(ConfigMessage& message)
     assert(itQuorum != NULL);
     
     // make sure node is in quorum
-    ConfigQuorum::NodeList& inactiveNodes = itQuorum->inactiveNodes;
-    ConfigQuorum::NodeList& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& activeNodes = itQuorum->activeNodes;
     FOREACH(itNodeID, activeNodes)
     {
         if (*itNodeID == message.nodeID)

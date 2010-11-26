@@ -34,7 +34,7 @@ void ShardServer::Init()
         str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str);
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
-        controllers.Append(nodeID);
+        configServers.Append(nodeID);
         // this will cause the node to connect to the controllers
         // and if my nodeID is not set the MASTER will automatically send
         // me a SetNodeID cluster message
@@ -84,7 +84,7 @@ void ShardServer::BroadcastToControllers(Message& message)
 {
     uint64_t* itNodeID;
 
-    FOREACH(itNodeID, controllers)
+    FOREACH(itNodeID, configServers)
         CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, message);
 }
 

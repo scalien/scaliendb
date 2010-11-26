@@ -3,7 +3,7 @@
 
 #include "System/Common.h"
 #include "System/Buffers/Buffer.h"
-#include "System/Containers/ArrayList.h"
+#include "System/Containers/List.h"
 #include "System/IO/Endpoint.h"
 
 #define MAX_QUORUMS_PER_SHARDSERVER     1*1000
@@ -20,13 +20,13 @@
 class QuorumPaxosID
 {
 public:
+    typedef List<QuorumPaxosID> List;
+
     QuorumPaxosID();
     
     uint64_t        quorumID;
     uint64_t        paxosID;
     
-    typedef ArrayList<QuorumPaxosID, MAX_QUORUMS_PER_SHARDSERVER> List;
-
     static bool     ReadList(ReadBuffer& buffer, List& quorumPaxosIDs);
     static bool     WriteList(Buffer& buffer, List& quorumPaxosIDs);
     
@@ -44,15 +44,15 @@ public:
 class QuorumShardInfo
 {
 public:
+    typedef List<QuorumShardInfo> List;
+
     QuorumShardInfo();
     
     uint64_t        quorumID;
     uint64_t        shardID;
     uint64_t        shardSize;
     ReadBuffer      splitKey;
-    
-    typedef ArrayList<QuorumShardInfo, MAX_SHARDS_PER_SHARDSERVER> List;
-    
+        
     static bool     ReadList(ReadBuffer& buffer, List& quorumShardInfos);
     static bool     WriteList(Buffer& buffer, List& quorumShardInfos);
 };
@@ -79,8 +79,8 @@ public:
     // ========================================================================================
     //
     // Not replicated, only stored by the MASTER in-memory
-    QuorumPaxosID::List     quorumPaxosIDs;
-    QuorumShardInfo::List   quorumShardInfos;
+    List<QuorumPaxosID>     quorumPaxosIDs;
+    List<QuorumShardInfo>   quorumShardInfos;
     
     uint64_t                nextActivationTime;
 

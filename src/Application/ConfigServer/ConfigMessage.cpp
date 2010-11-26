@@ -12,7 +12,7 @@ bool ConfigMessage::RegisterShardServer(
 }
 
 bool ConfigMessage::CreateQuorum(
- uint64_t quorumID_, NodeList& nodes_)
+ uint64_t quorumID_, List<uint64_t>& nodes_)
 {
     type = CONFIGMESSAGE_CREATE_QUORUM;
     quorumID = quorumID_;

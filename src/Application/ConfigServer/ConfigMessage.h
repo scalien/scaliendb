@@ -3,7 +3,7 @@
 
 #include "System/Platform.h"
 #include "System/IO/Endpoint.h"
-#include "System/Containers/ArrayList.h"
+#include "System/Containers/List.h"
 #include "Framework/Messaging/Message.h"
 
 #define CONFIGMESSAGE_MAX_NODES                 7
@@ -37,8 +37,6 @@
 class ConfigMessage : public Message
 {
 public:
-    typedef ArrayList<uint64_t, CONFIGMESSAGE_MAX_NODES> NodeList;
-
     ConfigMessage() { prev = next = this; }
 
     // Variables
@@ -54,7 +52,7 @@ public:
     ReadBuffer      firstKey;
     Buffer          splitKey;
     Endpoint        endpoint;
-    NodeList        nodes;    
+    List<uint64_t>  nodes;    
     
     // For InList<>
     ConfigMessage*  prev;
@@ -64,7 +62,7 @@ public:
     bool            RegisterShardServer(
                      uint64_t nodeID, Endpoint& endpoint);
     bool            CreateQuorum(
-                     uint64_t quorumID, NodeList& nodes);
+                     uint64_t quorumID, List<uint64_t>& nodes);
 //    bool            IncreaseQuorum(
 //                     uint64_t quorumID, uint64_t nodeID);
 //    bool            DecreaseQuorum(

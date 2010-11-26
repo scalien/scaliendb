@@ -54,7 +54,7 @@ TEST_DEFINE(test1)
     Buffer          tmp;
 
     client.Init(SIZE(nodes),nodes);
-    ClientRequest::NodeList quorumNodes;
+    List<uint64_t> quorumNodes;
     uint64_t nodeID = 100;
     quorumNodes.Append(nodeID);
 
@@ -145,7 +145,7 @@ TEST_DEFINE(test2)
     const int       num = 10000;
 
     client.Init(SIZE(nodes),nodes);
-    ClientRequest::NodeList quorumNodes;
+    List<uint64_t> quorumNodes;
     uint64_t nodeID = 100;
     quorumNodes.Append(nodeID);
 
@@ -266,7 +266,7 @@ TEST_DEFINE(test_rename)
     uint64_t        databaseID;
 
     client.Init(SIZE(nodes),nodes);
-    ClientRequest::NodeList quorumNodes;
+    List<uint64_t> quorumNodes;
     uint64_t nodeID = 100;
     quorumNodes.Append(nodeID);
 
@@ -290,7 +290,7 @@ TEST_DEFINE(TestClientDeleteDatabase)
     uint64_t        databaseID;
 
     client.Init(SIZE(nodes),nodes);
-    ClientRequest::NodeList quorumNodes;
+    List<uint64_t> quorumNodes;
     uint64_t nodeID = 100;
     quorumNodes.Append(nodeID);
 

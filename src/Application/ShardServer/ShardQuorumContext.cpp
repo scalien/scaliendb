@@ -8,7 +8,7 @@
 void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
  ShardQuorumProcessor* quorumProcessor_, StorageTable* table)
 {
-    ConfigQuorum::NodeList activeNodes;
+    List<uint64_t> activeNodes;
     
     quorumProcessor = quorumProcessor_;
     quorumID = configQuorum->quorumID;
@@ -27,7 +27,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     isReplicationActive = true;
 }
 
-void ShardQuorumContext::SetActiveNodes(ConfigQuorum::NodeList& activeNodes)
+void ShardQuorumContext::SetActiveNodes(List<uint64_t>& activeNodes)
 {
     uint64_t*   it;
 

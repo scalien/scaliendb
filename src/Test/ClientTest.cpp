@@ -352,8 +352,6 @@ TEST_DEFINE(TestClientBatchedGet)
 
 TEST_DEFINE(TestClientCreateTable)
 {
-    typedef ClientRequest::NodeList NodeList;
-
     Client          client;
     Result*         result;
     const char*     nodes[] = {"localhost:7080"};
@@ -363,7 +361,7 @@ TEST_DEFINE(TestClientCreateTable)
     ReadBuffer      value;
     int             ret;
     Stopwatch       sw;
-    NodeList        quorumNodes;
+    List<uint64_t>  quorumNodes;
     uint64_t        quorumID;
     uint64_t        databaseID;
 //    uint64_t        tableID;
@@ -418,8 +416,6 @@ TEST_DEFINE(TestClientCreateTable)
 
 TEST_DEFINE(TestClientGetAndSet)
 {
-    typedef ClientRequest::NodeList NodeList;
-
     Client          client;
 //    Result*         result;
     const char*     nodes[] = {"localhost:7080"};
@@ -431,7 +427,7 @@ TEST_DEFINE(TestClientGetAndSet)
     ReadBuffer      retBuf;
     int             ret;
     Stopwatch       sw;
-    NodeList        quorumNodes;
+    List<uint64_t>  quorumNodes;
 //    uint64_t        quorumID;
 //    uint64_t        databaseID;
 //    uint64_t        tableID;
@@ -684,8 +680,6 @@ TEST_DEFINE(TestClientAdd)
 
 TEST_DEFINE(TestClientAppend)
 {
-    typedef ClientRequest::NodeList NodeList;
-
     Client          client;
     Result*         result;
     const char*     nodes[] = {"localhost:7080"};
@@ -696,7 +690,7 @@ TEST_DEFINE(TestClientAppend)
     int             ret;
     unsigned        num = 10;
     Stopwatch       sw;
-    NodeList        quorumNodes;
+    List<uint64_t>  quorumNodes;
 //    uint64_t        quorumID;
 //    uint64_t        databaseID;
 //    uint64_t        defaultQuorumNodeID = 100;
@@ -823,7 +817,7 @@ TEST_DEFINE(TestClientSchemaSet)
         
         delete result;
 
-        ClientRequest::NodeList quorumNodes;
+        List<uint64_t> quorumNodes;
         uint64_t nodeID = 100;
         quorumNodes.Append(nodeID);
         ret = client.CreateQuorum(quorumNodes);

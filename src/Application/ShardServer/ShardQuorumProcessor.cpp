@@ -210,7 +210,7 @@ void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
 {
 }
 
-void ShardQuorumProcessor::SetActiveNodes(ConfigQuorum::NodeList& activeNodes)
+void ShardQuorumProcessor::SetActiveNodes(List<uint64_t>& activeNodes)
 {
     quorumContext.SetActiveNodes(activeNodes);
 }

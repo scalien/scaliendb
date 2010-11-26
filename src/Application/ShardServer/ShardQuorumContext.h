@@ -24,7 +24,7 @@ public:
     void                            Init(ConfigQuorum* configQuorum,
                                      ShardQuorumProcessor* quorumProcessor_, StorageTable* table);
     
-    void                            SetActiveNodes(ConfigQuorum::NodeList& activeNodes);
+    void                            SetActiveNodes(List<uint64_t>& activeNodes);
     void                            TryReplicationCatchup();
     void                            AppendDummy();
     void                            Append(); // nextValue was filled up using GetNextValue()
