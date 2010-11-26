@@ -53,11 +53,6 @@ ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
     return shardServer->GetConfigState()->GetQuorum(GetQuorumID());
 }
 
-//ShardQuorumProcessor::ShardList& ShardQuorumProcessor::GetShards()
-//{
-//    return shards;
-//}
-
 void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
 {
     if (proposalID != message.proposalID)
@@ -67,6 +62,8 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     configID = message.configID;
     activeNodes = message.activeNodes;
     quorumContext.SetActiveNodes(activeNodes);
+ 
+    shardServer->GetConfigState()->GetQuorum(GetQuorumID())->shards = message.shards;
     
     leaseTimeout.SetExpireTime(requestedLeaseExpireTime);
     EventLoop::Reset(&leaseTimeout);

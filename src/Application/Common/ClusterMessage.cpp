@@ -46,7 +46,7 @@ bool ClusterMessage::RequestLease(uint64_t nodeID_, uint64_t quorumID_,
 
 bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
  uint64_t proposalID_, uint64_t configID_, unsigned duration_,
- bool watchingPaxosID_, List<uint64_t>& activeNodes_)
+ bool watchingPaxosID_, List<uint64_t>& activeNodes_, List<uint64_t>& shards_)
 {
     type = CLUSTERMESSAGE_RECEIVE_LEASE;
     nodeID = nodeID_;
@@ -55,6 +55,7 @@ bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
     configID = configID_;
     duration = duration_;
     activeNodes = activeNodes_;
+    shards = shards_;
     watchingPaxosID = watchingPaxosID_;
     return true;
 }
@@ -81,6 +82,9 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             buffer.Advance(read);
             if (!QuorumPaxosID::ReadList(buffer, quorumPaxosIDs))
                 return false;
+            read = buffer.Readf(":");
+            if (read != 1)
+                return false;
             if (!QuorumShardInfo::ReadList(buffer, quorumShardInfos))
                 return false;
             return true;
@@ -102,7 +106,14 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             if (read != 1)
                 return false;
             buffer.Advance(read);
-            return ConfigState::ReadIDList< List<uint64_t> >(activeNodes, buffer);
+            if (!ConfigState::ReadIDList< List<uint64_t> >(activeNodes, buffer))
+                return false;
+            read = buffer.Readf(":");
+            if (read != 1)
+                return false;
+            if (!ConfigState::ReadIDList< List<uint64_t> >(shards, buffer))
+                return false;
+            return true;
         default:
             return false;
     }
@@ -124,6 +135,7 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%u:%u",
              type, nodeID, httpPort, sdbpPort);
             QuorumPaxosID::WriteList(buffer, quorumPaxosIDs);
+            buffer.Appendf(":");
             QuorumShardInfo::WriteList(buffer, quorumShardInfos);
             return true;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
@@ -138,6 +150,8 @@ bool ClusterMessage::Write(Buffer& buffer)
              type, nodeID, quorumID, proposalID, configID, duration, watchingPaxosID);
             buffer.Appendf(":");
             ConfigState::WriteIDList< List<uint64_t> >(activeNodes, buffer);
+            buffer.Appendf(":");
+            ConfigState::WriteIDList< List<uint64_t> >(shards, buffer);
             return true;
         default:
             return false;

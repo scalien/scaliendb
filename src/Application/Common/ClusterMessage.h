@@ -33,6 +33,7 @@ public:
     unsigned                duration;
     bool                    watchingPaxosID;
     List<uint64_t>          activeNodes;
+    List<uint64_t>          shards;
     List<QuorumPaxosID>     quorumPaxosIDs;
     List<QuorumShardInfo>   quorumShardInfos;
     ConfigState             configState;
@@ -51,7 +52,7 @@ public:
                      uint64_t proposalID, uint64_t paxosID, uint64_t configID, unsigned duration);
     bool            ReceiveLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, uint64_t configID, unsigned duration,
-                     bool watchingPaxosID, List<uint64_t>& activeNodes);
+                     bool watchingPaxosID, List<uint64_t>& activeNodes, List<uint64_t>& shards);
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);

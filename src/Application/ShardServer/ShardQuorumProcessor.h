@@ -37,7 +37,6 @@ public:
     uint64_t                GetQuorumID();
     uint64_t                GetPaxosID();
     ConfigQuorum*           GetConfigQuorum();
-//    ShardList&              GetShards();
     
     // ========================================================================================
     // For ShardServer:
