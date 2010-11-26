@@ -6,9 +6,6 @@
 #include "System/Containers/List.h"
 #include "System/IO/Endpoint.h"
 
-#define MAX_QUORUMS_PER_SHARDSERVER     1*1000
-#define MAX_SHARDS_PER_SHARDSERVER      10*1000
-
 /*
 ===============================================================================================
 

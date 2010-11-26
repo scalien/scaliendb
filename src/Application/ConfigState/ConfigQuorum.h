@@ -5,12 +5,6 @@
 #include "System/Containers/List.h"
 #include "System/Containers/ArrayList.h"
 
-// TODO: create ConfigConsts.h and define there
-#define CONFIG_MAX_NODES                7
-
-#define CONFIG_QUORUM_PRODUCTION        'P'
-#define CONFIG_QUORUM_TEST              'T'
-
 /*
 ===============================================================================================
 
