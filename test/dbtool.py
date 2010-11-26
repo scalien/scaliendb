@@ -13,6 +13,7 @@ See 'dbtool.py help COMMAND' for more information about a specific command.
 import os
 import sys
 import struct
+import signal
 
 def print_recovery_op(i, op, size, data):
 	if op == 0:
@@ -121,7 +122,7 @@ def analyze_datafile(filename, args):
 		page_size, = struct.unpack("<I", page_header[:4])
 		if page_size < 65536:
 			index = offset_to_index(offset, indexpage_size, datapage_size)
-			print("Error pageSize = %d at offset = %d (%4d)" % (page_size, offset, index))
+			print("Error pageSize = %d at offset = %d (%d)" % (page_size, offset, index))
 			return
 		page_data = f.read(page_size - 16)
 		print_page(page_header, page_data, verbose=verbose)
@@ -175,6 +176,7 @@ def help(command):
 		print("No such command!")
 
 if __name__ == "__main__":
+	signal.signal(signal.SIGPIPE, signal.SIG_DFL)
 	if len(sys.argv) < 3:
 		print __doc__
 		sys.exit(1)
