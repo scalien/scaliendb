@@ -77,7 +77,7 @@ bool ClientRequest::GetConfigState(uint64_t commandID_)
     return true;
 }
 
-bool ClientRequest::CreateQuorum(uint64_t commandID_, NodeList& nodes_)
+bool ClientRequest::CreateQuorum(uint64_t commandID_, List<uint64_t>& nodes_)
 {
     type = CLIENTREQUEST_CREATE_QUORUM;
     commandID = commandID_;

@@ -32,9 +32,10 @@ public:
     uint64_t                configID;
     unsigned                duration;
     bool                    watchingPaxosID;
-    ConfigQuorum::NodeList  activeNodes;
-    QuorumPaxosID::List     quorumPaxosIDs;
-    QuorumShardInfo::List   quorumShardInfos;
+    List<uint64_t>          activeNodes;
+    List<uint64_t>          shards;
+    List<QuorumPaxosID>     quorumPaxosIDs;
+    List<QuorumShardInfo>   quorumShardInfos;
     ConfigState             configState;
     unsigned                httpPort;
     unsigned                sdbpPort;
@@ -44,14 +45,14 @@ public:
     
     bool            SetNodeID(uint64_t nodeID);
     bool            Heartbeat(uint64_t nodeID,
-                     QuorumPaxosID::List& quorumPaxosIDs, QuorumShardInfo::List& quorumShardInfos,
+                     List<QuorumPaxosID>& quorumPaxosIDs, List<QuorumShardInfo>& quorumShardInfos,
                      unsigned httpPort, unsigned sdbpPort);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, uint64_t paxosID, uint64_t configID, unsigned duration);
     bool            ReceiveLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, uint64_t configID, unsigned duration,
-                     bool watchingPaxosID, ConfigQuorum::NodeList activeNodes);
+                     bool watchingPaxosID, List<uint64_t>& activeNodes, List<uint64_t>& shards);
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);

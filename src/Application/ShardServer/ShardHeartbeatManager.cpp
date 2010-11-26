@@ -26,8 +26,8 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     ShardQuorumProcessor*   itQuorumProcessor;
     ClusterMessage          msg;
     QuorumPaxosID           quorumPaxosID;
-    QuorumPaxosID::List     quorumPaxosIDList;
-    QuorumShardInfo::List   quorumShardInfos;
+    List<QuorumPaxosID>     quorumPaxosIDList;
+    List<QuorumShardInfo>   quorumShardInfos;
     QuorumShardInfo         quorumShardInfo;
     StorageShard*           storageShard;
     ConfigState*            configState;

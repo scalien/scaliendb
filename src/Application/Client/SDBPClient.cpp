@@ -246,7 +246,7 @@ int Client::UseTable(ReadBuffer& name)
     return SDBP_SUCCESS;
 }
 
-int Client::CreateQuorum(ClientRequest::NodeList& nodes)
+int Client::CreateQuorum(List<uint64_t>& nodes)
 {
     Request*    req;
 

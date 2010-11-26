@@ -19,8 +19,7 @@
 class ShardServer : public ClusterContext, public SDBPContext
 {
 public:
-    typedef InList<ShardQuorumProcessor>            QuorumProcessorList;
-    typedef ArrayList<uint64_t, CONFIG_MAX_NODES>   NodeList;
+    typedef InList<ShardQuorumProcessor> QuorumProcessorList;
 
     void                    Init();
     void                    Shutdown();
@@ -59,7 +58,7 @@ private:
     void                    ConfigureQuorum(ConfigQuorum* configQuorum);
 
     ConfigState             configState;
-    NodeList                controllers;
+    List<uint64_t>          configServers;
     QuorumProcessorList     quorumProcessors;
     ShardHeartbeatManager   heartbeatManager;
     ShardDatabaseManager    databaseManager;

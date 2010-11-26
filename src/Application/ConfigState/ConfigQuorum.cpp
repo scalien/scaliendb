@@ -18,8 +18,6 @@ ConfigQuorum::ConfigQuorum(const ConfigQuorum& other)
 
 ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
 {
-    uint64_t*   sit;
-    
     quorumID = other.quorumID;
     configID = other.configID;
     isActivatingNode = other.isActivatingNode;
@@ -31,9 +29,7 @@ ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
     
     activeNodes = other.activeNodes;
     inactiveNodes = other.inactiveNodes;
-    
-    for (sit = other.shards.First(); sit != NULL; sit = other.shards.Next(sit))
-        shards.Append(*sit);
+    shards = other.shards;
     
     hasPrimary = other.hasPrimary;
     primaryID = other.primaryID;
@@ -78,9 +74,9 @@ void ConfigQuorum::ClearActivation()
     activationExpireTime = 0;
 }
 
-ConfigQuorum::NodeList ConfigQuorum::GetVolatileActiveNodes()
+List<uint64_t> ConfigQuorum::GetVolatileActiveNodes()
 {
-    NodeList list;
+    List<uint64_t> list;
     
     list = activeNodes;
     if (isActivatingNode)

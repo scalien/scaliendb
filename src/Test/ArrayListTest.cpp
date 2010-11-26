@@ -4,12 +4,10 @@
 
 TEST_DEFINE(TestArrayListBasic)
 {
-    typedef ArrayList<uint64_t, 7> NodeList;
-    
-    NodeList    nodes;
-    uint64_t*   it;
-    uint64_t    nodeID;
-    uint64_t    i;
+    List<uint64_t>  nodes;
+    uint64_t*       it;
+    uint64_t        nodeID;
+    uint64_t        i;
     
     for (i = 0; i <= nodes.GetSize(); i++)
     {
@@ -30,12 +28,10 @@ TEST_DEFINE(TestArrayListBasic)
 
 TEST_DEFINE(TestArrayListRemove)
 {
-    typedef ArrayList<uint64_t, 7> NodeList;
-    
-    NodeList    nodes;
-    uint64_t*   it;
-    uint64_t    nodeID;
-    uint64_t    i;
+    List<uint64_t>  nodes;
+    uint64_t*       it;
+    uint64_t        nodeID;
+    uint64_t        i;
     
     for (i = 0; i <= nodes.GetSize(); i++)
     {

@@ -37,7 +37,6 @@ public:
     uint64_t                GetQuorumID();
     uint64_t                GetPaxosID();
     ConfigQuorum*           GetConfigQuorum();
-//    ShardList&              GetShards();
     
     // ========================================================================================
     // For ShardServer:
@@ -45,7 +44,7 @@ public:
     void                    OnReceiveLease(ClusterMessage& message);
     void                    OnClientRequest(ClientRequest* request);
     void                    OnClientClose(ClientSession* session);
-    void                    SetActiveNodes(ConfigQuorum::NodeList& activeNodes);
+    void                    SetActiveNodes(List<uint64_t>& activeNodes);
     void                    TryReplicationCatchup();
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
                              ReadBuffer& splitKey);
@@ -80,8 +79,7 @@ private:
 
     MessageList             shardMessages;
     RequestList             clientRequests;
-//    ShardList               shards;
-    ConfigQuorum::NodeList  activeNodes;
+    List<uint64_t>          activeNodes;
     
     ShardCatchupReader      catchupReader;
     ShardCatchupWriter      catchupWriter;
