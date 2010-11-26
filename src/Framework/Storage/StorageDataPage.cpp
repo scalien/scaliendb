@@ -183,7 +183,7 @@ StorageDataPage* StorageDataPage::SplitDataPage()
     }
     
     // CHECK The next block is only needed when debugging to ensure that invariants are maintained
-#ifndef NDEBUG
+#ifdef NDEBUG
     unsigned r = DATAPAGE_FIX_OVERHEAD;
     unsigned num = 0;
     for (StorageKeyValue* it = newPage->keys.First(); it != NULL; it = newPage->keys.Next(it))
