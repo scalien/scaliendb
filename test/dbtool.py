@@ -14,6 +14,7 @@ import os
 import sys
 import struct
 import signal
+import string
 
 def print_recovery_op(i, op, size, data):
 	if op == 0:
@@ -51,6 +52,7 @@ def analyze_recovery(filename, *args):
 
 def print_datafile_header(header):
 	type, version, crc = struct.unpack("<32sII", header[:40])
+	type = filter(lambda x: x in string.printable, type)
 	minor = version % 256
 	major = version >> 8
 	print("type = %s, version = %d.%d, crc = 0x%08x" % (type, major, minor, crc))
