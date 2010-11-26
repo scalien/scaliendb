@@ -57,6 +57,7 @@ def print_datafile_header(header):
 def print_indexpage_header(indexpage_header):
 	indexpage_size, datapage_size, num_datapage_slots = struct.unpack("<III", indexpage_header)
 	print("indexPageSize = %d, dataPageSize = %d, numDataPageSlots = %d" % (indexpage_size, datapage_size, num_datapage_slots))
+	return indexpage_size, datapage_size, num_datapage_slots
 
 def print_page(page_header, data, verbose=0):
 	page_size, file_index, offset, key_count = struct.unpack("<IIII", page_header)
@@ -74,7 +75,6 @@ def print_page(page_header, data, verbose=0):
 				rest = rest[4:]
 				val, = struct.unpack("<" + str(vallen) + "s", rest[:vallen])
 				rest = rest[vallen:]
-
 				print("\tkey = %s, val = %s" % (key, val))
 				count += 1
 	if page_size == 256*1024:
@@ -91,6 +91,9 @@ def print_page(page_header, data, verbose=0):
 				print("\tindex = %3d, key = %s" % (index, key))
 				count += 1
 
+def offset_to_index(offset, indexpage_size, datapage_size):
+	return (offset - 4096 - indexpage_size) / datapage_size
+
 def analyze_datafile(filename, args):
 	"""
 	Usage: dbtool.py analyze-datafile <data-file>
@@ -100,7 +103,7 @@ def analyze_datafile(filename, args):
 	datafile_header = f.read(4096 - 12)
 	print_datafile_header(datafile_header)
 	indexpage_header = f.read(12)
-	print_indexpage_header(indexpage_header)
+	indexpage_size, datapage_size, num_datapage_slots = print_indexpage_header(indexpage_header)
 	verbose = 0
 	if "-v" in args:
 		verbose = 1
@@ -117,7 +120,8 @@ def analyze_datafile(filename, args):
 		offset += len(page_header)
 		page_size, = struct.unpack("<I", page_header[:4])
 		if page_size < 65536:
-			print("Error pageSize = %d at offset = %d" % (page_size, offset))
+			index = offset_to_index(offset, indexpage_size, datapage_size)
+			print("Error pageSize = %d at offset = %d (%4d)" % (page_size, offset, index))
 			return
 		page_data = f.read(page_size - 16)
 		print_page(page_header, page_data, verbose=verbose)
