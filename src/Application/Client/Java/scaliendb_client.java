@@ -171,6 +171,14 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_TestAndSetCStr(SWIGTYPE_p_void.getCPtr(client), key, lenKey, test, lenTest, value, lenValue);
   }
 
+  public static int SDBP_GetAndSet(SWIGTYPE_p_void client, String key, String value) {
+    return scaliendb_clientJNI.SDBP_GetAndSet(SWIGTYPE_p_void.getCPtr(client), key, value);
+  }
+
+  public static int SDBP_GetAndSetCStr(SWIGTYPE_p_void client, byte[] key, int lenKey, byte[] value, int lenValue) {
+    return scaliendb_clientJNI.SDBP_GetAndSetCStr(SWIGTYPE_p_void.getCPtr(client), key, lenKey, value, lenValue);
+  }
+
   public static int SDBP_Add(SWIGTYPE_p_void client, String key, long number) {
     return scaliendb_clientJNI.SDBP_Add(SWIGTYPE_p_void.getCPtr(client), key, number);
   }
