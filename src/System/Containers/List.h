@@ -31,6 +31,7 @@ public:
     
     void            Prepend(T &t);
     void            Append(T &t);
+    void            Add(T &t);
     T*              Remove(T* t);   
     bool            Remove(T &t);
     void            Copy(List<T>& other) const;
@@ -141,6 +142,12 @@ void List<T>::Append(T &t)
     
     if (head == NULL)
         head = node;
+}
+
+template<class T>
+void List<T>::Add(T &t)
+{
+    Append(t);
 }
 
 template<class T>

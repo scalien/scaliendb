@@ -18,6 +18,9 @@ class SortedList
 {
 public:
 
+    bool            operator==(const SortedList<T>& other) const;
+    bool            operator!=(const SortedList<T>& other) const;
+
     bool            Add(T t, bool unique = false);
     T*              Remove(T* t);   
     bool            Remove(T &t);
@@ -37,6 +40,34 @@ protected:
 /*
 ===============================================================================================
 */
+
+inline bool LessThan(uint64_t a, uint64_t b)
+{
+    return (a < b);
+}
+
+template<class T>
+bool SortedList<T>::operator==(const SortedList<T>& other) const
+{
+    T* it1;
+    T* it2;
+    
+    for (it1 = First(), it2 = other.First();
+     it1 != NULL && it2 != NULL;
+     it1 = Next(it1), it2 = other.Next(it2))
+    {
+        if (*it1 != *it2)
+            return false;
+    }
+    
+    return (it1 == NULL && it2 == NULL);
+}
+
+template<class T>
+bool SortedList<T>::operator!=(const SortedList<T>& other) const
+{
+    return !operator==(other);
+}
 
 template<class T>
 bool SortedList<T>::Add(T t, bool unique)
