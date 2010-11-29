@@ -119,6 +119,8 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
     }
     
     return (read == (signed)buffer.GetLength());
+    
+#undef READ_SEPARATOR
 }
 
 bool ClusterMessage::Write(Buffer& buffer)
