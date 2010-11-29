@@ -20,6 +20,11 @@
 #define GREATER_THAN(a, b) \
     (ReadBuffer::Cmp(a, b) >= 0)
 
+inline bool LessThan(uint64_t a, uint64_t b)
+{
+    return (a < b);
+}
+
 ConfigState::ConfigState()
 {
     Init();

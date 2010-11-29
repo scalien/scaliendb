@@ -4,10 +4,10 @@
 
 TEST_DEFINE(TestArrayListBasic)
 {
-    List<uint64_t>  nodes;
-    uint64_t*       it;
-    uint64_t        nodeID;
-    uint64_t        i;
+    ArrayList<uint64_t, 7>  nodes;
+    uint64_t*               it;
+    uint64_t                nodeID;
+    uint64_t                i;
     
     for (i = 0; i <= nodes.GetSize(); i++)
     {
@@ -28,10 +28,10 @@ TEST_DEFINE(TestArrayListBasic)
 
 TEST_DEFINE(TestArrayListRemove)
 {
-    List<uint64_t>  nodes;
-    uint64_t*       it;
-    uint64_t        nodeID;
-    uint64_t        i;
+    ArrayList<uint64_t, 7>  nodes;
+    uint64_t*               it;
+    uint64_t                nodeID;
+    uint64_t                i;
     
     for (i = 0; i <= nodes.GetSize(); i++)
     {
