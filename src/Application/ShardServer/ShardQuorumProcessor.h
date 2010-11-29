@@ -26,7 +26,7 @@ class ShardQuorumProcessor
     typedef InList<ClientRequest>   RequestList;
 
 public:
-    typedef List<uint64_t>          ShardList;
+    typedef SortedList<uint64_t>    ShardList;
     
     ShardQuorumProcessor();
 

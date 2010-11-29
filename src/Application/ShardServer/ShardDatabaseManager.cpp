@@ -80,7 +80,7 @@ StorageShard* ShardDatabaseManager::GetShard(uint64_t shardID)
     return table->GetShard(shardID);
 }
 
-void ShardDatabaseManager::SetShards(List<uint64_t>& shards)
+void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
 {
     uint64_t*           sit;
     ConfigShard*        shard;

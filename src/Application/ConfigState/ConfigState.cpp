@@ -878,7 +878,7 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     tables.Append(itTable);
     
     itDatabase->tables.Append(itTable->tableID);
-    itQuorum->shards.Append(itShard->shardID);
+    itQuorum->shards.Add(itShard->shardID);
 
     message.tableID = itTable->tableID;
 
@@ -948,7 +948,7 @@ void ConfigState::OnSplitShardComplete(ConfigMessage& message)
     shard = GetShard(message.shardID);
     assert(shard->isSplitCreating);
     
-    shard->isSplitCreating = true;
+    shard->isSplitCreating = false;
 }
 
 bool ConfigState::ReadQuorums(ReadBuffer& buffer, bool withVolatile)
@@ -1374,7 +1374,7 @@ bool ConfigState::ReadIDList(List& IDs, ReadBuffer& buffer)
         READ_SEPARATOR();
         read = buffer.Readf("%U", &ID);
         CHECK_ADVANCE(1);
-        IDs.Append(ID);
+        IDs.Add(ID);
     }
     
     return true;

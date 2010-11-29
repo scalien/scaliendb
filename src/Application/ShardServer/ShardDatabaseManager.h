@@ -31,7 +31,7 @@ public:
     StorageTable*           GetTable(uint64_t tableID);
     StorageShard*           GetShard(uint64_t shardID);
 
-    void                    SetShards(List<uint64_t>& shards);
+    void                    SetShards(SortedList<uint64_t>& shards);
     void                    RemoveDeletedDatabases();
     void                    RemoveDeletedTables();
     

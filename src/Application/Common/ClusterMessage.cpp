@@ -46,7 +46,7 @@ bool ClusterMessage::RequestLease(uint64_t nodeID_, uint64_t quorumID_,
 
 bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
  uint64_t proposalID_, uint64_t configID_, unsigned duration_,
- bool watchingPaxosID_, List<uint64_t>& activeNodes_, List<uint64_t>& shards_)
+ bool watchingPaxosID_, List<uint64_t>& activeNodes_, SortedList<uint64_t>& shards_)
 {
     type = CLUSTERMESSAGE_RECEIVE_LEASE;
     nodeID = nodeID_;
@@ -62,6 +62,12 @@ bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
 
 bool ClusterMessage::Read(ReadBuffer& buffer)
 {
+#define READ_SEPARATOR() \
+    read = buffer.Readf(":"); \
+    if (read != 1) \
+        return false; \
+    buffer.Advance(read); \
+
     int             read;
     ReadBuffer      tempBuffer;
         
@@ -80,11 +86,10 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             if (read < 3)
                 return false;
             buffer.Advance(read);
+            READ_SEPARATOR();
             if (!QuorumPaxosID::ReadList(buffer, quorumPaxosIDs))
                 return false;
-            read = buffer.Readf(":");
-            if (read != 1)
-                return false;
+            READ_SEPARATOR();
             if (!QuorumShardInfo::ReadList(buffer, quorumShardInfos))
                 return false;
             return true;
@@ -102,16 +107,11 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
              if (read < 9)
                 return false;
             buffer.Advance(read);
-            read = buffer.Readf(":");
-            if (read != 1)
-                return false;
-            buffer.Advance(read);
+            READ_SEPARATOR();
             if (!ConfigState::ReadIDList< List<uint64_t> >(activeNodes, buffer))
                 return false;
-            read = buffer.Readf(":");
-            if (read != 1)
-                return false;
-            if (!ConfigState::ReadIDList< List<uint64_t> >(shards, buffer))
+            READ_SEPARATOR();
+            if (!ConfigState::ReadIDList< SortedList<uint64_t> >(shards, buffer))
                 return false;
             return true;
         default:
@@ -134,6 +134,7 @@ bool ClusterMessage::Write(Buffer& buffer)
         case CLUSTERMESSAGE_HEARTBEAT:
             buffer.Writef("%c:%U:%u:%u",
              type, nodeID, httpPort, sdbpPort);
+            buffer.Appendf(":");
             QuorumPaxosID::WriteList(buffer, quorumPaxosIDs);
             buffer.Appendf(":");
             QuorumShardInfo::WriteList(buffer, quorumShardInfos);
@@ -151,7 +152,7 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Appendf(":");
             ConfigState::WriteIDList< List<uint64_t> >(activeNodes, buffer);
             buffer.Appendf(":");
-            ConfigState::WriteIDList< List<uint64_t> >(shards, buffer);
+            ConfigState::WriteIDList< SortedList<uint64_t> >(shards, buffer);
             return true;
         default:
             return false;
