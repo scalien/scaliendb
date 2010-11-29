@@ -168,6 +168,38 @@ table.quorum td {
 	line-height: 150%;
 }
 
+div.shard {
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 3px 3px 4px #000;
+	-moz-border-radius: 10px;
+	-moz-box-shadow: 3px 3px 4px #000;
+	width: 80%;
+	padding: 20px;
+	margin: 10px;
+}
+
+table.shard {
+	width: 100%;
+}
+
+td.shard-head {
+	width: 100px;
+}
+
+td.shard-actions {
+	width: 120px;
+}
+
+span.shard-head {
+	font-weight: bold;
+	font-size: 20;			
+}
+
+table.shard td {
+	padding: 10px;
+	line-height: 150%;
+}
+
 hr.head {
 	border: 1px solid #585858;
 	width: 100%;

@@ -23,7 +23,7 @@ function connect()
 	updateConfigState();
 }
 
-tabs = ["Dashboard", "Quorums", "Schema", "Console"];
+tabs = ["Dashboard", "Quorums", "Schema", "Shards", "Console"];
 
 function activateTab(name)
 {
@@ -56,6 +56,11 @@ function activateQuorumsTab()
 function activateSchemaTab()
 {
 	activateTab("Schema");
+}
+
+function activateShardsTab()
+{
+	activateTab("Shards");
 }
 
 function activateConsoleTab()
@@ -155,6 +160,8 @@ function onConfigState(configState)
 			createQuorumDivs(configState, configState[key]);
 		else if (key == "databases")
 			createDatabaseDivs(configState, configState[key]);
+		else if (key == "shards")
+			createShardDivs(configState, configState[key]);
 	}
 	
 	clearTimeout(timer);
@@ -450,6 +457,58 @@ function createTableDiv(configState, table)
 	
 	var div = document.createElement("div");
 	div.setAttribute("class", "table healthy");
+	div.innerHTML = html;
+	return div;
+}
+
+function createShardDivs(configState, shards)
+{
+	scaliendb.util.removeElement("shards");
+	var shardsDiv = document.createElement("div");
+	shardsDiv.setAttribute("id", "shards");
+	
+	for (var shard in shards)
+	{
+		var s = shards[shard];
+		var shardDiv = createShardDiv(configState, s);
+		shardsDiv.appendChild(shardDiv);
+	}
+	
+	scaliendb.util.elem("tabPageShards").appendChild(shardsDiv);
+}
+
+function createShardDiv(configState, shard)
+{
+	var html =
+	'																									\
+		<table class="shard">																			\
+			<tr>																						\
+				<td class="shard-head">																	\
+					<span class="shard-head">Shard ' + shard["shardID"] + '</span>						\
+				</td>																					\
+				<td>																					\
+	';
+
+	
+	html += 
+	'																									\
+					QuorumID: ' + shard["quorumID"] + '<br/>											\
+					DatabaseID: ' + shard["databaseID"] + '<br/>  										\
+					TableID: ' + shard["tableID"] + '<br/>												\
+					Start: "' + shard["firstKey"] + '"<br/>							  		  			\
+					End: "' + shard["lastKey"] + '"<br/>												\
+					Split key: "' + scaliendb.util.defstr(shard["splitKey"]) + '"<br/> 					\
+					Size: ' + scaliendb.util.defstr(shard["shardSize"], 0) + '<br/>	  					\
+				</td>																					\
+				<td class="shard-actions">																\
+					<span class="modify-button">split shard</span><br/><br/>							\
+				</td>																					\
+			</tr>																						\
+		</table>																						\
+	';
+	
+	var div = document.createElement("div");
+	div.setAttribute("class", "shard healthy");
 	div.innerHTML = html;
 	return div;
 }

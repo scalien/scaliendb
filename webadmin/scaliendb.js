@@ -227,6 +227,17 @@ var scaliendb =
 			{
 			    node.removeChild(node.firstChild);
 			}
+		},
+		
+		defstr: function(val, defval)
+		{
+			if (typeof val == 'undefined')
+			{
+				if (typeof defval == 'undefined')
+					return "";
+				return "" + defval;
+			}
+			return "" + val;
 		}
 	}	
 }
