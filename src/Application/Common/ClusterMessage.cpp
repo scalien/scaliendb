@@ -152,9 +152,9 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%U:%U:%U:%u:%b",
              type, nodeID, quorumID, proposalID, configID, duration, watchingPaxosID);
             buffer.Appendf(":");
-            ConfigState::WriteIDList< List<uint64_t> >(activeNodes, buffer);
+            ConfigState::WriteIDList(activeNodes, buffer);
             buffer.Appendf(":");
-            ConfigState::WriteIDList< SortedList<uint64_t> >(shards, buffer);
+            ConfigState::WriteIDList(shards, buffer);
             return true;
         default:
             return false;

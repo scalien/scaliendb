@@ -41,11 +41,6 @@ protected:
 ===============================================================================================
 */
 
-inline bool LessThan(uint64_t a, uint64_t b)
-{
-    return (a < b);
-}
-
 template<class T>
 bool SortedList<T>::operator==(const SortedList<T>& other) const
 {
