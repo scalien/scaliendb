@@ -25,7 +25,7 @@ public:
     List();
     ~List();
 
-    List<T>&       operator=(const List<T>& other);
+    List<T>&        operator=(const List<T>& other);
 
     T&              Get(int i);
     

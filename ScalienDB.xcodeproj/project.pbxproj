@@ -466,6 +466,7 @@
 		9ACF2B231236944100247703 /* StorageShardIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShardIndex.cpp; sourceTree = "<group>"; };
 		9ACF2D701237975900247703 /* StorageFileHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileHeader.h; sourceTree = "<group>"; };
 		9ACF2D711237975900247703 /* StorageFileHeader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileHeader.cpp; sourceTree = "<group>"; };
+		9AD1B66612A45FE800413D1D /* MessageUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageUtil.h; sourceTree = "<group>"; };
 		9AF4C75912631A920036E3B3 /* Client.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Client.java; path = Application/Client/Java/Client.java; sourceTree = "<group>"; };
 		9AF4C75E12631A920036E3B3 /* SDBPException.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SDBPException.java; path = Application/Client/Java/SDBPException.java; sourceTree = "<group>"; };
 		9AF4C75F12631A920036E3B3 /* ListParams.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = ListParams.java; path = Application/Client/Java/ListParams.java; sourceTree = "<group>"; };
@@ -853,6 +854,7 @@
 			isa = PBXGroup;
 			children = (
 				54A0B91C12689FA500EF2FC6 /* Message.h */,
+				9AD1B66612A45FE800413D1D /* MessageUtil.h */,
 				54C8FC71120200F1002DD4D3 /* MessageConnection.h */,
 				54C8FC70120200F1002DD4D3 /* MessageConnection.cpp */,
 			);

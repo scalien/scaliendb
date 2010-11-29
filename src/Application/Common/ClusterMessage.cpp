@@ -1,4 +1,10 @@
 #include "ClusterMessage.h"
+#include "MessageUtil.h"
+
+static bool LessThan(uint64_t a, uint64_t b)
+{
+    return a < b;
+}
 
 ClusterMessage::ClusterMessage()
 {
@@ -108,10 +114,10 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
                 return false;
             buffer.Advance(read);
             READ_SEPARATOR();
-            if (!ConfigState::ReadIDList< List<uint64_t> >(activeNodes, buffer))
+            if (!MessageUtil::ReadIDList(activeNodes, buffer))
                 return false;
             READ_SEPARATOR();
-            if (!ConfigState::ReadIDList< SortedList<uint64_t> >(shards, buffer))
+            if (!MessageUtil::ReadIDList(shards, buffer))
                 return false;
             return true;
         default:
@@ -152,9 +158,9 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%U:%U:%U:%u:%b",
              type, nodeID, quorumID, proposalID, configID, duration, watchingPaxosID);
             buffer.Appendf(":");
-            ConfigState::WriteIDList(activeNodes, buffer);
+            MessageUtil::WriteIDList(activeNodes, buffer);
             buffer.Appendf(":");
-            ConfigState::WriteIDList(shards, buffer);
+            MessageUtil::WriteIDList(shards, buffer);
             return true;
         default:
             return false;
