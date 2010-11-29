@@ -17,17 +17,15 @@
 class QuorumPaxosID
 {
 public:
-    typedef List<QuorumPaxosID> List;
-
     QuorumPaxosID();
     
     uint64_t        quorumID;
     uint64_t        paxosID;
     
-    static bool     ReadList(ReadBuffer& buffer, List& quorumPaxosIDs);
-    static bool     WriteList(Buffer& buffer, List& quorumPaxosIDs);
+    static bool     ReadList(ReadBuffer& buffer, List<QuorumPaxosID>& quorumPaxosIDs);
+    static bool     WriteList(Buffer& buffer, List<QuorumPaxosID>& quorumPaxosIDs);
     
-    static uint64_t GetPaxosID(List& quorumPaxosIDs, uint64_t quorumID);
+    static uint64_t GetPaxosID(List<QuorumPaxosID>& quorumPaxosIDs, uint64_t quorumID);
 };
 
 /*
@@ -41,8 +39,6 @@ public:
 class QuorumShardInfo
 {
 public:
-    typedef List<QuorumShardInfo> List;
-
     QuorumShardInfo();
     
     uint64_t        quorumID;
@@ -50,8 +46,8 @@ public:
     uint64_t        shardSize;
     ReadBuffer      splitKey;
         
-    static bool     ReadList(ReadBuffer& buffer, List& quorumShardInfos);
-    static bool     WriteList(Buffer& buffer, List& quorumShardInfos);
+    static bool     ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
+    static bool     WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
 };
 
 /*

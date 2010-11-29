@@ -6,7 +6,7 @@ QuorumPaxosID::QuorumPaxosID()
     paxosID = 0;
 }
 
-bool QuorumPaxosID::ReadList(ReadBuffer& buffer, List& quorumPaxosIDs)
+bool QuorumPaxosID::ReadList(ReadBuffer& buffer, List<QuorumPaxosID>& quorumPaxosIDs)
 {
     unsigned        i, length;
     int             read;
@@ -27,7 +27,7 @@ bool QuorumPaxosID::ReadList(ReadBuffer& buffer, List& quorumPaxosIDs)
     return true;
 }
 
-bool QuorumPaxosID::WriteList(Buffer& buffer, List& quorumPaxosIDs)
+bool QuorumPaxosID::WriteList(Buffer& buffer, List<QuorumPaxosID>& quorumPaxosIDs)
 {
     QuorumPaxosID*  it;
 
@@ -40,7 +40,7 @@ bool QuorumPaxosID::WriteList(Buffer& buffer, List& quorumPaxosIDs)
     return true;
 }
 
-uint64_t QuorumPaxosID::GetPaxosID(List& quorumPaxosIDs, uint64_t quorumID)
+uint64_t QuorumPaxosID::GetPaxosID(List<QuorumPaxosID>& quorumPaxosIDs, uint64_t quorumID)
 {
     QuorumPaxosID*  it;
 
@@ -60,7 +60,7 @@ QuorumShardInfo::QuorumShardInfo()
     shardSize = 0;
 }
 
-bool QuorumShardInfo::ReadList(ReadBuffer& buffer, List& quorumShardInfos)
+bool QuorumShardInfo::ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorumShardInfos)
 {
     unsigned        i, length;
     int             read;
@@ -83,7 +83,7 @@ bool QuorumShardInfo::ReadList(ReadBuffer& buffer, List& quorumShardInfos)
     return true;
 }
 
-bool QuorumShardInfo::WriteList(Buffer& buffer, List& quorumShardInfos)
+bool QuorumShardInfo::WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumShardInfos)
 {
     QuorumShardInfo*  it;
 
