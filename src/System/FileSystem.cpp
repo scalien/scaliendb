@@ -93,6 +93,9 @@ bool FS_RecDeleteDir(const char* path)
 #include <alloca.h>
 #include <stdio.h>
 #include <errno.h>
+#include "System/Containers/List.h"
+
+List<int> fileHandles;
 
 FD FS_Open(const char* filename, int flags)
 {
@@ -115,12 +118,17 @@ FD FS_Open(const char* filename, int flags)
         Log_Errno();
         return INVALID_FD;
     }
+    
+    fileHandles.Append(ret);
+    
     return ret;
 }
 
 void FS_FileClose(FD fd)
 {
     int ret;
+    
+    fileHandles.Remove(fd);
     
     ret = close(fd);
     if (ret < 0)
@@ -405,7 +413,10 @@ bool FS_Rename(const char* src, const char* dst)
 
 void FS_Sync()
 {
-    sync();
+    int* it;
+    
+    FOREACH(it, fileHandles)
+        fsync(*it);    
 }
 
 char FS_Separator()
