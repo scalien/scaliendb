@@ -94,15 +94,16 @@ bool FS_RecDeleteDir(const char* path)
 #include <stdio.h>
 #include <errno.h>
 #include "System/Containers/List.h"
+#include "System/Containers/ArrayList.h"
 
-List<int> fileHandles;
+List<int>   fileHandles;
+bool        dirtyFiles[100*1000];
 
 FD FS_Open(const char* filename, int flags)
 {
     int     mode;
     int     oflags;
-    int     ret;
-    
+    int     fd;
     mode = S_IRUSR | S_IWUSR;
     oflags = 0;
     if ((flags & FS_CREATE) == FS_CREATE)
@@ -112,16 +113,17 @@ FD FS_Open(const char* filename, int flags)
     if ((flags & FS_READONLY) == FS_READONLY)
         oflags |= O_RDONLY;
 
-    ret = open(filename, oflags, mode);
-    if (ret < 0)
+    fd = open(filename, oflags, mode);
+    if (fd < 0)
     {
         Log_Errno();
         return INVALID_FD;
     }
     
-    fileHandles.Append(ret);
+    fileHandles.Append(fd);
+    dirtyFiles[fd] = false;
     
-    return ret;
+    return fd;
 }
 
 void FS_FileClose(FD fd)
@@ -129,6 +131,7 @@ void FS_FileClose(FD fd)
     int ret;
     
     fileHandles.Remove(fd);
+    dirtyFiles[fd] = false;
     
     ret = close(fd);
     if (ret < 0)
@@ -166,9 +169,12 @@ int FS_FileTruncate(FD fd, uint64_t length)
 {
     int ret;
     
+    dirtyFiles[fd] = true;
+
     ret = ftruncate(fd, length);
     if (ret < 0)
         Log_Errno();
+    
     return ret;
 }
 
@@ -191,9 +197,12 @@ ssize_t FS_FileWrite(FD fd, const void* buf, size_t count)
 {
     ssize_t ret;
     
+    dirtyFiles[fd] = true;
+
     ret = write(fd, buf, count);
     if (ret < 0)
         Log_Errno();
+        
     return ret;
 }
 
@@ -203,6 +212,8 @@ ssize_t FS_FileWriteVector(FD fd, unsigned num, const void** buf, size_t *count)
     struct iovec    vecbuf[num];
     unsigned        i;
     
+    dirtyFiles[fd] = true;
+
     for (i = 0; i < num; i++)
     {
         vecbuf[i].iov_base = (void*) buf[i];
@@ -212,6 +223,7 @@ ssize_t FS_FileWriteVector(FD fd, unsigned num, const void** buf, size_t *count)
     ret = writev(fd, vecbuf, num);
     if (ret < 0)
         Log_Errno();
+        
     return ret; 
 }
 
@@ -239,6 +251,8 @@ ssize_t FS_FileRead(FD fd, void* buf, size_t count)
 ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
 {
     ssize_t ret;
+    
+    dirtyFiles[fd] = true;
     
     ret = pwrite(fd, buf, count, offset);
     if (ret < 0)
@@ -413,10 +427,19 @@ bool FS_Rename(const char* src, const char* dst)
 
 void FS_Sync()
 {
-    int* it;
-    
+    int     fd;
+    int*    it;
+
     FOREACH(it, fileHandles)
-        fsync(*it);    
+    {
+        fd = *it;
+        
+        if (dirtyFiles[fd]);
+        {
+            dirtyFiles[fd] = false;
+            fsync(fd);
+        }
+    }
 }
 
 char FS_Separator()
