@@ -9,7 +9,7 @@
 
 #define MESSAGING_YIELD_TIME            CLOCK_RESOLUTION    // msec
 #define MESSAGING_CONNECT_TIMEOUT       2000
-#define MESSAGING_BUFFER_THRESHOLD      1360                // tuned to work well with Ethernet
+#define MESSAGING_BUFFER_THRESHOLD      100*1360                // tuned to work well with Ethernet
 
 /*
 ===============================================================================================
