@@ -58,11 +58,15 @@ public:
 private:
     friend class StorageDataCache;
     
+    void                        AppendKeyValue(StorageKeyValue* kv, Buffer& buffer);
+    
+    bool                        detached;
+    bool                        rewrite;
     uint32_t                    required;
     InTreeMap<StorageKeyValue>  keys;
     InList<StorageCursor>       cursors;
-    bool                        detached;
     StorageFile*                file;
+    Buffer                      appendBuffer;
 };
 
 

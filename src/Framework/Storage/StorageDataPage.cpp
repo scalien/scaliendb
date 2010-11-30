@@ -20,6 +20,7 @@ StorageDataPage::StorageDataPage(bool detached_)
     detached = detached_;
     type = STORAGE_DATA_PAGE;
     file = NULL;
+    rewrite = false;
 }
 
 StorageDataPage::~StorageDataPage()
@@ -56,6 +57,9 @@ bool StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
         required -= it->value.GetLength();
         it->SetValue(value, copy);
         required += it->value.GetLength();
+        
+        rewrite = true;
+        
         return true;
     }
 
@@ -65,7 +69,9 @@ bool StorageDataPage::Set(ReadBuffer& key, ReadBuffer& value, bool copy)
     newStorageKeyValue->SetValue(value, copy);
     keys.InsertAt(newStorageKeyValue, it, res);
     required += (DATAPAGE_KV_OVERHEAD + key.GetLength() + value.GetLength());
-        
+    
+    AppendKeyValue(newStorageKeyValue, appendBuffer);
+    
     return true;
 }
 
@@ -79,6 +85,8 @@ void StorageDataPage::Delete(ReadBuffer& key)
         keys.Remove(it);
         required -= (DATAPAGE_KV_OVERHEAD + it->key.GetLength() + it->value.GetLength());
         delete it;
+        
+        rewrite = true;
     }
 }
 
@@ -198,6 +206,10 @@ StorageDataPage* StorageDataPage::SplitDataPage()
 
     ST_ASSERT(IsEmpty() != true);
     ST_ASSERT(newPage->IsEmpty() != true);
+    
+    rewrite = true;
+    appendBuffer.Clear();
+    newPage->rewrite = true;
     
     return newPage;
 }
@@ -384,11 +396,17 @@ bool StorageDataPage::CheckWrite(Buffer& writeBuffer)
 bool StorageDataPage::Write(Buffer& writeBuffer)
 {
     StorageKeyValue*    it;
-    unsigned            len;
-    unsigned            tmpLen;
     uint32_t            num;
     
     ST_ASSERT(!newPage || (newPage && this->buffer.GetLength() == 0));
+
+    if (!rewrite && !newPage)
+    {
+        buffer.Append(appendBuffer);
+        writeBuffer.Write(buffer);
+        appendBuffer.Clear();
+        return true;
+    }
 
     buffer.Allocate(pageSize);
 
@@ -408,39 +426,17 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
 //  printf("writing datapage for file %u at offset %u\n", fileIndex, offset);
     for (it = keys.First(); it != NULL; it = keys.Next(it))
     {
-        len = it->key.GetLength();
-        writeBuffer.AppendLittle32(len);
-
-        tmpLen = writeBuffer.GetLength();
-        writeBuffer.Append(it->key.GetBuffer(), it->key.GetLength());
-
-//        if (it->keyBuffer)
-//        {
-//            delete it->keyBuffer;
-//            it->keyBuffer = NULL;
-//        }
-//        it->key.SetBuffer(buffer.GetBuffer() + tmpLen);
-
-        len = it->value.GetLength();
-        writeBuffer.AppendLittle32(len);
-
-        tmpLen = writeBuffer.GetLength();
-        writeBuffer.Append(it->value.GetBuffer(), it->value.GetLength());
-
-//        if (it->valueBuffer)
-//        {
-//            delete it->valueBuffer;
-//            it->valueBuffer = NULL;
-//        }
-//        it->value.SetBuffer(buffer.GetBuffer() + tmpLen);
-
+        AppendKeyValue(it, writeBuffer);
 //      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }
     ST_ASSERT(required == writeBuffer.GetLength());
-    if (BUFCMP(&writeBuffer, &buffer))
-        return false;
+//    if (BUFCMP(&writeBuffer, &buffer))
+//        return false;
     
     buffer.Write(writeBuffer);
+    appendBuffer.Clear();
+    
+    rewrite = false;
     
     return true;
 }
@@ -448,4 +444,19 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
 void StorageDataPage::Invalidate()
 {
     buffer.Clear();
+}
+
+void StorageDataPage::AppendKeyValue(StorageKeyValue* kv, Buffer& buffer)
+{
+    unsigned len;
+
+    len = kv->key.GetLength();
+    buffer.AppendLittle32(len);
+
+    buffer.Append(kv->key.GetBuffer(), kv->key.GetLength());
+
+    len = kv->value.GetLength();
+    buffer.AppendLittle32(len);
+
+    buffer.Append(kv->value.GetBuffer(), kv->value.GetLength());
 }
