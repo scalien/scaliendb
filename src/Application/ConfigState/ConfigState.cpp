@@ -635,7 +635,7 @@ bool ConfigState::CompleteSplitShardBegin(ConfigMessage& message)
     return true;
 }
 
-bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
+bool ConfigState::CompleteSplitShardComplete(ConfigMessage& /*message*/)
 {
     return true;
 }

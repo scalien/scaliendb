@@ -249,7 +249,7 @@ TEST_DEFINE(TestStorageCapacity)
         // Commit changes ==========================================================================
         sw.Reset();
         sw.Start();
-        table->Commit(true /*recovery*/, false /*flush*/);
+        table->Commit(true /*recovery*/, true /*flush*/);
         elapsed = sw.Stop();
         TEST_LOG("Round %u: Commit() took %ld msec", r, elapsed);
     }
@@ -720,9 +720,9 @@ TEST_DEFINE(TestStorageFileThreeWaySplit)
     value.SetBuffer(keyvalue + DEFAULT_KEY_LIMIT);
 
     // first delete any existing values
-    for (unsigned char i = 1; i <= 3; i++)
+    for (unsigned char c = 1; i <= 3; i++)
     {
-        memset(keyvalue, i % 10 + '0', DEFAULT_KEY_LIMIT);
+        memset(keyvalue, c % 10 + '0', DEFAULT_KEY_LIMIT);
         table->Delete(key);
     }
     table->Commit();
@@ -874,7 +874,7 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
 
     // Initialization ==============================================================================
     round = 1000 * 1000;
-    num = 1000;
+    num = 10000;
     ksize = 10;
     vsize = 10;
     area = (char*) malloc(num*(ksize+vsize));
@@ -905,11 +905,11 @@ TEST_DEFINE(TestStorageRandomGetSetDelete)
             rv.SetBuffer(p);
             rv.SetLength(vsize);
             sw.Start();
-            switch (RandomInt(0, 3))
+            switch (RandomInt(0, 1))
             {
             case 0:
             case 1:
-                TEST_LOG("Set, %.*s", rk.GetLength(), rk.GetBuffer());
+                //TEST_LOG("Set, %.*s", rk.GetLength(), rk.GetBuffer());
                 table->Set(rk, rv, true);
                 break;
             case 2:

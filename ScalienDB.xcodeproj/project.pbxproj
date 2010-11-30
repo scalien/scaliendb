@@ -982,21 +982,21 @@
 		9A87418512282929000B1319 /* Test */ = {
 			isa = PBXGroup;
 			children = (
-				9AF4FB781292EDB20036E3B3 /* ManualTest.cpp */,
+				9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */,
 				9AF4FB761292EDA30036E3B3 /* CommonTest.cpp */,
+				9AABB9C71243B3A9003626AC /* ClientTest.cpp */,
 				9AF4FB741292ED980036E3B3 /* CrashTest.cpp */,
-				9ACF23DE122FDEBE00247703 /* Timings.cpp */,
+				9ACF29501235569100247703 /* FileSystemTest.cpp */,
+				9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */,
 				9A87418612282946000B1319 /* InTreeMapTest.cpp */,
+				9AF4FB781292EDB20036E3B3 /* ManualTest.cpp */,
 				9A87418712282946000B1319 /* StorageTest.cpp */,
 				9A87418812282946000B1319 /* Test.cpp */,
 				9A87418912282946000B1319 /* Test.h */,
 				9AF4CC78126660740036E3B3 /* TestFunction.h */,
 				9A87418A12282946000B1319 /* TestMain.cpp */,
 				9A87418B12282946000B1319 /* TimeTest.cpp */,
-				9ACF29501235569100247703 /* FileSystemTest.cpp */,
-				9AABB9C71243B3A9003626AC /* ClientTest.cpp */,
-				9AABC18E124F4ACA003626AC /* ArrayListTest.cpp */,
-				9AF4DDCD1270C8290036E3B3 /* FormattingTest.cpp */,
+				9ACF23DE122FDEBE00247703 /* Timings.cpp */,
 			);
 			name = Test;
 			sourceTree = "<group>";

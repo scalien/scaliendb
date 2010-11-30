@@ -1,7 +1,7 @@
 #include "TestFunction.h"
 
 TEST_START(TestMain);
-TEST_LOG_INIT(true, LOG_TARGET_STDOUT);
+TEST_LOG_INIT(false, LOG_TARGET_STDOUT);
 //TEST_ADD(TestArrayListBasic);
 //TEST_ADD(TestArrayListRemove);
 //TEST_ADD(TestClientAdd);
@@ -9,7 +9,8 @@ TEST_LOG_INIT(true, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBasic);
 //TEST_ADD(TestClientBatchedGet);
 //TEST_ADD(TestClientBatchedSet);
-TEST_ADD(TestClientBatchedSetRandom);     // TODO: this crashes shard server various ways!
+//TEST_ADD(TestClientBatchedSet2);
+//TEST_ADD(TestClientBatchedSetRandom);     // TODO: this crashes shard server various ways!
 //TEST_ADD(TestClientCreateTable);
 //TEST_ADD(TestClientFailover);
 //TEST_ADD(TestClientGetAndSet);
@@ -38,7 +39,7 @@ TEST_ADD(TestClientBatchedSetRandom);     // TODO: this crashes shard server var
 //TEST_ADD(TestStoragePageSplit);
 //TEST_ADD(TestStorageFileSplit);
 //TEST_ADD(TestStorageFileThreeWaySplit);
-//TEST_ADD(TestStorageRandomGetSetDelete);
+TEST_ADD(TestStorageRandomGetSetDelete);
 //TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
 //TEST_ADD(TestStorageShardSplit);
 //TEST_ADD(TestStorageWindowsSync);

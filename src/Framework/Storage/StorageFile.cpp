@@ -551,6 +551,8 @@ void StorageFile::WriteData()
     StoragePage*            next;
     StorageFileHeader       header;
     ssize_t                 ret;
+    SortedList<uint32_t>    offsets;
+    uint32_t*               itOffset;
 
     ASSERT_INDEX_CONSISTENCY();
     ASSERT_FILEINDEX_CONSISTENCY();
@@ -577,9 +579,23 @@ void StorageFile::WriteData()
         
         newFile = false;
     }
-    
+
+    // reorder dirty pages
     for (it = dirtyPages.First(); it != NULL; it = next)
     {
+        offsets.Add(it->GetOffset());
+
+        next = dirtyPages.Remove(it);
+        dirties.Append(it);
+    }
+
+    FOREACH (itOffset, offsets)
+    {
+        if (*itOffset == INDEXPAGE_OFFSET)
+            it = &indexPage;
+        else
+            it = dataPages[DATAPAGE_INDEX(*itOffset)];
+        
         buffer.Allocate(it->GetPageSize());
         buffer.Zero();
         buffer.SetLength(0);
@@ -593,8 +609,6 @@ void StorageFile::WriteData()
         it->SetDirty(false);
         it->SetNew(false);
 
-        next = dirtyPages.Remove(it);
-        dirties.Append(it);
     }
     
     for (it = dirties.First(); it != NULL; it = next)
