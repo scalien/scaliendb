@@ -397,18 +397,32 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
 {
     StorageKeyValue*    it;
     uint32_t            num;
+    char*               p;
     
     ST_ASSERT(!newPage || (newPage && this->buffer.GetLength() == 0));
 
-    if (!rewrite && !newPage)
+    buffer.Allocate(pageSize);
+
+    if (!rewrite)
     {
+        p = buffer.GetBuffer();
+        *(uint32_t*) p = pageSize;
+        p += 4;
+        *(uint32_t*) p = fileIndex;
+        p += 4;
+        *(uint32_t*) p = offset;
+        p += 4;
+        *(uint32_t*) p = num;
+        
+        if (newPage)
+            buffer.SetLength(16);
+        
         buffer.Append(appendBuffer);
         writeBuffer.Write(buffer);
         appendBuffer.Clear();
         return true;
     }
 
-    buffer.Allocate(pageSize);
 
     writeBuffer.SetLength(0);
 
