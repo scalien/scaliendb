@@ -54,7 +54,7 @@ public:
             read = buffer.Readf("%U", &ID);
             MESSAGE_CHECK_ADVANCE(1);
             // XXX in case of List type is SortedList, a LessThan function
-            // implementation needed where ReadIDList is called!
+            // implementation needed in the cpp file where ReadIDList is called!
             IDs.Add(ID);
         }
         

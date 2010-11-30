@@ -20,10 +20,8 @@
 
 #define STORAGE_DEFAULT_CACHE_SIZE          (1000UL*DEFAULT_DATAPAGE_SIZE)
 
-//#define STORAGE_TRACE(...)
-#define STORAGE_TRACE Log_Trace
-
 #ifdef DEBUG
+#define STORAGE_TRACE Log_Trace
 #define ST_ASSERT(expr) \
 { \
     if (!(expr)) \
@@ -34,6 +32,7 @@
 }
 #define ST_DEBUG_ASSERT ST_ASSERT
 #else
+#define STORAGE_TRACE(...)
 #define ST_ASSERT assert
 #define ST_DEBUG_ASSERT(expr)
 #endif

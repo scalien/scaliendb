@@ -1,7 +1,7 @@
 #include "ClusterMessage.h"
 #include "Framework/Messaging/MessageUtil.h"
 
-static bool LessThan(uint64_t a, uint64_t b)
+static inline bool LessThan(uint64_t a, uint64_t b)
 {
     return a < b;
 }
