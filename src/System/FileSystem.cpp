@@ -436,7 +436,7 @@ void FS_Sync()
     {
         fd = *it;
         
-        if (dirtyFiles[fd]);
+        if (dirtyFiles[fd])
         {
             dirtyFiles[fd] = false;
             fsync(fd);
