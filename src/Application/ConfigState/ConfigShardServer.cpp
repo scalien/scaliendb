@@ -12,8 +12,8 @@ bool QuorumPaxosID::ReadList(ReadBuffer& buffer, List<QuorumPaxosID>& quorumPaxo
     int             read;
     QuorumPaxosID   quorumPaxosID;
     
-    read = buffer.Readf(":%u", &length);
-    if (read < 2)
+    read = buffer.Readf("%u", &length);
+    if (read < 1)
         return false;
     buffer.Advance(read);
     for (i = 0; i < length; i++)
@@ -31,7 +31,7 @@ bool QuorumPaxosID::WriteList(Buffer& buffer, List<QuorumPaxosID>& quorumPaxosID
 {
     QuorumPaxosID*  it;
 
-    buffer.Appendf(":%u", quorumPaxosIDs.GetLength());
+    buffer.Appendf("%u", quorumPaxosIDs.GetLength());
     FOREACH(it, quorumPaxosIDs)
     {
         buffer.Appendf(":%U:%U", it->quorumID, it->paxosID);
@@ -66,8 +66,8 @@ bool QuorumShardInfo::ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorum
     int             read;
     QuorumShardInfo quorumShardInfo;
     
-    read = buffer.Readf(":%u", &length);
-    if (read < 2)
+    read = buffer.Readf("%u", &length);
+    if (read < 1)
         return false;
     buffer.Advance(read);
     for (i = 0; i < length; i++)
@@ -87,7 +87,7 @@ bool QuorumShardInfo::WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumSha
 {
     QuorumShardInfo*  it;
 
-    buffer.Appendf(":%u", quorumShardInfos.GetLength());
+    buffer.Appendf("%u", quorumShardInfos.GetLength());
     FOREACH(it, quorumShardInfos)
     {
         buffer.Appendf(":%U:%U:%U:%#R", it->quorumID, it->shardID, it->shardSize, &it->splitKey);

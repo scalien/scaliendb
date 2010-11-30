@@ -54,6 +54,7 @@ private:
     ClientRequest*      ProcessCreateTable();
     ClientRequest*      ProcessRenameTable();
     ClientRequest*      ProcessDeleteTable();
+    ClientRequest*      ProcessSplitShard();
     
     void                OnConnectionClose();
 

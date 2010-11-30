@@ -422,6 +422,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
         return ProcessRenameTable();
     if (HTTP_MATCH_COMMAND(cmd, "deletetable"))
         return ProcessDeleteTable();
+    if (HTTP_MATCH_COMMAND(cmd, "splitshard"))
+        return ProcessSplitShard();
     
     return NULL;
 }
@@ -595,6 +597,21 @@ ClientRequest* ConfigHTTPClientSession::ProcessDeleteTable()
 
     request = new ClientRequest;
     request->DeleteTable(0, databaseID, tableID);
+
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessSplitShard()
+{
+    ClientRequest*  request;
+    uint64_t        shardID;
+    ReadBuffer      key;
+    
+    HTTP_GET_U64_PARAM(params, "shardID", shardID);
+    HTTP_GET_PARAM(params, "key", key);
+
+    request = new ClientRequest;
+    request->SplitShard(0, shardID, key);
 
     return request;
 }

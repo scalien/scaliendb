@@ -359,6 +359,14 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
         CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
     }
     
+    else if (message.type == CONFIGMESSAGE_SPLIT_SHARD_BEGIN)
+    {
+        ReadBuffer tmp;
+        tmp.Wrap(message.splitKey);
+
+        TryShardSplitBegin(message.shardID, tmp);
+    }
+
     configState->OnMessage(message);
     configServer->GetDatabaseManager()->Write();
     configServer->OnConfigStateChanged(); // UpdateActivationTimeout();
@@ -494,6 +502,11 @@ void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessa
             message->databaseID = request->databaseID;
             message->tableID = request->tableID;
             return;
+        case CLIENTREQUEST_SPLIT_SHARD:
+            message->type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
+            message->shardID = request->shardID;
+            message->splitKey = request->key;
+            return;
         default:
             ASSERT_FAIL();
     }
@@ -523,6 +536,9 @@ void ConfigQuorumProcessor::TransfromMessage(ConfigMessage* message, ClientRespo
             return;
         case CLIENTREQUEST_DELETE_TABLE:
             response->OK();
+            return;
+        case CLIENTREQUEST_SPLIT_SHARD:
+            response->Number(message->newShardID);
             return;
         default:
             ASSERT_FAIL();

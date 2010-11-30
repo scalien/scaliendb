@@ -186,7 +186,12 @@ void JSONConfigState::WriteShard(ConfigShard* shard)
     JSON_STRING(shard, firstKey);
     json.PrintComma();
     JSON_STRING(shard, lastKey);
-    
+    json.PrintComma();
+    JSON_NUMBER(shard, shardSize);
+    json.PrintComma();
+    JSON_STRING(shard, splitKey);
+
+
     json.PrintObjectEnd();
 }
 

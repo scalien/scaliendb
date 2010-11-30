@@ -32,6 +32,8 @@ public:
 
     bool            isSplitCreating;
     uint64_t        parentShardID;
+    uint64_t        shardSize;
+    Buffer          splitKey;
 
     // ========================================================================================
     

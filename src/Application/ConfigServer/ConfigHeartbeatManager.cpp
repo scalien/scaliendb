@@ -132,8 +132,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
     ConfigState*            configState;
     ConfigShardServer*      configShardServer;
     ConfigQuorum*           itQuorum;
-    QuorumShardInfo*        itQuorumShardInfo;
-    
+    QuorumShardInfo*        itQuorumShardInfo; 
     
     if (!configServer->GetQuorumProcessor()->IsMaster())
         return;
@@ -177,6 +176,17 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
                  itQuorumShardInfo->shardID);
                 return;
             }
+        }
+    }
+    
+    FOREACH(itQuorumShardInfo, message.quorumShardInfos)
+    {
+        itQuorum = configState->GetQuorum(itQuorumShardInfo->quorumID);
+        if (itQuorum->primaryID == message.nodeID)
+        {
+            ConfigShard* configShard = configState->GetShard(itQuorumShardInfo->shardID);
+            configShard->shardSize = itQuorumShardInfo->shardSize;
+            configShard->splitKey.Write(itQuorumShardInfo->splitKey);
         }
     }
 }
