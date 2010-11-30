@@ -61,6 +61,7 @@ public:
     int                     CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name);
     int                     RenameTable(uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
     int                     DeleteTable(uint64_t databaseID, uint64_t tableID);
+    int                     SplitShard(uint64_t shardID, ReadBuffer& splitKey);
     
     // shard server commands
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);

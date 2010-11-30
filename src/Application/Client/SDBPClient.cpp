@@ -435,6 +435,33 @@ int Client::DeleteTable(uint64_t databaseID, uint64_t tableID)
     return result->CommandStatus();
 }
 
+int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
+{
+    Request*    req;
+
+    VALIDATE_CONTROLLER();
+
+    if (configState == NULL)
+    {
+        result->Close();
+        EventLoop();
+    }
+    
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    req = new Request;
+    req->SplitShard(NextCommandID(), shardID, splitKey);
+
+    requests.Append(req);
+
+    result->Close();
+    result->AppendRequest(req);
+    
+    EventLoop();
+    return result->CommandStatus();
+}
+
 int Client::Get(const ReadBuffer& key)
 {
     Request*    req;

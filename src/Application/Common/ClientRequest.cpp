@@ -36,7 +36,8 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_DELETE_DATABASE   ||
         type == CLIENTREQUEST_CREATE_TABLE      ||
         type == CLIENTREQUEST_RENAME_TABLE      ||
-        type == CLIENTREQUEST_DELETE_TABLE)
+        type == CLIENTREQUEST_DELETE_TABLE      ||
+        type == CLIENTREQUEST_SPLIT_SHARD)
             return true;
 
     return false;
@@ -142,6 +143,16 @@ bool ClientRequest::DeleteTable(
     commandID = commandID_;
     databaseID = databaseID_;
     tableID = tableID_;
+    return true;
+}
+
+bool ClientRequest::SplitShard(
+ uint64_t commandID_, uint64_t shardID_, ReadBuffer& key_)
+{
+    type = CLIENTREQUEST_SPLIT_SHARD;
+    commandID = commandID_;
+    shardID = shardID_;
+    key.Write(key_);
     return true;
 }
 

@@ -24,6 +24,7 @@
 #define CLIENTREQUEST_APPEND            'p'
 #define CLIENTREQUEST_DELETE            'X'
 #define CLIENTREQUEST_REMOVE            'x'
+#define CLIENTREQUEST_SPLIT_SHARD       'h'
 
 class ClientSession; // forward
 
@@ -66,6 +67,9 @@ public:
                      uint64_t commandID, uint64_t databaseID, ReadBuffer& name);
     bool            DeleteDatabase(
                      uint64_t commandID, uint64_t databaseID);
+    bool            SplitShard(
+                     uint64_t commandID,
+                     uint64_t shardID, ReadBuffer& key);
     
     // Table management
     bool            CreateTable(
@@ -102,7 +106,7 @@ public:
                      uint64_t tableID, ReadBuffer& key);    
     bool            Remove(
                      uint64_t commandID,
-                     uint64_t tableID, ReadBuffer& key);    
+                     uint64_t tableID, ReadBuffer& key);
 
     // Variables
     ClientResponse  response;

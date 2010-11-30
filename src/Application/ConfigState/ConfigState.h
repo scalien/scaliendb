@@ -92,6 +92,8 @@ private:
     bool                CompleteCreateTable(ConfigMessage& message);
     bool                CompleteRenameTable(ConfigMessage& message);
     bool                CompleteDeleteTable(ConfigMessage& message);
+    bool                CompleteSplitShardBegin(ConfigMessage& message);
+    bool                CompleteSplitShardComplete(ConfigMessage& message);
 
     void                OnRegisterShardServer(ConfigMessage& message);
     void                OnCreateQuorum(ConfigMessage& message);
@@ -119,8 +121,8 @@ private:
 
     void                DeleteTable(ConfigTable* table);
 
-    bool                ReadShards(ReadBuffer& buffer);
-    void                WriteShards(Buffer& buffer);
+    bool                ReadShards(ReadBuffer& buffer, bool withVolatile);
+    void                WriteShards(Buffer& buffer, bool withVolatile);
 
     bool                ReadShardServers(ReadBuffer& buffer, bool withVolatile);
     void                WriteShardServers(Buffer& buffer, bool withVolatile);
@@ -136,8 +138,8 @@ private:
     bool                ReadTable(ConfigTable& database, ReadBuffer& buffer);
     void                WriteTable(ConfigTable& table, Buffer& buffer);
 
-    bool                ReadShard(ConfigShard& database, ReadBuffer& buffer);
-    void                WriteShard(ConfigShard& shard, Buffer& buffer);
+    bool                ReadShard(ConfigShard& database, ReadBuffer& buffer, bool withVolatile);
+    void                WriteShard(ConfigShard& shard, Buffer& buffer, bool withVolatile);
 
     bool                ReadShardServer(ConfigShardServer& database,
                          ReadBuffer& buffer, bool withVolatile);

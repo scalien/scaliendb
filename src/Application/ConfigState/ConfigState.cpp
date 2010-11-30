@@ -152,6 +152,11 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
         case CONFIGMESSAGE_DELETE_DATABASE:
             return CompleteDeleteDatabase(message);
 
+        case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
+            return CompleteSplitShardBegin(message);
+        case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
+            return CompleteSplitShardComplete(message);
+
         /* Table management */
         case CONFIGMESSAGE_CREATE_TABLE:
             return CompleteCreateTable(message);
@@ -208,7 +213,7 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
     if (!ReadTables(buffer))
         return false;
     READ_SEPARATOR();
-    if (!ReadShards(buffer))
+    if (!ReadShards(buffer, withVolatile))
         return false;
     READ_SEPARATOR();
     if (!ReadShardServers(buffer, withVolatile))
@@ -239,7 +244,7 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     buffer.Appendf(":");
     WriteTables(buffer);
     buffer.Appendf(":");
-    WriteShards(buffer);
+    WriteShards(buffer, withVolatile);
     buffer.Appendf(":");
     WriteShardServers(buffer, withVolatile);
     
@@ -623,6 +628,18 @@ bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
     return true;
 }
 
+bool ConfigState::CompleteSplitShardBegin(ConfigMessage& message)
+{
+    if (GetShard(message.shardID) == NULL)
+        return false;
+    return true;
+}
+
+bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
+{
+    return true;
+}
+
 void ConfigState::OnRegisterShardServer(ConfigMessage& message)
 {
     ConfigShardServer*  it;
@@ -943,7 +960,9 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     newShard->lastKey.Write(parentShard->lastKey);
     shards.Append(newShard);
     
-    parentShard->lastKey.Write(message.firstKey);
+    parentShard->lastKey.Write(newShard->firstKey);
+
+    message.newShardID = newShard->shardID; // TODO: this is kind of a hack
 }
 
 void ConfigState::OnSplitShardComplete(ConfigMessage& message)
@@ -1084,7 +1103,7 @@ void ConfigState::DeleteTable(ConfigTable* table)
     tables.Delete(table);
 }
 
-bool ConfigState::ReadShards(ReadBuffer& buffer)
+bool ConfigState::ReadShards(ReadBuffer& buffer, bool withVolatile)
 {
     int             read;
     unsigned        num, i;
@@ -1097,7 +1116,7 @@ bool ConfigState::ReadShards(ReadBuffer& buffer)
     {
         READ_SEPARATOR();
         shard = new ConfigShard;
-        if (!ReadShard(*shard, buffer))
+        if (!ReadShard(*shard, buffer, withVolatile))
         {
             delete shard;
             return false;
@@ -1108,7 +1127,7 @@ bool ConfigState::ReadShards(ReadBuffer& buffer)
     return true;
 }
 
-void ConfigState::WriteShards(Buffer& buffer)
+void ConfigState::WriteShards(Buffer& buffer, bool withVolatile)
 {
     ConfigShard*    it;
     
@@ -1118,7 +1137,7 @@ void ConfigState::WriteShards(Buffer& buffer)
     for (it = shards.First(); it != NULL; it = shards.Next(it))
     {
         buffer.Appendf(":");
-        WriteShard(*it, buffer);
+        WriteShard(*it, buffer, withVolatile);
     }
 }
 
@@ -1303,7 +1322,7 @@ void ConfigState::WriteTable(ConfigTable& table, Buffer& buffer)
     WriteIDList(table.shards, buffer);
 }
 
-bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer)
+bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVolatile)
 {
     int read;
     
@@ -1313,18 +1332,31 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer)
      &shard.isSplitCreating, &shard.parentShardID);
     CHECK_ADVANCE(15);
 
+    if (withVolatile)
+    {
+        read = buffer.Readf(":%U:%#B",
+         &shard.shardSize, &shard.splitKey);
+        CHECK_ADVANCE(5);
+    }
+
     if (shard.shardID >= nextShardID)
         nextShardID = shard.shardID + 1;
     
     return true;
 }
 
-void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer)
+void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer, bool withVolatile)
 {
     buffer.Appendf("%U:%U:%U:%U:%#B:%#B:%b:%U",
      shard.quorumID, shard.databaseID, shard.tableID,
      shard.shardID, &shard.firstKey, &shard.lastKey,
      shard.isSplitCreating, shard.parentShardID);
+
+    if (withVolatile)
+    {
+        buffer.Appendf(":%U:%#B",
+         shard.shardSize, &shard.splitKey);
+    }
 }
 
 bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& buffer, bool withVolatile)
