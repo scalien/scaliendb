@@ -96,8 +96,10 @@ bool FS_RecDeleteDir(const char* path)
 #include "System/Containers/List.h"
 #include "System/Containers/ArrayList.h"
 
+#define MAX_FD  1024*1024
+
 List<int>   fileHandles;
-bool        dirtyFiles[100*1000];
+bool        dirtyFiles[MAX_FD];
 
 FD FS_Open(const char* filename, int flags)
 {
