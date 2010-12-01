@@ -21,6 +21,7 @@ StorageIndexPage::StorageIndexPage()
     required = INDEXPAGE_FIX_OVERHEAD;
     type = STORAGE_INDEX_PAGE;
     maxDataPageIndex = -1;
+    rewrite = true;
 }
 
 StorageIndexPage::~StorageIndexPage()
@@ -304,6 +305,15 @@ bool StorageIndexPage::Write(Buffer& writeBuffer)
     buffer.Write(writeBuffer);
     
     return ret;
+}
+
+void StorageIndexPage::WriteHeader(Buffer& writeBuffer)
+{
+}
+
+uint32_t StorageIndexPage::WriteAppend(Buffer& buffer)
+{
+    return 0;
 }
 
 void StorageIndexPage::UpdateHighestIndex(uint32_t index)

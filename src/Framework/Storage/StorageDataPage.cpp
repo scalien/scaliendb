@@ -397,58 +397,73 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
 {
     StorageKeyValue*    it;
     uint32_t            num;
-    char*               p;
     
     ST_ASSERT(!newPage || (newPage && this->buffer.GetLength() == 0));
+    ST_ASSERT(pageSize > 0);
+    ST_ASSERT(fileIndex != 0);
 
     buffer.Allocate(pageSize);
+    writeBuffer.SetLength(0);
 
     num = keys.GetCount();
 
-    if (!rewrite)
-    {
-        p = buffer.GetBuffer();
-        *(uint32_t*) p = pageSize;
-        p += 4;
-        *(uint32_t*) p = fileIndex;
-        p += 4;
-        *(uint32_t*) p = offset;
-        p += 4;
-        *(uint32_t*) p = num;
-        
-        if (newPage)
-            buffer.SetLength(16);
-        
-        buffer.Append(appendBuffer);
-        writeBuffer.Write(buffer);
-        appendBuffer.Clear();
-        return true;
-    }
-
-    writeBuffer.SetLength(0);
-
-    ST_ASSERT(pageSize > 0);
-    ST_ASSERT(fileIndex != 0);
     writeBuffer.AppendLittle32(pageSize);
     writeBuffer.AppendLittle32(fileIndex);
     writeBuffer.AppendLittle32(offset);
     writeBuffer.AppendLittle32(num);
 
     for (it = keys.First(); it != NULL; it = keys.Next(it))
-    {
         AppendKeyValue(it, writeBuffer);
-    }
+
     ST_ASSERT(required == writeBuffer.GetLength());
+
 //    if (BUFCMP(&writeBuffer, &buffer))
 //        return false;
     
     buffer.Write(writeBuffer);
-    appendBuffer.Clear();
-    
-    rewrite = false;
     
     return true;
 }
+
+void StorageDataPage::WriteHeader(Buffer& writeBuffer)
+{
+    uint32_t    num;
+    char*       p;
+
+    num = keys.GetCount();
+
+    ST_ASSERT(pageSize > 0);
+    ST_ASSERT(fileIndex != 0);
+
+    writeBuffer.Allocate(16);
+    writeBuffer.SetLength(0);
+
+    writeBuffer.AppendLittle32(pageSize);
+    writeBuffer.AppendLittle32(fileIndex);
+    writeBuffer.AppendLittle32(offset);
+    writeBuffer.AppendLittle32(num);
+
+    // copy into own buffer
+    buffer.Allocate(16);
+    p = buffer.GetBuffer();
+    memcpy(p, writeBuffer.GetBuffer(), writeBuffer.GetLength());
+    if (newPage)
+        buffer.SetLength(16);
+}
+
+uint32_t StorageDataPage::WriteAppend(Buffer& writeBuffer)
+{
+    uint32_t appendOffset;
+
+    appendOffset = buffer.GetLength();
+
+    writeBuffer.Write(appendBuffer);
+    buffer.Append(appendBuffer);
+    appendBuffer.Clear();
+
+    return appendOffset;
+}
+
 
 void StorageDataPage::Invalidate()
 {

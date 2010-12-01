@@ -51,7 +51,9 @@ public:
     void                    Read(ReadBuffer& buffer);
     bool                    CheckWrite(Buffer& buffer);
     bool                    Write(Buffer& buffer);
-    
+    void                    WriteHeader(Buffer& buffer);
+    uint32_t                WriteAppend(Buffer& buffer);
+
 private:
     void                    UpdateHighestIndex(uint32_t index);
 

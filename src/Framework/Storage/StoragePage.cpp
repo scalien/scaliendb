@@ -69,6 +69,16 @@ bool StoragePage::IsDeleted()
     return deleted;
 }
 
+void StoragePage::SetRewrite(bool rewrite_)
+{
+    rewrite = rewrite_;
+}
+
+bool StoragePage::NeedRewrite()
+{
+    return rewrite;
+}
+
 char StoragePage::GetType()
 {
     return type;

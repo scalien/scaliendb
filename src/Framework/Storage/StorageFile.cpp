@@ -531,15 +531,24 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
         if (it->IsNew())
             continue;
         ST_ASSERT(it->buffer.GetLength() <= it->GetPageSize());
+        ST_ASSERT(it->buffer.GetLength() >= DATAPAGE_FIX_OVERHEAD);
         // it->buffer contains the old page
-        buffer.Allocate(it->GetPageSize());
-
+        
+//        buffer.Allocate(it->GetPageSize());
 //        if (!it->CheckWrite(buffer))
 //            continue;
 
-        ST_ASSERT(it->buffer.GetLength() >= DATAPAGE_FIX_OVERHEAD);
-        if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer))
-            STOP_FAIL(1, "Recovery failed when writing file (%s)", recoveryLog.GetFilename());
+        if (it->NeedRewrite())
+        {
+            if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer))
+                STOP_FAIL(1, "Recovery failed when writing file (%s)", recoveryLog.GetFilename());
+        }
+        else
+        {
+            it->WriteHeader(buffer);
+            if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, buffer.GetLength(), it->buffer))
+                STOP_FAIL(1, "Recovery failed when writing file (%s)", recoveryLog.GetFilename());
+        }
     }
 
     ASSERT_FILEINDEX_CONSISTENCY();
@@ -555,6 +564,7 @@ void StorageFile::WriteData()
     ssize_t                 ret;
     SortedList<uint32_t>    offsets;
     uint32_t*               itOffset;
+    uint32_t                appendOffset;
 
     ASSERT_INDEX_CONSISTENCY();
     ASSERT_FILEINDEX_CONSISTENCY();
@@ -602,12 +612,27 @@ void StorageFile::WriteData()
         buffer.Zero();
         buffer.SetLength(0);
         //STORAGE_TRACE("writing file %s at offset %u", filepath.GetBuffer(), it->GetOffset());
-        if (it->Write(buffer))
+
+        if (it->NeedRewrite())
         {
+            it->Write(buffer);
             ret = FS_FileWriteOffs(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset());
             if (ret != (int) it->GetPageSize())
                 STOP_FAIL(1, "Write failed (%s)", filepath.GetBuffer());
+            it->SetRewrite(false);
         }
+        else
+        {
+            it->WriteHeader(buffer);
+            ret = FS_FileWriteOffs(fd, buffer.GetBuffer(), buffer.GetLength(), it->GetOffset());
+            if (ret != (int) buffer.GetLength())
+                STOP_FAIL(1, "Write failed (%s)", filepath.GetBuffer());
+            appendOffset = it->WriteAppend(buffer);
+            ret = FS_FileWriteOffs(fd, buffer.GetBuffer(), buffer.GetLength(), it->GetOffset() + appendOffset);
+            if (ret != (int) buffer.GetLength())
+                STOP_FAIL(1, "Write failed (%s)", filepath.GetBuffer());
+        }
+
         it->SetDirty(false);
         it->SetNew(false);
 

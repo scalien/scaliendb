@@ -53,6 +53,10 @@ public:
     void                        Read(ReadBuffer& buffer);
     bool                        CheckWrite(Buffer& buffer);
     bool                        Write(Buffer& buffer);
+
+    void                        WriteHeader(Buffer& buffer);
+    uint32_t                    WriteAppend(Buffer& buffer);
+
     void                        Invalidate();
 
 private:
@@ -61,7 +65,6 @@ private:
     void                        AppendKeyValue(StorageKeyValue* kv, Buffer& buffer);
     
     bool                        detached;
-    bool                        rewrite;
     uint32_t                    required;
     InTreeMap<StorageKeyValue>  keys;
     InList<StorageCursor>       cursors;

@@ -40,11 +40,17 @@ public:
     void                    SetDeleted(bool deleted);
     bool                    IsDeleted();
 
+    void                    SetRewrite(bool rewrite);
+    bool                    NeedRewrite();
+
     char                    GetType();
 
     virtual void            Read(ReadBuffer& buffer)    = 0;
     virtual bool            CheckWrite(Buffer& buffer)  = 0;
     virtual bool            Write(Buffer& buffer)       = 0;
+
+    virtual void            WriteHeader(Buffer& buffer) = 0;
+    virtual uint32_t        WriteAppend(Buffer& buffer) = 0;
 
     InTreeNode<StoragePage> treeNode;
     StoragePage*            next;
@@ -60,6 +66,7 @@ protected:
     bool                    dirty;
     bool                    newPage;
     bool                    deleted;
+    bool                    rewrite;
     char                    type;
 };
 

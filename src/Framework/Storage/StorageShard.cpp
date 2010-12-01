@@ -481,7 +481,7 @@ void StorageShard::WriteBackPages(InList<Buffer>& pages)
         WritePath(filepath, fileIndex);
         filepath.NullTerminate();
         fd = FS_Open(filepath.GetBuffer(), FS_READWRITE | FS_CREATE);
-        FS_FileWriteOffs(fd, page->GetBuffer(), pageSize, offset);
+        FS_FileWriteOffs(fd, page->GetBuffer(), page->GetLength(), offset);
         FS_FileClose(fd);
     }
 }
