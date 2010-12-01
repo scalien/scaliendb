@@ -616,8 +616,8 @@ void StorageFile::WriteData()
         if (it->NeedRewrite())
         {
             it->Write(buffer);
-            ret = FS_FileWriteOffs(fd, buffer.GetBuffer(), it->GetPageSize(), it->GetOffset());
-            if (ret != (int) it->GetPageSize())
+            ret = FS_FileWriteOffs(fd, buffer.GetBuffer(), buffer.GetLength(), it->GetOffset());
+            if (ret != (int) buffer.GetLength())
                 STOP_FAIL(1, "Write failed (%s)", filepath.GetBuffer());
             it->SetRewrite(false);
         }
