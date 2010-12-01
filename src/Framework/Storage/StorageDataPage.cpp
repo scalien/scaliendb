@@ -403,6 +403,8 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
 
     buffer.Allocate(pageSize);
 
+    num = keys.GetCount();
+
     if (!rewrite)
     {
         p = buffer.GetBuffer();
@@ -423,25 +425,18 @@ bool StorageDataPage::Write(Buffer& writeBuffer)
         return true;
     }
 
-
     writeBuffer.SetLength(0);
 
     ST_ASSERT(pageSize > 0);
-    writeBuffer.AppendLittle32(pageSize);
-
     ST_ASSERT(fileIndex != 0);
+    writeBuffer.AppendLittle32(pageSize);
     writeBuffer.AppendLittle32(fileIndex);
-
     writeBuffer.AppendLittle32(offset);
-
-    num = keys.GetCount();
     writeBuffer.AppendLittle32(num);
 
-//  printf("writing datapage for file %u at offset %u\n", fileIndex, offset);
     for (it = keys.First(); it != NULL; it = keys.Next(it))
     {
         AppendKeyValue(it, writeBuffer);
-//      printf("writing %.*s => %.*s\n", P(&(it->key)), P(&(it->value)));
     }
     ST_ASSERT(required == writeBuffer.GetLength());
 //    if (BUFCMP(&writeBuffer, &buffer))
