@@ -540,7 +540,7 @@ void StorageFile::WriteRecovery(StorageRecoveryLog& recoveryLog)
 
         if (it->NeedRewrite())
         {
-            if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->GetPageSize(), it->buffer))
+            if (!recoveryLog.WriteOp(RECOVERY_OP_PAGE, it->buffer.GetLength(), it->buffer))
                 STOP_FAIL(1, "Recovery failed when writing file (%s)", recoveryLog.GetFilename());
         }
         else
