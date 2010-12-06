@@ -4,7 +4,7 @@
 #include "System/Platform.h"
 #include "ReadBuffer.h"
 
-#define ARRAY_SIZE              128
+#define ARRAY_SIZE              16
 #define ALLOC_GRANURALITY       32
 
 /*
@@ -52,6 +52,10 @@ public:
     void                AppendLittle32(uint32_t x);
     void                AppendLittle64(uint64_t x);
 
+    char                GetCharAt(unsigned i);
+    void                SetCharAt(unsigned i, char c);
+
+
     void                NullTerminate();
     void                Zero();
 
@@ -63,7 +67,6 @@ public:
     unsigned            GetLength();
     unsigned            GetRemaining();
     char*               GetPosition();
-    char                GetCharAt(unsigned i);
     uint32_t            GetChecksum();
     
     void                Clear();

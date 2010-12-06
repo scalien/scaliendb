@@ -189,6 +189,19 @@ void Buffer::AppendLittle64(uint64_t x)
     Append((const char*) &x, sizeof(uint64_t));
 }
 
+char Buffer::GetCharAt(unsigned i)
+{
+    if (i > length - 1)
+        ASSERT_FAIL();
+    
+    return *(buffer + i);
+}
+
+void Buffer::SetCharAt(unsigned i, char c)
+{
+    buffer[i] = c;
+}
+
 void Buffer::NullTerminate()
 {
     Append("", 1);
@@ -238,14 +251,6 @@ unsigned Buffer::GetRemaining()
 char* Buffer::GetPosition()
 {
     return buffer + length;
-}
-
-char Buffer::GetCharAt(unsigned i)
-{
-    if (i > length - 1)
-        ASSERT_FAIL();
-    
-    return *(buffer + i);
 }
 
 uint32_t Buffer::GetChecksum()
