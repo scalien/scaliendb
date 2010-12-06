@@ -96,7 +96,7 @@ bool FS_RecDeleteDir(const char* path)
 #include "System/Containers/List.h"
 #include "System/Containers/ArrayList.h"
 
-#define MAX_FD  1024*1024
+#define MAX_FD  128*1024
 
 List<int>   fileHandles;
 bool        dirtyFiles[MAX_FD];
