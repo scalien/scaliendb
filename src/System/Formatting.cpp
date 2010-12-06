@@ -400,7 +400,8 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'b') // %b
             {
                 REQUIRE(1);
-                b = va_arg(ap, int);
+                d = va_arg(ap, int);    // .. 
+                b = (d != 0);           // avoid warning C4080 on Windows
                 if (!ghost) buffer[0] = (b ? 'T' : 'F');
                 ADVANCE(2, 1);
             }
