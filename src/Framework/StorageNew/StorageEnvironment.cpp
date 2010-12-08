@@ -173,7 +173,7 @@ void StorageEnvironment::TryFinalizeLogSegment()
 
     headLogSegment = new StorageLogSegment();
     headLogSegment->SetLogSegmentID(logSegmentID);
-    buffer.Writef("log.%U", logSegmentID);
+    buffer.Writef("log.%020U", logSegmentID);
     buffer.NullTerminate();
     headLogSegment->Open(buffer);
 
