@@ -18,24 +18,21 @@ public:
     // shardID is not stored here, since a shard can belong to more than one shard
     // in case of shard splitting
 
-    // on disk
-    uint64_t            chunkID;
-    uint64_t            logSegmentID;
-    uint64_t            logCommandID;
-    uint64_t            numKeys;
-    bool                useBloomFilter;
-    uint64_t            numKeys;
-    
-    // in memory:
-    ChunkState          state;
-    unsigned            numShards;      // this chunk backs this many shards
-
     bool                IsMerged();
-    uint64_t            parent1;        // if merged
-    uint64_t            parent2;        // if merged
     
     // cache:
-    KeyValueTree*       tree;   // non-NULL if-a-o-if state == InMemory
+    KeyValueTree*       tree;               // non-NULL if-a-o-if state == InMemory
+
+private:
+    bool                useBloomFilter;     // on disk
+    uint64_t            chunkID;            // on disk
+    uint64_t            logSegmentID;       // on disk
+    uint64_t            logCommandID;       // on disk
+    uint64_t            numKeys;            // on disk
+
+    ChunkState          state;              // in memory
+    unsigned            numShards;          // in memory
+
     StorageChunkFile*   file;   // non-NULL if-a-o-if state != InMemory
 };
 

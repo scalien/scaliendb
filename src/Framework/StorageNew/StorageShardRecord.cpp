@@ -36,11 +36,11 @@ bool StorageShard::RangeContains(ReadBuffer& key)
         if (lastKey.GetLength() == 0)
             return true;
         else
-            return (cl < 0); //(key < lastKey);
+            return (cl < 0);        //(key < lastKey);
     }
     else if (lastKey.GetLength() == 0)
     {
-        return (cf <= 0); //(firstKey <= key);
+        return (cf <= 0);           //(firstKey <= key);
     }
     else
         return (cf <= 0 && cl < 0); //(firstKey <= key < lastKey);
