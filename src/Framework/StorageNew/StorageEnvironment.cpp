@@ -29,16 +29,21 @@ uint64_t StorageEnvironment::GetShardID(uint64_t tableID, ReadBuffer& key)
 bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
 {
     StorageShard*       shard;
-    StorageChunk*       itChunk;
+    StorageChunk*       itChunk;    
     StorageKeyValue*    kv;
+    ReadBuffer          firstKey;
+    ReadBuffer          lastKey;
 
     shard = GetShard(shardID);
     if (shard == NULL)
         return false;
 
+    firstKey = shard->GetFirstKey();
+    lastKey = shard->GetLastKey();
+
     FOREACH(itChunk, shard->chunks)
     {
-        kv = itChunk->Get(shard->FirstKey(), shard->LastKey(), key);
+        kv = itChunk->Get(firstKey, lastKey, key);
         if (kv != NULL)
         {
             if (kv.IsDelete())
@@ -70,7 +75,7 @@ bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& valu
     if (commandID < 0)
         return false;
 
-    chunk = shard->activeChunk;
+    chunk = shard->GetWriteChunk();
     assert(chunk != NULL);
     if (!chunk->Set(key, value))
     {
@@ -94,7 +99,7 @@ bool StorageEnvironment::Delete(uint64_t shardID, ReadBuffer& key)
     if (commandID < 0)
         return false;
 
-    chunk = shard->activeChunk;
+    chunk = shard->GetWriteChunk();
     assert(chunk != NULL);
     if (!chunk->Delete(key))
     {
@@ -176,15 +181,13 @@ void StorageEnvironment::TryFinalizeLogSegment()
     buffer.Writef("log.%020U", logSegmentID);
     buffer.NullTerminate();
     headLogSegment->Open(buffer);
-
-    logSegmentID++;
 }
 
 void StorageEnvironment::TryFinalizeChunks()
 {
     StorageChunk*   itChunk;
     StorageShard*   itShard;
-    StorageChunk*   chunk;
+    StorageChunk*   newChunk;
 
     FOREACH(itChunk, chunks)
     {
@@ -194,14 +197,14 @@ void StorageEnvironment::TryFinalizeChunks()
 
     FOREACH(itShard, shards)
     {
-        if (!itShard->activeChunk->IsFinalized())
+        if (!itShard->GetWriteChunk()->IsFinalized())
             continue;
 
-        chunk = new StorageChunk;
-        chunk.SetChunkID(NextChunkID(activeChunk->GetChunkID()));
-        chunk.SetBloomFilter(itShard->UseBloomFilter());
-        itShard->activeChunk = chunk;
-        chunks.Append(chunk);
+        newChunk = new StorageChunk;
+        newChunk->SetChunkID(NextChunkID(activeChunk->GetChunkID()));
+        newChunk->SetBloomFilter(itShard->UseBloomFilter());
+        itShard->SetNewWriteChunk(newChunk);
+        chunks.Append(newChunk);
     }
 }
 
@@ -209,4 +212,3 @@ bool StorageEnvironment::IsWriteActive()
 {
 
 }
-

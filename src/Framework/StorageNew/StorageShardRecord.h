@@ -1,23 +1,37 @@
-#ifndef STORAGESHARDRECORD_H
-#define STORAGESHARDRECORD_H
+#ifndef STORAGESHARD_H
+#define STORAGESHARD_H
 
 /*
 ===============================================================================================
 
- StorageShardRecord
+ StorageShard
 
 ===============================================================================================
 */
 
-class StorageShardRecord
+class StorageShard
 {
-    typedef InTreeNode<StorageShardRecord> TreeNode;
+    typedef SortedList<StorageChunk*> ChunkList;
 
-public:
-    TreeNode        treeNode;
-    
+public:    
+    uint64_t        GetTableID();
+    uint64_t        GetShardID();
+
+    ReadBuffer      GetFirstKey();
+    ReadBuffer      GetLastKey();
+    bool            RangeContains(ReadBuffer& key);
+
+    StorageChunk*   GetWriteChunk();
+    void            OnChunkFinalized(StorageChunk* newWriteChunk);
+
 private:
-    List<uint64_t>  chunkIDs; // contains all non-deleted chunkIDs
+    uint64_t        shardID;
+    uint64_t        tableID;
+
+    ChunkList       chunks; // contains all active chunks, in order, first is the write chunk
+
+    Buffer          firstKey;
+    Buffer          lastKey;
 };
 
 #endif
