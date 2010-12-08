@@ -1,38 +1,54 @@
-#ifndef STORAGECHUNKRECORD_H
-#define STORAGECHUNKRECORD_H
+#ifndef STORAGECHUNK_H
+#define STORAGECHUNK_H
 
 /*
 ===============================================================================================
 
- StorageChunkRecord
+ StorageChunk
 
 ===============================================================================================
 */
 
-class StorageChunkRecord
+class StorageChunk
 {
 public:
     typedef enum ChunkState {InMemory, WritingToDisk, OnDisk} ChunkState;
+    typedef InTreeMap<StorageKeyValue> KeyValueTree;
     
+    // shardID is not stored here, since a shard can belong to more than one shard
+    // in case of shard splitting
+
     // on disk
-    uint64_t    chunkID;
-    uint64_t    shardID;        // this is the shardID this chunk originally belonged to
-    uint64_t    logSegmentID;
-    uint64_t    logCommandID;
-    uint64_t    numKeys;
-    bool        useBloomFilter;
+    uint64_t            chunkID;
+    uint64_t            logSegmentID;
+    uint64_t            logCommandID;
+    uint64_t            numKeys;
+    bool                useBloomFilter;
+    uint64_t            numKeys;
     
     // in memory:
-    bool        readOnly;       // whether this chunk has been closed for writing
-    unsigned    numShards;      // this chunk backs this many shards
-    ChunkState  state;
-    bool        merged;
-    uint64_t    parent1;        // if merged
-    uint64_t    parend2;        // if merged
+    ChunkState          state;
+    unsigned            numShards;      // this chunk backs this many shards
+
+    bool                IsMerged();
+    uint64_t            parent1;        // if merged
+    uint64_t            parent2;        // if merged
     
     // cache:
-    FD          fd;             // INVALID_FD if the file is not open
-    
+    KeyValueTree*       tree;   // non-NULL if-a-o-if state == InMemory
+    StorageChunkFile*   file;   // non-NULL if-a-o-if state != InMemory
+};
+
+class StorageChunkFile
+{
+    typedef InList<StorageChunkDataPage> DataPages;
+
+public:
+    StorageChunkHeaderPage  headerPage;
+    StorageChunkIndexPage   indexPage;
+    StorageChunkBloomPage   bloomPage;
+
+    DataPages               dataPages;
 };
 
 #endif

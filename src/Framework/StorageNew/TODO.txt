@@ -2,7 +2,7 @@
 
 - chunk numbering, chunks must be written to disk in order (per shard)
 
-- chunks should a log segmentID and commandID, meaning that is the last command that is
+- chunks should include log segmentID and commandID, meaning that is the last command that is
   included in that chunk
 
 - log segments reference for each shardID the largest chunkID that back it

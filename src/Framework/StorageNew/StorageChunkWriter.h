@@ -23,30 +23,30 @@ class StorageChunk; // forward
 class StorageChunkWriter
 {
 public:
-    bool                Write(const char* filename, StorageChunk* chunk);
+    bool                    Write(const char* filename, StorageChunk* chunk);
 
 private:
-    bool                WriteBuffer();
+    bool                    WriteBuffer();
 
-    bool                WriteEmptyHeaderPage();
-    bool                WriteHeader(StorageChunk* chunk);
-    bool                WriteDataPages(StorageChunk* chunk);
-    bool                WriteIndexPage();
-    bool                WriteBloomPage();
+    bool                    WriteEmptyHeaderPage();
+    bool                    WriteHeader(StorageChunk* chunk);
+    bool                    WriteDataPages(StorageChunk* chunk);
+    bool                    WriteIndexPage();
+    bool                    WriteBloomPage();
 
-    FDGuard             fd;
-    Buffer              writeBuffer;
+    FDGuard                 fd;
+    Buffer                  writeBuffer;
 
-    StorageHeaderPage   headerPage;
-    StorageDataPage     dataPage;
-    StorageIndexPage    indexPage;
-    StorageBloomPage    bloomPage;
+    StorageChunkHeaderPage  headerPage;
+    StorageChunkDataPage    dataPage;
+    StorageChunkIndexPage   indexPage;
+    StorageChunkBloomPage   bloomPage;
 
-    uint64_t            offset;
-    uint64_t            indexPageOffset;
-    uint64_t            bloomPageOffset;
-    uint32_t            indexPageSize;
-    uint32_t            bloomPageSize;
+    uint64_t                offset;
+    uint64_t                indexPageOffset;
+    uint64_t                bloomPageOffset;
+    uint32_t                indexPageSize;
+    uint32_t                bloomPageSize;
 };
 
 #endif
