@@ -95,7 +95,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="1"
+			CharacterSet="0"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -117,7 +117,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="..\src"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -135,7 +136,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				LinkIncremental="1"
+				AdditionalDependencies="ws2_32.lib mswsock.lib"
+				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
 				OptimizeReferences="2"
@@ -907,6 +909,14 @@
 		<Filter
 			Name="Framework"
 			>
+			<File
+				RelativePath="..\src\Framework\BloomFilter.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Framework\BloomFilter.h"
+				>
+			</File>
 			<Filter
 				Name="Clustering"
 				>
@@ -1155,137 +1165,113 @@
 				Name="Storage"
 				>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageCursor.cpp"
+					RelativePath="..\src\Framework\StorageNew\Biglog.txt"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageCursor.h"
+					RelativePath="..\src\Framework\StorageNew\FDGuard.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageDatabase.cpp"
+					RelativePath="..\src\Framework\StorageNew\FDGuard.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageDatabase.h"
+					RelativePath="..\src\Framework\StorageNew\StorageChunkMerger.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageDataCache.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageChunkMerger.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageDataCache.h"
+					RelativePath="..\src\Framework\StorageNew\StorageChunkReader.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageDataPage.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageChunkReader.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageDataPage.h"
+					RelativePath="..\src\Framework\StorageNew\StorageChunkWriter.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageDefaults.h"
+					RelativePath="..\src\Framework\StorageNew\StorageChunkWriter.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageEnvironment.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageEnvironment.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageEnvironment.h"
+					RelativePath="..\src\Framework\StorageNew\StorageEnvironment.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageFile.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageHeaderPage.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageFile.h"
+					RelativePath="..\src\Framework\StorageNew\StorageHeaderPage.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageFileHeader.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageKeyValue.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageFileHeader.h"
+					RelativePath="..\src\Framework\StorageNew\StorageKeyValue.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageFileIndex.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageFileIndex.h"
+					RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageIndexPage.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageRecovery.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageIndexPage.h"
+					RelativePath="..\src\Framework\StorageNew\StorageRecovery.h"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageKeyIndex.cpp"
+					RelativePath="..\src\Framework\StorageNew\TODO.txt"
 					>
 				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageKeyIndex.h"
+				<Filter
+					Name="Records"
 					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageKeyValue.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageKeyValue.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StoragePage.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StoragePage.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageRecoveryLog.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageRecoveryLog.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageShard.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageShard.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageShardIndex.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageShardIndex.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageTable.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageTable.h"
-					>
-				</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkRecord.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkRecord.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageSegmentRecord.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageSegmentRecord.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageShardRecord.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageShardRecord.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 		</Filter>
 		<File
