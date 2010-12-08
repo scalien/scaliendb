@@ -375,10 +375,28 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
     int             required;
     char            local[64];
     bool            ghost;
+    bool            pad;
+    unsigned        padlen;
 
-#define ADVANCE(f, b)   { format += f; length -= f; if (!ghost) { buffer += b; size -= b; } }
+#define ADVANCE(f, b)   { format += (f); length -= (f); if (!ghost) { buffer += (b); size -= (b); } }
 #define EXIT()          { return -1; }
-#define REQUIRE(r)      { required += r; if (size < (unsigned)r) ghost = true; }
+#define REQUIRE(r)      { required += (r); if (size < (unsigned)(r)) ghost = true; }
+#define PAD()                                       \
+if (pad)                                            \
+{                                                   \
+    padlen = padlen - n;                            \
+    if (padlen > 0)                                 \
+    {                                               \
+        REQUIRE(padlen);                            \
+        if (ghost) padlen = size;                   \
+        for (unsigned z = 0; z < padlen; z++)       \
+        {                                           \
+            *buffer = '0';                          \
+            ADVANCE(0, 1);                          \
+        }                                           \
+    }                                               \
+}
+
 
     ghost = false;
     required = 0;
@@ -386,10 +404,20 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
     
     while(format[0] != '\0')
     {
+        pad = false;
         if (format[0] == '%')
         {
             if (format[1] == '\0')
                 EXIT(); // % cannot be at the end of the format string
+            if(format[1] == '0')
+            {
+                // pad with zeroes
+                assert(format[2] != '\0');
+                padlen = BufferToInt64(format + 2, length - 2, &u);
+                assert(u > 0);
+                pad = true;
+                ADVANCE(u + 1, 0);
+            }
             
             if (format[1] == '%') // %%
             {
@@ -415,9 +443,9 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'd') // %d
             {
                 d = va_arg(ap, int);
-                //n = snprintf(local, sizeof(local), "%d", d);
                 n = IntToBuffer(local, sizeof(local), d);
                 if (n < 0) EXIT();
+                PAD();
                 REQUIRE(n);
                 if (ghost) n = size;
                 memcpy(buffer, local, n);
@@ -426,9 +454,9 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'u') // %u
             {
                 u = va_arg(ap, unsigned);
-                //n = snprintf(local, sizeof(local), "%u", u);
                 n = UIntToBuffer(local, sizeof(local), u);
                 if (n < 0) EXIT();
+                PAD();
                 REQUIRE(n);
                 if (ghost) n = size;
                 memcpy(buffer, local, n);
@@ -437,9 +465,9 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'I') // %I to print an int64_t 
             {
                 i64 = va_arg(ap, int64_t);
-                //n = snprintf(local, sizeof(local), "%" PRIi64 "", i64);
                 n = Int64ToBuffer(local, sizeof(local), i64);
                 if (n < 0) EXIT();
+                PAD();
                 REQUIRE(n);
                 if (ghost) n = size;
                 memcpy(buffer, local, n);
@@ -448,9 +476,9 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
             else if (format[1] == 'U') // %U tp print an uint64_t
             {
                 u64 = va_arg(ap, uint64_t);
-                //n = snprintf(local, sizeof(local), "%" PRIu64 "", u64);
                 n = UInt64ToBuffer(local, sizeof(local), u64);
                 if (n < 0) EXIT();
+                PAD();
                 REQUIRE(n);
                 if (ghost) n = size;
                 memcpy(buffer, local, n);
