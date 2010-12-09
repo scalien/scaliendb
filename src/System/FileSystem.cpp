@@ -444,6 +444,15 @@ void FS_Sync()
     }
 }
 
+void FS_Sync(int fd)
+{
+    if (dirtyFiles[fd])
+    {
+        dirtyFiles[fd] = false;
+        fsync(fd);
+    }
+}
+
 char FS_Separator()
 {
     return '/';
@@ -869,6 +878,12 @@ void FS_Sync()
     }
     // TODO: To flush all open files on a volume, call FlushFileBuffers with a handle to the volume.
     // http://msdn.microsoft.com/en-us/library/aa364439(v=VS.85).aspx
+}
+
+void FS_Sync(int fd)
+{
+    if (FlushFileBuffers((HANDLE)fd.handle) == 0)
+        printf("FS_Sync() failed!\n");
 }
 
 char FS_Separator()

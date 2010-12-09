@@ -1,15 +1,14 @@
 #include "StorageChunkSerializer.h"
+#include "StorageChunk.h"
+#include "StorageChunkFile.h"
 #include "PointerGuard.h"
 
-StorageFile* StorageChunkWriter::Serialize(StorageChunk* chunk)
+StorageChunkFile* StorageChunkSerializer::Serialize(StorageChunk* chunk)
 {
-    PointerGuard<StorageFile> file(new StorageFile);
+    PointerGuard<StorageChunkFile> file(new StorageChunkFile);
     
     if (chunk->UseBloomFilter())
-    {
-        P(file)->bloomPage.Clear();
         P(file)->bloomPage.SetNumKeys(chunk->GetNumKeys());
-    }
 
     offset = STORAGE_HEADER_PAGE_SIZE;
     
@@ -25,30 +24,35 @@ StorageFile* StorageChunkWriter::Serialize(StorageChunk* chunk)
             return NULL;
     }
 
-    if (!WriteHeaderPage(P(file)))
+    if (!WriteHeaderPage(chunk, P(file)))
         return NULL;
 
     return file.Release();
 }
 
-bool StorageChunkWriter::WriteHeaderPage(StorageChunk* chunk, StorageFile* file)
+bool StorageChunkSerializer::WriteHeaderPage(StorageChunk* chunk, StorageChunkFile* file)
 {
+    file->headerPage.SetOffset(0);
+    
     file->headerPage.SetChunkID(chunk->GetChunkID());
     file->headerPage.SetLogSegmentID(chunk->GetLogSegmentID());
     file->headerPage.SetNumKeys(chunk->GetNumKeys());
 
     file->headerPage.SetVersion(STORAGE_HEADER_PAGE_VERSION);
     file->headerPage.SetUseBloomFilter(chunk->UseBloomFilter());
-    file->headerPage.SetIndexPageOffset(indexPageOffset);
-    file->headerPage.SetIndexPageSize(indexPageSize);
-    file->headerPage.SetBloomPageOffset(bloomPageOffset);
-    file->headerPage.SetBloomPageSize(bloomPageSize);
+    file->headerPage.SetIndexPageOffset(file->indexPage.GetOffset());
+    file->headerPage.SetIndexPageSize(file->indexPage.GetSize());
+    file->headerPage.SetBloomPageOffset(file->bloomPage.GetOffset());
+    file->headerPage.SetBloomPageSize(file->bloomPage.GetSize());
 }
 
-bool StorageChunkWriter::WriteDataPages(StorageChunk* chunk, StorageFile* file)
+bool StorageChunkSerializer::WriteDataPages(StorageChunk* chunk, StorageChunkFile* file)
 {
     StorageKeyValue*    it;
     StorageDataPage*    dataPage;
+    unsigned            dataPageIndex;
+    
+    dataPageIndex = 0;
 
     dataPage = new StorageDataPage;
     dataPage.SetOffset(offset);
@@ -60,7 +64,7 @@ bool StorageChunkWriter::WriteDataPages(StorageChunk* chunk, StorageFile* file)
         if (dataPage->GetNumKeys() == 0)
         {
             dataPage->Append(it);
-            file->indexPage.Append(it, offset);
+            file->indexPage.Append(it, dataPageIndex, offset);
         }
         else
         {
@@ -73,6 +77,7 @@ bool StorageChunkWriter::WriteDataPages(StorageChunk* chunk, StorageFile* file)
                 dataPage.Finalize();
                 file->AppendDataPage(dataPage);
                 offset += dataPage.GetPageSize();
+                dataPageIndex++;
                 dataPage = new StorageDataPage;
                 dataPage.SetOffset(offset);
             }
@@ -85,19 +90,20 @@ bool StorageChunkWriter::WriteDataPages(StorageChunk* chunk, StorageFile* file)
         dataPage.Finalize();
         file->AppendDataPage(dataPage);
         offset += dataPage.GetPageSize();
+        dataPageIndex++;
     }
     
     return true;
 }
 
-bool StorageChunkWriter::WriteIndexPage(StorageFile* file)
+bool StorageChunkSerializer::WriteIndexPage(StorageChunkFile* file)
 {
     file->indexPage.SetOffset(offset);
     offset += indexPage.GetPageSize();
     return true;
 }
 
-bool StorageChunkWriter::WriteBloomPage(StorageFile*)
+bool StorageChunkSerializer::WriteBloomPage(StorageChunkFile* file)
 {
     file->bloomPage.SetOffset(offset);
     return true;

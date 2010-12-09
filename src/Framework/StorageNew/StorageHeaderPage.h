@@ -1,6 +1,12 @@
+#ifndef STORAGEHEADERPAGE_H
+#define STORAGEHEADERPAGE_H
+
+#include "System/Buffers/Buffer.h"
+#include "StoragePage.h"
+
 #define STORAGE_HEADER_PAGE_SIZE        4096
 
-class StorageHeaderPage
+class StorageHeaderPage : public StoragePage
 {
 public:
     uint32_t    GetPageSize();
@@ -16,7 +22,6 @@ public:
     void        SetIndexPageSize(uint32_t indexSize);
     void        SetBloomPageOffset(uint64_t bloomOffset);
     void        SetBloomPageSize(uint32_t bloomSize);
-
-    void        Write(Buffer& buffer);
-    bool        Read(FD fd, Buffer& buffer);
 };
+
+#endif

@@ -6,6 +6,8 @@
 #include "System/IO/FD.h"
 
 #define STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE      8
+#define STORAGE_LOGSEGMENT_COMMAND_SET          'S'
+#define STORAGE_LOGSEGMENT_COMMAND_DELETE       'D'
 
 class StorageLogSegmentWriter
 {
@@ -26,7 +28,7 @@ public:
 
     void            Commit();
 
-    uint64_t        GetSize();
+    uint64_t        GetOffset();
 
 private:
     void            NewRound();

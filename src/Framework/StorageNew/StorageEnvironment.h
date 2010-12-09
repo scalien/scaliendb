@@ -2,7 +2,10 @@
 #define STORAGEENVIRONMENT_H
 
 #include "System/Buffers/Buffer.h"
+#include "System/Containers/InList.h"
 #include "System/Threadpool.h"
+#include "StorageLogSegment.h"
+#include "StorageChunk.h"
 
 /*
 ===============================================================================================
@@ -14,7 +17,7 @@
 
 class StorageEnvironment
 {
-    typedef InList<StorageLogSegemnt> LogSegmentList
+    typedef InList<StorageLogSegment> LogSegmentList
     typedef InList<StorageShard> ShardList;
     typedef InList<StorageChunk> ChunkList;
 

@@ -14,7 +14,7 @@ void StorageChunk::SetUseBloomFilter(bool useBloomFilter_)
     useBloomFilter = useBloomFilter_;
 }
 
-uint64_t StorageChunk::GetChunkID(uint64_t chunkID)
+uint64_t StorageChunk::GetChunkID()
 {
     return chunkID;
 }
@@ -27,7 +27,7 @@ bool StorageChunk::UseBloomFilter()
 bool StorageChunk::Get(ReadBuffer& firstKey, ReadBuffer& lastKey, ReadBuffer& key, ReadBuffer& value)
 {
     if (state == ReadWrite)
-        return tree->Get(firstKey, lastKey, key, value)
+        return tree->Get(firstKey, lastKey, key, value);
     else
         return file->Get(firstKey, lastKey, key, value);
 }
@@ -60,6 +60,14 @@ void StorageChunk::RegisterLogCommand(uint64_t logSegmentID_, uint64_t logComman
         if (logCommandID_ > logCommandID)
             logCommandID = logCommandID_;
     }
+}
+
+uint64_t StorageChunk::GetNumKeys()
+{
+    if (state == ReadWrite)
+        return tree->GetNumKeys();
+    else
+        return file->GetNumKeys();    
 }
 
 uint64_t StorageChunk::GetSize()

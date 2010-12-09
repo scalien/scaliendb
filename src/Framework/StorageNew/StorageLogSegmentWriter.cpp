@@ -55,11 +55,27 @@ void StorageLogSegmentWriter::SetOnCommit(Callable& onCommit_)
 int64_t StorageLogSegmentWriter::AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
 {
     assert(fd != INVALID_FD);
+
+    writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_SET);
+    writeBuffer.AppendLittle64(shardID);
+    writeBuffer.AppendLittle32(key.GetLength());
+    writeBuffer.Append(key);
+    writeBuffer.AppendLittle32(value.GetLength());
+    writeBuffer.Append(value);
+
+    return true;
 }
 
 int64_t StorageLogSegmentWriter::AppendDelete(uint64_t shardID, ReadBuffer& key)
 {
     assert(fd != INVALID_FD);
+
+    writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_DELETE);
+    writeBuffer.AppendLittle64(shardID);
+    writeBuffer.AppendLittle32(key.GetLength());
+    writeBuffer.Append(key);
+
+    return true;
 }
 
 void StorageLogSegmentWriter::Commit()
@@ -68,7 +84,7 @@ void StorageLogSegmentWriter::Commit()
     uint32_t    checksum;
     ReadBuffer  dataPart;
     
-    assert(FD != INVALID_FD);
+    assert(fd != INVALID_FD);
 
     length = writeBuffer.GetLength();
 
@@ -101,7 +117,7 @@ void StorageLogSegmentWriter::Commit()
     commitState = Succeeded;
 }
 
-uint64_t StorageLogSegmentWriter::GetSize()
+uint64_t StorageLogSegmentWriter::GetOffset()
 {
     return offset;
 }

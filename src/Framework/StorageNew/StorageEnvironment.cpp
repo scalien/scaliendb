@@ -2,7 +2,6 @@
 
 StorageEnvironment::StorageEnvironment()
 {
-    commitStatus = false;
     commitThread = NULL;
     backgroundThread = NULL;
     backgroundTimer.SetDelay(1000);
@@ -207,7 +206,7 @@ void StorageEnvironment::TryFinalizeLogSegment()
     uint64_t    logSegmentID;
     Buffer      filename;
 
-    if (activeLogSegment->GetSize() < config.logSegmentSize)
+    if (activeLogSegment->GetOffset() < config.logSegmentSize)
         return;
 
     activeLogSegment->Finalize();

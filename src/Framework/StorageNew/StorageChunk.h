@@ -1,6 +1,11 @@
 #ifndef STORAGECHUNK_H
 #define STORAGECHUNK_H
 
+#include "System/Buffers/Buffer.h"
+#include "System/Containers/InTreeMap.h"
+#include "StorageKeyValue.h"
+#include "StorageChunkFile.h"
+
 /*
 ===============================================================================================
 
@@ -20,15 +25,16 @@ public:
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);
     
-    uint64_t            GetChunkID(uint64_t chunkID);
+    uint64_t            GetChunkID();
     bool                UseBloomFilter();
     
-    bool                Get(ReadBuffer& firstKey, ReadBuffer& lastKey, ReadBuffer& key);
+    bool                Get(ReadBuffer& firstKey, ReadBuffer& lastKey, ReadBuffer& key, ReadBuffer& value);
     bool                Set(ReadBuffer& key, ReadBuffer& value);
     bool                Delete(ReadBuffer& key);
     
     void                RegisterLogCommand(uint64_t logSegmentID, uint64_t logCommandID);
     
+    uint64_t            GetNumKeys();
     uint64_t            GetSize();
     ChunkState          GetState();
     
