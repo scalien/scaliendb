@@ -12,25 +12,41 @@
 class StorageChunk
 {
 public:
-    typedef enum ChunkState {InMemory, WritingToDisk, OnDisk} ChunkState;
+    typedef enum ChunkState {ReadWrite, Serialized, Writing, Written} ChunkState;
     typedef InTreeMap<StorageKeyValue> KeyValueTree;
     
-    // shardID is not stored here, since a shard can belong to more than one shard
-    // in case of shard splitting
-
+    StorageChunk();
+    
+    void                SetChunkID(uint64_t chunkID);
+    void                SetUseBloomFilter(bool useBloomFilter);
+    
+    uint64_t            GetChunkID(uint64_t chunkID);
+    bool                UseBloomFilter();
+    
+    bool                Get(ReadBuffer& firstKey, ReadBuffer& lastKey, ReadBuffer& key);
+    bool                Set(ReadBuffer& key, ReadBuffer& value);
+    bool                Delete(ReadBuffer& key);
+    
+    void                RegisterLogCommand(uint64_t logSegmentID, uint64_t logCommandID);
+    
+    uint64_t            GetSize();
+    ChunkState          GetState();
+    
+    void                TryFinalize();
+    bool                IsFinalized();
+        
+private:
     // on disk
     uint64_t            chunkID;
     uint64_t            logSegmentID;
     uint64_t            logCommandID;
     uint64_t            numKeys;
     bool                useBloomFilter;
-    uint64_t            numKeys;
     
     // in memory:
     ChunkState          state;
     unsigned            numShards;      // this chunk backs this many shards
 
-    bool                IsMerged();
     uint64_t            parent1;        // if merged
     uint64_t            parent2;        // if merged
     
@@ -39,16 +55,8 @@ public:
     StorageChunkFile*   file;   // non-NULL if-a-o-if state != InMemory
 };
 
-class StorageChunkFile
-{
-    typedef InList<StorageChunkDataPage> DataPages;
+    // shardID is not stored here, since a shard can belong to more than one shard
+    // in case of shard splitting
 
-public:
-    StorageChunkHeaderPage  headerPage;
-    StorageChunkIndexPage   indexPage;
-    StorageChunkBloomPage   bloomPage;
-
-    DataPages               dataPages;
-};
 
 #endif

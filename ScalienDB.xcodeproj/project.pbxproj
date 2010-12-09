@@ -61,6 +61,21 @@
 		54AB90E0122F98CE00721A0F /* StorageKeyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90DF122F98CE00721A0F /* StorageKeyValue.cpp */; };
 		54AB90E5122F994B00721A0F /* StorageKeyIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90E4122F994B00721A0F /* StorageKeyIndex.cpp */; };
 		54AB90EA122F99C300721A0F /* StorageFileIndex.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54AB90E9122F99C300721A0F /* StorageFileIndex.cpp */; };
+		54B3C81A12B0E27300BC2171 /* FDGuard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C80112B0E27200BC2171 /* FDGuard.cpp */; };
+		54B3C81B12B0E27300BC2171 /* StorageChunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C80312B0E27300BC2171 /* StorageChunk.cpp */; };
+		54B3C81C12B0E27300BC2171 /* StorageChunkMerger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C80512B0E27300BC2171 /* StorageChunkMerger.cpp */; };
+		54B3C81D12B0E27300BC2171 /* StorageChunkReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C80712B0E27300BC2171 /* StorageChunkReader.cpp */; };
+		54B3C81E12B0E27300BC2171 /* StorageChunkWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C80912B0E27300BC2171 /* StorageChunkWriter.cpp */; };
+		54B3C81F12B0E27300BC2171 /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C80B12B0E27300BC2171 /* StorageEnvironment.cpp */; };
+		54B3C82012B0E27300BC2171 /* StorageHeaderPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C80D12B0E27300BC2171 /* StorageHeaderPage.cpp */; };
+		54B3C82112B0E27300BC2171 /* StorageKeyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C80F12B0E27300BC2171 /* StorageKeyValue.cpp */; };
+		54B3C82212B0E27300BC2171 /* StorageLogSegment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C81112B0E27300BC2171 /* StorageLogSegment.cpp */; };
+		54B3C82312B0E27300BC2171 /* StorageLogSegmentWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C81312B0E27300BC2171 /* StorageLogSegmentWriter.cpp */; };
+		54B3C82412B0E27300BC2171 /* StorageRecovery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C81512B0E27300BC2171 /* StorageRecovery.cpp */; };
+		54B3C82512B0E27300BC2171 /* StorageShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C81712B0E27300BC2171 /* StorageShard.cpp */; };
+		54B3C82912B0E2FD00BC2171 /* StorageChunkFile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C82812B0E2FD00BC2171 /* StorageChunkFile.cpp */; };
+		54B3C82D12B102AC00BC2171 /* StorageChunkSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C82C12B102AC00BC2171 /* StorageChunkSerializer.cpp */; };
+		54B3C83712B1226E00BC2171 /* StorageJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C83612B1226E00BC2171 /* StorageJob.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -327,6 +342,39 @@
 		54AFE33411C8D15100925487 /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
 		54AFE33611C8D15100925487 /* PaxosLeaseProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposerState.h; sourceTree = "<group>"; };
+		54B3C80012B0E27200BC2171 /* Biglog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Biglog.txt; sourceTree = "<group>"; };
+		54B3C80112B0E27200BC2171 /* FDGuard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FDGuard.cpp; sourceTree = "<group>"; };
+		54B3C80212B0E27300BC2171 /* FDGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDGuard.h; sourceTree = "<group>"; };
+		54B3C80312B0E27300BC2171 /* StorageChunk.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunk.cpp; sourceTree = "<group>"; };
+		54B3C80412B0E27300BC2171 /* StorageChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunk.h; sourceTree = "<group>"; };
+		54B3C80512B0E27300BC2171 /* StorageChunkMerger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkMerger.cpp; sourceTree = "<group>"; };
+		54B3C80612B0E27300BC2171 /* StorageChunkMerger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkMerger.h; sourceTree = "<group>"; };
+		54B3C80712B0E27300BC2171 /* StorageChunkReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkReader.cpp; sourceTree = "<group>"; };
+		54B3C80812B0E27300BC2171 /* StorageChunkReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkReader.h; sourceTree = "<group>"; };
+		54B3C80912B0E27300BC2171 /* StorageChunkWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkWriter.cpp; sourceTree = "<group>"; };
+		54B3C80A12B0E27300BC2171 /* StorageChunkWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkWriter.h; sourceTree = "<group>"; };
+		54B3C80B12B0E27300BC2171 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
+		54B3C80C12B0E27300BC2171 /* StorageEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageEnvironment.h; sourceTree = "<group>"; };
+		54B3C80D12B0E27300BC2171 /* StorageHeaderPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageHeaderPage.cpp; sourceTree = "<group>"; };
+		54B3C80E12B0E27300BC2171 /* StorageHeaderPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageHeaderPage.h; sourceTree = "<group>"; };
+		54B3C80F12B0E27300BC2171 /* StorageKeyValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageKeyValue.cpp; sourceTree = "<group>"; };
+		54B3C81012B0E27300BC2171 /* StorageKeyValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageKeyValue.h; sourceTree = "<group>"; };
+		54B3C81112B0E27300BC2171 /* StorageLogSegment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageLogSegment.cpp; sourceTree = "<group>"; };
+		54B3C81212B0E27300BC2171 /* StorageLogSegment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageLogSegment.h; sourceTree = "<group>"; };
+		54B3C81312B0E27300BC2171 /* StorageLogSegmentWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageLogSegmentWriter.cpp; sourceTree = "<group>"; };
+		54B3C81412B0E27300BC2171 /* StorageLogSegmentWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageLogSegmentWriter.h; sourceTree = "<group>"; };
+		54B3C81512B0E27300BC2171 /* StorageRecovery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageRecovery.cpp; sourceTree = "<group>"; };
+		54B3C81612B0E27300BC2171 /* StorageRecovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageRecovery.h; sourceTree = "<group>"; };
+		54B3C81712B0E27300BC2171 /* StorageShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShard.cpp; sourceTree = "<group>"; };
+		54B3C81812B0E27300BC2171 /* StorageShard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShard.h; sourceTree = "<group>"; };
+		54B3C81912B0E27300BC2171 /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
+		54B3C82712B0E2FD00BC2171 /* StorageChunkFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkFile.h; sourceTree = "<group>"; };
+		54B3C82812B0E2FD00BC2171 /* StorageChunkFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkFile.cpp; sourceTree = "<group>"; };
+		54B3C82B12B102AC00BC2171 /* StorageChunkSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkSerializer.h; sourceTree = "<group>"; };
+		54B3C82C12B102AC00BC2171 /* StorageChunkSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkSerializer.cpp; sourceTree = "<group>"; };
+		54B3C82E12B1049200BC2171 /* PointerGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointerGuard.h; sourceTree = "<group>"; };
+		54B3C83512B1226E00BC2171 /* StorageJob.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageJob.h; sourceTree = "<group>"; };
+		54B3C83612B1226E00BC2171 /* StorageJob.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageJob.cpp; sourceTree = "<group>"; };
 		54B7F74411BE5EF30076BC62 /* Common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Common.cpp; sourceTree = "<group>"; };
 		54B7F74511BE5EF30076BC62 /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		54B7F74611BE5EF30076BC62 /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Config.cpp; sourceTree = "<group>"; };
@@ -421,7 +469,7 @@
 		9A9AA1C6125DC30F00681840 /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
 		9A9AA745125E6BB900681840 /* SDBPClientWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClientWrapper.h; path = Application/Client/SDBPClientWrapper.h; sourceTree = "<group>"; };
 		9A9AA746125E6BB900681840 /* SDBPClientWrapper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClientWrapper.cpp; path = Application/Client/SDBPClientWrapper.cpp; sourceTree = "<group>"; };
-		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
+		9A9AA8F21260555300681840 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.interfacer; name = scaliendb_client.i; path = Application/Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9A9AA9011260558A00681840 /* scaliendb_client_python.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_python.cpp; path = Application/Client/Python/scaliendb_client_python.cpp; sourceTree = "<group>"; };
 		9A9AA9021260558A00681840 /* scaliendb_client.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_client.py; path = Application/Client/Python/scaliendb_client.py; sourceTree = "<group>"; };
 		9A9AA9031260558A00681840 /* scaliendb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb.py; path = Application/Client/Python/scaliendb.py; sourceTree = "<group>"; };
@@ -530,6 +578,7 @@
 		541D7E6F11C64EB600A6CB16 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
+				54B3C7FF12B0E27200BC2171 /* StorageNew */,
 				54C8FC6E120200F1002DD4D3 /* Messaging */,
 				54EA50191237E7C80095BF36 /* Clustering */,
 				54AB70EE12203CDF00721A0F /* Storage */,
@@ -753,6 +802,46 @@
 				54AFE33511C8D15100925487 /* PaxosLeaseLearnerState.h */,
 			);
 			path = States;
+			sourceTree = "<group>";
+		};
+		54B3C7FF12B0E27200BC2171 /* StorageNew */ = {
+			isa = PBXGroup;
+			children = (
+				54B3C80012B0E27200BC2171 /* Biglog.txt */,
+				54B3C82E12B1049200BC2171 /* PointerGuard.h */,
+				54B3C80212B0E27300BC2171 /* FDGuard.h */,
+				54B3C80112B0E27200BC2171 /* FDGuard.cpp */,
+				54B3C80412B0E27300BC2171 /* StorageChunk.h */,
+				54B3C80312B0E27300BC2171 /* StorageChunk.cpp */,
+				54B3C82712B0E2FD00BC2171 /* StorageChunkFile.h */,
+				54B3C82812B0E2FD00BC2171 /* StorageChunkFile.cpp */,
+				54B3C82B12B102AC00BC2171 /* StorageChunkSerializer.h */,
+				54B3C82C12B102AC00BC2171 /* StorageChunkSerializer.cpp */,
+				54B3C80A12B0E27300BC2171 /* StorageChunkWriter.h */,
+				54B3C80912B0E27300BC2171 /* StorageChunkWriter.cpp */,
+				54B3C80512B0E27300BC2171 /* StorageChunkMerger.cpp */,
+				54B3C80612B0E27300BC2171 /* StorageChunkMerger.h */,
+				54B3C80712B0E27300BC2171 /* StorageChunkReader.cpp */,
+				54B3C80812B0E27300BC2171 /* StorageChunkReader.h */,
+				54B3C80C12B0E27300BC2171 /* StorageEnvironment.h */,
+				54B3C80B12B0E27300BC2171 /* StorageEnvironment.cpp */,
+				54B3C80D12B0E27300BC2171 /* StorageHeaderPage.cpp */,
+				54B3C80E12B0E27300BC2171 /* StorageHeaderPage.h */,
+				54B3C80F12B0E27300BC2171 /* StorageKeyValue.cpp */,
+				54B3C81012B0E27300BC2171 /* StorageKeyValue.h */,
+				54B3C81112B0E27300BC2171 /* StorageLogSegment.cpp */,
+				54B3C81212B0E27300BC2171 /* StorageLogSegment.h */,
+				54B3C81412B0E27300BC2171 /* StorageLogSegmentWriter.h */,
+				54B3C81312B0E27300BC2171 /* StorageLogSegmentWriter.cpp */,
+				54B3C81512B0E27300BC2171 /* StorageRecovery.cpp */,
+				54B3C81612B0E27300BC2171 /* StorageRecovery.h */,
+				54B3C81712B0E27300BC2171 /* StorageShard.cpp */,
+				54B3C81812B0E27300BC2171 /* StorageShard.h */,
+				54B3C81912B0E27300BC2171 /* TODO.txt */,
+				54B3C83512B1226E00BC2171 /* StorageJob.h */,
+				54B3C83612B1226E00BC2171 /* StorageJob.cpp */,
+			);
+			path = StorageNew;
 			sourceTree = "<group>";
 		};
 		54B7F74111BE5EF30076BC62 /* src */ = {
@@ -1107,7 +1196,6 @@
 			isa = PBXProject;
 			buildConfigurationList = 1DEB923508733DC60010E9CD /* Build configuration list for PBXProject "ScalienDB" */;
 			compatibilityVersion = "Xcode 3.1";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				English,
@@ -1239,6 +1327,21 @@
 				5487008912886C6200A06AD0 /* ConfigQuorumProcessor.cpp in Sources */,
 				548700A7128984D600A06AD0 /* ConfigHeartbeatManager.cpp in Sources */,
 				5487040212929EE200A06AD0 /* ConfigDatabaseManager.cpp in Sources */,
+				54B3C81A12B0E27300BC2171 /* FDGuard.cpp in Sources */,
+				54B3C81B12B0E27300BC2171 /* StorageChunk.cpp in Sources */,
+				54B3C81C12B0E27300BC2171 /* StorageChunkMerger.cpp in Sources */,
+				54B3C81D12B0E27300BC2171 /* StorageChunkReader.cpp in Sources */,
+				54B3C81E12B0E27300BC2171 /* StorageChunkWriter.cpp in Sources */,
+				54B3C81F12B0E27300BC2171 /* StorageEnvironment.cpp in Sources */,
+				54B3C82012B0E27300BC2171 /* StorageHeaderPage.cpp in Sources */,
+				54B3C82112B0E27300BC2171 /* StorageKeyValue.cpp in Sources */,
+				54B3C82212B0E27300BC2171 /* StorageLogSegment.cpp in Sources */,
+				54B3C82312B0E27300BC2171 /* StorageLogSegmentWriter.cpp in Sources */,
+				54B3C82412B0E27300BC2171 /* StorageRecovery.cpp in Sources */,
+				54B3C82512B0E27300BC2171 /* StorageShard.cpp in Sources */,
+				54B3C82912B0E2FD00BC2171 /* StorageChunkFile.cpp in Sources */,
+				54B3C82D12B102AC00BC2171 /* StorageChunkSerializer.cpp in Sources */,
+				54B3C83712B1226E00BC2171 /* StorageJob.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -8,8 +8,6 @@
 //#include "StorageIndexPage.h"
 //#include "StorageBloomPage.h"
 
-#default STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*1024)
-
 class StorageChunk; // forward
 
 /*

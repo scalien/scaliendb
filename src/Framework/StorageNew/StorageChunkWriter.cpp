@@ -78,7 +78,6 @@ bool StorageChunkWriter::WriteEmptyHeaderPage()
 
 bool StorageChunkWriter::WriteHeaderPage(StorageChunk* chunk)
 {
-    headerPage.SetShardID(chunk->GetShardID());
     headerPage.SetChunkID(chunk->GetChunkID());
     headerPage.SetLogSegmentID(chunk->GetLogSegmentID());
     headerPage.SetNumKeys(chunk->GetNumKeys());
