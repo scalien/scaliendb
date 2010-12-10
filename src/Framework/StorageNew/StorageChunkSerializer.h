@@ -3,10 +3,6 @@
 
 #include "System/Platform.h"
 
-#define STORAGE_HEADER_PAGE_SIZE               4096
-#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*1024)
-#define STORAGE_HEADER_PAGE_VERSION            1
-
 class StorageChunk; // forward
 class StorageChunkFile;  // forward
 

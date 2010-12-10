@@ -15,12 +15,15 @@
 class StorageBloomPage : public StoragePage
 {
 public:
+    StorageBloomPage();
+
     uint32_t        GetSize();
     
     void            SetNumKeys(uint64_t numKeys);
     void            Add(ReadBuffer& key);
     
 private:
+    uint32_t        size;
     BloomFilter     bloomFilter;
 };
 

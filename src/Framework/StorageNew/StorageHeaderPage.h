@@ -4,6 +4,7 @@
 #include "System/Buffers/Buffer.h"
 #include "StoragePage.h"
 
+#define STORAGE_HEADER_PAGE_VERSION     1
 #define STORAGE_HEADER_PAGE_SIZE        4096
 
 /*

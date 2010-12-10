@@ -1,16 +1,22 @@
 #include "StorageBloomPage.h"
 
+StorageBloomPage::StorageBloomPage()
+{
+    size = 0;
+}
+
 uint32_t StorageBloomPage::GetSize()
 {
+    return size;
 }
 
 void StorageBloomPage::SetNumKeys(uint64_t numKeys)
 {
     uint32_t numBytes;
     
-    numBytes = BloomFilter::RecommendNumBytes(numKeys);
+    size = BloomFilter::RecommendNumBytes(numKeys);
     
-    numBytes -= 4; // for the CRC
+    numBytes = size - 4; // for the CRC
     
     bloomFilter.SetSize(numBytes);
 }

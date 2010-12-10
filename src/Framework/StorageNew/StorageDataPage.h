@@ -1,11 +1,12 @@
 #ifndef STORAGEDATAPAGE_H
 #define STORAGEDATAPAGE_H
 
+#include "System/Buffers/Buffer.h"
 #include "System/Containers/InTreeMap.h"
 #include "StoragePage.h"
 #include "StorageKeyValue.h"
 
-#define STORAGE_KEYVALUE_FIX_OVERHEAD   1+2+4
+#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*1024)
 
 /*
 ===============================================================================================
@@ -24,7 +25,6 @@ public:
     uint32_t        GetSize();
     
     uint32_t        GetNumKeys();
-
     uint32_t        GetLength();
     uint32_t        GetIncrement(StorageKeyValue* kv);
     
@@ -32,8 +32,10 @@ public:
     void            Finalize();
 
 private:
-    KeyValueTree    keyValues;
+    uint32_t        size;
     uint32_t        length;
+    Buffer          buffer;
+    KeyValueTree    keyValues;
 };
 
 #endif

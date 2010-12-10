@@ -27,9 +27,9 @@ bool StorageChunk::UseBloomFilter()
 bool StorageChunk::Get(ReadBuffer& firstKey, ReadBuffer& lastKey, ReadBuffer& key, ReadBuffer& value)
 {
     if (state == ReadWrite)
-        return tree->Get(firstKey, lastKey, key, value);
+        return keyValues->Get(firstKey, lastKey, key, value);
     else
-        return file->Get(firstKey, lastKey, key, value);
+        return keyValues->Get(firstKey, lastKey, key, value);
 }
 
 bool StorageChunk::Set(ReadBuffer& key, ReadBuffer& value)
@@ -37,7 +37,7 @@ bool StorageChunk::Set(ReadBuffer& key, ReadBuffer& value)
     if (state != ReadWrite)
         ASSERT_FAIL();
     
-    return tree->Set(key, value);
+    return keyValues->Set(key, value);
 }
 
 bool StorageChunk::Delete(ReadBuffer& key)
@@ -45,7 +45,7 @@ bool StorageChunk::Delete(ReadBuffer& key)
     if (state != ReadWrite)
         ASSERT_FAIL();
     
-    return tree->Delete(key);
+    return keyValues->Delete(key);
 }
 
 void StorageChunk::RegisterLogCommand(uint64_t logSegmentID_, uint64_t logCommandID_)
@@ -75,9 +75,16 @@ uint64_t StorageChunk::GetLogCommandID()
 uint64_t StorageChunk::GetNumKeys()
 {
     if (state == ReadWrite)
-        return tree->GetNumKeys();
+        return keyValues->GetNumKeys();
     else
         return file->GetNumKeys();    
+}
+
+StorageChunk::KeyValueTree& StorageChunk::GetKeyValueTree()
+{
+    assert(tree != NULL);
+
+    return *tree;
 }
 
 uint64_t StorageChunk::GetSize()
@@ -106,8 +113,8 @@ void StorageChunk::TryFinalize()
         return;
     }
     
-    delete tree;
-    tree = NULL;
+    delete keyValues;
+    keyValues = NULL;
     state = Serialized;
 }
 

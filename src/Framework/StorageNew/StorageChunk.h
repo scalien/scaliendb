@@ -37,9 +37,9 @@ public:
     uint64_t            GetLogCommandID();
     
     uint64_t            GetNumKeys();
+    KeyValueTree&       GetKeyValueTree();
     uint64_t            GetSize();
     ChunkState          GetState();
-    
     void                TryFinalize();
     bool                IsFinalized();
         
@@ -59,7 +59,7 @@ private:
     uint64_t            parent2;        // if merged
     
     // cache:
-    KeyValueTree*       tree;               // non-NULL if-a-o-if state == InMemory
+    KeyValueTree*       keyValues;      // non-NULL if-a-o-if state == InMemory
     StorageChunkFile*   file;   // non-NULL if-a-o-if state != InMemory
 };
 

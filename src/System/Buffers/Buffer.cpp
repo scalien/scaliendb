@@ -154,6 +154,11 @@ void Buffer::Write(ReadBuffer& other)
     Write(other.GetBuffer(), other.GetLength());
 }
 
+void Buffer::Append(char c)
+{
+    Append(&c, 1);
+}
+
 void Buffer::Append(const char* buffer_, unsigned length_)
 {
     if (length_ > GetRemaining())
@@ -175,6 +180,12 @@ void Buffer::Append(Buffer& other)
 void Buffer::Append(ReadBuffer& other)
 {
     Append(other.GetBuffer(), other.GetLength());
+}
+
+void Buffer::AppendLittle16(uint16_t x)
+{
+    x = ToLittle16(x);
+    Append((const char*) &x, sizeof(uint16_t));
 }
 
 void Buffer::AppendLittle32(uint32_t x)

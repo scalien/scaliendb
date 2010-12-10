@@ -13,11 +13,13 @@ static const ReadBuffer Key(StorageKeyValue* kv)
 
 StorageDataPage::StorageDataPage()
 {
-    length = 0;
+    length = 4; // numKeys
+    size = 0;
 }
 
 uint32_t StorageDataPage::GetSize()
 {
+    return size;
 }
 uint32_t StorageDataPage::GetNumKeys()
 {
@@ -32,9 +34,13 @@ uint32_t StorageDataPage::GetLength()
 uint32_t StorageDataPage::GetIncrement(StorageKeyValue* kv)
 {
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
-        return 1 + 2 + kv->GetKey().GetLength() + 2 + kv->GetValue().GetLength();
+        return (1 + 2 + kv->GetKey().GetLength() + 4 + kv->GetValue().GetLength());
+    else if (kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+        return (1 + 2 + kv->GetKey().GetLength());
     else
-        return 1 + 2 + kv->GetKey().GetLength();
+        ASSERT_FAIL();
+
+    return 0;
 }
 
 void StorageDataPage::Append(StorageKeyValue* kv_)
@@ -45,8 +51,41 @@ void StorageDataPage::Append(StorageKeyValue* kv_)
     *kv = *kv_;
     
     keyValues.Insert(kv);
+
+    length += GetIncrement(kv);
 }
 
 void StorageDataPage::Finalize()
 {
+    unsigned            div, mod;
+    StorageKeyValue*    it;
+
+    buffer.AppendLittle32(keyValues.GetCount());
+    FOREACH(it, keyValues)
+    {
+        if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+        {
+            buffer.Append(STORAGE_KEYVALUE_TYPE_SET);
+            buffer.AppendLittle16(it->GetKey().GetLength());
+            buffer.Append(it->GetKey());
+        }
+        else if (it->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+        {
+            buffer.Append(STORAGE_KEYVALUE_TYPE_SET);
+            buffer.AppendLittle16(it->GetKey().GetLength());
+            buffer.Append(it->GetKey());
+            buffer.AppendLittle32(it->GetValue().GetLength());
+            buffer.Append(it->GetValue());
+        }
+        else
+            ASSERT_FAIL();
+    }
+
+    assert(length == buffer.GetLength());
+
+    div = length / STORAGE_DEFAULT_DATA_PAGE_SIZE;
+    mod = length % STORAGE_DEFAULT_DATA_PAGE_SIZE;
+    size = div * STORAGE_DEFAULT_DATA_PAGE_SIZE;
+    if (mod > 0)
+        size += STORAGE_DEFAULT_DATA_PAGE_SIZE;
 }

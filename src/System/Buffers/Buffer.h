@@ -44,11 +44,13 @@ public:
     void                Write(Buffer& other);
     void                Write(ReadBuffer& other);
 
+    void                Append(char c);
     void                Append(const char* buffer, unsigned length);
     void                Append(const char* str);
     void                Append(Buffer& other);
     void                Append(ReadBuffer& other);
 
+    void                AppendLittle16(uint16_t x);
     void                AppendLittle32(uint32_t x);
     void                AppendLittle64(uint64_t x);
 
