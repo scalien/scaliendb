@@ -62,6 +62,16 @@ void StorageChunk::RegisterLogCommand(uint64_t logSegmentID_, uint64_t logComman
     }
 }
 
+uint64_t StorageChunk::GetLogSegmentID()
+{
+    return logSegmentID;
+}
+
+uint64_t StorageChunk::GetLogCommandID()
+{
+    return logCommandID;
+}
+
 uint64_t StorageChunk::GetNumKeys()
 {
     if (state == ReadWrite)

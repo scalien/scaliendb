@@ -382,8 +382,8 @@
 		54B3C9CD12B1504B00BC2171 /* StorageBloomPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageBloomPage.cpp; sourceTree = "<group>"; };
 		54B3C9CF12B1505400BC2171 /* StorageDataPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageDataPage.h; sourceTree = "<group>"; };
 		54B3C9D012B1505400BC2171 /* StorageDataPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDataPage.cpp; sourceTree = "<group>"; };
-		54B3C9DE12B15A6000BC2171 /* BloomFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = BloomFilter.cpp; path = Framework/BloomFilter.cpp; sourceTree = "<group>"; };
-		54B3C9DF12B15A6000BC2171 /* BloomFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = BloomFilter.h; path = Framework/BloomFilter.h; sourceTree = "<group>"; };
+		54B3C9DE12B15A6000BC2171 /* BloomFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BloomFilter.cpp; sourceTree = "<group>"; };
+		54B3C9DF12B15A6000BC2171 /* BloomFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BloomFilter.h; sourceTree = "<group>"; };
 		54B7F74411BE5EF30076BC62 /* Common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Common.cpp; sourceTree = "<group>"; };
 		54B7F74511BE5EF30076BC62 /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		54B7F74611BE5EF30076BC62 /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Config.cpp; sourceTree = "<group>"; };
@@ -587,6 +587,8 @@
 		541D7E6F11C64EB600A6CB16 /* Framework */ = {
 			isa = PBXGroup;
 			children = (
+				54B3C9DF12B15A6000BC2171 /* BloomFilter.h */,
+				54B3C9DE12B15A6000BC2171 /* BloomFilter.cpp */,
 				54B3C7FF12B0E27200BC2171 /* StorageNew */,
 				54C8FC6E120200F1002DD4D3 /* Messaging */,
 				54EA50191237E7C80095BF36 /* Clustering */,
@@ -830,8 +832,8 @@
 				54B3C80F12B0E27300BC2171 /* StorageKeyValue.cpp */,
 				54B3C81812B0E27300BC2171 /* StorageShard.h */,
 				54B3C81712B0E27300BC2171 /* StorageShard.cpp */,
-				54B3C83612B1226E00BC2171 /* StorageJob.cpp */,
 				54B3C83512B1226E00BC2171 /* StorageJob.h */,
+				54B3C83612B1226E00BC2171 /* StorageJob.cpp */,
 			);
 			path = StorageNew;
 			sourceTree = "<group>";
@@ -887,8 +889,6 @@
 				9A87418512282929000B1319 /* Test */,
 				9A26D68511F4BD5B006A2814 /* Application */,
 				541D7E6F11C64EB600A6CB16 /* Framework */,
-				54B3C9DF12B15A6000BC2171 /* BloomFilter.h */,
-				54B3C9DE12B15A6000BC2171 /* BloomFilter.cpp */,
 				54B7F74211BE5EF30076BC62 /* System */,
 				54FA6B0711C26CAB00FF4EF6 /* Main.cpp */,
 				54B7F76D11BE5EF30076BC62 /* Version.h */,

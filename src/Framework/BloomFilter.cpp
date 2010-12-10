@@ -80,10 +80,39 @@ void BloomFilter::StaticInit()
     }
 }
 
-void BloomFilter::StartWriting(uint32_t numBytes)
+uint32_t BloomFilter::RecommendNumBytes(uint32_t numKeys)
 {
-    buffer.Allocate(numBytes);
-    buffer.SetLength(numBytes);
+    uint32_t n, k, m, i;
+    
+    // how many BYTES would we need per the standard formula
+    // with p = 0.1 false positive probability
+    m = numKeys * 0.599066;
+
+    // find the smallest 2^i K bigger than m
+    // but no bigger than 256K
+    // eg. if numKeys = 10.000
+    //              m = 5.990
+    // than the loop below will stop at
+    //              i = 3
+    //              n = 8
+    //              k = 8K
+    // so we recommend 8K bytes (8K * 8 = 64K bits)
+    n = 1;
+    for (i = 1; i < 8; i++)
+    {
+        n = 2 * n;
+        k = n * 1024;
+        if (m < k)
+            return m;        
+    }
+
+    return m;
+}
+
+void BloomFilter::SetSize(uint32_t size)
+{
+    buffer.Allocate(size);
+    buffer.SetLength(size);
     buffer.Zero();
 }
 
@@ -122,7 +151,6 @@ bool BloomFilter::Check(ReadBuffer& key)
     for (i = 0; i < BLOOMFILTER_NUM_FUNCTIONS && res; i++)
     {
         bitindex = GetHash(i, hash);
-//        Log_Message("%u: bitindex=%u hash=%d", i, bitindex, hash);
         k = bitindex / 8;
         j = bitindex % 8;
         c = *(buffer.GetBuffer() + k);
@@ -144,11 +172,7 @@ int32_t BloomFilter::GetHash(unsigned fnum, int32_t original)
 
     hash = original;
     for (i = 0; i < fnum; i++)
-    {
-//        Log_Message("%d %d", i, hash);
         hash = HashRabin(hash);
-//        Log_Message("%d %d", i, hash);
-    }
 
     hash = hash % (buffer.GetLength() * 8);
 

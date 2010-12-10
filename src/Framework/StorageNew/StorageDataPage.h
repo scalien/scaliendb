@@ -13,6 +13,8 @@
 
 class StorageDataPage : public StoragePage
 {
+public:
+    uint32_t        GetSize();
 };
 
 #endif

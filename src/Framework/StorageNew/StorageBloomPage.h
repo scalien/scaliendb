@@ -9,19 +9,16 @@
 
  StorageBloomPage
 
- If we want false positive probability p with n key-values in the Bloom filter,
- the filter must use
-
-  m = -1.10628395 * n * log(p)
-
 ===============================================================================================
 */
 
 class StorageBloomPage : public StoragePage
 {
 public:
+    uint32_t        GetSize();
+    
     void            SetNumKeys(uint64_t numKeys);
-    void            Add(StorageKeyValue* kv);
+    void            Add(ReadBuffer& key);
     
 private:
     BloomFilter     bloomFilter;

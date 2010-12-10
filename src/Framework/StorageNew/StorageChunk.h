@@ -33,6 +33,8 @@ public:
     bool                Delete(ReadBuffer& key);
     
     void                RegisterLogCommand(uint64_t logSegmentID, uint64_t logCommandID);
+    uint64_t            GetLogSegmentID();
+    uint64_t            GetLogCommandID();
     
     uint64_t            GetNumKeys();
     uint64_t            GetSize();

@@ -6,22 +6,40 @@
 
 #define STORAGE_HEADER_PAGE_SIZE        4096
 
+/*
+===============================================================================================
+
+ StorageHeaderPage
+
+===============================================================================================
+*/
+
 class StorageHeaderPage : public StoragePage
 {
 public:
-    uint32_t    GetPageSize();
+    uint32_t    GetSize();
 
-    void        SetShardID(uint64_t shardID);
-    void        SetLogSegmentID(uint64_t segmentID);
     void        SetChunkID(uint64_t chunkID);
+    void        SetLogSegmentID(uint64_t logSegmentID);
+    void        SetLogCommandID(uint64_t logCommandID);
     void        SetNumKeys(uint64_t numKeys);
 
-    void        SetVersion(uint32_t version);
     void        SetUseBloomFilter(bool useBloomFilter);
     void        SetIndexPageOffset(uint64_t indexOffset);
     void        SetIndexPageSize(uint32_t indexSize);
     void        SetBloomPageOffset(uint64_t bloomOffset);
     void        SetBloomPageSize(uint32_t bloomSize);
+
+private:
+    uint64_t    chunkID;
+    uint64_t    logSegmentID;
+    uint64_t    logCommandID;
+    uint64_t    numKeys;
+    bool        useBloomFilter;
+    uint64_t    indexPageOffset;
+    uint64_t    indexPageSize;
+    uint64_t    bloomPageOffset;
+    uint64_t    bloomPageSize;
 };
 
 #endif
