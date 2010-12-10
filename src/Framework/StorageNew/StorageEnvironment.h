@@ -1,7 +1,11 @@
 #ifndef STORAGEENVIRONMENT_H
 #define STORAGEENVIRONMENT_H
 
-#include "System/Buffers/ReadBuffer.h"
+#include "System/Buffers/Buffer.h"
+#include "System/Containers/InList.h"
+#include "System/Threadpool.h"
+#include "StorageLogSegment.h"
+#include "StorageChunk.h"
 
 /*
 ===============================================================================================
@@ -13,12 +17,15 @@
 
 class StorageEnvironment
 {
-    typedef InList<StorageLogSegemnt> LogSegmentList
+    typedef InList<StorageLogSegment> LogSegmentList
     typedef InList<StorageShard> ShardList;
     typedef InList<StorageChunk> ChunkList;
 
 public:
     StorageEnvironment();
+    
+    bool                Open(const char* filepath);
+    void                Close();
 
     void                SetStorageConfig(StorageConfig& config);
 
@@ -37,13 +44,14 @@ public:
 
 private:
     void                OnCommit();
+    void                OnBackgroundTimeout();
     void                TryFinalizeLogSegment();
     void                TryFinalizeChunks();
     bool                IsWriteActive();
     StorageShard*       GetShard(uint64_t shardID);
     StorageChunk*       GetChunk(uint64_t chunkID);
+    void                StartJob(StorageJob* job);
 
-    bool                commitStatus;
     Callable            onCommit;
 
     StorageLogSegment*  headLogSegment;
@@ -52,6 +60,10 @@ private:
     LogSegmentList      logSegments;
 
     StorageConfig       config;
+    
+    ThreadPool*         commitThread;
+    ThreadPool*         backgroundThread;
+    Countdown           backgroundTimer;
 };
 
 #endif

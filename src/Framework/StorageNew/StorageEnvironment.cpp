@@ -2,7 +2,27 @@
 
 StorageEnvironment::StorageEnvironment()
 {
-    commitStatus = false;
+    commitThread = NULL;
+    backgroundThread = NULL;
+    backgroundTimer.SetDelay(1000);
+    backgroundTimer.SetCallable(MFUNC(StorageEnvironment, OnBackgroundTimeout));    
+}
+
+bool StorageEnvironment::Open(const char* filepath)
+{
+    // TODO
+    
+    commitThread = ThreadPool::Create(1);
+    commitThread->Create();
+    
+    backgroundThread = ThreadPool::Create(1);
+    backgroundThread->Create();
+    EventLoop::Add(&backgroundTimer);
+}
+
+void StorageEnvironment::Close()
+{
+    backgroundThread->Stop();
 }
 
 void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
@@ -29,7 +49,7 @@ uint64_t StorageEnvironment::GetShardID(uint64_t tableID, ReadBuffer& key)
 bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
 {
     StorageShard*       shard;
-    StorageChunk*       itChunk;    
+    StorageChunk*       itChunk;
     StorageKeyValue*    kv;
     ReadBuffer          firstKey;
     ReadBuffer          lastKey;
@@ -66,6 +86,9 @@ bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& valu
     uint64_t        commandID;
     StorageShard*   shard;
     StorageChunk*   chunk;
+    
+    if (commitThread->NumActive() > 0)
+        return false;
 
     shard = GetShard(shardID);
     if (shard == NULL)
@@ -90,6 +113,9 @@ bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& valu
 bool StorageEnvironment::Delete(uint64_t shardID, ReadBuffer& key)
 {
     StorageShard* shard;
+
+    if (commitThread->NumActive() > 0)
+        return false;
 
     shard = GetShard(shardID);
     if (shard == NULL)
@@ -118,12 +144,16 @@ void StorageEnvironment::SetOnCommit(Callable& onCommit_)
 
 void StorageEnvironment::Commit()
 {
-    // start async commit
+    if (commitThread->NumActive() > 0)
+        return false;
+
+    MFunc<StorageLogSegmentWriter, &StorageLogSegmentWriter::Commit> callable(activeLogSegment);        
+    commitThread.Execute(callable);
 }
 
 bool StorageEnvironment::GetCommitStatus()
 {
-    return commitStatus;
+    return activeLogSegment->GetCommitStatus();
 }
 
 StorageShard* StorageEnvironment::GetShard(uint64_t shardID)
@@ -154,10 +184,26 @@ StorageChunk* StorageEnvironment::GetChunk(uint64_t chunkID)
 
 void StorageEnvironment::OnCommit()
 {
-    // set commit status
-
     TryFinalizeLogSegment();
     TryFinalizeChunks();
+}
+
+void StorageEnvironment::OnBackgroundTimeout()
+{
+    StorageChunk*   it;
+    StorageJob*     job;
+    
+    if (backgroundThread.GetNumActive() > 0)
+        return;
+    
+    FOREACH(it, chunks)
+    {
+        if (it->GetState() == ChunkState::Serialized)
+        {
+            job = new StorageWriteChunkJob(it);
+            StartJob(job);
+        }
+    }
 }
 
 void StorageEnvironment::TryFinalizeLogSegment()
@@ -165,7 +211,7 @@ void StorageEnvironment::TryFinalizeLogSegment()
     uint64_t    logSegmentID;
     Buffer      filename;
 
-    if (activeLogSegment->GetSize() < config.logSegmentSize)
+    if (activeLogSegment->GetOffset() < config.logSegmentSize)
         return;
 
     activeLogSegment->Finalize();
@@ -181,6 +227,8 @@ void StorageEnvironment::TryFinalizeLogSegment()
     buffer.Writef("log.%020U", logSegmentID);
     buffer.NullTerminate();
     headLogSegment->Open(buffer);
+
+    logSegmentID++;
 }
 
 void StorageEnvironment::TryFinalizeChunks()
@@ -211,4 +259,10 @@ void StorageEnvironment::TryFinalizeChunks()
 bool StorageEnvironment::IsWriteActive()
 {
 
+}
+
+void StorageEnvironment::StartJob(StorageJob* job)
+{
+    MFunc<StorageJob, &StorageJob::Execute> callable(job);        
+    backgroundThread.Execute(callable);
 }

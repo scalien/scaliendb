@@ -20,8 +20,10 @@ class BloomFilter
 {
 public:
     static void     StaticInit();
+    
+    static uint32_t RecommendNumBytes(uint32_t numKeys);
 
-    void            StartWriting(uint32_t numBytes);
+    void            SetSize(uint32_t size);
     void            Add(ReadBuffer& key);
 
     void            StartReading(Buffer& buffer);
