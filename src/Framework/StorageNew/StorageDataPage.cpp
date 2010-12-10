@@ -1,5 +1,16 @@
 #include "StorageDataPage.h"
 
+static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b);
+}
+
+static const ReadBuffer& Key(StorageIndexRecord* record)
+{
+    return record->key;
+}
+
+
 StorageDataPage::StorageDataPage()
 {
     length = 0;
