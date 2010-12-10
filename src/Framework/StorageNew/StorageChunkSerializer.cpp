@@ -70,7 +70,7 @@ bool StorageChunkSerializer::WriteDataPages(StorageChunk* chunk, StorageChunkFil
         }
         else
         {
-            if (dataPage->GetLength() + dataPage->GetSizeIncrement(it) <= STORAGE_DEFAULT_DATA_PAGE_SIZE)
+            if (dataPage->GetLength() + dataPage->GetIncrement(it) <= STORAGE_DEFAULT_DATA_PAGE_SIZE)
             {
                 dataPage->Append(it);
             }
