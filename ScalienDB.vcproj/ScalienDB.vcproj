@@ -1162,7 +1162,7 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="Storage"
+				Name="StorageNew"
 				>
 				<File
 					RelativePath="..\src\Framework\StorageNew\Biglog.txt"
@@ -1177,27 +1177,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\StorageNew\StorageChunkMerger.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageChunkMerger.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageChunkReader.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageChunkReader.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageChunkWriter.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageChunkWriter.h"
+					RelativePath="..\src\Framework\StorageNew\PointerGuard.h"
 					>
 				</File>
 				<File
@@ -1209,11 +1189,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\StorageNew\StorageHeaderPage.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageJob.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\StorageNew\StorageHeaderPage.h"
+					RelativePath="..\src\Framework\StorageNew\StorageJob.h"
 					>
 				</File>
 				<File
@@ -1225,19 +1205,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.cpp"
+					RelativePath="..\src\Framework\StorageNew\StorageShard.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageRecovery.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageRecovery.h"
+					RelativePath="..\src\Framework\StorageNew\StorageShard.h"
 					>
 				</File>
 				<File
@@ -1245,30 +1217,110 @@
 					>
 				</File>
 				<Filter
-					Name="Records"
+					Name="Pages"
 					>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunkRecord.cpp"
+						RelativePath="..\src\Framework\StorageNew\StorageBloomPage.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunkRecord.h"
+						RelativePath="..\src\Framework\StorageNew\StorageBloomPage.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageSegmentRecord.cpp"
+						RelativePath="..\src\Framework\StorageNew\StorageDataPage.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageSegmentRecord.h"
+						RelativePath="..\src\Framework\StorageNew\StorageDataPage.h"
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageShardRecord.cpp"
+						RelativePath="..\src\Framework\StorageNew\StorageHeaderPage.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageShardRecord.h"
+						RelativePath="..\src\Framework\StorageNew\StorageHeaderPage.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageIndexPage.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageIndexPage.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StoragePage.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StoragePage.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Chunk"
+					>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunk.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunk.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkFile.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkFile.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkMerger.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkMerger.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkReader.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkReader.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkSerializer.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkSerializer.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkWriter.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageChunkWriter.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Log"
+					>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.h"
 						>
 					</File>
 				</Filter>
