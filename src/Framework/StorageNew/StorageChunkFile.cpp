@@ -2,9 +2,9 @@
 
 StorageChunkFile::StorageChunkFile()
 {
-    size = 1024;
+    size = 64;
     dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * size);
-    length = 0;
+    numDataPages = 0;
 }
 
 StorageChunkFile::~StorageChunkFile()
@@ -14,11 +14,11 @@ StorageChunkFile::~StorageChunkFile()
 
 void StorageChunkFile::AppendDataPage(StorageDataPage* dataPage)
 {
-    if (length == size)
+    if (numDataPages == size)
         ExtendDataPageArray();
     
-    dataPages[length] = dataPage;
-    length++;
+    dataPages[numDataPages] = dataPage;
+    numDataPages++;
 }
 
 void StorageChunkFile::ExtendDataPageArray()
@@ -29,7 +29,7 @@ void StorageChunkFile::ExtendDataPageArray()
     newSize = size * 2;
     newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * newSize);
     
-    for (i = 0; i < length; i++)
+    for (i = 0; i < numDataPages; i++)
         newDataPages[i] = dataPages[i];
     
     free(dataPages);

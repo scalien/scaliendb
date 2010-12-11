@@ -57,4 +57,14 @@ uint32_t StorageBloomPage::RecommendNumBytes(uint32_t numKeys)
 
 void StorageBloomPage::Write(Buffer& writeBuffer)
 {
+    uint32_t checksum;
+
+    writeBuffer.Allocate(size);
+    writeBuffer.Zero();
+
+    checksum = bloomFilter.GetBuffer().GetChecksum();
+
+    writeBuffer.AppendLittle32(size);
+    writeBuffer.AppendLittle32(checksum);
+    writeBuffer.Append(bloomFilter.GetBuffer());
 }

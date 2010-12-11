@@ -26,12 +26,13 @@ public:
     StorageIndexPage    indexPage;
     StorageBloomPage    bloomPage;
 
+    unsigned            numDataPages;
+    StorageDataPage**   dataPages;
+
 private:
     void                ExtendDataPageArray();
 
     unsigned            size;
-    unsigned            length;
-    StorageDataPage**   dataPages;
 };
 
 #endif

@@ -1,6 +1,6 @@
 #include "StorageChunkWriter.h"
 #include "StorageChunk.h"
-#include "System/IO/FileSystem.h"
+#include "System/FileSystem.h"
 
 bool StorageChunkWriter::Write(const char* filename, StorageChunkFile* file_)
 {
@@ -9,12 +9,10 @@ bool StorageChunkWriter::Write(const char* filename, StorageChunkFile* file_)
     if (fd.Open(filename, FS_READWRITE) == INVALID_FD)
         return false;
     
-    offset = 0;
-
     if (!WriteEmptyHeaderPage())
         return false;
 
-    if (!WriteDataPages(chunk))
+    if (!WriteDataPages())
         return false;
 
     if (!WriteIndexPage())
@@ -29,9 +27,8 @@ bool StorageChunkWriter::Write(const char* filename, StorageChunkFile* file_)
     FS_Sync(fd.GetFD());
 
     FS_FileSeek(fd.GetFD(), 0, FS_SEEK_SET);
-    offset = 0;
 
-    if (!WriteHeader())
+    if (!WriteHeaderPage())
         return false;
 
     FS_Sync(fd.GetFD());
@@ -49,17 +46,14 @@ bool StorageChunkWriter::WriteBuffer()
     if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != writeSize)
         return false;
     
-    offset += writeSize;
-
     return true;
 }
 
 bool StorageChunkWriter::WriteEmptyHeaderPage()
 {
     uint32_t    pageSize;
-    ssize_t     writeSize;
 
-    pageSize = headerPage.GetSize();
+    pageSize = file->headerPage.GetSize();
 
     writeBuffer.Allocate(pageSize);
     writeBuffer.SetLength(pageSize);
@@ -73,48 +67,26 @@ bool StorageChunkWriter::WriteEmptyHeaderPage()
 
 bool StorageChunkWriter::WriteHeaderPage()
 {
-    headerPage.Write(writeBuffer);
+    file->headerPage.Write(writeBuffer);
+    assert(writeBuffer.GetLength() == file->headerPage.GetSize());
+
     if (!WriteBuffer())
         return false;
 
     return true;
 }
 
-bool StorageChunkWriter::WriteDataPages(StorageChunk* chunk)
+bool StorageChunkWriter::WriteDataPages()
 {
-    StorageKeyValue*    it;
+    unsigned            i;
+    StorageDataPage*    dataPage;
 
-    dataPage.Clear();
-    FOREACH(it, chunk->keyValues)
+    for (i = 0; i < file->numDataPages; i++)
     {
-        if (chunk->UseBloomFilter())
-            bloomPage.Add(it);
+        dataPage = file->dataPages[i];
+        dataPage->Write(writeBuffer);
+        assert(writeBuffer.GetLength() == dataPage->GetSize());
 
-        if (dataPage.GetNumKeys() == 0)
-        {
-            dataPage.Append(it);
-            indexPage.Append(it);
-        }
-        else
-        {
-            if (dataPage.GetLength() + dataPage.GetSizeIncrement(it) <= STORAGE_DEFAULT_DATA_PAGE_SIZE)
-            {
-                dataPage.Append(it);
-            }
-            else
-            {
-                dataPage.Write(writeBuffer);
-                if (!WriteBuffer())
-                    return false;
-                dataPage.Clear();
-            }
-        }
-    }
-
-    // write last datapage
-    if (dataPage.GetNumKeys() > 0)
-    {
-        dataPage.Write(writeBuffer);
         if (!WriteBuffer())
             return false;
     }
@@ -124,10 +96,8 @@ bool StorageChunkWriter::WriteDataPages(StorageChunk* chunk)
 
 bool StorageChunkWriter::WriteIndexPage()
 {
-    indexPage.Write(writeBuffer);
-
-    indexPageOffset = offset;
-    indexPageSize = writeBuffer.GetLength();
+    file->indexPage.Write(writeBuffer);
+    assert(writeBuffer.GetLength() == file->indexPage.GetSize());
 
     if (!WriteBuffer())
         return false;
@@ -137,10 +107,8 @@ bool StorageChunkWriter::WriteIndexPage()
 
 bool StorageChunkWriter::WriteBloomPage()
 {
-    bloomPage.Write(writeBuffer);
-
-    bloomPageOffset = offset;
-    bloomPageSize = writeBuffer.GetLength();
+    file->bloomPage.Write(writeBuffer);
+    assert(writeBuffer.GetLength() == file->bloomPage.GetSize());
 
     if (!WriteBuffer())
         return false;

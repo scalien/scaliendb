@@ -1,7 +1,20 @@
 #include "StorageChunk.h"
+#include "StorageChunkSerializer.h"
+#include "StorageChunkWriter.h"
 
 StorageChunk::StorageChunk()
 {
+    chunkID = 0;
+    logSegmentID = 0;
+    logCommandID = 0;
+    useBloomFilter = false;
+    
+    // in memory:
+    state = ReadWrite;
+    numShards = 1;
+
+    keyValues = 0;
+    file = 0;
 }
 
 void StorageChunk::SetFilename(Buffer& filename_)
@@ -35,7 +48,7 @@ bool StorageChunk::Get(ReadBuffer& firstKey, ReadBuffer& lastKey, ReadBuffer& ke
     if (state == ReadWrite)
         return keyValues->Get(firstKey, lastKey, key, value);
     else
-        return keyValues->Get(firstKey, lastKey, key, value);
+        return file->Get(firstKey, lastKey, key, value);
 }
 
 bool StorageChunk::Set(ReadBuffer& key, ReadBuffer& value)
@@ -78,25 +91,17 @@ uint64_t StorageChunk::GetLogCommandID()
     return logCommandID;
 }
 
-uint64_t StorageChunk::GetNumKeys()
-{
-    if (state == ReadWrite)
-        return keyValues->GetNumKeys();
-    else
-        return file->GetNumKeys();    
-}
-
 StorageChunk::KeyValueTree& StorageChunk::GetKeyValueTree()
 {
-    assert(tree != NULL);
+    assert(keyValues != NULL);
 
-    return *tree;
+    return *keyValues;
 }
 
 uint64_t StorageChunk::GetSize()
 {
     if (state == ReadWrite)
-        return tree->GetSize();
+        return keyValues->GetSize();
     else
         return file->GetSize();
 }
@@ -131,4 +136,14 @@ bool StorageChunk::IsFinalized()
 
 void StorageChunk::WriteFile()
 {
+    StorageChunkWriter writer;
+
+    assert(state == Serialized);
+
+    if (!writer.Write(filename.GetBuffer(), file))
+        return;
+    
+    state = Written;
+
+    // TODO: mark file/pages as evictable
 }

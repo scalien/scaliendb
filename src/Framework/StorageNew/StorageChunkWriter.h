@@ -21,7 +21,7 @@ private:
     bool                    WriteBuffer();
 
     bool                    WriteEmptyHeaderPage();
-    bool                    WriteHeader();
+    bool                    WriteHeaderPage();
     bool                    WriteDataPages();
     bool                    WriteIndexPage();
     bool                    WriteBloomPage();

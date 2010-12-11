@@ -32,6 +32,8 @@ public:
     void            Append(StorageKeyValue* kv);
     void            Finalize();
 
+    void            Write(Buffer& writeBuffer);
+
 private:
     uint32_t        size;
     uint32_t        length;

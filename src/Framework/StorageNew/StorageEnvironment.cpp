@@ -240,7 +240,7 @@ void StorageEnvironment::TryFinalizeChunks()
 
     FOREACH(itChunk, chunks)
     {
-        if (itChunk->GetSize() > config.chunkSize)
+        if (itChunk->GetState() == ReadWrite && itChunk->GetSize() > config.chunkSize)
             itChunk->Finalize();
     }
 

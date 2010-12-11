@@ -46,6 +46,7 @@ public:
     void                Append(ReadBuffer& key, uint32_t index, uint32_t offset);
 
     void                Finalize();
+    void                Write(Buffer& writeBuffer);
 
 private:
     uint32_t            size;

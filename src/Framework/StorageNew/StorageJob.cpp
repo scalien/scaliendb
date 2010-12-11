@@ -7,5 +7,5 @@ StorageWriteChunkJob::StorageWriteChunkJob(StorageChunk* chunk_)
 
 void StorageWriteChunkJob::Execute()
 {
-    // TODO
+    chunk->WriteFile();
 }

@@ -17,7 +17,7 @@
 class StorageChunk
 {
 public:
-    typedef enum ChunkState {ReadWrite, Serialized, Writing, Written} ChunkState;
+    typedef enum ChunkState {ReadWrite, Serialized, Written} ChunkState;
     typedef InTreeMap<StorageKeyValue> KeyValueTree;
     
     StorageChunk();
@@ -37,7 +37,6 @@ public:
     uint64_t            GetLogSegmentID();
     uint64_t            GetLogCommandID();
     
-    uint64_t            GetNumKeys();
     KeyValueTree&       GetKeyValueTree();
     uint64_t            GetSize();
     ChunkState          GetState();
@@ -59,13 +58,9 @@ private:
 
     // cache:
     KeyValueTree*       keyValues;      // non-NULL if-a-o-if state == InMemory
-    StorageChunkFile*   file;   // non-NULL if-a-o-if state != InMemory
+    StorageChunkFile*   file;           // non-NULL if-a-o-if state != InMemory
 
     Buffer              filename;
 };
-
-    // shardID is not stored here, since a shard can belong to more than one shard
-    // in case of shard splitting
-
 
 #endif

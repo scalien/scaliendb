@@ -20,11 +20,13 @@ public:
     StorageChunkFile*       Serialize(StorageChunk* chunk);
 
 private:
-    bool                    WriteHeaderPage(StorageChunk* chunk, StorageChunkFile* file);
-    bool                    WriteDataPages(StorageChunk* chunk, StorageChunkFile* file);
-    bool                    WriteIndexPage(StorageChunkFile* file);
-    bool                    WriteBloomPage(StorageChunkFile* file);
+    bool                    WriteHeaderPage();
+    bool                    WriteDataPages();
+    bool                    WriteIndexPage();
+    bool                    WriteBloomPage();
 
+    StorageChunk*           chunk;
+    StorageChunkFile*       file;
     uint64_t                offset;
 };
 

@@ -1,6 +1,8 @@
 #ifndef STORAGEJOB_H
 #define STORAGEJOB_H
 
+#include "StorageChunk.h"
+
 /*
 ===============================================================================================
 

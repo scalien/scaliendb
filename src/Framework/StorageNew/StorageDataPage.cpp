@@ -110,3 +110,8 @@ void StorageDataPage::Finalize()
     buffer.AppendLittle32(checksum);
     buffer.SetLength(size);
 }
+
+void StorageDataPage::Write(Buffer& writeBuffer)
+{
+    writeBuffer.Write(buffer);
+}

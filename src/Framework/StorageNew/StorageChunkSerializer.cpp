@@ -3,41 +3,44 @@
 #include "StorageChunkFile.h"
 #include "PointerGuard.h"
 
-StorageChunkFile* StorageChunkSerializer::Serialize(StorageChunk* chunk)
+StorageChunkFile* StorageChunkSerializer::Serialize(StorageChunk* chunk_)
 {
-    PointerGuard<StorageChunkFile> file(new StorageChunkFile);
+    PointerGuard<StorageChunkFile> fileGuard(new StorageChunkFile);
+    
+    chunk = chunk_;
+    file = P(fileGuard);
     
     if (chunk->UseBloomFilter())
-        P(file)->bloomPage.SetNumKeys(chunk->GetNumKeys());
+        file->bloomPage.SetNumKeys(chunk->GetKeyValueTree().GetCount());
 
     offset = STORAGE_HEADER_PAGE_SIZE;
     
-    if (!WriteDataPages(chunk, P(file)))
+    if (!WriteDataPages())
         return NULL;
 
-    if (!WriteIndexPage(P(file)))
+    if (!WriteIndexPage())
         return NULL;
 
     if (chunk->UseBloomFilter())
     {
-        if (!WriteBloomPage(P(file)))
+        if (!WriteBloomPage())
             return NULL;
     }
 
-    if (!WriteHeaderPage(chunk, P(file)))
+    if (!WriteHeaderPage())
         return NULL;
 
-    return file.Release();
+    return fileGuard.Release();
 }
 
-bool StorageChunkSerializer::WriteHeaderPage(StorageChunk* chunk, StorageChunkFile* file)
+bool StorageChunkSerializer::WriteHeaderPage()
 {
     file->headerPage.SetOffset(0);
     
     file->headerPage.SetChunkID(chunk->GetChunkID());
     file->headerPage.SetLogSegmentID(chunk->GetLogSegmentID());
     file->headerPage.SetLogCommandID(chunk->GetLogCommandID());
-    file->headerPage.SetNumKeys(chunk->GetNumKeys());
+    file->headerPage.SetNumKeys(chunk->GetKeyValueTree().GetCount());
 
     file->headerPage.SetUseBloomFilter(chunk->UseBloomFilter());
     file->headerPage.SetIndexPageOffset(file->indexPage.GetOffset());
@@ -48,7 +51,7 @@ bool StorageChunkSerializer::WriteHeaderPage(StorageChunk* chunk, StorageChunkFi
     return true;
 }
 
-bool StorageChunkSerializer::WriteDataPages(StorageChunk* chunk, StorageChunkFile* file)
+bool StorageChunkSerializer::WriteDataPages()
 {
     StorageKeyValue*    it;
     StorageDataPage*    dataPage;
@@ -98,14 +101,14 @@ bool StorageChunkSerializer::WriteDataPages(StorageChunk* chunk, StorageChunkFil
     return true;
 }
 
-bool StorageChunkSerializer::WriteIndexPage(StorageChunkFile* file)
+bool StorageChunkSerializer::WriteIndexPage()
 {
     file->indexPage.SetOffset(offset);
     offset += file->indexPage.GetSize();
     return true;
 }
 
-bool StorageChunkSerializer::WriteBloomPage(StorageChunkFile* file)
+bool StorageChunkSerializer::WriteBloomPage()
 {
     file->bloomPage.SetOffset(offset);
     return true;
