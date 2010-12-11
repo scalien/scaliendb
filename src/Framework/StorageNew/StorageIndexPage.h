@@ -5,6 +5,8 @@
 #include "System/Containers/InTreeMap.h"
 #include "StoragePage.h"
 
+#define STORAGE_DEFAULT_INDEX_PAGE_GRAN         (4*1024)
+
 /*
 ===============================================================================================
 
@@ -24,8 +26,6 @@ public:
     
     TreeNode        treeNode;
 };
-
-#define STORAGE_DEFAULT_INDEX_PAGE_GRAN         (4*1024)
 
 /*
 ===============================================================================================

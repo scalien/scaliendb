@@ -2,6 +2,7 @@
 #define STORAGEPAGE_H
 
 #include "System/Platform.h"
+#include "System/Buffers/Buffer.h"
 
 /*
 ===============================================================================================
@@ -18,6 +19,8 @@ public:
     uint32_t            GetOffset();
     
     virtual uint32_t    GetSize() = 0;
+
+    virtual void        Write(Buffer& writeBuffer) = 0;
 
 private:
     uint64_t    offset;
