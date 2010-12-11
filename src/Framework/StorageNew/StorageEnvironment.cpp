@@ -1,5 +1,6 @@
 #include "StorageEnvironment.h"
 #include "System/Events/EventLoop.h"
+#include "System/FileSystem.h"
 #include "StorageChunkSerializer.h"
 
 StorageEnvironment::StorageEnvironment()
@@ -10,16 +11,40 @@ StorageEnvironment::StorageEnvironment()
     backgroundTimer.SetCallable(MFUNC(StorageEnvironment, OnBackgroundTimeout));    
 }
 
-bool StorageEnvironment::Open(const char* filepath)
+bool StorageEnvironment::Open(Buffer& envPath_)
 {
-    // TODO
-    
+    char    lastChar;
+    Buffer  tmp;
+
     commitThread = ThreadPool::Create(1);
     commitThread->Start();
     
     backgroundThread = ThreadPool::Create(1);
     backgroundThread->Start();
     EventLoop::Add(&backgroundTimer);
+
+    envPath.Write(envPath_);
+    lastChar = envPath.GetCharAt(envPath.GetLength() - 1);
+    if (lastChar != '/' && lastChar != '\\')
+        envPath.Append('/');
+
+    chunkPath.Write(envPath);
+    chunkPath.Append("chunks/");
+
+    logPath.Write(envPath);
+    logPath.Append("log/");
+
+    tmp.Write(envPath);
+    tmp.NullTerminate();
+    FS_CreateDir(tmp.GetBuffer());
+
+    tmp.Write(chunkPath);
+    tmp.NullTerminate();
+    FS_CreateDir(tmp.GetBuffer());
+
+    tmp.Write(logPath);
+    tmp.NullTerminate();
+    FS_CreateDir(tmp.GetBuffer());
 
     return true;
 }

@@ -868,7 +868,6 @@ bool FS_Rename(const char* src, const char* dst)
 
 void FS_Sync()
 {
-
     intptr_t* it;
 
     FOREACH(it, fileHandles)
@@ -880,7 +879,7 @@ void FS_Sync()
     // http://msdn.microsoft.com/en-us/library/aa364439(v=VS.85).aspx
 }
 
-void FS_Sync(int fd)
+void FS_Sync(FD fd)
 {
     if (FlushFileBuffers((HANDLE)fd.handle) == 0)
         printf("FS_Sync() failed!\n");

@@ -34,7 +34,7 @@ class StorageEnvironment
 public:
     StorageEnvironment();
     
-    bool                        Open(const char* filepath);
+    bool                        Open(Buffer& envPath);
     void                        Close();
 
     void                        SetStorageConfig(StorageConfig& config);
@@ -69,6 +69,10 @@ private:
     ThreadPool*                 commitThread;
     ThreadPool*                 backgroundThread;
     Countdown                   backgroundTimer;
+
+    Buffer                      envPath;
+    Buffer                      chunkPath;
+    Buffer                      logPath;
 };
 
 #endif
