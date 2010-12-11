@@ -83,9 +83,11 @@ void StorageDataPage::Finalize()
 
     assert(length == buffer.GetLength());
 
-    div = length / STORAGE_DEFAULT_DATA_PAGE_SIZE;
-    mod = length % STORAGE_DEFAULT_DATA_PAGE_SIZE;
-    size = div * STORAGE_DEFAULT_DATA_PAGE_SIZE;
+    div = length / STORAGE_DEFAULT_DATA_PAGE_GRAN;
+    mod = length % STORAGE_DEFAULT_DATA_PAGE_GRAN;
+    size = div * STORAGE_DEFAULT_DATA_PAGE_GRAN;
     if (mod > 0)
-        size += STORAGE_DEFAULT_DATA_PAGE_SIZE;
+        size += STORAGE_DEFAULT_DATA_PAGE_GRAN;
+
+    buffer.Allocate(size);
 }

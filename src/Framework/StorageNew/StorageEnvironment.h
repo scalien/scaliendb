@@ -4,6 +4,7 @@
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InList.h"
 #include "System/Threadpool.h"
+#include "StorageConfig.h"
 #include "StorageLogSegment.h"
 #include "StorageChunk.h"
 
@@ -12,12 +13,16 @@
 
  StorageEnvironment
 
+// TODO:        cursor
+// TODO:        create shard (w/ tableID)
+// TODO:        split shard
+
 ===============================================================================================
 */
 
 class StorageEnvironment
 {
-    typedef InList<StorageLogSegment> LogSegmentList
+    typedef InList<StorageLogSegment> LogSegmentList;
     typedef InList<StorageShard> ShardList;
     typedef InList<StorageChunk> ChunkList;
 
@@ -37,10 +42,6 @@ public:
     void                SetOnCommit(Callable& onCommit);
     void                Commit();
     bool                GetCommitStatus();
-
-    // TODO:        cursor
-    // TODO:        create shard (w/ tableID)
-    // TODO:        split shard
 
 private:
     void                OnCommit();

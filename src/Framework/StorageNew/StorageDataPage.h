@@ -7,6 +7,7 @@
 #include "StorageKeyValue.h"
 
 #define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*1024)
+#define STORAGE_DEFAULT_DATA_PAGE_GRAN         (4*1024)
 
 /*
 ===============================================================================================
