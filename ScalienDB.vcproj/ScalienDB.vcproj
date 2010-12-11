@@ -1324,6 +1324,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\src\Framework\StorageNew\StorageKeyValue.h"
+						>
+					</File>
+					<File
 						RelativePath="..\src\Framework\StorageNew\StorageMemoKeyValue.cpp"
 						>
 					</File>

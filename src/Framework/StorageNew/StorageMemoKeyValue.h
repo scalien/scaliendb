@@ -1,13 +1,19 @@
-#ifndef STORAGEKEYMEMOVALUE_H
-#define STORAGEKEYMEMOVALUE_H
+#ifndef STORAGEMEMOKEYVALUE_H
+#define STORAGEMEMOKEYVALUE_H
 
-#include "System/Containers/InTreeMap.h"
 #include "System/Buffers/Buffer.h"
+#include "System/Containers/InTreeMap.h"
+#include "StorageKeyValue.h"
 
-#define STORAGE_KEYVALUE_TYPE_SET      's'
-#define STORAGE_KEYVALUE_TYPE_DELETE   'd'
+/*
+===============================================================================================
 
-class StorageMemoKeyValue
+ StorageMemoKeyValue
+
+===============================================================================================
+*/
+
+class StorageMemoKeyValue : public StorageKeyValue
 {
 public:
     typedef InTreeNode<StorageMemoKeyValue> TreeNode;
