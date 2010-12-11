@@ -39,11 +39,6 @@ public:
     uint32_t            GetLogCommandID();
     
     uint64_t            GetSize();
-
-    //    ChunkState          GetState();
-//    void                TryFinalize();
-//    bool                IsFinalized();
-//    void                WriteFile();
         
 private:
     uint64_t            chunkID;

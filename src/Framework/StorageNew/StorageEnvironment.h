@@ -3,10 +3,14 @@
 
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InList.h"
+#include "System/Events/Countdown.h"
 #include "System/Threadpool.h"
 #include "StorageConfig.h"
-#include "StorageLogSegment.h"
-#include "StorageChunk.h"
+#include "StorageLogSegmentWriter.h"
+#include "StorageChunkMemory.h"
+#include "StorageChunkFile.h"
+#include "StorageShard.h"
+#include "StorageJob.h"
 
 /*
 ===============================================================================================
@@ -22,7 +26,7 @@
 
 class StorageEnvironment
 {
-    typedef InList<StorageLogSegment> LogSegmentList;
+//    typedef InList<StorageLogSegment> LogSegmentList;
     typedef InList<StorageShard> ShardList;
     typedef InList<StorageChunkMemory>  MemoChunkList;
     typedef InList<StorageChunkFile>    FileChunkList;
@@ -57,10 +61,10 @@ private:
 
     Callable            onCommit;
 
-    StorageLogSegment*  headLogSegment;
+    StorageLogSegmentWriter*    logSegmentWriter;
     ShardList           shards;
     FileChunkList       fileChunks;
-    LogSegmentList      logSegments;
+//    LogSegmentList      logSegments;
 
     StorageConfig       config;
     

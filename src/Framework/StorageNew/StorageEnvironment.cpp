@@ -1,4 +1,5 @@
 #include "StorageEnvironment.h"
+#include "System/Events/EventLoop.h"
 
 StorageEnvironment::StorageEnvironment()
 {
@@ -13,15 +14,16 @@ bool StorageEnvironment::Open(const char* filepath)
     // TODO
     
     commitThread = ThreadPool::Create(1);
-    commitThread->Create();
+    commitThread->Start();
     
     backgroundThread = ThreadPool::Create(1);
-    backgroundThread->Create();
+    backgroundThread->Start();
     EventLoop::Add(&backgroundTimer);
 }
 
 void StorageEnvironment::Close()
 {
+    commitThread->Stop();
     backgroundThread->Stop();
 }
 
@@ -51,19 +53,14 @@ bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& valu
     StorageShard*       shard;
     StorageChunk*       itChunk;
     StorageKeyValue*    kv;
-    ReadBuffer          firstKey;
-    ReadBuffer          lastKey;
 
     shard = GetShard(shardID);
     if (shard == NULL)
         return false;
 
-    firstKey = shard->GetFirstKey();
-    lastKey = shard->GetLastKey();
-
     FOREACH(itChunk, shard->chunks)
     {
-        kv = itChunk->Get(firstKey, lastKey, key);
+        kv = itChunk->Get(key);
         if (kv != NULL)
         {
             if (kv.IsDelete())

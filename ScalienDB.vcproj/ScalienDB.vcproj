@@ -1205,14 +1205,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\StorageNew\StorageKeyValue.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageKeyValue.h"
-					>
-				</File>
-				<File
 					RelativePath="..\src\Framework\StorageNew\StorageShard.cpp"
 					>
 				</File>
@@ -1272,10 +1264,6 @@
 					Name="Chunk"
 					>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunk.cpp"
-						>
-					</File>
-					<File
 						RelativePath="..\src\Framework\StorageNew\StorageChunk.h"
 						>
 					</File>
@@ -1288,19 +1276,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunkMerger.cpp"
+						RelativePath="..\src\Framework\StorageNew\StorageChunkMemory.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunkMerger.h"
-						>
-					</File>
-					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunkReader.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunkReader.h"
+						RelativePath="..\src\Framework\StorageNew\StorageChunkMemory.h"
 						>
 					</File>
 					<File
@@ -1329,6 +1309,26 @@
 					</File>
 					<File
 						RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="KeyValues"
+					>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageFileKeyValue.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageFileKeyValue.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageKeyValue.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageKeyValue.h"
 						>
 					</File>
 				</Filter>

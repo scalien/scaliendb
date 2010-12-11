@@ -1,4 +1,9 @@
-#include "StorageShardRecord.h"
+#include "StorageShard.h"
+
+inline bool LessThan(StorageChunk* a, StorageChunk* b)
+{
+    return (a->GetChunkID() < b->GetChunkID());
+}
 
 uint64_t StorageShard::GetTableID()
 {
@@ -22,7 +27,7 @@ ReadBuffer StorageShard::GetLastKey()
 
 bool StorageShard::RangeContains(ReadBuffer& key)
 {
-    int         f, l;
+    int         cf, cl;
     ReadBuffer  firstKey, lastKey;
 
     firstKey = GetFirstKey();
@@ -46,12 +51,12 @@ bool StorageShard::RangeContains(ReadBuffer& key)
         return (cf <= 0 && cl < 0); //(firstKey <= key < lastKey);
 }
 
-StorageChunk* StorageShard::GetWriteChunk()
+StorageChunkMemory* StorageShard::GetMemoChunk()
 {
-    return chunks.Last();
+    return (StorageChunkMemory*) chunks.Last();
 }
 
-void StorageShard::SetNewWriteChunk(StorageChunk* chunk)
+void StorageShard::SetNewMemoChunk(StorageChunkMemory* memoChunk)
 {
-    chunks.Append(chunk);
+    chunks.Add(memoChunk);
 }
