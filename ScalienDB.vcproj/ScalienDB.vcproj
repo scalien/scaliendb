@@ -1181,6 +1181,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Framework\StorageNew\StorageConfig.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\StorageNew\StorageConfig.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Framework\StorageNew\StorageEnvironment.cpp"
 					>
 				</File>
