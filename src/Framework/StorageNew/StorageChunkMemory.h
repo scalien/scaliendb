@@ -4,7 +4,7 @@
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InTreeMap.h"
 #include "StorageChunk.h"
-#include "StorageKeyValue.h"
+#include "StorageMemoKeyValue.h"
 #include "StorageChunkFile.h"
 
 /*

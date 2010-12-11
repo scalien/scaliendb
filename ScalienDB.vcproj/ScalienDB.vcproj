@@ -1324,11 +1324,11 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageKeyValue.cpp"
+						RelativePath="..\src\Framework\StorageNew\StorageMemoKeyValue.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageKeyValue.h"
+						RelativePath="..\src\Framework\StorageNew\StorageMemoKeyValue.h"
 						>
 					</File>
 				</Filter>

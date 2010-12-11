@@ -4,7 +4,7 @@
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InTreeMap.h"
 #include "StoragePage.h"
-#include "StorageKeyValue.h"
+#include "StorageMemoKeyValue.h"
 #include "StorageFileKeyValue.h"
 
 #define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*1024)

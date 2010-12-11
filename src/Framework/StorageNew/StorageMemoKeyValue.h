@@ -1,5 +1,5 @@
-#ifndef STORAGEKEYVALUE_H
-#define STORAGEKEYVALUE_H
+#ifndef STORAGEKEYMEMOVALUE_H
+#define STORAGEKEYMEMOVALUE_H
 
 #include "System/Containers/InTreeMap.h"
 #include "System/Buffers/Buffer.h"
