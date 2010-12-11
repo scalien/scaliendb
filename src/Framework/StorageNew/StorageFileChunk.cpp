@@ -1,6 +1,6 @@
-#include "StorageChunkFile.h"
+#include "StorageFileChunk.h"
 
-StorageChunkFile::StorageChunkFile()
+StorageFileChunk::StorageFileChunk()
 {
     dataPagesSize = 64;
     dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * dataPagesSize);
@@ -9,38 +9,38 @@ StorageChunkFile::StorageChunkFile()
     written = false;
 }
 
-StorageChunkFile::~StorageChunkFile()
+StorageFileChunk::~StorageFileChunk()
 {
     free(dataPages);
 }
 
-void StorageChunkFile::SetFilename(Buffer& filename_)
+void StorageFileChunk::SetFilename(Buffer& filename_)
 {
     filename = filename_;
     filename.NullTerminate();
 }
 
-Buffer& StorageChunkFile::GetFilename()
+Buffer& StorageFileChunk::GetFilename()
 {
     return filename;
 }
 
-bool StorageChunkFile::IsWritten()
+bool StorageFileChunk::IsWritten()
 {
     return written;
 }
 
-uint64_t StorageChunkFile::GetChunkID()
+uint64_t StorageFileChunk::GetChunkID()
 {
     return headerPage.GetChunkID();
 }
 
-bool StorageChunkFile::UseBloomFilter()
+bool StorageFileChunk::UseBloomFilter()
 {
     return headerPage.UseBloomFilter();
 }
 
-bool StorageChunkFile::Get(ReadBuffer& key, ReadBuffer& value)
+bool StorageFileChunk::Get(ReadBuffer& key, ReadBuffer& value)
 {
     uint32_t    index;
     uint32_t    offset;
@@ -57,22 +57,22 @@ bool StorageChunkFile::Get(ReadBuffer& key, ReadBuffer& value)
     return dataPages[index]->Get(key, value);
 }
 
-uint64_t StorageChunkFile::GetLogSegmentID()
+uint64_t StorageFileChunk::GetLogSegmentID()
 {
     return headerPage.GetLogSegmentID();
 }
 
-uint32_t StorageChunkFile::GetLogCommandID()
+uint32_t StorageFileChunk::GetLogCommandID()
 {
     return headerPage.GetLogCommandID();
 }
 
-uint64_t StorageChunkFile::GetSize()
+uint64_t StorageFileChunk::GetSize()
 {
     return fileSize;
 }
 
-void StorageChunkFile::AppendDataPage(StorageDataPage* dataPage)
+void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)
 {
     if (numDataPages == dataPagesSize)
         ExtendDataPageArray();
@@ -81,7 +81,7 @@ void StorageChunkFile::AppendDataPage(StorageDataPage* dataPage)
     numDataPages++;
 }
 
-void StorageChunkFile::ExtendDataPageArray()
+void StorageFileChunk::ExtendDataPageArray()
 {
     StorageDataPage**   newDataPages;
     unsigned            newSize, i;

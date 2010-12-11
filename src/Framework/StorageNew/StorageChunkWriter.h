@@ -2,7 +2,7 @@
 #define STORAGECHUNKWRITER_H
 
 #include "FDGuard.h"
-#include "StorageChunkFile.h"
+#include "StorageFileChunk.h"
 
 /*
 ===============================================================================================
@@ -15,7 +15,7 @@
 class StorageChunkWriter
 {
 public:
-    bool                    Write(StorageChunkFile* file);
+    bool                    Write(StorageFileChunk* file);
 
 private:
     bool                    WriteBuffer();
@@ -26,7 +26,7 @@ private:
     bool                    WriteIndexPage();
     bool                    WriteBloomPage();
 
-    StorageChunkFile*       file;
+    StorageFileChunk*       file;
     FDGuard                 fd;
     Buffer                  writeBuffer;
 };

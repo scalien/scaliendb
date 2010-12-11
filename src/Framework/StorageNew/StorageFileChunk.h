@@ -1,5 +1,5 @@
-#ifndef STORAGECHUNKFILE_H
-#define STORAGECHUNKFILE_H
+#ifndef STORAGEFILECHUNK_H
+#define STORAGEFILECHUNK_H
 
 #include "StorageChunk.h"
 #include "StorageHeaderPage.h"
@@ -10,7 +10,7 @@
 /*
 ===============================================================================================
 
- StorageChunkFile
+ StorageFileChunk
 
 ===============================================================================================
 */
@@ -18,14 +18,14 @@
 class StorageChunkSerializer;
 class StorageChunkWriter;
 
-class StorageChunkFile : public StorageChunk
+class StorageFileChunk : public StorageChunk
 {
     friend class StorageChunkSerializer;
     friend class StorageChunkWriter;
 
 public:
-    StorageChunkFile();
-    ~StorageChunkFile();
+    StorageFileChunk();
+    ~StorageFileChunk();
 
     void                SetFilename(Buffer& filename);
     Buffer&             GetFilename();

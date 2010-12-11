@@ -1,7 +1,7 @@
 #include "StorageJob.h"
 #include "StorageChunkWriter.h"
 
-StorageWriteChunkJob::StorageWriteChunkJob(StorageChunkFile* fileChunk_)
+StorageWriteChunkJob::StorageWriteChunkJob(StorageFileChunk* fileChunk_)
 {
     fileChunk = fileChunk_;
 }

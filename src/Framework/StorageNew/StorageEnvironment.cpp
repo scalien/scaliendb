@@ -257,7 +257,7 @@ void StorageEnvironment::TryFinalizeChunks()
 void StorageEnvironment::TryFinalizeChunk(StorageChunkMemory* memoChunk)
 {
     StorageChunkSerializer      serializer;
-    StorageChunkFile*           fileChunk;
+    StorageFileChunk*           fileChunk;
     
     fileChunk = serializer.Serialize(memoChunk);
     if (fileChunk == NULL)

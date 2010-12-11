@@ -8,7 +8,7 @@
 #include "StorageConfig.h"
 #include "StorageLogSegmentWriter.h"
 #include "StorageChunkMemory.h"
-#include "StorageChunkFile.h"
+#include "StorageFileChunk.h"
 #include "StorageShard.h"
 #include "StorageJob.h"
 
@@ -29,7 +29,7 @@ class StorageEnvironment
 //    typedef InList<StorageLogSegment> LogSegmentList;
     typedef InList<StorageShard> ShardList;
     typedef InList<StorageChunkMemory>  MemoChunkList;
-    typedef InList<StorageChunkFile>    FileChunkList;
+    typedef InList<StorageFileChunk>    FileChunkList;
 
 public:
     StorageEnvironment();

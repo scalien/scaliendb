@@ -2,7 +2,7 @@
 #include "StorageChunk.h"
 #include "System/FileSystem.h"
 
-bool StorageChunkWriter::Write(StorageChunkFile* file_)
+bool StorageChunkWriter::Write(StorageFileChunk* file_)
 {
     file = file_;
 
