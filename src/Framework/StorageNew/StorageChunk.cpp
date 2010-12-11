@@ -4,6 +4,12 @@ StorageChunk::StorageChunk()
 {
 }
 
+void StorageChunk::SetFilename(Buffer& filename_)
+{
+    filename.Write(filename_);
+    filename.NullTerminate();
+}
+
 void StorageChunk::SetChunkID(uint64_t chunkID_)
 {
     chunkID = chunkID;
@@ -121,4 +127,8 @@ void StorageChunk::TryFinalize()
 bool StorageChunk::IsFinalized()
 {
     return (state != ReadWrite);
+}
+
+void StorageChunk::WriteFile()
+{
 }

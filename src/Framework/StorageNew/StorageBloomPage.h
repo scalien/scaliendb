@@ -21,8 +21,12 @@ public:
     
     void            SetNumKeys(uint64_t numKeys);
     void            Add(ReadBuffer& key);
+
+    void            Write(Buffer& writeBuffer);
     
 private:
+    uint32_t        RecommendNumBytes(uint32_t numKeys);
+
     uint32_t        size;
     BloomFilter     bloomFilter;
 };

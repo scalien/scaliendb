@@ -34,6 +34,6 @@ public:
     
 private:
     StorageChunk*   chunk;
-}
+};
 
 #endif

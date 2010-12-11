@@ -202,6 +202,7 @@ void StorageEnvironment::OnBackgroundTimeout()
         {
             job = new StorageWriteChunkJob(it);
             StartJob(job);
+            return;
         }
     }
 }

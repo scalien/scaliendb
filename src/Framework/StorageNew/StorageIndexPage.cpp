@@ -37,10 +37,24 @@ void StorageIndexPage::Append(ReadBuffer& key, uint32_t index, uint32_t offset)
 
 void StorageIndexPage::Finalize()
 {
-    unsigned            div, mod;
+    uint32_t            div, mod, numKeys, checksum;
+    ReadBuffer          dataPart;
     StorageIndexRecord* it;
 
-    buffer.AppendLittle32(indexTree.GetCount());
+    numKeys = indexTree.GetCount();
+
+    div = length / STORAGE_DEFAULT_INDEX_PAGE_GRAN;
+    mod = length % STORAGE_DEFAULT_INDEX_PAGE_GRAN;
+    size = div * STORAGE_DEFAULT_INDEX_PAGE_GRAN;
+    if (mod > 0)
+        size += STORAGE_DEFAULT_INDEX_PAGE_GRAN;
+
+    buffer.Allocate(size);
+    buffer.Zero();
+
+    buffer.AppendLittle32(size);
+    buffer.AppendLittle32(0); // dummy for checksum
+    buffer.AppendLittle32(numKeys);
     FOREACH(it, indexTree)
     {
         buffer.AppendLittle32(it->offset);
@@ -50,11 +64,12 @@ void StorageIndexPage::Finalize()
 
     assert(length == buffer.GetLength());
 
-    div = length / STORAGE_DEFAULT_INDEX_PAGE_GRAN;
-    mod = length % STORAGE_DEFAULT_INDEX_PAGE_GRAN;
-    size = div * STORAGE_DEFAULT_INDEX_PAGE_GRAN;
-    if (mod > 0)
-        size += STORAGE_DEFAULT_INDEX_PAGE_GRAN;
+    // now write checksum
+    dataPart.SetBuffer(buffer.GetBuffer() + 8);
+    dataPart.SetLength(size - 8);
+    checksum = dataPart.GetChecksum();
 
-    buffer.Allocate(size);
+    buffer.SetLength(4);
+    buffer.AppendLittle32(checksum);
+    buffer.SetLength(size);
 }

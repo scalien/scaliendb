@@ -2,19 +2,14 @@
 #include "StorageChunk.h"
 #include "System/IO/FileSystem.h"
 
-bool StorageChunkWriter::Write(const char* filename, StorageChunk* chunk)
+bool StorageChunkWriter::Write(const char* filename, StorageChunkFile* file_)
 {
+    file = file_;
+
     if (fd.Open(filename, FS_READWRITE) == INVALID_FD)
         return false;
     
     offset = 0;
-
-    indexPage.Clear();
-    if (chunk->UseBloomFilter())
-    {
-        bloomPage.Clear();
-        bloomPage.SetNumKeys(chunk->GetNumKeys());
-    }
 
     if (!WriteEmptyHeaderPage())
         return false;
@@ -25,7 +20,7 @@ bool StorageChunkWriter::Write(const char* filename, StorageChunk* chunk)
     if (!WriteIndexPage())
         return false;
 
-    if (chunk->UseBloomFilter())
+    if (file->headerPage.UseBloomFilter())
     {
         if (!WriteBloomPage())
             return false;
@@ -64,7 +59,7 @@ bool StorageChunkWriter::WriteEmptyHeaderPage()
     uint32_t    pageSize;
     ssize_t     writeSize;
 
-    pageSize = headerPage.GetPageSize();
+    pageSize = headerPage.GetSize();
 
     writeBuffer.Allocate(pageSize);
     writeBuffer.SetLength(pageSize);
@@ -76,19 +71,8 @@ bool StorageChunkWriter::WriteEmptyHeaderPage()
     return true;
 }
 
-bool StorageChunkWriter::WriteHeaderPage(StorageChunk* chunk)
+bool StorageChunkWriter::WriteHeaderPage()
 {
-    headerPage.SetChunkID(chunk->GetChunkID());
-    headerPage.SetLogSegmentID(chunk->GetLogSegmentID());
-    headerPage.SetNumKeys(chunk->GetNumKeys());
-
-    headerPage.SetVersion(STORAGE_HEADER_PAGE_VERSION);
-    headerPage.SetUseBloomFilter(chunk->UseBloomFilter());
-    headerPage.SetIndexPageOffset(indexPageOffset);
-    headerPage.SetIndexPageSize(indexPageSize);
-    headerPage.SetBloomPageOffset(bloomPageOffset);
-    headerPage.SetBloomPageSize(bloomPageSize);
-
     headerPage.Write(writeBuffer);
     if (!WriteBuffer())
         return false;

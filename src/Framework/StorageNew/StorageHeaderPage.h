@@ -24,12 +24,15 @@ public:
     void        SetLogSegmentID(uint64_t logSegmentID);
     void        SetLogCommandID(uint64_t logCommandID);
     void        SetNumKeys(uint64_t numKeys);
-
     void        SetUseBloomFilter(bool useBloomFilter);
-    void        SetIndexPageOffset(uint64_t indexOffset);
-    void        SetIndexPageSize(uint32_t indexSize);
-    void        SetBloomPageOffset(uint64_t bloomOffset);
-    void        SetBloomPageSize(uint32_t bloomSize);
+    void        SetIndexPageOffset(uint64_t indexPageOffset);
+    void        SetIndexPageSize(uint32_t indexPageSize);
+    void        SetBloomPageOffset(uint64_t bloomPageOffset);
+    void        SetBloomPageSize(uint32_t bloomPageSize);
+
+    bool        UseBloomFilter();
+
+    void        Write(Buffer& writeBuffer);
 
 private:
     uint64_t    chunkID;
@@ -38,9 +41,9 @@ private:
     uint64_t    numKeys;
     bool        useBloomFilter;
     uint64_t    indexPageOffset;
-    uint64_t    indexPageSize;
+    uint32_t    indexPageSize;
     uint64_t    bloomPageOffset;
-    uint64_t    bloomPageSize;
+    uint32_t    bloomPageSize;
 };
 
 #endif

@@ -22,6 +22,7 @@ public:
     
     StorageChunk();
     
+    void                SetFilename(Buffer& filename);
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);
     
@@ -42,6 +43,7 @@ public:
     ChunkState          GetState();
     void                TryFinalize();
     bool                IsFinalized();
+    void                WriteFile();
         
 private:
     // on disk
@@ -55,12 +57,11 @@ private:
     ChunkState          state;
     unsigned            numShards;      // this chunk backs this many shards
 
-    uint64_t            parent1;        // if merged
-    uint64_t            parent2;        // if merged
-    
     // cache:
     KeyValueTree*       keyValues;      // non-NULL if-a-o-if state == InMemory
     StorageChunkFile*   file;   // non-NULL if-a-o-if state != InMemory
+
+    Buffer              filename;
 };
 
     // shardID is not stored here, since a shard can belong to more than one shard
