@@ -3,7 +3,7 @@
 
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/SortedList.h"
-#include "StorageChunkMemory.h"
+#include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 
 /*
@@ -26,8 +26,8 @@ public:
     ReadBuffer          GetLastKey();
     bool                RangeContains(ReadBuffer& key);
 
-    StorageChunkMemory* GetMemoChunk();
-    void                SetNewMemoChunk(StorageChunkMemory* memoChunk);
+    StorageMemoChunk* GetMemoChunk();
+    void                SetNewMemoChunk(StorageMemoChunk* memoChunk);
 
 private:
     uint64_t            shardID;

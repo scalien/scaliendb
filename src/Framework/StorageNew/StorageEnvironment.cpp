@@ -254,7 +254,7 @@ void StorageEnvironment::TryFinalizeChunks()
     }
 }
 
-void StorageEnvironment::TryFinalizeChunk(StorageChunkMemory* memoChunk)
+void StorageEnvironment::TryFinalizeChunk(StorageMemoChunk* memoChunk)
 {
     StorageChunkSerializer      serializer;
     StorageFileChunk*           fileChunk;

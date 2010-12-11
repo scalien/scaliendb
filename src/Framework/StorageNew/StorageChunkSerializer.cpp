@@ -1,9 +1,9 @@
 #include "StorageChunkSerializer.h"
-#include "StorageChunkMemory.h"
+#include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 #include "PointerGuard.h"
 
-StorageFileChunk* StorageChunkSerializer::Serialize(StorageChunkMemory* memoChunk_)
+StorageFileChunk* StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_)
 {
     PointerGuard<StorageFileChunk> fileGuard(new StorageFileChunk);
     

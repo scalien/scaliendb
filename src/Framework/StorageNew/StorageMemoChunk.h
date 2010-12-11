@@ -1,5 +1,5 @@
-#ifndef STORAGECHUNKMEMORY_H
-#define STORAGECHUNKMEMORY_H
+#ifndef STORAGEMEMOCHUNK_H
+#define STORAGEMEMOCHUNK_H
 
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InTreeMap.h"
@@ -10,19 +10,19 @@
 /*
 ===============================================================================================
 
- StorageChunkMemory
+ StorageMemoChunk
 
 ===============================================================================================
 */
 
-class StorageChunkMemory : public StorageChunk
+class StorageMemoChunk : public StorageChunk
 {
     friend class StorageChunkSerializer;
 
 public:
     typedef InTreeMap<StorageMemoKeyValue> KeyValueTree;
     
-    StorageChunkMemory();
+    StorageMemoChunk();
     
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);

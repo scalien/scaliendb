@@ -1268,14 +1268,6 @@
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunkMemory.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\src\Framework\StorageNew\StorageChunkMemory.h"
-						>
-					</File>
-					<File
 						RelativePath="..\src\Framework\StorageNew\StorageChunkSerializer.cpp"
 						>
 					</File>
@@ -1297,6 +1289,14 @@
 					</File>
 					<File
 						RelativePath="..\src\Framework\StorageNew\StorageFileChunk.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageMemoChunk.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageMemoChunk.h"
 						>
 					</File>
 				</Filter>

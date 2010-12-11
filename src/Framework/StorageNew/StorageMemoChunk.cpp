@@ -1,4 +1,4 @@
-#include "StorageChunkMemory.h"
+#include "StorageMemoChunk.h"
 #include "StorageChunkSerializer.h"
 #include "StorageChunkWriter.h"
 
@@ -12,7 +12,7 @@ static const ReadBuffer Key(StorageMemoKeyValue* kv)
     return kv->GetKey();
 }
 
-StorageChunkMemory::StorageChunkMemory()
+StorageMemoChunk::StorageMemoChunk()
 {
     chunkID = 0;
     logSegmentID = 0;
@@ -21,27 +21,27 @@ StorageChunkMemory::StorageChunkMemory()
     size = 0;
 }
 
-void StorageChunkMemory::SetChunkID(uint64_t chunkID_)
+void StorageMemoChunk::SetChunkID(uint64_t chunkID_)
 {
     chunkID = chunkID;
 }
 
-void StorageChunkMemory::SetUseBloomFilter(bool useBloomFilter_)
+void StorageMemoChunk::SetUseBloomFilter(bool useBloomFilter_)
 {
     useBloomFilter = useBloomFilter_;
 }
 
-uint64_t StorageChunkMemory::GetChunkID()
+uint64_t StorageMemoChunk::GetChunkID()
 {
     return chunkID;
 }
 
-bool StorageChunkMemory::UseBloomFilter()
+bool StorageMemoChunk::UseBloomFilter()
 {
     return useBloomFilter;
 }
 
-bool StorageChunkMemory::Get(ReadBuffer& key, ReadBuffer& value)
+bool StorageMemoChunk::Get(ReadBuffer& key, ReadBuffer& value)
 {
     StorageMemoKeyValue* it;
 
@@ -58,7 +58,7 @@ bool StorageChunkMemory::Get(ReadBuffer& key, ReadBuffer& value)
     return true;
 }
 
-bool StorageChunkMemory::Set(ReadBuffer& key, ReadBuffer& value)
+bool StorageMemoChunk::Set(ReadBuffer& key, ReadBuffer& value)
 {
     int                     cmpres;
     StorageMemoKeyValue*    it;
@@ -83,7 +83,7 @@ bool StorageChunkMemory::Set(ReadBuffer& key, ReadBuffer& value)
     return true;
 }
 
-bool StorageChunkMemory::Delete(ReadBuffer& key)
+bool StorageMemoChunk::Delete(ReadBuffer& key)
 {
     int                     cmpres;
     StorageMemoKeyValue*    it;
@@ -108,7 +108,7 @@ bool StorageChunkMemory::Delete(ReadBuffer& key)
     return true;
 }
 
-void StorageChunkMemory::RegisterLogCommand(uint64_t logSegmentID_, uint32_t logCommandID_)
+void StorageMemoChunk::RegisterLogCommand(uint64_t logSegmentID_, uint32_t logCommandID_)
 {
     if (logSegmentID_ > logSegmentID)
     {
@@ -122,22 +122,22 @@ void StorageChunkMemory::RegisterLogCommand(uint64_t logSegmentID_, uint32_t log
     }
 }
 
-uint64_t StorageChunkMemory::GetLogSegmentID()
+uint64_t StorageMemoChunk::GetLogSegmentID()
 {
     return logSegmentID;
 }
 
-uint32_t StorageChunkMemory::GetLogCommandID()
+uint32_t StorageMemoChunk::GetLogCommandID()
 {
     return logCommandID;
 }
 
-uint64_t StorageChunkMemory::GetSize()
+uint64_t StorageMemoChunk::GetSize()
 {
     return size;
 }
 
-//void StorageChunkMemory::TryFinalize()
+//void StorageMemoChunk::TryFinalize()
 //{
 //    StorageChunkSerializer serializer;
 //    
@@ -155,12 +155,12 @@ uint64_t StorageChunkMemory::GetSize()
 //    state = Serialized;
 //}
 //
-//bool StorageChunkMemory::IsFinalized()
+//bool StorageMemoChunk::IsFinalized()
 //{
 //    return (state != ReadWrite);
 //}
 //
-//void StorageChunkMemory::WriteFile()
+//void StorageMemoChunk::WriteFile()
 //{
 //    StorageChunkWriter writer;
 //
