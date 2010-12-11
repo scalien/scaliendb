@@ -175,19 +175,6 @@ StorageShard* StorageEnvironment::GetShard(uint64_t shardID)
     return NULL;
 }
 
-//StorageChunk* StorageEnvironment::GetChunk(uint64_t chunkID)
-//{
-//    StorageChunk* it;
-//
-//    FOREACH(it, chunks)
-//    {
-//        if (it->GetChunkID() == chunkID)
-//            return it;
-//    }
-//
-//    return NULL;
-//}
-
 void StorageEnvironment::OnCommit()
 {
     TryFinalizeLogSegment();

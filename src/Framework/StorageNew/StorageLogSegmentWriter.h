@@ -9,6 +9,14 @@
 #define STORAGE_LOGSEGMENT_COMMAND_SET          'S'
 #define STORAGE_LOGSEGMENT_COMMAND_DELETE       'D'
 
+/*
+===============================================================================================
+
+ StorageLogSegmentWriter
+
+===============================================================================================
+*/
+
 class StorageLogSegmentWriter
 {
 public:

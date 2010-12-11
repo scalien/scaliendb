@@ -34,42 +34,41 @@ class StorageEnvironment
 public:
     StorageEnvironment();
     
-    bool                Open(const char* filepath);
-    void                Close();
+    bool                        Open(const char* filepath);
+    void                        Close();
 
-    void                SetStorageConfig(StorageConfig& config);
+    void                        SetStorageConfig(StorageConfig& config);
 
-    uint64_t            GetShardID(uint64_t tableID, ReadBuffer& key);
-    bool                Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
-    bool                Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
-    bool                Delete(uint64_t shardID, ReadBuffer& key);
+    uint64_t                    GetShardID(uint64_t tableID, ReadBuffer& key);
+    bool                        Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
+    bool                        Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
+    bool                        Delete(uint64_t shardID, ReadBuffer& key);
         
-    void                SetOnCommit(Callable& onCommit);
-    bool                Commit();
-    bool                GetCommitStatus();
+    void                        SetOnCommit(Callable& onCommit);
+    bool                        Commit();
+    bool                        GetCommitStatus();
 
 private:
-    void                OnCommit();
-    void                OnBackgroundTimeout();
-    void                TryFinalizeLogSegment();
-    void                TryFinalizeChunks();
-    bool                IsWriteActive();
-    StorageShard*       GetShard(uint64_t shardID);
-//    StorageChunk*       GetChunk(uint64_t chunkID);
-    void                StartJob(StorageJob* job);
+    void                        OnCommit();
+    void                        OnBackgroundTimeout();
+    void                        TryFinalizeLogSegment();
+    void                        TryFinalizeChunks();
+    bool                        IsWriteActive();
+    StorageShard*               GetShard(uint64_t shardID);
+    void                        StartJob(StorageJob* job);
 
-    Callable            onCommit;
+    Callable                    onCommit;
 
     StorageLogSegmentWriter*    logSegmentWriter;
-    ShardList           shards;
-    FileChunkList       fileChunks;
-//    LogSegmentList      logSegments;
+    ShardList                   shards;
+    FileChunkList               fileChunks;
+//    LogSegmentList            logSegments;
 
-    StorageConfig       config;
+    StorageConfig               config;
     
-    ThreadPool*         commitThread;
-    ThreadPool*         backgroundThread;
-    Countdown           backgroundTimer;
+    ThreadPool*                 commitThread;
+    ThreadPool*                 backgroundThread;
+    Countdown                   backgroundTimer;
 };
 
 #endif
