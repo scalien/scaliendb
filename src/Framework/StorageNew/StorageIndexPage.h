@@ -42,15 +42,15 @@ public:
     StorageIndexPage();
 
     uint32_t            GetSize();
-    
-    void                Append(ReadBuffer& key, uint32_t index, uint32_t offset);
 
+    bool                Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset);
+
+    void                Append(ReadBuffer& key, uint32_t index, uint32_t offset);
     void                Finalize();
     void                Write(Buffer& writeBuffer);
 
 private:
     uint32_t            size;
-    uint32_t            length;
     Buffer              buffer;
     IndexRecordTree     indexTree;
 };

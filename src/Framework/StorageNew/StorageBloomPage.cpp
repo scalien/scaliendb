@@ -68,3 +68,8 @@ void StorageBloomPage::Write(Buffer& writeBuffer)
     writeBuffer.AppendLittle32(checksum);
     writeBuffer.Append(bloomFilter.GetBuffer());
 }
+
+bool StorageBloomPage::Check(ReadBuffer& key)
+{
+    return bloomFilter.Check(key);
+}

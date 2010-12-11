@@ -60,6 +60,7 @@ public:
 
     void                NullTerminate();
     void                Zero();
+    void                ZeroRest();
 
     void                SetLength(unsigned length);
 

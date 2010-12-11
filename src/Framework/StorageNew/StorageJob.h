@@ -1,7 +1,7 @@
 #ifndef STORAGEJOB_H
 #define STORAGEJOB_H
 
-#include "StorageChunk.h"
+#include "StorageChunkFile.h"
 
 /*
 ===============================================================================================
@@ -30,12 +30,12 @@ class StorageChunk; // forward
 class StorageWriteChunkJob : public StorageJob
 {
 public:
-    StorageWriteChunkJob(StorageChunk* chunk_);
+    StorageWriteChunkJob(StorageChunkFile* chunk_);
     
-    void            Execute();
+    void                Execute();
     
 private:
-    StorageChunk*   chunk;
+    StorageChunkFile*   fileChunk;
 };
 
 #endif

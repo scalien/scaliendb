@@ -1,11 +1,14 @@
 #include "StorageJob.h"
+#include "StorageChunkWriter.h"
 
-StorageWriteChunkJob::StorageWriteChunkJob(StorageChunk* chunk_)
+StorageWriteChunkJob::StorageWriteChunkJob(StorageChunkFile* fileChunk_)
 {
-    chunk = chunk_;
+    fileChunk = fileChunk_;
 }
 
 void StorageWriteChunkJob::Execute()
 {
-    chunk->WriteFile();
+    StorageChunkWriter writer;
+
+    writer.Write(fileChunk);
 }

@@ -24,7 +24,8 @@ class StorageEnvironment
 {
     typedef InList<StorageLogSegment> LogSegmentList;
     typedef InList<StorageShard> ShardList;
-    typedef InList<StorageChunk> ChunkList;
+    typedef InList<StorageChunkMemory>  MemoChunkList;
+    typedef InList<StorageChunkFile>    FileChunkList;
 
 public:
     StorageEnvironment();
@@ -48,6 +49,7 @@ private:
     void                OnBackgroundTimeout();
     void                TryFinalizeLogSegment();
     void                TryFinalizeChunks();
+    void                TryFinalizeChunk(StorageChunkMemory* chunk);
     bool                IsWriteActive();
     StorageShard*       GetShard(uint64_t shardID);
     StorageChunk*       GetChunk(uint64_t chunkID);
@@ -57,7 +59,7 @@ private:
 
     StorageLogSegment*  headLogSegment;
     ShardList           shards;
-    ChunkList           chunks;
+    FileChunkList       fileChunks;
     LogSegmentList      logSegments;
 
     StorageConfig       config;

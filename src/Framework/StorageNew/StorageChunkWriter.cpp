@@ -2,11 +2,11 @@
 #include "StorageChunk.h"
 #include "System/FileSystem.h"
 
-bool StorageChunkWriter::Write(const char* filename, StorageChunkFile* file_)
+bool StorageChunkWriter::Write(StorageChunkFile* file_)
 {
     file = file_;
 
-    if (fd.Open(filename, FS_READWRITE) == INVALID_FD)
+    if (fd.Open(file->GetFilename().GetBuffer(), FS_READWRITE) == INVALID_FD)
         return false;
     
     if (!WriteEmptyHeaderPage())
@@ -34,6 +34,8 @@ bool StorageChunkWriter::Write(const char* filename, StorageChunkFile* file_)
     FS_Sync(fd.GetFD());
 
     fd.Close();
+
+    file->written = true;
 
     return true;
 }

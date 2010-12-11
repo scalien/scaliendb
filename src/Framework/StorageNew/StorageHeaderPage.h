@@ -18,11 +18,17 @@
 class StorageHeaderPage : public StoragePage
 {
 public:
+    StorageHeaderPage();
+
     uint32_t    GetSize();
+
+    uint64_t    GetChunkID();
+    uint64_t    GetLogSegmentID();
+    uint32_t    GetLogCommandID();
 
     void        SetChunkID(uint64_t chunkID);
     void        SetLogSegmentID(uint64_t logSegmentID);
-    void        SetLogCommandID(uint64_t logCommandID);
+    void        SetLogCommandID(uint32_t logCommandID);
     void        SetNumKeys(uint64_t numKeys);
     void        SetUseBloomFilter(bool useBloomFilter);
     void        SetIndexPageOffset(uint64_t indexPageOffset);
@@ -37,7 +43,7 @@ public:
 private:
     uint64_t    chunkID;
     uint64_t    logSegmentID;
-    uint64_t    logCommandID;
+    uint32_t    logCommandID;
     uint64_t    numKeys;
     bool        useBloomFilter;
     uint64_t    indexPageOffset;

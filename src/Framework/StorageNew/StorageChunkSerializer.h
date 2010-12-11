@@ -3,7 +3,7 @@
 
 #include "System/Platform.h"
 
-class StorageChunk; // forward
+class StorageChunkMemory; // forward
 class StorageChunkFile;  // forward
 
 /*
@@ -17,7 +17,7 @@ class StorageChunkFile;  // forward
 class StorageChunkSerializer
 {
 public:
-    StorageChunkFile*       Serialize(StorageChunk* chunk);
+    StorageChunkFile*       Serialize(StorageChunkMemory* memoChunk);
 
 private:
     bool                    WriteHeaderPage();
@@ -25,8 +25,8 @@ private:
     bool                    WriteIndexPage();
     bool                    WriteBloomPage();
 
-    StorageChunk*           chunk;
-    StorageChunkFile*       file;
+    StorageChunkMemory*     memoChunk;
+    StorageChunkFile*       fileChunk;
     uint64_t                offset;
 };
 

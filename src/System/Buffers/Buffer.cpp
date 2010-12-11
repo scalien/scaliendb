@@ -223,6 +223,11 @@ void Buffer::Zero()
     memset(buffer, 0, size);
 }
 
+void Buffer::ZeroRest()
+{
+    memset(buffer + length, 0, size - length);
+}
+
 void Buffer::SetLength(unsigned length_)
 {
     length = length_;

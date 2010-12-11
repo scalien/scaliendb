@@ -5,25 +5,45 @@ static int KeyCmp(const ReadBuffer a, const ReadBuffer b)
     return ReadBuffer::Cmp(a, b);
 }
 
-static const ReadBuffer Key(StorageKeyValue* kv)
+static const ReadBuffer Key(StorageFileKeyValue* kv)
 {
     return kv->GetKey();
 }
 
-
 StorageDataPage::StorageDataPage()
 {
-    length = 0;
-    length += 4; // pageSize
-    length += 4; // checksum
-    length += 4; // numKeys
     size = 0;
+
+    buffer.Allocate(STORAGE_DEFAULT_DATA_PAGE_GRAN);
+    buffer.Zero();
+
+    buffer.AppendLittle32(0); // dummy for size
+    buffer.AppendLittle32(0); // dummy for checksum
+    buffer.AppendLittle32(0); // fummy for numKeys
 }
 
 uint32_t StorageDataPage::GetSize()
 {
     return size;
 }
+
+bool StorageDataPage::Get(ReadBuffer& key, ReadBuffer& value)
+{
+    StorageFileKeyValue* it;
+
+    int cmpres;
+    
+    if (keyValues.GetCount() == 0)
+        return false;
+        
+    it = keyValues.Locate<ReadBuffer&>(key, cmpres);
+    if (cmpres != 0)
+        return false;
+
+    value = it->GetValue();
+    return true;
+}
+
 uint32_t StorageDataPage::GetNumKeys()
 {
     return keyValues.GetCount();
@@ -31,10 +51,10 @@ uint32_t StorageDataPage::GetNumKeys()
 
 uint32_t StorageDataPage::GetLength()
 {
-    return length;
+    return buffer.GetLength();
 }
 
-uint32_t StorageDataPage::GetIncrement(StorageKeyValue* kv)
+uint32_t StorageDataPage::GetIncrement(StorageMemoKeyValue* kv)
 {
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         return (1 + 2 + kv->GetKey().GetLength() + 4 + kv->GetValue().GetLength());
@@ -46,25 +66,41 @@ uint32_t StorageDataPage::GetIncrement(StorageKeyValue* kv)
     return 0;
 }
 
-void StorageDataPage::Append(StorageKeyValue* kv_)
+void StorageDataPage::Append(StorageMemoKeyValue* kv)
 {
-    StorageKeyValue* kv;
+    unsigned                keypos, valpos;
+    StorageFileKeyValue*    fkv;
     
-    kv = new StorageKeyValue;
-    *kv = *kv_;
-    
-    keyValues.Insert(kv);
+    buffer.Append(kv->GetType());
+    buffer.AppendLittle16(kv->GetKey().GetLength());
+    keypos = buffer.GetLength();
+    buffer.Append(kv->GetKey());
+    if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+    {
+        buffer.AppendLittle32(kv->GetValue().GetLength());
+        valpos = buffer.GetLength();
+        buffer.Append(kv->GetValue());
+    }
 
-    length += GetIncrement(kv);
+    fkv = new StorageFileKeyValue;
+    if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+        fkv->Set(
+         ReadBuffer(buffer.GetBuffer() + keypos, kv->GetKey().GetLength()),
+         ReadBuffer(buffer.GetBuffer() + valpos, kv->GetValue().GetLength()));
+    else
+        fkv->Delete(
+         ReadBuffer(buffer.GetBuffer() + keypos, kv->GetKey().GetLength()));
+    
+    keyValues.Insert(fkv);
 }
 
 void StorageDataPage::Finalize()
 {
-    uint32_t            div, mod, numKeys, checksum;
-    ReadBuffer          dataPart;
-    StorageKeyValue*    it;
+    uint32_t    div, mod, numKeys, checksum, length;
+    ReadBuffer  dataPart;
 
     numKeys = keyValues.GetCount();
+    length = buffer.GetLength();
 
     div = length / STORAGE_DEFAULT_DATA_PAGE_GRAN;
     mod = length % STORAGE_DEFAULT_DATA_PAGE_GRAN;
@@ -73,41 +109,18 @@ void StorageDataPage::Finalize()
         size += STORAGE_DEFAULT_DATA_PAGE_GRAN;
 
     buffer.Allocate(size);
-    buffer.Zero();
+    buffer.ZeroRest();
 
-    buffer.AppendLittle32(size);
-    buffer.AppendLittle32(0); // dummy for checksum
-    buffer.AppendLittle32(numKeys);
-
-    FOREACH(it, keyValues)
-    {
-        if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
-        {
-            buffer.Append(STORAGE_KEYVALUE_TYPE_SET);
-            buffer.AppendLittle16(it->GetKey().GetLength());
-            buffer.Append(it->GetKey());
-        }
-        else if (it->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
-        {
-            buffer.Append(STORAGE_KEYVALUE_TYPE_SET);
-            buffer.AppendLittle16(it->GetKey().GetLength());
-            buffer.Append(it->GetKey());
-            buffer.AppendLittle32(it->GetValue().GetLength());
-            buffer.Append(it->GetValue());
-        }
-        else
-            ASSERT_FAIL();
-    }
-
-    assert(length == buffer.GetLength());
-
-    // now write checksum
+    // compute checksum
     dataPart.SetBuffer(buffer.GetBuffer() + 8);
     dataPart.SetLength(size - 8);
     checksum = dataPart.GetChecksum();
 
-    buffer.SetLength(4);
+    buffer.SetLength(0);
+    buffer.AppendLittle32(size);
     buffer.AppendLittle32(checksum);
+    buffer.AppendLittle32(numKeys);
+
     buffer.SetLength(size);
 }
 

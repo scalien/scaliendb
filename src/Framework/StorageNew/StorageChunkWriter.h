@@ -15,7 +15,7 @@
 class StorageChunkWriter
 {
 public:
-    bool                    Write(const char* filename, StorageChunkFile* file);
+    bool                    Write(StorageChunkFile* file);
 
 private:
     bool                    WriteBuffer();

@@ -24,10 +24,11 @@ public:
     void            SetSize(uint32_t size);
     void            Add(ReadBuffer& key);
 
-    void            StartReading(Buffer& buffer);
+    Buffer&         GetBuffer();
+    void            SetBuffer(Buffer& buffer);
+
     bool            Check(ReadBuffer& key);
 
-    Buffer&         GetBuffer();
 
 private:
     int32_t         GetHash(unsigned fnum, int32_t original);

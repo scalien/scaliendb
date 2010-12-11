@@ -1,8 +1,36 @@
 #include "StorageHeaderPage.h"
 
+StorageHeaderPage::StorageHeaderPage()
+{
+    chunkID = 0;
+    logSegmentID = 0;
+    logCommandID = 0;
+    numKeys = 0;
+    useBloomFilter = 0;
+    indexPageOffset = 0;
+    indexPageSize = 0;
+    bloomPageOffset = 0;
+    bloomPageSize = 0;
+}
+
 uint32_t StorageHeaderPage::GetSize()
 {
     return STORAGE_HEADER_PAGE_SIZE;
+}
+
+uint64_t StorageHeaderPage::GetChunkID()
+{
+    return chunkID;
+}
+
+uint64_t StorageHeaderPage::GetLogSegmentID()
+{
+    return logSegmentID;
+}
+
+uint32_t StorageHeaderPage::GetLogCommandID()
+{
+    return logCommandID;
 }
 
 void StorageHeaderPage::SetChunkID(uint64_t chunkID_)
@@ -15,7 +43,7 @@ void StorageHeaderPage::SetLogSegmentID(uint64_t logSegmentID_)
     logSegmentID = logSegmentID_;
 }
 
-void StorageHeaderPage::SetLogCommandID(uint64_t logCommandID_)
+void StorageHeaderPage::SetLogCommandID(uint32_t logCommandID_)
 {
     logCommandID = logCommandID_;
 }
@@ -75,7 +103,7 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
     writeBuffer.Append(text);
     writeBuffer.AppendLittle64(chunkID);
     writeBuffer.AppendLittle64(logSegmentID);
-    writeBuffer.AppendLittle64(logCommandID);
+    writeBuffer.AppendLittle32(logCommandID);
     writeBuffer.Appendf("%b", useBloomFilter);
     writeBuffer.AppendLittle64(numKeys);
     writeBuffer.AppendLittle64(indexPageOffset);

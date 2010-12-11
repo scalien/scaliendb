@@ -257,6 +257,18 @@ void StorageEnvironment::TryFinalizeChunks()
     }
 }
 
+void StorageEnvironment::TryFinalizeChunk(StorageChunkMemory* memoChunk)
+{
+    StorageChunkSerializer      serializer;
+    StorageChunkFile*           fileChunk;
+    
+    fileChunk = serializer.Serialize(memoChunk);
+    if (fileChunk == NULL)
+        return;
+    
+    delete memoChunk;
+}
+
 bool StorageEnvironment::IsWriteActive()
 {
 

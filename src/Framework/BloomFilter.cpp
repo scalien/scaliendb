@@ -105,7 +105,7 @@ void BloomFilter::Add(ReadBuffer& key)
     }
 }
 
-void BloomFilter::StartReading(Buffer& buffer_)
+void BloomFilter::SetBuffer(Buffer& buffer_)
 {
     buffer.Write(buffer_);
 }

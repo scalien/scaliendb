@@ -1,66 +1,59 @@
-#ifndef STORAGECHUNK_H
-#define STORAGECHUNK_H
+#ifndef STORAGECHUNKMEMORY_H
+#define STORAGECHUNKMEMORY_H
 
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InTreeMap.h"
+#include "StorageChunk.h"
 #include "StorageKeyValue.h"
 #include "StorageChunkFile.h"
 
 /*
 ===============================================================================================
 
- StorageChunk
+ StorageChunkMemory
 
 ===============================================================================================
 */
 
-class StorageChunk
+class StorageChunkMemory : public StorageChunk
 {
+    friend class StorageChunkSerializer;
+
 public:
-    typedef enum ChunkState {ReadWrite, Serialized, Written} ChunkState;
-    typedef InTreeMap<StorageKeyValue> KeyValueTree;
+    typedef InTreeMap<StorageMemoKeyValue> KeyValueTree;
     
-    StorageChunk();
+    StorageChunkMemory();
     
-    void                SetFilename(Buffer& filename);
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);
     
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
     
-    bool                Get(ReadBuffer& firstKey, ReadBuffer& lastKey, ReadBuffer& key, ReadBuffer& value);
+    bool                Get(ReadBuffer& key, ReadBuffer& value);
     bool                Set(ReadBuffer& key, ReadBuffer& value);
     bool                Delete(ReadBuffer& key);
     
-    void                RegisterLogCommand(uint64_t logSegmentID, uint64_t logCommandID);
+    void                RegisterLogCommand(uint64_t logSegmentID, uint32_t logCommandID);
     uint64_t            GetLogSegmentID();
-    uint64_t            GetLogCommandID();
+    uint32_t            GetLogCommandID();
     
-    KeyValueTree&       GetKeyValueTree();
     uint64_t            GetSize();
-    ChunkState          GetState();
-    void                TryFinalize();
-    bool                IsFinalized();
-    void                WriteFile();
+
+    //    ChunkState          GetState();
+//    void                TryFinalize();
+//    bool                IsFinalized();
+//    void                WriteFile();
         
 private:
-    // on disk
     uint64_t            chunkID;
     uint64_t            logSegmentID;
-    uint64_t            logCommandID;
-    uint64_t            numKeys;
+    uint32_t            logCommandID;
     bool                useBloomFilter;
-    
-    // in memory:
-    ChunkState          state;
-    unsigned            numShards;      // this chunk backs this many shards
 
-    // cache:
-    KeyValueTree*       keyValues;      // non-NULL if-a-o-if state == InMemory
-    StorageChunkFile*   file;           // non-NULL if-a-o-if state != InMemory
+    uint64_t            size;
 
-    Buffer              filename;
+    KeyValueTree        keyValues;
 };
 
 #endif

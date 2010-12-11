@@ -1,73 +1,114 @@
-#include "StorageChunk.h"
+#include "StorageChunkMemory.h"
 #include "StorageChunkSerializer.h"
 #include "StorageChunkWriter.h"
 
-StorageChunk::StorageChunk()
+static int KeyCmp(const ReadBuffer a, const ReadBuffer b)
+{
+    return ReadBuffer::Cmp(a, b);
+}
+
+static const ReadBuffer Key(StorageMemoKeyValue* kv)
+{
+    return kv->GetKey();
+}
+
+StorageChunkMemory::StorageChunkMemory()
 {
     chunkID = 0;
     logSegmentID = 0;
     logCommandID = 0;
     useBloomFilter = false;
-    
-    // in memory:
-    state = ReadWrite;
-    numShards = 1;
-
-    keyValues = 0;
-    file = 0;
+    size = 0;
 }
 
-void StorageChunk::SetFilename(Buffer& filename_)
-{
-    filename.Write(filename_);
-    filename.NullTerminate();
-}
-
-void StorageChunk::SetChunkID(uint64_t chunkID_)
+void StorageChunkMemory::SetChunkID(uint64_t chunkID_)
 {
     chunkID = chunkID;
 }
 
-void StorageChunk::SetUseBloomFilter(bool useBloomFilter_)
+void StorageChunkMemory::SetUseBloomFilter(bool useBloomFilter_)
 {
     useBloomFilter = useBloomFilter_;
 }
 
-uint64_t StorageChunk::GetChunkID()
+uint64_t StorageChunkMemory::GetChunkID()
 {
     return chunkID;
 }
 
-bool StorageChunk::UseBloomFilter()
+bool StorageChunkMemory::UseBloomFilter()
 {
     return useBloomFilter;
 }
 
-bool StorageChunk::Get(ReadBuffer& firstKey, ReadBuffer& lastKey, ReadBuffer& key, ReadBuffer& value)
+bool StorageChunkMemory::Get(ReadBuffer& key, ReadBuffer& value)
 {
-    if (state == ReadWrite)
-        return keyValues->Get(firstKey, lastKey, key, value);
-    else
-        return file->Get(firstKey, lastKey, key, value);
-}
+    StorageMemoKeyValue* it;
 
-bool StorageChunk::Set(ReadBuffer& key, ReadBuffer& value)
-{
-    if (state != ReadWrite)
-        ASSERT_FAIL();
+    int cmpres;
     
-    return keyValues->Set(key, value);
+    if (keyValues.GetCount() == 0)
+        return false;
+        
+    it = keyValues.Locate<ReadBuffer&>(key, cmpres);
+    if (cmpres != 0)
+        return false;
+
+    value = it->GetValue();
+    return true;
 }
 
-bool StorageChunk::Delete(ReadBuffer& key)
+bool StorageChunkMemory::Set(ReadBuffer& key, ReadBuffer& value)
 {
-    if (state != ReadWrite)
-        ASSERT_FAIL();
+    int                     cmpres;
+    StorageMemoKeyValue*    it;
     
-    return keyValues->Delete(key);
+    if (keyValues.GetCount() != 0)
+    {
+        it = keyValues.Locate<ReadBuffer&>(key, cmpres);
+        if (cmpres == 0)
+        {
+            size -= it->GetLength();
+            it->Set(key, value);
+            size += it->GetLength();
+            return true;
+        }
+    }   
+
+    it = new StorageMemoKeyValue;
+    it->Set(key, value);
+    keyValues.Insert(it);
+    size += it->GetLength();
+    
+    return true;
 }
 
-void StorageChunk::RegisterLogCommand(uint64_t logSegmentID_, uint64_t logCommandID_)
+bool StorageChunkMemory::Delete(ReadBuffer& key)
+{
+    int                     cmpres;
+    StorageMemoKeyValue*    it;
+    
+    if (keyValues.GetCount() != 0)
+    {
+        it = keyValues.Locate<ReadBuffer&>(key, cmpres);
+        if (cmpres == 0)
+        {
+            size -= it->GetLength();
+            it->Delete(key);
+            size += it->GetLength();
+            return true;
+        }
+    }   
+
+    it = new StorageMemoKeyValue;
+    it->Delete(key);
+    keyValues.Insert(it);
+    size += it->GetLength();
+    
+    return true;
+}
+
+void StorageChunkMemory::RegisterLogCommand(uint64_t logSegmentID_, uint32_t logCommandID_)
 {
     if (logSegmentID_ > logSegmentID)
     {
@@ -81,69 +122,54 @@ void StorageChunk::RegisterLogCommand(uint64_t logSegmentID_, uint64_t logComman
     }
 }
 
-uint64_t StorageChunk::GetLogSegmentID()
+uint64_t StorageChunkMemory::GetLogSegmentID()
 {
     return logSegmentID;
 }
 
-uint64_t StorageChunk::GetLogCommandID()
+uint32_t StorageChunkMemory::GetLogCommandID()
 {
     return logCommandID;
 }
 
-StorageChunk::KeyValueTree& StorageChunk::GetKeyValueTree()
+uint64_t StorageChunkMemory::GetSize()
 {
-    assert(keyValues != NULL);
-
-    return *keyValues;
+    return size;
 }
 
-uint64_t StorageChunk::GetSize()
-{
-    if (state == ReadWrite)
-        return keyValues->GetSize();
-    else
-        return file->GetSize();
-}
-
-StorageChunk::ChunkState StorageChunk::GetState()
-{
-    return state;
-}
-
-void StorageChunk::TryFinalize()
-{
-    StorageChunkSerializer serializer;
-    
-    assert(state == ReadWrite);
-        
-    file = serializer.Serialize(this);
-    if (file == NULL)
-    {
-        state = ReadWrite;
-        return;
-    }
-    
-    delete keyValues;
-    keyValues = NULL;
-    state = Serialized;
-}
-
-bool StorageChunk::IsFinalized()
-{
-    return (state != ReadWrite);
-}
-
-void StorageChunk::WriteFile()
-{
-    StorageChunkWriter writer;
-
-    assert(state == Serialized);
-
-    if (!writer.Write(filename.GetBuffer(), file))
-        return;
-    
-    state = Written;
-
-    // TODO: mark file/pages as evictable
-}
+//void StorageChunkMemory::TryFinalize()
+//{
+//    StorageChunkSerializer serializer;
+//    
+//    assert(state == ReadWrite);
+//        
+//    file = serializer.Serialize(this);
+//    if (file == NULL)
+//    {
+//        state = ReadWrite;
+//        return;
+//    }
+//    
+//    delete keyValues;
+//    keyValues = NULL;
+//    state = Serialized;
+//}
+//
+//bool StorageChunkMemory::IsFinalized()
+//{
+//    return (state != ReadWrite);
+//}
+//
+//void StorageChunkMemory::WriteFile()
+//{
+//    StorageChunkWriter writer;
+//
+//    assert(state == Serialized);
+//
+//    if (!writer.Write(filename.GetBuffer(), file))
+//        return;
+//    
+//    state = Written;
+//
+//    // TODO: mark file/pages as evictable
+//}
