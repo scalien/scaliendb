@@ -30,7 +30,7 @@ public:
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
     
-    bool                Get(ReadBuffer& key, ReadBuffer& value);
+    StorageKeyValue*    Get(ReadBuffer& key);
     bool                Set(ReadBuffer& key, ReadBuffer& value);
     bool                Delete(ReadBuffer& key);
     

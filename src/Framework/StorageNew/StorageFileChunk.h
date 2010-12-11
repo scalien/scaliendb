@@ -35,12 +35,15 @@ public:
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
     
-    bool                Get(ReadBuffer& key, ReadBuffer& value);
+    StorageKeyValue*    Get(ReadBuffer& key);
     
     uint64_t            GetLogSegmentID();
     uint32_t            GetLogCommandID();
     
     uint64_t            GetSize();
+
+    StorageFileChunk*   prev;
+    StorageFileChunk*   next;
 
 private:
     void                AppendDataPage(StorageDataPage* dataPage);

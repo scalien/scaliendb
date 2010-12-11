@@ -40,7 +40,7 @@ bool StorageFileChunk::UseBloomFilter()
     return headerPage.UseBloomFilter();
 }
 
-bool StorageFileChunk::Get(ReadBuffer& key, ReadBuffer& value)
+StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
 {
     uint32_t    index;
     uint32_t    offset;
@@ -48,13 +48,13 @@ bool StorageFileChunk::Get(ReadBuffer& key, ReadBuffer& value)
     if (headerPage.UseBloomFilter())
     {
         if (!bloomPage.Check(key))
-            return false;
+            return NULL;
     }
 
     if (!indexPage.Locate(key, index, offset))
         return false;
 
-    return dataPages[index]->Get(key, value);
+    return dataPages[index]->Get(key);
 }
 
 uint64_t StorageFileChunk::GetLogSegmentID()

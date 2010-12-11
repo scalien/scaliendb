@@ -41,21 +41,20 @@ bool StorageMemoChunk::UseBloomFilter()
     return useBloomFilter;
 }
 
-bool StorageMemoChunk::Get(ReadBuffer& key, ReadBuffer& value)
+StorageKeyValue* StorageMemoChunk::Get(ReadBuffer& key)
 {
     StorageMemoKeyValue* it;
 
     int cmpres;
     
     if (keyValues.GetCount() == 0)
-        return false;
+        return NULL;
         
     it = keyValues.Locate<ReadBuffer&>(key, cmpres);
     if (cmpres != 0)
-        return false;
+        return NULL;
 
-    value = it->GetValue();
-    return true;
+    return it;
 }
 
 bool StorageMemoChunk::Set(ReadBuffer& key, ReadBuffer& value)

@@ -26,8 +26,16 @@ public:
     ReadBuffer          GetLastKey();
     bool                RangeContains(ReadBuffer& key);
 
-    StorageMemoChunk* GetMemoChunk();
+    StorageMemoChunk*   GetMemoChunk();
     void                SetNewMemoChunk(StorageMemoChunk* memoChunk);
+
+    StorageChunk**      First();
+    StorageChunk**      Last();
+    StorageChunk**      Next(StorageChunk** curr);
+    StorageChunk**      Prev(StorageChunk** curr);
+
+    StorageShard*       prev;
+    StorageShard*       next;
 
 private:
     uint64_t            shardID;

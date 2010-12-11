@@ -7,11 +7,12 @@ StorageLogSegmentWriter::StorageLogSegmentWriter()
     fd = INVALID_FD;
 }
 
-bool StorageLogSegmentWriter::Open(const char* filename, uint64_t logSegmentID_)
+bool StorageLogSegmentWriter::Open(Buffer& filename, uint64_t logSegmentID_)
 {
     unsigned length;
     
-    fd = FS_Open(filename, FS_READWRITE);
+    filename.NullTerminate();
+    fd = FS_Open(filename.GetBuffer(), FS_READWRITE);
     if (fd == INVALID_FD)
         return false;
 
@@ -56,6 +57,8 @@ int64_t StorageLogSegmentWriter::AppendSet(uint64_t shardID, ReadBuffer& key, Re
 {
     assert(fd != INVALID_FD);
 
+    prevLength = writeBuffer.GetLength();
+
     writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_SET);
     writeBuffer.AppendLittle64(shardID);
     writeBuffer.AppendLittle32(key.GetLength());
@@ -70,6 +73,8 @@ int64_t StorageLogSegmentWriter::AppendDelete(uint64_t shardID, ReadBuffer& key)
 {
     assert(fd != INVALID_FD);
 
+    prevLength = writeBuffer.GetLength();
+
     writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_DELETE);
     writeBuffer.AppendLittle64(shardID);
     writeBuffer.AppendLittle32(key.GetLength());
@@ -78,12 +83,19 @@ int64_t StorageLogSegmentWriter::AppendDelete(uint64_t shardID, ReadBuffer& key)
     return true;
 }
 
+void StorageLogSegmentWriter::Undo()
+{
+    writeBuffer.SetLength(prevLength);
+}
+
 void StorageLogSegmentWriter::Commit()
 {
     uint32_t    length;
     uint32_t    checksum;
     ReadBuffer  dataPart;
     
+    commitStatus = true;
+
     assert(fd != INVALID_FD);
 
     length = writeBuffer.GetLength();
@@ -106,7 +118,7 @@ void StorageLogSegmentWriter::Commit()
     {
         FS_FileClose(fd);
         fd = INVALID_FD;
-        commitState = Failed;
+        commitStatus = false;
         return;
     }
     offset += length;
@@ -114,7 +126,11 @@ void StorageLogSegmentWriter::Commit()
     FS_Sync(fd);
     
     NewRound();
-    commitState = Succeeded;
+}
+
+bool StorageLogSegmentWriter::GetCommitStatus()
+{
+    return commitStatus;
 }
 
 uint64_t StorageLogSegmentWriter::GetOffset()
@@ -130,4 +146,6 @@ void StorageLogSegmentWriter::NewRound()
     writeBuffer.Allocate(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     writeBuffer.Zero();
     writeBuffer.SetLength(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);    
+
+    prevLength = writeBuffer.GetLength();
 }

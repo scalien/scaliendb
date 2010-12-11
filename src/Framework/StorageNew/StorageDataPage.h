@@ -24,18 +24,18 @@ class StorageDataPage : public StoragePage
 public:
     StorageDataPage();
 
-    uint32_t        GetSize();
+    uint32_t            GetSize();
 
-    bool            Get(ReadBuffer& key, ReadBuffer& value);
+    StorageKeyValue*    Get(ReadBuffer& key);
 
-    uint32_t        GetNumKeys();
-    uint32_t        GetLength();
-    uint32_t        GetIncrement(StorageMemoKeyValue* kv);
+    uint32_t            GetNumKeys();
+    uint32_t            GetLength();
+    uint32_t            GetIncrement(StorageMemoKeyValue* kv);
     
-    void            Append(StorageMemoKeyValue* kv);
-    void            Finalize();
+    void                Append(StorageMemoKeyValue* kv);
+    void                Finalize();
 
-    void            Write(Buffer& writeBuffer);
+    void                Write(Buffer& writeBuffer);
 
 private:
     uint32_t        size;

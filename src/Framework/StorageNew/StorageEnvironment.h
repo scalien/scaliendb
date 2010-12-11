@@ -45,7 +45,7 @@ public:
     bool                Delete(uint64_t shardID, ReadBuffer& key);
         
     void                SetOnCommit(Callable& onCommit);
-    void                Commit();
+    bool                Commit();
     bool                GetCommitStatus();
 
 private:
@@ -53,10 +53,9 @@ private:
     void                OnBackgroundTimeout();
     void                TryFinalizeLogSegment();
     void                TryFinalizeChunks();
-    void                TryFinalizeChunk(StorageMemoChunk* chunk);
     bool                IsWriteActive();
     StorageShard*       GetShard(uint64_t shardID);
-    StorageChunk*       GetChunk(uint64_t chunkID);
+//    StorageChunk*       GetChunk(uint64_t chunkID);
     void                StartJob(StorageJob* job);
 
     Callable            onCommit;

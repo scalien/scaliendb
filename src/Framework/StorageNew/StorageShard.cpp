@@ -41,14 +41,14 @@ bool StorageShard::RangeContains(ReadBuffer& key)
         if (lastKey.GetLength() == 0)
             return true;
         else
-            return (cl < 0);        //(key < lastKey);
+            return (cl < 0);        // (key < lastKey);
     }
     else if (lastKey.GetLength() == 0)
     {
-        return (cf <= 0);           //(firstKey <= key);
+        return (cf <= 0);           // (firstKey <= key);
     }
     else
-        return (cf <= 0 && cl < 0); //(firstKey <= key < lastKey);
+        return (cf <= 0 && cl < 0); // (firstKey <= key < lastKey);
 }
 
 StorageMemoChunk* StorageShard::GetMemoChunk()
@@ -59,4 +59,24 @@ StorageMemoChunk* StorageShard::GetMemoChunk()
 void StorageShard::SetNewMemoChunk(StorageMemoChunk* memoChunk)
 {
     chunks.Add(memoChunk);
+}
+
+StorageChunk** StorageShard::First()
+{
+    return chunks.First();
+}
+
+StorageChunk** StorageShard::Last()
+{
+    return chunks.Last();
+}
+
+StorageChunk** StorageShard::Next(StorageChunk** curr)
+{
+    return chunks.Next(curr);
+}
+
+StorageChunk** StorageShard::Prev(StorageChunk** curr)
+{
+    return chunks.Prev(curr);
 }

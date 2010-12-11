@@ -94,6 +94,7 @@
 ===============================================================================================
  */
 
-#define FOREACH(it, cont) for (it = (cont).First(); it != NULL; it = (cont).Next(it))
+#define FOREACH(it, cont)   for (it = (cont).First(); it != NULL; it = (cont).Next(it))
+#define BFOREACH(it, cont)  for (it = (cont).Last(); it != NULL; it = (cont).Prev(it))
 
 #endif

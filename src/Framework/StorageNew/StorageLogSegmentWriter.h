@@ -12,11 +12,9 @@
 class StorageLogSegmentWriter
 {
 public:
-    typedef enum CommitState {Succeeded, Failed} CommitState;
-
     StorageLogSegmentWriter();
     
-    bool            Open(const char* filename, uint64_t logSegmentID_);
+    bool            Open(Buffer& filename, uint64_t logSegmentID_);
     void            Close();
 
     uint64_t        GetLogSegmentID();
@@ -25,8 +23,10 @@ public:
     // Append..() functions return commandID:
     int64_t         AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
     int64_t         AppendDelete(uint64_t shardID, ReadBuffer& key);
+    void            Undo();
 
     void            Commit();
+    bool            GetCommitStatus();
 
     uint64_t        GetOffset();
 
@@ -36,9 +36,11 @@ private:
     FD              fd;
     uint64_t        logSegmentID;
     uint64_t        offset;
-    CommitState     commitState;
+    bool            commitStatus;
     Buffer          writeBuffer;
     Callable        onCommit;
+
+    uint64_t        prevLength;
 };
 
 #endif

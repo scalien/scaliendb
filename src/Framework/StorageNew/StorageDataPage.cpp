@@ -27,21 +27,20 @@ uint32_t StorageDataPage::GetSize()
     return size;
 }
 
-bool StorageDataPage::Get(ReadBuffer& key, ReadBuffer& value)
+StorageKeyValue* StorageDataPage::Get(ReadBuffer& key)
 {
     StorageFileKeyValue* it;
 
     int cmpres;
     
     if (keyValues.GetCount() == 0)
-        return false;
+        return NULL;
         
     it = keyValues.Locate<ReadBuffer&>(key, cmpres);
     if (cmpres != 0)
-        return false;
+        return NULL;
 
-    value = it->GetValue();
-    return true;
+    return it;
 }
 
 uint32_t StorageDataPage::GetNumKeys()
