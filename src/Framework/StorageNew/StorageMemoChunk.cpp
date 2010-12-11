@@ -23,7 +23,7 @@ StorageMemoChunk::StorageMemoChunk()
 
 void StorageMemoChunk::SetChunkID(uint64_t chunkID_)
 {
-    chunkID = chunkID;
+    chunkID = chunkID_;
 }
 
 void StorageMemoChunk::SetUseBloomFilter(bool useBloomFilter_)

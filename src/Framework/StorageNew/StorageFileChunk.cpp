@@ -2,6 +2,7 @@
 
 StorageFileChunk::StorageFileChunk()
 {
+    prev = next = this;
     dataPagesSize = 64;
     dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * dataPagesSize);
     numDataPages = 0;

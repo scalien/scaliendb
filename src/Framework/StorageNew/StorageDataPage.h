@@ -38,9 +38,9 @@ public:
     void                Write(Buffer& writeBuffer);
 
 private:
-    uint32_t        size;
-    Buffer          buffer;
-    KeyValueTree    keyValues;
+    uint32_t            size;
+    Buffer              buffer;
+    KeyValueTree        keyValues;
 };
 
 #endif

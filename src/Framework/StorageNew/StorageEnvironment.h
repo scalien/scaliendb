@@ -40,6 +40,11 @@ public:
     void                        SetStorageConfig(StorageConfig& config);
 
     uint64_t                    GetShardID(uint64_t tableID, ReadBuffer& key);
+
+    void                        CreateShard(uint64_t shardID, uint64_t tableID,
+                                 ReadBuffer& firstKey, ReadBuffer& lastKey, bool useBloomFilter);
+    void                        DeleteShard(uint64_t shardID);
+
     bool                        Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
     bool                        Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
     bool                        Delete(uint64_t shardID, ReadBuffer& key);
@@ -73,6 +78,9 @@ private:
     Buffer                      envPath;
     Buffer                      chunkPath;
     Buffer                      logPath;
+
+    uint64_t                    nextChunkID;
+    uint64_t                    nextLogSegmentID;
 };
 
 #endif

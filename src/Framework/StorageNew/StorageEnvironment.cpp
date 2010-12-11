@@ -8,7 +8,10 @@ StorageEnvironment::StorageEnvironment()
     commitThread = NULL;
     backgroundThread = NULL;
     backgroundTimer.SetDelay(1000);
-    backgroundTimer.SetCallable(MFUNC(StorageEnvironment, OnBackgroundTimeout));    
+    backgroundTimer.SetCallable(MFUNC(StorageEnvironment, OnBackgroundTimeout));
+
+    nextChunkID = 1;
+    nextLogSegmentID = 1;
 }
 
 bool StorageEnvironment::Open(Buffer& envPath_)
@@ -45,6 +48,12 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     tmp.Write(logPath);
     tmp.NullTerminate();
     FS_CreateDir(tmp.GetBuffer());
+
+    logSegmentWriter = new StorageLogSegmentWriter;
+    tmp.Write(logPath);
+    tmp.Appendf("log.%020U", nextLogSegmentID);
+    logSegmentWriter->Open(tmp, nextLogSegmentID);
+    nextLogSegmentID++;
 
     return true;
 }
@@ -200,6 +209,43 @@ StorageShard* StorageEnvironment::GetShard(uint64_t shardID)
     return NULL;
 }
 
+void StorageEnvironment::CreateShard(uint64_t shardID, uint64_t tableID,
+ ReadBuffer& firstKey, ReadBuffer& lastKey, bool useBloomFilter)
+{
+    StorageShard*       shard;
+    StorageMemoChunk*   memoChunk;
+
+    shard = GetShard(shardID);
+    if (shard != NULL)
+        return;
+
+    shard = new StorageShard;
+    shard->SetShardID(shardID);
+    shard->SetTableID(tableID);
+    shard->SetFirstKey(firstKey);
+    shard->SetLastKey(lastKey);
+
+    memoChunk = new StorageMemoChunk;
+    memoChunk->SetChunkID(nextChunkID++);
+    memoChunk->SetUseBloomFilter(useBloomFilter);
+
+    shard->SetNewMemoChunk(memoChunk);
+
+    shards.Append(shard);
+}
+
+void StorageEnvironment::DeleteShard(uint64_t shardID)
+{
+    StorageShard* shard;
+
+    shard = GetShard(shardID);
+    if (shard == NULL)
+        return;
+
+    // TODO: decrease reference counts
+    shards.Delete(shard);
+}
+
 void StorageEnvironment::OnCommit()
 {
     TryFinalizeLogSegment();
@@ -227,25 +273,21 @@ void StorageEnvironment::OnBackgroundTimeout()
 
 void StorageEnvironment::TryFinalizeLogSegment()
 {
-    uint64_t    logSegmentID;
-    Buffer      filename;
+    Buffer tmp;
 
     if (logSegmentWriter->GetOffset() < config.logSegmentSize)
         return;
 
     logSegmentWriter->Close();
 
-    logSegmentID = logSegmentWriter->GetLogSegmentID();
-    logSegmentID++;
-
     delete logSegmentWriter; // this is wrong
 // TODO:    logSegments.Append(logSegmentWriter);
 
-    logSegmentWriter = new StorageLogSegmentWriter();
-    filename.Writef("log.%020U", logSegmentID);
-    logSegmentWriter->Open(filename, logSegmentID);
-
-    logSegmentID++;
+    logSegmentWriter = new StorageLogSegmentWriter;
+    tmp.Write(logPath);
+    tmp.Appendf("log.%020U", nextLogSegmentID);
+    logSegmentWriter->Open(tmp, nextLogSegmentID);
+    nextLogSegmentID++;
 }
 
 void StorageEnvironment::TryFinalizeChunks()

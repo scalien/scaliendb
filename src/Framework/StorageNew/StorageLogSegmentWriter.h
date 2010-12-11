@@ -43,6 +43,7 @@ private:
 
     FD              fd;
     uint64_t        logSegmentID;
+    uint64_t        logCommandID;
     uint64_t        offset;
     bool            commitStatus;
     Buffer          writeBuffer;

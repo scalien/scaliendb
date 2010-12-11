@@ -6,7 +6,7 @@ bool StorageChunkWriter::Write(StorageFileChunk* file_)
 {
     file = file_;
 
-    if (fd.Open(file->GetFilename().GetBuffer(), FS_READWRITE) == INVALID_FD)
+    if (fd.Open(file->GetFilename().GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
         return false;
     
     if (!WriteEmptyHeaderPage())

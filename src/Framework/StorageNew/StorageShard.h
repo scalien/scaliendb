@@ -19,6 +19,14 @@ class StorageShard
     typedef SortedList<StorageChunk*> ChunkList;
 
 public:
+
+    StorageShard();
+
+    void                SetTableID(uint64_t tableID);
+    void                SetShardID(uint64_t shardID);
+    void                SetFirstKey(ReadBuffer& firstKey);
+    void                SetLastKey(ReadBuffer& lastKey);
+
     uint64_t            GetTableID();
     uint64_t            GetShardID();
 
@@ -41,10 +49,10 @@ private:
     uint64_t            shardID;
     uint64_t            tableID;
 
-    ChunkList           chunks; // contains all active chunks, in order, first is the write chunk
-
     Buffer              firstKey;
     Buffer              lastKey;
+
+    ChunkList           chunks; // contains all active chunks, in order, first is the write chunk
 };
 
 #endif
