@@ -17,6 +17,7 @@
 class StorageChunk
 {
 public:
+    typedef enum ChunkState { Tree, Serialized, Unwritten, Written } ChunkState;
     typedef InTreeNode<StorageChunk> TreeNode;
 
     virtual uint64_t            GetChunkID() = 0;
@@ -28,6 +29,7 @@ public:
     virtual uint32_t            GetLogCommandID() = 0;
     
     virtual uint64_t            GetSize() = 0;
+    virtual ChunkState          GetChunkState() = 0;
 
     unsigned                    numShards;      // this chunk backs this many shards
 

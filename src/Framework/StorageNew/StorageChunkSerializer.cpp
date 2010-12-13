@@ -61,7 +61,7 @@ bool StorageChunkSerializer::WriteDataPages()
     StorageMemoKeyValue*    it;
     StorageDataPage*        dataPage;
     unsigned                dataPageIndex;
-    
+
     dataPageIndex = 0;
 
     dataPage = new StorageDataPage;
@@ -90,6 +90,8 @@ bool StorageChunkSerializer::WriteDataPages()
                 dataPageIndex++;
                 dataPage = new StorageDataPage;
                 dataPage->SetOffset(offset);
+                dataPage->Append(it);
+                fileChunk->indexPage.Append(it->GetKey(), dataPageIndex, offset);
             }
         }
     }
@@ -103,6 +105,8 @@ bool StorageChunkSerializer::WriteDataPages()
         dataPageIndex++;
     }
     
+    fileChunk->indexPage.Finalize();
+
     return true;
 }
 

@@ -27,7 +27,7 @@ public:
     StorageMemoChunk();
     ~StorageMemoChunk();
     
-    bool                IsSerialized();
+    ChunkState          GetChunkState();
     
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);

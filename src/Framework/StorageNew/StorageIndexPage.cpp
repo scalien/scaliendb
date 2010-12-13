@@ -47,8 +47,9 @@ bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset
     }
     else
     {
-        index = indexTree.Prev(it)->index;
-        offset = indexTree.Prev(it)->offset;
+        it = indexTree.Prev(it);
+        index = it->index;
+        offset = it->offset;
     }
 
     return true;
@@ -87,7 +88,7 @@ void StorageIndexPage::Finalize()
         size += STORAGE_DEFAULT_INDEX_PAGE_GRAN;
 
     buffer.Allocate(size);
-    buffer.Zero();
+    buffer.ZeroRest();
 
     // compute checksum
     dataPart.SetBuffer(buffer.GetBuffer() + 8);
@@ -111,6 +112,7 @@ void StorageIndexPage::Finalize()
         pos += 2;                           // klen
         kpos = buffer.GetBuffer() + pos;        
         it->key = ReadBuffer(kpos, klen);
+        pos += klen;
     }
 }
 

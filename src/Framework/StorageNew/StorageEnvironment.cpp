@@ -100,6 +100,7 @@ uint64_t StorageEnvironment::GetShardID(uint64_t tableID, ReadBuffer& key)
 bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer key, ReadBuffer& value)
 {
     StorageShard*       shard;
+    StorageChunk*       chunk;
     StorageChunk**      itChunk;
     StorageKeyValue*    kv;
 
@@ -107,7 +108,25 @@ bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer key, ReadBuffer& value
     if (shard == NULL)
         return false;
 
-    BFOREACH(itChunk, (*shard))
+    chunk = shard->GetMemoChunk();
+    kv = chunk->Get(key);
+    if (kv != NULL)
+    {
+        if (kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+        {
+            return false;
+        }
+        else if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+        {
+            value = kv->GetValue();
+            return true;
+        }
+        else
+            ASSERT_FAIL();
+    }
+
+
+    BFOREACH(itChunk, shard->GetChunks())
     {
         kv = (*itChunk)->Get(key);
         if (kv != NULL)
@@ -308,20 +327,33 @@ void StorageEnvironment::TrySerializeChunks()
     StorageShard*               itShard;
     StorageMemoChunk*           memoChunk;
     StorageFileChunk*           fileChunk;
+    StorageChunk**              itChunk;
     StorageJob*                 job;
 
     // look for memoChunks which have been serialized already
     FOREACH(itShard, shards)
     {
-        memoChunk = itShard->GetMemoChunk();
-        if (memoChunk->IsSerialized())
+        for (itChunk = itShard->GetChunks().First(); itChunk != NULL; /* advanced in body */)
         {
-            fileChunk = memoChunk->RemoveFileChunk();
-            itShard->OnChunkSerialized(memoChunk, fileChunk);
-            Log_Message("Deleting MemoChunk...");
-            delete memoChunk;
-            
-            fileChunks.Append(fileChunk);
+            if ((*itChunk)->GetChunkState() == StorageChunk::Serialized)
+            {
+                memoChunk = (StorageMemoChunk*) (*itChunk);
+                fileChunk = memoChunk->RemoveFileChunk();
+                if (fileChunk == NULL)
+                    goto Advance;
+                itShard->OnChunkSerialized(memoChunk, fileChunk);
+                Log_Message("Deleting MemoChunk...");
+                delete memoChunk;
+                
+                fileChunks.Append(fileChunk);
+
+                itChunk = itShard->GetChunks().First();
+            }
+            else
+            {
+Advance:
+                itChunk = itChunk = itShard->GetChunks().Next(itChunk);
+            }
         }
     }
 
@@ -354,7 +386,7 @@ void StorageEnvironment::TryWriteChunks()
 
     FOREACH(it, fileChunks)
     {
-        if (!it->IsWritten())
+        if (it->GetChunkState() == StorageChunk::Unwritten)
         {
             job = new StorageWriteChunkJob(it);
             StartJob(writerThread, job);

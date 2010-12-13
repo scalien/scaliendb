@@ -24,13 +24,16 @@ StorageMemoChunk::StorageMemoChunk()
 
 StorageMemoChunk::~StorageMemoChunk()
 {
-    assert(fileChunk);
+    assert(fileChunk == NULL);
     keyValues.DeleteTree();
 }
 
-bool StorageMemoChunk::IsSerialized()
+StorageChunk::ChunkState StorageMemoChunk::GetChunkState()
 {
-    return serialized;
+    if (serialized)
+        return StorageChunk::Serialized;
+    else
+        return StorageChunk::Tree;
 }
 
 void StorageMemoChunk::SetChunkID(uint64_t chunkID_)

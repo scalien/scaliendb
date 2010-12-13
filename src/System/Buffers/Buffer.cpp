@@ -54,8 +54,8 @@ void Buffer::Allocate(unsigned size_, bool keepold)
     if (size_ <= size)
         return;
     
-//    size_ = size_ + ALLOC_GRANURALITY - 1;
-//    size_ -= size_ % ALLOC_GRANURALITY;
+    //size_ = size_ + ALLOC_GRANURALITY - 1;
+    //size_ -= size_ % ALLOC_GRANURALITY;
 
     newSize = 1;
     for (i = 0; i < 256; i++)

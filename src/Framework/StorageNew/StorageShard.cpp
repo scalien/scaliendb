@@ -102,6 +102,12 @@ StorageMemoChunk* StorageShard::GetMemoChunk()
     return memoChunk;
 }
 
+StorageShard::ChunkList& StorageShard::GetChunks()
+{
+    return chunks;
+}
+
+
 void StorageShard::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk)
 {
     StorageChunk* chunk;
@@ -109,30 +115,4 @@ void StorageShard::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChu
 
     chunks.Remove(chunk);
     chunks.Add(fileChunk);
-}
-
-StorageChunk** StorageShard::First()
-{
-    return chunks.First();
-}
-
-StorageChunk** StorageShard::Last()
-{
-    return (StorageChunk**) &memoChunk;
-}
-
-StorageChunk** StorageShard::Next(StorageChunk** curr)
-{
-    if (curr == chunks.Last())
-        return (StorageChunk**) &memoChunk;
-    else
-        return chunks.Next(curr);
-}
-
-StorageChunk** StorageShard::Prev(StorageChunk** curr)
-{
-    if (*curr == memoChunk)
-        return chunks.Last();
-    else
-        return chunks.Prev(curr);
 }

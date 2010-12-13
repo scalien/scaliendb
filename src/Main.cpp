@@ -28,7 +28,8 @@ int main()
     env.CreateShard(1, 1, ReadBuffer(""), ReadBuffer(""), true);
     
     Buffer key, value;
-    for (uint64_t i = 0; i < 1000*1000; i++)
+    uint64_t i;
+    for (i = 0; i < 1000*1000; i++)
     {
         key.Writef("%U", i);
         value.Writef("%0100U", i);
@@ -39,16 +40,19 @@ int main()
             Log_Message("%U", i);
         }
     }
+    env.Commit();
     
     ReadBuffer rv;
-    for (uint64_t i = 0; i < 1000; i++)
+    uint64_t rnd;
+    Log_Message("GET begin");
+    for (i = 0; i < 100*1000; i++)
     {
-        key.Writef("%U", RandomInt(0, 1000*1000));
-        if (env.Get(1, ReadBuffer(key), rv))
-            Log_Message("%B => %R", &key, &rv);
-        else
+        rnd = RandomInt(0, 1000*1000 - 1);
+        key.Writef("%U", rnd);
+        if (!env.Get(1, ReadBuffer(key), rv))
             Log_Message("%B => not found", &key);
     }
+    Log_Message("GET end");
     env.Close();
     
     EventLoop::Shutdown();

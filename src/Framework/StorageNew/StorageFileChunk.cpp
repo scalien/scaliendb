@@ -26,9 +26,12 @@ Buffer& StorageFileChunk::GetFilename()
     return filename;
 }
 
-bool StorageFileChunk::IsWritten()
+StorageChunk::ChunkState StorageFileChunk::GetChunkState()
 {
-    return written;
+    if (written)
+        return StorageChunk::Written;
+    else
+        return StorageChunk::Unwritten;
 }
 
 uint64_t StorageFileChunk::GetChunkID()
@@ -53,8 +56,7 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
     }
 
     if (!indexPage.Locate(key, index, offset))
-        return false;
-
+        return NULL;
     return dataPages[index]->Get(key);
 }
 

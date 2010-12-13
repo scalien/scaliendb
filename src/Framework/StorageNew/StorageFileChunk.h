@@ -30,7 +30,7 @@ public:
     void                SetFilename(Buffer& filename);
     Buffer&             GetFilename();
 
-    bool                IsWritten();
+    ChunkState          GetChunkState();
 
     uint64_t            GetChunkID();
     bool                UseBloomFilter();

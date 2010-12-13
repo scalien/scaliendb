@@ -16,9 +16,8 @@
 
 class StorageShard
 {
-    typedef SortedList<StorageChunk*> ChunkList;
-
 public:
+    typedef SortedList<StorageChunk*> ChunkList;
 
     StorageShard();
 
@@ -38,13 +37,10 @@ public:
 
     void                PushMemoChunk(StorageMemoChunk* memoChunk);
     StorageMemoChunk*   GetMemoChunk();
+    ChunkList&          GetChunks();
     void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
 
     StorageMemoChunk*   memoChunk;
-    StorageChunk**      First();
-    StorageChunk**      Last();
-    StorageChunk**      Next(StorageChunk** curr);
-    StorageChunk**      Prev(StorageChunk** curr);
 
     StorageShard*       prev;
     StorageShard*       next;
