@@ -6,6 +6,7 @@ StorageLogSegmentWriter::StorageLogSegmentWriter()
     logSegmentID = 0;
     fd = INVALID_FD;
     logCommandID = 1;
+    writeShardID = true;
 }
 
 bool StorageLogSegmentWriter::Open(Buffer& filename, uint64_t logSegmentID_)
@@ -67,6 +68,8 @@ int32_t StorageLogSegmentWriter::AppendSet(uint64_t shardID, ReadBuffer& key, Re
     writeBuffer.AppendLittle32(value.GetLength());
     writeBuffer.Append(value);
 
+    writeShardID = false;
+    prevShardID = shardID;
     return logCommandID++;
 }
 
@@ -77,10 +80,21 @@ int32_t StorageLogSegmentWriter::AppendDelete(uint64_t shardID, ReadBuffer& key)
     prevLength = writeBuffer.GetLength();
 
     writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_DELETE);
-    writeBuffer.AppendLittle64(shardID);
+
+    if (!writeShardID && shardID == prevShardID)
+    {
+        writeBuffer.Appendf("%b", true); // use previous shardID
+    }
+    else
+    {
+        writeBuffer.Appendf("%b", false);
+        writeBuffer.AppendLittle64(shardID);
+    }
     writeBuffer.AppendLittle32(key.GetLength());
     writeBuffer.Append(key);
 
+    writeShardID = false;
+    prevShardID = shardID;
     return logCommandID++;
 }
 
@@ -88,6 +102,7 @@ void StorageLogSegmentWriter::Undo()
 {
     writeBuffer.SetLength(prevLength);
     logCommandID--;
+    writeShardID = true;
 }
 
 void StorageLogSegmentWriter::Commit()

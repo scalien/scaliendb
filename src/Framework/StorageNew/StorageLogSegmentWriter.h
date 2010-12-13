@@ -49,6 +49,8 @@ private:
     Buffer          writeBuffer;
     Callable        onCommit;
 
+    bool            writeShardID;
+    uint64_t        prevShardID;
     unsigned        prevLength;
 };
 
