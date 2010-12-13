@@ -26,12 +26,14 @@ public:
     void                SetShardID(uint64_t shardID);
     void                SetFirstKey(ReadBuffer& firstKey);
     void                SetLastKey(ReadBuffer& lastKey);
+    void                SetUseBloomFilter(bool useBloomFilter);
 
     uint64_t            GetTableID();
     uint64_t            GetShardID();
-
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
+    bool                UseBloomFilter();
+    
     bool                RangeContains(ReadBuffer& key);
 
     StorageMemoChunk*   GetMemoChunk();
@@ -48,9 +50,9 @@ public:
 private:
     uint64_t            shardID;
     uint64_t            tableID;
-
     Buffer              firstKey;
     Buffer              lastKey;
+    bool                useBloomFilter;
 
     ChunkList           chunks; // contains all active chunks, in order, first is the write chunk
 };

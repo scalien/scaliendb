@@ -48,6 +48,8 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     tmp.Write(logPath);
     tmp.NullTerminate();
     FS_CreateDir(tmp.GetBuffer());
+    
+    // TODO: open 'toc' or 'toc.new' file
 
     logSegmentWriter = new StorageLogSegmentWriter;
     tmp.Write(logPath);
@@ -224,6 +226,7 @@ void StorageEnvironment::CreateShard(uint64_t shardID, uint64_t tableID,
     shard->SetTableID(tableID);
     shard->SetFirstKey(firstKey);
     shard->SetLastKey(lastKey);
+    shard->SetUseBloomFilter(useBloomFilter);
 
     memoChunk = new StorageMemoChunk;
     memoChunk->SetChunkID(nextChunkID++);
@@ -232,18 +235,20 @@ void StorageEnvironment::CreateShard(uint64_t shardID, uint64_t tableID,
     shard->SetNewMemoChunk(memoChunk);
 
     shards.Append(shard);
+    
+    WriteTOC();
 }
 
-void StorageEnvironment::DeleteShard(uint64_t shardID)
+void StorageEnvironment::DeleteShard(uint64_t /*shardID*/)
 {
-    StorageShard* shard;
-
-    shard = GetShard(shardID);
-    if (shard == NULL)
-        return;
-
-    // TODO: decrease reference counts
-    shards.Delete(shard);
+//    StorageShard* shard;
+//
+//    shard = GetShard(shardID);
+//    if (shard == NULL)
+//        return;
+//
+//    // TODO: decrease reference counts
+//    shards.Delete(shard);
 }
 
 void StorageEnvironment::OnCommit()
@@ -305,24 +310,19 @@ void StorageEnvironment::TryFinalizeChunks()
             fileChunk = serializer.Serialize(memoChunk);
             if (fileChunk == NULL)
             {
-                // TODO
+                Log_Trace("StorageChunkSerializer::Serialize() failed");
+                return;
             }
 
             delete memoChunk;
+
+            memoChunk = new StorageMemoChunk;
+            memoChunk->SetChunkID(nextChunkID++);
+            memoChunk->SetUseBloomFilter(itShard->UseBloomFilter());
+
+            itShard->SetNewMemoChunk(memoChunk);
         }
     }
-
-    //FOREACH(itShard, shards)
-    //{
-    //    if (!itShard->GetMemoChunk()->IsFinalized())
-    //        continue;
-
-    //    newChunk = new StorageChunk;
-    //    newChunk->SetChunkID(NextChunkID(activeChunk->GetChunkID()));
-    //    newChunk->SetBloomFilter(itShard->UseBloomFilter());
-    //    itShard->SetNewWriteChunk(newChunk);
-    //    chunks.Append(newChunk);
-    //}
 }
 
 bool StorageEnvironment::IsWriteActive()
@@ -334,4 +334,9 @@ void StorageEnvironment::StartJob(StorageJob* job)
 {
     MFunc<StorageJob, &StorageJob::Execute> callable(job);        
     backgroundThread->Execute(callable);
+}
+
+void StorageEnvironment::WriteTOC()
+{
+    // TODO: write to disk in 'toc.new' file, then delete 'toc', then rename to 'toc'
 }

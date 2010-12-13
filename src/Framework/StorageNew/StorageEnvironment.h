@@ -61,6 +61,7 @@ private:
     bool                        IsWriteActive();
     StorageShard*               GetShard(uint64_t shardID);
     void                        StartJob(StorageJob* job);
+    void                        WriteTOC();
 
     Callable                    onCommit;
 

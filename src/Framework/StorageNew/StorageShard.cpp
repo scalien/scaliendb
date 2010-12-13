@@ -32,6 +32,11 @@ void StorageShard::SetLastKey(ReadBuffer& lastKey_)
     lastKey.Write(lastKey_);
 }
 
+void StorageShard::SetUseBloomFilter(bool useBloomFilter_)
+{
+    useBloomFilter = useBloomFilter_;
+}
+
 uint64_t StorageShard::GetTableID()
 {
     return tableID;
@@ -50,6 +55,11 @@ ReadBuffer StorageShard::GetFirstKey()
 ReadBuffer StorageShard::GetLastKey()
 {
     return ReadBuffer(lastKey);
+}
+
+bool StorageShard::UseBloomFilter()
+{
+    return useBloomFilter;
 }
 
 bool StorageShard::RangeContains(ReadBuffer& key)
