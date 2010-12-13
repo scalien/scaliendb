@@ -20,7 +20,7 @@ public:
     uint32_t        GetSize();
     
     void            SetNumKeys(uint64_t numKeys);
-    void            Add(ReadBuffer& key);
+    void            Add(ReadBuffer key);
     void            Write(Buffer& writeBuffer);
     
     bool            Check(ReadBuffer& key);

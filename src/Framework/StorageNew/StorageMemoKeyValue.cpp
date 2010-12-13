@@ -6,7 +6,7 @@ StorageMemoKeyValue::StorageMemoKeyValue()
     value = NULL;
 }
 
-void StorageMemoKeyValue::Set(ReadBuffer& key_, ReadBuffer& value_)
+void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_)
 {
     if (key == NULL)
         key = new Buffer;
@@ -16,7 +16,7 @@ void StorageMemoKeyValue::Set(ReadBuffer& key_, ReadBuffer& value_)
     value->Write(value_);
 }
 
-void StorageMemoKeyValue::Delete(ReadBuffer& key_)
+void StorageMemoKeyValue::Delete(ReadBuffer key_)
 {
     if (key == NULL)
         key = new Buffer;

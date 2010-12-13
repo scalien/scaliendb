@@ -45,7 +45,7 @@ public:
 
     bool                Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset);
 
-    void                Append(ReadBuffer& key, uint32_t index, uint32_t offset);
+    void                Append(ReadBuffer key, uint32_t index, uint32_t offset);
     void                Finalize();
     void                Write(Buffer& writeBuffer);
 

@@ -54,7 +54,7 @@ bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset
     return true;
 }
 
-void StorageIndexPage::Append(ReadBuffer& key, uint32_t index, uint32_t offset)
+void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint32_t offset)
 {
     StorageIndexRecord* record;
     unsigned            keypos;

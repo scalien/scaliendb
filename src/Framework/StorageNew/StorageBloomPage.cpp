@@ -21,7 +21,7 @@ void StorageBloomPage::SetNumKeys(uint64_t numKeys)
     bloomFilter.SetSize(numBytes);
 }
 
-void StorageBloomPage::Add(ReadBuffer& key)
+void StorageBloomPage::Add(ReadBuffer key)
 {
     bloomFilter.Add(key);
 }

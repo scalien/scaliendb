@@ -177,7 +177,7 @@ void Buffer::Append(Buffer& other)
     Append(other.GetBuffer(), other.GetLength());
 }
 
-void Buffer::Append(ReadBuffer& other)
+void Buffer::Append(ReadBuffer other)
 {
     Append(other.GetBuffer(), other.GetLength());
 }

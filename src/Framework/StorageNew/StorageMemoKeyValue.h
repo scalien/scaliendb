@@ -20,8 +20,8 @@ public:
 
     StorageMemoKeyValue();
 
-    void            Set(ReadBuffer& key, ReadBuffer& value);
-    void            Delete(ReadBuffer& key);
+    void            Set(ReadBuffer key, ReadBuffer value);
+    void            Delete(ReadBuffer key);
     
     char            GetType();
     ReadBuffer      GetKey();

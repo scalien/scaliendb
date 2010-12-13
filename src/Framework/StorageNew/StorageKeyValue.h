@@ -17,8 +17,8 @@
 class StorageKeyValue
 {
 public:
-    virtual void            Set(ReadBuffer& key, ReadBuffer& value) = 0;
-    virtual void            Delete(ReadBuffer& key) = 0;
+    virtual void            Set(ReadBuffer key, ReadBuffer value) = 0;
+    virtual void            Delete(ReadBuffer key) = 0;
     
     virtual char            GetType() = 0;
     virtual ReadBuffer      GetKey() = 0;

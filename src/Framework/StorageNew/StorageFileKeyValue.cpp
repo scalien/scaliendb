@@ -5,14 +5,14 @@ StorageFileKeyValue::StorageFileKeyValue()
     type = 0;
 }
 
-void StorageFileKeyValue::Set(ReadBuffer& key_, ReadBuffer& value_)
+void StorageFileKeyValue::Set(ReadBuffer key_, ReadBuffer value_)
 {
     type = STORAGE_KEYVALUE_TYPE_SET;
     key = key_;
     value = value_;
 }
 
-void StorageFileKeyValue::Delete(ReadBuffer& key_)
+void StorageFileKeyValue::Delete(ReadBuffer key_)
 {
     type = STORAGE_KEYVALUE_TYPE_DELETE;
     key = key_;
