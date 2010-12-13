@@ -19,6 +19,7 @@ public:
     typedef InTreeNode<StorageMemoKeyValue> TreeNode;
 
     StorageMemoKeyValue();
+    ~StorageMemoKeyValue();
 
     void            Set(ReadBuffer key, ReadBuffer value);
     void            Delete(ReadBuffer key);

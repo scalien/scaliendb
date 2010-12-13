@@ -6,6 +6,14 @@ StorageMemoKeyValue::StorageMemoKeyValue()
     value = NULL;
 }
 
+StorageMemoKeyValue::~StorageMemoKeyValue()
+{
+    if (key != NULL)
+        delete key;
+    if (value != NULL)
+        delete value;
+}
+
 void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_)
 {
     if (key == NULL)

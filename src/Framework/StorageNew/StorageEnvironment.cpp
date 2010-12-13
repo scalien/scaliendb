@@ -316,8 +316,9 @@ void StorageEnvironment::TrySerializeChunks()
         memoChunk = itShard->GetMemoChunk();
         if (memoChunk->IsSerialized())
         {
-            fileChunk = memoChunk->GetFileChunk();
+            fileChunk = memoChunk->RemoveFileChunk();
             itShard->OnChunkSerialized(memoChunk, fileChunk);
+            Log_Message("Deleting MemoChunk...");
             delete memoChunk;
             
             fileChunks.Append(fileChunk);

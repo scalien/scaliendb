@@ -25,6 +25,7 @@ public:
     typedef InTreeMap<StorageMemoKeyValue> KeyValueTree;
     
     StorageMemoChunk();
+    ~StorageMemoChunk();
     
     bool                IsSerialized();
     
@@ -44,7 +45,7 @@ public:
     
     uint64_t            GetSize();
     
-    StorageFileChunk*   GetFileChunk();
+    StorageFileChunk*   RemoveFileChunk();
         
 private:
     bool                serialized;

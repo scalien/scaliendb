@@ -22,6 +22,12 @@ StorageMemoChunk::StorageMemoChunk()
     size = 0;
 }
 
+StorageMemoChunk::~StorageMemoChunk()
+{
+    assert(fileChunk);
+    keyValues.DeleteTree();
+}
+
 bool StorageMemoChunk::IsSerialized()
 {
     return serialized;
@@ -142,7 +148,10 @@ uint64_t StorageMemoChunk::GetSize()
     return size;
 }
 
-StorageFileChunk* StorageMemoChunk::GetFileChunk()
+StorageFileChunk* StorageMemoChunk::RemoveFileChunk()
 {
-    return fileChunk;
+    StorageFileChunk* ret;
+    ret = fileChunk;
+    fileChunk = NULL;
+    return ret;
 }
