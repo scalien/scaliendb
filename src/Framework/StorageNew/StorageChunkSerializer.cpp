@@ -3,7 +3,7 @@
 #include "StorageFileChunk.h"
 #include "PointerGuard.h"
 
-StorageFileChunk* StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_)
+bool StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_)
 {
     PointerGuard<StorageFileChunk> fileGuard(new StorageFileChunk);
     
@@ -16,24 +16,26 @@ StorageFileChunk* StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_
     offset = STORAGE_HEADER_PAGE_SIZE;
     
     if (!WriteDataPages())
-        return NULL;
+        return false;
 
     if (!WriteIndexPage())
-        return NULL;
+        return false;
 
     if (memoChunk->UseBloomFilter())
     {
         if (!WriteBloomPage())
-            return NULL;
+            return false;
     }
 
     if (!WriteHeaderPage())
-        return NULL;
+        return false;
 
     fileChunk->fileSize = offset;
     fileChunk->written = false;
 
-    return fileGuard.Release();
+    memoChunk->fileChunk = fileGuard.Release();
+    memoChunk->serialized = true;
+    return true;
 }
 
 bool StorageChunkSerializer::WriteHeaderPage()

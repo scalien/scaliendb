@@ -57,15 +57,13 @@ bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset
 void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint32_t offset)
 {
     StorageIndexRecord* record;
-    unsigned            keypos;
 
     buffer.AppendLittle32(offset);
     buffer.AppendLittle16(key.GetLength());
-    keypos = buffer.GetLength();
     buffer.Append(key);
     
     record = new StorageIndexRecord;
-    record->key = ReadBuffer(buffer.GetBuffer() + keypos, key.GetLength());
+    record->key = key;
     record->index = index;
     record->offset = offset;
     
@@ -74,8 +72,10 @@ void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint32_t offset)
 
 void StorageIndexPage::Finalize()
 {
-    uint32_t            div, mod, numKeys, checksum, length;
+    uint32_t            div, mod, numKeys, checksum, length, klen, pos;
+    char*               kpos;
     ReadBuffer          dataPart;
+    StorageIndexRecord* it;
 
     numKeys = indexTree.GetCount();
     length = buffer.GetLength();
@@ -100,6 +100,18 @@ void StorageIndexPage::Finalize()
     buffer.AppendLittle32(numKeys);
 
     buffer.SetLength(size);
+
+    // set ReadBuffers in tree
+    pos = 12;
+    FOREACH(it, indexTree)
+    {
+        klen = it->key.GetLength();
+        
+        pos += 4;                           // offset
+        pos += 2;                           // klen
+        kpos = buffer.GetBuffer() + pos;        
+        it->key = ReadBuffer(kpos, klen);
+    }
 }
 
 void StorageIndexPage::Write(Buffer& writeBuffer)

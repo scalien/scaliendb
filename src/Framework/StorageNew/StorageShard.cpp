@@ -2,7 +2,7 @@
 
 inline bool LessThan(StorageChunk* a, StorageChunk* b)
 {
-    return (a->GetChunkID() < b->GetChunkID());
+    return (a->GetChunkID() < b->GetChunkID()); // TODO: this is old code
 }
 
 StorageShard::StorageShard()
@@ -10,6 +10,7 @@ StorageShard::StorageShard()
     prev = next = this;
     tableID = 0;
     shardID = 0;
+    memoChunk = NULL;
 }
 
 void StorageShard::SetTableID(uint64_t tableID_)
@@ -88,14 +89,26 @@ bool StorageShard::RangeContains(ReadBuffer& key)
         return (cf <= 0 && cl < 0); // (firstKey <= key < lastKey);
 }
 
-StorageMemoChunk* StorageShard::GetMemoChunk()
+void StorageShard::PushMemoChunk(StorageMemoChunk* memoChunk_)
 {
-    return (StorageMemoChunk*) *chunks.Last();
+    if (memoChunk != NULL)
+        chunks.Add(memoChunk);
+
+    memoChunk = memoChunk_;
 }
 
-void StorageShard::SetNewMemoChunk(StorageMemoChunk* memoChunk)
+StorageMemoChunk* StorageShard::GetMemoChunk()
 {
-    chunks.Add(memoChunk);
+    return memoChunk;
+}
+
+void StorageShard::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk)
+{
+    StorageChunk* chunk;
+    chunk = (StorageChunk*)memoChunk;
+
+    chunks.Remove(chunk);
+    chunks.Add(fileChunk);
 }
 
 StorageChunk** StorageShard::First()

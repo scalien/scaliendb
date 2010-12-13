@@ -11,8 +11,8 @@
 ===============================================================================================
 */
 
-#define STORAGE_DEFAULT_CHUNKSIZE           64*MiB
-#define STORAGE_DEFAULT_LOGSEGMENTSIZE      64*MiB
+#define STORAGE_DEFAULT_CHUNKSIZE           16*MiB
+#define STORAGE_DEFAULT_LOGSEGMENTSIZE      16*MiB
 
 class StorageConfig
 {

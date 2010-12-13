@@ -6,12 +6,18 @@
 StorageEnvironment::StorageEnvironment()
 {
     commitThread = NULL;
-    backgroundThread = NULL;
-    backgroundTimer.SetDelay(1000);
+    serializerThread = NULL;
+    writerThread = NULL;
+    backgroundTimer.SetDelay(10*1000);
     backgroundTimer.SetCallable(MFUNC(StorageEnvironment, OnBackgroundTimeout));
+
+    onChunkWrite = MFUNC(StorageEnvironment, OnChunkWrite);
+    onChunkWrite = MFUNC(StorageEnvironment, OnChunkSerialize);
 
     nextChunkID = 1;
     nextLogSegmentID = 1;
+    
+    asyncCommit = false;
 }
 
 bool StorageEnvironment::Open(Buffer& envPath_)
@@ -22,8 +28,11 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     commitThread = ThreadPool::Create(1);
     commitThread->Start();
     
-    backgroundThread = ThreadPool::Create(1);
-    backgroundThread->Start();
+    serializerThread = ThreadPool::Create(1);
+    serializerThread->Start();
+
+    writerThread = ThreadPool::Create(1);
+    writerThread->Start();
     EventLoop::Add(&backgroundTimer);
 
     envPath.Write(envPath_);
@@ -32,7 +41,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
         envPath.Append('/');
 
     chunkPath.Write(envPath);
-    chunkPath.Append("chunks/");
+    chunkPath.Append("chunk/");
 
     logPath.Write(envPath);
     logPath.Append("log/");
@@ -63,7 +72,8 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 void StorageEnvironment::Close()
 {
     commitThread->Stop();
-    backgroundThread->Stop();
+    serializerThread->Stop();
+    writerThread->Stop();
 }
 
 void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
@@ -87,7 +97,7 @@ uint64_t StorageEnvironment::GetShardID(uint64_t tableID, ReadBuffer& key)
     return 0;
 }
 
-bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
+bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer key, ReadBuffer& value)
 {
     StorageShard*       shard;
     StorageChunk**      itChunk;
@@ -119,7 +129,7 @@ bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& valu
     return false;
 }
 
-bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
+bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer key, ReadBuffer value)
 {
     uint64_t            commandID;
     StorageShard*       shard;
@@ -148,9 +158,9 @@ bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& valu
     return true;
 }
 
-bool StorageEnvironment::Delete(uint64_t shardID, ReadBuffer& key)
+bool StorageEnvironment::Delete(uint64_t shardID, ReadBuffer key)
 {
-    uint64_t            commandID;
+    uint32_t            commandID;
     StorageShard*       shard;
     StorageMemoChunk*   chunk;
 
@@ -180,15 +190,24 @@ bool StorageEnvironment::Delete(uint64_t shardID, ReadBuffer& key)
 void StorageEnvironment::SetOnCommit(Callable& onCommit_)
 {
     onCommit = onCommit_;
+    asyncCommit = true;
 }
 
 bool StorageEnvironment::Commit()
 {
-    if (commitThread->GetNumActive() > 0)
-        return false;
+    if (asyncCommit)
+    {
+        if (commitThread->GetNumActive() > 0)
+            return false;
 
-    MFunc<StorageLogSegmentWriter, &StorageLogSegmentWriter::Commit> callable(logSegmentWriter);        
-    commitThread->Execute(callable);
+        MFunc<StorageLogSegmentWriter, &StorageLogSegmentWriter::Commit> callable(logSegmentWriter);        
+        commitThread->Execute(callable);
+    }
+    else
+    {
+        logSegmentWriter->Commit();
+        OnCommit();
+    }
 
     return true;
 }
@@ -212,7 +231,7 @@ StorageShard* StorageEnvironment::GetShard(uint64_t shardID)
 }
 
 void StorageEnvironment::CreateShard(uint64_t shardID, uint64_t tableID,
- ReadBuffer& firstKey, ReadBuffer& lastKey, bool useBloomFilter)
+ ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter)
 {
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
@@ -232,7 +251,7 @@ void StorageEnvironment::CreateShard(uint64_t shardID, uint64_t tableID,
     memoChunk->SetChunkID(nextChunkID++);
     memoChunk->SetUseBloomFilter(useBloomFilter);
 
-    shard->SetNewMemoChunk(memoChunk);
+    shard->PushMemoChunk(memoChunk);
 
     shards.Append(shard);
     
@@ -254,26 +273,15 @@ void StorageEnvironment::DeleteShard(uint64_t /*shardID*/)
 void StorageEnvironment::OnCommit()
 {
     TryFinalizeLogSegment();
-    TryFinalizeChunks();
+    TrySerializeChunks();
 }
 
 void StorageEnvironment::OnBackgroundTimeout()
 {
-    StorageFileChunk*   it;
-    StorageJob*         job;
-    
-    if (backgroundThread->GetNumActive() > 0)
+    if (writerThread->GetNumActive() > 0)
         return;
     
-    FOREACH(it, fileChunks)
-    {
-        if (!it->IsWritten())
-        {
-            job = new StorageWriteChunkJob(it);
-            StartJob(job);
-            return;
-        }
-    }
+    TryWriteChunks();
 }
 
 void StorageEnvironment::TryFinalizeLogSegment()
@@ -295,34 +303,75 @@ void StorageEnvironment::TryFinalizeLogSegment()
     nextLogSegmentID++;
 }
 
-void StorageEnvironment::TryFinalizeChunks()
+void StorageEnvironment::TrySerializeChunks()
 {
     StorageShard*               itShard;
     StorageMemoChunk*           memoChunk;
     StorageFileChunk*           fileChunk;
-    StorageChunkSerializer      serializer;
+    StorageJob*                 job;
+
+    // look for memoChunks which have been serialized already
+    FOREACH(itShard, shards)
+    {
+        memoChunk = itShard->GetMemoChunk();
+        if (memoChunk->IsSerialized())
+        {
+            fileChunk = memoChunk->GetFileChunk();
+            itShard->OnChunkSerialized(memoChunk, fileChunk);
+            delete memoChunk;
+            
+            fileChunks.Append(fileChunk);
+        }
+    }
+
+    if (serializerThread->GetNumActive() > 0)
+        return;
 
     FOREACH(itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
         if (memoChunk->GetSize() > config.chunkSize)
         {
-            fileChunk = serializer.Serialize(memoChunk);
-            if (fileChunk == NULL)
-            {
-                Log_Trace("StorageChunkSerializer::Serialize() failed");
-                return;
-            }
-
-            delete memoChunk;
+            job = new StorageSerializeChunkJob(memoChunk);
+            StartJob(serializerThread, job);
 
             memoChunk = new StorageMemoChunk;
             memoChunk->SetChunkID(nextChunkID++);
             memoChunk->SetUseBloomFilter(itShard->UseBloomFilter());
 
-            itShard->SetNewMemoChunk(memoChunk);
+            itShard->PushMemoChunk(memoChunk);
+
+            return;
         }
     }
+}
+
+void StorageEnvironment::TryWriteChunks()
+{
+    StorageFileChunk*   it;
+    StorageJob*         job;
+
+    FOREACH(it, fileChunks)
+    {
+        if (!it->IsWritten())
+        {
+            job = new StorageWriteChunkJob(it);
+            StartJob(writerThread, job);
+            return;
+        }
+    }
+}
+
+void StorageEnvironment::OnChunkSerialize()
+{
+    TrySerializeChunks();
+}
+
+
+void StorageEnvironment::OnChunkWrite()
+{
+    WriteTOC();
+    TryWriteChunks();
 }
 
 bool StorageEnvironment::IsWriteActive()
@@ -330,10 +379,10 @@ bool StorageEnvironment::IsWriteActive()
     return (commitThread->GetNumActive() > 0);
 }
 
-void StorageEnvironment::StartJob(StorageJob* job)
+void StorageEnvironment::StartJob(ThreadPool* thread, StorageJob* job)
 {
     MFunc<StorageJob, &StorageJob::Execute> callable(job);        
-    backgroundThread->Execute(callable);
+    thread->Execute(callable);
 }
 
 void StorageEnvironment::WriteTOC()

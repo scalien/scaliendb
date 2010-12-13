@@ -19,7 +19,7 @@ StorageDataPage::StorageDataPage()
 
     buffer.AppendLittle32(0); // dummy for size
     buffer.AppendLittle32(0); // dummy for checksum
-    buffer.AppendLittle32(0); // fummy for numKeys
+    buffer.AppendLittle32(0); // dummy for numKeys
 }
 
 uint32_t StorageDataPage::GetSize()
@@ -67,37 +67,33 @@ uint32_t StorageDataPage::GetIncrement(StorageMemoKeyValue* kv)
 
 void StorageDataPage::Append(StorageMemoKeyValue* kv)
 {
-    unsigned                keypos, valpos;
     StorageFileKeyValue*    fkv;
     
-    buffer.Append(kv->GetType());
-    buffer.AppendLittle16(kv->GetKey().GetLength());
-    keypos = buffer.GetLength();
+    buffer.Append(kv->GetType());                           // 1 byte(s)
+    buffer.AppendLittle16(kv->GetKey().GetLength());        // 2 byte(s)
     buffer.Append(kv->GetKey());
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
     {
-        buffer.AppendLittle32(kv->GetValue().GetLength());
-        valpos = buffer.GetLength();
+        buffer.AppendLittle32(kv->GetValue().GetLength());  // 4 bytes(s)
         buffer.Append(kv->GetValue());
     }
 
     fkv = new StorageFileKeyValue;
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
-        fkv->Set(
-         ReadBuffer(buffer.GetBuffer() + keypos, kv->GetKey().GetLength()),
-         ReadBuffer(buffer.GetBuffer() + valpos, kv->GetValue().GetLength()));
+        fkv->Set(ReadBuffer(kv->GetKey()), ReadBuffer(kv->GetValue()));
     else
-        fkv->Delete(
-         ReadBuffer(buffer.GetBuffer() + keypos, kv->GetKey().GetLength()));
+        fkv->Delete(ReadBuffer(kv->GetValue()));
     
     keyValues.Insert(fkv);
 }
 
 void StorageDataPage::Finalize()
 {
-    uint32_t    div, mod, numKeys, checksum, length;
-    ReadBuffer  dataPart;
-
+    uint32_t                div, mod, numKeys, checksum, length, klen, vlen, pos;
+    char                    *kpos, *vpos;
+    ReadBuffer              dataPart;
+    StorageFileKeyValue*    it;
+    
     numKeys = keyValues.GetCount();
     length = buffer.GetLength();
 
@@ -121,6 +117,38 @@ void StorageDataPage::Finalize()
     buffer.AppendLittle32(numKeys);
 
     buffer.SetLength(size);
+    
+    // set ReadBuffers in tree
+    pos = 12;
+    FOREACH(it, keyValues)
+    {
+        pos += 1;                                                // type
+        if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+        {
+            klen = it->GetKey().GetLength();
+            vlen = it->GetValue().GetLength();
+            
+            pos += 2;                                            // keylen
+            kpos = buffer.GetBuffer() + pos;
+            pos += klen;
+            pos += 4;                                            // vlen
+            vpos = buffer.GetBuffer() + pos;
+            pos += vlen;
+            
+            it->Set(ReadBuffer(kpos, klen), ReadBuffer(vpos, vlen));
+        }
+        else
+        {
+            klen = it->GetKey().GetLength();
+            
+            pos += 2;                                            // keylen
+            kpos = buffer.GetBuffer() + pos;
+            pos += klen;
+            
+            it->Delete(ReadBuffer(kpos, klen));
+        }
+    }
+    
 }
 
 void StorageDataPage::Write(Buffer& writeBuffer)

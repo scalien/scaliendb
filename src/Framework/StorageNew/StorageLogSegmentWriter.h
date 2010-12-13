@@ -29,8 +29,8 @@ public:
     void            SetOnCommit(Callable& onCommit);
 
     // Append..() functions return commandID:
-    int64_t         AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
-    int64_t         AppendDelete(uint64_t shardID, ReadBuffer& key);
+    int32_t         AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
+    int32_t         AppendDelete(uint64_t shardID, ReadBuffer& key);
     void            Undo();
 
     void            Commit();
@@ -43,13 +43,13 @@ private:
 
     FD              fd;
     uint64_t        logSegmentID;
-    uint64_t        logCommandID;
+    uint32_t        logCommandID;
     uint64_t        offset;
     bool            commitStatus;
     Buffer          writeBuffer;
     Callable        onCommit;
 
-    uint64_t        prevLength;
+    unsigned        prevLength;
 };
 
 #endif

@@ -34,7 +34,7 @@ public:
 
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
-    
+        
     StorageKeyValue*    Get(ReadBuffer& key);
     
     uint64_t            GetLogSegmentID();
@@ -53,11 +53,9 @@ private:
     StorageHeaderPage   headerPage;
     StorageIndexPage    indexPage;
     StorageBloomPage    bloomPage;
-
     uint32_t            numDataPages;
     uint32_t            dataPagesSize;
     StorageDataPage**   dataPages;
-
     uint32_t            fileSize;
     Buffer              filename;
 };

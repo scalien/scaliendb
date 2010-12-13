@@ -5,7 +5,7 @@
 #include "ReadBuffer.h"
 
 #define ARRAY_SIZE              16
-#define ALLOC_GRANURALITY       32
+//#define ALLOC_GRANURALITY       32
 
 /*
 ===============================================================================================

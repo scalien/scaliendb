@@ -7,6 +7,8 @@
 #include "StorageMemoKeyValue.h"
 #include "StorageFileChunk.h"
 
+class StorageFileChunk;
+
 /*
 ===============================================================================================
 
@@ -24,6 +26,8 @@ public:
     
     StorageMemoChunk();
     
+    bool                IsSerialized();
+    
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);
     
@@ -39,16 +43,19 @@ public:
     uint32_t            GetLogCommandID();
     
     uint64_t            GetSize();
+    
+    StorageFileChunk*   GetFileChunk();
         
 private:
+    bool                serialized;
     uint64_t            chunkID;
     uint64_t            logSegmentID;
     uint32_t            logCommandID;
     bool                useBloomFilter;
-
     uint64_t            size;
-
     KeyValueTree        keyValues;
+    
+    StorageFileChunk*   fileChunk; // for serialization
 };
 
 #endif

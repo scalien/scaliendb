@@ -97,7 +97,6 @@ void BloomFilter::Add(ReadBuffer& key)
     for (i = 0; i < BLOOMFILTER_NUM_FUNCTIONS; i++)
     {
         bitindex = GetHash(i, hash);
-        Log_Message("%u", bitindex);
         k = bitindex / 8;
         j = bitindex % 8;
         p = buffer.GetBuffer() + k;

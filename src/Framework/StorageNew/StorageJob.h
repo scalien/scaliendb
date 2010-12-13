@@ -1,6 +1,7 @@
 #ifndef STORAGEJOB_H
 #define STORAGEJOB_H
 
+#include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 
 /*
@@ -17,7 +18,24 @@ public:
     virtual void Execute() = 0;
 };
 
-class StorageChunk; // forward
+/*
+===============================================================================================
+
+ StorageSerializeChunkJob
+
+===============================================================================================
+*/
+
+class StorageSerializeChunkJob : public StorageJob
+{
+public:
+    StorageSerializeChunkJob(StorageMemoChunk* chunk_);
+    
+    void                Execute();
+    
+private:
+    StorageMemoChunk*   memoChunk;
+};
 
 /*
 ===============================================================================================

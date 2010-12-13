@@ -42,12 +42,12 @@ public:
     uint64_t                    GetShardID(uint64_t tableID, ReadBuffer& key);
 
     void                        CreateShard(uint64_t shardID, uint64_t tableID,
-                                 ReadBuffer& firstKey, ReadBuffer& lastKey, bool useBloomFilter);
+                                 ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter);
     void                        DeleteShard(uint64_t shardID);
 
-    bool                        Get(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
-    bool                        Set(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
-    bool                        Delete(uint64_t shardID, ReadBuffer& key);
+    bool                        Get(uint64_t shardID, ReadBuffer key, ReadBuffer& value);
+    bool                        Set(uint64_t shardID, ReadBuffer key, ReadBuffer value);
+    bool                        Delete(uint64_t shardID, ReadBuffer key);
         
     void                        SetOnCommit(Callable& onCommit);
     bool                        Commit();
@@ -57,13 +57,18 @@ private:
     void                        OnCommit();
     void                        OnBackgroundTimeout();
     void                        TryFinalizeLogSegment();
-    void                        TryFinalizeChunks();
+    void                        TrySerializeChunks();
+    void                        TryWriteChunks();
+    void                        OnChunkSerialize();
+    void                        OnChunkWrite();
     bool                        IsWriteActive();
     StorageShard*               GetShard(uint64_t shardID);
-    void                        StartJob(StorageJob* job);
+    void                        StartJob(ThreadPool* thread, StorageJob* job);
     void                        WriteTOC();
 
     Callable                    onCommit;
+    Callable                    onChunkSerialize;
+    Callable                    onChunkWrite;
 
     StorageLogSegmentWriter*    logSegmentWriter;
     ShardList                   shards;
@@ -73,7 +78,8 @@ private:
     StorageConfig               config;
     
     ThreadPool*                 commitThread;
-    ThreadPool*                 backgroundThread;
+    ThreadPool*                 serializerThread;
+    ThreadPool*                 writerThread;
     Countdown                   backgroundTimer;
 
     Buffer                      envPath;
@@ -82,6 +88,7 @@ private:
 
     uint64_t                    nextChunkID;
     uint64_t                    nextLogSegmentID;
+    bool                        asyncCommit;
 };
 
 #endif

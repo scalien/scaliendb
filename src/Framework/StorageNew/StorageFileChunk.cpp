@@ -3,11 +3,11 @@
 StorageFileChunk::StorageFileChunk()
 {
     prev = next = this;
+    written = false;
     dataPagesSize = 64;
     dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * dataPagesSize);
     numDataPages = 0;
     fileSize = 0;
-    written = false;
 }
 
 StorageFileChunk::~StorageFileChunk()

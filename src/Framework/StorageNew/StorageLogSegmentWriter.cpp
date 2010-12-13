@@ -54,7 +54,7 @@ void StorageLogSegmentWriter::SetOnCommit(Callable& onCommit_)
     onCommit = onCommit_;
 }
 
-int64_t StorageLogSegmentWriter::AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
+int32_t StorageLogSegmentWriter::AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
 {
     assert(fd != INVALID_FD);
 
@@ -70,7 +70,7 @@ int64_t StorageLogSegmentWriter::AppendSet(uint64_t shardID, ReadBuffer& key, Re
     return logCommandID++;
 }
 
-int64_t StorageLogSegmentWriter::AppendDelete(uint64_t shardID, ReadBuffer& key)
+int32_t StorageLogSegmentWriter::AppendDelete(uint64_t shardID, ReadBuffer& key)
 {
     assert(fd != INVALID_FD);
 

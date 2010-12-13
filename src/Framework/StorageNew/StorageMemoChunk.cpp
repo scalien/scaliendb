@@ -14,11 +14,17 @@ static const ReadBuffer Key(StorageMemoKeyValue* kv)
 
 StorageMemoChunk::StorageMemoChunk()
 {
+    serialized = false;
     chunkID = 0;
     logSegmentID = 0;
     logCommandID = 0;
     useBloomFilter = false;
     size = 0;
+}
+
+bool StorageMemoChunk::IsSerialized()
+{
+    return serialized;
 }
 
 void StorageMemoChunk::SetChunkID(uint64_t chunkID_)
@@ -136,39 +142,7 @@ uint64_t StorageMemoChunk::GetSize()
     return size;
 }
 
-//void StorageMemoChunk::TryFinalize()
-//{
-//    StorageChunkSerializer serializer;
-//    
-//    assert(state == ReadWrite);
-//        
-//    file = serializer.Serialize(this);
-//    if (file == NULL)
-//    {
-//        state = ReadWrite;
-//        return;
-//    }
-//    
-//    delete keyValues;
-//    keyValues = NULL;
-//    state = Serialized;
-//}
-//
-//bool StorageMemoChunk::IsFinalized()
-//{
-//    return (state != ReadWrite);
-//}
-//
-//void StorageMemoChunk::WriteFile()
-//{
-//    StorageChunkWriter writer;
-//
-//    assert(state == Serialized);
-//
-//    if (!writer.Write(filename.GetBuffer(), file))
-//        return;
-//    
-//    state = Written;
-//
-//    // TODO: mark file/pages as evictable
-//}
+StorageFileChunk* StorageMemoChunk::GetFileChunk()
+{
+    return fileChunk;
+}

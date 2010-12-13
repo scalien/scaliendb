@@ -17,7 +17,7 @@ class StorageFileChunk;  // forward
 class StorageChunkSerializer
 {
 public:
-    StorageFileChunk*       Serialize(StorageMemoChunk* memoChunk);
+    bool                    Serialize(StorageMemoChunk* memoChunk);
 
 private:
     bool                    WriteHeaderPage();

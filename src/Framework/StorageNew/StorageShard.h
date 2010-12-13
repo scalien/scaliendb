@@ -36,9 +36,11 @@ public:
     
     bool                RangeContains(ReadBuffer& key);
 
+    void                PushMemoChunk(StorageMemoChunk* memoChunk);
     StorageMemoChunk*   GetMemoChunk();
-    void                SetNewMemoChunk(StorageMemoChunk* memoChunk);
+    void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
 
+    StorageMemoChunk*   memoChunk;
     StorageChunk**      First();
     StorageChunk**      Last();
     StorageChunk**      Next(StorageChunk** curr);

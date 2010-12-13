@@ -16,12 +16,42 @@ int main()
 {
     StartClock();
     IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024), true);
-    
+    Log_SetTarget(LOG_TARGET_STDOUT);
+    Log_SetTrace(true);
+    Log_SetTimestamping(true);
     EventLoop::Init();
-    EventLoop::Run();
+    
+    StorageEnvironment env;
+    Buffer envPath;
+    envPath.Write("db/");
+    env.Open(envPath);
+    env.CreateShard(1, 1, ReadBuffer(""), ReadBuffer(""), true);
+    
+    Buffer key, value;
+    for (uint64_t i = 0; i < 1000*1000; i++)
+    {
+        key.Writef("%U", i);
+        value.Writef("%0100U", i);
+        env.Set(1, ReadBuffer(key), ReadBuffer(value));
+        if (i % (100*1000) == 0)
+        {
+            env.Commit();
+            Log_Message("%U", i);
+        }
+    }
+    
+    ReadBuffer rv;
+    for (uint64_t i = 0; i < 1000; i++)
+    {
+        key.Writef("%U", RandomInt(0, 1000*1000));
+        if (env.Get(1, ReadBuffer(key), rv))
+            Log_Message("%B => %R", &key, &rv);
+        else
+            Log_Message("%B => not found", &key);
+    }
+    env.Close();
+    
     EventLoop::Shutdown();
-    
-    
     IOProcessor::Shutdown();
     StopClock();
     Log_Shutdown();
