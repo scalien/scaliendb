@@ -19,7 +19,7 @@ class InSortedList
 {
 public:
 
-    bool            Add(T* t, bool unique = false);
+    bool            Add(T* t);
     T*              Delete(T* t);
     T*              Remove(T* t);
     bool            Remove(T &t);
@@ -42,7 +42,7 @@ protected:
 */
 
 template<class T>
-bool InSortedList<T>::Add(T* t, bool unique)
+bool InSortedList<T>::Add(T* t)
 {
     T*  curr = list.head;
 
@@ -81,8 +81,7 @@ bool InSortedList<T>::Add(T* t, bool unique)
             Log_Trace("length = %d", list.length);
             return true;
         } 
-//        if (unique && LessThan(*curr, *t))
-//            return false;
+
         curr = curr->next;
     }
     
