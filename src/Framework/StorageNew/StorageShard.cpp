@@ -118,15 +118,21 @@ StorageChunk** StorageShard::First()
 
 StorageChunk** StorageShard::Last()
 {
-    return chunks.Last();
+    return (StorageChunk**) &memoChunk;
 }
 
 StorageChunk** StorageShard::Next(StorageChunk** curr)
 {
-    return chunks.Next(curr);
+    if (curr == chunks.Last())
+        return (StorageChunk**) &memoChunk;
+    else
+        return chunks.Next(curr);
 }
 
 StorageChunk** StorageShard::Prev(StorageChunk** curr)
 {
-    return chunks.Prev(curr);
+    if (*curr == memoChunk)
+        return chunks.Last();
+    else
+        return chunks.Prev(curr);
 }
