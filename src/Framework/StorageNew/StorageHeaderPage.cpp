@@ -34,6 +34,26 @@ uint32_t StorageHeaderPage::GetLogCommandID()
     return logCommandID;
 }
 
+uint64_t StorageHeaderPage::GetIndexPageOffset()
+{
+    return indexPageOffset;
+}
+
+uint32_t StorageHeaderPage::GetIndexPageSize()
+{
+    return indexPageSize;
+}
+
+uint64_t StorageHeaderPage::GetBloomPageOffset()
+{
+    return bloomPageOffset;
+}
+
+uint32_t StorageHeaderPage::GetBloomPageSize()
+{
+    return bloomPageSize;
+}
+
 void StorageHeaderPage::SetChunkID(uint64_t chunkID_)
 {
     chunkID = chunkID_;

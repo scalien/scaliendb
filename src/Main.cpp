@@ -28,10 +28,12 @@ int main()
     env.CreateShard(1, 1, 1, ReadBuffer(""), ReadBuffer(""), true);
     
     Buffer key, value;
-    uint64_t i;
-    for (i = 0; i < 10*1000*1000; i++)
+    uint64_t i, rnd, num;
+    num = 100*1000*1000;
+    for (i = 0; i < num; i++)
     {
-        key.Writef("%U", i);
+        rnd = RandomInt(0, num - 1);
+        key.Writef("%U", rnd);
         value.Writef("%0100U", i);
         env.Set(1, 1, ReadBuffer(key), ReadBuffer(value));
         if (i % (100*1000) == 0)

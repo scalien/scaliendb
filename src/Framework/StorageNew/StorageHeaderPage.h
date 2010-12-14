@@ -27,6 +27,10 @@ public:
     uint64_t            GetChunkID();
     uint64_t            GetLogSegmentID();
     uint32_t            GetLogCommandID();
+    uint64_t            GetIndexPageOffset();
+    uint32_t            GetIndexPageSize();
+    uint64_t            GetBloomPageOffset();
+    uint32_t            GetBloomPageSize();
 
     void                SetChunkID(uint64_t chunkID);
     void                SetLogSegmentID(uint64_t logSegmentID);
