@@ -113,4 +113,5 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
         writeBuffer.AppendLittle64(bloomPageOffset);
         writeBuffer.AppendLittle32(bloomPageSize);
     }
+    writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
 }

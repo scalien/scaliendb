@@ -24,7 +24,7 @@ public:
 
     static bool Poll(int sleep);
 
-    static bool Complete(Callable& callable);
+    static bool Complete(Callable* callable);
 };
 
 #endif

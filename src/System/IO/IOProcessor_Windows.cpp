@@ -529,12 +529,12 @@ bool IOProcessor::Poll(int msec)
     return true;
 }
 
-bool IOProcessor::Complete(Callable& callable)
+bool IOProcessor::Complete(Callable* callable)
 {
     BOOL    ret;
     DWORD   error;
 
-    ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) &callable);
+    ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) callback, (LPOVERLAPPED) callable);
     if (!ret)
     {
         error = GetLastError();

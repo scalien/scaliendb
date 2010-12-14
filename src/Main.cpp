@@ -39,6 +39,10 @@ int main()
             env.Commit();
             Log_Message("%U", i);
         }
+        if (i % (10*1000) == 0)
+        {
+            EventLoop::RunOnce();
+        }
     }
     env.Commit();
     

@@ -55,7 +55,6 @@ public:
 
 private:
     void                        OnCommit();
-    void                        OnBackgroundTimeout();
     void                        TryFinalizeLogSegment();
     void                        TrySerializeChunks();
     void                        TryWriteChunks();
@@ -80,7 +79,6 @@ private:
     ThreadPool*                 commitThread;
     ThreadPool*                 serializerThread;
     ThreadPool*                 writerThread;
-    Countdown                   backgroundTimer;
 
     Buffer                      envPath;
     Buffer                      chunkPath;

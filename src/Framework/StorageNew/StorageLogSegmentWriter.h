@@ -26,7 +26,7 @@ public:
     void            Close();
 
     uint64_t        GetLogSegmentID();
-    void            SetOnCommit(Callable& onCommit);
+    void            SetOnCommit(Callable* onCommit);
 
     // Append..() functions return commandID:
     int32_t         AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
@@ -47,11 +47,13 @@ private:
     uint64_t        offset;
     bool            commitStatus;
     Buffer          writeBuffer;
-    Callable        onCommit;
+    Callable*       onCommit;
 
     bool            writeShardID;
     uint64_t        prevShardID;
     unsigned        prevLength;
+    
+    bool            asyncCommit;
 };
 
 #endif

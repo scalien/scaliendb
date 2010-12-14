@@ -8,11 +8,9 @@ StorageEnvironment::StorageEnvironment()
     commitThread = NULL;
     serializerThread = NULL;
     writerThread = NULL;
-    backgroundTimer.SetDelay(10*1000);
-    backgroundTimer.SetCallable(MFUNC(StorageEnvironment, OnBackgroundTimeout));
 
+    onChunkSerialize = MFUNC(StorageEnvironment, OnChunkSerialize);
     onChunkWrite = MFUNC(StorageEnvironment, OnChunkWrite);
-    onChunkWrite = MFUNC(StorageEnvironment, OnChunkSerialize);
 
     nextChunkID = 1;
     nextLogSegmentID = 1;
@@ -33,7 +31,6 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
     writerThread = ThreadPool::Create(1);
     writerThread->Start();
-    EventLoop::Add(&backgroundTimer);
 
     envPath.Write(envPath_);
     lastChar = envPath.GetCharAt(envPath.GetLength() - 1);
@@ -124,7 +121,6 @@ bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer key, ReadBuffer& value
         else
             ASSERT_FAIL();
     }
-
 
     BFOREACH(itChunk, shard->GetChunks())
     {
@@ -295,14 +291,6 @@ void StorageEnvironment::OnCommit()
     TrySerializeChunks();
 }
 
-void StorageEnvironment::OnBackgroundTimeout()
-{
-    if (writerThread->GetNumActive() > 0)
-        return;
-    
-    TryWriteChunks();
-}
-
 void StorageEnvironment::TryFinalizeLogSegment()
 {
     Buffer tmp;
@@ -324,6 +312,7 @@ void StorageEnvironment::TryFinalizeLogSegment()
 
 void StorageEnvironment::TrySerializeChunks()
 {
+    Buffer                      tmp;
     StorageShard*               itShard;
     StorageMemoChunk*           memoChunk;
     StorageFileChunk*           fileChunk;
@@ -345,15 +334,16 @@ void StorageEnvironment::TrySerializeChunks()
                 Log_Message("Deleting MemoChunk...");
                 delete memoChunk;
                 
+                tmp.Write(chunkPath);
+                tmp.Appendf("chunk.%020U", fileChunk->GetChunkID());
+                fileChunk->SetFilename(tmp);
                 fileChunks.Append(fileChunk);
 
                 itChunk = itShard->GetChunks().First();
+                continue;
             }
-            else
-            {
 Advance:
-                itChunk = itChunk = itShard->GetChunks().Next(itChunk);
-            }
+            itChunk = itChunk = itShard->GetChunks().Next(itChunk);
         }
     }
 
@@ -365,7 +355,7 @@ Advance:
         memoChunk = itShard->GetMemoChunk();
         if (memoChunk->GetSize() > config.chunkSize)
         {
-            job = new StorageSerializeChunkJob(memoChunk);
+            job = new StorageSerializeChunkJob(memoChunk, &onChunkSerialize);
             StartJob(serializerThread, job);
 
             memoChunk = new StorageMemoChunk;
@@ -388,7 +378,7 @@ void StorageEnvironment::TryWriteChunks()
     {
         if (it->GetChunkState() == StorageChunk::Unwritten)
         {
-            job = new StorageWriteChunkJob(it);
+            job = new StorageWriteChunkJob(it, &onChunkWrite);
             StartJob(writerThread, job);
             return;
         }
@@ -398,6 +388,7 @@ void StorageEnvironment::TryWriteChunks()
 void StorageEnvironment::OnChunkSerialize()
 {
     TrySerializeChunks();
+    TryWriteChunks();
 }
 
 

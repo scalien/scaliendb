@@ -1,5 +1,6 @@
 #include "StorageLogSegmentWriter.h"
 #include "System/FileSystem.h"
+#include "System/IO/IOProcessor.h"
 
 StorageLogSegmentWriter::StorageLogSegmentWriter()
 {
@@ -7,6 +8,7 @@ StorageLogSegmentWriter::StorageLogSegmentWriter()
     fd = INVALID_FD;
     logCommandID = 1;
     writeShardID = true;
+    asyncCommit = false;
 }
 
 bool StorageLogSegmentWriter::Open(Buffer& filename, uint64_t logSegmentID_)
@@ -36,6 +38,8 @@ bool StorageLogSegmentWriter::Open(Buffer& filename, uint64_t logSegmentID_)
     
     NewRound();
     
+    Log_Message("Opening log segment %U", logSegmentID);
+    
     return true;
 }
 
@@ -50,9 +54,10 @@ uint64_t StorageLogSegmentWriter::GetLogSegmentID()
     return logSegmentID;
 }
 
-void StorageLogSegmentWriter::SetOnCommit(Callable& onCommit_)
+void StorageLogSegmentWriter::SetOnCommit(Callable* onCommit_)
 {
     onCommit = onCommit_;
+    asyncCommit = true;
 }
 
 int32_t StorageLogSegmentWriter::AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
@@ -143,6 +148,9 @@ void StorageLogSegmentWriter::Commit()
     FS_Sync(fd);
     
     NewRound();
+    
+    if (asyncCommit)
+        IOProcessor::Complete(onCommit);
 }
 
 bool StorageLogSegmentWriter::GetCommitStatus()

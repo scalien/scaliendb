@@ -17,7 +17,7 @@ StorageFileChunk::~StorageFileChunk()
 
 void StorageFileChunk::SetFilename(Buffer& filename_)
 {
-    filename = filename_;
+    filename.Write(filename_);
     filename.NullTerminate();
 }
 

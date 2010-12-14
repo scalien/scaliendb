@@ -1,6 +1,7 @@
 #ifndef STORAGEJOB_H
 #define STORAGEJOB_H
 
+#include "System/Events/Callable.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 
@@ -16,6 +17,9 @@ class StorageJob
 {
 public:
     virtual void Execute() = 0;
+
+protected:
+    Callable*           onComplete;
 };
 
 /*
@@ -29,7 +33,7 @@ public:
 class StorageSerializeChunkJob : public StorageJob
 {
 public:
-    StorageSerializeChunkJob(StorageMemoChunk* chunk_);
+    StorageSerializeChunkJob(StorageMemoChunk* chunk, Callable* onComplete);
     
     void                Execute();
     
@@ -48,12 +52,13 @@ private:
 class StorageWriteChunkJob : public StorageJob
 {
 public:
-    StorageWriteChunkJob(StorageFileChunk* chunk_);
+    StorageWriteChunkJob(StorageFileChunk* chunk, Callable* onComplete);
     
     void                Execute();
     
 private:
     StorageFileChunk*   fileChunk;
+    Callable*           onComplete;
 };
 
 #endif
