@@ -56,7 +56,7 @@ private:
     bool                commitStatus;
     Buffer              filename;
     Buffer              archivePath;
-    Buffer*             writeBuffer;
+    Buffer              writeBuffer;
     Callable*           onCommit;
 
     bool                writeShardID;

@@ -17,7 +17,7 @@ int main()
     StartClock();
     IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024), true);
     Log_SetTarget(LOG_TARGET_STDOUT);
-    Log_SetTrace(true);
+    Log_SetTrace(false);
     Log_SetTimestamping(true);
     EventLoop::Init();
     

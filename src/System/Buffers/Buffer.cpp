@@ -291,6 +291,14 @@ void Buffer::Clear()
     length = 0;
 }
 
+void Buffer::Reset()
+{
+    if (buffer != array && !preallocated)
+        free(buffer);
+    
+    Init();
+}
+
 Buffer::Buffer(const Buffer& other)
 {
 //    ASSERT_FAIL();

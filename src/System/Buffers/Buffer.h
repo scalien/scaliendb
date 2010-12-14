@@ -73,6 +73,7 @@ public:
     uint32_t            GetChecksum();
     
     void                Clear();
+    void                Reset();
 
     Buffer*             next;
     Buffer*             prev;

@@ -235,6 +235,7 @@
 		5458B65E12B6552700042172 /* StorageNew */ = {
 			isa = PBXGroup;
 			children = (
+				54C9971D12B7B91B002FAACC /* Environment */,
 				5458B70512B6781D00042172 /* Log */,
 				5458B6E912B6689C00042172 /* KeyValues */,
 				5458B6E812B6687100042172 /* Chunk */,
@@ -244,16 +245,12 @@
 				5458B66212B6552700042172 /* PointerGuard.h */,
 				5458B66F12B6552700042172 /* StorageConfig.h */,
 				5458B66E12B6552700042172 /* StorageConfig.cpp */,
-				5458B67312B6552700042172 /* StorageEnvironment.h */,
-				5458B67212B6552700042172 /* StorageEnvironment.cpp */,
 				5458B67D12B6552700042172 /* StorageJob.h */,
 				5458B67C12B6552700042172 /* StorageJob.cpp */,
 				5458B68812B6552700042172 /* StorageShard.h */,
 				5458B68712B6552700042172 /* StorageShard.cpp */,
 				5458B65F12B6552700042172 /* Biglog.txt */,
 				5458B68912B6552700042172 /* TODO.txt */,
-				5458B6EA12B668F800042172 /* StorageEnvironmentWriter.h */,
-				5458B6EB12B668F800042172 /* StorageEnvironmentWriter.cpp */,
 			);
 			path = StorageNew;
 			sourceTree = "<group>";
@@ -261,8 +258,8 @@
 		5458B6E712B6683700042172 /* Pages */ = {
 			isa = PBXGroup;
 			children = (
-				5458B68512B6552700042172 /* StoragePage.cpp */,
 				5458B68612B6552700042172 /* StoragePage.h */,
+				5458B68512B6552700042172 /* StoragePage.cpp */,
 				5458B67912B6552700042172 /* StorageHeaderPage.h */,
 				5458B67812B6552700042172 /* StorageHeaderPage.cpp */,
 				5458B67112B6552700042172 /* StorageDataPage.h */,
@@ -416,6 +413,17 @@
 				54B7F76011BE5EF30076BC62 /* Socket_Windows.cpp */,
 			);
 			path = IO;
+			sourceTree = "<group>";
+		};
+		54C9971D12B7B91B002FAACC /* Environment */ = {
+			isa = PBXGroup;
+			children = (
+				5458B67312B6552700042172 /* StorageEnvironment.h */,
+				5458B67212B6552700042172 /* StorageEnvironment.cpp */,
+				5458B6EA12B668F800042172 /* StorageEnvironmentWriter.h */,
+				5458B6EB12B668F800042172 /* StorageEnvironmentWriter.cpp */,
+			);
+			name = Environment;
 			sourceTree = "<group>";
 		};
 		9AABB212123EA3AF003626AC /* Products */ = {
