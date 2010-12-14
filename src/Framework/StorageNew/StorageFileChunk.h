@@ -41,6 +41,8 @@ public:
     uint32_t            GetLogCommandID();
     
     uint64_t            GetSize();
+    
+    void                AddPagesToCache();
 
     StorageFileChunk*   prev;
     StorageFileChunk*   next;

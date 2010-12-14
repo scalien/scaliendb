@@ -4,6 +4,8 @@
 #include "StoragePage.h"
 #include "Framework/BloomFilter.h"
 
+class StorageFileChunk;
+
 /*
 ===============================================================================================
 
@@ -15,21 +17,25 @@
 class StorageBloomPage : public StoragePage
 {
 public:
-    StorageBloomPage();
+    StorageBloomPage(StorageFileChunk* owner);
 
-    uint32_t        GetSize();
+    uint32_t            GetSize();
     
-    void            SetNumKeys(uint64_t numKeys);
-    void            Add(ReadBuffer key);
-    void            Write(Buffer& writeBuffer);
+    void                SetNumKeys(uint64_t numKeys);
+    void                Add(ReadBuffer key);
+    void                Write(Buffer& writeBuffer);
     
-    bool            Check(ReadBuffer& key);
+    bool                Check(ReadBuffer& key);
+
+    bool                IsLoaded();
+    void                Unload();
 
 private:
-    uint32_t        RecommendNumBytes(uint32_t numKeys);
+    uint32_t            RecommendNumBytes(uint32_t numKeys);
 
-    uint32_t        size;
-    BloomFilter     bloomFilter;
+    uint32_t            size;
+    BloomFilter         bloomFilter;
+    StorageFileChunk*   owner;
 };
 
 #endif

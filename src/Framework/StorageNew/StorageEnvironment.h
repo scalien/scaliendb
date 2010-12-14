@@ -57,7 +57,7 @@ public:
     void                        SetOnCommit(Callable& onCommit);
     bool                        Commit();
     bool                        GetCommitStatus();
-
+    
 private:
     void                        OnCommit();
     void                        TryFinalizeLogSegment();
@@ -81,13 +81,16 @@ private:
     ShardList                   shards;
     FileChunkList               fileChunks;
     LogSegmentList              logSegments;
-
     StorageConfig               config;
     
     ThreadPool*                 commitThread;
+    bool                        commitThreadActive;
     ThreadPool*                 serializerThread;
+    bool                        serializerThreadActive;
     ThreadPool*                 writerThread;
+    bool                        writerThreadActive;
     ThreadPool*                 archiverThread;
+    bool                        archiverThreadActive;
 
     Buffer                      envPath;
     Buffer                      chunkPath;
@@ -96,7 +99,8 @@ private:
 
     uint64_t                    nextChunkID;
     uint64_t                    nextLogSegmentID;
-    uint64_t                    archiveLogSegmentID;
+    uint64_t                    asyncLogSegmentID;
+    uint64_t                    asyncWriteChunkID;
     bool                        asyncCommit;
 };
 

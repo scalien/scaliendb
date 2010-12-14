@@ -1,6 +1,8 @@
 #include "StorageFileChunk.h"
+#include "StoragePageCache.h"
 
 StorageFileChunk::StorageFileChunk()
+: headerPage(this), indexPage(this), bloomPage(this)
 {
     prev = next = this;
     written = false;
@@ -51,12 +53,16 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
 
     if (headerPage.UseBloomFilter())
     {
+        StoragePageCache::RegisterHit(&bloomPage);
         if (!bloomPage.Check(key))
             return NULL;
     }
 
+    StoragePageCache::RegisterHit(&indexPage);
     if (!indexPage.Locate(key, index, offset))
         return NULL;
+
+    StoragePageCache::RegisterHit(dataPages[index]);
     return dataPages[index]->Get(key);
 }
 
@@ -73,6 +79,19 @@ uint32_t StorageFileChunk::GetLogCommandID()
 uint64_t StorageFileChunk::GetSize()
 {
     return fileSize;
+}
+
+void StorageFileChunk::AddPagesToCache()
+{
+    unsigned i;
+    
+    StoragePageCache::AddPage(&indexPage);
+
+    if (UseBloomFilter())
+        StoragePageCache::AddPage(&bloomPage);
+
+    for (i = 0; i < numDataPages; i++)
+        StoragePageCache::AddPage(dataPages[i]);
 }
 
 void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)

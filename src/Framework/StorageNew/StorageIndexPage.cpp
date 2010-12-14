@@ -10,7 +10,7 @@ static const ReadBuffer& Key(StorageIndexRecord* record)
     return record->key;
 }
 
-StorageIndexPage::StorageIndexPage()
+StorageIndexPage::StorageIndexPage(StorageFileChunk* owner_)
 {
     size = 0;
 
@@ -20,6 +20,8 @@ StorageIndexPage::StorageIndexPage()
     buffer.AppendLittle32(0); // dummy for size
     buffer.AppendLittle32(0); // dummy for checksum
     buffer.AppendLittle32(0); // fummy for numKeys
+    
+    owner = owner_;
 }
 
 uint32_t StorageIndexPage::GetSize()
@@ -119,4 +121,15 @@ void StorageIndexPage::Finalize()
 void StorageIndexPage::Write(Buffer& writeBuffer)
 {
     writeBuffer.Write(buffer);
+}
+
+bool StorageIndexPage::IsLoaded()
+{
+    return (buffer.GetLength() > 0);
+}
+
+void StorageIndexPage::Unload()
+{
+    indexTree.DeleteTree();
+    buffer.Reset();
 }

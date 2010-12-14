@@ -11,8 +11,9 @@
 ===============================================================================================
 */
 
-#define STORAGE_DEFAULT_CHUNKSIZE           16*MiB
-#define STORAGE_DEFAULT_LOGSEGMENTSIZE      16*MiB
+#define STORAGE_DEFAULT_CHUNKSIZE               16*MiB
+#define STORAGE_DEFAULT_LOGSEGMENTSIZE          16*MiB
+#define STORAGE_DEFAULT_FILECHUNK_CACHESIZE     256*MiB
 
 class StorageConfig
 {
@@ -21,6 +22,7 @@ public:
 
     uint32_t        chunkSize;
     uint32_t        logSegmentSize;
+    uint64_t        fileChunkCacheSize;
 };
 
 #endif

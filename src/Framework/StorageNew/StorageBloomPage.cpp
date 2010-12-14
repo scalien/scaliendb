@@ -1,8 +1,9 @@
 #include "StorageBloomPage.h"
 
-StorageBloomPage::StorageBloomPage()
+StorageBloomPage::StorageBloomPage(StorageFileChunk* owner_)
 {
     size = 0;
+    owner = owner_;
 }
 
 uint32_t StorageBloomPage::GetSize()
@@ -72,4 +73,14 @@ void StorageBloomPage::Write(Buffer& writeBuffer)
 bool StorageBloomPage::Check(ReadBuffer& key)
 {
     return bloomFilter.Check(key);
+}
+
+bool StorageBloomPage::IsLoaded()
+{
+    return bloomFilter.IsLoaded();
+}
+
+void StorageBloomPage::Unload()
+{
+    bloomFilter.Reset();
 }

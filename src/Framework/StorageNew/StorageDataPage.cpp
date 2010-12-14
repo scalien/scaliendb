@@ -10,7 +10,7 @@ static const ReadBuffer Key(StorageFileKeyValue* kv)
     return kv->GetKey();
 }
 
-StorageDataPage::StorageDataPage()
+StorageDataPage::StorageDataPage(StorageFileChunk* owner_)
 {
     size = 0;
 
@@ -20,6 +20,8 @@ StorageDataPage::StorageDataPage()
     buffer.AppendLittle32(0); // dummy for size
     buffer.AppendLittle32(0); // dummy for checksum
     buffer.AppendLittle32(0); // dummy for numKeys
+    
+    owner = owner_;
 }
 
 uint32_t StorageDataPage::GetSize()
@@ -147,11 +149,21 @@ void StorageDataPage::Finalize()
             
             it->Delete(ReadBuffer(kpos, klen));
         }
-    }
-    
+    }    
 }
 
 void StorageDataPage::Write(Buffer& writeBuffer)
 {
     writeBuffer.Write(buffer);
+}
+
+bool StorageDataPage::IsLoaded()
+{
+    return (buffer.GetLength() > 0);
+}
+
+void StorageDataPage::Unload()
+{
+    keyValues.DeleteTree();
+    buffer.Reset();
 }

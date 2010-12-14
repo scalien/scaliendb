@@ -1,6 +1,6 @@
 #include "StorageHeaderPage.h"
 
-StorageHeaderPage::StorageHeaderPage()
+StorageHeaderPage::StorageHeaderPage(StorageFileChunk* owner_)
 {
     chunkID = 0;
     logSegmentID = 0;
@@ -11,6 +11,7 @@ StorageHeaderPage::StorageHeaderPage()
     indexPageSize = 0;
     bloomPageOffset = 0;
     bloomPageSize = 0;
+    owner = owner_;
 }
 
 uint32_t StorageHeaderPage::GetSize()
@@ -114,4 +115,13 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
         writeBuffer.AppendLittle32(bloomPageSize);
     }
     writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
+}
+
+bool StorageHeaderPage::IsLoaded()
+{
+    return true;
+}
+
+void StorageHeaderPage::Unload()
+{
 }

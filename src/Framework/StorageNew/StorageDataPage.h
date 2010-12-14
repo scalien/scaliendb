@@ -10,6 +10,8 @@
 #define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*1024)
 #define STORAGE_DEFAULT_DATA_PAGE_GRAN         (4*1024)
 
+class StorageFileChunk;
+
 /*
 ===============================================================================================
 
@@ -22,7 +24,7 @@ class StorageDataPage : public StoragePage
 {
     typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
 public:
-    StorageDataPage();
+    StorageDataPage(StorageFileChunk* owner);
 
     uint32_t            GetSize();
 
@@ -37,10 +39,14 @@ public:
 
     void                Write(Buffer& writeBuffer);
 
+    bool                IsLoaded();
+    void                Unload();
+
 private:
     uint32_t            size;
     Buffer              buffer;
     KeyValueTree        keyValues;
+    StorageFileChunk*   owner;
 };
 
 #endif

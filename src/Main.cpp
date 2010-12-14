@@ -29,7 +29,7 @@ int main()
     
     Buffer key, value;
     uint64_t i;
-    for (i = 0; i < 1000*1000; i++)
+    for (i = 0; i < 10*1000*1000; i++)
     {
         key.Writef("%U", i);
         value.Writef("%0100U", i);
@@ -46,19 +46,19 @@ int main()
     }
     env.Commit();
     
-    ReadBuffer rv;
-    uint64_t rnd;
-    Log_Message("GET begin");
-    for (i = 0; i < 100*1000; i++)
-    {
-        rnd = RandomInt(0, 1000*1000 - 1);
-        key.Writef("%U", rnd);
-        if (!env.Get(1, 1, ReadBuffer(key), rv))
-            Log_Message("%B => not found", &key);
-    }
-    
-    Log_Message("GET end");
-    env.Close();
+//    ReadBuffer rv;
+//    uint64_t rnd;
+//    Log_Message("GET begin");
+//    for (i = 0; i < 100*1000; i++)
+//    {
+//        rnd = RandomInt(0, 1000*1000 - 1);
+//        key.Writef("%U", rnd);
+//        if (!env.Get(1, 1, ReadBuffer(key), rv))
+//            Log_Message("%B => not found", &key);
+//    }
+//    
+//    Log_Message("GET end");
+//    env.Close();
     
     EventLoop::Shutdown();
     IOProcessor::Shutdown();

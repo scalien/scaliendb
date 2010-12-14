@@ -25,10 +25,12 @@ public:
     void            Add(ReadBuffer& key);
 
     Buffer&         GetBuffer();
-    void            SetBuffer(Buffer& buffer);
+//    void            SetBuffer(Buffer& buffer);
+    bool            IsLoaded();
+    void            Reset();
 
     bool            Check(ReadBuffer& key);
-
+    
 
 private:
     int32_t         GetHash(unsigned fnum, int32_t original);

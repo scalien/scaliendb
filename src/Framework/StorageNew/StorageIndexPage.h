@@ -7,6 +7,8 @@
 
 #define STORAGE_DEFAULT_INDEX_PAGE_GRAN         (4*1024)
 
+class StorageFileChunk;
+
 /*
 ===============================================================================================
 
@@ -39,7 +41,7 @@ class StorageIndexPage : public StoragePage
 {
     typedef InTreeMap<StorageIndexRecord> IndexRecordTree;
 public:
-    StorageIndexPage();
+    StorageIndexPage(StorageFileChunk* owner);
 
     uint32_t            GetSize();
 
@@ -49,10 +51,14 @@ public:
     void                Finalize();
     void                Write(Buffer& writeBuffer);
 
+    bool                IsLoaded();
+    void                Unload();
+
 private:
     uint32_t            size;
     Buffer              buffer;
     IndexRecordTree     indexTree;
+    StorageFileChunk*   owner;
 };
 
 #endif

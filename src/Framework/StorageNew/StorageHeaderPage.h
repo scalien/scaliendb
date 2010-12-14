@@ -7,6 +7,8 @@
 #define STORAGE_HEADER_PAGE_VERSION     1
 #define STORAGE_HEADER_PAGE_SIZE        4096
 
+class StorageFileChunk;
+
 /*
 ===============================================================================================
 
@@ -18,38 +20,42 @@
 class StorageHeaderPage : public StoragePage
 {
 public:
-    StorageHeaderPage();
+    StorageHeaderPage(StorageFileChunk* owner);
 
-    uint32_t    GetSize();
+    uint32_t            GetSize();
 
-    uint64_t    GetChunkID();
-    uint64_t    GetLogSegmentID();
-    uint32_t    GetLogCommandID();
+    uint64_t            GetChunkID();
+    uint64_t            GetLogSegmentID();
+    uint32_t            GetLogCommandID();
 
-    void        SetChunkID(uint64_t chunkID);
-    void        SetLogSegmentID(uint64_t logSegmentID);
-    void        SetLogCommandID(uint32_t logCommandID);
-    void        SetNumKeys(uint64_t numKeys);
-    void        SetUseBloomFilter(bool useBloomFilter);
-    void        SetIndexPageOffset(uint64_t indexPageOffset);
-    void        SetIndexPageSize(uint32_t indexPageSize);
-    void        SetBloomPageOffset(uint64_t bloomPageOffset);
-    void        SetBloomPageSize(uint32_t bloomPageSize);
+    void                SetChunkID(uint64_t chunkID);
+    void                SetLogSegmentID(uint64_t logSegmentID);
+    void                SetLogCommandID(uint32_t logCommandID);
+    void                SetNumKeys(uint64_t numKeys);
+    void                SetUseBloomFilter(bool useBloomFilter);
+    void                SetIndexPageOffset(uint64_t indexPageOffset);
+    void                SetIndexPageSize(uint32_t indexPageSize);
+    void                SetBloomPageOffset(uint64_t bloomPageOffset);
+    void                SetBloomPageSize(uint32_t bloomPageSize);
 
-    bool        UseBloomFilter();
+    bool                UseBloomFilter();
 
-    void        Write(Buffer& writeBuffer);
+    void                Write(Buffer& writeBuffer);
+
+    bool                IsLoaded();
+    void                Unload();
 
 private:
-    uint64_t    chunkID;
-    uint64_t    logSegmentID;
-    uint32_t    logCommandID;
-    uint64_t    numKeys;
-    bool        useBloomFilter;
-    uint64_t    indexPageOffset;
-    uint32_t    indexPageSize;
-    uint64_t    bloomPageOffset;
-    uint32_t    bloomPageSize;
+    uint64_t            chunkID;
+    uint64_t            logSegmentID;
+    uint32_t            logCommandID;
+    uint64_t            numKeys;
+    bool                useBloomFilter;
+    uint64_t            indexPageOffset;
+    uint32_t            indexPageSize;
+    uint64_t            bloomPageOffset;
+    uint32_t            bloomPageSize;
+    StorageFileChunk*   owner;
 };
 
 #endif
