@@ -4,6 +4,7 @@
 
 StorageLogSegment::StorageLogSegment()
 {
+    prev = next = this;
     logSegmentID = 0;
     fd = INVALID_FD;
     logCommandID = 1;
@@ -11,12 +12,14 @@ StorageLogSegment::StorageLogSegment()
     prevShardID = 0;
     writeShardID = true;
     asyncCommit = false;
+    writeBuffer = new Buffer;
 }
 
-bool StorageLogSegment::Open(Buffer& filename, uint64_t logSegmentID_)
+bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
 {
     unsigned length;
     
+    filename.Write(filename_);
     filename.NullTerminate();
     fd = FS_Open(filename.GetBuffer(), FS_CREATE | FS_READWRITE);
     if (fd == INVALID_FD)
@@ -25,10 +28,10 @@ bool StorageLogSegment::Open(Buffer& filename, uint64_t logSegmentID_)
     logSegmentID = logSegmentID_;
     offset = 0;
 
-    writeBuffer.AppendLittle64(logSegmentID);
-    length = writeBuffer.GetLength();
+    writeBuffer->AppendLittle64(logSegmentID);
+    length = writeBuffer->GetLength();
     
-    if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
+    if (FS_FileWrite(fd, writeBuffer->GetBuffer(), length) != length)
     {
         FS_FileClose(fd);
         fd = INVALID_FD;
@@ -41,7 +44,7 @@ bool StorageLogSegment::Open(Buffer& filename, uint64_t logSegmentID_)
     NewRound();
     
     Log_Message("Opening log segment %U", logSegmentID);
-    
+        
     return true;
 }
 
@@ -49,6 +52,13 @@ void StorageLogSegment::Close()
 {
     FS_FileClose(fd);
     fd = INVALID_FD;
+    delete writeBuffer;
+    writeBuffer = NULL;
+}
+
+void StorageLogSegment::DeleteFile()
+{
+    FS_Delete(filename.GetBuffer());
 }
 
 uint64_t StorageLogSegment::GetLogSegmentID()
@@ -67,23 +77,23 @@ int32_t StorageLogSegment::AppendSet(uint16_t contextID, uint64_t shardID,
 {
     assert(fd != INVALID_FD);
 
-    prevLength = writeBuffer.GetLength();
+    prevLength = writeBuffer->GetLength();
 
-    writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_SET);
+    writeBuffer->Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_SET);
     if (!writeShardID && contextID == prevContextID && shardID == prevShardID)
     {
-        writeBuffer.Appendf("%b", true); // use previous shardID
+        writeBuffer->Appendf("%b", true); // use previous shardID
     }
     else
     {
-        writeBuffer.Appendf("%b", false);
-        writeBuffer.AppendLittle16(contextID);
-        writeBuffer.AppendLittle64(shardID);
+        writeBuffer->Appendf("%b", false);
+        writeBuffer->AppendLittle16(contextID);
+        writeBuffer->AppendLittle64(shardID);
     }
-    writeBuffer.AppendLittle32(key.GetLength());
-    writeBuffer.Append(key);
-    writeBuffer.AppendLittle32(value.GetLength());
-    writeBuffer.Append(value);
+    writeBuffer->AppendLittle32(key.GetLength());
+    writeBuffer->Append(key);
+    writeBuffer->AppendLittle32(value.GetLength());
+    writeBuffer->Append(value);
 
     writeShardID = false;
     prevContextID = contextID;
@@ -95,22 +105,22 @@ int32_t StorageLogSegment::AppendDelete(uint16_t contextID, uint64_t shardID, Re
 {
     assert(fd != INVALID_FD);
 
-    prevLength = writeBuffer.GetLength();
+    prevLength = writeBuffer->GetLength();
 
-    writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_DELETE);
+    writeBuffer->Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_DELETE);
 
     if (!writeShardID && contextID == prevContextID && shardID == prevShardID)
     {
-        writeBuffer.Appendf("%b", true); // use previous shardID
+        writeBuffer->Appendf("%b", true); // use previous shardID
     }
     else
     {
-        writeBuffer.Appendf("%b", false);
-        writeBuffer.AppendLittle16(contextID);
-        writeBuffer.AppendLittle64(shardID);
+        writeBuffer->Appendf("%b", false);
+        writeBuffer->AppendLittle16(contextID);
+        writeBuffer->AppendLittle64(shardID);
     }
-    writeBuffer.AppendLittle32(key.GetLength());
-    writeBuffer.Append(key);
+    writeBuffer->AppendLittle32(key.GetLength());
+    writeBuffer->Append(key);
 
     writeShardID = false;
     prevContextID = contextID;
@@ -120,7 +130,7 @@ int32_t StorageLogSegment::AppendDelete(uint16_t contextID, uint64_t shardID, Re
 
 void StorageLogSegment::Undo()
 {
-    writeBuffer.SetLength(prevLength);
+    writeBuffer->SetLength(prevLength);
     logCommandID--;
     writeShardID = true;
 }
@@ -135,23 +145,23 @@ void StorageLogSegment::Commit()
 
     assert(fd != INVALID_FD);
 
-    length = writeBuffer.GetLength();
+    length = writeBuffer->GetLength();
 
     assert(length >= STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     
     if (length == STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE)
         return; // empty round
 
-    dataPart.SetBuffer(writeBuffer.GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+    dataPart.SetBuffer(writeBuffer->GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     dataPart.SetLength(length - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     checksum = dataPart.GetChecksum();
     
-    writeBuffer.SetLength(0);
-    writeBuffer.AppendLittle32(length);
-    writeBuffer.AppendLittle32(checksum);
-    writeBuffer.SetLength(length);
+    writeBuffer->SetLength(0);
+    writeBuffer->AppendLittle32(length);
+    writeBuffer->AppendLittle32(checksum);
+    writeBuffer->SetLength(length);
     
-    if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
+    if (FS_FileWrite(fd, writeBuffer->GetBuffer(), length) != length)
     {
         FS_FileClose(fd);
         fd = INVALID_FD;
@@ -183,9 +193,9 @@ void StorageLogSegment::NewRound()
     // reserve:
     // 4 bytes for size
     // 4 bytes for CRC
-    writeBuffer.Allocate(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
-    writeBuffer.Zero();
-    writeBuffer.SetLength(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);    
+    writeBuffer->Allocate(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+    writeBuffer->Zero();
+    writeBuffer->SetLength(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);    
 
-    prevLength = writeBuffer.GetLength();
+    prevLength = writeBuffer->GetLength();
 }

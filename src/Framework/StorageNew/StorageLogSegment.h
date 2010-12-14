@@ -9,6 +9,8 @@
 #define STORAGE_LOGSEGMENT_COMMAND_SET          'S'
 #define STORAGE_LOGSEGMENT_COMMAND_DELETE       'D'
 
+class StorageArchiveLogSegmentJob;
+
 /*
 ===============================================================================================
 
@@ -19,42 +21,50 @@
 
 class StorageLogSegment
 {
+    friend class StorageArchiveLogSegmentJob;
+
 public:
     StorageLogSegment();
     
-    bool            Open(Buffer& filename, uint64_t logSegmentID_);
-    void            Close();
+    bool                Open(Buffer& filename, uint64_t logSegmentID_);
+    void                Close();
+    void                DeleteFile();
 
-    uint64_t        GetLogSegmentID();
-    void            SetOnCommit(Callable* onCommit);
+    uint64_t            GetLogSegmentID();
+    void                SetOnCommit(Callable* onCommit);
 
     // Append..() functions return commandID:
-    int32_t         AppendSet(uint16_t contextID, uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
-    int32_t         AppendDelete(uint16_t contextID, uint64_t shardID, ReadBuffer& key);
-    void            Undo();
+    int32_t             AppendSet(uint16_t contextID, uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
+    int32_t             AppendDelete(uint16_t contextID, uint64_t shardID, ReadBuffer& key);
+    void                Undo();
 
-    void            Commit();
-    bool            GetCommitStatus();
+    void                Commit();
+    bool                GetCommitStatus();
 
-    uint64_t        GetOffset();
+    uint64_t            GetOffset();
+    
+    StorageLogSegment*  prev;
+    StorageLogSegment*  next;
 
 private:
-    void            NewRound();
+    void                NewRound();
 
-    FD              fd;
-    uint64_t        logSegmentID;
-    uint32_t        logCommandID;
-    uint64_t        offset;
-    bool            commitStatus;
-    Buffer          writeBuffer;
-    Callable*       onCommit;
+    FD                  fd;
+    uint64_t            logSegmentID;
+    uint32_t            logCommandID;
+    uint64_t            offset;
+    bool                commitStatus;
+    Buffer              filename;
+    Buffer              archivePath;
+    Buffer*             writeBuffer;
+    Callable*           onCommit;
 
-    bool            writeShardID;
-    uint16_t        prevContextID;
-    uint64_t        prevShardID;
-    unsigned        prevLength;
+    bool                writeShardID;
+    uint16_t            prevContextID;
+    uint64_t            prevShardID;
+    unsigned            prevLength;
     
-    bool            asyncCommit;
+    bool                asyncCommit;
 };
 
 #endif

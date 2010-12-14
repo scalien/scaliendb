@@ -13,6 +13,7 @@
 #include "StorageJob.h"
 
 class StorageEnvironmentWriter;
+class StorageArchiveLogSegmentJob;
 
 /*
 ===============================================================================================
@@ -28,7 +29,9 @@ class StorageEnvironmentWriter;
 class StorageEnvironment
 {
     friend class StorageEnvironmentWriter;
-//    typedef InList<StorageLogSegment> LogSegmentList;
+    friend class StorageArchiveLogSegmentJob;
+    
+    typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;
     typedef InList<StorageMemoChunk>    MemoChunkList;
     typedef InList<StorageFileChunk>    FileChunkList;
@@ -60,8 +63,10 @@ private:
     void                        TryFinalizeLogSegment();
     void                        TrySerializeChunks();
     void                        TryWriteChunks();
+    void                        TryArchiveLogSegments();
     void                        OnChunkSerialize();
     void                        OnChunkWrite();
+    void                        OnLogArchive();
     bool                        IsWriteActive();
     StorageShard*               GetShard(uint16_t contextID, uint64_t shardID);
     void                        StartJob(ThreadPool* thread, StorageJob* job);
@@ -70,24 +75,28 @@ private:
     Callable                    onCommit;
     Callable                    onChunkSerialize;
     Callable                    onChunkWrite;
+    Callable                    onLogArchive;
 
-    StorageLogSegment*    logSegmentWriter;
+    StorageLogSegment*          headLogSegment;
     ShardList                   shards;
     FileChunkList               fileChunks;
-//    LogSegmentList            logSegments;
+    LogSegmentList              logSegments;
 
     StorageConfig               config;
     
     ThreadPool*                 commitThread;
     ThreadPool*                 serializerThread;
     ThreadPool*                 writerThread;
+    ThreadPool*                 archiverThread;
 
     Buffer                      envPath;
     Buffer                      chunkPath;
     Buffer                      logPath;
+    Buffer                      archivePath;
 
     uint64_t                    nextChunkID;
     uint64_t                    nextLogSegmentID;
+    uint64_t                    archiveLogSegmentID;
     bool                        asyncCommit;
 };
 

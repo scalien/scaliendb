@@ -4,6 +4,9 @@
 #include "System/Events/Callable.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
+#include "StorageLogSegment.h"
+
+class StorageEnvironment;
 
 /*
 ===============================================================================================
@@ -58,6 +61,27 @@ public:
     
 private:
     StorageFileChunk*   fileChunk;
+    Callable*           onComplete;
+};
+
+/*
+===============================================================================================
+
+ StorageArchiveLogSegmentJob
+
+===============================================================================================
+*/
+
+class StorageArchiveLogSegmentJob : public StorageJob
+{
+public:
+    StorageArchiveLogSegmentJob(StorageEnvironment* env, StorageLogSegment* logSegment, Callable* onComplete);
+    
+    void                Execute();
+    
+private:
+    StorageEnvironment* env;
+    StorageLogSegment*  logSegment;
     Callable*           onComplete;
 };
 

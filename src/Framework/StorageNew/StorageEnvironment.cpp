@@ -12,9 +12,11 @@ StorageEnvironment::StorageEnvironment()
 
     onChunkSerialize = MFUNC(StorageEnvironment, OnChunkSerialize);
     onChunkWrite = MFUNC(StorageEnvironment, OnChunkWrite);
-
+    onLogArchive = MFUNC(StorageEnvironment, OnLogArchive);
+    
     nextChunkID = 1;
     nextLogSegmentID = 1;
+    archiveLogSegmentID = 0;
     
     asyncCommit = false;
 }
@@ -33,6 +35,9 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     writerThread = ThreadPool::Create(1);
     writerThread->Start();
 
+    archiverThread = ThreadPool::Create(1);
+    archiverThread->Start();
+
     envPath.Write(envPath_);
     lastChar = envPath.GetCharAt(envPath.GetLength() - 1);
     if (lastChar != '/' && lastChar != '\\')
@@ -43,6 +48,9 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
     logPath.Write(envPath);
     logPath.Append("logs/");
+
+    archivePath.Write(envPath);
+    archivePath.Append("archives/");
 
     tmp.Write(envPath);
     tmp.NullTerminate();
@@ -55,13 +63,17 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     tmp.Write(logPath);
     tmp.NullTerminate();
     FS_CreateDir(tmp.GetBuffer());
+
+    tmp.Write(archivePath);
+    tmp.NullTerminate();
+    FS_CreateDir(tmp.GetBuffer());
     
     // TODO: open 'toc' or 'toc.new' file
 
-    logSegmentWriter = new StorageLogSegment;
+    headLogSegment = new StorageLogSegment;
     tmp.Write(logPath);
     tmp.Appendf("log.%020U", nextLogSegmentID);
-    logSegmentWriter->Open(tmp, nextLogSegmentID);
+    headLogSegment->Open(tmp, nextLogSegmentID);
     nextLogSegmentID++;
 
     return true;
@@ -158,7 +170,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     if (shard == NULL)
         return false;
 
-    commandID = logSegmentWriter->AppendSet(contextID, shardID, key, value);
+    commandID = headLogSegment->AppendSet(contextID, shardID, key, value);
     if (commandID < 0)
         return false;
 
@@ -166,10 +178,10 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     assert(chunk != NULL);
     if (!chunk->Set(key, value))
     {
-        logSegmentWriter->Undo();
+        headLogSegment->Undo();
         return false;
     }
-    chunk->RegisterLogCommand(logSegmentWriter->GetLogSegmentID(), commandID);
+    chunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), commandID);
 
     return true;
 }
@@ -187,7 +199,7 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     if (shard == NULL)
         return false;
 
-    commandID = logSegmentWriter->AppendDelete(contextID, shardID, key);
+    commandID = headLogSegment->AppendDelete(contextID, shardID, key);
     if (commandID < 0)
         return false;
 
@@ -195,10 +207,10 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     assert(chunk != NULL);
     if (!chunk->Delete(key))
     {
-        logSegmentWriter->Undo();
+        headLogSegment->Undo();
         return false;
     }
-    chunk->RegisterLogCommand(logSegmentWriter->GetLogSegmentID(), commandID);
+    chunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), commandID);
 
     return true;
 }
@@ -216,12 +228,12 @@ bool StorageEnvironment::Commit()
         if (commitThread->GetNumActive() > 0)
             return false;
 
-        MFunc<StorageLogSegment, &StorageLogSegment::Commit> callable(logSegmentWriter);        
+        MFunc<StorageLogSegment, &StorageLogSegment::Commit> callable(headLogSegment);        
         commitThread->Execute(callable);
     }
     else
     {
-        logSegmentWriter->Commit();
+        headLogSegment->Commit();
         OnCommit();
     }
 
@@ -230,7 +242,7 @@ bool StorageEnvironment::Commit()
 
 bool StorageEnvironment::GetCommitStatus()
 {
-    return logSegmentWriter->GetCommitStatus();
+    return headLogSegment->GetCommitStatus();
 }
 
 StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
@@ -297,18 +309,17 @@ void StorageEnvironment::TryFinalizeLogSegment()
 {
     Buffer tmp;
 
-    if (logSegmentWriter->GetOffset() < config.logSegmentSize)
+    if (headLogSegment->GetOffset() < config.logSegmentSize)
         return;
 
-    logSegmentWriter->Close();
+    headLogSegment->Close();
 
-    delete logSegmentWriter; // this is wrong
-// TODO:    logSegments.Append(logSegmentWriter);
+    logSegments.Append(headLogSegment);
 
-    logSegmentWriter = new StorageLogSegment;
+    headLogSegment = new StorageLogSegment;
     tmp.Write(logPath);
     tmp.Appendf("log.%020U", nextLogSegmentID);
-    logSegmentWriter->Open(tmp, nextLogSegmentID);
+    headLogSegment->Open(tmp, nextLogSegmentID);
     nextLogSegmentID++;
 }
 
@@ -355,7 +366,7 @@ Advance:
     FOREACH(itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
-//        if (memoChunk->GetLogSegmentID() == logSegmentWriter->GetLogSegmentID())
+//        if (memoChunk->GetLogSegmentID() == headLogSegment->GetLogSegmentID())
 //            continue;
         if (memoChunk->GetSize() > config.chunkSize)
         {
@@ -389,6 +400,52 @@ void StorageEnvironment::TryWriteChunks()
     }
 }
 
+void StorageEnvironment::TryArchiveLogSegments()
+{
+    bool                del;
+    uint64_t            logSegmentID;
+    StorageLogSegment*  itLogSegment;
+    StorageShard*       itShard;
+    StorageMemoChunk*   memoChunk;
+    StorageChunk**      itChunk;
+    StorageJob*         job;    
+    
+    if (archiverThread->GetNumActive() > 0)
+        return;
+
+    FOREACH(itLogSegment, logSegments)
+    {
+        del = true;
+        // look at all chunks
+        // if all chunks' logSegmentID is higher,
+        // then this log segment may safely be deleted
+        logSegmentID = itLogSegment->GetLogSegmentID();
+        FOREACH(itShard, shards)
+        {
+            memoChunk = itShard->GetMemoChunk();
+            if (memoChunk->GetLogSegmentID() > 0 && memoChunk->GetLogSegmentID() <= logSegmentID)
+                del = false;
+            FOREACH(itChunk, itShard->GetChunks())
+            {
+                assert((*itChunk)->GetLogSegmentID() > 0);
+                if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
+                {
+                    if (memoChunk->GetLogSegmentID() <= logSegmentID)
+                        del = false;
+                }
+            }
+        }
+        
+        if (del)
+        {
+            archiveLogSegmentID = logSegmentID;
+            job = new StorageArchiveLogSegmentJob(this, itLogSegment, &onLogArchive);
+            StartJob(archiverThread, job);
+            return;
+        }
+    }
+}
+
 void StorageEnvironment::OnChunkSerialize()
 {
     TrySerializeChunks();
@@ -399,7 +456,21 @@ void StorageEnvironment::OnChunkSerialize()
 void StorageEnvironment::OnChunkWrite()
 {
     WriteTOC();
+    TryArchiveLogSegments();
     TryWriteChunks();
+}
+
+void StorageEnvironment::OnLogArchive()
+{
+    StorageLogSegment* it;
+    
+    it = logSegments.Last();
+    
+    assert(archiveLogSegmentID = it->GetLogSegmentID());
+    
+    logSegments.Delete(it);
+    
+    TryArchiveLogSegments();
 }
 
 bool StorageEnvironment::IsWriteActive()
