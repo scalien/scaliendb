@@ -12,6 +12,8 @@
 #include "StorageShard.h"
 #include "StorageJob.h"
 
+class StorageEnvironmentWriter;
+
 /*
 ===============================================================================================
 
@@ -25,6 +27,7 @@
 
 class StorageEnvironment
 {
+    friend class StorageEnvironmentWriter;
 //    typedef InList<StorageLogSegment> LogSegmentList;
     typedef InList<StorageShard>        ShardList;
     typedef InList<StorageMemoChunk>    MemoChunkList;

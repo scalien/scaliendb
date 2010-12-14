@@ -2,6 +2,7 @@
 #include "System/Events/EventLoop.h"
 #include "System/FileSystem.h"
 #include "StorageChunkSerializer.h"
+#include "StorageEnvironmentWriter.h"
 
 StorageEnvironment::StorageEnvironment()
 {
@@ -38,10 +39,10 @@ bool StorageEnvironment::Open(Buffer& envPath_)
         envPath.Append('/');
 
     chunkPath.Write(envPath);
-    chunkPath.Append("chunk/");
+    chunkPath.Append("chunks/");
 
     logPath.Write(envPath);
-    logPath.Append("log/");
+    logPath.Append("logs/");
 
     tmp.Write(envPath);
     tmp.NullTerminate();
@@ -354,6 +355,8 @@ Advance:
     FOREACH(itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
+//        if (memoChunk->GetLogSegmentID() == logSegmentWriter->GetLogSegmentID())
+//            continue;
         if (memoChunk->GetSize() > config.chunkSize)
         {
             job = new StorageSerializeChunkJob(memoChunk, &onChunkSerialize);
@@ -412,5 +415,7 @@ void StorageEnvironment::StartJob(ThreadPool* thread, StorageJob* job)
 
 void StorageEnvironment::WriteTOC()
 {
-    // TODO: write to disk in 'toc.new' file, then delete 'toc', then rename to 'toc'
+    StorageEnvironmentWriter writer;
+
+    writer.Write(this);
 }
