@@ -21,12 +21,14 @@ public:
 
     StorageShard();
 
+    void                SetContextID(uint16_t contextID);
     void                SetTableID(uint64_t tableID);
     void                SetShardID(uint64_t shardID);
     void                SetFirstKey(ReadBuffer& firstKey);
     void                SetLastKey(ReadBuffer& lastKey);
     void                SetUseBloomFilter(bool useBloomFilter);
 
+    uint16_t            GetContextID();
     uint64_t            GetTableID();
     uint64_t            GetShardID();
     ReadBuffer          GetFirstKey();
@@ -46,6 +48,7 @@ public:
     StorageShard*       next;
 
 private:
+    uint16_t            contextID;
     uint64_t            shardID;
     uint64_t            tableID;
     Buffer              firstKey;

@@ -29,8 +29,8 @@ public:
     void            SetOnCommit(Callable* onCommit);
 
     // Append..() functions return commandID:
-    int32_t         AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
-    int32_t         AppendDelete(uint64_t shardID, ReadBuffer& key);
+    int32_t         AppendSet(uint16_t contextID, uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
+    int32_t         AppendDelete(uint16_t contextID, uint64_t shardID, ReadBuffer& key);
     void            Undo();
 
     void            Commit();
@@ -50,6 +50,7 @@ private:
     Callable*       onCommit;
 
     bool            writeShardID;
+    uint16_t        prevContextID;
     uint64_t        prevShardID;
     unsigned        prevLength;
     

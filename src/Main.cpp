@@ -25,7 +25,7 @@ int main()
     Buffer envPath;
     envPath.Write("db/");
     env.Open(envPath);
-    env.CreateShard(1, 1, ReadBuffer(""), ReadBuffer(""), true);
+    env.CreateShard(1, 1, 1, ReadBuffer(""), ReadBuffer(""), true);
     
     Buffer key, value;
     uint64_t i;
@@ -33,7 +33,7 @@ int main()
     {
         key.Writef("%U", i);
         value.Writef("%0100U", i);
-        env.Set(1, ReadBuffer(key), ReadBuffer(value));
+        env.Set(1, 1, ReadBuffer(key), ReadBuffer(value));
         if (i % (100*1000) == 0)
         {
             env.Commit();
@@ -53,9 +53,10 @@ int main()
     {
         rnd = RandomInt(0, 1000*1000 - 1);
         key.Writef("%U", rnd);
-        if (!env.Get(1, ReadBuffer(key), rv))
+        if (!env.Get(1, 1, ReadBuffer(key), rv))
             Log_Message("%B => not found", &key);
     }
+    
     Log_Message("GET end");
     env.Close();
     

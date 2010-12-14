@@ -7,6 +7,8 @@ StorageLogSegmentWriter::StorageLogSegmentWriter()
     logSegmentID = 0;
     fd = INVALID_FD;
     logCommandID = 1;
+    prevContextID = 0;
+    prevShardID = 0;
     writeShardID = true;
     asyncCommit = false;
 }
@@ -60,25 +62,36 @@ void StorageLogSegmentWriter::SetOnCommit(Callable* onCommit_)
     asyncCommit = true;
 }
 
-int32_t StorageLogSegmentWriter::AppendSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value)
+int32_t StorageLogSegmentWriter::AppendSet(uint16_t contextID, uint64_t shardID,
+ ReadBuffer& key, ReadBuffer& value)
 {
     assert(fd != INVALID_FD);
 
     prevLength = writeBuffer.GetLength();
 
     writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_SET);
-    writeBuffer.AppendLittle64(shardID);
+    if (!writeShardID && contextID == prevContextID && shardID == prevShardID)
+    {
+        writeBuffer.Appendf("%b", true); // use previous shardID
+    }
+    else
+    {
+        writeBuffer.Appendf("%b", false);
+        writeBuffer.AppendLittle16(contextID);
+        writeBuffer.AppendLittle64(shardID);
+    }
     writeBuffer.AppendLittle32(key.GetLength());
     writeBuffer.Append(key);
     writeBuffer.AppendLittle32(value.GetLength());
     writeBuffer.Append(value);
 
     writeShardID = false;
+    prevContextID = contextID;
     prevShardID = shardID;
     return logCommandID++;
 }
 
-int32_t StorageLogSegmentWriter::AppendDelete(uint64_t shardID, ReadBuffer& key)
+int32_t StorageLogSegmentWriter::AppendDelete(uint16_t contextID, uint64_t shardID, ReadBuffer& key)
 {
     assert(fd != INVALID_FD);
 
@@ -86,19 +99,21 @@ int32_t StorageLogSegmentWriter::AppendDelete(uint64_t shardID, ReadBuffer& key)
 
     writeBuffer.Appendf("%c", STORAGE_LOGSEGMENT_COMMAND_DELETE);
 
-    if (!writeShardID && shardID == prevShardID)
+    if (!writeShardID && contextID == prevContextID && shardID == prevShardID)
     {
         writeBuffer.Appendf("%b", true); // use previous shardID
     }
     else
     {
         writeBuffer.Appendf("%b", false);
+        writeBuffer.AppendLittle16(contextID);
         writeBuffer.AppendLittle64(shardID);
     }
     writeBuffer.AppendLittle32(key.GetLength());
     writeBuffer.Append(key);
 
     writeShardID = false;
+    prevContextID = contextID;
     prevShardID = shardID;
     return logCommandID++;
 }

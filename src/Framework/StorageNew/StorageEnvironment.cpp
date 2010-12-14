@@ -78,13 +78,13 @@ void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
     config = config_;
 }
 
-uint64_t StorageEnvironment::GetShardID(uint64_t tableID, ReadBuffer& key)
+uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
 {
     StorageShard* it;
 
     FOREACH(it, shards)
     {
-        if (it->GetTableID() == tableID)
+        if (it->GetContextID() == contextID && it->GetTableID() == tableID)
         {
             if (it->RangeContains(key))
                 return it->GetShardID();
@@ -94,14 +94,14 @@ uint64_t StorageEnvironment::GetShardID(uint64_t tableID, ReadBuffer& key)
     return 0;
 }
 
-bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer key, ReadBuffer& value)
+bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value)
 {
     StorageShard*       shard;
     StorageChunk*       chunk;
     StorageChunk**      itChunk;
     StorageKeyValue*    kv;
 
-    shard = GetShard(shardID);
+    shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
 
@@ -144,7 +144,7 @@ bool StorageEnvironment::Get(uint64_t shardID, ReadBuffer key, ReadBuffer& value
     return false;
 }
 
-bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer key, ReadBuffer value)
+bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value)
 {
     uint64_t            commandID;
     StorageShard*       shard;
@@ -153,11 +153,11 @@ bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer key, ReadBuffer value)
     if (commitThread->GetNumActive() > 0)
         return false;
 
-    shard = GetShard(shardID);
+    shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
 
-    commandID = logSegmentWriter->AppendSet(shardID, key, value);
+    commandID = logSegmentWriter->AppendSet(contextID, shardID, key, value);
     if (commandID < 0)
         return false;
 
@@ -173,7 +173,7 @@ bool StorageEnvironment::Set(uint64_t shardID, ReadBuffer key, ReadBuffer value)
     return true;
 }
 
-bool StorageEnvironment::Delete(uint64_t shardID, ReadBuffer key)
+bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key)
 {
     uint32_t            commandID;
     StorageShard*       shard;
@@ -182,11 +182,11 @@ bool StorageEnvironment::Delete(uint64_t shardID, ReadBuffer key)
     if (commitThread->GetNumActive() > 0)
         return false;
 
-    shard = GetShard(shardID);
+    shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
 
-    commandID = logSegmentWriter->AppendDelete(shardID, key);
+    commandID = logSegmentWriter->AppendDelete(contextID, shardID, key);
     if (commandID < 0)
         return false;
 
@@ -232,32 +232,33 @@ bool StorageEnvironment::GetCommitStatus()
     return logSegmentWriter->GetCommitStatus();
 }
 
-StorageShard* StorageEnvironment::GetShard(uint64_t shardID)
+StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
 {
     StorageShard* it;
 
     FOREACH(it, shards)
     {
-        if (it->GetShardID() == shardID)
+        if (it->GetContextID() == contextID && it->GetShardID() == shardID)
             return it;
     }
 
     return NULL;
 }
 
-void StorageEnvironment::CreateShard(uint64_t shardID, uint64_t tableID,
+void StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
  ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter)
 {
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
 
-    shard = GetShard(shardID);
+    shard = GetShard(contextID, shardID);
     if (shard != NULL)
         return;
 
     shard = new StorageShard;
-    shard->SetShardID(shardID);
+    shard->SetContextID(contextID);
     shard->SetTableID(tableID);
+    shard->SetShardID(shardID);
     shard->SetFirstKey(firstKey);
     shard->SetLastKey(lastKey);
     shard->SetUseBloomFilter(useBloomFilter);
@@ -273,7 +274,7 @@ void StorageEnvironment::CreateShard(uint64_t shardID, uint64_t tableID,
     WriteTOC();
 }
 
-void StorageEnvironment::DeleteShard(uint64_t /*shardID*/)
+void StorageEnvironment::DeleteShard(uint16_t /*contextID*/, uint64_t /*shardID*/)
 {
 //    StorageShard* shard;
 //

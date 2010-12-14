@@ -8,9 +8,15 @@ inline bool LessThan(StorageChunk* a, StorageChunk* b)
 StorageShard::StorageShard()
 {
     prev = next = this;
+    contextID = 0;
     tableID = 0;
     shardID = 0;
     memoChunk = NULL;
+}
+
+void StorageShard::SetContextID(uint16_t contextID_)
+{
+    contextID = contextID_;
 }
 
 void StorageShard::SetTableID(uint64_t tableID_)
@@ -36,6 +42,11 @@ void StorageShard::SetLastKey(ReadBuffer& lastKey_)
 void StorageShard::SetUseBloomFilter(bool useBloomFilter_)
 {
     useBloomFilter = useBloomFilter_;
+}
+
+uint16_t StorageShard::GetContextID()
+{
+    return contextID;
 }
 
 uint64_t StorageShard::GetTableID()

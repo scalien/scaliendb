@@ -18,7 +18,6 @@
  StorageEnvironment
 
 // TODO:        cursor
-// TODO:        create shard (w/ tableID)
 // TODO:        split shard
 
 ===============================================================================================
@@ -39,15 +38,15 @@ public:
 
     void                        SetStorageConfig(StorageConfig& config);
 
-    uint64_t                    GetShardID(uint64_t tableID, ReadBuffer& key);
+    uint64_t                    GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
 
-    void                        CreateShard(uint64_t shardID, uint64_t tableID,
+    void                        CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
                                  ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter);
-    void                        DeleteShard(uint64_t shardID);
+    void                        DeleteShard(uint16_t contextID, uint64_t shardID);
 
-    bool                        Get(uint64_t shardID, ReadBuffer key, ReadBuffer& value);
-    bool                        Set(uint64_t shardID, ReadBuffer key, ReadBuffer value);
-    bool                        Delete(uint64_t shardID, ReadBuffer key);
+    bool                        Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value);
+    bool                        Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
+    bool                        Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key);
         
     void                        SetOnCommit(Callable& onCommit);
     bool                        Commit();
@@ -61,7 +60,7 @@ private:
     void                        OnChunkSerialize();
     void                        OnChunkWrite();
     bool                        IsWriteActive();
-    StorageShard*               GetShard(uint64_t shardID);
+    StorageShard*               GetShard(uint16_t contextID, uint64_t shardID);
     void                        StartJob(ThreadPool* thread, StorageJob* job);
     void                        WriteTOC();
 
