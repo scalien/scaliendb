@@ -1,8 +1,8 @@
-#include "StorageLogSegmentWriter.h"
+#include "StorageLogSegment.h"
 #include "System/FileSystem.h"
 #include "System/IO/IOProcessor.h"
 
-StorageLogSegmentWriter::StorageLogSegmentWriter()
+StorageLogSegment::StorageLogSegment()
 {
     logSegmentID = 0;
     fd = INVALID_FD;
@@ -13,7 +13,7 @@ StorageLogSegmentWriter::StorageLogSegmentWriter()
     asyncCommit = false;
 }
 
-bool StorageLogSegmentWriter::Open(Buffer& filename, uint64_t logSegmentID_)
+bool StorageLogSegment::Open(Buffer& filename, uint64_t logSegmentID_)
 {
     unsigned length;
     
@@ -45,24 +45,24 @@ bool StorageLogSegmentWriter::Open(Buffer& filename, uint64_t logSegmentID_)
     return true;
 }
 
-void StorageLogSegmentWriter::Close()
+void StorageLogSegment::Close()
 {
     FS_FileClose(fd);
     fd = INVALID_FD;
 }
 
-uint64_t StorageLogSegmentWriter::GetLogSegmentID()
+uint64_t StorageLogSegment::GetLogSegmentID()
 {
     return logSegmentID;
 }
 
-void StorageLogSegmentWriter::SetOnCommit(Callable* onCommit_)
+void StorageLogSegment::SetOnCommit(Callable* onCommit_)
 {
     onCommit = onCommit_;
     asyncCommit = true;
 }
 
-int32_t StorageLogSegmentWriter::AppendSet(uint16_t contextID, uint64_t shardID,
+int32_t StorageLogSegment::AppendSet(uint16_t contextID, uint64_t shardID,
  ReadBuffer& key, ReadBuffer& value)
 {
     assert(fd != INVALID_FD);
@@ -91,7 +91,7 @@ int32_t StorageLogSegmentWriter::AppendSet(uint16_t contextID, uint64_t shardID,
     return logCommandID++;
 }
 
-int32_t StorageLogSegmentWriter::AppendDelete(uint16_t contextID, uint64_t shardID, ReadBuffer& key)
+int32_t StorageLogSegment::AppendDelete(uint16_t contextID, uint64_t shardID, ReadBuffer& key)
 {
     assert(fd != INVALID_FD);
 
@@ -118,14 +118,14 @@ int32_t StorageLogSegmentWriter::AppendDelete(uint16_t contextID, uint64_t shard
     return logCommandID++;
 }
 
-void StorageLogSegmentWriter::Undo()
+void StorageLogSegment::Undo()
 {
     writeBuffer.SetLength(prevLength);
     logCommandID--;
     writeShardID = true;
 }
 
-void StorageLogSegmentWriter::Commit()
+void StorageLogSegment::Commit()
 {
     uint32_t    length;
     uint32_t    checksum;
@@ -168,17 +168,17 @@ void StorageLogSegmentWriter::Commit()
         IOProcessor::Complete(onCommit);
 }
 
-bool StorageLogSegmentWriter::GetCommitStatus()
+bool StorageLogSegment::GetCommitStatus()
 {
     return commitStatus;
 }
 
-uint64_t StorageLogSegmentWriter::GetOffset()
+uint64_t StorageLogSegment::GetOffset()
 {
     return offset;
 }
 
-void StorageLogSegmentWriter::NewRound()
+void StorageLogSegment::NewRound()
 {
     // reserve:
     // 4 bytes for size

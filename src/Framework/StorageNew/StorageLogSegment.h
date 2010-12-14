@@ -1,5 +1,5 @@
-#ifndef STORAGELOGSEGMENTWRITER_H
-#define STORAGELOGSEGMENTWRITER_H
+#ifndef STORAGELOGSEGMENT_H
+#define STORAGELOGSEGMENT_H
 
 #include "System/Buffers/Buffer.h"
 #include "System/Events/Callable.h"
@@ -12,15 +12,15 @@
 /*
 ===============================================================================================
 
- StorageLogSegmentWriter
+ StorageLogSegment
 
 ===============================================================================================
 */
 
-class StorageLogSegmentWriter
+class StorageLogSegment
 {
 public:
-    StorageLogSegmentWriter();
+    StorageLogSegment();
     
     bool            Open(Buffer& filename, uint64_t logSegmentID_);
     void            Close();

@@ -58,7 +58,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     
     // TODO: open 'toc' or 'toc.new' file
 
-    logSegmentWriter = new StorageLogSegmentWriter;
+    logSegmentWriter = new StorageLogSegment;
     tmp.Write(logPath);
     tmp.Appendf("log.%020U", nextLogSegmentID);
     logSegmentWriter->Open(tmp, nextLogSegmentID);
@@ -216,7 +216,7 @@ bool StorageEnvironment::Commit()
         if (commitThread->GetNumActive() > 0)
             return false;
 
-        MFunc<StorageLogSegmentWriter, &StorageLogSegmentWriter::Commit> callable(logSegmentWriter);        
+        MFunc<StorageLogSegment, &StorageLogSegment::Commit> callable(logSegmentWriter);        
         commitThread->Execute(callable);
     }
     else
@@ -305,7 +305,7 @@ void StorageEnvironment::TryFinalizeLogSegment()
     delete logSegmentWriter; // this is wrong
 // TODO:    logSegments.Append(logSegmentWriter);
 
-    logSegmentWriter = new StorageLogSegmentWriter;
+    logSegmentWriter = new StorageLogSegment;
     tmp.Write(logPath);
     tmp.Appendf("log.%020U", nextLogSegmentID);
     logSegmentWriter->Open(tmp, nextLogSegmentID);

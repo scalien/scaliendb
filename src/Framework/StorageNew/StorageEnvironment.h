@@ -6,7 +6,7 @@
 #include "System/Events/Countdown.h"
 #include "System/Threadpool.h"
 #include "StorageConfig.h"
-#include "StorageLogSegmentWriter.h"
+#include "StorageLogSegment.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 #include "StorageShard.h"
@@ -71,7 +71,7 @@ private:
     Callable                    onChunkSerialize;
     Callable                    onChunkWrite;
 
-    StorageLogSegmentWriter*    logSegmentWriter;
+    StorageLogSegment*    logSegmentWriter;
     ShardList                   shards;
     FileChunkList               fileChunks;
 //    LogSegmentList            logSegments;
