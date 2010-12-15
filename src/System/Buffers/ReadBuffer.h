@@ -38,6 +38,7 @@ public:
     
     bool                BeginsWith(const char* s);
     
+    bool                ReadChar(char& x);
     bool                ReadLittle16(uint16_t& x);
     bool                ReadLittle32(uint32_t& x);
     bool                ReadLittle64(uint64_t& x);
