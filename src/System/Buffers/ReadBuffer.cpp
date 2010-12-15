@@ -110,6 +110,16 @@ bool ReadBuffer::BeginsWith(const char* s)
         return false;
 }
 
+bool ReadBuffer::ReadLittle16(uint16_t& x)
+{
+    if (length < sizeof(uint16_t))
+        return false;
+    
+    x = *(uint16_t*) buffer;
+    x = FromLittle16(x);
+    return true;
+}
+
 bool ReadBuffer::ReadLittle32(uint32_t& x)
 {
     if (length < sizeof(uint32_t))
