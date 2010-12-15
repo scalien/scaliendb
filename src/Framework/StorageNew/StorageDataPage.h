@@ -7,8 +7,7 @@
 #include "StorageMemoKeyValue.h"
 #include "StorageFileKeyValue.h"
 
-#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*1024)
-#define STORAGE_DEFAULT_DATA_PAGE_GRAN         (4*1024)
+#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*KiB)
 
 class StorageFileChunk;
 
@@ -24,7 +23,7 @@ class StorageDataPage : public StoragePage
 {
     typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
 public:
-    StorageDataPage(StorageFileChunk* owner);
+    StorageDataPage(StorageFileChunk* owner, uint32_t index);
 
     uint32_t            GetSize();
 
@@ -37,13 +36,15 @@ public:
     void                Append(StorageMemoKeyValue* kv);
     void                Finalize();
 
-    void                Write(Buffer& writeBuffer);
+    bool                Read(Buffer& buffer);
+    void                Write(Buffer& buffer);
 
     bool                IsLoaded();
     void                Unload();
 
 private:
     uint32_t            size;
+    uint32_t            index;
     Buffer              buffer;
     KeyValueTree        keyValues;
     StorageFileChunk*   owner;

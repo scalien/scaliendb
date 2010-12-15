@@ -64,7 +64,7 @@ bool StorageChunkSerializer::WriteDataPages()
 
     dataPageIndex = 0;
 
-    dataPage = new StorageDataPage(fileChunk);
+    dataPage = new StorageDataPage(fileChunk, dataPageIndex);
     dataPage->SetOffset(offset);
     FOREACH(it, memoChunk->keyValues)
     {
@@ -88,7 +88,7 @@ bool StorageChunkSerializer::WriteDataPages()
                 fileChunk->AppendDataPage(dataPage);
                 offset += dataPage->GetSize();
                 dataPageIndex++;
-                dataPage = new StorageDataPage(fileChunk);
+                dataPage = new StorageDataPage(fileChunk, dataPageIndex);
                 dataPage->SetOffset(offset);
                 dataPage->Append(it);
                 fileChunk->indexPage.Append(it->GetKey(), dataPageIndex, offset);

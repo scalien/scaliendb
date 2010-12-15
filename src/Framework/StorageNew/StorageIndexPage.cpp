@@ -14,7 +14,7 @@ StorageIndexPage::StorageIndexPage(StorageFileChunk* owner_)
 {
     size = 0;
 
-    buffer.Allocate(STORAGE_DEFAULT_INDEX_PAGE_GRAN);
+    buffer.Allocate(STORAGE_DEFAULT_PAGE_GRAN);
     buffer.Zero();
 
     buffer.AppendLittle32(0); // dummy for size
@@ -83,11 +83,11 @@ void StorageIndexPage::Finalize()
     numKeys = indexTree.GetCount();
     length = buffer.GetLength();
 
-    div = length / STORAGE_DEFAULT_INDEX_PAGE_GRAN;
-    mod = length % STORAGE_DEFAULT_INDEX_PAGE_GRAN;
-    size = div * STORAGE_DEFAULT_INDEX_PAGE_GRAN;
+    div = length / STORAGE_DEFAULT_PAGE_GRAN;
+    mod = length % STORAGE_DEFAULT_PAGE_GRAN;
+    size = div * STORAGE_DEFAULT_PAGE_GRAN;
     if (mod > 0)
-        size += STORAGE_DEFAULT_INDEX_PAGE_GRAN;
+        size += STORAGE_DEFAULT_PAGE_GRAN;
 
     buffer.Allocate(size);
     buffer.ZeroRest();
@@ -118,9 +118,16 @@ void StorageIndexPage::Finalize()
     }
 }
 
-void StorageIndexPage::Write(Buffer& writeBuffer)
+bool StorageIndexPage::Read(Buffer& buffer_)
 {
-    writeBuffer.Write(buffer);
+    buffer.Write(buffer_);
+    
+    // TODO
+}
+
+void StorageIndexPage::Write(Buffer& buffer_)
+{
+    buffer_.Write(buffer);
 }
 
 bool StorageIndexPage::IsLoaded()

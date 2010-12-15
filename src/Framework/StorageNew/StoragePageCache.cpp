@@ -29,9 +29,7 @@ void StoragePageCache::RegisterHit(StoragePage* page)
 void StoragePageCache::TryUnloadPages(StorageConfig& config)
 {
     StoragePage*    it;
-    uint64_t        numUnloaded;
     
-    numUnloaded = 0;
     for (it = pages.First(); it != NULL; /* advanced in body */)
     {
         if (size < config.fileChunkCacheSize)
@@ -41,12 +39,6 @@ void StoragePageCache::TryUnloadPages(StorageConfig& config)
         pages.Remove(it);
         it->Unload();
         
-        numUnloaded++;
         it = pages.First();
-    }
-    
-    if (numUnloaded > 0)
-    {
-        Log_Message("Unloaded %U pages from cache...", numUnloaded);
     }
 }

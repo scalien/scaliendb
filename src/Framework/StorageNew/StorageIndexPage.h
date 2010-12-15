@@ -5,8 +5,6 @@
 #include "System/Containers/InTreeMap.h"
 #include "StoragePage.h"
 
-#define STORAGE_DEFAULT_INDEX_PAGE_GRAN         (4*1024)
-
 class StorageFileChunk;
 
 /*
@@ -49,7 +47,9 @@ public:
 
     void                Append(ReadBuffer key, uint32_t index, uint32_t offset);
     void                Finalize();
-    void                Write(Buffer& writeBuffer);
+
+    bool                Read(Buffer& buffer);
+    void                Write(Buffer& buffer);
 
     bool                IsLoaded();
     void                Unload();

@@ -23,7 +23,9 @@ public:
     
     void                SetNumKeys(uint64_t numKeys);
     void                Add(ReadBuffer key);
-    void                Write(Buffer& writeBuffer);
+    
+    bool                Read(Buffer& buffer);
+    void                Write(Buffer& buffer);
     
     bool                Check(ReadBuffer& key);
 

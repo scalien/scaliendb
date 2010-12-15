@@ -48,26 +48,34 @@ uint32_t StorageBloomPage::RecommendNumBytes(uint32_t numKeys)
     for (i = 1; i < 8; i++)
     {
         n = 2 * n;
-        k = n * 1024;
+        k = n * KiB;
         if (m < k)
             return m;        
     }
+    
+    if (m < STORAGE_DEFAULT_PAGE_GRAN)
+        m = STORAGE_DEFAULT_PAGE_GRAN;
 
     return m;
 }
 
-void StorageBloomPage::Write(Buffer& writeBuffer)
+bool StorageBloomPage::Read(Buffer& buffer)
+{
+    // TODO
+}
+
+void StorageBloomPage::Write(Buffer& buffer)
 {
     uint32_t checksum;
 
-    writeBuffer.Allocate(size);
-    writeBuffer.Zero();
+    buffer.Allocate(size);
+    buffer.Zero();
 
     checksum = bloomFilter.GetBuffer().GetChecksum();
 
-    writeBuffer.AppendLittle32(size);
-    writeBuffer.AppendLittle32(checksum);
-    writeBuffer.Append(bloomFilter.GetBuffer());
+    buffer.AppendLittle32(size);
+    buffer.AppendLittle32(checksum);
+    buffer.Append(bloomFilter.GetBuffer());
 }
 
 bool StorageBloomPage::Check(ReadBuffer& key)

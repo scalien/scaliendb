@@ -43,6 +43,7 @@ public:
     uint64_t            GetSize();
     
     void                AddPagesToCache();
+    void                OnPageEvicted(uint32_t index);
 
     StorageFileChunk*   prev;
     StorageFileChunk*   next;
@@ -50,6 +51,7 @@ public:
 private:
     void                AppendDataPage(StorageDataPage* dataPage);
     void                ExtendDataPageArray();
+    bool                ReadPage(uint32_t offset, Buffer& buffer);
 
     bool                written;
     StorageHeaderPage   headerPage;

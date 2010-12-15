@@ -22,6 +22,5 @@
 - for chunks, maintain a numShardReferences counter; decreased if the chunk is merged and the merge
   completes on disk, increased when shard splitting occurs;
   if a chunk's numShardReferences counter == 0, it may safely be deleted
-  
-  
-  
+
+

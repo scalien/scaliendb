@@ -1,4 +1,5 @@
 #include "StorageDataPage.h"
+#include "StorageFileChunk.h"
 
 static int KeyCmp(const ReadBuffer a, const ReadBuffer b)
 {
@@ -10,11 +11,11 @@ static const ReadBuffer Key(StorageFileKeyValue* kv)
     return kv->GetKey();
 }
 
-StorageDataPage::StorageDataPage(StorageFileChunk* owner_)
+StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 {
     size = 0;
 
-    buffer.Allocate(STORAGE_DEFAULT_DATA_PAGE_GRAN);
+    buffer.Allocate(STORAGE_DEFAULT_PAGE_GRAN);
     buffer.Zero();
 
     buffer.AppendLittle32(0); // dummy for size
@@ -22,6 +23,7 @@ StorageDataPage::StorageDataPage(StorageFileChunk* owner_)
     buffer.AppendLittle32(0); // dummy for numKeys
     
     owner = owner_;
+    index = index_;
 }
 
 uint32_t StorageDataPage::GetSize()
@@ -99,24 +101,26 @@ void StorageDataPage::Finalize()
     numKeys = keyValues.GetCount();
     length = buffer.GetLength();
 
-    div = length / STORAGE_DEFAULT_DATA_PAGE_GRAN;
-    mod = length % STORAGE_DEFAULT_DATA_PAGE_GRAN;
-    size = div * STORAGE_DEFAULT_DATA_PAGE_GRAN;
+    div = length / STORAGE_DEFAULT_PAGE_GRAN;
+    mod = length % STORAGE_DEFAULT_PAGE_GRAN;
+    size = div * STORAGE_DEFAULT_PAGE_GRAN;
     if (mod > 0)
-        size += STORAGE_DEFAULT_DATA_PAGE_GRAN;
+        size += STORAGE_DEFAULT_PAGE_GRAN;
 
     buffer.Allocate(size);
     buffer.ZeroRest();
 
+    // write numKeys
+    buffer.SetLength(8);
+    buffer.AppendLittle32(numKeys);
+
     // compute checksum
-    dataPart.SetBuffer(buffer.GetBuffer() + 8);
-    dataPart.SetLength(size - 8);
+    dataPart.Wrap(buffer.GetBuffer() + 8, size - 8);
     checksum = dataPart.GetChecksum();
 
     buffer.SetLength(0);
     buffer.AppendLittle32(size);
     buffer.AppendLittle32(checksum);
-    buffer.AppendLittle32(numKeys);
 
     buffer.SetLength(size);
     
@@ -152,9 +156,104 @@ void StorageDataPage::Finalize()
     }    
 }
 
-void StorageDataPage::Write(Buffer& writeBuffer)
+bool StorageDataPage::Read(Buffer& buffer_)
 {
-    writeBuffer.Write(buffer);
+    char                    type;
+    uint16_t                klen;
+    uint32_t                size, checksum, compChecksum, numKeys, vlen, i;
+    ReadBuffer              dataPart, parse, key, value;
+    StorageFileKeyValue*    fkv;
+    
+    assert(keyValues.GetCount() == 0);
+    
+    buffer.Write(buffer_);
+    parse.Wrap(buffer);
+    
+    // size
+    parse.ReadLittle32(size);
+    if (size < 12)
+        goto Fail;
+    if (buffer.GetLength() != size)
+        goto Fail;
+    parse.Advance(4);
+
+    // checksum
+    parse.ReadLittle32(checksum);
+    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+    compChecksum = dataPart.GetChecksum();
+    if (compChecksum != checksum)
+        goto Fail;
+    parse.Advance(4);
+    
+    // numkeys
+    parse.ReadLittle32(numKeys);
+    parse.Advance(4);
+
+    // keys
+    for (i = 0; i < numKeys; i++)
+    {
+        // type
+        if (!parse.ReadChar(type))
+            goto Fail;
+        if (type != STORAGE_KEYVALUE_TYPE_SET && type != STORAGE_KEYVALUE_TYPE_DELETE)
+            goto Fail;
+        parse.Advance(1);
+
+        // klen
+        if (!parse.ReadLittle16(klen))
+            goto Fail;
+        parse.Advance(2);
+        
+        // key
+        if (parse.GetLength() < klen)
+            goto Fail;
+        key.Wrap(parse.GetBuffer(), klen);
+        parse.Advance(klen);
+        
+        if (type == STORAGE_KEYVALUE_TYPE_SET)
+        {
+            // vlen
+            if (!parse.ReadLittle32(vlen))
+                goto Fail;
+            parse.Advance(4);
+            
+            // value
+            if (parse.GetLength() < vlen)
+                goto Fail;
+            value.Wrap(parse.GetBuffer(), vlen);
+            parse.Advance(vlen);
+            
+            fkv = new StorageFileKeyValue;
+            fkv->Set(key, value);
+            keyValues.Insert(fkv);
+        }
+        else
+        {
+            fkv = new StorageFileKeyValue;
+            fkv->Delete(key);
+            keyValues.Insert(fkv);
+        }
+    }
+    
+    // rest is all zeros
+    if (parse.GetCharAt(0) != 0)
+        goto Fail;
+    else
+        goto Success;
+    
+Fail:
+    keyValues.DeleteTree();
+    buffer.Reset();
+    return false;
+
+Success:
+    this->size = size;
+    return true;
+}
+
+void StorageDataPage::Write(Buffer& buffer_)
+{
+    buffer_.Write(buffer);
 }
 
 bool StorageDataPage::IsLoaded()
@@ -166,4 +265,5 @@ void StorageDataPage::Unload()
 {
     keyValues.DeleteTree();
     buffer.Reset();
+    owner->OnPageEvicted(index);
 }

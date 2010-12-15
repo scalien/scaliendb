@@ -14,3 +14,8 @@ uint32_t StoragePage::GetOffset()
 {
     return offset;
 }
+
+bool StoragePage::IsCached()
+{
+    return (prev != this && next != this);
+}
