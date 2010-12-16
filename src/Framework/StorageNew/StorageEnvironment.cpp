@@ -302,6 +302,8 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shard->SetFirstKey(firstKey);
     shard->SetLastKey(lastKey);
     shard->SetUseBloomFilter(useBloomFilter);
+    shard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
+    shard->SetLogCommandID(headLogSegment->GetLogCommandID());
 
     memoChunk = new StorageMemoChunk;
     memoChunk->SetChunkID(nextChunkID++);

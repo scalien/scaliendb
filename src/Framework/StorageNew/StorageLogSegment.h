@@ -31,7 +31,7 @@ public:
     void                DeleteFile();
 
     uint64_t            GetLogSegmentID();
-    uint32_t            GetCommandID();
+    uint32_t            GetLogCommandID();
     
     void                SetOnCommit(Callable* onCommit);
 

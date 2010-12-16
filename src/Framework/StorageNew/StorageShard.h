@@ -24,6 +24,8 @@ public:
     void                SetContextID(uint16_t contextID);
     void                SetTableID(uint64_t tableID);
     void                SetShardID(uint64_t shardID);
+    void                SetLogSegmentID(uint64_t logSegmentID);
+    void                SetLogCommandID(uint64_t logCommandID);
     void                SetFirstKey(ReadBuffer& firstKey);
     void                SetLastKey(ReadBuffer& lastKey);
     void                SetUseBloomFilter(bool useBloomFilter);
@@ -31,6 +33,8 @@ public:
     uint16_t            GetContextID();
     uint64_t            GetTableID();
     uint64_t            GetShardID();
+    uint64_t            GetLogSegmentID();
+    uint32_t            GetLogCommandID();
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
     bool                UseBloomFilter();
@@ -51,6 +55,8 @@ private:
     uint16_t            contextID;
     uint64_t            shardID;
     uint64_t            tableID;
+    uint64_t            logSegmentID;   // the first command
+    uint32_t            logCommandID;   // which may affect this shard
     Buffer              firstKey;
     Buffer              lastKey;
     bool                useBloomFilter;

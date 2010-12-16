@@ -83,6 +83,8 @@ void StorageEnvironmentWriter::WriteShard(StorageShard* shard)
     writeBuffer.AppendLittle16(shard->GetContextID());
     writeBuffer.AppendLittle64(shard->GetTableID());
     writeBuffer.AppendLittle64(shard->GetShardID());
+    writeBuffer.AppendLittle64(shard->GetLogSegmentID());
+    writeBuffer.AppendLittle32(shard->GetLogCommandID());
     writeBuffer.Appendf("%#R", &firstKey);
     writeBuffer.Appendf("%#R", &lastKey);
     writeBuffer.Appendf("%b", shard->UseBloomFilter());

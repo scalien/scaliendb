@@ -29,6 +29,16 @@ void StorageShard::SetShardID(uint64_t shardID_)
     shardID = shardID_;
 }
 
+void StorageShard::SetLogSegmentID(uint64_t logSegmentID_)
+{
+    logSegmentID = logSegmentID_;
+}
+
+void StorageShard::SetLogCommandID(uint64_t logCommandID_)
+{
+    logCommandID = logCommandID_;
+}
+
 void StorageShard::SetFirstKey(ReadBuffer& firstKey_)
 {
     firstKey.Write(firstKey_);
@@ -57,6 +67,16 @@ uint64_t StorageShard::GetTableID()
 uint64_t StorageShard::GetShardID()
 {
     return shardID;
+}
+
+uint64_t StorageShard::GetLogSegmentID()
+{
+    return logSegmentID;
+}
+
+uint32_t StorageShard::GetLogCommandID()
+{
+    return logCommandID;
 }
 
 ReadBuffer StorageShard::GetFirstKey()

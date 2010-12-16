@@ -64,6 +64,11 @@ uint64_t StorageLogSegment::GetLogSegmentID()
     return logSegmentID;
 }
 
+uint32_t StorageLogSegment::GetLogCommandID()
+{
+    return logCommandID;
+}
+
 void StorageLogSegment::SetOnCommit(Callable* onCommit_)
 {
     onCommit = onCommit_;
