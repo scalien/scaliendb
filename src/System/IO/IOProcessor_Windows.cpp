@@ -156,7 +156,7 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
     terminated = true;
 
     // the point is to wake up the main thread that is waiting for a completion event
-    IOProcessor::Complete(emptyCallable);
+    IOProcessor::Complete(&emptyCallable);
     return TRUE;
 }
 
@@ -534,7 +534,7 @@ bool IOProcessor::Complete(Callable* callable)
     BOOL    ret;
     DWORD   error;
 
-    ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) callback, (LPOVERLAPPED) callable);
+    ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) callable);
     if (!ret)
     {
         error = GetLastError();

@@ -24,4 +24,6 @@ bool StorageRecovery::TryRecovery()
     // and for each (logSegmentID, commandID) => (contextID, shardID)
     // look at that shard's computed max., if the log is bigger, then execute the command
     // against the MemoChunk
+
+    return false;
 }

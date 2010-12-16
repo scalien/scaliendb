@@ -449,19 +449,19 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\StorageNew\StorageEnvironment.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\StorageNew\StorageEnvironment.h"
-					>
-				</File>
-				<File
 					RelativePath="..\src\Framework\StorageNew\StorageJob.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\src\Framework\StorageNew\StorageJob.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\StorageNew\StoragePageCache.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\StorageNew\StoragePageCache.h"
 					>
 				</File>
 				<File
@@ -564,11 +564,11 @@
 					Name="Log"
 					>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.cpp"
+						RelativePath="..\src\Framework\StorageNew\StorageLogSegment.cpp"
 						>
 					</File>
 					<File
-						RelativePath="..\src\Framework\StorageNew\StorageLogSegmentWriter.h"
+						RelativePath="..\src\Framework\StorageNew\StorageLogSegment.h"
 						>
 					</File>
 				</Filter>
@@ -593,6 +593,34 @@
 					</File>
 					<File
 						RelativePath="..\src\Framework\StorageNew\StorageMemoKeyValue.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="Environment"
+					>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageEnvironment.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageEnvironment.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageEnvironmentWriter.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageEnvironmentWriter.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageRecovery.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Framework\StorageNew\StorageRecovery.h"
 						>
 					</File>
 				</Filter>
