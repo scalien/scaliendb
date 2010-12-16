@@ -33,8 +33,8 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     FS_Sync(fd.GetFD());
     fd.Close();
 
-//    if (!FS_Delete(TOC.GetBuffer()))
-//        return false;
+    if (!FS_Delete(TOC.GetBuffer()))
+        return false;
     
     FS_Rename(newTOC.GetBuffer(), TOC.GetBuffer());
     
