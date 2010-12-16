@@ -348,6 +348,9 @@ clientlibs: $(BUILD_DIR) $(CLIENTLIBS)
 
 executables: $(BUILD_DIR) $(EXECUTABLES)
 
+javadoc: $(JAVA_SOURCE_FILES) 
+	-SRCDIR=`pwd`; cd $(SRC_DIR)/$(JAVA_CLIENT_DIR) && javadoc -d $$SRCDIR/javadoc -public *.java
+
 install: release
 	-cp -fr $(BIN_DIR)/$(ALIB) $(INSTALL_LIB_DIR)
 	-cp -fr $(BIN_DIR)/$(SOLIB) $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION)
