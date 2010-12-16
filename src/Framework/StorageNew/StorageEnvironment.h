@@ -71,7 +71,6 @@ private:
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
     void                    StartJob(ThreadPool* thread, StorageJob* job);
     void                    WriteTOC();
-    bool                    TryRecovery();
 
     Callable                onCommit;
     Callable                onChunkSerialize;
