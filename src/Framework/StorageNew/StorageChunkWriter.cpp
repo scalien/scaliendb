@@ -113,8 +113,8 @@ bool StorageChunkWriter::WriteIndexPage()
 bool StorageChunkWriter::WriteBloomPage()
 {
     writeBuffer.Clear();
-    file->bloomPage.Write(writeBuffer);
-    assert(writeBuffer.GetLength() == file->bloomPage.GetSize());
+    file->bloomPage->Write(writeBuffer);
+    assert(writeBuffer.GetLength() == file->bloomPage->GetSize());
 
     if (!WriteBuffer())
         return false;

@@ -25,7 +25,7 @@ public:
     void            Add(ReadBuffer& key);
 
     Buffer&         GetBuffer();
-    void            SetBuffer(Buffer& buffer);
+    void            SetBuffer(ReadBuffer& buffer);
 
     void            Reset();
 

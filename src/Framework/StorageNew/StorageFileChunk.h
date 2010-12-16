@@ -43,8 +43,10 @@ public:
     uint64_t            GetSize();
     
     void                AddPagesToCache();
+    void                OnBloomPageEvicted();
     void                OnIndexPageEvicted();
     void                OnDataPageEvicted(uint32_t index);
+    void                LoadBloomPage();
     void                LoadIndexPage();
     void                LoadDataPage(uint32_t index, uint32_t offset);
 
@@ -59,7 +61,7 @@ private:
     bool                written;
     StorageHeaderPage   headerPage;
     StorageIndexPage*   indexPage;
-    StorageBloomPage    bloomPage;
+    StorageBloomPage*   bloomPage;
     uint32_t            numDataPages;
     uint32_t            dataPagesSize;
     StorageDataPage**   dataPages;

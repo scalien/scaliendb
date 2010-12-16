@@ -1,4 +1,5 @@
 #include "StorageBloomPage.h"
+#include "StorageFileChunk.h"
 
 StorageBloomPage::StorageBloomPage(StorageFileChunk* owner_)
 {
@@ -61,7 +62,37 @@ uint32_t StorageBloomPage::RecommendNumBytes(uint32_t numKeys)
 
 bool StorageBloomPage::Read(Buffer& buffer)
 {
-    // TODO
+    ReadBuffer  dataPart, parse;
+    uint32_t    size, checksum, compChecksum;   
+    
+    parse.Wrap(buffer);
+    
+    // size
+    parse.ReadLittle32(size);
+    if (size < 8)
+        goto Fail;
+    if (buffer.GetLength() != size)
+        goto Fail;
+    parse.Advance(4);
+
+    // checksum
+    parse.ReadLittle32(checksum);
+    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+    compChecksum = dataPart.GetChecksum();
+    if (compChecksum != checksum)
+        goto Fail;
+    parse.Advance(4);
+    
+    bloomFilter.SetBuffer(dataPart);
+    goto Success;
+
+Fail:
+    bloomFilter.GetBuffer().Reset();
+    return false;
+
+Success:
+    this->size = size;
+    return true;
 }
 
 void StorageBloomPage::Write(Buffer& buffer)
@@ -86,4 +117,5 @@ bool StorageBloomPage::Check(ReadBuffer& key)
 void StorageBloomPage::Unload()
 {
     bloomFilter.Reset();
+    owner->OnBloomPageEvicted();
 }
