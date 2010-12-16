@@ -53,7 +53,7 @@ void StorageEnvironmentWriter::WriteBuffer()
     
     numShards = env->shards.GetLength();
     writeBuffer.AppendLittle32(numShards);
-    FOREACH(itShard, env->shards)
+    FOREACH (itShard, env->shards)
     {
         WriteShard(itShard);
     }
@@ -88,7 +88,7 @@ void StorageEnvironmentWriter::WriteShard(StorageShard* shard)
     writeBuffer.Appendf("%b", shard->UseBloomFilter());
     
     numChunks = 0;
-    FOREACH(itChunk, shard->GetChunks())
+    FOREACH (itChunk, shard->GetChunks())
     {
         if ((*itChunk)->GetChunkState() == StorageChunk::Written)
         {

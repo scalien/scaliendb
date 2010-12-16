@@ -126,7 +126,7 @@ void StorageDataPage::Finalize()
     
     // set ReadBuffers in tree
     pos = 12;
-    FOREACH(it, keyValues)
+    FOREACH (it, keyValues)
     {
         pos += 1;                                                // type
         if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)

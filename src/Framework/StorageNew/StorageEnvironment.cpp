@@ -74,13 +74,15 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     tmp.NullTerminate();
     FS_CreateDir(tmp.GetBuffer());
     
-    // TODO: open 'toc' or 'toc.new' file
-
-    headLogSegment = new StorageLogSegment;
-    tmp.Write(logPath);
-    tmp.Appendf("log.%020U", nextLogSegmentID);
-    headLogSegment->Open(tmp, nextLogSegmentID);
-    nextLogSegmentID++;
+    if (!TryRecovery())
+    {
+        // new environment
+        headLogSegment = new StorageLogSegment;
+        tmp.Write(logPath);
+        tmp.Appendf("log.%020U", nextLogSegmentID);
+        headLogSegment->Open(tmp, nextLogSegmentID);
+        nextLogSegmentID++;
+    }
 
     return true;
 }
@@ -106,7 +108,7 @@ uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, Re
 {
     StorageShard* it;
 
-    FOREACH(it, shards)
+    FOREACH (it, shards)
     {
         if (it->GetContextID() == contextID && it->GetTableID() == tableID)
         {
@@ -148,7 +150,7 @@ bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer ke
             ASSERT_FAIL();
     }
 
-    BFOREACH(itChunk, shard->GetChunks())
+    FOREACH_BACK (itChunk, shard->GetChunks())
     {
         kv = (*itChunk)->Get(key);
         if (kv != NULL)
@@ -271,7 +273,7 @@ StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
 {
     StorageShard* it;
 
-    FOREACH(it, shards)
+    FOREACH (it, shards)
     {
         if (it->GetContextID() == contextID && it->GetShardID() == shardID)
             return it;
@@ -356,7 +358,7 @@ void StorageEnvironment::TrySerializeChunks()
     StorageJob*                 job;
 
     // look for memoChunks which have been serialized already
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         for (itChunk = itShard->GetChunks().First(); itChunk != NULL; /* advanced in body */)
         {
@@ -386,7 +388,7 @@ Advance:
     if (serializerThreadActive)
         return;
 
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
 //        if (memoChunk->GetLogSegmentID() == headLogSegment->GetLogSegmentID())
@@ -413,7 +415,7 @@ void StorageEnvironment::TryWriteChunks()
     StorageFileChunk*   it;
     StorageJob*         job;
 
-    FOREACH(it, fileChunks)
+    FOREACH (it, fileChunks)
     {
         if (it->GetChunkState() == StorageChunk::Unwritten)
         {
@@ -447,12 +449,12 @@ void StorageEnvironment::TryArchiveLogSegments()
 
     del = true;
     logSegmentID = logSegment->GetLogSegmentID();
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
         if (memoChunk->GetLogSegmentID() > 0 && memoChunk->GetLogSegmentID() <= logSegmentID)
             del = false;
-        FOREACH(itChunk, itShard->GetChunks())
+        FOREACH (itChunk, itShard->GetChunks())
         {
             assert((*itChunk)->GetLogSegmentID() > 0);
             if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
@@ -487,7 +489,7 @@ void StorageEnvironment::OnChunkWrite()
     
     writerThreadActive = false;
 
-    FOREACH(it, fileChunks)
+    FOREACH (it, fileChunks)
     {
         if (it->GetChunkID() == asyncWriteChunkID)
         {
@@ -533,4 +535,32 @@ void StorageEnvironment::WriteTOC()
     StorageEnvironmentWriter writer;
 
     writer.Write(this);
+}
+
+bool StorageEnvironment::TryRecovery()
+{
+    // TODO: open 'toc' or 'toc.new' file
+    
+    // try to open 'toc.new' file and check the checksum
+    // if OK then rename to 'toc'
+    // else try to open 'toc' and check the checksum
+    // if neither exists, return false
+    // if the checksums don't work out, stop the program
+    
+    // at this point, we have a valid toc
+    // which is a list of shards, each of which contains a list of chunkIDs
+    
+    // next, create FileChunks for each chunks
+    // and read each FileChunk's headerPage from disk
+    // create a MemoChunk for each shard
+    
+    // compute the max. (logSegmentID, commandID) for each shard
+    
+    // at this point, start to replay the log segments
+    // create a StorageLogSegment for each
+    // and for each (logSegmentID, commandID) => (contextID, shardID)
+    // look at that shard's computed max., if the log is bigger, then execute the command
+    // against the MemoChunk
+    
+    return false;
 }

@@ -31,8 +31,6 @@ public:
     virtual uint64_t            GetSize() = 0;
     virtual ChunkState          GetChunkState() = 0;
 
-    unsigned                    numShards;      // this chunk backs this many shards
-
     TreeNode                    treeNode;
 };
 
