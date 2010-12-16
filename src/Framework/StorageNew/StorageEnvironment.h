@@ -46,9 +46,9 @@ public:
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
 
-    void                    CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
+    bool                    CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
                              ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter);
-    void                    DeleteShard(uint16_t contextID, uint64_t shardID);
+    bool                    DeleteShard(uint16_t contextID, uint64_t shardID);
 
     bool                    Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value);
     bool                    Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);

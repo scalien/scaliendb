@@ -181,6 +181,11 @@ bool StorageLogSegment::GetCommitStatus()
     return commitStatus;
 }
 
+bool StorageLogSegment::HasUncommitted()
+{
+    return (writeBuffer.GetLength() > STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+}
+
 uint64_t StorageLogSegment::GetOffset()
 {
     return offset;

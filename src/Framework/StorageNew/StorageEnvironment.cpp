@@ -282,15 +282,18 @@ StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
     return NULL;
 }
 
-void StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
+bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
  ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter)
 {
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
 
+    if (headLogSegment->HasUncommitted())
+        return false;       // meta writes must occur in-between data writes (commits)
+    
     shard = GetShard(contextID, shardID);
     if (shard != NULL)
-        return;
+        return false;       // already exists
 
     shard = new StorageShard;
     shard->SetContextID(contextID);
@@ -309,10 +312,15 @@ void StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shards.Append(shard);
     
     WriteTOC();
+    
+    return true;
 }
 
-void StorageEnvironment::DeleteShard(uint16_t /*contextID*/, uint64_t /*shardID*/)
+bool StorageEnvironment::DeleteShard(uint16_t /*contextID*/, uint64_t /*shardID*/)
 {
+    if (headLogSegment->HasUncommitted())
+        return false;       // meta writes must occur in-between data writes (commits)
+
 //    StorageShard* shard;
 //
 //    shard = GetShard(shardID);
