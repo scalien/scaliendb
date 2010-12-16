@@ -51,7 +51,6 @@ public:
     bool                Read(Buffer& buffer);
     void                Write(Buffer& buffer);
 
-    bool                IsLoaded();
     void                Unload();
 
 private:

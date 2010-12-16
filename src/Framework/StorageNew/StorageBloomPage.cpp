@@ -83,11 +83,6 @@ bool StorageBloomPage::Check(ReadBuffer& key)
     return bloomFilter.Check(key);
 }
 
-bool StorageBloomPage::IsLoaded()
-{
-    return bloomFilter.IsLoaded();
-}
-
 void StorageBloomPage::Unload()
 {
     bloomFilter.Reset();

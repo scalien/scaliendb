@@ -10,6 +10,8 @@ bool StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_)
     memoChunk = memoChunk_;
     fileChunk = P(fileGuard);
     
+    fileChunk->indexPage = new StorageIndexPage(fileChunk);
+    
     if (memoChunk->UseBloomFilter())
         fileChunk->bloomPage.SetNumKeys(memoChunk->keyValues.GetCount());
 
@@ -48,8 +50,8 @@ bool StorageChunkSerializer::WriteHeaderPage()
     fileChunk->headerPage.SetNumKeys(memoChunk->keyValues.GetCount());
 
     fileChunk->headerPage.SetUseBloomFilter(memoChunk->UseBloomFilter());
-    fileChunk->headerPage.SetIndexPageOffset(fileChunk->indexPage.GetOffset());
-    fileChunk->headerPage.SetIndexPageSize(fileChunk->indexPage.GetSize());
+    fileChunk->headerPage.SetIndexPageOffset(fileChunk->indexPage->GetOffset());
+    fileChunk->headerPage.SetIndexPageSize(fileChunk->indexPage->GetSize());
     fileChunk->headerPage.SetBloomPageOffset(fileChunk->bloomPage.GetOffset());
     fileChunk->headerPage.SetBloomPageSize(fileChunk->bloomPage.GetSize());
     
@@ -74,7 +76,7 @@ bool StorageChunkSerializer::WriteDataPages()
         if (dataPage->GetNumKeys() == 0)
         {
             dataPage->Append(it);
-            fileChunk->indexPage.Append(it->GetKey(), dataPageIndex, offset);
+            fileChunk->indexPage->Append(it->GetKey(), dataPageIndex, offset);
         }
         else
         {
@@ -91,7 +93,7 @@ bool StorageChunkSerializer::WriteDataPages()
                 dataPage = new StorageDataPage(fileChunk, dataPageIndex);
                 dataPage->SetOffset(offset);
                 dataPage->Append(it);
-                fileChunk->indexPage.Append(it->GetKey(), dataPageIndex, offset);
+                fileChunk->indexPage->Append(it->GetKey(), dataPageIndex, offset);
             }
         }
     }
@@ -105,15 +107,15 @@ bool StorageChunkSerializer::WriteDataPages()
         dataPageIndex++;
     }
     
-    fileChunk->indexPage.Finalize();
+    fileChunk->indexPage->Finalize();
 
     return true;
 }
 
 bool StorageChunkSerializer::WriteIndexPage()
 {
-    fileChunk->indexPage.SetOffset(offset);
-    offset += fileChunk->indexPage.GetSize();
+    fileChunk->indexPage->SetOffset(offset);
+    offset += fileChunk->indexPage->GetSize();
     return true;
 }
 

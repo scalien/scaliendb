@@ -29,7 +29,6 @@ public:
     
     bool                Check(ReadBuffer& key);
 
-    bool                IsLoaded();
     void                Unload();
 
 private:

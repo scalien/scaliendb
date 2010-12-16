@@ -43,7 +43,10 @@ public:
     uint64_t            GetSize();
     
     void                AddPagesToCache();
-    void                OnPageEvicted(uint32_t index);
+    void                OnIndexPageEvicted();
+    void                OnDataPageEvicted(uint32_t index);
+    void                LoadIndexPage();
+    void                LoadDataPage(uint32_t index, uint32_t offset);
 
     StorageFileChunk*   prev;
     StorageFileChunk*   next;
@@ -55,7 +58,7 @@ private:
 
     bool                written;
     StorageHeaderPage   headerPage;
-    StorageIndexPage    indexPage;
+    StorageIndexPage*   indexPage;
     StorageBloomPage    bloomPage;
     uint32_t            numDataPages;
     uint32_t            dataPagesSize;

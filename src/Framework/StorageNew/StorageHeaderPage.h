@@ -46,7 +46,6 @@ public:
 
     void                Write(Buffer& writeBuffer);
 
-    bool                IsLoaded();
     void                Unload();
 
 private:

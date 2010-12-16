@@ -104,10 +104,10 @@ void BloomFilter::Add(ReadBuffer& key)
     }
 }
 
-//void BloomFilter::SetBuffer(Buffer& buffer_)
-//{
-//    buffer.Write(buffer_);
-//}
+void BloomFilter::SetBuffer(Buffer& buffer_)
+{
+    buffer.Write(buffer_);
+}
 
 bool BloomFilter::Check(ReadBuffer& key)
 {
@@ -133,11 +133,6 @@ bool BloomFilter::Check(ReadBuffer& key)
 Buffer& BloomFilter::GetBuffer()
 {
     return buffer;
-}
-
-bool BloomFilter::IsLoaded()
-{
-    return (buffer.GetLength() > 0);
 }
 
 void BloomFilter::Reset()

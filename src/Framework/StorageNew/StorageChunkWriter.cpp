@@ -101,8 +101,8 @@ bool StorageChunkWriter::WriteDataPages()
 bool StorageChunkWriter::WriteIndexPage()
 {
     writeBuffer.Clear();
-    file->indexPage.Write(writeBuffer);
-    assert(writeBuffer.GetLength() == file->indexPage.GetSize());
+    file->indexPage->Write(writeBuffer);
+    assert(writeBuffer.GetLength() == file->indexPage->GetSize());
 
     if (!WriteBuffer())
         return false;

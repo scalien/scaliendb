@@ -256,14 +256,9 @@ void StorageDataPage::Write(Buffer& buffer_)
     buffer_.Write(buffer);
 }
 
-bool StorageDataPage::IsLoaded()
-{
-    return (buffer.GetLength() > 0);
-}
-
 void StorageDataPage::Unload()
 {
     keyValues.DeleteTree();
     buffer.Reset();
-    owner->OnPageEvicted(index);
+    owner->OnDataPageEvicted(index);
 }

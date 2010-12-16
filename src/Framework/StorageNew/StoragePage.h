@@ -27,7 +27,7 @@ public:
     
     virtual uint32_t    GetSize() = 0;
     virtual void        Write(Buffer& writeBuffer) = 0;
-    virtual bool        IsLoaded() = 0;
+
     virtual void        Unload() = 0;
     
     StoragePage*        prev;

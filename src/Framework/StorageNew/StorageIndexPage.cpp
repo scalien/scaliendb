@@ -1,4 +1,5 @@
 #include "StorageIndexPage.h"
+#include "StorageFileChunk.h"
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -92,15 +93,17 @@ void StorageIndexPage::Finalize()
     buffer.Allocate(size);
     buffer.ZeroRest();
 
+    // write numKeys
+    buffer.SetLength(8);
+    buffer.AppendLittle32(numKeys);
+
     // compute checksum
-    dataPart.SetBuffer(buffer.GetBuffer() + 8);
-    dataPart.SetLength(size - 8);
+    dataPart.Wrap(buffer.GetBuffer() + 8, size - 8);
     checksum = dataPart.GetChecksum();
 
     buffer.SetLength(0);
     buffer.AppendLittle32(size);
     buffer.AppendLittle32(checksum);
-    buffer.AppendLittle32(numKeys);
 
     buffer.SetLength(size);
 
@@ -120,9 +123,76 @@ void StorageIndexPage::Finalize()
 
 bool StorageIndexPage::Read(Buffer& buffer_)
 {
-    buffer.Write(buffer_);
+    uint16_t                klen;
+    uint32_t                size, checksum, compChecksum, numKeys, offset, i;
+    ReadBuffer              dataPart, parse, key;
+    StorageIndexRecord*     it;
     
-    // TODO
+    assert(indexTree.GetCount() == 0);
+    
+    buffer.Write(buffer_);
+    parse.Wrap(buffer);
+    
+    // size
+    parse.ReadLittle32(size);
+    if (size < 12)
+        goto Fail;
+    if (buffer.GetLength() != size)
+        goto Fail;
+    parse.Advance(4);
+
+    // checksum
+    parse.ReadLittle32(checksum);
+    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+    compChecksum = dataPart.GetChecksum();
+    if (compChecksum != checksum)
+        goto Fail;
+    parse.Advance(4);
+    
+    // numkeys
+    parse.ReadLittle32(numKeys);
+    parse.Advance(4);
+
+    // keys
+    for (i = 0; i < numKeys; i++)
+    {
+        // offset
+        if (!parse.ReadLittle32(offset))
+            goto Fail;
+        parse.Advance(4);
+
+        // klen
+        if (!parse.ReadLittle16(klen))
+            goto Fail;
+        parse.Advance(2);
+        
+        // key
+        if (parse.GetLength() < klen)
+            goto Fail;
+        key.Wrap(parse.GetBuffer(), klen);
+        parse.Advance(klen);
+        
+        it = new StorageIndexRecord;
+        it->key = key;
+        it->index = i;
+        it->offset = offset;
+        indexTree.Insert(it);
+    }
+    
+    // rest is all zeros
+    if (parse.GetCharAt(0) != 0)
+        goto Fail;
+    else
+        goto Success;
+    
+Fail:
+    indexTree.DeleteTree();
+    buffer.Reset();
+    return false;
+
+Success:
+    this->size = size;
+    return true;
 }
 
 void StorageIndexPage::Write(Buffer& buffer_)
@@ -130,13 +200,9 @@ void StorageIndexPage::Write(Buffer& buffer_)
     buffer_.Write(buffer);
 }
 
-bool StorageIndexPage::IsLoaded()
-{
-    return (buffer.GetLength() > 0);
-}
-
 void StorageIndexPage::Unload()
 {
     indexTree.DeleteTree();
     buffer.Reset();
+    owner->OnIndexPageEvicted();
 }

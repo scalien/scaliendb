@@ -4,12 +4,13 @@
 #include "FDGuard.h"
 
 StorageFileChunk::StorageFileChunk()
-: headerPage(this), indexPage(this), bloomPage(this)
+: headerPage(this), bloomPage(this)
 {
     prev = next = this;
     written = false;
     dataPagesSize = 64;
     dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * dataPagesSize);
+    indexPage = NULL;
     numDataPages = 0;
     fileSize = 0;
 }
@@ -62,34 +63,16 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
             return NULL;
     }
 
-    if (indexPage.IsCached())
-        StoragePageCache::RegisterHit(&indexPage);
-    if (!indexPage.Locate(key, index, offset))
+    if (indexPage == NULL)
+        LoadIndexPage(); // evicted, load back
+
+    if (indexPage->IsCached())
+        StoragePageCache::RegisterHit(indexPage);
+    if (!indexPage->Locate(key, index, offset))
         return NULL;
         
     if (dataPages[index] == NULL)
-    {
-        // evicted, load back
-        dataPages[index] = new StorageDataPage(this, index);
-        if (!ReadPage(offset, buffer))
-        {
-            Log_Message("Unable to read page from %B at offset %U", &filename, offset);
-            Log_Message("This should not happen.");
-            Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-            Log_Message("Exiting...");
-            ASSERT_FAIL();
-        }
-        if (!dataPages[index]->Read(buffer))
-        {
-            Log_Message("Unable to parse page read from %B at offset %U with size %u",
-             &filename, offset, buffer.GetLength());
-            Log_Message("This should not happen.");
-            Log_Message("Possible causes: software bug, damaged file, corrupted file...");
-            Log_Message("Exiting...");
-            ASSERT_FAIL();
-        }
-        StoragePageCache::AddPage(dataPages[index]);
-    }
+        LoadDataPage(index, offset); // evicted, load back
 
     if (dataPages[index]->IsCached())
         StoragePageCache::RegisterHit(dataPages[index]);
@@ -115,8 +98,9 @@ void StorageFileChunk::AddPagesToCache()
 {
     unsigned i;
     
+    StoragePageCache::AddPage(indexPage);
+
 // TODO: removed for testing
-//    StoragePageCache::AddPage(&indexPage);
 //    if (UseBloomFilter())
 //        StoragePageCache::AddPage(&bloomPage);
 
@@ -124,12 +108,19 @@ void StorageFileChunk::AddPagesToCache()
         StoragePageCache::AddPage(dataPages[i]);
 }
 
-void StorageFileChunk::OnPageEvicted(uint32_t index)
+void StorageFileChunk::OnDataPageEvicted(uint32_t index)
 {
     assert(dataPages[index] != NULL);
     
     delete dataPages[index];
     dataPages[index] = NULL;
+}
+
+void StorageFileChunk::OnIndexPageEvicted()
+{
+    delete indexPage;
+    indexPage = NULL;
+    Log_Message("Evicting index page..");
 }
 
 void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)
@@ -190,4 +181,57 @@ bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer)
     fd.Close();
     
     return true;
+}
+
+void StorageFileChunk::LoadIndexPage()
+{
+    Buffer      buffer;
+    uint32_t    offset;
+    
+    indexPage = new StorageIndexPage(this);
+    offset = headerPage.GetIndexPageOffset();
+    if (!ReadPage(offset, buffer))
+    {
+        Log_Message("Unable to read index page from %B at offset %U", &filename, offset);
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    if (!indexPage->Read(buffer))
+    {
+        Log_Message("Unable to parse index page read from %B at offset %U with size %u",
+         &filename, offset, buffer.GetLength());
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    StoragePageCache::AddPage(indexPage);
+    Log_Message("Loading indexPage..");
+}
+
+void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset)
+{
+    Buffer buffer;
+    
+    dataPages[index] = new StorageDataPage(this, index);
+    if (!ReadPage(offset, buffer))
+    {
+        Log_Message("Unable to read data page from %B at offset %U", &filename, offset);
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    if (!dataPages[index]->Read(buffer))
+    {
+        Log_Message("Unable to parse data page read from %B at offset %U with size %u",
+         &filename, offset, buffer.GetLength());
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    StoragePageCache::AddPage(dataPages[index]);
 }

@@ -137,11 +137,6 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
     writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
 }
 
-bool StorageHeaderPage::IsLoaded()
-{
-    return true;
-}
-
 void StorageHeaderPage::Unload()
 {
 }
