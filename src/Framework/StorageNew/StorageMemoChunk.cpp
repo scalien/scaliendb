@@ -2,12 +2,12 @@
 #include "StorageChunkSerializer.h"
 #include "StorageChunkWriter.h"
 
-static int KeyCmp(const ReadBuffer a, const ReadBuffer b)
+static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
     return ReadBuffer::Cmp(a, b);
 }
 
-static const ReadBuffer Key(StorageMemoKeyValue* kv)
+static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
 {
     return kv->GetKey();
 }
