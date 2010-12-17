@@ -9,6 +9,7 @@
 #define STORAGE_LOGSEGMENT_COMMAND_SET          's'
 #define STORAGE_LOGSEGMENT_COMMAND_DELETE       'd'
 
+class StorageRecovery;
 class StorageArchiveLogSegmentJob;
 
 /*
@@ -22,6 +23,7 @@ class StorageArchiveLogSegmentJob;
 class StorageLogSegment
 {
     friend class StorageArchiveLogSegmentJob;
+    friend class StorageRecovery;
 
 public:
     StorageLogSegment();
@@ -58,7 +60,6 @@ private:
     uint64_t            offset;
     bool                commitStatus;
     Buffer              filename;
-    Buffer              archivePath;
     Buffer              writeBuffer;
     Callable*           onCommit;
 

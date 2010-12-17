@@ -1,10 +1,5 @@
 #include "StorageShard.h"
 
-inline bool LessThan(StorageChunk* a, StorageChunk* b)
-{
-    return (a->GetChunkID() < b->GetChunkID()); // TODO: this is old code
-}
-
 StorageShard::StorageShard()
 {
     prev = next = this;
@@ -12,6 +7,8 @@ StorageShard::StorageShard()
     tableID = 0;
     shardID = 0;
     memoChunk = NULL;
+    recoveryLogSegmentID = 0;
+    recoveryLogCommandID = 0;
 }
 
 void StorageShard::SetContextID(uint16_t contextID_)

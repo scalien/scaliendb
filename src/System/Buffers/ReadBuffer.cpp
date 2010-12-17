@@ -101,7 +101,7 @@ bool ReadBuffer::BeginsWith(const char* s)
     
     len = strlen(s);
     
-    if (len < length)
+    if (length < len)
         return false;
 
     if (strncmp(s, buffer, len) == 0)

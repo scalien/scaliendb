@@ -104,9 +104,85 @@ bool StorageHeaderPage::UseBloomFilter()
     return useBloomFilter;
 }
 
+bool StorageHeaderPage::Read(Buffer& buffer)
+{
+    uint32_t        size, checksum, compChecksum, version;
+    ReadBuffer      parse, dataPart;
+    
+    parse.Wrap(buffer);
+    
+    // size
+    if (!parse.ReadLittle32(size))
+        return false;
+    if (size != STORAGE_HEADER_PAGE_SIZE)
+        return false;
+    if (buffer.GetLength() != size)
+        return false;
+    parse.Advance(4);
+
+    // checksum
+    if (!parse.ReadLittle32(checksum))
+        return false;
+    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+    compChecksum = dataPart.GetChecksum();
+    if (compChecksum != checksum)
+        return false;
+    parse.Advance(4);
+
+    if (!parse.ReadLittle32(version))
+        return false;
+    if (version != STORAGE_HEADER_PAGE_VERSION)
+        return false;
+    parse.Advance(4);
+
+    parse.Advance(64); // text
+
+    if (!parse.ReadLittle64(chunkID))
+        return false;
+    parse.Advance(8);
+
+
+    if (!parse.ReadLittle64(logSegmentID))
+        return false;
+    parse.Advance(8);
+
+    if (!parse.ReadLittle32(logCommandID))
+        return false;
+    parse.Advance(4);
+
+    parse.Advance(parse.Readf("%b", &useBloomFilter));
+
+    if (!parse.ReadLittle64(numKeys))
+        return false;
+    parse.Advance(8);
+
+    if (!parse.ReadLittle64(indexPageOffset))
+        return false;
+    parse.Advance(8);
+
+    if (!parse.ReadLittle32(indexPageSize))
+        return false;
+    parse.Advance(4);
+
+    if (useBloomFilter)
+    {
+        if (!parse.ReadLittle64(bloomPageOffset))
+            return false;
+        parse.Advance(8);
+
+        if (!parse.ReadLittle32(bloomPageSize))
+            return false;
+        parse.Advance(4);
+    }
+    
+    return true;
+}
+
 void StorageHeaderPage::Write(Buffer& writeBuffer)
 {
+    uint32_t    checksum;
     Buffer      text;
+    ReadBuffer  dataPart;
 
     text.Allocate(64);
     text.Zero();
@@ -134,6 +210,12 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
         writeBuffer.AppendLittle64(bloomPageOffset);
         writeBuffer.AppendLittle32(bloomPageSize);
     }
+    writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
+    dataPart.Wrap(writeBuffer.GetBuffer() + 8, writeBuffer.GetLength() - 8);
+    checksum = dataPart.GetChecksum();
+    writeBuffer.SetLength(4);
+    writeBuffer.AppendLittle32(checksum);
+    
     writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
 }
 

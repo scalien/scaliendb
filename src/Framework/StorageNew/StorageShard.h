@@ -6,6 +6,8 @@
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 
+class StorageRecovery;
+
 /*
 ===============================================================================================
 
@@ -16,6 +18,8 @@
 
 class StorageShard
 {
+    friend class StorageRecovery;
+    
 public:
     typedef SortedList<StorageChunk*> ChunkList;
 
@@ -62,6 +66,14 @@ private:
     bool                useBloomFilter;
 
     ChunkList           chunks; // contains all active chunks, in order, first is the write chunk
+    
+    uint64_t            recoveryLogSegmentID; // only used
+    uint32_t            recoveryLogCommandID; // during log recovery
 };
+
+inline bool LessThan(StorageChunk* a, StorageChunk* b)
+{
+    return (a->GetChunkID() < b->GetChunkID()); // TODO: this is old code
+}
 
 #endif

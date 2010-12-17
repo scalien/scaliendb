@@ -12,6 +12,7 @@
 #include "StorageShard.h"
 #include "StorageJob.h"
 
+class StorageRecovery;
 class StorageEnvironmentWriter;
 class StorageArchiveLogSegmentJob;
 
@@ -28,6 +29,7 @@ class StorageArchiveLogSegmentJob;
 
 class StorageEnvironment
 {
+    friend class StorageRecovery;
     friend class StorageEnvironmentWriter;
     friend class StorageArchiveLogSegmentJob;
     
@@ -71,6 +73,7 @@ private:
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
     void                    StartJob(ThreadPool* thread, StorageJob* job);
     void                    WriteTOC();
+    StorageFileChunk*       GetFileChunk(uint64_t chunkID);
 
     Callable                onCommit;
     Callable                onChunkSerialize;

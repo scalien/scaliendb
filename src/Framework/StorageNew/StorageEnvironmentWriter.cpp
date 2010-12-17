@@ -33,8 +33,7 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     FS_Sync(fd.GetFD());
     fd.Close();
 
-    if (!FS_Delete(TOC.GetBuffer()))
-        return false;
+    FS_Delete(TOC.GetBuffer());
     
     FS_Rename(newTOC.GetBuffer(), TOC.GetBuffer());
     
@@ -54,9 +53,7 @@ void StorageEnvironmentWriter::WriteBuffer()
     numShards = env->shards.GetLength();
     writeBuffer.AppendLittle32(numShards);
     FOREACH (itShard, env->shards)
-    {
         WriteShard(itShard);
-    }
     
     length = writeBuffer.GetLength();
     dataPart.SetBuffer(writeBuffer.GetBuffer() + 8);

@@ -44,6 +44,7 @@ public:
 
     bool                UseBloomFilter();
 
+    bool                Read(Buffer& buffer);
     void                Write(Buffer& writeBuffer);
 
     void                Unload();

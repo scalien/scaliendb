@@ -16,6 +16,33 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     fileSize = 0;
 }
 
+void StorageFileChunk::ReadHeaderPage()
+{
+    Buffer      buffer;
+    uint32_t    offset;
+    
+    offset = 0;
+    
+    if (!ReadPage(offset, buffer))
+    {
+        Log_Message("Unable to read header page from %B at offset %U", &filename, offset);
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    
+    if (!headerPage.Read(buffer))
+    {
+        Log_Message("Unable to parse header page read from %B at offset %U with size %u",
+         &filename, offset, buffer.GetLength());
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+}
+
 StorageFileChunk::~StorageFileChunk()
 {
     free(dataPages);

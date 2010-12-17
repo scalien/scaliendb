@@ -93,7 +93,7 @@ int32_t StorageLogSegment::AppendSet(uint16_t contextID, uint64_t shardID,
         writeBuffer.AppendLittle16(contextID);
         writeBuffer.AppendLittle64(shardID);
     }
-    writeBuffer.AppendLittle32(key.GetLength());
+    writeBuffer.AppendLittle16(key.GetLength());
     writeBuffer.Append(key);
     writeBuffer.AppendLittle32(value.GetLength());
     writeBuffer.Append(value);
@@ -122,7 +122,7 @@ int32_t StorageLogSegment::AppendDelete(uint16_t contextID, uint64_t shardID, Re
         writeBuffer.AppendLittle16(contextID);
         writeBuffer.AppendLittle64(shardID);
     }
-    writeBuffer.AppendLittle32(key.GetLength());
+    writeBuffer.AppendLittle16(key.GetLength());
     writeBuffer.Append(key);
 
     writeShardID = false;

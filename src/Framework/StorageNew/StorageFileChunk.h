@@ -17,15 +17,19 @@
 
 class StorageChunkSerializer;
 class StorageChunkWriter;
+class StorageRecovery;
 
 class StorageFileChunk : public StorageChunk
 {
     friend class StorageChunkSerializer;
     friend class StorageChunkWriter;
+    friend class StorageRecovery;
 
 public:
     StorageFileChunk();
     ~StorageFileChunk();
+
+    void                ReadHeaderPage();
 
     void                SetFilename(Buffer& filename);
     Buffer&             GetFilename();

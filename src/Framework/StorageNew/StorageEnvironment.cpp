@@ -62,29 +62,66 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
     tmp.Write(envPath);
     tmp.NullTerminate();
-    FS_CreateDir(tmp.GetBuffer());
-
+    if (!FS_IsDirectory(tmp.GetBuffer()))
+    {
+        if (!FS_CreateDir(tmp.GetBuffer()))
+        {
+            Log_Message("Unable to create environment directory: %s", tmp.GetBuffer());
+            Log_Message("Exiting...");
+            ASSERT_FAIL();
+        }
+    }
+    
     tmp.Write(chunkPath);
     tmp.NullTerminate();
-    FS_CreateDir(tmp.GetBuffer());
+    if (!FS_IsDirectory(tmp.GetBuffer()))
+    {
+        if (!FS_CreateDir(tmp.GetBuffer()))
+        {
+            Log_Message("Unable to create chunk directory: %s", tmp.GetBuffer());
+            Log_Message("Exiting...");
+            ASSERT_FAIL();
+        }
+    }
 
     tmp.Write(logPath);
     tmp.NullTerminate();
-    FS_CreateDir(tmp.GetBuffer());
+    if (!FS_IsDirectory(tmp.GetBuffer()))
+    {
+        if (!FS_CreateDir(tmp.GetBuffer()))
+        {
+            Log_Message("Unable to create log directory: %s", tmp.GetBuffer());
+            Log_Message("Exiting...");
+            ASSERT_FAIL();
+        }
+    }
 
     tmp.Write(archivePath);
     tmp.NullTerminate();
-    FS_CreateDir(tmp.GetBuffer());
-    
-    if (!recovery.TryRecovery())
+    if (!FS_IsDirectory(tmp.GetBuffer()))
     {
-        // new environment
-        headLogSegment = new StorageLogSegment;
-        tmp.Write(logPath);
-        tmp.Appendf("log.%020U", nextLogSegmentID);
-        headLogSegment->Open(tmp, nextLogSegmentID);
-        nextLogSegmentID++;
+        if (!FS_CreateDir(tmp.GetBuffer()))
+        {
+            Log_Message("Unable to create archive directory: %s", tmp.GetBuffer());
+            Log_Message("Exiting...");
+            ASSERT_FAIL();
+        }
     }
+    
+    if (!recovery.TryRecovery(this))
+    {
+        Log_Message("New environment opened.");
+    }
+    else
+    {
+        Log_Message("Existing environment opened.");
+    }
+
+    headLogSegment = new StorageLogSegment;
+    tmp.Write(logPath);
+    tmp.Appendf("log.%020U", nextLogSegmentID);
+    headLogSegment->Open(tmp, nextLogSegmentID);
+    nextLogSegmentID++;
 
     return true;
 }
@@ -176,9 +213,9 @@ bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer ke
 
 bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value)
 {
-    uint64_t            commandID;
+    uint64_t            logCommandID;
     StorageShard*       shard;
-    StorageMemoChunk*   chunk;
+    StorageMemoChunk*   memoChunk;
     
     if (commitThreadActive)
         return false;
@@ -189,27 +226,27 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     if (shard == NULL)
         return false;
 
-    commandID = headLogSegment->AppendSet(contextID, shardID, key, value);
-    if (commandID < 0)
+    logCommandID = headLogSegment->AppendSet(contextID, shardID, key, value);
+    if (logCommandID < 0)
         return false;
 
-    chunk = shard->GetMemoChunk();
-    assert(chunk != NULL);
-    if (!chunk->Set(key, value))
+    memoChunk = shard->GetMemoChunk();
+    assert(memoChunk != NULL);
+    if (!memoChunk->Set(key, value))
     {
         headLogSegment->Undo();
         return false;
     }
-    chunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), commandID);
+    memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
 
     return true;
 }
 
 bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key)
 {
-    uint32_t            commandID;
+    uint32_t            logCommandID;
     StorageShard*       shard;
-    StorageMemoChunk*   chunk;
+    StorageMemoChunk*   memoChunk;
 
     if (commitThreadActive)
         return false;
@@ -220,18 +257,18 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     if (shard == NULL)
         return false;
 
-    commandID = headLogSegment->AppendDelete(contextID, shardID, key);
-    if (commandID < 0)
+    logCommandID = headLogSegment->AppendDelete(contextID, shardID, key);
+    if (logCommandID < 0)
         return false;
 
-    chunk = shard->GetMemoChunk();
-    assert(chunk != NULL);
-    if (!chunk->Delete(key))
+    memoChunk = shard->GetMemoChunk();
+    assert(memoChunk != NULL);
+    if (!memoChunk->Delete(key))
     {
         headLogSegment->Undo();
         return false;
     }
-    chunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), commandID);
+    memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
 
     return true;
 }
@@ -548,4 +585,17 @@ void StorageEnvironment::WriteTOC()
     StorageEnvironmentWriter writer;
 
     writer.Write(this);
+}
+
+StorageFileChunk* StorageEnvironment::GetFileChunk(uint64_t chunkID)
+{
+    StorageFileChunk*   it;
+
+    FOREACH (it, fileChunks)
+    {
+        if (it->GetChunkID() == chunkID)
+            return it;
+    }
+    
+    return NULL;
 }
