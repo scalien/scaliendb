@@ -431,7 +431,7 @@ void StorageEnvironment::TrySerializeChunks()
                 continue;
             }
 Advance:
-            itChunk = itChunk = itShard->GetChunks().Next(itChunk);
+            itChunk = itShard->GetChunks().Next(itChunk);
         }
     }
 
