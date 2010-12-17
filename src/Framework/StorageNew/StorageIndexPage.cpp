@@ -109,7 +109,7 @@ void StorageIndexPage::Finalize()
 
     // set ReadBuffers in tree
     pos = 12;
-    FOREACH(it, indexTree)
+    FOREACH (it, indexTree)
     {
         klen = it->key.GetLength();
         

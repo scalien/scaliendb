@@ -64,6 +64,11 @@ uint64_t StorageLogSegment::GetLogSegmentID()
     return logSegmentID;
 }
 
+uint32_t StorageLogSegment::GetLogCommandID()
+{
+    return logCommandID;
+}
+
 void StorageLogSegment::SetOnCommit(Callable* onCommit_)
 {
     onCommit = onCommit_;
@@ -179,6 +184,11 @@ void StorageLogSegment::Commit()
 bool StorageLogSegment::GetCommitStatus()
 {
     return commitStatus;
+}
+
+bool StorageLogSegment::HasUncommitted()
+{
+    return (writeBuffer.GetLength() > STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
 }
 
 uint64_t StorageLogSegment::GetOffset()

@@ -46,13 +46,13 @@ int main()
         {
             EventLoop::RunOnce();
             
-            for (j = 0; j < 1000; j++)
-            {
-                rnd = RandomInt(0, i - 1);
-                key.Writef("%U", rnd);
-                if (!env.Get(1, 1, ReadBuffer(key), rv))
-                    Log_Message("%B => not found", &key);
-            }
+//            for (j = 0; j < 1000; j++)
+//            {
+//                rnd = RandomInt(0, i - 1);
+//                key.Writef("%U", rnd);
+//                if (!env.Get(1, 1, ReadBuffer(key), rv))
+//                    Log_Message("%B => not found", &key);
+//            }
         }
     }
     env.Commit();

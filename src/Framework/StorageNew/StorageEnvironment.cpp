@@ -3,6 +3,7 @@
 #include "System/FileSystem.h"
 #include "StorageChunkSerializer.h"
 #include "StorageEnvironmentWriter.h"
+#include "StorageRecovery.h"
 #include "StoragePageCache.h"
 
 StorageEnvironment::StorageEnvironment()
@@ -25,8 +26,9 @@ StorageEnvironment::StorageEnvironment()
 
 bool StorageEnvironment::Open(Buffer& envPath_)
 {
-    char    lastChar;
-    Buffer  tmp;
+    char            lastChar;
+    Buffer          tmp;
+    StorageRecovery recovery;
 
     commitThread = ThreadPool::Create(1);
     commitThread->Start();
@@ -74,13 +76,15 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     tmp.NullTerminate();
     FS_CreateDir(tmp.GetBuffer());
     
-    // TODO: open 'toc' or 'toc.new' file
-
-    headLogSegment = new StorageLogSegment;
-    tmp.Write(logPath);
-    tmp.Appendf("log.%020U", nextLogSegmentID);
-    headLogSegment->Open(tmp, nextLogSegmentID);
-    nextLogSegmentID++;
+    if (!recovery.TryRecovery())
+    {
+        // new environment
+        headLogSegment = new StorageLogSegment;
+        tmp.Write(logPath);
+        tmp.Appendf("log.%020U", nextLogSegmentID);
+        headLogSegment->Open(tmp, nextLogSegmentID);
+        nextLogSegmentID++;
+    }
 
     return true;
 }
@@ -106,7 +110,7 @@ uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, Re
 {
     StorageShard* it;
 
-    FOREACH(it, shards)
+    FOREACH (it, shards)
     {
         if (it->GetContextID() == contextID && it->GetTableID() == tableID)
         {
@@ -148,7 +152,7 @@ bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer ke
             ASSERT_FAIL();
     }
 
-    BFOREACH(itChunk, shard->GetChunks())
+    FOREACH_BACK (itChunk, shard->GetChunks())
     {
         kv = (*itChunk)->Get(key);
         if (kv != NULL)
@@ -271,7 +275,7 @@ StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
 {
     StorageShard* it;
 
-    FOREACH(it, shards)
+    FOREACH (it, shards)
     {
         if (it->GetContextID() == contextID && it->GetShardID() == shardID)
             return it;
@@ -280,15 +284,18 @@ StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
     return NULL;
 }
 
-void StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
+bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
  ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter)
 {
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
 
+    if (headLogSegment->HasUncommitted())
+        return false;       // meta writes must occur in-between data writes (commits)
+    
     shard = GetShard(contextID, shardID);
     if (shard != NULL)
-        return;
+        return false;       // already exists
 
     shard = new StorageShard;
     shard->SetContextID(contextID);
@@ -297,6 +304,8 @@ void StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shard->SetFirstKey(firstKey);
     shard->SetLastKey(lastKey);
     shard->SetUseBloomFilter(useBloomFilter);
+    shard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
+    shard->SetLogCommandID(headLogSegment->GetLogCommandID());
 
     memoChunk = new StorageMemoChunk;
     memoChunk->SetChunkID(nextChunkID++);
@@ -307,10 +316,15 @@ void StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shards.Append(shard);
     
     WriteTOC();
+    
+    return true;
 }
 
-void StorageEnvironment::DeleteShard(uint16_t /*contextID*/, uint64_t /*shardID*/)
+bool StorageEnvironment::DeleteShard(uint16_t /*contextID*/, uint64_t /*shardID*/)
 {
+    if (headLogSegment->HasUncommitted())
+        return false;       // meta writes must occur in-between data writes (commits)
+
 //    StorageShard* shard;
 //
 //    shard = GetShard(shardID);
@@ -319,6 +333,7 @@ void StorageEnvironment::DeleteShard(uint16_t /*contextID*/, uint64_t /*shardID*
 //
 //    // TODO: decrease reference counts
 //    shards.Delete(shard);
+    return true;
 }
 
 void StorageEnvironment::OnCommit()
@@ -356,7 +371,7 @@ void StorageEnvironment::TrySerializeChunks()
     StorageJob*                 job;
 
     // look for memoChunks which have been serialized already
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         for (itChunk = itShard->GetChunks().First(); itChunk != NULL; /* advanced in body */)
         {
@@ -386,7 +401,7 @@ Advance:
     if (serializerThreadActive)
         return;
 
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
 //        if (memoChunk->GetLogSegmentID() == headLogSegment->GetLogSegmentID())
@@ -413,7 +428,7 @@ void StorageEnvironment::TryWriteChunks()
     StorageFileChunk*   it;
     StorageJob*         job;
 
-    FOREACH(it, fileChunks)
+    FOREACH (it, fileChunks)
     {
         if (it->GetChunkState() == StorageChunk::Unwritten)
         {
@@ -447,12 +462,12 @@ void StorageEnvironment::TryArchiveLogSegments()
 
     del = true;
     logSegmentID = logSegment->GetLogSegmentID();
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
         if (memoChunk->GetLogSegmentID() > 0 && memoChunk->GetLogSegmentID() <= logSegmentID)
             del = false;
-        FOREACH(itChunk, itShard->GetChunks())
+        FOREACH (itChunk, itShard->GetChunks())
         {
             assert((*itChunk)->GetLogSegmentID() > 0);
             if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
@@ -487,7 +502,7 @@ void StorageEnvironment::OnChunkWrite()
     
     writerThreadActive = false;
 
-    FOREACH(it, fileChunks)
+    FOREACH (it, fileChunks)
     {
         if (it->GetChunkID() == asyncWriteChunkID)
         {

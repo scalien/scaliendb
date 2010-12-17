@@ -29,6 +29,7 @@
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
+		54B16C7B12BA7C6E00DB268E /* StorageRecovery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B16C7A12BA7C6E00DB268E /* StorageRecovery.cpp */; };
 		54B3C9E012B15A6000BC2171 /* BloomFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B3C9DE12B15A6000BC2171 /* BloomFilter.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
@@ -137,6 +138,8 @@
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
+		54B16C7912BA7C6E00DB268E /* StorageRecovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageRecovery.h; sourceTree = "<group>"; };
+		54B16C7A12BA7C6E00DB268E /* StorageRecovery.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageRecovery.cpp; sourceTree = "<group>"; };
 		54B3C9DE12B15A6000BC2171 /* BloomFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BloomFilter.cpp; sourceTree = "<group>"; };
 		54B3C9DF12B15A6000BC2171 /* BloomFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BloomFilter.h; sourceTree = "<group>"; };
 		54B7F74411BE5EF30076BC62 /* Common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Common.cpp; sourceTree = "<group>"; };
@@ -427,6 +430,8 @@
 				5458B67212B6552700042172 /* StorageEnvironment.cpp */,
 				5458B6EA12B668F800042172 /* StorageEnvironmentWriter.h */,
 				5458B6EB12B668F800042172 /* StorageEnvironmentWriter.cpp */,
+				54B16C7912BA7C6E00DB268E /* StorageRecovery.h */,
+				54B16C7A12BA7C6E00DB268E /* StorageRecovery.cpp */,
 			);
 			name = Environment;
 			sourceTree = "<group>";
@@ -551,6 +556,7 @@
 				5458B6EC12B668F800042172 /* StorageEnvironmentWriter.cpp in Sources */,
 				54C9964E12B7AAC5002FAACC /* StorageLogSegment.cpp in Sources */,
 				54C9978512B7C890002FAACC /* StoragePageCache.cpp in Sources */,
+				54B16C7B12BA7C6E00DB268E /* StorageRecovery.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

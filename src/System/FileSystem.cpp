@@ -432,7 +432,7 @@ void FS_Sync()
     int     fd;
     int*    it;
 
-    FOREACH(it, fileHandles)
+    FOREACH (it, fileHandles)
     {
         fd = *it;
         
@@ -870,7 +870,7 @@ void FS_Sync()
 {
     intptr_t* it;
 
-    FOREACH(it, fileHandles)
+    FOREACH (it, fileHandles)
     {
         if (FlushFileBuffers((HANDLE)*it) == 0)
             printf("FS_Sync() failed!\n");

@@ -33,8 +33,8 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     FS_Sync(fd.GetFD());
     fd.Close();
 
-//    if (!FS_Delete(TOC.GetBuffer()))
-//        return false;
+    if (!FS_Delete(TOC.GetBuffer()))
+        return false;
     
     FS_Rename(newTOC.GetBuffer(), TOC.GetBuffer());
     
@@ -53,7 +53,7 @@ void StorageEnvironmentWriter::WriteBuffer()
     
     numShards = env->shards.GetLength();
     writeBuffer.AppendLittle32(numShards);
-    FOREACH(itShard, env->shards)
+    FOREACH (itShard, env->shards)
     {
         WriteShard(itShard);
     }
@@ -83,12 +83,14 @@ void StorageEnvironmentWriter::WriteShard(StorageShard* shard)
     writeBuffer.AppendLittle16(shard->GetContextID());
     writeBuffer.AppendLittle64(shard->GetTableID());
     writeBuffer.AppendLittle64(shard->GetShardID());
+    writeBuffer.AppendLittle64(shard->GetLogSegmentID());
+    writeBuffer.AppendLittle32(shard->GetLogCommandID());
     writeBuffer.Appendf("%#R", &firstKey);
     writeBuffer.Appendf("%#R", &lastKey);
     writeBuffer.Appendf("%b", shard->UseBloomFilter());
     
     numChunks = 0;
-    FOREACH(itChunk, shard->GetChunks())
+    FOREACH (itChunk, shard->GetChunks())
     {
         if ((*itChunk)->GetChunkState() == StorageChunk::Written)
         {

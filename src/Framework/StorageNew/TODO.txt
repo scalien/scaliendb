@@ -1,26 +1,4 @@
 
 
-- chunk numbering, chunks must be written to disk in order (per shard)
-
-- chunks should include log segmentID and commandID, meaning that is the last command that is
-  included in that chunk
-
-- log segments reference for each shardID the largest chunkID that back it
-  (largest because there may be more)
-  
-- when two chunks are merged, the new (segmentID, commandID) = MAX(first chunk, second chunk)
-
-- a log segment may be deleted if all chunks that are backing it have been written to disk
-  but it's possible that one of those chunk has already been merged!
-  so the rule is, if (shardID, chunkID) is the largest backing a segment, look at that shard's chunks:
-  assert(chunkID == 1 || chunkID % 2 == 0); // 1 or even
-  if there are no chunks, it must be reproduced; else:
-  if MAX(written chunkID) => segment-chunkID it may be deleted, else it must be reproduced
-  or equivalent:
-  if MAX(written chunk's segmentID) > segmentID
-  
-- for chunks, maintain a numShardReferences counter; decreased if the chunk is merged and the merge
-  completes on disk, increased when shard splitting occurs;
-  if a chunk's numShardReferences counter == 0, it may safely be deleted
-
-
+- possible issue: command is issued, goes into MemoChunk, which is turned into a FileChunk,
+  but the COMMIT hasn't been issued, and the program exits!

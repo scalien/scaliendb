@@ -6,8 +6,8 @@
 #include "System/IO/FD.h"
 
 #define STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE      (4+4) // size + CRC
-#define STORAGE_LOGSEGMENT_COMMAND_SET          'S'
-#define STORAGE_LOGSEGMENT_COMMAND_DELETE       'D'
+#define STORAGE_LOGSEGMENT_COMMAND_SET          's'
+#define STORAGE_LOGSEGMENT_COMMAND_DELETE       'd'
 
 class StorageArchiveLogSegmentJob;
 
@@ -31,6 +31,8 @@ public:
     void                DeleteFile();
 
     uint64_t            GetLogSegmentID();
+    uint32_t            GetLogCommandID();
+    
     void                SetOnCommit(Callable* onCommit);
 
     // Append..() functions return commandID:
@@ -40,6 +42,7 @@ public:
 
     void                Commit();
     bool                GetCommitStatus();
+    bool                HasUncommitted();
 
     uint64_t            GetOffset();
     
