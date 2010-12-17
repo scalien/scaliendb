@@ -21,6 +21,7 @@ $(BUILD_DIR):
 		$(BUILD_DIR)/Framework/Replication/Paxos \
 		$(BUILD_DIR)/Framework/Replication/ReplicatedLog \
 		$(BUILD_DIR)/Framework/Storage \
+		$(BUILD_DIR)/Framework/StorageNew \
 		$(BUILD_DIR)/Framework/TCP/ \
 		$(BUILD_DIR)/System/ \
 		$(BUILD_DIR)/System/Buffers \
