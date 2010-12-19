@@ -1,12 +1,12 @@
 #include "StorageDataPage.h"
 #include "StorageFileChunk.h"
 
-static int KeyCmp(const ReadBuffer a, const ReadBuffer b)
+static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
     return ReadBuffer::Cmp(a, b);
 }
 
-static const ReadBuffer Key(StorageFileKeyValue* kv)
+static const ReadBuffer& Key(StorageFileKeyValue* kv)
 {
     return kv->GetKey();
 }

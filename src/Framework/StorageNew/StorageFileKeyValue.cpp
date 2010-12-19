@@ -26,23 +26,12 @@ char StorageFileKeyValue::GetType()
     return type;
 }
 
-ReadBuffer StorageFileKeyValue::GetKey()
+ReadBuffer& StorageFileKeyValue::GetKey()
 {
     return key;
 }
 
-ReadBuffer StorageFileKeyValue::GetValue()
+ReadBuffer& StorageFileKeyValue::GetValue()
 {
     return value;
 }
-
-//uint32_t StorageFileKeyValue::GetLength()
-//{
-//    uint32_t length;
-//
-//    length = key.GetLength();
-//    if (type == STORAGE_KEYVALUE_TYPE_SET)
-//        length += value.GetLength();
-//
-//    return length;
-//}

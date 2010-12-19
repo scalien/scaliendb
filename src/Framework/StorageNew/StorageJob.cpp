@@ -17,6 +17,7 @@ void StorageSerializeChunkJob::Execute()
 
     Log_Message("Serializing chunk %U in memory...", memoChunk->GetChunkID());
     serializer.Serialize(memoChunk);
+    Log_Message("Done serializing.", memoChunk->GetChunkID());
     
     Callable* c = onComplete;
     delete this;

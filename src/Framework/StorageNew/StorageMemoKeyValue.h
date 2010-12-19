@@ -25,15 +25,17 @@ public:
     void            Delete(ReadBuffer key);
     
     char            GetType();
-    ReadBuffer      GetKey();
-    ReadBuffer      GetValue();
+    ReadBuffer&      GetKey();
+    ReadBuffer&      GetValue();
     uint32_t        GetLength();
 
     TreeNode        treeNode;
 
 private:
-    Buffer*         key;
-    Buffer*         value;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    Buffer*         keyBuffer;
+    Buffer*         valueBuffer;
 };
 
 #endif

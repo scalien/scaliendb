@@ -55,9 +55,12 @@ bool StorageChunkSerializer::WriteHeaderPage()
     fileChunk->headerPage.SetUseBloomFilter(memoChunk->UseBloomFilter());
     fileChunk->headerPage.SetIndexPageOffset(fileChunk->indexPage->GetOffset());
     fileChunk->headerPage.SetIndexPageSize(fileChunk->indexPage->GetSize());
-    fileChunk->headerPage.SetBloomPageOffset(fileChunk->bloomPage->GetOffset());
-    fileChunk->headerPage.SetBloomPageSize(fileChunk->bloomPage->GetSize());
-    
+    if (memoChunk->UseBloomFilter())
+    {
+        fileChunk->headerPage.SetBloomPageOffset(fileChunk->bloomPage->GetOffset());
+        fileChunk->headerPage.SetBloomPageSize(fileChunk->bloomPage->GetSize());
+    }
+
     return true;
 }
 

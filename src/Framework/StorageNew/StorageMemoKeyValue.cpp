@@ -2,54 +2,58 @@
 
 StorageMemoKeyValue::StorageMemoKeyValue()
 {
-    key = NULL;
-    value = NULL;
+    keyBuffer = NULL;
+    valueBuffer = NULL;
 }
 
 StorageMemoKeyValue::~StorageMemoKeyValue()
 {
-    if (key != NULL)
-        delete key;
-    if (value != NULL)
-        delete value;
+    if (keyBuffer != NULL)
+        delete keyBuffer;
+    if (valueBuffer != NULL)
+        delete valueBuffer;
 }
 
 void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_)
 {
-    if (key == NULL)
-        key = new Buffer;
-    key->Write(key_);
-    if (value == NULL)
-        value = new Buffer;
-    value->Write(value_);
+    if (keyBuffer == NULL)
+        keyBuffer = new Buffer;
+    keyBuffer->Write(key_);
+    key.Wrap(keyBuffer->GetBuffer(), keyBuffer->GetLength());
+    if (valueBuffer == NULL)
+        valueBuffer = new Buffer;
+    valueBuffer->Write(value_);
+    value.Wrap(valueBuffer->GetBuffer(), valueBuffer->GetLength());
 }
 
 void StorageMemoKeyValue::Delete(ReadBuffer key_)
 {
-    if (key == NULL)
-        key = new Buffer;
-    key->Write(key_);
-    if (value != NULL)
-        delete value;
-    value = NULL;
+    if (keyBuffer == NULL)
+        keyBuffer = new Buffer;
+    keyBuffer->Write(key_);
+    key.Wrap(keyBuffer->GetBuffer(), keyBuffer->GetLength());
+    if (valueBuffer != NULL)
+        delete valueBuffer;
+    valueBuffer = NULL;
+    value.SetLength(0);
 }
 
 char StorageMemoKeyValue::GetType()
 {
-    if (value != NULL)
+    if (valueBuffer != NULL)
         return STORAGE_KEYVALUE_TYPE_SET;
     else
         return STORAGE_KEYVALUE_TYPE_DELETE;
 }
 
-ReadBuffer StorageMemoKeyValue::GetKey()
+ReadBuffer& StorageMemoKeyValue::GetKey()
 {
-    return ReadBuffer(*key);
+    return key;
 }
 
-ReadBuffer StorageMemoKeyValue::GetValue()
+ReadBuffer& StorageMemoKeyValue::GetValue()
 {
-    return ReadBuffer(*value);
+    return value;
 }
 
 uint32_t StorageMemoKeyValue::GetLength()
@@ -58,10 +62,10 @@ uint32_t StorageMemoKeyValue::GetLength()
 
     length = 0;
 
-    if (key != NULL)
-        length += key->GetLength();
-    if (value != NULL)
-        length += value->GetLength();
+    if (keyBuffer != NULL)
+        length += keyBuffer->GetLength();
+    if (valueBuffer != NULL)
+        length += valueBuffer->GetLength();
 
     return length;
 }
