@@ -1,0 +1,469 @@
+#include "StorageRecovery.h"
+#include "System/FileSystem.h"
+#include "StorageEnvironment.h"
+#include "FDGuard.h"
+#include "PointerGuard.h"
+
+bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
+{
+    Buffer  toc, tocNew;
+    
+    env = env_;
+    
+    toc.Write(env->envPath);
+    toc.Append("toc");
+    toc.NullTerminate();
+    tocNew.Write(env->envPath);
+    tocNew.Append("toc.new");
+    tocNew.NullTerminate();
+    if (TryReadTOC(tocNew))
+    {
+        FS_Delete(toc.GetBuffer());
+        FS_Rename(tocNew.GetBuffer(), toc.GetBuffer());
+    }
+    else
+    {
+        if (!TryReadTOC(toc))
+            return false;
+        
+        FS_Delete(tocNew.GetBuffer());
+    }
+    
+    CreateMemoChunks(); 
+       
+    ReadFileChunks();
+    
+    // compute the max. (logSegmentID, commandID) for each shard's chunk
+    // log entries smaller must not be applied to its memo chunk
+    ComputeShardRecovery();
+    
+    ReplayLogSegments();
+    
+    return true;
+}
+
+bool StorageRecovery::TryReadTOC(Buffer& filename)
+{
+    uint32_t    offset, size, rest, checksum, compChecksum;
+    Buffer      buffer;
+    ReadBuffer  parse, dataPart;
+    FDGuard     fd;
+    
+    if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
+        return false;
+
+    offset = 0;
+    size = 4;
+    buffer.Allocate(size);
+    if (FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size) != size)
+        return false;
+    buffer.SetLength(size);
+        
+    // first 4 bytes on all pages is the page size
+    parse.Wrap(buffer);
+    if (!parse.ReadLittle32(size))
+        return false;
+    
+    if (size == 0)
+        return false;
+    
+    rest = size - buffer.GetLength();
+    // read rest
+    buffer.Allocate(size);
+    if (FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest) != rest)
+        return false;
+    buffer.SetLength(size);
+    
+    parse.Wrap(buffer);
+    parse.Advance(4); // already read size
+    parse.ReadLittle32(checksum);
+    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+    compChecksum = dataPart.GetChecksum();
+    if (compChecksum != checksum)
+        return false;
+    parse.Advance(4);
+
+    ReadShards(parse);
+    
+    fd.Close();
+    
+    return true;
+}
+
+bool StorageRecovery::ReadShards(ReadBuffer& parse)
+{
+    uint32_t    numShards, i;
+    
+    if (!parse.ReadLittle32(numShards))
+        return false;
+    parse.Advance(4);
+    
+    for (i = 0; i < numShards; i++)
+    {
+        if (!ReadShard(parse))
+            return false;
+    }
+    
+    return true;
+}
+
+bool StorageRecovery::ReadShard(ReadBuffer& parse)
+{
+    uint32_t            numChunks, i;
+    uint64_t            chunkID;
+    StorageShard*       shard;
+    StorageFileChunk*   fileChunk;
+    Buffer              tmp;
+
+    PointerGuard<StorageShard> shardGuard(new StorageShard);
+    
+    shard = shardGuard.Get();
+    
+    if (!parse.ReadLittle16(shard->contextID))
+        return false;
+    parse.Advance(2);
+    if (!parse.ReadLittle64(shard->tableID))
+        return false;
+    parse.Advance(8);
+    if (!parse.ReadLittle64(shard->shardID))
+        return false;
+    parse.Advance(8);
+    if (!parse.ReadLittle64(shard->logSegmentID))
+        return false;
+    parse.Advance(8);
+    if (!parse.ReadLittle32(shard->logCommandID))
+        return false;
+    parse.Advance(4);
+    parse.Advance(parse.Readf("%#B", &shard->firstKey));
+    parse.Advance(parse.Readf("%#B", &shard->lastKey));
+    parse.Advance(parse.Readf("%b", &shard->useBloomFilter));
+
+    if (!parse.ReadLittle32(numChunks))
+        return false;
+    parse.Advance(4);
+    
+    for (i = 0; i < numChunks; i++)
+    {
+        if (!parse.ReadLittle64(chunkID))
+            return false;
+        parse.Advance(8);
+        
+        if (chunkID >= env->nextChunkID)
+            env->nextChunkID = chunkID + 1;
+        
+        fileChunk = env->GetFileChunk(chunkID);
+
+        if (fileChunk == NULL)
+        {
+            fileChunk = new StorageFileChunk;
+            
+            tmp.Write(env->envPath);
+            tmp.Appendf("chunks/chunk.%020U", chunkID);
+            fileChunk->SetFilename(tmp);
+            fileChunk->written = true;
+            
+            env->fileChunks.Append(fileChunk);
+        }
+        
+        shard->chunks.Add(fileChunk);
+    }
+
+    env->shards.Append(shardGuard.Release());
+    
+    return true;
+}
+
+void StorageRecovery::CreateMemoChunks()
+{
+    StorageShard*   it;
+
+    FOREACH(it, env->shards)
+    {
+        it->memoChunk = new StorageMemoChunk;
+        it->memoChunk->SetChunkID(env->nextChunkID++);
+        it->memoChunk->SetUseBloomFilter(it->UseBloomFilter());
+    }
+}
+
+void StorageRecovery::ReadFileChunks()
+{
+    StorageFileChunk* it;
+    
+    FOREACH(it, env->fileChunks)
+        it->ReadHeaderPage();
+}
+
+void StorageRecovery::ComputeShardRecovery()
+{
+    StorageShard*       itShard;
+    StorageChunk**      itChunk;
+    StorageFileChunk*   fileChunk;
+
+    FOREACH(itShard, env->shards)
+    {
+        FOREACH(itChunk, itShard->chunks)
+        {
+            fileChunk = (StorageFileChunk*) (*itChunk);
+
+            if (fileChunk->GetLogSegmentID() > itShard->recoveryLogSegmentID)
+            {
+                itShard->recoveryLogSegmentID = fileChunk->GetLogSegmentID();
+                itShard->recoveryLogCommandID = fileChunk->GetLogCommandID();
+            }
+            else if (fileChunk->GetLogSegmentID() == itShard->recoveryLogSegmentID)
+            {
+                if (fileChunk->GetLogCommandID() > itShard->GetLogCommandID())
+                    itShard->recoveryLogCommandID = fileChunk->GetLogCommandID();
+            }
+        }
+    }
+}
+
+void StorageRecovery::ReplayLogSegments()
+{
+    const char*         filename;
+    Buffer              tmp;
+    FS_Dir              dir;
+    FS_DirEntry         entry;
+    
+    Log_Message("Replaying log segments...");
+    
+    tmp.Write(env->logPath);
+    tmp.NullTerminate();
+    
+    dir = FS_OpenDir(tmp.GetBuffer());
+    if (dir == FS_INVALID_DIR)
+    {
+        Log_Message("Unable to open log directory: %s", tmp.GetBuffer());
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    
+    while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
+    {
+        filename = FS_DirEntryName(entry);
+        
+        if (FS_IsSpecial(filename))
+            continue;
+            
+        if (FS_IsDirectory(filename))
+            continue;
+        
+        tmp.Write(filename);
+        if (ReadBuffer(tmp).BeginsWith("log."))
+        {
+            tmp.Write(env->logPath);
+            tmp.Append(filename);
+            ReplayLogSegment(tmp);
+        }
+    }
+    
+    FS_CloseDir(dir);
+    
+    Log_Message("Done.");
+}
+
+bool StorageRecovery::ReplayLogSegment(Buffer& filename)
+{
+    // create a StorageLogSegment for each
+    // and for each (logSegmentID, commandID) => (contextID, shardID)
+    // look at that shard's computed max., if the log is bigger, then execute the command
+    // against the MemoChunk
+
+    bool                usePrevious;
+    char                type;
+    uint16_t            contextID, klen;
+    uint32_t            size, rest, checksum, compChecksum, vlen;
+    uint64_t            logSegmentID, shardID, logCommandID;
+    ReadBuffer          parse, dataPart, key, value;
+    Buffer              buffer;
+    FDGuard             fd;
+    StorageLogSegment*  logSegment;
+    
+    Log_Message("Replaying log segment %B...", &filename);
+    
+    filename.NullTerminate();
+    
+    if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
+    {
+        Log_Message("Unable to open log file: %s", filename.GetBuffer());
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    
+    size = 8;
+    buffer.Allocate(size);
+    if (FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size) != size)
+        return false;
+    buffer.SetLength(size);
+        
+    // first 8 byte is the logSegmentID
+    parse.Wrap(buffer);
+    if (!parse.ReadLittle64(logSegmentID))
+        return false;
+    parse.Advance(8);
+    
+    logCommandID = 1;
+
+    while (true)
+    {
+        size = 4;
+        buffer.Allocate(size);
+        if (FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size) != size)
+            break;
+        buffer.SetLength(size);
+        
+        parse.Wrap(buffer);
+        if (!parse.ReadLittle32(size))
+            break;
+        buffer.Allocate(size);
+        
+        rest = size - buffer.GetLength();
+        if (rest < 4)
+            break;
+        if (FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest) != rest)
+            break;
+        buffer.SetLength(size);
+        
+        parse.Wrap(buffer.GetBuffer() + 4, 4);
+        if (!parse.ReadLittle32(checksum))
+            break;
+        dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+        compChecksum = dataPart.GetChecksum();
+        if (checksum != compChecksum)
+            break;
+        
+        parse.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+        if (parse.GetLength() < 1)
+            break;
+        parse.ReadChar(type);
+        parse.Advance(1);
+        
+        if (parse.GetLength() < 1)
+            break;
+        parse.Readf("%b", &usePrevious);
+        parse.Advance(1);
+        
+        if (!usePrevious)
+        {
+            if (parse.GetLength() < 2)
+                break;
+            parse.ReadLittle16(contextID);
+            parse.Advance(2);
+
+            if (parse.GetLength() < 8)
+                break;
+            parse.ReadLittle64(shardID);
+            parse.Advance(8);
+        }
+        
+        if (parse.GetLength() < 2)
+            break;
+        if (!parse.ReadLittle16(klen))
+            break;
+        parse.Advance(2);
+        
+        if (parse.GetLength() < klen)
+            break;
+        key.Wrap(parse.GetBuffer(), klen);
+        parse.Advance(klen);
+
+        if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
+        {
+            if (parse.GetLength() < 4)
+                break;
+            if (!parse.ReadLittle32(vlen))
+                break;
+            parse.Advance(4);
+            
+            if (parse.GetLength() < vlen)
+                break;
+            value.Wrap(parse.GetBuffer(), vlen);
+            parse.Advance(vlen);
+        }
+        
+        if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
+            ExecuteSet(logSegmentID, logCommandID, contextID, shardID, key, value);
+        else if (type == STORAGE_LOGSEGMENT_COMMAND_DELETE)
+            ExecuteDelete(logSegmentID, logCommandID, contextID, shardID, key);
+        else
+            ASSERT_FAIL();
+        
+        logCommandID++;
+    }
+    
+    logSegment = new StorageLogSegment;
+    logSegment->logSegmentID = logSegmentID;
+    logSegment->filename.Write(filename);
+    env->logSegments.Append(logSegment);
+    if (env->nextLogSegmentID <= logSegmentID)
+        env->nextLogSegmentID = logSegmentID + 1;
+    
+    fd.Close();
+    
+    return true;
+}
+
+void StorageRecovery::ExecuteSet(
+                         uint64_t logSegmentID, uint32_t logCommandID,
+                         uint16_t contextID, uint64_t shardID,
+                         ReadBuffer& key, ReadBuffer& value)
+{
+    StorageShard*       shard;
+    StorageMemoChunk*   memoChunk;
+    
+    shard  = env->GetShard(contextID, shardID);
+    if (shard == NULL)
+        return; // shard was deleted
+    
+    if (shard->logSegmentID > logSegmentID)
+        return; // shard was deleted and re-created
+    
+    if (shard->logSegmentID == logSegmentID && shard->logCommandID > logCommandID)
+        return; // shard was deleted and re-created 
+
+    if (shard->recoveryLogSegmentID > logSegmentID)
+        return; // this command is already present in a file chunk
+
+    if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID > logCommandID)
+        return; // this command is already present in a file chunk
+        
+    memoChunk = shard->GetMemoChunk();
+    assert(memoChunk != NULL);
+    if (!memoChunk->Set(key, value))
+        ASSERT_FAIL();
+
+    memoChunk->RegisterLogCommand(logSegmentID, logCommandID);
+}
+
+void StorageRecovery::ExecuteDelete(
+                         uint64_t logSegmentID, uint32_t logCommandID,
+                         uint16_t contextID, uint64_t shardID,
+                         ReadBuffer& key)
+{
+    StorageShard*       shard;
+    StorageMemoChunk*   memoChunk;
+    
+    shard  = env->GetShard(contextID, shardID);
+    if (shard == NULL)
+        return; // shard was deleted
+    
+    if (shard->logSegmentID > logSegmentID)
+        return; // shard was deleted and re-created
+    
+    if (shard->logSegmentID == logSegmentID && shard->logCommandID > logCommandID)
+        return; // shard was deleted and re-created 
+
+    if (shard->recoveryLogSegmentID > logSegmentID)
+        return; // this command is already present in a file chunk
+
+    if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID > logCommandID)
+        return; // this command is already present in a file chunk
+        
+    memoChunk = shard->GetMemoChunk();
+    assert(memoChunk != NULL);
+    if (!memoChunk->Delete(key))
+        ASSERT_FAIL();
+
+    memoChunk->RegisterLogCommand(logSegmentID, logCommandID);
+}

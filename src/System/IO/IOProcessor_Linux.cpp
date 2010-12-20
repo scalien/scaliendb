@@ -429,13 +429,13 @@ bool IOProcessor::Poll(int sleep)
     return true;
 }
 
-bool IOProcessor::Complete(Callable& callable)
+bool IOProcessor::Complete(Callable* callable)
 {
     Log_Trace();
     
     int nwrite;
     
-    nwrite = write(asyncPipeOp.pipe[1], &callable, sizeof(Callable));
+    nwrite = write(asyncPipeOp.pipe[1], &callable, sizeof(Callable*));
     if (nwrite < 0)
     {
         Log_Errno();
@@ -475,7 +475,7 @@ void ProcessIOOperation(IOOperation* ioop)
 #define MAX_CALLABLE 256    
 void ProcessAsyncOp()
 {
-    Callable    callables[MAX_CALLABLE];
+    Callable*   callables[MAX_CALLABLE];
     int         nread;
     int         count;
     int         i;
@@ -488,7 +488,7 @@ void ProcessAsyncOp()
         count = nread / sizeof(Callable*);
         
         for (i = 0; i < count; i++)
-            Call(callables[i]);
+            Call(*callables[i]);
         
         if (count < (int) SIZE(callables))
             break;

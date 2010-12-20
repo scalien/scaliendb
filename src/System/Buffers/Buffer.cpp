@@ -48,13 +48,25 @@ void Buffer::Shorten(unsigned k)
 
 void Buffer::Allocate(unsigned size_, bool keepold)
 {
-    char* newbuffer;
+    unsigned    i, newSize;
+    char*       newbuffer;
     
     if (size_ <= size)
         return;
     
-    size_ = size_ + ALLOC_GRANURALITY - 1;
-    size_ -= size_ % ALLOC_GRANURALITY;
+    //size_ = size_ + ALLOC_GRANURALITY - 1;
+    //size_ -= size_ % ALLOC_GRANURALITY;
+
+    newSize = 1;
+    for (i = 0; i < 256; i++)
+    {
+        newSize = newSize * 2;
+        if (newSize >= size_)
+            break;
+    }
+    if (newSize < size_)
+        newSize = size_;
+    size_ = newSize;
 
     if (buffer == array || preallocated)
         newbuffer = (char*) malloc(size_);
@@ -154,6 +166,11 @@ void Buffer::Write(ReadBuffer& other)
     Write(other.GetBuffer(), other.GetLength());
 }
 
+void Buffer::Append(char c)
+{
+    Append(&c, 1);
+}
+
 void Buffer::Append(const char* buffer_, unsigned length_)
 {
     if (length_ > GetRemaining())
@@ -172,9 +189,15 @@ void Buffer::Append(Buffer& other)
     Append(other.GetBuffer(), other.GetLength());
 }
 
-void Buffer::Append(ReadBuffer& other)
+void Buffer::Append(ReadBuffer other)
 {
     Append(other.GetBuffer(), other.GetLength());
+}
+
+void Buffer::AppendLittle16(uint16_t x)
+{
+    x = ToLittle16(x);
+    Append((const char*) &x, sizeof(uint16_t));
 }
 
 void Buffer::AppendLittle32(uint32_t x)
@@ -189,6 +212,19 @@ void Buffer::AppendLittle64(uint64_t x)
     Append((const char*) &x, sizeof(uint64_t));
 }
 
+char Buffer::GetCharAt(unsigned i)
+{
+    if (i > length - 1)
+        ASSERT_FAIL();
+    
+    return *(buffer + i);
+}
+
+void Buffer::SetCharAt(unsigned i, char c)
+{
+    buffer[i] = c;
+}
+
 void Buffer::NullTerminate()
 {
     Append("", 1);
@@ -197,6 +233,11 @@ void Buffer::NullTerminate()
 void Buffer::Zero()
 {
     memset(buffer, 0, size);
+}
+
+void Buffer::ZeroRest()
+{
+    memset(buffer + length, 0, size - length);
 }
 
 void Buffer::SetLength(unsigned length_)
@@ -240,14 +281,6 @@ char* Buffer::GetPosition()
     return buffer + length;
 }
 
-char Buffer::GetCharAt(unsigned i)
-{
-    if (i > length - 1)
-        ASSERT_FAIL();
-    
-    return *(buffer + i);
-}
-
 uint32_t Buffer::GetChecksum()
 {
     return ChecksumBuffer(buffer, length);
@@ -256,6 +289,14 @@ uint32_t Buffer::GetChecksum()
 void Buffer::Clear()
 {
     length = 0;
+}
+
+void Buffer::Reset()
+{
+    if (buffer != array && !preallocated)
+        free(buffer);
+    
+    Init();
 }
 
 Buffer::Buffer(const Buffer& other)

@@ -1,0 +1,4 @@
+
+
+- possible issue: command is issued, goes into MemoChunk, which is turned into a FileChunk,
+  but the COMMIT hasn't been issued, and the program exits!

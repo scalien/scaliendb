@@ -401,6 +401,7 @@ if (pad)                                            \
     ghost = false;
     required = 0;
     length = strlen(format);
+    padlen = 0;
     
     while(format[0] != '\0')
     {

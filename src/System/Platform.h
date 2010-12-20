@@ -11,6 +11,10 @@
 
 #ifdef _WIN32 // start Windows
 
+#include <malloc.h>
+static int sbh = _set_sbh_threshold(1016);
+
+
 #ifdef _WIN64
 #define PLATFORM_STRING     "Windows 64-bit"
 #else

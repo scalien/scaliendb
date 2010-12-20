@@ -58,6 +58,7 @@ int64_t     FS_FileSize(const char* path);
 bool        FS_Rename(const char* src, const char* dst);
 
 void        FS_Sync();
+void        FS_Sync(FD fd);
 
 char        FS_Separator();
 

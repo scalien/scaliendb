@@ -298,7 +298,7 @@ bool IOProcessor::Poll(int sleep)
     return true;
 }
 
-bool IOProcessor::Complete(Callable& callable)
+bool IOProcessor::Complete(Callable* callable)
 {
     Log_Trace();
 
@@ -318,7 +318,7 @@ void ProcessAsyncOp()
 {
     Log_Trace();
     
-    static Callable callables[256];
+    static Callable* callables[256];
     int nread;
     int count;
     int i;
@@ -329,7 +329,7 @@ void ProcessAsyncOp()
         count = nread / sizeof(Callable*);
         
         for (i = 0; i < count; i++)
-            Call(callables[i]);
+            Call(*callables[i]);
         
         if (count < (int) SIZE(callables))
             break;

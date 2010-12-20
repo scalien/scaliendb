@@ -2,10 +2,7 @@
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
-#include "Framework/Storage/StorageDataCache.h"
-#include "Application/Common/ContextTransport.h"
-#include "Application/ConfigServer/ConfigServerApp.h"
-#include "Application/ShardServer/ShardServerApp.h"
+#include "Framework/StorageNew/StorageEnvironment.h"
 
 #ifdef DEBUG
 #define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING " (DEBUG build date " __DATE__ " " __TIME__ ")"
@@ -14,45 +11,69 @@
 #endif
 
 void InitLog();
-bool IsController();
-void InitContextTransport();
 
-int main(int argc, char** argv)
+int main()
 {
-    Application*        app;
-    bool                isController;
-
-    if (argc < 2)
-        STOP_FAIL(1, "Config file argument not given, exiting");
-        
-    if (!configFile.Init(argv[1]))
-        STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
-
-    InitLog();
     StartClock();
     IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024), true);
-    InitContextTransport();
-    
-    isController = IsController();  
-    Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
-    if (isController)
-        app = new ConfigServerApp;
-    else
-        app = new ShardServerApp;
-    
-    app->Init();
-    
+    Log_SetTarget(LOG_TARGET_STDOUT);
+    Log_SetTrace(false);
+    Log_SetTimestamping(true);
     EventLoop::Init();
-    EventLoop::Run();
+    
+    StorageEnvironment env;
+    Buffer envPath;
+    envPath.Write("db/");
+    env.Open(envPath);
+    env.CreateShard(1, 1, 1, ReadBuffer(""), ReadBuffer(""), true);
+    
+    Buffer key, value;
+    ReadBuffer rv;
+    uint64_t i,j, rnd, num;
+    num = 10*1000*1000;
+    for (i = 0; i < num; i++)
+    {
+//        rnd = RandomInt(0, num - 1);
+        key.Writef("%U", i);
+        value.Writef("%0100U", i);
+        env.Set(1, 1, ReadBuffer(key), ReadBuffer(value));
+        if (i % (100*1000) == 0)
+        {
+            env.Commit();
+            Log_Message("%U", i);
+        }
+        if (i > 0 && i % (10*1000) == 0)
+        {
+            EventLoop::RunOnce();
+            
+//            for (j = 0; j < 1000; j++)
+//            {
+//                rnd = RandomInt(0, i - 1);
+//                key.Writef("%U", rnd);
+//                if (!env.Get(1, 1, ReadBuffer(key), rv))
+//                    Log_Message("%B => not found", &key);
+//            }
+        }
+    }
+    env.Commit();
+    
+//    ReadBuffer rv;
+//    uint64_t rnd;
+//    Log_Message("GET begin");
+//    for (i = 0; i < 100*1000; i++)
+//    {
+//        rnd = RandomInt(0, 1000*1000 - 1);
+//        key.Writef("%U", rnd);
+//        if (!env.Get(1, 1, ReadBuffer(key), rv))
+//            Log_Message("%B => not found", &key);
+//    }
+//    
+//    Log_Message("GET end");
+//    env.Close();
+    
     EventLoop::Shutdown();
-    
-    app->Shutdown();
-    delete app;
-    
     IOProcessor::Shutdown();
-    DEFAULT_BUFFERPOOL->Shutdown();
     StopClock();
-    configFile.Shutdown();
     Log_Shutdown();
 }
 
@@ -81,28 +102,4 @@ void InitLog()
 
     Log_SetTrace(configFile.GetBoolValue("log.trace", false));
     Log_SetTimestamping(configFile.GetBoolValue("log.timestamping", false));
-}
-
-bool IsController()
-{
-    const char* role;
-    
-    role = configFile.GetValue("role", "");
-    if (strcmp(role, "controller") == 0)
-        return true;
-    else
-        return false;
-}
-
-void InitContextTransport()
-{
-    const char*     str;
-    Endpoint        endpoint;
-
-    // set my endpoint
-    str = configFile.GetValue("endpoint", "");
-    if (str == 0)
-        ASSERT_FAIL();
-    endpoint.Set(str);
-    CONTEXT_TRANSPORT->Init(endpoint);
 }
