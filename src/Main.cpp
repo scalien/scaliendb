@@ -2,7 +2,7 @@
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
-#include "Framework/StorageNew/StorageEnvironment.h"
+#include "Framework/Storage/StorageEnvironment.h"
 
 #ifdef DEBUG
 #define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING " (DEBUG build date " __DATE__ " " __TIME__ ")"
