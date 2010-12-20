@@ -21,7 +21,7 @@ void ConfigServer::Init()
  
     databaseManager.Init();
  
-    REPLICATION_CONFIG->Init(databaseManager.GetDatabase()->GetTable("system"));
+    REPLICATION_CONFIG->Init(databaseManager.GetSystemShard());
     
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;
@@ -46,7 +46,7 @@ void ConfigServer::Init()
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
     }
 
-    quorumProcessor.Init(this, numConfigServers, databaseManager.GetDatabase()->GetTable("paxos"));
+    quorumProcessor.Init(this, numConfigServers, databaseManager.GetQuorumShard());
     heartbeatManager.Init(this);
     primaryLeaseManager.Init(this);
     activationManager.Init(this);

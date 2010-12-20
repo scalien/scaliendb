@@ -23,7 +23,7 @@ class ConfigQuorumProcessor
 
 public:
     void                    Init(ConfigServer* configServer,
-                             unsigned numConfigServer,  StorageTable* quorumTable);
+                             unsigned numConfigServer,  StorageShardProxy* quorumShard);
     void                    Shutdown();
 
     bool                    IsMaster();

@@ -23,7 +23,7 @@ class StorageChunkMerger
 {
 public:
     bool                Merge(
-                         const char* rFilename1, const char* rFilename2, const char* wFilename
+                         const char* rFilename1, const char* rFilename2, const char* wFilename,
                          uin64_t shardID, uint64_t chunkID, bool useBloomFilter,     
                          Buffer& firstKey, Buffer& lastKey);
                         // file1 is older than file2

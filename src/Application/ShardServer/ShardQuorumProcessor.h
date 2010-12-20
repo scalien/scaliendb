@@ -81,8 +81,8 @@ private:
     RequestList             clientRequests;
     List<uint64_t>          activeNodes;
     
-    ShardCatchupReader      catchupReader;
-    ShardCatchupWriter      catchupWriter;
+//    ShardCatchupReader      catchupReader;
+//    ShardCatchupWriter      catchupWriter;
 
     Countdown               requestLeaseTimeout;
     Timer                   leaseTimeout;

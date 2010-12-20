@@ -4,7 +4,6 @@
 #include "System/FileSystem.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Framework/Replication/ReplicationConfig.h"
-#include "Framework/Storage/StorageDataCache.h"
 #include "Version.h"
 
 void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
@@ -71,7 +70,7 @@ void ShardHTTPClientSession::PrintStatus()
     Buffer                      keybuf;
     Buffer                      valbuf;
     uint64_t                    primaryID;
-    uint64_t                    totalSpace, freeSpace, diskUsage;
+    uint64_t                    totalSpace, freeSpace;
     ShardQuorumProcessor*       it;
 
     session.PrintPair("ScalienDB", "ShardServer");
@@ -85,15 +84,6 @@ void ShardHTTPClientSession::PrintStatus()
 
     totalSpace = FS_DiskSpace(configFile.GetValue("database.dir", "db"));
     freeSpace = FS_FreeDiskSpace(configFile.GetValue("database.dir", "db"));
-    diskUsage = shardServer->GetDatabaseManager()->GetEnvironment()->GetSize();
-    valbuf.Writef("%s (Total %s, Free %s)", 
-     HUMAN_BYTES(diskUsage), HUMAN_BYTES(totalSpace), HUMAN_BYTES(freeSpace));
-    session.PrintPair("Disk usage", valbuf);
-
-    valbuf.Writef("%s (Used %s, %U%%)",
-     HUMAN_BYTES(DCACHE->GetTotalSize()), HUMAN_BYTES(DCACHE->GetUsedSize()),
-     (uint64_t) (DCACHE->GetUsedSize() / (double) DCACHE->GetTotalSize() * 100.0 + 0.5));
-    session.PrintPair("Cache usage", valbuf);
 
     // write quorums, shards, and leases
     ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();

@@ -28,12 +28,16 @@ static size_t Hash(uint64_t h)
 
 void ShardDatabaseManager::Init(ShardServer* shardServer_)
 {
+    Buffer  envpath;
+    
     shardServer = shardServer_;
-    environment.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
-    environment.SetSync(configFile.GetBoolValue("database.sync", true));
-    environment.Open(configFile.GetValue("database.dir", "db"));
-    systemDatabase = environment.GetDatabase("system");
-    REPLICATION_CONFIG->Init(systemDatabase->GetTable("system"));
+
+    envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
+    environment.Open(envpath);
+
+    // TODO: replace 1 with symbolic name
+    systemShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
+    REPLICATION_CONFIG->Init(&systemShard);
 }
 
 void ShardDatabaseManager::Shutdown()
@@ -46,119 +50,121 @@ StorageEnvironment* ShardDatabaseManager::GetEnvironment()
     return &environment;
 }
 
-StorageTable* ShardDatabaseManager::GetQuorumTable(uint64_t quorumID)
+StorageShardProxy* ShardDatabaseManager::GetQuorumShard(uint64_t quorumID)
 {
-    Buffer name;
+    StorageShardProxy*  shard;
     
-    name.Writef("%U", quorumID);
-    name.NullTerminate();
-    return systemDatabase->GetTable(name.GetBuffer());
+    if (quorumShards.Get(quorumID, shard))
+        return shard;
+
+    return NULL;
 }
 
-StorageTable* ShardDatabaseManager::GetTable(uint64_t tableID)
+StorageShardProxy* ShardDatabaseManager::GetDataShard(uint64_t shardID)
 {
-    StorageTable* table;
+    ConfigShard*        configShard;
+    StorageShardProxy*  dataShard;
     
-    if (!tables.Get(tableID, table))
+    configShard = shardServer->GetConfigState()->GetShard(shardID);
+    if (!configShard)
         return NULL;
-    return table;
-}
 
-StorageShard* ShardDatabaseManager::GetShard(uint64_t shardID)
-{
-    ConfigShard*    shard;
-    StorageTable*   table;
+    if (dataShards.Get(shardID, dataShard))
+        return dataShard;
     
-    shard = shardServer->GetConfigState()->GetShard(shardID);
-    if (!shard)
-        return NULL;
-    
-    table = GetTable(shard->tableID);
-    if (!table)
-        return NULL;
-    
-    return table->GetShard(shardID);
+    return NULL;
 }
 
 void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
 {
     uint64_t*           sit;
     ConfigShard*        shard;
-    StorageDatabase*    database;
-    StorageTable*       table;
+//    StorageDatabase*    database;
+//    StorageTable*       table;
     Buffer              name;
     ReadBuffer          firstKey;
+    StorageShardProxy*  dataShard;
 
     for (sit = shards.First(); sit != NULL; sit = shards.Next(sit))
     {
         shard = shardServer->GetConfigState()->GetShard(*sit);
         assert(shard != NULL);
         
-        if (!databases.Get(shard->databaseID, database))
+        dataShard = GetDataShard(shard->tableID);
+        if (!dataShard)
         {
-            name.Writef("%U", shard->databaseID);
-            name.NullTerminate();
-
-            database = environment.GetDatabase(name.GetBuffer());
-            assert(database != NULL);
-            databases.Set(shard->databaseID, database);
+            environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
+             shard->firstKey, shard->lastKey, true);
+            dataShards.Set(shard->tableID, dataShard);
         }
-        
-        if (!tables.Get(shard->tableID, table))
-        {
-            name.Writef("%U", shard->tableID);
-            name.NullTerminate();
-            
-            table = database->GetTable(name.GetBuffer());
-            assert(table != NULL);
-            tables.Set(shard->tableID, table);
-        }
-        
-        // check if key already exists
-        firstKey.Wrap(shard->firstKey);
-        if (!table->ShardExists(firstKey))
-            table->CreateShard(*sit, firstKey);
+//        
+//        if (!databases.Get(shard->databaseID, database))
+//        {
+//            name.Writef("%U", shard->databaseID);
+//            name.NullTerminate();
+//
+//            database = environment.GetDatabase(name.GetBuffer());
+//            assert(database != NULL);
+//            databases.Set(shard->databaseID, database);
+//        }
+//        
+//        if (!tables.Get(shard->tableID, table))
+//        {
+//            name.Writef("%U", shard->tableID);
+//            name.NullTerminate();
+//            
+//            table = database->GetTable(name.GetBuffer());
+//            assert(table != NULL);
+//            tables.Set(shard->tableID, table);
+//        }
+//        
+//        // check if key already exists
+//        firstKey.Wrap(shard->firstKey);
+//        if (!table->ShardExists(firstKey))
+//            table->CreateShard(*sit, firstKey);
     }
 }
 
 void ShardDatabaseManager::RemoveDeletedDatabases()
 {
-    DatabaseMap::Node*      it;
-    DatabaseMap::Node*      next;    
-    ConfigState*            configState;
-
-    configState = shardServer->GetConfigState();
-
-    for (it = databases.First(); it != NULL; it = next)
-    {
-        next = databases.Next(it);
-        if (!configState->GetDatabase(it->Key()))
-        {
-            environment.DeleteDatabase(it->Value());
-            databases.Remove(it->Key());
-        }
-    }
+// TODO:
+//    DatabaseMap::Node*      it;
+//    DatabaseMap::Node*      next;    
+//    ConfigState*            configState;
+//
+//    configState = shardServer->GetConfigState();
+//
+//    for (it = databases.First(); it != NULL; it = next)
+//    {
+//        next = databases.Next(it);
+//        if (!configState->GetDatabase(it->Key()))
+//        {
+//            environment.DeleteDatabase(it->Value());
+//            databases.Remove(it->Key());
+//        }
+//    }
 }
 
 void ShardDatabaseManager::RemoveDeletedTables()
 {
-    TableMap::Node*     it;
-    TableMap::Node*     next;    
-    ConfigState*        configState;
-    StorageDatabase*    database;
-
-    configState = shardServer->GetConfigState();
-
-    for (it = tables.First(); it != NULL; it = next)
-    {
-        next = tables.Next(it);
-        if (!configState->GetTable(it->Key()))
-        {
-            database = it->Value()->GetDatabase();
-            database->DeleteTable(it->Value());
-            tables.Remove(it->Key());
-        }
-    }
+// TODO:
+//    TableMap::Node*     it;
+//    TableMap::Node*     next;    
+//    ConfigState*        configState;
+//    StorageDatabase*    database;
+//
+//    configState = shardServer->GetConfigState();
+//
+//    for (it = tables.First(); it != NULL; it = next)
+//    {
+//        next = tables.Next(it);
+//        if (!configState->GetTable(it->Key()))
+//        {
+//            database = it->Value()->GetDatabase();
+//            database->DeleteTable(it->Value());
+//            tables.Remove(it->Key());
+//        }
+//    }
 }
 
 #define CHECK_CMD()                                             \
@@ -177,20 +183,28 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
     uint64_t        paxosID;
     uint64_t        commandID;
-    StorageTable*   table;
+//    StorageTable*   table;
     ReadBuffer      key;
     ReadBuffer      value;
     ReadBuffer      userValue;
+    StorageShardProxy* shard;
 
-    table = GetTable(request->tableID);
-    if (!table)
+//    table = GetTable(request->tableID);
+//    if (!table)
+//    {
+//        request->response.Failed();
+//        return;
+//    }
+
+    shard = GetDataShard(request->tableID);
+    if (!shard)
     {
         request->response.Failed();
-        return;
+        return;        
     }
 
     key.Wrap(request->key);
-    if (!table->Get(key, value))
+    if (!shard->Get(key, value))
     {
         request->response.Failed();
         return;
@@ -212,12 +226,16 @@ void ShardDatabaseManager::ExecuteMessage(
     Buffer          buffer;
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
-    StorageTable*   table;
-    StorageShard*   shard;
+//    StorageTable*   table;
+//    StorageShard*   shard;
+    StorageShardProxy* shard;
 
-    table = GetTable(message.tableID);
-    if (!table)
-        ASSERT_FAIL();
+    // TODO:
+
+//    table = GetTable(message.tableID);
+//    if (!table)
+//        ASSERT_FAIL();
+
 
     if (request)
         request->response.OK();
@@ -227,18 +245,18 @@ void ShardDatabaseManager::ExecuteMessage(
     {
         case SHARDMESSAGE_SET:
             WriteValue(buffer, paxosID, commandID, message.value);
-            if (!table->Set(message.key, buffer))
+            if (!shard->Set(message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_SET_IF_NOT_EXISTS:
-            if (table->Get(message.key, readBuffer))
+            if (shard->Get(message.key, readBuffer))
                 RESPONSE_FAIL();
             WriteValue(buffer, paxosID, commandID, message.value);
-            if (!table->Set(message.key, buffer))
+            if (!shard->Set(message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_TEST_AND_SET:
-            if (!table->Get(message.key, readBuffer))
+            if (!shard->Get(message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
@@ -249,13 +267,13 @@ void ShardDatabaseManager::ExecuteMessage(
                 break;
             }
             WriteValue(buffer, paxosID, commandID, message.value);
-            if (!table->Set(message.key, buffer))
+            if (!shard->Set(message.key, buffer))
                 RESPONSE_FAIL();
             if (request)
                 request->response.Value(message.value);
             break;
         case SHARDMESSAGE_GET_AND_SET:
-            if (table->Get(message.key, readBuffer))
+            if (shard->Get(message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
                 if (request)
@@ -270,12 +288,12 @@ void ShardDatabaseManager::ExecuteMessage(
                     request->response.Failed();
             }
             WriteValue(buffer, paxosID, commandID, message.value);
-            if (!table->Set(message.key, buffer))
+            if (!shard->Set(message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_ADD:
          
-            if (!table->Get(message.key, readBuffer))
+            if (!shard->Get(message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
@@ -285,44 +303,44 @@ void ShardDatabaseManager::ExecuteMessage(
             number += message.number;
             numberBuffer.Writef("%I", number);
             WriteValue(buffer, paxosID, commandID, ReadBuffer(numberBuffer));
-            if (!table->Set(message.key, buffer))
+            if (!shard->Set(message.key, buffer))
                 RESPONSE_FAIL();
             if (request)
                 request->response.Number(number);
             break;
         case SHARDMESSAGE_APPEND:
-            if (!table->Get(message.key, readBuffer))
+            if (!shard->Get(message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
             tmpBuffer.Write(userValue);
             tmpBuffer.Append(message.value);
             WriteValue(buffer, paxosID, commandID, ReadBuffer(tmpBuffer));
-            if (!table->Set(message.key, buffer))
+            if (!shard->Set(message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_DELETE:
-            if (!table->Delete(message.key))
+            if (!shard->Delete(message.key))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_REMOVE:
-            if (table->Get(message.key, readBuffer))
+            if (shard->Get(message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
                 request->response.Value(userValue);
             }
-            if (!table->Delete(message.key))
+            if (!shard->Delete(message.key))
                 RESPONSE_FAIL();
             break;
-        case SHARDMESSAGE_SPLIT_SHARD:
-            shard = GetShard(message.shardID);
-            if (!shard)
-                ASSERT_FAIL();
-            readBuffer.Wrap(message.splitKey);
-            shard->SplitShard(message.newShardID, readBuffer);
-            Log_Message("Split shard, shard ID: %U, split key: %B , new shardID: %U",
-             message.shardID, &message.splitKey, message.newShardID);
-            break;
+//        case SHARDMESSAGE_SPLIT_SHARD:
+//            shard = GetShard(message.shardID);
+//            if (!shard)
+//                ASSERT_FAIL();
+//            readBuffer.Wrap(message.splitKey);
+//            shard->SplitShard(message.newShardID, readBuffer);
+//            Log_Message("Split shard, shard ID: %U, split key: %B , new shardID: %U",
+//             message.shardID, &message.splitKey, message.newShardID);
+//            break;
         default:
             ASSERT_FAIL();
             break;

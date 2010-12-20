@@ -21,7 +21,7 @@ class ConfigQuorumContext : public QuorumContext
 {
 public:
     void                            Init(ConfigQuorumProcessor* quorumProcessor,
-                                     unsigned numConfigServers,  StorageTable* quorumTable);
+                                     unsigned numConfigServers,  StorageShardProxy* quorumShard);
     
     void                            Append(ConfigMessage* message);
     bool                            IsAppending();

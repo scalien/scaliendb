@@ -1,11 +1,15 @@
 #include "ConfigDatabaseManager.h"
+#include "Framework/Replication/Quorums/QuorumDatabase.h"
 #include "System/Config.h"
 
 void ConfigDatabaseManager::Init()
 {
-    environment.InitCache(configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_CACHE_SIZE));
-    environment.Open(configFile.GetValue("database.dir", "db"));
-    database = environment.GetDatabase("system");
+    Buffer  envpath;
+    
+    envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
+    environment.Open(envpath);
+    systemConfigShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
+    quorumShard.Init(&environment, QUORUM_DATABASE_QUORUM_CONTEXT, 1);
     
     paxosID = 0;
     configState.Init();
@@ -15,11 +19,6 @@ void ConfigDatabaseManager::Init()
 void ConfigDatabaseManager::Shutdown()
 {
     environment.Close();
-}
-
-StorageDatabase* ConfigDatabaseManager::GetDatabase()
-{
-    return database;
 }
 
 ConfigState* ConfigDatabaseManager::GetConfigState()
@@ -37,6 +36,16 @@ uint64_t ConfigDatabaseManager::GetPaxosID()
     return paxosID;
 }
 
+StorageShardProxy* ConfigDatabaseManager::GetSystemShard()
+{
+    return &systemConfigShard;
+}
+
+StorageShardProxy* ConfigDatabaseManager::GetQuorumShard()
+{
+    return &quorumShard;
+}
+
 void ConfigDatabaseManager::Read()
 {
     bool                ret;
@@ -45,7 +54,7 @@ void ConfigDatabaseManager::Read()
     
     ret =  true;
     
-    if (!database->GetTable("config")->Get(ReadBuffer("state"), value))
+    if (!systemConfigShard.Get(ReadBuffer("state"), value))
     {
         Log_Message("Starting with empty database...");
         return;
@@ -67,5 +76,5 @@ void ConfigDatabaseManager::Write()
 {
     writeBuffer.Writef("%U:", paxosID);
     configState.Write(writeBuffer);
-    database->GetTable("config")->Set(ReadBuffer("state"), ReadBuffer(writeBuffer));
+    systemConfigShard.Set(ReadBuffer("state"), ReadBuffer(writeBuffer));
 }

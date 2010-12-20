@@ -6,7 +6,7 @@
 #include "ConfigQuorumProcessor.h"
 
 void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_,
- unsigned numConfigServers, StorageTable* quorumTable)
+ unsigned numConfigServers, StorageShardProxy* quorumShard)
 {
     uint64_t nodeID;
     
@@ -19,7 +19,7 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(quorumTable);
+    database.Init(quorumShard);
     
     replicatedLog.Init(this);
     paxosLease.Init(this);

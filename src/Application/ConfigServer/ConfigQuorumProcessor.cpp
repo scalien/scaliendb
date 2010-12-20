@@ -4,10 +4,10 @@
 #include "ConfigHeartbeatManager.h"
 
 void ConfigQuorumProcessor::Init(ConfigServer* configServer_,
- unsigned numConfigServers,  StorageTable* quorumTable)
+ unsigned numConfigServers,  StorageShardProxy* quorumShard)
 {
     configServer = configServer_;
-    quorumContext.Init(this, numConfigServers, quorumTable);
+    quorumContext.Init(this, numConfigServers, quorumShard);
     
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     

@@ -1,10 +1,11 @@
 #include "QuorumDatabase.h"
+#include "Framework/Storage/StorageShardProxy.h"
 #include "Framework/Storage/StorageEnvironment.h"
 
-void QuorumDatabase::Init(StorageTable* table_)
+void QuorumDatabase::Init(StorageShardProxy* shard_)
 {
-    assert(table_ != NULL);
-    table = table_;
+    assert(shard_ != NULL);
+    shard = shard_;
     logCacheSize = RLOG_CACHE_SIZE;
 }
 
@@ -28,7 +29,7 @@ bool QuorumDatabase::GetAccepted()
     key.Write("accepted");
     rbKey.Wrap(key);
 
-    ret = table->Get(rbKey, rbValue);
+    ret = shard->Get(rbKey, rbValue);
     if (!ret)
       return false;   // not found, return default
 
@@ -55,7 +56,7 @@ void QuorumDatabase::SetAccepted(bool accepted)
     value.Writef("%d", accepted);
     rbValue.Wrap(value);
     
-    ret = table->Set(rbKey, rbValue);
+    ret = shard->Set(rbKey, rbValue);
 }
 
 uint64_t QuorumDatabase::GetPromisedProposalID()
@@ -98,7 +99,7 @@ void QuorumDatabase::GetAcceptedValue(Buffer& acceptedValue)
     key.Write("acceptedValue");
     rbKey.Wrap(key);
 
-    ret = table->Get(rbKey, rbValue);
+    ret = shard->Get(rbKey, rbValue);
     if (!ret)
         return;
     
@@ -116,7 +117,7 @@ void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
     rbKey.Wrap(key);
     rbValue.Wrap(acceptedValue);
 
-    ret = table->Set(rbKey, rbValue);
+    ret = shard->Set(rbKey, rbValue);
 }
 
 void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
@@ -129,7 +130,7 @@ void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
     key.Writef("round:%U", paxosID);
     rbKey.Wrap(key);
     
-    ret = table->Get(rbKey, rbValue);
+    ret = shard->Get(rbKey, rbValue);
     if (!ret)
         return;
     
@@ -145,7 +146,7 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
     key.Writef("round:%U", paxosID);
     rbKey.Wrap(key);
 
-    table->Set(rbKey, value);
+    shard->Set(rbKey, value);
 
     oldPaxosID = paxosID - logCacheSize;
     if (paxosID >= logCacheSize)
@@ -153,7 +154,7 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
         key.Writef("round:%U", oldPaxosID);
         rbKey.Wrap(key);
 
-        table->Delete(rbKey);
+        shard->Delete(rbKey);
     }
 }
 
@@ -165,7 +166,7 @@ bool QuorumDatabase::IsActive()
 
 void QuorumDatabase::Commit()
 {
-    table->GetEnvironment()->Commit();
+    shard->GetEnvironment()->Commit();
 }
 
 uint64_t QuorumDatabase::GetUint64(const char* name)
@@ -176,7 +177,7 @@ uint64_t QuorumDatabase::GetUint64(const char* name)
     unsigned    nread;
     int         ret;
 
-    ret = table->Get(key, value);
+    ret = shard->Get(key, value);
     if (!ret)
         return false;
 
@@ -201,35 +202,36 @@ void QuorumDatabase::SetUint64(const char* name, uint64_t u64)
     tmp.Writef("%U", u64);
     value.Wrap(tmp);
 
-    ret = table->Set(key, value);
+    ret = shard->Set(key, value);
 }
 
 void QuorumDatabase::DeleteOldRounds(uint64_t paxosID)
 {
-    uint64_t            oldPaxosID;
-    int                 read;
-    Buffer              key;
-    StorageKeyValue*    kv;
-    StorageCursor       cursor(table);
-    
-    // start at key "round:"
-    // and delete up to "round:<paxosID - logCacheSize>"
-    
-    key.Writef("round:");
-    kv = cursor.Begin(ReadBuffer(key));
-    
-    while (kv->key.BeginsWith("round:"))
-    {
-        read = kv->key.Readf("round:%U", &oldPaxosID);
-        if (read < 7)
-            break;
-        if (oldPaxosID < (paxosID - logCacheSize))
-            table->Delete(key);
-        else
-            break;
-    }
-    
-    cursor.Close();
-    
-    Commit();
+// TODO: cursor
+//    uint64_t            oldPaxosID;
+//    int                 read;
+//    Buffer              key;
+//    StorageKeyValue*    kv;
+//    StorageCursor       cursor(environment);
+//    
+//    // start at key "round:"
+//    // and delete up to "round:<paxosID - logCacheSize>"
+//    
+//    key.Writef("round:");
+//    kv = cursor.Begin(ReadBuffer(key));
+//    
+//    while (kv->key.BeginsWith("round:"))
+//    {
+//        read = kv->key.Readf("round:%U", &oldPaxosID);
+//        if (read < 7)
+//            break;
+//        if (oldPaxosID < (paxosID - logCacheSize))
+//            environment->Delete(key);
+//        else
+//            break;
+//    }
+//    
+//    cursor.Close();
+//    
+//    Commit();
 }

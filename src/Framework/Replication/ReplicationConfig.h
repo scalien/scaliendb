@@ -2,7 +2,7 @@
 #define REPLICATIONCONFIG_H
 
 #include "System/Common.h"
-#include "Framework/Storage/StorageTable.h"
+#include "Framework/Storage/StorageShardProxy.h"
 
 #define REPLICATION_CONFIG (ReplicationConfig::Get())
 #define MY_NODEID          (ReplicationConfig::Get()->GetNodeID())
@@ -20,7 +20,7 @@ class ReplicationConfig
 public:
     static ReplicationConfig* Get();
     
-    void                    Init(StorageTable* table);
+    void                    Init(StorageShardProxy* shard);
     void                    Shutdown();
     
     void                    SetNodeID(uint64_t nodeID);
@@ -36,7 +36,7 @@ public:
 private:
     ReplicationConfig();
 
-    StorageTable*           table;
+    StorageShardProxy*      shard;
     uint64_t                nodeID;
     uint64_t                runID;
 };

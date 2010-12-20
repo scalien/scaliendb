@@ -6,7 +6,7 @@
 #include "ShardServer.h"
 
 void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
- ShardQuorumProcessor* quorumProcessor_, StorageTable* table)
+ ShardQuorumProcessor* quorumProcessor_)
 {
     List<uint64_t> activeNodes;
     
@@ -19,7 +19,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(table);
+    database.Init(quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumShard(quorumID));
     
     replicatedLog.Init(this);
     transport.SetQuorumID(quorumID);

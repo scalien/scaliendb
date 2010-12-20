@@ -22,7 +22,7 @@ class ShardQuorumContext : public QuorumContext
 {
 public:
     void                            Init(ConfigQuorum* configQuorum,
-                                     ShardQuorumProcessor* quorumProcessor_, StorageTable* table);
+                                     ShardQuorumProcessor* quorumProcessor_);
     
     void                            SetActiveNodes(List<uint64_t>& activeNodes);
     void                            TryReplicationCatchup();

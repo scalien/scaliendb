@@ -1,7 +1,6 @@
 #ifndef SHARDCATCHUPWRITER_H
 #define SHARDCATCHUPWRITER_H
 
-#include "Framework/Storage/StorageCursor.h"
 #include "Application/Common/CatchupMessage.h"
 
 class ShardQuorumProcessor; // forward
@@ -37,7 +36,7 @@ private:
     uint64_t                quorumID;
     uint64_t                shardID;
     uint64_t                paxosID;
-    StorageCursor*          cursor;
+//    StorageCursor*          cursor;
     ShardQuorumProcessor*   quorumProcessor;
 };
 

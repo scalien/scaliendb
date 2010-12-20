@@ -1,5 +1,4 @@
 #include "ShardCatchupReader.h"
-#include "Framework/Storage/StorageTable.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"

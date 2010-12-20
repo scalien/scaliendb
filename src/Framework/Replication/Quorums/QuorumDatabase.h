@@ -3,12 +3,16 @@
 
 #include "System/Platform.h"
 #include "System/Buffers/Buffer.h"
-#include "Framework/Storage/StorageTable.h"
+#include "Framework/Storage/StorageShardProxy.h"
 
 #define RLOG_CACHE_SIZE     100*1000
 #define RLOG_REACTIVATION_DIFF  1*1000
 //#define RLOG_CACHE_SIZE         10
 //#define RLOG_REACTIVATION_DIFF  3
+
+#define QUORUM_DATABASE_SYSTEM_CONTEXT  1
+#define QUORUM_DATABASE_QUORUM_CONTEXT  2
+#define QUORUM_DATABASE_DATA_CONTEXT    3
 
 /*
 ===============================================================================================
@@ -21,7 +25,7 @@
 class QuorumDatabase
 {
 public:
-    void                Init(StorageTable* table);
+    void                Init(StorageShardProxy* shard);
 
     uint64_t            GetPaxosID();
     void                SetPaxosID(uint64_t paxosID);
@@ -54,7 +58,9 @@ private:
     
     void                DeleteOldRounds(uint64_t paxosID);
     
-    StorageTable*       table;
+    StorageShardProxy*  shard;
+    uint16_t            contextID;
+    uint64_t            shardID;
     uint64_t            logCacheSize;
 };
 

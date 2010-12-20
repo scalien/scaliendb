@@ -1,4 +1,6 @@
 #include "ReplicationConfig.h"
+#include "System/Buffers/Buffer.h"
+#include "Framework/Storage/StorageEnvironment.h"
 
 #define WIDTH_NODEID                16
 #define WIDTH_RUNID                 16
@@ -18,15 +20,15 @@ ReplicationConfig::ReplicationConfig()
     runID = 0;
 }
 
-void ReplicationConfig::Init(StorageTable* table_)
+void ReplicationConfig::Init(StorageShardProxy* shard_)
 {
     ReadBuffer  value;
     bool        ret;
     unsigned    nread;
     
-    table = table_;
+    shard = shard_;
     
-    ret = table->Get(ReadBuffer("nodeID"), value);
+    ret = shard->Get(ReadBuffer("nodeID"), value);
     nread = 0;
     nodeID = BufferToUInt64(value.GetBuffer(), value.GetLength(), &nread);
     if (!ret || nread != value.GetLength())
@@ -35,7 +37,7 @@ void ReplicationConfig::Init(StorageTable* table_)
         nodeID = 0;
     }
 
-    ret = table->Get(ReadBuffer("runID"), value);
+    ret = shard->Get(ReadBuffer("runID"), value);
     nread = 0;
     runID = BufferToUInt64(value.GetBuffer(), value.GetLength(), &nread);
     if (!ret || nread != value.GetLength())
@@ -100,13 +102,13 @@ void ReplicationConfig::Commit()
     
     value.Writef("%U", nodeID);
     rbValue.Wrap(value);
-    ret = table->Set(ReadBuffer("nodeID"), rbValue);
+    ret = shard->Set(ReadBuffer("nodeID"), rbValue);
     assert(ret == true);
 
     value.Writef("%U", runID);
     rbValue.Wrap(value);
-    ret = table->Set(ReadBuffer("runID"), rbValue);
+    ret = shard->Set(ReadBuffer("runID"), rbValue);
     assert(ret == true);
     
-    table->Commit();
+    shard->GetEnvironment()->Commit();
 }
