@@ -84,7 +84,7 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
     StorageShardProxy*  dataShard;
     StorageShardProxy*  quorumShard;
 
-    for (sit = shards.First(); sit != NULL; sit = shards.Next(sit))
+    FOREACH (sit, shards)
     {
         shard = shardServer->GetConfigState()->GetShard(*sit);
         assert(shard != NULL);
