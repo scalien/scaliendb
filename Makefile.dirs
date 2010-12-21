@@ -30,9 +30,12 @@ BUILD_DIRS = \
 		$(BUILD_DIR)/Test \
 
 
-$(BUILD_DIR):
+$(BUILD_DIRS):
+	-mkdir -p $@
+
+
+$(BUILD_DIR): $(BUILD_DIRS)
 	-mkdir -p $(BUILD_DIR) \
 		$(BIN_DIR) \
-		$(BUILD_DIRS)
 
 

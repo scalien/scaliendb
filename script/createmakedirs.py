@@ -19,10 +19,12 @@ def print_makefile_dirs(build_dir, dirs):
 	for dir in sorted(dirs):
 		print("\t\t" + dir.replace(build_dir, "$(BUILD_DIR)") + " \\")
 	print("\n")
-	print("$(BUILD_DIR):")
+	print("$(BUILD_DIRS):")
+	print("\t-mkdir -p $@")
+	print("\n")
+	print("$(BUILD_DIR): $(BUILD_DIRS)")
 	print("\t-mkdir -p $(BUILD_DIR) \\")
 	print("\t\t$(BIN_DIR) \\")
-	print("\t\t$(BUILD_DIRS)")
 	print("\n")
 
 if __name__ == "__main__":
