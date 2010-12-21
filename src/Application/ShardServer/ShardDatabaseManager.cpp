@@ -183,7 +183,6 @@ void ShardDatabaseManager::ExecuteMessage(
     int16_t         contextID;
     int64_t         number;
     unsigned        nread;
-    ReadBuffer      key;
     ReadBuffer      userValue;
     ReadBuffer      readBuffer;
     Buffer          buffer;
@@ -192,7 +191,6 @@ void ShardDatabaseManager::ExecuteMessage(
 
     // TODO: shard splitting
 
-    key.Wrap(request->key);
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
     shardID = environment.GetShardID(contextID, message.tableID, message.key);
 
