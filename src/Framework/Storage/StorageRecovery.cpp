@@ -334,62 +334,65 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
             break;
         
         parse.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
-        if (parse.GetLength() < 1)
-            break;
-        parse.ReadChar(type);
-        parse.Advance(1);
-        
-        if (parse.GetLength() < 1)
-            break;
-        parse.Readf("%b", &usePrevious);
-        parse.Advance(1);
-        
-        if (!usePrevious)
-        {
+        while (parse.GetLength() > 0)
+        {            
+            if (parse.GetLength() < 1)
+                break;
+            parse.ReadChar(type);
+            parse.Advance(1);
+            
+            if (parse.GetLength() < 1)
+                break;
+            parse.Readf("%b", &usePrevious);
+            parse.Advance(1);
+            
+            if (!usePrevious)
+            {
+                if (parse.GetLength() < 2)
+                    break;
+                parse.ReadLittle16(contextID);
+                parse.Advance(2);
+
+                if (parse.GetLength() < 8)
+                    break;
+                parse.ReadLittle64(shardID);
+                parse.Advance(8);
+            }
+            
             if (parse.GetLength() < 2)
                 break;
-            parse.ReadLittle16(contextID);
+            if (!parse.ReadLittle16(klen))
+                break;
             parse.Advance(2);
-
-            if (parse.GetLength() < 8)
-                break;
-            parse.ReadLittle64(shardID);
-            parse.Advance(8);
-        }
-        
-        if (parse.GetLength() < 2)
-            break;
-        if (!parse.ReadLittle16(klen))
-            break;
-        parse.Advance(2);
-        
-        if (parse.GetLength() < klen)
-            break;
-        key.Wrap(parse.GetBuffer(), klen);
-        parse.Advance(klen);
-
-        if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
-        {
-            if (parse.GetLength() < 4)
-                break;
-            if (!parse.ReadLittle32(vlen))
-                break;
-            parse.Advance(4);
             
-            if (parse.GetLength() < vlen)
+            if (parse.GetLength() < klen)
                 break;
-            value.Wrap(parse.GetBuffer(), vlen);
-            parse.Advance(vlen);
+            key.Wrap(parse.GetBuffer(), klen);
+            parse.Advance(klen);
+
+            if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
+            {
+                if (parse.GetLength() < 4)
+                    break;
+                if (!parse.ReadLittle32(vlen))
+                    break;
+                parse.Advance(4);
+                
+                if (parse.GetLength() < vlen)
+                    break;
+                value.Wrap(parse.GetBuffer(), vlen);
+                parse.Advance(vlen);
+            }
+            
+            if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
+                ExecuteSet(logSegmentID, logCommandID, contextID, shardID, key, value);
+            else if (type == STORAGE_LOGSEGMENT_COMMAND_DELETE)
+                ExecuteDelete(logSegmentID, logCommandID, contextID, shardID, key);
+            else
+                ASSERT_FAIL();
+            
+            logCommandID++;
         }
-        
-        if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
-            ExecuteSet(logSegmentID, logCommandID, contextID, shardID, key, value);
-        else if (type == STORAGE_LOGSEGMENT_COMMAND_DELETE)
-            ExecuteDelete(logSegmentID, logCommandID, contextID, shardID, key);
-        else
-            ASSERT_FAIL();
-        
-        logCommandID++;
     }
     
     logSegment = new StorageLogSegment;
@@ -432,6 +435,8 @@ void StorageRecovery::ExecuteSet(
     assert(memoChunk != NULL);
     if (!memoChunk->Set(key, value))
         ASSERT_FAIL();
+
+    Log_Message("%U, %U, %R, %R", contextID, shardID, &key, &value);
 
     memoChunk->RegisterLogCommand(logSegmentID, logCommandID);
 }
