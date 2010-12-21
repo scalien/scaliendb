@@ -144,6 +144,7 @@ void StorageEnvironment::Close()
     shards.DeleteList();
     delete headLogSegment;
     logSegments.DeleteList();
+    fileChunks.DeleteList();
 }
 
 void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
