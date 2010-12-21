@@ -436,8 +436,6 @@ void StorageRecovery::ExecuteSet(
     if (!memoChunk->Set(key, value))
         ASSERT_FAIL();
 
-    Log_Message("%U, %U, %R, %R", contextID, shardID, &key, &value);
-
     memoChunk->RegisterLogCommand(logSegmentID, logCommandID);
 }
 
