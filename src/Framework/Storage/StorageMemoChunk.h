@@ -7,6 +7,8 @@
 #include "StorageMemoKeyValue.h"
 #include "StorageFileChunk.h"
 
+#define STORAGE_MEMO_BUNCH_GRAN     1*MB
+
 class StorageFileChunk;
 
 /*
@@ -28,6 +30,8 @@ public:
     ~StorageMemoChunk();
     
     ChunkState          GetChunkState();
+    
+    void                NextBunch(StorageCursorBunch& bunch);
     
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);

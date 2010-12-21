@@ -21,7 +21,9 @@ class StorageFileChunk;
 
 class StorageDataPage : public StoragePage
 {
+    friend class StorageFileChunk;
     typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
+
 public:
     StorageDataPage(StorageFileChunk* owner, uint32_t index);
 

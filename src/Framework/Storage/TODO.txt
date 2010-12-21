@@ -1,4 +1,7 @@
 
 
 - possible issue: command is issued, goes into MemoChunk, which is turned into a FileChunk,
-  but the COMMIT hasn't been issued, and the program exits!
+  but the COMMIT hasn't been issued, and the program exits
+
+- possible issue: differentiate UNCOMMITed and COMMITed KVs in MemoChunk, important when eg.
+  iterating

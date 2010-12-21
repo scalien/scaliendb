@@ -8,10 +8,13 @@ uint64_t StoragePageCache::GetSize()
     return size;
 }
 
-void StoragePageCache::AddPage(StoragePage* page)
+void StoragePageCache::AddPage(StoragePage* page, bool bulk)
 {
     size += page->GetSize();
-    pages.Append(page);
+    if (bulk)
+        pages.Prepend(page);
+    else
+        pages.Append(page);
 }
 
 void StoragePageCache::RemovePage(StoragePage* page)

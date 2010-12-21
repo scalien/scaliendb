@@ -20,7 +20,7 @@ StorageIndexPage::StorageIndexPage(StorageFileChunk* owner_)
 
     buffer.AppendLittle32(0); // dummy for size
     buffer.AppendLittle32(0); // dummy for checksum
-    buffer.AppendLittle32(0); // fummy for numKeys
+    buffer.AppendLittle32(0); // dummy for numKeys
     
     owner = owner_;
 }

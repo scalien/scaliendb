@@ -1,7 +1,18 @@
 #include "StorageFileChunk.h"
 #include "System/FileSystem.h"
+#include "StorageBulkCursor.h"
 #include "StoragePageCache.h"
 #include "FDGuard.h"
+
+static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b);
+}
+
+static const ReadBuffer& Key(StorageFileKeyValue* kv)
+{
+    return kv->GetKey();
+}
 
 StorageFileChunk::StorageFileChunk() : headerPage(this)
 {
@@ -67,6 +78,65 @@ StorageChunk::ChunkState StorageFileChunk::GetChunkState()
         return StorageChunk::Unwritten;
 }
 
+void StorageFileChunk::NextBunch(StorageCursorBunch& bunch)
+{
+    uint32_t                index, offset, pos;
+    ReadBuffer              nextKey, key, value;
+    StorageFileKeyValue*    it;
+    StorageFileKeyValue*    kv;
+    
+    nextKey = bunch.GetNextKey();
+
+    if (!indexPage->Locate(nextKey, index, offset))
+    {
+        index = 0;
+        offset = STORAGE_HEADER_PAGE_SIZE;
+    }
+    
+    if (index >= numDataPages)
+    {
+        bunch.isLast = true;
+        return;
+    }
+
+    if (dataPages[index] == NULL)
+        LoadDataPage(index, offset, true);
+    
+    bunch.buffer.Write(dataPages[index]->buffer);
+    FOREACH(it, dataPages[index]->keyValues)
+    {
+        kv = new StorageFileKeyValue;
+        
+        pos = it->GetKey().GetBuffer() - dataPages[index]->buffer.GetBuffer();
+        key.Wrap(bunch.buffer.GetBuffer() + pos, it->GetKey().GetLength());
+        if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+        {
+            pos = it->GetValue().GetBuffer() - dataPages[index]->buffer.GetBuffer();
+            value.Wrap(bunch.buffer.GetBuffer() + pos, it->GetValue().GetLength());
+            kv->Set(key, value);
+        }
+        else
+        {
+            kv->Delete(key);
+        }
+        
+        bunch.keyValues.Insert(kv);
+    }
+    
+    if (index == (numDataPages - 1))
+    {
+        bunch.isLast = true;
+        return;
+    }
+    
+    index++;
+    if (dataPages[index] == NULL)
+        LoadDataPage(index, dataPages[index - 1]->GetSize(), true);
+    
+    bunch.nextKey.Write(dataPages[index]->keyValues.First()->GetKey());
+    bunch.isLast = false;
+}
+
 uint64_t StorageFileChunk::GetChunkID()
 {
     return headerPage.GetChunkID();
@@ -79,8 +149,7 @@ bool StorageFileChunk::UseBloomFilter()
 
 StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
 {
-    uint32_t    index;
-    uint32_t    offset;
+    uint32_t    index, offset;
     Buffer      buffer;
 
     if (headerPage.UseBloomFilter())
@@ -210,7 +279,7 @@ void StorageFileChunk::LoadIndexPage()
     StoragePageCache::AddPage(indexPage);
 }
 
-void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset)
+void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
 {
     Buffer buffer;
     
@@ -232,7 +301,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset)
         Log_Message("Exiting...");
         ASSERT_FAIL();
     }
-    StoragePageCache::AddPage(dataPages[index]);
+    StoragePageCache::AddPage(dataPages[index], bulk);
 }
 
 void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)

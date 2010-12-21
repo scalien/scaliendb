@@ -19,7 +19,7 @@ class StoragePageCache
 
 public:
     static uint64_t             GetSize();
-    static void                 AddPage(StoragePage* page);
+    static void                 AddPage(StoragePage* page, bool bulk = false);
     static void                 RemovePage(StoragePage* page);
     static void                 RegisterHit(StoragePage* page);
     static void                 TryUnloadPages(StorageConfig& config);

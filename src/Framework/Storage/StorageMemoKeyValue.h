@@ -25,8 +25,8 @@ public:
     void            Delete(ReadBuffer key);
     
     char            GetType();
-    ReadBuffer&      GetKey();
-    ReadBuffer&      GetValue();
+    ReadBuffer&     GetKey();
+    ReadBuffer&     GetValue();
     uint32_t        GetLength();
 
     TreeNode        treeNode;

@@ -6,6 +6,8 @@
 #include "System/Containers/InTreeMap.h"
 #include "StorageKeyValue.h"
 
+class StorageCursorBunch;
+
 /*
 ===============================================================================================
 
@@ -30,6 +32,8 @@ public:
     
     virtual uint64_t            GetSize() = 0;
     virtual ChunkState          GetChunkState() = 0;
+    
+    virtual void                NextBunch(StorageCursorBunch& bunch) = 0;
 
     TreeNode                    treeNode;
 };

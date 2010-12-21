@@ -7,6 +7,7 @@
 #include "StorageFileChunk.h"
 
 class StorageRecovery;
+class StorageBulkCursor;
 
 /*
 ===============================================================================================
@@ -19,6 +20,7 @@ class StorageRecovery;
 class StorageShard
 {
     friend class StorageRecovery;
+    friend class StorageBulkCursor;
     
 public:
     typedef SortedList<StorageChunk*> ChunkList;

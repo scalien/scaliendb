@@ -35,6 +35,8 @@ public:
     Buffer&             GetFilename();
 
     ChunkState          GetChunkState();
+    
+    void                NextBunch(StorageCursorBunch& bunch);
 
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
@@ -52,7 +54,7 @@ public:
     void                OnDataPageEvicted(uint32_t index);
     void                LoadBloomPage();
     void                LoadIndexPage();
-    void                LoadDataPage(uint32_t index, uint32_t offset);
+    void                LoadDataPage(uint32_t index, uint32_t offset, bool bulk = false);
 
     StorageFileChunk*   prev;
     StorageFileChunk*   next;
