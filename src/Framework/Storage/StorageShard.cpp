@@ -11,6 +11,11 @@ StorageShard::StorageShard()
     recoveryLogCommandID = 0;
 }
 
+StorageShard::~StorageShard()
+{
+    delete memoChunk;
+}
+
 void StorageShard::SetContextID(uint16_t contextID_)
 {
     contextID = contextID_;

@@ -56,7 +56,14 @@ void StorageFileChunk::ReadHeaderPage()
 
 StorageFileChunk::~StorageFileChunk()
 {
+    unsigned    i;
+    
+    for (i = 0; i < numDataPages; i++)
+        delete dataPages[i];
     free(dataPages);
+    
+    delete indexPage;
+    delete bloomPage;
 }
 
 void StorageFileChunk::SetFilename(Buffer& filename_)

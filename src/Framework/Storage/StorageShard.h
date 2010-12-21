@@ -26,6 +26,7 @@ public:
     typedef SortedList<StorageChunk*> ChunkList;
 
     StorageShard();
+    ~StorageShard();
 
     void                SetContextID(uint16_t contextID);
     void                SetTableID(uint64_t tableID);
