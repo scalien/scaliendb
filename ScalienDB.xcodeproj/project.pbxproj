@@ -135,7 +135,6 @@
 		9AABB05B123E55DE003626AC /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
-		9AC33A1912BFD2250058FFD8 /* StorageShardProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AC33A1812BFD2250058FFD8 /* StorageShardProxy.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 /* End PBXBuildFile section */
 
@@ -209,8 +208,6 @@
 		543DE57B12BFBB3D0069786A /* StorageBloomPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageBloomPage.cpp; sourceTree = "<group>"; };
 		543DE57C12BFBB3D0069786A /* StorageBloomPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageBloomPage.h; sourceTree = "<group>"; };
 		543DE57D12BFBB3D0069786A /* StorageChunk.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunk.h; sourceTree = "<group>"; };
-		543DE57E12BFBB3D0069786A /* StorageChunkMerger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkMerger.cpp; sourceTree = "<group>"; };
-		543DE57F12BFBB3D0069786A /* StorageChunkMerger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkMerger.h; sourceTree = "<group>"; };
 		543DE58212BFBB3D0069786A /* StorageChunkSerializer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkSerializer.cpp; sourceTree = "<group>"; };
 		543DE58312BFBB3D0069786A /* StorageChunkSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkSerializer.h; sourceTree = "<group>"; };
 		543DE58412BFBB3D0069786A /* StorageChunkWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkWriter.cpp; sourceTree = "<group>"; };
@@ -447,8 +444,6 @@
 		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABC18D124EA494003626AC /* ArrayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayList.h; sourceTree = "<group>"; };
-		9AC33A1712BFD2250058FFD8 /* StorageShardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShardProxy.h; sourceTree = "<group>"; };
-		9AC33A1812BFD2250058FFD8 /* StorageShardProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShardProxy.cpp; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -622,55 +617,25 @@
 		543DE57612BFBB3D0069786A /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				543DE57712BFBB3D0069786A /* Biglog.txt */,
-				543DE57812BFBB3D0069786A /* FDGuard.cpp */,
+				543DE71012C0B7290069786A /* KeyValue */,
+				543DE70F12C0B7010069786A /* Chunk */,
+				543DE70E12C0B6D60069786A /* Environment */,
+				543DE70D12C0B6A90069786A /* Pages */,
 				543DE57912BFBB3D0069786A /* FDGuard.h */,
+				543DE57812BFBB3D0069786A /* FDGuard.cpp */,
 				543DE57A12BFBB3D0069786A /* PointerGuard.h */,
-				543DE57B12BFBB3D0069786A /* StorageBloomPage.cpp */,
-				543DE57C12BFBB3D0069786A /* StorageBloomPage.h */,
-				543DE57D12BFBB3D0069786A /* StorageChunk.h */,
-				543DE57E12BFBB3D0069786A /* StorageChunkMerger.cpp */,
-				543DE57F12BFBB3D0069786A /* StorageChunkMerger.h */,
-				543DE58212BFBB3D0069786A /* StorageChunkSerializer.cpp */,
-				543DE58312BFBB3D0069786A /* StorageChunkSerializer.h */,
-				543DE58412BFBB3D0069786A /* StorageChunkWriter.cpp */,
-				543DE58512BFBB3D0069786A /* StorageChunkWriter.h */,
-				543DE58612BFBB3D0069786A /* StorageConfig.cpp */,
 				543DE58712BFBB3D0069786A /* StorageConfig.h */,
-				543DE58812BFBB3D0069786A /* StorageDataPage.cpp */,
-				543DE58912BFBB3D0069786A /* StorageDataPage.h */,
-				543DE58A12BFBB3D0069786A /* StorageEnvironment.cpp */,
-				543DE58B12BFBB3D0069786A /* StorageEnvironment.h */,
-				543DE58C12BFBB3D0069786A /* StorageEnvironmentWriter.cpp */,
-				543DE58D12BFBB3D0069786A /* StorageEnvironmentWriter.h */,
-				543DE58E12BFBB3D0069786A /* StorageFileChunk.cpp */,
-				543DE58F12BFBB3D0069786A /* StorageFileChunk.h */,
-				543DE59012BFBB3D0069786A /* StorageFileKeyValue.cpp */,
-				543DE59112BFBB3D0069786A /* StorageFileKeyValue.h */,
-				543DE59212BFBB3D0069786A /* StorageHeaderPage.cpp */,
-				543DE59312BFBB3D0069786A /* StorageHeaderPage.h */,
-				543DE59412BFBB3D0069786A /* StorageIndexPage.cpp */,
-				543DE59512BFBB3D0069786A /* StorageIndexPage.h */,
-				543DE59612BFBB3D0069786A /* StorageJob.cpp */,
+				543DE58612BFBB3D0069786A /* StorageConfig.cpp */,
 				543DE59712BFBB3D0069786A /* StorageJob.h */,
-				543DE59812BFBB3D0069786A /* StorageKeyValue.h */,
-				543DE59912BFBB3D0069786A /* StorageLogSegment.cpp */,
+				543DE59612BFBB3D0069786A /* StorageJob.cpp */,
 				543DE59A12BFBB3D0069786A /* StorageLogSegment.h */,
-				543DE59B12BFBB3D0069786A /* StorageMemoChunk.cpp */,
-				543DE59C12BFBB3D0069786A /* StorageMemoChunk.h */,
-				543DE59D12BFBB3D0069786A /* StorageMemoKeyValue.cpp */,
-				543DE59E12BFBB3D0069786A /* StorageMemoKeyValue.h */,
-				543DE59F12BFBB3D0069786A /* StoragePage.cpp */,
-				543DE5A012BFBB3D0069786A /* StoragePage.h */,
-				543DE5A112BFBB3D0069786A /* StoragePageCache.cpp */,
-				543DE5A212BFBB3D0069786A /* StoragePageCache.h */,
-				543DE5A312BFBB3D0069786A /* StorageRecovery.cpp */,
-				543DE5A412BFBB3D0069786A /* StorageRecovery.h */,
-				543DE5A512BFBB3D0069786A /* StorageShard.cpp */,
+				543DE59912BFBB3D0069786A /* StorageLogSegment.cpp */,
 				543DE5A612BFBB3D0069786A /* StorageShard.h */,
+				543DE5A512BFBB3D0069786A /* StorageShard.cpp */,
+				543DE5A212BFBB3D0069786A /* StoragePageCache.h */,
+				543DE5A112BFBB3D0069786A /* StoragePageCache.cpp */,
 				543DE5A712BFBB3D0069786A /* TODO.txt */,
-				9AC33A1712BFD2250058FFD8 /* StorageShardProxy.h */,
-				9AC33A1812BFD2250058FFD8 /* StorageShardProxy.cpp */,
+				543DE57712BFBB3D0069786A /* Biglog.txt */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -883,6 +848,64 @@
 				543DE69E12BFBB420069786A /* ShardServerApp.h */,
 			);
 			path = ShardServer;
+			sourceTree = "<group>";
+		};
+		543DE70D12C0B6A90069786A /* Pages */ = {
+			isa = PBXGroup;
+			children = (
+				543DE5A012BFBB3D0069786A /* StoragePage.h */,
+				543DE59F12BFBB3D0069786A /* StoragePage.cpp */,
+				543DE59312BFBB3D0069786A /* StorageHeaderPage.h */,
+				543DE59212BFBB3D0069786A /* StorageHeaderPage.cpp */,
+				543DE58912BFBB3D0069786A /* StorageDataPage.h */,
+				543DE58812BFBB3D0069786A /* StorageDataPage.cpp */,
+				543DE59512BFBB3D0069786A /* StorageIndexPage.h */,
+				543DE59412BFBB3D0069786A /* StorageIndexPage.cpp */,
+				543DE57C12BFBB3D0069786A /* StorageBloomPage.h */,
+				543DE57B12BFBB3D0069786A /* StorageBloomPage.cpp */,
+			);
+			name = Pages;
+			sourceTree = "<group>";
+		};
+		543DE70E12C0B6D60069786A /* Environment */ = {
+			isa = PBXGroup;
+			children = (
+				543DE58B12BFBB3D0069786A /* StorageEnvironment.h */,
+				543DE58A12BFBB3D0069786A /* StorageEnvironment.cpp */,
+				543DE58D12BFBB3D0069786A /* StorageEnvironmentWriter.h */,
+				543DE58C12BFBB3D0069786A /* StorageEnvironmentWriter.cpp */,
+				543DE5A412BFBB3D0069786A /* StorageRecovery.h */,
+				543DE5A312BFBB3D0069786A /* StorageRecovery.cpp */,
+			);
+			name = Environment;
+			sourceTree = "<group>";
+		};
+		543DE70F12C0B7010069786A /* Chunk */ = {
+			isa = PBXGroup;
+			children = (
+				543DE57D12BFBB3D0069786A /* StorageChunk.h */,
+				543DE59C12BFBB3D0069786A /* StorageMemoChunk.h */,
+				543DE59B12BFBB3D0069786A /* StorageMemoChunk.cpp */,
+				543DE58F12BFBB3D0069786A /* StorageFileChunk.h */,
+				543DE58E12BFBB3D0069786A /* StorageFileChunk.cpp */,
+				543DE58312BFBB3D0069786A /* StorageChunkSerializer.h */,
+				543DE58212BFBB3D0069786A /* StorageChunkSerializer.cpp */,
+				543DE58512BFBB3D0069786A /* StorageChunkWriter.h */,
+				543DE58412BFBB3D0069786A /* StorageChunkWriter.cpp */,
+			);
+			name = Chunk;
+			sourceTree = "<group>";
+		};
+		543DE71012C0B7290069786A /* KeyValue */ = {
+			isa = PBXGroup;
+			children = (
+				543DE59812BFBB3D0069786A /* StorageKeyValue.h */,
+				543DE59112BFBB3D0069786A /* StorageFileKeyValue.h */,
+				543DE59012BFBB3D0069786A /* StorageFileKeyValue.cpp */,
+				543DE59E12BFBB3D0069786A /* StorageMemoKeyValue.h */,
+				543DE59D12BFBB3D0069786A /* StorageMemoKeyValue.cpp */,
+			);
+			name = KeyValue;
 			sourceTree = "<group>";
 		};
 		546E254B11EF5CF700867EE1 /* Buffers */ = {
@@ -1180,7 +1203,6 @@
 				543DE6E412BFBB420069786A /* ShardQuorumProcessor.cpp in Sources */,
 				543DE6E512BFBB420069786A /* ShardServer.cpp in Sources */,
 				543DE6E612BFBB420069786A /* ShardServerApp.cpp in Sources */,
-				9AC33A1912BFD2250058FFD8 /* StorageShardProxy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
