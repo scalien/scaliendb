@@ -29,3 +29,13 @@ StorageEnvironment* StorageShardProxy::GetEnvironment()
 {
     return environment;
 }
+
+uint16_t StorageShardProxy::GetContextID()
+{
+    return contextID;
+}
+
+uint64_t StorageShardProxy::GetShardID()
+{
+    return shardID;
+}

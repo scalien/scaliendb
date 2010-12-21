@@ -17,6 +17,8 @@ public:
     bool                    Delete(ReadBuffer key);
     
     StorageEnvironment*     GetEnvironment();
+    uint16_t                GetContextID();
+    uint64_t                GetShardID();
     
 private:
     StorageEnvironment*     environment;

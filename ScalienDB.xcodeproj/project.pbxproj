@@ -135,6 +135,7 @@
 		9AABB05B123E55DE003626AC /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
+		9AC33B4912C0C15F0058FFD8 /* StorageShardProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AC33B4712C0C15F0058FFD8 /* StorageShardProxy.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 /* End PBXBuildFile section */
 
@@ -444,6 +445,8 @@
 		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABC18D124EA494003626AC /* ArrayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayList.h; sourceTree = "<group>"; };
+		9AC33B4712C0C15F0058FFD8 /* StorageShardProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShardProxy.cpp; sourceTree = "<group>"; };
+		9AC33B4812C0C15F0058FFD8 /* StorageShardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShardProxy.h; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -632,6 +635,8 @@
 				543DE59912BFBB3D0069786A /* StorageLogSegment.cpp */,
 				543DE5A612BFBB3D0069786A /* StorageShard.h */,
 				543DE5A512BFBB3D0069786A /* StorageShard.cpp */,
+				9AC33B4812C0C15F0058FFD8 /* StorageShardProxy.h */,
+				9AC33B4712C0C15F0058FFD8 /* StorageShardProxy.cpp */,
 				543DE5A212BFBB3D0069786A /* StoragePageCache.h */,
 				543DE5A112BFBB3D0069786A /* StoragePageCache.cpp */,
 				543DE5A712BFBB3D0069786A /* TODO.txt */,
@@ -1203,6 +1208,7 @@
 				543DE6E412BFBB420069786A /* ShardQuorumProcessor.cpp in Sources */,
 				543DE6E512BFBB420069786A /* ShardServer.cpp in Sources */,
 				543DE6E612BFBB420069786A /* ShardServerApp.cpp in Sources */,
+				9AC33B4912C0C15F0058FFD8 /* StorageShardProxy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
