@@ -1,30 +1,38 @@
+BUILD_DIRS = \
+		$(BUILD_DIR)/Application \
+		$(BUILD_DIR)/Application/Client \
+		$(BUILD_DIR)/Application/Client/Java \
+		$(BUILD_DIR)/Application/Client/Python \
+		$(BUILD_DIR)/Application/Common \
+		$(BUILD_DIR)/Application/ConfigServer \
+		$(BUILD_DIR)/Application/ConfigState \
+		$(BUILD_DIR)/Application/HTTP \
+		$(BUILD_DIR)/Application/SDBP \
+		$(BUILD_DIR)/Application/ShardServer \
+		$(BUILD_DIR)/Framework \
+		$(BUILD_DIR)/Framework/Clustering \
+		$(BUILD_DIR)/Framework/Messaging \
+		$(BUILD_DIR)/Framework/Replication \
+		$(BUILD_DIR)/Framework/Replication/Paxos \
+		$(BUILD_DIR)/Framework/Replication/Paxos/States \
+		$(BUILD_DIR)/Framework/Replication/PaxosLease \
+		$(BUILD_DIR)/Framework/Replication/PaxosLease/States \
+		$(BUILD_DIR)/Framework/Replication/Quorums \
+		$(BUILD_DIR)/Framework/Replication/ReplicatedLog \
+		$(BUILD_DIR)/Framework/Storage \
+		$(BUILD_DIR)/Framework/StorageOld \
+		$(BUILD_DIR)/Framework/TCP \
+		$(BUILD_DIR)/System \
+		$(BUILD_DIR)/System/Buffers \
+		$(BUILD_DIR)/System/Containers \
+		$(BUILD_DIR)/System/Events \
+		$(BUILD_DIR)/System/IO \
+		$(BUILD_DIR)/Test \
+
+
 $(BUILD_DIR):
 	-mkdir -p $(BUILD_DIR) \
 		$(BIN_DIR) \
-		$(BUILD_DIR)/Test/ \
-		$(BUILD_DIR)/Application/ \
-		$(BUILD_DIR)/Application/Common/ \
-		$(BUILD_DIR)/Application/ConfigState \
-		$(BUILD_DIR)/Application/HTTP/ \
-		$(BUILD_DIR)/Application/SDBP/ \
-		$(BUILD_DIR)/Application/ConfigServer/ \
-		$(BUILD_DIR)/Application/ShardServer/ \
-		$(BUILD_DIR)/Application/Client/ \
-		$(BUILD_DIR)/Application/Client/Python \
-		$(BUILD_DIR)/Application/Client/Java \
-		$(BUILD_DIR)/Framework/Clustering/ \
-		$(BUILD_DIR)/Framework/Messaging/ \
-		$(BUILD_DIR)/Framework/Replication/ \
-		$(BUILD_DIR)/Framework/Replication/Quorums \
-		$(BUILD_DIR)/Framework/Replication/PaxosLease \
-		$(BUILD_DIR)/Framework/Replication/PaxosLease\States \
-		$(BUILD_DIR)/Framework/Replication/Paxos \
-		$(BUILD_DIR)/Framework/Replication/ReplicatedLog \
-		$(BUILD_DIR)/Framework/Storage \
-		$(BUILD_DIR)/Framework/StorageNew \
-		$(BUILD_DIR)/Framework/TCP/ \
-		$(BUILD_DIR)/System/ \
-		$(BUILD_DIR)/System/Buffers \
-		$(BUILD_DIR)/System/Containers/ \
-		$(BUILD_DIR)/System/Events/ \
-		$(BUILD_DIR)/System/IO/ \
+		$(BUILD_DIRS)
+
+
