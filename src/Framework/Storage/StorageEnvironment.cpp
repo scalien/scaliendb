@@ -213,7 +213,7 @@ bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer ke
 
 bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value)
 {
-    uint64_t            logCommandID;
+    int32_t             logCommandID;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
     
@@ -244,7 +244,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
 
 bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key)
 {
-    uint32_t            logCommandID;
+    int32_t             logCommandID;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
 

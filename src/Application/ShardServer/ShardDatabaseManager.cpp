@@ -60,54 +60,34 @@ StorageShardProxy* ShardDatabaseManager::GetQuorumShard(uint64_t quorumID)
     return NULL;
 }
 
-StorageShardProxy* ShardDatabaseManager::GetDataShard(uint64_t shardID)
-{
-    ConfigShard*        configShard;
-    StorageShardProxy*  dataShard;
-    
-    configShard = shardServer->GetConfigState()->GetShard(shardID);
-    if (!configShard)
-        return NULL;
-
-    if (dataShards.Get(shardID, dataShard))
-        return dataShard;
-    
-    return NULL;
-}
-
 void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
 {
     uint64_t*           sit;
     ConfigShard*        shard;
-    Buffer              name;
-    ReadBuffer          firstKey;
-    StorageShardProxy*  dataShard;
-    StorageShardProxy*  quorumShard;
 
     FOREACH (sit, shards)
     {
         shard = shardServer->GetConfigState()->GetShard(*sit);
         assert(shard != NULL);
         
-        dataShard = GetDataShard(shard->tableID);
-        if (!dataShard)
-        {
-            environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
-             shard->firstKey, shard->lastKey, true);
-            dataShard = new StorageShardProxy;
-            dataShard->Init(&environment, QUORUM_DATABASE_DATA_CONTEXT, shard->shardID);
-            dataShards.Set(shard->tableID, dataShard);
-        }
-        
-        quorumShard = GetQuorumShard(shard->quorumID);
-        if (!quorumShard)
-        {
-            environment.CreateShard(QUORUM_DATABASE_QUORUM_CONTEXT, *sit, shard->tableID,
-             shard->firstKey, shard->lastKey, true);
-            quorumShard = new StorageShardProxy;
-            quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_CONTEXT, shard->shardID);
-            quorumShards.Set(shard->quorumID, quorumShard);
-        }
+        environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
+         shard->firstKey, shard->lastKey, true);
+    }
+}
+
+void ShardDatabaseManager::SetQuorumShard(uint64_t quorumID)
+{
+    StorageShardProxy*  quorumShard;
+
+    quorumShard = GetQuorumShard(quorumID);
+    if (!quorumShard)
+    {
+        // TODO: HACK
+        environment.CreateShard(QUORUM_DATABASE_QUORUM_CONTEXT, quorumID, 0,
+         "", "", true);
+        quorumShard = new StorageShardProxy;
+        quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_CONTEXT, quorumID);
+        quorumShards.Set(quorumID, quorumShard);
     }
 }
 
@@ -169,20 +149,17 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
     uint64_t        paxosID;
     uint64_t        commandID;
+    uint64_t        shardID;
+    int16_t         contextID;
     ReadBuffer      key;
     ReadBuffer      value;
     ReadBuffer      userValue;
-    StorageShardProxy* shard;
-
-    shard = GetDataShard(request->tableID);
-    if (!shard)
-    {
-        request->response.Failed();
-        return;        
-    }
 
     key.Wrap(request->key);
-    if (!shard->Get(key, value))
+    contextID = QUORUM_DATABASE_DATA_CONTEXT;
+    shardID = environment.GetShardID(contextID, request->tableID, key);
+
+    if (!environment.Get(contextID, shardID, key, value))
     {
         request->response.Failed();
         return;
@@ -197,20 +174,22 @@ void ShardDatabaseManager::ExecuteMessage(
 {
     uint64_t        readPaxosID;
     uint64_t        readCommandID;
+    uint64_t        shardID;
+    int16_t         contextID;
     int64_t         number;
     unsigned        nread;
+    ReadBuffer      key;
     ReadBuffer      userValue;
     ReadBuffer      readBuffer;
     Buffer          buffer;
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
-    StorageShardProxy* shard;
 
     // TODO: shard splitting
 
-    shard = GetDataShard(message.tableID);
-    if (!shard)
-        ASSERT_FAIL();
+    key.Wrap(request->key);
+    contextID = QUORUM_DATABASE_DATA_CONTEXT;
+    shardID = environment.GetShardID(contextID, message.tableID, message.key);
 
     if (request)
         request->response.OK();
@@ -220,18 +199,18 @@ void ShardDatabaseManager::ExecuteMessage(
     {
         case SHARDMESSAGE_SET:
             WriteValue(buffer, paxosID, commandID, message.value);
-            if (!shard->Set(message.key, buffer))
+            if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_SET_IF_NOT_EXISTS:
-            if (shard->Get(message.key, readBuffer))
+            if (environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             WriteValue(buffer, paxosID, commandID, message.value);
-            if (!shard->Set(message.key, buffer))
+            if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_TEST_AND_SET:
-            if (!shard->Get(message.key, readBuffer))
+            if (!environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
@@ -242,13 +221,13 @@ void ShardDatabaseManager::ExecuteMessage(
                 break;
             }
             WriteValue(buffer, paxosID, commandID, message.value);
-            if (!shard->Set(message.key, buffer))
+            if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             if (request)
                 request->response.Value(message.value);
             break;
         case SHARDMESSAGE_GET_AND_SET:
-            if (shard->Get(message.key, readBuffer))
+            if (environment.Get(contextID, shardID, message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
                 if (request)
@@ -263,12 +242,11 @@ void ShardDatabaseManager::ExecuteMessage(
                     request->response.Failed();
             }
             WriteValue(buffer, paxosID, commandID, message.value);
-            if (!shard->Set(message.key, buffer))
+            if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_ADD:
-         
-            if (!shard->Get(message.key, readBuffer))
+            if (!environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
@@ -278,33 +256,33 @@ void ShardDatabaseManager::ExecuteMessage(
             number += message.number;
             numberBuffer.Writef("%I", number);
             WriteValue(buffer, paxosID, commandID, ReadBuffer(numberBuffer));
-            if (!shard->Set(message.key, buffer))
+            if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             if (request)
                 request->response.Number(number);
             break;
         case SHARDMESSAGE_APPEND:
-            if (!shard->Get(message.key, readBuffer))
+            if (!environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
             CHECK_CMD();
             tmpBuffer.Write(userValue);
             tmpBuffer.Append(message.value);
             WriteValue(buffer, paxosID, commandID, ReadBuffer(tmpBuffer));
-            if (!shard->Set(message.key, buffer))
+            if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_DELETE:
-            if (!shard->Delete(message.key))
+            if (!environment.Delete(contextID, shardID, message.key))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_REMOVE:
-            if (shard->Get(message.key, readBuffer))
+            if (environment.Get(contextID, shardID, message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
                 request->response.Value(userValue);
             }
-            if (!shard->Delete(message.key))
+            if (!environment.Delete(contextID, shardID, message.key))
                 RESPONSE_FAIL();
             break;
 //        case SHARDMESSAGE_SPLIT_SHARD:

@@ -340,12 +340,12 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     
     Log_Trace();    
     
-    databaseManager.SetShards(configQuorum->shards);
-    
     quorumID = configQuorum->quorumID;
     quorumProcessor = GetQuorumProcessor(quorumID);
     if (quorumProcessor == NULL)
     {
+        databaseManager.SetQuorumShard(quorumID);
+        
         quorumProcessor = new ShardQuorumProcessor;
         quorumProcessor->Init(configQuorum, this);
 
@@ -369,6 +369,8 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
             CONTEXT_TRANSPORT->AddNode(*itNodeID, shardServer->endpoint);
         }
     }
+
+    databaseManager.SetShards(configQuorum->shards);
 }
 
 unsigned ShardServer::GetHTTPPort()
