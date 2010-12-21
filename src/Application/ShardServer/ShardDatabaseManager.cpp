@@ -42,6 +42,11 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
 
 void ShardDatabaseManager::Shutdown()
 {
+    ShardMap::Node*     node;
+    
+    FOREACH (node, quorumShards)
+        delete node->Value();
+    
     environment.Close();
 }
 

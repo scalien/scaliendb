@@ -129,13 +129,21 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 void StorageEnvironment::Close()
 {
     commitThread->Stop();
+    delete commitThread;
     commitThreadActive = false;
     serializerThread->Stop();
+    delete serializerThread;
     serializerThreadActive = false;
     writerThread->Stop();
+    delete writerThread;
     writerThreadActive = false;
     archiverThread->Stop();
+    delete archiverThread;
     archiverThreadActive = false;
+    
+    shards.DeleteList();
+    delete headLogSegment;
+    logSegments.DeleteList();
 }
 
 void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
