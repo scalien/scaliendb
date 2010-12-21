@@ -79,11 +79,10 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
 {
     uint64_t*           sit;
     ConfigShard*        shard;
-//    StorageDatabase*    database;
-//    StorageTable*       table;
     Buffer              name;
     ReadBuffer          firstKey;
     StorageShardProxy*  dataShard;
+    StorageShardProxy*  quorumShard;
 
     for (sit = shards.First(); sit != NULL; sit = shards.Next(sit))
     {
@@ -95,33 +94,20 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         {
             environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
              shard->firstKey, shard->lastKey, true);
+            dataShard = new StorageShardProxy;
+            dataShard->Init(&environment, QUORUM_DATABASE_DATA_CONTEXT, shard->shardID);
             dataShards.Set(shard->tableID, dataShard);
         }
-//        
-//        if (!databases.Get(shard->databaseID, database))
-//        {
-//            name.Writef("%U", shard->databaseID);
-//            name.NullTerminate();
-//
-//            database = environment.GetDatabase(name.GetBuffer());
-//            assert(database != NULL);
-//            databases.Set(shard->databaseID, database);
-//        }
-//        
-//        if (!tables.Get(shard->tableID, table))
-//        {
-//            name.Writef("%U", shard->tableID);
-//            name.NullTerminate();
-//            
-//            table = database->GetTable(name.GetBuffer());
-//            assert(table != NULL);
-//            tables.Set(shard->tableID, table);
-//        }
-//        
-//        // check if key already exists
-//        firstKey.Wrap(shard->firstKey);
-//        if (!table->ShardExists(firstKey))
-//            table->CreateShard(*sit, firstKey);
+        
+        quorumShard = GetQuorumShard(shard->quorumID);
+        if (!quorumShard)
+        {
+            environment.CreateShard(QUORUM_DATABASE_QUORUM_CONTEXT, *sit, shard->tableID,
+             shard->firstKey, shard->lastKey, true);
+            quorumShard = new StorageShardProxy;
+            quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_CONTEXT, shard->shardID);
+            quorumShards.Set(shard->quorumID, quorumShard);
+        }
     }
 }
 
@@ -183,18 +169,10 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
     uint64_t        paxosID;
     uint64_t        commandID;
-//    StorageTable*   table;
     ReadBuffer      key;
     ReadBuffer      value;
     ReadBuffer      userValue;
     StorageShardProxy* shard;
-
-//    table = GetTable(request->tableID);
-//    if (!table)
-//    {
-//        request->response.Failed();
-//        return;
-//    }
 
     shard = GetDataShard(request->tableID);
     if (!shard)
@@ -226,16 +204,13 @@ void ShardDatabaseManager::ExecuteMessage(
     Buffer          buffer;
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
-//    StorageTable*   table;
-//    StorageShard*   shard;
     StorageShardProxy* shard;
 
-    // TODO:
+    // TODO: shard splitting
 
-//    table = GetTable(message.tableID);
-//    if (!table)
-//        ASSERT_FAIL();
-
+    shard = GetDataShard(message.tableID);
+    if (!shard)
+        ASSERT_FAIL();
 
     if (request)
         request->response.OK();

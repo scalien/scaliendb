@@ -96,7 +96,7 @@
 		543DE6E512BFBB420069786A /* ShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE69B12BFBB420069786A /* ShardServer.cpp */; };
 		543DE6E612BFBB420069786A /* ShardServerApp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE69D12BFBB420069786A /* ShardServerApp.cpp */; };
 		543DE73412C0B8730069786A /* StorageBulkCursor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE73312C0B8730069786A /* StorageBulkCursor.cpp */; };
-		543DE73D12C0B9350069786A /* StorageShardProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE73B12C0B9350069786A /* StorageShardProxy.cpp */; };
+		543DE8C512C113770069786A /* StorageShardProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE73B12C0B9350069786A /* StorageShardProxy.cpp */; };
 		546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
@@ -1214,7 +1214,7 @@
 				543DE6E512BFBB420069786A /* ShardServer.cpp in Sources */,
 				543DE6E612BFBB420069786A /* ShardServerApp.cpp in Sources */,
 				543DE73412C0B8730069786A /* StorageBulkCursor.cpp in Sources */,
-				543DE73D12C0B9350069786A /* StorageShardProxy.cpp in Sources */,
+				543DE8C512C113770069786A /* StorageShardProxy.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

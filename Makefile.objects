@@ -1,51 +1,115 @@
 ALL_OBJECTS = \
-	$(BUILD_DIR)/Framework/StorageNew/StorageEnvironment.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageEnvironmentWriter.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageRecovery.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageLogSegment.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageMemoKeyValue.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageFileKeyValue.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageMemoChunk.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageFileChunk.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageChunkSerializer.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageChunkWriter.o \
-	$(BUILD_DIR)/Framework/StorageNew/StoragePage.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageHeaderPage.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageDataPage.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageIndexPage.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageBloomPage.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageConfig.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageJob.o \
-	$(BUILD_DIR)/Framework/StorageNew/StorageShard.o \
-	$(BUILD_DIR)/Framework/StorageNew/StoragePageCache.o \
-	$(BUILD_DIR)/Framework/StorageNew/FDGuard.o \
+	$(BUILD_DIR)/Application/Client/SDBPClientRequest.o \
+	$(BUILD_DIR)/Application/Common/CatchupMessage.o \
+	$(BUILD_DIR)/Application/Common/ClientRequest.o \
+	$(BUILD_DIR)/Application/Common/ClientRequestCache.o \
+	$(BUILD_DIR)/Application/Common/ClientResponse.o \
+	$(BUILD_DIR)/Application/Common/ClusterMessage.o \
+	$(BUILD_DIR)/Application/Common/ContextTransport.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigActivationManager.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigDatabaseManager.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigHTTPClientSession.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigHTTPHandler.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigHeartbeatManager.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigMessage.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigPrimaryLeaseManager.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigQuorumContext.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigQuorumProcessor.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigServer.o \
+	$(BUILD_DIR)/Application/ConfigServer/ConfigServerApp.o \
+	$(BUILD_DIR)/Application/ConfigServer/JSONConfigState.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigDatabase.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigQuorum.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigShard.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigShardServer.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigState.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigTable.o \
+	$(BUILD_DIR)/Application/HTTP/HTTPConnection.o \
+	$(BUILD_DIR)/Application/HTTP/HTTPFileHandler.o \
+	$(BUILD_DIR)/Application/HTTP/HTTPRequest.o \
+	$(BUILD_DIR)/Application/HTTP/HTTPServer.o \
+	$(BUILD_DIR)/Application/HTTP/HTTPSession.o \
+	$(BUILD_DIR)/Application/HTTP/IMF.o \
+	$(BUILD_DIR)/Application/HTTP/JSONSession.o \
+	$(BUILD_DIR)/Application/HTTP/Mime.o \
+	$(BUILD_DIR)/Application/HTTP/UrlParam.o \
+	$(BUILD_DIR)/Application/SDBP/SDBPConnection.o \
+	$(BUILD_DIR)/Application/SDBP/SDBPRequestMessage.o \
+	$(BUILD_DIR)/Application/SDBP/SDBPResponseMessage.o \
+	$(BUILD_DIR)/Application/SDBP/SDBPServer.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardDatabaseManager.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardHTTPClientSession.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardHTTPHandler.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardHeartbeatManager.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardMessage.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardQuorumContext.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardQuorumProcessor.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardServer.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardServerApp.o \
 	$(BUILD_DIR)/Framework/BloomFilter.o \
+	$(BUILD_DIR)/Framework/Clustering/ClusterConnection.o \
+	$(BUILD_DIR)/Framework/Clustering/ClusterServer.o \
+	$(BUILD_DIR)/Framework/Clustering/ClusterTransport.o \
+	$(BUILD_DIR)/Framework/Messaging/MessageConnection.o \
+	$(BUILD_DIR)/Framework/Replication/Paxos/PaxosAcceptor.o \
+	$(BUILD_DIR)/Framework/Replication/Paxos/PaxosMessage.o \
+	$(BUILD_DIR)/Framework/Replication/Paxos/PaxosProposer.o \
+	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLease.o \
+	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLeaseAcceptor.o \
+	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLeaseLearner.o \
+	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLeaseMessage.o \
+	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLeaseProposer.o \
+	$(BUILD_DIR)/Framework/Replication/Quorums/DoubleMajorityQuorum.o \
+	$(BUILD_DIR)/Framework/Replication/Quorums/MajorityQuorum.o \
+	$(BUILD_DIR)/Framework/Replication/Quorums/QuorumDatabase.o \
+	$(BUILD_DIR)/Framework/Replication/Quorums/QuorumTransport.o \
+	$(BUILD_DIR)/Framework/Replication/Quorums/TotalQuorum.o \
+	$(BUILD_DIR)/Framework/Replication/ReplicatedLog/ReplicatedLog.o \
+	$(BUILD_DIR)/Framework/Replication/ReplicationConfig.o \
+	$(BUILD_DIR)/Framework/Storage/FDGuard.o \
+	$(BUILD_DIR)/Framework/Storage/StorageBloomPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageChunkSerializer.o \
+	$(BUILD_DIR)/Framework/Storage/StorageChunkWriter.o \
+	$(BUILD_DIR)/Framework/Storage/StorageConfig.o \
+	$(BUILD_DIR)/Framework/Storage/StorageDataPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageEnvironment.o \
+	$(BUILD_DIR)/Framework/Storage/StorageEnvironmentWriter.o \
+	$(BUILD_DIR)/Framework/Storage/StorageFileChunk.o \
+	$(BUILD_DIR)/Framework/Storage/StorageFileKeyValue.o \
+	$(BUILD_DIR)/Framework/Storage/StorageHeaderPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageLogSegment.o \
+	$(BUILD_DIR)/Framework/Storage/StorageMemoChunk.o \
+	$(BUILD_DIR)/Framework/Storage/StorageMemoKeyValue.o \
+	$(BUILD_DIR)/Framework/Storage/StoragePage.o \
+	$(BUILD_DIR)/Framework/Storage/StoragePageCache.o \
+	$(BUILD_DIR)/Framework/Storage/StorageRecovery.o \
+	$(BUILD_DIR)/Framework/Storage/StorageShard.o \
+	$(BUILD_DIR)/Framework/Storage/StorageShardProxy.o \
+	$(BUILD_DIR)/Framework/TCP/TCPConnection.o \
+	$(BUILD_DIR)/Framework/TCP/TCPWriter.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
-	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Buffers/BufferPool.o \
+	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
+	$(BUILD_DIR)/System/Common.o \
+	$(BUILD_DIR)/System/Config.o \
+	$(BUILD_DIR)/System/Events/Countdown.o \
 	$(BUILD_DIR)/System/Events/EventLoop.o \
 	$(BUILD_DIR)/System/Events/Scheduler.o \
 	$(BUILD_DIR)/System/Events/Timer.o \
-	$(BUILD_DIR)/System/Events/Countdown.o \
+	$(BUILD_DIR)/System/FileSystem.o \
+	$(BUILD_DIR)/System/Formatting.o \
 	$(BUILD_DIR)/System/IO/Endpoint.o \
 	$(BUILD_DIR)/System/IO/IOProcessor_Darwin.o \
 	$(BUILD_DIR)/System/IO/IOProcessor_Linux.o \
+	$(BUILD_DIR)/System/IO/IOProcessor_Windows.o \
 	$(BUILD_DIR)/System/IO/Socket_Posix.o \
-	$(BUILD_DIR)/System/Common.o \
-	$(BUILD_DIR)/System/Config.o \
-	$(BUILD_DIR)/System/Formatting.o \
+	$(BUILD_DIR)/System/IO/Socket_Windows.o \
 	$(BUILD_DIR)/System/Log.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
 	$(BUILD_DIR)/System/ThreadPool_Posix.o \
+	$(BUILD_DIR)/System/ThreadPool_Windows.o \
 	$(BUILD_DIR)/System/Time.o \
-	$(BUILD_DIR)/System/FileSystem.o
 
-TEST_OBJECTS = \
-	$(BUILD_DIR)/Test/Test.o \
-	$(BUILD_DIR)/Test/StorageTest.o \
-	$(BUILD_DIR)/Test/FileSystemTest.o \
-	$(BUILD_DIR)/Test/ArrayListTest.o \
-	$(BUILD_DIR)/Test/Timings.o \
-	$(BUILD_DIR)/Test/InTreeMapTest.o \
-	$(BUILD_DIR)/Test/CrashTest.o 
 
