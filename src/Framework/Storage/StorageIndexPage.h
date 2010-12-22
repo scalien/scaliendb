@@ -42,6 +42,7 @@ public:
     StorageIndexPage(StorageFileChunk* owner);
 
     uint32_t            GetSize();
+    uint32_t            GetNumDataPages();
 
     bool                Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset);
 

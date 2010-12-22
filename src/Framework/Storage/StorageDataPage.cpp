@@ -235,20 +235,13 @@ bool StorageDataPage::Read(Buffer& buffer_)
         }
     }
     
-    // rest is all zeros
-    if (parse.GetCharAt(0) != 0)
-        goto Fail;
-    else
-        goto Success;
+    this->size = size;
+    return true;
     
 Fail:
     keyValues.DeleteTree();
     buffer.Reset();
     return false;
-
-Success:
-    this->size = size;
-    return true;
 }
 
 void StorageDataPage::Write(Buffer& buffer_)

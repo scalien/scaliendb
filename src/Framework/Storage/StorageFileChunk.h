@@ -63,7 +63,6 @@ public:
 private:
     void                AppendDataPage(StorageDataPage* dataPage);
     void                ExtendDataPageArray();
-    void                ExtendDataPageArray(unsigned newSize);
     bool                ReadPage(uint32_t offset, Buffer& buffer);
 
     bool                written;

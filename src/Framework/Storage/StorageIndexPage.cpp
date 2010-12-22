@@ -30,6 +30,11 @@ uint32_t StorageIndexPage::GetSize()
     return size;
 }
 
+uint32_t StorageIndexPage::GetNumDataPages()
+{
+    return indexTree.GetCount();
+}
+
 bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset)
 {
     StorageIndexRecord* it;
@@ -179,20 +184,13 @@ bool StorageIndexPage::Read(Buffer& buffer_)
         indexTree.Insert(it);
     }
     
-    // rest is all zeros
-    if (parse.GetCharAt(0) != 0)
-        goto Fail;
-    else
-        goto Success;
+    this->size = size;
+    return true;
     
 Fail:
     indexTree.DeleteTree();
     buffer.Reset();
     return false;
-
-Success:
-    this->size = size;
-    return true;
 }
 
 void StorageIndexPage::Write(Buffer& buffer_)
