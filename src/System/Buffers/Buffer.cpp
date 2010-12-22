@@ -102,16 +102,17 @@ void Buffer::Allocate(unsigned size_, bool keepold)
     //size_ = size_ + ALLOC_GRANURALITY - 1;
     //size_ -= size_ % ALLOC_GRANURALITY;
 
-    newSize = 1;
-    for (i = 0; i < 256; i++)
-    {
-        newSize = newSize * 2;
-        if (newSize >= size_)
-            break;
-    }
-    if (newSize < size_)
-        newSize = size_;
-    size_ = newSize;
+//    newSize = 1;
+//    for (i = 0; i < 256; i++)
+//    {
+//        newSize = newSize * 2;
+//        if (newSize >= size_)
+//            break;
+//    }
+//    if (newSize < size_)
+//        newSize = size_;
+//    size_ = newSize;
+    size_ = NextPowerOfTwo(size_);
 
     if (buffer == array || preallocated)
         newbuffer = (char*) malloc(size_);
