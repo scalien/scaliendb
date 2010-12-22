@@ -37,7 +37,7 @@ void StorageFileChunk::ReadHeaderPage()
     
     if (!ReadPage(offset, buffer))
     {
-        Log_Message("Unable to read header page from %B at offset %U", &filename, offset);
+        Log_Message("Unable to read header page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
@@ -46,8 +46,8 @@ void StorageFileChunk::ReadHeaderPage()
     
     if (!headerPage.Read(buffer))
     {
-        Log_Message("Unable to parse header page read from %B at offset %U with size %u",
-         &filename, offset, buffer.GetLength());
+        Log_Message("Unable to parse header page read from %s at offset %U with size %u",
+         filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
@@ -260,7 +260,7 @@ void StorageFileChunk::LoadBloomPage()
     offset = headerPage.GetBloomPageOffset();
     if (!ReadPage(offset, buffer))
     {
-        Log_Message("Unable to read bloom page from %B at offset %U", &filename, offset);
+        Log_Message("Unable to read bloom page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
@@ -268,8 +268,8 @@ void StorageFileChunk::LoadBloomPage()
     }
     if (!bloomPage->Read(buffer))
     {
-        Log_Message("Unable to parse bloom page read from %B at offset %U with size %u",
-         &filename, offset, buffer.GetLength());
+        Log_Message("Unable to parse bloom page read from %s at offset %U with size %u",
+         filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
@@ -287,7 +287,7 @@ void StorageFileChunk::LoadIndexPage()
     offset = headerPage.GetIndexPageOffset();
     if (!ReadPage(offset, buffer))
     {
-        Log_Message("Unable to read index page from %B at offset %U", &filename, offset);
+        Log_Message("Unable to read index page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
@@ -295,8 +295,8 @@ void StorageFileChunk::LoadIndexPage()
     }
     if (!indexPage->Read(buffer))
     {
-        Log_Message("Unable to parse index page read from %B at offset %U with size %u",
-         &filename, offset, buffer.GetLength());
+        Log_Message("Unable to parse index page read from %s at offset %U with size %u",
+         filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
@@ -312,7 +312,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
     dataPages[index] = new StorageDataPage(this, index);
     if (!ReadPage(offset, buffer))
     {
-        Log_Message("Unable to read data page from %B at offset %U", &filename, offset);
+        Log_Message("Unable to read data page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
@@ -320,8 +320,8 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
     }
     if (!dataPages[index]->Read(buffer))
     {
-        Log_Message("Unable to parse data page read from %B at offset %U with size %u",
-         &filename, offset, buffer.GetLength());
+        Log_Message("Unable to parse data page read from %s at offset %U with size %u",
+         filename.GetBuffer(), offset, buffer.GetLength());
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
