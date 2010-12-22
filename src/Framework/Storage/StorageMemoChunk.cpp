@@ -26,6 +26,7 @@ StorageMemoChunk::StorageMemoChunk()
     logCommandID = 0;
     useBloomFilter = false;
     size = 0;
+    fileChunk = NULL;
 }
 
 StorageMemoChunk::~StorageMemoChunk()
