@@ -28,7 +28,7 @@ void ConfigVar::Append(const char *value_)
 
 bool ConfigVar::NameEquals(const char *name_)
 {
-    if (name.Cmp(name_))
+    if (name.Cmp(name_) == 0)
         return true;
     return false;
 }
@@ -66,16 +66,16 @@ const char* ConfigVar::GetValue()
 
 bool ConfigVar::GetBoolValue(bool defval)
 {
-    if (value.Cmp("yes", sizeof("yes")) ||
-        value.Cmp("true", sizeof("true")) ||
-        value.Cmp("on", sizeof("on")))
+    if (value.Cmp("yes", sizeof("yes")) == 0 ||
+        value.Cmp("true", sizeof("true")) == 0 ||
+        value.Cmp("on", sizeof("on")) == 0)
     {
         return true;
     }
     
-    if (value.Cmp("no", sizeof("no")) ||
-        value.Cmp("false", sizeof("false")) ||
-        value.Cmp("off", sizeof("off")))
+    if (value.Cmp("no", sizeof("no")) == 0 ||
+        value.Cmp("false", sizeof("false")) == 0||
+        value.Cmp("off", sizeof("off")) == 0)
     {
         return false;
     }
