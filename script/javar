@@ -6,3 +6,4 @@ FILE=$1
 shift
 
 javac -cp scaliendb.jar:. $FILE.java && java -cp scaliendb.jar:. $FILE $*
+
