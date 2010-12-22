@@ -58,7 +58,8 @@ void StorageArchiveLogSegmentJob::Execute()
     dest.NullTerminate();
     
     Log_Message("Archiving log segment %U...", logSegment->GetLogSegmentID());
-    FS_Rename(logSegment->filename.GetBuffer(), dest.GetBuffer());
+    //FS_Rename(logSegment->filename.GetBuffer(), dest.GetBuffer());
+    FS_Delete(logSegment->filename.GetBuffer());
 
     Callable* c = onComplete;
     delete this;
