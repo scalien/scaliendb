@@ -59,10 +59,23 @@ StorageFileChunk::~StorageFileChunk()
     unsigned    i;
     
     for (i = 0; i < numDataPages; i++)
-        delete dataPages[i];
+    {
+        if (dataPages[i] != NULL)
+        {
+            if (dataPages[i]->IsCached())
+                StoragePageCache::RemovePage(dataPages[i]);
+
+            delete dataPages[i];
+        }
+    }
     free(dataPages);
     
+    if (indexPage && indexPage->IsCached())
+        StoragePageCache::RemovePage(indexPage);
     delete indexPage;
+    
+    if (bloomPage && bloomPage->IsCached())
+        StoragePageCache::RemovePage(bloomPage);
     delete bloomPage;
 }
 

@@ -1,5 +1,6 @@
 #include "ConfigDatabaseManager.h"
 #include "Framework/Replication/Quorums/QuorumDatabase.h"
+#include "Framework/Storage/StoragePageCache.h"
 #include "System/Config.h"
 
 void ConfigDatabaseManager::Init()
@@ -19,6 +20,7 @@ void ConfigDatabaseManager::Init()
 void ConfigDatabaseManager::Shutdown()
 {
     environment.Close();
+    StoragePageCache::Shutdown();
 }
 
 ConfigState* ConfigDatabaseManager::GetConfigState()

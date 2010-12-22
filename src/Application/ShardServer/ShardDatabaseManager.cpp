@@ -1,7 +1,8 @@
 #include "ShardDatabaseManager.h"
+#include "ShardServer.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
-#include "ShardServer.h"
+#include "Framework/Storage/StoragePageCache.h"
 
 static void WriteValue(
 Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
@@ -48,6 +49,7 @@ void ShardDatabaseManager::Shutdown()
         delete node->Value();
     
     environment.Close();
+    StoragePageCache::Shutdown();
 }
 
 StorageEnvironment* ShardDatabaseManager::GetEnvironment()

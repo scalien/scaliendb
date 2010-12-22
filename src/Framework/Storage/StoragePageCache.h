@@ -18,6 +18,8 @@ class StoragePageCache
     typedef InList<StoragePage> PageList;
 
 public:
+    static void                 Shutdown();
+
     static uint64_t             GetSize();
     static void                 AddPage(StoragePage* page, bool bulk = false);
     static void                 RemovePage(StoragePage* page);
