@@ -302,6 +302,7 @@ void Buffer::Reset()
 Buffer::Buffer(const Buffer& other)
 {
 //    ASSERT_FAIL();
+    Init();
     *this = other;  // call operator=()
 }
 
