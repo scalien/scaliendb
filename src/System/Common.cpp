@@ -414,3 +414,15 @@ uint32_t FromLittle16(uint32_t num)
 {
     return num;
 }
+
+uint32_t NextPowerOfTwo(uint32_t x)
+{
+	x--;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	x++;
+	return x;
+}
