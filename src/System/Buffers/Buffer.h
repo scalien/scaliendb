@@ -26,7 +26,7 @@ public:
 
     void                SetPreallocated(char* buffer, unsigned size);
     
-    static bool         Cmp(Buffer& a, Buffer& b);
+    static bool         Cmp(const Buffer& a, const Buffer& b);
     bool                Cmp(const char* buffer, unsigned length_);
     bool                Cmp(const char* str);
 
