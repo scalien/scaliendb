@@ -260,7 +260,9 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 
     Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
     
-    context->GetDatabase()->SetLearnedValue(paxosID, value);
+    // TODO: HACK uncomment this later!
+    //context->GetDatabase()->SetLearnedValue(paxosID, value);
+    
     if (paxosID == (context->GetHighestPaxosID() - 1))
         context->GetDatabase()->Commit();
 
