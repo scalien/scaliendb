@@ -11,6 +11,7 @@ uint64_t StoragePageCache::GetSize()
 void StoragePageCache::AddPage(StoragePage* page, bool bulk)
 {
     size += page->GetSize();
+
     if (bulk)
         pages.Prepend(page);
     else

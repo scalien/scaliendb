@@ -473,15 +473,18 @@ void StorageEnvironment::TryWriteChunks()
 {
     StorageFileChunk*   it;
     StorageJob*         job;
+    
+    if (writerThreadActive)
+        return;
 
     FOREACH (it, fileChunks)
     {
         if (it->GetChunkState() == StorageChunk::Unwritten)
         {
             job = new StorageWriteChunkJob(it, &onChunkWrite);
+            writerThreadActive = true;
             asyncWriteChunkID = it->GetChunkID();
             StartJob(writerThread, job);
-            writerThreadActive = true;
             return;
         }
     }
@@ -489,7 +492,7 @@ void StorageEnvironment::TryWriteChunks()
 
 void StorageEnvironment::TryArchiveLogSegments()
 {
-    bool                del;
+    bool                archive;
     uint64_t            logSegmentID;
     StorageLogSegment*  logSegment;
     StorageShard*       itShard;
@@ -504,27 +507,27 @@ void StorageEnvironment::TryArchiveLogSegments()
 
     // look at all chunks
     // if all chunks' logSegmentID is higher,
-    // then this log segment may safely be deleted
+    // then this log segment can be archived
 
-    del = true;
+    archive = true;
     logSegmentID = logSegment->GetLogSegmentID();
     FOREACH (itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
         if (memoChunk->GetLogSegmentID() > 0 && memoChunk->GetLogSegmentID() <= logSegmentID)
-            del = false;
+            archive = false;
         FOREACH (itChunk, itShard->GetChunks())
         {
             assert((*itChunk)->GetLogSegmentID() > 0);
             if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
             {
                 if (memoChunk->GetLogSegmentID() <= logSegmentID)
-                    del = false;
+                    archive = false;
             }
         }
     }
     
-    if (del)
+    if (archive)
     {
         asyncLogSegmentID = logSegmentID;
         job = new StorageArchiveLogSegmentJob(this, logSegment, &onLogArchive);
