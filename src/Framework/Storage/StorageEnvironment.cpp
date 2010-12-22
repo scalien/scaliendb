@@ -450,13 +450,17 @@ Advance:
     FOREACH (itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
-//        if (memoChunk->GetLogSegmentID() == headLogSegment->GetLogSegmentID())
-//            continue;
-        if (memoChunk->GetSize() > config.chunkSize)
+        if (
+         memoChunk->GetSize() > config.chunkSize ||
+         (
+         headLogSegment->GetLogSegmentID() > STORAGE_MAX_UNBACKED_LOG_SEGMENT &&
+         memoChunk->GetMinLogSegmentID() > 0 &&
+         memoChunk->GetMinLogSegmentID() < (headLogSegment->GetLogSegmentID() - STORAGE_MAX_UNBACKED_LOG_SEGMENT
+         )))
         {
             job = new StorageSerializeChunkJob(memoChunk, &onChunkSerialize);
-            StartJob(serializerThread, job);
             serializerThreadActive = true;
+            StartJob(serializerThread, job);
 
             memoChunk = new StorageMemoChunk;
             memoChunk->SetChunkID(nextChunkID++);
@@ -482,8 +486,8 @@ void StorageEnvironment::TryWriteChunks()
         if (it->GetChunkState() == StorageChunk::Unwritten)
         {
             job = new StorageWriteChunkJob(it, &onChunkWrite);
-            writerThreadActive = true;
             asyncWriteChunkID = it->GetChunkID();
+            writerThreadActive = true;
             StartJob(writerThread, job);
             return;
         }
@@ -504,25 +508,35 @@ void StorageEnvironment::TryArchiveLogSegments()
         return;
 
     logSegment = logSegments.First();
-
-    // look at all chunks
-    // if all chunks' logSegmentID is higher,
-    // then this log segment can be archived
+    
+    // a log segment cannot be archived
+    // if there is a chunk which has not been written
+    // which includes (may include) a write that is
+    // stored in the log segment
 
     archive = true;
     logSegmentID = logSegment->GetLogSegmentID();
+    Log_Message("Checking %U", logSegmentID);
     FOREACH (itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
-        if (memoChunk->GetLogSegmentID() > 0 && memoChunk->GetLogSegmentID() <= logSegmentID)
+        if (memoChunk->GetMinLogSegmentID() > 0 && memoChunk->GetMinLogSegmentID() <= logSegmentID)
+        {
             archive = false;
+            Log_Message("Setting to false because of memoChunk's %U", memoChunk->GetMinLogSegmentID());
+
+        }
         FOREACH (itChunk, itShard->GetChunks())
         {
-            assert((*itChunk)->GetLogSegmentID() > 0);
+            assert((*itChunk)->GetMinLogSegmentID() > 0);
             if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
             {
-                if (memoChunk->GetLogSegmentID() <= logSegmentID)
+                if ((*itChunk)->GetMinLogSegmentID() <= logSegmentID)
+                {
                     archive = false;
+                    Log_Message("Setting to false because of chunk's %U", (*itChunk)->GetMinLogSegmentID());
+
+                }
             }
         }
     }
@@ -531,8 +545,8 @@ void StorageEnvironment::TryArchiveLogSegments()
     {
         asyncLogSegmentID = logSegmentID;
         job = new StorageArchiveLogSegmentJob(this, logSegment, &onLogArchive);
-        StartJob(archiverThread, job);
         archiverThreadActive = true;
+        StartJob(archiverThread, job);
         return;
     }
 }
@@ -540,7 +554,7 @@ void StorageEnvironment::TryArchiveLogSegments()
 void StorageEnvironment::OnChunkSerialize()
 {
     serializerThreadActive = false;
-    TrySerializeChunks();
+//    TrySerializeChunks(); don't do it here b/c chunks may contain uncommitted stuff
     TryWriteChunks();
 }
 

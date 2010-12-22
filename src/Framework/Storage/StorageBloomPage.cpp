@@ -46,17 +46,23 @@ uint32_t StorageBloomPage::RecommendNumBytes(uint32_t numKeys)
     //              k = 8K
     // so we recommend 8K bytes (8K * 8 = 64K bits)
     n = 1;
-    for (i = 1; i < 8; i++)
+    for (i = 0; i < 8; i++)
     {
         n = 2 * n;
         k = n * KiB;
         if (m < k)
-            return m;        
+        {
+            m = k;
+            break;
+        }
     }
     
     if (m < STORAGE_DEFAULT_PAGE_GRAN)
         m = STORAGE_DEFAULT_PAGE_GRAN;
-
+    
+    if (m > 256*KiB)
+        m = 256*KiB;
+    
     return m;
 }
 

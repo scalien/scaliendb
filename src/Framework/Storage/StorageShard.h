@@ -53,12 +53,12 @@ public:
     ChunkList&          GetChunks();
     void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
 
-    StorageMemoChunk*   memoChunk;
-
     StorageShard*       prev;
     StorageShard*       next;
 
 private:
+    StorageMemoChunk*   memoChunk;
+
     uint16_t            contextID;
     uint64_t            shardID;
     uint64_t            tableID;

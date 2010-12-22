@@ -210,15 +210,15 @@ void StorageRecovery::ComputeShardRecovery()
         {
             fileChunk = (StorageFileChunk*) (*itChunk);
 
-            if (fileChunk->GetLogSegmentID() > itShard->recoveryLogSegmentID)
+            if (fileChunk->GetMaxLogSegmentID() > itShard->recoveryLogSegmentID)
             {
-                itShard->recoveryLogSegmentID = fileChunk->GetLogSegmentID();
-                itShard->recoveryLogCommandID = fileChunk->GetLogCommandID();
+                itShard->recoveryLogSegmentID = fileChunk->GetMaxLogSegmentID();
+                itShard->recoveryLogCommandID = fileChunk->GetMaxLogCommandID();
             }
-            else if (fileChunk->GetLogSegmentID() == itShard->recoveryLogSegmentID)
+            else if (fileChunk->GetMaxLogSegmentID() == itShard->recoveryLogSegmentID)
             {
-                if (fileChunk->GetLogCommandID() > itShard->GetLogCommandID())
-                    itShard->recoveryLogCommandID = fileChunk->GetLogCommandID();
+                if (fileChunk->GetMaxLogCommandID() > itShard->GetLogCommandID())
+                    itShard->recoveryLogCommandID = fileChunk->GetMaxLogCommandID();
             }
         }
     }

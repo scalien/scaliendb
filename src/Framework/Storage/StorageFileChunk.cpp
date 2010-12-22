@@ -25,6 +25,7 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     bloomPage = NULL;
     numDataPages = 0;
     fileSize = 0;
+    minLogSegmentID = 0;
 }
 
 void StorageFileChunk::ReadHeaderPage()
@@ -184,12 +185,17 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
     return dataPages[index]->Get(key);
 }
 
-uint64_t StorageFileChunk::GetLogSegmentID()
+uint64_t StorageFileChunk::GetMinLogSegmentID()
+{
+    return minLogSegmentID;
+}
+
+uint64_t StorageFileChunk::GetMaxLogSegmentID()
 {
     return headerPage.GetLogSegmentID();
 }
 
-uint32_t StorageFileChunk::GetLogCommandID()
+uint32_t StorageFileChunk::GetMaxLogCommandID()
 {
     return headerPage.GetLogCommandID();
 }

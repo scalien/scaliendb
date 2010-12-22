@@ -43,8 +43,9 @@ public:
         
     StorageKeyValue*    Get(ReadBuffer& key);
     
-    uint64_t            GetLogSegmentID();
-    uint32_t            GetLogCommandID();
+    uint64_t            GetMinLogSegmentID();
+    uint64_t            GetMaxLogSegmentID();
+    uint32_t            GetMaxLogCommandID();
     
     uint64_t            GetSize();
     
@@ -73,6 +74,8 @@ private:
     StorageDataPage**   dataPages;
     uint32_t            fileSize;
     Buffer              filename;
+
+    uint64_t            minLogSegmentID;
 };
 
 #endif

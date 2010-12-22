@@ -16,6 +16,8 @@ class StorageRecovery;
 class StorageEnvironmentWriter;
 class StorageArchiveLogSegmentJob;
 
+#define STORAGE_MAX_UNBACKED_LOG_SEGMENT    10
+
 /*
 ===============================================================================================
 

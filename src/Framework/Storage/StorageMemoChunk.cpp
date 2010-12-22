@@ -22,8 +22,9 @@ StorageMemoChunk::StorageMemoChunk()
 {
     serialized = false;
     chunkID = 0;
-    logSegmentID = 0;
-    logCommandID = 0;
+    minLogSegmentID = 0;
+    maxLogSegmentID = 0;
+    maxLogCommandID = 0;
     useBloomFilter = false;
     size = 0;
     fileChunk = NULL;
@@ -192,26 +193,34 @@ bool StorageMemoChunk::Delete(ReadBuffer& key)
 
 void StorageMemoChunk::RegisterLogCommand(uint64_t logSegmentID_, uint32_t logCommandID_)
 {
-    if (logSegmentID_ > logSegmentID)
+    if (minLogSegmentID == 0)
+        minLogSegmentID = logSegmentID_;
+    
+    if (logSegmentID_ > maxLogSegmentID)
     {
-        logSegmentID = logSegmentID_;
-        logCommandID = logCommandID_;
+        maxLogSegmentID = logSegmentID_;
+        maxLogCommandID = logCommandID_;
     }
-    else if (logSegmentID_ == logSegmentID)
+    else if (logSegmentID_ == maxLogSegmentID)
     {
-        if (logCommandID_ > logCommandID)
-            logCommandID = logCommandID_;
+        if (logCommandID_ > maxLogCommandID)
+            maxLogCommandID = logCommandID_;
     }
 }
 
-uint64_t StorageMemoChunk::GetLogSegmentID()
+uint64_t StorageMemoChunk::GetMinLogSegmentID()
 {
-    return logSegmentID;
+    return minLogSegmentID;
 }
 
-uint32_t StorageMemoChunk::GetLogCommandID()
+uint64_t StorageMemoChunk::GetMaxLogSegmentID()
 {
-    return logCommandID;
+    return maxLogSegmentID;
+}
+
+uint32_t StorageMemoChunk::GetMaxLogCommandID()
+{
+    return maxLogCommandID;
 }
 
 uint64_t StorageMemoChunk::GetSize()

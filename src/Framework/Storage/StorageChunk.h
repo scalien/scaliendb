@@ -27,8 +27,9 @@ public:
     
     virtual StorageKeyValue*    Get(ReadBuffer& key) = 0;
     
-    virtual uint64_t            GetLogSegmentID() = 0;
-    virtual uint32_t            GetLogCommandID() = 0;
+    virtual uint64_t            GetMinLogSegmentID() = 0;
+    virtual uint64_t            GetMaxLogSegmentID() = 0;
+    virtual uint32_t            GetMaxLogCommandID() = 0;
     
     virtual uint64_t            GetSize() = 0;
     virtual ChunkState          GetChunkState() = 0;
