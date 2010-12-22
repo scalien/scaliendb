@@ -528,9 +528,9 @@ void StorageEnvironment::TryArchiveLogSegments()
         }
         FOREACH (itChunk, itShard->GetChunks())
         {
-            assert((*itChunk)->GetMinLogSegmentID() > 0);
             if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
             {
+                assert((*itChunk)->GetMinLogSegmentID() > 0);
                 if ((*itChunk)->GetMinLogSegmentID() <= logSegmentID)
                 {
                     archive = false;
