@@ -69,4 +69,6 @@ uint64_t        FromLittle64(uint64_t num);
 uint32_t        FromLittle32(uint32_t num);
 uint32_t        FromLittle16(uint32_t num);
 
+uint32_t        NextPowerOfTwo(uint32_t x);
+
 #endif
