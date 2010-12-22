@@ -1,0 +1,8 @@
+#!/bin/sh
+
+export LD_LIBRARY_PATH=.
+
+FILE=$1
+shift
+
+javac -cp scaliendb.jar:. $FILE.java && java -cp scaliendb.jar:. $FILE $*
