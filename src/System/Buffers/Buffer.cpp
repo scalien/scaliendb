@@ -21,19 +21,64 @@ void Buffer::SetPreallocated(char* buffer_, unsigned size_)
     size = size_;
 }
 
-bool Buffer::Cmp(const Buffer& a, const Buffer& b)
+int Buffer::Cmp(const Buffer& a, const Buffer& b)
 {
-    return MEMCMP(a.buffer, a.length, b.buffer, b.length);
+    int ret;
+    unsigned alen, blen;
+
+    alen = a.length;
+    blen = b.length;
+    ret = memcmp(a.buffer, b.buffer, MIN(alen, blen));
+    
+    if (ret != 0)
+        return ret;
+        
+    if (alen < blen)
+        return -1;
+    else if (blen < alen)
+        return 1;
+    else
+        return 0;
 }
 
-bool Buffer::Cmp(const char* buffer_, unsigned length_)
+int Buffer::Cmp(const char* buffer_, unsigned length_)
 {
-    return MEMCMP(buffer, length, buffer_, length_);
+    int ret;
+    unsigned alen, blen;
+
+    alen = length;
+    blen = length_;
+    ret = memcmp(buffer, buffer_, MIN(alen, blen));
+    
+    if (ret != 0)
+        return ret;
+        
+    if (alen < blen)
+        return -1;
+    else if (blen < alen)
+        return 1;
+    else
+        return 0;
 }
 
-bool Buffer::Cmp(const char* str)
+int Buffer::Cmp(const char* str)
 {
-    return MEMCMP(buffer, length, str, strlen(str));
+    int ret;
+    unsigned alen, blen;
+
+    alen = length;
+    blen = strlen(str);
+    ret = memcmp(buffer, str, MIN(alen, blen));
+    
+    if (ret != 0)
+        return ret;
+        
+    if (alen < blen)
+        return -1;
+    else if (blen < alen)
+        return 1;
+    else
+        return 0;
 }
 
 void Buffer::Lengthen(unsigned k)
@@ -302,6 +347,7 @@ void Buffer::Reset()
 Buffer::Buffer(const Buffer& other)
 {
 //    ASSERT_FAIL();
+    Init();
     *this = other;  // call operator=()
 }
 

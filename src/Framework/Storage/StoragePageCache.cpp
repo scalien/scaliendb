@@ -3,6 +3,19 @@
 StoragePageCache::PageList StoragePageCache::pages;
 uint64_t StoragePageCache::size = 0;
 
+void StoragePageCache::Shutdown()
+{
+    StoragePage*    it;
+    
+    for (it = pages.First(); it != NULL; /* advanced in body */)
+    {
+        pages.Remove(it);
+        it->Unload();
+        
+        it = pages.First();
+    }
+}
+
 uint64_t StoragePageCache::GetSize()
 {
     return size;
