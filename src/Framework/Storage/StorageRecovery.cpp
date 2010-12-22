@@ -4,6 +4,11 @@
 #include "FDGuard.h"
 #include "PointerGuard.h"
 
+static bool LessThan(const Buffer* a, const Buffer* b)
+{
+    return Buffer::Cmp(*a, *b) < 0;
+}
+
 bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
 {
     Buffer  toc, tocNew;
@@ -225,6 +230,9 @@ void StorageRecovery::ReplayLogSegments()
     Buffer              tmp;
     FS_Dir              dir;
     FS_DirEntry         entry;
+    SortedList<Buffer*> segments;
+    Buffer*             segmentName;
+    Buffer**            itSegment;
     
     Log_Message("Replaying log segments...");
     
@@ -254,8 +262,16 @@ void StorageRecovery::ReplayLogSegments()
         {
             tmp.Write(env->logPath);
             tmp.Append(filename);
-            ReplayLogSegment(tmp);
+            segmentName = new Buffer(tmp);
+            segments.Add(segmentName, true);
         }
+    }
+
+    FOREACH (itSegment, segments)
+    {
+        segmentName = *itSegment;
+        ReplayLogSegment(*segmentName);
+        delete segmentName;
     }
     
     FS_CloseDir(dir);

@@ -21,7 +21,7 @@ void Buffer::SetPreallocated(char* buffer_, unsigned size_)
     size = size_;
 }
 
-bool Buffer::Cmp(Buffer& a, Buffer& b)
+bool Buffer::Cmp(const Buffer& a, const Buffer& b)
 {
     return MEMCMP(a.buffer, a.length, b.buffer, b.length);
 }
