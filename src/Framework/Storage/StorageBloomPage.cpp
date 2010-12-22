@@ -90,15 +90,12 @@ bool StorageBloomPage::Read(Buffer& buffer)
     parse.Advance(4);
     
     bloomFilter.SetBuffer(dataPart);
-    goto Success;
+    this->size = size;
+    return true;
 
 Fail:
     bloomFilter.GetBuffer().Reset();
     return false;
-
-Success:
-    this->size = size;
-    return true;
 }
 
 void StorageBloomPage::Write(Buffer& buffer)
