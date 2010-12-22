@@ -30,6 +30,11 @@ uint32_t StorageIndexPage::GetSize()
     return size;
 }
 
+uint32_t StorageIndexPage::GetNumDataPages()
+{
+    return indexTree.GetCount();
+}
+
 bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset)
 {
     StorageIndexRecord* it;

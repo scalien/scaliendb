@@ -190,8 +190,6 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
     if (!indexPage->Locate(key, index, offset))
         return NULL;
     
-    if (index >= dataPagesSize)
-        ExtendDataPageArray(index + 1);
     if (dataPages[index] == NULL)
         LoadDataPage(index, offset); // evicted, load back
 
@@ -305,6 +303,21 @@ void StorageFileChunk::LoadIndexPage()
         ASSERT_FAIL();
     }
     StoragePageCache::AddPage(indexPage);
+    
+    // TODO: HACK
+    if (numDataPages == 0)
+    {
+        numDataPages = indexPage->GetNumDataPages();
+        StorageDataPage** newDataPages;
+        newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPages);
+        
+        for (unsigned i = 0; i < numDataPages; i++)
+            newDataPages[i] = NULL;
+        
+        free(dataPages);
+        dataPages = newDataPages;
+        dataPagesSize = numDataPages;
+    }
 }
 
 void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
@@ -347,21 +360,6 @@ void StorageFileChunk::ExtendDataPageArray()
     unsigned            newSize, i;
     
     newSize = dataPagesSize * 2;
-    newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * newSize);
-    
-    for (i = 0; i < numDataPages; i++)
-        newDataPages[i] = dataPages[i];
-    
-    free(dataPages);
-    dataPages = newDataPages;
-    dataPagesSize = newSize;
-}
-
-void StorageFileChunk::ExtendDataPageArray(unsigned newSize)
-{
-    StorageDataPage**   newDataPages;
-    unsigned            i;
-    
     newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * newSize);
     
     for (i = 0; i < numDataPages; i++)
