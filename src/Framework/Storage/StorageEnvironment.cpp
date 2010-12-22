@@ -479,9 +479,9 @@ void StorageEnvironment::TryWriteChunks()
         if (it->GetChunkState() == StorageChunk::Unwritten)
         {
             job = new StorageWriteChunkJob(it, &onChunkWrite);
+            asyncWriteChunkID = it->GetChunkID();
             StartJob(writerThread, job);
             writerThreadActive = true;
-            asyncWriteChunkID = it->GetChunkID();
             return;
         }
     }
