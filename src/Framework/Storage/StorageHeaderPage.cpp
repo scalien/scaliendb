@@ -189,7 +189,6 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
     text.Write("ScalienDB Chunk File");
     text.SetLength(text.GetSize());
 
-
     writeBuffer.Allocate(STORAGE_HEADER_PAGE_SIZE);
     writeBuffer.SetLength(0);
     writeBuffer.Zero();

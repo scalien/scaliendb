@@ -189,7 +189,9 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
         StoragePageCache::RegisterHit(indexPage);
     if (!indexPage->Locate(key, index, offset))
         return NULL;
-        
+    
+    if (index >= dataPagesSize)
+        ExtendDataPageArray(index + 1);
     if (dataPages[index] == NULL)
         LoadDataPage(index, offset); // evicted, load back
 
@@ -345,6 +347,21 @@ void StorageFileChunk::ExtendDataPageArray()
     unsigned            newSize, i;
     
     newSize = dataPagesSize * 2;
+    newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * newSize);
+    
+    for (i = 0; i < numDataPages; i++)
+        newDataPages[i] = dataPages[i];
+    
+    free(dataPages);
+    dataPages = newDataPages;
+    dataPagesSize = newSize;
+}
+
+void StorageFileChunk::ExtendDataPageArray(unsigned newSize)
+{
+    StorageDataPage**   newDataPages;
+    unsigned            i;
+    
     newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * newSize);
     
     for (i = 0; i < numDataPages; i++)
