@@ -18,7 +18,9 @@
 
 #define FS_CREATE               0x0200
 #define FS_READONLY             0x0000
+#define FS_WRITEONLY            0x0001
 #define FS_READWRITE            0x0002
+#define FS_APPEND               0x0008
 
 #define FS_INVALID_DIR          0
 #define FS_INVALID_DIR_ENTRY    0

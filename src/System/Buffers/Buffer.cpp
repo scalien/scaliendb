@@ -93,7 +93,6 @@ void Buffer::Shorten(unsigned k)
 
 void Buffer::Allocate(unsigned size_, bool keepold)
 {
-    unsigned    i, newSize;
     char*       newbuffer;
     
     if (size_ <= size)

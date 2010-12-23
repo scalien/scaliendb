@@ -2,6 +2,7 @@
 #include "StorageChunk.h"
 #include "System/FileSystem.h"
 
+#ifndef NOAPPENDFILE_HACK
 bool StorageChunkWriter::Write(StorageFileChunk* file_)
 {
     file = file_;
@@ -39,6 +40,38 @@ bool StorageChunkWriter::Write(StorageFileChunk* file_)
 
     return true;
 }
+#else
+bool StorageChunkWriter::Write(StorageFileChunk* file_)
+{
+    file = file_;
+
+    if (fd.Open(file->GetFilename().GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND) == INVALID_FD)
+        return false;
+
+    if (!WriteHeaderPage())
+        return false;
+    
+    if (!WriteDataPages())
+        return false;
+
+    if (!WriteIndexPage())
+        return false;
+
+    if (file->headerPage.UseBloomFilter())
+    {
+        if (!WriteBloomPage())
+            return false;
+    }
+
+    FS_Sync(fd.GetFD());
+
+    fd.Close();
+
+    file->written = true;
+
+    return true;
+}
+#endif
 
 bool StorageChunkWriter::WriteBuffer()
 {

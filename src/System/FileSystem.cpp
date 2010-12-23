@@ -114,6 +114,10 @@ FD FS_Open(const char* filename, int flags)
         oflags |= O_RDWR;
     if ((flags & FS_READONLY) == FS_READONLY)
         oflags |= O_RDONLY;
+    if ((flags & FS_WRITEONLY) == FS_WRITEONLY)
+        oflags |= O_WRONLY;
+    if ((flags & FS_APPEND) == FS_APPEND)
+        oflags |= O_APPEND;
 
     fd = open(filename, oflags, mode);
     if (fd < 0)

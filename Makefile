@@ -368,6 +368,10 @@ uninstall:
 	-rm $(INSTALL_BIN_DIR)/scaliendb
 	-rm $(INSTALL_BIN_DIR)/safe_scaliendb
 
+selfupdate:
+	-script/updatemakefile.sh
+
+
 ##############################################################################
 #
 # Clean
