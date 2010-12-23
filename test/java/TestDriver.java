@@ -15,7 +15,7 @@ public class TestDriver {
             long quorumId = client.createQuorum(new long[] {100});
             long databaseId = client.createDatabase("testdb");
             client.createTable(databaseId, quorumId, "testtable");
-        } else if (args [0].equals ("fill")) {
+        } else if (args [0].equals ("fillrnd")) {
             Database database = new Database(client, "testdb");
             Table table = new Table(client, database, "testtable");
             Random random = new Random ();
@@ -36,6 +36,30 @@ public class TestDriver {
                 byte [] value = new byte [size];
                 random.nextBytes (value);
                 table.set(key, value);
+            }
+            client.submit();
+            long end = System.currentTimeMillis();
+            System.out.println("Elapsed: " + (end - start)/1000 + ", num: " + num + ", num/s: " + num/(end - start) * 1000.0);
+        } else if (args [0].equals ("fill")) {
+            Database database = new Database(client, "testdb");
+            Table table = new Table(client, database, "testtable");
+            Random random = new Random ();
+            long start = System.currentTimeMillis();
+            client.begin();
+            int num = 1*1000*1000;
+            for (int index = 0; index < num; index++) {
+                if (index % 10000 == 0) {
+                    if (index % 10000 == 0 && index != 0) {
+                        client.submit();
+                        client.begin();
+                    }
+                    System.out.println("Processing at " + index);
+                }
+                String key = "" + index;
+                int size = random.nextInt(100) + 10;
+                byte [] value = new byte [size];
+                random.nextBytes (value);
+                table.set(key.getBytes(), value);
             }
             client.submit();
             long end = System.currentTimeMillis();
