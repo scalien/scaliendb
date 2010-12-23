@@ -20,7 +20,7 @@ bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
     
     filename.Write(filename_);
     filename.NullTerminate();
-    fd = FS_Open(filename.GetBuffer(), FS_CREATE | FS_READWRITE);
+    fd = FS_Open(filename.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND);
     if (fd == INVALID_FD)
         return false;
 
