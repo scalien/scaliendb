@@ -107,6 +107,7 @@ private:
     uint64_t                asyncLogSegmentID;
     uint64_t                asyncWriteChunkID;
     bool                    asyncCommit;
+    const char*             archiveScript;
 };
 
 #endif

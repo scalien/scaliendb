@@ -2,8 +2,8 @@ import random
 import sys
 import scaliendb
 
-#CONTROLLERS=["localhost:7080"]
-CONTROLLERS=["192.168.137.51:7080"]
+CONTROLLERS=["localhost:7080"]
+#CONTROLLERS=["192.168.137.51:7080"]
 
 def sizeof_fmt(num):
 	for x in ['bytes','KB','MB','GB','TB']:

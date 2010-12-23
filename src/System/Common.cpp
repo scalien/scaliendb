@@ -312,6 +312,17 @@ void PrintStackTrace()
 #endif
 }
 
+int ShellExec(const char* cmdline)
+{
+#ifdef _WIN32
+    Buffer  cmd;
+    
+    return (_spawnlp(_P_WAIT, "cmd", "/c", cmdline, NULL);
+#else
+    return system(cmdline);
+#endif
+}
+
 static uint32_t const crctab[256] =
 {
   0x00000000,

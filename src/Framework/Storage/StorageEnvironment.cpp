@@ -1,6 +1,7 @@
 #include "StorageEnvironment.h"
 #include "System/Events/EventLoop.h"
 #include "System/FileSystem.h"
+#include "System/Config.h"
 #include "StorageChunkSerializer.h"
 #include "StorageEnvironmentWriter.h"
 #include "StorageRecovery.h"
@@ -59,6 +60,8 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
     archivePath.Write(envPath);
     archivePath.Append("archives/");
+
+    archiveScript = configFile.GetValue("db.archiveScript", "$delete");
 
     tmp.Write(envPath);
     tmp.NullTerminate();
@@ -544,7 +547,7 @@ void StorageEnvironment::TryArchiveLogSegments()
     if (archive)
     {
         asyncLogSegmentID = logSegmentID;
-        job = new StorageArchiveLogSegmentJob(this, logSegment, &onLogArchive);
+        job = new StorageArchiveLogSegmentJob(this, logSegment, archiveScript, &onLogArchive);
         archiverThreadActive = true;
         StartJob(archiverThread, job);
         return;

@@ -75,13 +75,15 @@ private:
 class StorageArchiveLogSegmentJob : public StorageJob
 {
 public:
-    StorageArchiveLogSegmentJob(StorageEnvironment* env, StorageLogSegment* logSegment, Callable* onComplete);
+    StorageArchiveLogSegmentJob(StorageEnvironment* env, StorageLogSegment* logSegment, 
+     const char* script, Callable* onComplete);
     
     void                Execute();
     
 private:
     StorageEnvironment* env;
     StorageLogSegment*  logSegment;
+    const char*         script;
     Callable*           onComplete;
 };
 

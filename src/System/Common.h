@@ -58,6 +58,7 @@ void            RandomBuffer(char* buffer, unsigned length);
 void            BlockSignals();
 bool            ChangeUser(const char *username);
 void            PrintStackTrace();
+int             ShellExec(const char *cmdline);
 
 uint32_t        ChecksumBuffer(const char* buffer, unsigned length);
 
