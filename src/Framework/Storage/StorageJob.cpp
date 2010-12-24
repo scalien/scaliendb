@@ -54,14 +54,16 @@ StorageArchiveLogSegmentJob::StorageArchiveLogSegmentJob(StorageEnvironment* env
 void StorageArchiveLogSegmentJob::Execute()
 {
     Buffer  dest;
-    
-    dest.Write(env->archivePath);
-    dest.Appendf("log.%020U", logSegment->GetLogSegmentID());
-    dest.NullTerminate();
+    Buffer  cmdline;
     
     if (ReadBuffer::Cmp(script, "$archive") == 0)
     {
         Log_Message("Archiving log segment %U...", logSegment->GetLogSegmentID());
+
+        dest.Write(env->archivePath);
+        dest.Appendf("log.%020U", logSegment->GetLogSegmentID());
+        dest.NullTerminate();
+
         FS_Rename(logSegment->filename.GetBuffer(), dest.GetBuffer());
     }
     else if (ReadBuffer::Cmp(script, "$delete") == 0)
@@ -71,10 +73,13 @@ void StorageArchiveLogSegmentJob::Execute()
     }
     else
     {
-        // TODO: replace variable in script to filename
         Log_Message("Executing script on archive log segment %U (%s)...", 
          logSegment->GetLogSegmentID(), script);
-        ShellExec(script);
+        
+        // TODO: replace variable in script to filename
+        cmdline.Writef("%s %s", script, logSegment->filename.GetBuffer());
+        cmdline.NullTerminate();
+        ShellExec(cmdline.GetBuffer());
     }
 
     Callable* c = onComplete;

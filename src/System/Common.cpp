@@ -110,6 +110,7 @@ int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
     {
         digit = c - '0';
         n = n * 10 + digit;
+        // TODO: FIXME: this is wrong because when referencing buffer[i] i might be over length!
         ADVANCE();
     }
 #undef ADVANCE
@@ -133,7 +134,7 @@ uint64_t BufferToUInt64(const char* buffer, unsigned length, unsigned* nread)
     long        digit;
     unsigned    i;
     uint64_t    n;
-    char        c;
+    const char* c;
 
     if (buffer == NULL || length < 1)
     {
@@ -143,16 +144,15 @@ uint64_t BufferToUInt64(const char* buffer, unsigned length, unsigned* nread)
 
     n = 0;
     i = 0;
-    c = *buffer;
+    c = buffer;
     
-#define ADVANCE()   i++; c = buffer[i]; 
-    while (i < length && c >= '0' && c <= '9')
+    while (i < length && *c >= '0' && *c <= '9')
     {
-        digit = c - '0';
+        digit = *c - '0';
         n = n * 10 + digit;
-        ADVANCE();
+        i++;
+        c = buffer + i;
     }
-#undef ADVANCE
     
     *nread = i;
 

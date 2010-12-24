@@ -61,7 +61,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     archivePath.Write(envPath);
     archivePath.Append("archives/");
 
-    archiveScript = configFile.GetValue("db.archiveScript", "$delete");
+    archiveScript = configFile.GetValue("database.archiveScript", "$delete");
 
     tmp.Write(envPath);
     tmp.NullTerminate();
