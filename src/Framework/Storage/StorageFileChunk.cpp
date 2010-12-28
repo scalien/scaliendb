@@ -28,6 +28,31 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     minLogSegmentID = 0;
 }
 
+StorageFileChunk::~StorageFileChunk()
+{
+    unsigned    i;
+    
+    for (i = 0; i < numDataPages; i++)
+    {
+        if (dataPages[i] != NULL)
+        {
+            if (dataPages[i]->IsCached())
+                StoragePageCache::RemovePage(dataPages[i]);
+
+            delete dataPages[i];
+        }
+    }
+    free(dataPages);
+    
+    if (indexPage && indexPage->IsCached())
+        StoragePageCache::RemovePage(indexPage);
+    delete indexPage;
+    
+    if (bloomPage && bloomPage->IsCached())
+        StoragePageCache::RemovePage(bloomPage);
+    delete bloomPage;
+}
+
 void StorageFileChunk::ReadHeaderPage()
 {
     Buffer      buffer;
@@ -53,31 +78,6 @@ void StorageFileChunk::ReadHeaderPage()
         Log_Message("Exiting...");
         ASSERT_FAIL();
     }
-}
-
-StorageFileChunk::~StorageFileChunk()
-{
-    unsigned    i;
-    
-    for (i = 0; i < numDataPages; i++)
-    {
-        if (dataPages[i] != NULL)
-        {
-            if (dataPages[i]->IsCached())
-                StoragePageCache::RemovePage(dataPages[i]);
-
-            delete dataPages[i];
-        }
-    }
-    free(dataPages);
-    
-    if (indexPage && indexPage->IsCached())
-        StoragePageCache::RemovePage(indexPage);
-    delete indexPage;
-    
-    if (bloomPage && bloomPage->IsCached())
-        StoragePageCache::RemovePage(bloomPage);
-    delete bloomPage;
 }
 
 void StorageFileChunk::SetFilename(Buffer& filename_)
