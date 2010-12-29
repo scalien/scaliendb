@@ -38,9 +38,18 @@ def write_sql_commands(data):
 		nread, context_id, shard_id = write_command(data, context_id, shard_id)
 		data = data[nread:]
 
-f = open(sys.argv[1], "r")
-data = f.read(16)
-log_segment_id, size, crc = struct.unpack("<QII", data)
+if __name__ == "__main__":
+	filename = sys.argv[1]
+	archive_name = filename
+	if len(sys.argv) > 2:
+		# move the file to the archive dir
+		archive_dir = sys.argv[2]
+		archive_name = os.path.join(archive_dir, os.path.basename(filename))
+		print("Renaming %s to %s" % (filename, archive_name))
+		os.rename(filename, archive_name)
+	f = open(archive_name, "r")
+	data = f.read(16)
+	log_segment_id, size, crc = struct.unpack("<QII", data)
 
-data = f.read(size)
-write_sql_commands(data)
+	data = f.read(size)
+	write_sql_commands(data)

@@ -1,6 +1,7 @@
 #include "StorageJob.h"
 #include "System/IO/IOProcessor.h"
 #include "System/FileSystem.h"
+#include "System/Config.h"
 #include "StorageChunkWriter.h"
 #include "StorageChunkSerializer.h"
 #include "StorageEnvironment.h"
@@ -76,14 +77,60 @@ void StorageArchiveLogSegmentJob::Execute()
         Log_Message("Executing script on archive log segment %U (%s)...", 
          logSegment->GetLogSegmentID(), script);
         
-        // TODO: replace variable in script to filename
-        cmdline.Writef("%s %s", script, logSegment->filename.GetBuffer());
-        cmdline.NullTerminate();
-        ShellExec(cmdline.GetBuffer());
+        EvalScriptVariables();
+        ShellExec(command.GetBuffer());
     }
 
     Callable* c = onComplete;
     delete this;
     IOProcessor::Complete(c);
+}
+
+void StorageArchiveLogSegmentJob::EvalScriptVariables()
+{
+    Buffer      var;
+    const char* p;
+    bool        inVar;
+    
+    p = script;
+    inVar = false;
+    while (*p)
+    {
+        // Replace $(variableName) in the script to the value of a config variable
+        if (p[0] == '$' && p[1] == '(')
+        {
+            inVar = true;
+            p += 2;
+        }
+        
+        if (inVar && p[0] == ')')
+        {
+            var.NullTerminate();
+            command.Append(GetVarValue(var.GetBuffer()));
+            var.Reset();
+            inVar = false;
+            p += 1;
+        }
+
+        if (*p == 0)
+            break;
+        
+        if (inVar)
+            var.Append(*p);
+        else
+            command.Append(*p);
+        
+        p++;
+    }
+    
+    command.NullTerminate();
+}
+
+const char* StorageArchiveLogSegmentJob::GetVarValue(const char* var)
+{
+    if (strcmp(var, "archiveFile") == 0)
+        return logSegment->filename.GetBuffer();
+    else
+        return configFile.GetValue(var, "");
 }
 

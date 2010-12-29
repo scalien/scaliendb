@@ -81,9 +81,13 @@ public:
     void                Execute();
     
 private:
+    void                EvalScriptVariables();
+    const char*         GetVarValue(const char* var);
+
     StorageEnvironment* env;
     StorageLogSegment*  logSegment;
     const char*         script;
+    Buffer              command;
     Callable*           onComplete;
 };
 
