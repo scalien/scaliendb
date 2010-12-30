@@ -30,12 +30,12 @@ value = "%100s" % " "
 i = 0
 batch = 10000
 while limit == 0 or sent < limit:
-	start = time.clock()
+	start = time.time()
 	client.begin()
 	for x in xrange(batch):
 		client.set(str(random.randint(1, 1000000000)), value)
 		sent += len(value)
 	client.submit()
-	end = time.clock()
+	end = time.time()
 	i += batch
 	print("Sent bytes: %s, num: %i, rps = %.0f" % (sizeof_fmt(sent), i, (batch/((end - start) * 1000.0) * 1000.0)))
