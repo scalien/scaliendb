@@ -22,6 +22,8 @@ public:
     typedef enum ChunkState { Tree, Serialized, Unwritten, Written } ChunkState;
     typedef InTreeNode<StorageChunk> TreeNode;
 
+    virtual ~StorageChunk() {}
+
     virtual uint64_t            GetChunkID() = 0;
     virtual bool                UseBloomFilter() = 0;
     

@@ -26,6 +26,11 @@ StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
     index = index_;
 }
 
+StorageDataPage::~StorageDataPage()
+{
+    keyValues.DeleteTree();
+}
+
 uint32_t StorageDataPage::GetSize()
 {
     return size;

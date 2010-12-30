@@ -13,6 +13,11 @@ StorageShard::StorageShard()
 
 StorageShard::~StorageShard()
 {
+    StorageChunk**  itChunk;
+    
+    FOREACH (itChunk, chunks)
+        delete *itChunk;
+    
     delete memoChunk;
 }
 

@@ -19,6 +19,7 @@ class StoragePage
 {
 public:
     StoragePage();
+    virtual ~StoragePage() {}
     
     void                SetOffset(uint64_t);
     uint32_t            GetOffset();
@@ -34,7 +35,7 @@ public:
     StoragePage*        next;
 
 private:
-    uint64_t    offset;
+    uint64_t            offset;
 };
 
 #endif

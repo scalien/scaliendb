@@ -26,6 +26,7 @@ class StorageDataPage : public StoragePage
 
 public:
     StorageDataPage(StorageFileChunk* owner, uint32_t index);
+    ~StorageDataPage();
 
     uint32_t            GetSize();
 
