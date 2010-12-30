@@ -100,7 +100,7 @@ void StorageArchiveLogSegmentJob::EvalScriptVariables()
         if (p[0] == '$' && p[1] == '(')
         {
             inVar = true;
-            p += 2;
+            p += 2;         // skip $(
         }
         
         if (inVar && p[0] == ')')
@@ -109,7 +109,7 @@ void StorageArchiveLogSegmentJob::EvalScriptVariables()
             command.Append(GetVarValue(var.GetBuffer()));
             var.Reset();
             inVar = false;
-            p += 1;
+            p += 1;         // skip )
         }
 
         if (*p == 0)

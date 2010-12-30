@@ -21,14 +21,18 @@ def write_command(data, context_id, shard_id):
 		nread += 4
 		val = data[nread:nread+vallen]
 		nread += vallen
-		print("INSERT INTO kv VALUES (%d, %d, '%s', '%s');" % (context_id, shard_id, key, val))
+		# only write out data contexts
+		if context_id == 3:
+			print("INSERT INTO kv VALUES (%d, %d, '%s', '%s');" % (context_id, shard_id, key, val))
 	elif command == "d":
 		# DELETE command
 		keylen, = struct.unpack("<H", data[nread:nread+2])
 		nread += 2
 		key = data[nread:nread+keylen]
 		nread += keylen
-		print("DELETE FROM kv WHERE context_id=%d AND shard_id=%d AND k='%s';" % (context_id, shard_id, key))
+		# only write out data contexts
+		if context_id == 3:
+			print("DELETE FROM kv WHERE context_id=%d AND shard_id=%d AND k='%s';" % (context_id, shard_id, key))
 	return nread, context_id, shard_id
 
 def write_sql_commands(data):
@@ -45,11 +49,20 @@ if __name__ == "__main__":
 		# move the file to the archive dir
 		archive_dir = sys.argv[2]
 		archive_name = os.path.join(archive_dir, os.path.basename(filename))
-		print("Renaming %s to %s" % (filename, archive_name))
+		#print("Renaming %s to %s" % (filename, archive_name))
 		os.rename(filename, archive_name)
+		# create output sql file
+		sql_filename = archive_name.replace("log.", "sql.")
+		sql_file = open(sql_filename, "w+")
+		sys.stdout = sql_file
 	f = open(archive_name, "r")
-	data = f.read(16)
-	log_segment_id, size, crc = struct.unpack("<QII", data)
-
-	data = f.read(size)
-	write_sql_commands(data)
+	data = f.read(8)
+	log_segment_id,  = struct.unpack("<Q", data)
+                    
+	while True:     
+		data = f.read(8)
+		if data == "":
+			break
+		size, crc = struct.unpack("<II", data)
+		data = f.read(size - 8)
+		write_sql_commands(data)
