@@ -150,6 +150,7 @@ void StorageEnvironment::Close()
 
     // TODO: clean up fileChunks properly, see the issue with StorageShard::chunkList
     //fileChunks.DeleteList();
+    fileChunks.Clear();
 }
 
 void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
