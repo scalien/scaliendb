@@ -32,7 +32,8 @@ StorageMemoChunk::StorageMemoChunk()
 
 StorageMemoChunk::~StorageMemoChunk()
 {
-    assert(fileChunk == NULL);
+    // TODO: see issue with StorageEnvironment::Close()
+    //assert(fileChunk == NULL);
     keyValues.DeleteTree();
 }
 
