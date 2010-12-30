@@ -40,6 +40,7 @@ class StorageIndexPage : public StoragePage
     typedef InTreeMap<StorageIndexRecord> IndexRecordTree;
 public:
     StorageIndexPage(StorageFileChunk* owner);
+    ~StorageIndexPage();
 
     uint32_t            GetSize();
     uint32_t            GetNumDataPages();

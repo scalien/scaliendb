@@ -25,6 +25,11 @@ StorageIndexPage::StorageIndexPage(StorageFileChunk* owner_)
     owner = owner_;
 }
 
+StorageIndexPage::~StorageIndexPage()
+{
+    indexTree.DeleteTree();
+}
+
 uint32_t StorageIndexPage::GetSize()
 {
     return size;
