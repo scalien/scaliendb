@@ -147,7 +147,9 @@ void StorageEnvironment::Close()
     shards.DeleteList();
     delete headLogSegment;
     logSegments.DeleteList();
-    fileChunks.DeleteList();
+
+    // TODO: clean up fileChunks properly, see the issue with StorageShard::chunkList
+    //fileChunks.DeleteList();
 }
 
 void StorageEnvironment::SetStorageConfig(StorageConfig& config_)

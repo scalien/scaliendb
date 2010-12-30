@@ -230,7 +230,8 @@ uint64_t StorageMemoChunk::GetSize()
 
 StorageFileChunk* StorageMemoChunk::RemoveFileChunk()
 {
-    StorageFileChunk* ret;
+    StorageFileChunk*   ret;
+    
     ret = fileChunk;
     fileChunk = NULL;
     return ret;
