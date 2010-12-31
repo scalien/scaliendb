@@ -21,7 +21,7 @@ public class TestDriver {
             Random random = new Random ();
             long start = System.currentTimeMillis();
             client.begin();
-            int num = 1*1000*1000;
+            int num = 100*1000*1000;
             for (int index = 0; index < num; index++) {
                 if (index % 10000 == 0) {
                     if (index % 10000 == 0 && index != 0) {

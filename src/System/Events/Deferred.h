@@ -16,7 +16,7 @@ class Deferred
 public:
     ~Deferred() { Call(callable); }
 
-    void        Set(Callable c) { callable = c; }
+    void        Set(const Callable& c) { callable = c; }
 
 private:
     Callable    callable;

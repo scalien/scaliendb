@@ -184,6 +184,9 @@ JAVA_JAR_FILE = scaliendb.jar
 JAVA_INCLUDE = \
 	-I/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers/ \
 	-I/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/ \
+	-I/Developer/SDKs/MacOSX10.6.sdk/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers/ \
+	-I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/JavaVM.framework/Versions/1.6.0/Headers/ \
+	-I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/ \
 	-I/usr/java/jdk/include/ \
 	-I/usr/lib/jvm/java-6-sun/include/ \
 	-I/usr/lib/jvm/java-6-sun/include/linux
