@@ -91,4 +91,22 @@ private:
     Callable*           onComplete;
 };
 
+/*
+===============================================================================================
+
+ StorageDeleteMemoChunkJob
+
+===============================================================================================
+*/
+
+class StorageDeleteMemoChunkJob : public StorageJob
+{
+public:
+    StorageDeleteMemoChunkJob(StorageMemoChunk* chunk);
+    
+    void                Execute();
+private:
+    StorageMemoChunk*   chunk;
+};
+
 #endif

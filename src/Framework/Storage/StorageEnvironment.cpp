@@ -12,6 +12,7 @@ StorageEnvironment::StorageEnvironment()
     commitThread = NULL;
     serializerThread = NULL;
     writerThread = NULL;
+    asyncThread = NULL;
 
     onChunkSerialize = MFUNC(StorageEnvironment, OnChunkSerialize);
     onChunkWrite = MFUNC(StorageEnvironment, OnChunkWrite);
@@ -46,6 +47,9 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     archiverThread = ThreadPool::Create(1);
     archiverThread->Start();
     archiverThreadActive = false;
+
+    asyncThread = ThreadPool::Create(1);
+    asyncThread->Start();
 
     envPath.Write(envPath_);
     lastChar = envPath.GetCharAt(envPath.GetLength() - 1);
@@ -143,6 +147,8 @@ void StorageEnvironment::Close()
     archiverThread->Stop();
     delete archiverThread;
     archiverThreadActive = false;
+    asyncThread->Stop();
+    delete asyncThread;
     
     shards.DeleteList();
     delete headLogSegment;
@@ -435,7 +441,9 @@ void StorageEnvironment::TrySerializeChunks()
                     goto Advance;
                 itShard->OnChunkSerialized(memoChunk, fileChunk);
                 Log_Message("Deleting MemoChunk...");
-                delete memoChunk;
+                job = new StorageDeleteMemoChunkJob(memoChunk);
+                StartJob(asyncThread, job);
+                //delete memoChunk;
                 
                 tmp.Write(chunkPath);
                 tmp.Appendf("chunk.%020U", fileChunk->GetChunkID());
