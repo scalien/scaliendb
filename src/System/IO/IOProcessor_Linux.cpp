@@ -140,6 +140,67 @@ void SetupSignals()
     pthread_sigmask(SIG_SETMASK, &mask, NULL);
 }
 
+void IOProcessor::BlockSignals(int blockMode)
+{
+    struct sigaction    sa;
+    sigset_t            mask;
+
+    if (blockMode == IOPROCESSOR_BLOCK_ALL || blockMode == IOPROCESSOR_BLOCK_INTERACTIVE)
+    {
+        sigfillset(&mask);
+        pthread_sigmask(SIG_SETMASK, &mask, NULL);
+
+        memset(&sa, 0, sizeof(sa));
+        sigfillset(&sa.sa_mask);
+        sa.sa_handler = SIG_IGN;
+        sigaction(SIGHUP, &sa, NULL);
+        sigaction(SIGQUIT, &sa, NULL);
+        sigaction(SIGPIPE, &sa, NULL);
+    }
+     
+    if (blockMode == IOPROCESSOR_BLOCK_ALL)
+    {
+        sa.sa_handler = SignalHandler;
+        sigaction(SIGINT, &sa, NULL);
+        sigaction(SIGTERM, &sa, NULL);
+        sigaction(SIGBUS, &sa, NULL);
+        sigaction(SIGFPE, &sa, NULL);
+        sigaction(SIGILL, &sa, NULL);
+        sigaction(SIGSEGV, &sa, NULL);
+        sigaction(SIGSYS, &sa, NULL);
+        sigaction(SIGXCPU, &sa, NULL);
+        sigaction(SIGXFSZ, &sa, NULL);
+
+        sigemptyset(&mask);
+        pthread_sigmask(SIG_SETMASK, &mask, NULL);
+    }
+    
+    if (blockMode == IOPROCESSOR_NO_BLOCK)
+    {
+        sigfillset(&mask);
+        pthread_sigmask(SIG_SETMASK, &mask, NULL);
+
+        memset(&sa, 0, sizeof(sa));
+        sigfillset(&sa.sa_mask);
+        sa.sa_handler = SIG_DFL;
+        sigaction(SIGHUP, &sa, NULL);
+        sigaction(SIGQUIT, &sa, NULL);
+        sigaction(SIGPIPE, &sa, NULL);
+        sigaction(SIGINT, &sa, NULL);
+        sigaction(SIGTERM, &sa, NULL);
+        sigaction(SIGBUS, &sa, NULL);
+        sigaction(SIGFPE, &sa, NULL);
+        sigaction(SIGILL, &sa, NULL);
+        sigaction(SIGSEGV, &sa, NULL);
+        sigaction(SIGSYS, &sa, NULL);
+        sigaction(SIGXCPU, &sa, NULL);
+        sigaction(SIGXFSZ, &sa, NULL);
+
+        sigemptyset(&mask);
+        pthread_sigmask(SIG_SETMASK, &mask, NULL);
+    }
+}
+
 bool IOProcessor::Init(int maxfd_, bool blockSignals)
 {
     int i;

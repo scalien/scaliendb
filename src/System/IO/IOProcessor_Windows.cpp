@@ -160,6 +160,14 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
     return TRUE;
 }
 
+void IOProcessor::BlockSignals(int blockMode)
+{
+    if (blockMode == IOPROCESSOR_BLOCK_ALL || blockMode == IOPROCESSOR_BLOCK_INTERACTIVE)
+        SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
+    if (blockMode == IOPROCESSOR_NO_BLOCK)
+        SetConsoleCtrlHandler(NULL, FALSE);
+}
+
 bool IOProcessor::Init(int maxfd, bool blockSignals)
 {
     WSADATA     wsaData;
