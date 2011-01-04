@@ -11,6 +11,7 @@
 #include "StorageFileChunk.h"
 #include "StorageShard.h"
 #include "StorageJob.h"
+#include "StorageBulkCursor.h"
 
 class StorageRecovery;
 class StorageEnvironmentWriter;
@@ -57,7 +58,9 @@ public:
     bool                    Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value);
     bool                    Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
     bool                    Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key);
-        
+
+    StorageBulkCursor*      GetBulkCursor(uint16_t contextID, uint64_t shardID);
+    
     void                    SetOnCommit(Callable& onCommit);
     bool                    Commit();
     bool                    GetCommitStatus();

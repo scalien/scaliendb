@@ -108,16 +108,13 @@ void StorageFileChunk::NextBunch(StorageCursorBunch& bunch)
     
     nextKey = bunch.GetNextKey();
 
+    if (indexPage == NULL)
+        LoadIndexPage();
+
     if (!indexPage->Locate(nextKey, index, offset))
     {
         index = 0;
         offset = STORAGE_HEADER_PAGE_SIZE;
-    }
-    
-    if (index >= numDataPages)
-    {
-        bunch.isLast = true;
-        return;
     }
 
     if (dataPages[index] == NULL)
@@ -152,7 +149,7 @@ void StorageFileChunk::NextBunch(StorageCursorBunch& bunch)
     
     index++;
     if (dataPages[index] == NULL)
-        LoadDataPage(index, dataPages[index - 1]->GetSize(), true);
+        LoadDataPage(index, dataPages[index - 1]->GetOffset() + dataPages[index - 1]->GetSize(), true);
     
     bunch.nextKey.Write(dataPages[index]->keyValues.First()->GetKey());
     bunch.isLast = false;
@@ -258,6 +255,7 @@ void StorageFileChunk::LoadBloomPage()
     
     bloomPage = new StorageBloomPage(this);
     offset = headerPage.GetBloomPageOffset();
+    bloomPage->SetOffset(offset);
     if (!ReadPage(offset, buffer))
     {
         Log_Message("Unable to read bloom page from %s at offset %U", filename.GetBuffer(), offset);
@@ -285,6 +283,7 @@ void StorageFileChunk::LoadIndexPage()
     
     indexPage = new StorageIndexPage(this);
     offset = headerPage.GetIndexPageOffset();
+    indexPage->SetOffset(offset);
     if (!ReadPage(offset, buffer))
     {
         Log_Message("Unable to read index page from %s at offset %U", filename.GetBuffer(), offset);
@@ -325,6 +324,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
     Buffer buffer;
     
     dataPages[index] = new StorageDataPage(this, index);
+    dataPages[index]->SetOffset(offset);
     if (!ReadPage(offset, buffer))
     {
         Log_Message("Unable to read data page from %s at offset %U", filename.GetBuffer(), offset);

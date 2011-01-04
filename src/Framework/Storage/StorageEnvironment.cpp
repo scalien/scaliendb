@@ -288,6 +288,23 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     return true;
 }
 
+StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_t shardID)
+{
+    StorageShard*       shard;
+    StorageBulkCursor*  bc;
+
+    shard = GetShard(contextID, shardID);
+    if (!shard)
+        return NULL;
+    
+    bc = new StorageBulkCursor();
+    
+    bc->SetEnvironment(this);
+    bc->SetShard(shard);
+    
+    return bc;
+}
+
 void StorageEnvironment::SetOnCommit(Callable& onCommit_)
 {
     onCommit = onCommit_;

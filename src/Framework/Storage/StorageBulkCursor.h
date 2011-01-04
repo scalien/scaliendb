@@ -24,13 +24,15 @@ class StorageCursorBunch
     typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
 
 public:
+    StorageCursorBunch();
+    ~StorageCursorBunch();
+
     StorageKeyValue*        First();
     StorageKeyValue*        Next(StorageKeyValue* it);
     
     ReadBuffer              GetNextKey();
     bool                    IsLast();
     void                    Reset();
-private:
     
     KeyValueTree            keyValues;
     Buffer                  buffer;
@@ -48,6 +50,8 @@ private:
 
 class StorageBulkCursor
 {
+    friend class StorageEnvironment;
+    
 public:
     StorageBulkCursor();
     ~StorageBulkCursor();

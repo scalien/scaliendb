@@ -68,7 +68,7 @@ private:
     Buffer              lastKey;
     bool                useBloomFilter;
 
-    ChunkList           chunks; // contains all active chunks, in order, first is the write chunk
+    ChunkList           chunks;
     
     uint64_t            recoveryLogSegmentID; // only used
     uint32_t            recoveryLogCommandID; // during log recovery

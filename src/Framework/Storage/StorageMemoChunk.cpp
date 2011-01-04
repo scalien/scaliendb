@@ -95,7 +95,7 @@ void StorageMemoChunk::NextBunch(StorageCursorBunch& bunch)
         it = keyValues.Next(it);
     }
     
-    if (it)
+    if (!it)
     {
         bunch.isLast = true;
     }

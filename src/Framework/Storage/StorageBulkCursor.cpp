@@ -1,6 +1,16 @@
 #include "StorageBulkCursor.h"
 #include "StorageEnvironment.h"
 
+StorageCursorBunch::StorageCursorBunch()
+{
+    isLast = false;
+}
+
+StorageCursorBunch::~StorageCursorBunch()
+{
+    keyValues.DeleteTree();
+}
+
 StorageKeyValue* StorageCursorBunch::First()
 {
     return keyValues.First();
@@ -29,6 +39,16 @@ void StorageCursorBunch::Reset()
     nextKey.Reset();
 }
 
+StorageBulkCursor::StorageBulkCursor()
+{
+    chunkID = 0;
+    shard = NULL;
+    env = NULL;
+}
+
+StorageBulkCursor::~StorageBulkCursor()
+{
+}
 
 StorageKeyValue* StorageBulkCursor::First()
 {
@@ -42,6 +62,9 @@ StorageKeyValue* StorageBulkCursor::First()
 
     chunk = *itChunk;
     assert(chunk != NULL);
+    
+    chunkID = chunk->GetChunkID();
+    Log_Message("Iterating chunk %U", chunkID);
     
     return FromNextBunch(chunk);
 }
@@ -64,9 +87,19 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
             break;
     }
     
-    assert(itChunk != NULL); // TODO: what if chunk has been deleted?
-    chunk = *itChunk;
+    if (itChunk == NULL)
+    {
+        chunk = shard->GetMemoChunk();
+    }
+    else
+    {        
+        assert(itChunk != NULL); // TODO: what if chunk has been deleted?
+        chunk = *itChunk;
+    }
     assert(chunk != NULL);
+
+    chunkID = chunk->GetChunkID();
+    Log_Message("Iterating chunk %U", chunkID);
     
     return FromNextBunch(chunk);
 }
@@ -74,6 +107,8 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
 StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
 {
     StorageChunk**      itChunk;
+
+    bunch.keyValues.DeleteTree();
 
     while (true)
     {
@@ -97,7 +132,11 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         }
         
         if (itChunk)
+        {
             chunk = *itChunk;
+            chunkID = chunk->GetChunkID();
+            Log_Message("Iterating chunk %U", chunkID);
+        }
         else
         {
             if (shard->GetMemoChunk()->GetChunkID() == chunkID)
@@ -105,6 +144,8 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
             
             // iterate memoChunk
             chunk = shard->GetMemoChunk();
+            chunkID = chunk->GetChunkID();
+            Log_Message("Iterating chunk %U", chunkID);
         }
         
         bunch.Reset();
