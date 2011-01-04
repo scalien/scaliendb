@@ -192,6 +192,9 @@ bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
+        
+    if (!shard->RangeContains(key))
+        return false;
 
     chunk = shard->GetMemoChunk();
     kv = chunk->Get(key);
@@ -408,6 +411,51 @@ bool StorageEnvironment::DeleteShard(uint16_t /*contextID*/, uint64_t /*shardID*
 //
 //    // TODO: decrease reference counts
 //    shards.Delete(shard);
+    return true;
+}
+
+bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
+ uint64_t newShardID, ReadBuffer splitKey)
+{
+    StorageShard*       shard;
+    StorageShard*       newShard;
+    StorageMemoChunk*   memoChunk;
+
+    if (headLogSegment->HasUncommitted())
+        return false;       // meta writes must occur in-between data writes (commits)
+    
+    shard = GetShard(contextID, newShardID);
+    if (shard != NULL)
+        return false;       // exists
+
+    shard = GetShard(contextID, shardID);
+    if (shard == NULL)
+        return false;       // does not exist
+
+    newShard = new StorageShard;
+    newShard->SetContextID(contextID);
+    newShard->SetTableID(shard->GetTableID());
+    newShard->SetShardID(newShardID);
+    newShard->SetFirstKey(shard->GetFirstKey());
+    newShard->SetLastKey(splitKey);
+    newShard->SetUseBloomFilter(shard->UseBloomFilter());
+    newShard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
+    newShard->SetLogCommandID(headLogSegment->GetLogCommandID());
+
+    // TODO: copy old chunkIDs!!!!
+
+    memoChunk = new StorageMemoChunk;
+    memoChunk->SetChunkID(nextChunkID++);
+    memoChunk->SetUseBloomFilter(shard->UseBloomFilter());
+
+    newShard->PushMemoChunk(memoChunk);
+
+    shards.Append(newShard);
+
+    shard->SetFirstKey(splitKey);
+    
+    WriteTOC();
+    
     return true;
 }
 

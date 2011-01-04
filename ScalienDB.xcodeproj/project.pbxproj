@@ -248,39 +248,6 @@
 		543DE5A512BFBB3D0069786A /* StorageShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShard.cpp; sourceTree = "<group>"; };
 		543DE5A612BFBB3D0069786A /* StorageShard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShard.h; sourceTree = "<group>"; };
 		543DE5A712BFBB3D0069786A /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
-		543DE5A912BFBB3D0069786A /* StorageCursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageCursor.cpp; sourceTree = "<group>"; };
-		543DE5AA12BFBB3D0069786A /* StorageCursor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageCursor.h; sourceTree = "<group>"; };
-		543DE5AB12BFBB3D0069786A /* StorageDatabase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDatabase.cpp; sourceTree = "<group>"; };
-		543DE5AC12BFBB3D0069786A /* StorageDatabase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageDatabase.h; sourceTree = "<group>"; };
-		543DE5AD12BFBB3D0069786A /* StorageDataCache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDataCache.cpp; sourceTree = "<group>"; };
-		543DE5AE12BFBB3D0069786A /* StorageDataCache.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageDataCache.h; sourceTree = "<group>"; };
-		543DE5AF12BFBB3D0069786A /* StorageDataPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageDataPage.cpp; sourceTree = "<group>"; };
-		543DE5B012BFBB3D0069786A /* StorageDataPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageDataPage.h; sourceTree = "<group>"; };
-		543DE5B112BFBB3D0069786A /* StorageDefaults.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageDefaults.h; sourceTree = "<group>"; };
-		543DE5B212BFBB3D0069786A /* StorageEnvironment.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageEnvironment.cpp; sourceTree = "<group>"; };
-		543DE5B312BFBB3D0069786A /* StorageEnvironment.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageEnvironment.h; sourceTree = "<group>"; };
-		543DE5B412BFBB3D0069786A /* StorageFile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFile.cpp; sourceTree = "<group>"; };
-		543DE5B512BFBB3D0069786A /* StorageFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFile.h; sourceTree = "<group>"; };
-		543DE5B612BFBB3D0069786A /* StorageFileHeader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileHeader.cpp; sourceTree = "<group>"; };
-		543DE5B712BFBB3D0069786A /* StorageFileHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileHeader.h; sourceTree = "<group>"; };
-		543DE5B812BFBB3D0069786A /* StorageFileIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileIndex.cpp; sourceTree = "<group>"; };
-		543DE5B912BFBB3D0069786A /* StorageFileIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileIndex.h; sourceTree = "<group>"; };
-		543DE5BA12BFBB3D0069786A /* StorageIndexPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageIndexPage.cpp; sourceTree = "<group>"; };
-		543DE5BB12BFBB3D0069786A /* StorageIndexPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageIndexPage.h; sourceTree = "<group>"; };
-		543DE5BC12BFBB3D0069786A /* StorageKeyIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageKeyIndex.cpp; sourceTree = "<group>"; };
-		543DE5BD12BFBB3D0069786A /* StorageKeyIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageKeyIndex.h; sourceTree = "<group>"; };
-		543DE5BE12BFBB3D0069786A /* StorageKeyValue.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageKeyValue.cpp; sourceTree = "<group>"; };
-		543DE5BF12BFBB3D0069786A /* StorageKeyValue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageKeyValue.h; sourceTree = "<group>"; };
-		543DE5C012BFBB3D0069786A /* StoragePage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StoragePage.cpp; sourceTree = "<group>"; };
-		543DE5C112BFBB3D0069786A /* StoragePage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StoragePage.h; sourceTree = "<group>"; };
-		543DE5C212BFBB3D0069786A /* StorageRecoveryLog.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageRecoveryLog.cpp; sourceTree = "<group>"; };
-		543DE5C312BFBB3D0069786A /* StorageRecoveryLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageRecoveryLog.h; sourceTree = "<group>"; };
-		543DE5C412BFBB3D0069786A /* StorageShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShard.cpp; sourceTree = "<group>"; };
-		543DE5C512BFBB3D0069786A /* StorageShard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShard.h; sourceTree = "<group>"; };
-		543DE5C612BFBB3D0069786A /* StorageShardIndex.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShardIndex.cpp; sourceTree = "<group>"; };
-		543DE5C712BFBB3D0069786A /* StorageShardIndex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShardIndex.h; sourceTree = "<group>"; };
-		543DE5C812BFBB3D0069786A /* StorageTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageTable.cpp; sourceTree = "<group>"; };
-		543DE5C912BFBB3D0069786A /* StorageTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageTable.h; sourceTree = "<group>"; };
 		543DE5CB12BFBB3D0069786A /* TCPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPConnection.cpp; sourceTree = "<group>"; };
 		543DE5CC12BFBB3D0069786A /* TCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPConnection.h; sourceTree = "<group>"; };
 		543DE5CD12BFBB3D0069786A /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
@@ -532,7 +499,6 @@
 				543DE54512BFBB3D0069786A /* Messaging */,
 				543DE54A12BFBB3D0069786A /* Replication */,
 				543DE57612BFBB3D0069786A /* Storage */,
-				543DE5A812BFBB3D0069786A /* StorageOld */,
 				543DE5CA12BFBB3D0069786A /* TCP */,
 			);
 			path = Framework;
@@ -682,46 +648,6 @@
 				543DE57712BFBB3D0069786A /* Biglog.txt */,
 			);
 			path = Storage;
-			sourceTree = "<group>";
-		};
-		543DE5A812BFBB3D0069786A /* StorageOld */ = {
-			isa = PBXGroup;
-			children = (
-				543DE5A912BFBB3D0069786A /* StorageCursor.cpp */,
-				543DE5AA12BFBB3D0069786A /* StorageCursor.h */,
-				543DE5AB12BFBB3D0069786A /* StorageDatabase.cpp */,
-				543DE5AC12BFBB3D0069786A /* StorageDatabase.h */,
-				543DE5AD12BFBB3D0069786A /* StorageDataCache.cpp */,
-				543DE5AE12BFBB3D0069786A /* StorageDataCache.h */,
-				543DE5AF12BFBB3D0069786A /* StorageDataPage.cpp */,
-				543DE5B012BFBB3D0069786A /* StorageDataPage.h */,
-				543DE5B112BFBB3D0069786A /* StorageDefaults.h */,
-				543DE5B212BFBB3D0069786A /* StorageEnvironment.cpp */,
-				543DE5B312BFBB3D0069786A /* StorageEnvironment.h */,
-				543DE5B412BFBB3D0069786A /* StorageFile.cpp */,
-				543DE5B512BFBB3D0069786A /* StorageFile.h */,
-				543DE5B612BFBB3D0069786A /* StorageFileHeader.cpp */,
-				543DE5B712BFBB3D0069786A /* StorageFileHeader.h */,
-				543DE5B812BFBB3D0069786A /* StorageFileIndex.cpp */,
-				543DE5B912BFBB3D0069786A /* StorageFileIndex.h */,
-				543DE5BA12BFBB3D0069786A /* StorageIndexPage.cpp */,
-				543DE5BB12BFBB3D0069786A /* StorageIndexPage.h */,
-				543DE5BC12BFBB3D0069786A /* StorageKeyIndex.cpp */,
-				543DE5BD12BFBB3D0069786A /* StorageKeyIndex.h */,
-				543DE5BE12BFBB3D0069786A /* StorageKeyValue.cpp */,
-				543DE5BF12BFBB3D0069786A /* StorageKeyValue.h */,
-				543DE5C012BFBB3D0069786A /* StoragePage.cpp */,
-				543DE5C112BFBB3D0069786A /* StoragePage.h */,
-				543DE5C212BFBB3D0069786A /* StorageRecoveryLog.cpp */,
-				543DE5C312BFBB3D0069786A /* StorageRecoveryLog.h */,
-				543DE5C412BFBB3D0069786A /* StorageShard.cpp */,
-				543DE5C512BFBB3D0069786A /* StorageShard.h */,
-				543DE5C612BFBB3D0069786A /* StorageShardIndex.cpp */,
-				543DE5C712BFBB3D0069786A /* StorageShardIndex.h */,
-				543DE5C812BFBB3D0069786A /* StorageTable.cpp */,
-				543DE5C912BFBB3D0069786A /* StorageTable.h */,
-			);
-			path = StorageOld;
 			sourceTree = "<group>";
 		};
 		543DE5CA12BFBB3D0069786A /* TCP */ = {

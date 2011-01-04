@@ -1,71 +1,71 @@
 #include "StorageMemoKeyValue.h"
 
+#define DELETE_LENGTH_VALUE     ((uint32_t)-1)
+
 StorageMemoKeyValue::StorageMemoKeyValue()
 {
-    keyBuffer = NULL;
-    valueBuffer = NULL;
+    buffer = NULL;
+    keyLength = 0;
+    valueLength = 0;
 }
 
 StorageMemoKeyValue::~StorageMemoKeyValue()
 {
-    if (keyBuffer != NULL)
-        delete keyBuffer;
-    if (valueBuffer != NULL)
-        delete valueBuffer;
+    free(buffer);
 }
 
 void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_)
 {
-    if (keyBuffer == NULL)
-        keyBuffer = new Buffer;
-    keyBuffer->Write(key_);
-    key.Wrap(keyBuffer->GetBuffer(), keyBuffer->GetLength());
-    if (valueBuffer == NULL)
-        valueBuffer = new Buffer;
-    valueBuffer->Write(value_);
-    value.Wrap(valueBuffer->GetBuffer(), valueBuffer->GetLength());
+    if (buffer != NULL)
+        free(buffer);
+    
+    keyLength = key_.GetLength();
+    valueLength = value_.GetLength();
+
+    buffer = (char*) malloc(keyLength + valueLength);
+    
+    memcpy(buffer, key_.GetBuffer(), keyLength);
+    memcpy(buffer + keyLength, value_.GetBuffer(), valueLength);
 }
 
 void StorageMemoKeyValue::Delete(ReadBuffer key_)
 {
-    if (keyBuffer == NULL)
-        keyBuffer = new Buffer;
-    keyBuffer->Write(key_);
-    key.Wrap(keyBuffer->GetBuffer(), keyBuffer->GetLength());
-    if (valueBuffer != NULL)
-        delete valueBuffer;
-    valueBuffer = NULL;
-    value.SetLength(0);
+    if (buffer != NULL)
+        free(buffer);
+    
+    keyLength = key_.GetLength();
+    valueLength = DELETE_LENGTH_VALUE;
+
+    buffer = (char*) malloc(keyLength + valueLength);
+    
+    memcpy(buffer, key_.GetBuffer(), keyLength);
 }
 
 char StorageMemoKeyValue::GetType()
 {
-    if (valueBuffer != NULL)
-        return STORAGE_KEYVALUE_TYPE_SET;
-    else
+    if (valueLength == DELETE_LENGTH_VALUE)
         return STORAGE_KEYVALUE_TYPE_DELETE;
+    else
+        return STORAGE_KEYVALUE_TYPE_SET;
 }
 
-ReadBuffer& StorageMemoKeyValue::GetKey()
+ReadBuffer StorageMemoKeyValue::GetKey()
 {
-    return key;
+    return ReadBuffer(buffer, keyLength);
 }
 
-ReadBuffer& StorageMemoKeyValue::GetValue()
+ReadBuffer StorageMemoKeyValue::GetValue()
 {
-    return value;
+    if (valueLength == DELETE_LENGTH_VALUE)
+        return ReadBuffer();
+    else
+        return ReadBuffer(buffer + keyLength, valueLength);
 }
 
 uint32_t StorageMemoKeyValue::GetLength()
 {
-    uint32_t length;
-
-    length = 0;
-
-    if (keyBuffer != NULL)
-        length += keyBuffer->GetLength();
-    if (valueBuffer != NULL)
-        length += valueBuffer->GetLength();
-
-    return length;
+    if (valueLength == DELETE_LENGTH_VALUE)
+        return keyLength;
+    else
+        return keyLength + valueLength;
 }

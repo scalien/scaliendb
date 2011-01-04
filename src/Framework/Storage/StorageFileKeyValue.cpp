@@ -26,12 +26,12 @@ char StorageFileKeyValue::GetType()
     return type;
 }
 
-ReadBuffer& StorageFileKeyValue::GetKey()
+ReadBuffer StorageFileKeyValue::GetKey()
 {
     return key;
 }
 
-ReadBuffer& StorageFileKeyValue::GetValue()
+ReadBuffer StorageFileKeyValue::GetValue()
 {
     return value;
 }

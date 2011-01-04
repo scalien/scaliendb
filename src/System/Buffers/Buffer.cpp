@@ -206,7 +206,7 @@ void Buffer::Write(Buffer& other)
     Write(other.GetBuffer(), other.GetLength());
 }
 
-void Buffer::Write(ReadBuffer& other)
+void Buffer::Write(ReadBuffer other)
 {
     Write(other.GetBuffer(), other.GetLength());
 }

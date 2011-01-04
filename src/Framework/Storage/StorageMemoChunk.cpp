@@ -8,12 +8,12 @@ static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
     return ReadBuffer::Cmp(a, b);
 }
 
-static inline const ReadBuffer& Key(StorageMemoKeyValue* kv)
+static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
 {
     return kv->GetKey();
 }
 
-static inline const ReadBuffer& Key(StorageFileKeyValue* kv)
+static inline const ReadBuffer Key(StorageFileKeyValue* kv)
 {
     return kv->GetKey();
 }

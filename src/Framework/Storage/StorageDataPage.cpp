@@ -6,7 +6,7 @@ static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
     return ReadBuffer::Cmp(a, b);
 }
 
-static const ReadBuffer& Key(StorageFileKeyValue* kv)
+static const ReadBuffer Key(StorageFileKeyValue* kv)
 {
     return kv->GetKey();
 }

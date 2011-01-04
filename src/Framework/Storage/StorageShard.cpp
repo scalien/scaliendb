@@ -46,12 +46,12 @@ void StorageShard::SetLogCommandID(uint64_t logCommandID_)
     logCommandID = logCommandID_;
 }
 
-void StorageShard::SetFirstKey(ReadBuffer& firstKey_)
+void StorageShard::SetFirstKey(ReadBuffer firstKey_)
 {
     firstKey.Write(firstKey_);
 }
 
-void StorageShard::SetLastKey(ReadBuffer& lastKey_)
+void StorageShard::SetLastKey(ReadBuffer lastKey_)
 {
     lastKey.Write(lastKey_);
 }

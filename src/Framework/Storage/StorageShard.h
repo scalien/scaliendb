@@ -33,8 +33,8 @@ public:
     void                SetShardID(uint64_t shardID);
     void                SetLogSegmentID(uint64_t logSegmentID);
     void                SetLogCommandID(uint64_t logCommandID);
-    void                SetFirstKey(ReadBuffer& firstKey);
-    void                SetLastKey(ReadBuffer& lastKey);
+    void                SetFirstKey(ReadBuffer firstKey);
+    void                SetLastKey(ReadBuffer lastKey);
     void                SetUseBloomFilter(bool useBloomFilter);
 
     uint16_t            GetContextID();

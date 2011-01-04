@@ -89,7 +89,7 @@
 ===============================================================================================
 
   All the containers use the same convention for iterating through elements,
-  so this macro can be used for the common case.
+  so these macros can be used for the common case.
  
 ===============================================================================================
  */
