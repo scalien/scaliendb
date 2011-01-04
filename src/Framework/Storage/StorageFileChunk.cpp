@@ -66,7 +66,7 @@ void StorageFileChunk::ReadHeaderPage()
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     
     if (!headerPage.Read(buffer))
@@ -76,7 +76,7 @@ void StorageFileChunk::ReadHeaderPage()
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
 }
 
@@ -262,7 +262,7 @@ void StorageFileChunk::LoadBloomPage()
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     if (!bloomPage->Read(buffer))
     {
@@ -271,7 +271,7 @@ void StorageFileChunk::LoadBloomPage()
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     StoragePageCache::AddPage(bloomPage);
 }
@@ -290,7 +290,7 @@ void StorageFileChunk::LoadIndexPage()
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     if (!indexPage->Read(buffer))
     {
@@ -299,7 +299,7 @@ void StorageFileChunk::LoadIndexPage()
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     StoragePageCache::AddPage(indexPage);
     
@@ -331,7 +331,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     if (!dataPages[index]->Read(buffer))
     {
@@ -340,7 +340,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
         Log_Message("This should not happen.");
         Log_Message("Possible causes: software bug, damaged file, corrupted file...");
         Log_Message("Exiting...");
-        ASSERT_FAIL();
+        STOP_FAIL(1);
     }
     StoragePageCache::AddPage(dataPages[index], bulk);
 }

@@ -601,7 +601,12 @@ void StorageEnvironment::OnChunkWrite()
         if (it->GetChunkID() == asyncWriteChunkID)
         {
             if (it->GetChunkState() != StorageChunk::Written)
-                STOP_FAIL(1, "Failed to write chunk %U to disk", it->GetChunkID());
+            {
+                Log_Message("Failed to write chunk %U to disk", it->GetChunkID());
+                Log_Message("Possible causes: disk if full");
+                Log_Message("Exiting...");
+                STOP_FAIL(1);
+            }
             // this was just written
             it->AddPagesToCache();
             break;
