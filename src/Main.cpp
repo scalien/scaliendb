@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
     InitLog();
     StartClock();
-    IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024), true);
+    IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024), false);
     InitContextTransport();
     
     isController = IsController();
@@ -41,10 +41,13 @@ int main(int argc, char** argv)
     
     app->Init();
     
+    IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_ALL);
     EventLoop::Init();
     EventLoop::Run();
-    EventLoop::Shutdown();
     
+    Log_Message("Shutdown initialized...");
+    
+    EventLoop::Shutdown();
     app->Shutdown();
     delete app;
     

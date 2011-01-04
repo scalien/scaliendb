@@ -3,6 +3,10 @@
 
 #include "IOOperation.h"
 
+#define IOPROCESSOR_NO_BLOCK            0
+#define IOPROCESSOR_BLOCK_ALL           1
+#define IOPROCESSOR_BLOCK_INTERACTIVE   2
+
 class Callable; // forward
 
 /*
@@ -25,6 +29,8 @@ public:
     static bool Poll(int sleep);
 
     static bool Complete(Callable* callable);
+
+    static void BlockSignals(int blockMode);
 };
 
 #endif
