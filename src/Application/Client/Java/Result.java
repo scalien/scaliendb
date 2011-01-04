@@ -11,6 +11,11 @@ public class Result
 		this.cptr = cptr;
 	}
 	
+    public void close() {
+        scaliendb_client.SDBP_ResultClose(cptr);
+        cptr = null;
+    }
+    
 	protected void finalize() {
         //System.out.println("finalizing Result");
 		scaliendb_client.SDBP_ResultClose(cptr);
