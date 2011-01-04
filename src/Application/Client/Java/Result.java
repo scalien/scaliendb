@@ -11,14 +11,23 @@ public class Result
 		this.cptr = cptr;
 	}
 	
+    /**
+     * Closes the result object.
+     *
+     * This method must be called to release any resources associated with the result object. It is
+     * also called in finalize, but calling this method is deterministic unlike the event of garbage 
+     * collection.
+     */
     public void close() {
-        scaliendb_client.SDBP_ResultClose(cptr);
-        cptr = null;
+        if (cptr != null) {
+            //System.out.println("explicitly freeing results");
+            scaliendb_client.SDBP_ResultClose(cptr);
+            cptr = null;
+        }
     }
     
 	protected void finalize() {
-        //System.out.println("finalizing Result");
-		scaliendb_client.SDBP_ResultClose(cptr);
+        close();
 	}
 	
     /**
