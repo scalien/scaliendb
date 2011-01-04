@@ -635,6 +635,7 @@ public class Client
      * @see     #cancel()   cancel
      */
     public int begin() {
+        result = null;
         return scaliendb_client.SDBP_Begin(cptr);
     }
     
