@@ -600,6 +600,8 @@ void StorageEnvironment::OnChunkWrite()
     {
         if (it->GetChunkID() == asyncWriteChunkID)
         {
+            if (it->GetChunkState() != StorageChunk::Written)
+                STOP_FAIL(1, "Failed to write chunk %U to disk", it->GetChunkID());
             // this was just written
             it->AddPagesToCache();
             break;
