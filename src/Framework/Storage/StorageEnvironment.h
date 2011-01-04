@@ -99,6 +99,7 @@ private:
     bool                    writerThreadActive;
     ThreadPool*             archiverThread;
     bool                    archiverThreadActive;
+    ThreadPool*             asyncThread;
 
     Buffer                  envPath;
     Buffer                  chunkPath;

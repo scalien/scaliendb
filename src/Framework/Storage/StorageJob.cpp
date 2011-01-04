@@ -134,3 +134,13 @@ const char* StorageArchiveLogSegmentJob::GetVarValue(const char* var)
         return configFile.GetValue(var, "");
 }
 
+StorageDeleteMemoChunkJob::StorageDeleteMemoChunkJob(StorageMemoChunk* chunk_)
+{
+    chunk = chunk_;
+}
+
+void StorageDeleteMemoChunkJob::Execute()
+{
+    delete chunk;
+    delete this;
+}

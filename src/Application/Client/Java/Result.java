@@ -12,7 +12,7 @@ public class Result
 	}
 	
 	protected void finalize() {
-        System.out.println("finalizing Result");
+        //System.out.println("finalizing Result");
 		scaliendb_client.SDBP_ResultClose(cptr);
 	}
 	
