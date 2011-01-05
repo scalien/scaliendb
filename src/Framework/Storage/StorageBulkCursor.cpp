@@ -67,7 +67,7 @@ StorageKeyValue* StorageBulkCursor::First()
     assert(chunk != NULL);
     
     chunkID = chunk->GetChunkID();
-    Log_Message("Iterating chunk %U", chunkID);
+//    Log_Message("Iterating chunk %U", chunkID);
     
     return FromNextBunch(chunk);
 }
@@ -102,7 +102,7 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     assert(chunk != NULL);
 
     chunkID = chunk->GetChunkID();
-    Log_Message("Iterating chunk %U", chunkID);
+//    Log_Message("Iterating chunk %U", chunkID);
     
     return FromNextBunch(chunk);
 }
@@ -139,7 +139,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         {
             chunk = *itChunk;
             chunkID = chunk->GetChunkID();
-            Log_Message("Iterating chunk %U", chunkID);
+//            Log_Message("Iterating chunk %U", chunkID);
         }
         else
         {
@@ -149,7 +149,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
             // iterate memoChunk
             chunk = shard->GetMemoChunk();
             chunkID = chunk->GetChunkID();
-            Log_Message("Iterating chunk %U", chunkID);
+//            Log_Message("Iterating chunk %U", chunkID);
         }
         
         bunch.Reset();

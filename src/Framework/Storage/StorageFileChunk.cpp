@@ -106,6 +106,11 @@ void StorageFileChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
     StorageFileKeyValue*    it;
     StorageFileKeyValue*    kv;
     
+    if (!shard->RangeContains(headerPage.GetFirstKey()) && !shard->RangeContains(headerPage.GetLastKey()))
+    {
+        bunch.isLast = true;
+        return;
+    }
     nextKey = bunch.GetNextKey();
 
     if (indexPage == NULL)
@@ -346,6 +351,32 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
         STOP_FAIL(1);
     }
     StoragePageCache::AddPage(dataPages[index], bulk);
+}
+
+bool StorageFileChunk::RangeContains(ReadBuffer key)
+{
+    int         cf, cl;
+    ReadBuffer  firstKey, lastKey;
+
+    firstKey = headerPage.GetFirstKey();
+    lastKey = headerPage.GetLastKey();
+
+    cf = ReadBuffer::Cmp(firstKey, key);
+    cl = ReadBuffer::Cmp(key, lastKey);
+
+    if (firstKey.GetLength() == 0)
+    {
+        if (lastKey.GetLength() == 0)
+            return false;
+        else
+            return (cl <= 0);        // (key < lastKey);
+    }
+    else if (lastKey.GetLength() == 0)
+    {
+        return (cf <= 0);           // (firstKey <= key);
+    }
+    else
+        return (cf <= 0 && cl <= 0); // (firstKey <= key <= lastKey);
 }
 
 void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)

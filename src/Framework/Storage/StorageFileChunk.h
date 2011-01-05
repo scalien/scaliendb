@@ -57,6 +57,8 @@ public:
     void                LoadIndexPage();
     void                LoadDataPage(uint32_t index, uint32_t offset, bool bulk = false);
 
+    bool                RangeContains(ReadBuffer key);
+
     StorageFileChunk*   prev;
     StorageFileChunk*   next;
 
