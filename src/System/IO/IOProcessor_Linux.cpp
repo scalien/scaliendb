@@ -243,9 +243,6 @@ bool IOProcessor::Init(int maxfd_)
         return false;
     }
 
-    if (blockSignals)
-        SetupSignals();
-
     epollOps = new EpollOp[maxfd];
     for (i = 0; i < maxfd; i++)
     {
