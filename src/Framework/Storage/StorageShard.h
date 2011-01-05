@@ -46,9 +46,10 @@ public:
     ReadBuffer          GetLastKey();
     bool                UseBloomFilter();
     
-    bool                RangeContains(ReadBuffer& key);
+    bool                RangeContains(ReadBuffer key);
 
     void                PushMemoChunk(StorageMemoChunk* memoChunk);
+    void                PushChunk(StorageChunk* chunk);
     StorageMemoChunk*   GetMemoChunk();
     ChunkList&          GetChunks();
     void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);

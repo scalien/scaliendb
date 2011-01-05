@@ -1,5 +1,6 @@
 #include "StorageBulkCursor.h"
 #include "StorageEnvironment.h"
+#include "StoragePageCache.h"
 
 StorageCursorBunch::StorageCursorBunch()
 {
@@ -55,6 +56,8 @@ StorageKeyValue* StorageBulkCursor::First()
     StorageChunk*       chunk;
     StorageChunk**      itChunk;
 
+    StoragePageCache::TryUnloadPages(env->GetStorageConfig());
+
     itChunk = shard->chunks.First();
     
     if (itChunk == NULL)
@@ -64,7 +67,7 @@ StorageKeyValue* StorageBulkCursor::First()
     assert(chunk != NULL);
     
     chunkID = chunk->GetChunkID();
-//    Log_Message("Iterating chunk %U", chunkID);
+    Log_Message("Iterating chunk %U", chunkID);
     
     return FromNextBunch(chunk);
 }
@@ -99,7 +102,7 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     assert(chunk != NULL);
 
     chunkID = chunk->GetChunkID();
-//    Log_Message("Iterating chunk %U", chunkID);
+    Log_Message("Iterating chunk %U", chunkID);
     
     return FromNextBunch(chunk);
 }
@@ -108,13 +111,14 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
 {
     StorageChunk**      itChunk;
 
+    StoragePageCache::TryUnloadPages(env->GetStorageConfig());
     bunch.keyValues.DeleteTree();
 
     while (true)
     {
         if (!bunch.IsLast())
         {
-            chunk->NextBunch(bunch);
+            chunk->NextBunch(bunch, shard);
             if (bunch.First())
                 return bunch.First();
             else
@@ -135,7 +139,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         {
             chunk = *itChunk;
             chunkID = chunk->GetChunkID();
-//            Log_Message("Iterating chunk %U", chunkID);
+            Log_Message("Iterating chunk %U", chunkID);
         }
         else
         {
@@ -145,7 +149,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
             // iterate memoChunk
             chunk = shard->GetMemoChunk();
             chunkID = chunk->GetChunkID();
-//            Log_Message("Iterating chunk %U", chunkID);
+            Log_Message("Iterating chunk %U", chunkID);
         }
         
         bunch.Reset();

@@ -45,7 +45,7 @@ StorageChunk::ChunkState StorageMemoChunk::GetChunkState()
         return StorageChunk::Tree;
 }
 
-void StorageMemoChunk::NextBunch(StorageCursorBunch& bunch)
+void StorageMemoChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
 {
     bool                    first;
     int                     cmpres;
@@ -68,6 +68,12 @@ void StorageMemoChunk::NextBunch(StorageCursorBunch& bunch)
     first = true;
     while (it)
     {
+        if (!shard->RangeContains(it->GetKey()))
+        {
+            it = keyValues.Next(it);
+            continue;
+        }
+        
         kv = new StorageFileKeyValue;
         if (!first)
         {
@@ -142,7 +148,7 @@ StorageKeyValue* StorageMemoChunk::Get(ReadBuffer& key)
     return it;
 }
 
-bool StorageMemoChunk::Set(ReadBuffer& key, ReadBuffer& value)
+bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
 {
     int                     cmpres;
     StorageMemoKeyValue*    it;
@@ -167,7 +173,7 @@ bool StorageMemoChunk::Set(ReadBuffer& key, ReadBuffer& value)
     return true;
 }
 
-bool StorageMemoChunk::Delete(ReadBuffer& key)
+bool StorageMemoChunk::Delete(ReadBuffer key)
 {
     int                     cmpres;
     StorageMemoKeyValue*    it;

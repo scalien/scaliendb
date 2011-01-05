@@ -36,7 +36,7 @@ public:
 
     ChunkState          GetChunkState();
     
-    void                NextBunch(StorageCursorBunch& bunch);
+    void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard);
 
     uint64_t            GetChunkID();
     bool                UseBloomFilter();

@@ -22,6 +22,7 @@ class StorageFileChunk;
 class StorageMemoChunk : public StorageChunk
 {
     friend class StorageChunkSerializer;
+    friend class StorageEnvironment;
 
 public:
     typedef InTreeMap<StorageMemoKeyValue> KeyValueTree;
@@ -31,7 +32,7 @@ public:
     
     ChunkState          GetChunkState();
     
-    void                NextBunch(StorageCursorBunch& bunch);
+    void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard);
     
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);
@@ -40,8 +41,8 @@ public:
     bool                UseBloomFilter();
     
     StorageKeyValue*    Get(ReadBuffer& key);
-    bool                Set(ReadBuffer& key, ReadBuffer& value);
-    bool                Delete(ReadBuffer& key);
+    bool                Set(ReadBuffer key, ReadBuffer value);
+    bool                Delete(ReadBuffer key);
     
     void                RegisterLogCommand(uint64_t logSegmentID, uint32_t logCommandID);
     uint64_t            GetMinLogSegmentID();

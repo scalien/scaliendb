@@ -99,7 +99,7 @@ StorageChunk::ChunkState StorageFileChunk::GetChunkState()
         return StorageChunk::Unwritten;
 }
 
-void StorageFileChunk::NextBunch(StorageCursorBunch& bunch)
+void StorageFileChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
 {
     uint32_t                index, offset, pos;
     ReadBuffer              nextKey, key, value;
@@ -123,6 +123,9 @@ void StorageFileChunk::NextBunch(StorageCursorBunch& bunch)
     bunch.buffer.Write(dataPages[index]->buffer);
     FOREACH(it, dataPages[index]->keyValues)
     {
+        if (!shard->RangeContains(it->GetKey()))
+            continue;
+
         kv = new StorageFileKeyValue;
         
         pos = it->GetKey().GetBuffer() - dataPages[index]->buffer.GetBuffer();

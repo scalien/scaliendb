@@ -7,6 +7,7 @@
 #include "StorageKeyValue.h"
 
 class StorageCursorBunch;
+class StorageShard;
 
 /*
 ===============================================================================================
@@ -36,7 +37,7 @@ public:
     virtual uint64_t            GetSize() = 0;
     virtual ChunkState          GetChunkState() = 0;
     
-    virtual void                NextBunch(StorageCursorBunch& bunch) = 0;
+    virtual void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard) = 0;
 
     TreeNode                    treeNode;
 };
