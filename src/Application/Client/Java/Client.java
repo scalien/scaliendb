@@ -15,6 +15,7 @@ public class Client
 
 	private SWIGTYPE_p_void cptr;
 	private Result result;
+    private Result lastResult;
 	
     /**
      * Creates client object.
@@ -35,12 +36,28 @@ public class Client
 		nodeParams.Close();
 	}
     
+    /**
+     * Closes the client object.
+     *
+     * This method may be called to release any resources associated with the client object. It is
+     * also called from finalize automatically, but calling this method is deterministic unlike the 
+     * call of finalize.
+     */
+    public void close() {
+        if (cptr != null) {
+            if (lastResult != result)
+                result.close();
+            scaliendb_client.SDBP_Destroy(cptr);
+            cptr = null;
+        }
+    }
+    
     SWIGTYPE_p_void getPtr() {
         return cptr;
     }
 
 	protected void finalize() {
-		scaliendb_client.SDBP_Destroy(cptr);
+        close();
 	}
 	
     /**
@@ -190,9 +207,13 @@ public class Client
     /**
      * Returns the result.
      *
+     * When the returned result object is no longer used, close() must be called on it.
+     *
      * @return  the result object
+     * @see     Result#close()
      */
 	public Result getResult() {
+        lastResult = result;
 		return result;
 	}
 	
@@ -635,7 +656,11 @@ public class Client
      * @see     #cancel()   cancel
      */
     public int begin() {
+        if (lastResult != result) {
+            result.close();
+        }
         result = null;
+        lastResult = null;
         return scaliendb_client.SDBP_Begin(cptr);
     }
     

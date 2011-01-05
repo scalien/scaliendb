@@ -29,7 +29,7 @@ int main(int argc, char** argv)
 
     InitLog();
     StartClock();
-    IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024), false);
+    IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024));
     InitContextTransport();
     
     isController = IsController();

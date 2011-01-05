@@ -72,8 +72,10 @@ int Client::Init(int nodec, const char* nodev[])
         return SDBP_API_ERROR;
 
     // TODO: find out the optimal size of MAX_SERVER_NUM
-    if (!IOProcessor::Init(nodec + MAX_SERVER_NUM, false))
+    if (!IOProcessor::Init(nodec + MAX_SERVER_NUM))
         return SDBP_API_ERROR;
+
+    IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_INTERACTIVE);
 
     // set default timeouts
     masterTimeout.SetDelay(3 * PAXOSLEASE_MAX_LEASE_TIME);

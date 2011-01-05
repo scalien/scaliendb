@@ -162,13 +162,9 @@ BOOL WINAPI ConsoleCtrlHandler(DWORD /*ctrlType*/)
 
 void IOProcessor::BlockSignals(int blockMode)
 {
-    if (blockMode == IOPROCESSOR_BLOCK_ALL || blockMode == IOPROCESSOR_BLOCK_INTERACTIVE)
-        SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
-    if (blockMode == IOPROCESSOR_NO_BLOCK)
-        SetConsoleCtrlHandler(NULL, FALSE);
 }
 
-bool IOProcessor::Init(int maxfd, bool blockSignals)
+bool IOProcessor::Init(int maxfd)
 {
     WSADATA     wsaData;
     SOCKET      s;
@@ -181,8 +177,7 @@ bool IOProcessor::Init(int maxfd, bool blockSignals)
         return true;
 
     // initialize a Console Control Handler routine
-    if (blockSignals)
-        SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
+    SetConsoleCtrlHandler(ConsoleCtrlHandler, TRUE);
 
     // initialize Winsock2 library
     if (WSAStartup(MAKEWORD(2, 2), &wsaData))

@@ -139,13 +139,12 @@ void SetupSignals()
     sigemptyset(&mask);
     pthread_sigmask(SIG_SETMASK, &mask, NULL);
 }
-
 void IOProcessor::BlockSignals(int blockMode)
 {
     struct sigaction    sa;
     sigset_t            mask;
 
-    if (blockMode == IOPROCESSOR_BLOCK_ALL || blockMode == IOPROCESSOR_BLOCK_INTERACTIVE)
+    if (blockMode == IOPROCESSOR_BLOCK_INTERACTIVE)
     {
         sigfillset(&mask);
         pthread_sigmask(SIG_SETMASK, &mask, NULL);
@@ -156,10 +155,22 @@ void IOProcessor::BlockSignals(int blockMode)
         sigaction(SIGHUP, &sa, NULL);
         sigaction(SIGQUIT, &sa, NULL);
         sigaction(SIGPIPE, &sa, NULL);
+
+        sigemptyset(&mask);
+        pthread_sigmask(SIG_SETMASK, &mask, NULL);
     }
-     
-    if (blockMode == IOPROCESSOR_BLOCK_ALL)
+    else if (blockMode == IOPROCESSOR_BLOCK_ALL)
     {
+        sigfillset(&mask);
+        pthread_sigmask(SIG_SETMASK, &mask, NULL);
+
+        memset(&sa, 0, sizeof(sa));
+        sigfillset(&sa.sa_mask);
+        sa.sa_handler = SIG_IGN;
+        sigaction(SIGHUP, &sa, NULL);
+        sigaction(SIGQUIT, &sa, NULL);
+        sigaction(SIGPIPE, &sa, NULL);
+
         sa.sa_handler = SignalHandler;
         sigaction(SIGINT, &sa, NULL);
         sigaction(SIGTERM, &sa, NULL);
@@ -201,7 +212,7 @@ void IOProcessor::BlockSignals(int blockMode)
     }
 }
 
-bool IOProcessor::Init(int maxfd_, bool blockSignals)
+bool IOProcessor::Init(int maxfd_)
 {
     int i;
     rlimit rl;
