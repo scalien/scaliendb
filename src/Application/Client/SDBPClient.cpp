@@ -193,7 +193,7 @@ void Client::Shutdown()
     for (int i = 0; i < numControllers; i++)
         delete controllerConnections[i];
     
-    delete controllerConnections;
+    delete[] controllerConnections;
     controllerConnections = NULL;
     
     delete result;
