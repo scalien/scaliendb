@@ -329,7 +329,7 @@ StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_
     return bc;
 }
 
-uint64_t StorageEnvironment::GetShardSize(uint16_t contextID, uint64_t shardID)
+uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 {
     StorageShard*   shard;
     StorageChunk*   chunk;
