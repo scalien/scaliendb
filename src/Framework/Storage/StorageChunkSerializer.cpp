@@ -38,7 +38,7 @@ bool StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_)
     fileChunk->minLogSegmentID = memoChunk->minLogSegmentID;
     fileChunk->fileSize = offset;
     fileChunk->written = false;
-
+    
     memoChunk->fileChunk = fileGuard.Release();
     memoChunk->serialized = true;
     return true;
