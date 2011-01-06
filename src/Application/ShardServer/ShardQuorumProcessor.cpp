@@ -241,6 +241,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     message->Write(singleBuffer);
     shardMessagesLength += singleBuffer.GetLength();
     
+    assert(shardMessagesLength >= 0);
+    
     if (shardMessagesLength >= PAXOS_VALUE_LENGTH_TARGET)
         TryAppend();
 }
