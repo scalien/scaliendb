@@ -416,7 +416,7 @@ bool StorageEnvironment::Commit()
 {
     StoragePageCache::TryUnloadPages(config);
 
-    Log_Message("DB Cache size: %s", HUMAN_BYTES(StoragePageCache::GetSize()));
+    Log_Trace("DB Cache size: %s", HUMAN_BYTES(StoragePageCache::GetSize()));
 
     if (asyncCommit)
     {

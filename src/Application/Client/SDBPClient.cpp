@@ -25,7 +25,7 @@ static Mutex        clientMutex;
 
 #endif // CLIENT_MULTITHREAD
 
-#define MAX_SERVER_NUM  256
+#define MAX_IO_CONNECTION   1024
 
 #define VALIDATE_CONFIG_STATE() \
     if (configState == NULL) \
@@ -59,6 +59,36 @@ static Mutex        clientMutex;
         result->AppendRequest(req); \
         return SDBP_SUCCESS; \
     } \
+    \
+    result->Close(); \
+    result->AppendRequest(req); \
+    \
+    CLIENT_MUTEX_UNLOCK(); \
+    EventLoop(); \
+    return result->CommandStatus(); \
+
+
+#define CLIENT_SCHEMA_COMMAND(op, ...) \
+    Request*    req; \
+    \
+    CLIENT_MUTEX_GUARD_DECLARE(); \
+    VALIDATE_CONTROLLER(); \
+    \
+    if (configState == NULL) \
+    { \
+        result->Close(); \
+        CLIENT_MUTEX_UNLOCK(); \
+        EventLoop(); \
+        CLIENT_MUTEX_LOCK(); \
+    } \
+    \
+    if (configState == NULL) \
+        return SDBP_NOSERVICE; \
+    \
+    req = new Request; \
+    req->op(NextCommandID(), __VA_ARGS__); \
+    \
+    requests.Append(req); \
     \
     result->Close(); \
     result->AppendRequest(req); \
@@ -119,7 +149,7 @@ int Client::Init(int nodec, const char* nodev[])
         return SDBP_API_ERROR;
 
     // TODO: find out the optimal size of MAX_SERVER_NUM
-    if (!IOProcessor::Init(nodec + MAX_SERVER_NUM))
+    if (!IOProcessor::Init(MAX_IO_CONNECTION))
         return SDBP_API_ERROR;
 
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_INTERACTIVE);
@@ -175,11 +205,13 @@ void Client::Shutdown()
 
 void Client::SetGlobalTimeout(uint64_t timeout)
 {
+    CLIENT_MUTEX_GUARD_DECLARE();
     globalTimeout.SetDelay(timeout);
 }
 
 void Client::SetMasterTimeout(uint64_t timeout)
 {
+    CLIENT_MUTEX_GUARD_DECLARE();
     masterTimeout.SetDelay(timeout);
 }
 
@@ -302,250 +334,42 @@ int Client::UseTable(ReadBuffer& name)
 
 int Client::CreateQuorum(List<uint64_t>& nodes)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    req = new Request;
-    req->CreateQuorum(NextCommandID(), nodes);
-    
-    requests.Append(req);
-    
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_SCHEMA_COMMAND(CreateQuorum, nodes);
 }
 
 int Client::CreateDatabase(ReadBuffer& name)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    req = new Request;
-    req->CreateDatabase(NextCommandID(), name);
-    
-    requests.Append(req);
-    
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_SCHEMA_COMMAND(CreateDatabase, name);
 }
 
 int Client::RenameDatabase(uint64_t databaseID, const ReadBuffer& name)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    req = new Request;
-    req->RenameDatabase(NextCommandID(), databaseID, (ReadBuffer&) name);
-    
-    requests.Append(req);
-    
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_SCHEMA_COMMAND(RenameDatabase, databaseID, (ReadBuffer&) name);
 }
 
 int Client::DeleteDatabase(uint64_t databaseID)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    req = new Request;
-    req->DeleteDatabase(NextCommandID(), databaseID);
-    
-    requests.Append(req);
-    
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_SCHEMA_COMMAND(DeleteDatabase, databaseID);
 }
 
 int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    req = new Request;
-    req->CreateTable(NextCommandID(), databaseID, quorumID, name);
-    
-    requests.Append(req);
-    
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_SCHEMA_COMMAND(CreateTable, databaseID, quorumID, name);
 }
 
 int Client::RenameTable(uint64_t databaseID, uint64_t tableID, ReadBuffer& name)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    req = new Request;
-    req->RenameTable(NextCommandID(), databaseID, tableID, name);
-    
-    requests.Append(req);
-    
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_SCHEMA_COMMAND(RenameTable, databaseID, tableID, name);
 }
 
 int Client::DeleteTable(uint64_t databaseID, uint64_t tableID)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    req = new Request;
-    req->DeleteTable(NextCommandID(), databaseID, tableID);
-    
-    requests.Append(req);
-    
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_SCHEMA_COMMAND(DeleteTable, databaseID, tableID);
 }
 
 int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    req = new Request;
-    req->SplitShard(NextCommandID(), shardID, splitKey);
-
-    requests.Append(req);
-
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
 }
 
 int Client::Get(const ReadBuffer& key)
