@@ -20,7 +20,6 @@ BUILD_DIRS = \
 		$(BUILD_DIR)/Framework/Replication/Quorums \
 		$(BUILD_DIR)/Framework/Replication/ReplicatedLog \
 		$(BUILD_DIR)/Framework/Storage \
-		$(BUILD_DIR)/Framework/StorageOld \
 		$(BUILD_DIR)/Framework/TCP \
 		$(BUILD_DIR)/System \
 		$(BUILD_DIR)/System/Buffers \

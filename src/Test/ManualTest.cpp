@@ -1,22 +1,8 @@
 #include "Test.h"
 #include "Application/Client/SDBPClient.h"
 #include "System/Common.h"
-#include "Framework/Storage/StorageDatabase.h"
-#include "Framework/Storage/StorageTable.h"
-#include "Framework/Storage/StorageDataCache.h"
 
 using namespace SDBPClient;
-
-bool SetIfNotExists(StorageTable* table, ReadBuffer key, ReadBuffer value)
-{
-    ReadBuffer v;
-    if (table->Get(key,v))
-        return false;
-    else
-        table->Set(key,value);
-    return true;
-}
-
 
 TEST_DEFINE(test1);
 TEST_DEFINE(test2);
@@ -211,53 +197,7 @@ TEST_DEFINE(test2)
     return TEST_SUCCESS;
 
 }
-TEST_DEFINE(test3)
-{
-    StorageDatabase     db;
-    StorageTable*       table;
-    uint64_t            rnd;
-    uint64_t            psID = 12;
-    uint64_t            start;
-    uint64_t            end;
-    ReadBuffer          rbpsID;
-    ReadBuffer          rbrnd;
-    Buffer              tmp;
-    const int           num = 10000;
 
-    DCACHE->Init(10000000);
-    db.Open(".","test_direct7");
-    table = db.GetTable("randnums");
-
-// Setting random numbers as keys
-
-    tmp.Writef("%U", psID);
-    rbpsID = tmp;
-
-    int         succ = 0;
-    int         fail = 0;
-
-    SeedRandom();
-
-    start = Now();
-    for (int i=0; i<num; ++i)
-    {
-        rnd = RandomInt(0,1000000);
-        tmp.Writef("%U", rnd);
-        rbrnd = tmp;
-
-        
-        (SetIfNotExists(table, rbrnd, rbpsID)) ? ++succ : ++fail;
-    }
-
-    db.Commit();
-
-    end = Now();
- 
-    printf("%s%i\t%s%i\n","succeeded sets: ",succ,"failed sets: ",fail);
-    printf("elapsed = %lf\n", (double)(num / ((end - start) / 1000.0)));
-
-    return TEST_SUCCESS;
-}
 TEST_DEFINE(test_rename)
 {
     Client          client;

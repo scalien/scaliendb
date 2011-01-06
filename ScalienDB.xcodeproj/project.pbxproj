@@ -138,6 +138,37 @@
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
+		9AE8197512D4BFE80038BDB1 /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */; };
+		9AE8197612D4BFE80038BDB1 /* ClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196712D4BFE80038BDB1 /* ClientTest.cpp */; };
+		9AE8197712D4BFE80038BDB1 /* CommonTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */; };
+		9AE8197912D4BFE80038BDB1 /* FileSystemTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196A12D4BFE80038BDB1 /* FileSystemTest.cpp */; };
+		9AE8197A12D4BFE80038BDB1 /* FormattingTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196B12D4BFE80038BDB1 /* FormattingTest.cpp */; };
+		9AE8197C12D4BFE80038BDB1 /* ManualTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196D12D4BFE80038BDB1 /* ManualTest.cpp */; };
+		9AE8197E12D4BFE80038BDB1 /* Test.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196F12D4BFE80038BDB1 /* Test.cpp */; };
+		9AE8197F12D4BFE80038BDB1 /* TestMain.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8197212D4BFE80038BDB1 /* TestMain.cpp */; };
+		9AE8198012D4BFE80038BDB1 /* TimeTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8197312D4BFE80038BDB1 /* TimeTest.cpp */; };
+		9AE8198112D4BFE80038BDB1 /* Timings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8197412D4BFE80038BDB1 /* Timings.cpp */; };
+		9AE8199A12D4C36D0038BDB1 /* SDBPClient.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8176912CE1E550038BDB1 /* SDBPClient.cpp */; };
+		9AE8199B12D4C37A0038BDB1 /* SDBPClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8176C12CE1E550038BDB1 /* SDBPClientRequest.cpp */; };
+		9AE8199C12D4C37F0038BDB1 /* SDBPClientWrapper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8176E12CE1E550038BDB1 /* SDBPClientWrapper.cpp */; };
+		9AE8199D12D4C3830038BDB1 /* SDBPControllerConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8177012CE1E550038BDB1 /* SDBPControllerConnection.cpp */; };
+		9AE8199E12D4C3870038BDB1 /* SDBPResult.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8177212CE1E550038BDB1 /* SDBPResult.cpp */; };
+		9AE8199F12D4C38B0038BDB1 /* SDBPShardConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8177412CE1E550038BDB1 /* SDBPShardConnection.cpp */; };
+		9AE819A212D4C3A60038BDB1 /* SDBPRequestMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE68212BFBB420069786A /* SDBPRequestMessage.cpp */; };
+		9AE819A512D4C3B90038BDB1 /* MessageConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54712BFBB3D0069786A /* MessageConnection.cpp */; };
+		9AE819A612D4C3C40038BDB1 /* ClientResponse.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63A12BFBB420069786A /* ClientResponse.cpp */; };
+		9AE819A712D4C3CB0038BDB1 /* SDBPResponseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE68412BFBB420069786A /* SDBPResponseMessage.cpp */; };
+		9AE819A812D4C3D50038BDB1 /* TCPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE5CB12BFBB3D0069786A /* TCPConnection.cpp */; };
+		9AE819AB12D4C3F30038BDB1 /* ConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE66512BFBB420069786A /* ConfigState.cpp */; };
+		9AE819AC12D4C3F70038BDB1 /* ConfigTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE66712BFBB420069786A /* ConfigTable.cpp */; };
+		9AE819AD12D4C3FB0038BDB1 /* ConfigShardServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE66312BFBB420069786A /* ConfigShardServer.cpp */; };
+		9AE819AE12D4C3FE0038BDB1 /* ConfigShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE66112BFBB420069786A /* ConfigShard.cpp */; };
+		9AE819B012D4C4030038BDB1 /* ConfigQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65F12BFBB420069786A /* ConfigQuorum.cpp */; };
+		9AE819B112D4C4060038BDB1 /* ConfigDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65D12BFBB420069786A /* ConfigDatabase.cpp */; };
+		9AE819B412D4C4200038BDB1 /* ClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63612BFBB420069786A /* ClientRequest.cpp */; };
+		9AE819B712D4C4280038BDB1 /* TCPWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE5CE12BFBB3D0069786A /* TCPWriter.cpp */; };
+		9AE81D7E12D5147E0038BDB1 /* Mutex_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE81D7D12D5147E0038BDB1 /* Mutex_Posix.cpp */; };
+		9AE81D9B12D5171B0038BDB1 /* Mutex_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE81D9A12D5171B0038BDB1 /* Mutex_Windows.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -453,6 +484,24 @@
 		9AE8179412CE1EBB0038BDB1 /* scaliendb_client.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_client.py; path = Client/Python/scaliendb_client.py; sourceTree = "<group>"; };
 		9AE8179512CE1EBB0038BDB1 /* scaliendb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb.py; path = Client/Python/scaliendb.py; sourceTree = "<group>"; };
 		9AE8179612CE1EBB0038BDB1 /* test.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = test.py; path = Client/Python/test.py; sourceTree = "<group>"; };
+		9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ArrayListTest.cpp; path = Test/ArrayListTest.cpp; sourceTree = "<group>"; };
+		9AE8196712D4BFE80038BDB1 /* ClientTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ClientTest.cpp; path = Test/ClientTest.cpp; sourceTree = "<group>"; };
+		9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CommonTest.cpp; path = Test/CommonTest.cpp; sourceTree = "<group>"; };
+		9AE8196912D4BFE80038BDB1 /* CrashTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = CrashTest.cpp; path = Test/CrashTest.cpp; sourceTree = "<group>"; };
+		9AE8196A12D4BFE80038BDB1 /* FileSystemTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FileSystemTest.cpp; path = Test/FileSystemTest.cpp; sourceTree = "<group>"; };
+		9AE8196B12D4BFE80038BDB1 /* FormattingTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = FormattingTest.cpp; path = Test/FormattingTest.cpp; sourceTree = "<group>"; };
+		9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InTreeMapTest.cpp; path = Test/InTreeMapTest.cpp; sourceTree = "<group>"; };
+		9AE8196D12D4BFE80038BDB1 /* ManualTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ManualTest.cpp; path = Test/ManualTest.cpp; sourceTree = "<group>"; };
+		9AE8196E12D4BFE80038BDB1 /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
+		9AE8196F12D4BFE80038BDB1 /* Test.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Test.cpp; path = Test/Test.cpp; sourceTree = "<group>"; };
+		9AE8197012D4BFE80038BDB1 /* Test.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Test.h; path = Test/Test.h; sourceTree = "<group>"; };
+		9AE8197112D4BFE80038BDB1 /* TestFunction.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TestFunction.h; path = Test/TestFunction.h; sourceTree = "<group>"; };
+		9AE8197212D4BFE80038BDB1 /* TestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestMain.cpp; path = Test/TestMain.cpp; sourceTree = "<group>"; };
+		9AE8197312D4BFE80038BDB1 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
+		9AE8197412D4BFE80038BDB1 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
+		9AE81D7C12D5147E0038BDB1 /* Mutex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Mutex.h; sourceTree = "<group>"; };
+		9AE81D7D12D5147E0038BDB1 /* Mutex_Posix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mutex_Posix.cpp; sourceTree = "<group>"; };
+		9AE81D9A12D5171B0038BDB1 /* Mutex_Windows.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Mutex_Windows.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -895,6 +944,7 @@
 		54B7F74111BE5EF30076BC62 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				9AE8196512D4BFD30038BDB1 /* Test */,
 				543DE60C12BFBB420069786A /* Application */,
 				543DE53B12BFBB3D0069786A /* Framework */,
 				54B7F74211BE5EF30076BC62 /* System */,
@@ -931,6 +981,9 @@
 				54B7F96011BE85950076BC62 /* Time.cpp */,
 				9ACF203D122E942900247703 /* FileSystem.h */,
 				9ACF203E122E942900247703 /* FileSystem.cpp */,
+				9AE81D7C12D5147E0038BDB1 /* Mutex.h */,
+				9AE81D7D12D5147E0038BDB1 /* Mutex_Posix.cpp */,
+				9AE81D9A12D5171B0038BDB1 /* Mutex_Windows.cpp */,
 			);
 			path = System;
 			sourceTree = "<group>";
@@ -1050,6 +1103,28 @@
 				9AE8179612CE1EBB0038BDB1 /* test.py */,
 			);
 			name = Python;
+			sourceTree = "<group>";
+		};
+		9AE8196512D4BFD30038BDB1 /* Test */ = {
+			isa = PBXGroup;
+			children = (
+				9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */,
+				9AE8196712D4BFE80038BDB1 /* ClientTest.cpp */,
+				9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */,
+				9AE8196912D4BFE80038BDB1 /* CrashTest.cpp */,
+				9AE8196A12D4BFE80038BDB1 /* FileSystemTest.cpp */,
+				9AE8196B12D4BFE80038BDB1 /* FormattingTest.cpp */,
+				9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */,
+				9AE8196D12D4BFE80038BDB1 /* ManualTest.cpp */,
+				9AE8196E12D4BFE80038BDB1 /* StorageTest.cpp */,
+				9AE8196F12D4BFE80038BDB1 /* Test.cpp */,
+				9AE8197012D4BFE80038BDB1 /* Test.h */,
+				9AE8197112D4BFE80038BDB1 /* TestFunction.h */,
+				9AE8197212D4BFE80038BDB1 /* TestMain.cpp */,
+				9AE8197312D4BFE80038BDB1 /* TimeTest.cpp */,
+				9AE8197412D4BFE80038BDB1 /* Timings.cpp */,
+			);
+			name = Test;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1258,6 +1333,37 @@
 				9AABB05B123E55DE003626AC /* ThreadPool_Posix.cpp in Sources */,
 				9AABB05C123E55DE003626AC /* Time.cpp in Sources */,
 				9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */,
+				9AE8197512D4BFE80038BDB1 /* ArrayListTest.cpp in Sources */,
+				9AE8197612D4BFE80038BDB1 /* ClientTest.cpp in Sources */,
+				9AE8197712D4BFE80038BDB1 /* CommonTest.cpp in Sources */,
+				9AE8197912D4BFE80038BDB1 /* FileSystemTest.cpp in Sources */,
+				9AE8197A12D4BFE80038BDB1 /* FormattingTest.cpp in Sources */,
+				9AE8197C12D4BFE80038BDB1 /* ManualTest.cpp in Sources */,
+				9AE8197E12D4BFE80038BDB1 /* Test.cpp in Sources */,
+				9AE8197F12D4BFE80038BDB1 /* TestMain.cpp in Sources */,
+				9AE8198012D4BFE80038BDB1 /* TimeTest.cpp in Sources */,
+				9AE8198112D4BFE80038BDB1 /* Timings.cpp in Sources */,
+				9AE8199A12D4C36D0038BDB1 /* SDBPClient.cpp in Sources */,
+				9AE8199B12D4C37A0038BDB1 /* SDBPClientRequest.cpp in Sources */,
+				9AE8199C12D4C37F0038BDB1 /* SDBPClientWrapper.cpp in Sources */,
+				9AE8199D12D4C3830038BDB1 /* SDBPControllerConnection.cpp in Sources */,
+				9AE8199E12D4C3870038BDB1 /* SDBPResult.cpp in Sources */,
+				9AE8199F12D4C38B0038BDB1 /* SDBPShardConnection.cpp in Sources */,
+				9AE819A212D4C3A60038BDB1 /* SDBPRequestMessage.cpp in Sources */,
+				9AE819A512D4C3B90038BDB1 /* MessageConnection.cpp in Sources */,
+				9AE819A612D4C3C40038BDB1 /* ClientResponse.cpp in Sources */,
+				9AE819A712D4C3CB0038BDB1 /* SDBPResponseMessage.cpp in Sources */,
+				9AE819A812D4C3D50038BDB1 /* TCPConnection.cpp in Sources */,
+				9AE819AB12D4C3F30038BDB1 /* ConfigState.cpp in Sources */,
+				9AE819AC12D4C3F70038BDB1 /* ConfigTable.cpp in Sources */,
+				9AE819AD12D4C3FB0038BDB1 /* ConfigShardServer.cpp in Sources */,
+				9AE819AE12D4C3FE0038BDB1 /* ConfigShard.cpp in Sources */,
+				9AE819B012D4C4030038BDB1 /* ConfigQuorum.cpp in Sources */,
+				9AE819B112D4C4060038BDB1 /* ConfigDatabase.cpp in Sources */,
+				9AE819B412D4C4200038BDB1 /* ClientRequest.cpp in Sources */,
+				9AE819B712D4C4280038BDB1 /* TCPWriter.cpp in Sources */,
+				9AE81D7E12D5147E0038BDB1 /* Mutex_Posix.cpp in Sources */,
+				9AE81D9B12D5171B0038BDB1 /* Mutex_Windows.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

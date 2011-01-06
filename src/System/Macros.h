@@ -82,8 +82,8 @@
 ===============================================================================================
  */
 
-#define CSLLEN(s) (sizeof(s "") - 1)
-#define STR_AND_CSLLEN(s) s, CSLLEN(s)
+#define CSLLEN(s)           (sizeof(s "") - 1)
+#define STR_AND_CSLLEN(s)   s, CSLLEN(s)
 
 /*
 ===============================================================================================
@@ -96,5 +96,18 @@
 
 #define FOREACH(it, cont)       for (it = (cont).First(); it != NULL; it = (cont).Next(it))
 #define FOREACH_BACK(it, cont)  for (it = (cont).Last(); it != NULL; it = (cont).Prev(it))
+
+/*
+===============================================================================================
+
+  Compile time assert macro and helpers. Useful when defining structures that contain opaque
+  structures to check at compile time that there is enough space for it.
+ 
+===============================================================================================
+ */
+
+#define CONCAT2_(a, b)              a##b
+#define CONCAT2(a, b)               CONCAT2_(a, b)
+#define STATIC_ASSERT(expr, msg)    typedef char CONCAT2(STATIC_ASSERT_,__LINE__) [(expr)?1:-1]
 
 #endif
