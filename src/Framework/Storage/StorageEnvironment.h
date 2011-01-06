@@ -63,6 +63,8 @@ public:
     bool                    Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key);
 
     StorageBulkCursor*      GetBulkCursor(uint16_t contextID, uint64_t shardID);
+
+    uint64_t                GetShardSize(uint16_t contextID, uint64_t shardID);
     
     void                    SetOnCommit(Callable& onCommit);
     bool                    Commit();

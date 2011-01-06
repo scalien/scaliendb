@@ -78,6 +78,8 @@ void StorageFileChunk::ReadHeaderPage()
         Log_Message("Exiting...");
         STOP_FAIL(1);
     }
+    
+    fileSize = FS_FileSize(filename.GetBuffer());
 }
 
 void StorageFileChunk::SetFilename(Buffer& filename_)

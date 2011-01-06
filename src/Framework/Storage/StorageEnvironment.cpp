@@ -329,6 +329,27 @@ StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_
     return bc;
 }
 
+uint64_t StorageEnvironment::GetShardSize(uint16_t contextID, uint64_t shardID)
+{
+    StorageShard*   shard;
+    StorageChunk*   chunk;
+    StorageChunk**  itChunk;
+    uint64_t        size;
+
+    shard = GetShard(contextID, shardID);
+    if (!shard)
+        return 0;
+
+    size = 0;
+    FOREACH(itChunk, shard->GetChunks())
+    {
+        chunk = *itChunk;
+        size += chunk->GetSize();
+    }
+    
+    return size;
+}
+
 void StorageEnvironment::SetOnCommit(Callable& onCommit_)
 {
     onCommit = onCommit_;
