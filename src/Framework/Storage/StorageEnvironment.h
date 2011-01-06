@@ -66,6 +66,7 @@ public:
 
     uint64_t                GetSize(uint16_t contextID, uint64_t shardID);
     ReadBuffer              GetMidpoint(uint16_t contextID, uint64_t shardID);
+    bool                    IsSplittable(uint16_t contextID, uint64_t shardID);
     
     void                    SetOnCommit(Callable& onCommit);
     bool                    Commit();
