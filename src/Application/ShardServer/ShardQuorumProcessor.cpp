@@ -22,6 +22,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     proposalID = 0;
     configID = 0;
     requestedLeaseExpireTime = 0;
+    shardMessagesLength = 0;
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     EventLoop::Add(&requestLeaseTimeout);
@@ -94,6 +95,12 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
 
         ExecuteMessage(message, paxosID, commandID, ownAppend);
         commandID = 0;
+    }
+    
+    if (ownAppend)
+    {
+        shardMessagesLength -= value.GetLength();
+        assert(shardMessagesLength >= 0);
     }
     
     if (shardMessages.GetLength() > 0)
@@ -174,12 +181,31 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
 
 void ShardQuorumProcessor::OnLeaseTimeout()
 {
+    ClientRequest*  itRequest;
+    ShardMessage*   itMessage;
+        
+    for (itRequest = clientRequests.First(); itRequest != NULL; itRequest = clientRequests.First())
+    {
+        clientRequests.Remove(itRequest);
+        itRequest->response.NoService();
+        itRequest->OnComplete();
+    }
+
+    for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = shardMessages.First())
+    {
+        shardMessages.Remove(itMessage);
+        delete itMessage;
+    }
+    
+    shardMessagesLength = 0;
+
     isPrimary = false;
 }
 
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 {
-    ShardMessage* message;
+    ShardMessage*   message;
+    Buffer          singleBuffer;
 
     if (!quorumContext.IsLeader())
     {
@@ -211,7 +237,12 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     clientRequests.Append(request);
     shardMessages.Append(message);
-    TryAppend();
+    
+    message->Write(singleBuffer);
+    shardMessagesLength += singleBuffer.GetLength();
+    
+    if (shardMessagesLength >= PAXOS_VALUE_LENGTH_TARGET)
+        TryAppend();
 }
 
 void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
@@ -236,6 +267,7 @@ void ShardQuorumProcessor::TryReplicationCatchup()
 void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey)
 {
     ShardMessage*   it;
+    Buffer          singleBuffer;
     
     FOREACH(it, shardMessages)
     {
@@ -246,6 +278,9 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     it = new ShardMessage;
     it->SplitShard(shardID, newShardID, splitKey);
     shardMessages.Append(it);
+    
+    it->Write(singleBuffer);
+    shardMessagesLength += singleBuffer.GetLength();
 }
 
 
@@ -380,7 +415,7 @@ void ShardQuorumProcessor::TryAppend()
                 break;
         }
         
-        Log_Message("numMessages = %u", numMessages);
+        Log_Trace("numMessages = %u", numMessages);
         
         assert(value.GetLength() > 0);
         

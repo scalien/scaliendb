@@ -11,6 +11,7 @@
 class ShardServer;
 
 #define PRIMARYLEASE_REQUEST_TIMEOUT     1000
+#define PAXOS_VALUE_LENGTH_TARGET        (1*MB)
 
 /*
 ===============================================================================================
@@ -73,6 +74,7 @@ private:
     uint64_t                proposalID;
     uint64_t                configID;
     uint64_t                requestedLeaseExpireTime;
+    uint64_t                shardMessagesLength;
 
     ShardServer*            shardServer;
     ShardQuorumContext      quorumContext;
