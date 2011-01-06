@@ -48,8 +48,12 @@ public:
     uint64_t            GetMinLogSegmentID();
     uint64_t            GetMaxLogSegmentID();
     uint32_t            GetMaxLogCommandID();
+
+    ReadBuffer          GetFirstKey();
+    ReadBuffer          GetLastKey();
     
     uint64_t            GetSize();
+    ReadBuffer          GetMidpoint();
     
     StorageFileChunk*   RemoveFileChunk();
         

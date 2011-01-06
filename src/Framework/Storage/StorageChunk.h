@@ -34,7 +34,11 @@ public:
     virtual uint64_t            GetMaxLogSegmentID() = 0;
     virtual uint32_t            GetMaxLogCommandID() = 0;
     
+    virtual ReadBuffer          GetFirstKey() = 0;
+    virtual ReadBuffer          GetLastKey() = 0;
+    
     virtual uint64_t            GetSize() = 0;
+    virtual ReadBuffer          GetMidpoint() = 0;
     virtual ChunkState          GetChunkState() = 0;
     
     virtual void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard) = 0;

@@ -64,6 +64,11 @@ ReadBuffer StorageHeaderPage::GetLastKey()
     return ReadBuffer(lastKey);
 }
 
+ReadBuffer StorageHeaderPage::GetMidpoint()
+{
+    return ReadBuffer(midpoint);
+}
+
 void StorageHeaderPage::SetChunkID(uint64_t chunkID_)
 {
     chunkID = chunkID_;
@@ -119,6 +124,11 @@ void StorageHeaderPage::SetLastKey(ReadBuffer lastKey_)
     lastKey.Write(lastKey_);
 }
 
+void StorageHeaderPage::SetMidpoint(ReadBuffer midpoint_)
+{
+    midpoint.Write(midpoint_);
+}
+
 bool StorageHeaderPage::UseBloomFilter()
 {
     return useBloomFilter;
@@ -126,7 +136,7 @@ bool StorageHeaderPage::UseBloomFilter()
 
 bool StorageHeaderPage::Read(Buffer& buffer)
 {
-    uint32_t        size, checksum, compChecksum, version, firstLen, lastLen;
+    uint32_t        size, checksum, compChecksum, version, firstLen, lastLen, midpointLen;
     ReadBuffer      parse, dataPart;
     
     parse.Wrap(buffer);
@@ -210,6 +220,14 @@ bool StorageHeaderPage::Read(Buffer& buffer)
         return false;        
     firstKey.Write(parse.GetBuffer(), lastLen);
     parse.Advance(lastLen);
+
+    if (!parse.ReadLittle32(midpointLen))
+        return false;
+    parse.Advance(4);
+    if (parse.GetLength() < midpointLen)
+        return false;        
+    midpoint.Write(parse.GetBuffer(), midpointLen);
+    parse.Advance(midpointLen);
     
     return true;
 }
@@ -249,6 +267,8 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
     writeBuffer.Append(firstKey);
     writeBuffer.AppendLittle32(lastKey.GetLength());
     writeBuffer.Append(lastKey);
+    writeBuffer.AppendLittle32(midpoint.GetLength());
+    writeBuffer.Append(midpoint);
     writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
     dataPart.Wrap(writeBuffer.GetBuffer() + 8, writeBuffer.GetLength() - 8);
     checksum = dataPart.GetChecksum();

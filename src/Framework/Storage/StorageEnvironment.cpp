@@ -331,10 +331,10 @@ StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_
 
 uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 {
+    uint64_t        size;
     StorageShard*   shard;
     StorageChunk*   chunk;
     StorageChunk**  itChunk;
-    uint64_t        size;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
@@ -348,6 +348,62 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
     }
     
     return size;
+}
+
+ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
+{
+    unsigned        numChunks, i;
+    StorageShard*   shard;
+    StorageChunk**  itChunk;
+
+    shard = GetShard(contextID, shardID);
+    if (!shard)
+        return 0;
+    
+    numChunks = shard->GetChunks().GetLength();
+    
+    i = 0;
+    FOREACH(itChunk, shard->GetChunks())
+    {
+        if (i == ((numChunks + 1) / 2))
+            return (*itChunk)->GetMidpoint();
+
+        i++;
+    }
+    
+    return shard->GetMemoChunk()->GetMidpoint();
+}
+
+bool StorageEnvironment::IsSplittable(uint16_t contextID, uint64_t shardID)
+{
+    StorageShard*   shard;
+    StorageChunk**  itChunk;
+    ReadBuffer      firstKey;
+    ReadBuffer      lastKey;
+
+    shard = GetShard(contextID, shardID);
+    if (!shard)
+        return 0;
+    
+    FOREACH(itChunk, shard->GetChunks())
+    {
+        firstKey = (*itChunk)->GetFirstKey();
+        lastKey = (*itChunk)->GetLastKey();
+        
+        if (firstKey.GetLength() > 0)
+        {
+            if (!shard->RangeContains(firstKey))
+                return false;
+        }
+
+        if (lastKey.GetLength() > 0)
+        {
+            if (!shard->RangeContains(lastKey))
+                return false;
+        }
+    }
+    
+    return true;
 }
 
 void StorageEnvironment::SetOnCommit(Callable& onCommit_)

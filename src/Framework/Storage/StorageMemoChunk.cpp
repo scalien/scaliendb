@@ -230,9 +230,33 @@ uint32_t StorageMemoChunk::GetMaxLogCommandID()
     return maxLogCommandID;
 }
 
+ReadBuffer StorageMemoChunk::GetFirstKey()
+{
+    if (keyValues.First())
+        return keyValues.First()->GetKey();
+    else
+        return ReadBuffer();
+}
+
+ReadBuffer StorageMemoChunk::GetLastKey()
+{
+    if (keyValues.Last())
+        return keyValues.Last()->GetKey();
+    else
+        return ReadBuffer();
+}
+
 uint64_t StorageMemoChunk::GetSize()
 {
     return size;
+}
+
+ReadBuffer StorageMemoChunk::GetMidpoint()
+{
+    if (keyValues.Mid())
+        return keyValues.Mid()->GetKey();
+    else
+        return ReadBuffer();
 }
 
 StorageFileChunk* StorageMemoChunk::RemoveFileChunk()

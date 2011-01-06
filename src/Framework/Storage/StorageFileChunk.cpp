@@ -220,9 +220,24 @@ uint32_t StorageFileChunk::GetMaxLogCommandID()
     return headerPage.GetLogCommandID();
 }
 
+ReadBuffer StorageFileChunk::GetFirstKey()
+{
+    return headerPage.GetFirstKey();
+}
+
+ReadBuffer StorageFileChunk::GetLastKey()
+{
+    return headerPage.GetLastKey();
+}
+
 uint64_t StorageFileChunk::GetSize()
 {
     return fileSize;
+}
+
+ReadBuffer StorageFileChunk::GetMidpoint()
+{
+    return headerPage.GetMidpoint();
 }
 
 void StorageFileChunk::AddPagesToCache()

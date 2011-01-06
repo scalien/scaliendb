@@ -65,6 +65,7 @@ bool StorageChunkSerializer::WriteHeaderPage()
     {
         fileChunk->headerPage.SetFirstKey(memoChunk->keyValues.First()->GetKey());
         fileChunk->headerPage.SetLastKey(memoChunk->keyValues.Last()->GetKey());
+        fileChunk->headerPage.SetMidpoint(memoChunk->GetMidpoint());
     }
     
     return true;
