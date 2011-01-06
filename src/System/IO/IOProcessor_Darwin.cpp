@@ -24,6 +24,7 @@
 static int              kq = 0;         // the kqueue
 static int              asyncOpPipe[2];
 static volatile bool    terminated;
+static volatile int     numClient = 0;
 
 static bool AddKq(int ident, short filter, IOOperation* ioop);
 
@@ -156,6 +157,8 @@ bool IOProcessor::Init(int maxfd_)
 {
     rlimit rl;
 
+    numClient++;
+    
     if (kq != 0)
         return true;
 
@@ -188,12 +191,17 @@ bool IOProcessor::Init(int maxfd_)
 
     if (!AddKq(asyncOpPipe[0], EVFILT_READ, NULL))
         return false;
-        
+    
     return true;
 }
 
 void IOProcessor::Shutdown()
 {
+    numClient--;
+    
+    if (kq == 0 || numClient > 0)
+        return;
+
     close(kq);
     kq = 0;
     close(asyncOpPipe[0]);

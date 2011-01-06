@@ -25,6 +25,7 @@ public:
 
     virtual void        Start();
     virtual void        Stop();
+    virtual void        WaitStop();
 
     virtual void        Execute(const Callable& callable);
 
@@ -32,9 +33,12 @@ protected:
     pthread_t*          threads;
     pthread_mutex_t     mutex;
     pthread_cond_t      cond;
+    int                 numStarted;
+    bool                finished;
     
     static void*        thread_function(void *param);
     void                ThreadFunction();
+    bool                IsFinished();
 };
 
 /*
@@ -61,19 +65,29 @@ void* ThreadPool_Pthread::thread_function(void* param)
 
 void ThreadPool_Pthread::ThreadFunction()
 {   
-    Callable callable;
-    Callable* it;
+    Callable    callable;
+    Callable*   it;
+    bool        firstRun;
+
+    firstRun = true;
     
     while (running)
     {
         pthread_mutex_lock(&mutex);
         numActive--;
+
+        if (firstRun)
+        {
+            numStarted++;
+            pthread_cond_broadcast(&cond);
+            firstRun = false;
+        }
         
     wait:
-        while (numPending == 0 && running)
+        while (numPending == 0 && running && !IsFinished())
             pthread_cond_wait(&cond, &mutex);
         
-        if (!running)
+        if (!running || IsFinished())
         {
             pthread_mutex_unlock(&mutex);
             break;
@@ -90,7 +104,14 @@ void ThreadPool_Pthread::ThreadFunction()
         pthread_mutex_unlock(&mutex);
         
         Call(callable);
-    }   
+    }
+    
+    if (finished)
+    {
+        pthread_mutex_lock(&mutex);
+        pthread_cond_signal(&cond);
+        pthread_mutex_unlock(&mutex);
+    }
 }
 
 ThreadPool_Pthread::ThreadPool_Pthread(int numThread_)
@@ -98,7 +119,9 @@ ThreadPool_Pthread::ThreadPool_Pthread(int numThread_)
     numThread = numThread_;
     numPending = 0;
     numActive = 0;
+    numStarted = 0;
     running = false;
+    finished = false;
     
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&cond, NULL);
@@ -148,6 +171,31 @@ void ThreadPool_Pthread::Stop()
     numActive = 0;
 }
 
+void ThreadPool_Pthread::WaitStop()
+{
+    int i;
+    
+    if (!running)
+        return;
+    
+    pthread_mutex_lock(&mutex);
+    while (numStarted < numThread)
+        pthread_cond_wait(&cond, &mutex);
+
+    finished = true;
+
+    pthread_cond_broadcast(&cond);
+    pthread_mutex_unlock(&mutex);
+
+    for (i = 0; i < numThread; i++)
+    {
+        pthread_join(threads[i], NULL);
+        pthread_detach(threads[i]);
+    }
+    
+    numActive = 0;
+}
+
 void ThreadPool_Pthread::Execute(const Callable& callable)
 {
     pthread_mutex_lock(&mutex);
@@ -158,6 +206,11 @@ void ThreadPool_Pthread::Execute(const Callable& callable)
     pthread_cond_signal(&cond);
     
     pthread_mutex_unlock(&mutex);
+}
+
+bool ThreadPool_Pthread::IsFinished()
+{
+    return finished && numPending == 0;
 }
 
 #endif

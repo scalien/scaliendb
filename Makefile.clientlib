@@ -20,6 +20,7 @@ CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/System/Formatting.o \
 	$(BUILD_DIR)/System/Config.o \
 	$(BUILD_DIR)/System/Log.o \
+	$(BUILD_DIR)/System/Mutex_Posix.o \
 	$(BUILD_DIR)/System/Time.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
 	$(BUILD_DIR)/System/ThreadPool_Posix.o \

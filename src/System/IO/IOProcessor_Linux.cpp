@@ -66,20 +66,21 @@ public:
     IOOperation*    write;
 };
 
-static int          epollfd = 0;
-static int          maxfd;
-static PipeOp       asyncPipeOp;
-static EpollOp*     epollOps;
-static volatile bool terminated = false;
+static int              epollfd = 0;
+static int              maxfd;
+static PipeOp           asyncPipeOp;
+static EpollOp*         epollOps;
+static volatile bool    terminated = false;
+static volatile int     numClient = 0;
 
-static bool         AddEvent(int fd, uint32_t filter, IOOperation* ioop);
+static bool             AddEvent(int fd, uint32_t filter, IOOperation* ioop);
 
-static void         ProcessAsyncOp();
-static void         ProcessIOOperation(IOOperation* ioop);
-static void         ProcessTCPRead(TCPRead* tcpread);
-static void         ProcessTCPWrite(TCPWrite* tcpwrite);
-static void         ProcessUDPRead(UDPRead* udpread);
-static void         ProcessUDPWrite(UDPWrite* udpwrite);
+static void             ProcessAsyncOp();
+static void             ProcessIOOperation(IOOperation* ioop);
+static void             ProcessTCPRead(TCPRead* tcpread);
+static void             ProcessTCPWrite(TCPWrite* tcpwrite);
+static void             ProcessUDPRead(UDPRead* udpread);
+static void             ProcessUDPWrite(UDPWrite* udpwrite);
 
 
 bool /*IOProcessor::*/InitPipe(PipeOp &pipeop, Callable callback)
@@ -218,7 +219,8 @@ bool IOProcessor::Init(int maxfd_)
     rlimit rl;
 
     terminated = false;
-
+    numClient++;
+    
     if (epollfd > 0)
         return true;
 
@@ -249,7 +251,6 @@ bool IOProcessor::Init(int maxfd_)
         epollOps[i].read = NULL;
         epollOps[i].write = NULL;
     }
-
     
     if (!InitPipe(asyncPipeOp, CFunc(ProcessAsyncOp)))
         return false;
@@ -259,6 +260,11 @@ bool IOProcessor::Init(int maxfd_)
 
 void IOProcessor::Shutdown()
 {
+    numClient--;
+    
+    if (epollfd == 0 || numClient > 0)
+        return;
+
     close(epollfd);
     epollfd = 0;
     delete[] epollOps;

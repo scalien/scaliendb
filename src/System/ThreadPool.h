@@ -22,6 +22,7 @@ public:
 
     virtual void        Start() = 0;
     virtual void        Stop() = 0;
+    virtual void        WaitStop() = 0;
 
     virtual void        Execute(const Callable &callable) = 0;
     

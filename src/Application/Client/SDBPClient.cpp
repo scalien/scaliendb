@@ -6,6 +6,24 @@
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
+#include "System/Mutex.h"
+
+#define CLIENT_MULTITHREAD 
+#ifdef CLIENT_MULTITHREAD
+
+static Mutex        clientMutex;
+
+#define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutex(clientMutex)
+#define CLIENT_MUTEX_LOCK()             mutex.Lock()
+#define CLIENT_MUTEX_UNLOCK()           mutex.Unlock()
+
+#else
+
+#define CLIENT_MUTEX_GUARD_DECLARE()
+#define CLIENT_MUTEX_LOCK()
+#define CLIENT_MUTEX_UNLOCK()
+
+#endif
 
 #define MAX_SERVER_NUM  256
 
@@ -67,6 +85,8 @@ Client::~Client()
 
 int Client::Init(int nodec, const char* nodev[])
 {
+    CLIENT_MUTEX_GUARD_DECLARE();
+
     // sanity check on parameters
     if (nodec <= 0 || nodev == NULL)
         return SDBP_API_ERROR;
@@ -108,6 +128,8 @@ int Client::Init(int nodec, const char* nodev[])
 
 void Client::Shutdown()
 {
+    CLIENT_MUTEX_GUARD_DECLARE();
+
     if (!controllerConnections)
         return;
     
@@ -177,13 +199,16 @@ int Client::CommandStatus()
 int Client::GetDatabaseID(ReadBuffer& name, uint64_t& databaseID)
 {
     ConfigDatabase* database;
-    
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
     
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -252,12 +277,15 @@ int Client::CreateQuorum(List<uint64_t>& nodes)
 {
     Request*    req;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -271,6 +299,7 @@ int Client::CreateQuorum(List<uint64_t>& nodes)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -279,12 +308,15 @@ int Client::CreateDatabase(ReadBuffer& name)
 {
     Request*    req;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -298,6 +330,7 @@ int Client::CreateDatabase(ReadBuffer& name)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -306,12 +339,15 @@ int Client::RenameDatabase(uint64_t databaseID, const ReadBuffer& name)
 {
     Request*    req;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -325,6 +361,7 @@ int Client::RenameDatabase(uint64_t databaseID, const ReadBuffer& name)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -333,12 +370,15 @@ int Client::DeleteDatabase(uint64_t databaseID)
 {
     Request*    req;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -352,6 +392,7 @@ int Client::DeleteDatabase(uint64_t databaseID)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -360,12 +401,15 @@ int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name
 {
     Request*    req;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -379,6 +423,7 @@ int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -387,12 +432,15 @@ int Client::RenameTable(uint64_t databaseID, uint64_t tableID, ReadBuffer& name)
 {
     Request*    req;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -406,6 +454,7 @@ int Client::RenameTable(uint64_t databaseID, uint64_t tableID, ReadBuffer& name)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -414,12 +463,15 @@ int Client::DeleteTable(uint64_t databaseID, uint64_t tableID)
 {
     Request*    req;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -433,6 +485,7 @@ int Client::DeleteTable(uint64_t databaseID, uint64_t tableID)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -441,12 +494,15 @@ int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
 {
     Request*    req;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
 
     if (configState == NULL)
     {
         result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
+        CLIENT_MUTEX_LOCK();
     }
     
     if (configState == NULL)
@@ -460,6 +516,7 @@ int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -467,6 +524,8 @@ int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
 int Client::Get(const ReadBuffer& key)
 {
     Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
@@ -485,6 +544,7 @@ int Client::Get(const ReadBuffer& key)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -494,10 +554,12 @@ int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
 {
     Request*    req;
     
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
         return SDBP_BADSCHEMA;
-    
+        
     req = new Request;
     req->Set(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
     requests.Append(req);
@@ -510,7 +572,8 @@ int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
 
     result->Close();
     result->AppendRequest(req);
-    
+
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus(); 
 }
@@ -519,6 +582,8 @@ int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
 {
     Request*    req;
     
+    CLIENT_MUTEX_GUARD_DECLARE();
+
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
         return SDBP_BADSCHEMA;
@@ -536,6 +601,7 @@ int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus(); 
 }
@@ -543,6 +609,8 @@ int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
 int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
 {
     Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
@@ -561,6 +629,7 @@ int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus(); 
 }
@@ -568,6 +637,8 @@ int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
 int Client::GetAndSet(ReadBuffer& key, ReadBuffer& value)
 {
     Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
@@ -586,6 +657,7 @@ int Client::GetAndSet(ReadBuffer& key, ReadBuffer& value)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus(); 
 }
@@ -593,6 +665,8 @@ int Client::GetAndSet(ReadBuffer& key, ReadBuffer& value)
 int Client::Add(const ReadBuffer& key, int64_t number)
 {
     Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
@@ -611,6 +685,7 @@ int Client::Add(const ReadBuffer& key, int64_t number)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus(); 
 }
@@ -618,6 +693,8 @@ int Client::Add(const ReadBuffer& key, int64_t number)
 int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
 {
     Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
@@ -636,6 +713,7 @@ int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus(); 
 }
@@ -643,6 +721,8 @@ int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
 int Client::Delete(ReadBuffer& key)
 {
     Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
@@ -661,6 +741,7 @@ int Client::Delete(ReadBuffer& key)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -668,6 +749,8 @@ int Client::Delete(ReadBuffer& key)
 int Client::Remove(ReadBuffer& key)
 {
     Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     // TODO validations
     if (!isDatabaseSet || !isTableSet)
@@ -686,6 +769,7 @@ int Client::Remove(ReadBuffer& key)
     result->Close();
     result->AppendRequest(req);
     
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
     return result->CommandStatus();
 }
@@ -693,6 +777,8 @@ int Client::Remove(ReadBuffer& key)
 int Client::Begin()
 {
     Log_Trace();
+
+    CLIENT_MUTEX_GUARD_DECLARE();
 
     result->Close();
     isBatched = true;
@@ -713,6 +799,8 @@ int Client::Submit()
 int Client::Cancel()
 {
     Log_Trace();
+
+    CLIENT_MUTEX_GUARD_DECLARE();
 
     requests.Clear();
 
@@ -735,6 +823,8 @@ void Client::EventLoop()
         return;
     }
     
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
     EventLoop::UpdateTime();
 
     Log_Trace("%U", databaseID);
@@ -749,10 +839,17 @@ void Client::EventLoop()
     
     while (!IsDone())
     {
-        if (!EventLoop::RunOnce())
+        EventLoop::RunTimers();
+        if (IsDone())
             break;
+        if (!IOProcessor::Poll(1))
+            break;
+
+        // let other threads to enter IOProcessor and complete requests
+        CLIENT_MUTEX_UNLOCK();
+        CLIENT_MUTEX_LOCK();
     }
-    
+        
     requests.Clear();
     
     result->connectivityStatus = connectivityStatus;
@@ -763,6 +860,7 @@ void Client::EventLoop()
 bool Client::IsDone()
 {
     // TODO: configState???
+    
     if (result->GetRequestCount() == 0 && configState != NULL)
         return true;
     

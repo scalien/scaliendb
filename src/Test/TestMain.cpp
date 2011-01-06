@@ -15,6 +15,8 @@ TEST_LOG_INIT(false, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientFailover);
 //TEST_ADD(TestClientGetAndSet);
 //TEST_ADD(TestClientMaro);
+TEST_ADD(TestClientMultiThread);
+//TEST_ADD(TestClientMultiThreadMulti);
 //TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestCommonHumanBytes);
@@ -39,7 +41,7 @@ TEST_LOG_INIT(false, LOG_TARGET_STDOUT);
 //TEST_ADD(TestStoragePageSplit);
 //TEST_ADD(TestStorageFileSplit);
 //TEST_ADD(TestStorageFileThreeWaySplit);
-TEST_ADD(TestStorageRandomGetSetDelete);
+//TEST_ADD(TestStorageRandomGetSetDelete);
 //TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
 //TEST_ADD(TestStorageShardSplit);
 //TEST_ADD(TestStorageWindowsSync);

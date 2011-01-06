@@ -1,6 +1,7 @@
 #include "Test.h"
 #include "Application/Client/SDBPClient.h"
 #include "System/Common.h"
+#include "System/ThreadPool.h"
 
 using namespace SDBPClient;
 
@@ -262,8 +263,8 @@ TEST_DEFINE(TestClientBatchedSet2)
 TEST_DEFINE(TestClientBatchedSetRandom)
 {
     Client          client;
-    //const char*     nodes[] = {"localhost:7080"};
-    const char*     nodes[] = {"192.168.137.51:7080"};
+    const char*     nodes[] = {"localhost:7080"};
+    //const char*     nodes[] = {"192.168.137.51:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
@@ -271,8 +272,13 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     char            valbuf[128];
     char            keybuf[32];
     int             ret;
-    unsigned        num = 10000;
+    unsigned        num = 1000;
     Stopwatch       sw;
+    static int      counter = 0;
+    int             id;
+    
+    id = counter++;
+    TEST_LOG("Started id = %d", id);
         
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
@@ -307,6 +313,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     }
 
     TEST_LOG("Generated data, start Submit");
+    Log_Message("start id = %d", id);
 
     sw.Start();
     ret = client.Submit();
@@ -314,10 +321,18 @@ TEST_DEFINE(TestClientBatchedSetRandom)
         TEST_CLIENT_FAIL();
     sw.Stop();
 
+    Log_Message("stop id = %d", id);
     TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
 
-    client.Shutdown();
+    if ((num / (sw.Elapsed() / 1000.0)) > 100*1000)
+    {
+        PRINT_CLIENT_STATUS("Transport", client.TransportStatus());
+        PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus());
+        PRINT_CLIENT_STATUS("Timeout", client.TimeoutStatus());
+        PRINT_CLIENT_STATUS(" Command", client.CommandStatus());
+    }
     
+    client.Shutdown();
     return TEST_SUCCESS;
 }
 
@@ -975,6 +990,31 @@ TEST_DEFINE(TestClientFailover)
     }
     client.Shutdown();
     
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientMultiThread)
+{
+    ThreadPool*     threadPool;
+    unsigned        numThread = 20;
+    
+    threadPool = ThreadPool::Create(numThread);
+    
+    for (unsigned i = 0; i < numThread; i++)
+    {  
+        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
+    }
+    
+    threadPool->Start();
+    threadPool->WaitStop();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientMultiThreadMulti)
+{
+    for (int i = 0; i < 10; i++)
+        TestClientBatchedSetRandom();
     return TEST_SUCCESS;
 }
 
