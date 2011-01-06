@@ -279,7 +279,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     
     id = counter++;
     TEST_LOG("Started id = %d", id);
-        
+    
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -996,7 +996,7 @@ TEST_DEFINE(TestClientFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 4;
+    unsigned        numThread = 2;
     
     threadPool = ThreadPool::Create(numThread);
     

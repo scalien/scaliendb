@@ -1,7 +1,6 @@
 #include "Countdown.h"
 
 Countdown::Countdown()
-: Timer()
 {
     delay = 0;
 }
@@ -9,7 +8,6 @@ Countdown::Countdown()
 void Countdown::SetDelay(uint64_t delay_)
 {
     assert(next == prev && next == this);
-    
     delay = delay_;
 }
 

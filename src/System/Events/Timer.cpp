@@ -9,6 +9,12 @@ Timer::Timer()
     prev = this;
 }
 
+Timer::~Timer()
+{
+//    assert(active == false);
+//    assert(next == prev && next == this);
+}
+
 void Timer::SetCallable(Callable callable_)
 {
     callable = callable_;
