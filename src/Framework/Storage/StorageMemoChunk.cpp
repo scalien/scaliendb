@@ -235,6 +235,14 @@ uint64_t StorageMemoChunk::GetSize()
     return size;
 }
 
+ReadBuffer StorageMemoChunk::GetMidpoint()
+{
+    if (keyValues.Mid())
+        return keyValues.Mid()->GetKey();
+    else
+        return ReadBuffer();
+}
+
 StorageFileChunk* StorageMemoChunk::RemoveFileChunk()
 {
     StorageFileChunk*   ret;

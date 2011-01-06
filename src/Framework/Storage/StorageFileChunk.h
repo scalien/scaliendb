@@ -48,6 +48,7 @@ public:
     uint32_t            GetMaxLogCommandID();
     
     uint64_t            GetSize();
+    ReadBuffer          GetMidpoint();
     
     void                AddPagesToCache();
     void                OnBloomPageEvicted();

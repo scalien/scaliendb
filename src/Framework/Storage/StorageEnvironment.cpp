@@ -331,10 +331,10 @@ StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_
 
 uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 {
+    uint64_t        size;
     StorageShard*   shard;
     StorageChunk*   chunk;
     StorageChunk**  itChunk;
-    uint64_t        size;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
@@ -348,6 +348,33 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
     }
     
     return size;
+}
+
+ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
+{
+    unsigned        numChunks, i;
+    StorageShard*   shard;
+    StorageChunk*   chunk;
+    StorageChunk**  itChunk;
+
+    shard = GetShard(contextID, shardID);
+    if (!shard)
+        return 0;
+    
+    numChunks = shard->GetChunks().GetLength();
+    
+    i = 0;
+    FOREACH(itChunk, shard->GetChunks())
+    {
+        chunk = *itChunk;
+        
+        if (i == (numChunks/2))
+            return chunk->GetMidpoint();
+
+        i++;
+    }
+    
+    return shard->GetMemoChunk()->GetMidpoint();
 }
 
 void StorageEnvironment::SetOnCommit(Callable& onCommit_)

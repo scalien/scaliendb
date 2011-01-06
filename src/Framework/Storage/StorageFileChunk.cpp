@@ -225,6 +225,11 @@ uint64_t StorageFileChunk::GetSize()
     return fileSize;
 }
 
+ReadBuffer StorageFileChunk::GetMidpoint()
+{
+    return headerPage.GetMidpoint();
+}
+
 void StorageFileChunk::AddPagesToCache()
 {
     uint32_t i;

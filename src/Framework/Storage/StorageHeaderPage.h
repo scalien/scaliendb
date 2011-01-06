@@ -33,6 +33,7 @@ public:
     uint32_t            GetBloomPageSize();
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
+    ReadBuffer          GetMidpoint();
 
     void                SetChunkID(uint64_t chunkID);
     void                SetLogSegmentID(uint64_t logSegmentID);
@@ -45,6 +46,7 @@ public:
     void                SetBloomPageSize(uint32_t bloomPageSize);
     void                SetFirstKey(ReadBuffer firstKey);
     void                SetLastKey(ReadBuffer lastKey);
+    void                SetMidpoint(ReadBuffer midPoint);
 
     bool                UseBloomFilter();
 
@@ -65,7 +67,8 @@ private:
     uint32_t            bloomPageSize;
     Buffer              firstKey;
     Buffer              lastKey;
-    StorageFileChunk*   owner;    
+    Buffer              midpoint;
+    StorageFileChunk*   owner;
 };
 
 #endif
