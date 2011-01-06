@@ -272,7 +272,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     char            valbuf[128];
     char            keybuf[32];
     int             ret;
-    unsigned        num = 1000;
+    unsigned        num = 2;
     Stopwatch       sw;
     static int      counter = 0;
     int             id;
@@ -996,7 +996,7 @@ TEST_DEFINE(TestClientFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 20;
+    unsigned        numThread = 1;
     
     threadPool = ThreadPool::Create(numThread);
     

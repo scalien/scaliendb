@@ -84,7 +84,7 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     if (last)
         numPending--;
 
-    if (state == TCPConnection::CONNECTED)
+    if (state == TCPConnection::CONNECTED && request->response.type != CLIENTRESPONSE_NORESPONSE)
     {
         sdbpResponse.response = &request->response;
         Write(sdbpResponse);

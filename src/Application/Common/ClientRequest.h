@@ -25,6 +25,7 @@
 #define CLIENTREQUEST_DELETE            'X'
 #define CLIENTREQUEST_REMOVE            'x'
 #define CLIENTREQUEST_SPLIT_SHARD       'h'
+#define CLIENTREQUEST_SUBMIT            '*'
 
 class ClientSession; // forward
 
@@ -107,6 +108,9 @@ public:
     bool            Remove(
                      uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key);
+
+    bool            Submit(
+                     uint64_t quorumID);
 
     // Variables
     ClientResponse  response;

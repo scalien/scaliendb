@@ -10,6 +10,7 @@
 #define CLIENTRESPONSE_CONFIG_STATE     'C'
 #define CLIENTRESPONSE_NOSERVICE        'S'
 #define CLIENTRESPONSE_FAILED           'F'
+#define CLIENTRESPONSE_NORESPONSE       ' '
 
 class ClientRequest; // forward
 
@@ -47,6 +48,7 @@ public:
     bool            ConfigStateResponse(ConfigState& configState);
     bool            NoService();
     bool            Failed();
+    bool            NoResponse();
 };
 
 #endif

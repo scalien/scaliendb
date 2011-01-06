@@ -177,7 +177,7 @@ def test_run(file, funcs = None):
 	return ret
 
 if __name__ == "__main__":
-	func = None
+	funcs = None
 	if len(sys.argv) > 2:
 		funcs = sys.argv[2:]
 	sys.exit(test_run(sys.argv[1], funcs))

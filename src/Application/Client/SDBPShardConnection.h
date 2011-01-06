@@ -31,7 +31,7 @@ public:
     
     void                    Connect();
     bool                    SendRequest(Request* request);
-    void                    SendSubmit();
+    void                    SendSubmit(uint64_t quorumID);
     void                    Flush();
 
     uint64_t                GetNodeID();
@@ -61,6 +61,7 @@ private:
     SortedList<uint64_t>    quorums;
     InList<Request>         sentRequests;
     ClientResponse          response;
+    ClientRequest           submitRequest;
 };
 
 }; // namespace

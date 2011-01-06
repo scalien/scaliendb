@@ -53,7 +53,8 @@ bool ClientRequest::IsShardServerRequest()
         type == CLIENTREQUEST_ADD               ||
         type == CLIENTREQUEST_APPEND            ||
         type == CLIENTREQUEST_DELETE            ||
-        type == CLIENTREQUEST_REMOVE)
+        type == CLIENTREQUEST_REMOVE            ||
+        type == CLIENTREQUEST_SUBMIT)
             return true;
     
     return false;
@@ -253,5 +254,13 @@ bool ClientRequest::Remove(
     commandID = commandID_;
     tableID = tableID_;
     key.Write(key_);
+    return true;
+}
+
+bool ClientRequest::Submit(
+ uint64_t quorumID_)
+{
+    type = CLIENTREQUEST_SUBMIT;
+    quorumID = quorumID_;
     return true;
 }

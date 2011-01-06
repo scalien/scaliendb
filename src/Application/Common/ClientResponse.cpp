@@ -4,6 +4,7 @@
 ClientResponse::ClientResponse()
 {
     valueBuffer = NULL;
+    type = CLIENTRESPONSE_NORESPONSE;
 }
 
 ClientResponse::~ClientResponse()
@@ -68,5 +69,11 @@ bool ClientResponse::NoService()
 bool ClientResponse::Failed()
 {
     type = CLIENTRESPONSE_FAILED;
+    return true;
+}
+
+bool ClientResponse::NoResponse()
+{
+    type = CLIENTRESPONSE_NORESPONSE;
     return true;
 }

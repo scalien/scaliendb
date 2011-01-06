@@ -3,10 +3,10 @@
 #include "SDBPShardConnection.h"
 #include "SDBPClientConsts.h"
 #include "System/IO/IOProcessor.h"
+#include "System/Mutex.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
-#include "System/Mutex.h"
 
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
@@ -17,13 +17,13 @@ static Mutex        clientMutex;
 #define CLIENT_MUTEX_LOCK()             mutex.Lock()
 #define CLIENT_MUTEX_UNLOCK()           mutex.Unlock()
 
-#else
+#else // CLIENT_MULTITHREAD
 
 #define CLIENT_MUTEX_GUARD_DECLARE()
 #define CLIENT_MUTEX_LOCK()
 #define CLIENT_MUTEX_UNLOCK()
 
-#endif
+#endif // CLIENT_MULTITHREAD
 
 #define MAX_SERVER_NUM  256
 
@@ -40,6 +40,33 @@ static Mutex        clientMutex;
 #define VALIDATE_CONTROLLER() \
     if (numControllers == 0) \
         return SDBP_API_ERROR;
+
+
+#define CLIENT_DATA_COMMAND(op, ...) \
+    Request*    req; \
+    \
+    CLIENT_MUTEX_GUARD_DECLARE(); \
+    \
+    if (!isDatabaseSet || !isTableSet) \
+        return SDBP_BADSCHEMA; \
+    \
+    req = new Request; \
+    req->op(NextCommandID(), tableID, __VA_ARGS__); \
+    requests.Append(req); \
+    \
+    if (isBatched) \
+    { \
+        result->AppendRequest(req); \
+        return SDBP_SUCCESS; \
+    } \
+    \
+    result->Close(); \
+    result->AppendRequest(req); \
+    \
+    CLIENT_MUTEX_UNLOCK(); \
+    EventLoop(); \
+    return result->CommandStatus(); \
+
 
 using namespace SDBPClient;
 
@@ -523,255 +550,47 @@ int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
 
 int Client::Get(const ReadBuffer& key)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-    
-    req = new Request;
-    req->Get(NextCommandID(), tableID, (ReadBuffer&) key);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-    
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_DATA_COMMAND(Get, (ReadBuffer&) key);
 }
-
 
 int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
 {
-    Request*    req;
-    
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-        
-    req = new Request;
-    req->Set(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-
-    result->Close();
-    result->AppendRequest(req);
-
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus(); 
+    CLIENT_DATA_COMMAND(Set, (ReadBuffer&) key, (ReadBuffer&) value);
 }
 
 int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
 {
-    Request*    req;
-    
-    CLIENT_MUTEX_GUARD_DECLARE();
-
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-    
-    req = new Request;
-    req->SetIfNotExists(NextCommandID(), tableID, key, value);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus(); 
+    CLIENT_DATA_COMMAND(SetIfNotExists, key, value);
 }
 
 int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-    
-    req = new Request;
-    req->TestAndSet(NextCommandID(), tableID, key, test, value);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus(); 
+    CLIENT_DATA_COMMAND(TestAndSet, key, test, value);
 }
 
 int Client::GetAndSet(ReadBuffer& key, ReadBuffer& value)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-    
-    req = new Request;
-    req->GetAndSet(NextCommandID(), tableID, key, value);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus(); 
+    CLIENT_DATA_COMMAND(GetAndSet, key, value);
 }
 
 int Client::Add(const ReadBuffer& key, int64_t number)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-    
-    req = new Request;
-    req->Add(NextCommandID(), tableID, (ReadBuffer&) key, number);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus(); 
+    CLIENT_DATA_COMMAND(Add, (ReadBuffer&) key, number);
 }
 
 int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-    
-    req = new Request;
-    req->Append(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus(); 
+    CLIENT_DATA_COMMAND(Append, (ReadBuffer&) key, (ReadBuffer&) value);
 }
 
 int Client::Delete(ReadBuffer& key)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-    
-    req = new Request;
-    req->Delete(NextCommandID(), tableID, key);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_DATA_COMMAND(Delete, key);
 }
 
 int Client::Remove(ReadBuffer& key)
 {
-    Request*    req;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    // TODO validations
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-    
-    req = new Request;
-    req->Remove(NextCommandID(), tableID, key);
-    requests.Append(req);
-    
-    if (isBatched)
-    {
-        result->AppendRequest(req);
-        return SDBP_SUCCESS;
-    }
-
-    result->Close();
-    result->AppendRequest(req);
-    
-    CLIENT_MUTEX_UNLOCK();
-    EventLoop();
-    return result->CommandStatus();
+    CLIENT_DATA_COMMAND(Remove, key);
 }
 
 int Client::Begin()
@@ -1097,10 +916,12 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
                 conn->Flush();
                 break;
             }
+            if (qrequests->GetLength() == 0)
+                conn->SendSubmit(quorumID);
         }
 
         if (qrequests->GetLength() == 0)
-            conn->SendSubmit();
+            conn->Flush();
     }
 }
 

@@ -98,6 +98,20 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     ConfigShard*            shard;
     ShardQuorumProcessor*   quorumProcessor;
     
+    if (request->type == CLIENTREQUEST_SUBMIT)
+    {
+        quorumProcessor = GetQuorumProcessor(request->quorumID);
+        if (!quorumProcessor)
+        {
+            request->response.NoResponse();
+            request->OnComplete();
+            return;
+        }
+
+        quorumProcessor->OnClientRequest(request);
+        return;
+    }
+    
     shard = configState.GetShard(request->tableID, ReadBuffer(request->key));
     if (!shard)
     {

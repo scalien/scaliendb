@@ -196,6 +196,14 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         return;
     }
     
+    if (request->type == CLIENTREQUEST_SUBMIT)
+    {
+        TryAppend();
+        request->response.NoResponse();
+        request->OnComplete();
+        return;
+    }
+    
     message = new ShardMessage;
     TransformRequest(request, message);
     
@@ -338,9 +346,11 @@ void ShardQuorumProcessor::TryAppend()
     Buffer          singleBuffer;
     ShardMessage*   it;
     bool            first;
+    unsigned        numMessages;
     
     assert(shardMessages.GetLength() > 0);
     
+    numMessages = 0;
     
     if (!quorumContext.IsAppending() && shardMessages.GetLength() > 0)
     {
@@ -361,6 +371,7 @@ void ShardQuorumProcessor::TryAppend()
             if (value.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_REPLICATION_SIZE)
             {
                 value.Appendf("%B", &singleBuffer);
+                numMessages++;
                 // make sure split shard messages are replicated by themselves
                 if (it->type == SHARDMESSAGE_SPLIT_SHARD)
                     break;
@@ -368,6 +379,8 @@ void ShardQuorumProcessor::TryAppend()
             else
                 break;
         }
+        
+        Log_Message("numMessages = %u", numMessages);
         
         assert(value.GetLength() > 0);
         

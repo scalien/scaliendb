@@ -1,7 +1,7 @@
 #include "TestFunction.h"
 
 TEST_START(TestMain);
-TEST_LOG_INIT(false, LOG_TARGET_STDOUT);
+TEST_LOG_INIT(true, LOG_TARGET_STDOUT);
 //TEST_ADD(TestArrayListBasic);
 //TEST_ADD(TestArrayListRemove);
 //TEST_ADD(TestClientAdd);

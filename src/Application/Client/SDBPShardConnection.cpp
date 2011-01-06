@@ -19,6 +19,7 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     nodeID = nodeID_;
     endpoint = endpoint_;
     autoFlush = false;
+    submitRequest.Init();
     Connect();
 }
 
@@ -46,9 +47,15 @@ bool ShardConnection::SendRequest(Request* request)
     return true;
 }
 
-void ShardConnection::SendSubmit()
+void ShardConnection::SendSubmit(uint64_t quorumID)
 {
-    // TODO: submit request
+    SDBPRequestMessage  msg;
+    
+    // TODO: optimize away submitRequest and msg by writing the buffer in constructor
+    submitRequest.Submit(quorumID);
+    msg.request = &submitRequest;
+    Write(msg);
+    
     Flush();
 }
 
