@@ -1,5 +1,6 @@
 #include "StorageBulkCursor.h"
 #include "StorageEnvironment.h"
+#include "StoragePageCache.h"
 
 StorageCursorBunch::StorageCursorBunch()
 {
@@ -55,6 +56,8 @@ StorageKeyValue* StorageBulkCursor::First()
     StorageChunk*       chunk;
     StorageChunk**      itChunk;
 
+    StoragePageCache::TryUnloadPages(env->GetStorageConfig());
+
     itChunk = shard->chunks.First();
     
     if (itChunk == NULL)
@@ -108,13 +111,14 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
 {
     StorageChunk**      itChunk;
 
+    StoragePageCache::TryUnloadPages(env->GetStorageConfig());
     bunch.keyValues.DeleteTree();
 
     while (true)
     {
         if (!bunch.IsLast())
         {
-            chunk->NextBunch(bunch);
+            chunk->NextBunch(bunch, shard);
             if (bunch.First())
                 return bunch.First();
             else

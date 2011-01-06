@@ -54,6 +54,16 @@ uint32_t StorageHeaderPage::GetBloomPageSize()
     return bloomPageSize;
 }
 
+ReadBuffer StorageHeaderPage::GetFirstKey()
+{
+    return ReadBuffer(firstKey);
+}
+
+ReadBuffer StorageHeaderPage::GetLastKey()
+{
+    return ReadBuffer(lastKey);
+}
+
 void StorageHeaderPage::SetChunkID(uint64_t chunkID_)
 {
     chunkID = chunkID_;
@@ -99,6 +109,16 @@ void StorageHeaderPage::SetBloomPageSize(uint32_t bloomPageSize_)
     bloomPageSize = bloomPageSize_;
 }
 
+void StorageHeaderPage::SetFirstKey(ReadBuffer firstKey_)
+{
+    firstKey.Write(firstKey_);
+}
+
+void StorageHeaderPage::SetLastKey(ReadBuffer lastKey_)
+{
+    lastKey.Write(lastKey_);
+}
+
 bool StorageHeaderPage::UseBloomFilter()
 {
     return useBloomFilter;
@@ -106,7 +126,7 @@ bool StorageHeaderPage::UseBloomFilter()
 
 bool StorageHeaderPage::Read(Buffer& buffer)
 {
-    uint32_t        size, checksum, compChecksum, version;
+    uint32_t        size, checksum, compChecksum, version, firstLen, lastLen;
     ReadBuffer      parse, dataPart;
     
     parse.Wrap(buffer);
@@ -175,6 +195,22 @@ bool StorageHeaderPage::Read(Buffer& buffer)
         parse.Advance(4);
     }
     
+    if (!parse.ReadLittle32(firstLen))
+        return false;
+    parse.Advance(4);
+    if (parse.GetLength() < firstLen)
+        return false;        
+    firstKey.Write(parse.GetBuffer(), firstLen);
+    parse.Advance(firstLen);
+
+    if (!parse.ReadLittle32(lastLen))
+        return false;
+    parse.Advance(4);
+    if (parse.GetLength() < lastLen)
+        return false;        
+    firstKey.Write(parse.GetBuffer(), lastLen);
+    parse.Advance(lastLen);
+    
     return true;
 }
 
@@ -209,6 +245,10 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
         writeBuffer.AppendLittle64(bloomPageOffset);
         writeBuffer.AppendLittle32(bloomPageSize);
     }
+    writeBuffer.AppendLittle32(firstKey.GetLength());
+    writeBuffer.Append(firstKey);
+    writeBuffer.AppendLittle32(lastKey.GetLength());
+    writeBuffer.Append(lastKey);
     writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
     dataPart.Wrap(writeBuffer.GetBuffer() + 8, writeBuffer.GetLength() - 8);
     checksum = dataPart.GetChecksum();
@@ -220,4 +260,6 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
 
 void StorageHeaderPage::Unload()
 {
+    firstKey.Reset();
+    lastKey.Reset();
 }

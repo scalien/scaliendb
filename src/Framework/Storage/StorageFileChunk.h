@@ -36,7 +36,7 @@ public:
 
     ChunkState          GetChunkState();
     
-    void                NextBunch(StorageCursorBunch& bunch);
+    void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard);
 
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
@@ -56,6 +56,8 @@ public:
     void                LoadBloomPage();
     void                LoadIndexPage();
     void                LoadDataPage(uint32_t index, uint32_t offset, bool bulk = false);
+
+    bool                RangeContains(ReadBuffer key);
 
     StorageFileChunk*   prev;
     StorageFileChunk*   next;

@@ -101,7 +101,7 @@ bool StorageShard::UseBloomFilter()
     return useBloomFilter;
 }
 
-bool StorageShard::RangeContains(ReadBuffer& key)
+bool StorageShard::RangeContains(ReadBuffer key)
 {
     int         cf, cl;
     ReadBuffer  firstKey, lastKey;
@@ -133,6 +133,11 @@ void StorageShard::PushMemoChunk(StorageMemoChunk* memoChunk_)
         chunks.Add(memoChunk);
 
     memoChunk = memoChunk_;
+}
+
+void StorageShard::PushChunk(StorageChunk* chunk)
+{
+    chunks.Add(chunk);
 }
 
 StorageMemoChunk* StorageShard::GetMemoChunk()

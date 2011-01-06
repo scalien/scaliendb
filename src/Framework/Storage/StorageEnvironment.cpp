@@ -7,6 +7,16 @@
 #include "StorageRecovery.h"
 #include "StoragePageCache.h"
 
+static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b);
+}
+
+static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
+{
+    return kv->GetKey();
+}
+
 StorageEnvironment::StorageEnvironment()
 {
     commitThread = NULL;
@@ -162,6 +172,11 @@ void StorageEnvironment::Close()
 void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
 {
     config = config_;
+}
+
+StorageConfig& StorageEnvironment::GetStorageConfig()
+{
+    return config;
 }
 
 uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
@@ -417,10 +432,14 @@ bool StorageEnvironment::DeleteShard(uint16_t /*contextID*/, uint64_t /*shardID*
 bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
  uint64_t newShardID, ReadBuffer splitKey)
 {
-    StorageShard*       shard;
-    StorageShard*       newShard;
-    StorageMemoChunk*   memoChunk;
-
+    StorageShard*           shard;
+    StorageShard*           newShard;
+    StorageMemoChunk*       memoChunk;
+    StorageMemoChunk*       newMemoChunk;
+    StorageChunk**          itChunk;
+    StorageMemoKeyValue*    itKeyValue;
+    StorageMemoKeyValue*    kv;
+    
     if (headLogSegment->HasUncommitted())
         return false;       // meta writes must occur in-between data writes (commits)
     
@@ -442,13 +461,32 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     newShard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
     newShard->SetLogCommandID(headLogSegment->GetLogCommandID());
 
-    // TODO: copy old chunkIDs!!!!
+    FOREACH(itChunk, shard->GetChunks())
+        newShard->PushChunk(*itChunk);
 
-    memoChunk = new StorageMemoChunk;
-    memoChunk->SetChunkID(nextChunkID++);
-    memoChunk->SetUseBloomFilter(shard->UseBloomFilter());
+    memoChunk = shard->GetMemoChunk();
 
-    newShard->PushMemoChunk(memoChunk);
+    newMemoChunk = new StorageMemoChunk;
+    newMemoChunk->chunkID = nextChunkID++;
+    newMemoChunk->minLogSegmentID = memoChunk->minLogSegmentID;
+    newMemoChunk->maxLogSegmentID = memoChunk->maxLogSegmentID;
+    newMemoChunk->maxLogCommandID = memoChunk->maxLogCommandID;
+    newMemoChunk->useBloomFilter = memoChunk->useBloomFilter;
+
+    FOREACH(itKeyValue, memoChunk->keyValues)
+    {
+        if (newShard->RangeContains(itKeyValue->GetKey()))
+        {
+            kv = new StorageMemoKeyValue;
+            if (itKeyValue->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+                newMemoChunk->Set(itKeyValue->GetKey(), itKeyValue->GetValue());
+            else
+                newMemoChunk->Delete(itKeyValue->GetKey());
+            newMemoChunk->keyValues.Insert(kv);
+        }
+    }
+
+    newShard->PushMemoChunk(newMemoChunk);
 
     shards.Append(newShard);
 
