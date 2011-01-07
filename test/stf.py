@@ -154,7 +154,7 @@ def create_main(file, testname, funcs):
 	f.flush()
 	return f
 
-def test_run(file, funcs = None):
+def compile_program(file, funcs = None, run=False):
 	cc = Compiler([SRC_DIR], BUILD_DIR)
 	if funcs == None:
 		input = SRC_DIR + "/" + TEST_DIR + file + ".cpp"
@@ -173,11 +173,23 @@ def test_run(file, funcs = None):
 	output = BUILD_DIR + "/" + "TestProgram" #+ str(uuid.uuid1())
 	bin = ld.link(objects, output)
 	#print(bin)
-	ret, stdout, stderr = shell_exec(bin, False, False)
+	ret = None
+	if run:
+		ret, stdout, stderr = shell_exec(bin, False, False)
 	return ret
+
+def test_run(file, funcs = None):
+	return compile_program(file, funcs, True)
 
 if __name__ == "__main__":
 	funcs = None
-	if len(sys.argv) > 2:
-		funcs = sys.argv[2:]
-	sys.exit(test_run(sys.argv[1], funcs))
+	args = sys.argv
+	file = sys.argv[1]
+	cmd = test_run
+	if sys.argv[1] == "-c":
+		args = sys.argv[1:]
+		cmd = compile_program
+		file = args[1]
+	if len(args) > 2:
+		funcs = args[2:]		
+	sys.exit(cmd(file, funcs))
