@@ -2,7 +2,7 @@
 #define STORAGEBLOOMPAGE_H
 
 #include "StoragePage.h"
-#include "Framework/BloomFilter.h"
+#include "BloomFilter.h"
 
 class StorageFileChunk;
 
