@@ -108,7 +108,7 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
         assert(shardMessagesLength >= 0);
     }
     
-    if (shardMessages.GetLength() > 0)
+    if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
         EventLoop::Add(&tryAppend);
 }
 
@@ -229,7 +229,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     if (request->type == CLIENTREQUEST_SUBMIT)
     {
-        EventLoop::Add(&tryAppend);
+        if (!tryAppend.IsActive())
+            EventLoop::Add(&tryAppend);
         request->response.NoResponse();
         request->OnComplete();
         return;
@@ -248,7 +249,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     assert(shardMessagesLength >= 0);
     
-    if (shardMessagesLength >= PAXOS_VALUE_LENGTH_TARGET)
+    if (!tryAppend.IsActive() && shardMessagesLength >= PAXOS_VALUE_LENGTH_TARGET)
     {
         Log_Trace("shardMessagesLength: %U", shardMessagesLength);
         EventLoop::Add(&tryAppend);
