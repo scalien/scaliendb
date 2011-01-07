@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		543DE5D012BFBB3D0069786A /* BloomFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE53C12BFBB3D0069786A /* BloomFilter.cpp */; };
 		543DE5D112BFBB3D0069786A /* ClusterConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE53F12BFBB3D0069786A /* ClusterConnection.cpp */; };
 		543DE5D212BFBB3D0069786A /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54112BFBB3D0069786A /* ClusterServer.cpp */; };
 		543DE5D312BFBB3D0069786A /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54312BFBB3D0069786A /* ClusterTransport.cpp */; };
@@ -102,6 +101,7 @@
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
+		5499B82E12D72EB000ECEF7F /* BloomFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5499B82C12D72EB000ECEF7F /* BloomFilter.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -185,8 +185,6 @@
 
 /* Begin PBXFileReference section */
 		541D826411C7A17D00A6CB16 /* Callable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Callable.h; sourceTree = "<group>"; };
-		543DE53C12BFBB3D0069786A /* BloomFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BloomFilter.cpp; sourceTree = "<group>"; };
-		543DE53D12BFBB3D0069786A /* BloomFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BloomFilter.h; sourceTree = "<group>"; };
 		543DE53F12BFBB3D0069786A /* ClusterConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterConnection.cpp; sourceTree = "<group>"; };
 		543DE54012BFBB3D0069786A /* ClusterConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterConnection.h; sourceTree = "<group>"; };
 		543DE54112BFBB3D0069786A /* ClusterServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterServer.cpp; sourceTree = "<group>"; };
@@ -234,7 +232,6 @@
 		543DE57312BFBB3D0069786A /* ReplicatedLog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicatedLog.h; sourceTree = "<group>"; };
 		543DE57412BFBB3D0069786A /* ReplicationConfig.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReplicationConfig.cpp; sourceTree = "<group>"; };
 		543DE57512BFBB3D0069786A /* ReplicationConfig.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReplicationConfig.h; sourceTree = "<group>"; };
-		543DE57712BFBB3D0069786A /* Biglog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Biglog.txt; sourceTree = "<group>"; };
 		543DE57812BFBB3D0069786A /* FDGuard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FDGuard.cpp; sourceTree = "<group>"; };
 		543DE57912BFBB3D0069786A /* FDGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FDGuard.h; sourceTree = "<group>"; };
 		543DE57A12BFBB3D0069786A /* PointerGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PointerGuard.h; sourceTree = "<group>"; };
@@ -405,6 +402,8 @@
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
+		5499B82C12D72EB000ECEF7F /* BloomFilter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BloomFilter.cpp; sourceTree = "<group>"; };
+		5499B82D12D72EB000ECEF7F /* BloomFilter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BloomFilter.h; sourceTree = "<group>"; };
 		54B7F74411BE5EF30076BC62 /* Common.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Common.cpp; sourceTree = "<group>"; };
 		54B7F74511BE5EF30076BC62 /* Common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Common.h; sourceTree = "<group>"; };
 		54B7F74611BE5EF30076BC62 /* Config.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Config.cpp; sourceTree = "<group>"; };
@@ -542,8 +541,6 @@
 		543DE53B12BFBB3D0069786A /* Framework */ = {
 			isa = PBXGroup;
 			children = (
-				543DE53C12BFBB3D0069786A /* BloomFilter.cpp */,
-				543DE53D12BFBB3D0069786A /* BloomFilter.h */,
 				543DE53E12BFBB3D0069786A /* Clustering */,
 				543DE54512BFBB3D0069786A /* Messaging */,
 				543DE54A12BFBB3D0069786A /* Replication */,
@@ -672,6 +669,8 @@
 		543DE57612BFBB3D0069786A /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				5499B82C12D72EB000ECEF7F /* BloomFilter.cpp */,
+				5499B82D12D72EB000ECEF7F /* BloomFilter.h */,
 				543DE71012C0B7290069786A /* KeyValue */,
 				543DE70F12C0B7010069786A /* Chunk */,
 				543DE70E12C0B6D60069786A /* Environment */,
@@ -694,7 +693,6 @@
 				543DE73212C0B8730069786A /* StorageBulkCursor.h */,
 				543DE73312C0B8730069786A /* StorageBulkCursor.cpp */,
 				543DE5A712BFBB3D0069786A /* TODO.txt */,
-				543DE57712BFBB3D0069786A /* Biglog.txt */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -844,28 +842,28 @@
 		543DE68812BFBB420069786A /* ShardServer */ = {
 			isa = PBXGroup;
 			children = (
-				543DE68912BFBB420069786A /* ShardCatchupReader.cpp */,
 				543DE68A12BFBB420069786A /* ShardCatchupReader.h */,
-				543DE68B12BFBB420069786A /* ShardCatchupWriter.cpp */,
+				543DE68912BFBB420069786A /* ShardCatchupReader.cpp */,
 				543DE68C12BFBB420069786A /* ShardCatchupWriter.h */,
-				543DE68D12BFBB420069786A /* ShardDatabaseManager.cpp */,
+				543DE68B12BFBB420069786A /* ShardCatchupWriter.cpp */,
 				543DE68E12BFBB420069786A /* ShardDatabaseManager.h */,
-				543DE68F12BFBB420069786A /* ShardHeartbeatManager.cpp */,
+				543DE68D12BFBB420069786A /* ShardDatabaseManager.cpp */,
 				543DE69012BFBB420069786A /* ShardHeartbeatManager.h */,
-				543DE69112BFBB420069786A /* ShardHTTPClientSession.cpp */,
+				543DE68F12BFBB420069786A /* ShardHeartbeatManager.cpp */,
 				543DE69212BFBB420069786A /* ShardHTTPClientSession.h */,
-				543DE69312BFBB420069786A /* ShardHTTPHandler.cpp */,
+				543DE69112BFBB420069786A /* ShardHTTPClientSession.cpp */,
 				543DE69412BFBB420069786A /* ShardHTTPHandler.h */,
-				543DE69512BFBB420069786A /* ShardMessage.cpp */,
+				543DE69312BFBB420069786A /* ShardHTTPHandler.cpp */,
 				543DE69612BFBB420069786A /* ShardMessage.h */,
-				543DE69712BFBB420069786A /* ShardQuorumContext.cpp */,
+				543DE69512BFBB420069786A /* ShardMessage.cpp */,
 				543DE69812BFBB420069786A /* ShardQuorumContext.h */,
-				543DE69912BFBB420069786A /* ShardQuorumProcessor.cpp */,
+				543DE69712BFBB420069786A /* ShardQuorumContext.cpp */,
 				543DE69A12BFBB420069786A /* ShardQuorumProcessor.h */,
-				543DE69B12BFBB420069786A /* ShardServer.cpp */,
+				543DE69912BFBB420069786A /* ShardQuorumProcessor.cpp */,
 				543DE69C12BFBB420069786A /* ShardServer.h */,
-				543DE69D12BFBB420069786A /* ShardServerApp.cpp */,
+				543DE69B12BFBB420069786A /* ShardServer.cpp */,
 				543DE69E12BFBB420069786A /* ShardServerApp.h */,
+				543DE69D12BFBB420069786A /* ShardServerApp.cpp */,
 			);
 			path = ShardServer;
 			sourceTree = "<group>";
@@ -1054,8 +1052,8 @@
 				9AE8177612CE1E5A0038BDB1 /* Java */,
 				9AE8179212CE1EA40038BDB1 /* Python */,
 				9AE8176812CE1E550038BDB1 /* scaliendb_client.i */,
-				9AE8176912CE1E550038BDB1 /* SDBPClient.cpp */,
 				9AE8176A12CE1E550038BDB1 /* SDBPClient.h */,
+				9AE8176912CE1E550038BDB1 /* SDBPClient.cpp */,
 				9AE8176B12CE1E550038BDB1 /* SDBPClientConsts.h */,
 				9AE8176C12CE1E550038BDB1 /* SDBPClientRequest.cpp */,
 				9AE8176D12CE1E550038BDB1 /* SDBPClientRequest.h */,
@@ -1218,7 +1216,6 @@
 				546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */,
 				548F50A012157A050035ADDB /* Formatting.cpp in Sources */,
 				9ACF203F122E942900247703 /* FileSystem.cpp in Sources */,
-				543DE5D012BFBB3D0069786A /* BloomFilter.cpp in Sources */,
 				543DE5D112BFBB3D0069786A /* ClusterConnection.cpp in Sources */,
 				543DE5D212BFBB3D0069786A /* ClusterServer.cpp in Sources */,
 				543DE5D312BFBB3D0069786A /* ClusterTransport.cpp in Sources */,
@@ -1308,6 +1305,7 @@
 				543DE6E612BFBB420069786A /* ShardServerApp.cpp in Sources */,
 				543DE73412C0B8730069786A /* StorageBulkCursor.cpp in Sources */,
 				543DE8C512C113770069786A /* StorageShardProxy.cpp in Sources */,
+				5499B82E12D72EB000ECEF7F /* BloomFilter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
