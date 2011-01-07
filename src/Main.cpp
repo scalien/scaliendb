@@ -6,15 +6,12 @@
 #include "Application/ConfigServer/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
 
-#ifdef DEBUG
-#define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING " (DEBUG build date " __DATE__ " " __TIME__ ")"
-#else
-#define VERSION_FMT_STRING "ScalienDB v" VERSION_STRING
-#endif
+#define PRODUCT_STRING "ScalienDB v" VERSION_STRING 
 
 void InitLog();
 bool IsController();
 void InitContextTransport();
+void LogPrintVersion(bool isController);
 
 int main(int argc, char** argv)
 {
@@ -33,7 +30,7 @@ int main(int argc, char** argv)
     InitContextTransport();
     
     isController = IsController();
-    Log_Message(VERSION_FMT_STRING " started as %s", isController ? "CONTROLLER" : "SHARD SERVER");
+    LogPrintVersion(isController);
     if (isController)
         app = new ConfigServerApp;
     else
@@ -107,4 +104,21 @@ void InitContextTransport()
         ASSERT_FAIL();
     endpoint.Set(str);
     CONTEXT_TRANSPORT->Init(endpoint);
+}
+
+void LogPrintVersion(bool isController)
+{
+    const char*     debugInfo = "";
+    const char*     productString = PRODUCT_STRING;
+    const char*     buildDate = "Build date: " __DATE__ " " __TIME__;
+
+#ifdef DEBUG
+    Buffer          debugBuffer;
+    
+    debugBuffer.Appendf(" -- DEBUG %s, Pid: %U", buildDate, GetProcessID());
+    debugInfo = debugBuffer.GetBuffer();
+#endif    
+    
+    Log_Message("%s started as %s%s", productString,
+     isController ? "CONTROLLER" : "SHARD SERVER", debugInfo);
 }

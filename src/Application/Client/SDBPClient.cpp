@@ -11,7 +11,7 @@
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
 
-static Mutex        clientMutex;
+Mutex        clientMutex;
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutex(clientMutex)
 #define CLIENT_MUTEX_LOCK()             mutex.Lock()
@@ -198,6 +198,8 @@ void Client::Shutdown()
     
     delete result;
     
+    shardConnections.DeleteTree();
+    
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
     IOProcessor::Shutdown();
@@ -206,13 +208,29 @@ void Client::Shutdown()
 void Client::SetGlobalTimeout(uint64_t timeout)
 {
     CLIENT_MUTEX_GUARD_DECLARE();
-    globalTimeout.SetDelay(timeout);
+
+    if (globalTimeout.IsActive())
+    {
+        EventLoop::Remove(&globalTimeout);
+        globalTimeout.SetDelay(timeout);
+        EventLoop::Add(&globalTimeout);
+    }
+    else
+        globalTimeout.SetDelay(timeout);
 }
 
 void Client::SetMasterTimeout(uint64_t timeout)
 {
     CLIENT_MUTEX_GUARD_DECLARE();
-    masterTimeout.SetDelay(timeout);
+    
+    if (masterTimeout.IsActive())
+    {
+        EventLoop::Remove(&masterTimeout);
+        masterTimeout.SetDelay(timeout);
+        EventLoop::Add(&masterTimeout);
+    }
+    else
+        masterTimeout.SetDelay(timeout);
 }
 
 uint64_t Client::GetGlobalTimeout()
@@ -485,7 +503,7 @@ void Client::EventLoop()
         EventLoop::RunTimers();
         if (IsDone())
             break;
-        if (!IOProcessor::Poll(1))
+        if (!IOProcessor::Poll(0))
             break;
 
         // let other threads to enter IOProcessor and complete requests

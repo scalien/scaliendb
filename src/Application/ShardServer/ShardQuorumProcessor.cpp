@@ -83,9 +83,12 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
     int             read;
     ShardMessage    message;
     uint64_t        commandID;
+    uint64_t        valueLength;
     
     Log_Trace();
-    
+
+    valueLength = value.GetLength();
+
     commandID = 0;
     while (value.GetLength() > 0)
     {
@@ -99,12 +102,13 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
     
     if (ownAppend)
     {
-        shardMessagesLength -= value.GetLength();
+        shardMessagesLength -= valueLength;
+        Log_Trace("shardMessagesLength: %U", shardMessagesLength);
         assert(shardMessagesLength >= 0);
     }
     
-    if (shardMessages.GetLength() > 0)
-        TryAppend();
+//    if (shardMessages.GetLength() > 0)
+//        TryAppend();
 }
 
 void ShardQuorumProcessor::OnStartCatchup()
@@ -244,7 +248,10 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     assert(shardMessagesLength >= 0);
     
     if (shardMessagesLength >= PAXOS_VALUE_LENGTH_TARGET)
+    {
+        Log_Trace("shardMessagesLength: %U", shardMessagesLength);
         TryAppend();
+    }
 }
 
 void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)

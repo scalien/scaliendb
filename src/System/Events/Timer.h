@@ -18,7 +18,7 @@ class Timer
 
 public:
     Timer();
-    virtual ~Timer() {}
+    virtual ~Timer();
         
     void            SetCallable(Callable callable);
     void            SetExpireTime(uint64_t when);

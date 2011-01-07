@@ -276,7 +276,7 @@ void StorageRecovery::ReplayLogSegments()
     
     FS_CloseDir(dir);
     
-    Log_Message("Done.");
+    Log_Message("Replaying done.");
 }
 
 bool StorageRecovery::ReplayLogSegment(Buffer& filename)

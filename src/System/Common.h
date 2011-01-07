@@ -59,6 +59,7 @@ void            BlockSignals();
 bool            ChangeUser(const char *username);
 void            PrintStackTrace();
 int             ShellExec(const char *cmdline);
+uint64_t        GetProcessID();
 
 uint32_t        ChecksumBuffer(const char* buffer, unsigned length);
 

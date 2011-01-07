@@ -84,7 +84,7 @@ public:
     int                     Cancel();
     bool                    IsBatched();
 
-private:
+//private:
     typedef InList<Request>                 RequestList;
     typedef InTreeMap<ShardConnection>      ShardConnectionMap;
     typedef HashMap<uint64_t, RequestList*> RequestListMap;

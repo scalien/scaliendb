@@ -15,7 +15,6 @@ class Countdown : public Timer
 {
 public:
     Countdown();    
-    virtual ~Countdown() {};
         
     void            SetDelay(uint64_t delay);
     uint64_t        GetDelay() const;
