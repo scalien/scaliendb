@@ -14,6 +14,7 @@
 #endif
 #include "Macros.h"
 #include "Time.h"
+#include "Buffers/Buffer.h"
 
 unsigned NumDigits(int n)
 {
@@ -317,7 +318,7 @@ int ShellExec(const char* cmdline)
 #ifdef _WIN32
     Buffer  cmd;
     
-    return (_spawnlp(_P_WAIT, "cmd", "/c", cmdline, NULL);
+    return (_spawnlp(_P_WAIT, "cmd", "/c", cmdline, NULL));
 #else
     return system(cmdline);
 #endif

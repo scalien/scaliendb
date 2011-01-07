@@ -28,6 +28,7 @@ public:
 
     virtual void                Start();
     virtual void                Stop();
+    virtual void                WaitStop();
 
     virtual void                Execute(const Callable& callable);
     
@@ -101,6 +102,29 @@ void ThreadPool_Windows::Stop()
         CloseHandle(event);
 
     DeleteCriticalSection(&critsec);
+}
+
+void ThreadPool_Windows::WaitStop()
+{
+/*
+    //TODO: write this function properly
+    bool    isStarted;
+
+    if (!running)
+        return;
+
+WaitStarted:
+    while(true)
+       WaitForSingleObject(event, INFINITE);
+
+    isStarted = false;
+    EnterCriticalSection (&critsec);
+    if (numStarted == numThread)
+        isStarted = true;
+    LeaveCriticalSection (&critsec);
+    if (!isStarted)
+        goto WaitStarted; 
+*/
 }
 
 void ThreadPool_Windows::Execute(const Callable& callable)

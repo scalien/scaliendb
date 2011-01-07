@@ -1,3 +1,5 @@
+#ifndef PLATFORM_WINDOWS
+
 #include "Mutex.h"
 
 Mutex::Mutex()
@@ -30,3 +32,5 @@ void Mutex::Unlock()
 {
     pthread_mutex_unlock(&mutex);
 }
+
+#endif
