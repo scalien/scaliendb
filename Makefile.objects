@@ -46,7 +46,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/ShardServer/ShardQuorumProcessor.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServer.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServerApp.o \
-	$(BUILD_DIR)/Framework/BloomFilter.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterConnection.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterServer.o \
 	$(BUILD_DIR)/Framework/Clustering/ClusterTransport.o \
@@ -66,6 +65,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Replication/Quorums/TotalQuorum.o \
 	$(BUILD_DIR)/Framework/Replication/ReplicatedLog/ReplicatedLog.o \
 	$(BUILD_DIR)/Framework/Replication/ReplicationConfig.o \
+	$(BUILD_DIR)/Framework/Storage/BloomFilter.o \
 	$(BUILD_DIR)/Framework/Storage/FDGuard.o \
 	$(BUILD_DIR)/Framework/Storage/StorageBloomPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageBulkCursor.o \

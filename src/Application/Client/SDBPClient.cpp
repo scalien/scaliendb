@@ -27,75 +27,75 @@ Mutex        clientMutex;
 
 #define MAX_IO_CONNECTION   1024
 
-#define VALIDATE_CONFIG_STATE() \
-    if (configState == NULL) \
-    { \
-        result->Close(); \
-        EventLoop(); \
-    } \
-    if (configState == NULL) \
-        return SDBP_NOSERVICE; \
+#define VALIDATE_CONFIG_STATE()     \
+    if (configState == NULL)        \
+    {                               \
+        result->Close();            \
+        EventLoop();                \
+    }                               \
+    if (configState == NULL)        \
+        return SDBP_NOSERVICE;      \
 
 
-#define VALIDATE_CONTROLLER() \
-    if (numControllers == 0) \
+#define VALIDATE_CONTROLLER()       \
+    if (numControllers == 0)        \
         return SDBP_API_ERROR;
 
 
-#define CLIENT_DATA_COMMAND(op, ...) \
-    Request*    req; \
-    \
-    CLIENT_MUTEX_GUARD_DECLARE(); \
-    \
-    if (!isDatabaseSet || !isTableSet) \
-        return SDBP_BADSCHEMA; \
-    \
-    req = new Request; \
+#define CLIENT_DATA_COMMAND(op, ...)                \
+    Request*    req;                                \
+                                                    \
+    CLIENT_MUTEX_GUARD_DECLARE();                   \
+                                                    \
+    if (!isDatabaseSet || !isTableSet)              \
+        return SDBP_BADSCHEMA;                      \
+                                                    \
+    req = new Request;                              \
     req->op(NextCommandID(), tableID, __VA_ARGS__); \
-    requests.Append(req); \
-    \
-    if (isBatched) \
-    { \
-        result->AppendRequest(req); \
-        return SDBP_SUCCESS; \
-    } \
-    \
-    result->Close(); \
-    result->AppendRequest(req); \
-    \
-    CLIENT_MUTEX_UNLOCK(); \
-    EventLoop(); \
-    return result->CommandStatus(); \
+    requests.Append(req);                           \
+                                                    \
+    if (isBatched)                                  \
+    {                                               \
+        result->AppendRequest(req);                 \
+        return SDBP_SUCCESS;                        \
+    }                                               \
+                                                    \
+    result->Close();                                \
+    result->AppendRequest(req);                     \
+                                                    \
+    CLIENT_MUTEX_UNLOCK();                          \
+    EventLoop();                                    \
+    return result->CommandStatus();                 \
 
 
-#define CLIENT_SCHEMA_COMMAND(op, ...) \
-    Request*    req; \
-    \
-    CLIENT_MUTEX_GUARD_DECLARE(); \
-    VALIDATE_CONTROLLER(); \
-    \
-    if (configState == NULL) \
-    { \
-        result->Close(); \
-        CLIENT_MUTEX_UNLOCK(); \
-        EventLoop(); \
-        CLIENT_MUTEX_LOCK(); \
-    } \
-    \
-    if (configState == NULL) \
-        return SDBP_NOSERVICE; \
-    \
-    req = new Request; \
-    req->op(NextCommandID(), __VA_ARGS__); \
-    \
-    requests.Append(req); \
-    \
-    result->Close(); \
-    result->AppendRequest(req); \
-    \
-    CLIENT_MUTEX_UNLOCK(); \
-    EventLoop(); \
-    return result->CommandStatus(); \
+#define CLIENT_SCHEMA_COMMAND(op, ...)              \
+    Request*    req;                                \
+                                                    \
+    CLIENT_MUTEX_GUARD_DECLARE();                   \
+    VALIDATE_CONTROLLER();                          \
+                                                    \
+    if (configState == NULL)                        \
+    {                                               \
+        result->Close();                            \
+        CLIENT_MUTEX_UNLOCK();                      \
+        EventLoop();                                \
+        CLIENT_MUTEX_LOCK();                        \
+    }                                               \
+                                                    \
+    if (configState == NULL)                        \
+        return SDBP_NOSERVICE;                      \
+                                                    \
+    req = new Request;                              \
+    req->op(NextCommandID(), __VA_ARGS__);          \
+                                                    \
+    requests.Append(req);                           \
+                                                    \
+    result->Close();                                \
+    result->AppendRequest(req);                     \
+                                                    \
+    CLIENT_MUTEX_UNLOCK();                          \
+    EventLoop();                                    \
+    return result->CommandStatus();                 \
 
 
 using namespace SDBPClient;
