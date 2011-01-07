@@ -269,16 +269,18 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
-    char            valbuf[10];
+    char            valbuf[100];
     char            keybuf[10];
     int             ret;
-    unsigned        num = 1000;
+    unsigned        num = 100;
+    unsigned        total;
     Stopwatch       sw;
     static int      counter = 0;
     int             id;
     
     id = counter++;
     //TEST_LOG("Started id = %d", id);
+    total = 0;
     
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
@@ -295,46 +297,48 @@ TEST_DEFINE(TestClientBatchedSetRandom)
 
     for (unsigned x = 0; x < 100; x++)
     {
-    ret = client.Begin();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    //TEST_LOG("Generating random data...");
-    
-    for (unsigned i = 0; i < num; i++)
-    {
-//        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
-//        key.Wrap(keybuf, ret);
-        RandomBuffer(keybuf, sizeof(keybuf));
-        key.Wrap(keybuf, sizeof(keybuf));
-        RandomBuffer(valbuf, sizeof(valbuf));
-        value.Wrap(valbuf, sizeof(valbuf));
-        ret = client.Set(key, value);
+        ret = client.Begin();
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
+        
+        //TEST_LOG("Generating random data...");
+        
+        for (unsigned i = 0; i < num; i++)
+        {
+    //        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+    //        key.Wrap(keybuf, ret);
+            RandomBuffer(keybuf, sizeof(keybuf));
+            key.Wrap(keybuf, sizeof(keybuf));
+            RandomBuffer(valbuf, sizeof(valbuf));
+            value.Wrap(valbuf, sizeof(valbuf));
+            ret = client.Set(key, value);
+            total++;
+            if (ret != SDBP_SUCCESS)
+                TEST_CLIENT_FAIL();
+        }
+
+        //TEST_LOG("Generated data, start Submit");
+        //Log_Message("start id = %d", id);
+
+        sw.Start();
+        ret = client.Submit();
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+        sw.Stop();
+
+        //Log_Message("stop id = %d", id);
+
+        if ((num / (sw.Elapsed() / 1000.0)) > 100*1000)
+        {
+            PRINT_CLIENT_STATUS("Transport", client.TransportStatus());
+            PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus());
+            PRINT_CLIENT_STATUS("Timeout", client.TimeoutStatus());
+            PRINT_CLIENT_STATUS(" Command", client.CommandStatus());
+        }
+        
     }
 
-    //TEST_LOG("Generated data, start Submit");
-    //Log_Message("start id = %d", id);
-
-    sw.Restart();
-    ret = client.Submit();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    sw.Stop();
-
-    //Log_Message("stop id = %d", id);
-    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
-
-    if ((num / (sw.Elapsed() / 1000.0)) > 100*1000)
-    {
-        PRINT_CLIENT_STATUS("Transport", client.TransportStatus());
-        PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus());
-        PRINT_CLIENT_STATUS("Timeout", client.TimeoutStatus());
-        PRINT_CLIENT_STATUS(" Command", client.CommandStatus());
-    }
-    
-    }
+    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), total / (sw.Elapsed() / 1000.0));
     
     client.Shutdown();
     return TEST_SUCCESS;
@@ -1004,7 +1008,7 @@ TEST_DEFINE(TestClientMultiThread)
     
     threadPool = ThreadPool::Create(numThread);
     
-    for (unsigned i = 0; i < 10; i++)
+    for (unsigned i = 0; i < 1; i++)
     {  
         threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
     }

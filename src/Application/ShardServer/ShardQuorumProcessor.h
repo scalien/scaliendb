@@ -88,6 +88,7 @@ private:
 
     Countdown               requestLeaseTimeout;
     Timer                   leaseTimeout;
+    YieldTimer              tryAppend;
 };
 
 #endif

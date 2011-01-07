@@ -3,7 +3,7 @@
 MessageConnection::MessageConnection()
 {
     resumeRead.SetCallable(MFUNC(MessageConnection, OnResumeRead));
-    resumeRead.SetDelay(1);
+    flushWrites.SetCallable(MFUNC(MessageConnection, OnFlushWrites));
     writeBuffer = NULL;
     autoFlush = true;
 }
@@ -189,7 +189,7 @@ void MessageConnection::OnRead()
             // let other code run every YIELD_TIME msec
             yield = true;
             if (resumeRead.IsActive())
-                ASSERT_FAIL();
+                STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
             EventLoop::Add(&resumeRead);
             break;
         }
@@ -217,6 +217,17 @@ void MessageConnection::OnResumeRead()
     OnRead();
 }
 
+void MessageConnection::OnFlushWrites()
+{
+    if (writeBuffer)
+    {
+        writer->WritePooled(writeBuffer);
+        writeBuffer = NULL;
+    }
+    
+    writer->Flush();    
+}
+
 void MessageConnection::OnConnectTimeout()
 {
     TCPConnection::OnConnectTimeout();
@@ -239,14 +250,14 @@ Buffer* MessageConnection::AcquireBuffer()
 
 void MessageConnection::FlushWriteBuffer()
 {
-    // TODO: HACK
-        
-    if (writer->GetQueueLength() == 0 || 
-     (writeBuffer != NULL && writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD))
+    if (writeBuffer != NULL && writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
     {
         writer->WritePooled(writeBuffer);
         writeBuffer = NULL;
     }
+
+    if (flushWrites.IsActive())
+        return;
     
-    writer->Flush();
+    EventLoop::Add(&flushWrites);
 }

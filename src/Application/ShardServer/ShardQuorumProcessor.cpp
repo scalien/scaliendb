@@ -12,6 +12,7 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     requestLeaseTimeout.SetDelay(PRIMARYLEASE_REQUEST_TIMEOUT);
     
     leaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnLeaseTimeout));
+    tryAppend.SetCallable(MFUNC(ShardQuorumProcessor, TryAppend));
 }
 
 void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardServer_)
@@ -89,6 +90,8 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
 
     valueLength = value.GetLength();
 
+//    Log_Message("BEGIN --------------");
+
     commandID = 0;
     while (value.GetLength() > 0)
     {
@@ -106,9 +109,11 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
         Log_Trace("shardMessagesLength: %U", shardMessagesLength);
         assert(shardMessagesLength >= 0);
     }
+
+//    Log_Message("END --------------");
     
-//    if (shardMessages.GetLength() > 0)
-//        TryAppend();
+    if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
+        EventLoop::Add(&tryAppend);
 }
 
 void ShardQuorumProcessor::OnStartCatchup()
@@ -228,7 +233,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     if (request->type == CLIENTREQUEST_SUBMIT)
     {
-        TryAppend();
+        if (!tryAppend.IsActive())
+            EventLoop::Add(&tryAppend);
         request->response.NoResponse();
         request->OnComplete();
         return;
@@ -247,10 +253,10 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     assert(shardMessagesLength >= 0);
     
-    if (shardMessagesLength >= PAXOS_VALUE_LENGTH_TARGET)
+    if (!tryAppend.IsActive() && shardMessagesLength >= PAXOS_VALUE_LENGTH_TARGET)
     {
         Log_Trace("shardMessagesLength: %U", shardMessagesLength);
-        TryAppend();
+        EventLoop::Add(&tryAppend);
     }
 }
 
@@ -424,7 +430,7 @@ void ShardQuorumProcessor::TryAppend()
                 break;
         }
         
-        Log_Trace("numMessages = %u", numMessages);
+        Log_Message("numMessages = %u", numMessages);
         
         assert(value.GetLength() > 0);
         
