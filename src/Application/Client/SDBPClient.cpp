@@ -202,7 +202,7 @@ void Client::Shutdown()
     
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
-//    IOProcessor::Shutdown();
+    IOProcessor::Shutdown();
 }
 
 void Client::SetGlobalTimeout(uint64_t timeout)
@@ -503,7 +503,7 @@ void Client::EventLoop()
         EventLoop::RunTimers();
         if (IsDone())
             break;
-        if (!IOProcessor::Poll(1))
+        if (!IOProcessor::Poll(0))
             break;
 
         // let other threads to enter IOProcessor and complete requests

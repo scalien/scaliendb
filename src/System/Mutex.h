@@ -49,6 +49,7 @@ public:
     ~Mutex();
     
     void        Lock();
+    bool        TryLock();
     void        Unlock();
     
 private:
@@ -70,6 +71,7 @@ public:
     ~MutexGuard();
     
     void        Lock();
+    bool        TryLock();
     void        Unlock();
 
 private:

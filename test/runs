@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 echo -n -e "\033]0;D$1\007"
 if [ "$SCALIENDB_RELEASE" = "1" ]; then

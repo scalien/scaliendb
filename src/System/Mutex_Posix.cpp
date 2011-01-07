@@ -16,6 +16,16 @@ void Mutex::Lock()
     pthread_mutex_lock(&mutex);
 }
 
+bool Mutex::TryLock()
+{
+    int     ret;
+    
+    ret = pthread_mutex_trylock(&mutex);
+    if (ret == 0)
+        return true;
+    return false;
+}
+
 void Mutex::Unlock()
 {
     pthread_mutex_unlock(&mutex);

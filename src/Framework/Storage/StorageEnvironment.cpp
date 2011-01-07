@@ -1,5 +1,6 @@
 #include "StorageEnvironment.h"
 #include "System/Events/EventLoop.h"
+#include "System/Stopwatch.h"
 #include "System/FileSystem.h"
 #include "System/Config.h"
 #include "StorageChunkSerializer.h"

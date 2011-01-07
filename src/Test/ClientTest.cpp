@@ -269,8 +269,8 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
-    char            valbuf[128];
-    char            keybuf[32];
+    char            valbuf[10];
+    char            keybuf[10];
     int             ret;
     unsigned        num = 1000;
     Stopwatch       sw;
@@ -278,7 +278,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     int             id;
     
     id = counter++;
-    TEST_LOG("Started id = %d", id);
+    //TEST_LOG("Started id = %d", id);
     
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
@@ -292,12 +292,14 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     ret = client.UseTable(tableName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
-    
+
+    for (unsigned x = 0; x < 100; x++)
+    {
     ret = client.Begin();
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    TEST_LOG("Generating random data...");
+    //TEST_LOG("Generating random data...");
     
     for (unsigned i = 0; i < num; i++)
     {
@@ -312,16 +314,16 @@ TEST_DEFINE(TestClientBatchedSetRandom)
             TEST_CLIENT_FAIL();
     }
 
-    TEST_LOG("Generated data, start Submit");
-    Log_Message("start id = %d", id);
+    //TEST_LOG("Generated data, start Submit");
+    //Log_Message("start id = %d", id);
 
-    sw.Start();
+    sw.Restart();
     ret = client.Submit();
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     sw.Stop();
 
-    Log_Message("stop id = %d", id);
+    //Log_Message("stop id = %d", id);
     TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
 
     if ((num / (sw.Elapsed() / 1000.0)) > 100*1000)
@@ -330,6 +332,8 @@ TEST_DEFINE(TestClientBatchedSetRandom)
         PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus());
         PRINT_CLIENT_STATUS("Timeout", client.TimeoutStatus());
         PRINT_CLIENT_STATUS(" Command", client.CommandStatus());
+    }
+    
     }
     
     client.Shutdown();
@@ -996,11 +1000,11 @@ TEST_DEFINE(TestClientFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 2;
+    unsigned        numThread = 10;
     
     threadPool = ThreadPool::Create(numThread);
     
-    for (unsigned i = 0; i < 1000; i++)
+    for (unsigned i = 0; i < 10; i++)
     {  
         threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
     }

@@ -323,6 +323,15 @@ int ShellExec(const char* cmdline)
 #endif
 }
 
+uint64_t GetProcessID()
+{
+#ifdef _WIN32
+    return (uint64_t) GetProcessID();
+#else
+    return (uint64_t) getpid();
+#endif
+}
+
 static uint32_t const crctab[256] =
 {
   0x00000000,
