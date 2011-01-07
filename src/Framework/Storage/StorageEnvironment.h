@@ -68,9 +68,10 @@ public:
     ReadBuffer              GetMidpoint(uint16_t contextID, uint64_t shardID);
     bool                    IsSplittable(uint16_t contextID, uint64_t shardID);
     
-    void                    SetOnCommit(Callable& onCommit);
     bool                    Commit();
+    bool                    Commit(Callable& onCommit_);
     bool                    GetCommitStatus();
+    bool                    IsCommiting();
     
 private:
     void                    OnCommit();
@@ -81,12 +82,15 @@ private:
     void                    OnChunkSerialize();
     void                    OnChunkWrite();
     void                    OnLogArchive();
-    bool                    IsWriteActive();
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
     void                    StartJob(ThreadPool* thread, StorageJob* job);
     void                    WriteTOC();
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
 
+    Countdown               backgroundTimer;
+    Callable                onBackgroundTimer;
+
+    Callable                onCommitCallback;
     Callable                onCommit;
     Callable                onChunkSerialize;
     Callable                onChunkWrite;
@@ -117,7 +121,6 @@ private:
     uint64_t                nextLogSegmentID;
     uint64_t                asyncLogSegmentID;
     uint64_t                asyncWriteChunkID;
-    bool                    asyncCommit;
     const char*             archiveScript;
 };
 

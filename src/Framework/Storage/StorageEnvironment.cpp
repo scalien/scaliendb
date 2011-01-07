@@ -25,6 +25,7 @@ StorageEnvironment::StorageEnvironment()
     writerThread = NULL;
     asyncThread = NULL;
 
+    onCommit = MFUNC(StorageEnvironment, OnCommit);
     onChunkSerialize = MFUNC(StorageEnvironment, OnChunkSerialize);
     onChunkWrite = MFUNC(StorageEnvironment, OnChunkWrite);
     onLogArchive = MFUNC(StorageEnvironment, OnLogArchive);
@@ -33,8 +34,6 @@ StorageEnvironment::StorageEnvironment()
     nextLogSegmentID = 1;
     asyncLogSegmentID = 0;
     asyncWriteChunkID = 0;
-    
-    asyncCommit = false;
 }
 
 bool StorageEnvironment::Open(Buffer& envPath_)
@@ -407,32 +406,33 @@ bool StorageEnvironment::IsSplittable(uint16_t contextID, uint64_t shardID)
     return true;
 }
 
-void StorageEnvironment::SetOnCommit(Callable& onCommit_)
+bool StorageEnvironment::Commit(Callable& onCommit_)
 {
-    onCommit = onCommit_;
-    asyncCommit = true;
+    StorageJob*     job;
+    
+    onCommitCallback = onCommit_;
+
+    StoragePageCache::TryUnloadPages(config);
+
+    if (commitThreadActive)
+        return false;
+
+    job = new StorageCommitJob(headLogSegment, &onCommit);
+    commitThreadActive = true;
+    StartJob(commitThread, job);
+    
+    return true;
 }
 
 bool StorageEnvironment::Commit()
 {
     StoragePageCache::TryUnloadPages(config);
 
-    Log_Trace("DB Cache size: %s", HUMAN_BYTES(StoragePageCache::GetSize()));
+    if (commitThreadActive)
+        return false;
 
-    if (asyncCommit)
-    {
-        if (commitThreadActive > 0)
-            return false;
-
-        MFunc<StorageLogSegment, &StorageLogSegment::Commit> callable(headLogSegment);        
-        commitThread->Execute(callable);
-        commitThreadActive = true;
-    }
-    else
-    {
-        headLogSegment->Commit();
-        OnCommit();
-    }
+    headLogSegment->Commit();
+    OnCommit();
 
     return true;
 }
@@ -440,6 +440,11 @@ bool StorageEnvironment::Commit()
 bool StorageEnvironment::GetCommitStatus()
 {
     return headLogSegment->GetCommitStatus();
+}
+
+bool StorageEnvironment::IsCommiting()
+{
+    return commitThreadActive;
 }
 
 StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
@@ -577,9 +582,18 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
 void StorageEnvironment::OnCommit()
 {
+    bool asyncCommit;
+    
+    asyncCommit = commitThreadActive;
+    
     commitThreadActive = false;
+
     TryFinalizeLogSegment();
     TrySerializeChunks();
+    
+    if (asyncCommit)
+        Call(onCommitCallback);
+
 }
 
 void StorageEnvironment::TryFinalizeLogSegment()
@@ -795,11 +809,6 @@ void StorageEnvironment::OnLogArchive()
     logSegments.Delete(it);
     
     TryArchiveLogSegments();
-}
-
-bool StorageEnvironment::IsWriteActive()
-{
-    return commitThreadActive;
 }
 
 void StorageEnvironment::StartJob(ThreadPool* thread, StorageJob* job)

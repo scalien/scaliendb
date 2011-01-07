@@ -3,6 +3,7 @@
 
 #include "System/Platform.h"
 #include "System/Buffers/Buffer.h"
+#include "System/Events/Callable.h"
 #include "Framework/Storage/StorageShardProxy.h"
 
 #define RLOG_CACHE_SIZE     100*1000
@@ -51,6 +52,7 @@ public:
     bool                IsActive();
     
     void                Commit();
+    void                Commit(Callable& onCommit);
 
 private:
     uint64_t            GetUint64(const char* name);

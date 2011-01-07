@@ -28,6 +28,26 @@ protected:
 /*
 ===============================================================================================
 
+ StorageCommitJob
+
+===============================================================================================
+*/
+
+class StorageCommitJob : public StorageJob
+{
+public:
+    StorageCommitJob(StorageLogSegment* logSegment, Callable* onComplete);
+    
+    void                Execute();
+    
+private:
+    StorageLogSegment*  logSegment;
+    Callable*           onComplete;
+};
+
+/*
+===============================================================================================
+
  StorageSerializeChunkJob
 
 ===============================================================================================

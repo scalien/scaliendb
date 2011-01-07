@@ -2,6 +2,11 @@
 #include "PaxosProposer.h"
 #include "Framework/Replication/ReplicationConfig.h"
 
+PaxosAcceptor::PaxosAcceptor()
+{
+    onStateWritten = MFUNC(PaxosAcceptor, OnStateWritten);
+}
+
 void PaxosAcceptor::Init(QuorumContext* context_)
 {
     context = context_;
@@ -137,9 +142,9 @@ void PaxosAcceptor::WriteState(bool sendReply_)
 
     writtenPaxosID = context->GetPaxosID();
 
-    db->Commit();
+    db->Commit(onStateWritten);
 
     // this is a different function because it may be necessary to async this
     // right now this makes writtenPaxosID (and senderID) unecessary
-    OnStateWritten();
+    //OnStateWritten();
 }

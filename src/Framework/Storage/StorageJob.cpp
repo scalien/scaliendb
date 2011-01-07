@@ -6,6 +6,21 @@
 #include "StorageChunkSerializer.h"
 #include "StorageEnvironment.h"
 
+StorageCommitJob::StorageCommitJob(StorageLogSegment* logSegment_, Callable* onComplete_)
+{
+    logSegment = logSegment_;
+    onComplete = onComplete_;
+}
+
+void StorageCommitJob::Execute()
+{
+    logSegment->Commit();
+
+    Callable* c = onComplete;
+    delete this;
+    IOProcessor::Complete(c);
+}
+
 StorageSerializeChunkJob::StorageSerializeChunkJob(StorageMemoChunk* memoChunk_, Callable* onComplete_)
 {
     memoChunk = memoChunk_;

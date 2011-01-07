@@ -20,6 +20,8 @@ class ReplicatedLog; // forward
 class PaxosAcceptor
 {
 public:
+    PaxosAcceptor();
+    
     void                        Init(QuorumContext* context);
     void                        OnMessage(PaxosMessage& msg);
     void                        OnCatchupComplete();
@@ -38,6 +40,7 @@ private:
     PaxosMessage                omsg;
     uint64_t                    senderID;
     uint64_t                    writtenPaxosID;
+    Callable                    onStateWritten;
     
     friend class ReplicatedLog;
 };

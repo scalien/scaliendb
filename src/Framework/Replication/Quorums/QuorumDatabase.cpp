@@ -160,13 +160,17 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
 
 bool QuorumDatabase::IsActive()
 {
-    // TODO: for async write
-    return false;
+    return shard->GetEnvironment()->IsCommiting();
 }
 
 void QuorumDatabase::Commit()
 {
     shard->GetEnvironment()->Commit();
+}
+
+void QuorumDatabase::Commit(Callable& onCommit)
+{
+    shard->GetEnvironment()->Commit(onCommit);
 }
 
 uint64_t QuorumDatabase::GetUint64(const char* name)
