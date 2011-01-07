@@ -47,5 +47,5 @@ YieldTimer::YieldTimer()
 
 void YieldTimer::SetExpireTime(uint64_t)
 {
-    STOP_FAIL(1, "Program bug. YieldTimer::SetExpireTime() called");
+    STOP_FAIL(1, "Program bug: YieldTimer::SetExpireTime() called");
 }

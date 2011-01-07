@@ -44,14 +44,14 @@ public:
 protected:
     void                OnRead();
     void                OnResumeRead();
-    void                OnYieldTimer();
+    void                OnFlushWrites();
     void                OnConnectTimeout();
     Buffer*             AcquireBuffer();
     void                FlushWriteBuffer();
 
     Endpoint            endpoint;
-    Countdown           resumeRead;
-    YieldTimer          yieldTimer;
+    YieldTimer          resumeRead;
+    YieldTimer          flushWrites;
     Buffer*             writeBuffer;
     bool                autoFlush;
 };

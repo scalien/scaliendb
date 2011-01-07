@@ -3,8 +3,7 @@
 MessageConnection::MessageConnection()
 {
     resumeRead.SetCallable(MFUNC(MessageConnection, OnResumeRead));
-    resumeRead.SetDelay(1);
-    yieldTimer.SetCallable(MFUNC(MessageConnection, OnYieldTimer));
+    flushWrites.SetCallable(MFUNC(MessageConnection, OnFlushWrites));
     writeBuffer = NULL;
     autoFlush = true;
 }
@@ -190,7 +189,7 @@ void MessageConnection::OnRead()
             // let other code run every YIELD_TIME msec
             yield = true;
             if (resumeRead.IsActive())
-                ASSERT_FAIL();
+                STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
             EventLoop::Add(&resumeRead);
             break;
         }
@@ -218,8 +217,14 @@ void MessageConnection::OnResumeRead()
     OnRead();
 }
 
-void MessageConnection::OnYieldTimer()
+void MessageConnection::OnFlushWrites()
 {
+    if (writeBuffer)
+    {
+        writer->WritePooled(writeBuffer);
+        writeBuffer = NULL;
+    }
+    
     writer->Flush();    
 }
 
@@ -251,8 +256,8 @@ void MessageConnection::FlushWriteBuffer()
         writeBuffer = NULL;
     }
 
-    if (yieldTimer.IsActive())
+    if (flushWrites.IsActive())
         return;
     
-    EventLoop::Add(&yieldTimer);
+    EventLoop::Add(&flushWrites);
 }
