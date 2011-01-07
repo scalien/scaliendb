@@ -4,6 +4,7 @@ MessageConnection::MessageConnection()
 {
     resumeRead.SetCallable(MFUNC(MessageConnection, OnResumeRead));
     resumeRead.SetDelay(1);
+    yieldTimer.SetCallable(MFUNC(MessageConnection, OnYieldTimer));
     writeBuffer = NULL;
     autoFlush = true;
 }
@@ -217,6 +218,11 @@ void MessageConnection::OnResumeRead()
     OnRead();
 }
 
+void MessageConnection::OnYieldTimer()
+{
+    writer->Flush();    
+}
+
 void MessageConnection::OnConnectTimeout()
 {
     TCPConnection::OnConnectTimeout();
@@ -239,14 +245,14 @@ Buffer* MessageConnection::AcquireBuffer()
 
 void MessageConnection::FlushWriteBuffer()
 {
-    // TODO: HACK
-        
-    if (writer->GetQueueLength() == 0 || 
-     (writeBuffer != NULL && writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD))
+    if (writeBuffer != NULL && writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
     {
         writer->WritePooled(writeBuffer);
         writeBuffer = NULL;
     }
+
+    if (yieldTimer.IsActive())
+        return;
     
-    writer->Flush();
+    EventLoop::Add(&yieldTimer);
 }

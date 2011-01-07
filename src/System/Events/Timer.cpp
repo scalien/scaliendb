@@ -39,3 +39,13 @@ void Timer::Execute()
 {
     Call(callable);
 }
+
+YieldTimer::YieldTimer()
+{
+    expireTime = 0;
+}
+
+void YieldTimer::SetExpireTime(uint64_t)
+{
+    STOP_FAIL(1, "Program bug. YieldTimer::SetExpireTime() called");
+}

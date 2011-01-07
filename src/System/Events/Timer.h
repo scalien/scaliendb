@@ -39,6 +39,23 @@ protected:
     Callable        callable;
 };
 
+/*
+===============================================================================================
+
+ YieldTimer
+
+===============================================================================================
+*/
+
+class YieldTimer : public Timer
+{
+public:
+    YieldTimer();
+
+private:
+    void            SetExpireTime(uint64_t when);
+};
+
 inline bool LessThan(Timer& a, Timer& b)
 {
     return (a.GetExpireTime() < b.GetExpireTime());
