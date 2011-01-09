@@ -7,38 +7,38 @@
 
 class KeyValue
 {
-	typedef InTreeNode<KeyValue> TreeNode;
+    typedef InTreeNode<KeyValue> TreeNode;
 
-public:	
-	void		SetKey(ReadBuffer key_, bool copy) 
-	{
-		if (copy == false)
-			key = key_;
-		else
-		{
-			keyBuffer.Write(key_);
-			key.Wrap(keyBuffer);
-		}
-	}
+public: 
+    void        SetKey(ReadBuffer key_, bool copy) 
+    {
+        if (copy == false)
+            key = key_;
+        else
+        {
+            keyBuffer.Write(key_);
+            key.Wrap(keyBuffer);
+        }
+    }
 
-	void		SetValue(ReadBuffer value_, bool copy)
-	{
-		if (copy == false)
-			value = value_;
-		else
-		{
-			valueBuffer.Write(value_);
-			value.Wrap(valueBuffer);
-		}
-	}
-	
-	
-	ReadBuffer	key;
-	ReadBuffer	value;
-	Buffer		keyBuffer;
-	Buffer		valueBuffer;
-	TreeNode	treeNode;
-	
+    void        SetValue(ReadBuffer value_, bool copy)
+    {
+        if (copy == false)
+            value = value_;
+        else
+        {
+            valueBuffer.Write(value_);
+            value.Wrap(valueBuffer);
+        }
+    }
+    
+    
+    ReadBuffer  key;
+    ReadBuffer  value;
+    Buffer      keyBuffer;
+    Buffer      valueBuffer;
+    TreeNode    treeNode;
+    
 };
 
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
@@ -58,13 +58,13 @@ static const ReadBuffer& Key(KeyValue* kv)
 
 TEST_DEFINE(TestInTreeMap)
 {
-    InTreeMap<KeyValue>              kvs;
+    InTreeMap<KeyValue>                     kvs;
     ReadBuffer                              rb;
     ReadBuffer                              rk;
     ReadBuffer                              rv;
     Buffer                                  buf;
-    KeyValue*                        kv;
-    KeyValue*                        it;
+    KeyValue*                               kv;
+    KeyValue*                               it;
     Stopwatch                               sw;
     const unsigned                          num = 1000000;
     unsigned                                ksize;
@@ -215,13 +215,13 @@ TEST_DEFINE(TestInTreeMap)
 
 TEST_DEFINE(TestInTreeMapInsert)
 {
-    InTreeMap<KeyValue>      kvs;
+    InTreeMap<KeyValue>             kvs;
     ReadBuffer                      rb;
     ReadBuffer                      rk;
     ReadBuffer                      rv;
     Buffer                          buf;
-    KeyValue*                kv;
-    KeyValue*                it;
+    KeyValue*                       kv;
+    KeyValue*                       it;
     char*                           p;
     char*                           area;
     char*                           kvarea;
@@ -263,14 +263,14 @@ TEST_DEFINE(TestInTreeMapInsert)
 
 TEST_DEFINE(TestInTreeMapInsertRandom)
 {
-    InTreeMap<KeyValue>      kvs;
+    InTreeMap<KeyValue>             kvs;
     ReadBuffer                      rb;
     ReadBuffer                      rk;
     ReadBuffer                      rv;
     Buffer                          buf;
     Stopwatch                       sw;
-    KeyValue*                kv;
-    KeyValue*                it;
+    KeyValue*                       kv;
+    KeyValue*                       it;
     char*                           p;
     char*                           area;
     char*                           kvarea;
@@ -312,14 +312,14 @@ TEST_DEFINE(TestInTreeMapInsertRandom)
 
 TEST_DEFINE(TestInTreeMapRemoveRandom)
 {
-    InTreeMap<KeyValue>      kvs;
+    InTreeMap<KeyValue>             kvs;
     ReadBuffer                      rb;
     ReadBuffer                      rk;
     ReadBuffer                      rv;
     Buffer                          buf;
     Stopwatch                       sw;
-    KeyValue*                kv;
-    KeyValue*                it;
+    KeyValue*                       kv;
+    KeyValue*                       it;
     char*                           p;
     char*                           area;
     char*                           kvarea;
