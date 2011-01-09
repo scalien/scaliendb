@@ -1,6 +1,10 @@
 #ifndef INTREEMAP_H
 #define INTREEMAP_H
 
+#include "InTreeMap2.h"
+
+#if 0
+
 #include <stdlib.h>
 #include <assert.h>
 
@@ -766,4 +770,5 @@ InTreeNode<T>* InTreeMap<T, pnode>::GetNode(T* t)
 }
 
 
+#endif
 #endif
