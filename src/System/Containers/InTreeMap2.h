@@ -48,6 +48,8 @@ template<typename T>
 class InTreeNode
 {
 public:
+    STATIC_ASSERT((AlignmentOf<T*>::value > sizeof(char)), "Pointers are not aligned, bit packing is not possible!");
+
     enum Color 
     {
         RED = 0,
@@ -71,7 +73,7 @@ template<typename T, InTreeNode<T> T::*pnode = &T::treeNode>
 class InTreeMap
 {
 public:
-    typedef InTreeNode<T>   Node;
+    typedef InTreeNode<T>   Node;    
     
     InTreeMap();
     
@@ -808,8 +810,6 @@ template<typename T, InTreeNode<T> T::*pnode>
 void InTreeMap<T, pnode>::SetColor(T*elem, int color)
 {
     (elem->*pnode).parent = ((elem->*pnode).parent & ~INTREENODE_COLOR_MASK) | color;
-
-    STATIC_ASSERT((AlignmentOf<T*>::value > sizeof(char)), "Pointers are not aligned, bit packing is not possible!");
 }
 
 
