@@ -23,6 +23,7 @@ class MessageConnection : public TCPConnection
 {
 public:
     MessageConnection();
+    ~MessageConnection();
 
     void                InitConnected(bool startRead = true);
 

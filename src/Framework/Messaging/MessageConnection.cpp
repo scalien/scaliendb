@@ -8,6 +8,12 @@ MessageConnection::MessageConnection()
     autoFlush = true;
 }
 
+MessageConnection::~MessageConnection()
+{
+    // TODO: it would be better to make Close virtual in TCPConnection
+    Close();
+}
+
 void MessageConnection::InitConnected(bool startRead)
 {
     writeBuffer = NULL;
@@ -36,6 +42,7 @@ void MessageConnection::Close()
     }
     
     EventLoop::Remove(&resumeRead);
+    EventLoop::Remove(&flushWrites);
     TCPConnection::Close(); 
 }
 
