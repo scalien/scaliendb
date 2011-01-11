@@ -117,7 +117,9 @@ void LogPrintVersion(bool isController)
     
     debugBuffer.Appendf(" -- DEBUG %s, Pid: %U", buildDate, GetProcessID());
     debugInfo = debugBuffer.GetBuffer();
-#endif    
+#endif
+
+    (void) buildDate;   // suppress unused variable warning
     
     Log_Message("%s started as %s%s", productString,
      isController ? "CONTROLLER" : "SHARD SERVER", debugInfo);

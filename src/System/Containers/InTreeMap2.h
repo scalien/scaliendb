@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "System/Macros.h"
+#include "System/Platform.h"
 
 /*
  ===============================================================================================

@@ -22,7 +22,7 @@ void SDBPConnection::Init(SDBPServer* server_)
     server = server_;
     
     socket.GetEndpoint(remote);
-    Log_Message("[%s] SDBP: client connected", remote.ToString());
+    Log_Message("[%s] Client connected", remote.ToString());
 }
 
 void SDBPConnection::SetContext(SDBPContext* context_)
@@ -67,7 +67,7 @@ void SDBPConnection::OnClose()
     socket.GetEndpoint(remote);
 
     Log_Trace("numpending: %d", numPending);
-    Log_Message("[%s] SDBP: client disconnected", remote.ToString());
+    Log_Message("[%s] Client disconnected", remote.ToString());
 
     Close();
     
