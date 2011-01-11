@@ -198,6 +198,7 @@ void ThreadPool_Pthread::WaitStop()
         pthread_detach(threads[i]);
     }
     
+    running = false;
     numActive = 0;
 }
 
