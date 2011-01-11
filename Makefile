@@ -327,6 +327,11 @@ check: clean
 tester:
 	$(MAKE) testmain BUILD="debug"
 
+testobjs:
+	$(MAKE) testobjs-real BUILD="debug"
+
+testobjs-real: $(BUILD_DIR) $(TEST_OBJECTS)
+
 clienttest:
 	$(MAKE) targets BUILD="release"
 
