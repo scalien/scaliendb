@@ -91,9 +91,6 @@ void MessageConnection::Write(Buffer& prefix, Message& msg)
 
 void MessageConnection::OnConnect()
 {
-    Buffer      buffer;
-    ReadBuffer  rb;
-
     TCPConnection::OnConnect();
     
     AsyncRead();        
