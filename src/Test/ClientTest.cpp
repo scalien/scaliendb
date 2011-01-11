@@ -282,6 +282,9 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     id = counter++;
     //TEST_LOG("Started id = %d", id);
     count = 0;
+
+    RandomBuffer(keybuf, sizeof(keybuf));
+    RandomBuffer(valbuf, sizeof(valbuf));
     
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
