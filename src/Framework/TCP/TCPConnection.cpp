@@ -116,6 +116,7 @@ void TCPConnection::AsyncRead(bool start)
         Log_Trace("not posting read");
 }
 
+#include <stdio.h>
 void TCPConnection::OnWritePending()
 {
     Log_Trace();
@@ -131,6 +132,8 @@ void TCPConnection::OnWritePending()
     if (buffer == NULL)
         return;
 
+//    Log_Message("OnWritePending: %u", buffer->GetLength());
+//    printf("-------- OnWritePending: %u, %.*s\n", buffer->GetLength(), MIN(buffer->GetLength(), 20), buffer->GetBuffer());
     tcpwrite.SetBuffer(buffer);
     tcpwrite.transferred = 0;
     IOProcessor::Add(&tcpwrite);

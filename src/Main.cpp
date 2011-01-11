@@ -42,7 +42,7 @@ int main(int argc, char** argv)
     EventLoop::Init();
     EventLoop::Run();
     
-    Log_Message("Shutdown initialized...");
+    Log_Message("Shutting down...");
     
     EventLoop::Shutdown();
     app->Shutdown();

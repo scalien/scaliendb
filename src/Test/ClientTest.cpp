@@ -269,18 +269,19 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
-    char            valbuf[100];
+    char            valbuf[50];
     char            keybuf[10];
     int             ret;
-    unsigned        num = 100;
-    unsigned        total;
+    unsigned        totalNum = 10000;
+    unsigned        batchNum = 50;
+    unsigned        count;
     Stopwatch       sw;
     static int      counter = 0;
     int             id;
     
     id = counter++;
     //TEST_LOG("Started id = %d", id);
-    total = 0;
+    count = 0;
     
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
@@ -295,7 +296,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    for (unsigned x = 0; x < 100; x++)
+    for (unsigned x = 0; x < totalNum / batchNum; x++)
     {
         ret = client.Begin();
         if (ret != SDBP_SUCCESS)
@@ -303,16 +304,16 @@ TEST_DEFINE(TestClientBatchedSetRandom)
         
         //TEST_LOG("Generating random data...");
         
-        for (unsigned i = 0; i < num; i++)
+        for (unsigned i = 0; i < batchNum; i++)
         {
     //        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
     //        key.Wrap(keybuf, ret);
-            RandomBuffer(keybuf, sizeof(keybuf));
+//            RandomBuffer(keybuf, sizeof(keybuf));
             key.Wrap(keybuf, sizeof(keybuf));
-            RandomBuffer(valbuf, sizeof(valbuf));
+//            RandomBuffer(valbuf, sizeof(valbuf));
             value.Wrap(valbuf, sizeof(valbuf));
             ret = client.Set(key, value);
-            total++;
+            count++;
             if (ret != SDBP_SUCCESS)
                 TEST_CLIENT_FAIL();
         }
@@ -328,7 +329,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
 
         //Log_Message("stop id = %d", id);
 
-        if ((num / (sw.Elapsed() / 1000.0)) > 100*1000)
+        if ((batchNum / (sw.Elapsed() / 1000.0)) > 100*1000)
         {
             PRINT_CLIENT_STATUS("Transport", client.TransportStatus());
             PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus());
@@ -338,7 +339,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
         
     }
 
-    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), total / (sw.Elapsed() / 1000.0));
+    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), count / (sw.Elapsed() / 1000.0));
     
     client.Shutdown();
     return TEST_SUCCESS;
@@ -1004,11 +1005,11 @@ TEST_DEFINE(TestClientFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 10;
+    unsigned        numThread = 100;
     
     threadPool = ThreadPool::Create(numThread);
     
-    for (unsigned i = 0; i < 1; i++)
+    for (unsigned i = 0; i < numThread; i++)
     {  
         threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
     }

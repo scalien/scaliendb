@@ -6,6 +6,10 @@
 
 #define CONN_BUFSIZE    4096
 
+#define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(client->mutex)
+#define CLIENT_MUTEX_LOCK()             mutexGuard.Lock()
+#define CLIENT_MUTEX_UNLOCK()           mutexGuard.Unlock()
+
 using namespace SDBPClient;
 
 static bool LessThan(uint64_t a, uint64_t b)
@@ -105,6 +109,8 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     SDBPResponseMessage msg;
     Request*            it;
     uint64_t            quorumID;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
         
     msg.response = &response;
     if (!msg.Read(rbuf))
@@ -143,6 +149,8 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 
 void ShardConnection::OnWrite()
 {
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
     MessageConnection::OnWrite();
     SendQuorumRequests();
 }
@@ -151,6 +159,8 @@ void ShardConnection::OnConnect()
 {
     Log_Trace();
 
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
     MessageConnection::OnConnect();
     SendQuorumRequests();
 }
@@ -161,6 +171,8 @@ void ShardConnection::OnClose()
     
     Request*    it;
     Request*    prev;
+    
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     // close the socket and try reconnecting
     MessageConnection::OnClose();

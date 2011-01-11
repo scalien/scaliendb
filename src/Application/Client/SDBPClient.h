@@ -7,6 +7,7 @@
 #include "System/Containers/InTreeMap.h"
 #include "System/Containers/HashMap.h"
 #include "System/Events/Countdown.h"
+#include "System/Mutex.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "SDBPShardConnection.h"
@@ -84,7 +85,7 @@ public:
     int                     Cancel();
     bool                    IsBatched();
 
-//private:
+private:
     typedef InList<Request>                 RequestList;
     typedef InTreeMap<ShardConnection>      ShardConnectionMap;
     typedef HashMap<uint64_t, RequestList*> RequestListMap;
@@ -139,6 +140,12 @@ public:
     bool                    isTableSet;
     uint64_t                tableID;
     bool                    isBatched;
+
+//#ifdef CLIENT_MULTITHREAD    
+    Mutex                   mutex;
+    void                    Lock();
+    void                    Unlock();
+//#endif
 };
 
 };  // namespace

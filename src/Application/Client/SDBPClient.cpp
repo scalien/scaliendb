@@ -11,17 +11,32 @@
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
 
-Mutex        clientMutex;
+// globalMutex protects the underlying single threaded IO and Event handling layer
+Mutex   globalMutex;                    
 
-#define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutex(clientMutex)
-#define CLIENT_MUTEX_LOCK()             mutex.Lock()
-#define CLIENT_MUTEX_UNLOCK()           mutex.Unlock()
+#define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(mutex)
+#define CLIENT_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
+#define CLIENT_MUTEX_GUARD_UNLOCK()     mutexGuard.Unlock()
+
+#define CLIENT_MUTEX_LOCK()             Lock()
+#define CLIENT_MUTEX_UNLOCK()           Unlock()
+
+#define GLOBAL_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(globalMutex)
+#define GLOBAL_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
+#define GLOBAL_MUTEX_GUARD_UNLOCK()     mutexGuard.Unlock()
 
 #else // CLIENT_MULTITHREAD
 
 #define CLIENT_MUTEX_GUARD_DECLARE()
+#define CLIENT_MUTEX_GUARD_LOCK()
+#define CLIENT_MUTEX_GUARD_UNLOCK()
+
 #define CLIENT_MUTEX_LOCK()
 #define CLIENT_MUTEX_UNLOCK()
+
+#define GLOBAL_MUTEX_GUARD_DECLARE()
+#define GLOBAL_MUTEX_GUARD_LOCK()
+#define GLOBAL_MUTEX_GUARD_UNLOCK()
 
 #endif // CLIENT_MULTITHREAD
 
@@ -63,7 +78,7 @@ Mutex        clientMutex;
     result->Close();                                \
     result->AppendRequest(req);                     \
                                                     \
-    CLIENT_MUTEX_UNLOCK();                          \
+    CLIENT_MUTEX_GUARD_UNLOCK();                          \
     EventLoop();                                    \
     return result->CommandStatus();                 \
 
@@ -77,9 +92,9 @@ Mutex        clientMutex;
     if (configState == NULL)                        \
     {                                               \
         result->Close();                            \
-        CLIENT_MUTEX_UNLOCK();                      \
+        CLIENT_MUTEX_GUARD_UNLOCK();                      \
         EventLoop();                                \
-        CLIENT_MUTEX_LOCK();                        \
+        CLIENT_MUTEX_GUARD_LOCK();                        \
     }                                               \
                                                     \
     if (configState == NULL)                        \
@@ -93,7 +108,7 @@ Mutex        clientMutex;
     result->Close();                                \
     result->AppendRequest(req);                     \
                                                     \
-    CLIENT_MUTEX_UNLOCK();                          \
+    CLIENT_MUTEX_GUARD_UNLOCK();                          \
     EventLoop();                                    \
     return result->CommandStatus();                 \
 
@@ -142,7 +157,7 @@ Client::~Client()
 
 int Client::Init(int nodec, const char* nodev[])
 {
-    CLIENT_MUTEX_GUARD_DECLARE();
+    GLOBAL_MUTEX_GUARD_DECLARE();
 
     // sanity check on parameters
     if (nodec <= 0 || nodev == NULL)
@@ -185,7 +200,7 @@ int Client::Init(int nodec, const char* nodev[])
 
 void Client::Shutdown()
 {
-    CLIENT_MUTEX_GUARD_DECLARE();
+    GLOBAL_MUTEX_GUARD_DECLARE();
 
     if (!controllerConnections)
         return;
@@ -207,7 +222,7 @@ void Client::Shutdown()
 
 void Client::SetGlobalTimeout(uint64_t timeout)
 {
-    CLIENT_MUTEX_GUARD_DECLARE();
+    GLOBAL_MUTEX_GUARD_DECLARE();
 
     if (globalTimeout.IsActive())
     {
@@ -221,7 +236,7 @@ void Client::SetGlobalTimeout(uint64_t timeout)
 
 void Client::SetMasterTimeout(uint64_t timeout)
 {
-    CLIENT_MUTEX_GUARD_DECLARE();
+    GLOBAL_MUTEX_GUARD_DECLARE();
     
     if (masterTimeout.IsActive())
     {
@@ -304,6 +319,7 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
 {
     ConfigTable*    table;
     
+    CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
     
     assert(configState != NULL);
@@ -484,13 +500,20 @@ void Client::EventLoop()
         return;
     }
     
-    CLIENT_MUTEX_GUARD_DECLARE();
+    GLOBAL_MUTEX_GUARD_DECLARE();
     
     EventLoop::UpdateTime();
 
+    GLOBAL_MUTEX_GUARD_UNLOCK();
+    
     Log_Trace("%U", databaseID);
     Log_Trace("%U", tableID);
+    
+    CLIENT_MUTEX_LOCK();
     AssignRequestsToQuorums();
+    CLIENT_MUTEX_UNLOCK();
+
+    GLOBAL_MUTEX_GUARD_LOCK();
     SendQuorumRequests();
     
     EventLoop::UpdateTime();
@@ -498,30 +521,41 @@ void Client::EventLoop()
     EventLoop::Reset(&masterTimeout);
     timeoutStatus = SDBP_SUCCESS;
     
+    GLOBAL_MUTEX_GUARD_UNLOCK();
+    
     while (!IsDone())
     {
+        GLOBAL_MUTEX_GUARD_LOCK();        
         EventLoop::RunTimers();
         if (IsDone())
+        {
+            GLOBAL_MUTEX_GUARD_UNLOCK();
             break;
-        if (!IOProcessor::Poll(0))
+        }
+        
+        if (!IOProcessor::Poll(1))
+        {
+            GLOBAL_MUTEX_GUARD_UNLOCK();
             break;
+        }
 
         // let other threads to enter IOProcessor and complete requests
-        CLIENT_MUTEX_UNLOCK();
-        CLIENT_MUTEX_LOCK();
+        GLOBAL_MUTEX_GUARD_UNLOCK();
     }
-        
+
+    CLIENT_MUTEX_LOCK();
+    
     requests.Clear();
     
     result->connectivityStatus = connectivityStatus;
     result->timeoutStatus = timeoutStatus;
     result->Begin();
+    
+    CLIENT_MUTEX_UNLOCK();
 }
 
 bool Client::IsDone()
 {
-    // TODO: configState???
-    
     if (result->GetRequestCount() == 0 && configState != NULL)
         return true;
     
@@ -893,4 +927,14 @@ void Client::OnControllerDisconnected(ControllerConnection* conn)
 {
     if (master == (int64_t) conn->GetNodeID())
         SetMaster(-1, conn->GetNodeID());
+}
+
+void Client::Lock()
+{
+    mutex.Lock();
+}
+
+void Client::Unlock()
+{
+    mutex.Unlock();
 }

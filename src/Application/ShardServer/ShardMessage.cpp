@@ -75,6 +75,8 @@ void ShardMessage::SplitShard(uint64_t shardID_, uint64_t newShardID_, ReadBuffe
     shardID = shardID_;
     newShardID = newShardID_;
     splitKey.Write(splitKey_);
+    
+    Log_Message("SplitShard");
 }
 
 int ShardMessage::Read(ReadBuffer& buffer)

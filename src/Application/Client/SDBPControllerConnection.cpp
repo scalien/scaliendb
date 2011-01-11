@@ -10,6 +10,10 @@
 #define GETMASTER_TIMEOUT   1000
 #define RECONNECT_TIMEOUT   2000
 
+#define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(client->mutex)
+#define CLIENT_MUTEX_LOCK()             mutexGuard.Lock()
+#define CLIENT_MUTEX_UNLOCK()           mutexGuard.Unlock()
+
 using namespace SDBPClient;
 
 ControllerConnection::ControllerConnection(Client* client_, uint64_t nodeID_, Endpoint& endpoint_)
@@ -66,6 +70,8 @@ void ControllerConnection::OnGetConfigStateTimeout()
 {
     Log_Trace();
     
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
     if (EventLoop::Now() - getConfigStateTime > PAXOSLEASE_MAX_LEASE_TIME)
     {
         Log_Trace();
@@ -85,6 +91,8 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     
     Log_Trace();
     
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
     resp = new ClientResponse;
     msg.response = resp;
     if (msg.Read(rbuf))
@@ -100,6 +108,7 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
 
 void ControllerConnection::OnWrite()
 {
+    CLIENT_MUTEX_GUARD_DECLARE();
     MessageConnection::OnWrite();
 }
 
@@ -107,6 +116,7 @@ void ControllerConnection::OnConnect()
 {
     Log_Trace();
 
+    CLIENT_MUTEX_GUARD_DECLARE();
     MessageConnection::OnConnect();
     client->OnControllerConnected(this);
 }
@@ -114,6 +124,8 @@ void ControllerConnection::OnConnect()
 void ControllerConnection::OnClose()
 {
     Log_Trace();
+    
+    CLIENT_MUTEX_GUARD_DECLARE();
     
     Request*    it;
     Request*    next;

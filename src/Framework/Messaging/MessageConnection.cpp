@@ -113,6 +113,7 @@ void MessageConnection::OnWrite()
     } 
 }
 
+#include <stdio.h>
 void MessageConnection::OnRead()
 {
     bool            yield, closed;
@@ -123,6 +124,7 @@ void MessageConnection::OnRead()
 
     sw.Start();
     
+//    printf("-------- OnMessage: %u, %.*s\n", tcpread.buffer->GetLength(), MIN(tcpread.buffer->GetLength(), 20), tcpread.buffer->GetBuffer());
     Log_Trace("Read buffer: %B", tcpread.buffer);
     
     tcpread.requested = IO_READ_ANY;

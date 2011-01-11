@@ -494,6 +494,9 @@ void InTreeMap<T, pnode>::DeleteTree()
 template<typename T, InTreeNode<T> T::*pnode>
 void InTreeMap<T, pnode>::DeleteInner(T* t)
 {   
+    if (t == NULL)
+        return;
+
     DeleteInner(GetLeft(t));
     DeleteInner(GetRight(t));
     
