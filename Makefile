@@ -328,9 +328,9 @@ tester:
 	$(MAKE) testmain BUILD="debug"
 
 testobjs:
-	$(MAKE) testobjs-real BUILD="debug"
+	$(MAKE) objects BUILD="debug"
 
-testobjs-real: $(BUILD_DIR) $(TEST_OBJECTS)
+objects: $(BUILD_DIR) $(ALL_OBJECTS) $(TEST_OBJECTS) $(CLIENTLIB_OBJECTS)
 
 clienttest:
 	$(MAKE) targets BUILD="release"
