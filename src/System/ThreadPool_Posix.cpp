@@ -50,6 +50,11 @@ ThreadPool* ThreadPool::Create(int numThread)
     return new ThreadPool_Pthread(numThread);
 }
 
+uint64_t ThreadPool::GetThreadID()
+{
+    return (uint64_t) pthread_self();
+}
+
 void* ThreadPool_Pthread::thread_function(void* param)
 {
     ThreadPool_Pthread* tp = (ThreadPool_Pthread*) param;

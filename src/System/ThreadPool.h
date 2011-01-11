@@ -2,6 +2,7 @@
 #define THREADPOOL_H
 
 #include "System/Containers/List.h"
+#include "System/Platform.h"
 
 class Callable; // forward
 
@@ -29,6 +30,8 @@ public:
     int                 GetNumPending();
     int                 GetNumActive();
     int                 GetNumTotal();
+    
+    static uint64_t     GetThreadID();
     
 protected:
     List<Callable>      callables;

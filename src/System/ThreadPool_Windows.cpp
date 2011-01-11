@@ -49,6 +49,11 @@ ThreadPool* ThreadPool::Create(int numThread)
     return new ThreadPool_Windows(numThread);
 }
 
+uint64_t ThreadPool::GetThreadID()
+{
+    return GetCurrentThreadID();
+}
+
 ThreadPool_Windows::ThreadPool_Windows(int numThread_)
 {
     numThread = numThread_;

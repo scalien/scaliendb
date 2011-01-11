@@ -200,6 +200,8 @@ int Client::Init(int nodec, const char* nodev[])
 
 void Client::Shutdown()
 {
+    RequestListMap::Node*   requestNode;
+    
     GLOBAL_MUTEX_GUARD_DECLARE();
 
     if (!controllerConnections)
@@ -214,6 +216,8 @@ void Client::Shutdown()
     delete result;
     
     shardConnections.DeleteTree();
+    FOREACH (requestNode, quorumRequests)
+        delete requestNode->Value();
     
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
