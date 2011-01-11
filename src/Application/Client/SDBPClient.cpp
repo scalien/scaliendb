@@ -508,16 +508,10 @@ void Client::EventLoop()
     
     EventLoop::UpdateTime();
 
-    GLOBAL_MUTEX_GUARD_UNLOCK();
-    
     Log_Trace("%U", databaseID);
     Log_Trace("%U", tableID);
     
-    CLIENT_MUTEX_LOCK();
     AssignRequestsToQuorums();
-    CLIENT_MUTEX_UNLOCK();
-
-    GLOBAL_MUTEX_GUARD_LOCK();
     SendQuorumRequests();
     
     EventLoop::UpdateTime();
@@ -560,6 +554,8 @@ void Client::EventLoop()
 
 bool Client::IsDone()
 {
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
     if (result->GetRequestCount() == 0 && configState != NULL)
         return true;
     
