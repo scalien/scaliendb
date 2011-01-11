@@ -504,6 +504,10 @@ void Client::EventLoop()
         return;
     }
     
+    // wake up IO processor
+    Callable    nop;
+    IOProcessor::Complete(&nop);
+    
     GLOBAL_MUTEX_GUARD_DECLARE();
     
     EventLoop::UpdateTime();
@@ -524,14 +528,14 @@ void Client::EventLoop()
     while (!IsDone())
     {
         GLOBAL_MUTEX_GUARD_LOCK();        
-        EventLoop::RunTimers();
+        long sleep = EventLoop::RunTimers();
         if (IsDone())
         {
             GLOBAL_MUTEX_GUARD_UNLOCK();
             break;
         }
         
-        if (!IOProcessor::Poll(1))
+        if (!IOProcessor::Poll(sleep))
         {
             GLOBAL_MUTEX_GUARD_UNLOCK();
             break;
