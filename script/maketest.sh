@@ -1,4 +1,6 @@
 #!/bin/sh
 
-make testobjs
-python test/stf.py -c $*
+make testobjs && python test/stf.py -c $*
+exit $?
+
+
