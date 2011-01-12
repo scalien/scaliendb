@@ -1,10 +1,13 @@
 #ifndef _WIN32
 #include <pthread.h>
+#include <sched.h>
 
 #include "ThreadPool.h"
 #include "System/Common.h"
 #include "System/Log.h"
 #include "System/Events/Callable.h"
+
+#define pthread_yield   sched_yield
 
 /*
 ===============================================================================
@@ -57,7 +60,7 @@ uint64_t ThreadPool::GetThreadID()
 
 void ThreadPool::Yield()
 {
-    pthread_yield_np();
+    pthread_yield();
 }
 
 void* ThreadPool_Pthread::thread_function(void* param)
