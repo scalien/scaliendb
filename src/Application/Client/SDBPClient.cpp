@@ -540,6 +540,8 @@ void Client::EventLoop()
 
         // let other threads to enter IOProcessor and complete requests
         GLOBAL_MUTEX_GUARD_UNLOCK();
+        
+        ThreadPool::Yield();
     }
 
     CLIENT_MUTEX_LOCK();

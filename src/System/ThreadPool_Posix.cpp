@@ -55,6 +55,11 @@ uint64_t ThreadPool::GetThreadID()
     return (uint64_t) pthread_self();
 }
 
+void ThreadPool::Yield()
+{
+    pthread_yield_np();
+}
+
 void* ThreadPool_Pthread::thread_function(void* param)
 {
     ThreadPool_Pthread* tp = (ThreadPool_Pthread*) param;

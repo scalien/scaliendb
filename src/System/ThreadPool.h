@@ -32,6 +32,7 @@ public:
     int                 GetNumTotal();
     
     static uint64_t     GetThreadID();
+    static void         Yield();
     
 protected:
     List<Callable>      callables;
