@@ -6,7 +6,7 @@
 #include "Application/ConfigServer/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
 
-#define PRODUCT_STRING "ScalienDB v" VERSION_STRING 
+#define PRODUCT_STRING      "ScalienDB v" VERSION_STRING 
 
 void InitLog();
 bool IsController();
@@ -116,6 +116,7 @@ void LogPrintVersion(bool isController)
     Buffer          debugBuffer;
     
     debugBuffer.Appendf(" -- DEBUG %s, Pid: %U", buildDate, GetProcessID());
+    debugBuffer.NullTerminate();
     debugInfo = debugBuffer.GetBuffer();
 #endif
 
