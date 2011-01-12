@@ -6,7 +6,7 @@
 void HTTPServer::Init(int port)
 {
     if (!TCPServer<HTTPServer, HTTPConnection>::Init(port, true, CONN_BACKLOG))
-        STOP_FAIL(1, "Cannot initialize HTTPServer");
+        STOP_FAIL(1, "Cannot initialize HTTP server at port %d (Already running?)", port);
     handlers = NULL;
 }
 

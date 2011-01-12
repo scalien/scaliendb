@@ -145,6 +145,8 @@ private:
     Mutex                   mutex;
     void                    Lock();
     void                    Unlock();
+    void                    LockGlobal();
+    void                    UnlockGlobal();
 //#endif
 };
 

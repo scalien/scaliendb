@@ -942,3 +942,13 @@ void Client::Unlock()
 {
     mutex.Unlock();
 }
+
+void Client::LockGlobal()
+{
+    globalMutex.Lock();
+}
+
+void Client::UnlockGlobal()
+{
+    globalMutex.Unlock();
+}
