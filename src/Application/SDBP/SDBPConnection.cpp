@@ -19,6 +19,7 @@ void SDBPConnection::Init(SDBPServer* server_)
 
     MessageConnection::InitConnected();
     
+    numCompleted = 0;
     server = server_;
     
     socket.GetEndpoint(remote);
@@ -67,7 +68,7 @@ void SDBPConnection::OnClose()
     socket.GetEndpoint(remote);
 
     Log_Trace("numpending: %d", numPending);
-    Log_Message("[%s] Client disconnected", remote.ToString());
+    Log_Message("[%s] Client disconnected (served %u requests)", remote.ToString(), numCompleted);
 
     Close();
     
@@ -95,7 +96,10 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     }
 
     if (last)
+    {
         REQUEST_CACHE->DeleteRequest(request);
+        numCompleted++;
+    }
 }
 
 bool SDBPConnection::IsActive()

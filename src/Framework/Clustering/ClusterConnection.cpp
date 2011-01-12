@@ -51,7 +51,7 @@ ClusterConnection::Progress ClusterConnection::GetProgress()
 void ClusterConnection::Close()
 {
     if (state == CONNECTED && nodeID != UNDEFINED_NODEID)
-        Log_Message("[%s]: [%U] Node closed", endpoint.ToString(), nodeID);
+        Log_Message("[%s] Cluster node %U closed", endpoint.ToString(), nodeID);
 
     MessageConnection::Close();
 }
@@ -83,9 +83,14 @@ void ClusterConnection::OnConnect()
     Log_Trace("Conn READY to node %U at %s", nodeID, endpoint.ToString());
 
     if (nodeID != transport->GetSelfNodeID())
-        Log_Message("[%s]: [%U] Node connected =>", endpoint.ToString(), nodeID);
+    {
+        if (nodeID == UNDEFINED_NODEID)
+            Log_Message("[%s] Cluster unknown node connected =>", endpoint.ToString());
+        else
+            Log_Message("[%s] Cluster node %U connected =>", endpoint.ToString(), nodeID);
+    }
     else
-        Log_Message("[%s]: [%U] Node connected to self", endpoint.ToString(), nodeID);
+        Log_Message("[%s] Cluster node connected to self", endpoint.ToString(), nodeID);
 
     progress = READY;
     OnWriteReadyness();
@@ -100,7 +105,7 @@ void ClusterConnection::OnClose()
     
     MessageConnection::Close();
     if (nodeID != UNDEFINED_NODEID)
-        Log_Message("[%s]: [%U] Node disconnected", endpoint.ToString(), nodeID);
+        Log_Message("[%s] Cluster node %U disconnected", endpoint.ToString(), nodeID);
     
     if (progress == INCOMING)
     {
@@ -143,7 +148,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
                 transport->DeleteConnection(this);
                 return true;
             }
-            Log_Message("[%s]: [%U] Node connected <=", endpoint.ToString(), nodeID);
+            Log_Message("[%s] Cluster node %U connected <=", endpoint.ToString(), nodeID);
             return false;
         }
         
@@ -176,7 +181,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         endpoint.Set(buffer);
         Log_Trace("Conn READY to node %U at %s", nodeID, endpoint.ToString());
         if (nodeID != transport->GetSelfNodeID())
-            Log_Message("[%s]: [%U] Node connected <=", endpoint.ToString(), nodeID);
+            Log_Message("[%s] Cluster node %U connected <=", endpoint.ToString(), nodeID);
         
         transport->AddConnection(this);
         transport->OnConnectionReady(nodeID, endpoint);

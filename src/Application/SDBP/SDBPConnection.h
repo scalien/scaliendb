@@ -48,7 +48,7 @@ private:
     SDBPServer*         server;
     SDBPContext*        context;
     unsigned            numPending;
-    
+    unsigned            numCompleted;
 };
 
 #endif

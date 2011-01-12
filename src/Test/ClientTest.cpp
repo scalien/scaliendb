@@ -1008,7 +1008,7 @@ TEST_DEFINE(TestClientFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 10;
+    unsigned        numThread = 100;
     
     threadPool = ThreadPool::Create(numThread);
     
