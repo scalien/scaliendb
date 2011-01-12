@@ -26,6 +26,8 @@ Mutex   globalMutex;
 #define GLOBAL_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()     mutexGuard.Unlock()
 
+#define YIELD()                         ThreadPool::Yield()
+
 #else // CLIENT_MULTITHREAD
 
 #define CLIENT_MUTEX_GUARD_DECLARE()
@@ -38,6 +40,8 @@ Mutex   globalMutex;
 #define GLOBAL_MUTEX_GUARD_DECLARE()
 #define GLOBAL_MUTEX_GUARD_LOCK()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()
+
+#define YIELD()
 
 #endif // CLIENT_MULTITHREAD
 
@@ -540,8 +544,7 @@ void Client::EventLoop()
 
         // let other threads to enter IOProcessor and complete requests
         GLOBAL_MUTEX_GUARD_UNLOCK();
-        
-        ThreadPool::Yield();
+        YIELD();
     }
 
     CLIENT_MUTEX_LOCK();

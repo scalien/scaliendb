@@ -7,6 +7,7 @@
 #include "System/Log.h"
 #include "System/Events/Callable.h"
 
+// pthread_yield is not defined on either Linux or OSX
 #define pthread_yield   sched_yield
 
 /*
