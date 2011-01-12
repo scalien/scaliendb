@@ -1,7 +1,7 @@
 #include "EventLoop.h"
 
-static uint64_t now;
-static bool     running;
+static volatile uint64_t    now;
+static bool                 running;
 
 long EventLoop::RunTimers()
 {

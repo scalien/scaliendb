@@ -504,10 +504,6 @@ void Client::EventLoop()
         return;
     }
     
-    // wake up IO processor
-    Callable    nop;
-    IOProcessor::Complete(&nop);
-    
     GLOBAL_MUTEX_GUARD_DECLARE();
     
     EventLoop::UpdateTime();

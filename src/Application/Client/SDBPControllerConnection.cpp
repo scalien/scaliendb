@@ -14,6 +14,9 @@
 #define CLIENT_MUTEX_LOCK()             mutexGuard.Lock()
 #define CLIENT_MUTEX_UNLOCK()           mutexGuard.Unlock()
 
+#define GLOBAL_MUTEX_LOCK()             client->LockGlobal()
+#define GLOBAL_MUTEX_UNLOCK()           client->UnlockGlobal()
+
 using namespace SDBPClient;
 
 ControllerConnection::ControllerConnection(Client* client_, uint64_t nodeID_, Endpoint& endpoint_)
@@ -108,7 +111,6 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
 
 void ControllerConnection::OnWrite()
 {
-    CLIENT_MUTEX_GUARD_DECLARE();
     MessageConnection::OnWrite();
 }
 
@@ -116,8 +118,9 @@ void ControllerConnection::OnConnect()
 {
     Log_Trace();
 
-    CLIENT_MUTEX_GUARD_DECLARE();
     MessageConnection::OnConnect();
+
+    CLIENT_MUTEX_GUARD_DECLARE();
     client->OnControllerConnected(this);
 }
 
@@ -140,6 +143,7 @@ void ControllerConnection::OnClose()
             //client->ReassignRequest(it);
         }
     }
+    
     
     // close socket
     MessageConnection::OnClose();
