@@ -16,6 +16,7 @@ Mutex::~Mutex()
 void Mutex::Lock()
 {
     pthread_mutex_lock(&mutex);
+    threadID = (uint64_t) pthread_self();
 }
 
 bool Mutex::TryLock()
@@ -24,12 +25,16 @@ bool Mutex::TryLock()
     
     ret = pthread_mutex_trylock(&mutex);
     if (ret == 0)
+    {
+        threadID = (uint64_t) pthread_self();
         return true;
+    }
     return false;
 }
 
 void Mutex::Unlock()
 {
+    threadID = 0;
     pthread_mutex_unlock(&mutex);
 }
 

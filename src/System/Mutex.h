@@ -52,8 +52,9 @@ public:
     bool        TryLock();
     void        Unlock();
     
-private:
+//private:
     mutex_t     mutex;
+    uint64_t    threadID;
 };
 
 /*

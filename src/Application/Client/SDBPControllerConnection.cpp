@@ -17,6 +17,8 @@
 #define GLOBAL_MUTEX_LOCK()             client->LockGlobal()
 #define GLOBAL_MUTEX_UNLOCK()           client->UnlockGlobal()
 
+#define ASSERT_GLOBAL_LOCKED()          assert(client->IsGlobalLocked())
+
 using namespace SDBPClient;
 
 ControllerConnection::ControllerConnection(Client* client_, uint64_t nodeID_, Endpoint& endpoint_)
@@ -35,12 +37,16 @@ void ControllerConnection::Connect()
     // TODO: MessageConnection::Connect does not support timeout parameter
     //MessageConnection::Connect(endpoint, RECONNECT_TIMEOUT);
     
+    ASSERT_GLOBAL_LOCKED();
+    
     MessageConnection::Connect(endpoint);
 }
 
 void ControllerConnection::Send(ClientRequest* request)
 {
     Log_Trace("type = %c, nodeID = %u", request->type, (unsigned) nodeID);
+
+    ASSERT_GLOBAL_LOCKED();
 
     SDBPRequestMessage  msg;
 

@@ -147,6 +147,7 @@ private:
     void                    Unlock();
     void                    LockGlobal();
     void                    UnlockGlobal();
+    bool                    IsGlobalLocked();
 //#endif
 };
 

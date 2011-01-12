@@ -4,6 +4,7 @@
 #include "SDBPClientConsts.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Mutex.h"
+#include "System/ThreadPool.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
@@ -672,7 +673,10 @@ void Client::ReassignRequest(Request* req)
     if (req->IsControllerRequest())
     {
         if (master >= 0)
+        {
+            GLOBAL_MUTEX_GUARD_DECLARE();
             controllerConnections[master]->Send(req);
+        }
         else
             requests.Append(req);
 
@@ -947,4 +951,11 @@ void Client::LockGlobal()
 void Client::UnlockGlobal()
 {
     globalMutex.Unlock();
+}
+
+bool Client::IsGlobalLocked()
+{
+    if (globalMutex.threadID == ThreadPool::GetThreadID())
+        return true;
+    return false;
 }
