@@ -62,7 +62,7 @@ uint32_t StorageDataPage::GetLength()
     return buffer.GetLength();
 }
 
-uint32_t StorageDataPage::GetIncrement(StorageMemoKeyValue* kv)
+uint32_t StorageDataPage::GetIncrement(StorageKeyValue* kv)
 {
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         return (1 + 2 + kv->GetKey().GetLength() + 4 + kv->GetValue().GetLength());
@@ -74,7 +74,7 @@ uint32_t StorageDataPage::GetIncrement(StorageMemoKeyValue* kv)
     return 0;
 }
 
-void StorageDataPage::Append(StorageMemoKeyValue* kv)
+void StorageDataPage::Append(StorageKeyValue* kv)
 {
     StorageFileKeyValue*    fkv;
     
@@ -158,7 +158,17 @@ void StorageDataPage::Finalize()
             
             it->Delete(ReadBuffer(kpos, klen));
         }
-    }    
+    }
+}
+
+StorageFileKeyValue* StorageDataPage::First()
+{
+    return keyValues.First();
+}
+
+StorageFileKeyValue* StorageDataPage::Next(StorageFileKeyValue* it)
+{
+    return keyValues.Next(it);
 }
 
 bool StorageDataPage::Read(Buffer& buffer_)

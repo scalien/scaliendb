@@ -25,8 +25,10 @@ public:
     uint32_t            GetSize();
 
     uint64_t            GetChunkID();
-    uint64_t            GetLogSegmentID();
-    uint32_t            GetLogCommandID();
+    uint64_t            GetMinLogSegmentID();
+    uint64_t            GetMaxLogSegmentID();
+    uint32_t            GetMaxLogCommandID();
+    uint64_t            GetNumKeys();
     uint64_t            GetIndexPageOffset();
     uint32_t            GetIndexPageSize();
     uint64_t            GetBloomPageOffset();
@@ -36,8 +38,9 @@ public:
     ReadBuffer          GetMidpoint();
 
     void                SetChunkID(uint64_t chunkID);
-    void                SetLogSegmentID(uint64_t logSegmentID);
-    void                SetLogCommandID(uint32_t logCommandID);
+    void                SetMinLogSegmentID(uint64_t logSegmentID);
+    void                SetMaxLogSegmentID(uint64_t logSegmentID);
+    void                SetMaxLogCommandID(uint32_t logCommandID);
     void                SetNumKeys(uint64_t numKeys);
     void                SetUseBloomFilter(bool useBloomFilter);
     void                SetIndexPageOffset(uint64_t indexPageOffset);
@@ -57,8 +60,9 @@ public:
 
 private:
     uint64_t            chunkID;
-    uint64_t            logSegmentID;
-    uint32_t            logCommandID;
+    uint64_t            minLogSegmentID;
+    uint64_t            maxLogSegmentID;
+    uint32_t            maxLogCommandID;
     uint64_t            numKeys;
     bool                useBloomFilter;
     uint64_t            indexPageOffset;

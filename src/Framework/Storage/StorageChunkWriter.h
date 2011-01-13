@@ -20,7 +20,6 @@ public:
 private:
     bool                    WriteBuffer();
 
-    bool                    WriteEmptyHeaderPage();
     bool                    WriteHeaderPage();
     bool                    WriteDataPages();
     bool                    WriteIndexPage();

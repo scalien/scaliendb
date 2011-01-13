@@ -129,4 +129,46 @@ private:
     StorageMemoChunk*   chunk;
 };
 
+/*
+===============================================================================================
+
+ StorageDeleteFileChunkJob
+
+===============================================================================================
+*/
+
+class StorageDeleteFileChunkJob : public StorageJob
+{
+public:
+    StorageDeleteFileChunkJob(StorageFileChunk* chunk);
+    
+    void                Execute();
+private:
+    StorageFileChunk*   chunk;
+};
+
+/*
+===============================================================================================
+
+ StorageMergeChunkJob
+
+===============================================================================================
+*/
+
+class StorageMergeChunkJob : public StorageJob
+{
+public:
+    StorageMergeChunkJob(ReadBuffer filename1, ReadBuffer filename2,
+     StorageFileChunk* mergeChunk, ReadBuffer firstKey, ReadBuffer lastKey, Callable* onComplete);
+    
+    void                Execute();
+private:
+    Buffer              filename1;
+    Buffer              filename2;
+    Buffer              firstKey;
+    Buffer              lastKey;
+    StorageFileChunk*   mergeChunk;
+};
+
+
 #endif

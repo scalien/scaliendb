@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5433D97C12DC7FCB00DEF661 /* StorageChunkMerger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5433D97A12DC7FCB00DEF661 /* StorageChunkMerger.cpp */; };
+		5433D97F12DC82EB00DEF661 /* StorageChunkReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5433D97E12DC82EB00DEF661 /* StorageChunkReader.cpp */; };
 		543DE5D112BFBB3D0069786A /* ClusterConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE53F12BFBB3D0069786A /* ClusterConnection.cpp */; };
 		543DE5D212BFBB3D0069786A /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54112BFBB3D0069786A /* ClusterServer.cpp */; };
 		543DE5D312BFBB3D0069786A /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54312BFBB3D0069786A /* ClusterTransport.cpp */; };
@@ -186,6 +188,10 @@
 
 /* Begin PBXFileReference section */
 		541D826411C7A17D00A6CB16 /* Callable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Callable.h; sourceTree = "<group>"; };
+		5433D97A12DC7FCB00DEF661 /* StorageChunkMerger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkMerger.cpp; sourceTree = "<group>"; };
+		5433D97B12DC7FCB00DEF661 /* StorageChunkMerger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkMerger.h; sourceTree = "<group>"; };
+		5433D97D12DC82EB00DEF661 /* StorageChunkReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkReader.h; sourceTree = "<group>"; };
+		5433D97E12DC82EB00DEF661 /* StorageChunkReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageChunkReader.cpp; sourceTree = "<group>"; };
 		543DE53F12BFBB3D0069786A /* ClusterConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterConnection.cpp; sourceTree = "<group>"; };
 		543DE54012BFBB3D0069786A /* ClusterConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClusterConnection.h; sourceTree = "<group>"; };
 		543DE54112BFBB3D0069786A /* ClusterServer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ClusterServer.cpp; sourceTree = "<group>"; };
@@ -671,12 +677,12 @@
 		543DE57612BFBB3D0069786A /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				5499B82C12D72EB000ECEF7F /* BloomFilter.cpp */,
-				5499B82D12D72EB000ECEF7F /* BloomFilter.h */,
 				543DE71012C0B7290069786A /* KeyValue */,
 				543DE70F12C0B7010069786A /* Chunk */,
 				543DE70E12C0B6D60069786A /* Environment */,
 				543DE70D12C0B6A90069786A /* Pages */,
+				5499B82D12D72EB000ECEF7F /* BloomFilter.h */,
+				5499B82C12D72EB000ECEF7F /* BloomFilter.cpp */,
 				543DE57912BFBB3D0069786A /* FDGuard.h */,
 				543DE57812BFBB3D0069786A /* FDGuard.cpp */,
 				543DE57A12BFBB3D0069786A /* PointerGuard.h */,
@@ -912,6 +918,10 @@
 				543DE58212BFBB3D0069786A /* StorageChunkSerializer.cpp */,
 				543DE58512BFBB3D0069786A /* StorageChunkWriter.h */,
 				543DE58412BFBB3D0069786A /* StorageChunkWriter.cpp */,
+				5433D97B12DC7FCB00DEF661 /* StorageChunkMerger.h */,
+				5433D97A12DC7FCB00DEF661 /* StorageChunkMerger.cpp */,
+				5433D97D12DC82EB00DEF661 /* StorageChunkReader.h */,
+				5433D97E12DC82EB00DEF661 /* StorageChunkReader.cpp */,
 			);
 			name = Chunk;
 			sourceTree = "<group>";
@@ -1309,6 +1319,8 @@
 				543DE73412C0B8730069786A /* StorageBulkCursor.cpp in Sources */,
 				543DE8C512C113770069786A /* StorageShardProxy.cpp in Sources */,
 				5499B82E12D72EB000ECEF7F /* BloomFilter.cpp in Sources */,
+				5433D97C12DC7FCB00DEF661 /* StorageChunkMerger.cpp in Sources */,
+				5433D97F12DC82EB00DEF661 /* StorageChunkReader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

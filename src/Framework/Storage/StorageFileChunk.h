@@ -15,23 +15,15 @@
 ===============================================================================================
 */
 
-class StorageChunkSerializer;
-class StorageChunkWriter;
-class StorageRecovery;
-
 class StorageFileChunk : public StorageChunk
 {
-    friend class StorageChunkSerializer;
-    friend class StorageChunkWriter;
-    friend class StorageRecovery;
-
 public:
     StorageFileChunk();
     ~StorageFileChunk();
 
     void                ReadHeaderPage();
 
-    void                SetFilename(Buffer& filename);
+    void                SetFilename(ReadBuffer filename);
     Buffer&             GetFilename();
 
     ChunkState          GetChunkState();
@@ -54,6 +46,8 @@ public:
     ReadBuffer          GetMidpoint();
     
     void                AddPagesToCache();
+    void                RemovePagesFromCache();
+
     void                OnBloomPageEvicted();
     void                OnIndexPageEvicted();
     void                OnDataPageEvicted(uint32_t index);
@@ -66,7 +60,6 @@ public:
     StorageFileChunk*   prev;
     StorageFileChunk*   next;
 
-private:
     void                AppendDataPage(StorageDataPage* dataPage);
     void                ExtendDataPageArray();
     bool                ReadPage(uint32_t offset, Buffer& buffer);
@@ -80,8 +73,7 @@ private:
     StorageDataPage**   dataPages;
     uint32_t            fileSize;
     Buffer              filename;
-
-    uint64_t            minLogSegmentID;
+    bool                useCache;
 };
 
 #endif

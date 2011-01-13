@@ -4,10 +4,10 @@
 #include "System/Buffers/Buffer.h"
 #include "FDGuard.h"
 #include "StorageChunkReader.h"
-//#include "StorageHeaderPage.h"
-//#include "StorageDataPage.h"
-//#include "StorageIndexPage.h"
-//#include "StorageBloomPage.h"
+#include "StorageHeaderPage.h"
+#include "StorageDataPage.h"
+#include "StorageIndexPage.h"
+#include "StorageBloomPage.h"
 
 class StorageChunk; // forward
 
@@ -22,41 +22,34 @@ class StorageChunk; // forward
 class StorageChunkMerger
 {
 public:
-    bool                Merge(
-                         const char* rFilename1, const char* rFilename2, const char* wFilename,
-                         uin64_t shardID, uint64_t chunkID, bool useBloomFilter,     
-                         Buffer& firstKey, Buffer& lastKey);
-                        // file1 is older than file2
+    bool                    Merge(
+                             ReadBuffer filename1, ReadBuffer filename2,
+                             StorageFileChunk* mergeChunk,
+                             ReadBuffer firstKey, ReadBuffer lastKey);
+                             // filename1 is older than filename2
 
 private:
-    StorageKeyValue*    Merge(StorageKeyValue* it1, StorageKeyValue* it2);
-    bool                WriteBuffer();
+    StorageFileKeyValue*    Merge(StorageFileKeyValue* , StorageFileKeyValue* it2);
+    bool                    WriteBuffer();
+    void                    UnloadChunk();
+    
+    bool                    WriteEmptyHeaderPage();
+    bool                    WriteHeaderPage();
+    bool                    WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey);
+    bool                    WriteIndexPage();
+    bool                    WriteBloomPage();
 
-    bool                WriteEmptyHeaderPage();
-    bool                WriteHeaderPage(uint64_t shardID, uint64_t chunkID, bool useBloomFilter);
-    bool                WriteDataPages(Buffer& firstKey, Buffer& lastKey);
-    bool                WriteIndexPage();
-    bool                WriteBloomPage();
+    FDGuard                 fd;
+    Buffer                  writeBuffer;
+    Buffer                  firstKey, lastKey;
 
-    FDGuard             fd;
-    Buffer              writeBuffer;
+    uint64_t                numKeys;
+    uint32_t                offset;
 
-    StorageHeaderPage   headerPage;
-    StorageDataPage     dataPage;
-    StorageIndexPage    indexPage;
-    StorageBloomPage    bloomPage;
+    StorageChunkReader      reader1;
+    StorageChunkReader      reader2;
 
-    uint64_t            numKeys;
-    uint64_t            offset;
-    uint64_t            indexPageOffset;
-    uint64_t            bloomPageOffset;
-    uint32_t            indexPageSize;
-    uint32_t            bloomPageSize;
-
-    StorageChunkReader  reader1;
-    StorageChunkReader  reader2;
-
-    StorageKeyValue     mergedKeyValue;
+    StorageFileChunk*       mergeChunk;
 };
 
 #endif

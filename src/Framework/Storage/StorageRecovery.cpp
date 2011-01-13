@@ -164,7 +164,7 @@ bool StorageRecovery::ReadShard(ReadBuffer& parse)
             
             tmp.Write(env->envPath);
             tmp.Appendf("chunks/chunk.%020U", chunkID);
-            fileChunk->SetFilename(tmp);
+            fileChunk->SetFilename(ReadBuffer(tmp));
             fileChunk->written = true;
             
             env->fileChunks.Append(fileChunk);
@@ -444,7 +444,7 @@ void StorageRecovery::ExecuteSet(
     if (shard->recoveryLogSegmentID > logSegmentID)
         return; // this command is already present in a file chunk
 
-    if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID > logCommandID)
+    if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID >= logCommandID)
         return; // this command is already present in a file chunk
         
     memoChunk = shard->GetMemoChunk();
@@ -476,7 +476,7 @@ void StorageRecovery::ExecuteDelete(
     if (shard->recoveryLogSegmentID > logSegmentID)
         return; // this command is already present in a file chunk
 
-    if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID > logCommandID)
+    if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID >= logCommandID)
         return; // this command is already present in a file chunk
         
     memoChunk = shard->GetMemoChunk();

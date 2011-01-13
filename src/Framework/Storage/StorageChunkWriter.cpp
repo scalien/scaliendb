@@ -44,22 +44,6 @@ bool StorageChunkWriter::WriteBuffer()
     return true;
 }
 
-bool StorageChunkWriter::WriteEmptyHeaderPage()
-{
-    uint32_t    pageSize;
-
-    pageSize = file->headerPage.GetSize();
-
-    writeBuffer.Allocate(pageSize);
-    writeBuffer.SetLength(pageSize);
-    writeBuffer.Zero();
-
-    if (!WriteBuffer())
-        return false;
-
-    return true;
-}
-
 bool StorageChunkWriter::WriteHeaderPage()
 {
     writeBuffer.Clear();

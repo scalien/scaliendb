@@ -3,8 +3,9 @@
 StorageHeaderPage::StorageHeaderPage(StorageFileChunk* owner_)
 {
     chunkID = 0;
-    logSegmentID = 0;
-    logCommandID = 0;
+    minLogSegmentID = 0;
+    maxLogSegmentID = 0;
+    maxLogCommandID = 0;
     numKeys = 0;
     useBloomFilter = 0;
     indexPageOffset = 0;
@@ -24,14 +25,24 @@ uint64_t StorageHeaderPage::GetChunkID()
     return chunkID;
 }
 
-uint64_t StorageHeaderPage::GetLogSegmentID()
+uint64_t StorageHeaderPage::GetMinLogSegmentID()
 {
-    return logSegmentID;
+    return minLogSegmentID;
 }
 
-uint32_t StorageHeaderPage::GetLogCommandID()
+uint64_t StorageHeaderPage::GetMaxLogSegmentID()
 {
-    return logCommandID;
+    return maxLogSegmentID;
+}
+
+uint32_t StorageHeaderPage::GetMaxLogCommandID()
+{
+    return maxLogCommandID;
+}
+
+uint64_t StorageHeaderPage::GetNumKeys()
+{
+    return numKeys;
 }
 
 uint64_t StorageHeaderPage::GetIndexPageOffset()
@@ -74,14 +85,19 @@ void StorageHeaderPage::SetChunkID(uint64_t chunkID_)
     chunkID = chunkID_;
 }
 
-void StorageHeaderPage::SetLogSegmentID(uint64_t logSegmentID_)
+void StorageHeaderPage::SetMinLogSegmentID(uint64_t minLogSegmentID_)
 {
-    logSegmentID = logSegmentID_;
+    minLogSegmentID = minLogSegmentID_;
 }
 
-void StorageHeaderPage::SetLogCommandID(uint32_t logCommandID_)
+void StorageHeaderPage::SetMaxLogSegmentID(uint64_t maxLogSegmentID_)
 {
-    logCommandID = logCommandID_;
+    maxLogSegmentID = maxLogSegmentID_;
+}
+
+void StorageHeaderPage::SetMaxLogCommandID(uint32_t maxLogCommandID_)
+{
+    maxLogCommandID = maxLogCommandID_;
 }
 
 void StorageHeaderPage::SetNumKeys(uint64_t numKeys_)
@@ -172,11 +188,15 @@ bool StorageHeaderPage::Read(Buffer& buffer)
     parse.Advance(8);
 
 
-    if (!parse.ReadLittle64(logSegmentID))
+    if (!parse.ReadLittle64(minLogSegmentID))
         return false;
     parse.Advance(8);
 
-    if (!parse.ReadLittle32(logCommandID))
+    if (!parse.ReadLittle64(maxLogSegmentID))
+        return false;
+    parse.Advance(8);
+
+    if (!parse.ReadLittle32(maxLogCommandID))
         return false;
     parse.Advance(4);
 
@@ -252,8 +272,9 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
     writeBuffer.AppendLittle32(STORAGE_HEADER_PAGE_VERSION);
     writeBuffer.Append(text);
     writeBuffer.AppendLittle64(chunkID);
-    writeBuffer.AppendLittle64(logSegmentID);
-    writeBuffer.AppendLittle32(logCommandID);
+    writeBuffer.AppendLittle64(minLogSegmentID);
+    writeBuffer.AppendLittle64(maxLogSegmentID);
+    writeBuffer.AppendLittle32(maxLogCommandID);
     writeBuffer.Appendf("%b", useBloomFilter);
     writeBuffer.AppendLittle64(numKeys);
     writeBuffer.AppendLittle64(indexPageOffset);

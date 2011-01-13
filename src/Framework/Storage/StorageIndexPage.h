@@ -20,6 +20,7 @@ class StorageIndexRecord
     typedef InTreeNode<StorageIndexRecord> TreeNode;
 
 public:
+    Buffer          keyBuffer;
     ReadBuffer      key;
     uint32_t        index;
     uint32_t        offset;
@@ -46,6 +47,7 @@ public:
     uint32_t            GetNumDataPages();
 
     bool                Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset);
+    ReadBuffer          GetMidpoint();
 
     void                Append(ReadBuffer key, uint32_t index, uint32_t offset);
     void                Finalize();

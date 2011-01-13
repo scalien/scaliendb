@@ -4,6 +4,7 @@
 #include "System/Config.h"
 #include "StorageChunkWriter.h"
 #include "StorageChunkSerializer.h"
+#include "StorageChunkMerger.h"
 #include "StorageEnvironment.h"
 
 StorageCommitJob::StorageCommitJob(StorageLogSegment* logSegment_, Callable* onComplete_)
@@ -158,4 +159,46 @@ void StorageDeleteMemoChunkJob::Execute()
 {
     delete chunk;
     delete this;
+}
+
+StorageDeleteFileChunkJob::StorageDeleteFileChunkJob(StorageFileChunk* chunk_)
+{
+    chunk = chunk_;
+}
+
+void StorageDeleteFileChunkJob::Execute()
+{
+    Log_Message("Deleting chunk %U", chunk->GetChunkID());
+    
+    FS_Delete(chunk->GetFilename().GetBuffer());
+
+    delete chunk;
+    delete this;
+}
+
+StorageMergeChunkJob::StorageMergeChunkJob(ReadBuffer filename1_, ReadBuffer filename2_,
+ StorageFileChunk* mergeChunk_, ReadBuffer firstKey_, ReadBuffer lastKey_, Callable* onComplete_)
+{
+    filename1.Write(filename1_);
+    filename2.Write(filename2_);
+    firstKey.Write(firstKey_);
+    lastKey.Write(lastKey_);
+    mergeChunk = mergeChunk_;
+    onComplete = onComplete_;
+}
+
+void StorageMergeChunkJob::Execute()
+{
+    StorageChunkMerger merger;
+    
+    Log_Message("Merging file %.*s and %.*s into chunk %U...",
+     filename1.GetLength()-1, filename1.GetBuffer(),
+     filename2.GetLength()-1, filename2.GetBuffer(),
+     mergeChunk->GetChunkID());
+    merger.Merge(filename1, filename2, mergeChunk, firstKey, lastKey);
+    Log_Message("Done merging.");
+
+    Callable* c = onComplete;
+    delete this;
+    IOProcessor::Complete(c);
 }

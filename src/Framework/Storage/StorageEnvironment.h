@@ -18,6 +18,8 @@ class StorageEnvironmentWriter;
 class StorageArchiveLogSegmentJob;
 
 #define STORAGE_MAX_UNBACKED_LOG_SEGMENT    10
+#define STORAGE_BACKGROUND_TIMER_DELAY      10*1000 // msec
+#define STORAGE_MERGE_AFTER_WRITE_DELAY     60*1000 // msec
 
 /*
 ===============================================================================================
@@ -35,6 +37,7 @@ class StorageEnvironment
     friend class StorageRecovery;
     friend class StorageEnvironmentWriter;
     friend class StorageArchiveLogSegmentJob;
+    friend class StorageBulkCursor;
     
     typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;
@@ -78,10 +81,13 @@ private:
     void                    TryFinalizeLogSegment();
     void                    TrySerializeChunks();
     void                    TryWriteChunks();
+    void                    TryMergeChunks();
     void                    TryArchiveLogSegments();
     void                    OnChunkSerialize();
     void                    OnChunkWrite();
+    void                    OnChunkMerge();
     void                    OnLogArchive();
+    void                    OnBackgroundTimer();
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
     void                    StartJob(ThreadPool* thread, StorageJob* job);
     void                    WriteTOC();
@@ -94,9 +100,11 @@ private:
     Callable                onCommit;
     Callable                onChunkSerialize;
     Callable                onChunkWrite;
+    Callable                onChunkMerge;
     Callable                onLogArchive;
 
     StorageLogSegment*      headLogSegment;
+    StorageFileChunk*       mergeChunk;
     ShardList               shards;
     FileChunkList           fileChunks;
     LogSegmentList          logSegments;
@@ -108,6 +116,8 @@ private:
     bool                    serializerThreadActive;
     ThreadPool*             writerThread;
     bool                    writerThreadActive;
+    ThreadPool*             mergerThread;
+    bool                    mergerThreadActive;
     ThreadPool*             archiverThread;
     bool                    archiverThreadActive;
     ThreadPool*             asyncThread;
@@ -121,7 +131,12 @@ private:
     uint64_t                nextLogSegmentID;
     uint64_t                asyncLogSegmentID;
     uint64_t                asyncWriteChunkID;
+    uint16_t                mergeContextID;
+    uint64_t                mergeShardID;
+    uint64_t                lastWriteTime;
+    bool                    numBulkCursors;
     const char*             archiveScript;
+    bool                    haveUncommitedWrites;
 };
 
 #endif

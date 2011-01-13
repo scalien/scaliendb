@@ -35,7 +35,6 @@ bool StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_)
     if (!WriteHeaderPage())
         return false;
 
-    fileChunk->minLogSegmentID = memoChunk->minLogSegmentID;
     fileChunk->fileSize = offset;
     fileChunk->written = false;
     
@@ -49,8 +48,9 @@ bool StorageChunkSerializer::WriteHeaderPage()
     fileChunk->headerPage.SetOffset(0);
     
     fileChunk->headerPage.SetChunkID(memoChunk->GetChunkID());
-    fileChunk->headerPage.SetLogSegmentID(memoChunk->GetMaxLogSegmentID());
-    fileChunk->headerPage.SetLogCommandID(memoChunk->GetMaxLogCommandID());
+    fileChunk->headerPage.SetMinLogSegmentID(memoChunk->minLogSegmentID);
+    fileChunk->headerPage.SetMaxLogSegmentID(memoChunk->GetMaxLogSegmentID());
+    fileChunk->headerPage.SetMaxLogCommandID(memoChunk->GetMaxLogCommandID());
     fileChunk->headerPage.SetNumKeys(memoChunk->keyValues.GetCount());
 
     fileChunk->headerPage.SetUseBloomFilter(memoChunk->UseBloomFilter());

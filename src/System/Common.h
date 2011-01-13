@@ -10,6 +10,8 @@
 #include "Formatting.h"
 #include "Log.h"
 
+class ReadBuffer;
+
 /*
 ===============================================================================================
 
@@ -46,6 +48,8 @@ char*           FindInCString(const char* s, char c);
 
 void            ReplaceInBuffer(char* buffer, unsigned length, char src, char dst);
 void            ReplaceInCString(char* s, char src, char dst);
+
+bool            RangeContains(ReadBuffer firstKey, ReadBuffer lastKey, ReadBuffer key);
 
 const char*     StaticPrint(const char* format, ...);
 

@@ -25,7 +25,7 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     bloomPage = NULL;
     numDataPages = 0;
     fileSize = 0;
-    minLogSegmentID = 0;
+    useCache = true;
 }
 
 StorageFileChunk::~StorageFileChunk()
@@ -82,7 +82,7 @@ void StorageFileChunk::ReadHeaderPage()
     fileSize = FS_FileSize(filename.GetBuffer());
 }
 
-void StorageFileChunk::SetFilename(Buffer& filename_)
+void StorageFileChunk::SetFilename(ReadBuffer filename_)
 {
     filename.Write(filename_);
     filename.NullTerminate();
@@ -207,17 +207,17 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
 
 uint64_t StorageFileChunk::GetMinLogSegmentID()
 {
-    return minLogSegmentID;
+    return headerPage.GetMinLogSegmentID();
 }
 
 uint64_t StorageFileChunk::GetMaxLogSegmentID()
 {
-    return headerPage.GetLogSegmentID();
+    return headerPage.GetMaxLogSegmentID();
 }
 
 uint32_t StorageFileChunk::GetMaxLogCommandID()
 {
-    return headerPage.GetLogCommandID();
+    return headerPage.GetMaxLogCommandID();
 }
 
 ReadBuffer StorageFileChunk::GetFirstKey()
@@ -251,6 +251,23 @@ void StorageFileChunk::AddPagesToCache()
 
     for (i = 0; i < numDataPages; i++)
         StoragePageCache::AddPage(dataPages[i]);
+}
+
+void StorageFileChunk::RemovePagesFromCache()
+{
+    uint32_t i;
+    
+    if (UseBloomFilter() && bloomPage != NULL)
+        StoragePageCache::RemovePage(bloomPage);
+
+    if (indexPage != NULL)
+        StoragePageCache::RemovePage(indexPage);
+
+    for (i = 0; i < numDataPages; i++)
+    {
+        if (dataPages[i] != NULL)
+            StoragePageCache::RemovePage(dataPages[i]);
+    }
 }
 
 void StorageFileChunk::OnBloomPageEvicted()
@@ -298,7 +315,9 @@ void StorageFileChunk::LoadBloomPage()
         Log_Message("Exiting...");
         STOP_FAIL(1);
     }
-    StoragePageCache::AddPage(bloomPage);
+    
+    if (useCache)
+        StoragePageCache::AddPage(bloomPage);
 }
 
 void StorageFileChunk::LoadIndexPage()
@@ -326,7 +345,9 @@ void StorageFileChunk::LoadIndexPage()
         Log_Message("Exiting...");
         STOP_FAIL(1);
     }
-    StoragePageCache::AddPage(indexPage);
+    
+    if (useCache)
+        StoragePageCache::AddPage(indexPage);
     
     // TODO: HACK
     if (numDataPages == 0)
@@ -367,7 +388,9 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
         Log_Message("Exiting...");
         STOP_FAIL(1);
     }
-    StoragePageCache::AddPage(dataPages[index], bulk);
+    
+    if (useCache)
+        StoragePageCache::AddPage(dataPages[index], bulk);
 }
 
 bool StorageFileChunk::RangeContains(ReadBuffer key)

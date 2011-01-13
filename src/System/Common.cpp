@@ -15,6 +15,7 @@
 #include "Macros.h"
 #include "Time.h"
 #include "Buffers/Buffer.h"
+#include "Buffers/ReadBuffer.h"
 
 unsigned NumDigits(int n)
 {
@@ -187,6 +188,27 @@ void ReplaceInBuffer(char* buffer, unsigned length, char src, char dst)
 void ReplaceInCString(char* s, char src, char dst)
 {
     ReplaceInBuffer(s, strlen(s), src, dst);
+}
+
+bool RangeContains(ReadBuffer firstKey, ReadBuffer lastKey, ReadBuffer key)
+{
+    int         cf, cl;
+    cf = ReadBuffer::Cmp(firstKey, key);
+    cl = ReadBuffer::Cmp(key, lastKey);
+
+    if (firstKey.GetLength() == 0)
+    {
+        if (lastKey.GetLength() == 0)
+            return true;
+        else
+            return (cl < 0);        // (key < lastKey);
+    }
+    else if (lastKey.GetLength() == 0)
+    {
+        return (cf <= 0);           // (firstKey <= key);
+    }
+    else
+        return (cf <= 0 && cl < 0); // (firstKey <= key < lastKey);
 }
 
 const char* StaticPrint(const char* format, ...)

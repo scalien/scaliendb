@@ -1,33 +1,30 @@
 #include "StorageChunkMerger.h"
+#include "StorageKeyValue.h"
+#include "System/Filesystem.h"
 
 bool StorageChunkMerger::Merge(
- const char* rFilename1, const char* rFilename2, const char* wFilename
- uin64_t shardID, uint64_t chunkID, bool useBloomFilter,     
- Buffer& firstKey, Buffer& lastKey)
+ ReadBuffer filename1, ReadBuffer filename2, StorageFileChunk* mergeChunk_,  
+ ReadBuffer firstKey, ReadBuffer lastKey)
 {
+    mergeChunk = mergeChunk_;
+    
     // open readers
-    if (!reader1.Open(rFilename1))
-        return false;
-    if (!reader2.Open(rFilename2))
-        return false;
-
-    if (!reader1.ReadHeaderPage())
-        return false;
-    if (!reader2.ReadHeaderPage())
-        return false;
+    reader1.Open(filename1);
+    reader2.Open(filename2);
 
     // open writer
-    if (fd.Open(wFilename, FS_READWRITE) == INVALID_FD)
+    if (fd.Open(mergeChunk->GetFilename().GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
         return false;
 
     offset = 0;
     numKeys = 0;
 
-    indexPage.Clear();
-    if (useBloomFilter)
+    mergeChunk->indexPage = new StorageIndexPage(mergeChunk);
+
+    if (mergeChunk->UseBloomFilter())
     {
-        bloomPage.Clear();
-        bloomPage.SetNumKeys(reader1->GetNumKeys() + reader2->GetNumKeys());
+        mergeChunk->bloomPage = new StorageBloomPage(mergeChunk);
+        mergeChunk->bloomPage->SetNumKeys(reader1.GetNumKeys() + reader2.GetNumKeys());
     }
 
     if (!WriteEmptyHeaderPage())
@@ -39,52 +36,40 @@ bool StorageChunkMerger::Merge(
     if (!WriteIndexPage())
         return false;
 
-    if (chunk->UseBloomFilter())
+    if (mergeChunk->UseBloomFilter())
     {
         if (!WriteBloomPage())
             return false;
     }
 
     FS_Sync(fd.GetFD());
-
+    
     FS_FileSeek(fd.GetFD(), 0, FS_SEEK_SET);
     offset = 0;
 
-    if (!WriteHeader(shardID, chunkID, useBloomFilter))
+    if (!WriteHeaderPage())
         return false;
 
     FS_Sync(fd.GetFD());
 
     fd.Close();
+    
+    mergeChunk->fileSize = offset;
+    mergeChunk->written = true;
+    
+//    Log_Message("n1 = %U   n2 = %U    n = %U", reader1.GetNumKeys(), reader2.GetNumKeys(), mergeChunk->headerPage.GetNumKeys());
+
+    UnloadChunk();
 
     return true;
 }
 
-StorageKeyValue* StorageChunkMerger::Merge(StorageKeyValue* it1, StorageKeyValue* it2)
+StorageFileKeyValue* StorageChunkMerger::Merge(StorageFileKeyValue* , StorageFileKeyValue* it2)
 {
-    if (it2->GetType() == STORAGE_KEYVALUE_SET)
+    if (it2->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         return it2;
-    else if (it2->GetType() == STORAGE_KEYVALUE_DELETE)
-        return NULL;
-    else if (it2->GetType() == STORAGE_KEYVALUE_APPEND)
-    {
-        if (it1->GetType() == STORAGE_KEYVALUE_SET)
-        {
-            // merge the two values into a STORAGE_KEYVALUE_SET
-            mergedKeyValue.Set(it1->GetKey(), it1->GetValue());
-            mergedKeyValue.AppendToValue(it2->GetValue());
-            return &mergedKeyValue;
-        }
-        else if (it1->GetType() == STORAGE_KEYVALUE_APPEND)
-        {
-            // merge the two values into a STORAGE_KEYVALUE_APPEND
-            mergedKeyValue.Append(it1->GetKey(), it1->GetValue());
-            mergedKeyValue.AppendToValue(it2->GetValue());
-            return &mergedKeyValue;
-        }
-    }
     else
-        ASSERT_FAIL();
+        return NULL;
 }
 
 bool StorageChunkMerger::WriteBuffer()
@@ -100,12 +85,19 @@ bool StorageChunkMerger::WriteBuffer()
     return true;
 }
 
+void StorageChunkMerger::UnloadChunk()
+{
+    delete mergeChunk->indexPage;
+    delete mergeChunk->bloomPage;
+    mergeChunk->indexPage = NULL;
+    mergeChunk->bloomPage = NULL;
+}
+
 bool StorageChunkMerger::WriteEmptyHeaderPage()
 {
     uint32_t    pageSize;
-    ssize_t     writeSize;
 
-    pageSize = headerPage.GetPageSize();
+    pageSize = mergeChunk->headerPage.GetSize();
 
     writeBuffer.Allocate(pageSize);
     writeBuffer.SetLength(pageSize);
@@ -117,40 +109,77 @@ bool StorageChunkMerger::WriteEmptyHeaderPage()
     return true;
 }
 
-bool StorageChunkMerger::WriteHeaderPage(uint64_t shardID, uint64_t chunkID, bool useBloomFilter)
+bool StorageChunkMerger::WriteHeaderPage()
 {
-    headerPage.SetShardID(shardID);
-    headerPage.SetChunkID(chunkID);
-    headerPage.SetLogSegmentID(MAX(reader1.GetLogSegmentID(), reader2.GetLogSegmentID()));
-    headerPage.SetNumKeys(numKeys);
+    mergeChunk->headerPage.SetOffset(0);
+    
+//    mergeChunk->headerPage.SetChunkID(memoChunk->GetChunkID());
+    mergeChunk->headerPage.SetMinLogSegmentID(reader1.GetMinLogSegmentID());
+    mergeChunk->headerPage.SetMaxLogSegmentID(reader2.GetMaxLogSegmentID());
+    mergeChunk->headerPage.SetMaxLogCommandID(reader2.GetMaxLogCommandID());
+    mergeChunk->headerPage.SetNumKeys(numKeys);
 
-    headerPage.SetVersion(STORAGE_HEADER_PAGE_VERSION);
-    headerPage.SetUseBloomFilter(useBloomFilter);
-    headerPage.SetIndexPageOffset(indexPageOffset);
-    headerPage.SetIndexPageSize(indexPageSize);
-    headerPage.SetBloomPageOffset(bloomPageOffset);
-    headerPage.SetBloomPageSize(bloomPageSize);
+    mergeChunk->headerPage.SetIndexPageOffset(mergeChunk->indexPage->GetOffset());
+    mergeChunk->headerPage.SetIndexPageSize(mergeChunk->indexPage->GetSize());
+    if (mergeChunk->bloomPage)
+    {
+        mergeChunk->headerPage.SetBloomPageOffset(mergeChunk->bloomPage->GetOffset());
+        mergeChunk->headerPage.SetBloomPageSize(mergeChunk->bloomPage->GetSize());
+    }
+    if (firstKey.GetLength() > 0)
+    {
+        mergeChunk->headerPage.SetFirstKey(ReadBuffer(firstKey));
+        mergeChunk->headerPage.SetLastKey(ReadBuffer(lastKey));
+        mergeChunk->headerPage.SetMidpoint(mergeChunk->indexPage->GetMidpoint());
+    }
 
-    headerPage.Write(writeBuffer);
+    writeBuffer.Clear();
+    mergeChunk->headerPage.Write(writeBuffer);
+    assert(writeBuffer.GetLength() == mergeChunk->headerPage.GetSize());
+
     if (!WriteBuffer())
         return false;
 
     return true;
 }
 
-bool StorageChunkMerger::WriteDataPages(Buffer& firstKey, Buffer& lastKey)
+bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
 {
-    bool                advance1;
-    bool                advance2;
-    StorageKeyValue*    it1;
-    StorageKeyValue*    it2;
-
+    bool                    advance1;
+    bool                    advance2;
+    bool                    skip;
+    uint32_t                index;
+    int                     cmp;
+    StorageFileKeyValue*    it1;
+    StorageFileKeyValue*    it2;
+    StorageFileKeyValue*    it;
+    StorageDataPage*        dataPage;
+    uint64_t                numit1, numit2;
+    
     it1 = reader1.First();
     it2 = reader2.First();
+    numit1 = numit2 = 0;
+    index = 0;
+    dataPage = new StorageDataPage(mergeChunk, index);
+    dataPage->SetOffset(offset);
     while(it1 != NULL || it2 != NULL)
     {
         advance1 = false;
         advance2 = false;
+
+        skip = false;
+        if (it1 != NULL && !RangeContains(firstKey, lastKey, it1->GetKey()))
+        {
+            advance1 = true;
+            skip = true;
+        }
+        if (it2 != NULL && !RangeContains(firstKey, lastKey, it2->GetKey()))
+        {
+            advance2 = true;
+            skip = true;
+        }
+        if (skip)
+            goto Advance;
 
         if (it1 == NULL)
         {
@@ -164,12 +193,13 @@ bool StorageChunkMerger::WriteDataPages(Buffer& firstKey, Buffer& lastKey)
         }
         else
         {
-            if (it1 < it2)
+            cmp = ReadBuffer::Cmp(it1->GetKey(), it2->GetKey());
+            if (cmp < 0)
             {
                 it = it1;
                 advance1 = true;
             }
-            else if (it2 < it1)
+            else if (cmp > 0)
             {
                 it = it2;
                 advance2 = true;
@@ -187,54 +217,89 @@ bool StorageChunkMerger::WriteDataPages(Buffer& firstKey, Buffer& lastKey)
             goto Advance;
 
         numKeys++;
+        
+        if (firstKey.GetLength() == 0)
+            this->firstKey.Write(it->GetKey());
+        this->lastKey.Write(it->GetKey());
 
-        if (useBloomFilter)
-            bloomPage.Add(it);
+        if (mergeChunk->UseBloomFilter())
+            mergeChunk->bloomPage->Add(it->GetKey());
 
-        if (dataPage.GetNumKeys() == 0)
+        if (dataPage->GetNumKeys() == 0)
         {
-            dataPage.Append(it);
-            indexPage.Append(it);
+            dataPage->Append(it);
+            mergeChunk->indexPage->Append(it->GetKey(), index, offset);
         }
         else
         {
-            if (dataPage.GetLength() + dataPage.GetSizeIncrement(it) <= STORAGE_DEFAULT_DATA_PAGE_SIZE)
+            if (dataPage->GetLength() + dataPage->GetIncrement(it) <= STORAGE_DEFAULT_DATA_PAGE_SIZE)
             {
-                dataPage.Append(it);
+                dataPage->Append(it);
             }
             else
             {
-                dataPage.Write(writeBuffer);
+                dataPage->Finalize();
+                
+                writeBuffer.Clear();
+                dataPage->Write(writeBuffer);
+                assert(writeBuffer.GetLength() == dataPage->GetSize());
                 if (!WriteBuffer())
                     return false;
-                dataPage.Clear();
+
+                mergeChunk->AppendDataPage(NULL);
+                index++;
+                delete dataPage;
+                dataPage = new StorageDataPage(mergeChunk, index);
+                dataPage->SetOffset(offset);
+                dataPage->Append(it);
+                mergeChunk->indexPage->Append(it->GetKey(), index, offset);
             }
         }
         
 Advance:
         if (advance1)
+        {
             it1 = reader1.Next(it1);
+            numit1++;
+        }
         if (advance2)
+        {
             it2 = reader2.Next(it2);
+            numit2++;
+        }
     }
 
     // write last datapage
-    if (dataPage.GetNumKeys() > 0)
+    if (dataPage->GetNumKeys() > 0)
     {
-        dataPage.Write(writeBuffer);
+        dataPage->Finalize();
+
+        writeBuffer.Clear();
+        dataPage->Write(writeBuffer);
+        assert(writeBuffer.GetLength() == dataPage->GetSize());
         if (!WriteBuffer())
             return false;
-    }
 
+        mergeChunk->AppendDataPage(NULL);
+        index++;
+        delete dataPage;
+    }
+    
+    mergeChunk->indexPage->Finalize();
+    
+    assert(numit1 = reader1.GetNumKeys());
+    assert(numit2 = reader2.GetNumKeys());
+    
     return true;
 }
 
 bool StorageChunkMerger::WriteIndexPage()
 {
-    indexPage.Write(writeBuffer);
+    mergeChunk->indexPage->SetOffset(offset);
 
-    indexPageOffset = offset;
-    indexPageSize = writeBuffer.GetLength();
+    writeBuffer.Clear();
+    mergeChunk->indexPage->Write(writeBuffer);
+    assert(writeBuffer.GetLength() == mergeChunk->indexPage->GetSize());
 
     if (!WriteBuffer())
         return false;
@@ -244,10 +309,11 @@ bool StorageChunkMerger::WriteIndexPage()
 
 bool StorageChunkMerger::WriteBloomPage()
 {
-    bloomPage.Write(writeBuffer);
+    mergeChunk->bloomPage->SetOffset(offset);
 
-    bloomPageOffset = offset;
-    bloomPageSize = writeBuffer.GetLength();
+    writeBuffer.Clear();
+    mergeChunk->bloomPage->Write(writeBuffer);
+    assert(writeBuffer.GetLength() == mergeChunk->bloomPage->GetSize());
 
     if (!WriteBuffer())
         return false;
