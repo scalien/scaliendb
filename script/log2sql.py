@@ -4,6 +4,8 @@ import struct
 import signal
 import string
 
+FILTER = False
+
 def write_command(data, context_id, shard_id):
 	command = data[0]
 	use_previous = data[1]
@@ -22,7 +24,9 @@ def write_command(data, context_id, shard_id):
 		val = data[nread:nread+vallen]
 		nread += vallen
 		# only write out data contexts
-		if context_id == 3:
+		if FILTER and context_id != 3:
+			pass
+		else:
 			print("INSERT INTO kv VALUES (%d, %d, '%s', '%s');" % (context_id, shard_id, key, val))
 	elif command == "d":
 		# DELETE command
@@ -31,7 +35,9 @@ def write_command(data, context_id, shard_id):
 		key = data[nread:nread+keylen]
 		nread += keylen
 		# only write out data contexts
-		if context_id == 3:
+		if FILTER and context_id != 3:
+			pass
+		else:
 			print("DELETE FROM kv WHERE context_id=%d AND shard_id=%d AND k='%s';" % (context_id, shard_id, key))
 	return nread, context_id, shard_id
 
