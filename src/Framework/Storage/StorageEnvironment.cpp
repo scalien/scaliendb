@@ -274,8 +274,11 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     StorageMemoChunk*   memoChunk;
     
     if (commitThreadActive)
+    {
+        Log_Message("Set() while commit is active!");
         return false;
-
+    }
+    
     StoragePageCache::TryUnloadPages(config);
 
     shard = GetShard(contextID, shardID);
@@ -438,8 +441,11 @@ bool StorageEnvironment::Commit(Callable& onCommit_)
     StoragePageCache::TryUnloadPages(config);
 
     if (commitThreadActive)
+    {
+        Log_Message("Set() while commit is active!");
         return false;
-
+    }
+    
     job = new StorageCommitJob(headLogSegment, &onCommit);
     commitThreadActive = true;
     StartJob(commitThread, job);
@@ -606,6 +612,8 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 void StorageEnvironment::OnCommit()
 {
     bool asyncCommit;
+
+    Log_Message("onCommit()");
     
     asyncCommit = commitThreadActive;
     

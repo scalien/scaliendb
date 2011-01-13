@@ -27,7 +27,6 @@ class StorageArchiveLogSegmentJob;
  StorageEnvironment
 
 // TODO:        cursor
-// TODO:        split shard
 
 ===============================================================================================
 */
