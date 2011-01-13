@@ -69,6 +69,8 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/FDGuard.o \
 	$(BUILD_DIR)/Framework/Storage/StorageBloomPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageBulkCursor.o \
+	$(BUILD_DIR)/Framework/Storage/StorageChunkMerger.o \
+	$(BUILD_DIR)/Framework/Storage/StorageChunkReader.o \
 	$(BUILD_DIR)/Framework/Storage/StorageChunkSerializer.o \
 	$(BUILD_DIR)/Framework/Storage/StorageChunkWriter.o \
 	$(BUILD_DIR)/Framework/Storage/StorageConfig.o \
