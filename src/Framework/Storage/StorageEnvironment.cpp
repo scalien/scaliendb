@@ -275,7 +275,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     
     if (commitThreadActive)
     {
-        Log_Message("Set() while commit is active!");
+        ASSERT_FAIL();
         return false;
     }
     
@@ -287,7 +287,10 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
 
     logCommandID = headLogSegment->AppendSet(contextID, shardID, key, value);
     if (logCommandID < 0)
+    {
+        ASSERT_FAIL();
         return false;
+    }
 
     memoChunk = shard->GetMemoChunk();
     assert(memoChunk != NULL);
@@ -310,8 +313,11 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     StorageMemoChunk*   memoChunk;
 
     if (commitThreadActive)
+    {
+        ASSERT_FAIL();
         return false;
-
+    }
+    
     StoragePageCache::TryUnloadPages(config);
 
     shard = GetShard(contextID, shardID);
@@ -320,7 +326,10 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
 
     logCommandID = headLogSegment->AppendDelete(contextID, shardID, key);
     if (logCommandID < 0)
+    {
+        ASSERT_FAIL();
         return false;
+    }
 
     memoChunk = shard->GetMemoChunk();
     assert(memoChunk != NULL);
@@ -442,7 +451,7 @@ bool StorageEnvironment::Commit(Callable& onCommit_)
 
     if (commitThreadActive)
     {
-        Log_Message("Set() while commit is active!");
+        ASSERT_FAIL();
         return false;
     }
     
@@ -612,8 +621,6 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 void StorageEnvironment::OnCommit()
 {
     bool asyncCommit;
-
-    Log_Message("onCommit()");
     
     asyncCommit = commitThreadActive;
     

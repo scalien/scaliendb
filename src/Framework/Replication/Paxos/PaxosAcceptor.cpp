@@ -143,8 +143,4 @@ void PaxosAcceptor::WriteState(bool sendReply_)
     writtenPaxosID = context->GetPaxosID();
 
     db->Commit(onStateWritten);
-
-    // this is a different function because it may be necessary to async this
-    // right now this makes writtenPaxosID (and senderID) unecessary
-    //OnStateWritten();
 }
