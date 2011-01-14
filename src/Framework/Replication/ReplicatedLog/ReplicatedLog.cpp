@@ -300,7 +300,10 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
         context->OnAppend(paxosID - 1, value, ownAppend);
 
     if (!commitChaining)
+    {
+        acceptor.WriteState();	
         context->GetDatabase()->Commit();
+    }
 
     TryAppendNextValue();
 }

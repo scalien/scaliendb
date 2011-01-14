@@ -27,6 +27,7 @@ private:
     void                    ComputeShardRecovery();
     void                    ReplayLogSegments();
     bool                    ReplayLogSegment(Buffer& filename);
+    void                    DeleteOrphanedChunks();
     
     void                    ExecuteSet(
                              uint64_t logSegmentID, uint32_t logCommandID,

@@ -44,6 +44,8 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     
     ReplayLogSegments();
     
+    DeleteOrphanedChunks();
+    
     return true;
 }
 
@@ -421,6 +423,67 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     fd.Close();
     
     return true;
+}
+
+void StorageRecovery::DeleteOrphanedChunks()
+{
+    bool                found;
+    uint64_t            chunkID;
+    const char*         filename;
+    Buffer              tmp;
+    FS_Dir              dir;
+    FS_DirEntry         entry;
+    StorageFileChunk*   itChunk;
+    
+    Log_Message("Checking for orphaned chunks...");
+    
+    tmp.Write(env->chunkPath);
+    tmp.NullTerminate();
+    
+    dir = FS_OpenDir(tmp.GetBuffer());
+    if (dir == FS_INVALID_DIR)
+    {
+        Log_Message("Unable to open chunk directory: %s", tmp.GetBuffer());
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    
+    while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
+    {
+        filename = FS_DirEntryName(entry);
+        
+        if (FS_IsSpecial(filename))
+            continue;
+            
+        if (FS_IsDirectory(filename))
+            continue;
+        
+        if (ReadBuffer(filename).BeginsWith("chunk."))
+        {
+            ReadBuffer(filename).Readf("chunk.%U", &chunkID);
+            found = false;
+            FOREACH(itChunk, env->fileChunks)
+            {
+                if (itChunk->GetChunkID() == chunkID)
+                {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found)
+            {
+                tmp.Write(env->chunkPath);
+                tmp.Append(filename);
+                Log_Message("Deleting orphaned chunk file %B...", &tmp);
+                tmp.NullTerminate();
+                FS_Delete(tmp.GetBuffer());
+            }
+        }
+    }
+
+    Log_Message("Checking done.");
+
+    FS_CloseDir(dir);
 }
 
 void StorageRecovery::ExecuteSet(
