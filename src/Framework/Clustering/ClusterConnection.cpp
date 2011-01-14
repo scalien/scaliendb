@@ -181,7 +181,12 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         endpoint.Set(buffer);
         Log_Trace("Conn READY to node %U at %s", nodeID, endpoint.ToString());
         if (nodeID != transport->GetSelfNodeID())
-            Log_Message("[%s] Cluster node %U connected <=", endpoint.ToString(), nodeID);
+        {
+            if (nodeID == UNDEFINED_NODEID)
+                Log_Message("[%s] Cluster unknown node connected <=", endpoint.ToString());
+            else
+                Log_Message("[%s] Cluster node %U connected <=", endpoint.ToString(), nodeID);
+        }
         
         transport->AddConnection(this);
         transport->OnConnectionReady(nodeID, endpoint);
