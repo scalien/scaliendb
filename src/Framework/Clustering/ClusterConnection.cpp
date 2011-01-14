@@ -148,7 +148,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
                 transport->DeleteConnection(this);
                 return true;
             }
-            if (nodeID == UNKNOWN_NODEID)
+            if (nodeID == UNDEFINED_NODEID)
                 Log_Message("[%s] Cluster unknown node connected <=", endpoint.ToString(), nodeID);
             else
                 Log_Message("[%s] Cluster node %U connected <=", endpoint.ToString(), nodeID);
