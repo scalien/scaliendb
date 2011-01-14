@@ -1,5 +1,5 @@
 #include "ShardDatabaseManager.h"
-#include "EventLoop.h"
+#include "System/Events/EventLoop.h"
 #include "ShardServer.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
@@ -325,8 +325,6 @@ void ShardDatabaseManager::OnExecuteReads()
 
     FOREACH_FIRST(itRequest, readRequests)
     {
-        readRequests.Remove(itRequest);
-
         if (NowClock() - start >= SHARD_DATABASE_YIELD_TIME)
         {
             // let other code run every YIELD_TIME msec
@@ -335,6 +333,8 @@ void ShardDatabaseManager::OnExecuteReads()
             EventLoop::Add(&executeReads);
             break;
         }
+
+        readRequests.Remove(itRequest);
 
         key.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;

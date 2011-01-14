@@ -10,10 +10,10 @@ long EventLoop::RunTimers()
     bool        noWait;
     
     noWait = false;
+    previous = NULL;
     for (timer = timers.First(); timer != NULL; )
     {
         UpdateTime();
-        previous = NULL;
         if (timer->GetExpireTime() <= now)
         {
             if (timer == previous && timer->GetExpireTime() == 0)

@@ -151,7 +151,7 @@ TEST_DEFINE(TestClientBatchedSet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 100000;
+    unsigned        num = 1000000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -233,9 +233,9 @@ TEST_DEFINE(TestClientBatchedSet2)
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
 
-        if (i % 100000 == 0)
+        if (i != 0 && i % 100000 == 0)
         {
-            TEST_LOG("Submitting");
+            TEST_LOG("Submitting %d", i);
             sw.Start();
             ret = client.Submit();
             if (ret != SDBP_SUCCESS)
@@ -368,6 +368,7 @@ TEST_DEFINE(TestClientBatchedGet)
     uint64_t        firstRequestTime;
     uint64_t        firstResponseTime;
     Stopwatch       sw;
+    unsigned        nread;
         
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
@@ -386,7 +387,7 @@ TEST_DEFINE(TestClientBatchedGet)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    for (unsigned i = 0; i < num; i++)
+    for (unsigned i = 1; i <= num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
         key.Wrap(keybuf, ret);
@@ -429,8 +430,15 @@ TEST_DEFINE(TestClientBatchedGet)
             firstResponseTime = request->responseTime;
         }
         
-//        if (request->response.type != CLIENTRESPONSE_VALUE)
-//            TEST_CLIENT_FAIL();
+        if (request->response.type != CLIENTRESPONSE_VALUE)
+            TEST_CLIENT_FAIL();
+        
+        if (BufferToUInt64(
+         request->response.value.GetBuffer(), 
+         request->response.value.GetLength(),
+         &nread) != i)
+            TEST_CLIENT_FAIL();
+        
 
         //TEST_LOG("%u: value = %.*s", i, P(&request->response.value));
     }

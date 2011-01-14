@@ -116,12 +116,14 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     if (!msg.Read(rbuf))
         return false;
     
+    
     // find the request in sent requests by commandID
     FOREACH (it, sentRequests)
     {
         if (it->commandID == response.commandID)
         {
-            assert(it == sentRequests.First());
+            // TODO: HACK
+            //assert(it == sentRequests.First());
             break;
         }
     }

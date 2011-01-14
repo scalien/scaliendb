@@ -232,7 +232,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     if (request->type == CLIENTREQUEST_SUBMIT)
     {
-        if (!tryAppend.IsActive())
+        if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
             EventLoop::Add(&tryAppend);
         request->response.NoResponse();
         request->OnComplete();

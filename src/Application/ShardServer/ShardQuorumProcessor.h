@@ -74,7 +74,7 @@ private:
     uint64_t                proposalID;
     uint64_t                configID;
     uint64_t                requestedLeaseExpireTime;
-    uint64_t                shardMessagesLength;
+    int64_t                 shardMessagesLength;
 
     ShardServer*            shardServer;
     ShardQuorumContext      quorumContext;
