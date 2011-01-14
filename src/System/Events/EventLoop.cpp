@@ -18,8 +18,8 @@ long EventLoop::RunTimers()
         {
             if (timer == previous && timer->GetExpireTime() == 0)
             {
-                timer = timers.Next(timer);
                 previous = timer;
+                timer = timers.Next(timer);
                 noWait = true;
                 continue;
             }
