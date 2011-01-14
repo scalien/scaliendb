@@ -25,6 +25,7 @@ public:
     void                        Init(QuorumContext* context);
     void                        OnMessage(PaxosMessage& msg);
     void                        OnCatchupComplete();
+    void                        WriteState(bool sendReply = false, bool async = false);
 
 private:
     void                        OnPrepareRequest(PaxosMessage& msg);
@@ -32,7 +33,6 @@ private:
     void                        OnStateWritten();
 
     void                        ReadState();
-    void                        WriteState(bool sendReply);
 
     bool                        sendReply;
     QuorumContext*              context;
