@@ -20,6 +20,7 @@ void SDBPConnection::Init(SDBPServer* server_)
     MessageConnection::InitConnected();
     
     numCompleted = 0;
+    connectTimestamp = NowClock();
     server = server_;
     
     socket.GetEndpoint(remote);
@@ -63,12 +64,15 @@ void SDBPConnection::OnWrite()
 
 void SDBPConnection::OnClose()
 {
-    Endpoint remote;
+    Endpoint    remote;
+    uint64_t    elapsed;
     
+    elapsed = NowClock() - connectTimestamp;
     socket.GetEndpoint(remote);
 
     Log_Trace("numpending: %d", numPending);
-    Log_Message("[%s] Client disconnected (served %u requests)", remote.ToString(), numCompleted);
+    Log_Message("[%s] Client disconnected (active: %u seconds, served: %u requests)", 
+     remote.ToString(), (unsigned)(elapsed / 1000.0 + 0.5), numCompleted);
 
     Close();
     
