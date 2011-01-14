@@ -49,6 +49,7 @@ private:
     SDBPContext*        context;
     unsigned            numPending;
     unsigned            numCompleted;
+    uint64_t            connectTimestamp;
 };
 
 #endif
