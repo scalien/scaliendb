@@ -30,6 +30,7 @@ static size_t Hash(uint64_t h)
 
 ShardDatabaseManager::ShardDatabaseManager()
 {
+    yieldStorageThreadsTimer.SetDelay(SHARD_DATABASE_YIELD_THREADS_TIMEOUT);
     yieldStorageThreadsTimer.SetCallable(MFUNC(ShardDatabaseManager, OnYieldStorageThreadsTimer));
     executeReads.SetCallable(MFUNC(ShardDatabaseManager, OnExecuteReads));
 }

@@ -9,7 +9,8 @@
 #include "ShardMessage.h"
 
 #define SHARD_DATABASE_YIELD_LIST_LENGTH        1000
-#define SHARD_DATABASE_YIELD_TIME               CLOCK_RESOLUTION    // msec
+#define SHARD_DATABASE_YIELD_THREADS_TIMEOUT    50
+#define SHARD_DATABASE_YIELD_TIME               CLOCK_RESOLUTION
 
 class ShardServer; // forward
 
