@@ -22,6 +22,7 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_,
     database.Init(quorumShard);
     
     replicatedLog.Init(this);
+    replicatedLog.SetCommitChaining(false);
     paxosLease.Init(this);
     transport.SetQuorumID(quorumID);
     highestPaxosID = 0; 
