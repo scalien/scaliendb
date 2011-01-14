@@ -18,9 +18,20 @@ void ReplicatedLog::Init(QuorumContext* context_)
 
     lastRequestChosenTime = 0;
     lastRequestChosenPaxosID = 0;
+    commitChaining = true;
     
     enableMultiPaxos.Write("EnableMultiPaxos");
     dummy.Write("dummy");
+}
+
+void ReplicatedLog::SetCommitChaining(bool commitChaining_)
+{
+    commitChaining = commitChaining_;
+}
+
+bool ReplicatedLog::GetCommitChaining()
+{
+    return commitChaining;
 }
 
 void ReplicatedLog::Stop()
@@ -287,6 +298,10 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 
     if (!BUFCMP(&value, &enableMultiPaxos) && !BUFCMP(&value, &dummy))
         context->OnAppend(paxosID - 1, value, ownAppend);
+
+    if (!commitChaining)
+        context->GetDatabase()->Commit();
+
     TryAppendNextValue();
 }
 

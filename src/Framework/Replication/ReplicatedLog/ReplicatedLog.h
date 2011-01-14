@@ -20,6 +20,9 @@ class ReplicatedLog
 public:
     void                    Init(QuorumContext* context);
 
+    void                    SetCommitChaining(bool commitChaining);
+    bool                    GetCommitChaining();
+
     void                    Stop();
     void                    Continue();
 
@@ -65,5 +68,6 @@ private:
     
     uint64_t                lastRequestChosenTime;
     uint64_t                lastRequestChosenPaxosID;
+    bool                    commitChaining;
 };
 #endif
