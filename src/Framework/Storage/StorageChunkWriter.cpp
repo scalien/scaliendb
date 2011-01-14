@@ -8,6 +8,8 @@ bool StorageChunkWriter::Write(StorageFileChunk* file_)
 
     if (fd.Open(file->GetFilename().GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND) == INVALID_FD)
         return false;
+    
+    FS_FileTruncate(fd.GetFD(), 0);
 
     if (!WriteHeaderPage())
         return false;
