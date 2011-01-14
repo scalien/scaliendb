@@ -5,20 +5,40 @@ static bool                 running;
 
 long EventLoop::RunTimers()
 {
-    Timer* timer;
+    Timer*      timer;
+    Timer*      previous;
+    bool        noWait;
     
-    for (timer = timers.First(); timer != NULL; timer = timers.First())
+    noWait = false;
+    for (timer = timers.First(); timer != NULL; )
     {
         UpdateTime();
+        previous = NULL;
         if (timer->GetExpireTime() <= now)
         {
+            if (timer == previous && timer->GetExpireTime() == 0)
+            {
+                timer = timers.Next(timer);
+                previous = timer;
+                noWait = true;
+                continue;
+            }
             Remove(timer);
             timer->Execute();
+            previous = timer;
+            timer = timers.First();
         }
         else
+        {
+            if (noWait)
+                return 0;
             return timer->GetExpireTime() - now;
+        }
     }
 
+    if (noWait)
+        return 0;
+    
     return -1; // no timers to wait for
 }
 

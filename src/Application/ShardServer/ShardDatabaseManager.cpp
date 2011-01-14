@@ -1,4 +1,5 @@
 #include "ShardDatabaseManager.h"
+#include "EventLoop.h"
 #include "ShardServer.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
@@ -27,11 +28,19 @@ static size_t Hash(uint64_t h)
     return h;
 }
 
+ShardDatabaseManager::ShardDatabaseManager()
+{
+    yieldStorageThreadsTimer.SetCallable(MFUNC(ShardDatabaseManager, OnYieldStorageThreadsTimer));
+    executeReads.SetCallable(MFUNC(ShardDatabaseManager, OnExecuteReads));
+}
+
 void ShardDatabaseManager::Init(ShardServer* shardServer_)
 {
     Buffer  envpath;
     
     shardServer = shardServer_;
+
+    EventLoop::Add(&yieldStorageThreadsTimer);
 
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath);
@@ -154,26 +163,10 @@ void ShardDatabaseManager::RemoveDeletedTables()
 
 void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
-    uint64_t        paxosID;
-    uint64_t        commandID;
-    uint64_t        shardID;
-    int16_t         contextID;
-    ReadBuffer      key;
-    ReadBuffer      value;
-    ReadBuffer      userValue;
+    readRequests.Append(request);
 
-    key.Wrap(request->key);
-    contextID = QUORUM_DATABASE_DATA_CONTEXT;
-    shardID = environment.GetShardID(contextID, request->tableID, key);
-
-    if (!environment.Get(contextID, shardID, key, value))
-    {
-        request->response.Failed();
-        return;
-    }
-    
-    ReadValue(value, paxosID, commandID, userValue);    
-    request->response.Value(userValue);
+    if (!executeReads.IsActive())
+        EventLoop::Add(&executeReads);
 }
 
 void ShardDatabaseManager::ExecuteMessage(
@@ -302,6 +295,60 @@ void ShardDatabaseManager::ExecuteMessage(
         default:
             ASSERT_FAIL();
             break;
+    }
+}
+
+void ShardDatabaseManager::OnYieldStorageThreadsTimer()
+{
+    if (readRequests.GetLength() > SHARD_DATABASE_YIELD_LIST_LENGTH)
+        environment.SetYieldThreads(true);
+    else
+        environment.SetYieldThreads(false);
+    
+    EventLoop::Add(&yieldStorageThreadsTimer);
+}
+
+void ShardDatabaseManager::OnExecuteReads()
+{
+    uint64_t        start;
+    uint64_t        paxosID;
+    uint64_t        commandID;
+    uint64_t        shardID;
+    int16_t         contextID;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    ReadBuffer      userValue;
+    ClientRequest*  itRequest;
+
+    start = NowClock();
+
+    FOREACH_FIRST(itRequest, readRequests)
+    {
+        readRequests.Remove(itRequest);
+
+        if (NowClock() - start >= SHARD_DATABASE_YIELD_TIME)
+        {
+            // let other code run every YIELD_TIME msec
+            if (executeReads.IsActive())
+                STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
+            EventLoop::Add(&executeReads);
+            break;
+        }
+
+        key.Wrap(itRequest->key);
+        contextID = QUORUM_DATABASE_DATA_CONTEXT;
+        shardID = environment.GetShardID(contextID, itRequest->tableID, key);
+
+        if (!environment.Get(contextID, shardID, key, value))
+        {
+            itRequest->response.Failed();
+            itRequest->OnComplete();
+            continue;
+        }
+        
+        ReadValue(value, paxosID, commandID, userValue);    
+        itRequest->response.Value(userValue);
+        itRequest->OnComplete();
     }
 }
 

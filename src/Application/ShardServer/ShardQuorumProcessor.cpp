@@ -227,7 +227,6 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     if (request->type == CLIENTREQUEST_GET)
     {
         shardServer->GetDatabaseManager()->OnClientReadRequest(request);        
-        request->OnComplete();
         return;
     }
     

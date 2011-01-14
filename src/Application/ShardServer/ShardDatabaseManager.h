@@ -8,6 +8,9 @@
 #include "Application/Common/ClientRequest.h"
 #include "ShardMessage.h"
 
+#define SHARD_DATABASE_YIELD_LIST_LENGTH        1000
+#define SHARD_DATABASE_YIELD_TIME               CLOCK_RESOLUTION    // msec
+
 class ShardServer; // forward
 
 /*
@@ -21,8 +24,11 @@ class ShardServer; // forward
 class ShardDatabaseManager
 {
     typedef HashMap<uint64_t, StorageShardProxy*>   ShardMap;
+    typedef InList<ClientRequest>                   ClientRequestList;
 
 public:
+    ShardDatabaseManager();
+
     void                    Init(ShardServer* shardServer);
     void                    Shutdown();
     
@@ -39,10 +45,16 @@ public:
                              uint64_t commandID, ShardMessage& message, ClientRequest* request);
     
 private:
+    void                    OnYieldStorageThreadsTimer();
+    void                    OnExecuteReads();
+
     ShardServer*            shardServer;
     StorageEnvironment      environment;
     StorageShardProxy       systemShard;
     ShardMap                quorumShards;
+    Countdown               yieldStorageThreadsTimer;
+    ClientRequestList       readRequests;
+    YieldTimer              executeReads;
 };
 
 #endif

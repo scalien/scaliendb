@@ -43,6 +43,7 @@ StorageEnvironment::StorageEnvironment()
     mergeContextID = 0;
     lastWriteTime = 0;
     haveUncommitedWrites = false;
+    yieldThreads = false;
     numBulkCursors = 0;
     mergeChunk = NULL;
 }
@@ -194,6 +195,11 @@ void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
 StorageConfig& StorageEnvironment::GetStorageConfig()
 {
     return config;
+}
+
+void StorageEnvironment::SetYieldThreads(bool yieldThreads_)
+{
+    yieldThreads = yieldThreads_;
 }
 
 uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
@@ -735,7 +741,7 @@ void StorageEnvironment::TryWriteChunks()
     {
         if (it->GetChunkState() == StorageChunk::Unwritten)
         {
-            job = new StorageWriteChunkJob(it, &onChunkWrite);
+            job = new StorageWriteChunkJob(this, it, &onChunkWrite);
             asyncWriteChunkID = it->GetChunkID();
             writerThreadActive = true;
             StartJob(writerThread, job);
@@ -780,6 +786,7 @@ void StorageEnvironment::TryMergeChunks()
             tmp.Appendf("chunk.%020U", mergeChunk->GetChunkID());
             mergeChunk->SetFilename(ReadBuffer(tmp));            
             job = new StorageMergeChunkJob(
+             this,
              ReadBuffer(chunk1->GetFilename()), ReadBuffer(chunk2->GetFilename()),
              mergeChunk, itShard->GetFirstKey(), itShard->GetLastKey(), &onChunkMerge);
             mergeShardID = itShard->GetShardID();

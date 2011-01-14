@@ -1,11 +1,14 @@
 #include "StorageChunkMerger.h"
 #include "StorageKeyValue.h"
+#include "StorageEnvironment.h"
 #include "System/FileSystem.h"
 
 bool StorageChunkMerger::Merge(
+ StorageEnvironment* env_,
  ReadBuffer filename1, ReadBuffer filename2, StorageFileChunk* mergeChunk_,  
  ReadBuffer firstKey, ReadBuffer lastKey)
 {
+    env = env_;
     mergeChunk = mergeChunk_;
     
     // open readers
@@ -164,6 +167,12 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
     dataPage->SetOffset(offset);
     while(it1 != NULL || it2 != NULL)
     {
+        while (env->yieldThreads)
+        {
+            Log_Trace("Yielding...");
+            MSleep(10);
+        }
+
         advance1 = false;
         advance2 = false;
 

@@ -4,6 +4,8 @@
 #include "FDGuard.h"
 #include "StorageFileChunk.h"
 
+class StorageEnvironment;
+
 /*
 ===============================================================================================
 
@@ -15,7 +17,7 @@
 class StorageChunkWriter
 {
 public:
-    bool                    Write(StorageFileChunk* file);
+    bool                    Write(StorageEnvironment* env, StorageFileChunk* file);
 
 private:
     bool                    WriteBuffer();
@@ -25,6 +27,7 @@ private:
     bool                    WriteIndexPage();
     bool                    WriteBloomPage();
 
+    StorageEnvironment*     env;
     StorageFileChunk*       file;
     FDGuard                 fd;
     Buffer                  writeBuffer;

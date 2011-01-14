@@ -9,7 +9,8 @@
 #include "StorageIndexPage.h"
 #include "StorageBloomPage.h"
 
-class StorageChunk; // forward
+class StorageEnvironment;   // forward
+class StorageChunk;         // forward
 
 /*
 ===============================================================================================
@@ -23,6 +24,7 @@ class StorageChunkMerger
 {
 public:
     bool                    Merge(
+                             StorageEnvironment* env,
                              ReadBuffer filename1, ReadBuffer filename2,
                              StorageFileChunk* mergeChunk,
                              ReadBuffer firstKey, ReadBuffer lastKey);
@@ -49,6 +51,7 @@ private:
     StorageChunkReader      reader1;
     StorageChunkReader      reader2;
 
+    StorageEnvironment*     env;
     StorageFileChunk*       mergeChunk;
 };
 

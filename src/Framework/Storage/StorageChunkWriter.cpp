@@ -1,9 +1,11 @@
 #include "StorageChunkWriter.h"
+#include "StorageEnvironment.h"
 #include "StorageChunk.h"
 #include "System/FileSystem.h"
 
-bool StorageChunkWriter::Write(StorageFileChunk* file_)
+bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_)
 {
+    env = env_;
     file = file_;
 
     if (fd.Open(file->GetFilename().GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND) == INVALID_FD)
@@ -65,6 +67,12 @@ bool StorageChunkWriter::WriteDataPages()
 
     for (i = 0; i < file->numDataPages; i++)
     {
+        while (env->yieldThreads)
+        {
+            Log_Trace("Yielding...");
+            MSleep(10);
+        }
+        
         dataPage = file->dataPages[i];
         writeBuffer.Clear();
         dataPage->Write(writeBuffer);

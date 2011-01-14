@@ -35,6 +35,8 @@ class StorageEnvironment
 {
     friend class StorageRecovery;
     friend class StorageEnvironmentWriter;
+    friend class StorageChunkWriter;
+    friend class StorageChunkMerger;
     friend class StorageArchiveLogSegmentJob;
     friend class StorageBulkCursor;
     
@@ -51,6 +53,8 @@ public:
 
     void                    SetStorageConfig(StorageConfig& config);
     StorageConfig&          GetStorageConfig();
+
+    void                    SetYieldThreads(bool yieldThreads);
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
 
@@ -136,6 +140,7 @@ private:
     bool                    numBulkCursors;
     const char*             archiveScript;
     bool                    haveUncommitedWrites;
+    bool                    yieldThreads;
 };
 
 #endif

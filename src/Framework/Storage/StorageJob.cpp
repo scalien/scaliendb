@@ -41,8 +41,9 @@ void StorageSerializeChunkJob::Execute()
     IOProcessor::Complete(c);
 }
 
-StorageWriteChunkJob::StorageWriteChunkJob(StorageFileChunk* fileChunk_, Callable* onComplete_)
+StorageWriteChunkJob::StorageWriteChunkJob(StorageEnvironment* env_, StorageFileChunk* fileChunk_, Callable* onComplete_)
 {
+    env = env_;
     fileChunk = fileChunk_;
     onComplete = onComplete_;
 }
@@ -52,7 +53,7 @@ void StorageWriteChunkJob::Execute()
     StorageChunkWriter writer;
 
     Log_Message("Writing chunk %U to file...", fileChunk->GetChunkID());
-    writer.Write(fileChunk);
+    writer.Write(env, fileChunk);
 
     Callable* c = onComplete;
     delete this;
@@ -176,9 +177,11 @@ void StorageDeleteFileChunkJob::Execute()
     delete this;
 }
 
-StorageMergeChunkJob::StorageMergeChunkJob(ReadBuffer filename1_, ReadBuffer filename2_,
+StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
+ ReadBuffer filename1_, ReadBuffer filename2_,
  StorageFileChunk* mergeChunk_, ReadBuffer firstKey_, ReadBuffer lastKey_, Callable* onComplete_)
 {
+    env = env_;
     filename1.Write(filename1_);
     filename2.Write(filename2_);
     firstKey.Write(firstKey_);
@@ -195,7 +198,7 @@ void StorageMergeChunkJob::Execute()
      filename1.GetLength()-1, filename1.GetBuffer(),
      filename2.GetLength()-1, filename2.GetBuffer(),
      mergeChunk->GetChunkID());
-    merger.Merge(filename1, filename2, mergeChunk, firstKey, lastKey);
+    merger.Merge(env, filename1, filename2, mergeChunk, firstKey, lastKey);
     Log_Message("Done merging.");
 
     Callable* c = onComplete;

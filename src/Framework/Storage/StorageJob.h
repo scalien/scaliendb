@@ -75,11 +75,12 @@ private:
 class StorageWriteChunkJob : public StorageJob
 {
 public:
-    StorageWriteChunkJob(StorageFileChunk* chunk, Callable* onComplete);
+    StorageWriteChunkJob(StorageEnvironment* env, StorageFileChunk* chunk, Callable* onComplete);
     
     void                Execute();
     
 private:
+    StorageEnvironment* env;
     StorageFileChunk*   fileChunk;
     Callable*           onComplete;
 };
@@ -158,7 +159,8 @@ private:
 class StorageMergeChunkJob : public StorageJob
 {
 public:
-    StorageMergeChunkJob(ReadBuffer filename1, ReadBuffer filename2,
+    StorageMergeChunkJob(StorageEnvironment* env,
+     ReadBuffer filename1, ReadBuffer filename2,
      StorageFileChunk* mergeChunk, ReadBuffer firstKey, ReadBuffer lastKey, Callable* onComplete);
     
     void                Execute();
@@ -167,6 +169,7 @@ private:
     Buffer              filename2;
     Buffer              firstKey;
     Buffer              lastKey;
+    StorageEnvironment* env;
     StorageFileChunk*   mergeChunk;
 };
 
