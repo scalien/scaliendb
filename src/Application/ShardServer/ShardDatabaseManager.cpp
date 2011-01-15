@@ -58,6 +58,7 @@ void ShardDatabaseManager::Shutdown()
     FOREACH (node, quorumShards)
         delete node->Value();
     
+    readRequests.DeleteList();
     environment.Close();
     StoragePageCache::Shutdown();
 }
