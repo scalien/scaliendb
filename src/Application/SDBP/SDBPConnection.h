@@ -47,6 +47,7 @@ public:
 private:
     SDBPServer*         server;
     SDBPContext*        context;
+    Endpoint            remoteEndpoint;
     unsigned            numPending;
     unsigned            numCompleted;
     uint64_t            connectTimestamp;
