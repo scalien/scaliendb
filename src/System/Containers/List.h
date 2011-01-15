@@ -45,6 +45,8 @@ public:
     T*              Next(T* t) const;
     T*              Prev(T* t) const;
 
+    bool            Contains(T& t);
+
 private:
     ListNode<T>*    head;
     ListNode<T>*    tail;
@@ -273,6 +275,20 @@ T* List<T>::Prev(T* t) const
         return NULL;
     else
         return &node->prev->data;
+}
+
+template<class T>
+bool List<T>::Contains(T& t)
+{
+    T* it;
+    
+    FOREACH(it, *this)
+    {
+        if (*it == t)
+            return true;
+    }
+    
+    return false;
 }
 
 #endif

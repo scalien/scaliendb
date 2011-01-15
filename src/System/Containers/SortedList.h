@@ -33,6 +33,8 @@ public:
     T*              Next(T* t) const;
     T*              Prev(T* t) const;
 
+    bool            Contains(T& t);
+
 protected:
     List<T>     list;
 };
@@ -147,6 +149,12 @@ template<class T>
 T* SortedList<T>::Prev(T* t) const
 {
     return list.Prev(t);
+}
+
+template<class T>
+bool SortedList<T>::Contains(T& t)
+{
+    return list.Contains(t);
 }
 
 #endif

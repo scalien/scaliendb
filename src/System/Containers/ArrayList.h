@@ -36,6 +36,8 @@ public:
     T*          Next(T* t);
     T*          Prev(T* t);
 
+    bool        Contains(T& t);
+
 private:
     T           buffer[size];
     unsigned    num;
@@ -192,6 +194,20 @@ T* ArrayList<T, size>::Prev(T* t)
     }
     
     return &Get(pos - 1);
+}
+
+template<typename T, unsigned size>
+bool ArrayList<T, size>::Contains(T& t)
+{
+    T* it;
+    
+    FOREACH(it, *this)
+    {
+        if (*it == t)
+            return true;
+    }
+    
+    return false;
 }
 
 #endif

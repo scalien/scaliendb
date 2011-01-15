@@ -46,6 +46,8 @@ public:
     T*              Next(T* t) const;
     T*              Prev(T* t) const;
 
+    bool            Contains(T* t);
+
 private:
     T*              head;
     T*              tail;
@@ -274,6 +276,20 @@ template<class T>
 T* InList<T>::Prev(T* t) const
 {
     return static_cast<T*>(t->prev);
+}
+
+template<class T>
+bool InList<T>::Contains(T* t)
+{
+    T* it;
+    
+    FOREACH(it, *this)
+    {
+        if (it == t)
+            return true;
+    }
+    
+    return false;
 }
 
 #endif

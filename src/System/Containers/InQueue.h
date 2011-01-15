@@ -28,6 +28,8 @@ public:
     
     T*      Next(T* t) const;
 
+    bool    Contains(T* t);
+
 private:
     T*      head;
     T*      tail;
@@ -110,6 +112,20 @@ template<class T>
 int InQueue<T>::GetLength() const
 {
     return length;
+}
+
+template<class T>
+bool InQueue<T>::Contains(T* t)
+{
+    T* it;
+    
+    FOREACH(it, *this)
+    {
+        if (it == t)
+            return true;
+    }
+    
+    return false;
 }
 
 #endif

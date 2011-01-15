@@ -33,6 +33,8 @@ public:
     T*              Next(T* t) const;
     T*              Prev(T* t) const;
 
+    bool            Contains(T* t);
+
 protected:
     InList<T>       list;
 };
@@ -146,6 +148,20 @@ template<class T>
 T* InSortedList<T>::Prev(T* t) const
 {
     return list.Prev(t);
+}
+
+template<class T>
+bool InSortedList<T>::Contains(T* t)
+{
+    T* it;
+    
+    FOREACH(it, *this)
+    {
+        if (it == t)
+            return true;
+    }
+    
+    return false;
 }
 
 #endif
