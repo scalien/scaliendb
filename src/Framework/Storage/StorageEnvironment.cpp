@@ -172,6 +172,9 @@ void StorageEnvironment::Close()
     writerThread->Stop();
     delete writerThread;
     writerThreadActive = false;
+    mergerThread->Stop();
+    delete mergerThread;
+    mergerThreadActive = false;
     archiverThread->Stop();
     delete archiverThread;
     archiverThreadActive = false;
