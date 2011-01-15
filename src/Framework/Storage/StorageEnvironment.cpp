@@ -510,8 +510,9 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
 
-    if (headLogSegment->HasUncommitted())
-        return false;       // meta writes must occur in-between data writes (commits)
+// TODO
+//    if (headLogSegment->HasUncommitted())
+//        return false;       // meta writes must occur in-between data writes (commits)
     
     shard = GetShard(contextID, shardID);
     if (shard != NULL)
