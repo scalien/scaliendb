@@ -43,7 +43,7 @@ public:
     // For ShardServer:
     //
     void                    OnReceiveLease(ClusterMessage& message);
-    void                    OnClientRequest(ClientRequest* request);
+    void                    OnClientRequest(ClientRequest* request, bool submit);
     void                    OnClientClose(ClientSession* session);
     void                    SetActiveNodes(List<uint64_t>& activeNodes);
     void                    TryReplicationCatchup();

@@ -22,7 +22,7 @@ public:
     // SDBPContext interface:
     //
     virtual bool    IsValidClientRequest(ClientRequest* request)                            = 0;
-    virtual void    OnClientRequest(ClientRequest* request)                                 = 0;
+    virtual void    OnClientRequest(ClientRequest* request, bool submit = false)            = 0;
     virtual void    OnClientClose(ClientSession* session)                                   = 0;
     // ========================================================================================
 };

@@ -93,7 +93,7 @@ bool ShardServer::IsValidClientRequest(ClientRequest* request)
      return request->IsShardServerRequest();
 }
 
-void ShardServer::OnClientRequest(ClientRequest* request)
+void ShardServer::OnClientRequest(ClientRequest* request, bool submit)
 {
     ConfigShard*            shard;
     ShardQuorumProcessor*   quorumProcessor;
@@ -108,7 +108,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
             return;
         }
 
-        quorumProcessor->OnClientRequest(request);
+        quorumProcessor->OnClientRequest(request, true);
         return;
     }
     
@@ -129,7 +129,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
         return;
     }
     
-    quorumProcessor->OnClientRequest(request);
+    quorumProcessor->OnClientRequest(request, submit);
 }
 
 void ShardServer::OnClientClose(ClientSession* /*session*/)
