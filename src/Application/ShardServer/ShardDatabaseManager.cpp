@@ -336,6 +336,12 @@ void ShardDatabaseManager::OnExecuteReads()
 
         readRequests.Remove(itRequest);
 
+        if (!itRequest->session->IsActive())
+        {
+            itRequest->OnComplete();
+            continue;
+        }
+
         key.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = environment.GetShardID(contextID, itRequest->tableID, key);
