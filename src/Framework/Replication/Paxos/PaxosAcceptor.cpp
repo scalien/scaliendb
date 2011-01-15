@@ -141,6 +141,14 @@ void PaxosAcceptor::WriteState(bool sendReply_, bool async)
     }
 
     writtenPaxosID = context->GetPaxosID();
-
-    db->Commit(onStateWritten);
+    
+    if (async)
+    {
+        db->Commit(onStateWritten);
+    }
+    else
+    {
+        db->Commit();
+        OnStateWritten();
+    }
 }
