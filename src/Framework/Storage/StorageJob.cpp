@@ -202,7 +202,6 @@ void StorageMergeChunkJob::Execute()
     Log_Message("Done merging.");
 
     Callable* c = onComplete;
-    delete mergeChunk;
     delete this;
     IOProcessor::Complete(c);
 }
