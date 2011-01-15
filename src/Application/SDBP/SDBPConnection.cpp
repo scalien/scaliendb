@@ -104,6 +104,9 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
         REQUEST_CACHE->DeleteRequest(request);
         numCompleted++;
     }
+    
+    if (numPending == 0 && state == DISCONNECTED)
+        server->DeleteConn(this);
 }
 
 bool SDBPConnection::IsActive()
