@@ -47,6 +47,9 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     uint64_t*       it;
     ConfigQuorum*   quorum;
 
+    if (!configServer->GetQuorumProcessor()->IsMaster())
+        return;
+
     quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(message.quorumID);
     
     if (quorum == NULL)
@@ -112,6 +115,9 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
     PrimaryLease*           it;
     ClusterMessage          response;
     List<uint64_t>          activeNodes;
+
+    if (!configServer->GetQuorumProcessor()->IsMaster())
+        return;
 
     FOREACH(it, primaryLeases)
     {
