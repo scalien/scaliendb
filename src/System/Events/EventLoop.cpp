@@ -1,45 +1,38 @@
 #include "EventLoop.h"
+#include "ArrayList.h"
 
-static volatile uint64_t    now;
-static bool                 running;
+static volatile uint64_t        now;
+static bool                     running;
+static ArrayList<Timer*, 1024>  ran;
 
 long EventLoop::RunTimers()
 {
-    Timer*      timer;
-    Timer*      previous;
-    bool        noWait;
+    Timer*  timer;
+    long    wait;
     
-    noWait = false;
-    previous = NULL;
+    wait = -1;
+    ran.Clear();
     for (timer = timers.First(); timer != NULL; )
     {
         UpdateTime();
         if (timer->GetExpireTime() <= now)
         {
-            if (timer == previous && timer->GetExpireTime() == 0)
+            if (ran.Contains(timer))
             {
-                previous = timer;
                 timer = timers.Next(timer);
-                noWait = true;
+                wait = 0;
                 continue;
             }
             Remove(timer);
             timer->Execute();
-            previous = timer;
+            ran.Append(timer);
             timer = timers.First();
         }
         else
-        {
-            if (noWait)
-                return 0;
-            return timer->GetExpireTime() - now;
-        }
+            return (wait == 0 ? 0 : timer->GetExpireTime() - now);
     }
-
-    if (noWait)
-        return 0;
     
-    return -1; // no timers to wait for
+    return wait;
 }
 
 bool EventLoop::RunOnce()
