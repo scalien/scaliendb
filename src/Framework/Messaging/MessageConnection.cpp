@@ -145,7 +145,7 @@ void MessageConnection::OnRead()
         {
             Log_Trace();
             required = msglength + NumDigits(msglength) + 1;
-            if (required > 10*MB)
+            if (required > MESSAGING_MAX_SIZE)
             {
                 Log_Trace();
                 OnClose();
