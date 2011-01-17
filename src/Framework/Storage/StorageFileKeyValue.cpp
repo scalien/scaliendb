@@ -35,3 +35,14 @@ ReadBuffer StorageFileKeyValue::GetValue()
 {
     return value;
 }
+
+uint32_t StorageFileKeyValue::GetNextIndex()
+{
+    return nextIndex;
+}
+
+void StorageFileKeyValue::SetNextIndex(uint32_t nextIndex_)
+{
+    nextIndex = nextIndex_;
+}
+

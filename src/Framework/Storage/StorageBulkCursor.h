@@ -21,7 +21,7 @@ class StorageCursorBunch
 {
     friend class StorageMemoChunk;
     friend class StorageFileChunk;
-    typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
+//    typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
 
 public:
     StorageCursorBunch();
@@ -34,7 +34,9 @@ public:
     bool                    IsLast();
     void                    Reset();
     
-    KeyValueTree            keyValues;
+    void                    InsertKeyValue(StorageFileKeyValue* kv);
+  
+//    KeyValueTree            keyValues;
     Buffer                  buffer;
     bool                    isLast;
     Buffer                  nextKey;

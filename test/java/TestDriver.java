@@ -9,7 +9,7 @@ public class TestDriver {
 
     public static void main (String [] args) throws SDBPException {
         Client client = new Client (new String[] {"127.0.0.1:7080"});
-        //client.setTrace(true);
+        client.setTrace(true);
         if (args [0].equals ("init")) {
             System.out.println("Initializing");
             long quorumId = client.createQuorum(new long[] {100});

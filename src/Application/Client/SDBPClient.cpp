@@ -679,7 +679,6 @@ void Client::ReassignRequest(Request* req)
     {
         if (master >= 0)
         {
-            GLOBAL_MUTEX_GUARD_DECLARE();
             controllerConnections[master]->Send(req);
         }
         else

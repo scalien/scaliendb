@@ -15,7 +15,7 @@ TEST_LOG_INIT(false, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientFailover);
 //TEST_ADD(TestClientGetAndSet);
 //TEST_ADD(TestClientMaro);
-TEST_ADD(TestClientMultiThread);
+//TEST_ADD(TestClientMultiThread);
 //TEST_ADD(TestClientMultiThreadMulti);
 //TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);

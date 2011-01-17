@@ -96,7 +96,7 @@ void StorageMemoChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
         {
             kv->Delete(key);
         }
-        bunch.keyValues.Insert(kv);
+        bunch.InsertKeyValue(kv);
         first = false;
         it = keyValues.Next(it);
     }

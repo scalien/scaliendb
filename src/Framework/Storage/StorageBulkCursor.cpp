@@ -9,17 +9,20 @@ StorageCursorBunch::StorageCursorBunch()
 
 StorageCursorBunch::~StorageCursorBunch()
 {
-    keyValues.DeleteTree();
+    // TODO:
+//    keyValues.DeleteTree();
 }
 
 StorageKeyValue* StorageCursorBunch::First()
 {
-    return keyValues.First();
+    // TODO:
+//    return keyValues.First();
 }
 
 StorageKeyValue* StorageCursorBunch::Next(StorageKeyValue* it)
 {
-    return keyValues.Next((StorageFileKeyValue*) it);
+    // TODO:
+//    return keyValues.Next((StorageFileKeyValue*) it);
 }
 
 ReadBuffer StorageCursorBunch::GetNextKey()
@@ -34,10 +37,16 @@ bool StorageCursorBunch::IsLast()
 
 void StorageCursorBunch::Reset()
 {
-    keyValues.DeleteTree();
+    // TODO:
+//    keyValues.DeleteTree();
     buffer.Reset();
     isLast = false;
     nextKey.Reset();
+}
+
+void StorageCursorBunch::InsertKeyValue(StorageFileKeyValue* kv)
+{
+    // TODO:
 }
 
 StorageBulkCursor::StorageBulkCursor()
@@ -113,7 +122,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
     StorageChunk**      itChunk;
 
     StoragePageCache::TryUnloadPages(env->GetStorageConfig());
-    bunch.keyValues.DeleteTree();
+//    bunch.keyValues.DeleteTree();
 
     while (true)
     {

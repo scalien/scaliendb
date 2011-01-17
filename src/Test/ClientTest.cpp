@@ -204,7 +204,7 @@ TEST_DEFINE(TestClientBatchedSet2)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 1000000;
+    unsigned        num = 10*1000*1000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -226,7 +226,7 @@ TEST_DEFINE(TestClientBatchedSet2)
     
     for (unsigned i = 0; i < num; i++)
     {
-        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
         ret = client.Set(key, value);
@@ -389,7 +389,7 @@ TEST_DEFINE(TestClientBatchedGet)
     
     for (unsigned i = 1; i <= num; i++)
     {
-        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
         ret = client.Get(key);
@@ -884,9 +884,8 @@ TEST_DEFINE(TestClientSchemaSet)
 {
     Client          client;
     Result*         result;
-    // TODO: change back
-    //const char*     nodes[] = {"localhost:7080"};
-    const char*     nodes[] = {"192.168.137.51:7080"};
+    const char*     nodes[] = {"localhost:7080"};
+    //const char*     nodes[] = {"192.168.137.51:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     Buffer          key;

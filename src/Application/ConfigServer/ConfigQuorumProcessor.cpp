@@ -123,6 +123,7 @@ void ConfigQuorumProcessor::OnClientClose(ClientSession* session)
         if (it->session == session)
         {
             listenRequests.Remove(it);
+            it->response.NoResponse();
             it->OnComplete();
         }
     }

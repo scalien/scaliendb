@@ -13,6 +13,7 @@ void ClientRequest::Init()
     response.request = this;
     prev = next = this;
     
+    response.NoResponse();
     name.Clear();
     key.Clear();
     value.Clear();

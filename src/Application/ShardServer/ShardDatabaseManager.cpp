@@ -328,6 +328,7 @@ void ShardDatabaseManager::OnExecuteReads()
     {
         if (NowClock() - start >= SHARD_DATABASE_YIELD_TIME)
         {
+            Log_Message("OnExecuteReads: YIELD");
             // let other code run every YIELD_TIME msec
             if (executeReads.IsActive())
                 STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
@@ -349,7 +350,7 @@ void ShardDatabaseManager::OnExecuteReads()
 
         if (!environment.Get(contextID, shardID, key, value))
         {
-            itRequest->response.Failed();
+            itRequest->response.NoResponse();
             itRequest->OnComplete();
             continue;
         }
@@ -358,6 +359,8 @@ void ShardDatabaseManager::OnExecuteReads()
         itRequest->response.Value(userValue);
         itRequest->OnComplete();
     }
+    
+    Log_Message("OnExecuteReads: DONE");
 }
 
 #undef CHECK_CMD

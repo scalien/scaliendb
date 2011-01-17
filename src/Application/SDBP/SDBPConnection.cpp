@@ -69,10 +69,9 @@ void SDBPConnection::OnClose()
     Log_Trace("numpending: %d", numPending);
     Log_Message("[%s] Client disconnected (active: %u seconds, served: %u requests)", 
      remoteEndpoint.ToString(), (unsigned)(elapsed / 1000.0 + 0.5), numCompleted);
-
-    MessageConnection::Close();
     
     context->OnClientClose(this);
+    MessageConnection::Close();
     
     if (numPending == 0)
         server->DeleteConn(this);
