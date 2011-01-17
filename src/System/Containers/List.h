@@ -4,6 +4,7 @@
 #include <stddef.h>
 #include <assert.h>
 #include "System/Common.h"
+#include "System/Macros.h"
 
 template<class T> struct ListNode;  // forward
 template<class T> class SortedList; // for friend

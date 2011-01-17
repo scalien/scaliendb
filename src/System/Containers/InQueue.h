@@ -2,6 +2,7 @@
 #define INQUEUE_H
 
 #include "System/Common.h"
+#include "System/Macros.h"
 
 /*
 ===============================================================================================
