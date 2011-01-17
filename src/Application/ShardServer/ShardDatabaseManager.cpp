@@ -89,7 +89,7 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         assert(shard != NULL);
         
         environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
-         shard->firstKey, shard->lastKey, true);
+         shard->firstKey, shard->lastKey, true, true);
     }
 }
 
@@ -102,7 +102,7 @@ void ShardDatabaseManager::SetQuorumShard(uint64_t quorumID)
     {
         // TODO: HACK
         environment.CreateShard(QUORUM_DATABASE_QUORUM_CONTEXT, quorumID, 0,
-         "", "", true);
+         "", "", true, false);
         quorumShard = new StorageShardProxy;
         quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_CONTEXT, quorumID);
         quorumShards.Set(quorumID, quorumShard);

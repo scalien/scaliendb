@@ -30,7 +30,7 @@ void ReplicationConfig::Init(StorageShardProxy* shard_)
 
     // TODO: HACK
     shard->GetEnvironment()->CreateShard(shard->GetContextID(), shard->GetShardID(), 
-     0, "", "", true);
+     0, "", "", true, true);
     
     ret = shard->Get(ReadBuffer("nodeID"), value);
     nread = 0;
