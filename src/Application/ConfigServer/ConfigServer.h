@@ -36,7 +36,7 @@ public:
     // SDBPContext interface:
     //
     bool                        IsValidClientRequest(ClientRequest* request);
-    void                        OnClientRequest(ClientRequest* request, bool submit = true);
+    void                        OnClientRequest(ClientRequest* request);
     void                        OnClientClose(ClientSession* session);
 
     // ========================================================================================

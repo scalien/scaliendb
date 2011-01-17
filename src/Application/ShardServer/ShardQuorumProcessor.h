@@ -11,7 +11,6 @@
 class ShardServer;
 
 #define PRIMARYLEASE_REQUEST_TIMEOUT     1000
-#define PAXOS_VALUE_LENGTH_TARGET        (1*MB)
 
 /*
 ===============================================================================================
@@ -43,7 +42,7 @@ public:
     // For ShardServer:
     //
     void                    OnReceiveLease(ClusterMessage& message);
-    void                    OnClientRequest(ClientRequest* request, bool submit);
+    void                    OnClientRequest(ClientRequest* request);
     void                    OnClientClose(ClientSession* session);
     void                    SetActiveNodes(List<uint64_t>& activeNodes);
     void                    TryReplicationCatchup();

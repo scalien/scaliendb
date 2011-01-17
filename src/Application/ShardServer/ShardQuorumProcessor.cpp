@@ -211,7 +211,7 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     isPrimary = false;
 }
 
-void ShardQuorumProcessor::OnClientRequest(ClientRequest* request, bool submit)
+void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 {
     ShardMessage*   message;
     Buffer          singleBuffer;
@@ -252,17 +252,11 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request, bool submit)
     
     assert(shardMessagesLength >= 0);
     
-    if (!tryAppend.IsActive() && shardMessagesLength >= PAXOS_VALUE_LENGTH_TARGET)
+    if (!tryAppend.IsActive())
     {
         Log_Trace("shardMessagesLength: %U", shardMessagesLength);
         EventLoop::Add(&tryAppend);
-    }
-    
-    if (!tryAppend.IsActive() && submit)
-    {
-        Log_Trace("shardMessagesLength: %U", shardMessagesLength);
-        EventLoop::Add(&tryAppend);
-    }
+    }    
 }
 
 void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)

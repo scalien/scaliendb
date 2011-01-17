@@ -99,7 +99,7 @@ bool ConfigServer::IsValidClientRequest(ClientRequest* request)
      return request->IsControllerRequest();
 }
 
-void ConfigServer::OnClientRequest(ClientRequest* request, bool)
+void ConfigServer::OnClientRequest(ClientRequest* request)
 {
     quorumProcessor.OnClientRequest(request);
 }

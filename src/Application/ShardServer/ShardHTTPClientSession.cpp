@@ -124,7 +124,7 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         return false;
 
     request->session = this;
-    shardServer->OnClientRequest(request, true);
+    shardServer->OnClientRequest(request);
     
     return true;
 }
