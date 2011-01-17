@@ -46,7 +46,8 @@ void ConfigServer::Init()
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
     }
 
-    quorumProcessor.Init(this, numConfigServers, databaseManager.GetQuorumShard());
+    quorumProcessor.Init(this, numConfigServers,
+     databaseManager.GetQuorumPaxosShard(), databaseManager.GetQuorumLogShard());
     heartbeatManager.Init(this);
     primaryLeaseManager.Init(this);
     activationManager.Init(this);

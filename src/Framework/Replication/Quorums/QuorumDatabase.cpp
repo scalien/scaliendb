@@ -2,10 +2,12 @@
 #include "Framework/Storage/StorageShardProxy.h"
 #include "Framework/Storage/StorageEnvironment.h"
 
-void QuorumDatabase::Init(StorageShardProxy* shard_)
+void QuorumDatabase::Init(StorageShardProxy* paxosShard_, StorageShardProxy* logShard_)
 {
-    assert(shard_ != NULL);
-    shard = shard_;
+    assert(paxosShard_ != NULL);
+    assert(logShard_ != NULL);
+    paxosShard = paxosShard_;
+    logShard = logShard_;
     logCacheSize = RLOG_CACHE_SIZE;
 }
 
@@ -29,7 +31,7 @@ bool QuorumDatabase::GetAccepted()
     key.Write("accepted");
     rbKey.Wrap(key);
 
-    ret = shard->Get(rbKey, rbValue);
+    ret = paxosShard->Get(rbKey, rbValue);
     if (!ret)
       return false;   // not found, return default
 
@@ -56,7 +58,7 @@ void QuorumDatabase::SetAccepted(bool accepted)
     value.Writef("%d", accepted);
     rbValue.Wrap(value);
     
-    ret = shard->Set(rbKey, rbValue);
+    ret = paxosShard->Set(rbKey, rbValue);
 }
 
 uint64_t QuorumDatabase::GetPromisedProposalID()
@@ -99,7 +101,7 @@ void QuorumDatabase::GetAcceptedValue(Buffer& acceptedValue)
     key.Write("acceptedValue");
     rbKey.Wrap(key);
 
-    ret = shard->Get(rbKey, rbValue);
+    ret = paxosShard->Get(rbKey, rbValue);
     if (!ret)
         return;
     
@@ -117,7 +119,7 @@ void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
     rbKey.Wrap(key);
     rbValue.Wrap(acceptedValue);
 
-    ret = shard->Set(rbKey, rbValue);
+    ret = paxosShard->Set(rbKey, rbValue);
 }
 
 void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
@@ -130,7 +132,7 @@ void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
     key.Writef("round:%U", paxosID);
     rbKey.Wrap(key);
     
-    ret = shard->Get(rbKey, rbValue);
+    ret = logShard->Get(rbKey, rbValue);
     if (!ret)
         return;
     
@@ -146,7 +148,7 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
     key.Writef("round:%U", paxosID);
     rbKey.Wrap(key);
 
-    shard->Set(rbKey, value);
+    logShard->Set(rbKey, value);
 
     oldPaxosID = paxosID - logCacheSize;
     if (paxosID >= logCacheSize)
@@ -154,23 +156,23 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
         key.Writef("round:%U", oldPaxosID);
         rbKey.Wrap(key);
 
-        shard->Delete(rbKey);
+        logShard->Delete(rbKey);
     }
 }
 
 bool QuorumDatabase::IsActive()
 {
-    return shard->GetEnvironment()->IsCommiting();
+    return paxosShard->GetEnvironment()->IsCommiting();
 }
 
 void QuorumDatabase::Commit()
 {
-    shard->GetEnvironment()->Commit();
+    paxosShard->GetEnvironment()->Commit();
 }
 
 void QuorumDatabase::Commit(Callable& onCommit)
 {
-    shard->GetEnvironment()->Commit(onCommit);
+    paxosShard->GetEnvironment()->Commit(onCommit);
 }
 
 uint64_t QuorumDatabase::GetUint64(const char* name)
@@ -181,7 +183,7 @@ uint64_t QuorumDatabase::GetUint64(const char* name)
     unsigned    nread;
     int         ret;
 
-    ret = shard->Get(key, value);
+    ret = paxosShard->Get(key, value);
     if (!ret)
         return false;
 
@@ -206,7 +208,7 @@ void QuorumDatabase::SetUint64(const char* name, uint64_t u64)
     tmp.Writef("%U", u64);
     value.Wrap(tmp);
 
-    ret = shard->Set(key, value);
+    ret = paxosShard->Set(key, value);
 }
 
 void QuorumDatabase::DeleteOldRounds(uint64_t paxosID)

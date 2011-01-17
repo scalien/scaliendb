@@ -22,8 +22,8 @@ class ConfigQuorumProcessor
     typedef InList<ClientRequest>       RequestList;
 
 public:
-    void                    Init(ConfigServer* configServer,
-                             unsigned numConfigServer,  StorageShardProxy* quorumShard);
+    void                    Init(ConfigServer* configServer, unsigned numConfigServer,
+                             StorageShardProxy* quorumPaxosShard, StorageShardProxy* quorumLogShard);
     void                    Shutdown();
 
     bool                    IsMaster();

@@ -5,8 +5,8 @@
 #include "Application/Common/CatchupMessage.h"
 #include "ConfigQuorumProcessor.h"
 
-void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_,
- unsigned numConfigServers, StorageShardProxy* quorumShard)
+void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned numConfigServers,
+ StorageShardProxy* quorumPaxosShard, StorageShardProxy* quorumLogShard)
 {
     uint64_t nodeID;
     
@@ -19,7 +19,7 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(quorumShard);
+    database.Init(quorumPaxosShard, quorumLogShard);
     
     replicatedLog.Init(this);
     replicatedLog.SetCommitChaining(false);
