@@ -190,6 +190,8 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
     readRequests.Append(request);
 
+    environment.SetYieldThreads(true);
+
     if (!executeReads.IsActive())
         EventLoop::Add(&executeReads);
 }
@@ -325,6 +327,7 @@ void ShardDatabaseManager::ExecuteMessage(
 
 void ShardDatabaseManager::OnYieldStorageThreadsTimer()
 {
+    Log_Message("readRequests: %u", readRequests.GetLength());
     if (readRequests.GetLength() > SHARD_DATABASE_YIELD_LIST_LENGTH)
         environment.SetYieldThreads(true);
     else
@@ -351,18 +354,19 @@ void ShardDatabaseManager::OnExecuteReads()
     {
         if (NowClock() - start >= SHARD_DATABASE_YIELD_TIME)
         {
-            Log_Message("OnExecuteReads: YIELD");
+            //Log_Message("YIELD");
             // let other code run every YIELD_TIME msec
             if (executeReads.IsActive())
                 STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
             EventLoop::Add(&executeReads);
-            break;
+            return;
         }
 
         readRequests.Remove(itRequest);
 
         if (!itRequest->session->IsActive())
         {
+            itRequest->response.NoResponse();
             itRequest->OnComplete();
             continue;
         }
@@ -373,7 +377,7 @@ void ShardDatabaseManager::OnExecuteReads()
 
         if (!environment.Get(contextID, shardID, key, value))
         {
-            itRequest->response.NoResponse();
+            itRequest->response.Failed();
             itRequest->OnComplete();
             continue;
         }
@@ -382,8 +386,7 @@ void ShardDatabaseManager::OnExecuteReads()
         itRequest->response.Value(userValue);
         itRequest->OnComplete();
     }
-    
-    Log_Message("OnExecuteReads: DONE");
+    //Log_Message("DONE");
 }
 
 #undef CHECK_CMD

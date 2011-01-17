@@ -48,15 +48,15 @@ public:
     void                    Unload();
 
 private:
-    StorageFileKeyValue*    LocateKeyValue(ReadBuffer& key, int& cmpres);
-    void                    AppendKeyValue(StorageFileKeyValue* kv);
-    StorageFileKeyValue*    GetIndexedKeyValue(unsigned index);
+//    StorageFileKeyValue*    LocateKeyValue(ReadBuffer& key, int& cmpres);
+//    void                    AppendKeyValue(StorageFileKeyValue* kv);
+//    StorageFileKeyValue*    GetIndexedKeyValue(unsigned index);
 
     uint32_t                size;
     uint32_t                index;
     Buffer                  buffer;
     StorageFileChunk*       owner;
-    Buffer                  keyValueIndexBuffer;
+//    Buffer                  keyValueIndexBuffer;
     KeyValueTree            keyValues;
 };
 

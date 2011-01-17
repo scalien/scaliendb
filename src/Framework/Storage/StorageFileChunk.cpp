@@ -128,10 +128,10 @@ void StorageFileChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
         LoadDataPage(index, offset, true);
     
     bunch.buffer.Write(dataPages[index]->buffer);
-//    FOREACH(it, dataPages[index]->keyValues)
-    for (unsigned i = 0; i < dataPages[index]->GetNumKeys(); i++)
+    FOREACH(it, dataPages[index]->keyValues)
+//    for (unsigned i = 0; i < dataPages[index]->GetNumKeys(); i++)
     {
-        it = dataPages[index]->GetIndexedKeyValue(index);
+//        it = dataPages[index]->GetIndexedKeyValue(index);
         if (!shard->RangeContains(it->GetKey()))
             continue;
 
@@ -163,8 +163,8 @@ void StorageFileChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
     if (dataPages[index] == NULL)
         LoadDataPage(index, dataPages[index - 1]->GetOffset() + dataPages[index - 1]->GetSize(), true);
     
-//    bunch.nextKey.Write(dataPages[index]->keyValues.First()->GetKey());   
-    bunch.nextKey.Write(dataPages[index]->GetIndexedKeyValue(0)->GetKey());
+    bunch.nextKey.Write(dataPages[index]->keyValues.First()->GetKey());   
+//    bunch.nextKey.Write(dataPages[index]->GetIndexedKeyValue(0)->GetKey());
     bunch.isLast = false;
 }
 

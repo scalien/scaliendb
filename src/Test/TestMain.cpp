@@ -14,6 +14,7 @@ TEST_LOG_INIT(false, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientCreateTable);
 //TEST_ADD(TestClientFailover);
 //TEST_ADD(TestClientGetAndSet);
+TEST_ADD(TestClientGetLatency);
 //TEST_ADD(TestClientMaro);
 //TEST_ADD(TestClientMultiThread);
 //TEST_ADD(TestClientMultiThreadMulti);

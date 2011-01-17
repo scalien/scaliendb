@@ -451,6 +451,81 @@ TEST_DEFINE(TestClientBatchedGet)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientGetLatency)
+{
+    Client          client;
+    Result*         result;
+    Request*        request;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    char            keybuf[32];
+    int             ret;
+    unsigned        num = 100000;
+    double          minLatency;
+    double          maxLatency;
+    double          avgLatency;
+    double          latency;
+    Stopwatch       sw;
+    unsigned        nread;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    minLatency = (double)(uint64_t) -1;
+    maxLatency = 0;
+    avgLatency = 0;
+    
+    for (unsigned i = 1; i <= num; i++)
+    {
+        ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
+        key.Wrap(keybuf, ret);
+        value.Wrap(keybuf, ret);
+        ret = client.Get(key);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+
+        result = client.GetResult();
+        if (result == NULL)
+            TEST_CLIENT_FAIL();
+
+        request = result->GetRequestCursor();
+        
+        if (BufferToUInt64(
+         request->response.value.GetBuffer(), 
+         request->response.value.GetLength(),
+         &nread) != i)
+            TEST_CLIENT_FAIL();
+
+        latency = request->responseTime - request->requestTime;
+        if (latency < minLatency)
+            minLatency = latency;
+        if (latency > maxLatency)
+            maxLatency = latency;
+        avgLatency = ((avgLatency * (i - 1)) + latency) / (double) i;
+            
+        delete result;
+    }
+    
+    TEST_LOG("latency avg, min, max: %lf, %lf, %lf", avgLatency, minLatency, maxLatency);
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientCreateTable)
 {
     Client          client;
