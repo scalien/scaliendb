@@ -25,7 +25,8 @@ public:
     uint64_t                GetPaxosID();
     
     StorageShardProxy*      GetSystemShard();
-    StorageShardProxy*      GetQuorumShard();
+    StorageShardProxy*      GetQuorumPaxosShard();
+    StorageShardProxy*      GetQuorumLogShard();
     
     void                    Read();
     void                    Write();
@@ -36,7 +37,8 @@ private:
     Buffer                  writeBuffer;
     StorageEnvironment      environment;
     StorageShardProxy       systemConfigShard;
-    StorageShardProxy       quorumShard;
+    StorageShardProxy       quorumPaxosShard;
+    StorageShardProxy       quorumLogShard;
 };
 
 #endif

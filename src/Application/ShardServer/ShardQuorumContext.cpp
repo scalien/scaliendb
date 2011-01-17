@@ -19,7 +19,10 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumShard(quorumID));
+    database.Init(
+     quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumPaxosShard(quorumID),
+     quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumLogShard(quorumID));
+    
     
     replicatedLog.Init(this);
     transport.SetQuorumID(quorumID);

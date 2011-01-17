@@ -55,7 +55,9 @@ void ShardDatabaseManager::Shutdown()
 {
     ShardMap::Node*     node;
     
-    FOREACH (node, quorumShards)
+    FOREACH (node, quorumPaxosShards)
+        delete node->Value();
+    FOREACH (node, quorumLogShards)
         delete node->Value();
     
     readRequests.DeleteList();
@@ -68,11 +70,21 @@ StorageEnvironment* ShardDatabaseManager::GetEnvironment()
     return &environment;
 }
 
-StorageShardProxy* ShardDatabaseManager::GetQuorumShard(uint64_t quorumID)
+StorageShardProxy* ShardDatabaseManager::GetQuorumPaxosShard(uint64_t quorumID)
 {
     StorageShardProxy*  shard;
     
-    if (quorumShards.Get(quorumID, shard))
+    if (quorumPaxosShards.Get(quorumID, shard))
+        return shard;
+
+    return NULL;
+}
+
+StorageShardProxy* ShardDatabaseManager::GetQuorumLogShard(uint64_t quorumID)
+{
+    StorageShardProxy*  shard;
+    
+    if (quorumLogShards.Get(quorumID, shard))
         return shard;
 
     return NULL;
@@ -89,23 +101,34 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         assert(shard != NULL);
         
         environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
-         shard->firstKey, shard->lastKey, true, true);
+         shard->firstKey, shard->lastKey, true, false);
     }
 }
 
-void ShardDatabaseManager::SetQuorumShard(uint64_t quorumID)
+void ShardDatabaseManager::SetQuorumShards(uint64_t quorumID)
 {
     StorageShardProxy*  quorumShard;
 
-    quorumShard = GetQuorumShard(quorumID);
+    quorumShard = GetQuorumPaxosShard(quorumID);
     if (!quorumShard)
     {
         // TODO: HACK
-        environment.CreateShard(QUORUM_DATABASE_QUORUM_CONTEXT, quorumID, 0,
+        environment.CreateShard(QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, quorumID, 0,
          "", "", true, false);
         quorumShard = new StorageShardProxy;
-        quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_CONTEXT, quorumID);
-        quorumShards.Set(quorumID, quorumShard);
+        quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, quorumID);
+        quorumPaxosShards.Set(quorumID, quorumShard);
+    }
+
+    quorumShard = GetQuorumLogShard(quorumID);
+    if (!quorumShard)
+    {
+        // TODO: HACK
+        environment.CreateShard(QUORUM_DATABASE_QUORUM_LOG_CONTEXT, quorumID, 0,
+         "", "", true, true);
+        quorumShard = new StorageShardProxy;
+        quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_LOG_CONTEXT, quorumID);
+        quorumLogShards.Set(quorumID, quorumShard);
     }
 }
 

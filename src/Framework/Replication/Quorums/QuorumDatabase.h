@@ -11,9 +11,10 @@
 //#define RLOG_CACHE_SIZE         10
 //#define RLOG_REACTIVATION_DIFF  3
 
-#define QUORUM_DATABASE_SYSTEM_CONTEXT  1
-#define QUORUM_DATABASE_QUORUM_CONTEXT  2
-#define QUORUM_DATABASE_DATA_CONTEXT    3
+#define QUORUM_DATABASE_SYSTEM_CONTEXT          1
+#define QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT    2
+#define QUORUM_DATABASE_QUORUM_LOG_CONTEXT      3
+#define QUORUM_DATABASE_DATA_CONTEXT            4
 
 /*
 ===============================================================================================
@@ -26,7 +27,7 @@
 class QuorumDatabase
 {
 public:
-    void                Init(StorageShardProxy* shard);
+    void                Init(StorageShardProxy* paxosShard, StorageShardProxy* logShard);
 
     uint64_t            GetPaxosID();
     void                SetPaxosID(uint64_t paxosID);
@@ -60,7 +61,8 @@ private:
     
     void                DeleteOldRounds(uint64_t paxosID);
     
-    StorageShardProxy*  shard;
+    StorageShardProxy*  paxosShard;
+    StorageShardProxy*  logShard;
     uint16_t            contextID;
     uint64_t            shardID;
     uint64_t            logCacheSize;

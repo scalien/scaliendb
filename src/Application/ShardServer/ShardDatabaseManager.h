@@ -34,10 +34,11 @@ public:
     void                    Shutdown();
     
     StorageEnvironment*     GetEnvironment();
-    StorageShardProxy*      GetQuorumShard(uint64_t quorumID);
+    StorageShardProxy*      GetQuorumPaxosShard(uint64_t quorumID);
+    StorageShardProxy*      GetQuorumLogShard(uint64_t quorumID);
 
     void                    SetShards(SortedList<uint64_t>& shards);
-    void                    SetQuorumShard(uint64_t quorumID);
+    void                    SetQuorumShards(uint64_t quorumID);
     void                    RemoveDeletedDatabases();
     void                    RemoveDeletedTables();
     
@@ -52,7 +53,8 @@ private:
     ShardServer*            shardServer;
     StorageEnvironment      environment;
     StorageShardProxy       systemShard;
-    ShardMap                quorumShards;
+    ShardMap                quorumPaxosShards;
+    ShardMap                quorumLogShards;
     Countdown               yieldStorageThreadsTimer;
     ClientRequestList       readRequests;
     YieldTimer              executeReads;

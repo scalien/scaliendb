@@ -60,7 +60,7 @@ public:
 
     bool                    CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
                              ReadBuffer firstKey, ReadBuffer lastKey,
-                             bool useBloomFilter, bool useMerge);
+                             bool useBloomFilter, bool isLogStorage);
     bool                    DeleteShard(uint16_t contextID, uint64_t shardID);
     bool                    SplitShard(uint16_t contextID,  uint64_t shardID,
                              uint64_t newShardID, ReadBuffer splitKey);

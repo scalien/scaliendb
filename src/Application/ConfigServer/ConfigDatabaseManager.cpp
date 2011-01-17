@@ -10,9 +10,13 @@ void ConfigDatabaseManager::Init()
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath);
     systemConfigShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
-    quorumShard.Init(&environment, QUORUM_DATABASE_QUORUM_CONTEXT, 1);
-    
-    environment.CreateShard(QUORUM_DATABASE_QUORUM_CONTEXT, 1, 0, "", "", true, true);
+
+    environment.CreateShard(QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1, 0, "", "", true, false);
+    environment.CreateShard(QUORUM_DATABASE_QUORUM_LOG_CONTEXT, 1, 0, "", "", true, true);
+
+
+    quorumPaxosShard.Init(&environment, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1);
+    quorumLogShard.Init(&environment, QUORUM_DATABASE_QUORUM_LOG_CONTEXT, 1);
     
     paxosID = 0;
     configState.Init();
@@ -45,9 +49,14 @@ StorageShardProxy* ConfigDatabaseManager::GetSystemShard()
     return &systemConfigShard;
 }
 
-StorageShardProxy* ConfigDatabaseManager::GetQuorumShard()
+StorageShardProxy* ConfigDatabaseManager::GetQuorumPaxosShard()
 {
-    return &quorumShard;
+    return &quorumPaxosShard;
+}
+
+StorageShardProxy* ConfigDatabaseManager::GetQuorumLogShard()
+{
+    return &quorumLogShard;
 }
 
 void ConfigDatabaseManager::Read()

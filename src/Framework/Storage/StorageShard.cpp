@@ -61,9 +61,9 @@ void StorageShard::SetUseBloomFilter(bool useBloomFilter_)
     useBloomFilter = useBloomFilter_;
 }
 
-void StorageShard::SetUseMerge(bool useMerge_)
+void StorageShard::SetIsLogStorage(bool isLogStorage_)
 {
-    useMerge = useMerge_;
+    isLogStorage = isLogStorage_;
 }
 
 uint16_t StorageShard::GetContextID()
@@ -106,9 +106,9 @@ bool StorageShard::UseBloomFilter()
     return useBloomFilter;
 }
 
-bool StorageShard::UseMerge()
+bool StorageShard::IsLogStorage()
 {
-    return useMerge;
+    return isLogStorage;
 }
 
 bool StorageShard::RangeContains(ReadBuffer key)

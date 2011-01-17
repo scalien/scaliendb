@@ -358,7 +358,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     quorumProcessor = GetQuorumProcessor(quorumID);
     if (quorumProcessor == NULL)
     {
-        databaseManager.SetQuorumShard(quorumID);
+        databaseManager.SetQuorumShards(quorumID);
         
         quorumProcessor = new ShardQuorumProcessor;
         quorumProcessor->Init(configQuorum, this);
