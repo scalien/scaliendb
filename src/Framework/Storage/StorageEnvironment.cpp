@@ -508,7 +508,7 @@ StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
 }
 
 bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
- ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter)
+ ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter, bool useMerge)
 {
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
@@ -528,6 +528,7 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shard->SetFirstKey(firstKey);
     shard->SetLastKey(lastKey);
     shard->SetUseBloomFilter(useBloomFilter);
+    shard->SetUseMerge(useMerge);
     shard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
     shard->SetLogCommandID(headLogSegment->GetLogCommandID());
 
@@ -773,6 +774,9 @@ void StorageEnvironment::TryMergeChunks()
 
     FOREACH (itShard, shards)
     {
+        if (!itShard->UseMerge())
+            continue;
+            
         if (itShard->GetChunks().GetLength() >= 2)
         {
             chunk1 = (StorageFileChunk*) *(itShard->GetChunks().First());                               // first

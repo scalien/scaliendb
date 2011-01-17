@@ -61,6 +61,11 @@ void StorageShard::SetUseBloomFilter(bool useBloomFilter_)
     useBloomFilter = useBloomFilter_;
 }
 
+void StorageShard::SetUseMerge(bool useMerge_)
+{
+    useMerge = useMerge_;
+}
+
 uint16_t StorageShard::GetContextID()
 {
     return contextID;
@@ -99,6 +104,11 @@ ReadBuffer StorageShard::GetLastKey()
 bool StorageShard::UseBloomFilter()
 {
     return useBloomFilter;
+}
+
+bool StorageShard::UseMerge()
+{
+    return useMerge;
 }
 
 bool StorageShard::RangeContains(ReadBuffer key)

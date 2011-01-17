@@ -36,6 +36,7 @@ public:
     void                SetFirstKey(ReadBuffer firstKey);
     void                SetLastKey(ReadBuffer lastKey);
     void                SetUseBloomFilter(bool useBloomFilter);
+    void                SetUseMerge(bool useMerge);
 
     uint16_t            GetContextID();
     uint64_t            GetTableID();
@@ -45,6 +46,7 @@ public:
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
     bool                UseBloomFilter();
+    bool                UseMerge();
     
     bool                RangeContains(ReadBuffer key);
 
@@ -68,6 +70,7 @@ private:
     Buffer              firstKey;
     Buffer              lastKey;
     bool                useBloomFilter;
+    bool                useMerge;
 
     ChunkList           chunks;
     
