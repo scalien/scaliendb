@@ -130,7 +130,7 @@ void StorageDataPage::Append(StorageKeyValue* kv)
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         fkv->Set(ReadBuffer(kv->GetKey()), ReadBuffer(kv->GetValue()));
     else
-        fkv->Delete(ReadBuffer(kv->GetValue()));
+        fkv->Delete(ReadBuffer(kv->GetKey()));
     
     keyValues.Insert(fkv);
 //    AppendKeyValue(fkv);
