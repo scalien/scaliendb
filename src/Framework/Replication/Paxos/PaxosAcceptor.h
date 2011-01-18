@@ -21,11 +21,14 @@ class PaxosAcceptor
 {
 public:
     PaxosAcceptor();
-    
+        
     void                        Init(QuorumContext* context);
+    void                        SetAsyncCommit(bool asyncCommit);
+    bool                        GetAsyncCommit();
+    
     void                        OnMessage(PaxosMessage& msg);
     void                        OnCatchupComplete();
-    void                        WriteState(bool sendReply = false, bool async = false);
+    void                        WriteState(bool sendReply = false);
 
 private:
     void                        OnPrepareRequest(PaxosMessage& msg);
@@ -35,6 +38,7 @@ private:
     void                        ReadState();
 
     bool                        sendReply;
+    bool                        asyncCommit;
     QuorumContext*              context;
     PaxosAcceptorState          state;
     PaxosMessage                omsg;

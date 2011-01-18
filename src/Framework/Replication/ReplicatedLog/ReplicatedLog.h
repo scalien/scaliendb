@@ -22,6 +22,8 @@ public:
 
     void                    SetCommitChaining(bool commitChaining);
     bool                    GetCommitChaining();
+    void                    SetAsyncCommit(bool asyncCommit);
+    bool                    GetAsyncCommit();
 
     void                    Stop();
     void                    Continue();

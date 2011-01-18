@@ -23,8 +23,9 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumPaxosShard(quorumID),
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumLogShard(quorumID));
     
-    
     replicatedLog.Init(this);
+    replicatedLog.SetCommitChaining(true);
+    replicatedLog.SetAsyncCommit(true);
     transport.SetQuorumID(quorumID);
     highestPaxosID = 0;
     isReplicationActive = true;
