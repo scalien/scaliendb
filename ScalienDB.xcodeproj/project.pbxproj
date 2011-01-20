@@ -113,6 +113,8 @@
 		54B7F77C11BE5EF30076BC62 /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76811BE5EF30076BC62 /* ThreadPool_Posix.cpp */; };
 		54B7F77D11BE5EF30076BC62 /* ThreadPool_Windows.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76911BE5EF30076BC62 /* ThreadPool_Windows.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
+		54E59F0012E5A84F002222A4 /* ShardCatchupWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE68B12BFBB420069786A /* ShardCatchupWriter.cpp */; };
+		54E59F3B12E5AD20002222A4 /* ShardCatchupReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE68912BFBB420069786A /* ShardCatchupReader.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		54FA68F911C2429A00FF4EF6 /* Countdown.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA68F811C2429A00FF4EF6 /* Countdown.cpp */; };
 		54FA690B11C2435300FF4EF6 /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
@@ -735,8 +737,8 @@
 			isa = PBXGroup;
 			children = (
 				543DE63312BFBB420069786A /* Application.h */,
-				543DE63412BFBB420069786A /* CatchupMessage.cpp */,
 				543DE63512BFBB420069786A /* CatchupMessage.h */,
+				543DE63412BFBB420069786A /* CatchupMessage.cpp */,
 				543DE63612BFBB420069786A /* ClientRequest.cpp */,
 				543DE63712BFBB420069786A /* ClientRequest.h */,
 				543DE63812BFBB420069786A /* ClientRequestCache.cpp */,
@@ -1321,6 +1323,8 @@
 				5499B82E12D72EB000ECEF7F /* BloomFilter.cpp in Sources */,
 				5433D97C12DC7FCB00DEF661 /* StorageChunkMerger.cpp in Sources */,
 				5433D97F12DC82EB00DEF661 /* StorageChunkReader.cpp in Sources */,
+				54E59F0012E5A84F002222A4 /* ShardCatchupWriter.cpp in Sources */,
+				54E59F3B12E5AD20002222A4 /* ShardCatchupReader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
