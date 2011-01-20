@@ -15,11 +15,18 @@ bool CatchupMessage::BeginShard(uint64_t shardID_)
     return true;
 }
 
-bool CatchupMessage::KeyValue(ReadBuffer& key_, ReadBuffer& value_)
+bool CatchupMessage::Set(ReadBuffer key_, ReadBuffer value_)
 {
-    type = CATCHUPMESSAGE_KEYVALUE;
+    type = CATCHUPMESSAGE_SET;
     key = key_;
     value = value_;
+    return true;
+}
+
+bool CatchupMessage::Delete(ReadBuffer key_)
+{
+    type = CATCHUPMESSAGE_DELETE;
+    key = key_;
     return true;
 }
 
@@ -54,9 +61,13 @@ bool CatchupMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%c:%U",
              &proto, &type, &shardID);
             break;
-        case CATCHUPMESSAGE_KEYVALUE:
+        case CATCHUPMESSAGE_SET:
             read = buffer.Readf("%c:%c:%#R:%#R",
              &proto, &type, &key, &value);
+            break;
+        case CATCHUPMESSAGE_DELETE:
+            read = buffer.Readf("%c:%c:%#R",
+             &proto, &type, &key);
             break;
         case CATCHUPMESSAGE_COMMIT:
             read = buffer.Readf("%c:%c:%U",
@@ -87,9 +98,13 @@ bool CatchupMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%c:%U",
              proto, type, shardID);
             return true;
-        case CATCHUPMESSAGE_KEYVALUE:
+        case CATCHUPMESSAGE_SET:
             buffer.Writef("%c:%c:%#R:%#R",
              proto, type, &key, &value);
+            return true;
+        case CATCHUPMESSAGE_DELETE:
+            buffer.Writef("%c:%c:%#R",
+             proto, type, &key);
             return true;
         case CATCHUPMESSAGE_COMMIT:
             buffer.Writef("%c:%c",

@@ -36,7 +36,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
             itQuorum->ClearActivation();
             UpdateTimeout();
 
-            Log_Message("Activation failed for quorum %U and shard server %U",
+            Log_Message("Activation failed for shard server %U and quorum %U...",
              itQuorum->quorumID, itQuorum->activatingNodeID);
         }
 
@@ -55,8 +55,8 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                     itQuorum->ClearActivation();
                     UpdateTimeout();
 
-                    Log_Message("Activation failed for quorum %U and shard server %U",
-                     itQuorum->quorumID, itQuorum->activatingNodeID);
+                    Log_Message("Activation failed for shard server %U and quorum %U...",
+                     itQuorum->activatingNodeID, itQuorum->quorumID);
                 }
                 
                 configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
@@ -73,6 +73,8 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
     uint64_t            now;
+    
+    Log_Trace();
 
     configState = configServer->GetDatabaseManager()->GetConfigState();
     shardServer = configState->GetShardServer(nodeID);
@@ -80,31 +82,35 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
     now = EventLoop::Now();
     if (now < shardServer->nextActivationTime)
     {
-        Log_Trace("not trying activation due to penalty");
+        Log_Message("Activating shard server %U: delayed due to time penalty...", nodeID);
         return;
     }
 
     FOREACH(itQuorum, configState->quorums)
     {
+        Log_Trace("itQuorum->isActivatingNode: %b", itQuorum->isActivatingNode);
         if (itQuorum->isActivatingNode)
             continue;
             
+        Log_Trace("itQuorum->hasPrimary: %b", itQuorum->hasPrimary);
         if (!itQuorum->hasPrimary)
             continue;
 
         FOREACH(itNodeID, itQuorum->inactiveNodes)
         {
+            Log_Trace("inactive node: %U (trying %U)", *itNodeID, nodeID);
             if (*itNodeID == nodeID)
             {
                 paxosID = QuorumPaxosID::GetPaxosID(shardServer->quorumPaxosIDs, itQuorum->quorumID);
-                if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF))
+                if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF) ||
+                 itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
                 {
                     // the shard server is "almost caught up", start the activation process
                     itQuorum->OnActivationStart(nodeID, now + PAXOSLEASE_MAX_LEASE_TIME);
                     UpdateTimeout();
 
-                    Log_Message("Activation started for quorum %U and shard server %U",
-                     itQuorum->quorumID, itQuorum->activatingNodeID);
+                    Log_Message("Activation started for shard server %U and quorum %U...",
+                     itQuorum->activatingNodeID, itQuorum->quorumID);
                 }
             }
         }
@@ -113,24 +119,46 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
 
 void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
+    Log_Trace();
+    
     if (!quorum.isActivatingNode || quorum.isReplicatingActivation ||
      message.configID != quorum.configID)
+    {
+        Log_Message("%b %b %U %U", quorum.isActivatingNode,
+         quorum.isReplicatingActivation,
+         message.configID,
+         quorum.configID);
         return;
+    }
+    
+    Log_Trace();
 
     if (!quorum.isWatchingPaxosID)
     {
-        // start monitoring the primary's paxosID
+        Log_Message("Activating shard server %U in quorum %U: Starting to monitor the primary's paxosID",
+         quorum.quorumID, quorum.activatingNodeID);
+        
         quorum.OnActivationMonitoring(message.paxosID);
         configServer->OnConfigStateChanged();
     }
     else
     {
+        Log_Trace();
+        
         // if the primary was able to increase its paxosID, the new shardserver joined successfully
         if (message.paxosID > quorum.activationPaxosID)
         {
+            Log_Message("Activating shard server %U in quorum %U: The primary was able to increase its paxosID!",
+             quorum.quorumID, quorum.activatingNodeID);
+            
             quorum.OnActivationReplication();
             configServer->OnConfigStateChanged();
             configServer->GetQuorumProcessor()->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
+        }
+        else
+        {
+            Log_Message("Activating shard server %U in quorum %U: The primary was not able to increase its paxosID so far...",
+             quorum.quorumID, quorum.activatingNodeID);
         }
     }    
 }
@@ -160,10 +188,10 @@ void ConfigActivationManager::OnActivationTimeout()
             assert(shardServer != NULL);
             shardServer->nextActivationTime = now + ACTIVATION_FAILED_PENALTY_TIME;
 
+            Log_Message("Activating shard server %U in quorum %U: Activation failed, setting time penalty...",
+             itQuorum->activatingNodeID, itQuorum->quorumID);
+
             itQuorum->ClearActivation();
-            
-            Log_Message("Activation failed for quorum %U and shard server %U",
-             itQuorum->quorumID, itQuorum->activatingNodeID);
              
             configServer->OnConfigStateChanged();
         }

@@ -3,9 +3,23 @@
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
 
+ShardCatchupWriter::ShardCatchupWriter()
+{
+    Reset();
+}
+
+ShardCatchupWriter::~ShardCatchupWriter()
+{
+    if (cursor != NULL)
+        delete cursor;
+}
+
 void ShardCatchupWriter::Init(ShardQuorumProcessor* quorumProcessor_)
 {
     quorumProcessor = quorumProcessor_;
+    
+    environment = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetEnvironment();
+
     Reset();
 }
 
@@ -22,26 +36,22 @@ bool ShardCatchupWriter::IsActive()
 
 void ShardCatchupWriter::Begin(CatchupMessage& request)
 {
-    if (isActive)
-        return;
-        
+    assert(!isActive);   
     assert(quorumProcessor != NULL);
+    assert(cursor == NULL);
 
-    Reset();
     isActive = true;
     nodeID = request.nodeID;
     quorumID = request.quorumID;
-
     paxosID = quorumProcessor->GetPaxosID() - 1;
 
     if (quorumProcessor->GetConfigQuorum()->shards.GetLength() == 0)
     {
-        Commit();
+        SendCommit();
         return;
     }
     
     CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
-    isActive = true;
     
     SendFirst();
 }
@@ -69,29 +79,25 @@ void ShardCatchupWriter::SendFirst()
     CatchupMessage      msg;
     ReadBuffer          key;
     ReadBuffer          value;
-    StorageShard*       shard;
-    StorageKeyValue*    kv;
 
     assert(quorumProcessor->GetConfigQuorum()->shards.GetLength() > 0);
     shardID = *(quorumProcessor->GetConfigQuorum()->shards.First());
-    shard = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetShard(shardID);
-    assert(shard != NULL);
 
     assert(cursor == NULL);
-    cursor = new StorageCursor(shard);
+    cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, shardID);
 
     msg.BeginShard(shardID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 
     // send first KV
-    kv = cursor->Begin();
+    kv = cursor->First();
     if (!kv)
     {
         SendNext();
         return;
     }
     
-    msg.KeyValue(kv->key, kv->value);
+    TransformKeyValue(kv, msg);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 }
 
@@ -99,14 +105,12 @@ void ShardCatchupWriter::SendNext()
 {
     uint64_t*           itShardID;
     CatchupMessage      msg;
-    StorageShard*       shard;
-    StorageKeyValue*    kv;
 
     assert(cursor != NULL);
-    kv = cursor->Next();
+    kv = cursor->Next(kv);
     if (kv)
     {
-        msg.KeyValue(kv->key, kv->value);
+        TransformKeyValue(kv, msg);
         CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
         return;
     }
@@ -119,28 +123,32 @@ void ShardCatchupWriter::SendNext()
     
     if (!itShardID)
     {
-        Commit(); // there is no next shard, send commit
+        SendCommit(); // there is no next shard, send commit
         return;
     }    
 
     shardID = *itShardID;
-    shard = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetShard(shardID);
-    assert(shard != NULL);
+
+    delete cursor;
+    cursor = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetEnvironment()->GetBulkCursor(
+     QUORUM_DATABASE_DATA_CONTEXT, shardID);
 
     msg.BeginShard(shardID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 
     // send first KV
-    cursor = new StorageCursor(shard);
-    kv = cursor->Begin();
+    kv = cursor->First();
     if (!kv)
+    {
+        SendNext();
         return;
-
-    msg.KeyValue(kv->key, kv->value);
+    }
+    
+    TransformKeyValue(kv, msg);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 }
 
-void ShardCatchupWriter::Commit()
+void ShardCatchupWriter::SendCommit()
 {
     CatchupMessage msg;
     
@@ -179,4 +187,12 @@ uint64_t* ShardCatchupWriter::NextShard()
     it = shards.Next(it);
 
     return it;
+}
+
+void ShardCatchupWriter::TransformKeyValue(StorageKeyValue* kv, CatchupMessage& msg)
+{
+    if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+        msg.Set(kv->GetKey(), kv->GetValue());
+    else
+        msg.Delete(kv->GetKey());    
 }

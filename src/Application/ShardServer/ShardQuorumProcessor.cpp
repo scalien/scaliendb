@@ -18,7 +18,7 @@ ShardQuorumProcessor::ShardQuorumProcessor()
 void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardServer_)
 {
     shardServer = shardServer_;
-//    catchupReader.Init(this);
+    catchupReader.Init(this);
     isPrimary = false;
     proposalID = 0;
     configID = 0;
@@ -118,57 +118,61 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
 
 void ShardQuorumProcessor::OnStartCatchup()
 {
-//    CatchupMessage  msg;
-//
-//    if (catchupReader.IsActive() || !quorumContext.IsLeaseKnown())
-//        return;
-//    
-//    quorumContext.StopReplication();
-//    
-//    msg.CatchupRequest(MY_NODEID, quorumContext.GetQuorumID());
-//    
-//    CONTEXT_TRANSPORT->SendQuorumMessage(
-//     quorumContext.GetLeaseOwner(), quorumContext.GetQuorumID(), msg);
-//     
-//    catchupReader.Begin();
-//    
-//    Log_Message("Catchup started from node %U", quorumContext.GetLeaseOwner());
+    CatchupMessage  msg;
+
+    if (catchupReader.IsActive() || !quorumContext.IsLeaseKnown())
+        return;
+    
+    quorumContext.StopReplication();
+    
+    msg.CatchupRequest(MY_NODEID, quorumContext.GetQuorumID());
+    
+    CONTEXT_TRANSPORT->SendQuorumMessage(
+     quorumContext.GetLeaseOwner(), quorumContext.GetQuorumID(), msg);
+     
+    catchupReader.Begin();
+    
+    Log_Message("Catchup started from node %U", quorumContext.GetLeaseOwner());
 }
 
 void ShardQuorumProcessor::OnCatchupMessage(CatchupMessage& message)
 {
-//    switch (message.type)
-//    {
-//        case CATCHUPMESSAGE_REQUEST:
-//            if (!catchupWriter.IsActive())
-//                catchupWriter.Begin(message);
-//            break;
-//        case CATCHUPMESSAGE_BEGIN_SHARD:
-//            if (catchupReader.IsActive())
-//                catchupReader.OnBeginShard(message);
-//            break;
-//        case CATCHUPMESSAGE_KEYVALUE:
-//            if (catchupReader.IsActive())
-//                catchupReader.OnKeyValue(message);
-//            break;
-//        case CATCHUPMESSAGE_COMMIT:
-//            if (catchupReader.IsActive())
-//            {
-//                catchupReader.OnCommit(message);
-//                quorumContext.OnCatchupComplete(message.paxosID); // this commits
-//                quorumContext.ContinueReplication();
-//            }
-//            break;
-//        case CATCHUPMESSAGE_ABORT:
-//            if (catchupReader.IsActive())
-//            {
-//                catchupReader.OnAbort(message);
-//                quorumContext.ContinueReplication();
-//            }
-//            break;
-//        default:
-//            ASSERT_FAIL();
-//    }
+    switch (message.type)
+    {
+        case CATCHUPMESSAGE_REQUEST:
+            if (!catchupWriter.IsActive())
+                catchupWriter.Begin(message);
+            break;
+        case CATCHUPMESSAGE_BEGIN_SHARD:
+            if (catchupReader.IsActive())
+                catchupReader.OnBeginShard(message);
+            break;
+        case CATCHUPMESSAGE_SET:
+            if (catchupReader.IsActive())
+                catchupReader.OnSet(message);
+            break;
+        case CATCHUPMESSAGE_DELETE:
+            if (catchupReader.IsActive())
+                catchupReader.OnDelete(message);
+            break;
+        case CATCHUPMESSAGE_COMMIT:
+            if (catchupReader.IsActive())
+            {
+                catchupReader.OnCommit(message);
+                quorumContext.OnCatchupComplete(message.paxosID); // this commits
+                quorumContext.ContinueReplication();
+            }
+            break;
+        case CATCHUPMESSAGE_ABORT:
+            if (catchupReader.IsActive())
+            {
+                catchupReader.OnAbort(message);
+                quorumContext.ContinueReplication();
+            }
+            break;
+        default:
+            ASSERT_FAIL();
+    }
 }
 
 void ShardQuorumProcessor::OnRequestLeaseTimeout()
@@ -271,11 +275,11 @@ void ShardQuorumProcessor::SetActiveNodes(List<uint64_t>& activeNodes)
 void ShardQuorumProcessor::TryReplicationCatchup()
 {
     // this is called if we're an inactive node and we should probably try to catchup
-//    
-//    if (catchupReader.IsActive())
-//        return;
-//    
-//    quorumContext.TryReplicationCatchup();
+    
+    if (catchupReader.IsActive())
+        return;
+    
+    quorumContext.TryReplicationCatchup();
 }
 
 void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey)

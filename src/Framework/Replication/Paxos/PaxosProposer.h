@@ -10,7 +10,7 @@
 
 class ReplicatedLog; // forward
 
-#define PAXOS_TIMEOUT   3000
+#define PAXOS_TIMEOUT   1000
 
 /*
 ===============================================================================================

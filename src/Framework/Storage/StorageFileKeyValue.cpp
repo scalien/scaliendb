@@ -45,4 +45,3 @@ void StorageFileKeyValue::SetNextIndex(uint32_t nextIndex_)
 {
     nextIndex = nextIndex_;
 }
-

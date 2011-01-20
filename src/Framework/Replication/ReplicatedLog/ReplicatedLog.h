@@ -5,7 +5,7 @@
 #include "Framework/Replication/Paxos/PaxosProposer.h"
 #include "Framework/Replication/Paxos/PaxosAcceptor.h"
 
-#define REQUEST_CHOSEN_TIMEOUT  7000
+#define REQUEST_CHOSEN_TIMEOUT  1000
 
 /*
 ===============================================================================================

@@ -7,7 +7,8 @@
 
 #define CATCHUPMESSAGE_REQUEST         'R'
 #define CATCHUPMESSAGE_BEGIN_SHARD     'B'
-#define CATCHUPMESSAGE_KEYVALUE        'K'
+#define CATCHUPMESSAGE_SET             'S'
+#define CATCHUPMESSAGE_DELETE          'D'
 #define CATCHUPMESSAGE_COMMIT          'C'
 #define CATCHUPMESSAGE_ABORT           'A'
 /*
@@ -31,7 +32,8 @@ public:
     
     bool            CatchupRequest(uint64_t nodeID, uint64_t quorumID);
     bool            BeginShard(uint64_t shardID);
-    bool            KeyValue(ReadBuffer& key, ReadBuffer& value);
+    bool            Set(ReadBuffer key, ReadBuffer value);
+    bool            Delete(ReadBuffer key);
     bool            Commit(uint64_t paxosID);
     bool            Abort();
 

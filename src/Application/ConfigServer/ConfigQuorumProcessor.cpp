@@ -429,7 +429,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
             key.Wrap("state");
             configServer->GetDatabaseManager()->GetConfigState()->Write(buffer);
             value.Wrap(buffer);
-            omsg.KeyValue(key, value);
+            omsg.Set(key, value);
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
             omsg.Commit(quorumContext.GetPaxosID() - 1);
             // send the paxosID whose value is in the db
@@ -438,7 +438,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
         case CATCHUPMESSAGE_BEGIN_SHARD:
             ASSERT_FAIL();
             break;
-        case CATCHUPMESSAGE_KEYVALUE:
+        case CATCHUPMESSAGE_SET:
             if (!isCatchingUp)
                 return;
             hasMaster = configState->hasMaster;

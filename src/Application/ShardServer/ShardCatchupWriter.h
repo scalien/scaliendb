@@ -2,6 +2,7 @@
 #define SHARDCATCHUPWRITER_H
 
 #include "Application/Common/CatchupMessage.h"
+#include "Framework/Storage/StorageBulkCursor.h"
 
 class ShardQuorumProcessor; // forward
 
@@ -16,6 +17,9 @@ class ShardQuorumProcessor; // forward
 class ShardCatchupWriter
 {
 public:
+    ShardCatchupWriter();
+    ~ShardCatchupWriter();
+    
     void                    Init(ShardQuorumProcessor* quorumProcessor);
     void                    Reset();
     
@@ -27,17 +31,20 @@ public:
 private:
     void                    SendFirst();
     void                    SendNext();
-    void                    Commit();
+    void                    SendCommit();
     void                    OnWriteReadyness();
     uint64_t*               NextShard();
+    void                    TransformKeyValue(StorageKeyValue* kv, CatchupMessage& msg);
 
     bool                    isActive;
     uint64_t                nodeID;
     uint64_t                quorumID;
     uint64_t                shardID;
     uint64_t                paxosID;
-//    StorageCursor*          cursor;
     ShardQuorumProcessor*   quorumProcessor;
+    StorageEnvironment*     environment;
+    StorageBulkCursor*      cursor;
+    StorageKeyValue*        kv;
 };
 
 #endif

@@ -359,7 +359,7 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
                 }
             }
             if (!found)
-                buffer.Appendf("     .");
+                buffer.Appendf("      ");
 
         }
         session.Print(buffer);

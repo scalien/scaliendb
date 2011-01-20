@@ -52,6 +52,8 @@ void ShardQuorumContext::TryReplicationCatchup()
 
 void ShardQuorumContext::AppendDummy()
 {
+    Log_Trace();
+    
     replicatedLog.TryAppendDummy();
 }
 

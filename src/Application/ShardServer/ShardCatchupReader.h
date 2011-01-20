@@ -1,8 +1,8 @@
 #ifndef SHARDCATCHUPREADER_H
 #define SHARDCATCHUPREADER_H
 
-#include "Framework/Storage/StorageShard.h"
 #include "Application/Common/CatchupMessage.h"
+#include "Framework/Storage/StorageEnvironment.h"
 
 class ShardQuorumProcessor;
 
@@ -25,14 +25,16 @@ public:
     void                    Abort();    
     
     void                    OnBeginShard(CatchupMessage& msg);
-    void                    OnKeyValue(CatchupMessage& msg);
+    void                    OnSet(CatchupMessage& msg);
+    void                    OnDelete(CatchupMessage& msg);
     void                    OnCommit(CatchupMessage& msg);
     void                    OnAbort(CatchupMessage& msg);
 
 private:
     bool                    isActive;
-    StorageShard*           shard;
+    uint64_t                shardID;
     ShardQuorumProcessor*   quorumProcessor;
+    StorageEnvironment*     environment;
 };
 
 #endif

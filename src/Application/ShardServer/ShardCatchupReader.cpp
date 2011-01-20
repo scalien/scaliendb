@@ -7,6 +7,9 @@ void ShardCatchupReader::Init(ShardQuorumProcessor* quorumProcessor_)
 {
     quorumProcessor = quorumProcessor_;
     isActive = false;
+    shardID = 0;
+    
+    environment = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetEnvironment();
 }
 
 bool ShardCatchupReader::IsActive()
@@ -26,55 +29,37 @@ void ShardCatchupReader::Abort()
 
 void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
 {
-    ConfigShard*    cshard;
-    StorageTable*   table;
-    ReadBuffer      firstKey;
+    ConfigShard*        shard;
+    ReadBuffer          firstKey;
 
-    if (!isActive)
-        return;
+    assert(isActive);
 
-    cshard = quorumProcessor->GetShardServer()->GetConfigState()->GetShard(msg.shardID);
-    if (!cshard)
-    {
-        ASSERT_FAIL();
-        return;
-    }
-        
-    table = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetTable(cshard->tableID);
-    if (!table)
-    {
-        ASSERT_FAIL();
-        return;
-    }
-    
-    shard = table->GetShard(msg.shardID);
-    if (shard != NULL)
-        table->DeleteShard(msg.shardID);
-    
-    // shard is either deleted or not yet created, therefore create it on disk
-    firstKey.Wrap(cshard->firstKey);
-    table->CreateShard(msg.shardID, firstKey);
-    shard = table->GetShard(msg.shardID);
-}
-
-void ShardCatchupReader::OnKeyValue(CatchupMessage& msg)
-{
-    if (!isActive)
-        return;
-    
+    shard = quorumProcessor->GetShardServer()->GetConfigState()->GetShard(msg.shardID);
     assert(shard != NULL);
 
-    shard->Set(msg.key, msg.value, true);
+    environment->Commit();
+    environment->DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, shard->shardID);
+    environment->Commit();
+    environment->CreateShard(QUORUM_DATABASE_DATA_CONTEXT, shard->shardID,
+     shard->tableID, shard->firstKey, shard->lastKey, true, false);
+     
+     shardID = shard->shardID;
+}
+
+void ShardCatchupReader::OnSet(CatchupMessage& msg)
+{
+    environment->Set(QUORUM_DATABASE_DATA_CONTEXT, shardID, msg.key, msg.value);
+}
+
+void ShardCatchupReader::OnDelete(CatchupMessage& msg)
+{
+    environment->Delete(QUORUM_DATABASE_DATA_CONTEXT, shardID, msg.key);
 }
 
 void ShardCatchupReader::OnCommit(CatchupMessage& /*message*/)
 {
-    if (!isActive)
-        return;
-
-    assert(shard != NULL);
+    assert(isActive);
     
-    shard = NULL;
     isActive = false;
 
     Log_Message("Catchup complete");
@@ -82,7 +67,8 @@ void ShardCatchupReader::OnCommit(CatchupMessage& /*message*/)
 
 void ShardCatchupReader::OnAbort(CatchupMessage& /*message*/)
 {
-    shard = NULL;
+    assert(isActive);
+    
     isActive = false;
 
     Log_Message("Catchup aborted");
