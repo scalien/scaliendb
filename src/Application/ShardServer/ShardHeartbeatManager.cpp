@@ -22,16 +22,14 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
 {
     unsigned                httpPort;
     unsigned                sdbpPort;
-    uint64_t*               itShardID;
     ShardQuorumProcessor*   itQuorumProcessor;
     ClusterMessage          msg;
     QuorumPaxosID           quorumPaxosID;
     List<QuorumPaxosID>     quorumPaxosIDList;
     List<QuorumShardInfo>   quorumShardInfos;
     QuorumShardInfo         quorumShardInfo;
-    StorageShard*           storageShard;
     ConfigState*            configState;
-    ConfigQuorum*           configQuorum;
+//    ConfigQuorum*           configQuorum;
     
     Log_Trace();
     
@@ -43,15 +41,15 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         return;
     }
     
-//    configState = shardServer->GetConfigState();
-//
-//    ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
-//    FOREACH(itQuorumProcessor, *quorumProcessors)
-//    {
-//        quorumPaxosID.quorumID = itQuorumProcessor->GetQuorumID();
-//        quorumPaxosID.paxosID = itQuorumProcessor->GetPaxosID();
-//        quorumPaxosIDList.Append(quorumPaxosID);
-//        
+    configState = shardServer->GetConfigState();
+
+    ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
+    FOREACH(itQuorumProcessor, *quorumProcessors)
+    {
+        quorumPaxosID.quorumID = itQuorumProcessor->GetQuorumID();
+        quorumPaxosID.paxosID = itQuorumProcessor->GetPaxosID();
+        quorumPaxosIDList.Append(quorumPaxosID);
+        
 //        configQuorum = configState->GetQuorum(itQuorumProcessor->GetQuorumID());
 //        FOREACH(itShardID, configQuorum->shards)
 //        {
@@ -69,7 +67,7 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
 //            
 //            quorumShardInfos.Append(quorumShardInfo);
 //        }
-//    }
+    }
 
     httpPort = shardServer->GetHTTPPort();
     sdbpPort = shardServer->GetSDBPPort();
