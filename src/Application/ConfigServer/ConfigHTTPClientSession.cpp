@@ -389,16 +389,16 @@ void ConfigHTTPClientSession::ProcessActivate()
     configServer->GetActivationManager()->TryActivateShardServer(nodeID);
     
     wb.Writef("Activation process started...");
-    rb.Wrap(wb);
-    session.Print(rb);
-    return;
+    goto End;
     
     Failed:
     wb.Writef("FAILED. Specify a nodeID!");
+
+    End:
     rb.Wrap(wb);
     session.Print(rb);
-    return;
-    
+    session.Flush();
+    return;    
 }
 
 bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
