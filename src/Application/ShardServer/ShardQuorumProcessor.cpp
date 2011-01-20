@@ -90,8 +90,6 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
 
     valueLength = value.GetLength();
 
-//    Log_Message("BEGIN --------------");
-
     commandID = 0;
     while (value.GetLength() > 0)
     {
@@ -103,15 +101,14 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, ReadBuffer& value, bool ow
         commandID = 0;
     }
     
-    if (ownAppend)
+    // TODO:
+    if (ownAppend && shardMessages.GetLength() > 0)
     {
         shardMessagesLength -= valueLength;
         Log_Trace("shardMessagesLength: %U", shardMessagesLength);
         assert(shardMessagesLength >= 0);
     }
 
-//    Log_Message("END --------------");
-    
     if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
         EventLoop::Add(&tryAppend);
 }
