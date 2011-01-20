@@ -116,7 +116,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
     if (!quorum.isActivatingNode || quorum.isReplicatingActivation ||
      message.configID != quorum.configID)
     {
-        Log_Message("%b %b %U %U", quorum.isActivatingNode,
+        Log_Trace("ExtendLease condition: %b %b %U %U", quorum.isActivatingNode,
         quorum.isReplicatingActivation,
         message.configID,
         quorum.configID);        
