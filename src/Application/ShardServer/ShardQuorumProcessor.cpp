@@ -366,6 +366,12 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
     ClientRequest*  request;
     bool            fromClient;
 
+    if (shardMessages.GetLength() == 0)
+    {
+        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, message, request);
+        return;
+    }
+
     if (ownAppend)
         fromClient = shardMessages.First()->fromClient;
     else
