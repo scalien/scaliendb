@@ -366,6 +366,7 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
     ClientRequest*  request;
     bool            fromClient;
 
+    // TODO: this is not a complete solution
     if (shardMessages.GetLength() == 0)
     {
         shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, message, request);
