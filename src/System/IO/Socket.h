@@ -27,6 +27,7 @@ public:
 
     bool            SetNonblocking();
     bool            SetNodelay();
+    bool            SetReceiveBufferSize(unsigned size);
 
     bool            Bind(int port);
     bool            Bind(const Endpoint& endpoint);

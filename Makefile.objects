@@ -37,6 +37,8 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/SDBP/SDBPRequestMessage.o \
 	$(BUILD_DIR)/Application/SDBP/SDBPResponseMessage.o \
 	$(BUILD_DIR)/Application/SDBP/SDBPServer.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardCatchupReader.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardCatchupWriter.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardDatabaseManager.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardHTTPClientSession.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardHTTPHandler.o \

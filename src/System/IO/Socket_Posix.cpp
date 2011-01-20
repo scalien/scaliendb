@@ -100,6 +100,26 @@ bool Socket::SetNodelay()
     return true;
 }
 
+bool Socket::SetReceiveBufferSize(unsigned size)
+{
+    int     ret;
+
+    if (fd < 0)
+    {
+        Log_Trace("SetRecieveBufferSize on invalid file descriptor");
+        return false;
+    }
+    
+    ret = setsockopt(fd, IPPROTO_TCP, SO_RCVBUF, &size, sizeof(size));
+    if (ret < 0)
+    {
+        Log_Errno();
+        return false;
+    }
+    
+    return true;
+}
+
 bool Socket::Bind(int port)
 {
     int                 ret;

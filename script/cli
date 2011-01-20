@@ -1,0 +1,7 @@
+#!/bin/sh
+
+export PYTHONSTARTUP=../../script/shell.py
+
+make pythonlib &> /dev/null
+cd bin/python
+python 
