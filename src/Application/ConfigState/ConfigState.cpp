@@ -762,7 +762,6 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
             {
                 shardServer = GetShardServer(itQuorum->activatingNodeID);
                 assert(shardServer != NULL);
-                shardServer->nextActivationTime = 0;
                 
                 Log_Message("Activation succeeded for quorum %U and shard server %U",
                  itQuorum->quorumID, itQuorum->activatingNodeID);

@@ -99,7 +99,6 @@ bool QuorumShardInfo::WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumSha
 ConfigShardServer::ConfigShardServer()
 {
     prev = next = this;
-    nextActivationTime = 0;
     httpPort = 0;
     sdbpPort = 0;
 }

@@ -373,6 +373,34 @@ void ConfigHTTPClientSession::PrintConfigState()
     session.Flush();
 }
 
+void ConfigHTTPClientSession::ProcessActivate()
+{
+    uint64_t    nodeID;    
+    ReadBuffer  rb;
+    Buffer      wb;
+    unsigned    nread;
+
+    if (!params.GetNamed("nodeID", sizeof("nodeID") - 1, rb))
+        goto Failed;
+    nodeID = BufferToUInt64(rb.GetBuffer(), rb.GetLength(), &nread);
+    if (nread != rb.GetLength())
+        goto Failed;
+
+    configServer->GetActivationManager()->TryActivateShardServer(nodeID);
+    
+    wb.Writef("Activation process started...");
+    rb.Wrap(wb);
+    session.Print(rb);
+    return;
+    
+    Failed:
+    wb.Writef("FAILED. Specify a nodeID!");
+    rb.Wrap(wb);
+    session.Print(rb);
+    return;
+    
+}
+
 bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
@@ -385,6 +413,11 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     if (HTTP_MATCH_COMMAND(cmd, "getconfigstate"))
     {
         PrintConfigState();
+        return true;
+    }
+    if (HTTP_MATCH_COMMAND(cmd, "activate"))
+    {
+        ProcessActivate();
         return true;
     }
 

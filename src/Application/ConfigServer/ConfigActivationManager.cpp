@@ -31,7 +31,6 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
         {
             shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
             assert(shardServer != NULL);
-            shardServer->nextActivationTime = EventLoop::Now() + ACTIVATION_FAILED_PENALTY_TIME;
 
             itQuorum->ClearActivation();
             UpdateTimeout();
@@ -49,8 +48,6 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                 {
                     shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
                     assert(shardServer != NULL);
-                    shardServer->nextActivationTime =
-                     EventLoop::Now() + ACTIVATION_FAILED_PENALTY_TIME;
 
                     itQuorum->ClearActivation();
                     UpdateTimeout();
@@ -72,19 +69,11 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
     ConfigState*        configState;
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
-    uint64_t            now;
     
     Log_Trace();
 
     configState = configServer->GetDatabaseManager()->GetConfigState();
     shardServer = configState->GetShardServer(nodeID);
-
-    now = EventLoop::Now();
-    if (now < shardServer->nextActivationTime)
-    {
-        Log_Message("Activating shard server %U: delayed due to time penalty...", nodeID);
-        return;
-    }
 
     FOREACH(itQuorum, configState->quorums)
     {
@@ -106,7 +95,6 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
                  itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
                 {
                     // the shard server is "almost caught up", start the activation process
-                    itQuorum->OnActivationStart(nodeID, now + PAXOSLEASE_MAX_LEASE_TIME);
                     UpdateTimeout();
 
                     Log_Message("Activation started for shard server %U and quorum %U...",
@@ -182,7 +170,6 @@ void ConfigActivationManager::OnActivationTimeout()
 
             shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
             assert(shardServer != NULL);
-            shardServer->nextActivationTime = now + ACTIVATION_FAILED_PENALTY_TIME;
 
             Log_Message("Activating shard server %U in quorum %U: Activation failed, setting time penalty...",
              itQuorum->activatingNodeID, itQuorum->quorumID);

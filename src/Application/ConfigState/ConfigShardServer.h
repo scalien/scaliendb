@@ -75,8 +75,6 @@ public:
     List<QuorumPaxosID>     quorumPaxosIDs;
     List<QuorumShardInfo>   quorumShardInfos;
     
-    uint64_t                nextActivationTime;
-
     unsigned                httpPort;
     unsigned                sdbpPort;
     // ========================================================================================

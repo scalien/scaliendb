@@ -78,8 +78,8 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
         {
             if (!HasHeartbeat(itShardServer->nodeID))
                 configServer->GetActivationManager()->TryDeactivateShardServer(itShardServer->nodeID);
-            else
-                configServer->GetActivationManager()->TryActivateShardServer(itShardServer->nodeID);
+//            else
+//                configServer->GetActivationManager()->TryActivateShardServer(itShardServer->nodeID);
         }
     }
     

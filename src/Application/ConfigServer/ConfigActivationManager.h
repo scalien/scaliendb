@@ -6,8 +6,6 @@
 
 class ConfigServer; // forward
 
-#define ACTIVATION_FAILED_PENALTY_TIME  60*60*1000  // msec, 1 hour
-
 /*
 ===============================================================================================
 
