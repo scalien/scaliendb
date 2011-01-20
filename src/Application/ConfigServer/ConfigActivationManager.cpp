@@ -56,6 +56,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                      itQuorum->activatingNodeID, itQuorum->quorumID);
                 }
                 
+                Log_Message("Deactivating shard server %U...", nodeID);
                 configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
             }
         }
