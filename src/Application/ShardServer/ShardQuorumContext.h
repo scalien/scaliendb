@@ -61,10 +61,11 @@ public:
     virtual void                    StopReplication();
     virtual void                    ContinueReplication();
 
+    void                            RegisterPaxosID(uint64_t paxosID);
+
 private:
     void                            OnPaxosMessage(ReadBuffer buffer);
     void                            OnCatchupMessage(ReadBuffer buffer);
-    void                            RegisterPaxosID(uint64_t paxosID);
 
     bool                            isReplicationActive;
     uint64_t                        quorumID;

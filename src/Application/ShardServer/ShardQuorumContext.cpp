@@ -201,6 +201,12 @@ void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
     }
 }
 
+void ShardQuorumContext::RegisterPaxosID(uint64_t paxosID)
+{
+    if (paxosID > highestPaxosID)
+        highestPaxosID = paxosID;
+}
+
 void ShardQuorumContext::OnPaxosMessage(ReadBuffer buffer)
 {
     PaxosMessage msg;
@@ -219,8 +225,3 @@ void ShardQuorumContext::OnCatchupMessage(ReadBuffer buffer)
     quorumProcessor->OnCatchupMessage(msg);
 }
 
-void ShardQuorumContext::RegisterPaxosID(uint64_t paxosID)
-{
-    if (paxosID > highestPaxosID)
-        highestPaxosID = paxosID;
-}

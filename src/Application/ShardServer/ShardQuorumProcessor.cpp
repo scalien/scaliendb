@@ -272,6 +272,11 @@ void ShardQuorumProcessor::SetActiveNodes(List<uint64_t>& activeNodes)
     quorumContext.SetActiveNodes(activeNodes);
 }
 
+void ShardQuorumProcessor::RegisterPaxosID(uint64_t paxosID)
+{
+    quorumContext.RegisterPaxosID(paxosID);
+}
+
 void ShardQuorumProcessor::TryReplicationCatchup()
 {
     // this is called if we're an inactive node and we should probably try to catchup

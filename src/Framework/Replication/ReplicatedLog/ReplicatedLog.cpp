@@ -289,7 +289,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 
     NewPaxosRound(); // increments paxosID, clears proposer, acceptor
     
-    if (context->GetHighestPaxosID() >= paxosID)
+    if (paxosID <= context->GetHighestPaxosID())
         RequestChosen(nodeID);
     
     ownAppend = proposer.state.multi;
@@ -308,6 +308,10 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 
     if (!BUFCMP(&value, &enableMultiPaxos) && !BUFCMP(&value, &dummy))
         context->OnAppend(paxosID - 1, value, ownAppend);
+
+    // TODO: this is not a complete solution
+    if (paxosID < context->GetHighestPaxosID())
+        context->GetDatabase()->Commit();
 
     if (!commitChaining)
     {

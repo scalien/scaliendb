@@ -285,6 +285,8 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
         }
         if (found)
         {
+            quorumProcessor->RegisterPaxosID(configQuorum->paxosID);
+
             if (quorumProcessor->IsPrimary())
             {
                 // look for shard splits
@@ -310,7 +312,10 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
             }
         }
         if (found)
+        {
+            quorumProcessor->RegisterPaxosID(configQuorum->paxosID);
             continue;
+        }
         
         next = quorumProcessors.Remove(quorumProcessor);
         delete quorumProcessor;
