@@ -410,7 +410,8 @@ void ShardQuorumProcessor::TryAppend()
     bool            first;
     unsigned        numMessages;
     
-    assert(shardMessages.GetLength() > 0);
+    if (shardMessages.GetLength() == 0)
+        return;
     
     numMessages = 0;
     
