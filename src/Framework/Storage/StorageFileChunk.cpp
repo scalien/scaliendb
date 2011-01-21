@@ -26,6 +26,7 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     numDataPages = 0;
     fileSize = 0;
     useCache = true;
+    deleted = false;
 }
 
 StorageFileChunk::~StorageFileChunk()

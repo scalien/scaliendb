@@ -59,9 +59,9 @@ public:
     StorageShard*       prev;
     StorageShard*       next;
 
-private:
     StorageMemoChunk*   memoChunk;
 
+private:
     uint16_t            contextID;
     uint64_t            shardID;
     uint64_t            tableID;

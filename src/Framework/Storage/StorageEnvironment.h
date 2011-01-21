@@ -42,7 +42,6 @@ class StorageEnvironment
     
     typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;
-    typedef InList<StorageMemoChunk>    MemoChunkList;
     typedef InList<StorageFileChunk>    FileChunkList;
 
 public:
@@ -108,7 +107,11 @@ private:
     Callable                onLogArchive;
 
     StorageLogSegment*      headLogSegment;
-    StorageFileChunk*       mergeChunk;
+    StorageMemoChunk*       serializeChunk;
+    StorageFileChunk*       writeChunk;
+    StorageFileChunk*       mergeChunkIn1;
+    StorageFileChunk*       mergeChunkIn2;
+    StorageFileChunk*       mergeChunkOut;
     ShardList               shards;
     FileChunkList           fileChunks;
     LogSegmentList          logSegments;
@@ -120,8 +123,6 @@ private:
     bool                    serializerThreadActive;
     ThreadPool*             writerThread;
     bool                    writerThreadActive;
-    ThreadPool*             mergerThread;
-    bool                    mergerThreadActive;
     ThreadPool*             archiverThread;
     bool                    archiverThreadActive;
     ThreadPool*             asyncThread;
