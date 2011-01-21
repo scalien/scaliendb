@@ -657,6 +657,12 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
     else
         return;
 
+    {
+        Buffer  tmp;
+        configState->Write(tmp);
+        Log_Message("%B", &tmp);
+    }
+
     // we know the state of the system, so we can start sending requests
     if (configState)
     {

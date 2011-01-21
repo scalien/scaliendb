@@ -768,7 +768,7 @@ void StorageEnvironment::TryWriteChunks()
     StorageFileChunk*   it;
     StorageJob*         job;
     
-    if (writerThreadActive)
+    if (writerThreadActive || mergerThreadActive)
         return;
 
     FOREACH (it, fileChunks)
@@ -791,6 +791,8 @@ void StorageEnvironment::TryMergeChunks()
     StorageFileChunk*       chunk1;
     StorageFileChunk*       chunk2;
     StorageJob*             job;    
+
+    return;
 
     if (mergerThreadActive || writerThreadActive)
         return;

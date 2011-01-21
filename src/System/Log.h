@@ -43,6 +43,12 @@
 #define Log_Trace_(...) \
     Log(__FILE__, __LINE__, __func__, LOG_TYPE_TRACE, __VA_ARGS__)
 
+#ifdef DEBUG
+#define Log_Debug Log_Message
+#else
+#define Log_Debug Log_Trace
+#endif
+
 #endif // end LOGGING
 
 #ifdef GCC

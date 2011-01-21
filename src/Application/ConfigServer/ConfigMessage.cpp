@@ -1,6 +1,14 @@
 #include "ConfigMessage.h"
 #include "System/Buffers/Buffer.h"
 
+bool ConfigMessage::SetClusterID(uint64_t clusterID_)
+{
+    type = CONFIGMESSAGE_SET_CLUSTER_ID;
+    clusterID = clusterID_;
+    
+    return true;
+}
+
 bool ConfigMessage::RegisterShardServer(
  uint64_t nodeID_, Endpoint& endpoint_)
 {
@@ -140,6 +148,10 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
     switch (buffer.GetCharAt(0))
     {
         // Cluster management
+        case CONFIGMESSAGE_SET_CLUSTER_ID:
+            read = buffer.Readf("%c:%U",
+             &type, &clusterID);
+             break;
         case CONFIGMESSAGE_REGISTER_SHARDSERVER:
             read = buffer.Readf("%c:%U:%#R",
              &type, &nodeID, &rb);
@@ -235,6 +247,10 @@ bool ConfigMessage::Write(Buffer& buffer)
     switch (type)
     {
         // Cluster management
+        case CONFIGMESSAGE_SET_CLUSTER_ID:
+            buffer.Writef("%c:%U",
+             type, clusterID);
+            return true;
         case CONFIGMESSAGE_REGISTER_SHARDSERVER:
             rb = endpoint.ToReadBuffer();
             buffer.Writef("%c:%U:%#R",

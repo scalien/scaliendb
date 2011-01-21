@@ -368,6 +368,8 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
     ClientRequest*  request;
     bool            fromClient;
 
+    request = NULL;
+
     // TODO: this is not a complete solution
     if (shardMessages.GetLength() == 0)
     {
@@ -380,7 +382,6 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
     else
         fromClient = false;
 
-    request = NULL;
     if (ownAppend && fromClient)
     {
         assert(shardMessages.GetLength() > 0);

@@ -36,6 +36,7 @@ void ConfigServer::Init()
     REPLICATION_CONFIG->SetNodeID(nodeID);
     
     CONTEXT_TRANSPORT->SetClusterContext(this);
+    CONTEXT_TRANSPORT->SetClusterID(REPLICATION_CONFIG->GetClusterID());
         
     // connect to the configServer nodes
     numConfigServers = (unsigned) configFile.GetListNum("controllers");
@@ -185,7 +186,7 @@ bool ConfigServer::OnAwaitingNodeID(Endpoint endpoint)
             CONTEXT_TRANSPORT->SetConnectionNodeID(endpoint, shardServer->nodeID);       
             
             // tell the shard server
-            clusterMessage.SetNodeID(shardServer->nodeID);
+            clusterMessage.SetNodeID(REPLICATION_CONFIG->GetClusterID(), shardServer->nodeID);
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             
             // send config state

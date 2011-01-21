@@ -2,6 +2,7 @@
 #include "ConfigServer.h"
 #include "JSONConfigState.h"
 #include "System/Config.h"
+#include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/ContextTransport.h"
 #include "Version.h"
 #include "ConfigHeartbeatManager.h"
@@ -81,6 +82,10 @@ void ConfigHTTPClientSession::PrintStatus()
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
+
+    buf.Writef("%U", REPLICATION_CONFIG->GetClusterID());
+    buf.NullTerminate();
+    session.PrintPair("ClusterID", buf.GetBuffer());   
 
     buf.Writef("%d", (int) configServer->GetNodeID());
     buf.NullTerminate();

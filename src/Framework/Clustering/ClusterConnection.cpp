@@ -76,7 +76,12 @@ void ClusterConnection::OnConnect()
     if (transport->IsAwaitingNodeID())
         buffer.Writef("*:%#R", &rb); // send *:endpoint
     else
-        buffer.Writef("%U:%#R", transport->GetSelfNodeID(), &rb); // send my nodeID:endpoint
+    {
+        buffer.Writef("%U:%U:%#R", 
+         transport->GetClusterID(),
+         transport->GetSelfNodeID(),
+         &rb); // send my clusterID:nodeID:endpoint
+    }
     Log_Trace("sending %B", &buffer);
     Write(buffer);
     
@@ -124,6 +129,7 @@ void ClusterConnection::OnClose()
 bool ClusterConnection::OnMessage(ReadBuffer& msg)
 {
     uint64_t            nodeID_;
+    uint64_t            clusterID_;
     ReadBuffer          buffer;
     ClusterConnection*  dup;
     Endpoint            remoteEndpoint;
@@ -156,7 +162,14 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         }
         
         // both ends have nodeIDs
-        msg.Readf("%U:%#R", &nodeID_, &buffer);
+        msg.Readf("%U:%U:%#R", &clusterID_, &nodeID_, &buffer);
+        if (clusterID_ > 0 && clusterID_ != transport->GetClusterID())
+        {
+            Log_Message("[%R] Cluster invalid configuration, disconnecting...", &buffer);
+            transport->DeleteConnection(this);      // drop this
+            return true;            
+        }
+        
         dup = transport->GetConnection(nodeID_);
         if (dup)
         {

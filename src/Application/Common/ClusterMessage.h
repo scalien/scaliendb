@@ -24,6 +24,7 @@ class ClusterMessage : public Message
 {
 public:
     char                    type;
+    uint64_t                clusterID;
     uint64_t                nodeID;
     uint64_t                quorumID;
     uint64_t                shardID;
@@ -43,7 +44,7 @@ public:
     
     ClusterMessage();
     
-    bool            SetNodeID(uint64_t nodeID);
+    bool            SetNodeID(uint64_t clusterID, uint64_t nodeID);
     bool            Heartbeat(uint64_t nodeID,
                      List<QuorumPaxosID>& quorumPaxosIDs, List<QuorumShardInfo>& quorumShardInfos,
                      unsigned httpPort, unsigned sdbpPort);

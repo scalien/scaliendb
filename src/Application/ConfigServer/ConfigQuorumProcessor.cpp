@@ -1,5 +1,6 @@
 #include "ConfigQuorumProcessor.h"
 #include "Application/Common/ContextTransport.h"
+#include "Framework/Replication/ReplicationConfig.h"
 #include "ConfigServer.h"
 #include "ConfigHeartbeatManager.h"
 
@@ -152,7 +153,7 @@ bool ConfigQuorumProcessor::HasDeactivateMessage(uint64_t quorumID, uint64_t nod
     FOREACH(it, configMessages)
     {
         if (it->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
-         it->quorumID == quorumID && it->nodeID == nodeID)
+         it->quorumID == quorumID)
         {
             return true;
         }
@@ -277,7 +278,6 @@ void ConfigQuorumProcessor::UpdateListeners()
 
 void ConfigQuorumProcessor::OnLearnLease()
 {
-    // nothing
 }
 
 void ConfigQuorumProcessor::OnLeaseTimeout()
@@ -323,8 +323,10 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
 void ConfigQuorumProcessor::OnIsLeader()
 {
     bool            updateListeners;
+    uint64_t        clusterID;
     ConfigState*    configState;
-    
+    ConfigMessage*  configMessage;
+
     configState = configServer->GetDatabaseManager()->GetConfigState();
     
     updateListeners = false;
@@ -336,10 +338,24 @@ void ConfigQuorumProcessor::OnIsLeader()
 
     if (updateListeners && (uint64_t) GetMaster() == configServer->GetNodeID())
         UpdateListeners();
+
+    // check cluster ID
+    clusterID = REPLICATION_CONFIG->GetClusterID();
+    if (clusterID == 0 && configMessages.GetLength() == 0)
+    {
+        configMessage = new ConfigMessage;
+        configMessage->fromClient = false;
+        
+        clusterID = GenerateGUID();
+        configMessage->SetClusterID(clusterID);
+        configMessages.Append(configMessage);
+        TryAppend();
+    }
 }
 
 void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, bool ownAppend)
 {
+    uint64_t        clusterID;
     ClusterMessage  clusterMessage;
     ConfigState*    configState;
     
@@ -351,12 +367,24 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     if (paxosID <= configServer->GetDatabaseManager()->GetPaxosID())
         return;
     
+    if (message.type == CONFIGMESSAGE_SET_CLUSTER_ID)
+    {
+        clusterID = REPLICATION_CONFIG->GetClusterID();
+        if (clusterID > 0 && message.clusterID != clusterID)
+            STOP_FAIL(1, "Invalid controller configuration!");
+        
+        Log_Debug("ClusterID set to %U", message.clusterID);
+        REPLICATION_CONFIG->SetClusterID(message.clusterID);
+        CONTEXT_TRANSPORT->SetClusterID(message.clusterID);
+        REPLICATION_CONFIG->Commit();
+    }
+    
     if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
     {
         // tell ContextTransport that this connection has a new nodeID
         CONTEXT_TRANSPORT->SetConnectionNodeID(message.endpoint, message.nodeID);       
         // tell the shard server
-        clusterMessage.SetNodeID(message.nodeID);
+        clusterMessage.SetNodeID(REPLICATION_CONFIG->GetClusterID(), message.nodeID);
         CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
     }
     

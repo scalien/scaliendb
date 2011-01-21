@@ -18,6 +18,8 @@ ReplicationConfig* ReplicationConfig::Get()
 ReplicationConfig::ReplicationConfig()
 {
     runID = 0;
+    nodeID = 0;
+    clusterID = 0;
 }
 
 void ReplicationConfig::Init(StorageShardProxy* shard_)
@@ -49,6 +51,15 @@ void ReplicationConfig::Init(StorageShardProxy* shard_)
         Log_Message("No runID read from database");
         runID = 0;
     }
+    
+    ret = shard->Get(ReadBuffer("clusterID"), value);
+    nread = 0;
+    clusterID = BufferToUInt64(value.GetBuffer(), value.GetLength(), &nread);
+    if (!ret || nread != value.GetLength())
+    {
+        Log_Message("No clusterID read from database");
+        clusterID = 0;
+    }
 }
 
 void ReplicationConfig::Shutdown()
@@ -75,6 +86,16 @@ void ReplicationConfig::SetRunID(uint64_t runID_)
 uint64_t ReplicationConfig::GetRunID()
 {
     return runID;
+}
+
+void ReplicationConfig::SetClusterID(uint64_t clusterID_)
+{
+    clusterID = clusterID_;
+}
+
+uint64_t ReplicationConfig::GetClusterID()
+{
+    return clusterID;
 }
 
 uint64_t ReplicationConfig::NextProposalID(uint64_t proposalID)
@@ -112,6 +133,11 @@ void ReplicationConfig::Commit()
     value.Writef("%U", runID);
     rbValue.Wrap(value);
     ret = shard->Set(ReadBuffer("runID"), rbValue);
+    assert(ret == true);
+
+    value.Writef("%U", clusterID);
+    rbValue.Wrap(value);
+    ret = shard->Set(ReadBuffer("clusterID"), rbValue);
     assert(ret == true);
     
     shard->GetEnvironment()->Commit();

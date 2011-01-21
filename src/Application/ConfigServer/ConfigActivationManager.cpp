@@ -178,7 +178,7 @@ void ConfigActivationManager::OnActivationTimeout()
             shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
             assert(shardServer != NULL);
 
-            Log_Message("Activating shard server %U in quorum %U: Activation failed, setting time penalty...",
+            Log_Message("Activating shard server %U in quorum %U: Activation failed...",
              itQuorum->activatingNodeID, itQuorum->quorumID);
 
             itQuorum->ClearActivation();

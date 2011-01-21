@@ -9,6 +9,7 @@
 #define PRODUCT_STRING      "ScalienDB v" VERSION_STRING 
 
 void InitLog();
+void ParseArgs(int argc, char** argv);
 bool IsController();
 void InitContextTransport();
 void LogPrintVersion(bool isController);
@@ -25,6 +26,7 @@ int main(int argc, char** argv)
         STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
 
     InitLog();
+    ParseArgs(argc, argv);
     StartClock();
     IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024));
     InitContextTransport();
@@ -80,6 +82,25 @@ void InitLog()
 
     Log_SetTrace(configFile.GetBoolValue("log.trace", false));
     Log_SetTimestamping(configFile.GetBoolValue("log.timestamping", false));
+}
+
+void ParseArgs(int argc, char** argv)
+{
+    for (int i = 1; i < argc; i++)
+    {
+        if (argv[i][0] == '-')
+        {
+            switch (argv[i][1])
+            {
+            case 't':
+                Log_SetTrace(true);
+                break;
+            case 'h':
+                STOP_FAIL(0, "Usage: %s [-t] config-file\n\n", argv[0]);
+                break;
+            }
+        }
+    }
 }
 
 bool IsController()

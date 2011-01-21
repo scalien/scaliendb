@@ -76,6 +76,10 @@ void ShardHTTPClientSession::PrintStatus()
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
 
+    valbuf.Writef("%U", REPLICATION_CONFIG->GetClusterID());
+    valbuf.NullTerminate();
+    session.PrintPair("ClusterID", valbuf.GetBuffer());   
+
     valbuf.Writef("%U", MY_NODEID);
     valbuf.NullTerminate();
     session.PrintPair("NodeID", valbuf.GetBuffer());   
@@ -87,7 +91,6 @@ void ShardHTTPClientSession::PrintStatus()
 
     // write quorums, shards, and leases
     ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
-
     
     valbuf.Writef("%u", quorumProcessors->GetLength());
     valbuf.NullTerminate();
@@ -97,10 +100,14 @@ void ShardHTTPClientSession::PrintStatus()
     {
         primaryID = shardServer->GetLeaseOwner(it->GetQuorumID());
         
-        keybuf.Writef("q%U", it->GetQuorumID());
+        keybuf.Writef("Quorum %U", it->GetQuorumID());
         keybuf.NullTerminate();
-        
-        valbuf.Writef("%U", primaryID);
+
+        uint64_t paxosID = shardServer->GetQuorumProcessor(it->GetQuorumID())->GetPaxosID();
+        uint64_t highestPaxosID = shardServer->GetQuorumProcessor(it->GetQuorumID())->GetConfigQuorum()->paxosID;
+        if (paxosID > highestPaxosID)
+            highestPaxosID = paxosID;
+        valbuf.Writef("primary %U, paxosID %U/%U", primaryID, paxosID, highestPaxosID);
         valbuf.NullTerminate();
         
         session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());

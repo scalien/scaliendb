@@ -1,9 +1,11 @@
 #!/bin/bash
 
+DIR=$1
+shift
 if [ "$SCALIENDB_RELEASE" = "1" ]; then
-	echo -n -e "\033]0;CR-$1\007"
-	build/Release/ScalienDB test/control/$1/scaliendb.conf
+	echo -n -e "\033]0;CR-$DIR\007"
+	build/Release/ScalienDB test/control/$DIR/scaliendb.conf $*
 else
-        echo -n -e "\033]0;CD-$1\007"
-        build/Debug/ScalienDB test/control/$1/scaliendb.conf	
+        echo -n -e "\033]0;CD-$DIR\007"
+        build/Debug/ScalienDB test/control/$DIR/scaliendb.conf $*
 fi

@@ -8,6 +8,7 @@
 
 #define CONFIGMESSAGE_MAX_NODES                 7
 
+#define CONFIGMESSAGE_SET_CLUSTER_ID            's'
 #define CONFIGMESSAGE_REGISTER_SHARDSERVER      'S'
 #define CONFIGMESSAGE_CREATE_QUORUM             'Q'
 #define CONFIGMESSAGE_INCREASE_QUORUM           'P'
@@ -43,6 +44,7 @@ public:
     bool            fromClient;
 
     char            type;
+    uint64_t        clusterID;
     uint64_t        nodeID;
     uint64_t        quorumID;
     uint64_t        databaseID;
@@ -60,6 +62,8 @@ public:
     ConfigMessage*  next;
 
     // Cluster management
+    bool            SetClusterID(
+                     uint64_t clusterID);
     bool            RegisterShardServer(
                      uint64_t nodeID, Endpoint& endpoint);
     bool            CreateQuorum(

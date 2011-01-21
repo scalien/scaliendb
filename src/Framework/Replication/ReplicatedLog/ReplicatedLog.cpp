@@ -195,10 +195,17 @@ void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 {
     Log_Trace();
     
+    Log_Debug("OnProposeRequest begin");
+    
     if (imsg.paxosID == paxosID)
+    {
+        Log_Debug("OnProposeRequest end");
         return acceptor.OnProposeRequest(imsg);
+    }
     
     OnRequest(imsg);
+
+    Log_Debug("OnProposeRequest end");
 }
 
 void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
@@ -213,6 +220,8 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 {
     uint64_t        runID;
     ReadBuffer      value;
+
+    Log_Debug("OnLearnChosen begin");
 
     Log_Trace();
 
@@ -242,6 +251,8 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     }
         
     ProcessLearnChosen(imsg.nodeID, runID, value);
+
+    Log_Debug("OnLearnChosen end");
 }
 
 void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
@@ -296,7 +307,10 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
     if (nodeID == MY_NODEID && runID == REPLICATION_CONFIG->GetRunID() && context->IsLeaseOwner())
     {
         if (!proposer.state.multi)
+        {
+            proposer.state.multi = true;
             context->OnIsLeader();
+        }
         proposer.state.multi = true;
         Log_Trace("Multi paxos enabled");
     }

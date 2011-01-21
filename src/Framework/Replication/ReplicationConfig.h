@@ -29,6 +29,9 @@ public:
     void                    SetRunID(uint64_t runID);
     uint64_t                GetRunID();
     
+    void                    SetClusterID(uint64_t clusterID);
+    uint64_t                GetClusterID();
+    
     uint64_t                NextProposalID(uint64_t proposalID);
     
     void                    Commit();
@@ -39,6 +42,7 @@ private:
     StorageShardProxy*      shard;
     uint64_t                nodeID;
     uint64_t                runID;
+    uint64_t                clusterID;
 };
 
 #endif

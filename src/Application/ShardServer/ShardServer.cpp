@@ -27,6 +27,8 @@ void ShardServer::Init()
     if (MY_NODEID > 0)
         CONTEXT_TRANSPORT->SetSelfNodeID(MY_NODEID);
     
+    CONTEXT_TRANSPORT->SetClusterID(REPLICATION_CONFIG->GetClusterID());
+    
     // connect to the controller nodes
     numControllers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numControllers; nodeID++)
@@ -150,6 +152,9 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
                 return;
             CONTEXT_TRANSPORT->SetSelfNodeID(message.nodeID);
             REPLICATION_CONFIG->SetNodeID(message.nodeID);
+            assert(REPLICATION_CONFIG->GetClusterID() == 0);
+            CONTEXT_TRANSPORT->SetClusterID(message.clusterID);
+            REPLICATION_CONFIG->SetClusterID(message.clusterID);
             REPLICATION_CONFIG->Commit();
             Log_Trace("My nodeID is %U", message.nodeID);
             Log_Message("NodeID set to %U", message.nodeID);

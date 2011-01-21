@@ -13,6 +13,7 @@ void ClusterTransport::Init(Endpoint& endpoint_)
     server.SetTransport(this);
     awaitingNodeID = true;
     nodeID = UNDEFINED_NODEID;
+    clusterID = 0;
 }
 
 void ClusterTransport::SetSelfNodeID(uint64_t nodeID_)
@@ -21,6 +22,11 @@ void ClusterTransport::SetSelfNodeID(uint64_t nodeID_)
     awaitingNodeID = false;
     ReconnectAll(); // so we establish "regular" connections with the nodeID
     server.Listen();
+}
+
+void ClusterTransport::SetClusterID(uint64_t clusterID_)
+{
+    clusterID = clusterID_;
 }
 
 bool ClusterTransport::IsAwaitingNodeID()
@@ -36,6 +42,11 @@ uint64_t ClusterTransport::GetSelfNodeID()
 Endpoint& ClusterTransport::GetSelfEndpoint()
 {
     return endpoint;
+}
+
+uint64_t ClusterTransport::GetClusterID()
+{
+    return clusterID;
 }
 
 void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)

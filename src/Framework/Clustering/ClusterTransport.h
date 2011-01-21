@@ -25,10 +25,12 @@ public:
     void                        Init(Endpoint& endpoint);
     
     void                        SetSelfNodeID(uint64_t nodeID);
+    void                        SetClusterID(uint64_t clusterID);
     
     bool                        IsAwaitingNodeID();
     uint64_t                    GetSelfNodeID();
     Endpoint&                   GetSelfEndpoint();
+    uint64_t                    GetClusterID();
 
     void                        AddNode(uint64_t nodeID, Endpoint& endpoint);
     bool                        SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID);
@@ -60,6 +62,7 @@ private:
 
     bool                        awaitingNodeID;
     uint64_t                    nodeID;
+    uint64_t                    clusterID;
     Endpoint                    endpoint;
     Buffer                      msgBuffer;
     ClusterServer               server;

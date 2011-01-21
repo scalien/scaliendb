@@ -291,7 +291,10 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnSplitShardBegin(message);
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
             return OnSplitShardComplete(message);
-        
+     
+        case CONFIGMESSAGE_SET_CLUSTER_ID:
+            return;
+              
         default:
             ASSERT_FAIL(); 
     }
