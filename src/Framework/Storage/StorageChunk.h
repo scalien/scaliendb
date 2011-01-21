@@ -43,6 +43,8 @@ public:
     
     virtual void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard) = 0;
 
+    bool                        deleted;
+
     TreeNode                    treeNode;
 };
 

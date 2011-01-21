@@ -28,13 +28,14 @@ StorageMemoChunk::StorageMemoChunk()
     useBloomFilter = false;
     size = 0;
     fileChunk = NULL;
+    deleted = false;
 }
 
 StorageMemoChunk::~StorageMemoChunk()
 {
-    // TODO: see issue with StorageEnvironment::Close()
-    //assert(fileChunk == NULL);
     keyValues.DeleteTree();
+    if (fileChunk != NULL)
+        delete fileChunk;
 }
 
 StorageChunk::ChunkState StorageMemoChunk::GetChunkState()
