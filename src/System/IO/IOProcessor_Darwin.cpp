@@ -382,7 +382,7 @@ bool IOProcessor::Complete(Callable* callable)
 
     int nwrite;
     
-    nwrite = write(asyncOpPipe[1], &callable, sizeof(Callable*));
+    nwrite = write(asyncOpPipe[1], callable, sizeof(Callable));
     if (nwrite < 0)
         Log_Errno();
     
@@ -396,7 +396,7 @@ void ProcessAsyncOp()
 {
     Log_Trace();
     
-    static Callable* callables[256];
+    static Callable callables[256];
     int nread;
     int count;
     int i;
@@ -404,10 +404,10 @@ void ProcessAsyncOp()
     while (1)
     {
         nread = read(asyncOpPipe[0], callables, SIZE(callables));
-        count = nread / sizeof(Callable*);
+        count = nread / sizeof(Callable);
         
         for (i = 0; i < count; i++)
-            Call(*callables[i]);
+            Call(callables[i]);
         
         if (count < (int) SIZE(callables))
             break;

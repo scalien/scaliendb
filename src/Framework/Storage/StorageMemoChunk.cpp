@@ -2,6 +2,7 @@
 #include "StorageChunkSerializer.h"
 #include "StorageChunkWriter.h"
 #include "StorageBulkCursor.h"
+#include "StorageEnvironment.h"
 
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -147,6 +148,23 @@ StorageKeyValue* StorageMemoChunk::Get(ReadBuffer& key)
         return NULL;
 
     return it;
+}
+
+void StorageMemoChunk::AsyncGet(StorageAsyncGet* asyncGet)
+{
+    StorageKeyValue*    kv;
+    
+    kv = Get(asyncGet->key);
+    if (kv == NULL || kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+    {
+        asyncGet->ret = false;
+        asyncGet->completed = true;
+        return;
+    }
+
+    asyncGet->value = kv->GetValue();
+    asyncGet->ret = true;
+    asyncGet->completed = true;
 }
 
 bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)

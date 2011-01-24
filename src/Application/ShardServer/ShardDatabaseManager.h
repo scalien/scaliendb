@@ -46,6 +46,8 @@ public:
     void                    ExecuteMessage(uint64_t paxosID,
                              uint64_t commandID, ShardMessage& message, ClientRequest* request);
     
+    void                    OnAsyncReadComplete();
+    
 private:
     void                    OnYieldStorageThreadsTimer();
     void                    OnExecuteReads();

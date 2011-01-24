@@ -14,6 +14,7 @@
 #include "StorageBulkCursor.h"
 
 class StorageRecovery;
+class StorageEnvironment;
 class StorageEnvironmentWriter;
 class StorageArchiveLogSegmentJob;
 
@@ -31,6 +32,34 @@ class StorageArchiveLogSegmentJob;
 ===============================================================================================
 */
 
+class StorageAsyncGet
+{
+public:
+    enum Stage
+    {
+        START,
+        INDEX_PAGE,
+        BLOOM_PAGE,
+        DATA_PAGE
+    };
+    ReadBuffer          key;
+    ReadBuffer          value;
+    bool                ret;
+    Stage               stage;
+    bool                completed;
+    Callable            onComplete;
+    uint32_t            index;
+    uint32_t            offset;
+    StorageShard*       shard;
+    StorageChunk**      itChunk;
+    StoragePage*        lastLoadedPage;
+    ThreadPool*         threadPool;
+    
+    void                ExecuteAsyncGet();
+    void                OnComplete();
+    void                AsyncLoadPage();
+};
+
 class StorageEnvironment
 {
     friend class StorageRecovery;
@@ -43,6 +72,7 @@ class StorageEnvironment
     typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;
     typedef InList<StorageFileChunk>    FileChunkList;
+    typedef InList<StorageAsyncGet>     AsyncGetList;
 
 public:
     StorageEnvironment();
@@ -67,6 +97,8 @@ public:
     bool                    Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value);
     bool                    Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
     bool                    Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key);
+
+    void                    AsyncGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet);
 
     StorageBulkCursor*      GetBulkCursor(uint16_t contextID, uint64_t shardID);
 
@@ -95,6 +127,7 @@ private:
     void                    StartJob(ThreadPool* thread, StorageJob* job);
     void                    WriteTOC();
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
+    void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
 
     Countdown               backgroundTimer;
     Callable                onBackgroundTimer;

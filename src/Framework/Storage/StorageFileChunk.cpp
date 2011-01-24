@@ -1,7 +1,8 @@
-#include "StorageFileChunk.h"
 #include "System/FileSystem.h"
+#include "StorageFileChunk.h"
 #include "StorageBulkCursor.h"
 #include "StoragePageCache.h"
+#include "StorageEnvironment.h"
 #include "FDGuard.h"
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
@@ -27,6 +28,8 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     fileSize = 0;
     useCache = true;
     deleted = false;
+    isBloomPageLoading = false;
+    isIndexPageLoading = false;
 }
 
 StorageFileChunk::~StorageFileChunk()
@@ -207,6 +210,72 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
     if (dataPages[index]->IsCached())
         StoragePageCache::RegisterHit(dataPages[index]);
     return dataPages[index]->Get(key);
+}
+
+void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
+{
+    uint32_t            index, offset;
+    Buffer              buffer;
+    StorageKeyValue*    kv;
+    
+    asyncGet->ret = false;
+
+    if (headerPage.UseBloomFilter())
+    {
+        if (bloomPage == NULL)
+        {
+            asyncGet->stage = StorageAsyncGet::BLOOM_PAGE;
+            asyncGet->threadPool->Execute(
+             MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+            return;
+        }
+        if (bloomPage->IsCached())
+            StoragePageCache::RegisterHit(bloomPage);
+        if (!bloomPage->Check(asyncGet->key))
+        {
+            asyncGet->completed = true;
+            return;
+        }
+    }
+
+    if (indexPage == NULL)
+    {
+        asyncGet->stage = StorageAsyncGet::INDEX_PAGE;
+        asyncGet->threadPool->Execute(
+         MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+        return;
+    }
+    if (indexPage->IsCached())
+        StoragePageCache::RegisterHit(indexPage);
+    if (!indexPage->Locate(asyncGet->key, index, offset))
+    {
+        asyncGet->completed = true;
+        return;
+    }
+    
+    if (dataPages[index] == NULL)
+    {
+        asyncGet->stage = StorageAsyncGet::DATA_PAGE;
+        asyncGet->index = index;
+        asyncGet->offset = offset;
+        asyncGet->threadPool->Execute(
+         MFunc<StorageAsyncGet, &StorageAsyncGet::AsyncLoadPage>(asyncGet)); // evicted, load back
+        return;
+    }
+
+    if (dataPages[index]->IsCached())
+        StoragePageCache::RegisterHit(dataPages[index]);
+
+    kv = dataPages[index]->Get(asyncGet->key);
+    if (kv == NULL || kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+    {
+        asyncGet->completed = true;
+        return;
+    }
+
+    asyncGet->value = kv->GetValue();
+    asyncGet->ret = true;
+    asyncGet->completed = true;
 }
 
 uint64_t StorageFileChunk::GetMinLogSegmentID()
@@ -397,6 +466,105 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
         StoragePageCache::AddPage(dataPages[index], bulk);
 }
 
+StoragePage* StorageFileChunk::AsyncLoadBloomPage()
+{
+    Buffer              buffer;
+    uint32_t            offset;
+    StorageBloomPage*   page;
+    
+    if (bloomPage != NULL || isBloomPageLoading)
+        return NULL;
+    
+    isBloomPageLoading = true;
+    page = new StorageBloomPage(this);
+    offset = headerPage.GetBloomPageOffset();
+    page->SetOffset(offset);
+    if (!ReadPage(offset, buffer))
+    {
+        Log_Message("Unable to read bloom page from %s at offset %U", filename.GetBuffer(), offset);
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        STOP_FAIL(1);
+    }
+    if (!page->Read(buffer))
+    {
+        Log_Message("Unable to parse bloom page read from %s at offset %U with size %u",
+         filename.GetBuffer(), offset, buffer.GetLength());
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        STOP_FAIL(1);
+    }
+    
+    return page;
+}
+
+StoragePage* StorageFileChunk::AsyncLoadIndexPage()
+{
+    Buffer              buffer;
+    uint32_t            offset;
+    StorageIndexPage*   page;
+    
+    if (indexPage != NULL || isIndexPageLoading)
+        return NULL;
+    
+    isIndexPageLoading = true;
+    page = new StorageIndexPage(this);
+    offset = headerPage.GetIndexPageOffset();
+    page->SetOffset(offset);
+    if (!ReadPage(offset, buffer))
+    {
+        Log_Message("Unable to read index page from %s at offset %U", filename.GetBuffer(), offset);
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        STOP_FAIL(1);
+    }
+    if (!page->Read(buffer))
+    {
+        Log_Message("Unable to parse index page read from %s at offset %U with size %u",
+         filename.GetBuffer(), offset, buffer.GetLength());
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        STOP_FAIL(1);
+    }
+
+    return page;    
+}
+
+StoragePage* StorageFileChunk::AsyncLoadDataPage(uint32_t index, uint32_t offset)
+{
+    Buffer              buffer;
+    StorageDataPage*    page;
+    
+    if (dataPages[index] != NULL)
+        return NULL;
+    
+    page = new StorageDataPage(this, index);
+    page->SetOffset(offset);
+    if (!ReadPage(offset, buffer))
+    {
+        Log_Message("Unable to read data page from %s at offset %U", filename.GetBuffer(), offset);
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        STOP_FAIL(1);
+    }
+    if (!page->Read(buffer))
+    {
+        Log_Message("Unable to parse data page read from %s at offset %U with size %u",
+         filename.GetBuffer(), offset, buffer.GetLength());
+        Log_Message("This should not happen.");
+        Log_Message("Possible causes: software bug, damaged file, corrupted file...");
+        Log_Message("Exiting...");
+        STOP_FAIL(1);
+    }
+
+    return page;
+}
+
 bool StorageFileChunk::RangeContains(ReadBuffer key)
 {
     int         cf, cl;
@@ -430,6 +598,20 @@ void StorageFileChunk::AppendDataPage(StorageDataPage* dataPage)
     
     dataPages[numDataPages] = dataPage;
     numDataPages++;
+}
+
+void StorageFileChunk::AllocateDataPageArray()
+{
+    numDataPages = indexPage->GetNumDataPages();
+    StorageDataPage** newDataPages;
+    newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPages);
+    
+    for (unsigned i = 0; i < numDataPages; i++)
+        newDataPages[i] = NULL;
+    
+    free(dataPages);
+    dataPages = newDataPages;
+    dataPagesSize = numDataPages;
 }
 
 void StorageFileChunk::ExtendDataPageArray()

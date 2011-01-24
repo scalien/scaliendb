@@ -1,5 +1,6 @@
 #include "StorageEnvironment.h"
 #include "System/Events/EventLoop.h"
+#include "System/Events/Deferred.h"
 #include "System/Stopwatch.h"
 #include "System/FileSystem.h"
 #include "System/Config.h"
@@ -17,6 +18,96 @@ static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
 {
     return kv->GetKey();
 }
+
+// This function is executed in the main thread
+void StorageAsyncGet::ExecuteAsyncGet()
+{
+    StorageFileChunk*   fileChunk;
+
+    fileChunk = (StorageFileChunk*) (*itChunk);
+    if (stage == BLOOM_PAGE)
+    {
+        if (lastLoadedPage != NULL)
+        {
+            assert(fileChunk->bloomPage == NULL);
+            fileChunk->bloomPage = (StorageBloomPage*) lastLoadedPage;
+            fileChunk->isBloomPageLoading = false;
+        }
+    }
+    else if (stage == INDEX_PAGE)
+    {
+        if (lastLoadedPage != NULL)
+        {
+            assert(fileChunk->indexPage == NULL);
+            fileChunk->indexPage = (StorageIndexPage*) lastLoadedPage;
+            fileChunk->AllocateDataPageArray();
+            fileChunk->isBloomPageLoading = false;
+        }
+    }
+    else if (stage == DATA_PAGE)
+    {
+        if (lastLoadedPage != NULL)
+        {
+            // TODO: FIXME:
+//            assert(fileChunk->dataPages[index] == NULL);
+            fileChunk->dataPages[index] = (StorageDataPage*) lastLoadedPage;
+        }
+    }
+
+    if (lastLoadedPage)
+    {
+        StoragePageCache::AddPage(lastLoadedPage);
+        lastLoadedPage = NULL;
+    }
+    
+    stage = START;
+    while (itChunk != NULL)
+    {
+        completed = false;
+        (*itChunk)->AsyncGet(this);
+        if (completed && ret)
+            break;  // found
+
+        if (!completed)
+            return; // needs async loading
+
+        itChunk = shard->GetChunks().Prev(itChunk);
+    }
+
+    if (itChunk == NULL)
+        completed = true;
+
+    if (completed)
+        OnComplete();
+
+    // don't put code here, because OnComplete deletes the object
+}
+
+// This function is executed in the main thread
+void StorageAsyncGet::OnComplete()
+{
+    Call(onComplete);
+    delete this;
+}
+
+// This function is executed in the threadPool
+void StorageAsyncGet::AsyncLoadPage()
+{
+    Callable            asyncGet;
+    StorageFileChunk*   fileChunk;
+    
+    fileChunk = (StorageFileChunk*) (*itChunk);
+    if (stage == BLOOM_PAGE)
+        lastLoadedPage = fileChunk->AsyncLoadBloomPage();
+    else if (stage == INDEX_PAGE)
+        lastLoadedPage = fileChunk->AsyncLoadIndexPage();
+    else if (stage == DATA_PAGE)
+        lastLoadedPage = fileChunk->AsyncLoadDataPage(index, offset);
+    
+    asyncGet = MFUNC(StorageAsyncGet, ExecuteAsyncGet);
+    IOProcessor::Complete(&asyncGet);
+}
+
 
 StorageEnvironment::StorageEnvironment()
 {
@@ -270,6 +361,60 @@ bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     }
 
     return false;
+}
+
+void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet)
+{
+    StorageShard*       shard;
+    StorageChunk*       chunk;
+    StorageKeyValue*    kv;
+    Callable            onComplete = MFunc<StorageAsyncGet, &StorageAsyncGet::OnComplete>(asyncGet);
+    Deferred            deferred(onComplete);
+
+    StoragePageCache::TryUnloadPages(config);
+
+    asyncGet->completed = false;
+    asyncGet->ret = false;
+    shard = GetShard(contextID, shardID);
+    if (shard == NULL)
+        return;
+        
+    if (!shard->RangeContains(asyncGet->key))
+        return;
+
+    chunk = shard->GetMemoChunk();
+    kv = chunk->Get(asyncGet->key);
+    if (kv != NULL)
+    {
+        if (kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+        {
+            asyncGet->completed = true;
+            return;
+        }
+        else if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+        {
+            asyncGet->ret = true;
+            asyncGet->completed = true;
+            asyncGet->value = kv->GetValue();
+            return;
+        }
+        else
+            ASSERT_FAIL();
+    }
+
+    if (shard->GetChunks().GetLength() == 0)
+    {
+        asyncGet->completed = true;
+        return;
+    }
+
+    deferred.Unset();
+    asyncGet->shard = shard;
+    asyncGet->itChunk = shard->GetChunks().Last();
+    asyncGet->lastLoadedPage = NULL;
+    asyncGet->stage = StorageAsyncGet::START;
+    asyncGet->threadPool = asyncThread;
+    asyncGet->ExecuteAsyncGet();
 }
 
 bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value)

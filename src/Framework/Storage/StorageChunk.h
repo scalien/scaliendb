@@ -8,6 +8,7 @@
 
 class StorageCursorBunch;
 class StorageShard;
+class StorageAsyncGet;
 
 /*
 ===============================================================================================
@@ -29,7 +30,8 @@ public:
     virtual bool                UseBloomFilter() = 0;
     
     virtual StorageKeyValue*    Get(ReadBuffer& key) = 0;
-    
+    virtual void                AsyncGet(StorageAsyncGet* asyncGet) = 0;
+
     virtual uint64_t            GetMinLogSegmentID() = 0;
     virtual uint64_t            GetMaxLogSegmentID() = 0;
     virtual uint32_t            GetMaxLogCommandID() = 0;
