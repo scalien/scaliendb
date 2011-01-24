@@ -56,38 +56,29 @@ StorageKeyValue* StorageDataPage::Get(ReadBuffer& key)
 //StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpres)
 //{
 //    StorageFileKeyValue**   kvIndex;
-//    unsigned                num;
-//    unsigned                dist;
-//    int                     curr;
+//    unsigned                first;
+//    unsigned                last;
+//    unsigned                mid;
 //    
 //    kvIndex = (StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer();
-//    num = keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*);
 //    
-//    dist = num / 2;
-//    curr = dist;
-//    while (true)
+//    first = 0;
+//    last = GetNumKeys() - 1;
+//    while (first <= last)
 //    {
-//        cmpres = ReadBuffer::Cmp(key, kvIndex[curr]->GetKey());
+//        mid = first + ((last - first) / 2);
+//        cmpres = ReadBuffer::Cmp(key, kvIndex[mid]->GetKey());
 //        if (cmpres == 0)
-//            return kvIndex[curr];
-//        
-//        dist = num / 2;
-//        if (dist == 0)
-//            return NULL;
+//            return kvIndex[mid];
 //        
 //        if (cmpres < 0)
-//        {
-//            curr -= dist;
-//            if (curr < 0)
-//                curr = 0;
-//        }
+//            last = mid - 1;
 //        else 
-//        {
-//            curr += dist;
-//            if (curr >= (int) num)
-//                curr = num;
-//        }
+//            first = mid + 1;
 //    }
+//    
+//    // not found
+//    return NULL;
 //}
 
 uint32_t StorageDataPage::GetNumKeys()
