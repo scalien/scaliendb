@@ -112,6 +112,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/IO/Socket_Posix.o \
 	$(BUILD_DIR)/System/IO/Socket_Windows.o \
 	$(BUILD_DIR)/System/Log.o \
+	$(BUILD_DIR)/System/Mutex_Posix.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
 	$(BUILD_DIR)/System/ThreadPool_Posix.o \
 	$(BUILD_DIR)/System/ThreadPool_Windows.o \
