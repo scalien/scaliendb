@@ -510,7 +510,7 @@ bool IOProcessor::Complete(Callable* callable)
     
     int nwrite;
     
-    nwrite = write(asyncPipeOp.pipe[1], &callable, sizeof(Callable*));
+    nwrite = write(asyncPipeOp.pipe[1], callable, sizeof(Callable));
     if (nwrite < 0)
     {
         Log_Errno();
@@ -550,7 +550,7 @@ void ProcessIOOperation(IOOperation* ioop)
 #define MAX_CALLABLE 256    
 void ProcessAsyncOp()
 {
-    Callable*   callables[MAX_CALLABLE];
+    Callable    callables[MAX_CALLABLE];
     int         nread;
     int         count;
     int         i;
@@ -560,10 +560,10 @@ void ProcessAsyncOp()
     while (true)
     {
         nread = read(asyncPipeOp.pipe[0], callables, SIZE(callables));
-        count = nread / sizeof(Callable*);
+        count = nread / sizeof(Callable);
         
         for (i = 0; i < count; i++)
-            Call(*callables[i]);
+            Call(callables[i]);
         
         if (count < (int) SIZE(callables))
             break;
