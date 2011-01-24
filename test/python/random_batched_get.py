@@ -40,7 +40,10 @@ while limit == 0 or i < limit:
 		#client.set(str(random.randint(1, 1000000000)), value)
 		client.get(md5.new(str(x + i)).hexdigest())
 		sent += len(value)
-	client.submit()
+	ret = client.submit()
+	if ret != 0:
+		print("Submit failed")
+		break
 	end = time.time()
 	i += batch
 	print("Sent bytes: %s, num: %i, rps = %.0f" % (sizeof_fmt(sent), i, (batch/((end - start) * 1000.0) * 1000.0)))

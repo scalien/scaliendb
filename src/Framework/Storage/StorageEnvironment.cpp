@@ -50,7 +50,17 @@ void StorageAsyncGet::ExecuteAsyncGet()
         {
             // TODO: FIXME:
 //            assert(fileChunk->dataPages[index] == NULL);
-            fileChunk->dataPages[index] = (StorageDataPage*) lastLoadedPage;
+            if (fileChunk->dataPages[index] == NULL)
+            {
+                fileChunk->dataPages[index] = (StorageDataPage*) lastLoadedPage;
+                StoragePageCache::AddPage(lastLoadedPage);
+                lastLoadedPage = NULL;
+            }
+            else
+            {
+                delete lastLoadedPage;
+                lastLoadedPage = NULL;
+            }
         }
     }
 
