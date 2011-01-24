@@ -99,9 +99,9 @@ bool FS_RecDeleteDir(const char* path)
 
 #define MAX_FD  128*1024
 
-List<int>   fileHandles;
-bool        dirtyFiles[MAX_FD];
-Mutex       globalMutex;
+static List<int>    fileHandles;
+static bool         dirtyFiles[MAX_FD];
+static Mutex        globalMutex;
 
 FD FS_Open(const char* filename, int flags)
 {
@@ -482,7 +482,8 @@ char FS_Separator()
 #include "System/Containers/List.h"
 #include <stdio.h>
 
-List<intptr_t>    fileHandles;
+static List<intptr_t>   fileHandles;
+static Mutex            globalMutex;
 
 struct FS_Dir_Windows
 {
@@ -525,7 +526,10 @@ FD FS_Open(const char* filename, int flags)
     }
     
     fd.handle = (intptr_t) handle;
+    
+    globalMutex.Lock();
     fileHandles.Append(fd.handle);
+    globalMutex.Unlock();
 
     return fd;
 }
@@ -533,8 +537,10 @@ FD FS_Open(const char* filename, int flags)
 void FS_FileClose(FD fd)
 {
     BOOL    ret;
-    
+
+    globalMutex.Lock();
     fileHandles.Remove(fd.handle);
+    globalMutex.Unlock();
 
     ret = CloseHandle((HANDLE)fd.handle);
     if (!ret)
