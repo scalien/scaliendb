@@ -3,7 +3,6 @@
 #include "StorageBulkCursor.h"
 #include "StoragePageCache.h"
 #include "StorageEnvironment.h"
-#include "FDGuard.h"
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -30,11 +29,14 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     deleted = false;
     isBloomPageLoading = false;
     isIndexPageLoading = false;
+    fd = INVALID_FD;
 }
 
 StorageFileChunk::~StorageFileChunk()
 {
     unsigned    i;
+    
+    FS_FileClose(fd);
     
     for (i = 0; i < numDataPages; i++)
     {
@@ -90,6 +92,7 @@ void StorageFileChunk::SetFilename(ReadBuffer filename_)
 {
     filename.Write(filename_);
     filename.NullTerminate();
+    fd = FS_Open(filename.GetBuffer(), FS_READONLY);
 }
 
 Buffer& StorageFileChunk::GetFilename()
@@ -634,14 +637,10 @@ bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer)
 {
     uint32_t    size, rest;
     ReadBuffer  parse;
-    FDGuard     fd;
     
-    if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
-        return false;
-
     size = STORAGE_DEFAULT_PAGE_GRAN;
     buffer.Allocate(size);
-    if (FS_FileReadOffs(fd.GetFD(), buffer.GetBuffer(), size, offset) != size)
+    if (FS_FileReadOffs(fd, buffer.GetBuffer(), size, offset) != size)
         return false;
     buffer.SetLength(size);
         
@@ -655,12 +654,10 @@ bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer)
     {
         // read rest
         buffer.Allocate(size);
-        if (FS_FileReadOffs(fd.GetFD(), buffer.GetPosition(), rest, offset + buffer.GetLength()) != rest)
+        if (FS_FileReadOffs(fd, buffer.GetPosition(), rest, offset + buffer.GetLength()) != rest)
             return false;
         buffer.SetLength(size);
     }
-    
-    fd.Close();
     
     return true;
 }

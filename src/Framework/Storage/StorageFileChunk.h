@@ -1,6 +1,7 @@
 #ifndef STORAGEFILECHUNK_H
 #define STORAGEFILECHUNK_H
 
+#include "System/IO/FD.h"
 #include "StorageChunk.h"
 #include "StorageHeaderPage.h"
 #include "StorageIndexPage.h"
@@ -83,6 +84,7 @@ public:
     bool                useCache;
     bool                isBloomPageLoading;
     bool                isIndexPageLoading;
+    FD                  fd;
 };
 
 #endif
