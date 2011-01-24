@@ -95,11 +95,13 @@ bool FS_RecDeleteDir(const char* path)
 #include <errno.h>
 #include "System/Containers/List.h"
 #include "System/Containers/ArrayList.h"
+#include "System/Mutex.h"
 
 #define MAX_FD  128*1024
 
 List<int>   fileHandles;
 bool        dirtyFiles[MAX_FD];
+Mutex       globalMutex;
 
 FD FS_Open(const char* filename, int flags)
 {
@@ -126,8 +128,10 @@ FD FS_Open(const char* filename, int flags)
         return INVALID_FD;
     }
     
+    globalMutex.Lock();
     fileHandles.Append(fd);
     dirtyFiles[fd] = false;
+    globalMutex.Unlock();
     
     return fd;
 }
@@ -135,9 +139,11 @@ FD FS_Open(const char* filename, int flags)
 void FS_FileClose(FD fd)
 {
     int ret;
-    
+
+    globalMutex.Lock();
     fileHandles.Remove(fd);
     dirtyFiles[fd] = false;
+    globalMutex.Unlock();
     
     ret = close(fd);
     if (ret < 0)
