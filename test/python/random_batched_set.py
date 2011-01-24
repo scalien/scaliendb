@@ -13,8 +13,11 @@ def sizeof_fmt(num):
 		num /= 1024.0
 
 limit = 0
+start = 0
 if len(sys.argv) > 1:
 	limit = int(sys.argv[1])
+	if len(sys.argv) > 2:
+		start = int(sys.argv[2])
 client = scaliendb.Client(CONTROLLERS)
 #client._set_trace(True)
 
@@ -27,13 +30,14 @@ client.use_database("testdb")
 client.use_table("testtable")
 sent = 0
 value = "%100s" % " "
-i = 0
+i = start
 batch = 10000
-while limit == 0 or sent < limit:
+while limit == 0 or i < limit:
 	start = time.time()
 	client.begin()
 	for x in xrange(batch):
-		client.set(str(random.randint(1, 1000000000)), value)
+		#client.set(str(random.randint(1, 1000000000)), value)
+		client.set(md5.new(str(x + i)).hexdigest())
 		sent += len(value)
 	client.submit()
 	end = time.time()
