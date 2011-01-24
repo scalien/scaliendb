@@ -62,8 +62,6 @@ StorageKeyValue* StorageBulkCursor::First()
     StorageChunk*       chunk;
     StorageChunk**      itChunk;
 
-    StoragePageCache::TryUnloadPages(env->GetStorageConfig());
-
     itChunk = shard->chunks.First();
     
     if (itChunk == NULL)
@@ -117,7 +115,6 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
 {
     StorageChunk**      itChunk;
 
-    StoragePageCache::TryUnloadPages(env->GetStorageConfig());
     bunch.keyValues.DeleteTree();
 
     while (true)

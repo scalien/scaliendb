@@ -231,6 +231,8 @@ bool StorageEnvironment::Open(Buffer& envPath_)
         }
     }
     
+    StoragePageCache::Init(config);
+    
     if (!recovery.TryRecovery(this))
     {
         Log_Message("New environment opened.");
@@ -315,8 +317,6 @@ bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     StorageChunk**      itChunk;
     StorageKeyValue*    kv;
 
-    StoragePageCache::TryUnloadPages(config);
-
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
@@ -370,8 +370,6 @@ void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageA
     StorageKeyValue*    kv;
     Callable            onComplete = MFunc<StorageAsyncGet, &StorageAsyncGet::OnComplete>(asyncGet);
     Deferred            deferred(onComplete);
-
-    StoragePageCache::TryUnloadPages(config);
 
     asyncGet->completed = false;
     asyncGet->ret = false;
@@ -429,8 +427,6 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
         return false;
     }
     
-    StoragePageCache::TryUnloadPages(config);
-
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
@@ -471,8 +467,6 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
         return false;
     }
     
-    StoragePageCache::TryUnloadPages(config);
-
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
@@ -626,8 +620,6 @@ bool StorageEnvironment::Commit(Callable& onCommit_)
     
     onCommitCallback = onCommit_;
 
-    StoragePageCache::TryUnloadPages(config);
-
     if (commitThreadActive)
     {
         ASSERT_FAIL();
@@ -643,8 +635,6 @@ bool StorageEnvironment::Commit(Callable& onCommit_)
 
 bool StorageEnvironment::Commit()
 {
-    StoragePageCache::TryUnloadPages(config);
-
     if (commitThreadActive)
         return false;
 

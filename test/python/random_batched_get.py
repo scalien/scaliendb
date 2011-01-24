@@ -38,7 +38,7 @@ while limit == 0 or i < limit:
 	client.begin()
 	for x in xrange(batch):
 		#client.set(str(random.randint(1, 1000000000)), value)
-		client.set(md5.new(str(x + i)).hexdigest())
+		client.get(md5.new(str(x + i)).hexdigest())
 		sent += len(value)
 	client.submit()
 	end = time.time()
