@@ -475,7 +475,7 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
     uint32_t            offset;
     StorageBloomPage*   page;
     
-    if (bloomPage != NULL || isBloomPageLoading)
+    if (isBloomPageLoading || bloomPage != NULL)
         return NULL;
     
     isBloomPageLoading = true;
@@ -509,7 +509,7 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
     uint32_t            offset;
     StorageIndexPage*   page;
     
-    if (indexPage != NULL || isIndexPageLoading)
+    if (isIndexPageLoading || indexPage != NULL)
         return NULL;
     
     isIndexPageLoading = true;
