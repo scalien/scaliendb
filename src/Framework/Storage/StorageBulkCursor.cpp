@@ -51,6 +51,7 @@ StorageBulkCursor::StorageBulkCursor() :
     chunkID = 0;
     shard = NULL;
     env = NULL;
+    isLast = false;
 }
 
 StorageBulkCursor::~StorageBulkCursor()
@@ -140,6 +141,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
     {
         if (!isLast)
         {
+            dataPage.Reset();
             chunk->NextBunch(*this, shard);
             if (dataPage.First())
                 return dataPage.First();
