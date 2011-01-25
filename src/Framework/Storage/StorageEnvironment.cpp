@@ -921,34 +921,34 @@ void StorageEnvironment::TrySerializeChunks()
     StorageChunk**              itChunk;
     StorageJob*                 job;
 
-    // look for memoChunks which have been serialized already
-    FOREACH (itShard, shards)
-    {
-        for (itChunk = itShard->GetChunks().First(); itChunk != NULL; /* advanced in body */)
-        {
-            if ((*itChunk)->GetChunkState() == StorageChunk::Serialized)
-            {
-                memoChunk = (StorageMemoChunk*) (*itChunk);
-                fileChunk = memoChunk->RemoveFileChunk();
-                if (fileChunk == NULL)
-                    goto Advance;
-                itShard->OnChunkSerialized(memoChunk, fileChunk);
-                Log_Message("Deleting MemoChunk...");
-                job = new StorageDeleteMemoChunkJob(memoChunk);
-                StartJob(asyncThread, job);
-                
-                tmp.Write(chunkPath);
-                tmp.Appendf("chunk.%020U", fileChunk->GetChunkID());
-                fileChunk->SetFilename(ReadBuffer(tmp));
-                fileChunks.Append(fileChunk);
-
-                itChunk = itShard->GetChunks().First();
-                continue;
-            }
-Advance:
-            itChunk = itShard->GetChunks().Next(itChunk);
-        }
-    }
+//    // look for memoChunks which have been serialized already
+//    FOREACH (itShard, shards)
+//    {
+//        for (itChunk = itShard->GetChunks().First(); itChunk != NULL; /* advanced in body */)
+//        {
+//            if ((*itChunk)->GetChunkState() == StorageChunk::Serialized)
+//            {
+//                memoChunk = (StorageMemoChunk*) (*itChunk);
+//                fileChunk = memoChunk->RemoveFileChunk();
+//                if (fileChunk == NULL)
+//                    goto Advance;
+//                itShard->OnChunkSerialized(memoChunk, fileChunk);
+//                Log_Message("Deleting MemoChunk...");
+//                job = new StorageDeleteMemoChunkJob(memoChunk);
+//                StartJob(asyncThread, job);
+//                
+//                tmp.Write(chunkPath);
+//                tmp.Appendf("chunk.%020U", fileChunk->GetChunkID());
+//                fileChunk->SetFilename(ReadBuffer(tmp));
+//                fileChunks.Append(fileChunk);
+//
+//                itChunk = itShard->GetChunks().First();
+//                continue;
+//            }
+//Advance:
+//            itChunk = itShard->GetChunks().Next(itChunk);
+//        }
+//    }
 
     if (serializerThreadActive)
         return;
@@ -1108,14 +1108,50 @@ void StorageEnvironment::TryArchiveLogSegments()
 
 void StorageEnvironment::OnChunkSerialize()
 {
-    StorageJob*     job;
+    Buffer                      tmp;
+    StorageShard*               itShard;
+    StorageMemoChunk*           memoChunk;
+    StorageFileChunk*           fileChunk;
+    StorageChunk**              itChunk;
+    StorageJob*                 job;
     
     if (serializeChunk->deleted)
     {
         job = new StorageDeleteMemoChunkJob(serializeChunk);
         StartJob(asyncThread, job);
     }
+    else
+    {
+        // look for memoChunks which have been serialized already
+        FOREACH (itShard, shards)
+        {
+            for (itChunk = itShard->GetChunks().First(); itChunk != NULL; /* advanced in body */)
+            {
+                if ((*itChunk)->GetChunkState() == StorageChunk::Serialized)
+                {
+                    memoChunk = (StorageMemoChunk*) (*itChunk);
+                    fileChunk = memoChunk->RemoveFileChunk();
+                    if (fileChunk == NULL)
+                        goto Advance;
+                    itShard->OnChunkSerialized(memoChunk, fileChunk);
+                    Log_Message("Deleting MemoChunk...");
+                    job = new StorageDeleteMemoChunkJob(memoChunk);
+                    StartJob(asyncThread, job);
+                    
+                    tmp.Write(chunkPath);
+                    tmp.Appendf("chunk.%020U", fileChunk->GetChunkID());
+                    fileChunk->SetFilename(ReadBuffer(tmp));
+                    fileChunks.Append(fileChunk);
 
+                    itChunk = itShard->GetChunks().First();
+                    continue;
+                }
+Advance:
+                itChunk = itShard->GetChunks().Next(itChunk);
+            }
+        }
+    }
+    
     serializeChunk = NULL;
     serializerThreadActive = false;
     TrySerializeChunks();
