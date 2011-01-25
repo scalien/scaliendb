@@ -9,6 +9,7 @@ StorageShard::StorageShard()
     memoChunk = NULL;
     recoveryLogSegmentID = 0;
     recoveryLogCommandID = 0;
+    isLogStorage = false;
 }
 
 StorageShard::~StorageShard()
