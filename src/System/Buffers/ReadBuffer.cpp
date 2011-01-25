@@ -24,6 +24,12 @@ ReadBuffer::ReadBuffer(Buffer& buffer)
     Wrap(buffer);
 }
 
+void ReadBuffer::Reset()
+{
+    buffer = NULL;
+    length = 0;
+}
+
 void ReadBuffer::SetBuffer(char* buffer_)
 {
     buffer = buffer_;

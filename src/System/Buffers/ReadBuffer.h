@@ -21,6 +21,7 @@ public:
     ReadBuffer(const char* s);
     ReadBuffer(Buffer& buffer);
     
+    void                Reset();
     void                SetBuffer(char* buffer);
     void                SetLength(unsigned length);
     void                Wrap(const char* buffer);
