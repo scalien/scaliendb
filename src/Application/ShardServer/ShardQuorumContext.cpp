@@ -68,6 +68,11 @@ bool ShardQuorumContext::IsAppending()
     return (nextValue.GetLength() != 0);
 }
 
+void ShardQuorumContext::OnAppendComplete()
+{
+    replicatedLog.OnAppendComplete();
+}
+
 bool ShardQuorumContext::IsLeaseOwner()
 {
     return quorumProcessor->IsPrimary();
@@ -144,6 +149,11 @@ void ShardQuorumContext::OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAp
     nextValue.Clear();
 
     quorumProcessor->OnAppend(paxosID, value, ownAppend);
+}
+
+bool ShardQuorumContext::IsPaxosBlocked()
+{
+    return quorumProcessor->IsPaxosBlocked();
 }
 
 Buffer& ShardQuorumContext::GetNextValue()

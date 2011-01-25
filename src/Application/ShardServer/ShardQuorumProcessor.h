@@ -51,13 +51,15 @@ public:
                              ReadBuffer& splitKey);
     
     // ========================================================================================
-    // For ShardQuorum:
+    // For ShardQuorumContext:
     //
     void                    OnAppend(uint64_t paxosID, ReadBuffer& value, bool ownAppend);
     void                    OnStartCatchup();
     void                    OnCatchupMessage(CatchupMessage& message);
+    bool                    IsPaxosBlocked();
     // ========================================================================================
 
+    void                    OnResumeAppend();
     void                    OnRequestLeaseTimeout();
     void                    OnLeaseTimeout();
 
@@ -76,6 +78,13 @@ private:
     uint64_t                requestedLeaseExpireTime;
     int64_t                 shardMessagesLength;
 
+    // for async OnAppend():
+    bool                    ownAppend;
+    uint64_t                paxosID;
+    uint64_t                commandID;
+    Buffer                  valueBuffer;
+    ReadBuffer              value;
+
     ShardServer*            shardServer;
     ShardQuorumContext      quorumContext;
 
@@ -89,6 +98,7 @@ private:
     Countdown               requestLeaseTimeout;
     Timer                   leaseTimeout;
     YieldTimer              tryAppend;
+    YieldTimer              resumeAppend;
 };
 
 #endif

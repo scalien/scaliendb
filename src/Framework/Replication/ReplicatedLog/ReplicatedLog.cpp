@@ -119,6 +119,12 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
 {
     Log_Trace();
     
+    if (context->IsPaxosBlocked())
+    {
+        Log_Trace("paxos is blocked");
+        return;
+    }
+    
     if (imsg.type == PAXOS_PREPARE_REQUEST)
         OnPrepareRequest(imsg);
     else if (imsg.IsPrepareResponse())
@@ -161,6 +167,21 @@ void ReplicatedLog::OnLearnLease()
 void ReplicatedLog::OnLeaseTimeout()
 {
     proposer.state.multi = false;
+}
+
+void ReplicatedLog::OnAppendComplete()
+{
+    // TODO: this is not a complete solution
+    if (paxosID < context->GetHighestPaxosID())
+        context->GetDatabase()->Commit();
+
+    if (!commitChaining)
+    {
+        acceptor.WriteState();
+        context->GetDatabase()->Commit();
+    }
+
+    TryAppendNextValue();
 }
 
 void ReplicatedLog::Append(Buffer& value)
@@ -323,17 +344,9 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
     if (!BUFCMP(&value, &enableMultiPaxos) && !BUFCMP(&value, &dummy))
         context->OnAppend(paxosID - 1, value, ownAppend);
 
-    // TODO: this is not a complete solution
-    if (paxosID < context->GetHighestPaxosID())
-        context->GetDatabase()->Commit();
-
-    if (!commitChaining)
-    {
-        acceptor.WriteState();
-        context->GetDatabase()->Commit();
-    }
-
-    TryAppendNextValue();
+    // new convention: QuorumContext::OnAppend() must call
+    // ReplicatedLog::OnAppendComplete()
+    // when it's done!
 }
 
 void ReplicatedLog::OnRequest(PaxosMessage& imsg)

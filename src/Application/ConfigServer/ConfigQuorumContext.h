@@ -50,12 +50,15 @@ public:
     virtual QuorumDatabase*         GetDatabase();
     virtual QuorumTransport*        GetTransport();
     
+    virtual bool                    IsPaxosBlocked();
     virtual Buffer&                 GetNextValue();
 
     virtual void                    OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend);
     virtual void                    OnMessage(uint64_t nodeID, ReadBuffer msg);
     virtual void                    OnStartCatchup();
     virtual void                    OnCatchupComplete(uint64_t paxosID);
+
+    void                            OnAppendComplete();
 
     virtual void                    StopReplication();
     virtual void                    ContinueReplication();

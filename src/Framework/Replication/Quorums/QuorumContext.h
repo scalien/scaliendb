@@ -38,6 +38,7 @@ public:
     virtual QuorumDatabase*     GetDatabase()                                                   = 0;
     virtual QuorumTransport*    GetTransport()                                                  = 0;
     
+    virtual bool                IsPaxosBlocked()                                                = 0;
     virtual Buffer&             GetNextValue()                                                  = 0;
 
     virtual void                OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend)    = 0;

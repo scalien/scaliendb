@@ -118,6 +118,11 @@ QuorumTransport* ConfigQuorumContext::GetTransport()
     return &transport;
 }
 
+bool ConfigQuorumContext::IsPaxosBlocked()
+{
+    return false;
+}
+
 Buffer& ConfigQuorumContext::GetNextValue()
 {
     return nextValue;
@@ -176,6 +181,11 @@ void ConfigQuorumContext::OnCatchupComplete(uint64_t paxosID)
     replicatedLog.OnCatchupComplete(paxosID);
 }
 
+void ConfigQuorumContext::OnAppendComplete()
+{
+    replicatedLog.OnAppendComplete();
+}
+
 void ConfigQuorumContext::StopReplication()
 {
     // TODO: xxx
@@ -212,7 +222,7 @@ void ConfigQuorumContext::OnPaxosMessage(ReadBuffer buffer)
  
     if (!isReplicationActive)
         return;
-    
+
     msg.Read(buffer);
     RegisterPaxosID(msg.paxosID);
     replicatedLog.RegisterPaxosID(msg.paxosID, msg.nodeID);

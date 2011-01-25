@@ -29,6 +29,7 @@ public:
     void                            AppendDummy();
     void                            Append(); // nextValue was filled up using GetNextValue()
     bool                            IsAppending();
+    void                            OnAppendComplete();
     
     // ========================================================================================
     // QuorumContext interface:
@@ -53,6 +54,7 @@ public:
     virtual QuorumTransport*        GetTransport();
     
     virtual void                    OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend);
+    virtual bool                    IsPaxosBlocked();
     virtual Buffer&                 GetNextValue();
     virtual void                    OnMessage(uint64_t nodeID, ReadBuffer msg);
     virtual void                    OnStartCatchup();

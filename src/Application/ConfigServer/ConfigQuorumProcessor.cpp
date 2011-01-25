@@ -414,6 +414,8 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     
     if (configMessages.GetLength() > 0)
         TryAppend();
+        
+    quorumContext.OnAppendComplete();
 }
 
 void ConfigQuorumProcessor::OnStartCatchup()

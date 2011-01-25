@@ -45,6 +45,8 @@ public:
     void                    OnLearnLease();
     void                    OnLeaseTimeout();
 
+    void                    OnAppendComplete();
+
 private:
     void                    Append(Buffer& value);
 
