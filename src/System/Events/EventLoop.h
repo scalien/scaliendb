@@ -4,7 +4,8 @@
 #include "System/IO/IOProcessor.h"
 #include "Scheduler.h"
 
-#define SLEEP_MSEC 20
+#define SLEEP_MSEC      20
+#define YIELD_TIME      (2*CLOCK_RESOLUTION)
 
 /*
 ===============================================================================================

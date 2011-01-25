@@ -352,7 +352,7 @@ void ShardDatabaseManager::OnExecuteReads()
 
     FOREACH_FIRST(itRequest, readRequests)
     {
-        if (NowClock() - start >= SHARD_DATABASE_YIELD_TIME)
+        if (NowClock() - start >= YIELD_TIME)
         {
             //Log_Message("YIELD");
             // let other code run every YIELD_TIME msec

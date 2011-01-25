@@ -190,7 +190,7 @@ void MessageConnection::OnRead()
         if (tcpread.buffer->GetLength() == msgend)
             break;
 
-        if (NowClock() - start >= MESSAGING_YIELD_TIME)
+        if (NowClock() - start >= YIELD_TIME)
         {
             // let other code run every YIELD_TIME msec
             yield = true;
