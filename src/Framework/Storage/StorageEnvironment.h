@@ -159,6 +159,7 @@ private:
     ThreadPool*             archiverThread;
     bool                    archiverThreadActive;
     ThreadPool*             asyncThread;
+    ThreadPool*             asyncGetThread;
 
     Buffer                  envPath;
     Buffer                  chunkPath;

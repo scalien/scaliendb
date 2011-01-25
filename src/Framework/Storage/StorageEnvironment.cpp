@@ -125,6 +125,7 @@ StorageEnvironment::StorageEnvironment()
     serializerThread = NULL;
     writerThread = NULL;
     asyncThread = NULL;
+    asyncGetThread = NULL;
 
     onCommit = MFUNC(StorageEnvironment, OnCommit);
     onChunkSerialize = MFUNC(StorageEnvironment, OnChunkSerialize);
@@ -176,6 +177,9 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
     asyncThread = ThreadPool::Create(1);
     asyncThread->Start();
+
+    asyncGetThread = ThreadPool::Create(1);
+    asyncGetThread->Start();
 
     envPath.Write(envPath_);
     lastChar = envPath.GetCharAt(envPath.GetLength() - 1);
@@ -279,6 +283,8 @@ void StorageEnvironment::Close()
     archiverThreadActive = false;
     asyncThread->Stop();
     delete asyncThread;
+    asyncGetThread->Stop();
+    delete asyncGetThread;
     
     shards.DeleteList();
     delete headLogSegment;
@@ -421,7 +427,7 @@ void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageA
     asyncGet->itChunk = shard->GetChunks().Last();
     asyncGet->lastLoadedPage = NULL;
     asyncGet->stage = StorageAsyncGet::START;
-    asyncGet->threadPool = asyncThread;
+    asyncGet->threadPool = asyncGetThread;
     asyncGet->ExecuteAsyncGet();
 }
 

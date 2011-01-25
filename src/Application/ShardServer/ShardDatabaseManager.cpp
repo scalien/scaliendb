@@ -353,7 +353,7 @@ void ShardDatabaseManager::ExecuteMessage(
 
 void ShardDatabaseManager::OnYieldStorageThreadsTimer()
 {
-    Log_Debug("readRequests: %u", readRequests.GetLength());
+    Log_Trace("readRequests: %u", readRequests.GetLength());
     if (readRequests.GetLength() > SHARD_DATABASE_YIELD_LIST_LENGTH)
         environment.SetYieldThreads(true);
     else
