@@ -22,7 +22,7 @@ class StorageFileChunk;
 class StorageDataPage : public StoragePage
 {
     friend class StorageFileChunk;
-    typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
+//    typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
 
 public:
     StorageDataPage(StorageFileChunk* owner, uint32_t index);
@@ -38,6 +38,7 @@ public:
     
     void                    Append(StorageKeyValue* kv);
     void                    Finalize();
+    void                    Reset();
     
     StorageFileKeyValue*    First();
     StorageFileKeyValue*    Next(StorageFileKeyValue* it);
@@ -48,16 +49,16 @@ public:
     void                    Unload();
 
 private:
-//    StorageFileKeyValue*    LocateKeyValue(ReadBuffer& key, int& cmpres);
-//    void                    AppendKeyValue(StorageFileKeyValue* kv);
-//    StorageFileKeyValue*    GetIndexedKeyValue(unsigned index);
+    StorageFileKeyValue*    LocateKeyValue(ReadBuffer& key, int& cmpres);
+    void                    AppendKeyValue(StorageFileKeyValue* kv);
+    StorageFileKeyValue*    GetIndexedKeyValue(unsigned index);
 
     uint32_t                size;
     uint32_t                index;
     Buffer                  buffer;
     StorageFileChunk*       owner;
-//    Buffer                  keyValueIndexBuffer;
-    KeyValueTree            keyValues;
+    Buffer                  keyValueIndexBuffer;
+//    KeyValueTree            keyValues;
 };
 
 #endif

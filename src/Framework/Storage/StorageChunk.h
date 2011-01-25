@@ -6,7 +6,7 @@
 #include "System/Containers/InTreeMap.h"
 #include "StorageKeyValue.h"
 
-class StorageCursorBunch;
+class StorageBulkCursor;
 class StorageShard;
 class StorageAsyncGet;
 
@@ -43,7 +43,7 @@ public:
     virtual ReadBuffer          GetMidpoint() = 0;
     virtual ChunkState          GetChunkState() = 0;
     
-    virtual void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard) = 0;
+    virtual void                NextBunch(StorageBulkCursor& cursor, StorageShard* shard) = 0;
 
     bool                        deleted;
 

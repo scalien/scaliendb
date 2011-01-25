@@ -16,7 +16,7 @@
 class StorageFileKeyValue : public StorageKeyValue
 {
 public:
-    typedef InTreeNode<StorageFileKeyValue> TreeNode;
+//    typedef InTreeNode<StorageFileKeyValue> TreeNode;
     
     StorageFileKeyValue();
 
@@ -27,7 +27,7 @@ public:
     ReadBuffer      GetKey();
     ReadBuffer      GetValue();
 
-    TreeNode        treeNode;
+//    TreeNode        treeNode;
 
     uint32_t        GetNextIndex();
     void            SetNextIndex(uint32_t nextIndex);

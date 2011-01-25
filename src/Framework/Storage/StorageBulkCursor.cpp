@@ -2,50 +2,51 @@
 #include "StorageEnvironment.h"
 #include "StoragePageCache.h"
 
-StorageCursorBunch::StorageCursorBunch()
-{
-    isLast = false;
-}
+//StorageCursorBunch::StorageCursorBunch()
+//{
+//    isLast = false;
+//}
+//
+//StorageCursorBunch::~StorageCursorBunch()
+//{
+//    keyValues.DeleteTree();
+//}
+//
+//StorageKeyValue* StorageCursorBunch::First()
+//{
+//    return keyValues.First();
+//}
+//
+//StorageKeyValue* StorageCursorBunch::Next(StorageKeyValue* it)
+//{
+//    return keyValues.Next((StorageFileKeyValue*) it);
+//}
+//
+//ReadBuffer StorageCursorBunch::GetNextKey()
+//{
+//    return ReadBuffer(nextKey);
+//}
+//
+//bool StorageCursorBunch::IsLast()
+//{
+//    return isLast;
+//}
+//
+//void StorageCursorBunch::Reset()
+//{
+//    keyValues.DeleteTree();
+//    buffer.Reset();
+//    isLast = false;
+//    nextKey.Reset();
+//}
+//
+//void StorageCursorBunch::InsertKeyValue(StorageFileKeyValue* kv)
+//{
+//    // TODO:
+//}
 
-StorageCursorBunch::~StorageCursorBunch()
-{
-    keyValues.DeleteTree();
-}
-
-StorageKeyValue* StorageCursorBunch::First()
-{
-    return keyValues.First();
-}
-
-StorageKeyValue* StorageCursorBunch::Next(StorageKeyValue* it)
-{
-    return keyValues.Next((StorageFileKeyValue*) it);
-}
-
-ReadBuffer StorageCursorBunch::GetNextKey()
-{
-    return ReadBuffer(nextKey);
-}
-
-bool StorageCursorBunch::IsLast()
-{
-    return isLast;
-}
-
-void StorageCursorBunch::Reset()
-{
-    keyValues.DeleteTree();
-    buffer.Reset();
-    isLast = false;
-    nextKey.Reset();
-}
-
-void StorageCursorBunch::InsertKeyValue(StorageFileKeyValue* kv)
-{
-    // TODO:
-}
-
-StorageBulkCursor::StorageBulkCursor()
+StorageBulkCursor::StorageBulkCursor() :
+ dataPage(NULL, 0)
 {
     chunkID = 0;
     shard = NULL;
@@ -82,7 +83,7 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     StorageChunk*       chunk;
     StorageChunk**      itChunk;
 
-    kv = bunch.Next(it);
+    kv = dataPage.Next((StorageFileKeyValue*) it);
     
     if (kv != NULL)
         return kv;
@@ -111,19 +112,37 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     return FromNextBunch(chunk);
 }
 
+void StorageBulkCursor::SetLast(bool isLast_)
+{
+    isLast = isLast_;
+}
+
+ReadBuffer StorageBulkCursor::GetNextKey()
+{
+    return ReadBuffer(nextKey);
+}
+
+void StorageBulkCursor::SetNextKey(ReadBuffer key)
+{
+    nextKey.Write(key);
+}
+
+void StorageBulkCursor::AppendKeyValue(StorageKeyValue* kv)
+{
+    dataPage.Append(kv);
+}
+
 StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
 {
     StorageChunk**      itChunk;
 
-    bunch.keyValues.DeleteTree();
-
     while (true)
     {
-        if (!bunch.IsLast())
+        if (!isLast)
         {
-            chunk->NextBunch(bunch, shard);
-            if (bunch.First())
-                return bunch.First();
+            chunk->NextBunch(*this, shard);
+            if (dataPage.First())
+                return dataPage.First();
             else
                 continue;
         }
@@ -155,7 +174,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
 //            Log_Message("Iterating chunk %U", chunkID);
         }
         
-        bunch.Reset();
+        dataPage.Reset();
     }
 }
 
