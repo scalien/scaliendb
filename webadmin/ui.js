@@ -8,6 +8,12 @@ function onLoad()
 	scaliendb.util.elem("loginCluster").focus();
 }
 
+function logout()
+{
+	clearTimeout(timer);
+	onLoad();
+}
+
 function connect()
 {
 	scaliendb.util.elem("loginContainer").style.display = "none";

@@ -1019,6 +1019,10 @@ void StorageEnvironment::TryMergeChunks()
     StorageFileChunk*       chunk2;
     StorageJob*             job;    
 
+#ifdef STORAGE_NOMERGE
+    return;
+#endif
+
     if (writerThreadActive)
         return;
 

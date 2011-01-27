@@ -67,10 +67,11 @@ bool StorageChunkWriter::WriteDataPages()
 
     for (i = 0; i < file->numDataPages; i++)
     {
-        while (env->yieldThreads)
+        while (env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
         {
             Log_Trace("Yielding...");
-            MSleep(10);
+            // TODO: DEFAULT_YIELD_TIMEOUT = 2*CLOCK_RESOLUTION
+            MSleep(2*CLOCK_RESOLUTION);
         }
         
         dataPage = file->dataPages[i];
