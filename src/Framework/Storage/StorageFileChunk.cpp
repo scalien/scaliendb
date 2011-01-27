@@ -526,6 +526,8 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
     if (isBloomPageLoading || bloomPage != NULL)
         return NULL;
     
+    Log_Debug("loading bloom page");
+    
     isBloomPageLoading = true;
     page = new StorageBloomPage(this);
     offset = headerPage.GetBloomPageOffset();
@@ -559,6 +561,8 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
     
     if (isIndexPageLoading || indexPage != NULL)
         return NULL;
+
+    Log_Debug("loading index page");
     
     isIndexPageLoading = true;
     page = new StorageIndexPage(this);

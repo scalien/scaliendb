@@ -164,7 +164,7 @@ void StorageLogSegment::Commit()
     writeBuffer.AppendLittle32(checksum);
     writeBuffer.SetLength(length);
     
-    Log_Debug("Commit");
+//    Log_Debug("Commit");
     
     if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
     {
