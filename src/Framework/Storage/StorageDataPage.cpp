@@ -130,7 +130,6 @@ void StorageDataPage::Append(StorageKeyValue* kv)
     else
         fkv->Delete(ReadBuffer(kv->GetKey()));
     
-//    keyValues.Insert(fkv);
     AppendKeyValue(fkv);
 }
 
@@ -141,7 +140,6 @@ void StorageDataPage::Finalize()
     ReadBuffer              dataPart;
     StorageFileKeyValue*    it;
     
-//    numKeys = keyValues.GetCount();
     numKeys = GetNumKeys();
     length = buffer.GetLength();
 
@@ -170,7 +168,6 @@ void StorageDataPage::Finalize()
     
     // set ReadBuffers in tree
     pos = 12;
-//    FOREACH (it, keyValues)
     for (unsigned i = 0; i < numKeys; i++)
     {
         it = GetIndexedKeyValue(i);
@@ -215,6 +212,10 @@ void StorageDataPage::Reset()
 
     keyValueIndexBuffer.Reset();
     buffer.Reset();
+    
+    buffer.AppendLittle32(0); // dummy for size
+    buffer.AppendLittle32(0); // dummy for checksum
+    buffer.AppendLittle32(0); // dummy for numKeys
 }
 
 StorageFileKeyValue* StorageDataPage::First()

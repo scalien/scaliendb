@@ -67,7 +67,7 @@ bool StorageChunkWriter::WriteDataPages()
 
     for (i = 0; i < file->numDataPages; i++)
     {
-        while (env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
+        while (env->yieldThreads)
         {
             Log_Trace("Yielding...");
             // TODO: DEFAULT_YIELD_TIMEOUT = 2*CLOCK_RESOLUTION

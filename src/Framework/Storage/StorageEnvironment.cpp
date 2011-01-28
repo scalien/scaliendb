@@ -1191,7 +1191,7 @@ void StorageEnvironment::OnChunkWrite()
             if (it->GetChunkState() != StorageChunk::Written)
             {
                 Log_Message("Failed to write chunk %U to disk", it->GetChunkID());
-                Log_Message("Possible causes: disk if full");
+                Log_Message("Possible causes: disk is full");
                 Log_Message("Exiting...");
                 STOP_FAIL(1);
             }

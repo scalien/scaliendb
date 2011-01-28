@@ -87,7 +87,10 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     kv = dataPage.Next((StorageFileKeyValue*) it);
     
     if (kv != NULL)
+    {
+        assert(kv->GetKey().GetBuffer()[0] != 0);
         return kv;
+    }
     
     // TODO: what if shard has been deleted?
     FOREACH(itChunk, shard->chunks)
@@ -110,7 +113,8 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     chunkID = chunk->GetChunkID();
 //    Log_Message("Iterating chunk %U", chunkID);
     
-    return FromNextBunch(chunk);
+    kv = FromNextBunch(chunk);
+    return kv;
 }
 
 void StorageBulkCursor::SetLast(bool isLast_)
@@ -131,6 +135,11 @@ void StorageBulkCursor::SetNextKey(ReadBuffer key)
 void StorageBulkCursor::AppendKeyValue(StorageKeyValue* kv)
 {
     dataPage.Append(kv);
+}
+
+void StorageBulkCursor::FinalizeKeyValues()
+{
+    dataPage.Finalize();
 }
 
 StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
@@ -154,7 +163,9 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         {
             if ((*itChunk)->GetChunkID() == chunkID)
             {
+                Log_Debug("Cursor next chunk");
                 itChunk = shard->chunks.Next(itChunk);
+                isLast = false;
                 break;
             }
         }

@@ -149,7 +149,10 @@ void StorageMemoChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
         
         total += it->GetKey().GetLength() + it->GetValue().GetLength();
         cursor.AppendKeyValue(it);
+        
+        it = keyValues.Next(it);
     }
+    cursor.FinalizeKeyValues();
     
     if (!it)
     {

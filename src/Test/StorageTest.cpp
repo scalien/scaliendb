@@ -20,14 +20,18 @@ TEST_DEFINE(TestStorageBulkCursor)
     i = 0;
     FOREACH (it, *cursor)
     {
-        prevKey.Write(key);
         key = it->GetKey();
         value = it->GetValue();
         
-        TEST_ASSERT(ReadBuffer::Cmp(prevKey, key) < 0);
+//        if (ReadBuffer::Cmp(prevKey, key) >= 0)
+//        {
+//            TEST_LOG("%d", i);
+//            TEST_FAIL();
+//        }
         if (i > 0 && i % 100000 == 0)
             TEST_LOG("%d", i);
         i++;
+        prevKey.Write(key);
 //        TEST_LOG("%.*s => %.*s", key.GetLength(), key.GetBuffer(), value.GetLength(), value.GetBuffer());
     }
     

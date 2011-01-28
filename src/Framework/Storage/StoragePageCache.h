@@ -27,8 +27,6 @@ public:
     static void                 RegisterHit(StoragePage* page);
 
 private:
-    static void                 TryUnloadPages();
-
     static uint64_t             size;
     static uint64_t             maxSize;
     static PageList             pages;

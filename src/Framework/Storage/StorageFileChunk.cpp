@@ -208,6 +208,7 @@ void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
 
         cursor.AppendKeyValue(it);
     }
+    cursor.FinalizeKeyValues();
     
     if (index == (numDataPages - 1))
     {
@@ -219,6 +220,7 @@ void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
     if (dataPages[index] == NULL)
         LoadDataPage(index, dataPages[index - 1]->GetOffset() + dataPages[index - 1]->GetSize(), true);
     
+    assert(dataPages[index] != NULL);
     cursor.SetNextKey(dataPages[index]->GetIndexedKeyValue(0)->GetKey());
     cursor.SetLast(false);
 }
@@ -512,9 +514,13 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
         Log_Message("Exiting...");
         STOP_FAIL(1);
     }
+
+    assert(dataPages[index] != NULL);
     
     if (useCache)
         StoragePageCache::AddPage(dataPages[index], bulk);
+    
+    assert(dataPages[index] != NULL);
 }
 
 StoragePage* StorageFileChunk::AsyncLoadBloomPage()

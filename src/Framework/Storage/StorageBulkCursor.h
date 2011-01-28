@@ -63,6 +63,7 @@ public:
     ReadBuffer              GetNextKey();
     void                    SetNextKey(ReadBuffer key);
     void                    AppendKeyValue(StorageKeyValue* kv);
+    void                    FinalizeKeyValues();
 
     void                    SetEnvironment(StorageEnvironment* env);
     void                    SetShard(StorageShard* shard);

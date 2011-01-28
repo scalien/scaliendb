@@ -29,14 +29,22 @@ uint64_t StoragePageCache::GetSize()
 
 void StoragePageCache::AddPage(StoragePage* page, bool bulk)
 {
+    StoragePage*    it;
+
+    while (size + page->GetSize() > maxSize)
+    {
+        it = pages.First();
+        size -= it->GetSize();
+        pages.Remove(it);
+        it->Unload();        
+    }
+    
     size += page->GetSize();
 
     if (bulk)
         pages.Prepend(page);
     else
         pages.Append(page);
-    
-    TryUnloadPages();
 }
 
 void StoragePageCache::RemovePage(StoragePage* page)
@@ -49,21 +57,4 @@ void StoragePageCache::RegisterHit(StoragePage* page)
 {
     pages.Remove(page);
     pages.Append(page);
-}
-
-void StoragePageCache::TryUnloadPages()
-{
-    StoragePage*    it;
-    
-    for (it = pages.First(); it != NULL; /* advanced in body */)
-    {
-        if (size < maxSize)
-            break;
-        
-        size -= it->GetSize();
-        pages.Remove(it);
-        it->Unload();
-        
-        it = pages.First();
-    }
 }

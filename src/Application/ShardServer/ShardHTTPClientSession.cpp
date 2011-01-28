@@ -6,6 +6,12 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Version.h"
 
+#define PARAM_BOOL_VALUE(param)                         \
+    ((ReadBuffer::Cmp((param), "yes") == 0 ||           \
+    ReadBuffer::Cmp((param), "true") == 0 ||            \
+    ReadBuffer::Cmp((param), "on") == 0 ||            \
+    ReadBuffer::Cmp((param), "1") == 0) ? true : false)
+
 void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
 {
     shardServer = shardServer_;
@@ -125,6 +131,11 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         PrintStatus();
         return true;
     }
+    else if (HTTP_MATCH_COMMAND(cmd, "settings"))
+    {
+        ProcessSettings();
+        return true;
+    }
 
     request = ProcessShardServerCommand(cmd);
     if (!request)
@@ -133,6 +144,23 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     request->session = this;
     shardServer->OnClientRequest(request);
     
+    return true;
+}
+
+bool ShardHTTPClientSession::ProcessSettings()
+{
+    ReadBuffer  param;
+    bool        boolValue;
+    
+    if (HTTP_GET_OPT_PARAM(params, "trace", param))
+    {
+        boolValue = PARAM_BOOL_VALUE(param);
+        Log_SetTrace(boolValue);
+        session.PrintPair("Trace", boolValue ? "on" : "off");
+    }
+    
+    session.Flush();
+
     return true;
 }
 
@@ -163,7 +191,6 @@ ClientRequest* ShardHTTPClientSession::ProcessGet()
     ClientRequest*  request;
     uint64_t        tableID;
     ReadBuffer      key;
-    ReadBuffer      value;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
