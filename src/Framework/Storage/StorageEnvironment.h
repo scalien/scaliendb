@@ -14,6 +14,7 @@
 #include "StorageBulkCursor.h"
 
 class StorageRecovery;
+class StorageEnvironment;
 class StorageEnvironmentWriter;
 class StorageArchiveLogSegmentJob;
 
@@ -43,6 +44,7 @@ class StorageEnvironment
     typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;
     typedef InList<StorageFileChunk>    FileChunkList;
+    typedef InList<StorageAsyncGet>     AsyncGetList;
 
 public:
     StorageEnvironment();
@@ -67,6 +69,8 @@ public:
     bool                    Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value);
     bool                    Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
     bool                    Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key);
+
+    void                    AsyncGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet);
 
     StorageBulkCursor*      GetBulkCursor(uint16_t contextID, uint64_t shardID);
 
@@ -95,6 +99,7 @@ private:
     void                    StartJob(ThreadPool* thread, StorageJob* job);
     void                    WriteTOC();
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
+    void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
 
     Countdown               backgroundTimer;
     Callable                onBackgroundTimer;
@@ -126,6 +131,7 @@ private:
     ThreadPool*             archiverThread;
     bool                    archiverThreadActive;
     ThreadPool*             asyncThread;
+    ThreadPool*             asyncGetThread;
 
     Buffer                  envPath;
     Buffer                  chunkPath;

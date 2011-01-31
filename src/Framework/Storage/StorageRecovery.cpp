@@ -346,10 +346,10 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
         parse.Wrap(buffer.GetBuffer() + 4, 4);
         if (!parse.ReadLittle32(checksum))
             break;
-        dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
-        compChecksum = dataPart.GetChecksum();
-        if (checksum != compChecksum)
-            break;
+//        dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+//        compChecksum = dataPart.GetChecksum();
+//        if (checksum != compChecksum)
+//            break;
         
         parse.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
         while (parse.GetLength() > 0)

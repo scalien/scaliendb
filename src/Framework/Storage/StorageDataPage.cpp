@@ -1,16 +1,6 @@
 #include "StorageDataPage.h"
 #include "StorageFileChunk.h"
 
-static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
-{
-    return ReadBuffer::Cmp(a, b);
-}
-
-static const ReadBuffer Key(StorageFileKeyValue* kv)
-{
-    return kv->GetKey();
-}
-
 StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 {
     size = 0;
@@ -28,7 +18,13 @@ StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 
 StorageDataPage::~StorageDataPage()
 {
-    keyValues.DeleteTree();
+    StorageFileKeyValue*    kv;
+
+    for (unsigned i = 0; i < GetNumKeys(); i++)
+    {
+        kv = GetIndexedKeyValue(i);
+        delete kv;
+    }
 }
 
 uint32_t StorageDataPage::GetSize()
@@ -45,55 +41,44 @@ StorageKeyValue* StorageDataPage::Get(ReadBuffer& key)
     if (GetNumKeys() == 0)
         return NULL;
         
-    it = keyValues.Locate<ReadBuffer&>(key, cmpres);
-//    it = LocateKeyValue(key, cmpres);
+    it = LocateKeyValue(key, cmpres);
     if (cmpres != 0)
         return NULL;
 
     return it;
 }
 
-//StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpres)
-//{
-//    StorageFileKeyValue**   kvIndex;
-//    unsigned                num;
-//    unsigned                dist;
-//    int                     curr;
-//    
-//    kvIndex = (StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer();
-//    num = keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*);
-//    
-//    dist = num / 2;
-//    curr = dist;
-//    while (true)
-//    {
-//        cmpres = ReadBuffer::Cmp(key, kvIndex[curr]->GetKey());
-//        if (cmpres == 0)
-//            return kvIndex[curr];
-//        
-//        dist = num / 2;
-//        if (dist == 0)
-//            return NULL;
-//        
-//        if (cmpres < 0)
-//        {
-//            curr -= dist;
-//            if (curr < 0)
-//                curr = 0;
-//        }
-//        else 
-//        {
-//            curr += dist;
-//            if (curr >= (int) num)
-//                curr = num;
-//        }
-//    }
-//}
+StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpres)
+{
+    StorageFileKeyValue**   kvIndex;
+    unsigned                first;
+    unsigned                last;
+    unsigned                mid;
+    
+    kvIndex = (StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer();
+    
+    first = 0;
+    last = GetNumKeys() - 1;
+    while (first <= last)
+    {
+        mid = first + ((last - first) / 2);
+        cmpres = ReadBuffer::Cmp(key, kvIndex[mid]->GetKey());
+        if (cmpres == 0)
+            return kvIndex[mid];
+        
+        if (cmpres < 0)
+            last = mid - 1;
+        else 
+            first = mid + 1;
+    }
+    
+    // not found
+    return NULL;
+}
 
 uint32_t StorageDataPage::GetNumKeys()
 {
-    return keyValues.GetCount();
-//    return keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*);
+    return keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*);
 }
 
 uint32_t StorageDataPage::GetLength()
@@ -132,8 +117,7 @@ void StorageDataPage::Append(StorageKeyValue* kv)
     else
         fkv->Delete(ReadBuffer(kv->GetKey()));
     
-    keyValues.Insert(fkv);
-//    AppendKeyValue(fkv);
+    AppendKeyValue(fkv);
 }
 
 void StorageDataPage::Finalize()
@@ -143,8 +127,7 @@ void StorageDataPage::Finalize()
     ReadBuffer              dataPart;
     StorageFileKeyValue*    it;
     
-    numKeys = keyValues.GetCount();
-//    numKeys = GetNumKeys();
+    numKeys = GetNumKeys();
     length = buffer.GetLength();
 
     div = length / STORAGE_DEFAULT_PAGE_GRAN;
@@ -172,10 +155,9 @@ void StorageDataPage::Finalize()
     
     // set ReadBuffers in tree
     pos = 12;
-    FOREACH (it, keyValues)
-//    for (unsigned i = 0; i < numKeys; i++)
+    for (unsigned i = 0; i < numKeys; i++)
     {
-//        it = GetIndexedKeyValue(i);
+        it = GetIndexedKeyValue(i);
         
         pos += 1;                                                // type
         if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
@@ -205,16 +187,32 @@ void StorageDataPage::Finalize()
     }
 }
 
+void StorageDataPage::Reset()
+{
+    StorageFileKeyValue*    kv;
+
+    for (unsigned i = 0; i < GetNumKeys(); i++)
+    {
+        kv = GetIndexedKeyValue(i);
+        delete kv;
+    }
+
+    keyValueIndexBuffer.Reset();
+    buffer.Reset();
+    
+    buffer.AppendLittle32(0); // dummy for size
+    buffer.AppendLittle32(0); // dummy for checksum
+    buffer.AppendLittle32(0); // dummy for numKeys
+}
+
 StorageFileKeyValue* StorageDataPage::First()
 {
-    return keyValues.First();
-//    return GetIndexedKeyValue(0);
+    return GetIndexedKeyValue(0);
 }
 
 StorageFileKeyValue* StorageDataPage::Next(StorageFileKeyValue* it)
 {
-    return keyValues.Next(it);
-//    return GetIndexedKeyValue(it->GetNextIndex());
+    return GetIndexedKeyValue(it->GetNextIndex());
 }
 
 bool StorageDataPage::Read(Buffer& buffer_)
@@ -225,7 +223,6 @@ bool StorageDataPage::Read(Buffer& buffer_)
     ReadBuffer              dataPart, parse, key, value;
     StorageFileKeyValue*    fkv;
     
-//    assert(keyValues.GetCount() == 0);
     assert(GetNumKeys() == 0);
     
     buffer.Write(buffer_);
@@ -240,11 +237,11 @@ bool StorageDataPage::Read(Buffer& buffer_)
     parse.Advance(4);
 
     // checksum
-    parse.ReadLittle32(checksum);
-    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
-    compChecksum = dataPart.GetChecksum();
-    if (compChecksum != checksum)
-        goto Fail;
+//    parse.ReadLittle32(checksum);
+//    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+//    compChecksum = dataPart.GetChecksum();
+//    if (compChecksum != checksum)
+//        goto Fail;
     parse.Advance(4);
     
     // numkeys
@@ -287,15 +284,13 @@ bool StorageDataPage::Read(Buffer& buffer_)
             
             fkv = new StorageFileKeyValue;
             fkv->Set(key, value);
-            keyValues.Insert(fkv);
-//            AppendKeyValue(fkv);
+            AppendKeyValue(fkv);
         }
         else
         {
             fkv = new StorageFileKeyValue;
             fkv->Delete(key);
-            keyValues.Insert(fkv);
-//            AppendKeyValue(fkv);
+            AppendKeyValue(fkv);
         }
     }
     
@@ -303,8 +298,7 @@ bool StorageDataPage::Read(Buffer& buffer_)
     return true;
     
 Fail:
-    keyValues.DeleteTree();
-//    keyValueIndexBuffer.Reset();
+    keyValueIndexBuffer.Reset();
     buffer.Reset();
     return false;
 }
@@ -316,21 +310,19 @@ void StorageDataPage::Write(Buffer& buffer_)
 
 void StorageDataPage::Unload()
 {
-    keyValues.DeleteTree();
-//    keyValueIndexBuffer.Reset();
-    buffer.Reset();
+    Reset();
     owner->OnDataPageEvicted(index);
 }
 
-//void StorageDataPage::AppendKeyValue(StorageFileKeyValue* kv)
-//{
-//    keyValueIndexBuffer.Append((const char*) &kv, sizeof(StorageFileKeyValue*));
-//    kv->SetNextIndex(keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*));
-//}
-//
-//StorageFileKeyValue* StorageDataPage::GetIndexedKeyValue(unsigned index)
-//{
-//    if (index >= (keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*)))
-//        return NULL;
-//    return ((StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer())[index];
-//}
+void StorageDataPage::AppendKeyValue(StorageFileKeyValue* kv)
+{
+    keyValueIndexBuffer.Append((const char*) &kv, sizeof(StorageFileKeyValue*));
+    kv->SetNextIndex(keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*));
+}
+
+StorageFileKeyValue* StorageDataPage::GetIndexedKeyValue(unsigned index)
+{
+    if (index >= (keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*)))
+        return NULL;
+    return ((StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer())[index];
+}

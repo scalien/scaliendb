@@ -70,7 +70,8 @@ bool StorageChunkWriter::WriteDataPages()
         while (env->yieldThreads)
         {
             Log_Trace("Yielding...");
-            MSleep(10);
+            // TODO: DEFAULT_YIELD_TIMEOUT = 2*CLOCK_RESOLUTION
+            MSleep(2*CLOCK_RESOLUTION);
         }
         
         dataPage = file->dataPages[i];

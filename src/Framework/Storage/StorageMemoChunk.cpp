@@ -2,6 +2,8 @@
 #include "StorageChunkSerializer.h"
 #include "StorageChunkWriter.h"
 #include "StorageBulkCursor.h"
+#include "StorageEnvironment.h"
+#include "StorageAsyncGet.h"
 
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -46,26 +48,24 @@ StorageChunk::ChunkState StorageMemoChunk::GetChunkState()
         return StorageChunk::Tree;
 }
 
-void StorageMemoChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
+void StorageMemoChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
 {
     bool                    first;
     int                     cmpres;
-    uint32_t                pos;
     ReadBuffer              nextKey, key, value;
     StorageMemoKeyValue*    it;
-    StorageFileKeyValue*    kv;
+    uint32_t                total;
     
     if (keyValues.GetCount() == 0)
     {
-        bunch.isLast = true;
+        cursor.SetLast(true);
         return;
     }
     
-    nextKey = bunch.GetNextKey();
-    it = keyValues.Locate<ReadBuffer&>(nextKey, cmpres);
+    nextKey = cursor.GetNextKey();
+    it = keyValues.Locate(nextKey, cmpres);
     
-    bunch.buffer.Allocate(STORAGE_MEMO_BUNCH_GRAN);
-    bunch.buffer.SetLength(0);
+    total = 0;
     first = true;
     while (it)
     {
@@ -74,42 +74,25 @@ void StorageMemoChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
             it = keyValues.Next(it);
             continue;
         }
+
+        if (total + it->GetKey().GetLength() + it->GetValue().GetLength() > STORAGE_MEMO_BUNCH_GRAN)
+            break;
         
-        kv = new StorageFileKeyValue;
-        if (!first)
-        {
-            if (bunch.buffer.GetLength() +
-             it->GetKey().GetLength() + it->GetValue().GetLength() > bunch.buffer.GetSize())
-                break;
-        }
-        bunch.buffer.Append(it->GetKey());
-        if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
-            bunch.buffer.Append(it->GetValue());
-        pos = bunch.buffer.GetLength() - (it->GetKey().GetLength() + it->GetValue().GetLength());
-        key.Wrap(bunch.buffer.GetBuffer() + pos, it->GetKey().GetLength());
-        if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
-        {
-            pos = bunch.buffer.GetLength() - it->GetValue().GetLength();
-            value.Wrap(bunch.buffer.GetBuffer() + pos, it->GetValue().GetLength());
-            kv->Set(key, value);
-        }
-        else
-        {
-            kv->Delete(key);
-        }
-        bunch.InsertKeyValue(kv);
-        first = false;
+        total += it->GetKey().GetLength() + it->GetValue().GetLength();
+        cursor.AppendKeyValue(it);
+        
         it = keyValues.Next(it);
     }
+    cursor.FinalizeKeyValues();
     
     if (!it)
     {
-        bunch.isLast = true;
+        cursor.SetLast(true);
     }
     else
     {
-        bunch.nextKey.Write(it->GetKey());
-        bunch.isLast = false;
+        cursor.SetNextKey(it->GetKey());
+        cursor.SetLast(false);
     }
 }
 
@@ -147,6 +130,23 @@ StorageKeyValue* StorageMemoChunk::Get(ReadBuffer& key)
         return NULL;
 
     return it;
+}
+
+void StorageMemoChunk::AsyncGet(StorageAsyncGet* asyncGet)
+{
+    StorageKeyValue*    kv;
+    
+    kv = Get(asyncGet->key);
+    if (kv == NULL || kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+    {
+        asyncGet->ret = false;
+        asyncGet->completed = true;
+        return;
+    }
+
+    asyncGet->value = kv->GetValue();
+    asyncGet->ret = true;
+    asyncGet->completed = true;
 }
 
 bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)

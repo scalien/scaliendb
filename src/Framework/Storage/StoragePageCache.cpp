@@ -2,6 +2,12 @@
 
 StoragePageCache::PageList StoragePageCache::pages;
 uint64_t StoragePageCache::size = 0;
+uint64_t StoragePageCache::maxSize = 0;
+
+void StoragePageCache::Init(StorageConfig& config)
+{
+    maxSize = config.fileChunkCacheSize;
+}
 
 void StoragePageCache::Shutdown()
 {
@@ -23,6 +29,17 @@ uint64_t StoragePageCache::GetSize()
 
 void StoragePageCache::AddPage(StoragePage* page, bool bulk)
 {
+    StoragePage*    it;
+
+    while (size + page->GetSize() > maxSize)
+    {
+//        Log_Debug("removing page from cache");
+        it = pages.First();
+        size -= it->GetSize();
+        pages.Remove(it);
+        it->Unload();        
+    }
+    
     size += page->GetSize();
 
     if (bulk)
@@ -41,21 +58,4 @@ void StoragePageCache::RegisterHit(StoragePage* page)
 {
     pages.Remove(page);
     pages.Append(page);
-}
-
-void StoragePageCache::TryUnloadPages(StorageConfig& config)
-{
-    StoragePage*    it;
-    
-    for (it = pages.First(); it != NULL; /* advanced in body */)
-    {
-        if (size < config.fileChunkCacheSize)
-            break;
-        
-        size -= it->GetSize();
-        pages.Remove(it);
-        it->Unload();
-        
-        it = pages.First();
-    }
 }

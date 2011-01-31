@@ -21,6 +21,7 @@ public:
     
     void Execute()      { if (!func) return; func(arg); }
     bool IsSet()        { return func != NULL; }
+    void Unset()        { func = NULL; arg = NULL; }
 
     bool operator==(const Callable& other) { return (func == other.func && arg == other.arg); }
 

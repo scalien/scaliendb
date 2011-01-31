@@ -4,6 +4,7 @@
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
+#include "Framework/Storage/StorageAsyncGet.h"
 
 static void WriteValue(
 Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
@@ -26,6 +27,37 @@ ReadBuffer& buffer, uint64_t& paxosID, uint64_t& commandID, ReadBuffer& userValu
 static size_t Hash(uint64_t h)
 {
     return h;
+}
+
+static bool LessThan(const ClientRequest& a, const ClientRequest& b)
+{
+    return Buffer::Cmp(a.key, b.key) < 0;
+}
+
+class ShardDatabaseAsyncGet : public StorageAsyncGet
+{
+public:
+    ClientRequest*  request;
+    
+    void            OnRequestComplete();
+};
+
+void ShardDatabaseAsyncGet::OnRequestComplete()
+{
+    uint64_t        paxosID;
+    uint64_t        commandID;
+    ReadBuffer      userValue;
+
+    if (!ret)
+    {
+        request->response.Failed();
+        request->OnComplete();
+        return;
+    }
+    
+    ReadValue(value, paxosID, commandID, userValue);    
+    request->response.Value(userValue);
+    request->OnComplete();
 }
 
 ShardDatabaseManager::ShardDatabaseManager()
@@ -188,7 +220,8 @@ void ShardDatabaseManager::RemoveDeletedTables()
 
 void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
-    readRequests.Append(request);
+//    readRequests.Append(request);
+    readRequests.Add(request);
 
     environment.SetYieldThreads(true);
 
@@ -327,7 +360,7 @@ void ShardDatabaseManager::ExecuteMessage(
 
 void ShardDatabaseManager::OnYieldStorageThreadsTimer()
 {
-    Log_Debug("readRequests: %u", readRequests.GetLength());
+    Log_Trace("readRequests: %u", readRequests.GetLength());
     if (readRequests.GetLength() > SHARD_DATABASE_YIELD_LIST_LENGTH)
         environment.SetYieldThreads(true);
     else
@@ -347,6 +380,7 @@ void ShardDatabaseManager::OnExecuteReads()
     ReadBuffer      value;
     ReadBuffer      userValue;
     ClientRequest*  itRequest;
+    ShardDatabaseAsyncGet*  asyncGet;
 
     start = NowClock();
 
@@ -374,17 +408,22 @@ void ShardDatabaseManager::OnExecuteReads()
         key.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = environment.GetShardID(contextID, itRequest->tableID, key);
-
-        if (!environment.Get(contextID, shardID, key, value))
-        {
-            itRequest->response.Failed();
-            itRequest->OnComplete();
-            continue;
-        }
-        
-        ReadValue(value, paxosID, commandID, userValue);    
-        itRequest->response.Value(userValue);
-        itRequest->OnComplete();
+//        if (!environment.Get(contextID, shardID, key, value))
+//        {
+//            itRequest->response.Failed();
+//            itRequest->OnComplete();
+//            continue;
+//        }
+//        
+//        ReadValue(value, paxosID, commandID, userValue);    
+//        itRequest->response.Value(userValue);
+//        itRequest->OnComplete();
+        // TODO: memleak
+        asyncGet = new ShardDatabaseAsyncGet;
+        asyncGet->request = itRequest;
+        asyncGet->key.Wrap(itRequest->key);
+        asyncGet->onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(asyncGet);
+        environment.AsyncGet(contextID, shardID, asyncGet);
     }
     //Log_Message("DONE");
 }

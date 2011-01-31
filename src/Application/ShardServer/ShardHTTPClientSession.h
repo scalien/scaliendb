@@ -34,6 +34,7 @@ public:
 private:
     void                PrintStatus();
     bool                ProcessCommand(ReadBuffer& cmd);
+    bool                ProcessSettings();
     ClientRequest*      ProcessShardServerCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessGetPrimary();
     ClientRequest*      ProcessGet();

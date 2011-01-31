@@ -69,6 +69,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Replication/ReplicationConfig.o \
 	$(BUILD_DIR)/Framework/Storage/BloomFilter.o \
 	$(BUILD_DIR)/Framework/Storage/FDGuard.o \
+	$(BUILD_DIR)/Framework/Storage/StorageAsyncGet.o \
 	$(BUILD_DIR)/Framework/Storage/StorageBloomPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageBulkCursor.o \
 	$(BUILD_DIR)/Framework/Storage/StorageChunkMerger.o \
@@ -112,6 +113,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/IO/Socket_Posix.o \
 	$(BUILD_DIR)/System/IO/Socket_Windows.o \
 	$(BUILD_DIR)/System/Log.o \
+	$(BUILD_DIR)/System/Mutex_Posix.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
 	$(BUILD_DIR)/System/ThreadPool_Posix.o \
 	$(BUILD_DIR)/System/ThreadPool_Windows.o \

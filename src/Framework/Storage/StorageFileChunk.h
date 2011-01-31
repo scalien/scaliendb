@@ -1,11 +1,14 @@
 #ifndef STORAGEFILECHUNK_H
 #define STORAGEFILECHUNK_H
 
+#include "System/IO/FD.h"
 #include "StorageChunk.h"
 #include "StorageHeaderPage.h"
 #include "StorageIndexPage.h"
 #include "StorageBloomPage.h"
 #include "StorageDataPage.h"
+
+class StorageAsyncGet;
 
 /*
 ===============================================================================================
@@ -26,14 +29,17 @@ public:
     void                SetFilename(ReadBuffer filename);
     Buffer&             GetFilename();
 
+    bool                OpenForReading();
+
     ChunkState          GetChunkState();
     
-    void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard);
+    void                NextBunch(StorageBulkCursor& cursor, StorageShard* shard);
 
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
         
     StorageKeyValue*    Get(ReadBuffer& key);
+    void                AsyncGet(StorageAsyncGet* asyncGet);
     
     uint64_t            GetMinLogSegmentID();
     uint64_t            GetMaxLogSegmentID();
@@ -54,6 +60,9 @@ public:
     void                LoadBloomPage();
     void                LoadIndexPage();
     void                LoadDataPage(uint32_t index, uint32_t offset, bool bulk = false);
+    StoragePage*        AsyncLoadBloomPage();
+    StoragePage*        AsyncLoadIndexPage();
+    StoragePage*        AsyncLoadDataPage(uint32_t index, uint32_t offset);
 
     bool                RangeContains(ReadBuffer key);
 
@@ -61,6 +70,7 @@ public:
     StorageFileChunk*   next;
 
     void                AppendDataPage(StorageDataPage* dataPage);
+    void                AllocateDataPageArray();
     void                ExtendDataPageArray();
     bool                ReadPage(uint32_t offset, Buffer& buffer);
 
@@ -74,6 +84,9 @@ public:
     uint32_t            fileSize;
     Buffer              filename;
     bool                useCache;
+    bool                isBloomPageLoading;
+    bool                isIndexPageLoading;
+    FD                  fd;
 };
 
 #endif

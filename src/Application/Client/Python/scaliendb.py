@@ -45,6 +45,10 @@ class Client:
         def __del__(self):
             self.close()
         
+        def __iter__(self):
+            self.begin()
+            return self
+        
         def close(self):
             SDBP_ResultClose(self.cptr)
             self.cptr = None
@@ -71,7 +75,10 @@ class Client:
             return SDBP_ResultIsEnd(self.cptr)
         
         def next(self):
-            return SDBP_ResultNext(self.cptr)
+            if self.is_end():
+                raise StopIteration
+            SDBP_ResultNext(self.cptr)
+            return self
         
         def command_status(self):
             return SDBP_ResultCommandStatus(self.cptr)

@@ -32,7 +32,7 @@ public:
     
     ChunkState          GetChunkState();
     
-    void                NextBunch(StorageCursorBunch& bunch, StorageShard* shard);
+    void                NextBunch(StorageBulkCursor& cursor, StorageShard* shard);
     
     void                SetChunkID(uint64_t chunkID);
     void                SetUseBloomFilter(bool useBloomFilter);
@@ -43,6 +43,8 @@ public:
     StorageKeyValue*    Get(ReadBuffer& key);
     bool                Set(ReadBuffer key, ReadBuffer value);
     bool                Delete(ReadBuffer key);
+
+    void                AsyncGet(StorageAsyncGet* asyncGet);
     
     void                RegisterLogCommand(uint64_t logSegmentID, uint32_t logCommandID);
     uint64_t            GetMinLogSegmentID();

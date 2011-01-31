@@ -7,7 +7,9 @@
 #include "StorageMemoKeyValue.h"
 #include "StorageFileKeyValue.h"
 
-#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*KiB)
+//#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*KiB)
+//#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (4*KiB)
+#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (16*KiB)
 
 class StorageFileChunk;
 
@@ -21,9 +23,6 @@ class StorageFileChunk;
 
 class StorageDataPage : public StoragePage
 {
-    friend class StorageFileChunk;
-    typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
-
 public:
     StorageDataPage(StorageFileChunk* owner, uint32_t index);
     ~StorageDataPage();
@@ -38,9 +37,11 @@ public:
     
     void                    Append(StorageKeyValue* kv);
     void                    Finalize();
+    void                    Reset();
     
     StorageFileKeyValue*    First();
     StorageFileKeyValue*    Next(StorageFileKeyValue* it);
+    StorageFileKeyValue*    GetIndexedKeyValue(unsigned index);
 
     bool                    Read(Buffer& buffer);
     void                    Write(Buffer& buffer);
@@ -48,16 +49,14 @@ public:
     void                    Unload();
 
 private:
-//    StorageFileKeyValue*    LocateKeyValue(ReadBuffer& key, int& cmpres);
-//    void                    AppendKeyValue(StorageFileKeyValue* kv);
-//    StorageFileKeyValue*    GetIndexedKeyValue(unsigned index);
+    StorageFileKeyValue*    LocateKeyValue(ReadBuffer& key, int& cmpres);
+    void                    AppendKeyValue(StorageFileKeyValue* kv);
 
     uint32_t                size;
     uint32_t                index;
     Buffer                  buffer;
     StorageFileChunk*       owner;
-//    Buffer                  keyValueIndexBuffer;
-    KeyValueTree            keyValues;
+    Buffer                  keyValueIndexBuffer;
 };
 
 #endif

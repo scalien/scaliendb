@@ -167,10 +167,12 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
     dataPage->SetOffset(offset);
     while(it1 != NULL || it2 != NULL)
     {
-        while (env->yieldThreads)
+        // TODO: HACK
+        while (env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
         {
             Log_Trace("Yielding...");
-            MSleep(10);
+            // TODO: DEFAULT_YIELD_TIMEOUT = 2*CLOCK_RESOLUTION
+            MSleep(2*CLOCK_RESOLUTION);
         }
 
         advance1 = false;

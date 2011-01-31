@@ -95,11 +95,14 @@ bool FS_RecDeleteDir(const char* path)
 #include <errno.h>
 #include "System/Containers/List.h"
 #include "System/Containers/ArrayList.h"
+#include "System/Mutex.h"
+#include "System/ThreadPool.h"
 
 #define MAX_FD  128*1024
 
-List<int>   fileHandles;
-bool        dirtyFiles[MAX_FD];
+static List<int>    fileHandles;
+static bool         dirtyFiles[MAX_FD];
+static Mutex        globalMutex;
 
 FD FS_Open(const char* filename, int flags)
 {
@@ -126,8 +129,10 @@ FD FS_Open(const char* filename, int flags)
         return INVALID_FD;
     }
     
+    globalMutex.Lock();
     fileHandles.Append(fd);
     dirtyFiles[fd] = false;
+    globalMutex.Unlock();
     
     return fd;
 }
@@ -135,9 +140,11 @@ FD FS_Open(const char* filename, int flags)
 void FS_FileClose(FD fd)
 {
     int ret;
-    
+
+    globalMutex.Lock();
     fileHandles.Remove(fd);
     dirtyFiles[fd] = false;
+    globalMutex.Unlock();
     
     ret = close(fd);
     if (ret < 0)
@@ -148,7 +155,7 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
 {
     off_t   ret;
     int     whence;
-    
+
     whence = -1;
     switch (whence_)
     {
@@ -476,7 +483,8 @@ char FS_Separator()
 #include "System/Containers/List.h"
 #include <stdio.h>
 
-List<intptr_t>    fileHandles;
+static List<intptr_t>   fileHandles;
+static Mutex            globalMutex;
 
 struct FS_Dir_Windows
 {
@@ -519,7 +527,10 @@ FD FS_Open(const char* filename, int flags)
     }
     
     fd.handle = (intptr_t) handle;
+    
+    globalMutex.Lock();
     fileHandles.Append(fd.handle);
+    globalMutex.Unlock();
 
     return fd;
 }
@@ -527,8 +538,10 @@ FD FS_Open(const char* filename, int flags)
 void FS_FileClose(FD fd)
 {
     BOOL    ret;
-    
+
+    globalMutex.Lock();
     fileHandles.Remove(fd.handle);
+    globalMutex.Unlock();
 
     ret = CloseHandle((HANDLE)fd.handle);
     if (!ret)
