@@ -12,39 +12,6 @@ class StorageFileChunk;
 /*
 ===============================================================================================
 
- StorageCursorBunch
-
-===============================================================================================
-*/
-
-//class StorageCursorBunch
-//{
-//    friend class StorageMemoChunk;
-//    friend class StorageFileChunk;
-//    typedef InTreeMap<StorageFileKeyValue> KeyValueTree;
-//
-//public:
-//    StorageCursorBunch();
-//    ~StorageCursorBunch();
-//
-//    StorageKeyValue*        First();
-//    StorageKeyValue*        Next(StorageKeyValue* it);
-//    
-//    ReadBuffer              GetNextKey();
-//    bool                    IsLast();
-//    void                    Reset();
-//    
-//    void                    InsertKeyValue(StorageFileKeyValue* kv);
-//  
-//    KeyValueTree            keyValues;
-//    Buffer                  buffer;
-//    bool                    isLast;
-//    Buffer                  nextKey;
-//};
-
-/*
-===============================================================================================
-
  StorageBulkCursor
 
 ===============================================================================================
@@ -71,9 +38,7 @@ public:
 private:
     StorageKeyValue*        FromNextBunch(StorageChunk* chunk);
 
-//    StorageCursorBunch      bunch;
     StorageDataPage         dataPage;
-
     uint64_t                chunkID;
     StorageShard*           shard;
     StorageEnvironment*     env;

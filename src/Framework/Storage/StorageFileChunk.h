@@ -29,6 +29,8 @@ public:
     void                SetFilename(ReadBuffer filename);
     Buffer&             GetFilename();
 
+    bool                OpenForReading();
+
     ChunkState          GetChunkState();
     
     void                NextBunch(StorageBulkCursor& cursor, StorageShard* shard);

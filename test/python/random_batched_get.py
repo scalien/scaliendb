@@ -41,9 +41,13 @@ while limit == 0 or i < limit:
 		client.get(md5.new(str(x + i)).hexdigest())
 		sent += len(value)
 	ret = client.submit()
+	end = time.time()
 	if ret != 0:
 		print("Submit failed")
 		break
-	end = time.time()
+	found = 0
+	for res in client.result:
+		if res.command_status() == scaliendb.SDBP_SUCCESS:
+			found += 1
 	i += batch
-	print("Sent bytes: %s, num: %i, rps = %.0f" % (sizeof_fmt(sent), i, (batch/((end - start) * 1000.0) * 1000.0)))
+	print("Sent bytes: %s, num: %i, found: %i, rps = %.0f" % (sizeof_fmt(sent), i, found, (batch/((end - start) * 1000.0) * 1000.0)))

@@ -28,6 +28,11 @@ static size_t Hash(uint64_t h)
     return h;
 }
 
+static bool LessThan(const ClientRequest& a, const ClientRequest& b)
+{
+    return Buffer::Cmp(a.key, b.key) < 0;
+}
+
 class ShardDatabaseAsyncGet : public StorageAsyncGet
 {
 public:
@@ -214,7 +219,8 @@ void ShardDatabaseManager::RemoveDeletedTables()
 
 void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
-    readRequests.Append(request);
+//    readRequests.Append(request);
+    readRequests.Add(request);
 
     environment.SetYieldThreads(true);
 

@@ -487,6 +487,7 @@
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
+		9AD5E93D12F5F1DE00F4AF7B /* Channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Channel.h; sourceTree = "<group>"; };
 		9AE8176812CE1E550038BDB1 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9AE8176912CE1E550038BDB1 /* SDBPClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClient.cpp; path = Client/SDBPClient.cpp; sourceTree = "<group>"; };
 		9AE8176A12CE1E550038BDB1 /* SDBPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClient.h; path = Client/SDBPClient.h; sourceTree = "<group>"; };
@@ -1024,6 +1025,7 @@
 				9AE81D7C12D5147E0038BDB1 /* Mutex.h */,
 				9AE81D7D12D5147E0038BDB1 /* Mutex_Posix.cpp */,
 				9AE81D9A12D5171B0038BDB1 /* Mutex_Windows.cpp */,
+				9AD5E93D12F5F1DE00F4AF7B /* Channel.h */,
 			);
 			path = System;
 			sourceTree = "<group>";

@@ -19,6 +19,11 @@ static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
     return kv->GetKey();
 }
 
+static bool LessThan(const StorageAsyncGet* a, const StorageAsyncGet* b)
+{
+    return ReadBuffer::Cmp(a->key, b->key);
+}
+
 // This function is executed in the main thread
 void StorageAsyncGet::ExecuteAsyncGet()
 {
@@ -923,38 +928,7 @@ void StorageEnvironment::TrySerializeChunks()
     Buffer                      tmp;
     StorageShard*               itShard;
     StorageMemoChunk*           memoChunk;
-    StorageFileChunk*           fileChunk;
-    StorageChunk**              itChunk;
     StorageJob*                 job;
-
-//    // look for memoChunks which have been serialized already
-//    FOREACH (itShard, shards)
-//    {
-//        for (itChunk = itShard->GetChunks().First(); itChunk != NULL; /* advanced in body */)
-//        {
-//            if ((*itChunk)->GetChunkState() == StorageChunk::Serialized)
-//            {
-//                memoChunk = (StorageMemoChunk*) (*itChunk);
-//                fileChunk = memoChunk->RemoveFileChunk();
-//                if (fileChunk == NULL)
-//                    goto Advance;
-//                itShard->OnChunkSerialized(memoChunk, fileChunk);
-//                Log_Message("Deleting MemoChunk...");
-//                job = new StorageDeleteMemoChunkJob(memoChunk);
-//                StartJob(asyncThread, job);
-//                
-//                tmp.Write(chunkPath);
-//                tmp.Appendf("chunk.%020U", fileChunk->GetChunkID());
-//                fileChunk->SetFilename(ReadBuffer(tmp));
-//                fileChunks.Append(fileChunk);
-//
-//                itChunk = itShard->GetChunks().First();
-//                continue;
-//            }
-//Advance:
-//            itChunk = itShard->GetChunks().Next(itChunk);
-//        }
-//    }
 
     if (serializerThreadActive)
         return;

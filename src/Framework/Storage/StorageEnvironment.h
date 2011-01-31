@@ -5,6 +5,7 @@
 #include "System/Containers/InList.h"
 #include "System/Events/Countdown.h"
 #include "System/ThreadPool.h"
+#include "System/Channel.h"
 #include "StorageConfig.h"
 #include "StorageLogSegment.h"
 #include "StorageMemoChunk.h"
@@ -73,6 +74,8 @@ class StorageEnvironment
     typedef InList<StorageShard>        ShardList;
     typedef InList<StorageFileChunk>    FileChunkList;
     typedef InList<StorageAsyncGet>     AsyncGetList;
+
+    typedef Channel<StorageAsyncGet*, SortedList<StorageAsyncGet*> >   AsyncGetChannel;
 
 public:
     StorageEnvironment();
@@ -160,6 +163,7 @@ private:
     bool                    archiverThreadActive;
     ThreadPool*             asyncThread;
     ThreadPool*             asyncGetThread;
+    AsyncGetChannel         asyncGetChannel;
 
     Buffer                  envPath;
     Buffer                  chunkPath;

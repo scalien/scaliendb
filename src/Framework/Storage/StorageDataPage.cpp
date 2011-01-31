@@ -1,16 +1,6 @@
 #include "StorageDataPage.h"
 #include "StorageFileChunk.h"
 
-static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
-{
-    return ReadBuffer::Cmp(a, b);
-}
-
-static const ReadBuffer Key(StorageFileKeyValue* kv)
-{
-    return kv->GetKey();
-}
-
 StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 {
     size = 0;
@@ -28,7 +18,6 @@ StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 
 StorageDataPage::~StorageDataPage()
 {
-//    keyValues.DeleteTree();
     StorageFileKeyValue*    kv;
 
     for (unsigned i = 0; i < GetNumKeys(); i++)
@@ -52,7 +41,6 @@ StorageKeyValue* StorageDataPage::Get(ReadBuffer& key)
     if (GetNumKeys() == 0)
         return NULL;
         
-//    it = keyValues.Locate<ReadBuffer&>(key, cmpres);
     it = LocateKeyValue(key, cmpres);
     if (cmpres != 0)
         return NULL;
@@ -90,7 +78,6 @@ StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpre
 
 uint32_t StorageDataPage::GetNumKeys()
 {
-//    return keyValues.GetCount();
     return keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*);
 }
 
@@ -220,13 +207,11 @@ void StorageDataPage::Reset()
 
 StorageFileKeyValue* StorageDataPage::First()
 {
-//    return keyValues.First();
     return GetIndexedKeyValue(0);
 }
 
 StorageFileKeyValue* StorageDataPage::Next(StorageFileKeyValue* it)
 {
-//    return keyValues.Next(it);
     return GetIndexedKeyValue(it->GetNextIndex());
 }
 
@@ -252,11 +237,11 @@ bool StorageDataPage::Read(Buffer& buffer_)
     parse.Advance(4);
 
     // checksum
-    parse.ReadLittle32(checksum);
-    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
-    compChecksum = dataPart.GetChecksum();
-    if (compChecksum != checksum)
-        goto Fail;
+//    parse.ReadLittle32(checksum);
+//    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+//    compChecksum = dataPart.GetChecksum();
+//    if (compChecksum != checksum)
+//        goto Fail;
     parse.Advance(4);
     
     // numkeys
@@ -299,14 +284,12 @@ bool StorageDataPage::Read(Buffer& buffer_)
             
             fkv = new StorageFileKeyValue;
             fkv->Set(key, value);
-//            keyValues.Insert(fkv);
             AppendKeyValue(fkv);
         }
         else
         {
             fkv = new StorageFileKeyValue;
             fkv->Delete(key);
-//            keyValues.Insert(fkv);
             AppendKeyValue(fkv);
         }
     }
@@ -315,7 +298,6 @@ bool StorageDataPage::Read(Buffer& buffer_)
     return true;
     
 Fail:
-//    keyValues.DeleteTree();
     keyValueIndexBuffer.Reset();
     buffer.Reset();
     return false;
@@ -328,7 +310,6 @@ void StorageDataPage::Write(Buffer& buffer_)
 
 void StorageDataPage::Unload()
 {
-//    keyValues.DeleteTree();
     Reset();
     owner->OnDataPageEvicted(index);
 }

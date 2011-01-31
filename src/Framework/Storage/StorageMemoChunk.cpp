@@ -119,10 +119,8 @@ void StorageMemoChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
 {
     bool                    first;
     int                     cmpres;
-    uint32_t                pos;
     ReadBuffer              nextKey, key, value;
     StorageMemoKeyValue*    it;
-    StorageFileKeyValue*    kv;
     uint32_t                total;
     
     if (keyValues.GetCount() == 0)
@@ -132,7 +130,7 @@ void StorageMemoChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
     }
     
     nextKey = cursor.GetNextKey();
-    it = keyValues.Locate<ReadBuffer&>(nextKey, cmpres);
+    it = keyValues.Locate(nextKey, cmpres);
     
     total = 0;
     first = true;

@@ -53,12 +53,12 @@ bool ShardConnection::SendRequest(Request* request)
 
 void ShardConnection::SendSubmit(uint64_t quorumID)
 {
-    SDBPRequestMessage  msg;
-    
-    // TODO: optimize away submitRequest and msg by writing the buffer in constructor
-    submitRequest.Submit(quorumID);
-    msg.request = &submitRequest;
-    Write(msg);
+//    SDBPRequestMessage  msg;
+//    
+//    // TODO: optimize away submitRequest and msg by writing the buffer in constructor
+//    submitRequest.Submit(quorumID);
+//    msg.request = &submitRequest;
+//    Write(msg);
     
     Flush();
 }

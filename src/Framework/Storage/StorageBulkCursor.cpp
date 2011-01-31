@@ -2,49 +2,6 @@
 #include "StorageEnvironment.h"
 #include "StoragePageCache.h"
 
-//StorageCursorBunch::StorageCursorBunch()
-//{
-//    isLast = false;
-//}
-//
-//StorageCursorBunch::~StorageCursorBunch()
-//{
-//    keyValues.DeleteTree();
-//}
-//
-//StorageKeyValue* StorageCursorBunch::First()
-//{
-//    return keyValues.First();
-//}
-//
-//StorageKeyValue* StorageCursorBunch::Next(StorageKeyValue* it)
-//{
-//    return keyValues.Next((StorageFileKeyValue*) it);
-//}
-//
-//ReadBuffer StorageCursorBunch::GetNextKey()
-//{
-//    return ReadBuffer(nextKey);
-//}
-//
-//bool StorageCursorBunch::IsLast()
-//{
-//    return isLast;
-//}
-//
-//void StorageCursorBunch::Reset()
-//{
-//    keyValues.DeleteTree();
-//    buffer.Reset();
-//    isLast = false;
-//    nextKey.Reset();
-//}
-//
-//void StorageCursorBunch::InsertKeyValue(StorageFileKeyValue* kv)
-//{
-//    // TODO:
-//}
-
 StorageBulkCursor::StorageBulkCursor() :
  dataPage(NULL, 0)
 {

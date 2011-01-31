@@ -96,6 +96,7 @@ bool FS_RecDeleteDir(const char* path)
 #include "System/Containers/List.h"
 #include "System/Containers/ArrayList.h"
 #include "System/Mutex.h"
+#include "System/ThreadPool.h"
 
 #define MAX_FD  128*1024
 
@@ -154,7 +155,7 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
 {
     off_t   ret;
     int     whence;
-    
+
     whence = -1;
     switch (whence_)
     {
