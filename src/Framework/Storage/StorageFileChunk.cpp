@@ -3,6 +3,7 @@
 #include "StorageBulkCursor.h"
 #include "StoragePageCache.h"
 #include "StorageEnvironment.h"
+#include "StorageAsyncGet.h"
 
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -120,73 +121,6 @@ StorageChunk::ChunkState StorageFileChunk::GetChunkState()
     else
         return StorageChunk::Unwritten;
 }
-
-//void StorageFileChunk::NextBunch(StorageCursorBunch& bunch, StorageShard* shard)
-//{
-//    uint32_t                index, offset, pos;
-//    ReadBuffer              nextKey, key, value;
-//    StorageFileKeyValue*    it;
-//    StorageFileKeyValue*    kv;
-//    
-//    if (!shard->RangeContains(headerPage.GetFirstKey()) && !shard->RangeContains(headerPage.GetLastKey()))
-//    {
-//        bunch.isLast = true;
-//        return;
-//    }
-//    nextKey = bunch.GetNextKey();
-//
-//    if (indexPage == NULL)
-//        LoadIndexPage();
-//
-//    if (!indexPage->Locate(nextKey, index, offset))
-//    {
-//        index = 0;
-//        offset = STORAGE_HEADER_PAGE_SIZE;
-//    }
-//
-//    if (dataPages[index] == NULL)
-//        LoadDataPage(index, offset, true);
-//    
-//    bunch.buffer.Write(dataPages[index]->buffer);
-////    FOREACH(it, dataPages[index]->keyValues)
-//    for (unsigned i = 0; i < dataPages[index]->GetNumKeys(); i++)
-//    {
-//        it = dataPages[index]->GetIndexedKeyValue(index);
-//        if (!shard->RangeContains(it->GetKey()))
-//            continue;
-//
-//        kv = new StorageFileKeyValue;
-//        
-//        pos = it->GetKey().GetBuffer() - dataPages[index]->buffer.GetBuffer();
-//        key.Wrap(bunch.buffer.GetBuffer() + pos, it->GetKey().GetLength());
-//        if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
-//        {
-//            pos = it->GetValue().GetBuffer() - dataPages[index]->buffer.GetBuffer();
-//            value.Wrap(bunch.buffer.GetBuffer() + pos, it->GetValue().GetLength());
-//            kv->Set(key, value);
-//        }
-//        else
-//        {
-//            kv->Delete(key);
-//        }
-//        
-//        bunch.InsertKeyValue(kv);
-//    }
-//    
-//    if (index == (numDataPages - 1))
-//    {
-//        bunch.isLast = true;
-//        return;
-//    }
-//    
-//    index++;
-//    if (dataPages[index] == NULL)
-//        LoadDataPage(index, dataPages[index - 1]->GetOffset() + dataPages[index - 1]->GetSize(), true);
-//    
-////    bunch.nextKey.Write(dataPages[index]->keyValues.First()->GetKey());   
-//    bunch.nextKey.Write(dataPages[index]->GetIndexedKeyValue(0)->GetKey());
-//    bunch.isLast = false;
-//}
 
 void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
 {

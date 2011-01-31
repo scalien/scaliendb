@@ -5,7 +5,6 @@
 #include "System/Containers/InList.h"
 #include "System/Events/Countdown.h"
 #include "System/ThreadPool.h"
-#include "System/Channel.h"
 #include "StorageConfig.h"
 #include "StorageLogSegment.h"
 #include "StorageMemoChunk.h"
@@ -33,34 +32,6 @@ class StorageArchiveLogSegmentJob;
 ===============================================================================================
 */
 
-class StorageAsyncGet
-{
-public:
-    enum Stage
-    {
-        START,
-        INDEX_PAGE,
-        BLOOM_PAGE,
-        DATA_PAGE
-    };
-    ReadBuffer          key;
-    ReadBuffer          value;
-    bool                ret;
-    Stage               stage;
-    bool                completed;
-    Callable            onComplete;
-    uint32_t            index;
-    uint32_t            offset;
-    StorageShard*       shard;
-    StorageChunk**      itChunk;
-    StoragePage*        lastLoadedPage;
-    ThreadPool*         threadPool;
-    
-    void                ExecuteAsyncGet();
-    void                OnComplete();
-    void                AsyncLoadPage();
-};
-
 class StorageEnvironment
 {
     friend class StorageRecovery;
@@ -74,8 +45,6 @@ class StorageEnvironment
     typedef InList<StorageShard>        ShardList;
     typedef InList<StorageFileChunk>    FileChunkList;
     typedef InList<StorageAsyncGet>     AsyncGetList;
-
-    typedef Channel<StorageAsyncGet*, SortedList<StorageAsyncGet*> >   AsyncGetChannel;
 
 public:
     StorageEnvironment();
@@ -163,7 +132,6 @@ private:
     bool                    archiverThreadActive;
     ThreadPool*             asyncThread;
     ThreadPool*             asyncGetThread;
-    AsyncGetChannel         asyncGetChannel;
 
     Buffer                  envPath;
     Buffer                  chunkPath;

@@ -170,6 +170,7 @@
 		9AD5E51812EF094400F4AF7B /* StorageMemoChunk.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE59B12BFBB3D0069786A /* StorageMemoChunk.cpp */; };
 		9AD5E51912EF094800F4AF7B /* StorageMemoKeyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE59D12BFBB3D0069786A /* StorageMemoKeyValue.cpp */; };
 		9AD5E51A12EF094B00F4AF7B /* StorageFileKeyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE59012BFBB3D0069786A /* StorageFileKeyValue.cpp */; };
+		9AD5EA9112F70C4700F4AF7B /* StorageAsyncGet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */; };
 		9AE8197512D4BFE80038BDB1 /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */; };
 		9AE8197612D4BFE80038BDB1 /* ClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196712D4BFE80038BDB1 /* ClientTest.cpp */; };
 		9AE8197712D4BFE80038BDB1 /* CommonTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */; };
@@ -488,6 +489,8 @@
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
 		9AD5E93D12F5F1DE00F4AF7B /* Channel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Channel.h; sourceTree = "<group>"; };
+		9AD5EA8F12F70C4700F4AF7B /* StorageAsyncGet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncGet.h; sourceTree = "<group>"; };
+		9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageAsyncGet.cpp; sourceTree = "<group>"; };
 		9AE8176812CE1E550038BDB1 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9AE8176912CE1E550038BDB1 /* SDBPClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClient.cpp; path = Client/SDBPClient.cpp; sourceTree = "<group>"; };
 		9AE8176A12CE1E550038BDB1 /* SDBPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClient.h; path = Client/SDBPClient.h; sourceTree = "<group>"; };
@@ -731,6 +734,8 @@
 				543DE5A112BFBB3D0069786A /* StoragePageCache.cpp */,
 				543DE73212C0B8730069786A /* StorageBulkCursor.h */,
 				543DE73312C0B8730069786A /* StorageBulkCursor.cpp */,
+				9AD5EA8F12F70C4700F4AF7B /* StorageAsyncGet.h */,
+				9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */,
 				543DE5A712BFBB3D0069786A /* TODO.txt */,
 			);
 			path = Storage;
@@ -1357,6 +1362,7 @@
 				54E59F0012E5A84F002222A4 /* ShardCatchupWriter.cpp in Sources */,
 				54E59F3B12E5AD20002222A4 /* ShardCatchupReader.cpp in Sources */,
 				9AD5E46012EDD62000F4AF7B /* Mutex_Posix.cpp in Sources */,
+				9AD5EA9112F70C4700F4AF7B /* StorageAsyncGet.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

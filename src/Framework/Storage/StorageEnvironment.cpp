@@ -8,6 +8,7 @@
 #include "StorageEnvironmentWriter.h"
 #include "StorageRecovery.h"
 #include "StoragePageCache.h"
+#include "StorageAsyncGet.h"
 
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -18,111 +19,6 @@ static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
 {
     return kv->GetKey();
 }
-
-static bool LessThan(const StorageAsyncGet* a, const StorageAsyncGet* b)
-{
-    return ReadBuffer::Cmp(a->key, b->key);
-}
-
-// This function is executed in the main thread
-void StorageAsyncGet::ExecuteAsyncGet()
-{
-    StorageFileChunk*   fileChunk;
-
-    fileChunk = (StorageFileChunk*) (*itChunk);
-    if (stage == BLOOM_PAGE)
-    {
-        if (lastLoadedPage != NULL)
-        {
-            assert(fileChunk->bloomPage == NULL);
-            fileChunk->bloomPage = (StorageBloomPage*) lastLoadedPage;
-            fileChunk->isBloomPageLoading = false;
-        }
-    }
-    else if (stage == INDEX_PAGE)
-    {
-        if (lastLoadedPage != NULL)
-        {
-            assert(fileChunk->indexPage == NULL);
-            fileChunk->indexPage = (StorageIndexPage*) lastLoadedPage;
-            fileChunk->AllocateDataPageArray();
-            fileChunk->isIndexPageLoading = false;
-        }
-    }
-    else if (stage == DATA_PAGE)
-    {
-        if (lastLoadedPage != NULL)
-        {
-            // TODO: FIXME:
-//            assert(fileChunk->dataPages[index] == NULL);
-            if (fileChunk->dataPages[index] == NULL)
-            {
-                fileChunk->dataPages[index] = (StorageDataPage*) lastLoadedPage;
-                StoragePageCache::AddPage(lastLoadedPage);
-                lastLoadedPage = NULL;
-            }
-            else
-            {
-                delete lastLoadedPage;
-                lastLoadedPage = NULL;
-            }
-        }
-    }
-
-    if (lastLoadedPage)
-    {
-        StoragePageCache::AddPage(lastLoadedPage);
-        lastLoadedPage = NULL;
-    }
-    
-    stage = START;
-    while (itChunk != NULL)
-    {
-        completed = false;
-        (*itChunk)->AsyncGet(this);
-        if (completed && ret)
-            break;  // found
-
-        if (!completed)
-            return; // needs async loading
-
-        itChunk = shard->GetChunks().Prev(itChunk);
-    }
-
-    if (itChunk == NULL)
-        completed = true;
-
-    if (completed)
-        OnComplete();
-
-    // don't put code here, because OnComplete deletes the object
-}
-
-// This function is executed in the main thread
-void StorageAsyncGet::OnComplete()
-{
-    Call(onComplete);
-    delete this;
-}
-
-// This function is executed in the threadPool
-void StorageAsyncGet::AsyncLoadPage()
-{
-    Callable            asyncGet;
-    StorageFileChunk*   fileChunk;
-    
-    fileChunk = (StorageFileChunk*) (*itChunk);
-    if (stage == BLOOM_PAGE)
-        lastLoadedPage = fileChunk->AsyncLoadBloomPage();
-    else if (stage == INDEX_PAGE)
-        lastLoadedPage = fileChunk->AsyncLoadIndexPage();
-    else if (stage == DATA_PAGE)
-        lastLoadedPage = fileChunk->AsyncLoadDataPage(index, offset);
-    
-    asyncGet = MFUNC(StorageAsyncGet, ExecuteAsyncGet);
-    IOProcessor::Complete(&asyncGet);
-}
-
 
 StorageEnvironment::StorageEnvironment()
 {
@@ -1209,6 +1105,8 @@ void StorageEnvironment::OnChunkMerge()
 
     itShard = GetShard(mergeContextID, mergeShardID);
 
+    chunk1 = NULL;
+    chunk2 = NULL;
     if (itShard == NULL)
     {
         // shard has been deleted
