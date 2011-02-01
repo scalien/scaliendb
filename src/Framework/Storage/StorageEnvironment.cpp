@@ -172,21 +172,23 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
 void StorageEnvironment::Close()
 {
+    asyncGetThread->Stop();
+
     commitThread->Stop();
-    delete commitThread;
     commitThreadActive = false;
     serializerThread->Stop();
-    delete serializerThread;
     serializerThreadActive = false;
     writerThread->Stop();
-    delete writerThread;
     writerThreadActive = false;
     archiverThread->Stop();
-    delete archiverThread;
     archiverThreadActive = false;
     asyncThread->Stop();
+
+    delete commitThread;
+    delete serializerThread;
+    delete writerThread;
+    delete archiverThread;
     delete asyncThread;
-    asyncGetThread->Stop();
     delete asyncGetThread;
     
     shards.DeleteList();
