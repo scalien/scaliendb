@@ -27,6 +27,11 @@ uint64_t StoragePageCache::GetSize()
     return size;
 }
 
+unsigned StoragePageCache::GetNumPages()
+{
+    return pages.GetLength();
+}
+
 void StoragePageCache::AddPage(StoragePage* page, bool bulk)
 {
     StoragePage*    it;

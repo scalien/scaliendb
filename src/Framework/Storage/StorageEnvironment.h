@@ -52,9 +52,6 @@ public:
     bool                    Open(Buffer& envPath);
     void                    Close();
 
-    void                    SetStorageConfig(StorageConfig& config);
-    StorageConfig&          GetStorageConfig();
-
     void                    SetYieldThreads(bool yieldThreads);
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);

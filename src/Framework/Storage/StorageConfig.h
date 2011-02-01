@@ -18,7 +18,7 @@
 class StorageConfig
 {
 public:
-    StorageConfig();
+    void            Init();
 
     uint32_t        chunkSize;
     uint32_t        logSegmentSize;

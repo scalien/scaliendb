@@ -90,6 +90,10 @@ void StorageFileChunk::ReadHeaderPage()
     }
     
     fileSize = FS_FileSize(filename.GetBuffer());
+
+    LoadIndexPage();
+    if (UseBloomFilter())
+        LoadBloomPage();
 }
 
 void StorageFileChunk::SetFilename(ReadBuffer filename_)
@@ -488,7 +492,7 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
     if (isBloomPageLoading || bloomPage != NULL)
         return NULL;
     
-    Log_Debug("async loading bloom page");
+    Log_Debug("async loading bloom page: %U, cache size: %U, cache num: %u", GetChunkID(), StoragePageCache::GetSize(), StoragePageCache::GetNumPages());
 
     if (fd == INVALID_FD)
         OpenForReading();
@@ -527,7 +531,7 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
     if (isIndexPageLoading || indexPage != NULL)
         return NULL;
 
-    Log_Debug("async loading index page");
+    Log_Debug("async loading index page: %U, cache size: %U, cache num: %u", GetChunkID(), StoragePageCache::GetSize(), StoragePageCache::GetNumPages());
     
     if (fd == INVALID_FD)
         OpenForReading();

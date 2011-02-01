@@ -22,6 +22,7 @@ public:
     static void                 Shutdown();
 
     static uint64_t             GetSize();
+    static unsigned             GetNumPages();
     static void                 AddPage(StoragePage* page, bool bulk = false);
     static void                 RemovePage(StoragePage* page);
     static void                 RegisterHit(StoragePage* page);

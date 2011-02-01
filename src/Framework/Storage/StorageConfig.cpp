@@ -1,8 +1,9 @@
 #include "StorageConfig.h"
+#include "System/Config.h"
 
-StorageConfig::StorageConfig()
+void StorageConfig::Init()
 {
-    chunkSize = STORAGE_DEFAULT_CHUNKSIZE;
-    logSegmentSize = STORAGE_DEFAULT_LOGSEGMENTSIZE;
-    fileChunkCacheSize = STORAGE_DEFAULT_FILECHUNK_CACHESIZE;
+    chunkSize = configFile.GetIntValue("database.chunkSize", STORAGE_DEFAULT_CHUNKSIZE);
+    logSegmentSize = configFile.GetIntValue("database.logSegmentSize", STORAGE_DEFAULT_LOGSEGMENTSIZE);
+    fileChunkCacheSize = configFile.GetIntValue("database.cacheSize", STORAGE_DEFAULT_FILECHUNK_CACHESIZE);
 }

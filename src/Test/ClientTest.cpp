@@ -348,6 +348,70 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientBatchedDelete)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    ReadBuffer      key;
+    char            keybuf[32];
+    int             ret;
+    unsigned        num = 10*1000*1000;
+    Stopwatch       sw;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.Begin();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    for (unsigned i = 0; i < num; i++)
+    {
+        ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
+        key.Wrap(keybuf, ret);
+        ret = client.Delete(key);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+
+        if (i != 0 && i % 100000 == 0)
+        {
+            TEST_LOG("Submitting %d", i);
+            sw.Start();
+            ret = client.Submit();
+            if (ret != SDBP_SUCCESS)
+                TEST_CLIENT_FAIL();
+            sw.Stop();
+            ret = client.Begin();
+            if (ret != SDBP_SUCCESS)
+                TEST_CLIENT_FAIL();
+        }
+    }
+
+    sw.Start();
+    ret = client.Submit();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    sw.Stop();
+
+    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientBatchedGet)
 {
     Client          client;
@@ -360,7 +424,7 @@ TEST_DEFINE(TestClientBatchedGet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 500000;
+    unsigned        num = 50000;
     double          minLatency;
     double          maxLatency;
     double          avgLatency;

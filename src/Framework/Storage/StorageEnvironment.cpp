@@ -60,6 +60,8 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     Buffer          tmp;
     StorageRecovery recovery;
 
+    config.Init();
+
     commitThread = ThreadPool::Create(1);
     commitThread->Start();
     commitThreadActive = false;
@@ -194,16 +196,6 @@ void StorageEnvironment::Close()
     // TODO: clean up fileChunks properly, see the issue with StorageShard::chunkList
     //fileChunks.DeleteList();
     fileChunks.ClearMembers();
-}
-
-void StorageEnvironment::SetStorageConfig(StorageConfig& config_)
-{
-    config = config_;
-}
-
-StorageConfig& StorageEnvironment::GetStorageConfig()
-{
-    return config;
 }
 
 void StorageEnvironment::SetYieldThreads(bool yieldThreads_)
