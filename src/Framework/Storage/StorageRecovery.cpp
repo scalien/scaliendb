@@ -169,6 +169,8 @@ bool StorageRecovery::ReadShard(ReadBuffer& parse)
             fileChunk->SetFilename(ReadBuffer(tmp));
             fileChunk->written = true;
             
+            fileChunk->ReadHeaderPage();
+            
             env->fileChunks.Append(fileChunk);
         }
         

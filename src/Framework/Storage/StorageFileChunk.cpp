@@ -68,6 +68,9 @@ void StorageFileChunk::ReadHeaderPage()
     if (fd == INVALID_FD)
         OpenForReading();
 
+    if (headerPage.GetChunkID() > 0)
+        return; // already loaded
+
     offset = 0;
     
     if (!ReadPage(offset, buffer))
