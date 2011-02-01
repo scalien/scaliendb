@@ -519,6 +519,8 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
         STOP_FAIL(1);
     }
     
+    Log_Debug("async loading finished, bloom page: %U", GetChunkID());    
+    
     return page;
 }
 
@@ -557,6 +559,8 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
         Log_Message("Exiting...");
         STOP_FAIL(1);
     }
+
+    Log_Debug("async loading finished, index page: %U", GetChunkID());
 
     return page;    
 }
