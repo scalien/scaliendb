@@ -322,7 +322,7 @@ void StorageFileChunk::AddPagesToCache()
     uint32_t i;
     
     for (i = 0; i < numDataPages; i++)
-        StoragePageCache::AddPage(dataPages[i]);
+        StoragePageCache::AddPage(dataPages[i], true);
 
     if (UseBloomFilter())
         StoragePageCache::AddPage(bloomPage);
