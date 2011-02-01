@@ -89,7 +89,6 @@ void StorageAsyncGet::ExecuteAsyncGet()
 void StorageAsyncGet::OnComplete()
 {
     Call(onComplete);
-    delete this;
 }
 
 // This function is executed in the threadPool
