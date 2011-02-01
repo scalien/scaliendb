@@ -40,6 +40,8 @@ public:
     StoragePage*        lastLoadedPage;
     ThreadPool*         threadPool;
     
+    StorageAsyncGet();
+    
     void                ExecuteAsyncGet();
     void                OnComplete();
     void                AsyncLoadPage();

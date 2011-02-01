@@ -4,6 +4,13 @@
 #include "StorageShard.h"
 #include "System/IO/IOProcessor.h"
 
+StorageAsyncGet::StorageAsyncGet()
+{
+    lastLoadedPage = NULL;
+    ret = false;
+    completed = false;
+}
+
 // This function is executed in the main thread
 void StorageAsyncGet::ExecuteAsyncGet()
 {
