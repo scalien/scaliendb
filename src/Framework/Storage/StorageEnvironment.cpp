@@ -46,6 +46,7 @@ StorageEnvironment::StorageEnvironment()
     lastWriteTime = 0;
     haveUncommitedWrites = false;
     yieldThreads = false;
+    shuttingDown = false;
     numBulkCursors = 0;
     serializeChunk = NULL;
     writeChunk = NULL;
@@ -172,7 +173,10 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
 void StorageEnvironment::Close()
 {
+    shuttingDown = true;
+
     asyncGetThread->Stop();
+    asyncThread->Stop();
 
     commitThread->Stop();
     commitThreadActive = false;
@@ -182,7 +186,6 @@ void StorageEnvironment::Close()
     writerThreadActive = false;
     archiverThread->Stop();
     archiverThreadActive = false;
-    asyncThread->Stop();
 
     delete commitThread;
     delete serializerThread;

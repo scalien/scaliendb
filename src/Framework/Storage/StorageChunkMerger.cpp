@@ -1,7 +1,9 @@
 #include "StorageChunkMerger.h"
 #include "StorageKeyValue.h"
 #include "StorageEnvironment.h"
+#include "PointerGuard.h"
 #include "System/FileSystem.h"
+#include "System/Events/EventLoop.h"
 
 bool StorageChunkMerger::Merge(
  StorageEnvironment* env_,
@@ -148,6 +150,8 @@ bool StorageChunkMerger::WriteHeaderPage()
 
 bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
 {
+    typedef PointerGuard<StorageDataPage>   StorageDataPageGuard;
+    
     bool                    advance1;
     bool                    advance2;
     bool                    skip;
@@ -157,6 +161,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
     StorageFileKeyValue*    it2;
     StorageFileKeyValue*    it;
     StorageDataPage*        dataPage;
+    StorageDataPageGuard    dataPageGuard;
     uint64_t                numit1, numit2;
     
     it1 = reader1.First();
@@ -165,14 +170,17 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
     index = 0;
     dataPage = new StorageDataPage(mergeChunk, index);
     dataPage->SetOffset(offset);
+    dataPageGuard.Set(dataPage);
     while(it1 != NULL || it2 != NULL)
     {
+        if (env->shuttingDown)
+            return false;
+        
         // TODO: HACK
         while (env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
         {
             Log_Trace("Yielding...");
-            // TODO: DEFAULT_YIELD_TIMEOUT = 2*CLOCK_RESOLUTION
-            MSleep(2*CLOCK_RESOLUTION);
+            MSleep(YIELD_TIME);
         }
 
         advance1 = false;
@@ -259,8 +267,8 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
 
                 mergeChunk->AppendDataPage(NULL);
                 index++;
-                delete dataPage;
                 dataPage = new StorageDataPage(mergeChunk, index);
+                dataPageGuard.Set(dataPage);
                 dataPage->SetOffset(offset);
                 dataPage->Append(it);
                 mergeChunk->indexPage->Append(it->GetKey(), index, offset);
@@ -293,7 +301,8 @@ Advance:
 
         mergeChunk->AppendDataPage(NULL);
         index++;
-        delete dataPage;
+
+        // dataPage is deleted automatically
     }
     
     mergeChunk->indexPage->Finalize();

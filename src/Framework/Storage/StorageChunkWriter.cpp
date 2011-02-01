@@ -2,6 +2,7 @@
 #include "StorageEnvironment.h"
 #include "StorageChunk.h"
 #include "System/FileSystem.h"
+#include "System/Events/EventLoop.h"
 
 bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_)
 {
@@ -70,8 +71,7 @@ bool StorageChunkWriter::WriteDataPages()
         while (env->yieldThreads)
         {
             Log_Trace("Yielding...");
-            // TODO: DEFAULT_YIELD_TIMEOUT = 2*CLOCK_RESOLUTION
-            MSleep(2*CLOCK_RESOLUTION);
+            MSleep(YIELD_TIME);
         }
         
         dataPage = file->dataPages[i];

@@ -146,6 +146,7 @@ private:
     const char*             archiveScript;
     bool                    haveUncommitedWrites;
     bool                    yieldThreads;
+    bool                    shuttingDown;
 };
 
 #endif
