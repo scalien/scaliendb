@@ -83,7 +83,7 @@ inline bool LessThan(StorageChunk* a, StorageChunk* b)
     if (a->GetMaxLogSegmentID() < b->GetMaxLogSegmentID())
         return true;
     else if (a->GetMaxLogSegmentID() == b->GetMaxLogSegmentID())
-        return (a->GetMaxLogCommandID() == b->GetMaxLogCommandID());
+        return (a->GetMaxLogCommandID() < b->GetMaxLogCommandID());
     else
         return false;
 }
