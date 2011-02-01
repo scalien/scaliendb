@@ -30,8 +30,8 @@ public:
     ReadBuffer          key;
     ReadBuffer          value;
     bool                ret;
-    Stage               stage;
     bool                completed;
+    Stage               stage;
     Callable            onComplete;
     uint32_t            index;
     uint32_t            offset;

@@ -5,6 +5,7 @@
 #include "System/Containers/InSortedList.h"
 #include "Framework/Storage/StorageEnvironment.h"
 #include "Framework/Storage/StorageShardProxy.h"
+#include "Framework/Storage/StorageAsyncGet.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "Application/Common/ClientRequest.h"
 #include "ShardMessage.h"
@@ -12,7 +13,25 @@
 #define SHARD_DATABASE_YIELD_LIST_LENGTH        1000
 #define SHARD_DATABASE_YIELD_THREADS_TIMEOUT    1000
 
-class ShardServer; // forward
+class ShardServer;              // forward
+class ShardDatabaseManager;     // forward
+/*
+===============================================================================================
+ 
+ ShardDatabaseAsyncGet -- helper class for async GET operation
+ 
+===============================================================================================
+*/
+
+class ShardDatabaseAsyncGet : public StorageAsyncGet
+{
+public:
+    ClientRequest*          request;
+    ShardDatabaseManager*   manager;
+    bool                    active;
+    
+    void                    OnRequestComplete();
+};
 
 /*
 ===============================================================================================
@@ -27,6 +46,8 @@ class ShardDatabaseManager
     typedef HashMap<uint64_t, StorageShardProxy*>   ShardMap;
 //    typedef InList<ClientRequest>                   ClientRequestList;
     typedef InSortedList<ClientRequest>             ClientRequestList;
+
+    friend class ShardDatabaseAsyncGet;
 
 public:
     ShardDatabaseManager();
@@ -61,6 +82,7 @@ private:
     Countdown               yieldStorageThreadsTimer;
     ClientRequestList       readRequests;
     YieldTimer              executeReads;
+    ShardDatabaseAsyncGet   asyncGet;
 };
 
 #endif

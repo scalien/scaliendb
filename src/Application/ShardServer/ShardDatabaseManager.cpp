@@ -4,7 +4,6 @@
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
-#include "Framework/Storage/StorageAsyncGet.h"
 
 static void WriteValue(
 Buffer &buffer, uint64_t paxosID, uint64_t commandID, ReadBuffer userValue)
@@ -34,14 +33,6 @@ static bool LessThan(const ClientRequest& a, const ClientRequest& b)
     return Buffer::Cmp(a.key, b.key) < 0;
 }
 
-class ShardDatabaseAsyncGet : public StorageAsyncGet
-{
-public:
-    ClientRequest*  request;
-    
-    void            OnRequestComplete();
-};
-
 void ShardDatabaseAsyncGet::OnRequestComplete()
 {
     uint64_t        paxosID;
@@ -58,6 +49,8 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
     ReadValue(value, paxosID, commandID, userValue);    
     request->response.Value(userValue);
     request->OnComplete();
+    active = false;
+    manager->OnExecuteReads();
 }
 
 ShardDatabaseManager::ShardDatabaseManager()
@@ -372,23 +365,23 @@ void ShardDatabaseManager::OnYieldStorageThreadsTimer()
 void ShardDatabaseManager::OnExecuteReads()
 {
     uint64_t        start;
-    uint64_t        paxosID;
-    uint64_t        commandID;
     uint64_t        shardID;
     int16_t         contextID;
     ReadBuffer      key;
     ReadBuffer      value;
     ReadBuffer      userValue;
     ClientRequest*  itRequest;
-    ShardDatabaseAsyncGet*  asyncGet;
+//    ShardDatabaseAsyncGet*  asyncGet;
 
+    if (asyncGet.active)
+        return;
+    
     start = NowClock();
 
     FOREACH_FIRST(itRequest, readRequests)
     {
         if (NowClock() - start >= YIELD_TIME)
         {
-            //Log_Message("YIELD");
             // let other code run every YIELD_TIME msec
             if (executeReads.IsActive())
                 STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
@@ -408,24 +401,21 @@ void ShardDatabaseManager::OnExecuteReads()
         key.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = environment.GetShardID(contextID, itRequest->tableID, key);
-//        if (!environment.Get(contextID, shardID, key, value))
-//        {
-//            itRequest->response.Failed();
-//            itRequest->OnComplete();
-//            continue;
-//        }
-//        
-//        ReadValue(value, paxosID, commandID, userValue);    
-//        itRequest->response.Value(userValue);
-//        itRequest->OnComplete();
-        // TODO: memleak
-        asyncGet = new ShardDatabaseAsyncGet;
-        asyncGet->request = itRequest;
-        asyncGet->key.Wrap(itRequest->key);
-        asyncGet->onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(asyncGet);
-        environment.AsyncGet(contextID, shardID, asyncGet);
+
+//        asyncGet = new ShardDatabaseAsyncGet;
+//        asyncGet->request = itRequest;
+//        asyncGet->key.Wrap(itRequest->key);
+//        asyncGet->onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(asyncGet);
+//        environment.AsyncGet(contextID, shardID, asyncGet);
+        
+        asyncGet.request = itRequest;
+        asyncGet.key.Wrap(itRequest->key);
+        asyncGet.onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(&asyncGet);
+        asyncGet.active = false;
+        asyncGet.manager = this;
+        environment.AsyncGet(contextID, shardID, &asyncGet);
+        return;
     }
-    //Log_Message("DONE");
 }
 
 #undef CHECK_CMD
