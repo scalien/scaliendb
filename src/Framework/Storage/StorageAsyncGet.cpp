@@ -16,6 +16,9 @@ void StorageAsyncGet::ExecuteAsyncGet()
 {
     StorageFileChunk*   fileChunk;
 
+    if (itChunk == NULL)
+        goto complete;
+    
     fileChunk = (StorageFileChunk*) (*itChunk);
     if (stage == BLOOM_PAGE)
     {
@@ -76,6 +79,7 @@ void StorageAsyncGet::ExecuteAsyncGet()
         itChunk = shard->GetChunks().Prev(itChunk);
     }
 
+complete:
     if (itChunk == NULL)
         completed = true;
 

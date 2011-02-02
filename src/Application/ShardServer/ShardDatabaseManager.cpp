@@ -43,6 +43,8 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
     {
         request->response.Failed();
         request->OnComplete();
+        if (!manager->executeReads.IsActive())
+            EventLoop::Add(&manager->executeReads);
         return;
     }
     
@@ -50,7 +52,9 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
     request->response.Value(userValue);
     request->OnComplete();
     active = false;
-    manager->OnExecuteReads();
+
+    if (!manager->executeReads.IsActive())
+        EventLoop::Add(&manager->executeReads);
 }
 
 ShardDatabaseManager::ShardDatabaseManager()
