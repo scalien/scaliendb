@@ -39,9 +39,13 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
     uint64_t        commandID;
     ReadBuffer      userValue;
 
-    if (!ret)
+    if (!ret || !request->session->IsActive())
     {
-        request->response.Failed();
+        if (!request->session->IsActive())
+            request->response.NoResponse();
+        else
+            request->response.Failed();
+            
         request->OnComplete();
         if (!manager->executeReads.IsActive())
             EventLoop::Add(&manager->executeReads);
@@ -418,7 +422,8 @@ void ShardDatabaseManager::OnExecuteReads()
         asyncGet.active = false;
         asyncGet.manager = this;
         environment.AsyncGet(contextID, shardID, &asyncGet);
-        return;
+        if (asyncGet.active)
+            return;
     }
 }
 
