@@ -8,8 +8,8 @@
 class Heartbeat;        // forward
 class ConfigServer;     // forward
 
-#define HEARTBEAT_EXPIRE_TIME           7000        // msec
-#define SHARD_SPLIT_SIZE                1*GB        // msec
+#define HEARTBEAT_EXPIRE_TIME           3000        // msec
+#define DEFAULT_SHARD_SPLIT_SIZE        1000*MB
 
 /*
 ===============================================================================================
@@ -40,6 +40,7 @@ private:
     ConfigServer*       configServer;
     HeartbeatList       heartbeats;
     Countdown           heartbeatTimeout;
+    uint64_t            shardSplitSize;
 };
 
 /*

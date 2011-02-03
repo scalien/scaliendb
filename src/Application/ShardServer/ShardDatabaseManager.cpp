@@ -129,8 +129,12 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         shard = shardServer->GetConfigState()->GetShard(*sit);
         assert(shard != NULL);
         
-        environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
-         shard->firstKey, shard->lastKey, true, false);
+        if (!shard->isSplitCreating)
+        {
+            Log_Trace("Calling CreateShard() for shardID = %U", *sit);
+            environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
+             shard->firstKey, shard->lastKey, true, false);
+        }
     }
 }
 
@@ -340,15 +344,11 @@ void ShardDatabaseManager::ExecuteMessage(
             if (!environment.Delete(contextID, shardID, message.key))
                 RESPONSE_FAIL();
             break;
-//        case SHARDMESSAGE_SPLIT_SHARD:
-//            shard = GetShard(message.shardID);
-//            if (!shard)
-//                ASSERT_FAIL();
-//            readBuffer.Wrap(message.splitKey);
-//            shard->SplitShard(message.newShardID, readBuffer);
-//            Log_Message("Split shard, shard ID: %U, split key: %B , new shardID: %U",
-//             message.shardID, &message.splitKey, message.newShardID);
-//            break;
+        case SHARDMESSAGE_SPLIT_SHARD:
+            environment.SplitShard(contextID, message.shardID, message.newShardID, message.splitKey);
+            Log_Debug("Split shard, shard ID: %U, split key: %B, new shardID: %U",
+             message.shardID, &message.splitKey, message.newShardID);
+            break;
         default:
             ASSERT_FAIL();
             break;

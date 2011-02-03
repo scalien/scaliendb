@@ -212,7 +212,7 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
     TryAppend();
 }
 
-void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer& splitKey)
+void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer splitKey)
 {
     ConfigMessage* it;
 
@@ -221,6 +221,10 @@ void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer& spl
         if (it->type == CONFIGMESSAGE_SPLIT_SHARD_BEGIN && it->shardID == shardID)
             return;
     }
+
+    configServer->GetDatabaseManager()->GetConfigState()->splitting = true;
+
+    Log_Message("Split shard process started (parent shardID = %U)...", shardID);
 
     it = new ConfigMessage;
     it->fromClient = false;
@@ -239,6 +243,8 @@ void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
         if (it->type == CONFIGMESSAGE_SPLIT_SHARD_COMPLETE && it->shardID == shardID)
             return;
     }
+
+    Log_Message("Split shard process completed (new shardID = %U)...", shardID);
 
     it = new ConfigMessage;
     it->fromClient = false;
@@ -387,13 +393,9 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
         clusterMessage.SetNodeID(REPLICATION_CONFIG->GetClusterID(), message.nodeID);
         CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
     }
-    
-    else if (message.type == CONFIGMESSAGE_SPLIT_SHARD_BEGIN)
+    else if (message.type == CONFIGMESSAGE_SPLIT_SHARD_COMPLETE)
     {
-        ReadBuffer tmp;
-        tmp.Wrap(message.splitKey);
-
-        TryShardSplitBegin(message.shardID, tmp);
+        configServer->GetDatabaseManager()->GetConfigState()->splitting = false;
     }
 
     configState->OnMessage(message);

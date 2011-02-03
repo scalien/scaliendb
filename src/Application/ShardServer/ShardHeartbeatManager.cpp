@@ -22,6 +22,7 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
 {
     unsigned                httpPort;
     unsigned                sdbpPort;
+    uint64_t*               itShardID;
     ShardQuorumProcessor*   itQuorumProcessor;
     ClusterMessage          msg;
     QuorumPaxosID           quorumPaxosID;
@@ -29,7 +30,8 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     List<QuorumShardInfo>   quorumShardInfos;
     QuorumShardInfo         quorumShardInfo;
     ConfigState*            configState;
-//    ConfigQuorum*           configQuorum;
+    ConfigQuorum*           configQuorum;
+    StorageEnvironment*     env;
     
     Log_Trace();
     
@@ -42,6 +44,7 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     }
     
     configState = shardServer->GetConfigState();
+    env = shardServer->GetDatabaseManager()->GetEnvironment();
 
     ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
     FOREACH(itQuorumProcessor, *quorumProcessors)
@@ -50,23 +53,22 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         quorumPaxosID.paxosID = itQuorumProcessor->GetPaxosID();
         quorumPaxosIDList.Append(quorumPaxosID);
         
-//        configQuorum = configState->GetQuorum(itQuorumProcessor->GetQuorumID());
-//        FOREACH(itShardID, configQuorum->shards)
-//        {
-//            storageShard = shardServer->GetDatabaseManager()->GetShard(*itShardID);
-//            if (!storageShard)
-//                continue;
-//            
-//            // quorumShardInfo is only sent for shards which have already been split
-//            // and "regular" shards
-//            
-//            quorumShardInfo.quorumID = itQuorumProcessor->GetQuorumID();
-//            quorumShardInfo.shardID = *itShardID;
-//            quorumShardInfo.shardSize = storageShard->GetSize();
-//            storageShard->GetMidpoint(quorumShardInfo.splitKey);
-//            
-//            quorumShardInfos.Append(quorumShardInfo);
-//        }
+        configQuorum = configState->GetQuorum(itQuorumProcessor->GetQuorumID());
+        FOREACH(itShardID, configQuorum->shards)
+        {
+            bool ret = env->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
+            
+            if (!ret)
+                continue;
+            
+            quorumShardInfo.quorumID = itQuorumProcessor->GetQuorumID();
+            quorumShardInfo.shardID = *itShardID;
+            quorumShardInfo.isSplitable = env->IsSplitable(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
+            quorumShardInfo.shardSize = env->GetSize(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
+            quorumShardInfo.splitKey.Write(env->GetMidpoint(QUORUM_DATABASE_DATA_CONTEXT, *itShardID));
+            
+            quorumShardInfos.Append(quorumShardInfo);
+        }
     }
 
     httpPort = shardServer->GetHTTPPort();

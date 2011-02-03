@@ -1,4 +1,5 @@
 #include "ConfigHeartbeatManager.h"
+#include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
 #include "ConfigActivationManager.h"
@@ -11,6 +12,8 @@ void ConfigHeartbeatManager::Init(ConfigServer* configServer_)
     heartbeatTimeout.SetCallable(MFUNC(ConfigHeartbeatManager, OnHeartbeatTimeout));
     heartbeatTimeout.SetDelay(1000);
     EventLoop::Add(&heartbeatTimeout);
+    
+    shardSplitSize = configFile.GetIntValue("shardSplitSize", DEFAULT_SHARD_SPLIT_SIZE);
 }
 
 void ConfigHeartbeatManager::Shutdown()
@@ -132,6 +135,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
     ConfigState*            configState;
     ConfigShardServer*      configShardServer;
     ConfigQuorum*           itQuorum;
+    ConfigShard*            shard;
     QuorumShardInfo*        itQuorumShardInfo; 
     
     if (!configServer->GetQuorumProcessor()->IsMaster())
@@ -156,25 +160,34 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
         if (itQuorum->isActivatingNode || itQuorum->inactiveNodes.GetLength() > 0)
             continue;
             
+        // TODO: tidy up
         isSplitCreating = IsSplitCreating(itQuorum, newShardID);
+        isSplitCreating |= configServer->GetDatabaseManager()->GetConfigState()->splitting;
         
         FOREACH(itQuorumShardInfo, message.quorumShardInfos)
         {
             if (itQuorumShardInfo->quorumID != itQuorum->quorumID)
                 continue;
 
-            if (!isSplitCreating && itQuorumShardInfo->shardSize > SHARD_SPLIT_SIZE)
+            if (!isSplitCreating && itQuorumShardInfo->isSplitable &&
+             itQuorumShardInfo->shardSize > shardSplitSize)
             {
-                configServer->GetQuorumProcessor()->TryShardSplitBegin(
-                 itQuorumShardInfo->shardID, itQuorumShardInfo->splitKey);
-                return;
+                // make sure another shard with the same splitKey doesn't already exist
+                shard = configState->GetShard(itQuorumShardInfo->shardID);
+                if (!configServer->GetDatabaseManager()->ShardExists(
+                 shard->tableID, ReadBuffer(itQuorumShardInfo->splitKey)))
+                {
+                    configServer->GetQuorumProcessor()->TryShardSplitBegin(
+                     itQuorumShardInfo->shardID, ReadBuffer(itQuorumShardInfo->splitKey));
+                    break;
+                }
             }
             
             if (newShardID == itQuorumShardInfo->shardID)
             {
                 configServer->GetQuorumProcessor()->TryShardSplitComplete(
                  itQuorumShardInfo->shardID);
-                return;
+                break;
             }
         }
     }
@@ -185,6 +198,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
         if (itQuorum->primaryID == message.nodeID)
         {
             ConfigShard* configShard = configState->GetShard(itQuorumShardInfo->shardID);
+            configShard->isSplitable = itQuorumShardInfo->isSplitable;
             configShard->shardSize = itQuorumShardInfo->shardSize;
             configShard->splitKey.Write(itQuorumShardInfo->splitKey);
         }

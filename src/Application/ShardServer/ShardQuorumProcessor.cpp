@@ -329,15 +329,24 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     FOREACH(it, shardMessages)
     {
         if (it->type == SHARDMESSAGE_SPLIT_SHARD && it->shardID == shardID)
+        {
+            Log_Trace("Not appending shard split");
             return;
+        }
     }
     
+    Log_Trace("Appending shard split");
+
     it = new ShardMessage;
     it->SplitShard(shardID, newShardID, splitKey);
+    it->fromClient = false;
     shardMessages.Append(it);
     
     it->Write(singleBuffer);
     shardMessagesLength += singleBuffer.GetLength();
+
+    if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
+        EventLoop::Add(&tryAppend);
 }
 
 
