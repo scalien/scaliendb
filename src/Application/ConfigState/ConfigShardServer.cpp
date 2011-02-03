@@ -72,9 +72,9 @@ bool QuorumShardInfo::ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorum
     buffer.Advance(read);
     for (i = 0; i < length; i++)
     {
-        read = buffer.Readf(":%U:%U:%U:%#R",
+        read = buffer.Readf(":%U:%U:%U:%#B:%b",
          &quorumShardInfo.quorumID, &quorumShardInfo.shardID,
-         &quorumShardInfo.shardSize, &quorumShardInfo.splitKey);
+         &quorumShardInfo.shardSize, &quorumShardInfo.splitKey, &quorumShardInfo.isSplitable);
         if (read < 6)
             return false;
         buffer.Advance(read);
@@ -90,7 +90,8 @@ bool QuorumShardInfo::WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumSha
     buffer.Appendf("%u", quorumShardInfos.GetLength());
     FOREACH(it, quorumShardInfos)
     {
-        buffer.Appendf(":%U:%U:%U:%#R", it->quorumID, it->shardID, it->shardSize, &it->splitKey);
+        buffer.Appendf(":%U:%U:%U:%#B:%b",
+         it->quorumID, it->shardID, it->shardSize, &it->splitKey, it->isSplitable);
     }
     
     return true;

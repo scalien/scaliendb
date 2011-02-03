@@ -44,7 +44,8 @@ public:
     uint64_t        quorumID;
     uint64_t        shardID;
     uint64_t        shardSize;
-    ReadBuffer      splitKey;
+    Buffer          splitKey;
+    bool            isSplitable;
         
     static bool     ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
     static bool     WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
