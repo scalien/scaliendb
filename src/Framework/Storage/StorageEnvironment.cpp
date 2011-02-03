@@ -608,7 +608,7 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
         
         firstKey = shard->GetFirstKey();
         lastKey = shard->GetLastKey();
-        lastKey = GetMidpoint(contextID, shard->GetShardID());
+        midpoint = GetMidpoint(contextID, shard->GetShardID());
         isSplitable = IsSplitable(contextID, shard->GetShardID());
         
         buffer.Appendf("- shard %U (tableID = %U) \n", shard->GetShardID(), shard->GetTableID());
