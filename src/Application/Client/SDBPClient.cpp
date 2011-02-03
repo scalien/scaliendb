@@ -26,7 +26,7 @@ Mutex   globalMutex;
 #define GLOBAL_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()     mutexGuard.Unlock()
 
-#define YIELD()                         ThreadPool::Yield()
+#define YIELD()                         ThreadPool::YieldThread()
 
 #else // CLIENT_MULTITHREAD
 

@@ -479,9 +479,10 @@ char FS_Separator()
 ===============================================================================================
 */
 
+#include <stdio.h>
 #include <windows.h>
 #include "System/Containers/List.h"
-#include <stdio.h>
+#include "System/Mutex.h"
 
 static List<intptr_t>   fileHandles;
 static Mutex            globalMutex;

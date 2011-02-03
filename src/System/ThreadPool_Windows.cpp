@@ -5,10 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
 #include <windows.h>
 #include <process.h>
-
 #include "ThreadPool.h"
 #include "System/Events/Callable.h"
 
@@ -51,7 +49,12 @@ ThreadPool* ThreadPool::Create(int numThread)
 
 uint64_t ThreadPool::GetThreadID()
 {
-    return GetCurrentThreadID();
+    return GetCurrentThreadId();
+}
+
+void ThreadPool::YieldThread()
+{
+    SwitchToThread();
 }
 
 ThreadPool_Windows::ThreadPool_Windows(int numThread_)
