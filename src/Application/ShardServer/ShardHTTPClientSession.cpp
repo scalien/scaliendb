@@ -122,6 +122,18 @@ void ShardHTTPClientSession::PrintStatus()
     session.Flush();
 }
 
+void ShardHTTPClientSession::PrintStorage()
+{
+    Buffer buffer;
+    
+    shardServer->GetDatabaseManager()->GetEnvironment()->PrintState(
+     QUORUM_DATABASE_DATA_CONTEXT, buffer);
+
+    session.Print(buffer);
+
+    session.Flush();
+}
+
 bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
@@ -129,6 +141,11 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     if (HTTP_MATCH_COMMAND(cmd, ""))
     {
         PrintStatus();
+        return true;
+    }
+    else if (HTTP_MATCH_COMMAND(cmd, "storage"))
+    {
+        PrintStorage();
         return true;
     }
     else if (HTTP_MATCH_COMMAND(cmd, "settings"))

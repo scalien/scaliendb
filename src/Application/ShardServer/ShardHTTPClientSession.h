@@ -33,6 +33,7 @@ public:
 
 private:
     void                PrintStatus();
+    void                PrintStorage();
     bool                ProcessCommand(ReadBuffer& cmd);
     bool                ProcessSettings();
     ClientRequest*      ProcessShardServerCommand(ReadBuffer& cmd);
