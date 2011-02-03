@@ -176,7 +176,7 @@ void ConfigHTTPClientSession::PrintShards(ConfigState* configState)
                 buffer.Appendf("* ");
             else
                 buffer.Appendf("- ");
-            buffer.Appendf("s%U: range [%B, last: %B], size: %s (isSplitable: %b, split key: %B)",
+            buffer.Appendf("s%U: range [%B, %B], size: %s (isSplitable: %b, split key: %B)",
              it->shardID, &it->firstKey, &it->lastKey,
              HUMAN_BYTES(it->shardSize), it->isSplitable, &it->splitKey);
 
