@@ -7,6 +7,7 @@ ConfigShard::ConfigShard()
     isSplitCreating = false;
     parentShardID = 0;
     shardSize = 0;
+    isSplitable = false;
 }
 
 ConfigShard::ConfigShard(const ConfigShard& other)
@@ -29,6 +30,7 @@ ConfigShard& ConfigShard::operator=(const ConfigShard& other)
 
     shardSize = other.shardSize;
     splitKey = other.splitKey;
+    isSplitable = other.isSplitable;
     
     prev = next = this;
     
