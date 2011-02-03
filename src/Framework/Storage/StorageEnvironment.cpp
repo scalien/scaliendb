@@ -462,7 +462,7 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
     if (!shard)
         return 0;
 
-    size = 0;
+    size = shard->GetMemoChunk()->GetSize();
     FOREACH(itChunk, shard->GetChunks())
     {
         chunk = *itChunk;
@@ -496,7 +496,7 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
     return shard->GetMemoChunk()->GetMidpoint();
 }
 
-bool StorageEnvironment::IsSplittable(uint16_t contextID, uint64_t shardID)
+bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
 {
     StorageShard*   shard;
     StorageChunk**  itChunk;
@@ -724,10 +724,10 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     StorageChunk**          itChunk;
     StorageMemoKeyValue*    itKeyValue;
     StorageMemoKeyValue*    kv;
-    
+
     if (headLogSegment->HasUncommitted())
-        return false;       // meta writes must occur in-between data writes (commits)
-    
+        Commit();
+
     shard = GetShard(contextID, newShardID);
     if (shard != NULL)
         return false;       // exists
@@ -740,8 +740,8 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     newShard->SetContextID(contextID);
     newShard->SetTableID(shard->GetTableID());
     newShard->SetShardID(newShardID);
-    newShard->SetFirstKey(shard->GetFirstKey());
-    newShard->SetLastKey(splitKey);
+    newShard->SetFirstKey(splitKey);
+    newShard->SetLastKey(shard->GetLastKey());
     newShard->SetUseBloomFilter(shard->UseBloomFilter());
     newShard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
     newShard->SetLogCommandID(headLogSegment->GetLogCommandID());
@@ -775,7 +775,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
     shards.Append(newShard);
 
-    shard->SetFirstKey(splitKey);
+    shard->SetLastKey(splitKey);
     
     WriteTOC();
     
