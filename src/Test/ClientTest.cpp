@@ -241,10 +241,10 @@ TEST_DEFINE(TestClientBatchedSet2)
             if (ret != SDBP_SUCCESS)
                 TEST_CLIENT_FAIL();
             sw.Stop();
+            MSleep(1000);
             ret = client.Begin();
             if (ret != SDBP_SUCCESS)
                 TEST_CLIENT_FAIL();
-            MSleep(1000);
         }
     }
 
