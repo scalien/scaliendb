@@ -28,6 +28,8 @@ public:
     StorageShardProxy*      GetQuorumPaxosShard();
     StorageShardProxy*      GetQuorumLogShard();
     
+    bool                    ShardExists(uint64_t tableID, ReadBuffer firstKey);
+    
     void                    Read();
     void                    Write();
 
