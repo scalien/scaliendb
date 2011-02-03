@@ -54,3 +54,4 @@ if __name__ == "__main__":
         f = open(backup_file.name, "wb")
         copy_file(backup_file.file, f)
         f.close()
+        backup_file.file.close()
