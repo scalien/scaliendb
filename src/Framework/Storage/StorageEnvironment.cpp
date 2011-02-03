@@ -599,6 +599,74 @@ bool StorageEnvironment::IsCommiting()
     return commitThreadActive;
 }
 
+void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
+{
+    bool                isSplitable;
+    ReadBuffer          firstKey;
+    ReadBuffer          lastKey;
+    ReadBuffer          midpoint;
+    StorageShard*       shard;
+    StorageChunk**      itChunk;
+    StorageMemoChunk*   memoChunk;
+    
+    buffer.Clear();
+    
+    FOREACH(shard, shards)
+    {
+        if (shard->GetContextID() != contextID)
+            continue;
+        
+        firstKey = shard->GetFirstKey();
+        lastKey = shard->GetLastKey();
+        lastKey = GetMidpoint(contextID, shard->GetShardID());
+        isSplitable = IsSplitable(contextID, shard->GetShardID());
+        
+        buffer.Appendf("- shard %U (tableID = %U) \n", shard->GetShardID(), shard->GetTableID());
+        buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(contextID, shard->GetShardID())));
+        buffer.Appendf("   isSplitable: %b\n", isSplitable);
+
+        if (firstKey.GetLength() == 0)
+            buffer.Appendf("   firstKey: (empty)\n");
+        else
+            buffer.Appendf("   firstKey: %R\n", &firstKey);
+
+        if (lastKey.GetLength() == 0)
+            buffer.Appendf("   lastKey: (empty)\n");
+        else
+            buffer.Appendf("   lastKey: %R\n", &lastKey);
+
+        buffer.Appendf("   midpoint: %R\n", &midpoint);
+        buffer.Appendf("   logSegmentID: %U\n", shard->GetLogSegmentID());
+        buffer.Appendf("   logCommandID: %U\n", shard->GetLogCommandID());
+        
+        memoChunk = shard->GetMemoChunk();
+        buffer.Appendf("    * memo chunk %U\n", memoChunk->GetChunkID());
+        buffer.Appendf("       state: %d {0=Tree, 1=Serialized, 2=Unwritten, 3=Written}\n",
+         memoChunk->GetChunkState());
+        buffer.Appendf("       size: %s\n", HUMAN_BYTES(memoChunk->GetSize()));
+        buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
+        buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
+        buffer.Appendf("       maxLogCommandID: %U\n", memoChunk->GetMaxLogCommandID());
+
+        FOREACH(itChunk, shard->GetChunks())
+        {
+            firstKey = (*itChunk)->GetFirstKey();
+            lastKey = (*itChunk)->GetLastKey();
+            buffer.Appendf("    * chunk %U\n", (*itChunk)->GetChunkID());
+            buffer.Appendf("       state: %d {0=Tree, 1=Serialized, 2=Unwritten, 3=Written}\n",
+             (*itChunk)->GetChunkState());
+            buffer.Appendf("       size: %s\n", HUMAN_BYTES((*itChunk)->GetSize()));
+            buffer.Appendf("       firstKey: %R\n", &firstKey);
+            buffer.Appendf("       lastKey: %R\n", &lastKey);
+            buffer.Appendf("       minLogSegmentID: %U\n", (*itChunk)->GetMinLogSegmentID());
+            buffer.Appendf("       maxLogSegmentID: %U\n", (*itChunk)->GetMaxLogSegmentID());
+            buffer.Appendf("       maxLogCommandID: %U\n", (*itChunk)->GetMaxLogCommandID());
+        }
+
+        buffer.Appendf("\n");
+    }
+}
+
 StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
 {
     StorageShard* it;

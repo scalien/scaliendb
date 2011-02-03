@@ -81,6 +81,8 @@ public:
     bool                    GetCommitStatus();
     bool                    IsCommiting();
     
+    void                    PrintState(uint16_t contextID, Buffer& buffer);
+    
 private:
     void                    OnCommit();
     void                    TryFinalizeLogSegment();
