@@ -100,6 +100,7 @@ private:
     void                    WriteTOC();
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
+    void                    OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
 
     Countdown               backgroundTimer;
     Callable                onBackgroundTimer;
@@ -147,7 +148,6 @@ private:
     uint64_t                lastWriteTime;
     bool                    numBulkCursors;
     const char*             archiveScript;
-    bool                    haveUncommitedWrites;
     bool                    yieldThreads;
     bool                    shuttingDown;
     

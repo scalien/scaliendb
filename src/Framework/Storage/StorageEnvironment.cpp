@@ -43,7 +43,6 @@ StorageEnvironment::StorageEnvironment()
     mergeShardID = 0;
     mergeContextID = 0;
     lastWriteTime = 0;
-    haveUncommitedWrites = false;
     yieldThreads = false;
     shuttingDown = false;
     numBulkCursors = 0;
@@ -170,7 +169,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
     EventLoop::Add(&backgroundTimer);
 
-    maxUnbackedLogSegments = 1000 * configFile.GetIntValue("database.maxUnbackedLogSegments",
+    maxUnbackedLogSegments = configFile.GetIntValue("database.maxUnbackedLogSegments",
      STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT);
 
     mergeAfterWriteDelay = 1000 * configFile.GetIntValue("database.mergeAfterWriteDelay", 
@@ -382,7 +381,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     }
     memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
 
-    haveUncommitedWrites = true;
+//    haveUncommitedWrites = true;
 
     return true;
 }
@@ -424,7 +423,7 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
         }
         memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
 
-        haveUncommitedWrites = true;
+//        haveUncommitedWrites = true;
     }
     else if (shard->GetChunks().First())
     {
@@ -485,14 +484,10 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 
     size = shard->GetMemoChunk()->GetSize();
     
-    Log_Debug("shard = %U, memoChunk size = %s", shardID, HUMAN_BYTES(shard->GetMemoChunk()->GetSize()));
-    
     FOREACH(itChunk, shard->GetChunks())
     {
         chunk = *itChunk;
         size += chunk->GetSize();
-
-        Log_Debug("shard = %U, chunk size = %s", shardID, HUMAN_BYTES(chunk->GetSize()));
     }
     
     return size;
@@ -533,15 +528,10 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
     if (!shard)
         return 0;
     
-    Log_Debug("Checking isSplitable shardID = %U, [%B, %B]",
-     shardID, &shard->firstKey, &shard->lastKey);
-
     FOREACH(itChunk, shard->GetChunks())
     {
         firstKey = (*itChunk)->GetFirstKey();
         lastKey = (*itChunk)->GetLastKey();
-        
-        Log_Debug("chunkID = %U, [%R, %R]", (*itChunk)->GetChunkID(), &firstKey, &lastKey);
         
         if (firstKey.GetLength() > 0)
         {
@@ -886,12 +876,16 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
 void StorageEnvironment::OnCommit()
 {
-    bool asyncCommit;
+    bool            asyncCommit;
+    StorageShard*   shard;
     
     asyncCommit = commitThreadActive;
     
     commitThreadActive = false;
-    haveUncommitedWrites = false;
+//    haveUncommitedWrites = false;
+    
+    FOREACH(shard, shards)
+        shard->GetMemoChunk()->haveUncommitedWrites = false;
 
     TryFinalizeLogSegment();
     TrySerializeChunks();
@@ -928,12 +922,16 @@ void StorageEnvironment::TrySerializeChunks()
     if (serializerThreadActive)
         return;
 
-    if (haveUncommitedWrites)
-        return;
+//    if (haveUncommitedWrites)
+//        return;
 
     FOREACH (itShard, shards)
     {
         memoChunk = itShard->GetMemoChunk();
+        
+        if (memoChunk->haveUncommitedWrites)
+            continue;
+        
         if (
          memoChunk->GetSize() > config.chunkSize ||
          (
@@ -1112,7 +1110,7 @@ void StorageEnvironment::OnChunkSerialize()
                     fileChunk = memoChunk->RemoveFileChunk();
                     if (fileChunk == NULL)
                         goto Advance;
-                    itShard->OnChunkSerialized(memoChunk, fileChunk);
+                    OnChunkSerialized(memoChunk, fileChunk);
                     Log_Message("Deleting MemoChunk...");
                     job = new StorageDeleteMemoChunkJob(memoChunk);
                     StartJob(asyncThread, job);
@@ -1336,4 +1334,19 @@ StorageFileChunk* StorageEnvironment::GetFileChunk(uint64_t chunkID)
     }
     
     return NULL;
+}
+
+void StorageEnvironment::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk)
+{
+    StorageShard*   shard;
+    StorageChunk**  chunk;
+    
+    FOREACH(shard, shards)
+    {
+        FOREACH(chunk, shard->GetChunks())
+        {
+            if (*chunk == memoChunk)
+                shard->OnChunkSerialized(memoChunk, fileChunk);
+        }
+    }
 }

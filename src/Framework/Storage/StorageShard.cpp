@@ -150,7 +150,7 @@ StorageShard::ChunkList& StorageShard::GetChunks()
 void StorageShard::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk)
 {
     StorageChunk* chunk;
-    chunk = (StorageChunk*)memoChunk;
+    chunk = (StorageChunk*) memoChunk;
 
     chunks.Remove(chunk);
     chunks.Add(fileChunk);

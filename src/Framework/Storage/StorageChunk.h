@@ -46,6 +46,7 @@ public:
     virtual void                NextBunch(StorageBulkCursor& cursor, StorageShard* shard) = 0;
 
     bool                        deleted;
+    bool                        haveUncommitedWrites;
 
     TreeNode                    treeNode;
 };
