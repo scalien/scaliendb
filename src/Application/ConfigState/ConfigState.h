@@ -49,6 +49,8 @@ public:
     uint64_t            nextShardID;
     uint64_t            nextNodeID;
     
+    bool                splitting;
+    
     ConfigState();
     ConfigState(const ConfigState& other);
     ~ConfigState();

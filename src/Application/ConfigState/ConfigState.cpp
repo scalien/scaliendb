@@ -62,6 +62,8 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     
     hasMaster = other.hasMaster;
     masterID = other.masterID;
+    
+    splitting = other.splitting;
 
     FOREACH(quorum, other.quorums)
         quorums.Append(new ConfigQuorum(*quorum));
@@ -91,6 +93,8 @@ void ConfigState::Init()
     
     hasMaster = false;
     masterID = 0;
+    
+    splitting = false;
     
     quorums.DeleteList();
     databases.DeleteList();
@@ -947,6 +951,7 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
 {
     ConfigShard*    newShard;
     ConfigShard*    parentShard;
+    ConfigQuorum*   quorum;
     
     parentShard = GetShard(message.shardID);
     assert(parentShard);
@@ -963,6 +968,9 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     shards.Append(newShard);
     
     parentShard->lastKey.Write(newShard->firstKey);
+
+    quorum = GetQuorum(newShard->quorumID);
+    quorum->shards.Add(newShard->shardID);
 
     message.newShardID = newShard->shardID; // TODO: this is kind of a hack
 }
