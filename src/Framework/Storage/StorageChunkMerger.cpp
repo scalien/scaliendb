@@ -47,6 +47,8 @@ bool StorageChunkMerger::Merge(
             return false;
     }
 
+    mergeChunk->fileSize = offset;
+
     FS_Sync(fd.GetFD());
     
     FS_FileSeek(fd.GetFD(), 0, FS_SEEK_SET);
@@ -59,7 +61,6 @@ bool StorageChunkMerger::Merge(
 
     fd.Close();
     
-    mergeChunk->fileSize = offset;
     mergeChunk->written = true;
     
 //    Log_Message("n1 = %U   n2 = %U    n = %U", reader1.GetNumKeys(), reader2.GetNumKeys(), mergeChunk->headerPage.GetNumKeys());
@@ -237,7 +238,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
 
         numKeys++;
         
-        if (firstKey.GetLength() == 0)
+        if (this->firstKey.GetLength() == 0)
             this->firstKey.Write(it->GetKey());
         this->lastKey.Write(it->GetKey());
 

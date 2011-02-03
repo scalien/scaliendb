@@ -238,7 +238,7 @@ bool StorageHeaderPage::Read(Buffer& buffer)
     parse.Advance(4);
     if (parse.GetLength() < lastLen)
         return false;        
-    firstKey.Write(parse.GetBuffer(), lastLen);
+    lastKey.Write(parse.GetBuffer(), lastLen);
     parse.Advance(lastLen);
 
     if (!parse.ReadLittle32(midpointLen))
