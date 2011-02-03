@@ -12,6 +12,12 @@
 
 #define CONFIG_MIN_SHARD_NODE_ID    100
 
+#define LESS_THAN(a, b) \
+    ((b).GetLength() == 0 || ReadBuffer::Cmp(a, b) < 0)
+
+#define GREATER_THAN(a, b) \
+    (ReadBuffer::Cmp(a, b) >= 0)
+
 /*
 ===============================================================================================
 

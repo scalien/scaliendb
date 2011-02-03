@@ -14,12 +14,6 @@
         return false;       \
     buffer.Advance(read)
 
-#define LESS_THAN(a, b) \
-    ((b).GetLength() == 0 || ReadBuffer::Cmp(a, b) < 0)
-
-#define GREATER_THAN(a, b) \
-    (ReadBuffer::Cmp(a, b) >= 0)
-
 inline bool LessThan(uint64_t a, uint64_t b)
 {
     return (a < b);
@@ -952,6 +946,7 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     ConfigShard*    newShard;
     ConfigShard*    parentShard;
     ConfigQuorum*   quorum;
+    ConfigTable*    table;
     
     parentShard = GetShard(message.shardID);
     assert(parentShard);
@@ -971,6 +966,9 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
 
     quorum = GetQuorum(newShard->quorumID);
     quorum->shards.Add(newShard->shardID);
+    
+    table = GetTable(parentShard->tableID);
+    table->shards.Add(newShard->shardID);
 
     message.newShardID = newShard->shardID; // TODO: this is kind of a hack
 }
