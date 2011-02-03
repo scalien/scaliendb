@@ -23,6 +23,8 @@ public:
     typedef List<ClientResponse*> ResponseList;
     typedef InTreeNode<Request> TreeNode;
 
+    Request();
+
     ResponseList    responses;
     TreeNode        treeNode;
     int             status;

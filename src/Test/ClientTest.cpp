@@ -233,7 +233,7 @@ TEST_DEFINE(TestClientBatchedSet2)
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
 
-        if (i != 0 && i % 100000 == 0)
+        if (i != 0 && i % 3 == 0)
         {
             TEST_LOG("Submitting %d", i);
             sw.Start();
@@ -244,6 +244,7 @@ TEST_DEFINE(TestClientBatchedSet2)
             ret = client.Begin();
             if (ret != SDBP_SUCCESS)
                 TEST_CLIENT_FAIL();
+            MSleep(1000);
         }
     }
 

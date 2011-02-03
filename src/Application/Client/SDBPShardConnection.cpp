@@ -43,6 +43,9 @@ bool ShardConnection::SendRequest(Request* request)
     request->numTry++;
     request->requestTime = EventLoop::Now();
     //request->requestTime = NowClock();
+
+    if (request->numTry > 1)
+        Log_Debug("Resending, commandID: %U, conn: %s", request->commandID, endpoint.ToString());
     
     // buffer is saturated
     if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
@@ -53,6 +56,7 @@ bool ShardConnection::SendRequest(Request* request)
 
 void ShardConnection::SendSubmit(uint64_t /*quorumID*/)
 {
+    Log_Debug("Flushing, conn: %s", endpoint.ToString());
 //    SDBPRequestMessage  msg;
 //    
 //    // TODO: optimize away submitRequest and msg by writing the buffer in constructor
@@ -116,7 +120,6 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     if (!msg.Read(rbuf))
         return false;
     
-    
     // find the request in sent requests by commandID
     FOREACH (it, sentRequests)
     {
@@ -127,7 +130,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             break;
         }
     }
-    
+        
     // not found
     if (it == NULL)
         return false;
@@ -169,15 +172,24 @@ void ShardConnection::OnConnect()
 
 void ShardConnection::OnClose()
 {
-    Log_Trace();
+    Log_Debug("Shard connection closing: %s", endpoint.ToString());
     
     Request*    it;
     Request*    prev;
+    uint64_t*   itQuorum;
+    uint64_t*   next;
     
     CLIENT_MUTEX_GUARD_DECLARE();
     
     // close the socket and try reconnecting
     MessageConnection::OnClose();
+    
+    // invalidate quorums
+    for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = next)
+    {
+        next = quorums.Next(itQuorum);
+        InvalidateQuorum(*itQuorum);
+    }
     
     // put back requests that have no response to the client's quorum queue
     for (it = sentRequests.Last(); it != NULL; it = prev)
@@ -203,7 +215,7 @@ void ShardConnection::InvalidateQuorum(uint64_t quorumID)
         }
     }
     
-    client->InvalidateQuorum(quorumID);
+    client->InvalidateQuorum(quorumID, nodeID);
 }
 
 void ShardConnection::SendQuorumRequests()

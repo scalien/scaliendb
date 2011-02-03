@@ -789,13 +789,16 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     if (!configState)
         return;
 
+    if (conn->GetState() != TCPConnection::CONNECTED)
+        return;
+
     quorum = configState->GetQuorum(quorumID);
     if (!quorum)
         ASSERT_FAIL();
     
     // TODO: distribute dirty
     if (!IsSafe() || (quorum->hasPrimary && quorum->primaryID == conn->GetNodeID()))
-    {
+    {            
         while (qrequests->GetLength() > 0)
         {   
             req = qrequests->First();
@@ -810,7 +813,10 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         }
 
         if (qrequests->GetLength() == 0)
+        {
             conn->Flush();
+            Log_Debug("Flushing: %s", conn->GetEndpoint().ToString());
+        }
     }
 }
 
@@ -828,20 +834,20 @@ void Client::SendQuorumRequests()
             continue;
 
         SortedList<uint64_t>& quorums = conn->GetQuorumList();
-        Log_Trace("quorums.length = %u", quorums.GetLength());
+        Log_Debug("conn = %s, quorums.length = %u", conn->GetEndpoint().ToString(), quorums.GetLength());
         for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
         {
             if (!quorumRequests.Get(*qit, qrequests))
                 continue;
 
-            Log_Trace("qrequests.length = %u", qrequests->GetLength());
+            Log_Debug("qrequests.length = %u", qrequests->GetLength());
             
             SendQuorumRequest(conn, *qit);
         }
     }
 }
 
-void Client::InvalidateQuorum(uint64_t quorumID)
+void Client::InvalidateQuorum(uint64_t quorumID, uint64_t nodeID)
 {
     ConfigQuorum*       quorum;
     ShardConnection*    shardConn;
@@ -851,14 +857,19 @@ void Client::InvalidateQuorum(uint64_t quorumID)
     if (!quorum)
         ASSERT_FAIL();
         
-    quorum->hasPrimary = false;
-    
-    // invalidate shard connections
-    for (nit = quorum->activeNodes.First(); nit != NULL; nit = quorum->activeNodes.Next(nit))
+    if (quorum->hasPrimary && quorum->primaryID == nodeID)
     {
-        shardConn = shardConnections.Get<uint64_t>(*nit);
-        assert(shardConn != NULL);
-        shardConn->ClearQuorumMembership(quorumID);
+        quorum->hasPrimary = false;
+        quorum->primaryID = 0;
+    
+        // invalidate shard connections
+        for (nit = quorum->activeNodes.First(); nit != NULL; nit = quorum->activeNodes.Next(nit))
+        {
+            shardConn = shardConnections.Get<uint64_t>(*nit);
+            assert(shardConn != NULL);
+            if (nodeID == shardConn->GetNodeID())
+                shardConn->ClearQuorumMembership(quorumID);
+        }
     }
     
     InvalidateQuorumRequests(quorumID);

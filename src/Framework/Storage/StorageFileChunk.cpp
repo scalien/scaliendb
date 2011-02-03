@@ -5,16 +5,6 @@
 #include "StorageEnvironment.h"
 #include "StorageAsyncGet.h"
 
-static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
-{
-    return ReadBuffer::Cmp(a, b);
-}
-
-static const ReadBuffer Key(StorageFileKeyValue* kv)
-{
-    return kv->GetKey();
-}
-
 StorageFileChunk::StorageFileChunk() : headerPage(this)
 {
     prev = next = this;

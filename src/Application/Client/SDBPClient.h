@@ -112,7 +112,7 @@ private:
     void                    AddRequestToQuorum(Request* req, bool end = true);
     void                    SendQuorumRequest(ShardConnection* conn, uint64_t quorumID);
     void                    SendQuorumRequests();
-    void                    InvalidateQuorum(uint64_t quorumID);
+    void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
 
     void                    ConnectShardServers();

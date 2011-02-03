@@ -85,7 +85,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
         transportStatus = SDBP_SUCCESS;
     else
         transportStatus = SDBP_PARTIAL;
-    
+
     return true;
 }
 
