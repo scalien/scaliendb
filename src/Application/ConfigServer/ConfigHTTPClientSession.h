@@ -37,6 +37,7 @@ public:
 private:
     void                PrintStatus();
     void                PrintShardServers(ConfigState* configState);
+    void                PrintShards(ConfigState* configState);
     void                PrintQuorumMatrix(ConfigState* configState);
     void                PrintDatabases(ConfigState* configState);
     void                PrintShardMatrix(ConfigState* configState);

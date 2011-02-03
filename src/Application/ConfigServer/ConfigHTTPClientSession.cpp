@@ -106,6 +106,8 @@ void ConfigHTTPClientSession::PrintStatus()
     configState = configServer->GetDatabaseManager()->GetConfigState();
     PrintShardServers(configState);
     session.Print("");
+    PrintShards(configState);
+    session.Print("");
     PrintQuorumMatrix(configState);
     session.Print("");
     PrintDatabases(configState);
@@ -124,7 +126,7 @@ void ConfigHTTPClientSession::PrintShardServers(ConfigState* configState)
     
     if (configState->shardServers.GetLength() == 0)
     {
-        session.Print("No shard servers configured");
+        session.Print("No shard servers configured...");
     }
     else
     {
@@ -149,6 +151,35 @@ void ConfigHTTPClientSession::PrintShardServers(ConfigState* configState)
             rb = it->endpoint.ToReadBuffer();
             ssID = it->nodeID - CONFIG_MIN_SHARD_NODE_ID;
             buffer.Appendf("ss%U (%R)", ssID, &rb);
+            session.Print(buffer);
+        }
+    }
+}
+
+void ConfigHTTPClientSession::PrintShards(ConfigState* configState)
+{
+    ConfigShard*    it;
+    Buffer          buffer;
+    
+    if (configState->shards.GetLength() == 0)
+    {
+        session.Print("No shards...");
+    }
+    else
+    {
+        session.Print("Shards:\n");
+        ConfigState::ShardList& shards = configState->shards;
+        for (it = shards.First(); it != NULL; it = shards.Next(it))
+        {
+            buffer.Clear();
+            if (it->isSplitCreating)
+                buffer.Appendf("* ");
+            else
+                buffer.Appendf("- ");
+            buffer.Appendf("s%U: range [%B, last: %B], size: %s (isSplitable: %b, split key: %B)",
+             it->shardID, &it->firstKey, &it->lastKey,
+             HUMAN_BYTES(it->shardSize), it->isSplitable, &it->splitKey);
+
             session.Print(buffer);
         }
     }
