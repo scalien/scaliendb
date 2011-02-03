@@ -750,8 +750,8 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
 
         firstKey.Wrap(shard->firstKey);
         lastKey.Wrap(shard->lastKey);
-        if (ReadBuffer::Cmp(key, firstKey) >= 0 && 
-         (lastKey.GetLength() == 0 || ReadBuffer::Cmp(key, lastKey) < 0))
+
+        if (GREATER_THAN(key, firstKey) && LESS_THAN(key, lastKey))
         {
             quorumID = shard->quorumID;
             return true;
