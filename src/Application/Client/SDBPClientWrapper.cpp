@@ -327,6 +327,13 @@ int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)
     return client->CreateQuorum(nodes);
 }
 
+int SDBP_ActivateNode(ClientObj client_, uint64_t nodeID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->ActivateNode(nodeID);
+}
+
 int SDBP_CreateDatabase(ClientObj client_, const std::string& name_)
 {
     Client*     client = (Client*) client_;

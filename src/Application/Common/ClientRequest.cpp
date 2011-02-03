@@ -32,6 +32,7 @@ bool ClientRequest::IsControllerRequest()
     if (type == CLIENTREQUEST_GET_MASTER        ||
         type == CLIENTREQUEST_GET_CONFIG_STATE  ||
         type == CLIENTREQUEST_CREATE_QUORUM     ||
+        type == CLIENTREQUEST_ACTIVATE_NODE     ||
         type == CLIENTREQUEST_CREATE_DATABASE   ||
         type == CLIENTREQUEST_RENAME_DATABASE   ||
         type == CLIENTREQUEST_DELETE_DATABASE   ||
@@ -85,6 +86,14 @@ bool ClientRequest::CreateQuorum(uint64_t commandID_, List<uint64_t>& nodes_)
     type = CLIENTREQUEST_CREATE_QUORUM;
     commandID = commandID_;
     nodes = nodes_;
+    return true;
+}
+
+bool ClientRequest::ActivateNode(uint64_t commandID_, uint64_t nodeID_)
+{
+    type = CLIENTREQUEST_ACTIVATE_NODE;
+    commandID = commandID_;
+    nodeID = nodeID_;
     return true;
 }
 

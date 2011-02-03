@@ -39,11 +39,17 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
     uint64_t        commandID;
     ReadBuffer      userValue;
 
-    if (!ret)
+    active = false;
+
+    if (!ret || !request->session->IsActive())
     {
-        request->response.Failed();
+        if (!request->session->IsActive())
+            request->response.NoResponse();
+        else
+            request->response.Failed();
+            
         request->OnComplete();
-        if (!manager->executeReads.IsActive())
+        if (async && !manager->executeReads.IsActive())
             EventLoop::Add(&manager->executeReads);
         return;
     }
@@ -51,9 +57,8 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
     ReadValue(value, paxosID, commandID, userValue);    
     request->response.Value(userValue);
     request->OnComplete();
-    active = false;
 
-    if (!manager->executeReads.IsActive())
+    if (async && !manager->executeReads.IsActive())
         EventLoop::Add(&manager->executeReads);
 }
 
@@ -78,6 +83,10 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     // TODO: replace 1 with symbolic name
     systemShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
     REPLICATION_CONFIG->Init(&systemShard);
+    
+    // Initialize async Get
+    asyncGet.active = false;
+    asyncGet.manager = this;
 }
 
 void ShardDatabaseManager::Shutdown()
@@ -375,7 +384,6 @@ void ShardDatabaseManager::OnExecuteReads()
     ReadBuffer      value;
     ReadBuffer      userValue;
     ClientRequest*  itRequest;
-//    ShardDatabaseAsyncGet*  asyncGet;
 
     if (asyncGet.active)
         return;
@@ -384,9 +392,9 @@ void ShardDatabaseManager::OnExecuteReads()
 
     FOREACH_FIRST(itRequest, readRequests)
     {
+        // let other code run in the main thread every YIELD_TIME msec
         if (NowClock() - start >= YIELD_TIME)
         {
-            // let other code run every YIELD_TIME msec
             if (executeReads.IsActive())
                 STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
             EventLoop::Add(&executeReads);
@@ -395,6 +403,7 @@ void ShardDatabaseManager::OnExecuteReads()
 
         readRequests.Remove(itRequest);
 
+        // silently drop requests from disconnected clients
         if (!itRequest->session->IsActive())
         {
             itRequest->response.NoResponse();
@@ -406,19 +415,18 @@ void ShardDatabaseManager::OnExecuteReads()
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = environment.GetShardID(contextID, itRequest->tableID, key);
 
-//        asyncGet = new ShardDatabaseAsyncGet;
-//        asyncGet->request = itRequest;
-//        asyncGet->key.Wrap(itRequest->key);
-//        asyncGet->onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(asyncGet);
-//        environment.AsyncGet(contextID, shardID, asyncGet);
-        
         asyncGet.request = itRequest;
-        asyncGet.key.Wrap(itRequest->key);
+        asyncGet.key = key;
         asyncGet.onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(&asyncGet);
-        asyncGet.active = false;
-        asyncGet.manager = this;
+        asyncGet.active = true;
+        asyncGet.async = false;
         environment.AsyncGet(contextID, shardID, &asyncGet);
-        return;
+        if (asyncGet.active)
+        {
+            // TODO: HACK
+            asyncGet.async = true;
+            return;
+        }
     }
 }
 

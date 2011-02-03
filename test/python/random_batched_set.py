@@ -34,7 +34,7 @@ value = "%100s" % " "
 i = start
 batch = 10000
 while limit == 0 or i < limit:
-	start = time.time()
+	starttime = time.time()
 	client.begin()
 	for x in xrange(batch):
 		#client.set(str(random.randint(1, 1000000000)), value)
@@ -44,6 +44,6 @@ while limit == 0 or i < limit:
 	if ret != 0:
 		print("Submit failed!")
 		break
-	end = time.time()
+	endtime = time.time()
 	i += batch
-	print("Sent bytes: %s, num: %i, rps = %.0f" % (sizeof_fmt(sent), i, (batch/((end - start) * 1000.0) * 1000.0)))
+	print("Sent bytes: %s, num: %i, rps = %.0f" % (sizeof_fmt(sent), i, (batch/((endtime - starttime) * 1000.0) * 1000.0)))

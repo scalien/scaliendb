@@ -97,6 +97,14 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         }
     }
     
+    if (request->type == CLIENTREQUEST_ACTIVATE_NODE)
+    {
+        configServer->GetActivationManager()->TryActivateShardServer(request->nodeID);
+        request->response.OK();
+        request->OnComplete();
+        return;
+    }
+    
     message = new ConfigMessage;
     TransformRequest(request, message);
     
@@ -146,7 +154,7 @@ bool ConfigQuorumProcessor::HasActivateMessage(uint64_t quorumID, uint64_t nodeI
     return false;
 }
 
-bool ConfigQuorumProcessor::HasDeactivateMessage(uint64_t quorumID, uint64_t nodeID)
+bool ConfigQuorumProcessor::HasDeactivateMessage(uint64_t quorumID)
 {
     ConfigMessage *it;
     
@@ -181,7 +189,7 @@ void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID)
 {
     ConfigMessage* message;
 
-    if (HasDeactivateMessage(quorumID, nodeID))
+    if (HasDeactivateMessage(quorumID))
         return;
     
     message = new ConfigMessage();

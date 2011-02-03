@@ -217,12 +217,12 @@ void Client::Shutdown()
     
     delete[] controllerConnections;
     controllerConnections = NULL;
-    
-    delete result;
-    
+        
     shardConnections.DeleteTree();
     FOREACH (requestNode, quorumRequests)
         delete requestNode->Value();
+
+    delete result;
     
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
@@ -378,6 +378,11 @@ int Client::UseTable(ReadBuffer& name)
 int Client::CreateQuorum(List<uint64_t>& nodes)
 {
     CLIENT_SCHEMA_COMMAND(CreateQuorum, nodes);
+}
+
+int Client::ActivateNode(uint64_t nodeID)
+{
+    CLIENT_SCHEMA_COMMAND(ActivateNode, nodeID);
 }
 
 int Client::CreateDatabase(ReadBuffer& name)
@@ -656,12 +661,6 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
         configState = configState_;
     else
         return;
-
-    {
-        Buffer  tmp;
-        configState->Write(tmp);
-        Log_Message("%B", &tmp);
-    }
 
     // we know the state of the system, so we can start sending requests
     if (configState)

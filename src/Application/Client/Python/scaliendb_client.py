@@ -173,6 +173,7 @@ SDBP_SetMasterTimeout = _scaliendb_client.SDBP_SetMasterTimeout
 SDBP_GetGlobalTimeout = _scaliendb_client.SDBP_GetGlobalTimeout
 SDBP_GetMasterTimeout = _scaliendb_client.SDBP_GetMasterTimeout
 SDBP_CreateQuorum = _scaliendb_client.SDBP_CreateQuorum
+SDBP_ActivateNode = _scaliendb_client.SDBP_ActivateNode
 SDBP_CreateDatabase = _scaliendb_client.SDBP_CreateDatabase
 SDBP_CreateTable = _scaliendb_client.SDBP_CreateTable
 SDBP_GetDatabaseID = _scaliendb_client.SDBP_GetDatabaseID

@@ -5321,6 +5321,35 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_ActivateNode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  int res1 ;
+  unsigned long long val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SDBP_ActivateNode",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ActivateNode" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  ecode2 = SWIG_AsVal_unsigned_SS_long_SS_long(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_ActivateNode" "', argument " "2"" of type '" "uint64_t""'");
+  } 
+  arg2 = static_cast< uint64_t >(val2);
+  result = (int)SDBP_ActivateNode(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_CreateDatabase(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -6670,6 +6699,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_GetGlobalTimeout", _wrap_SDBP_GetGlobalTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetMasterTimeout", _wrap_SDBP_GetMasterTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_CreateQuorum", _wrap_SDBP_CreateQuorum, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ActivateNode", _wrap_SDBP_ActivateNode, METH_VARARGS, NULL},
 	 { (char *)"SDBP_CreateDatabase", _wrap_SDBP_CreateDatabase, METH_VARARGS, NULL},
 	 { (char *)"SDBP_CreateTable", _wrap_SDBP_CreateTable, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetDatabaseID", _wrap_SDBP_GetDatabaseID, METH_VARARGS, NULL},

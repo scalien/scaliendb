@@ -133,6 +133,17 @@ public class Client
     }
     
     /**
+     * Activates a node.
+     *
+     * @param   nodeID  the ID of the node to be activated
+     * @return          the status of the operation
+     */
+    public int activateNode(long nodeID) throws SDBPException {
+        int status = scaliendb_client.SDBP_ActivateNode(cptr, BigInteger.valueOf(nodeID));
+        return status;
+    }
+    
+    /**
      * Creates a database.
      *
      * @param   name    the name of the database

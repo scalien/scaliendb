@@ -8,3 +8,4 @@ else:
     readline.parse_and_bind("tab: complete")
 import scaliendb
 print("\nScalienDB shell\n")
+test_client = scaliendb.Client(["localhost:7080"])

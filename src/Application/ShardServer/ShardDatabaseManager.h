@@ -29,6 +29,7 @@ public:
     ClientRequest*          request;
     ShardDatabaseManager*   manager;
     bool                    active;
+    bool                    async;
     
     void                    OnRequestComplete();
 };

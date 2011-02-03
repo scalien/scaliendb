@@ -61,7 +61,7 @@ private:
     SortedList<uint64_t>    quorums;
     InList<Request>         sentRequests;
     ClientResponse          response;
-    ClientRequest           submitRequest;
+//    ClientRequest           submitRequest;
 };
 
 }; // namespace

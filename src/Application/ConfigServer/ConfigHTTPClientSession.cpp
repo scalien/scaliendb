@@ -427,10 +427,10 @@ void ConfigHTTPClientSession::ProcessActivate()
     wb.Writef("Activation process started...");
     goto End;
     
-    Failed:
+Failed:
     wb.Writef("FAILED. Specify a nodeID!");
 
-    End:
+End:
     rb.Wrap(wb);
     session.Print(rb);
     session.Flush();

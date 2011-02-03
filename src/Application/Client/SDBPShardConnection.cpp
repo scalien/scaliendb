@@ -23,7 +23,7 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     nodeID = nodeID_;
     endpoint = endpoint_;
     autoFlush = false;
-    submitRequest.Init();
+//    submitRequest.Init();
     Connect();
 }
 
@@ -51,7 +51,7 @@ bool ShardConnection::SendRequest(Request* request)
     return true;
 }
 
-void ShardConnection::SendSubmit(uint64_t quorumID)
+void ShardConnection::SendSubmit(uint64_t /*quorumID*/)
 {
 //    SDBPRequestMessage  msg;
 //    

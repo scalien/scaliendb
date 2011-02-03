@@ -43,6 +43,10 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
             else
                 return false;
             break;
+        case CLIENTREQUEST_ACTIVATE_NODE:
+            read = buffer.Readf("%c:%U:%U",
+             &request->type, &request->commandID, &request->nodeID);
+            break;
 
         /* Database management */
         case CLIENTREQUEST_CREATE_DATABASE:
@@ -153,7 +157,10 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
             for (it = request->nodes.First(); it != NULL; it = request->nodes.Next(it))
                 buffer.Appendf(":%U", *it);
             return true;
-            
+        case CLIENTREQUEST_ACTIVATE_NODE:
+            buffer.Appendf("%c:%U:%U",
+             request->type, request->commandID, request->nodeID);
+            return true;
 
         /* Database management */
         case CLIENTREQUEST_CREATE_DATABASE:
