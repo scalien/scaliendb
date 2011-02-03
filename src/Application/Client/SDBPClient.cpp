@@ -380,6 +380,11 @@ int Client::CreateQuorum(List<uint64_t>& nodes)
     CLIENT_SCHEMA_COMMAND(CreateQuorum, nodes);
 }
 
+int Client::ActivateNode(uint64_t nodeID)
+{
+    CLIENT_SCHEMA_COMMAND(ActivateNode, nodeID);
+}
+
 int Client::CreateDatabase(ReadBuffer& name)
 {
     CLIENT_SCHEMA_COMMAND(CreateDatabase, name);

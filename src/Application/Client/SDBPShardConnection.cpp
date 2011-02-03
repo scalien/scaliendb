@@ -51,7 +51,7 @@ bool ShardConnection::SendRequest(Request* request)
     return true;
 }
 
-void ShardConnection::SendSubmit(uint64_t quorumID)
+void ShardConnection::SendSubmit(uint64_t /*quorumID*/)
 {
 //    SDBPRequestMessage  msg;
 //    

@@ -88,6 +88,14 @@ bool ClientRequest::CreateQuorum(uint64_t commandID_, List<uint64_t>& nodes_)
     return true;
 }
 
+bool ClientRequest::ActivateNode(uint64_t commandID_, uint64_t nodeID_)
+{
+    type = CLIENTREQUEST_ACTIVATE_NODE;
+    commandID = commandID_;
+    nodeID = nodeID_;
+    return true;
+}
+
 bool ClientRequest::CreateDatabase(
  uint64_t commandID_, ReadBuffer& name_)
 {

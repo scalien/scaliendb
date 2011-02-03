@@ -9,6 +9,7 @@
 #define CLIENTREQUEST_GET_MASTER        'm'
 #define CLIENTREQUEST_GET_CONFIG_STATE  'A'
 #define CLIENTREQUEST_CREATE_QUORUM     'Q'
+#define CLIENTREQUEST_ACTIVATE_NODE     'N'
 #define CLIENTREQUEST_CREATE_DATABASE   'C'
 #define CLIENTREQUEST_RENAME_DATABASE   'R'
 #define CLIENTREQUEST_DELETE_DATABASE   'D'
@@ -60,7 +61,10 @@ public:
     // Quorum management
     bool            CreateQuorum(
                      uint64_t commandID, List<uint64_t>& nodes);  
-                 
+    
+    bool            ActivateNode(
+                     uint64_t commandID, uint64_t nodeID);
+    
     // Database management
     bool            CreateDatabase(
                      uint64_t commandID, ReadBuffer& name);
@@ -122,6 +126,7 @@ public:
     uint64_t        databaseID;
     uint64_t        tableID;
     uint64_t        shardID;
+    uint64_t        nodeID;
     int64_t         number;
     Buffer          name;
     Buffer          key;

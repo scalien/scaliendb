@@ -115,6 +115,10 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_CreateQuorum(SWIGTYPE_p_void.getCPtr(client), SDBP_NodeParams.getCPtr(params), params);
   }
 
+  public static int SDBP_ActivateNode(SWIGTYPE_p_void client, java.math.BigInteger nodeID) {
+    return scaliendb_clientJNI.SDBP_ActivateNode(SWIGTYPE_p_void.getCPtr(client), nodeID);
+  }
+
   public static int SDBP_CreateDatabase(SWIGTYPE_p_void client, String name) {
     return scaliendb_clientJNI.SDBP_CreateDatabase(SWIGTYPE_p_void.getCPtr(client), name);
   }

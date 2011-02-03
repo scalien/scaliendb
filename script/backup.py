@@ -22,6 +22,8 @@ def copy_file(input, output):
 
 if __name__ == "__main__":
     root_dir = sys.argv[1]
+    if root_dir[-1] != '/':
+        root_dir += '/'
     output_dir = sys.argv[2]
     backup_files = []
 
@@ -30,7 +32,8 @@ if __name__ == "__main__":
         for file in files:
             inputname = os.path.join(root, file)
             f = open(inputname, "rb")
-            backup_file = BackupFile(f, os.path.join(output_dir, strip_prefix(inputname, root_dir)))
+            stripped = strip_prefix(inputname, root_dir)
+            backup_file = BackupFile(f, os.path.join(output_dir, stripped))
             backup_files.append(backup_file)
         for dir in dirs:
             if dir == "archive":

@@ -138,6 +138,10 @@ class Client:
             return
         return self.result.number()
     
+    def activate_node(self, node_id):
+        status = SDBP_ActivateNode(self.cptr, node_id)
+        return status
+    
     def create_database(self, name):
         status = SDBP_CreateDatabase(self.cptr, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))

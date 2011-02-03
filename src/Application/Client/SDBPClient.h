@@ -56,6 +56,7 @@ public:
     
     // controller commands
     int                     CreateQuorum(List<uint64_t>& nodes);
+    int                     ActivateNode(uint64_t nodeID);
     int                     CreateDatabase(ReadBuffer& name);
     int                     RenameDatabase(uint64_t databaseID, const ReadBuffer& name);
     int                     DeleteDatabase(uint64_t databaseID);
