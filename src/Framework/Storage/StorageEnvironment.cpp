@@ -1343,10 +1343,17 @@ void StorageEnvironment::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageF
     
     FOREACH(shard, shards)
     {
-        FOREACH(chunk, shard->GetChunks())
+        for (chunk = shard->GetChunks().First(); chunk != NULL; /* advanced in body */)
         {
             if (*chunk == memoChunk)
+            {
                 shard->OnChunkSerialized(memoChunk, fileChunk);
+                chunk = shard->GetChunks().First();
+            }
+            else
+            {
+                chunk = shard->GetChunks().Next(chunk);
+            }
         }
     }
 }
