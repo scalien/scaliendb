@@ -829,6 +829,22 @@
 				Name="ShardServer"
 				>
 				<File
+					RelativePath="..\src\Application\ShardServer\ShardCatchupReader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ShardServer\ShardCatchupReader.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ShardServer\ShardCatchupWriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ShardServer\ShardCatchupWriter.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Application\ShardServer\ShardDatabaseManager.cpp"
 					>
 				</File>
@@ -1177,6 +1193,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Framework\Storage\StorageAsyncGet.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageAsyncGet.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Framework\Storage\StorageBloomPage.cpp"
 					>
 				</File>
@@ -1194,6 +1218,22 @@
 				</File>
 				<File
 					RelativePath="..\src\Framework\Storage\StorageChunk.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageChunkMerger.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageChunkMerger.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageChunkReader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageChunkReader.h"
 					>
 				</File>
 				<File

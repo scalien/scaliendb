@@ -1,9 +1,9 @@
 #ifndef THREADPOOL_H
 #define THREADPOOL_H
 
+#include "System/Platform.h"
 #include "System/Containers/List.h"
 #include "System/Events/Callable.h"
-#include "System/Platform.h"
 
 /*
 ===============================================================================================
@@ -31,7 +31,7 @@ public:
     int                 GetNumTotal();
     
     static uint64_t     GetThreadID();
-    static void         Yield();
+    static void         YieldThread();
     
 protected:
     List<Callable>      callables;

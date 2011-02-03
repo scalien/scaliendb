@@ -59,7 +59,7 @@ uint64_t ThreadPool::GetThreadID()
     return (uint64_t) pthread_self();
 }
 
-void ThreadPool::Yield()
+void ThreadPool::YieldThread()
 {
     pthread_yield();
 }
