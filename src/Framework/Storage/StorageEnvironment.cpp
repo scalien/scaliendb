@@ -635,7 +635,10 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
         else
             buffer.Appendf("   lastKey: %R\n", &lastKey);
 
-        buffer.Appendf("   midpoint: %R\n", &midpoint);
+        if (midpoint.GetLength() == 0)
+            buffer.Appendf("   midpoint: (empty)\n");
+        else
+            buffer.Appendf("   midpoint: %R\n", &midpoint);
         buffer.Appendf("   logSegmentID: %U\n", shard->GetLogSegmentID());
         buffer.Appendf("   logCommandID: %U\n", shard->GetLogCommandID());
         
