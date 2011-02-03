@@ -18,9 +18,9 @@ class StorageEnvironment;
 class StorageEnvironmentWriter;
 class StorageArchiveLogSegmentJob;
 
-#define STORAGE_MAX_UNBACKED_LOG_SEGMENT    10
-#define STORAGE_BACKGROUND_TIMER_DELAY      10*1000 // msec
-#define STORAGE_MERGE_AFTER_WRITE_DELAY     60*1000 // msec
+#define STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT    10
+#define STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY      5  // sec
+#define STORAGE_DEFAULT_MERGE_AFTER_WRITE_DELAY     10 // sec
 
 /*
 ===============================================================================================
@@ -55,6 +55,7 @@ public:
     void                    SetYieldThreads(bool yieldThreads);
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
+    bool                    ShardExists(uint16_t contextID, uint64_t shardID);
 
     bool                    CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
                              ReadBuffer firstKey, ReadBuffer lastKey,
@@ -147,6 +148,9 @@ private:
     bool                    haveUncommitedWrites;
     bool                    yieldThreads;
     bool                    shuttingDown;
+    
+    unsigned                maxUnbackedLogSegments;
+    unsigned                mergeAfterWriteDelay;
 };
 
 #endif

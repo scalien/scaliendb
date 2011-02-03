@@ -34,7 +34,6 @@ StorageEnvironment::StorageEnvironment()
     onChunkMerge = MFUNC(StorageEnvironment, OnChunkMerge);
     onLogArchive = MFUNC(StorageEnvironment, OnLogArchive);
     onBackgroundTimer = MFUNC(StorageEnvironment, OnBackgroundTimer);
-    backgroundTimer.SetDelay(STORAGE_BACKGROUND_TIMER_DELAY);
     backgroundTimer.SetCallable(onBackgroundTimer);
     
     nextChunkID = 1;
@@ -166,7 +165,16 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     headLogSegment->Open(tmp, nextLogSegmentID);
     nextLogSegmentID++;
 
+    backgroundTimer.SetDelay(1000 * configFile.GetIntValue("database.backgroundTimerDelay",
+     STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY));
+
     EventLoop::Add(&backgroundTimer);
+
+    maxUnbackedLogSegments = 1000 * configFile.GetIntValue("database.maxUnbackedLogSegments",
+     STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT);
+
+    mergeAfterWriteDelay = 1000 * configFile.GetIntValue("database.mergeAfterWriteDelay", 
+     STORAGE_DEFAULT_MERGE_AFTER_WRITE_DELAY);
 
     return true;
 }
@@ -222,6 +230,19 @@ uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, Re
     }
 
     return 0;
+}
+
+bool StorageEnvironment::ShardExists(uint16_t contextID, uint64_t shardID)
+{
+    StorageShard* it;
+
+    FOREACH (it, shards)
+    {
+        if (it->GetContextID() == contextID && it->GetShardID() == shardID)
+            return true;
+    }
+
+    return false;
 }
 
 bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value)
@@ -463,10 +484,15 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
         return 0;
 
     size = shard->GetMemoChunk()->GetSize();
+    
+    Log_Debug("shard = %U, memoChunk size = %s", shardID, HUMAN_BYTES(shard->GetMemoChunk()->GetSize()));
+    
     FOREACH(itChunk, shard->GetChunks())
     {
         chunk = *itChunk;
         size += chunk->GetSize();
+
+        Log_Debug("shard = %U, chunk size = %s", shardID, HUMAN_BYTES(chunk->GetSize()));
     }
     
     return size;
@@ -480,7 +506,7 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
 
     shard = GetShard(contextID, shardID);
     if (!shard)
-        return 0;
+        return ReadBuffer();
     
     numChunks = shard->GetChunks().GetLength();
     
@@ -507,10 +533,15 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
     if (!shard)
         return 0;
     
+    Log_Debug("Checking isSplitable shardID = %U, [%B, %B]",
+     shardID, &shard->firstKey, &shard->lastKey);
+
     FOREACH(itChunk, shard->GetChunks())
     {
         firstKey = (*itChunk)->GetFirstKey();
         lastKey = (*itChunk)->GetLastKey();
+        
+        Log_Debug("chunkID = %U, [%R, %R]", (*itChunk)->GetChunkID(), &firstKey, &lastKey);
         
         if (firstKey.GetLength() > 0)
         {
@@ -835,9 +866,9 @@ void StorageEnvironment::TrySerializeChunks()
         if (
          memoChunk->GetSize() > config.chunkSize ||
          (
-         headLogSegment->GetLogSegmentID() > STORAGE_MAX_UNBACKED_LOG_SEGMENT &&
+         headLogSegment->GetLogSegmentID() > maxUnbackedLogSegments &&
          memoChunk->GetMinLogSegmentID() > 0 &&
-         memoChunk->GetMinLogSegmentID() < (headLogSegment->GetLogSegmentID() - STORAGE_MAX_UNBACKED_LOG_SEGMENT
+         memoChunk->GetMinLogSegmentID() < (headLogSegment->GetLogSegmentID() - maxUnbackedLogSegments
          )))
         {
             serializeChunk = memoChunk;
@@ -893,7 +924,7 @@ void StorageEnvironment::TryMergeChunks()
     if (writerThreadActive)
         return;
 
-    if (EventLoop::Now() - lastWriteTime < STORAGE_MERGE_AFTER_WRITE_DELAY)
+    if (EventLoop::Now() - lastWriteTime < mergeAfterWriteDelay)
         return;
 
     if (numBulkCursors > 0)
