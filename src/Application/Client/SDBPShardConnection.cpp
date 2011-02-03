@@ -23,7 +23,7 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     nodeID = nodeID_;
     endpoint = endpoint_;
     autoFlush = false;
-    submitRequest.Init();
+//    submitRequest.Init();
     Connect();
 }
 

@@ -217,12 +217,12 @@ void Client::Shutdown()
     
     delete[] controllerConnections;
     controllerConnections = NULL;
-    
-    delete result;
-    
+        
     shardConnections.DeleteTree();
     FOREACH (requestNode, quorumRequests)
         delete requestNode->Value();
+
+    delete result;
     
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
@@ -661,12 +661,6 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
         configState = configState_;
     else
         return;
-
-    {
-        Buffer  tmp;
-        configState->Write(tmp);
-        Log_Message("%B", &tmp);
-    }
 
     // we know the state of the system, so we can start sending requests
     if (configState)

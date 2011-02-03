@@ -1,7 +1,8 @@
 import os
 import sys
+import time
 
-BUFSIZE=1024*1024
+BUFSIZE=1*1024*1024
 
 class BackupFile:
     def __init__(self, file, name):
@@ -24,13 +25,20 @@ def copy_file(input, output):
         output.write(data)
 
 if __name__ == "__main__":
-    root_dir = sys.argv[1]
+    verbose = False
+    args = sys.argv
+    if args[1] == "-v":
+        verbose = True
+        args.pop(1)
+    root_dir = args[1]
     if root_dir[-1] != '/':
         root_dir += '/'
-    output_dir = sys.argv[2]
+    output_dir = args[2]
     toc_file = None
     log_files = []
     chunk_files = []
+
+    starttime = time.time()
 
     # walk database directory
     for root, dirs, files in os.walk(root_dir):
@@ -65,13 +73,15 @@ if __name__ == "__main__":
     log_files.sort(key=lambda file: file.name, reverse=True)
     backup_files.extend(log_files)
     chunk_files.sort(key=lambda file: file.name, reverse=True)
-    chunk_files.reverse()
     backup_files.extend(chunk_files)
 
     # copy files
     for backup_file in backup_files:
-        print("Copying " + backup_file.name)
+        if verbose: print("Copying " + backup_file.name)
         f = open(backup_file.name, "wb")
         copy_file(backup_file.file, f)
         f.close()
         backup_file.file.close()
+
+    endtime = time.time()
+    if verbose: print("Elapsed: %.0f secs" % (endtime - starttime))

@@ -515,6 +515,64 @@ TEST_DEFINE(TestClientBatchedGet)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientBatchedGet2)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    char            keybuf[32];
+    int             ret;
+    unsigned        num = 10*1000*1000;
+    unsigned        batch = 10000;
+    Stopwatch       sw;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    for (unsigned i = 0; i < num / batch; i++)
+    {
+        ret = client.Begin();
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+
+        for (unsigned j = 0; j < batch; j++)
+        {
+            ret = snprintf(keybuf, sizeof(keybuf), "%010u", i * batch + j);
+            key.Wrap(keybuf, ret);
+            value.Wrap(keybuf, ret);
+            ret = client.Get(key);
+            if (ret != SDBP_SUCCESS)
+                TEST_CLIENT_FAIL();
+        }
+        TEST_LOG("Sending requests");
+
+        sw.Restart();
+        ret = client.Submit();
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+        sw.Stop();
+
+        TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), batch / (sw.Elapsed() / 1000.0));
+    }
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientGetLatency)
 {
     Client          client;
@@ -1175,6 +1233,23 @@ TEST_DEFINE(TestClientMultiThreadMulti)
 {
     for (int i = 0; i < 10; i++)
         TestClientBatchedSetRandom();
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientActivateNode)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    int             ret;
+
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    ret = client.ActivateNode(101);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
     return TEST_SUCCESS;
 }
 

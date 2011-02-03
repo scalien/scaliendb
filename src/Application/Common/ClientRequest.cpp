@@ -32,6 +32,7 @@ bool ClientRequest::IsControllerRequest()
     if (type == CLIENTREQUEST_GET_MASTER        ||
         type == CLIENTREQUEST_GET_CONFIG_STATE  ||
         type == CLIENTREQUEST_CREATE_QUORUM     ||
+        type == CLIENTREQUEST_ACTIVATE_NODE     ||
         type == CLIENTREQUEST_CREATE_DATABASE   ||
         type == CLIENTREQUEST_RENAME_DATABASE   ||
         type == CLIENTREQUEST_DELETE_DATABASE   ||

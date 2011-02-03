@@ -887,13 +887,14 @@ void FS_Sync()
 {
     intptr_t* it;
 
+    // TODO: To flush all open files on a volume, call FlushFileBuffers with a handle to the volume.
+    // http://msdn.microsoft.com/en-us/library/aa364439(v=VS.85).aspx
+
     FOREACH (it, fileHandles)
     {
         if (FlushFileBuffers((HANDLE)*it) == 0)
             printf("FS_Sync() failed!\n");
     }
-    // TODO: To flush all open files on a volume, call FlushFileBuffers with a handle to the volume.
-    // http://msdn.microsoft.com/en-us/library/aa364439(v=VS.85).aspx
 }
 
 void FS_Sync(FD fd)
