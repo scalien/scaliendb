@@ -881,7 +881,7 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
 
     qrequests = NULL;
     if (!quorumRequests.Get(quorumID, qrequests))
-        ASSERT_FAIL();
+        return;
     
     // push back requests to unselected requests' queue
     requests.PrependList(*qrequests);
