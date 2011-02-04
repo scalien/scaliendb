@@ -815,7 +815,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         if (qrequests->GetLength() == 0)
         {
             conn->Flush();
-            Log_Debug("Flushing: %s", conn->GetEndpoint().ToString());
+//            Log_Debug("Flushing: %s", conn->GetEndpoint().ToString());
         }
     }
 }
@@ -834,13 +834,13 @@ void Client::SendQuorumRequests()
             continue;
 
         SortedList<uint64_t>& quorums = conn->GetQuorumList();
-        Log_Debug("conn = %s, quorums.length = %u", conn->GetEndpoint().ToString(), quorums.GetLength());
+        //Log_Debug("conn = %s, quorums.length = %u", conn->GetEndpoint().ToString(), quorums.GetLength());
         for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
         {
             if (!quorumRequests.Get(*qit, qrequests))
                 continue;
 
-            Log_Debug("qrequests.length = %u", qrequests->GetLength());
+            //Log_Debug("qrequests.length = %u", qrequests->GetLength());
             
             SendQuorumRequest(conn, *qit);
         }

@@ -32,7 +32,7 @@ public class ConcurrentWords {
 			System.out.println("Randomizing words...");
 			Random random = new Random(System.nanoTime());
 			ArrayList<String> randomWords = new ArrayList<String>();
-			for (int i = 0; i < 10000; i++)
+			for (int i = 0; i < 100000; i++)
 			{
 				int toRemove = random.nextInt(words.size());
 				randomWords.add(words.remove(toRemove));
