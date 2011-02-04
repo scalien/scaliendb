@@ -63,6 +63,8 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     if (proposalID != message.proposalID)
         return;
 
+    Log_Debug("received lease for quorum %U", GetQuorumID());
+
     SortedList<uint64_t>& shards = shardServer->GetConfigState()->GetQuorum(GetQuorumID())->shards;
     if (shards != message.shards)
         return;
