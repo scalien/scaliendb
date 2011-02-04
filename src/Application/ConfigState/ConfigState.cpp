@@ -935,12 +935,14 @@ void ConfigState::OnRenameTable(ConfigMessage& message)
     itDatabase = GetDatabase(message.databaseID);
     // make sure database exists
     assert(itDatabase != NULL);
-    itTable = GetTable(message.tableID);
-    // make sure table with ID exists
-    assert(itTable != NULL);
+
     itTable = GetTable(message.databaseID, message.name);
     // make sure table with name does not exist
     assert(itTable == NULL);
+
+    itTable = GetTable(message.tableID);
+    // make sure table with ID exists
+    assert(itTable != NULL);
     
     itTable->name.Write(message.name);
 }
