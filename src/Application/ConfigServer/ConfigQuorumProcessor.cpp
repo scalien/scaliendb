@@ -78,7 +78,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     if (!quorumContext.IsLeader())
     {
-        request->response.Failed();
+        request->response.NoService();
         request->OnComplete();
         return;
     }
