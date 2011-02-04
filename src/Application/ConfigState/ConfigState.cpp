@@ -977,6 +977,7 @@ void ConfigState::OnTruncateTable(ConfigMessage& message)
     // make sure table exists
     assert(table != NULL);
 
+    quorumID = 0;
     // delete all old shards
     FOREACH(it, table->shards)
     {

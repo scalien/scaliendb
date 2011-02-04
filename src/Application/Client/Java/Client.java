@@ -159,6 +159,43 @@ public class Client
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getNumber();
     }
+
+    /**
+     * Renames a database.
+     *
+     * @param   databaseID  the ID of the database to be renamed
+     * @param   name        the new name of the database
+     * @return              the status of the operation
+     */
+    public int renameDatabase(long databaseID, String name) throws SDBPException {
+        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
+        int status = scaliendb_client.SDBP_RenameDatabase(cptr, biDatabaseID, name);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return status;
+    }
+
+    /**
+     * Deletes a database.
+     *
+     * @param   databaseID  the ID of the database to be deleted
+     * @return              the status of the operation
+     */
+    public long deleteDatabase(long databaseID) throws SDBPException {
+        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
+        int status = scaliendb_client.SDBP_DeleteDatabase(cptr, biDatabaseID);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return status;
+    }
     
     /**
      * Creates a table.
@@ -179,6 +216,67 @@ public class Client
         
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getNumber();
+    }
+
+    /**
+     * Renames a table.
+     *
+     * @param   databaseID  the ID of the database in which the table is
+     * @param   tableID     the ID of the table to be renamed
+     * @param   name        the new name of the table
+     * @return              the status of the operation
+     */
+    public long renameTable(long databaseID, long tableID, String name) throws SDBPException {
+        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
+        BigInteger biTableID = BigInteger.valueOf(tableID);
+        int status = scaliendb_client.SDBP_RenameTable(cptr, biDatabaseID, biTableID, name);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+        
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+    }
+
+    /**
+     * Deletes a table.
+     *
+     * @param   databaseID  the ID of the database in which the table is
+     * @param   tableID     the ID of the table to be deleted
+     * @return              the status of the operation
+     */
+    public long deleteTable(long databaseID, long tableID) throws SDBPException {
+        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
+        BigInteger biTableID = BigInteger.valueOf(tableID);
+        int status = scaliendb_client.SDBP_DeleteTable(cptr, biDatabaseID, biTableID);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+        
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
+    }
+
+    /**
+     * Truncates a table.
+     *
+     * @param   databaseID  the ID of the database in which the table is
+     * @param   tableID     the ID of the table to be truncated
+     * @return              the status of the operation
+     */
+    public long truncateTable(long databaseID, long tableID) throws SDBPException {
+        BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
+        BigInteger biTableID = BigInteger.valueOf(tableID);
+        int status = scaliendb_client.SDBP_TruncateTable(cptr, biDatabaseID, biTableID);
+		if (status < 0) {
+			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+			throw new SDBPException(Status.toString(status));
+		}
+        
+		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+		return status;
     }
 
     /**

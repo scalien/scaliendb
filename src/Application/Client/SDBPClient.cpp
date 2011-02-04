@@ -415,6 +415,11 @@ int Client::DeleteTable(uint64_t databaseID, uint64_t tableID)
     CLIENT_SCHEMA_COMMAND(DeleteTable, databaseID, tableID);
 }
 
+int Client::TruncateTable(uint64_t databaseID, uint64_t tableID)
+{
+    CLIENT_SCHEMA_COMMAND(TruncateTable, databaseID, tableID);
+}
+
 int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
 {
     CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
