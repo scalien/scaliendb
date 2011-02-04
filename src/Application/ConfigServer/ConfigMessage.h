@@ -23,6 +23,7 @@
 #define CONFIGMESSAGE_CREATE_TABLE              'c'
 #define CONFIGMESSAGE_RENAME_TABLE              'r'
 #define CONFIGMESSAGE_DELETE_TABLE              'd'
+#define CONFIGMESSAGE_TRUNCATE_TABLE            't'
 
 #define CONFIGMESSAGE_SPLIT_SHARD_BEGIN         '1'
 #define CONFIGMESSAGE_SPLIT_SHARD_COMPLETE      '2'
@@ -92,6 +93,8 @@ public:
     bool            RenameTable(
                      uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
     bool            DeleteTable(
+                     uint64_t databaseID, uint64_t tableID);
+    bool            TruncateTable(
                      uint64_t databaseID, uint64_t tableID);
 
     // Shard management

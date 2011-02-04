@@ -174,46 +174,18 @@ void ShardDatabaseManager::SetQuorumShards(uint64_t quorumID)
     }
 }
 
-void ShardDatabaseManager::RemoveDeletedDatabases()
+void ShardDatabaseManager::RemoveDeletedShards()
 {
-// TODO:
-//    DatabaseMap::Node*      it;
-//    DatabaseMap::Node*      next;    
-//    ConfigState*            configState;
-//
-//    configState = shardServer->GetConfigState();
-//
-//    for (it = databases.First(); it != NULL; it = next)
-//    {
-//        next = databases.Next(it);
-//        if (!configState->GetDatabase(it->Key()))
-//        {
-//            environment.DeleteDatabase(it->Value());
-//            databases.Remove(it->Key());
-//        }
-//    }
-}
+    ConfigState*        configState;
+    ConfigShard*        itShard;
 
-void ShardDatabaseManager::RemoveDeletedTables()
-{
-// TODO:
-//    TableMap::Node*     it;
-//    TableMap::Node*     next;    
-//    ConfigState*        configState;
-//    StorageDatabase*    database;
-//
-//    configState = shardServer->GetConfigState();
-//
-//    for (it = tables.First(); it != NULL; it = next)
-//    {
-//        next = tables.Next(it);
-//        if (!configState->GetTable(it->Key()))
-//        {
-//            database = it->Value()->GetDatabase();
-//            database->DeleteTable(it->Value());
-//            tables.Remove(it->Key());
-//        }
-//    }
+    configState = shardServer->GetConfigState();
+
+    FOREACH(itShard, configState->shards)
+    {
+        if (itShard->isDeleted)
+            environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, itShard->shardID);
+    }
 }
 
 #define CHECK_CMD()                                             \

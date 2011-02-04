@@ -62,8 +62,7 @@ public:
 
     void                    SetShards(SortedList<uint64_t>& shards);
     void                    SetQuorumShards(uint64_t quorumID);
-    void                    RemoveDeletedDatabases();
-    void                    RemoveDeletedTables();
+    void                    RemoveDeletedShards();
     
     void                    OnClientReadRequest(ClientRequest* request);
     void                    ExecuteMessage(uint64_t paxosID,

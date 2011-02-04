@@ -120,6 +120,15 @@ bool ConfigMessage::DeleteTable(
     return true;
 }
 
+bool ConfigMessage::TruncateTable(
+ uint64_t databaseID_, uint64_t tableID_)
+{
+    type = CONFIGMESSAGE_TRUNCATE_TABLE;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    return true;
+}
+
 bool ConfigMessage::SplitShardBegin(uint64_t shardID_, ReadBuffer& splitKey_)
 {
     type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
@@ -220,6 +229,10 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U",
              &type, &databaseID, &tableID);
             break;
+        case CONFIGMESSAGE_TRUNCATE_TABLE:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &databaseID, &tableID);
+            break;
 
         // Shard management
         case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
@@ -304,6 +317,10 @@ bool ConfigMessage::Write(Buffer& buffer)
              type, databaseID, tableID, &name);
             break;
         case CONFIGMESSAGE_DELETE_TABLE:
+            buffer.Writef("%c:%U:%U",
+             type, databaseID, tableID);
+            break;
+        case CONFIGMESSAGE_TRUNCATE_TABLE:
             buffer.Writef("%c:%U:%U",
              type, databaseID, tableID);
             break;
