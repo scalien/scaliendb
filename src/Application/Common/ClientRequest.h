@@ -16,6 +16,7 @@
 #define CLIENTREQUEST_CREATE_TABLE      'c'
 #define CLIENTREQUEST_RENAME_TABLE      'r'
 #define CLIENTREQUEST_DELETE_TABLE      'd'
+#define CLIENTREQUEST_TRUNCATE_TABLE    't'
 #define CLIENTREQUEST_GET               'G'
 #define CLIENTREQUEST_SET               'S'
 #define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
@@ -82,6 +83,8 @@ public:
     bool            RenameTable(
                      uint64_t commandID, uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
     bool            DeleteTable(
+                     uint64_t commandID, uint64_t databaseID, uint64_t tableID);
+    bool            TruncateTable(
                      uint64_t commandID, uint64_t databaseID, uint64_t tableID);
     
     // Data manipulations

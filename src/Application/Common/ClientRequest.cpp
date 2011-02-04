@@ -39,6 +39,7 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_CREATE_TABLE      ||
         type == CLIENTREQUEST_RENAME_TABLE      ||
         type == CLIENTREQUEST_DELETE_TABLE      ||
+        type == CLIENTREQUEST_TRUNCATE_TABLE    ||
         type == CLIENTREQUEST_SPLIT_SHARD)
             return true;
 
@@ -151,6 +152,16 @@ bool ClientRequest::DeleteTable(
  uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_)
 {
     type = CLIENTREQUEST_DELETE_TABLE;
+    commandID = commandID_;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    return true;
+}
+
+bool ClientRequest::TruncateTable(
+ uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_)
+{
+    type = CLIENTREQUEST_TRUNCATE_TABLE;
     commandID = commandID_;
     databaseID = databaseID_;
     tableID = tableID_;

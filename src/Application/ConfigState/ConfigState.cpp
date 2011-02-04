@@ -162,6 +162,8 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteRenameTable(message);
         case CONFIGMESSAGE_DELETE_TABLE:
             return CompleteDeleteTable(message);
+        case CONFIGMESSAGE_TRUNCATE_TABLE:
+            return CompleteTruncateTable(message);
         
         default:
             ASSERT_FAIL();
@@ -284,6 +286,8 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnRenameTable(message);
         case CONFIGMESSAGE_DELETE_TABLE:
             return OnDeleteTable(message);
+        case CONFIGMESSAGE_TRUNCATE_TABLE:
+            return OnTruncateTable(message);
         
         case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
             return OnSplitShardBegin(message);
@@ -629,6 +633,22 @@ bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
     return true;
 }
 
+bool ConfigState::CompleteTruncateTable(ConfigMessage& message)
+{
+    ConfigDatabase* itDatabase;
+    ConfigTable*    itTable;
+
+    itDatabase = GetDatabase(message.databaseID);
+    if (itDatabase == NULL)
+        return false; // no such database
+
+    itTable = GetTable(message.tableID);
+    if (itTable == NULL)
+        return false; // no such table
+
+    return true;
+}
+
 bool ConfigState::CompleteSplitShardBegin(ConfigMessage& message)
 {
     if (GetShard(message.shardID) == NULL)
@@ -941,6 +961,50 @@ void ConfigState::OnDeleteTable(ConfigMessage& message)
     itDatabase->tables.Remove(message.tableID);
 }
 
+void ConfigState::OnTruncateTable(ConfigMessage& message)
+{
+    uint64_t*       it;
+    ConfigQuorum*   quorum;
+    ConfigDatabase* database;
+    ConfigTable*    table;
+    ConfigShard*    shard;
+    uint64_t        quorumID;
+    
+    database = GetDatabase(message.databaseID);
+    // make sure database exists
+    assert(database != NULL);
+    table = GetTable(message.tableID);
+    // make sure table exists
+    assert(table != NULL);
+
+    // delete all old shards
+    FOREACH(it, table->shards)
+    {
+        shard = GetShard(*it);
+        if (shard->isDeleted)
+            continue;
+
+        quorumID = shard->quorumID;
+        DeleteShard(shard);
+    }
+    
+    quorum = GetQuorum(quorumID);
+    assert(quorum != NULL);
+
+    // create a new shard
+    shard = new ConfigShard;
+    shard->shardID = nextShardID;
+    shard->quorumID = quorumID;
+    shard->databaseID = message.databaseID;
+    shard->tableID = message.tableID;
+
+    table->shards.Append(shard->shardID);
+    shards.Append(shard);
+    quorum->shards.Add(shard->shardID);
+
+    nextShardID++;
+}
+
 void ConfigState::OnSplitShardBegin(ConfigMessage& message)
 {
     ConfigShard*    newShard;
@@ -1195,7 +1259,8 @@ void ConfigState::DeleteShard(ConfigShard* shard)
     assert(quorum != NULL);
     quorum->shards.Remove(shard->shardID);
 
-    shards.Delete(shard);
+//    shards.Delete(shard);
+    shard->isDeleted = true;
 }
 
 bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool withVolatile)
@@ -1334,9 +1399,9 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 {
     int read;
     
-    read = buffer.Readf("%U:%U:%U:%U:%#B:%#B:%b:%U",
-     &shard.quorumID, &shard.databaseID, &shard.tableID,
-     &shard.shardID, &shard.firstKey, &shard.lastKey,
+    read = buffer.Readf("%U:%U:%U:%U:%b:%#B:%#B:%b:%U",
+     &shard.quorumID, &shard.databaseID, &shard.tableID, &shard.shardID,
+     &shard.isDeleted, &shard.firstKey, &shard.lastKey,
      &shard.isSplitCreating, &shard.parentShardID);
     CHECK_ADVANCE(15);
 
@@ -1355,9 +1420,9 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 
 void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer, bool withVolatile)
 {
-    buffer.Appendf("%U:%U:%U:%U:%#B:%#B:%b:%U",
-     shard.quorumID, shard.databaseID, shard.tableID,
-     shard.shardID, &shard.firstKey, &shard.lastKey,
+    buffer.Appendf("%U:%U:%U:%U:%b:%#B:%#B:%b:%U",
+     shard.quorumID, shard.databaseID, shard.tableID, shard.shardID,
+     shard.isDeleted, &shard.firstKey, &shard.lastKey,
      shard.isSplitCreating, shard.parentShardID);
 
     if (withVolatile)

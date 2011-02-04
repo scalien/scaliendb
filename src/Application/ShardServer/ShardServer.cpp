@@ -267,6 +267,8 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
     configState = message.configState;
     configShardServer = configState.GetShardServer(MY_NODEID);
     
+    databaseManager.RemoveDeletedShards();
+
     // look for removal
     for (quorumProcessor = quorumProcessors.First(); quorumProcessor != NULL; quorumProcessor = next)
     {
@@ -352,9 +354,6 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
             }
         }
     }
-
-    databaseManager.RemoveDeletedTables();
-    databaseManager.RemoveDeletedDatabases();
 }
 
 void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
