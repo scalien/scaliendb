@@ -6,6 +6,12 @@
 #define STORAGE_KEYVALUE_TYPE_SET      's'
 #define STORAGE_KEYVALUE_TYPE_DELETE   'd'
 
+#define STORAGE_KEY_LESS_THAN(a, b) \
+    ((b).GetLength() == 0 || ReadBuffer::Cmp(a, b) < 0)
+
+#define STORAGE_KEY_GREATER_THAN(a, b) \
+    (ReadBuffer::Cmp(a, b) >= 0)
+
 /*
 ===============================================================================================
 

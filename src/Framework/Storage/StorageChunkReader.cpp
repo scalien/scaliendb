@@ -1,5 +1,7 @@
 #include "StorageChunkReader.h"
 
+#define NUM_PRELOAD_PAGES   16
+
 void StorageChunkReader::Open(ReadBuffer filename)
 {
     fileChunk.useCache = false;
@@ -11,34 +13,40 @@ void StorageChunkReader::Open(ReadBuffer filename)
 StorageFileKeyValue* StorageChunkReader::First()
 {
     index = 0;
+    prevIndex = 0;
     offset = STORAGE_HEADER_PAGE_SIZE;
     
-    fileChunk.LoadDataPage(index, offset);
+    PreloadDataPages();
     
     return fileChunk.dataPages[index]->First();
 }
 
 StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
 {
-    StorageFileKeyValue* next;
+    StorageFileKeyValue*    next;
     
     next = fileChunk.dataPages[index]->Next(it);
     
     if (next != NULL)
         return next;
     
-    offset += fileChunk.dataPages[index]->GetSize();
-//    delete fileChunk.dataPages[index];
-//    fileChunk.dataPages[index] = NULL;
+    // keep the previous dataPage in memory
+    if (index > prevIndex && fileChunk.dataPages[prevIndex] != NULL)
+    {
+        delete fileChunk.dataPages[prevIndex];
+        fileChunk.dataPages[prevIndex] = NULL;
+    }
 
+    prevIndex = index;
     index++;
-    
+
     if (index >= fileChunk.numDataPages)
         return NULL;
-        
-    fileChunk.LoadDataPage(index, offset);
-    
-    return fileChunk.dataPages[index]->First();        
+
+    if (index > preloadIndex)
+        PreloadDataPages();
+
+    return fileChunk.dataPages[index]->First();
 }
 
 uint64_t StorageChunkReader::GetNumKeys()
@@ -59,4 +67,19 @@ uint64_t StorageChunkReader::GetMaxLogSegmentID()
 uint64_t StorageChunkReader::GetMaxLogCommandID()
 {
     return fileChunk.headerPage.GetMaxLogCommandID();
+}
+
+void StorageChunkReader::PreloadDataPages()
+{
+    uint32_t    i;
+    uint32_t    max;
+    
+    max = MIN(fileChunk.numDataPages, index + NUM_PRELOAD_PAGES);
+    preloadIndex = max - 1;
+    for (i = index; i < max; i++)
+    {
+        assert(fileChunk.dataPages[i] == NULL);
+        fileChunk.LoadDataPage(i, offset);
+        offset += fileChunk.dataPages[i]->GetSize();
+    }
 }

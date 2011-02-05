@@ -20,6 +20,11 @@ static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
     return kv->GetKey();
 }
 
+static inline bool LessThan(const Buffer* a, const Buffer* b)
+{
+    return Buffer::Cmp(*a, *b) < 0;
+}
+
 StorageEnvironment::StorageEnvironment()
 {
     commitThread = NULL;
@@ -48,8 +53,6 @@ StorageEnvironment::StorageEnvironment()
     numBulkCursors = 0;
     serializeChunk = NULL;
     writeChunk = NULL;
-    mergeChunkIn1 = NULL;
-    mergeChunkIn2 = NULL;
     mergeChunkOut = NULL;
 }
 
@@ -778,7 +781,16 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
             {
                 fileChunk = (StorageFileChunk*) *chunk;
                 fileChunks.Remove((StorageFileChunk*) *chunk);
-                if (writeChunk == *chunk || mergeChunkIn1 == *chunk || mergeChunkIn2 == *chunk)
+
+                // TODO: needs testing
+                StorageFileChunk**  mergeChunk;
+                FOREACH (mergeChunk, mergeChunks)
+                {
+                    if (*chunk == *mergeChunk)
+                        fileChunk->deleted = true;
+                }
+                
+                if (fileChunk->deleted == false && writeChunk == *chunk)
                 {
                     fileChunk->deleted = true;
                 }
@@ -982,9 +994,11 @@ void StorageEnvironment::TryMergeChunks()
 {
     Buffer                  tmp;
     StorageShard*           itShard;
-    StorageFileChunk*       chunk1;
-    StorageFileChunk*       chunk2;
-    StorageJob*             job;    
+    StorageChunk**          itChunk;
+    StorageFileChunk*       fileChunk;
+    StorageJob*             job;
+    SortedList<Buffer*>     filenames;
+    Buffer*                 filename;
 
 #ifdef STORAGE_NOMERGE
     return;
@@ -1004,34 +1018,38 @@ void StorageEnvironment::TryMergeChunks()
         if (itShard->IsLogStorage())
             continue;
             
-        if (itShard->GetChunks().GetLength() >= 2)
+        FOREACH (itChunk, itShard->GetChunks())
         {
-            chunk1 = (StorageFileChunk*) *(itShard->GetChunks().First());                               // first
-            chunk2 = (StorageFileChunk*) *(itShard->GetChunks().Next(itShard->GetChunks().First()));    // second
-            
-            if (chunk1->GetChunkState() != StorageChunk::Written)
+            if ((*itChunk)->GetChunkState() != StorageChunk::Written)
                 continue;
-            if (chunk2->GetChunkState() != StorageChunk::Written)
-                continue;
-            
-            mergeChunkIn1 = chunk1;
-            mergeChunkIn2 = chunk2;
-            mergeChunkOut = new StorageFileChunk;
-            mergeChunkOut->headerPage.SetChunkID(nextChunkID++);
-            mergeChunkOut->headerPage.SetUseBloomFilter(itShard->UseBloomFilter());
-            tmp.Write(chunkPath);
-            tmp.Appendf("chunk.%020U", mergeChunkOut->GetChunkID());
-            mergeChunkOut->SetFilename(ReadBuffer(tmp));            
-            job = new StorageMergeChunkJob(
-             this,
-             ReadBuffer(chunk1->GetFilename()), ReadBuffer(chunk2->GetFilename()),
-             mergeChunkOut, itShard->GetFirstKey(), itShard->GetLastKey(), &onChunkMerge);
-            mergeShardID = itShard->GetShardID();
-            mergeContextID = itShard->GetContextID();
-            writerThreadActive = true;
-            StartJob(writerThread, job);
-            return;
+            fileChunk = (StorageFileChunk*) *itChunk;
+            mergeChunks.Append(fileChunk);
+            filename = &fileChunk->GetFilename();
+            filenames.Add(filename);
         }
+        
+        if (filenames.GetLength() < 2)
+        {
+            mergeChunks.Clear();
+            filenames.Clear();
+            continue;
+        }
+        
+        mergeChunkOut = new StorageFileChunk;
+        mergeChunkOut->headerPage.SetChunkID(nextChunkID++);
+        mergeChunkOut->headerPage.SetUseBloomFilter(itShard->UseBloomFilter());
+        tmp.Write(chunkPath);
+        tmp.Appendf("chunk.%020U", mergeChunkOut->GetChunkID());
+        mergeChunkOut->SetFilename(ReadBuffer(tmp));
+        job = new StorageMergeChunkJob(
+         this,
+         filenames,
+         mergeChunkOut, itShard->GetFirstKey(), itShard->GetLastKey(), &onChunkMerge);
+        mergeShardID = itShard->GetShardID();
+        mergeContextID = itShard->GetContextID();
+        writerThreadActive = true;
+        StartJob(writerThread, job);
+        return;
     }
 }
 
@@ -1177,12 +1195,11 @@ void StorageEnvironment::OnChunkWrite()
 void StorageEnvironment::OnChunkMerge()
 {
     StorageShard*       itShard;
-    StorageFileChunk*   chunk1;
-    StorageFileChunk*   chunk2;
     StorageJob*         job;
     StorageChunk**      itChunk;
-    StorageFileChunk*   itFileChunk;
-    bool                delete1, delete2, deleteOut;
+    StorageFileChunk**  itFileChunk;
+    StorageChunk*       chunk;
+    bool                deleteOut;
 
     writerThreadActive = false;
 
@@ -1192,8 +1209,6 @@ void StorageEnvironment::OnChunkMerge()
     {
         job = new StorageDeleteFileChunkJob(mergeChunkOut);
         StartJob(writerThread, job);        
-        mergeChunkIn1 = NULL;
-        mergeChunkIn2 = NULL;
         mergeChunkOut = NULL;
         mergeContextID = 0;
         mergeShardID = 0;
@@ -1202,72 +1217,57 @@ void StorageEnvironment::OnChunkMerge()
 
     itShard = GetShard(mergeContextID, mergeShardID);
 
-    chunk1 = NULL;
-    chunk2 = NULL;
+    deleteOut = false;
     if (itShard == NULL)
     {
         // shard has been deleted
-        delete1 = true;
-        delete2 = true;
         deleteOut = true;
         goto Delete;
     }
     
-    chunk1 = (StorageFileChunk*) *(itShard->GetChunks().First());                               // first
-    chunk2 = (StorageFileChunk*) *(itShard->GetChunks().Next(itShard->GetChunks().First()));    // second
+    // delete the merged chunks from the shard
+    FOREACH (itFileChunk, mergeChunks)
+    {
+        chunk = (StorageChunk*) *itFileChunk;
+        itShard->GetChunks().Remove(chunk);
+    }
 
-    itShard->GetChunks().Remove(itShard->GetChunks().First()); // remove both
-    itShard->GetChunks().Remove(itShard->GetChunks().First()); // from this shard
     itShard->GetChunks().Add(mergeChunkOut);
 
+    // TODO: async
     WriteTOC();
 
-    delete1 = true;
-    delete2 = true;
-    deleteOut = false;
+    // check if the merged chunks belong to other shards
     FOREACH (itShard, shards)
     {
         FOREACH (itChunk, itShard->GetChunks())
         {
-            if ((*itChunk) == chunk1)
-                delete1 = false;
-            if ((*itChunk) == chunk2)
-                delete2 = false;
+            FOREACH (itFileChunk, mergeChunks)
+            {
+                if (*itChunk == *itFileChunk)
+                {
+                    mergeChunks.Remove(*itFileChunk);
+                    break;  // foreach mergeChunks
+                }
+            }
         }
+    }
+
+    // enqueue the remaining merged chunks for deleting
+    FOREACH_FIRST (itFileChunk, mergeChunks)
+    {
+        (*itFileChunk)->RemovePagesFromCache();
+        fileChunks.Remove(*itFileChunk);
+        mergeChunks.Remove(*itFileChunk);
+
+        job = new StorageDeleteFileChunkJob(*itFileChunk);
+        StartJob(writerThread, job);
     }
 
 Delete:
-    if (delete1)
-    {
-        chunk1->RemovePagesFromCache();
-        FOREACH(itFileChunk, fileChunks)
-        {
-            if (itFileChunk == chunk1)
-            {
-                fileChunks.Remove(chunk1);
-                break;
-            }
-        }
-        job = new StorageDeleteFileChunkJob(chunk1);
-        StartJob(writerThread, job);
-    }
-    if (delete2)
-    {
-        chunk2->RemovePagesFromCache();
-        FOREACH(itFileChunk, fileChunks)
-        {
-            if (itFileChunk == chunk2)
-            {
-                fileChunks.Remove(chunk2);
-                break;
-            }
-        }
-        job = new StorageDeleteFileChunkJob(chunk2);
-        StartJob(writerThread, job);
-    }
-
     if (deleteOut)
     {
+        // in case the shard was deleted while merging
         job = new StorageDeleteFileChunkJob(mergeChunkOut);
         StartJob(writerThread, job);
     }
@@ -1276,8 +1276,6 @@ Delete:
         fileChunks.Append(mergeChunkOut);
     }
 
-    mergeChunkIn1 = NULL;
-    mergeChunkIn2 = NULL;
     mergeChunkOut = NULL;
     mergeContextID = 0;
     mergeShardID = 0;

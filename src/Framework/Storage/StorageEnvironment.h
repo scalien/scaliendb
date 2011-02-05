@@ -115,8 +115,7 @@ private:
     StorageLogSegment*      headLogSegment;
     StorageMemoChunk*       serializeChunk;
     StorageFileChunk*       writeChunk;
-    StorageFileChunk*       mergeChunkIn1;
-    StorageFileChunk*       mergeChunkIn2;
+    List<StorageFileChunk*> mergeChunks;
     StorageFileChunk*       mergeChunkOut;
     ShardList               shards;
     FileChunkList           fileChunks;

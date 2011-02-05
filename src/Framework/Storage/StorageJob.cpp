@@ -178,12 +178,20 @@ void StorageDeleteFileChunkJob::Execute()
 }
 
 StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
- ReadBuffer filename1_, ReadBuffer filename2_,
+ SortedList<Buffer*>& filenames_,
  StorageFileChunk* mergeChunk_, ReadBuffer firstKey_, ReadBuffer lastKey_, Callable* onComplete_)
 {
+    Buffer**    itFilename;
+    Buffer*     filename;
+    
     env = env_;
-    filename1.Write(filename1_);
-    filename2.Write(filename2_);
+
+    FOREACH (itFilename, filenames_)
+    {
+        filename = new Buffer(**itFilename);
+        filenames.Append(filename);
+    }
+
     firstKey.Write(firstKey_);
     lastKey.Write(lastKey_);
     mergeChunk = mergeChunk_;
@@ -192,16 +200,23 @@ StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
 
 void StorageMergeChunkJob::Execute()
 {
-    StorageChunkMerger merger;
+    StorageChunkMerger  merger;
+    Buffer**            itFilename;
     
-    Log_Message("Merging file %.*s and %.*s into chunk %U...",
-     filename1.GetLength()-1, filename1.GetBuffer(),
-     filename2.GetLength()-1, filename2.GetBuffer(),
+    Log_Message("Merging %u chunks into chunk %U...",
+     filenames.GetLength(),
      mergeChunk->GetChunkID());
-    merger.Merge(env, filename1, filename2, mergeChunk, firstKey, lastKey);
+    merger.Merge(env, filenames, mergeChunk, firstKey, lastKey);
     Log_Message("Done merging.");
+
+    FOREACH_FIRST (itFilename, filenames)
+    {
+        delete *itFilename;
+        filenames.Remove(itFilename);
+    }
 
     Callable* c = onComplete;
     delete this;
+    
     IOProcessor::Complete(c);
 }

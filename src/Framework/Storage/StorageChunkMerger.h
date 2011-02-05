@@ -2,6 +2,7 @@
 #define STORAGECHUNKMERGER_H
 
 #include "System/Buffers/Buffer.h"
+#include "System/Containers/List.h"
 #include "FDGuard.h"
 #include "StorageChunkReader.h"
 #include "StorageHeaderPage.h"
@@ -25,13 +26,15 @@ class StorageChunkMerger
 public:
     bool                    Merge(
                              StorageEnvironment* env,
-                             ReadBuffer filename1, ReadBuffer filename2,
+                             List<Buffer*>& filenames,
                              StorageFileChunk* mergeChunk,
                              ReadBuffer firstKey, ReadBuffer lastKey);
                              // filename1 is older than filename2
 
+    void                    OnMergeFinished();
+
 private:
-    StorageFileKeyValue*    Merge(StorageFileKeyValue* , StorageFileKeyValue* it2);
+    StorageFileKeyValue*    MergeKeyValue(StorageFileKeyValue* , StorageFileKeyValue* it2);
     bool                    WriteBuffer();
     void                    UnloadChunk();
     
@@ -40,6 +43,11 @@ private:
     bool                    WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey);
     bool                    WriteIndexPage();
     bool                    WriteBloomPage();
+    
+    bool                    IsDone();
+    StorageFileKeyValue*    SkipNonMergeable(StorageChunkReader* reader, StorageFileKeyValue* it,
+                             ReadBuffer& firstKey, ReadBuffer& lastKey);
+    StorageFileKeyValue*    Next(ReadBuffer& firstKey, ReadBuffer& lastKey);
 
     FDGuard                 fd;
     Buffer                  writeBuffer;
@@ -48,11 +56,16 @@ private:
     uint64_t                numKeys;
     uint32_t                offset;
 
-    StorageChunkReader      reader1;
-    StorageChunkReader      reader2;
+    StorageChunkReader*     readers;
+    unsigned                numReaders;
+    StorageFileKeyValue**   iterators;
 
     StorageEnvironment*     env;
     StorageFileChunk*       mergeChunk;
+
+    uint64_t                minLogSegmentID;
+    uint64_t                maxLogSegmentID;
+    uint64_t                maxLogCommandID;
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define STORAGEJOB_H
 
 #include "System/Events/Callable.h"
+#include "System/Containers/List.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 #include "StorageLogSegment.h"
@@ -160,13 +161,12 @@ class StorageMergeChunkJob : public StorageJob
 {
 public:
     StorageMergeChunkJob(StorageEnvironment* env,
-     ReadBuffer filename1, ReadBuffer filename2,
+     SortedList<Buffer*>& filenames,
      StorageFileChunk* mergeChunk, ReadBuffer firstKey, ReadBuffer lastKey, Callable* onComplete);
     
     void                Execute();
 private:
-    Buffer              filename1;
-    Buffer              filename2;
+    List<Buffer*>       filenames;
     Buffer              firstKey;
     Buffer              lastKey;
     StorageEnvironment* env;

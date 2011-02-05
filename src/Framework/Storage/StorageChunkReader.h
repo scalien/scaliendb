@@ -17,8 +17,12 @@ public:
     uint64_t                GetMaxLogCommandID();
 
 private:
+    void                    PreloadDataPages();
+
     StorageFileChunk        fileChunk;
     uint32_t                index;
+    uint32_t                prevIndex;
+    uint32_t                preloadIndex;
     uint64_t                offset;
 
 };
