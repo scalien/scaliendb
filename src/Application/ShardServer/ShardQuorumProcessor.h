@@ -31,6 +31,8 @@ public:
     ShardQuorumProcessor();
 
     void                    Init(ConfigQuorum* configQuorum, ShardServer* shardServer);
+    void                    Shutdown();
+
     ShardServer*            GetShardServer();
 
     bool                    IsPrimary();
