@@ -29,8 +29,11 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
         if (itLease->expireTime < now)
         {
             quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(itLease->quorumID);
-            quorum->hasPrimary = false;
-            quorum->primaryID = 0;
+            if (quorum) // in case it has been deleted
+            {
+                quorum->hasPrimary = false;
+                quorum->primaryID = 0;
+            }
             itLease = primaryLeases.Delete(itLease);
         }
         else
