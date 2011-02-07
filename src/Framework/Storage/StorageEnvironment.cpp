@@ -1198,6 +1198,7 @@ void StorageEnvironment::OnChunkMerge()
     StorageJob*         job;
     StorageChunk**      itChunk;
     StorageFileChunk**  itFileChunk;
+    StorageFileChunk*   fileChunk;
     StorageChunk*       chunk;
     bool                deleteOut;
 
@@ -1256,11 +1257,12 @@ void StorageEnvironment::OnChunkMerge()
     // enqueue the remaining merged chunks for deleting
     FOREACH_FIRST (itFileChunk, mergeChunks)
     {
-        (*itFileChunk)->RemovePagesFromCache();
-        fileChunks.Remove(*itFileChunk);
+        fileChunk = *itFileChunk;
+        fileChunk->RemovePagesFromCache();
+        fileChunks.Remove(fileChunk);
         mergeChunks.Remove(*itFileChunk);
 
-        job = new StorageDeleteFileChunkJob(*itFileChunk);
+        job = new StorageDeleteFileChunkJob(fileChunk);
         StartJob(writerThread, job);
     }
 
