@@ -106,7 +106,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     }
     
     message = new ConfigMessage;
-    TransformRequest(request, message);
+    ConstructMessage(request, message);
     
     if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
     {
@@ -503,7 +503,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
     }
 }
 
-void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessage* message)
+void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessage* message)
 {
     message->fromClient = true;
     
@@ -512,6 +512,20 @@ void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessa
         case CLIENTREQUEST_CREATE_QUORUM:
             message->type = CONFIGMESSAGE_CREATE_QUORUM;
             message->nodes = request->nodes;
+            return;
+        case CLIENTREQUEST_DELETE_QUORUM:
+            message->type = CONFIGMESSAGE_DELETE_QUORUM;
+            message->quorumID = request->quorumID;
+            return;
+        case CLIENTREQUEST_ADD_NODE:
+            message->type = CONFIGMESSAGE_ADD_NODE;
+            message->quorumID = request->quorumID;
+            message->nodeID = request->nodeID;
+            return;
+        case CLIENTREQUEST_REMOVE_NODE:
+            message->type = CONFIGMESSAGE_REMOVE_NODE;
+            message->quorumID = request->quorumID;
+            message->nodeID = request->nodeID;
             return;
         case CLIENTREQUEST_CREATE_DATABASE:
             message->type = CONFIGMESSAGE_CREATE_DATABASE;
@@ -543,6 +557,11 @@ void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessa
             message->databaseID = request->databaseID;
             message->tableID = request->tableID;
             return;
+        case CLIENTREQUEST_TRUNCATE_TABLE:
+            message->type = CONFIGMESSAGE_TRUNCATE_TABLE;
+            message->databaseID = request->databaseID;
+            message->tableID = request->tableID;
+            return;
         case CLIENTREQUEST_SPLIT_SHARD:
             message->type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
             message->shardID = request->shardID;
@@ -553,12 +572,21 @@ void ConfigQuorumProcessor::TransformRequest(ClientRequest* request, ConfigMessa
     }
 }
 
-void ConfigQuorumProcessor::TransfromMessage(ConfigMessage* message, ClientResponse* response)
+void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResponse* response)
 {
     switch (response->request->type)
     {
         case CLIENTREQUEST_CREATE_QUORUM:
             response->Number(message->quorumID);
+            return;
+        case CLIENTREQUEST_DELETE_QUORUM:
+            response->OK();
+            return;
+        case CLIENTREQUEST_ADD_NODE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_REMOVE_NODE:
+            response->OK();
             return;
         case CLIENTREQUEST_CREATE_DATABASE:
             response->Number(message->databaseID);
@@ -578,6 +606,9 @@ void ConfigQuorumProcessor::TransfromMessage(ConfigMessage* message, ClientRespo
         case CLIENTREQUEST_DELETE_TABLE:
             response->OK();
             return;
+        case CLIENTREQUEST_TRUNCATE_TABLE:
+            response->OK();
+            return;
         case CLIENTREQUEST_SPLIT_SHARD:
             response->Number(message->newShardID);
             return;
@@ -595,6 +626,6 @@ void ConfigQuorumProcessor::SendClientResponse(ConfigMessage& message)
     request = requests.First();
     requests.Remove(request);
     
-    TransfromMessage(&message, &request->response);
+    ConstructResponse(&message, &request->response);
     request->OnComplete();
 }

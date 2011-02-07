@@ -39,6 +39,7 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_CREATE_TABLE      ||
         type == CLIENTREQUEST_RENAME_TABLE      ||
         type == CLIENTREQUEST_DELETE_TABLE      ||
+        type == CLIENTREQUEST_TRUNCATE_TABLE    ||
         type == CLIENTREQUEST_SPLIT_SHARD)
             return true;
 
@@ -86,6 +87,32 @@ bool ClientRequest::CreateQuorum(uint64_t commandID_, List<uint64_t>& nodes_)
     type = CLIENTREQUEST_CREATE_QUORUM;
     commandID = commandID_;
     nodes = nodes_;
+    return true;
+}
+
+bool ClientRequest::DeleteQuorum(uint64_t commandID_, uint64_t quorumID_)
+{
+    type = CLIENTREQUEST_DELETE_QUORUM;
+    commandID = commandID_;
+    quorumID = quorumID_;
+    return true;
+}
+
+bool ClientRequest::AddNode(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_)
+{
+    type = CLIENTREQUEST_ADD_NODE;
+    commandID = commandID_;
+    quorumID = quorumID_;
+    nodeID = nodeID_;
+    return true;
+}
+
+bool ClientRequest::RemoveNode(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_)
+{
+    type = CLIENTREQUEST_REMOVE_NODE;
+    commandID = commandID_;
+    quorumID = quorumID_;
+    nodeID = nodeID_;
     return true;
 }
 
@@ -151,6 +178,16 @@ bool ClientRequest::DeleteTable(
  uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_)
 {
     type = CLIENTREQUEST_DELETE_TABLE;
+    commandID = commandID_;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    return true;
+}
+
+bool ClientRequest::TruncateTable(
+ uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_)
+{
+    type = CLIENTREQUEST_TRUNCATE_TABLE;
     commandID = commandID_;
     databaseID = databaseID_;
     tableID = tableID_;

@@ -28,7 +28,6 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             if (read <= 0)
                 return false;
             buffer.Advance(read);
-            Log_Debug("%B", &buffer);
             if (!response->configState.Read(buffer, true))
             {
                 response->configState.Init();

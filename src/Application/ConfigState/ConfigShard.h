@@ -25,6 +25,7 @@ public:
     uint64_t        databaseID;
     uint64_t        tableID;
     uint64_t        shardID;
+    bool            isDeleted;
 
     // ========================================================================================
     //

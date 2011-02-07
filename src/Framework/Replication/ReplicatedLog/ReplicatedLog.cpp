@@ -24,6 +24,11 @@ void ReplicatedLog::Init(QuorumContext* context_)
     dummy.Write("dummy");
 }
 
+void ReplicatedLog::Shutdown()
+{
+    proposer.Shutdown();
+}
+
 void ReplicatedLog::SetCommitChaining(bool commitChaining_)
 {
     commitChaining = commitChaining_;

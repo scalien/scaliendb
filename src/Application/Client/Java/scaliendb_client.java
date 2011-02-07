@@ -123,8 +123,28 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_CreateDatabase(SWIGTYPE_p_void.getCPtr(client), name);
   }
 
+  public static int SDBP_RenameDatabase(SWIGTYPE_p_void client, java.math.BigInteger databaseID, String name) {
+    return scaliendb_clientJNI.SDBP_RenameDatabase(SWIGTYPE_p_void.getCPtr(client), databaseID, name);
+  }
+
+  public static int SDBP_DeleteDatabase(SWIGTYPE_p_void client, java.math.BigInteger databaseID) {
+    return scaliendb_clientJNI.SDBP_DeleteDatabase(SWIGTYPE_p_void.getCPtr(client), databaseID);
+  }
+
   public static int SDBP_CreateTable(SWIGTYPE_p_void client, java.math.BigInteger databaseID, java.math.BigInteger quorumID, String name) {
     return scaliendb_clientJNI.SDBP_CreateTable(SWIGTYPE_p_void.getCPtr(client), databaseID, quorumID, name);
+  }
+
+  public static int SDBP_RenameTable(SWIGTYPE_p_void client, java.math.BigInteger databaseID, java.math.BigInteger tableID, String name) {
+    return scaliendb_clientJNI.SDBP_RenameTable(SWIGTYPE_p_void.getCPtr(client), databaseID, tableID, name);
+  }
+
+  public static int SDBP_DeleteTable(SWIGTYPE_p_void client, java.math.BigInteger databaseID, java.math.BigInteger tableID) {
+    return scaliendb_clientJNI.SDBP_DeleteTable(SWIGTYPE_p_void.getCPtr(client), databaseID, tableID);
+  }
+
+  public static int SDBP_TruncateTable(SWIGTYPE_p_void client, java.math.BigInteger databaseID, java.math.BigInteger tableID) {
+    return scaliendb_clientJNI.SDBP_TruncateTable(SWIGTYPE_p_void.getCPtr(client), databaseID, tableID);
   }
 
   public static java.math.BigInteger SDBP_GetDatabaseID(SWIGTYPE_p_void client, String name) {

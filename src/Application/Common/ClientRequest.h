@@ -9,6 +9,9 @@
 #define CLIENTREQUEST_GET_MASTER        'm'
 #define CLIENTREQUEST_GET_CONFIG_STATE  'A'
 #define CLIENTREQUEST_CREATE_QUORUM     'Q'
+#define CLIENTREQUEST_DELETE_QUORUM     'W'
+#define CLIENTREQUEST_ADD_NODE          'n'
+#define CLIENTREQUEST_REMOVE_NODE       'b'
 #define CLIENTREQUEST_ACTIVATE_NODE     'N'
 #define CLIENTREQUEST_CREATE_DATABASE   'C'
 #define CLIENTREQUEST_RENAME_DATABASE   'R'
@@ -16,6 +19,7 @@
 #define CLIENTREQUEST_CREATE_TABLE      'c'
 #define CLIENTREQUEST_RENAME_TABLE      'r'
 #define CLIENTREQUEST_DELETE_TABLE      'd'
+#define CLIENTREQUEST_TRUNCATE_TABLE    't'
 #define CLIENTREQUEST_GET               'G'
 #define CLIENTREQUEST_SET               'S'
 #define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
@@ -60,8 +64,13 @@ public:
 
     // Quorum management
     bool            CreateQuorum(
-                     uint64_t commandID, List<uint64_t>& nodes);  
-    
+                     uint64_t commandID, List<uint64_t>& nodes);
+    bool            DeleteQuorum(
+                     uint64_t commandID, uint64_t quorumID);
+    bool            AddNode(
+                     uint64_t commandID, uint64_t quorumID, uint64_t nodeID);
+    bool            RemoveNode(
+                     uint64_t commandID, uint64_t quorumID, uint64_t nodeID);
     bool            ActivateNode(
                      uint64_t commandID, uint64_t nodeID);
     
@@ -72,9 +81,6 @@ public:
                      uint64_t commandID, uint64_t databaseID, ReadBuffer& name);
     bool            DeleteDatabase(
                      uint64_t commandID, uint64_t databaseID);
-    bool            SplitShard(
-                     uint64_t commandID,
-                     uint64_t shardID, ReadBuffer& key);
     
     // Table management
     bool            CreateTable(
@@ -83,6 +89,10 @@ public:
                      uint64_t commandID, uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
     bool            DeleteTable(
                      uint64_t commandID, uint64_t databaseID, uint64_t tableID);
+    bool            TruncateTable(
+                     uint64_t commandID, uint64_t databaseID, uint64_t tableID);
+    bool            SplitShard(
+                     uint64_t commandID, uint64_t shardID, ReadBuffer& key);
     
     // Data manipulations
     bool            Get(

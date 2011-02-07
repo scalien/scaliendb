@@ -342,6 +342,21 @@ int SDBP_CreateDatabase(ClientObj client_, const std::string& name_)
     return client->CreateDatabase(name);
 }
 
+int SDBP_RenameDatabase(ClientObj client_, uint64_t databaseID, const std::string& name_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  name = name_.c_str();
+    
+    return client->RenameDatabase(databaseID, name);
+}
+
+int SDBP_DeleteDatabase(ClientObj client_, uint64_t databaseID)
+{
+    Client*     client = (Client*) client_;
+    
+    return client->DeleteDatabase(databaseID);
+}
+
 int SDBP_CreateTable(ClientObj client_, uint64_t databaseID, uint64_t quorumID, const std::string& name_)
 {
     Client*     client = (Client*) client_;

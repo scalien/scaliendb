@@ -33,6 +33,40 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     EventLoop::Add(&requestLeaseTimeout);
 }
 
+void ShardQuorumProcessor::Shutdown()
+{
+    ClientRequest*  request;
+    ShardMessage*   message;
+    
+    FOREACH_FIRST(message, shardMessages)
+    {
+        shardMessages.Remove(message);
+        delete message;
+    }
+    
+    FOREACH_FIRST(request, clientRequests)
+    {
+        clientRequests.Remove(request);
+        request->response.NoService();
+        request->OnComplete();
+    }
+    
+    if (requestLeaseTimeout.IsActive())
+        EventLoop::Remove(&requestLeaseTimeout);
+
+    if (leaseTimeout.IsActive())
+        EventLoop::Remove(&leaseTimeout);
+
+    if (tryAppend.IsActive())
+        EventLoop::Remove(&tryAppend);
+
+    if (resumeAppend.IsActive())
+        EventLoop::Remove(&resumeAppend);
+    
+    CONTEXT_TRANSPORT->RemoveQuorumContext(&quorumContext);
+    quorumContext.Shutdown();
+}
+
 ShardServer* ShardQuorumProcessor::GetShardServer()
 {
     return shardServer;

@@ -26,6 +26,7 @@ public:
     ~PaxosProposer();
     
     void                        Init(QuorumContext* context);
+    void                        Shutdown();
     
     void                        OnMessage(PaxosMessage& msg);
     void                        OnPrepareTimeout();

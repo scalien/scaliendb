@@ -45,7 +45,6 @@ public:
 class ShardDatabaseManager
 {
     typedef HashMap<uint64_t, StorageShardProxy*>   ShardMap;
-//    typedef InList<ClientRequest>                   ClientRequestList;
     typedef InSortedList<ClientRequest>             ClientRequestList;
 
     friend class ShardDatabaseAsyncGet;
@@ -59,11 +58,14 @@ public:
     StorageEnvironment*     GetEnvironment();
     StorageShardProxy*      GetQuorumPaxosShard(uint64_t quorumID);
     StorageShardProxy*      GetQuorumLogShard(uint64_t quorumID);
+    
+    void                    DeleteQuorumPaxosShard(uint64_t quorumID);
+    void                    DeleteQuorumLogShard(uint64_t quorumID);
+    void                    DeleteDataShards(uint64_t quorumID);
 
     void                    SetShards(SortedList<uint64_t>& shards);
     void                    SetQuorumShards(uint64_t quorumID);
-    void                    RemoveDeletedDatabases();
-    void                    RemoveDeletedTables();
+    void                    RemoveDeletedDataShards();
     
     void                    OnClientReadRequest(ClientRequest* request);
     void                    ExecuteMessage(uint64_t paxosID,

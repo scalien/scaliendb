@@ -28,23 +28,31 @@ bool ConfigMessage::CreateQuorum(
     return true;
 }
 
-//bool ConfigMessage::IncreaseQuorum(
-// uint64_t quorumID_, uint64_t nodeID_)
-//{
-//    type = CONFIGMESSAGE_INCREASE_QUORUM;
-//    quorumID = quorumID_;
-//    nodeID = nodeID_;
-//    return true;
-//}
-//
-//bool ConfigMessage::DecreaseQuorum(
-// uint64_t quorumID_, uint64_t nodeID_)
-//{
-//    type = CONFIGMESSAGE_DECREASE_QUORUM;
-//    quorumID = quorumID_;
-//    nodeID = nodeID_;
-//    return true;
-//}
+bool ConfigMessage::DeleteQuorum(
+ uint64_t quorumID_)
+{
+    type = CONFIGMESSAGE_DELETE_QUORUM;
+    quorumID = quorumID_;
+    return true;
+}
+
+bool ConfigMessage::AddNode(
+ uint64_t quorumID_, uint64_t nodeID_)
+{
+    type = CONFIGMESSAGE_ADD_NODE;
+    quorumID = quorumID_;
+    nodeID = nodeID_;
+    return true;
+}
+
+bool ConfigMessage::RemoveNode(
+ uint64_t quorumID_, uint64_t nodeID_)
+{
+    type = CONFIGMESSAGE_REMOVE_NODE;
+    quorumID = quorumID_;
+    nodeID = nodeID_;
+    return true;
+}
 
 bool ConfigMessage::ActivateShardServer(
  uint64_t quorumID_, uint64_t nodeID_)
@@ -120,6 +128,15 @@ bool ConfigMessage::DeleteTable(
     return true;
 }
 
+bool ConfigMessage::TruncateTable(
+ uint64_t databaseID_, uint64_t tableID_)
+{
+    type = CONFIGMESSAGE_TRUNCATE_TABLE;
+    databaseID = databaseID_;
+    tableID = tableID_;
+    return true;
+}
+
 bool ConfigMessage::SplitShardBegin(uint64_t shardID_, ReadBuffer& splitKey_)
 {
     type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
@@ -176,14 +193,18 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             else
                 return false;
             break;
-//        case CONFIGMESSAGE_INCREASE_QUORUM:
-//            read = buffer.Readf("%c:%U:%U",
-//             &type, &quorumID, &nodeID);
-//            break;
-//        case CONFIGMESSAGE_DECREASE_QUORUM:
-//            read = buffer.Readf("%c:%U:%U",
-//             &type, &quorumID, &nodeID);
-//            break;
+        case CONFIGMESSAGE_DELETE_QUORUM:
+            read = buffer.Readf("%c:%U",
+             &type, &quorumID);
+            break;
+        case CONFIGMESSAGE_ADD_NODE:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &quorumID, &nodeID);
+            break;
+        case CONFIGMESSAGE_REMOVE_NODE:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &quorumID, &nodeID);
+            break;
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
             read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &nodeID);
@@ -217,6 +238,10 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
              &type, &databaseID, &tableID, &name);
             break;
         case CONFIGMESSAGE_DELETE_TABLE:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &databaseID, &tableID);
+            break;
+        case CONFIGMESSAGE_TRUNCATE_TABLE:
             read = buffer.Readf("%c:%U:%U",
              &type, &databaseID, &tableID);
             break;
@@ -263,14 +288,18 @@ bool ConfigMessage::Write(Buffer& buffer)
             for (it = nodes.First(); it != NULL; it = nodes.Next(it))
                 buffer.Appendf(":%U", *it);
             break;
-//        case CONFIGMESSAGE_INCREASE_QUORUM:
-//            buffer.Writef("%c:%U:%U",
-//             type, quorumID, nodeID);
-//            break;
-//        case CONFIGMESSAGE_DECREASE_QUORUM:
-//            buffer.Writef("%c:%U:%U",
-//             type, quorumID, nodeID);
-//            break;
+        case CONFIGMESSAGE_DELETE_QUORUM:
+            buffer.Writef("%c:%U",
+             type, quorumID);
+            break;
+        case CONFIGMESSAGE_ADD_NODE:
+            buffer.Writef("%c:%U:%U",
+             type, quorumID, nodeID);
+            break;
+        case CONFIGMESSAGE_REMOVE_NODE:
+            buffer.Writef("%c:%U:%U",
+             type, quorumID, nodeID);
+            break;
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
             buffer.Writef("%c:%U:%U",
              type, quorumID, nodeID);
@@ -304,6 +333,10 @@ bool ConfigMessage::Write(Buffer& buffer)
              type, databaseID, tableID, &name);
             break;
         case CONFIGMESSAGE_DELETE_TABLE:
+            buffer.Writef("%c:%U:%U",
+             type, databaseID, tableID);
+            break;
+        case CONFIGMESSAGE_TRUNCATE_TABLE:
             buffer.Writef("%c:%U:%U",
              type, databaseID, tableID);
             break;

@@ -59,8 +59,8 @@ public:
     void                    OnCatchupMessage(CatchupMessage& message);
 
 private:
-    void                    TransformRequest(ClientRequest* request, ConfigMessage* message);
-    void                    TransfromMessage(ConfigMessage* message, ClientResponse* response);
+    void                    ConstructMessage(ClientRequest* request, ConfigMessage* message);
+    void                    ConstructResponse(ConfigMessage* message, ClientResponse* response);
     void                    SendClientResponse(ConfigMessage& message);
 
     bool                    isCatchingUp;

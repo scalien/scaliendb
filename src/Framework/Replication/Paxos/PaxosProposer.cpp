@@ -20,6 +20,15 @@ void PaxosProposer::Init(QuorumContext* context_)
     state.Init();
 }
 
+void PaxosProposer::Shutdown()
+{
+    if (prepareTimeout.IsActive())
+        EventLoop::Remove(&prepareTimeout);
+
+    if (proposeTimeout.IsActive())
+        EventLoop::Remove(&proposeTimeout);
+}
+
 void PaxosProposer::OnMessage(PaxosMessage& imsg)
 {
     if (imsg.IsPrepareResponse())
