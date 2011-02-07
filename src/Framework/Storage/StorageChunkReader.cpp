@@ -1,13 +1,15 @@
 #include "StorageChunkReader.h"
 
-#define PRELOAD_THRESHOLD   (1*MB)
+#define NUM_PRELOAD_PAGES   16
 
-void StorageChunkReader::Open(ReadBuffer filename)
+void StorageChunkReader::Open(ReadBuffer filename, uint64_t preloadThreshold_)
 {
     fileChunk.useCache = false;
     fileChunk.SetFilename(filename);
     fileChunk.ReadHeaderPage();
     fileChunk.LoadIndexPage();
+
+    preloadThreshold = preloadThreshold_;
 }
 
 StorageFileKeyValue* StorageChunkReader::First()
@@ -72,28 +74,20 @@ uint64_t StorageChunkReader::GetMaxLogCommandID()
 void StorageChunkReader::PreloadDataPages()
 {
     uint32_t    i;
-    uint32_t    max;
-    uint32_t    totalSize;
+    uint32_t    pageSize;
+    uint64_t    totalSize;
     
-//    max = MIN(fileChunk.numDataPages, index + NUM_PRELOAD_PAGES);
-//    preloadIndex = max - 1;
-//    for (i = index; i < max; i++)
-//    {
-//        assert(fileChunk.dataPages[i] == NULL);
-//        fileChunk.LoadDataPage(i, offset);
-//        offset += fileChunk.dataPages[i]->GetSize();
-//    }
-
     totalSize = 0;
     i = index;
 
     do
     {
         fileChunk.LoadDataPage(i, offset);
-        offset += fileChunk.dataPages[i]->GetSize();
-        totalSize += fileChunk.dataPages[i]->GetSize();
+        pageSize = fileChunk.dataPages[i]->GetSize();
+        offset += pageSize;
+        totalSize += pageSize;
         preloadIndex = i;
         i++;
     }
-    while (totalSize < PRELOAD_THRESHOLD);
+    while (i < fileChunk.numDataPages && totalSize < preloadThreshold);
 }

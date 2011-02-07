@@ -30,7 +30,8 @@ bool StorageChunkMerger::Merge(
     numKeys = 0;
     FOREACH (itFilename, filenames)
     {
-        readers[i].Open(ReadBuffer(**itFilename));
+        // TODO: make preloadThreshold configurable
+        readers[i].Open(ReadBuffer(**itFilename), 1*MB);
         numKeys += readers[i].GetNumKeys();
         
         // set up segment and command IDs
