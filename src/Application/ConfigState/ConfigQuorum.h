@@ -26,6 +26,10 @@ public:
     void                    OnActivationMonitoring(uint64_t paxosID);
     void                    OnActivationReplication();
     void                    ClearActivation();
+    
+    bool                    IsActiveMember(uint64_t nodeID);
+    bool                    IsInactiveMember(uint64_t nodeID);
+    bool                    IsMember(uint64_t nodeID);
 
     List<uint64_t>          GetVolatileActiveNodes();
     

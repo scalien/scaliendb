@@ -13,7 +13,6 @@ void ConfigActivationManager::Init(ConfigServer* configServer_)
 
 void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
 {
-    uint64_t*           itNodeID;
     ConfigState*        configState;
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
@@ -39,26 +38,23 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
              itQuorum->quorumID, itQuorum->activatingNodeID);
         }
 
-        FOREACH(itNodeID, itQuorum->activeNodes)
+        if (itQuorum->IsActiveMember(nodeID))
         {
-            if (*itNodeID == nodeID)
+            // if this node was part of an activation process, cancel it
+            if (itQuorum->isActivatingNode)
             {
-                // if this node was part of an activation process, cancel it
-                if (itQuorum->isActivatingNode)
-                {
-                    shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
-                    assert(shardServer != NULL);
+                shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
+                assert(shardServer != NULL);
 
-                    itQuorum->ClearActivation();
-                    UpdateTimeout();
+                itQuorum->ClearActivation();
+                UpdateTimeout();
 
-                    Log_Message("Activation failed for shard server %U and quorum %U...",
-                     itQuorum->activatingNodeID, itQuorum->quorumID);
-                }
-                
-                Log_Message("Deactivating shard server %U...", nodeID);
-                configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
+                Log_Message("Activation failed for shard server %U and quorum %U...",
+                 itQuorum->activatingNodeID, itQuorum->quorumID);
             }
+            
+            Log_Message("Deactivating shard server %U...", nodeID);
+            configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
         }
     }
 }
@@ -66,7 +62,6 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
 void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
 {
     uint64_t            paxosID;
-    uint64_t*           itNodeID;
     ConfigState*        configState;
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
@@ -89,22 +84,18 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
         if (!itQuorum->hasPrimary)
             continue;
 
-        FOREACH(itNodeID, itQuorum->inactiveNodes)
+        if (itQuorum->IsInactiveMember(nodeID))
         {
-            Log_Trace("inactive node: %U (trying %U)", *itNodeID, nodeID);
-            if (*itNodeID == nodeID)
+            paxosID = QuorumPaxosID::GetPaxosID(shardServer->quorumPaxosIDs, itQuorum->quorumID);
+            if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF) ||
+             itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
             {
-                paxosID = QuorumPaxosID::GetPaxosID(shardServer->quorumPaxosIDs, itQuorum->quorumID);
-                if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF) ||
-                 itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
-                {
-                    // the shard server is "almost caught up", start the activation process
-                    itQuorum->OnActivationStart(nodeID, now + PAXOSLEASE_MAX_LEASE_TIME);
-                    UpdateTimeout();
+                // the shard server is "almost caught up", start the activation process
+                itQuorum->OnActivationStart(nodeID, now + PAXOSLEASE_MAX_LEASE_TIME);
+                UpdateTimeout();
 
-                    Log_Message("Activation started for shard server %U and quorum %U...",
-                     itQuorum->activatingNodeID, itQuorum->quorumID);
-                }
+                Log_Message("Activation started for shard server %U and quorum %U...",
+                 itQuorum->activatingNodeID, itQuorum->quorumID);
             }
         }
     }    

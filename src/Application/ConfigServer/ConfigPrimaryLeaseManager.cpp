@@ -47,7 +47,6 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 
 void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
 {
-    uint64_t*       it;
     ConfigQuorum*   quorum;
 
     if (!configServer->GetQuorumProcessor()->IsMaster())
@@ -69,13 +68,7 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
         return;
     }
     
-    for (it = quorum->activeNodes.First(); it != NULL; it = quorum->activeNodes.Next(it))
-    {
-        if (*it == message.nodeID)
-            break;
-    }
-    
-    if (it == NULL)
+    if (!quorum->IsActiveMember(message.nodeID))
     {
         Log_Trace("nodeID %U requesting lease but not active member or quorum %U",
          message.nodeID, message.quorumID);

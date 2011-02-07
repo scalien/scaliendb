@@ -244,41 +244,34 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
         else
             buffer.Writef("");
         buffer.Appendf("q%U |", itQuorum->quorumID);
-        List<uint64_t>& activeNodes = itQuorum->activeNodes;
-        List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
         for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
         {
             found = false;
-            FOREACH(itNodeID, activeNodes)
+
+            if (itQuorum->IsActiveMember(itShardServer->nodeID))
             {
-                if (itShardServer->nodeID == *itNodeID)
-                {
-                    found = true;
-                    if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
-                        if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID) &&
-                         CONTEXT_TRANSPORT->IsConnected(*itNodeID))
-                            buffer.Appendf("     P");
-                        else
-                            buffer.Appendf("     !");
+                found = true;
+                if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
+                    if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID) &&
+                     CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                        buffer.Appendf("     P");
                     else
-                    {
-                        if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
-                            buffer.Appendf("     +");
-                        else
-                            buffer.Appendf("     -");
-                    }
-                    break;
-                }
-            }
-            FOREACH(itNodeID, inactiveNodes)
-            {
-                if (itShardServer->nodeID == *itNodeID)
+                        buffer.Appendf("     !");
+                else
                 {
-                    found = true;
-                    buffer.Appendf("     i");
-                    break;
+                    if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
+                        buffer.Appendf("     +");
+                    else
+                        buffer.Appendf("     -");
                 }
             }
+
+            if (itQuorum->IsInactiveMember(itShardServer->nodeID))
+            {
+                found = true;
+                buffer.Appendf("     i");
+            }
+
             if (!found)
                 buffer.Appendf("      ");
 
@@ -384,30 +377,27 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
             buffer.Writef("");
         buffer.Appendf("s%U |", itShard->shardID);
         quorum = configState->GetQuorum(itShard->quorumID);
-        List<uint64_t>& activeNodes = quorum->activeNodes;
         for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
         {
             found = false;
-            for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
+            
+            if (quorum->IsActiveMember(itShardServer->nodeID))
             {
-                if (itShardServer->nodeID == *itNodeID)
-                {
-                    found = true;
-                    if (quorum->hasPrimary && quorum->primaryID == *itNodeID)
-                        if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
-                            buffer.Appendf("     P");
-                        else
-                            buffer.Appendf("     !");
+                found = true;
+                if (quorum->hasPrimary && quorum->primaryID == *itNodeID)
+                    if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                        buffer.Appendf("     P");
                     else
-                    {
-                        if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
-                            buffer.Appendf("     +");
-                        else
-                            buffer.Appendf("     -");
-                    }
-                    break;
+                        buffer.Appendf("     !");
+                else
+                {
+                    if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                        buffer.Appendf("     +");
+                    else
+                        buffer.Appendf("     -");
                 }
             }
+            
             if (!found)
                 buffer.Appendf("      ");
 

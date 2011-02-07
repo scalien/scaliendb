@@ -74,6 +74,33 @@ void ConfigQuorum::ClearActivation()
     activationExpireTime = 0;
 }
 
+bool ConfigQuorum::IsActiveMember(uint64_t nodeID)
+{
+    uint64_t* it;
+    
+    FOREACH(it, activeNodes)
+        if (*it == nodeID)
+            return true;
+    
+    return false;
+}
+
+bool ConfigQuorum::IsInactiveMember(uint64_t nodeID)
+{
+    uint64_t* it;
+    
+    FOREACH(it, inactiveNodes)
+        if (*it == nodeID)
+            return true;
+    
+    return false;
+}
+
+bool ConfigQuorum::IsMember(uint64_t nodeID)
+{
+    return IsActiveMember(nodeID) || IsInactiveMember(nodeID);
+}
+
 List<uint64_t> ConfigQuorum::GetVolatileActiveNodes()
 {
     List<uint64_t> list;

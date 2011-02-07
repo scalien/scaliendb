@@ -252,9 +252,7 @@ uint64_t ShardServer::GetLeaseOwner(uint64_t quorumID)
 
 void ShardServer::OnSetConfigState(ClusterMessage& message)
 {
-    bool                    found;
-    uint64_t*               itNodeID;
-    uint64_t*               itConfigShard;
+    uint64_t*               itShardID;
     ReadBuffer              splitKey;
     ConfigShard*            configShard;
     ConfigQuorum*           configQuorum;
@@ -276,27 +274,18 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
         if (configQuorum == NULL)
             goto DeleteQuorum;
         
-        found = false;
         next = quorumProcessors.Next(quorumProcessor);
         
-        FOREACH(itNodeID, configQuorum->activeNodes)
-        {
-            if (*itNodeID == MY_NODEID)
-            {
-                found = true;
-                break;
-            }
-        }
-        if (found)
+        if (configQuorum->IsActiveMember(MY_NODEID))
         {
             quorumProcessor->RegisterPaxosID(configQuorum->paxosID);
 
             if (quorumProcessor->IsPrimary())
             {
                 // look for shard splits
-                FOREACH(itConfigShard, configQuorum->shards)
+                FOREACH(itShardID, configQuorum->shards)
                 {
-                    configShard = configState.GetShard(*itConfigShard);
+                    configShard = configState.GetShard(*itShardID);
                     if (configShard->isSplitCreating)
                     {
                         Log_Trace("Splitting shard (parent shardID = %U, new shardID = %U)...",
@@ -309,15 +298,7 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
             }
             continue;
         }
-        FOREACH(itNodeID, configQuorum->inactiveNodes)
-        {
-            if (*itNodeID == MY_NODEID)
-            {
-                found = true;
-                break;
-            }
-        }
-        if (found)
+        if (configQuorum->IsInactiveMember(MY_NODEID))
         {
             quorumProcessor->RegisterPaxosID(configQuorum->paxosID);
             continue;
@@ -336,25 +317,15 @@ DeleteQuorum:
     // check changes in active or inactive node list
     FOREACH(configQuorum, configState.quorums)
     {
-        FOREACH(itNodeID, configQuorum->activeNodes)
-        {
-            if (*itNodeID == MY_NODEID)
-            {
-                ConfigureQuorum(configQuorum); // also creates quorum
-                break;
-            }
-        }
+        if (configQuorum->IsActiveMember(MY_NODEID))
+            ConfigureQuorum(configQuorum); // also creates quorum
 
-        FOREACH(itNodeID, configQuorum->inactiveNodes)
+        if (configQuorum->IsInactiveMember(MY_NODEID))
         {
-            if (*itNodeID == MY_NODEID)
-            {
-                ConfigureQuorum(configQuorum); // also creates quorum
-                quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
-                assert(quorumProcessor != NULL);
-                quorumProcessor->TryReplicationCatchup();
-                break;
-            }
+            ConfigureQuorum(configQuorum); // also creates quorum
+            quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
+            assert(quorumProcessor != NULL);
+            quorumProcessor->TryReplicationCatchup();
         }
     }
 }
