@@ -32,9 +32,9 @@ void StorageSerializeChunkJob::Execute()
 {
     StorageChunkSerializer serializer;
 
-    Log_Message("Serializing chunk %U in memory...", memoChunk->GetChunkID());
+    Log_Debug("Serializing chunk %U in memory...", memoChunk->GetChunkID());
     serializer.Serialize(memoChunk);
-    Log_Message("Done serializing.", memoChunk->GetChunkID());
+    Log_Debug("Done serializing.", memoChunk->GetChunkID());
     
     Callable* c = onComplete;
     delete this;
@@ -52,7 +52,7 @@ void StorageWriteChunkJob::Execute()
 {
     StorageChunkWriter writer;
 
-    Log_Message("Writing chunk %U to file...", fileChunk->GetChunkID());
+    Log_Debug("Writing chunk %U to file...", fileChunk->GetChunkID());
     writer.Write(env, fileChunk);
 
     Callable* c = onComplete;
@@ -76,7 +76,7 @@ void StorageArchiveLogSegmentJob::Execute()
     
     if (ReadBuffer::Cmp(script, "$archive") == 0)
     {
-        Log_Message("Archiving log segment %U...", logSegment->GetLogSegmentID());
+        Log_Debug("Archiving log segment %U...", logSegment->GetLogSegmentID());
 
         dest.Write(env->archivePath);
         dest.Appendf("log.%020U", logSegment->GetLogSegmentID());
@@ -86,12 +86,12 @@ void StorageArchiveLogSegmentJob::Execute()
     }
     else if (ReadBuffer::Cmp(script, "$delete") == 0)
     {
-        Log_Message("Deleting archive log segment %U...", logSegment->GetLogSegmentID());
+        Log_Debug("Deleting archive log segment %U...", logSegment->GetLogSegmentID());
         FS_Delete(logSegment->filename.GetBuffer());
     }
     else
     {
-        Log_Message("Executing script on archive log segment %U (%s)...", 
+        Log_Debug("Executing script on archive log segment %U (%s)...", 
          logSegment->GetLogSegmentID(), script);
         
         EvalScriptVariables();
@@ -169,7 +169,7 @@ StorageDeleteFileChunkJob::StorageDeleteFileChunkJob(StorageFileChunk* chunk_)
 
 void StorageDeleteFileChunkJob::Execute()
 {
-    Log_Message("Deleting chunk %U", chunk->GetChunkID());
+    Log_Debug("Deleting chunk %U", chunk->GetChunkID());
     
     FS_Delete(chunk->GetFilename().GetBuffer());
 
@@ -203,11 +203,11 @@ void StorageMergeChunkJob::Execute()
     StorageChunkMerger  merger;
     Buffer**            itFilename;
     
-    Log_Message("Merging %u chunks into chunk %U...",
+    Log_Debug("Merging %u chunks into chunk %U...",
      filenames.GetLength(),
      mergeChunk->GetChunkID());
     merger.Merge(env, filenames, mergeChunk, firstKey, lastKey);
-    Log_Message("Done merging.");
+    Log_Debug("Done merging.");
 
     FOREACH_FIRST (itFilename, filenames)
     {

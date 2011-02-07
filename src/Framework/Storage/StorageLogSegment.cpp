@@ -42,7 +42,7 @@ bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
     
     NewRound();
     
-    Log_Message("Opening log segment %U", logSegmentID);
+    Log_Debug("Opening log segment %U", logSegmentID);
         
     return true;
 }

@@ -737,7 +737,7 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     if (shard->GetMemoChunk() != NULL)
     {
         memoChunk = shard->GetMemoChunk();
-        Log_Message("Deleting MemoChunk...");
+        Log_Debug("Deleting MemoChunk...");
         job = new StorageDeleteMemoChunkJob(memoChunk);
         StartJob(asyncThread, job);
         shard->memoChunk = NULL; // TODO: private hack
@@ -1129,7 +1129,7 @@ void StorageEnvironment::OnChunkSerialize()
                     if (fileChunk == NULL)
                         goto Advance;
                     OnChunkSerialized(memoChunk, fileChunk);
-                    Log_Message("Deleting MemoChunk...");
+                    Log_Debug("Deleting MemoChunk...");
                     job = new StorageDeleteMemoChunkJob(memoChunk);
                     StartJob(asyncThread, job);
                     

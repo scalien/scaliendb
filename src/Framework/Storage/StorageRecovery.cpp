@@ -437,7 +437,7 @@ void StorageRecovery::DeleteOrphanedChunks()
     FS_DirEntry         entry;
     StorageFileChunk*   itChunk;
     
-    Log_Message("Checking for orphaned chunks...");
+    Log_Debug("Checking for orphaned chunks...");
     
     tmp.Write(env->chunkPath);
     tmp.NullTerminate();
@@ -476,7 +476,7 @@ void StorageRecovery::DeleteOrphanedChunks()
             {
                 tmp.Write(env->chunkPath);
                 tmp.Append(filename);
-                Log_Message("Deleting orphaned chunk file %B...", &tmp);
+                Log_Debug("Deleting orphaned chunk file %B...", &tmp);
                 tmp.NullTerminate();
                 FS_Delete(tmp.GetBuffer());
             }

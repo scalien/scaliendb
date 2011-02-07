@@ -11,10 +11,10 @@ bool StorageChunkMerger::Merge(
  List<Buffer*>& filenames, StorageFileChunk* mergeChunk_,  
  ReadBuffer firstKey, ReadBuffer lastKey)
 {
-    Deferred    onFinish(MFUNC(StorageChunkMerger, OnMergeFinished));
     unsigned    i;
-    Buffer**    itFilename;
     unsigned    numKeys;
+    Buffer**    itFilename;
+    Deferred    onFinish(MFUNC(StorageChunkMerger, OnMergeFinished));
     
     env = env_;
     mergeChunk = mergeChunk_;
@@ -294,138 +294,6 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
     mergeChunk->indexPage->Finalize();
     return true;
 }
-
-//{
-//    {
-//        advance1 = false;
-//        advance2 = false;
-//
-//        skip = false;
-//        if (it1 != NULL && !RangeContains(firstKey, lastKey, it1->GetKey()))
-//        {
-//            advance1 = true;
-//            skip = true;
-//        }
-//        if (it2 != NULL && !RangeContains(firstKey, lastKey, it2->GetKey()))
-//        {
-//            advance2 = true;
-//            skip = true;
-//        }
-//        if (skip)
-//            goto Advance;
-//
-//        if (it1 == NULL)
-//        {
-//            it = it2;
-//            advance2 = true;
-//        }
-//        else if (it2 == NULL)
-//        {
-//            it = it1;
-//            advance1 = true;
-//        }
-//        else
-//        {
-//            cmp = ReadBuffer::Cmp(it1->GetKey(), it2->GetKey());
-//            if (cmp < 0)
-//            {
-//                it = it1;
-//                advance1 = true;
-//            }
-//            else if (cmp > 0)
-//            {
-//                it = it2;
-//                advance2 = true;
-//            }
-//            else
-//            {
-//                it = MergeKeyValue(it1, it2);
-//                // in case of delete 'it' is NULL
-//                advance1 = true;
-//                advance2 = true;
-//            }
-//        }
-//
-//        if (it == NULL)
-//            goto Advance;
-//
-//        numKeys++;
-//        
-//        if (this->firstKey.GetLength() == 0)
-//            this->firstKey.Write(it->GetKey());
-//        this->lastKey.Write(it->GetKey());
-//
-//        if (mergeChunk->UseBloomFilter())
-//            mergeChunk->bloomPage->Add(it->GetKey());
-//
-//        if (dataPage->GetNumKeys() == 0)
-//        {
-//            dataPage->Append(it);
-//            mergeChunk->indexPage->Append(it->GetKey(), index, offset);
-//        }
-//        else
-//        {
-//            if (dataPage->GetLength() + dataPage->GetIncrement(it) <= STORAGE_DEFAULT_DATA_PAGE_SIZE)
-//            {
-//                dataPage->Append(it);
-//            }
-//            else
-//            {
-//                dataPage->Finalize();
-//                
-//                writeBuffer.Clear();
-//                dataPage->Write(writeBuffer);
-//                assert(writeBuffer.GetLength() == dataPage->GetSize());
-//                if (!WriteBuffer())
-//                    return false;
-//
-//                mergeChunk->AppendDataPage(NULL);
-//                index++;
-//                dataPage = new StorageDataPage(mergeChunk, index);
-//                dataPageGuard.Set(dataPage);
-//                dataPage->SetOffset(offset);
-//                dataPage->Append(it);
-//                mergeChunk->indexPage->Append(it->GetKey(), index, offset);
-//            }
-//        }
-//        
-//Advance:
-//        if (advance1)
-//        {
-//            it1 = reader1.Next(it1);
-//            numit1++;
-//        }
-//        if (advance2)
-//        {
-//            it2 = reader2.Next(it2);
-//            numit2++;
-//        }
-//    }
-//
-//    // write last datapage
-//    if (dataPage->GetNumKeys() > 0)
-//    {
-//        dataPage->Finalize();
-//
-//        writeBuffer.Clear();
-//        dataPage->Write(writeBuffer);
-//        assert(writeBuffer.GetLength() == dataPage->GetSize());
-//        if (!WriteBuffer())
-//            return false;
-//
-//        mergeChunk->AppendDataPage(NULL);
-//        index++;
-//
-//        // dataPage is deleted automatically
-//    }
-//    
-//    mergeChunk->indexPage->Finalize();
-//    
-//    assert(numit1 = reader1.GetNumKeys());
-//    assert(numit2 = reader2.GetNumKeys());
-//    
-//    return true;
-//}
 
 bool StorageChunkMerger::WriteIndexPage()
 {
