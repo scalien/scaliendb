@@ -34,6 +34,7 @@ public:
     ClusterContext* GetClusterContext();
 
     void            AddQuorumContext(QuorumContext* context);
+    void            RemoveQuorumContext(QuorumContext* context);
     QuorumContext*  GetQuorumContext(uint64_t quorumID);
 
     void            SendClusterMessage(uint64_t nodeID, Message& msg);

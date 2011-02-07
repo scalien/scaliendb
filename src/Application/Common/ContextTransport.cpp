@@ -45,6 +45,12 @@ void ContextTransport::AddQuorumContext(QuorumContext* context)
     contextMap.Set(quorumID, context);
 }
 
+void ContextTransport::RemoveQuorumContext(QuorumContext* context)
+{
+    uint64_t quorumID = context->GetQuorumID();
+    contextMap.Remove(quorumID);
+}
+
 QuorumContext* ContextTransport::GetQuorumContext(uint64_t quorumID)
 {
     QuorumContext* pcontext;
@@ -132,8 +138,9 @@ void ContextTransport::OnClusterMessage(uint64_t nodeID, ReadBuffer& buffer)
 
 void ContextTransport::OnQuorumMessage(uint64_t nodeID, ReadBuffer& msg)
 {
-    int         nread;
-    uint64_t    quorumID;
+    int             nread;
+    uint64_t        quorumID;
+    QuorumContext*  quorumContext;
 
     nread = msg.Readf("%U:", &quorumID);
     if (nread < 2)
@@ -141,5 +148,8 @@ void ContextTransport::OnQuorumMessage(uint64_t nodeID, ReadBuffer& msg)
     
     msg.Advance(nread);
 
-    GetQuorumContext(quorumID)->OnMessage(nodeID, msg);
+    quorumContext = GetQuorumContext(quorumID);
+    
+    if (quorumContext)
+        GetQuorumContext(quorumID)->OnMessage(nodeID, msg);
 }
