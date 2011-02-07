@@ -31,6 +31,11 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     isReplicationActive = true;
 }
 
+void ShardQuorumContext::Shutdown()
+{
+    replicatedLog.Shutdown();
+}
+
 void ShardQuorumContext::SetActiveNodes(List<uint64_t>& activeNodes)
 {
     uint64_t*   it;
