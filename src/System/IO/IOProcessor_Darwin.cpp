@@ -99,6 +99,8 @@ void IOProcessor::BlockSignals(int blockMode)
 
         sigemptyset(&mask);
         pthread_sigmask(SIG_SETMASK, &mask, NULL);
+        
+        AddKq(SIGINT, EVFILT_SIGNAL, NULL);
     }
     else if (blockMode == IOPROCESSOR_BLOCK_ALL)
     {

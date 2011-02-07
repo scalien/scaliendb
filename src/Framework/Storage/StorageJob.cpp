@@ -200,14 +200,16 @@ StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
 
 void StorageMergeChunkJob::Execute()
 {
+    bool                ret;
     StorageChunkMerger  merger;
     Buffer**            itFilename;
     
     Log_Debug("Merging %u chunks into chunk %U...",
      filenames.GetLength(),
      mergeChunk->GetChunkID());
-    merger.Merge(env, filenames, mergeChunk, firstKey, lastKey);
-    Log_Debug("Done merging.");
+    ret = merger.Merge(env, filenames, mergeChunk, firstKey, lastKey);
+    if (ret)
+        Log_Debug("Done merging.");
 
     FOREACH_FIRST (itFilename, filenames)
     {

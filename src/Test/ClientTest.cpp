@@ -273,8 +273,8 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     char            valbuf[50];
     char            keybuf[10];
     int             ret;
-    unsigned        totalNum = 10000;
-    unsigned        batchNum = 50;
+    unsigned        totalNum = 1000000;
+    unsigned        batchNum = 50000;
     unsigned        count;
     Stopwatch       sw;
     static int      counter = 0;
@@ -410,6 +410,27 @@ TEST_DEFINE(TestClientBatchedDelete)
 
     client.Shutdown();
     
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientBatchedDummy)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    int             ret;
+
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    ret = client.Begin();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    ret = client.Submit();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+        
     return TEST_SUCCESS;
 }
 
