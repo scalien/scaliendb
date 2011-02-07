@@ -1,6 +1,6 @@
 #include "StorageChunkReader.h"
 
-#define NUM_PRELOAD_PAGES   16
+#define PRELOAD_THRESHOLD   (1*MB)
 
 void StorageChunkReader::Open(ReadBuffer filename)
 {
@@ -73,13 +73,27 @@ void StorageChunkReader::PreloadDataPages()
 {
     uint32_t    i;
     uint32_t    max;
+    uint32_t    totalSize;
     
-    max = MIN(fileChunk.numDataPages, index + NUM_PRELOAD_PAGES);
-    preloadIndex = max - 1;
-    for (i = index; i < max; i++)
+//    max = MIN(fileChunk.numDataPages, index + NUM_PRELOAD_PAGES);
+//    preloadIndex = max - 1;
+//    for (i = index; i < max; i++)
+//    {
+//        assert(fileChunk.dataPages[i] == NULL);
+//        fileChunk.LoadDataPage(i, offset);
+//        offset += fileChunk.dataPages[i]->GetSize();
+//    }
+
+    totalSize = 0;
+    i = index;
+
+    do
     {
-        assert(fileChunk.dataPages[i] == NULL);
         fileChunk.LoadDataPage(i, offset);
         offset += fileChunk.dataPages[i]->GetSize();
+        totalSize += fileChunk.dataPages[i]->GetSize();
+        preloadIndex = i;
+        i++;
     }
+    while (totalSize < PRELOAD_THRESHOLD);
 }
