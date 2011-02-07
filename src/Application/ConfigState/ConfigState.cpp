@@ -493,29 +493,45 @@ bool ConfigState::CompleteRemoveNode(ConfigMessage& message)
 {
     ConfigQuorum*   itQuorum;
     uint64_t*       itNodeID;
+    bool            activeNode;
+    bool            inactiveNode;
     
     itQuorum = GetQuorum(message.quorumID);
     if (itQuorum == NULL)
         return false; // no such quorum
-    
-    if (itQuorum->activeNodes.GetLength() <= 1)
-        return false; // can't remove last active node
+        
+    activeNode = false;
+    inactiveNode = false;
     
     List<uint64_t>& activeNodes = itQuorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
-            return true; // node in quorum
+            activeNode = true; // node in quorum
     }
 
     List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
-            return true; // node in quorum
+            inactiveNode = true; // node in quorum
     }
     
-    return false; // node not in quorum
+    if (!activeNode && !inactiveNode)
+        return false;
+
+    if (inactiveNode)
+        return true;
+
+    if (activeNode)
+    {
+        if (itQuorum->activeNodes.GetLength() <= 1)
+            return false; // can't remove last active node
+        else
+            return true;
+    }
+
+    return false; // dummy
 }
 
 bool ConfigState::CompleteActivateShardServer(ConfigMessage& message)
