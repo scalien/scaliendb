@@ -19,6 +19,7 @@ class ReplicatedLog
 {
 public:
     void                    Init(QuorumContext* context);
+    void                    Shutdown();
 
     void                    SetCommitChaining(bool commitChaining);
     bool                    GetCommitChaining();
