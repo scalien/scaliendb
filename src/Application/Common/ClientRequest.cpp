@@ -90,6 +90,32 @@ bool ClientRequest::CreateQuorum(uint64_t commandID_, List<uint64_t>& nodes_)
     return true;
 }
 
+bool ClientRequest::DeleteQuorum(uint64_t commandID_, uint64_t quorumID_)
+{
+    type = CLIENTREQUEST_DELETE_QUORUM;
+    commandID = commandID_;
+    quorumID = quorumID_;
+    return true;
+}
+
+bool ClientRequest::AddNode(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_)
+{
+    type = CLIENTREQUEST_ADD_NODE;
+    commandID = commandID_;
+    quorumID = quorumID_;
+    nodeID = nodeID_;
+    return true;
+}
+
+bool ClientRequest::RemoveNode(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_)
+{
+    type = CLIENTREQUEST_REMOVE_NODE;
+    commandID = commandID_;
+    quorumID = quorumID_;
+    nodeID = nodeID_;
+    return true;
+}
+
 bool ClientRequest::ActivateNode(uint64_t commandID_, uint64_t nodeID_)
 {
     type = CLIENTREQUEST_ACTIVATE_NODE;
