@@ -1226,7 +1226,7 @@ void StorageEnvironment::OnChunkMerge()
     }
     
     // delete the merged chunks from the shard
-    FOREACH (itFileChunk, mergeChunks)
+    FOREACH_FIRST (itFileChunk, mergeChunks)
     {
         chunk = (StorageChunk*) *itFileChunk;
         itShard->GetChunks().Remove(chunk);
