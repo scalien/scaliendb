@@ -133,10 +133,12 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteRegisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
             return CompleteCreateQuorum(message);
-        case CONFIGMESSAGE_INCREASE_QUORUM:
-            return CompleteIncreaseQuorum(message);
-        case CONFIGMESSAGE_DECREASE_QUORUM:
-            return CompleteDecreaseQuorum(message);
+        case CONFIGMESSAGE_DELETE_QUORUM:
+            return CompleteDeleteQuorum(message);
+        case CONFIGMESSAGE_ADD_NODE:
+            return CompleteAddNode(message);
+        case CONFIGMESSAGE_REMOVE_NODE:
+            return CompleteRemoveNode(message);
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
             return CompleteActivateShardServer(message);
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
@@ -204,6 +206,9 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
         READ_SEPARATOR();
     }
     
+    if (!ReadNextIDs(buffer))
+        return false;
+    READ_SEPARATOR();
     if (!ReadQuorums(buffer, withVolatile))
         return false;
     READ_SEPARATOR();
@@ -238,6 +243,8 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
             buffer.Appendf("%c:", NO);
     }
 
+    WriteNextIDs(buffer);
+    buffer.Appendf(":");
     WriteQuorums(buffer, withVolatile);
     buffer.Appendf(":");
     WriteDatabases(buffer);
@@ -262,10 +269,12 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnRegisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
             return OnCreateQuorum(message);
-        case CONFIGMESSAGE_INCREASE_QUORUM:
-            return OnIncreaseQuorum(message);
-        case CONFIGMESSAGE_DECREASE_QUORUM:
-            return OnDecreaseQuorum(message);
+        case CONFIGMESSAGE_DELETE_QUORUM:
+            return OnDeleteQuorum(message);
+        case CONFIGMESSAGE_ADD_NODE:
+            return OnAddNode(message);
+        case CONFIGMESSAGE_REMOVE_NODE:
+            return OnRemoveNode(message);
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
             return OnActivateShardServer(message);
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
@@ -433,7 +442,27 @@ bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
     return true;
 }
 
-bool ConfigState::CompleteIncreaseQuorum(ConfigMessage& message)
+bool ConfigState::CompleteDeleteQuorum(ConfigMessage& message)
+{
+    uint64_t*       itShardID;
+    ConfigQuorum*   quorum;
+    ConfigShard*    shard;
+
+    quorum = GetQuorum(message.quorumID);
+    if (quorum == NULL)
+        return false; // no such quorum
+
+    FOREACH(itShardID, quorum->shards)
+    {
+        shard = GetShard(*itShardID);
+        if (!shard->isDeleted)
+            return false; // quorum contains shards
+    }
+    
+    return true;
+}
+
+bool ConfigState::CompleteAddNode(ConfigMessage& message)
 {
     ConfigQuorum*   itQuorum;
     uint64_t*       itNodeID;
@@ -456,12 +485,11 @@ bool ConfigState::CompleteIncreaseQuorum(ConfigMessage& message)
         if (*itNodeID == message.nodeID)
             return false; // node already in quorum
     }
-
     
     return true;
 }
 
-bool ConfigState::CompleteDecreaseQuorum(ConfigMessage& message)
+bool ConfigState::CompleteRemoveNode(ConfigMessage& message)
 {
     ConfigQuorum*   itQuorum;
     uint64_t*       itNodeID;
@@ -469,6 +497,9 @@ bool ConfigState::CompleteDecreaseQuorum(ConfigMessage& message)
     itQuorum = GetQuorum(message.quorumID);
     if (itQuorum == NULL)
         return false; // no such quorum
+    
+    if (itQuorum->activeNodes.GetLength() <= 1)
+        return false; // can't remove last active node
     
     List<uint64_t>& activeNodes = itQuorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
@@ -699,24 +730,36 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
         nextQuorumID++;
 }
 
-void ConfigState::OnIncreaseQuorum(ConfigMessage& message)
+void ConfigState::OnDeleteQuorum(ConfigMessage& message)
 {
-    ConfigQuorum*   itQuorum;
+    ConfigQuorum*   quorum;
+    
+    // make sure quorum exists
+    quorum = GetQuorum(message.quorumID);
+    
+    quorums.Remove(quorum);
+    
+    delete quorum;
+}
+
+void ConfigState::OnAddNode(ConfigMessage& message)
+{
+    ConfigQuorum*   quorum;
     uint64_t*       itNodeID;
     
-    itQuorum = GetQuorum(message.quorumID);
+    quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
-    assert(itQuorum != NULL);
+    assert(quorum != NULL);
         
     // make sure node is not already in quorum
-    List<uint64_t>& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& activeNodes = quorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
             ASSERT_FAIL();
     }
 
-    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& inactiveNodes = quorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -726,17 +769,17 @@ void ConfigState::OnIncreaseQuorum(ConfigMessage& message)
     inactiveNodes.Append(message.nodeID);
 }
 
-void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
+void ConfigState::OnRemoveNode(ConfigMessage& message)
 {
-    ConfigQuorum*   itQuorum;
+    ConfigQuorum*   quorum;
     uint64_t*       itNodeID;
     
-    itQuorum = GetQuorum(message.quorumID);
+    quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
-    assert(itQuorum != NULL);
+    assert(quorum != NULL);
     
     // make sure node is in quorum
-    List<uint64_t>& activeNodes = itQuorum->activeNodes;
+    List<uint64_t>& activeNodes = quorum->activeNodes;
     for (itNodeID = activeNodes.First(); itNodeID != NULL; itNodeID = activeNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -746,7 +789,7 @@ void ConfigState::OnDecreaseQuorum(ConfigMessage& message)
         }
     }
 
-    List<uint64_t>& inactiveNodes = itQuorum->inactiveNodes;
+    List<uint64_t>& inactiveNodes = quorum->inactiveNodes;
     for (itNodeID = inactiveNodes.First(); itNodeID != NULL; itNodeID = inactiveNodes.Next(itNodeID))
     {
         if (*itNodeID == message.nodeID)
@@ -851,6 +894,7 @@ void ConfigState::OnRenameDatabase(ConfigMessage& message)
     it = GetDatabase(message.name);
     // make sure database with name does not exist
     assert(it == NULL);
+
     it = GetDatabase(message.databaseID);
     // make sure database with ID exists
     assert(it != NULL);
@@ -1470,6 +1514,24 @@ void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffe
         buffer.Appendf(":");
         QuorumPaxosID::WriteList(buffer, shardServer.quorumPaxosIDs);
     }
+}
+
+bool ConfigState::ReadNextIDs(ReadBuffer& buffer)
+{
+    int read;
+    
+    read = buffer.Readf("%U:%U:%U:%U:%U",
+     &nextQuorumID, &nextDatabaseID, &nextTableID, &nextShardID, &nextNodeID);
+
+    CHECK_ADVANCE(9);
+
+    return true;
+}
+
+void ConfigState::WriteNextIDs(Buffer& buffer)
+{
+    buffer.Appendf("%U:%U:%U:%U:%U",
+     nextQuorumID, nextDatabaseID, nextTableID, nextShardID, nextNodeID);
 }
 
 template<typename List>

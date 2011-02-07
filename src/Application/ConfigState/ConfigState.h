@@ -90,8 +90,9 @@ public:
 private:
     bool                CompleteRegisterShardServer(ConfigMessage& message);
     bool                CompleteCreateQuorum(ConfigMessage& message);
-    bool                CompleteIncreaseQuorum(ConfigMessage& message);
-    bool                CompleteDecreaseQuorum(ConfigMessage& message);
+    bool                CompleteDeleteQuorum(ConfigMessage& message);
+    bool                CompleteAddNode(ConfigMessage& message);
+    bool                CompleteRemoveNode(ConfigMessage& message);
     bool                CompleteActivateShardServer(ConfigMessage& message);
     bool                CompleteDeactivateShardServer(ConfigMessage& message);
     bool                CompleteCreateDatabase(ConfigMessage& message);
@@ -106,8 +107,9 @@ private:
 
     void                OnRegisterShardServer(ConfigMessage& message);
     void                OnCreateQuorum(ConfigMessage& message);
-    void                OnIncreaseQuorum(ConfigMessage& message);
-    void                OnDecreaseQuorum(ConfigMessage& message);
+    void                OnDeleteQuorum(ConfigMessage& message);
+    void                OnAddNode(ConfigMessage& message);
+    void                OnRemoveNode(ConfigMessage& message);
     void                OnActivateShardServer(ConfigMessage& message);
     void                OnDeactivateShardServer(ConfigMessage& message);
     void                OnCreateDatabase(ConfigMessage& message);
@@ -155,6 +157,9 @@ private:
                          ReadBuffer& buffer, bool withVolatile);
     void                WriteShardServer(ConfigShardServer& shardServer,
                          Buffer& buffer, bool withVolatile);
+                         
+    bool                ReadNextIDs(ReadBuffer& buffer);
+    void                WriteNextIDs(Buffer& buffer);
 };
 
 #endif
