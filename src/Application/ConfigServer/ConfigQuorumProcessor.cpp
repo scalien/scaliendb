@@ -513,6 +513,20 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->type = CONFIGMESSAGE_CREATE_QUORUM;
             message->nodes = request->nodes;
             return;
+        case CLIENTREQUEST_DELETE_QUORUM:
+            message->type = CONFIGMESSAGE_DELETE_QUORUM;
+            message->quorumID = request->quorumID;
+            return;
+        case CLIENTREQUEST_ADD_NODE:
+            message->type = CONFIGMESSAGE_ADD_NODE;
+            message->quorumID = request->quorumID;
+            message->nodeID = request->nodeID;
+            return;
+        case CLIENTREQUEST_REMOVE_NODE:
+            message->type = CONFIGMESSAGE_REMOVE_NODE;
+            message->quorumID = request->quorumID;
+            message->nodeID = request->nodeID;
+            return;
         case CLIENTREQUEST_CREATE_DATABASE:
             message->type = CONFIGMESSAGE_CREATE_DATABASE;
             message->name.Wrap(request->name);
@@ -564,6 +578,15 @@ void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResp
     {
         case CLIENTREQUEST_CREATE_QUORUM:
             response->Number(message->quorumID);
+            return;
+        case CLIENTREQUEST_DELETE_QUORUM:
+            response->OK();
+            return;
+        case CLIENTREQUEST_ADD_NODE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_REMOVE_NODE:
+            response->OK();
             return;
         case CLIENTREQUEST_CREATE_DATABASE:
             response->Number(message->databaseID);
