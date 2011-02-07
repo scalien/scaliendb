@@ -60,7 +60,12 @@ class scaliendb_clientJNI {
   public final static native int SDBP_CreateQuorum(long jarg1, long jarg2, SDBP_NodeParams jarg2_);
   public final static native int SDBP_ActivateNode(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_CreateDatabase(long jarg1, String jarg2);
+  public final static native int SDBP_RenameDatabase(long jarg1, java.math.BigInteger jarg2, String jarg3);
+  public final static native int SDBP_DeleteDatabase(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_CreateTable(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3, String jarg4);
+  public final static native int SDBP_RenameTable(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3, String jarg4);
+  public final static native int SDBP_DeleteTable(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3);
+  public final static native int SDBP_TruncateTable(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3);
   public final static native java.math.BigInteger SDBP_GetDatabaseID(long jarg1, String jarg2);
   public final static native java.math.BigInteger SDBP_GetTableID(long jarg1, java.math.BigInteger jarg2, String jarg3);
   public final static native int SDBP_UseDatabase(long jarg1, String jarg2);

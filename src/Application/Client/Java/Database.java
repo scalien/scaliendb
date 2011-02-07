@@ -49,4 +49,23 @@ public class Database
     public Table getTable(String name) throws SDBPException {
         return new Table(client, this, name);
     }
+    
+    /**
+     * Renames the database.
+     *
+     * @param   name        the new name of the database
+     * @return              the status of the operation
+     */
+    public int renameDatabase(String newName) throws SDBPException {
+        return client.renameDatabase(databaseID, newName);
+    }
+
+    /**
+     * Deletes the database.
+     *
+     * @return              the status of the operation
+     */
+    public long deleteDatabase() throws SDBPException {
+        return client.deleteDatabase(databaseID);
+    }
 }

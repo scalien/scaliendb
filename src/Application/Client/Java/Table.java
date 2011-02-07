@@ -33,6 +33,34 @@ public class Table
         client.useDatabase(database.getName());
         client.useTable(name);
     }
+
+    /**
+     * Renames the table.
+     *
+     * @param   newName     the new name of the table
+     * @return              the status of the operation
+     */
+    public long renameTable(String newName) throws SDBPException {
+        return client.renameTable(database.getDatabaseID(), tableID, newName);
+    }
+
+    /**
+     * Deletes the table.
+     *
+     * @return              the status of the operation
+     */
+    public long deleteTable() throws SDBPException {
+        return client.deleteTable(database.getDatabaseID(), tableID);
+    }
+
+    /**
+     * Truncates the table.
+     *
+     * @return              the status of the operation
+     */
+    public long truncateTable() throws SDBPException {
+        return client.truncateTable(database.getDatabaseID(), tableID);
+    }
  
     /**
      * Returns the value for a specified key.

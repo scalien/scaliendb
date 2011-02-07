@@ -44,10 +44,10 @@ bool ShardConnection::SendRequest(Request* request)
     request->requestTime = EventLoop::Now();
     //request->requestTime = NowClock();
 
-    if (request->numTry > 1)
-        Log_Debug("Resending, commandID: %U, conn: %s", request->commandID, endpoint.ToString());
+//    if (request->numTry > 1)
+//        Log_Debug("Resending, commandID: %U, conn: %s", request->commandID, endpoint.ToString());
     
-    Log_Debug("Sending conn: %s, writeBuffer = %B", endpoint.ToString(), writeBuffer);
+    //Log_Debug("Sending conn: %s, writeBuffer = %B", endpoint.ToString(), writeBuffer);
     
     // buffer is saturated
     if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
@@ -58,7 +58,7 @@ bool ShardConnection::SendRequest(Request* request)
 
 void ShardConnection::SendSubmit(uint64_t /*quorumID*/)
 {
-    Log_Debug("Flushing, conn: %s", endpoint.ToString());
+//    Log_Debug("Flushing, conn: %s", endpoint.ToString());
 //    SDBPRequestMessage  msg;
 //    
 //    // TODO: optimize away submitRequest and msg by writing the buffer in constructor
@@ -118,7 +118,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    Log_Debug("Shard conn: %s, message: %R", endpoint.ToString(), &rbuf);
+    //Log_Debug("Shard conn: %s, message: %R", endpoint.ToString(), &rbuf);
         
     msg.response = &response;
     if (!msg.Read(rbuf))
@@ -176,7 +176,7 @@ void ShardConnection::OnConnect()
 
 void ShardConnection::OnClose()
 {
-    Log_Debug("Shard connection closing: %s", endpoint.ToString());
+    //Log_Debug("Shard connection closing: %s", endpoint.ToString());
     
     Request*    it;
     Request*    prev;

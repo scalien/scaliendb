@@ -57,12 +57,16 @@ public:
     // controller commands
     int                     CreateQuorum(List<uint64_t>& nodes);
     int                     ActivateNode(uint64_t nodeID);
+
     int                     CreateDatabase(ReadBuffer& name);
     int                     RenameDatabase(uint64_t databaseID, const ReadBuffer& name);
     int                     DeleteDatabase(uint64_t databaseID);
+
     int                     CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name);
     int                     RenameTable(uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
     int                     DeleteTable(uint64_t databaseID, uint64_t tableID);
+    int                     TruncateTable(uint64_t databaseID, uint64_t tableID);
+
     int                     SplitShard(uint64_t shardID, ReadBuffer& splitKey);
     
     // shard server commands

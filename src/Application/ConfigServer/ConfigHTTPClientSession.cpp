@@ -7,6 +7,12 @@
 #include "Version.h"
 #include "ConfigHeartbeatManager.h"
 
+#define PARAM_BOOL_VALUE(param)                         \
+    ((ReadBuffer::Cmp((param), "yes") == 0 ||           \
+    ReadBuffer::Cmp((param), "true") == 0 ||            \
+    ReadBuffer::Cmp((param), "on") == 0 ||            \
+    ReadBuffer::Cmp((param), "1") == 0) ? true : false)
+
 void ConfigHTTPClientSession::SetConfigServer(ConfigServer* configServer_)
 {
     configServer = configServer_;
@@ -445,6 +451,21 @@ End:
     return;    
 }
 
+void ConfigHTTPClientSession::ProcessSettings()
+{
+    ReadBuffer  param;
+    bool        boolValue;
+    
+    if (HTTP_GET_OPT_PARAM(params, "trace", param))
+    {
+        boolValue = PARAM_BOOL_VALUE(param);
+        Log_SetTrace(boolValue);
+        session.PrintPair("Trace", boolValue ? "on" : "off");
+    }
+    
+    session.Flush();
+}
+
 bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 {
     ClientRequest*  request;
@@ -462,6 +483,11 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     if (HTTP_MATCH_COMMAND(cmd, "activatenode"))
     {
         ProcessActivateNode();
+        return true;
+    }
+    if (HTTP_MATCH_COMMAND(cmd, "settings"))
+    {
+        ProcessSettings();
         return true;
     }
 
