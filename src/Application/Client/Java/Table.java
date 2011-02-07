@@ -279,7 +279,7 @@ public class Table
      * @param   key     key to be deleted
      * @return          the old value
      */
-	public String remove(byte[] key) throws SDBPException {
+	public byte[] remove(byte[] key) throws SDBPException {
         useDefaults();
         return client.remove(key);
 	}

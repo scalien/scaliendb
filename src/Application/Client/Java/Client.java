@@ -644,7 +644,7 @@ public class Client
      * @param   key     key to be deleted
      * @return          the old value
      */
-	public String remove(byte[] key) throws SDBPException {
+	public byte[] remove(byte[] key) throws SDBPException {
 		int status = scaliendb_client.SDBP_RemoveCStr(cptr, key, key.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -655,7 +655,7 @@ public class Client
 			return null;
 		
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValue();
+		return result.getValueBytes();
 	}
 
     /**
