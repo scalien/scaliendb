@@ -178,7 +178,7 @@ void StorageDeleteFileChunkJob::Execute()
 }
 
 StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
- SortedList<Buffer*>& filenames_,
+ List<Buffer*>& filenames_,
  StorageFileChunk* mergeChunk_, ReadBuffer firstKey_, ReadBuffer lastKey_, Callable* onComplete_)
 {
     Buffer**    itFilename;

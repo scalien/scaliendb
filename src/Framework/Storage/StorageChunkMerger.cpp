@@ -361,50 +361,47 @@ StorageFileKeyValue* StorageChunkMerger::Next(
  ReadBuffer& firstKey, 
  ReadBuffer& lastKey)
 {
-    unsigned                nit;
-    unsigned                currNit;
-    unsigned                prevNit;
+    unsigned                i;
+    unsigned                smallest;
     StorageFileKeyValue*    it;
     ReadBuffer              key;
     
     it = NULL;
-    prevNit = 0;
-    currNit = 0;
+    smallest = 0;
 
     // readers are sorted by chunkID in increasing order
     // (chunks that are created later has higer ID)
-    for (nit = 0; nit < numReaders; nit++)
+    for (i = 0; i < numReaders; i++)
     {
-        if (iterators[nit] != NULL) 
+        if (iterators[i] != NULL) 
         {
             // skip keys that are not in the merged interval or are DELETED keys
-            iterators[nit] = SkipNonMergeable(&readers[nit], iterators[nit], firstKey, lastKey);
-            if (iterators[nit] == NULL)
+            iterators[i] = SkipNonMergeable(&readers[i], iterators[i], firstKey, lastKey);
+            if (iterators[i] == NULL)
                 continue;
             
             // in case of key equality, the reader with the highest chunkID wins
-            if (it != NULL && ReadBuffer::Cmp(iterators[nit]->GetKey(), key) == 0)
+            if (it != NULL && ReadBuffer::Cmp(iterators[i]->GetKey(), key) == 0)
             {
-                iterators[prevNit] = readers[prevNit].Next(iterators[prevNit]);
-                prevNit = nit;
-                it = iterators[nit];
-                iterators[nit] = readers[nit].Next(iterators[nit]);                
+                iterators[smallest] = readers[smallest].Next(iterators[smallest]);
+                it = iterators[i];                
+                smallest = i;
                 continue;
             }
             
             // find the next smallest key
-            if (STORAGE_KEY_LESS_THAN(iterators[nit]->GetKey(), key))
+            if (STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key))
             {
-                it = iterators[nit];
+                it = iterators[i];
                 key = it->GetKey();
-                currNit =  nit;
+                smallest =  i;
             }
         }
     }
 
     // make progress in the reader that contained the smallest key
     if (it != NULL)
-        iterators[currNit] = readers[currNit].Next(iterators[currNit]);
+        iterators[smallest] = readers[smallest].Next(iterators[smallest]);
     
     return it;
 }

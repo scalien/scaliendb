@@ -997,7 +997,7 @@ void StorageEnvironment::TryMergeChunks()
     StorageChunk**          itChunk;
     StorageFileChunk*       fileChunk;
     StorageJob*             job;
-    SortedList<Buffer*>     filenames;
+    List<Buffer*>           filenames;
     Buffer*                 filename;
 
 #ifdef STORAGE_NOMERGE
@@ -1226,7 +1226,7 @@ void StorageEnvironment::OnChunkMerge()
     }
     
     // delete the merged chunks from the shard
-    FOREACH_FIRST (itFileChunk, mergeChunks)
+    FOREACH (itFileChunk, mergeChunks)
     {
         chunk = (StorageChunk*) *itFileChunk;
         itShard->GetChunks().Remove(chunk);

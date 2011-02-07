@@ -161,7 +161,7 @@ class StorageMergeChunkJob : public StorageJob
 {
 public:
     StorageMergeChunkJob(StorageEnvironment* env,
-     SortedList<Buffer*>& filenames,
+     List<Buffer*>& filenames,
      StorageFileChunk* mergeChunk, ReadBuffer firstKey, ReadBuffer lastKey, Callable* onComplete);
     
     void                Execute();
