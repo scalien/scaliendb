@@ -267,17 +267,14 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
     configState = message.configState;
     configShardServer = configState.GetShardServer(MY_NODEID);
     
-    databaseManager.RemoveDeletedShards();
+    databaseManager.RemoveDeletedDataShards();
 
     // look for removal
     for (quorumProcessor = quorumProcessors.First(); quorumProcessor != NULL; quorumProcessor = next)
     {
         configQuorum = configState.GetQuorum(quorumProcessor->GetQuorumID());
         if (configQuorum == NULL)
-        {
-            // TODO: quorum has disappeared
-            ASSERT_FAIL();
-        }
+            goto DeleteQuorum;
         
         found = false;
         next = quorumProcessors.Next(quorumProcessor);
@@ -326,7 +323,13 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
             continue;
         }
         
+DeleteQuorum:        
+        databaseManager.DeleteQuorumPaxosShard(quorumProcessor->GetQuorumID());
+        databaseManager.DeleteQuorumLogShard(quorumProcessor->GetQuorumID());
+        databaseManager.DeleteDataShards(quorumProcessor->GetQuorumID());
+
         next = quorumProcessors.Remove(quorumProcessor);
+        quorumProcessor->Shutdown();
         delete quorumProcessor;
     }
 

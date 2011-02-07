@@ -128,6 +128,47 @@ StorageShardProxy* ShardDatabaseManager::GetQuorumLogShard(uint64_t quorumID)
     return NULL;
 }
 
+void ShardDatabaseManager::DeleteQuorumPaxosShard(uint64_t quorumID)
+{
+    StorageShardProxy*  shard;
+    
+    if (quorumPaxosShards.Get(quorumID, shard))
+    {
+        quorumPaxosShards.Remove(quorumID);
+        delete shard;
+    }
+    
+    environment.DeleteShard(QUORUM_DATABASE_QUORUM_LOG_CONTEXT, quorumID);
+}
+
+void ShardDatabaseManager::DeleteQuorumLogShard(uint64_t quorumID)
+{
+    StorageShardProxy*  shard;
+    
+    if (quorumLogShards.Get(quorumID, shard))
+    {
+        quorumLogShards.Remove(quorumID);
+        delete shard;
+    }
+
+    environment.DeleteShard(QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, quorumID);
+}
+
+void ShardDatabaseManager::DeleteDataShards(uint64_t quorumID)
+{
+    ConfigQuorum*   configQuorum;
+    uint64_t*       itShardID;
+    
+    configQuorum = shardServer->GetConfigState()->GetQuorum(quorumID);
+    if (!configQuorum)
+        return;
+    
+    FOREACH(itShardID, configQuorum->shards)
+    {
+        environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);        
+    }
+}
+
 void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
 {
     uint64_t*           sit;
@@ -174,7 +215,7 @@ void ShardDatabaseManager::SetQuorumShards(uint64_t quorumID)
     }
 }
 
-void ShardDatabaseManager::RemoveDeletedShards()
+void ShardDatabaseManager::RemoveDeletedDataShards()
 {
     ConfigState*        configState;
     ConfigShard*        itShard;
