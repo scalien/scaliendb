@@ -11,8 +11,9 @@
 #define CONFIGMESSAGE_SET_CLUSTER_ID            's'
 #define CONFIGMESSAGE_REGISTER_SHARDSERVER      'S'
 #define CONFIGMESSAGE_CREATE_QUORUM             'Q'
-#define CONFIGMESSAGE_INCREASE_QUORUM           'P'
-#define CONFIGMESSAGE_DECREASE_QUORUM           'M'
+#define CONFIGMESSAGE_DELETE_QUORUM             'W'
+#define CONFIGMESSAGE_ADD_NODE                  'n'
+#define CONFIGMESSAGE_REMOVE_NODE               'b'
 #define CONFIGMESSAGE_ACTIVATE_SHARDSERVER      'p'
 #define CONFIGMESSAGE_DEACTIVATE_SHARDSERVER    'm'
 
@@ -69,10 +70,12 @@ public:
                      uint64_t nodeID, Endpoint& endpoint);
     bool            CreateQuorum(
                      uint64_t quorumID, List<uint64_t>& nodes);
-//    bool            IncreaseQuorum(
-//                     uint64_t quorumID, uint64_t nodeID);
-//    bool            DecreaseQuorum(
-//                     uint64_t quorumID, uint64_t nodeID);
+    bool            DeleteQuorum(
+                     uint64_t quorumID);
+    bool            AddNode(
+                     uint64_t quorumID, uint64_t nodeID);
+    bool            RemoveNode(
+                     uint64_t quorumID, uint64_t nodeID);    
     bool            ActivateShardServer(
                      uint64_t quorumID, uint64_t nodeID);
     bool            DeactivateShardServer(
