@@ -87,7 +87,11 @@ uint64_t        SDBP_GetGlobalTimeout(ClientObj client);
 uint64_t        SDBP_GetMasterTimeout(ClientObj client);
 
 int             SDBP_CreateQuorum(ClientObj client, const SDBP_NodeParams& params);
+int             SDBP_DeleteQuorum(ClientObj client, uint64_t quorumID);
+int             SDBP_AddNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);
+int             SDBP_RemoveNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);
 int             SDBP_ActivateNode(ClientObj client, uint64_t nodeID);
+
 int             SDBP_CreateDatabase(ClientObj client, const std::string& name);
 int             SDBP_RenameDatabase(ClientObj client, uint64_t databaseID, const std::string& name);
 int             SDBP_DeleteDatabase(ClientObj client, uint64_t databaseID);

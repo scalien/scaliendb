@@ -109,6 +109,16 @@ public class Client
 	}
     
     /**
+     * Returns the specified quorum.
+     *
+     * @param   quorumID    the ID of the specified quorum
+     * @return              the quorum object
+     */
+    public Quorum getQuorum(long quorumID) throws SDBPException {
+        return new Quorum(this, quorumID);
+    }
+    
+    /**
      * Creates a quorum.
      *
      * @param   nodes   an array of node IDs that makes the quorum
@@ -130,6 +140,46 @@ public class Client
         
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getNumber();
+    }
+
+    /**
+     * Deletes a quorum.
+     *
+     * @param   quorumID    the ID of the quorum to be deleted
+     * @return              the status of the operation
+     */
+    public int deleteQuorum(long quorumID) throws SDBPException {
+        BigInteger biQuorumID = BigInteger.valueOf(quorumID);
+        int status = scaliendb_client.SDBP_DeleteQuorum(cptr, biQuorumID);
+        return status;
+    }
+    
+    /**
+     * Adds node to a quorum.
+     *
+     * @param   quorumID    the ID of the quorum to which the node is added
+     * @param   nodeID      the ID of the node to be added
+     * @return              the status of the operation
+     */
+    public int addNode(long quorumID, long nodeID) throws SDBPException {
+        BigInteger biQuorumID = BigInteger.valueOf(quorumID);
+        BigInteger biNodeID = BigInteger.valueOf(nodeID);
+        int status = scaliendb_client.SDBP_AddNode(cptr, biQuorumID, biNodeID);
+        return status;
+    }
+
+    /**
+     * Removes a node from a quorum.
+     *
+     * @param   quorumID    the ID of the quorum from which the node is removed
+     * @param   nodeID      the ID of the node to be removed
+     * @return              the status of the operation
+     */
+    public int removeNode(long quorumID, long nodeID) throws SDBPException {
+        BigInteger biQuorumID = BigInteger.valueOf(quorumID);
+        BigInteger biNodeID = BigInteger.valueOf(nodeID);
+        int status = scaliendb_client.SDBP_RemoveNode(cptr, biQuorumID, biNodeID);
+        return status;
     }
     
     /**

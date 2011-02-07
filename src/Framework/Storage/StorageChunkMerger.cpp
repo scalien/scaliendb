@@ -347,8 +347,7 @@ StorageFileKeyValue* StorageChunkMerger::SkipNonMergeable(
  ReadBuffer& firstKey,
  ReadBuffer& lastKey)
 {
-    while (it->GetType() == STORAGE_KEYVALUE_TYPE_DELETE ||
-     !RangeContains(firstKey, lastKey, it->GetKey()))
+    while (!RangeContains(firstKey, lastKey, it->GetKey()))
     {
         it = reader->Next(it);
         if (it == NULL)
@@ -367,6 +366,8 @@ StorageFileKeyValue* StorageChunkMerger::Next(
     StorageFileKeyValue*    it;
     ReadBuffer              key;
     
+Restart:
+    key.Reset();
     it = NULL;
     smallest = 0;
 
@@ -376,7 +377,7 @@ StorageFileKeyValue* StorageChunkMerger::Next(
     {
         if (iterators[i] != NULL) 
         {
-            // skip keys that are not in the merged interval or are DELETED keys
+            // skip keys that are not in the merged interval
             iterators[i] = SkipNonMergeable(&readers[i], iterators[i], firstKey, lastKey);
             if (iterators[i] == NULL)
                 continue;
@@ -384,6 +385,14 @@ StorageFileKeyValue* StorageChunkMerger::Next(
             // in case of key equality, the reader with the highest chunkID wins
             if (it != NULL && ReadBuffer::Cmp(iterators[i]->GetKey(), key) == 0)
             {
+                // in case of DELETE, restart scanning from the first reader
+                if (iterators[i]->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+                {
+                    iterators[smallest] = readers[smallest].Next(iterators[smallest]);
+                    iterators[i] = readers[i].Next(iterators[i]);
+                    goto Restart;
+                }
+            
                 iterators[smallest] = readers[smallest].Next(iterators[smallest]);
                 it = iterators[i];                
                 smallest = i;
@@ -391,7 +400,8 @@ StorageFileKeyValue* StorageChunkMerger::Next(
             }
             
             // find the next smallest key
-            if (STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key))
+            if (STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key) &&
+             iterators[i]->GetType() != STORAGE_KEYVALUE_TYPE_DELETE)
             {
                 it = iterators[i];
                 key = it->GetKey();

@@ -115,6 +115,18 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_CreateQuorum(SWIGTYPE_p_void.getCPtr(client), SDBP_NodeParams.getCPtr(params), params);
   }
 
+  public static int SDBP_DeleteQuorum(SWIGTYPE_p_void client, java.math.BigInteger quorumID) {
+    return scaliendb_clientJNI.SDBP_DeleteQuorum(SWIGTYPE_p_void.getCPtr(client), quorumID);
+  }
+
+  public static int SDBP_AddNode(SWIGTYPE_p_void client, java.math.BigInteger quorumID, java.math.BigInteger nodeID) {
+    return scaliendb_clientJNI.SDBP_AddNode(SWIGTYPE_p_void.getCPtr(client), quorumID, nodeID);
+  }
+
+  public static int SDBP_RemoveNode(SWIGTYPE_p_void client, java.math.BigInteger quorumID, java.math.BigInteger nodeID) {
+    return scaliendb_clientJNI.SDBP_RemoveNode(SWIGTYPE_p_void.getCPtr(client), quorumID, nodeID);
+  }
+
   public static int SDBP_ActivateNode(SWIGTYPE_p_void client, java.math.BigInteger nodeID) {
     return scaliendb_clientJNI.SDBP_ActivateNode(SWIGTYPE_p_void.getCPtr(client), nodeID);
   }
