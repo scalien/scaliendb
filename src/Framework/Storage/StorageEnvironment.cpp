@@ -1318,9 +1318,15 @@ void StorageEnvironment::StartJob(ThreadPool* thread, StorageJob* job)
 
 void StorageEnvironment::WriteTOC()
 {
-    StorageEnvironmentWriter writer;
+    StorageEnvironmentWriter    writer;
+    Stopwatch                   sw;
 
+    sw.Start();
     writer.Write(this);
+    sw.Stop();
+    
+    if (sw.Elapsed() > 1000)
+        Log_Debug("WriteTOC took %U msec", (uint64_t) sw.Elapsed());
 }
 
 StorageFileChunk* StorageEnvironment::GetFileChunk(uint64_t chunkID)
