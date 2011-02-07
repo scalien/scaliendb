@@ -417,7 +417,7 @@ void ConfigHTTPClientSession::PrintConfigState()
     session.Flush();
 }
 
-void ConfigHTTPClientSession::ProcessActivate()
+void ConfigHTTPClientSession::ProcessActivateNode()
 {
     uint64_t    nodeID;    
     ReadBuffer  rb;
@@ -459,9 +459,9 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         PrintConfigState();
         return true;
     }
-    if (HTTP_MATCH_COMMAND(cmd, "activate"))
+    if (HTTP_MATCH_COMMAND(cmd, "activatenode"))
     {
-        ProcessActivate();
+        ProcessActivateNode();
         return true;
     }
 
@@ -483,10 +483,12 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
         return ProcessGetState();
     if (HTTP_MATCH_COMMAND(cmd, "createquorum"))
         return ProcessCreateQuorum();
-//  if (HTTP_MATCH_COMMAND(cmd, "increasequorum"))
-//      return ProcessIncreaseQuorum();
-//  if (HTTP_MATCH_COMMAND(cmd, "decreasequorum"))
-//      return ProcessDecreaseQuorum();
+    if (HTTP_MATCH_COMMAND(cmd, "deletequorum"))
+        return ProcessDeleteQuorum();
+    if (HTTP_MATCH_COMMAND(cmd, "addnode"))
+        return ProcessAddNode();
+    if (HTTP_MATCH_COMMAND(cmd, "removenode"))
+        return ProcessRemoveNode();
     if (HTTP_MATCH_COMMAND(cmd, "createdatabase"))
         return ProcessCreateDatabase();
     if (HTTP_MATCH_COMMAND(cmd, "renamedatabase"))
@@ -559,35 +561,48 @@ ClientRequest* ConfigHTTPClientSession::ProcessCreateQuorum()
     return request;
 }
 
-//ClientRequest* ConfigHTTPClientSession::ProcessIncreaseQuorum()
-//{
-//  ClientRequest*  request;
-//  uint64_t        shardID;
-//  uint64_t        nodeID;
-//  
-//  HTTP_GET_U64_PARAM(params, "shardID", shardID);
-//  HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
-//
-//  request = new ClientRequest;
-//  request->IncreaseQuorum(0, shardID, nodeID);
-//
-//  return request;
-//}
-//
-//ClientRequest* ConfigHTTPClientSession::ProcessDecreaseQuorum()
-//{
-//  ClientRequest*  request;
-//  uint64_t        shardID;
-//  uint64_t        nodeID;
-//  
-//  HTTP_GET_U64_PARAM(params, "shardID", shardID);
-//  HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
-//
-//  request = new ClientRequest;
-//  request->DecreaseQuorum(0, shardID, nodeID);
-//
-//  return request;
-//}
+ClientRequest* ConfigHTTPClientSession::ProcessDeleteQuorum()
+{
+  ClientRequest*  request;
+  uint64_t        quorumID;
+  
+  HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+
+  request = new ClientRequest;
+  request->DeleteQuorum(0, quorumID);
+
+  return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessAddNode()
+{
+  ClientRequest*  request;
+  uint64_t        quorumID;
+  uint64_t        nodeID;
+  
+  HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+  HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
+
+  request = new ClientRequest;
+  request->AddNode(0, quorumID, nodeID);
+
+  return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessRemoveNode()
+{
+  ClientRequest*  request;
+  uint64_t        quorumID;
+  uint64_t        nodeID;
+  
+  HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+  HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
+
+  request = new ClientRequest;
+  request->RemoveNode(0, quorumID, nodeID);
+
+  return request;
+}
 
 ClientRequest* ConfigHTTPClientSession::ProcessCreateDatabase()
 {
