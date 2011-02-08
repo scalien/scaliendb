@@ -188,7 +188,7 @@ void StorageDeleteFileChunkJob::Execute()
     delete this;
 
     sw.Stop();
-    Log_Debug("Deleted, elapsed: %U", chunk->GetChunkID(), (uint64_t) sw.Elapsed());
+    Log_Debug("Deleted, elapsed: %U", (uint64_t) sw.Elapsed());
 }
 
 StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
