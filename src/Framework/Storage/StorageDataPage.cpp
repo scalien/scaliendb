@@ -144,8 +144,9 @@ void StorageDataPage::Finalize()
     buffer.AppendLittle32(numKeys);
 
     // compute checksum
-    dataPart.Wrap(buffer.GetBuffer() + 8, size - 8);
-    checksum = dataPart.GetChecksum();
+//    dataPart.Wrap(buffer.GetBuffer() + 8, size - 8);
+//    checksum = dataPart.GetChecksum();
+    checksum = 0;
 
     buffer.SetLength(0);
     buffer.AppendLittle32(size);
