@@ -59,7 +59,7 @@ private:
     ClientRequest*      ProcessRenameTable();
     ClientRequest*      ProcessDeleteTable();
     ClientRequest*      ProcessTruncateTable();
-    ClientRequest*      ProcessSplitShard();
+//    ClientRequest*      ProcessSplitShard();
     
     void                OnConnectionClose();
 

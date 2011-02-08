@@ -41,7 +41,7 @@ public class Table
      * @return              the status of the operation
      */
     public long renameTable(String newName) throws SDBPException {
-        return client.renameTable(database.getDatabaseID(), tableID, newName);
+        return client.renameTable(tableID, newName);
     }
 
     /**
@@ -50,7 +50,7 @@ public class Table
      * @return              the status of the operation
      */
     public long deleteTable() throws SDBPException {
-        return client.deleteTable(database.getDatabaseID(), tableID);
+        return client.deleteTable(tableID);
     }
 
     /**
@@ -59,7 +59,7 @@ public class Table
      * @return              the status of the operation
      */
     public long truncateTable() throws SDBPException {
-        return client.truncateTable(database.getDatabaseID(), tableID);
+        return client.truncateTable(tableID);
     }
  
     /**

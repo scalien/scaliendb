@@ -381,6 +381,10 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     if (paxosID <= configServer->GetDatabaseManager()->GetPaxosID())
         return;
     
+    configState->OnMessage(message);
+    configServer->GetDatabaseManager()->Write();
+    configServer->OnConfigStateChanged(); // UpdateActivationTimeout();
+
     if (message.type == CONFIGMESSAGE_SET_CLUSTER_ID)
     {
         clusterID = REPLICATION_CONFIG->GetClusterID();
@@ -405,10 +409,6 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     {
         configServer->GetDatabaseManager()->GetConfigState()->splitting = false;
     }
-
-    configState->OnMessage(message);
-    configServer->GetDatabaseManager()->Write();
-    configServer->OnConfigStateChanged(); // UpdateActivationTimeout();
     
     if (IsMaster())
         UpdateListeners();
@@ -548,18 +548,15 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             return;
         case CLIENTREQUEST_RENAME_TABLE:
             message->type = CONFIGMESSAGE_RENAME_TABLE;
-            message->databaseID = request->databaseID;
             message->tableID = request->tableID;
             message->name.Wrap(request->name);
             return;
         case CLIENTREQUEST_DELETE_TABLE:
             message->type = CONFIGMESSAGE_DELETE_TABLE;
-            message->databaseID = request->databaseID;
             message->tableID = request->tableID;
             return;
         case CLIENTREQUEST_TRUNCATE_TABLE:
             message->type = CONFIGMESSAGE_TRUNCATE_TABLE;
-            message->databaseID = request->databaseID;
             message->tableID = request->tableID;
             return;
         case CLIENTREQUEST_SPLIT_SHARD:

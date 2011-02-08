@@ -68,8 +68,7 @@ public:
                      uint64_t clusterID);
     bool            RegisterShardServer(
                      uint64_t nodeID, Endpoint& endpoint);
-    bool            CreateQuorum(
-                     uint64_t quorumID, List<uint64_t>& nodes);
+    bool            CreateQuorum(List<uint64_t>& nodes);
     bool            DeleteQuorum(
                      uint64_t quorumID);
     bool            AddNode(
@@ -91,14 +90,13 @@ public:
 
     // Table management
     bool            CreateTable(
-                     uint64_t databaseID, uint64_t shardID,
-                     uint64_t quorumID, ReadBuffer& name);
+                     uint64_t databaseID, uint64_t quorumID, ReadBuffer& name);
     bool            RenameTable(
-                     uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
+                     uint64_t tableID, ReadBuffer& name);
     bool            DeleteTable(
-                     uint64_t databaseID, uint64_t tableID);
+                     uint64_t tableID);
     bool            TruncateTable(
-                     uint64_t databaseID, uint64_t tableID);
+                     uint64_t tableID);
 
     // Shard management
     bool            SplitShardBegin(uint64_t shardID, ReadBuffer& splitKey);

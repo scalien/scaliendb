@@ -386,26 +386,26 @@ int SDBP_CreateTable(ClientObj client_, uint64_t databaseID, uint64_t quorumID, 
     return client->CreateTable(databaseID, quorumID, name);
 }
 
-int SDBP_RenameTable(ClientObj client_, uint64_t databaseID, uint64_t tableID, const std::string& name_)
+int SDBP_RenameTable(ClientObj client_,uint64_t tableID, const std::string& name_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  name = name_.c_str();
 
-    return client->RenameTable(databaseID, tableID, name);
+    return client->RenameTable(tableID, name);
 }
 
-int SDBP_DeleteTable(ClientObj client_, uint64_t databaseID, uint64_t tableID)
+int SDBP_DeleteTable(ClientObj client_, uint64_t tableID)
 {
     Client*     client = (Client*) client_;
 
-    return client->DeleteTable(databaseID, tableID);
+    return client->DeleteTable(tableID);
 }
 
-int SDBP_TruncateTable(ClientObj client_, uint64_t databaseID, uint64_t tableID)
+int SDBP_TruncateTable(ClientObj client_, uint64_t tableID)
 {
     Client*     client = (Client*) client_;
 
-    return client->TruncateTable(databaseID, tableID);
+    return client->TruncateTable(tableID);
 }
 
 uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)

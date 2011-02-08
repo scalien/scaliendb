@@ -86,13 +86,13 @@ public:
     bool            CreateTable(
                      uint64_t commandID, uint64_t databaseID, uint64_t quorumID, ReadBuffer& name);
     bool            RenameTable(
-                     uint64_t commandID, uint64_t databaseID, uint64_t tableID, ReadBuffer& name);
+                     uint64_t commandID, uint64_t tableID, ReadBuffer& name);
     bool            DeleteTable(
-                     uint64_t commandID, uint64_t databaseID, uint64_t tableID);
+                     uint64_t commandID, uint64_t tableID);
     bool            TruncateTable(
-                     uint64_t commandID, uint64_t databaseID, uint64_t tableID);
-    bool            SplitShard(
-                     uint64_t commandID, uint64_t shardID, ReadBuffer& key);
+                     uint64_t commandID, uint64_t tableID);
+//    bool            SplitShard(
+//                     uint64_t commandID, uint64_t shardID, ReadBuffer& key);
     
     // Data manipulations
     bool            Get(

@@ -229,9 +229,6 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
 
 bool ConfigState::Write(Buffer& buffer, bool withVolatile)
 {
-    // TODO: remove this when there is no more Writefs
-    //buffer.Clear();
-    
     if (withVolatile)
     {
         // HACK: in volatile mode the prefix is handled by ConfigState
@@ -313,12 +310,12 @@ void ConfigState::OnMessage(ConfigMessage& message)
 
 ConfigQuorum* ConfigState::GetQuorum(uint64_t quorumID)
 {
-    ConfigQuorum*   it;
+    ConfigQuorum* itQuorum;
     
-    for (it = quorums.First(); it != NULL; it = quorums.Next(it))
+    FOREACH(itQuorum, quorums)
     {
-        if (it->quorumID == quorumID)
-            return it;
+        if (itQuorum->quorumID == quorumID)
+            return itQuorum;
     }
     
     return NULL;
@@ -326,12 +323,12 @@ ConfigQuorum* ConfigState::GetQuorum(uint64_t quorumID)
 
 ConfigDatabase* ConfigState::GetDatabase(uint64_t databaseID)
 {
-    ConfigDatabase* it;
+    ConfigDatabase* itDatabase;
     
-    for (it =  databases.First(); it != NULL; it = databases.Next(it))
+    FOREACH(itDatabase, databases)
     {
-        if (it->databaseID == databaseID)
-            return it;
+        if (itDatabase->databaseID == databaseID)
+            return itDatabase;
     }
     
     return NULL;
@@ -339,12 +336,12 @@ ConfigDatabase* ConfigState::GetDatabase(uint64_t databaseID)
 
 ConfigDatabase* ConfigState::GetDatabase(ReadBuffer name)
 {
-    ConfigDatabase* it;
+    ConfigDatabase* itDatabase;
     
-    for (it = databases.First(); it != NULL; it = databases.Next(it))
+    FOREACH(itDatabase, databases)
     {
-        if (BUFCMP(&it->name, &name))
-            return it;
+        if (BUFCMP(&itDatabase->name, &name))
+            return itDatabase;
     }
     
     return NULL;
@@ -352,12 +349,12 @@ ConfigDatabase* ConfigState::GetDatabase(ReadBuffer name)
 
 ConfigTable* ConfigState::GetTable(uint64_t tableID)
 {
-    ConfigTable*    it;
+    ConfigTable* itTable;
     
-    for (it = tables.First(); it != NULL; it = tables.Next(it))
+    FOREACH(itTable, tables)
     {
-        if (it->tableID == tableID)
-            return it;
+        if (itTable->tableID == tableID)
+            return itTable;
     }
     
     return NULL;
@@ -365,12 +362,12 @@ ConfigTable* ConfigState::GetTable(uint64_t tableID)
 
 ConfigTable* ConfigState::GetTable(uint64_t databaseID, ReadBuffer name)
 {
-    ConfigTable*    it;
+    ConfigTable* itTable;
     
-    for (it = tables.First(); it != NULL; it = tables.Next(it))
+    FOREACH(itTable, tables)
     {
-        if (it->databaseID == databaseID && BUFCMP(&it->name, &name))
-            return it;
+        if (itTable->databaseID == databaseID && BUFCMP(&itTable->name, &name))
+            return itTable;
     }
     
     return NULL;
@@ -378,17 +375,17 @@ ConfigTable* ConfigState::GetTable(uint64_t databaseID, ReadBuffer name)
 
 ConfigShard* ConfigState::GetShard(uint64_t tableID, ReadBuffer key)
 {
-    ConfigShard*    it;
+    ConfigShard* itShard;
     
-    for (it = shards.First(); it != NULL; it = shards.Next(it))
+    FOREACH(itShard, shards)
     {
-        if (it->isSplitCreating)
+        if (itShard->isSplitCreating)
             continue;
         
-        if (it->tableID == tableID)
+        if (itShard->tableID == tableID)
         {
-            if (GREATER_THAN(key, it->firstKey) && LESS_THAN(key, it->lastKey))
-                return it;
+            if (GREATER_THAN(key, itShard->firstKey) && LESS_THAN(key, itShard->lastKey))
+                return itShard;
         }
     }
     
@@ -397,12 +394,12 @@ ConfigShard* ConfigState::GetShard(uint64_t tableID, ReadBuffer key)
 
 ConfigShard* ConfigState::GetShard(uint64_t shardID)
 {
-    ConfigShard*    it;
+    ConfigShard* itShard;
     
-    for (it = shards.First(); it != NULL; it = shards.Next(it))
+    FOREACH(itShard, shards)
     {
-        if (it->shardID == shardID)
-            return it;
+        if (itShard->shardID == shardID)
+            return itShard;
     }
     
     return NULL;
@@ -410,35 +407,32 @@ ConfigShard* ConfigState::GetShard(uint64_t shardID)
 
 ConfigShardServer* ConfigState::GetShardServer(uint64_t nodeID)
 {
-    ConfigShardServer*  it;
+    ConfigShardServer* itShardServer;
     
-    for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
+    FOREACH(itShardServer, shardServers)
     {
-        if (it->nodeID == nodeID)
-            return it;
+        if (itShardServer->nodeID == nodeID)
+            return itShardServer;
     }
     
     return NULL;
 }
 
-bool ConfigState::CompleteRegisterShardServer(ConfigMessage& message)
+bool ConfigState::CompleteRegisterShardServer(ConfigMessage&)
 {
-    message.nodeID = nextNodeID++;
     return true;
 }
 
 bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 {
-    uint64_t*   it;
+    uint64_t* itNodeID;
     
-    for (it = message.nodes.First(); it != NULL; it = message.nodes.Next(it))
+    FOREACH(itNodeID, message.nodes)
     {
-        if (GetShardServer(*it) == NULL)
+        if (GetShardServer(*itNodeID) == NULL)
             return false; // no such shard server
     }
 
-    message.quorumID = nextQuorumID++;
-    
     return true;
 }
 
@@ -464,7 +458,7 @@ bool ConfigState::CompleteDeleteQuorum(ConfigMessage& message)
 
 bool ConfigState::CompleteAddNode(ConfigMessage& message)
 {
-    ConfigQuorum*   quorum;
+    ConfigQuorum* quorum;
     
     quorum = GetQuorum(message.quorumID);
     if (quorum == NULL)
@@ -508,7 +502,7 @@ bool ConfigState::CompleteRemoveNode(ConfigMessage& message)
 
 bool ConfigState::CompleteActivateShardServer(ConfigMessage& message)
 {
-    ConfigQuorum*   quorum;
+    ConfigQuorum* quorum;
     
     quorum = GetQuorum(message.quorumID);
     if (quorum == NULL)
@@ -522,7 +516,7 @@ bool ConfigState::CompleteActivateShardServer(ConfigMessage& message)
 
 bool ConfigState::CompleteDeactivateShardServer(ConfigMessage& message)
 {
-    ConfigQuorum*   quorum;
+    ConfigQuorum* quorum;
     
     quorum = GetQuorum(message.quorumID);
     if (quorum == NULL)
@@ -536,32 +530,31 @@ bool ConfigState::CompleteDeactivateShardServer(ConfigMessage& message)
 
 bool ConfigState::CompleteCreateDatabase(ConfigMessage& message)
 {
-    ConfigDatabase* it;
+    ConfigDatabase* database;
     
     if (message.name.GetLength() > DATABASE_NAME_SIZE)
         return false;
     
-    it = GetDatabase(message.name);
-    if (it != NULL)
+    database = GetDatabase(message.name);
+    if (database != NULL)
         return false; // database with name exists
 
-    message.databaseID = 0;
     return true;
 }
 
 bool ConfigState::CompleteRenameDatabase(ConfigMessage& message)
 {
-    ConfigDatabase* it;
+    ConfigDatabase* database;
     
     if (message.name.GetLength() > DATABASE_NAME_SIZE)
         return false;
 
-    it = GetDatabase(message.databaseID);
-    if (it == NULL)
+    database = GetDatabase(message.databaseID);
+    if (database == NULL)
         return false; // no such database
 
-    it = GetDatabase(message.name);
-    if (it != NULL)
+    database = GetDatabase(message.name);
+    if (database != NULL)
         return false; // database with name exists
 
     return true;
@@ -569,10 +562,10 @@ bool ConfigState::CompleteRenameDatabase(ConfigMessage& message)
 
 bool ConfigState::CompleteDeleteDatabase(ConfigMessage& message)
 {
-    ConfigDatabase* it;
+    ConfigDatabase* database;
     
-    it = GetDatabase(message.databaseID);
-    if (it == NULL)
+    database = GetDatabase(message.databaseID);
+    if (database == NULL)
         return false; // no such database
 
     return true;
@@ -580,47 +573,45 @@ bool ConfigState::CompleteDeleteDatabase(ConfigMessage& message)
 
 bool ConfigState::CompleteCreateTable(ConfigMessage& message)
 {
-    ConfigQuorum*   itQuorum;
-    ConfigDatabase* itDatabase;
-    ConfigTable*    itTable;
+    ConfigQuorum*   quorum;
+    ConfigDatabase* database;
+    ConfigTable*    table;
     
     if (message.name.GetLength() > DATABASE_NAME_SIZE)
         return false;
 
-    itQuorum = GetQuorum(message.quorumID); 
-    if (itQuorum == NULL)
+    quorum = GetQuorum(message.quorumID); 
+    if (quorum == NULL)
         return false; // no such quorum
 
-    itDatabase = GetDatabase(message.databaseID);
-    if (itDatabase == NULL)
+    database = GetDatabase(message.databaseID);
+    if (database == NULL)
         return false; // no such database
 
-    itTable = GetTable(message.databaseID, message.name);
-    if (itTable != NULL)
+    table = GetTable(message.databaseID, message.name);
+    if (table != NULL)
         return false; // table with name exists in database
 
-    message.tableID = 0;
-    message.shardID = 0;
     return true;
 }
 
 bool ConfigState::CompleteRenameTable(ConfigMessage& message)
 {
-    ConfigDatabase* itDatabase;
-    ConfigTable*    itTable;
+    ConfigDatabase* database;
+    ConfigTable*    table;
 
     if (message.name.GetLength() > DATABASE_NAME_SIZE)
         return false;
 
-    itDatabase = GetDatabase(message.databaseID);
-    if (itDatabase == NULL)
+    database = GetDatabase(message.databaseID);
+    if (database == NULL)
         return false; // no such database
 
-    itTable = GetTable(message.tableID);
-    if (itTable == NULL)
+    table = GetTable(message.tableID);
+    if (table == NULL)
         return false; // no such table
-    itTable = GetTable(message.databaseID, message.name);
-    if (itTable != NULL)
+    table = GetTable(message.databaseID, message.name);
+    if (table != NULL)
         return false; // table with name exists in database
 
     return true;
@@ -628,15 +619,15 @@ bool ConfigState::CompleteRenameTable(ConfigMessage& message)
 
 bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
 {
-    ConfigDatabase* itDatabase;
-    ConfigTable*    itTable;
+    ConfigDatabase* database;
+    ConfigTable*    table;
 
-    itDatabase = GetDatabase(message.databaseID);
-    if (itDatabase == NULL)
+    database = GetDatabase(message.databaseID);
+    if (database == NULL)
         return false; // no such database
 
-    itTable = GetTable(message.tableID);
-    if (itTable == NULL)
+    table = GetTable(message.tableID);
+    if (table == NULL)
         return false; // no such table
 
     return true;
@@ -644,15 +635,15 @@ bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
 
 bool ConfigState::CompleteTruncateTable(ConfigMessage& message)
 {
-    ConfigDatabase* itDatabase;
-    ConfigTable*    itTable;
+    ConfigDatabase* database;
+    ConfigTable*    table;
 
-    itDatabase = GetDatabase(message.databaseID);
-    if (itDatabase == NULL)
+    database = GetDatabase(message.databaseID);
+    if (database == NULL)
         return false; // no such database
 
-    itTable = GetTable(message.tableID);
-    if (itTable == NULL)
+    table = GetTable(message.tableID);
+    if (table == NULL)
         return false; // no such table
 
     return true;
@@ -672,45 +663,39 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& /*message*/)
 
 void ConfigState::OnRegisterShardServer(ConfigMessage& message)
 {
-    ConfigShardServer*  it;
+    ConfigShardServer* shardServer;
     
     // make sure nodeID is available
     assert(GetShardServer(message.nodeID) == NULL);
     
-    it = new ConfigShardServer;
-    it->nodeID = message.nodeID;
-    it->endpoint = message.endpoint;
+    shardServer = new ConfigShardServer;
+    shardServer->nodeID = nextNodeID++;
+    shardServer->endpoint = message.endpoint;
     
-    shardServers.Append(it);
+    shardServers.Append(shardServer); 
     
-    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
-    // usually nextIDs are increased when the ClientRequest is made, but not in this case
-    if (message.nodeID == nextNodeID)
-        nextNodeID++;
+    message.nodeID = shardServer->nodeID;
 }
 
 void ConfigState::OnCreateQuorum(ConfigMessage& message)
 {
-    ConfigQuorum*   it;
+    ConfigQuorum* quorum;
     
     // make sure quorumID is available
     assert(GetQuorum(message.quorumID) == NULL);
         
-    it = new ConfigQuorum;
-    it->quorumID = message.quorumID;
-    it->activeNodes = message.nodes;
+    quorum = new ConfigQuorum;
+    quorum->quorumID = nextQuorumID++;
+    quorum->activeNodes = message.nodes;
     
-    quorums.Append(it);
-
-    // when a round is cleaned out from Paxos on startup, we need to increase the nextIDs
-    // usually nextIDs are increased when the ClientRequest is made, but not in this case
-    if (message.quorumID == nextQuorumID)
-        nextQuorumID++;
+    quorums.Append(quorum);
+    
+    message.quorumID = quorum->quorumID;
 }
 
 void ConfigState::OnDeleteQuorum(ConfigMessage& message)
 {
-    ConfigQuorum*   quorum;
+    ConfigQuorum* quorum;
     
     // make sure quorum exists
     quorum = GetQuorum(message.quorumID);
@@ -722,7 +707,7 @@ void ConfigState::OnDeleteQuorum(ConfigMessage& message)
 
 void ConfigState::OnAddNode(ConfigMessage& message)
 {
-    ConfigQuorum*   quorum;
+    ConfigQuorum* quorum;
     
     quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
@@ -737,7 +722,7 @@ void ConfigState::OnAddNode(ConfigMessage& message)
 
 void ConfigState::OnRemoveNode(ConfigMessage& message)
 {
-    ConfigQuorum*   quorum;
+    ConfigQuorum* quorum;
     
     quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
@@ -790,7 +775,7 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
 
 void ConfigState::OnDeactivateShardServer(ConfigMessage& message)
 {
-    ConfigQuorum*   quorum;
+    ConfigQuorum* quorum;
     
     quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
@@ -808,55 +793,49 @@ void ConfigState::OnDeactivateShardServer(ConfigMessage& message)
 
 void ConfigState::OnCreateDatabase(ConfigMessage& message)
 {
-    ConfigDatabase* it;
+    ConfigDatabase* database;
     
-    it = GetDatabase(nextDatabaseID);
-    // make sure database with ID does not exist
-    assert(it == NULL);
-    it = GetDatabase(message.name);
+    database = GetDatabase(message.name);
     // make sure database with name does not exist
-    assert(it == NULL);
+    assert(database == NULL);
         
-    it = new ConfigDatabase;
+    database = new ConfigDatabase;
 
-    //it->databaseID = message.databaseID;
-    it->databaseID = nextDatabaseID;
-    it->name.Write(message.name);
-    databases.Append(it);
-
-    message.databaseID = it->databaseID;
+    database->databaseID = nextDatabaseID++;
+    database->name.Write(message.name);
+    databases.Append(database);
     
-    nextDatabaseID++;
+    message.databaseID = database->databaseID;
 }
 
 void ConfigState::OnRenameDatabase(ConfigMessage& message)
 {
-    ConfigDatabase* it;
+    ConfigDatabase* database;
 
-    it = GetDatabase(message.name);
+    database = GetDatabase(message.name);
     // make sure database with name does not exist
-    assert(it == NULL);
+    assert(database == NULL);
 
-    it = GetDatabase(message.databaseID);
+    database = GetDatabase(message.databaseID);
     // make sure database with ID exists
-    assert(it != NULL);
+    assert(database != NULL);
     
-    it->name.Write(message.name);
+    database->name.Write(message.name);
 }
 
 void ConfigState::OnDeleteDatabase(ConfigMessage& message)
 {
     ConfigDatabase* database;
     ConfigTable*    table;
-    uint64_t*       it;
+    uint64_t*       itTableID;
     
     database = GetDatabase(message.databaseID);
     // make sure database with ID exists
     assert(database != NULL);
 
-    FOREACH(it, database->tables)
+    FOREACH(itTableID, database->tables)
     {
-        table = GetTable(*it);
+        table = GetTable(*itTableID);
         DeleteTable(table);
     }
 
@@ -865,111 +844,105 @@ void ConfigState::OnDeleteDatabase(ConfigMessage& message)
 
 void ConfigState::OnCreateTable(ConfigMessage& message)
 {
-    ConfigQuorum*   itQuorum;
-    ConfigDatabase* itDatabase;
-    ConfigTable*    itTable;
-    ConfigShard*    itShard;
+    ConfigQuorum*   quorum;
+    ConfigDatabase* database;
+    ConfigTable*    table;
+    ConfigShard*    shard;
 
-    itQuorum = GetQuorum(message.quorumID);
+    quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
-    assert(itQuorum != NULL);
+    assert(quorum != NULL);
 
-    itDatabase = GetDatabase(message.databaseID);
+    database = GetDatabase(message.databaseID);
     // make sure database exists
-    assert(itDatabase != NULL);
+    assert(database != NULL);
 
-    itTable = GetTable(nextTableID);
+    table = GetTable(nextTableID);
     // make sure table with ID does not exist
-    assert(itTable == NULL);
-    itTable = GetTable(message.databaseID, message.name);
+    assert(table == NULL);
+    table = GetTable(message.databaseID, message.name);
     // make sure table with name in database does not exist
-    assert(itTable == NULL);
+    assert(table == NULL);
 
-    itShard = GetShard(message.shardID);
-    // make sure shard does not exist
-    assert(itShard == NULL);
-        
-    itShard = new ConfigShard;
-    itShard->quorumID = message.quorumID;
-    itShard->databaseID = message.databaseID;
-    itShard->tableID = nextTableID;
-    itShard->shardID = nextShardID;
-    shards.Append(itShard);
+    shard = new ConfigShard;
+    shard->quorumID = message.quorumID;
+    shard->databaseID = message.databaseID;
+    shard->tableID = nextTableID;
+    shard->shardID = nextShardID++;
+    shards.Append(shard);
 
-    nextShardID++;
+    table = new ConfigTable;
+    table->databaseID = message.databaseID;
+    table->tableID = nextTableID++;
+    table->name.Write(message.name);
+    table->shards.Append(shard->shardID);
+    tables.Append(table);
     
-    itTable = new ConfigTable;
-    itTable->databaseID = message.databaseID;
-    itTable->tableID = nextTableID;
-    itTable->name.Write(message.name);
-    itTable->shards.Append(itShard->shardID);
-    tables.Append(itTable);
-    
-    itDatabase->tables.Append(itTable->tableID);
-    itQuorum->shards.Add(itShard->shardID);
+    database->tables.Append(table->tableID);
+    quorum->shards.Add(shard->shardID);
 
-    message.tableID = itTable->tableID;
-
-    nextTableID++;
+    message.tableID = table->tableID;
+    message.shardID = shard->shardID;
 }
 
 void ConfigState::OnRenameTable(ConfigMessage& message)
 {
-    ConfigDatabase* itDatabase;
-    ConfigTable*    itTable;
-    
-    itDatabase = GetDatabase(message.databaseID);
-    // make sure database exists
-    assert(itDatabase != NULL);
+    ConfigTable*    table;
 
-    itTable = GetTable(message.databaseID, message.name);
-    // make sure table with name does not exist
-    assert(itTable == NULL);
-
-    itTable = GetTable(message.tableID);
+    table = GetTable(message.tableID);
     // make sure table with ID exists
-    assert(itTable != NULL);
+    assert(table != NULL);
     
-    itTable->name.Write(message.name);
+    table = GetTable(table->databaseID, message.name);
+    // make sure table with name does not exist
+    assert(table == NULL);
+
+    table = GetTable(message.tableID);
+    // make sure table with ID exists
+    assert(table != NULL);
+    
+    table->name.Write(message.name);
 }
 
 void ConfigState::OnDeleteTable(ConfigMessage& message)
 {
-    ConfigDatabase* itDatabase;
-    ConfigTable*    itTable;
+    ConfigDatabase* database;
+    ConfigTable*    table;
     
-    itDatabase = GetDatabase(message.databaseID);
-    // make sure database exists
-    assert(itDatabase != NULL);
-    itTable = GetTable(message.tableID);
+    table = GetTable(message.tableID);
     // make sure table exists
-    assert(itTable != NULL);
+    assert(table != NULL);
+
+    database = GetDatabase(table->databaseID);
+    // make sure database exists
+    assert(database != NULL);
     
-    DeleteTable(itTable);
-    itDatabase->tables.Remove(message.tableID);
+    DeleteTable(table);
+    database->tables.Remove(message.tableID);
 }
 
 void ConfigState::OnTruncateTable(ConfigMessage& message)
 {
-    uint64_t*       it;
+    uint64_t*       itNodeID;
     ConfigQuorum*   quorum;
     ConfigDatabase* database;
     ConfigTable*    table;
     ConfigShard*    shard;
     uint64_t        quorumID;
     
-    database = GetDatabase(message.databaseID);
-    // make sure database exists
-    assert(database != NULL);
     table = GetTable(message.tableID);
     // make sure table exists
     assert(table != NULL);
 
+    database = GetDatabase(table->databaseID);
+    // make sure database exists
+    assert(database != NULL);
+
     quorumID = 0;
     // delete all old shards
-    FOREACH(it, table->shards)
+    FOREACH(itNodeID, table->shards)
     {
-        shard = GetShard(*it);
+        shard = GetShard(*itNodeID);
         if (shard->isDeleted)
             continue;
 
@@ -982,16 +955,14 @@ void ConfigState::OnTruncateTable(ConfigMessage& message)
 
     // create a new shard
     shard = new ConfigShard;
-    shard->shardID = nextShardID;
+    shard->shardID = nextShardID++;
     shard->quorumID = quorumID;
-    shard->databaseID = message.databaseID;
-    shard->tableID = message.tableID;
+    shard->databaseID = table->databaseID;
+    shard->tableID = table->tableID;
 
     table->shards.Append(shard->shardID);
     shards.Append(shard);
     quorum->shards.Add(shard->shardID);
-
-    nextShardID++;
 }
 
 void ConfigState::OnSplitShardBegin(ConfigMessage& message)
@@ -1023,12 +994,12 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     table = GetTable(parentShard->tableID);
     table->shards.Add(newShard->shardID);
 
-    message.newShardID = newShard->shardID; // TODO: this is kind of a hack
+    message.newShardID = newShard->shardID;
 }
 
 void ConfigState::OnSplitShardComplete(ConfigMessage& message)
 {
-    ConfigShard*    shard;
+    ConfigShard* shard;
     
     shard = GetShard(message.shardID);
     assert(shard->isSplitCreating);
@@ -1062,15 +1033,15 @@ bool ConfigState::ReadQuorums(ReadBuffer& buffer, bool withVolatile)
 
 void ConfigState::WriteQuorums(Buffer& buffer, bool withVolatile)
 {
-    ConfigQuorum*   it;
+    ConfigQuorum* itQuorum;
 
     // write number of quorums
     buffer.Appendf("%u", quorums.GetLength());
 
-    for (it = quorums.First(); it != NULL; it = quorums.Next(it))
+    FOREACH(itQuorum, quorums)
     {
         buffer.Appendf(":");
-        WriteQuorum(*it, buffer, withVolatile);
+        WriteQuorum(*itQuorum, buffer, withVolatile);
     }
 }
 
@@ -1138,26 +1109,26 @@ bool ConfigState::ReadTables(ReadBuffer& buffer)
 
 void ConfigState::WriteTables(Buffer& buffer)
 {
-    ConfigTable*    it;
+    ConfigTable* itTable;
     
     // write number of databases
     buffer.Appendf("%u", tables.GetLength());
     
-    for (it = tables.First(); it != NULL; it = tables.Next(it))
+    FOREACH(itTable, tables)
     {
         buffer.Appendf(":");
-        WriteTable(*it, buffer);
+        WriteTable(*itTable, buffer);
     }
 }
 
 void ConfigState::DeleteTable(ConfigTable* table)
 {
     ConfigShard*    shard;
-    uint64_t*       it;
+    uint64_t*       itShardID;
 
-    FOREACH(it, table->shards)
+    FOREACH(itShardID, table->shards)
     {
-        shard = GetShard(*it);
+        shard = GetShard(*itShardID);
         DeleteShard(shard);
     }
 
@@ -1190,15 +1161,15 @@ bool ConfigState::ReadShards(ReadBuffer& buffer, bool withVolatile)
 
 void ConfigState::WriteShards(Buffer& buffer, bool withVolatile)
 {
-    ConfigShard*    it;
+    ConfigShard* itShard;
     
     // write number of databases
     buffer.Appendf("%u", shards.GetLength());
     
-    for (it = shards.First(); it != NULL; it = shards.Next(it))
+    FOREACH(itShard, shards)
     {
         buffer.Appendf(":");
-        WriteShard(*it, buffer, withVolatile);
+        WriteShard(*itShard, buffer, withVolatile);
     }
 }
 
@@ -1228,15 +1199,15 @@ bool ConfigState::ReadShardServers(ReadBuffer& buffer, bool withVolatile)
 
 void ConfigState::WriteShardServers(Buffer& buffer, bool withVolatile)
 {
-    ConfigShardServer*  it;
+    ConfigShardServer* itShardServer;
     
     // write number of databases
     buffer.Appendf("%u", shardServers.GetLength());
     
-    for (it = shardServers.First(); it != NULL; it = shardServers.Next(it))
+    FOREACH(itShardServer, shardServers)
     {
         buffer.Appendf(":");
-        WriteShardServer(*it, buffer, withVolatile);
+        WriteShardServer(*itShardServer, buffer, withVolatile);
     }
 }
 
@@ -1446,7 +1417,7 @@ bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& bu
 
 void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffer, bool withVolatile)
 {
-    ReadBuffer  endpoint;
+    ReadBuffer endpoint;
     
     endpoint = shardServer.endpoint.ToReadBuffer();
     buffer.Appendf("%U:%#R", shardServer.nodeID, &endpoint);

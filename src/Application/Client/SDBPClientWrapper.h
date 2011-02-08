@@ -97,9 +97,9 @@ int             SDBP_RenameDatabase(ClientObj client, uint64_t databaseID, const
 int             SDBP_DeleteDatabase(ClientObj client, uint64_t databaseID);
 
 int             SDBP_CreateTable(ClientObj client, uint64_t databaseID, uint64_t quorumID, const std::string& name);
-int             SDBP_RenameTable(ClientObj client, uint64_t databaseID, uint64_t tableID, const std::string& name);
-int             SDBP_DeleteTable(ClientObj client, uint64_t databaseID, uint64_t tableID);
-int             SDBP_TruncateTable(ClientObj client, uint64_t databaseID, uint64_t tableID);
+int             SDBP_RenameTable(ClientObj client, uint64_t tableID, const std::string& name);
+int             SDBP_DeleteTable(ClientObj client, uint64_t tableID);
+int             SDBP_TruncateTable(ClientObj client, uint64_t tableID);
 
 uint64_t        SDBP_GetDatabaseID(ClientObj client, const std::string& name);
 uint64_t        SDBP_GetTableID(ClientObj client, uint64_t databaseID, const std::string& name);

@@ -199,7 +199,6 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
     bool                    found;
     ConfigShardServer*      itShardServer;
     ConfigQuorum*           itQuorum;
-    uint64_t*               itNodeID;
     Buffer                  buffer;
     uint64_t                ssID;
     
@@ -251,15 +250,15 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
             if (itQuorum->IsActiveMember(itShardServer->nodeID))
             {
                 found = true;
-                if (itQuorum->hasPrimary && itQuorum->primaryID == *itNodeID)
-                    if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID) &&
-                     CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                if (itQuorum->hasPrimary && itQuorum->primaryID == itShardServer->nodeID)
+                    if (configServer->GetHeartbeatManager()->HasHeartbeat(itShardServer->nodeID) &&
+                     CONTEXT_TRANSPORT->IsConnected(itShardServer->nodeID))
                         buffer.Appendf("     P");
                     else
                         buffer.Appendf("     !");
                 else
                 {
-                    if (configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
+                    if (configServer->GetHeartbeatManager()->HasHeartbeat(itShardServer->nodeID))
                         buffer.Appendf("     +");
                     else
                         buffer.Appendf("     -");
@@ -326,7 +325,6 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
     ConfigShardServer*      itShardServer;
     ConfigShard*            itShard;
     ConfigQuorum*           quorum;
-    uint64_t*               itNodeID;
     Buffer                  buffer;
     uint64_t                ssID;
     
@@ -384,14 +382,14 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
             if (quorum->IsActiveMember(itShardServer->nodeID))
             {
                 found = true;
-                if (quorum->hasPrimary && quorum->primaryID == *itNodeID)
-                    if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                if (quorum->hasPrimary && quorum->primaryID == itShardServer->nodeID)
+                    if (CONTEXT_TRANSPORT->IsConnected(itShardServer->nodeID))
                         buffer.Appendf("     P");
                     else
                         buffer.Appendf("     !");
                 else
                 {
-                    if (CONTEXT_TRANSPORT->IsConnected(*itNodeID))
+                    if (CONTEXT_TRANSPORT->IsConnected(itShardServer->nodeID))
                         buffer.Appendf("     +");
                     else
                         buffer.Appendf("     -");
@@ -519,8 +517,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
         return ProcessDeleteTable();
     if (HTTP_MATCH_COMMAND(cmd, "truncatetable"))
         return ProcessTruncateTable();
-    if (HTTP_MATCH_COMMAND(cmd, "splitshard"))
-        return ProcessSplitShard();
+//    if (HTTP_MATCH_COMMAND(cmd, "splitshard"))
+//        return ProcessSplitShard();
     
     return NULL;
 }
@@ -682,16 +680,14 @@ ClientRequest* ConfigHTTPClientSession::ProcessCreateTable()
 ClientRequest* ConfigHTTPClientSession::ProcessRenameTable()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     ReadBuffer      name;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "name", name);
 
     request = new ClientRequest;
-    request->RenameTable(0, databaseID, tableID, name);
+    request->RenameTable(0, tableID, name);
 
     return request;
 }
@@ -699,14 +695,12 @@ ClientRequest* ConfigHTTPClientSession::ProcessRenameTable()
 ClientRequest* ConfigHTTPClientSession::ProcessDeleteTable()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
 
     request = new ClientRequest;
-    request->DeleteTable(0, databaseID, tableID);
+    request->DeleteTable(0, tableID);
 
     return request;
 }
@@ -714,32 +708,30 @@ ClientRequest* ConfigHTTPClientSession::ProcessDeleteTable()
 ClientRequest* ConfigHTTPClientSession::ProcessTruncateTable()
 {
     ClientRequest*  request;
-    uint64_t        databaseID;
     uint64_t        tableID;
     
-    HTTP_GET_U64_PARAM(params, "databaseID", databaseID);
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
 
     request = new ClientRequest;
-    request->TruncateTable(0, databaseID, tableID);
+    request->TruncateTable(0, tableID);
 
     return request;
 }
 
-ClientRequest* ConfigHTTPClientSession::ProcessSplitShard()
-{
-    ClientRequest*  request;
-    uint64_t        shardID;
-    ReadBuffer      key;
-    
-    HTTP_GET_U64_PARAM(params, "shardID", shardID);
-    HTTP_GET_PARAM(params, "key", key);
-
-    request = new ClientRequest;
-    request->SplitShard(0, shardID, key);
-
-    return request;
-}
+//ClientRequest* ConfigHTTPClientSession::ProcessSplitShard()
+//{
+//    ClientRequest*  request;
+//    uint64_t        shardID;
+//    ReadBuffer      key;
+//    
+//    HTTP_GET_U64_PARAM(params, "shardID", shardID);
+//    HTTP_GET_PARAM(params, "key", key);
+//
+//    request = new ClientRequest;
+//    request->SplitShard(0, shardID, key);
+//
+//    return request;
+//}
 
 void ConfigHTTPClientSession::OnConnectionClose()
 {

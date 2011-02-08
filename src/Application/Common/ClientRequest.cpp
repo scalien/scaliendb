@@ -164,45 +164,42 @@ bool ClientRequest::CreateTable(
 }
 
 bool ClientRequest::RenameTable(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_, ReadBuffer& name_)
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& name_)
 {
     type = CLIENTREQUEST_RENAME_TABLE;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     name.Write(name_);
     return true;
 }
 
 bool ClientRequest::DeleteTable(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_)
+ uint64_t commandID_, uint64_t tableID_)
 {
     type = CLIENTREQUEST_DELETE_TABLE;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     return true;
 }
 
 bool ClientRequest::TruncateTable(
- uint64_t commandID_, uint64_t databaseID_, uint64_t tableID_)
+ uint64_t commandID_, uint64_t tableID_)
 {
     type = CLIENTREQUEST_TRUNCATE_TABLE;
     commandID = commandID_;
-    databaseID = databaseID_;
     tableID = tableID_;
     return true;
 }
 
-bool ClientRequest::SplitShard(
- uint64_t commandID_, uint64_t shardID_, ReadBuffer& key_)
-{
-    type = CLIENTREQUEST_SPLIT_SHARD;
-    commandID = commandID_;
-    shardID = shardID_;
-    key.Write(key_);
-    return true;
-}
+//bool ClientRequest::SplitShard(
+// uint64_t commandID_, uint64_t shardID_, ReadBuffer& key_)
+//{
+//    type = CLIENTREQUEST_SPLIT_SHARD;
+//    commandID = commandID_;
+//    shardID = shardID_;
+//    key.Write(key_);
+//    return true;
+//}
 
 bool ClientRequest::Get(
  uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_)

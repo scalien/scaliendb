@@ -420,25 +420,25 @@ int Client::CreateTable(uint64_t databaseID, uint64_t quorumID, ReadBuffer& name
     CLIENT_SCHEMA_COMMAND(CreateTable, databaseID, quorumID, name);
 }
 
-int Client::RenameTable(uint64_t databaseID, uint64_t tableID, ReadBuffer& name)
+int Client::RenameTable(uint64_t tableID, ReadBuffer& name)
 {
-    CLIENT_SCHEMA_COMMAND(RenameTable, databaseID, tableID, name);
+    CLIENT_SCHEMA_COMMAND(RenameTable, tableID, name);
 }
 
-int Client::DeleteTable(uint64_t databaseID, uint64_t tableID)
+int Client::DeleteTable(uint64_t tableID)
 {
-    CLIENT_SCHEMA_COMMAND(DeleteTable, databaseID, tableID);
+    CLIENT_SCHEMA_COMMAND(DeleteTable, tableID);
 }
 
-int Client::TruncateTable(uint64_t databaseID, uint64_t tableID)
+int Client::TruncateTable(uint64_t tableID)
 {
-    CLIENT_SCHEMA_COMMAND(TruncateTable, databaseID, tableID);
+    CLIENT_SCHEMA_COMMAND(TruncateTable, tableID);
 }
 
-int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
-{
-    CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
-}
+//int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
+//{
+//    CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
+//}
 
 int Client::Get(const ReadBuffer& key)
 {
