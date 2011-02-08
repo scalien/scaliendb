@@ -124,6 +124,7 @@
 		54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74611BE5EF30076BC62 /* Config.cpp */; };
 		54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA6B0711C26CAB00FF4EF6 /* Main.cpp */; };
 		78BCDFF812DA111800438DA5 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */; };
+		9A67257313007D5200C3E6F6 /* Quorum.java in Sources */ = {isa = PBXBuildFile; fileRef = 9A67257213007D5200C3E6F6 /* Quorum.java */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
@@ -481,6 +482,7 @@
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
 		78BCDFEE12D9EF5500438DA5 /* InTreeMap2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap2.h; sourceTree = "<group>"; };
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
+		9A67257213007D5200C3E6F6 /* Quorum.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Quorum.java; path = Client/Java/Quorum.java; sourceTree = "<group>"; };
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
 		9AABAD3812393327003626AC /* Deferred.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Deferred.h; sourceTree = "<group>"; };
 		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1137,6 +1139,7 @@
 				9AE8178F12CE1E9B0038BDB1 /* SWIGTYPE_p_void.java */,
 				9AE8179012CE1E9B0038BDB1 /* Table.java */,
 				9AE8179112CE1E9B0038BDB1 /* Test.java */,
+				9A67257213007D5200C3E6F6 /* Quorum.java */,
 			);
 			name = Java;
 			sourceTree = "<group>";
@@ -1362,6 +1365,7 @@
 				54E59F3B12E5AD20002222A4 /* ShardCatchupReader.cpp in Sources */,
 				9AD5E46012EDD62000F4AF7B /* Mutex_Posix.cpp in Sources */,
 				9AD5EA9112F70C4700F4AF7B /* StorageAsyncGet.cpp in Sources */,
+				9A67257313007D5200C3E6F6 /* Quorum.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

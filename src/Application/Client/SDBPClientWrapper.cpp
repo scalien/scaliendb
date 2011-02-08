@@ -327,6 +327,27 @@ int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)
     return client->CreateQuorum(nodes);
 }
 
+int SDBP_DeleteQuorum(ClientObj client_, uint64_t quorumID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->DeleteQuorum(quorumID);
+}
+
+int SDBP_AddNode(ClientObj client_, uint64_t quorumID, uint64_t nodeID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->AddNode(quorumID, nodeID);
+}
+
+int SDBP_RemoveNode(ClientObj client_, uint64_t quorumID, uint64_t nodeID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->RemoveNode(quorumID, nodeID);
+}
+
 int SDBP_ActivateNode(ClientObj client_, uint64_t nodeID)
 {
     Client*     client = (Client*) client_;
@@ -363,6 +384,28 @@ int SDBP_CreateTable(ClientObj client_, uint64_t databaseID, uint64_t quorumID, 
     ReadBuffer  name = name_.c_str();
 
     return client->CreateTable(databaseID, quorumID, name);
+}
+
+int SDBP_RenameTable(ClientObj client_, uint64_t databaseID, uint64_t tableID, const std::string& name_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  name = name_.c_str();
+
+    return client->RenameTable(databaseID, tableID, name);
+}
+
+int SDBP_DeleteTable(ClientObj client_, uint64_t databaseID, uint64_t tableID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->DeleteTable(databaseID, tableID);
+}
+
+int SDBP_TruncateTable(ClientObj client_, uint64_t databaseID, uint64_t tableID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->TruncateTable(databaseID, tableID);
 }
 
 uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)

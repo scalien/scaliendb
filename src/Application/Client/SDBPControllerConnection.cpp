@@ -78,9 +78,7 @@ uint64_t ControllerConnection::GetNodeID()
 void ControllerConnection::OnGetConfigStateTimeout()
 {
     Log_Trace();
-    
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
+        
     if (EventLoop::Now() - getConfigStateTime > PAXOSLEASE_MAX_LEASE_TIME)
     {
         Log_Trace();
@@ -90,6 +88,8 @@ void ControllerConnection::OnGetConfigStateTimeout()
         return;
     }
     
+    CLIENT_MUTEX_GUARD_DECLARE();
+
     SendGetConfigState();
 }
 

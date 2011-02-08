@@ -380,6 +380,21 @@ int Client::CreateQuorum(List<uint64_t>& nodes)
     CLIENT_SCHEMA_COMMAND(CreateQuorum, nodes);
 }
 
+int Client::DeleteQuorum(uint64_t quorumID)
+{
+    CLIENT_SCHEMA_COMMAND(DeleteQuorum, quorumID);
+}
+
+int Client::AddNode(uint64_t quorumID, uint64_t nodeID)
+{
+    CLIENT_SCHEMA_COMMAND(AddNode, quorumID, nodeID);
+}
+
+int Client::RemoveNode(uint64_t quorumID, uint64_t nodeID)
+{
+    CLIENT_SCHEMA_COMMAND(RemoveNode, quorumID, nodeID);
+}
+
 int Client::ActivateNode(uint64_t nodeID)
 {
     CLIENT_SCHEMA_COMMAND(ActivateNode, nodeID);
