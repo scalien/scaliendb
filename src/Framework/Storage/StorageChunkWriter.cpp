@@ -68,7 +68,7 @@ bool StorageChunkWriter::WriteDataPages()
 
     for (i = 0; i < file->numDataPages; i++)
     {
-        while (env->yieldThreads)
+        while (env->yieldThreads || env->commitThreadActive)
         {
             Log_Trace("Yielding...");
             MSleep(YIELD_TIME);
