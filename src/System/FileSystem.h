@@ -21,6 +21,7 @@
 #define FS_WRITEONLY            0x0001
 #define FS_READWRITE            0x0002
 #define FS_APPEND               0x0008
+#define FS_DIRECT               0x4000
 
 #define FS_INVALID_DIR          0
 #define FS_INVALID_DIR_ENTRY    0

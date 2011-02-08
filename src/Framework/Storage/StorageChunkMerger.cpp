@@ -54,7 +54,7 @@ bool StorageChunkMerger::Merge(
         iterators[i] = readers[i].First();
     
     // open writer
-    if (fd.Open(mergeChunk->GetFilename().GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
+    if (fd.Open(mergeChunk->GetFilename().GetBuffer(), FS_CREATE | FS_READWRITE | FS_DIRECT) == INVALID_FD)
         return false;
 
     offset = 0;
@@ -84,7 +84,7 @@ bool StorageChunkMerger::Merge(
 
     mergeChunk->fileSize = offset;
 
-    FS_Sync(fd.GetFD());
+//    FS_Sync(fd.GetFD());
     
     FS_FileSeek(fd.GetFD(), 0, FS_SEEK_SET);
     offset = 0;
@@ -92,7 +92,7 @@ bool StorageChunkMerger::Merge(
     if (!WriteHeaderPage())
         return false;
 
-    FS_Sync(fd.GetFD());
+//    FS_Sync(fd.GetFD());
 
     fd.Close();
     
