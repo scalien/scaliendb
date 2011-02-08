@@ -217,13 +217,16 @@ void StorageMergeChunkJob::Execute()
     bool                ret;
     StorageChunkMerger  merger;
     Buffer**            itFilename;
+    Stopwatch           sw;
     
     Log_Debug("Merging %u chunks into chunk %U...",
      filenames.GetLength(),
      mergeChunk->GetChunkID());
+    sw.Start();
     ret = merger.Merge(env, filenames, mergeChunk, firstKey, lastKey);
+    sw.Stop();
     if (ret)
-        Log_Debug("Done merging.");
+        Log_Debug("Done merging, elapsed: %U", (uint64_t) sw.Elapsed());
 
     FOREACH_FIRST (itFilename, filenames)
     {
