@@ -38,7 +38,7 @@ void StorageSerializeChunkJob::Execute()
     sw.Start();
     serializer.Serialize(memoChunk);
     sw.Stop();
-    Log_Debug("Done serializing, elapsed: %U", memoChunk->GetChunkID(), (uint64_t) sw.Elapsed());
+    Log_Debug("Done serializing, elapsed: %U", (uint64_t) sw.Elapsed());
     
     Callable* c = onComplete;
     delete this;
