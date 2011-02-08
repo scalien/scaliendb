@@ -223,7 +223,8 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
         }
         
         // TODO: HACK
-        while (env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
+        while (env->yieldThreads || env->asyncGetThread->GetNumPending() > 0 ||
+         env->writerThreadActive)
         {
             Log_Trace("Yielding...");
             MSleep(YIELD_TIME);

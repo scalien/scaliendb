@@ -128,6 +128,8 @@ private:
     bool                    serializerThreadActive;
     ThreadPool*             writerThread;
     bool                    writerThreadActive;
+    ThreadPool*             mergerThread;
+    bool                    mergerThreadActive;
     ThreadPool*             archiverThread;
     bool                    archiverThreadActive;
     ThreadPool*             asyncThread;

@@ -30,6 +30,7 @@ StorageEnvironment::StorageEnvironment()
     commitThread = NULL;
     serializerThread = NULL;
     writerThread = NULL;
+    mergerThread = NULL;
     asyncThread = NULL;
     asyncGetThread = NULL;
 
@@ -75,6 +76,10 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     writerThread = ThreadPool::Create(1);
     writerThread->Start();
     writerThreadActive = false;
+    
+    mergerThread = ThreadPool::Create(1);
+    mergerThread->Start();
+    mergerThreadActive = false;
 
     archiverThread = ThreadPool::Create(1);
     archiverThread->Start();
@@ -1006,7 +1011,7 @@ void StorageEnvironment::TryMergeChunks()
     return;
 #endif
 
-    if (writerThreadActive)
+    if (mergerThreadActive)
         return;
 
     if (EventLoop::Now() - lastWriteTime < mergeAfterWriteDelay)
@@ -1049,8 +1054,8 @@ void StorageEnvironment::TryMergeChunks()
          mergeChunkOut, itShard->GetFirstKey(), itShard->GetLastKey(), &onChunkMerge);
         mergeShardID = itShard->GetShardID();
         mergeContextID = itShard->GetContextID();
-        writerThreadActive = true;
-        StartJob(writerThread, job);
+        mergerThreadActive = true;
+        StartJob(mergerThread, job);
         return;
     }
 }
@@ -1204,7 +1209,7 @@ void StorageEnvironment::OnChunkMerge()
     StorageChunk*       chunk;
     bool                deleteOut;
 
-    writerThreadActive = false;
+    mergerThreadActive = false;
 
     assert(mergeChunkOut->written);
     

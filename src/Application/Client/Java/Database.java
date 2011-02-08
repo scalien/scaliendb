@@ -53,7 +53,7 @@ public class Database
     /**
      * Renames the database.
      *
-     * @param   name        the new name of the database
+     * @param   newName     the new name of the database
      * @return              the status of the operation
      */
     public int renameDatabase(String newName) throws SDBPException {
