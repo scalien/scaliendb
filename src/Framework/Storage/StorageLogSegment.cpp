@@ -1,6 +1,7 @@
 #include "StorageLogSegment.h"
 #include "System/FileSystem.h"
 #include "System/IO/IOProcessor.h"
+#include "System/Stopwatch.h"
 
 StorageLogSegment::StorageLogSegment()
 {
@@ -14,9 +15,19 @@ StorageLogSegment::StorageLogSegment()
     asyncCommit = false;
 }
 
+#define Log_DebugLong(sw, ...)  \
+    if (sw.Elapsed() > 1000)    \
+    do {                        \
+        Log_Debug(__VA_ARGS__); \
+        sw.Reset();             \
+    } while (0)
+
 bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
 {
-    unsigned length;
+    unsigned    length;
+    Stopwatch   sw;
+    
+    sw.Start();
     
     filename.Write(filename_);
     filename.NullTerminate();
@@ -24,9 +35,14 @@ bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
     if (fd == INVALID_FD)
         return false;
 
+    sw.Stop();
+    
+    Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
+
     logSegmentID = logSegmentID_;
     offset = 0;
 
+    sw.Start();
     writeBuffer.AppendLittle64(logSegmentID);
     length = writeBuffer.GetLength();
     
@@ -38,7 +54,15 @@ bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
     }
     offset += length;
 
+    sw.Stop();
+
+    Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
+
+    sw.Start();
     FS_Sync(fd);
+    sw.Stop();
+
+    Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
     
     NewRound();
     
