@@ -20,7 +20,6 @@ class StorageArchiveLogSegmentJob;
 
 #define STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT    10
 #define STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY      5  // sec
-#define STORAGE_DEFAULT_MERGE_AFTER_WRITE_DELAY     10 // sec
 
 /*
 ===============================================================================================
@@ -153,7 +152,6 @@ private:
     bool                    shuttingDown;
     
     unsigned                maxUnbackedLogSegments;
-    unsigned                mergeAfterWriteDelay;
 };
 
 #endif

@@ -180,9 +180,6 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     maxUnbackedLogSegments = configFile.GetIntValue("database.maxUnbackedLogSegments",
      STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT);
 
-    mergeAfterWriteDelay = 1000 * configFile.GetIntValue("database.mergeAfterWriteDelay", 
-     STORAGE_DEFAULT_MERGE_AFTER_WRITE_DELAY);
-
     return true;
 }
 
@@ -1012,9 +1009,6 @@ void StorageEnvironment::TryMergeChunks()
 #endif
 
     if (mergerThreadActive)
-        return;
-
-    if (EventLoop::Now() - lastWriteTime < mergeAfterWriteDelay)
         return;
 
     if (numBulkCursors > 0)
