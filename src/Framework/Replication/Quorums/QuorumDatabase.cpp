@@ -129,7 +129,7 @@ void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
     ReadBuffer  rbValue;
     bool        ret;
 
-    key.Writef("round:%U", paxosID);
+    key.Writef("round:%021U", paxosID);
     rbKey.Wrap(key);
     
     ret = logShard->Get(rbKey, rbValue);
@@ -145,7 +145,7 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
     ReadBuffer  rbKey;
     uint64_t    oldPaxosID;
 
-    key.Writef("round:%U", paxosID);
+    key.Writef("round:%021U", paxosID);
     rbKey.Wrap(key);
 
     logShard->Set(rbKey, value);
@@ -153,7 +153,7 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
     oldPaxosID = paxosID - logCacheSize;
     if (paxosID >= logCacheSize)
     {
-        key.Writef("round:%U", oldPaxosID);
+        key.Writef("round:%021U", oldPaxosID);
         rbKey.Wrap(key);
 
         logShard->Delete(rbKey);
@@ -228,7 +228,7 @@ void QuorumDatabase::DeleteOldRounds(uint64_t paxosID)
 //    
 //    while (kv->key.BeginsWith("round:"))
 //    {
-//        read = kv->key.Readf("round:%U", &oldPaxosID);
+//        read = kv->key.Readf("round:021%U", &oldPaxosID);
 //        if (read < 7)
 //            break;
 //        if (oldPaxosID < (paxosID - logCacheSize))
