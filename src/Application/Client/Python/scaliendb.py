@@ -156,6 +156,10 @@ class Client:
             return
         return self.result.number()
 
+    def truncate_table(self, table_id):
+        status = SDBP_TruncateTable(self.cptr, table_id)
+        return status
+
     def get_database_id(self, name):
         return long(SDBP_GetDatabaseID(self.cptr, name))
     

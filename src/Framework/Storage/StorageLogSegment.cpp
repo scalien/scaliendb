@@ -181,7 +181,8 @@ void StorageLogSegment::Commit()
 
     dataPart.SetBuffer(writeBuffer.GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     dataPart.SetLength(length - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
-    checksum = dataPart.GetChecksum();
+//    checksum = dataPart.GetChecksum();
+    checksum = 0;
     
     writeBuffer.SetLength(0);
     writeBuffer.AppendLittle32(length);

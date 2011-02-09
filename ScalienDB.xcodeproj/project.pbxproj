@@ -124,7 +124,6 @@
 		54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74611BE5EF30076BC62 /* Config.cpp */; };
 		54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA6B0711C26CAB00FF4EF6 /* Main.cpp */; };
 		78BCDFF812DA111800438DA5 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */; };
-		9A67257313007D5200C3E6F6 /* Quorum.java in Sources */ = {isa = PBXBuildFile; fileRef = 9A67257213007D5200C3E6F6 /* Quorum.java */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
@@ -1365,7 +1364,6 @@
 				54E59F3B12E5AD20002222A4 /* ShardCatchupReader.cpp in Sources */,
 				9AD5E46012EDD62000F4AF7B /* Mutex_Posix.cpp in Sources */,
 				9AD5EA9112F70C4700F4AF7B /* StorageAsyncGet.cpp in Sources */,
-				9A67257313007D5200C3E6F6 /* Quorum.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

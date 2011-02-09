@@ -5623,21 +5623,17 @@ SWIGINTERN PyObject *_wrap_SDBP_RenameTable(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
   uint64_t arg2 ;
-  uint64_t arg3 ;
-  std::string *arg4 = 0 ;
+  std::string *arg3 = 0 ;
   int result;
   int res1 ;
   unsigned long long val2 ;
   int ecode2 = 0 ;
-  unsigned long long val3 ;
-  int ecode3 = 0 ;
-  int res4 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
-  PyObject * obj3 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOOO:SDBP_RenameTable",&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OOO:SDBP_RenameTable",&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_RenameTable" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -5647,28 +5643,23 @@ SWIGINTERN PyObject *_wrap_SDBP_RenameTable(PyObject *SWIGUNUSEDPARM(self), PyOb
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_RenameTable" "', argument " "2"" of type '" "uint64_t""'");
   } 
   arg2 = static_cast< uint64_t >(val2);
-  ecode3 = SWIG_AsVal_unsigned_SS_long_SS_long(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_RenameTable" "', argument " "3"" of type '" "uint64_t""'");
-  } 
-  arg3 = static_cast< uint64_t >(val3);
   {
     std::string *ptr = (std::string *)0;
-    res4 = SWIG_AsPtr_std_string(obj3, &ptr);
-    if (!SWIG_IsOK(res4)) {
-      SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SDBP_RenameTable" "', argument " "4"" of type '" "std::string const &""'"); 
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SDBP_RenameTable" "', argument " "3"" of type '" "std::string const &""'"); 
     }
     if (!ptr) {
-      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_RenameTable" "', argument " "4"" of type '" "std::string const &""'"); 
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_RenameTable" "', argument " "3"" of type '" "std::string const &""'"); 
     }
-    arg4 = ptr;
+    arg3 = ptr;
   }
-  result = (int)SDBP_RenameTable(arg1,arg2,arg3,(std::string const &)*arg4);
+  result = (int)SDBP_RenameTable(arg1,arg2,(std::string const &)*arg3);
   resultobj = SWIG_From_int(static_cast< int >(result));
-  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return resultobj;
 fail:
-  if (SWIG_IsNewObj(res4)) delete arg4;
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return NULL;
 }
 
@@ -5677,18 +5668,14 @@ SWIGINTERN PyObject *_wrap_SDBP_DeleteTable(PyObject *SWIGUNUSEDPARM(self), PyOb
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
   uint64_t arg2 ;
-  uint64_t arg3 ;
   int result;
   int res1 ;
   unsigned long long val2 ;
   int ecode2 = 0 ;
-  unsigned long long val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:SDBP_DeleteTable",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:SDBP_DeleteTable",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_DeleteTable" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -5698,12 +5685,7 @@ SWIGINTERN PyObject *_wrap_SDBP_DeleteTable(PyObject *SWIGUNUSEDPARM(self), PyOb
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_DeleteTable" "', argument " "2"" of type '" "uint64_t""'");
   } 
   arg2 = static_cast< uint64_t >(val2);
-  ecode3 = SWIG_AsVal_unsigned_SS_long_SS_long(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_DeleteTable" "', argument " "3"" of type '" "uint64_t""'");
-  } 
-  arg3 = static_cast< uint64_t >(val3);
-  result = (int)SDBP_DeleteTable(arg1,arg2,arg3);
+  result = (int)SDBP_DeleteTable(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
@@ -5715,18 +5697,14 @@ SWIGINTERN PyObject *_wrap_SDBP_TruncateTable(PyObject *SWIGUNUSEDPARM(self), Py
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
   uint64_t arg2 ;
-  uint64_t arg3 ;
   int result;
   int res1 ;
   unsigned long long val2 ;
   int ecode2 = 0 ;
-  unsigned long long val3 ;
-  int ecode3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
-  PyObject * obj2 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"OOO:SDBP_TruncateTable",&obj0,&obj1,&obj2)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:SDBP_TruncateTable",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_TruncateTable" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -5736,12 +5714,7 @@ SWIGINTERN PyObject *_wrap_SDBP_TruncateTable(PyObject *SWIGUNUSEDPARM(self), Py
     SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_TruncateTable" "', argument " "2"" of type '" "uint64_t""'");
   } 
   arg2 = static_cast< uint64_t >(val2);
-  ecode3 = SWIG_AsVal_unsigned_SS_long_SS_long(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_TruncateTable" "', argument " "3"" of type '" "uint64_t""'");
-  } 
-  arg3 = static_cast< uint64_t >(val3);
-  result = (int)SDBP_TruncateTable(arg1,arg2,arg3);
+  result = (int)SDBP_TruncateTable(arg1,arg2);
   resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:

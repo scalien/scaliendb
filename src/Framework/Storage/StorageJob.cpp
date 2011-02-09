@@ -2,6 +2,7 @@
 #include "System/IO/IOProcessor.h"
 #include "System/FileSystem.h"
 #include "System/Config.h"
+#include "System/Stopwatch.h"
 #include "StorageChunkWriter.h"
 #include "StorageChunkSerializer.h"
 #include "StorageChunkMerger.h"
@@ -30,11 +31,14 @@ StorageSerializeChunkJob::StorageSerializeChunkJob(StorageMemoChunk* memoChunk_,
 
 void StorageSerializeChunkJob::Execute()
 {
-    StorageChunkSerializer serializer;
+    StorageChunkSerializer  serializer;
+    Stopwatch               sw;
 
     Log_Debug("Serializing chunk %U in memory...", memoChunk->GetChunkID());
+    sw.Start();
     serializer.Serialize(memoChunk);
-    Log_Debug("Done serializing.", memoChunk->GetChunkID());
+    sw.Stop();
+    Log_Debug("Done serializing, elapsed: %U", (uint64_t) sw.Elapsed());
     
     Callable* c = onComplete;
     delete this;
@@ -50,10 +54,14 @@ StorageWriteChunkJob::StorageWriteChunkJob(StorageEnvironment* env_, StorageFile
 
 void StorageWriteChunkJob::Execute()
 {
-    StorageChunkWriter writer;
+    StorageChunkWriter  writer;
+    Stopwatch           sw;
 
     Log_Debug("Writing chunk %U to file...", fileChunk->GetChunkID());
+    sw.Start();
     writer.Write(env, fileChunk);
+    sw.Stop();
+    Log_Debug("Chunk %U written, elapsed: %U", fileChunk->GetChunkID(), (uint64_t) sw.Elapsed());
 
     Callable* c = onComplete;
     delete this;
@@ -169,12 +177,18 @@ StorageDeleteFileChunkJob::StorageDeleteFileChunkJob(StorageFileChunk* chunk_)
 
 void StorageDeleteFileChunkJob::Execute()
 {
+    Stopwatch   sw;
+    
     Log_Debug("Deleting chunk %U", chunk->GetChunkID());
+    sw.Start();
     
     FS_Delete(chunk->GetFilename().GetBuffer());
 
     delete chunk;
     delete this;
+
+    sw.Stop();
+    Log_Debug("Deleted, elapsed: %U", (uint64_t) sw.Elapsed());
 }
 
 StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
@@ -203,13 +217,16 @@ void StorageMergeChunkJob::Execute()
     bool                ret;
     StorageChunkMerger  merger;
     Buffer**            itFilename;
+    Stopwatch           sw;
     
     Log_Debug("Merging %u chunks into chunk %U...",
      filenames.GetLength(),
      mergeChunk->GetChunkID());
+    sw.Start();
     ret = merger.Merge(env, filenames, mergeChunk, firstKey, lastKey);
+    sw.Stop();
     if (ret)
-        Log_Debug("Done merging.");
+        Log_Debug("Done merging, elapsed: %U", (uint64_t) sw.Elapsed());
 
     FOREACH_FIRST (itFilename, filenames)
     {
