@@ -785,7 +785,6 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
                 fileChunk = (StorageFileChunk*) *chunk;
                 fileChunks.Remove(fileChunk);
 
-                // TODO: needs testing
                 StorageFileChunk**  mergeChunk;
                 FOREACH (mergeChunk, mergeChunks)
                 {
@@ -1255,19 +1254,24 @@ void StorageEnvironment::OnChunkMerge()
         }
     }
 
+Delete:
+
     // enqueue the remaining merged chunks for deleting
     FOREACH_FIRST (itFileChunk, mergeChunks)
     {
         fileChunk = *itFileChunk;
-        fileChunk->RemovePagesFromCache();
-        fileChunks.Remove(fileChunk);
-        mergeChunks.Remove(*itFileChunk);
 
-        job = new StorageDeleteFileChunkJob(fileChunk);
-        StartJob(writerThread, job);
+        if (mergeChunkOut->written || fileChunk->deleted)
+        {
+            fileChunk->RemovePagesFromCache();
+            fileChunks.Remove(fileChunk);
+            mergeChunks.Remove(*itFileChunk);
+
+            job = new StorageDeleteFileChunkJob(fileChunk);
+            StartJob(writerThread, job);
+        }
     }
 
-Delete:
     if (deleteOut)
     {
         // in case the shard was deleted while merging
@@ -1278,7 +1282,7 @@ Delete:
     {
         fileChunks.Append(mergeChunkOut);
     }
-
+    
     mergeChunkOut = NULL;
     mergeContextID = 0;
     mergeShardID = 0;
