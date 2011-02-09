@@ -44,11 +44,11 @@ public:
     uint64_t            GetAcceptedRunID();
     void                SetAcceptedRunID(uint64_t acceptedRunID);
 
-    void                GetAcceptedValue(Buffer& acceptedValue);
-    void                SetAcceptedValue(Buffer& acceptedValue);
+    //void                GetAcceptedValue(Buffer& acceptedValue);
+    //void                SetAcceptedValue(Buffer& acceptedValue);
 
-    void                GetLearnedValue(uint64_t paxosID, Buffer& value);
-    void                SetLearnedValue(uint64_t paxosID, ReadBuffer& value);
+    void                GetAcceptedValue(uint64_t paxosID, Buffer& value);
+    void                SetAcceptedValue(uint64_t paxosID, ReadBuffer value);
 
     bool                IsActive();
     
@@ -58,8 +58,6 @@ public:
 private:
     uint64_t            GetUint64(const char* name);
     void                SetUint64(const char* name, uint64_t value);
-    
-    void                DeleteOldRounds(uint64_t paxosID);
     
     StorageShardProxy*  paxosShard;
     StorageShardProxy*  logShard;

@@ -91,45 +91,45 @@ void QuorumDatabase::SetAcceptedRunID(uint64_t acceptedRunID)
     SetUint64("acceptedRunID", acceptedRunID);
 }
 
-void QuorumDatabase::GetAcceptedValue(Buffer& acceptedValue)
+//void QuorumDatabase::GetAcceptedValue(Buffer& acceptedValue)
+//{
+//    Buffer      key;
+//    ReadBuffer  rbKey;
+//    ReadBuffer  rbValue;
+//    bool        ret;
+//
+//    key.Write("acceptedValue");
+//    rbKey.Wrap(key);
+//
+//    ret = paxosShard->Get(rbKey, rbValue);
+//    if (!ret)
+//        return;
+//    
+//    acceptedValue.Write(rbValue.GetBuffer(), rbValue.GetLength());
+//}
+//
+//void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
+//{
+//    Buffer      key;
+//    ReadBuffer  rbKey;
+//    ReadBuffer  rbValue;
+//    bool        ret;
+//
+//    key.Write("acceptedValue");
+//    rbKey.Wrap(key);
+//    rbValue.Wrap(acceptedValue);
+//
+//    ret = paxosShard->Set(rbKey, rbValue);
+//}
+
+void QuorumDatabase::GetAcceptedValue(uint64_t paxosID, Buffer& value)
 {
     Buffer      key;
     ReadBuffer  rbKey;
     ReadBuffer  rbValue;
     bool        ret;
 
-    key.Write("acceptedValue");
-    rbKey.Wrap(key);
-
-    ret = paxosShard->Get(rbKey, rbValue);
-    if (!ret)
-        return;
-    
-    acceptedValue.Write(rbValue.GetBuffer(), rbValue.GetLength());
-}
-
-void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
-{
-    Buffer      key;
-    ReadBuffer  rbKey;
-    ReadBuffer  rbValue;
-    bool        ret;
-
-    key.Write("acceptedValue");
-    rbKey.Wrap(key);
-    rbValue.Wrap(acceptedValue);
-
-    ret = paxosShard->Set(rbKey, rbValue);
-}
-
-void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
-{
-    Buffer      key;
-    ReadBuffer  rbKey;
-    ReadBuffer  rbValue;
-    bool        ret;
-
-    key.Writef("round:%021U", paxosID);
+    key.Writef("accepted:%021U", paxosID);
     rbKey.Wrap(key);
     
     ret = logShard->Get(rbKey, rbValue);
@@ -139,13 +139,13 @@ void QuorumDatabase::GetLearnedValue(uint64_t paxosID, Buffer& value)
     value.Write(rbValue.GetBuffer(), rbValue.GetLength());
 }
 
-void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
+void QuorumDatabase::SetAcceptedValue(uint64_t paxosID, ReadBuffer value)
 {
     Buffer      key;
     ReadBuffer  rbKey;
     uint64_t    oldPaxosID;
 
-    key.Writef("round:%021U", paxosID);
+    key.Writef("accepted:%021U", paxosID);
     rbKey.Wrap(key);
 
     logShard->Set(rbKey, value);
@@ -153,7 +153,7 @@ void QuorumDatabase::SetLearnedValue(uint64_t paxosID, ReadBuffer& value)
     oldPaxosID = paxosID - logCacheSize;
     if (paxosID >= logCacheSize)
     {
-        key.Writef("round:%021U", oldPaxosID);
+        key.Writef("accepted:%021U", oldPaxosID);
         rbKey.Wrap(key);
 
         logShard->Delete(rbKey);
@@ -209,35 +209,4 @@ void QuorumDatabase::SetUint64(const char* name, uint64_t u64)
     value.Wrap(tmp);
 
     ret = paxosShard->Set(key, value);
-}
-
-void QuorumDatabase::DeleteOldRounds(uint64_t paxosID)
-{
-// TODO: cursor
-//    uint64_t            oldPaxosID;
-//    int                 read;
-//    Buffer              key;
-//    StorageKeyValue*    kv;
-//    StorageCursor       cursor(environment);
-//    
-//    // start at key "round:"
-//    // and delete up to "round:<paxosID - logCacheSize>"
-//    
-//    key.Writef("round:");
-//    kv = cursor.Begin(ReadBuffer(key));
-//    
-//    while (kv->key.BeginsWith("round:"))
-//    {
-//        read = kv->key.Readf("round:021%U", &oldPaxosID);
-//        if (read < 7)
-//            break;
-//        if (oldPaxosID < (paxosID - logCacheSize))
-//            environment->Delete(key);
-//        else
-//            break;
-//    }
-//    
-//    cursor.Close();
-//    
-//    Commit();
 }

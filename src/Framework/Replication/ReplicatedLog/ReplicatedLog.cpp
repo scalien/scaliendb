@@ -270,6 +270,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     {
         runID = imsg.runID;
         value = imsg.value;
+        context->GetDatabase()->SetAcceptedValue(paxosID, value);
     }
     else if (imsg.type == PAXOS_LEARN_PROPOSAL && acceptor.state.accepted &&
      acceptor.state.acceptedProposalID == imsg.proposalID)
@@ -299,7 +300,7 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
         return;
     
     // the node is lagging and needs to catch-up
-    context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
+    context->GetDatabase()->GetAcceptedValue(imsg.paxosID, value);
     if (value.GetLength() > 0)
     {
         Log_Trace("Sending paxosID %d to node %d", imsg.paxosID, imsg.nodeID);
@@ -324,10 +325,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
     bool ownAppend;
 
     Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
-    
-    // TODO: HACK uncomment this later!
-    context->GetDatabase()->SetLearnedValue(paxosID, value);
-    
+        
     if (paxosID == (context->GetHighestPaxosID() - 1))
         context->GetDatabase()->Commit();
 
@@ -371,7 +369,7 @@ void ReplicatedLog::OnRequest(PaxosMessage& imsg)
     if (imsg.paxosID < GetPaxosID())
     {
         // the node is lagging and needs to catch-up
-        context->GetDatabase()->GetLearnedValue(imsg.paxosID, value);
+        context->GetDatabase()->GetAcceptedValue(imsg.paxosID, value);
         if (value.GetLength() == 0)
             return;
         omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);

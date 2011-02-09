@@ -126,7 +126,7 @@ void PaxosAcceptor::ReadState()
     {
         state.acceptedRunID = db->GetAcceptedRunID();
         state.acceptedProposalID = db->GetAcceptedProposalID();
-        db->GetAcceptedValue(state.acceptedValue);
+        db->GetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
     }
 }
 
@@ -145,7 +145,7 @@ void PaxosAcceptor::WriteState(bool sendReply_)
     {
         db->SetAcceptedRunID(state.acceptedRunID);
         db->SetAcceptedProposalID(state.acceptedProposalID);
-        db->SetAcceptedValue(state.acceptedValue);
+        db->SetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
     }
 
     writtenPaxosID = context->GetPaxosID();
