@@ -597,20 +597,15 @@ bool ConfigState::CompleteCreateTable(ConfigMessage& message)
 
 bool ConfigState::CompleteRenameTable(ConfigMessage& message)
 {
-    ConfigDatabase* database;
     ConfigTable*    table;
 
     if (message.name.GetLength() > DATABASE_NAME_SIZE)
         return false;
 
-    database = GetDatabase(message.databaseID);
-    if (database == NULL)
-        return false; // no such database
-
     table = GetTable(message.tableID);
     if (table == NULL)
         return false; // no such table
-    table = GetTable(message.databaseID, message.name);
+    table = GetTable(table->databaseID, message.name);
     if (table != NULL)
         return false; // table with name exists in database
 
@@ -619,12 +614,7 @@ bool ConfigState::CompleteRenameTable(ConfigMessage& message)
 
 bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
 {
-    ConfigDatabase* database;
     ConfigTable*    table;
-
-    database = GetDatabase(message.databaseID);
-    if (database == NULL)
-        return false; // no such database
 
     table = GetTable(message.tableID);
     if (table == NULL)
@@ -635,12 +625,7 @@ bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
 
 bool ConfigState::CompleteTruncateTable(ConfigMessage& message)
 {
-    ConfigDatabase* database;
     ConfigTable*    table;
-
-    database = GetDatabase(message.databaseID);
-    if (database == NULL)
-        return false; // no such database
 
     table = GetTable(message.tableID);
     if (table == NULL)
