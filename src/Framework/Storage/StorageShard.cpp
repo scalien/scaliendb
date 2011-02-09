@@ -14,12 +14,6 @@ StorageShard::StorageShard()
 
 StorageShard::~StorageShard()
 {
-    StorageChunk**  itChunk;
-    
-    // TODO
-//    FOREACH (itChunk, chunks)
-//        delete *itChunk;
-    
     delete memoChunk;
 }
 
