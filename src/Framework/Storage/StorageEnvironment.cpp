@@ -767,7 +767,6 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
         EndLoops:
         if (!found)
         {
-            // TOOD: delete chunk
             if ((*chunk)->GetChunkState() <= StorageChunk::Serialized)
             {
                 memoChunk = (StorageMemoChunk*) *chunk;
@@ -784,31 +783,32 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
             else
             {
                 fileChunk = (StorageFileChunk*) *chunk;
-                fileChunks.Remove((StorageFileChunk*) *chunk);
+                fileChunks.Remove(fileChunk);
 
                 // TODO: needs testing
                 StorageFileChunk**  mergeChunk;
                 FOREACH (mergeChunk, mergeChunks)
                 {
-                    if (*chunk == *mergeChunk)
+                    if (fileChunk == *mergeChunk)
+                    {
                         fileChunk->deleted = true;
+                        goto Advance;
+                    }
                 }
                 
-                if (fileChunk->deleted == false && writeChunk == *chunk)
+                if (fileChunk == writeChunk)
                 {
                     fileChunk->deleted = true;
+                    goto Advance;
                 }
-                else
-                {
-                    fileChunk->RemovePagesFromCache();
-                    job = new StorageDeleteFileChunkJob(fileChunk);
-                    StartJob(asyncThread, job);                    
-                }
+
+                fileChunk->RemovePagesFromCache();
+                job = new StorageDeleteFileChunkJob(fileChunk);
+                StartJob(asyncThread, job);                    
             }
-            chunk = shard->GetChunks().Remove(chunk);
         }
-        else
-            chunk = shard->GetChunks().Next(chunk);
+        Advance:
+        chunk = shard->GetChunks().Remove(chunk);
     }
     
     if (mergeContextID == contextID && mergeShardID == shardID)
