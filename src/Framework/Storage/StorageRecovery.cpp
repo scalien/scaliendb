@@ -144,6 +144,7 @@ bool StorageRecovery::ReadShard(ReadBuffer& parse)
     parse.Advance(parse.Readf("%#B", &shard->firstKey));
     parse.Advance(parse.Readf("%#B", &shard->lastKey));
     parse.Advance(parse.Readf("%b", &shard->useBloomFilter));
+    parse.Advance(parse.Readf("%b", &shard->isLogStorage));
 
     if (!parse.ReadLittle32(numChunks))
         return false;

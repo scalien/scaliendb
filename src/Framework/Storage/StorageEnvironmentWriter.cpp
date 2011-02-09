@@ -85,6 +85,7 @@ void StorageEnvironmentWriter::WriteShard(StorageShard* shard)
     writeBuffer.Appendf("%#R", &firstKey);
     writeBuffer.Appendf("%#R", &lastKey);
     writeBuffer.Appendf("%b", shard->UseBloomFilter());
+    writeBuffer.Appendf("%b", shard->IsLogStorage());
     
     numChunks = 0;
     FOREACH (itChunk, shard->GetChunks())
