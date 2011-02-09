@@ -1204,8 +1204,6 @@ void StorageEnvironment::OnChunkMerge()
     bool                deleteOut;
 
     mergerThreadActive = false;
-
-    assert(mergeChunkOut->written);
     
     if (numBulkCursors > 0)
     {
@@ -1226,6 +1224,8 @@ void StorageEnvironment::OnChunkMerge()
         deleteOut = true;
         goto Delete;
     }
+
+    assert(mergeChunkOut->written);
     
     // delete the merged chunks from the shard
     FOREACH (itFileChunk, mergeChunks)

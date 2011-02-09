@@ -216,7 +216,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
 
     while(!IsDone())
     {
-        if (env->shuttingDown)
+        if (env->shuttingDown || env->mergeChunkOut->deleted)
         {
             Log_Debug("Aborting merge");
             return false;
