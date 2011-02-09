@@ -1264,7 +1264,8 @@ Delete:
         if (mergeChunkOut->written || fileChunk->deleted)
         {
             fileChunk->RemovePagesFromCache();
-            fileChunks.Remove(fileChunk);
+            if (!fileChunk->deleted)
+                fileChunks.Remove(fileChunk);
             mergeChunks.Remove(*itFileChunk);
 
             job = new StorageDeleteFileChunkJob(fileChunk);
