@@ -68,6 +68,9 @@ bool StorageChunkWriter::WriteDataPages()
 
     for (i = 0; i < file->numDataPages; i++)
     {
+        if (env->shuttingDown)
+            return false;
+        
         while (env->yieldThreads || env->commitThreadActive)
         {
             Log_Trace("Yielding...");
