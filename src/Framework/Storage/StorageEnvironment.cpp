@@ -510,7 +510,7 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
     
     numChunks = shard->GetChunks().GetLength();
     
-    i = 0;
+    i = 1;
     FOREACH(itChunk, shard->GetChunks())
     {
         if (i == ((numChunks + 1) / 2))
