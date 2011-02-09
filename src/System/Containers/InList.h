@@ -92,7 +92,7 @@ T& InList<T>::Get(int i)
 template<class T>
 void InList<T>::Prepend(T* t)
 {
-    assert(t->next == t && t->prev == t);
+    ASSERT(t->next == t && t->prev == t);
 
     t->next = head;
     t->prev = NULL;
@@ -127,7 +127,7 @@ void InList<T>::PrependList(InList<T>& list)
 template<class T>
 void InList<T>::Append(T* t)
 {
-    assert(t->next == t && t->prev == t);
+    ASSERT(t->next == t && t->prev == t);
 
     t->prev = tail;
     t->next = NULL;
@@ -143,7 +143,7 @@ void InList<T>::Append(T* t)
 template<class T>
 void InList<T>::InsertAfter(T* before, T* t)
 {
-    assert(t->next == t && t->prev == t);
+    ASSERT(t->next == t && t->prev == t);
 
     length++;
     
@@ -181,7 +181,7 @@ T* InList<T>::Remove(T* t)
 {
     T*  ret;
     
-    assert(t->next != t || t->prev != t);
+    ASSERT(t->next != t || t->prev != t);
         
     if (head == t)
         head = static_cast<T*>(t->next);
@@ -228,7 +228,7 @@ void InList<T>::Clear()
     
     for (it = First(); it != NULL; it = Remove(it)) { /* empty */ }
     
-    assert(length == 0);
+    ASSERT(length == 0);
 }
 
 template<class T>
@@ -246,7 +246,7 @@ void InList<T>::DeleteList()
     
     for (it = First(); it != NULL; it = Delete(it)) { /* empty */ }
     
-    assert(length == 0);
+    ASSERT(length == 0);
 }
 
 template<class T>
