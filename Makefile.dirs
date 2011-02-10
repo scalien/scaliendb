@@ -23,6 +23,7 @@ BUILD_DIRS = \
 		$(BUILD_DIR)/Framework/TCP \
 		$(BUILD_DIR)/System \
 		$(BUILD_DIR)/System/Buffers \
+		$(BUILD_DIR)/System/Compress \
 		$(BUILD_DIR)/System/Containers \
 		$(BUILD_DIR)/System/Events \
 		$(BUILD_DIR)/System/IO \

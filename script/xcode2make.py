@@ -19,7 +19,7 @@ def seekto_regex(f, pattern):
 			return m
 
 def extract_pbx_target(line):
-	m = re.search(r"^\s+\w+ /\* (.*\.cpp) in .*", line)
+	m = re.search(r"^\s+\w+ /\* (.*\.(c|cpp)) in .*", line)
 	return m.group(1)
 
 def read_pbxproject_targets(pbxfile):
@@ -49,7 +49,7 @@ def find_source_files(root_dir, exclude_files, exclude_dirs):
 		#print(root, dirs, files)
 		for file in files:
 			if file not in exclude_files:
-				if file.find(".cpp") == len(file) - 4:
+				if file.find(".cpp") == len(file) - 4 or file.find(".c") == len(file) - 2:
 					objects.add(os.path.join(root, file))
 		for dir in dirs:
 			if dir in exclude_dirs:
@@ -62,7 +62,7 @@ def match_targets_with_source_files(pbxtargets, srcfiles):
 		for srcfile in srcfiles:
 			pos = srcfile.find(target)
 			if pos != -1 and pos == len(srcfile) - len(target):
-				obj = srcfile.replace(".cpp", ".o")
+				obj = srcfile.replace(".cpp", ".o").replace(".c", ".o")
 				objects.add(obj)
 	return objects
 	
