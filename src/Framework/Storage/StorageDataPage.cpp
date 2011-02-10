@@ -203,6 +203,7 @@ StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpre
     unsigned                numKeys;
     unsigned                mid;
 
+    cmpres = 0;
     numKeys = GetNumKeys();
     if (numKeys == 0)
         return NULL;
