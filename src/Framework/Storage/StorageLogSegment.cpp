@@ -167,6 +167,8 @@ void StorageLogSegment::Commit()
 {
     uint32_t    length;
     uint32_t    checksum;
+    uint32_t    writeSize;
+    uint32_t    writeOffset;
     ReadBuffer  dataPart;
     Buffer      compressed;
     Compressor  compressor;
@@ -203,22 +205,18 @@ void StorageLogSegment::Commit()
     
 //    Log_Debug("Commit");
 
-/*
-    if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
+//    if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
+//    {
+//        FS_FileClose(fd);
+//        fd = INVALID_FD;
+//        commitStatus = false;
+//        return;
+//    }
+
+    for (writeOffset = 0; writeOffset < length; writeOffset += writeSize)
     {
-        FS_FileClose(fd);
-        fd = INVALID_FD;
-        commitStatus = false;
-        return;
-    }
-*/
-  // TEST CODE
-    #define WRITE_SIZE 64*1024
-    unsigned ws;
-    for (unsigned ofs = 0; ofs < length; ofs += ws)
-    {
-        ws = MIN(WRITE_SIZE, length - ofs);
-        if (FS_FileWrite(fd, writeBuffer.GetBuffer() + ofs, ws) != ws)
+        writeSize = MIN(STORAGE_LOGSEGMENT_WRITE_GRANULARITY, length - writeOffset);
+        if (FS_FileWrite(fd, writeBuffer.GetBuffer() + writeOffset, writeSize) != writeSize)
         {
             FS_FileClose(fd);
             fd = INVALID_FD;
@@ -227,8 +225,6 @@ void StorageLogSegment::Commit()
         }
         FS_Sync(fd);
     }
-    // TEST CODE END
-
 
     offset += length;
 

@@ -9,6 +9,9 @@
 #define STORAGE_LOGSEGMENT_COMMAND_SET          's'
 #define STORAGE_LOGSEGMENT_COMMAND_DELETE       'd'
 
+#define STORAGE_LOGSEGMENT_WRITE_GRANULARITY    64*KiB
+
+
 class StorageRecovery;
 class StorageArchiveLogSegmentJob;
 
