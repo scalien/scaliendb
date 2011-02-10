@@ -33,8 +33,9 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
     
     PreloadDataPages();
     it = fileChunk.dataPages[index]->LocateKeyValue(firstKey, cmpres);
-    ASSERT(cmpres >= 0);
-    
+    if (cmpres > 0)
+        return fileChunk.dataPages[index]->Next(it);
+
     return it;
 }
 
