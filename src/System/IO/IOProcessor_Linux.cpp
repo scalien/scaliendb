@@ -16,6 +16,7 @@
 #include "System/Log.h"
 #include "System/Time.h"
 #include "System/Events/EventLoop.h"
+#include "System/Stopwatch.h"
 
 #define MAX_EVENTS          1024
 #define PIPEOP              IOOperation::UNKNOWN
@@ -72,6 +73,7 @@ static PipeOp           asyncPipeOp;
 static EpollOp*         epollOps;
 static volatile bool    terminated = false;
 static volatile int     numClient = 0;
+static volatile bool	running = false;
 
 static bool             AddEvent(int fd, uint32_t filter, IOOperation* ioop);
 
@@ -413,7 +415,9 @@ bool IOProcessor::Poll(int sleep)
     IOOperation*                ioop;
     EpollOp*                    epollOp;
         
+    running = false;
     nevents = epoll_wait(epollfd, events, SIZE(events), sleep);
+    running = true;
     EventLoop::UpdateTime();
     
     if (nevents < 0 || terminated)
@@ -526,7 +530,7 @@ void ProcessIOOperation(IOOperation* ioop)
     
     if (!ioop)
         return;
-    
+
     switch (ioop->type)
     {
     case IOOperation::TCP_READ:
@@ -756,6 +760,11 @@ void ProcessUDPWrite(UDPWrite* udpwrite)
             IOProcessor::Add(udpwrite); // try again
         }
     }
+}
+
+bool IOProcessor::IsRunning()
+{
+  return running;
 }
 
 #endif // PLATFORM_LINUX

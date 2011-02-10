@@ -26,6 +26,11 @@ if False:
 	quorum_id = client.create_quorum(["100"])
 	database_id = client.create_database("testdb")
 	client.create_table(database_id, quorum_id, "testtable")
+
+if False:
+	database_id = client.get_database_id("testdb")
+	table_id = client.get_table_id(database_id, "testtable")
+	client.truncate_table(table_id)
                         
 client.use_database("testdb")
 client.use_table("testtable")
@@ -46,4 +51,6 @@ while limit == 0 or i < limit:
 		break
 	endtime = time.time()
 	i += batch
-	print("Sent bytes: %s, num: %i, rps = %.0f" % (sizeof_fmt(sent), i, (batch/((endtime - starttime) * 1000.0) * 1000.0)))
+	fmt = "%H:%M:%S"
+	endtimestamp = time.strftime(fmt, time.gmtime())
+	print("%s: Sent bytes: %s, num: %i, rps = %.0f" % (endtimestamp, sizeof_fmt(sent), i, (batch/((endtime - starttime) * 1000.0) * 1000.0)))

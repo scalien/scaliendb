@@ -31,6 +31,8 @@ public:
     static bool Complete(Callable* callable);
 
     static void BlockSignals(int blockMode);
+
+    static bool IsRunning();
 };
 
 #endif

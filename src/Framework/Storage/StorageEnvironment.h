@@ -150,6 +150,7 @@ private:
     const char*             archiveScript;
     bool                    yieldThreads;
     bool                    shuttingDown;
+    bool                    writingTOC;
     
     unsigned                maxUnbackedLogSegments;
 };

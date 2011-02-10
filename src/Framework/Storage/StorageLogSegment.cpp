@@ -56,7 +56,7 @@ bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
 
     sw.Stop();
 
-    Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
+    Log_DebugLong(sw, "log segment Open() took %U msec, length = %u", (uint64_t) sw.Elapsed(), length);
 
     sw.Start();
     FS_Sync(fd);
@@ -167,6 +167,7 @@ void StorageLogSegment::Commit()
     uint32_t    length;
     uint32_t    checksum;
     ReadBuffer  dataPart;
+    Stopwatch	sw;
     
     commitStatus = true;
 
@@ -190,7 +191,9 @@ void StorageLogSegment::Commit()
     writeBuffer.SetLength(length);
     
 //    Log_Debug("Commit");
-    
+
+    sw.Start();    
+/*
     if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
     {
         FS_FileClose(fd);
@@ -198,10 +201,34 @@ void StorageLogSegment::Commit()
         commitStatus = false;
         return;
     }
+*/
+  // TEST CODE
+    #define WRITE_SIZE 64*1024
+    unsigned ws;
+    for (unsigned ofs = 0; ofs < length; ofs += ws)
+    {
+        ws = MIN(WRITE_SIZE, length - ofs);
+        if (FS_FileWrite(fd, writeBuffer.GetBuffer() + ofs, ws) != ws)
+        {
+            FS_FileClose(fd);
+            fd = INVALID_FD;
+            commitStatus = false;
+            return;
+        }
+        FS_Sync(fd);
+    }
+    // TEST CODE END
+
+
     offset += length;
+
+    sw.Stop();
+    Log_DebugLong(sw, "log segment Commit took %U msec, length: %u", (uint64_t) sw.Elapsed(), length);
 
     FS_Sync(fd);
     
+    Log_DebugLong(sw, "log segment Sync took %U msec", (uint64_t) sw.Elapsed());
+
     NewRound();
     
     if (asyncCommit)
