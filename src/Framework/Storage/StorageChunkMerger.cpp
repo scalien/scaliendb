@@ -360,7 +360,8 @@ Restart:
         if (iterators[i] != NULL) 
         {
             // check that keys are still in the merged interval
-            if (ReadBuffer::Cmp(iterators[i]->GetKey(), lastKey) >= 0)
+            if (lastKey.GetLength() > 0 && 
+             ReadBuffer::Cmp(iterators[i]->GetKey(), lastKey) >= 0)
             {
                 iterators[i] = NULL;
                 continue;
