@@ -8,7 +8,6 @@ void QuorumDatabase::Init(StorageShardProxy* paxosShard_, StorageShardProxy* log
     assert(logShard_ != NULL);
     paxosShard = paxosShard_;
     logShard = logShard_;
-    logCacheSize = RLOG_CACHE_SIZE;
 }
 
 uint64_t QuorumDatabase::GetPaxosID()
@@ -91,37 +90,6 @@ void QuorumDatabase::SetAcceptedRunID(uint64_t acceptedRunID)
     SetUint64("acceptedRunID", acceptedRunID);
 }
 
-//void QuorumDatabase::GetAcceptedValue(Buffer& acceptedValue)
-//{
-//    Buffer      key;
-//    ReadBuffer  rbKey;
-//    ReadBuffer  rbValue;
-//    bool        ret;
-//
-//    key.Write("acceptedValue");
-//    rbKey.Wrap(key);
-//
-//    ret = paxosShard->Get(rbKey, rbValue);
-//    if (!ret)
-//        return;
-//    
-//    acceptedValue.Write(rbValue.GetBuffer(), rbValue.GetLength());
-//}
-//
-//void QuorumDatabase::SetAcceptedValue(Buffer& acceptedValue)
-//{
-//    Buffer      key;
-//    ReadBuffer  rbKey;
-//    ReadBuffer  rbValue;
-//    bool        ret;
-//
-//    key.Write("acceptedValue");
-//    rbKey.Wrap(key);
-//    rbValue.Wrap(acceptedValue);
-//
-//    ret = paxosShard->Set(rbKey, rbValue);
-//}
-
 void QuorumDatabase::GetAcceptedValue(uint64_t paxosID, Buffer& value)
 {
     Buffer      key;
@@ -143,21 +111,11 @@ void QuorumDatabase::SetAcceptedValue(uint64_t paxosID, ReadBuffer value)
 {
     Buffer      key;
     ReadBuffer  rbKey;
-    uint64_t    oldPaxosID;
 
     key.Writef("accepted:%021U", paxosID);
     rbKey.Wrap(key);
 
     logShard->Set(rbKey, value);
-
-    oldPaxosID = paxosID - logCacheSize;
-    if (paxosID >= logCacheSize)
-    {
-        key.Writef("accepted:%021U", oldPaxosID);
-        rbKey.Wrap(key);
-
-        logShard->Delete(rbKey);
-    }
 }
 
 bool QuorumDatabase::IsActive()

@@ -501,6 +501,9 @@ void StorageRecovery::ExecuteSet(
     if (shard == NULL)
         return; // shard was deleted
     
+    if (shard->IsLogStorage())
+        goto Execute;
+    
     if (shard->logSegmentID > logSegmentID)
         return; // shard was deleted and re-created
     
@@ -512,7 +515,9 @@ void StorageRecovery::ExecuteSet(
 
     if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID >= logCommandID)
         return; // this command is already present in a file chunk
-        
+
+
+Execute:
     memoChunk = shard->GetMemoChunk();
     assert(memoChunk != NULL);
     if (!memoChunk->Set(key, value))
@@ -532,6 +537,9 @@ void StorageRecovery::ExecuteDelete(
     shard  = env->GetShard(contextID, shardID);
     if (shard == NULL)
         return; // shard was deleted
+
+    if (shard->IsLogStorage())
+        ASSERT_FAIL();
     
     if (shard->logSegmentID > logSegmentID)
         return; // shard was deleted and re-created

@@ -379,6 +379,13 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
 
     memoChunk = shard->GetMemoChunk();
     assert(memoChunk != NULL);
+    
+    if (shard->IsLogStorage())
+    {
+        while (memoChunk->GetSize() > config.chunkSize)
+            memoChunk->RemoveFirst();
+    }
+    
     if (!memoChunk->Set(key, value))
     {
         headLogSegment->Undo();
@@ -396,9 +403,6 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     int32_t             logCommandID;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
-    StorageChunk*       oldest;
-    StorageFileChunk*   itFileChunk;
-    StorageJob*         job;
 
     if (commitThreadActive)
     {
@@ -430,28 +434,9 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
 
 //        haveUncommitedWrites = true;
     }
-    else if (shard->GetChunks().First())
+    else
     {
-        oldest = *shard->GetChunks().First();
-        if (oldest->GetChunkState() == StorageChunk::Written)
-        {
-            if (ReadBuffer::LessThan(oldest->GetLastKey(), key))
-            {
-                ((StorageFileChunk*) oldest)->RemovePagesFromCache();
-                shard->GetChunks().Remove(oldest);
-                FOREACH(itFileChunk, fileChunks)
-                {
-                    if (itFileChunk == (StorageFileChunk*) oldest)
-                    {
-                        fileChunks.Remove((StorageFileChunk*) oldest);
-                        break;
-                    }
-                }
-                WriteTOC();
-                job = new StorageDeleteFileChunkJob((StorageFileChunk*) oldest);
-                StartJob(writerThread, job);
-            }
-        }
+        ASSERT_FAIL();
     }
     
     return true;
@@ -942,6 +927,9 @@ void StorageEnvironment::TrySerializeChunks()
 
     FOREACH (itShard, shards)
     {
+        if (itShard->IsLogStorage())
+            continue; // never serialize log storage shards
+        
         memoChunk = itShard->GetMemoChunk();
         
         if (memoChunk->haveUncommitedWrites)
@@ -1077,6 +1065,8 @@ void StorageEnvironment::TryArchiveLogSegments()
     logSegmentID = logSegment->GetLogSegmentID();
     FOREACH (itShard, shards)
     {
+        if (itShard->IsLogStorage())
+            continue; // log storage shards never hinder log segment archival
         memoChunk = itShard->GetMemoChunk();
         if (memoChunk->GetMinLogSegmentID() > 0 && memoChunk->GetMinLogSegmentID() <= logSegmentID)
             archive = false;
