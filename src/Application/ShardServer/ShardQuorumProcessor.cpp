@@ -543,7 +543,7 @@ void ShardQuorumProcessor::TryAppend()
                 break;
         }
         
-        Log_Debug("numMessages = %u", numMessages);
+//        Log_Debug("numMessages = %u", numMessages);
                 
         assert(uncompressed.GetLength() > 0);
 

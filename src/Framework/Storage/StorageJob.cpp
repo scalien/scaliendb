@@ -18,11 +18,11 @@ void StorageCommitJob::Execute()
 {
     Stopwatch 	sw;
     
-    Log_Debug("Async commit started");
+//    Log_Debug("Async commit started");
     sw.Start();
     logSegment->Commit();
     sw.Stop();
-    Log_Debug("Async commit finished, elapsed: %U", (uint64_t) sw.Elapsed());
+//    Log_Debug("Async commit finished, elapsed: %U", (uint64_t) sw.Elapsed());
 
     Callable* c = onComplete;
     delete this;
