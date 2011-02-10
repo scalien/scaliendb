@@ -209,6 +209,12 @@ StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpre
     
     kvIndex = (StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer();
     
+    if (key.GetLength() == 0)
+    {
+        cmpres = -1;
+        return GetIndexedKeyValue(0);
+    }
+    
     first = 0;
     last = numKeys - 1;
     while (first <= last)
