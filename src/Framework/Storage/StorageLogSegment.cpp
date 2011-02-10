@@ -203,7 +203,6 @@ void StorageLogSegment::Commit()
     
 //    Log_Debug("Commit");
 
-    sw.Start();    
 /*
     if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
     {
@@ -233,13 +232,8 @@ void StorageLogSegment::Commit()
 
     offset += length;
 
-    sw.Stop();
-    Log_DebugLong(sw, "log segment Commit took %U msec, length: %u", (uint64_t) sw.Elapsed(), length);
-
     FS_Sync(fd);
     
-    Log_DebugLong(sw, "log segment Sync took %U msec", (uint64_t) sw.Elapsed());
-
     NewRound();
     
     if (asyncCommit)
