@@ -226,7 +226,11 @@ StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpre
             return kvIndex[mid];
         
         if (cmpres < 0)
+        {
+            if (mid == 0)
+                break;  // not found
             last = mid - 1;
+        }
         else 
             first = mid + 1;
     }
