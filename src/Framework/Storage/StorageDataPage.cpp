@@ -200,13 +200,18 @@ StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpre
     StorageFileKeyValue**   kvIndex;
     unsigned                first;
     unsigned                last;
+    unsigned                numKeys;
     unsigned                mid;
+
+    numKeys = GetNumKeys();
+    if (numKeys == 0)
+        return NULL;
     
     kvIndex = (StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer();
     
     first = 0;
-    last = GetNumKeys() - 1;
-    while (first <= last)
+    last = numKeys - 1;
+    while (first < last)
     {
         mid = first + ((last - first) / 2);
         cmpres = ReadBuffer::Cmp(key, kvIndex[mid]->GetKey());
