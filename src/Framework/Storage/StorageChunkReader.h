@@ -8,7 +8,7 @@ class StorageChunkReader
 public:
     void                    Open(ReadBuffer filename, uint64_t preloadThreshold);
 
-    StorageFileKeyValue*    First();
+    StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
 
     uint64_t                GetNumKeys();
@@ -20,7 +20,7 @@ private:
     void                    PreloadDataPages();
 
     StorageFileChunk        fileChunk;
-    uint64_t                offset;
+    uint32_t                offset;
     uint32_t                index;
     uint32_t                prevIndex;
     uint32_t                preloadIndex;
