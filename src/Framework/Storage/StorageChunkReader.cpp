@@ -12,15 +12,31 @@ void StorageChunkReader::Open(ReadBuffer filename, uint64_t preloadThreshold_)
     preloadThreshold = preloadThreshold_;
 }
 
-StorageFileKeyValue* StorageChunkReader::First()
+StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
 {
-    index = 0;
+    bool                    ret;
+    int                     cmpres;
+    StorageFileKeyValue*    it;
+    
     prevIndex = 0;
-    offset = STORAGE_HEADER_PAGE_SIZE;
+    
+    if (ReadBuffer::Cmp(firstKey, fileChunk.indexPage->GetFirstKey()) < 0)
+    {
+        index = 0;
+        offset = STORAGE_HEADER_PAGE_SIZE;
+    }
+    else
+    {
+        ret = fileChunk.indexPage->Locate(firstKey, index, offset);
+        ASSERT(ret);
+    }
     
     PreloadDataPages();
-    
-    return fileChunk.dataPages[index]->First();
+    it = fileChunk.dataPages[index]->LocateKeyValue(firstKey, cmpres);
+    if (cmpres > 0)
+        return fileChunk.dataPages[index]->Next(it);
+
+    return it;
 }
 
 StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)

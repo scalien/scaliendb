@@ -51,7 +51,7 @@ bool StorageChunkMerger::Merge(
     // set up iterators
     iterators = new StorageFileKeyValue*[numReaders];
     for (i = 0; i < numReaders; i++)
-        iterators[i] = readers[i].First();
+        iterators[i] = readers[i].First(firstKey);
     
     // open writer
     if (fd.Open(mergeChunk->GetFilename().GetBuffer(), FS_CREATE | FS_READWRITE | FS_DIRECT) == INVALID_FD)
@@ -192,7 +192,7 @@ bool StorageChunkMerger::WriteHeaderPage()
     return true;
 }
 
-bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
+bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer lastKey)
 {
     typedef PointerGuard<StorageDataPage>   StorageDataPageGuard;
     
@@ -201,14 +201,12 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
     StorageFileKeyValue*    it;
     StorageDataPage*        dataPage;
     StorageDataPageGuard    dataPageGuard;
-    uint64_t                numit1, numit2;
     ReadBuffer              key;
 
     // TODO: it is counted in Merge(), why count it again?
     numKeys = 0;
 
     nit = 0;
-    numit1 = numit2 = 0;
     index = 0;
     dataPage = new StorageDataPage(mergeChunk, index);
     dataPage->SetOffset(offset);
@@ -230,7 +228,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer firstKey, ReadBuffer lastKey)
             MSleep(YIELD_TIME);
         }
 
-        it = Next(firstKey, lastKey);
+        it = Next(lastKey);
         if (it == NULL)
             break;
     
@@ -342,25 +340,7 @@ bool StorageChunkMerger::IsDone()
     return false;
 }
 
-StorageFileKeyValue* StorageChunkMerger::SkipNonMergeable(
- StorageChunkReader* reader, 
- StorageFileKeyValue* it,
- ReadBuffer& firstKey,
- ReadBuffer& lastKey)
-{
-    while (!RangeContains(firstKey, lastKey, it->GetKey()))
-    {
-        it = reader->Next(it);
-        if (it == NULL)
-            return NULL;
-    }
-    
-    return it;
-}
-
-StorageFileKeyValue* StorageChunkMerger::Next(
- ReadBuffer& firstKey, 
- ReadBuffer& lastKey)
+StorageFileKeyValue* StorageChunkMerger::Next(ReadBuffer& lastKey)
 {
     unsigned                i;
     unsigned                smallest;
@@ -373,15 +353,17 @@ Restart:
     smallest = 0;
 
     // readers are sorted by chunkID in increasing order
-    // (chunks that are created later has higer ID)
+    // (chunks that are created later has higher ID)
     for (i = 0; i < numReaders; i++)
     {
         if (iterators[i] != NULL) 
         {
-            // skip keys that are not in the merged interval
-            iterators[i] = SkipNonMergeable(&readers[i], iterators[i], firstKey, lastKey);
-            if (iterators[i] == NULL)
+            // check that keys are still in the merged interval
+            if (ReadBuffer::Cmp(it->GetKey(), lastKey) >= 0)
+            {
+                iterators[i] = NULL;
                 continue;
+            }
             
             // in case of key equality, the reader with the highest chunkID wins
             if (it != NULL && ReadBuffer::Cmp(iterators[i]->GetKey(), key) == 0)

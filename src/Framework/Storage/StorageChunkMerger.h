@@ -45,9 +45,7 @@ private:
     bool                    WriteBloomPage();
     
     bool                    IsDone();
-    StorageFileKeyValue*    SkipNonMergeable(StorageChunkReader* reader, StorageFileKeyValue* it,
-                             ReadBuffer& firstKey, ReadBuffer& lastKey);
-    StorageFileKeyValue*    Next(ReadBuffer& firstKey, ReadBuffer& lastKey);
+    StorageFileKeyValue*    Next(ReadBuffer& lastKey);
 
     FDGuard                 fd;
     Buffer                  writeBuffer;

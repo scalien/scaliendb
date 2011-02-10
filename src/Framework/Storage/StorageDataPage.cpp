@@ -48,34 +48,6 @@ StorageKeyValue* StorageDataPage::Get(ReadBuffer& key)
     return it;
 }
 
-StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpres)
-{
-    StorageFileKeyValue**   kvIndex;
-    unsigned                first;
-    unsigned                last;
-    unsigned                mid;
-    
-    kvIndex = (StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer();
-    
-    first = 0;
-    last = GetNumKeys() - 1;
-    while (first <= last)
-    {
-        mid = first + ((last - first) / 2);
-        cmpres = ReadBuffer::Cmp(key, kvIndex[mid]->GetKey());
-        if (cmpres == 0)
-            return kvIndex[mid];
-        
-        if (cmpres < 0)
-            last = mid - 1;
-        else 
-            first = mid + 1;
-    }
-    
-    // not found
-    return NULL;
-}
-
 uint32_t StorageDataPage::GetNumKeys()
 {
     return keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*);
@@ -216,6 +188,46 @@ StorageFileKeyValue* StorageDataPage::Next(StorageFileKeyValue* it)
     return GetIndexedKeyValue(it->GetNextIndex());
 }
 
+StorageFileKeyValue* StorageDataPage::GetIndexedKeyValue(unsigned index)
+{
+    if (index >= (keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*)))
+        return NULL;
+    return ((StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer())[index];
+}
+
+StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpres)
+{
+    StorageFileKeyValue**   kvIndex;
+    unsigned                first;
+    unsigned                last;
+    unsigned                numKeys;
+    unsigned                mid;
+
+    numKeys = GetNumKeys();
+    if (numKeys == 0)
+        return NULL;
+    
+    kvIndex = (StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer();
+    
+    first = 0;
+    last = numKeys - 1;
+    while (first <= last)
+    {
+        mid = first + ((last - first) / 2);
+        cmpres = ReadBuffer::Cmp(key, kvIndex[mid]->GetKey());
+        if (cmpres == 0)
+            return kvIndex[mid];
+        
+        if (cmpres < 0)
+            last = mid - 1;
+        else 
+            first = mid + 1;
+    }
+    
+    // not found
+    return NULL;
+}
+
 bool StorageDataPage::Read(Buffer& buffer_)
 {
     char                    type;
@@ -319,11 +331,4 @@ void StorageDataPage::AppendKeyValue(StorageFileKeyValue* kv)
 {
     keyValueIndexBuffer.Append((const char*) &kv, sizeof(StorageFileKeyValue*));
     kv->SetNextIndex(keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*));
-}
-
-StorageFileKeyValue* StorageDataPage::GetIndexedKeyValue(unsigned index)
-{
-    if (index >= (keyValueIndexBuffer.GetLength() / sizeof(StorageFileKeyValue*)))
-        return NULL;
-    return ((StorageFileKeyValue**) keyValueIndexBuffer.GetBuffer())[index];
 }
