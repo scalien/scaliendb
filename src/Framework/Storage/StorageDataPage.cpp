@@ -211,7 +211,7 @@ StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpre
     
     first = 0;
     last = numKeys - 1;
-    while (first < last)
+    while (first <= last)
     {
         mid = first + ((last - first) / 2);
         cmpres = ReadBuffer::Cmp(key, kvIndex[mid]->GetKey());
