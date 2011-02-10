@@ -1,4 +1,5 @@
 #include "ShardQuorumProcessor.h"
+#include "System/Compress/Compressor.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/DatabaseConsts.h"
 #include "Application/Common/ContextTransport.h"
@@ -121,9 +122,18 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
 
 void ShardQuorumProcessor::OnAppend(uint64_t paxosID_, ReadBuffer& value_, bool ownAppend_)
 {
+    int         read;
+    uint64_t    uncompressedLength;
+    Compressor  compressor;
+    
     paxosID = paxosID_;
     commandID = 0;
-    valueBuffer.Write(value_);
+    
+    read = value_.Readf("%U:", &uncompressedLength);
+    assert(read > 1);
+    value_.Advance(read);
+    assert(compressor.Uncompress(value_, valueBuffer, uncompressedLength));
+    
     value.Wrap(valueBuffer);
     ownAppend = ownAppend_;
 
@@ -488,10 +498,13 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
 
 void ShardQuorumProcessor::TryAppend()
 {
-    Buffer          singleBuffer;
-    ShardMessage*   it;
     bool            first;
     unsigned        numMessages;
+    Buffer          singleBuffer;
+    Buffer          uncompressed;
+    Buffer          compressed;
+    ShardMessage*   it;
+    Compressor      compressor;
         
     if (shardMessages.GetLength() == 0)
         return;
@@ -506,8 +519,6 @@ void ShardQuorumProcessor::TryAppend()
     
     if (!quorumContext.IsAppending() && shardMessages.GetLength() > 0)
     {
-        Buffer& value = quorumContext.GetNextValue();        
-        
         first = true;
         FOREACH(it, shardMessages)
         {
@@ -520,9 +531,9 @@ void ShardQuorumProcessor::TryAppend()
 
             singleBuffer.Clear();
             it->Write(singleBuffer);
-            if (value.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_REPLICATION_SIZE)
+            if (uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
             {
-                value.Appendf("%B", &singleBuffer);
+                uncompressed.Appendf("%B", &singleBuffer);
                 numMessages++;
                 // make sure split shard messages are replicated by themselves
                 if (it->type == SHARDMESSAGE_SPLIT_SHARD)
@@ -533,8 +544,12 @@ void ShardQuorumProcessor::TryAppend()
         }
         
         Log_Debug("numMessages = %u", numMessages);
-        
-        assert(value.GetLength() > 0);
+                
+        assert(uncompressed.GetLength() > 0);
+
+        assert(compressor.Compress(uncompressed, compressed));
+
+        quorumContext.GetNextValue().Writef("%U:%B", uncompressed.GetLength(), &compressed);
         
         quorumContext.Append();
     }

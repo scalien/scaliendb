@@ -5,7 +5,7 @@
 #include "System/Events/Callable.h"
 #include "System/IO/FD.h"
 
-#define STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE      (4+4) // size + CRC
+#define STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE      (4+4+4) // size + uncomressedLength + CRC
 #define STORAGE_LOGSEGMENT_COMMAND_SET          's'
 #define STORAGE_LOGSEGMENT_COMMAND_DELETE       'd'
 

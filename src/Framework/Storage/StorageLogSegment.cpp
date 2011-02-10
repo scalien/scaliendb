@@ -2,6 +2,7 @@
 #include "System/FileSystem.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Stopwatch.h"
+#include "System/Compress/Compressor.h"
 
 StorageLogSegment::StorageLogSegment()
 {
@@ -167,7 +168,8 @@ void StorageLogSegment::Commit()
     uint32_t    length;
     uint32_t    checksum;
     ReadBuffer  dataPart;
-    Stopwatch	sw;
+    Buffer      compressed;
+    Compressor  compressor;
     
     commitStatus = true;
 
@@ -185,10 +187,19 @@ void StorageLogSegment::Commit()
 //    checksum = dataPart.GetChecksum();
     checksum = 0;
     
+    assert(compressor.Compress(dataPart, compressed));
+
+//    Log_Debug("uncompressed = %s, compressed = %s", HUMAN_BYTES(dataPart.GetLength()),
+//     HUMAN_BYTES(compressed.GetLength()));
+
+    length = STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE + compressed.GetLength();
+    
     writeBuffer.SetLength(0);
     writeBuffer.AppendLittle32(length);
+    writeBuffer.AppendLittle32(dataPart.GetLength());
     writeBuffer.AppendLittle32(checksum);
-    writeBuffer.SetLength(length);
+    writeBuffer.SetLength(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+    writeBuffer.Append(compressed);
     
 //    Log_Debug("Commit");
 
@@ -254,6 +265,7 @@ void StorageLogSegment::NewRound()
 {
     // reserve:
     // 4 bytes for size
+    // 4 bytes for uncompressedLength
     // 4 bytes for CRC
     writeBuffer.Allocate(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     writeBuffer.Zero();

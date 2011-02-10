@@ -3,6 +3,7 @@
 #include "StorageEnvironment.h"
 #include "FDGuard.h"
 #include "PointerGuard.h"
+#include "System/Compress/Compressor.h"
 
 static bool LessThan(const Buffer* a, const Buffer* b)
 {
@@ -300,6 +301,10 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     Buffer              buffer;
     FDGuard             fd;
     StorageLogSegment*  logSegment;
+    int                 lzoRet;
+    Buffer              uncompressed;
+    Compressor          compressor;
+    uint32_t            uncompressedLength;
     
     Log_Message("Replaying log segment %B...", &filename);
     
@@ -345,16 +350,24 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
         if (FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest) != rest)
             break;
         buffer.SetLength(size);
+     
+        parse.Wrap(buffer.GetBuffer() + 4, 8);
+        if (!parse.ReadLittle32(uncompressedLength))
+            break;
+        parse.Advance(4);
         
-        parse.Wrap(buffer.GetBuffer() + 4, 4);
         if (!parse.ReadLittle32(checksum))
             break;
-//        dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+        dataPart.Wrap(buffer.GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE,
+         buffer.GetLength() - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+
+        assert(compressor.Uncompress(dataPart, uncompressed, uncompressedLength));
+
 //        compChecksum = dataPart.GetChecksum();
 //        if (checksum != compChecksum)
 //            break;
-        
-        parse.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+
+        parse.Wrap(uncompressed);
         while (parse.GetLength() > 0)
         {            
             if (parse.GetLength() < 1)
@@ -496,10 +509,13 @@ void StorageRecovery::ExecuteSet(
 {
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
-    
+
     shard  = env->GetShard(contextID, shardID);
     if (shard == NULL)
         return; // shard was deleted
+    
+    if (shard->IsLogStorage())
+        goto Execute;
     
     if (shard->logSegmentID > logSegmentID)
         return; // shard was deleted and re-created
@@ -512,7 +528,9 @@ void StorageRecovery::ExecuteSet(
 
     if (shard->recoveryLogSegmentID == logSegmentID && shard->recoveryLogCommandID >= logCommandID)
         return; // this command is already present in a file chunk
-        
+
+
+Execute:
     memoChunk = shard->GetMemoChunk();
     assert(memoChunk != NULL);
     if (!memoChunk->Set(key, value))
@@ -532,6 +550,9 @@ void StorageRecovery::ExecuteDelete(
     shard  = env->GetShard(contextID, shardID);
     if (shard == NULL)
         return; // shard was deleted
+
+    if (shard->IsLogStorage())
+        ASSERT_FAIL();
     
     if (shard->logSegmentID > logSegmentID)
         return; // shard was deleted and re-created

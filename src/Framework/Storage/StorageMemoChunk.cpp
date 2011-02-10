@@ -271,3 +271,14 @@ StorageFileChunk* StorageMemoChunk::RemoveFileChunk()
     fileChunk = NULL;
     return ret;
 }
+
+void StorageMemoChunk::RemoveFirst()
+{
+    StorageMemoKeyValue* first;
+    
+    first = keyValues.First();
+    size -= first->GetLength();
+    keyValues.Remove(first);
+    delete first;
+}
+

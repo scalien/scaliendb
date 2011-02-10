@@ -102,6 +102,8 @@
 		546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
+		5485BC1F13043142004C2469 /* minilzo.c in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC1D13043142004C2469 /* minilzo.c */; };
+		5485BC2C130431A5004C2469 /* Compressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC2B130431A5004C2469 /* Compressor.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
 		5499B82E12D72EB000ECEF7F /* BloomFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5499B82C12D72EB000ECEF7F /* BloomFilter.cpp */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
@@ -437,6 +439,12 @@
 		546E255111EF5CF700867EE1 /* ReadBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadBuffer.h; sourceTree = "<group>"; };
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
+		5485BC1B13043142004C2469 /* lzoconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzoconf.h; sourceTree = "<group>"; };
+		5485BC1C13043142004C2469 /* lzodefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzodefs.h; sourceTree = "<group>"; };
+		5485BC1D13043142004C2469 /* minilzo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = minilzo.c; sourceTree = "<group>"; };
+		5485BC1E13043142004C2469 /* minilzo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = minilzo.h; sourceTree = "<group>"; };
+		5485BC2A130431A5004C2469 /* Compressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compressor.h; sourceTree = "<group>"; };
+		5485BC2B130431A5004C2469 /* Compressor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Compressor.cpp; sourceTree = "<group>"; };
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
 		548F509E12157A050035ADDB /* Formatting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Formatting.h; sourceTree = "<group>"; };
 		548F509F12157A050035ADDB /* Formatting.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Formatting.cpp; sourceTree = "<group>"; };
@@ -988,6 +996,19 @@
 			path = Buffers;
 			sourceTree = "<group>";
 		};
+		5485BC1A13043142004C2469 /* Compress */ = {
+			isa = PBXGroup;
+			children = (
+				5485BC1B13043142004C2469 /* lzoconf.h */,
+				5485BC1C13043142004C2469 /* lzodefs.h */,
+				5485BC1D13043142004C2469 /* minilzo.c */,
+				5485BC1E13043142004C2469 /* minilzo.h */,
+				5485BC2A130431A5004C2469 /* Compressor.h */,
+				5485BC2B130431A5004C2469 /* Compressor.cpp */,
+			);
+			path = Compress;
+			sourceTree = "<group>";
+		};
 		54B7F74111BE5EF30076BC62 /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -1005,6 +1026,7 @@
 		54B7F74211BE5EF30076BC62 /* System */ = {
 			isa = PBXGroup;
 			children = (
+				5485BC1A13043142004C2469 /* Compress */,
 				546E254B11EF5CF700867EE1 /* Buffers */,
 				54B7F74811BE5EF30076BC62 /* Containers */,
 				54B7F74D11BE5EF30076BC62 /* Events */,
@@ -1364,6 +1386,8 @@
 				54E59F3B12E5AD20002222A4 /* ShardCatchupReader.cpp in Sources */,
 				9AD5E46012EDD62000F4AF7B /* Mutex_Posix.cpp in Sources */,
 				9AD5EA9112F70C4700F4AF7B /* StorageAsyncGet.cpp in Sources */,
+				5485BC1F13043142004C2469 /* minilzo.c in Sources */,
+				5485BC2C130431A5004C2469 /* Compressor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

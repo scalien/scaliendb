@@ -47,6 +47,7 @@ public:
     uint32_t            GetNumDataPages();
 
     bool                Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset);
+    ReadBuffer          GetFirstKey();
     ReadBuffer          GetMidpoint();
 
     void                Append(ReadBuffer key, uint32_t index, uint32_t offset);

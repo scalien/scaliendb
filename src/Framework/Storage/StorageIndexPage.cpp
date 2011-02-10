@@ -68,6 +68,11 @@ bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset
     return true;
 }
 
+ReadBuffer StorageIndexPage::GetFirstKey()
+{
+    return indexTree.First()->key;
+}
+
 ReadBuffer StorageIndexPage::GetMidpoint()
 {
     return indexTree.Mid()->key;

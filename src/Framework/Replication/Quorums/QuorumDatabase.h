@@ -6,10 +6,7 @@
 #include "System/Events/Callable.h"
 #include "Framework/Storage/StorageShardProxy.h"
 
-#define RLOG_CACHE_SIZE     100*1000
-#define RLOG_REACTIVATION_DIFF  1*1000
-//#define RLOG_CACHE_SIZE         10
-//#define RLOG_REACTIVATION_DIFF  3
+#define RLOG_REACTIVATION_DIFF                  1000
 
 #define QUORUM_DATABASE_SYSTEM_CONTEXT          1
 #define QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT    2
@@ -44,9 +41,6 @@ public:
     uint64_t            GetAcceptedRunID();
     void                SetAcceptedRunID(uint64_t acceptedRunID);
 
-    //void                GetAcceptedValue(Buffer& acceptedValue);
-    //void                SetAcceptedValue(Buffer& acceptedValue);
-
     void                GetAcceptedValue(uint64_t paxosID, Buffer& value);
     void                SetAcceptedValue(uint64_t paxosID, ReadBuffer value);
 
@@ -63,7 +57,6 @@ private:
     StorageShardProxy*  logShard;
     uint16_t            contextID;
     uint64_t            shardID;
-    uint64_t            logCacheSize;
 };
 
 #endif

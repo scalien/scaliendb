@@ -58,6 +58,8 @@ public:
     ReadBuffer          GetMidpoint();
     
     StorageFileChunk*   RemoveFileChunk();
+
+    void                RemoveFirst(); // for logstorage
         
 private:
     bool                serialized;
