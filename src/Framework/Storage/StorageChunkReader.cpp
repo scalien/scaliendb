@@ -19,11 +19,17 @@ StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
     StorageFileKeyValue*    it;
     
     prevIndex = 0;
-//    index = 0;
-//    offset = STORAGE_HEADER_PAGE_SIZE;
     
-    ret = fileChunk.indexPage->Locate(firstKey, index, offset);
-    ASSERT(ret);
+    if (ReadBuffer::Cmp(firstKey, fileChunk.indexPage->GetFirstKey()) < 0)
+    {
+        index = 0;
+        offset = STORAGE_HEADER_PAGE_SIZE;
+    }
+    else
+    {
+        ret = fileChunk.indexPage->Locate(firstKey, index, offset);
+        ASSERT(ret);
+    }
     
     PreloadDataPages();
     it = fileChunk.dataPages[index]->LocateKeyValue(firstKey, cmpres);
