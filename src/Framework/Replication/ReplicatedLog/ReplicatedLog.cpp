@@ -324,11 +324,14 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 {
     bool ownAppend;
 
-    Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
-        
-    if (paxosID == (context->GetHighestPaxosID() - 1))
+    if (paxosID < (context->GetHighestPaxosID() - 1))
+    {
+        Log_Debug("Commiting because paxosID < (context->GetHighestPaxosID() - 1)");
+        Log_Debug("paxosID = | context->GetHighestPaxosID() = ",
+         paxosID, context->GetHighestPaxosID());
+        Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
         context->GetDatabase()->Commit();
-
+    }
     NewPaxosRound(); // increments paxosID, clears proposer, acceptor
     
     if (paxosID <= context->GetHighestPaxosID())
