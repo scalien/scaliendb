@@ -13,7 +13,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     quorumProcessor = quorumProcessor_;
     quorumID = configQuorum->quorumID;
   
-    activeNodes = configQuorum->GetVolatileActiveNodes();
+    configQuorum->GetVolatileActiveNodes(activeNodes);
     SetActiveNodes(activeNodes);
 
     transport.SetQuorum(&quorum);

@@ -31,7 +31,7 @@ public:
     bool                    IsInactiveMember(uint64_t nodeID);
     bool                    IsMember(uint64_t nodeID);
 
-    List<uint64_t>          GetVolatileActiveNodes();
+    void                    GetVolatileActiveNodes(List<uint64_t>& activeNodes);
     
     uint64_t                quorumID;
     List<uint64_t>          activeNodes;
