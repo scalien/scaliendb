@@ -512,6 +512,8 @@ FD FS_Open(const char* filename, int flags)
     dwDesiredAccess = 0;
     if ((flags & FS_READONLY) == FS_READONLY)
         dwDesiredAccess = GENERIC_READ;
+    if ((flags & FS_WRITEONLY) == FS_WRITEONLY)
+        dwDesiredAccess = GENERIC_WRITE;
     if ((flags & FS_READWRITE) == FS_READWRITE)
         dwDesiredAccess = GENERIC_READ | GENERIC_WRITE;
     
@@ -724,7 +726,7 @@ FS_Dir FS_OpenDir(const char* filename)
     if (len >= MAX_PATH)
         return FS_INVALID_DIR;
 
-    if (filename[len - 1] == '\\')
+    if (filename[len - 1] == '\\' || filename[len - 1] == '/')
     {
         memcpy(path, filename, len);
         path[len++] = '*';

@@ -101,13 +101,10 @@ bool ConfigQuorum::IsMember(uint64_t nodeID)
     return IsActiveMember(nodeID) || IsInactiveMember(nodeID);
 }
 
-List<uint64_t> ConfigQuorum::GetVolatileActiveNodes()
+void ConfigQuorum::GetVolatileActiveNodes(List<uint64_t>& list)
 {
-    List<uint64_t> list;
-    
+    list.Clear();
     list = activeNodes;
     if (isActivatingNode)
         list.Append(activatingNodeID);
-
-    return list;
 }

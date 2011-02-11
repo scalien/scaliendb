@@ -41,7 +41,7 @@ span.tab-head {
 	-moz-box-shadow: 3px 3px 4px #000;
 	padding: 10px;
 	font-weight: bold;
-	font-family: georgia;
+	font-size: 20;
 }
 
 span.tab-head-inactive {
@@ -52,7 +52,6 @@ span.tab-head-inactive {
 span.tab-head-active {
 	background-color: #EFF5FB;
 	color: #0B0B3B;
-	font-size: 28;
 }
 
 div.tab-page-container {
