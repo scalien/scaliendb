@@ -38,12 +38,16 @@ sent = 0
 value = "%100s" % " "
 i = start
 batch = 10000
+if limit < batch:
+	batch = limit
 while limit == 0 or i < limit:
 	starttime = time.time()
 	client.begin()
 	for x in xrange(batch):
 		#client.set(str(random.randint(1, 1000000000)), value)
-		client.set(md5.new(str(x + i)).hexdigest(), value)
+		key = md5.new(str(x + i)).hexdigest()
+		print(x+i, key)
+		client.set(key, value)
 		sent += len(value)
 	ret = client.submit()
 	if ret != 0:

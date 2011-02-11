@@ -3,6 +3,7 @@
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Compress/Compressor.h"
+#include "Framework/Storage/BloomFilter.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/ConfigServer/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
@@ -34,6 +35,7 @@ int main(int argc, char** argv)
     StartClock();
     IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024));
     InitContextTransport();
+    BloomFilter::StaticInit();
     
     isController = IsController();
     LogPrintVersion(isController);
