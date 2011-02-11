@@ -130,7 +130,7 @@ void HTTPConnection::Response(int code, const char* data,
 {   
     Buffer*     buffer;
     unsigned    size;
-
+    
     Log_Message("[%s] HTTP: %.*s %.*s %d %d", endpoint.ToString(),
                 request.line.method.GetLength(), request.line.method.GetBuffer(), 
                 request.line.uri.GetLength(), request.line.uri.GetBuffer(),
@@ -162,11 +162,14 @@ void HTTPConnection::ResponseHeader(int code, bool close, const char* header)
 {
     Buffer*     buffer;
 
-    Log_Message("[%s] HTTP: %.*s %.*s %d ?",
-                endpoint.ToString(), 
-                request.line.method.GetLength(), request.line.method.GetBuffer(),
-                request.line.uri.GetLength(), request.line.uri.GetBuffer(),
-                code);
+    if (!request.line.uri.BeginsWith("/json/getconfigstate"))
+    {
+        Log_Message("[%s] HTTP: %.*s %.*s %d ?",
+                    endpoint.ToString(), 
+                    request.line.method.GetLength(), request.line.method.GetBuffer(),
+                    request.line.uri.GetLength(), request.line.uri.GetBuffer(),
+                    code);
+    }
 
     buffer = GetWriteBuffer();
     buffer->Writef(
