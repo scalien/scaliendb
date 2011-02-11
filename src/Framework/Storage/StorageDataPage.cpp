@@ -237,8 +237,7 @@ StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpre
     }
     
     // not found
-    cmpres = 0;
-    return NULL;
+    return kvIndex[mid];
 }
 
 bool StorageDataPage::Read(Buffer& buffer_)
