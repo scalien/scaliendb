@@ -5,6 +5,7 @@
 		<link rel="stylesheet" type="text/css" href="createQuorum.css"/>
 		<link rel="stylesheet" type="text/css" href="deleteQuorum.css"/>
 		<link rel="stylesheet" type="text/css" href="addNode.css"/>
+		<link rel="stylesheet" type="text/css" href="removeNode.css"/>
 		<link rel="stylesheet" type="text/css" href="createDatabase.css"/>
 		<link rel="stylesheet" type="text/css" href="createTable.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
@@ -53,6 +54,21 @@
 			<form action="javascript:addNode()">
 			<input id="addNodeShardServer" class="add-node-input" type="text" value="100" /><br/><br/><br/>
 			<button type="submit" class="add-node-button">Add</button>
+			</form>
+		</div>
+		</div>
+		<!-- remove-node -->
+		<div id="removeNodeContainer">
+		<div class="remove-node-overlay"></div>
+		<div class="remove-node-content">
+			<a href="javascript:hideRemoveNode()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="remove-node-welcome">Remove shard server from quroum</span><br/>
+			<br/><br/><br/>
+			<span class="remove-node-shardServer">Shard server:</span><br/><br/>
+			<form action="javascript:removeNode()">
+			<input id="removeNodeShardServer" class="remove-node-input" type="text" value="100" /><br/><br/><br/>
+			<button type="submit" class="remove-node-button">Remove</button>
 			</form>
 		</div>
 		</div>

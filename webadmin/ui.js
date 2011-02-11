@@ -5,6 +5,7 @@ function onLoad()
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
 	scaliendb.util.elem("deleteQuorumContainer").style.display = "none";
 	scaliendb.util.elem("addNodeContainer").style.display = "none";
+	scaliendb.util.elem("removeNodeContainer").style.display = "none";
 	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
@@ -97,6 +98,13 @@ function showAddNode(quorumID)
 	addNodeQuorumID = quorumID;
 }
 
+var removeNodeQuorumID; // TODO: hack global
+function showRemoveNode(quorumID)
+{
+	scaliendb.util.elem("removeNodeContainer").style.display = "block";
+	removeNodeQuorumID = quorumID;
+}
+
 function showCreateDatabase()
 {
 	scaliendb.util.elem("createDatabaseContainer").style.display = "block";
@@ -127,6 +135,12 @@ function hideDeleteQuorum()
 function hideAddNode()
 {
 	scaliendb.util.elem("addNodeContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideRemoveNode()
+{
+	scaliendb.util.elem("removeNodeContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -167,6 +181,16 @@ function addNode()
 	nodeID = scaliendb.util.removeSpaces(nodeID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.addNode(addNodeQuorumID, nodeID);
+}
+
+function removeNode()
+{
+	hideRemoveNode();
+
+	var nodeID = scaliendb.util.elem("removeNodeShardServer").value;
+	nodeID = scaliendb.util.removeSpaces(nodeID);
+	scaliendb.onResponse = onResponse;
+	scaliendb.removeNode(removeNodeQuorumID, nodeID);
 }
 
 function activateNode(quorumID, nodeID)
@@ -403,7 +427,8 @@ function createQuorumDiv(configState, quorum)
 			<td class="table-actions">																	\
 				<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
 				')"><span class="create-button">add server</span></a><br/><br/>									\
-				<span class="modify-button">remove server</span><br/><br/>								\
+				<a class="no-line" href="javascript:showRemoveNode(' + quorum["quorumID"] +
+				')"><span class="modify-button">remove server</span></a><br/><br/>									\
 				<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
 				')"><span class="delete-button">delete quorum</span></a>										\
 			</td>																						\
