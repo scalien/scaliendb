@@ -61,7 +61,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
 {
     Request*    req;
     
-    req = requests.Get<uint64_t>(resp->commandID);
+    req = requests.Get(resp->commandID);
     if (!req)
         return false;
 

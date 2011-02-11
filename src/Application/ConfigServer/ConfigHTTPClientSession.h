@@ -48,6 +48,7 @@ private:
     ClientRequest*      ProcessConfigCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessGetMaster();
     ClientRequest*      ProcessGetState();
+    ClientRequest*      ProcessPollConfigState();
     ClientRequest*      ProcessCreateQuorum();
     ClientRequest*      ProcessDeleteQuorum();
     ClientRequest*      ProcessAddNode();

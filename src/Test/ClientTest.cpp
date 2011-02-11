@@ -141,6 +141,50 @@ TEST_DEFINE(TestClientSet)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientGet)
+{
+    Client          client;
+    Result*         result;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    ReadBuffer      key;
+    char            keybuf[33];
+    int             ret;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(1000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
+    key.Wrap(keybuf, ret);
+    ret = client.Get(key);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    result = client.GetResult();
+    for (result->Begin(); !result->IsEnd(); result->Next())
+    {
+        if (result->CommandStatus() != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+    
+    delete result;
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientBatchedSet)
 {
     Client          client;

@@ -27,7 +27,7 @@ if False:
 	database_id = client.create_database("testdb")
 	client.create_table(database_id, quorum_id, "testtable")
 
-if False:
+if True:
 	database_id = client.get_database_id("testdb")
 	table_id = client.get_table_id(database_id, "testtable")
 	client.truncate_table(table_id)

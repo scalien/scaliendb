@@ -20,7 +20,7 @@ if len(sys.argv) > 1:
 	if len(sys.argv) > 2:
 		start = int(sys.argv[2])
 client = scaliendb.Client(CONTROLLERS)
-client._set_trace(True)
+#client._set_trace(True)
 
 if False:
 	quorum_id = client.create_quorum(["100"])
@@ -51,6 +51,7 @@ while limit == 0 or i < limit:
 		break
 	found = 0
 	for res in client.result:
+		print(res.command_status())
 		if res.command_status() == scaliendb.SDBP_SUCCESS:
 			found += 1
 			print(res.key(), res.value())
