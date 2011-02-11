@@ -1,207 +1,236 @@
 <html>
-<head>
-<link rel="stylesheet" type="text/css" href="index.css" />
-<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
-<script language="javascript" type="text/javascript">
+	<head>
+		<title>ScalienDB Management Console</title>
+		<link rel="stylesheet" type="text/css" href="login.css"/>
+		<link rel="stylesheet" type="text/css" href="createQuorum.css"/>
+		<link rel="stylesheet" type="text/css" href="createDatabase.css"/>
+		<link rel="stylesheet" type="text/css" href="createTable.css"/>
+		<link rel="stylesheet" type="text/css" href="main.css"/>
+		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
+		<script language="javascript" type="text/javascript" src="ui.js"></script>
+	</head>
+	<body onload="onLoad()">
+		<!-- login -->
+		<div id="loginContainer">
+		<div class="login-overlay"></div>
+		<div class="login-content">
+			<br/><br/><br/>
+			<span class="login-welcome">Welcome to ScalienDB!</span><br/>
+			<br/><br/><br/>
+			<span class="login-connect">Connect to cluster:</span><br/><br/>
+			<form action="javascript:connect()">
+			<input id="loginCluster" class="login-input" type="text" value="localhost:8080" /><br/><br/><br/>
+			<button type="submit" class="login-button">Connect</button>
+			</form>
+		</div>
+		</div>
+		<!-- create-quorum -->
+		<div id="createQuorumContainer">
+		<div class="create-quorum-overlay"></div>
+		<div class="create-quorum-content">
+			<a href="javascript:hideCreateQuorum()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="create-quorum-welcome">Create new quorum</span><br/>
+			<br/><br/><br/>
+			<span class="create-quorum-shardServers">Shard server list:</span><br/><br/>
+			<form action="javascript:createQuorum()">
+			<input id="createQuorumShardServers" class="create-quorum-input" type="text" value="100, 101, 102" /><br/><br/><br/>
+			<button type="submit" class="create-quorum-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- create-quorum -->
+		<div id="createDatabaseContainer">
+		<div class="create-database-overlay"></div>
+		<div class="create-database-content">
+			<a href="javascript:hideCreateDatabase()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="create-database-welcome">Create new database</span><br/>
+			<br/><br/><br/>
+			<span class="create-database-name">Name:</span><br/><br/>
+			<form action="javascript:createDatabase()">
+			<input id="createDatabaseName" class="create-database-input" type="text" value="testDatabase" /><br/><br/><br/>
+			<button type="submit" class="create-database-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- create-table -->
+		<div id="createTableContainer">
+		<div class="create-table-overlay"></div>
+		<div class="create-table-content">
+			<a href="javascript:hideCreateTable()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="create-table-welcome">Create new table<br/>in database: <span id="createTableDatabase"></span></span><br/>
+			<br/><br/><br/>
+			<form action="javascript:createTable()">
+			<span class="create-table-name">Name:</span><br/><br/>
+			<input id="createTableName" class="create-table-input" type="text" value="testTable" /><br/><br/><br/>
+			<span class="create-table-quorum">Quorum:</span><br/><br/>
+			<input id="createTableQuorum" class="create-table-input" type="text" value="1" /><br/><br/><br/>
+			<button type="submit" class="create-table-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- main -->
+		<div id="mainContainer">
+			<div class="top-header">
+				<span class="scalien-logo"><img src="scalien_logo.png" /></span>
+				<span class="nav-bar">
+					Connected to <span id="controller">...</span>
+					<a class="no-line" href="javascript:logout()"><span class="refresh-button">logout</span></a>
+				</span>
+			</div>
+			<div class="tab-head-container">
+				<a class="no-line" href="javascript:activateDashboardTab()"><span id="tabHeadDashboard" class="tab-head tab-head-active">Dashboard</span></a>
+				<a class="no-line" href="javascript:activateQuorumsTab()"><span id="tabHeadQuorums" class="tab-head tab-head-inactive">Quorums</span></a>
+				<a class="no-line" href="javascript:activateSchemaTab()"><span id="tabHeadSchema" class="tab-head tab-head-inactive">Schema</span></a>
+				<span class="tab-head tab-head-inactive">Shardservers</span>
+				<a class="no-line" href="javascript:activateShardsTab()"><span id="tabHeadShards" class="tab-head tab-head-inactive">Shards</span></a>
+				<span class="tab-head tab-head-inactive">Log</span>
+				<span class="tab-head tab-head-inactive">Alerts</span>
+				<a class="no-line" href="javascript:activateConsoleTab()"><span id="tabHeadConsole" class="tab-head tab-head-inactive">Console</span></a>
+			</div>
+			<div class="tab-page-container">
+				<!-- dashboard -->
+				<div id="tabPageDashboard" class="tab-page tab-page-active">
+					<br/>
+					<table class="dashboard-icon">
+						<tr>
+							<td><img src="megaphone.png" /></td>
+							<td><span class="status-message">The ScalienDB cluster is healthy</span></td>
+						</tr>
+					</table>
+					<table class="dashboard-icon">
+						<tr>
+							<td><img src="database.png" /></td>
+							<td>
+							There are <b><span id="numDatabases">0</span> databases</b> in the system,
+							with a total of <b><span id="numTables">0</span> tables</b>
+							and <b><span id="numShards">0</span> shards</b>.<br/>
+							<span id="dashboardStats">
+							The smallest database consists of <span id="minTables">0</span> table(s),
+							the largest consists of <span id="maxTables">0</span> table(s),
+							<b>average is <span id="avgTables">0</span> table per database</b>.<br/>
+							The smallest table consists of <span id="minShards">0</span> shard(s),
+							the largest table consists of <span id="maxShards">0</span> shard(s),
+							<b>average is <span id="avgShards">0</span> shard(s) per table</b>.<br/>
+							</span>
+							</td>
+						</tr>
+					</table>
+					<table class="dashboard-icon">
+						<tr>
+							<td><img src="servers.png" /></td>
+							<td>
+							<!-- The cluster is controlled by <b>3 controller node(s)</b>. -->
+							<!-- The <b>master controller is node 0</b>.<br/> -->
+							The cluster contains <b><span id="numShardServers">0</span>
+							shard server(s)</b> in the system, making up a total of
+							<b><span id="numQuorums">0</span> quorum(s)</b>.<br/><br/>
+							List of shard servers:
+							<div class="shard-server-list" id="shardservers">
+								<span class="healthy shardserver-number">0</span>
+							</div>
+							</td>
+						</tr>
+					</table>
+				</div>
 
-function update()
-{
-	var form = scaliendb.util.elem("updateconfigstate_form");
-	var nodes = form.nodes.value;
-	if (nodes !== scaliendb.controller)
-		scaliendb.controller = nodes;
-	updateConfigState();
-}
+				<!-- quorums -->
+				<div id="tabPageQuorums" class="tab-page tab-page-inactive">
+					<span class="listing">Listing quorums - </span><a class="no-line" href="javascript:showCreateQuorum()"><span class="create-button">create new quorum</span></a><br/><br/>
+					<div id="quorums">
+						<div class="quorum healthy">
+							<table class="quorum">
+								<tr>
+									<td class="quorum-head">
+										<span class="quorum-head">quorum 0</span>
+									</td>
+									<td>
+										Shardservers: <span class="primary shardserver-number">0</span><br/>
+										Shards: <span class="shard-number">1</span><br/>
+										Replication round: 0<br/>
+										Size: 0GB
+									</td>
+									<td class="table-actions">
+										<span class="modify-button">add node</span><br/><br/>
+										<span class="modify-button">remove node</span><br/><br/>
+										<span class="delete-button">delete quorum</span>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
 
-function createDatabase()
-{
-	var form = scaliendb.util.elem("createdatabase_form");
-	var name = form.name.value;
-	scaliendb.onResponse = onResponse;
-	scaliendb.createDatabase(name);
-}
+				<!-- schema -->
+				<div id="tabPageSchema" class="tab-page tab-page-inactive">
+					<span class="listing">Listing databases - </span><a class="no-line" href="javascript:showCreateDatabase()"><span class="create-button">create new database</span></a><br/><br/>
+					<div id="databases">
+						<div class="database">
+							<span class="database-head">Listing tables for database	 <b>database</b></span> - <span class="create-button">create new table</span><br/><br/>
+							<div class="table healthy">
+								<table class="table">
+									<tr>
+										<td class="table-head">
+											<span class="table-head">table</span>
+										</td>
+										<td>
+											Shards: <span class="shard-number">1</span><br/>
+											<!-- Mapped quorums: <span class="quorum-number">1</span><br/>
+											Size: 0GB<br/>
+											Replication factor: 0<br/>-->
+										</td>
+										<td class="table-actions">
+											<span class="modify-button">rename table</span><br/><br/>
+											<span class="delete-button">delete table</span>
+										</td>
+									</tr>
+								</table>						
+							</div>
+						</div>
+					</div>
+				</div>				
 
-function createQuorum()
-{
-	var form = scaliendb.util.elem("createquorum_form");
-	var nodes = form.nodes.value;
-	scaliendb.onResponse = onResponse;
-	scaliendb.createQuorum(nodes);
-}
+				<!-- shards -->
+				<div id="tabPageShards" class="tab-page tab-page-inactive">
+					<span class="listing">Listing shards</span><br/><br/>
+					<div id="shards">
+						<div class="shard healthy">
+							<table class="shard">
+								<tr>
+									<td class="shard-head">
+										<span class="shard-head">quorum 0</span>
+									</td>
+									<td>
+										Shardservers: <span class="primary shardserver-number">0</span><br/>
+										Shards: <span class="shard-number">1</span><br/>
+										Replication round: 0<br/>
+										Size: 0GB
+									</td>
+									<td class="table-actions">
+										<span class="modify-button">add node</span><br/><br/>
+										<span class="modify-button">remove node</span><br/><br/>
+										<span class="delete-button">delete quorum</span>
+									</td>
+								</tr>
+							</table>
+						</div>
+					</div>
+				</div>
 
-function createTable()
-{
-	var form = scaliendb.util.elem("createtable_form");
-	var name = form.name.value;
-	var quorumID = form.quorumID.value;
-	var databaseID = form.databaseID.value;
-	scaliendb.onResponse = onResponse;
-	scaliendb.createTable(databaseID, quorumID, name);
-}
+				<!-- schema -->
+				<div id="tabPageConsole" class="tab-page tab-page-inactive">
+					<span class="listing">Console</span><br/><br/>
+					<div id="console">
+						<div class="line">
+							<span class="prompt">&gt; </span>
+							<input class="console-input" type="text" name="input" onkeydown="javascript:consoleOnKeyDown()">
+						</div>
+					</form>
+				</div>				
 
-function onResponse()
-{
-	updateConfigState();
-}
-
-function updateConfigState()
-{
-	scaliendb.getConfigState(onConfigState);
-}
-
-function onConfigState(configState)
-{
-	var config_state = scaliendb.util.elem("config_state");
-	scaliendb.util.removeElement("config_state_content");
-	var config_state_content = document.createElement("div");
-	config_state_content.setAttribute("id", "config_state_content");
-
-	for (var key in configState)
-	{
-		if (key == "quorums")
-			updateQuorums(config_state_content, configState[key]);
-		else if (key == "databases")
-			updateDatabases(config_state_content, configState[key]);
-		else if (key == "tables")
-			updateTables(config_state_content, configState[key]);
-		else if (key == "shards")
-			updateShards(config_state_content, configState[key]);
-		else if (key == "shardServers")
-			updateShardServers(config_state_content, configState[key]);
-	}
-
-	config_state.appendChild(config_state_content);
-}
-
-function updateQuorums(content_div, quorums)
-{
-	var qdiv = document.createElement("div");
-	qdiv.setAttribute("id", "quorums");
-	var innerHTML = "<table><thead><tr><th>QuorumID</th><th>Active nodes</th><th>Inactive nodes</th><th>shards</th></tr></thead>";
-	for (var quorum in quorums)
-	{
-		var q = quorums[quorum];
-		innerHTML += "<tr><td>" + q["quorumID"] + "</td>";
-		innerHTML += "<td>" + q["activeNodes"] + "</td>";
-		innerHTML += "<td>" + q["inactiveNodes"] + "</td>";
-		innerHTML += "<td>" + q["shards"] + "</td></tr>";
-	}
-	qdiv.innerHTML = innerHTML + "</table>";
-	content_div.appendChild(qdiv);
-}
-
-function updateDatabases(content_div, databases)
-{
-	var qdiv = document.createElement("div");
-	qdiv.setAttribute("id", "databases");
-	qdiv.setAttribute("onclick", "javascript:toggleDatabasesTable()");
-	var innerHTML = "<table><thead><tr><th>DatabaseID</th><th>Name</th><th>Tables</th></tr></thead><tbody id='databases_table_body'>";
-	for (var database in databases)
-	{
-		var db = databases[database];
-		innerHTML += "<tr><td>" + db["databaseID"] + "</td>";
-		innerHTML += "<td>" + db["name"] + "</td>";
-		innerHTML += "<td>" + db["tables"] + "</td>";
-	}
-	qdiv.innerHTML = innerHTML + "</tbody></table>";
-	content_div.appendChild(qdiv);
-}
-
-function updateTables(content_div, tables)
-{
-	var qdiv = document.createElement("div");
-	qdiv.setAttribute("id", "tables");
-	var innerHTML = "<table><thead><tr><th>TableID</th><th>DatabaseID</th><th>Name</th><th>Shards</th></tr></thead>";
-	for (var table in tables)
-	{
-		var t = tables[table];
-		innerHTML += "<tr><td>" + t["tableID"] + "</td>";
-		innerHTML += "<td>" + t["databaseID"] + "</td>";
-		innerHTML += "<td>" + t["name"] + "</td>";
-		innerHTML += "<td>" + t["shards"] + "</td>";
-	}
-	qdiv.innerHTML = innerHTML + "</table>";
-	content_div.appendChild(qdiv);
-}
-
-function updateShards(content_div, quorums)
-{
-}
-
-function updateShardServers(content_div, shardServers)
-{
-	var qdiv = document.createElement("div");
-	qdiv.setAttribute("id", "shardServers");
-	var innerHTML = "<table><thead><tr><th scope='col'>NodeID</th><th>Name</th></tr></thead>";
-	for (var shardServer in shardServers)
-	{
-		var s = shardServers[shardServer];
-		innerHTML += "<tr><td>" + s["nodeID"] + "</td>";
-		innerHTML += "<td>" + s["endpoint"] + "</td>";
-	}
-	qdiv.innerHTML = innerHTML + "</table>";
-	content_div.appendChild(qdiv);
-}
-
-function toggleDatabasesTable()
-{
-	var databases_table_body = scaliendb.util.elem("databases_table_body");
-	if (databases_table_body.style.display == "none")
-		databases_table_body.style.display = "block";
-    else
-		databases_table_body.style.display = "none";
-	return false;
-}
-
-function init()
-{
-	var form = scaliendb.util.elem("updateconfigstate_form");
-	form.nodes.value = scaliendb.controller;
-}
-
-</script>
-</head>
-<body onload="javascript:init()">
-<form id="updateconfigstate_form" action="javascript:update()">
-  <table><tr>
-	<td>Controllers:</td>
-	<td><input type="text" name="nodes"></td>
-	<td><button type="submit">Update</button></td>
-  </tr></table>
-</form>
-<form id="createdatabase_form" action="javascript:createDatabase()">
-  <table><tr>
-	<td>Database name:</td>
-	<td><input type="text" name="name"></td>
-	<td><button type="submit">Create database</button></td>
-  </tr></table>
-</form>
-<form id="createquorum_form" action="javascript:createQuorum()">
-  <table><tr>
-	<td>Nodes:</td>
-	<td><input type="text" name="nodes"></td>
-	<td><button type="submit">Create quorum</button></td>
-  </tr></table>
-</form>
-<form id="createtable_form" action="javascript:createTable()">
-  <table><tr>
-	<td>Table name:</td>
-	<td><input type="text" name="name"></td>
-  </tr><tr>
-	<td>QuorumID:</td>
-	<td><input type="text" name="quorumID"></td>
-  </tr><tr>
-	<td>DatabaseID:</td>
-	<td><input type="text" name="databaseID"></td>
-  </tr><tr>
-	<td></td>
-	<td><button type="submit">Create table</button></td>
-  </tr></table>
-</form>
-
-<div id="config_state">
-	<div id="config_state_content">
-	</div>
-</div>
-</body>
+			</div>
+		</div>
+	</body>
 </html>
