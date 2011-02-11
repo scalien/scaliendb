@@ -53,12 +53,14 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         session.Print(response->value);
         break;
     case CLIENTRESPONSE_CONFIG_STATE:
-        if (!last)
+        // HACK
+        if (session.keepAlive)
+            session.keepAlive = false;
+        else if (!last)
         {
-            response->configState.Write(tmp, true);
-            rb.Wrap(tmp);
-            session.Print(rb);
-            configServer->OnClientClose(this);
+            JSONConfigState jsonConfigState(response->configState, session.json);
+            jsonConfigState.Write();
+            session.Flush();
         }
         break;
     case CLIENTRESPONSE_NOSERVICE:
@@ -495,6 +497,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
         return ProcessGetMaster();
     if (HTTP_MATCH_COMMAND(cmd, "getstate"))
         return ProcessGetState();
+    if (HTTP_MATCH_COMMAND(cmd, "pollconfigstate"))
+        return ProcessPollConfigState();
     if (HTTP_MATCH_COMMAND(cmd, "createquorum"))
         return ProcessCreateQuorum();
     if (HTTP_MATCH_COMMAND(cmd, "deletequorum"))
@@ -536,6 +540,19 @@ ClientRequest* ConfigHTTPClientSession::ProcessGetMaster()
 ClientRequest* ConfigHTTPClientSession::ProcessGetState()
 {
     ClientRequest*  request;
+    
+    request = new ClientRequest;
+    request->GetConfigState(0);
+    
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessPollConfigState()
+{
+    ClientRequest*  request;
+    
+    // HACK
+    session.keepAlive = true;
     
     request = new ClientRequest;
     request->GetConfigState(0);

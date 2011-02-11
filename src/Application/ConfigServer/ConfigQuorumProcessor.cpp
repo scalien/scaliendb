@@ -267,13 +267,12 @@ void ConfigQuorumProcessor::UpdateListeners()
     ConfigState*                    configState;
     ClientRequest*                  itRequest;
     ConfigShardServer*              itShardServer;
-    ConfigState::ShardServerList*   shardServers;
     ClusterMessage                  message;
     
     configState = configServer->GetDatabaseManager()->GetConfigState();
     
     // update clients
-    for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.Next(itRequest))
+    FOREACH (itRequest, listenRequests)
     {
         itRequest->response.ConfigStateResponse(*configState);
         itRequest->OnComplete(false);
@@ -281,10 +280,7 @@ void ConfigQuorumProcessor::UpdateListeners()
     
     // update shard servers
     message.SetConfigState(*configState);
-    shardServers = &configState->shardServers;
-    for (itShardServer = shardServers->First(); 
-     itShardServer != NULL; 
-     itShardServer = shardServers->Next(itShardServer))
+    FOREACH (itShardServer, configState->shardServers)
     {
         CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
     }
@@ -319,7 +315,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     assert(requests.GetLength() == 0);
 
     // clear listen requests
-    for (itRequest = listenRequests.First(); itRequest != NULL; itRequest = listenRequests.First())
+    FOREACH (itRequest, listenRequests)
     {
         listenRequests.Remove(itRequest);
         itRequest->response.NoService();

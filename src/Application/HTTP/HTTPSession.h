@@ -69,6 +69,7 @@ public:
     Type                type;
     JSONSession         json;
     bool                headerSent;
+    bool                keepAlive;
 }; 
 
 #endif

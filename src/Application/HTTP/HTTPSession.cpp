@@ -14,6 +14,7 @@ HTTPSession::HTTPSession()
     headerSent = false;
     conn = NULL;
     type = PLAIN;
+    keepAlive = false;
 }
 
 void HTTPSession::SetConnection(HTTPConnection* conn_)
