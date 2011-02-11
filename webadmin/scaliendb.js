@@ -13,6 +13,36 @@ var scaliendb =
 		this.json.rpc(scaliendb.controller, onConfigState, "getconfigstate");
 	},
 
+	createQuorum: function(nodes)
+	{                                                                                 
+		var params = {};
+		params["nodes"] = nodes;
+		this.rpc("createquorum", params);
+	},
+
+	deleteQuorum: function(quorumID)
+	{                                                                                 
+		var params = {};
+		params["quorumID"] = quorumID;
+		this.rpc("deletequorum", params);
+	},
+
+	addNode: function(quorumID, nodeID)
+	{                                                                                 
+		var params = {};
+		params["quorumID"] = quorumID;
+		params["nodeID"] = nodeID;
+		this.rpc("addnode", params);
+	},
+
+	removeNode: function(quorumID, nodeID)
+	{                                                                                 
+		var params = {};
+		params["quorumID"] = quorumID;
+		params["nodeID"] = nodeID;
+		this.rpc("removenode", params);
+	},
+
 	createDatabase: function(name)
 	{ 
 		var params = {};
@@ -34,14 +64,7 @@ var scaliendb =
 		params["databaseID"] = databaseID;
 		this.rpc("deletedatabase", params);
 	},
-	
-	createQuorum: function(nodes)
-	{                                                                                 
-		var params = {};
-		params["nodes"] = nodes;
-		this.rpc("createquorum", params);
-	},
-	
+		
 	createTable: function(databaseID, quorumID, name)
 	{
 		var params = {};

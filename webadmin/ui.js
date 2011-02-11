@@ -3,9 +3,11 @@ function onLoad()
 	scaliendb.util.elem("loginContainer").style.display = "block";
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
+	scaliendb.util.elem("deleteQuorumContainer").style.display = "none";
 	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
+	removeOutline();
 }
 
 function logout()
@@ -80,6 +82,13 @@ function showCreateQuorum()
 	scaliendb.util.elem("createQuorumShardServers").focus();
 }
 
+var deleteQuorumID; // TODO: hack global
+function showDeleteQuorum(quorumID)
+{
+	scaliendb.util.elem("deleteQuorumContainer").style.display = "block";
+	deleteQuorumID = quorumID;
+}
+
 function showCreateDatabase()
 {
 	scaliendb.util.elem("createDatabaseContainer").style.display = "block";
@@ -98,6 +107,12 @@ function showCreateTable(databaseID, databaseName)
 function hideCreateQuorum()
 {
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideDeleteQuorum()
+{
+	scaliendb.util.elem("deleteQuorumContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -121,6 +136,13 @@ function createQuorum()
 	nodes = scaliendb.util.removeSpaces(nodes);
 	scaliendb.onResponse = onResponse;
 	scaliendb.createQuorum(nodes);
+}
+
+function deleteQuorum()
+{
+	hideDeleteQuorum();
+	scaliendb.onResponse = onResponse;
+	scaliendb.deleteQuorum(deleteQuorumID);
 }
 
 function createDatabase()
@@ -351,7 +373,8 @@ function createQuorumDiv(configState, quorum)
 			<td class="table-actions">																	\
 				<span class="create-button">add node</span><br/><br/>									\
 				<span class="modify-button">remove node</span><br/><br/>								\
-				<span class="delete-button">delete quorum</span>										\
+				<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
+				')"><span class="delete-button">delete quorum</span></a>										\
 			</td>																						\
 		</tr>																							\
 	</table>																							\
@@ -385,8 +408,7 @@ function createDatabaseDiv(configState, database)
 	'																									\
 	<span class="database-head">Listing tables for database	 <b>' + database["name"] + '</b></span>		\
 	 - <a class="no-line" href="javascript:showCreateTable(\''
-	 + database["databaseID"] + '\', \'' + database["name"] + 
-	'\')">																								\
+	 + database["databaseID"] + '\', \'' + database["name"] + '\')">																								\
 	<span class="create-button">create new table</span></a><br/><br/>									\
 	';
 	var div = document.createElement("div");
@@ -450,7 +472,7 @@ function createTableDiv(configState, table)
 	
 	html += 
 	'																									\
-					<!--Size: 34GB--><br/>															\
+					<br/>															\
 					Replication factor: ' + rfactor + '<br/>											\
 				</td>																					\
 				<td class="table-actions">																\
@@ -591,4 +613,13 @@ function consoleOnKeyDown(e)
 	{
 		alert("Enter pressed");
 	}
+}
+
+function removeOutline()
+{
+	var links = document.getElementsByTagName("a");
+ 	for( i=0; i < links.length; i++)
+ 	{
+ 		links[i].onfocus = links[i].blur;
+ 	}
 }

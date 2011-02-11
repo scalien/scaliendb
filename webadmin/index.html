@@ -3,6 +3,7 @@
 		<title>ScalienDB Management Console</title>
 		<link rel="stylesheet" type="text/css" href="login.css"/>
 		<link rel="stylesheet" type="text/css" href="createQuorum.css"/>
+		<link rel="stylesheet" type="text/css" href="deleteQuorum.css"/>
 		<link rel="stylesheet" type="text/css" href="createDatabase.css"/>
 		<link rel="stylesheet" type="text/css" href="createTable.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
@@ -39,7 +40,21 @@
 			</form>
 		</div>
 		</div>
-		<!-- create-quorum -->
+		<!-- delete-quorum -->
+		<div id="deleteQuorumContainer">
+		<div class="delete-quorum-overlay"></div>
+		<div class="delete-quorum-content">
+			<a href="javascript:hideDeleteQuorum()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="delete-quorum-welcome">Delete quorum</span><br/>
+			<br/><br/><br/>
+			<span class="delete-quorum-question">Are you sure you want to delete the quorum?</span><br/><br/><br/><br/>
+			<form action="javascript:deleteQuorum()">
+			<button type="submit" class="delete-quorum-button">Delete</button>
+			</form>
+		</div>
+		</div>
+		<!-- create-database -->
 		<div id="createDatabaseContainer">
 		<div class="create-database-overlay"></div>
 		<div class="create-database-content">
