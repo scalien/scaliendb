@@ -549,7 +549,7 @@ void ShardQuorumProcessor::TryAppend()
 
         assert(compressor.Compress(uncompressed, compressed));
 
-        quorumContext.GetNextValue().Writef("%U:%B", uncompressed.GetLength(), &compressed);
+        quorumContext.GetNextValue().Writef("%u:%B", uncompressed.GetLength(), &compressed);
         
         quorumContext.Append();
     }
