@@ -115,7 +115,7 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
     if (!configServer->GetQuorumProcessor()->IsMaster())
         return;
 
-    FOREACH(it, primaryLeases)
+    FOREACH (it, primaryLeases)
     {
         if (it->quorumID == quorum.quorumID)
             break;

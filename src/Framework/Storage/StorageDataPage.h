@@ -7,7 +7,7 @@
 #include "StorageMemoKeyValue.h"
 #include "StorageFileKeyValue.h"
 
-#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (16*KiB)
+#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*KiB)
 
 class StorageFileChunk;
 

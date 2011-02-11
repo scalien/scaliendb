@@ -157,3 +157,13 @@ int32_t BloomFilter::GetHash(unsigned fnum, int32_t original)
 
     return hash;
 }
+
+unsigned BloomFilter::BitCount(uint32_t u)
+{
+    uint32_t    count;
+
+    count = u 
+          - ((u >> 1) & 033333333333)
+          - ((u >> 2) & 011111111111);
+    return ((count + (count >> 3)) & 030707070707) % 63;
+}

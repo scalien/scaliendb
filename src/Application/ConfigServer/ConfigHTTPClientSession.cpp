@@ -60,7 +60,7 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         {
             JSONConfigState jsonConfigState(response->configState, session.json);
             jsonConfigState.Write();
-            session.Flush();
+            configServer->OnClientClose(request->session);
         }
         break;
     case CLIENTRESPONSE_NOSERVICE:
@@ -292,8 +292,7 @@ void ConfigHTTPClientSession::PrintDatabases(ConfigState* configState)
     
     session.Print("Databases, tables and shards:\n");
     
-    ConfigState::DatabaseList& databases = configState->databases;
-    for (itDatabase = databases.First(); itDatabase != NULL; itDatabase = databases.Next(itDatabase))
+    FOREACH (itDatabase, configState->databases)
     {
         buffer.Writef("- %B(d%u)", &itDatabase->name, itDatabase->databaseID);
         List<uint64_t>& tables = itDatabase->tables;
@@ -362,7 +361,7 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
     }
     session.Print(buffer);
     
-    for (itShard = shards.First(); itShard != NULL; itShard = shards.Next(itShard))
+    FOREACH (itShard, shards)
     {
         if (itShard->isDeleted)
             continue;

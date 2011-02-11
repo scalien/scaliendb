@@ -248,6 +248,7 @@ function onConfigState(configState)
 	
 	clearTimeout(timer);
 	timer = setTimeout("onTimeout()", 1000);
+	// scaliendb.pollConfigState(onConfigState);
 }
 
 function onTimeout()
@@ -257,27 +258,38 @@ function onTimeout()
 
 function createDashboard(configState)
 {
-	var numDatabases = 0;
+	var numDatabasesText = "";
 	var numTables = 0;
+	var numTablesText = "";
 	var maxTables = 0;
+	var maxTablesText = "";
 	var minTables = 999999999;
+	var minTablesText = "";
 	var avgTables = 0;
+	var avgTablesText = "";
 	var numShards = 0;
+	var numShardsText = "";
 	var maxShards = 0;
+	var maxShardsText = "";
 	var minShards = 999999999;
+	var minShardsText = "";
 	var avgShards = 0;
+	var avgShardsText = "";
+	var numShardServersText = "";
 	var shardServerIDs = new Array();
+	var cardinality = scaliendb.util.cardinality;
 	for (var key in configState)
 	{
 		if (key == "quorums")
 		{
 			var quorums = configState[key]; 
-			numQuorums = quorums.length;
+			numQuorumsText = cardinality(quorums.length, "quorum");
 		}
 		else if (key == "databases")
 		{
-			var databases = configState[key];
+			var databases = configState[key];  
 			numDatabases = databases.length;
+			numDatabasesText = cardinality(databases.length, "database");
 			for (var database in databases)
 			{
 				var db = databases[database];
@@ -287,11 +299,14 @@ function createDashboard(configState)
 				if (num > maxTables)
 					maxTables = num;
 			}
+			minTablesText = cardinality(minTables, "table");
+			maxTablesText = cardinality(maxTables, "table");
 		}
 		else if (key == "tables")
 		{
 			var tables = configState[key];
 			numTables = tables.length;
+			numTablesText = cardinality(numTables, "table");
 			for (var table in tables)
 			{
 				var tbl = tables[table];
@@ -301,16 +316,19 @@ function createDashboard(configState)
 				if (num > maxShards)
 					maxShards = num;
 			}
+			minShardsText = cardinality(minShards, "shard");
+			maxShardsText = cardinality(maxShards, "shard");
 		}
 		else if (key == "shards")
 		{
 			var shards = configState[key]; 
 			numShards = shards.length;
+			numShardsText = cardinality(shards.length, "shard");
 		}
 		else if (key == "shardServers")
 		{
 			var shardServers = configState[key]; 
-			numShardServers = shardServers.length;
+			numShardServersText = cardinality(shardServers.length, "shard server");
 			for (var shardServer in shardServers)
 			{
 				var ss = shardServers[shardServer];
@@ -319,22 +337,24 @@ function createDashboard(configState)
 		}
 	}
 	avgTables = Math.round(numTables / numDatabases * 10) / 10;
+	avgTablesText = cardinality(avgTables, "table");
 	avgShards = Math.round(numShards/ numTables * 10) / 10;
+	avgShardsText = cardinality(avgShards, "shard")
 	
-	scaliendb.util.elem("numDatabases").textContent = numDatabases;
-	scaliendb.util.elem("numTables").textContent = numTables;
-	scaliendb.util.elem("numShards").textContent = numShards;
-	scaliendb.util.elem("numQuorums").textContent = numQuorums;
-	scaliendb.util.elem("numShardServers").textContent = numShardServers;
+	scaliendb.util.elem("numDatabases").textContent = numDatabasesText;
+	scaliendb.util.elem("numTables").textContent = numTablesText;
+	scaliendb.util.elem("numShards").textContent = numShardsText;
+	scaliendb.util.elem("numQuorums").textContent = numQuorumsText;
+	scaliendb.util.elem("numShardServers").textContent = numShardServersText;
 	
 
-	scaliendb.util.elem("minTables").textContent = minTables;
-	scaliendb.util.elem("maxTables").textContent = maxTables;
-	scaliendb.util.elem("avgTables").textContent = avgTables;
+	scaliendb.util.elem("minTables").textContent = minTablesText;
+	scaliendb.util.elem("maxTables").textContent = maxTablesText;
+	scaliendb.util.elem("avgTables").textContent = avgTablesText;
 
-	scaliendb.util.elem("minShards").textContent = minShards;
-	scaliendb.util.elem("maxShards").textContent = maxShards;
-	scaliendb.util.elem("avgShards").textContent = avgShards;
+	scaliendb.util.elem("minShards").textContent = minShardsText;
+	scaliendb.util.elem("maxShards").textContent = maxShardsText;
+	scaliendb.util.elem("avgShards").textContent = avgShardsText;
 	
 	if (numDatabases == 0 || numTables == 0)
 		scaliendb.util.elem("dashboardStats").style.display = "none";
@@ -582,7 +602,7 @@ function createShardDiv(configState, shard)
 					Start: "' + shard["firstKey"] + '"<br/>							  		  			\
 					End: "' + shard["lastKey"] + '"<br/>												\
 					Split key: "' + scaliendb.util.defstr(shard["splitKey"]) + '"<br/> 					\
-					Size: ' + scaliendb.util.defstr(shard["shardSize"], 0) + '<br/>	  					\
+					Size: ' + scaliendb.util.humanBytes(shard["shardSize"]) + '<br/>	  					\
 				</td>																					\
 				<td class="shard-actions">																\
 					<span class="modify-button">split shard</span><br/><br/>							\

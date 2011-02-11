@@ -669,13 +669,18 @@ bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer)
     buffer.Allocate(size);
     if (FS_FileReadOffs(fd, buffer.GetBuffer(), size, offset) != size)
         return false;
-    buffer.SetLength(size);
+    if (size < 4)
+        return false;
         
+    buffer.SetLength(size);
     // first 4 bytes on all pages is the page size
     parse.Wrap(buffer);
     if (!parse.ReadLittle32(size))
         return false;
-    
+
+    if (size <= buffer.GetLength())
+        return true;
+
     rest = size - buffer.GetLength();
     if (rest > 0)
     {

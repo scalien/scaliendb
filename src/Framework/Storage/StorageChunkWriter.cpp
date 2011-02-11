@@ -82,7 +82,10 @@ bool StorageChunkWriter::WriteDataPages()
         dataPage = file->dataPages[i];
         writeBuffer.Clear();
         dataPage->Write(writeBuffer);
-        assert(writeBuffer.GetLength() == dataPage->GetSize());
+        //ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
+#ifdef STORAGE_DATAPAGE_COMPRESSION
+        Log_Debug("dataPage, uncompressed: %u, compressed: %u", dataPage->GetSize(), writeBuffer.GetLength());
+#endif
 
         if (!WriteBuffer())
             return false;

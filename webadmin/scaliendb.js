@@ -13,6 +13,11 @@ var scaliendb =
 		this.json.rpc(scaliendb.controller, onConfigState, "getconfigstate");
 	},
 
+	pollConfigState: function(onConfigState)
+	{ 
+		this.json.rpc(scaliendb.controller, onConfigState, "pollconfigstate");
+	},
+
 	createQuorum: function(nodes)
 	{                                                                                 
 		var params = {};
@@ -80,6 +85,28 @@ var scaliendb =
 		params["quorumID"] = quorumID;
 		params["name"] = name;
 		this.rpc("createtable", params);
+	},
+
+	renameTable: function(tableID, name)
+	{
+		var params = {};
+		params["tableID"] = tableID;
+		params["name"] = name;
+		this.rpc("renametable", params);
+	},
+
+	deleteTable: function(tableID)
+	{
+		var params = {};
+		params["tableID"] = tableID;
+		this.rpc("deletetable", params);
+	},
+
+	truncateTable: function(tableID)
+	{
+		var params = {};
+		params["tableID"] = tableID;
+		this.rpc("truncatetable", params);
 	},
 	
 	showResult: function(data)
@@ -269,6 +296,46 @@ var scaliendb =
 				return "" + defval;
 			}
 			return "" + val;
+		},
+		
+		numDigits: function(num)
+		{
+			return ("" + num).length;
+		},
+		
+		humanBytes: function(size)
+		{
+			var units = "kMGTPEZY";
+			var n = size;
+			var f = size;
+			var u = 0;
+			
+			if (typeof size == 'undefined')
+				return "0";
+			
+			while (this.numDigits(n) > 3)
+			{
+				n = Math.round(n / 1000.0);
+				f = f / 1000.0;
+				u++;
+			}
+			
+			var dim = (u == 0 ? "" : units[u - 1]);
+			return "" + n + dim;
+		},
+		
+		pluralize: function(count, noun)
+		{
+			// add exceptions here
+			if (count <= 1)
+				return noun;
+			else
+				return noun + "s";
+		},
+		
+		cardinality: function(count, noun)
+		{
+			return count + " " + scaliendb.util.pluralize(count, noun);
 		}
 	}	
 }

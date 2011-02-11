@@ -126,6 +126,7 @@ void ConfigQuorumProcessor::OnClientClose(ClientSession* session)
     ClientRequest*  it;
     ClientRequest*  next;
     
+    // TODO: list iteration is not necessary, because it is an InList
     for (it = listenRequests.First(); it != NULL; it = next)
     {
         next = listenRequests.Next(it);
@@ -134,6 +135,7 @@ void ConfigQuorumProcessor::OnClientClose(ClientSession* session)
             listenRequests.Remove(it);
             it->response.NoResponse();
             it->OnComplete();
+            break;
         }
     }
 }
@@ -306,7 +308,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     assert(configMessages.GetLength() == 0);
 
     // clear client requests
-    for (itRequest = requests.First(); itRequest != NULL; itRequest = requests.First())
+    FOREACH_FIRST (itRequest, requests)
     {
         requests.Remove(itRequest);
         itRequest->response.NoService();
@@ -315,7 +317,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     assert(requests.GetLength() == 0);
 
     // clear listen requests
-    FOREACH (itRequest, listenRequests)
+    FOREACH_FIRST (itRequest, listenRequests)
     {
         listenRequests.Remove(itRequest);
         itRequest->response.NoService();
