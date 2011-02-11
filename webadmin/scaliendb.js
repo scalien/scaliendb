@@ -43,6 +43,14 @@ var scaliendb =
 		this.rpc("removenode", params);
 	},
 
+	activateNode: function(quorumID, nodeID)
+	{                                                                                 
+		var params = {};
+		params["quorumID"] = quorumID;
+		params["nodeID"] = nodeID;
+		this.rpc("activatenode", params);
+	},
+
 	createDatabase: function(name)
 	{ 
 		var params = {};

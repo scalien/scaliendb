@@ -4,6 +4,7 @@ function onLoad()
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
 	scaliendb.util.elem("deleteQuorumContainer").style.display = "none";
+	scaliendb.util.elem("addNodeContainer").style.display = "none";
 	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
@@ -89,6 +90,13 @@ function showDeleteQuorum(quorumID)
 	deleteQuorumID = quorumID;
 }
 
+var addNodeQuorumID; // TODO: hack global
+function showAddNode(quorumID)
+{
+	scaliendb.util.elem("addNodeContainer").style.display = "block";
+	addNodeQuorumID = quorumID;
+}
+
 function showCreateDatabase()
 {
 	scaliendb.util.elem("createDatabaseContainer").style.display = "block";
@@ -113,6 +121,12 @@ function hideCreateQuorum()
 function hideDeleteQuorum()
 {
 	scaliendb.util.elem("deleteQuorumContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideAddNode()
+{
+	scaliendb.util.elem("addNodeContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -143,6 +157,22 @@ function deleteQuorum()
 	hideDeleteQuorum();
 	scaliendb.onResponse = onResponse;
 	scaliendb.deleteQuorum(deleteQuorumID);
+}
+
+function addNode()
+{
+	hideAddNode();
+
+	var nodeID = scaliendb.util.elem("addNodeShardServer").value;
+	nodeID = scaliendb.util.removeSpaces(nodeID);
+	scaliendb.onResponse = onResponse;
+	scaliendb.addNode(addNodeQuorumID, nodeID);
+}
+
+function activateNode(quorumID, nodeID)
+{
+	scaliendb.onResponse = onResponse;
+	scaliendb.activateNode(quorumID, nodeID);
 }
 
 function createDatabase()
@@ -354,7 +384,7 @@ function createQuorumDiv(configState, quorum)
 	for (var i in quorum["inactiveNodes"])
 	{
 		nodeID = quorum["inactiveNodes"][i];
-		html += ' <span class="inactive shardserver-number">' + nodeID + '</span> ';
+		html += ' <a class="no-line" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="inactive shardserver-number">' + nodeID + '</span></a> ';
 	}
 	html +=
 	'			<br/>																					\
@@ -371,8 +401,9 @@ function createQuorumDiv(configState, quorum)
 				<!-- Size: 0GB -->																		\
 			</td>																						\
 			<td class="table-actions">																	\
-				<span class="create-button">add node</span><br/><br/>									\
-				<span class="modify-button">remove node</span><br/><br/>								\
+				<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
+				')"><span class="create-button">add server</span></a><br/><br/>									\
+				<span class="modify-button">remove server</span><br/><br/>								\
 				<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
 				')"><span class="delete-button">delete quorum</span></a>										\
 			</td>																						\
