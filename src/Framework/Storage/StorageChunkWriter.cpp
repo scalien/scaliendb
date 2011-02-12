@@ -67,7 +67,9 @@ bool StorageChunkWriter::WriteDataPages()
 {
     unsigned            i;
     StorageDataPage*    dataPage;
+    double              compressRatio;
 
+    compressRatio = 0;
     for (i = 0; i < file->numDataPages; i++)
     {
         if (env->shuttingDown)
@@ -82,11 +84,14 @@ bool StorageChunkWriter::WriteDataPages()
         dataPage = file->dataPages[i];
         writeBuffer.Clear();
         dataPage->Write(writeBuffer);
-        assert(writeBuffer.GetLength() == dataPage->GetSize());
+        //ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
+        compressRatio = (double) writeBuffer.GetLength() / dataPage->GetSize() / file->numDataPages;
 
         if (!WriteBuffer())
             return false;
     }
+    
+    Log_Debug("Compression ratio: %s", StaticPrint("%.1lf%%", compressRatio * 100));
     
     return true;
 }

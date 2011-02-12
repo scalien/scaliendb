@@ -100,7 +100,15 @@ Fail:
 
 void StorageBloomPage::Write(Buffer& buffer)
 {
-    uint32_t checksum;
+    uint32_t    checksum;
+    unsigned    i;
+    unsigned    count;
+    
+    count = 0;
+    for (i = 0; i < bloomFilter.GetBuffer().GetLength(); i++)
+        count += bloomFilter.BitCount(bloomFilter.GetBuffer().GetBuffer()[i]);
+    
+    Log_Debug("bloom filter ratio: %s", StaticPrint("%f", bloomFilter.GetBuffer().GetLength() * 8.0 / count));
 
     buffer.Allocate(size);
     buffer.Zero();

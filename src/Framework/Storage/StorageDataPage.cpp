@@ -1,9 +1,11 @@
 #include "StorageDataPage.h"
 #include "StorageFileChunk.h"
+#include "System/Compress/Compressor.h"
 
 StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 {
     size = 0;
+    compressedSize = 0;
 
     buffer.Allocate(STORAGE_DEFAULT_PAGE_GRAN);
     buffer.Zero();
@@ -30,6 +32,11 @@ StorageDataPage::~StorageDataPage()
 uint32_t StorageDataPage::GetSize()
 {
     return size;
+}
+
+uint32_t StorageDataPage::GetCompressedSize()
+{
+    return compressedSize;
 }
 
 StorageKeyValue* StorageDataPage::Get(ReadBuffer& key)
@@ -248,9 +255,18 @@ bool StorageDataPage::Read(Buffer& buffer_)
     ReadBuffer              dataPart, parse, key, value;
     StorageFileKeyValue*    fkv;
     
-    assert(GetNumKeys() == 0);
-    
+#ifdef STORAGE_DATAPAGE_COMPRESSION    
+    Compressor              compressor;
+    uint32_t                uncompressedLength;
+
+    parse.Wrap(buffer_);
+    parse.ReadLittle32(uncompressedLength);
+    parse.Advance(sizeof(uint32_t));
+    compressor.Uncompress(parse, buffer, uncompressedLength);
+#else
+    assert(GetNumKeys() == 0);    
     buffer.Write(buffer_);
+#endif
     parse.Wrap(buffer);
     
     // size
@@ -330,7 +346,19 @@ Fail:
 
 void StorageDataPage::Write(Buffer& buffer_)
 {
+#ifdef STORAGE_DATAPAGE_COMPRESSION
+    Buffer                  compressed;
+    Compressor              compressor;
+    
+    compressor.Compress(buffer, compressed);
+    buffer_.SetLength(0);
+    buffer_.AppendLittle32(buffer.GetLength());
+    buffer_.Append(compressed);
+    
+    compressedSize = compressed.GetLength();
+#else
     buffer_.Write(buffer);
+#endif
 }
 
 void StorageDataPage::Unload()

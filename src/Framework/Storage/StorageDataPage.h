@@ -7,7 +7,7 @@
 #include "StorageMemoKeyValue.h"
 #include "StorageFileKeyValue.h"
 
-#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (16*KiB)
+#define STORAGE_DEFAULT_DATA_PAGE_SIZE         (64*KiB)
 
 class StorageFileChunk;
 
@@ -26,6 +26,7 @@ public:
     ~StorageDataPage();
 
     uint32_t                GetSize();
+    uint32_t                GetCompressedSize();
 
     StorageKeyValue*        Get(ReadBuffer& key);
 
@@ -51,6 +52,7 @@ private:
     void                    AppendKeyValue(StorageFileKeyValue* kv);
 
     uint32_t                size;
+    uint32_t                compressedSize;
     uint32_t                index;
     Buffer                  buffer;
     StorageFileChunk*       owner;

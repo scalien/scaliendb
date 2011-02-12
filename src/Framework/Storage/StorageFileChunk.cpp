@@ -663,19 +663,28 @@ void StorageFileChunk::ExtendDataPageArray()
 bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer)
 {
     uint32_t    size, rest;
+    ssize_t     nread;
     ReadBuffer  parse;
     
     size = STORAGE_DEFAULT_PAGE_GRAN;
     buffer.Allocate(size);
-    if (FS_FileReadOffs(fd, buffer.GetBuffer(), size, offset) != size)
+    if ((nread = FS_FileReadOffs(fd, buffer.GetBuffer(), size, offset)) != size)
         return false;
-    buffer.SetLength(size);
+    if (nread < 4)
+        return false;
         
+    buffer.SetLength(nread);
     // first 4 bytes on all pages is the page size
     parse.Wrap(buffer);
     if (!parse.ReadLittle32(size))
         return false;
-    
+
+    if (size <= nread)
+    {
+        buffer.SetLength(size);
+        return true;
+    }
+
     rest = size - buffer.GetLength();
     if (rest > 0)
     {

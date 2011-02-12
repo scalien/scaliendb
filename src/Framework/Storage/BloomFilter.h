@@ -31,6 +31,7 @@ public:
 
     bool            Check(ReadBuffer& key);
     
+    unsigned        BitCount(uint32_t u);
 
 private:
     int32_t         GetHash(unsigned fnum, int32_t original);
