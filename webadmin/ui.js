@@ -408,7 +408,7 @@ function createQuorumDiv(configState, quorum)
 	for (var i in quorum["inactiveNodes"])
 	{
 		nodeID = quorum["inactiveNodes"][i];
-		html += ' <a class="no-line" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="inactive shardserver-number">' + nodeID + '</span></a> ';
+		html += ' <a class="no-line" title="Activate shard server" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="inactive shardserver-number">' + nodeID + '</span></a> ';
 	}
 	html +=
 	'			<br/>																					\
