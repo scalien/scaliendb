@@ -346,7 +346,7 @@ void StorageDataPage::Write(Buffer& buffer_)
     
     compressor.Compress(buffer, compressed);
     buffer_.SetLength(0);
-    buffer_.AppendLittle32(compressed.GetLength());
+    buffer_.AppendLittle32(buffer.GetLength());
     buffer_.Append(compressed);
 #else
     buffer_.Write(buffer);
