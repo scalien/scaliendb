@@ -56,11 +56,14 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         // HACK
         if (session.keepAlive)
             session.keepAlive = false;
-        else if (!last)
+        else
         {
             JSONConfigState jsonConfigState(response->configState, session.json);
             jsonConfigState.Write();
-            configServer->OnClientClose(request->session);
+            session.Flush();
+            return;
+//            configServer->OnClientClose(request->session);
+//            last = true;
         }
         break;
     case CLIENTRESPONSE_NOSERVICE:
