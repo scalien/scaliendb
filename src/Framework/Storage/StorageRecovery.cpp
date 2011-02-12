@@ -301,7 +301,6 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     Buffer              buffer;
     FDGuard             fd;
     StorageLogSegment*  logSegment;
-    int                 lzoRet;
     Buffer              uncompressed;
     Compressor          compressor;
     uint32_t            uncompressedLength;

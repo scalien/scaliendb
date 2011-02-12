@@ -246,9 +246,9 @@ function onConfigState(configState)
 			createShardDivs(configState, configState[key]);
 	}
 	
-	// clearTimeout(timer);
-	// timer = setTimeout("onTimeout()", 1000);
-	scaliendb.pollConfigState(onConfigState);
+	clearTimeout(timer);
+	timer = setTimeout("onTimeout()", 1000);
+	// scaliendb.pollConfigState(onConfigState);
 }
 
 function onTimeout()

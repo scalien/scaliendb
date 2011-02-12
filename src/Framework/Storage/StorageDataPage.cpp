@@ -5,6 +5,7 @@
 StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 {
     size = 0;
+    compressedSize = 0;
 
     buffer.Allocate(STORAGE_DEFAULT_PAGE_GRAN);
     buffer.Zero();
@@ -31,6 +32,11 @@ StorageDataPage::~StorageDataPage()
 uint32_t StorageDataPage::GetSize()
 {
     return size;
+}
+
+uint32_t StorageDataPage::GetCompressedSize()
+{
+    return compressedSize;
 }
 
 StorageKeyValue* StorageDataPage::Get(ReadBuffer& key)
@@ -348,6 +354,8 @@ void StorageDataPage::Write(Buffer& buffer_)
     buffer_.SetLength(0);
     buffer_.AppendLittle32(buffer.GetLength());
     buffer_.Append(compressed);
+    
+    compressedSize = compressed.GetLength();
 #else
     buffer_.Write(buffer);
 #endif
