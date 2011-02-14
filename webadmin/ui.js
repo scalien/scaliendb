@@ -10,6 +10,7 @@ function onLoad()
 	scaliendb.util.elem("renameDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("deleteDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "none";
+	scaliendb.util.elem("renameTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
 	
@@ -147,6 +148,16 @@ function showCreateTable(databaseID, databaseName)
 	hideDialog = hideCreateTable;
 }
 
+var renameTableID; // TODO: hack global
+function showRenameTable(tableID, tableName)
+{
+	scaliendb.util.elem("renameTableName").value = tableName;
+	scaliendb.util.elem("renameTableContainer").style.display = "block";
+	scaliendb.util.elem("renameTableName").focus();
+	renameTableID = tableID;
+	hideDialog = hideRenameTable;
+}
+
 function hideCreateQuorum()
 {
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
@@ -192,6 +203,12 @@ function hideDeleteDatabase()
 function hideCreateTable()
 {
 	scaliendb.util.elem("createTableContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideRenameTable()
+{
+	scaliendb.util.elem("renameTableContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -272,6 +289,15 @@ function createTable()
 	quorumID = scaliendb.util.removeSpaces(quorumID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.createTable(createTableDatabaseID, quorumID, name);
+}
+
+function renameTable()
+{
+	hideRenameTable();
+	var name = scaliendb.util.elem("renameTableName").value;
+	name = scaliendb.util.removeSpaces(name);
+	scaliendb.onResponse = onResponse;
+	scaliendb.renameTable(renameTableID, name);
 }
 
 function onResponse()
@@ -511,11 +537,11 @@ function createQuorumDiv(configState, quorum)
 			</td>																						\
 			<td class="table-actions">																	\
 				<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
-				')"><span class="create-button">add server</span></a><br/><br/>									\
+				')"><span class="create-button">add server</span></a><br/><br/>							\
 				<a class="no-line" href="javascript:showRemoveNode(' + quorum["quorumID"] +
-				')"><span class="modify-button">remove server</span></a><br/><br/>									\
+				')"><span class="modify-button">remove server</span></a><br/><br/>						\
 				<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
-				')"><span class="delete-button">delete quorum</span></a>										\
+				')"><span class="delete-button">delete quorum</span></a>								\
 			</td>																						\
 		</tr>																							\
 	</table>																							\
@@ -622,7 +648,10 @@ function createTableDiv(configState, table)
 					Replication factor: ' + rfactor + '<br/>											\
 				</td>																					\
 				<td class="table-actions">																\
-					<span class="modify-button">rename table</span><br/><br/>							\
+					<a class="no-line" href="javascript:showRenameTable(\'' +
+					table["tableID"] + '\', \'' + table["name"] +  '\')">															\
+					<span class="modify-button">rename table</span></a><br/><br/>						\
+					<span class="delete-button">truncate table</span><br/><br/>							\
 					<span class="delete-button">delete table</span>										\
 				</td>																					\
 			</tr>																						\
@@ -672,7 +701,7 @@ function createShardDiv(configState, shard)
 					Start: "' + shard["firstKey"] + '"<br/>							  		  			\
 					End: "' + shard["lastKey"] + '"<br/>												\
 					Split key: "' + scaliendb.util.defstr(shard["splitKey"]) + '"<br/> 					\
-					Size: ' + scaliendb.util.humanBytes(shard["shardSize"]) + '<br/>	  					\
+					Size: ' + scaliendb.util.humanBytes(shard["shardSize"]) + '<br/>	  				\
 				</td>																					\
 				<td class="shard-actions">																\
 					<span class="modify-button">split shard</span><br/><br/>							\

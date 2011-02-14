@@ -10,6 +10,7 @@
 		<link rel="stylesheet" type="text/css" href="renameDatabase.css"/>
 		<link rel="stylesheet" type="text/css" href="deleteDatabase.css"/>
 		<link rel="stylesheet" type="text/css" href="createTable.css"/>
+		<link rel="stylesheet" type="text/css" href="renameTable.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
 		<script language="javascript" type="text/javascript" src="ui.js"></script>
@@ -146,6 +147,21 @@
 			<span class="create-table-quorum">Place first shard in quorum:</span><br/><br/>
 			<input id="createTableQuorum" class="create-table-input" type="text" value="1" /><br/><br/><br/>
 			<button type="submit" class="create-table-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- rename-table -->
+		<div id="renameTableContainer">
+		<div class="rename-table-overlay"></div>
+		<div class="rename-table-content">
+			<a href="javascript:hideRenameTable()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="rename-table-welcome">Rename table</span><br/>
+			<br/><br/><br/>
+			<span class="rename-table-name">Name:</span><br/><br/>
+			<form action="javascript:renameTable()">
+			<input id="renameTableName" class="rename-table-input" type="text" value="" /><br/><br/><br/>
+			<button type="submit" class="rename-table-button">Rename</button>
 			</form>
 		</div>
 		</div>
