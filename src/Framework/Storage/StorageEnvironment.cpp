@@ -9,6 +9,7 @@
 #include "StorageRecovery.h"
 #include "StoragePageCache.h"
 #include "StorageAsyncGet.h"
+#include "StorageAsyncList.h"
 
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
@@ -308,10 +309,9 @@ void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageA
     StorageShard*       shard;
     StorageChunk*       chunk;
     StorageKeyValue*    kv;
-    Callable            onComplete = MFunc<StorageAsyncGet, &StorageAsyncGet::OnComplete>(asyncGet);
-    Deferred            deferred(onComplete);
+    Deferred            deferred(asyncGet->onComplete);
 
-    asyncGet->completed = false;
+    asyncGet->completed = true;
     asyncGet->ret = false;
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
@@ -324,35 +324,56 @@ void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageA
     kv = chunk->Get(asyncGet->key);
     if (kv != NULL)
     {
-        if (kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
-        {
-            asyncGet->completed = true;
-            return;
-        }
-        else if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+        if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         {
             asyncGet->ret = true;
             asyncGet->completed = true;
             asyncGet->value = kv->GetValue();
             return;
         }
+        else if (kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+            return;
         else
             ASSERT_FAIL();
     }
 
     if (shard->GetChunks().GetLength() == 0)
-    {
-        asyncGet->completed = true;
         return;
-    }
 
     deferred.Unset();
+    asyncGet->completed = false;
     asyncGet->shard = shard;
     asyncGet->itChunk = shard->GetChunks().Last();
     asyncGet->lastLoadedPage = NULL;
     asyncGet->stage = StorageAsyncGet::START;
     asyncGet->threadPool = asyncGetThread;
     asyncGet->ExecuteAsyncGet();
+}
+
+void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, StorageAsyncList* asyncList)
+{
+    StorageShard*       shard;
+    Buffer              key;
+    Deferred            deferred(asyncList->onComplete);
+
+    asyncList->completed = true;
+    asyncList->ret = false;
+    
+    key.Append(asyncList->prefix);
+    key.Append(asyncList->startKey);
+
+    shard = GetShard(contextID, shardID);
+    if (shard == NULL)
+        return;
+        
+    if (!shard->RangeContains(key))
+        return;
+
+    numBulkCursors++;
+    
+    asyncList->threadPool = asyncThread;
+    asyncList->shard = shard;
+    asyncList->ExecuteAsyncList();
 }
 
 bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value)
@@ -453,7 +474,7 @@ StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_
         return NULL;
     
     bc = new StorageBulkCursor();
-    
+
     bc->SetEnvironment(this);
     bc->SetShard(shard);
     

@@ -147,6 +147,7 @@
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9AD1001713059C4200AB777B /* Compressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC2B130431A5004C2469 /* Compressor.cpp */; };
 		9AD1001A13059C4800AB777B /* minilzo.c in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC1D13043142004C2469 /* minilzo.c */; };
+		9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
 		9AD5E46012EDD62000F4AF7B /* Mutex_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE81D7D12D5147E0038BDB1 /* Mutex_Posix.cpp */; };
 		9AD5E4E712EF045600F4AF7B /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */; };
 		9AD5E4FE12EF08DA00F4AF7B /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE58A12BFBB3D0069786A /* StorageEnvironment.cpp */; };
@@ -499,6 +500,8 @@
 		9AABC18D124EA494003626AC /* ArrayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayList.h; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
+		9AD104D31309970D00AB777B /* StorageAsyncList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncList.h; sourceTree = "<group>"; };
+		9AD104D41309970D00AB777B /* StorageAsyncList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageAsyncList.cpp; sourceTree = "<group>"; };
 		9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
 		9AD5EA8F12F70C4700F4AF7B /* StorageAsyncGet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncGet.h; sourceTree = "<group>"; };
 		9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageAsyncGet.cpp; sourceTree = "<group>"; };
@@ -747,6 +750,8 @@
 				543DE73312C0B8730069786A /* StorageBulkCursor.cpp */,
 				9AD5EA8F12F70C4700F4AF7B /* StorageAsyncGet.h */,
 				9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */,
+				9AD104D31309970D00AB777B /* StorageAsyncList.h */,
+				9AD104D41309970D00AB777B /* StorageAsyncList.cpp */,
 				543DE5A712BFBB3D0069786A /* TODO.txt */,
 			);
 			path = Storage;
@@ -1390,6 +1395,7 @@
 				9AD5EA9112F70C4700F4AF7B /* StorageAsyncGet.cpp in Sources */,
 				5485BC1F13043142004C2469 /* minilzo.c in Sources */,
 				5485BC2C130431A5004C2469 /* Compressor.cpp in Sources */,
+				9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

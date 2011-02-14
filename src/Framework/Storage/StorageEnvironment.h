@@ -17,6 +17,7 @@ class StorageRecovery;
 class StorageEnvironment;
 class StorageEnvironmentWriter;
 class StorageArchiveLogSegmentJob;
+class StorageAsyncList;
 
 #define STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT    10
 #define STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY      5  // sec
@@ -43,7 +44,6 @@ class StorageEnvironment
     typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;
     typedef InList<StorageFileChunk>    FileChunkList;
-    typedef InList<StorageAsyncGet>     AsyncGetList;
 
 public:
     StorageEnvironment();
@@ -68,6 +68,7 @@ public:
     bool                    Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key);
 
     void                    AsyncGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet);
+    void                    AsyncList(uint16_t contextID, uint64_t shardID, StorageAsyncList* asyncList);
 
     StorageBulkCursor*      GetBulkCursor(uint16_t contextID, uint64_t shardID);
 
