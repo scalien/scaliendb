@@ -101,7 +101,7 @@ bool StorageChunkSerializer::WriteDataPages()
             {
                 dataPage->Finalize();
                 fileChunk->AppendDataPage(dataPage);
-                offset += dataPage->GetSize();
+                offset += dataPage->GetCompressedSize();
                 dataPageIndex++;
                 dataPage = new StorageDataPage(fileChunk, dataPageIndex);
                 dataPage->SetOffset(offset);
@@ -116,7 +116,7 @@ bool StorageChunkSerializer::WriteDataPages()
     {
         dataPage->Finalize();
         fileChunk->AppendDataPage(dataPage);
-        offset += dataPage->GetSize();
+        offset += dataPage->GetCompressedSize();
         dataPageIndex++;
     }
     

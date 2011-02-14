@@ -33,7 +33,7 @@ sent = 0
 value = "%100s" % " "
 i = start
 batch = 10000
-if limit < batch:
+if limit != 0 and limit < batch:
 	batch = limit
 while limit == 0 or i < limit:
 	starttime = time.time()

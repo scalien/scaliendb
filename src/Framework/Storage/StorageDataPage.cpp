@@ -165,6 +165,26 @@ void StorageDataPage::Finalize()
             it->Delete(ReadBuffer(kpos, klen));
         }
     }
+    
+#ifdef STORAGE_DATAPAGE_COMPRESSION
+    Buffer                  compressed;
+    Compressor              compressor;
+    
+    compressor.Compress(buffer, compressed);
+    buffer.SetLength(0);
+    buffer.AppendLittle32(0);
+    buffer.AppendLittle32(0);  // checksum
+    buffer.AppendLittle32(buffer.GetLength());
+    buffer.Append(compressed);
+    
+    length = buffer.GetLength();
+    compressedSize = compressed.GetLength();
+    buffer.SetLength(0);
+    buffer.AppendLittle32(length);
+    buffer.SetLength(length);
+#else
+    compressedSize = size;
+#endif
 }
 
 void StorageDataPage::Reset()
@@ -257,12 +277,14 @@ bool StorageDataPage::Read(Buffer& buffer_)
     
 #ifdef STORAGE_DATAPAGE_COMPRESSION    
     Compressor              compressor;
-    uint32_t                uncompressedLength;
+    uint32_t                uncompressedSize;
 
     parse.Wrap(buffer_);
-    parse.ReadLittle32(uncompressedLength);
+    parse.ReadLittle32(compressedSize);
     parse.Advance(sizeof(uint32_t));
-    compressor.Uncompress(parse, buffer, uncompressedLength);
+    parse.ReadLittle32(uncompressedSize);
+    parse.Advance(sizeof(uint32_t));
+    compressor.Uncompress(parse, buffer, uncompressedSize);
 #else
     assert(GetNumKeys() == 0);    
     buffer.Write(buffer_);
@@ -334,8 +356,13 @@ bool StorageDataPage::Read(Buffer& buffer_)
             AppendKeyValue(fkv);
         }
     }
-    
+
+#ifdef STORAGE_DATAPAGE_COMPRESSION
+    this->size = uncompressedSize;
+#else    
     this->size = size;
+    this->compressedSize = size;
+#endif
     return true;
     
 Fail:
@@ -346,19 +373,7 @@ Fail:
 
 void StorageDataPage::Write(Buffer& buffer_)
 {
-#ifdef STORAGE_DATAPAGE_COMPRESSION
-    Buffer                  compressed;
-    Compressor              compressor;
-    
-    compressor.Compress(buffer, compressed);
-    buffer_.SetLength(0);
-    buffer_.AppendLittle32(buffer.GetLength());
-    buffer_.Append(compressed);
-    
-    compressedSize = compressed.GetLength();
-#else
     buffer_.Write(buffer);
-#endif
 }
 
 void StorageDataPage::Unload()
