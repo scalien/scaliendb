@@ -1507,7 +1507,6 @@
 					"-DPLATFORM_DARWIN",
 					"-D__STDC_FORMAT_MACROS",
 					"-DDEBUG",
-					"-DSTORAGE_DATAPAGE_COMPRESSION",
 				);
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = ScalienDB;

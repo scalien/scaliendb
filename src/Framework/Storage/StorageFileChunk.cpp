@@ -163,7 +163,7 @@ void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
     
     index++;
     if (dataPages[index] == NULL)
-        LoadDataPage(index, dataPages[index - 1]->GetOffset() + dataPages[index - 1]->GetSize(), true);
+        LoadDataPage(index, dataPages[index - 1]->GetOffset() + dataPages[index - 1]->GetCompressedSize(), true);
     
     assert(dataPages[index] != NULL);
     cursor.SetNextKey(dataPages[index]->GetIndexedKeyValue(0)->GetKey());
