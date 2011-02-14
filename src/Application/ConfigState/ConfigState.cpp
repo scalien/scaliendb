@@ -1199,12 +1199,15 @@ void ConfigState::WriteShardServers(Buffer& buffer, bool withVolatile)
 void ConfigState::DeleteShard(ConfigShard* shard)
 {
     ConfigQuorum*   quorum;
+    ConfigTable*    table;
 
     quorum = GetQuorum(shard->quorumID);
     assert(quorum != NULL);
     quorum->shards.Remove(shard->shardID);
+    table = GetTable(shard->tableID);
+    assert(table != NULL);
+    table->shards.Remove(shard->shardID);
 
-//    shards.Delete(shard);
     shard->isDeleted = true;
 }
 
