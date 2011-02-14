@@ -7,10 +7,13 @@ function onLoad()
 	scaliendb.util.elem("addNodeContainer").style.display = "none";
 	scaliendb.util.elem("removeNodeContainer").style.display = "none";
 	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
+	scaliendb.util.elem("renameDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("deleteDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
+	
+	document.onkeydown = function(e) { if (getKeycode(e) == 27) hideDialog(); }
 }
 
 function logout()
@@ -83,6 +86,7 @@ function showCreateQuorum()
 {
 	scaliendb.util.elem("createQuorumContainer").style.display = "block";
 	scaliendb.util.elem("createQuorumShardServers").focus();
+	hideDialog = hideCreateQuorum;
 }
 
 var deleteQuorumID; // TODO: hack global
@@ -90,6 +94,7 @@ function showDeleteQuorum(quorumID)
 {
 	scaliendb.util.elem("deleteQuorumContainer").style.display = "block";
 	deleteQuorumID = quorumID;
+	hideDialog = hideDeleteQuorum;
 }
 
 var addNodeQuorumID; // TODO: hack global
@@ -97,6 +102,7 @@ function showAddNode(quorumID)
 {
 	scaliendb.util.elem("addNodeContainer").style.display = "block";
 	addNodeQuorumID = quorumID;
+	hideDialog = hideAddNode;
 }
 
 var removeNodeQuorumID; // TODO: hack global
@@ -104,12 +110,24 @@ function showRemoveNode(quorumID)
 {
 	scaliendb.util.elem("removeNodeContainer").style.display = "block";
 	removeNodeQuorumID = quorumID;
+	hideDialog = hideRemoveNode;
 }
 
 function showCreateDatabase()
 {
 	scaliendb.util.elem("createDatabaseContainer").style.display = "block";
 	scaliendb.util.elem("createDatabaseName").focus();
+	hideDialog = hideCreateDatabase;
+}
+
+var renameDatabaseID;
+function showRenameDatabase(databaseID, databaseName)
+{
+	scaliendb.util.elem("renameDatabaseName").value = databaseName;
+	scaliendb.util.elem("renameDatabaseContainer").style.display = "block";
+	scaliendb.util.elem("renameDatabaseName").focus();
+	renameDatabaseID = databaseID;
+	hideDialog = hideRenameDatabase;
 }
 
 var deleteDatabaseID;
@@ -117,15 +135,16 @@ function showDeleteDatabase(databaseID)
 {
 	scaliendb.util.elem("deleteDatabaseContainer").style.display = "block";
 	deleteDatabaseID = databaseID;
+	hideDialog = hideDeleteDatabase;
 }
 
 var createTableDatabaseID; // TODO: hack global
 function showCreateTable(databaseID, databaseName)
 {
-	scaliendb.util.elem("createTableDatabase").textContent = databaseName;
 	scaliendb.util.elem("createTableContainer").style.display = "block";
 	scaliendb.util.elem("createTableName").focus();
 	createTableDatabaseID = databaseID;
+	hideDialog = hideCreateTable;
 }
 
 function hideCreateQuorum()
@@ -155,6 +174,12 @@ function hideRemoveNode()
 function hideCreateDatabase()
 {
 	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideRenameDatabase()
+{
+	scaliendb.util.elem("renameDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -220,6 +245,15 @@ function createDatabase()
 	name = scaliendb.util.removeSpaces(name);
 	scaliendb.onResponse = onResponse;
 	scaliendb.createDatabase(name);
+}
+
+function renameDatabase()
+{
+	hideRenameDatabase();
+	var name = scaliendb.util.elem("renameDatabaseName").value;
+	name = scaliendb.util.removeSpaces(name);
+	scaliendb.onResponse = onResponse;
+	scaliendb.renameDatabase(renameDatabaseID, name);
 }
 
 function deleteDatabase()
@@ -516,8 +550,8 @@ function createDatabaseDiv(configState, database)
 	<span class="database-head">Listing tables for database	 <b>' + database["name"] + '</b></span>		\
 	 - <a class="no-line" href="javascript:showDeleteDatabase(\'' + database["databaseID"] + '\')">		\
 	<span class="delete-button">delete database</span></a>												\
-	 - <a class="no-line" href="javascript:showRenameDatabase(\''
-	 + database["databaseID"] + '\', \'' + database["name"] + '\')">									\
+	 - <a class="no-line" href="javascript:showRenameDatabase(\'' +
+	database["databaseID"] + '\', \'' + database["name"] + '\')">										\
 	<span class="modify-button">rename database</span></a>												\
 	 - <a class="no-line" href="javascript:showCreateTable(\''
 	 + database["databaseID"] + '\', \'' + database["name"] + '\')">									\
@@ -734,4 +768,12 @@ function removeOutline()
  	{
  		links[i].onfocus = links[i].blur;
  	}
+}
+
+function getKeycode(e)
+{
+	if (e == null)
+		return event.keyCode;
+	else
+		return e.which;
 }

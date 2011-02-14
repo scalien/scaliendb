@@ -7,6 +7,7 @@
 		<link rel="stylesheet" type="text/css" href="addNode.css"/>
 		<link rel="stylesheet" type="text/css" href="removeNode.css"/>
 		<link rel="stylesheet" type="text/css" href="createDatabase.css"/>
+		<link rel="stylesheet" type="text/css" href="renameDatabase.css"/>
 		<link rel="stylesheet" type="text/css" href="deleteDatabase.css"/>
 		<link rel="stylesheet" type="text/css" href="createTable.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
@@ -97,8 +98,23 @@
 			<br/><br/><br/>
 			<span class="create-database-name">Name:</span><br/><br/>
 			<form action="javascript:createDatabase()">
-			<input id="createDatabaseName" class="create-database-input" type="text" value="testDatabase" /><br/><br/><br/>
+			<input id="createDatabaseName" class="create-database-input" type="text" value="" /><br/><br/><br/>
 			<button type="submit" class="create-database-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- rename-database -->
+		<div id="renameDatabaseContainer">
+		<div class="rename-database-overlay"></div>
+		<div class="rename-database-content">
+			<a href="javascript:hideRenameDatabase()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="rename-database-welcome">Rename database</span><br/>
+			<br/><br/><br/>
+			<span class="rename-database-name">Name:</span><br/><br/>
+			<form action="javascript:renameDatabase()">
+			<input id="renameDatabaseName" class="rename-database-input" type="text" value="" /><br/><br/><br/>
+			<button type="submit" class="rename-database-button">Rename</button>
 			</form>
 		</div>
 		</div>
@@ -122,12 +138,12 @@
 		<div class="create-table-content">
 			<a href="javascript:hideCreateTable()"><img border="0" class="close" src="close.png"/></a>
 			<br/><br/><br/>
-			<span class="create-table-welcome">Create new table<br/>in database: <span id="createTableDatabase"></span></span><br/>
+			<span class="create-table-welcome">Create new table</span><br/>
 			<br/><br/><br/>
 			<form action="javascript:createTable()">
 			<span class="create-table-name">Name:</span><br/><br/>
-			<input id="createTableName" class="create-table-input" type="text" value="testTable" /><br/><br/><br/>
-			<span class="create-table-quorum">Quorum:</span><br/><br/>
+			<input id="createTableName" class="create-table-input" type="text" value="" /><br/><br/><br/>
+			<span class="create-table-quorum">Place first shard in quorum:</span><br/><br/>
 			<input id="createTableQuorum" class="create-table-input" type="text" value="1" /><br/><br/><br/>
 			<button type="submit" class="create-table-button">Create</button>
 			</form>
