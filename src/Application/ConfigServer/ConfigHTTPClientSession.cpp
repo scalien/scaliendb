@@ -58,7 +58,7 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
             session.keepAlive = false;
         else
         {
-            JSONConfigState jsonConfigState(response->configState, session.json);
+            JSONConfigState jsonConfigState(configServer, response->configState, session.json);
             jsonConfigState.Write();
             session.Flush();
             return;
@@ -410,7 +410,7 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
 
 void ConfigHTTPClientSession::PrintConfigState()
 {
-    JSONConfigState jsonConfigState(*configServer->GetDatabaseManager()->GetConfigState(), session.json);
+    JSONConfigState jsonConfigState(configServer, *configServer->GetDatabaseManager()->GetConfigState(), session.json);
     jsonConfigState.Write();
     session.Flush();
 }

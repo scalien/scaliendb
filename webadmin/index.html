@@ -7,6 +7,7 @@
 		<link rel="stylesheet" type="text/css" href="addNode.css"/>
 		<link rel="stylesheet" type="text/css" href="removeNode.css"/>
 		<link rel="stylesheet" type="text/css" href="createDatabase.css"/>
+		<link rel="stylesheet" type="text/css" href="deleteDatabase.css"/>
 		<link rel="stylesheet" type="text/css" href="createTable.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
@@ -98,6 +99,20 @@
 			<form action="javascript:createDatabase()">
 			<input id="createDatabaseName" class="create-database-input" type="text" value="testDatabase" /><br/><br/><br/>
 			<button type="submit" class="create-database-button">Create</button>
+			</form>
+		</div>
+		</div>
+		<!-- delete-database -->
+		<div id="deleteDatabaseContainer">
+		<div class="delete-database-overlay"></div>
+		<div class="delete-database-content">
+			<a href="javascript:hideDeleteDatabase()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="delete-database-welcome">Delete database</span><br/>
+			<br/><br/><br/>
+			<span class="delete-quorum-question">Are you sure you want to delete the database and all contained tables?<br/></span><br/><br/><br/><br/>
+			<form action="javascript:deleteDatabase()"
+			<button type="submit" class="delete-database-button">Delete</button>
 			</form>
 		</div>
 		</div>

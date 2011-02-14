@@ -1,5 +1,6 @@
 #include "JSONConfigState.h"
 #include "System/Macros.h"
+#include "ConfigServer.h"
 
 #define JSON_STRING(obj, member) \
     json.PrintString(#member); \
@@ -17,7 +18,8 @@
     WriteIDList(obj->member);
 
 
-JSONConfigState::JSONConfigState(ConfigState& configState_, JSONSession& json_) :
+JSONConfigState::JSONConfigState(ConfigServer* configServer_, ConfigState& configState_, JSONSession& json_) :
+ configServer(configServer_),
  configState(configState_),
  json(json_)
 {
@@ -219,6 +221,11 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintString("endpoint");
     json.PrintColon();
     json.PrintString(server->endpoint.ToReadBuffer());
+    json.PrintComma();
+    
+    json.PrintString("hasHeartbeat");
+    json.PrintColon();
+    json.PrintBool(configServer->GetHeartbeatManager()->HasHeartbeat(server->nodeID));
     
     json.PrintObjectEnd();
 }
