@@ -7,6 +7,7 @@ function onLoad()
 	scaliendb.util.elem("addNodeContainer").style.display = "none";
 	scaliendb.util.elem("removeNodeContainer").style.display = "none";
 	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
+	scaliendb.util.elem("deleteDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
@@ -111,6 +112,13 @@ function showCreateDatabase()
 	scaliendb.util.elem("createDatabaseName").focus();
 }
 
+var deleteDatabaseID;
+function showDeleteDatabase(databaseID)
+{
+	scaliendb.util.elem("deleteDatabaseContainer").style.display = "block";
+	deleteDatabaseID = databaseID;
+}
+
 var createTableDatabaseID; // TODO: hack global
 function showCreateTable(databaseID, databaseName)
 {
@@ -147,6 +155,12 @@ function hideRemoveNode()
 function hideCreateDatabase()
 {
 	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideDeleteDatabase()
+{
+	scaliendb.util.elem("deleteDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -206,6 +220,13 @@ function createDatabase()
 	name = scaliendb.util.removeSpaces(name);
 	scaliendb.onResponse = onResponse;
 	scaliendb.createDatabase(name);
+}
+
+function deleteDatabase()
+{
+	hideDeleteDatabase();
+	scaliendb.onResponse = onResponse;
+	scaliendb.deleteDatabase(deleteDatabaseID);
 }
 
 function createTable()
@@ -367,7 +388,11 @@ function createDashboard(configState)
 	for (var i in shardServerIDs)
 	{
 		nodeID = shardServerIDs[i];
-		html += ' <span class="healthy shardserver-number">' + nodeID + '</span> ';
+		shardServer = scaliendb.getShardServer(configState, nodeID);
+		if (shardServer["hasHeartbeat"])
+			html += ' <span class="healthy shardserver-number">' + nodeID + '</span> ';
+		else
+			html += ' <span class="no-heartbeat shardserver-number">' + nodeID + '</span> ';
 	}
 	scaliendb.util.elem("shardservers").innerHTML = html;
 }
@@ -423,7 +448,13 @@ function createQuorumDiv(configState, quorum)
 		if (nodeID == primaryID)
 		 	html += ' <span class="primary shardserver-number">' + nodeID + '</span> ';
 		else
-		 	html += ' <span class="secondary shardserver-number">' + nodeID + '</span> ';
+		{
+			shardServer = scaliendb.getShardServer(configState, nodeID);
+			if (shardServer["hasHeartbeat"])
+		 		html += ' <span class="secondary shardserver-number">' + nodeID + '</span> ';
+			else
+		 		html += ' <span class="no-heartbeat shardserver-number">' + nodeID + '</span> ';
+		}
 	}
 	for (var i in quorum["inactiveNodes"])
 	{
@@ -483,8 +514,13 @@ function createDatabaseDiv(configState, database)
 	var html =
 	'																									\
 	<span class="database-head">Listing tables for database	 <b>' + database["name"] + '</b></span>		\
+	 - <a class="no-line" href="javascript:showDeleteDatabase(\'' + database["databaseID"] + '\')">		\
+	<span class="delete-button">delete database</span></a>												\
+	 - <a class="no-line" href="javascript:showRenameDatabase(\''
+	 + database["databaseID"] + '\', \'' + database["name"] + '\')">									\
+	<span class="modify-button">rename database</span></a>												\
 	 - <a class="no-line" href="javascript:showCreateTable(\''
-	 + database["databaseID"] + '\', \'' + database["name"] + '\')">																								\
+	 + database["databaseID"] + '\', \'' + database["name"] + '\')">									\
 	<span class="create-button">create new table</span></a><br/><br/>									\
 	';
 	var div = document.createElement("div");

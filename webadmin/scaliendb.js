@@ -17,6 +17,18 @@ var scaliendb =
 	{ 
 		this.json.rpc(scaliendb.controller, onConfigState, "pollconfigstate");
 	},
+	
+	getShardServer: function(configState, nodeID)
+	{
+		for (var i in configState["shardServers"])
+		{
+			shardServer = configState["shardServers"][i];
+			if (shardServer["nodeID"] == nodeID)
+				return shardServer;
+		}
+		
+		return null;
+	},
 
 	createQuorum: function(nodes)
 	{                                                                                 
@@ -61,6 +73,13 @@ var scaliendb =
 		var params = {};
 		params["name"] = name;
 		this.rpc("createdatabase", params);
+	},
+
+	deleteDatabase: function(name)
+	{ 
+		var params = {};
+		params["name"] = name;
+		this.rpc("deletedatabase", params);
 	},
 	
 	renameDatabase: function(databaseID, name)

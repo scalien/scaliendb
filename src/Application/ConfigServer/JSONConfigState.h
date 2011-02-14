@@ -4,6 +4,8 @@
 #include "Application/ConfigState/ConfigState.h"
 #include "Application/HTTP/JSONSession.h"
 
+class ConfigServer;
+
 /*
 ===============================================================================================
 
@@ -15,7 +17,7 @@
 class JSONConfigState
 {
 public:
-    JSONConfigState(ConfigState& configState, JSONSession& json);
+    JSONConfigState(ConfigServer* configServer, ConfigState& configState, JSONSession& json);
     
     void                Write();
     
@@ -37,6 +39,7 @@ private:
     // this is not implemeted!
     JSONConfigState&    operator=(const JSONConfigState& other);
 
+    ConfigServer*       configServer;
     ConfigState&        configState;
     JSONSession&        json;
 };

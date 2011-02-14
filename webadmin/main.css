@@ -140,7 +140,7 @@ div.quorum {
 	-webkit-box-shadow: 3px 3px 4px #000;
 	-moz-border-radius: 10px;
 	-moz-box-shadow: 3px 3px 4px #000;
-	width: 80%;
+	width: 95%;
 	padding: 20px;
 	margin: 10px;
 }
@@ -172,7 +172,7 @@ div.shard {
 	-webkit-box-shadow: 3px 3px 4px #000;
 	-moz-border-radius: 10px;
 	-moz-box-shadow: 3px 3px 4px #000;
-	width: 80%;
+	width: 90%;
 	padding: 20px;
 	margin: 10px;
 }
@@ -229,6 +229,10 @@ span.secondary {
 	background-color: #04B45F;
 }
 
+span.no-heartbeat {
+	background-color: #B45F04;
+}
+
 span.listing {
 	font-size: 22;
 }
@@ -241,7 +245,7 @@ div.database {
 	-moz-box-shadow: 3px 3px 4px #000;
 	padding: 20px;
 	margin: 10px;
-	width: 80%;
+	width: 90%;
 }
 
 div.table {
@@ -251,7 +255,7 @@ div.table {
 	-moz-box-shadow: 3px 3px 4px #000;
 	padding: 20px;
 	margin: 10px;
-	width: 80%;
+	width: 90%;
 }
 
 span.database-head {
