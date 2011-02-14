@@ -547,8 +547,9 @@ function createQuorumDiv(configState, quorum)
 	'			<br/>																					\
 				Shards: 																				\
 	';
-	for (var shardID in quorum["shards"])
+	for (var i in quorum["shards"])
 	{
+		shardID = quorum["shards"][i]
 		html += ' <span class="shard-number">' + shardID + '</span> ';
 	}
 	html +=
