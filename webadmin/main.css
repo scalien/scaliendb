@@ -172,7 +172,7 @@ div.shard {
 	-webkit-box-shadow: 3px 3px 4px #000;
 	-moz-border-radius: 10px;
 	-moz-box-shadow: 3px 3px 4px #000;
-	width: 90%;
+	width: 95%;
 	padding: 20px;
 	margin: 10px;
 }
@@ -245,7 +245,7 @@ div.database {
 	-moz-box-shadow: 3px 3px 4px #000;
 	padding: 20px;
 	margin: 10px;
-	width: 90%;
+	width: 95%;
 }
 
 div.table {
@@ -255,7 +255,7 @@ div.table {
 	-moz-box-shadow: 3px 3px 4px #000;
 	padding: 20px;
 	margin: 10px;
-	width: 90%;
+	width: 94%;
 }
 
 span.database-head {

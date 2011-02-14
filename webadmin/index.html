@@ -12,6 +12,7 @@
 		<link rel="stylesheet" type="text/css" href="createTable.css"/>
 		<link rel="stylesheet" type="text/css" href="renameTable.css"/>
 		<link rel="stylesheet" type="text/css" href="truncateTable.css"/>
+		<link rel="stylesheet" type="text/css" href="deleteTable.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
 		<script language="javascript" type="text/javascript" src="ui.js"></script>
@@ -174,9 +175,23 @@
 			<br/><br/><br/>
 			<span class="truncate-table-welcome">Truncate table</span><br/>
 			<br/><br/><br/>
-			<span class="truncate-table-question">Are you sure you want to truncate the table?</span><br/><br/><br/><br/>
+			<span class="truncate-table-question">Are you sure you want to truncate the table?<br/>This will delete all shards and create a new, empty shard.</span><br/><br/><br/><br/>
 			<form action="javascript:truncateTable()">
 			<button type="submit" class="truncate-table-button">Truncate</button>
+			</form>
+		</div>
+		</div>
+		<!-- delete-table -->
+		<div id="deleteTableContainer">
+		<div class="delete-table-overlay"></div>
+		<div class="delete-table-content">
+			<a href="javascript:hideDeleteTable()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="delete-table-welcome">Delete table</span><br/>
+			<br/><br/><br/>
+			<span class="delete-table-question">Are you sure you want to delete the table?</span><br/><br/><br/><br/>
+			<form action="javascript:deleteTable()">
+			<button type="submit" class="delete-table-button">Delete</button>
 			</form>
 		</div>
 		</div>

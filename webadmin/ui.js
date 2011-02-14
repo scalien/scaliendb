@@ -12,6 +12,7 @@ function onLoad()
 	scaliendb.util.elem("createTableContainer").style.display = "none";
 	scaliendb.util.elem("renameTableContainer").style.display = "none";
 	scaliendb.util.elem("truncateTableContainer").style.display = "none";
+	scaliendb.util.elem("deleteTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
 	
@@ -91,7 +92,7 @@ function showCreateQuorum()
 	hideDialog = hideCreateQuorum;
 }
 
-var deleteQuorumID; // TODO: hack global
+var deleteQuorumID;
 function showDeleteQuorum(quorumID)
 {
 	scaliendb.util.elem("deleteQuorumContainer").style.display = "block";
@@ -99,7 +100,7 @@ function showDeleteQuorum(quorumID)
 	hideDialog = hideDeleteQuorum;
 }
 
-var addNodeQuorumID; // TODO: hack global
+var addNodeQuorumID;
 function showAddNode(quorumID)
 {
 	scaliendb.util.elem("addNodeContainer").style.display = "block";
@@ -107,7 +108,7 @@ function showAddNode(quorumID)
 	hideDialog = hideAddNode;
 }
 
-var removeNodeQuorumID; // TODO: hack global
+var removeNodeQuorumID;
 function showRemoveNode(quorumID)
 {
 	scaliendb.util.elem("removeNodeContainer").style.display = "block";
@@ -140,7 +141,7 @@ function showDeleteDatabase(databaseID)
 	hideDialog = hideDeleteDatabase;
 }
 
-var createTableDatabaseID; // TODO: hack global
+var createTableDatabaseID;
 function showCreateTable(databaseID, databaseName)
 {
 	scaliendb.util.elem("createTableContainer").style.display = "block";
@@ -149,7 +150,7 @@ function showCreateTable(databaseID, databaseName)
 	hideDialog = hideCreateTable;
 }
 
-var renameTableID; // TODO: hack global
+var renameTableID;
 function showRenameTable(tableID, tableName)
 {
 	scaliendb.util.elem("renameTableName").value = tableName;
@@ -159,12 +160,20 @@ function showRenameTable(tableID, tableName)
 	hideDialog = hideRenameTable;
 }
 
-var truncateTableID; // TODO: hack global
+var truncateTableID;
 function showTruncateTable(tableID)
 {
 	scaliendb.util.elem("truncateTableContainer").style.display = "block";
 	truncateTableID = tableID;
 	hideDialog = hideTruncateTable;
+}
+
+var deleteTableID;
+function showDeleteTable(tableID)
+{
+	scaliendb.util.elem("deleteTableContainer").style.display = "block";
+	deleteTableID = tableID;
+	hideDialog = hideDeleteTable;
 }
 
 function hideCreateQuorum()
@@ -224,6 +233,12 @@ function hideRenameTable()
 function hideTruncateTable()
 {
 	scaliendb.util.elem("truncateTableContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideDeleteTable()
+{
+	scaliendb.util.elem("deleteTableContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -320,6 +335,13 @@ function truncateTable()
 	hideTruncateTable();
 	scaliendb.onResponse = onResponse;
 	scaliendb.truncateTable(truncateTableID);
+}
+
+function deleteTable()
+{
+	hideDeleteTable();
+	scaliendb.onResponse = onResponse;
+	scaliendb.deleteTable(deleteTableID);
 }
 
 function onResponse()
@@ -677,6 +699,8 @@ function createTableDiv(configState, table)
 					<a class="no-line" href="javascript:showTruncateTable(\'' +
 					table["tableID"] +  '\')">															\
 					<span class="delete-button">truncate table</span></a><br/><br/>						\
+					<a class="no-line" href="javascript:showDeleteTable(\'' +
+					table["tableID"] +  '\')">															\
 					<span class="delete-button">delete table</span>										\
 				</td>																					\
 			</tr>																						\
