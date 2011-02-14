@@ -11,6 +11,7 @@
 		<link rel="stylesheet" type="text/css" href="deleteDatabase.css"/>
 		<link rel="stylesheet" type="text/css" href="createTable.css"/>
 		<link rel="stylesheet" type="text/css" href="renameTable.css"/>
+		<link rel="stylesheet" type="text/css" href="truncateTable.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
 		<script language="javascript" type="text/javascript" src="ui.js"></script>
@@ -162,6 +163,20 @@
 			<form action="javascript:renameTable()">
 			<input id="renameTableName" class="rename-table-input" type="text" value="" /><br/><br/><br/>
 			<button type="submit" class="rename-table-button">Rename</button>
+			</form>
+		</div>
+		</div>
+		<!-- truncate-table -->
+		<div id="truncateTableContainer">
+		<div class="truncate-table-overlay"></div>
+		<div class="truncate-table-content">
+			<a href="javascript:hideTruncateTable()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="truncate-table-welcome">Truncate table</span><br/>
+			<br/><br/><br/>
+			<span class="truncate-table-question">Are you sure you want to truncate the table?</span><br/><br/><br/><br/>
+			<form action="javascript:truncateTable()">
+			<button type="submit" class="truncate-table-button">Truncate</button>
 			</form>
 		</div>
 		</div>

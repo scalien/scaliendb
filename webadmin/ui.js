@@ -11,6 +11,7 @@ function onLoad()
 	scaliendb.util.elem("deleteDatabaseContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "none";
 	scaliendb.util.elem("renameTableContainer").style.display = "none";
+	scaliendb.util.elem("truncateTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
 	
@@ -158,6 +159,14 @@ function showRenameTable(tableID, tableName)
 	hideDialog = hideRenameTable;
 }
 
+var truncateTableID; // TODO: hack global
+function showTruncateTable(tableID)
+{
+	scaliendb.util.elem("truncateTableContainer").style.display = "block";
+	truncateTableID = tableID;
+	hideDialog = hideTruncateTable;
+}
+
 function hideCreateQuorum()
 {
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
@@ -209,6 +218,12 @@ function hideCreateTable()
 function hideRenameTable()
 {
 	scaliendb.util.elem("renameTableContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideTruncateTable()
+{
+	scaliendb.util.elem("truncateTableContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -298,6 +313,13 @@ function renameTable()
 	name = scaliendb.util.removeSpaces(name);
 	scaliendb.onResponse = onResponse;
 	scaliendb.renameTable(renameTableID, name);
+}
+
+function truncateTable()
+{
+	hideTruncateTable();
+	scaliendb.onResponse = onResponse;
+	scaliendb.truncateTable(truncateTableID);
 }
 
 function onResponse()
@@ -644,14 +666,16 @@ function createTableDiv(configState, table)
 	
 	html += 
 	'																									\
-					<br/>															\
+					<br/>																				\
 					Replication factor: ' + rfactor + '<br/>											\
 				</td>																					\
 				<td class="table-actions">																\
 					<a class="no-line" href="javascript:showRenameTable(\'' +
-					table["tableID"] + '\', \'' + table["name"] +  '\')">															\
+					table["tableID"] + '\', \'' + table["name"] +  '\')">								\
 					<span class="modify-button">rename table</span></a><br/><br/>						\
-					<span class="delete-button">truncate table</span><br/><br/>							\
+					<a class="no-line" href="javascript:showTruncateTable(\'' +
+					table["tableID"] +  '\')">															\
+					<span class="delete-button">truncate table</span></a><br/><br/>						\
 					<span class="delete-button">delete table</span>										\
 				</td>																					\
 			</tr>																						\
