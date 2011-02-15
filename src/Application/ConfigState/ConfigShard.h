@@ -22,7 +22,6 @@ public:
     ConfigShard&    operator=(const ConfigShard& other);
 
     uint64_t        quorumID;
-    uint64_t        databaseID;
     uint64_t        tableID;
     uint64_t        shardID;
     bool            isDeleted;

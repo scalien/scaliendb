@@ -18,7 +18,6 @@ ConfigShard::ConfigShard(const ConfigShard& other)
 ConfigShard& ConfigShard::operator=(const ConfigShard& other)
 {
     quorumID = other.quorumID;
-    databaseID = other.databaseID;
     tableID = other.tableID;
     shardID = other.shardID;
     isDeleted = other.isDeleted;

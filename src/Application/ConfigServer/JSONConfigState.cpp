@@ -12,6 +12,11 @@
     json.PrintColon(); \
     json.PrintNumber(obj->member);
 
+#define JSON_BOOL(obj, member) \
+    json.PrintString(#member); \
+    json.PrintColon(); \
+    json.PrintBool(obj->member);
+
 #define JSON_IDLIST(obj, member) \
     json.PrintString(#member); \
     json.PrintColon(); \
@@ -181,8 +186,6 @@ void JSONConfigState::WriteShard(ConfigShard* shard)
     json.PrintComma();
     JSON_NUMBER(shard, quorumID);
     json.PrintComma();
-    JSON_NUMBER(shard, databaseID);
-    json.PrintComma();
     JSON_NUMBER(shard, tableID);
     json.PrintComma();
     JSON_STRING(shard, firstKey);
@@ -192,7 +195,8 @@ void JSONConfigState::WriteShard(ConfigShard* shard)
     JSON_NUMBER(shard, shardSize);
     json.PrintComma();
     JSON_STRING(shard, splitKey);
-
+    json.PrintComma();
+    JSON_BOOL(shard, isDeleted);
 
     json.PrintObjectEnd();
 }

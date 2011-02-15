@@ -851,7 +851,6 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
 
     shard = new ConfigShard;
     shard->quorumID = message.quorumID;
-    shard->databaseID = message.databaseID;
     shard->tableID = nextTableID;
     shard->shardID = nextShardID++;
     shards.Append(shard);
@@ -942,7 +941,6 @@ void ConfigState::OnTruncateTable(ConfigMessage& message)
     shard = new ConfigShard;
     shard->shardID = nextShardID++;
     shard->quorumID = quorumID;
-    shard->databaseID = table->databaseID;
     shard->tableID = table->tableID;
 
     table->shards.Append(shard->shardID);
@@ -965,7 +963,6 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     newShard->shardID = nextShardID++;
     newShard->parentShardID = message.shardID;
     newShard->quorumID = parentShard->quorumID;
-    newShard->databaseID = parentShard->databaseID;
     newShard->tableID = parentShard->tableID;
     newShard->firstKey.Write(message.splitKey);
     newShard->lastKey.Write(parentShard->lastKey);
@@ -1347,8 +1344,8 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 {
     int read;
     
-    read = buffer.Readf("%U:%U:%U:%U:%b:%#B:%#B:%b:%U",
-     &shard.quorumID, &shard.databaseID, &shard.tableID, &shard.shardID,
+    read = buffer.Readf("%U:%U:%U:%b:%#B:%#B:%b:%U",
+     &shard.quorumID, &shard.tableID, &shard.shardID,
      &shard.isDeleted, &shard.firstKey, &shard.lastKey,
      &shard.isSplitCreating, &shard.parentShardID);
     CHECK_ADVANCE(15);
@@ -1368,8 +1365,8 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 
 void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer, bool withVolatile)
 {
-    buffer.Appendf("%U:%U:%U:%U:%b:%#B:%#B:%b:%U",
-     shard.quorumID, shard.databaseID, shard.tableID, shard.shardID,
+    buffer.Appendf("%U:%U:%U:%b:%#B:%#B:%b:%U",
+     shard.quorumID, shard.tableID, shard.shardID,
      shard.isDeleted, &shard.firstKey, &shard.lastKey,
      shard.isSplitCreating, shard.parentShardID);
 
