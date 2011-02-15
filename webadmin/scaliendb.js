@@ -8,6 +8,40 @@ var scaliendb =
 	// ScalienDB Client interface
 	//
 	//========================================================================
+	
+	getQuorumState: function(configState, quorumID)
+	{
+		var quorum = locateQuorum(configState, quorumID);
+		if (quorum["hasPrimary"] == "true")
+		{
+			if (quorum["inactiveNodes"].length == 0)
+				state = "healthy";
+			else
+				state = "unhealthy";
+		}
+		else
+			state = "critical";
+	
+		return state;
+	},
+
+	getClusterState: function(configState)
+	{
+		var state = "healthy";
+		for (var i in configState["quorums"])
+		{
+			quorum = configState["quorums"][i];
+			quorumState = scaliendb.getQuorumState(configState, quorum["quorumID"]);
+			if (state == "critical")
+				continue;
+			if (state == "unhealthy" && quorumState == "critical")
+				state = quorumState;
+			if (state == "healthy" && quorumState != "healthy")
+				state = quorumState;
+		}
+		return state;
+	},
+	
 	getConfigState: function(onConfigState)
 	{ 
 		this.json.rpc(scaliendb.controller, onConfigState, "getconfigstate");

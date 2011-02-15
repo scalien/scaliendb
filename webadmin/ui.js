@@ -388,6 +388,9 @@ function onConfigState(configState)
 			createShardDivs(configState, configState[key]);
 	}
 	
+	scaliendb.util.elem("clusterState").textContent = "The ScalienDB cluster is " + scaliendb.getClusterState(configState);
+	scaliendb.util.elem("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
+	
 	clearTimeout(timer);
 	timer = setTimeout("onTimeout()", 1000);
 	// scaliendb.pollConfigState(onConfigState);
@@ -565,7 +568,7 @@ function createQuorumDiv(configState, quorum)
 	<table class="quorum ' + state + '">																\
 		<tr>																							\
 			<td class="quorum-head">																	\
-				<span class="quorum-head">quorum ' + quorum["quorumID"] + '<br/>(' + getQuorumState(configState, quorum["quorumID"]) + ')</span>						\
+				<span class="quorum-head">quorum ' + quorum["quorumID"] + '<br/>(' + scaliendb.getQuorumState(configState, quorum["quorumID"]) + ')</span>						\
 			</td>																						\
 			<td>																						\
 				Shardservers: 																			\
@@ -701,7 +704,7 @@ function createTableDiv(configState, table)
 		if (shard == null)
 			continue;
 		size += shard["shardSize"];
-		html += ' <span class="shard-number ' + getQuorumState(configState, shard["quorumID"]) + '">' + shardID + '</span> ';
+		html += ' <span class="shard-number ' + scaliendb.getQuorumState(configState, shard["quorumID"]) + '">' + shardID + '</span> ';
 		quorumID = shard["quorumID"];
 		quorumIDs.push(quorumID);
 		var quorum = locateQuorum(configState, quorumID);
@@ -719,7 +722,7 @@ function createTableDiv(configState, table)
 	for (var i in quorumIDs)
 	{
 			var quorumID = quorumIDs[i];
-			html += ' <span class="quorum-number ' + getQuorumState(configState, quorumID) + '">' + quorumID + '</span> ';
+			html += ' <span class="quorum-number ' + scaliendb.getQuorumState(configState, quorumID) + '">' + quorumID + '</span> ';
 	}
 	
 	html += 
@@ -804,7 +807,7 @@ function createShardDiv(configState, shard)
 	
 	html += 
 	'																									\
-					Quorum: ' + shard["quorumID"] + ' (' + getQuorumState(configState, shard["quorumID"]) + ')<br/>												\
+					Quorum: ' + shard["quorumID"] + ' (' + scaliendb.getQuorumState(configState, shard["quorumID"]) + ')<br/>												\
 					Start key: ' + (shard["firstKey"] == "" ? "(empty)" : shard["firstKey"]) + '<br/>							  		  		\
 					End key: ' + (shard["lastKey"] == "" ? "(empty)" : shard["lastKey"]) + '<br/>												\
 					Splitable: ' + (shard["isSplitable"] ? "yes" : "no") + '<br/>';
@@ -818,7 +821,7 @@ function createShardDiv(configState, shard)
 	';
 	
 	var div = document.createElement("div");
-	div.setAttribute("class", "shard " + getQuorumState(configState, shard["quorumID"]));
+	div.setAttribute("class", "shard " + scaliendb.getQuorumState(configState, shard["quorumID"]));
 	div.innerHTML = html;
 	return div;
 }
@@ -933,20 +936,4 @@ function humanBytes(bytes, precision)
         return (bytes / terabyte).toFixed(precision) + ' TB';
     else
         return bytes + ' B';
-}
-
-function getQuorumState(configState, quorumID)
-{
-	var quorum = locateQuorum(configState, quorumID);
-	if (quorum["hasPrimary"] == "true")
-	{
-		if (quorum["inactiveNodes"].length == 0)
-			state = "healthy";
-		else
-			state = "unhealthy";
-	}
-	else
-		state = "critical";
-	
-	return state;
 }
