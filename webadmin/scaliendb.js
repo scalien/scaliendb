@@ -17,6 +17,18 @@ var scaliendb =
 	{ 
 		this.json.rpc(scaliendb.controller, onConfigState, "pollconfigstate");
 	},
+
+	getTable: function(configState, tableID)
+	{
+		for (var i in configState["tables"])
+		{
+			table = configState["tables"][i];
+			if (table["tableID"] == tableID)
+				return table;
+		}
+		
+		return null;
+	},
 	
 	getShardServer: function(configState, nodeID)
 	{

@@ -40,7 +40,7 @@ function connect()
 	updateConfigState();
 }
 
-tabs = ["Dashboard", "Quorums", "Schema", "Shards", "Console"];
+tabs = ["Dashboard", "Quorums", "Schema"];
 
 function activateTab(name)
 {
@@ -83,6 +83,23 @@ function activateShardsTab()
 function activateConsoleTab()
 {
 	activateTab("Console");
+}
+
+var tableShardsVisible = new Array();
+function showhideShardsDiv(tableID)
+{
+	if (tableShardsVisible[tableID])
+	{
+		tableShardsVisible[tableID] = false;
+		scaliendb.util.elem("shards_" + tableID).style.display = "none";
+		scaliendb.util.elem("showhideShardsButton_" + tableID).innerHTML = "show shards";
+	}
+	else
+	{
+		tableShardsVisible[tableID] = true;
+		scaliendb.util.elem("shards_" + tableID).style.display = "block";
+		scaliendb.util.elem("showhideShardsButton_" + tableID).innerHTML = "hide shards";
+	}
 }
 
 function showCreateQuorum()
@@ -527,6 +544,7 @@ function createQuorumDiv(configState, quorum)
 {
 	var state;
 	var primaryID = null;
+	explanation = "";
 	if (quorum["hasPrimary"] == "true")
 	{
 		if (quorum["inactiveNodes"].length == 0)
@@ -547,7 +565,7 @@ function createQuorumDiv(configState, quorum)
 	<table class="quorum ' + state + '">																\
 		<tr>																							\
 			<td class="quorum-head">																	\
-				<span class="quorum-head">quorum ' + quorum["quorumID"] + '</span>						\
+				<span class="quorum-head">quorum ' + quorum["quorumID"] + '<br/>(' + getQuorumState(configState, quorum["quorumID"]) + ')</span>						\
 			</td>																						\
 			<td>																						\
 				Shardservers: 																			\
@@ -555,21 +573,29 @@ function createQuorumDiv(configState, quorum)
 	for (var i in quorum["activeNodes"])
 	{
 		nodeID = quorum["activeNodes"][i];
+		shardServer = scaliendb.getShardServer(configState, nodeID);
 		if (nodeID == primaryID)
-		 	html += ' <span class="primary shardserver-number">' + nodeID + '</span> ';
+		{
+		 	html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '"><b>Primary: ' + nodeID + '</b></span> ';
+			explanation = "The quorum has a primary (" + primaryID + "), it is writable and readable. ";
+		}
 		else
 		{
-			shardServer = scaliendb.getShardServer(configState, nodeID);
-			if (shardServer["hasHeartbeat"])
-		 		html += ' <span class="secondary shardserver-number">' + nodeID + '</span> ';
-			else
-		 		html += ' <span class="no-heartbeat shardserver-number">' + nodeID + '</span> ';
+	 		html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '">' + nodeID + '</span> ';
 		}
 	}
+	if (primaryID == null)
+		explanation += "The quorum has no primary, it is not writable. ";
 	for (var i in quorum["inactiveNodes"])
 	{
+		if (primaryID != null)
+			explanation += "The quorum has inactive nodes. These can be brought back into the quorum (if they are up and running) by clicking them above. ";
 		nodeID = quorum["inactiveNodes"][i];
-		html += ' <a class="no-line" title="Activate shard server" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="inactive shardserver-number">' + nodeID + '</span></a> ';
+		shardServer = scaliendb.getShardServer(configState, nodeID);
+		if (shardServer["hasHeartbeat"] && primaryID != null)
+			html += ' <a class="no-line" title="Activate shard server" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="shardserver-number healthy">' + nodeID + ' (click to activate)</span></a> ';
+		else
+			html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '">' + nodeID + '</span> ';
 	}
 	html +=
 	'			<br/>																					\
@@ -585,6 +611,7 @@ function createQuorumDiv(configState, quorum)
 				<br/>																					\
 				Replication round: ' + paxosID + '<br/>													\
 				<!-- Size: 0GB -->																		\
+				Explanation: ' + explanation + '														\
 			</td>																						\
 			<td class="table-actions">																	\
 				<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
@@ -666,13 +693,15 @@ function createTableDiv(configState, table)
 	
 	var quorumIDs = new Array();
 	var rfactor = 0;
+	var size = 0;
 	for (var i in table["shards"])
 	{
 		var shardID = table["shards"][i];
 		var shard = locateShard(configState, shardID);
 		if (shard == null)
 			continue;
-		html += ' <span class="shard-number">' + shardID + '</span> ';
+		size += shard["shardSize"];
+		html += ' <span class="shard-number ' + getQuorumState(configState, shard["quorumID"]) + '">' + shardID + '</span> ';
 		quorumID = shard["quorumID"];
 		quorumIDs.push(quorumID);
 		var quorum = locateQuorum(configState, quorumID);
@@ -690,13 +719,18 @@ function createTableDiv(configState, table)
 	for (var i in quorumIDs)
 	{
 			var quorumID = quorumIDs[i];
-			html += ' <span class="quorum-number">' + quorumID + '</span> ';
+			html += ' <span class="quorum-number ' + getQuorumState(configState, quorumID) + '">' + quorumID + '</span> ';
 	}
 	
 	html += 
 	'																									\
 					<br/>																				\
 					Replication factor: ' + rfactor + '<br/>											\
+					Size: ' + humanBytes(size) + '<br/><br/												\
+					<a class="no-line" href="javascript:showhideShardsDiv(\'' +
+					table["tableID"] +  '\')">															\
+					<span id="showhideShardsButton_' + table["tableID"] + '" class="modify-button">' + 
+					(tableShardsVisible[tableID] ? 'hide shards' : 'show shards') + '</span>			\
 				</td>																					\
 				<td class="table-actions">																\
 					<a class="no-line" href="javascript:showRenameTable(\'' +
@@ -716,6 +750,26 @@ function createTableDiv(configState, table)
 	var div = document.createElement("div");
 	div.setAttribute("class", "table healthy");
 	div.innerHTML = html;
+	
+	var shardsDiv = document.createElement("div");
+	shardsDiv.setAttribute("id", "shards_" + table["tableID"]);
+	if (tableShardsVisible[tableID])
+		shardsDiv.setAttribute("style", "display:block");
+	else
+		shardsDiv.setAttribute("style", "display:none");
+	
+	for (var i in table["shards"])
+	{
+		shardID = table["shards"][i];
+		shard = locateShard(configState, shardID);
+		if (shard == null)
+			continue;
+		var shardDiv = createShardDiv(configState, shard);
+		shardsDiv.appendChild(shardDiv);
+	}
+	
+	div.appendChild(shardsDiv);
+	
 	return div;
 }
 
@@ -728,8 +782,8 @@ function createShardDivs(configState, shards)
 	for (var shard in shards)
 	{
 		var s = shards[shard];
-		var shardDiv = createShardDiv(configState, s);
-		shardsDiv.appendChild(shardDiv);
+		if (!s["isDeleted"])
+			shardsDiv.appendChild(createShardDiv(configState, s));
 	}
 	
 	scaliendb.util.elem("tabPageShards").appendChild(shardsDiv);
@@ -750,23 +804,21 @@ function createShardDiv(configState, shard)
 	
 	html += 
 	'																									\
-					QuorumID: ' + shard["quorumID"] + '<br/>											\
-					DatabaseID: ' + shard["databaseID"] + '<br/>  										\
-					TableID: ' + shard["tableID"] + '<br/>												\
-					Start: "' + shard["firstKey"] + '"<br/>							  		  			\
-					End: "' + shard["lastKey"] + '"<br/>												\
-					Split key: "' + scaliendb.util.defstr(shard["splitKey"]) + '"<br/> 					\
-					Size: ' + scaliendb.util.humanBytes(shard["shardSize"]) + '<br/>	  				\
-				</td>																					\
-				<td class="shard-actions">																\
-					<span class="modify-button">split shard</span><br/><br/>							\
+					Quorum: ' + shard["quorumID"] + ' (' + getQuorumState(configState, shard["quorumID"]) + ')<br/>												\
+					Start key: ' + (shard["firstKey"] == "" ? "(empty)" : shard["firstKey"]) + '<br/>							  		  		\
+					End key: ' + (shard["lastKey"] == "" ? "(empty)" : shard["lastKey"]) + '<br/>												\
+					Splitable: ' + (shard["isSplitable"] ? "yes" : "no") + '<br/>';
+					if (shard["isSplitable"])
+						html +=  'Split key: ' + (scaliendb.util.defstr(shard["splitKey"]) == "" ? "(empty)" : scaliendb.util.defstr(shard["splitKey"])) + '<br/>';
+					html += '																			\
+					Size: ' + humanBytes(scaliendb.util.humanBytes(shard["shardSize"])) + '<br/>	  				\
 				</td>																					\
 			</tr>																						\
 		</table>																						\
 	';
 	
 	var div = document.createElement("div");
-	div.setAttribute("class", "shard healthy");
+	div.setAttribute("class", "shard " + getQuorumState(configState, shard["quorumID"]));
 	div.innerHTML = html;
 	return div;
 }
@@ -860,4 +912,41 @@ function getKeycode(e)
 		return event.keyCode;
 	else
 		return e.which;
+}
+
+function humanBytes(bytes, precision)
+{  
+    var kilobyte = 1024;
+    var megabyte = kilobyte * 1024;
+    var gigabyte = megabyte * 1024;
+    var terabyte = gigabyte * 1024;
+
+    if ((bytes >= 0) && (bytes < kilobyte))
+        return bytes + ' B';
+    else if ((bytes >= kilobyte) && (bytes < megabyte))
+        return (bytes / kilobyte).toFixed(precision) + ' KB';
+    else if ((bytes >= megabyte) && (bytes < gigabyte))
+        return (bytes / megabyte).toFixed(precision) + ' MB';
+    else if ((bytes >= gigabyte) && (bytes < terabyte))
+        return (bytes / gigabyte).toFixed(precision) + ' GB';
+    else if (bytes >= terabyte)
+        return (bytes / terabyte).toFixed(precision) + ' TB';
+    else
+        return bytes + ' B';
+}
+
+function getQuorumState(configState, quorumID)
+{
+	var quorum = locateQuorum(configState, quorumID);
+	if (quorum["hasPrimary"] == "true")
+	{
+		if (quorum["inactiveNodes"].length == 0)
+			state = "healthy";
+		else
+			state = "unhealthy";
+	}
+	else
+		state = "critical";
+	
+	return state;
 }

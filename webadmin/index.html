@@ -198,7 +198,7 @@
 		<!-- main -->
 		<div id="mainContainer">
 			<div class="top-header">
-				<span class="scalien-logo"><img src="scalien_logo.png" /></span>
+				<span class="scalien-logo"><a href="http://scalien.com"><img class="logo" src="scalien_logo2.png" /></a></span>
 				<span class="nav-bar">
 					Connected to <span id="controller">...</span>
 					<a class="no-line" href="javascript:logout()"><span class="refresh-button">logout</span></a>
@@ -208,9 +208,9 @@
 				<a class="no-line" href="javascript:activateDashboardTab()"><span id="tabHeadDashboard" class="tab-head tab-head-active">Dashboard</span></a>
 				<a class="no-line" href="javascript:activateQuorumsTab()"><span id="tabHeadQuorums" class="tab-head tab-head-inactive">Quorums</span></a>
 				<a class="no-line" href="javascript:activateSchemaTab()"><span id="tabHeadSchema" class="tab-head tab-head-inactive">Schema</span></a>
-				<span class="tab-head tab-head-inactive">Shardservers</span>
+				<!-- <span class="tab-head tab-head-inactive">Shardservers</span>
 				<a class="no-line" href="javascript:activateShardsTab()"><span id="tabHeadShards" class="tab-head tab-head-inactive">Shards</span></a>
-				<!-- <span class="tab-head tab-head-inactive">Log</span>
+				<span class="tab-head tab-head-inactive">Log</span>
 				<span class="tab-head tab-head-inactive">Alerts</span>
 				<a class="no-line" href="javascript:activateConsoleTab()"><span id="tabHeadConsole" class="tab-head tab-head-inactive">Console</span></a> -->
 			</div>
@@ -320,30 +320,10 @@
 				<div id="tabPageShards" class="tab-page tab-page-inactive">
 					<span class="listing">Listing shards</span><br/><br/>
 					<div id="shards">
-						<div class="shard healthy">
-							<table class="shard">
-								<tr>
-									<td class="shard-head">
-										<span class="shard-head">quorum 0</span>
-									</td>
-									<td>
-										Shardservers: <span class="primary shardserver-number">0</span><br/>
-										Shards: <span class="shard-number">1</span><br/>
-										Replication round: 0<br/>
-										Size: 0GB
-									</td>
-									<td class="table-actions">
-										<span class="modify-button">add node</span><br/><br/>
-										<span class="modify-button">remove node</span><br/><br/>
-										<span class="delete-button">delete quorum</span>
-									</td>
-								</tr>
-							</table>
-						</div>
 					</div>
 				</div>
 
-				<!-- schema -->
+				<!-- console -->
 				<div id="tabPageConsole" class="tab-page tab-page-inactive">
 					<span class="listing">Console</span><br/><br/>
 					<div id="console">

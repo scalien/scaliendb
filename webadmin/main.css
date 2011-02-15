@@ -28,6 +28,13 @@ span.refresh-button {
 	color: gray;
 }
 
+img.logo {
+	margin-top: 10px;
+	margin-left: 10px;
+	height: 30px;
+	border: 0px;
+}
+
 div.tab-head-container {
 	margin-top: 10px;
 }
@@ -143,6 +150,9 @@ div.quorum {
 	width: 95%;
 	padding: 20px;
 	margin: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
 }
 
 table.quorum {
@@ -172,9 +182,12 @@ div.shard {
 	-webkit-box-shadow: 3px 3px 4px #000;
 	-moz-border-radius: 10px;
 	-moz-box-shadow: 3px 3px 4px #000;
-	width: 95%;
+	width: 94%;
 	padding: 20px;
 	margin: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
 }
 
 table.shard {
@@ -205,15 +218,15 @@ hr.head {
 }
 
 .healthy {
-	background: #D0F5A9;
+	background: #66FF00;
 }
 
 .unhealthy {
-	background: #FE9A2E;
+	background: #CCFF66;
 }
 
 .critical {
-	background: #F6CECE;
+	background: #FF6600;
 }
 
 span.quorum-head {
@@ -230,7 +243,7 @@ span.secondary {
 }
 
 span.no-heartbeat {
-	background-color: #B45F04;
+	background-color: #FF6600;
 }
 
 span.listing {
@@ -246,6 +259,9 @@ div.database {
 	padding: 20px;
 	margin: 10px;
 	width: 95%;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
 }
 
 div.table {
@@ -256,6 +272,9 @@ div.table {
 	padding: 20px;
 	margin: 10px;
 	width: 94%;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
 }
 
 span.database-head {
@@ -289,15 +308,20 @@ span.quorum-number {
 	-moz-border-radius: 8px;
 	padding: 1px 5px;
 	padding-top: 3px;
-	background-color: #AEB404;			
-}
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+/*	background-color: #AEB404;			
+*/}
 
 span.shard-number {
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 8px;
 	padding: 1px 5px;
 	padding-top: 3px;	
-	background-color: #AEB404;			
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
 }
 
 span.shardserver-number {
@@ -305,6 +329,10 @@ span.shardserver-number {
 	-moz-border-radius: 8px;
 	padding: 1px 5px;
 	padding-top: 3px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	color: black;
 }
 
 span.inactive {
