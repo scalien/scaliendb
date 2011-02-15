@@ -580,7 +580,7 @@ function createQuorumDiv(configState, quorum)
 		if (nodeID == primaryID)
 		{
 		 	html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '"><b>Primary: ' + nodeID + '</b></span> ';
-			explanation = "The quorum has a primary (" + primaryID + "), it is writable and readable. ";
+			explanation = "The quorum has a primary (" + primaryID + "), it is writable. ";
 		}
 		else
 		{
@@ -614,7 +614,7 @@ function createQuorumDiv(configState, quorum)
 				<br/>																					\
 				Replication round: ' + paxosID + '<br/>													\
 				<!-- Size: 0GB -->																		\
-				Explanation: ' + explanation + '														\
+				<div class="explanation">Explanation: ' + explanation + '</span>						\
 			</td>																						\
 			<td class="table-actions">																	\
 				<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +

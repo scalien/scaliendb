@@ -103,6 +103,11 @@ span.status-message {
 	color: black;
 }
 
+div.explanation {
+	margin-top: 20px;
+	font-size: 14;
+}
+
 div.shard-server-list
 {
 	margin-top: 10px;
