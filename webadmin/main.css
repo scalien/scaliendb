@@ -296,8 +296,8 @@ span.shard-number {
 	-webkit-border-radius: 3px;
 	-moz-border-radius: 8px;
 	padding: 1px 5px;
-	padding-top: 3px;
-	background-color: #B45F04;
+	padding-top: 3px;	
+	background-color: #AEB404;			
 }
 
 span.shardserver-number {

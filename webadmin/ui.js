@@ -383,6 +383,7 @@ function onTimeout()
 
 function createDashboard(configState)
 {
+	var numDatabasesPrefixText = "";
 	var numDatabasesText = "";
 	var numTables = 0;
 	var numTablesText = "";
@@ -414,7 +415,11 @@ function createDashboard(configState)
 		{
 			var databases = configState[key];  
 			numDatabases = databases.length;
-			numDatabasesText = cardinality(databases.length, "database");
+			if (numDatabases == 1)
+				numDatabasesPrefixText = "is ";
+			else
+				numDatabasesPrefixText = "are ";
+			numDatabasesText = cardinality(numDatabases, "database");
 			for (var database in databases)
 			{
 				var db = databases[database];
@@ -448,7 +453,7 @@ function createDashboard(configState)
 		{
 			var shards = configState[key]; 
 			numShards = shards.length;
-			numShardsText = cardinality(shards.length, "shard");
+			numShardsText = cardinality(scaliendb.getNumShards(configState), "shard");
 		}
 		else if (key == "shardServers")
 		{
@@ -463,9 +468,10 @@ function createDashboard(configState)
 	}
 	avgTables = Math.round(numTables / numDatabases * 10) / 10;
 	avgTablesText = cardinality(avgTables, "table");
-	avgShards = Math.round(numShards/ numTables * 10) / 10;
+	avgShards = Math.round(scaliendb.getNumShards(configState)/ numTables * 10) / 10;
 	avgShardsText = cardinality(avgShards, "shard")
 	
+	scaliendb.util.elem("numDatabasesPrefix").textContent = numDatabasesPrefixText;
 	scaliendb.util.elem("numDatabases").textContent = numDatabasesText;
 	scaliendb.util.elem("numTables").textContent = numTablesText;
 	scaliendb.util.elem("numShards").textContent = numShardsText;

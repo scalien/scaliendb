@@ -29,6 +29,18 @@ var scaliendb =
 		
 		return null;
 	},
+	
+	getNumShards: function(configState)
+	{
+		num = 0;
+		for (var i in configState["shards"])
+		{
+			shard = configState["shards"][i];
+			if (!shard["isDeleted"])
+				num++;
+		}
+		return num;
+	},
 
 	createQuorum: function(nodes)
 	{                                                                                 
