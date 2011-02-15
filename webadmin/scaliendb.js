@@ -25,6 +25,25 @@ var scaliendb =
 		return state;
 	},
 
+	getTableState: function(configState, tableID)
+	{
+		state = "healthy";
+		var table = scaliendb.getTable(configState, tableID);
+		for (var i in table["shards"])
+		{
+			shardID = table["shards"];
+			shard = locateShard(configState, shardID);
+			quorumState = scaliendb.getQuorumState(configState, shard["quorumID"]);
+			if (state == "critical")
+				continue;
+			if (state == "unhealthy" && quorumState == "critical")
+				state = quorumState;
+			if (state == "healthy" && quorumState != "healthy")
+				state = quorumState;
+		}	
+		return state;
+	},
+
 	getClusterState: function(configState)
 	{
 		var state = "healthy";

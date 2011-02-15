@@ -592,7 +592,7 @@ function createQuorumDiv(configState, quorum)
 	for (var i in quorum["inactiveNodes"])
 	{
 		if (primaryID != null)
-			explanation += "The quorum has inactive nodes. These can be brought back into the quorum (if they are up and running) by clicking them above. ";
+			explanation += "The quorum has inactive nodes. These can be brought back into the quorum (once they are up and running) by clicking them above. ";
 		nodeID = quorum["inactiveNodes"][i];
 		shardServer = scaliendb.getShardServer(configState, nodeID);
 		if (shardServer["hasHeartbeat"] && primaryID != null)
@@ -751,7 +751,7 @@ function createTableDiv(configState, table)
 	';
 	
 	var div = document.createElement("div");
-	div.setAttribute("class", "table healthy");
+	div.setAttribute("class", "table " + scaliendb.getTableState(configState, table["tableID"]));
 	div.innerHTML = html;
 	
 	var shardsDiv = document.createElement("div");
