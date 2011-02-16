@@ -371,7 +371,7 @@ int ShellExec(const char* cmdline)
 uint64_t GetProcessID()
 {
 #ifdef _WIN32
-    return (uint64_t) GetProcessID();
+    return (uint64_t) _getpid();
 #else
     return (uint64_t) getpid();
 #endif
