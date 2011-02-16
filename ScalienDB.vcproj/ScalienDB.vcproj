@@ -1229,6 +1229,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Framework\Storage\StorageAsyncList.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageAsyncList.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Framework\Storage\StorageBloomPage.cpp"
 					>
 				</File>
