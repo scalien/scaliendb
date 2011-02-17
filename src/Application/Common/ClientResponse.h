@@ -7,6 +7,8 @@
 #define CLIENTRESPONSE_OK               'O'
 #define CLIENTRESPONSE_NUMBER           'n'
 #define CLIENTRESPONSE_VALUE            'V'
+#define CLIENTRESPONSE_LIST_KEYS        'L'
+#define CLIENTRESPONSE_LIST_KEYVALUES   'l'
 #define CLIENTRESPONSE_CONFIG_STATE     'C'
 #define CLIENTRESPONSE_NOSERVICE        'S'
 #define CLIENTRESPONSE_FAILED           'F'
@@ -32,6 +34,9 @@ public:
     uint64_t        number;
     uint64_t        commandID;
     ReadBuffer      value;
+    unsigned        numKeys;
+    ReadBuffer*     keys;
+    ReadBuffer*     values;
     Buffer*         valueBuffer;
     ConfigState     configState;
 
@@ -45,6 +50,8 @@ public:
     bool            OK();
     bool            Number(uint64_t number);
     bool            Value(ReadBuffer& value);
+    bool            ListKeys(unsigned numListKeys, ReadBuffer* keys);
+    bool            ListKeyValues(unsigned numListKeys, ReadBuffer* keys, ReadBuffer* values);
     bool            ConfigStateResponse(ConfigState& configState);
     bool            NoService();
     bool            Failed();

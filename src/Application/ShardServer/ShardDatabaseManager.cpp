@@ -68,9 +68,12 @@ void ShardDatabaseAsyncList::OnRequestComplete()
     uint64_t                commandID;
     ReadBuffer              userValue;
     StorageFileKeyValue*    it;
+    unsigned                numKeys;
+    unsigned                i;
 
     active = false;
 
+    // handle if disconnected
     if (!ret || !request->session->IsActive())
     {
         if (!request->session->IsActive())
@@ -84,19 +87,36 @@ void ShardDatabaseAsyncList::OnRequestComplete()
         return;
     }
     
+    // create results
+    numKeys = lastResult->dataPage.GetNumKeys();
+    ReadBuffer  keys[numKeys];
+    ReadBuffer  values[numKeys];
+    i = 0;
     FOREACH (it, lastResult->dataPage)
     {
-        // TODO:
-//        ReadValue(value, paxosID, commandID, userValue);
-//        request->response.Value(userValue);
+        keys[i] = it->GetKey();
+        if (keyValues)
+        {
+            userValue = it->GetValue();
+            ReadValue(userValue, paxosID, commandID, values[i]);
+        }
     }
 
-    request->OnComplete(lastResult->final);
+    if (keyValues)
+        request->response.ListKeys(numKeys, keys);
+    else
+        request->response.ListKeyValues(numKeys, keys, values);
+    request->OnComplete(false);
+
+    if (lastResult->final)
+    {
+        request->response.OK();
+        request->OnComplete(true);
+    }
 
     if (async && lastResult->final && !manager->executeReads.IsActive())
         EventLoop::Add(&manager->executeReads);
 }
-
 
 ShardDatabaseManager::ShardDatabaseManager()
 {
@@ -286,6 +306,17 @@ void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 
     if (!executeReads.IsActive())
         EventLoop::Add(&executeReads);
+}
+
+void ShardDatabaseManager::OnClientListRequest(ClientRequest* request)
+{
+//    readRequests.Append(request);
+    readRequests.Add(request);
+
+    environment.SetYieldThreads(true);
+
+    if (!executeLists.IsActive())
+        EventLoop::Add(&executeLists);
 }
 
 void ShardDatabaseManager::ExecuteMessage(

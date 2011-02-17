@@ -21,6 +21,8 @@ void StorageMemoChunkLister::Load(StorageMemoChunk* chunk, ReadBuffer& startKey,
     StorageMemoKeyValue*    kv;
     int                     cmpres;
     unsigned                num;
+
+    num = 0;
     
     kv = chunk->keyValues.Locate(startKey, cmpres);
     if (kv != NULL && cmpres > 0)

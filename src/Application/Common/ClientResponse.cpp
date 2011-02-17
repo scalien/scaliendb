@@ -4,12 +4,16 @@
 ClientResponse::ClientResponse()
 {
     valueBuffer = NULL;
+    keys = NULL;
+    values = NULL;
     type = CLIENTRESPONSE_NORESPONSE;
 }
 
 ClientResponse::~ClientResponse()
 {
     delete valueBuffer;
+    delete[] keys;
+    delete[] values;
 }
 
 void ClientResponse::CopyValue()
@@ -29,6 +33,9 @@ void ClientResponse::Transfer(ClientResponse& other)
     other.value = value;
     other.valueBuffer = valueBuffer;
     other.configState = configState;
+    other.numKeys = numKeys;
+    other.keys = keys;
+    other.values = values;
     
     valueBuffer = NULL;
 }
@@ -50,6 +57,36 @@ bool ClientResponse::Value(ReadBuffer& value_)
 {
     type = CLIENTRESPONSE_VALUE;
     value = value_;
+    return true;
+}
+
+bool ClientResponse::ListKeys(unsigned numKeys_, ReadBuffer* keys_)
+{
+    unsigned    i;
+    
+    type = CLIENTRESPONSE_LIST_KEYS;
+    numKeys = numKeys_;
+    keys = new ReadBuffer[numKeys];
+    for (i = 0; i < numKeys; i++)
+        keys[i] = keys_[i];
+    
+    return true;
+}
+
+bool ClientResponse::ListKeyValues(unsigned numKeys_, ReadBuffer* keys_, ReadBuffer* values_)
+{
+    unsigned    i;
+    
+    type = CLIENTRESPONSE_LIST_KEYVALUES;
+    numKeys = numKeys_;
+    keys = new ReadBuffer[numKeys];
+    values = new ReadBuffer[numKeys];
+    for (i = 0; i < numKeys; i++)
+    {
+        keys[i] = keys_[i];
+        values[i] = values_[i];
+    }
+    
     return true;
 }
 

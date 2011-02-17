@@ -301,6 +301,30 @@ bool ClientRequest::Remove(
     return true;
 }
 
+bool ClientRequest::ListKeys(
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& startKey_, unsigned count_, unsigned offset_)
+{
+    type = CLIENTREQUEST_LIST_KEYS;
+    commandID = commandID_;
+    tableID = tableID_;
+    key.Write(startKey_);
+    count = count_;
+    offset = offset_;
+    return true;
+}
+
+bool ClientRequest::ListKeyValues(
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& startKey_, unsigned count_, unsigned offset_)
+{
+    type = CLIENTREQUEST_LIST_KEYVALUES;
+    commandID = commandID_;
+    tableID = tableID_;
+    key.Write(startKey_);
+    count = count_;
+    offset = offset_;
+    return true;
+}
+
 bool ClientRequest::Submit(
  uint64_t quorumID_)
 {

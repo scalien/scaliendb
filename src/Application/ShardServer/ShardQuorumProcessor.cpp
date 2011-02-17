@@ -314,6 +314,12 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         return;
     }
     
+    if (request->type == CLIENTREQUEST_LIST_KEYS || request->type == CLIENTREQUEST_LIST_KEYVALUES)
+    {
+        shardServer->GetDatabaseManager()->OnClientListRequest(request);
+        return;
+    }
+    
     if (request->type == CLIENTREQUEST_SUBMIT)
     {
         if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)

@@ -86,5 +86,7 @@ TEST_DEFINE(TestStorageAsyncList)
     EventLoop::Shutdown();
     IOProcessor::Shutdown();
 
+    env.Close();
+
     return TEST_SUCCESS;
 }

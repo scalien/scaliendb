@@ -90,6 +90,7 @@ public:
     void                    RemoveDeletedDataShards();
     
     void                    OnClientReadRequest(ClientRequest* request);
+    void                    OnClientListRequest(ClientRequest* request);
     void                    ExecuteMessage(uint64_t paxosID,
                              uint64_t commandID, ShardMessage& message, ClientRequest* request);
         

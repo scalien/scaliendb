@@ -29,6 +29,8 @@
 #define CLIENTREQUEST_APPEND            'p'
 #define CLIENTREQUEST_DELETE            'X'
 #define CLIENTREQUEST_REMOVE            'x'
+#define CLIENTREQUEST_LIST_KEYS         'L'
+#define CLIENTREQUEST_LIST_KEYVALUES    'l'
 #define CLIENTREQUEST_SPLIT_SHARD       'h'
 #define CLIENTREQUEST_SUBMIT            '*'
 
@@ -125,6 +127,9 @@ public:
     bool            ListKeys(
                      uint64_t commandID,
                      uint64_t tableID, ReadBuffer& startKey, unsigned count, unsigned offset);
+    bool            ListKeyValues(
+                     uint64_t commandID,
+                     uint64_t tableID, ReadBuffer& startKey, unsigned count, unsigned offset);
 
     bool            Submit(
                      uint64_t quorumID);
@@ -141,6 +146,8 @@ public:
     uint64_t        shardID;
     uint64_t        nodeID;
     int64_t         number;
+    unsigned        count;
+    unsigned        offset;
     Buffer          name;
     Buffer          key;
     Buffer          value;
