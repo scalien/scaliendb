@@ -39,6 +39,11 @@ uint32_t StorageDataPage::GetCompressedSize()
     return compressedSize;
 }
 
+uint32_t StorageDataPage::GetPageBufferSize()
+{
+    return buffer.GetLength();
+}
+
 StorageKeyValue* StorageDataPage::Get(ReadBuffer& key)
 {
     StorageFileKeyValue* it;

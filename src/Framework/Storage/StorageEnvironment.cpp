@@ -353,26 +353,26 @@ void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageA
 void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, StorageAsyncList* asyncList)
 {
     StorageShard*       shard;
-    Buffer              key;
     Deferred            deferred(asyncList->onComplete);
 
     asyncList->completed = true;
     asyncList->ret = false;
     
-    key.Append(asyncList->prefix);
-    key.Append(asyncList->startKey);
-
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return;
         
-    if (!shard->RangeContains(key))
+    if (!shard->RangeContains(asyncList->startKey))
         return;
 
     numBulkCursors++;
     
-    asyncList->threadPool = asyncThread;
+    deferred.Unset();
+    asyncList->completed = false;
+    asyncList->env = this;
     asyncList->shard = shard;
+    asyncList->stage = StorageAsyncList::START;
+    asyncList->threadPool = asyncThread;
     asyncList->ExecuteAsyncList();
 }
 
@@ -600,6 +600,11 @@ bool StorageEnvironment::GetCommitStatus()
 bool StorageEnvironment::IsCommiting()
 {
     return commitThreadActive;
+}
+
+bool StorageEnvironment::IsShuttingDown()
+{
+    return shuttingDown;
 }
 
 void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)

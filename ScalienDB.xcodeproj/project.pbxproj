@@ -152,6 +152,7 @@
 		9AD1001713059C4200AB777B /* Compressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC2B130431A5004C2469 /* Compressor.cpp */; };
 		9AD1001A13059C4800AB777B /* minilzo.c in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC1D13043142004C2469 /* minilzo.c */; };
 		9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
+		9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
 		9AD5E46012EDD62000F4AF7B /* Mutex_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE81D7D12D5147E0038BDB1 /* Mutex_Posix.cpp */; };
 		9AD5E4E712EF045600F4AF7B /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */; };
 		9AD5E4FE12EF08DA00F4AF7B /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE58A12BFBB3D0069786A /* StorageEnvironment.cpp */; };
@@ -1508,6 +1509,7 @@
 				9AD1001A13059C4800AB777B /* minilzo.c in Sources */,
 				78CD47AF130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */,
 				78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */,
+				9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

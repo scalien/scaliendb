@@ -70,6 +70,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/BloomFilter.o \
 	$(BUILD_DIR)/Framework/Storage/FDGuard.o \
 	$(BUILD_DIR)/Framework/Storage/StorageAsyncGet.o \
+	$(BUILD_DIR)/Framework/Storage/StorageAsyncList.o \
 	$(BUILD_DIR)/Framework/Storage/StorageBloomPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageBulkCursor.o \
 	$(BUILD_DIR)/Framework/Storage/StorageChunkMerger.o \
@@ -81,12 +82,14 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageEnvironment.o \
 	$(BUILD_DIR)/Framework/Storage/StorageEnvironmentWriter.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFileChunk.o \
+	$(BUILD_DIR)/Framework/Storage/StorageFileChunkLister.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFileKeyValue.o \
 	$(BUILD_DIR)/Framework/Storage/StorageHeaderPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageJob.o \
 	$(BUILD_DIR)/Framework/Storage/StorageLogSegment.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunk.o \
+	$(BUILD_DIR)/Framework/Storage/StorageMemoChunkLister.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoKeyValue.o \
 	$(BUILD_DIR)/Framework/Storage/StoragePage.o \
 	$(BUILD_DIR)/Framework/Storage/StoragePageCache.o \

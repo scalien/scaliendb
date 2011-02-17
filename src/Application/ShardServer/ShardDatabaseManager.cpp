@@ -62,6 +62,42 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
         EventLoop::Add(&manager->executeReads);
 }
 
+void ShardDatabaseAsyncList::OnRequestComplete()
+{
+    uint64_t                paxosID;
+    uint64_t                commandID;
+    ReadBuffer              userValue;
+    StorageFileKeyValue*    it;
+
+    active = false;
+
+    if (!ret || !request->session->IsActive())
+    {
+        if (!request->session->IsActive())
+            request->response.NoResponse();
+        else
+            request->response.Failed();
+            
+        request->OnComplete();
+        if (async && !manager->executeLists.IsActive())
+            EventLoop::Add(&manager->executeLists);
+        return;
+    }
+    
+    FOREACH (it, lastResult->dataPage)
+    {
+        // TODO:
+//        ReadValue(value, paxosID, commandID, userValue);
+//        request->response.Value(userValue);
+    }
+
+    request->OnComplete(lastResult->final);
+
+    if (async && lastResult->final && !manager->executeReads.IsActive())
+        EventLoop::Add(&manager->executeReads);
+}
+
+
 ShardDatabaseManager::ShardDatabaseManager()
 {
     yieldStorageThreadsTimer.SetDelay(SHARD_DATABASE_YIELD_THREADS_TIMEOUT);

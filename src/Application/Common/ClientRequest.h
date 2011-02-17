@@ -122,6 +122,9 @@ public:
     bool            Remove(
                      uint64_t commandID,
                      uint64_t tableID, ReadBuffer& key);
+    bool            ListKeys(
+                     uint64_t commandID,
+                     uint64_t tableID, ReadBuffer& startKey, unsigned count, unsigned offset);
 
     bool            Submit(
                      uint64_t quorumID);

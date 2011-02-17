@@ -80,6 +80,8 @@ public:
     bool                    Commit(Callable& onCommit_);
     bool                    GetCommitStatus();
     bool                    IsCommiting();
+
+    bool                    IsShuttingDown();
     
     void                    PrintState(uint16_t contextID, Buffer& buffer);
     

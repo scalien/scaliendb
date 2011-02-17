@@ -27,6 +27,7 @@ public:
 
     uint32_t                GetSize();
     uint32_t                GetCompressedSize();
+    uint32_t                GetPageBufferSize();
 
     StorageKeyValue*        Get(ReadBuffer& key);
 

@@ -2,7 +2,12 @@
 
 #define MAX_PRELOAD_THRESHOLD   1*MB
 
-void StorageFileChunkLister::Load(ReadBuffer filename)
+void StorageFileChunkLister::SetFilename(ReadBuffer filename_)
+{
+    filename.Write(filename_);
+}
+
+void StorageFileChunkLister::Load()
 {
     reader.Open(filename, MAX_PRELOAD_THRESHOLD);
 }

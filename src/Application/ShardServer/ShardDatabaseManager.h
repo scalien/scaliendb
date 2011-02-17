@@ -6,6 +6,7 @@
 #include "Framework/Storage/StorageEnvironment.h"
 #include "Framework/Storage/StorageShardProxy.h"
 #include "Framework/Storage/StorageAsyncGet.h"
+#include "Framework/Storage/StorageAsyncList.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "Application/Common/ClientRequest.h"
 #include "ShardMessage.h"
@@ -15,6 +16,7 @@
 
 class ShardServer;              // forward
 class ShardDatabaseManager;     // forward
+
 /*
 ===============================================================================================
  
@@ -24,6 +26,25 @@ class ShardDatabaseManager;     // forward
 */
 
 class ShardDatabaseAsyncGet : public StorageAsyncGet
+{
+public:
+    ClientRequest*          request;
+    ShardDatabaseManager*   manager;
+    bool                    active;
+    bool                    async;
+    
+    void                    OnRequestComplete();
+};
+
+/*
+===============================================================================================
+ 
+ ShardDatabaseAsyncList -- helper class for async LIST operation
+ 
+===============================================================================================
+*/
+
+class ShardDatabaseAsyncList : public StorageAsyncList
 {
 public:
     ClientRequest*          request;
@@ -48,6 +69,7 @@ class ShardDatabaseManager
     typedef InSortedList<ClientRequest>             ClientRequestList;
 
     friend class ShardDatabaseAsyncGet;
+    friend class ShardDatabaseAsyncList;
 
 public:
     ShardDatabaseManager();
@@ -70,9 +92,7 @@ public:
     void                    OnClientReadRequest(ClientRequest* request);
     void                    ExecuteMessage(uint64_t paxosID,
                              uint64_t commandID, ShardMessage& message, ClientRequest* request);
-    
-    void                    OnAsyncReadComplete();
-    
+        
 private:
     void                    OnYieldStorageThreadsTimer();
     void                    OnExecuteReads();
@@ -86,6 +106,8 @@ private:
     ClientRequestList       readRequests;
     YieldTimer              executeReads;
     ShardDatabaseAsyncGet   asyncGet;
+    YieldTimer              executeLists;
+    ShardDatabaseAsyncList  asyncList;
 };
 
 #endif
