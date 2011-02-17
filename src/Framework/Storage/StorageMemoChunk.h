@@ -23,6 +23,7 @@ class StorageMemoChunk : public StorageChunk
 {
     friend class StorageChunkSerializer;
     friend class StorageEnvironment;
+    friend class StorageMemoChunkLister;
 
 public:
     typedef InTreeMap<StorageMemoKeyValue> KeyValueTree;

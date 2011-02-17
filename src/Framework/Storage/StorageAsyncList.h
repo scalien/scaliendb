@@ -4,6 +4,7 @@
 #include "System/Buffers/ReadBuffer.h"
 #include "System/Events/Callable.h"
 #include "System/Containers/List.h"
+#include "StorageChunkLister.h"
 
 class StorageShard;
 class StorageChunk;
@@ -27,13 +28,13 @@ class StorageAsyncList
     {
         START,
         MEMO_CHUNK,
-        FILE_CHUNK
+        FILE_CHUNK,
+        MERGE
     };
 public:
     ReadBuffer              startKey;
     ReadBuffer              prefix;
     unsigned                count;
-    bool                    forward;
     unsigned                offset;
     bool                    keyValues;
     
@@ -42,17 +43,20 @@ public:
     Stage                   stage;
     Callable                onComplete;
     StorageShard*           shard;
-    StorageChunk**          itChunk;
     StoragePage*            lastLoadedPage;
     ThreadPool*             threadPool;
-    StorageChunkReader*     readers;
-    unsigned                numReaders;
     StorageFileKeyValue**   iterators;
+    StorageChunkLister**    listers;
+    unsigned                numListers;
     ShardList               shards;
 
     StorageAsyncList();
     
     void                    ExecuteAsyncList();
+    void                    LoadMemoChunk();
+    void                    AsyncLoadFileChunks();
+    void                    AsyncMergeResult();
+    StorageFileKeyValue*    Next(ReadBuffer& lastKey);
 };
 
 #endif

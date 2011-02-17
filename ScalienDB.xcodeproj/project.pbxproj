@@ -126,6 +126,10 @@
 		54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74611BE5EF30076BC62 /* Config.cpp */; };
 		54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA6B0711C26CAB00FF4EF6 /* Main.cpp */; };
 		78BCDFF812DA111800438DA5 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */; };
+		78CD47AE130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */; };
+		78CD47AF130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */; };
+		78CD47B2130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */; };
+		78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
@@ -491,6 +495,11 @@
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
 		78BCDFEE12D9EF5500438DA5 /* InTreeMap2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap2.h; sourceTree = "<group>"; };
+		78CD47AC130C26B40022BC9F /* StorageMemoChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageMemoChunkLister.h; sourceTree = "<group>"; };
+		78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageMemoChunkLister.cpp; sourceTree = "<group>"; };
+		78CD47B0130C26C30022BC9F /* StorageFileChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileChunkLister.h; sourceTree = "<group>"; };
+		78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileChunkLister.cpp; sourceTree = "<group>"; };
+		78CD47B4130C26D30022BC9F /* StorageChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkLister.h; sourceTree = "<group>"; };
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
 		9A67257213007D5200C3E6F6 /* Quorum.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Quorum.java; path = Client/Java/Quorum.java; sourceTree = "<group>"; };
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
@@ -725,6 +734,7 @@
 		543DE57612BFBB3D0069786A /* Storage */ = {
 			isa = PBXGroup;
 			children = (
+				78CD47AB130C26870022BC9F /* List */,
 				543DE71012C0B7290069786A /* KeyValue */,
 				543DE70F12C0B7010069786A /* Chunk */,
 				543DE70E12C0B6D60069786A /* Environment */,
@@ -1116,6 +1126,18 @@
 			path = IO;
 			sourceTree = "<group>";
 		};
+		78CD47AB130C26870022BC9F /* List */ = {
+			isa = PBXGroup;
+			children = (
+				78CD47AC130C26B40022BC9F /* StorageMemoChunkLister.h */,
+				78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */,
+				78CD47B0130C26C30022BC9F /* StorageFileChunkLister.h */,
+				78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */,
+				78CD47B4130C26D30022BC9F /* StorageChunkLister.h */,
+			);
+			name = List;
+			sourceTree = "<group>";
+		};
 		9AABB212123EA3AF003626AC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1396,6 +1418,8 @@
 				5485BC1F13043142004C2469 /* minilzo.c in Sources */,
 				5485BC2C130431A5004C2469 /* Compressor.cpp in Sources */,
 				9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */,
+				78CD47AE130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */,
+				78CD47B2130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1482,6 +1506,8 @@
 				9AD5EADA12F7145B00F4AF7B /* StorageAsyncGet.cpp in Sources */,
 				9AD1001713059C4200AB777B /* Compressor.cpp in Sources */,
 				9AD1001A13059C4800AB777B /* minilzo.c in Sources */,
+				78CD47AF130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */,
+				78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
