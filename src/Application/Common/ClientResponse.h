@@ -43,7 +43,10 @@ public:
     ClientResponse();
     ~ClientResponse();
     
+    void            Init();
     void            CopyValue();
+    void            CopyKeys();
+    void            CopyKeyValues();
     void            Transfer(ClientResponse& other);
             
     /* Responses */

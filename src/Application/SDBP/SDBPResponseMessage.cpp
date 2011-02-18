@@ -22,6 +22,37 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R",
              &response->type, &response->commandID, &response->value);
             break;
+        case CLIENTRESPONSE_LIST_KEYS:
+            read = buffer.Readf("%c:%U:%u",
+             &response->type, &response->commandID, &response->numKeys);
+            buffer.Advance(read);
+
+            {
+                ReadBuffer  keys[response->numKeys];
+                for (unsigned i = 0; i < response->numKeys; i++)
+                {
+                    read = buffer.Readf(":%#R", &keys[i]);
+                    buffer.Advance(read);
+                }
+                response->ListKeys(response->numKeys, keys);
+            }
+            break;
+        case CLIENTRESPONSE_LIST_KEYVALUES:
+            read = buffer.Readf("%c:%U:%u",
+             &response->type, &response->commandID, &response->numKeys);
+            buffer.Advance(read);
+            
+            {
+                ReadBuffer  keys[response->numKeys];
+                ReadBuffer  values[response->numKeys];
+                for (unsigned i = 0; i < response->numKeys; i++)
+                {
+                    read = buffer.Readf(":%#R:%#R", &keys[i], &values[i]);
+                    buffer.Advance(read);
+                }
+                response->ListKeyValues(response->numKeys, keys, values);
+            }
+            break;
         case CLIENTRESPONSE_CONFIG_STATE:
             read = buffer.Readf("%c:%U:",
              &response->type, &response->commandID);
@@ -65,6 +96,18 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%#R",
              response->type, response->request->commandID, &response->value);
             return true;
+        case CLIENTRESPONSE_LIST_KEYS:
+            buffer.Writef("%c:%U:%u",
+             response->type, response->request->commandID, response->numKeys);
+            for (unsigned i = 0; i < response->numKeys; i++)
+                buffer.Appendf(":%#R", &response->keys[i]);
+            return true;
+        case CLIENTRESPONSE_LIST_KEYVALUES:
+            buffer.Writef("%c:%U:%u",
+             response->type, response->request->commandID, response->numKeys);
+            for (unsigned i = 0; i < response->numKeys; i++)
+                buffer.Appendf(":%#R:%#R", &response->keys[i], &response->values[i]);
+            return true;            
         case CLIENTRESPONSE_CONFIG_STATE:
             buffer.Writef("%c:%U:",
              response->type, response->request->commandID);
