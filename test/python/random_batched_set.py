@@ -21,7 +21,7 @@ if len(sys.argv) > 1:
 	if len(sys.argv) > 2:
 		start = int(sys.argv[2])
 client = scaliendb.Client(CONTROLLERS)
-#client._set_trace(True)
+client._set_trace(True)
 
 if False:
 	quorum_id = client.create_quorum(["100"])

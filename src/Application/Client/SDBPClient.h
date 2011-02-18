@@ -88,6 +88,9 @@ public:
     int                     Delete(ReadBuffer& key);
     int                     Remove(ReadBuffer& key);
 
+    int                     ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset);
+    int                     ListKeyValues(const ReadBuffer& startKey, unsigned count, unsigned offset);    
+
     int                     Begin();
     int                     Submit();
     int                     Cancel();

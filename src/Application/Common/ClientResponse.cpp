@@ -15,6 +15,7 @@ ClientResponse::~ClientResponse()
 
 void ClientResponse::Init()
 {
+    next = NULL;
     valueBuffer = NULL;
     keys = NULL;
     values = NULL;
@@ -74,12 +75,15 @@ void ClientResponse::Transfer(ClientResponse& other)
     other.commandID = commandID;
     other.value = value;
     other.valueBuffer = valueBuffer;
-    other.configState = configState;
+//    other.configState = configState;
+    configState.Transfer(other.configState);
     other.numKeys = numKeys;
     other.keys = keys;
     other.values = values;
     
     valueBuffer = NULL;
+    keys = NULL;
+    values = NULL;
 }
 
 bool ClientResponse::OK()

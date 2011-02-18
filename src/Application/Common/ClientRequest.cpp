@@ -57,7 +57,9 @@ bool ClientRequest::IsShardServerRequest()
         type == CLIENTREQUEST_APPEND            ||
         type == CLIENTREQUEST_DELETE            ||
         type == CLIENTREQUEST_REMOVE            ||
-        type == CLIENTREQUEST_SUBMIT)
+        type == CLIENTREQUEST_SUBMIT            ||
+        type == CLIENTREQUEST_LIST_KEYS         ||
+        type == CLIENTREQUEST_LIST_KEYVALUES)
             return true;
     
     return false;

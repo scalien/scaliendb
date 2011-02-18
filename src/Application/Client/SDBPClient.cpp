@@ -485,6 +485,16 @@ int Client::Remove(ReadBuffer& key)
     CLIENT_DATA_COMMAND(Remove, key);
 }
 
+int Client::ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset)
+{
+    CLIENT_DATA_COMMAND(ListKeys, (ReadBuffer&) startKey, count, offset);
+}
+
+int Client::ListKeyValues(const ReadBuffer& startKey, unsigned count, unsigned offset)
+{
+    CLIENT_DATA_COMMAND(ListKeyValues, (ReadBuffer&) startKey, count, offset);
+}
+
 int Client::Begin()
 {
     Log_Trace();

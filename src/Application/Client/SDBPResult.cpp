@@ -65,19 +65,31 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     if (!req)
         return false;
 
+    req->responseTime = EventLoop::Now();
     if (resp->type == CLIENTRESPONSE_FAILED)
         req->status = SDBP_FAILED;
-    else
+    else if (resp->type == CLIENTRESPONSE_OK)
         req->status = SDBP_SUCCESS;
 
     if (resp->type == CLIENTRESPONSE_VALUE)
         resp->CopyValue();
+    if (resp->type == CLIENTRESPONSE_LIST_KEYS)
+        resp->CopyKeys();
+    if (resp->type == CLIENTRESPONSE_LIST_KEYVALUES)
+        resp->CopyKeyValues();
 
-    //req->responses.Append(resp);
-    req->responseTime = EventLoop::Now/*Clock*/();
-    //req->response = *resp;
-    resp->Transfer(req->response);
-    numCompleted++;
+    if (req->response.type != CLIENTRESPONSE_NORESPONSE)
+        req->response.next = resp;
+    else
+        resp->Transfer(req->response);
+        
+    if (req->type == CLIENTREQUEST_LIST_KEYS || req->type == CLIENTREQUEST_LIST_KEYVALUES)
+    {
+        if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
+        numCompleted++;
+    }
+    else
+        numCompleted++;
     
 //    Log_Message("commandID: %u", (unsigned) req->commandID);
     
