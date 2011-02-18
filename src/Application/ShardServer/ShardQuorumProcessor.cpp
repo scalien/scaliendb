@@ -532,12 +532,9 @@ void ShardQuorumProcessor::TryAppend()
             if (!first && it->type == SHARDMESSAGE_SPLIT_SHARD)
                 break;
             
-            if (first)
-                first = false;
-
             singleBuffer.Clear();
             it->Write(singleBuffer);
-            if (uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
+            if (first || uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
             {
                 uncompressed.Appendf("%B", &singleBuffer);
                 numMessages++;
@@ -547,6 +544,9 @@ void ShardQuorumProcessor::TryAppend()
             }
             else
                 break;
+
+            if (first)
+                first = false;
         }
         
 //        Log_Debug("numMessages = %u", numMessages);
