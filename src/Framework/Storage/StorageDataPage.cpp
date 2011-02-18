@@ -276,7 +276,7 @@ bool StorageDataPage::Read(Buffer& buffer_)
 {
     char                    type;
     uint16_t                klen;
-    uint32_t                size, checksum, compChecksum, numKeys, vlen, i;
+    uint32_t                size, /*checksum, compChecksum,*/ numKeys, vlen, i;
     ReadBuffer              dataPart, parse, key, value;
     StorageFileKeyValue*    fkv;
     

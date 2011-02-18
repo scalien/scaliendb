@@ -295,7 +295,7 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     bool                usePrevious;
     char                type;
     uint16_t            contextID, klen;
-    uint32_t            size, rest, checksum, compChecksum, vlen;
+    uint32_t            size, rest, checksum, /*compChecksum,*/ vlen;
     uint64_t            logSegmentID, shardID, logCommandID;
     ReadBuffer          parse, dataPart, key, value;
     Buffer              buffer;
