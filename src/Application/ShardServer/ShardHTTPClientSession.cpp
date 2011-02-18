@@ -41,7 +41,7 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
     switch (response->type)
     {
     case CLIENTRESPONSE_OK:
-        session.Print(ReadBuffer("OK"));
+        session.Print("OK");
         break;
     case CLIENTRESPONSE_NUMBER:
         tmp.Writef("%U", response->number);
@@ -51,11 +51,19 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
     case CLIENTRESPONSE_VALUE:
         session.Print(response->value);
         break;
+    case CLIENTRESPONSE_LIST_KEYS:
+        for (unsigned i = 0; i < response->numKeys; i++)
+            session.Print(response->keys[i]);
+        break;
+    case CLIENTRESPONSE_LIST_KEYVALUES:
+        for (unsigned i = 0; i < response->numKeys; i++)
+            session.PrintPair(response->keys[i], response->values[i]);
+        break;
     case CLIENTRESPONSE_NOSERVICE:
-        session.Print(ReadBuffer("NOSERVICE"));
+        session.Print("NOSERVICE");
         break;
     case CLIENTRESPONSE_FAILED:
-        session.Print(ReadBuffer("FAILED"));
+        session.Print("FAILED");
         break;
     }
     
@@ -199,6 +207,10 @@ ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd
         return ProcessDelete();
     if (HTTP_MATCH_COMMAND(cmd, "remove"))
         return ProcessRemove();
+    if (HTTP_MATCH_COMMAND(cmd, "listkeys"))
+        return ProcessListKeys();
+    if (HTTP_MATCH_COMMAND(cmd, "listkeyvalues"))
+        return ProcessListKeyValues();
     
     return NULL;
 }
@@ -316,7 +328,6 @@ ClientRequest* ShardHTTPClientSession::ProcessDelete()
     ClientRequest*  request;
     uint64_t        tableID;
     ReadBuffer      key;
-    ReadBuffer      value;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
@@ -332,13 +343,54 @@ ClientRequest* ShardHTTPClientSession::ProcessRemove()
     ClientRequest*  request;
     uint64_t        tableID;
     ReadBuffer      key;
-    ReadBuffer      value;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_PARAM(params, "key", key);
 
     request = new ClientRequest;
     request->Remove(0, tableID, key);
+
+    return request;    
+}
+
+ClientRequest* ShardHTTPClientSession::ProcessListKeys()
+{
+    ClientRequest*  request;
+    uint64_t        tableID;
+    ReadBuffer      startKey;
+    uint64_t        count;
+    uint64_t        offset;
+    
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+    HTTP_GET_PARAM(params, "startKey", startKey);
+    count = 0;
+    HTTP_GET_OPT_U64_PARAM(params, "count", count);
+    offset = 0;
+    HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
+
+    request = new ClientRequest;
+    request->ListKeys(0, tableID, startKey, count, offset);
+
+    return request;    
+}
+
+ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
+{
+    ClientRequest*  request;
+    uint64_t        tableID;
+    ReadBuffer      startKey;
+    uint64_t        count;
+    uint64_t        offset;
+    
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+    HTTP_GET_PARAM(params, "startKey", startKey);
+    count = 0;
+    HTTP_GET_OPT_U64_PARAM(params, "count", count);
+    offset = 0;
+    HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
+
+    request = new ClientRequest;
+    request->ListKeyValues(0, tableID, startKey, count, offset);
 
     return request;    
 }

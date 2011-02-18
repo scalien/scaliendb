@@ -66,7 +66,8 @@ public:
 class ShardDatabaseManager
 {
     typedef HashMap<uint64_t, StorageShardProxy*>   ShardMap;
-    typedef InSortedList<ClientRequest>             ClientRequestList;
+    typedef InSortedList<ClientRequest>             ClientSortedRequestList;
+    typedef InList<ClientRequest>                   ClientRequestList;
 
     friend class ShardDatabaseAsyncGet;
     friend class ShardDatabaseAsyncList;
@@ -97,6 +98,7 @@ public:
 private:
     void                    OnYieldStorageThreadsTimer();
     void                    OnExecuteReads();
+    void                    OnExecuteLists();
 
     ShardServer*            shardServer;
     StorageEnvironment      environment;
@@ -104,7 +106,8 @@ private:
     ShardMap                quorumPaxosShards;
     ShardMap                quorumLogShards;
     Countdown               yieldStorageThreadsTimer;
-    ClientRequestList       readRequests;
+    ClientSortedRequestList readRequests;
+    ClientRequestList       listRequests;
     YieldTimer              executeReads;
     ShardDatabaseAsyncGet   asyncGet;
     YieldTimer              executeLists;

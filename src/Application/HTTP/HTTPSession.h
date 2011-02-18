@@ -30,6 +30,14 @@
             return NULL; \
     }
 
+#define HTTP_GET_OPT_U64_PARAM(params, name, var) \
+    { \
+        ReadBuffer  tmp; \
+        unsigned    nread; \
+        if (params.GetNamed(name, sizeof("" name) - 1, tmp)) \
+            var = BufferToUInt64(tmp.GetBuffer(), tmp.GetLength(), &nread); \
+    }
+
 class UrlParam;         // forward
 class HTTPConnection;   // forward
 class HTTPRequest;      // forward

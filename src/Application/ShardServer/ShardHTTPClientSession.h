@@ -46,6 +46,8 @@ private:
     ClientRequest*      ProcessAdd();
     ClientRequest*      ProcessDelete();
     ClientRequest*      ProcessRemove();
+    ClientRequest*      ProcessListKeys();
+    ClientRequest*      ProcessListKeyValues();
     void                OnConnectionClose();
 
     ShardServer*        shardServer;
