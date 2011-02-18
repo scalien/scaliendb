@@ -522,9 +522,11 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
     if (HTTP_MATCH_COMMAND(cmd, "deletetable"))
         return ProcessDeleteTable();
     if (HTTP_MATCH_COMMAND(cmd, "truncatetable"))
-        return ProcessTruncateTable();
+        return ProcessTruncateTable();    
 //    if (HTTP_MATCH_COMMAND(cmd, "splitshard"))
 //        return ProcessSplitShard();
+    if (HTTP_MATCH_COMMAND(cmd, "migrateshard"))
+        return ProcessMigrateShard();
     
     return NULL;
 }
@@ -751,6 +753,21 @@ ClientRequest* ConfigHTTPClientSession::ProcessTruncateTable()
 //
 //    return request;
 //}
+
+ClientRequest* ConfigHTTPClientSession::ProcessMigrateShard()
+{
+    ClientRequest*  request;
+    uint64_t        quorumID;
+    uint64_t        shardID;
+    
+    HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+    HTTP_GET_U64_PARAM(params, "shardID", shardID);
+
+    request = new ClientRequest;
+    request->MigrateShard(0, quorumID, shardID);
+
+    return request;
+}
 
 void ConfigHTTPClientSession::OnConnectionClose()
 {

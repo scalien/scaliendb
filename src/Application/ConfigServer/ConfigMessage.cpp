@@ -146,6 +146,14 @@ bool ConfigMessage::SplitShardComplete(uint64_t shardID_)
     return true;
 }
 
+bool ConfigMessage::ShardMigrationComplete(uint64_t quorumID_, uint64_t shardID_)
+{
+    type = CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE;
+    quorumID = quorumID_;
+    shardID = shardID_;
+    return true;
+}
+
 bool ConfigMessage::Read(ReadBuffer& buffer)
 {
     int         read;
@@ -249,6 +257,10 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &type, &shardID);
             break;
+        case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &quorumID, &shardID);
+            break;
 
         default:
             return false;
@@ -343,6 +355,9 @@ bool ConfigMessage::Write(Buffer& buffer)
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
             buffer.Writef("%c:%U",
              type, shardID);
+        case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
+            buffer.Writef("%c:%U:%U",
+             type, quorumID, shardID);
             break;
         
         default:

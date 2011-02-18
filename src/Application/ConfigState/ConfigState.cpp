@@ -58,7 +58,7 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     masterID = other.masterID;
     
     splitting = other.splitting;
-
+    
     FOREACH(quorum, other.quorums)
         quorums.Append(new ConfigQuorum(*quorum));
     
@@ -299,6 +299,8 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnSplitShardBegin(message);
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
             return OnSplitShardComplete(message);
+        case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
+            return OnShardMigrationComplete(message);
      
         case CONFIGMESSAGE_SET_CLUSTER_ID:
             return;
@@ -987,6 +989,23 @@ void ConfigState::OnSplitShardComplete(ConfigMessage& message)
     assert(shard->isSplitCreating);
     
     shard->isSplitCreating = false;
+}
+
+void ConfigState::OnShardMigrationComplete(ConfigMessage& message)
+{
+    ConfigQuorum*   quorum;
+    ConfigShard*    shard;
+    
+    shard = GetShard(message.shardID);
+    assert(shard != NULL);
+    // quorum = old quorum
+    quorum = GetQuorum(shard->quorumID);
+    assert(quorum != NULL);
+    quorum->shards.Remove(shard->shardID);
+    // quorum = new quorum
+    quorum = GetQuorum(message.quorumID);
+    quorum->shards.Add(shard->shardID);
+    shard->quorumID = message.quorumID;
 }
 
 bool ConfigState::ReadQuorums(ReadBuffer& buffer, bool withVolatile)

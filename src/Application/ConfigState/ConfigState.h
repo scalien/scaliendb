@@ -41,6 +41,8 @@ public:
     // 
     bool                hasMaster;
     uint64_t            masterID;
+    
+    bool                splitting;    
     // ========================================================================================
     
     QuorumList          quorums;
@@ -54,9 +56,7 @@ public:
     uint64_t            nextTableID;
     uint64_t            nextShardID;
     uint64_t            nextNodeID;
-    
-    bool                splitting;
-    
+        
     ConfigState();
     ConfigState(const ConfigState& other);
     ~ConfigState();
@@ -121,7 +121,8 @@ private:
     void                OnTruncateTable(ConfigMessage& message);
     void                OnSplitShardBegin(ConfigMessage& message);
     void                OnSplitShardComplete(ConfigMessage& message);
-
+    void                OnShardMigrationComplete(ConfigMessage& message);
+    
     bool                ReadQuorums(ReadBuffer& buffer, bool withVolatile);
     void                WriteQuorums(Buffer& buffer, bool withVolatile);
 

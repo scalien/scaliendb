@@ -333,8 +333,7 @@ void ShardDatabaseManager::ExecuteMessage(
     Buffer          buffer;
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
-
-    // TODO: shard splitting
+    ConfigShard*    configShard;
 
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
     shardID = environment.GetShardID(contextID, message.tableID, message.key);
@@ -437,6 +436,20 @@ void ShardDatabaseManager::ExecuteMessage(
             environment.SplitShard(contextID, message.shardID, message.newShardID, message.splitKey);
             Log_Debug("Split shard, shard ID: %U, split key: %B, new shardID: %U",
              message.shardID, &message.splitKey, message.newShardID);
+            break;
+         case SHARDMESSAGE_MIGRATION_BEGIN:
+            configShard = shardServer->GetConfigState()->GetShard(message.shardID);
+            assert(configShard != NULL);
+            environment.DeleteShard(contextID, message.shardID);
+            environment.CreateShard(
+             contextID, configShard->shardID, configShard->tableID,
+             configShard->firstKey, configShard->lastKey, true, false);
+            break;
+         case SHARDMESSAGE_MIGRATION_SET:
+            environment.Set(contextID, message.shardID, message.key, message.value);
+            break;
+         case SHARDMESSAGE_MIGRATION_DELETE:
+            environment.Delete(contextID, message.shardID, message.key);
             break;
         default:
             ASSERT_FAIL();

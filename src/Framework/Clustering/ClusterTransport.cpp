@@ -196,7 +196,10 @@ void ClusterTransport::UnregisterWriteReadyness(uint64_t nodeID, Callable callab
     FOREACH(it, writeReadynessList)
     {
         if (it->nodeID == nodeID && it->callable == callable)
+        {
             writeReadynessList.Delete(it);
+            return;
+        }
     }
     
     ASSERT_FAIL();

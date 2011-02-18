@@ -61,6 +61,7 @@ private:
     ClientRequest*      ProcessDeleteTable();
     ClientRequest*      ProcessTruncateTable();
 //    ClientRequest*      ProcessSplitShard();
+    ClientRequest*      ProcessMigrateShard();
     
     void                OnConnectionClose();
 

@@ -32,6 +32,7 @@
 #define CLIENTREQUEST_LIST_KEYS         'L'
 #define CLIENTREQUEST_LIST_KEYVALUES    'l'
 #define CLIENTREQUEST_SPLIT_SHARD       'h'
+#define CLIENTREQUEST_MIGRATE_SHARD     'M'
 #define CLIENTREQUEST_SUBMIT            '*'
 
 class ClientSession; // forward
@@ -95,6 +96,8 @@ public:
                      uint64_t commandID, uint64_t tableID);
 //    bool            SplitShard(
 //                     uint64_t commandID, uint64_t shardID, ReadBuffer& key);
+    bool            MigrateShard(
+                     uint64_t commandID, uint64_t quorumID, uint64_t shardID);
     
     // Data manipulations
     bool            Get(

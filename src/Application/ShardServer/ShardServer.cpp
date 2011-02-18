@@ -16,6 +16,7 @@ void ShardServer::Init()
 
     databaseManager.Init(this);
     heartbeatManager.Init(this);
+    migrationWriter.Init(this);
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
 
     runID = REPLICATION_CONFIG->GetRunID();
@@ -171,6 +172,20 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
             Log_Trace("Recieved lease, quorumID = %U, proposalID =  %U",
              message.quorumID, message.proposalID);
             break;
+
+        /* shard migration */
+        case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
+            migrationWriter.Begin(message);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
+        case CLUSTERMESSAGE_SHARDMIGRATION_SET:
+        case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
+        case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
+            quorumProcessor = GetQuorumProcessor(message.quorumID);
+            assert(quorumProcessor != NULL);
+            quorumProcessor->OnShardMigrationClusterMessage(message);
+            break;
+
         default:
             ASSERT_FAIL();
     }

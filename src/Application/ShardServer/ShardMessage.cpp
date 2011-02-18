@@ -77,6 +77,30 @@ void ShardMessage::SplitShard(uint64_t shardID_, uint64_t newShardID_, ReadBuffe
     splitKey.Write(splitKey_);
 }
 
+void ShardMessage::ShardMigrationBegin(uint64_t shardID_)
+{
+    type = SHARDMESSAGE_MIGRATION_BEGIN;
+    shardID = shardID_;
+}
+
+void ShardMessage::ShardMigrationSet(uint64_t shardID_, ReadBuffer& key_, ReadBuffer& value_)
+{
+    type = SHARDMESSAGE_MIGRATION_SET;
+    shardID = shardID_;
+    migrationKey.Write(key_);
+    migrationValue.Write(value_);
+    key.Wrap(migrationKey);
+    value.Wrap(migrationValue);
+}
+
+void ShardMessage::ShardMigrationDelete(uint64_t shardID_, ReadBuffer& key_)
+{
+    type = SHARDMESSAGE_MIGRATION_DELETE;
+    shardID = shardID_;
+    migrationKey.Write(key_);
+    key.Wrap(migrationKey);
+}
+
 int ShardMessage::Read(ReadBuffer& buffer)
 {
     int read;
@@ -119,9 +143,23 @@ int ShardMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R",
              &type, &tableID, &key);
             break;
+        // Shard splitting
         case SHARDMESSAGE_SPLIT_SHARD:
             read = buffer.Readf("%c:%U:%U:%#B",
              &type, &shardID, &newShardID, &splitKey);
+            break;
+        // Shard manipulation
+        case SHARDMESSAGE_MIGRATION_BEGIN:
+            read = buffer.Readf("%c:%U",
+             &type, &shardID);
+            break;
+        case SHARDMESSAGE_MIGRATION_SET:
+            read = buffer.Readf("%c:%U:%#R:%#R",
+             &type, &shardID, &key, &value);
+            break;
+        case SHARDMESSAGE_MIGRATION_DELETE:
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &shardID, &key);
             break;
         default:
             return false;
@@ -167,9 +205,23 @@ bool ShardMessage::Write(Buffer& buffer)
             buffer.Appendf("%c:%U:%#R",
              type, tableID, &key);
             break;
+        // Shard splitting
         case SHARDMESSAGE_SPLIT_SHARD:
             buffer.Appendf("%c:%U:%U:%#B",
              type, shardID, newShardID, &splitKey);
+            break;
+        // Shard migration
+        case SHARDMESSAGE_MIGRATION_BEGIN:
+            buffer.Appendf("%c:%U",
+             type, shardID);
+            break;
+        case SHARDMESSAGE_MIGRATION_SET:
+            buffer.Appendf("%c:%U:%#R:%#R",
+             type, shardID, &key, &value);
+            break;
+        case SHARDMESSAGE_MIGRATION_DELETE:
+            buffer.Appendf("%c:%U:%#R",
+             type, shardID, &key);
             break;
         default:
             return false;

@@ -45,6 +45,8 @@ public:
     void                    TryRegisterShardServer(Endpoint& endpoint);
     void                    TryShardSplitBegin(uint64_t shardID, ReadBuffer splitKey);
     void                    TryShardSplitComplete(uint64_t shardID);
+    
+    void                    OnShardMigrationComplete(ClusterMessage& message);
        
     void                    UpdateListeners();
 
@@ -64,6 +66,10 @@ private:
     void                    SendClientResponse(ConfigMessage& message);
 
     bool                    isCatchingUp;
+
+    bool                    migrating;
+    uint64_t                migrateShardID;
+    uint64_t                migrateQuorumID;
 
     ConfigQuorumContext     quorumContext;
     ConfigServer*           configServer;

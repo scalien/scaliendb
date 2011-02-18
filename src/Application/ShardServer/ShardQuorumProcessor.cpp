@@ -29,6 +29,8 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     ownAppend = false;
     paxosID = 0;
     commandID = 0;
+    isShardMigrationActive = false;
+    migrateShardID = 0;
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     EventLoop::Add(&requestLeaseTimeout);
@@ -401,6 +403,55 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
         EventLoop::Add(&tryAppend);
 }
 
+void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& clusterMessage)
+{
+    ShardMessage*   shardMessage;
+    ClusterMessage  completeMessage;
+
+    if (!quorumContext.IsLeader())
+    {
+        Log_Trace();
+        return;
+    }
+    
+    shardMessage = new ShardMessage();
+    shardMessage->fromClient = false;
+
+    switch (clusterMessage.type)
+    {
+        case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
+            assert(isShardMigrationActive == false);
+            isShardMigrationActive = true;
+            migrateShardID = clusterMessage.shardID;
+            shardMessage->ShardMigrationBegin(clusterMessage.shardID);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_SET:
+            assert(isShardMigrationActive);
+            assert(migrateShardID = clusterMessage.shardID);
+            shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
+            assert(isShardMigrationActive);
+            assert(migrateShardID = clusterMessage.shardID);
+            shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
+            assert(isShardMigrationActive);
+            assert(migrateShardID = clusterMessage.shardID);
+            completeMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
+            shardServer->BroadcastToControllers(completeMessage);
+            isShardMigrationActive = false;
+            migrateShardID = 0;
+            break;
+        default:
+            ASSERT_FAIL();
+    }
+
+    shardMessages.Append(shardMessage);
+
+    if (!tryAppend.IsActive())
+        EventLoop::Add(&tryAppend);
+}
 
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
