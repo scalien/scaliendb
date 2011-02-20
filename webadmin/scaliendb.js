@@ -276,7 +276,7 @@ var scaliendb =
 
 		rpc: function(baseUrl, userfunc, cmd, params)
 		{
-			var url = baseUrl + cmd + "?callback=USERFUNC";
+			var url = baseUrl + cmd + "?callback=USERFUNC&mimetype=text/javascript";
 			for (var name in params)
 			{
 				url += "&" + name + "=";

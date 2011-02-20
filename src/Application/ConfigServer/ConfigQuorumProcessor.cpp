@@ -13,6 +13,8 @@ void ConfigQuorumProcessor::Init(ConfigServer* configServer_, unsigned numConfig
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     
     isCatchingUp = false;
+    configStateChecksum = 0;
+    lastConfigChangeTime = 0;
 }
 
 void ConfigQuorumProcessor::Shutdown()
@@ -270,18 +272,40 @@ void ConfigQuorumProcessor::UpdateListeners()
     ClientRequest*                  itRequest;
     ConfigShardServer*              itShardServer;
     ClusterMessage                  message;
+    Buffer                          checksumBuffer;
+    uint32_t                        checksum;
+    bool                            configChanged;
+    uint64_t                        now;
     
     configState = configServer->GetDatabaseManager()->GetConfigState();
+    message.SetConfigState(*configState);
+    
+    // check if the configState changed at all
+    configChanged = false;
+    message.Write(checksumBuffer);
+    checksum = checksumBuffer.GetChecksum();
+    if (checksum == 0 || checksum != configStateChecksum)
+    {
+        Log_Debug("Config state changed");
+        configChanged = true;
+        configStateChecksum = checksum;
+    }
     
     // update clients
+    now = EventLoop::Now();
     FOREACH (itRequest, listenRequests)
     {
-        itRequest->response.ConfigStateResponse(*configState);
-        itRequest->OnComplete(false);
+        if (configChanged || itRequest->changeTimeout < now - lastConfigChangeTime)
+        {
+            itRequest->response.ConfigStateResponse(*configState);
+            itRequest->OnComplete(false);
+            // TODO: HACK
+            if (itRequest->changeTimeout != 0)
+                lastConfigChangeTime = now;
+        }
     }
     
     // update shard servers
-    message.SetConfigState(*configState);
     FOREACH (itShardServer, configState->shardServers)
     {
         CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
@@ -299,13 +323,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     ConfigState*    configState;
  
     // clear config messages   
-    for (itMessage = configMessages.First(); itMessage != NULL; 
-     itMessage = configMessages.Delete(itMessage))
-    {
-        /* empty */
-    }
-
-    assert(configMessages.GetLength() == 0);
+    configMessages.DeleteList();
 
     // clear client requests
     FOREACH_FIRST (itRequest, requests)

@@ -557,7 +557,7 @@ ClientRequest* ConfigHTTPClientSession::ProcessPollConfigState()
     session.keepAlive = true;
     
     request = new ClientRequest;
-    request->GetConfigState(0);
+    request->GetConfigState(0, 60*1000);
     
     return request;
 }

@@ -1,10 +1,3 @@
-/* http://colorschemedesigner.com/#0141Tw0w0w0w0 */
-
-* {
-	font-family: arial;
-	font-size: 14px;
-}
-
 div.top-header {
 	width: 960px;
 	margin-bottom: 30px;
@@ -25,9 +18,9 @@ span.nav-bar {
 
 span.refresh-button {
 	margin-left: 10px;
-	-webkit-border-radius: 4px;
+	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 1px 1px 2px #000;
-	-moz-border-radius: 4px;
+	-moz-border-radius: 10px;
 	-moz-box-shadow: 1px 1px 2px #000;
 	background: #E6E6E6;
 	padding: 4px;
@@ -75,7 +68,7 @@ div.tab-page-container {
 	-webkit-border-top-right-radius: 10px;
 	-webkit-border-bottom-left-radius: 10px;
 	-webkit-border-bottom-right-radius: 10px;
-	-webkit-box-shadow: 5px 5px 3px #6E6E6E;
+	-webkit-box-shadow: 5px 5px 0px #6E6E6E;
 	-moz-border-radius-topright: 10px;
 	-moz-border-radius-bottomleft: 10px;
 	-moz-border-radius-bottomright: 10px;
@@ -121,41 +114,35 @@ div.shard-server-list
 }
 
 span.create-button {
-	-webkit-border-radius: 6px;
+	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 1px 1px 2px #000;
-	-moz-border-radius: 6px;
+	-moz-border-radius: 10px;
 	-moz-box-shadow: 1px 1px 2px #000;
-	background: #00C90D;
+	background: #04B404;
 	padding: 4px;
 	font-weight: bold;
-	font-family: arial;
-	font-size: 14px;
 	color: white;
 }
 
 span.modify-button {
-	-webkit-border-radius: 6px;
+	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 1px 1px 2px #000;
-	-moz-border-radius: 6px;
+	-moz-border-radius: 10px;
 	-moz-box-shadow: 1px 1px 2px #000;
-	background: #FF7600;
+	background: #F7BE81;
 	padding: 4px;
 	font-weight: bold;
-	font-family: arial;
-	font-size: 14px;
 	color: white;
 }
 
 span.delete-button {
-	-webkit-border-radius: 6px;
+	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 1px 1px 2px #000;
-	-moz-border-radius: 6px;
+	-moz-border-radius: 10px;
 	-moz-box-shadow: 1px 1px 2px #000;
-	background: #FF0700;
+	background: #F78181;
 	padding: 4px;
 	font-weight: bold;
-	font-family: arial;
-	font-size: 14px;
 	color: white;
 }
 
@@ -167,6 +154,9 @@ div.quorum {
 	width: 95%;
 	padding: 20px;
 	margin: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
 }
 
 table.quorum {
@@ -199,6 +189,9 @@ div.shard {
 	width: 94%;
 	padding: 20px;
 	margin: 10px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
 }
 
 table.shard {
@@ -229,7 +222,7 @@ hr.head {
 }
 
 .healthy {
-	background: #67E46F;
+	background: #66FF00;
 }
 
 .unhealthy {
@@ -237,7 +230,7 @@ hr.head {
 }
 
 .critical {
-	background: #FF7673;
+	background: #FF6600;
 }
 
 span.quorum-head {
@@ -246,15 +239,15 @@ span.quorum-head {
 }
 
 span.primary {
-	background-color: #008209;
+	background-color: #5FB404;
 }
 
 span.secondary {
-	background-color: #26972D;
+	background-color: #04B45F;
 }
 
 span.no-heartbeat {
-	background-color: #FF7600;
+	background-color: #FF6600;
 }
 
 span.listing {
@@ -270,6 +263,9 @@ div.database {
 	padding: 20px;
 	margin: 10px;
 	width: 95%;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
 }
 
 div.table {
@@ -280,6 +276,9 @@ div.table {
 	padding: 20px;
 	margin: 10px;
 	width: 94%;
+	border-style: solid;
+	border-width: 1px;
+	border-color: gray;
 }
 
 span.database-head {
@@ -313,30 +312,31 @@ span.quorum-number {
 	-moz-border-radius: 8px;
 	padding: 1px 5px;
 	padding-top: 3px;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
 /*	background-color: #AEB404;			
 */}
 
 span.shard-number {
-	-webkit-border-radius: 4px;
-	-webkit-box-shadow: 1px 1px 2px #000;
-	-moz-border-radius: 4px;
-	-moz-box-shadow: 1px 1px 2px #000;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 8px;
 	padding: 1px 5px;
 	padding-top: 3px;	
-/*	border-style: solid;
+	border-style: solid;
 	border-width: 1px;
 	border-color: black;
-*/}
+}
 
 span.shardserver-number {
-	-webkit-border-radius: 4px;
-	-webkit-box-shadow: 1px 1px 2px #000;
-	-moz-border-radius: 4px;
-	-moz-box-shadow: 1px 1px 2px #000;
+	-webkit-border-radius: 8px;
+	-moz-border-radius: 8px;
 	padding: 1px 5px;
 	padding-top: 3px;
-	color: white;
-	font-weight: bold;
+	border-style: solid;
+	border-width: 1px;
+	border-color: black;
+	color: black;
 }
 
 span.inactive {

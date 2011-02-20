@@ -1,6 +1,7 @@
 #ifndef HTTP_FILE_HANDLER_H
 #define HTTP_FILE_HANDLER_H
 
+#include "System/Buffers/ReadBuffer.h"
 #include "HTTPServer.h"
 
 /*
@@ -14,13 +15,15 @@
 class HTTPFileHandler : public HTTPHandler
 {
 public:
-    HTTPFileHandler(const char* docroot, const char* prefix);
+    void            Init(ReadBuffer& docroot, ReadBuffer& prefix);
+    void            SetDirectoryIndex(ReadBuffer& index);
     
     virtual bool    HandleRequest(HTTPConnection* conn, HTTPRequest& request);
     
 private:
-    const char*     documentRoot;
-    const char*     prefix;
+    ReadBuffer      documentRoot;
+    ReadBuffer      prefix;
+    ReadBuffer      index;
 };
 
 #endif

@@ -86,7 +86,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     if (req->type == CLIENTREQUEST_LIST_KEYS || req->type == CLIENTREQUEST_LIST_KEYVALUES)
     {
         if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
-        numCompleted++;
+            numCompleted++;
     }
     else
         numCompleted++;

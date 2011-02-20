@@ -38,6 +38,7 @@ public:
     void                Advance(unsigned i);
     
     bool                BeginsWith(const char* s);
+    bool                BeginsWith(ReadBuffer& other);
     
     bool                ReadChar(char& x);
     bool                ReadLittle16(uint16_t& x);

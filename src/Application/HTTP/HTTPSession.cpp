@@ -30,11 +30,14 @@ bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& 
     char*       qmark;
     ReadBuffer  rb;
     ReadBuffer  jsonCallback;
+    ReadBuffer  mime;
     
+    uri = request.line.uri;
     rb = request.line.uri;
     if (rb.GetCharAt(0) == '/')
         rb.Advance(1);
     
+    mimeType.Reset();
     ParseType(rb);
     cmd = rb;
 
@@ -53,6 +56,11 @@ bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& 
             HTTP_GET_OPT_PARAM(params, "callback", jsonCallback);
             json.SetCallbackPrefix(jsonCallback);
         }
+        
+        // mime type is overridable
+        HTTP_GET_OPT_PARAM(params, "mimetype", mimeType);
+        if (mimeType.GetLength() != 0)
+            conn->SetContentType(mimeType);
     }
     
     return true;
@@ -63,18 +71,18 @@ void HTTPSession::ParseType(ReadBuffer& rb)
     const char  JSON_PREFIX[] = "json/";
     const char  HTML_PREFIX[] = "html/";
     
-    type = PLAIN;
-    
     if (HTTP_MATCH_PREFIX(rb, JSON_PREFIX))
     {
-        type = JSON;
+        SetType(JSON);
         rb.Advance(sizeof(JSON_PREFIX) - 1);
     }
     else if (HTTP_MATCH_PREFIX(rb, HTML_PREFIX))
     {
-        type = HTML;
+        SetType(HTML);
         rb.Advance(sizeof(HTML_PREFIX) - 1);
     }
+    else
+        SetType(PLAIN);
 }
 
 void HTTPSession::ResponseFail()
@@ -87,6 +95,19 @@ void HTTPSession::ResponseFail()
         json.PrintStatus("error", MSG_FAIL);
     else
         conn->Response(HTTP_STATUS_CODE_OK, MSG_FAIL, sizeof(MSG_FAIL) - 1);
+}
+
+void HTTPSession::Redirect(const ReadBuffer& location)
+{
+    Buffer      extraHeader;
+
+    assert(headerSent == false);
+    if (!conn)
+        return;
+    
+    extraHeader.Writef(HTTP_HEADER_LOCATION ": %R" HTTP_CS_CRLF, &location);
+    extraHeader.NullTerminate();
+    conn->ResponseHeader(HTTP_STATUS_CODE_TEMPORARY_REDIRECT, true, extraHeader.GetBuffer());
 }
 
 void HTTPSession::Print(const ReadBuffer& line)
@@ -102,8 +123,7 @@ void HTTPSession::Print(const ReadBuffer& line)
         if (type == JSON)
             json.Start();
         else
-            conn->ResponseHeader(HTTP_STATUS_CODE_OK, false, 
-             type == PLAIN ? CONTENT_TYPE_PLAIN : CONTENT_TYPE_HTML);
+            conn->WriteHeader(HTTP_STATUS_CODE_OK);
 
         headerSent = true;
     }
@@ -132,8 +152,7 @@ void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)
         if (type == JSON)
             json.Start();
         else
-            conn->ResponseHeader(HTTP_STATUS_CODE_OK, false, 
-             type == PLAIN ? CONTENT_TYPE_PLAIN : CONTENT_TYPE_HTML);
+            conn->WriteHeader(HTTP_STATUS_CODE_OK);
 
         headerSent = true;
     }
@@ -165,3 +184,27 @@ void HTTPSession::Flush()
     conn->Flush(true);
 }
 
+void HTTPSession::SetType(Type type_)
+{
+    const char* mime;
+    
+    type = type_;
+
+    switch (type)
+    {
+    case PLAIN:
+        mime = MIME_TYPE_TEXT_PLAIN;
+        break;
+    case HTML:
+        mime = MIME_TYPE_TEXT_HTML;
+        break;
+    case JSON:
+        mime = MIME_TYPE_APPLICATION_JSON;
+        break;
+    }
+
+    if (mimeType.GetLength() == 0)
+        mimeType.Wrap(mime);
+    
+    conn->SetContentType(mimeType);
+}

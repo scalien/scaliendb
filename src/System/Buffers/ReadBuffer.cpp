@@ -116,6 +116,17 @@ bool ReadBuffer::BeginsWith(const char* s)
         return false;
 }
 
+bool ReadBuffer::BeginsWith(ReadBuffer& other)
+{
+    if (length < other.length)
+        return false;
+
+    if (MEMCMP(buffer, other.length, other.buffer, other.length))
+        return true;
+    else
+        return false;
+}
+
 bool ReadBuffer::ReadChar(char& x)
 {
     if (length < sizeof(char))

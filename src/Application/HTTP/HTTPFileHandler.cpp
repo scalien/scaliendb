@@ -6,7 +6,7 @@
 
 typedef Buffer HeaderArray;
 
-void HttpHeaderAppend(HeaderArray& ha, const char* k, size_t klen, const char* v, size_t vlen)
+static void HttpHeaderAppend(HeaderArray& ha, const char* k, size_t klen, const char* v, size_t vlen)
 {
     ha.Append(k, (unsigned) klen);
     ha.Append(": ", 2);
@@ -14,10 +14,15 @@ void HttpHeaderAppend(HeaderArray& ha, const char* k, size_t klen, const char* v
     ha.Append(HTTP_CS_CRLF, 2);
 }
 
-HTTPFileHandler::HTTPFileHandler(const char* docroot, const char* prefix_)
+void HTTPFileHandler::Init(ReadBuffer& docroot, ReadBuffer& prefix_)
 {
     documentRoot = docroot;
     prefix = prefix_;
+}
+
+void HTTPFileHandler::SetDirectoryIndex(ReadBuffer& index_)
+{
+    index = index_;
 }
 
 bool HTTPFileHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
@@ -31,10 +36,12 @@ bool HTTPFileHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
     size_t          fsize;
     const char*     mimeType;
     
-    if (strncmp(request.line.uri.GetBuffer(), prefix, strlen(prefix)))
+    if (!request.line.uri.BeginsWith(prefix))
         return false;
     
-    path.Writef("%s%R", documentRoot, &request.line.uri);
+    path.Writef("%R%R", &documentRoot, &request.line.uri);
+    if (ReadBuffer::Cmp(request.line.uri, prefix) == 0)
+        path.Appendf("%R", &index);
     path.NullTerminate();
     
     mimeType = MimeTypeFromExtension(strrchr(path.GetBuffer(), '.'));

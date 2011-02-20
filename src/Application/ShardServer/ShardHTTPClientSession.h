@@ -49,7 +49,8 @@ private:
     ClientRequest*      ProcessListKeys();
     ClientRequest*      ProcessListKeyValues();
     void                OnConnectionClose();
-
+    bool                GetRedirectedShardServer(uint64_t tableID, const ReadBuffer& key, Buffer& location);
+    
     ShardServer*        shardServer;
     HTTPSession         session;
     UrlParam            params;

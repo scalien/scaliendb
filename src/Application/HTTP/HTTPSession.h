@@ -67,17 +67,21 @@ public:
     void                ParseType(ReadBuffer& cmd);
 
     void                ResponseFail();
+    void                Redirect(const ReadBuffer& location);
     
     void                Print(const ReadBuffer& line);
     void                PrintPair(const ReadBuffer& key, const ReadBuffer& value);
     void                PrintPair(const char* key, const char* value);
     void                Flush();
+    void                SetType(Type type);
 
     HTTPConnection*     conn;
     Type                type;
     JSONSession         json;
     bool                headerSent;
     bool                keepAlive;
+    ReadBuffer          mimeType;
+    ReadBuffer          uri;
 }; 
 
 #endif

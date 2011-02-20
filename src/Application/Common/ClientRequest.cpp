@@ -12,7 +12,7 @@ void ClientRequest::Init()
     session = NULL;
     response.request = this;
     prev = next = this;
-    
+
     response.NoResponse();
     name.Clear();
     key.Clear();
@@ -77,10 +77,11 @@ bool ClientRequest::GetMaster(uint64_t commandID_)
     return true;
 }
 
-bool ClientRequest::GetConfigState(uint64_t commandID_)
+bool ClientRequest::GetConfigState(uint64_t commandID_, uint64_t changeTimeout_)
 {
     type = CLIENTREQUEST_GET_CONFIG_STATE;
     commandID = commandID_;
+    changeTimeout = changeTimeout_;
     return true;
 }
 

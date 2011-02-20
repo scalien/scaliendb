@@ -36,6 +36,7 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
     Buffer          tmp;
     ReadBuffer      rb;
     ClientResponse* response;
+    Buffer          location;
 
     response = &request->response;
     switch (response->type)
@@ -60,10 +61,16 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
             session.PrintPair(response->keys[i], response->values[i]);
         break;
     case CLIENTRESPONSE_NOSERVICE:
-        session.Print("NOSERVICE");
+        if (GetRedirectedShardServer(request->tableID, request->key, location))
+            session.Redirect(location);
+        else
+            session.Print("NOSERVICE");
         break;
     case CLIENTRESPONSE_FAILED:
-        session.Print("FAILED");
+        if (GetRedirectedShardServer(request->tableID, request->key, location))
+            session.Redirect(location);
+        else
+            session.Print("FAILED");
         break;
     }
     
@@ -400,4 +407,36 @@ void ShardHTTPClientSession::OnConnectionClose()
     shardServer->OnClientClose(this);
     session.SetConnection(NULL);
     delete this;
+}
+
+bool ShardHTTPClientSession::GetRedirectedShardServer(uint64_t tableID, const ReadBuffer& key, 
+ Buffer& location)
+{
+    ConfigState*        configState;
+    ConfigShard*        shard;
+    ConfigQuorum*       quorum;
+    ConfigShardServer*  server;
+    Endpoint            endpoint;
+    
+    configState = shardServer->GetConfigState();
+    shard = configState->GetShard(tableID, key);
+    if (!shard)
+        return false;
+    
+    quorum = configState->GetQuorum(shard->quorumID);
+    if (!quorum)
+        return false;
+    
+    if (!quorum->hasPrimary)
+        return false;
+    
+    server = configState->GetShardServer(quorum->primaryID);
+    if (!server)
+        return false;
+    
+    endpoint = server->endpoint;
+    endpoint.SetPort(server->httpPort);
+    // TODO: change http:// to symbolic const
+    location.Writef("http://%s%R", endpoint.ToString(), &session.uri);
+    return true;
 }

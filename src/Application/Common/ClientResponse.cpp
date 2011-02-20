@@ -75,8 +75,8 @@ void ClientResponse::Transfer(ClientResponse& other)
     other.commandID = commandID;
     other.value = value;
     other.valueBuffer = valueBuffer;
-//    other.configState = configState;
-    configState.Transfer(other.configState);
+    other.configState = configState;
+//    configState.Transfer(other.configState);
     other.numKeys = numKeys;
     other.keys = keys;
     other.values = values;

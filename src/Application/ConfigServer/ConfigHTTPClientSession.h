@@ -67,6 +67,7 @@ private:
     ConfigServer*       configServer;
     HTTPSession         session;
     UrlParam            params;
+    uint32_t            configStateCRC;
 };
 
 #endif

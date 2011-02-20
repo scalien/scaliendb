@@ -259,6 +259,9 @@ void IMFHeader::Free()
     keyvalues = keyvalBuffer;
 }
 
+// macro for calculating remaining length
+#define remlen ((int) (len - (p - buf)))
+
 int IMFHeader::Parse(char* buf, int len, int offs)
 {
     char* p;
@@ -268,9 +271,6 @@ int IMFHeader::Parse(char* buf, int len, int offs)
     KeyValue* keyvalue;
     int keylen;
     int pos;
-
-// macro for calculating remaining length
-#define remlen ((int) (len - (p - buf)))
 
     data = buf;
     

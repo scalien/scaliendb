@@ -62,7 +62,7 @@ public:
 
     // Get config state: databases, tables, shards, quora
     bool            GetConfigState(
-                     uint64_t commandID);
+                     uint64_t commandID, uint64_t changeTimeout = 0);
 
     // Quorum management
     bool            CreateQuorum(
@@ -153,6 +153,7 @@ public:
     Buffer          value;
     Buffer          test;
     List<uint64_t>  nodes;
+    uint64_t        changeTimeout;
     
     ClientRequest*  prev;
     ClientRequest*  next;

@@ -71,6 +71,8 @@ private:
     MessageList             configMessages;
     RequestList             requests;
     RequestList             listenRequests;
+    uint32_t                configStateChecksum;
+    uint64_t                lastConfigChangeTime;
 };
 
 #endif

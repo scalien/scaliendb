@@ -19,8 +19,7 @@ void JSONSession::SetCallbackPrefix(const ReadBuffer& jsonCallback_)
 
 void JSONSession::Start()
 {
-    conn->ResponseHeader(HTTP_STATUS_CODE_OK, false,
-     "Content-type: application/json" HTTP_CS_CRLF);
+    conn->WriteHeader(HTTP_STATUS_CODE_OK);
     
     if (jsonCallback.GetLength())
     {

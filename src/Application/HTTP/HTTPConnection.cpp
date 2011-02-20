@@ -21,6 +21,8 @@ void HTTPConnection::Init(HTTPServer* server_)
     request.Init();
     socket.GetEndpoint(endpoint);
     writeBuffer = NULL;
+    onCloseCallback.Unset();
+    contentType.Reset();
     
     // HACK
     closeAfterSend = false;
@@ -29,6 +31,11 @@ void HTTPConnection::Init(HTTPServer* server_)
 void HTTPConnection::SetOnClose(const Callable& callable)
 {
     onCloseCallback = callable;
+}
+
+void HTTPConnection::SetContentType(ReadBuffer& contentType_)
+{
+    contentType = contentType_;
 }
 
 void HTTPConnection::OnRead()
@@ -95,6 +102,26 @@ void HTTPConnection::Write(const char* s, unsigned length)
     buffer->Append(s, length);
 }
 
+void HTTPConnection::WriteHeader(int code, const char* extraHeader)
+{
+    Buffer*     buffer;
+    unsigned    size;
+
+    buffer = GetWriteBuffer();
+    size = buffer->Writef(
+                "%R %d %s" CS_CRLF
+                "Content-Type: %R" CS_CRLF
+                "Cache-Control: no-cache" CS_CRLF
+                "%s"
+                CS_CRLF
+                , 
+                &request.line.version,
+                code, Status(code),
+                &contentType,
+                close ? "Connection: close" CS_CRLF : "",
+                extraHeader ? extraHeader : "");
+}
+
 int HTTPConnection::Parse(char* buf, int len)
 {
     int pos;
@@ -121,6 +148,8 @@ const char* HTTPConnection::Status(int code)
         return "OK";
     if (code == HTTP_STATUS_CODE_NOT_FOUND)
         return "Not found";
+    if (code == HTTP_STATUS_CODE_TEMPORARY_REDIRECT)
+        return "Temporary redirect";
     
     return "";
 }
@@ -141,6 +170,7 @@ void HTTPConnection::Response(int code, const char* data,
                 "%R %d %s" CS_CRLF
                 "Accept-Range: bytes" CS_CRLF
                 "Content-Length: %d" CS_CRLF
+                "Content-Type: %R" CS_CRLF
                 "Cache-Control: no-cache" CS_CRLF
                 "%s"
                 "%s"
@@ -149,6 +179,7 @@ void HTTPConnection::Response(int code, const char* data,
                 &request.line.version,
                 code, Status(code),
                 len,
+                &contentType,
                 close ? "Connection: close" CS_CRLF : "",
                 header ? header : "");
 

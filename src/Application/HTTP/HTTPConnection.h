@@ -21,13 +21,15 @@ public:
     
     void            Init(HTTPServer* server_);
     void            SetOnClose(const Callable& callable);
+    void            SetContentType(ReadBuffer& contentType);
 
     void            Print(const char* s);
     void            Write(const char* s, unsigned length);
+    void            WriteHeader(int code, const char* extraHeader = NULL);
     void            Response(int code, const char* buf,
-                    int len, bool close = true, const char* header = NULL);
+                     int len, bool close = true, const char* header = NULL);
     void            ResponseHeader(int code, bool close = true,
-                    const char* header = NULL);
+                     const char* header = NULL);
     void            Flush(bool closeAfterSend = false);
 
     HTTPServer*     GetServer() { return server; }
@@ -45,6 +47,7 @@ protected:
     Endpoint        endpoint;
     bool            closeAfterSend;
     Buffer*         writeBuffer;
+    ReadBuffer      contentType;
 
     int             Parse(char* buf, int len);
     int             ProcessGetRequest();
