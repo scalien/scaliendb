@@ -65,9 +65,9 @@ div.tab-head-container {
 }
 
 span.tab-head {
-	-webkit-border-top-left-radius: 10px;
-	-webkit-border-top-right-radius: 10px;
-	-webkit-box-shadow: 3px 3px 4px #000;
+	-webkit-border-top-left-radius: 5px;
+	-webkit-border-top-right-radius: 5px;
+	-webkit-box-shadow: 2px 2px 3px #000;
 	-moz-border-radius-topleft: 10px;
 	-moz-border-radius-topright: 10px;
 	-moz-box-shadow: 3px 3px 4px #000;
