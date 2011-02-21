@@ -407,10 +407,25 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
 {
     ShardMessage*   shardMessage;
     ClusterMessage  completeMessage;
+    Buffer          singleBuffer;
+
+    Log_Debug("ShardQuorumProcessor::OnShardMigrationClusterMessage()");
 
     if (!quorumContext.IsLeader())
     {
         Log_Trace();
+        return;
+    }
+
+    if (clusterMessage.type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT)
+    {
+        assert(isShardMigrationActive);
+        assert(migrateShardID = clusterMessage.shardID);
+        completeMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
+        shardServer->BroadcastToControllers(completeMessage);
+        isShardMigrationActive = false;
+        migrateShardID = 0;
+        Log_Debug("ShardMigration COMMIT");
         return;
     }
     
@@ -424,30 +439,28 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
             isShardMigrationActive = true;
             migrateShardID = clusterMessage.shardID;
             shardMessage->ShardMigrationBegin(clusterMessage.shardID);
+            Log_Debug("ShardMigration BEGIN");
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
             assert(isShardMigrationActive);
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
+            Log_Debug("ShardMigration SET");
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
             assert(isShardMigrationActive);
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
-            break;
-        case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
-            assert(isShardMigrationActive);
-            assert(migrateShardID = clusterMessage.shardID);
-            completeMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
-            shardServer->BroadcastToControllers(completeMessage);
-            isShardMigrationActive = false;
-            migrateShardID = 0;
+            Log_Debug("ShardMigration DELETE");
             break;
         default:
             ASSERT_FAIL();
     }
 
     shardMessages.Append(shardMessage);
+
+    shardMessage->Write(singleBuffer);
+    shardMessagesLength += singleBuffer.GetLength();
 
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
@@ -583,12 +596,9 @@ void ShardQuorumProcessor::TryAppend()
             if (!first && it->type == SHARDMESSAGE_SPLIT_SHARD)
                 break;
             
-            if (first)
-                first = false;
-
             singleBuffer.Clear();
             it->Write(singleBuffer);
-            if (uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
+            if (first || uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
             {
                 uncompressed.Appendf("%B", &singleBuffer);
                 numMessages++;
@@ -598,6 +608,9 @@ void ShardQuorumProcessor::TryAppend()
             }
             else
                 break;
+
+            if (first)
+                first = false;
         }
         
 //        Log_Debug("numMessages = %u", numMessages);

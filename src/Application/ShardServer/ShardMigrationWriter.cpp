@@ -13,8 +13,9 @@ ShardMigrationWriter::~ShardMigrationWriter()
         delete cursor;
 }
 
-void ShardMigrationWriter::Init(ShardServer* shardServer)
+void ShardMigrationWriter::Init(ShardServer* shardServer_)
 {
+    shardServer = shardServer_;
     environment = shardServer->GetDatabaseManager()->GetEnvironment();
 
     Reset();
@@ -24,6 +25,7 @@ void ShardMigrationWriter::Reset()
 {
     cursor = NULL;
     isActive = false;
+    sendFirst = false;
 }
 
 bool ShardMigrationWriter::IsActive()
@@ -33,17 +35,29 @@ bool ShardMigrationWriter::IsActive()
 
 void ShardMigrationWriter::Begin(ClusterMessage& request)
 {
+    ConfigState*        configState;
+    ConfigShardServer*  configShardServer;
+    
     assert(!isActive);
     assert(cursor == NULL);
 
+    configState = shardServer->GetConfigState();
+    configShardServer = configState->GetShardServer(request.nodeID);
+    assert(configShardServer != NULL);
+    
     isActive = true;
     nodeID = request.nodeID;
     quorumID = request.quorumID;
     shardID = request.shardID;
+    
+    CONTEXT_TRANSPORT->AddNode(nodeID, configShardServer->endpoint);
+    
+    Log_Debug("ShardMigrationWriter::Begin() nodeID = %U", nodeID);
+    Log_Debug("ShardMigrationWriter::Begin() quorumID = %U", quorumID);
+    Log_Debug("ShardMigrationWriter::Begin() shardID = %U", shardID);
 
     CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
-    
-    SendFirst();
+    sendFirst = true;
 }
 
 void ShardMigrationWriter::Abort()
@@ -61,6 +75,8 @@ void ShardMigrationWriter::SendFirst()
 
     msg.ShardMigrationBegin(quorumID, shardID);
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
+
+    Log_Debug("ShardMigrationWriter sending BEGIN");
 
     // send first KV
     kv = cursor->First();
@@ -87,6 +103,8 @@ void ShardMigrationWriter::SendCommit()
     msg.ShardMigrationCommit(quorumID, shardID);
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
 
+    Log_Debug("ShardMigrationWriter sending COMMIT");
+
     if (cursor != NULL)
     {
         delete cursor;
@@ -101,6 +119,8 @@ void ShardMigrationWriter::SendCommit()
 void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 {
     ClusterMessage msg;
+
+    Log_Debug("ShardMigrationWriter sedning ITEM");
     
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         msg.ShardMigrationSet(shardID, kv->GetKey(), kv->GetValue());
@@ -112,5 +132,13 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 
 void ShardMigrationWriter::OnWriteReadyness()
 {
-    SendNext();
+    if (sendFirst)
+    {
+        sendFirst = false;
+        SendFirst();
+    }
+    else
+    {
+        SendNext();
+    }
 }

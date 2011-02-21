@@ -36,9 +36,11 @@ private:
     void                    OnWriteReadyness();
 
     bool                    isActive;
+    bool                    sendFirst;
     uint64_t                nodeID;
     uint64_t                quorumID;
     uint64_t                shardID;
+    ShardServer*            shardServer;
     StorageEnvironment*     environment;
     StorageBulkCursor*      cursor;
     StorageKeyValue*        kv;

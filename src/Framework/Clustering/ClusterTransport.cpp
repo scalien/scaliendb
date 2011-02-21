@@ -266,6 +266,9 @@ void ClusterTransport::OnWriteReadyness(ClusterConnection* conn)
     FOREACH(it, writeReadynessList)
     {
         if (it->nodeID == conn->nodeID)
+        {
             Call(it->callable);
+            return;
+        }
     }
 }
