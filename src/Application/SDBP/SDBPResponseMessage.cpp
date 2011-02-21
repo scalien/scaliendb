@@ -36,7 +36,7 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
                 }
                 response->ListKeys(response->numKeys, keys);
             }
-            break;
+            return true;
         case CLIENTRESPONSE_LIST_KEYVALUES:
             read = buffer.Readf("%c:%U:%u",
              &response->type, &response->commandID, &response->numKeys);
@@ -52,7 +52,7 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
                 }
                 response->ListKeyValues(response->numKeys, keys, values);
             }
-            break;
+            return true;
         case CLIENTRESPONSE_CONFIG_STATE:
             read = buffer.Readf("%c:%U:",
              &response->type, &response->commandID);

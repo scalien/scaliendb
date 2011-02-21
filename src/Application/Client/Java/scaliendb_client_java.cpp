@@ -2339,6 +2339,118 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Re
 }
 
 
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeys(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jlong jarg3, jlong jarg4) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  unsigned int arg3 ;
+  unsigned int arg4 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  arg3 = (unsigned int)jarg3; 
+  arg4 = (unsigned int)jarg4; 
+  result = (int)SDBP_ListKeys(arg1,(std::string const &)*arg2,arg3,arg4);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeysCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jlong jarg4, jlong jarg5) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  unsigned int arg4 ;
+  unsigned int arg5 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+  }
+  arg3 = (int)jarg3; 
+  arg4 = (unsigned int)jarg4; 
+  arg5 = (unsigned int)jarg5; 
+  result = (int)SDBP_ListKeysCStr(arg1,arg2,arg3,arg4,arg5);
+  jresult = (jint)result; 
+  {
+    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+  }
+  
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValues(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jlong jarg3, jlong jarg4) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  unsigned int arg3 ;
+  unsigned int arg4 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  if(!jarg2) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  }
+  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
+  if (!arg2_pstr) return 0;
+  std::string arg2_str(arg2_pstr);
+  arg2 = &arg2_str;
+  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  arg3 = (unsigned int)jarg3; 
+  arg4 = (unsigned int)jarg4; 
+  result = (int)SDBP_ListKeyValues(arg1,(std::string const &)*arg2,arg3,arg4);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValuesCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jlong jarg4, jlong jarg5) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  unsigned int arg4 ;
+  unsigned int arg5 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+  }
+  arg3 = (int)jarg3; 
+  arg4 = (unsigned int)jarg4; 
+  arg5 = (unsigned int)jarg5; 
+  result = (int)SDBP_ListKeyValuesCStr(arg1,arg2,arg3,arg4,arg5);
+  jresult = (jint)result; 
+  {
+    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+  }
+  
+  return jresult;
+}
+
+
 SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Begin(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;

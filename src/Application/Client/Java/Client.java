@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Client
 {
@@ -799,6 +801,38 @@ public class Client
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getValueBytes();
 	}
+
+    /**
+     * Lists the specified keys.
+     *
+     * @param   startKey     key to be deleted
+     * @return          the old value
+     */
+	public List<String> listKeys(String startKey, int count, int offset) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, count, offset);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        if (status < 0)
+			throw new SDBPException(Status.toString(status));
+
+        ArrayList<String> keys = new ArrayList<String>();
+        for (result.begin(); !result.isEnd(); result.next())
+            keys.add(result.getKey());
+
+        return keys;
+	}
+
+    public Map<String, String> listKeyValues(String startKey, int count, int offset) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, count, offset);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        if (status < 0)
+			throw new SDBPException(Status.toString(status));
+            
+        TreeMap<String, String> keyValues = new TreeMap<String, String>();
+        for (result.begin(); !result.isEnd(); result.next())
+            keyValues.put(result.getKey(), result.getValue());
+        
+        return keyValues;
+    }
 
     /**
      * Begins a batch operation. After begin is called, each command will be batched and

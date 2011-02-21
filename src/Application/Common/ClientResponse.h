@@ -28,7 +28,6 @@ class ClientResponse
 {
 public:
     ClientRequest*  request;
-    ClientResponse* next;
     
     /* Variables */
     char            type;

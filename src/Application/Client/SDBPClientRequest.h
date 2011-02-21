@@ -20,7 +20,8 @@ namespace SDBPClient
 class Request : public ClientRequest
 {
 public:
-    typedef InTreeNode<Request> TreeNode;
+    typedef InTreeNode<Request>     TreeNode;
+    typedef List<ClientResponse*>   ResponseList;
 
     Request();
 
@@ -30,6 +31,7 @@ public:
     uint64_t        requestTime;
     uint64_t        responseTime;
     unsigned        numQuorums;
+    ResponseList    responses;
 };
 
 };  // namespace

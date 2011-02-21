@@ -209,9 +209,9 @@ TEST_DEFINE(TestClientListKeys)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
-    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(key, 10, 0);
+//    ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
+//    key.Wrap(keybuf, ret);
+    ret = client.ListKeys(key, 0, 0);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -220,6 +220,9 @@ TEST_DEFINE(TestClientListKeys)
     {
         if (result->CommandStatus() != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
+
+        result->GetKey(key);
+        TEST_LOG("%.*s", key.GetLength(), key.GetBuffer());
     }
     
     delete result;

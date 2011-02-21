@@ -36,16 +36,42 @@ void Result::Close()
 void Result::Begin()
 {
     requestCursor = requests.First();
+    responseCursor = requestCursor ? requestCursor->responses.First() : NULL;
+    responsePos = 0;
 }
 
 void Result::Next()
 {
-    requestCursor = requests.Next(requestCursor);
+    if (requestCursor == NULL)
+        return;
+        
+    if (requestCursor->IsList())
+    {
+        responsePos++;
+        if (responsePos >= (*responseCursor)->numKeys)
+        {
+            responseCursor = requestCursor->responses.Next(responseCursor);
+            responsePos = 0;
+            if (responseCursor == NULL)
+                requestCursor = NULL;
+        }
+    }
+    else
+        requestCursor = requests.Next(requestCursor);
 }
 
 bool Result::IsEnd()
 {
-    return requestCursor == NULL;
+    if (requestCursor == NULL)
+        return true;
+    if (requestCursor->IsList())
+    {
+        if (responsePos == (*responseCursor)->numKeys && 
+         requestCursor->responses.Next(responseCursor) == NULL)
+            return true;
+    }
+    
+    return false;
 }
 
 void Result::AppendRequest(Request* req)
@@ -59,7 +85,8 @@ void Result::AppendRequest(Request* req)
 
 bool Result::AppendRequestResponse(ClientResponse* resp)
 {
-    Request*    req;
+    Request*        req;
+    ClientResponse* respCopy;
     
     req = requests.Get(resp->commandID);
     if (!req)
@@ -79,11 +106,15 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
         resp->CopyKeyValues();
 
     if (req->response.type != CLIENTRESPONSE_NORESPONSE)
-        req->response.next = resp;
+    {
+        respCopy = new ClientResponse;
+        resp->Transfer(*respCopy);
+        req->responses.Append(respCopy);
+    }
     else
         resp->Transfer(req->response);
         
-    if (req->type == CLIENTREQUEST_LIST_KEYS || req->type == CLIENTREQUEST_LIST_KEYVALUES)
+    if (req->IsList())
     {
         if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
             numCompleted++;
@@ -122,7 +153,14 @@ int Result::GetKey(ReadBuffer& key)
         return SDBP_API_ERROR;
     
     request = requestCursor;
-    key.Wrap(request->key);
+    if (request->IsList())
+    {
+        if (responsePos >= request->response.numKeys)
+            return SDBP_API_ERROR;
+        key = (*responseCursor)->keys[responsePos];
+    }
+    else
+        key.Wrap(request->key);
     
     return request->status;
 }
@@ -135,7 +173,14 @@ int Result::GetValue(ReadBuffer& value)
         return SDBP_API_ERROR;
     
     request = requestCursor;
-    value.Wrap(*request->response.valueBuffer);
+    if (request->IsList())
+    {
+        if (responsePos >= request->response.numKeys)
+            return SDBP_API_ERROR;
+        value = (*responseCursor)->values[responsePos];
+    }
+    else
+        value.Wrap(*request->response.valueBuffer);
     
     return request->status;
 }

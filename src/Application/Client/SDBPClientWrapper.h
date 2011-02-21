@@ -125,6 +125,10 @@ int             SDBP_Delete(ClientObj client, const std::string& key);
 int             SDBP_DeleteCStr(ClientObj client_, char* key, int len);
 int             SDBP_Remove(ClientObj client, const std::string& key);
 int             SDBP_RemoveCStr(ClientObj client_, char* key, int len);
+int             SDBP_ListKeys(ClientObj client, const std::string& key, unsigned count, unsigned offset);
+int             SDBP_ListKeysCStr(ClientObj client, char* key, int len, unsigned count, unsigned offset);
+int             SDBP_ListKeyValues(ClientObj client, const std::string& key, unsigned count, unsigned offset);
+int             SDBP_ListKeyValuesCStr(ClientObj client, char* key, int len, unsigned count, unsigned offset);
 
 /*
 ===============================================================================================

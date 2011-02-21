@@ -54,6 +54,8 @@ private:
     int             connectivityStatus;
     unsigned        numCompleted;
     Request*        requestCursor;
+    ClientResponse** responseCursor;
+    unsigned        responsePos;
 };
 
 };  // namespace

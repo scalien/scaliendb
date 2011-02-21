@@ -15,7 +15,6 @@ ClientResponse::~ClientResponse()
 
 void ClientResponse::Init()
 {
-    next = NULL;
     valueBuffer = NULL;
     keys = NULL;
     values = NULL;
@@ -41,10 +40,13 @@ void ClientResponse::CopyKeys()
     
     valueBuffer->Clear();
     for (i = 0; i < numKeys; i++)
-    {
-        p = valueBuffer->GetBuffer();
         valueBuffer->Append(keys[i]);
+
+    p = valueBuffer->GetBuffer();
+    for (i = 0; i < numKeys; i++)
+    {
         keys[i].SetBuffer(p);
+        p += keys[i].GetLength();
     }
 }
 
