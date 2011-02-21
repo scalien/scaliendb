@@ -658,7 +658,7 @@ int SDBP_ListKeyValues(ClientObj client_, const std::string& key_, unsigned coun
     return client->ListKeyValues(key, count, offset);
 }
 
-int SDBP_ListKeysValuesCStr(ClientObj client_, char* key_, int len, unsigned count, unsigned offset)
+int SDBP_ListKeyValuesCStr(ClientObj client_, char* key_, int len, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;

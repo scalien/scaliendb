@@ -119,7 +119,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     CLIENT_MUTEX_GUARD_DECLARE();
 
     //Log_Debug("Shard conn: %s, message: %R", endpoint.ToString(), &rbuf);
-        
+    response.Init();
     msg.response = &response;
     if (!msg.Read(rbuf))
         return false;
@@ -146,6 +146,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     }
         
     client->result->AppendRequestResponse(&response);
+    response.Init();
 
     return false;
 }

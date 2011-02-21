@@ -19,6 +19,7 @@ void ClientResponse::Init()
     keys = NULL;
     values = NULL;
     type = CLIENTRESPONSE_NORESPONSE;
+    numKeys = 0;
 }
 
 void ClientResponse::CopyValue()
