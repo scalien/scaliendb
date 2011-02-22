@@ -162,7 +162,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
             
         // TODO: tidy up
         isSplitCreating = IsSplitCreating(itQuorum, newShardID);
-        isSplitCreating |= configServer->GetDatabaseManager()->GetConfigState()->splitting;
+        isSplitCreating |= configServer->GetDatabaseManager()->GetConfigState()->isSplitting;
         
         FOREACH(itQuorumShardInfo, message.quorumShardInfos)
         {

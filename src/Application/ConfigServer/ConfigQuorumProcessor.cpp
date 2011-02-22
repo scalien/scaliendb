@@ -114,7 +114,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
 
     if (request->type == CLIENTREQUEST_MIGRATE_SHARD)
     {
-        if (migrating)
+        if (configState->isMigrating)
             goto MigrationFailed;
         configShard = configState->GetShard(request->shardID);
         if (!configShard)
@@ -132,9 +132,11 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
             goto MigrationFailed;
         dstNodeID = configQuorum->primaryID;
 
-        migrating = true;
-        migrateQuorumID = request->quorumID;
-        migrateShardID = request->shardID;
+        configState->isMigrating = true;
+        configState->migrateQuorumID = request->quorumID;
+        configState->migrateShardID = request->shardID;
+        
+        UpdateListeners();
 
         clusterMessage.ShardMigrationInitiate(
          dstNodeID, request->quorumID, request->shardID);
@@ -279,7 +281,7 @@ void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer spli
             return;
     }
 
-    configServer->GetDatabaseManager()->GetConfigState()->splitting = true;
+    configServer->GetDatabaseManager()->GetConfigState()->isSplitting = true;
 
     Log_Message("Split shard process started (parent shardID = %U)...", shardID);
 
@@ -314,13 +316,16 @@ void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
 void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
 {
     ConfigMessage*  configMessage;
+    ConfigState*    configState;
     
     if (!quorumContext.IsLeader())
         return;
+    
+    configState = configServer->GetDatabaseManager()->GetConfigState();
 
-    assert(migrating);
-    assert(migrateQuorumID == message.quorumID);
-    assert(migrateShardID == message.shardID);
+    assert(configState->isMigrating);
+    assert(configState->migrateQuorumID == message.quorumID);
+    assert(configState->migrateShardID == message.shardID);
     
     configMessage = new ConfigMessage;
     configMessage->fromClient = false;
@@ -448,12 +453,12 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     {
         if (configState->masterID == MY_NODEID)
         {
-            assert(migrating);
-            assert(migrateQuorumID == message.quorumID);
-            assert(migrateShardID == message.shardID);
-            migrating = false;
-            migrateQuorumID = 0;
-            migrateShardID = 0;
+            assert(configState->isMigrating);
+            assert(configState->migrateQuorumID == message.quorumID);
+            assert(configState->migrateShardID == message.shardID);
+            configState->isMigrating = false;
+            configState->migrateQuorumID = 0;
+            configState->migrateShardID = 0;
         }
     }
     
@@ -483,7 +488,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     }
     else if (message.type == CONFIGMESSAGE_SPLIT_SHARD_COMPLETE)
     {
-        configServer->GetDatabaseManager()->GetConfigState()->splitting = false;
+        configServer->GetDatabaseManager()->GetConfigState()->isSplitting = false;
     }
     
     if (IsMaster())

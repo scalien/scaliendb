@@ -67,10 +67,6 @@ private:
 
     bool                    isCatchingUp;
 
-    bool                    migrating;
-    uint64_t                migrateShardID;
-    uint64_t                migrateQuorumID;
-
     ConfigQuorumContext     quorumContext;
     ConfigServer*           configServer;
     

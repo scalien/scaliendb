@@ -57,7 +57,11 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     hasMaster = other.hasMaster;
     masterID = other.masterID;
     
-    splitting = other.splitting;
+    isSplitting = other.isSplitting;
+    
+    isMigrating = other.isMigrating;
+    migrateQuorumID = other.migrateQuorumID;
+    migrateShardID = other.migrateShardID;
     
     FOREACH(quorum, other.quorums)
         quorums.Append(new ConfigQuorum(*quorum));
@@ -88,7 +92,11 @@ void ConfigState::Init()
     hasMaster = false;
     masterID = 0;
     
-    splitting = false;
+    isSplitting = false;
+    
+    isMigrating = false;
+    migrateQuorumID = 0;
+    migrateShardID = 0;
     
     quorums.DeleteList();
     databases.DeleteList();
@@ -109,6 +117,12 @@ void ConfigState::Transfer(ConfigState& other)
 
     other.hasMaster = hasMaster;
     other.masterID = masterID;
+    
+    other.isSplitting = isSplitting;
+    
+    other.isMigrating = isMigrating;
+    other.migrateQuorumID = migrateQuorumID;
+    other.migrateShardID = migrateShardID;
     
     other.quorums = quorums;
     quorums.ClearMembers();
@@ -203,6 +217,19 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
             CHECK_ADVANCE(1);
             hasMaster = true;
         }
+        
+        READ_SEPARATOR();
+        c = NO;
+        read = buffer.Readf("%c", &c);
+        CHECK_ADVANCE(1);
+        if (c == YES)
+        {
+            READ_SEPARATOR();
+            read = buffer.Readf("%U:%U", &migrateShardID, &migrateQuorumID);
+            CHECK_ADVANCE(1);
+            isMigrating = true;
+        }
+
         READ_SEPARATOR();
     }
     
@@ -233,11 +260,21 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     {
         // HACK: in volatile mode the prefix is handled by ConfigState
         // TODO: change convention to Append in every Message::Write
-        buffer.Appendf("%c:", CONFIG_MESSAGE_PREFIX);
+        buffer.Appendf("%c", CONFIG_MESSAGE_PREFIX);
+
+        buffer.Appendf(":");
         if (hasMaster)
-            buffer.Appendf("%c:%U:", YES, masterID);
+            buffer.Appendf("%c:%U", YES, masterID);
         else
-            buffer.Appendf("%c:", NO);
+            buffer.Appendf("%c", NO);
+
+        buffer.Appendf(":");        
+        if (isMigrating)
+            buffer.Appendf("%c:%U:%U", YES, migrateShardID, migrateQuorumID);
+        else
+            buffer.Appendf("%c", NO);
+
+        buffer.Appendf(":");        
     }
 
     WriteNextIDs(buffer);

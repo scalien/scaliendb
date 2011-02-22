@@ -42,7 +42,11 @@ public:
     bool                hasMaster;
     uint64_t            masterID;
     
-    bool                splitting;    
+    bool                isSplitting;    
+
+    bool                isMigrating;
+    uint64_t            migrateShardID;
+    uint64_t            migrateQuorumID;
     // ========================================================================================
     
     QuorumList          quorums;
