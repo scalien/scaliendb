@@ -438,6 +438,7 @@ void ShardDatabaseManager::ExecuteMessage(
              message.shardID, &message.splitKey, message.newShardID);
             break;
          case SHARDMESSAGE_MIGRATION_BEGIN:
+            Log_Debug("shardMigration BEGIN shardID = %U", message.shardID);
             configShard = shardServer->GetConfigState()->GetShard(message.shardID);
             assert(configShard != NULL);
             environment.DeleteShard(contextID, message.shardID);

@@ -56,6 +56,8 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
     Log_Debug("ShardMigrationWriter::Begin() quorumID = %U", quorumID);
     Log_Debug("ShardMigrationWriter::Begin() shardID = %U", shardID);
 
+    Log_Message("Migrating shard %U into quorum %U (sending)", shardID, quorumID);
+
     CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
     sendFirst = true;
 }
@@ -103,7 +105,7 @@ void ShardMigrationWriter::SendCommit()
     msg.ShardMigrationCommit(quorumID, shardID);
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
 
-    Log_Debug("ShardMigrationWriter sending COMMIT");
+    Log_Message("Finished sending shard %U...", shardID);
 
     if (cursor != NULL)
     {
