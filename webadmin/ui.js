@@ -473,7 +473,7 @@ function createDashboard(configState)
 		{
 			var shards = configState[key]; 
 			numShards = shards.length;
-			numShardsText = cardinality(scaliendb.getNumShards(configState), "shard");
+			numShardsText = cardinality(configState["shards"].length, "shard");
 		}
 		else if (key == "shardServers")
 		{
@@ -488,7 +488,7 @@ function createDashboard(configState)
 	}
 	avgTables = Math.round(numTables / numDatabases * 10) / 10;
 	avgTablesText = cardinality(avgTables, "table");
-	avgShards = Math.round(scaliendb.getNumShards(configState)/ numTables * 10) / 10;
+	avgShards = Math.round(configState["shards"].length/ numTables * 10) / 10;
 	avgShardsText = cardinality(avgShards, "shard")
 	
 	scaliendb.util.elem("numDatabasesPrefix").textContent = numDatabasesPrefixText;
@@ -785,8 +785,7 @@ function createShardDivs(configState, shards)
 	for (var shard in shards)
 	{
 		var s = shards[shard];
-		if (!s["isDeleted"])
-			shardsDiv.appendChild(createShardDiv(configState, s));
+		shardsDiv.appendChild(createShardDiv(configState, s));
 	}
 	
 	scaliendb.util.elem("tabPageShards").appendChild(shardsDiv);
