@@ -151,6 +151,17 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 
     Log_Trace();
     
+    if (message.IsShardMigrationMessage())
+    {
+        quorumProcessor = GetQuorumProcessor(message.quorumID);
+        assert(quorumProcessor != NULL);
+        if (!quorumProcessor->IsPrimary())
+        {
+            if (migrationWriter.IsActive())
+                migrationWriter.Abort();
+        }
+    }
+    
     switch (message.type)
     {
         case CLUSTERMESSAGE_SET_NODEID:
@@ -186,8 +197,6 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
-            quorumProcessor = GetQuorumProcessor(message.quorumID);
-            assert(quorumProcessor != NULL);
             quorumProcessor->OnShardMigrationClusterMessage(message);
             break;
 

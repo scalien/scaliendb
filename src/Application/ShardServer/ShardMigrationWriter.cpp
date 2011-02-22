@@ -1,6 +1,7 @@
 #include "ShardMigrationWriter.h"
 #include "Application/Common/ContextTransport.h"
 #include "ShardServer.h"
+#include "ShardQuorumProcessor.h"
 
 ShardMigrationWriter::ShardMigrationWriter()
 {
@@ -26,6 +27,7 @@ void ShardMigrationWriter::Reset()
     cursor = NULL;
     isActive = false;
     sendFirst = false;
+    quorumProcessor = NULL;
 }
 
 bool ShardMigrationWriter::IsActive()
@@ -36,14 +38,20 @@ bool ShardMigrationWriter::IsActive()
 void ShardMigrationWriter::Begin(ClusterMessage& request)
 {
     ConfigState*        configState;
+    ConfigShard*        configShard;
     ConfigShardServer*  configShardServer;
     
     assert(!isActive);
     assert(cursor == NULL);
 
     configState = shardServer->GetConfigState();
+    configShard = configState->GetShard(request.shardID);
+    assert(configShard != NULL);
     configShardServer = configState->GetShardServer(request.nodeID);
     assert(configShardServer != NULL);
+    
+    quorumProcessor = shardServer->GetQuorumProcessor(configShard->quorumID);
+    assert(quorumProcessor != NULL);
     
     isActive = true;
     nodeID = request.nodeID;
@@ -64,6 +72,16 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
 
 void ShardMigrationWriter::Abort()
 {
+    Log_Message("Aborting shard migration...", shardID, quorumID);
+    
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+    Reset();
+
+    if (cursor != NULL)
+    {
+        delete cursor;
+        cursor = NULL;
+    }
 }
 
 void ShardMigrationWriter::SendFirst()
@@ -132,6 +150,13 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 
 void ShardMigrationWriter::OnWriteReadyness()
 {
+    assert(quorumProcessor != NULL);
+    if (!quorumProcessor->IsPrimary())
+    {
+        Abort();
+        return;
+    }
+    
     if (sendFirst)
     {
         sendFirst = false;

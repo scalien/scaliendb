@@ -5,6 +5,7 @@
 #include "Application/Common/ClusterMessage.h"
 
 class ShardServer;
+class ShardQuorumProcessor;
 
 /*
 ===============================================================================================
@@ -41,6 +42,7 @@ private:
     uint64_t                quorumID;
     uint64_t                shardID;
     ShardServer*            shardServer;
+    ShardQuorumProcessor*   quorumProcessor;
     StorageEnvironment*     environment;
     StorageBulkCursor*      cursor;
     StorageKeyValue*        kv;

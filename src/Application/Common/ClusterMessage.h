@@ -49,7 +49,7 @@ public:
     ReadBuffer              key;
     ReadBuffer              value;
     
-    ClusterMessage();
+    bool            IsShardMigrationMessage();
     
     bool            SetNodeID(uint64_t clusterID, uint64_t nodeID);
     bool            Heartbeat(uint64_t nodeID,

@@ -6,9 +6,20 @@ static inline bool LessThan(uint64_t a, uint64_t b)
     return a < b;
 }
 
-ClusterMessage::ClusterMessage()
+bool ClusterMessage::IsShardMigrationMessage()
 {
+    if (
+     type == CLUSTERMESSAGE_SHARDMIGRATION_INITIATE     ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_BEGIN        ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_SET          ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_DELETE       ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT       ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE)
+        return true;
+    else
+        return false;
 }
+
 
 bool ClusterMessage::SetNodeID(uint64_t clusterID_, uint64_t nodeID_)
 {

@@ -297,6 +297,9 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     shardMessagesLength = 0;
 
     isPrimary = false;
+    
+    isShardMigrationActive = false;
+    migrateShardID = 0
 }
 
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
