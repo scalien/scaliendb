@@ -85,26 +85,29 @@ void ShardDatabaseAsyncList::OnRequestComplete()
     
     // create results
     numKeys = lastResult->dataPage.GetNumKeys();
-    ReadBuffer  keys[numKeys];
-    ReadBuffer  values[numKeys];
-    i = 0;
-    FOREACH (it, lastResult->dataPage)
+    if (numKeys > 0)
     {
-        keys[i] = it->GetKey();
-        if (keyValues)
+        ReadBuffer  keys[numKeys];
+        ReadBuffer  values[numKeys];
+        i = 0;
+        FOREACH (it, lastResult->dataPage)
         {
-            userValue = it->GetValue();
-            ReadValue(userValue, paxosID, commandID, values[i]);
+            keys[i] = it->GetKey();
+            if (keyValues)
+            {
+                userValue = it->GetValue();
+                ReadValue(userValue, paxosID, commandID, values[i]);
+            }
+            i++;
         }
-        i++;
+
+        if (keyValues)
+            request->response.ListKeyValues(numKeys, keys, values);
+        else
+            request->response.ListKeys(numKeys, keys);
+        request->OnComplete(false);
     }
-
-    if (keyValues)
-        request->response.ListKeyValues(numKeys, keys, values);
-    else
-        request->response.ListKeys(numKeys, keys);
-    request->OnComplete(false);
-
+    
     if (lastResult->final)
     {
         request->response.OK();

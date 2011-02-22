@@ -48,22 +48,31 @@ void Result::Next()
     if (requestCursor->IsList())
     {
         responsePos++;
-        if (responsePos >= (*responseCursor)->numKeys)
+
+        // skip fragments that contain zero keys
+        while (responsePos >= (*responseCursor)->numKeys)
         {
             responseCursor = requestCursor->responses.Next(responseCursor);
             responsePos = 0;
             if (responseCursor == NULL)
+            {
+                // reached the end
                 requestCursor = NULL;
+                break;
+            }
         }
+
+        return;
     }
-    else
-        requestCursor = requests.Next(requestCursor);
+
+    requestCursor = requests.Next(requestCursor);
 }
 
 bool Result::IsEnd()
 {
     if (requestCursor == NULL)
         return true;
+
     if (requestCursor->IsList())
     {
         if (responsePos == (*responseCursor)->numKeys && 
@@ -81,6 +90,7 @@ void Result::AppendRequest(Request* req)
     requests.Insert(req);
     if (numCompleted > 0)
         transportStatus = SDBP_PARTIAL;
+    req->response.NoResponse();
 }
 
 bool Result::AppendRequestResponse(ClientResponse* resp)
@@ -95,32 +105,33 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     req->responseTime = EventLoop::Now();
     if (resp->type == CLIENTRESPONSE_FAILED)
         req->status = SDBP_FAILED;
-    else if (resp->type == CLIENTRESPONSE_OK)
+    else
         req->status = SDBP_SUCCESS;
 
-    if (resp->type == CLIENTRESPONSE_VALUE)
-        resp->CopyValue();
-    if (resp->type == CLIENTRESPONSE_LIST_KEYS)
-        resp->CopyKeys();
-    if (resp->type == CLIENTRESPONSE_LIST_KEYVALUES)
-        resp->CopyKeyValues();
-
-    if (req->response.type != CLIENTRESPONSE_NORESPONSE)
+    if (req->IsList())
     {
+        // copy data from connection buffer
+        if (resp->type == CLIENTRESPONSE_LIST_KEYS)
+            resp->CopyKeys();
+        if (resp->type == CLIENTRESPONSE_LIST_KEYVALUES)
+            resp->CopyKeyValues();
+
+        // each LIST request has an extra response meaning the end of transmission
+        if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
+            numCompleted++;
+
+        // make a copy of the response as MessageConnection reuses the response object
         respCopy = new ClientResponse;
         resp->Transfer(*respCopy);
         req->responses.Append(respCopy);
     }
     else
-        resp->Transfer(req->response);
-        
-    if (req->IsList())
     {
-        if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
-            numCompleted++;
-    }
-    else
+        if (resp->type == CLIENTRESPONSE_VALUE)
+            resp->CopyValue();
+        resp->Transfer(req->response);
         numCompleted++;
+    }
     
 //    Log_Message("commandID: %u", (unsigned) req->commandID);
     
@@ -155,7 +166,7 @@ int Result::GetKey(ReadBuffer& key)
     request = requestCursor;
     if (request->IsList())
     {
-        if (responsePos >= request->response.numKeys)
+        if (responsePos >= (*responseCursor)->numKeys)
             return SDBP_API_ERROR;
         key = (*responseCursor)->keys[responsePos];
     }
@@ -175,7 +186,7 @@ int Result::GetValue(ReadBuffer& value)
     request = requestCursor;
     if (request->IsList())
     {
-        if (responsePos >= request->response.numKeys)
+        if (responsePos >= (*responseCursor)->numKeys)
             return SDBP_API_ERROR;
         value = (*responseCursor)->values[responsePos];
     }

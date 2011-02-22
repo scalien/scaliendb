@@ -27,6 +27,7 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
              &response->type, &response->commandID, &response->numKeys);
             buffer.Advance(read);
 
+            if (response->numKeys != 0)
             {
                 ReadBuffer  keys[response->numKeys];
                 for (unsigned i = 0; i < response->numKeys; i++)
@@ -42,6 +43,7 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
              &response->type, &response->commandID, &response->numKeys);
             buffer.Advance(read);
             
+            if (response->numKeys != 0)
             {
                 ReadBuffer  keys[response->numKeys];
                 ReadBuffer  values[response->numKeys];
