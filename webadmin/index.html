@@ -221,7 +221,7 @@
 					<table class="dashboard-icon">
 						<tr>
 							<td><img src="megaphone.png" /></td>
-							<td><span class="status-message healthy" id="clusterState">The ScalienDB cluster is healthy</span></td>
+							<td><span class="status-message critical" id="clusterState">Unable to connect!</span></td>
 						</tr>
 					</table>
 					<table class="dashboard-icon">
@@ -253,7 +253,6 @@
 							<b><span id="numQuorums">0 quorum</span></b>.<br/><br/>
 							List of shard servers:
 							<div class="shard-server-list" id="shardservers">
-								<span class="healthy shardserver-number">0</span>
 							</div>
 							</td>
 						</tr>
@@ -264,26 +263,6 @@
 				<div id="tabPageQuorums" class="tab-page tab-page-inactive">
 					<span class="listing">Listing quorums - </span><a class="no-line" href="javascript:showCreateQuorum()"><span class="create-button">create new quorum</span></a><br/><br/>
 					<div id="quorums">
-						<div class="quorum healthy">
-							<table class="quorum">
-								<tr>
-									<td class="quorum-head">
-										<span class="quorum-head">quorum 0</span>
-									</td>
-									<td>
-										Shardservers: <span class="primary shardserver-number">0</span><br/>
-										Shards: <span class="shard-number">1</span><br/>
-										Replication round: 0<br/>
-										Size: 0GB
-									</td>
-									<td class="table-actions">
-										<span class="modify-button">add node</span><br/><br/>
-										<span class="modify-button">remove node</span><br/><br/>
-										<span class="delete-button">delete quorum</span>
-									</td>
-								</tr>
-							</table>
-						</div>
 					</div>
 				</div>
 
@@ -291,28 +270,6 @@
 				<div id="tabPageSchema" class="tab-page tab-page-inactive">
 					<span class="listing">Listing databases - </span><a class="no-line" href="javascript:showCreateDatabase()"><span class="create-button">create new database</span></a><br/><br/>
 					<div id="databases">
-						<div class="database">
-							<span class="database-head">Listing tables for database	 <b>database</b></span> - <span class="create-button">create new table</span><br/><br/>
-							<div class="table healthy">
-								<table class="table">
-									<tr>
-										<td class="table-head">
-											<span class="table-head">table</span>
-										</td>
-										<td>
-											Shards: <span class="shard-number">1</span><br/>
-											<!-- Mapped quorums: <span class="quorum-number">1</span><br/>
-											Size: 0GB<br/>
-											Replication factor: 0<br/>-->
-										</td>
-										<td class="table-actions">
-											<span class="modify-button">rename table</span><br/><br/>
-											<span class="delete-button">delete table</span>
-										</td>
-									</tr>
-								</table>						
-							</div>
-						</div>
 					</div>
 				</div>				
 
