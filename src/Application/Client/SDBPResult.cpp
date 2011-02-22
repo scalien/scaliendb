@@ -36,16 +36,51 @@ void Result::Close()
 void Result::Begin()
 {
     requestCursor = requests.First();
+    responseCursor = requestCursor ? requestCursor->responses.First() : NULL;
+    responsePos = 0;
 }
 
 void Result::Next()
 {
+    if (requestCursor == NULL)
+        return;
+        
+    if (requestCursor->IsList())
+    {
+        responsePos++;
+
+        // skip fragments that contain zero keys
+        while (responsePos >= (*responseCursor)->numKeys)
+        {
+            responseCursor = requestCursor->responses.Next(responseCursor);
+            responsePos = 0;
+            if (responseCursor == NULL)
+            {
+                // reached the end
+                requestCursor = NULL;
+                break;
+            }
+        }
+
+        return;
+    }
+
     requestCursor = requests.Next(requestCursor);
 }
 
 bool Result::IsEnd()
 {
-    return requestCursor == NULL;
+    if (requestCursor == NULL)
+        return true;
+
+    if (requestCursor->IsList())
+    {
+        if (responsePos == (*responseCursor)->numKeys && 
+         requestCursor->responses.Next(responseCursor) == NULL)
+            return true;
+    }
+    
+    return false;
 }
 
 void Result::AppendRequest(Request* req)
@@ -55,11 +90,13 @@ void Result::AppendRequest(Request* req)
     requests.Insert(req);
     if (numCompleted > 0)
         transportStatus = SDBP_PARTIAL;
+    req->response.NoResponse();
 }
 
 bool Result::AppendRequestResponse(ClientResponse* resp)
 {
-    Request*    req;
+    Request*        req;
+    ClientResponse* respCopy;
     
     req = requests.Get(resp->commandID);
     if (!req)
@@ -68,28 +105,33 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     req->responseTime = EventLoop::Now();
     if (resp->type == CLIENTRESPONSE_FAILED)
         req->status = SDBP_FAILED;
-    else if (resp->type == CLIENTRESPONSE_OK)
+    else
         req->status = SDBP_SUCCESS;
 
-    if (resp->type == CLIENTRESPONSE_VALUE)
-        resp->CopyValue();
-    if (resp->type == CLIENTRESPONSE_LIST_KEYS)
-        resp->CopyKeys();
-    if (resp->type == CLIENTRESPONSE_LIST_KEYVALUES)
-        resp->CopyKeyValues();
-
-    if (req->response.type != CLIENTRESPONSE_NORESPONSE)
-        req->response.next = resp;
-    else
-        resp->Transfer(req->response);
-        
-    if (req->type == CLIENTREQUEST_LIST_KEYS || req->type == CLIENTREQUEST_LIST_KEYVALUES)
+    if (req->IsList())
     {
+        // copy data from connection buffer
+        if (resp->type == CLIENTRESPONSE_LIST_KEYS)
+            resp->CopyKeys();
+        if (resp->type == CLIENTRESPONSE_LIST_KEYVALUES)
+            resp->CopyKeyValues();
+
+        // each LIST request has an extra response meaning the end of transmission
         if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
             numCompleted++;
+
+        // make a copy of the response as MessageConnection reuses the response object
+        respCopy = new ClientResponse;
+        resp->Transfer(*respCopy);
+        req->responses.Append(respCopy);
     }
     else
+    {
+        if (resp->type == CLIENTRESPONSE_VALUE)
+            resp->CopyValue();
+        resp->Transfer(req->response);
         numCompleted++;
+    }
     
 //    Log_Message("commandID: %u", (unsigned) req->commandID);
     
@@ -122,7 +164,14 @@ int Result::GetKey(ReadBuffer& key)
         return SDBP_API_ERROR;
     
     request = requestCursor;
-    key.Wrap(request->key);
+    if (request->IsList())
+    {
+        if (responsePos >= (*responseCursor)->numKeys)
+            return SDBP_API_ERROR;
+        key = (*responseCursor)->keys[responsePos];
+    }
+    else
+        key.Wrap(request->key);
     
     return request->status;
 }
@@ -135,7 +184,14 @@ int Result::GetValue(ReadBuffer& value)
         return SDBP_API_ERROR;
     
     request = requestCursor;
-    value.Wrap(*request->response.valueBuffer);
+    if (request->IsList())
+    {
+        if (responsePos >= (*responseCursor)->numKeys)
+            return SDBP_API_ERROR;
+        value = (*responseCursor)->values[responsePos];
+    }
+    else
+        value.Wrap(*request->response.valueBuffer);
     
     return request->status;
 }

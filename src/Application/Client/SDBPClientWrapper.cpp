@@ -632,6 +632,42 @@ int SDBP_RemoveCStr(ClientObj client_, char* key_, int len)
     return client->Remove(key);
 }
 
+int SDBP_ListKeys(ClientObj client_, const std::string& key_, unsigned count, unsigned offset)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key = key_.c_str();
+
+    return client->ListKeys(key, count, offset);
+}
+
+int SDBP_ListKeysCStr(ClientObj client_, char* key_, int len, unsigned count, unsigned offset)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+
+    key.Wrap((char*) key_, len);
+
+    return client->ListKeys(key, count, offset);
+}
+
+int SDBP_ListKeyValues(ClientObj client_, const std::string& key_, unsigned count, unsigned offset)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key = key_.c_str();
+
+    return client->ListKeyValues(key, count, offset);
+}
+
+int SDBP_ListKeyValuesCStr(ClientObj client_, char* key_, int len, unsigned count, unsigned offset)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+
+    key.Wrap((char*) key_, len);
+
+    return client->ListKeyValues(key, count, offset);
+}
+
 /*
 ===============================================================================================
 

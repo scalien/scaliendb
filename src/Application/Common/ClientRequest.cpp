@@ -70,6 +70,15 @@ bool ClientRequest::IsSafeRequest()
     return true;
 }
 
+bool ClientRequest::IsList()
+{
+    if (type == CLIENTREQUEST_LIST_KEYS         ||
+        type == CLIENTREQUEST_LIST_KEYVALUES)
+            return true;
+    
+    return false;
+}
+
 bool ClientRequest::GetMaster(uint64_t commandID_)
 {
     type = CLIENTREQUEST_GET_MASTER;

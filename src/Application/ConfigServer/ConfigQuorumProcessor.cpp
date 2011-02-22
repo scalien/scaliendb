@@ -318,7 +318,6 @@ void ConfigQuorumProcessor::OnLearnLease()
 
 void ConfigQuorumProcessor::OnLeaseTimeout()
 {
-    ConfigMessage*  itMessage;
     ClientRequest*  itRequest;
     ConfigState*    configState;
  

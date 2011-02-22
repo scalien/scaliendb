@@ -252,6 +252,30 @@ class Client:
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return self.result.value()
 
+    def list_keys(self, key, count=0, offset=0):
+        status = SDBP_ListKeys(self.cptr, key, count, offset)
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        if status < 0:
+            return
+        keys = []
+        self.result.begin()
+        while not self.result.is_end():
+            keys.append(self.result.key())
+            self.result.next()
+        return keys
+
+    def list_key_values(self, key, count=0, offset=0):
+        status = SDBP_ListKeyValues(self.cptr, key, count, offset)
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        if status < 0:
+            return
+        key_values = {}
+        self.result.begin()
+        while not self.result.is_end():
+            key_values[self.result.key()] = self.result.value()
+            self.result.next()
+        return key_values
+
     def begin(self):
         return SDBP_Begin(self.cptr)
     

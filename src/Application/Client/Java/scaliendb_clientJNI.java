@@ -91,6 +91,10 @@ class scaliendb_clientJNI {
   public final static native int SDBP_DeleteCStr(long jarg1, byte[] jarg2, int jarg3);
   public final static native int SDBP_Remove(long jarg1, String jarg2);
   public final static native int SDBP_RemoveCStr(long jarg1, byte[] jarg2, int jarg3);
+  public final static native int SDBP_ListKeys(long jarg1, String jarg2, long jarg3, long jarg4);
+  public final static native int SDBP_ListKeysCStr(long jarg1, byte[] jarg2, int jarg3, long jarg4, long jarg5);
+  public final static native int SDBP_ListKeyValues(long jarg1, String jarg2, long jarg3, long jarg4);
+  public final static native int SDBP_ListKeyValuesCStr(long jarg1, byte[] jarg2, int jarg3, long jarg4, long jarg5);
   public final static native int SDBP_Begin(long jarg1);
   public final static native int SDBP_Submit(long jarg1);
   public final static native int SDBP_Cancel(long jarg1);

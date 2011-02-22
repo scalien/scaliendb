@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Client
 {
@@ -799,6 +801,90 @@ public class Client
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
 		return result.getValueBytes();
 	}
+
+    /**
+     * Returns the specified keys.
+     *
+     * @param   startKey    listing starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the number of keys returned
+     * @return              the list of keys
+     */
+	public List<String> listKeys(String startKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, count, offset);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        if (status < 0)
+			throw new SDBPException(Status.toString(status));
+
+        ArrayList<String> keys = new ArrayList<String>();
+        for (result.begin(); !result.isEnd(); result.next())
+            keys.add(result.getKey());
+
+        return keys;
+	}
+
+    /**
+     * Returns the specified keys.
+     *
+     * @param   startKey    listing starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the number of keys returned
+     * @return              the list of keys
+     */
+	public List<byte[]> listKeys(byte[] startKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, count, offset);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        if (status < 0)
+			throw new SDBPException(Status.toString(status));
+
+        ArrayList<byte[]> keys = new ArrayList<byte[]>();
+        for (result.begin(); !result.isEnd(); result.next())
+            keys.add(result.getKeyBytes());
+
+        return keys;
+	}
+
+    /**
+     * Returns the specified key-value pairs.
+     *
+     * @param   startKey    listing starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the number of keys returned
+     * @return              the list of key-value pairs
+     */
+    public Map<String, String> listKeyValues(String startKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, count, offset);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        if (status < 0)
+			throw new SDBPException(Status.toString(status));
+            
+        TreeMap<String, String> keyValues = new TreeMap<String, String>();
+        for (result.begin(); !result.isEnd(); result.next())
+            keyValues.put(result.getKey(), result.getValue());
+        
+        return keyValues;
+    }
+
+    /**
+     * Returns the specified key-value pairs.
+     *
+     * @param   startKey    listing starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the number of keys returned
+     * @return              the list of key-value pairs
+     */
+    public Map<byte[], byte[]> listKeyValues(byte[] startKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, count, offset);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        if (status < 0)
+			throw new SDBPException(Status.toString(status));
+            
+        TreeMap<byte[], byte[]> keyValues = new TreeMap<byte[], byte[]>();
+        for (result.begin(); !result.isEnd(); result.next())
+            keyValues.put(result.getKeyBytes(), result.getValueBytes());
+        
+        return keyValues;
+    }
 
     /**
      * Begins a batch operation. After begin is called, each command will be batched and

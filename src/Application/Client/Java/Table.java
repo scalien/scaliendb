@@ -1,6 +1,8 @@
 package com.scalien.scaliendb;
 
 import java.math.BigInteger;
+import java.util.List;
+import java.util.Map;
 
 public class Table
 {
@@ -311,4 +313,56 @@ public class Table
         useDefaults();
         return client.remove(key);
 	}
+    
+    /**
+     * Returns the specified keys.
+     *
+     * @param   startKey    listing starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the number of keys returned
+     * @return              the list of keys
+     */
+	public List<String> listKeys(String startKey, int offset, int count) throws SDBPException {
+        useDefaults();
+        return client.listKeys(startKey, offset, count);
+    }
+
+    /**
+     * Returns the specified keys.
+     *
+     * @param   startKey    listing starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the number of keys returned
+     * @return              the list of keys
+     */
+	public List<byte[]> listKeys(byte[] startKey, int offset, int count) throws SDBPException {
+        useDefaults();
+        return client.listKeys(startKey, offset, count);
+    }
+
+    /**
+     * Returns the specified key-value pairs.
+     *
+     * @param   startKey    listing starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the number of keys returned
+     * @return              the list of key-value pairs
+     */
+    public Map<String, String> listKeyValues(String startKey, int offset, int count) throws SDBPException {
+        useDefaults();
+        return client.listKeyValues(startKey, offset, count);
+    }
+    
+    /**
+     * Returns the specified key-value pairs.
+     *
+     * @param   startKey    listing starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the number of keys returned
+     * @return              the list of key-value pairs
+     */
+    public Map<byte[], byte[]> listKeyValues(byte[] startKey, int offset, int count) throws SDBPException {
+        useDefaults();
+        return client.listKeyValues(startKey, offset, count);
+    }
 }

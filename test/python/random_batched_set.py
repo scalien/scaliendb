@@ -21,14 +21,14 @@ if len(sys.argv) > 1:
 	if len(sys.argv) > 2:
 		start = int(sys.argv[2])
 client = scaliendb.Client(CONTROLLERS)
-client._set_trace(True)
+#client._set_trace(True)
 
 if False:
 	quorum_id = client.create_quorum(["100"])
 	database_id = client.create_database("testdb")
 	client.create_table(database_id, quorum_id, "testtable")
 
-if False:
+if True:
 	database_id = client.get_database_id("testdb")
 	table_id = client.get_table_id(database_id, "testtable")
 	client.truncate_table(table_id)

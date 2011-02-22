@@ -15,11 +15,11 @@ ClientResponse::~ClientResponse()
 
 void ClientResponse::Init()
 {
-    next = NULL;
     valueBuffer = NULL;
     keys = NULL;
     values = NULL;
     type = CLIENTRESPONSE_NORESPONSE;
+    numKeys = 0;
 }
 
 void ClientResponse::CopyValue()
@@ -41,10 +41,13 @@ void ClientResponse::CopyKeys()
     
     valueBuffer->Clear();
     for (i = 0; i < numKeys; i++)
-    {
-        p = valueBuffer->GetBuffer();
         valueBuffer->Append(keys[i]);
+
+    p = valueBuffer->GetBuffer();
+    for (i = 0; i < numKeys; i++)
+    {
         keys[i].SetBuffer(p);
+        p += keys[i].GetLength();
     }
 }
 
@@ -59,12 +62,17 @@ void ClientResponse::CopyKeyValues()
     valueBuffer->Clear();
     for (i = 0; i < numKeys; i++)
     {
-        p = valueBuffer->GetBuffer() + valueBuffer->GetLength();
         valueBuffer->Append(keys[i]);
-        keys[i].SetBuffer(p);
-        p = valueBuffer->GetBuffer() + valueBuffer->GetLength();
         valueBuffer->Append(values[i]);
+    }
+    
+    p = valueBuffer->GetBuffer();
+    for (i = 0; i < numKeys; i++)
+    {
+        keys[i].SetBuffer(p);
+        p += keys[i].GetLength();
         values[i].SetBuffer(p);
+        p += values[i].GetLength();
     }
 }
 
@@ -80,10 +88,8 @@ void ClientResponse::Transfer(ClientResponse& other)
     other.numKeys = numKeys;
     other.keys = keys;
     other.values = values;
-    
-    valueBuffer = NULL;
-    keys = NULL;
-    values = NULL;
+
+    Init();
 }
 
 bool ClientResponse::OK()

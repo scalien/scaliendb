@@ -55,6 +55,7 @@ public:
     bool            IsControllerRequest();
     bool            IsShardServerRequest();
     bool            IsSafeRequest();
+    bool            IsList();
     
     // Master query
     bool            GetMaster(
