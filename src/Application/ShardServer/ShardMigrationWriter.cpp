@@ -66,8 +66,8 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
 
     Log_Message("Migrating shard %U into quorum %U (sending)", shardID, quorumID);
 
-    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
     sendFirst = true;
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
 }
 
 void ShardMigrationWriter::Abort()
@@ -150,8 +150,13 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 
 void ShardMigrationWriter::OnWriteReadyness()
 {
+    Log_Debug();
     assert(quorumProcessor != NULL);
-    if (!quorumProcessor->IsPrimary())
+    if (!quorumProcessor->IsPrimary()
+     || !shardServer->GetConfigState()->isMigrating
+     || (shardServer->GetConfigState()->isMigrating &&
+         (shardServer->GetConfigState()->migrateShardID != shardID ||
+          shardServer->GetConfigState()->migrateQuorumID != quorumID)))
     {
         Abort();
         return;

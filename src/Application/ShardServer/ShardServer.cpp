@@ -151,7 +151,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
     ConfigShard*            configShard;
     
     Log_Trace();
-    
+        
     switch (message.type)
     {
         case CLUSTERMESSAGE_SET_NODEID:

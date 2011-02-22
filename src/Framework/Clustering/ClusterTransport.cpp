@@ -180,13 +180,24 @@ bool ClusterTransport::IsConnected(uint64_t nodeID)
 
 void ClusterTransport::RegisterWriteReadyness(uint64_t nodeID, Callable callable)
 {
-    WriteReadyness* wr;
+    WriteReadyness*     wr;
+    ClusterConnection*  itConnection;
    
     wr = new WriteReadyness();
     wr->nodeID = nodeID;
     wr->callable = callable;
     
     writeReadynessList.Append(wr);
+    
+    FOREACH (itConnection, conns)
+    {
+        if (itConnection->GetNodeID() == nodeID &&
+         itConnection->GetProgress() == ClusterConnection::READY)
+        {
+            Call(callable);
+            return;
+        }
+    }
 }
 
 void ClusterTransport::UnregisterWriteReadyness(uint64_t nodeID, Callable callable)
