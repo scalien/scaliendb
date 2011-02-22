@@ -6,6 +6,11 @@
 #include "Application/Common/CatchupMessage.h"
 #include "Application/Common/ClientRequestCache.h"
 
+static inline bool LessThan(const uint64_t& a, const uint64_t& b)
+{
+    return a < b;
+}
+
 void ShardServer::Init()
 {
     unsigned        numControllers;
@@ -274,17 +279,19 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
     ConfigShardServer*      configShardServer;
     ShardQuorumProcessor*   quorumProcessor;
     ShardQuorumProcessor*   next;
+    SortedList<uint64_t>    myShardIDs;
     
     Log_Trace();
 
     configState = message.configState;
     configShardServer = configState.GetShardServer(MY_NODEID);
     
-    databaseManager.RemoveDeletedDataShards();
-
     // look for removal
     for (quorumProcessor = quorumProcessors.First(); quorumProcessor != NULL; quorumProcessor = next)
     {
+        if (quorumProcessor->IsShardMigrationActive())
+            myShardIDs.Add(quorumProcessor->GetMigrateShardID());
+
         configQuorum = configState.GetQuorum(quorumProcessor->GetQuorumID());
         if (configQuorum == NULL)
             goto DeleteQuorum;
@@ -333,16 +340,25 @@ DeleteQuorum:
     FOREACH(configQuorum, configState.quorums)
     {
         if (configQuorum->IsActiveMember(MY_NODEID))
+        {
             ConfigureQuorum(configQuorum); // also creates quorum
-
+            FOREACH(itShardID, configQuorum->shards)
+                myShardIDs.Add(*itShardID);
+        }
         if (configQuorum->IsInactiveMember(MY_NODEID))
         {
             ConfigureQuorum(configQuorum); // also creates quorum
             quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
             assert(quorumProcessor != NULL);
             quorumProcessor->TryReplicationCatchup();
+            FOREACH(itShardID, configQuorum->shards)
+            {
+                myShardIDs.Add(*itShardID);
+            }
         }
     }
+    
+    databaseManager.RemoveDeletedDataShards(myShardIDs);
 }
 
 void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)

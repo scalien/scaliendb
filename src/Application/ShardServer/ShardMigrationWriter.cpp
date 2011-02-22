@@ -121,8 +121,6 @@ void ShardMigrationWriter::SendCommit()
 void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 {
     ClusterMessage msg;
-
-    Log_Debug("ShardMigrationWriter sedning ITEM");
     
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         msg.ShardMigrationSet(shardID, kv->GetKey(), kv->GetValue());

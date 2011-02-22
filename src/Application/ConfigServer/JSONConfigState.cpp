@@ -197,8 +197,6 @@ void JSONConfigState::WriteShard(ConfigShard* shard)
     JSON_STRING(shard, splitKey);
     json.PrintComma();
     JSON_BOOL(shard, isSplitable);
-    json.PrintComma();
-    JSON_BOOL(shard, isDeleted);
 
     json.PrintObjectEnd();
 }

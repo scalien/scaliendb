@@ -38,7 +38,6 @@ void StoragePageCache::AddPage(StoragePage* page, bool bulk)
 
     while (size + page->GetSize() > maxSize)
     {
-//        Log_Debug("removing page from cache");
         it = pages.First();
         size -= it->GetSize();
         pages.Remove(it);

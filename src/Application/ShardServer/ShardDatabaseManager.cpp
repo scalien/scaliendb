@@ -271,17 +271,17 @@ void ShardDatabaseManager::SetQuorumShards(uint64_t quorumID)
     }
 }
 
-void ShardDatabaseManager::RemoveDeletedDataShards()
+void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShardIDs)
 {
-    ConfigState*        configState;
-    ConfigShard*        itShard;
-
-    configState = shardServer->GetConfigState();
-
-    FOREACH(itShard, configState->shards)
+    uint64_t*                       itShardID;
+    StorageEnvironment::ShardIDList storageShardIDs;
+    
+    environment.GetShardIDs(QUORUM_DATABASE_DATA_CONTEXT, storageShardIDs);
+    
+    FOREACH(itShardID, storageShardIDs)
     {
-        if (itShard->isDeleted)
-            environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, itShard->shardID);
+        if (!myShardIDs.Contains(*itShardID))
+            environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
     }
 }
 

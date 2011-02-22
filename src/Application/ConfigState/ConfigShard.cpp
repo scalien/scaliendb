@@ -3,7 +3,6 @@
 ConfigShard::ConfigShard()
 {
     prev = next = this;
-    isDeleted = false;
     isSplitCreating = false;
     parentShardID = 0;
     shardSize = 0;
@@ -20,7 +19,6 @@ ConfigShard& ConfigShard::operator=(const ConfigShard& other)
     quorumID = other.quorumID;
     tableID = other.tableID;
     shardID = other.shardID;
-    isDeleted = other.isDeleted;
     
     firstKey = other.firstKey;
     lastKey = other.lastKey;

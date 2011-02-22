@@ -182,9 +182,6 @@ void ConfigHTTPClientSession::PrintShards(ConfigState* configState)
         ConfigState::ShardList& shards = configState->shards;
         for (it = shards.First(); it != NULL; it = shards.Next(it))
         {
-            if (it->isDeleted)
-                continue;
-            
             buffer.Clear();
             if (it->isSplitCreating)
                 buffer.Appendf("* ");
@@ -310,8 +307,6 @@ void ConfigHTTPClientSession::PrintDatabases(ConfigState* configState)
             for (itShardID = shards.First(); itShardID != NULL; itShardID = shards.Next(itShardID))
             {
                 shard = configState->GetShard(*itShardID);
-                if (shard->isDeleted)
-                    continue;
                 buffer.Appendf("s%U => q%U", *itShardID, shard->quorumID);
                 if (shards.Next(itShardID) != NULL)
                     buffer.Appendf(", ");
@@ -366,9 +361,6 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
     
     FOREACH (itShard, shards)
     {
-        if (itShard->isDeleted)
-            continue;
-        
         if (itShard->shardID < 10)
             buffer.Writef("   ");
         else if (itShard->shardID < 100)

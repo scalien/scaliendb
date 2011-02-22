@@ -377,6 +377,16 @@ void ShardQuorumProcessor::TryReplicationCatchup()
     quorumContext.TryReplicationCatchup();
 }
 
+bool ShardQuorumProcessor::IsShardMigrationActive()
+{
+    return isShardMigrationActive;
+}
+
+uint64_t ShardQuorumProcessor::GetMigrateShardID()
+{
+    return migrateShardID;
+}
+
 void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey)
 {
     ShardMessage*   it;
@@ -447,7 +457,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
             assert(isShardMigrationActive);
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
-            Log_Debug("ShardMigration SET");
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
             assert(isShardMigrationActive);

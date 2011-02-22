@@ -440,21 +440,15 @@ bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 
 bool ConfigState::CompleteDeleteQuorum(ConfigMessage& message)
 {
-    uint64_t*       itShardID;
     ConfigQuorum*   quorum;
-    ConfigShard*    shard;
 
     quorum = GetQuorum(message.quorumID);
     if (quorum == NULL)
         return false; // no such quorum
 
-    FOREACH(itShardID, quorum->shards)
-    {
-        shard = GetShard(*itShardID);
-        if (!shard->isDeleted)
-            return false; // quorum contains shards
-    }
-    
+    if (quorum->shards.GetLength() > 0)
+        return false; // quorum contains shards
+
     return true;
 }
 
@@ -926,12 +920,10 @@ void ConfigState::OnTruncateTable(ConfigMessage& message)
 
     quorumID = 0;
     // delete all old shards
-    FOREACH(itNodeID, table->shards)
+    FOREACH_FIRST(itNodeID, table->shards)
     {
         shard = GetShard(*itNodeID);
-        if (shard->isDeleted)
-            continue;
-
+        assert(shard != NULL);
         quorumID = shard->quorumID;
         DeleteShard(shard);
     }
@@ -1127,9 +1119,10 @@ void ConfigState::DeleteTable(ConfigTable* table)
     ConfigShard*    shard;
     uint64_t*       itShardID;
 
-    FOREACH(itShardID, table->shards)
+    FOREACH_FIRST(itShardID, table->shards)
     {
         shard = GetShard(*itShardID);
+        assert(shard != NULL);
         DeleteShard(shard);
     }
 
@@ -1224,7 +1217,7 @@ void ConfigState::DeleteShard(ConfigShard* shard)
     assert(table != NULL);
     table->shards.Remove(shard->shardID);
 
-    shard->isDeleted = true;
+    shards.Delete(shard);
 }
 
 bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool withVolatile)
@@ -1363,9 +1356,9 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 {
     int read;
     
-    read = buffer.Readf("%U:%U:%U:%b:%#B:%#B:%b:%U",
+    read = buffer.Readf("%U:%U:%U:%#B:%#B:%b:%U",
      &shard.quorumID, &shard.tableID, &shard.shardID,
-     &shard.isDeleted, &shard.firstKey, &shard.lastKey,
+     &shard.firstKey, &shard.lastKey,
      &shard.isSplitCreating, &shard.parentShardID);
     CHECK_ADVANCE(15);
 
@@ -1384,9 +1377,9 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 
 void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer, bool withVolatile)
 {
-    buffer.Appendf("%U:%U:%U:%b:%#B:%#B:%b:%U",
+    buffer.Appendf("%U:%U:%U:%#B:%#B:%b:%U",
      shard.quorumID, shard.tableID, shard.shardID,
-     shard.isDeleted, &shard.firstKey, &shard.lastKey,
+     &shard.firstKey, &shard.lastKey,
      shard.isSplitCreating, shard.parentShardID);
 
     if (withVolatile)
