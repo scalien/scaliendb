@@ -200,8 +200,8 @@
 			<div class="top-header">
 				<span class="scalien-logo"><a href="http://scalien.com"><img class="logo" src="scalien_logo2.png" /></a></span>
 				<span class="nav-bar">
-					Connected to <span id="controller">...</span>
-					<a class="no-line" href="javascript:logout()"><span class="refresh-button">logout</span></a>
+					<span id="controller"></span>
+					<a class="no-line" href="javascript:logout()"><span class="refresh-button">logout + reconnect</span></a>
 				</span>
 			</div>
 			<div class="tab-head-container">
@@ -221,7 +221,7 @@
 					<table class="dashboard-icon">
 						<tr>
 							<td><img src="megaphone.png" /></td>
-							<td><span class="status-message critical" id="clusterState">Unable to connect!</span></td>
+							<td><span class="status-message critical" id="clusterState"></span></td>
 						</tr>
 					</table>
 					<table class="dashboard-icon">

@@ -1,5 +1,21 @@
 function onLoad()
 {
+	scaliendb.util.elem("controller").textContent = "Not connected...";
+	scaliendb.util.elem("clusterState").textContent = "Unable to connect!";
+	scaliendb.util.elem("clusterState").className = "status-message critical";
+
+	scaliendb.util.elem("shardservers").innerHTML = "";
+
+	scaliendb.util.removeElement("quorums");
+	var quorumsDiv = document.createElement("div");
+	quorumsDiv.setAttribute("id", "quorums");
+	scaliendb.util.elem("tabPageQuorums").appendChild(quorumsDiv);
+
+	scaliendb.util.removeElement("databases");
+	var databasesDiv = document.createElement("div");
+	databasesDiv.setAttribute("id", "databases");
+	scaliendb.util.elem("tabPageSchema").appendChild(databasesDiv);
+	
 	scaliendb.util.elem("loginContainer").style.display = "block";
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
@@ -15,6 +31,8 @@ function onLoad()
 	scaliendb.util.elem("deleteTableContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
+	
+	activateDashboardTab();
 	
 	document.onkeydown = function(e) { if (getKeycode(e) == 27) hideDialog(); }
 }
@@ -374,7 +392,7 @@ function updateConfigState()
 var timer;
 function onConfigState(configState)
 {
-	scaliendb.util.elem("controller").textContent = scaliendb.controller;
+	scaliendb.util.elem("controller").textContent = "Connected to " + scaliendb.controller;
 
 	createDashboard(configState);
 	

@@ -1,6 +1,6 @@
 var scaliendb = 
 {
-	controller: "http://localhost:8080/json/",
+	controller: "",
 	onResponse: this.showResult,
 
     //========================================================================
