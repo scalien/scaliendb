@@ -4,6 +4,8 @@
 ConfigTable::ConfigTable()
 {
     prev = next = this;
+    databaseID = 0;
+    tableID = 0;
 }
 
 ConfigTable::ConfigTable(const ConfigTable& other)
