@@ -45,6 +45,8 @@ public:
     void                    TryRegisterShardServer(Endpoint& endpoint);
     void                    TryShardSplitBegin(uint64_t shardID, ReadBuffer splitKey);
     void                    TryShardSplitComplete(uint64_t shardID);
+    
+    void                    OnShardMigrationComplete(ClusterMessage& message);
        
     void                    UpdateListeners();
 

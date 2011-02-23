@@ -6,6 +6,11 @@
 #include "Application/Common/CatchupMessage.h"
 #include "Application/Common/ClientRequestCache.h"
 
+static inline bool LessThan(const uint64_t& a, const uint64_t& b)
+{
+    return a < b;
+}
+
 void ShardServer::Init()
 {
     unsigned        numControllers;
@@ -16,6 +21,7 @@ void ShardServer::Init()
 
     databaseManager.Init(this);
     heartbeatManager.Init(this);
+    migrationWriter.Init(this);
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
 
     runID = REPLICATION_CONFIG->GetRunID();
@@ -141,10 +147,11 @@ void ShardServer::OnClientClose(ClientSession* /*session*/)
 
 void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
-    ShardQuorumProcessor* quorumProcessor;
-
-    Log_Trace();
+    ShardQuorumProcessor*   quorumProcessor;
+    ConfigShard*            configShard;
     
+    Log_Trace();
+        
     switch (message.type)
     {
         case CLUSTERMESSAGE_SET_NODEID:
@@ -171,6 +178,37 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
             Log_Trace("Recieved lease, quorumID = %U, proposalID =  %U",
              message.quorumID, message.proposalID);
             break;
+
+        /* shard migration */
+        case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
+            configShard = configState.GetShard(message.shardID);
+            assert(configShard != NULL);
+            quorumProcessor = GetQuorumProcessor(configShard->quorumID);
+            assert(quorumProcessor != NULL);
+            if (!quorumProcessor->IsPrimary())
+            {
+                if (migrationWriter.IsActive())
+                    migrationWriter.Abort();
+                break;
+            }
+            
+            migrationWriter.Begin(message);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
+        case CLUSTERMESSAGE_SHARDMIGRATION_SET:
+        case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
+        case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
+            quorumProcessor = GetQuorumProcessor(message.quorumID);
+            assert(quorumProcessor != NULL);
+            if (!quorumProcessor->IsPrimary())
+            {
+                if (migrationWriter.IsActive())
+                    migrationWriter.Abort();
+                break;
+            }
+            quorumProcessor->OnShardMigrationClusterMessage(message);
+            break;
+
         default:
             ASSERT_FAIL();
     }
@@ -259,14 +297,13 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
     ConfigShardServer*      configShardServer;
     ShardQuorumProcessor*   quorumProcessor;
     ShardQuorumProcessor*   next;
+    SortedList<uint64_t>    myShardIDs;
     
     Log_Trace();
 
     configState = message.configState;
     configShardServer = configState.GetShardServer(MY_NODEID);
     
-    databaseManager.RemoveDeletedDataShards();
-
     // look for removal
     for (quorumProcessor = quorumProcessors.First(); quorumProcessor != NULL; quorumProcessor = next)
     {
@@ -318,16 +355,26 @@ DeleteQuorum:
     FOREACH(configQuorum, configState.quorums)
     {
         if (configQuorum->IsActiveMember(MY_NODEID))
+        {
             ConfigureQuorum(configQuorum); // also creates quorum
-
+            FOREACH(itShardID, configQuorum->shards)
+                myShardIDs.Add(*itShardID);
+        }
         if (configQuorum->IsInactiveMember(MY_NODEID))
         {
             ConfigureQuorum(configQuorum); // also creates quorum
             quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
             assert(quorumProcessor != NULL);
             quorumProcessor->TryReplicationCatchup();
+            FOREACH(itShardID, configQuorum->shards)
+                myShardIDs.Add(*itShardID);
         }
     }
+    
+    if (configState.isMigrating)
+        myShardIDs.Add(configState.migrateShardID);
+    
+    databaseManager.RemoveDeletedDataShards(myShardIDs);
 }
 
 void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)

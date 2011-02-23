@@ -24,9 +24,10 @@ StorageKeyValue* StorageBulkCursor::First()
     itChunk = shard->chunks.First();
     
     if (itChunk == NULL)
-        return NULL;
+        chunk = shard->GetMemoChunk();
+    else
+        chunk = *itChunk;
 
-    chunk = *itChunk;
     assert(chunk != NULL);
     
     chunkID = chunk->GetChunkID();

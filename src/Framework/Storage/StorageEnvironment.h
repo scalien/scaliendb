@@ -3,6 +3,7 @@
 
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InList.h"
+#include "System/Containers/ArrayList.h"
 #include "System/Events/Countdown.h"
 #include "System/ThreadPool.h"
 #include "StorageConfig.h"
@@ -46,6 +47,8 @@ class StorageEnvironment
     typedef InList<StorageFileChunk>    FileChunkList;
 
 public:
+    typedef ArrayList<uint64_t, 64>     ShardIDList;
+
     StorageEnvironment();
     
     bool                    Open(Buffer& envPath);
@@ -55,6 +58,7 @@ public:
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     bool                    ShardExists(uint16_t contextID, uint64_t shardID);
+    void                    GetShardIDs(uint64_t contextID, ShardIDList& shardIDs);
 
     bool                    CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
                              ReadBuffer firstKey, ReadBuffer lastKey,

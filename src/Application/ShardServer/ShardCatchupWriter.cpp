@@ -45,14 +45,14 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
     quorumID = request.quorumID;
     paxosID = quorumProcessor->GetPaxosID() - 1;
 
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
+
     if (quorumProcessor->GetConfigQuorum()->shards.GetLength() == 0)
     {
         SendCommit();
         return;
     }
-    
-    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
-    
+        
     SendFirst();
 }
 

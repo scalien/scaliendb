@@ -51,6 +51,10 @@ public:
     void                    TryReplicationCatchup();
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
                              ReadBuffer& splitKey);
+
+    bool                    IsShardMigrationActive();
+    uint64_t                GetMigrateShardID();
+    void                    OnShardMigrationClusterMessage(ClusterMessage& message);
     
     // ========================================================================================
     // For ShardQuorumContext:
@@ -93,6 +97,9 @@ private:
     MessageList             shardMessages;
     RequestList             clientRequests;
     List<uint64_t>          activeNodes;
+    
+    bool                    isShardMigrationActive;
+    uint64_t                migrateShardID;
     
     ShardCatchupReader      catchupReader;
     ShardCatchupWriter      catchupWriter;

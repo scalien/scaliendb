@@ -88,7 +88,7 @@ public:
 
     void                    SetShards(SortedList<uint64_t>& shards);
     void                    SetQuorumShards(uint64_t quorumID);
-    void                    RemoveDeletedDataShards();
+    void                    RemoveDeletedDataShards(SortedList<uint64_t>& myShardIDs);
     
     void                    OnClientReadRequest(ClientRequest* request);
     void                    OnClientListRequest(ClientRequest* request);

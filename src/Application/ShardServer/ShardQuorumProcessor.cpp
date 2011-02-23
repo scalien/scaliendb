@@ -29,6 +29,8 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     ownAppend = false;
     paxosID = 0;
     commandID = 0;
+    isShardMigrationActive = false;
+    migrateShardID = 0;
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     EventLoop::Add(&requestLeaseTimeout);
@@ -221,6 +223,8 @@ void ShardQuorumProcessor::OnResumeAppend()
         read = message.Read(value);
         assert(read > 0);
         value.Advance(read);
+        assert(value.GetCharAt(0) == ' ');
+        value.Advance(1);
 
         ExecuteMessage(message, paxosID, commandID, ownAppend);
         commandID++;
@@ -293,6 +297,9 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     shardMessagesLength = 0;
 
     isPrimary = false;
+    
+    isShardMigrationActive = false;
+    migrateShardID = 0;
 }
 
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
@@ -373,6 +380,16 @@ void ShardQuorumProcessor::TryReplicationCatchup()
     quorumContext.TryReplicationCatchup();
 }
 
+bool ShardQuorumProcessor::IsShardMigrationActive()
+{
+    return isShardMigrationActive;
+}
+
+uint64_t ShardQuorumProcessor::GetMigrateShardID()
+{
+    return migrateShardID;
+}
+
 void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey)
 {
     ShardMessage*   it;
@@ -401,6 +418,67 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
         EventLoop::Add(&tryAppend);
 }
 
+void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& clusterMessage)
+{
+    ShardMessage*   shardMessage;
+    ClusterMessage  completeMessage;
+    Buffer          singleBuffer;
+
+    Log_Debug("ShardQuorumProcessor::OnShardMigrationClusterMessage()");
+
+    if (!quorumContext.IsLeader())
+    {
+        Log_Trace();
+        return;
+    }
+
+    if (clusterMessage.type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT)
+    {
+        assert(isShardMigrationActive);
+        assert(migrateShardID = clusterMessage.shardID);
+        completeMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
+        shardServer->BroadcastToControllers(completeMessage);
+        isShardMigrationActive = false;
+        migrateShardID = 0;
+        Log_Message("Migration of shard %U complete...", clusterMessage.shardID);
+        return;
+    }
+    
+    shardMessage = new ShardMessage();
+    shardMessage->fromClient = false;
+
+    switch (clusterMessage.type)
+    {
+        case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
+            assert(isShardMigrationActive == false);
+            isShardMigrationActive = true;
+            migrateShardID = clusterMessage.shardID;
+            shardMessage->ShardMigrationBegin(clusterMessage.shardID);
+            Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_SET:
+            assert(isShardMigrationActive);
+            assert(migrateShardID = clusterMessage.shardID);
+            shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
+            assert(isShardMigrationActive);
+            assert(migrateShardID = clusterMessage.shardID);
+            shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
+            Log_Debug("ShardMigration DELETE");
+            break;
+        default:
+            ASSERT_FAIL();
+    }
+
+    shardMessages.Append(shardMessage);
+
+    shardMessage->Write(singleBuffer);
+    shardMessagesLength += singleBuffer.GetLength();
+
+    if (!tryAppend.IsActive())
+        EventLoop::Add(&tryAppend);
+}
 
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
@@ -536,7 +614,7 @@ void ShardQuorumProcessor::TryAppend()
             it->Write(singleBuffer);
             if (first || uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
             {
-                uncompressed.Appendf("%B", &singleBuffer);
+                uncompressed.Appendf("%B ", &singleBuffer);
                 numMessages++;
                 // make sure split shard messages are replicated by themselves
                 if (it->type == SHARDMESSAGE_SPLIT_SHARD)

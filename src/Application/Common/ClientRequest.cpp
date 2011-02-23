@@ -40,7 +40,8 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_RENAME_TABLE      ||
         type == CLIENTREQUEST_DELETE_TABLE      ||
         type == CLIENTREQUEST_TRUNCATE_TABLE    ||
-        type == CLIENTREQUEST_SPLIT_SHARD)
+//        type == CLIENTREQUEST_SPLIT_SHARD       ||
+        type == CLIENTREQUEST_MIGRATE_SHARD)
             return true;
 
     return false;
@@ -212,6 +213,16 @@ bool ClientRequest::TruncateTable(
 //    key.Write(key_);
 //    return true;
 //}
+
+bool ClientRequest::MigrateShard(
+ uint64_t commandID_, uint64_t quorumID_, uint64_t shardID_)
+{
+    type = CLIENTREQUEST_MIGRATE_SHARD;
+    commandID = commandID_;
+    shardID = shardID_;
+    quorumID = quorumID_;
+    return true;
+}
 
 bool ClientRequest::Get(
  uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_)

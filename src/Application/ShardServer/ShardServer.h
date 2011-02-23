@@ -7,6 +7,7 @@
 #include "ShardQuorumProcessor.h"
 #include "ShardDatabaseManager.h"
 #include "ShardHeartbeatManager.h"
+#include "ShardMigrationWriter.h"
 
 /*
 ===============================================================================================
@@ -62,7 +63,7 @@ private:
     QuorumProcessorList     quorumProcessors;
     ShardHeartbeatManager   heartbeatManager;
     ShardDatabaseManager    databaseManager;
-
+    ShardMigrationWriter    migrationWriter;
 };
 
 #endif

@@ -57,8 +57,15 @@ void ConfigQuorumProcessor::TryAppend()
 
 void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
 {
-    ConfigMessage*  message;
+    uint64_t        srcNodeID, dstNodeID;
     uint64_t*       itNodeID;
+    ConfigState*    configState;
+    ConfigShard*    configShard;
+    ConfigQuorum*   configQuorum;
+    ConfigMessage*  configMessage;
+    ClusterMessage  clusterMessage;
+
+    configState = configServer->GetDatabaseManager()->GetConfigState();
 
     if (request->type == CLIENTREQUEST_GET_MASTER)
     {
@@ -73,7 +80,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.ConfigStateResponse(*configServer->GetDatabaseManager()->GetConfigState());
+        request->response.ConfigStateResponse(*configState);
         request->OnComplete(false);
         return;
     }
@@ -106,20 +113,62 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         request->OnComplete();
         return;
     }
-    
-    message = new ConfigMessage;
-    ConstructMessage(request, message);
-    
-    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*message))
+
+    if (request->type == CLIENTREQUEST_MIGRATE_SHARD)
     {
-        delete message;
+        if (configState->isMigrating)
+            goto MigrationFailed;
+        configShard = configState->GetShard(request->shardID);
+        if (!configShard)
+            goto MigrationFailed;
+        configQuorum = configState->GetQuorum(configShard->quorumID);
+        if (!configQuorum)
+            goto MigrationFailed;
+        if (!configQuorum->hasPrimary)
+            goto MigrationFailed;
+        srcNodeID = configQuorum->primaryID;
+        configQuorum = configState->GetQuorum(request->quorumID);
+        if (!configQuorum)
+            goto MigrationFailed;
+        if (!configQuorum->hasPrimary)
+            goto MigrationFailed;
+        dstNodeID = configQuorum->primaryID;
+
+        configState->isMigrating = true;
+        configState->migrateQuorumID = request->quorumID;
+        configState->migrateShardID = request->shardID;
+        
+        UpdateListeners();
+
+        clusterMessage.ShardMigrationInitiate(
+         dstNodeID, request->quorumID, request->shardID);
+        CONTEXT_TRANSPORT->SendClusterMessage(srcNodeID, clusterMessage);
+
+        request->response.OK();
+        request->OnComplete();
+        return;
+
+        MigrationFailed:
+        {
+            request->response.Failed();
+            request->OnComplete();
+            return; 
+        }
+    }
+    
+    configMessage = new ConfigMessage;
+    ConstructMessage(request, configMessage);
+    
+    if (!configState->CompleteMessage(*configMessage))
+    {
+        delete configMessage;
         request->response.Failed();
         request->OnComplete();
         return;
     }
     
     requests.Append(request);
-    configMessages.Append(message);
+    configMessages.Append(configMessage);
     TryAppend();
 }
 
@@ -234,7 +283,7 @@ void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer spli
             return;
     }
 
-    configServer->GetDatabaseManager()->GetConfigState()->splitting = true;
+    configServer->GetDatabaseManager()->GetConfigState()->isSplitting = true;
 
     Log_Message("Split shard process started (parent shardID = %U)...", shardID);
 
@@ -263,6 +312,27 @@ void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
     
     it->SplitShardComplete(shardID);
     configMessages.Append(it);
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
+{
+    ConfigMessage*  configMessage;
+    ConfigState*    configState;
+    
+    if (!quorumContext.IsLeader())
+        return;
+    
+    configState = configServer->GetDatabaseManager()->GetConfigState();
+
+    assert(configState->isMigrating);
+    assert(configState->migrateQuorumID == message.quorumID);
+    assert(configState->migrateShardID == message.shardID);
+    
+    configMessage = new ConfigMessage;
+    configMessage->fromClient = false;
+    configMessage->ShardMigrationComplete(message.quorumID, message.shardID);
+    configMessages.Append(configMessage);
     TryAppend();
 }
 
@@ -395,6 +465,19 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     // our state already includes the writes in this round
     if (paxosID <= configServer->GetDatabaseManager()->GetPaxosID())
         return;
+
+    if (message.type == CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE)
+    {
+        if (configState->masterID == MY_NODEID)
+        {
+            assert(configState->isMigrating);
+            assert(configState->migrateQuorumID == message.quorumID);
+            assert(configState->migrateShardID == message.shardID);
+            configState->isMigrating = false;
+            configState->migrateQuorumID = 0;
+            configState->migrateShardID = 0;
+        }
+    }
     
     configState->OnMessage(message);
     configServer->GetDatabaseManager()->Write();
@@ -422,7 +505,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     }
     else if (message.type == CONFIGMESSAGE_SPLIT_SHARD_COMPLETE)
     {
-        configServer->GetDatabaseManager()->GetConfigState()->splitting = false;
+        configServer->GetDatabaseManager()->GetConfigState()->isSplitting = false;
     }
     
     if (IsMaster())
@@ -574,11 +657,11 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->type = CONFIGMESSAGE_TRUNCATE_TABLE;
             message->tableID = request->tableID;
             return;
-        case CLIENTREQUEST_SPLIT_SHARD:
-            message->type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
-            message->shardID = request->shardID;
-            message->splitKey = request->key;
-            return;
+//        case CLIENTREQUEST_SPLIT_SHARD:
+//            message->type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
+//            message->shardID = request->shardID;
+//            message->splitKey = request->key;
+//            return;
         default:
             ASSERT_FAIL();
     }

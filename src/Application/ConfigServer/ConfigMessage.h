@@ -29,6 +29,8 @@
 #define CONFIGMESSAGE_SPLIT_SHARD_BEGIN         '1'
 #define CONFIGMESSAGE_SPLIT_SHARD_COMPLETE      '2'
 
+#define CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE  'M'
+
 /*
 ===============================================================================================
 
@@ -101,6 +103,8 @@ public:
     // Shard management
     bool            SplitShardBegin(uint64_t shardID, ReadBuffer& splitKey);
     bool            SplitShardComplete(uint64_t shardID);
+    
+    bool            ShardMigrationComplete(uint64_t quorumID, uint64_t shardID);
     
     // Serialization
     bool            Read(ReadBuffer& buffer);

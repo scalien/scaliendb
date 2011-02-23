@@ -12,6 +12,9 @@
 #define SHARDMESSAGE_DELETE                 'X'
 #define SHARDMESSAGE_REMOVE                 'x'
 #define SHARDMESSAGE_SPLIT_SHARD            'z'
+#define SHARDMESSAGE_MIGRATION_BEGIN        '1'
+#define SHARDMESSAGE_MIGRATION_SET          '2'
+#define SHARDMESSAGE_MIGRATION_DELETE       '3'
 
 /*
 ===============================================================================================
@@ -36,6 +39,8 @@ public:
     ReadBuffer      value;
     ReadBuffer      test;
     Buffer          splitKey;
+    Buffer          migrationKey;
+    Buffer          migrationValue;
 
     // Constructor
     ShardMessage();
@@ -52,6 +57,10 @@ public:
 
     void            SplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey);
 
+    void            ShardMigrationBegin(uint64_t shardID);
+    void            ShardMigrationSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
+    void            ShardMigrationDelete(uint64_t shardID, ReadBuffer& key);
+    
     // Serialization
     int             Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);

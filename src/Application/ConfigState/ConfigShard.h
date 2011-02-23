@@ -24,7 +24,6 @@ public:
     uint64_t        quorumID;
     uint64_t        tableID;
     uint64_t        shardID;
-    bool            isDeleted;
 
     // ========================================================================================
     //

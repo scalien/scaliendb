@@ -57,8 +57,12 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     hasMaster = other.hasMaster;
     masterID = other.masterID;
     
-    splitting = other.splitting;
-
+    isSplitting = other.isSplitting;
+    
+    isMigrating = other.isMigrating;
+    migrateQuorumID = other.migrateQuorumID;
+    migrateShardID = other.migrateShardID;
+    
     FOREACH(quorum, other.quorums)
         quorums.Append(new ConfigQuorum(*quorum));
     
@@ -88,7 +92,11 @@ void ConfigState::Init()
     hasMaster = false;
     masterID = 0;
     
-    splitting = false;
+    isSplitting = false;
+    
+    isMigrating = false;
+    migrateQuorumID = 0;
+    migrateShardID = 0;
     
     quorums.DeleteList();
     databases.DeleteList();
@@ -109,6 +117,12 @@ void ConfigState::Transfer(ConfigState& other)
 
     other.hasMaster = hasMaster;
     other.masterID = masterID;
+    
+    other.isSplitting = isSplitting;
+    
+    other.isMigrating = isMigrating;
+    other.migrateQuorumID = migrateQuorumID;
+    other.migrateShardID = migrateShardID;
     
     other.quorums = quorums;
     quorums.ClearMembers();
@@ -203,6 +217,19 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
             CHECK_ADVANCE(1);
             hasMaster = true;
         }
+        
+        READ_SEPARATOR();
+        c = NO;
+        read = buffer.Readf("%c", &c);
+        CHECK_ADVANCE(1);
+        if (c == YES)
+        {
+            READ_SEPARATOR();
+            read = buffer.Readf("%U:%U", &migrateShardID, &migrateQuorumID);
+            CHECK_ADVANCE(1);
+            isMigrating = true;
+        }
+
         READ_SEPARATOR();
     }
     
@@ -233,11 +260,21 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     {
         // HACK: in volatile mode the prefix is handled by ConfigState
         // TODO: change convention to Append in every Message::Write
-        buffer.Appendf("%c:", CONFIG_MESSAGE_PREFIX);
+        buffer.Appendf("%c", CONFIG_MESSAGE_PREFIX);
+
+        buffer.Appendf(":");
         if (hasMaster)
-            buffer.Appendf("%c:%U:", YES, masterID);
+            buffer.Appendf("%c:%U", YES, masterID);
         else
-            buffer.Appendf("%c:", NO);
+            buffer.Appendf("%c", NO);
+
+        buffer.Appendf(":");        
+        if (isMigrating)
+            buffer.Appendf("%c:%U:%U", YES, migrateShardID, migrateQuorumID);
+        else
+            buffer.Appendf("%c", NO);
+
+        buffer.Appendf(":");        
     }
 
     WriteNextIDs(buffer);
@@ -299,6 +336,8 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnSplitShardBegin(message);
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
             return OnSplitShardComplete(message);
+        case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
+            return OnShardMigrationComplete(message);
      
         case CONFIGMESSAGE_SET_CLUSTER_ID:
             return;
@@ -438,21 +477,15 @@ bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 
 bool ConfigState::CompleteDeleteQuorum(ConfigMessage& message)
 {
-    uint64_t*       itShardID;
     ConfigQuorum*   quorum;
-    ConfigShard*    shard;
 
     quorum = GetQuorum(message.quorumID);
     if (quorum == NULL)
         return false; // no such quorum
 
-    FOREACH(itShardID, quorum->shards)
-    {
-        shard = GetShard(*itShardID);
-        if (!shard->isDeleted)
-            return false; // quorum contains shards
-    }
-    
+    if (quorum->shards.GetLength() > 0)
+        return false; // quorum contains shards
+
     return true;
 }
 
@@ -924,12 +957,10 @@ void ConfigState::OnTruncateTable(ConfigMessage& message)
 
     quorumID = 0;
     // delete all old shards
-    FOREACH(itNodeID, table->shards)
+    FOREACH_FIRST(itNodeID, table->shards)
     {
         shard = GetShard(*itNodeID);
-        if (shard->isDeleted)
-            continue;
-
+        assert(shard != NULL);
         quorumID = shard->quorumID;
         DeleteShard(shard);
     }
@@ -987,6 +1018,23 @@ void ConfigState::OnSplitShardComplete(ConfigMessage& message)
     assert(shard->isSplitCreating);
     
     shard->isSplitCreating = false;
+}
+
+void ConfigState::OnShardMigrationComplete(ConfigMessage& message)
+{
+    ConfigQuorum*   quorum;
+    ConfigShard*    shard;
+    
+    shard = GetShard(message.shardID);
+    assert(shard != NULL);
+    // quorum = old quorum
+    quorum = GetQuorum(shard->quorumID);
+    assert(quorum != NULL);
+    quorum->shards.Remove(shard->shardID);
+    // quorum = new quorum
+    quorum = GetQuorum(message.quorumID);
+    quorum->shards.Add(shard->shardID);
+    shard->quorumID = message.quorumID;
 }
 
 bool ConfigState::ReadQuorums(ReadBuffer& buffer, bool withVolatile)
@@ -1108,9 +1156,10 @@ void ConfigState::DeleteTable(ConfigTable* table)
     ConfigShard*    shard;
     uint64_t*       itShardID;
 
-    FOREACH(itShardID, table->shards)
+    FOREACH_FIRST(itShardID, table->shards)
     {
         shard = GetShard(*itShardID);
+        assert(shard != NULL);
         DeleteShard(shard);
     }
 
@@ -1205,7 +1254,7 @@ void ConfigState::DeleteShard(ConfigShard* shard)
     assert(table != NULL);
     table->shards.Remove(shard->shardID);
 
-    shard->isDeleted = true;
+    shards.Delete(shard);
 }
 
 bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool withVolatile)
@@ -1344,9 +1393,9 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 {
     int read;
     
-    read = buffer.Readf("%U:%U:%U:%b:%#B:%#B:%b:%U",
+    read = buffer.Readf("%U:%U:%U:%#B:%#B:%b:%U",
      &shard.quorumID, &shard.tableID, &shard.shardID,
-     &shard.isDeleted, &shard.firstKey, &shard.lastKey,
+     &shard.firstKey, &shard.lastKey,
      &shard.isSplitCreating, &shard.parentShardID);
     CHECK_ADVANCE(15);
 
@@ -1365,9 +1414,9 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 
 void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer, bool withVolatile)
 {
-    buffer.Appendf("%U:%U:%U:%b:%#B:%#B:%b:%U",
+    buffer.Appendf("%U:%U:%U:%#B:%#B:%b:%U",
      shard.quorumID, shard.tableID, shard.shardID,
-     shard.isDeleted, &shard.firstKey, &shard.lastKey,
+     &shard.firstKey, &shard.lastKey,
      shard.isSplitCreating, shard.parentShardID);
 
     if (withVolatile)

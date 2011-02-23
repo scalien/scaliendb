@@ -6,9 +6,20 @@ static inline bool LessThan(uint64_t a, uint64_t b)
     return a < b;
 }
 
-ClusterMessage::ClusterMessage()
+bool ClusterMessage::IsShardMigrationMessage()
 {
+    if (
+     type == CLUSTERMESSAGE_SHARDMIGRATION_INITIATE     ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_BEGIN        ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_SET          ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_DELETE       ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT       ||
+     type == CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE)
+        return true;
+    else
+        return false;
 }
+
 
 bool ClusterMessage::SetNodeID(uint64_t clusterID_, uint64_t nodeID_)
 {
@@ -67,6 +78,62 @@ bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
     return true;
 }
 
+bool ClusterMessage::ShardMigrationInitiate(uint64_t nodeID_,
+ uint64_t quorumID_, uint64_t shardID_)
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_INITIATE;
+    nodeID = nodeID_;
+    quorumID = quorumID_;
+    shardID = shardID_;
+    return true;
+}
+
+bool ClusterMessage::ShardMigrationBegin(
+ uint64_t quorumID_, uint64_t shardID_)
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_BEGIN;
+    quorumID = quorumID_;
+    shardID = shardID_;
+    return true;
+}
+
+bool ClusterMessage::ShardMigrationSet(
+ uint64_t shardID_, ReadBuffer key_, ReadBuffer value_)
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_SET;
+    shardID = shardID_;
+    key = key_;
+    value = value_;
+    return true;
+}
+
+bool ClusterMessage::ShardMigrationDelete(
+ uint64_t shardID_, ReadBuffer key_)
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_DELETE;
+    shardID = shardID_;
+    key = key_;
+    return true;
+}
+
+bool ClusterMessage::ShardMigrationCommit(
+ uint64_t quorumID_, uint64_t shardID_)
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_COMMIT;
+    quorumID = quorumID_;
+    shardID = shardID_;
+    return true;
+}
+
+bool ClusterMessage::ShardMigrationComplete(
+ uint64_t quorumID_, uint64_t shardID_)
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE;
+    quorumID = quorumID_;
+    shardID = shardID_;
+    return true;
+}
+
 bool ClusterMessage::Read(ReadBuffer& buffer)
 {
 #define READ_SEPARATOR() \
@@ -121,6 +188,30 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             if (!MessageUtil::ReadIDList(shards, buffer))
                 return false;
             return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
+            read = buffer.Readf("%c:%U:%U:%U",
+             &type, &nodeID, &quorumID, &shardID);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &quorumID, &shardID);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_SET:
+            read = buffer.Readf("%c:%U:%#R:%#R",
+             &type, &shardID, &key, &value);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &shardID, &key);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &quorumID, &shardID);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &quorumID, &shardID);
+            break;
         default:
             return false;
     }
@@ -162,6 +253,30 @@ bool ClusterMessage::Write(Buffer& buffer)
             MessageUtil::WriteIDList(activeNodes, buffer);
             buffer.Appendf(":");
             MessageUtil::WriteIDList(shards, buffer);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
+            buffer.Writef("%c:%U:%U:%U",
+             type, nodeID, quorumID, shardID);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
+            buffer.Writef("%c:%U:%U",
+             type, quorumID, shardID);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_SET:
+            buffer.Writef("%c:%U:%#R:%#R",
+             type, shardID, &key, &value);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
+            buffer.Writef("%c:%U:%#R",
+             type, shardID, &key);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
+            buffer.Writef("%c:%U:%U",
+             type, quorumID, shardID);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE:
+            buffer.Writef("%c:%U:%U",
+             type, quorumID, shardID);
             return true;
         default:
             return false;

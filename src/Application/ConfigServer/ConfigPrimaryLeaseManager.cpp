@@ -19,16 +19,37 @@ void ConfigPrimaryLeaseManager::Shutdown()
 void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 {
     uint64_t        now;
+    ConfigState*    configState;
     ConfigQuorum*   quorum;
+    ConfigShard*    shard;
     PrimaryLease*   itLease;
     
     now = EventLoop::Now();
+    
+    configState = configServer->GetDatabaseManager()->GetConfigState();
 
+    if (configState->isMigrating)
+        shard = configState->GetShard(configState->migrateShardID);
+    
     for (itLease = primaryLeases.First(); itLease != NULL; /* advanced in body */)
     {
         if (itLease->expireTime < now)
         {
-            quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(itLease->quorumID);
+            quorum = configState->GetQuorum(itLease->quorumID);
+            
+            // look for migration
+            if (configState->isMigrating)
+            {
+                if (configState->migrateQuorumID == quorum->quorumID || // migration dst
+                 shard->quorumID == quorum->quorumID)                   // migration src
+                {
+                    Log_Message("Aborting shard migration...");
+                    configState->isMigrating = false;
+                    configState->migrateQuorumID = 0;
+                    configState->migrateShardID = 0;
+                }
+            }
+            
             if (quorum) // in case it has been deleted
             {
                 quorum->hasPrimary = false;
