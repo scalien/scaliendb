@@ -159,6 +159,8 @@ void JSONConfigState::WriteTable(ConfigTable* table)
     json.PrintComma();
     JSON_STRING(table, name);
     json.PrintComma();
+    JSON_BOOL(table, isFrozen);
+    json.PrintComma();
     JSON_IDLIST(table, shards);
     
     json.PrintObjectEnd();

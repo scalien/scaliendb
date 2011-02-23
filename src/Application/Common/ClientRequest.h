@@ -20,6 +20,8 @@
 #define CLIENTREQUEST_RENAME_TABLE      'r'
 #define CLIENTREQUEST_DELETE_TABLE      'd'
 #define CLIENTREQUEST_TRUNCATE_TABLE    't'
+#define CLIENTREQUEST_FREEZE_TABLE      'F'
+#define CLIENTREQUEST_UNFREEZE_TABLE    'f'
 #define CLIENTREQUEST_GET               'G'
 #define CLIENTREQUEST_SET               'S'
 #define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
@@ -97,6 +99,10 @@ public:
                      uint64_t commandID, uint64_t tableID);
 //    bool            SplitShard(
 //                     uint64_t commandID, uint64_t shardID, ReadBuffer& key);
+    bool            FreezeTable(
+                     uint64_t commandID, uint64_t tableID);
+    bool            UnfreezeTable(
+                     uint64_t commandID, uint64_t tableID);
     bool            MigrateShard(
                      uint64_t commandID, uint64_t quorumID, uint64_t shardID);
     

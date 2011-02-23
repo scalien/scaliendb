@@ -131,6 +131,22 @@ bool ConfigMessage::TruncateTable(
     return true;
 }
 
+bool ConfigMessage::FreezeTable(
+ uint64_t tableID_)
+{
+    type = CONFIGMESSAGE_FREEZE_TABLE;
+    tableID = tableID_;
+    return true;
+}
+
+bool ConfigMessage::UnfreezeTable(
+ uint64_t tableID_)
+{
+    type = CONFIGMESSAGE_UNFREEZE_TABLE;
+    tableID = tableID_;
+    return true;
+}
+
 bool ConfigMessage::SplitShardBegin(uint64_t shardID_, ReadBuffer& splitKey_)
 {
     type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
@@ -247,6 +263,14 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &type, &tableID);
             break;
+        case CONFIGMESSAGE_FREEZE_TABLE:
+            read = buffer.Readf("%c:%U",
+             &type, &tableID);
+            break;
+        case CONFIGMESSAGE_UNFREEZE_TABLE:
+            read = buffer.Readf("%c:%U",
+             &type, &tableID);
+            break;
 
         // Shard management
         case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
@@ -343,6 +367,14 @@ bool ConfigMessage::Write(Buffer& buffer)
              type, tableID);
             break;
         case CONFIGMESSAGE_TRUNCATE_TABLE:
+            buffer.Writef("%c:%U",
+             type, tableID);
+            break;
+        case CONFIGMESSAGE_FREEZE_TABLE:
+            buffer.Writef("%c:%U",
+             type, tableID);
+            break;
+        case CONFIGMESSAGE_UNFREEZE_TABLE:
             buffer.Writef("%c:%U",
              type, tableID);
             break;

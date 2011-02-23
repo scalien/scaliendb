@@ -515,6 +515,10 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
         return ProcessDeleteTable();
     if (HTTP_MATCH_COMMAND(cmd, "truncatetable"))
         return ProcessTruncateTable();    
+    if (HTTP_MATCH_COMMAND(cmd, "freezetable"))
+        return ProcessFreezeTable();    
+    if (HTTP_MATCH_COMMAND(cmd, "unfreezetable"))
+        return ProcessUnfreezeTable();    
 //    if (HTTP_MATCH_COMMAND(cmd, "splitshard"))
 //        return ProcessSplitShard();
     if (HTTP_MATCH_COMMAND(cmd, "migrateshard"))
@@ -727,6 +731,32 @@ ClientRequest* ConfigHTTPClientSession::ProcessTruncateTable()
 
     request = new ClientRequest;
     request->TruncateTable(0, tableID);
+
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessFreezeTable()
+{
+    ClientRequest*  request;
+    uint64_t        tableID;
+    
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+
+    request = new ClientRequest;
+    request->FreezeTable(0, tableID);
+
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessUnfreezeTable()
+{
+    ClientRequest*  request;
+    uint64_t        tableID;
+    
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+
+    request = new ClientRequest;
+    request->UnfreezeTable(0, tableID);
 
     return request;
 }

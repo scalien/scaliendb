@@ -60,6 +60,8 @@ private:
     ClientRequest*      ProcessRenameTable();
     ClientRequest*      ProcessDeleteTable();
     ClientRequest*      ProcessTruncateTable();
+    ClientRequest*      ProcessFreezeTable();
+    ClientRequest*      ProcessUnfreezeTable();
 //    ClientRequest*      ProcessSplitShard();
     ClientRequest*      ProcessMigrateShard();
     

@@ -25,6 +25,8 @@
 #define CONFIGMESSAGE_RENAME_TABLE              'r'
 #define CONFIGMESSAGE_DELETE_TABLE              'd'
 #define CONFIGMESSAGE_TRUNCATE_TABLE            't'
+#define CONFIGMESSAGE_FREEZE_TABLE              'F'
+#define CONFIGMESSAGE_UNFREEZE_TABLE            'f'
 
 #define CONFIGMESSAGE_SPLIT_SHARD_BEGIN         '1'
 #define CONFIGMESSAGE_SPLIT_SHARD_COMPLETE      '2'
@@ -98,6 +100,10 @@ public:
     bool            DeleteTable(
                      uint64_t tableID);
     bool            TruncateTable(
+                     uint64_t tableID);
+    bool            FreezeTable(
+                     uint64_t tableID);
+    bool            UnfreezeTable(
                      uint64_t tableID);
 
     // Shard management

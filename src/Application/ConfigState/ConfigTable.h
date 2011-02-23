@@ -24,6 +24,7 @@ public:
     uint64_t        databaseID;
     uint64_t        tableID;
     Buffer          name;
+    bool            isFrozen;
     
     List<uint64_t>  shards;
     

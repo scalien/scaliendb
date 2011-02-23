@@ -204,6 +204,24 @@ bool ClientRequest::TruncateTable(
     return true;
 }
 
+bool ClientRequest::FreezeTable(
+ uint64_t commandID_, uint64_t tableID_)
+{
+    type = CLIENTREQUEST_FREEZE_TABLE;
+    commandID = commandID_;
+    tableID = tableID_;
+    return true;
+}
+
+bool ClientRequest::UnfreezeTable(
+ uint64_t commandID_, uint64_t tableID_)
+{
+    type = CLIENTREQUEST_UNFREEZE_TABLE;
+    commandID = commandID_;
+    tableID = tableID_;
+    return true;
+}
+
 //bool ClientRequest::SplitShard(
 // uint64_t commandID_, uint64_t shardID_, ReadBuffer& key_)
 //{

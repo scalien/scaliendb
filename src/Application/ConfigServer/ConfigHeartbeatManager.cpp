@@ -135,7 +135,8 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
     ConfigState*            configState;
     ConfigShardServer*      configShardServer;
     ConfigQuorum*           itQuorum;
-    ConfigShard*            shard;
+    ConfigShard*            configShard;
+    ConfigTable*            configTable;
     QuorumShardInfo*        itQuorumShardInfo; 
     
     if (!configServer->GetQuorumProcessor()->IsMaster())
@@ -168,14 +169,19 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
         {
             if (itQuorumShardInfo->quorumID != itQuorum->quorumID)
                 continue;
-
+                
             if (!isSplitCreating && itQuorumShardInfo->isSplitable &&
              itQuorumShardInfo->shardSize > shardSplitSize)
             {
                 // make sure another shard with the same splitKey doesn't already exist
-                shard = configState->GetShard(itQuorumShardInfo->shardID);
+                configShard = configState->GetShard(itQuorumShardInfo->shardID);
+                assert(configShard != NULL);
+                configTable = configState->GetTable(configShard->tableID);
+                assert(configTable != NULL);
+                if (configTable->isFrozen)
+                    continue;
                 if (!configServer->GetDatabaseManager()->ShardExists(
-                 shard->tableID, ReadBuffer(itQuorumShardInfo->splitKey)))
+                 configShard->tableID, ReadBuffer(itQuorumShardInfo->splitKey)))
                 {
                     configServer->GetQuorumProcessor()->TryShardSplitBegin(
                      itQuorumShardInfo->shardID, ReadBuffer(itQuorumShardInfo->splitKey));

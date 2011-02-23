@@ -180,6 +180,10 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteDeleteTable(message);
         case CONFIGMESSAGE_TRUNCATE_TABLE:
             return CompleteTruncateTable(message);
+        case CONFIGMESSAGE_FREEZE_TABLE:
+            return CompleteFreezeTable(message);
+        case CONFIGMESSAGE_UNFREEZE_TABLE:
+            return CompleteUnfreezeTable(message);
         
         default:
             ASSERT_FAIL();
@@ -331,6 +335,10 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnDeleteTable(message);
         case CONFIGMESSAGE_TRUNCATE_TABLE:
             return OnTruncateTable(message);
+        case CONFIGMESSAGE_FREEZE_TABLE:
+            return OnFreezeTable(message);
+        case CONFIGMESSAGE_UNFREEZE_TABLE:
+            return OnUnfreezeTable(message);
         
         case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
             return OnSplitShardBegin(message);
@@ -667,6 +675,28 @@ bool ConfigState::CompleteTruncateTable(ConfigMessage& message)
     return true;
 }
 
+bool ConfigState::CompleteFreezeTable(ConfigMessage& message)
+{
+    ConfigTable*    table;
+
+    table = GetTable(message.tableID);
+    if (table == NULL)
+        return false; // no such table
+
+    return true;
+}
+
+bool ConfigState::CompleteUnfreezeTable(ConfigMessage& message)
+{
+    ConfigTable*    table;
+
+    table = GetTable(message.tableID);
+    if (table == NULL)
+        return false; // no such table
+
+    return true;
+}
+
 bool ConfigState::CompleteSplitShardBegin(ConfigMessage& message)
 {
     if (GetShard(message.shardID) == NULL)
@@ -891,6 +921,7 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     table = new ConfigTable;
     table->databaseID = message.databaseID;
     table->tableID = nextTableID++;
+    table->isFrozen = true; // by default all tables are frozen
     table->name.Write(message.name);
     table->shards.Append(shard->shardID);
     tables.Append(table);
@@ -977,6 +1008,28 @@ void ConfigState::OnTruncateTable(ConfigMessage& message)
     table->shards.Append(shard->shardID);
     shards.Append(shard);
     quorum->shards.Add(shard->shardID);
+}
+
+void ConfigState::OnFreezeTable(ConfigMessage& message)
+{
+    ConfigTable*    table;
+
+    table = GetTable(message.tableID);
+    // make sure table exists
+    assert(table != NULL);
+    
+    table->isFrozen = true;
+}
+
+void ConfigState::OnUnfreezeTable(ConfigMessage& message)
+{
+    ConfigTable*    table;
+
+    table = GetTable(message.tableID);
+    // make sure table exists
+    assert(table != NULL);
+    
+    table->isFrozen = false;
 }
 
 void ConfigState::OnSplitShardBegin(ConfigMessage& message)
@@ -1370,7 +1423,7 @@ bool ConfigState::ReadTable(ConfigTable& table, ReadBuffer& buffer)
 {
     int read;
     
-    read = buffer.Readf("%U:%U:%#B", &table.databaseID, &table.tableID, &table.name);
+    read = buffer.Readf("%U:%U:%#B:%b", &table.databaseID, &table.tableID, &table.name, &table.isFrozen);
     CHECK_ADVANCE(5);
     READ_SEPARATOR();
     if (!ReadIDList(table.shards, buffer))
@@ -1384,7 +1437,7 @@ bool ConfigState::ReadTable(ConfigTable& table, ReadBuffer& buffer)
 
 void ConfigState::WriteTable(ConfigTable& table, Buffer& buffer)
 {
-    buffer.Appendf("%U:%U:%#B", table.databaseID, table.tableID, &table.name);
+    buffer.Appendf("%U:%U:%#B:%b", table.databaseID, table.tableID, &table.name, table.isFrozen);
     buffer.Appendf(":");
     WriteIDList(table.shards, buffer);
 }

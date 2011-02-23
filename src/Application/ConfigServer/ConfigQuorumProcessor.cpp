@@ -657,6 +657,14 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->type = CONFIGMESSAGE_TRUNCATE_TABLE;
             message->tableID = request->tableID;
             return;
+        case CLIENTREQUEST_FREEZE_TABLE:
+            message->type = CONFIGMESSAGE_FREEZE_TABLE;
+            message->tableID = request->tableID;
+            return;
+        case CLIENTREQUEST_UNFREEZE_TABLE:
+            message->type = CONFIGMESSAGE_UNFREEZE_TABLE;
+            message->tableID = request->tableID;
+            return;
 //        case CLIENTREQUEST_SPLIT_SHARD:
 //            message->type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
 //            message->shardID = request->shardID;
@@ -702,6 +710,12 @@ void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResp
             response->OK();
             return;
         case CLIENTREQUEST_TRUNCATE_TABLE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_FREEZE_TABLE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_UNFREEZE_TABLE:
             response->OK();
             return;
         case CLIENTREQUEST_SPLIT_SHARD:
