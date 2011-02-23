@@ -500,6 +500,18 @@ function deleteTable()
 	scaliendb.deleteTable(deleteTableID);
 }
 
+function freezeTable(tableID)
+{
+	scaliendb.onResponse = onResponse;
+	scaliendb.freezeTable(tableID);
+}
+
+function unfreezeTable(tableID)
+{
+	scaliendb.onResponse = onResponse;
+	scaliendb.unfreezeTable(tableID);
+}
+
 function onResponse()
 {
 	updateConfigState();
@@ -868,6 +880,7 @@ function createTableDiv(configState, table)
 	'																									\
 					<br/>																				\
 					Replication factor: ' + rfactor + '<br/>											\
+					Shard splitting frozen: ' + (table["isFrozen"] ? "yes" : "no") + '<br/>				\
 					Size: ' + humanBytes(size) + '<br/><br/												\
 					<a class="no-line" href="javascript:showhideShardsDiv(\'' +
 					table["tableID"] +  '\')">															\
@@ -884,6 +897,9 @@ function createTableDiv(configState, table)
 					<a class="no-line" href="javascript:showDeleteTable(\'' +
 					table["tableID"] +  '\')">															\
 					<span class="delete-button">delete table</span>										\
+					<a class="no-line" href="javascript:' + (table["isFrozen"] ? "unfreeze" : "freeze" ) + 'Table(\'' +
+					table["tableID"] + '\')"><br/><br/>													\
+					<span class="modify-button">' + (table["isFrozen"] ? "unfreeze" : "freeze" ) + ' table</span></a><br/><br/>						\
 				</td>																					\
 			</tr>																						\
 		</table>																						\

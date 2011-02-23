@@ -192,6 +192,20 @@ var scaliendb =
 		params["tableID"] = tableID;
 		this.rpc("truncatetable", params);
 	},
+
+	freezeTable: function(tableID)
+	{
+		var params = {};
+		params["tableID"] = tableID;
+		this.rpc("freezetable", params);
+	},
+
+	unfreezeTable: function(tableID)
+	{
+		var params = {};
+		params["tableID"] = tableID;
+		this.rpc("unfreezetable", params);
+	},
 	
 	showResult: function(data)
 	{
