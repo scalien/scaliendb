@@ -14,7 +14,7 @@ if len(sys.argv) > 2:
 	filename = sys.argv[2]
 	
 client = scaliendb.Client(CONTROLLERS)
-#client._set_trace(True)
+client._set_trace(True)
 
 if False:
 	quorum_id = client.create_quorum(["100"])
@@ -25,4 +25,5 @@ client.use_database("testdb")
 client.use_table("testtable")
 f = open(filename, "rb")
 data = f.read()
+print(len(str(data)))
 client.set(key, data)

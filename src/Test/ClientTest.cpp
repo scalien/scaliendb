@@ -242,7 +242,7 @@ TEST_DEFINE(TestClientBatchedSet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 1000000;
+    unsigned        num = 10000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -295,14 +295,15 @@ TEST_DEFINE(TestClientBatchedSet2)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 10*1000*1000;
+    unsigned        num = 100*1000*1000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(10000);
+    client.SetMasterTimeout(100000);
+    client.SetGlobalTimeout(100000);
     ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -324,7 +325,7 @@ TEST_DEFINE(TestClientBatchedSet2)
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
 
-        if (i != 0 && i % 3 == 0)
+        if (i != 0 && i % 10000 == 0)
         {
             TEST_LOG("Submitting %d", i);
             sw.Start();
@@ -332,7 +333,6 @@ TEST_DEFINE(TestClientBatchedSet2)
             if (ret != SDBP_SUCCESS)
                 TEST_CLIENT_FAIL();
             sw.Stop();
-            MSleep(1000);
             ret = client.Begin();
             if (ret != SDBP_SUCCESS)
                 TEST_CLIENT_FAIL();

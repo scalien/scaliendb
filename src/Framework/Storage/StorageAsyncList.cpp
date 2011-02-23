@@ -63,7 +63,6 @@ void StorageAsyncList::Clear()
     delete[] iterators;
     iterators = NULL;
     numListers = 0;
-    shards.Clear();
 
     Init();
 }
