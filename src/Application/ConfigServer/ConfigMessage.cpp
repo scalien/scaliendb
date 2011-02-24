@@ -387,6 +387,7 @@ bool ConfigMessage::Write(Buffer& buffer)
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
             buffer.Writef("%c:%U",
              type, shardID);
+             break;
         case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
             buffer.Writef("%c:%U:%U",
              type, quorumID, shardID);

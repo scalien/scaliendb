@@ -222,15 +222,15 @@ bool ClientRequest::UnfreezeTable(
     return true;
 }
 
-//bool ClientRequest::SplitShard(
-// uint64_t commandID_, uint64_t shardID_, ReadBuffer& key_)
-//{
-//    type = CLIENTREQUEST_SPLIT_SHARD;
-//    commandID = commandID_;
-//    shardID = shardID_;
-//    key.Write(key_);
-//    return true;
-//}
+bool ClientRequest::SplitShard(
+ uint64_t commandID_, uint64_t shardID_, ReadBuffer& key_)
+{
+    type = CLIENTREQUEST_SPLIT_SHARD;
+    commandID = commandID_;
+    shardID = shardID_;
+    key.Write(key_);
+    return true;
+}
 
 bool ClientRequest::MigrateShard(
  uint64_t commandID_, uint64_t quorumID_, uint64_t shardID_)

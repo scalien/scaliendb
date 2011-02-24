@@ -519,8 +519,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
         return ProcessFreezeTable();    
     if (HTTP_MATCH_COMMAND(cmd, "unfreezetable"))
         return ProcessUnfreezeTable();    
-//    if (HTTP_MATCH_COMMAND(cmd, "splitshard"))
-//        return ProcessSplitShard();
+    if (HTTP_MATCH_COMMAND(cmd, "splitshard"))
+        return ProcessSplitShard();
     if (HTTP_MATCH_COMMAND(cmd, "migrateshard"))
         return ProcessMigrateShard();
     
@@ -761,20 +761,20 @@ ClientRequest* ConfigHTTPClientSession::ProcessUnfreezeTable()
     return request;
 }
 
-//ClientRequest* ConfigHTTPClientSession::ProcessSplitShard()
-//{
-//    ClientRequest*  request;
-//    uint64_t        shardID;
-//    ReadBuffer      key;
-//    
-//    HTTP_GET_U64_PARAM(params, "shardID", shardID);
-//    HTTP_GET_PARAM(params, "key", key);
-//
-//    request = new ClientRequest;
-//    request->SplitShard(0, shardID, key);
-//
-//    return request;
-//}
+ClientRequest* ConfigHTTPClientSession::ProcessSplitShard()
+{
+    ClientRequest*  request;
+    uint64_t        shardID;
+    ReadBuffer      key;
+    
+    HTTP_GET_U64_PARAM(params, "shardID", shardID);
+    HTTP_GET_PARAM(params, "key", key);
+
+    request = new ClientRequest;
+    request->SplitShard(0, shardID, key);
+
+    return request;
+}
 
 ClientRequest* ConfigHTTPClientSession::ProcessMigrateShard()
 {

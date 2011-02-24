@@ -97,8 +97,8 @@ public:
                      uint64_t commandID, uint64_t tableID);
     bool            TruncateTable(
                      uint64_t commandID, uint64_t tableID);
-//    bool            SplitShard(
-//                     uint64_t commandID, uint64_t shardID, ReadBuffer& key);
+    bool            SplitShard(
+                     uint64_t commandID, uint64_t shardID, ReadBuffer& key);
     bool            FreezeTable(
                      uint64_t commandID, uint64_t tableID);
     bool            UnfreezeTable(

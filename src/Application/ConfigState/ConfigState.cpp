@@ -699,8 +699,27 @@ bool ConfigState::CompleteUnfreezeTable(ConfigMessage& message)
 
 bool ConfigState::CompleteSplitShardBegin(ConfigMessage& message)
 {
-    if (GetShard(message.shardID) == NULL)
+    ConfigShard* shard;
+    
+    shard = GetShard(message.shardID);
+    
+    if (shard == NULL)
         return false;
+    
+    if (!RangeContains(shard->firstKey, shard->lastKey, message.splitKey))
+        return false;
+    
+    if (ReadBuffer::Cmp(shard->firstKey, message.splitKey) == 0)
+        return false;
+
+    if (ReadBuffer::Cmp(shard->lastKey, message.splitKey) == 0)
+        return false;
+    
+    if (isSplitting)
+        return false;
+    
+    isSplitting = true;
+
     return true;
 }
 

@@ -283,6 +283,7 @@ void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer spli
             return;
     }
 
+    assert(configServer->GetDatabaseManager()->GetConfigState()->isSplitting == false);
     configServer->GetDatabaseManager()->GetConfigState()->isSplitting = true;
 
     Log_Message("Split shard process started (parent shardID = %U)...", shardID);
@@ -665,11 +666,11 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->type = CONFIGMESSAGE_UNFREEZE_TABLE;
             message->tableID = request->tableID;
             return;
-//        case CLIENTREQUEST_SPLIT_SHARD:
-//            message->type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
-//            message->shardID = request->shardID;
-//            message->splitKey = request->key;
-//            return;
+        case CLIENTREQUEST_SPLIT_SHARD:
+            message->type = CONFIGMESSAGE_SPLIT_SHARD_BEGIN;
+            message->shardID = request->shardID;
+            message->splitKey = request->key;
+            return;
         default:
             ASSERT_FAIL();
     }

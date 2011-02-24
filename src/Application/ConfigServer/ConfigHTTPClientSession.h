@@ -62,7 +62,7 @@ private:
     ClientRequest*      ProcessTruncateTable();
     ClientRequest*      ProcessFreezeTable();
     ClientRequest*      ProcessUnfreezeTable();
-//    ClientRequest*      ProcessSplitShard();
+    ClientRequest*      ProcessSplitShard();
     ClientRequest*      ProcessMigrateShard();
     
     void                OnConnectionClose();
