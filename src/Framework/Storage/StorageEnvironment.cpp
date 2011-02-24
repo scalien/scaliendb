@@ -945,7 +945,6 @@ void StorageEnvironment::TryFinalizeLogSegment()
         return;
 
     headLogSegment->Close();
-    delete headLogSegment;
 
     logSegments.Append(headLogSegment);
 
