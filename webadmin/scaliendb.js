@@ -31,7 +31,7 @@ var scaliendb =
 		var table = scaliendb.getTable(configState, tableID);
 		for (var i in table["shards"])
 		{
-			shardID = table["shards"];
+			shardID = table["shards"][i];
 			shard = locateShard(configState, shardID);
 			quorumState = scaliendb.getQuorumState(configState, shard["quorumID"]);
 			if (state == "critical")
@@ -205,6 +205,14 @@ var scaliendb =
 		var params = {};
 		params["tableID"] = tableID;
 		this.rpc("unfreezetable", params);
+	},
+
+	splitShard: function(shardID, key)
+	{
+		var params = {};
+		params["shardID"] = shardID;
+		params["key"] = key;
+		this.rpc("splitshard", params);
 	},
 	
 	showResult: function(data)

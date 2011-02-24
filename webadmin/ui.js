@@ -1,126 +1,5 @@
-var BrowserDetect = {
-	init: function () {
-		this.browser = this.searchString(this.dataBrowser) || "An unknown browser";
-		this.version = this.searchVersion(navigator.userAgent)
-			|| this.searchVersion(navigator.appVersion)
-			|| "an unknown version";
-		this.OS = this.searchString(this.dataOS) || "an unknown OS";
-	},
-	searchString: function (data) {
-		for (var i=0;i<data.length;i++)	{
-			var dataString = data[i].string;
-			var dataProp = data[i].prop;
-			this.versionSearchString = data[i].versionSearch || data[i].identity;
-			if (dataString) {
-				if (dataString.indexOf(data[i].subString) != -1)
-					return data[i].identity;
-			}
-			else if (dataProp)
-				return data[i].identity;
-		}
-	},
-	searchVersion: function (dataString) {
-		var index = dataString.indexOf(this.versionSearchString);
-		if (index == -1) return;
-		return parseFloat(dataString.substring(index+this.versionSearchString.length+1));
-	},
-	dataBrowser: [
-		{
-			string: navigator.userAgent,
-			subString: "Chrome",
-			identity: "Chrome"
-		},
-		{ 	string: navigator.userAgent,
-			subString: "OmniWeb",
-			versionSearch: "OmniWeb/",
-			identity: "OmniWeb"
-		},
-		{
-			string: navigator.vendor,
-			subString: "Apple",
-			identity: "Safari",
-			versionSearch: "Version"
-		},
-		{
-			prop: window.opera,
-			identity: "Opera"
-		},
-		{
-			string: navigator.vendor,
-			subString: "iCab",
-			identity: "iCab"
-		},
-		{
-			string: navigator.vendor,
-			subString: "KDE",
-			identity: "Konqueror"
-		},
-		{
-			string: navigator.userAgent,
-			subString: "Firefox",
-			identity: "Firefox"
-		},
-		{
-			string: navigator.vendor,
-			subString: "Camino",
-			identity: "Camino"
-		},
-		{		// for newer Netscapes (6+)
-			string: navigator.userAgent,
-			subString: "Netscape",
-			identity: "Netscape"
-		},
-		{
-			string: navigator.userAgent,
-			subString: "MSIE",
-			identity: "Explorer",
-			versionSearch: "MSIE"
-		},
-		{
-			string: navigator.userAgent,
-			subString: "Gecko",
-			identity: "Mozilla",
-			versionSearch: "rv"
-		},
-		{ 		// for older Netscapes (4-)
-			string: navigator.userAgent,
-			subString: "Mozilla",
-			identity: "Netscape",
-			versionSearch: "Mozilla"
-		}
-	],
-	dataOS : [
-		{
-			string: navigator.platform,
-			subString: "Win",
-			identity: "Windows"
-		},
-		{
-			string: navigator.platform,
-			subString: "Mac",
-			identity: "Mac"
-		},
-		{
-			   string: navigator.userAgent,
-			   subString: "iPhone",
-			   identity: "iPhone/iPod"
-	    },
-		{
-			string: navigator.platform,
-			subString: "Linux",
-			identity: "Linux"
-		}
-	]
-
-};
-BrowserDetect.init();
-
-
 function onLoad()
 {
-	if (BrowserDetect.browser != "Firefox" && BrowserDetect.browser != "Safari")
-		alert("Please use Firefox 3.6+ or Safari 5+\n(we are working on it)");
-		
 	scaliendb.util.elem("controller").textContent = "Not connected...";
 	scaliendb.util.elem("clusterState").textContent = "Unable to connect!";
 	scaliendb.util.elem("clusterState").className = "status-message critical";
@@ -150,12 +29,25 @@ function onLoad()
 	scaliendb.util.elem("renameTableContainer").style.display = "none";
 	scaliendb.util.elem("truncateTableContainer").style.display = "none";
 	scaliendb.util.elem("deleteTableContainer").style.display = "none";
+	scaliendb.util.elem("splitShardContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
 	
 	activateDashboardTab();
+	hideDialog = function() {}
 	
 	document.onkeydown = function(e) { if (getKeycode(e) == 27) hideDialog(); }
+}
+
+var md = false;
+function onMouseDown()
+{
+	md = true;	
+}
+
+function onMouseUp()
+{
+	md = false;
 }
 
 function logout()
@@ -243,6 +135,7 @@ function showhideShardsDiv(tableID)
 
 function showCreateQuorum()
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createQuorumContainer").style.display = "block";
 	scaliendb.util.elem("createQuorumShardServers").focus();
 	hideDialog = hideCreateQuorum;
@@ -251,6 +144,7 @@ function showCreateQuorum()
 var deleteQuorumID;
 function showDeleteQuorum(quorumID)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("deleteQuorumContainer").style.display = "block";
 	deleteQuorumID = quorumID;
 	hideDialog = hideDeleteQuorum;
@@ -259,6 +153,7 @@ function showDeleteQuorum(quorumID)
 var addNodeQuorumID;
 function showAddNode(quorumID)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("addNodeContainer").style.display = "block";
 	addNodeQuorumID = quorumID;
 	hideDialog = hideAddNode;
@@ -267,6 +162,7 @@ function showAddNode(quorumID)
 var removeNodeQuorumID;
 function showRemoveNode(quorumID)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("removeNodeContainer").style.display = "block";
 	removeNodeQuorumID = quorumID;
 	hideDialog = hideRemoveNode;
@@ -274,6 +170,7 @@ function showRemoveNode(quorumID)
 
 function showCreateDatabase()
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createDatabaseContainer").style.display = "block";
 	scaliendb.util.elem("createDatabaseName").focus();
 	hideDialog = hideCreateDatabase;
@@ -282,6 +179,7 @@ function showCreateDatabase()
 var renameDatabaseID;
 function showRenameDatabase(databaseID, databaseName)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("renameDatabaseName").value = databaseName;
 	scaliendb.util.elem("renameDatabaseContainer").style.display = "block";
 	scaliendb.util.elem("renameDatabaseName").focus();
@@ -292,6 +190,7 @@ function showRenameDatabase(databaseID, databaseName)
 var deleteDatabaseID;
 function showDeleteDatabase(databaseID)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("deleteDatabaseContainer").style.display = "block";
 	deleteDatabaseID = databaseID;
 	hideDialog = hideDeleteDatabase;
@@ -300,6 +199,7 @@ function showDeleteDatabase(databaseID)
 var createTableDatabaseID;
 function showCreateTable(databaseID, databaseName)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "block";
 	scaliendb.util.elem("createTableName").focus();
 	createTableDatabaseID = databaseID;
@@ -309,6 +209,7 @@ function showCreateTable(databaseID, databaseName)
 var renameTableID;
 function showRenameTable(tableID, tableName)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("renameTableName").value = tableName;
 	scaliendb.util.elem("renameTableContainer").style.display = "block";
 	scaliendb.util.elem("renameTableName").focus();
@@ -319,6 +220,7 @@ function showRenameTable(tableID, tableName)
 var truncateTableID;
 function showTruncateTable(tableID)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("truncateTableContainer").style.display = "block";
 	truncateTableID = tableID;
 	hideDialog = hideTruncateTable;
@@ -327,9 +229,19 @@ function showTruncateTable(tableID)
 var deleteTableID;
 function showDeleteTable(tableID)
 {
+	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("deleteTableContainer").style.display = "block";
 	deleteTableID = tableID;
 	hideDialog = hideDeleteTable;
+}
+
+var splitShardID;
+function showSplitShard(shardID)
+{
+	scaliendb.util.elem("mainContainer").style.display = "none";
+	scaliendb.util.elem("splitShardContainer").style.display = "block";
+	splitShardID = shardID;
+	hideDialog = hideSplitShard;
 }
 
 function hideCreateQuorum()
@@ -395,6 +307,12 @@ function hideTruncateTable()
 function hideDeleteTable()
 {
 	scaliendb.util.elem("deleteTableContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideSplitShard()
+{
+	scaliendb.util.elem("splitShardContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -512,6 +430,14 @@ function unfreezeTable(tableID)
 	scaliendb.unfreezeTable(tableID);
 }
 
+function splitShard()
+{
+	hideSplitShard();
+	var key = scaliendb.util.elem("splitShardKey").value;
+	scaliendb.onResponse = onResponse;
+	scaliendb.splitShard(splitShardID, key);
+}
+
 function onResponse()
 {
 	updateConfigState();
@@ -543,13 +469,14 @@ function onConfigState(configState)
 	scaliendb.util.elem("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
 	
 	clearTimeout(timer);
-	timer = setTimeout("onTimeout()", 1000);
+	timer = setTimeout("onTimeout()", 2000);
 	// scaliendb.pollConfigState(onConfigState);
 }
 
 function onTimeout()
 {
-	updateConfigState();
+	if (!md)
+		updateConfigState();
 }
 
 function createDashboard(configState)
@@ -881,11 +808,11 @@ function createTableDiv(configState, table)
 					<br/>																				\
 					Replication factor: ' + rfactor + '<br/>											\
 					Shard splitting frozen: ' + (table["isFrozen"] ? "yes" : "no") + '<br/>				\
-					Size: ' + humanBytes(size) + '<br/><br/												\
+					Size: ' + scaliendb.util.humanBytes(size) + '<br/><br/>												\
 					<a class="no-line" href="javascript:showhideShardsDiv(\'' +
 					table["tableID"] +  '\')">															\
 					<span id="showhideShardsButton_' + table["tableID"] + '" class="modify-button">' + 
-					(tableShardsVisible[tableID] ? 'hide shards' : 'show shards') + '</span>			\
+					(tableShardsVisible[tableID] ? 'hide shards' : 'show shards') + '</span></a>			\
 				</td>																					\
 				<td class="table-actions">																\
 					<a class="no-line" href="javascript:showRenameTable(\'' +
@@ -904,7 +831,6 @@ function createTableDiv(configState, table)
 			</tr>																						\
 		</table>																						\
 	';
-	
 	var div = document.createElement("div");
 	div.setAttribute("class", "table " + scaliendb.getTableState(configState, table["tableID"]));
 	div.innerHTML = html;
@@ -968,7 +894,15 @@ function createShardDiv(configState, shard)
 					if (shard["isSplitable"])
 						html +=  'Split key: ' + (scaliendb.util.defstr(shard["splitKey"]) == "" ? "(empty)" : scaliendb.util.defstr(shard["splitKey"])) + '<br/>';
 					html += '																			\
-					Size: ' + humanBytes(scaliendb.util.humanBytes(shard["shardSize"])) + '<br/>	  				\
+					Size: ' + scaliendb.util.humanBytes(shard["shardSize"]) + '<br/>	  				\
+				</td>																					\
+				<td class="shard-actions">																\
+					<a class="no-line" href="javascript:showSplitShard(\'' +
+					shard["shardID"] + '\')">								\
+					<span class="modify-button">split shard</span></a><br/><br/>						\
+					<a class="no-line" href="javascript:showMigrateShard(\'' +
+					shard["shardID"] +  '\')">															\
+					<span class="modify-button">migrate shard</span></a><br/><br/>						\
 				</td>																					\
 			</tr>																						\
 		</table>																						\
@@ -1069,25 +1003,4 @@ function getKeycode(e)
 		return event.keyCode;
 	else
 		return e.which;
-}
-
-function humanBytes(bytes, precision)
-{  
-    var kilobyte = 1024;
-    var megabyte = kilobyte * 1024;
-    var gigabyte = megabyte * 1024;
-    var terabyte = gigabyte * 1024;
-
-    if ((bytes >= 0) && (bytes < kilobyte))
-        return bytes + ' B';
-    else if ((bytes >= kilobyte) && (bytes < megabyte))
-        return (bytes / kilobyte).toFixed(precision) + ' KB';
-    else if ((bytes >= megabyte) && (bytes < gigabyte))
-        return (bytes / megabyte).toFixed(precision) + ' MB';
-    else if ((bytes >= gigabyte) && (bytes < terabyte))
-        return (bytes / gigabyte).toFixed(precision) + ' GB';
-    else if (bytes >= terabyte)
-        return (bytes / terabyte).toFixed(precision) + ' TB';
-    else
-        return bytes + ' B';
 }

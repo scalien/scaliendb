@@ -1,4 +1,4 @@
-div.create-table-overlay {
+div.split-shard-overlay {
 	position: absolute;
 	top: 0%;
 	left: 0%;
@@ -11,12 +11,12 @@ div.create-table-overlay {
 	filter: alpha(opacity=80);
 }
 
-div.create-table-content {
+div.split-shard-content {
 	position: absolute;
-	top: 15%;
+	top: 25%;
 	left: 25%;
 	width: 50%;
-	height: 70%;
+	height: 50%;
 	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 3px 3px 4px #000;
 	-moz-border-radius: 10px;
@@ -29,30 +29,25 @@ div.create-table-content {
 	background-color: #EFF5FB;
 }
 
-span.create-table-welcome {
+span.split-shard-welcome {
 	font-size: 32px;
 	font-weight: bold;
 	color: #424242;
 }
 
-span.create-table-name {
+span.split-shard-key {
 	font-size: 20px;
 	color: #424242;
 }
 
-span.create-table-quorum {
-	font-size: 20px;
-	color: #424242;
-}
-
-input.create-table-input {
+input.split-shard-input {
 	font-size: 20px;
 	text-align: center;
 	width: 300px;
 	color: #424242;
 }
 
-button.create-table-button {
+button.split-shard-button {
 	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 3px 3px 4px #000;
 	-moz-border-radius: 10px;

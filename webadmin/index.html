@@ -13,11 +13,12 @@
 		<link rel="stylesheet" type="text/css" href="renameTable.css"/>
 		<link rel="stylesheet" type="text/css" href="truncateTable.css"/>
 		<link rel="stylesheet" type="text/css" href="deleteTable.css"/>
+		<link rel="stylesheet" type="text/css" href="splitShard.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
 		<script language="javascript" type="text/javascript" src="ui.js"></script>
 	</head>
-	<body onload="onLoad()">
+	<body onload="onLoad()" onmousedown="onMouseDown()" onmouseup="onMouseUp()">
 		<!-- login -->
 		<div id="loginContainer">
 		<div class="login-overlay"></div>
@@ -192,6 +193,21 @@
 			<span class="delete-table-question">Are you sure you want to delete the table?</span><br/><br/><br/><br/>
 			<form action="javascript:deleteTable()">
 			<button type="submit" class="delete-table-button">Delete</button>
+			</form>
+		</div>
+		</div>
+		<!-- split-shard -->
+		<div id="splitShardContainer">
+		<div class="split-shard-overlay"></div>
+		<div class="split-shard-content">
+			<a href="javascript:hideSplitShard()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="split-shard-welcome">Split shard</span><br/>
+			<br/><br/><br/>
+			<span class="split-shard-key">Split key:</span><br/><br/>
+			<form action="javascript:splitShard()">
+			<input id="splitShardKey" class="split-shard-input" type="text" value="" /><br/><br/><br/>
+			<button type="submit" class="split-shard-button">Split</button>
 			</form>
 		</div>
 		</div>
