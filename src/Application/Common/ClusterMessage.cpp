@@ -98,9 +98,10 @@ bool ClusterMessage::ShardMigrationBegin(
 }
 
 bool ClusterMessage::ShardMigrationSet(
- uint64_t shardID_, ReadBuffer key_, ReadBuffer value_)
+ uint64_t quorumID_, uint64_t shardID_, ReadBuffer key_, ReadBuffer value_)
 {
     type = CLUSTERMESSAGE_SHARDMIGRATION_SET;
+    quorumID = quorumID_;
     shardID = shardID_;
     key = key_;
     value = value_;
@@ -108,9 +109,10 @@ bool ClusterMessage::ShardMigrationSet(
 }
 
 bool ClusterMessage::ShardMigrationDelete(
- uint64_t shardID_, ReadBuffer key_)
+ uint64_t quorumID_, uint64_t shardID_, ReadBuffer key_)
 {
     type = CLUSTERMESSAGE_SHARDMIGRATION_DELETE;
+    quorumID = quorumID_;
     shardID = shardID_;
     key = key_;
     return true;

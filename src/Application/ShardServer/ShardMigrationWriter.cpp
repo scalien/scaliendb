@@ -141,9 +141,9 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
     ClusterMessage msg;
     
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
-        msg.ShardMigrationSet(shardID, kv->GetKey(), kv->GetValue());
+        msg.ShardMigrationSet(quorumID, shardID, kv->GetKey(), kv->GetValue());
     else
-        msg.ShardMigrationDelete(shardID, kv->GetKey());
+        msg.ShardMigrationDelete(quorumID, shardID, kv->GetKey());
 
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
 }

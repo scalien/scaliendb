@@ -64,8 +64,8 @@ public:
                      SortedList<uint64_t>& shards);
     bool            ShardMigrationInitiate(uint64_t nodeID, uint64_t quorumID, uint64_t shardID);
     bool            ShardMigrationBegin(uint64_t quorumID, uint64_t shardID);
-    bool            ShardMigrationSet(uint64_t shardID, ReadBuffer key, ReadBuffer value);
-    bool            ShardMigrationDelete(uint64_t shardID, ReadBuffer key);
+    bool            ShardMigrationSet(uint64_t quorumID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
+    bool            ShardMigrationDelete(uint64_t quorumID, uint64_t shardID, ReadBuffer key);
     bool            ShardMigrationCommit(uint64_t quorumID, uint64_t shardID);
     bool            ShardMigrationComplete(uint64_t quorumID, uint64_t shardID);
     
