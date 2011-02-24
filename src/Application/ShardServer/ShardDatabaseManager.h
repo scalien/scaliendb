@@ -49,10 +49,13 @@ class ShardDatabaseAsyncList : public StorageAsyncList
 public:
     ClientRequest*          request;
     ShardDatabaseManager*   manager;
+    ReadBuffer              shardLastKey;
     bool                    active;
     bool                    async;
     
+    void                    OnShardComplete();
     void                    OnRequestComplete();
+    void                    TryNextShard();
 };
 
 /*
@@ -81,6 +84,7 @@ public:
     StorageEnvironment*     GetEnvironment();
     StorageShardProxy*      GetQuorumPaxosShard(uint64_t quorumID);
     StorageShardProxy*      GetQuorumLogShard(uint64_t quorumID);
+    ConfigState*            GetConfigState();
     
     void                    DeleteQuorumPaxosShard(uint64_t quorumID);
     void                    DeleteQuorumLogShard(uint64_t quorumID);

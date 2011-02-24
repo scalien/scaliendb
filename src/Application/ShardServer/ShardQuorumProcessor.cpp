@@ -244,7 +244,9 @@ void ShardQuorumProcessor::OnResumeAppend()
     {
         shardMessagesLength -= valueLength;
         Log_Trace("shardMessagesLength: %U", shardMessagesLength);
-        assert(shardMessagesLength >= 0);
+        //assert(shardMessagesLength >= 0);
+        // TODO: HACK
+        shardMessagesLength = 0;
     }
     
     ownAppend = false;

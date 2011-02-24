@@ -72,7 +72,6 @@ public:
     StorageFileKeyValue**   iterators;
     StorageChunkLister**    listers;
     unsigned                numListers;
-    ShardList               shards;
     StorageAsyncListResult* lastResult;
     StorageEnvironment*     env;
 

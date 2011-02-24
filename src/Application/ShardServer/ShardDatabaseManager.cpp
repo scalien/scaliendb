@@ -62,7 +62,7 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
         EventLoop::Add(&manager->executeReads);
 }
 
-void ShardDatabaseAsyncList::OnRequestComplete()
+void ShardDatabaseAsyncList::OnShardComplete()
 {
     uint64_t                paxosID;
     uint64_t                commandID;
@@ -71,18 +71,13 @@ void ShardDatabaseAsyncList::OnRequestComplete()
     unsigned                numKeys;
     unsigned                i;
 
-    active = false;
-
     // handle disconnected
     if (lastResult->final && !request->session->IsActive())
     {
-        request->response.NoResponse();            
-        request->OnComplete();
-        if (async && !manager->executeLists.IsActive())
-            EventLoop::Add(&manager->executeLists);
+        OnRequestComplete();
         return;
     }
-    
+
     // create results
     numKeys = lastResult->dataPage.GetNumKeys();
     if (numKeys > 0)
@@ -107,7 +102,31 @@ void ShardDatabaseAsyncList::OnRequestComplete()
             request->response.ListKeys(numKeys, keys);
         request->OnComplete(false);
     }
-    
+
+    // found count items
+    if (lastResult->final && request->count != 0 && request->count == count)
+    {
+        OnRequestComplete();
+        return;
+    }
+
+    TryNextShard();
+}
+
+void ShardDatabaseAsyncList::OnRequestComplete()
+{
+    active = false;
+
+    // handle disconnected
+    if (lastResult->final && !request->session->IsActive())
+    {
+        request->response.NoResponse();            
+        request->OnComplete();
+        if (async && !manager->executeLists.IsActive())
+            EventLoop::Add(&manager->executeLists);
+        return;
+    }
+        
     if (lastResult->final)
     {
         request->response.OK();
@@ -116,6 +135,47 @@ void ShardDatabaseAsyncList::OnRequestComplete()
 
     if (async && lastResult->final && !manager->executeLists.IsActive())
         EventLoop::Add(&manager->executeLists);
+}
+
+void ShardDatabaseAsyncList::TryNextShard()
+{
+    ConfigState*    configState;
+    ConfigTable*    configTable;
+    ConfigShard*    configShard;
+    ReadBuffer      minKey;
+    uint64_t        nextShardID;
+    uint64_t*       itShard;
+    
+    configState = manager->GetConfigState();
+    configTable = configState->GetTable(request->tableID);
+    ASSERT(configTable != NULL);
+    
+    // find next shard
+    FOREACH (itShard, configTable->shards)
+    {
+        configShard = configState->GetShard(*itShard);
+        if (ReadBuffer::Cmp(configShard->firstKey, shardLastKey) >= 0)
+        {
+            if (minKey.GetLength() == 0 || ReadBuffer::Cmp(minKey, configShard->firstKey))
+            {
+                minKey = configShard->firstKey;
+                nextShardID = *itShard;
+            }
+        }
+    }
+    
+    // found the next shard
+    if (minKey.GetLength() != 0)
+    {
+        // TODO: HACK updating the request
+        request->key.Write(minKey);
+        request->count = count;
+        request->offset = offset;
+        // reschedule request
+        manager->OnClientListRequest(request);
+    }
+    else
+        OnRequestComplete();
 }
 
 ShardDatabaseManager::ShardDatabaseManager()
@@ -187,6 +247,11 @@ StorageShardProxy* ShardDatabaseManager::GetQuorumLogShard(uint64_t quorumID)
         return shard;
 
     return NULL;
+}
+
+ConfigState* ShardDatabaseManager::GetConfigState()
+{
+    return shardServer->GetConfigState();
 }
 
 void ShardDatabaseManager::DeleteQuorumPaxosShard(uint64_t quorumID)
@@ -532,6 +597,7 @@ void ShardDatabaseManager::OnExecuteLists()
     int16_t         contextID;
     ReadBuffer      startKey;
     ClientRequest*  itRequest;
+    ConfigShard*    configShard;
 
     if (asyncGet.active)
         return;
@@ -562,6 +628,8 @@ void ShardDatabaseManager::OnExecuteLists()
         startKey.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = environment.GetShardID(contextID, itRequest->tableID, startKey);
+        configShard = shardServer->GetConfigState()->GetShard(shardID);
+        ASSERT(configShard != NULL);
 
         if (itRequest->type == CLIENTREQUEST_LIST_KEYVALUES)
             asyncList.keyValues = true;
@@ -572,7 +640,8 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.startKey = startKey;
         asyncList.count = itRequest->count;
         asyncList.offset = itRequest->offset;
-        asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnRequestComplete>(&asyncList);
+        asyncList.shardLastKey = configShard->lastKey;
+        asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);
         asyncList.active = true;
         asyncList.async = false;
         environment.AsyncList(contextID, shardID, &asyncList);
