@@ -14,6 +14,7 @@
 		<link rel="stylesheet" type="text/css" href="truncateTable.css"/>
 		<link rel="stylesheet" type="text/css" href="deleteTable.css"/>
 		<link rel="stylesheet" type="text/css" href="splitShard.css"/>
+		<link rel="stylesheet" type="text/css" href="migrateShard.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
 		<script language="javascript" type="text/javascript" src="ui.js"></script>
@@ -208,6 +209,21 @@
 			<form action="javascript:splitShard()">
 			<input id="splitShardKey" class="split-shard-input" type="text" value="" /><br/><br/><br/>
 			<button type="submit" class="split-shard-button">Split</button>
+			</form>
+		</div>
+		</div>
+		<!-- migrate-shard -->
+		<div id="migrateShardContainer">
+		<div class="migrate-shard-overlay"></div>
+		<div class="migrate-shard-content">
+			<a href="javascript:hideMigrateShard()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="migrate-shard-welcome">Migrate shard</span><br/>
+			<br/><br/><br/>
+			<span class="migrate-shard-quorumID">Migrate to quorum:</span><br/><br/>
+			<form action="javascript:migrateShard()">
+			<input id="migrateShardQuorum" class="migrate-shard-input" type="text" value="" /><br/><br/><br/>
+			<button type="submit" class="migrate-shard-button">Migrate</button>
 			</form>
 		</div>
 		</div>

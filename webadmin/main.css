@@ -379,12 +379,14 @@ table.table td {
 }
 
 span.quorum-number {
-	-webkit-border-radius: 8px;
-	-moz-border-radius: 8px;
+	-webkit-border-radius: 4px;
+	-webkit-box-shadow: 1px 1px 2px #000;
+	-moz-border-radius: 4px;
+	-moz-box-shadow: 1px 1px 2px #000;
 	padding: 1px 5px;
-	padding-top: 3px;
-/*	background-color: #AEB404;			
-*/}
+	padding-top: 3px;	
+	font-weight: bold;
+}
 
 span.shard-number {
 	-webkit-border-radius: 4px;

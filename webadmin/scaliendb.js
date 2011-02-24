@@ -214,6 +214,14 @@ var scaliendb =
 		params["key"] = key;
 		this.rpc("splitshard", params);
 	},
+
+	migrateShard: function(shardID, quorumID)
+	{
+		var params = {};
+		params["shardID"] = shardID;
+		params["quorumID"] = quorumID;
+		this.rpc("migrateshard", params);
+	},
 	
 	showResult: function(data)
 	{

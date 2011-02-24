@@ -1,3 +1,15 @@
+
+function contains(arr, obj)
+{
+	var i = arr.length;
+	while (i--)
+	{
+		if (arr[i] === obj)
+			return true;
+	}
+	return false;
+}
+
 function onLoad()
 {
 	scaliendb.util.elem("controller").textContent = "Not connected...";
@@ -30,6 +42,7 @@ function onLoad()
 	scaliendb.util.elem("truncateTableContainer").style.display = "none";
 	scaliendb.util.elem("deleteTableContainer").style.display = "none";
 	scaliendb.util.elem("splitShardContainer").style.display = "none";
+	scaliendb.util.elem("migrateShardContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
 	
@@ -244,6 +257,15 @@ function showSplitShard(shardID)
 	hideDialog = hideSplitShard;
 }
 
+var migrateShardID;
+function showMigrateShard(shardID)
+{
+	scaliendb.util.elem("mainContainer").style.display = "none";
+	scaliendb.util.elem("migrateShardContainer").style.display = "block";
+	migrateShardID = shardID;
+	hideDialog = hideMigrateShard;
+}
+
 function hideCreateQuorum()
 {
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
@@ -313,6 +335,12 @@ function hideDeleteTable()
 function hideSplitShard()
 {
 	scaliendb.util.elem("splitShardContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
+function hideMigrateShard()
+{
+	scaliendb.util.elem("migrateShardContainer").style.display = "none";
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
@@ -438,6 +466,15 @@ function splitShard()
 	scaliendb.splitShard(splitShardID, key);
 }
 
+function migrateShard()
+{
+	hideMigrateShard();
+	var quorumID = scaliendb.util.elem("migrateShardQuorum").value;
+	quorumID = scaliendb.util.removeSpaces(quorumID);
+	scaliendb.onResponse = onResponse;
+	scaliendb.migrateShard(migrateShardID, quorumID);
+}
+
 function onResponse()
 {
 	updateConfigState();
@@ -469,7 +506,7 @@ function onConfigState(configState)
 	scaliendb.util.elem("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
 	
 	clearTimeout(timer);
-	timer = setTimeout("onTimeout()", 2000);
+	timer = setTimeout("onTimeout()", 1000);
 	// scaliendb.pollConfigState(onConfigState);
 }
 
@@ -651,6 +688,7 @@ function createQuorumDiv(configState, quorum)
 			<td>																						\
 				Shardservers: 																			\
 	';
+	quorum["activeNodes"].sort();
 	for (var i in quorum["activeNodes"])
 	{
 		nodeID = quorum["activeNodes"][i];
@@ -667,6 +705,7 @@ function createQuorumDiv(configState, quorum)
 	}
 	if (primaryID == null)
 		explanation += "The quorum has no primary, it is not writable. ";
+	quorum["inactiveNodes"].sort();
 	for (var i in quorum["inactiveNodes"])
 	{
 		if (primaryID != null)
@@ -682,6 +721,7 @@ function createQuorumDiv(configState, quorum)
 	'			<br/>																					\
 				Shards: 																				\
 	';
+	quorum["shards"].sort();
 	for (var i in quorum["shards"])
 	{
 		shardID = quorum["shards"][i]
@@ -775,6 +815,7 @@ function createTableDiv(configState, table)
 	var quorumIDs = new Array();
 	var rfactor = 0;
 	var size = 0;
+	table["shards"].sort();
 	for (var i in table["shards"])
 	{
 		var shardID = table["shards"][i];
@@ -784,7 +825,8 @@ function createTableDiv(configState, table)
 		size += shard["shardSize"];
 		html += ' <span class="shard-number ' + scaliendb.getQuorumState(configState, shard["quorumID"]) + '">' + shardID + '</span> ';
 		quorumID = shard["quorumID"];
-		quorumIDs.push(quorumID);
+		if (!contains(quorumIDs, quorumID))
+			quorumIDs.push(quorumID);
 		var quorum = locateQuorum(configState, quorumID);
 		if (quorum == null)
 			continue;
@@ -796,7 +838,7 @@ function createTableDiv(configState, table)
 	'				<br/>																				\
 					Mapped quorums: 																	\
 	';
-	
+	quorumIDs.sort();
 	for (var i in quorumIDs)
 	{
 			var quorumID = quorumIDs[i];
@@ -887,7 +929,7 @@ function createShardDiv(configState, shard)
 	
 	html += 
 	'																									\
-					Quorum: ' + shard["quorumID"] + ' (' + scaliendb.getQuorumState(configState, shard["quorumID"]) + ')<br/>												\
+					Quorum: <span class="quorum-number ' + scaliendb.getQuorumState(configState, shard["quorumID"]) + '">' + shard["quorumID"] + '</span> (' + scaliendb.getQuorumState(configState, shard["quorumID"]) + ')<br/>												\
 					Start key: ' + (shard["firstKey"] == "" ? "(empty)" : shard["firstKey"]) + '<br/>							  		  		\
 					End key: ' + (shard["lastKey"] == "" ? "(empty)" : shard["lastKey"]) + '<br/>												\
 					Splitable: ' + (shard["isSplitable"] ? "yes" : "no") + '<br/>';
