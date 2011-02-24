@@ -199,12 +199,12 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
              &type, &quorumID, &shardID);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
-            read = buffer.Readf("%c:%U:%#R:%#R",
-             &type, &shardID, &key, &value);
+            read = buffer.Readf("%c:%U:%U:%#R:%#R",
+             &type, &quorumID, &shardID, &key, &value);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
-            read = buffer.Readf("%c:%U:%#R",
-             &type, &shardID, &key);
+            read = buffer.Readf("%c:%U:%U:%#R",
+             &type, &quorumID, &shardID, &key);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
             read = buffer.Readf("%c:%U:%U",
@@ -265,12 +265,12 @@ bool ClusterMessage::Write(Buffer& buffer)
              type, quorumID, shardID);
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
-            buffer.Writef("%c:%U:%#R:%#R",
-             type, shardID, &key, &value);
+            buffer.Writef("%c:%U:%U:%#R:%#R",
+             type, quorumID, shardID, &key, &value);
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
-            buffer.Writef("%c:%U:%#R",
-             type, shardID, &key);
+            buffer.Writef("%c:%U:%U:%#R",
+             type, quorumID, shardID, &key);
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
             buffer.Writef("%c:%U:%U",
