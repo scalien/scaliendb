@@ -47,12 +47,12 @@ span.refresh-button:hover {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#F6F6F6', endColorstr='#D6D6D6');
 }
 
-span.refresh-button:active {
+/*span.refresh-button:active {
 	position: relative;
 	top: 2px;
 	left: 1px;
 }
-
+*/
 img.logo {
 	margin-top: 10px;
 	margin-left: 10px;
@@ -162,12 +162,12 @@ span.create-button:hover {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#39E444', endColorstr='#26962D');
 }
 
-span.create-button:active {
+/*span.create-button:active {
 	position: relative;
 	top: 2px;
 	left: 1px;
 }
-
+*/
 span.modify-button {
 	-webkit-border-radius: 6px;
 	-webkit-box-shadow: 1px 1px 2px #000;
@@ -192,12 +192,12 @@ span.modify-button:hover {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF9840', endColorstr='#BF7230');
 }
 
-span.modify-button:active {
+/*span.modify-button:active {
 	position: relative;
 	top: 2px;
 	left: 1px;
 }
-
+*/
 span.delete-button {
 	-webkit-border-radius: 6px;
 	-webkit-box-shadow: 1px 1px 2px #000;
@@ -214,12 +214,12 @@ span.delete-button {
 	color: white;
 }
 
-span.delete-button:active {
+/*span.delete-button:active {
 	position: relative;
 	top: 2px;
 	left: 1px;
 }
-
+*/
 span.delete-button:hover {
 	text-decoration: none;
 	background: #FF4540;
