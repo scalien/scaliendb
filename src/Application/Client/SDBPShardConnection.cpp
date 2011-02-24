@@ -176,7 +176,6 @@ void ShardConnection::OnClose()
     Request*    it;
     Request*    prev;
     uint64_t*   itQuorum;
-    uint64_t*   next;
     
     CLIENT_MUTEX_GUARD_DECLARE();
     
@@ -184,11 +183,8 @@ void ShardConnection::OnClose()
     MessageConnection::OnClose();
     
     // invalidate quorums
-    for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = next)
-    {
-        next = quorums.Next(itQuorum);
+    FOREACH_FIRST (itQuorum, quorums)
         InvalidateQuorum(*itQuorum);
-    }
     
     // put back requests that have no response to the client's quorum queue
     for (it = sentRequests.Last(); it != NULL; it = prev)
@@ -222,6 +218,6 @@ void ShardConnection::SendQuorumRequests()
     uint64_t*   qit;
     
     // notify the client so that it can assign the requests to the connection
-    for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
+    FOREACH (qit, quorums)
         client->SendQuorumRequest(this, *qit);
 }

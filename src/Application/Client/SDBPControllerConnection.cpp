@@ -243,7 +243,7 @@ Request* ControllerConnection::RemoveRequest(uint64_t commandID)
     Request*    it;
     
     // find the request by commandID
-    for (it = requests.First(); it != NULL; it = requests.Next(it))
+    FOREACH (it, requests)
     {
         if (it->commandID == commandID)
         {

@@ -3,6 +3,9 @@
 %include "stl.i"
 %include "inttypes.i"
 %include "stdint.i"
+%include "std_string.i"
+
+#define SWIG_PYTHON_SAFE_CSTRINGS
 
 /* Java specific byte array typemaps */
 #ifdef SWIGJAVA

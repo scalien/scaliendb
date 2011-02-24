@@ -87,10 +87,10 @@ void Result::AppendRequest(Request* req)
 {
     req->numTry = 0;
     req->status = SDBP_NOSERVICE;
+    req->response.NoResponse();
     requests.Insert(req);
     if (numCompleted > 0)
         transportStatus = SDBP_PARTIAL;
-    req->response.NoResponse();
 }
 
 bool Result::AppendRequestResponse(ClientResponse* resp)
@@ -141,6 +141,12 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
         transportStatus = SDBP_PARTIAL;
 
     return true;
+}
+
+void Result::RemoveRequest(Request* req)
+{
+    if (req->treeNode.IsInTree())
+        requests.Remove(req);
 }
 
 int Result::CommandStatus()

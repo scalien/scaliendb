@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include "System/Macros.h"
+#include "System/Common.h"
 #include "System/Platform.h"
 
 /*
@@ -43,7 +44,7 @@ struct AlignmentOf
  ===============================================================================================
  */
 
-#define INTREENODE_COLOR_MASK   0x01
+#define INTREENODE_COLOR_MASK   0x03
 
 template<typename T>
 class InTreeNode
@@ -53,14 +54,35 @@ public:
 
     enum Color 
     {
-        RED = 0,
-        BLACK = 1
+        NOCOLOR = 0,
+        RED = 2,
+        BLACK = 3
     };
-        
+    
     T*                      left;
     T*                      right;
     uintptr_t               parent;
+    
+    InTreeNode();
+    
+    bool                    IsInTree();
 };
+
+template<typename T>
+InTreeNode<T>::InTreeNode()
+{
+    left = NULL;
+    right = NULL;
+    parent = 0;
+}
+
+template<typename T>
+bool InTreeNode<T>::IsInTree()
+{
+    if (left == NULL && right == NULL && parent == 0)
+        return false;
+    return true;
+}
 
 /*
  ===============================================================================================
@@ -102,6 +124,7 @@ public:
     
 private:
     void                    DeleteInner(T* inner);
+    void                    RemoveInner(T* inner);
     void                    FixColorsOnRemoval(T* elem, T* parent);
     void                    FixColors(T* elem);
     void                    FixUncleColors(T* elem);
@@ -290,6 +313,8 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
 {
     T*      elem;
     T*      curr;
+
+    ASSERT(!(t->*pnode).IsInTree());
     
     elem = t;
     SetLeft(elem, NULL);
@@ -335,6 +360,8 @@ T* InTreeMap<T, pnode>::Insert(T* t)
     T*      curr;
     T*      elem;
     int     result;
+
+    ASSERT(!(t->*pnode).IsInTree());
 
     elem = t;
     SetLeft(elem, NULL);
@@ -398,6 +425,8 @@ T* InTreeMap<T, pnode>::Remove(T* t)
     T*      parent;
     T*      next;
     int     color;
+
+    ASSERT((t->*pnode).IsInTree());
     
     elem = t;
     next = Next(t);
@@ -478,8 +507,7 @@ color:
 template<typename T, InTreeNode<T> T::*pnode>
 void InTreeMap<T, pnode>::Clear()
 {
-    // TODO: Clear recursively like Delete for setting tree nodes to NULL
-    // and providing more info when debuggging
+    RemoveInner(root);
     root = NULL;
     count = 0;
 }
@@ -502,6 +530,18 @@ void InTreeMap<T, pnode>::DeleteInner(T* t)
     DeleteInner(GetRight(t));
     
     delete t;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+void InTreeMap<T, pnode>::RemoveInner(T* t)
+{
+    if (t == NULL)
+        return;
+    
+    RemoveInner(GetLeft(t));
+    RemoveInner(GetRight(t));
+    
+    MarkNodeRemoved(t);
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
@@ -705,9 +745,12 @@ void InTreeMap<T, pnode>::ReplaceNode(T* src, T* dst)
 }
                     
 template<typename T, InTreeNode<T> T::*pnode>
-void InTreeMap<T, pnode>::MarkNodeRemoved(T* /*elem*/)
+void InTreeMap<T, pnode>::MarkNodeRemoved(T* elem)
 {
-    // TODO:
+    SetLeft(elem, NULL);
+    SetRight(elem, NULL);
+    SetParent(elem, NULL);
+    SetColor(elem, Node::NOCOLOR);
 }               
                 
 template<typename T, InTreeNode<T> T::*pnode>
