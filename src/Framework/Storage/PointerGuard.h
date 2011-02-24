@@ -40,9 +40,8 @@ PointerGuard<T>::PointerGuard()
 }
 
 template<class T>
-void PointerGuard<T>::Set(T* ptr_)
+PointerGuard<T>::PointerGuard(T* ptr_)
 {
-    delete ptr;
     ptr = ptr_;
 }
 
@@ -54,8 +53,9 @@ PointerGuard<T>::~PointerGuard()
 }
 
 template<class T>
-PointerGuard<T>::PointerGuard(T* ptr_)
+void PointerGuard<T>::Set(T* ptr_)
 {
+    delete ptr;
     ptr = ptr_;
 }
 
