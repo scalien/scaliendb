@@ -54,8 +54,7 @@ void ContextTransport::RemoveQuorumContext(QuorumContext* context)
 QuorumContext* ContextTransport::GetQuorumContext(uint64_t quorumID)
 {
     QuorumContext* pcontext;
-    
-    assert(contextMap.HasKey(quorumID));
+
     pcontext = NULL;
     contextMap.Get(quorumID, pcontext);
     
