@@ -3,8 +3,9 @@
 
 #include "System/Platform.h"
 
-class StorageMemoChunk; // forward
-class StorageFileChunk;  // forward
+class StorageEnvironment;   // forward
+class StorageMemoChunk;     // forward
+class StorageFileChunk;     // forward
 
 /*
 ===============================================================================================
@@ -17,7 +18,7 @@ class StorageFileChunk;  // forward
 class StorageChunkSerializer
 {
 public:
-    bool                    Serialize(StorageMemoChunk* memoChunk);
+    bool                    Serialize(StorageEnvironment* env, StorageMemoChunk* memoChunk);
 
 private:
     bool                    WriteHeaderPage();
@@ -25,6 +26,7 @@ private:
     bool                    WriteIndexPage();
     bool                    WriteBloomPage();
 
+    StorageEnvironment*     env;
     StorageMemoChunk*       memoChunk;
     StorageFileChunk*       fileChunk;
     uint64_t                offset;

@@ -57,11 +57,12 @@ private:
 class StorageSerializeChunkJob : public StorageJob
 {
 public:
-    StorageSerializeChunkJob(StorageMemoChunk* chunk, Callable* onComplete);
+    StorageSerializeChunkJob(StorageEnvironment* env, StorageMemoChunk* chunk, Callable* onComplete);
     
     void                Execute();
     
 private:
+    StorageEnvironment* env;
     StorageMemoChunk*   memoChunk;
 };
 

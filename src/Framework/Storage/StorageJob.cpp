@@ -29,8 +29,9 @@ void StorageCommitJob::Execute()
     IOProcessor::Complete(c);
 }
 
-StorageSerializeChunkJob::StorageSerializeChunkJob(StorageMemoChunk* memoChunk_, Callable* onComplete_)
+StorageSerializeChunkJob::StorageSerializeChunkJob(StorageEnvironment* env_, StorageMemoChunk* memoChunk_, Callable* onComplete_)
 {
+    env = env_;
     memoChunk = memoChunk_;
     onComplete = onComplete_;
 }
@@ -42,7 +43,7 @@ void StorageSerializeChunkJob::Execute()
 
     Log_Debug("Serializing chunk %U in memory...", memoChunk->GetChunkID());
     sw.Start();
-    serializer.Serialize(memoChunk);
+    serializer.Serialize(env, memoChunk);
     sw.Stop();
     Log_Debug("Done serializing, elapsed: %U", (uint64_t) sw.Elapsed());
     

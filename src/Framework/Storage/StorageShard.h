@@ -36,7 +36,7 @@ public:
     void                SetFirstKey(ReadBuffer firstKey);
     void                SetLastKey(ReadBuffer lastKey);
     void                SetUseBloomFilter(bool useBloomFilter);
-    void                SetIsLogStorage(bool isLogStorage);
+    void                SetLogStorage(bool isLogStorage);
 
     uint16_t            GetContextID();
     uint64_t            GetTableID();

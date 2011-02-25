@@ -125,7 +125,6 @@ bool BloomFilter::Check(ReadBuffer& key)
         j = bitindex % 8;
         c = *(buffer.GetBuffer() + k);
         res &= (((c >> j) & 1));
-        hash = bitindex;
     }
     
     return res;

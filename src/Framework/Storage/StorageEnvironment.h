@@ -37,6 +37,7 @@ class StorageEnvironment
 {
     friend class StorageRecovery;
     friend class StorageEnvironmentWriter;
+    friend class StorageChunkSerializer;
     friend class StorageChunkWriter;
     friend class StorageChunkMerger;
     friend class StorageArchiveLogSegmentJob;
@@ -132,8 +133,10 @@ private:
     bool                    commitThreadActive;
     ThreadPool*             serializerThread;
     bool                    serializerThreadActive;
+    bool                    serializerThreadReturnCode;
     ThreadPool*             writerThread;
     bool                    writerThreadActive;
+    bool                    writerThreadReturnCode;
     ThreadPool*             mergerThread;
     bool                    mergerThreadActive;
     ThreadPool*             archiverThread;

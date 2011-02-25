@@ -731,7 +731,7 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shard->SetFirstKey(firstKey);
     shard->SetLastKey(lastKey);
     shard->SetUseBloomFilter(useBloomFilter);
-    shard->SetIsLogStorage(isLogStorage);
+    shard->SetLogStorage(isLogStorage);
     shard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
     shard->SetLogCommandID(headLogSegment->GetLogCommandID());
 
@@ -989,7 +989,7 @@ void StorageEnvironment::TrySerializeChunks()
          )))
         {
             serializeChunk = memoChunk;
-            job = new StorageSerializeChunkJob(memoChunk, &onChunkSerialize);
+            job = new StorageSerializeChunkJob(this, memoChunk, &onChunkSerialize);
             serializerThreadActive = true;
             StartJob(serializerThread, job);
 
@@ -1144,6 +1144,9 @@ void StorageEnvironment::OnChunkSerialize()
     StorageFileChunk*           fileChunk;
     StorageChunk**              itChunk;
     StorageJob*                 job;
+
+    assert(serializerThreadReturnCode);
+    serializeChunk->serialized = true;
     
     if (serializeChunk->deleted)
     {
@@ -1193,6 +1196,9 @@ void StorageEnvironment::OnChunkWrite()
 {
     StorageFileChunk*   it;
     StorageJob*         job;
+
+    assert(writerThreadReturnCode);
+    writeChunk->written = true;
     
     if (writeChunk->deleted)
     {

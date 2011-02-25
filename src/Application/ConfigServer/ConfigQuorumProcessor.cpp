@@ -357,7 +357,7 @@ void ConfigQuorumProcessor::UpdateListeners()
     checksum = checksumBuffer.GetChecksum();
     if (checksum == 0 || checksum != configStateChecksum)
     {
-        Log_Debug("Config state changed");
+//        Log_Debug("Config state changed");
         configChanged = true;
         configStateChecksum = checksum;
     }

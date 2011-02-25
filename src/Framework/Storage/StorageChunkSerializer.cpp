@@ -1,11 +1,15 @@
 #include "StorageChunkSerializer.h"
+#include "StorageEnvironment.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 #include "PointerGuard.h"
 
-bool StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_)
+bool StorageChunkSerializer::Serialize(StorageEnvironment* env_, StorageMemoChunk* memoChunk_)
 {
     PointerGuard<StorageFileChunk> fileGuard(new StorageFileChunk);
+    env = env_;
+    
+    env->serializerThreadReturnCode = false;
     
     memoChunk = memoChunk_;
     fileChunk = P(fileGuard);
@@ -39,7 +43,9 @@ bool StorageChunkSerializer::Serialize(StorageMemoChunk* memoChunk_)
     fileChunk->written = false;
     
     memoChunk->fileChunk = fileGuard.Release();
-    memoChunk->serialized = true;
+    
+    env->serializerThreadReturnCode = true;
+    
     return true;
 }
 

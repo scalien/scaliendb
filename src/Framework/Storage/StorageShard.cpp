@@ -57,7 +57,7 @@ void StorageShard::SetUseBloomFilter(bool useBloomFilter_)
     useBloomFilter = useBloomFilter_;
 }
 
-void StorageShard::SetIsLogStorage(bool isLogStorage_)
+void StorageShard::SetLogStorage(bool isLogStorage_)
 {
     isLogStorage = isLogStorage_;
 }
