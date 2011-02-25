@@ -48,7 +48,7 @@ StorageFileKeyValue* StorageMemoChunkLister::First(ReadBuffer& firstKey)
     StorageFileKeyValue*    kv;
     
     kv = dataPage.First();
-    while (kv != NULL && STORAGE_KEY_LESS_THAN(kv->GetKey(), firstKey))
+    while (kv != NULL && ReadBuffer::Cmp(kv->GetKey(), firstKey) < 0)
         kv = dataPage.Next(kv);
             
     return kv;
