@@ -201,6 +201,9 @@ void HTTPSession::SetType(Type type_)
     case JSON:
         mime = MIME_TYPE_APPLICATION_JSON;
         break;
+    default:
+        mime = MIME_TYPE_TEXT_PLAIN;
+        break;
     }
 
     if (mimeType.GetLength() == 0)

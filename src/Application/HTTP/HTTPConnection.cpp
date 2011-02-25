@@ -118,7 +118,6 @@ void HTTPConnection::WriteHeader(int code, const char* extraHeader)
                 &request.line.version,
                 code, Status(code),
                 &contentType,
-                close ? "Connection: close" CS_CRLF : "",
                 extraHeader ? extraHeader : "");
 }
 

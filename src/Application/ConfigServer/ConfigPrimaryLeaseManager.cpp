@@ -28,6 +28,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
     
     configState = configServer->GetDatabaseManager()->GetConfigState();
 
+    shard = NULL;
     if (configState->isMigrating)
         shard = configState->GetShard(configState->migrateShardID);
     
@@ -40,6 +41,8 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
             // look for migration
             if (configState->isMigrating)
             {
+                ASSERT(shard != NULL);
+                
                 if (configState->migrateQuorumID == quorum->quorumID || // migration dst
                  shard->quorumID == quorum->quorumID)                   // migration src
                 {
