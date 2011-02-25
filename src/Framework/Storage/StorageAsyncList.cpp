@@ -1,5 +1,6 @@
 #include "StorageAsyncList.h"
 #include "System/ThreadPool.h"
+#include "System/IO/IOProcessor.h"
 #include "StorageMemoChunkLister.h"
 #include "StorageFileChunkLister.h"
 #include "StorageShard.h"
@@ -14,10 +15,13 @@ StorageAsyncListResult::StorageAsyncListResult(StorageAsyncList* asyncList_) :
     final = false;
 }
 
+// this is called from main thread
 void StorageAsyncListResult::OnComplete()
 {
-    dataPage.Finalize();
-    asyncList->OnResult(this);
+    asyncList->lastResult = this;
+    Call(onComplete);
+    if (final)
+        asyncList->Clear();
     delete this;
 }
 
@@ -177,20 +181,23 @@ void StorageAsyncList::AsyncMergeResult()
             
         if (result->GetSize() > MAX_RESULT_SIZE)
         {
-            result->OnComplete();
+            OnResult(result);
             result = new StorageAsyncListResult(this);
         }
     }
     
     result->final = true;
-    result->OnComplete();
-    Clear();
+    OnResult(result);
 }
 
 void StorageAsyncList::OnResult(StorageAsyncListResult* result)
 {
-    lastResult = result;
-    Call(onComplete);
+    Callable    callable;
+    
+    result->dataPage.Finalize();
+    result->onComplete = onComplete;
+    callable = MFunc<StorageAsyncListResult, &StorageAsyncListResult::OnComplete>(result);
+    IOProcessor::Complete(&callable);
 }
 
 bool StorageAsyncList::IsDone()

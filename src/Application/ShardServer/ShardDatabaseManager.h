@@ -49,7 +49,7 @@ class ShardDatabaseAsyncList : public StorageAsyncList
 public:
     ClientRequest*          request;
     ShardDatabaseManager*   manager;
-    ReadBuffer              shardLastKey;
+    Buffer                  shardLastKey;
     bool                    active;
     bool                    async;
     

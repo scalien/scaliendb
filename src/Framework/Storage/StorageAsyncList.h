@@ -30,6 +30,7 @@ public:
     StorageAsyncList*   asyncList;
     StorageDataPage     dataPage;
     bool                final;
+    Callable            onComplete;
 
     StorageAsyncListResult(StorageAsyncList* asyncList);
     

@@ -104,13 +104,14 @@ void ShardDatabaseAsyncList::OnShardComplete()
     }
 
     // found count items
-    if (lastResult->final && request->count != 0 && request->count == count)
+    if (lastResult->final && request->count != 0 && count == 0)
     {
         OnRequestComplete();
         return;
     }
 
-    TryNextShard();
+    if (lastResult->final)
+        TryNextShard();
 }
 
 void ShardDatabaseAsyncList::OnRequestComplete()
@@ -146,6 +147,13 @@ void ShardDatabaseAsyncList::TryNextShard()
     uint64_t        nextShardID;
     uint64_t*       itShard;
     
+    if (shardLastKey.GetLength() == 0)
+    {
+        // this was the last shard
+        OnRequestComplete();
+        return;
+    }
+    
     configState = manager->GetConfigState();
     configTable = configState->GetTable(request->tableID);
     ASSERT(configTable != NULL);
@@ -154,15 +162,17 @@ void ShardDatabaseAsyncList::TryNextShard()
     FOREACH (itShard, configTable->shards)
     {
         configShard = configState->GetShard(*itShard);
-        if (ReadBuffer::Cmp(configShard->firstKey, shardLastKey) >= 0)
+        if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, shardLastKey))
         {
-            if (minKey.GetLength() == 0 || ReadBuffer::Cmp(minKey, configShard->firstKey))
+            if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(minKey, configShard->firstKey))
             {
                 minKey = configShard->firstKey;
                 nextShardID = *itShard;
             }
         }
     }
+    
+    Log_Debug("minKey: %R", &minKey);
     
     // found the next shard
     if (minKey.GetLength() != 0)
@@ -625,6 +635,10 @@ void ShardDatabaseManager::OnExecuteLists()
             continue;
         }
 
+        // TODO: limit count to an acceptable value so that it won't hog the database
+        if (itRequest->count == 0)
+            itRequest->count = 1000;
+
         startKey.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = environment.GetShardID(contextID, itRequest->tableID, startKey);
@@ -640,7 +654,8 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.startKey = startKey;
         asyncList.count = itRequest->count;
         asyncList.offset = itRequest->offset;
-        asyncList.shardLastKey = configShard->lastKey;
+        asyncList.shardLastKey.Write(configShard->lastKey);
+        Log_Debug("shardLastKey: %B", &asyncList.shardLastKey);
         asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);
         asyncList.active = true;
         asyncList.async = false;
