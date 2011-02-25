@@ -29,6 +29,7 @@ public:
     
     void            AppendRequest(Request* req);
     bool            AppendRequestResponse(ClientResponse* resp);
+    void            RemoveRequest(Request* req);
 
     int             CommandStatus();
     int             TransportStatus();

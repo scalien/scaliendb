@@ -198,6 +198,8 @@ void StorageEnvironment::Close()
     serializerThreadActive = false;
     writerThread->Stop();
     writerThreadActive = false;
+    mergerThread->Stop();
+    mergerThreadActive = false;
     archiverThread->Stop();
     archiverThreadActive = false;
 

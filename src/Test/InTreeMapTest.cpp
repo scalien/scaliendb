@@ -105,6 +105,7 @@ TEST_DEFINE(TestInTreeMap)
         
         sw.Start();
         kvs.Insert(kv);
+        TEST_ASSERT(kv->treeNode.IsInTree());
         //bufmap.insert(std::pair<ReadBuffer, ReadBuffer>(rk, rv));
         sw.Stop();
     }
@@ -118,7 +119,7 @@ TEST_DEFINE(TestInTreeMap)
     {
         buf.Writef("%u", u);
         rb.Wrap(buf);
-        kv = kvs.Get<ReadBuffer&>(rb);
+        kv = kvs.Get(rb);
         if (kv == NULL)
             TEST_FAIL();
     }
@@ -143,10 +144,11 @@ TEST_DEFINE(TestInTreeMap)
     {
         buf.Writef("%u", u);
         rb.Wrap(buf);
-        kv = kvs.Get<ReadBuffer&>(rb);
+        kv = kvs.Get(rb);
         if (kv == NULL)
             TEST_FAIL();
         kvs.Remove(kv);
+        TEST_ASSERT(!kv->treeNode.IsInTree());
     }
     sw.Stop();      
     printf("delete time: %ld\n", (long) sw.Elapsed());
@@ -157,7 +159,7 @@ TEST_DEFINE(TestInTreeMap)
     {
         buf.Writef("%u", u);
         rb.Wrap(buf);
-        kv = kvs.Get<ReadBuffer&>(rb);
+        kv = kvs.Get(rb);
         if (kv != NULL)
             TEST_FAIL();
     }
@@ -189,6 +191,7 @@ TEST_DEFINE(TestInTreeMap)
             kv->SetKey(rk, false);
             kv->SetValue(rv, false);
             kvs.InsertAt(kv, it, cmpres);
+            TEST_ASSERT(kv->treeNode.IsInTree());
         }
         sw.Stop();
     }

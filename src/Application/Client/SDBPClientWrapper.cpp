@@ -358,7 +358,7 @@ int SDBP_ActivateNode(ClientObj client_, uint64_t nodeID)
 int SDBP_CreateDatabase(ClientObj client_, const std::string& name_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  name = name_.c_str();
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
     
     return client->CreateDatabase(name);
 }
@@ -366,7 +366,7 @@ int SDBP_CreateDatabase(ClientObj client_, const std::string& name_)
 int SDBP_RenameDatabase(ClientObj client_, uint64_t databaseID, const std::string& name_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  name = name_.c_str();
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
     
     return client->RenameDatabase(databaseID, name);
 }
@@ -381,7 +381,7 @@ int SDBP_DeleteDatabase(ClientObj client_, uint64_t databaseID)
 int SDBP_CreateTable(ClientObj client_, uint64_t databaseID, uint64_t quorumID, const std::string& name_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  name = name_.c_str();
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
 
     return client->CreateTable(databaseID, quorumID, name);
 }
@@ -389,7 +389,7 @@ int SDBP_CreateTable(ClientObj client_, uint64_t databaseID, uint64_t quorumID, 
 int SDBP_RenameTable(ClientObj client_,uint64_t tableID, const std::string& name_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  name = name_.c_str();
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
 
     return client->RenameTable(tableID, name);
 }
@@ -411,7 +411,7 @@ int SDBP_TruncateTable(ClientObj client_, uint64_t tableID)
 uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  name = name_.c_str();
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
     uint64_t    databaseID;
     int         ret;
 
@@ -425,7 +425,7 @@ uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)
 uint64_t SDBP_GetTableID(ClientObj client_, uint64_t databaseID, const std::string& name_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  name = name_.c_str();
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
     uint64_t    tableID;
     int         ret;
 
@@ -439,7 +439,7 @@ uint64_t SDBP_GetTableID(ClientObj client_, uint64_t databaseID, const std::stri
 int SDBP_UseDatabase(ClientObj client_, const std::string& name_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  name = name_.c_str();
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
 
     return client->UseDatabase(name);
 }
@@ -447,7 +447,7 @@ int SDBP_UseDatabase(ClientObj client_, const std::string& name_)
 int SDBP_UseTable(ClientObj client_, const std::string& name_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  name = name_.c_str();
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
 
     return client->UseTable(name);
 }
@@ -455,7 +455,7 @@ int SDBP_UseTable(ClientObj client_, const std::string& name_)
 int	SDBP_Get(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
 
     return client->Get(key);
 }
@@ -473,8 +473,8 @@ int	SDBP_GetCStr(ClientObj client_, char* key_, int len)
 int	SDBP_Set(ClientObj client_, const std::string& key_, const std::string& value_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
-    ReadBuffer  value = value_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  value((char*) value_.c_str(), value_.length());
 
     return client->Set(key, value);
 }
@@ -494,8 +494,8 @@ int	SDBP_SetCStr(ClientObj client_, char* key_, int lenKey, char* value_, int le
 int	SDBP_SetIfNotExists(ClientObj client_, const std::string& key_, const std::string& value_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
-    ReadBuffer  value = value_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  value((char*) value_.c_str(), value_.length());
 
     return client->SetIfNotExists(key, value);
 }
@@ -515,9 +515,9 @@ int	SDBP_SetIfNotExistsCStr(ClientObj client_, char* key_, int lenKey, char* val
 int	SDBP_TestAndSet(ClientObj client_, const std::string& key_, const std::string& test_, const std::string& value_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
-    ReadBuffer  test = test_.c_str();
-    ReadBuffer  value = value_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  test((char*) test_.c_str(), test_.length());
+    ReadBuffer  value((char*) value_.c_str(), value_.length());
 
     return client->TestAndSet(key, test, value);
 }
@@ -539,8 +539,8 @@ int	SDBP_TestAndSetCStr(ClientObj client_, char* key_, int lenKey, char* test_, 
 int	SDBP_GetAndSet(ClientObj client_, const std::string& key_, const std::string& value_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
-    ReadBuffer  value = value_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  value((char*) value_.c_str(), value_.length());
 
     return client->GetAndSet(key, value);
 }
@@ -560,7 +560,7 @@ int	SDBP_GetAndSetCStr(ClientObj client_, char* key_, int lenKey, char* value_, 
 int SDBP_Add(ClientObj client_, const std::string& key_, int64_t number)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
 
     return client->Add(key, number);
 }
@@ -578,8 +578,8 @@ int SDBP_AddCStr(ClientObj client_, char* key_, int len, int64_t number)
 int SDBP_Append(ClientObj client_, const std::string& key_, const std::string& value_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
-    ReadBuffer  value = value_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  value((char*) value_.c_str(), value_.length());
 
     return client->Append(key, value);
 }
@@ -599,7 +599,7 @@ int SDBP_AppendCStr(ClientObj client_, char* key_, int lenKey, char* value_, int
 int SDBP_Delete(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
 
     return client->Delete(key);
 }
@@ -617,7 +617,7 @@ int SDBP_DeleteCStr(ClientObj client_, char* key_, int len)
 int SDBP_Remove(ClientObj client_, const std::string& key_)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
 
     return client->Remove(key);
 }
@@ -635,7 +635,7 @@ int SDBP_RemoveCStr(ClientObj client_, char* key_, int len)
 int SDBP_ListKeys(ClientObj client_, const std::string& key_, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
 
     return client->ListKeys(key, count, offset);
 }
@@ -653,7 +653,7 @@ int SDBP_ListKeysCStr(ClientObj client_, char* key_, int len, unsigned count, un
 int SDBP_ListKeyValues(ClientObj client_, const std::string& key_, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
-    ReadBuffer  key = key_.c_str();
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
 
     return client->ListKeyValues(key, count, offset);
 }

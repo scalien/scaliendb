@@ -70,7 +70,7 @@ public:
     int                     DeleteTable(uint64_t tableID);
     int                     TruncateTable(uint64_t tableID);
 
-//    int                     SplitShard(uint64_t shardID, ReadBuffer& splitKey);
+    int                     SplitShard(uint64_t shardID, ReadBuffer& splitKey);
     
     // shard server commands
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);

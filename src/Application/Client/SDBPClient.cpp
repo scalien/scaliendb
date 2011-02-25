@@ -206,6 +206,8 @@ int Client::Init(int nodec, const char* nodev[])
 void Client::Shutdown()
 {
     RequestListMap::Node*   requestNode;
+    RequestList*            requestList;
+    Request*                request;
     
     GLOBAL_MUTEX_GUARD_DECLARE();
 
@@ -220,7 +222,13 @@ void Client::Shutdown()
         
     shardConnections.DeleteTree();
     FOREACH (requestNode, quorumRequests)
-        delete requestNode->Value();
+    {
+        requestList = requestNode->Value();
+//        FOREACH (request, *requestList)
+//            result->RemoveRequest(request);
+            
+        delete requestList;
+    }
 
     delete result;
     
@@ -435,10 +443,10 @@ int Client::TruncateTable(uint64_t tableID)
     CLIENT_SCHEMA_COMMAND(TruncateTable, tableID);
 }
 
-//int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
-//{
-//    CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
-//}
+int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
+{
+    CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
+}
 
 int Client::Get(const ReadBuffer& key)
 {
@@ -750,7 +758,7 @@ void Client::AssignRequestsToQuorums()
     requestsCopy = requests;
     requests.ClearMembers();
 
-    for (it = requestsCopy.First(); it != NULL; it = next)
+    FOREACH_FIRST (it, requestsCopy)
     {
         //Log_Trace("%U", it->tableID);
         next = requestsCopy.Remove(it);
@@ -771,7 +779,7 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     table = configState->GetTable(tableID);
     //Log_Trace("%U", tableID);
     assert(table != NULL);
-    for (it = table->shards.First(); it != NULL; it = table->shards.Next(it))
+    FOREACH (it, table->shards)
     {
         shard = configState->GetShard(*it);
         if (shard == NULL)
@@ -858,14 +866,13 @@ void Client::SendQuorumRequests()
     
     Log_Trace();
     
-    for (conn = shardConnections.First(); conn != NULL; conn = shardConnections.Next(conn))
+    FOREACH (conn, shardConnections)
     {
         if (conn->IsWritePending())
             continue;
 
-        SortedList<uint64_t>& quorums = conn->GetQuorumList();
         //Log_Debug("conn = %s, quorums.length = %u", conn->GetEndpoint().ToString(), quorums.GetLength());
-        for (qit = quorums.First(); qit != NULL; qit = quorums.Next(qit))
+        FOREACH (qit, conn->GetQuorumList())
         {
             if (!quorumRequests.Get(*qit, qrequests))
                 continue;
@@ -893,7 +900,7 @@ void Client::InvalidateQuorum(uint64_t quorumID, uint64_t nodeID)
         quorum->primaryID = 0;
     
         // invalidate shard connections
-        for (nit = quorum->activeNodes.First(); nit != NULL; nit = quorum->activeNodes.Next(nit))
+        FOREACH (nit, quorum->activeNodes)
         {
             shardConn = shardConnections.Get<uint64_t>(*nit);
             assert(shardConn != NULL);
@@ -921,15 +928,12 @@ void Client::ConnectShardServers()
 {
     ConfigShardServer*          ssit;
     ConfigQuorum*               qit;
-    InList<ConfigShardServer>*  shardServers;
-    InList<ConfigQuorum>*       quorums;
     ShardConnection*            shardConn;
     uint64_t*                   nit;
     Endpoint                    endpoint;
     
     // TODO: removal of node
-    shardServers = &configState->shardServers;
-    for (ssit = shardServers->First(); ssit != NULL; ssit = shardServers->Next(ssit))
+    FOREACH (ssit, configState->shardServers)
     {
         shardConn = shardConnections.Get<uint64_t>(ssit->nodeID);
         if (shardConn == NULL)
@@ -951,17 +955,16 @@ void Client::ConnectShardServers()
     }
     
     // assign quorums to ShardConnections
-    quorums = &configState->quorums;
-    for (qit = quorums->First(); qit != NULL; qit = quorums->Next(qit))
+    FOREACH (qit, configState->quorums)
     {
-        for (nit = qit->activeNodes.First(); nit != NULL; nit = qit->activeNodes.Next(nit))
+        FOREACH (nit, qit->activeNodes)
         {
             shardConn = shardConnections.Get<uint64_t>(*nit);
             assert(shardConn != NULL);
             shardConn->SetQuorumMembership(qit->quorumID);
         }
         
-        for (nit = qit->inactiveNodes.First(); nit != NULL; nit = qit->inactiveNodes.Next(nit))
+        FOREACH (nit, qit->inactiveNodes)
         {
             shardConn = shardConnections.Get<uint64_t>(*nit);
             assert(shardConn != NULL);
