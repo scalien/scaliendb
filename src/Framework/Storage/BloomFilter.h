@@ -35,6 +35,7 @@ public:
 
 private:
     int32_t         GetHash(unsigned fnum, int32_t original);
+    void            GetHashes(unsigned hashes[], ReadBuffer& key);
 
     Buffer          buffer;
 };

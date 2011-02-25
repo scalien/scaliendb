@@ -89,14 +89,15 @@ void BloomFilter::SetSize(uint32_t size)
 
 void BloomFilter::Add(ReadBuffer& key)
 {
-    int32_t     hash;
     unsigned    i, k, j, bitindex;
     char*       p;
+    unsigned    hashes[BLOOMFILTER_NUM_FUNCTIONS];
 
-    hash = HashRabin(key);
+    GetHashes(hashes, key);
+
     for (i = 0; i < BLOOMFILTER_NUM_FUNCTIONS; i++)
     {
-        bitindex = GetHash(i, hash);
+        bitindex = hashes[i];
         k = bitindex / 8;
         j = bitindex % 8;
         p = buffer.GetBuffer() + k;
@@ -112,19 +113,23 @@ void BloomFilter::SetBuffer(ReadBuffer& buffer_)
 bool BloomFilter::Check(ReadBuffer& key)
 {
     bool        res;
-    int32_t     hash;
     unsigned    i, k, j, bitindex;
     char        c;
+    unsigned    hashes[BLOOMFILTER_NUM_FUNCTIONS];
 
     res = true;
-    hash = HashRabin(key);
-    for (i = 0; i < BLOOMFILTER_NUM_FUNCTIONS && res; i++)
+    
+    GetHashes(hashes, key);
+    
+    for (i = 0; i < BLOOMFILTER_NUM_FUNCTIONS; i++)
     {
-        bitindex = GetHash(i, hash);
+        bitindex = hashes[i];
         k = bitindex / 8;
         j = bitindex % 8;
         c = *(buffer.GetBuffer() + k);
         res &= (((c >> j) & 1));
+        if (!res)
+            break;
     }
     
     return res;
@@ -140,21 +145,39 @@ void BloomFilter::Reset()
     buffer.Reset();
 }
 
-int32_t BloomFilter::GetHash(unsigned fnum, int32_t original)
+//int32_t BloomFilter::GetHash(unsigned fnum, int32_t original)
+//{
+//    unsigned    i;
+//    int32_t     hash;
+//
+//    hash = original;
+//    for (i = 0; i < fnum; i++)
+//        hash = HashRabin(hash);
+//
+//    hash = hash % (buffer.GetLength() * 8);
+//
+//    if (hash < 0)
+//        hash = -hash;
+//
+//    return hash;
+//}
+
+void BloomFilter::GetHashes(unsigned hashes[], ReadBuffer& key)
 {
     unsigned    i;
     int32_t     hash;
+    
+    hash = HashRabin(key);
 
-    hash = original;
-    for (i = 0; i < fnum; i++)
+    for (i = 0; i < BLOOMFILTER_NUM_FUNCTIONS; i++)
+    {
+        hashes[i] = hash % (buffer.GetLength() * 8);
+
+        if (hashes[i] < 0)
+            hashes[i] = -hashes[i];
+
         hash = HashRabin(hash);
-
-    hash = hash % (buffer.GetLength() * 8);
-
-    if (hash < 0)
-        hash = -hash;
-
-    return hash;
+    }
 }
 
 unsigned BloomFilter::BitCount(uint32_t u)
