@@ -426,8 +426,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
     ClusterMessage  completeMessage;
     Buffer          singleBuffer;
 
-    Log_Debug("ShardQuorumProcessor::OnShardMigrationClusterMessage()");
-
     if (!quorumContext.IsLeader())
     {
         Log_Trace();

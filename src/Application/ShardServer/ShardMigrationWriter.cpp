@@ -150,7 +150,6 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 
 void ShardMigrationWriter::OnWriteReadyness()
 {
-    Log_Debug();
     assert(quorumProcessor != NULL);
     if (!quorumProcessor->IsPrimary()
      || !shardServer->GetConfigState()->isMigrating
