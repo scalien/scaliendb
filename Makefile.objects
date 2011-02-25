@@ -44,6 +44,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/ShardServer/ShardHTTPHandler.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardHeartbeatManager.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardMessage.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardMigrationWriter.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardQuorumContext.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardQuorumProcessor.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardServer.o \
