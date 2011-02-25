@@ -263,6 +263,14 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ListKeyValuesCStr(SWIGTYPE_p_void.getCPtr(client), key, len, count, offset);
   }
 
+  public static int SDBP_Count(SWIGTYPE_p_void client, String key, long count, long offset) {
+    return scaliendb_clientJNI.SDBP_Count(SWIGTYPE_p_void.getCPtr(client), key, count, offset);
+  }
+
+  public static int SDBP_CountCStr(SWIGTYPE_p_void client, byte[] key, int len, long count, long offset) {
+    return scaliendb_clientJNI.SDBP_CountCStr(SWIGTYPE_p_void.getCPtr(client), key, len, count, offset);
+  }
+
   public static int SDBP_Begin(SWIGTYPE_p_void client) {
     return scaliendb_clientJNI.SDBP_Begin(SWIGTYPE_p_void.getCPtr(client));
   }

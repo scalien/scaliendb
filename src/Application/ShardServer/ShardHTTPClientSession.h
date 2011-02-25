@@ -48,6 +48,7 @@ private:
     ClientRequest*      ProcessRemove();
     ClientRequest*      ProcessListKeys();
     ClientRequest*      ProcessListKeyValues();
+    ClientRequest*      ProcessCount();    
     void                OnConnectionClose();
     bool                GetRedirectedShardServer(uint64_t tableID, const ReadBuffer& key, Buffer& location);
     

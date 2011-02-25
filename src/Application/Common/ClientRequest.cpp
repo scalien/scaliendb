@@ -60,7 +60,8 @@ bool ClientRequest::IsShardServerRequest()
         type == CLIENTREQUEST_REMOVE            ||
         type == CLIENTREQUEST_SUBMIT            ||
         type == CLIENTREQUEST_LIST_KEYS         ||
-        type == CLIENTREQUEST_LIST_KEYVALUES)
+        type == CLIENTREQUEST_LIST_KEYVALUES    ||
+        type == CLIENTREQUEST_COUNT)
             return true;
     
     return false;
@@ -74,7 +75,8 @@ bool ClientRequest::IsSafeRequest()
 bool ClientRequest::IsList()
 {
     if (type == CLIENTREQUEST_LIST_KEYS         ||
-        type == CLIENTREQUEST_LIST_KEYVALUES)
+        type == CLIENTREQUEST_LIST_KEYVALUES    ||
+        type == CLIENTREQUEST_COUNT)
             return true;
     
     return false;
@@ -358,6 +360,18 @@ bool ClientRequest::ListKeyValues(
  uint64_t commandID_, uint64_t tableID_, ReadBuffer& startKey_, unsigned count_, unsigned offset_)
 {
     type = CLIENTREQUEST_LIST_KEYVALUES;
+    commandID = commandID_;
+    tableID = tableID_;
+    key.Write(startKey_);
+    count = count_;
+    offset = offset_;
+    return true;
+}
+
+bool ClientRequest::Count(
+ uint64_t commandID_, uint64_t tableID_, ReadBuffer& startKey_, unsigned count_, unsigned offset_)
+{
+    type = CLIENTREQUEST_COUNT;
     commandID = commandID_;
     tableID = tableID_;
     key.Write(startKey_);

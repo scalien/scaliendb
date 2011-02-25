@@ -39,7 +39,6 @@ StorageAsyncList::StorageAsyncList()
 {
     count = 0;
     offset = 0;
-    keyValues = false;
     Init();
 }
 
@@ -148,11 +147,6 @@ void StorageAsyncList::AsyncMergeResult()
 {
     StorageFileKeyValue*    it;
     StorageAsyncListResult* result;
-    bool                    hasCount;
-    
-    hasCount = false;
-    if (count > 0)
-        hasCount = true;
     
     result = new StorageAsyncListResult(this);
     
@@ -171,14 +165,12 @@ void StorageAsyncList::AsyncMergeResult()
         }
         
         result->Append(it);
-        
-        if (hasCount)
-        {
-            count--;
-            if (count == 0)
-                break;
-        }
-            
+
+        if (count != 0 && num >= count)
+            break;
+
+        num++;
+                
         if (result->GetSize() > MAX_RESULT_SIZE)
         {
             OnResult(result);

@@ -887,6 +887,40 @@ public class Client
     }
 
     /**
+     * Returns the number of key-value pairs.
+     *
+     * @param   startKey    counting starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the maximum number of keys returned
+     * @return              the number of key-value pairs
+     */
+    public long count(String startKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_Count(cptr, startKey, count, offset);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        if (status < 0)
+			throw new SDBPException(Status.toString(status));
+        
+		return result.getNumber();
+    }
+    
+    /**
+     * Returns the number of key-value pairs.
+     *
+     * @param   startKey    counting starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the maximum number of keys returned
+     * @return              the number of key-value pairs
+     */
+    public long count(byte[] startKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, count, offset);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        if (status < 0)
+			throw new SDBPException(Status.toString(status));
+        
+		return result.getNumber();
+    }
+
+    /**
      * Begins a batch operation. After begin is called, each command will be batched and
      * submitted or cancelled together.
      *

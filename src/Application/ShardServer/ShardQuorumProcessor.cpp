@@ -323,7 +323,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         return;
     }
     
-    if (request->type == CLIENTREQUEST_LIST_KEYS || request->type == CLIENTREQUEST_LIST_KEYVALUES)
+    if (request->IsList())
     {
         shardServer->GetDatabaseManager()->OnClientListRequest(request);
         return;

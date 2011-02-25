@@ -138,6 +138,11 @@ class Client:
             return
         return self.result.number()
     
+    def delete_quorum(self, quorum_id):
+        status = SDBP_DeleteQuorum(self.cptr, quorum_id)
+        if status < 0:
+            return
+    
     def activate_node(self, node_id):
         status = SDBP_ActivateNode(self.cptr, node_id)
         return status
@@ -275,6 +280,13 @@ class Client:
             key_values[self.result.key()] = self.result.value()
             self.result.next()
         return key_values
+
+    def count(self, key, count=0, offset=0):
+        status = SDBP_Count(self.cptr, key, count, offset)
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        if status < 0:
+            return
+        return self.result.number()        
 
     def begin(self):
         return SDBP_Begin(self.cptr)

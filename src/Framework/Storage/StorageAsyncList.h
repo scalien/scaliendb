@@ -58,14 +58,21 @@ public:
         FILE_CHUNK,
         MERGE
     };
+    enum Type
+    {
+        KEY,
+        KEYVALUE,
+        COUNT
+    };
 
     ReadBuffer              startKey;
     unsigned                count;
     unsigned                offset;
-    bool                    keyValues;
+    Type                    type;
     
     bool                    ret;
     bool                    completed;
+    unsigned                num;
     Stage                   stage;
     Callable                onComplete;
     StorageShard*           shard;
