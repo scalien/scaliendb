@@ -47,12 +47,13 @@ span.refresh-button:hover {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#F6F6F6', endColorstr='#D6D6D6');
 }
 
-/*span.refresh-button:active {
-	position: relative;
-	top: 2px;
-	left: 1px;
+span.refresh-button:active {
+	background: #C6C6C6;
+	background: -webkit-gradient(linear, left top, left bottom, from(#C6C6C6), to(#E6E6E6));
+	background: -moz-linear-gradient(top,  #C6C6C6,  #E6E6E6);	
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#C6C6C6', endColorstr='#E6E6E6');
 }
-*/
+
 img.logo {
 	margin-top: 10px;
 	margin-left: 10px;
@@ -162,12 +163,13 @@ span.create-button:hover {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#39E444', endColorstr='#26962D');
 }
 
-/*span.create-button:active {
-	position: relative;
-	top: 2px;
-	left: 1px;
+span.create-button:active {
+	background: #008209;
+	background: -webkit-gradient(linear, left top, left bottom, from(#008209), to(#00C90D));
+	background: -moz-linear-gradient(top,  #008209,  #00C90D);	
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#008209', endColorstr='#00C90D');
 }
-*/
+
 span.modify-button {
 	-webkit-border-radius: 6px;
 	-webkit-box-shadow: 1px 1px 2px #000;
@@ -192,12 +194,13 @@ span.modify-button:hover {
 	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#FF9840', endColorstr='#BF7230');
 }
 
-/*span.modify-button:active {
-	position: relative;
-	top: 2px;
-	left: 1px;
+span.modify-button:active {
+	background: #BF7230;
+	background: -webkit-gradient(linear, left top, left bottom, from(#BF7230), to(#FF9840));
+	background: -moz-linear-gradient(top,  #BF7230,  #FF9840);	
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#BF7230', endColorstr='#FF9840');
 }
-*/
+
 span.delete-button {
 	-webkit-border-radius: 6px;
 	-webkit-box-shadow: 1px 1px 2px #000;
@@ -214,12 +217,13 @@ span.delete-button {
 	color: white;
 }
 
-/*span.delete-button:active {
-	position: relative;
-	top: 2px;
-	left: 1px;
+span.delete-button:active {
+	background: #A60400;
+	background: -webkit-gradient(linear, left top, left bottom, from(#A60400), to(#FF0700));
+	background: -moz-linear-gradient(top,  #A60400,  #FF0700);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#A60400', endColorstr='#FF0700');
 }
-*/
+
 span.delete-button:hover {
 	text-decoration: none;
 	background: #FF4540;
