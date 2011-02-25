@@ -33,7 +33,6 @@ bool ConfigVar::NameEquals(const char *name_)
     return false;
 }
 
-
 int ConfigVar::GetIntValue(int)
 {
     int         ret;
@@ -57,12 +56,33 @@ int ConfigVar::GetIntValue(int)
     return ret;
 }
 
+int64_t ConfigVar::GetInt64Value(int64_t)
+{
+    int64_t     ret;
+    unsigned    nread;
+    char        last;
+    
+    ret = BufferToInt64(value.GetBuffer(), value.GetLength(), &nread);
+
+    // value is zero-terminated so we need the second char from the back
+    if (nread == value.GetLength() - 2)
+    {
+        last = value.GetCharAt(value.GetLength() - 2);
+        if (last == 'K')
+            return ret * 1000;
+        if (last == 'M')
+            return ret * 1000 * 1000;
+        if (last == 'G')
+            return ret * 1000 * 1000 * 1000;
+    }
+
+    return ret;
+}
 
 const char* ConfigVar::GetValue()
 {
     return value.GetBuffer();
 }
-
 
 bool ConfigVar::GetBoolValue(bool defval)
 {
@@ -89,7 +109,6 @@ int ConfigVar::GetListNum()
     return numelem;
 }
 
-
 const char* ConfigVar::GetListValue(int num, const char* defval)
 {
     const char* p;
@@ -106,8 +125,7 @@ const char* ConfigVar::GetListValue(int num, const char* defval)
     return p;
 }
 
-
-char* ParseToken(char* start, char* token, size_t)
+static char* ParseToken(char* start, char* token, size_t)
 {
     char* p;
     int len = 0;
@@ -284,6 +302,17 @@ int Config::GetIntValue(const char* name, int defval)
     return var->GetIntValue(defval);
 }
 
+int64_t Config::GetInt64Value(const char* name, int64_t defval)
+{
+    ConfigVar* var;
+    
+    var = GetVar(name);
+    if (!var)
+        return defval;
+    
+    return var->GetInt64Value(defval);
+}
+
 const char* Config::GetValue(const char* name, const char* defval)
 {
     ConfigVar* var;
@@ -333,6 +362,14 @@ void Config::SetIntValue(const char* name, int value)
     char        buf[CS_INT_SIZE(value)];
     
     snprintf(buf, sizeof(buf), "%d", value);
+    SetValue(name, buf);
+}
+
+void Config::SetInt64Value(const char* name, int64_t value)
+{
+    char        buf[CS_INT_SIZE(value)];
+    
+    snprintf(buf, sizeof(buf), "%" PRIi64, value);
     SetValue(name, buf);
 }
 
