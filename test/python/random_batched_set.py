@@ -36,15 +36,15 @@ if True:
 client.use_database("testdb")
 client.use_table("testtable")
 sent = 0
-value = "%100s" % " "
+value = "%10000s" % " "
 i = start
-batch = 10000
+batch = 100
 if limit != 0 and limit < batch:
 	batch = limit
 while limit == 0 or i < limit:
         keys = []
         values = []
-        value_len = 100
+        value_len = 10000
         for x in xrange(batch):
                 keys.append(md5.new(str(x + i)).hexdigest())
                 #values.append(''.join(random.choice(string.ascii_uppercase + string.digits) for v in range(value_len)))

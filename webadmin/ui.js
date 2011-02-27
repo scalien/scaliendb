@@ -10,7 +10,7 @@ function contains(arr, obj)
 	return false;
 }
 
-function onLoad()
+function init()
 {
 	scaliendb.util.elem("controller").textContent = "Not connected...";
 	scaliendb.util.elem("clusterState").textContent = "Unable to connect!";
@@ -27,7 +27,12 @@ function onLoad()
 	var databasesDiv = document.createElement("div");
 	databasesDiv.setAttribute("id", "databases");
 	scaliendb.util.elem("tabPageSchema").appendChild(databasesDiv);
-	
+}
+
+function onLoad()
+{
+	scaliendb.onDisconnect = onDisconnect;
+	init();
 	scaliendb.util.elem("loginContainer").style.display = "block";
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createQuorumContainer").style.display = "none";
@@ -478,6 +483,13 @@ function migrateShard()
 function onResponse()
 {
 	updateConfigState();
+}
+
+function onDisconnect()
+{
+	init();
+	clearTimeout(timer);
+	timer = setTimeout("connect()", 1000);	
 }
 
 function updateConfigState()

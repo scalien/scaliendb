@@ -2,7 +2,7 @@ var scaliendb =
 {
 	controller: "",
 	onResponse: this.showResult,
-	onErr: this.onErr,
+	onDisconnect: this.showError,
 
     //========================================================================
 	//
@@ -64,12 +64,12 @@ var scaliendb =
 	
 	getConfigState: function(onConfigState)
 	{ 
-		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onErr, "getconfigstate");
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "getconfigstate");
 	},
 
 	pollConfigState: function(onConfigState)
 	{ 
-		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onErr, "pollconfigstate");
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "pollconfigstate");
 	},
 
 	getTable: function(configState, tableID)
@@ -229,14 +229,14 @@ var scaliendb =
 		//alert(data["response"]);
 	},
 	
-	onErr: function()
+	showError: function()
 	{
 		alert("connection lost");
 	},
 	
 	rpc: function(name, params)
 	{ 
-		this.json.rpc(scaliendb.controller, scaliendb.onResponse, scaliendb.onError, name, params);
+		this.json.rpc(scaliendb.controller, scaliendb.onResponse, scaliendb.onDisconnect, name, params);
 	},
 		
     //========================================================================
