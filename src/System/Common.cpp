@@ -161,6 +161,55 @@ uint64_t BufferToUInt64(const char* buffer, unsigned length, unsigned* nread)
     return n;
 }
 
+// this works the same as snprintf(buf, bufsize, "%" PRIu64, value) would do
+int UInt64ToBufferWithBase(char* buf, unsigned bufsize, uint64_t value, char base)
+{
+    char        tmp[64 + 1];
+    char        charset[] = "01234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_-";
+    unsigned    d;
+
+    // special case
+    if (value == 0)
+    {
+        if (bufsize == 0)
+            return 1;
+            
+        if (bufsize > 0)
+            buf[0] = '0';
+        else
+            buf[0] = 0;
+            
+        if (bufsize > 1)
+            buf[1] = 0;
+
+        return 1;
+    }
+
+    // write digits to reverse order in temp buffer
+    d = 0;
+    while (value > 0)
+    {
+        tmp[d] = charset[value % base];
+        d += 1;
+        value /= base;
+    }
+    
+    // copy the digits
+    for (unsigned i = 0; i < d; i++)
+    {
+        if (i < bufsize)
+            buf[i] = tmp[d - 1 - i];
+    }
+
+    // terminate with zero
+    if (d < bufsize)
+        buf[d] = 0;
+    else
+        buf[bufsize - 1] = 0;
+
+    return d;
+}
+
 char* FindInBuffer(const char* buffer, unsigned length, char c)
 {
     size_t  i;

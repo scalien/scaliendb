@@ -92,13 +92,16 @@ void ConfigHTTPClientSession::PrintStatus()
 {
     Buffer          buf;
     ConfigState*    configState;
+    char            hexbuf[64 + 1];
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
 
-    buf.Writef("%U", REPLICATION_CONFIG->GetClusterID());
-    buf.NullTerminate();
-    session.PrintPair("ClusterID", buf.GetBuffer());   
+//    buf.Writef("%U", REPLICATION_CONFIG->GetClusterID());
+//    buf.NullTerminate();
+//    session.PrintPair("ClusterID", buf.GetBuffer());   
+    UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), REPLICATION_CONFIG->GetClusterID(), 64);
+    session.PrintPair("ClusterID", hexbuf);
 
     buf.Writef("%d", (int) configServer->GetNodeID());
     buf.NullTerminate();
