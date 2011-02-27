@@ -2,6 +2,7 @@ var scaliendb =
 {
 	controller: "",
 	onResponse: this.showResult,
+	onErr: this.onErr,
 
     //========================================================================
 	//
@@ -63,12 +64,12 @@ var scaliendb =
 	
 	getConfigState: function(onConfigState)
 	{ 
-		this.json.rpc(scaliendb.controller, onConfigState, "getconfigstate");
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onErr, "getconfigstate");
 	},
 
 	pollConfigState: function(onConfigState)
 	{ 
-		this.json.rpc(scaliendb.controller, onConfigState, "pollconfigstate");
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onErr, "pollconfigstate");
 	},
 
 	getTable: function(configState, tableID)
@@ -228,9 +229,14 @@ var scaliendb =
 		//alert(data["response"]);
 	},
 	
+	onErr: function()
+	{
+		alert("connection lost");
+	},
+	
 	rpc: function(name, params)
 	{ 
-		this.json.rpc(scaliendb.controller, scaliendb.onResponse, name, params);
+		this.json.rpc(scaliendb.controller, scaliendb.onResponse, scaliendb.onError, name, params);
 	},
 		
     //========================================================================
@@ -245,11 +251,11 @@ var scaliendb =
 		func: {},
 		debug: true,
 
-		get: function(url, userfunc, showload)
+		getJSONP: function(url, userfunc, errorfunc, showload)
 		{
 			var id = this.counter++;
 
-			url = url.replace(/USERFUNC/g, "scaliendb.json.func[" + id + "]");
+			url += "&callback=scaliendb.json.func[" + id + "]";
 			var scriptTag = document.createElement("script");
 			scriptTag.setAttribute("id", "json" + id);
 			scriptTag.setAttribute("type", "text/javascript");
@@ -291,10 +297,31 @@ var scaliendb =
 				this.func = scaliendb.util.removeKey(this.func, "func" + id);
 			}
 		},
-
-		rpc: function(baseUrl, userfunc, cmd, params)
+		
+		getXHR: function(url, userfunc, errorfunc, showload)
 		{
-			var url = baseUrl + cmd + "?callback=USERFUNC&mimetype=text/javascript";
+			var xhr = new XMLHttpRequest();
+			var decode = this.decode;
+			var onreadystatechange = function()
+			{
+				if (xhr.readyState != 4)
+					return;
+				if (xhr.status != 200)
+				{
+					errorfunc();
+					return;
+				}
+				userfunc(decode(xhr.responseText));
+			}
+
+			xhr.open("GET", url + "&origin=*", true);
+			xhr.onreadystatechange = onreadystatechange;
+			xhr.send();
+		},
+
+		rpc: function(baseUrl, userfunc, errorfunc, cmd, params)
+		{
+			var url = baseUrl + cmd + "?mimetype=text/javascript";
 			for (var name in params)
 			{
 				url += "&" + name + "=";
@@ -302,7 +329,7 @@ var scaliendb =
 				if (typeof(param) != "undefined")
 				{
 					if (typeof(param) == "object" || typeof(param) == "array")
-						var arg = JSON.stringify(param);
+						var arg = this.encode(param);
 					else
 						var arg = param;
 					var value = encodeURIComponent(arg);
@@ -311,7 +338,8 @@ var scaliendb =
 					var value = "";
 				url += value;
 			}
-			this.get(url, userfunc, true);
+			// this.getJSONP(url, userfunc, errorfunc, true);
+			this.getXHR(url, userfunc, errorfunc, true);
 		},
 	
 		encode: function(jsobj)
@@ -320,6 +348,11 @@ var scaliendb =
 			//  	return "";
 		
 			return JSON.stringify(jsobj);
+		},
+		
+		decode: function(jsontext)
+		{
+			return JSON.parse(jsontext);
 		}
 	},
 

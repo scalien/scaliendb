@@ -80,7 +80,6 @@ public:
     JSONSession         json;
     bool                headerSent;
     bool                keepAlive;
-    ReadBuffer          mimeType;
     ReadBuffer          uri;
 }; 
 

@@ -20,8 +20,12 @@ void ConfigHTTPClientSession::SetConfigServer(ConfigServer* configServer_)
 
 void ConfigHTTPClientSession::SetConnection(HTTPConnection* conn)
 {
+    ReadBuffer  origin;
+    
     session.SetConnection(conn);
     conn->SetOnClose(MFUNC(ConfigHTTPClientSession, OnConnectionClose));
+    origin.Wrap("*");
+    conn->SetOrigin(origin);
 }
 
 bool ConfigHTTPClientSession::HandleRequest(HTTPRequest& request)

@@ -22,6 +22,7 @@ public:
     void            Init(HTTPServer* server_);
     void            SetOnClose(const Callable& callable);
     void            SetContentType(ReadBuffer& contentType);
+    void            SetOrigin(ReadBuffer& origin);
 
     void            Print(const char* s);
     void            Write(const char* s, unsigned length);
@@ -48,11 +49,13 @@ protected:
     bool            closeAfterSend;
     Buffer*         writeBuffer;
     ReadBuffer      contentType;
+    ReadBuffer      origin;
 
     int             Parse(char* buf, int len);
     int             ProcessGetRequest();
     const char*     Status(int code);
     Buffer*         GetWriteBuffer();
+    void            WriteHeaderBuffer(Buffer& buffer, int code);
 };
 
 #endif

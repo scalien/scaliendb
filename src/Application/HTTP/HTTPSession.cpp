@@ -30,7 +30,8 @@ bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& 
     char*       qmark;
     ReadBuffer  rb;
     ReadBuffer  jsonCallback;
-    ReadBuffer  mime;
+    ReadBuffer  mimeType;
+    ReadBuffer  origin;
     
     uri = request.line.uri;
     rb = request.line.uri;
@@ -61,6 +62,10 @@ bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& 
         HTTP_GET_OPT_PARAM(params, "mimetype", mimeType);
         if (mimeType.GetLength() != 0)
             conn->SetContentType(mimeType);
+            
+        // CORS support
+        // http://www.w3.org/TR/cors/
+        HTTP_GET_OPT_PARAM(params, "origin", origin);
     }
     
     return true;
@@ -187,6 +192,7 @@ void HTTPSession::Flush()
 void HTTPSession::SetType(Type type_)
 {
     const char* mime;
+    ReadBuffer  mimeType;
     
     type = type_;
 
