@@ -66,8 +66,6 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
             jsonConfigState.Write();
             session.Flush();
             return;
-//            configServer->OnClientClose(request->session);
-//            last = true;
         }
         break;
     case CLIENTRESPONSE_NOSERVICE:

@@ -488,6 +488,7 @@ function onResponse()
 function onDisconnect()
 {
 	init();
+	createDashboard({});
 	clearTimeout(timer);
 	timer = setTimeout("connect()", 1000);	
 }
@@ -517,9 +518,9 @@ function onConfigState(configState)
 	scaliendb.util.elem("clusterState").textContent = "The ScalienDB cluster is " + scaliendb.getClusterState(configState);
 	scaliendb.util.elem("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
 	
-	clearTimeout(timer);
-	timer = setTimeout("onTimeout()", 1000);
-	// scaliendb.pollConfigState(onConfigState);
+	// clearTimeout(timer);
+	// timer = setTimeout("onTimeout()", 1000);
+	scaliendb.pollConfigState(onConfigState);
 }
 
 function onTimeout()
@@ -530,7 +531,8 @@ function onTimeout()
 
 function createDashboard(configState)
 {
-	var numDatabasesPrefixText = "";
+	var numDatabases = 0;
+	var numDatabasesPrefixText = "is ";
 	var numDatabasesText = "";
 	var numTables = 0;
 	var numTablesText = "";
@@ -548,15 +550,18 @@ function createDashboard(configState)
 	var minShardsText = "";
 	var avgShards = 0;
 	var avgShardsText = "";
+	var numShardServers = 0;
 	var numShardServersText = "";
+	var numQuorums = 0;
+	var numQuorumsText = "";
 	var shardServerIDs = new Array();
 	var cardinality = scaliendb.util.cardinality;
 	for (var key in configState)
 	{
 		if (key == "quorums")
 		{
-			var quorums = configState[key]; 
-			numQuorumsText = cardinality(quorums.length, "quorum");
+			var quorums = configState[key];
+			numQuorums = quorums.length;
 		}
 		else if (key == "databases")
 		{
@@ -566,7 +571,6 @@ function createDashboard(configState)
 				numDatabasesPrefixText = "is ";
 			else
 				numDatabasesPrefixText = "are ";
-			numDatabasesText = cardinality(numDatabases, "database");
 			for (var database in databases)
 			{
 				var db = databases[database];
@@ -576,8 +580,6 @@ function createDashboard(configState)
 				if (num > maxTables)
 					maxTables = num;
 			}
-			minTablesText = cardinality(minTables, "table");
-			maxTablesText = cardinality(maxTables, "table");
 		}
 		else if (key == "tables")
 		{
@@ -593,19 +595,16 @@ function createDashboard(configState)
 				if (num > maxShards)
 					maxShards = num;
 			}
-			minShardsText = cardinality(minShards, "shard");
-			maxShardsText = cardinality(maxShards, "shard");
 		}
 		else if (key == "shards")
 		{
 			var shards = configState[key]; 
 			numShards = shards.length;
-			numShardsText = cardinality(configState["shards"].length, "shard");
 		}
 		else if (key == "shardServers")
 		{
-			var shardServers = configState[key]; 
-			numShardServersText = cardinality(shardServers.length, "shard server");
+			var shardServers = configState[key];   
+			numShardServers = shardServers.length;
 			for (var shardServer in shardServers)
 			{
 				var ss = shardServers[shardServer];
@@ -613,9 +612,17 @@ function createDashboard(configState)
 			}
 		}
 	}
+	numQuorumsText = cardinality(numQuorums, "quorum");
+	numDatabasesText = cardinality(numDatabases, "database");
+	minTablesText = cardinality(minTables, "table");
+	maxTablesText = cardinality(maxTables, "table");
+	minShardsText = cardinality(minShards, "shard");
+	maxShardsText = cardinality(maxShards, "shard");
+	numShardsText = cardinality(numShards, "shard");
+	numShardServersText = cardinality(numShardServers, "shard server");
 	avgTables = Math.round(numTables / numDatabases * 10) / 10;
 	avgTablesText = cardinality(avgTables, "table");
-	avgShards = Math.round(configState["shards"].length/ numTables * 10) / 10;
+	avgShards = Math.round(numShards / numTables * 10) / 10;
 	avgShardsText = cardinality(avgShards, "shard")
 	
 	scaliendb.util.elem("numDatabasesPrefix").textContent = numDatabasesPrefixText;

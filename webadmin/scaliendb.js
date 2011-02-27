@@ -272,6 +272,7 @@ var scaliendb =
 					if (this.debug)
 						alert("json.func[" + id + "]: empty callback");
 					scaliendb.util.trace("json.func[" + id + "]: empty callback");
+					errorfunc();
 					return;
 				}
 
