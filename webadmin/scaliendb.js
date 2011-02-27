@@ -238,6 +238,11 @@ var scaliendb =
 	{ 
 		this.json.rpc(scaliendb.controller, scaliendb.onResponse, scaliendb.onDisconnect, name, params);
 	},
+	
+	disconnect: function()
+	{
+		this.json.abort();
+	},
 		
     //========================================================================
 	//
@@ -250,6 +255,7 @@ var scaliendb =
 		active : 0,
 		func: {},
 		debug: true,
+		pollRequest: null,
 
 		getJSONP: function(url, userfunc, errorfunc, showload)
 		{
@@ -308,15 +314,20 @@ var scaliendb =
 				if (xhr.readyState != 4)
 					return;
 				if (xhr.status != 200)
-				{
-					errorfunc();
+				{   
+					// pollRequest == null indicates that the request is aborted
+					if (scaliendb.json.pollRequest !== null)
+						errorfunc();
+					scaliendb.json.pollRequest = null;
 					return;
 				}
+				scaliendb.json.pollRequest = null;
 				userfunc(decode(xhr.responseText));
 			}
 
 			xhr.open("GET", url + "&origin=*", true);
 			xhr.onreadystatechange = onreadystatechange;
+			this.pollRequest = xhr;
 			xhr.send();
 		},
 
@@ -339,8 +350,20 @@ var scaliendb =
 					var value = "";
 				url += value;
 			}
+			// TODO: detecting browser functionality
 			// this.getJSONP(url, userfunc, errorfunc, true);
 			this.getXHR(url, userfunc, errorfunc, true);
+		},
+	
+		abort: function()
+		{
+			if (this.pollRequest != null)
+			{
+				var request = this.pollRequest;
+				// this indicates that the request is aborted
+				this.pollRequest = null;
+				request.abort();
+			}
 		},
 	
 		encode: function(jsobj)

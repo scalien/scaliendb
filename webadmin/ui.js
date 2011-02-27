@@ -11,7 +11,9 @@ function contains(arr, obj)
 }
 
 function init()
-{
+{	
+	scaliendb.disconnect();
+
 	scaliendb.util.elem("controller").textContent = "Not connected...";
 	scaliendb.util.elem("clusterState").textContent = "Unable to connect!";
 	scaliendb.util.elem("clusterState").className = "status-message critical";
