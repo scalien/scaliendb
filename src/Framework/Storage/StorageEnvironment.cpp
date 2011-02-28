@@ -500,6 +500,12 @@ StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_
     return bc;
 }
 
+void StorageEnvironment::DecreaseNumBulkCursors()
+{
+    ASSERT(numBulkCursors > 0);
+    numBulkCursors--;
+}
+
 uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 {
     uint64_t        size;

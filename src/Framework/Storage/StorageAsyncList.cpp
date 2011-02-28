@@ -21,7 +21,10 @@ void StorageAsyncListResult::OnComplete()
     asyncList->lastResult = this;
     Call(onComplete);
     if (final)
+    {
+        asyncList->env->DecreaseNumBulkCursors();
         asyncList->Clear();
+    }
     delete this;
 }
 
