@@ -91,6 +91,30 @@ bool Result::IsEnd()
     return false;
 }
 
+bool Result::IsFinished()
+{
+    char                type;
+    Request*            request;
+    ClientResponse**    response;
+
+    request = requests.First();
+    if (request == NULL)
+        return false;
+
+    if (request->IsList())
+    {
+        response = request->responses.Last();
+        if (response == NULL)
+            return false;
+
+        type = (*response)->type;
+        if (type == CLIENTRESPONSE_OK || type == CLIENTRESPONSE_FAILED || type == CLIENTRESPONSE_NOSERVICE)
+            return true;
+    }
+    
+    return false;
+}
+
 void Result::SetBatchLimit(uint64_t batchLimit_)
 {
     batchLimit = batchLimit_;
@@ -122,6 +146,8 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     if (!req)
         return false;
 
+    Log_Trace("%U", resp->commandID);    
+
     req->responseTime = EventLoop::Now();
     if (resp->type == CLIENTRESPONSE_FAILED)
         req->status = SDBP_FAILED;
@@ -139,6 +165,10 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
         // each LIST request has an extra response meaning the end of transmission
         if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
             numCompleted++;
+        
+        // HACK for enabling Filter to work
+        if (req->async)
+            numCompleted = requests.GetCount();
 
         // make a copy of the response as MessageConnection reuses the response object
         respCopy = new ClientResponse;
@@ -169,7 +199,7 @@ void Result::RemoveRequest(Request* req)
         requests.Remove(req);
 }
 
-int Result::CommandStatus()
+int Result::GetCommandStatus()
 {
     if (!requestCursor)
         return SDBP_API_ERROR;
@@ -177,9 +207,24 @@ int Result::CommandStatus()
     return requestCursor->status;
 }
 
-int Result::TransportStatus()
+int Result::GetTransportStatus()
 {
     return transportStatus;
+}
+
+void Result::SetTransportStatus(int status)
+{
+    transportStatus = status;
+}
+
+void Result::SetConnectivityStatus(int status)
+{
+    connectivityStatus = status;
+}
+
+void Result::SetTimeoutStatus(int status)
+{
+    timeoutStatus = status;
 }
 
 int Result::GetKey(ReadBuffer& key)

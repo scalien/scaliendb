@@ -92,7 +92,7 @@ Mutex   globalMutex;
                                                     \
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
-    return result->CommandStatus();                 \
+    return result->GetCommandStatus();              \
 
 
 #define CLIENT_SCHEMA_COMMAND(op, ...)              \
@@ -122,7 +122,7 @@ Mutex   globalMutex;
                                                     \
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
-    return result->CommandStatus();                 \
+    return result->GetCommandStatus();              \
 
 
 using namespace SDBPClient;
@@ -299,7 +299,7 @@ Result* Client::GetResult()
 
 int Client::TransportStatus()
 {
-    return result->TransportStatus();
+    return result->GetTransportStatus();
 }
 
 int Client::ConnectivityStatus()
@@ -314,7 +314,7 @@ int Client::TimeoutStatus()
 
 int Client::CommandStatus()
 {
-    return result->CommandStatus();
+    return result->GetCommandStatus();
 }
 
 // return Command status
@@ -521,6 +521,58 @@ int Client::Count(const ReadBuffer& startKey, unsigned count, unsigned offset)
     CLIENT_DATA_COMMAND(Count, (ReadBuffer&) startKey, count, offset);
 }
 
+int Client::Filter(const ReadBuffer& startKey, unsigned count, unsigned offset, uint64_t& commandID)
+{
+    Request*    req;                                
+    
+    CLIENT_MUTEX_GUARD_DECLARE();                   
+    
+    if (!isDatabaseSet || !isTableSet)              
+        return SDBP_BADSCHEMA;                      
+
+    if (isBatched)
+        return SDBP_API_ERROR;
+    
+    commandID = NextCommandID();
+    req = new Request;
+    req->ListKeyValues(commandID, tableID, (ReadBuffer&) startKey, count, offset);
+    req->async = true;
+    requests.Append(req);
+        
+    result->Close();                                
+    result->AppendRequest(req);                     
+    
+    CLIENT_MUTEX_GUARD_UNLOCK();                    
+    EventLoop();                                    
+    return result->GetCommandStatus();                 
+}
+
+int Client::Receive(uint64_t commandID)
+{
+    Request*    req;
+    ReadBuffer  key;
+    
+    CLIENT_MUTEX_GUARD_DECLARE();                   
+    
+    if (!isDatabaseSet || !isTableSet)              
+        return SDBP_BADSCHEMA;                      
+
+    if (isBatched)
+        return SDBP_API_ERROR;
+    
+    // create dummy request
+    req = new Request;
+    req->ListKeyValues(commandID, 0, key, 0, 0);
+    req->async = true;
+
+    result->Close();                                
+    result->AppendRequest(req);                     
+    
+    CLIENT_MUTEX_GUARD_UNLOCK();                    
+    EventLoop();                                    
+    return result->GetCommandStatus();                 
+}
+
 int Client::Begin()
 {
     Log_Trace();
@@ -541,7 +593,7 @@ int Client::Submit()
     EventLoop();
     isBatched = false;
     
-    return result->TransportStatus();
+    return result->GetTransportStatus();
 }
 
 int Client::Cancel()
@@ -567,7 +619,7 @@ void Client::EventLoop()
 {
     if (!controllerConnections)
     {
-        result->transportStatus = SDBP_API_ERROR;
+        result->SetTransportStatus(SDBP_API_ERROR);
         return;
     }
     
@@ -578,8 +630,12 @@ void Client::EventLoop()
     Log_Trace("%U", databaseID);
     Log_Trace("%U", tableID);
     
-    AssignRequestsToQuorums();
-    SendQuorumRequests();
+    // TODO: HACK this is here for enable async requests to receive the rest of response
+    if (requests.GetLength() > 0)
+    {
+        AssignRequestsToQuorums();
+        SendQuorumRequests();
+    }
     
     EventLoop::UpdateTime();
     EventLoop::Reset(&globalTimeout);
@@ -598,13 +654,14 @@ void Client::EventLoop()
             break;
         }
         
+
         if (!IOProcessor::Poll(sleep))
         {
             GLOBAL_MUTEX_GUARD_UNLOCK();
             break;
         }
 
-        // let other threads to enter IOProcessor and complete requests
+        // let other threads enter IOProcessor and complete requests
         GLOBAL_MUTEX_GUARD_UNLOCK();
         YIELD();
     }
@@ -613,8 +670,8 @@ void Client::EventLoop()
     
     requests.Clear();
     
-    result->connectivityStatus = connectivityStatus;
-    result->timeoutStatus = timeoutStatus;
+    result->SetConnectivityStatus(connectivityStatus);
+    result->SetTimeoutStatus(timeoutStatus);
     result->Begin();
     
     CLIENT_MUTEX_UNLOCK();
@@ -627,7 +684,7 @@ bool Client::IsDone()
     if (result->GetRequestCount() == 0 && configState != NULL)
         return true;
     
-    if (result->TransportStatus() == SDBP_SUCCESS)
+    if (result->GetTransportStatus() == SDBP_SUCCESS)
         return true;
     
     if (timeoutStatus != SDBP_SUCCESS)

@@ -186,7 +186,7 @@ TEST_DEFINE(test2)
 
     for (result->Begin(); !result->IsEnd(); result->Next())
     {
-        (result->CommandStatus() == 0) ? ++succ : ++fail;
+        (result->GetCommandStatus() == 0) ? ++succ : ++fail;
     }
 
     delete result;

@@ -93,6 +93,9 @@ public:
     int                     ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset);
     int                     ListKeyValues(const ReadBuffer& startKey, unsigned count, unsigned offset);    
     int                     Count(const ReadBuffer& startKey, unsigned count, unsigned offset);    
+
+    int                     Filter(const ReadBuffer& startKey, unsigned count, unsigned offset, uint64_t& commandID);
+    int                     Receive(uint64_t commandID);
     
     int                     Begin();
     int                     Submit();

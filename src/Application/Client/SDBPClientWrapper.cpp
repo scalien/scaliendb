@@ -236,7 +236,7 @@ int SDBP_ResultTransportStatus(ResultObj result_)
     if (!result)
         return SDBP_API_ERROR;
     
-    return result->TransportStatus();
+    return result->GetTransportStatus();
 }
 
 int SDBP_ResultCommandStatus(ResultObj result_)
@@ -246,7 +246,7 @@ int SDBP_ResultCommandStatus(ResultObj result_)
     if (!result)
         return SDBP_API_ERROR;
     
-    return result->CommandStatus();
+    return result->GetCommandStatus();
 }
 
 /*
