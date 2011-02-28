@@ -107,6 +107,10 @@ bool CatchupMessage::Write(Buffer& buffer)
              proto, type, &key);
             return true;
         case CATCHUPMESSAGE_COMMIT:
+            buffer.Writef("%c:%c:%U",
+             proto, type, paxosID);
+            return true;
+        case CATCHUPMESSAGE_ABORT:
             buffer.Writef("%c:%c",
              proto, type);
             return true;

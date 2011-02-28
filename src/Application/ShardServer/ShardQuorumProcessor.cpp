@@ -91,6 +91,11 @@ uint64_t ShardQuorumProcessor::GetPaxosID()
     return quorumContext.GetPaxosID();
 }
 
+void ShardQuorumProcessor::SetPaxosID(uint64_t paxosID)
+{
+    quorumContext.SetPaxosID(paxosID);
+}
+
 ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
 {
     return shardServer->GetConfigState()->GetQuorum(GetQuorumID());

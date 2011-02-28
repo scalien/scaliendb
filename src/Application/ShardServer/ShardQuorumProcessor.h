@@ -38,6 +38,7 @@ public:
     bool                    IsPrimary();
     uint64_t                GetQuorumID();
     uint64_t                GetPaxosID();
+    void                    SetPaxosID(uint64_t paxosID);
     ConfigQuorum*           GetConfigQuorum();
     
     // ========================================================================================

@@ -45,15 +45,11 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
     quorumID = request.quorumID;
     paxosID = quorumProcessor->GetPaxosID() - 1;
 
-    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
-
     if (quorumProcessor->GetConfigQuorum()->shards.GetLength() == 0)
-    {
         SendCommit();
-        return;
-    }
-        
-    SendFirst();
+    else
+        SendFirst();
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
 }
 
 void ShardCatchupWriter::Abort()
@@ -85,13 +81,14 @@ void ShardCatchupWriter::SendFirst()
 
     assert(cursor == NULL);
     cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, shardID);
+    assert(cursor != NULL);
 
     msg.BeginShard(shardID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 
     // send first KV
     kv = cursor->First();
-    if (!kv)
+    if (kv == NULL)
     {
         SendNext();
         return;
@@ -99,6 +96,7 @@ void ShardCatchupWriter::SendFirst()
     
     TransformKeyValue(kv, msg);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
+    Log_Debug("Sending BEGIN SHARD %U", shardID);
 }
 
 void ShardCatchupWriter::SendNext()
@@ -135,6 +133,7 @@ void ShardCatchupWriter::SendNext()
 
     msg.BeginShard(shardID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
+    Log_Debug("Sending BEGIN SHARD %U", shardID);
 
     // send first KV
     kv = cursor->First();
@@ -154,6 +153,7 @@ void ShardCatchupWriter::SendCommit()
     
     msg.Commit(paxosID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
+    Log_Debug("Sending COMMIT with paxosID = %U", paxosID);
 
     if (cursor != NULL)
     {

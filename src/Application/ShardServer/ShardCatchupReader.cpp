@@ -56,11 +56,12 @@ void ShardCatchupReader::OnDelete(CatchupMessage& msg)
     environment->Delete(QUORUM_DATABASE_DATA_CONTEXT, shardID, msg.key);
 }
 
-void ShardCatchupReader::OnCommit(CatchupMessage& /*message*/)
+void ShardCatchupReader::OnCommit(CatchupMessage& message)
 {
     assert(isActive);
     
     isActive = false;
+    quorumProcessor->SetPaxosID(message.paxosID);
 
     Log_Message("Catchup complete");
 }
