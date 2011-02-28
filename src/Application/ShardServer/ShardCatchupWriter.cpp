@@ -49,7 +49,9 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
         SendCommit();
     else
         SendFirst();
-    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
+    
+    if (isActive)
+        CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardCatchupWriter, OnWriteReadyness));
 }
 
 void ShardCatchupWriter::Abort()
