@@ -24,6 +24,7 @@ public:
     void                    Reset();
     
     bool                    IsActive();
+    uint64_t                GetBytesSent();
 
     void                    Begin(CatchupMessage& request);
     void                    Abort();

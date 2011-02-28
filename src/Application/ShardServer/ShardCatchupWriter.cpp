@@ -27,11 +27,17 @@ void ShardCatchupWriter::Reset()
 {
     cursor = NULL;
     isActive = false;
+    bytesSent = 0;
 }
 
 bool ShardCatchupWriter::IsActive()
 {
     return isActive;
+}
+
+uint64_t ShardCatchupWriter::GetBytesSent()
+{
+    return bytesSent;
 }
 
 void ShardCatchupWriter::Begin(CatchupMessage& request)
@@ -198,7 +204,13 @@ uint64_t* ShardCatchupWriter::NextShard()
 void ShardCatchupWriter::TransformKeyValue(StorageKeyValue* kv, CatchupMessage& msg)
 {
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+    {
         msg.Set(kv->GetKey(), kv->GetValue());
+        bytesSent += kv->GetKey().GetLength() + kv->GetValue().GetLength();
+    }
     else
+    {
         msg.Delete(kv->GetKey());    
+        bytesSent += kv->GetKey().GetLength();
+    }
 }

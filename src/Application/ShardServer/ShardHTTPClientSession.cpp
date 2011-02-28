@@ -129,6 +129,10 @@ void ShardHTTPClientSession::PrintStatus()
         if (paxosID > highestPaxosID)
             highestPaxosID = paxosID;
         valbuf.Writef("primary %U, paxosID %U/%U", primaryID, paxosID, highestPaxosID);
+        if (it->IsCatchupActive())
+        {
+            valbuf.Appendf(", catchup active (sent: %s)", HUMAN_BYTES(it->GetCatchupBytesSent()));
+        }
         valbuf.NullTerminate();
         
         session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());
