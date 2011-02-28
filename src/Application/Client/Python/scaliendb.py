@@ -37,6 +37,13 @@ def str_status(status):
     elif status == SDBP_FAILED:
         return "SDBP_FAILED"
 
+class Error(Exception):
+    def __init__(self, status):
+        self.status = status
+    
+    def __str__(self):
+        return str_status(self.status)
+
 class Client:
     class Result:
         def __init__(self, cptr):
@@ -127,6 +134,9 @@ class Client:
     def get_master_timeout(self):
         return long(SDBP_GetMasterTimeout(self.cptr))
 
+    def set_batch_limit(self, limit):
+        SDBP_SetBatchLimit(self.cptr, long(limit))
+
     def create_quorum(self, nodes):
         node_params = SDBP_NodeParams(len(nodes))
         for node in nodes:
@@ -178,84 +188,44 @@ class Client:
         return SDBP_UseTable(self.cptr, name)
     
     def get(self, key):
-        status = SDBP_Get(self.cptr, key)
-        if status < 0:
-            self.result = Client.Result(SDBP_GetResult(self.cptr))
-            return
-        if SDBP_IsBatched(self.cptr):
-            return
-        self.result = Client.Result(SDBP_GetResult(self.cptr))
-        return self.result.value()
+        status, ret = self._data_command(SDBP_Get, key)
+        if ret:
+            return self.result.value()
 
     def set(self, key, value):
-        status = SDBP_Set(self.cptr, key, value)
-        if status < 0:
-            self.result = Client.Result(SDBP_GetResult(self.cptr))
-            return
-        if SDBP_IsBatched(self.cptr):
-            return
-        self.result = Client.Result(SDBP_GetResult(self.cptr))
-        return status
+        status, ret = self._data_command(SDBP_Set, key, value)
+        if ret:
+            return status
 
     def set_if_not_exists(self, key, value):
-        status = SDBP_SetIfNotExists(self.cptr, key, value)
-        if status < 0:
-            self.result = Client.Result(SDBP_GetResult(self.cptr))
-            return
-        if SDBP_IsBatched(self.cptr):
-            return
-        self.result = Client.Result(SDBP_GetResult(self.cptr))
-        return status
+        status, ret = self._data_command(SDBP_SetIfNotExists, key, value)
+        if ret:
+            return status
 
     def test_and_set(self, key, test, value):
-        status = SDBP_TestAndSet(self.cptr, key, test, value)
-        if status < 0:
-            self.result = Client.Result(SDBP_GetResult(self.cptr))
-            return
-        if SDBP_IsBatched(self.cptr):
-            return
-        self.result = Client.Result(SDBP_GetResult(self.cptr))
-        return status
+        status, ret = self._data_command(SDBP_TestAndSet, key, value)
+        if ret:
+            return status
 
     def get_and_set(self, key, value):
-        status = SDBP_GetAndSet(self.cptr, key, value)
-        if status < 0:
-            self.result = Client.Result(SDBP_GetResult(self.cptr))
-            return
-        if SDBP_IsBatched(self.cptr):
-            return
-        self.result = Client.Result(SDBP_GetResult(self.cptr))
-        return self.result.value()
+        status, ret = self._data_command(SDBP_GetAndSet, key)
+        if ret:
+            return self.result.value()
         
     def add(self, key, value):
-        status = SDBP_Add(self.cptr, key, value)
-        if status < 0:
-            self.result = Client.Result(SDBP_GetResult(self.cptr))
-            return
-        if SDBP_IsBatched(self.cptr):
-            return
-        self.result = Client.Result(SDBP_GetResult(self.cptr))
-        return self.result.number()
+        status, ret = self._data_command(SDBP_Add, key)
+        if ret:
+            return self.result.number()
 
     def delete(self, key):
-        status = SDBP_Delete(self.cptr, key)
-        if status < 0:
-            self.result = Client.Result(SDBP_GetResult(self.cptr))
-            return
-        if SDBP_IsBatched(self.cptr):
-            return
-        self.result = Client.Result(SDBP_GetResult(self.cptr))
-        return status
+        status, ret = self._data_command(SDBP_Delete, key)
+        if ret:
+            return status
 
     def remove(self, key):
-        status = SDBP_remove(self.cptr, key)
-        if status < 0:
-            self.result = Client.Result(SDBP_GetResult(self.cptr))
-            return
-        if SDBP_IsBatched(self.cptr):
-            return
-        self.result = Client.Result(SDBP_GetResult(self.cptr))
-        return self.result.value()
+        status, ret = self._data_command(SDBP_remove, key)
+        if ret:
+            return self.result.value()
 
     def list_keys(self, key, count=0, offset=0):
         status = SDBP_ListKeys(self.cptr, key, count, offset)
@@ -304,5 +274,17 @@ class Client:
         
     def _set_trace(self, trace):
         SDBP_SetTrace(trace)
+    
+    def _data_command(self, func, *args):
+        status = func(self.cptr, *args)
+        if status < 0:
+            self.result = Client.Result(SDBP_GetResult(self.cptr))
+            if status == SDBP_API_ERROR:
+                raise Error(status)
+            return status, False
+        if SDBP_IsBatched(self.cptr):
+            return status, False
+        self.result = Client.Result(SDBP_GetResult(self.cptr))
+        return status, True
 
         

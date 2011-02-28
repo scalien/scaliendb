@@ -232,6 +232,59 @@ TEST_DEFINE(TestClientListKeys)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientBatchLimit)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    char            keybuf[32];
+    int             ret;
+    unsigned        num = 1000000000;
+    Stopwatch       sw;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    client.SetMasterTimeout(10000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.Begin();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    for (unsigned i = 0; i < num; i++)
+    {
+        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        key.Wrap(keybuf, ret);
+        value.Wrap(keybuf, ret);
+        ret = client.Set(key, value);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+    }
+
+    sw.Start();
+    ret = client.Submit();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    sw.Stop();
+
+    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientBatchedSet)
 {
     Client          client;

@@ -43,6 +43,8 @@ public:
     uint64_t                GetGlobalTimeout();
     uint64_t                GetMasterTimeout();
     
+    void                    SetBatchLimit(uint64_t batchLimit);
+    
     // result
     Result*                 GetResult();
 
@@ -152,6 +154,7 @@ private:
     bool                    isTableSet;
     uint64_t                tableID;
     bool                    isBatched;
+    uint64_t                batchLimit;
 
 //#ifdef CLIENT_MULTITHREAD    
     Mutex                   mutex;

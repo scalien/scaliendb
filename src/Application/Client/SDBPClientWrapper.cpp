@@ -311,6 +311,13 @@ uint64_t SDBP_GetMasterTimeout(ClientObj client_)
     return client->GetMasterTimeout();
 }
 
+void SDBP_SetBatchLimit(ClientObj client_, uint64_t batchLimit)
+{
+    Client* client = (Client*) client_;
+
+    return client->SetBatchLimit(batchLimit);
+}
+
 int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)
 {
     Client*                 client = (Client*) client_;

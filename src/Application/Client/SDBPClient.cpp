@@ -9,6 +9,9 @@
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
 
+#define MAX_IO_CONNECTION               1024
+#define DEFAULT_BATCH_LIMIT             (100*MB)
+
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
 
@@ -45,8 +48,6 @@ Mutex   globalMutex;
 
 #endif // CLIENT_MULTITHREAD
 
-#define MAX_IO_CONNECTION   1024
-
 #define VALIDATE_CONFIG_STATE()     \
     if (configState == NULL)        \
     {                               \
@@ -76,14 +77,20 @@ Mutex   globalMutex;
                                                     \
     if (isBatched)                                  \
     {                                               \
-        result->AppendRequest(req);                 \
+        if (!result->AppendRequest(req))            \
+        {                                           \
+            requests.Clear();                       \
+            result->Close();                        \
+            isBatched = false;                      \
+            return SDBP_API_ERROR;                  \
+        }                                           \
         return SDBP_SUCCESS;                        \
     }                                               \
                                                     \
     result->Close();                                \
     result->AppendRequest(req);                     \
                                                     \
-    CLIENT_MUTEX_GUARD_UNLOCK();                          \
+    CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
     return result->CommandStatus();                 \
 
@@ -97,9 +104,9 @@ Mutex   globalMutex;
     if (configState == NULL)                        \
     {                                               \
         result->Close();                            \
-        CLIENT_MUTEX_GUARD_UNLOCK();                      \
+        CLIENT_MUTEX_GUARD_UNLOCK();                \
         EventLoop();                                \
-        CLIENT_MUTEX_GUARD_LOCK();                        \
+        CLIENT_MUTEX_GUARD_LOCK();                  \
     }                                               \
                                                     \
     if (configState == NULL)                        \
@@ -113,7 +120,7 @@ Mutex   globalMutex;
     result->Close();                                \
     result->AppendRequest(req);                     \
                                                     \
-    CLIENT_MUTEX_GUARD_UNLOCK();                          \
+    CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
     return result->CommandStatus();                 \
 
@@ -153,6 +160,7 @@ Client::Client()
     globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
     result = NULL;
+    batchLimit = DEFAULT_BATCH_LIMIT;
 }
 
 Client::~Client()
@@ -273,6 +281,11 @@ uint64_t Client::GetGlobalTimeout()
 uint64_t Client::GetMasterTimeout()
 {
     return masterTimeout.GetDelay();
+}
+
+void Client::SetBatchLimit(uint64_t batchLimit_)
+{
+    batchLimit = batchLimit_;
 }
 
 Result* Client::GetResult()
@@ -515,6 +528,7 @@ int Client::Begin()
     CLIENT_MUTEX_GUARD_DECLARE();
 
     result->Close();
+    result->SetBatchLimit(batchLimit);
     isBatched = true;
     
     return SDBP_SUCCESS;

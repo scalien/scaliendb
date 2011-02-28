@@ -5,6 +5,12 @@
 
 using namespace SDBPClient;
 
+#define BUFFER_LENGTH(buflen)        (buflen > ARRAY_SIZE ? buflen : 0)
+#define REQUEST_SIZE(req)                                                           \
+    BUFFER_LENGTH(req->name.GetLength()) + BUFFER_LENGTH(req->key.GetLength()) +    \
+    BUFFER_LENGTH(req->value.GetLength()) + BUFFER_LENGTH(req->test.GetLength()) +  \
+    sizeof(Request)
+
 static inline uint64_t Key(const Request* req)
 {
     return req->commandID;
@@ -31,6 +37,8 @@ void Result::Close()
     requests.DeleteTree();
     numCompleted = 0;
     requestCursor = NULL;
+    batchLimit = 100*MB;
+    batchSize = 0;
 }
 
 void Result::Begin()
@@ -83,14 +91,26 @@ bool Result::IsEnd()
     return false;
 }
 
-void Result::AppendRequest(Request* req)
+void Result::SetBatchLimit(uint64_t batchLimit_)
 {
+    batchLimit = batchLimit_;
+}
+
+bool Result::AppendRequest(Request* req)
+{
+    batchSize += REQUEST_SIZE(req);
+    
+    if (batchSize > batchLimit)
+        return false;
+
     req->numTry = 0;
     req->status = SDBP_NOSERVICE;
     req->response.NoResponse();
     requests.Insert(req);
     if (numCompleted > 0)
         transportStatus = SDBP_PARTIAL;
+    
+    return true;
 }
 
 bool Result::AppendRequestResponse(ClientResponse* resp)

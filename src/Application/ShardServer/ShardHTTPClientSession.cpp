@@ -93,13 +93,13 @@ void ShardHTTPClientSession::PrintStatus()
     uint64_t                    primaryID;
     uint64_t                    totalSpace, freeSpace;
     ShardQuorumProcessor*       it;
+    char                        hexbuf[64 + 1];
 
     session.PrintPair("ScalienDB", "ShardServer");
     session.PrintPair("Version", VERSION_STRING);
 
-    valbuf.Writef("%U", REPLICATION_CONFIG->GetClusterID());
-    valbuf.NullTerminate();
-    session.PrintPair("ClusterID", valbuf.GetBuffer());   
+    UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), REPLICATION_CONFIG->GetClusterID(), 64);
+    session.PrintPair("ClusterID", hexbuf);
 
     valbuf.Writef("%U", MY_NODEID);
     valbuf.NullTerminate();

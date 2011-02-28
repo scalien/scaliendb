@@ -26,8 +26,10 @@ public:
     void            Begin();
     void            Next();
     bool            IsEnd();
+
+    void            SetBatchLimit(uint64_t limit);
     
-    void            AppendRequest(Request* req);
+    bool            AppendRequest(Request* req);
     bool            AppendRequestResponse(ClientResponse* resp);
     void            RemoveRequest(Request* req);
 
@@ -57,6 +59,8 @@ private:
     Request*        requestCursor;
     ClientResponse** responseCursor;
     unsigned        responsePos;
+    uint64_t        batchLimit;
+    uint64_t        batchSize;
 };
 
 };  // namespace
