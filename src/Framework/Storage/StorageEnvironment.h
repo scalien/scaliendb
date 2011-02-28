@@ -41,7 +41,6 @@ class StorageEnvironment
     friend class StorageChunkWriter;
     friend class StorageChunkMerger;
     friend class StorageArchiveLogSegmentJob;
-    friend class StorageBulkCursor;
     
     typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;
@@ -76,6 +75,7 @@ public:
     void                    AsyncList(uint16_t contextID, uint64_t shardID, StorageAsyncList* asyncList);
 
     StorageBulkCursor*      GetBulkCursor(uint16_t contextID, uint64_t shardID);
+    void                    DecreaseNumBulkCursors();
 
     uint64_t                GetSize(uint16_t contextID, uint64_t shardID);
     ReadBuffer              GetMidpoint(uint16_t contextID, uint64_t shardID);
@@ -156,7 +156,7 @@ private:
     uint16_t                mergeContextID;
     uint64_t                mergeShardID;
     uint64_t                lastWriteTime;
-    bool                    numBulkCursors;
+    unsigned                numBulkCursors;
     const char*             archiveScript;
     bool                    yieldThreads;
     bool                    shuttingDown;

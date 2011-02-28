@@ -108,7 +108,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     else
         req->status = SDBP_SUCCESS;
 
-    if (req->IsList())
+    if (req->IsList() && req->type != CLIENTREQUEST_COUNT)
     {
         // copy data from connection buffer
         if (resp->type == CLIENTRESPONSE_LIST_KEYS)

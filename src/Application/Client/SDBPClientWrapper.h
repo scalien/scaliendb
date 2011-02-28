@@ -129,6 +129,8 @@ int             SDBP_ListKeys(ClientObj client, const std::string& key, unsigned
 int             SDBP_ListKeysCStr(ClientObj client, char* key, int len, unsigned count, unsigned offset);
 int             SDBP_ListKeyValues(ClientObj client, const std::string& key, unsigned count, unsigned offset);
 int             SDBP_ListKeyValuesCStr(ClientObj client, char* key, int len, unsigned count, unsigned offset);
+int             SDBP_Count(ClientObj client, const std::string& key, unsigned count, unsigned offset);
+int             SDBP_CountCStr(ClientObj client, char* key, int len, unsigned count, unsigned offset);
 
 /*
 ===============================================================================================

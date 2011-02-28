@@ -43,6 +43,8 @@ const char*     SIBytes(uint64_t bytes, char buf[5]);
 int64_t         BufferToInt64(const char* buffer, unsigned length, unsigned* nread);
 uint64_t        BufferToUInt64(const char* buffer, unsigned length, unsigned* nread);
 
+int             UInt64ToBufferWithBase(char* buffer, unsigned length, uint64_t value, char base);
+
 char*           FindInBuffer(const char* buffer, unsigned length, char c);
 char*           FindInCString(const char* s, char c);
 

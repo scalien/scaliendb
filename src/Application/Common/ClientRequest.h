@@ -33,6 +33,7 @@
 #define CLIENTREQUEST_REMOVE            'x'
 #define CLIENTREQUEST_LIST_KEYS         'L'
 #define CLIENTREQUEST_LIST_KEYVALUES    'l'
+#define CLIENTREQUEST_COUNT             'O'
 #define CLIENTREQUEST_SPLIT_SHARD       'h'
 #define CLIENTREQUEST_MIGRATE_SHARD     'M'
 #define CLIENTREQUEST_SUBMIT            '*'
@@ -140,6 +141,10 @@ public:
     bool            ListKeyValues(
                      uint64_t commandID,
                      uint64_t tableID, ReadBuffer& startKey, unsigned count, unsigned offset);
+    bool            Count(
+                     uint64_t commandID,
+                     uint64_t tableID, ReadBuffer& startKey, unsigned count, unsigned offset);
+
 
     bool            Submit(
                      uint64_t quorumID);

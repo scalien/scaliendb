@@ -23,6 +23,7 @@ void HTTPConnection::Init(HTTPServer* server_)
     writeBuffer = NULL;
     onCloseCallback.Unset();
     contentType.Reset();
+    origin.Reset();
     
     // HACK
     closeAfterSend = false;
@@ -36,6 +37,11 @@ void HTTPConnection::SetOnClose(const Callable& callable)
 void HTTPConnection::SetContentType(ReadBuffer& contentType_)
 {
     contentType = contentType_;
+}
+
+void HTTPConnection::SetOrigin(ReadBuffer& origin_)
+{
+    origin = origin_;
 }
 
 void HTTPConnection::OnRead()
@@ -105,20 +111,12 @@ void HTTPConnection::Write(const char* s, unsigned length)
 void HTTPConnection::WriteHeader(int code, const char* extraHeader)
 {
     Buffer*     buffer;
-    unsigned    size;
 
     buffer = GetWriteBuffer();
-    size = buffer->Writef(
-                "%R %d %s" CS_CRLF
-                "Content-Type: %R" CS_CRLF
-                "Cache-Control: no-cache" CS_CRLF
-                "%s"
-                CS_CRLF
-                , 
-                &request.line.version,
-                code, Status(code),
-                &contentType,
-                extraHeader ? extraHeader : "");
+    WriteHeaderBuffer(*buffer, code);
+    if (extraHeader)
+        buffer->Append(extraHeader);
+    buffer->Append(CS_CRLF);
 }
 
 int HTTPConnection::Parse(char* buf, int len)
@@ -157,7 +155,6 @@ void HTTPConnection::Response(int code, const char* data,
  int len, bool close, const char* header)
 {   
     Buffer*     buffer;
-    unsigned    size;
     
     Log_Message("[%s] HTTP: %.*s %.*s %d %d", endpoint.ToString(),
                 request.line.method.GetLength(), request.line.method.GetBuffer(), 
@@ -165,22 +162,13 @@ void HTTPConnection::Response(int code, const char* data,
                 code, len);
 
     buffer = GetWriteBuffer();
-    size = buffer->Writef(
-                "%R %d %s" CS_CRLF
-                "Accept-Range: bytes" CS_CRLF
-                "Content-Length: %d" CS_CRLF
-                "Content-Type: %R" CS_CRLF
-                "Cache-Control: no-cache" CS_CRLF
-                "%s"
-                "%s"
-                CS_CRLF
-                , 
-                &request.line.version,
-                code, Status(code),
-                len,
-                &contentType,
-                close ? "Connection: close" CS_CRLF : "",
-                header ? header : "");
+    WriteHeaderBuffer(*buffer, code);
+    buffer->Appendf("Content-Length: %d" CS_CRLF, len);
+    if (close)
+        buffer->Append("Connection: close" CS_CRLF);
+    if (header)
+        buffer->Append(header);
+    buffer->Append(CS_CRLF);
 
     buffer->Append(data, len);
     
@@ -202,17 +190,13 @@ void HTTPConnection::ResponseHeader(int code, bool close, const char* header)
     }
 
     buffer = GetWriteBuffer();
-    buffer->Writef(
-                "%R %d %s" CS_CRLF
-                "Cache-Control: no-cache" CS_CRLF
-                "%s"
-                "%s"
-                CS_CRLF
-                , 
-                &request.line.version,
-                code, Status(code),
-                close ? "Connection: close" CS_CRLF : "",
-                header ? header : "");
+    buffer = GetWriteBuffer();
+    WriteHeaderBuffer(*buffer, code);
+    if (close)
+        buffer->Append("Connection: close" CS_CRLF);
+    if (header)
+        buffer->Append(header);
+    buffer->Append(CS_CRLF);
 }
 
 void HTTPConnection::Flush(bool closeAfterSend_)
@@ -233,4 +217,15 @@ Buffer* HTTPConnection::GetWriteBuffer()
     
     writeBuffer = writer->AcquireBuffer();
     return writeBuffer;
+}
+
+void HTTPConnection::WriteHeaderBuffer(Buffer& buffer, int code)
+{
+    buffer.Append(request.line.version);
+    buffer.Appendf(" %d %s" CS_CRLF, code, Status(code));
+    buffer.Append("Cache-Control: no-cache" CS_CRLF);
+    if (contentType.GetLength() > 0)
+        buffer.Appendf("Content-Type: %R" CS_CRLF, &contentType);
+    if (origin.GetLength() > 0)
+        buffer.Appendf("Access-Control-Allow-Origin: %R" CS_CRLF, &origin);
 }

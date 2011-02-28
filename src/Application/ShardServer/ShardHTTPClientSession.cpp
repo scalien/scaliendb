@@ -218,6 +218,8 @@ ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd
         return ProcessListKeys();
     if (HTTP_MATCH_COMMAND(cmd, "listkeyvalues"))
         return ProcessListKeyValues();
+    if (HTTP_MATCH_COMMAND(cmd, "count"))
+        return ProcessCount();
     
     return NULL;
 }
@@ -398,6 +400,27 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
 
     request = new ClientRequest;
     request->ListKeyValues(0, tableID, startKey, count, offset);
+
+    return request;    
+}
+
+ClientRequest* ShardHTTPClientSession::ProcessCount()
+{
+    ClientRequest*  request;
+    uint64_t        tableID;
+    ReadBuffer      startKey;
+    uint64_t        count;
+    uint64_t        offset;
+    
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+    HTTP_GET_PARAM(params, "startKey", startKey);
+    count = 0;
+    HTTP_GET_OPT_U64_PARAM(params, "count", count);
+    offset = 0;
+    HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
+
+    request = new ClientRequest;
+    request->Count(0, tableID, startKey, count, offset);
 
     return request;    
 }

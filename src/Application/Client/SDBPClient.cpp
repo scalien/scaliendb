@@ -207,7 +207,7 @@ void Client::Shutdown()
 {
     RequestListMap::Node*   requestNode;
     RequestList*            requestList;
-    Request*                request;
+//    Request*                request;
     
     GLOBAL_MUTEX_GUARD_DECLARE();
 
@@ -501,6 +501,11 @@ int Client::ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset
 int Client::ListKeyValues(const ReadBuffer& startKey, unsigned count, unsigned offset)
 {
     CLIENT_DATA_COMMAND(ListKeyValues, (ReadBuffer&) startKey, count, offset);
+}
+
+int Client::Count(const ReadBuffer& startKey, unsigned count, unsigned offset)
+{
+    CLIENT_DATA_COMMAND(Count, (ReadBuffer&) startKey, count, offset);
 }
 
 int Client::Begin()

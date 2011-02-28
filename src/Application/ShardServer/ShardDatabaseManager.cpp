@@ -78,9 +78,10 @@ void ShardDatabaseAsyncList::OnShardComplete()
         return;
     }
 
-    // create results
     numKeys = lastResult->dataPage.GetNumKeys();
-    if (numKeys > 0)
+    total += numKeys;
+    // create results
+    if (numKeys > 0 && (type == KEY || type == KEYVALUE))
     {
         ReadBuffer  keys[numKeys];
         ReadBuffer  values[numKeys];
@@ -88,7 +89,7 @@ void ShardDatabaseAsyncList::OnShardComplete()
         FOREACH (it, lastResult->dataPage)
         {
             keys[i] = it->GetKey();
-            if (keyValues)
+            if (type == KEYVALUE)
             {
                 userValue = it->GetValue();
                 ReadValue(userValue, paxosID, commandID, values[i]);
@@ -96,7 +97,7 @@ void ShardDatabaseAsyncList::OnShardComplete()
             i++;
         }
 
-        if (keyValues)
+        if (type == KEYVALUE)
             request->response.ListKeyValues(numKeys, keys, values);
         else
             request->response.ListKeys(numKeys, keys);
@@ -104,7 +105,7 @@ void ShardDatabaseAsyncList::OnShardComplete()
     }
 
     // found count items
-    if (lastResult->final && request->count != 0 && count == 0)
+    if (lastResult->final && request->count != 0 && total == request->count)
     {
         OnRequestComplete();
         return;
@@ -116,6 +117,12 @@ void ShardDatabaseAsyncList::OnShardComplete()
 
 void ShardDatabaseAsyncList::OnRequestComplete()
 {
+    uint64_t    number;
+    
+    number = total;
+    
+    total = 0;
+    num = 0;
     active = false;
 
     // handle disconnected
@@ -125,15 +132,20 @@ void ShardDatabaseAsyncList::OnRequestComplete()
         request->OnComplete();
         if (async && !manager->executeLists.IsActive())
             EventLoop::Add(&manager->executeLists);
+        
         return;
     }
         
     if (lastResult->final)
     {
-        request->response.OK();
+        if (type == COUNT)
+            request->response.Number(number);
+        else
+            request->response.OK();
+            
         request->OnComplete(true);
     }
-
+    
     if (async && lastResult->final && !manager->executeLists.IsActive())
         EventLoop::Add(&manager->executeLists);
 }
@@ -179,8 +191,8 @@ void ShardDatabaseAsyncList::TryNextShard()
     {
         // TODO: HACK updating the request
         request->key.Write(minKey);
-        request->count = count;
         request->offset = offset;
+        
         // reschedule request
         manager->OnClientListRequest(request);
     }
@@ -218,6 +230,8 @@ void ShardDatabaseManager::Init(ShardServer* shardServer_)
     // Initialize async LIST
     asyncList.active = false;
     asyncList.manager = this;
+    asyncList.num = 0;
+    asyncList.total = 0;
 }
 
 void ShardDatabaseManager::Shutdown()
@@ -635,9 +649,6 @@ void ShardDatabaseManager::OnExecuteLists()
             continue;
         }
 
-        // TODO: limit count to an acceptable value so that it won't hog the database
-        if (itRequest->count == 0)
-            itRequest->count = 1000;
 
         startKey.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
@@ -645,10 +656,22 @@ void ShardDatabaseManager::OnExecuteLists()
         configShard = shardServer->GetConfigState()->GetShard(shardID);
         ASSERT(configShard != NULL);
 
-        if (itRequest->type == CLIENTREQUEST_LIST_KEYVALUES)
-            asyncList.keyValues = true;
+        if (itRequest->type == CLIENTREQUEST_LIST_KEYS)
+            asyncList.type = StorageAsyncList::KEY;
+        else if (itRequest->type == CLIENTREQUEST_LIST_KEYVALUES)
+            asyncList.type = StorageAsyncList::KEYVALUE;
+        else if (itRequest->type == CLIENTREQUEST_COUNT)
+            asyncList.type = StorageAsyncList::COUNT;
         else
-            asyncList.keyValues = false;
+            ASSERT_FAIL();
+
+        // HACK: limit count to an acceptable value so that it won't hog the database
+        if (itRequest->count == 0 && 
+            (itRequest->type == CLIENTREQUEST_LIST_KEYS || 
+             itRequest->type == CLIENTREQUEST_LIST_KEYVALUES))
+        {
+            itRequest->count = 1000;
+        }
 
         asyncList.request = itRequest;
         asyncList.startKey = startKey;

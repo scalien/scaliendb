@@ -2,6 +2,7 @@ var scaliendb =
 {
 	controller: "",
 	onResponse: this.showResult,
+	onDisconnect: this.showError,
 
     //========================================================================
 	//
@@ -63,12 +64,12 @@ var scaliendb =
 	
 	getConfigState: function(onConfigState)
 	{ 
-		this.json.rpc(scaliendb.controller, onConfigState, "getconfigstate");
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "getconfigstate");
 	},
 
 	pollConfigState: function(onConfigState)
 	{ 
-		this.json.rpc(scaliendb.controller, onConfigState, "pollconfigstate");
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "pollconfigstate");
 	},
 
 	getTable: function(configState, tableID)
@@ -228,9 +229,19 @@ var scaliendb =
 		//alert(data["response"]);
 	},
 	
+	showError: function()
+	{
+		alert("connection lost");
+	},
+	
 	rpc: function(name, params)
 	{ 
-		this.json.rpc(scaliendb.controller, scaliendb.onResponse, name, params);
+		this.json.rpc(scaliendb.controller, scaliendb.onResponse, scaliendb.onDisconnect, name, params);
+	},
+	
+	disconnect: function()
+	{
+		this.json.abort();
 	},
 		
     //========================================================================
@@ -244,12 +255,13 @@ var scaliendb =
 		active : 0,
 		func: {},
 		debug: true,
+		pollRequest: null,
 
-		get: function(url, userfunc, showload)
+		getJSONP: function(url, userfunc, errorfunc, showload)
 		{
 			var id = this.counter++;
 
-			url = url.replace(/USERFUNC/g, "scaliendb.json.func[" + id + "]");
+			url += "&callback=scaliendb.json.func[" + id + "]";
 			var scriptTag = document.createElement("script");
 			scriptTag.setAttribute("id", "json" + id);
 			scriptTag.setAttribute("type", "text/javascript");
@@ -266,6 +278,7 @@ var scaliendb =
 					if (this.debug)
 						alert("json.func[" + id + "]: empty callback");
 					scaliendb.util.trace("json.func[" + id + "]: empty callback");
+					errorfunc();
 					return;
 				}
 
@@ -291,10 +304,36 @@ var scaliendb =
 				this.func = scaliendb.util.removeKey(this.func, "func" + id);
 			}
 		},
-
-		rpc: function(baseUrl, userfunc, cmd, params)
+		
+		getXHR: function(url, userfunc, errorfunc, showload)
 		{
-			var url = baseUrl + cmd + "?callback=USERFUNC&mimetype=text/javascript";
+			var xhr = new XMLHttpRequest();
+			var decode = this.decode;
+			var onreadystatechange = function()
+			{
+				if (xhr.readyState != 4)
+					return;
+				if (xhr.status != 200)
+				{   
+					// pollRequest == null indicates that the request is aborted
+					if (scaliendb.json.pollRequest !== null)
+						errorfunc();
+					scaliendb.json.pollRequest = null;
+					return;
+				}
+				scaliendb.json.pollRequest = null;
+				userfunc(decode(xhr.responseText));
+			}
+
+			xhr.open("GET", url + "&origin=*", true);
+			xhr.onreadystatechange = onreadystatechange;
+			this.pollRequest = xhr;
+			xhr.send();
+		},
+
+		rpc: function(baseUrl, userfunc, errorfunc, cmd, params)
+		{
+			var url = baseUrl + cmd + "?mimetype=text/javascript";
 			for (var name in params)
 			{
 				url += "&" + name + "=";
@@ -302,7 +341,7 @@ var scaliendb =
 				if (typeof(param) != "undefined")
 				{
 					if (typeof(param) == "object" || typeof(param) == "array")
-						var arg = JSON.stringify(param);
+						var arg = this.encode(param);
 					else
 						var arg = param;
 					var value = encodeURIComponent(arg);
@@ -311,7 +350,20 @@ var scaliendb =
 					var value = "";
 				url += value;
 			}
-			this.get(url, userfunc, true);
+			// TODO: detecting browser functionality
+			// this.getJSONP(url, userfunc, errorfunc, true);
+			this.getXHR(url, userfunc, errorfunc, true);
+		},
+	
+		abort: function()
+		{
+			if (this.pollRequest != null)
+			{
+				var request = this.pollRequest;
+				// this indicates that the request is aborted
+				this.pollRequest = null;
+				request.abort();
+			}
 		},
 	
 		encode: function(jsobj)
@@ -320,6 +372,11 @@ var scaliendb =
 			//  	return "";
 		
 			return JSON.stringify(jsobj);
+		},
+		
+		decode: function(jsontext)
+		{
+			return JSON.parse(jsontext);
 		}
 	},
 

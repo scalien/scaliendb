@@ -52,6 +52,7 @@ public:
     Buffer                  shardLastKey;
     bool                    active;
     bool                    async;
+    uint64_t                total;
     
     void                    OnShardComplete();
     void                    OnRequestComplete();

@@ -20,8 +20,12 @@ void ConfigHTTPClientSession::SetConfigServer(ConfigServer* configServer_)
 
 void ConfigHTTPClientSession::SetConnection(HTTPConnection* conn)
 {
+    ReadBuffer  origin;
+    
     session.SetConnection(conn);
     conn->SetOnClose(MFUNC(ConfigHTTPClientSession, OnConnectionClose));
+    origin.Wrap("*");
+    conn->SetOrigin(origin);
 }
 
 bool ConfigHTTPClientSession::HandleRequest(HTTPRequest& request)
@@ -62,8 +66,6 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
             jsonConfigState.Write();
             session.Flush();
             return;
-//            configServer->OnClientClose(request->session);
-//            last = true;
         }
         break;
     case CLIENTRESPONSE_NOSERVICE:
@@ -90,13 +92,16 @@ void ConfigHTTPClientSession::PrintStatus()
 {
     Buffer          buf;
     ConfigState*    configState;
+    char            hexbuf[64 + 1];
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
 
-    buf.Writef("%U", REPLICATION_CONFIG->GetClusterID());
-    buf.NullTerminate();
-    session.PrintPair("ClusterID", buf.GetBuffer());   
+//    buf.Writef("%U", REPLICATION_CONFIG->GetClusterID());
+//    buf.NullTerminate();
+//    session.PrintPair("ClusterID", buf.GetBuffer());   
+    UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), REPLICATION_CONFIG->GetClusterID(), 64);
+    session.PrintPair("ClusterID", hexbuf);
 
     buf.Writef("%d", (int) configServer->GetNodeID());
     buf.NullTerminate();

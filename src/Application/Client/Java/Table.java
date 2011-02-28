@@ -341,6 +341,32 @@ public class Table
     }
 
     /**
+     * Returns the number of key-value pairs.
+     *
+     * @param   startKey    counting starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the maximum number of keys returned
+     * @return              the number of key-value pairs
+     */
+    public long count(String startKey, int offset, int count) throws SDBPException {
+        useDefaults();
+		return client.count(startKey, offset, count);
+    }
+    
+    /**
+     * Returns the number of key-value pairs.
+     *
+     * @param   startKey    counting starts at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the maximum number of keys returned
+     * @return              the number of key-value pairs
+     */
+    public long count(byte[] startKey, int offset, int count) throws SDBPException {
+        useDefaults();
+		return client.count(startKey, offset, count);    
+    }
+
+    /**
      * Returns the specified key-value pairs.
      *
      * @param   startKey    listing starts at this key
