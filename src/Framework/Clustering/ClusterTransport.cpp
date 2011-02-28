@@ -212,8 +212,6 @@ void ClusterTransport::UnregisterWriteReadyness(uint64_t nodeID, Callable callab
             return;
         }
     }
-    
-    ASSERT_FAIL();
 }
 
 void ClusterTransport::AddConnection(ClusterConnection* conn)
