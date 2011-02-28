@@ -426,6 +426,16 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
         EventLoop::Add(&tryAppend);
 }
 
+bool ShardQuorumProcessor::IsCatchupActive()
+{
+    return catchupWriter.IsActive();
+}
+
+uint64_t ShardQuorumProcessor::GetCatchupBytesSent()
+{
+    return catchupWriter.GetBytesSent();
+}
+
 void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& clusterMessage)
 {
     ShardMessage*   shardMessage;

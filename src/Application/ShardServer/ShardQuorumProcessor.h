@@ -53,6 +53,9 @@ public:
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
                              ReadBuffer& splitKey);
 
+    bool                    IsCatchupActive();
+    uint64_t                GetCatchupBytesSent();
+
     bool                    IsShardMigrationActive();
     uint64_t                GetMigrateShardID();
     void                    OnShardMigrationClusterMessage(ClusterMessage& message);

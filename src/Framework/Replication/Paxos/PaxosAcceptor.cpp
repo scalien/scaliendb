@@ -37,8 +37,14 @@ void PaxosAcceptor::OnMessage(PaxosMessage& imsg)
 
 void PaxosAcceptor::OnCatchupComplete()
 {
+    bool ac;
+    
     state.Init();
+
+    ac = asyncCommit;
+    asyncCommit = false; // force sync commit on catchup complete
     WriteState(false);
+    asyncCommit = ac;
 }
 
 void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
