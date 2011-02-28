@@ -86,6 +86,7 @@ void ShardCatchupWriter::SendFirst()
     msg.BeginShard(shardID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
 
+
     // send first KV
     kv = cursor->First();
     if (kv == NULL)
@@ -93,7 +94,7 @@ void ShardCatchupWriter::SendFirst()
         SendNext();
         return;
     }
-    
+
     TransformKeyValue(kv, msg);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
     Log_Debug("Sending BEGIN SHARD %U", shardID);
@@ -105,12 +106,15 @@ void ShardCatchupWriter::SendNext()
     CatchupMessage      msg;
 
     assert(cursor != NULL);
-    kv = cursor->Next(kv);
-    if (kv)
+    if (kv != NULL)
     {
-        TransformKeyValue(kv, msg);
-        CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
-        return;
+        kv = cursor->Next(kv);
+        if (kv)
+        {
+            TransformKeyValue(kv, msg);
+            CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
+            return;
+        }
     }
 
     // kv is NULL, at end of current shard
