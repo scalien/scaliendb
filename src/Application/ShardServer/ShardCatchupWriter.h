@@ -45,6 +45,7 @@ private:
     StorageEnvironment*     environment;
     StorageBulkCursor*      cursor;
     StorageKeyValue*        kv;
+    uint64_t                bytesSent;
 };
 
 #endif
