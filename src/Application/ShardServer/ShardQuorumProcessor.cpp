@@ -20,6 +20,7 @@ ShardQuorumProcessor::ShardQuorumProcessor()
 void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardServer_)
 {
     shardServer = shardServer_;
+    catchupWriter.Init(this);
     catchupReader.Init(this);
     isPrimary = false;
     proposalID = 0;
