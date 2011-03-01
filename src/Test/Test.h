@@ -20,7 +20,6 @@ extern "C" {
 #endif
 
 // NOTE the token-paste operator (##) behaves specially with __VA_ARGS__ after commas
-#define TEST(testfn) test((testfn_t) testfn, #testfn)
 #define TEST_LOG(fmt, ...) printf("%s:%d: " fmt "\n", __func__, __LINE__, ##__VA_ARGS__)
 #define TEST_CALL(testfn) test((testfn_t) testfn, #testfn)
 #define TESTARG(testfn) (testfn),(#testfn)

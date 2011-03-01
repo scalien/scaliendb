@@ -40,6 +40,9 @@ const char*     HumanBytes(uint64_t bytes, char buf[5]);
 const char*     SIBytes(uint64_t bytes, char buf[5]);
 #define         SI_BYTES(bytes) SIBytes(bytes, (char*) alloca(5))
 
+const char*     HumanTime(char buf[27]);
+#define         HUMAN_TIME() HumanTime((char*) alloca(27))
+
 int64_t         BufferToInt64(const char* buffer, unsigned length, unsigned* nread);
 uint64_t        BufferToUInt64(const char* buffer, unsigned length, unsigned* nread);
 

@@ -1354,46 +1354,67 @@ TEST_DEFINE(TestClientSchemaSet)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestClientFailover)
+TEST_DEFINE(TestClientGetFailover)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "message_board";
-    ReadBuffer      tableName = "messages";
-    Buffer          key;
     ReadBuffer      value;
+    unsigned        i;
+    uint64_t        start;
+    uint64_t        end;
     int             ret;
     
-    Log_SetTimestamping(true);
-    Log_SetTarget(LOG_TARGET_STDOUT);
-    Log_SetTrace(true);
-    
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
+    TEST(SetupDefaultClient(client));
+    ret = client.SetIfNotExists("index", "1");
+    TEST_ASSERT(ret == SDBP_SUCCESS || ret == SDBP_FAILED);
 
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
+    i = 0;
     while (true)
-    {    
-        ret = client.Get("index");
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-            
+    {
+        i++;
+        start = Now();
+        TEST(client.Get("index"));
+        end = Now();
         result = client.GetResult();
         
-        ret = result->GetValue(value);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
+        TEST(result->GetValue(value));
+        TEST_LOG("%u: value = %.*s, diff = %u", i, value.GetLength(), value.GetBuffer(), (unsigned) (end - start));
+        
+        delete result;
+        
+        MSleep(500);
+    }
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
 
-        TEST_LOG("value = %.*s", value.GetLength(), value.GetBuffer());
+TEST_DEFINE(TestClientAddFailover)
+{
+    Client          client;
+    Result*         result;
+    ReadBuffer      value;
+    uint64_t        number;
+    unsigned        i;
+    uint64_t        start;
+    uint64_t        end;
+    int             ret;
+    
+    TEST(SetupDefaultClient(client));
+    ret = client.SetIfNotExists("index", "1");
+    TEST_ASSERT(ret == SDBP_SUCCESS || ret == SDBP_FAILED);
+
+    i = 0;
+    while (true)
+    {
+        i++;
+        start = Now();
+        TEST(client.Add("index", 1));
+        end = Now();
+        result = client.GetResult();
+        
+        TEST(result->GetNumber(number));
+        TEST_LOG("%u: value = %u, diff = %u", i, (unsigned) number, (unsigned) (end - start));
         
         delete result;
         
