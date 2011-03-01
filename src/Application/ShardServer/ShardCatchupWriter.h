@@ -1,10 +1,13 @@
 #ifndef SHARDCATCHUPWRITER_H
 #define SHARDCATCHUPWRITER_H
 
-#include "Application/Common/CatchupMessage.h"
+#include "System/Events/Countdown.h"
 #include "Framework/Storage/StorageBulkCursor.h"
+#include "Application/Common/CatchupMessage.h"
 
 class ShardQuorumProcessor; // forward
+
+#define SHARD_CATCHUP_WRITER_DELAY  10*1000 // msec
 
 /*
 ===============================================================================================
@@ -38,6 +41,7 @@ private:
     void                    OnWriteReadyness();
     uint64_t*               NextShard();
     void                    TransformKeyValue(StorageKeyValue* kv, CatchupMessage& msg);
+    void                    OnTimeout();
 
     bool                    isActive;
     uint64_t                nodeID;
@@ -47,10 +51,12 @@ private:
     uint64_t                bytesSent;
     uint64_t                bytesTotal;
     uint64_t                startTime;
+    uint64_t                prevBytesSent;
     ShardQuorumProcessor*   quorumProcessor;
     StorageEnvironment*     environment;
     StorageBulkCursor*      cursor;
     StorageKeyValue*        kv;
+    Countdown               onTimeout;
 };
 
 #endif
