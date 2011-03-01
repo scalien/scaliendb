@@ -739,7 +739,7 @@ function createQuorumDiv(configState, quorum)
 	for (var i in quorum["inactiveNodes"])
 	{
 		if (primaryID != null)
-			explanation += "The quorum has inactive nodes. These can be brought back into the quorum (once they are up and running) by clicking them above. ";
+			explanation += "The quorum has inactive nodes. These can be brought back into the quorum (once they are up and running and catchup is complete) by clicking them above. ";
 		var nodeID = quorum["inactiveNodes"][i];
 		var shardServer = scaliendb.getShardServer(configState, nodeID);
 		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
