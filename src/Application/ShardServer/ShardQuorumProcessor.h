@@ -53,6 +53,9 @@ public:
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
                              ReadBuffer& splitKey);
 
+    void                    StopReplication();
+    void                    ContinueReplication();
+
     bool                    IsCatchupActive();
     uint64_t                GetCatchupBytesSent();
     uint64_t                GetCatchupBytesTotal();

@@ -426,6 +426,16 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
         EventLoop::Add(&tryAppend);
 }
 
+void ShardQuorumProcessor::StopReplication()
+{
+    quorumContext.StopReplication();
+}
+
+void ShardQuorumProcessor::ContinueReplication()
+{
+    quorumContext.ContinueReplication();
+}
+
 bool ShardQuorumProcessor::IsCatchupActive()
 {
     return catchupWriter.IsActive();

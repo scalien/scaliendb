@@ -220,6 +220,9 @@ void ShardQuorumContext::RegisterPaxosID(uint64_t paxosID)
 {
     if (paxosID > highestPaxosID)
         highestPaxosID = paxosID;
+    
+    if (IsLeaseKnown())
+        replicatedLog.RegisterPaxosID(paxosID, GetLeaseOwner());
 }
 
 void ShardQuorumContext::OnPaxosMessage(ReadBuffer buffer)

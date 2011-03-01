@@ -1,4 +1,5 @@
 #include "ShardCatchupReader.h"
+#include "System/Events/EventLoop.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
@@ -6,10 +7,23 @@
 void ShardCatchupReader::Init(ShardQuorumProcessor* quorumProcessor_)
 {
     quorumProcessor = quorumProcessor_;
-    isActive = false;
-    shardID = 0;
+    
+    onTimeout.SetCallable(MFUNC(ShardCatchupReader, OnTimeout));
+    onTimeout.SetDelay(SHARD_CATCHUP_READER_DELAY);
     
     environment = quorumProcessor->GetShardServer()->GetDatabaseManager()->GetEnvironment();
+
+    Reset();
+}
+
+void ShardCatchupReader::Reset()
+{
+    isActive = false;
+    shardID = 0;
+    bytesReceived = 0;
+    prevBytesReceived = 0;
+    nextCommit = 0;
+    EventLoop::Remove(&onTimeout);
 }
 
 bool ShardCatchupReader::IsActive()
@@ -21,12 +35,15 @@ void ShardCatchupReader::Begin()
 {
     isActive = true;
     bytesReceived = 0;
+    prevBytesReceived = 0;
     nextCommit = CATCHUP_COMMIT_GRANULARITY;
+    EventLoop::Add(&onTimeout);
 }
 
 void ShardCatchupReader::Abort()
 {
-    isActive = false;
+    Log_Message("Catchup aborted");
+    Reset();
 }
 
 void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
@@ -45,7 +62,7 @@ void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
     environment->CreateShard(QUORUM_DATABASE_DATA_CONTEXT, shard->shardID,
      shard->tableID, shard->firstKey, shard->lastKey, true, false);
      
-     shardID = shard->shardID;
+    shardID = shard->shardID;
 }
 
 void ShardCatchupReader::OnSet(CatchupMessage& msg)
@@ -66,19 +83,16 @@ void ShardCatchupReader::OnCommit(CatchupMessage& message)
 {
     assert(isActive);
     
-    isActive = false;
     quorumProcessor->SetPaxosID(message.paxosID);
 
     Log_Message("Catchup complete");
+    
+    Reset();
 }
 
 void ShardCatchupReader::OnAbort(CatchupMessage& /*message*/)
 {
-    assert(isActive);
-    
-    isActive = false;
-
-    Log_Message("Catchup aborted");
+    Abort();
 }
 
 void ShardCatchupReader::TryCommit()
@@ -87,5 +101,19 @@ void ShardCatchupReader::TryCommit()
     {
         environment->Commit();
         nextCommit = bytesReceived + CATCHUP_COMMIT_GRANULARITY;
+    }
+}
+
+void ShardCatchupReader::OnTimeout()
+{
+    if (bytesReceived == prevBytesReceived)
+    {
+        Abort();
+        quorumProcessor->ContinueReplication();
+    }
+    else
+    {
+        prevBytesReceived = bytesReceived;
+        EventLoop::Add(&onTimeout);
     }
 }

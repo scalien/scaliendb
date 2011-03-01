@@ -1,10 +1,13 @@
 #include "ShardCatchupWriter.h"
+#include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
 
 ShardCatchupWriter::ShardCatchupWriter()
 {
+    onTimeout.SetCallable(MFUNC(ShardCatchupWriter, OnTimeout));
+    onTimeout.SetDelay(SHARD_CATCHUP_WRITER_DELAY);
     Reset();
 }
 
@@ -30,6 +33,8 @@ void ShardCatchupWriter::Reset()
     bytesSent = 0;
     bytesTotal = 0;
     startTime = 0;
+    prevBytesSent = 0;
+    EventLoop::Remove(&onTimeout);
 }
 
 bool ShardCatchupWriter::IsActive()
@@ -71,6 +76,8 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
     nodeID = request.nodeID;
     quorumID = request.quorumID;
     paxosID = quorumProcessor->GetPaxosID() - 1;
+    
+    EventLoop::Add(&onTimeout);
 
     ShardQuorumProcessor::ShardList& shards = quorumProcessor->GetConfigQuorum()->shards;
     FOREACH(it, shards)
@@ -89,6 +96,8 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
 void ShardCatchupWriter::Abort()
 {
     CatchupMessage msg;
+    
+    Log_Message("Catchup aborted");
     
     msg.Abort();
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
@@ -238,5 +247,18 @@ void ShardCatchupWriter::TransformKeyValue(StorageKeyValue* kv, CatchupMessage& 
     {
         msg.Delete(kv->GetKey());    
         bytesSent += kv->GetKey().GetLength();
+    }
+}
+
+void ShardCatchupWriter::OnTimeout()
+{
+    if (bytesSent == prevBytesSent)
+    {
+        Abort();
+    }
+    else
+    {
+        prevBytesSent = bytesSent;
+        EventLoop::Add(&onTimeout);
     }
 }

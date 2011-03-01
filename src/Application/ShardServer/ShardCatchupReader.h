@@ -7,6 +7,8 @@
 class ShardQuorumProcessor;
 
 #define CATCHUP_COMMIT_GRANULARITY      64*KB
+#define SHARD_CATCHUP_READER_DELAY      10*1000 // msec
+
 
 /*
 ===============================================================================================
@@ -20,6 +22,7 @@ class ShardCatchupReader
 {
 public:
     void                    Init(ShardQuorumProcessor* quorumProcessor);
+    void                    Reset();
     
     bool                    IsActive();
 
@@ -34,13 +37,16 @@ public:
 
 private:
     void                    TryCommit();
+    void                    OnTimeout();
     
     bool                    isActive;
     uint64_t                shardID;
     uint64_t                bytesReceived;
+    uint64_t                prevBytesReceived;
     uint64_t                nextCommit;
     ShardQuorumProcessor*   quorumProcessor;
     StorageEnvironment*     environment;
+    Countdown               onTimeout;
 };
 
 #endif
