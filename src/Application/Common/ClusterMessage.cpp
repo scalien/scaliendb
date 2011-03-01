@@ -30,12 +30,12 @@ bool ClusterMessage::SetNodeID(uint64_t clusterID_, uint64_t nodeID_)
 }
 
 bool ClusterMessage::Heartbeat(uint64_t nodeID_,
- List<QuorumPaxosID>& quorumPaxosIDs_, List<QuorumShardInfo>& quorumShardInfos_,
+ List<QuorumInfo>& quorumInfos_, List<QuorumShardInfo>& quorumShardInfos_,
  unsigned httpPort_, unsigned sdbpPort_)
 {
     type = CLUSTERMESSAGE_HEARTBEAT;
     nodeID = nodeID_;
-    quorumPaxosIDs = quorumPaxosIDs_;
+    quorumInfos = quorumInfos_;
     quorumShardInfos = quorumShardInfos_;
     httpPort = httpPort_;
     sdbpPort = sdbpPort_;
@@ -163,7 +163,7 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
                 return false;
             buffer.Advance(read);
             READ_SEPARATOR();
-            if (!QuorumPaxosID::ReadList(buffer, quorumPaxosIDs))
+            if (!QuorumInfo::ReadList(buffer, quorumInfos))
                 return false;
             READ_SEPARATOR();
             if (!QuorumShardInfo::ReadList(buffer, quorumShardInfos))
@@ -237,7 +237,7 @@ bool ClusterMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%u:%u",
              type, nodeID, httpPort, sdbpPort);
             buffer.Appendf(":");
-            QuorumPaxosID::WriteList(buffer, quorumPaxosIDs);
+            QuorumInfo::WriteList(buffer, quorumInfos);
             buffer.Appendf(":");
             QuorumShardInfo::WriteList(buffer, quorumShardInfos);
             return true;

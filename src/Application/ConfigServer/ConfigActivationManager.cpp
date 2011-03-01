@@ -86,7 +86,7 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
 
         if (itQuorum->IsInactiveMember(nodeID))
         {
-            paxosID = QuorumPaxosID::GetPaxosID(shardServer->quorumPaxosIDs, itQuorum->quorumID);
+            paxosID = QuorumInfo::GetQuorumInfo(shardServer->quorumInfos, itQuorum->quorumID)->paxosID;
             if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF) ||
              itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
             {

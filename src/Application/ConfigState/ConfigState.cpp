@@ -1515,7 +1515,7 @@ bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& bu
         read = buffer.Readf(":%u:%u", &shardServer.httpPort, &shardServer.sdbpPort);
         CHECK_ADVANCE(4);
         READ_SEPARATOR();
-        return QuorumPaxosID::ReadList(buffer, shardServer.quorumPaxosIDs);
+        return QuorumInfo::ReadList(buffer, shardServer.quorumInfos);
     }
     else
         return true;
@@ -1532,7 +1532,7 @@ void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffe
     {
         buffer.Appendf(":%u:%u",shardServer.httpPort, shardServer.sdbpPort);
         buffer.Appendf(":");
-        QuorumPaxosID::WriteList(buffer, shardServer.quorumPaxosIDs);
+        QuorumInfo::WriteList(buffer, shardServer.quorumInfos);
     }
 }
 

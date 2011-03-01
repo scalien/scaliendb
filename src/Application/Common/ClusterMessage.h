@@ -41,7 +41,7 @@ public:
     bool                    watchingPaxosID;
     List<uint64_t>          activeNodes;
     SortedList<uint64_t>    shards;
-    List<QuorumPaxosID>     quorumPaxosIDs;
+    List<QuorumInfo>        quorumInfos;
     List<QuorumShardInfo>   quorumShardInfos;
     ConfigState             configState;
     unsigned                httpPort;
@@ -53,7 +53,7 @@ public:
     
     bool            SetNodeID(uint64_t clusterID, uint64_t nodeID);
     bool            Heartbeat(uint64_t nodeID,
-                     List<QuorumPaxosID>& quorumPaxosIDs, List<QuorumShardInfo>& quorumShardInfos,
+                     List<QuorumInfo>& quorumInfos, List<QuorumShardInfo>& quorumShardInfos,
                      unsigned httpPort, unsigned sdbpPort);
     bool            SetConfigState(ConfigState& configState);
     bool            RequestLease(uint64_t nodeID, uint64_t quorumID,

@@ -1,6 +1,7 @@
 #include "JSONConfigState.h"
 #include "System/Macros.h"
 #include "ConfigServer.h"
+#include "Application/ConfigState/ConfigShardServer.h"
 
 #define JSON_STRING(obj, member) \
     json.PrintString(#member); \
@@ -219,6 +220,8 @@ void JSONConfigState::WriteShardServers()
 
 void JSONConfigState::WriteShardServer(ConfigShardServer* server)
 {
+    QuorumInfo* info;
+    
     json.PrintObjectStart();
 
     JSON_NUMBER(server, nodeID);
@@ -232,8 +235,42 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintString("hasHeartbeat");
     json.PrintColon();
     json.PrintBool(configServer->GetHeartbeatManager()->HasHeartbeat(server->nodeID));
+
+    json.PrintComma();
     
+    json.PrintString("quorumInfos");
+    json.PrintColon();
+    json.PrintArrayStart();
+
+    FOREACH(info, server->quorumInfos)
+        WriteQuorumInfo(info);
+
+    json.PrintArrayEnd();
+        
     json.PrintObjectEnd();
+}
+
+void JSONConfigState::WriteQuorumInfo(QuorumInfo* info)
+{
+    json.PrintObjectStart();
+
+    JSON_NUMBER(info, quorumID);
+    json.PrintComma();
+    JSON_NUMBER(info, paxosID);
+    json.PrintComma();
+    JSON_BOOL(info, isSendingCatchup);
+    
+    if (info->isSendingCatchup)
+    {
+        json.PrintComma();
+        JSON_NUMBER(info, bytesSent);
+        json.PrintComma();
+        JSON_NUMBER(info, bytesTotal);
+        json.PrintComma();
+        JSON_NUMBER(info, throughput);
+    }
+    
+    json.PrintObjectEnd();    
 }
 
 template<typename List>

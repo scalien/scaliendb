@@ -25,8 +25,8 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     uint64_t*               itShardID;
     ShardQuorumProcessor*   itQuorumProcessor;
     ClusterMessage          msg;
-    QuorumPaxosID           quorumPaxosID;
-    List<QuorumPaxosID>     quorumPaxosIDList;
+    QuorumInfo              quorumInfo;
+    List<QuorumInfo>        quorumInfoList;
     List<QuorumShardInfo>   quorumShardInfos;
     QuorumShardInfo         quorumShardInfo;
     ConfigState*            configState;
@@ -49,9 +49,22 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
     FOREACH(itQuorumProcessor, *quorumProcessors)
     {
-        quorumPaxosID.quorumID = itQuorumProcessor->GetQuorumID();
-        quorumPaxosID.paxosID = itQuorumProcessor->GetPaxosID();
-        quorumPaxosIDList.Append(quorumPaxosID);
+        quorumInfo.quorumID = itQuorumProcessor->GetQuorumID();
+        quorumInfo.paxosID = itQuorumProcessor->GetPaxosID();
+        quorumInfo.isSendingCatchup = itQuorumProcessor->IsCatchupActive();
+        if (quorumInfo.isSendingCatchup)
+        {
+            quorumInfo.bytesSent = itQuorumProcessor->GetCatchupBytesSent();
+            quorumInfo.bytesTotal = itQuorumProcessor->GetCatchupBytesTotal();
+            quorumInfo.throughput = itQuorumProcessor->GetCatchupThroughput();
+        }
+        else
+        {
+            quorumInfo.bytesSent = 0;
+            quorumInfo.bytesTotal = 0;
+            quorumInfo.throughput = 0;
+        }
+        quorumInfoList.Append(quorumInfo);
         
         configQuorum = configState->GetQuorum(itQuorumProcessor->GetQuorumID());
         FOREACH(itShardID, configQuorum->shards)
@@ -75,6 +88,6 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     sdbpPort = shardServer->GetSDBPPort();
     
     msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(),
-     quorumPaxosIDList, quorumShardInfos, httpPort, sdbpPort);
+     quorumInfoList, quorumShardInfos, httpPort, sdbpPort);
     shardServer->BroadcastToControllers(msg);
 }

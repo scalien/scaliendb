@@ -1,16 +1,20 @@
 #include "ConfigShardServer.h"
 
-QuorumPaxosID::QuorumPaxosID()
+QuorumInfo::QuorumInfo()
 {
     quorumID = 0;
     paxosID = 0;
+    isSendingCatchup = false;
+    bytesSent = 0;
+    bytesTotal = 0;
+    throughput = 0;
 }
 
-bool QuorumPaxosID::ReadList(ReadBuffer& buffer, List<QuorumPaxosID>& quorumPaxosIDs)
+bool QuorumInfo::ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos)
 {
     unsigned        i, length;
     int             read;
-    QuorumPaxosID   quorumPaxosID;
+    QuorumInfo   quorumInfo;
     
     read = buffer.Readf("%u", &length);
     if (read < 1)
@@ -18,39 +22,45 @@ bool QuorumPaxosID::ReadList(ReadBuffer& buffer, List<QuorumPaxosID>& quorumPaxo
     buffer.Advance(read);
     for (i = 0; i < length; i++)
     {
-        read = buffer.Readf(":%U:%U", &quorumPaxosID.quorumID, &quorumPaxosID.paxosID);
+        read = buffer.Readf(":%U:%U:%b:%U:%U:%U",
+         &quorumInfo.quorumID, &quorumInfo.paxosID,
+         &quorumInfo.isSendingCatchup, &quorumInfo.bytesSent,
+         &quorumInfo.bytesTotal, &quorumInfo.throughput);
         if (read < 4)
             return false;
         buffer.Advance(read);
-        quorumPaxosIDs.Append(quorumPaxosID);
+        quorumInfos.Append(quorumInfo);
     }
     return true;
 }
 
-bool QuorumPaxosID::WriteList(Buffer& buffer, List<QuorumPaxosID>& quorumPaxosIDs)
+bool QuorumInfo::WriteList(Buffer& buffer, List<QuorumInfo>& quorumInfos)
 {
-    QuorumPaxosID*  it;
+    QuorumInfo*  it;
 
-    buffer.Appendf("%u", quorumPaxosIDs.GetLength());
-    FOREACH(it, quorumPaxosIDs)
+    buffer.Appendf("%u", quorumInfos.GetLength());
+    FOREACH(it, quorumInfos)
     {
-        buffer.Appendf(":%U:%U", it->quorumID, it->paxosID);
+        buffer.Appendf(":%U:%U:%b:%U:%U:%U",
+         it->quorumID, it->paxosID,
+         it->isSendingCatchup, it->bytesSent,
+         it->bytesTotal, it->throughput);
     }
     
     return true;
 }
 
-uint64_t QuorumPaxosID::GetPaxosID(List<QuorumPaxosID>& quorumPaxosIDs, uint64_t quorumID)
+QuorumInfo* QuorumInfo::GetQuorumInfo(List<QuorumInfo>& quorumInfos, uint64_t quorumID)
 {
-    QuorumPaxosID*  it;
+    QuorumInfo*  it;
 
-    FOREACH(it, quorumPaxosIDs)
+    FOREACH(it, quorumInfos)
     {
         if (it->quorumID == quorumID)
-            return it->paxosID;
+            return it;
     }
     
-    return 0;
+    return NULL;
 }
 
 QuorumShardInfo::QuorumShardInfo()

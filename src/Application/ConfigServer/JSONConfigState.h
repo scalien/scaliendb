@@ -5,6 +5,7 @@
 #include "Application/HTTP/JSONSession.h"
 
 class ConfigServer;
+class QuorumPaxosInfo;
 
 /*
 ===============================================================================================
@@ -32,6 +33,7 @@ private:
     void                WriteShard(ConfigShard* shard);
     void                WriteShardServers();
     void                WriteShardServer(ConfigShardServer* server);
+    void                WriteQuorumInfo(QuorumInfo* info);
 
     template<typename List>
     void                WriteIDList(List& list);

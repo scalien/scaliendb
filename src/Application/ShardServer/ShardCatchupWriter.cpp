@@ -49,7 +49,14 @@ uint64_t ShardCatchupWriter::GetBytesTotal()
 
 uint64_t ShardCatchupWriter::GetThroughput()
 {
-    return bytesSent / ((NowClock() - startTime)/1000);
+    uint64_t now;
+    
+    now = NowClock();
+    
+    if (now > startTime)
+        return bytesSent / ((now - startTime)/1000.0);
+    else
+        return 0;
 }
 
 void ShardCatchupWriter::Begin(CatchupMessage& request)

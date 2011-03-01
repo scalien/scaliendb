@@ -23,7 +23,7 @@ void ConfigHeartbeatManager::Shutdown()
 
 void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
 {
-    QuorumPaxosID*      it;
+    QuorumInfo*      it;
     ConfigQuorum*       quorum;
     ConfigShardServer*  shardServer;
     
@@ -31,11 +31,12 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     if (!shardServer)
         return;
     
-    shardServer->quorumPaxosIDs = message.quorumPaxosIDs;
-    
+    shardServer->quorumInfos.Clear();
+    shardServer->quorumInfos = message.quorumInfos;
+        
     RegisterHeartbeat(message.nodeID);
     
-    FOREACH(it, message.quorumPaxosIDs)
+    FOREACH(it, message.quorumInfos)
     {
         quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(it->quorumID);
         if (!quorum)
@@ -44,9 +45,12 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
         if (quorum->paxosID < it->paxosID)
             quorum->paxosID = it->paxosID;
     }
-
+    message.quorumInfos.ClearMembers();
+    
     shardServer->httpPort = message.httpPort;
     shardServer->sdbpPort = message.sdbpPort;
+    
+    configServer->OnConfigStateChanged();
     
     TrySplitShardActions(message);
 }

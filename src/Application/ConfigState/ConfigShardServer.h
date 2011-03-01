@@ -9,23 +9,28 @@
 /*
 ===============================================================================================
 
- QuorumPaxosID
+ QuorumInfo
 
 ===============================================================================================
 */
 
-class QuorumPaxosID
+class QuorumInfo
 {
 public:
-    QuorumPaxosID();
+    QuorumInfo();
     
-    uint64_t        quorumID;
-    uint64_t        paxosID;
+    uint64_t            quorumID;
+    uint64_t            paxosID;
+
+    bool                isSendingCatchup;
+    uint64_t            bytesSent;
+    uint64_t            bytesTotal;
+    uint64_t            throughput;
     
-    static bool     ReadList(ReadBuffer& buffer, List<QuorumPaxosID>& quorumPaxosIDs);
-    static bool     WriteList(Buffer& buffer, List<QuorumPaxosID>& quorumPaxosIDs);
+    static bool         ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos);
+    static bool         WriteList(Buffer& buffer, List<QuorumInfo>& quorumInfos);
     
-    static uint64_t GetPaxosID(List<QuorumPaxosID>& quorumPaxosIDs, uint64_t quorumID);
+    static QuorumInfo*  GetQuorumInfo(List<QuorumInfo>& quorumInfos, uint64_t quorumID);
 };
 
 /*
@@ -41,14 +46,14 @@ class QuorumShardInfo
 public:
     QuorumShardInfo();
     
-    uint64_t        quorumID;
-    uint64_t        shardID;
-    uint64_t        shardSize;
-    Buffer          splitKey;
-    bool            isSplitable;
+    uint64_t            quorumID;
+    uint64_t            shardID;
+    uint64_t            shardSize;
+    Buffer              splitKey;
+    bool                isSplitable;
         
-    static bool     ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
-    static bool     WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
+    static bool         ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
+    static bool         WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
 };
 
 /*
@@ -73,7 +78,7 @@ public:
     // ========================================================================================
     //
     // Not replicated, only stored by the MASTER in-memory
-    List<QuorumPaxosID>     quorumPaxosIDs;
+    List<QuorumInfo>        quorumInfos;
     List<QuorumShardInfo>   quorumShardInfos;
     
     unsigned                httpPort;

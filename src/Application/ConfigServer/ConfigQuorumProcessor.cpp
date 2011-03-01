@@ -351,16 +351,18 @@ void ConfigQuorumProcessor::UpdateListeners()
     configState = configServer->GetDatabaseManager()->GetConfigState();
     configState->Write(checksumBuffer, true);
     
-    // check if the configState changed at all
-    configChanged = false;
-    checksum = checksumBuffer.GetChecksum();
-//    Log_Debug("Config state checksum: %u, prev: %u, %B", checksum, configStateChecksum, &checksumBuffer);
-    if (checksum == 0 || checksum != configStateChecksum)
-    {
-//        Log_Debug("Config state changed");
-        configChanged = true;
-        configStateChecksum = checksum;
-    }
+//    // check if the configState changed at all
+//    configChanged = false;
+//    checksum = checksumBuffer.GetChecksum();
+////    Log_Debug("Config state checksum: %u, prev: %u, %B", checksum, configStateChecksum, &checksumBuffer);
+//    if (checksum == 0 || checksum != configStateChecksum)
+//    {
+////        Log_Debug("Config state changed");
+//        configChanged = true;
+//        configStateChecksum = checksum;
+//    }
+
+    configChanged = true;
     
     // update clients
     now = EventLoop::Now();
