@@ -108,7 +108,7 @@ void StorageBloomPage::Write(Buffer& buffer)
     for (i = 0; i < bloomFilter.GetBuffer().GetLength(); i++)
         count += bloomFilter.BitCount(bloomFilter.GetBuffer().GetBuffer()[i]);
     
-    Log_Debug("bloom filter ratio: %s", StaticPrint("%f", bloomFilter.GetBuffer().GetLength() * 8.0 / count));
+    Log_Debug("bloom filter ratio: %s%%", StaticPrint("%f", count * 100.0 / (bloomFilter.GetBuffer().GetLength() * 8.0)));
 
     buffer.Allocate(size);
     buffer.Zero();

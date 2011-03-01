@@ -36,9 +36,9 @@ if True:
 client.use_database("testdb")
 client.use_table("testtable")
 sent = 0
-value = "%10000s" % " "
+value = "%100s" % " "
 i = start
-batch = 100
+batch = 10000
 if limit != 0 and limit < batch:
 	batch = limit
 while limit == 0 or i < limit:
@@ -56,7 +56,7 @@ while limit == 0 or i < limit:
 		#key = md5.new(str(x + i)).hexdigest()
 		#print(x+i, key)
 		#client.set(keys[x], values[x])
-		client.set(keys[x], value)
+		client.set(keys[x], keys[x])
 		sent += len(value)
 	ret = client.submit()
 	if ret != 0:

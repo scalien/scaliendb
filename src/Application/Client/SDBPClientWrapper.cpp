@@ -236,7 +236,7 @@ int SDBP_ResultTransportStatus(ResultObj result_)
     if (!result)
         return SDBP_API_ERROR;
     
-    return result->TransportStatus();
+    return result->GetTransportStatus();
 }
 
 int SDBP_ResultCommandStatus(ResultObj result_)
@@ -246,7 +246,7 @@ int SDBP_ResultCommandStatus(ResultObj result_)
     if (!result)
         return SDBP_API_ERROR;
     
-    return result->CommandStatus();
+    return result->GetCommandStatus();
 }
 
 /*
@@ -309,6 +309,13 @@ uint64_t SDBP_GetMasterTimeout(ClientObj client_)
     Client* client = (Client*) client_;
 
     return client->GetMasterTimeout();
+}
+
+void SDBP_SetBatchLimit(ClientObj client_, uint64_t batchLimit)
+{
+    Client* client = (Client*) client_;
+
+    return client->SetBatchLimit(batchLimit);
 }
 
 int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)

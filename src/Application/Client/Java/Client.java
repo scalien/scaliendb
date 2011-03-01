@@ -111,6 +111,19 @@ public class Client
 	}
     
     /**
+     * Sets the batch limit.
+     *
+     * The batch limit is the maximum allocated memory the client will allocate for batched
+     * requests. If the requests exceed that limit, the client will throw an exception with
+     * SDBP_API_ERROR.
+     *
+     * @param   limit   the maximum allocated memory
+     */
+	public void setBatchLimit(long limit) {
+		scaliendb_client.SDBP_SetBatchLimit(cptr, BigInteger.valueOf(limit));
+	}
+
+    /**
      * Returns the specified quorum.
      *
      * @param   quorumID    the ID of the specified quorum

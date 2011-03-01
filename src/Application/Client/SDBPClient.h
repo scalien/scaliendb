@@ -43,6 +43,8 @@ public:
     uint64_t                GetGlobalTimeout();
     uint64_t                GetMasterTimeout();
     
+    void                    SetBatchLimit(uint64_t batchLimit);
+    
     // result
     Result*                 GetResult();
 
@@ -91,6 +93,9 @@ public:
     int                     ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset);
     int                     ListKeyValues(const ReadBuffer& startKey, unsigned count, unsigned offset);    
     int                     Count(const ReadBuffer& startKey, unsigned count, unsigned offset);    
+
+    int                     Filter(const ReadBuffer& startKey, unsigned count, unsigned offset, uint64_t& commandID);
+    int                     Receive(uint64_t commandID);
     
     int                     Begin();
     int                     Submit();
@@ -152,6 +157,7 @@ private:
     bool                    isTableSet;
     uint64_t                tableID;
     bool                    isBatched;
+    uint64_t                batchLimit;
 
 //#ifdef CLIENT_MULTITHREAD    
     Mutex                   mutex;

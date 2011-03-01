@@ -17,12 +17,15 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBatchedSet);
 //TEST_ADD(TestClientBatchedSet2);
 //TEST_ADD(TestClientBatchedSetRandom);
+//TEST_ADD(TestClientBatchLimit);
 //TEST_ADD(TestClientCreateTable);
 //TEST_ADD(TestClientFailover);
+TEST_ADD(TestClientFilter);
+TEST_ADD(TestClientFilter2);
 //TEST_ADD(TestClientGet);
 //TEST_ADD(TestClientGetAndSet);
 //TEST_ADD(TestClientGetLatency);
-TEST_ADD(TestClientListKeys);
+//TEST_ADD(TestClientListKeys);
 //TEST_ADD(TestClientMaro);
 //TEST_ADD(TestClientMultiThread);
 //TEST_ADD(TestClientMultiThreadMulti);
@@ -61,9 +64,7 @@ TEST_ADD(TestClientListKeys);
 //TEST_ADD(TestTimingWrite);
 TEST_EXECUTE();
 
-#ifdef TEST
 int main()
 {
     return TestMain();
 }
-#endif

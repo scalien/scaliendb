@@ -6,4 +6,5 @@ Request::Request()
 {
     numTry = 0;
     numQuorums = 1;
+    async = false;
 }

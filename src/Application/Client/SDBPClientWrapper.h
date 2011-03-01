@@ -86,6 +86,8 @@ void            SDBP_SetMasterTimeout(ClientObj client, uint64_t timeout);
 uint64_t        SDBP_GetGlobalTimeout(ClientObj client);
 uint64_t        SDBP_GetMasterTimeout(ClientObj client);
 
+void            SDBP_SetBatchLimit(ClientObj client, uint64_t limit);
+
 int             SDBP_CreateQuorum(ClientObj client, const SDBP_NodeParams& params);
 int             SDBP_DeleteQuorum(ClientObj client, uint64_t quorumID);
 int             SDBP_AddNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);

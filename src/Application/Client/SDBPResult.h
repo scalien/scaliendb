@@ -26,14 +26,21 @@ public:
     void            Begin();
     void            Next();
     bool            IsEnd();
+
+    bool            IsFinished();
+
+    void            SetBatchLimit(uint64_t limit);
     
-    void            AppendRequest(Request* req);
+    bool            AppendRequest(Request* req);
     bool            AppendRequestResponse(ClientResponse* resp);
     void            RemoveRequest(Request* req);
 
-    int             CommandStatus();
-    int             TransportStatus();
-    int             TimeoutStatus();
+    int             GetCommandStatus();
+    int             GetTransportStatus();
+    void            SetTransportStatus(int status);
+    void            SetConnectivityStatus(int status);
+    int             GetTimeoutStatus();
+    void            SetTimeoutStatus(int status);
 
     int             GetKey(ReadBuffer& key);
     int             GetValue(ReadBuffer& value);
@@ -47,7 +54,6 @@ public:
 
 private:
     typedef InTreeMap<Request> RequestMap;
-    friend class Client;
     
     RequestMap      requests;
     int             transportStatus;
@@ -57,6 +63,8 @@ private:
     Request*        requestCursor;
     ClientResponse** responseCursor;
     unsigned        responsePos;
+    uint64_t        batchLimit;
+    uint64_t        batchSize;
 };
 
 };  // namespace

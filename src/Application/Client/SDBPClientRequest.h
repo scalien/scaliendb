@@ -32,6 +32,7 @@ public:
     uint64_t        responseTime;
     unsigned        numQuorums;
     ResponseList    responses;
+    bool            async;
 };
 
 };  // namespace

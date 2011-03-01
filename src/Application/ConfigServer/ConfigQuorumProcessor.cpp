@@ -349,12 +349,12 @@ void ConfigQuorumProcessor::UpdateListeners()
     uint64_t                        now;
     
     configState = configServer->GetDatabaseManager()->GetConfigState();
-    message.SetConfigState(*configState);
+    configState->Write(checksumBuffer, true);
     
     // check if the configState changed at all
     configChanged = false;
-    message.Write(checksumBuffer);
     checksum = checksumBuffer.GetChecksum();
+//    Log_Debug("Config state checksum: %u, prev: %u, %B", checksum, configStateChecksum, &checksumBuffer);
     if (checksum == 0 || checksum != configStateChecksum)
     {
 //        Log_Debug("Config state changed");
@@ -377,6 +377,7 @@ void ConfigQuorumProcessor::UpdateListeners()
     }
     
     // update shard servers
+    message.SetConfigState(*configState);
     FOREACH (itShardServer, configState->shardServers)
     {
         CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);

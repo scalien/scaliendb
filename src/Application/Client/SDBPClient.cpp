@@ -9,6 +9,9 @@
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
 
+#define MAX_IO_CONNECTION               1024
+#define DEFAULT_BATCH_LIMIT             (100*MB)
+
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
 
@@ -45,8 +48,6 @@ Mutex   globalMutex;
 
 #endif // CLIENT_MULTITHREAD
 
-#define MAX_IO_CONNECTION   1024
-
 #define VALIDATE_CONFIG_STATE()     \
     if (configState == NULL)        \
     {                               \
@@ -76,16 +77,22 @@ Mutex   globalMutex;
                                                     \
     if (isBatched)                                  \
     {                                               \
-        result->AppendRequest(req);                 \
+        if (!result->AppendRequest(req))            \
+        {                                           \
+            requests.Clear();                       \
+            result->Close();                        \
+            isBatched = false;                      \
+            return SDBP_API_ERROR;                  \
+        }                                           \
         return SDBP_SUCCESS;                        \
     }                                               \
                                                     \
     result->Close();                                \
     result->AppendRequest(req);                     \
                                                     \
-    CLIENT_MUTEX_GUARD_UNLOCK();                          \
+    CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
-    return result->CommandStatus();                 \
+    return result->GetCommandStatus();              \
 
 
 #define CLIENT_SCHEMA_COMMAND(op, ...)              \
@@ -97,9 +104,9 @@ Mutex   globalMutex;
     if (configState == NULL)                        \
     {                                               \
         result->Close();                            \
-        CLIENT_MUTEX_GUARD_UNLOCK();                      \
+        CLIENT_MUTEX_GUARD_UNLOCK();                \
         EventLoop();                                \
-        CLIENT_MUTEX_GUARD_LOCK();                        \
+        CLIENT_MUTEX_GUARD_LOCK();                  \
     }                                               \
                                                     \
     if (configState == NULL)                        \
@@ -113,9 +120,9 @@ Mutex   globalMutex;
     result->Close();                                \
     result->AppendRequest(req);                     \
                                                     \
-    CLIENT_MUTEX_GUARD_UNLOCK();                          \
+    CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
-    return result->CommandStatus();                 \
+    return result->GetCommandStatus();              \
 
 
 using namespace SDBPClient;
@@ -153,6 +160,7 @@ Client::Client()
     globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
     result = NULL;
+    batchLimit = DEFAULT_BATCH_LIMIT;
 }
 
 Client::~Client()
@@ -275,6 +283,11 @@ uint64_t Client::GetMasterTimeout()
     return masterTimeout.GetDelay();
 }
 
+void Client::SetBatchLimit(uint64_t batchLimit_)
+{
+    batchLimit = batchLimit_;
+}
+
 Result* Client::GetResult()
 {
     Result* tmp;
@@ -286,7 +299,7 @@ Result* Client::GetResult()
 
 int Client::TransportStatus()
 {
-    return result->TransportStatus();
+    return result->GetTransportStatus();
 }
 
 int Client::ConnectivityStatus()
@@ -301,7 +314,7 @@ int Client::TimeoutStatus()
 
 int Client::CommandStatus()
 {
-    return result->CommandStatus();
+    return result->GetCommandStatus();
 }
 
 // return Command status
@@ -508,6 +521,58 @@ int Client::Count(const ReadBuffer& startKey, unsigned count, unsigned offset)
     CLIENT_DATA_COMMAND(Count, (ReadBuffer&) startKey, count, offset);
 }
 
+int Client::Filter(const ReadBuffer& startKey, unsigned count, unsigned offset, uint64_t& commandID)
+{
+    Request*    req;                                
+    
+    CLIENT_MUTEX_GUARD_DECLARE();                   
+    
+    if (!isDatabaseSet || !isTableSet)              
+        return SDBP_BADSCHEMA;                      
+
+    if (isBatched)
+        return SDBP_API_ERROR;
+    
+    commandID = NextCommandID();
+    req = new Request;
+    req->ListKeyValues(commandID, tableID, (ReadBuffer&) startKey, count, offset);
+    req->async = true;
+    requests.Append(req);
+        
+    result->Close();                                
+    result->AppendRequest(req);                     
+    
+    CLIENT_MUTEX_GUARD_UNLOCK();                    
+    EventLoop();                                    
+    return result->GetCommandStatus();                 
+}
+
+int Client::Receive(uint64_t commandID)
+{
+    Request*    req;
+    ReadBuffer  key;
+    
+    CLIENT_MUTEX_GUARD_DECLARE();                   
+    
+    if (!isDatabaseSet || !isTableSet)              
+        return SDBP_BADSCHEMA;                      
+
+    if (isBatched)
+        return SDBP_API_ERROR;
+    
+    // create dummy request
+    req = new Request;
+    req->ListKeyValues(commandID, 0, key, 0, 0);
+    req->async = true;
+
+    result->Close();                                
+    result->AppendRequest(req);                     
+    
+    CLIENT_MUTEX_GUARD_UNLOCK();                    
+    EventLoop();                                    
+    return result->GetCommandStatus();                 
+}
+
 int Client::Begin()
 {
     Log_Trace();
@@ -515,6 +580,7 @@ int Client::Begin()
     CLIENT_MUTEX_GUARD_DECLARE();
 
     result->Close();
+    result->SetBatchLimit(batchLimit);
     isBatched = true;
     
     return SDBP_SUCCESS;
@@ -527,7 +593,7 @@ int Client::Submit()
     EventLoop();
     isBatched = false;
     
-    return result->TransportStatus();
+    return result->GetTransportStatus();
 }
 
 int Client::Cancel()
@@ -553,7 +619,7 @@ void Client::EventLoop()
 {
     if (!controllerConnections)
     {
-        result->transportStatus = SDBP_API_ERROR;
+        result->SetTransportStatus(SDBP_API_ERROR);
         return;
     }
     
@@ -564,8 +630,12 @@ void Client::EventLoop()
     Log_Trace("%U", databaseID);
     Log_Trace("%U", tableID);
     
-    AssignRequestsToQuorums();
-    SendQuorumRequests();
+    // TODO: HACK this is here for enable async requests to receive the rest of response
+    if (requests.GetLength() > 0)
+    {
+        AssignRequestsToQuorums();
+        SendQuorumRequests();
+    }
     
     EventLoop::UpdateTime();
     EventLoop::Reset(&globalTimeout);
@@ -584,13 +654,14 @@ void Client::EventLoop()
             break;
         }
         
+
         if (!IOProcessor::Poll(sleep))
         {
             GLOBAL_MUTEX_GUARD_UNLOCK();
             break;
         }
 
-        // let other threads to enter IOProcessor and complete requests
+        // let other threads enter IOProcessor and complete requests
         GLOBAL_MUTEX_GUARD_UNLOCK();
         YIELD();
     }
@@ -599,8 +670,8 @@ void Client::EventLoop()
     
     requests.Clear();
     
-    result->connectivityStatus = connectivityStatus;
-    result->timeoutStatus = timeoutStatus;
+    result->SetConnectivityStatus(connectivityStatus);
+    result->SetTimeoutStatus(timeoutStatus);
     result->Begin();
     
     CLIENT_MUTEX_UNLOCK();
@@ -613,7 +684,7 @@ bool Client::IsDone()
     if (result->GetRequestCount() == 0 && configState != NULL)
         return true;
     
-    if (result->TransportStatus() == SDBP_SUCCESS)
+    if (result->GetTransportStatus() == SDBP_SUCCESS)
         return true;
     
     if (timeoutStatus != SDBP_SUCCESS)

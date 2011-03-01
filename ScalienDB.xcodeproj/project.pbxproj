@@ -1675,7 +1675,6 @@
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
 					"-D__STDC_FORMAT_MACROS",
-					"-DTEST",
 					"-DDEBUG",
 				);
 				PREBINDING = NO;
