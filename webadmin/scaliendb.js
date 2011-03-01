@@ -25,16 +25,28 @@ var scaliendb =
 	
 		return state;
 	},
+	
+	getQuorumInfo: function(configState, nodeID, quorumID)
+	{
+		var shardServer = scaliendb.getShardServer(configState, nodeID);
+		for (var i in shardServer["quorumInfos"])
+		{
+			var quorumInfo = shardServer["quorumInfos"][i];
+			if (quorumInfo["quorumID"] == quorumID)
+				return quorumInfo;
+		}
+		return null;
+	},
 
 	getTableState: function(configState, tableID)
 	{
-		state = "healthy";
+		var state = "healthy";
 		var table = scaliendb.getTable(configState, tableID);
 		for (var i in table["shards"])
 		{
-			shardID = table["shards"][i];
-			shard = locateShard(configState, shardID);
-			quorumState = scaliendb.getQuorumState(configState, shard["quorumID"]);
+			var shardID = table["shards"][i];
+			var shard = locateShard(configState, shardID);
+			var quorumState = scaliendb.getQuorumState(configState, shard["quorumID"]);
 			if (state == "critical")
 				continue;
 			if (state == "unhealthy" && quorumState == "critical")
@@ -50,8 +62,8 @@ var scaliendb =
 		var state = "healthy";
 		for (var i in configState["quorums"])
 		{
-			quorum = configState["quorums"][i];
-			quorumState = scaliendb.getQuorumState(configState, quorum["quorumID"]);
+			var quorum = configState["quorums"][i];
+			var quorumState = scaliendb.getQuorumState(configState, quorum["quorumID"]);
 			if (state == "critical")
 				continue;
 			if (state == "unhealthy" && quorumState == "critical")
@@ -76,7 +88,7 @@ var scaliendb =
 	{
 		for (var i in configState["tables"])
 		{
-			table = configState["tables"][i];
+			var table = configState["tables"][i];
 			if (table["tableID"] == tableID)
 				return table;
 		}
@@ -88,7 +100,7 @@ var scaliendb =
 	{
 		for (var i in configState["shardServers"])
 		{
-			shardServer = configState["shardServers"][i];
+			var shardServer = configState["shardServers"][i];
 			if (shardServer["nodeID"] == nodeID)
 				return shardServer;
 		}

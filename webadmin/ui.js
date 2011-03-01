@@ -520,9 +520,9 @@ function onConfigState(configState)
 	scaliendb.util.elem("clusterState").textContent = "The ScalienDB cluster is " + scaliendb.getClusterState(configState);
 	scaliendb.util.elem("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
 	
-	// clearTimeout(timer);
-	// timer = setTimeout("onTimeout()", 1000);
-	scaliendb.pollConfigState(onConfigState);
+	clearTimeout(timer);
+	timer = setTimeout("onTimeout()", 2000);
+	// scaliendb.pollConfigState(onConfigState);
 }
 
 function onTimeout()
@@ -712,16 +712,25 @@ function createQuorumDiv(configState, quorum)
 	quorum["activeNodes"].sort();
 	for (var i in quorum["activeNodes"])
 	{
-		nodeID = quorum["activeNodes"][i];
-		shardServer = scaliendb.getShardServer(configState, nodeID);
+		var nodeID = quorum["activeNodes"][i];
+		var shardServer = scaliendb.getShardServer(configState, nodeID);
+		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
+		var infoText = "";
+		var catchupText = "";
+		if (quorumInfo != null)
+		{
+			infoText += " [" + quorumInfo["paxosID"] + "]";
+			if (quorumInfo["isSendingCatchup"])
+				catchupText += "Shard server " + nodeID + " is sending catchup: " + scaliendb.util.humanBytes(quorumInfo["bytesSent"]) + "/" + scaliendb.util.humanBytes(quorumInfo["bytesTotal"]) + " (" + scaliendb.util.humanBytes(quorumInfo["throughput"]) + "/s)";
+		}
 		if (nodeID == primaryID)
 		{
-		 	html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '"><b>Primary: ' + nodeID + '</b></span> ';
+		 	html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '"><b>Primary: ' + nodeID + infoText + '</b></span> ';
 			explanation = "The quorum has a primary (" + primaryID + "), it is writable. ";
 		}
 		else
 		{
-	 		html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '">' + nodeID + '</span> ';
+	 		html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '">' + nodeID + infoText + '</span> ';
 		}
 	}
 	if (primaryID == null)
@@ -731,12 +740,16 @@ function createQuorumDiv(configState, quorum)
 	{
 		if (primaryID != null)
 			explanation += "The quorum has inactive nodes. These can be brought back into the quorum (once they are up and running) by clicking them above. ";
-		nodeID = quorum["inactiveNodes"][i];
-		shardServer = scaliendb.getShardServer(configState, nodeID);
+		var nodeID = quorum["inactiveNodes"][i];
+		var shardServer = scaliendb.getShardServer(configState, nodeID);
+		var quorumInfo = scaliendb.getQuorumInfo(configState, nodeID, quorum["quorumID"]);
+		var infoText = "";
+		if (quorumInfo != null)
+			infoText += " [" + quorumInfo["paxosID"] + "]";
 		if (shardServer["hasHeartbeat"] && primaryID != null)
-			html += ' <a class="no-line" title="Activate shard server" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="shardserver-number healthy">' + nodeID + ' (click to activate)</span></a> ';
+			html += ' <a class="no-line" style="color:black" title="Activate shard server" href="javascript:activateNode(' + quorum["quorumID"] + ", " + nodeID + ')"><span class="shardserver-number healthy">' + nodeID + infoText + ' (click to activate)</span></a> ';
 		else
-			html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '">' + nodeID + '</span> ';
+			html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '">' + nodeID + infoText + '</span> ';
 	}
 	html +=
 	'			<br/>																					\
@@ -753,7 +766,7 @@ function createQuorumDiv(configState, quorum)
 				<br/>																					\
 				Replication round: ' + paxosID + '<br/>													\
 				<!-- Size: 0GB -->																		\
-				<div class="explanation">Explanation: ' + explanation + '</span>						\
+				<div class="explanation">Explanation: ' + explanation + '<br/>' + catchupText + '</span>						\
 			</td>																						\
 			<td class="table-actions">																	\
 				<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
