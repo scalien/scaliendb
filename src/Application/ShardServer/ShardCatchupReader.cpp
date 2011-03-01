@@ -20,6 +20,8 @@ bool ShardCatchupReader::IsActive()
 void ShardCatchupReader::Begin()
 {
     isActive = true;
+    bytesReceived = 0;
+    nextCommit = CATCHUP_COMMIT_GRANULARITY;
 }
 
 void ShardCatchupReader::Abort()
@@ -49,11 +51,15 @@ void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
 void ShardCatchupReader::OnSet(CatchupMessage& msg)
 {
     environment->Set(QUORUM_DATABASE_DATA_CONTEXT, shardID, msg.key, msg.value);
+    bytesReceived += msg.key.GetLength() + msg.value.GetLength();
+    TryCommit();
 }
 
 void ShardCatchupReader::OnDelete(CatchupMessage& msg)
 {
     environment->Delete(QUORUM_DATABASE_DATA_CONTEXT, shardID, msg.key);
+    bytesReceived += msg.key.GetLength();
+    TryCommit();
 }
 
 void ShardCatchupReader::OnCommit(CatchupMessage& message)
@@ -73,4 +79,13 @@ void ShardCatchupReader::OnAbort(CatchupMessage& /*message*/)
     isActive = false;
 
     Log_Message("Catchup aborted");
+}
+
+void ShardCatchupReader::TryCommit()
+{
+    if (bytesReceived >= nextCommit)
+    {
+        environment->Commit();
+        nextCommit = bytesReceived + CATCHUP_COMMIT_GRANULARITY;
+    }
 }

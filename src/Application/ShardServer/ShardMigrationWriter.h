@@ -25,6 +25,9 @@ public:
     void                    Reset();
     
     bool                    IsActive();
+    uint64_t                GetBytesSent();
+    uint64_t                GetBytesTotal();
+    uint64_t                GetThroughput();
 
     void                    Begin(ClusterMessage& request);
     void                    Abort();
@@ -41,6 +44,9 @@ private:
     uint64_t                nodeID;
     uint64_t                quorumID;
     uint64_t                shardID;
+    uint64_t                bytesSent;
+    uint64_t                bytesTotal;
+    uint64_t                startTime;
     ShardServer*            shardServer;
     ShardQuorumProcessor*   quorumProcessor;
     StorageEnvironment*     environment;

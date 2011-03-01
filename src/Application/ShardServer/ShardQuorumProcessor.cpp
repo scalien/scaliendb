@@ -436,6 +436,16 @@ uint64_t ShardQuorumProcessor::GetCatchupBytesSent()
     return catchupWriter.GetBytesSent();
 }
 
+uint64_t ShardQuorumProcessor::GetCatchupBytesTotal()
+{
+    return catchupWriter.GetBytesTotal();
+}
+
+uint64_t ShardQuorumProcessor::GetCatchupThroughput()
+{
+    return catchupWriter.GetThroughput();
+}
+
 void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& clusterMessage)
 {
     ShardMessage*   shardMessage;

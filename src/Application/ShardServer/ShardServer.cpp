@@ -96,6 +96,26 @@ void ShardServer::BroadcastToControllers(Message& message)
         CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, message);
 }
 
+bool ShardServer::IsSendingShardMigration()
+{
+    return migrationWriter.IsActive();
+}
+
+uint64_t ShardServer::GetShardMigrationBytesSent()
+{
+    return migrationWriter.GetBytesSent();
+}
+
+uint64_t ShardServer::GetShardMigrationBytesTotal()
+{
+    return migrationWriter.GetBytesTotal();
+}
+
+uint64_t ShardServer::GetShardMigrationThroughput()
+{
+    return migrationWriter.GetThroughput();
+}
+
 bool ShardServer::IsValidClientRequest(ClientRequest* request)
 {
      return request->IsShardServerRequest();

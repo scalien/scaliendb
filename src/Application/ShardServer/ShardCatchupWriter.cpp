@@ -28,6 +28,8 @@ void ShardCatchupWriter::Reset()
     cursor = NULL;
     isActive = false;
     bytesSent = 0;
+    bytesTotal = 0;
+    startTime = 0;
 }
 
 bool ShardCatchupWriter::IsActive()
@@ -40,8 +42,20 @@ uint64_t ShardCatchupWriter::GetBytesSent()
     return bytesSent;
 }
 
+uint64_t ShardCatchupWriter::GetBytesTotal()
+{
+    return bytesTotal;
+}
+
+uint64_t ShardCatchupWriter::GetThroughput()
+{
+    return bytesSent / ((NowClock() - startTime)/1000);
+}
+
 void ShardCatchupWriter::Begin(CatchupMessage& request)
 {
+    uint64_t* it;
+
     assert(!isActive);   
     assert(quorumProcessor != NULL);
     assert(cursor == NULL);
@@ -50,6 +64,11 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
     nodeID = request.nodeID;
     quorumID = request.quorumID;
     paxosID = quorumProcessor->GetPaxosID() - 1;
+
+    ShardQuorumProcessor::ShardList& shards = quorumProcessor->GetConfigQuorum()->shards;
+    FOREACH(it, shards)
+        bytesTotal += environment->GetSize(QUORUM_DATABASE_DATA_CONTEXT, *it);
+    startTime = NowClock();
 
     if (quorumProcessor->GetConfigQuorum()->shards.GetLength() == 0)
         SendCommit();

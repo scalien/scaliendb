@@ -6,6 +6,8 @@
 
 class ShardQuorumProcessor;
 
+#define CATCHUP_COMMIT_GRANULARITY      64*KB
+
 /*
 ===============================================================================================
 
@@ -31,8 +33,12 @@ public:
     void                    OnAbort(CatchupMessage& msg);
 
 private:
+    void                    TryCommit();
+    
     bool                    isActive;
     uint64_t                shardID;
+    uint64_t                bytesReceived;
+    uint64_t                nextCommit;
     ShardQuorumProcessor*   quorumProcessor;
     StorageEnvironment*     environment;
 };

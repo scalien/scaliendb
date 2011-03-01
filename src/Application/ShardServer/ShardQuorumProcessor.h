@@ -55,6 +55,8 @@ public:
 
     bool                    IsCatchupActive();
     uint64_t                GetCatchupBytesSent();
+    uint64_t                GetCatchupBytesTotal();
+    uint64_t                GetCatchupThroughput();
 
     bool                    IsShardMigrationActive();
     uint64_t                GetMigrateShardID();

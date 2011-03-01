@@ -131,12 +131,28 @@ void ShardHTTPClientSession::PrintStatus()
         valbuf.Writef("primary %U, paxosID %U/%U", primaryID, paxosID, highestPaxosID);
         if (it->IsCatchupActive())
         {
-            valbuf.Appendf(", catchup active (sent: %s)", HUMAN_BYTES(it->GetCatchupBytesSent()));
+            valbuf.Appendf(", catchup active (sent: %s/%s, aggregate throughput: %s/s)",
+             HUMAN_BYTES(it->GetCatchupBytesSent()),
+             HUMAN_BYTES(it->GetCatchupBytesTotal()),
+             HUMAN_BYTES(it->GetCatchupThroughput())
+             );
         }
         valbuf.NullTerminate();
         
         session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());
     }    
+    
+    keybuf.Writef("Migrating shard (sending)");
+    keybuf.NullTerminate();
+    if (shardServer->IsSendingShardMigration())
+        valbuf.Writef("yes (sent: %s/%s, aggregate throughput: %s/s)",
+         HUMAN_BYTES(shardServer->GetShardMigrationBytesSent()),
+         HUMAN_BYTES(shardServer->GetShardMigrationBytesTotal()),
+         HUMAN_BYTES(shardServer->GetShardMigrationThroughput()));
+    else
+        valbuf.Writef("no");
+    valbuf.NullTerminate();
+    session.PrintPair(keybuf.GetBuffer(), valbuf.GetBuffer());
     
     session.Flush();
 }

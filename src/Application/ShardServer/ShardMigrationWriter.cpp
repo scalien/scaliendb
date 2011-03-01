@@ -28,11 +28,29 @@ void ShardMigrationWriter::Reset()
     isActive = false;
     sendFirst = false;
     quorumProcessor = NULL;
+    bytesSent = 0;
+    bytesTotal = 0;
+    startTime = 0;
 }
 
 bool ShardMigrationWriter::IsActive()
 {
     return isActive;
+}
+
+uint64_t ShardMigrationWriter::GetBytesSent()
+{
+    return bytesSent;
+}
+
+uint64_t ShardMigrationWriter::GetBytesTotal()
+{
+    return bytesTotal;
+}
+
+uint64_t ShardMigrationWriter::GetThroughput()
+{
+    return bytesSent / ((NowClock() - startTime)/1000);
 }
 
 void ShardMigrationWriter::Begin(ClusterMessage& request)
@@ -57,6 +75,9 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
     nodeID = request.nodeID;
     quorumID = request.quorumID;
     shardID = request.shardID;
+    
+    bytesTotal = environment->GetSize(QUORUM_DATABASE_DATA_CONTEXT, shardID);
+    startTime = NowClock();
     
     CONTEXT_TRANSPORT->AddNode(nodeID, configShardServer->endpoint);
     
@@ -141,9 +162,15 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
     ClusterMessage msg;
     
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+    {
         msg.ShardMigrationSet(quorumID, shardID, kv->GetKey(), kv->GetValue());
+        bytesSent += kv->GetKey().GetLength() + kv->GetValue().GetLength();
+    }
     else
+    {
         msg.ShardMigrationDelete(quorumID, shardID, kv->GetKey());
+        bytesSent += kv->GetKey().GetLength();
+    }
 
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
 }

@@ -31,6 +31,11 @@ public:
     ConfigState*            GetConfigState();
 
     void                    BroadcastToControllers(Message& message);
+    
+    bool                    IsSendingShardMigration();
+    uint64_t                GetShardMigrationBytesSent();
+    uint64_t                GetShardMigrationBytesTotal();
+    uint64_t                GetShardMigrationThroughput();
 
     // ========================================================================================
     // SDBPContext interface:

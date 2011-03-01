@@ -25,6 +25,8 @@ public:
     
     bool                    IsActive();
     uint64_t                GetBytesSent();
+    uint64_t                GetBytesTotal();
+    uint64_t                GetThroughput();
 
     void                    Begin(CatchupMessage& request);
     void                    Abort();
@@ -42,11 +44,13 @@ private:
     uint64_t                quorumID;
     uint64_t                shardID;
     uint64_t                paxosID;
+    uint64_t                bytesSent;
+    uint64_t                bytesTotal;
+    uint64_t                startTime;
     ShardQuorumProcessor*   quorumProcessor;
     StorageEnvironment*     environment;
     StorageBulkCursor*      cursor;
     StorageKeyValue*        kv;
-    uint64_t                bytesSent;
 };
 
 #endif
