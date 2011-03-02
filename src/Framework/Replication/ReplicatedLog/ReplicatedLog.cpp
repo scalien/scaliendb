@@ -356,6 +356,8 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 
     if (!BUFCMP(&value, &enableMultiPaxos) && !BUFCMP(&value, &dummy))
         context->OnAppend(paxosID - 1, value, ownAppend);
+    else
+        OnAppendComplete();
 
     // new convention: QuorumContext::OnAppend() must call
     // ReplicatedLog::OnAppendComplete()
