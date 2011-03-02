@@ -48,7 +48,7 @@ bool ShardConnection::SendRequest(Request* request)
 //    if (request->numTry > 1)
 //        Log_Debug("Resending, commandID: %U, conn: %s", request->commandID, endpoint.ToString());
     
-    Log_Debug("Sending conn: %s, writeBuffer = %B", endpoint.ToString(), writeBuffer);
+    //Log_Debug("Sending conn: %s, writeBuffer = %B", endpoint.ToString(), writeBuffer);
     
     // buffer is saturated
     if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
@@ -119,7 +119,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    Log_Debug("Shard conn: %s, message: %R", endpoint.ToString(), &rbuf);
+    //Log_Debug("Shard conn: %s, message: %R", endpoint.ToString(), &rbuf);
     
     response.Init();
     msg.response = &response;
@@ -164,7 +164,7 @@ void ShardConnection::OnWrite()
 void ShardConnection::OnConnect()
 {
     Log_Trace();
-    Log_Debug("Shard connection connected, endpoint: %s", endpoint.ToString());
+    //Log_Debug("Shard connection connected, endpoint: %s", endpoint.ToString());
 
     CLIENT_MUTEX_GUARD_DECLARE();
     
