@@ -391,7 +391,7 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeys()
     uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
-    HTTP_GET_PARAM(params, "startKey", startKey);
+    HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
     offset = 0;
@@ -412,7 +412,7 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
     uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
-    HTTP_GET_PARAM(params, "startKey", startKey);
+    HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
     offset = 0;
@@ -433,7 +433,7 @@ ClientRequest* ShardHTTPClientSession::ProcessCount()
     uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
-    HTTP_GET_PARAM(params, "startKey", startKey);
+    HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
     offset = 0;
