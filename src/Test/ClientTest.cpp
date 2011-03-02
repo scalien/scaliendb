@@ -1425,6 +1425,37 @@ TEST_DEFINE(TestClientAddFailover)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientSetFailover)
+{
+    Client          client;
+    ReadBuffer      value;
+    unsigned        i;
+    uint64_t        start;
+    uint64_t        end;
+    int             ret;
+    Buffer          tmp;
+    
+    TEST(SetupDefaultClient(client));
+    ret = client.Set("index", "0");
+    TEST_ASSERT(ret == SDBP_SUCCESS || ret == SDBP_FAILED);
+
+    i = 0;
+    while (true)
+    {
+        i++;
+        tmp.Writef("%d", i);
+        start = Now();
+        TEST(client.Set("index", tmp));
+        end = Now();
+        TEST_LOG("%i: diff = %u", i, (unsigned) (end - start));
+        
+        MSleep(500);
+    }
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;

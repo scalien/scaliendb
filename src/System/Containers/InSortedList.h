@@ -80,7 +80,6 @@ bool InSortedList<T>::Add(T* t)
             if (curr == NULL)
                 list.tail = t;
             list.length++;
-            Log_Trace("length = %d", list.length);
             return true;
         } 
 

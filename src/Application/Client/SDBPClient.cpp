@@ -717,7 +717,7 @@ void Client::SetMaster(int64_t master_, uint64_t nodeID)
         if (master != master_)
         {
             // node became the master
-            Log_Message("Node %d is the master", nodeID);
+            Log_Debug("Node %d is the master", nodeID);
             master = master_;
             connectivityStatus = SDBP_SUCCESS;
             
@@ -730,7 +730,7 @@ void Client::SetMaster(int64_t master_, uint64_t nodeID)
     else if (master_ < 0 && master == (int64_t) nodeID)
     {
         // node lost its mastership
-        Log_Message("Node %d lost its mastership", nodeID);
+        Log_Debug("Node %d lost its mastership", nodeID);
         master = -1;
         connectivityStatus = SDBP_NOMASTER;
         
@@ -779,7 +779,7 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
     // we know the state of the system, so we can start sending requests
     if (configState)
     {
-        ConnectShardServers();
+        ConfigureShardServers();
         AssignRequestsToQuorums();
         SendQuorumRequests();
     }
@@ -885,6 +885,8 @@ void Client::AddRequestToQuorum(Request* req, bool end)
         quorumRequests.Set(req->quorumID, qrequests);
     }
 
+    Log_Trace("qrequest length: %u, end = %s", qrequests->GetLength(), end ? "true" : "false");
+
     if (end)
         qrequests->Append(req);
     else
@@ -912,7 +914,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     
     // TODO: distribute dirty
     if (!IsSafe() || (quorum->hasPrimary && quorum->primaryID == conn->GetNodeID()))
-    {            
+    {
         while (qrequests->GetLength() > 0)
         {   
             req = qrequests->First();
@@ -947,14 +949,12 @@ void Client::SendQuorumRequests()
         if (conn->IsWritePending())
             continue;
 
-        //Log_Debug("conn = %s, quorums.length = %u", conn->GetEndpoint().ToString(), quorums.GetLength());
+        Log_Trace("conn = %s, quorums.length = %u", conn->GetEndpoint().ToString(), conn->GetQuorumList().GetLength());
         FOREACH (qit, conn->GetQuorumList())
         {
             if (!quorumRequests.Get(*qit, qrequests))
                 continue;
 
-            //Log_Debug("qrequests.length = %u", qrequests->GetLength());
-            
             SendQuorumRequest(conn, *qit);
         }
     }
@@ -1000,7 +1000,7 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
     requests.PrependList(*qrequests);
 }
 
-void Client::ConnectShardServers()
+void Client::ConfigureShardServers()
 {
     ConfigShardServer*          ssit;
     ConfigQuorum*               qit;
@@ -1008,12 +1008,12 @@ void Client::ConnectShardServers()
     uint64_t*                   nit;
     Endpoint                    endpoint;
     
-    // TODO: removal of node
     FOREACH (ssit, configState->shardServers)
     {
-        shardConn = shardConnections.Get<uint64_t>(ssit->nodeID);
+        shardConn = shardConnections.Get(ssit->nodeID);
         if (shardConn == NULL)
         {
+            // connect to previously unknown shard server
             endpoint = ssit->endpoint;
             endpoint.SetPort(ssit->sdbpPort);
             shardConn = new ShardConnection(this, ssit->nodeID, endpoint);
@@ -1021,6 +1021,7 @@ void Client::ConnectShardServers()
         }
         else
         {
+            // clear shard server quorum info
             Log_Trace("ssit: %s, shardConn: %s", ssit->endpoint.ToString(), shardConn->GetEndpoint().ToString());
             // TODO: remove this hack when shardserver's endpoint will be sent correctly in configState
             endpoint = ssit->endpoint;
@@ -1035,17 +1036,10 @@ void Client::ConnectShardServers()
     {
         FOREACH (nit, qit->activeNodes)
         {
-            shardConn = shardConnections.Get<uint64_t>(*nit);
+            shardConn = shardConnections.Get(*nit);
             assert(shardConn != NULL);
             shardConn->SetQuorumMembership(qit->quorumID);
-        }
-        
-//        FOREACH (nit, qit->inactiveNodes)
-//        {
-//            shardConn = shardConnections.Get<uint64_t>(*nit);
-//            assert(shardConn != NULL);
-//            shardConn->SetQuorumMembership(qit->quorumID);
-//        }
+        }        
     }
 }
 
