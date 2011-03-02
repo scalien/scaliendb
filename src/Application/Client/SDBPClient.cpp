@@ -471,19 +471,19 @@ int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
     CLIENT_DATA_COMMAND(Set, (ReadBuffer&) key, (ReadBuffer&) value);
 }
 
-int Client::SetIfNotExists(ReadBuffer& key, ReadBuffer& value)
+int Client::SetIfNotExists(const ReadBuffer& key, const ReadBuffer& value)
 {
-    CLIENT_DATA_COMMAND(SetIfNotExists, key, value);
+    CLIENT_DATA_COMMAND(SetIfNotExists, (ReadBuffer&) key, (ReadBuffer&) value);
 }
 
-int Client::TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value)
+int Client::TestAndSet(const ReadBuffer& key, const ReadBuffer& test, const ReadBuffer& value)
 {
-    CLIENT_DATA_COMMAND(TestAndSet, key, test, value);
+    CLIENT_DATA_COMMAND(TestAndSet, (ReadBuffer&) key, (ReadBuffer&) test, (ReadBuffer&) value);
 }
 
-int Client::GetAndSet(ReadBuffer& key, ReadBuffer& value)
+int Client::GetAndSet(const ReadBuffer& key, const ReadBuffer& value)
 {
-    CLIENT_DATA_COMMAND(GetAndSet, key, value);
+    CLIENT_DATA_COMMAND(GetAndSet, (ReadBuffer&) key, (ReadBuffer&) value);
 }
 
 int Client::Add(const ReadBuffer& key, int64_t number)
@@ -496,14 +496,14 @@ int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
     CLIENT_DATA_COMMAND(Append, (ReadBuffer&) key, (ReadBuffer&) value);
 }
 
-int Client::Delete(ReadBuffer& key)
+int Client::Delete(const ReadBuffer& key)
 {
-    CLIENT_DATA_COMMAND(Delete, key);
+    CLIENT_DATA_COMMAND(Delete, (ReadBuffer&) key);
 }
 
-int Client::Remove(ReadBuffer& key)
+int Client::Remove(const ReadBuffer& key)
 {
-    CLIENT_DATA_COMMAND(Remove, key);
+    CLIENT_DATA_COMMAND(Remove, (ReadBuffer&) key);
 }
 
 int Client::ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset)
@@ -1040,12 +1040,12 @@ void Client::ConnectShardServers()
             shardConn->SetQuorumMembership(qit->quorumID);
         }
         
-        FOREACH (nit, qit->inactiveNodes)
-        {
-            shardConn = shardConnections.Get<uint64_t>(*nit);
-            assert(shardConn != NULL);
-            shardConn->SetQuorumMembership(qit->quorumID);
-        }
+//        FOREACH (nit, qit->inactiveNodes)
+//        {
+//            shardConn = shardConnections.Get<uint64_t>(*nit);
+//            assert(shardConn != NULL);
+//            shardConn->SetQuorumMembership(qit->quorumID);
+//        }
     }
 }
 

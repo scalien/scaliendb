@@ -344,15 +344,15 @@ void ConfigQuorumProcessor::UpdateListeners()
     ConfigShardServer*              itShardServer;
     ClusterMessage                  message;
     Buffer                          checksumBuffer;
-    uint32_t                        checksum;
+//    uint32_t                        checksum;
     bool                            configChanged;
     uint64_t                        now;
     
     configState = configServer->GetDatabaseManager()->GetConfigState();
-    configState->Write(checksumBuffer, true);
     
 //    // check if the configState changed at all
 //    configChanged = false;
+//    configState->Write(checksumBuffer, true);
 //    checksum = checksumBuffer.GetChecksum();
 ////    Log_Debug("Config state checksum: %u, prev: %u, %B", checksum, configStateChecksum, &checksumBuffer);
 //    if (checksum == 0 || checksum != configStateChecksum)

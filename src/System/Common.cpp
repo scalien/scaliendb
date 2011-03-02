@@ -5,12 +5,13 @@
 #include <math.h>
 #ifndef _WIN32
 #include <pwd.h>
-#include <sys/stat.h>
-#include <sys/statvfs.h>
 #include <signal.h>
 #include <execinfo.h>
+#include <sys/stat.h>
+#include <sys/statvfs.h>
+#include <sys/time.h>
 #else // _WIN32
-#include "process.h"
+#include <process.h>
 #endif
 #include "Macros.h"
 #include "Time.h"
@@ -78,6 +79,43 @@ const char* SIBytes(uint64_t bytes, char buf[5])
     }
     
     snprintf(buf, 5, "%" PRIu64 "%c", n, u == 0 ? units[sizeof(units) - 1] : units[u - 1]);
+    return buf;
+}
+
+const char* HumanTime(char buf[27])
+{
+#ifdef _WIN32
+    SYSTEMTIME  st;
+
+    GetLocalTime(&st);
+    
+    snprintf(buf, 27, "%04d-%02d-%02d %02d:%02d:%02d.%03d",
+     (int) st.wYear,
+     (int) st.wMonth,
+     (int) st.wDay,
+     (int) st.wHour,
+     (int) st.wMinute,
+     (int) st.wSecond,
+     (int) st.wMilliseconds);
+#else
+    struct tm tm;
+    time_t sec;
+    struct timeval tv;
+
+    gettimeofday(&tv, NULL);
+    sec = (time_t) tv.tv_sec;
+    localtime_r(&sec, &tm);
+
+    snprintf(buf, 27, "%04d-%02d-%02d %02d:%02d:%02d.%06lu", 
+     tm.tm_year + 1900,
+     tm.tm_mon + 1,
+     tm.tm_mday,
+     tm.tm_hour,
+     tm.tm_min,
+     tm.tm_sec,
+     (long unsigned int) tv.tv_usec);
+#endif
+    
     return buf;
 }
 

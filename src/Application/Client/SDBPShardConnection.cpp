@@ -29,6 +29,7 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
 
 void ShardConnection::Connect()
 {
+//    Log_Debug("Connecting to %s", endpoint.ToString());
     MessageConnection::Connect(endpoint);
 }
 
@@ -47,7 +48,7 @@ bool ShardConnection::SendRequest(Request* request)
 //    if (request->numTry > 1)
 //        Log_Debug("Resending, commandID: %U, conn: %s", request->commandID, endpoint.ToString());
     
-    //Log_Debug("Sending conn: %s, writeBuffer = %B", endpoint.ToString(), writeBuffer);
+    Log_Debug("Sending conn: %s, writeBuffer = %B", endpoint.ToString(), writeBuffer);
     
     // buffer is saturated
     if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
@@ -162,6 +163,7 @@ void ShardConnection::OnWrite()
 void ShardConnection::OnConnect()
 {
     Log_Trace();
+    Log_Debug("Shard connection connected, endpoint: %s", endpoint.ToString());
 
     CLIENT_MUTEX_GUARD_DECLARE();
     
@@ -171,11 +173,12 @@ void ShardConnection::OnConnect()
 
 void ShardConnection::OnClose()
 {
-    //Log_Debug("Shard connection closing: %s", endpoint.ToString());
+//    Log_Debug("Shard connection closing: %s", endpoint.ToString());
     
     Request*    it;
     Request*    prev;
     uint64_t*   itQuorum;
+    uint64_t*   itNext;
     
     CLIENT_MUTEX_GUARD_DECLARE();
     
@@ -183,8 +186,11 @@ void ShardConnection::OnClose()
     MessageConnection::OnClose();
     
     // invalidate quorums
-    FOREACH_FIRST (itQuorum, quorums)
+    for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = itNext)
+    {
+        itNext = quorums.Next(itQuorum);
         InvalidateQuorum(*itQuorum);
+    }
     
     // put back requests that have no response to the client's quorum queue
     for (it = sentRequests.Last(); it != NULL; it = prev)

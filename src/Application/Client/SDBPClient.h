@@ -82,13 +82,13 @@ public:
     
     int                     Get(const ReadBuffer& key);
     int                     Set(const ReadBuffer& key, const ReadBuffer& value);
-    int                     SetIfNotExists(ReadBuffer& key, ReadBuffer& value);
-    int                     TestAndSet(ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
-    int                     GetAndSet(ReadBuffer& key, ReadBuffer& value);
+    int                     SetIfNotExists(const ReadBuffer& key, const ReadBuffer& value);
+    int                     TestAndSet(const ReadBuffer& key, const ReadBuffer& test, const ReadBuffer& value);
+    int                     GetAndSet(const ReadBuffer& key, const ReadBuffer& value);
     int                     Add(const ReadBuffer& key, int64_t number);
     int                     Append(const ReadBuffer& key, const ReadBuffer& value);
-    int                     Delete(ReadBuffer& key);
-    int                     Remove(ReadBuffer& key);
+    int                     Delete(const ReadBuffer& key);
+    int                     Remove(const ReadBuffer& key);
 
     int                     ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset);
     int                     ListKeyValues(const ReadBuffer& startKey, unsigned count, unsigned offset);    
