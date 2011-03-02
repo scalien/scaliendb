@@ -5,6 +5,8 @@
 
 ShardMigrationWriter::ShardMigrationWriter()
 {
+    onTimeout.SetCallable(MFUNC(ShardMigrationWriter, OnTimeout));
+    onTimeout.SetDelay(SHARD_MIGRATION_WRITER_DELAY);
     Reset();
 }
 
@@ -31,11 +33,28 @@ void ShardMigrationWriter::Reset()
     bytesSent = 0;
     bytesTotal = 0;
     startTime = 0;
+    prevBytesSent = 0;
+    EventLoop::Remove(&onTimeout);
 }
 
 bool ShardMigrationWriter::IsActive()
 {
     return isActive;
+}
+
+uint64_t ShardMigrationWriter::GetShardID()
+{
+    return shardID;
+}
+
+uint64_t ShardMigrationWriter::GetQuorumID()
+{
+    return quorumID;
+}
+
+uint64_t ShardMigrationWriter::GetNodeID()
+{
+    return nodeID;
 }
 
 uint64_t ShardMigrationWriter::GetBytesSent()
@@ -96,6 +115,7 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
 
     sendFirst = true;
     CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+    EventLoop::Add(&onTimeout);
 }
 
 void ShardMigrationWriter::Abort()
@@ -204,4 +224,44 @@ void ShardMigrationWriter::OnWriteReadyness()
     {
         SendNext();
     }
+}
+
+void ShardMigrationWriter::OnTimeout()
+{
+    ConfigState*    configState;
+    ConfigQuorum*   configQuorum;
+
+    assert(quorumProcessor != NULL);
+    if (!quorumProcessor->IsPrimary()
+     || !shardServer->GetConfigState()->isMigrating
+     || (shardServer->GetConfigState()->isMigrating &&
+         (shardServer->GetConfigState()->migrateShardID != shardID ||
+          shardServer->GetConfigState()->migrateQuorumID != quorumID)))
+    {
+        Abort();
+        return;
+    }
+    
+    // check the destination nodeID is still in the quorum
+    configState = quorumProcessor->GetShardServer()->GetConfigState();
+    configQuorum = configState->GetQuorum(quorumID);
+    if (configQuorum == NULL)
+    {
+        Abort();
+        return;
+    }
+    if (!configQuorum->IsMember(nodeID))
+    {
+        Abort();
+        return;
+    }
+
+    if (bytesSent == prevBytesSent)
+    {
+        Abort();
+        return;
+    }
+
+    prevBytesSent = bytesSent;
+    EventLoop::Add(&onTimeout);
 }

@@ -33,6 +33,9 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     
     shardServer->quorumInfos.Clear();
     shardServer->quorumInfos = message.quorumInfos;
+
+    shardServer->quorumShardInfos.Clear();
+    shardServer->quorumShardInfos = message.quorumShardInfos;
         
     RegisterHeartbeat(message.nodeID);
     

@@ -80,6 +80,24 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
             quorumShardInfo.shardSize = env->GetSize(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
             quorumShardInfo.splitKey.Write(env->GetMidpoint(QUORUM_DATABASE_DATA_CONTEXT, *itShardID));
             
+            if (shardServer->IsSendingShard() && shardServer->GetShardMigrationShardID() == quorumShardInfo.shardID)
+            {
+                quorumShardInfo.isSendingShard = true;
+                quorumShardInfo.migrationQuorumID = shardServer->GetShardMigrationQuorumID();
+                quorumShardInfo.migrationNodeID = shardServer->GetShardMigrationNodeID();
+                quorumShardInfo.migrationBytesSent = shardServer->GetShardMigrationBytesSent();
+                quorumShardInfo.migrationBytesTotal = shardServer->GetShardMigrationBytesTotal();
+                quorumShardInfo.migrationThroughput = shardServer->GetShardMigrationThroughput();
+            }
+            else
+            {
+                quorumShardInfo.isSendingShard = false;
+                quorumShardInfo.migrationQuorumID = 0;
+                quorumShardInfo.migrationNodeID = 0;
+                quorumShardInfo.migrationBytesSent = 0;
+                quorumShardInfo.migrationBytesTotal = 0;
+                quorumShardInfo.migrationThroughput = 0;
+            }
             quorumShardInfos.Append(quorumShardInfo);
         }
     }

@@ -309,7 +309,6 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     
     if (catchupWriter.IsActive())
         catchupWriter.Abort();
-
 }
 
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
