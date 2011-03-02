@@ -131,7 +131,7 @@ private:
     void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
 
-    void                    ConnectShardServers();
+    void                    ConfigureShardServers();
     ShardConnection*        GetShardConnection(uint64_t nodeID);
 
     void                    OnControllerConnected(ControllerConnection* conn);

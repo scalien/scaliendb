@@ -157,6 +157,9 @@ void ControllerConnection::OnClose()
     // close socket
     MessageConnection::OnClose();
     
+    // restart reconnection with timeout
+    EventLoop::Reset(&connectTimeout);
+
     // clear timers
     EventLoop::Remove(&getConfigStateTimeout);
     

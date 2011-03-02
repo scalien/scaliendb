@@ -185,6 +185,9 @@ void ShardConnection::OnClose()
     
     // close the socket and try reconnecting
     MessageConnection::OnClose();
+
+    // restart reconnection with timeout
+    EventLoop::Reset(&connectTimeout);
     
     // invalidate quorums
     for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = itNext)
