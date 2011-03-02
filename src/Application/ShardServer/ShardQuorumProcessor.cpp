@@ -303,11 +303,13 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     }
     
     shardMessagesLength = 0;
-
-    isPrimary = false;
-    
+    isPrimary = false;    
     isShardMigrationActive = false;
     migrateShardID = 0;
+    
+    if (catchupWriter.IsActive())
+        catchupWriter.Abort();
+
 }
 
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
