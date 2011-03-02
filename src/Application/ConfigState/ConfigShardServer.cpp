@@ -5,9 +5,9 @@ QuorumInfo::QuorumInfo()
     quorumID = 0;
     paxosID = 0;
     isSendingCatchup = false;
-    bytesSent = 0;
-    bytesTotal = 0;
-    throughput = 0;
+    catchupBytesSent = 0;
+    catchupBytesTotal = 0;
+    catchupThroughput = 0;
 }
 
 bool QuorumInfo::ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos)
@@ -24,8 +24,8 @@ bool QuorumInfo::ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos)
     {
         read = buffer.Readf(":%U:%U:%b:%U:%U:%U",
          &quorumInfo.quorumID, &quorumInfo.paxosID,
-         &quorumInfo.isSendingCatchup, &quorumInfo.bytesSent,
-         &quorumInfo.bytesTotal, &quorumInfo.throughput);
+         &quorumInfo.isSendingCatchup, &quorumInfo.catchupBytesSent,
+         &quorumInfo.catchupBytesTotal, &quorumInfo.catchupThroughput);
         if (read < 4)
             return false;
         buffer.Advance(read);
@@ -43,8 +43,8 @@ bool QuorumInfo::WriteList(Buffer& buffer, List<QuorumInfo>& quorumInfos)
     {
         buffer.Appendf(":%U:%U:%b:%U:%U:%U",
          it->quorumID, it->paxosID,
-         it->isSendingCatchup, it->bytesSent,
-         it->bytesTotal, it->throughput);
+         it->isSendingCatchup, it->catchupBytesSent,
+         it->catchupBytesTotal, it->catchupThroughput);
     }
     
     return true;
@@ -68,6 +68,12 @@ QuorumShardInfo::QuorumShardInfo()
     quorumID = 0;
     shardID = 0;
     shardSize = 0;
+    isSendingShard = false;
+    migrationNodeID = 0;
+    migrationQuorumID = 0;
+    migrationBytesSent = 0;
+    migrationBytesTotal = 0;
+    migrationThroughput = 0;
 }
 
 bool QuorumShardInfo::ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorumShardInfos)
@@ -82,9 +88,12 @@ bool QuorumShardInfo::ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorum
     buffer.Advance(read);
     for (i = 0; i < length; i++)
     {
-        read = buffer.Readf(":%U:%U:%U:%#B:%b",
+        read = buffer.Readf(":%U:%U:%U:%#B:%b:%b:%U:%U:%U:%U:%U",
          &quorumShardInfo.quorumID, &quorumShardInfo.shardID,
-         &quorumShardInfo.shardSize, &quorumShardInfo.splitKey, &quorumShardInfo.isSplitable);
+         &quorumShardInfo.shardSize, &quorumShardInfo.splitKey, &quorumShardInfo.isSplitable,
+         &quorumShardInfo.isSendingShard, &quorumShardInfo.migrationQuorumID,
+         &quorumShardInfo.migrationNodeID, &quorumShardInfo.migrationBytesSent,
+         &quorumShardInfo.migrationBytesTotal, &quorumShardInfo.migrationThroughput);
         if (read < 6)
             return false;
         buffer.Advance(read);
@@ -100,8 +109,11 @@ bool QuorumShardInfo::WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumSha
     buffer.Appendf("%u", quorumShardInfos.GetLength());
     FOREACH(it, quorumShardInfos)
     {
-        buffer.Appendf(":%U:%U:%U:%#B:%b",
-         it->quorumID, it->shardID, it->shardSize, &it->splitKey, it->isSplitable);
+        buffer.Appendf(":%U:%U:%U:%#B:%b:%b:%U:%U:%U:%U:%U",
+         it->quorumID, it->shardID, it->shardSize, &it->splitKey, it->isSplitable,
+         it->isSendingShard, it->migrationQuorumID,
+         it->migrationNodeID, it->migrationBytesSent,
+         it->migrationBytesTotal, it->migrationThroughput);
     }
     
     return true;

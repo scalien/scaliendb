@@ -91,7 +91,7 @@ function connect()
 	updateConfigState();
 }
 
-tabs = ["Dashboard", "Quorums", "Schema"];
+tabs = ["Dashboard", "Quorums", "Schema", "Migration"];
 
 function activateTab(name)
 {
@@ -126,14 +126,9 @@ function activateSchemaTab()
 	activateTab("Schema");
 }
 
-function activateShardsTab()
+function activateMigrationTab()
 {
-	activateTab("Shards");
-}
-
-function activateConsoleTab()
-{
-	activateTab("Console");
+	activateTab("Migration");
 }
 
 var tableShardsVisible = new Array();
@@ -513,8 +508,8 @@ function onConfigState(configState)
 			createQuorumDivs(configState, configState[key]);
 		else if (key == "databases")
 			createDatabaseDivs(configState, configState[key]);
-		else if (key == "shards")
-			createShardDivs(configState, configState[key]);
+		else if (key == "shardServers")
+			createMigrationDivs(configState, configState[key]);
 	}
 	
 	scaliendb.util.elem("clusterState").textContent = "The ScalienDB cluster is " + scaliendb.getClusterState(configState);
@@ -721,7 +716,7 @@ function createQuorumDiv(configState, quorum)
 		{
 			infoText += " [" + quorumInfo["paxosID"] + "]";
 			if (quorumInfo["isSendingCatchup"])
-				catchupText += "Shard server " + nodeID + " is sending catchup: " + scaliendb.util.humanBytes(quorumInfo["bytesSent"]) + "/" + scaliendb.util.humanBytes(quorumInfo["bytesTotal"]) + " (" + scaliendb.util.humanBytes(quorumInfo["throughput"]) + "/s)";
+				catchupText += "Shard server " + nodeID + " is sending catchup: " + scaliendb.util.humanBytes(quorumInfo["catchupBytesSent"]) + "/" + scaliendb.util.humanBytes(quorumInfo["catchupBytesTotal"]) + " (" + scaliendb.util.humanBytes(quorumInfo["catchupThroughput"]) + "/s)";
 		}
 		if (nodeID == primaryID)
 		{
@@ -933,21 +928,6 @@ function createTableDiv(configState, table)
 	return div;
 }
 
-function createShardDivs(configState, shards)
-{
-	scaliendb.util.removeElement("shards");
-	var shardsDiv = document.createElement("div");
-	shardsDiv.setAttribute("id", "shards");
-	
-	for (var shard in shards)
-	{
-		var s = shards[shard];
-		shardsDiv.appendChild(createShardDiv(configState, s));
-	}
-	
-	scaliendb.util.elem("tabPageShards").appendChild(shardsDiv);
-}
-
 function createShardDiv(configState, shard)
 {
 	var html =
@@ -986,6 +966,58 @@ function createShardDiv(configState, shard)
 	
 	var div = document.createElement("div");
 	div.setAttribute("class", "shard " + scaliendb.getQuorumState(configState, shard["quorumID"]));
+	div.innerHTML = html;
+	return div;
+}
+
+function createMigrationDivs(configState, shardServers)
+{
+	scaliendb.util.removeElement("migrations");
+	var migrationsDiv = document.createElement("div");
+	migrationsDiv.setAttribute("id", "migrations");
+	
+	var count = 0;
+	for (var i in shardServers)
+	{
+		var shardServer = shardServers[i];
+		for (var j in shardServer["quorumShardInfos"])
+		{
+			var quorumShardInfo = shardServer["quorumShardInfos"][j];
+			if (quorumShardInfo["isSendingShard"])
+			{
+				migrationsDiv.appendChild(createMigrationDiv(configState, shardServer, quorumShardInfo));
+				count++;
+			}
+		}
+	}
+	
+	scaliendb.util.elem("tabPageMigration").appendChild(migrationsDiv);
+	scaliendb.util.elem("tabHeadMigration").innerHTML = "Shard migration";
+	if (count > 0)
+		scaliendb.util.elem("tabHeadMigration").innerHTML += " (" + count + ")";
+}
+
+function createMigrationDiv(configState, shardServer, quorumShardInfo)
+{
+	var shard = locateShard(configState, quorumShardInfo["shardID"]);
+	var html =
+	'																									\
+	<table class="migration healthy">																	\
+		<tr>																							\
+			<td class="migration-head">																	\
+				<span class="migration-head">shard ' + quorumShardInfo["shardID"] + ' </span>			\
+			</td>																						\
+			<td>																						\
+				Shard servers: <span class="shardserver-number healthy">' +  shardServer["nodeID"] + '</span> ' + ' &rarr; <span class="shardserver-number healthy">' + quorumShardInfo["migrationNodeID"] +  '</span><br/>								\
+				Quorum: <span class="quorum-number healthy">' + shard["quorumID"] + '</span> &rarr; <span class="quorum-number healthy">' + quorumShardInfo["migrationQuorumID"] + '</span><br/>						\
+				Progress: ' + scaliendb.util.humanBytes(quorumShardInfo["migrationBytesSent"]) + '/' + scaliendb.util.humanBytes(quorumShardInfo["migrationBytesTotal"]) + ' (' + scaliendb.util.humanBytes(quorumShardInfo["migrationThroughput"]) + '/s)	\
+			</td>																						\
+		</tr>																							\
+	</table>																							\
+	';
+
+	var div = document.createElement("div");
+	div.setAttribute("class", "migration healthy");
 	div.innerHTML = html;
 	return div;
 }

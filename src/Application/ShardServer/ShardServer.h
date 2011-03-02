@@ -32,7 +32,10 @@ public:
 
     void                    BroadcastToControllers(Message& message);
     
-    bool                    IsSendingShardMigration();
+    bool                    IsSendingShard();
+    uint64_t                GetShardMigrationShardID();
+    uint64_t                GetShardMigrationQuorumID();
+    uint64_t                GetShardMigrationNodeID();
     uint64_t                GetShardMigrationBytesSent();
     uint64_t                GetShardMigrationBytesTotal();
     uint64_t                GetShardMigrationThroughput();

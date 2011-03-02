@@ -3,6 +3,7 @@
 #include "Application/Common/ContextTransport.h"
 #include "ShardQuorumProcessor.h"
 #include "ShardServer.h"
+#include "Framework/Replication/ReplicationConfig.h"
 
 ShardCatchupWriter::ShardCatchupWriter()
 {
@@ -245,20 +246,41 @@ void ShardCatchupWriter::TransformKeyValue(StorageKeyValue* kv, CatchupMessage& 
     }
     else
     {
-        msg.Delete(kv->GetKey());    
+        msg.Delete(kv->GetKey());
         bytesSent += kv->GetKey().GetLength();
     }
 }
 
 void ShardCatchupWriter::OnTimeout()
 {
+    ConfigState*    configState;
+    ConfigQuorum*   configQuorum;
+    
+    // check the destination nodeID is still in the quorum
+    configState = quorumProcessor->GetShardServer()->GetConfigState();
+    configQuorum = configState->GetQuorum(quorumID);
+    if (configQuorum == NULL)
+    {
+        Abort();
+        return;
+    }
+    if (!configQuorum->IsMember(MY_NODEID))
+    {
+        Abort();
+        return;
+    }
+    if (!configQuorum->IsMember(nodeID))
+    {
+        Abort();
+        return;
+    }
+
     if (bytesSent == prevBytesSent)
     {
         Abort();
+        return;
     }
-    else
-    {
-        prevBytesSent = bytesSent;
-        EventLoop::Add(&onTimeout);
-    }
+
+    prevBytesSent = bytesSent;
+    EventLoop::Add(&onTimeout);
 }

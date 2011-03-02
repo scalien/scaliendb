@@ -96,9 +96,24 @@ void ShardServer::BroadcastToControllers(Message& message)
         CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, message);
 }
 
-bool ShardServer::IsSendingShardMigration()
+bool ShardServer::IsSendingShard()
 {
     return migrationWriter.IsActive();
+}
+
+uint64_t ShardServer::GetShardMigrationShardID()
+{
+    return migrationWriter.GetShardID();
+}
+
+uint64_t ShardServer::GetShardMigrationQuorumID()
+{
+    return migrationWriter.GetQuorumID();
+}
+
+uint64_t ShardServer::GetShardMigrationNodeID()
+{
+    return migrationWriter.GetNodeID();
 }
 
 uint64_t ShardServer::GetShardMigrationBytesSent()
@@ -361,7 +376,7 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
             continue;
         }
         
-DeleteQuorum:        
+DeleteQuorum:
         databaseManager.DeleteQuorumPaxosShard(quorumProcessor->GetQuorumID());
         databaseManager.DeleteQuorumLogShard(quorumProcessor->GetQuorumID());
         databaseManager.DeleteDataShards(quorumProcessor->GetQuorumID());

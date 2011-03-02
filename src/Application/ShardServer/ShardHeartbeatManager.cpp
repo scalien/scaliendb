@@ -54,15 +54,15 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         quorumInfo.isSendingCatchup = itQuorumProcessor->IsCatchupActive();
         if (quorumInfo.isSendingCatchup)
         {
-            quorumInfo.bytesSent = itQuorumProcessor->GetCatchupBytesSent();
-            quorumInfo.bytesTotal = itQuorumProcessor->GetCatchupBytesTotal();
-            quorumInfo.throughput = itQuorumProcessor->GetCatchupThroughput();
+            quorumInfo.catchupBytesSent = itQuorumProcessor->GetCatchupBytesSent();
+            quorumInfo.catchupBytesTotal = itQuorumProcessor->GetCatchupBytesTotal();
+            quorumInfo.catchupThroughput = itQuorumProcessor->GetCatchupThroughput();
         }
         else
         {
-            quorumInfo.bytesSent = 0;
-            quorumInfo.bytesTotal = 0;
-            quorumInfo.throughput = 0;
+            quorumInfo.catchupBytesSent = 0;
+            quorumInfo.catchupBytesTotal = 0;
+            quorumInfo.catchupThroughput = 0;
         }
         quorumInfoList.Append(quorumInfo);
         
@@ -80,6 +80,24 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
             quorumShardInfo.shardSize = env->GetSize(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
             quorumShardInfo.splitKey.Write(env->GetMidpoint(QUORUM_DATABASE_DATA_CONTEXT, *itShardID));
             
+            if (shardServer->IsSendingShard() && shardServer->GetShardMigrationShardID() == quorumShardInfo.shardID)
+            {
+                quorumShardInfo.isSendingShard = true;
+                quorumShardInfo.migrationQuorumID = shardServer->GetShardMigrationQuorumID();
+                quorumShardInfo.migrationNodeID = shardServer->GetShardMigrationNodeID();
+                quorumShardInfo.migrationBytesSent = shardServer->GetShardMigrationBytesSent();
+                quorumShardInfo.migrationBytesTotal = shardServer->GetShardMigrationBytesTotal();
+                quorumShardInfo.migrationThroughput = shardServer->GetShardMigrationThroughput();
+            }
+            else
+            {
+                quorumShardInfo.isSendingShard = false;
+                quorumShardInfo.migrationQuorumID = 0;
+                quorumShardInfo.migrationNodeID = 0;
+                quorumShardInfo.migrationBytesSent = 0;
+                quorumShardInfo.migrationBytesTotal = 0;
+                quorumShardInfo.migrationThroughput = 0;
+            }
             quorumShardInfos.Append(quorumShardInfo);
         }
     }

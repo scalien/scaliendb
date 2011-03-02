@@ -61,7 +61,7 @@ public:
     uint64_t                GetCatchupBytesTotal();
     uint64_t                GetCatchupThroughput();
 
-    bool                    IsShardMigrationActive();
+//    bool                    IsShardMigrationActive();
     uint64_t                GetMigrateShardID();
     void                    OnShardMigrationClusterMessage(ClusterMessage& message);
     
@@ -107,7 +107,7 @@ private:
     RequestList             clientRequests;
     List<uint64_t>          activeNodes;
     
-    bool                    isShardMigrationActive;
+//    bool                    isShardMigrationActive;
     uint64_t                migrateShardID;
     
     ShardCatchupReader      catchupReader;

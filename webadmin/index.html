@@ -240,11 +240,7 @@
 				<a class="no-line" href="javascript:activateDashboardTab()"><span id="tabHeadDashboard" class="tab-head tab-head-active">Dashboard</span></a>
 				<a class="no-line" href="javascript:activateQuorumsTab()"><span id="tabHeadQuorums" class="tab-head tab-head-inactive">Quorums</span></a>
 				<a class="no-line" href="javascript:activateSchemaTab()"><span id="tabHeadSchema" class="tab-head tab-head-inactive">Schema</span></a>
-				<!-- <span class="tab-head tab-head-inactive">Shardservers</span>
-				<a class="no-line" href="javascript:activateShardsTab()"><span id="tabHeadShards" class="tab-head tab-head-inactive">Shards</span></a>
-				<span class="tab-head tab-head-inactive">Log</span>
-				<span class="tab-head tab-head-inactive">Alerts</span>
-				<a class="no-line" href="javascript:activateConsoleTab()"><span id="tabHeadConsole" class="tab-head tab-head-inactive">Console</span></a> -->
+				<a class="no-line" href="javascript:activateMigrationTab()"><span id="tabHeadMigration" class="tab-head tab-head-inactive">Shard migration</span></a>
 			</div>
 			<div class="tab-page-container">
 				<!-- dashboard -->
@@ -305,23 +301,12 @@
 					</div>
 				</div>				
 
-				<!-- shards -->
-				<div id="tabPageShards" class="tab-page tab-page-inactive">
-					<span class="listing">Listing shards</span><br/><br/>
-					<div id="shards">
+				<!-- shard migration -->
+				<div id="tabPageMigration" class="tab-page tab-page-inactive">
+					<span class="listing">Active shard migrations</span><br/><br/>
+					<div id="migrations">
 					</div>
 				</div>
-
-				<!-- console -->
-				<div id="tabPageConsole" class="tab-page tab-page-inactive">
-					<span class="listing">Console</span><br/><br/>
-					<div id="console">
-						<div class="line">
-							<span class="prompt">&gt; </span>
-							<input class="console-input" type="text" name="input" onkeydown="javascript:consoleOnKeyDown()">
-						</div>
-					</form>
-				</div>				
 
 			</div>
 		</div>

@@ -296,6 +296,34 @@ table.shard td {
 	line-height: 150%;
 }
 
+div.migration {
+	-webkit-border-radius: 10px;
+	-webkit-box-shadow: 3px 3px 4px #000;
+	-moz-border-radius: 10px;
+	-moz-box-shadow: 3px 3px 4px #000;
+	width: 95%;
+	padding: 20px;
+	margin: 10px;
+}
+
+table.migration {
+	width: 100%;
+}
+
+td.migration-head {
+	width: 100px;
+}
+
+span.migration-head {
+	font-weight: bold;
+	font-size: 20;			
+}
+
+table.migration td {
+	padding: 10px;
+	line-height: 150%;
+}
+
 hr.head {
 	border: 1px solid #585858;
 	width: 100%;

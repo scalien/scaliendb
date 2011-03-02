@@ -220,7 +220,8 @@ void JSONConfigState::WriteShardServers()
 
 void JSONConfigState::WriteShardServer(ConfigShardServer* server)
 {
-    QuorumInfo* info;
+    QuorumInfo*         quorumInfo;
+    QuorumShardInfo*    quorumShardInfo;
     
     json.PrintObjectStart();
 
@@ -242,8 +243,19 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintColon();
     json.PrintArrayStart();
 
-    FOREACH(info, server->quorumInfos)
-        WriteQuorumInfo(info);
+    FOREACH(quorumInfo, server->quorumInfos)
+        WriteQuorumInfo(quorumInfo);
+
+    json.PrintArrayEnd();
+
+    json.PrintComma();
+    
+    json.PrintString("quorumShardInfos");
+    json.PrintColon();
+    json.PrintArrayStart();
+
+    FOREACH(quorumShardInfo, server->quorumShardInfos)
+        WriteQuorumShardInfo(quorumShardInfo);
 
     json.PrintArrayEnd();
         
@@ -263,11 +275,36 @@ void JSONConfigState::WriteQuorumInfo(QuorumInfo* info)
     if (info->isSendingCatchup)
     {
         json.PrintComma();
-        JSON_NUMBER(info, bytesSent);
+        JSON_NUMBER(info, catchupBytesSent);
         json.PrintComma();
-        JSON_NUMBER(info, bytesTotal);
+        JSON_NUMBER(info, catchupBytesTotal);
         json.PrintComma();
-        JSON_NUMBER(info, throughput);
+        JSON_NUMBER(info, catchupThroughput);
+    }
+    
+    json.PrintObjectEnd();    
+}
+
+void JSONConfigState::WriteQuorumShardInfo(QuorumShardInfo* info)
+{
+    json.PrintObjectStart();
+
+    JSON_NUMBER(info, shardID);
+    json.PrintComma();
+    JSON_BOOL(info, isSendingShard);
+    
+    if (info->isSendingShard)
+    {
+        json.PrintComma();
+        JSON_NUMBER(info, migrationQuorumID);
+        json.PrintComma();
+        JSON_NUMBER(info, migrationNodeID);
+        json.PrintComma();
+        JSON_NUMBER(info, migrationBytesSent);
+        json.PrintComma();
+        JSON_NUMBER(info, migrationBytesTotal);
+        json.PrintComma();
+        JSON_NUMBER(info, migrationThroughput);
     }
     
     json.PrintObjectEnd();    

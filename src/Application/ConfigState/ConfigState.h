@@ -85,6 +85,8 @@ public:
     bool                Read(ReadBuffer& buffer, bool withVolatile = false);
     bool                Write(Buffer& buffer, bool withVolatile = false);
 
+    void                OnAbortShardMigration();
+
     template<typename List>
     static bool         ReadIDList(List& numbers, ReadBuffer& buffer);
     

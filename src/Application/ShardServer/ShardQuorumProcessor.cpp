@@ -30,7 +30,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     ownAppend = false;
     paxosID = 0;
     commandID = 0;
-    isShardMigrationActive = false;
+//    isShardMigrationActive = false;
     migrateShardID = 0;
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
@@ -303,11 +303,12 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     }
     
     shardMessagesLength = 0;
-
     isPrimary = false;
-    
-    isShardMigrationActive = false;
+//    isShardMigrationActive = false;
     migrateShardID = 0;
+    
+    if (catchupWriter.IsActive())
+        catchupWriter.Abort();
 }
 
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
@@ -388,10 +389,10 @@ void ShardQuorumProcessor::TryReplicationCatchup()
     quorumContext.TryReplicationCatchup();
 }
 
-bool ShardQuorumProcessor::IsShardMigrationActive()
-{
-    return isShardMigrationActive;
-}
+//bool ShardQuorumProcessor::IsShardMigrationActive()
+//{
+//    return isShardMigrationActive;
+//}
 
 uint64_t ShardQuorumProcessor::GetMigrateShardID()
 {
@@ -470,11 +471,11 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
 
     if (clusterMessage.type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT)
     {
-        assert(isShardMigrationActive);
+//        assert(isShardMigrationActive);
         assert(migrateShardID = clusterMessage.shardID);
         completeMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
         shardServer->BroadcastToControllers(completeMessage);
-        isShardMigrationActive = false;
+//        isShardMigrationActive = false;
         migrateShardID = 0;
         Log_Message("Migration of shard %U complete...", clusterMessage.shardID);
         return;
@@ -486,19 +487,19 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
     switch (clusterMessage.type)
     {
         case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
-            assert(isShardMigrationActive == false);
-            isShardMigrationActive = true;
+//            assert(isShardMigrationActive == false);
+//            isShardMigrationActive = true;
             migrateShardID = clusterMessage.shardID;
             shardMessage->ShardMigrationBegin(clusterMessage.shardID);
             Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
-            assert(isShardMigrationActive);
+//            assert(isShardMigrationActive);
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
-            assert(isShardMigrationActive);
+//            assert(isShardMigrationActive);
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
             Log_Debug("ShardMigration DELETE");

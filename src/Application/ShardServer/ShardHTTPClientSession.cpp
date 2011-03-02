@@ -144,7 +144,7 @@ void ShardHTTPClientSession::PrintStatus()
     
     keybuf.Writef("Migrating shard (sending)");
     keybuf.NullTerminate();
-    if (shardServer->IsSendingShardMigration())
+    if (shardServer->IsSendingShard())
         valbuf.Writef("yes (sent: %s/%s, aggregate throughput: %s/s)",
          HUMAN_BYTES(shardServer->GetShardMigrationBytesSent()),
          HUMAN_BYTES(shardServer->GetShardMigrationBytesTotal()),
