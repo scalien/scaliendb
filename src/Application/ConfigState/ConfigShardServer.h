@@ -23,9 +23,9 @@ public:
     uint64_t            paxosID;
 
     bool                isSendingCatchup;
-    uint64_t            bytesSent;
-    uint64_t            bytesTotal;
-    uint64_t            throughput;
+    uint64_t            catchupBytesSent;
+    uint64_t            catchupBytesTotal;
+    uint64_t            catchupThroughput;
     
     static bool         ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos);
     static bool         WriteList(Buffer& buffer, List<QuorumInfo>& quorumInfos);

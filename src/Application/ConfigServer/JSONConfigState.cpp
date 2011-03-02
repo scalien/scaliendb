@@ -263,11 +263,11 @@ void JSONConfigState::WriteQuorumInfo(QuorumInfo* info)
     if (info->isSendingCatchup)
     {
         json.PrintComma();
-        JSON_NUMBER(info, bytesSent);
+        JSON_NUMBER(info, catchupBytesSent);
         json.PrintComma();
-        JSON_NUMBER(info, bytesTotal);
+        JSON_NUMBER(info, catchupBytesTotal);
         json.PrintComma();
-        JSON_NUMBER(info, throughput);
+        JSON_NUMBER(info, catchupThroughput);
     }
     
     json.PrintObjectEnd();    

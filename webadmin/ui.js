@@ -721,7 +721,7 @@ function createQuorumDiv(configState, quorum)
 		{
 			infoText += " [" + quorumInfo["paxosID"] + "]";
 			if (quorumInfo["isSendingCatchup"])
-				catchupText += "Shard server " + nodeID + " is sending catchup: " + scaliendb.util.humanBytes(quorumInfo["bytesSent"]) + "/" + scaliendb.util.humanBytes(quorumInfo["bytesTotal"]) + " (" + scaliendb.util.humanBytes(quorumInfo["throughput"]) + "/s)";
+				catchupText += "Shard server " + nodeID + " is sending catchup: " + scaliendb.util.humanBytes(quorumInfo["catchupBytesSent"]) + "/" + scaliendb.util.humanBytes(quorumInfo["catchupBytesTotal"]) + " (" + scaliendb.util.humanBytes(quorumInfo["catchupThroughput"]) + "/s)";
 		}
 		if (nodeID == primaryID)
 		{

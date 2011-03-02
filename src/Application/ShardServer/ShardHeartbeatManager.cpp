@@ -54,15 +54,15 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         quorumInfo.isSendingCatchup = itQuorumProcessor->IsCatchupActive();
         if (quorumInfo.isSendingCatchup)
         {
-            quorumInfo.bytesSent = itQuorumProcessor->GetCatchupBytesSent();
-            quorumInfo.bytesTotal = itQuorumProcessor->GetCatchupBytesTotal();
-            quorumInfo.throughput = itQuorumProcessor->GetCatchupThroughput();
+            quorumInfo.catchupBytesSent = itQuorumProcessor->GetCatchupBytesSent();
+            quorumInfo.catchupBytesTotal = itQuorumProcessor->GetCatchupBytesTotal();
+            quorumInfo.catchupThroughput = itQuorumProcessor->GetCatchupThroughput();
         }
         else
         {
-            quorumInfo.bytesSent = 0;
-            quorumInfo.bytesTotal = 0;
-            quorumInfo.throughput = 0;
+            quorumInfo.catchupBytesSent = 0;
+            quorumInfo.catchupBytesTotal = 0;
+            quorumInfo.catchupThroughput = 0;
         }
         quorumInfoList.Append(quorumInfo);
         
