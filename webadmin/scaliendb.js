@@ -490,7 +490,7 @@ var scaliendb =
 		{
 			var units = "kMGTPEZY";
 			var n = size;
-			var f = size;
+			var m = size;
 			var u = 0;
 			
 			if (typeof size == 'undefined')
@@ -498,13 +498,13 @@ var scaliendb =
 			
 			while (this.numDigits(n) > 3)
 			{
+				m = Math.round(n / 100.0) / 10.0;
 				n = Math.round(n / 1000.0);
-				f = f / 1000.0;
 				u++;
 			}
 			
 			var dim = (u == 0 ? "" : units[u - 1]);
-			return "" + n + dim;
+			return "" + m + dim;
 		},
 		
 		pluralize: function(count, noun)
