@@ -50,6 +50,8 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
                     configState->isMigrating = false;
                     configState->migrateQuorumID = 0;
                     configState->migrateShardID = 0;
+                    
+                    configState->OnAbortShardMigration();
                 }
             }
             

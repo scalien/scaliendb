@@ -298,6 +298,25 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     return true;
 }
 
+void ConfigState::OnAbortShardMigration()
+{
+    ConfigShardServer*  shardServer;
+    QuorumShardInfo*    info;
+    
+    FOREACH(shardServer, shardServers)
+    {
+        FOREACH(info, shardServer->quorumShardInfos)
+        {
+            info->isSendingShard = false;
+            info->migrationNodeID = 0;
+            info->migrationQuorumID = 0;
+            info->migrationBytesSent = 0;
+            info->migrationBytesTotal = 0;
+            info->migrationThroughput = 0;
+        }
+    }
+}
+
 void ConfigState::OnMessage(ConfigMessage& message)
 {
     switch (message.type)

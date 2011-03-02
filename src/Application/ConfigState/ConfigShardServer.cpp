@@ -69,6 +69,7 @@ QuorumShardInfo::QuorumShardInfo()
     shardID = 0;
     shardSize = 0;
     isSendingShard = false;
+    migrationNodeID = 0;
     migrationQuorumID = 0;
     migrationBytesSent = 0;
     migrationBytesTotal = 0;
