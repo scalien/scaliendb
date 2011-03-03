@@ -53,6 +53,7 @@ public:
     void                    Close();
 
     void                    SetYieldThreads(bool yieldThreads);
+    void                    SetMergeEnabled(bool mergeEnabled);
 
     uint64_t                GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key);
     bool                    ShardExists(uint16_t contextID, uint64_t shardID);
@@ -159,6 +160,7 @@ private:
     bool                    yieldThreads;
     bool                    shuttingDown;
     bool                    writingTOC;
+    bool                    mergeEnabled;
     
     unsigned                maxUnbackedLogSegments;
 };

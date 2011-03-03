@@ -211,6 +211,13 @@ bool ShardHTTPClientSession::ProcessSettings()
         session.PrintPair("Trace", boolValue ? "on" : "off");
     }
     
+    if (HTTP_GET_OPT_PARAM(params, "merge", param))
+    {
+        boolValue = PARAM_BOOL_VALUE(param);
+        shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(boolValue);
+        session.PrintPair("Merge", boolValue ? "on" : "off");
+    }
+    
     session.Flush();
 
     return true;

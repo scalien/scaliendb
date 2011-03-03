@@ -57,6 +57,7 @@ StorageEnvironment::StorageEnvironment()
     serializeChunk = NULL;
     writeChunk = NULL;
     mergeChunkOut = NULL;
+    mergeEnabled = true;
 }
 
 bool StorageEnvironment::Open(Buffer& envPath_)
@@ -222,6 +223,11 @@ void StorageEnvironment::Close()
 void StorageEnvironment::SetYieldThreads(bool yieldThreads_)
 {
     yieldThreads = yieldThreads_;
+}
+
+void StorageEnvironment::SetMergeEnabled(bool mergeEnabled_)
+{
+    mergeEnabled = mergeEnabled_;
 }
 
 uint64_t StorageEnvironment::GetShardID(uint16_t contextID, uint64_t tableID, ReadBuffer& key)
@@ -1045,6 +1051,9 @@ void StorageEnvironment::TryMergeChunks()
 #ifdef STORAGE_NOMERGE
     return;
 #endif
+
+    if (!mergeEnabled)
+        return;
 
     if (mergerThreadActive)
         return;
