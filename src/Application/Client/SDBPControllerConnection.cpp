@@ -106,18 +106,10 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     msg.response = resp;
     if (msg.Read(rbuf))
     {
-        if (resp->type == CLIENTRESPONSE_CONFIG_STATE)
-        {
-            if (ReadBuffer::Cmp(rbuf, prevConfigState) != 0)
-            {
-                Log_Debug("Config state: %R", &rbuf);
-                Log_Debug("Prev state: %B", &prevConfigState);
-                prevConfigState.Write(rbuf);
-                if (!ProcessGetConfigState(resp))
-                    delete resp;
-            }
-        }
-        else if (!ProcessResponse(resp))
+//        if (resp->type == CLIENTRESPONSE_CONFIG_STATE)
+//            Log_Debug("Config state: %R", &rbuf);
+        
+        if (!ProcessResponse(resp))
             delete resp;
     }
     else
@@ -135,7 +127,6 @@ void ControllerConnection::OnConnect()
 {
     Log_Trace();
 
-    prevConfigState.Clear();
     MessageConnection::OnConnect();
 
     CLIENT_MUTEX_GUARD_DECLARE();
