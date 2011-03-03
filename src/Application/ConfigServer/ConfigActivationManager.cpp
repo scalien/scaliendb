@@ -91,7 +91,7 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
              itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
             {
                 // the shard server is "almost caught up", start the activation process
-                itQuorum->OnActivationStart(nodeID, now + 3*PAXOSLEASE_MAX_LEASE_TIME);
+                itQuorum->OnActivationStart(nodeID, now + 5*PAXOSLEASE_MAX_LEASE_TIME);
                 UpdateTimeout();
 
                 Log_Message("Activation started for shard server %U and quorum %U...",
