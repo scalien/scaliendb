@@ -13,8 +13,6 @@ void PaxosProposer::Init(QuorumContext* context_)
     
     prepareTimeout.SetCallable(MFUNC(PaxosProposer, OnPrepareTimeout));
     proposeTimeout.SetCallable(MFUNC(PaxosProposer, OnProposeTimeout));
-    prepareTimeout.SetDelay(PAXOS_TIMEOUT);
-    proposeTimeout.SetDelay(PAXOS_TIMEOUT);
 
     vote = NULL;
     state.Init();
@@ -45,6 +43,9 @@ void PaxosProposer::OnPrepareTimeout()
     Log_Trace();
     
     assert(state.preparing);
+
+    if (prepareTimeout.GetDelay() < MAX_PAXOS_TIMEOUT)
+        prepareTimeout.SetDelay(2 * prepareTimeout.GetDelay());
     
     if (context->IsPaxosBlocked())
     {
@@ -61,6 +62,9 @@ void PaxosProposer::OnProposeTimeout()
     Log_Trace();
     
     assert(state.proposing);
+
+    if (proposeTimeout.GetDelay() < MAX_PAXOS_TIMEOUT)
+        proposeTimeout.SetDelay(2 * proposeTimeout.GetDelay());
 
     if (context->IsPaxosBlocked())
     {
@@ -80,6 +84,9 @@ void PaxosProposer::Propose(Buffer& value)
 
     state.proposedRunID = REPLICATION_CONFIG->GetRunID();
     state.proposedValue.Write(value);
+
+    prepareTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
+    proposeTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
     
     if (state.multi && state.numProposals == 0)
     {
@@ -92,18 +99,29 @@ void PaxosProposer::Propose(Buffer& value)
 
 void PaxosProposer::Restart()
 {
+    Timer* timer;
+    
+    if (!state.preparing && !state.proposing)
+        return;
+
     if (state.preparing)
+        timer = &prepareTimeout;
+    else
+        timer = &proposeTimeout;
+    
+    assert(timer->IsActive());
+    EventLoop::Remove(timer);
+
+    prepareTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
+    proposeTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
+
+    if (context->IsPaxosBlocked())
     {
-        assert(prepareTimeout.IsActive());
-        EventLoop::Remove(&prepareTimeout);
-        OnPrepareTimeout();
-    }
-    else if (state.proposing)
-    {
-        assert(proposeTimeout.IsActive());
-        EventLoop::Remove(&proposeTimeout);
-        OnProposeTimeout();
-    }
+        EventLoop::Add(timer);
+        return;
+    }        
+
+    StartPreparing();
 }
 
 void PaxosProposer::Stop()
