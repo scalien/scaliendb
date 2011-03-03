@@ -32,6 +32,9 @@ bool ClientRequest::IsControllerRequest()
     if (type == CLIENTREQUEST_GET_MASTER        ||
         type == CLIENTREQUEST_GET_CONFIG_STATE  ||
         type == CLIENTREQUEST_CREATE_QUORUM     ||
+        type == CLIENTREQUEST_DELETE_QUORUM     ||
+        type == CLIENTREQUEST_ADD_NODE          ||
+        type == CLIENTREQUEST_REMOVE_NODE       ||
         type == CLIENTREQUEST_ACTIVATE_NODE     ||
         type == CLIENTREQUEST_CREATE_DATABASE   ||
         type == CLIENTREQUEST_RENAME_DATABASE   ||
@@ -40,7 +43,9 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_RENAME_TABLE      ||
         type == CLIENTREQUEST_DELETE_TABLE      ||
         type == CLIENTREQUEST_TRUNCATE_TABLE    ||
-//        type == CLIENTREQUEST_SPLIT_SHARD       ||
+        type == CLIENTREQUEST_FREEZE_TABLE      ||
+        type == CLIENTREQUEST_UNFREEZE_TABLE    ||
+        type == CLIENTREQUEST_SPLIT_SHARD       ||
         type == CLIENTREQUEST_MIGRATE_SHARD)
             return true;
 

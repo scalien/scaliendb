@@ -8,12 +8,15 @@ SDBP_FAILURE = -102
 
 SDBP_NOMASTER = -201
 SDBP_NOCONNECTION = -202
+SDBP_NOPRIMARY = -203
 
 SDBP_MASTER_TIMEOUT = -301
 SDBP_GLOBAL_TIMEOUT = -302
+SDBP_PRIMARY_TIMEOUT = -303
 
 SDBP_NOSERVICE = -401
 SDBP_FAILED = -402
+SDBP_BADSCHEMA = -403
 
 def str_status(status):
     if status == SDBP_SUCCESS:
@@ -28,20 +31,30 @@ def str_status(status):
         return "SDBP_NOMASTER"
     elif status == SDBP_NOCONNECTION:
         return "SDBP_NOCONNECTION"
+    elif status == SDBP_NOPRIMARY:
+        return "SDBP_NOPRIMARY"
     elif status == SDBP_MASTER_TIMEOUT:
         return "SDBP_MASTER_TIMEOUT"
     elif status == SDBP_GLOBAL_TIMEOUT:
         return "SDBP_GLOBAL_TIMEOUT"
+    elif status == SDBP_PRIMARY_TIMEOUT:
+        return "SDBP_PRIMARY_TIMEOUT"
     elif status == SDBP_NOSERVICE:
         return "SDBP_NOSERVICE"
     elif status == SDBP_FAILED:
         return "SDBP_FAILED"
+    elif status == SDBP_BADSCHEMA:
+        return "SDBP_BADSCHEMA"
+    return "<UNKNOWN>"
 
 class Error(Exception):
-    def __init__(self, status):
+    def __init__(self, status, strerror=None):
         self.status = status
+        self.strerror = strerror
     
     def __str__(self):
+        if self.strerror != None:
+            return str_status(self.status) + ": " + self.strerror
         return str_status(self.status)
 
 class Client:
@@ -176,16 +189,26 @@ class Client:
         return status
 
     def get_database_id(self, name):
-        return long(SDBP_GetDatabaseID(self.cptr, name))
+        database_id = long(SDBP_GetDatabaseID(self.cptr, name))
+        if database_id == 0:
+            raise Error(SDBP_BADSCHEMA, "No database with name '%s'" % (name))
+        return database_id
     
     def get_table_id(self, database_id, name):
-        return long(SDBP_GetTableID(self.cptr, database_id, name))
+        table_id = long(SDBP_GetTableID(self.cptr, database_id, name))
+        if table_id == 0:
+            raise Error(SDBP_BADSCHEMA, "No table with name '%s'" % (name))
+        return table_id
     
     def use_database(self, name):
-        return SDBP_UseDatabase(self.cptr, name)
+        status = SDBP_UseDatabase(self.cptr, name)
+        if status != SDBP_SUCCESS:
+            raise Error(status, "No database with name '%s'" % (name))
     
     def use_table(self, name):
-        return SDBP_UseTable(self.cptr, name)
+        status = SDBP_UseTable(self.cptr, name)
+        if status != SDBP_SUCCESS:
+            raise Error(SDBP_BADSCHEMA, "No table with name '%s'" % (name))            
     
     def get(self, key):
         status, ret = self._data_command(SDBP_Get, key)
@@ -259,7 +282,7 @@ class Client:
         return self.result.number()        
 
     def begin(self):
-        return SDBP_Begin(self.cptr)
+        status = SDBP_Begin(self.cptr)
     
     def submit(self):
         status = SDBP_Submit(self.cptr)
@@ -280,7 +303,11 @@ class Client:
         if status < 0:
             self.result = Client.Result(SDBP_GetResult(self.cptr))
             if status == SDBP_API_ERROR:
-                raise Error(status)
+                raise Error(status, "Maximum request limit exceeded")
+            if status == SDBP_BADSCHEMA:
+                raise Error(status, "No database or table is in use")
+            if status == SDBP_NOSERVICE:
+                raise Error(status, "No server in the cluster was able to serve the request")
             return status, False
         if SDBP_IsBatched(self.cptr):
             return status, False
