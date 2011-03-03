@@ -461,7 +461,8 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     uint64_t        clusterID;
     ClusterMessage  clusterMessage;
     ConfigState*    configState;
-    
+    char            hexbuf[64 + 1];
+
     configState = configServer->GetDatabaseManager()->GetConfigState();
     
     // catchup issue:
@@ -493,7 +494,8 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
         if (clusterID > 0 && message.clusterID != clusterID)
             STOP_FAIL(1, "Invalid controller configuration!");
         
-        Log_Debug("ClusterID set to %U", message.clusterID);
+        UInt64ToBufferWithBase(hexbuf, sizeof(hexbuf), message.clusterID, 64);
+        Log_Debug("ClusterID set to %s (%U)", hexbuf, message.clusterID);
         REPLICATION_CONFIG->SetClusterID(message.clusterID);
         CONTEXT_TRANSPORT->SetClusterID(message.clusterID);
         REPLICATION_CONFIG->Commit();
