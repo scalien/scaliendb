@@ -28,7 +28,7 @@ public:
     
     T*              First() const;
     T*              Last() const;
-    int             GetLength() const;
+    unsigned        GetLength() const;
     
     T*              Next(T* t) const;
     T*              Prev(T* t) const;
@@ -134,7 +134,7 @@ T* SortedList<T>::Last() const
 }
 
 template<class T>
-int SortedList<T>::GetLength() const
+unsigned SortedList<T>::GetLength() const
 {
     return list.GetLength();
 }
