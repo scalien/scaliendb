@@ -35,6 +35,7 @@ public:
     void                    TryAppendDummy();
     void                    TryAppendNextValue();
     void                    TryCatchup();
+    void                    Restart();
     
     void                    SetPaxosID(uint64_t paxosID);
     uint64_t                GetPaxosID();

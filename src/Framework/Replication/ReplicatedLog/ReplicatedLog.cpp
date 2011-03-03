@@ -77,6 +77,7 @@ void ReplicatedLog::TryAppendDummy()
         return;
 
     Append(dummy);
+    Log_Debug("Appending DUMMY!");
 }
 
 void ReplicatedLog::TryAppendNextValue()
@@ -97,6 +98,12 @@ void ReplicatedLog::TryCatchup()
 {
     if (context->IsLeaseKnown())
         RequestChosen(context->GetLeaseOwner());
+}
+
+void ReplicatedLog::Restart()
+{
+    if (proposer.IsActive())
+        proposer.Restart();
 }
 
 void ReplicatedLog::SetPaxosID(uint64_t paxosID_)
