@@ -76,13 +76,14 @@ void StorageMemoChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
             continue;
         }
 
-        if (total + it->GetKey().GetLength() + it->GetValue().GetLength() > STORAGE_MEMO_BUNCH_GRAN)
+        if (!first && total + it->GetKey().GetLength() + it->GetValue().GetLength() > STORAGE_MEMO_BUNCH_GRAN)
             break;
         
         total += it->GetKey().GetLength() + it->GetValue().GetLength();
         cursor.AppendKeyValue(it);
         
         it = keyValues.Next(it);
+        first = false;
     }
     cursor.FinalizeKeyValues();
     
