@@ -41,6 +41,7 @@ void PaxosProposer::OnMessage(PaxosMessage& imsg)
 
 void PaxosProposer::OnPrepareTimeout()
 {
+    Log_Debug("OnPrepareTimeout");
     Log_Trace();
     
     assert(state.preparing);
@@ -56,6 +57,7 @@ void PaxosProposer::OnPrepareTimeout()
 
 void PaxosProposer::OnProposeTimeout()
 {
+    Log_Debug("OnProposeTimeout");
     Log_Trace();
     
     assert(state.proposing);
@@ -86,6 +88,22 @@ void PaxosProposer::Propose(Buffer& value)
     }
     else
         StartPreparing();   
+}
+
+void PaxosProposer::Restart()
+{
+    if (state.preparing)
+    {
+        assert(prepareTimeout.IsActive());
+        EventLoop::Remove(&prepareTimeout);
+        OnPrepareTimeout();
+    }
+    else if (state.proposing)
+    {
+        assert(proposeTimeout.IsActive());
+        EventLoop::Remove(&proposeTimeout);
+        OnProposeTimeout();
+    }
 }
 
 void PaxosProposer::Stop()

@@ -33,6 +33,8 @@ public:
     void                        OnProposeTimeout();
     
     void                        Propose(Buffer& value);
+    void                        Restart();
+
     void                        Stop();
     bool                        IsActive(); 
 
