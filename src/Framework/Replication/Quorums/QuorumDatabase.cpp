@@ -103,6 +103,8 @@ void QuorumDatabase::GetAcceptedValue(uint64_t paxosID, Buffer& value)
     ret = logShard->Get(rbKey, rbValue);
     if (!ret)
         return;
+
+    ASSERT(rbValue.GetLength());
     
     value.Write(rbValue.GetBuffer(), rbValue.GetLength());
 }
@@ -111,6 +113,8 @@ void QuorumDatabase::SetAcceptedValue(uint64_t paxosID, ReadBuffer value)
 {
     Buffer      key;
     ReadBuffer  rbKey;
+
+    ASSERT(value.GetLength());
 
     key.Writef("accepted:%021U", paxosID);
     rbKey.Wrap(key);
