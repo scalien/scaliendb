@@ -15,7 +15,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBatchedGet);
 //TEST_ADD(TestClientBatchedGet2);
 //TEST_ADD(TestClientBatchedSet);
-//TEST_ADD(TestClientBatchedSet2);
+TEST_ADD(TestClientBatchedSet2);
 //TEST_ADD(TestClientBatchedSetRandom);
 //TEST_ADD(TestClientBatchLimit);
 //TEST_ADD(TestClientCreateTable);
@@ -32,7 +32,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientMultiThreadMulti);
 //TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);
-TEST_ADD(TestClientSetFailover);
+//TEST_ADD(TestClientSetFailover);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
 //TEST_ADD(TestCrashStorage);

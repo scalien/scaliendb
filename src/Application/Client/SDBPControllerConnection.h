@@ -54,6 +54,7 @@ private:
     Countdown       getConfigStateTimeout;
     bool            getConfigStateSent;
     RequestList     requests;
+    Buffer          prevConfigState;
 };
 
 }; // namespace
