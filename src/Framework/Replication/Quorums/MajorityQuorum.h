@@ -24,7 +24,7 @@ public:
     QuorumVote*         NewVote() const;    
 
 private:
-    uint64_t            nodes[5];
+    uint64_t            nodes[9];
     unsigned            numNodes;
     unsigned            numAccepted;
     unsigned            numRejected;
@@ -52,7 +52,7 @@ public:
     bool                IsComplete() const;
 
 private:
-    uint64_t            nodes[5];
+    uint64_t            nodes[9];
     unsigned            numNodes;
     unsigned            numAccepted;
     unsigned            numRejected;
