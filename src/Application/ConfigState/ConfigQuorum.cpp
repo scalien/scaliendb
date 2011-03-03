@@ -1,5 +1,10 @@
 #include "ConfigQuorum.h"
 
+static bool LessThan(uint64_t a, uint64_t b)
+{
+    return a < b;
+}
+
 ConfigQuorum::ConfigQuorum()
 {
     prev = next = this;
@@ -101,10 +106,9 @@ bool ConfigQuorum::IsMember(uint64_t nodeID)
     return IsActiveMember(nodeID) || IsInactiveMember(nodeID);
 }
 
-void ConfigQuorum::GetVolatileActiveNodes(List<uint64_t>& list)
+void ConfigQuorum::GetVolatileActiveNodes(SortedList<uint64_t>& list)
 {
-    list.Clear();
     list = activeNodes;
     if (isActivatingNode)
-        list.Append(activatingNodeID);
+        list.Add(activatingNodeID);
 }

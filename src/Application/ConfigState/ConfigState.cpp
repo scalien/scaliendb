@@ -765,14 +765,17 @@ void ConfigState::OnRegisterShardServer(ConfigMessage& message)
 
 void ConfigState::OnCreateQuorum(ConfigMessage& message)
 {
-    ConfigQuorum* quorum;
+    uint64_t*       it;
+    ConfigQuorum*   quorum;
     
     // make sure quorumID is available
     assert(GetQuorum(message.quorumID) == NULL);
         
     quorum = new ConfigQuorum;
     quorum->quorumID = nextQuorumID++;
-    quorum->activeNodes = message.nodes;
+    quorum->activeNodes.Clear();
+    FOREACH(it, message.nodes)
+        quorum->activeNodes.Add(*it);
     
     quorums.Append(quorum);
     
@@ -803,7 +806,7 @@ void ConfigState::OnAddNode(ConfigMessage& message)
     if (quorum->IsMember(message.nodeID))
         ASSERT_FAIL();
 
-    quorum->inactiveNodes.Append(message.nodeID);
+    quorum->inactiveNodes.Add(message.nodeID);
 }
 
 void ConfigState::OnRemoveNode(ConfigMessage& message)
@@ -841,7 +844,7 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
     if (quorum->IsInactiveMember(message.nodeID))
     {
         quorum->inactiveNodes.Remove(message.nodeID);
-        quorum->activeNodes.Append(message.nodeID);
+        quorum->activeNodes.Add(message.nodeID);
 
         if (quorum->isActivatingNode)
         {
@@ -870,7 +873,7 @@ void ConfigState::OnDeactivateShardServer(ConfigMessage& message)
     if (quorum->IsActiveMember(message.nodeID))
     {
         quorum->activeNodes.Remove(message.nodeID);
-        quorum->inactiveNodes.Append(message.nodeID);
+        quorum->inactiveNodes.Add(message.nodeID);
         return;
     }
     

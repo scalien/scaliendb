@@ -31,11 +31,11 @@ public:
     bool                    IsInactiveMember(uint64_t nodeID);
     bool                    IsMember(uint64_t nodeID);
 
-    void                    GetVolatileActiveNodes(List<uint64_t>& activeNodes);
+    void                    GetVolatileActiveNodes(SortedList<uint64_t>& activeNodes);
     
     uint64_t                quorumID;
-    List<uint64_t>          activeNodes;
-    List<uint64_t>          inactiveNodes;
+    SortedList<uint64_t>    activeNodes;
+    SortedList<uint64_t>    inactiveNodes;
     SortedList<uint64_t>    shards;
     
     // ========================================================================================

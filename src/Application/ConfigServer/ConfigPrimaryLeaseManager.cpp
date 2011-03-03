@@ -109,7 +109,7 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
     unsigned                duration;
     PrimaryLease*           primaryLease;
     ClusterMessage          response;
-    List<uint64_t>          activeNodes;
+    SortedList<uint64_t>    activeNodes;
 
     assert(quorum.hasPrimary == false);
 
@@ -136,7 +136,7 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
     uint64_t                duration;
     PrimaryLease*           it;
     ClusterMessage          response;
-    List<uint64_t>          activeNodes;
+    SortedList<uint64_t>    activeNodes;
 
     if (!configServer->GetQuorumProcessor()->IsMaster())
         return;

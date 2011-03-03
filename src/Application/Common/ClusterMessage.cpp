@@ -64,7 +64,7 @@ bool ClusterMessage::RequestLease(uint64_t nodeID_, uint64_t quorumID_,
 
 bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
  uint64_t proposalID_, uint64_t configID_, unsigned duration_,
- bool watchingPaxosID_, List<uint64_t>& activeNodes_, SortedList<uint64_t>& shards_)
+ bool watchingPaxosID_, SortedList<uint64_t>& activeNodes_, SortedList<uint64_t>& shards_)
 {
     type = CLUSTERMESSAGE_RECEIVE_LEASE;
     nodeID = nodeID_;

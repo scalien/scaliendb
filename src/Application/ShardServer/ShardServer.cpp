@@ -418,6 +418,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     uint64_t*               itNodeID;
     ConfigShardServer*      shardServer;
     ShardQuorumProcessor*   quorumProcessor;
+    SortedList<uint64_t>    activeNodes;
     
     Log_Trace();    
     
@@ -440,7 +441,8 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     }
     else
     {
-        quorumProcessor->SetActiveNodes(configQuorum->activeNodes);
+        configQuorum->GetVolatileActiveNodes(activeNodes);
+        quorumProcessor->SetActiveNodes(activeNodes);
 
         // add nodes to CONTEXT_TRANSPORT
         FOREACH(itNodeID, configQuorum->activeNodes)

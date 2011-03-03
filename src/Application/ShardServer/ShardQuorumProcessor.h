@@ -47,7 +47,7 @@ public:
     void                    OnReceiveLease(ClusterMessage& message);
     void                    OnClientRequest(ClientRequest* request);
     void                    OnClientClose(ClientSession* session);
-    void                    SetActiveNodes(List<uint64_t>& activeNodes);
+    void                    SetActiveNodes(SortedList<uint64_t>& activeNodes);
     void                    RegisterPaxosID(uint64_t paxosID);
     void                    TryReplicationCatchup();
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
@@ -105,7 +105,6 @@ private:
 
     MessageList             shardMessages;
     RequestList             clientRequests;
-    List<uint64_t>          activeNodes;
     
 //    bool                    isShardMigrationActive;
     uint64_t                migrateShardID;

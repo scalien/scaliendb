@@ -8,13 +8,16 @@
 void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
  ShardQuorumProcessor* quorumProcessor_)
 {
-    List<uint64_t> activeNodes;
+    uint64_t*               it;
+    SortedList<uint64_t>    activeNodes;
     
     quorumProcessor = quorumProcessor_;
     quorumID = configQuorum->quorumID;
   
     configQuorum->GetVolatileActiveNodes(activeNodes);
-    SetActiveNodes(activeNodes);
+
+    FOREACH(it, activeNodes)
+        quorum.AddNode(*it);
 
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
@@ -36,17 +39,29 @@ void ShardQuorumContext::Shutdown()
     replicatedLog.Shutdown();
 }
 
-void ShardQuorumContext::SetActiveNodes(List<uint64_t>& activeNodes)
+void ShardQuorumContext::SetActiveNodes(SortedList<uint64_t>& activeNodes)
 {
+    unsigned    i;
     uint64_t*   it;
+    uint64_t*   oldNodes;
 
-    Log_Trace("Reconfiguring quorum");
+    oldNodes = (uint64_t*) quorum.GetNodes();
 
-    quorum.ClearNodes();
+    if (activeNodes.GetLength() != quorum.GetNumNodes())
+    {
+        ReconfigureQuorum(activeNodes);
+        return;
+    }
+
+    i = 0;
     FOREACH(it, activeNodes)
     {
-        Log_Trace("Adding %U", *it);
-        quorum.AddNode(*it);
+        if (oldNodes[i] != *it)
+        {
+            ReconfigureQuorum(activeNodes);
+            return;
+        }
+        i++;
     }
 }
 
@@ -243,3 +258,22 @@ void ShardQuorumContext::OnCatchupMessage(ReadBuffer buffer)
     quorumProcessor->OnCatchupMessage(msg);
 }
 
+void ShardQuorumContext::ReconfigureQuorum(SortedList<uint64_t>& activeNodes)
+{
+    uint64_t*   it;
+
+    Log_Debug("Reconfiguring quorum");
+    
+    for (unsigned i = 0; i < quorum.GetNumNodes(); i++)
+        Log_Debug("Old nodes: %U", quorum.GetNodes()[i]);
+
+    quorum.ClearNodes();
+    FOREACH(it, activeNodes)
+    {
+        Log_Debug("New nodes: %U", *it);
+        quorum.AddNode(*it);
+    }
+    
+    if (replicatedLog.IsAppending())
+        replicatedLog.Restart();
+}

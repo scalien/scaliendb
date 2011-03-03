@@ -5,6 +5,11 @@
 #include "Application/Common/ContextTransport.h"
 #include "ShardServer.h"
 
+static bool LessThan(uint64_t a, uint64_t b)
+{
+    return a < b;
+}
+
 ShardQuorumProcessor::ShardQuorumProcessor()
 {
     prev = next = this;
@@ -103,6 +108,9 @@ ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
 
 void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
 {
+    SortedList<uint64_t>    activeNodes;
+    uint64_t*               it;
+    
     if (proposalID != message.proposalID)
         return;
 
@@ -114,7 +122,9 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     
     isPrimary = true;
     configID = message.configID;
-    activeNodes = message.activeNodes;
+    
+    FOREACH(it, message.activeNodes)
+        activeNodes.Add(*it);
     quorumContext.SetActiveNodes(activeNodes);
         
     shards = message.shards;
@@ -369,7 +379,7 @@ void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
 {
 }
 
-void ShardQuorumProcessor::SetActiveNodes(List<uint64_t>& activeNodes)
+void ShardQuorumProcessor::SetActiveNodes(SortedList<uint64_t>& activeNodes)
 {
     quorumContext.SetActiveNodes(activeNodes);
 }

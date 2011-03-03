@@ -39,7 +39,7 @@ public:
     uint64_t                configID;
     unsigned                duration;
     bool                    watchingPaxosID;
-    List<uint64_t>          activeNodes;
+    SortedList<uint64_t>    activeNodes;
     SortedList<uint64_t>    shards;
     List<QuorumInfo>        quorumInfos;
     List<QuorumShardInfo>   quorumShardInfos;
@@ -60,7 +60,7 @@ public:
                      uint64_t proposalID, uint64_t paxosID, uint64_t configID, unsigned duration);
     bool            ReceiveLease(uint64_t nodeID, uint64_t quorumID,
                      uint64_t proposalID, uint64_t configID, unsigned duration,
-                     bool watchingPaxosID, List<uint64_t>& activeNodes,
+                     bool watchingPaxosID, SortedList<uint64_t>& activeNodes,
                      SortedList<uint64_t>& shards);
     bool            ShardMigrationInitiate(uint64_t nodeID, uint64_t quorumID, uint64_t shardID);
     bool            ShardMigrationBegin(uint64_t quorumID, uint64_t shardID);
