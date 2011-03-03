@@ -516,7 +516,7 @@ function onConfigState(configState)
 	scaliendb.util.elem("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
 	
 	clearTimeout(timer);
-	timer = setTimeout("onTimeout()", 2000);
+	timer = setTimeout("onTimeout()", 1000);
 	// scaliendb.pollConfigState(onConfigState);
 }
 
@@ -838,6 +838,7 @@ function createTableDiv(configState, table)
 					<span class="table-head">' + table["name"] + '</span>								\
 				</td>																					\
 				<td>																					\
+					Table number: ' + table["tableID"] + '<br/>											\
 					Shards: 																			\
 	';
 	
@@ -871,7 +872,7 @@ function createTableDiv(configState, table)
 	for (var i in quorumIDs)
 	{
 			var quorumID = quorumIDs[i];
-			html += ' <span class="quorum-number ' + scaliendb.getQuorumState(configState, quorumID) + '">' + quorumID + '</span> ';
+			html += '<span class="quorum-number ' + scaliendb.getQuorumState(configState, quorumID) + '">' + quorumID + '</span> ';
 	}
 	
 	html += 
