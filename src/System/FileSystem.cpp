@@ -83,6 +83,7 @@ bool FS_RecDeleteDir(const char* path)
 */
 
 #ifndef PLATFORM_WINDOWS
+#define _FILE_OFFSET_BITS 64
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <sys/statvfs.h>
