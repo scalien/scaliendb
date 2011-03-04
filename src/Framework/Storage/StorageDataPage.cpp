@@ -68,7 +68,7 @@ uint32_t StorageDataPage::GetNumKeys()
 
 uint32_t StorageDataPage::GetLength()
 {
-    return buffer.GetLength();
+    return 16 + keysBuffer.GetLength() + valuesBuffer.GetLength();
 }
 
 uint32_t StorageDataPage::GetIncrement(StorageKeyValue* kv)
