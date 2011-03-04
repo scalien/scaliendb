@@ -3,7 +3,7 @@
 
 #define NUM_PRELOAD_PAGES   16
 
-void StorageChunkReader::Open(ReadBuffer filename, uint64_t preloadThreshold_)
+void StorageChunkReader::Open(ReadBuffer filename, uint64_t preloadThreshold_, bool keysOnly_)
 {
     fileChunk.useCache = false;
     fileChunk.SetFilename(filename);
@@ -11,6 +11,7 @@ void StorageChunkReader::Open(ReadBuffer filename, uint64_t preloadThreshold_)
     fileChunk.LoadIndexPage();
 
     preloadThreshold = preloadThreshold_;
+    keysOnly = keysOnly_;
 }
 
 StorageFileKeyValue* StorageChunkReader::First(ReadBuffer& firstKey)
@@ -99,7 +100,7 @@ void StorageChunkReader::PreloadDataPages()
 
     do
     {
-        fileChunk.LoadDataPage(i, offset);
+        fileChunk.LoadDataPage(i, offset, false, keysOnly);
         pageSize = fileChunk.dataPages[i]->GetSize();
         offset += pageSize;
         totalSize += pageSize;

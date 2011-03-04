@@ -138,7 +138,7 @@ void StorageAsyncList::AsyncLoadFileChunks()
     for (i = 0; i < numListers - 1; i++)
     {
         fileLister = (StorageFileChunkLister*) listers[i];
-        fileLister->Load();
+        fileLister->Load((type == KEY || type == COUNT));
         iterators[i] = fileLister->First(startKey);
     }
     

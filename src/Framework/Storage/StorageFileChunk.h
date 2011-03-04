@@ -59,7 +59,7 @@ public:
     void                OnDataPageEvicted(uint32_t index);
     void                LoadBloomPage();
     void                LoadIndexPage();
-    void                LoadDataPage(uint32_t index, uint32_t offset, bool bulk = false);
+    void                LoadDataPage(uint32_t index, uint32_t offset, bool bulk = false, bool keysOnly = false);
     StoragePage*        AsyncLoadBloomPage();
     StoragePage*        AsyncLoadIndexPage();
     StoragePage*        AsyncLoadDataPage(uint32_t index, uint32_t offset);
@@ -72,7 +72,7 @@ public:
     void                AppendDataPage(StorageDataPage* dataPage);
     void                AllocateDataPageArray();
     void                ExtendDataPageArray();
-    bool                ReadPage(uint32_t offset, Buffer& buffer);
+    bool                ReadPage(uint32_t offset, Buffer& buffer, bool keysOnly = false);
 
     bool                written;
     StorageHeaderPage   headerPage;

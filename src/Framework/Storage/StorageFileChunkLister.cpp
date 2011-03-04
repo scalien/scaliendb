@@ -7,9 +7,9 @@ void StorageFileChunkLister::SetFilename(ReadBuffer filename_)
     filename.Write(filename_);
 }
 
-void StorageFileChunkLister::Load()
+void StorageFileChunkLister::Load(bool keysOnly)
 {
-    reader.Open(filename, MAX_PRELOAD_THRESHOLD);
+    reader.Open(filename, MAX_PRELOAD_THRESHOLD, keysOnly);
 }
 
 StorageFileKeyValue* StorageFileChunkLister::First(ReadBuffer& firstKey)

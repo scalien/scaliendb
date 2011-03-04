@@ -12,6 +12,7 @@ StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 
     buffer.AppendLittle32(0); // dummy for size
     buffer.AppendLittle32(0); // dummy for checksum
+    buffer.AppendLittle32(0); // dummy for keysSize
     buffer.AppendLittle32(0); // dummy for numKeys
     
     owner = owner_;
@@ -86,13 +87,13 @@ void StorageDataPage::Append(StorageKeyValue* kv)
 {
     StorageFileKeyValue*    fkv;
     
-    buffer.Append(kv->GetType());                           // 1 byte(s)
-    buffer.AppendLittle16(kv->GetKey().GetLength());        // 2 byte(s)
-    buffer.Append(kv->GetKey());
+    keysBuffer.Append(kv->GetType());                               // 1 byte(s)
+    keysBuffer.AppendLittle16(kv->GetKey().GetLength());            // 2 byte(s)
+    keysBuffer.Append(kv->GetKey());
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
     {
-        buffer.AppendLittle32(kv->GetValue().GetLength());  // 4 bytes(s)
-        buffer.Append(kv->GetValue());
+        valuesBuffer.AppendLittle32(kv->GetValue().GetLength());    // 4 bytes(s)
+        valuesBuffer.Append(kv->GetValue());
     }
 
     fkv = new StorageFileKeyValue;
@@ -106,12 +107,14 @@ void StorageDataPage::Append(StorageKeyValue* kv)
 
 void StorageDataPage::Finalize()
 {
-    uint32_t                div, mod, numKeys, checksum, length, klen, vlen, pos;
+    uint32_t                div, mod, numKeys, checksum, length, klen, vlen, kit, vit;
     char                    *kpos, *vpos;
     ReadBuffer              dataPart;
     StorageFileKeyValue*    it;
     
     numKeys = GetNumKeys();
+    buffer.Append(keysBuffer);
+    buffer.Append(valuesBuffer);
     length = buffer.GetLength();
 
     div = length / STORAGE_DEFAULT_PAGE_GRAN;
@@ -123,8 +126,12 @@ void StorageDataPage::Finalize()
     buffer.Allocate(size);
     buffer.ZeroRest();
 
-    // write numKeys
+    // write keysSize
     buffer.SetLength(8);
+    buffer.AppendLittle32(keysBuffer.GetLength());
+
+    // write numKeys
+    buffer.SetLength(12);
     buffer.AppendLittle32(numKeys);
 
     // compute checksum
@@ -139,23 +146,24 @@ void StorageDataPage::Finalize()
     buffer.SetLength(size);
     
     // set ReadBuffers in tree
-    pos = 12;
+    kit = 16;
+    vit = 16 + keysBuffer.GetLength();
     for (unsigned i = 0; i < numKeys; i++)
     {
         it = GetIndexedKeyValue(i);
         
-        pos += 1;                                                // type
+        kit += 1;                                                // type
         if (it->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         {
             klen = it->GetKey().GetLength();
             vlen = it->GetValue().GetLength();
             
-            pos += 2;                                            // keylen
-            kpos = buffer.GetBuffer() + pos;
-            pos += klen;
-            pos += 4;                                            // vlen
-            vpos = buffer.GetBuffer() + pos;
-            pos += vlen;
+            kit += 2;                                            // keylen
+            kpos = buffer.GetBuffer() + kit;
+            kit += klen;
+            vit += 4;                                            // vlen
+            vpos = buffer.GetBuffer() + vit;
+            vit += vlen;
             
             it->Set(ReadBuffer(kpos, klen), ReadBuffer(vpos, vlen));
         }
@@ -163,9 +171,9 @@ void StorageDataPage::Finalize()
         {
             klen = it->GetKey().GetLength();
             
-            pos += 2;                                            // keylen
-            kpos = buffer.GetBuffer() + pos;
-            pos += klen;
+            kit += 2;                                            // keylen
+            kpos = buffer.GetBuffer() + kit;
+            kit += klen;
             
             it->Delete(ReadBuffer(kpos, klen));
         }
@@ -179,6 +187,7 @@ void StorageDataPage::Finalize()
     buffer.SetLength(0);
     buffer.AppendLittle32(0);
     buffer.AppendLittle32(0);  // checksum
+    buffer.AppendLittle32(keysBuffer.GetLength());
     buffer.AppendLittle32(buffer.GetLength());
     buffer.Append(compressed);
     
@@ -190,6 +199,9 @@ void StorageDataPage::Finalize()
 #else
     compressedSize = size;
 #endif
+
+    keysBuffer.Reset();
+    valuesBuffer.Reset();
 }
 
 void StorageDataPage::Reset()
@@ -203,10 +215,13 @@ void StorageDataPage::Reset()
     }
 
     keyValueIndexBuffer.Reset();
+    keysBuffer.Reset();
+    valuesBuffer.Reset();
     buffer.Reset();
     
     buffer.AppendLittle32(0); // dummy for size
     buffer.AppendLittle32(0); // dummy for checksum
+    buffer.AppendLittle32(0); // dummy for keysLength
     buffer.AppendLittle32(0); // dummy for numKeys
 }
 
@@ -272,17 +287,19 @@ StorageFileKeyValue* StorageDataPage::LocateKeyValue(ReadBuffer& key, int& cmpre
     return kvIndex[mid];
 }
 
-bool StorageDataPage::Read(Buffer& buffer_)
+bool StorageDataPage::Read(Buffer& buffer_, bool keysOnly)
 {
     char                    type;
     uint16_t                klen;
-    uint32_t                size, /*checksum, compChecksum,*/ numKeys, vlen, i;
-    ReadBuffer              dataPart, parse, key, value;
+    uint32_t                size, /*checksum, compChecksum,*/ numKeys, vlen, i, keysSize;
+    ReadBuffer              dataPart, parse, kparse, vparse, key, value;
     StorageFileKeyValue*    fkv;
     
 #ifdef STORAGE_DATAPAGE_COMPRESSION    
     Compressor              compressor;
     uint32_t                uncompressedSize;
+
+    Key - value seperation not implemented!
 
     parse.Wrap(buffer_);
     parse.ReadLittle32(compressedSize);
@@ -291,7 +308,7 @@ bool StorageDataPage::Read(Buffer& buffer_)
     parse.Advance(sizeof(uint32_t));
     compressor.Uncompress(parse, buffer, uncompressedSize);
 #else
-    assert(GetNumKeys() == 0);    
+    assert(GetNumKeys() == 0);
     buffer.Write(buffer_);
 #endif
     parse.Wrap(buffer);
@@ -300,8 +317,9 @@ bool StorageDataPage::Read(Buffer& buffer_)
     parse.ReadLittle32(size);
     if (size < 12)
         goto Fail;
-    if (buffer.GetLength() != size)
-        goto Fail;
+    if (!keysOnly)
+        if (buffer.GetLength() != size)
+            goto Fail;
     parse.Advance(4);
 
     // checksum
@@ -311,45 +329,60 @@ bool StorageDataPage::Read(Buffer& buffer_)
 //    if (compChecksum != checksum)
 //        goto Fail;
     parse.Advance(4);
+
+    // keysSize
+    parse.ReadLittle32(keysSize);
+    parse.Advance(4);
     
     // numkeys
     parse.ReadLittle32(numKeys);
     parse.Advance(4);
 
     // keys
+    kparse = parse;
+    if (!keysOnly)
+    {
+        vparse = parse;
+        vparse.Advance(keysSize);
+    }
     for (i = 0; i < numKeys; i++)
     {
         // type
-        if (!parse.ReadChar(type))
+        if (!kparse.ReadChar(type))
             goto Fail;
         if (type != STORAGE_KEYVALUE_TYPE_SET && type != STORAGE_KEYVALUE_TYPE_DELETE)
             goto Fail;
-        parse.Advance(1);
+        kparse.Advance(1);
 
         // klen
-        if (!parse.ReadLittle16(klen))
+        if (!kparse.ReadLittle16(klen))
             goto Fail;
-        parse.Advance(2);
+        kparse.Advance(2);
         
         // key
-        if (parse.GetLength() < klen)
+        if (kparse.GetLength() < klen)
             goto Fail;
-        key.Wrap(parse.GetBuffer(), klen);
-        parse.Advance(klen);
+        key.Wrap(kparse.GetBuffer(), klen);
+        kparse.Advance(klen);
         
         if (type == STORAGE_KEYVALUE_TYPE_SET)
         {
-            // vlen
-            if (!parse.ReadLittle32(vlen))
-                goto Fail;
-            parse.Advance(4);
-            
-            // value
-            if (parse.GetLength() < vlen)
-                goto Fail;
-            value.Wrap(parse.GetBuffer(), vlen);
-            parse.Advance(vlen);
-            
+            if (!keysOnly)
+            {
+                // vlen
+                if (!vparse.ReadLittle32(vlen))
+                    goto Fail;
+                vparse.Advance(4);
+                
+                // value
+                if (vparse.GetLength() < vlen)
+                    goto Fail;
+                value.Wrap(vparse.GetBuffer(), vlen);
+                vparse.Advance(vlen);
+            }
+            else
+                value.Reset();
+
             fkv = new StorageFileKeyValue;
             fkv->Set(key, value);
             AppendKeyValue(fkv);

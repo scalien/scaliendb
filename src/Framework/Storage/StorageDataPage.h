@@ -44,7 +44,7 @@ public:
     StorageFileKeyValue*    GetIndexedKeyValue(unsigned index);
     StorageFileKeyValue*    LocateKeyValue(ReadBuffer& key, int& cmpres);
 
-    bool                    Read(Buffer& buffer);
+    bool                    Read(Buffer& buffer, bool keysOnly = false);
     void                    Write(Buffer& buffer);
 
     void                    Unload();
@@ -56,6 +56,8 @@ private:
     uint32_t                compressedSize;
     uint32_t                index;
     Buffer                  buffer;
+    Buffer                  keysBuffer;
+    Buffer                  valuesBuffer;
     StorageFileChunk*       owner;
     Buffer                  keyValueIndexBuffer;
 };

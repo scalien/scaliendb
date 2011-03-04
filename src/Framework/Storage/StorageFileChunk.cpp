@@ -442,7 +442,7 @@ void StorageFileChunk::LoadIndexPage()
     }
 }
 
-void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
+void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk, bool keysOnly)
 {
     Buffer buffer;
 
@@ -451,7 +451,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
     
     dataPages[index] = new StorageDataPage(this, index);
     dataPages[index]->SetOffset(offset);
-    if (!ReadPage(offset, buffer))
+    if (!ReadPage(offset, buffer, keysOnly))
     {
         Log_Message("Unable to read data page from %s at offset %U", filename.GetBuffer(), offset);
         Log_Message("This should not happen.");
@@ -459,7 +459,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk)
         Log_Message("Exiting...");
         STOP_FAIL(1);
     }
-    if (!dataPages[index]->Read(buffer))
+    if (!dataPages[index]->Read(buffer, keysOnly))
     {
         Log_Message("Unable to parse data page read from %s at offset %U with size %u",
          filename.GetBuffer(), offset, buffer.GetLength());
@@ -660,9 +660,9 @@ void StorageFileChunk::ExtendDataPageArray()
     dataPagesSize = newSize;
 }
 
-bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer)
+bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer, bool keysOnly)
 {
-    uint32_t    size, rest;
+    uint32_t    size, keysSize, rest;
     ssize_t     nread;
     ReadBuffer  parse;
     
@@ -679,6 +679,15 @@ bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer)
     if (!parse.ReadLittle32(size))
         return false;
 
+    if (keysOnly)
+    {
+        // read only keys
+        parse.Advance(8);
+        if (!parse.ReadLittle32(keysSize))
+            return false;
+        size = 16 + keysSize;
+    }
+    
     if (size <= nread)
     {
         buffer.SetLength(size);
