@@ -223,7 +223,7 @@ void List<T>::Clear()
     
     head = tail = NULL;
     
-    assert(length == 0);
+    ASSERT(length == 0);
 }
 
 template<class T>

@@ -54,8 +54,8 @@ InQueue<T>::InQueue()
 template<class T>
 void InQueue<T>::Enqueue(T* elem)
 {
-    assert(elem != NULL);
-    assert(elem->next == elem);
+    ASSERT(elem != NULL);
+    ASSERT(elem->next == elem);
     
     elem->next = NULL;
     if (tail)

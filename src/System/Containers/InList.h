@@ -2,7 +2,6 @@
 #define INLIST_H
 
 #include <stddef.h>
-#include <assert.h>
 #include "System/Common.h"
 #include "System/Macros.h"
 

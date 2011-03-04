@@ -1,7 +1,6 @@
 #ifndef INPRIORITYQUEUE_H
 #define INPRIORITYQUEUE_H
 
-#include <assert.h>
 #include <stdlib.h>
 #include "System/Macros.h"
 
@@ -58,7 +57,7 @@ InPriorityQueue<T>::InPriorityQueue()
 template<class T>
 void InPriorityQueue<T>::Enqueue(T* elem)
 {
-    assert(elem != NULL);
+    ASSERT(elem != NULL);
     
     elem->next = NULL;
     if (tail)
@@ -72,7 +71,7 @@ void InPriorityQueue<T>::Enqueue(T* elem)
 template<class T>
 void InPriorityQueue<T>::EnqueuePriority(T* elem)
 {
-    assert(elem != NULL);
+    ASSERT(elem != NULL);
     
     elem->next = NULL;
     if (prio)

@@ -50,7 +50,7 @@ bool InSortedList<T>::Add(T* t)
 
     while(true)
     {
-        assert(curr != t); // it's already linked
+        ASSERT(curr != t); // it's already linked
 
         if (curr == NULL || LessThan(*t, *curr))
         {

@@ -95,7 +95,7 @@ uint32_t ReadBuffer::GetChecksum()
 
 void ReadBuffer::Advance(unsigned i)
 {
-    assert(length - i <= length);
+    ASSERT(length - i <= length);
 
     buffer += i;
     length -= i;    

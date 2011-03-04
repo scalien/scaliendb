@@ -118,7 +118,7 @@ void Buffer::Allocate(unsigned size_, bool keepold)
     else    
         newbuffer = (char*) realloc(buffer, size_);
 
-    assert(newbuffer != NULL);
+    ASSERT(newbuffer != NULL);
 
     if (keepold && length > 0)
     {

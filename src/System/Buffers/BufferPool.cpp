@@ -31,7 +31,7 @@ Buffer* BufferPool::Acquire(unsigned size)
         if (it->GetSize() >= size)
         {
             available.Remove(it);
-            assert(availableSize - it->GetSize() <= availableSize);
+            ASSERT(availableSize - it->GetSize() <= availableSize);
             availableSize -= it->GetSize();
             return it;  
         }
@@ -41,7 +41,7 @@ Buffer* BufferPool::Acquire(unsigned size)
     {
         it = available.First();
         available.Remove(it);
-        assert(availableSize - it->GetSize() <= availableSize);
+        ASSERT(availableSize - it->GetSize() <= availableSize);
         availableSize -= it->GetSize();
     }
     else

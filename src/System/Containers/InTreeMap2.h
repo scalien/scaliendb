@@ -2,7 +2,6 @@
 #define INTREEMAP2_H
 
 #include <stdlib.h>
-#include <assert.h>
 
 #include "System/Macros.h"
 #include "System/Common.h"
@@ -323,7 +322,7 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
     SetColor(elem, Node::RED);
     if (root == NULL)
     {
-        assert(pos == NULL && cmpres == 0);
+        ASSERT(pos == NULL && cmpres == 0);
         root = elem;
         count = 1;
         return;
@@ -332,13 +331,13 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
     curr = pos;
     if (cmpres < 0)
     {
-        assert(GetLeft(curr) == NULL);
+        ASSERT(GetLeft(curr) == NULL);
         SetLeft(curr, elem);
         count++;
     }
     else if (cmpres > 0)
     {
-        assert(GetRight(curr) == NULL);
+        ASSERT(GetRight(curr) == NULL);
         SetRight(curr, elem);
         count++;
     }
@@ -687,7 +686,7 @@ void InTreeMap<T, pnode>::FixRotation(T* elem)
         SetColor(grandparent, Node::RED);
     }
     else
-        assert(false);
+        ASSERT(false);
     
     if (IsLeftChild(elem) && parent && IsLeftChild(parent))
     {
@@ -695,7 +694,7 @@ void InTreeMap<T, pnode>::FixRotation(T* elem)
     }
     else
     {
-        assert(IsRightChild(elem) && parent && IsRightChild(parent));
+        ASSERT(IsRightChild(elem) && parent && IsRightChild(parent));
         RotateLeft(grandparent);
     }
 }
