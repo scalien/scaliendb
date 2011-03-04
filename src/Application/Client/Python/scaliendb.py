@@ -287,6 +287,10 @@ class Client:
     def submit(self):
         status = SDBP_Submit(self.cptr)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
+        if status == SDBP_PARTIAL:
+            raise Error(status, "Not all request could be served")
+        if status == SDBP_FAILURE:
+            raise Error(status, "No request could be served")
         return status
     
     def cancel(self):
