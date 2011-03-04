@@ -53,7 +53,7 @@ StorageEnvironment::StorageEnvironment()
     yieldThreads = false;
     shuttingDown = false;
     writingTOC = false;
-    numBulkCursors = 0;
+    numCursors = 0;
     serializeChunk = NULL;
     writeChunk = NULL;
     mergeChunkOut = NULL;
@@ -388,7 +388,7 @@ void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, Storage
     if (!shard->RangeContains(asyncList->startKey))
         return;
 
-    numBulkCursors++;
+    numCursors++;
     
     deferred.Unset();
     asyncList->completed = false;
@@ -501,15 +501,15 @@ StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_
     bc->SetEnvironment(this);
     bc->SetShard(shard);
     
-    numBulkCursors++;
+    numCursors++;
     
     return bc;
 }
 
-void StorageEnvironment::DecreaseNumBulkCursors()
+void StorageEnvironment::DecreaseNumCursors()
 {
-    ASSERT(numBulkCursors > 0);
-    numBulkCursors--;
+    ASSERT(numCursors > 0);
+    numCursors--;
 }
 
 uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
@@ -1058,7 +1058,7 @@ void StorageEnvironment::TryMergeChunks()
     if (mergerThreadActive)
         return;
 
-    if (numBulkCursors > 0)
+    if (numCursors > 0)
         return;
 
     FOREACH (itShard, shards)
@@ -1260,7 +1260,7 @@ void StorageEnvironment::OnChunkMerge()
 
     mergerThreadActive = false;
     
-    if (numBulkCursors > 0)
+    if (numCursors > 0)
     {
         job = new StorageDeleteFileChunkJob(mergeChunkOut);
         StartJob(writerThread, job);        

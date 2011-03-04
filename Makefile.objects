@@ -97,6 +97,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageRecovery.o \
 	$(BUILD_DIR)/Framework/Storage/StorageShard.o \
 	$(BUILD_DIR)/Framework/Storage/StorageShardProxy.o \
+	$(BUILD_DIR)/Framework/Storage/StorageUnwrittenChunkLister.o \
 	$(BUILD_DIR)/Framework/TCP/TCPConnection.o \
 	$(BUILD_DIR)/Framework/TCP/TCPWriter.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \

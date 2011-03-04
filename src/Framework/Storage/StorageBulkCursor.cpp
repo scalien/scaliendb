@@ -13,7 +13,7 @@ StorageBulkCursor::StorageBulkCursor() :
 
 StorageBulkCursor::~StorageBulkCursor()
 {
-    env->DecreaseNumBulkCursors();
+    env->DecreaseNumCursors();
 }
 
 StorageKeyValue* StorageBulkCursor::First()

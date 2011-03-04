@@ -74,7 +74,7 @@ public:
     void                    AsyncList(uint16_t contextID, uint64_t shardID, StorageAsyncList* asyncList);
 
     StorageBulkCursor*      GetBulkCursor(uint16_t contextID, uint64_t shardID);
-    void                    DecreaseNumBulkCursors();
+    void                    DecreaseNumCursors();
 
     uint64_t                GetSize(uint16_t contextID, uint64_t shardID);
     ReadBuffer              GetMidpoint(uint16_t contextID, uint64_t shardID);
@@ -155,7 +155,7 @@ private:
     uint16_t                mergeContextID;
     uint64_t                mergeShardID;
     uint64_t                lastWriteTime;
-    unsigned                numBulkCursors;
+    unsigned                numCursors;
     const char*             archiveScript;
     bool                    yieldThreads;
     bool                    shuttingDown;
