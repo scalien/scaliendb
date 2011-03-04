@@ -172,10 +172,6 @@ void BloomFilter::GetHashes(unsigned hashes[], ReadBuffer& key)
     for (i = 0; i < BLOOMFILTER_NUM_FUNCTIONS; i++)
     {
         hashes[i] = hash % (buffer.GetLength() * 8);
-
-        if (hashes[i] < 0)
-            hashes[i] = -hashes[i];
-
         hash = HashRabin(hash);
     }
 }
