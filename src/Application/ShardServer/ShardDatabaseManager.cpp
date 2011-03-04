@@ -691,6 +691,3 @@ void ShardDatabaseManager::OnExecuteLists()
         }
     }
 }
-
-#undef CHECK_CMD
-#undef FAIL

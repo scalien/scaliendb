@@ -15,7 +15,7 @@ StorageMemoChunkLister::StorageMemoChunkLister() : dataPage(NULL, 0)
 {
 }
 
-void StorageMemoChunkLister::Load(StorageMemoChunk* chunk, ReadBuffer& startKey, 
+void StorageMemoChunkLister::Init(StorageMemoChunk* chunk, ReadBuffer& startKey, 
  unsigned count, unsigned offset)
 {
     StorageMemoKeyValue*    kv;
@@ -41,6 +41,11 @@ void StorageMemoChunkLister::Load(StorageMemoChunk* chunk, ReadBuffer& startKey,
     }
     
     dataPage.Finalize();
+}
+
+void StorageMemoChunkLister::Load()
+{
+    // do nothing
 }
 
 StorageFileKeyValue* StorageMemoChunkLister::First(ReadBuffer& firstKey)

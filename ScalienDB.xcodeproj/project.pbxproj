@@ -154,6 +154,8 @@
 		9AD1001A13059C4800AB777B /* minilzo.c in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC1D13043142004C2469 /* minilzo.c */; };
 		9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
 		9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
+		9AD115FA1321366500AB777B /* StorageUnwrittenChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD115F91321366500AB777B /* StorageUnwrittenChunkLister.cpp */; };
+		9AD1164313213D3200AB777B /* StorageUnwrittenChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD115F91321366500AB777B /* StorageUnwrittenChunkLister.cpp */; };
 		9AD5E46012EDD62000F4AF7B /* Mutex_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE81D7D12D5147E0038BDB1 /* Mutex_Posix.cpp */; };
 		9AD5E4E712EF045600F4AF7B /* StorageTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */; };
 		9AD5E4FE12EF08DA00F4AF7B /* StorageEnvironment.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE58A12BFBB3D0069786A /* StorageEnvironment.cpp */; };
@@ -515,6 +517,8 @@
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9AD104D31309970D00AB777B /* StorageAsyncList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncList.h; sourceTree = "<group>"; };
 		9AD104D41309970D00AB777B /* StorageAsyncList.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageAsyncList.cpp; sourceTree = "<group>"; };
+		9AD115F81321366500AB777B /* StorageUnwrittenChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageUnwrittenChunkLister.h; sourceTree = "<group>"; };
+		9AD115F91321366500AB777B /* StorageUnwrittenChunkLister.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageUnwrittenChunkLister.cpp; sourceTree = "<group>"; };
 		9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
 		9AD5EA8F12F70C4700F4AF7B /* StorageAsyncGet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncGet.h; sourceTree = "<group>"; };
 		9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageAsyncGet.cpp; sourceTree = "<group>"; };
@@ -1135,11 +1139,13 @@
 		78CD47AB130C26870022BC9F /* List */ = {
 			isa = PBXGroup;
 			children = (
-				78CD47AC130C26B40022BC9F /* StorageMemoChunkLister.h */,
-				78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */,
+				78CD47B4130C26D30022BC9F /* StorageChunkLister.h */,
 				78CD47B0130C26C30022BC9F /* StorageFileChunkLister.h */,
 				78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */,
-				78CD47B4130C26D30022BC9F /* StorageChunkLister.h */,
+				78CD47AC130C26B40022BC9F /* StorageMemoChunkLister.h */,
+				78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */,
+				9AD115F81321366500AB777B /* StorageUnwrittenChunkLister.h */,
+				9AD115F91321366500AB777B /* StorageUnwrittenChunkLister.cpp */,
 			);
 			name = List;
 			sourceTree = "<group>";
@@ -1427,6 +1433,7 @@
 				78CD47AE130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */,
 				78CD47B2130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */,
 				548DEBD6130E8B7E00E3A86A /* ShardMigrationWriter.cpp in Sources */,
+				9AD115FA1321366500AB777B /* StorageUnwrittenChunkLister.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1516,6 +1523,7 @@
 				78CD47AF130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */,
 				78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */,
 				9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */,
+				9AD1164313213D3200AB777B /* StorageUnwrittenChunkLister.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

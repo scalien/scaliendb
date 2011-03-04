@@ -3,6 +3,7 @@
 #include "System/IO/IOProcessor.h"
 #include "StorageMemoChunkLister.h"
 #include "StorageFileChunkLister.h"
+#include "StorageUnwrittenChunkLister.h"
 #include "StorageShard.h"
 #include "StorageEnvironment.h"
 
@@ -75,11 +76,14 @@ void StorageAsyncList::Clear()
 
 void StorageAsyncList::ExecuteAsyncList()
 {
-    unsigned                numChunks;
-    StorageChunk**          itChunk;
-    StorageFileChunk*       fileChunk;
-    StorageFileChunkLister* fileLister;
-    Buffer*                 filename;
+    unsigned                        numChunks;
+    StorageChunk**                  itChunk;
+    StorageFileChunk*               fileChunk;
+    StorageFileChunkLister*         fileLister;
+    StorageMemoChunkLister*         memoLister;
+    StorageUnwrittenChunkLister*    unwrittenLister;
+    Buffer*                         filename;
+    StorageChunk::ChunkState        chunkState;
     
     if (stage == START)
     {
@@ -91,14 +95,31 @@ void StorageAsyncList::ExecuteAsyncList()
 
         FOREACH (itChunk, shard->GetChunks())
         {
-            if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-                continue;
-            fileChunk = (StorageFileChunk*) *itChunk;
-            filename = &fileChunk->GetFilename();
-            fileLister = new StorageFileChunkLister;
-            fileLister->SetFilename(fileChunk->GetFilename());
-            listers[numListers] = fileLister;
-            numListers++;
+            chunkState = (*itChunk)->GetChunkState();
+            
+            if (chunkState == StorageChunk::Serialized)
+            {
+                memoLister = new StorageMemoChunkLister;
+                memoLister->Init((StorageMemoChunk*) *itChunk, startKey, count, offset);
+                listers[numListers] = memoLister;
+                numListers++;
+            }
+            else if (chunkState == StorageChunk::Unwritten)
+            {
+                unwrittenLister = new StorageUnwrittenChunkLister;
+                unwrittenLister->Init((StorageFileChunk*) *itChunk, startKey, count, offset);
+                listers[numListers] = unwrittenLister;
+                numListers++;
+            }
+            else if (chunkState == StorageChunk::Written)
+            {
+                fileChunk = (StorageFileChunk*) *itChunk;
+                filename = &fileChunk->GetFilename();
+                fileLister = new StorageFileChunkLister;
+                fileLister->Init(fileChunk->GetFilename(), (type == KEY || type == COUNT));
+                listers[numListers] = fileLister;
+                numListers++;
+            }
         }
         
         stage = MEMO_CHUNK;
@@ -112,7 +133,7 @@ void StorageAsyncList::ExecuteAsyncList()
     
     if (stage == FILE_CHUNK)
     {
-        threadPool->Execute(MFUNC(StorageAsyncList, AsyncLoadFileChunks));
+        threadPool->Execute(MFUNC(StorageAsyncList, AsyncLoadChunks));
     }
 }
 
@@ -121,25 +142,22 @@ void StorageAsyncList::LoadMemoChunk()
     StorageMemoChunkLister* memoLister;
     
     memoLister = new StorageMemoChunkLister;
-    memoLister->Load(shard->GetMemoChunk(), startKey, count, offset);
+    memoLister->Init(shard->GetMemoChunk(), startKey, count, offset);
 
     // memochunk is always on the last position, because it is the most current
     listers[numListers] = memoLister;
-    iterators[numListers] = memoLister->First(startKey);
+
     numListers++;
 }
 
-void StorageAsyncList::AsyncLoadFileChunks()
+void StorageAsyncList::AsyncLoadChunks()
 {
     unsigned                i;
-    StorageFileChunkLister* fileLister;
     
-    // TODO: HACK
-    for (i = 0; i < numListers - 1; i++)
+    for (i = 0; i < numListers; i++)
     {
-        fileLister = (StorageFileChunkLister*) listers[i];
-        fileLister->Load((type == KEY || type == COUNT));
-        iterators[i] = fileLister->First(startKey);
+        listers[i]->Load();
+        iterators[i] = listers[i]->First(startKey);
     }
     
     stage = MERGE;

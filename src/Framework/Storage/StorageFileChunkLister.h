@@ -15,8 +15,9 @@ StorageFileChunkLister
 class StorageFileChunkLister : public StorageChunkLister
 {
 public:
-    void                    SetFilename(ReadBuffer filename);
-    void                    Load(bool keysOnly);
+    void                    Init(ReadBuffer filename, bool keysOnly);
+
+    void                    Load();
     
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
@@ -25,6 +26,7 @@ public:
 
 private:
     Buffer                  filename;
+    bool                    keysOnly;
     StorageChunkReader      reader;
 };
 

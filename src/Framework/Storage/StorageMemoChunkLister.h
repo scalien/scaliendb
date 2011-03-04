@@ -18,13 +18,16 @@ class StorageMemoChunkLister : public StorageChunkLister
 public:
     StorageMemoChunkLister();
     
-    void                    Load(StorageMemoChunk* chunk, ReadBuffer& startKey, 
+    void                    Init(StorageMemoChunk* chunk, ReadBuffer& startKey, 
                                  unsigned count, unsigned offset);
+
+    void                    Load();
     
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
     
     uint64_t                GetNumKeys();
+    
 
 private:
     StorageDataPage         dataPage;

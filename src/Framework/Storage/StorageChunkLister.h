@@ -18,11 +18,14 @@ class StorageChunkLister
 {
 public:
     virtual ~StorageChunkLister() {}
+
+    virtual void                    Load() = 0;
     
     virtual StorageFileKeyValue*    First(ReadBuffer& firstKey) = 0;
     virtual StorageFileKeyValue*    Next(StorageFileKeyValue*) = 0;
     
     virtual uint64_t                GetNumKeys() = 0;
+
 };
 
 #endif

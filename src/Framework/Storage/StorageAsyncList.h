@@ -89,7 +89,7 @@ public:
     void                    Clear();
     void                    ExecuteAsyncList();
     void                    LoadMemoChunk();
-    void                    AsyncLoadFileChunks();
+    void                    AsyncLoadChunks();
     void                    AsyncMergeResult();
     void                    OnResult(StorageAsyncListResult* result);
     bool                    IsDone();
