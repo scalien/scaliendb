@@ -145,23 +145,6 @@ void BloomFilter::Reset()
     buffer.Reset();
 }
 
-//int32_t BloomFilter::GetHash(unsigned fnum, int32_t original)
-//{
-//    unsigned    i;
-//    int32_t     hash;
-//
-//    hash = original;
-//    for (i = 0; i < fnum; i++)
-//        hash = HashRabin(hash);
-//
-//    hash = hash % (buffer.GetLength() * 8);
-//
-//    if (hash < 0)
-//        hash = -hash;
-//
-//    return hash;
-//}
-
 void BloomFilter::GetHashes(unsigned hashes[], ReadBuffer& key)
 {
     unsigned    i;
