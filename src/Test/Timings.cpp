@@ -1,9 +1,10 @@
 #include "Test.h"
 #include "System/Stopwatch.h"
 #include "System/Log.h"
+#include "System/FileSystem.h"
+#include "System/Common.h"
 
 #include <fcntl.h>
-
 
 TEST_DEFINE(TestTimingBasicWrite)
 {
@@ -26,6 +27,32 @@ TEST_DEFINE(TestTimingBasicWrite)
     
     TEST_LOG("elapsed: %ld, num: %u, num/s: %f", (long) sw.Elapsed(), num, num / sw.Elapsed() * 1000.0);
 #endif    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestTimingFileSystemWrite)
+{
+    FD          fd;
+    Stopwatch   sw;
+    char        buf[64*1024];
+    unsigned    num = 10*1000;
+    const char  filename[] = "tmpfile";
+    
+    fd = FS_Open(filename, FS_WRITEONLY | FS_CREATE | FS_APPEND);
+    
+    sw.Restart();
+    for (unsigned i = 0; i < num; i++)
+    {
+        FS_FileWrite(fd, buf, sizeof(buf));
+        FS_Sync(fd);
+    }
+    sw.Stop();
+    
+    FS_FileClose(fd);
+    FS_Delete(filename);
+    
+    TEST_LOG("elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+    
     return TEST_SUCCESS;
 }
 

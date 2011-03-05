@@ -4,15 +4,26 @@ import scaliendb
 import time
 import md5
 import string
+import base64
+import os
 
 CONTROLLERS=["localhost:7080"]
 #CONTROLLERS=["192.168.137.51:7080"]
 
 def sizeof_fmt(num):
 	for x in ['bytes','KB','MB','GB','TB']:
-		if num < 1024.0:
+		if num < 1000.0:
 			return "%3.1f%s" % (num, x)
-		num /= 1024.0
+		num /= 1000.0
+
+
+def random_string(leng):
+	nbits = leng * 6 + 1
+	bits = random.getrandbits(nbits)
+	uc = u"%0x" % bits
+	newlen = int(len(uc) / 2) * 2 # we have to make the string an even length
+	ba = bytearray.fromhex(uc[:newlen])
+	return base64.urlsafe_b64encode(str(ba))[:leng]
 
 limit = 0
 start = 0
@@ -38,26 +49,36 @@ client.use_table("testtable")
 sent = 0
 value = "%100s" % " "
 i = start
-batch = 10000
+batch = 100
 if limit != 0 and limit < batch:
 	batch = limit
+random_value = random_string(1000000)
 while limit == 0 or i < limit:
         keys = []
         values = []
-        value_len = 10000
+        value_len = 50000
         for x in xrange(batch):
                 keys.append(md5.new(str(x + i)).hexdigest())
-                #values.append(''.join(random.choice(string.ascii_uppercase + string.digits) for v in range(value_len)))
+                #values.append(''.join(random.choice(string.ascii_uppercase + string.digits) for v in range(random.randint(1, value_len))))
+		#values.append(random_string(random.randint(1, value_len)))
+		#values.append(os.urandom(random.randint(1, value_len)))
                 #values.append(value)
+		#values.append(random_string(100000))
+		#values.append(random_value[random.randint(1, len(random_value)):])
+		offset = random.randint(0, len(random_value) - value_len - 1)
+		values.append(random_value[offset:offset+value_len])
+                #print("Generating random: %d/%d\r" % (x, batch))
 	starttime = time.time()
 	client.begin()
+	round_sent = 0
 	for x in xrange(batch):
 		#client.set(str(random.randint(1, 1000000000)), value)
 		#key = md5.new(str(x + i)).hexdigest()
 		#print(x+i, key)
-		#client.set(keys[x], values[x])
-		client.set(keys[x], keys[x])
-		sent += len(value)
+		client.set(keys[x], values[x])
+		#client.set(keys[x], keys[x])
+		sent += len(values[x])
+		round_sent += len(values[x])
 	ret = client.submit()
 	if ret != 0:
 		print("Submit failed!")
@@ -66,4 +87,5 @@ while limit == 0 or i < limit:
 	i += batch
 	fmt = "%H:%M:%S"
 	endtimestamp = time.strftime(fmt, time.gmtime())
-	print("%s: Sent bytes: %s, num: %i, rps = %.0f" % (endtimestamp, sizeof_fmt(sent), i, (batch/((endtime - starttime) * 1000.0) * 1000.0)))
+	elapsed = (endtime - starttime)
+	print("%s: Sent bytes: %s (%s/s), num: %i, rps = %.0f" % (endtimestamp, sizeof_fmt(sent), sizeof_fmt(round_sent / elapsed) , i, (batch/((endtime - starttime) * 1000.0) * 1000.0)))

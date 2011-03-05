@@ -41,7 +41,7 @@ while limit == 0 or i < limit:
 	for x in xrange(batch):
 		#client.set(str(random.randint(1, 1000000000)), value)
 		key = md5.new(str(x + i)).hexdigest()
-		print(x+i, key)
+		#print(x+i, key)
 		client.get(key)
 		sent += len(value)
 	ret = client.submit()
@@ -54,6 +54,6 @@ while limit == 0 or i < limit:
 		print(res.command_status())
 		if res.command_status() == scaliendb.SDBP_SUCCESS:
 			found += 1
-			print(res.key(), res.value())
+			#print(res.key(), res.value())
 	i += batch
 	print("Sent bytes: %s, num: %i, found: %i, rps = %.0f" % (sizeof_fmt(sent), i, found, (batch/((endtime - starttime) * 1000.0) * 1000.0)))

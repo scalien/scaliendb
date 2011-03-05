@@ -15,7 +15,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBatchedGet);
 //TEST_ADD(TestClientBatchedGet2);
 //TEST_ADD(TestClientBatchedSet);
-TEST_ADD(TestClientBatchedSet2);
+//TEST_ADD(TestClientBatchedSet2);
 //TEST_ADD(TestClientBatchedSetRandom);
 //TEST_ADD(TestClientBatchLimit);
 //TEST_ADD(TestClientCreateTable);
@@ -63,6 +63,7 @@ TEST_ADD(TestClientBatchedSet2);
 //TEST_ADD(TestStorageWindowsSync);
 //TEST_ADD(TestTimingBasicWrite);
 //TEST_ADD(TestTimingSnprintf);
+TEST_ADD(TestTimingFileSystemWrite);
 //TEST_ADD(TestTimingWrite);
 TEST_EXECUTE();
 
