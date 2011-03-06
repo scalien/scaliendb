@@ -36,6 +36,7 @@ private:
     void                PrintStorage();
     bool                ProcessCommand(ReadBuffer& cmd);
     bool                ProcessSettings();
+    void                ProcessClearCache();
     ClientRequest*      ProcessShardServerCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessGetPrimary();
     ClientRequest*      ProcessGet();

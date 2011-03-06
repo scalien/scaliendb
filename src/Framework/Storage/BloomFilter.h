@@ -3,7 +3,7 @@
 
 #include "System/Buffers/Buffer.h"
 
-#define BLOOMFILTER_NUM_FUNCTIONS   16
+#define BLOOMFILTER_NUM_FUNCTIONS   4
 #define BLOOMFILTER_POLYNOMIAL      0x000001C7
 #define BLOOMFILTER_P_DEGREE        32
 #define BLOOMFILTER_X_P_DEGREE      (1 << 31)
@@ -22,6 +22,7 @@ public:
     static void     StaticInit();
     
     void            SetSize(uint32_t size);
+    
     void            Add(ReadBuffer& key);
 
     Buffer&         GetBuffer();

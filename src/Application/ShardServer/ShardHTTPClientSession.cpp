@@ -4,6 +4,7 @@
 #include "System/FileSystem.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Framework/Replication/ReplicationConfig.h"
+#include "Framework/Storage/StoragePageCache.h"
 #include "Version.h"
 
 #define PARAM_BOOL_VALUE(param)                         \
@@ -186,6 +187,13 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
     else if (HTTP_MATCH_COMMAND(cmd, "settings"))
     {
         ProcessSettings();
+        return true;
+    }
+    else if (HTTP_MATCH_COMMAND(cmd, "clearcache"))
+    {
+        StoragePageCache::Clear();
+        session.Print("Cache cleared");
+        session.Flush();
         return true;
     }
 
@@ -482,6 +490,9 @@ bool ShardHTTPClientSession::GetRedirectedShardServer(uint64_t tableID, const Re
     
     server = configState->GetShardServer(quorum->primaryID);
     if (!server)
+        return false;
+    
+    if (server->nodeID == MY_NODEID)
         return false;
     
     endpoint = server->endpoint;

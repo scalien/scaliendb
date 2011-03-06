@@ -5,6 +5,7 @@
 #include "Framework/Storage/StorageAsyncList.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
+#include "System/Stopwatch.h"
 
 TEST_DEFINE(TestStorageBulkCursor)
 {
@@ -88,5 +89,71 @@ TEST_DEFINE(TestStorageAsyncList)
 
     env.Close();
 
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestStorageSet)
+{
+    StorageEnvironment  env;
+    Buffer              dbPath;
+    Stopwatch           sw;
+    Buffer              key;
+    Buffer              value;
+    ReadBuffer          rbValue;
+    long                elapsed;
+    bool                ret;
+    unsigned            num;
+  
+    // Initialization ==============================================================================
+    IOProcessor::Init(1024);
+    EventLoop::Init();
+    StartClock();
+
+    dbPath.Write("test/shard/0/db");
+    env.Open(dbPath);
+    
+
+    // SET test ====================================================================================
+    num = 10*1000;
+    value.Allocate(50*1000);
+    RandomBuffer(value.GetBuffer(), value.GetLength());
+    for (unsigned i = 0; i < num; i++)
+    {
+        key.Writef("%020u", i);
+
+        sw.Start();
+        ret = env.Set(4, 4, key, value);
+        if (i % 1000 == 0)
+        {
+            TEST_LOG("Commiting at %u", i);
+            ret &= env.Commit();
+            EventLoop::RunOnce();
+        }
+        sw.Stop();
+        TEST_ASSERT(ret);
+    }
+    sw.Start();
+    env.Commit();
+    elapsed = sw.Stop();
+    TEST_LOG("%u sets took %ld msec", num, elapsed);
+
+    // GET test ====================================================================================
+    num = 10*1000;
+    for (unsigned i = 0; i < num; i++)
+    {
+        key.Writef("%020u", i);
+
+        sw.Start();
+        ret = env.Get(4, 4, key, rbValue);
+        sw.Stop();
+        TEST_ASSERT(ret);
+    }
+    TEST_LOG("%u gets took %ld msec", num, elapsed);
+
+    // Shutdown ====================================================================================
+    EventLoop::Shutdown();
+    IOProcessor::Shutdown();
+    env.Close();
+    
     return TEST_SUCCESS;
 }

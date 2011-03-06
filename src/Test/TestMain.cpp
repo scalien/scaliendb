@@ -45,25 +45,10 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestManualBasic);
 //TEST_ADD(TestSnprintfTiming);
 //TEST_ADD(TestStorageAsyncList);
-//TEST_ADD(TestStorage0DeleteTestDatabase);
-//TEST_ADD(TestStorageAppend);
-//TEST_ADD(TestStorageBasic);
-//TEST_ADD(TestStorageBigRandomTransaction);
-//TEST_ADD(TestStorageBigTransaction);
-//TEST_ADD(TestStorageBinaryData);
-//TEST_ADD(TestStorageCapacity);
-//TEST_ADD(TestStorageBulkCursor);
-//TEST_ADD(TestStorageCursor);
-//TEST_ADD(TestStoragePageSplit);
-//TEST_ADD(TestStorageFileSplit);
-//TEST_ADD(TestStorageFileThreeWaySplit);
-//TEST_ADD(TestStorageRandomGetSetDelete);
-//TEST_ADD(TestStorageShardSize);         // TODO: this creates too much shards!
-//TEST_ADD(TestStorageShardSplit);
-//TEST_ADD(TestStorageWindowsSync);
+TEST_ADD(TestStorageSet);
 //TEST_ADD(TestTimingBasicWrite);
 //TEST_ADD(TestTimingSnprintf);
-TEST_ADD(TestTimingFileSystemWrite);
+//TEST_ADD(TestTimingFileSystemWrite);
 //TEST_ADD(TestTimingWrite);
 TEST_EXECUTE();
 

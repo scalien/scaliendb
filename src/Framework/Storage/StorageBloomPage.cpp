@@ -14,7 +14,7 @@ uint32_t StorageBloomPage::GetSize()
 
 void StorageBloomPage::SetNumKeys(uint64_t numKeys)
 {
-    uint32_t numBytes;
+    uint32_t    numBytes;
     
     size = RecommendNumBytes(numKeys);
     
@@ -34,7 +34,7 @@ uint32_t StorageBloomPage::RecommendNumBytes(uint32_t numKeys)
     
     // how many BYTES would we need per the standard formula
     // with p = 0.1 false positive probability
-    m = numKeys * 0.599066;
+    m = (uint32_t) ceil(numKeys * 0.599066);
 
     // find the smallest 2^i K bigger than m
     // but no bigger than 256K
@@ -69,7 +69,8 @@ uint32_t StorageBloomPage::RecommendNumBytes(uint32_t numKeys)
 bool StorageBloomPage::Read(Buffer& buffer)
 {
     ReadBuffer  dataPart, parse;
-    uint32_t    size, checksum, compChecksum;   
+    uint32_t    size, checksum, compChecksum;
+    uint32_t    numHashes;
     
     parse.Wrap(buffer);
     
@@ -88,8 +89,8 @@ bool StorageBloomPage::Read(Buffer& buffer)
     if (compChecksum != checksum)
         goto Fail;
     parse.Advance(4);
-    
-    bloomFilter.SetBuffer(dataPart);
+
+    bloomFilter.SetBuffer(parse);
     this->size = size;
     return true;
 

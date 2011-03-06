@@ -60,7 +60,6 @@ bool StorageChunkMerger::Merge(
     offset = 0;
 
     mergeChunk->indexPage = new StorageIndexPage(mergeChunk);
-
     if (mergeChunk->UseBloomFilter())
     {
         mergeChunk->bloomPage = new StorageBloomPage(mergeChunk);

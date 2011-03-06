@@ -11,15 +11,24 @@ void StoragePageCache::Init(StorageConfig& config)
 
 void StoragePageCache::Shutdown()
 {
+    Clear();
+}
+
+void StoragePageCache::Clear()
+{
     StoragePage*    it;
     
-    for (it = pages.First(); it != NULL; /* advanced in body */)
+    FOREACH_FIRST (it, pages)
     {
         pages.Remove(it);
         it->Unload();
         
         it = pages.First();
     }
+
+    size = 0;
+    
+    Log_Debug("Cache cleared");
 }
 
 uint64_t StoragePageCache::GetSize()

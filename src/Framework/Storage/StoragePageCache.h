@@ -21,6 +21,8 @@ public:
     static void                 Init(StorageConfig& config);
     static void                 Shutdown();
 
+    static void                 Clear();
+
     static uint64_t             GetSize();
     static unsigned             GetNumPages();
     static void                 AddPage(StoragePage* page, bool bulk = false);

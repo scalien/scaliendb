@@ -33,6 +33,7 @@ public:
 
 private:
     uint32_t            RecommendNumBytes(uint32_t numKeys);
+    uint32_t            RecommendNumHashes(uint32_t numKeys);
 
     uint32_t            size;
     BloomFilter         bloomFilter;
