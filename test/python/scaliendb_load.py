@@ -48,7 +48,7 @@ class loader:
 			starttime = time.time()
 			self.submit()
 			self.begin()
-			self.elapsed += time.time()
+			self.elapsed += time.time() - starttime
 
 def scaliendb_loader(client, granularity = 1000*1000, print_stats = False):
 	lr = loader()
