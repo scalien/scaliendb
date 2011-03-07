@@ -1,5 +1,4 @@
 #include "ShardQuorumProcessor.h"
-#include "System/Compress/Compressor.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Application/Common/DatabaseConsts.h"
 #include "Application/Common/ContextTransport.h"
@@ -142,7 +141,6 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID_, ReadBuffer& value_, bool 
 {
     int         read;
     uint64_t    uncompressedLength;
-    Compressor  compressor;
     
     paxosID = paxosID_;
     commandID = 0;
@@ -150,8 +148,7 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID_, ReadBuffer& value_, bool 
     read = value_.Readf("%U:", &uncompressedLength);
     assert(read > 1);
     value_.Advance(read);
-    assert(compressor.Uncompress(value_, valueBuffer, uncompressedLength));
-    
+    valueBuffer.Write(value_);
     value.Wrap(valueBuffer);
     ownAppend = ownAppend_;
 
@@ -635,7 +632,6 @@ void ShardQuorumProcessor::TryAppend()
     Buffer          uncompressed;
     Buffer          compressed;
     ShardMessage*   it;
-    Compressor      compressor;
         
     if (shardMessages.GetLength() == 0)
         return;
@@ -678,9 +674,7 @@ void ShardQuorumProcessor::TryAppend()
                 
         assert(uncompressed.GetLength() > 0);
 
-        assert(compressor.Compress(uncompressed, compressed));
-
-        quorumContext.GetNextValue().Writef("%u:%B", uncompressed.GetLength(), &compressed);
+        quorumContext.GetNextValue().Writef("%u:%B", uncompressed.GetLength(), &uncompressed);
         
         quorumContext.Append();
     }

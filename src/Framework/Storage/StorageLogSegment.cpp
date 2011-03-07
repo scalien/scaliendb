@@ -2,7 +2,6 @@
 #include "System/FileSystem.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Stopwatch.h"
-#include "System/Compress/Compressor.h"
 
 StorageLogSegment::StorageLogSegment()
 {
@@ -170,8 +169,6 @@ void StorageLogSegment::Commit()
     uint32_t    writeSize;
     uint32_t    writeOffset;
     ReadBuffer  dataPart;
-    Buffer      compressed;
-    Compressor  compressor;
     
     commitStatus = true;
 
@@ -188,31 +185,16 @@ void StorageLogSegment::Commit()
     dataPart.SetLength(length - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
 //    checksum = dataPart.GetChecksum();
     checksum = 0;
-    
-    assert(compressor.Compress(dataPart, compressed));
 
-//    Log_Debug("uncompressed = %s, compressed = %s", HUMAN_BYTES(dataPart.GetLength()),
-//     HUMAN_BYTES(compressed.GetLength()));
-
-    length = STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE + compressed.GetLength();
+    length = STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE + dataPart.GetLength();
     
     writeBuffer.SetLength(0);
     writeBuffer.AppendLittle32(length);
     writeBuffer.AppendLittle32(dataPart.GetLength());
     writeBuffer.AppendLittle32(checksum);
     writeBuffer.SetLength(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
-    writeBuffer.Append(compressed);
+    writeBuffer.Append(dataPart);
     
-//    Log_Debug("Commit");
-
-//    if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
-//    {
-//        FS_FileClose(fd);
-//        fd = INVALID_FD;
-//        commitStatus = false;
-//        return;
-//    }
-
     for (writeOffset = 0; writeOffset < length; writeOffset += writeSize)
     {
         writeSize = MIN(STORAGE_LOGSEGMENT_WRITE_GRANULARITY, length - writeOffset);

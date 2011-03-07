@@ -3,7 +3,6 @@
 #include "StorageEnvironment.h"
 #include "FDGuard.h"
 #include "PointerGuard.h"
-#include "System/Compress/Compressor.h"
 
 static bool LessThan(const Buffer* a, const Buffer* b)
 {
@@ -301,8 +300,6 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     Buffer              buffer;
     FDGuard             fd;
     StorageLogSegment*  logSegment;
-    Buffer              uncompressed;
-    Compressor          compressor;
     uint32_t            uncompressedLength;
     
     Log_Message("Replaying log segment %B...", &filename);
@@ -360,13 +357,11 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
         dataPart.Wrap(buffer.GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE,
          buffer.GetLength() - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
 
-        assert(compressor.Uncompress(dataPart, uncompressed, uncompressedLength));
-
 //        compChecksum = dataPart.GetChecksum();
 //        if (checksum != compChecksum)
 //            break;
 
-        parse.Wrap(uncompressed);
+        parse = dataPart;
         while (parse.GetLength() > 0)
         {            
             if (parse.GetLength() < 1)

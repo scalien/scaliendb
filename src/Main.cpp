@@ -2,7 +2,6 @@
 #include "System/Config.h"
 #include "System/Events/EventLoop.h"
 #include "System/IO/IOProcessor.h"
-#include "System/Compress/Compressor.h"
 #include "Framework/Storage/BloomFilter.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/ConfigServer/ConfigServerApp.h"
@@ -27,8 +26,8 @@ int main(int argc, char** argv)
     if (!configFile.Init(argv[1]))
         STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
 
-    if (!Compressor::Init())
-        STOP_FAIL(1, "Compressor::Init() failed");
+//    if (!Compressor::Init())
+//        STOP_FAIL(1, "Compressor::Init() failed");
 
     InitLog();
     ParseArgs(argc, argv);
