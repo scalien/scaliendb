@@ -1,11 +1,8 @@
 #include "Compressor.h"
 
-
 bool Compressor::Init()
 {
     return (lzo_init() == LZO_E_OK);
-
-//    return true;
 }
 
 bool Compressor::Compress(ReadBuffer uncompressed, Buffer& compressed)
@@ -30,9 +27,6 @@ bool Compressor::Compress(ReadBuffer uncompressed, Buffer& compressed)
         compressed.SetLength(0);
 
     return ret;
-
-//    compressed.Write(uncompressed);
-//    return true;
 }
 
 bool Compressor::Uncompress(ReadBuffer compressed, Buffer& uncompressed, uint32_t uncompressedLength)
@@ -57,8 +51,4 @@ bool Compressor::Uncompress(ReadBuffer compressed, Buffer& uncompressed, uint32_
         uncompressed.SetLength(0);
 
     return ret;
-
-//    uncompressed.Write(compressed);
-//    uncompressedLength = uncompressed.GetLength();
-//    return true;
 }
