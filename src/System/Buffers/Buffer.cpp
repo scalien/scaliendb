@@ -98,8 +98,7 @@ void Buffer::Allocate(unsigned size_, bool keepold)
     if (size_ <= size)
         return;
 
-    if (size_ < 1*MiB)
-        size_ = NextPowerOfTwo(size_);
+    size_ = NextPowerOfTwo(size_);
 
     if (buffer == array || preallocated)
         newbuffer = (char*) malloc(size_);
