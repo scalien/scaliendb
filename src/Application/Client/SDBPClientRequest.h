@@ -32,6 +32,7 @@ public:
     unsigned        numTry;
     unsigned        numQuorums;
     unsigned        numShardServers;
+    unsigned        numBulkResponses;
     ResponseList    responses;
     bool            async;
 };

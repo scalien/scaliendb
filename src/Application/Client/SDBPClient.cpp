@@ -162,6 +162,7 @@ Client::Client()
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
     result = NULL;
     batchLimit = DEFAULT_BATCH_LIMIT;
+    isBulkLoading = false;
 }
 
 Client::~Client()
@@ -289,9 +290,14 @@ void Client::SetBatchLimit(uint64_t batchLimit_)
     batchLimit = batchLimit_;
 }
 
-void Client::SetBulkLoading(bool bulkLoading)
+void Client::SetBulkLoading()
 {
-    isBulkLoading = bulkLoading;
+    isBulkLoading = true;
+}
+
+bool Client::IsBulkLoading()
+{
+    return isBulkLoading;
 }
 
 Result* Client::GetResult()

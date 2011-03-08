@@ -150,6 +150,9 @@ class Client:
     def set_batch_limit(self, limit):
         SDBP_SetBatchLimit(self.cptr, long(limit))
 
+    def set_bulk_loading(self):
+        SDBP_SetBulkLoading(self.cptr)
+
     def create_quorum(self, nodes):
         node_params = SDBP_NodeParams(len(nodes))
         for node in nodes:

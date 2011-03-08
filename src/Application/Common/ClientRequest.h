@@ -150,7 +150,8 @@ public:
     bool            Submit(
                      uint64_t quorumID);
                      
-    bool            BulkLoading();
+    bool            BulkLoading(
+                     uint64_t commandID);
 
     // Variables
     ClientResponse  response;
