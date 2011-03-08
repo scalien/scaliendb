@@ -27,10 +27,11 @@ public:
 
     TreeNode        treeNode;
     int             status;
-    unsigned        numTry;
     uint64_t        requestTime;
     uint64_t        responseTime;
+    unsigned        numTry;
     unsigned        numQuorums;
+    unsigned        numShardServers;
     ResponseList    responses;
     bool            async;
 };

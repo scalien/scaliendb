@@ -179,8 +179,12 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     {
         if (resp->type == CLIENTRESPONSE_VALUE)
             resp->CopyValue();
-        resp->Transfer(req->response);
-        numCompleted++;
+
+        if (!req->isBulk || !req->response.type == CLIENTRESPONSE_NORESPONSE)
+        {
+            resp->Transfer(req->response);
+            numCompleted++;
+        }
     }
     
 //    Log_Message("commandID: %u", (unsigned) req->commandID);

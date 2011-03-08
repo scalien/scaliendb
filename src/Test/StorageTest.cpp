@@ -111,7 +111,6 @@ TEST_DEFINE(TestStorageSet)
 
     dbPath.Write("test/shard/0/db");
     env.Open(dbPath);
-    
 
     // SET test ====================================================================================
     num = 10*1000;

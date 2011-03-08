@@ -37,13 +37,15 @@ bool ShardConnection::SendRequest(Request* request)
 {
     SDBPRequestMessage  msg;
     
-    sentRequests.Append(request);
+    if (!request->isBulk)
+    {
+        sentRequests.Append(request);
+        request->numTry++;
+        request->requestTime = EventLoop::Now();
+    }
 
     msg.request = request;
     Write(msg);
-    request->numTry++;
-    request->requestTime = EventLoop::Now();
-    //request->requestTime = NowClock();
 
 //    if (request->numTry > 1)
 //        Log_Debug("Resending, commandID: %U, conn: %s", request->commandID, endpoint.ToString());

@@ -12,6 +12,7 @@ void ClientRequest::Init()
     session = NULL;
     response.request = this;
     prev = next = this;
+    isBulk = false;
 
     response.NoResponse();
     name.Clear();
@@ -390,5 +391,11 @@ bool ClientRequest::Submit(
 {
     type = CLIENTREQUEST_SUBMIT;
     quorumID = quorumID_;
+    return true;
+}
+
+bool ClientRequest::BulkLoading()
+{
+    type = CLIENTREQUEST_BULK_LOADING;
     return true;
 }

@@ -37,6 +37,7 @@
 #define CLIENTREQUEST_SPLIT_SHARD       'h'
 #define CLIENTREQUEST_MIGRATE_SHARD     'M'
 #define CLIENTREQUEST_SUBMIT            '*'
+#define CLIENTREQUEST_BULK_LOADING      'B'
 
 class ClientSession; // forward
 
@@ -148,6 +149,8 @@ public:
 
     bool            Submit(
                      uint64_t quorumID);
+                     
+    bool            BulkLoading();
 
     // Variables
     ClientResponse  response;
@@ -169,6 +172,7 @@ public:
     Buffer          test;
     List<uint64_t>  nodes;
     uint64_t        changeTimeout;
+    bool            isBulk;
     
     ClientRequest*  prev;
     ClientRequest*  next;

@@ -44,6 +44,7 @@ public:
     uint64_t                GetMasterTimeout();
     
     void                    SetBatchLimit(uint64_t batchLimit);
+    void                    SetBulkLoading(bool bulkLoading);
     
     // result
     Result*                 GetResult();
@@ -158,6 +159,7 @@ private:
     uint64_t                tableID;
     bool                    isBatched;
     uint64_t                batchLimit;
+    bool                    isBulkLoading;
 
 //#ifdef CLIENT_MULTITHREAD    
     Mutex                   mutex;

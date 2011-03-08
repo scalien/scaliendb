@@ -73,6 +73,7 @@ Mutex   globalMutex;
                                                     \
     req = new Request;                              \
     req->op(NextCommandID(), tableID, __VA_ARGS__); \
+    req->isBulk = isBulkLoading;                    \
     requests.Append(req);                           \
                                                     \
     if (isBatched)                                  \
@@ -286,6 +287,11 @@ uint64_t Client::GetMasterTimeout()
 void Client::SetBatchLimit(uint64_t batchLimit_)
 {
     batchLimit = batchLimit_;
+}
+
+void Client::SetBulkLoading(bool bulkLoading)
+{
+    isBulkLoading = bulkLoading;
 }
 
 Result* Client::GetResult()
@@ -898,6 +904,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     RequestList*        qrequests;
     Request*            req;
     ConfigQuorum*       quorum;
+    bool                lastRequest;
 
     if (!quorumRequests.Get(quorumID, qrequests))
         return;
@@ -913,26 +920,34 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         ASSERT_FAIL();
     
     // TODO: distribute dirty
-    if (!IsSafe() || (quorum->hasPrimary && quorum->primaryID == conn->GetNodeID()))
+    lastRequest = false;
+    if (!IsSafe() || isBulkLoading || (quorum->hasPrimary && quorum->primaryID == conn->GetNodeID()))
     {
         while (qrequests->GetLength() > 0)
         {   
             req = qrequests->First();
-            qrequests->Remove(req);
+
+            if (req->isBulk)
+            {
+                // send to all shardservers before removing from quorum requests
+                req->numShardServers++;
+                if (req->numShardServers == quorum->activeNodes.GetLength())
+                    qrequests->Remove(req);
+                else if (qrequests->GetLength() == 1)
+                    lastRequest = true;
+            }
+            else
+                qrequests->Remove(req);
+                
             if (!conn->SendRequest(req))
             {
                 conn->Flush();
                 break;
             }
-            if (qrequests->GetLength() == 0)
-                conn->SendSubmit(quorumID);
         }
 
-        if (qrequests->GetLength() == 0)
-        {
+        if (qrequests->GetLength() == 0 || lastRequest)
             conn->Flush();
-//            Log_Debug("Flushing: %s", conn->GetEndpoint().ToString());
-        }
     }
 }
 

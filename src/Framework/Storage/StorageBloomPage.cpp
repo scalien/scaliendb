@@ -70,7 +70,6 @@ bool StorageBloomPage::Read(Buffer& buffer)
 {
     ReadBuffer  dataPart, parse;
     uint32_t    size, checksum, compChecksum;
-    uint32_t    numHashes;
     
     parse.Wrap(buffer);
     
