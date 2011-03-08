@@ -74,7 +74,6 @@ public:
     bool                    IsPaxosBlocked();
     // ========================================================================================
 
-    void                    OnResumeAppend();
     void                    OnRequestLeaseTimeout();
     void                    OnLeaseTimeout();
 
@@ -86,6 +85,8 @@ private:
     void                    ExecuteMessage(ShardMessage& message, uint64_t paxosID,
                              uint64_t commandID, bool ownAppend);
     void                    TryAppend();
+    void                    OnResumeAppend();
+    void                    ExecuteSingles();
 
     bool                    isPrimary;
     uint64_t                proposalID;
@@ -116,6 +117,7 @@ private:
     Timer                   leaseTimeout;
     YieldTimer              tryAppend;
     YieldTimer              resumeAppend;
+    YieldTimer              executeSingles;
 };
 
 #endif

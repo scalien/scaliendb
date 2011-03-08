@@ -19,6 +19,7 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     leaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnLeaseTimeout));
     tryAppend.SetCallable(MFUNC(ShardQuorumProcessor, TryAppend));
     resumeAppend.SetCallable(MFUNC(ShardQuorumProcessor, OnResumeAppend));
+    executeSingles.SetCallable(MFUNC(ShardQuorumProcessor, ExecuteSingles));
 }
 
 void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardServer_)
@@ -219,61 +220,6 @@ bool ShardQuorumProcessor::IsPaxosBlocked()
     return resumeAppend.IsActive();
 }
 
-void ShardQuorumProcessor::OnResumeAppend()
-{
-    int             read;
-    uint64_t        valueLength;
-    uint64_t        start;
-    ShardMessage    message;
-    
-    Log_Trace();
-
-    valueLength = value.GetLength();
-
-    start = NowClock();
-    while (value.GetLength() > 0)
-    {
-        read = message.Read(value);
-        assert(read > 0);
-        value.Advance(read);
-        assert(value.GetCharAt(0) == ' ');
-        value.Advance(1);
-
-        ExecuteMessage(message, paxosID, commandID, ownAppend);
-        commandID++;
-
-        if (NowClock() - start >= YIELD_TIME)
-        {
-            // let other code run every YIELD_TIME msec
-            if (resumeAppend.IsActive())
-                STOP_FAIL(1, "Program bug: resumeAppend.IsActive() should be false.");
-            EventLoop::Add(&resumeAppend);
-            return;
-        }
-    }
-    
-    // TODO:
-    if (ownAppend && shardMessages.GetLength() > 0)
-    {
-        shardMessagesLength -= valueLength;
-        Log_Trace("shardMessagesLength: %U", shardMessagesLength);
-        //assert(shardMessagesLength >= 0);
-        // TODO: HACK
-        shardMessagesLength = 0;
-    }
-    
-    ownAppend = false;
-    paxosID = 0;
-    commandID = 0;
-    valueBuffer.Reset();
-    value.Reset();
-
-    if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
-        EventLoop::Add(&tryAppend);
-    
-    quorumContext.OnAppendComplete();
-}
-
 void ShardQuorumProcessor::OnRequestLeaseTimeout()
 {
     ClusterMessage msg;
@@ -342,8 +288,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         shardServer->GetDatabaseManager()->OnClientListRequest(request);
         return;
     }
-    
-    if (request->type == CLIENTREQUEST_SUBMIT)
+        
+    if (request->type == CLIENTREQUEST_SUBMIT && quorumContext.GetQuorum()->GetNumNodes() > 1)
     {
         if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
             EventLoop::Add(&tryAppend);
@@ -359,6 +305,13 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     
     clientRequests.Append(request);
     shardMessages.Append(message);
+
+    if (quorumContext.GetQuorum()->GetNumNodes() == 1)
+    {
+        if (!executeSingles.IsActive())
+            EventLoop::Add(&executeSingles);
+        return;
+    }
     
     message->Write(singleBuffer);
     shardMessagesLength += singleBuffer.GetLength();
@@ -379,6 +332,16 @@ void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
 void ShardQuorumProcessor::SetActiveNodes(SortedList<uint64_t>& activeNodes)
 {
     quorumContext.SetActiveNodes(activeNodes);
+
+    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
+    {
+        if (executeSingles.IsActive())
+        {
+            EventLoop::Remove(&executeSingles);
+            if (!tryAppend.IsActive())
+                EventLoop::Add(&tryAppend);
+        }
+    }
 }
 
 void ShardQuorumProcessor::RegisterPaxosID(uint64_t paxosID)
@@ -642,6 +605,8 @@ void ShardQuorumProcessor::TryAppend()
         return;
     }
     
+    Log_Debug("TryAppend started");
+    
     numMessages = 0;
     
     if (!quorumContext.IsAppending() && shardMessages.GetLength() > 0)
@@ -670,7 +635,8 @@ void ShardQuorumProcessor::TryAppend()
                 first = false;
         }
         
-//        Log_Debug("numMessages = %u", numMessages);
+        Log_Debug("numMessages = %u", numMessages);
+        Log_Debug("length = %s", HUMAN_BYTES(uncompressed.GetLength()));
                 
         assert(uncompressed.GetLength() > 0);
 
@@ -678,4 +644,104 @@ void ShardQuorumProcessor::TryAppend()
         
         quorumContext.Append();
     }
+}
+
+void ShardQuorumProcessor::OnResumeAppend()
+{
+    int             read;
+    uint64_t        valueLength;
+    uint64_t        start;
+    ShardMessage    message;
+    
+    Log_Trace();
+
+    Log_Debug("OnResumeAppend BEGIN");
+
+    valueLength = value.GetLength();
+
+    start = NowClock();
+    while (value.GetLength() > 0)
+    {
+        read = message.Read(value);
+        assert(read > 0);
+        value.Advance(read);
+        assert(value.GetCharAt(0) == ' ');
+        value.Advance(1);
+
+        ExecuteMessage(message, paxosID, commandID, ownAppend);
+        commandID++;
+
+        if (NowClock() - start >= YIELD_TIME)
+        {
+            // let other code run every YIELD_TIME msec
+            if (resumeAppend.IsActive())
+                STOP_FAIL(1, "Program bug: resumeAppend.IsActive() should be false.");
+            EventLoop::Add(&resumeAppend);
+            Log_Debug("OnResumeAppend YIELD");
+            return;
+        }
+    }
+    
+    // TODO:
+    if (ownAppend && shardMessages.GetLength() > 0)
+    {
+        shardMessagesLength -= valueLength;
+        Log_Trace("shardMessagesLength: %U", shardMessagesLength);
+        //assert(shardMessagesLength >= 0);
+        // TODO: HACK
+        shardMessagesLength = 0;
+    }
+    
+    ownAppend = false;
+    paxosID = 0;
+    commandID = 0;
+    valueBuffer.Reset();
+    value.Reset();
+
+    if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
+        EventLoop::Add(&tryAppend);
+    
+    quorumContext.OnAppendComplete();
+    Log_Debug("OnResumeAppend END");
+}
+
+void ShardQuorumProcessor::ExecuteSingles()
+{
+    uint64_t        start;
+    uint64_t        paxosID, commandID;
+    ShardMessage*   message;
+    ClientRequest*  request;
+    
+    quorumContext.NewPaxosRound();
+    
+    paxosID = GetPaxosID();
+    commandID = 0;
+    
+    start = NowClock();
+    FOREACH_FIRST(message, shardMessages)
+    {
+        request = clientRequests.First();
+        shardMessages.Remove(message);
+        clientRequests.Remove(request);
+
+        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, 0, *message, request);
+        request->OnComplete(); // request deletes itself
+        delete message;
+        
+        commandID++;
+
+        if (NowClock() - start >= YIELD_TIME)
+        {
+            // let other code run every YIELD_TIME msec
+            if (executeSingles.IsActive())
+                STOP_FAIL(1, "Program bug: executeSingles.IsActive() should be false.");
+            EventLoop::Add(&executeSingles);
+            Log_Debug("ExecuteSingles YIELD");
+            break;
+        }
+    }
+
+    quorumContext.WriteReplicationState();
+    
+    shardServer->GetDatabaseManager()->GetEnvironment()->Commit();    
 }
