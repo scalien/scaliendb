@@ -910,7 +910,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     RequestList*        qrequests;
     Request*            req;
     ConfigQuorum*       quorum;
-    bool                lastRequest;
+    RequestList         bulkRequests;
+    Request*            itRequest;
 
     if (!quorumRequests.Get(quorumID, qrequests))
         return;
@@ -926,24 +927,19 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         ASSERT_FAIL();
     
     // TODO: distribute dirty
-    lastRequest = false;
     if (!IsSafe() || isBulkLoading || (quorum->hasPrimary && quorum->primaryID == conn->GetNodeID()))
     {
         while (qrequests->GetLength() > 0)
         {   
             req = qrequests->First();
-
+            qrequests->Remove(req);
             if (req->isBulk)
             {
                 // send to all shardservers before removing from quorum requests
                 req->numShardServers++;
-                if (req->numShardServers == quorum->activeNodes.GetLength())
-                    qrequests->Remove(req);
-                else if (qrequests->GetLength() == 1)
-                    lastRequest = true;
+                if (req->numShardServers < quorum->activeNodes.GetLength())
+                    bulkRequests.Append(req);
             }
-            else
-                qrequests->Remove(req);
                 
             if (!conn->SendRequest(req))
             {
@@ -952,8 +948,16 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
             }
         }
 
-        if (qrequests->GetLength() == 0 || lastRequest)
+        if (qrequests->GetLength() == 0 || bulkRequests.GetLength() == 0)
             conn->Flush();
+        
+        // put back those requests to the quorum requests list that have not been sent to all
+        // shardservers
+        FOREACH_LAST (itRequest, bulkRequests)
+        {
+            bulkRequests.Remove(itRequest);
+            qrequests->Prepend(itRequest);
+        }
     }
 }
 
