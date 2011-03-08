@@ -93,6 +93,16 @@ void ShardQuorumContext::OnAppendComplete()
     replicatedLog.OnAppendComplete();
 }
 
+void ShardQuorumContext::NewPaxosRound()
+{
+    replicatedLog.NewPaxosRound();
+}
+
+void ShardQuorumContext::WriteReplicationState()
+{
+    replicatedLog.WriteState();
+}
+
 bool ShardQuorumContext::IsLeaseOwner()
 {
     return quorumProcessor->IsPrimary();
