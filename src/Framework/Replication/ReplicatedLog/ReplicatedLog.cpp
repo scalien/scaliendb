@@ -116,6 +116,16 @@ uint64_t ReplicatedLog::GetPaxosID()
     return paxosID;
 }
 
+void ReplicatedLog::NewPaxosRound()
+{
+    EventLoop::Remove(&(proposer.prepareTimeout));
+    EventLoop::Remove(&(proposer.proposeTimeout));
+
+    paxosID++;
+    proposer.state.OnNewPaxosRound();
+    acceptor.state.OnNewPaxosRound();
+}
+
 void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
 {
     Log_Trace();
@@ -194,6 +204,11 @@ void ReplicatedLog::OnAppendComplete()
     }
 
     TryAppendNextValue();
+}
+
+void ReplicatedLog::WriteState()
+{
+    acceptor.WriteState();
 }
 
 void ReplicatedLog::Append(Buffer& value)
@@ -392,16 +407,6 @@ void ReplicatedLog::OnRequest(PaxosMessage& imsg)
         //  I am lagging and need to catch-up
         RequestChosen(imsg.nodeID);
     }
-}
-
-void ReplicatedLog::NewPaxosRound()
-{
-    EventLoop::Remove(&(proposer.prepareTimeout));
-    EventLoop::Remove(&(proposer.proposeTimeout));
-
-    paxosID++;
-    proposer.state.OnNewPaxosRound();
-    acceptor.state.OnNewPaxosRound();
 }
 
 void ReplicatedLog::RequestChosen(uint64_t nodeID)

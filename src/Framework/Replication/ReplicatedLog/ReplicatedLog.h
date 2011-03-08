@@ -39,6 +39,7 @@ public:
     
     void                    SetPaxosID(uint64_t paxosID);
     uint64_t                GetPaxosID();
+    void                    NewPaxosRound();
     
     void                    RegisterPaxosID(uint64_t paxosID, uint64_t nodeID);
     
@@ -48,6 +49,7 @@ public:
     void                    OnLeaseTimeout();
 
     void                    OnAppendComplete();
+    void                    WriteState();
 
 private:
     void                    Append(Buffer& value);
@@ -63,7 +65,6 @@ private:
     void                    ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value);
 
     void                    OnRequest(PaxosMessage& msg);
-    void                    NewPaxosRound();
     void                    RequestChosen(uint64_t nodeID);
 
     QuorumContext*          context;
