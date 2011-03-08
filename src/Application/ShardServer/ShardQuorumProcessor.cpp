@@ -273,7 +273,6 @@ void ShardQuorumProcessor::OnLeaseTimeout()
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 {
     ShardMessage*   message;
-    Buffer          singleBuffer;
 
     if (!quorumContext.IsLeader() && !request->isBulk)
     {
@@ -319,8 +318,6 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         return;
     }
     
-    message->Write(singleBuffer);
-        
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
 }
@@ -708,7 +705,8 @@ void ShardQuorumProcessor::LocalExecute()
     
     isSingle = (quorumContext.GetQuorum()->GetNumNodes() == 1);
     
-    quorumContext.NewPaxosRound();
+    if (isSingle)
+        quorumContext.NewPaxosRound();
     
     paxosID = GetPaxosID();
     commandID = 0;
