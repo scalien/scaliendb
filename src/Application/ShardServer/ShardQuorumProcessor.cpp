@@ -19,7 +19,7 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     leaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnLeaseTimeout));
     tryAppend.SetCallable(MFUNC(ShardQuorumProcessor, TryAppend));
     resumeAppend.SetCallable(MFUNC(ShardQuorumProcessor, OnResumeAppend));
-    executeSingles.SetCallable(MFUNC(ShardQuorumProcessor, ExecuteSingles));
+    localExecute.SetCallable(MFUNC(ShardQuorumProcessor, LocalExecute));
 }
 
 void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardServer_)
@@ -34,7 +34,6 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     ownAppend = false;
     paxosID = 0;
     commandID = 0;
-//    isShardMigrationActive = false;
     migrateShardID = 0;
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
@@ -238,24 +237,33 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
 
 void ShardQuorumProcessor::OnLeaseTimeout()
 {
-    ClientRequest*  itRequest;
-    ShardMessage*   itMessage;
+    ClientRequest*  itRequest, *nextRequest;
+    ShardMessage*   itMessage, *nextMessage;
         
-    for (itRequest = clientRequests.First(); itRequest != NULL; itRequest = clientRequests.First())
+    for (itRequest = clientRequests.First(); itRequest != NULL; itRequest = nextRequest)
     {
-        clientRequests.Remove(itRequest);
-        itRequest->response.NoService();
-        itRequest->OnComplete();
+        nextRequest = clientRequests.Next(itRequest);
+
+        if (!itRequest->isBulk)
+        {
+            clientRequests.Remove(itRequest);
+            itRequest->response.NoService();
+            itRequest->OnComplete();
+        }
     }
 
-    for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = shardMessages.First())
+    for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
     {
-        shardMessages.Remove(itMessage);
-        delete itMessage;
+        nextMessage = shardMessages.Next(itMessage);
+        
+        if (!itMessage->isBulk)
+        {
+            shardMessages.Remove(itMessage);
+            delete itMessage;
+        }
     }
     
     isPrimary = false;
-//    isShardMigrationActive = false;
     migrateShardID = 0;
     
     if (catchupWriter.IsActive())
@@ -267,7 +275,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     ShardMessage*   message;
     Buffer          singleBuffer;
 
-    if (!quorumContext.IsLeader())
+    if (!quorumContext.IsLeader() && !request->isBulk)
     {
         Log_Trace();
         request->response.NoService();
@@ -304,10 +312,10 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     clientRequests.Append(request);
     shardMessages.Append(message);
 
-    if (quorumContext.GetQuorum()->GetNumNodes() == 1)
+    if (request->isBulk || quorumContext.GetQuorum()->GetNumNodes() == 1)
     {
-        if (!executeSingles.IsActive())
-            EventLoop::Add(&executeSingles);
+        if (!localExecute.IsActive())
+            EventLoop::Add(&localExecute);
         return;
     }
     
@@ -325,15 +333,15 @@ void ShardQuorumProcessor::SetActiveNodes(SortedList<uint64_t>& activeNodes)
 {
     quorumContext.SetActiveNodes(activeNodes);
 
-    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
-    {
-        if (executeSingles.IsActive())
-        {
-            EventLoop::Remove(&executeSingles);
-            if (!tryAppend.IsActive())
-                EventLoop::Add(&tryAppend);
-        }
-    }
+//    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
+//    {
+//        if (localExecute.IsActive())
+//        {
+//            EventLoop::Remove(&localExecute);
+//            if (!tryAppend.IsActive())
+//                EventLoop::Add(&tryAppend);
+//        }
+//    }
 }
 
 void ShardQuorumProcessor::RegisterPaxosID(uint64_t paxosID)
@@ -350,11 +358,6 @@ void ShardQuorumProcessor::TryReplicationCatchup()
     
     quorumContext.TryReplicationCatchup();
 }
-
-//bool ShardQuorumProcessor::IsShardMigrationActive()
-//{
-//    return isShardMigrationActive;
-//}
 
 uint64_t ShardQuorumProcessor::GetMigrateShardID()
 {
@@ -379,10 +382,19 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     it = new ShardMessage;
     it->SplitShard(shardID, newShardID, splitKey);
     it->fromClient = false;
+    it->isBulk = false;
     shardMessages.Append(it);
-    
-    if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
-        EventLoop::Add(&tryAppend);
+
+    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
+    {
+        if (!tryAppend.IsActive())
+            EventLoop::Add(&tryAppend);
+    }
+    else
+    {
+        if (!localExecute.IsActive())
+            EventLoop::Add(&localExecute);
+    }
 }
 
 void ShardQuorumProcessor::StopReplication()
@@ -428,11 +440,9 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
 
     if (clusterMessage.type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT)
     {
-//        assert(isShardMigrationActive);
         assert(migrateShardID = clusterMessage.shardID);
         completeMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
         shardServer->BroadcastToControllers(completeMessage);
-//        isShardMigrationActive = false;
         migrateShardID = 0;
         Log_Message("Migration of shard %U complete...", clusterMessage.shardID);
         return;
@@ -444,19 +454,15 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
     switch (clusterMessage.type)
     {
         case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
-//            assert(isShardMigrationActive == false);
-//            isShardMigrationActive = true;
             migrateShardID = clusterMessage.shardID;
             shardMessage->ShardMigrationBegin(clusterMessage.shardID);
             Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
-//            assert(isShardMigrationActive);
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
-//            assert(isShardMigrationActive);
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
             Log_Debug("ShardMigration DELETE");
@@ -474,6 +480,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
     message->fromClient = true;
+    message->isBulk = request->isBulk;
     
     switch (request->type)
     {
@@ -533,6 +540,7 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
  uint64_t paxosID, uint64_t commandID, bool ownAppend)
 {
     ClientRequest*  request;
+    ShardMessage*   itMessage;
     bool            fromClient;
 
     request = NULL;
@@ -545,14 +553,22 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
     }
 
     if (ownAppend)
-        fromClient = shardMessages.First()->fromClient;
+    {
+        FOREACH(itMessage, shardMessages)
+        {
+            if (itMessage->isBulk == false)
+                break;
+        }
+        assert(itMessage != NULL);
+        fromClient = itMessage->fromClient;
+    }
     else
         fromClient = false;
 
     if (ownAppend && fromClient)
     {
         assert(shardMessages.GetLength() > 0);
-        assert(shardMessages.First()->type == message.type);
+        assert(itMessage->type == message.type);
         assert(clientRequests.GetLength() > 0);
         request = clientRequests.First();
         request->response.OK();
@@ -567,7 +583,7 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
             clientRequests.Remove(request);
             request->OnComplete(); // request deletes itself
         }
-        shardMessages.Delete(shardMessages.First());
+        shardMessages.Delete(itMessage);
     }
 }
 
@@ -598,6 +614,9 @@ void ShardQuorumProcessor::TryAppend()
         first = true;
         FOREACH(it, shardMessages)
         {
+            if (it->isBulk)
+                continue;
+            
             // make sure split shard messages are replicated by themselves
             if (!first && it->type == SHARDMESSAGE_SPLIT_SHARD)
                 break;
@@ -679,12 +698,15 @@ void ShardQuorumProcessor::OnResumeAppend()
     Log_Debug("OnResumeAppend END");
 }
 
-void ShardQuorumProcessor::ExecuteSingles()
+void ShardQuorumProcessor::LocalExecute()
 {
+    bool            isSingle;
     uint64_t        start;
     uint64_t        paxosID, commandID;
-    ShardMessage*   message;
-    ClientRequest*  request;
+    ShardMessage*   itMessage, *nextMessage;
+    ClientRequest*  itRequest, *nextRequest;
+    
+    isSingle = (quorumContext.GetQuorum()->GetNumNodes() == 1);
     
     quorumContext.NewPaxosRound();
     
@@ -692,24 +714,30 @@ void ShardQuorumProcessor::ExecuteSingles()
     commandID = 0;
     
     start = NowClock();
-    FOREACH_FIRST(message, shardMessages)
+    for (itMessage = shardMessages.First(), itRequest = clientRequests.First();
+     itMessage != NULL;
+     itMessage = nextMessage, itRequest = nextRequest)
     {
-        request = clientRequests.First();
-        shardMessages.Remove(message);
-        clientRequests.Remove(request);
+        nextMessage = shardMessages.Next(itMessage);
+        if (itMessage->fromClient)
+            nextRequest = clientRequests.Next(itRequest);
+        if (!isSingle && !itMessage->isBulk)
+            continue;
+        shardMessages.Remove(itMessage);
+        clientRequests.Remove(itRequest);
 
-        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, 0, *message, request);
-        request->OnComplete(); // request deletes itself
-        delete message;
+        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, 0, *itMessage, itRequest);
+        itRequest->OnComplete(); // request deletes itself
+        delete itMessage;
         
         commandID++;
 
         if (NowClock() - start >= YIELD_TIME)
         {
             // let other code run every YIELD_TIME msec
-            if (executeSingles.IsActive())
-                STOP_FAIL(1, "Program bug: executeSingles.IsActive() should be false.");
-            EventLoop::Add(&executeSingles);
+            if (localExecute.IsActive())
+                STOP_FAIL(1, "Program bug: localExecute.IsActive() should be false.");
+            EventLoop::Add(&localExecute);
             Log_Debug("ExecuteSingles YIELD");
             break;
         }

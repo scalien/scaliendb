@@ -86,7 +86,7 @@ private:
                              uint64_t commandID, bool ownAppend);
     void                    TryAppend();
     void                    OnResumeAppend();
-    void                    ExecuteSingles();
+    void                    LocalExecute();
 
     bool                    isPrimary;
     uint64_t                proposalID;
@@ -116,7 +116,7 @@ private:
     Timer                   leaseTimeout;
     YieldTimer              tryAppend;
     YieldTimer              resumeAppend;
-    YieldTimer              executeSingles;
+    YieldTimer              localExecute;
 };
 
 #endif
