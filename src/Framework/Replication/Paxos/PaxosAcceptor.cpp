@@ -43,7 +43,8 @@ void PaxosAcceptor::OnCatchupComplete()
 
     ac = asyncCommit;
     asyncCommit = false; // force sync commit on catchup complete
-    WriteState(false);
+    WriteState();
+    Commit(false);
     asyncCommit = ac;
 }
 
@@ -76,7 +77,8 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
          imsg.proposalID, state.acceptedProposalID,
          state.acceptedRunID, state.acceptedValue);
     
-    WriteState(true);
+    WriteState();
+    Commit(true);
 }
 
 void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
@@ -104,7 +106,8 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     state.acceptedValue.Write(imsg.value);
     omsg.ProposeAccepted(imsg.paxosID, MY_NODEID, imsg.proposalID);
     
-    WriteState(true);
+    WriteState();
+    Commit(true);
 }
 
 void PaxosAcceptor::OnStateWritten()
@@ -136,11 +139,9 @@ void PaxosAcceptor::ReadState()
     }
 }
 
-void PaxosAcceptor::WriteState(bool sendReply_)
+void PaxosAcceptor::WriteState()
 {
     QuorumDatabase* db;
-    
-    sendReply = sendReply_; // used in OnStateWritten()
     
     db = context->GetDatabase();
     
@@ -153,7 +154,16 @@ void PaxosAcceptor::WriteState(bool sendReply_)
         db->SetAcceptedProposalID(state.acceptedProposalID);
         db->SetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
     }
+}
 
+void PaxosAcceptor::Commit(bool sendReply_)
+{
+    QuorumDatabase* db;
+    
+    db = context->GetDatabase();
+    
+    sendReply = sendReply_; // used in OnStateWritten()
+    
     writtenPaxosID = context->GetPaxosID();
     
     if (asyncCommit)
