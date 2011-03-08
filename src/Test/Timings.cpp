@@ -3,6 +3,7 @@
 #include "System/Log.h"
 #include "System/FileSystem.h"
 #include "System/Common.h"
+#include "System/ThreadPool.h"
 
 #include <fcntl.h>
 
@@ -51,7 +52,90 @@ TEST_DEFINE(TestTimingFileSystemWrite)
     FS_FileClose(fd);
     FS_Delete(filename);
     
-    TEST_LOG("elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+    TEST_LOG("With sync(): elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+
+    fd = FS_Open(filename, FS_WRITEONLY | FS_CREATE | FS_APPEND);
+    
+    sw.Restart();
+    for (unsigned i = 0; i < num; i++)
+    {
+        FS_FileWrite(fd, buf, sizeof(buf));
+    }
+    sw.Stop();
+    
+    FS_FileClose(fd);
+    FS_Delete(filename);
+    
+    TEST_LOG("Without sync(): elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+
+    
+    return TEST_SUCCESS;
+}
+
+static FD           parallelFd1;
+static FD           parallelFd2;
+static const char*  parallelFilename1 = "tmpname1";
+static const char*  parallelFilename2 = "tmpname2";
+
+static void ParallelWrite1()
+{
+    char        buf[64*1024];
+    unsigned    num = 10*1000;
+    Stopwatch   sw;
+    
+    sw.Restart();
+    for (unsigned i = 0; i < num; i++)
+    {
+        FS_FileWrite(parallelFd1, buf, sizeof(buf));
+        FS_Sync(parallelFd1);
+    }
+    sw.Stop();
+    
+    FS_FileClose(parallelFd1);
+    FS_Delete(parallelFilename1);
+    
+    TEST_LOG("P1 elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+}
+
+static void ParallelWrite2()
+{
+    char        buf[64*1024];
+    unsigned    num = 10*1000;
+    Stopwatch   sw;
+    
+    sw.Restart();
+    for (unsigned i = 0; i < num; i++)
+    {
+        FS_FileWrite(parallelFd2, buf, sizeof(buf));
+        //FS_Sync(parallelFd2);
+    }
+    sw.Stop();
+    
+    FS_FileClose(parallelFd2);
+    FS_Delete(parallelFilename2);
+    
+    TEST_LOG("P2 elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+}
+
+TEST_DEFINE(TestTimingFileSystemParallelWrite)
+{
+    ThreadPool* thread1;
+    ThreadPool* thread2;
+    
+    parallelFd1 = FS_Open(parallelFilename1, FS_WRITEONLY | FS_CREATE | FS_APPEND);
+    parallelFd2 = FS_Open(parallelFilename2, FS_WRITEONLY | FS_CREATE | FS_APPEND);
+    
+    thread1 = ThreadPool::Create(1);
+    thread2 = ThreadPool::Create(1);
+    
+    thread1->Execute(CFunc(ParallelWrite1));
+    thread2->Execute(CFunc(ParallelWrite2));
+
+    thread1->Start();
+    thread2->Start();
+        
+    thread1->WaitStop();
+    thread2->WaitStop();
     
     return TEST_SUCCESS;
 }
