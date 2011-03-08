@@ -22,6 +22,7 @@ class Request : public ClientRequest
 public:
     typedef InTreeNode<Request>     TreeNode;
     typedef List<ClientResponse*>   ResponseList;
+    typedef ArrayList<uint64_t, 9>  ShardConnList;
 
     Request();
 
@@ -35,6 +36,7 @@ public:
     unsigned        numBulkResponses;
     ResponseList    responses;
     bool            async;
+    ShardConnList   shardConns;
 };
 
 };  // namespace

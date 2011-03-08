@@ -912,6 +912,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     ConfigQuorum*       quorum;
     RequestList         bulkRequests;
     Request*            itRequest;
+    uint64_t*           itNode;
+    uint64_t            nodeID;
 
     if (!quorumRequests.Get(quorumID, qrequests))
         return;
@@ -936,9 +938,18 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
             if (req->isBulk)
             {
                 // send to all shardservers before removing from quorum requests
-                req->numShardServers++;
-                if (req->numShardServers < quorum->activeNodes.GetLength())
+                FOREACH (itNode, req->shardConns)
+                {
+                    if (*itNode == conn->GetNodeID())
+                        break;
+                }
+
+                if (itNode == NULL)
+                {
                     bulkRequests.Append(req);
+                    nodeID = conn->GetNodeID();
+                    req->shardConns.Append(nodeID);
+                }
             }
                 
             if (!conn->SendRequest(req))
