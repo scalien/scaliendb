@@ -92,7 +92,6 @@ private:
     uint64_t                proposalID;
     uint64_t                configID;
     uint64_t                requestedLeaseExpireTime;
-    int64_t                 shardMessagesLength;
 
     // for async OnAppend():
     bool                    ownAppend;

@@ -31,7 +31,6 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     proposalID = 0;
     configID = 0;
     requestedLeaseExpireTime = 0;
-    shardMessagesLength = 0;
     ownAppend = false;
     paxosID = 0;
     commandID = 0;
@@ -255,7 +254,6 @@ void ShardQuorumProcessor::OnLeaseTimeout()
         delete itMessage;
     }
     
-    shardMessagesLength = 0;
     isPrimary = false;
 //    isShardMigrationActive = false;
     migrateShardID = 0;
@@ -314,15 +312,9 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     }
     
     message->Write(singleBuffer);
-    shardMessagesLength += singleBuffer.GetLength();
-    
-    assert(shardMessagesLength >= 0);
-    
+        
     if (!tryAppend.IsActive())
-    {
-        Log_Trace("shardMessagesLength: %U", shardMessagesLength);
         EventLoop::Add(&tryAppend);
-    }    
 }
 
 void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
@@ -372,7 +364,6 @@ uint64_t ShardQuorumProcessor::GetMigrateShardID()
 void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey)
 {
     ShardMessage*   it;
-    Buffer          singleBuffer;
     
     FOREACH(it, shardMessages)
     {
@@ -390,9 +381,6 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     it->fromClient = false;
     shardMessages.Append(it);
     
-    it->Write(singleBuffer);
-    shardMessagesLength += singleBuffer.GetLength();
-
     if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
         EventLoop::Add(&tryAppend);
 }
@@ -431,7 +419,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
 {
     ShardMessage*   shardMessage;
     ClusterMessage  completeMessage;
-    Buffer          singleBuffer;
 
     if (!quorumContext.IsLeader())
     {
@@ -479,9 +466,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
     }
 
     shardMessages.Append(shardMessage);
-
-    shardMessage->Write(singleBuffer);
-    shardMessagesLength += singleBuffer.GetLength();
 
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
@@ -681,17 +665,7 @@ void ShardQuorumProcessor::OnResumeAppend()
             return;
         }
     }
-    
-    // TODO:
-    if (ownAppend && shardMessages.GetLength() > 0)
-    {
-        shardMessagesLength -= valueLength;
-        Log_Trace("shardMessagesLength: %U", shardMessagesLength);
-        //assert(shardMessagesLength >= 0);
-        // TODO: HACK
-        shardMessagesLength = 0;
-    }
-    
+        
     ownAppend = false;
     paxosID = 0;
     commandID = 0;
