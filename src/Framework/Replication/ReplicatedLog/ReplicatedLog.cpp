@@ -225,17 +225,10 @@ void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 {
     Log_Trace();
 
-//    Log_Debug("OnPrepareRequest begin");
-        
     if (imsg.paxosID == paxosID)
-    {
-//        Log_Debug("OnPrepareRequest end");
         return acceptor.OnPrepareRequest(imsg);
-    }
 
     OnRequest(imsg);
-
-//    Log_Debug("OnPrepareRequest end");
 }
 
 void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
