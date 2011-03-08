@@ -7,6 +7,6 @@
 #define DATABASE_KEY_SIZE                       (  1*KiB)
 #define DATABASE_VAL_SIZE                       ( 16*MiB)
 
-#define DATABASE_UNCOMPRESSED_REPLICATION_SIZE  (128*KiB)
+#define DATABASE_UNCOMPRESSED_REPLICATION_SIZE  (10*MB)
 
 #endif
