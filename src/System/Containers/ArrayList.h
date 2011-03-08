@@ -2,7 +2,6 @@
 #define ARRAYLIST_H
 
 #include <stdlib.h>
-#include <assert.h>
 
 #include "System/Macros.h"
 
@@ -58,7 +57,7 @@ ArrayList<T, size>::ArrayList()
 template<typename T, unsigned size>
 T& ArrayList<T, size>::Get(unsigned i)
 {
-    assert(i <= size);
+    ASSERT(i <= size);
 
     return buffer[i];
 }
@@ -124,7 +123,7 @@ T* ArrayList<T, size>::Remove(T* t)
 {
     unsigned    pos;
     
-    assert(t >= buffer && t < buffer + num);
+    ASSERT(t >= buffer && t < buffer + num);
     
     pos = (unsigned) (t - buffer);
     if (pos == num - 1)
@@ -169,7 +168,7 @@ T* ArrayList<T, size>::Next(T* t)
 {
     unsigned    pos;
     
-    assert(t >= buffer && t < buffer + num);
+    ASSERT(t >= buffer && t < buffer + num);
     
     pos = (unsigned) (t - buffer);
     if (pos == num - 1)
@@ -186,7 +185,7 @@ T* ArrayList<T, size>::Prev(T* t)
 {
     unsigned    pos;
     
-    assert(t >= buffer && t < buffer + num);
+    ASSERT(t >= buffer && t < buffer + num);
     
     pos = t - buffer;
     if (pos == 0)
