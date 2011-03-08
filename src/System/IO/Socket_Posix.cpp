@@ -48,7 +48,7 @@ bool Socket::Create(Proto proto_)
     proto = proto_;
     listening = false;
     
-    SetReceiveBufferSize(64*KiB);
+//    SetReceiveBufferSize(64*KiB);
     
     return true;
 }

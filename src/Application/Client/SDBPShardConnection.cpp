@@ -23,7 +23,7 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     nodeID = nodeID_;
     endpoint = endpoint_;
     autoFlush = false;
-//    submitRequest.Init();
+    isBulkSent = false;
     Connect();
 }
 
@@ -61,14 +61,6 @@ bool ShardConnection::SendRequest(Request* request)
 
 void ShardConnection::SendSubmit(uint64_t /*quorumID*/)
 {
-//    Log_Debug("Flushing, conn: %s", endpoint.ToString());
-//    SDBPRequestMessage  msg;
-//    
-//    // TODO: optimize away submitRequest and msg by writing the buffer in constructor
-//    submitRequest.Submit(quorumID);
-//    msg.request = &submitRequest;
-//    Write(msg);
-    
     Flush();
 }
 
@@ -160,6 +152,9 @@ void ShardConnection::OnWrite()
     CLIENT_MUTEX_GUARD_DECLARE();
     
     MessageConnection::OnWrite();
+    if (client->IsBulkLoading() && !isBulkSent)
+        isBulkSent = true;
+
     SendQuorumRequests();
 }
 
@@ -171,6 +166,12 @@ void ShardConnection::OnConnect()
     CLIENT_MUTEX_GUARD_DECLARE();
     
     MessageConnection::OnConnect();
+    if (client->IsBulkLoading() && !isBulkSent)
+    {
+        SendBulkLoadingRequest();
+        return;
+    }
+    
     SendQuorumRequests();
 }
 
@@ -184,6 +185,8 @@ void ShardConnection::OnClose()
     uint64_t*   itNext;
     
     CLIENT_MUTEX_GUARD_DECLARE();
+    
+    isBulkSent = false;
     
     // close the socket and try reconnecting
     MessageConnection::OnClose();
@@ -232,4 +235,15 @@ void ShardConnection::SendQuorumRequests()
     // notify the client so that it can assign the requests to the connection
     FOREACH (qit, quorums)
         client->SendQuorumRequest(this, *qit);
+}
+
+void ShardConnection::SendBulkLoadingRequest()
+{
+    Request req;
+
+    req.BulkLoading(0);
+    req.isBulk = true;
+    
+    SendRequest(&req);
+    Flush();
 }

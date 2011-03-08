@@ -180,10 +180,16 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
         if (resp->type == CLIENTRESPONSE_VALUE)
             resp->CopyValue();
 
-        if (!req->isBulk || !req->response.type == CLIENTRESPONSE_NORESPONSE)
+        if (!req->isBulk)
         {
             resp->Transfer(req->response);
             numCompleted++;
+        }
+        else
+        {
+            req->numBulkResponses++;
+            if (req->numBulkResponses == req->numShardServers)
+                numCompleted++;
         }
     }
     

@@ -150,7 +150,12 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &request->type, &request->quorumID);
             break;
-            
+        
+        case CLIENTREQUEST_BULK_LOADING:
+            read = buffer.Readf("%c:%U",
+             &request->type, &request->commandID);
+            break;
+        
         default:
             return false;
     }
@@ -287,6 +292,10 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
             
         case CLIENTREQUEST_SUBMIT:
             buffer.Appendf("%c:%U", request->type, request->quorumID);
+            return true;
+
+        case CLIENTREQUEST_BULK_LOADING:
+            buffer.Appendf("%c:%U", request->type, request->commandID);
             return true;
 
         default:

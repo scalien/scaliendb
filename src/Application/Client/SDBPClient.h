@@ -44,7 +44,8 @@ public:
     uint64_t                GetMasterTimeout();
     
     void                    SetBatchLimit(uint64_t batchLimit);
-    void                    SetBulkLoading(bool bulkLoading);
+    void                    SetBulkLoading();
+    bool                    IsBulkLoading();
     
     // result
     Result*                 GetResult();

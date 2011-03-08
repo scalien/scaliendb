@@ -318,6 +318,13 @@ void SDBP_SetBatchLimit(ClientObj client_, uint64_t batchLimit)
     return client->SetBatchLimit(batchLimit);
 }
 
+void SDBP_SetBulkLoading(ClientObj client_)
+{
+    Client* client = (Client*) client_;
+
+    return client->SetBulkLoading();
+}
+
 int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)
 {
     Client*                 client = (Client*) client_;

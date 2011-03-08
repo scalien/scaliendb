@@ -434,6 +434,77 @@ TEST_DEFINE(TestClientBatchedSet2)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientBatchedSetBulk)
+{
+    Client          client;
+    const char*     nodes[] = {"localhost:7080"};
+    ReadBuffer      databaseName = "testdb";
+    ReadBuffer      tableName = "testtable";
+    ReadBuffer      key;
+    ReadBuffer      value;
+    char            keybuf[32];
+    int             ret;
+//    unsigned        num = 100*1000*1000;
+    unsigned        num = 10;
+    Stopwatch       sw;
+        
+    ret = client.Init(SIZE(nodes), nodes);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    TEST_LOG("setting bulk loading");
+    client.SetBulkLoading();
+    client.SetMasterTimeout(100000);
+    client.SetGlobalTimeout(100000);
+    ret = client.UseDatabase(databaseName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.UseTable(tableName);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+
+    ret = client.Begin();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    for (unsigned i = 0; i < num; i++)
+    {
+        ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
+        key.Wrap(keybuf, ret);
+        value.Wrap(keybuf, ret);
+        ret = client.Set(key, value);
+        if (ret != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+
+        if (i != 0 && i % 10000 == 0)
+        {
+            TEST_LOG("Submitting %d", i);
+            sw.Start();
+            ret = client.Submit();
+            if (ret != SDBP_SUCCESS)
+                TEST_CLIENT_FAIL();
+            sw.Stop();
+            ret = client.Begin();
+            if (ret != SDBP_SUCCESS)
+                TEST_CLIENT_FAIL();
+        }
+    }
+
+    sw.Start();
+    ret = client.Submit();
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    sw.Stop();
+
+    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientBatchedSetRandom)
 {
     Client          client;

@@ -34,6 +34,7 @@ void SDBPConnection::SetContext(SDBPContext* context_)
 bool SDBPConnection::OnMessage(ReadBuffer& msg)
 {
     SDBPRequestMessage  sdbpRequest;
+    SDBPResponseMessage sdbpResponse;
     ClientRequest*      request;
 
     request = REQUEST_CACHE->CreateRequest();
@@ -46,8 +47,10 @@ bool SDBPConnection::OnMessage(ReadBuffer& msg)
         OnClose();
         return true;
     }
+
     if (request->type == CLIENTREQUEST_BULK_LOADING)
     {
+        Log_Debug("[%s] Bulk loading activated", remoteEndpoint.ToString());
         REQUEST_CACHE->DeleteRequest(request);
         isBulkLoading = true;
         return false;
