@@ -31,6 +31,8 @@ bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_
             return false;
     }
 
+    FS_Sync(fd.GetFD());
+
     fd.Close();
 
     env->writerThreadReturnCode = true;
@@ -45,9 +47,7 @@ bool StorageChunkWriter::WriteBuffer()
     writeSize = writeBuffer.GetLength();
     if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != writeSize)
         return false;
-    
-    FS_Sync(fd.GetFD());
-    
+        
     return true;
 }
 
