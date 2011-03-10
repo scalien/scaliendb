@@ -376,8 +376,10 @@ TEST_DEFINE(TestClientBatchedSet2)
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
+    char            valbuf[100000];
     int             ret;
-    unsigned        num = 100*1000*1000;
+//    unsigned        num = 100*1000*1000;
+    unsigned        num = 100*1000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -402,7 +404,7 @@ TEST_DEFINE(TestClientBatchedSet2)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
-        value.Wrap(keybuf, ret);
+        value.Wrap(valbuf, ret);
         ret = client.Set(key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
@@ -443,16 +445,16 @@ TEST_DEFINE(TestClientBatchedSetBulk)
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
+    char            valbuf[100];
     int             ret;
 //    unsigned        num = 100*1000*1000;
-    unsigned        num = 10;
+    unsigned        num = 100*1000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    TEST_LOG("setting bulk loading");
     client.SetBulkLoading();
     client.SetMasterTimeout(100000);
     client.SetGlobalTimeout(100000);
@@ -464,7 +466,6 @@ TEST_DEFINE(TestClientBatchedSetBulk)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-
     ret = client.Begin();
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -473,7 +474,7 @@ TEST_DEFINE(TestClientBatchedSetBulk)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
-        value.Wrap(keybuf, ret);
+        value.Wrap(valbuf, ret);
         ret = client.Set(key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();

@@ -935,7 +935,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         {   
             req = qrequests->First();
             qrequests->Remove(req);
-            if (req->isBulk)
+            if (req->isBulk && quorum->activeNodes.GetLength() > 1)
             {
                 // send to all shardservers before removing from quorum requests
                 FOREACH (itNode, req->shardConns)
@@ -950,6 +950,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
                     nodeID = conn->GetNodeID();
                     req->shardConns.Append(nodeID);
                 }
+                else
+                    continue;   // don't send the request because it is already sent
             }
                 
             if (!conn->SendRequest(req))

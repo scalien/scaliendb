@@ -188,7 +188,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
         else
         {
             req->numBulkResponses++;
-            if (req->numBulkResponses == req->numShardServers)
+            if (req->numBulkResponses == req->shardConns.GetLength())
                 numCompleted++;
         }
     }
