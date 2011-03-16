@@ -6,5 +6,9 @@ echo -n -e "\033]0;D$DIR\007"
 if [ "$SCALIENDB_RELEASE" = "1" ]; then
 	build/Release/ScalienDB test/shard/$DIR/scaliendb.conf $*
 else
-	build/Debug/ScalienDB test/shard/$DIR/scaliendb.conf $*
+	if [ "$1" = "-g" ]; then
+		echo "r test/shard/$DIR/scaliendb.conf $*" | gdb build/Debug/ScalienDB 
+	else
+		build/Debug/ScalienDB test/shard/$DIR/scaliendb.conf $*		
+	fi
 fi
