@@ -602,48 +602,51 @@ void ShardQuorumProcessor::TryAppend()
         return;
     }
     
+    if (quorumContext.IsAppending())
+        return;
+    
+    if (shardMessages.GetLength() == 0)
+        return;
+    
     Log_Debug("TryAppend started");
     
     numMessages = 0;
     
-    if (!quorumContext.IsAppending() && shardMessages.GetLength() > 0)
+    first = true;
+    FOREACH(it, shardMessages)
     {
-        first = true;
-        FOREACH(it, shardMessages)
+        if (it->isBulk)
+            continue;
+        
+        // make sure split shard messages are replicated by themselves
+        if (!first && it->type == SHARDMESSAGE_SPLIT_SHARD)
+            break;
+        
+        singleBuffer.Clear();
+        it->Write(singleBuffer);
+        if (first || uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
         {
-            if (it->isBulk)
-                continue;
-            
+            uncompressed.Appendf("%B ", &singleBuffer);
+            numMessages++;
             // make sure split shard messages are replicated by themselves
-            if (!first && it->type == SHARDMESSAGE_SPLIT_SHARD)
+            if (it->type == SHARDMESSAGE_SPLIT_SHARD)
                 break;
-            
-            singleBuffer.Clear();
-            it->Write(singleBuffer);
-            if (first || uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
-            {
-                uncompressed.Appendf("%B ", &singleBuffer);
-                numMessages++;
-                // make sure split shard messages are replicated by themselves
-                if (it->type == SHARDMESSAGE_SPLIT_SHARD)
-                    break;
-            }
-            else
-                break;
-
-            if (first)
-                first = false;
         }
-        
-        Log_Debug("numMessages = %u", numMessages);
-        Log_Debug("length = %s", HUMAN_BYTES(uncompressed.GetLength()));
-                
-        assert(uncompressed.GetLength() > 0);
+        else
+            break;
 
-        quorumContext.GetNextValue().Writef("%u:%B", uncompressed.GetLength(), &uncompressed);
-        
-        quorumContext.Append();
+        if (first)
+            first = false;
     }
+    
+    Log_Debug("numMessages = %u", numMessages);
+    Log_Debug("length = %s", HUMAN_BYTES(uncompressed.GetLength()));
+            
+    assert(uncompressed.GetLength() > 0);
+
+    quorumContext.GetNextValue().Writef("%u:%B", uncompressed.GetLength(), &uncompressed);
+    
+    quorumContext.Append();
 }
 
 void ShardQuorumProcessor::OnResumeAppend()
