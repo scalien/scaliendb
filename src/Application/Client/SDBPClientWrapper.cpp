@@ -311,6 +311,20 @@ uint64_t SDBP_GetMasterTimeout(ClientObj client_)
     return client->GetMasterTimeout();
 }
 
+uint64_t SDBP_GetCurrentDatabaseID(ClientObj client_)
+{
+    Client* client = (Client*) client_;
+
+    return client->GetCurrentDatabaseID();
+}
+
+uint64_t SDBP_GetCurrentTableID(ClientObj client_)
+{
+    Client* client = (Client*) client_;
+
+    return client->GetCurrentTableID();
+}
+
 void SDBP_SetBatchLimit(ClientObj client_, uint64_t batchLimit)
 {
     Client* client = (Client*) client_;
