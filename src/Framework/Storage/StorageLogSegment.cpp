@@ -205,7 +205,7 @@ void StorageLogSegment::Commit()
             commitStatus = false;
             return;
         }
-        FS_Sync(fd);
+        //FS_Sync(fd);
     }
 
     offset += length;
