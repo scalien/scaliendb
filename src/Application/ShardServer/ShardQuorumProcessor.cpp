@@ -722,6 +722,9 @@ void ShardQuorumProcessor::LocalExecute()
         nextMessage = shardMessages.Next(itMessage);
         if (itMessage->fromClient)
             nextRequest = clientRequests.Next(itRequest);
+        else
+            nextRequest = itRequest;
+        
         if (!isSingle && !itMessage->isBulk)
             continue;
         shardMessages.Remove(itMessage);
