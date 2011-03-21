@@ -143,13 +143,7 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
     
     if (context->IsPaxosBlocked())
     {
-        Log_Trace("paxos is blocked");
-        return;
-    }
-    
-    if (context->GetDatabase()->IsActive())
-    {
-        Log_Debug("Database is commiting, dropping Paxos message");
+        Log_Trace("Paxos is blocked");
         return;
     }
     
