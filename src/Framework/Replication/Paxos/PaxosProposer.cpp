@@ -49,7 +49,7 @@ void PaxosProposer::OnPrepareTimeout()
     
     if (context->IsPaxosBlocked())
     {
-        EventLoop::Add(&prepareTimeout);
+//        EventLoop::Add(&prepareTimeout);
         return;
     }
     
@@ -68,7 +68,7 @@ void PaxosProposer::OnProposeTimeout()
 
     if (context->IsPaxosBlocked())
     {
-        EventLoop::Add(&proposeTimeout);
+//        EventLoop::Add(&proposeTimeout);
         return;
     }
 
@@ -109,7 +109,7 @@ void PaxosProposer::Restart()
     else
         timer = &proposeTimeout;
     
-    assert(timer->IsActive());
+//    assert(timer->IsActive());
     EventLoop::Remove(timer);
 
     prepareTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
@@ -117,7 +117,7 @@ void PaxosProposer::Restart()
 
     if (context->IsPaxosBlocked())
     {
-        EventLoop::Add(timer);
+//        EventLoop::Add(timer);
         return;
     }        
 
@@ -246,7 +246,7 @@ void PaxosProposer::StartPreparing()
     omsg.PrepareRequest(context->GetPaxosID(), MY_NODEID, state.proposalID);
     BroadcastMessage(omsg);
     
-    EventLoop::Reset(&prepareTimeout);
+//    EventLoop::Reset(&prepareTimeout);
 }
 
 void PaxosProposer::StartProposing()
@@ -264,7 +264,7 @@ void PaxosProposer::StartProposing()
      state.proposedRunID, state.proposedValue);
     BroadcastMessage(omsg);
     
-    EventLoop::Reset(&proposeTimeout);
+//    EventLoop::Reset(&proposeTimeout);
 }
 
 void PaxosProposer::NewVote()
