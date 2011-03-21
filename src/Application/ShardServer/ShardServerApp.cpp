@@ -12,6 +12,9 @@ void ShardServerApp::Init()
   
     sdbpServer.Init(configFile.GetIntValue("sdbp.port", 7080));
     sdbpServer.SetContext(&shardServer);
+
+    shardServer.GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(
+     configFile.GetBoolValue("database.merge", true));
 }
 
 void ShardServerApp::Shutdown()
