@@ -132,7 +132,7 @@ bool StorageChunkMerger::WriteBuffer()
     
     offset += writeSize;
     
-    FS_Sync(fd.GetFD());
+//    FS_Sync(fd.GetFD());
 
     return true;
 }
