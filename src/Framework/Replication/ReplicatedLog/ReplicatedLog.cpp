@@ -147,6 +147,12 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
         return;
     }
     
+    if (context->GetDatabase()->IsActive())
+    {
+        Log_Debug("Database is commiting, dropping Paxos message");
+        return;
+    }
+    
     if (imsg.type == PAXOS_PREPARE_REQUEST)
         OnPrepareRequest(imsg);
     else if (imsg.IsPrepareResponse())
