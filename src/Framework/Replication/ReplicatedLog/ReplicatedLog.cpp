@@ -347,9 +347,8 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 
     if (context->GetHighestPaxosID() > 0 && paxosID < (context->GetHighestPaxosID() - 1))
     {
-        Log_Debug("Commiting because paxosID < (context->GetHighestPaxosID() - 1)");
-        Log_Debug("paxosID = %U | context->GetHighestPaxosID() = %U",
-         paxosID, context->GetHighestPaxosID());
+        Log_Debug("Paxos-based catchup, highest seen paxosID is %U, currently at %U",
+         context->GetHighestPaxosID(), paxosID);
         Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
         context->GetDatabase()->Commit();
     }
