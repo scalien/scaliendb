@@ -60,6 +60,7 @@ bool StorageChunkMerger::Merge(
         return false;
 
     offset = 0;
+    lastSyncOffset = 0;
 
     mergeChunk->indexPage = new StorageIndexPage(mergeChunk);
     if (mergeChunk->UseBloomFilter())
@@ -125,14 +126,20 @@ StorageFileKeyValue* StorageChunkMerger::MergeKeyValue(StorageFileKeyValue* , St
 bool StorageChunkMerger::WriteBuffer()
 {
     ssize_t     writeSize;
+    uint64_t    syncGranularity;
 
     writeSize = writeBuffer.GetLength();
     if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != writeSize)
         return false;
     
     offset += writeSize;
-    
-//    FS_Sync(fd.GetFD());
+
+    syncGranularity = env->GetConfig().syncGranularity;
+    if (syncGranularity != 0 && offset - lastSyncOffset > syncGranularity)
+    {
+        FS_Sync(fd.GetFD());
+        lastSyncOffset = offset;
+    }
 
     return true;
 }

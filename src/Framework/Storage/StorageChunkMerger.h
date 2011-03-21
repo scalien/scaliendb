@@ -52,7 +52,8 @@ private:
     Buffer                  firstKey, lastKey;
 
     uint64_t                numKeys;
-    uint32_t                offset;
+    uint64_t                offset;
+    uint64_t                lastSyncOffset;
 
     StorageChunkReader*     readers;
     unsigned                numReaders;

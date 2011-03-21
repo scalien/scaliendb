@@ -22,7 +22,7 @@ StorageLogSegment::StorageLogSegment()
         sw.Reset();             \
     } while (0)
 
-bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
+bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_, uint64_t syncGranularity_)
 {
     unsigned    length;
     Stopwatch   sw;
@@ -40,7 +40,9 @@ bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_)
     Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
 
     logSegmentID = logSegmentID_;
+    syncGranularity = syncGranularity_;
     offset = 0;
+    lastSyncOffset = 0;
 
     sw.Start();
     writeBuffer.AppendLittle64(logSegmentID);
@@ -205,7 +207,12 @@ void StorageLogSegment::Commit()
             commitStatus = false;
             return;
         }
-        //FS_Sync(fd);
+        
+        if (syncGranularity > 0 && writeOffset - lastSyncOffset > syncGranularity)
+        {
+            FS_Sync(fd);
+            lastSyncOffset = writeOffset;
+        }
     }
 
     offset += length;

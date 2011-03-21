@@ -172,7 +172,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     headLogSegment = new StorageLogSegment;
     tmp.Write(logPath);
     tmp.Appendf("log.%020U", nextLogSegmentID);
-    headLogSegment->Open(tmp, nextLogSegmentID);
+    headLogSegment->Open(tmp, nextLogSegmentID, config.syncGranularity);
     nextLogSegmentID++;
 
     backgroundTimer.SetDelay(1000 * configFile.GetIntValue("database.backgroundTimerDelay",
@@ -1012,7 +1012,7 @@ void StorageEnvironment::TryFinalizeLogSegment()
     headLogSegment = new StorageLogSegment;
     tmp.Write(logPath);
     tmp.Appendf("log.%020U", nextLogSegmentID);
-    headLogSegment->Open(tmp, nextLogSegmentID);
+    headLogSegment->Open(tmp, nextLogSegmentID, config.syncGranularity);
     nextLogSegmentID++;
 }
 
