@@ -31,6 +31,7 @@ public:
     ReadBuffer          value;
     bool                ret;
     bool                completed;
+    bool                skipMemoChunk;
     Stage               stage;
     Callable            onComplete;
     uint32_t            index;

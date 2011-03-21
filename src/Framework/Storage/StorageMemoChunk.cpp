@@ -123,11 +123,10 @@ StorageKeyValue* StorageMemoChunk::Get(ReadBuffer& key)
     int                     cmpres;
     StorageMemoKeyValue*    it;
 
-    
     if (keyValues.GetCount() == 0)
         return NULL;
         
-    it = keyValues.Locate<ReadBuffer&>(key, cmpres);
+    it = keyValues.Locate(key, cmpres);
     if (cmpres != 0)
         return NULL;
 
@@ -137,6 +136,8 @@ StorageKeyValue* StorageMemoChunk::Get(ReadBuffer& key)
 void StorageMemoChunk::AsyncGet(StorageAsyncGet* asyncGet)
 {
     StorageKeyValue*    kv;
+    
+    Log_Debug("StorageMemoChunk::AsyncGet");
     
     kv = Get(asyncGet->key);
     if (kv == NULL || kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)

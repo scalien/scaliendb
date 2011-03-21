@@ -327,7 +327,7 @@ bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     return false;
 }
 
-void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet)
+bool StorageEnvironment::TryNonblockingGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet)
 {
     StorageShard*       shard;
     StorageChunk*       chunk;
@@ -338,10 +338,10 @@ void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageA
     asyncGet->ret = false;
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
-        return;
+        return true;
         
     if (!shard->RangeContains(asyncGet->key))
-        return;
+        return true;
 
     chunk = shard->GetMemoChunk();
     kv = chunk->Get(asyncGet->key);
@@ -350,19 +350,61 @@ void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageA
         if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         {
             asyncGet->ret = true;
-            asyncGet->completed = true;
             asyncGet->value = kv->GetValue();
-            return;
+            return true;
         }
         else if (kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
-            return;
+            return true;
         else
             ASSERT_FAIL();
     }
 
     if (shard->GetChunks().GetLength() == 0)
+        return true;
+    
+    deferred.Unset();
+    return false;
+}
+
+void StorageEnvironment::AsyncGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet)
+{
+    StorageShard*       shard;
+    StorageChunk*       chunk;
+    StorageKeyValue*    kv;
+    Deferred            deferred(asyncGet->onComplete);
+
+    asyncGet->completed = true;
+    asyncGet->ret = false;
+        
+    shard = GetShard(contextID, shardID);
+    if (shard == NULL)
         return;
 
+    if (!asyncGet->skipMemoChunk)
+    {
+        if (!shard->RangeContains(asyncGet->key))
+            return;
+
+        chunk = shard->GetMemoChunk();
+        kv = chunk->Get(asyncGet->key);
+        if (kv != NULL)
+        {
+            if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
+            {
+                asyncGet->ret = true;
+                asyncGet->value = kv->GetValue();
+                return;
+            }
+            else if (kv->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+                return;
+            else
+                ASSERT_FAIL();
+        }
+
+        if (shard->GetChunks().GetLength() == 0)
+            return;
+    }
+    
     deferred.Unset();
     asyncGet->completed = false;
     asyncGet->shard = shard;
@@ -709,6 +751,11 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
     }
 }
 
+StorageConfig& StorageEnvironment::GetConfig()
+{
+    return config;
+}
+
 StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
 {
     StorageShard* it;
@@ -1044,13 +1091,13 @@ void StorageEnvironment::TryMergeChunks()
     StorageShard*           itShard;
     StorageChunk**          itChunk;
     StorageFileChunk*       fileChunk;
+    StorageFileChunk**      itFileChunk;
     StorageJob*             job;
     List<Buffer*>           filenames;
     Buffer*                 filename;
-
-#ifdef STORAGE_NOMERGE
-    return;
-#endif
+    uint64_t                oldSize;
+    uint64_t                youngSize;
+    uint64_t                totalSize;
 
     if (!mergeEnabled)
         return;
@@ -1065,24 +1112,42 @@ void StorageEnvironment::TryMergeChunks()
     {
         if (itShard->IsLogStorage())
             continue;
-            
+        
+        totalSize = 0;
         FOREACH (itChunk, itShard->GetChunks())
         {
             if ((*itChunk)->GetChunkState() != StorageChunk::Written)
                 continue;
             fileChunk = (StorageFileChunk*) *itChunk;
             mergeChunks.Append(fileChunk);
-            filename = &fileChunk->GetFilename();
-            filenames.Add(filename);
+            totalSize += fileChunk->GetSize();
+        }
+
+        while (mergeChunks.GetLength() >= 3)
+        {
+            itFileChunk = mergeChunks.First();
+            oldSize = (*itFileChunk)->GetSize();
+            youngSize = totalSize - oldSize;
+            if (oldSize > youngSize * 1.1)
+            {
+                mergeChunks.Remove(mergeChunks.First());
+                totalSize -= oldSize;
+            }
+            else break;
         }
         
-        if (filenames.GetLength() < 2)
+        if (mergeChunks.GetLength() < 3)
         {
             mergeChunks.Clear();
-            filenames.Clear();
-            continue;
+            continue;   // on next shard
         }
         
+        FOREACH (itFileChunk, mergeChunks)
+        {
+            filename = &(*itFileChunk)->GetFilename();
+            filenames.Add(filename);
+        }
+
         mergeChunkOut = new StorageFileChunk;
         mergeChunkOut->headerPage.SetChunkID(nextChunkID++);
         mergeChunkOut->headerPage.SetUseBloomFilter(itShard->UseBloomFilter());
@@ -1262,6 +1327,7 @@ void StorageEnvironment::OnChunkMerge()
     
     if (numCursors > 0)
     {
+        // merge was cancelled, delete the output
         job = new StorageDeleteFileChunkJob(mergeChunkOut);
         StartJob(writerThread, job);        
         mergeChunkOut = NULL;

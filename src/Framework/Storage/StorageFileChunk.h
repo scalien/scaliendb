@@ -37,6 +37,7 @@ public:
 
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
+    bool                IsMerged();
         
     StorageKeyValue*    Get(ReadBuffer& key);
     void                AsyncGet(StorageAsyncGet* asyncGet);

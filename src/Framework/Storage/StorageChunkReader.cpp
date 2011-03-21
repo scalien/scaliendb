@@ -108,6 +108,4 @@ void StorageChunkReader::PreloadDataPages()
         i++;
     }
     while (i < fileChunk.numDataPages && totalSize < preloadThreshold);
-    
-    MSleep(20);
 }

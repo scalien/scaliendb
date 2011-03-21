@@ -85,7 +85,7 @@ bool StorageChunkWriter::WriteDataPages()
         writeBuffer.Clear();
         dataPage->Write(writeBuffer);
         //ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
-        compressRatio = (double) writeBuffer.GetLength() / dataPage->GetSize() / file->numDataPages;
+        compressRatio += (double) writeBuffer.GetLength() / dataPage->GetSize() / file->numDataPages;
 
         if (!WriteBuffer())
             return false;

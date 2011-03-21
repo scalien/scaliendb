@@ -112,6 +112,7 @@ private:
     ShardMap                quorumLogShards;
     Countdown               yieldStorageThreadsTimer;
     ClientSortedRequestList readRequests;
+    ClientRequestList       blockingReadRequests;
     ClientRequestList       listRequests;
     YieldTimer              executeReads;
     ShardDatabaseAsyncGet   asyncGet;

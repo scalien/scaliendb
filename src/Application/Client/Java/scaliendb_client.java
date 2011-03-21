@@ -111,6 +111,14 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetMasterTimeout(SWIGTYPE_p_void.getCPtr(client));
   }
 
+  public static void SDBP_SetBatchLimit(SWIGTYPE_p_void client, java.math.BigInteger limit) {
+    scaliendb_clientJNI.SDBP_SetBatchLimit(SWIGTYPE_p_void.getCPtr(client), limit);
+  }
+
+  public static void SDBP_SetBulkLoading(SWIGTYPE_p_void client) {
+    scaliendb_clientJNI.SDBP_SetBulkLoading(SWIGTYPE_p_void.getCPtr(client));
+  }
+
   public static int SDBP_CreateQuorum(SWIGTYPE_p_void client, SDBP_NodeParams params) {
     return scaliendb_clientJNI.SDBP_CreateQuorum(SWIGTYPE_p_void.getCPtr(client), SDBP_NodeParams.getCPtr(params), params);
   }

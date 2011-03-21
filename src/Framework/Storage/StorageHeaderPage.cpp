@@ -12,6 +12,7 @@ StorageHeaderPage::StorageHeaderPage(StorageFileChunk* owner_)
     indexPageSize = 0;
     bloomPageOffset = 0;
     bloomPageSize = 0;
+    merged = false;
     owner = owner_;
 }
 
@@ -80,6 +81,11 @@ ReadBuffer StorageHeaderPage::GetMidpoint()
     return ReadBuffer(midpoint);
 }
 
+bool StorageHeaderPage::IsMerged()
+{
+    return merged;
+}
+
 void StorageHeaderPage::SetChunkID(uint64_t chunkID_)
 {
     chunkID = chunkID_;
@@ -143,6 +149,11 @@ void StorageHeaderPage::SetLastKey(ReadBuffer lastKey_)
 void StorageHeaderPage::SetMidpoint(ReadBuffer midpoint_)
 {
     midpoint.Write(midpoint_);
+}
+
+void StorageHeaderPage::SetMerged(bool merged_)
+{
+    merged = merged_;
 }
 
 bool StorageHeaderPage::UseBloomFilter()
@@ -249,6 +260,8 @@ bool StorageHeaderPage::Read(Buffer& buffer)
     midpoint.Write(parse.GetBuffer(), midpointLen);
     parse.Advance(midpointLen);
     
+    parse.Advance(parse.Readf("%b", &merged));
+
     return true;
 }
 
@@ -290,6 +303,7 @@ void StorageHeaderPage::Write(Buffer& writeBuffer)
     writeBuffer.Append(lastKey);
     writeBuffer.AppendLittle32(midpoint.GetLength());
     writeBuffer.Append(midpoint);
+    writeBuffer.Append("%b", merged);
     writeBuffer.SetLength(STORAGE_HEADER_PAGE_SIZE);
     dataPart.Wrap(writeBuffer.GetBuffer() + 8, writeBuffer.GetLength() - 8);
     checksum = dataPart.GetChecksum();

@@ -70,6 +70,7 @@ public:
     bool                    Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
     bool                    Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key);
 
+    bool                    TryNonblockingGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet);
     void                    AsyncGet(uint16_t contextID, uint64_t shardID, StorageAsyncGet* asyncGet);
     void                    AsyncList(uint16_t contextID, uint64_t shardID, StorageAsyncList* asyncList);
 
@@ -88,6 +89,7 @@ public:
     bool                    IsShuttingDown();
     
     void                    PrintState(uint16_t contextID, Buffer& buffer);
+    StorageConfig&          GetConfig();
     
 private:
     void                    OnCommit();

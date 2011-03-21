@@ -7,7 +7,8 @@ client = scaliendb.Client(["localhost:7080"])
 client.use_database("bulk")
 client.use_table("pics")
 lr = scaliendb_loader(client, print_stats=True)
-f = open('data/pics.txt','r') 
+#f = open('data/pics.txt','r') 
+f = open('pics.txt','r') 
 images = {}
 dataset = 500*1000*1000
 size = 0
@@ -20,6 +21,7 @@ for key in f:
 	size += len(value)
 	if size > dataset:
 		break
+print("Dataset size: %d" % (size))
 print("Done.")
 lr.begin()
 for key, value in images.iteritems():

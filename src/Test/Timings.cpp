@@ -117,6 +117,26 @@ static void ParallelWrite2()
     TEST_LOG("P2 elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
 }
 
+static void ParallelWrite3()
+{
+    char        buf[512*1024];
+    unsigned    num = 10*1000;
+    Stopwatch   sw;
+    
+    sw.Restart();
+    for (unsigned i = 0; i < num; i++)
+    {
+        FS_FileWrite(parallelFd2, buf, sizeof(buf));
+        FS_Sync(parallelFd2);
+    }
+    sw.Stop();
+    
+    FS_FileClose(parallelFd2);
+    FS_Delete(parallelFilename2);
+    
+    TEST_LOG("P2 elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
+}
+
 TEST_DEFINE(TestTimingFileSystemParallelWrite)
 {
     ThreadPool* thread1;

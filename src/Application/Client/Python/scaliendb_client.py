@@ -173,6 +173,7 @@ SDBP_SetMasterTimeout = _scaliendb_client.SDBP_SetMasterTimeout
 SDBP_GetGlobalTimeout = _scaliendb_client.SDBP_GetGlobalTimeout
 SDBP_GetMasterTimeout = _scaliendb_client.SDBP_GetMasterTimeout
 SDBP_SetBatchLimit = _scaliendb_client.SDBP_SetBatchLimit
+SDBP_SetBulkLoading = _scaliendb_client.SDBP_SetBulkLoading
 SDBP_CreateQuorum = _scaliendb_client.SDBP_CreateQuorum
 SDBP_DeleteQuorum = _scaliendb_client.SDBP_DeleteQuorum
 SDBP_AddNode = _scaliendb_client.SDBP_AddNode

@@ -180,6 +180,11 @@ bool StorageFileChunk::UseBloomFilter()
     return headerPage.UseBloomFilter();
 }
 
+bool StorageFileChunk::IsMerged()
+{
+    return headerPage.IsMerged();
+}
+
 StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
 {
     uint32_t    index, offset;

@@ -574,7 +574,7 @@ void ShardDatabaseManager::OnExecuteReads()
     
     start = NowClock();
 
-    FOREACH_FIRST(itRequest, readRequests)
+    FOREACH_FIRST (itRequest, readRequests)
     {
         // let other code run in the main thread every YIELD_TIME msec
         if (NowClock() - start >= YIELD_TIME)
@@ -599,6 +599,47 @@ void ShardDatabaseManager::OnExecuteReads()
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = environment.GetShardID(contextID, itRequest->tableID, key);
 
+        asyncGet.request = itRequest;
+        asyncGet.key = key;
+        asyncGet.onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(&asyncGet);
+        asyncGet.active = true;
+        asyncGet.async = false;
+        if (!environment.TryNonblockingGet(contextID, shardID, &asyncGet))
+        {
+            // HACK store timestamp for later comparison in order to avoid duplicate memo chunk search
+            itRequest->changeTimeout = start;
+            blockingReadRequests.Append(itRequest);
+        }
+    }
+    
+    FOREACH_FIRST (itRequest, blockingReadRequests)
+    {
+        // let other code run in the main thread every YIELD_TIME msec
+        if (NowClock() - start >= YIELD_TIME)
+        {
+            if (executeReads.IsActive())
+                STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
+            EventLoop::Add(&executeReads);
+            return;
+        }
+
+        blockingReadRequests.Remove(itRequest);
+
+        // silently drop requests from disconnected clients
+        if (!itRequest->session->IsActive())
+        {
+            itRequest->response.NoResponse();
+            itRequest->OnComplete();
+            continue;
+        }
+
+        key.Wrap(itRequest->key);
+        contextID = QUORUM_DATABASE_DATA_CONTEXT;
+        shardID = environment.GetShardID(contextID, itRequest->tableID, key);
+
+        asyncGet.skipMemoChunk = false;
+        if (itRequest->changeTimeout == start)
+            asyncGet.skipMemoChunk = true;
         asyncGet.request = itRequest;
         asyncGet.key = key;
         asyncGet.onComplete = MFunc<ShardDatabaseAsyncGet, &ShardDatabaseAsyncGet::OnRequestComplete>(&asyncGet);

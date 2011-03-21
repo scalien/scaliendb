@@ -5333,6 +5333,25 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_SetBulkLoading(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_SetBulkLoading",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_SetBulkLoading" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  SDBP_SetBulkLoading(arg1);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_CreateQuorum(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -7364,6 +7383,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_GetGlobalTimeout", _wrap_SDBP_GetGlobalTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetMasterTimeout", _wrap_SDBP_GetMasterTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetBatchLimit", _wrap_SDBP_SetBatchLimit, METH_VARARGS, NULL},
+	 { (char *)"SDBP_SetBulkLoading", _wrap_SDBP_SetBulkLoading, METH_VARARGS, NULL},
 	 { (char *)"SDBP_CreateQuorum", _wrap_SDBP_CreateQuorum, METH_VARARGS, NULL},
 	 { (char *)"SDBP_DeleteQuorum", _wrap_SDBP_DeleteQuorum, METH_VARARGS, NULL},
 	 { (char *)"SDBP_AddNode", _wrap_SDBP_AddNode, METH_VARARGS, NULL},

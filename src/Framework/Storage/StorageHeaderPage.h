@@ -36,6 +36,7 @@ public:
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetLastKey();
     ReadBuffer          GetMidpoint();
+    bool                IsMerged();
 
     void                SetChunkID(uint64_t chunkID);
     void                SetMinLogSegmentID(uint64_t logSegmentID);
@@ -50,6 +51,7 @@ public:
     void                SetFirstKey(ReadBuffer firstKey);
     void                SetLastKey(ReadBuffer lastKey);
     void                SetMidpoint(ReadBuffer midPoint);
+    void                SetMerged(bool merged);
 
     bool                UseBloomFilter();
 
@@ -72,6 +74,7 @@ private:
     Buffer              firstKey;
     Buffer              lastKey;
     Buffer              midpoint;
+    bool                merged;
     StorageFileChunk*   owner;
 };
 

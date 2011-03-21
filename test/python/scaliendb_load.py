@@ -48,5 +48,5 @@ def scaliendb_loader(client, granularity = 1000*1000, print_stats = False):
 	lr.client = client
 	lr.granularity = granularity
 	lr.print_stats = print_stats
-	client.set_bulk_loading()
+	#client.set_bulk_loading()
 	return lr

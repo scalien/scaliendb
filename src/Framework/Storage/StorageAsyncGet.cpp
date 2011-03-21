@@ -9,6 +9,7 @@ StorageAsyncGet::StorageAsyncGet()
     lastLoadedPage = NULL;
     ret = false;
     completed = false;
+    skipMemoChunk = false;
 }
 
 // This function is executed in the main thread

@@ -1,6 +1,7 @@
 #include "StorageChunkMerger.h"
 #include "StorageKeyValue.h"
 #include "StorageEnvironment.h"
+#include "StorageConfig.h"
 #include "PointerGuard.h"
 #include "System/FileSystem.h"
 #include "System/Events/EventLoop.h"
@@ -15,6 +16,7 @@ bool StorageChunkMerger::Merge(
     unsigned    numKeys;
     Buffer**    itFilename;
     Deferred    onFinish(MFUNC(StorageChunkMerger, OnMergeFinished));
+    uint64_t    preloadThreshold;
     
     env = env_;
     mergeChunk = mergeChunk_;
@@ -28,10 +30,10 @@ bool StorageChunkMerger::Merge(
     readers = new StorageChunkReader[numReaders];
     i = 0;
     numKeys = 0;
+    preloadThreshold = env->GetConfig().mergeBufferSize / numReaders;
     FOREACH (itFilename, filenames)
     {
-        // TODO: make preloadThreshold configurable
-        readers[i].Open(ReadBuffer(**itFilename), 1*MB);
+        readers[i].Open(ReadBuffer(**itFilename), preloadThreshold);
         numKeys += readers[i].GetNumKeys();
         
         // set up segment and command IDs
@@ -182,6 +184,7 @@ bool StorageChunkMerger::WriteHeaderPage()
         mergeChunk->headerPage.SetLastKey(ReadBuffer(lastKey));
         mergeChunk->headerPage.SetMidpoint(mergeChunk->indexPage->GetMidpoint());
     }
+    mergeChunk->headerPage.SetMerged(true);
 
     writeBuffer.Clear();
     mergeChunk->headerPage.Write(writeBuffer);
