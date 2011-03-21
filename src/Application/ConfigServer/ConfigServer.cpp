@@ -43,7 +43,7 @@ void ConfigServer::Init()
     for (nodeID = 0; nodeID < numConfigServers; nodeID++)
     {
         str = configFile.GetListValue("controllers", (int) nodeID, "");
-        endpoint.Set(str);
+        endpoint.Set(str, true);
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
     }
 

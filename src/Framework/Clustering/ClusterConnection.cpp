@@ -143,7 +143,13 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         if (msg.GetCharAt(0) == '*')
         {
             msg.Readf("*:%#R", &buffer);
-            endpoint.Set(buffer);
+            if (!endpoint.Set(buffer, true))
+            {
+                Log_Message("[%R] Cluster invalid network address", &buffer);
+                transport->DeleteConnection(this);
+                return true;                
+            }
+            
             progress = ClusterConnection::AWAITING_NODEID;
             Log_Trace("Conn is awaiting nodeID at %s", endpoint.ToString());
 
@@ -155,7 +161,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
                 return true;
             }
             if (nodeID == UNDEFINED_NODEID)
-                Log_Message("[%s] Cluster unknown node connected <=", endpoint.ToString(), nodeID);
+                Log_Message("[%s] Cluster unknown node connected <=", endpoint.ToString());
             else
                 Log_Message("[%s] Cluster node %U connected <=", endpoint.ToString(), nodeID);
             return false;
@@ -194,7 +200,12 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         }
         progress = ClusterConnection::READY;
         nodeID = nodeID_;
-        endpoint.Set(buffer);
+        if (!endpoint.Set(buffer, true))
+        {
+            Log_Message("[%B] Cluster invalid network address", &buffer);
+            transport->DeleteConnection(this);
+            return true;                
+        }
         Log_Trace("Conn READY to node %U at %s", nodeID, endpoint.ToString());
         if (nodeID != transport->GetSelfNodeID())
         {

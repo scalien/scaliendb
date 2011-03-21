@@ -128,7 +128,7 @@ void InitContextTransport()
     str = configFile.GetValue("endpoint", "");
     if (str == 0)
         ASSERT_FAIL();
-    endpoint.Set(str);
+    endpoint.Set(str, true);
     CONTEXT_TRANSPORT->Init(endpoint);
 }
 
@@ -136,17 +136,15 @@ void LogPrintVersion(bool isController)
 {
     const char*     debugInfo = "";
     const char*     productString = PRODUCT_STRING;
-    const char*     buildDate = "Build date: " __DATE__ " " __TIME__;
 
 #ifdef DEBUG
+    const char*     buildDate = "Build date: " __DATE__ " " __TIME__;
     Buffer          debugBuffer;
     
     debugBuffer.Appendf(" -- DEBUG %s, Pid: %U", buildDate, GetProcessID());
     debugBuffer.NullTerminate();
     debugInfo = debugBuffer.GetBuffer();
 #endif
-
-    (void) buildDate;   // suppress unused variable warning
     
     Log_Message("%s started as %s%s", productString,
      isController ? "CONTROLLER" : "SHARD SERVER", debugInfo);
