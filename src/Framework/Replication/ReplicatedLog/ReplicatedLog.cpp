@@ -143,10 +143,10 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
     
     if (context->IsPaxosBlocked())
     {
-        Log_Trace("Paxos is blocked");
+        Log_Trace("paxos is blocked");
         return;
     }
-    
+        
     if (imsg.type == PAXOS_PREPARE_REQUEST)
         OnPrepareRequest(imsg);
     else if (imsg.IsPrepareResponse())
@@ -270,6 +270,12 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     ReadBuffer      value;
 
 //    Log_Debug("OnLearnChosen begin");
+
+    if (context->GetDatabase()->IsActive())
+    {
+        Log_Debug("Database is commiting, dropping Paxos message");
+        return;
+    }
 
     Log_Trace();
 
