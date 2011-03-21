@@ -1,4 +1,5 @@
 from scaliendb_client import *
+import time
 
 SDBP_SUCCESS = 0
 SDBP_API_ERROR = -1
@@ -321,6 +322,12 @@ class Client:
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return status, True
 
+def human_bytes(num):
+	for x in ['bytes','KB','MB','GB','TB']:
+		if num < 1024.0:
+			return "%3.1f%s" % (num, x)
+		num /= 1024.0
+
 class Loader:        
     def __init__(self, client, granularity = 1000*1000, print_stats = False):
         self.client = client
@@ -344,7 +351,7 @@ class Loader:
         self.elapsed += (endtime - starttime)
         if self.print_stats:
             endtimestamp = time.strftime("%H:%M:%S", time.gmtime())
-            print("%s:\t total items: %s \t total bytes: %s \t aggregate thruput: %s/s" % (endtimestamp, self.items_total, sizeof_fmt(self.bytes_total), sizeof_fmt(self.bytes_total/((self.elapsed) * 1000.0) * 1000.0)))
+            print("%s:\t total items: %s \t total bytes: %s \t aggregate thruput: %s/s" % (endtimestamp, self.items_total, human_bytes(self.bytes_total), human_bytes(self.bytes_total/((self.elapsed) * 1000.0) * 1000.0)))
 
     def set(self, key, value):
         l = len(key) + len(value)
