@@ -725,10 +725,14 @@ void ShardQuorumProcessor::LocalExecute()
         if (!isSingle && !itMessage->isBulk)
             continue;
         shardMessages.Remove(itMessage);
-        clientRequests.Remove(itRequest);
+        if (itMessage->fromClient)
+            clientRequests.Remove(itRequest);
 
-        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, 0, *itMessage, itRequest);
-        itRequest->OnComplete(); // request deletes itself
+        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, 0, *itMessage,
+         (itMessage->fromClient ? itRequest : NULL));
+
+        if (itMessage->fromClient)
+            itRequest->OnComplete(); // request deletes itself
         delete itMessage;
         
         commandID++;
