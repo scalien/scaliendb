@@ -63,20 +63,22 @@ class StorageHeaderPage(StoragePage):
 		data = data[length:]
 
 class StorageDataPage(StoragePage):
-	def __init__(self):
+	def __init__(self, index):
+		self.index = index
 		self.size = 0
 		self.offset = 0
 		self.num_keys = 0
+		self.keybuffer_length = 0
 		self.checksum = 0
 		self.key_values = {}
 
 	def read(self, file):
 		data = file.read(4096)
-		self.size, self.checksum, self.num_keys = struct.unpack("<III", data[:12])
+		self.size, self.checksum, self.keybuffer_length, self.num_keys = struct.unpack("<IIII", data[:16])
 		if self.size > 4096:
 			data += file.read(self.size - 4096)
-		data = data[12:]
-		print("-- Num keys:" + str(self.num_keys))
+		data = data[16:]
+		print("-- Page index %d, Num keys: %d" % (self.index, self.num_keys))
 		i = 0
 		prev_key = ""
 		while i < self.num_keys:
@@ -100,7 +102,8 @@ class StorageDataPage(StoragePage):
 				print("Delete key: " + key)
 				if self.key_values.has_key(key):
 					self.key_values.pop(key)
-			print(key, value)
+			# print(key, value)
+			print(key)
 			i += 1
 		return i
 
@@ -113,9 +116,11 @@ def check_chunk_file(filename):
 	header_page.read(f)
 	#print("num_keys = " + str(header_page.num_keys))
 	keys = 0
+	index = 0
 	while keys < header_page.num_keys:
-		data_page = StorageDataPage()
+		data_page = StorageDataPage(index)
 		keys += data_page.read(f)
+		index += 1
 		#print("Keys: " + str(keys))
 
 if __name__ == "__main__":
