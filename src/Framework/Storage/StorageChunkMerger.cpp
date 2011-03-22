@@ -252,6 +252,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
         if (mergeChunk->UseBloomFilter())
             mergeChunk->bloomPage->Add(it->GetKey());
 
+        numKeys++;
         if (dataPage->GetNumKeys() == 0)
         {
             dataPage->Append(it);
