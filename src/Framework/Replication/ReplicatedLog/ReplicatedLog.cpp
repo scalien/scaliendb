@@ -345,13 +345,18 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 {
     bool ownAppend;
 
-    if (context->GetHighestPaxosID() > 0 && paxosID < (context->GetHighestPaxosID() - 1))
+    if (context->GetHighestPaxosID() > 0 && paxosID < context->GetHighestPaxosID())
     {
         Log_Debug("Paxos-based catchup, highest seen paxosID is %U, currently at %U",
          context->GetHighestPaxosID(), paxosID);
+        if (paxosID == (context->GetHighestPaxosID() - 1))
+            Log_Debug("Paxos-based catchup complete...");
         Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
-        context->GetDatabase()->Commit();
     }
+    
+    if (context->GetHighestPaxosID() > 0 && paxosID < (context->GetHighestPaxosID() - 1))
+        context->GetDatabase()->Commit();
+
     NewPaxosRound(); // increments paxosID, clears proposer, acceptor
     
     if (paxosID <= context->GetHighestPaxosID())
