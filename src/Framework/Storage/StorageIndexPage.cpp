@@ -82,7 +82,7 @@ void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint64_t offset)
 {
     StorageIndexRecord* record;
 
-    buffer.AppendLittle32(offset);
+    buffer.AppendLittle64(offset);
     buffer.AppendLittle16(key.GetLength());
     buffer.Append(key);
     
