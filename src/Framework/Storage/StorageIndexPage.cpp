@@ -40,7 +40,7 @@ uint32_t StorageIndexPage::GetNumDataPages()
     return indexTree.GetCount();
 }
 
-bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset)
+bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint64_t& offset)
 {
     StorageIndexRecord* it;
 
@@ -78,7 +78,7 @@ ReadBuffer StorageIndexPage::GetMidpoint()
     return indexTree.Mid()->key;
 }
 
-void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint32_t offset)
+void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint64_t offset)
 {
     StorageIndexRecord* record;
 
@@ -134,8 +134,8 @@ void StorageIndexPage::Finalize()
     {
         klen = it->key.GetLength();
         
-        pos += 4;                           // offset
-        pos += 2;                           // klen
+        pos += sizeof(uint64_t);            // offset
+        pos += sizeof(uint16_t);            // klen
         kpos = buffer.GetBuffer() + pos;        
         it->key = ReadBuffer(kpos, klen);
         it->keyBuffer.Reset();
@@ -146,7 +146,8 @@ void StorageIndexPage::Finalize()
 bool StorageIndexPage::Read(Buffer& buffer_)
 {
     uint16_t                klen;
-    uint32_t                size, checksum, compChecksum, numKeys, offset, i;
+    uint32_t                size, checksum, compChecksum, numKeys, i;
+    uint64_t                offset;
     ReadBuffer              dataPart, parse, key;
     StorageIndexRecord*     it;
     
@@ -179,14 +180,14 @@ bool StorageIndexPage::Read(Buffer& buffer_)
     for (i = 0; i < numKeys; i++)
     {
         // offset
-        if (!parse.ReadLittle32(offset))
+        if (!parse.ReadLittle64(offset))
             goto Fail;
-        parse.Advance(4);
+        parse.Advance(sizeof(offset));
 
         // klen
         if (!parse.ReadLittle16(klen))
             goto Fail;
-        parse.Advance(2);
+        parse.Advance(sizeof(klen));
         
         // key
         if (parse.GetLength() < klen)

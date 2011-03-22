@@ -60,10 +60,10 @@ public:
     void                OnDataPageEvicted(uint32_t index);
     void                LoadBloomPage();
     void                LoadIndexPage();
-    void                LoadDataPage(uint32_t index, uint32_t offset, bool bulk = false, bool keysOnly = false);
+    void                LoadDataPage(uint32_t index, uint64_t offset, bool bulk = false, bool keysOnly = false);
     StoragePage*        AsyncLoadBloomPage();
     StoragePage*        AsyncLoadIndexPage();
-    StoragePage*        AsyncLoadDataPage(uint32_t index, uint32_t offset);
+    StoragePage*        AsyncLoadDataPage(uint32_t index, uint64_t offset);
 
     bool                RangeContains(ReadBuffer key);
 
@@ -73,7 +73,7 @@ public:
     void                AppendDataPage(StorageDataPage* dataPage);
     void                AllocateDataPageArray();
     void                ExtendDataPageArray();
-    bool                ReadPage(uint32_t offset, Buffer& buffer, bool keysOnly = false);
+    bool                ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly = false);
 
     bool                written;
     StorageHeaderPage   headerPage;
@@ -82,7 +82,7 @@ public:
     uint32_t            numDataPages;
     uint32_t            dataPagesSize;
     StorageDataPage**   dataPages;
-    uint32_t            fileSize;
+    uint64_t            fileSize;
     Buffer              filename;
     bool                useCache;
     bool                isBloomPageLoading;

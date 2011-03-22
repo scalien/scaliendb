@@ -166,11 +166,12 @@ void StorageLogSegment::Undo()
 
 void StorageLogSegment::Commit()
 {
-    uint32_t    length;
     uint32_t    checksum;
-    uint32_t    writeSize;
-    uint32_t    writeOffset;
+    uint64_t    length;
+    uint64_t    writeSize;
+    uint64_t    writeOffset;
     ReadBuffer  dataPart;
+    ssize_t     ret;
     
     commitStatus = true;
 
@@ -191,8 +192,8 @@ void StorageLogSegment::Commit()
     length = STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE + dataPart.GetLength();
     
     writeBuffer.SetLength(0);
-    writeBuffer.AppendLittle32(length);
-    writeBuffer.AppendLittle32(dataPart.GetLength());
+    writeBuffer.AppendLittle64(length);
+    writeBuffer.AppendLittle64(dataPart.GetLength());
     writeBuffer.AppendLittle32(checksum);
     writeBuffer.SetLength(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     writeBuffer.Append(dataPart);
@@ -200,7 +201,8 @@ void StorageLogSegment::Commit()
     for (writeOffset = 0; writeOffset < length; writeOffset += writeSize)
     {
         writeSize = MIN(STORAGE_LOGSEGMENT_WRITE_GRANULARITY, length - writeOffset);
-        if (FS_FileWrite(fd, writeBuffer.GetBuffer() + writeOffset, writeSize) != writeSize)
+        ret = FS_FileWrite(fd, writeBuffer.GetBuffer() + writeOffset, writeSize);
+        if (ret < 0 || (uint64_t) ret != writeSize)
         {
             FS_FileClose(fd);
             fd = INVALID_FD;

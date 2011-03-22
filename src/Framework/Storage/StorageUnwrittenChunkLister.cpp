@@ -13,7 +13,7 @@ void StorageUnwrittenChunkLister::Init(StorageFileChunk* chunk, ReadBuffer& star
     int                     cmpres;
     unsigned                num;
     uint32_t                index;
-    uint32_t                pageOffset;
+    uint64_t                pageOffset;
     int                     ret;
 
     num = 0;

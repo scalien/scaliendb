@@ -23,7 +23,7 @@ public:
     Buffer          keyBuffer;
     ReadBuffer      key;
     uint32_t        index;
-    uint32_t        offset;
+    uint64_t        offset;
     
     TreeNode        treeNode;
 };
@@ -46,11 +46,11 @@ public:
     uint32_t            GetSize();
     uint32_t            GetNumDataPages();
 
-    bool                Locate(ReadBuffer& key, uint32_t& index, uint32_t& offset);
+    bool                Locate(ReadBuffer& key, uint32_t& index, uint64_t& offset);
     ReadBuffer          GetFirstKey();
     ReadBuffer          GetMidpoint();
 
-    void                Append(ReadBuffer key, uint32_t index, uint32_t offset);
+    void                Append(ReadBuffer key, uint32_t index, uint64_t offset);
     void                Finalize();
 
     bool                Read(Buffer& buffer);

@@ -3,10 +3,10 @@
 
 void StorageConfig::Init()
 {
-    chunkSize = configFile.GetIntValue("database.chunkSize", 
+    chunkSize = (uint64_t) configFile.GetInt64Value("database.chunkSize", 
      STORAGE_DEFAULT_CHUNKSIZE);
 
-    logSegmentSize = configFile.GetIntValue("database.logSegmentSize", 
+    logSegmentSize = (uint64_t) configFile.GetInt64Value("database.logSegmentSize", 
      STORAGE_DEFAULT_LOGSEGMENTSIZE);
 
     fileChunkCacheSize = (uint64_t) configFile.GetInt64Value("database.cacheSize", 

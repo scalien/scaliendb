@@ -22,7 +22,7 @@ public:
     virtual ~StoragePage() {}
     
     void                SetOffset(uint64_t);
-    uint32_t            GetOffset();
+    uint64_t            GetOffset();
 
     bool                IsCached();
     

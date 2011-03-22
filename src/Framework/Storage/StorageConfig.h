@@ -22,8 +22,8 @@ class StorageConfig
 public:
     void            Init();
 
-    uint32_t        chunkSize;
-    uint32_t        logSegmentSize;
+    uint64_t        chunkSize;
+    uint64_t        logSegmentSize;
     uint64_t        fileChunkCacheSize;
     uint64_t        mergeBufferSize;
     uint64_t        syncGranularity;

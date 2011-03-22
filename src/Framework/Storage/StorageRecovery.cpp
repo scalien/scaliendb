@@ -51,7 +51,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
 
 bool StorageRecovery::TryReadTOC(Buffer& filename)
 {
-    uint32_t    offset, size, rest, checksum, compChecksum;
+    uint32_t    size, rest, checksum, compChecksum;
     Buffer      buffer;
     ReadBuffer  parse, dataPart;
     FDGuard     fd;
@@ -59,7 +59,6 @@ bool StorageRecovery::TryReadTOC(Buffer& filename)
     if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
         return false;
 
-    offset = 0;
     size = 4;
     buffer.Allocate(size);
     if (FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size) != size)
@@ -294,13 +293,14 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     bool                usePrevious;
     char                type;
     uint16_t            contextID, klen;
-    uint32_t            size, rest, checksum, /*compChecksum,*/ vlen;
-    uint64_t            logSegmentID, shardID, logCommandID;
+    uint32_t            checksum, /*compChecksum,*/ vlen;
+    uint64_t            logSegmentID, shardID, logCommandID, size, rest;
     ReadBuffer          parse, dataPart, key, value;
     Buffer              buffer;
     FDGuard             fd;
     StorageLogSegment*  logSegment;
-    uint32_t            uncompressedLength;
+    uint64_t            uncompressedLength;
+    ssize_t             ret;
     
     Log_Message("Replaying log segment %B...", &filename);
     
@@ -315,7 +315,8 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     
     size = 8;
     buffer.Allocate(size);
-    if (FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size) != size)
+    ret = FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size);
+    if (ret < 0 || (uint64_t) ret != size)
         return false;
     buffer.SetLength(size);
         
@@ -329,28 +330,32 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
 
     while (true)
     {
-        size = 4;
+        // read header that contains the size of the file
+        size = sizeof(uint64_t);
         buffer.Allocate(size);
-        if (FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size) != size)
+        ret = FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size);
+        if (ret < 0 || (uint64_t) ret != size)
             break;
         buffer.SetLength(size);
         
+        // parse actual file size
         parse.Wrap(buffer);
-        if (!parse.ReadLittle32(size))
+        if (!parse.ReadLittle64(size))
             break;
         buffer.Allocate(size);
         
         rest = size - buffer.GetLength();
-        if (rest < 4)
+        if (rest < sizeof(uint64_t) + sizeof(uint32_t)) // size of uncompressed + checksum
             break;
-        if (FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest) != rest)
+        ret = FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest);
+        if (ret < 0 || (uint64_t) ret != rest)
             break;
         buffer.SetLength(size);
      
-        parse.Wrap(buffer.GetBuffer() + 4, 8);
-        if (!parse.ReadLittle32(uncompressedLength))
+        parse.Wrap(buffer.GetBuffer() + sizeof(uint64_t), sizeof(uint64_t) + sizeof(uint32_t));
+        if (!parse.ReadLittle64(uncompressedLength))
             break;
-        parse.Advance(4);
+        parse.Advance(sizeof(uint64_t));
         
         if (!parse.ReadLittle32(checksum))
             break;

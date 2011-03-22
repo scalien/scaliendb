@@ -264,6 +264,56 @@ TEST_DEFINE(TestInTreeMapInsert)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestInTreeMapMidpoint)
+{
+    InTreeMap<KeyValue>             kvs;
+    ReadBuffer                      rb;
+    ReadBuffer                      rk;
+    ReadBuffer                      rv;
+    ReadBuffer                      mid;
+    Buffer                          buf;
+    KeyValue*                       kv;
+    KeyValue*                       it;
+    char*                           p;
+    char*                           area;
+    char*                           kvarea;
+    int                             ksize;
+    int                             vsize;
+    int                             num = 5;
+    
+    ksize = 20;
+    vsize = 128;
+    area = (char*) malloc(num*(ksize+vsize));
+    kvarea = (char*) malloc(num * sizeof(KeyValue));
+
+    for (int i = 0; i < num; i++)
+    {
+        p = area + i*(ksize+vsize);
+        rk.SetBuffer(p);
+        rk.SetLength(ksize);
+        snprintf(p, ksize, "%019d", i);
+        p += ksize;
+        rv.SetBuffer(p);
+        rv.SetLength(vsize);
+        snprintf(p, vsize, "value");
+
+        kv = (KeyValue*) (kvarea + i * sizeof(KeyValue));
+        kv->SetKey(rk, false);
+        kv->SetValue(rv, false);
+        it = kvs.Insert(kv);
+        if (it != NULL)
+            TEST_FAIL();
+    }
+
+    mid = kvs.Mid()->key;
+    TEST_LOG("Mid key: %.*s", mid.GetLength(), mid.GetBuffer());
+
+    free(area);
+    free(kvarea);
+
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestInTreeMapInsertRandom)
 {
     InTreeMap<KeyValue>             kvs;

@@ -35,7 +35,7 @@ public:
     Stage               stage;
     Callable            onComplete;
     uint32_t            index;
-    uint32_t            offset;
+    uint64_t            offset;
     StorageShard*       shard;
     StorageChunk**      itChunk;
     StoragePage*        lastLoadedPage;

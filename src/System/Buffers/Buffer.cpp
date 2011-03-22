@@ -102,7 +102,7 @@ void Buffer::Allocate(unsigned size_, bool keepold)
 
     if (buffer == array || preallocated)
         newbuffer = (char*) malloc(size_);
-    else    
+    else
         newbuffer = (char*) realloc(buffer, size_);
 
     ASSERT(newbuffer != NULL);

@@ -54,7 +54,7 @@ StorageFileChunk::~StorageFileChunk()
 void StorageFileChunk::ReadHeaderPage()
 {
     Buffer      buffer;
-    uint32_t    offset;
+    uint64_t    offset;
     
     if (fd == INVALID_FD)
         OpenForReading();
@@ -122,7 +122,8 @@ StorageChunk::ChunkState StorageFileChunk::GetChunkState()
 
 void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
 {
-    uint32_t                index, offset;
+    uint32_t                index;
+    uint64_t                offset;
     ReadBuffer              nextKey, key, value;
     StorageFileKeyValue*    it;
     
@@ -187,7 +188,8 @@ bool StorageFileChunk::IsMerged()
 
 StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
 {
-    uint32_t    index, offset;
+    uint32_t    index;
+    uint64_t    offset;
     Buffer      buffer;
 
     if (headerPage.UseBloomFilter())
@@ -217,7 +219,8 @@ StorageKeyValue* StorageFileChunk::Get(ReadBuffer& key)
 
 void StorageFileChunk::AsyncGet(StorageAsyncGet* asyncGet)
 {
-    uint32_t            index, offset;
+    uint32_t            index;
+    uint64_t            offset;
     Buffer              buffer;
     StorageKeyValue*    kv;
     
@@ -369,7 +372,7 @@ void StorageFileChunk::OnDataPageEvicted(uint32_t index)
 void StorageFileChunk::LoadBloomPage()
 {
     Buffer      buffer;
-    uint32_t    offset;
+    uint64_t    offset;
     
     if (fd == INVALID_FD)
         OpenForReading();
@@ -402,7 +405,7 @@ void StorageFileChunk::LoadBloomPage()
 void StorageFileChunk::LoadIndexPage()
 {
     Buffer      buffer;
-    uint32_t    offset;
+    uint64_t    offset;
 
     if (fd == INVALID_FD)
         OpenForReading();
@@ -447,7 +450,7 @@ void StorageFileChunk::LoadIndexPage()
     }
 }
 
-void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk, bool keysOnly)
+void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, bool keysOnly)
 {
     Buffer buffer;
 
@@ -485,7 +488,7 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint32_t offset, bool bulk, 
 StoragePage* StorageFileChunk::AsyncLoadBloomPage()
 {
     Buffer              buffer;
-    uint32_t            offset;
+    uint64_t            offset;
     StorageBloomPage*   page;
     
     if (isBloomPageLoading || bloomPage != NULL)
@@ -526,7 +529,7 @@ StoragePage* StorageFileChunk::AsyncLoadBloomPage()
 StoragePage* StorageFileChunk::AsyncLoadIndexPage()
 {
     Buffer              buffer;
-    uint32_t            offset;
+    uint64_t            offset;
     StorageIndexPage*   page;
     
     if (isIndexPageLoading || indexPage != NULL)
@@ -564,7 +567,7 @@ StoragePage* StorageFileChunk::AsyncLoadIndexPage()
     return page;    
 }
 
-StoragePage* StorageFileChunk::AsyncLoadDataPage(uint32_t index, uint32_t offset)
+StoragePage* StorageFileChunk::AsyncLoadDataPage(uint32_t index, uint64_t offset)
 {
     Buffer              buffer;
     StorageDataPage*    page;
@@ -665,7 +668,7 @@ void StorageFileChunk::ExtendDataPageArray()
     dataPagesSize = newSize;
 }
 
-bool StorageFileChunk::ReadPage(uint32_t offset, Buffer& buffer, bool keysOnly)
+bool StorageFileChunk::ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly)
 {
     uint32_t    size, keysSize, rest;
     ssize_t     nread;
