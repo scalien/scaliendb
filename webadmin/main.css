@@ -388,6 +388,11 @@ span.database-head {
 	font-size: 22;			
 }
 
+span.database-name {
+	font-size: 22;			
+	font-weight: bold;			
+}
+
 table.table {
 	width: 100%;
 }

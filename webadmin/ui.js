@@ -801,7 +801,7 @@ function createDatabaseDiv(configState, database)
 {
 	var html =
 	'																									\
-	<span class="database-head">Listing tables for database	 <b>' + database["name"] + '</b></span>		\
+	<span class="database-head">Listing tables for database: <span class="database-name">' + database["name"] + '</span></span>		\
 	 - <a class="no-line" href="javascript:showDeleteDatabase(\'' + database["databaseID"] + '\')">		\
 	<span class="delete-button">delete database</span></a>												\
 	 - <a class="no-line" href="javascript:showRenameDatabase(\'' +
