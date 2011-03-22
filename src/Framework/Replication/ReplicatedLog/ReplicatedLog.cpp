@@ -295,7 +295,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     }
     else if (imsg.type == PAXOS_LEARN_PROPOSAL && acceptor.state.accepted &&
      acceptor.state.acceptedProposalID == imsg.proposalID)
-     {
+    {
         runID = acceptor.state.acceptedRunID;
         value.Wrap(acceptor.state.acceptedValue);
     }
