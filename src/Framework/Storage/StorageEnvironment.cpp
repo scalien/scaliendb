@@ -783,6 +783,8 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     if (shard != NULL)
         return false;       // already exists
 
+    Log_Debug("Creating shard %u/%U", contextID, shardID);
+
     shard = new StorageShard;
     shard->SetContextID(contextID);
     shard->SetTableID(tableID);
@@ -825,6 +827,8 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return true;        // does not exists
+
+    Log_Debug("Deleting shard %u/%U", contextID, shardID);
 
     // delete memoChunk
     if (shard->GetMemoChunk() != NULL)

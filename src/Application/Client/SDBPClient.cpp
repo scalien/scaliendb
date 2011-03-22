@@ -285,6 +285,16 @@ uint64_t Client::GetMasterTimeout()
     return masterTimeout.GetDelay();
 }
 
+uint64_t Client::GetCurrentDatabaseID()
+{
+    return databaseID;
+}
+
+uint64_t Client::GetCurrentTableID()
+{
+    return tableID;
+}
+
 void Client::SetBatchLimit(uint64_t batchLimit_)
 {
     batchLimit = batchLimit_;
@@ -961,7 +971,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
             }
         }
 
-        if (qrequests->GetLength() == 0 || bulkRequests.GetLength() == 0)
+        if (qrequests->GetLength() == 0 || (isBulkLoading && bulkRequests.GetLength() == 0))
             conn->Flush();
         
         // put back those requests to the quorum requests list that have not been sent to all

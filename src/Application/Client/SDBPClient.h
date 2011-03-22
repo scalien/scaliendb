@@ -43,6 +43,9 @@ public:
     uint64_t                GetGlobalTimeout();
     uint64_t                GetMasterTimeout();
     
+    uint64_t                GetCurrentDatabaseID();
+    uint64_t                GetCurrentTableID();
+    
     void                    SetBatchLimit(uint64_t batchLimit);
     void                    SetBulkLoading();
     bool                    IsBulkLoading();

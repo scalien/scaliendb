@@ -122,7 +122,7 @@ void QuorumDatabase::SetAcceptedValue(uint64_t paxosID, ReadBuffer value)
     logShard->Set(rbKey, value);
 }
 
-bool QuorumDatabase::IsActive()
+bool QuorumDatabase::IsCommiting()
 {
     return paxosShard->GetEnvironment()->IsCommiting();
 }

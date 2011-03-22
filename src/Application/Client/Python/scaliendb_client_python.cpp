@@ -5305,6 +5305,46 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_GetCurrentDatabaseID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_GetCurrentDatabaseID",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_GetCurrentDatabaseID" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  result = (uint64_t)SDBP_GetCurrentDatabaseID(arg1);
+  resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_GetCurrentTableID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_GetCurrentTableID",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_GetCurrentTableID" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  result = (uint64_t)SDBP_GetCurrentTableID(arg1);
+  resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_SetBatchLimit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -7382,6 +7422,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_SetMasterTimeout", _wrap_SDBP_SetMasterTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetGlobalTimeout", _wrap_SDBP_GetGlobalTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetMasterTimeout", _wrap_SDBP_GetMasterTimeout, METH_VARARGS, NULL},
+	 { (char *)"SDBP_GetCurrentDatabaseID", _wrap_SDBP_GetCurrentDatabaseID, METH_VARARGS, NULL},
+	 { (char *)"SDBP_GetCurrentTableID", _wrap_SDBP_GetCurrentTableID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetBatchLimit", _wrap_SDBP_SetBatchLimit, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetBulkLoading", _wrap_SDBP_SetBulkLoading, METH_VARARGS, NULL},
 	 { (char *)"SDBP_CreateQuorum", _wrap_SDBP_CreateQuorum, METH_VARARGS, NULL},

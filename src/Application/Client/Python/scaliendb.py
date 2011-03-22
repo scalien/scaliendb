@@ -157,62 +157,106 @@ class Client:
     def create_quorum(self, nodes):
         node_params = SDBP_NodeParams(len(nodes))
         for node in nodes:
-            node_params.AddNode(node)
+            node_params.AddNode(str(node))
         status = SDBP_CreateQuorum(self.cptr, node_params)
         node_params.Close()
         self.result = Client.Result(SDBP_GetResult(self.cptr))
-        if status < 0:
-            return
+        self._check_status(status)
         return self.result.number()
     
     def delete_quorum(self, quorum_id):
         status = SDBP_DeleteQuorum(self.cptr, quorum_id)
-        if status < 0:
-            return
+        self._check_status(status)
     
     def activate_node(self, node_id):
         status = SDBP_ActivateNode(self.cptr, node_id)
-        return status
+        self._check_status(status)
     
     def create_database(self, name):
         status = SDBP_CreateDatabase(self.cptr, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
-        if status < 0:
-            return
+        self._check_status(status)
         return self.result.number()
+
+    def rename_database(self, src, dst):
+        database_id = self.get_database_id(src)
+        status = SDBP_RenameDatabase(self.cptr, database_id, dst)
+        self._check_status(status)
+
+    def delete_database(self, name):
+        database_id = self.get_database_id(name)
+        status = SDBP_DeleteDatabase(self.cptr, database_id)
+        self._check_status(status)
 
     def create_table(self, database_id, quorum_id, name):
         status = SDBP_CreateTable(self.cptr, database_id, quorum_id, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
-        if status < 0:
-            return
+        self._check_status(status)
         return self.result.number()
 
-    def truncate_table(self, table_id):
+    def rename_table(self, src, dst):
+        database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
+        if database_id == 0:
+            raise Error(SDBP_BADSCHEMA, "No database selected")
+        table_id = self.get_table_id(database_id, src)
+        self.rename_table_by_id(self, table_id, dst)
+
+    def rename_table_by_id(self, table_id, name):
+        status = SDBP_TruncateTable(self.cptr, table_id, name)
+        if status < 0:
+            if status == SDBP_FAILED:
+                raise Error(status, "No table found")
+            raise Error(status)
+
+    def delete_table(self, name):
+        database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
+        if database_id == 0:
+            raise Error(SDBP_BADSCHEMA, "No database selected")
+        table_id = self.get_table_id(database_id, name)
+        self.delete_table_by_id(table_id)
+
+    def delete_table_by_id(self, table_id):
+        status = SDBP_DeleteTable(self.cptr, table_id)
+        if status < 0:
+            if status == SDBP_FAILED:
+                raise Error(status, "No table found")
+            raise Error(status)
+
+    def truncate_table(self, name):
+        database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
+        if database_id == 0:
+            raise Error(SDBP_BADSCHEMA, "No database selected")
+        table_id = self.get_table_id(database_id, name)
+        self.truncate_table_by_id(table_id)
+
+    def truncate_table_by_id(self, table_id):
         status = SDBP_TruncateTable(self.cptr, table_id)
-        return status
+        if status < 0:
+            if status == SDBP_FAILED:
+                raise Error(status, "No table found")
+            raise Error(status)
 
     def get_database_id(self, name):
         database_id = long(SDBP_GetDatabaseID(self.cptr, name))
         if database_id == 0:
-            raise Error(SDBP_BADSCHEMA, "No database with name '%s'" % (name))
+            raise Error(SDBP_BADSCHEMA, "No database found with name '%s'" % (name))
         return database_id
     
     def get_table_id(self, database_id, name):
         table_id = long(SDBP_GetTableID(self.cptr, database_id, name))
         if table_id == 0:
-            raise Error(SDBP_BADSCHEMA, "No table with name '%s'" % (name))
+            raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))
         return table_id
     
     def use_database(self, name):
         status = SDBP_UseDatabase(self.cptr, name)
         if status != SDBP_SUCCESS:
-            raise Error(status, "No database with name '%s'" % (name))
+            raise Error(status, "No database found with name '%s'" % (name))
     
     def use_table(self, name):
         status = SDBP_UseTable(self.cptr, name)
         if status != SDBP_SUCCESS:
-            raise Error(SDBP_BADSCHEMA, "No table with name '%s'" % (name))            
+            raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))            
     
     def get(self, key):
         status, ret = self._data_command(SDBP_Get, key)
@@ -321,6 +365,10 @@ class Client:
             return status, False
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return status, True
+    
+    def _check_status(self, status):
+        if status < 0:
+            raise Error(status)
 
 def human_bytes(num):
 	for x in ['bytes','KB','MB','GB','TB']:

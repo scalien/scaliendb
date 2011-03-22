@@ -271,7 +271,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 
 //    Log_Debug("OnLearnChosen begin");
 
-    if (context->GetDatabase()->IsActive())
+    if (context->GetDatabase()->IsCommiting())
     {
         Log_Debug("Database is commiting, dropping Paxos message");
         return;
@@ -295,7 +295,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     }
     else if (imsg.type == PAXOS_LEARN_PROPOSAL && acceptor.state.accepted &&
      acceptor.state.acceptedProposalID == imsg.proposalID)
-     {
+    {
         runID = acceptor.state.acceptedRunID;
         value.Wrap(acceptor.state.acceptedValue);
     }
