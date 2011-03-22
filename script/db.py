@@ -78,7 +78,7 @@ class StorageDataPage(StoragePage):
 		if self.size > 4096:
 			data += file.read(self.size - 4096)
 		data = data[16:]
-		print("-- Page index %d, Num keys: %d" % (self.index, self.num_keys))
+		# print("-- Page index %d, Num keys: %d" % (self.index, self.num_keys))
 		i = 0
 		prev_key = ""
 		while i < self.num_keys:
@@ -128,8 +128,21 @@ class StorageIndexPage(StoragePage):
 			key = data[:keylen]
 			data = data[keylen:]
 			i += 1
-			print("Index key: %s" % (key))
-	
+			# print("Index key: %s" % (key))
+
+class StorageBloomPage(StoragePage):	
+	def __init__(self):
+		self.size = 0
+		self.offset = 0
+		self.checksum = 0
+
+	def read(self, file):
+		data = file.read(4096)
+		self.size, self.checksum = struct.unpack("<II", data[:8])
+		if self.size > 4096:
+			data += file.read(self.size - 4096)
+		data = data[8:]
+		print("-- Bloom page size: %d" % (self.size))
 
 def check_chunk_file(filename):
 	f = open(filename, "rb")
@@ -149,6 +162,9 @@ def check_chunk_file(filename):
 		#print("Keys: " + str(keys))
 	index_page = StorageIndexPage()
 	index_page.read(f)
+	if header_page.use_bloomfilter:
+		bloom_page = StorageBloomPage()
+		bloom_page.read(f)
 
 if __name__ == "__main__":
 	signal.signal(signal.SIGPIPE, signal.SIG_DFL)
