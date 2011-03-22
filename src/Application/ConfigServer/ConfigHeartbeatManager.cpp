@@ -182,7 +182,8 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
             {
                 // make sure another shard with the same splitKey doesn't already exist
                 configShard = configState->GetShard(itQuorumShardInfo->shardID);
-                assert(configShard != NULL);
+                if (!configShard)
+                    continue;
                 configTable = configState->GetTable(configShard->tableID);
                 assert(configTable != NULL);
                 if (configTable->isFrozen)
