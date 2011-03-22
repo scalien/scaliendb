@@ -212,6 +212,8 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
         if (itQuorum->primaryID == message.nodeID)
         {
             ConfigShard* configShard = configState->GetShard(itQuorumShardInfo->shardID);
+            if (!configShard)
+                continue;
             configShard->isSplitable = itQuorumShardInfo->isSplitable;
             configShard->shardSize = itQuorumShardInfo->shardSize;
             configShard->splitKey.Write(itQuorumShardInfo->splitKey);
