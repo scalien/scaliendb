@@ -52,15 +52,12 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
 {
     Log_Trace();
     
-    if (context->GetDatabase()->IsActive())
-        return;
-
     senderID = imsg.nodeID;
-    
+
     Log_Trace("state.promisedProposalID: %U msg.proposalID: %U",
      state.promisedProposalID, imsg.proposalID);
-    
-    if (imsg.proposalID < state.promisedProposalID)
+
+    if (imsg.proposalID < state.promisedProposalID || context->GetDatabase()->IsActive())
     {
         omsg.PrepareRejected(imsg.paxosID, MY_NODEID,
          imsg.proposalID, state.promisedProposalID);
@@ -85,15 +82,12 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
 {
     Log_Trace();
     
-    if (context->GetDatabase()->IsActive())
-        return;
-    
     senderID = imsg.nodeID;
 
     Log_Trace("state.promisedProposalID: %U msg.proposalID: %U",
      state.promisedProposalID, imsg.proposalID);
     
-    if (imsg.proposalID < state.promisedProposalID)
+    if (imsg.proposalID < state.promisedProposalID || context->GetDatabase()->IsActive())
     {
         omsg.ProposeRejected(imsg.paxosID, MY_NODEID, imsg.proposalID);
         context->GetTransport()->SendMessage(senderID, omsg);
