@@ -21,6 +21,7 @@ public:
     void                    Init(QuorumContext* context);
     void                    Shutdown();
 
+    void                    SetUseProposeTimeouts(bool useProposeTimeouts);
     void                    SetCommitChaining(bool commitChaining);
     bool                    GetCommitChaining();
     void                    SetAsyncCommit(bool asyncCommit);

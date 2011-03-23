@@ -22,6 +22,7 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
     database.Init(quorumPaxosShard, quorumLogShard);
     
     replicatedLog.Init(this);
+    replicatedLog.SetUseProposeTimeouts(true);
     replicatedLog.SetCommitChaining(false);
     replicatedLog.SetAsyncCommit(false);
     paxosLease.Init(this);

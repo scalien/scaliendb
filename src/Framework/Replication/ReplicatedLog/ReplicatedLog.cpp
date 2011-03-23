@@ -27,6 +27,11 @@ void ReplicatedLog::Shutdown()
     proposer.Shutdown();
 }
 
+void ReplicatedLog::SetUseProposeTimeouts(bool useProposeTimeouts)
+{
+    proposer.SetUseTimeouts(useProposeTimeouts);
+}
+
 void ReplicatedLog::SetCommitChaining(bool commitChaining_)
 {
     commitChaining = commitChaining_;

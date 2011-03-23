@@ -27,6 +27,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumLogShard(quorumID));
     
     replicatedLog.Init(this);
+    replicatedLog.SetUseProposeTimeouts(false);
     replicatedLog.SetCommitChaining(true);
     replicatedLog.SetAsyncCommit(true);
     transport.SetQuorumID(quorumID);

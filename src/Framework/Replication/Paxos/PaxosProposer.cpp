@@ -27,6 +27,11 @@ void PaxosProposer::Shutdown()
         EventLoop::Remove(&proposeTimeout);
 }
 
+void PaxosProposer::SetUseTimeouts(bool useTimeouts_)
+{
+    useTimeouts = useTimeouts_;
+}
+
 void PaxosProposer::OnMessage(PaxosMessage& imsg)
 {
     if (imsg.IsPrepareResponse())
@@ -49,7 +54,8 @@ void PaxosProposer::OnPrepareTimeout()
     
     if (context->IsPaxosBlocked())
     {
-//        EventLoop::Add(&prepareTimeout);
+        if (useTimeouts)
+            EventLoop::Add(&prepareTimeout);
         return;
     }
     
@@ -68,7 +74,8 @@ void PaxosProposer::OnProposeTimeout()
 
     if (context->IsPaxosBlocked())
     {
-//        EventLoop::Add(&proposeTimeout);
+        if (useTimeouts)
+            EventLoop::Add(&proposeTimeout);
         return;
     }
 
@@ -109,7 +116,6 @@ void PaxosProposer::Restart()
     else
         timer = &proposeTimeout;
     
-//    assert(timer->IsActive());
     EventLoop::Remove(timer);
 
     prepareTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
@@ -117,7 +123,8 @@ void PaxosProposer::Restart()
 
     if (context->IsPaxosBlocked())
     {
-//        EventLoop::Add(timer);
+        if (useTimeouts)
+            EventLoop::Add(timer);
         return;
     }        
 
@@ -246,7 +253,8 @@ void PaxosProposer::StartPreparing()
     omsg.PrepareRequest(context->GetPaxosID(), MY_NODEID, state.proposalID);
     BroadcastMessage(omsg);
     
-//    EventLoop::Reset(&prepareTimeout);
+    if (useTimeouts)
+        EventLoop::Reset(&prepareTimeout);
 }
 
 void PaxosProposer::StartProposing()
@@ -264,7 +272,8 @@ void PaxosProposer::StartProposing()
      state.proposedRunID, state.proposedValue);
     BroadcastMessage(omsg);
     
-//    EventLoop::Reset(&proposeTimeout);
+    if (useTimeouts)
+        EventLoop::Reset(&proposeTimeout);
 }
 
 void PaxosProposer::NewVote()

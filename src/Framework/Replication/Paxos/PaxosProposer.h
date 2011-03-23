@@ -29,6 +29,8 @@ public:
     void                        Init(QuorumContext* context);
     void                        Shutdown();
     
+    void                        SetUseTimeouts(bool useTimeouts);
+    
     void                        OnMessage(PaxosMessage& msg);
     void                        OnPrepareTimeout();
     void                        OnProposeTimeout();
@@ -50,6 +52,7 @@ private:
     void                        StartProposing();
     void                        NewVote();
 
+    bool                        useTimeouts;
     QuorumContext*              context;
     QuorumVote*                 vote;
     PaxosProposerState          state;
