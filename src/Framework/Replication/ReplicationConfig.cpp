@@ -42,6 +42,10 @@ void ReplicationConfig::Init(StorageShardProxy* shard_)
         Log_Message("No nodeID read from database");
         nodeID = 0;
     }
+    else
+    {
+        Log_Message("My nodeID is %U", nodeID);
+    }
 
     ret = shard->Get(ReadBuffer("runID"), value);
     nread = 0;
