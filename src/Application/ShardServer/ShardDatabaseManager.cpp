@@ -83,8 +83,9 @@ void ShardDatabaseAsyncList::OnShardComplete()
     // create results
     if (numKeys > 0 && (type == KEY || type == KEYVALUE))
     {
-        ReadBuffer  keys[numKeys];
-        ReadBuffer  values[numKeys];
+		CLIENTRESPONSE_ASSERT_NUMKEYS(numKeys);
+        ReadBuffer  keys[CLIENTRESPONSE_NUMKEYS(numKeys)];
+        ReadBuffer  values[CLIENTRESPONSE_NUMKEYS(numKeys)];
         i = 0;
         FOREACH (it, lastResult->dataPage)
         {

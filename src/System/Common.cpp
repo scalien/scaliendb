@@ -12,6 +12,7 @@
 #include <sys/time.h>
 #else // _WIN32
 #include <process.h>
+#include <windows.h>
 #endif
 #include "Macros.h"
 #include "Time.h"
