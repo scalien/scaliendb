@@ -1,5 +1,6 @@
 #include "ConfigActivationManager.h"
 #include "System/Events/EventLoop.h"
+#include "Application/Common/DatabaseConsts.h"
 #include "Application/Common/ContextTransport.h"
 #include "ConfigServer.h"
 #include "ConfigQuorumProcessor.h"
@@ -94,13 +95,14 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool force
                     continue;
 
                 // the shard server is "almost caught up", start the activation process
-                itQuorum->OnActivationStart(nodeID, now + 5*PAXOSLEASE_MAX_LEASE_TIME);
+                itQuorum->OnActivationStart(nodeID, now + ACTIVATION_TIMEOUT);
                 UpdateTimeout();
                 
                 shardServer->tryAutoActivation = false;
 
                 Log_Message("Activation started for shard server %U and quorum %U...",
                  itQuorum->activatingNodeID, itQuorum->quorumID);
+                configServer->OnConfigStateChanged();
             }
         }
     }    

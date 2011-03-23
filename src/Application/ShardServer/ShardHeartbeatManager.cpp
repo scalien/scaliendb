@@ -2,13 +2,17 @@
 #include "System/Events/EventLoop.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/ClusterMessage.h"
+#include "Application/Common/DatabaseConsts.h"
 #include "ShardServer.h"
 #include "System/Config.h"
 
 ShardHeartbeatManager::ShardHeartbeatManager()
 {
     heartbeatTimeout.SetCallable(MFUNC(ShardHeartbeatManager, OnHeartbeatTimeout));
-    heartbeatTimeout.SetDelay(HEARTBEAT_TIMEOUT);    
+    heartbeatTimeout.SetDelay(NORMAL_HEARTBEAT_TIMEOUT);    
+
+    activationTimeout.SetCallable(MFUNC(ShardHeartbeatManager, OnActivationTimeout));
+    activationTimeout.SetDelay(ACTIVATION_TIMEOUT);
 }
 
 void ShardHeartbeatManager::Init(ShardServer* shardServer_)
@@ -108,4 +112,26 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     msg.Heartbeat(CONTEXT_TRANSPORT->GetSelfNodeID(),
      quorumInfoList, quorumShardInfos, httpPort, sdbpPort);
     shardServer->BroadcastToControllers(msg);
+}
+
+void ShardHeartbeatManager::OnActivation()
+{
+    if (heartbeatTimeout.GetDelay() == ACTIVATION_HEARTBEAT_TIMEOUT)
+        return;
+    
+    EventLoop::Remove(&heartbeatTimeout);
+    OnHeartbeatTimeout();
+    
+    EventLoop::Remove(&heartbeatTimeout);
+    heartbeatTimeout.SetDelay(ACTIVATION_HEARTBEAT_TIMEOUT);
+    EventLoop::Add(&heartbeatTimeout);
+    
+    EventLoop::Reset(&activationTimeout);
+}
+
+void ShardHeartbeatManager::OnActivationTimeout()
+{
+    EventLoop::Remove(&heartbeatTimeout);
+    heartbeatTimeout.SetDelay(NORMAL_HEARTBEAT_TIMEOUT);
+    EventLoop::Add(&heartbeatTimeout);
 }

@@ -14,8 +14,11 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     prev = next = this;
 
     requestLeaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnRequestLeaseTimeout));
-    requestLeaseTimeout.SetDelay(PRIMARYLEASE_REQUEST_TIMEOUT);
+    requestLeaseTimeout.SetDelay(NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT);
     
+    activationTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnActivationTimeout));
+    activationTimeout.SetDelay(ACTIVATION_TIMEOUT);
+
     leaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnLeaseTimeout));
     tryAppend.SetCallable(MFUNC(ShardQuorumProcessor, TryAppend));
     resumeAppend.SetCallable(MFUNC(ShardQuorumProcessor, OnResumeAppend));
@@ -386,6 +389,28 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
         if (!localExecute.IsActive())
             EventLoop::Add(&localExecute);
     }
+}
+
+void ShardQuorumProcessor::OnActivation()
+{
+    if (requestLeaseTimeout.GetDelay() == ACTIVATION_PRIMARYLEASE_REQUEST_TIMEOUT)
+        return;
+    
+    EventLoop::Remove(&requestLeaseTimeout);
+    OnRequestLeaseTimeout();
+
+    EventLoop::Remove(&requestLeaseTimeout);
+    requestLeaseTimeout.SetDelay(ACTIVATION_PRIMARYLEASE_REQUEST_TIMEOUT);
+    EventLoop::Add(&requestLeaseTimeout);
+    
+    EventLoop::Reset(&activationTimeout);
+}
+
+void ShardQuorumProcessor::OnActivationTimeout()
+{
+    EventLoop::Remove(&requestLeaseTimeout);
+    requestLeaseTimeout.SetDelay(NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT);
+    EventLoop::Add(&requestLeaseTimeout);
 }
 
 void ShardQuorumProcessor::StopReplication()

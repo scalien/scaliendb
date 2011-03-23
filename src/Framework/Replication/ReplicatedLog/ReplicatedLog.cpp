@@ -80,7 +80,7 @@ void ReplicatedLog::TryAppendDummy()
         return;
 
     Append(dummy);
-    Log_Debug("Appending DUMMY!");
+    Log_Trace("Appending DUMMY!");
 }
 
 void ReplicatedLog::TryAppendNextValue()
@@ -228,8 +228,7 @@ void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 {
     Log_Trace();
 
-    if (imsg.paxosID == paxosID)
-        return acceptor.OnPrepareRequest(imsg);
+    acceptor.OnPrepareRequest(imsg);
 
     OnRequest(imsg);
 }
@@ -246,17 +245,9 @@ void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 {
     Log_Trace();
     
-//    Log_Debug("OnProposeRequest begin");
-    
-    if (imsg.paxosID == paxosID)
-    {
-//        Log_Debug("OnProposeRequest end");
-        return acceptor.OnProposeRequest(imsg);
-    }
+    acceptor.OnProposeRequest(imsg);
     
     OnRequest(imsg);
-
-//    Log_Debug("OnProposeRequest end");
 }
 
 void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
@@ -348,13 +339,14 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 {
     bool ownAppend;
 
+    Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
+
     if (context->GetHighestPaxosID() > 0 && paxosID < context->GetHighestPaxosID())
     {
         Log_Debug("Paxos-based catchup, highest seen paxosID is %U, currently at %U",
          context->GetHighestPaxosID(), paxosID);
         if (paxosID == (context->GetHighestPaxosID() - 1))
             Log_Debug("Paxos-based catchup complete...");
-        Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
     }
     
     if (context->GetHighestPaxosID() > 0 && paxosID < (context->GetHighestPaxosID() - 1))
@@ -382,10 +374,10 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
         Log_Trace("Multi paxos disabled");
     }
 
-    if (!BUFCMP(&value, &dummy))
-        context->OnAppend(paxosID - 1, value, ownAppend);
-    else
+    if (BUFCMP(&value, &dummy))
         OnAppendComplete();
+    else
+        context->OnAppend(paxosID - 1, value, ownAppend);
 
     // new convention: QuorumContext::OnAppend() must call
     // ReplicatedLog::OnAppendComplete()
@@ -408,7 +400,7 @@ void ReplicatedLog::OnRequest(PaxosMessage& imsg)
         omsg.LearnValue(imsg.paxosID, MY_NODEID, 0, value);
         context->GetTransport()->SendMessage(imsg.nodeID, omsg);
     }
-    else // paxosID < msg.paxosID
+    else if (GetPaxosID() < imsg.paxosID)
     {
         //  I am lagging and need to catch-up
         RequestChosen(imsg.nodeID);

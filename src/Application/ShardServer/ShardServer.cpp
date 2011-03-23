@@ -349,7 +349,13 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
         next = quorumProcessors.Next(quorumProcessor);
         
         if (configQuorum->IsActiveMember(MY_NODEID))
-        {
+        {                
+            if (configQuorum->isActivatingNode || configQuorum->activatingNodeID == MY_NODEID)
+            {
+                quorumProcessor->OnActivation();
+                heartbeatManager.OnActivation();
+            }
+
             quorumProcessor->RegisterPaxosID(configQuorum->paxosID);
 
             if (quorumProcessor->IsPrimary())

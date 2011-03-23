@@ -10,7 +10,8 @@
 
 class ShardServer;
 
-#define PRIMARYLEASE_REQUEST_TIMEOUT     1000
+#define NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT         1000
+#define ACTIVATION_PRIMARYLEASE_REQUEST_TIMEOUT     100
 
 /*
 ===============================================================================================
@@ -52,6 +53,8 @@ public:
     void                    TryReplicationCatchup();
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
                              ReadBuffer& splitKey);
+    void                    OnActivation();
+    void                    OnActivationTimeout();
 
     void                    StopReplication();
     void                    ContinueReplication();
@@ -106,13 +109,13 @@ private:
     MessageList             shardMessages;
     RequestList             clientRequests;
     
-//    bool                    isShardMigrationActive;
     uint64_t                migrateShardID;
     
     ShardCatchupReader      catchupReader;
     ShardCatchupWriter      catchupWriter;
 
     Countdown               requestLeaseTimeout;
+    Countdown               activationTimeout;
     Timer                   leaseTimeout;
     YieldTimer              tryAppend;
     YieldTimer              resumeAppend;

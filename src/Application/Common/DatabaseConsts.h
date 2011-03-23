@@ -9,4 +9,6 @@
 
 #define DATABASE_REPLICATION_SIZE               (  10*MB)
 
+#define ACTIVATION_TIMEOUT                      (15*1000) //msec
+
 #endif

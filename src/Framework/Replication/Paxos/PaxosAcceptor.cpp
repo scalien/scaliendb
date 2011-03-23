@@ -57,7 +57,7 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
     Log_Trace("state.promisedProposalID: %U msg.proposalID: %U",
      state.promisedProposalID, imsg.proposalID);
 
-    if (imsg.proposalID < state.promisedProposalID || context->GetDatabase()->IsCommiting())
+    if (imsg.paxosID != context->GetPaxosID() || imsg.proposalID < state.promisedProposalID || context->GetDatabase()->IsCommiting())
     {
         omsg.PrepareRejected(imsg.paxosID, MY_NODEID,
          imsg.proposalID, state.promisedProposalID);
@@ -87,7 +87,7 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     Log_Trace("state.promisedProposalID: %U msg.proposalID: %U",
      state.promisedProposalID, imsg.proposalID);
     
-    if (imsg.proposalID < state.promisedProposalID || context->GetDatabase()->IsCommiting())
+    if (imsg.paxosID != context->GetPaxosID() || imsg.proposalID < state.promisedProposalID || context->GetDatabase()->IsCommiting())
     {
         omsg.ProposeRejected(imsg.paxosID, MY_NODEID, imsg.proposalID);
         context->GetTransport()->SendMessage(senderID, omsg);
