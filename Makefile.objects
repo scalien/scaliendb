@@ -61,7 +61,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLeaseLearner.o \
 	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLeaseMessage.o \
 	$(BUILD_DIR)/Framework/Replication/PaxosLease/PaxosLeaseProposer.o \
-	$(BUILD_DIR)/Framework/Replication/Quorums/DoubleMajorityQuorum.o \
 	$(BUILD_DIR)/Framework/Replication/Quorums/MajorityQuorum.o \
 	$(BUILD_DIR)/Framework/Replication/Quorums/QuorumDatabase.o \
 	$(BUILD_DIR)/Framework/Replication/Quorums/QuorumTransport.o \

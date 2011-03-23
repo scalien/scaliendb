@@ -21,7 +21,6 @@
 		543DE5DA12BFBB3D0069786A /* PaxosLeaseLearner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55A12BFBB3D0069786A /* PaxosLeaseLearner.cpp */; };
 		543DE5DB12BFBB3D0069786A /* PaxosLeaseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55C12BFBB3D0069786A /* PaxosLeaseMessage.cpp */; };
 		543DE5DC12BFBB3D0069786A /* PaxosLeaseProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55E12BFBB3D0069786A /* PaxosLeaseProposer.cpp */; };
-		543DE5DD12BFBB3D0069786A /* DoubleMajorityQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE56512BFBB3D0069786A /* DoubleMajorityQuorum.cpp */; };
 		543DE5DE12BFBB3D0069786A /* MajorityQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE56712BFBB3D0069786A /* MajorityQuorum.cpp */; };
 		543DE5DF12BFBB3D0069786A /* QuorumDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE56B12BFBB3D0069786A /* QuorumDatabase.cpp */; };
 		543DE5E012BFBB3D0069786A /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE56D12BFBB3D0069786A /* QuorumTransport.cpp */; };
@@ -267,8 +266,6 @@
 		543DE56112BFBB3D0069786A /* PaxosLeaseAcceptorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseAcceptorState.h; sourceTree = "<group>"; };
 		543DE56212BFBB3D0069786A /* PaxosLeaseLearnerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseLearnerState.h; sourceTree = "<group>"; };
 		543DE56312BFBB3D0069786A /* PaxosLeaseProposerState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PaxosLeaseProposerState.h; sourceTree = "<group>"; };
-		543DE56512BFBB3D0069786A /* DoubleMajorityQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DoubleMajorityQuorum.cpp; sourceTree = "<group>"; };
-		543DE56612BFBB3D0069786A /* DoubleMajorityQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DoubleMajorityQuorum.h; sourceTree = "<group>"; };
 		543DE56712BFBB3D0069786A /* MajorityQuorum.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MajorityQuorum.cpp; sourceTree = "<group>"; };
 		543DE56812BFBB3D0069786A /* MajorityQuorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MajorityQuorum.h; sourceTree = "<group>"; };
 		543DE56912BFBB3D0069786A /* Quorum.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Quorum.h; sourceTree = "<group>"; };
@@ -714,8 +711,6 @@
 		543DE56412BFBB3D0069786A /* Quorums */ = {
 			isa = PBXGroup;
 			children = (
-				543DE56512BFBB3D0069786A /* DoubleMajorityQuorum.cpp */,
-				543DE56612BFBB3D0069786A /* DoubleMajorityQuorum.h */,
 				543DE56712BFBB3D0069786A /* MajorityQuorum.cpp */,
 				543DE56812BFBB3D0069786A /* MajorityQuorum.h */,
 				543DE56912BFBB3D0069786A /* Quorum.h */,
@@ -1343,7 +1338,6 @@
 				543DE5DA12BFBB3D0069786A /* PaxosLeaseLearner.cpp in Sources */,
 				543DE5DB12BFBB3D0069786A /* PaxosLeaseMessage.cpp in Sources */,
 				543DE5DC12BFBB3D0069786A /* PaxosLeaseProposer.cpp in Sources */,
-				543DE5DD12BFBB3D0069786A /* DoubleMajorityQuorum.cpp in Sources */,
 				543DE5DE12BFBB3D0069786A /* MajorityQuorum.cpp in Sources */,
 				543DE5DF12BFBB3D0069786A /* QuorumDatabase.cpp in Sources */,
 				543DE5E012BFBB3D0069786A /* QuorumTransport.cpp in Sources */,
