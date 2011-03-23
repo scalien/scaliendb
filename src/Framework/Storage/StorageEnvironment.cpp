@@ -722,10 +722,17 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
         buffer.Appendf("   logCommandID: %U\n", shard->GetLogCommandID());
         
         memoChunk = shard->GetMemoChunk();
+        firstKey = memoChunk->GetFirstKey();
+        lastKey = memoChunk->GetLastKey();
+        midpoint = memoChunk->GetMidpoint();
         buffer.Appendf("    * memo chunk %U\n", memoChunk->GetChunkID());
         buffer.Appendf("       state: %d {0=Tree, 1=Serialized, 2=Unwritten, 3=Written}\n",
          memoChunk->GetChunkState());
         buffer.Appendf("       size: %s\n", HUMAN_BYTES(memoChunk->GetSize()));
+        buffer.Appendf("       count: %U\n", memoChunk->keyValues.GetCount());
+        buffer.Appendf("       firstKey: %R\n", &firstKey);
+        buffer.Appendf("       lastKey: %R\n", &lastKey);
+        buffer.Appendf("       midpoint: %R\n", &midpoint);
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
         buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
         buffer.Appendf("       maxLogCommandID: %U\n", memoChunk->GetMaxLogCommandID());
