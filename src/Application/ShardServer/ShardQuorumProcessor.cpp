@@ -466,6 +466,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
     
     shardMessage = new ShardMessage();
     shardMessage->fromClient = false;
+    shardMessage->isBulk = false;
 
     switch (clusterMessage.type)
     {
