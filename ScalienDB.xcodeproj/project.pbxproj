@@ -101,8 +101,6 @@
 		546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
-		5485BC1F13043142004C2469 /* minilzo.c in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC1D13043142004C2469 /* minilzo.c */; };
-		5485BC2C130431A5004C2469 /* Compressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC2B130431A5004C2469 /* Compressor.cpp */; };
 		548DEBD6130E8B7E00E3A86A /* ShardMigrationWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548DEBD5130E8B7E00E3A86A /* ShardMigrationWriter.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
 		5499B82E12D72EB000ECEF7F /* BloomFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5499B82C12D72EB000ECEF7F /* BloomFilter.cpp */; };
@@ -149,8 +147,6 @@
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
-		9AD1001713059C4200AB777B /* Compressor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC2B130431A5004C2469 /* Compressor.cpp */; };
-		9AD1001A13059C4800AB777B /* minilzo.c in Sources */ = {isa = PBXBuildFile; fileRef = 5485BC1D13043142004C2469 /* minilzo.c */; };
 		9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
 		9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
 		9AD115FA1321366500AB777B /* StorageUnwrittenChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD115F91321366500AB777B /* StorageUnwrittenChunkLister.cpp */; };
@@ -447,12 +443,6 @@
 		546E255111EF5CF700867EE1 /* ReadBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadBuffer.h; sourceTree = "<group>"; };
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
 		546E26E811EF737A00867EE1 /* InSortedList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InSortedList.h; sourceTree = "<group>"; };
-		5485BC1B13043142004C2469 /* lzoconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzoconf.h; sourceTree = "<group>"; };
-		5485BC1C13043142004C2469 /* lzodefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzodefs.h; sourceTree = "<group>"; };
-		5485BC1D13043142004C2469 /* minilzo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = minilzo.c; sourceTree = "<group>"; };
-		5485BC1E13043142004C2469 /* minilzo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = minilzo.h; sourceTree = "<group>"; };
-		5485BC2A130431A5004C2469 /* Compressor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Compressor.h; sourceTree = "<group>"; };
-		5485BC2B130431A5004C2469 /* Compressor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Compressor.cpp; sourceTree = "<group>"; };
 		548DEBD4130E8B7E00E3A86A /* ShardMigrationWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardMigrationWriter.h; sourceTree = "<group>"; };
 		548DEBD5130E8B7E00E3A86A /* ShardMigrationWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardMigrationWriter.cpp; sourceTree = "<group>"; };
 		548F4F4212155BD80035ADDB /* Macros.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Macros.h; sourceTree = "<group>"; };
@@ -623,10 +613,10 @@
 		543DE53E12BFBB3D0069786A /* Clustering */ = {
 			isa = PBXGroup;
 			children = (
-				543DE53F12BFBB3D0069786A /* ClusterConnection.cpp */,
-				543DE54012BFBB3D0069786A /* ClusterConnection.h */,
-				543DE54112BFBB3D0069786A /* ClusterServer.cpp */,
 				543DE54212BFBB3D0069786A /* ClusterServer.h */,
+				543DE54112BFBB3D0069786A /* ClusterServer.cpp */,
+				543DE54012BFBB3D0069786A /* ClusterConnection.h */,
+				543DE53F12BFBB3D0069786A /* ClusterConnection.cpp */,
 				543DE54312BFBB3D0069786A /* ClusterTransport.cpp */,
 				543DE54412BFBB3D0069786A /* ClusterTransport.h */,
 			);
@@ -660,12 +650,12 @@
 		543DE54B12BFBB3D0069786A /* Paxos */ = {
 			isa = PBXGroup;
 			children = (
-				543DE54C12BFBB3D0069786A /* PaxosAcceptor.cpp */,
-				543DE54D12BFBB3D0069786A /* PaxosAcceptor.h */,
-				543DE54E12BFBB3D0069786A /* PaxosMessage.cpp */,
 				543DE54F12BFBB3D0069786A /* PaxosMessage.h */,
-				543DE55012BFBB3D0069786A /* PaxosProposer.cpp */,
+				543DE54E12BFBB3D0069786A /* PaxosMessage.cpp */,
 				543DE55112BFBB3D0069786A /* PaxosProposer.h */,
+				543DE55012BFBB3D0069786A /* PaxosProposer.cpp */,
+				543DE54D12BFBB3D0069786A /* PaxosAcceptor.h */,
+				543DE54C12BFBB3D0069786A /* PaxosAcceptor.cpp */,
 				543DE55212BFBB3D0069786A /* States */,
 			);
 			path = Paxos;
@@ -683,16 +673,16 @@
 		543DE55512BFBB3D0069786A /* PaxosLease */ = {
 			isa = PBXGroup;
 			children = (
-				543DE55612BFBB3D0069786A /* PaxosLease.cpp */,
-				543DE55712BFBB3D0069786A /* PaxosLease.h */,
-				543DE55812BFBB3D0069786A /* PaxosLeaseAcceptor.cpp */,
-				543DE55912BFBB3D0069786A /* PaxosLeaseAcceptor.h */,
-				543DE55A12BFBB3D0069786A /* PaxosLeaseLearner.cpp */,
-				543DE55B12BFBB3D0069786A /* PaxosLeaseLearner.h */,
-				543DE55C12BFBB3D0069786A /* PaxosLeaseMessage.cpp */,
 				543DE55D12BFBB3D0069786A /* PaxosLeaseMessage.h */,
-				543DE55E12BFBB3D0069786A /* PaxosLeaseProposer.cpp */,
+				543DE55C12BFBB3D0069786A /* PaxosLeaseMessage.cpp */,
+				543DE55712BFBB3D0069786A /* PaxosLease.h */,
+				543DE55612BFBB3D0069786A /* PaxosLease.cpp */,
 				543DE55F12BFBB3D0069786A /* PaxosLeaseProposer.h */,
+				543DE55E12BFBB3D0069786A /* PaxosLeaseProposer.cpp */,
+				543DE55912BFBB3D0069786A /* PaxosLeaseAcceptor.h */,
+				543DE55812BFBB3D0069786A /* PaxosLeaseAcceptor.cpp */,
+				543DE55B12BFBB3D0069786A /* PaxosLeaseLearner.h */,
+				543DE55A12BFBB3D0069786A /* PaxosLeaseLearner.cpp */,
 				543DE56012BFBB3D0069786A /* States */,
 			);
 			path = PaxosLease;
@@ -711,16 +701,16 @@
 		543DE56412BFBB3D0069786A /* Quorums */ = {
 			isa = PBXGroup;
 			children = (
-				543DE56712BFBB3D0069786A /* MajorityQuorum.cpp */,
-				543DE56812BFBB3D0069786A /* MajorityQuorum.h */,
-				543DE56912BFBB3D0069786A /* Quorum.h */,
 				543DE56A12BFBB3D0069786A /* QuorumContext.h */,
-				543DE56B12BFBB3D0069786A /* QuorumDatabase.cpp */,
-				543DE56C12BFBB3D0069786A /* QuorumDatabase.h */,
-				543DE56D12BFBB3D0069786A /* QuorumTransport.cpp */,
-				543DE56E12BFBB3D0069786A /* QuorumTransport.h */,
-				543DE56F12BFBB3D0069786A /* TotalQuorum.cpp */,
+				543DE56912BFBB3D0069786A /* Quorum.h */,
+				543DE56812BFBB3D0069786A /* MajorityQuorum.h */,
+				543DE56712BFBB3D0069786A /* MajorityQuorum.cpp */,
 				543DE57012BFBB3D0069786A /* TotalQuorum.h */,
+				543DE56F12BFBB3D0069786A /* TotalQuorum.cpp */,
+				543DE56C12BFBB3D0069786A /* QuorumDatabase.h */,
+				543DE56B12BFBB3D0069786A /* QuorumDatabase.cpp */,
+				543DE56E12BFBB3D0069786A /* QuorumTransport.h */,
+				543DE56D12BFBB3D0069786A /* QuorumTransport.cpp */,
 			);
 			path = Quorums;
 			sourceTree = "<group>";
@@ -773,11 +763,11 @@
 		543DE5CA12BFBB3D0069786A /* TCP */ = {
 			isa = PBXGroup;
 			children = (
-				543DE5CB12BFBB3D0069786A /* TCPConnection.cpp */,
-				543DE5CC12BFBB3D0069786A /* TCPConnection.h */,
 				543DE5CD12BFBB3D0069786A /* TCPServer.h */,
-				543DE5CE12BFBB3D0069786A /* TCPWriter.cpp */,
+				543DE5CC12BFBB3D0069786A /* TCPConnection.h */,
+				543DE5CB12BFBB3D0069786A /* TCPConnection.cpp */,
 				543DE5CF12BFBB3D0069786A /* TCPWriter.h */,
+				543DE5CE12BFBB3D0069786A /* TCPWriter.cpp */,
 			);
 			path = TCP;
 			sourceTree = "<group>";
@@ -1018,19 +1008,6 @@
 			path = Buffers;
 			sourceTree = "<group>";
 		};
-		5485BC1A13043142004C2469 /* Compress */ = {
-			isa = PBXGroup;
-			children = (
-				5485BC1B13043142004C2469 /* lzoconf.h */,
-				5485BC1C13043142004C2469 /* lzodefs.h */,
-				5485BC1D13043142004C2469 /* minilzo.c */,
-				5485BC1E13043142004C2469 /* minilzo.h */,
-				5485BC2A130431A5004C2469 /* Compressor.h */,
-				5485BC2B130431A5004C2469 /* Compressor.cpp */,
-			);
-			path = Compress;
-			sourceTree = "<group>";
-		};
 		54B7F74111BE5EF30076BC62 /* src */ = {
 			isa = PBXGroup;
 			children = (
@@ -1048,7 +1025,6 @@
 		54B7F74211BE5EF30076BC62 /* System */ = {
 			isa = PBXGroup;
 			children = (
-				5485BC1A13043142004C2469 /* Compress */,
 				546E254B11EF5CF700867EE1 /* Buffers */,
 				54B7F74811BE5EF30076BC62 /* Containers */,
 				54B7F74D11BE5EF30076BC62 /* Events */,
@@ -1421,8 +1397,6 @@
 				54E59F3B12E5AD20002222A4 /* ShardCatchupReader.cpp in Sources */,
 				9AD5E46012EDD62000F4AF7B /* Mutex_Posix.cpp in Sources */,
 				9AD5EA9112F70C4700F4AF7B /* StorageAsyncGet.cpp in Sources */,
-				5485BC1F13043142004C2469 /* minilzo.c in Sources */,
-				5485BC2C130431A5004C2469 /* Compressor.cpp in Sources */,
 				9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */,
 				78CD47AE130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */,
 				78CD47B2130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */,
@@ -1512,8 +1486,6 @@
 				9AD5E51912EF094800F4AF7B /* StorageMemoKeyValue.cpp in Sources */,
 				9AD5E51A12EF094B00F4AF7B /* StorageFileKeyValue.cpp in Sources */,
 				9AD5EADA12F7145B00F4AF7B /* StorageAsyncGet.cpp in Sources */,
-				9AD1001713059C4200AB777B /* Compressor.cpp in Sources */,
-				9AD1001A13059C4800AB777B /* minilzo.c in Sources */,
 				78CD47AF130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */,
 				78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */,
 				9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */,

@@ -103,8 +103,6 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Buffers/BufferPool.o \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Common.o \
-	$(BUILD_DIR)/System/Compress/Compressor.o \
-	$(BUILD_DIR)/System/Compress/minilzo.o \
 	$(BUILD_DIR)/System/Config.o \
 	$(BUILD_DIR)/System/Events/Countdown.o \
 	$(BUILD_DIR)/System/Events/EventLoop.o \
