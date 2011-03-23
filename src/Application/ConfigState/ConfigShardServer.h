@@ -59,7 +59,7 @@ public:
     uint64_t            migrationBytesSent;
     uint64_t            migrationBytesTotal;
     uint64_t            migrationThroughput;
-        
+            
     static bool         ReadList(ReadBuffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
     static bool         WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumShardInfos);
 };
@@ -86,6 +86,7 @@ public:
     // ========================================================================================
     //
     // Not replicated, only stored by the MASTER in-memory
+    bool                    tryAutoActivation;
     List<QuorumInfo>        quorumInfos;
     List<QuorumShardInfo>   quorumShardInfos;
     

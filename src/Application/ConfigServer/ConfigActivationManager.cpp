@@ -59,7 +59,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
     }
 }
 
-void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
+void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool force)
 {
     uint64_t            paxosID;
     ConfigState*        configState;
@@ -90,9 +90,14 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
             if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF) ||
              itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
             {
+                if (!force && !shardServer->tryAutoActivation)
+                    continue;
+
                 // the shard server is "almost caught up", start the activation process
                 itQuorum->OnActivationStart(nodeID, now + 5*PAXOSLEASE_MAX_LEASE_TIME);
                 UpdateTimeout();
+                
+                shardServer->tryAutoActivation = false;
 
                 Log_Message("Activation started for shard server %U and quorum %U...",
                  itQuorum->activatingNodeID, itQuorum->quorumID);
@@ -103,10 +108,15 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID)
 
 void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
+    ConfigState*        configState;
+    ConfigShardServer*  shardServer;
+
     Log_Trace();
 
     if (!quorum.hasPrimary || message.nodeID != quorum.primaryID)
         return;
+
+    configState = configServer->GetDatabaseManager()->GetConfigState();
 
     if (!quorum.isActivatingNode || quorum.isReplicatingActivation ||
      message.configID != quorum.configID)
@@ -139,6 +149,9 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
             quorum.OnActivationReplication();
             configServer->OnConfigStateChanged();
             configServer->GetQuorumProcessor()->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
+
+            shardServer = configState->GetShardServer(quorum.activatingNodeID);
+            shardServer->tryAutoActivation = true;
         }
         else
         {

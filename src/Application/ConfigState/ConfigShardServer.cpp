@@ -122,6 +122,8 @@ bool QuorumShardInfo::WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumSha
 ConfigShardServer::ConfigShardServer()
 {
     prev = next = this;
+    nodeID = 0;
+    tryAutoActivation = true;
     httpPort = 0;
     sdbpPort = 0;
 }

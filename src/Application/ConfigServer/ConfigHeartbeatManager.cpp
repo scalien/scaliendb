@@ -23,7 +23,7 @@ void ConfigHeartbeatManager::Shutdown()
 
 void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
 {
-    QuorumInfo*      it;
+    QuorumInfo*         it;
     ConfigQuorum*       quorum;
     ConfigShardServer*  shardServer;
     
@@ -56,6 +56,8 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     configServer->OnConfigStateChanged();
     
     TrySplitShardActions(message);
+    
+    configServer->GetActivationManager()->TryActivateShardServer(message.nodeID, false);
 }
 
 void ConfigHeartbeatManager::OnHeartbeatTimeout()
@@ -88,8 +90,6 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
         {
             if (!HasHeartbeat(itShardServer->nodeID))
                 configServer->GetActivationManager()->TryDeactivateShardServer(itShardServer->nodeID);
-//            else
-//                configServer->GetActivationManager()->TryActivateShardServer(itShardServer->nodeID);
         }
     }
     
