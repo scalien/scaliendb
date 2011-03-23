@@ -594,7 +594,6 @@ void ShardQuorumProcessor::TryAppend()
     
     numMessages = 0;
     Buffer& nextValue = quorumContext.GetNextValue();
-    nextValue.Clear();
     FOREACH(message, shardMessages)
     {
         if (message->isBulk)
