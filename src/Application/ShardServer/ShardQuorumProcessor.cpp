@@ -138,15 +138,9 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
 
 void ShardQuorumProcessor::OnAppend(uint64_t paxosID_, ReadBuffer& value_, bool ownAppend_)
 {
-    int         read;
-    uint64_t    uncompressedLength;
-    
     paxosID = paxosID_;
     commandID = 0;
     
-    read = value_.Readf("%U:", &uncompressedLength);
-    assert(read > 1);
-    value_.Advance(read);
     valueBuffer.Write(value_);
     value.Wrap(valueBuffer);
     ownAppend = ownAppend_;
@@ -589,11 +583,11 @@ void ShardQuorumProcessor::TryAppend()
     bool            first;
     unsigned        numMessages;
     Buffer          singleBuffer;
-    Buffer          uncompressed;
-    Buffer          compressed;
     ShardMessage*   it;
-        
-    if (shardMessages.GetLength() == 0)
+    
+    if (shardMessages.GetLength() == 0 ||
+     quorumContext.IsAppending() ||
+     shardMessages.GetLength() == 0)
         return;
 
     if (resumeAppend.IsActive())
@@ -602,16 +596,11 @@ void ShardQuorumProcessor::TryAppend()
         return;
     }
     
-    if (quorumContext.IsAppending())
-        return;
-    
-    if (shardMessages.GetLength() == 0)
-        return;
-    
-    Log_Debug("TryAppend started");
+//    Log_Debug("TryAppend started");
     
     numMessages = 0;
-    
+    Buffer& nextValue = quorumContext.GetNextValue();
+    nextValue.Clear();
     first = true;
     FOREACH(it, shardMessages)
     {
@@ -624,9 +613,9 @@ void ShardQuorumProcessor::TryAppend()
         
         singleBuffer.Clear();
         it->Write(singleBuffer);
-        if (first || uncompressed.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_UNCOMPRESSED_REPLICATION_SIZE)
+        if (first || nextValue.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_REPLICATION_SIZE)
         {
-            uncompressed.Appendf("%B ", &singleBuffer);
+            nextValue.Appendf("%B ", &singleBuffer);
             numMessages++;
             // make sure split shard messages are replicated by themselves
             if (it->type == SHARDMESSAGE_SPLIT_SHARD)
@@ -639,13 +628,11 @@ void ShardQuorumProcessor::TryAppend()
             first = false;
     }
     
-    Log_Debug("numMessages = %u", numMessages);
-    Log_Debug("length = %s", HUMAN_BYTES(uncompressed.GetLength()));
+//    Log_Debug("numMessages = %u", numMessages);
+//    Log_Debug("length = %s", HUMAN_BYTES(appendValue.GetLength()));
             
-    assert(uncompressed.GetLength() > 0);
+    assert(nextValue.GetLength() > 0);
 
-    quorumContext.GetNextValue().Writef("%u:%B", uncompressed.GetLength(), &uncompressed);
-    
     quorumContext.Append();
 }
 
@@ -658,7 +645,7 @@ void ShardQuorumProcessor::OnResumeAppend()
     
     Log_Trace();
 
-    Log_Debug("OnResumeAppend BEGIN");
+//    Log_Debug("OnResumeAppend BEGIN");
 
     valueLength = value.GetLength();
 
@@ -680,7 +667,7 @@ void ShardQuorumProcessor::OnResumeAppend()
             if (resumeAppend.IsActive())
                 STOP_FAIL(1, "Program bug: resumeAppend.IsActive() should be false.");
             EventLoop::Add(&resumeAppend);
-            Log_Debug("OnResumeAppend YIELD");
+//            Log_Debug("OnResumeAppend YIELD");
             return;
         }
     }
@@ -695,7 +682,7 @@ void ShardQuorumProcessor::OnResumeAppend()
         EventLoop::Add(&tryAppend);
     
     quorumContext.OnAppendComplete();
-    Log_Debug("OnResumeAppend END");
+//    Log_Debug("OnResumeAppend END");
 }
 
 void ShardQuorumProcessor::LocalExecute()
