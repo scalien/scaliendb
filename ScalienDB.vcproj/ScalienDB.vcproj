@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="ScalienDB"
 	ProjectGUID="{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}"
 	RootNamespace="ScalienDB"
@@ -913,6 +913,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Application\ShardServer\ShardMigrationWriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ShardServer\ShardMigrationWriter.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Application\ShardServer\ShardQuorumContext.cpp"
 					>
 				</File>
@@ -1329,6 +1337,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Framework\Storage\StorageFileChunkLister.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageFileChunkLister.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Framework\Storage\StorageFileKeyValue.cpp"
 					>
 				</File>
@@ -1381,6 +1397,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Framework\Storage\StorageMemoChunkLister.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageMemoChunkLister.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Framework\Storage\StorageMemoKeyValue.cpp"
 					>
 				</File>
@@ -1426,6 +1450,14 @@
 				</File>
 				<File
 					RelativePath="..\src\Framework\Storage\StorageShardProxy.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageUnwrittenChunkLister.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageUnwrittenChunkLister.h"
 					>
 				</File>
 				<File

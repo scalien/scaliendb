@@ -29,7 +29,8 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
 
             if (response->numKeys != 0)
             {
-                ReadBuffer  keys[response->numKeys];
+				CLIENTRESPONSE_ASSERT_NUMKEYS(response->numKeys);
+                ReadBuffer  keys[CLIENTRESPONSE_NUMKEYS(response->numKeys)];
                 for (unsigned i = 0; i < response->numKeys; i++)
                 {
                     read = buffer.Readf(":%#R", &keys[i]);
@@ -45,8 +46,9 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             
             if (response->numKeys != 0)
             {
-                ReadBuffer  keys[response->numKeys];
-                ReadBuffer  values[response->numKeys];
+				CLIENTRESPONSE_ASSERT_NUMKEYS(response->numKeys);
+				ReadBuffer  keys[CLIENTRESPONSE_NUMKEYS(response->numKeys)];
+                ReadBuffer  values[CLIENTRESPONSE_NUMKEYS(response->numKeys)];
                 for (unsigned i = 0; i < response->numKeys; i++)
                 {
                     read = buffer.Readf(":%#R:%#R", &keys[i], &values[i]);

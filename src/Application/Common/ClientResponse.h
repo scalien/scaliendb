@@ -14,6 +14,16 @@
 #define CLIENTRESPONSE_FAILED           'F'
 #define CLIENTRESPONSE_NORESPONSE       ' '
 
+// this is needed on Visual C++ which cannot handle C99 type dynamic stack arrays
+#ifdef PLATFORM_WINDOWS
+#define CLIENTRESPONSE_MAX_LIST_ITEMS			65536
+#define CLIENTRESPONSE_NUMKEYS(numKeys)			CLIENTRESPONSE_MAX_LIST_ITEMS
+#define CLIENTRESPONSE_ASSERT_NUMKEYS(numKeys)	ASSERT(numKeys <= CLIENTRESPONSE_MAX_LIST_ITEMS);
+#else
+#define CLIENTRESPONSE_NUMKEYS(numKeys)			numKeys
+#define CLIENTRESPONSE_ASSERT_NUMKEYS(numKeys)
+#endif
+
 class ClientRequest; // forward
 
 /*
