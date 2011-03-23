@@ -63,7 +63,7 @@ public:
     
     // Serialization
     int             Read(ReadBuffer& buffer);
-    bool            Write(Buffer& buffer);
+    bool            Append(Buffer& buffer);
 
     // For InList<>
     ShardMessage*   prev;

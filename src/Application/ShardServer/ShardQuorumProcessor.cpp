@@ -580,14 +580,10 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
 
 void ShardQuorumProcessor::TryAppend()
 {
-    bool            first;
     unsigned        numMessages;
-    Buffer          singleBuffer;
-    ShardMessage*   it;
+    ShardMessage*   message;
     
-    if (shardMessages.GetLength() == 0 ||
-     quorumContext.IsAppending() ||
-     shardMessages.GetLength() == 0)
+    if (shardMessages.GetLength() == 0 || quorumContext.IsAppending())
         return;
 
     if (resumeAppend.IsActive())
@@ -596,43 +592,30 @@ void ShardQuorumProcessor::TryAppend()
         return;
     }
     
-//    Log_Debug("TryAppend started");
-    
     numMessages = 0;
     Buffer& nextValue = quorumContext.GetNextValue();
     nextValue.Clear();
-    first = true;
-    FOREACH(it, shardMessages)
+    FOREACH(message, shardMessages)
     {
-        if (it->isBulk)
+        if (message->isBulk)
             continue;
         
         // make sure split shard messages are replicated by themselves
-        if (!first && it->type == SHARDMESSAGE_SPLIT_SHARD)
+        if (numMessages != 0 && message->type == SHARDMESSAGE_SPLIT_SHARD)
             break;
         
-        singleBuffer.Clear();
-        it->Write(singleBuffer);
-        if (first || nextValue.GetLength() + 1 + singleBuffer.GetLength() < DATABASE_REPLICATION_SIZE)
-        {
-            nextValue.Appendf("%B ", &singleBuffer);
-            numMessages++;
-            // make sure split shard messages are replicated by themselves
-            if (it->type == SHARDMESSAGE_SPLIT_SHARD)
-                break;
-        }
-        else
-            break;
+        message->Append(nextValue);
+        nextValue.Appendf(" ");
+        numMessages++;
 
-        if (first)
-            first = false;
+        if (message->type == SHARDMESSAGE_SPLIT_SHARD || nextValue.GetLength() >= DATABASE_REPLICATION_SIZE)
+            break;
     }
-    
+
 //    Log_Debug("numMessages = %u", numMessages);
 //    Log_Debug("length = %s", HUMAN_BYTES(appendValue.GetLength()));
             
     assert(nextValue.GetLength() > 0);
-
     quorumContext.Append();
 }
 

@@ -168,7 +168,7 @@ int ShardMessage::Read(ReadBuffer& buffer)
     return read;
 }
 
-bool ShardMessage::Write(Buffer& buffer)
+bool ShardMessage::Append(Buffer& buffer)
 {
     switch (type)
     {
