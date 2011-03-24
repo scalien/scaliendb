@@ -170,7 +170,6 @@ void StorageLogSegment::Commit()
     uint64_t    length;
     uint64_t    writeSize;
     uint64_t    writeOffset;
-    ReadBuffer  dataPart;
     ssize_t     ret;
     
     commitStatus = true;
@@ -184,19 +183,13 @@ void StorageLogSegment::Commit()
     if (length == STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE)
         return; // empty round
 
-    dataPart.SetBuffer(writeBuffer.GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
-    dataPart.SetLength(length - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
-//    checksum = dataPart.GetChecksum();
     checksum = 0;
 
-    length = STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE + dataPart.GetLength();
-    
     writeBuffer.SetLength(0);
     writeBuffer.AppendLittle64(length);
-    writeBuffer.AppendLittle64(dataPart.GetLength());
+    writeBuffer.AppendLittle64(length - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     writeBuffer.AppendLittle32(checksum);
-    writeBuffer.SetLength(STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
-    writeBuffer.Append(dataPart);
+    writeBuffer.SetLength(length);
     
     for (writeOffset = 0; writeOffset < length; writeOffset += writeSize)
     {
