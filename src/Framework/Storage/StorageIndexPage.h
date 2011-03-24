@@ -62,6 +62,7 @@ private:
     uint32_t            size;
     Buffer              buffer;
     IndexRecordTree     indexTree;
+    ReadBuffer          midpoint;
     StorageFileChunk*   owner;
 };
 
