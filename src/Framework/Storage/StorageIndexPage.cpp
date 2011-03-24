@@ -75,6 +75,8 @@ ReadBuffer StorageIndexPage::GetFirstKey()
 
 ReadBuffer StorageIndexPage::GetMidpoint()
 {
+    if (midpoint.GetLength() > 0)
+        return midpoint;
     return indexTree.Mid()->key;
 }
 
@@ -101,6 +103,7 @@ void StorageIndexPage::Finalize()
     char*               kpos;
     ReadBuffer          dataPart;
     StorageIndexRecord* it;
+    unsigned            i;
 
     numKeys = indexTree.GetCount();
     length = buffer.GetLength();
@@ -130,6 +133,8 @@ void StorageIndexPage::Finalize()
 
     // set ReadBuffers in tree
     pos = 12;
+
+    i = 0;
     FOREACH (it, indexTree)
     {
         klen = it->key.GetLength();
@@ -140,6 +145,11 @@ void StorageIndexPage::Finalize()
         it->key = ReadBuffer(kpos, klen);
         it->keyBuffer.Reset();
         pos += klen;
+        
+        if (i == indexTree.GetCount() / 2)
+            midpoint = it->key;
+        
+        i += 1;
     }
 }
 
@@ -200,6 +210,9 @@ bool StorageIndexPage::Read(Buffer& buffer_)
         it->index = i;
         it->offset = offset;
         indexTree.Insert(it);
+        
+        if (i == numKeys / 2)
+            midpoint = key;
     }
     
     this->size = size;
