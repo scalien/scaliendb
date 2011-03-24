@@ -207,6 +207,7 @@ void StorageEnvironment::Close()
     delete commitThread;
     delete serializerThread;
     delete writerThread;
+    delete mergerThread;
     delete archiverThread;
     delete asyncThread;
     delete asyncGetThread;

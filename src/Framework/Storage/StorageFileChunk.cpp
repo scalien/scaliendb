@@ -10,8 +10,7 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     prev = next = this;
     written = false;
     dataPagesSize = 64;
-    dataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * dataPagesSize);
-    memset(dataPages, 0, sizeof(StorageDataPage*) * dataPagesSize);
+    dataPages = NULL;
     indexPage = NULL;
     bloomPage = NULL;
     numDataPages = 0;
@@ -439,6 +438,7 @@ void StorageFileChunk::LoadIndexPage()
     {
         numDataPages = indexPage->GetNumDataPages();
         StorageDataPage** newDataPages;
+        free(dataPages);
         newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * numDataPages);
         
         for (unsigned i = 0; i < numDataPages; i++)
