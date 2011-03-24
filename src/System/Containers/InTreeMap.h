@@ -31,7 +31,27 @@ public:
     InTreeNode<T>*          right;
     InTreeNode<T>*          parent;
     T*                      owner;
+    
+    InTreeNode();
+    
+    bool                    IsInTree();
 };
+
+template<typename T>
+InTreeNode<T>::InTreeNode()
+{
+    left = NULL;
+    right = NULL;
+    parent = NULL;
+}
+
+template<typename T>
+bool InTreeNode<T>::IsInTree()
+{
+    if (left == NULL && right == NULL && parent == NULL)
+        return false;
+    return true;
+}
 
 /*
 ===============================================================================================

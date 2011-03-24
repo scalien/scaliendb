@@ -279,7 +279,8 @@ TEST_DEFINE(TestInTreeMapMidpoint)
     char*                           kvarea;
     int                             ksize;
     int                             vsize;
-    int                             num = 5;
+    int                             num = 10000;
+    bool                            found;
     
     ksize = 20;
     vsize = 128;
@@ -303,10 +304,48 @@ TEST_DEFINE(TestInTreeMapMidpoint)
         it = kvs.Insert(kv);
         if (it != NULL)
             TEST_FAIL();
+        TEST_ASSERT(kvs.CheckConstraints());
+
+//        FOREACH (kv, kvs)
+//        {
+//            ReadBuffer  parentKey;
+//            const char* parentColor = "undefined";
+//            if (kv->treeNode.GetParent())
+//            {
+//                parentKey = kv->treeNode.GetParent()->key;
+//                parentColor = (kv->treeNode.GetParent()->treeNode.GetColor() == InTreeNode<KeyValue>::RED) ? "red" : "black";
+//            }
+//            TEST_LOG("key: %.*s, color: %s, parentKey: %.*s, parentColor: %s",
+//                kv->key.GetLength(), kv->key.GetBuffer(),
+//                kv->treeNode.GetColor() == InTreeNode<KeyValue>::RED ? "red" : "black",
+//                parentKey.GetLength(), parentKey.GetBuffer(),
+//                parentColor);
+//        }
+//        mid = kvs.Mid()->key;
+//        TEST_LOG("key inserted: %019d, mid: %.*s", i, mid.GetLength(), mid.GetBuffer());
     }
 
     mid = kvs.Mid()->key;
+    
+//    char key[ksize];
+//    found = false;
+//    rk.SetBuffer(key);
+//    rk.SetLength(ksize);
+//
+//    snprintf(key, sizeof(key), "%019d", num / 2 - 1);
+//    if (!found && ReadBuffer::Cmp(mid, rk) == 0)
+//        found = true;
+//    
+//    snprintf(key, sizeof(key), "%019d", num / 2);
+//    if (!found && ReadBuffer::Cmp(mid, rk) == 0)
+//        found = true;
+//    
+//    snprintf(key, sizeof(key), "%019d", num / 2 + 1);
+//    if (!found && ReadBuffer::Cmp(mid, rk) == 0)
+//        found = true;
+    
     TEST_LOG("Mid key: %.*s", mid.GetLength(), mid.GetBuffer());
+//    TEST_ASSERT(found);
 
     free(area);
     free(kvarea);
@@ -398,7 +437,7 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
         rv.SetBuffer(p);
         rv.SetLength(len);
 
-        kv = (KeyValue*) (kvarea + i * sizeof(KeyValue));
+        kv = new ((KeyValue*) (kvarea + i * sizeof(KeyValue))) KeyValue;
         kv->SetKey(rk, true);
         kv->SetValue(rv, true);
         sw.Start();
