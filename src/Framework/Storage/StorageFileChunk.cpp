@@ -9,7 +9,7 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
 {
     prev = next = this;
     written = false;
-    dataPagesSize = 64;
+    dataPagesSize = 0;
     dataPages = NULL;
     indexPage = NULL;
     bloomPage = NULL;
@@ -657,6 +657,9 @@ void StorageFileChunk::ExtendDataPageArray()
     StorageDataPage**   newDataPages;
     unsigned            newSize, i;
     
+    if (dataPagesSize == 0)
+        dataPagesSize = 32;
+        
     newSize = dataPagesSize * 2;
     newDataPages = (StorageDataPage**) malloc(sizeof(StorageDataPage*) * newSize);
     
