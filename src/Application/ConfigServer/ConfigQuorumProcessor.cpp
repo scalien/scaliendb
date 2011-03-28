@@ -272,7 +272,8 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
         delete msg;
         return;        
     }
-    configMessages.Append(it);
+
+    configMessages.Append(msg);
     TryAppend();
 }
 

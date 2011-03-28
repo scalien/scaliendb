@@ -374,7 +374,7 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
     CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
     
-    assert(configState != NULL);
+    ASSERT(configState != NULL);
     table = configState->GetTable(databaseID, name);
     if (!table)
         return SDBP_BADSCHEMA;
@@ -873,10 +873,10 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     ReadBuffer      lastKey;
     uint64_t*       it;
     
-    assert(configState != NULL);
+    ASSERT(configState != NULL);
     table = configState->GetTable(tableID);
     //Log_Trace("%U", tableID);
-    assert(table != NULL);
+    ASSERT(table != NULL);
     FOREACH (it, table->shards)
     {
         shard = configState->GetShard(*it);
@@ -1027,7 +1027,7 @@ void Client::InvalidateQuorum(uint64_t quorumID, uint64_t nodeID)
         FOREACH (nit, quorum->activeNodes)
         {
             shardConn = shardConnections.Get<uint64_t>(*nit);
-            assert(shardConn != NULL);
+            ASSERT(shardConn != NULL);
             if (nodeID == shardConn->GetNodeID())
                 shardConn->ClearQuorumMembership(quorumID);
         }
@@ -1074,7 +1074,7 @@ void Client::ConfigureShardServers()
             // TODO: remove this hack when shardserver's endpoint will be sent correctly in configState
             endpoint = ssit->endpoint;
             endpoint.SetPort(ssit->sdbpPort);
-            assert(endpoint == shardConn->GetEndpoint());
+            ASSERT(endpoint == shardConn->GetEndpoint());
             shardConn->ClearQuorumMemberships();
         }
     }
@@ -1085,7 +1085,7 @@ void Client::ConfigureShardServers()
         FOREACH (nit, qit->activeNodes)
         {
             shardConn = shardConnections.Get(*nit);
-            assert(shardConn != NULL);
+            ASSERT(shardConn != NULL);
             shardConn->SetQuorumMembership(qit->quorumID);
         }        
     }
