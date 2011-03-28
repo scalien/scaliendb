@@ -111,12 +111,20 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetMasterTimeout(SWIGTYPE_p_void.getCPtr(client));
   }
 
+  public static java.math.BigInteger SDBP_GetCurrentDatabaseID(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_GetCurrentDatabaseID(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static java.math.BigInteger SDBP_GetCurrentTableID(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_GetCurrentTableID(SWIGTYPE_p_void.getCPtr(client));
+  }
+
   public static void SDBP_SetBatchLimit(SWIGTYPE_p_void client, java.math.BigInteger limit) {
     scaliendb_clientJNI.SDBP_SetBatchLimit(SWIGTYPE_p_void.getCPtr(client), limit);
   }
 
-  public static void SDBP_SetBulkLoading(SWIGTYPE_p_void client) {
-    scaliendb_clientJNI.SDBP_SetBulkLoading(SWIGTYPE_p_void.getCPtr(client));
+  public static void SDBP_SetBulkLoading(SWIGTYPE_p_void client, boolean bulk) {
+    scaliendb_clientJNI.SDBP_SetBulkLoading(SWIGTYPE_p_void.getCPtr(client), bulk);
   }
 
   public static int SDBP_CreateQuorum(SWIGTYPE_p_void client, SDBP_NodeParams params) {

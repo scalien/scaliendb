@@ -90,7 +90,7 @@ uint64_t        SDBP_GetCurrentDatabaseID(ClientObj client);
 uint64_t        SDBP_GetCurrentTableID(ClientObj client);
 
 void            SDBP_SetBatchLimit(ClientObj client, uint64_t limit);
-void            SDBP_SetBulkLoading(ClientObj client);
+void            SDBP_SetBulkLoading(ClientObj client, bool bulk);
 
 int             SDBP_CreateQuorum(ClientObj client, const SDBP_NodeParams& params);
 int             SDBP_DeleteQuorum(ClientObj client, uint64_t quorumID);

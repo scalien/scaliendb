@@ -47,7 +47,7 @@ public:
     uint64_t                GetCurrentTableID();
     
     void                    SetBatchLimit(uint64_t batchLimit);
-    void                    SetBulkLoading();
+    void                    SetBulkLoading(bool bulk);
     bool                    IsBulkLoading();
     
     // result

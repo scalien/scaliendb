@@ -300,9 +300,9 @@ void Client::SetBatchLimit(uint64_t batchLimit_)
     batchLimit = batchLimit_;
 }
 
-void Client::SetBulkLoading()
+void Client::SetBulkLoading(bool bulk)
 {
-    isBulkLoading = true;
+    isBulkLoading = bulk;
 }
 
 bool Client::IsBulkLoading()

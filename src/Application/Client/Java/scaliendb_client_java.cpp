@@ -1104,6 +1104,66 @@ SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
 }
 
 
+SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetCurrentDatabaseID(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jobject jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  result = (uint64_t)SDBP_GetCurrentDatabaseID(arg1);
+  {
+    jbyteArray ba = jenv->NewByteArray(9);
+    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
+    jclass clazz = jenv->FindClass("java/math/BigInteger");
+    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
+    jobject bigint;
+    int i;
+    
+    bae[0] = 0;
+    for(i=1; i<9; i++ ) {
+      bae[i] = (jbyte)(result>>8*(8-i));
+    }
+    
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+    bigint = jenv->NewObject(clazz, mid, ba);
+    jresult = bigint;
+  }
+  return jresult;
+}
+
+
+SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetCurrentTableID(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jobject jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  result = (uint64_t)SDBP_GetCurrentTableID(arg1);
+  {
+    jbyteArray ba = jenv->NewByteArray(9);
+    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
+    jclass clazz = jenv->FindClass("java/math/BigInteger");
+    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
+    jobject bigint;
+    int i;
+    
+    bae[0] = 0;
+    for(i=1; i<9; i++ ) {
+      bae[i] = (jbyte)(result>>8*(8-i));
+    }
+    
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+    bigint = jenv->NewObject(clazz, mid, ba);
+    jresult = bigint;
+  }
+  return jresult;
+}
+
+
 SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetBatchLimit(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
   ClientObj arg1 = (ClientObj) 0 ;
   uint64_t arg2 ;
@@ -1138,13 +1198,15 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Se
 }
 
 
-SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetBulkLoading(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetBulkLoading(JNIEnv *jenv, jclass jcls, jlong jarg1, jboolean jarg2) {
   ClientObj arg1 = (ClientObj) 0 ;
+  bool arg2 ;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
-  SDBP_SetBulkLoading(arg1);
+  arg2 = jarg2 ? true : false; 
+  SDBP_SetBulkLoading(arg1,arg2);
 }
 
 

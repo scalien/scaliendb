@@ -124,6 +124,15 @@ public class Client
 	}
 
     /**
+     * Turns bulk loading on or off.
+     *
+     * @param   bulk    true when bulk loading
+     */
+	public void setBulkLoading(boolean bulk) {
+		scaliendb_client.SDBP_SetBulkLoading(cptr, bulk);
+	}
+
+    /**
      * Returns the specified quorum.
      *
      * @param   quorumID    the ID of the specified quorum
