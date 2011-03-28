@@ -255,7 +255,8 @@ void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID)
 
 void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
 {
-    ConfigMessage* it;
+    ConfigMessage*  it;
+    ConfigMessage*  msg;
 
     FOREACH(it, configMessages)
     {
@@ -263,19 +264,22 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
             return;
     }
 
-    it = new ConfigMessage;
-    it->fromClient = false;
-    it->RegisterShardServer(0, endpoint);
-    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*it))
-        ASSERT_FAIL();
-
+    msg = new ConfigMessage;
+    msg->fromClient = false;
+    msg->RegisterShardServer(0, endpoint);
+    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*msg))
+    {
+        delete msg;
+        return;        
+    }
     configMessages.Append(it);
     TryAppend();
 }
 
 void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer splitKey)
 {
-    ConfigMessage* it;
+    ConfigMessage*  it;
+    ConfigMessage*  msg;
 
     FOREACH(it, configMessages)
     {
@@ -288,17 +292,22 @@ void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer spli
 
     Log_Message("Split shard process started (parent shardID = %U)...", shardID);
 
-    it = new ConfigMessage;
-    it->fromClient = false;
-    
-    it->SplitShardBegin(shardID, splitKey);
-    configMessages.Append(it);
+    msg = new ConfigMessage;
+    msg->fromClient = false;    
+    msg->SplitShardBegin(shardID, splitKey);
+    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*msg))
+    {
+        delete msg;
+        return;        
+    }
+    configMessages.Append(msg);
     TryAppend();
 }
 
 void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
 {
-    ConfigMessage* it;
+    ConfigMessage*  it;
+    ConfigMessage*  msg;
 
     FOREACH(it, configMessages)
     {
@@ -308,11 +317,15 @@ void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
 
     Log_Message("Split shard process completed (new shardID = %U)...", shardID);
 
-    it = new ConfigMessage;
-    it->fromClient = false;
-    
-    it->SplitShardComplete(shardID);
-    configMessages.Append(it);
+    msg = new ConfigMessage;
+    msg->fromClient = false;    
+    msg->SplitShardComplete(shardID);
+    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*msg))
+    {
+        delete msg;
+        return;        
+    }
+    configMessages.Append(msg);
     TryAppend();
 }
 

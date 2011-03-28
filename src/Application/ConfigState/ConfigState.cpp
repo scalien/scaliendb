@@ -742,9 +742,16 @@ bool ConfigState::CompleteSplitShardBegin(ConfigMessage& message)
     return true;
 }
 
-bool ConfigState::CompleteSplitShardComplete(ConfigMessage& /*message*/)
+bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
 {
-    return true;
+    ConfigShard* shard;
+    
+    shard = GetShard(message.shardID);
+    
+    if (shard->isSplitCreating)
+        return true;
+    
+    return false;
 }
 
 void ConfigState::OnRegisterShardServer(ConfigMessage& message)
@@ -1109,8 +1116,6 @@ void ConfigState::OnSplitShardComplete(ConfigMessage& message)
     ConfigShard* shard;
     
     shard = GetShard(message.shardID);
-    assert(shard->isSplitCreating);
-    
     shard->isSplitCreating = false;
 }
 
