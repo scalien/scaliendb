@@ -270,6 +270,10 @@ void ShardQuorumProcessor::OnLeaseTimeout()
 void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
 {
     ShardMessage*   message;
+    ConfigQuorum*   configQuorum;
+
+    configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
+    assert(configQuorum);
 
     if (!quorumContext.IsLeader() && !request->isBulk)
     {
@@ -308,7 +312,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     clientRequests.Append(request);
     shardMessages.Append(message);
 
-    if (request->isBulk || quorumContext.GetQuorum()->GetNumNodes() == 1)
+    if (request->isBulk ||
+     (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0))
     {
         if (!localExecute.IsActive())
             EventLoop::Add(&localExecute);
