@@ -701,6 +701,13 @@ void ShardQuorumProcessor::LocalExecute()
     ShardMessage*   itMessage, *nextMessage;
     ClientRequest*  itRequest, *nextRequest;
     
+    if (shardServer->GetDatabaseManager()->GetEnvironment()->IsCommiting())
+    {
+        EventLoop::Add(&localExecute);
+        Log_Debug("ExecuteSingles YIELD because commit is active");
+        return;
+    }
+    
     isSingle = (quorumContext.GetQuorum()->GetNumNodes() == 1);
     
     if (isSingle)
