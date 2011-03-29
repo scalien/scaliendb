@@ -35,9 +35,9 @@ int inet_aton(const char *cp, struct in_addr *in)
 // TODO this is temporary, we need a real DNS resolver
 static bool DNS_ResolveIpv4(const char* name, struct in_addr* addr)
 {
+    // FIXME gethostbyname is not multithread-safe!
     struct hostent* hostent;
 
-    // FIXME gethostbyname is not multithread-safe!
     hostent = gethostbyname(name);
     if (!hostent)
         return false;
@@ -45,7 +45,25 @@ static bool DNS_ResolveIpv4(const char* name, struct in_addr* addr)
     if (hostent->h_addrtype != AF_INET)
         return false;
 
-    addr->s_addr = *(u_long *) hostent->h_addr_list[0];
+    addr->s_addr = *(in_addr_t *) hostent->h_addr_list[0];
+
+#ifdef DNS_RESOLVE_GETADDRINFO
+    struct addrinfo     hints;
+    struct addrinfo*    res;
+    
+    memset((void*) &hints, 0, sizeof(hints));
+    hints.ai_family = PF_UNSPEC;
+    // TODO: getaddrinfo doesn't work with "localhost"
+    if (!getaddrinfo(name, NULL, &hints, &res))
+    {
+        freeaddrinfo(res);
+        return false;
+    }
+    
+    addr->s_addr = *(u_long *) res->ai_addr;
+    
+    freeaddrinfo(res);
+#endif
 
     return true;
 }

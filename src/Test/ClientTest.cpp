@@ -376,7 +376,7 @@ TEST_DEFINE(TestClientBatchedSet2)
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
-    char            valbuf[100000];
+//    char            valbuf[100000];
     int             ret;
 //    unsigned        num = 100*1000*1000;
     unsigned        num = 100*1000;
@@ -404,7 +404,7 @@ TEST_DEFINE(TestClientBatchedSet2)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
-        value.Wrap(valbuf, ret);
+        value.Wrap(keybuf, ret);
         ret = client.Set(key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
@@ -455,7 +455,7 @@ TEST_DEFINE(TestClientBatchedSetBulk)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetBulkLoading();
+    client.SetBulkLoading(true);
     client.SetMasterTimeout(100000);
     client.SetGlobalTimeout(100000);
     ret = client.UseDatabase(databaseName);

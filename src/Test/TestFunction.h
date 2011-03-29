@@ -4,6 +4,7 @@
 #include "Test.h"
 #include "System/Containers/InList.h"
 #include "System/Time.h"
+#include "System/Buffers/BufferPool.h"
 
 #define TEST_MAKENAME(f) #f
 #define TEST_CONCAT2(a, b) a ## b
@@ -43,6 +44,7 @@ public:
             break; \
     } \
     StopClock(); \
+    DEFAULT_BUFFERPOOL->Shutdown(); \
     return test_eval(TEST_NAME, ret); \
 }
 
