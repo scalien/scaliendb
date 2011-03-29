@@ -67,7 +67,7 @@ bool StorageChunkSerializer::WriteHeaderPage()
         fileChunk->headerPage.SetBloomPageOffset(fileChunk->bloomPage->GetOffset());
         fileChunk->headerPage.SetBloomPageSize(fileChunk->bloomPage->GetSize());
     }
-    if (memoChunk->keyValues.First())
+    if (memoChunk->keyValues.GetCount() > 0)
     {
         fileChunk->headerPage.SetFirstKey(memoChunk->keyValues.First()->GetKey());
         fileChunk->headerPage.SetLastKey(memoChunk->keyValues.Last()->GetKey());

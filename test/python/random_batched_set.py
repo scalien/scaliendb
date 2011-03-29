@@ -10,7 +10,7 @@ import os
 CONTROLLERS=["localhost:7080"]
 #CONTROLLERS=["192.168.137.51:7080"]
 
-def sizeof_fmt(num):
+def human_bytes(num):
 	for x in ['bytes','KB','MB','GB','TB']:
 		if num < 1000.0:
 			return "%3.1f%s" % (num, x)
@@ -32,14 +32,14 @@ if len(sys.argv) > 1:
 	if len(sys.argv) > 2:
 		start = int(sys.argv[2])
 client = scaliendb.Client(CONTROLLERS)
-#client._set_trace(True)
+client._set_trace(True)
 
 if False:
 	quorum_id = client.create_quorum(["100"])
 	database_id = client.create_database("testdb")
 	client.create_table(database_id, quorum_id, "testtable")
 
-if True:
+if False:
 	database_id = client.get_database_id("testdb")
 	table_id = client.get_table_id(database_id, "testtable")
 	client.truncate_table_by_id(table_id)
@@ -53,6 +53,7 @@ batch = 100
 if limit != 0 and limit < batch:
 	batch = limit
 random_value = random_string(1000000)
+starttime = time.time()
 while limit == 0 or i < limit:
         keys = []
         values = []
@@ -68,7 +69,6 @@ while limit == 0 or i < limit:
 		offset = random.randint(0, len(random_value) - value_len - 1)
 		values.append(random_value[offset:offset+value_len])
                 #print("Generating random: %d/%d\r" % (x, batch))
-	starttime = time.time()
 	client.begin()
 	round_sent = 0
 	for x in xrange(batch):
@@ -88,4 +88,4 @@ while limit == 0 or i < limit:
 	fmt = "%H:%M:%S"
 	endtimestamp = time.strftime(fmt, time.gmtime())
 	elapsed = (endtime - starttime)
-	print("%s: Sent bytes: %s (%s/s), num: %i, rps = %.0f" % (endtimestamp, sizeof_fmt(sent), sizeof_fmt(round_sent / elapsed) , i, (batch/((endtime - starttime) * 1000.0) * 1000.0)))
+	print("%s: Sent bytes: %s (%s/s), num: %i, rps = %.0f" % (endtimestamp, human_bytes(sent), human_bytes(sent / elapsed) , i, (batch/((endtime - starttime) * 1000.0) * 1000.0)))

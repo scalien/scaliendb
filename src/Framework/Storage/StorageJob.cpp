@@ -68,7 +68,10 @@ void StorageWriteChunkJob::Execute()
     sw.Start();
     writer.Write(env, fileChunk);
     sw.Stop();
-    Log_Debug("Chunk %U written, elapsed: %U", fileChunk->GetChunkID(), (uint64_t) sw.Elapsed());
+    Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
+     fileChunk->GetChunkID(),
+     (uint64_t) sw.Elapsed(), HUMAN_BYTES(fileChunk->GetSize()), 
+     HUMAN_BYTES(fileChunk->GetSize() / (sw.Elapsed() / 1000.0)));
 
     Callable* c = onComplete;
     delete this;
@@ -233,7 +236,12 @@ void StorageMergeChunkJob::Execute()
     ret = merger.Merge(env, filenames, mergeChunk, firstKey, lastKey);
     sw.Stop();
     if (ret)
-        Log_Debug("Done merging, elapsed: %U", (uint64_t) sw.Elapsed());
+    {
+        Log_Debug("Done merging chunk %U, elapsed: %U, size: %s, bps: %sB/s",
+         mergeChunk->GetChunkID(),
+         (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()), 
+         HUMAN_BYTES(mergeChunk->GetSize() / (sw.Elapsed() / 1000.0)));
+    }
 
     FOREACH_FIRST (itFilename, filenames)
     {

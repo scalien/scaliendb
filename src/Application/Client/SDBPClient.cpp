@@ -956,6 +956,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
 
                 if (itNode == NULL)
                 {
+                    // send
                     bulkRequests.Append(req);
                     nodeID = conn->GetNodeID();
                     req->shardConns.Append(nodeID);
