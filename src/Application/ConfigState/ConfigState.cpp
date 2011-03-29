@@ -1088,7 +1088,13 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     ConfigTable*    table;
     
     parentShard = GetShard(message.shardID);
-    assert(parentShard);
+
+    if (!parentShard)
+    {
+        // table has been deleted or truncated
+        isSplitting = false;
+        return;
+    }
     
     newShard = new ConfigShard;
     newShard->isSplitCreating = true;
