@@ -379,7 +379,6 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
         return SDBP_BADSCHEMA;
     
     tableID = table->tableID;
-    Log_Trace("%U", tableID);
     return SDBP_SUCCESS;
 }
 
@@ -412,7 +411,7 @@ int Client::UseTable(ReadBuffer& name)
     ret = GetTableID(name, databaseID, tableID);
     if (ret != SDBP_SUCCESS)
         return ret;
-    Log_Trace("%U", tableID);
+
     isTableSet = true;
     return SDBP_SUCCESS;
 }
