@@ -99,8 +99,14 @@ bool StorageChunkMerger::Merge(
     fd.Close();
     
     mergeChunk->written = true;
-    
-//    Log_Message("n1 = %U   n2 = %U    n = %U", reader1.GetNumKeys(), reader2.GetNumKeys(), mergeChunk->headerPage.GetNumKeys());
+
+    // Don't unload index and bloom page
+    onFinish.Unset();
+
+    delete[] readers;
+    readers = NULL;
+    delete[] iterators;
+    iterators = NULL;
 
     return true;
 }

@@ -42,7 +42,7 @@ if False:
 if True:
 	database_id = client.get_database_id("testdb")
 	table_id = client.get_table_id(database_id, "testtable")
-	client.truncate_table(table_id)
+	client.truncate_table_by_id(table_id)
                         
 client.use_database("testdb")
 client.use_table("testtable")

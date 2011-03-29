@@ -557,10 +557,12 @@ void StorageEnvironment::DecreaseNumCursors()
 
 uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 {
-    uint64_t        size;
-    StorageShard*   shard;
-    StorageChunk*   chunk;
-    StorageChunk**  itChunk;
+    uint64_t            size;
+    StorageShard*       shard;
+    StorageFileChunk*   chunk;
+    StorageChunk**      itChunk;
+    ReadBuffer      firstKey;
+    ReadBuffer      lastKey;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
@@ -568,9 +570,30 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 
     size = shard->GetMemoChunk()->GetSize();
     
-    FOREACH(itChunk, shard->GetChunks())
+    FOREACH (itChunk, shard->GetChunks())
     {
-        chunk = *itChunk;
+        chunk = (StorageFileChunk*) *itChunk;
+        firstKey = (*itChunk)->GetFirstKey();
+        lastKey = (*itChunk)->GetLastKey();
+        
+        if (firstKey.GetLength() > 0)
+        {
+            if (!shard->RangeContains(firstKey))
+            {
+                size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
+                continue;
+            }
+        }
+
+        if (lastKey.GetLength() > 0)
+        {
+            if (!shard->RangeContains(lastKey))
+            {
+                size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
+                continue;
+            }
+        }
+
         size += chunk->GetSize();
     }
     
@@ -1416,6 +1439,7 @@ Delete:
     else
     {
         fileChunks.Append(mergeChunkOut);
+        mergeChunkOut->AddPagesToCache();
     }
     
     mergeChunkOut = NULL;

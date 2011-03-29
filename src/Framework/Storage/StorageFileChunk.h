@@ -50,6 +50,7 @@ public:
     ReadBuffer          GetLastKey();
 
     uint64_t            GetSize();
+    uint64_t            GetPartialSize(ReadBuffer firstKey, ReadBuffer lastKey);
     ReadBuffer          GetMidpoint();
     
     void                AddPagesToCache();

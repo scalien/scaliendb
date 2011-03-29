@@ -3197,22 +3197,6 @@ SWIG_AsVal_unsigned_SS_long_SS_long (PyObject *obj, unsigned long long *val)
 
 
 SWIGINTERN int
-SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
-{
-  unsigned long v;
-  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
-  if (SWIG_IsOK(res)) {
-    if ((v > UINT_MAX)) {
-      return SWIG_OverflowError;
-    } else {
-      if (val) *val = static_cast< unsigned int >(v);
-    }
-  }  
-  return res;
-}
-
-
-SWIGINTERN int
 SWIG_AsVal_bool (PyObject *obj, bool *val)
 {
   if (obj == Py_True) {
@@ -3227,6 +3211,22 @@ SWIG_AsVal_bool (PyObject *obj, bool *val)
     if (SWIG_IsOK(res) && val) *val = v ? true : false;
     return res;
   }
+}
+
+
+SWIGINTERN int
+SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
+{
+  unsigned long v;
+  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v > UINT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< unsigned int >(v);
+    }
+  }  
+  return res;
 }
 
 #ifdef __cplusplus
@@ -5376,15 +5376,24 @@ fail:
 SWIGINTERN PyObject *_wrap_SDBP_SetBulkLoading(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
+  bool arg2 ;
   int res1 ;
+  bool val2 ;
+  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
   
-  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_SetBulkLoading",&obj0)) SWIG_fail;
+  if (!PyArg_ParseTuple(args,(char *)"OO:SDBP_SetBulkLoading",&obj0,&obj1)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_SetBulkLoading" "', argument " "1"" of type '" "ClientObj""'"); 
   }
-  SDBP_SetBulkLoading(arg1);
+  ecode2 = SWIG_AsVal_bool(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_SetBulkLoading" "', argument " "2"" of type '" "bool""'");
+  } 
+  arg2 = static_cast< bool >(val2);
+  SDBP_SetBulkLoading(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:

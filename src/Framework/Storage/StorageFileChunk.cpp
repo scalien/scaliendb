@@ -313,6 +313,25 @@ uint64_t StorageFileChunk::GetSize()
     return fileSize;
 }
 
+uint64_t StorageFileChunk::GetPartialSize(ReadBuffer firstKey, ReadBuffer lastKey)
+{
+    uint64_t    firstOffset;
+    uint64_t    lastOffset;
+    uint32_t    index;
+    
+    // TODO: ensure that index page is loaded
+    if (indexPage == NULL)
+        return fileSize;
+
+    firstOffset = 0;
+    indexPage->Locate(firstKey, index, firstOffset);
+    
+    lastOffset = fileSize;
+    indexPage->Locate(lastKey, index, lastOffset);
+    
+    return lastOffset - firstOffset;
+}
+
 ReadBuffer StorageFileChunk::GetMidpoint()
 {
     return headerPage.GetMidpoint();
@@ -323,12 +342,16 @@ void StorageFileChunk::AddPagesToCache()
     uint32_t i;
     
     for (i = 0; i < numDataPages; i++)
-        StoragePageCache::AddPage(dataPages[i], true);
+    {
+        if (dataPages[i] != NULL)
+            StoragePageCache::AddPage(dataPages[i], true);
+    }
 
-    if (UseBloomFilter())
+    if (UseBloomFilter() && bloomPage != NULL)
         StoragePageCache::AddPage(bloomPage);
 
-    StoragePageCache::AddPage(indexPage);
+    if (indexPage != NULL)
+        StoragePageCache::AddPage(indexPage);
 }
 
 void StorageFileChunk::RemovePagesFromCache()
@@ -356,6 +379,7 @@ void StorageFileChunk::OnBloomPageEvicted()
 
 void StorageFileChunk::OnIndexPageEvicted()
 {
+    Log_Debug("Index page evicted");
     delete indexPage;
     indexPage = NULL;
 }
