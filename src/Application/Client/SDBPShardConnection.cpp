@@ -125,6 +125,8 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     {
         if (it->commandID == response.commandID)
         {
+            sentRequests.Remove(it);
+
             // TODO: what to do when the first in the queue returns NOSERVICE
             // but the others return OK ?!?
 
@@ -136,7 +138,6 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
                 return false;
             }
             
-            sentRequests.Remove(it);
             break;
         }
     }
