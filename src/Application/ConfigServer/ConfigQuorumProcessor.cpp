@@ -288,9 +288,6 @@ void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer spli
             return;
     }
 
-    assert(configServer->GetDatabaseManager()->GetConfigState()->isSplitting == false);
-    configServer->GetDatabaseManager()->GetConfigState()->isSplitting = true;
-
     msg = new ConfigMessage;
     msg->fromClient = false;    
     msg->SplitShardBegin(shardID, splitKey);
@@ -475,7 +472,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
 
     configState = configServer->GetDatabaseManager()->GetConfigState();
     
-    // catchup issue:
+    // catchup:
     // if paxosID is smaller or equal to configStatePaxosID, that means
     // our state already includes the writes in this round
     if (paxosID <= configServer->GetDatabaseManager()->GetPaxosID())
