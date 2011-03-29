@@ -231,12 +231,11 @@ void Client::Shutdown()
     controllerConnections = NULL;
         
     shardConnections.DeleteTree();
+
+    ClearQuorumRequests();
     FOREACH (requestNode, quorumRequests)
     {
         requestList = requestNode->Value();
-//        FOREACH (request, *requestList)
-//            result->RemoveRequest(request);
-            
         delete requestList;
     }
 
@@ -614,6 +613,8 @@ int Client::Submit()
 
     EventLoop();
     isBatched = false;
+
+    ClearQuorumRequests();
     
     return result->GetTransportStatus();
 }
@@ -628,6 +629,8 @@ int Client::Cancel()
 
     result->Close();
     isBatched = false;
+
+    ClearQuorumRequests();
     
     return SDBP_SUCCESS;
 }
@@ -1006,6 +1009,20 @@ void Client::SendQuorumRequests()
 
             SendQuorumRequest(conn, *qit);
         }
+    }
+}
+
+void Client::ClearQuorumRequests()
+{
+    RequestListMap::Node*   requestNode;
+    RequestList*            requestList;
+    Request*                request;
+
+    FOREACH (requestNode, quorumRequests)
+    {
+        requestList = requestNode->Value();
+        FOREACH_FIRST (request, *requestList)
+            requestList->Remove(request);
     }
 }
 

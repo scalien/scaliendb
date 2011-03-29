@@ -280,7 +280,7 @@ TEST_DEFINE(TestInTreeMapMidpoint)
     int                             ksize;
     int                             vsize;
     int                             num = 10000;
-    bool                            found;
+//    bool                            found;
     
     ksize = 20;
     vsize = 128;
