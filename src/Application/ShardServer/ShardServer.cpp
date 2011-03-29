@@ -364,6 +364,8 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
                 FOREACH(itShardID, configQuorum->shards)
                 {
                     configShard = configState.GetShard(*itShardID);
+                    if (databaseManager.GetEnvironment()->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID))
+                        continue;
                     if (configShard->isSplitCreating)
                     {
                         Log_Trace("Splitting shard (parent shardID = %U, new shardID = %U)...",
