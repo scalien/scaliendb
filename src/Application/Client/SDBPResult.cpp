@@ -195,7 +195,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     
 //    Log_Message("commandID: %u", (unsigned) req->commandID);
     
-    if (numCompleted == requests.GetCount())
+    if (numCompleted >= requests.GetCount())
         transportStatus = SDBP_SUCCESS;
     else
         transportStatus = SDBP_PARTIAL;

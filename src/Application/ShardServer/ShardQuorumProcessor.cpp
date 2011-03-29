@@ -236,7 +236,9 @@ void ShardQuorumProcessor::OnLeaseTimeout()
 {
     ClientRequest*  itRequest, *nextRequest;
     ShardMessage*   itMessage, *nextMessage;
-        
+    
+    Log_Debug("Lease lost, dropping %u pending requests...", clientRequests.GetLength());
+    
     for (itRequest = clientRequests.First(); itRequest != NULL; itRequest = nextRequest)
     {
         nextRequest = clientRequests.Next(itRequest);
