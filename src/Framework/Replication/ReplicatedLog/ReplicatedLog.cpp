@@ -27,9 +27,9 @@ void ReplicatedLog::Shutdown()
     proposer.Shutdown();
 }
 
-void ReplicatedLog::SetUseProposeTimeouts(bool useProposeTimeouts)
+void ReplicatedLog::SetUseProposeTimeouts(bool useProposeTimeouts_)
 {
-    proposer.SetUseTimeouts(useProposeTimeouts);
+    useProposeTimeouts = useProposeTimeouts_;
 }
 
 void ReplicatedLog::SetCommitChaining(bool commitChaining_)
@@ -76,9 +76,10 @@ void ReplicatedLog::TryAppendDummy()
 {
     Log_Trace();
     
-    if (!context->IsLeaseOwner() || proposer.IsActive() || !proposer.state.multi)
+    if (proposer.IsActive())
         return;
 
+    proposer.SetUseTimeouts(true);
     Append(dummy);
     Log_Trace("Appending DUMMY!");
 }
@@ -94,6 +95,7 @@ void ReplicatedLog::TryAppendNextValue()
     if (value.GetLength() == 0)
         return;
     
+    proposer.SetUseTimeouts(useProposeTimeouts);
     Append(value);
 }
 
@@ -185,7 +187,7 @@ void ReplicatedLog::OnLearnLease()
     if (context->IsLeaseOwner() && !proposer.IsActive() && !proposer.state.multi)
     {
         Log_Trace("Appending dummy to enable MultiPaxos");
-        Append(dummy);
+        TryAppendDummy();
     }
 }
 
