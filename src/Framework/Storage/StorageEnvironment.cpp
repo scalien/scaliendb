@@ -561,8 +561,8 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
     StorageShard*       shard;
     StorageFileChunk*   chunk;
     StorageChunk**      itChunk;
-    ReadBuffer      firstKey;
-    ReadBuffer      lastKey;
+    ReadBuffer          firstKey;
+    ReadBuffer          lastKey;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
@@ -572,9 +572,15 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
     
     FOREACH (itChunk, shard->GetChunks())
     {
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+        {
+            size += (*itChunk)->GetSize();
+            continue;
+        }
+        
         chunk = (StorageFileChunk*) *itChunk;
-        firstKey = (*itChunk)->GetFirstKey();
-        lastKey = (*itChunk)->GetLastKey();
+        firstKey = chunk->GetFirstKey();
+        lastKey = chunk->GetLastKey();
         
         if (firstKey.GetLength() > 0)
         {
