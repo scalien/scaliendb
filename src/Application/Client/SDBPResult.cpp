@@ -182,8 +182,9 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
 
         if (!req->isBulk)
         {
+            if (req->type != CLIENTRESPONSE_NORESPONSE)
+                numCompleted++;
             resp->Transfer(req->response);
-            numCompleted++;
         }
         else
         {

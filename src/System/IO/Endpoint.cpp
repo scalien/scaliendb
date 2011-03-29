@@ -47,13 +47,13 @@ static bool DNS_ResolveIpv4(const char* name, struct in_addr* addr)
 
     addr->s_addr = *(in_addr_t *) hostent->h_addr_list[0];
 
+    // TODO: getaddrinfo doesn't work with "localhost"
 #ifdef DNS_RESOLVE_GETADDRINFO
     struct addrinfo     hints;
     struct addrinfo*    res;
     
     memset((void*) &hints, 0, sizeof(hints));
     hints.ai_family = PF_UNSPEC;
-    // TODO: getaddrinfo doesn't work with "localhost"
     if (!getaddrinfo(name, NULL, &hints, &res))
     {
         freeaddrinfo(res);

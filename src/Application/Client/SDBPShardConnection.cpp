@@ -128,7 +128,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             // TODO: what to do when the first in the queue returns NOSERVICE
             // but the others return OK ?!?
 
-            // TODO: invalidate quorum state on NOSERVICE response
+            // invalidate quorum state on NOSERVICE response
             if (response.type == CLIENTRESPONSE_NOSERVICE)
             {
                 quorumID = it->quorumID;
