@@ -527,8 +527,8 @@ void ShardDatabaseManager::ExecuteMessage(
             break;
         case SHARDMESSAGE_SPLIT_SHARD:
             environment.SplitShard(contextID, message.shardID, message.newShardID, message.splitKey);
-            Log_Debug("Split shard, shard ID: %U, split key: %B, new shardID: %U, paxosID: %U",
-             message.shardID, &message.splitKey, message.newShardID, paxosID);
+            Log_Debug("Splitting shard %U into shards %U and %U at key: %B (paxosID: %U)",
+             message.shardID, message.shardID, message.newShardID, &message.splitKey, paxosID);
             break;
          case SHARDMESSAGE_MIGRATION_BEGIN:
             Log_Debug("shardMigration BEGIN shardID = %U", message.shardID);
