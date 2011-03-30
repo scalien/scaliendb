@@ -108,8 +108,7 @@ SortedList<uint64_t>& ShardConnection::GetQuorumList()
 bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 {
     SDBPResponseMessage msg;
-    Request*            it;
-    uint64_t            quorumID;
+    Request*            request;
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
@@ -121,22 +120,21 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
         return false;
     
     // find the request in sent requests by commandID
-    FOREACH (it, sentRequests)
+    FOREACH (request, sentRequests)
     {
-        if (it->commandID == response.commandID)
+        if (request->commandID == response.commandID)
         {
-            // TODO: what to do when the first in the queue returns NOSERVICE
-            // but the others return OK ?!?
-
+            // put back the request to the quorum queue and 
             // invalidate quorum state on NOSERVICE response
             if (response.type == CLIENTRESPONSE_NOSERVICE)
             {
-                quorumID = it->quorumID;
-                InvalidateQuorum(quorumID);
+                sentRequests.Remove(request);
+                client->AddRequestToQuorum(request, false);
+                client->InvalidateQuorum(request->quorumID, nodeID);
                 return false;
             }
             
-            sentRequests.Remove(it);
+            sentRequests.Remove(request);
             break;
         }
     }
