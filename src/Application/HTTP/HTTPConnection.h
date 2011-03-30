@@ -35,6 +35,7 @@ public:
 
     HTTPServer*     GetServer() { return server; }
     Buffer&         GetReadBuffer() { return readBuffer; }
+    Buffer*         GetWriteBuffer();
 
     // TCPConnection interface
     virtual void    OnRead();
@@ -54,7 +55,6 @@ protected:
     int             Parse(char* buf, int len);
     int             ProcessGetRequest();
     const char*     Status(int code);
-    Buffer*         GetWriteBuffer();
     void            WriteHeaderBuffer(Buffer& buffer, int code);
 };
 

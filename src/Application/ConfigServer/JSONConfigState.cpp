@@ -232,12 +232,15 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintColon();
     json.PrintString(server->endpoint.ToReadBuffer());
     json.PrintComma();
-    
-    json.PrintString("hasHeartbeat");
-    json.PrintColon();
-    json.PrintBool(configServer->GetHeartbeatManager()->HasHeartbeat(server->nodeID));
 
-    json.PrintComma();
+    // TODO: HACK: configServer should not be member of JSONConfigState
+    if (configServer)
+    {
+        json.PrintString("hasHeartbeat");
+        json.PrintColon();
+        json.PrintBool(configServer->GetHeartbeatManager()->HasHeartbeat(server->nodeID));
+        json.PrintComma();
+    }
     
     json.PrintString("quorumInfos");
     json.PrintColon();

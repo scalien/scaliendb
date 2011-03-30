@@ -180,6 +180,41 @@
 		9AD5E51A12EF094B00F4AF7B /* StorageFileKeyValue.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE59012BFBB3D0069786A /* StorageFileKeyValue.cpp */; };
 		9AD5EA9112F70C4700F4AF7B /* StorageAsyncGet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */; };
 		9AD5EADA12F7145B00F4AF7B /* StorageAsyncGet.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */; };
+		9ADD104213433898002C5C66 /* ConfigStateTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ADD104113433898002C5C66 /* ConfigStateTest.cpp */; };
+		9ADD104713433C97002C5C66 /* JSONSession.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE67812BFBB420069786A /* JSONSession.cpp */; };
+		9ADD104813433CA5002C5C66 /* HTTPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE66A12BFBB420069786A /* HTTPConnection.cpp */; };
+		9ADD104913433CAD002C5C66 /* JSONConfigState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65A12BFBB420069786A /* JSONConfigState.cpp */; };
+		9ADD104C13433CD6002C5C66 /* HTTPRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE67012BFBB420069786A /* HTTPRequest.cpp */; };
+		9ADD104D13433CDD002C5C66 /* HTTPServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE67212BFBB420069786A /* HTTPServer.cpp */; };
+		9ADD104E13433CEA002C5C66 /* ConfigHeartbeatManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE64812BFBB420069786A /* ConfigHeartbeatManager.cpp */; };
+		9ADD105113433CF2002C5C66 /* ConfigActivationManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE64412BFBB420069786A /* ConfigActivationManager.cpp */; };
+		9ADD105413433CFB002C5C66 /* ConfigDatabaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE64612BFBB420069786A /* ConfigDatabaseManager.cpp */; };
+		9ADD105713433D25002C5C66 /* ConfigQuorumProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65412BFBB420069786A /* ConfigQuorumProcessor.cpp */; };
+		9ADD105A13433D33002C5C66 /* ContextTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE64012BFBB420069786A /* ContextTransport.cpp */; };
+		9ADD105B13433D3D002C5C66 /* ConfigMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE64E12BFBB420069786A /* ConfigMessage.cpp */; };
+		9ADD105C13433D45002C5C66 /* ConfigQuorumContext.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65212BFBB420069786A /* ConfigQuorumContext.cpp */; };
+		9ADD105D13433D4E002C5C66 /* IMF.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE67612BFBB420069786A /* IMF.cpp */; };
+		9ADD105E13433D5B002C5C66 /* ConfigServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65612BFBB420069786A /* ConfigServer.cpp */; };
+		9ADD106113433D6B002C5C66 /* PaxosMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54E12BFBB3D0069786A /* PaxosMessage.cpp */; };
+		9ADD106213433D74002C5C66 /* ReplicatedLog.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE57212BFBB3D0069786A /* ReplicatedLog.cpp */; };
+		9ADD106313433D83002C5C66 /* ClusterMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63E12BFBB420069786A /* ClusterMessage.cpp */; };
+		9ADD106613433D9E002C5C66 /* ConfigPrimaryLeaseManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65012BFBB420069786A /* ConfigPrimaryLeaseManager.cpp */; };
+		9ADD106713433DA6002C5C66 /* MajorityQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE56712BFBB3D0069786A /* MajorityQuorum.cpp */; };
+		9ADD106813433DAF002C5C66 /* PaxosProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55012BFBB3D0069786A /* PaxosProposer.cpp */; };
+		9ADD106913433DC4002C5C66 /* CatchupMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63412BFBB420069786A /* CatchupMessage.cpp */; };
+		9ADD106C13433DDB002C5C66 /* QuorumDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE56B12BFBB3D0069786A /* QuorumDatabase.cpp */; };
+		9ADD106D13433DE2002C5C66 /* PaxosAcceptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54C12BFBB3D0069786A /* PaxosAcceptor.cpp */; };
+		9ADD106E13433DEC002C5C66 /* ClusterTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54312BFBB3D0069786A /* ClusterTransport.cpp */; };
+		9ADD106F13433DF5002C5C66 /* ReplicationConfig.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE57412BFBB3D0069786A /* ReplicationConfig.cpp */; };
+		9ADD107013433DFE002C5C66 /* QuorumTransport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE56D12BFBB3D0069786A /* QuorumTransport.cpp */; };
+		9ADD107313433E1B002C5C66 /* ClusterServer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE54112BFBB3D0069786A /* ClusterServer.cpp */; };
+		9ADD107613433E27002C5C66 /* ClusterConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE53F12BFBB3D0069786A /* ClusterConnection.cpp */; };
+		9ADD107713433E31002C5C66 /* PaxosLease.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55612BFBB3D0069786A /* PaxosLease.cpp */; };
+		9ADD107A13433E3B002C5C66 /* PaxosLeaseProposer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55E12BFBB3D0069786A /* PaxosLeaseProposer.cpp */; };
+		9ADD107B13433E41002C5C66 /* PaxosLeaseMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55C12BFBB3D0069786A /* PaxosLeaseMessage.cpp */; };
+		9ADD107C13433E49002C5C66 /* PaxosLeaseLearner.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55A12BFBB3D0069786A /* PaxosLeaseLearner.cpp */; };
+		9ADD107F13433E52002C5C66 /* PaxosLeaseAcceptor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE55812BFBB3D0069786A /* PaxosLeaseAcceptor.cpp */; };
+		9ADD108013433E5C002C5C66 /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63812BFBB420069786A /* ClientRequestCache.cpp */; };
 		9AE8197512D4BFE80038BDB1 /* ArrayListTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */; };
 		9AE8197612D4BFE80038BDB1 /* ClientTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196712D4BFE80038BDB1 /* ClientTest.cpp */; };
 		9AE8197712D4BFE80038BDB1 /* CommonTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */; };
@@ -509,6 +544,7 @@
 		9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = StorageTest.cpp; path = Test/StorageTest.cpp; sourceTree = "<group>"; };
 		9AD5EA8F12F70C4700F4AF7B /* StorageAsyncGet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncGet.h; sourceTree = "<group>"; };
 		9AD5EA9012F70C4700F4AF7B /* StorageAsyncGet.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageAsyncGet.cpp; sourceTree = "<group>"; };
+		9ADD104113433898002C5C66 /* ConfigStateTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ConfigStateTest.cpp; path = Test/ConfigStateTest.cpp; sourceTree = "<group>"; };
 		9AE8176812CE1E550038BDB1 /* scaliendb_client.i */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c.preprocessed; name = scaliendb_client.i; path = Client/scaliendb_client.i; sourceTree = "<group>"; };
 		9AE8176912CE1E550038BDB1 /* SDBPClient.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPClient.cpp; path = Client/SDBPClient.cpp; sourceTree = "<group>"; };
 		9AE8176A12CE1E550038BDB1 /* SDBPClient.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPClient.h; path = Client/SDBPClient.h; sourceTree = "<group>"; };
@@ -1194,6 +1230,7 @@
 				9AE8196612D4BFE80038BDB1 /* ArrayListTest.cpp */,
 				9AE8196712D4BFE80038BDB1 /* ClientTest.cpp */,
 				9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */,
+				9ADD104113433898002C5C66 /* ConfigStateTest.cpp */,
 				9AE8196912D4BFE80038BDB1 /* CrashTest.cpp */,
 				9AE8196A12D4BFE80038BDB1 /* FileSystemTest.cpp */,
 				9AE8196B12D4BFE80038BDB1 /* FormattingTest.cpp */,
@@ -1490,6 +1527,41 @@
 				78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */,
 				9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */,
 				9AD1164313213D3200AB777B /* StorageUnwrittenChunkLister.cpp in Sources */,
+				9ADD104213433898002C5C66 /* ConfigStateTest.cpp in Sources */,
+				9ADD104713433C97002C5C66 /* JSONSession.cpp in Sources */,
+				9ADD104813433CA5002C5C66 /* HTTPConnection.cpp in Sources */,
+				9ADD104913433CAD002C5C66 /* JSONConfigState.cpp in Sources */,
+				9ADD104C13433CD6002C5C66 /* HTTPRequest.cpp in Sources */,
+				9ADD104D13433CDD002C5C66 /* HTTPServer.cpp in Sources */,
+				9ADD104E13433CEA002C5C66 /* ConfigHeartbeatManager.cpp in Sources */,
+				9ADD105113433CF2002C5C66 /* ConfigActivationManager.cpp in Sources */,
+				9ADD105413433CFB002C5C66 /* ConfigDatabaseManager.cpp in Sources */,
+				9ADD105713433D25002C5C66 /* ConfigQuorumProcessor.cpp in Sources */,
+				9ADD105A13433D33002C5C66 /* ContextTransport.cpp in Sources */,
+				9ADD105B13433D3D002C5C66 /* ConfigMessage.cpp in Sources */,
+				9ADD105C13433D45002C5C66 /* ConfigQuorumContext.cpp in Sources */,
+				9ADD105D13433D4E002C5C66 /* IMF.cpp in Sources */,
+				9ADD105E13433D5B002C5C66 /* ConfigServer.cpp in Sources */,
+				9ADD106113433D6B002C5C66 /* PaxosMessage.cpp in Sources */,
+				9ADD106213433D74002C5C66 /* ReplicatedLog.cpp in Sources */,
+				9ADD106313433D83002C5C66 /* ClusterMessage.cpp in Sources */,
+				9ADD106613433D9E002C5C66 /* ConfigPrimaryLeaseManager.cpp in Sources */,
+				9ADD106713433DA6002C5C66 /* MajorityQuorum.cpp in Sources */,
+				9ADD106813433DAF002C5C66 /* PaxosProposer.cpp in Sources */,
+				9ADD106913433DC4002C5C66 /* CatchupMessage.cpp in Sources */,
+				9ADD106C13433DDB002C5C66 /* QuorumDatabase.cpp in Sources */,
+				9ADD106D13433DE2002C5C66 /* PaxosAcceptor.cpp in Sources */,
+				9ADD106E13433DEC002C5C66 /* ClusterTransport.cpp in Sources */,
+				9ADD106F13433DF5002C5C66 /* ReplicationConfig.cpp in Sources */,
+				9ADD107013433DFE002C5C66 /* QuorumTransport.cpp in Sources */,
+				9ADD107313433E1B002C5C66 /* ClusterServer.cpp in Sources */,
+				9ADD107613433E27002C5C66 /* ClusterConnection.cpp in Sources */,
+				9ADD107713433E31002C5C66 /* PaxosLease.cpp in Sources */,
+				9ADD107A13433E3B002C5C66 /* PaxosLeaseProposer.cpp in Sources */,
+				9ADD107B13433E41002C5C66 /* PaxosLeaseMessage.cpp in Sources */,
+				9ADD107C13433E49002C5C66 /* PaxosLeaseLearner.cpp in Sources */,
+				9ADD107F13433E52002C5C66 /* PaxosLeaseAcceptor.cpp in Sources */,
+				9ADD108013433E5C002C5C66 /* ClientRequestCache.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
