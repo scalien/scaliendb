@@ -22,11 +22,6 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
 
     FOREACH(itQuorum, configState->quorums)
     {
-        // don't deactivate the last node due to TotalPaxos semantics
-        // otherwise, we wouldn't know which one to bring back, which is up-to-date
-        if (itQuorum->activeNodes.GetLength() <= 1)
-            continue;
-
         if (itQuorum->isActivatingNode && itQuorum->activatingNodeID == nodeID)
         {
             shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
@@ -54,7 +49,6 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
                  itQuorum->activatingNodeID, itQuorum->quorumID);
             }
             
-            Log_Message("Deactivating shard server %U...", nodeID);
             configServer->GetQuorumProcessor()->DeactivateNode(itQuorum->quorumID, nodeID);
         }
     }

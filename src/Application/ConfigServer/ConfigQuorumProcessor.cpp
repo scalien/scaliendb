@@ -4,6 +4,8 @@
 #include "ConfigServer.h"
 #include "ConfigHeartbeatManager.h"
 
+#define CONFIG_STATE (configServer->GetDatabaseManager()->GetConfigState())
+
 void ConfigQuorumProcessor::Init(ConfigServer* configServer_, unsigned numConfigServers,
  StorageShardProxy* quorumPaxosShard, StorageShardProxy* quorumLogShard)
 {
@@ -49,23 +51,42 @@ uint64_t ConfigQuorumProcessor::GetPaxosID()
 
 void ConfigQuorumProcessor::TryAppend()
 {
-    assert(configMessages.GetLength() > 0);
+    ConfigMessage*  configMessage;
+    ClientRequest*  request;
     
-    if (!quorumContext.IsAppending())
-        quorumContext.Append(configMessages.First());
+    if (quorumContext.IsAppending())
+        return;
+
+    FOREACH_FIRST(configMessage, configMessages)
+    {    
+        if (CONFIG_STATE->CompleteMessage(*configMessage))
+        {
+            quorumContext.Append(configMessage);
+            break;
+        }
+        else
+        {
+            if (configMessage->fromClient)
+            {
+                assert(requests.GetLength() > 0);
+                request = requests.First();
+                requests.Remove(request);
+                request->response.Failed();
+                request->OnComplete();
+            }
+            configMessages.Delete(configMessage);
+        }
+    }
 }
 
 void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
 {
     uint64_t        srcNodeID, dstNodeID;
     uint64_t*       itNodeID;
-    ConfigState*    configState;
     ConfigShard*    configShard;
     ConfigQuorum*   configQuorum;
     ConfigMessage*  configMessage;
     ClusterMessage  clusterMessage;
-
-    configState = configServer->GetDatabaseManager()->GetConfigState();
 
     if (request->type == CLIENTREQUEST_GET_MASTER)
     {
@@ -80,7 +101,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.ConfigStateResponse(*configState);
+        request->response.ConfigStateResponse(*CONFIG_STATE);
         request->OnComplete(false);
         return;
     }
@@ -116,27 +137,27 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
 
     if (request->type == CLIENTREQUEST_MIGRATE_SHARD)
     {
-        if (configState->isMigrating)
+        if (CONFIG_STATE->isMigrating)
             goto MigrationFailed;
-        configShard = configState->GetShard(request->shardID);
+        configShard = CONFIG_STATE->GetShard(request->shardID);
         if (!configShard)
             goto MigrationFailed;
-        configQuorum = configState->GetQuorum(configShard->quorumID);
+        configQuorum = CONFIG_STATE->GetQuorum(configShard->quorumID);
         if (!configQuorum)
             goto MigrationFailed;
         if (!configQuorum->hasPrimary)
             goto MigrationFailed;
         srcNodeID = configQuorum->primaryID;
-        configQuorum = configState->GetQuorum(request->quorumID);
+        configQuorum = CONFIG_STATE->GetQuorum(request->quorumID);
         if (!configQuorum)
             goto MigrationFailed;
         if (!configQuorum->hasPrimary)
             goto MigrationFailed;
         dstNodeID = configQuorum->primaryID;
 
-        configState->isMigrating = true;
-        configState->migrateQuorumID = request->quorumID;
-        configState->migrateShardID = request->shardID;
+        CONFIG_STATE->isMigrating = true;
+        CONFIG_STATE->migrateQuorumID = request->quorumID;
+        CONFIG_STATE->migrateShardID = request->shardID;
         
         UpdateListeners();
 
@@ -159,13 +180,13 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     configMessage = new ConfigMessage;
     ConstructMessage(request, configMessage);
     
-    if (!configState->CompleteMessage(*configMessage))
-    {
-        delete configMessage;
-        request->response.Failed();
-        request->OnComplete();
-        return;
-    }
+//    if (!configState->CompleteMessage(*configMessage))
+//    {
+//        delete configMessage;
+//        request->response.Failed();
+//        request->OnComplete();
+//        return;
+//    }
     
     requests.Append(request);
     configMessages.Append(configMessage);
@@ -191,44 +212,44 @@ void ConfigQuorumProcessor::OnClientClose(ClientSession* session)
     }
 }
 
-bool ConfigQuorumProcessor::HasActivateMessage(uint64_t quorumID, uint64_t nodeID)
-{
-    ConfigMessage *it;
-    
-    FOREACH(it, configMessages)
-    {
-        if (it->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
-         it->quorumID == quorumID && it->nodeID == nodeID)
-        {
-            return true;
-        }
-    }
-    
-    return false;
-}
+//bool ConfigQuorumProcessor::HasActivateMessage(uint64_t quorumID, uint64_t nodeID)
+//{
+//    ConfigMessage *it;
+//    
+//    FOREACH(it, configMessages)
+//    {
+//        if (it->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
+//         it->quorumID == quorumID && it->nodeID == nodeID)
+//        {
+//            return true;
+//        }
+//    }
+//    
+//    return false;
+//}
 
-bool ConfigQuorumProcessor::HasDeactivateMessage(uint64_t quorumID)
-{
-    ConfigMessage *it;
-    
-    FOREACH(it, configMessages)
-    {
-        if (it->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
-         it->quorumID == quorumID)
-        {
-            return true;
-        }
-    }
-    
-    return false;
-}
+//bool ConfigQuorumProcessor::HasDeactivateMessage(uint64_t quorumID)
+//{
+//    ConfigMessage *it;
+//    
+//    FOREACH(it, configMessages)
+//    {
+//        if (it->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
+//         it->quorumID == quorumID)
+//        {
+//            return true;
+//        }
+//    }
+//    
+//    return false;
+//}
 
 void ConfigQuorumProcessor::ActivateNode(uint64_t quorumID, uint64_t nodeID)
 {
     ConfigMessage* message;
  
-    if (HasActivateMessage(quorumID, nodeID))
-        return;
+//    if (HasActivateMessage(quorumID, nodeID))
+//        return;
           
     message = new ConfigMessage();
     message->fromClient = false;
@@ -242,8 +263,8 @@ void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID)
 {
     ConfigMessage* message;
 
-    if (HasDeactivateMessage(quorumID))
-        return;
+//    if (HasDeactivateMessage(quorumID))
+//        return;
     
     message = new ConfigMessage();
     message->fromClient = false;
@@ -267,11 +288,11 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
     msg = new ConfigMessage;
     msg->fromClient = false;
     msg->RegisterShardServer(0, endpoint);
-    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*msg))
-    {
-        delete msg;
-        return;        
-    }
+//    if (!CONFIG_STATE->CompleteMessage(*msg))
+//    {
+//        delete msg;
+//        return;        
+//    }
 
     configMessages.Append(msg);
     TryAppend();
@@ -291,11 +312,11 @@ void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer spli
     msg = new ConfigMessage;
     msg->fromClient = false;    
     msg->SplitShardBegin(shardID, splitKey);
-    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*msg))
-    {
-        delete msg;
-        return;        
-    }
+//    if (!CONFIG_STATE->CompleteMessage(*msg))
+//    {
+//        delete msg;
+//        return;        
+//    }
     configMessages.Append(msg);
     TryAppend();
 }
@@ -314,11 +335,11 @@ void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
     msg = new ConfigMessage;
     msg->fromClient = false;    
     msg->SplitShardComplete(shardID);
-    if (!configServer->GetDatabaseManager()->GetConfigState()->CompleteMessage(*msg))
-    {
-        delete msg;
-        return;        
-    }
+//    if (!CONFIG_STATE->CompleteMessage(*msg))
+//    {
+//        delete msg;
+//        return;        
+//    }
     configMessages.Append(msg);
     TryAppend();
 }
@@ -326,16 +347,13 @@ void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
 void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
 {
     ConfigMessage*  configMessage;
-    ConfigState*    configState;
     
     if (!quorumContext.IsLeader())
         return;
     
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-
-    assert(configState->isMigrating);
-    assert(configState->migrateQuorumID == message.quorumID);
-    assert(configState->migrateShardID == message.shardID);
+    assert(CONFIG_STATE->isMigrating);
+    assert(CONFIG_STATE->migrateQuorumID == message.quorumID);
+    assert(CONFIG_STATE->migrateShardID == message.shardID);
     
     configMessage = new ConfigMessage;
     configMessage->fromClient = false;
@@ -346,16 +364,12 @@ void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
 
 void ConfigQuorumProcessor::UpdateListeners()
 {
-    ConfigState*                    configState;
     ClientRequest*                  itRequest;
     ConfigShardServer*              itShardServer;
     ClusterMessage                  message;
     Buffer                          checksumBuffer;
-//    uint32_t                        checksum;
     bool                            configChanged;
     uint64_t                        now;
-    
-    configState = configServer->GetDatabaseManager()->GetConfigState();
     
 //    // check if the configState changed at all
 //    configChanged = false;
@@ -377,7 +391,7 @@ void ConfigQuorumProcessor::UpdateListeners()
     {
         if (configChanged || itRequest->changeTimeout < now - lastConfigChangeTime)
         {
-            itRequest->response.ConfigStateResponse(*configState);
+            itRequest->response.ConfigStateResponse(*CONFIG_STATE);
             itRequest->OnComplete(false);
             // TODO: HACK
             if (itRequest->changeTimeout != 0)
@@ -386,8 +400,8 @@ void ConfigQuorumProcessor::UpdateListeners()
     }
     
     // update shard servers
-    message.SetConfigState(*configState);
-    FOREACH (itShardServer, configState->shardServers)
+    message.SetConfigState(*CONFIG_STATE);
+    FOREACH (itShardServer, CONFIG_STATE->shardServers)
     {
         CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
     }
@@ -400,7 +414,6 @@ void ConfigQuorumProcessor::OnLearnLease()
 void ConfigQuorumProcessor::OnLeaseTimeout()
 {
     ClientRequest*  itRequest;
-    ConfigState*    configState;
  
     // clear config messages   
     configMessages.DeleteList();
@@ -423,9 +436,8 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     }
     assert(listenRequests.GetLength() == 0);
     
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-    configState->hasMaster = false;
-    configState->masterID = 0;
+    CONFIG_STATE->hasMaster = false;
+    CONFIG_STATE->masterID = 0;
     configServer->OnConfigStateChanged(); // TODO: is this neccesary?
     // TODO: tell ActivationManager
 }
@@ -434,17 +446,14 @@ void ConfigQuorumProcessor::OnIsLeader()
 {
     bool            updateListeners;
     uint64_t        clusterID;
-    ConfigState*    configState;
     ConfigMessage*  configMessage;
 
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-    
     updateListeners = false;
-    if (!configState->hasMaster)
+    if (!CONFIG_STATE->hasMaster)
         updateListeners = true;
 
-    configState->hasMaster = true;
-    configState->masterID = GetMaster();
+    CONFIG_STATE->hasMaster = true;
+    CONFIG_STATE->masterID = GetMaster();
 
     if (updateListeners && (uint64_t) GetMaster() == configServer->GetNodeID())
         UpdateListeners();
@@ -467,11 +476,8 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
 {
     uint64_t        clusterID;
     ClusterMessage  clusterMessage;
-    ConfigState*    configState;
     char            hexbuf[64 + 1];
 
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-    
     // catchup:
     // if paxosID is smaller or equal to configStatePaxosID, that means
     // our state already includes the writes in this round
@@ -480,18 +486,18 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
 
     if (message.type == CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE)
     {
-        if (configState->masterID == MY_NODEID)
+        if (CONFIG_STATE->masterID == MY_NODEID)
         {
-            assert(configState->isMigrating);
-            assert(configState->migrateQuorumID == message.quorumID);
-            assert(configState->migrateShardID == message.shardID);
-            configState->isMigrating = false;
-            configState->migrateQuorumID = 0;
-            configState->migrateShardID = 0;
+            assert(CONFIG_STATE->isMigrating);
+            assert(CONFIG_STATE->migrateQuorumID == message.quorumID);
+            assert(CONFIG_STATE->migrateShardID == message.shardID);
+            CONFIG_STATE->isMigrating = false;
+            CONFIG_STATE->migrateQuorumID = 0;
+            CONFIG_STATE->migrateShardID = 0;
         }
     }
     
-    configState->OnMessage(message);
+    CONFIG_STATE->OnMessage(message);
     configServer->GetDatabaseManager()->Write();
     configServer->OnConfigStateChanged(); // UpdateActivationTimeout();
 
@@ -523,7 +529,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     else if (message.type == CONFIGMESSAGE_SPLIT_SHARD_COMPLETE)
     {
         Log_Message("Split shard process completed (new shardID = %U)...", message.shardID);
-        configServer->GetDatabaseManager()->GetConfigState()->isSplitting = false;
+        CONFIG_STATE->isSplitting = false;
     }
     
     if (IsMaster())
@@ -571,9 +577,6 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
     ReadBuffer      key;
     ReadBuffer      value;
     CatchupMessage  omsg;
-    ConfigState*    configState;
-    
-    configState = configServer->GetDatabaseManager()->GetConfigState();
     
     switch (imsg.type)
     {
@@ -583,7 +586,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
             assert(imsg.quorumID == quorumContext.GetQuorumID());
             // send configState
             key.Wrap("state");
-            configServer->GetDatabaseManager()->GetConfigState()->Write(buffer);
+            CONFIG_STATE->Write(buffer);
             value.Wrap(buffer);
             omsg.Set(key, value);
             CONTEXT_TRANSPORT->SendQuorumMessage(imsg.nodeID, quorumContext.GetQuorumID(), omsg);
@@ -597,12 +600,12 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
         case CATCHUPMESSAGE_SET:
             if (!isCatchingUp)
                 return;
-            hasMaster = configState->hasMaster;
-            masterID = configState->masterID;
-            if (!configState->Read(imsg.value))
+            hasMaster = CONFIG_STATE->hasMaster;
+            masterID = CONFIG_STATE->masterID;
+            if (!CONFIG_STATE->Read(imsg.value))
                 ASSERT_FAIL();
-            configState->hasMaster = hasMaster;
-            configState->masterID = masterID;
+            CONFIG_STATE->hasMaster = hasMaster;
+            CONFIG_STATE->masterID = masterID;
             break;
         case CATCHUPMESSAGE_COMMIT:
             if (!isCatchingUp)

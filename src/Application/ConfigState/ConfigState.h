@@ -94,6 +94,7 @@ public:
     static void         WriteIDList(List& numbers, Buffer& buffer);
 
 private:
+    bool                CompleteSetClusterID(ConfigMessage& message);
     bool                CompleteRegisterShardServer(ConfigMessage& message);
     bool                CompleteCreateQuorum(ConfigMessage& message);
     bool                CompleteDeleteQuorum(ConfigMessage& message);
