@@ -10,8 +10,28 @@
 
 class ShardServer;
 
-#define NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT         1000
+#define NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT         500
 #define ACTIVATION_PRIMARYLEASE_REQUEST_TIMEOUT     100
+#define MAX_LEASE_REQUESTS                          50
+
+/*
+===============================================================================================
+
+ ShardRequestLease
+
+===============================================================================================
+*/
+
+struct ShardLeaseRequest
+{
+    ShardLeaseRequest();
+    
+    ShardLeaseRequest*  prev;
+    ShardLeaseRequest*  next;
+    
+    uint64_t            proposalID;
+    uint64_t            expireTime;
+};
 
 /*
 ===============================================================================================
@@ -23,8 +43,9 @@ class ShardServer;
 
 class ShardQuorumProcessor
 {
-    typedef InList<ShardMessage>    MessageList;
-    typedef InList<ClientRequest>   RequestList;
+    typedef InList<ShardMessage>        MessageList;
+    typedef InList<ClientRequest>       RequestList;
+    typedef InList<ShardLeaseRequest>   LeaseRequestList;
 
 public:
     typedef SortedList<uint64_t>    ShardList;
@@ -92,9 +113,8 @@ private:
     void                    LocalExecute();
 
     bool                    isPrimary;
-    uint64_t                proposalID;
+    uint64_t                highestProposalID;
     uint64_t                configID;
-    uint64_t                requestedLeaseExpireTime;
 
     // for async OnAppend():
     bool                    ownAppend;
@@ -106,6 +126,7 @@ private:
     ShardServer*            shardServer;
     ShardQuorumContext      quorumContext;
 
+    LeaseRequestList        leaseRequests;
     MessageList             shardMessages;
     RequestList             clientRequests;
     

@@ -9,6 +9,11 @@ static bool LessThan(uint64_t a, uint64_t b)
     return a < b;
 }
 
+ShardLeaseRequest::ShardLeaseRequest()
+{
+    prev = next = this;
+}
+
 ShardQuorumProcessor::ShardQuorumProcessor()
 {
     prev = next = this;
@@ -31,9 +36,8 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     catchupWriter.Init(this);
     catchupReader.Init(this);
     isPrimary = false;
-    proposalID = 0;
+    highestProposalID = 0;
     configID = 0;
-    requestedLeaseExpireTime = 0;
     ownAppend = false;
     paxosID = 0;
     commandID = 0;
@@ -45,14 +49,10 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
 
 void ShardQuorumProcessor::Shutdown()
 {
-    ClientRequest*  request;
-    ShardMessage*   message;
+    ClientRequest*      request;
     
-    FOREACH_FIRST(message, shardMessages)
-    {
-        shardMessages.Remove(message);
-        delete message;
-    }
+    leaseRequests.DeleteList();
+    shardMessages.DeleteList();
     
     FOREACH_FIRST(request, clientRequests)
     {
@@ -60,7 +60,7 @@ void ShardQuorumProcessor::Shutdown()
         request->response.NoService();
         request->OnComplete();
     }
-    
+
     if (requestLeaseTimeout.IsActive())
         EventLoop::Remove(&requestLeaseTimeout);
 
@@ -111,12 +111,35 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
 {
     SortedList<uint64_t>    activeNodes;
     uint64_t*               it;
+    ShardLeaseRequest*      lease;
+    ShardLeaseRequest*      itLease;
     
     Log_Debug("Received lease for quorum %U with proposalID %U", GetQuorumID(), message.proposalID);
 
-    if (proposalID != message.proposalID)
+    FOREACH(itLease, leaseRequests)
+        if (itLease->proposalID == message.proposalID)
+            break;
+
+    if (!itLease)
     {
-        Log_Debug("Dropping received lease because proposalID does not match");
+        Log_Debug("Dropping received lease because proposalID not found in request list");
+        return;
+    }
+    
+    lease = itLease; // found
+
+    // go through lease list and remove leases before the current
+    FOREACH_FIRST(itLease, leaseRequests)
+    {
+        if (itLease == lease)
+            break;
+        leaseRequests.Delete(itLease);
+    }
+    
+    if (lease->expireTime < EventLoop::Now())
+    {
+        leaseRequests.Delete(lease);
+        Log_Debug("Dropping received lease because it has expired");
         return;
     }
 
@@ -133,13 +156,15 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
         
     shards = message.shards;
     
-    leaseTimeout.SetExpireTime(requestedLeaseExpireTime);
+    leaseTimeout.SetExpireTime(lease->expireTime);
     EventLoop::Reset(&leaseTimeout);
     
     quorumContext.OnLearnLease();
     
     if (message.watchingPaxosID && shardMessages.GetLength() == 0)
         quorumContext.AppendDummy();
+        
+    leaseRequests.Delete(lease);
 }
 
 void ShardQuorumProcessor::OnAppend(uint64_t paxosID_, ReadBuffer& value_, bool ownAppend_)
@@ -220,21 +245,31 @@ bool ShardQuorumProcessor::IsPaxosBlocked()
 
 void ShardQuorumProcessor::OnRequestLeaseTimeout()
 {
-    ClusterMessage msg;
+    uint64_t            expireTime;
+    ShardLeaseRequest*  lease;
+    ClusterMessage      msg;
     
     Log_Trace();
     
-    proposalID = REPLICATION_CONFIG->NextProposalID(proposalID);
-    msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), proposalID,
+    highestProposalID = REPLICATION_CONFIG->NextProposalID(highestProposalID);
+    msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), highestProposalID,
      GetPaxosID(), configID, PAXOSLEASE_MAX_LEASE_TIME);
     
-    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), proposalID);
+    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), highestProposalID);
     
     shardServer->BroadcastToControllers(msg);
 
-    requestedLeaseExpireTime = EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME;
+    expireTime = EventLoop::Now() + PAXOSLEASE_MAX_LEASE_TIME;
     if (!requestLeaseTimeout.IsActive())
         EventLoop::Add(&requestLeaseTimeout);
+
+    lease = new ShardLeaseRequest;
+    lease->proposalID = highestProposalID;
+    lease->expireTime = expireTime;
+    leaseRequests.Append(lease);
+    
+    while(leaseRequests.GetLength() > MAX_LEASE_REQUESTS)
+        leaseRequests.Delete(leaseRequests.First());
 }
 
 void ShardQuorumProcessor::OnLeaseTimeout()
