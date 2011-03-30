@@ -853,16 +853,12 @@ void Client::ReassignRequest(Request* req)
         }
 
         // simulate completion of the multi request with a fake response
+        resp.commandID = req->commandID;
         if (req->type == CLIENTREQUEST_COUNT)
-        {
             resp.Number(0);
-            resp.commandID = req->commandID;
-        }
         else
-        {
-            // TODO: ListKeys and ListKeyValues
-        }
-    
+            resp.OK();
+
         result->AppendRequestResponse(&resp);        
     }
     else
