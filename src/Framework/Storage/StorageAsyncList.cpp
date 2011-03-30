@@ -87,6 +87,7 @@ void StorageAsyncList::ExecuteAsyncList()
     
     if (stage == START)
     {
+        shardLastKey.Write(shard->GetLastKey());
         numChunks = shard->GetChunks().GetLength() + 1;
 
         listers = new StorageChunkLister*[numChunks];
@@ -251,6 +252,14 @@ Restart:
     {
         if (iterators[i] != NULL) 
         {
+            // check that keys are still in the merged interval
+            if (shardLastKey.GetLength() > 0 && 
+             ReadBuffer::Cmp(iterators[i]->GetKey(), shardLastKey) >= 0)
+            {
+                iterators[i] = NULL;
+                continue;
+            }
+            
             // in case of key equality, the lister with the highest chunkID wins
             if (it != NULL && ReadBuffer::Cmp(iterators[i]->GetKey(), key) == 0)
             {

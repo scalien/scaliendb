@@ -76,6 +76,7 @@ public:
     Stage                   stage;
     Callable                onComplete;
     StorageShard*           shard;
+    Buffer                  shardLastKey;
     ThreadPool*             threadPool;
     StorageFileKeyValue**   iterators;
     StorageChunkLister**    listers;
