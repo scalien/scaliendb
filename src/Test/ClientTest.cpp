@@ -1655,3 +1655,19 @@ TEST_DEFINE(TestClientFilter2)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientCount)
+{
+    Client          client;
+    Result*         result;
+    uint64_t        number;
+    
+    TEST(SetupDefaultClient(client));
+    TEST(client.Count("", 0, 0));
+    
+    result = client.GetResult();
+    TEST(result->GetNumber(number));
+    
+    delete result;
+
+    return TEST_SUCCESS;
+}

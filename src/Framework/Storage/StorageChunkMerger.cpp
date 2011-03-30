@@ -369,8 +369,7 @@ Restart:
     it = NULL;
     smallest = 0;
 
-    // readers are sorted by chunkID in increasing order
-    // (chunks that are created later has higher ID)
+    // readers are sorted by relevance, first is the oldest, last is the latest
     for (i = 0; i < numReaders; i++)
     {
         if (iterators[i] != NULL) 

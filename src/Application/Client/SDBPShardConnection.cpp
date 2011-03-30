@@ -213,6 +213,7 @@ void ShardConnection::InvalidateQuorum(uint64_t quorumID)
     Request*    it;
     Request*    prev;
 
+    // remove all sent requests and queue it back in quorum
     for (it = sentRequests.Last(); it != NULL; it = prev)
     {
         prev = sentRequests.Prev(it);
@@ -239,9 +240,7 @@ void ShardConnection::SendBulkLoadingRequest()
 {
     Request req;
 
-    req.BulkLoading(0);
-    req.isBulk = true;
-    
+    req.BulkLoading(0);    
     SendRequest(&req);
     Flush();
 }

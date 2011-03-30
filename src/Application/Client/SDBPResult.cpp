@@ -140,7 +140,6 @@ bool Result::AppendRequest(Request* req)
 bool Result::AppendRequestResponse(ClientResponse* resp)
 {
     Request*        req;
-    ClientResponse* respCopy;
     
     req = requests.Get(resp->commandID);
     if (!req)
@@ -149,53 +148,14 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     Log_Trace("%U", resp->commandID);    
 
     req->responseTime = EventLoop::Now();
+
     if (resp->type == CLIENTRESPONSE_FAILED)
         req->status = SDBP_FAILED;
-    else
+    else if (req->status != SDBP_FAILED)
         req->status = SDBP_SUCCESS;
 
-    if (req->IsList() && req->type != CLIENTREQUEST_COUNT)
-    {
-        // copy data from connection buffer
-        if (resp->type == CLIENTRESPONSE_LIST_KEYS)
-            resp->CopyKeys();
-        if (resp->type == CLIENTRESPONSE_LIST_KEYVALUES)
-            resp->CopyKeyValues();
+    HandleRequestResponse(req, resp);
 
-        // each LIST request has an extra response meaning the end of transmission
-        if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
-            numCompleted++;
-        
-        // HACK for enabling Filter to work
-        if (req->async)
-            numCompleted = requests.GetCount();
-
-        // make a copy of the response as MessageConnection reuses the response object
-        respCopy = new ClientResponse;
-        resp->Transfer(*respCopy);
-        req->responses.Append(respCopy);
-    }
-    else
-    {
-        if (resp->type == CLIENTRESPONSE_VALUE)
-            resp->CopyValue();
-
-        if (!req->isBulk)
-        {
-            if (req->type != CLIENTRESPONSE_NORESPONSE)
-                numCompleted++;
-            resp->Transfer(req->response);
-        }
-        else
-        {
-            req->numBulkResponses++;
-            if (req->numBulkResponses == req->shardConns.GetLength())
-                numCompleted++;
-        }
-    }
-    
-//    Log_Message("commandID: %u", (unsigned) req->commandID);
-    
     if (numCompleted >= requests.GetCount())
         transportStatus = SDBP_SUCCESS;
     else
@@ -317,4 +277,72 @@ unsigned Result::GetRequestCount()
 Request* Result::GetRequestCursor()
 {
     return requestCursor;
+}
+
+void Result::HandleRequestResponse(Request* req, ClientResponse* resp)
+{
+    ClientResponse* respCopy;
+
+    if (req->IsList() && req->type != CLIENTREQUEST_COUNT)
+    {
+        // copy data from connection buffer
+        if (resp->type == CLIENTRESPONSE_LIST_KEYS)
+            resp->CopyKeys();
+        if (resp->type == CLIENTRESPONSE_LIST_KEYVALUES)
+            resp->CopyKeyValues();
+
+        // each LIST request has an extra response meaning the end of transmission
+        if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
+            numCompleted++;
+        
+        // HACK for enabling Filter to work
+        if (req->async)
+            numCompleted = requests.GetCount();
+
+        // make a copy of the response as MessageConnection reuses the response object
+        respCopy = new ClientResponse;
+        resp->Transfer(*respCopy);
+        req->responses.Append(respCopy);
+    }
+    else
+    {
+        // copy data from connection buffer
+        if (resp->type == CLIENTRESPONSE_VALUE)
+            resp->CopyValue();
+
+        if (!req->isBulk)
+        {
+            if (req->response.type == CLIENTRESPONSE_NORESPONSE)
+                numCompleted++;
+            resp->Transfer(req->response);
+        }
+        else
+        {
+            req->numBulkResponses++;
+            if (req->numBulkResponses == req->shardConns.GetLength())
+                numCompleted++;
+        }
+    }
+
+    // 'resp' here is already transferred to 'req->response'
+    if (req->parent)
+        HandleMultiRequestResponse(req);
+}
+
+void Result::HandleMultiRequestResponse(Request* req)
+{
+    if (req->IsList() && req->type != CLIENTREQUEST_COUNT)
+    {
+        // TODO: sort & merge results
+    }
+    else
+    {
+        // type is CLIENTREQUEST_COUNT
+        
+        // update the aggregate value or set the response status
+        if (req->response.type == CLIENTRESPONSE_NUMBER)
+            req->parent->response.number += req->response.number;
+        else
+            req->parent->response.type = req->response.type;
+    }
 }

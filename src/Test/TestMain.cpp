@@ -1,6 +1,6 @@
 #include "TestFunction.h"
 
-#define TEST_LOG_TRACE   false
+#define TEST_LOG_TRACE   true
 
 TEST_START(TestMain);
 TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
@@ -19,6 +19,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBatchedSetBulk);
 //TEST_ADD(TestClientBatchedSetRandom);
 //TEST_ADD(TestClientBatchLimit);
+TEST_ADD(TestClientCount);
 //TEST_ADD(TestClientCreateTable);
 //TEST_ADD(TestClientGetFailover);
 //TEST_ADD(TestClientAddFailover);
@@ -36,7 +37,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientSetFailover);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
-TEST_ADD(TestConfigStateJSON);
+//TEST_ADD(TestConfigStateJSON);
 //TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);

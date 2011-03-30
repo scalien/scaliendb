@@ -104,6 +104,7 @@ private:
     void                    OnYieldStorageThreadsTimer();
     void                    OnExecuteReads();
     void                    OnExecuteLists();
+    uint64_t                FindNextShard(uint64_t tableID, ReadBuffer shardLastKey, ReadBuffer& startKey);
 
     ShardServer*            shardServer;
     StorageEnvironment      environment;
