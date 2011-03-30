@@ -124,17 +124,17 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     {
         if (request->commandID == response.commandID)
         {
-            // put back the request to the quorum queue and 
-            // invalidate quorum state on NOSERVICE response
+            sentRequests.Remove(request);
+            
+            // put back the request to the quorum queue
+            // on next config state response the client 
+            // will reconfigure the quorums and will resend
+            // the requests
             if (response.type == CLIENTRESPONSE_NOSERVICE)
             {
-                sentRequests.Remove(request);
-                client->AddRequestToQuorum(request, false);
-                client->InvalidateQuorum(request->quorumID, nodeID);
+                client->AddRequestToQuorum(request, true);
                 return false;
-            }
-            
-            sentRequests.Remove(request);
+            }            
             break;
         }
     }

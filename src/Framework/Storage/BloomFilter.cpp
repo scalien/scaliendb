@@ -82,7 +82,7 @@ void BloomFilter::StaticInit()
 
 void BloomFilter::SetSize(uint32_t size)
 {
-    Log_Debug("bloom filter size: %u", size);
+//    Log_Debug("bloom filter size: %u", size);
     
     buffer.Allocate(size);
     buffer.SetLength(size);
