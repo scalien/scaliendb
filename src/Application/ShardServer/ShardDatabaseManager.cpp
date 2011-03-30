@@ -177,7 +177,7 @@ void ShardDatabaseAsyncList::TryNextShard()
         configShard = configState->GetShard(*itShard);
         if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, shardLastKey))
         {
-            if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(minKey, configShard->firstKey))
+            if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey))
             {
                 minKey = configShard->firstKey;
                 nextShardID = *itShard;

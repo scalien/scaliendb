@@ -101,10 +101,8 @@ Fail:
 void StorageBloomPage::Write(Buffer& buffer)
 {
     uint32_t    checksum;
-    unsigned    i;
-    
 //    unsigned count = 0;
-//    for (i = 0; i < bloomFilter.GetBuffer().GetLength(); i++)
+//    for (unsigned i = 0; i < bloomFilter.GetBuffer().GetLength(); i++)
 //    {
 //        uint32_t x = *(unsigned char*)(bloomFilter.GetBuffer().GetBuffer() + i);
 //        count += bloomFilter.BitCount(x);
