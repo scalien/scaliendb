@@ -15,7 +15,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBatchedGet);
 //TEST_ADD(TestClientBatchedGet2);
 //TEST_ADD(TestClientBatchedSet);
-TEST_ADD(TestClientBatchedSet2);
+//TEST_ADD(TestClientBatchedSet2);
 //TEST_ADD(TestClientBatchedSetBulk);
 //TEST_ADD(TestClientBatchedSetRandom);
 //TEST_ADD(TestClientBatchLimit);
@@ -36,6 +36,7 @@ TEST_ADD(TestClientBatchedSet2);
 //TEST_ADD(TestClientSetFailover);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
+TEST_ADD(TestConfigStateJSON);
 //TEST_ADD(TestCrashStorage);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);

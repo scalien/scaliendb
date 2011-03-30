@@ -1099,6 +1099,7 @@ void Client::ConfigureShardServers()
     // assign quorums to ShardConnections
     FOREACH (qit, configState->quorums)
     {
+        Log_Trace("quorumID: %U, primary: %U", qit->quorumID, qit->hasPrimary ? qit->primaryID : 0);
         FOREACH (nit, qit->activeNodes)
         {
             shardConn = shardConnections.Get(*nit);
