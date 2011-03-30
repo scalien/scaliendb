@@ -129,8 +129,8 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             if (response.type == CLIENTRESPONSE_NOSERVICE)
             {
                 sentRequests.Remove(request);
-                client->AddRequestToQuorum(request, false);
-                client->InvalidateQuorum(request->quorumID, nodeID);
+                client->AddRequestToQuorum(request, true);
+                client->SendQuorumRequest(this, request->quorumID);
                 return false;
             }
             
