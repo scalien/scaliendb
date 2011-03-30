@@ -877,6 +877,13 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
         shard->memoChunk = NULL; // TODO: private hack
     }
 
+    FOREACH (itShard, shards)
+    {
+        Log_Debug("Listing chunks for shard %u/%U", itShard->GetContextID(), itShard->GetShardID());
+        FOREACH (itChunk, itShard->GetChunks())
+            Log_Debug(" - Chunk %U (state = %u)", (*itChunk)->GetChunkID(), (*itChunk)->GetChunkState());
+    }
+
     for (chunk = shard->GetChunks().First(); chunk != NULL; /* advanced in body*/ )
     {
         found = false;
@@ -889,53 +896,56 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
                 if ((*chunk)->GetChunkID() == (*itChunk)->GetChunkID())
                 {
                     found = true;
-                    goto EndLoops;
+                    break;
                 }
             }
+            if (found)
+                break;
         }
         
-        EndLoops:
-        if (!found)
+        if (found)
+            goto Advance;
+
+        if ((*chunk)->GetChunkState() <= StorageChunk::Serialized)
         {
-            if ((*chunk)->GetChunkState() <= StorageChunk::Serialized)
+            memoChunk = (StorageMemoChunk*) *chunk;
+            if (serializeChunk == *chunk)
             {
-                memoChunk = (StorageMemoChunk*) *chunk;
-                if (serializeChunk == *chunk)
-                {
-                    memoChunk->deleted = true;
-                }
-                else
-                {
-                    job = new StorageDeleteMemoChunkJob(memoChunk);
-                    StartJob(asyncThread, job);
-                }
+                memoChunk->deleted = true;
             }
             else
             {
-                fileChunk = (StorageFileChunk*) *chunk;
-                fileChunks.Remove(fileChunk);
+                job = new StorageDeleteMemoChunkJob(memoChunk);
+                StartJob(asyncThread, job);
+            }
+        }
+        else
+        {
+            fileChunk = (StorageFileChunk*) *chunk;
+            fileChunks.Remove(fileChunk);
 
-                StorageFileChunk**  mergeChunk;
-                FOREACH (mergeChunk, mergeChunks)
-                {
-                    if (fileChunk == *mergeChunk)
-                    {
-                        fileChunk->deleted = true;
-                        goto Advance;
-                    }
-                }
-                
-                if (fileChunk == writeChunk)
+            StorageFileChunk**  mergeChunk;
+            FOREACH (mergeChunk, mergeChunks)
+            {
+                if (fileChunk == *mergeChunk)
                 {
                     fileChunk->deleted = true;
                     goto Advance;
                 }
-
-                fileChunk->RemovePagesFromCache();
-                job = new StorageDeleteFileChunkJob(fileChunk);
-                StartJob(asyncThread, job);                    
             }
+            
+            if (fileChunk == writeChunk)
+            {
+                fileChunk->deleted = true;
+                goto Advance;
+            }
+
+            Log_Debug("Removing chunk %U from caches", fileChunk->GetChunkID());
+            fileChunk->RemovePagesFromCache();
+            job = new StorageDeleteFileChunkJob(fileChunk);
+            StartJob(asyncThread, job);                    
         }
+
         Advance:
         chunk = shard->GetChunks().Remove(chunk);
     }
@@ -1519,16 +1529,12 @@ void StorageEnvironment::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageF
     
     FOREACH(shard, shards)
     {
-        for (chunk = shard->GetChunks().First(); chunk != NULL; /* advanced in body */)
+        for (chunk = shard->GetChunks().First(); chunk != NULL; chunk = shard->GetChunks().Next(chunk))
         {
             if (*chunk == memoChunk)
             {
                 shard->OnChunkSerialized(memoChunk, fileChunk);
-                chunk = shard->GetChunks().First();
-            }
-            else
-            {
-                chunk = shard->GetChunks().Next(chunk);
+                break;
             }
         }
     }
