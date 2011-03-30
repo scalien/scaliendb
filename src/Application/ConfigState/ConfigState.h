@@ -113,6 +113,7 @@ private:
     bool                CompleteUnfreezeTable(ConfigMessage& message);
     bool                CompleteSplitShardBegin(ConfigMessage& message);
     bool                CompleteSplitShardComplete(ConfigMessage& message);
+    bool                CompleteShardMigrationComplete(ConfigMessage& message);
 
     void                OnRegisterShardServer(ConfigMessage& message);
     void                OnCreateQuorum(ConfigMessage& message);

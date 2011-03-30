@@ -173,6 +173,9 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
             return CompleteSplitShardComplete(message);
 
+        case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
+            return CompleteShardMigrationComplete(message);
+
         /* Table management */
         case CONFIGMESSAGE_CREATE_TABLE:
             return CompleteCreateTable(message);
@@ -764,6 +767,11 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
         return true;
     
     return false;
+}
+
+bool ConfigState::CompleteShardMigrationComplete(ConfigMessage& message)
+{
+    return true;
 }
 
 void ConfigState::OnRegisterShardServer(ConfigMessage& message)
