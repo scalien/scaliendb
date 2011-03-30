@@ -112,10 +112,13 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     SortedList<uint64_t>    activeNodes;
     uint64_t*               it;
     
-    if (proposalID != message.proposalID)
-        return;
+    Log_Debug("Received lease for quorum %U with proposalID %U", GetQuorumID(), message.proposalID);
 
-    Log_Trace("received lease for quorum %U", GetQuorumID());
+    if (proposalID != message.proposalID)
+    {
+        Log_Debug("Dropping received lease because proposalID does not match");
+        return;
+    }
 
     SortedList<uint64_t>& shards = shardServer->GetConfigState()->GetQuorum(GetQuorumID())->shards;
     if (shards != message.shards)
@@ -224,6 +227,8 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     proposalID = REPLICATION_CONFIG->NextProposalID(proposalID);
     msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), proposalID,
      GetPaxosID(), configID, PAXOSLEASE_MAX_LEASE_TIME);
+    
+    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), proposalID);
     
     shardServer->BroadcastToControllers(msg);
 

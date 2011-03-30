@@ -129,6 +129,9 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
     response.ReceiveLease(message.nodeID, message.quorumID,
      message.proposalID, quorum.configID, duration, false, activeNodes, quorum.shards);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
+    
+    Log_Debug("Assigning primary lease of quorum %U to node %U with proposalID %U",
+     message.quorumID, message.nodeID, message.proposalID);
 }
 
 void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
@@ -163,6 +166,8 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
      quorum.isWatchingPaxosID, activeNodes, quorum.shards);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
 
+    Log_Debug("Extending primary lease of quorum %U to node %U with proposalID %U",
+     message.quorumID, message.nodeID, message.proposalID);
 }
 
 void ConfigPrimaryLeaseManager::UpdateTimer()
