@@ -143,6 +143,8 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
     switch (message.type)
     {
         /* Cluster management */
+        case CONFIGMESSAGE_SET_CLUSTER_ID:
+            return CompleteSetClusterID(message);
         case CONFIGMESSAGE_REGISTER_SHARDSERVER:
             return CompleteRegisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
@@ -484,6 +486,11 @@ ConfigShardServer* ConfigState::GetShardServer(uint64_t nodeID)
     return NULL;
 }
 
+bool ConfigState::CompleteSetClusterID(ConfigMessage& )
+{
+    return true;
+}
+
 bool ConfigState::CompleteRegisterShardServer(ConfigMessage&)
 {
     return true;
@@ -583,7 +590,12 @@ bool ConfigState::CompleteDeactivateShardServer(ConfigMessage& message)
         return false; // no such quorum
 
     if (quorum->IsActiveMember(message.nodeID))
+    {
+        if (quorum->activeNodes.GetLength() == 1)
+            return false;
+
         return true;
+    }
 
     return false;
 }
@@ -858,8 +870,8 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
             shardServer = GetShardServer(quorum->activatingNodeID);
             assert(shardServer != NULL);
             
-            Log_Message("Activation succeeded for quorum %U and shard server %U",
-             quorum->quorumID, quorum->activatingNodeID);
+            Log_Message("Activated shard server %U in quorum %U ",
+             quorum->activatingNodeID, quorum->quorumID);
 
             quorum->ClearActivation();
         }
@@ -877,14 +889,14 @@ void ConfigState::OnDeactivateShardServer(ConfigMessage& message)
     // make sure quorum exists
     assert(quorum != NULL);
     
-    if (quorum->IsActiveMember(message.nodeID))
-    {
-        quorum->activeNodes.Remove(message.nodeID);
-        quorum->inactiveNodes.Add(message.nodeID);
-        return;
-    }
-    
-    ASSERT_FAIL();
+    if (!quorum->IsActiveMember(message.nodeID))
+        ASSERT_FAIL();
+
+    quorum->activeNodes.Remove(message.nodeID);
+    quorum->inactiveNodes.Add(message.nodeID);
+
+    Log_Message("Deactivating shard server %U in quorum %U...", message.nodeID, message.quorumID);
+
 }
 
 void ConfigState::OnCreateDatabase(ConfigMessage& message)
