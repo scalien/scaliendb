@@ -224,11 +224,13 @@ void ReplicatedLog::Append(Buffer& value)
         return;
     
     proposer.Propose(value);
+    
+//    Log_Debug("Proposing for paxosID = %U", GetPaxosID());
 }
 
 void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 {
-    Log_Trace();
+//    Log_Debug("ReplicatedLog::OnPrepareRequest");
 
     acceptor.OnPrepareRequest(imsg);
 
@@ -237,6 +239,8 @@ void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 
 void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
 {
+//    Log_Debug("ReplicatedLog::OnPrepareResponse");
+
     Log_Trace();
     
     if (imsg.paxosID == paxosID)
@@ -245,6 +249,8 @@ void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
 
 void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 {
+//    Log_Debug("ReplicatedLog::OnProposeRequest");
+
     Log_Trace();
     
     acceptor.OnProposeRequest(imsg);
@@ -254,6 +260,8 @@ void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 
 void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 {
+//    Log_Debug("ReplicatedLog::OnProposeResponse");
+
     Log_Trace();
 
     if (imsg.paxosID == paxosID)
@@ -340,6 +348,8 @@ void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
 void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value)
 {
     bool ownAppend;
+
+//    Log_Debug("Round completed for paxosID = %U", paxosID);
 
     Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
 
