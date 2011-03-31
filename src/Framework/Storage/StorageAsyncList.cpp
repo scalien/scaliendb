@@ -246,8 +246,7 @@ Restart:
     it = NULL;
     smallest = 0;
     
-    // listers are sorted by chunkID in increasing order
-    // (chunks that are created later has higher ID)
+    // listers are sorted by relevance, first is the oldest, last is the latest
     for (i = 0; i < numListers; i++)
     {
         if (iterators[i] != NULL) 

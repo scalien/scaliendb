@@ -52,19 +52,22 @@ public:
     unsigned        GetRequestCount();
     Request*        GetRequestCursor();
 
+    void            HandleRequestResponse(Request* req, ClientResponse* resp);
+    void            HandleMultiRequestResponse(Request* req);
+
 private:
     typedef InTreeMap<Request> RequestMap;
     
-    RequestMap      requests;
-    int             transportStatus;
-    int             timeoutStatus;
-    int             connectivityStatus;
-    unsigned        numCompleted;
-    Request*        requestCursor;
-    ClientResponse** responseCursor;
-    unsigned        responsePos;
-    uint64_t        batchLimit;
-    uint64_t        batchSize;
+    RequestMap          requests;
+    int                 transportStatus;
+    int                 timeoutStatus;
+    int                 connectivityStatus;
+    unsigned            numCompleted;
+    Request*            requestCursor;
+    ClientResponse**    responseCursor;
+    unsigned            responsePos;
+    uint64_t            batchLimit;
+    uint64_t            batchSize;
 };
 
 };  // namespace

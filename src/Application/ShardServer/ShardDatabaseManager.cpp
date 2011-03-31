@@ -167,23 +167,24 @@ void ShardDatabaseAsyncList::TryNextShard()
         return;
     }
     
-    configState = manager->GetConfigState();
-    configTable = configState->GetTable(request->tableID);
-    ASSERT(configTable != NULL);
-    
-    // find next shard
-    FOREACH (itShard, configTable->shards)
-    {
-        configShard = configState->GetShard(*itShard);
-        if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, shardLastKey))
-        {
-            if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey))
-            {
-                minKey = configShard->firstKey;
-                nextShardID = *itShard;
-            }
-        }
-    }
+//    configState = manager->GetConfigState();
+//    configTable = configState->GetTable(request->tableID);
+//    ASSERT(configTable != NULL);
+//    
+//    // find next shard
+//    FOREACH (itShard, configTable->shards)
+//    {
+//        configShard = configState->GetShard(*itShard);
+//        if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, shardLastKey))
+//        {
+//            if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey))
+//            {
+//                minKey = configShard->firstKey;
+//                nextShardID = *itShard;
+//            }
+//        }
+//    }
+    nextShardID = manager->FindNextShard(request->tableID, shardLastKey, minKey);
     
     Log_Debug("minKey: %R", &minKey);
     
@@ -694,7 +695,9 @@ void ShardDatabaseManager::OnExecuteLists()
 
         startKey.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
-        shardID = environment.GetShardID(contextID, itRequest->tableID, startKey);
+//        shardID = environment.GetShardID(contextID, itRequest->tableID, startKey);
+        ReadBuffer minKey;
+        shardID = FindNextShard(itRequest->tableID, startKey, minKey);
         configShard = shardServer->GetConfigState()->GetShard(shardID);
         ASSERT(configShard != NULL);
 
@@ -732,4 +735,36 @@ void ShardDatabaseManager::OnExecuteLists()
             return;
         }
     }
+}
+
+uint64_t ShardDatabaseManager::FindNextShard(uint64_t tableID, ReadBuffer shardLastKey, ReadBuffer& minKey)
+{
+    ConfigTable*    configTable;
+    ConfigShard*    configShard;
+    uint64_t*       itShard;
+    uint64_t        nextShardID;
+
+    configTable = GetConfigState()->GetTable(tableID);
+    ASSERT(configTable != NULL);
+    
+    nextShardID = 0;
+    FOREACH (itShard, configTable->shards)
+    {
+        configShard = GetConfigState()->GetShard(*itShard);
+        Log_Debug("quorumID: %U", configShard->quorumID);
+        if (!shardServer->GetQuorumProcessor(configShard->quorumID))
+            continue; // not local shard
+        
+        Log_Debug("firstKey: %B, shardLastKey: %R, minKey: %R", &configShard->firstKey, &shardLastKey, &minKey);
+        if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, shardLastKey))
+        {
+            if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey))
+            {
+                minKey = configShard->firstKey;
+                nextShardID = configShard->shardID;
+            }
+        }
+    }
+    
+    return nextShardID;
 }

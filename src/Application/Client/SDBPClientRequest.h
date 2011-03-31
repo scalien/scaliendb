@@ -31,12 +31,13 @@ public:
     uint64_t        requestTime;
     uint64_t        responseTime;
     unsigned        numTry;
-    unsigned        numQuorums;
     unsigned        numShardServers;
     unsigned        numBulkResponses;
     ResponseList    responses;
     bool            async;
+    bool            multi;              // multirequests are those that sent to multiple servers
     ShardConnList   shardConns;
+    Request*        parent;
 };
 
 };  // namespace

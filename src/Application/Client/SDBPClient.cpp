@@ -814,6 +814,7 @@ void Client::ReassignRequest(Request* req)
     uint64_t        quorumID;
     ConfigQuorum*   quorum;
     ReadBuffer      key;
+    Request*        subRequest;
     
     if (!configState)
         return;
@@ -821,27 +822,58 @@ void Client::ReassignRequest(Request* req)
     if (req->IsControllerRequest())
     {
         if (master >= 0)
-        {
             controllerConnections[master]->Send(req);
-        }
         else
             requests.Append(req);
 
         return;
     }
-    
-    key.Wrap(req->key);
-    if (!GetQuorumID(req->tableID, key, quorumID))
-        ASSERT_FAIL();
 
-    // reassign the request to the new quorum
-    req->quorumID = quorumID;
+    // multi requests won't be reassigned again, because they are not assigned to quorums
+    // instead subRequests created as a clone of the multi request and subRequests are sent
+    // to all quorums
+    if (req->multi)
+    {
+        ClientResponse  resp;
+        
+        FOREACH (quorum, configState->quorums)
+        {
+            subRequest = new Request;
+            // TODO: HACK copy the parent request ClientRequest part
+            *((ClientRequest*) subRequest) = *((ClientRequest*) req);
+            subRequest->next = subRequest->prev = subRequest;
+            subRequest->commandID = NextCommandID();
+            subRequest->quorumID = quorum->quorumID;
+            subRequest->parent = req;
+            result->AppendRequest(subRequest);
 
-    quorum = configState->GetQuorum(quorumID);
-    if (IsSafe() && quorum->hasPrimary == false)
-        requests.Append(req);
+            AddRequestToQuorum(subRequest);
+        }
+
+        // simulate completion of the multi request with a fake response
+        resp.commandID = req->commandID;
+        if (req->type == CLIENTREQUEST_COUNT)
+            resp.Number(0);
+        else
+            resp.OK();
+
+        result->AppendRequestResponse(&resp);        
+    }
     else
-        AddRequestToQuorum(req);
+    {
+        key.Wrap(req->key);
+        if (!GetQuorumID(req->tableID, key, quorumID))
+            ASSERT_FAIL();
+
+        // reassign the request to the new quorum
+        req->quorumID = quorumID;
+
+        quorum = configState->GetQuorum(quorumID);
+        if (IsSafe() && quorum->hasPrimary == false)
+            requests.Append(req);
+        else
+            AddRequestToQuorum(req);
+    }
 }
 
 void Client::AssignRequestsToQuorums()

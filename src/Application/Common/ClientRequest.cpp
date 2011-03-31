@@ -399,5 +399,6 @@ bool ClientRequest::BulkLoading(uint64_t commandID_)
 {
     type = CLIENTREQUEST_BULK_LOADING;
     commandID = commandID_;
+    isBulk = true;
     return true;
 }
