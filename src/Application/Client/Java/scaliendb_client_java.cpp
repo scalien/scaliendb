@@ -1210,6 +1210,18 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Se
 }
 
 
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetConsistencyLevel(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  int arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  arg2 = (int)jarg2; 
+  SDBP_SetConsistencyLevel(arg1,arg2);
+}
+
+
 SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1CreateQuorum(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2, jobject jarg2_) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;

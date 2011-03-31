@@ -165,6 +165,7 @@ public:
     uint64_t        tableID;
     uint64_t        shardID;
     uint64_t        nodeID;
+    uint64_t        paxosID;
     int64_t         number;
     unsigned        count;
     unsigned        offset;

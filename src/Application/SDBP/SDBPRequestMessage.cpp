@@ -5,6 +5,7 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
     int         read;
     unsigned    i, numNodes;
     uint64_t    nodeID;
+    ReadBuffer  optional;
         
     if (buffer.GetLength() < 1)
         return false;
@@ -104,9 +105,10 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
             
         /* Data operations */
         case CLIENTREQUEST_GET:
-            read = buffer.Readf("%c:%U:%U:%#B",
+            read = buffer.Readf("%c:%U:%U:%U:%#B",
              &request->type, &request->commandID,
-             &request->tableID, &request->key);
+             &request->tableID, &request->paxosID,
+             &request->key);
             break;
         case CLIENTREQUEST_SET:
         case CLIENTREQUEST_SET_IF_NOT_EXISTS:
@@ -248,9 +250,10 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 
         /* Data operations */
         case CLIENTREQUEST_GET:
-            buffer.Appendf("%c:%U:%U:%#B",
+            buffer.Appendf("%c:%U:%U:%U:%#B",
              request->type, request->commandID,
-             request->tableID, &request->key);
+             request->tableID, request->paxosID,
+             &request->key);
             return true;
         case CLIENTREQUEST_SET:
         case CLIENTREQUEST_SET_IF_NOT_EXISTS:

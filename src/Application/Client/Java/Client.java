@@ -18,11 +18,15 @@ public class Client
 	private SWIGTYPE_p_void cptr;
 	private Result result;
     private Result lastResult;
-	
+
+	private static final int CONSISTENCY_ANY = 0;
+	private static final int CONSISTENCY_RYW = 1;
+	private static final int CONSISTENCY_STRICT = 2;
+    
     /**
      * Creates client object.
      *
-     * @param   nodes   the list addresses of controllers e.g. "localhost:7080"
+     * @param   nodes   the addresses of controllers e.g. "localhost:7080"
      *
      */
 	public Client(String[] nodes) {
@@ -131,6 +135,28 @@ public class Client
 	public void setBulkLoading(boolean bulk) {
 		scaliendb_client.SDBP_SetBulkLoading(cptr, bulk);
 	}
+
+    /**
+     * Sets the consistency level for read operations.
+     *
+     * <p>There are separate consistency levels the client can operate at.
+     *
+     * <li>CONSISTENCY_ANY means that any shard server can serve the read requests. Usually this
+     * can be used for load-balancing between replicas, and due to total replication it will be
+     * consistent most of the time, but still there is a small chance of inconsistency when one of
+     * the shard servers are failing.
+     *
+     * <li>CONSISTENCY_RYW means "read your writes" consistency, so one client will always get
+     * consistent view of their own writes.
+     *
+     * <li>CONSISTENCY_STRICT means that all read requests will be served by the primary shard server.
+     * Therefore it is always consistent.
+     *
+     * @param   consistencyLevel    can be CONSISTENCY_ANY, CONSISTENCY_RYW or CONSISTENCY_STRICT
+     */
+    public void setConsistencyLevel(int consistencyLevel) {
+        scaliendb_client.SDBP_SetConsistencyLevel(cptr, consistencyLevel);
+    }
 
     /**
      * Returns the specified quorum.

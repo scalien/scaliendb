@@ -12,6 +12,7 @@ void ClientRequest::Init()
     session = NULL;
     response.request = this;
     prev = next = this;
+    paxosID = 0;
     isBulk = false;
 
     response.NoResponse();

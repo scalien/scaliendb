@@ -61,6 +61,7 @@ class scaliendb_clientJNI {
   public final static native java.math.BigInteger SDBP_GetCurrentTableID(long jarg1);
   public final static native void SDBP_SetBatchLimit(long jarg1, java.math.BigInteger jarg2);
   public final static native void SDBP_SetBulkLoading(long jarg1, boolean jarg2);
+  public final static native void SDBP_SetConsistencyLevel(long jarg1, int jarg2);
   public final static native int SDBP_CreateQuorum(long jarg1, long jarg2, SDBP_NodeParams jarg2_);
   public final static native int SDBP_DeleteQuorum(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_AddNode(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3);

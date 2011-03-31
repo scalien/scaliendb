@@ -19,6 +19,10 @@ SDBP_NOSERVICE = -401
 SDBP_FAILED = -402
 SDBP_BADSCHEMA = -403
 
+SDBP_CONSISTENCY_ANY = 0
+SDBP_CONSISTENCY_RYW = 1
+SDBP_CONSISTENCY_STRICT = 2
+
 def str_status(status):
     if status == SDBP_SUCCESS:
         return "SDBP_SUCCESS"
@@ -153,6 +157,9 @@ class Client:
 
     def set_bulk_loading(self):
         SDBP_SetBulkLoading(self.cptr)
+
+    def set_consistency_level(self, consistency_level):
+        SDBP_SetConsistencyLevel(self.cptr, consistency_level)
 
     def create_quorum(self, nodes):
         node_params = SDBP_NodeParams(len(nodes))

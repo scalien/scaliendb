@@ -318,7 +318,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
     assert(configQuorum);
 
-    if (!quorumContext.IsLeader() && !request->isBulk)
+    if (request->paxosID > 0 && !quorumContext.IsLeader() && !request->isBulk)
     {
         Log_Trace();
         request->response.NoService();

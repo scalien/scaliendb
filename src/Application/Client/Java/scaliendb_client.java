@@ -127,6 +127,10 @@ public class scaliendb_client {
     scaliendb_clientJNI.SDBP_SetBulkLoading(SWIGTYPE_p_void.getCPtr(client), bulk);
   }
 
+  public static void SDBP_SetConsistencyLevel(SWIGTYPE_p_void client, int consistencyLevel) {
+    scaliendb_clientJNI.SDBP_SetConsistencyLevel(SWIGTYPE_p_void.getCPtr(client), consistencyLevel);
+  }
+
   public static int SDBP_CreateQuorum(SWIGTYPE_p_void client, SDBP_NodeParams params) {
     return scaliendb_clientJNI.SDBP_CreateQuorum(SWIGTYPE_p_void.getCPtr(client), SDBP_NodeParams.getCPtr(params), params);
   }

@@ -825,6 +825,7 @@ void Client::ReassignRequest(Request* req)
     if (!configState)
         return;
     
+    // handle controller requests
     if (req->IsControllerRequest())
     {
         if (master >= 0)
@@ -867,6 +868,7 @@ void Client::ReassignRequest(Request* req)
     }
     else
     {
+        // find quorum by key
         key.Wrap(req->key);
         if (!GetQuorumID(req->tableID, key, quorumID))
             ASSERT_FAIL();
@@ -967,19 +969,22 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     unsigned            numRequests;
     unsigned            numServed;
 
-    if (!quorumRequests.Get(quorumID, qrequests))
-        return;
-    
-    if (!configState)
-        return;
-
+    // sanity checks
     if (conn->GetState() != TCPConnection::CONNECTED)
         return;
 
+    if (!configState)
+        return;
+
+    // check quorums
+    if (!quorumRequests.Get(quorumID, qrequests))
+        return;
+    
     quorum = configState->GetQuorum(quorumID);
     if (!quorum)
         ASSERT_FAIL();
     
+    // with consistency level set to STRICT, send requests only to primary shard server
     if (!isBulkLoading && consistencyLevel == SDBP_CONSISTENCY_STRICT && 
      quorum->primaryID != conn->GetNodeID())
         return;
@@ -991,6 +996,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     {   
         req = qrequests->First();
         qrequests->Remove(req);
+        
+        // handle bulk requests
         if (req->isBulk && quorum->activeNodes.GetLength() > 1)
         {
             // send to all shardservers before removing from quorum requests

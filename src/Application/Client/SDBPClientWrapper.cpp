@@ -339,6 +339,13 @@ void SDBP_SetBulkLoading(ClientObj client_, bool bulk)
     return client->SetBulkLoading(bulk);
 }
 
+void SDBP_SetConsistencyLevel(ClientObj client_, int consistencyLevel)
+{
+    Client* client = (Client*) client_;
+
+    return client->SetConsistencyLevel(consistencyLevel);
+}
+
 int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)
 {
     Client*                 client = (Client*) client_;
