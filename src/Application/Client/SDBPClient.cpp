@@ -73,8 +73,6 @@ Mutex   globalMutex;
                                                     \
     req = new Request;                              \
     req->op(NextCommandID(), tableID, __VA_ARGS__); \
-    if (req->type == CLIENTREQUEST_COUNT)           \
-        req->multi = true;                          \
     req->isBulk = isBulkLoading;                    \
     requests.Append(req);                           \
                                                     \
