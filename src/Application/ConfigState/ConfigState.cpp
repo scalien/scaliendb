@@ -769,7 +769,7 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
     return false;
 }
 
-bool ConfigState::CompleteShardMigrationComplete(ConfigMessage& message)
+bool ConfigState::CompleteShardMigrationComplete(ConfigMessage& )
 {
     return true;
 }

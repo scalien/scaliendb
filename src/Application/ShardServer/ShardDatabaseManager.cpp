@@ -153,12 +153,8 @@ void ShardDatabaseAsyncList::OnRequestComplete()
 
 void ShardDatabaseAsyncList::TryNextShard()
 {
-    ConfigState*    configState;
-    ConfigTable*    configTable;
-    ConfigShard*    configShard;
     ReadBuffer      minKey;
     uint64_t        nextShardID;
-    uint64_t*       itShard;
     
     if (shardLastKey.GetLength() == 0)
     {
@@ -167,23 +163,6 @@ void ShardDatabaseAsyncList::TryNextShard()
         return;
     }
     
-//    configState = manager->GetConfigState();
-//    configTable = configState->GetTable(request->tableID);
-//    ASSERT(configTable != NULL);
-//    
-//    // find next shard
-//    FOREACH (itShard, configTable->shards)
-//    {
-//        configShard = configState->GetShard(*itShard);
-//        if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, shardLastKey))
-//        {
-//            if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey))
-//            {
-//                minKey = configShard->firstKey;
-//                nextShardID = *itShard;
-//            }
-//        }
-//    }
     nextShardID = manager->FindNextShard(request->tableID, shardLastKey, minKey);
     
     Log_Debug("minKey: %R", &minKey);
@@ -191,7 +170,7 @@ void ShardDatabaseAsyncList::TryNextShard()
     // found the next shard
     if (minKey.GetLength() != 0)
     {
-        // TODO: HACK updating the request
+        // TODO: HACK update the request with the next shard's startKey
         request->key.Write(minKey);
         request->offset = offset;
         

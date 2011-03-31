@@ -69,6 +69,13 @@ void ShardConnection::Flush()
     FlushWriteBuffer();
 }
 
+bool ShardConnection::HasRequestBuffered()
+{
+    if (writeBuffer && writeBuffer->GetLength() > 0)
+        return true;
+    return false;
+}
+
 uint64_t ShardConnection::GetNodeID()
 {
     return nodeID;
@@ -162,7 +169,7 @@ void ShardConnection::OnConnect()
     //Log_Debug("Shard connection connected, endpoint: %s", endpoint.ToString());
 
     CLIENT_MUTEX_GUARD_DECLARE();
-    
+
     MessageConnection::OnConnect();
     if (client->IsBulkLoading() && !isBulkSent)
     {

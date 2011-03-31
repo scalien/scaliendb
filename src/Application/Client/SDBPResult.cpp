@@ -145,7 +145,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     if (!req)
         return false;
 
-    Log_Trace("%U", resp->commandID);    
+//    Log_Trace("%U", resp->commandID);    
 
     req->responseTime = EventLoop::Now();
 

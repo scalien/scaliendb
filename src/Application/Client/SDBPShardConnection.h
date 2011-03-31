@@ -33,6 +33,7 @@ public:
     bool                    SendRequest(Request* request);
     void                    SendSubmit(uint64_t quorumID);
     void                    Flush();
+    bool                    HasRequestBuffered();
 
     uint64_t                GetNodeID();
     Endpoint&               GetEndpoint();

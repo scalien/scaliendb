@@ -40,6 +40,7 @@ using namespace SDBPClient;
 static int SetupDefaultClient(Client& client)
 {
     const char*     nodes[] = {"localhost:7080"};
+//    const char*     nodes[] = {"192.168.137.51:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     int             ret;
@@ -691,7 +692,7 @@ TEST_DEFINE(TestClientBatchedGet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 50000;
+    unsigned        num = 10000;
     double          minLatency;
     double          maxLatency;
     double          avgLatency;
@@ -706,6 +707,7 @@ TEST_DEFINE(TestClientBatchedGet)
         TEST_CLIENT_FAIL();
 
     client.SetMasterTimeout(10000);
+    client.SetConsistencyLevel(SDBP_CONSISTENCY_ANY);
     ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();

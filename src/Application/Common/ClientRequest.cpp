@@ -79,6 +79,13 @@ bool ClientRequest::IsSafeRequest()
     return true;
 }
 
+bool ClientRequest::IsReadRequest()
+{
+    if (type == CLIENTREQUEST_GET || IsList())
+        return true;
+    return false;
+}
+
 bool ClientRequest::IsList()
 {
     if (type == CLIENTREQUEST_LIST_KEYS         ||

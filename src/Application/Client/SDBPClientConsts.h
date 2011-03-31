@@ -48,5 +48,8 @@
 
 #define SDBP_DEFAULT_TIMEOUT    120*1000 // msec
 
+#define SDBP_CONSISTENCY_ANY    0
+#define SDBP_CONSISTENCY_RYW    1
+#define SDBP_CONSISTENCY_STRICT 2
 
 #endif

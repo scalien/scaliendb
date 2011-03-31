@@ -37,7 +37,7 @@ public:
     int                     Init(int nodec, const char* nodev[]);
     void                    Shutdown();
 
-    // timeout
+    // settings
     void                    SetGlobalTimeout(uint64_t timeout);
     void                    SetMasterTimeout(uint64_t timeout);
     uint64_t                GetGlobalTimeout();
@@ -49,6 +49,8 @@ public:
     void                    SetBatchLimit(uint64_t batchLimit);
     void                    SetBulkLoading(bool bulk);
     bool                    IsBulkLoading();
+    
+    void                    SetConsistencyLevel(int level);
     
     // result
     Result*                 GetResult();
@@ -165,6 +167,7 @@ private:
     bool                    isBatched;
     uint64_t                batchLimit;
     bool                    isBulkLoading;
+    int                     consistencyLevel;
 
 //#ifdef CLIENT_MULTITHREAD    
     Mutex                   mutex;

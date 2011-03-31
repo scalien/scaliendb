@@ -60,6 +60,7 @@ public:
     bool            IsControllerRequest();
     bool            IsShardServerRequest();
     bool            IsSafeRequest();
+    bool            IsReadRequest();
     bool            IsList();
     
     // Master query

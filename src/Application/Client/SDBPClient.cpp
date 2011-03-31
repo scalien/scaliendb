@@ -207,6 +207,7 @@ int Client::Init(int nodec, const char* nodev[])
     masterTime = 0;
     commandID = 0;
     masterCommandID = 0;
+    consistencyLevel = SDBP_CONSISTENCY_STRICT;
         
     isBatched = false;
     
@@ -307,6 +308,11 @@ void Client::SetBulkLoading(bool bulk)
 bool Client::IsBulkLoading()
 {
     return isBulkLoading;
+}
+
+void Client::SetConsistencyLevel(int level)
+{
+    consistencyLevel = level;
 }
 
 Result* Client::GetResult()
@@ -941,7 +947,7 @@ void Client::AddRequestToQuorum(Request* req, bool end)
         quorumRequests.Set(req->quorumID, qrequests);
     }
 
-    Log_Trace("qrequest length: %u, end = %s", qrequests->GetLength(), end ? "true" : "false");
+//    Log_Trace("qrequest length: %u, end = %s", qrequests->GetLength(), end ? "true" : "false");
 
     if (end)
         qrequests->Append(req);
@@ -958,6 +964,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     Request*            itRequest;
     uint64_t*           itNode;
     uint64_t            nodeID;
+    unsigned            numRequests;
+    unsigned            numServed;
 
     if (!quorumRequests.Get(quorumID, qrequests))
         return;
@@ -972,50 +980,58 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     if (!quorum)
         ASSERT_FAIL();
     
-    // TODO: distribute dirty
-    if (!IsSafe() || isBulkLoading || (quorum->hasPrimary && quorum->primaryID == conn->GetNodeID()))
-    {
-        while (qrequests->GetLength() > 0)
-        {   
-            req = qrequests->First();
-            qrequests->Remove(req);
-            if (req->isBulk && quorum->activeNodes.GetLength() > 1)
-            {
-                // send to all shardservers before removing from quorum requests
-                FOREACH (itNode, req->shardConns)
-                {
-                    if (*itNode == conn->GetNodeID())
-                        break;
-                }
-
-                if (itNode == NULL)
-                {
-                    // send
-                    bulkRequests.Append(req);
-                    nodeID = conn->GetNodeID();
-                    req->shardConns.Append(nodeID);
-                }
-                else
-                    continue;   // don't send the request because it is already sent
-            }
-                
-            if (!conn->SendRequest(req))
-            {
-                conn->Flush();
-                break;
-            }
-        }
-
-        if (qrequests->GetLength() == 0 || (isBulkLoading && bulkRequests.GetLength() == 0))
-            conn->Flush();
-        
-        // put back those requests to the quorum requests list that have not been sent to all
-        // shardservers
-        FOREACH_LAST (itRequest, bulkRequests)
+    if (!isBulkLoading && consistencyLevel == SDBP_CONSISTENCY_STRICT && 
+     quorum->primaryID != conn->GetNodeID())
+        return;
+    
+    numServed = 0;
+    numRequests = qrequests->GetLength();
+    Log_Trace("quorumID: %U, numRequests: %u, nodeID: %U", quorumID, numRequests, conn->GetNodeID());
+    while (qrequests->GetLength() > 0)
+    {   
+        req = qrequests->First();
+        qrequests->Remove(req);
+        if (req->isBulk && quorum->activeNodes.GetLength() > 1)
         {
-            bulkRequests.Remove(itRequest);
-            qrequests->Prepend(itRequest);
+            // send to all shardservers before removing from quorum requests
+            FOREACH (itNode, req->shardConns)
+            {
+                if (*itNode == conn->GetNodeID())
+                    break;
+            }
+
+            if (itNode == NULL)
+            {
+                // send
+                bulkRequests.Append(req);
+                nodeID = conn->GetNodeID();
+                req->shardConns.Append(nodeID);
+            }
+            else
+                continue;   // don't send the request because it is already sent
         }
+        
+        numServed++;
+        if (!conn->SendRequest(req))
+        {
+            conn->Flush();
+            break;
+        }
+        
+        // TODO: let other shardservers serve requests
+    }
+    
+    Log_Trace("quorumID: %U, numServed: %u, nodeID: %U", quorumID, numServed, conn->GetNodeID());
+
+    if (qrequests->GetLength() == 0 || (isBulkLoading && bulkRequests.GetLength() == 0))
+        conn->Flush();
+    
+    // put back those requests to the quorum requests list that have not been sent to all
+    // shardservers in bulk mode
+    FOREACH_LAST (itRequest, bulkRequests)
+    {
+        bulkRequests.Remove(itRequest);
+        qrequests->Prepend(itRequest);
     }
 }
 
