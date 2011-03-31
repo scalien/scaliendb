@@ -114,7 +114,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     ShardLeaseRequest*      lease;
     ShardLeaseRequest*      itLease;
     
-//    Log_Debug("Received lease for quorum %U with proposalID %U", GetQuorumID(), message.proposalID);
+    Log_Debug("Received lease for quorum %U with proposalID %U", GetQuorumID(), message.proposalID);
 
     FOREACH(itLease, leaseRequests)
         if (itLease->proposalID == message.proposalID)
@@ -255,7 +255,7 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), highestProposalID,
      GetPaxosID(), configID, PAXOSLEASE_MAX_LEASE_TIME);
     
-//    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), highestProposalID);
+    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), highestProposalID);
     
     shardServer->BroadcastToControllers(msg);
 
