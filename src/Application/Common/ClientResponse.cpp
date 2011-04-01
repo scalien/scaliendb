@@ -166,3 +166,9 @@ bool ClientResponse::NoResponse()
     type = CLIENTRESPONSE_NORESPONSE;
     return true;
 }
+
+bool ClientResponse::Hello()
+{
+    type = CLIENTRESPONSE_HELLO;
+    return true;
+}

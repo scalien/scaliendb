@@ -126,6 +126,12 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     if (!msg.Read(rbuf))
         return false;
     
+    if (response.type == CLIENTRESPONSE_HELLO)
+    {
+        Log_Trace("SDBP version: %U, message: %R", response.number, &response.value);
+        return false;
+    }
+    
     // find the request in sent requests by commandID
     FOREACH (request, sentRequests)
     {

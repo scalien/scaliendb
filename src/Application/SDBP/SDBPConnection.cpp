@@ -15,6 +15,9 @@ SDBPConnection::SDBPConnection()
 
 void SDBPConnection::Init(SDBPServer* server_)
 {
+    ClientResponse      resp;
+    SDBPResponseMessage sdbpResponse;
+    
     MessageConnection::InitConnected();
     
     numCompleted = 0;
@@ -24,6 +27,11 @@ void SDBPConnection::Init(SDBPServer* server_)
     
     socket.GetEndpoint(remoteEndpoint);
     Log_Message("[%s] Client connected", remoteEndpoint.ToString());
+    
+    resp.Hello();
+    sdbpResponse.response = &resp;
+    Write(sdbpResponse);
+    FlushWriteBuffer();
 }
 
 void SDBPConnection::SetContext(SDBPContext* context_)
@@ -34,7 +42,6 @@ void SDBPConnection::SetContext(SDBPContext* context_)
 bool SDBPConnection::OnMessage(ReadBuffer& msg)
 {
     SDBPRequestMessage  sdbpRequest;
-    SDBPResponseMessage sdbpResponse;
     ClientRequest*      request;
 
     request = REQUEST_CACHE->CreateRequest();

@@ -1,5 +1,6 @@
 #include "SDBPResponseMessage.h"
 #include "Application/Common/ClientRequest.h"
+#include "Version.h"
 
 bool SDBPResponseMessage::Read(ReadBuffer& buffer)
 {
@@ -77,6 +78,11 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &response->type, &response->commandID);
             break;
+        case CLIENTRESPONSE_HELLO:
+            read = buffer.Readf("%c:%U:%U:%#R",
+             &response->type, &response->commandID,
+             &response->number, &response->value);
+            return true;
         default:
             return false;
     }
@@ -123,6 +129,17 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         case CLIENTRESPONSE_FAILED:
             buffer.Writef("%c:%U",
              response->type, response->request->commandID);
+            return true;
+        case CLIENTRESPONSE_HELLO:
+            {
+                uint64_t    clientVersion = 1;
+                Buffer      msg;
+
+                msg.Writef("SDBP client protocol, server version v%s\n", VERSION_STRING);
+                buffer.Writef("%c:%U:%U:%#B",
+                 response->type, 0,
+                 clientVersion, &msg);
+            }
             return true;
         default:
             return false;
