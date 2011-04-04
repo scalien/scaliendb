@@ -713,7 +713,6 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
 #define MAKE_PRINTABLE(a) \
 printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal(); }
 
-
     bool                isSplitable;
     ReadBuffer          firstKey;
     ReadBuffer          lastKey;
