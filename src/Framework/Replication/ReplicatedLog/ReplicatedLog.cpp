@@ -146,12 +146,6 @@ void ReplicatedLog::OnMessage(PaxosMessage& imsg)
 {
     Log_Trace();
     
-    if (context->IsPaxosBlocked())
-    {
-        Log_Trace("paxos is blocked");
-        return;
-    }
-        
     if (imsg.type == PAXOS_PREPARE_REQUEST)
         OnPrepareRequest(imsg);
     else if (imsg.IsPrepareResponse())
