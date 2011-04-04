@@ -956,7 +956,8 @@ void Client::AddRequestToQuorum(Request* req, bool end)
     else
         qrequests->Prepend(req);
 }   
-    
+
+// maxRequests == 0 means no limit    
 void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
 {
     RequestList*        qrequests;
@@ -967,6 +968,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     uint64_t*           itNode;
     uint64_t            nodeID;
     unsigned            numRequests;
+    unsigned            maxRequests;
     unsigned            numServed;
 
     // sanity checks
@@ -989,9 +991,13 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
      quorum->primaryID != conn->GetNodeID())
         return;
     
+    maxRequests = 0;
+    if (consistencyLevel == SDBP_CONSISTENCY_ANY || consistencyLevel == SDBP_CONSISTENCY_RYW)
+        maxRequests = (unsigned) ceil(qrequests->GetLength() / quorum->activeNodes.GetLength());
+    
     numServed = 0;
     numRequests = qrequests->GetLength();
-    Log_Trace("quorumID: %U, numRequests: %u, nodeID: %U", quorumID, numRequests, conn->GetNodeID());
+    Log_Trace("quorumID: %U, numRequests: %u, maxRequests: %u, nodeID: %U", quorumID, numRequests, maxRequests, conn->GetNodeID());
     while (qrequests->GetLength() > 0)
     {   
         req = qrequests->First();
@@ -1026,6 +1032,11 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         }
         
         // TODO: let other shardservers serve requests
+        if (maxRequests != 0 && numServed >= maxRequests)
+        {
+            conn->Flush();
+            break;
+        }
     }
     
     Log_Trace("quorumID: %U, numServed: %u, nodeID: %U", quorumID, numServed, conn->GetNodeID());
@@ -1044,14 +1055,42 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
 
 void Client::SendQuorumRequests()
 {
-    ShardConnection*    conn;
-    uint64_t*           qit;
-    RequestList*        qrequests;
-    
+    ShardConnection*        conn;
+    uint64_t*               qit;
+    RequestList*            qrequests;
+    ShardConnection**       connArray;
+    unsigned                i;
+    int                     j;
+
     Log_Trace();
-    
+
+    // create an array for containing the connections in randomized order
+    connArray = new ShardConnection*[shardConnections.GetCount()];
+
+    i = 0;
     FOREACH (conn, shardConnections)
     {
+        connArray[i] = conn;
+        i++;
+    }
+    
+    if (consistencyLevel != SDBP_CONSISTENCY_STRICT)
+    {
+        // Fisher–Yates shuffle, modern version
+        for (i = shardConnections.GetCount() - 1; i >= 1; i--)
+        {
+            j = RandomInt(0, i);
+            conn = connArray[j];
+            connArray[j] = connArray[i];
+            connArray[i] = conn;
+        }
+    }
+    
+//    FOREACH (conn, shardConnections)
+    for (i = 0; i < shardConnections.GetCount(); i++)
+    {
+        conn = connArray[i];
+        
         if (conn->IsWritePending())
             continue;
 
@@ -1060,10 +1099,11 @@ void Client::SendQuorumRequests()
         {
             if (!quorumRequests.Get(*qit, qrequests))
                 continue;
-
             SendQuorumRequest(conn, *qit);
         }
-    }
+    }   
+
+    delete[] connArray;
 }
 
 void Client::ClearQuorumRequests()
