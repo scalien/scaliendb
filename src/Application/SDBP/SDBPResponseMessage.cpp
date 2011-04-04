@@ -133,11 +133,12 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         case CLIENTRESPONSE_HELLO:
             {
                 uint64_t    clientVersion = 1;
+                uint64_t    commandID = 0;
                 Buffer      msg;
 
                 msg.Writef("SDBP client protocol, server version v%s\n", VERSION_STRING);
                 buffer.Writef("%c:%U:%U:%#B",
-                 response->type, 0,
+                 response->type, commandID,
                  clientVersion, &msg);
             }
             return true;
