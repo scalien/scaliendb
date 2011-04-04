@@ -515,9 +515,9 @@ function onConfigState(configState)
 	scaliendb.util.elem("clusterState").textContent = "The ScalienDB cluster is " + scaliendb.getClusterState(configState);
 	scaliendb.util.elem("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
 	
-	clearTimeout(timer);
-	timer = setTimeout("onTimeout()", 1000);
-	// scaliendb.pollConfigState(onConfigState);
+	// clearTimeout(timer);
+	// timer = setTimeout("onTimeout()", 1000);
+	scaliendb.pollConfigState(onConfigState);
 }
 
 function onTimeout()

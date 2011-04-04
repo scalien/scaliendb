@@ -159,7 +159,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         CONFIG_STATE->migrateQuorumID = request->quorumID;
         CONFIG_STATE->migrateShardID = request->shardID;
         
-        UpdateListeners();
+        UpdateListeners(true);
 
         clusterMessage.ShardMigrationInitiate(
          dstNodeID, request->quorumID, request->shardID);
@@ -362,7 +362,7 @@ void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
     TryAppend();
 }
 
-void ConfigQuorumProcessor::UpdateListeners()
+void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
 {
     ClientRequest*                  itRequest;
     ConfigShardServer*              itShardServer;
@@ -370,32 +370,34 @@ void ConfigQuorumProcessor::UpdateListeners()
     Buffer                          checksumBuffer;
     bool                            configChanged;
     uint64_t                        now;
-    
-//    // check if the configState changed at all
-//    configChanged = false;
-//    configState->Write(checksumBuffer, true);
-//    checksum = checksumBuffer.GetChecksum();
-////    Log_Debug("Config state checksum: %u, prev: %u, %B", checksum, configStateChecksum, &checksumBuffer);
-//    if (checksum == 0 || checksum != configStateChecksum)
-//    {
-////        Log_Debug("Config state changed");
-//        configChanged = true;
-//        configStateChecksum = checksum;
-//    }
+    uint32_t                        checksum;
+    ConfigState*                    configState;
 
-    configChanged = true;
-    
-    // update clients
-    now = EventLoop::Now();
-    FOREACH (itRequest, listenRequests)
+    if (updateClients)
     {
-        if (configChanged || itRequest->changeTimeout < now - lastConfigChangeTime)
+        // check if the configState changed at all
+        configChanged = false;
+        configState = configServer->GetDatabaseManager()->GetConfigState();
+        configState->Write(checksumBuffer, true);
+        checksum = checksumBuffer.GetChecksum();
+        if (checksum == 0 || checksum != configStateChecksum)
         {
-            itRequest->response.ConfigStateResponse(*CONFIG_STATE);
-            itRequest->OnComplete(false);
-            // TODO: HACK
-            if (itRequest->changeTimeout != 0)
-                lastConfigChangeTime = now;
+            configChanged = true;
+            configStateChecksum = checksum;
+        }
+
+        // update clients
+        now = EventLoop::Now();
+        FOREACH (itRequest, listenRequests)
+        {
+            if (configChanged || itRequest->changeTimeout < now - lastConfigChangeTime)
+            {
+                itRequest->response.ConfigStateResponse(*CONFIG_STATE);
+                itRequest->OnComplete(false);
+                // TODO: HACK
+                if (itRequest->changeTimeout != 0)
+                    lastConfigChangeTime = now;
+            }
         }
     }
     
@@ -438,7 +440,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     
     CONFIG_STATE->hasMaster = false;
     CONFIG_STATE->masterID = 0;
-    configServer->OnConfigStateChanged(); // TODO: is this neccesary?
+    configServer->OnConfigStateChanged(false); // TODO: is this neccesary?
     // TODO: tell ActivationManager
 }
 
@@ -456,7 +458,7 @@ void ConfigQuorumProcessor::OnIsLeader()
     CONFIG_STATE->masterID = GetMaster();
 
     if (updateListeners && (uint64_t) GetMaster() == configServer->GetNodeID())
-        UpdateListeners();
+        UpdateListeners(true);
 
     // check cluster ID
     clusterID = REPLICATION_CONFIG->GetClusterID();
@@ -499,7 +501,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     
     CONFIG_STATE->OnMessage(message);
     configServer->GetDatabaseManager()->Write();
-    configServer->OnConfigStateChanged(); // UpdateActivationTimeout();
+    configServer->OnConfigStateChanged(false); // UpdateActivationTimeout();
 
     if (message.type == CONFIGMESSAGE_SET_CLUSTER_ID)
     {
@@ -533,7 +535,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     }
     
     if (IsMaster())
-        UpdateListeners();
+        UpdateListeners(true);
 
     if (ownAppend)
     {

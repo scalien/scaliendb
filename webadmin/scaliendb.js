@@ -363,7 +363,8 @@ var scaliendb =
 				url += value;
 			}
 			// TODO: detecting browser functionality
-			// this.getJSONP(url, userfunc, errorfunc, true);
+			// this.getJSONP(url, userfunc, errorfunc, true);   
+			this.abort();
 			this.getXHR(url, userfunc, errorfunc, true);
 		},
 	
