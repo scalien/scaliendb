@@ -96,7 +96,7 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool force
 
                 Log_Message("Activation started for shard server %U and quorum %U...",
                  itQuorum->activatingNodeID, itQuorum->quorumID);
-                configServer->OnConfigStateChanged();
+                configServer->OnConfigStateChanged(false);
             }
         }
     }    
@@ -130,7 +130,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
          quorum.quorumID, quorum.activatingNodeID);
         
         quorum.OnActivationMonitoring(message.paxosID);
-        configServer->OnConfigStateChanged();
+        configServer->OnConfigStateChanged(false);
     }
     else
     {
@@ -143,7 +143,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
              quorum.quorumID, quorum.activatingNodeID);
             
             quorum.OnActivationReplication();
-            configServer->OnConfigStateChanged();
+            configServer->OnConfigStateChanged(false);
             configServer->GetQuorumProcessor()->ActivateNode(quorum.quorumID, quorum.activatingNodeID);
 
             shardServer = configState->GetShardServer(quorum.activatingNodeID);
@@ -186,7 +186,7 @@ void ConfigActivationManager::OnActivationTimeout()
 
             itQuorum->ClearActivation();
              
-            configServer->OnConfigStateChanged();
+            configServer->OnConfigStateChanged(false);
         }
     }
     

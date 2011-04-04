@@ -53,7 +53,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     shardServer->httpPort = message.httpPort;
     shardServer->sdbpPort = message.sdbpPort;
     
-    configServer->OnConfigStateChanged();
+    configServer->OnConfigStateChanged(false);
     
     TrySplitShardActions(message);
     

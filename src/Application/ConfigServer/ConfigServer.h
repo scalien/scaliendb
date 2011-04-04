@@ -30,7 +30,7 @@ public:
     ConfigHeartbeatManager*     GetHeartbeatManager();
     ConfigActivationManager*    GetActivationManager();
 
-    void                        OnConfigStateChanged();
+    void                        OnConfigStateChanged(bool updateClients);
     
     // ========================================================================================
     // SDBPContext interface:
