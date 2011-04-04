@@ -7,6 +7,13 @@
     json.PrintString(#member); \
     json.PrintColon(); \
     json.PrintString(obj->member);
+
+#define JSON_STRING_PRINTABLE(obj, member) \
+    printable.Write(obj->member); \
+    if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal(); } \
+    json.PrintString(#member); \
+    json.PrintColon(); \
+    json.PrintString(printable);
     
 #define JSON_NUMBER(obj, member) \
     json.PrintString(#member); \
@@ -183,6 +190,8 @@ void JSONConfigState::WriteShards()
 
 void JSONConfigState::WriteShard(ConfigShard* shard)
 {
+    Buffer printable;
+    
     json.PrintObjectStart();
     
     JSON_NUMBER(shard, shardID);
@@ -191,13 +200,13 @@ void JSONConfigState::WriteShard(ConfigShard* shard)
     json.PrintComma();
     JSON_NUMBER(shard, tableID);
     json.PrintComma();
-    JSON_STRING(shard, firstKey);
+    JSON_STRING_PRINTABLE(shard, firstKey);
     json.PrintComma();
-    JSON_STRING(shard, lastKey);
+    JSON_STRING_PRINTABLE(shard, lastKey);
     json.PrintComma();
     JSON_NUMBER(shard, shardSize);
     json.PrintComma();
-    JSON_STRING(shard, splitKey);
+    JSON_STRING_PRINTABLE(shard, splitKey);
     json.PrintComma();
     JSON_BOOL(shard, isSplitable);
 

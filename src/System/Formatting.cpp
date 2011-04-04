@@ -452,6 +452,28 @@ if (pad)                                            \
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
+            else if (format[1] == 'x') // %x
+            {
+                u = va_arg(ap, unsigned);
+                n = snprintf(local, sizeof(local), "%x", u);
+                if (n < 0) EXIT();
+                PAD();
+                REQUIRE(n);
+                if (ghost) n = size;
+                memcpy(buffer, local, n);
+                ADVANCE(2, n);
+            }
+            else if (format[1] == 'X') // %X
+            {
+                u = va_arg(ap, unsigned);
+                n = snprintf(local, sizeof(local), "%X", u);
+                if (n < 0) EXIT();
+                PAD();
+                REQUIRE(n);
+                if (ghost) n = size;
+                memcpy(buffer, local, n);
+                ADVANCE(2, n);
+            }
             else if (format[1] == 'u') // %u
             {
                 u = va_arg(ap, unsigned);

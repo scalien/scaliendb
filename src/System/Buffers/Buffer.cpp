@@ -257,6 +257,31 @@ void Buffer::SetCharAt(unsigned i, char c)
     buffer[i] = c;
 }
 
+bool Buffer::IsAsciiPrintable()
+{
+    unsigned    i;
+    
+    for (i = 0; i < length; i++)
+    {
+        if ((unsigned)buffer[i] < 32 || (unsigned)buffer[i] > 127)
+            return false;
+    }
+    
+    return true;
+}
+
+void Buffer::ToHexadecimal()
+{
+    unsigned    i;
+    Buffer      printable;
+    
+    printable.Allocate(length * 2);
+    for (i = 0; i < length; i++)
+        printable.Appendf("%x ", (unsigned)buffer[i]);
+        
+    Write(printable);
+}
+
 void Buffer::NullTerminate()
 {
     Append("", 1);

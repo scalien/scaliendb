@@ -7,11 +7,13 @@
 #include "Version.h"
 #include "ConfigHeartbeatManager.h"
 
-#define PARAM_BOOL_VALUE(param)                         \
-    ((ReadBuffer::Cmp((param), "yes") == 0 ||           \
-    ReadBuffer::Cmp((param), "true") == 0 ||            \
-    ReadBuffer::Cmp((param), "on") == 0 ||            \
+#define PARAM_BOOL_VALUE(param)                             \
+    ((ReadBuffer::Cmp((param), "yes") == 0 ||               \
+    ReadBuffer::Cmp((param), "true") == 0 ||                \
+    ReadBuffer::Cmp((param), "on") == 0 ||                  \
     ReadBuffer::Cmp((param), "1") == 0) ? true : false)
+
+#define MAKE_PRINTABLE(a) if (!a.IsAsciiPrintable()) { a.ToHexadecimal(); }
 
 void ConfigHTTPClientSession::SetConfigServer(ConfigServer* configServer_)
 {
@@ -173,6 +175,7 @@ void ConfigHTTPClientSession::PrintShards(ConfigState* configState)
 {
     ConfigShard*    it;
     Buffer          buffer;
+    Buffer          firstKey, lastKey, splitKey;
     
     if (configState->shards.GetLength() == 0)
     {
@@ -189,9 +192,17 @@ void ConfigHTTPClientSession::PrintShards(ConfigState* configState)
                 buffer.Appendf("* ");
             else
                 buffer.Appendf("- ");
+
+            firstKey.Write(it->firstKey);
+            lastKey.Write(it->lastKey);
+            splitKey.Write(it->splitKey);
+            MAKE_PRINTABLE(firstKey);
+            MAKE_PRINTABLE(lastKey);
+            MAKE_PRINTABLE(splitKey);
+
             buffer.Appendf("s%U: range [%B, %B], size: %s (isSplitable: %b, split key: %B)",
-             it->shardID, &it->firstKey, &it->lastKey,
-             HUMAN_BYTES(it->shardSize), it->isSplitable, &it->splitKey);
+             it->shardID, &firstKey, &lastKey,
+             HUMAN_BYTES(it->shardSize), it->isSplitable, &splitKey);
 
             session.Print(buffer);
         }

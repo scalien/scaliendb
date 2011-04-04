@@ -57,6 +57,8 @@ public:
     char                GetCharAt(unsigned i);
     void                SetCharAt(unsigned i, char c);
 
+    bool                IsAsciiPrintable();
+    void                ToHexadecimal();
 
     void                NullTerminate();
     void                Zero();

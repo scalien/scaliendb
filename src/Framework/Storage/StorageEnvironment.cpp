@@ -710,6 +710,10 @@ bool StorageEnvironment::IsShuttingDown()
 
 void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
 {
+#define MAKE_PRINTABLE(a) \
+printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal(); }
+
+
     bool                isSplitable;
     ReadBuffer          firstKey;
     ReadBuffer          lastKey;
@@ -717,6 +721,7 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
     StorageShard*       shard;
     StorageChunk**      itChunk;
     StorageMemoChunk*   memoChunk;
+    Buffer              printable;
     
     buffer.Clear();
     
@@ -734,20 +739,23 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
         buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(contextID, shard->GetShardID())));
         buffer.Appendf("   isSplitable: %b\n", isSplitable);
 
-        if (firstKey.GetLength() == 0)
+        MAKE_PRINTABLE(firstKey);
+        if (printable.GetLength() == 0)
             buffer.Appendf("   firstKey: (empty)\n");
         else
-            buffer.Appendf("   firstKey: %R\n", &firstKey);
+            buffer.Appendf("   firstKey: %B\n", &printable);
 
-        if (lastKey.GetLength() == 0)
+        MAKE_PRINTABLE(lastKey);
+        if (printable.GetLength() == 0)
             buffer.Appendf("   lastKey: (empty)\n");
         else
-            buffer.Appendf("   lastKey: %R\n", &lastKey);
+            buffer.Appendf("   lastKey: %B\n", &printable);
 
-        if (midpoint.GetLength() == 0)
+        MAKE_PRINTABLE(midpoint);
+        if (printable.GetLength() == 0)
             buffer.Appendf("   midpoint: (empty)\n");
         else
-            buffer.Appendf("   midpoint: %R\n", &midpoint);
+            buffer.Appendf("   midpoint: %B\n", &printable);
         buffer.Appendf("   logSegmentID: %U\n", shard->GetLogSegmentID());
         buffer.Appendf("   logCommandID: %U\n", shard->GetLogCommandID());
         
@@ -760,9 +768,12 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
          memoChunk->GetChunkState());
         buffer.Appendf("       size: %s\n", HUMAN_BYTES(memoChunk->GetSize()));
         buffer.Appendf("       count: %U\n", memoChunk->keyValues.GetCount());
-        buffer.Appendf("       firstKey: %R\n", &firstKey);
-        buffer.Appendf("       lastKey: %R\n", &lastKey);
-        buffer.Appendf("       midpoint: %R\n", &midpoint);
+        MAKE_PRINTABLE(firstKey);
+        buffer.Appendf("       firstKey: %B\n", &printable);
+        MAKE_PRINTABLE(lastKey);
+        buffer.Appendf("       lastKey: %B\n", &lastKey);
+        MAKE_PRINTABLE(midpoint);
+        buffer.Appendf("       midpoint: %B\n", &midpoint);
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
         buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
         buffer.Appendf("       maxLogCommandID: %U\n", memoChunk->GetMaxLogCommandID());
@@ -776,9 +787,12 @@ void StorageEnvironment::PrintState(uint16_t contextID, Buffer& buffer)
             buffer.Appendf("       state: %d {0=Tree, 1=Serialized, 2=Unwritten, 3=Written}\n",
              (*itChunk)->GetChunkState());
             buffer.Appendf("       size: %s\n", HUMAN_BYTES((*itChunk)->GetSize()));
-            buffer.Appendf("       firstKey: %R\n", &firstKey);
-            buffer.Appendf("       lastKey: %R\n", &lastKey);
-            buffer.Appendf("       midpoint: %R\n", &midpoint);
+            MAKE_PRINTABLE(firstKey);
+            buffer.Appendf("       firstKey: %B\n", &printable);
+            MAKE_PRINTABLE(lastKey);
+            buffer.Appendf("       lastKey: %B\n", &lastKey);
+            MAKE_PRINTABLE(midpoint);
+            buffer.Appendf("       midpoint: %B\n", &midpoint);
             buffer.Appendf("       minLogSegmentID: %U\n", (*itChunk)->GetMinLogSegmentID());
             buffer.Appendf("       maxLogSegmentID: %U\n", (*itChunk)->GetMaxLogSegmentID());
             buffer.Appendf("       maxLogCommandID: %U\n", (*itChunk)->GetMaxLogCommandID());
