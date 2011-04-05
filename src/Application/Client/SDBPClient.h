@@ -145,6 +145,9 @@ private:
     void                    OnControllerConnected(ControllerConnection* conn);
     void                    OnControllerDisconnected(ControllerConnection* conn);
     
+    unsigned                GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* conn, ConfigQuorum* quorum);
+    uint64_t                GetRequestPaxosID();
+    
     int64_t                 master;
     uint64_t                commandID;
     uint64_t                masterCommandID;

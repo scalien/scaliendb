@@ -75,7 +75,7 @@ TEST_DEFINE(TestStorageAsyncList)
     
     asyncListCompleted = false;
     
-    asyncList.startKey = "2";
+    asyncList.shardFirstKey.Write("2");
     asyncList.count = 1000;
     asyncList.offset = 1000;
     asyncList.onComplete = CFunc(OnAsyncListComplete);

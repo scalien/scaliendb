@@ -965,13 +965,11 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     ConfigQuorum*       quorum;
     RequestList         bulkRequests;
     Request*            itRequest;
-    ShardConnection*    otherConn;
     uint64_t*           itNode;
     uint64_t            nodeID;
-    unsigned            numRequests;
     unsigned            maxRequests;
-    unsigned            totalRequests;
     unsigned            numServed;
+    bool                flushNeeded;
 
     // sanity checks
     if (conn->GetState() != TCPConnection::CONNECTED)
@@ -994,28 +992,10 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         return;
     
     // load balancing in relaxed consistency levels
-    maxRequests = 0;
-    totalRequests = 0;
-    if (consistencyLevel == SDBP_CONSISTENCY_ANY || consistencyLevel == SDBP_CONSISTENCY_RYW)
-    {
-        totalRequests = qrequests->GetLength();
-        
-        // this correction can be ignored when there are no big batches
-        FOREACH (itNode, quorum->activeNodes)
-        {
-            otherConn = shardConnections.Get(*itNode);
-            if (otherConn == conn)
-                continue;
+    maxRequests = GetMaxQuorumRequests(qrequests, conn, quorum);
 
-            totalRequests += otherConn->GetNumSentRequests();
-        }
-        
-        maxRequests = (unsigned) ceil(totalRequests / quorum->activeNodes.GetLength());
-    }
-    
     numServed = 0;
-    numRequests = qrequests->GetLength();
-    Log_Trace("quorumID: %U, numRequests: %u, maxRequests: %u, nodeID: %U", quorumID, numRequests, maxRequests, conn->GetNodeID());
+    Log_Trace("quorumID: %U, numRequests: %u, maxRequests: %u, nodeID: %U", quorumID, qrequests->GetLength(), maxRequests, conn->GetNodeID());
     while (qrequests->GetLength() > 0)
     {   
         req = qrequests->First();
@@ -1042,37 +1022,34 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
                 continue;   // don't send the request because it is already sent
         }
         
-        
         // set paxosID by consistency level
-
-        if (consistencyLevel == SDBP_CONSISTENCY_ANY)
-            req->paxosID = 0;
-        else if (consistencyLevel == SDBP_CONSISTENCY_RYW)
-            req->paxosID = highestSeenPaxosID;
-        else if (consistencyLevel == SDBP_CONSISTENCY_STRICT)
-            req->paxosID = 1;
-        
+        req->paxosID = GetRequestPaxosID();
+ 
         // send request
-
         numServed++;
         if (!conn->SendRequest(req))
         {
-            conn->Flush();
+            flushNeeded = true;
             break;
         }
         
-        // let other shardservers serve requests
-        
+        // let other shardservers serve requests        
         if (maxRequests != 0 && numServed >= maxRequests)
         {
-            conn->Flush();
+            flushNeeded = true;
             break;
         }
     }
     
     Log_Trace("quorumID: %U, numServed: %u, nodeID: %U", quorumID, numServed, conn->GetNodeID());
 
-    if (qrequests->GetLength() == 0 || (isBulkLoading && bulkRequests.GetLength() == 0))
+    if (qrequests->GetLength() == 0)
+        flushNeeded = true;
+
+    if (isBulkLoading && bulkRequests.GetLength() == 0)
+        flushNeeded = true;
+    
+    if (flushNeeded)
         conn->Flush();
     
     // put back those requests to the quorum requests list that have not been sent to all
@@ -1245,6 +1222,50 @@ void Client::OnControllerDisconnected(ControllerConnection* conn)
 {
     if (master == (int64_t) conn->GetNodeID())
         SetMaster(-1, conn->GetNodeID());
+}
+
+unsigned Client::GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* conn, ConfigQuorum* quorum)
+{
+    unsigned            maxRequests;
+    unsigned            totalRequests;
+    ShardConnection*    otherConn;
+    uint64_t*           itNode;
+    
+    // load balancing in relaxed consistency levels
+    maxRequests = 0;
+    totalRequests = 0;
+    if (consistencyLevel == SDBP_CONSISTENCY_ANY || consistencyLevel == SDBP_CONSISTENCY_RYW)
+    {
+        totalRequests = qrequests->GetLength();
+        
+        // this correction can be ignored when there are no big batches
+        FOREACH (itNode, quorum->activeNodes)
+        {
+            otherConn = shardConnections.Get(*itNode);
+            if (otherConn == conn)
+                continue;
+
+            totalRequests += otherConn->GetNumSentRequests();
+        }
+        
+        maxRequests = (unsigned) ceil(totalRequests / quorum->activeNodes.GetLength());
+    }
+    
+    return maxRequests;
+}    
+
+uint64_t Client::GetRequestPaxosID()
+{
+    if (consistencyLevel == SDBP_CONSISTENCY_ANY)
+        return 0;
+    else if (consistencyLevel == SDBP_CONSISTENCY_RYW)
+        return highestSeenPaxosID;
+    else if (consistencyLevel == SDBP_CONSISTENCY_STRICT)
+        return 1;
+    else
+        ASSERT_FAIL();
+    
+    return 0;
 }
 
 void Client::Lock()
