@@ -611,6 +611,8 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
     unsigned        numChunks, i;
     StorageShard*   shard;
     StorageChunk**  itChunk;
+    ReadBuffer      firstKey;
+    ReadBuffer      lastKey;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
@@ -618,13 +620,31 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
     
     numChunks = shard->GetChunks().GetLength();
     
-    i = 1;
+    i = 0;
     FOREACH(itChunk, shard->GetChunks())
     {
-        if (i == ((numChunks + 1) / 2))
-            return (*itChunk)->GetMidpoint();
-
         i++;
+
+        if (i >= ((numChunks + 1) / 2))
+        {
+            firstKey = (*itChunk)->GetFirstKey();
+            lastKey = (*itChunk)->GetLastKey();
+            
+            // skip non-splitable chunks
+            if (firstKey.GetLength() > 0)
+            {
+                if (!shard->RangeContains(firstKey))
+                    continue;
+            }
+
+            if (lastKey.GetLength() > 0)
+            {
+                if (!shard->RangeContains(lastKey))
+                    continue;
+            }
+            
+            return (*itChunk)->GetMidpoint();
+        }
     }
     
     return shard->GetMemoChunk()->GetMidpoint();
