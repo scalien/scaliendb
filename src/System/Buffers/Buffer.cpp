@@ -272,15 +272,19 @@ bool Buffer::IsAsciiPrintable()
 
 void Buffer::ToHexadecimal()
 {
-    unsigned    i;
-    unsigned    x;
-    Buffer      printable;
+    unsigned        i;
+    unsigned char   x;
+    Buffer          printable;
+    const char      digits[] = "0123456789ABCDEF";
     
     printable.Allocate(length * 3);
     for (i = 0; i < length; i++)
     {
         x = (unsigned char) buffer[i];
-        printable.Appendf("%x ", x);
+        printable.Append(digits[x / 16]);
+        printable.Append(digits[x % 16]);
+        if (i != length - 1)
+            printable.Append(' ');
     }
         
     Write(printable);
