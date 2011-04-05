@@ -65,7 +65,6 @@ public:
         COUNT
     };
 
-    ReadBuffer              startKey;
     unsigned                count;
     unsigned                offset;
     Type                    type;
@@ -76,6 +75,7 @@ public:
     Stage                   stage;
     Callable                onComplete;
     StorageShard*           shard;
+    Buffer                  shardFirstKey;
     Buffer                  shardLastKey;
     ThreadPool*             threadPool;
     StorageFileKeyValue**   iterators;

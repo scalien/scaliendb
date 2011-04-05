@@ -428,7 +428,7 @@ void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, Storage
     if (shard == NULL)
         return;
         
-    if (!shard->RangeContains(asyncList->startKey))
+    if (!shard->RangeContains(asyncList->shardFirstKey))
         return;
 
     numCursors++;
@@ -770,9 +770,9 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         MAKE_PRINTABLE(firstKey);
         buffer.Appendf("       firstKey: %B\n", &printable);
         MAKE_PRINTABLE(lastKey);
-        buffer.Appendf("       lastKey: %B\n", &lastKey);
+        buffer.Appendf("       lastKey: %B\n", &printable);
         MAKE_PRINTABLE(midpoint);
-        buffer.Appendf("       midpoint: %B\n", &midpoint);
+        buffer.Appendf("       midpoint: %B\n", &printable);
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
         buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
         buffer.Appendf("       maxLogCommandID: %U\n", memoChunk->GetMaxLogCommandID());
@@ -789,9 +789,9 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
             MAKE_PRINTABLE(firstKey);
             buffer.Appendf("       firstKey: %B\n", &printable);
             MAKE_PRINTABLE(lastKey);
-            buffer.Appendf("       lastKey: %B\n", &lastKey);
+            buffer.Appendf("       lastKey: %B\n", &printable);
             MAKE_PRINTABLE(midpoint);
-            buffer.Appendf("       midpoint: %B\n", &midpoint);
+            buffer.Appendf("       midpoint: %B\n", &printable);
             buffer.Appendf("       minLogSegmentID: %U\n", (*itChunk)->GetMinLogSegmentID());
             buffer.Appendf("       maxLogSegmentID: %U\n", (*itChunk)->GetMaxLogSegmentID());
             buffer.Appendf("       maxLogCommandID: %U\n", (*itChunk)->GetMaxLogCommandID());

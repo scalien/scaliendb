@@ -84,6 +84,9 @@ void StorageAsyncList::ExecuteAsyncList()
     StorageUnwrittenChunkLister*    unwrittenLister;
     Buffer*                         filename;
     StorageChunk::ChunkState        chunkState;
+    ReadBuffer                      firstKey;
+    
+    firstKey.Wrap(shardFirstKey);
     
     if (stage == START)
     {
@@ -101,14 +104,14 @@ void StorageAsyncList::ExecuteAsyncList()
             if (chunkState == StorageChunk::Serialized)
             {
                 memoLister = new StorageMemoChunkLister;
-                memoLister->Init((StorageMemoChunk*) *itChunk, startKey, count, offset);
+                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, count, offset);
                 listers[numListers] = memoLister;
                 numListers++;
             }
             else if (chunkState == StorageChunk::Unwritten)
             {
                 unwrittenLister = new StorageUnwrittenChunkLister;
-                unwrittenLister->Init((StorageFileChunk*) *itChunk, startKey, count, offset);
+                unwrittenLister->Init((StorageFileChunk*) *itChunk, firstKey, count, offset);
                 listers[numListers] = unwrittenLister;
                 numListers++;
             }
@@ -141,9 +144,12 @@ void StorageAsyncList::ExecuteAsyncList()
 void StorageAsyncList::LoadMemoChunk()
 {
     StorageMemoChunkLister* memoLister;
+    ReadBuffer              firstKey;
+    
+    firstKey.Wrap(shardFirstKey);
     
     memoLister = new StorageMemoChunkLister;
-    memoLister->Init(shard->GetMemoChunk(), startKey, count, offset);
+    memoLister->Init(shard->GetMemoChunk(), firstKey, count, offset);
 
     // memochunk is always on the last position, because it is the most current
     listers[numListers] = memoLister;
@@ -153,12 +159,14 @@ void StorageAsyncList::LoadMemoChunk()
 
 void StorageAsyncList::AsyncLoadChunks()
 {
-    unsigned                i;
+    unsigned    i;
+    ReadBuffer  firstKey;
     
+    firstKey.Wrap(shardFirstKey);
     for (i = 0; i < numListers; i++)
     {
         listers[i]->Load();
-        iterators[i] = listers[i]->First(startKey);
+        iterators[i] = listers[i]->First(firstKey);
     }
     
     stage = MERGE;
@@ -175,6 +183,8 @@ void StorageAsyncList::AsyncMergeResult()
     while(!IsDone())
     {
         // TODO: Yield
+        if (count != 0 && num >= count)
+            break;
         
         it = Next();
         if (it == NULL)
@@ -187,10 +197,6 @@ void StorageAsyncList::AsyncMergeResult()
         }
         
         result->Append(it);
-
-        if (count != 0 && num >= count)
-            break;
-
         num++;
                 
         if (result->GetSize() > MAX_RESULT_SIZE)

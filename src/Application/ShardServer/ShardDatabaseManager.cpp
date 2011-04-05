@@ -33,6 +33,14 @@ static bool LessThan(const ClientRequest& a, const ClientRequest& b)
     return Buffer::Cmp(a.key, b.key) < 0;
 }
 
+/*
+===============================================================================================
+
+ ShardDatabaseAsyncGet
+
+===============================================================================================
+*/
+
 void ShardDatabaseAsyncGet::OnRequestComplete()
 {
     uint64_t        paxosID;
@@ -62,6 +70,15 @@ void ShardDatabaseAsyncGet::OnRequestComplete()
         EventLoop::Add(&manager->executeReads);
 }
 
+
+/*
+===============================================================================================
+
+ ShardDatabaseAsyncList
+
+===============================================================================================
+*/
+
 void ShardDatabaseAsyncList::OnShardComplete()
 {
     uint64_t                paxosID;
@@ -70,6 +87,13 @@ void ShardDatabaseAsyncList::OnShardComplete()
     StorageFileKeyValue*    it;
     unsigned                numKeys;
     unsigned                i;
+
+    // possibly an error happened
+    if ((completed && !ret) || !request->session->IsActive())
+    {
+        OnRequestComplete();
+        return;
+    }
 
     // handle disconnected
     if (lastResult->final && !request->session->IsActive())
@@ -126,17 +150,20 @@ void ShardDatabaseAsyncList::OnRequestComplete()
     num = 0;
     active = false;
 
-    // handle disconnected
-    if (lastResult->final && !request->session->IsActive())
+    // handle error and disconnected
+    if ((completed && !ret) || !request->session->IsActive())
     {
-        request->response.NoResponse();            
+        if (!request->session->IsActive())
+            request->response.NoResponse();
+        else
+            request->response.Failed();
+            
         request->OnComplete();
-        if (async && !manager->executeLists.IsActive())
-            EventLoop::Add(&manager->executeLists);
-        
+        if (async && !manager->executeReads.IsActive())
+            EventLoop::Add(&manager->executeReads);
         return;
     }
-        
+
     if (lastResult->final)
     {
         if (type == COUNT)
@@ -153,9 +180,6 @@ void ShardDatabaseAsyncList::OnRequestComplete()
 
 void ShardDatabaseAsyncList::TryNextShard()
 {
-    ReadBuffer      minKey;
-    uint64_t        nextShardID;
-    
     if (shardLastKey.GetLength() == 0)
     {
         // this was the last shard
@@ -163,23 +187,21 @@ void ShardDatabaseAsyncList::TryNextShard()
         return;
     }
     
-    nextShardID = manager->FindNextShard(request->tableID, shardLastKey, minKey);
+    // TODO: HACK update the request with the next shard's startKey
+    request->key.Write(shardLastKey);
+    request->offset = offset;
     
-    Log_Debug("minKey: %R", &minKey);
-    
-    // found the next shard
-    if (minKey.GetLength() != 0)
-    {
-        // TODO: HACK update the request with the next shard's startKey
-        request->key.Write(minKey);
-        request->offset = offset;
-        
-        // reschedule request
-        manager->OnClientListRequest(request);
-    }
-    else
-        OnRequestComplete();
+    // reschedule request
+    manager->OnClientListRequest(request);
 }
+
+/*
+===============================================================================================
+
+ ShardDatabaseManager
+
+===============================================================================================
+*/
 
 ShardDatabaseManager::ShardDatabaseManager()
 {
@@ -642,6 +664,7 @@ void ShardDatabaseManager::OnExecuteLists()
     uint64_t        shardID;
     int16_t         contextID;
     ReadBuffer      startKey;
+    ReadBuffer      minKey;
     ClientRequest*  itRequest;
     ConfigShard*    configShard;
 
@@ -671,11 +694,8 @@ void ShardDatabaseManager::OnExecuteLists()
             continue;
         }
 
-
         startKey.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
-//        shardID = environment.GetShardID(contextID, itRequest->tableID, startKey);
-        ReadBuffer minKey;
         shardID = FindNextShard(itRequest->tableID, startKey, minKey);
         configShard = shardServer->GetConfigState()->GetShard(shardID);
         ASSERT(configShard != NULL);
@@ -698,11 +718,11 @@ void ShardDatabaseManager::OnExecuteLists()
         }
 
         asyncList.request = itRequest;
-        asyncList.startKey = startKey;
         asyncList.count = itRequest->count;
         asyncList.offset = itRequest->offset;
+        asyncList.shardFirstKey.Write(configShard->firstKey);
         asyncList.shardLastKey.Write(configShard->lastKey);
-        Log_Debug("shardLastKey: %B", &asyncList.shardLastKey);
+        Log_Debug("shardFirstKey: %B, shardLastKey: %B", &asyncList.shardFirstKey, &asyncList.shardLastKey);
         asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);
         asyncList.active = true;
         asyncList.async = false;
@@ -730,11 +750,9 @@ uint64_t ShardDatabaseManager::FindNextShard(uint64_t tableID, ReadBuffer shardL
     FOREACH (itShard, configTable->shards)
     {
         configShard = GetConfigState()->GetShard(*itShard);
-        Log_Debug("quorumID: %U", configShard->quorumID);
         if (!shardServer->GetQuorumProcessor(configShard->quorumID))
             continue; // not local shard
         
-        Log_Debug("firstKey: %B, shardLastKey: %R, minKey: %R", &configShard->firstKey, &shardLastKey, &minKey);
         if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, shardLastKey))
         {
             if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey))

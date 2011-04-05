@@ -109,7 +109,9 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
 //        if (resp->type == CLIENTRESPONSE_CONFIG_STATE)
 //            Log_Debug("Config state: %R", &rbuf);
         
-        if (!ProcessResponse(resp))
+        if (resp->type == CLIENTRESPONSE_HELLO)
+            delete resp;
+        else if (!ProcessResponse(resp))
             delete resp;
     }
     else
