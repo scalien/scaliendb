@@ -263,7 +263,7 @@ bool Buffer::IsAsciiPrintable()
     
     for (i = 0; i < length; i++)
     {
-        if ((unsigned)buffer[i] < 32 || (unsigned)buffer[i] > 127)
+        if ((unsigned char)buffer[i] < 32 || (unsigned char)buffer[i] > 127)
             return false;
     }
     
@@ -273,11 +273,15 @@ bool Buffer::IsAsciiPrintable()
 void Buffer::ToHexadecimal()
 {
     unsigned    i;
+    unsigned    x;
     Buffer      printable;
     
-    printable.Allocate(length * 2);
+    printable.Allocate(length * 3);
     for (i = 0; i < length; i++)
-        printable.Appendf("%x ", (unsigned)buffer[i]);
+    {
+        x = (unsigned char) buffer[i];
+        printable.Appendf("%x ", x);
+    }
         
     Write(printable);
 }

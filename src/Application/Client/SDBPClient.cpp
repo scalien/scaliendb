@@ -208,6 +208,7 @@ int Client::Init(int nodec, const char* nodev[])
     commandID = 0;
     masterCommandID = 0;
     consistencyLevel = SDBP_CONSISTENCY_STRICT;
+    highestSeenPaxosID = 0;
         
     isBatched = false;
     
@@ -957,7 +958,6 @@ void Client::AddRequestToQuorum(Request* req, bool end)
         qrequests->Prepend(req);
 }   
 
-// maxRequests == 0 means no limit    
 void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
 {
     RequestList*        qrequests;

@@ -168,6 +168,7 @@ private:
     uint64_t                batchLimit;
     bool                    isBulkLoading;
     int                     consistencyLevel;
+    uint64_t                highestSeenPaxosID;
 
 //#ifdef CLIENT_MULTITHREAD    
     Mutex                   mutex;
