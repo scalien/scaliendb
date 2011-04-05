@@ -318,7 +318,17 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
     assert(configQuorum);
 
-    if (request->paxosID > 0 && !quorumContext.IsLeader() && !request->isBulk)
+    // strictly consistent messages can only be served by the leader
+    if (request->paxosID == 1 && !quorumContext.IsLeader() && !request->isBulk)
+    {
+        Log_Trace();
+        request->response.NoService();
+        request->OnComplete();
+        return;
+    }
+    
+    // read-your-write consistency
+    if (request->paxosID > quorumContext.GetPaxosID())
     {
         Log_Trace();
         request->response.NoService();

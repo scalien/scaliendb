@@ -795,7 +795,7 @@ TEST_DEFINE(TestClientBatchedGet2)
     char            keybuf[32];
     int             ret;
     unsigned        num = 1*1000;
-    unsigned        batch = 1;
+    unsigned        batch = 10;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -803,7 +803,7 @@ TEST_DEFINE(TestClientBatchedGet2)
         TEST_CLIENT_FAIL();
 
     client.SetMasterTimeout(10000);
-//    client.SetConsistencyLevel(SDBP_CONSISTENCY_ANY);
+    client.SetConsistencyLevel(SDBP_CONSISTENCY_ANY);
     ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();

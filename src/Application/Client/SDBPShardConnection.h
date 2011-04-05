@@ -38,6 +38,7 @@ public:
     uint64_t                GetNodeID();
     Endpoint&               GetEndpoint();
     bool                    IsWritePending();
+    unsigned                GetNumSentRequests();
 
     void                    SetQuorumMembership(uint64_t quorumID);
     void                    ClearQuorumMembership(uint64_t quorumID);

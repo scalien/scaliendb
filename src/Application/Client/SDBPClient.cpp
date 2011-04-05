@@ -965,10 +965,12 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     ConfigQuorum*       quorum;
     RequestList         bulkRequests;
     Request*            itRequest;
+    ShardConnection*    otherConn;
     uint64_t*           itNode;
     uint64_t            nodeID;
     unsigned            numRequests;
     unsigned            maxRequests;
+    unsigned            totalRequests;
     unsigned            numServed;
 
     // sanity checks
@@ -991,9 +993,24 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
      quorum->primaryID != conn->GetNodeID())
         return;
     
+    
+    // load balancing in relaxed consistency levels
     maxRequests = 0;
+    totalRequests = 0;
     if (consistencyLevel == SDBP_CONSISTENCY_ANY || consistencyLevel == SDBP_CONSISTENCY_RYW)
-        maxRequests = (unsigned) ceil(qrequests->GetLength() / quorum->activeNodes.GetLength());
+    {
+        totalRequests = qrequests->GetLength();
+        FOREACH (itNode, quorum->activeNodes)
+        {
+            otherConn = shardConnections.Get(*itNode);
+            if (otherConn == conn)
+                continue;
+
+            totalRequests += otherConn->GetNumSentRequests();
+        }
+        
+        maxRequests = (unsigned) ceil(totalRequests / quorum->activeNodes.GetLength());
+    }
     
     numServed = 0;
     numRequests = qrequests->GetLength();
@@ -1024,6 +1041,18 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
                 continue;   // don't send the request because it is already sent
         }
         
+        
+        // set paxosID by consistency level
+
+        if (consistencyLevel == SDBP_CONSISTENCY_ANY)
+            req->paxosID = 0;
+        else if (consistencyLevel == SDBP_CONSISTENCY_RYW)
+            req->paxosID = highestSeenPaxosID;
+        else if (consistencyLevel == SDBP_CONSISTENCY_STRICT)
+            req->paxosID = 1;
+        
+        // send request
+
         numServed++;
         if (!conn->SendRequest(req))
         {
@@ -1031,7 +1060,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
             break;
         }
         
-        // TODO: let other shardservers serve requests
+        // let other shardservers serve requests
+        
         if (maxRequests != 0 && numServed >= maxRequests)
         {
             conn->Flush();
@@ -1086,7 +1116,6 @@ void Client::SendQuorumRequests()
         }
     }
     
-//    FOREACH (conn, shardConnections)
     for (i = 0; i < shardConnections.GetCount(); i++)
     {
         conn = connArray[i];
