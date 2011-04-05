@@ -993,13 +993,14 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
      quorum->primaryID != conn->GetNodeID())
         return;
     
-    
     // load balancing in relaxed consistency levels
     maxRequests = 0;
     totalRequests = 0;
     if (consistencyLevel == SDBP_CONSISTENCY_ANY || consistencyLevel == SDBP_CONSISTENCY_RYW)
     {
         totalRequests = qrequests->GetLength();
+        
+        // this correction can be ignored when there are no big batches
         FOREACH (itNode, quorum->activeNodes)
         {
             otherConn = shardConnections.Get(*itNode);
