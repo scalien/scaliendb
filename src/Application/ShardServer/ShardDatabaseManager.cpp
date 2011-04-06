@@ -434,7 +434,10 @@ void ShardDatabaseManager::ExecuteMessage(
     shardID = environment.GetShardID(contextID, message.tableID, message.key);
 
     if (request)
+    {
         request->response.OK();
+        request->response.paxosID = paxosID;
+    }
 
     // TODO: differentiate return status (FAILED, NOSERVICE)
     switch (message.type)
@@ -722,7 +725,7 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.offset = itRequest->offset;
         asyncList.shardFirstKey.Write(configShard->firstKey);
         asyncList.shardLastKey.Write(configShard->lastKey);
-        Log_Debug("shardFirstKey: %B, shardLastKey: %B", &asyncList.shardFirstKey, &asyncList.shardLastKey);
+        Log_Debug("Listing shard: shardFirstKey: %B, shardLastKey: %B", &asyncList.shardFirstKey, &asyncList.shardLastKey);
         asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);
         asyncList.active = true;
         asyncList.async = false;

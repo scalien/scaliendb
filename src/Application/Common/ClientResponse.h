@@ -44,6 +44,7 @@ public:
     char            type;
     uint64_t        number;
     uint64_t        commandID;
+    uint64_t        paxosID;
     ReadBuffer      value;
     unsigned        numKeys;
     ReadBuffer*     keys;

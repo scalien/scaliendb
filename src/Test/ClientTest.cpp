@@ -794,8 +794,8 @@ TEST_DEFINE(TestClientBatchedGet2)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 1*1000;
-    unsigned        batch = 10;
+    unsigned        num = 10*1000;
+    unsigned        batch = 100;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -803,7 +803,7 @@ TEST_DEFINE(TestClientBatchedGet2)
         TEST_CLIENT_FAIL();
 
     client.SetMasterTimeout(10000);
-    client.SetConsistencyLevel(SDBP_CONSISTENCY_ANY);
+    client.SetConsistencyLevel(SDBP_CONSISTENCY_RYW);
     ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -1671,6 +1671,36 @@ TEST_DEFINE(TestClientCount)
     TEST(result->GetNumber(number));
     
     delete result;
+
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientMixedReadWriteBatched)
+{
+    Client          client;
+    int             ret;
+    
+    TEST(SetupDefaultClient(client));
+    TEST(client.Begin());
+
+    TEST(client.Get("key"));
+    ret = client.Set("key", "value");
+    TEST_ASSERT(ret == SDBP_API_ERROR);
+
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientMixedWriteReadBatched)
+{
+    Client          client;
+    int             ret;
+    
+    TEST(SetupDefaultClient(client));
+    TEST(client.Begin());
+
+    TEST(client.Set("key", "value"));
+    ret = client.Get("key");
+    TEST_ASSERT(ret == SDBP_API_ERROR);
 
     return TEST_SUCCESS;
 }
