@@ -59,7 +59,7 @@ void ReplicatedLog::Stop()
 
 void ReplicatedLog::Continue()
 {
-    // nothing
+    RequestChosen(paxosID);
 }
 
 bool ReplicatedLog::IsMultiPaxosEnabled()
@@ -271,7 +271,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 
     if (context->GetDatabase()->IsCommiting())
     {
-        Log_Debug("Database is commiting, dropping Paxos message");
+//        Log_Debug("Database is commiting, dropping Paxos message");
         return;
     }
 
@@ -313,7 +313,8 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
     Buffer          value;
     PaxosMessage    omsg;
     
-    Log_Trace();
+//    Log_Debug("ReplicatedLog::OnRequestChosen, imsg.paxosID = %U, mine = %U",
+//     imsg.paxosID, GetPaxosID());
 
     if (imsg.paxosID >= GetPaxosID())
         return;
@@ -335,6 +336,8 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 
 void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
 {
+//    Log_Debug("ReplicatedLog::OnStartCatchup");
+
     if (imsg.nodeID == context->GetLeaseOwner())
         context->OnStartCatchup();
 }
@@ -417,16 +420,15 @@ void ReplicatedLog::RequestChosen(uint64_t nodeID)
 {
     PaxosMessage omsg;
     
-    Log_Trace();
-    
-    if (lastRequestChosenPaxosID == GetPaxosID() &&
-     EventLoop::Now() - lastRequestChosenTime < REQUEST_CHOSEN_TIMEOUT)
+    if (EventLoop::Now() - lastRequestChosenTime < REQUEST_CHOSEN_TIMEOUT)
         return;
-    
+
     lastRequestChosenPaxosID = GetPaxosID();
     lastRequestChosenTime = EventLoop::Now();
     
     omsg.RequestChosen(GetPaxosID(), MY_NODEID);
     
     context->GetTransport()->SendMessage(nodeID, omsg);
+
+//    Log_Debug("ReplicatedLog::RequestChosen, paxosID = %U, to = %U", GetPaxosID(), nodeID);
 }

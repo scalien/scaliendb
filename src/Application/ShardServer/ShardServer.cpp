@@ -334,7 +334,7 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
     ShardQuorumProcessor*   next;
     SortedList<uint64_t>    myShardIDs;
     
-    Log_Trace();
+//    Log_Debug("ShardServer::OnSetConfigState");
 
     configState = message.configState;
     configShardServer = configState.GetShardServer(MY_NODEID);

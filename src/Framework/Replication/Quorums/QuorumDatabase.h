@@ -6,7 +6,7 @@
 #include "System/Events/Callable.h"
 #include "Framework/Storage/StorageShardProxy.h"
 
-#define RLOG_REACTIVATION_DIFF                  1000
+#define RLOG_REACTIVATION_DIFF                  100
 
 #define QUORUM_DATABASE_SYSTEM_CONTEXT          1
 #define QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT    2

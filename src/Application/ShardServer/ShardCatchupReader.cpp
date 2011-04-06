@@ -85,7 +85,7 @@ void ShardCatchupReader::OnCommit(CatchupMessage& message)
     
     quorumProcessor->SetPaxosID(message.paxosID);
 
-    Log_Message("Catchup complete");
+    Log_Message("Catchup complete, at paxosID = %U", message.paxosID);
     
     Reset();
 }
