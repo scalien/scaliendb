@@ -19,6 +19,7 @@ namespace SDBPClient
 class Result
 {
 public:
+    Result();
     ~Result();
     
     void            Close();

@@ -91,6 +91,11 @@ bool ShardConnection::IsWritePending()
     return tcpwrite.active;
 }
 
+unsigned ShardConnection::GetNumSentRequests()
+{
+    return sentRequests.GetLength();
+}
+
 void ShardConnection::SetQuorumMembership(uint64_t quorumID)
 {
     // SortedList takes care of unique IDs

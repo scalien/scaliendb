@@ -176,6 +176,7 @@ SDBP_GetCurrentDatabaseID = _scaliendb_client.SDBP_GetCurrentDatabaseID
 SDBP_GetCurrentTableID = _scaliendb_client.SDBP_GetCurrentTableID
 SDBP_SetBatchLimit = _scaliendb_client.SDBP_SetBatchLimit
 SDBP_SetBulkLoading = _scaliendb_client.SDBP_SetBulkLoading
+SDBP_SetConsistencyLevel = _scaliendb_client.SDBP_SetConsistencyLevel
 SDBP_CreateQuorum = _scaliendb_client.SDBP_CreateQuorum
 SDBP_DeleteQuorum = _scaliendb_client.SDBP_DeleteQuorum
 SDBP_AddNode = _scaliendb_client.SDBP_AddNode

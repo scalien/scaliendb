@@ -692,7 +692,7 @@ TEST_DEFINE(TestClientBatchedGet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 10000;
+    unsigned        num = 100000;
     double          minLatency;
     double          maxLatency;
     double          avgLatency;
@@ -794,8 +794,8 @@ TEST_DEFINE(TestClientBatchedGet2)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 10*1000*1000;
-    unsigned        batch = 10000;
+    unsigned        num = 1*1000;
+    unsigned        batch = 10;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -803,6 +803,7 @@ TEST_DEFINE(TestClientBatchedGet2)
         TEST_CLIENT_FAIL();
 
     client.SetMasterTimeout(10000);
+    client.SetConsistencyLevel(SDBP_CONSISTENCY_ANY);
     ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();

@@ -428,7 +428,7 @@ void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, Storage
     if (shard == NULL)
         return;
         
-    if (!shard->RangeContains(asyncList->startKey))
+    if (!shard->RangeContains(asyncList->shardFirstKey))
         return;
 
     numCursors++;
@@ -611,6 +611,8 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
     unsigned        numChunks, i;
     StorageShard*   shard;
     StorageChunk**  itChunk;
+    ReadBuffer      firstKey;
+    ReadBuffer      lastKey;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
@@ -618,13 +620,31 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
     
     numChunks = shard->GetChunks().GetLength();
     
-    i = 1;
+    i = 0;
     FOREACH(itChunk, shard->GetChunks())
     {
-        if (i == ((numChunks + 1) / 2))
-            return (*itChunk)->GetMidpoint();
-
         i++;
+
+        if (i >= ((numChunks + 1) / 2))
+        {
+            firstKey = (*itChunk)->GetFirstKey();
+            lastKey = (*itChunk)->GetLastKey();
+            
+            // skip non-splitable chunks
+            if (firstKey.GetLength() > 0)
+            {
+                if (!shard->RangeContains(firstKey))
+                    continue;
+            }
+
+            if (lastKey.GetLength() > 0)
+            {
+                if (!shard->RangeContains(lastKey))
+                    continue;
+            }
+            
+            return (*itChunk)->GetMidpoint();
+        }
     }
     
     return shard->GetMemoChunk()->GetMidpoint();
@@ -770,9 +790,9 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         MAKE_PRINTABLE(firstKey);
         buffer.Appendf("       firstKey: %B\n", &printable);
         MAKE_PRINTABLE(lastKey);
-        buffer.Appendf("       lastKey: %B\n", &lastKey);
+        buffer.Appendf("       lastKey: %B\n", &printable);
         MAKE_PRINTABLE(midpoint);
-        buffer.Appendf("       midpoint: %B\n", &midpoint);
+        buffer.Appendf("       midpoint: %B\n", &printable);
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
         buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
         buffer.Appendf("       maxLogCommandID: %U\n", memoChunk->GetMaxLogCommandID());
@@ -789,9 +809,9 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
             MAKE_PRINTABLE(firstKey);
             buffer.Appendf("       firstKey: %B\n", &printable);
             MAKE_PRINTABLE(lastKey);
-            buffer.Appendf("       lastKey: %B\n", &lastKey);
+            buffer.Appendf("       lastKey: %B\n", &printable);
             MAKE_PRINTABLE(midpoint);
-            buffer.Appendf("       midpoint: %B\n", &midpoint);
+            buffer.Appendf("       midpoint: %B\n", &printable);
             buffer.Appendf("       minLogSegmentID: %U\n", (*itChunk)->GetMinLogSegmentID());
             buffer.Appendf("       maxLogSegmentID: %U\n", (*itChunk)->GetMaxLogSegmentID());
             buffer.Appendf("       maxLogCommandID: %U\n", (*itChunk)->GetMaxLogCommandID());

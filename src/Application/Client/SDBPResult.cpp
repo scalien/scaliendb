@@ -25,6 +25,11 @@ static inline int KeyCmp(uint64_t a, uint64_t b)
     return 0;
 }
 
+Result::Result()
+{
+    Close();
+}
+
 Result::~Result()
 {
     Close();
