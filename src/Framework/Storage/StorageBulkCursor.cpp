@@ -5,6 +5,8 @@
 StorageBulkCursor::StorageBulkCursor() :
  dataPage(NULL, 0)
 {
+    contextID = 0;
+    shardID = 0;
     chunkID = 0;
     shard = NULL;
     env = NULL;
@@ -50,7 +52,9 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
         return kv;
     }
     
-    // TODO: what if shard has been deleted?
+    if (!env->ShardExists(contextID, shardID))
+        return NULL;
+        
     FOREACH(itChunk, shard->chunks)
     {
         if ((*itChunk)->GetChunkID() == chunkID)
@@ -63,7 +67,6 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     }
     else
     {        
-        assert(itChunk != NULL); // TODO: what if chunk has been deleted?
         chunk = *itChunk;
     }
     assert(chunk != NULL);
@@ -155,7 +158,10 @@ void StorageBulkCursor::SetEnvironment(StorageEnvironment* env_)
     env = env_;
 }
 
-void StorageBulkCursor::SetShard(StorageShard* shard_)
+void StorageBulkCursor::SetShard(uint64_t contextID_, uint64_t shardID_)
 {
-    shard = shard_;
+    contextID = contextID_;
+    shardID = shardID_;
+    shard = env->GetShard(contextID, shardID);
+    assert(shard);
 }

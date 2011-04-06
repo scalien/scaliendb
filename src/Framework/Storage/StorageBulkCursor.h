@@ -33,17 +33,19 @@ public:
     void                    FinalizeKeyValues();
 
     void                    SetEnvironment(StorageEnvironment* env);
-    void                    SetShard(StorageShard* shard);
+    void                    SetShard(uint64_t contextID_, uint64_t shardID);
 
 private:
     StorageKeyValue*        FromNextBunch(StorageChunk* chunk);
 
-    StorageDataPage         dataPage;
+    bool                    isLast;
+    uint64_t                contextID;
+    uint64_t                shardID;
     uint64_t                chunkID;
     StorageShard*           shard;
     StorageEnvironment*     env;
-    bool                    isLast;
     Buffer                  nextKey;
+    StorageDataPage         dataPage;
 };
 
 #endif

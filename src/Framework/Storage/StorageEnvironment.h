@@ -39,6 +39,7 @@ class StorageEnvironment
     friend class StorageChunkWriter;
     friend class StorageChunkMerger;
     friend class StorageArchiveLogSegmentJob;
+    friend class StorageBulkCursor;
     
     typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;

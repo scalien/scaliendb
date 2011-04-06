@@ -230,7 +230,9 @@ uint64_t* ShardCatchupWriter::NextShard()
         if (*it == shardID)
             break;
     }
-    assert(it != NULL);
+    
+    if (!it)
+        return NULL; // shard was deleted
 
     it = shards.Next(it);
 
