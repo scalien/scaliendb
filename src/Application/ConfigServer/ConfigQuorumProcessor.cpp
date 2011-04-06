@@ -371,21 +371,19 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
     bool                            configChanged;
     uint64_t                        now;
     uint32_t                        checksum;
-    ConfigState*                    configState;
 
     if (updateClients)
     {
         // check if the configState changed at all
         configChanged = false;
-        configState = configServer->GetDatabaseManager()->GetConfigState();
-        configState->Write(checksumBuffer, true);
+        CONFIG_STATE->Write(checksumBuffer, true);
         checksum = checksumBuffer.GetChecksum();
         if (checksum == 0 || checksum != configStateChecksum)
         {
             configChanged = true;
             configStateChecksum = checksum;
         }
-
+        
         // update clients
         now = EventLoop::Now();
         FOREACH (itRequest, listenRequests)
