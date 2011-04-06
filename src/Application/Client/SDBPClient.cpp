@@ -74,19 +74,33 @@ Mutex   globalMutex;
     req = new Request;                              \
     req->op(NextCommandID(), tableID, __VA_ARGS__); \
     req->isBulk = isBulkLoading;                    \
+                                                    \
     requests.Append(req);                           \
                                                     \
     if (isBatched)                                  \
     {                                               \
-        if (!result->AppendRequest(req))            \
+        if (!result->AppendRequest(req) ||          \
+         (requests.GetLength() > 1 && isReading && !req->IsReadRequest()) ||    \
+         (requests.GetLength() > 1 && !isReading && req->IsReadRequest()))      \
         {                                           \
             requests.Clear();                       \
             result->Close();                        \
             isBatched = false;                      \
             return SDBP_API_ERROR;                  \
         }                                           \
+                                                    \
+        if (req->IsReadRequest())                   \
+            isReading = true;                       \
+        else                                        \
+            isReading = false;                      \
+                                                    \
         return SDBP_SUCCESS;                        \
     }                                               \
+                                                    \
+    if (req->IsReadRequest())                       \
+        isReading = true;                           \
+    else                                            \
+        isReading = false;                          \
                                                     \
     result->Close();                                \
     result->AppendRequest(req);                     \
@@ -609,6 +623,7 @@ int Client::Begin()
     result->Close();
     result->SetBatchLimit(batchLimit);
     isBatched = true;
+    isReading = false;
     
     return SDBP_SUCCESS;
 }
@@ -621,6 +636,7 @@ int Client::Submit()
     isBatched = false;
 
     ClearQuorumRequests();
+    requests.ClearMembers();
     
     return result->GetTransportStatus();
 }
@@ -637,6 +653,7 @@ int Client::Cancel()
     isBatched = false;
 
     ClearQuorumRequests();
+    requests.ClearMembers();
     
     return SDBP_SUCCESS;
 }
@@ -764,12 +781,6 @@ void Client::SetMaster(int64_t master_, uint64_t nodeID)
         Log_Debug("Node %d lost its mastership", nodeID);
         master = -1;
         connectivityStatus = SDBP_NOMASTER;
-        
-        if (!IsSafe())
-            return;
-
-        // TODO: send safe requests that had no response to the new master
-        // ResendRequests(nodeID);
 
         // TODO: What's this? -> set master timeout (copy-paste from Keyspace)
     }
@@ -794,10 +805,9 @@ void Client::OnMasterTimeout()
     timeoutStatus = SDBP_MASTER_TIMEOUT;
 }
 
-bool Client::IsSafe()
+bool Client::IsReading()
 {
-    // TODO:
-    return true;
+    return isReading;
 }
 
 void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
@@ -878,7 +888,7 @@ void Client::ReassignRequest(Request* req)
         req->quorumID = quorumID;
 
         quorum = configState->GetQuorum(quorumID);
-        if (IsSafe() && quorum->hasPrimary == false)
+        if (!IsReading() && quorum->hasPrimary == false)
             requests.Append(req);
         else
             AddRequestToQuorum(req);

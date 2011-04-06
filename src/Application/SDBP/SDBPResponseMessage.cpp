@@ -14,14 +14,41 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
         case CLIENTRESPONSE_OK:
             read = buffer.Readf("%c:%U",
              &response->type, &response->commandID);
+            // read optional paxosID
+            if ((int) buffer.GetLength() > read)
+            {
+                buffer.Advance(read);
+                read = buffer.Readf(":%U", &response->paxosID);
+                if (read == (int) buffer.GetLength())
+                    return true;
+                return false;
+            }
             break;
         case CLIENTRESPONSE_NUMBER:
             read = buffer.Readf("%c:%U:%U",
              &response->type, &response->commandID, &response->number);
+            // read optional paxosID
+            if ((int) buffer.GetLength() > read)
+            {
+                buffer.Advance(read);
+                read = buffer.Readf(":%U", &response->paxosID);
+                if (read == (int) buffer.GetLength())
+                    return true;
+                return false;
+            }
             break;
         case CLIENTRESPONSE_VALUE:
             read = buffer.Readf("%c:%U:%#R",
              &response->type, &response->commandID, &response->value);
+            // read optional paxosID
+            if ((int) buffer.GetLength() > read)
+            {
+                buffer.Advance(read);
+                read = buffer.Readf(":%U", &response->paxosID);
+                if (read == (int) buffer.GetLength())
+                    return true;
+                return false;
+            }
             break;
         case CLIENTRESPONSE_LIST_KEYS:
             read = buffer.Readf("%c:%U:%u",
@@ -97,14 +124,20 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         case CLIENTRESPONSE_OK:
             buffer.Writef("%c:%U",
              response->type, response->request->commandID);
+            if (response->paxosID > 0)
+                buffer.Appendf(":%U", response->paxosID);
             return true;
         case CLIENTRESPONSE_NUMBER:
             buffer.Writef("%c:%U:%U",
              response->type, response->request->commandID, response->number);
+            if (response->paxosID > 0)
+                buffer.Appendf(":%U", response->paxosID);
             return true;
         case CLIENTRESPONSE_VALUE:
             buffer.Writef("%c:%U:%#R",
              response->type, response->request->commandID, &response->value);
+            if (response->paxosID > 0)
+                buffer.Appendf(":%U", response->paxosID);
             return true;
         case CLIENTRESPONSE_LIST_KEYS:
             buffer.Writef("%c:%U:%u",

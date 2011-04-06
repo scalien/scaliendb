@@ -126,7 +126,7 @@ private:
     void                    UpdateConnectivityStatus();
     void                    OnGlobalTimeout();
     void                    OnMasterTimeout();
-    bool                    IsSafe();
+    bool                    IsReading();
     void                    SetConfigState(ControllerConnection* conn, ConfigState* configState);
 
     void                    ReassignRequest(Request* req);
@@ -170,6 +170,7 @@ private:
     bool                    isBatched;
     uint64_t                batchLimit;
     bool                    isBulkLoading;
+    bool                    isReading;
     int                     consistencyLevel;
     uint64_t                highestSeenPaxosID;
 
