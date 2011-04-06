@@ -12,7 +12,9 @@ void PaxosProposer::Init(QuorumContext* context_)
     context = context_;
     
     prepareTimeout.SetCallable(MFUNC(PaxosProposer, OnPrepareTimeout));
+    prepareTimeout.SetDelay(PAXOS_TIMEOUT);
     proposeTimeout.SetCallable(MFUNC(PaxosProposer, OnProposeTimeout));
+    proposeTimeout.SetDelay(PAXOS_TIMEOUT);
 
     vote = NULL;
     state.Init();
@@ -49,9 +51,6 @@ void PaxosProposer::OnPrepareTimeout()
     
     assert(state.preparing);
 
-    if (prepareTimeout.GetDelay() < MAX_PAXOS_TIMEOUT)
-        prepareTimeout.SetDelay(2 * prepareTimeout.GetDelay());
-    
     if (context->IsPaxosBlocked())
     {
         if (useTimeouts)
@@ -68,9 +67,6 @@ void PaxosProposer::OnProposeTimeout()
     Log_Trace();
     
     assert(state.proposing);
-
-    if (proposeTimeout.GetDelay() < MAX_PAXOS_TIMEOUT)
-        proposeTimeout.SetDelay(2 * proposeTimeout.GetDelay());
 
     if (context->IsPaxosBlocked())
     {
@@ -92,9 +88,6 @@ void PaxosProposer::Propose(Buffer& value)
     state.proposedRunID = REPLICATION_CONFIG->GetRunID();
     state.proposedValue.Write(value);
 
-    prepareTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
-    proposeTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
-    
     if (state.multi && state.numProposals == 0)
     {
         state.numProposals++;
@@ -117,9 +110,6 @@ void PaxosProposer::Restart()
         timer = &proposeTimeout;
     
     EventLoop::Remove(timer);
-
-    prepareTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
-    proposeTimeout.SetDelay(MIN_PAXOS_TIMEOUT);
 
     if (context->IsPaxosBlocked())
     {
