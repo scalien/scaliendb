@@ -139,6 +139,9 @@ ConfigShardServer& ConfigShardServer::operator=(const ConfigShardServer& other)
     endpoint = other.endpoint;
     httpPort = other.httpPort;
     sdbpPort = other.sdbpPort;
+    
+    quorumInfos = other.quorumInfos;
+    quorumShardInfos = other.quorumShardInfos;
 
     prev = next = this;
     
