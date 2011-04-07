@@ -177,6 +177,18 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
             if (itQuorumShardInfo->quorumID != itQuorum->quorumID)
                 continue;
                 
+            configTable = configState->GetTable(itQuorumShardInfo->shardID);
+            if (configTable != NULL)
+            {
+                if (configTable->shards.GetLength() == 1)
+                {
+                    configShard = configState->GetShard(*(configTable->shards.First()));
+                    assert(configShard);
+                    if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
+                        configServer->GetQuorumProcessor()->TryTruncateTableComplete(configTable->tableID);
+                }
+            }
+                
             if (!isSplitCreating && itQuorumShardInfo->isSplitable &&
              itQuorumShardInfo->shardSize > shardSplitSize)
             {
@@ -191,7 +203,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
                 if (!configServer->GetDatabaseManager()->ShardExists(
                  configShard->tableID, ReadBuffer(itQuorumShardInfo->splitKey)))
                 {
-                    configServer->GetQuorumProcessor()->TryShardSplitBegin(
+                    configServer->GetQuorumProcessor()->TrySplitShardBegin(
                      itQuorumShardInfo->shardID, ReadBuffer(itQuorumShardInfo->splitKey));
                     break;
                 }
@@ -199,7 +211,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
             
             if (newShardID == itQuorumShardInfo->shardID)
             {
-                configServer->GetQuorumProcessor()->TryShardSplitComplete(
+                configServer->GetQuorumProcessor()->TrySplitShardComplete(
                  itQuorumShardInfo->shardID);
                 break;
             }
@@ -233,7 +245,7 @@ bool ConfigHeartbeatManager::IsSplitCreating(ConfigQuorum* configQuorum, uint64_
     {
         configShard = configState->GetShard(*itShardID);
         assert(configShard != NULL);
-        if (configShard->isSplitCreating)
+        if (configShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
         {
             newShardID = configShard->shardID;
             return true;

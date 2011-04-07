@@ -188,7 +188,7 @@ void ConfigHTTPClientSession::PrintShards(ConfigState* configState)
         for (it = shards.First(); it != NULL; it = shards.Next(it))
         {
             buffer.Clear();
-            if (it->isSplitCreating)
+            if (it->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
                 buffer.Appendf("* ");
             else
                 buffer.Appendf("- ");

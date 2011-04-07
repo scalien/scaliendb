@@ -275,6 +275,21 @@ void StorageEnvironment::GetShardIDs(uint64_t contextID, ShardIDList& shardIDs)
     }
 }
 
+void StorageEnvironment::GetShardIDs(uint64_t contextID, uint64_t tableID, ShardIDList& shardIDs)
+{
+    uint64_t            shardID;
+    StorageShard*       itShard;
+    
+    FOREACH(itShard, shards)
+    {
+        if (itShard->GetContextID() != contextID || itShard->GetTableID() != tableID)
+            continue;
+        
+        shardID = itShard->GetShardID();
+        shardIDs.Append(shardID);
+    }
+}
+
 bool StorageEnvironment::Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value)
 {
     StorageShard*       shard;

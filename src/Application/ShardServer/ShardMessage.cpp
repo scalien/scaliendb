@@ -77,6 +77,13 @@ void ShardMessage::SplitShard(uint64_t shardID_, uint64_t newShardID_, ReadBuffe
     splitKey.Write(splitKey_);
 }
 
+void ShardMessage::TruncateTable(uint64_t tableID_, uint64_t newShardID_)
+{
+    type = SHARDMESSAGE_TRUNCATE_TABLE;
+    tableID = tableID_;
+    newShardID = newShardID_;
+}
+
 void ShardMessage::ShardMigrationBegin(uint64_t shardID_)
 {
     type = SHARDMESSAGE_MIGRATION_BEGIN;
@@ -149,6 +156,10 @@ int ShardMessage::Read(ReadBuffer& buffer)
              &type, &shardID, &newShardID, &splitKey);
             break;
         // Shard manipulation
+        case SHARDMESSAGE_TRUNCATE_TABLE:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &tableID, &newShardID);
+            break;
         case SHARDMESSAGE_MIGRATION_BEGIN:
             read = buffer.Readf("%c:%U",
              &type, &shardID);
@@ -211,6 +222,10 @@ bool ShardMessage::Append(Buffer& buffer)
              type, shardID, newShardID, &splitKey);
             break;
         // Shard migration
+        case SHARDMESSAGE_TRUNCATE_TABLE:
+            buffer.Appendf("%c:%U:%U",
+             type, tableID, newShardID);
+            break;
         case SHARDMESSAGE_MIGRATION_BEGIN:
             buffer.Appendf("%c:%U",
              type, shardID);

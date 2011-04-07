@@ -212,45 +212,10 @@ void ConfigQuorumProcessor::OnClientClose(ClientSession* session)
     }
 }
 
-//bool ConfigQuorumProcessor::HasActivateMessage(uint64_t quorumID, uint64_t nodeID)
-//{
-//    ConfigMessage *it;
-//    
-//    FOREACH(it, configMessages)
-//    {
-//        if (it->type == CONFIGMESSAGE_ACTIVATE_SHARDSERVER &&
-//         it->quorumID == quorumID && it->nodeID == nodeID)
-//        {
-//            return true;
-//        }
-//    }
-//    
-//    return false;
-//}
-
-//bool ConfigQuorumProcessor::HasDeactivateMessage(uint64_t quorumID)
-//{
-//    ConfigMessage *it;
-//    
-//    FOREACH(it, configMessages)
-//    {
-//        if (it->type == CONFIGMESSAGE_DEACTIVATE_SHARDSERVER &&
-//         it->quorumID == quorumID)
-//        {
-//            return true;
-//        }
-//    }
-//    
-//    return false;
-//}
-
 void ConfigQuorumProcessor::ActivateNode(uint64_t quorumID, uint64_t nodeID)
 {
     ConfigMessage* message;
  
-//    if (HasActivateMessage(quorumID, nodeID))
-//        return;
-          
     message = new ConfigMessage();
     message->fromClient = false;
     message->ActivateShardServer(quorumID, nodeID);
@@ -263,9 +228,6 @@ void ConfigQuorumProcessor::DeactivateNode(uint64_t quorumID, uint64_t nodeID)
 {
     ConfigMessage* message;
 
-//    if (HasDeactivateMessage(quorumID))
-//        return;
-    
     message = new ConfigMessage();
     message->fromClient = false;
     message->DeactivateShardServer(quorumID, nodeID);
@@ -288,17 +250,12 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
     msg = new ConfigMessage;
     msg->fromClient = false;
     msg->RegisterShardServer(0, endpoint);
-//    if (!CONFIG_STATE->CompleteMessage(*msg))
-//    {
-//        delete msg;
-//        return;        
-//    }
 
     configMessages.Append(msg);
     TryAppend();
 }
 
-void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer splitKey)
+void ConfigQuorumProcessor::TrySplitShardBegin(uint64_t shardID, ReadBuffer splitKey)
 {
     ConfigMessage*  it;
     ConfigMessage*  msg;
@@ -312,16 +269,12 @@ void ConfigQuorumProcessor::TryShardSplitBegin(uint64_t shardID, ReadBuffer spli
     msg = new ConfigMessage;
     msg->fromClient = false;    
     msg->SplitShardBegin(shardID, splitKey);
-//    if (!CONFIG_STATE->CompleteMessage(*msg))
-//    {
-//        delete msg;
-//        return;        
-//    }
+
     configMessages.Append(msg);
     TryAppend();
 }
 
-void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
+void ConfigQuorumProcessor::TrySplitShardComplete(uint64_t shardID)
 {
     ConfigMessage*  it;
     ConfigMessage*  msg;
@@ -335,11 +288,45 @@ void ConfigQuorumProcessor::TryShardSplitComplete(uint64_t shardID)
     msg = new ConfigMessage;
     msg->fromClient = false;    
     msg->SplitShardComplete(shardID);
-//    if (!CONFIG_STATE->CompleteMessage(*msg))
-//    {
-//        delete msg;
-//        return;        
-//    }
+
+    configMessages.Append(msg);
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::TryTruncateTableBegin(uint64_t tableID)
+{
+    ConfigMessage*  it;
+    ConfigMessage*  msg;
+
+    FOREACH(it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN && it->tableID == tableID)
+            return;
+    }
+
+    msg = new ConfigMessage;
+    msg->fromClient = false;    
+    msg->TruncateTableBegin(tableID);
+
+    configMessages.Append(msg);
+    TryAppend();
+}
+
+void ConfigQuorumProcessor::TryTruncateTableComplete(uint64_t tableID)
+{
+    ConfigMessage*  it;
+    ConfigMessage*  msg;
+
+    FOREACH(it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE && it->tableID == tableID)
+            return;
+    }
+
+    msg = new ConfigMessage;
+    msg->fromClient = false;    
+    msg->TruncateTableComplete(tableID);
+
     configMessages.Append(msg);
     TryAppend();
 }
@@ -675,7 +662,7 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->tableID = request->tableID;
             return;
         case CLIENTREQUEST_TRUNCATE_TABLE:
-            message->type = CONFIGMESSAGE_TRUNCATE_TABLE;
+            message->type = CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN;
             message->tableID = request->tableID;
             return;
         case CLIENTREQUEST_FREEZE_TABLE:

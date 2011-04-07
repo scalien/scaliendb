@@ -12,6 +12,7 @@
 #define SHARDMESSAGE_DELETE                 'X'
 #define SHARDMESSAGE_REMOVE                 'x'
 #define SHARDMESSAGE_SPLIT_SHARD            'z'
+#define SHARDMESSAGE_TRUNCATE_TABLE         'y'
 #define SHARDMESSAGE_MIGRATION_BEGIN        '1'
 #define SHARDMESSAGE_MIGRATION_SET          '2'
 #define SHARDMESSAGE_MIGRATION_DELETE       '3'
@@ -56,6 +57,7 @@ public:
     void            Remove(uint64_t tableID, ReadBuffer& key);
 
     void            SplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey);
+    void            TruncateTable(uint64_t tableID, uint64_t newShardID);
 
     void            ShardMigrationBegin(uint64_t shardID);
     void            ShardMigrationSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
