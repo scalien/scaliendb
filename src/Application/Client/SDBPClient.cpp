@@ -65,6 +65,7 @@ Mutex   globalMutex;
 
 #define CLIENT_DATA_COMMAND(op, ...)                \
     Request*    req;                                \
+    int         status;                             \
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
@@ -73,37 +74,8 @@ Mutex   globalMutex;
                                                     \
     req = new Request;                              \
     req->op(NextCommandID(), tableID, __VA_ARGS__); \
-    req->isBulk = isBulkLoading;                    \
-                                                    \
-    requests.Append(req);                           \
-                                                    \
-    if (isBatched)                                  \
-    {                                               \
-        if (!result->AppendRequest(req) ||          \
-         (requests.GetLength() > 1 && isReading && !req->IsReadRequest()) ||    \
-         (requests.GetLength() > 1 && !isReading && req->IsReadRequest()))      \
-        {                                           \
-            requests.Clear();                       \
-            result->Close();                        \
-            isBatched = false;                      \
-            return SDBP_API_ERROR;                  \
-        }                                           \
-                                                    \
-        if (req->IsReadRequest())                   \
-            isReading = true;                       \
-        else                                        \
-            isReading = false;                      \
-                                                    \
-        return SDBP_SUCCESS;                        \
-    }                                               \
-                                                    \
-    if (req->IsReadRequest())                       \
-        isReading = true;                           \
-    else                                            \
-        isReading = false;                          \
-                                                    \
-    result->Close();                                \
-    result->AppendRequest(req);                     \
+    if (AppendDataRequest(req, status))             \
+        return status;                              \
                                                     \
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
@@ -824,6 +796,44 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
         AssignRequestsToQuorums();
         SendQuorumRequests();
     }
+}
+
+bool Client::AppendDataRequest(Request* req, int &status)
+{
+    req->isBulk = isBulkLoading;
+    requests.Append(req);
+
+    if (isBatched)
+    {
+        if (!result->AppendRequest(req) ||
+         (requests.GetLength() > 1 && isReading && !req->IsReadRequest()) ||
+         (requests.GetLength() > 1 && !isReading && req->IsReadRequest()))
+        {
+            requests.Clear();
+            result->Close();
+            isBatched = false;
+            status = SDBP_API_ERROR;
+            return true;
+        }
+
+        if (req->IsReadRequest())
+            isReading = true;
+        else
+            isReading = false;
+
+        status = SDBP_SUCCESS;
+        return true;
+    }
+
+    if (req->IsReadRequest())
+        isReading = true;
+    else                                            
+        isReading = false;
+
+    result->Close();
+    result->AppendRequest(req);
+
+    return false;
 }
 
 void Client::ReassignRequest(Request* req)
