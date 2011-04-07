@@ -74,6 +74,7 @@ public:
     void                    TryReplicationCatchup();
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
                              ReadBuffer& splitKey);
+    void                    TryTruncateTable(uint64_t tableID, uint64_t newShardID);
     void                    OnActivation();
     void                    OnActivationTimeout();
 

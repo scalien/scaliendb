@@ -449,6 +449,39 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     }
 }
 
+void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardID)
+{
+    ShardMessage*   it;
+    
+    FOREACH(it, shardMessages)
+    {
+        if (it->type == SHARDMESSAGE_TRUNCATE_TABLE && it->tableID == tableID)
+        {
+            Log_Trace("Not appending truncate table");
+            return;
+        }
+    }
+    
+    Log_Trace("Appending truncate table");
+
+    it = new ShardMessage;
+    it->TruncateTable(tableID, newShardID);
+    it->fromClient = false;
+    it->isBulk = false;
+    shardMessages.Append(it);
+
+    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
+    {
+        if (!tryAppend.IsActive())
+            EventLoop::Add(&tryAppend);
+    }
+    else
+    {
+        if (!localExecute.IsActive())
+            EventLoop::Add(&localExecute);
+    }
+}
+
 void ShardQuorumProcessor::OnActivation()
 {
     if (requestLeaseTimeout.GetDelay() == ACTIVATION_PRIMARYLEASE_REQUEST_TIMEOUT)

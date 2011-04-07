@@ -123,14 +123,6 @@ bool ConfigMessage::DeleteTable(
     return true;
 }
 
-bool ConfigMessage::TruncateTable(
- uint64_t tableID_)
-{
-    type = CONFIGMESSAGE_TRUNCATE_TABLE;
-    tableID = tableID_;
-    return true;
-}
-
 bool ConfigMessage::FreezeTable(
  uint64_t tableID_)
 {
@@ -143,6 +135,22 @@ bool ConfigMessage::UnfreezeTable(
  uint64_t tableID_)
 {
     type = CONFIGMESSAGE_UNFREEZE_TABLE;
+    tableID = tableID_;
+    return true;
+}
+
+bool ConfigMessage::TruncateTableBegin(
+ uint64_t tableID_)
+{
+    type = CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN;
+    tableID = tableID_;
+    return true;
+}
+
+bool ConfigMessage::TruncateTableComplete(
+ uint64_t tableID_)
+{
+    type = CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE;
     tableID = tableID_;
     return true;
 }
@@ -259,7 +267,11 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &type, &tableID);
             break;
-        case CONFIGMESSAGE_TRUNCATE_TABLE:
+        case CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN:
+            read = buffer.Readf("%c:%U",
+             &type, &tableID);
+            break;
+        case CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE:
             read = buffer.Readf("%c:%U",
              &type, &tableID);
             break;
@@ -366,7 +378,11 @@ bool ConfigMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U",
              type, tableID);
             break;
-        case CONFIGMESSAGE_TRUNCATE_TABLE:
+        case CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN:
+            buffer.Writef("%c:%U",
+             type, tableID);
+            break;
+        case CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE:
             buffer.Writef("%c:%U",
              type, tableID);
             break;

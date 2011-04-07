@@ -332,7 +332,7 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         shard = shardServer->GetConfigState()->GetShard(*sit);
         assert(shard != NULL);
         
-        if (!shard->isSplitCreating)
+        if (shard->state == CONFIG_SHARD_STATE_NORMAL)
         {
             Log_Trace("Calling CreateShard() for shardID = %U", *sit);
             environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
@@ -422,6 +422,7 @@ void ShardDatabaseManager::ExecuteMessage(
     uint64_t        shardID;
     int16_t         contextID;
     int64_t         number;
+    uint64_t*       itShardID;
     unsigned        nread;
     ReadBuffer      userValue;
     ReadBuffer      readBuffer;
@@ -429,7 +430,8 @@ void ShardDatabaseManager::ExecuteMessage(
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
     ConfigShard*    configShard;
-
+    StorageEnvironment::ShardIDList     shards;
+    
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
     shardID = environment.GetShardID(contextID, message.tableID, message.key);
 
@@ -534,6 +536,12 @@ void ShardDatabaseManager::ExecuteMessage(
             environment.SplitShard(contextID, message.shardID, message.newShardID, message.splitKey);
             Log_Debug("Splitting shard %U into shards %U and %U at key: %B (paxosID: %U)",
              message.shardID, message.shardID, message.newShardID, &message.splitKey, paxosID);
+            break;
+        case SHARDMESSAGE_TRUNCATE_TABLE:
+            environment.GetShardIDs(contextID, message.tableID, shards);
+            FOREACH(itShardID, shards)
+                environment.DeleteShard(contextID, *itShardID);
+            environment.CreateShard(contextID, message.newShardID, message.tableID, "", "", 1, 0);
             break;
          case SHARDMESSAGE_MIGRATION_BEGIN:
             Log_Debug("shardMigration BEGIN shardID = %U", message.shardID);

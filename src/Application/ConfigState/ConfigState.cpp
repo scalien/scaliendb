@@ -183,12 +183,14 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteRenameTable(message);
         case CONFIGMESSAGE_DELETE_TABLE:
             return CompleteDeleteTable(message);
-        case CONFIGMESSAGE_TRUNCATE_TABLE:
-            return CompleteTruncateTable(message);
         case CONFIGMESSAGE_FREEZE_TABLE:
             return CompleteFreezeTable(message);
         case CONFIGMESSAGE_UNFREEZE_TABLE:
             return CompleteUnfreezeTable(message);
+        case CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN:
+            return CompleteTruncateTableBegin(message);
+        case CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE:
+            return CompleteTruncateTableComplete(message);
         
         default:
             ASSERT_FAIL();
@@ -357,12 +359,14 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnRenameTable(message);
         case CONFIGMESSAGE_DELETE_TABLE:
             return OnDeleteTable(message);
-        case CONFIGMESSAGE_TRUNCATE_TABLE:
-            return OnTruncateTable(message);
         case CONFIGMESSAGE_FREEZE_TABLE:
             return OnFreezeTable(message);
         case CONFIGMESSAGE_UNFREEZE_TABLE:
             return OnUnfreezeTable(message);
+        case CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN:
+            return OnTruncateTableBegin(message);
+        case CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE:
+            return OnTruncateTableComplete(message);
         
         case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
             return OnSplitShardBegin(message);
@@ -450,7 +454,7 @@ ConfigShard* ConfigState::GetShard(uint64_t tableID, ReadBuffer key)
     
     FOREACH(itShard, shards)
     {
-        if (itShard->isSplitCreating)
+        if (itShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
             continue;
         
         if (itShard->tableID == tableID)
@@ -698,17 +702,6 @@ bool ConfigState::CompleteDeleteTable(ConfigMessage& message)
     return true;
 }
 
-bool ConfigState::CompleteTruncateTable(ConfigMessage& message)
-{
-    ConfigTable*    table;
-
-    table = GetTable(message.tableID);
-    if (table == NULL)
-        return false; // no such table
-
-    return true;
-}
-
 bool ConfigState::CompleteFreezeTable(ConfigMessage& message)
 {
     ConfigTable*    table;
@@ -728,6 +721,22 @@ bool ConfigState::CompleteUnfreezeTable(ConfigMessage& message)
     if (table == NULL)
         return false; // no such table
 
+    return true;
+}
+
+bool ConfigState::CompleteTruncateTableBegin(ConfigMessage& message)
+{
+    ConfigTable*    table;
+
+    table = GetTable(message.tableID);
+    if (table == NULL)
+        return false; // no such table
+
+    return true;
+}
+
+bool ConfigState::CompleteTruncateTableComplete(ConfigMessage&)
+{
     return true;
 }
 
@@ -763,7 +772,7 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
     
     shard = GetShard(message.shardID);
     
-    if (shard->isSplitCreating)
+    if (shard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
         return true;
     
     return false;
@@ -1037,47 +1046,6 @@ void ConfigState::OnDeleteTable(ConfigMessage& message)
     database->tables.Remove(message.tableID);
 }
 
-void ConfigState::OnTruncateTable(ConfigMessage& message)
-{
-    uint64_t*       itNodeID;
-    ConfigQuorum*   quorum;
-    ConfigDatabase* database;
-    ConfigTable*    table;
-    ConfigShard*    shard;
-    uint64_t        quorumID;
-    
-    table = GetTable(message.tableID);
-    // make sure table exists
-    assert(table != NULL);
-
-    database = GetDatabase(table->databaseID);
-    // make sure database exists
-    assert(database != NULL);
-
-    quorumID = 0;
-    // delete all old shards
-    FOREACH_FIRST(itNodeID, table->shards)
-    {
-        shard = GetShard(*itNodeID);
-        assert(shard != NULL);
-        quorumID = shard->quorumID;
-        DeleteShard(shard);
-    }
-    
-    quorum = GetQuorum(quorumID);
-    assert(quorum != NULL);
-
-    // create a new shard
-    shard = new ConfigShard;
-    shard->shardID = nextShardID++;
-    shard->quorumID = quorumID;
-    shard->tableID = table->tableID;
-
-    table->shards.Append(shard->shardID);
-    shards.Append(shard);
-    quorum->shards.Add(shard->shardID);
-}
-
 void ConfigState::OnFreezeTable(ConfigMessage& message)
 {
     ConfigTable*    table;
@@ -1100,6 +1068,64 @@ void ConfigState::OnUnfreezeTable(ConfigMessage& message)
     table->isFrozen = false;
 }
 
+void ConfigState::OnTruncateTableBegin(ConfigMessage& message)
+{
+    uint64_t*       itShardID;
+    ConfigQuorum*   quorum;
+    ConfigDatabase* database;
+    ConfigTable*    table;
+    ConfigShard*    shard;
+    uint64_t        quorumID;
+    
+    table = GetTable(message.tableID);
+    // make sure table exists
+    assert(table != NULL);
+
+    database = GetDatabase(table->databaseID);
+    // make sure database exists
+    assert(database != NULL);
+
+    quorumID = 0;
+    // delete all old shards
+    FOREACH_FIRST(itShardID, table->shards)
+    {
+        shard = GetShard(*itShardID);
+        assert(shard != NULL);
+        quorumID = shard->quorumID;
+        DeleteShard(shard);
+    }
+    
+    quorum = GetQuorum(quorumID);
+    assert(quorum != NULL);
+
+    // create a new shard
+    shard = new ConfigShard;
+    shard->state = CONFIG_SHARD_STATE_TRUNC_CREATING;
+    shard->shardID = nextShardID++;
+    shard->quorumID = quorumID;
+    shard->tableID = table->tableID;
+
+    table->shards.Append(shard->shardID);
+    shards.Append(shard);
+    quorum->shards.Add(shard->shardID);
+}
+
+void ConfigState::OnTruncateTableComplete(ConfigMessage& message)
+{
+    ConfigShard*    shard;
+    ConfigTable*    table;
+
+    table = GetTable(message.tableID);
+    // make sure table exists
+    assert(table != NULL);
+    assert(table->shards.GetLength() == 1);
+    
+    shard = GetShard(*(table->shards.First()));
+    assert(shard->state == CONFIG_SHARD_STATE_TRUNC_CREATING);
+
+    shard->state = CONFIG_SHARD_STATE_NORMAL;
+}
+
 void ConfigState::OnSplitShardBegin(ConfigMessage& message)
 {
     ConfigShard*    newShard;
@@ -1117,7 +1143,7 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     }
     
     newShard = new ConfigShard;
-    newShard->isSplitCreating = true;
+    newShard->state = CONFIG_SHARD_STATE_SPLIT_CREATING;
     newShard->shardID = nextShardID++;
     newShard->parentShardID = message.shardID;
     newShard->quorumID = parentShard->quorumID;
@@ -1142,7 +1168,7 @@ void ConfigState::OnSplitShardComplete(ConfigMessage& message)
     ConfigShard* shard;
     
     shard = GetShard(message.shardID);
-    shard->isSplitCreating = false;
+    shard->state = CONFIG_SHARD_STATE_NORMAL;
 }
 
 void ConfigState::OnShardMigrationComplete(ConfigMessage& message)
@@ -1518,10 +1544,10 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 {
     int read;
     
-    read = buffer.Readf("%U:%U:%U:%#B:%#B:%b:%U",
+    read = buffer.Readf("%U:%U:%U:%#B:%#B:%u:%U",
      &shard.quorumID, &shard.tableID, &shard.shardID,
      &shard.firstKey, &shard.lastKey,
-     &shard.isSplitCreating, &shard.parentShardID);
+     &shard.state, &shard.parentShardID);
     CHECK_ADVANCE(15);
 
     if (withVolatile)
@@ -1539,10 +1565,10 @@ bool ConfigState::ReadShard(ConfigShard& shard, ReadBuffer& buffer, bool withVol
 
 void ConfigState::WriteShard(ConfigShard& shard, Buffer& buffer, bool withVolatile)
 {
-    buffer.Appendf("%U:%U:%U:%#B:%#B:%b:%U",
+    buffer.Appendf("%U:%U:%U:%#B:%#B:%u:%U",
      shard.quorumID, shard.tableID, shard.shardID,
      &shard.firstKey, &shard.lastKey,
-     shard.isSplitCreating, shard.parentShardID);
+     shard.state, shard.parentShardID);
 
     if (withVolatile)
     {

@@ -366,13 +366,17 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
                     configShard = configState.GetShard(*itShardID);
                     if (databaseManager.GetEnvironment()->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID))
                         continue;
-                    if (configShard->isSplitCreating)
+                    if (configShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
                     {
                         Log_Trace("Splitting shard (parent shardID = %U, new shardID = %U)...",
                          configShard->parentShardID, configShard->shardID);
                         splitKey.Wrap(configShard->firstKey);
                         quorumProcessor->TrySplitShard(configShard->parentShardID,
                          configShard->shardID, splitKey);
+                    }
+                    else if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
+                    {
+                        quorumProcessor->TryTruncateTable(configShard->tableID, configShard->shardID);
                     }
                 }
             }
@@ -428,7 +432,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     ShardQuorumProcessor*   quorumProcessor;
     SortedList<uint64_t>    activeNodes;
     
-    Log_Trace();    
+    Log_Trace();
     
     quorumID = configQuorum->quorumID;
     quorumProcessor = GetQuorumProcessor(quorumID);

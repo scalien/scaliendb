@@ -108,9 +108,10 @@ private:
     bool                CompleteCreateTable(ConfigMessage& message);
     bool                CompleteRenameTable(ConfigMessage& message);
     bool                CompleteDeleteTable(ConfigMessage& message);
-    bool                CompleteTruncateTable(ConfigMessage& message);
     bool                CompleteFreezeTable(ConfigMessage& message);
     bool                CompleteUnfreezeTable(ConfigMessage& message);
+    bool                CompleteTruncateTableBegin(ConfigMessage& message);
+    bool                CompleteTruncateTableComplete(ConfigMessage& message);
     bool                CompleteSplitShardBegin(ConfigMessage& message);
     bool                CompleteSplitShardComplete(ConfigMessage& message);
     bool                CompleteShardMigrationComplete(ConfigMessage& message);
@@ -128,9 +129,10 @@ private:
     void                OnCreateTable(ConfigMessage& message);
     void                OnRenameTable(ConfigMessage& message);
     void                OnDeleteTable(ConfigMessage& message);
-    void                OnTruncateTable(ConfigMessage& message);
     void                OnFreezeTable(ConfigMessage& message);
     void                OnUnfreezeTable(ConfigMessage& message);
+    void                OnTruncateTableBegin(ConfigMessage& message);
+    void                OnTruncateTableComplete(ConfigMessage& message);
     void                OnSplitShardBegin(ConfigMessage& message);
     void                OnSplitShardComplete(ConfigMessage& message);
     void                OnShardMigrationComplete(ConfigMessage& message);

@@ -5,6 +5,10 @@
 #include "System/Containers/List.h"
 #include "System/Buffers/Buffer.h"
 
+#define CONFIG_SHARD_STATE_NORMAL              0
+#define CONFIG_SHARD_STATE_SPLIT_CREATING      1
+#define CONFIG_SHARD_STATE_TRUNC_CREATING      2
+
 /*
 ===============================================================================================
 
@@ -29,7 +33,8 @@ public:
     //
     // shard splitting
 
-    bool            isSplitCreating;
+//    bool            isSplitCreating;
+    unsigned        state;
     uint64_t        parentShardID;
     uint64_t        shardSize;
     Buffer          splitKey;
