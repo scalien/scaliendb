@@ -126,7 +126,7 @@ int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
     long        digit;
     unsigned    i;
     int64_t     n;
-    char        c;
+    const char* c;
 
     if (buffer == NULL || length < 1)
     {
@@ -136,25 +136,24 @@ int64_t BufferToInt64(const char* buffer, unsigned length, unsigned* nread)
     
     n = 0;
     i = 0;
-    c = *buffer;
+    c = buffer;
     
-#define ADVANCE()   i++; c = buffer[i];
-    if (c == '-')
+    if (*c == '-')
     {
         neg = true;
-        ADVANCE();
+        i++;
+        c = buffer + i;
     }
     else
         neg = false;
     
-    while (i < length && c >= '0' && c <= '9')
+    while (i < length && *c >= '0' && *c <= '9')
     {
-        digit = c - '0';
+        digit = *c - '0';
         n = n * 10 + digit;
-        // TODO: FIXME: this is wrong because when referencing buffer[i] i might be over length!
-        ADVANCE();
+        i++;
+        c = buffer + i;
     }
-#undef ADVANCE
     
     if (neg && i == 1)
     {

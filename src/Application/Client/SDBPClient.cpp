@@ -1273,7 +1273,7 @@ unsigned Client::GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* c
             totalRequests += otherConn->GetNumSentRequests();
         }
         
-        maxRequests = (unsigned) ceil(totalRequests / quorum->activeNodes.GetLength());
+        maxRequests = (unsigned) ceil((double)totalRequests / quorum->activeNodes.GetLength());
     }
     
     return maxRequests;

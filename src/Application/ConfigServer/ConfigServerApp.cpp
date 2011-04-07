@@ -14,7 +14,7 @@ void ConfigServerApp::Init()
     httpServer.RegisterHandler(&httpHandler);
          
     docroot.Wrap(configFile.GetValue("http.documentRoot", "."));
-    prefix.Wrap(configFile.GetValue("http.staticPrefix", "/webadmin/"));
+    prefix.Wrap(configFile.GetValue("http.staticPrefix", "/webadmin"));
     index.Wrap(configFile.GetValue("http.directoryIndex", "index.html"));
 
     httpFileHandler.Init(docroot, prefix);

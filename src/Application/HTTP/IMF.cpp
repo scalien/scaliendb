@@ -264,13 +264,13 @@ void IMFHeader::Free()
 
 int IMFHeader::Parse(char* buf, int len, int offs)
 {
-    char* p;
-    char* key;
-    char* value;
-    int nkv = numKeyval;
-    KeyValue* keyvalue;
-    int keylen;
-    int pos;
+    char*		p;
+    char*		key;
+    char*		value;
+    int			nkv = numKeyval;
+    KeyValue*	keyvalue;
+    int			keylen;
+    int			pos;
 
     data = buf;
     
@@ -322,25 +322,30 @@ int IMFHeader::Parse(char* buf, int len, int offs)
 #undef remlen   
 }
 
-const char* IMFHeader::GetField(const char* key)
+ReadBuffer IMFHeader::GetField(const char* key)
 {
-    KeyValue* keyval;
-    int i;
+    int         i;
+    KeyValue*   keyval;
+    ReadBuffer  ret;
     
     if (!data)
-        return NULL;
+        return ret;
     
     i = 0;
     while (i < numKeyval)
     {
         keyval = &keyvalues[i];
         if (strncasecmp(key, data + keyval->keyStart, keyval->keyLength) == 0)
-            return data + keyval->valueStart;
+        {
+            ret.SetBuffer(data + keyval->valueStart);
+            ret.SetLength(keyval->valueLength);
+            return ret;
+        }
 
         i++;
     }
     
-    return NULL;
+    return ret;
 }
 
 

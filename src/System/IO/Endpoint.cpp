@@ -6,6 +6,7 @@
 #ifdef _WIN32
 #include <winsock2.h>
 #define s_addr S_un.S_addr
+#define in_addr_t unsigned long
 #undef SetPort
 #else
 #include <sys/types.h>
