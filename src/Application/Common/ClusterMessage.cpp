@@ -1,5 +1,6 @@
 #include "ClusterMessage.h"
 #include "Framework/Messaging/MessageUtil.h"
+#include "Version.h"
 
 static inline bool LessThan(uint64_t a, uint64_t b)
 {
@@ -136,6 +137,12 @@ bool ClusterMessage::ShardMigrationComplete(
     return true;
 }
 
+bool ClusterMessage::Hello()
+{
+    type = CLUSTERMESSAGE_HELLO;
+    return true;
+}
+
 bool ClusterMessage::Read(ReadBuffer& buffer)
 {
 #define READ_SEPARATOR() \
@@ -214,6 +221,10 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &shardID);
             break;
+        case CLUSTERMESSAGE_HELLO:
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &clusterID, &value);
+            break;
         default:
             return false;
     }
@@ -279,6 +290,11 @@ bool ClusterMessage::Write(Buffer& buffer)
         case CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE:
             buffer.Writef("%c:%U:%U",
              type, quorumID, shardID);
+            return true;
+        case CLUSTERMESSAGE_HELLO:
+            tempBuffer.Writef("ScalienDB cluster protocol, server version " VERSION_STRING);
+            buffer.Writef("%c:%U:%#B",
+             type, clusterID, &tempBuffer);
             return true;
         default:
             return false;

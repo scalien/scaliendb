@@ -5,6 +5,7 @@
 Mutex::Mutex()
 {
     pthread_mutex_init(&mutex, NULL);
+    name = "";
 }
 
 Mutex::~Mutex()

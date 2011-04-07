@@ -1,14 +1,27 @@
 #include "ClusterConnection.h"
 #include "ClusterTransport.h"
+#include "Version.h"
 
 void ClusterConnection::InitConnected(bool startRead)
 {
+    Buffer      buffer;
+    Buffer      versionString;
+    uint64_t    proto;
+    
     MessageConnection::InitConnected(startRead);
     
     Log_Trace();
 
     progress = INCOMING;
     nodeID = UNDEFINED_NODEID;
+    
+    // TODO: HACK: this really should be a ClusterMessage, but it is at Application layer
+    // If this changes, ClusterMessage should be changed too!
+    
+    proto = 0;
+    versionString.Writef("ScalienDB cluster protocol, server version " VERSION_STRING "\n");
+    buffer.Writef("C:_:0:%#B", &versionString);
+    Write(buffer);
 }
 
 void ClusterConnection::SetTransport(ClusterTransport* transport_)
@@ -132,7 +145,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
     uint64_t            clusterID_;
     ReadBuffer          buffer;
     ClusterConnection*  dup;
-    Endpoint            remoteEndpoint;
+    int                 read;
 
     if (progress == ClusterConnection::INCOMING)
     {
@@ -142,7 +155,16 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         // the node at the other end is awaiting its nodeID
         if (msg.GetCharAt(0) == '*')
         {
-            msg.Readf("*:%#R", &buffer);
+            read = msg.Readf("*:%#R", &buffer);
+            if (read != (int) msg.GetLength())
+            {
+                // protocol error
+                GetSocket().GetEndpoint(endpoint);
+                Log_Message("[%s] Cluster protocol error, disconnecting...", endpoint.ToString());
+                transport->DeleteConnection(this);
+                return true;
+            }
+            
             if (!endpoint.Set(buffer, true))
             {
                 Log_Message("[%R] Cluster invalid network address", &buffer);
@@ -168,7 +190,16 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         }
         
         // both ends have nodeIDs
-        msg.Readf("%U:%U:%#R", &clusterID_, &nodeID_, &buffer);
+        read = msg.Readf("%U:%U:%#R", &clusterID_, &nodeID_, &buffer);
+        if (read != (int) msg.GetLength())
+        {
+            // protocol error
+            GetSocket().GetEndpoint(endpoint);
+            Log_Message("[%s] Cluster protocol error, disconnecting...", endpoint.ToString());
+            transport->DeleteConnection(this);
+            return true;
+        }
+        
         if (clusterID_ > 0 && clusterID_ != transport->GetClusterID())
         {
             Log_Message("[%R] Cluster invalid configuration, disconnecting...", &buffer);

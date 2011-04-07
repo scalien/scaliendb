@@ -89,7 +89,7 @@ TCPWriter* TCPConnection::GetWriter()
 
 void TCPConnection::OnWritePending()
 {
-    Log_Trace();
+    Log_Trace("fd = %d", socket.fd);
 
     Buffer* buffer;
 
@@ -126,8 +126,8 @@ void TCPConnection::Init(bool startRead)
 
 void TCPConnection::OnWrite()
 {
-    Log_Trace("Written %d bytes", tcpwrite.buffer->GetLength());
-    Log_Trace("Written: %B", tcpwrite.buffer);
+    Log_Trace("Written %d bytes on %d", tcpwrite.buffer->GetLength(), socket.fd);
+    Log_Trace("Written on %d: %B", socket.fd, tcpwrite.buffer);
 
     assert(writer != NULL);
     writer->OnNextWritten();

@@ -132,6 +132,9 @@ void ConfigServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message
         case CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE:
             quorumProcessor.OnShardMigrationComplete(message);
             break;
+        case CLUSTERMESSAGE_HELLO:
+            // TODO:
+            break;
         default:
             ASSERT_FAIL();
     }

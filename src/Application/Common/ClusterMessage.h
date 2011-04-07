@@ -17,6 +17,7 @@
 #define CLUSTERMESSAGE_SHARDMIGRATION_DELETE    '3' // shard server => shard server
 #define CLUSTERMESSAGE_SHARDMIGRATION_COMMIT    '4' // shard server => shard server
 #define CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE  '5' // shard server => master
+#define CLUSTERMESSAGE_HELLO                    '_'
 
 /*
 ===============================================================================================
@@ -68,6 +69,7 @@ public:
     bool            ShardMigrationDelete(uint64_t quorumID, uint64_t shardID, ReadBuffer key);
     bool            ShardMigrationCommit(uint64_t quorumID, uint64_t shardID);
     bool            ShardMigrationComplete(uint64_t quorumID, uint64_t shardID);
+    bool            Hello();
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);
