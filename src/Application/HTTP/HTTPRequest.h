@@ -26,7 +26,7 @@ public:
     RequestLine     line;
     State           state;
     int             pos;
-    unsigned        contentLength;
+    int             contentLength;
     
     void            Init();
     void            Free();

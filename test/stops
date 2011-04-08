@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DIR=$1
+shift
+if [ "$SCALIENDB_RELEASE" = "1" ]; then
+	kill $(ps ax| grep "build/Release/ScalienDB test/shard/$DIR/scaliendb.conf"| grep -v grep| awk '{printf $1 " "}')
+else
+	kill $(ps ax| grep "build/Debug/ScalienDB test/shard/$DIR/scaliendb.conf"| grep -v grep| awk '{printf $1 " "}')
+fi
