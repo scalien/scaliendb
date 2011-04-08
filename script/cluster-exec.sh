@@ -6,5 +6,6 @@ CMD=$*
 for shard_server in $SHARD_SERVERS; do
         remote_cmd="cd scaliendb; $CMD"
         ssh $shard_server $remote_cmd > /dev/null &
-        sleep 1
 done
+
+wait

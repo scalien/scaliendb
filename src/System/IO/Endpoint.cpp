@@ -1,5 +1,6 @@
 #include "Endpoint.h"
 #include "System/Buffers/Buffer.h"
+#include "System/Mutex.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -38,6 +39,8 @@ static bool DNS_ResolveIpv4(const char* name, struct in_addr* addr)
 {
     // FIXME gethostbyname is not multithread-safe!
     struct hostent* hostent;
+    static Mutex    mutex;
+    MutexGuard      mutexGuard(mutex);
 
     hostent = gethostbyname(name);
     if (!hostent)
