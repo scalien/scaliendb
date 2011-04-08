@@ -4,9 +4,9 @@
 
 void ClusterConnection::InitConnected(bool startRead)
 {
-    Buffer      buffer;
-    Buffer      versionString;
-    uint64_t    proto;
+//    Buffer      buffer;
+//    Buffer      versionString;
+//    uint64_t    proto;
     
     MessageConnection::InitConnected(startRead);
     
@@ -18,10 +18,10 @@ void ClusterConnection::InitConnected(bool startRead)
     // TODO: HACK: this really should be a ClusterMessage, but it is at Application layer
     // If this changes, ClusterMessage should be changed too!
     
-    proto = 0;
-    versionString.Writef("ScalienDB cluster protocol, server version " VERSION_STRING "\n");
-    buffer.Writef("C:_:0:%#B", &versionString);
-    Write(buffer);
+//    proto = 0;
+//    versionString.Writef("ScalienDB cluster protocol, server version " VERSION_STRING "\n");
+//    buffer.Writef("C:_:0:%#B", &versionString);
+//    Write(buffer);
 }
 
 void ClusterConnection::SetTransport(ClusterTransport* transport_)
