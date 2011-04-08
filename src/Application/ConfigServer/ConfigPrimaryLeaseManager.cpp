@@ -37,6 +37,9 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
         if (itLease->expireTime < now)
         {
             quorum = configState->GetQuorum(itLease->quorumID);
+
+            Log_Debug("Node %U lost the primary lease for quorum %U",
+             itLease->nodeID, itLease->quorumID);
             
             // look for migration
             if (configState->isMigrating)
@@ -60,7 +63,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
                 quorum->hasPrimary = false;
                 quorum->primaryID = 0;
             }
-            itLease = primaryLeases.Delete(itLease);
+            itLease = primaryLeases.Delete(itLease);            
         }
         else
             break;
@@ -130,8 +133,8 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
      message.proposalID, quorum.configID, duration, false, activeNodes, quorum.shards);
     CONTEXT_TRANSPORT->SendClusterMessage(response.nodeID, response);
     
-//    Log_Debug("Assigning primary lease of quorum %U to node %U with proposalID %U",
-//     message.quorumID, message.nodeID, message.proposalID);
+    Log_Debug("Assigning primary lease of quorum %U to node %U with proposalID %U",
+     message.quorumID, message.nodeID, message.proposalID);
 }
 
 void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
