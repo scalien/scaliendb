@@ -376,7 +376,7 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
             configStateChecksum = checksum;
         }
         
-        Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
+        //Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
         
         // update clients
         now = EventLoop::Now();
@@ -384,7 +384,7 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
         {
             if (configChanged || (itRequest->changeTimeout < now - itRequest->lastChangeTime))
             {
-                Log_Debug("request: %p, changeTimeout: %U, diff: %U", itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime);
+                //Log_Debug("request: %p, changeTimeout: %U, diff: %U", itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime);
                 itRequest->response.ConfigStateResponse(*CONFIG_STATE);
                 itRequest->OnComplete(false);
                 if (itRequest->changeTimeout != 0)

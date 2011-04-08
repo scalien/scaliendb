@@ -1,6 +1,7 @@
 CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/Application/Client/SDBPClient.o \
 	$(BUILD_DIR)/Application/Client/SDBPClientRequest.o \
+	$(BUILD_DIR)/Application/Client/SDBPClientWrapper.o \
 	$(BUILD_DIR)/Application/Client/SDBPControllerConnection.o \
 	$(BUILD_DIR)/Application/Client/SDBPShardConnection.o \
 	$(BUILD_DIR)/Application/Client/SDBPResult.o \
