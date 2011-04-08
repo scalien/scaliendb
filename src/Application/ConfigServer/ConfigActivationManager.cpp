@@ -127,7 +127,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
     if (!quorum.isWatchingPaxosID)
     {
         Log_Message("Activating shard server %U in quorum %U: Starting to monitor the primary's paxosID",
-         quorum.quorumID, quorum.activatingNodeID);
+         quorum.activatingNodeID, quorum.quorumID);
         
         quorum.OnActivationMonitoring(message.paxosID);
         configServer->OnConfigStateChanged(false);
@@ -140,7 +140,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
         if (message.paxosID > quorum.activationPaxosID)
         {
             Log_Message("Activating shard server %U in quorum %U: The primary was able to increase its paxosID!",
-             quorum.quorumID, quorum.activatingNodeID);
+             quorum.activatingNodeID, quorum.quorumID);
             
             quorum.OnActivationReplication();
             configServer->OnConfigStateChanged(false);
@@ -152,7 +152,7 @@ void ConfigActivationManager::OnExtendLease(ConfigQuorum& quorum, ClusterMessage
         else
         {
             Log_Message("Activating shard server %U in quorum %U: The primary was not able to increase its paxosID so far...",
-             quorum.quorumID, quorum.activatingNodeID);
+             quorum.activatingNodeID, quorum.quorumID);
         }
     }    
 }

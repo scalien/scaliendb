@@ -420,6 +420,7 @@ void ShardDatabaseManager::ExecuteMessage(
     uint64_t        readPaxosID;
     uint64_t        readCommandID;
     uint64_t        shardID;
+    uint64_t        nodeID;
     int16_t         contextID;
     int64_t         number;
     uint64_t*       itShardID;
@@ -430,6 +431,7 @@ void ShardDatabaseManager::ExecuteMessage(
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
     ConfigShard*    configShard;
+    ConfigQuorum*   configQuorum;
     StorageEnvironment::ShardIDList     shards;
     
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
@@ -547,7 +549,12 @@ void ShardDatabaseManager::ExecuteMessage(
             Log_Debug("shardMigration BEGIN shardID = %U", message.shardID);
             configShard = shardServer->GetConfigState()->GetShard(message.shardID);
             assert(configShard != NULL);
-            environment.DeleteShard(contextID, message.shardID);
+            configQuorum = shardServer->GetConfigState()->GetQuorum(configShard->quorumID);
+            nodeID = MY_NODEID;
+            if (configQuorum->activeNodes.Contains(nodeID) ||
+             configQuorum->inactiveNodes.Contains(nodeID))
+                break;
+                environment.DeleteShard(contextID, message.shardID);
             environment.CreateShard(
              contextID, configShard->shardID, configShard->tableID,
              configShard->firstKey, configShard->lastKey, true, false);

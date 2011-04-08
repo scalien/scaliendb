@@ -778,8 +778,21 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
     return false;
 }
 
-bool ConfigState::CompleteShardMigrationComplete(ConfigMessage& )
+bool ConfigState::CompleteShardMigrationComplete(ConfigMessage& message)
 {
+    ConfigShard* shard;
+    
+    shard = GetShard(message.shardID);
+    
+    if (!isMigrating)
+        return false;
+        
+    if (migrateQuorumID != message.quorumID)
+        return false;
+    
+    if (migrateShardID != message.shardID)
+        return false;
+    
     return true;
 }
 

@@ -82,6 +82,7 @@ void ConfigQuorumProcessor::TryAppend()
 void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
 {
     uint64_t        srcNodeID, dstNodeID;
+    uint64_t        srcQuorumID, dstQuorumID;
     uint64_t*       itNodeID;
     ConfigShard*    configShard;
     ConfigQuorum*   configQuorum;
@@ -147,6 +148,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         if (!configShard)
             goto MigrationFailed;
         configQuorum = CONFIG_STATE->GetQuorum(configShard->quorumID);
+        srcQuorumID = configShard->quorumID;
         if (!configQuorum)
             goto MigrationFailed;
         if (!configQuorum->hasPrimary)
@@ -158,6 +160,9 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         if (!configQuorum->hasPrimary)
             goto MigrationFailed;
         dstNodeID = configQuorum->primaryID;
+        dstQuorumID = request->quorumID;
+        if (srcQuorumID == dstQuorumID)
+            goto MigrationFailed;
 
         CONFIG_STATE->isMigrating = true;
         CONFIG_STATE->migrateQuorumID = request->quorumID;
@@ -341,10 +346,6 @@ void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
     
     if (!quorumContext.IsLeader())
         return;
-    
-    assert(CONFIG_STATE->isMigrating);
-    assert(CONFIG_STATE->migrateQuorumID == message.quorumID);
-    assert(CONFIG_STATE->migrateShardID == message.shardID);
     
     configMessage = new ConfigMessage;
     configMessage->fromClient = false;
