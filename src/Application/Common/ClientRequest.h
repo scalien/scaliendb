@@ -175,6 +175,7 @@ public:
     Buffer          test;
     List<uint64_t>  nodes;
     uint64_t        changeTimeout;
+    uint64_t        lastChangeTime;
     bool            isBulk;
     
     ClientRequest*  prev;
