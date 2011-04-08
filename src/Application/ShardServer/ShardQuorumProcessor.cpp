@@ -538,6 +538,10 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
 {
     ShardMessage*   shardMessage;
     ClusterMessage  completeMessage;
+    ConfigQuorum*   configQuorum;
+
+    configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
+    assert(configQuorum);
 
     if (!quorumContext.IsLeader())
     {
@@ -580,6 +584,13 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
     }
 
     shardMessages.Append(shardMessage);
+
+    if (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0)
+    {
+        if (!localExecute.IsActive())
+            EventLoop::Add(&localExecute);
+        return;
+    }
 
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
