@@ -2,10 +2,9 @@
 
 #include "Mutex.h"
 
-Mutex::Mutex()
+Mutex::Mutex() : name("")
 {
     pthread_mutex_init(&mutex, NULL);
-    name = "";
 }
 
 Mutex::~Mutex()
