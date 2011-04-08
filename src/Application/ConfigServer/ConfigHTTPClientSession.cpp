@@ -59,10 +59,6 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         session.Print(response->value);
         break;
     case CLIENTRESPONSE_CONFIG_STATE:
-        // HACK
-        if (session.keepAlive)
-            session.keepAlive = false;
-        else
         {
             JSONConfigState jsonConfigState(configServer, response->configState, session.json);
             jsonConfigState.Write();
@@ -563,11 +559,9 @@ ClientRequest* ConfigHTTPClientSession::ProcessPollConfigState()
 {
     ClientRequest*  request;
     
-    // HACK
-    session.keepAlive = true;
-    
     request = new ClientRequest;
-    request->GetConfigState(0, 60*1000);
+    request->GetConfigState(0, 5*1000);
+    request->lastChangeTime = NowClock();
     
     return request;
 }

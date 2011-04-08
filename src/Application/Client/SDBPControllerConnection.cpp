@@ -84,6 +84,8 @@ void ControllerConnection::OnGetConfigStateTimeout()
         Log_Trace();
         
         OnClose();
+        // TODO: HACK: Connect() will add this timer
+        EventLoop::Remove(&connectTimeout);
         Connect();
         return;
     }
@@ -164,9 +166,6 @@ void ControllerConnection::OnClose()
 
     // clear timers
     EventLoop::Remove(&getConfigStateTimeout);
-    
-    // update the master in the client
-    client->SetMaster(-1, nodeID);
     
     // update the client connectivity status
     client->OnControllerDisconnected(this);

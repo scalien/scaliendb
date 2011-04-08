@@ -12,6 +12,7 @@ STATIC_ASSERT(sizeof(CRITICAL_SECTION) == CRITICAL_SECTION_BUFFER_SIZE,
 Mutex::Mutex()
 {
     InitializeCriticalSection((CRITICAL_SECTION*) &mutex);
+    name = "";
 }
 
 Mutex::~Mutex()

@@ -463,6 +463,17 @@ if (pad)                                            \
                 memcpy(buffer, local, n);
                 ADVANCE(2, n);
             }
+            else if (format[1] == 'p') // %p
+            {
+                p = va_arg(ap, char*);
+                n = snprintf(local, sizeof(local), "%p", p);
+                if (n < 0) EXIT();
+                PAD();
+                REQUIRE(n);
+                if (ghost) n = size;
+                memcpy(buffer, local, n);
+                ADVANCE(2, n);
+            }
             else if (format[1] == 'X') // %X
             {
                 u = va_arg(ap, unsigned);

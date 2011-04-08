@@ -1,11 +1,13 @@
 #include "Endpoint.h"
 #include "System/Buffers/Buffer.h"
+#include "System/Mutex.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #ifdef _WIN32
 #include <winsock2.h>
 #define s_addr S_un.S_addr
+#define in_addr_t unsigned long
 #undef SetPort
 #else
 #include <sys/types.h>
@@ -37,6 +39,8 @@ static bool DNS_ResolveIpv4(const char* name, struct in_addr* addr)
 {
     // FIXME gethostbyname is not multithread-safe!
     struct hostent* hostent;
+    static Mutex    mutex;
+    MutexGuard      mutexGuard(mutex);
 
     hostent = gethostbyname(name);
     if (!hostent)

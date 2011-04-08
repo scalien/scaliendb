@@ -30,18 +30,52 @@ bool HTTPFileHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
     Buffer          path;
     Buffer          tmp;
     Buffer          ha;
+    ReadBuffer      host;
+    ReadBuffer      uri;
     char            buf[128 * 1024];
     FILE*           fp;
     size_t          nread;
     size_t          fsize;
     const char*     mimeType;
+	unsigned		i;
     
+	// sanity checks
+	if (request.line.uri.GetLength() == 0)
+		return false;
+
+	if (request.line.uri.BeginsWith("."))
+		return false;
+
     if (!request.line.uri.BeginsWith(prefix))
         return false;
     
+	// sanitize path
     path.Writef("%R%R", &documentRoot, &request.line.uri);
-    if (ReadBuffer::Cmp(request.line.uri, prefix) == 0)
+	for (i = 0; i < path.GetLength(); i++)
+	{
+		if (path.GetBuffer()[i] == '\\')
+			path.GetBuffer()[i] = '/';
+	}
+
+    // fix trailing slash issues
+    uri = request.line.uri;
+    if (uri.GetCharAt(uri.GetLength() - 1) == '/')
+        uri.SetLength(uri.GetLength() - 1);
+    
+    if (ReadBuffer::Cmp(uri, prefix) == 0)
+	{
+		if (path.GetCharAt(path.GetLength() - 1) != '/')
+		{
+			// redirect to directory
+            host = request.header.GetField(HTTP_HEADER_HOST);
+            ha.Writef(HTTP_HEADER_LOCATION ": http://%R%R/" HTTP_CS_CRLF, &host, &prefix);
+		    ha.NullTerminate();
+			conn->ResponseHeader(HTTP_STATUS_CODE_TEMPORARY_REDIRECT, true, ha.GetBuffer());
+            conn->Flush(true);
+			return true;
+		}
         path.Appendf("%R", &index);
+	}
     path.NullTerminate();
     
     mimeType = MimeTypeFromExtension(strrchr(path.GetBuffer(), '.'));

@@ -2,6 +2,7 @@
 #define MUTEX_H
 
 #include "System/Platform.h"
+#include "System/Log.h"
 
 #ifdef PLATFORM_WINDOWS
 
@@ -44,6 +45,7 @@ typedef pthread_mutex_t                 mutex_t;
 
 class Mutex
 {
+    friend class MutexGuard;
 public:
     Mutex();
     ~Mutex();
@@ -52,10 +54,30 @@ public:
     bool        TryLock();
     void        Unlock();
     
-//private:
+    uint64_t    GetThreadID();
+    void        SetName(const char* name);
+    const char* GetName();
+    
+private:
     mutex_t     mutex;
     uint64_t    threadID;
+    const char* name;
 };
+
+inline uint64_t Mutex::GetThreadID()
+{
+    return threadID;
+}
+
+inline void Mutex::SetName(const char* name_)
+{
+    name = name_;
+}
+
+inline const char* Mutex::GetName()
+{
+    return name;
+}
 
 /*
 ===============================================================================================
@@ -84,6 +106,7 @@ inline MutexGuard::MutexGuard(Mutex& mutex_) : mutex(mutex_)
 { 
     mutex.Lock(); 
     locked = true;
+    Log_Debug("Mutex %s (%p) locked by %U", mutex.name, &mutex, mutex.threadID);
 }
 
 inline MutexGuard::~MutexGuard()
@@ -98,10 +121,12 @@ inline void MutexGuard::Lock()
         mutex.Lock();
         locked = true; 
     }
+    Log_Debug("Mutex %s (%p) locked by %U", mutex.name, &mutex, mutex.threadID);
 }
 
 inline void MutexGuard::Unlock()
 {
+    Log_Debug("Mutex %s (%p) unlocked by %U", mutex.name, &mutex, mutex.threadID);
     if (locked)
     {
         mutex.Unlock();

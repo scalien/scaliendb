@@ -13,7 +13,7 @@
 #define CLIENTRESPONSE_NOSERVICE        'S'
 #define CLIENTRESPONSE_FAILED           'F'
 #define CLIENTRESPONSE_NORESPONSE       ' '
-#define CLIENTRESPONSE_HELLO            'H'
+#define CLIENTRESPONSE_HELLO            '_'
 
 // this is needed on Visual C++ which cannot handle C99 type dynamic stack arrays
 #ifdef PLATFORM_WINDOWS

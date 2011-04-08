@@ -14,6 +14,7 @@ void ClientRequest::Init()
     prev = next = this;
     paxosID = 0;
     isBulk = false;
+    lastChangeTime = 0;
 
     response.NoResponse();
     name.Clear();

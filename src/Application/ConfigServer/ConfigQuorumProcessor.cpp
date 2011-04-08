@@ -102,8 +102,12 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        request->response.ConfigStateResponse(*CONFIG_STATE);
-        request->OnComplete(false);
+        if (request->changeTimeout == 0)
+        {
+            // this is an immediate config state request
+            request->response.ConfigStateResponse(*CONFIG_STATE);
+            request->OnComplete(false);
+        }
         return;
     }
     
@@ -372,17 +376,19 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
             configStateChecksum = checksum;
         }
         
+        Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
+        
         // update clients
         now = EventLoop::Now();
         FOREACH (itRequest, listenRequests)
         {
-            if (configChanged || itRequest->changeTimeout < now - lastConfigChangeTime)
+            if (configChanged || (itRequest->changeTimeout < now - itRequest->lastChangeTime))
             {
+                Log_Debug("request: %p, changeTimeout: %U, diff: %U", itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime);
                 itRequest->response.ConfigStateResponse(*CONFIG_STATE);
                 itRequest->OnComplete(false);
-                // TODO: HACK
                 if (itRequest->changeTimeout != 0)
-                    lastConfigChangeTime = now;
+                    itRequest->lastChangeTime = now;
             }
         }
     }

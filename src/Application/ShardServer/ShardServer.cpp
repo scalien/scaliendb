@@ -243,6 +243,9 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
             }
             quorumProcessor->OnShardMigrationClusterMessage(message);
             break;
+        
+        case CLUSTERMESSAGE_HELLO:
+            break;
 
         default:
             ASSERT_FAIL();

@@ -177,6 +177,7 @@ private:
 
 //#ifdef CLIENT_MULTITHREAD    
     Mutex                   mutex;
+    Buffer                  mutexName;
     void                    Lock();
     void                    Unlock();
     void                    LockGlobal();

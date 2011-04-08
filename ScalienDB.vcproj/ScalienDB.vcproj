@@ -421,34 +421,6 @@
 					>
 				</File>
 			</Filter>
-			<Filter
-				Name="Compress"
-				>
-				<File
-					RelativePath="..\src\System\Compress\Compressor.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Compress\Compressor.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Compress\lzoconf.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Compress\lzodefs.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Compress\minilzo.c"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Compress\minilzo.h"
-					>
-				</File>
-			</Filter>
 		</Filter>
 		<Filter
 			Name="Application"

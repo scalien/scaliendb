@@ -149,6 +149,11 @@ Client::Client()
     result = NULL;
     batchLimit = DEFAULT_BATCH_LIMIT;
     isBulkLoading = false;
+
+    globalMutex.SetName("ClientGlobalMutex");
+    mutexName.Writef("Client_%p", this);
+    mutexName.NullTerminate();
+    mutex.SetName(mutexName.GetBuffer());
 }
 
 Client::~Client()
@@ -1268,7 +1273,7 @@ unsigned Client::GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* c
             totalRequests += otherConn->GetNumSentRequests();
         }
         
-        maxRequests = (unsigned) ceil(totalRequests / quorum->activeNodes.GetLength());
+        maxRequests = (unsigned) ceil((double)totalRequests / quorum->activeNodes.GetLength());
     }
     
     return maxRequests;
@@ -1310,7 +1315,7 @@ void Client::UnlockGlobal()
 
 bool Client::IsGlobalLocked()
 {
-    if (globalMutex.threadID == ThreadPool::GetThreadID())
+    if (globalMutex.GetThreadID() == ThreadPool::GetThreadID())
         return true;
     return false;
 }

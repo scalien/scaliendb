@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include "HTTPRequest.h"
+#include "HTTPConsts.h"
 
 #define CR 13
 #define LF 10
@@ -19,9 +19,10 @@ void HTTPRequest::Free()
 
 int HTTPRequest::Parse(char* buf, int len)
 {
-    int reqPos;
-    int headPos;
-    const char* cl;
+    int         reqPos;
+    int         headPos;
+    unsigned    nread;
+    ReadBuffer  cl;
     
     if (state == REQUEST_LINE)
     {
@@ -57,11 +58,15 @@ int HTTPRequest::Parse(char* buf, int len)
     {
         if (contentLength < 0)
         {
-            cl = header.GetField("content-length");
-            if (!cl)
+            cl = header.GetField(HTTP_HEADER_CONTENT_LENGTH);
+            if (cl.GetLength() == 0)
                 contentLength = 0;
             else
-                contentLength = (int) strtol(cl, NULL, 10);
+            {
+                contentLength = (unsigned) BufferToUInt64(cl.GetBuffer(), cl.GetLength(), &nread);
+                if (nread != cl.GetLength())
+                    contentLength = 0;
+            }
             
             pos += contentLength;
         }
