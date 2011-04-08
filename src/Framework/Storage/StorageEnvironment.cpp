@@ -1419,15 +1419,10 @@ void StorageEnvironment::OnChunkMerge()
 
     mergerThreadActive = false;
     
-    if (numCursors > 0)
+    if (!mergeChunkOut->written)
     {
-        // merge was cancelled, delete the output
-        job = new StorageDeleteFileChunkJob(mergeChunkOut);
-        StartJob(writerThread, job);        
-        mergeChunkOut = NULL;
-        mergeContextID = 0;
-        mergeShardID = 0;
-        return;
+        deleteOut = true;
+        goto Delete;
     }
 
     itShard = GetShard(mergeContextID, mergeShardID);
@@ -1482,11 +1477,11 @@ Delete:
             fileChunk->RemovePagesFromCache();
             if (!fileChunk->deleted)
                 fileChunks.Remove(fileChunk);
-            mergeChunks.Remove(*itFileChunk);
 
             job = new StorageDeleteFileChunkJob(fileChunk);
             StartJob(writerThread, job);
         }
+        mergeChunks.Remove(*itFileChunk);
     }
 
     if (deleteOut)
