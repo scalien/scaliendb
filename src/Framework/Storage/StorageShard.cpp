@@ -14,7 +14,16 @@ StorageShard::StorageShard()
 
 StorageShard::~StorageShard()
 {
+    StorageChunk**  itChunk;
+    
     delete memoChunk;
+    
+    FOREACH (itChunk, chunks)
+    {
+        // StorageFileChunks are deleted in StorageEnvironment
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+            delete *itChunk;
+    }
 }
 
 void StorageShard::SetContextID(uint16_t contextID_)

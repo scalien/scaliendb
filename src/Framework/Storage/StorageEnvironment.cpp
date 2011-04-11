@@ -217,8 +217,7 @@ void StorageEnvironment::Close()
     logSegments.DeleteList();
 
     // TODO: clean up fileChunks properly, see the issue with StorageShard::chunkList
-    //fileChunks.DeleteList();
-    fileChunks.ClearMembers();
+    fileChunks.DeleteList();
 }
 
 void StorageEnvironment::SetYieldThreads(bool yieldThreads_)
