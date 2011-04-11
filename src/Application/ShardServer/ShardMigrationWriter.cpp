@@ -141,7 +141,8 @@ void ShardMigrationWriter::OnResult()
     result = asyncCursor->GetLastResult();
     if (!result)
     {
-        // TODO: delete cursor
+        // asyncCursor automatically deletes itself after the last result
+        asyncCursor = NULL;
         SendCommit();
         return;
     }

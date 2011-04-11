@@ -8,6 +8,14 @@
 
 #define MAX_PRELOAD_THRESHOLD   1*MB
 
+/*
+===============================================================================================
+
+ StorageAsyncBulkResult
+
+===============================================================================================
+*/
+
 StorageAsyncBulkResult::StorageAsyncBulkResult(StorageAsyncBulkCursor* cursor_) :
  dataPage(NULL, 0)
 {
@@ -32,6 +40,14 @@ void StorageAsyncBulkResult::OnComplete()
     if (last)
         delete cursor;
 }
+
+/*
+===============================================================================================
+
+ StorageAsyncBulkCursor
+
+===============================================================================================
+*/
 
 StorageAsyncBulkCursor::StorageAsyncBulkCursor()
 {
@@ -117,8 +133,14 @@ void StorageAsyncBulkCursor::OnNextChunk()
         // direct callback, maybe yieldTimer would be better
         result->OnComplete();
     }
+    else
+    {
+        // memoChunk
+        // TODO: serialize memoChunk and suspend write operations
+    }
 }
 
+// this runs in async thread
 void StorageAsyncBulkCursor::AsyncReadFileChunk()
 {
     StorageChunkReader      reader;
@@ -136,6 +158,8 @@ void StorageAsyncBulkCursor::AsyncReadFileChunk()
         if (env->shuttingDown)
         {
             // abort cursor
+            delete result;
+            delete this;
             return;
         }
         
