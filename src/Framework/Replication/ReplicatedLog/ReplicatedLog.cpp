@@ -80,7 +80,7 @@ void ReplicatedLog::TryAppendDummy()
 
     proposer.SetUseTimeouts(true);
     Append(dummy);
-    Log_Debug("Appending DUMMY!");
+//    Log_Debug("Appending DUMMY!");
 }
 
 void ReplicatedLog::TryAppendNextValue()
@@ -220,12 +220,12 @@ void ReplicatedLog::Append(Buffer& value)
     
     proposer.Propose(value);
     
-    Log_Debug("Proposing for paxosID = %U", GetPaxosID());
+//    Log_Debug("Proposing for paxosID = %U", GetPaxosID());
 }
 
 void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 {
-    Log_Debug("ReplicatedLog::OnPrepareRequest");
+//    Log_Debug("ReplicatedLog::OnPrepareRequest");
 
     acceptor.OnPrepareRequest(imsg);
 
@@ -234,7 +234,7 @@ void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 
 void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
 {
-    Log_Debug("ReplicatedLog::OnPrepareResponse");
+//    Log_Debug("ReplicatedLog::OnPrepareResponse");
 
     Log_Trace();
     
@@ -244,7 +244,7 @@ void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
 
 void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 {
-    Log_Debug("ReplicatedLog::OnProposeRequest");
+//    Log_Debug("ReplicatedLog::OnProposeRequest");
 
     Log_Trace();
     
@@ -255,7 +255,7 @@ void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 
 void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 {
-    Log_Debug("ReplicatedLog::OnProposeResponse");
+//    Log_Debug("ReplicatedLog::OnProposeResponse");
 
     Log_Trace();
 
@@ -268,7 +268,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     uint64_t        runID;
     ReadBuffer      value;
 
-    Log_Debug("OnLearnChosen begin");
+//    Log_Debug("OnLearnChosen begin");
 
     if (context->GetDatabase()->IsCommiting())
     {
@@ -306,7 +306,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         
     ProcessLearnChosen(imsg.nodeID, runID, value);
 
-    Log_Debug("OnLearnChosen end");
+//    Log_Debug("OnLearnChosen end");
 }
 
 void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
@@ -347,7 +347,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
 {
     bool ownAppend;
 
-    Log_Debug("Round completed for paxosID = %U", paxosID);
+//    Log_Debug("Round completed for paxosID = %U", paxosID);
 
     Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
 
