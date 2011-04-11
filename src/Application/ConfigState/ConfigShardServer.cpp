@@ -14,7 +14,7 @@ bool QuorumInfo::ReadList(ReadBuffer& buffer, List<QuorumInfo>& quorumInfos)
 {
     unsigned        i, length;
     int             read;
-    QuorumInfo   quorumInfo;
+    QuorumInfo      quorumInfo;
     
     read = buffer.Readf("%u", &length);
     if (read < 1)

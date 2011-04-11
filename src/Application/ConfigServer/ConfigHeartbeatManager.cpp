@@ -48,7 +48,6 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
         if (quorum->paxosID < it->paxosID)
             quorum->paxosID = it->paxosID;
     }
-    message.quorumInfos.ClearMembers();
     
     shardServer->httpPort = message.httpPort;
     shardServer->sdbpPort = message.sdbpPort;
@@ -169,6 +168,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
             continue;
             
         // TODO: tidy up
+        newShardID = 0;
         isSplitCreating = IsSplitCreating(itQuorum, newShardID);
         isSplitCreating |= configServer->GetDatabaseManager()->GetConfigState()->isSplitting;
         
