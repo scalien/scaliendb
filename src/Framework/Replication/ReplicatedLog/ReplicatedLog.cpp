@@ -16,7 +16,6 @@ void ReplicatedLog::Init(QuorumContext* context_)
     acceptor.Init(context);
 
     lastRequestChosenTime = 0;
-    lastRequestChosenPaxosID = 0;
     commitChaining = false;
     
     dummy.Write("dummy");
@@ -129,6 +128,8 @@ void ReplicatedLog::NewPaxosRound()
     paxosID++;
     proposer.state.OnNewPaxosRound();
     acceptor.state.OnNewPaxosRound();
+    
+    lastRequestChosenTime = 0;
 }
 
 void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
@@ -423,7 +424,6 @@ void ReplicatedLog::RequestChosen(uint64_t nodeID)
     if (EventLoop::Now() - lastRequestChosenTime < REQUEST_CHOSEN_TIMEOUT)
         return;
 
-    lastRequestChosenPaxosID = GetPaxosID();
     lastRequestChosenTime = EventLoop::Now();
     
     omsg.RequestChosen(GetPaxosID(), MY_NODEID);
