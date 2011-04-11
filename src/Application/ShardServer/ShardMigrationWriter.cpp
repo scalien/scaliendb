@@ -114,8 +114,8 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
     Log_Message("Migrating shard %U into quorum %U (sending)", shardID, quorumID);
 
     sendFirst = true;
-    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
     EventLoop::Add(&onTimeout);
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
 }
 
 void ShardMigrationWriter::Abort()

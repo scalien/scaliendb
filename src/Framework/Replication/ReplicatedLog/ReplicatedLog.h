@@ -77,6 +77,5 @@ private:
     bool                    useProposeTimeouts;
     bool                    commitChaining;
     uint64_t                lastRequestChosenTime;
-    uint64_t                lastRequestChosenPaxosID;
 };
 #endif

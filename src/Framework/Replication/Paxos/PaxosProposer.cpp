@@ -150,6 +150,7 @@ void PaxosProposer::OnPrepareResponse(PaxosMessage& imsg)
     
     if (imsg.type == PAXOS_PREPARE_REJECTED)
     {
+        Log_Debug("Prepare rejected");
         if (imsg.promisedProposalID > state.highestPromisedProposalID)
             state.highestPromisedProposalID = imsg.promisedProposalID;
     }
@@ -186,7 +187,10 @@ void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
         return;
     
     if (imsg.type == PAXOS_PROPOSE_REJECTED)
+    {
+        Log_Debug("Propose rejected");
         vote->RegisterRejected(imsg.nodeID);
+    }
     else
         vote->RegisterAccepted(imsg.nodeID);
 
