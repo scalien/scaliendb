@@ -13,6 +13,7 @@
 #include "StorageShard.h"
 #include "StorageJob.h"
 #include "StorageBulkCursor.h"
+#include "StorageAsyncBulkCursor.h"
 
 class StorageRecovery;
 class StorageEnvironment;
@@ -40,6 +41,7 @@ class StorageEnvironment
     friend class StorageChunkMerger;
     friend class StorageArchiveLogSegmentJob;
     friend class StorageBulkCursor;
+    friend class StorageAsyncBulkCursor;
     
     typedef InList<StorageLogSegment>   LogSegmentList;
     typedef InList<StorageShard>        ShardList;
@@ -77,6 +79,7 @@ public:
     void                    AsyncList(uint16_t contextID, uint64_t shardID, StorageAsyncList* asyncList);
 
     StorageBulkCursor*      GetBulkCursor(uint16_t contextID, uint64_t shardID);
+    StorageAsyncBulkCursor* GetAsyncBulkCursor(uint16_t contextID, uint64_t shardID, Callable onResult);
     void                    DecreaseNumCursors();
 
     uint64_t                GetSize(uint16_t contextID, uint64_t shardID);

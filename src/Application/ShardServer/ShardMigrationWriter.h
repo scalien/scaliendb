@@ -3,6 +3,7 @@
 
 #include "System/Events/Countdown.h"
 #include "Framework/Storage/StorageBulkCursor.h"
+#include "Framework/Storage/StorageAsyncBulkCursor.h"
 #include "Application/Common/ClusterMessage.h"
 
 class ShardServer;
@@ -38,6 +39,8 @@ public:
     void                    Begin(ClusterMessage& request);
     void                    Abort();
 
+    void                    OnResult();
+
 private:
     void                    SendFirst();
     void                    SendNext();
@@ -59,6 +62,7 @@ private:
     ShardQuorumProcessor*   quorumProcessor;
     StorageEnvironment*     environment;
     StorageBulkCursor*      cursor;
+    StorageAsyncBulkCursor* asyncCursor;
     StorageKeyValue*        kv;
     Countdown               onTimeout;
 };

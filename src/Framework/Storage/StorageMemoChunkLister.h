@@ -27,7 +27,7 @@ public:
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
     
     uint64_t                GetNumKeys();
-    
+    StorageDataPage*        GetDataPage();
 
 private:
     StorageDataPage         dataPage;

@@ -27,6 +27,7 @@ void ShardMigrationWriter::Init(ShardServer* shardServer_)
 void ShardMigrationWriter::Reset()
 {
     cursor = NULL;
+    asyncCursor = NULL;
     isActive = false;
     sendFirst = false;
     quorumProcessor = NULL;
@@ -129,6 +130,25 @@ void ShardMigrationWriter::Abort()
     {
         delete cursor;
         cursor = NULL;
+    }
+}
+
+void ShardMigrationWriter::OnResult()
+{
+    StorageAsyncBulkResult* result;
+    StorageFileKeyValue*    kv;
+    
+    result = asyncCursor->GetLastResult();
+    if (!result)
+    {
+        // TODO: delete cursor
+        SendCommit();
+        return;
+    }
+    
+    FOREACH (kv, result->dataPage)
+    {
+        SendItem(kv);
     }
 }
 

@@ -70,6 +70,11 @@ uint64_t StorageUnwrittenChunkLister::GetNumKeys()
     return dataPage.GetNumKeys();
 }
 
+StorageDataPage* StorageUnwrittenChunkLister::GetDataPage()
+{
+    return &dataPage;
+}
+
 StorageFileKeyValue* StorageUnwrittenChunkLister::NextChunkKeyValue(StorageFileChunk* chunk,
  uint32_t& index, StorageFileKeyValue* kv)
 {

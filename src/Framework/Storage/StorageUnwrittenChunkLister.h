@@ -26,6 +26,7 @@ public:
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
     
     uint64_t                GetNumKeys();
+    StorageDataPage*        GetDataPage();
 
 private:
     StorageFileKeyValue*    NextChunkKeyValue(StorageFileChunk* chunk, uint32_t& index, 

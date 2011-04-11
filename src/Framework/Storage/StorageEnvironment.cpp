@@ -558,6 +558,23 @@ StorageBulkCursor* StorageEnvironment::GetBulkCursor(uint16_t contextID, uint64_
     return bc;
 }
 
+StorageAsyncBulkCursor* StorageEnvironment::GetAsyncBulkCursor(uint16_t contextID, uint64_t shardID,
+ Callable onResult)
+{
+    StorageAsyncBulkCursor*  abc;
+
+    abc = new StorageAsyncBulkCursor();
+
+    abc->SetEnvironment(this);
+    abc->SetShard(contextID, shardID);
+    abc->SetThreadPool(asyncThread);
+    abc->SetOnComplete(onResult);
+    
+    numCursors++;
+    
+    return abc;
+}
+
 void StorageEnvironment::DecreaseNumCursors()
 {
     ASSERT(numCursors > 0);

@@ -11,6 +11,9 @@ public:
     StorageFileKeyValue*    First(ReadBuffer& firstKey);
     StorageFileKeyValue*    Next(StorageFileKeyValue*);
 
+    StorageDataPage*        FirstDataPage();
+    StorageDataPage*        NextDataPage();
+
     uint64_t                GetNumKeys();
     uint64_t                GetMinLogSegmentID();
     uint64_t                GetMaxLogSegmentID();

@@ -69,6 +69,33 @@ StorageFileKeyValue* StorageChunkReader::Next(StorageFileKeyValue* it)
     return fileChunk.dataPages[index]->First();
 }
 
+StorageDataPage* StorageChunkReader::FirstDataPage()
+{
+    prevIndex = 0;
+    index = 0;
+    offset = STORAGE_HEADER_PAGE_SIZE;
+
+    PreloadDataPages();
+    return fileChunk.dataPages[index];
+}
+
+StorageDataPage* StorageChunkReader::NextDataPage()
+{
+    delete fileChunk.dataPages[prevIndex];
+    fileChunk.dataPages[prevIndex] = NULL;
+    
+    prevIndex = index;
+    index++;
+    
+    if (index >= fileChunk.numDataPages)
+        return NULL;
+    
+    if (index > preloadIndex)
+        PreloadDataPages();
+    
+    return fileChunk.dataPages[index];
+}
+
 uint64_t StorageChunkReader::GetNumKeys()
 {
     return fileChunk.headerPage.GetNumKeys();

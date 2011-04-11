@@ -68,3 +68,8 @@ uint64_t StorageMemoChunkLister::GetNumKeys()
 {
     return dataPage.GetNumKeys();
 }
+
+StorageDataPage* StorageMemoChunkLister::GetDataPage()
+{
+    return &dataPage;
+}
