@@ -17,10 +17,20 @@ StorageAsyncBulkResult::StorageAsyncBulkResult(StorageAsyncBulkCursor* cursor_) 
 
 void StorageAsyncBulkResult::OnComplete()
 {
+    bool    last;
+    
+    last = false;
+    if (cursor->lastResult == NULL)
+        last = true;
+
     cursor->lastResult = this;
     Call(onComplete);
     cursor->lastResult = NULL;    
     delete this;
+    
+    // automatically delete the cursor after the last result
+    if (last)
+        delete cursor;
 }
 
 StorageAsyncBulkCursor::StorageAsyncBulkCursor()
@@ -160,9 +170,4 @@ void StorageAsyncBulkCursor::OnResult(StorageAsyncBulkResult* result)
     result->onComplete = onComplete;
     callable = MFunc<StorageAsyncBulkResult, &StorageAsyncBulkResult::OnComplete>(result);
     IOProcessor::Complete(&callable);
-}
-
-void StorageAsyncBulkCursor::Clear()
-{
-    // TODO:
 }

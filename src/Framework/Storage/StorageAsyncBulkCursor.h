@@ -60,7 +60,6 @@ private:
     void                    AsyncReadFileChunk();
     void                    TransferDataPage(StorageAsyncBulkResult* result, StorageDataPage* page);
     void                    OnResult(StorageAsyncBulkResult* result);
-    void                    Clear();
     
     Buffer                  chunkName;
     Callable                onComplete;
