@@ -60,8 +60,12 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool force
     ConfigState*        configState;
     ConfigQuorum*       itQuorum;
     ConfigShardServer*  shardServer;
+    QuorumInfo*         quorumInfo;
     uint64_t            now;
-    
+
+    if (configServer->GetHeartbeatManager()->HasHeartbeat(nodeID) == false)
+        return;
+
     now = EventLoop::Now();
     
     Log_Trace();
@@ -81,7 +85,10 @@ void ConfigActivationManager::TryActivateShardServer(uint64_t nodeID, bool force
 
         if (itQuorum->IsInactiveMember(nodeID))
         {
-            paxosID = QuorumInfo::GetQuorumInfo(shardServer->quorumInfos, itQuorum->quorumID)->paxosID;
+            quorumInfo = QuorumInfo::GetQuorumInfo(shardServer->quorumInfos, itQuorum->quorumID);
+            if (quorumInfo == NULL)
+                continue;
+            paxosID = quorumInfo->paxosID;
             if (paxosID >= (itQuorum->paxosID - RLOG_REACTIVATION_DIFF) ||
              itQuorum->paxosID <= RLOG_REACTIVATION_DIFF)
             {
