@@ -360,6 +360,11 @@ bool IOProcessor::Remove(IOOperation* ioop)
         
     if (ioop->pending)
     {
+        if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
+            epollOp->read = NULL;
+        else
+            epollOp->write = NULL;
+        
         ioop->active = false;
         return true;
     }
