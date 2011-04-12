@@ -36,7 +36,7 @@ public:
     bool            Contains(T& t);
 
 protected:
-    List<T>     list;
+    List<T>         list;
 };
 
 /*

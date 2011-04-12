@@ -40,7 +40,6 @@ ClientRequest* ClientRequestCache::CreateRequest()
     {
         request = freeRequests.First();
         freeRequests.Remove(request);
-        request->Init();
         return request;
     }
     
@@ -51,6 +50,7 @@ void ClientRequestCache::DeleteRequest(ClientRequest* request)
 {
     if (freeRequests.GetLength() < maxSize)
     {
+        request->Clear();
         freeRequests.Append(request);
         return;
     }

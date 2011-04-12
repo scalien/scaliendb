@@ -270,7 +270,6 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     if (withVolatile)
     {
         // HACK: in volatile mode the prefix is handled by ConfigState
-        // TODO: change convention to Append in every Message::Write
         buffer.Appendf("%c", CONFIG_MESSAGE_PREFIX);
 
         buffer.Appendf(":");

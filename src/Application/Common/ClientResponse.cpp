@@ -20,6 +20,25 @@ void ClientResponse::Init()
     values = NULL;
     type = CLIENTRESPONSE_NORESPONSE;
     numKeys = 0;
+    value.Reset();
+}
+
+void ClientResponse::Clear()
+{
+    if (valueBuffer != NULL)
+        delete valueBuffer;
+    valueBuffer = NULL;
+    
+    if (keys != NULL)
+        delete[] keys;
+    keys = NULL;
+    
+    if (values != NULL)
+        delete[] values;
+    values = NULL;
+
+    configState.Init();
+    Init();
 }
 
 void ClientResponse::CopyValue()

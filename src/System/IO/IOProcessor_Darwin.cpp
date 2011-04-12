@@ -23,6 +23,9 @@
 
 static int              kq = 0;         // the kqueue
 static int              asyncOpPipe[2];
+static bool*            readOps;
+static bool*            writeOps;
+static int              numOps;
 static volatile bool    terminated;
 static volatile int     numClient = 0;
 
@@ -157,7 +160,8 @@ void IOProcessor::BlockSignals(int blockMode)
 
 bool IOProcessor::Init(int maxfd_)
 {
-    rlimit rl;
+    rlimit      rl;
+    int         i;
 
     numClient++;
     
@@ -194,6 +198,15 @@ bool IOProcessor::Init(int maxfd_)
     if (!AddKq(asyncOpPipe[0], EVFILT_READ, NULL))
         return false;
     
+    numOps = maxfd_;
+    readOps = new bool[numOps];
+    writeOps = new bool[numOps];
+    for (i = 0; i < numOps; i++)
+    {
+        readOps[i] = false;
+        writeOps[i] = false;
+    }
+    
     return true;
 }
 
@@ -208,6 +221,8 @@ void IOProcessor::Shutdown()
     kq = 0;
     close(asyncOpPipe[0]);
     close(asyncOpPipe[1]);
+    delete[] readOps;
+    delete[] writeOps;
 }
 
 bool IOProcessor::Add(IOOperation* ioop)
@@ -222,9 +237,15 @@ bool IOProcessor::Add(IOOperation* ioop)
     
     if (ioop->type == IOOperation::TCP_READ
      || ioop->type == IOOperation::UDP_READ)
+    {
+        readOps[ioop->fd] = true;
         filter = EVFILT_READ;
+    }
     else
+    {
+        writeOps[ioop->fd] = true;
         filter = EVFILT_WRITE;
+    }
     
     return AddKq(ioop->fd, filter, ioop);
 }
@@ -263,12 +284,17 @@ bool IOProcessor::Remove(IOOperation* ioop)
     int             nev;
     struct kevent   ev;
     struct timespec timeout = { 0, 0 };
-    
+
     if (!ioop->active)
         return true;
         
     if (ioop->pending)
     {
+        if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
+            readOps[ioop->fd] = false;
+        else
+            writeOps[ioop->fd] = false;
+
         ioop->active = false;
         return true;
     }
@@ -281,9 +307,15 @@ bool IOProcessor::Remove(IOOperation* ioop)
 
     if (ioop->type == IOOperation::TCP_READ
      || ioop->type == IOOperation::UDP_READ)
+    {
+        readOps[ioop->fd] = false;
         filter = EVFILT_READ;
+    }
     else
+    {
+        writeOps[ioop->fd] = false;
         filter = EVFILT_WRITE;
+    }
     
     EV_SET(&ev, ioop->fd, filter, EV_DELETE, 0, 0, 0);
     
@@ -355,24 +387,40 @@ bool IOProcessor::Poll(int sleep)
             continue;
         }
 
+        // ioop was removed and possibly deleted, just skip it
+        if (readOps[events[i].ident] == false && writeOps[events[i].ident] == false)
+            continue;
+
         ioop = (IOOperation*) events[i].udata;
         ioop->pending = false;
         if (!ioop->active)
             continue; // ioop was removed, just skip it         
         ioop->active = false;
         
-        if (ioop->type == IOOperation::TCP_READ
+        if (ioop->type == IOOperation::TCP_READ && readOps[events[i].ident]
          && (events[i].filter & EVFILT_READ))
+        {
+            readOps[events[i].ident] = false;
             ProcessTCPRead(&events[i]);
-        else if (ioop->type == IOOperation::TCP_WRITE
+        }
+        else if (ioop->type == IOOperation::TCP_WRITE && writeOps[events[i].ident]
          && (events[i].filter & EVFILT_WRITE))
+        {
+            writeOps[events[i].ident] = false;
             ProcessTCPWrite(&events[i]);
-        else if (ioop->type == IOOperation::UDP_READ
+        }
+        else if (ioop->type == IOOperation::UDP_READ && readOps[events[i].ident]
          && (events[i].filter & EVFILT_READ))
+        {
+            readOps[events[i].ident] = false;
             ProcessUDPRead(&events[i]);
-        else if (ioop->type == IOOperation::UDP_WRITE
+        }
+        else if (ioop->type == IOOperation::UDP_WRITE && writeOps[events[i].ident]
          && (events[i].filter & EVFILT_WRITE))
+        {
+            writeOps[events[i].ident] = false;
             ProcessUDPWrite(&events[i]);
+        }
     }
     
     return true;

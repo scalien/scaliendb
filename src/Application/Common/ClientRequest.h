@@ -55,6 +55,7 @@ public:
     ClientRequest();
     
     void            Init();
+    void            Clear();
     void            OnComplete(bool last = true);
 
     bool            IsControllerRequest();

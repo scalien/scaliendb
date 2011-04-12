@@ -360,6 +360,14 @@ bool IOProcessor::Remove(IOOperation* ioop)
         
     if (ioop->pending)
     {
+        // if the ioop is pending it doesn't need to be removed because every op is one shot
+        // still, it needs to be removed from epollOps
+        epollOp = &epollOps[ioop->fd];
+        if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
+            epollOp->read = NULL;
+        else
+            epollOp->write = NULL;
+        
         ioop->active = false;
         return true;
     }
