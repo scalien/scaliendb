@@ -24,6 +24,13 @@ void ClientRequest::Init()
     nodes.Clear();
 }
 
+void ClientRequest::Clear()
+{
+    response.Clear();
+    nodes.Clear();
+    Init();
+}
+
 void ClientRequest::OnComplete(bool last)
 {
     if (!session)

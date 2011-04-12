@@ -14,7 +14,6 @@ void ConfigDatabaseManager::Init()
     environment.CreateShard(QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1, 0, "", "", true, false);
     environment.CreateShard(QUORUM_DATABASE_QUORUM_LOG_CONTEXT, 1, 0, "", "", true, true);
 
-
     quorumPaxosShard.Init(&environment, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1);
     quorumLogShard.Init(&environment, QUORUM_DATABASE_QUORUM_LOG_CONTEXT, 1);
     

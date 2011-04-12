@@ -56,6 +56,7 @@ public:
     ~ClientResponse();
     
     void            Init();
+    void            Clear();
     void            CopyValue();
     void            CopyKeys();
     void            CopyKeyValues();

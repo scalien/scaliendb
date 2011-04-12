@@ -153,8 +153,15 @@ void StorageAsyncBulkCursor::AsyncReadFileChunk()
     lastResult = NULL;
     result = new StorageAsyncBulkResult(this);
     dataPage = reader.FirstDataPage();
+    
     while (dataPage != NULL)
     {
+        // rate control
+        while (lastResult != NULL || env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
+        {
+            MSleep(1);
+        }
+
         if (env->shuttingDown)
         {
             // abort cursor
@@ -162,13 +169,7 @@ void StorageAsyncBulkCursor::AsyncReadFileChunk()
             delete this;
             return;
         }
-        
-        // rate control
-        while (lastResult != NULL || env->yieldThreads || env->asyncGetThread->GetNumPending() > 0)
-        {
-            MSleep(1);
-        }
-
+    
         TransferDataPage(result, dataPage);
         OnResult(result);
         
