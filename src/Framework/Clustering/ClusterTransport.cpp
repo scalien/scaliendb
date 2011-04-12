@@ -214,6 +214,30 @@ void ClusterTransport::UnregisterWriteReadyness(uint64_t nodeID, Callable callab
     }
 }
 
+void ClusterTransport::PauseReads(uint64_t nodeID)
+{
+    ClusterConnection* conn;
+    
+    conn = GetConnection(nodeID);
+    
+    if (!conn)
+        return;
+    
+    conn->PauseReads();
+}
+
+void ClusterTransport::ResumeReads(uint64_t nodeID)
+{
+    ClusterConnection* conn;
+    
+    conn = GetConnection(nodeID);
+    
+    if (!conn)
+        return;
+    
+    conn->ResumeReads();
+}
+
 void ClusterTransport::AddConnection(ClusterConnection* conn)
 {
     conns.Append(conn);

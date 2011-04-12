@@ -6,6 +6,7 @@ MessageConnection::MessageConnection()
     flushWrites.SetCallable(MFUNC(MessageConnection, OnFlushWrites));
     writeBuffer = NULL;
     autoFlush = true;
+    readActive = true;
 }
 
 MessageConnection::~MessageConnection()
@@ -44,6 +45,16 @@ void MessageConnection::Close()
     EventLoop::Remove(&resumeRead);
     EventLoop::Remove(&flushWrites);
     TCPConnection::Close(); 
+}
+
+void MessageConnection::PauseReads()
+{
+    readActive = false;
+}
+
+void MessageConnection::ResumeReads()
+{
+    readActive = true;
 }
 
 void MessageConnection::Write(Buffer& msg)
@@ -117,7 +128,6 @@ void MessageConnection::OnWrite()
     } 
 }
 
-#include <stdio.h>
 void MessageConnection::OnRead()
 {
     bool            yield, closed;
@@ -125,6 +135,14 @@ void MessageConnection::OnRead()
     uint64_t        start;
     Stopwatch       sw;
     ReadBuffer      msg;
+
+    if (!readActive)
+    {
+        if (resumeRead.IsActive())
+            STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
+        EventLoop::Add(&resumeRead);
+        return;
+    }
 
     sw.Start();
     
@@ -190,7 +208,7 @@ void MessageConnection::OnRead()
         if (tcpread.buffer->GetLength() == msgend)
             break;
 
-        if (NowClock() - start >= YIELD_TIME)
+        if (NowClock() - start >= YIELD_TIME || !readActive)
         {
             // let other code run every YIELD_TIME msec
             yield = true;

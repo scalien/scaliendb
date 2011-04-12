@@ -42,6 +42,8 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     paxosID = 0;
     commandID = 0;
     migrateShardID = 0;
+    migrateNodeID = 0;
+    migrateCache = 0;
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     EventLoop::Add(&requestLeaseTimeout);
@@ -316,6 +318,8 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     
     isPrimary = false;
     migrateShardID = 0;
+    migrateNodeID = 0;
+    migrateCache = 0;
     
     if (catchupWriter.IsActive())
         catchupWriter.Abort();
@@ -545,7 +549,7 @@ uint64_t ShardQuorumProcessor::GetCatchupThroughput()
     return catchupWriter.GetThroughput();
 }
 
-void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& clusterMessage)
+void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& clusterMessage)
 {
     ShardMessage*   shardMessage;
     ClusterMessage  completeMessage;
@@ -578,16 +582,20 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
     {
         case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
             migrateShardID = clusterMessage.shardID;
+            migrateNodeID = nodeID;
+            migrateCache = 0;
             shardMessage->ShardMigrationBegin(clusterMessage.shardID);
             Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
+            migrateCache += clusterMessage.key.GetLength() + clusterMessage.value.GetLength();
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
             assert(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
+            migrateCache += clusterMessage.key.GetLength();
             Log_Debug("ShardMigration DELETE");
             break;
         default:
@@ -595,6 +603,12 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(ClusterMessage& cluste
     }
 
     shardMessages.Append(shardMessage);
+    
+    if (migrateCache > DATABASE_REPLICATION_SIZE)
+    {
+//        Log_Debug("Pausing reads from node %U", migrateNodeID);
+        CONTEXT_TRANSPORT->PauseReads(migrateNodeID);
+    }
 
     if (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0)
     {
@@ -779,6 +793,12 @@ void ShardQuorumProcessor::OnResumeAppend()
         assert(value.GetCharAt(0) == ' ');
         value.Advance(1);
 
+        if (message.type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)
+            migrateCache -= (message.key.GetLength() + message.value.GetLength());
+        else if (message.type == SHARDMESSAGE_MIGRATION_DELETE && migrateCache > 0)
+            migrateCache -= message.key.GetLength();
+        if (migrateCache < 0)
+            migrateCache = 0;
         ExecuteMessage(message, paxosID, commandID, ownAppend);
         commandID++;
 
@@ -799,6 +819,12 @@ void ShardQuorumProcessor::OnResumeAppend()
     valueBuffer.Reset();
     value.Reset();
 
+    if (migrateCache <= DATABASE_REPLICATION_SIZE)
+    {
+//        Log_Debug("Resuming reads from node %U", migrateNodeID);
+        CONTEXT_TRANSPORT->ResumeReads(migrateNodeID);
+    }
+    
     if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
         EventLoop::Add(&tryAppend);
     

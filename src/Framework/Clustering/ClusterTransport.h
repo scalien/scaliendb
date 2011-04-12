@@ -50,6 +50,9 @@ public:
 
     void                        RegisterWriteReadyness(uint64_t nodeID, Callable callable);
     void                        UnregisterWriteReadyness(uint64_t nodeID, Callable callable);
+    
+    void                        PauseReads(uint64_t nodeID);
+    void                        ResumeReads(uint64_t nodeID);
 
 private:
     // for ClusterConnection:

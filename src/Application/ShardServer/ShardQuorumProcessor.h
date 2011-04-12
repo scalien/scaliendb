@@ -88,7 +88,7 @@ public:
 
 //    bool                    IsShardMigrationActive();
     uint64_t                GetMigrateShardID();
-    void                    OnShardMigrationClusterMessage(ClusterMessage& message);
+    void                    OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& message);
     
     // ========================================================================================
     // For ShardQuorumContext:
@@ -131,7 +131,9 @@ private:
     MessageList             shardMessages;
     RequestList             clientRequests;
     
+    uint64_t                migrateNodeID;
     uint64_t                migrateShardID;
+    int64_t                 migrateCache; // in bytes
     
     ShardCatchupReader      catchupReader;
     ShardCatchupWriter      catchupWriter;

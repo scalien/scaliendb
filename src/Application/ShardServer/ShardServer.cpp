@@ -180,7 +180,7 @@ void ShardServer::OnClientClose(ClientSession* /*session*/)
     // nothing
 }
 
-void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
+void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
 {
     ShardQuorumProcessor*   quorumProcessor;
     ConfigShard*            configShard;
@@ -241,7 +241,7 @@ void ShardServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
                     migrationWriter.Abort();
                 break;
             }
-            quorumProcessor->OnShardMigrationClusterMessage(message);
+            quorumProcessor->OnShardMigrationClusterMessage(nodeID, message);
             break;
         
         case CLUSTERMESSAGE_HELLO:
