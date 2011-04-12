@@ -51,6 +51,7 @@ void StorageAsyncBulkResult::OnComplete()
 
 StorageAsyncBulkCursor::StorageAsyncBulkCursor()
 {
+    isAborted = false;
     env = NULL;
     shard = NULL;
     lastResult = NULL;
@@ -140,6 +141,11 @@ void StorageAsyncBulkCursor::OnNextChunk()
     }
 }
 
+void StorageAsyncBulkCursor::Abort()
+{
+    isAborted = true;
+}
+
 // this runs in async thread
 void StorageAsyncBulkCursor::AsyncReadFileChunk()
 {
@@ -162,7 +168,7 @@ void StorageAsyncBulkCursor::AsyncReadFileChunk()
             MSleep(1);
         }
 
-        if (env->shuttingDown)
+        if (isAborted || env->shuttingDown)
         {
             // abort cursor
             delete result;

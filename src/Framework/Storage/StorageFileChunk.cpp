@@ -27,7 +27,8 @@ StorageFileChunk::~StorageFileChunk()
 {
     unsigned    i;
     
-    FS_FileClose(fd);
+    if (fd != INVALID_FD)
+        FS_FileClose(fd);
     
     for (i = 0; i < numDataPages; i++)
     {
