@@ -1049,6 +1049,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         else
         {
             req->shardConns.Clear();
+            nodeID = conn->GetNodeID();
             req->shardConns.Append(nodeID);
         }
         
