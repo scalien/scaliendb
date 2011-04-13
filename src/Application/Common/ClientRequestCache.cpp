@@ -58,3 +58,8 @@ void ClientRequestCache::DeleteRequest(ClientRequest* request)
     delete request;
 }
 
+unsigned ClientRequestCache::GetNumFreeRequests()
+{
+    return freeRequests.GetLength();
+}
+

@@ -1,5 +1,7 @@
 #include "ConfigServerApp.h"
 #include "Application/Common/ContextTransport.h"
+#include "Application/Common/ClientRequestCache.h"
+#include "Framework/Storage/StoragePageCache.h"
 #include "System/Config.h"
 
 void ConfigServerApp::Init()
@@ -49,5 +51,8 @@ void ConfigServerApp::OnStatTimer()
     Log_Debug("Config messages: %u", configServer.GetQuorumProcessor()->GetNumConfigMessages());
     Log_Debug("Requests: %u", configServer.GetQuorumProcessor()->GetNumRequests());
     Log_Debug("Listen requests: %u", configServer.GetQuorumProcessor()->GetNumListenRequests());
+    Log_Debug("Page cache size: %s, num. pages: %u", HUMAN_BYTES(StoragePageCache::GetSize()), StoragePageCache::GetNumPages());
+    Log_Debug("Bufferpool available size: %s", HUMAN_BYTES(DEFAULT_BUFFERPOOL->GetAvailableSize()));
+    Log_Debug("Request cache free list size: %u", REQUEST_CACHE->GetNumFreeRequests());
     EventLoop::Add(&statTimer);
 }
