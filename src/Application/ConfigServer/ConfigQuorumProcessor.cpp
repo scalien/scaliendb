@@ -364,22 +364,23 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
     uint64_t                        now;
     uint32_t                        checksum;
 
-    if (updateClients)
+    // check if the configState changed at all
+    configChanged = false;
+    CONFIG_STATE->Write(checksumBuffer, true);
+    checksum = checksumBuffer.GetChecksum();
+    if (checksum == 0 || checksum != configStateChecksum)
     {
-        // check if the configState changed at all
-        configChanged = false;
-        CONFIG_STATE->Write(checksumBuffer, true);
-        checksum = checksumBuffer.GetChecksum();
-        if (checksum == 0 || checksum != configStateChecksum)
-        {
-            configChanged = true;
-            configStateChecksum = checksum;
-        }
-        
-        //Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
+        configChanged = true;
+        configStateChecksum = checksum;
+    }
+    Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
+
+    now = EventLoop::Now();
+    
+    if (updateClients)
+    {        
         
         // update clients
-        now = EventLoop::Now();
         FOREACH (itRequest, listenRequests)
         {
             if (configChanged || (itRequest->changeTimeout < now - itRequest->lastChangeTime))
@@ -393,11 +394,17 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
         }
     }
     
-    // update shard servers
-    message.SetConfigState(*CONFIG_STATE);
-    FOREACH (itShardServer, CONFIG_STATE->shardServers)
+    
+    if (configChanged || lastConfigChangeTime < now - 1000)
     {
-        CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
+        lastConfigChangeTime = now;
+        
+        // update shard servers
+        message.SetConfigState(*CONFIG_STATE);
+        FOREACH (itShardServer, CONFIG_STATE->shardServers)
+        {
+            CONTEXT_TRANSPORT->SendClusterMessage(itShardServer->nodeID, message);
+        }
     }
 }
 

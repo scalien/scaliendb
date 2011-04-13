@@ -299,7 +299,7 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     buffer.Appendf(":");
     WriteShardServers(buffer, withVolatile);
     
-    Log_Trace("buffer = %B", &buffer);
+    //Log_Trace("buffer = %B", &buffer);
     
     return true;
 }
