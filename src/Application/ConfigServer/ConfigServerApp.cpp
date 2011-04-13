@@ -43,6 +43,7 @@ void ConfigServerApp::OnStatTimer()
     Log_Debug("=== ConfigServer stats ===");
     Log_Debug("SDBP active: %u, inactive: %u", sdbpServer.GetNumActiveConns(), sdbpServer.GetNumInactiveConns());
     Log_Debug("HTTP active: %u, inactive: %u", httpServer.GetNumActiveConns(), httpServer.GetNumInactiveConns());
+    Log_Debug("Cluster active: %u, write readyness: %u", CONTEXT_TRANSPORT->GetNumConns(), CONTEXT_TRANSPORT->GetNumWriteReadyness());
     Log_Debug("Heartbeats: %u", configServer.GetHeartbeatManager()->GetNumHeartbeats());
     Log_Debug("Primary leases: %u", configServer.GetPrimaryLeaseManager()->GetNumPrimaryLeases());
     Log_Debug("Config messages: %u", configServer.GetQuorumProcessor()->GetNumConfigMessages());
