@@ -155,7 +155,7 @@ bool PaxosLeaseMessage::Read(ReadBuffer& buffer)
             return false;
     }
 
-    assert(proto == PAXOSLEASE_PROTOCOL_ID);
+    ASSERT(proto == PAXOSLEASE_PROTOCOL_ID);
     return (read == (signed)buffer.GetLength() ? true : false);
 }
 

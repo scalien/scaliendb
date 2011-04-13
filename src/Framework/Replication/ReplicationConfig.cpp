@@ -106,8 +106,8 @@ uint64_t ReplicationConfig::NextProposalID(uint64_t proposalID)
 {
     // <proposal count since restart> <runID> <nodeID>
     
-    assert(nodeID < (1 << WIDTH_NODEID));
-    assert(runID < (1 << WIDTH_RUNID));
+    ASSERT(nodeID < (1 << WIDTH_NODEID));
+    ASSERT(runID < (1 << WIDTH_RUNID));
     
     uint64_t left, middle, right, nextProposalID;
     
@@ -118,7 +118,7 @@ uint64_t ReplicationConfig::NextProposalID(uint64_t proposalID)
     right = nodeID;
     nextProposalID = left | middle | right;
     
-    assert(nextProposalID > proposalID);
+    ASSERT(nextProposalID > proposalID);
     
     return nextProposalID;
 }
@@ -132,17 +132,17 @@ void ReplicationConfig::Commit()
     value.Writef("%U", nodeID);
     rbValue.Wrap(value);
     ret = shard->Set(ReadBuffer("nodeID"), rbValue);
-    assert(ret == true);
+    ASSERT(ret == true);
 
     value.Writef("%U", runID);
     rbValue.Wrap(value);
     ret = shard->Set(ReadBuffer("runID"), rbValue);
-    assert(ret == true);
+    ASSERT(ret == true);
 
     value.Writef("%U", clusterID);
     rbValue.Wrap(value);
     ret = shard->Set(ReadBuffer("clusterID"), rbValue);
-    assert(ret == true);
+    ASSERT(ret == true);
     
     shard->GetEnvironment()->Commit();
 }

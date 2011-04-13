@@ -78,7 +78,7 @@ Buffer* TCPWriter::GetNext()
 {
     Log_Trace();
 
-    assert(writeBuffer == NULL);
+    ASSERT(writeBuffer == NULL);
 
     if (queue.GetLength() == 0)
         return NULL;

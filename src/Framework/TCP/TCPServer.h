@@ -35,6 +35,9 @@ public:
     void                    Close();
     void                    DeleteConn(Conn* conn);
 
+    unsigned                GetNumActiveConns();
+    unsigned                GetNumInactiveConns();
+
 protected:
     void                    OnConnect();
     Conn*                   GetConn();
@@ -142,6 +145,18 @@ void TCPServer<T, Conn>::DeleteConn(Conn* conn)
     }
     else
         delete conn;
+}
+
+template<class T, class Conn>
+unsigned TCPServer<T, Conn>::GetNumActiveConns()
+{
+    return activeConns.GetLength();
+}
+
+template<class T, class Conn>
+unsigned TCPServer<T, Conn>::GetNumInactiveConns()
+{
+    return inactiveConns.GetLength();
 }
 
 template<class T, class Conn>

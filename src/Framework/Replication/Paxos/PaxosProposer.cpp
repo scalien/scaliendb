@@ -49,7 +49,7 @@ void PaxosProposer::OnPrepareTimeout()
     Log_Debug("OnPrepareTimeout");
     Log_Trace();
     
-    assert(state.preparing);
+    ASSERT(state.preparing);
 
     if (context->IsPaxosBlocked())
     {
@@ -66,7 +66,7 @@ void PaxosProposer::OnProposeTimeout()
     Log_Debug("OnProposeTimeout");
     Log_Trace();
     
-    assert(state.proposing);
+    ASSERT(state.proposing);
 
     if (context->IsPaxosBlocked())
     {

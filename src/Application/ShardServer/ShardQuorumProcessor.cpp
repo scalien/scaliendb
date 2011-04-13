@@ -331,7 +331,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     ConfigQuorum*   configQuorum;
 
     configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
-    assert(configQuorum);
+    ASSERT(configQuorum);
 
     // strictly consistent messages can only be served by the leader
     if (request->paxosID == 1 && !quorumContext.IsLeader() && !request->isBulk)
@@ -556,7 +556,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
     ConfigQuorum*   configQuorum;
 
     configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
-    assert(configQuorum);
+    ASSERT(configQuorum);
 
     if (!quorumContext.IsLeader())
     {
@@ -566,7 +566,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
 
     if (clusterMessage.type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT)
     {
-        assert(migrateShardID = clusterMessage.shardID);
+        ASSERT(migrateShardID = clusterMessage.shardID);
         completeMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
         shardServer->BroadcastToControllers(completeMessage);
         migrateShardID = 0;
@@ -588,12 +588,12 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
-            assert(migrateShardID = clusterMessage.shardID);
+            ASSERT(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
             migrateCache += clusterMessage.key.GetLength() + clusterMessage.value.GetLength();
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
-            assert(migrateShardID = clusterMessage.shardID);
+            ASSERT(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
             migrateCache += clusterMessage.key.GetLength();
             Log_Debug("ShardMigration DELETE");
@@ -703,7 +703,7 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
             if (itMessage->isBulk == false)
                 break;
         }
-        assert(itMessage != NULL);
+        ASSERT(itMessage != NULL);
         fromClient = itMessage->fromClient;
     }
     else
@@ -711,9 +711,9 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
 
     if (ownAppend && fromClient)
     {
-        assert(shardMessages.GetLength() > 0);
-        assert(itMessage->type == message.type);
-        assert(clientRequests.GetLength() > 0);
+        ASSERT(shardMessages.GetLength() > 0);
+        ASSERT(itMessage->type == message.type);
+        ASSERT(clientRequests.GetLength() > 0);
         request = clientRequests.First();
         request->response.OK();
     }
@@ -767,7 +767,7 @@ void ShardQuorumProcessor::TryAppend()
 //    Log_Debug("numMessages = %u", numMessages);
 //    Log_Debug("length = %s", HUMAN_BYTES(appendValue.GetLength()));
             
-    assert(nextValue.GetLength() > 0);
+    ASSERT(nextValue.GetLength() > 0);
     quorumContext.Append();
 }
 
@@ -788,9 +788,9 @@ void ShardQuorumProcessor::OnResumeAppend()
     while (value.GetLength() > 0)
     {
         read = message.Read(value);
-        assert(read > 0);
+        ASSERT(read > 0);
         value.Advance(read);
-        assert(value.GetCharAt(0) == ' ');
+        ASSERT(value.GetCharAt(0) == ' ');
         value.Advance(1);
 
         if (message.type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)

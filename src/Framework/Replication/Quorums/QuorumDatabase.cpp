@@ -4,8 +4,8 @@
 
 void QuorumDatabase::Init(StorageShardProxy* paxosShard_, StorageShardProxy* logShard_)
 {
-    assert(paxosShard_ != NULL);
-    assert(logShard_ != NULL);
+    ASSERT(paxosShard_ != NULL);
+    ASSERT(logShard_ != NULL);
     paxosShard = paxosShard_;
     logShard = logShard_;
 }

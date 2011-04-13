@@ -17,7 +17,7 @@
 #define GLOBAL_MUTEX_LOCK()             client->LockGlobal()
 #define GLOBAL_MUTEX_UNLOCK()           client->UnlockGlobal()
 
-#define ASSERT_GLOBAL_LOCKED()          assert(client->IsGlobalLocked())
+#define ASSERT_GLOBAL_LOCKED()          ASSERT(client->IsGlobalLocked())
 
 using namespace SDBPClient;
 
@@ -183,7 +183,7 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
 {
     ClientRequest*  req;
     
-    assert(resp->configState.masterID == nodeID);
+    ASSERT(resp->configState.masterID == nodeID);
     EventLoop::Remove(&getConfigStateTimeout);
     
     req = RemoveRequest(resp->commandID);
@@ -211,7 +211,7 @@ bool ControllerConnection::ProcessGetMaster(ClientResponse* resp)
     if (req == NULL)
         return false;   // not found
         
-    assert(req->type == CLIENTREQUEST_GET_MASTER);
+    ASSERT(req->type == CLIENTREQUEST_GET_MASTER);
     delete req;
 
     getConfigStateTime = EventLoop::Now();

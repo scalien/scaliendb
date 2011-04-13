@@ -68,7 +68,7 @@ void ConfigQuorumProcessor::TryAppend()
         {
             if (configMessage->fromClient)
             {
-                assert(requests.GetLength() > 0);
+                ASSERT(requests.GetLength() > 0);
                 request = requests.First();
                 requests.Remove(request);
                 request->response.Failed();
@@ -373,7 +373,7 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
         configChanged = true;
         configStateChecksum = checksum;
     }
-    Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
+    //Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
 
     now = EventLoop::Now();
     
@@ -426,7 +426,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
         itRequest->response.NoService();
         itRequest->OnComplete();
     }
-    assert(requests.GetLength() == 0);
+    ASSERT(requests.GetLength() == 0);
 
     // clear listen requests
     FOREACH_FIRST (itRequest, listenRequests)
@@ -435,7 +435,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
         itRequest->response.NoService();
         itRequest->OnComplete();
     }
-    assert(listenRequests.GetLength() == 0);
+    ASSERT(listenRequests.GetLength() == 0);
     
     CONFIG_STATE->hasMaster = false;
     CONFIG_STATE->masterID = 0;
@@ -489,9 +489,9 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     {
         if (CONFIG_STATE->masterID == MY_NODEID)
         {
-            assert(CONFIG_STATE->isMigrating);
-            assert(CONFIG_STATE->migrateQuorumID == message.quorumID);
-            assert(CONFIG_STATE->migrateShardID == message.shardID);
+            ASSERT(CONFIG_STATE->isMigrating);
+            ASSERT(CONFIG_STATE->migrateQuorumID == message.quorumID);
+            ASSERT(CONFIG_STATE->migrateShardID == message.shardID);
             CONFIG_STATE->isMigrating = false;
             CONFIG_STATE->migrateQuorumID = 0;
             CONFIG_STATE->migrateShardID = 0;
@@ -538,8 +538,8 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
 
     if (ownAppend)
     {
-        assert(configMessages.GetLength() > 0);
-        assert(configMessages.First()->type == message.type);
+        ASSERT(configMessages.GetLength() > 0);
+        ASSERT(configMessages.First()->type == message.type);
         if (configMessages.First()->fromClient)
             SendClientResponse(message);
         configMessages.Delete(configMessages.First());
@@ -584,7 +584,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
         case CATCHUPMESSAGE_REQUEST:
             if (!quorumContext.IsLeader())
                 return;
-            assert(imsg.quorumID == quorumContext.GetQuorumID());
+            ASSERT(imsg.quorumID == quorumContext.GetQuorumID());
             // send configState
             key.Wrap("state");
             CONFIG_STATE->Write(buffer);
@@ -752,7 +752,7 @@ void ConfigQuorumProcessor::SendClientResponse(ConfigMessage& message)
 {
     ClientRequest* request;
     
-    assert(requests.GetLength() > 0);
+    ASSERT(requests.GetLength() > 0);
     
     request = requests.First();
     requests.Remove(request);

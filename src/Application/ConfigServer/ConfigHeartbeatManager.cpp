@@ -183,7 +183,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
                 if (configTable->shards.GetLength() == 1)
                 {
                     configShard = configState->GetShard(*(configTable->shards.First()));
-                    assert(configShard);
+                    ASSERT(configShard);
                     if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
                         configServer->GetQuorumProcessor()->TryTruncateTableComplete(configTable->tableID);
                 }
@@ -197,7 +197,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
                 if (!configShard)
                     continue;
                 configTable = configState->GetTable(configShard->tableID);
-                assert(configTable != NULL);
+                ASSERT(configTable != NULL);
                 if (configTable->isFrozen)
                     continue;
                 if (!configServer->GetDatabaseManager()->ShardExists(
@@ -244,7 +244,7 @@ bool ConfigHeartbeatManager::IsSplitCreating(ConfigQuorum* configQuorum, uint64_
     FOREACH(itShardID, configQuorum->shards)
     {
         configShard = configState->GetShard(*itShardID);
-        assert(configShard != NULL);
+        ASSERT(configShard != NULL);
         if (configShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
         {
             newShardID = configShard->shardID;

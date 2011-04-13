@@ -80,7 +80,7 @@ void ShardQuorumContext::AppendDummy()
 
 void ShardQuorumContext::Append()
 {
-    assert(nextValue.GetLength() > 0);
+    ASSERT(nextValue.GetLength() > 0);
     replicatedLog.TryAppendNextValue();
 }
 
@@ -224,7 +224,7 @@ void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
         ASSERT_FAIL();
 
     proto = buffer.GetCharAt(0);
-    assert(buffer.GetCharAt(1) == ':');
+    ASSERT(buffer.GetCharAt(1) == ':');
     
     switch(proto)
     {

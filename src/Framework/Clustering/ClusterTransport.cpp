@@ -49,6 +49,11 @@ uint64_t ClusterTransport::GetClusterID()
     return clusterID;
 }
 
+ClusterServer& ClusterTransport::GetClusterServer()
+{
+    return server;
+}
+
 void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 {
     ClusterConnection* conn;
@@ -294,7 +299,7 @@ void ClusterTransport::OnWriteReadyness(ClusterConnection* conn)
 {
     WriteReadyness* it;
     
-    assert(conn->progress == ClusterConnection::READY);
+    ASSERT(conn->progress == ClusterConnection::READY);
     
     FOREACH(it, writeReadynessList)
     {

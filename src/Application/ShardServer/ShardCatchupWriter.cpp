@@ -69,9 +69,9 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
 {
     uint64_t* it;
 
-    assert(!isActive);   
-    assert(quorumProcessor != NULL);
-    assert(cursor == NULL);
+    ASSERT(!isActive);   
+    ASSERT(quorumProcessor != NULL);
+    ASSERT(cursor == NULL);
 
     isActive = true;
     nodeID = request.nodeID;
@@ -120,12 +120,12 @@ void ShardCatchupWriter::SendFirst()
     ReadBuffer          key;
     ReadBuffer          value;
 
-    assert(quorumProcessor->GetConfigQuorum()->shards.GetLength() > 0);
+    ASSERT(quorumProcessor->GetConfigQuorum()->shards.GetLength() > 0);
     shardID = *(quorumProcessor->GetConfigQuorum()->shards.First());
 
-    assert(cursor == NULL);
+    ASSERT(cursor == NULL);
     cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, shardID);
-    assert(cursor != NULL);
+    ASSERT(cursor != NULL);
 
     msg.BeginShard(shardID);
     CONTEXT_TRANSPORT->SendQuorumMessage(nodeID, quorumID, msg);
@@ -149,7 +149,7 @@ void ShardCatchupWriter::SendNext()
     uint64_t*           itShardID;
     CatchupMessage      msg;
 
-    assert(cursor != NULL);
+    ASSERT(cursor != NULL);
     if (kv != NULL)
     {
         kv = cursor->Next(kv);

@@ -51,10 +51,10 @@ void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
     ConfigShard*        shard;
     ReadBuffer          firstKey;
 
-    assert(isActive);
+    ASSERT(isActive);
 
     shard = quorumProcessor->GetShardServer()->GetConfigState()->GetShard(msg.shardID);
-    assert(shard != NULL);
+    ASSERT(shard != NULL);
 
     environment->Commit();
     environment->DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, shard->shardID);
@@ -81,7 +81,7 @@ void ShardCatchupReader::OnDelete(CatchupMessage& msg)
 
 void ShardCatchupReader::OnCommit(CatchupMessage& message)
 {
-    assert(isActive);
+    ASSERT(isActive);
     
     quorumProcessor->SetPaxosID(message.paxosID);
 

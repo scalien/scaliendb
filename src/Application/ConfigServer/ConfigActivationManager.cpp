@@ -25,7 +25,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
         if (itQuorum->isActivatingNode && itQuorum->activatingNodeID == nodeID)
         {
             shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
-            assert(shardServer != NULL);
+            ASSERT(shardServer != NULL);
 
             itQuorum->ClearActivation();
             UpdateTimeout();
@@ -40,7 +40,7 @@ void ConfigActivationManager::TryDeactivateShardServer(uint64_t nodeID)
             if (itQuorum->isActivatingNode)
             {
                 shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
-                assert(shardServer != NULL);
+                ASSERT(shardServer != NULL);
 
                 itQuorum->ClearActivation();
                 UpdateTimeout();
@@ -182,11 +182,11 @@ void ConfigActivationManager::OnActivationTimeout()
         {
             // stop activation
             
-            assert(itQuorum->isActivatingNode == true);
-            assert(itQuorum->isReplicatingActivation == false);
+            ASSERT(itQuorum->isActivatingNode == true);
+            ASSERT(itQuorum->isReplicatingActivation == false);
 
             shardServer = configState->GetShardServer(itQuorum->activatingNodeID);
-            assert(shardServer != NULL);
+            ASSERT(shardServer != NULL);
 
             Log_Message("Activating shard server %U in quorum %U: Activation failed...",
              itQuorum->activatingNodeID, itQuorum->quorumID);

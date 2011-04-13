@@ -150,7 +150,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
     if (progress == ClusterConnection::INCOMING)
     {
         // we have no incoming connections if we don't have a nodeID
-        assert(transport->IsAwaitingNodeID() == false);
+        ASSERT(transport->IsAwaitingNodeID() == false);
 
         // the node at the other end is awaiting its nodeID
         if (msg.GetCharAt(0) == '*')

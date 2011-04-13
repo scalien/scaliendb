@@ -201,7 +201,7 @@ bool StorageChunkMerger::WriteHeaderPage()
 
     writeBuffer.Clear();
     mergeChunk->headerPage.Write(writeBuffer);
-    assert(writeBuffer.GetLength() == mergeChunk->headerPage.GetSize());
+    ASSERT(writeBuffer.GetLength() == mergeChunk->headerPage.GetSize());
 
     if (!WriteBuffer())
         return false;
@@ -276,7 +276,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
                 
                 writeBuffer.Clear();
                 dataPage->Write(writeBuffer);
-                assert(writeBuffer.GetLength() == dataPage->GetSize());
+                ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
                 if (!WriteBuffer())
                     return false;
                 
@@ -298,7 +298,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
 
         writeBuffer.Clear();
         dataPage->Write(writeBuffer);
-        assert(writeBuffer.GetLength() == dataPage->GetSize());
+        ASSERT(writeBuffer.GetLength() == dataPage->GetSize());
         if (!WriteBuffer())
             return false;
 
@@ -318,7 +318,7 @@ bool StorageChunkMerger::WriteIndexPage()
 
     writeBuffer.Clear();
     mergeChunk->indexPage->Write(writeBuffer);
-    assert(writeBuffer.GetLength() == mergeChunk->indexPage->GetSize());
+    ASSERT(writeBuffer.GetLength() == mergeChunk->indexPage->GetSize());
 
     if (!WriteBuffer())
         return false;
@@ -332,7 +332,7 @@ bool StorageChunkMerger::WriteBloomPage()
 
     writeBuffer.Clear();
     mergeChunk->bloomPage->Write(writeBuffer);
-    assert(writeBuffer.GetLength() == mergeChunk->bloomPage->GetSize());
+    ASSERT(writeBuffer.GetLength() == mergeChunk->bloomPage->GetSize());
 
     if (!WriteBuffer())
         return false;

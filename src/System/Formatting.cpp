@@ -1,5 +1,4 @@
 #include "Formatting.h"
-#include <assert.h>
 #include <string.h>
 #include <math.h>
 #include <stdio.h>
@@ -413,9 +412,9 @@ if (pad)                                            \
             if(format[1] == '0')
             {
                 // pad with zeroes
-                assert(format[2] != '\0');
+                ASSERT(format[2] != '\0');
                 padlen = BufferToInt64(format + 2, length - 2, &u);
-                assert(u > 0);
+                ASSERT(u > 0);
                 pad = true;
                 ADVANCE(u + 1, 0);
             }

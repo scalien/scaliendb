@@ -86,17 +86,17 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
     ConfigShard*        configShard;
     ConfigShardServer*  configShardServer;
     
-    assert(!isActive);
-    assert(cursor == NULL);
+    ASSERT(!isActive);
+    ASSERT(cursor == NULL);
 
     configState = shardServer->GetConfigState();
     configShard = configState->GetShard(request.shardID);
-    assert(configShard != NULL);
+    ASSERT(configShard != NULL);
     configShardServer = configState->GetShardServer(request.nodeID);
-    assert(configShardServer != NULL);
+    ASSERT(configShardServer != NULL);
     
     quorumProcessor = shardServer->GetQuorumProcessor(configShard->quorumID);
-    assert(quorumProcessor != NULL);
+    ASSERT(quorumProcessor != NULL);
     
     isActive = true;
     nodeID = request.nodeID;
@@ -159,7 +159,7 @@ void ShardMigrationWriter::SendFirst()
     ReadBuffer          key;
     ReadBuffer          value;
 
-    assert(cursor == NULL);
+    ASSERT(cursor == NULL);
     cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, shardID);
 
     msg.ShardMigrationBegin(quorumID, shardID);
@@ -177,7 +177,7 @@ void ShardMigrationWriter::SendFirst()
 
 void ShardMigrationWriter::SendNext()
 {
-    assert(cursor != NULL);
+    ASSERT(cursor != NULL);
     kv = cursor->Next(kv);
     if (kv)
         SendItem(kv);
@@ -225,7 +225,7 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 
 void ShardMigrationWriter::OnWriteReadyness()
 {
-    assert(quorumProcessor != NULL);
+    ASSERT(quorumProcessor != NULL);
     if (!quorumProcessor->IsPrimary()
      || !shardServer->GetConfigState()->isMigrating
      || (shardServer->GetConfigState()->isMigrating &&
@@ -252,7 +252,7 @@ void ShardMigrationWriter::OnTimeout()
     ConfigState*    configState;
     ConfigQuorum*   configQuorum;
 
-    assert(quorumProcessor != NULL);
+    ASSERT(quorumProcessor != NULL);
     if (!quorumProcessor->IsPrimary()
      || !shardServer->GetConfigState()->isMigrating
      || (shardServer->GetConfigState()->isMigrating &&

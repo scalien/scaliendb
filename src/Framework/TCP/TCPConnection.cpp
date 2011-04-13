@@ -96,7 +96,7 @@ void TCPConnection::OnWritePending()
     if (state == DISCONNECTED || tcpwrite.active)
         return;
 
-    assert(writer != NULL);
+    ASSERT(writer != NULL);
     buffer = writer->GetNext();
     
     if (buffer == NULL)
@@ -112,8 +112,8 @@ void TCPConnection::Init(bool startRead)
 {
     Log_Trace();
     
-    assert(tcpread.active == false);
-    assert(tcpwrite.active == false);
+    ASSERT(tcpread.active == false);
+    ASSERT(tcpwrite.active == false);
 
     readBuffer.Clear();
     
@@ -129,7 +129,7 @@ void TCPConnection::OnWrite()
     Log_Trace("Written %d bytes on %d", tcpwrite.buffer->GetLength(), socket.fd);
     Log_Trace("Written on %d: %B", socket.fd, tcpwrite.buffer);
 
-    assert(writer != NULL);
+    ASSERT(writer != NULL);
     writer->OnNextWritten();
 }
 

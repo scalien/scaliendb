@@ -47,7 +47,7 @@ ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
 
 void ConfigQuorum::OnActivationStart(uint64_t nodeID, uint64_t expireTime)
 {
-    assert(isActivatingNode == false);
+    ASSERT(isActivatingNode == false);
     isActivatingNode = true;
     activatingNodeID = nodeID;
     isWatchingPaxosID = false;

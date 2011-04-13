@@ -28,7 +28,7 @@ void MessageConnection::Connect(Endpoint& endpoint_)
 {
     Log_Trace();
     
-    assert(writeBuffer == NULL);
+    ASSERT(writeBuffer == NULL);
     endpoint = endpoint_;
     readBuffer.Allocate(MESSAGING_BUFFER_THRESHOLD * 2);    
     TCPConnection::Connect(endpoint, MESSAGING_CONNECT_TIMEOUT);
