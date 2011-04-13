@@ -31,6 +31,10 @@ public:
     uint64_t                GetQuorumID();
     uint64_t                GetPaxosID();
 
+    unsigned                GetNumConfigMessages();
+    unsigned                GetNumRequests();
+    unsigned                GetNumListenRequests();
+
     void                    TryAppend();
 
     void                    OnClientRequest(ClientRequest* request);

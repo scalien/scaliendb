@@ -108,6 +108,11 @@ bool ConfigHeartbeatManager::HasHeartbeat(uint64_t nodeID)
     return false;
 }
 
+unsigned ConfigHeartbeatManager::GetNumHeartbeats()
+{
+    return heartbeats.GetLength();
+}
+
 void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
 {
     Heartbeat       *it;

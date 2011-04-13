@@ -27,6 +27,8 @@ public:
     void            OnPrimaryLeaseTimeout();
     void            OnRequestPrimaryLease(ClusterMessage& message);
     
+    unsigned        GetNumPrimaryLeases();
+    
 private:
     void            AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);
     void            ExtendPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message);

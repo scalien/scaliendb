@@ -107,6 +107,11 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     AssignPrimaryLease(*quorum, message);
 }
 
+unsigned ConfigPrimaryLeaseManager::GetNumPrimaryLeases()
+{
+    return primaryLeases.GetLength();
+}
+
 void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
     unsigned                duration;

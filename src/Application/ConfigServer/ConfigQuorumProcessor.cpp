@@ -49,6 +49,21 @@ uint64_t ConfigQuorumProcessor::GetPaxosID()
     return quorumContext.GetPaxosID();
 }
 
+unsigned ConfigQuorumProcessor::GetNumConfigMessages()
+{
+    return configMessages.GetLength();
+}
+
+unsigned ConfigQuorumProcessor::GetNumRequests()
+{
+    return requests.GetLength();
+}
+
+unsigned ConfigQuorumProcessor::GetNumListenRequests()
+{
+    return listenRequests.GetLength();
+}
+
 void ConfigQuorumProcessor::TryAppend()
 {
     ConfigMessage*  configMessage;
@@ -395,7 +410,7 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
     }
     
     
-    if (configChanged || lastConfigChangeTime < now - 1000)
+    if (configChanged || lastConfigChangeTime <= now - 1000)
     {
         lastConfigChangeTime = now;
         

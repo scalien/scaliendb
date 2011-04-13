@@ -130,7 +130,7 @@ FD FS_Open(const char* filename, int flags)
     fd = open(filename, oflags, mode);
     if (fd < 0)
     {
-        Log_Errno();
+        Log_Errno("%s", filename);
         return INVALID_FD;
     }
     
@@ -153,7 +153,7 @@ void FS_FileClose(FD fd)
     
     ret = close(fd);
     if (ret < 0)
-        Log_Errno();
+        Log_Errno("%d", fd);
 }
 
 int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
@@ -179,7 +179,7 @@ int64_t FS_FileSeek(FD fd, uint64_t offset, int whence_)
     
     ret = lseek(fd, offset, whence);
     if (ret < 0)
-        Log_Errno();
+        Log_Errno("%d", fd);
     return ret;
 }
 
@@ -191,7 +191,7 @@ int FS_FileTruncate(FD fd, uint64_t length)
 
     ret = ftruncate(fd, length);
     if (ret < 0)
-        Log_Errno();
+        Log_Errno("%d", fd);
     
     return ret;
 }
@@ -204,7 +204,7 @@ int64_t FS_FileSize(FD fd)
     ret = fstat(fd, &buf);
     if (ret < 0)
     {
-        Log_Errno();
+        Log_Errno("%d", fd);
         return ret;
     }
     
@@ -219,7 +219,7 @@ ssize_t FS_FileWrite(FD fd, const void* buf, size_t count)
 
     ret = write(fd, buf, count);
     if (ret < 0)
-        Log_Errno();
+        Log_Errno("%d", fd);
         
     return ret;
 }
@@ -240,7 +240,7 @@ ssize_t FS_FileWriteVector(FD fd, unsigned num, const void** buf, size_t *count)
     
     ret = writev(fd, vecbuf, num);
     if (ret < 0)
-        Log_Errno();
+        Log_Errno("%d", fd);
         
     return ret; 
 }
@@ -274,7 +274,7 @@ ssize_t FS_FileWriteOffs(FD fd, const void* buf, size_t count, uint64_t offset)
     
     ret = pwrite(fd, buf, count, offset);
     if (ret < 0)
-        Log_Errno();
+        Log_Errno("%d", fd);
     return ret;
 }
 
@@ -284,7 +284,7 @@ ssize_t FS_FileReadOffs(FD fd, void* buf, size_t count, uint64_t offset)
     
     ret = pread(fd, buf, count, offset);
     if (ret < 0)
-        Log_Errno();
+        Log_Errno("%d", fd);
     return ret;
 }
 
@@ -295,7 +295,7 @@ bool FS_Delete(const char* filename)
     ret = unlink(filename);
     if (ret < 0)
     {
-        Log_Errno();
+        Log_Errno("%s", filename);
         return false;
     }
     
@@ -309,7 +309,7 @@ FS_Dir FS_OpenDir(const char* filename)
     dir = opendir(filename);
     if (dir == NULL)
     {
-        Log_Errno();
+        Log_Errno("%s", filename);
         return FS_INVALID_DIR;
     }
     
@@ -342,7 +342,7 @@ bool FS_CreateDir(const char* filename)
     ret = mkdir(filename, S_IRUSR | S_IWUSR | S_IXUSR);
     if (ret < 0)
     {
-        Log_Errno();
+        Log_Errno("%s", filename);
         return false;
     }
     return true;
@@ -355,7 +355,7 @@ bool FS_DeleteDir(const char* filename)
     ret = rmdir(filename);
     if (ret < 0)
     {
-        Log_Errno();
+        Log_Errno("%s", filename);
         return false;
     }
     return true;
@@ -422,7 +422,7 @@ int64_t FS_FileSize(const char* path)
     ret = stat(path, &buf);
     if (ret < 0)
     {
-        Log_Errno();
+        Log_Errno("%s", path);
         return ret;
     }
     
@@ -436,7 +436,7 @@ bool FS_Rename(const char* src, const char* dst)
     ret = rename(src, dst);
     if (ret < 0)
     {
-        Log_Errno();
+        Log_Errno("src: %s, dst: %s", src, dst);
         return false;
     }
     
@@ -700,7 +700,7 @@ bool FS_Delete(const char* filename)
     ret = DeleteFile(filename);
     if (!ret)
     {
-        Log_Errno();
+        Log_Errno("%s", filename);
         return false;
     }
     
@@ -740,7 +740,7 @@ FS_Dir FS_OpenDir(const char* filename)
     if (dir->handle == INVALID_HANDLE_VALUE)
     {
         delete dir;
-        Log_Errno();
+        Log_Errno("%s", filename);
         return FS_INVALID_DIR;
     }
     
@@ -783,7 +783,7 @@ bool FS_CreateDir(const char* filename)
     ret = CreateDirectory(filename, NULL);
     if (!ret)
     {
-        Log_Errno();
+        Log_Errno("%s", filename);
         return false;
     }
     return true;
@@ -796,7 +796,7 @@ bool FS_DeleteDir(const char* filename)
     ret = RemoveDirectory(filename);
     if (!ret)
     {
-        Log_Errno();
+        Log_Errno("%s", filename);
         return false;
     }
     return true;
@@ -884,7 +884,7 @@ bool FS_Rename(const char* src, const char* dst)
     ret = MoveFileEx(src, dst, MOVEFILE_WRITE_THROUGH);
     if (!ret)
     {
-        Log_Errno();
+        Log_Errno("src: %s, dst: %s", src, dst);
         return false;
     }
     

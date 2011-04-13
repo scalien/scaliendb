@@ -249,8 +249,10 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
 
         p += ret;
         remaining -= ret;
+        if (fmt[0] != '\0')
+            Log_Append(p, remaining, ": ", 2);
     }
-    else
+//    else
     {
         va_start(ap, fmt);
         ret = VWritef(p, remaining, fmt, ap);

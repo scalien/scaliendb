@@ -49,11 +49,6 @@ uint64_t ClusterTransport::GetClusterID()
     return clusterID;
 }
 
-ClusterServer& ClusterTransport::GetClusterServer()
-{
-    return server;
-}
-
 void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 {
     ClusterConnection* conn;
