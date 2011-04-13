@@ -269,6 +269,16 @@ uint64_t SDBP_ResultNodeID(ResultObj result_, unsigned n)
     return result->GetNodeID(n);
 }
 
+unsigned SDBP_ResultElapsedTime(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return SDBP_API_ERROR;
+    
+    return result->GetElapsedTime();
+}
+
 /*
 ===============================================================================================
 

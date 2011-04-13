@@ -211,6 +211,14 @@ unsigned Result::GetNumNodes()
     return requestCursor->shardConns.GetLength();
 }
 
+unsigned Result::GetElapsedTime()
+{
+    if (requestCursor == NULL)
+        return 0;
+
+    return (unsigned)(requestCursor->responseTime - requestCursor->requestTime);
+}
+
 uint64_t Result::GetNodeID(unsigned n)
 {
     if (requestCursor == NULL)

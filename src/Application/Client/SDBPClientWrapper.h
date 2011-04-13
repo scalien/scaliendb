@@ -69,6 +69,7 @@ int             SDBP_ResultTransportStatus(ResultObj result);
 int             SDBP_ResultCommandStatus(ResultObj result);
 unsigned        SDBP_ResultNumNodes(ResultObj result);
 uint64_t        SDBP_ResultNodeID(ResultObj result);
+unsigned        SDBP_ResultElapsedTime(ResultObj result);
 
 /*
 ===============================================================================================

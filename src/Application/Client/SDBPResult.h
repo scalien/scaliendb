@@ -45,6 +45,7 @@ public:
 
     unsigned        GetNumNodes();
     uint64_t        GetNodeID(unsigned n);
+    unsigned        GetElapsedTime();
 
     int             GetKey(ReadBuffer& key);
     int             GetValue(ReadBuffer& value);
