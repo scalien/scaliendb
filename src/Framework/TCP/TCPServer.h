@@ -131,7 +131,7 @@ template<class T, class Conn>
 void TCPServer<T, Conn>::DeleteConn(Conn* conn)
 {
     Log_Trace();
-
+    
     T* pT = static_cast<T*>(this);
     
     if (pT->IsManaged())

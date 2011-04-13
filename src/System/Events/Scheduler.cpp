@@ -30,3 +30,8 @@ void Scheduler::Shutdown()
     while (timers.GetLength() > 0)
         Remove(timers.First());
 }
+
+unsigned Scheduler::GetNumTimers()
+{
+    return timers.GetLength();
+}

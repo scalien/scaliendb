@@ -85,7 +85,6 @@ void SDBPConnection::OnClose()
     
     elapsed = NowClock() - connectTimestamp;
 
-    Log_Trace("numpending: %d", numPending);
     Log_Message("[%s] Client disconnected (active: %u seconds, served: %u requests)", 
      remoteEndpoint.ToString(), (unsigned)(elapsed / 1000.0 + 0.5), numCompleted);
     
@@ -93,7 +92,10 @@ void SDBPConnection::OnClose()
     MessageConnection::Close();
     
     if (numPending == 0)
+    {
+        Log_Debug("[%s] Connection deleted", remoteEndpoint.ToString());
         server->DeleteConn(this);
+    }
 }
 
 void SDBPConnection::OnComplete(ClientRequest* request, bool last)
@@ -120,7 +122,10 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     }
     
     if (numPending == 0 && state == DISCONNECTED)
+    {
+        Log_Debug("[%s] Connection deleted", remoteEndpoint.ToString());
         server->DeleteConn(this);
+    }
 }
 
 bool SDBPConnection::IsActive()
