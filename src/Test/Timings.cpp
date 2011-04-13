@@ -117,6 +117,7 @@ static void ParallelWrite2()
     TEST_LOG("P2 elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
 }
 
+/*
 static void ParallelWrite3()
 {
     char        buf[512*1024];
@@ -136,6 +137,7 @@ static void ParallelWrite3()
     
     TEST_LOG("P2 elapsed: %ld, %s/s", (long) sw.Elapsed(), HUMAN_BYTES((float)num * sizeof(buf) / sw.Elapsed() * 1000.0));
 }
+*/
 
 TEST_DEFINE(TestTimingFileSystemParallelWrite)
 {
