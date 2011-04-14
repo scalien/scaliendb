@@ -188,6 +188,8 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
 void StorageEnvironment::Close()
 {
+    StorageFileChunk* fileChunk;
+    
     shuttingDown = true;
 
     asyncGetThread->Stop();
@@ -216,6 +218,8 @@ void StorageEnvironment::Close()
     delete headLogSegment;
     logSegments.DeleteList();
 
+    FOREACH(fileChunk, fileChunks)
+        fileChunk->RemovePagesFromCache();
     fileChunks.DeleteList();
 }
 
@@ -914,6 +918,8 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     StorageMemoChunk*       memoChunk;
     StorageFileChunk*       fileChunk;
     StorageJob*             job;
+    List<StorageJob*>       jobs;
+    StorageJob**            itJob;
 
 // TODO
 //    if (headLogSegment->HasUncommitted())
@@ -931,7 +937,8 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
         memoChunk = shard->GetMemoChunk();
         Log_Debug("Deleting MemoChunk...");
         job = new StorageDeleteMemoChunkJob(memoChunk);
-        StartJob(asyncThread, job);
+        // StartJob(asyncThread, job);
+        jobs.Append(job);
         shard->memoChunk = NULL; // TODO: private hack
     }
 
@@ -974,7 +981,8 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
             else
             {
                 job = new StorageDeleteMemoChunkJob(memoChunk);
-                StartJob(asyncThread, job);
+                // StartJob(asyncThread, job);
+                jobs.Append(job);
             }
         }
         else
@@ -1001,7 +1009,8 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
             Log_Debug("Removing chunk %U from caches", fileChunk->GetChunkID());
             fileChunk->RemovePagesFromCache();
             job = new StorageDeleteFileChunkJob(fileChunk);
-            StartJob(asyncThread, job);                    
+            // StartJob(asyncThread, job);
+            jobs.Append(job);
         }
 
         Advance:
@@ -1014,7 +1023,14 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     shards.Remove(shard);
     delete shard;
     
-    WriteTOC(); // TODO: this is not completely right
+    WriteTOC();
+    
+    FOREACH_FIRST(itJob, jobs)
+    {
+        job = *itJob;
+        jobs.Remove(itJob);
+        StartJob(asyncThread, job);
+    }
     
     return true;
 }

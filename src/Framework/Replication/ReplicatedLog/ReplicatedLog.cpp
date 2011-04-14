@@ -2,6 +2,8 @@
 #include "Framework/Replication/ReplicationConfig.h"
 #include "System/Events/EventLoop.h"
 
+//#define RLOG_DEBUG_MESSAGES 1
+
 static Buffer dummy;
 
 void ReplicatedLog::Init(QuorumContext* context_)
@@ -80,7 +82,9 @@ void ReplicatedLog::TryAppendDummy()
 
     proposer.SetUseTimeouts(true);
     Append(dummy);
-//    Log_Debug("Appending DUMMY!");
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("Appending DUMMY!");
+#endif
 }
 
 void ReplicatedLog::TryAppendNextValue()
@@ -100,7 +104,7 @@ void ReplicatedLog::TryAppendNextValue()
 
 void ReplicatedLog::TryCatchup()
 {
-    if (context->IsLeaseKnown())
+    if (context->IsLeaseKnown() && context->GetHighestPaxosID() > GetPaxosID())
         RequestChosen(context->GetLeaseOwner());
 }
 
@@ -220,12 +224,16 @@ void ReplicatedLog::Append(Buffer& value)
     
     proposer.Propose(value);
     
-//    Log_Debug("Proposing for paxosID = %U", GetPaxosID());
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("Proposing for paxosID = %U", GetPaxosID());
+#endif
 }
 
 void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 {
-//    Log_Debug("ReplicatedLog::OnPrepareRequest");
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("ReplicatedLog::OnPrepareRequest");
+#endif
 
     acceptor.OnPrepareRequest(imsg);
 
@@ -234,7 +242,9 @@ void ReplicatedLog::OnPrepareRequest(PaxosMessage& imsg)
 
 void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
 {
-//    Log_Debug("ReplicatedLog::OnPrepareResponse");
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("ReplicatedLog::OnPrepareResponse");
+#endif
 
     Log_Trace();
     
@@ -244,7 +254,9 @@ void ReplicatedLog::OnPrepareResponse(PaxosMessage& imsg)
 
 void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 {
-//    Log_Debug("ReplicatedLog::OnProposeRequest");
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("ReplicatedLog::OnProposeRequest");
+#endif
 
     Log_Trace();
     
@@ -255,7 +267,9 @@ void ReplicatedLog::OnProposeRequest(PaxosMessage& imsg)
 
 void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 {
-//    Log_Debug("ReplicatedLog::OnProposeResponse");
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("ReplicatedLog::OnProposeResponse");
+#endif
 
     Log_Trace();
 
@@ -268,11 +282,15 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     uint64_t        runID;
     Buffer          learnedValue;
 
-//    Log_Debug("OnLearnChosen begin");
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("OnLearnChosen begin");
+#endif
 
     if (context->GetDatabase()->IsCommiting())
     {
-//        Log_Debug("Database is commiting, dropping Paxos message");
+#ifdef RLOG_DEBUG_MESSAGES
+        Log_Debug("Database is commiting, dropping Paxos message");
+#endif
         return;
     }
 
@@ -306,7 +324,9 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         
     ProcessLearnChosen(imsg.nodeID, runID, learnedValue);
 
-//    Log_Debug("OnLearnChosen end");
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("OnLearnChosen end");
+#endif
 }
 
 void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
@@ -314,8 +334,10 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
     Buffer          value;
     PaxosMessage    omsg;
     
-//    Log_Debug("ReplicatedLog::OnRequestChosen, imsg.paxosID = %U, mine = %U",
-//     imsg.paxosID, GetPaxosID());
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("ReplicatedLog::OnRequestChosen, imsg.paxosID = %U, mine = %U",
+     imsg.paxosID, GetPaxosID());
+#endif
 
     if (imsg.paxosID >= GetPaxosID())
         return;
@@ -337,7 +359,9 @@ void ReplicatedLog::OnRequestChosen(PaxosMessage& imsg)
 
 void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
 {
-//    Log_Debug("ReplicatedLog::OnStartCatchup");
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("ReplicatedLog::OnStartCatchup");
+#endif
 
     if (imsg.nodeID == context->GetLeaseOwner())
         context->OnStartCatchup();
@@ -347,14 +371,18 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, Buffer& 
 {
     bool ownAppend;
 
-//    Log_Debug("Round completed for paxosID = %U", paxosID);
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("Round completed for paxosID = %U", paxosID);
+#endif
 
     Log_Trace("+++ Value for paxosID = %U: %B +++", paxosID, &learnedValue);
 
     if (context->GetHighestPaxosID() > 0 && paxosID < context->GetHighestPaxosID())
     {
+#ifdef RLOG_DEBUG_MESSAGES
         Log_Debug("Paxos-based catchup, highest seen paxosID is %U, currently at %U",
          context->GetHighestPaxosID(), paxosID);
+#endif
         if (paxosID == (context->GetHighestPaxosID() - 1))
             Log_Debug("Paxos-based catchup complete...");
     }
@@ -430,5 +458,7 @@ void ReplicatedLog::RequestChosen(uint64_t nodeID)
     
     context->GetTransport()->SendMessage(nodeID, omsg);
 
-//    Log_Debug("ReplicatedLog::RequestChosen, paxosID = %U, to = %U", GetPaxosID(), nodeID);
+#ifdef RLOG_DEBUG_MESSAGES
+    Log_Debug("ReplicatedLog::RequestChosen, paxosID = %U, to = %U", GetPaxosID(), nodeID);
+#endif
 }

@@ -86,6 +86,7 @@ void PaxosProposer::Propose(Buffer& value)
         ASSERT_FAIL();
 
     state.proposedRunID = REPLICATION_CONFIG->GetRunID();
+    ASSERT(value.GetLength() > 0);
     state.proposedValue.Write(value);
 
     if (state.multi && state.numProposals == 0)
@@ -165,17 +166,17 @@ void PaxosProposer::OnPrepareResponse(PaxosMessage& imsg)
          */
         state.highestReceivedProposalID = imsg.acceptedProposalID;
         state.proposedRunID = imsg.runID;
+        ASSERT(imsg.value.GetLength() > 0);
         state.proposedValue.Write(imsg.value);
     }
 
-    if (vote->IsRejected())
-        StartPreparing();
-    else if (vote->IsAccepted())
-        StartProposing();   
-    else if (vote->IsComplete())
-        StartPreparing();
+//    if (vote->IsRejected())
+//        StartPreparing();
+    if (vote->IsAccepted())
+        StartProposing();
+//    else if (vote->IsComplete())
+//        StartPreparing();
 }
-
 
 void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
 {
@@ -262,6 +263,7 @@ void PaxosProposer::StartProposing()
     NewVote();
     state.proposing = true;
     
+    ASSERT(state.proposedValue.GetLength() > 0);
     omsg.ProposeRequest(context->GetPaxosID(), MY_NODEID, state.proposalID,
      state.proposedRunID, state.proposedValue);
     BroadcastMessage(omsg);
