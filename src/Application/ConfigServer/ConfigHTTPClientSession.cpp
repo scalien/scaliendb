@@ -160,7 +160,7 @@ void ConfigHTTPClientSession::PrintShardServers(ConfigState* configState)
                     buffer.Writef("- ");
             }
             rb = it->endpoint.ToReadBuffer();
-            ssID = it->nodeID - CONFIG_MIN_SHARD_NODE_ID;
+            ssID = it->nodeID; // - CONFIG_MIN_SHARD_NODE_ID;
             buffer.Appendf("ss%U (%R)", ssID, &rb);
             session.Print(buffer);
         }
@@ -223,7 +223,7 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
     buffer.Writef("       ");
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
     {
-        ssID = itShardServer->nodeID - CONFIG_MIN_SHARD_NODE_ID;
+        ssID = itShardServer->nodeID; // - CONFIG_MIN_SHARD_NODE_ID;
         if (ssID < 10)
             buffer.Appendf("   ");
         else if (ssID < 100)
@@ -348,7 +348,7 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
     buffer.Writef("       ");
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
     {
-        ssID = itShardServer->nodeID - CONFIG_MIN_SHARD_NODE_ID;
+        ssID = itShardServer->nodeID; // - CONFIG_MIN_SHARD_NODE_ID;
         if (ssID < 10)
             buffer.Appendf("   ");
         else if (ssID < 100)
