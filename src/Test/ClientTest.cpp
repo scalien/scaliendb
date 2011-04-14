@@ -348,7 +348,7 @@ TEST_DEFINE(TestClientBatchedSet)
     
     for (unsigned i = 0; i < num; i++)
     {
-        ret = snprintf(keybuf, sizeof(keybuf), "010u", i);
+        ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
         ret = client.Set(key, value);
@@ -693,7 +693,7 @@ TEST_DEFINE(TestClientBatchedGet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 1000;
+    unsigned        num = 10000;
     double          minLatency;
     double          maxLatency;
     double          avgLatency;
@@ -707,7 +707,7 @@ TEST_DEFINE(TestClientBatchedGet)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(10000);
+    client.SetMasterTimeout(120000);
     client.SetConsistencyLevel(SDBP_CONSISTENCY_ANY);
     ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
@@ -721,7 +721,7 @@ TEST_DEFINE(TestClientBatchedGet)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    for (unsigned i = 1; i <= num; i++)
+    for (unsigned i = 0; i < num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
@@ -749,7 +749,7 @@ TEST_DEFINE(TestClientBatchedGet)
     maxLatency = 0;
     avgLatency = 0;
     unsigned i;
-    for (i = 1, result->Begin(); !result->IsEnd(); i++, result->Next())
+    for (i = 0, result->Begin(); !result->IsEnd(); i++, result->Next())
     {
         request = result->GetRequestCursor();
         latency = request->responseTime - request->requestTime;
@@ -757,8 +757,11 @@ TEST_DEFINE(TestClientBatchedGet)
             minLatency = latency;
         if (latency > maxLatency)
             maxLatency = latency;
-        avgLatency = ((avgLatency * (i - 1)) + latency) / (double) i;
-        if (i == 1)
+        if (i == 0)
+            avgLatency = latency;
+        else
+            avgLatency = ((avgLatency * (i - 1)) + latency) / (double) i;
+        if (i == 0)
         {
             firstRequestTime = request->requestTime;
             firstResponseTime = request->responseTime;
@@ -1535,7 +1538,7 @@ TEST_DEFINE(TestClientSetFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 1;
+    unsigned        numThread = 40;
     
     threadPool = ThreadPool::Create(numThread);
     
