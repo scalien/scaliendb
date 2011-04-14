@@ -266,7 +266,7 @@ void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 {
     uint64_t        runID;
-    ReadBuffer      value;
+    Buffer          learnedValue;
 
 //    Log_Debug("OnLearnChosen begin");
 
@@ -289,14 +289,14 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     if (imsg.type == PAXOS_LEARN_VALUE)
     {
         runID = imsg.runID;
-        value = imsg.value;
-        context->GetDatabase()->SetAcceptedValue(paxosID, value);
+        learnedValue.Write(imsg.value);
+        context->GetDatabase()->SetAcceptedValue(paxosID, learnedValue);
     }
     else if (imsg.type == PAXOS_LEARN_PROPOSAL && acceptor.state.accepted &&
      acceptor.state.acceptedProposalID == imsg.proposalID)
     {
         runID = acceptor.state.acceptedRunID;
-        value.Wrap(acceptor.state.acceptedValue);
+        learnedValue.Write(acceptor.state.acceptedValue);
     }
     else
     {
@@ -304,7 +304,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         return;
     }
         
-    ProcessLearnChosen(imsg.nodeID, runID, value);
+    ProcessLearnChosen(imsg.nodeID, runID, learnedValue);
 
 //    Log_Debug("OnLearnChosen end");
 }
@@ -343,13 +343,13 @@ void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
         context->OnStartCatchup();
 }
 
-void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuffer value)
+void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, Buffer& learnedValue)
 {
     bool ownAppend;
 
 //    Log_Debug("Round completed for paxosID = %U", paxosID);
 
-    Log_Trace("+++ Value for paxosID = %U: %R +++", paxosID, &value);
+    Log_Trace("+++ Value for paxosID = %U: %B +++", paxosID, &learnedValue);
 
     if (context->GetHighestPaxosID() > 0 && paxosID < context->GetHighestPaxosID())
     {
@@ -384,10 +384,10 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, ReadBuff
         Log_Trace("Multi paxos disabled");
     }
 
-    if (BUFCMP(&value, &dummy))
+    if (BUFCMP(&learnedValue, &dummy))
         OnAppendComplete();
     else
-        context->OnAppend(paxosID - 1, value, ownAppend);
+        context->OnAppend(paxosID - 1, learnedValue, ownAppend);
 
     // new convention: QuorumContext::OnAppend() must call
     // ReplicatedLog::OnAppendComplete()

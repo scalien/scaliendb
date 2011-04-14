@@ -93,7 +93,7 @@ public:
     // ========================================================================================
     // For ShardQuorumContext:
     //
-    void                    OnAppend(uint64_t paxosID, ReadBuffer& value, bool ownAppend);
+    void                    OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend);
     void                    OnStartCatchup();
     void                    OnCatchupMessage(CatchupMessage& message);
     bool                    IsPaxosBlocked();

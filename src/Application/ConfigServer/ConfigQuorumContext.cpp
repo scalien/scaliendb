@@ -129,14 +129,16 @@ Buffer& ConfigQuorumContext::GetNextValue()
     return nextValue;
 }
 
-void ConfigQuorumContext::OnAppend(uint64_t paxosID, ReadBuffer value, bool ownAppend)
+void ConfigQuorumContext::OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend)
 {
-    ConfigMessage   message;
     bool            ret;
+    ReadBuffer      rbValue;
+    ConfigMessage   message;
 
     nextValue.Clear();
 
-    ret = message.Read(value);
+    rbValue.Wrap(value);
+    ret = message.Read(rbValue);
     ASSERT(ret);
     quorumProcessor->OnAppend(paxosID, message, ownAppend);
 }

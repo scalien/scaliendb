@@ -180,7 +180,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     leaseRequests.Delete(lease);
 }
 
-void ShardQuorumProcessor::OnAppend(uint64_t paxosID_, ReadBuffer& value_, bool ownAppend_)
+void ShardQuorumProcessor::OnAppend(uint64_t paxosID_, Buffer& value_, bool ownAppend_)
 {
     paxosID = paxosID_;
     commandID = 0;
