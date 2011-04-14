@@ -307,7 +307,7 @@ bool StorageDataPage::Read(Buffer& buffer_, bool keysOnly)
     parse.Advance(sizeof(uint32_t));
     compressor.Uncompress(parse, buffer, uncompressedSize);
 #else
-    assert(GetNumKeys() == 0);
+    ASSERT(GetNumKeys() == 0);
     buffer.Write(buffer_);
 #endif
     parse.Wrap(buffer);

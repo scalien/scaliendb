@@ -486,7 +486,7 @@ bool IOProcessor::Poll(int sleep)
         if ((currentev & EPOLLIN) && epollOp->read)
         {
             ioop = epollOp->read;
-            assert(ioop != NULL);
+            ASSERT(ioop != NULL);
             ioop->pending = false;
             if (ioop->active && ioop->type == PIPEOP)
             {
@@ -505,7 +505,7 @@ bool IOProcessor::Poll(int sleep)
         {
             ioop = epollOp->write;
             epollOp->write = NULL;
-            assert(ioop != NULL);
+            ASSERT(ioop != NULL);
             ioop->pending = false;
             // we don't care about write notifications for pipeOps
             if (ioop->active)

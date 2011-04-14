@@ -30,7 +30,7 @@ StorageKeyValue* StorageBulkCursor::First()
     else
         chunk = *itChunk;
 
-    assert(chunk != NULL);
+    ASSERT(chunk != NULL);
     
     chunkID = chunk->GetChunkID();
 //    Log_Debug("Iterating chunk %U", chunkID);
@@ -48,7 +48,7 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     
     if (kv != NULL)
     {
-        assert(kv->GetKey().GetBuffer()[0] != 0);
+        ASSERT(kv->GetKey().GetBuffer()[0] != 0);
         return kv;
     }
     
@@ -69,7 +69,7 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     {        
         chunk = *itChunk;
     }
-    assert(chunk != NULL);
+    ASSERT(chunk != NULL);
 
     chunkID = chunk->GetChunkID();
 //    Log_Debug("Iterating chunk %U", chunkID);
@@ -163,5 +163,5 @@ void StorageBulkCursor::SetShard(uint64_t contextID_, uint64_t shardID_)
     contextID = contextID_;
     shardID = shardID_;
     shard = env->GetShard(contextID, shardID);
-    assert(shard);
+    ASSERT(shard);
 }

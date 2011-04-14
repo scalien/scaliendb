@@ -47,20 +47,22 @@ class StorageAsyncBulkCursor
 public:
     StorageAsyncBulkCursor();
 
-    void                    OnNextChunk();
-    
     void                    SetEnvironment(StorageEnvironment* env);
     void                    SetShard(uint64_t contextID_, uint64_t shardID);
     void                    SetThreadPool(ThreadPool* threadPool_);
     void                    SetOnComplete(Callable onComplete);
-    
+
     StorageAsyncBulkResult* GetLastResult();    
     
+    void                    OnNextChunk();
+    void                    Abort();
+        
 private:
     void                    AsyncReadFileChunk();
     void                    TransferDataPage(StorageAsyncBulkResult* result, StorageDataPage* page);
     void                    OnResult(StorageAsyncBulkResult* result);
     
+    bool                    isAborted;
     Buffer                  chunkName;
     Callable                onComplete;
     StorageShard*           shard;

@@ -25,6 +25,8 @@ public:
     void                    Init();
     void                    Shutdown();
 
+    void                    OnStatTimer();
+
 private:
     ConfigServer            configServer;
 
@@ -33,6 +35,8 @@ private:
     HTTPFileHandler         httpFileHandler;
 
     SDBPServer              sdbpServer;
+
+    Countdown               statTimer;
 };
 
 #endif

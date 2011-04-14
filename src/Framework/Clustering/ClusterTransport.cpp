@@ -49,6 +49,16 @@ uint64_t ClusterTransport::GetClusterID()
     return clusterID;
 }
 
+unsigned ClusterTransport::GetNumConns()
+{
+    return conns.GetLength();
+}
+
+unsigned ClusterTransport::GetNumWriteReadyness()
+{
+    return writeReadynessList.GetLength();
+}
+
 void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 {
     ClusterConnection* conn;
@@ -294,7 +304,7 @@ void ClusterTransport::OnWriteReadyness(ClusterConnection* conn)
 {
     WriteReadyness* it;
     
-    assert(conn->progress == ClusterConnection::READY);
+    ASSERT(conn->progress == ClusterConnection::READY);
     
     FOREACH(it, writeReadynessList)
     {

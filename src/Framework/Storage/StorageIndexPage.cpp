@@ -161,7 +161,7 @@ bool StorageIndexPage::Read(Buffer& buffer_)
     ReadBuffer              dataPart, parse, key;
     StorageIndexRecord*     it;
     
-    assert(indexTree.GetCount() == 0);
+    ASSERT(indexTree.GetCount() == 0);
     
     buffer.Write(buffer_);
     parse.Wrap(buffer);

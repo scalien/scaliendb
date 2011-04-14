@@ -102,7 +102,7 @@ bool IOProcessorRegisterSocket(FD& fd)
 {
     IODesc*     iod;
 
-    assert(freeIods != NULL);
+    ASSERT(freeIods != NULL);
 
     iod = freeIods;
     // unlink iod from free list
@@ -238,7 +238,7 @@ static bool RequestReadNotification(IOOperation* ioop)
 
     iod = GetIODesc(ioop->fd);
 
-    assert(iod->read == NULL);
+    ASSERT(iod->read == NULL);
 
     wsabuf.buf = NULL;
     wsabuf.len = 0;
@@ -278,7 +278,7 @@ static bool RequestWriteNotification(IOOperation* ioop)
 
     iod = GetIODesc(ioop->fd);
 
-    assert(iod->write == NULL);
+    ASSERT(iod->write == NULL);
 
     wsabuf.buf = NULL;
     wsabuf.len = 0;
@@ -412,7 +412,7 @@ bool IOProcessor::Remove(IOOperation *ioop)
         iod->read = NULL;
         if (iod->write != NULL)
         {
-            assert(iod->write->active);
+            ASSERT(iod->write->active);
             ioop = iod->write;
             iod->write = NULL;
             ioop->active = false;
@@ -424,7 +424,7 @@ bool IOProcessor::Remove(IOOperation *ioop)
         iod->write = NULL;
         if (iod->read != NULL)
         {
-            assert(iod->read->active);
+            ASSERT(iod->read->active);
             ioop = iod->read;
             iod->read = NULL;
             ioop->active = false;
@@ -472,7 +472,7 @@ bool IOProcessor::Poll(int msec)
             if (overlapped == &iod->ovlRead && iod->read)
             {
                 ioop = iod->read;
-                assert(ioop->active);
+                ASSERT(ioop->active);
                 iod->read = NULL;
 
                 result = WSAGetOverlappedResult(ioop->fd.handle, &iod->ovlRead, &numBytes, FALSE, &flags);
@@ -496,7 +496,7 @@ bool IOProcessor::Poll(int msec)
             else if (overlapped == &iod->ovlWrite && iod->write)
             {
                 ioop = iod->write;
-                assert(ioop->active);
+                ASSERT(ioop->active);
                 iod->write = NULL;
 
                 result = WSAGetOverlappedResult(ioop->fd.handle, &iod->ovlWrite, &numBytes, FALSE, &flags);
@@ -586,7 +586,7 @@ bool ProcessTCPRead(TCPRead* tcpread)
         else
         {
             tcpread->buffer->Lengthen(numBytes);
-            assert(tcpread->buffer->GetLength() <= tcpread->buffer->GetSize());
+            ASSERT(tcpread->buffer->GetLength() <= tcpread->buffer->GetSize());
             callable = tcpread->onComplete;
         }
     }
@@ -630,7 +630,7 @@ bool ProcessUDPRead(UDPRead* udpread)
     else
     {
         udpread->buffer->SetLength(numBytes);
-        assert(udpread->buffer->GetLength() <= udpread->buffer->GetSize());
+        ASSERT(udpread->buffer->GetLength() <= udpread->buffer->GetSize());
         callable = udpread->onComplete;
     }
 

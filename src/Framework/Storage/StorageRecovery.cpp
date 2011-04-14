@@ -531,7 +531,7 @@ void StorageRecovery::ExecuteSet(
 
 Execute:
     memoChunk = shard->GetMemoChunk();
-    assert(memoChunk != NULL);
+    ASSERT(memoChunk != NULL);
     if (!memoChunk->Set(key, value))
         ASSERT_FAIL();
 
@@ -566,7 +566,7 @@ void StorageRecovery::ExecuteDelete(
         return; // this command is already present in a file chunk
         
     memoChunk = shard->GetMemoChunk();
-    assert(memoChunk != NULL);
+    ASSERT(memoChunk != NULL);
     if (!memoChunk->Delete(key))
         ASSERT_FAIL();
 

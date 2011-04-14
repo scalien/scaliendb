@@ -73,7 +73,7 @@ void PaxosLeaseProposer::OnExtendLeaseTimeout()
 {
     Log_Trace();
     
-    assert(!(state.preparing || state.proposing));
+    ASSERT(!(state.preparing || state.proposing));
     
     StartPreparing();
 }

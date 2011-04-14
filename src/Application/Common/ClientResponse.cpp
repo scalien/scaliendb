@@ -15,6 +15,7 @@ ClientResponse::~ClientResponse()
 
 void ClientResponse::Init()
 {
+    request = NULL;
     valueBuffer = NULL;
     keys = NULL;
     values = NULL;

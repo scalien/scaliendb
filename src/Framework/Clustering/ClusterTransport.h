@@ -32,6 +32,9 @@ public:
     Endpoint&                   GetSelfEndpoint();
     uint64_t                    GetClusterID();
 
+    unsigned                    GetNumConns();
+    unsigned                    GetNumWriteReadyness();
+
     void                        AddNode(uint64_t nodeID, Endpoint& endpoint);
     bool                        SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID);
     

@@ -20,6 +20,8 @@ public:
     static void                 Reset(Timer* timer);
     static void                 Shutdown();
 
+    static unsigned             GetNumTimers();
+
 protected:
     static InSortedList<Timer>  timers;
 };

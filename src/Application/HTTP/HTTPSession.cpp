@@ -91,7 +91,7 @@ void HTTPSession::ParseType(ReadBuffer& rb)
 
 void HTTPSession::ResponseFail()
 {
-    assert(headerSent == false);
+    ASSERT(headerSent == false);
     if (!conn)
         return;
     
@@ -105,7 +105,7 @@ void HTTPSession::Redirect(const ReadBuffer& location)
 {
     Buffer      extraHeader;
 
-    assert(headerSent == false);
+    ASSERT(headerSent == false);
     if (!conn)
         return;
     

@@ -203,6 +203,33 @@ void Result::SetTimeoutStatus(int status)
     timeoutStatus = status;
 }
 
+unsigned Result::GetNumNodes()
+{
+    if (requestCursor == NULL)
+        return 0;
+    
+    return requestCursor->shardConns.GetLength();
+}
+
+uint64_t Result::GetNodeID(unsigned n)
+{
+    if (requestCursor == NULL)
+        return 0;
+    
+    if (n > requestCursor->shardConns.GetLength())
+        return 0;
+    
+    return requestCursor->shardConns.Get(n);
+}
+
+unsigned Result::GetElapsedTime()
+{
+    if (requestCursor == NULL)
+        return 0;
+
+    return (unsigned)(requestCursor->responseTime - requestCursor->requestTime);
+}
+
 int Result::GetKey(ReadBuffer& key)
 {
     Request*    request;

@@ -27,7 +27,8 @@ StorageFileChunk::~StorageFileChunk()
 {
     unsigned    i;
     
-    FS_FileClose(fd);
+    if (fd != INVALID_FD)
+        FS_FileClose(fd);
     
     for (i = 0; i < numDataPages; i++)
     {
@@ -165,7 +166,7 @@ void StorageFileChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
     if (dataPages[index] == NULL)
         LoadDataPage(index, dataPages[index - 1]->GetOffset() + dataPages[index - 1]->GetCompressedSize(), true);
     
-    assert(dataPages[index] != NULL);
+    ASSERT(dataPages[index] != NULL);
     cursor.SetNextKey(dataPages[index]->GetIndexedKeyValue(0)->GetKey());
     cursor.SetLast(false);
 }
@@ -386,7 +387,7 @@ void StorageFileChunk::OnIndexPageEvicted()
 
 void StorageFileChunk::OnDataPageEvicted(uint32_t index)
 {
-    assert(dataPages[index] != NULL);
+    ASSERT(dataPages[index] != NULL);
     
     delete dataPages[index];
     dataPages[index] = NULL;
@@ -501,12 +502,12 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, 
         STOP_FAIL(1);
     }
 
-    assert(dataPages[index] != NULL);
+    ASSERT(dataPages[index] != NULL);
     
     if (useCache)
         StoragePageCache::AddPage(dataPages[index], bulk);
     
-    assert(dataPages[index] != NULL);
+    ASSERT(dataPages[index] != NULL);
 }
 
 StoragePage* StorageFileChunk::AsyncLoadBloomPage()

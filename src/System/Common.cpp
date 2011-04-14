@@ -373,7 +373,7 @@ int RandomInt(int min, int max)
     int     rnd;
     int     interval;
     
-    assert(min < max);
+    ASSERT(min < max);
 
     interval = max - min;
 #ifdef _WIN32

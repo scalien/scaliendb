@@ -17,14 +17,14 @@ ClientRequestCache* ClientRequestCache::Get()
     
 void ClientRequestCache::Init(uint64_t size)
 {
-    assert(maxSize == 0);
+    ASSERT(maxSize == 0);
 
     maxSize = size;
 }
 
 void ClientRequestCache::Shutdown()
 {
-    assert(maxSize != 0);
+    ASSERT(maxSize != 0);
 
     freeRequests.DeleteList();
 
@@ -56,5 +56,10 @@ void ClientRequestCache::DeleteRequest(ClientRequest* request)
     }
     
     delete request;
+}
+
+unsigned ClientRequestCache::GetNumFreeRequests()
+{
+    return freeRequests.GetLength();
 }
 

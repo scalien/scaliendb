@@ -215,7 +215,7 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
         // TODO: change convention to Append in every Message::Write
         read = buffer.Readf("%c", &c);
         CHECK_ADVANCE(1);
-        assert(c == CONFIG_MESSAGE_PREFIX);
+        ASSERT(c == CONFIG_MESSAGE_PREFIX);
 
         READ_SEPARATOR();
         c = NO;
@@ -299,7 +299,7 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
     buffer.Appendf(":");
     WriteShardServers(buffer, withVolatile);
     
-    Log_Trace("buffer = %B", &buffer);
+    //Log_Trace("buffer = %B", &buffer);
     
     return true;
 }
@@ -800,7 +800,7 @@ void ConfigState::OnRegisterShardServer(ConfigMessage& message)
     ConfigShardServer* shardServer;
     
     // make sure nodeID is available
-    assert(GetShardServer(message.nodeID) == NULL);
+    ASSERT(GetShardServer(message.nodeID) == NULL);
     
     shardServer = new ConfigShardServer;
     shardServer->nodeID = nextNodeID++;
@@ -817,7 +817,7 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     ConfigQuorum*   quorum;
     
     // make sure quorumID is available
-    assert(GetQuorum(message.quorumID) == NULL);
+    ASSERT(GetQuorum(message.quorumID) == NULL);
         
     quorum = new ConfigQuorum;
     quorum->quorumID = nextQuorumID++;
@@ -848,7 +848,7 @@ void ConfigState::OnAddNode(ConfigMessage& message)
     
     quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
-    assert(quorum != NULL);
+    ASSERT(quorum != NULL);
         
     // make sure node is not already in quorum
     if (quorum->IsMember(message.nodeID))
@@ -863,7 +863,7 @@ void ConfigState::OnRemoveNode(ConfigMessage& message)
     
     quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
-    assert(quorum != NULL);
+    ASSERT(quorum != NULL);
     
     if (quorum->IsActiveMember(message.nodeID))
     {
@@ -887,7 +887,7 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
     
     quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
-    assert(quorum != NULL);
+    ASSERT(quorum != NULL);
 
     if (quorum->IsInactiveMember(message.nodeID))
     {
@@ -897,7 +897,7 @@ void ConfigState::OnActivateShardServer(ConfigMessage& message)
         if (quorum->isActivatingNode)
         {
             shardServer = GetShardServer(quorum->activatingNodeID);
-            assert(shardServer != NULL);
+            ASSERT(shardServer != NULL);
             
             Log_Message("Activated shard server %U in quorum %U ",
              quorum->activatingNodeID, quorum->quorumID);
@@ -916,7 +916,7 @@ void ConfigState::OnDeactivateShardServer(ConfigMessage& message)
     
     quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
-    assert(quorum != NULL);
+    ASSERT(quorum != NULL);
     
     if (!quorum->IsActiveMember(message.nodeID))
         ASSERT_FAIL();
@@ -934,7 +934,7 @@ void ConfigState::OnCreateDatabase(ConfigMessage& message)
     
     database = GetDatabase(message.name);
     // make sure database with name does not exist
-    assert(database == NULL);
+    ASSERT(database == NULL);
         
     database = new ConfigDatabase;
 
@@ -951,11 +951,11 @@ void ConfigState::OnRenameDatabase(ConfigMessage& message)
 
     database = GetDatabase(message.name);
     // make sure database with name does not exist
-    assert(database == NULL);
+    ASSERT(database == NULL);
 
     database = GetDatabase(message.databaseID);
     // make sure database with ID exists
-    assert(database != NULL);
+    ASSERT(database != NULL);
     
     database->name.Write(message.name);
 }
@@ -968,7 +968,7 @@ void ConfigState::OnDeleteDatabase(ConfigMessage& message)
     
     database = GetDatabase(message.databaseID);
     // make sure database with ID exists
-    assert(database != NULL);
+    ASSERT(database != NULL);
 
     FOREACH(itTableID, database->tables)
     {
@@ -988,18 +988,18 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
 
     quorum = GetQuorum(message.quorumID);
     // make sure quorum exists
-    assert(quorum != NULL);
+    ASSERT(quorum != NULL);
 
     database = GetDatabase(message.databaseID);
     // make sure database exists
-    assert(database != NULL);
+    ASSERT(database != NULL);
 
     table = GetTable(nextTableID);
     // make sure table with ID does not exist
-    assert(table == NULL);
+    ASSERT(table == NULL);
     table = GetTable(message.databaseID, message.name);
     // make sure table with name in database does not exist
-    assert(table == NULL);
+    ASSERT(table == NULL);
 
     shard = new ConfigShard;
     shard->quorumID = message.quorumID;
@@ -1028,15 +1028,15 @@ void ConfigState::OnRenameTable(ConfigMessage& message)
 
     table = GetTable(message.tableID);
     // make sure table with ID exists
-    assert(table != NULL);
+    ASSERT(table != NULL);
     
     table = GetTable(table->databaseID, message.name);
     // make sure table with name does not exist
-    assert(table == NULL);
+    ASSERT(table == NULL);
 
     table = GetTable(message.tableID);
     // make sure table with ID exists
-    assert(table != NULL);
+    ASSERT(table != NULL);
     
     table->name.Write(message.name);
 }
@@ -1048,11 +1048,11 @@ void ConfigState::OnDeleteTable(ConfigMessage& message)
     
     table = GetTable(message.tableID);
     // make sure table exists
-    assert(table != NULL);
+    ASSERT(table != NULL);
 
     database = GetDatabase(table->databaseID);
     // make sure database exists
-    assert(database != NULL);
+    ASSERT(database != NULL);
     
     DeleteTable(table);
     database->tables.Remove(message.tableID);
@@ -1064,7 +1064,7 @@ void ConfigState::OnFreezeTable(ConfigMessage& message)
 
     table = GetTable(message.tableID);
     // make sure table exists
-    assert(table != NULL);
+    ASSERT(table != NULL);
     
     table->isFrozen = true;
 }
@@ -1075,7 +1075,7 @@ void ConfigState::OnUnfreezeTable(ConfigMessage& message)
 
     table = GetTable(message.tableID);
     // make sure table exists
-    assert(table != NULL);
+    ASSERT(table != NULL);
     
     table->isFrozen = false;
 }
@@ -1091,24 +1091,24 @@ void ConfigState::OnTruncateTableBegin(ConfigMessage& message)
     
     table = GetTable(message.tableID);
     // make sure table exists
-    assert(table != NULL);
+    ASSERT(table != NULL);
 
     database = GetDatabase(table->databaseID);
     // make sure database exists
-    assert(database != NULL);
+    ASSERT(database != NULL);
 
     quorumID = 0;
     // delete all old shards
     FOREACH_FIRST(itShardID, table->shards)
     {
         shard = GetShard(*itShardID);
-        assert(shard != NULL);
+        ASSERT(shard != NULL);
         quorumID = shard->quorumID;
         DeleteShard(shard);
     }
     
     quorum = GetQuorum(quorumID);
-    assert(quorum != NULL);
+    ASSERT(quorum != NULL);
 
     // create a new shard
     shard = new ConfigShard;
@@ -1129,11 +1129,11 @@ void ConfigState::OnTruncateTableComplete(ConfigMessage& message)
 
     table = GetTable(message.tableID);
     // make sure table exists
-    assert(table != NULL);
-    assert(table->shards.GetLength() == 1);
+    ASSERT(table != NULL);
+    ASSERT(table->shards.GetLength() == 1);
     
     shard = GetShard(*(table->shards.First()));
-    assert(shard->state == CONFIG_SHARD_STATE_TRUNC_CREATING);
+    ASSERT(shard->state == CONFIG_SHARD_STATE_TRUNC_CREATING);
 
     shard->state = CONFIG_SHARD_STATE_NORMAL;
 }
@@ -1189,10 +1189,10 @@ void ConfigState::OnShardMigrationComplete(ConfigMessage& message)
     ConfigShard*    shard;
     
     shard = GetShard(message.shardID);
-    assert(shard != NULL);
+    ASSERT(shard != NULL);
     // quorum = old quorum
     quorum = GetQuorum(shard->quorumID);
-    assert(quorum != NULL);
+    ASSERT(quorum != NULL);
     quorum->shards.Remove(shard->shardID);
     // quorum = new quorum
     quorum = GetQuorum(message.quorumID);
@@ -1322,7 +1322,7 @@ void ConfigState::DeleteTable(ConfigTable* table)
     FOREACH_FIRST(itShardID, table->shards)
     {
         shard = GetShard(*itShardID);
-        assert(shard != NULL);
+        ASSERT(shard != NULL);
         DeleteShard(shard);
     }
 
@@ -1411,10 +1411,10 @@ void ConfigState::DeleteShard(ConfigShard* shard)
     ConfigTable*    table;
 
     quorum = GetQuorum(shard->quorumID);
-    assert(quorum != NULL);
+    ASSERT(quorum != NULL);
     quorum->shards.Remove(shard->shardID);
     table = GetTable(shard->tableID);
-    assert(table != NULL);
+    ASSERT(table != NULL);
     table->shards.Remove(shard->shardID);
 
     shards.Delete(shard);

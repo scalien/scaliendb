@@ -25,7 +25,7 @@ void StorageAsyncGet::ExecuteAsyncGet()
     {
         if (lastLoadedPage != NULL)
         {
-            assert(fileChunk->bloomPage == NULL);
+            ASSERT(fileChunk->bloomPage == NULL);
             fileChunk->bloomPage = (StorageBloomPage*) lastLoadedPage;
             fileChunk->isBloomPageLoading = false;
         }
@@ -34,7 +34,7 @@ void StorageAsyncGet::ExecuteAsyncGet()
     {
         if (lastLoadedPage != NULL)
         {
-            assert(fileChunk->indexPage == NULL);
+            ASSERT(fileChunk->indexPage == NULL);
             fileChunk->indexPage = (StorageIndexPage*) lastLoadedPage;
             fileChunk->AllocateDataPageArray();
             fileChunk->isIndexPageLoading = false;
@@ -45,7 +45,7 @@ void StorageAsyncGet::ExecuteAsyncGet()
         if (lastLoadedPage != NULL)
         {
             // TODO: FIXME:
-//            assert(fileChunk->dataPages[index] == NULL);
+//            ASSERT(fileChunk->dataPages[index] == NULL);
             if (fileChunk->dataPages[index] == NULL)
             {
                 fileChunk->dataPages[index] = (StorageDataPage*) lastLoadedPage;

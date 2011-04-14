@@ -17,6 +17,8 @@ public:
     ClientRequest*              CreateRequest();
     void                        DeleteRequest(ClientRequest* request);
 
+    unsigned                    GetNumFreeRequests();
+
 private:
     ClientRequestCache();
 

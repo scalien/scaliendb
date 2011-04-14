@@ -137,7 +137,7 @@ void ConfigQuorumContext::OnAppend(uint64_t paxosID, ReadBuffer value, bool ownA
     nextValue.Clear();
 
     ret = message.Read(value);
-    assert(ret);
+    ASSERT(ret);
     quorumProcessor->OnAppend(paxosID, message, ownAppend);
 }
 
@@ -153,7 +153,7 @@ void ConfigQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
         ASSERT_FAIL();
 
     proto = buffer.GetCharAt(0);
-    assert(buffer.GetCharAt(1) == ':');
+    ASSERT(buffer.GetCharAt(1) == ':');
     
     switch(proto)
     {

@@ -6,7 +6,6 @@
 #if 0
 
 #include <stdlib.h>
-#include <assert.h>
 
 /*
 ===============================================================================================
@@ -278,7 +277,7 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
     node->color = Node::RED;
     if (root == NULL)
     {
-        assert(pos == NULL && cmpres == 0);
+        ASSERT(pos == NULL && cmpres == 0);
         root = node;
         count = 1;
         return;
@@ -287,13 +286,13 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
     curr = GetNode(pos);
     if (cmpres < 0)
     {
-        assert(curr->left == NULL);
+        ASSERT(curr->left == NULL);
         curr->left = node;
         count++;
     }
     else if (cmpres > 0)
     {
-        assert(curr->right == NULL);
+        ASSERT(curr->right == NULL);
         curr->right = node;
         count++;
     }
@@ -634,7 +633,7 @@ void InTreeMap<T, pnode>::FixRotation(Node* node)
         grandparent->color = Node::RED;
     }
     else
-        assert(false);
+        ASSERT(false);
 
     if (IsLeftChild(node) && parent && IsLeftChild(parent))
     {
@@ -642,7 +641,7 @@ void InTreeMap<T, pnode>::FixRotation(Node* node)
     }
     else
     {
-        assert(IsRightChild(node) && parent && IsRightChild(parent));
+        ASSERT(IsRightChild(node) && parent && IsRightChild(parent));
         RotateLeft(grandparent);
     }
 }

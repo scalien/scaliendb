@@ -1046,6 +1046,12 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
             else
                 continue;   // don't send the request because it is already sent
         }
+        else
+        {
+            req->shardConns.Clear();
+            nodeID = conn->GetNodeID();
+            req->shardConns.Append(nodeID);
+        }
         
         // set paxosID by consistency level
         req->paxosID = GetRequestPaxosID();

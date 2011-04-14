@@ -104,7 +104,7 @@ void StorageLogSegment::SetOnCommit(Callable* onCommit_)
 int32_t StorageLogSegment::AppendSet(uint16_t contextID, uint64_t shardID,
  ReadBuffer& key, ReadBuffer& value)
 {
-    assert(fd != INVALID_FD);
+    ASSERT(fd != INVALID_FD);
 
     prevLength = writeBuffer.GetLength();
 
@@ -132,7 +132,7 @@ int32_t StorageLogSegment::AppendSet(uint16_t contextID, uint64_t shardID,
 
 int32_t StorageLogSegment::AppendDelete(uint16_t contextID, uint64_t shardID, ReadBuffer& key)
 {
-    assert(fd != INVALID_FD);
+    ASSERT(fd != INVALID_FD);
 
     prevLength = writeBuffer.GetLength();
 
@@ -174,11 +174,11 @@ void StorageLogSegment::Commit()
     
     commitStatus = true;
 
-    assert(fd != INVALID_FD);
+    ASSERT(fd != INVALID_FD);
 
     length = writeBuffer.GetLength();
 
-    assert(length >= STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+    ASSERT(length >= STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
     
     if (length == STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE)
         return; // empty round

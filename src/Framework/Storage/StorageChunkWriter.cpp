@@ -55,7 +55,7 @@ bool StorageChunkWriter::WriteHeaderPage()
 {
     writeBuffer.Clear();
     file->headerPage.Write(writeBuffer);
-    assert(writeBuffer.GetLength() == file->headerPage.GetSize());
+    ASSERT(writeBuffer.GetLength() == file->headerPage.GetSize());
 
     if (!WriteBuffer())
         return false;
@@ -100,7 +100,7 @@ bool StorageChunkWriter::WriteIndexPage()
 {
     writeBuffer.Clear();
     file->indexPage->Write(writeBuffer);
-    assert(writeBuffer.GetLength() == file->indexPage->GetSize());
+    ASSERT(writeBuffer.GetLength() == file->indexPage->GetSize());
 
     if (!WriteBuffer())
         return false;
@@ -112,7 +112,7 @@ bool StorageChunkWriter::WriteBloomPage()
 {
     writeBuffer.Clear();
     file->bloomPage->Write(writeBuffer);
-    assert(writeBuffer.GetLength() == file->bloomPage->GetSize());
+    ASSERT(writeBuffer.GetLength() == file->bloomPage->GetSize());
 
     if (!WriteBuffer())
         return false;

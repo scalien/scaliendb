@@ -107,6 +107,11 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
     AssignPrimaryLease(*quorum, message);
 }
 
+unsigned ConfigPrimaryLeaseManager::GetNumPrimaryLeases()
+{
+    return primaryLeases.GetLength();
+}
+
 void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, ClusterMessage& message)
 {
     unsigned                duration;
@@ -114,7 +119,7 @@ void ConfigPrimaryLeaseManager::AssignPrimaryLease(ConfigQuorum& quorum, Cluster
     ClusterMessage          response;
     SortedList<uint64_t>    activeNodes;
 
-    assert(quorum.hasPrimary == false);
+    ASSERT(quorum.hasPrimary == false);
 
     quorum.hasPrimary = true;
     quorum.primaryID = message.nodeID;
@@ -153,7 +158,7 @@ void ConfigPrimaryLeaseManager::ExtendPrimaryLease(ConfigQuorum& quorum, Cluster
             break;
     }
     
-    assert(it != NULL);
+    ASSERT(it != NULL);
         
     primaryLeases.Remove(it);
     duration = MIN(message.duration, PAXOSLEASE_MAX_LEASE_TIME);

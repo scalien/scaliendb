@@ -84,6 +84,11 @@ ConfigHeartbeatManager* ConfigServer::GetHeartbeatManager()
     return &heartbeatManager;
 }
 
+ConfigPrimaryLeaseManager* ConfigServer::GetPrimaryLeaseManager()
+{
+    return &primaryLeaseManager;
+}
+
 ConfigActivationManager* ConfigServer::GetActivationManager()
 {
     return &activationManager;

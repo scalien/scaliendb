@@ -43,6 +43,10 @@ public:
     int             GetTimeoutStatus();
     void            SetTimeoutStatus(int status);
 
+    unsigned        GetNumNodes();
+    uint64_t        GetNodeID(unsigned n);
+    unsigned        GetElapsedTime();
+
     int             GetKey(ReadBuffer& key);
     int             GetValue(ReadBuffer& value);
     int             GetNumber(uint64_t& number);

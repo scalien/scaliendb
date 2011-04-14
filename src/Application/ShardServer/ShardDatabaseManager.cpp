@@ -330,7 +330,7 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
     FOREACH (sit, shards)
     {
         shard = shardServer->GetConfigState()->GetShard(*sit);
-        assert(shard != NULL);
+        ASSERT(shard != NULL);
         
         if (shard->state == CONFIG_SHARD_STATE_NORMAL)
         {
@@ -548,7 +548,7 @@ void ShardDatabaseManager::ExecuteMessage(
          case SHARDMESSAGE_MIGRATION_BEGIN:
             Log_Debug("shardMigration BEGIN shardID = %U", message.shardID);
             configShard = shardServer->GetConfigState()->GetShard(message.shardID);
-            assert(configShard != NULL);
+            ASSERT(configShard != NULL);
             configQuorum = shardServer->GetConfigState()->GetQuorum(configShard->quorumID);
             nodeID = MY_NODEID;
             if (configQuorum->activeNodes.Contains(nodeID) ||

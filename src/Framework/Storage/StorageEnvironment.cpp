@@ -480,7 +480,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     }
 
     memoChunk = shard->GetMemoChunk();
-    assert(memoChunk != NULL);
+    ASSERT(memoChunk != NULL);
     
     if (shard->IsLogStorage())
     {
@@ -526,7 +526,7 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
         }
 
         memoChunk = shard->GetMemoChunk();
-        assert(memoChunk != NULL);
+        ASSERT(memoChunk != NULL);
         if (!memoChunk->Delete(key))
         {
             headLogSegment->Undo();
@@ -1309,7 +1309,7 @@ void StorageEnvironment::TryArchiveLogSegments()
         {
             if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
             {
-                assert((*itChunk)->GetMinLogSegmentID() > 0);
+                ASSERT((*itChunk)->GetMinLogSegmentID() > 0);
                 if ((*itChunk)->GetMinLogSegmentID() <= logSegmentID)
                     archive = false;
             }
@@ -1335,7 +1335,7 @@ void StorageEnvironment::OnChunkSerialize()
     StorageChunk**              itChunk;
     StorageJob*                 job;
 
-    assert(serializerThreadReturnCode);
+    ASSERT(serializerThreadReturnCode);
     serializeChunk->serialized = true;
     
     if (serializeChunk->deleted)
@@ -1387,7 +1387,7 @@ void StorageEnvironment::OnChunkWrite()
     StorageFileChunk*   it;
     StorageJob*         job;
 
-    assert(writerThreadReturnCode);
+    ASSERT(writerThreadReturnCode);
     writeChunk->written = true;
     
     if (writeChunk->deleted)
@@ -1451,7 +1451,7 @@ void StorageEnvironment::OnChunkMerge()
         goto Delete;
     }
 
-    assert(mergeChunkOut->written);
+    ASSERT(mergeChunkOut->written);
     
     // delete the merged chunks from the shard
     FOREACH (itFileChunk, mergeChunks)
@@ -1527,7 +1527,7 @@ void StorageEnvironment::OnLogArchive()
  
     it = logSegments.First();
     
-    assert(asyncLogSegmentID == it->GetLogSegmentID());
+    ASSERT(asyncLogSegmentID == it->GetLogSegmentID());
     
     logSegments.Delete(it);
     

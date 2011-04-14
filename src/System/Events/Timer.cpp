@@ -11,8 +11,8 @@ Timer::Timer()
 
 Timer::~Timer()
 {
-//    assert(active == false);
-//    assert(next == prev && next == this);
+//    ASSERT(active == false);
+//    ASSERT(next == prev && next == this);
 }
 
 void Timer::SetCallable(Callable callable_)

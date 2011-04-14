@@ -194,7 +194,7 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
                 return;
             CONTEXT_TRANSPORT->SetSelfNodeID(message.nodeID);
             REPLICATION_CONFIG->SetNodeID(message.nodeID);
-            assert(REPLICATION_CONFIG->GetClusterID() == 0);
+            ASSERT(REPLICATION_CONFIG->GetClusterID() == 0);
             CONTEXT_TRANSPORT->SetClusterID(message.clusterID);
             REPLICATION_CONFIG->SetClusterID(message.clusterID);
             REPLICATION_CONFIG->Commit();
@@ -217,9 +217,9 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
         /* shard migration */
         case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
             configShard = configState.GetShard(message.shardID);
-            assert(configShard != NULL);
+            ASSERT(configShard != NULL);
             quorumProcessor = GetQuorumProcessor(configShard->quorumID);
-            assert(quorumProcessor != NULL);
+            ASSERT(quorumProcessor != NULL);
             if (!quorumProcessor->IsPrimary())
             {
                 if (migrationWriter.IsActive())
@@ -234,7 +234,7 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
             quorumProcessor = GetQuorumProcessor(message.quorumID);
-            assert(quorumProcessor != NULL);
+            ASSERT(quorumProcessor != NULL);
             if (!quorumProcessor->IsPrimary())
             {
                 if (migrationWriter.IsActive())
@@ -414,7 +414,7 @@ DeleteQuorum:
         {
             ConfigureQuorum(configQuorum); // also creates quorum
             quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
-            assert(quorumProcessor != NULL);
+            ASSERT(quorumProcessor != NULL);
             quorumProcessor->TryReplicationCatchup();
             FOREACH(itShardID, configQuorum->shards)
                 myShardIDs.Add(*itShardID);
@@ -450,7 +450,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
         FOREACH(itNodeID, configQuorum->activeNodes)
         {
             shardServer = configState.GetShardServer(*itNodeID);
-            assert(shardServer != NULL);
+            ASSERT(shardServer != NULL);
             CONTEXT_TRANSPORT->AddNode(*itNodeID, shardServer->endpoint);
         }
     }
@@ -463,7 +463,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
         FOREACH(itNodeID, configQuorum->activeNodes)
         {
             shardServer = configState.GetShardServer(*itNodeID);
-            assert(shardServer != NULL);
+            ASSERT(shardServer != NULL);
             CONTEXT_TRANSPORT->AddNode(*itNodeID, shardServer->endpoint);
         }
     }

@@ -28,6 +28,7 @@ public:
     ConfigDatabaseManager*      GetDatabaseManager();
     ConfigQuorumProcessor*      GetQuorumProcessor();
     ConfigHeartbeatManager*     GetHeartbeatManager();
+    ConfigPrimaryLeaseManager*  GetPrimaryLeaseManager();
     ConfigActivationManager*    GetActivationManager();
 
     void                        OnConfigStateChanged(bool updateClients);

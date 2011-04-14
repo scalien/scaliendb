@@ -31,6 +31,7 @@ public:
     void                OnHeartbeatTimeout();
 
     bool                HasHeartbeat(uint64_t nodeID);
+    unsigned            GetNumHeartbeats();
 
 private:
     void                RegisterHeartbeat(uint64_t nodeID);
