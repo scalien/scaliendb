@@ -188,6 +188,8 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
 void StorageEnvironment::Close()
 {
+    StorageFileChunk* fileChunk;
+    
     shuttingDown = true;
 
     asyncGetThread->Stop();
@@ -217,6 +219,9 @@ void StorageEnvironment::Close()
     logSegments.DeleteList();
 
     // TODO: clean up fileChunks properly, see the issue with StorageShard::chunkList
+    FOREACH(fileChunk, fileChunks)
+        fileChunk->RemovePagesFromCache();
+    
     fileChunks.DeleteList();
 }
 

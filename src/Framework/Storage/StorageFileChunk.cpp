@@ -34,20 +34,20 @@ StorageFileChunk::~StorageFileChunk()
     {
         if (dataPages[i] != NULL)
         {
-            if (dataPages[i]->IsCached())
-                StoragePageCache::RemovePage(dataPages[i]);
+//            if (dataPages[i]->IsCached())
+//                StoragePageCache::RemovePage(dataPages[i]);
 
             delete dataPages[i];
         }
     }
     free(dataPages);
     
-    if (indexPage && indexPage->IsCached())
-        StoragePageCache::RemovePage(indexPage);
+//    if (indexPage && indexPage->IsCached())
+//        StoragePageCache::RemovePage(indexPage);
     delete indexPage;
     
-    if (bloomPage && bloomPage->IsCached())
-        StoragePageCache::RemovePage(bloomPage);
+//    if (bloomPage && bloomPage->IsCached())
+//        StoragePageCache::RemovePage(bloomPage);
     delete bloomPage;
 }
 

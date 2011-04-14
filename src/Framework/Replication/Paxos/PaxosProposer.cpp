@@ -178,7 +178,6 @@ void PaxosProposer::OnPrepareResponse(PaxosMessage& imsg)
 //        StartPreparing();
 }
 
-
 void PaxosProposer::OnProposeResponse(PaxosMessage& imsg)
 {
     PaxosMessage omsg;
