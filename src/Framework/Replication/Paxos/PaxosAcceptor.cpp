@@ -71,11 +71,16 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
     state.promisedProposalID = imsg.proposalID;
 
     if (!state.accepted)
+    {
         omsg.PrepareCurrentlyOpen(imsg.paxosID, MY_NODEID, imsg.proposalID);
+    }
     else
+    {
+        ASSERT(state.acceptedValue.GetLength() > 0);
         omsg.PreparePreviouslyAccepted(imsg.paxosID, MY_NODEID,
          imsg.proposalID, state.acceptedProposalID,
          state.acceptedRunID, state.acceptedValue);
+    }
     
     WriteState();
     Commit(true);
@@ -103,6 +108,7 @@ void PaxosAcceptor::OnProposeRequest(PaxosMessage& imsg)
     state.accepted = true;
     state.acceptedProposalID = imsg.proposalID;
     state.acceptedRunID = imsg.runID;
+    ASSERT(imsg.value.GetLength() > 0);
     state.acceptedValue.Write(imsg.value);
     omsg.ProposeAccepted(imsg.paxosID, MY_NODEID, imsg.proposalID);
     
@@ -136,7 +142,7 @@ void PaxosAcceptor::ReadState()
         state.acceptedRunID = db->GetAcceptedRunID();
         state.acceptedProposalID = db->GetAcceptedProposalID();
         db->GetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
-        assert(state.acceptedValue.GetLength() > 0);
+        ASSERT(state.acceptedValue.GetLength() > 0);
     }
 }
 
@@ -153,6 +159,7 @@ void PaxosAcceptor::WriteState()
     {
         db->SetAcceptedRunID(state.acceptedRunID);
         db->SetAcceptedProposalID(state.acceptedProposalID);
+        ASSERT(state.acceptedValue.GetLength() > 0);
         db->SetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
     }
 }
