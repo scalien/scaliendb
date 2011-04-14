@@ -168,12 +168,12 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
         if (shardMessages.GetLength() == 0)
         {
             quorumContext.AppendDummy();
-            Log_Debug("Appending dummy to increase paxosID");
+//            Log_Debug("Appending dummy to increase paxosID");
         }
-        else
-        {
-            Log_Debug("NOT Appending dummy to increase paxosID! %U", shardMessages.GetLength());
-        }
+//        else
+//        {
+//            Log_Debug("NOT Appending dummy to increase paxosID! %U", shardMessages.GetLength());
+//        }
     }
     
         
