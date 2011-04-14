@@ -3160,6 +3160,37 @@ SWIG_From_std_string  (const std::string& s)
 }
 
 
+SWIGINTERNINLINE PyObject* 
+SWIG_From_unsigned_SS_long  (unsigned long value)
+{
+  return (value > LONG_MAX) ?
+    PyLong_FromUnsignedLong(value) : PyInt_FromLong(static_cast< long >(value)); 
+}
+
+
+SWIGINTERNINLINE PyObject *
+SWIG_From_unsigned_SS_int  (unsigned int value)
+{    
+  return SWIG_From_unsigned_SS_long  (value);
+}
+
+
+SWIGINTERN int
+SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
+{
+  unsigned long v;
+  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
+  if (SWIG_IsOK(res)) {
+    if ((v > UINT_MAX)) {
+      return SWIG_OverflowError;
+    } else {
+      if (val) *val = static_cast< unsigned int >(v);
+    }
+  }  
+  return res;
+}
+
+
 SWIGINTERN int
 SWIG_AsVal_unsigned_SS_long_SS_long (PyObject *obj, unsigned long long *val)
 {
@@ -3211,22 +3242,6 @@ SWIG_AsVal_bool (PyObject *obj, bool *val)
     if (SWIG_IsOK(res) && val) *val = v ? true : false;
     return res;
   }
-}
-
-
-SWIGINTERN int
-SWIG_AsVal_unsigned_SS_int (PyObject * obj, unsigned int *val)
-{
-  unsigned long v;
-  int res = SWIG_AsVal_unsigned_SS_long (obj, &v);
-  if (SWIG_IsOK(res)) {
-    if ((v > UINT_MAX)) {
-      return SWIG_OverflowError;
-    } else {
-      if (val) *val = static_cast< unsigned int >(v);
-    }
-  }  
-  return res;
 }
 
 #ifdef __cplusplus
@@ -5119,6 +5134,75 @@ SWIGINTERN PyObject *_wrap_SDBP_ResultCommandStatus(PyObject *SWIGUNUSEDPARM(sel
   }
   result = (int)SDBP_ResultCommandStatus(arg1);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_ResultNumNodes(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ResultObj arg1 = (ResultObj) 0 ;
+  unsigned int result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_ResultNumNodes",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultNumNodes" "', argument " "1"" of type '" "ResultObj""'"); 
+  }
+  result = (unsigned int)SDBP_ResultNumNodes(arg1);
+  resultobj = SWIG_From_unsigned_SS_int(static_cast< unsigned int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_ResultNodeID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ResultObj arg1 = (ResultObj) 0 ;
+  unsigned int arg2 ;
+  uint64_t result;
+  int res1 ;
+  unsigned int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"OO:SDBP_ResultNodeID",&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultNodeID" "', argument " "1"" of type '" "ResultObj""'"); 
+  }
+  ecode2 = SWIG_AsVal_unsigned_SS_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_ResultNodeID" "', argument " "2"" of type '" "unsigned int""'");
+  } 
+  arg2 = static_cast< unsigned int >(val2);
+  result = (uint64_t)SDBP_ResultNodeID(arg1,arg2);
+  resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_ResultElapsedTime(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ResultObj arg1 = (ResultObj) 0 ;
+  unsigned int result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_ResultElapsedTime",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultElapsedTime" "', argument " "1"" of type '" "ResultObj""'"); 
+  }
+  result = (unsigned int)SDBP_ResultElapsedTime(arg1);
+  resultobj = SWIG_From_unsigned_SS_int(static_cast< unsigned int >(result));
   return resultobj;
 fail:
   return NULL;
@@ -7451,6 +7535,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_ResultIsEnd", _wrap_SDBP_ResultIsEnd, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultTransportStatus", _wrap_SDBP_ResultTransportStatus, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultCommandStatus", _wrap_SDBP_ResultCommandStatus, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultNumNodes", _wrap_SDBP_ResultNumNodes, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultNodeID", _wrap_SDBP_ResultNodeID, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultElapsedTime", _wrap_SDBP_ResultElapsedTime, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Create", _wrap_SDBP_Create, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Init", _wrap_SDBP_Init, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Destroy", _wrap_SDBP_Destroy, METH_VARARGS, NULL},

@@ -220,7 +220,7 @@ bool StorageChunkMerger::WriteDataPages(ReadBuffer /*firstKey*/, ReadBuffer last
     StorageDataPageGuard    dataPageGuard;
     ReadBuffer              key;
 
-    // TODO: it is counted in Merge(), why count it again?
+    // although numKeys is counted in Merge(), but it is only an approximation
     numKeys = 0;
 
     nit = 0;

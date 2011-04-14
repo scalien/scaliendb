@@ -195,7 +195,7 @@ TEST_DEFINE(TestClientGet)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    ret = snprintf(keybuf, sizeof(keybuf), "scalien.png");
+    ret = snprintf(keybuf, sizeof(keybuf), "UzXM3k7UGr");
     key.Wrap(keybuf, ret);
     ret = client.Get(key);
     if (ret != SDBP_SUCCESS)
@@ -206,6 +206,7 @@ TEST_DEFINE(TestClientGet)
     {
         if (result->GetCommandStatus() != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
+        TEST_LOG("Elapsed: %u", result->GetElapsedTime());
     }
     
     delete result;
@@ -347,7 +348,7 @@ TEST_DEFINE(TestClientBatchedSet)
     
     for (unsigned i = 0; i < num; i++)
     {
-        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        ret = snprintf(keybuf, sizeof(keybuf), "010u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
         ret = client.Set(key, value);
@@ -519,8 +520,8 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     char            valbuf[50];
     char            keybuf[10];
     int             ret;
-    unsigned        totalNum = 1000000;
-    unsigned        batchNum = 50000;
+    unsigned        totalNum = 10000;
+    unsigned        batchNum = 5000;
     unsigned        count;
     Stopwatch       sw;
     static int      counter = 0;
@@ -692,7 +693,7 @@ TEST_DEFINE(TestClientBatchedGet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 100000;
+    unsigned        num = 1000;
     double          minLatency;
     double          maxLatency;
     double          avgLatency;
@@ -1534,13 +1535,14 @@ TEST_DEFINE(TestClientSetFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 10;
+    unsigned        numThread = 1;
     
     threadPool = ThreadPool::Create(numThread);
     
     for (unsigned i = 0; i < numThread; i++)
     {  
-        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
+//        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
+        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
     }
     
     threadPool->Start();

@@ -216,7 +216,6 @@ void StorageEnvironment::Close()
     delete headLogSegment;
     logSegments.DeleteList();
 
-    // TODO: clean up fileChunks properly, see the issue with StorageShard::chunkList
     fileChunks.DeleteList();
 }
 
