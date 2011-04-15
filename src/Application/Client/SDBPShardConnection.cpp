@@ -165,6 +165,8 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
 
 void ShardConnection::OnWrite()
 {
+    Log_Trace();
+    
     CLIENT_MUTEX_GUARD_DECLARE();
     
     MessageConnection::OnWrite();
@@ -193,7 +195,7 @@ void ShardConnection::OnConnect()
 
 void ShardConnection::OnClose()
 {
-//    Log_Debug("Shard connection closing: %s", endpoint.ToString());
+    Log_Trace("Shard connection closing: %s", endpoint.ToString());
     
     Request*    it;
     Request*    prev;

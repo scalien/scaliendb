@@ -334,6 +334,7 @@ bool IOProcessor::Remove(IOOperation* ioop)
     return true;
 }
 
+#include "System/ThreadPool.h"
 bool IOProcessor::Poll(int sleep)
 {
     int                     i, nevents;
@@ -344,8 +345,12 @@ bool IOProcessor::Poll(int sleep)
     timeout.tv_sec = (time_t) floor(sleep / 1000.0);
     timeout.tv_nsec = (sleep - 1000 * timeout.tv_sec) * 1000000;
     
+    Log_Trace("threadID: %U, sleep: %d", ThreadPool::GetThreadID(), sleep);
+
     nevents = kevent(kq, NULL, 0, events, SIZE(events), &timeout);
     EventLoop::UpdateTime();
+
+    Log_Trace("threadID: %U, sleep: %d, nevents: %d", ThreadPool::GetThreadID(), sleep, nevents);
 
     if (nevents < 0 || terminated)
     {
@@ -356,7 +361,7 @@ bool IOProcessor::Poll(int sleep)
         else
             return true;
     }
-    
+        
     for (i = 0; i < nevents; i++)
     {
         if (events[i].flags & EV_ERROR)
@@ -469,6 +474,8 @@ void ProcessTCPRead(struct kevent* ev)
     int         readlen, nread;
     TCPRead*    tcpread;
     
+    Log_Trace();
+    
     tcpread = (TCPRead*) ev->udata;
 
     if (tcpread->listening)
@@ -514,7 +521,9 @@ void ProcessTCPWrite(struct kevent* ev)
 {
     int         writelen, nwrite;
     TCPWrite*   tcpwrite;
-    
+
+    Log_Trace();
+
     tcpwrite = (TCPWrite*) ev->udata;
     
     if (ev->flags & EV_EOF)

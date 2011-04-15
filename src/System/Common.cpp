@@ -379,7 +379,7 @@ int RandomInt(int min, int max)
 #ifdef _WIN32
 #define random rand
 #endif
-    rnd = (int)(random() / (float) RAND_MAX * interval + 0.5);
+    rnd = (int)(random() / ((float) RAND_MAX * interval) + 0.5);
     return rnd + min;
 }
 

@@ -652,9 +652,6 @@ void Client::EventLoop()
     
     EventLoop::UpdateTime();
 
-    Log_Trace("%U", databaseID);
-    Log_Trace("%U", tableID);
-    
     // TODO: HACK this is here for enable async requests to receive the rest of response
     if (requests.GetLength() > 0)
     {
