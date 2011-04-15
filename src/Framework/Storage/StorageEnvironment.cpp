@@ -218,7 +218,7 @@ void StorageEnvironment::Close()
     delete headLogSegment;
     logSegments.DeleteList();
 
-    FOREACH(fileChunk, fileChunks)
+    FOREACH (fileChunk, fileChunks)
         fileChunk->RemovePagesFromCache();
     fileChunks.DeleteList();
 }
@@ -267,7 +267,7 @@ void StorageEnvironment::GetShardIDs(uint64_t contextID, ShardIDList& shardIDs)
     uint64_t            shardID;
     StorageShard*       itShard;
     
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         if (itShard->GetContextID() != contextID)
             continue;
@@ -282,7 +282,7 @@ void StorageEnvironment::GetShardIDs(uint64_t contextID, uint64_t tableID, Shard
     uint64_t            shardID;
     StorageShard*       itShard;
     
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         if (itShard->GetContextID() != contextID || itShard->GetTableID() != tableID)
             continue;
@@ -650,7 +650,7 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
     numChunks = shard->GetChunks().GetLength();
     
     i = 0;
-    FOREACH(itChunk, shard->GetChunks())
+    FOREACH (itChunk, shard->GetChunks())
     {
         i++;
 
@@ -690,7 +690,7 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
     if (!shard)
         return 0;
     
-    FOREACH(itChunk, shard->GetChunks())
+    FOREACH (itChunk, shard->GetChunks())
     {
         firstKey = (*itChunk)->GetFirstKey();
         lastKey = (*itChunk)->GetLastKey();
@@ -773,7 +773,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     
     buffer.Clear();
     
-    FOREACH(shard, shards)
+    FOREACH (shard, shards)
     {
         if (shard->GetContextID() != contextID)
             continue;
@@ -826,7 +826,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
         buffer.Appendf("       maxLogCommandID: %U\n", memoChunk->GetMaxLogCommandID());
 
-        FOREACH(itChunk, shard->GetChunks())
+        FOREACH (itChunk, shard->GetChunks())
         {
             firstKey = (*itChunk)->GetFirstKey();
             lastKey = (*itChunk)->GetLastKey();
@@ -1025,7 +1025,7 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     
     WriteTOC();
     
-    FOREACH_FIRST(itJob, jobs)
+    FOREACH_FIRST (itJob, jobs)
     {
         job = *itJob;
         jobs.Remove(itJob);
@@ -1067,7 +1067,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     newShard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
     newShard->SetLogCommandID(headLogSegment->GetLogCommandID());
 
-    FOREACH(itChunk, shard->GetChunks())
+    FOREACH (itChunk, shard->GetChunks())
         newShard->PushChunk(*itChunk);
 
     memoChunk = shard->GetMemoChunk();
@@ -1079,7 +1079,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     newMemoChunk->maxLogCommandID = memoChunk->maxLogCommandID;
     newMemoChunk->useBloomFilter = memoChunk->useBloomFilter;
 
-    FOREACH(itKeyValue, memoChunk->keyValues)
+    FOREACH (itKeyValue, memoChunk->keyValues)
     {
         if (newShard->RangeContains(itKeyValue->GetKey()))
         {
@@ -1113,7 +1113,7 @@ void StorageEnvironment::OnCommit()
     commitThreadActive = false;
 //    haveUncommitedWrites = false;
     
-    FOREACH(shard, shards)
+    FOREACH (shard, shards)
         shard->GetMemoChunk()->haveUncommitedWrites = false;
 
     TryFinalizeLogSegment();
@@ -1596,7 +1596,7 @@ void StorageEnvironment::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageF
     StorageShard*   shard;
     StorageChunk**  chunk;
     
-    FOREACH(shard, shards)
+    FOREACH (shard, shards)
     {
         for (chunk = shard->GetChunks().First(); chunk != NULL; chunk = shard->GetChunks().Next(chunk))
         {

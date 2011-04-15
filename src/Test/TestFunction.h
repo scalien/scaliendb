@@ -37,7 +37,7 @@ public:
 #define TEST_EXECUTE() \
     ret = TEST_SUCCESS; \
     StartClock(); \
-    FOREACH(testit, tests) \
+    FOREACH (testit, tests) \
     { \
         ret = test_time(testit->function, testit->name); \
         if (ret != TEST_SUCCESS) \

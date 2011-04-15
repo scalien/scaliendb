@@ -118,7 +118,7 @@ void ShardHTTPClientSession::PrintStatus()
     valbuf.NullTerminate();
     session.PrintPair("Number of quorums", valbuf.GetBuffer());
     
-    FOREACH(it, *quorumProcessors)
+    FOREACH (it, *quorumProcessors)
     {
         primaryID = shardServer->GetLeaseOwner(it->GetQuorumID());
         

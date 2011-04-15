@@ -83,7 +83,7 @@ bool ConfigQuorum::IsActiveMember(uint64_t nodeID)
 {
     uint64_t* it;
     
-    FOREACH(it, activeNodes)
+    FOREACH (it, activeNodes)
         if (*it == nodeID)
             return true;
     
@@ -94,7 +94,7 @@ bool ConfigQuorum::IsInactiveMember(uint64_t nodeID)
 {
     uint64_t* it;
     
-    FOREACH(it, inactiveNodes)
+    FOREACH (it, inactiveNodes)
         if (*it == nodeID)
             return true;
     

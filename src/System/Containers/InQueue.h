@@ -120,7 +120,7 @@ bool InQueue<T>::Contains(T* t)
 {
     T* it;
     
-    FOREACH(it, *this)
+    FOREACH (it, *this)
     {
         if (it == t)
             return true;

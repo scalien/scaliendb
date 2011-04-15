@@ -55,7 +55,7 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     if (!env->ShardExists(contextID, shardID))
         return NULL;
         
-    FOREACH(itChunk, shard->chunks)
+    FOREACH (itChunk, shard->chunks)
     {
         if ((*itChunk)->GetChunkID() == chunkID)
             break;
@@ -120,7 +120,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         }
         
         // go to next chunk
-        FOREACH(itChunk, shard->chunks)
+        FOREACH (itChunk, shard->chunks)
         {
             if ((*itChunk)->GetChunkID() == chunkID)
             {

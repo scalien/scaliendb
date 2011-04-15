@@ -39,7 +39,7 @@ bool QuorumInfo::WriteList(Buffer& buffer, List<QuorumInfo>& quorumInfos)
     QuorumInfo*  it;
 
     buffer.Appendf("%u", quorumInfos.GetLength());
-    FOREACH(it, quorumInfos)
+    FOREACH (it, quorumInfos)
     {
         buffer.Appendf(":%U:%U:%b:%U:%U:%U",
          it->quorumID, it->paxosID,
@@ -54,7 +54,7 @@ QuorumInfo* QuorumInfo::GetQuorumInfo(List<QuorumInfo>& quorumInfos, uint64_t qu
 {
     QuorumInfo*  it;
 
-    FOREACH(it, quorumInfos)
+    FOREACH (it, quorumInfos)
     {
         if (it->quorumID == quorumID)
             return it;
@@ -107,7 +107,7 @@ bool QuorumShardInfo::WriteList(Buffer& buffer, List<QuorumShardInfo>& quorumSha
     QuorumShardInfo*  it;
 
     buffer.Appendf("%u", quorumShardInfos.GetLength());
-    FOREACH(it, quorumShardInfos)
+    FOREACH (it, quorumShardInfos)
     {
         buffer.Appendf(":%U:%U:%U:%#B:%b:%b:%U:%U:%U:%U:%U",
          it->quorumID, it->shardID, it->shardSize, &it->splitKey, it->isSplitable,

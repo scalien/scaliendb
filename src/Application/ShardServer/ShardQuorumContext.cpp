@@ -16,7 +16,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
   
     configQuorum->GetVolatileActiveNodes(activeNodes);
 
-    FOREACH(it, activeNodes)
+    FOREACH (it, activeNodes)
         quorum.AddNode(*it);
 
     transport.SetQuorum(&quorum);
@@ -55,7 +55,7 @@ void ShardQuorumContext::SetActiveNodes(SortedList<uint64_t>& activeNodes)
     }
 
     i = 0;
-    FOREACH(it, activeNodes)
+    FOREACH (it, activeNodes)
     {
         if (oldNodes[i] != *it)
         {
@@ -279,7 +279,7 @@ void ShardQuorumContext::ReconfigureQuorum(SortedList<uint64_t>& activeNodes)
         Log_Debug("Old nodes: %U", quorum.GetNodes()[i]);
 
     quorum.ClearNodes();
-    FOREACH(it, activeNodes)
+    FOREACH (it, activeNodes)
     {
         Log_Debug("New nodes: %U", *it);
         quorum.AddNode(*it);

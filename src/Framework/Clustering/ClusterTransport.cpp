@@ -214,7 +214,7 @@ void ClusterTransport::UnregisterWriteReadyness(uint64_t nodeID, Callable callab
 {
     WriteReadyness* it;
     
-    FOREACH(it, writeReadynessList)
+    FOREACH (it, writeReadynessList)
     {
         if (it->nodeID == nodeID && it->callable == callable)
         {
@@ -306,7 +306,7 @@ void ClusterTransport::OnWriteReadyness(ClusterConnection* conn)
     
     ASSERT(conn->progress == ClusterConnection::READY);
     
-    FOREACH(it, writeReadynessList)
+    FOREACH (it, writeReadynessList)
     {
         if (it->nodeID == conn->nodeID)
         {

@@ -39,7 +39,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
         
     RegisterHeartbeat(message.nodeID);
     
-    FOREACH(it, message.quorumInfos)
+    FOREACH (it, message.quorumInfos)
     {
         quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(it->quorumID);
         if (!quorum)
@@ -85,7 +85,7 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
     
     if (configServer->GetQuorumProcessor()->IsMaster())
     {
-        FOREACH(itShardServer, configServer->GetDatabaseManager()->GetConfigState()->shardServers)
+        FOREACH (itShardServer, configServer->GetDatabaseManager()->GetConfigState()->shardServers)
         {
             if (!HasHeartbeat(itShardServer->nodeID))
                 configServer->GetActivationManager()->TryDeactivateShardServer(itShardServer->nodeID);
@@ -99,7 +99,7 @@ bool ConfigHeartbeatManager::HasHeartbeat(uint64_t nodeID)
 {
     Heartbeat* it;
 
-    FOREACH(it, heartbeats)
+    FOREACH (it, heartbeats)
     {
         if (it->nodeID == nodeID)
             return true;
@@ -122,7 +122,7 @@ void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
     
     now = Now();
     
-    FOREACH(it, heartbeats)
+    FOREACH (it, heartbeats)
     {
         if (it->nodeID == nodeID)
         {
@@ -164,7 +164,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
     if (!configShardServer)
         return;
     
-    FOREACH(itQuorum, configState->quorums)
+    FOREACH (itQuorum, configState->quorums)
     {
         if (itQuorum->primaryID != message.nodeID)
             continue;
@@ -177,7 +177,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
         isSplitCreating = IsSplitCreating(itQuorum, newShardID);
         isSplitCreating |= configServer->GetDatabaseManager()->GetConfigState()->isSplitting;
         
-        FOREACH(itQuorumShardInfo, message.quorumShardInfos)
+        FOREACH (itQuorumShardInfo, message.quorumShardInfos)
         {
             if (itQuorumShardInfo->quorumID != itQuorum->quorumID)
                 continue;
@@ -223,7 +223,7 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
         }
     }
     
-    FOREACH(itQuorumShardInfo, message.quorumShardInfos)
+    FOREACH (itQuorumShardInfo, message.quorumShardInfos)
     {
         itQuorum = configState->GetQuorum(itQuorumShardInfo->quorumID);
         if (itQuorum->primaryID == message.nodeID)
@@ -246,7 +246,7 @@ bool ConfigHeartbeatManager::IsSplitCreating(ConfigQuorum* configQuorum, uint64_
 
     configState = configServer->GetDatabaseManager()->GetConfigState();
 
-    FOREACH(itShardID, configQuorum->shards)
+    FOREACH (itShardID, configQuorum->shards)
     {
         configShard = configState->GetShard(*itShardID);
         ASSERT(configShard != NULL);

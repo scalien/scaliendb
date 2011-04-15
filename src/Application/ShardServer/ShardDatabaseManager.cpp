@@ -316,7 +316,7 @@ void ShardDatabaseManager::DeleteDataShards(uint64_t quorumID)
     if (!configQuorum)
         return;
     
-    FOREACH(itShardID, configQuorum->shards)
+    FOREACH (itShardID, configQuorum->shards)
     {
         environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);        
     }
@@ -375,7 +375,7 @@ void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShard
     
     environment.GetShardIDs(QUORUM_DATABASE_DATA_CONTEXT, storageShardIDs);
     
-    FOREACH(itShardID, storageShardIDs)
+    FOREACH (itShardID, storageShardIDs)
     {
         if (!myShardIDs.Contains(*itShardID))
             environment.DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
@@ -541,7 +541,7 @@ void ShardDatabaseManager::ExecuteMessage(
             break;
         case SHARDMESSAGE_TRUNCATE_TABLE:
             environment.GetShardIDs(contextID, message.tableID, shards);
-            FOREACH(itShardID, shards)
+            FOREACH (itShardID, shards)
                 environment.DeleteShard(contextID, *itShardID);
             environment.CreateShard(contextID, message.newShardID, message.tableID, "", "", 1, 0);
             break;
@@ -691,7 +691,7 @@ void ShardDatabaseManager::OnExecuteLists()
     
     start = NowClock();
 
-    FOREACH_FIRST(itRequest, listRequests)
+    FOREACH_FIRST (itRequest, listRequests)
     {
         // let other code run in the main thread every YIELD_TIME msec
         if (NowClock() - start >= YIELD_TIME)

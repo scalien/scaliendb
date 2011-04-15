@@ -63,19 +63,19 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     migrateQuorumID = other.migrateQuorumID;
     migrateShardID = other.migrateShardID;
     
-    FOREACH(quorum, other.quorums)
+    FOREACH (quorum, other.quorums)
         quorums.Append(new ConfigQuorum(*quorum));
     
-    FOREACH(database, other.databases)
+    FOREACH (database, other.databases)
         databases.Append(new ConfigDatabase(*database));
     
-    FOREACH(table, other.tables)
+    FOREACH (table, other.tables)
         tables.Append(new ConfigTable(*table));
     
-    FOREACH(shard, other.shards)
+    FOREACH (shard, other.shards)
         shards.Append(new ConfigShard(*shard));
     
-    FOREACH(shardServer, other.shardServers)
+    FOREACH (shardServer, other.shardServers)
         shardServers.Append(new ConfigShardServer(*shardServer));
         
     return *this;
@@ -309,9 +309,9 @@ void ConfigState::OnAbortShardMigration()
     ConfigShardServer*  shardServer;
     QuorumShardInfo*    info;
     
-    FOREACH(shardServer, shardServers)
+    FOREACH (shardServer, shardServers)
     {
-        FOREACH(info, shardServer->quorumShardInfos)
+        FOREACH (info, shardServer->quorumShardInfos)
         {
             info->isSendingShard = false;
             info->migrationNodeID = 0;
@@ -386,7 +386,7 @@ ConfigQuorum* ConfigState::GetQuorum(uint64_t quorumID)
 {
     ConfigQuorum* itQuorum;
     
-    FOREACH(itQuorum, quorums)
+    FOREACH (itQuorum, quorums)
     {
         if (itQuorum->quorumID == quorumID)
             return itQuorum;
@@ -399,7 +399,7 @@ ConfigDatabase* ConfigState::GetDatabase(uint64_t databaseID)
 {
     ConfigDatabase* itDatabase;
     
-    FOREACH(itDatabase, databases)
+    FOREACH (itDatabase, databases)
     {
         if (itDatabase->databaseID == databaseID)
             return itDatabase;
@@ -412,7 +412,7 @@ ConfigDatabase* ConfigState::GetDatabase(ReadBuffer name)
 {
     ConfigDatabase* itDatabase;
     
-    FOREACH(itDatabase, databases)
+    FOREACH (itDatabase, databases)
     {
         if (BUFCMP(&itDatabase->name, &name))
             return itDatabase;
@@ -425,7 +425,7 @@ ConfigTable* ConfigState::GetTable(uint64_t tableID)
 {
     ConfigTable* itTable;
     
-    FOREACH(itTable, tables)
+    FOREACH (itTable, tables)
     {
         if (itTable->tableID == tableID)
             return itTable;
@@ -438,7 +438,7 @@ ConfigTable* ConfigState::GetTable(uint64_t databaseID, ReadBuffer name)
 {
     ConfigTable* itTable;
     
-    FOREACH(itTable, tables)
+    FOREACH (itTable, tables)
     {
         if (itTable->databaseID == databaseID && BUFCMP(&itTable->name, &name))
             return itTable;
@@ -451,7 +451,7 @@ ConfigShard* ConfigState::GetShard(uint64_t tableID, ReadBuffer key)
 {
     ConfigShard* itShard;
     
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         if (itShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
             continue;
@@ -470,7 +470,7 @@ ConfigShard* ConfigState::GetShard(uint64_t shardID)
 {
     ConfigShard* itShard;
     
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         if (itShard->shardID == shardID)
             return itShard;
@@ -483,7 +483,7 @@ ConfigShardServer* ConfigState::GetShardServer(uint64_t nodeID)
 {
     ConfigShardServer* itShardServer;
     
-    FOREACH(itShardServer, shardServers)
+    FOREACH (itShardServer, shardServers)
     {
         if (itShardServer->nodeID == nodeID)
             return itShardServer;
@@ -506,7 +506,7 @@ bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 {
     uint64_t* itNodeID;
     
-    FOREACH(itNodeID, message.nodes)
+    FOREACH (itNodeID, message.nodes)
     {
         if (GetShardServer(*itNodeID) == NULL)
             return false; // no such shard server
@@ -822,7 +822,7 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     quorum = new ConfigQuorum;
     quorum->quorumID = nextQuorumID++;
     quorum->activeNodes.Clear();
-    FOREACH(it, message.nodes)
+    FOREACH (it, message.nodes)
         quorum->activeNodes.Add(*it);
     
     quorums.Append(quorum);
@@ -970,7 +970,7 @@ void ConfigState::OnDeleteDatabase(ConfigMessage& message)
     // make sure database with ID exists
     ASSERT(database != NULL);
 
-    FOREACH(itTableID, database->tables)
+    FOREACH (itTableID, database->tables)
     {
         table = GetTable(*itTableID);
         DeleteTable(table);
@@ -1099,7 +1099,7 @@ void ConfigState::OnTruncateTableBegin(ConfigMessage& message)
 
     quorumID = 0;
     // delete all old shards
-    FOREACH_FIRST(itShardID, table->shards)
+    FOREACH_FIRST (itShardID, table->shards)
     {
         shard = GetShard(*itShardID);
         ASSERT(shard != NULL);
@@ -1231,7 +1231,7 @@ void ConfigState::WriteQuorums(Buffer& buffer, bool withVolatile)
     // write number of quorums
     buffer.Appendf("%u", quorums.GetLength());
 
-    FOREACH(itQuorum, quorums)
+    FOREACH (itQuorum, quorums)
     {
         buffer.Appendf(":");
         WriteQuorum(*itQuorum, buffer, withVolatile);
@@ -1307,7 +1307,7 @@ void ConfigState::WriteTables(Buffer& buffer)
     // write number of databases
     buffer.Appendf("%u", tables.GetLength());
     
-    FOREACH(itTable, tables)
+    FOREACH (itTable, tables)
     {
         buffer.Appendf(":");
         WriteTable(*itTable, buffer);
@@ -1319,7 +1319,7 @@ void ConfigState::DeleteTable(ConfigTable* table)
     ConfigShard*    shard;
     uint64_t*       itShardID;
 
-    FOREACH_FIRST(itShardID, table->shards)
+    FOREACH_FIRST (itShardID, table->shards)
     {
         shard = GetShard(*itShardID);
         ASSERT(shard != NULL);
@@ -1360,7 +1360,7 @@ void ConfigState::WriteShards(Buffer& buffer, bool withVolatile)
     // write number of databases
     buffer.Appendf("%u", shards.GetLength());
     
-    FOREACH(itShard, shards)
+    FOREACH (itShard, shards)
     {
         buffer.Appendf(":");
         WriteShard(*itShard, buffer, withVolatile);
@@ -1398,7 +1398,7 @@ void ConfigState::WriteShardServers(Buffer& buffer, bool withVolatile)
     // write number of databases
     buffer.Appendf("%u", shardServers.GetLength());
     
-    FOREACH(itShardServer, shardServers)
+    FOREACH (itShardServer, shardServers)
     {
         buffer.Appendf(":");
         WriteShardServer(*itShardServer, buffer, withVolatile);
@@ -1676,7 +1676,7 @@ void ConfigState::WriteIDList(List& IDs, Buffer& buffer)
     
     buffer.Appendf("%u", IDs.GetLength());
     
-    FOREACH(it, IDs)
+    FOREACH (it, IDs)
         buffer.Appendf(":%U", *it);
 }
 

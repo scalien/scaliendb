@@ -62,7 +62,7 @@ bool ConfigDatabaseManager::ShardExists(uint64_t tableID, ReadBuffer firstKey)
 {
     ConfigShard* shard;
     
-    FOREACH(shard, configState.shards)
+    FOREACH (shard, configState.shards)
     {
         if (shard->tableID == tableID && ReadBuffer::Cmp(firstKey, shard->firstKey) == 0)
             return true;

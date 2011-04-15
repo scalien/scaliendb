@@ -186,7 +186,7 @@ void StorageRecovery::CreateMemoChunks()
 {
     StorageShard*   it;
 
-    FOREACH(it, env->shards)
+    FOREACH (it, env->shards)
     {
         it->memoChunk = new StorageMemoChunk;
         it->memoChunk->SetChunkID(env->nextChunkID++);
@@ -198,7 +198,7 @@ void StorageRecovery::ReadFileChunks()
 {
     StorageFileChunk* it;
     
-    FOREACH(it, env->fileChunks)
+    FOREACH (it, env->fileChunks)
         it->ReadHeaderPage();
 }
 
@@ -208,9 +208,9 @@ void StorageRecovery::ComputeShardRecovery()
     StorageChunk**      itChunk;
     StorageFileChunk*   fileChunk;
 
-    FOREACH(itShard, env->shards)
+    FOREACH (itShard, env->shards)
     {
-        FOREACH(itChunk, itShard->chunks)
+        FOREACH (itChunk, itShard->chunks)
         {
             fileChunk = (StorageFileChunk*) (*itChunk);
 
@@ -477,7 +477,7 @@ void StorageRecovery::DeleteOrphanedChunks()
         {
             ReadBuffer(filename).Readf("chunk.%U", &chunkID);
             found = false;
-            FOREACH(itChunk, env->fileChunks)
+            FOREACH (itChunk, env->fileChunks)
             {
                 if (itChunk->GetChunkID() == chunkID)
                 {

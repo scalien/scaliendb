@@ -63,7 +63,7 @@ void JSONConfigState::WriteQuorums()
     json.PrintColon();
     json.PrintArrayStart();
 
-    FOREACH(quorum, configState.quorums)
+    FOREACH (quorum, configState.quorums)
         WriteQuorum(quorum);
 
     json.PrintArrayEnd();
@@ -124,7 +124,7 @@ void JSONConfigState::WriteDatabases()
     json.PrintColon();
     json.PrintArrayStart();
 
-    FOREACH(database, configState.databases)
+    FOREACH (database, configState.databases)
         WriteDatabase(database);
 
     json.PrintArrayEnd();
@@ -151,7 +151,7 @@ void JSONConfigState::WriteTables()
     json.PrintColon();
     json.PrintArrayStart();
 
-    FOREACH(table, configState.tables)
+    FOREACH (table, configState.tables)
         WriteTable(table);
 
     json.PrintArrayEnd();
@@ -182,7 +182,7 @@ void JSONConfigState::WriteShards()
     json.PrintColon();
     json.PrintArrayStart();
 
-    FOREACH(shard, configState.shards)
+    FOREACH (shard, configState.shards)
         WriteShard(shard);
 
     json.PrintArrayEnd();
@@ -221,7 +221,7 @@ void JSONConfigState::WriteShardServers()
     json.PrintColon();
     json.PrintArrayStart();
 
-    FOREACH(shardServer, configState.shardServers)
+    FOREACH (shardServer, configState.shardServers)
         WriteShardServer(shardServer);
 
     json.PrintArrayEnd();
@@ -255,7 +255,7 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintColon();
     json.PrintArrayStart();
 
-    FOREACH(quorumInfo, server->quorumInfos)
+    FOREACH (quorumInfo, server->quorumInfos)
         WriteQuorumInfo(quorumInfo);
 
     json.PrintArrayEnd();
@@ -266,7 +266,7 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintColon();
     json.PrintArrayStart();
 
-    FOREACH(quorumShardInfo, server->quorumShardInfos)
+    FOREACH (quorumShardInfo, server->quorumShardInfos)
         WriteQuorumShardInfo(quorumShardInfo);
 
     json.PrintArrayEnd();
@@ -328,7 +328,7 @@ void JSONConfigState::WriteIDList(List& list)
     uint64_t*   it;
     
     json.PrintArrayStart();
-    FOREACH(it, list)
+    FOREACH (it, list)
     {
         if (it != list.First())
             json.PrintComma();

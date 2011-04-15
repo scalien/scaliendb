@@ -64,7 +64,7 @@ ShardQuorumProcessor* ShardServer::GetQuorumProcessor(uint64_t quorumID)
 {
     ShardQuorumProcessor* it;
     
-    FOREACH(it, quorumProcessors)
+    FOREACH (it, quorumProcessors)
     {
         if (it->GetQuorumID() == quorumID)
             return it;
@@ -92,7 +92,7 @@ void ShardServer::BroadcastToControllers(Message& message)
 {
     uint64_t* itNodeID;
 
-    FOREACH(itNodeID, configServers)
+    FOREACH (itNodeID, configServers)
         CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, message);
 }
 
@@ -364,7 +364,7 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
             if (quorumProcessor->IsPrimary())
             {
                 // look for shard splits
-                FOREACH(itShardID, configQuorum->shards)
+                FOREACH (itShardID, configQuorum->shards)
                 {
                     configShard = configState.GetShard(*itShardID);
                     if (databaseManager.GetEnvironment()->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID))
@@ -402,12 +402,12 @@ DeleteQuorum:
     }
 
     // check changes in active or inactive node list
-    FOREACH(configQuorum, configState.quorums)
+    FOREACH (configQuorum, configState.quorums)
     {
         if (configQuorum->IsActiveMember(MY_NODEID))
         {
             ConfigureQuorum(configQuorum); // also creates quorum
-            FOREACH(itShardID, configQuorum->shards)
+            FOREACH (itShardID, configQuorum->shards)
                 myShardIDs.Add(*itShardID);
         }
         if (configQuorum->IsInactiveMember(MY_NODEID))
@@ -416,7 +416,7 @@ DeleteQuorum:
             quorumProcessor = GetQuorumProcessor(configQuorum->quorumID);
             ASSERT(quorumProcessor != NULL);
             quorumProcessor->TryReplicationCatchup();
-            FOREACH(itShardID, configQuorum->shards)
+            FOREACH (itShardID, configQuorum->shards)
                 myShardIDs.Add(*itShardID);
         }
     }
@@ -447,7 +447,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
         quorumProcessor->Init(configQuorum, this);
 
         quorumProcessors.Append(quorumProcessor);
-        FOREACH(itNodeID, configQuorum->activeNodes)
+        FOREACH (itNodeID, configQuorum->activeNodes)
         {
             shardServer = configState.GetShardServer(*itNodeID);
             ASSERT(shardServer != NULL);
@@ -460,7 +460,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
         quorumProcessor->SetActiveNodes(activeNodes);
 
         // add nodes to CONTEXT_TRANSPORT
-        FOREACH(itNodeID, configQuorum->activeNodes)
+        FOREACH (itNodeID, configQuorum->activeNodes)
         {
             shardServer = configState.GetShardServer(*itNodeID);
             ASSERT(shardServer != NULL);

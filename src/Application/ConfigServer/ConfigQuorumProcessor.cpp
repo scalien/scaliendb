@@ -72,7 +72,7 @@ void ConfigQuorumProcessor::TryAppend()
     if (quorumContext.IsAppending())
         return;
 
-    FOREACH_FIRST(configMessage, configMessages)
+    FOREACH_FIRST (configMessage, configMessages)
     {    
         if (CONFIG_STATE->CompleteMessage(*configMessage))
         {
@@ -136,7 +136,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     if (request->type == CLIENTREQUEST_CREATE_QUORUM)
     {
         // make sure all nodes are currently active
-        FOREACH(itNodeID, request->nodes)
+        FOREACH (itNodeID, request->nodes)
         {
             if (!configServer->GetHeartbeatManager()->HasHeartbeat(*itNodeID))
             {
@@ -265,7 +265,7 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
     ConfigMessage*  it;
     ConfigMessage*  msg;
 
-    FOREACH(it, configMessages)
+    FOREACH (it, configMessages)
     {
         if (it->type == CONFIGMESSAGE_REGISTER_SHARDSERVER && it->endpoint == endpoint)
             return;
@@ -284,7 +284,7 @@ void ConfigQuorumProcessor::TrySplitShardBegin(uint64_t shardID, ReadBuffer spli
     ConfigMessage*  it;
     ConfigMessage*  msg;
 
-    FOREACH(it, configMessages)
+    FOREACH (it, configMessages)
     {
         if (it->type == CONFIGMESSAGE_SPLIT_SHARD_BEGIN && it->shardID == shardID)
             return;
@@ -303,7 +303,7 @@ void ConfigQuorumProcessor::TrySplitShardComplete(uint64_t shardID)
     ConfigMessage*  it;
     ConfigMessage*  msg;
 
-    FOREACH(it, configMessages)
+    FOREACH (it, configMessages)
     {
         if (it->type == CONFIGMESSAGE_SPLIT_SHARD_COMPLETE && it->shardID == shardID)
             return;
@@ -322,7 +322,7 @@ void ConfigQuorumProcessor::TryTruncateTableBegin(uint64_t tableID)
     ConfigMessage*  it;
     ConfigMessage*  msg;
 
-    FOREACH(it, configMessages)
+    FOREACH (it, configMessages)
     {
         if (it->type == CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN && it->tableID == tableID)
             return;
@@ -341,7 +341,7 @@ void ConfigQuorumProcessor::TryTruncateTableComplete(uint64_t tableID)
     ConfigMessage*  it;
     ConfigMessage*  msg;
 
-    FOREACH(it, configMessages)
+    FOREACH (it, configMessages)
     {
         if (it->type == CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE && it->tableID == tableID)
             return;

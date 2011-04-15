@@ -56,7 +56,7 @@ void ShardQuorumProcessor::Shutdown()
     leaseRequests.DeleteList();
     shardMessages.DeleteList();
     
-    FOREACH_FIRST(request, clientRequests)
+    FOREACH_FIRST (request, clientRequests)
     {
         clientRequests.Remove(request);
         request->response.NoService();
@@ -118,7 +118,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     
 //    Log_Debug("Received lease for quorum %U with proposalID %U", GetQuorumID(), message.proposalID);
 
-    FOREACH(itLease, leaseRequests)
+    FOREACH (itLease, leaseRequests)
         if (itLease->proposalID == message.proposalID)
             break;
 
@@ -131,7 +131,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     lease = itLease; // found
 
     // go through lease list and remove leases before the current
-    FOREACH_FIRST(itLease, leaseRequests)
+    FOREACH_FIRST (itLease, leaseRequests)
     {
         if (itLease == lease)
             break;
@@ -152,7 +152,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     isPrimary = true;
     configID = message.configID;
     
-    FOREACH(it, message.activeNodes)
+    FOREACH (it, message.activeNodes)
         activeNodes.Add(*it);
     quorumContext.SetActiveNodes(activeNodes);
         
@@ -435,7 +435,7 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
 {
     ShardMessage*   it;
     
-    FOREACH(it, shardMessages)
+    FOREACH (it, shardMessages)
     {
         if (it->type == SHARDMESSAGE_SPLIT_SHARD && it->shardID == shardID)
         {
@@ -468,7 +468,7 @@ void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardI
 {
     ShardMessage*   it;
     
-    FOREACH(it, shardMessages)
+    FOREACH (it, shardMessages)
     {
         if (it->type == SHARDMESSAGE_TRUNCATE_TABLE && it->tableID == tableID)
         {
@@ -698,7 +698,7 @@ void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
 
     if (ownAppend)
     {
-        FOREACH(itMessage, shardMessages)
+        FOREACH (itMessage, shardMessages)
         {
             if (itMessage->isBulk == false)
                 break;
@@ -747,7 +747,7 @@ void ShardQuorumProcessor::TryAppend()
     
     numMessages = 0;
     Buffer& nextValue = quorumContext.GetNextValue();
-    FOREACH(message, shardMessages)
+    FOREACH (message, shardMessages)
     {
         if (message->isBulk)
             continue;

@@ -33,7 +33,7 @@ public:
         // write number of items        
         buffer.Appendf("%u", IDs.GetLength());
         
-        FOREACH(it, IDs)
+        FOREACH (it, IDs)
             buffer.Appendf(":%U", *it);
     }
 

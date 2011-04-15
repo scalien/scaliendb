@@ -51,7 +51,7 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
     env = shardServer->GetDatabaseManager()->GetEnvironment();
 
     ShardServer::QuorumProcessorList* quorumProcessors = shardServer->GetQuorumProcessors();
-    FOREACH(itQuorumProcessor, *quorumProcessors)
+    FOREACH (itQuorumProcessor, *quorumProcessors)
     {
         quorumInfo.quorumID = itQuorumProcessor->GetQuorumID();
         quorumInfo.paxosID = itQuorumProcessor->GetPaxosID();
@@ -71,7 +71,7 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
         quorumInfoList.Append(quorumInfo);
         
         configQuorum = configState->GetQuorum(itQuorumProcessor->GetQuorumID());
-        FOREACH(itShardID, configQuorum->shards)
+        FOREACH (itShardID, configQuorum->shards)
         {
             bool ret = env->ShardExists(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
             

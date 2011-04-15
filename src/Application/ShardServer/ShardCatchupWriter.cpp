@@ -81,7 +81,7 @@ void ShardCatchupWriter::Begin(CatchupMessage& request)
     EventLoop::Add(&onTimeout);
 
     ShardQuorumProcessor::ShardList& shards = quorumProcessor->GetConfigQuorum()->shards;
-    FOREACH(it, shards)
+    FOREACH (it, shards)
         bytesTotal += environment->GetSize(QUORUM_DATABASE_DATA_CONTEXT, *it);
     startTime = NowClock();
 
@@ -225,7 +225,7 @@ uint64_t* ShardCatchupWriter::NextShard()
     
     ShardQuorumProcessor::ShardList& shards = quorumProcessor->GetConfigQuorum()->shards;
 
-    FOREACH(it, shards)
+    FOREACH (it, shards)
     {
         if (*it == shardID)
             break;

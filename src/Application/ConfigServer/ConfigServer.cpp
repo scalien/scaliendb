@@ -190,7 +190,7 @@ bool ConfigServer::OnAwaitingNodeID(Endpoint endpoint)
     
     // look for existing endpoint
     shardServers = &configState->shardServers;
-    FOREACH(shardServer, *shardServers)
+    FOREACH (shardServer, *shardServers)
     {
         if (shardServer->endpoint == endpoint)
         {
