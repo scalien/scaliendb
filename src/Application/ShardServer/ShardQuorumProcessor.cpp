@@ -552,7 +552,6 @@ uint64_t ShardQuorumProcessor::GetCatchupThroughput()
 void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& clusterMessage)
 {
     ShardMessage*   shardMessage;
-    ClusterMessage  completeMessage;
     ConfigQuorum*   configQuorum;
 
     configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
@@ -564,16 +563,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         return;
     }
 
-    if (clusterMessage.type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT)
-    {
-        ASSERT(migrateShardID = clusterMessage.shardID);
-        completeMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
-        shardServer->BroadcastToControllers(completeMessage);
-        migrateShardID = 0;
-        Log_Message("Migration of shard %U complete...", clusterMessage.shardID);
-        return;
-    }
-    
     shardMessage = new ShardMessage();
     shardMessage->fromClient = false;
     shardMessage->isBulk = false;
@@ -585,7 +574,8 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             migrateNodeID = nodeID;
             migrateCache = 0;
             shardMessage->ShardMigrationBegin(clusterMessage.shardID);
-            Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());
+            Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());    
+
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
             ASSERT(migrateShardID = clusterMessage.shardID);
@@ -597,6 +587,10 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             shardMessage->ShardMigrationDelete(clusterMessage.shardID, clusterMessage.key);
             migrateCache += clusterMessage.key.GetLength();
             Log_Debug("ShardMigration DELETE");
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
+            ASSERT(migrateShardID = clusterMessage.shardID);
+            shardMessage->ShardMigrationComplete(clusterMessage.shardID);
             break;
         default:
             ASSERT_FAIL();
@@ -777,6 +771,7 @@ void ShardQuorumProcessor::OnResumeAppend()
     uint64_t        valueLength;
     uint64_t        start;
     ShardMessage    message;
+    ClusterMessage  clusterMessage;
     
     Log_Trace();
 
@@ -793,13 +788,33 @@ void ShardQuorumProcessor::OnResumeAppend()
         ASSERT(value.GetCharAt(0) == ' ');
         value.Advance(1);
 
+        if (message.type == SHARDMESSAGE_MIGRATION_BEGIN)
+        {
+            Log_Message("Disabeling database merge for the duration of shard migration");
+            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(false);
+        }
         if (message.type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)
             migrateCache -= (message.key.GetLength() + message.value.GetLength());
         else if (message.type == SHARDMESSAGE_MIGRATION_DELETE && migrateCache > 0)
             migrateCache -= message.key.GetLength();
         if (migrateCache < 0)
             migrateCache = 0;
-        ExecuteMessage(message, paxosID, commandID, ownAppend);
+        
+        if (message.type == SHARDMESSAGE_MIGRATION_COMPLETE)
+        {
+            clusterMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
+            shardServer->BroadcastToControllers(clusterMessage);
+            Log_Message("Migration of shard %U complete...", clusterMessage.shardID);
+            migrateShardID = 0;
+            migrateNodeID = 0;
+            migrateCache = 0;
+            Log_Message("Enabling database merge");
+            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(true);
+            return;
+
+        }
+        else
+            ExecuteMessage(message, paxosID, commandID, ownAppend);
         commandID++;
 
         if (NowClock() - start >= YIELD_TIME)
@@ -808,7 +823,6 @@ void ShardQuorumProcessor::OnResumeAppend()
             if (resumeAppend.IsActive())
                 STOP_FAIL(1, "Program bug: resumeAppend.IsActive() should be false.");
             EventLoop::Add(&resumeAppend);
-//            Log_Debug("OnResumeAppend YIELD");
             return;
         }
     }

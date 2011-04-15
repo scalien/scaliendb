@@ -16,6 +16,7 @@
 #define SHARDMESSAGE_MIGRATION_BEGIN        '1'
 #define SHARDMESSAGE_MIGRATION_SET          '2'
 #define SHARDMESSAGE_MIGRATION_DELETE       '3'
+#define SHARDMESSAGE_MIGRATION_COMPLETE     '4'
 
 /*
 ===============================================================================================
@@ -62,6 +63,7 @@ public:
     void            ShardMigrationBegin(uint64_t shardID);
     void            ShardMigrationSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
     void            ShardMigrationDelete(uint64_t shardID, ReadBuffer& key);
+    void            ShardMigrationComplete(uint64_t shardID);
     
     // Serialization
     int             Read(ReadBuffer& buffer);

@@ -108,6 +108,12 @@ void ShardMessage::ShardMigrationDelete(uint64_t shardID_, ReadBuffer& key_)
     key.Wrap(migrationKey);
 }
 
+void ShardMessage::ShardMigrationComplete(uint64_t shardID_)
+{
+    type = SHARDMESSAGE_MIGRATION_COMPLETE;
+    shardID = shardID_;
+}
+
 int ShardMessage::Read(ReadBuffer& buffer)
 {
     int read;
@@ -171,6 +177,10 @@ int ShardMessage::Read(ReadBuffer& buffer)
         case SHARDMESSAGE_MIGRATION_DELETE:
             read = buffer.Readf("%c:%U:%#R",
              &type, &shardID, &key);
+            break;
+        case SHARDMESSAGE_MIGRATION_COMPLETE:
+            read = buffer.Readf("%c:%U",
+             &type, &shardID);
             break;
         default:
             return false;
@@ -237,6 +247,10 @@ bool ShardMessage::Append(Buffer& buffer)
         case SHARDMESSAGE_MIGRATION_DELETE:
             buffer.Appendf("%c:%U:%#R",
              type, shardID, &key);
+            break;
+        case SHARDMESSAGE_MIGRATION_COMPLETE:
+            buffer.Appendf("%c:%U",
+             type, shardID);
             break;
         default:
             return false;
