@@ -35,7 +35,7 @@ public:
     void                    Flush();
     bool                    HasRequestBuffered();
 
-    uint64_t                GetNodeID();
+    uint64_t                GetNodeID() const;
     Endpoint&               GetEndpoint();
     bool                    IsWritePending();
     unsigned                GetNumSentRequests();

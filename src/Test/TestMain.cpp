@@ -1,6 +1,6 @@
 #include "TestFunction.h"
 
-#define TEST_LOG_TRACE   true
+#define TEST_LOG_TRACE   false
 
 TEST_START(TestMain);
 TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
@@ -12,7 +12,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientBasic);
 //TEST_ADD(TestClientBatchedDelete);
 //TEST_ADD(TestClientBatchedDummy);
-//TEST_ADD(TestClientBatchedGet);
+TEST_ADD(TestClientBatchedGet);
 //TEST_ADD(TestClientBatchedSet);
 //TEST_ADD(TestClientBatchedGet2);
 //TEST_ADD(TestClientBatchedSet2);
@@ -32,7 +32,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientMaro);
 //TEST_ADD(TestClientMixedReadWriteBatched);
 //TEST_ADD(TestClientMixedWriteReadBatched);
-TEST_ADD(TestClientMultiThread);
+//TEST_ADD(TestClientMultiThread);
 //TEST_ADD(TestClientMultiThreadMulti);
 //TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);

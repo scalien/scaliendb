@@ -27,8 +27,8 @@ public:
     virtual void            Delete(ReadBuffer key) = 0;
     
     virtual char            GetType() = 0;
-    virtual ReadBuffer      GetKey() = 0;
-    virtual ReadBuffer      GetValue() = 0;
+    virtual ReadBuffer      GetKey() const = 0;
+    virtual ReadBuffer      GetValue() const = 0;
 };
 
 #endif

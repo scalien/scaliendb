@@ -76,7 +76,7 @@ bool ShardConnection::HasRequestBuffered()
     return false;
 }
 
-uint64_t ShardConnection::GetNodeID()
+uint64_t ShardConnection::GetNodeID() const
 {
     return nodeID;
 }

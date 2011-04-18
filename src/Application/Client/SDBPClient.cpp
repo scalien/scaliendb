@@ -119,7 +119,7 @@ static uint64_t Hash(uint64_t h)
     return h;
 }
 
-static uint64_t Key(ShardConnection* conn)
+static uint64_t Key(const ShardConnection* conn)
 {
     return conn->GetNodeID();
 }
@@ -1129,7 +1129,7 @@ void Client::SendQuorumRequests()
         if (conn->IsWritePending())
             continue;
 
-        Log_Trace("conn = %s, quorums.length = %u", conn->GetEndpoint().ToString(), conn->GetQuorumList().GetLength());
+        Log_Trace("conn nodeID %U, quorums.length = %u", conn->GetNodeID(), conn->GetQuorumList().GetLength());
         FOREACH (qit, conn->GetQuorumList())
         {
             if (!quorumRequests.Get(*qit, qrequests))

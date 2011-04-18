@@ -396,7 +396,8 @@ void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShard
 
 void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
-    readRequests.Add(request);
+//    readRequests.Add(request);
+    readRequests.Append(request);
 
     environment.SetYieldThreads(true);
 

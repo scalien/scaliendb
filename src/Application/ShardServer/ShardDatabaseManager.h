@@ -70,7 +70,7 @@ public:
 class ShardDatabaseManager
 {
     typedef HashMap<uint64_t, StorageShardProxy*>   ShardMap;
-    typedef InSortedList<ClientRequest>             ClientSortedRequestList;
+    typedef InList<ClientRequest>                   ClientSortedRequestList;
     typedef InList<ClientRequest>                   ClientRequestList;
 
     friend class ShardDatabaseAsyncGet;
