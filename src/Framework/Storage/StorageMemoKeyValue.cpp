@@ -49,12 +49,12 @@ char StorageMemoKeyValue::GetType()
         return STORAGE_KEYVALUE_TYPE_SET;
 }
 
-ReadBuffer StorageMemoKeyValue::GetKey()
+ReadBuffer StorageMemoKeyValue::GetKey() const
 {
     return ReadBuffer(buffer, keyLength);
 }
 
-ReadBuffer StorageMemoKeyValue::GetValue()
+ReadBuffer StorageMemoKeyValue::GetValue() const
 {
     if (valueLength == DELETE_LENGTH_VALUE)
         return ReadBuffer();

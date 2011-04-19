@@ -22,8 +22,8 @@ public:
     void            Delete(ReadBuffer key);
     
     char            GetType();
-    ReadBuffer      GetKey();
-    ReadBuffer      GetValue();
+    ReadBuffer      GetKey() const;
+    ReadBuffer      GetValue() const;
 
     uint32_t        GetNextIndex();
     void            SetNextIndex(uint32_t nextIndex);

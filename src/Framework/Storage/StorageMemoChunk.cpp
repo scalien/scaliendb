@@ -10,12 +10,12 @@ static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
     return ReadBuffer::Cmp(a, b);
 }
 
-static inline const ReadBuffer Key(StorageMemoKeyValue* kv)
+static inline const ReadBuffer Key(const StorageMemoKeyValue* kv)
 {
     return kv->GetKey();
 }
 
-static inline const ReadBuffer Key(StorageFileKeyValue* kv)
+static inline const ReadBuffer Key(const StorageFileKeyValue* kv)
 {
     return kv->GetKey();
 }
@@ -126,7 +126,7 @@ StorageKeyValue* StorageMemoChunk::Get(ReadBuffer& key)
     if (keyValues.GetCount() == 0)
         return NULL;
         
-    it = keyValues.Locate(key, cmpres);
+    it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
     if (cmpres != 0)
         return NULL;
 

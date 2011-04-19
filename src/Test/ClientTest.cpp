@@ -326,7 +326,7 @@ TEST_DEFINE(TestClientBatchedSet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 10000;
+    unsigned        num = 100000;
     Stopwatch       sw;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -693,7 +693,7 @@ TEST_DEFINE(TestClientBatchedGet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 10000;
+    unsigned        num = 100000;
     double          minLatency;
     double          maxLatency;
     double          avgLatency;
@@ -884,7 +884,7 @@ TEST_DEFINE(TestClientGetLatency)
     maxLatency = 0;
     avgLatency = 0;
     
-    for (unsigned i = 1; i <= num; i++)
+    for (unsigned i = 0; i < num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
