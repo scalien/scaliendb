@@ -105,7 +105,10 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     if (last)
         numPending--;
 
-    if (state == TCPConnection::CONNECTED && request->response.type != CLIENTRESPONSE_NORESPONSE)
+    if (state == TCPConnection::CONNECTED &&
+     request->response.type != CLIENTRESPONSE_NORESPONSE &&
+     !(request->response.type == CLIENTRESPONSE_CONFIG_STATE &&
+      writer->GetQueueLength() > SDBP_MAX_QUEUED_BYTES))
     {
         sdbpResponse.response = &request->response;
         Write(sdbpResponse);
