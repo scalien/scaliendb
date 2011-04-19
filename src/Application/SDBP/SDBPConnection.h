@@ -5,6 +5,8 @@
 #include "Application/Common/ClientSession.h"
 #include "Application/Common/ClientResponse.h"
 
+#define SDBP_MAX_QUEUED_BYTES        (100*KiB)
+
 class SDBPContext;
 class SDBPServer;
 class ClientRequest;
