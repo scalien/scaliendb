@@ -29,9 +29,18 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
     transport.SetQuorumID(quorumID);
     highestPaxosID = 0; 
 
-    paxosLease.AcquireLease();
-
     isReplicationActive = true;
+
+    if (quorum.GetNumNodes() > 1)
+    {
+        paxosLease.AcquireLease();
+    }
+    else
+    {
+        replicatedLog.OnLearnLease();
+        quorumProcessor->OnLearnLease();
+    }
+
 }
 
 void ConfigQuorumContext::Append(ConfigMessage* message)
@@ -48,22 +57,34 @@ bool ConfigQuorumContext::IsAppending()
 
 bool ConfigQuorumContext::IsLeaseOwner()
 {
-    return paxosLease.IsLeaseOwner();
+    if (quorum.GetNumNodes() == 1)
+        return true;
+    else
+        return paxosLease.IsLeaseOwner();
 }
 
 bool ConfigQuorumContext::IsLeaseKnown()
 {
-    return paxosLease.IsLeaseKnown();
+    if (quorum.GetNumNodes() == 1)
+        return true;
+    else
+        return paxosLease.IsLeaseKnown();
 }
 
 uint64_t ConfigQuorumContext::GetLeaseOwner()
 {
-    return paxosLease.GetLeaseOwner();
+    if (quorum.GetNumNodes() == 1)
+        return MY_NODEID;
+    else
+        return paxosLease.GetLeaseOwner();
 }
 
 bool ConfigQuorumContext::IsLeader()
 {
-    return IsLeaseOwner() && replicatedLog.IsMultiPaxosEnabled();
+    if (quorum.GetNumNodes() == 1)
+        return true;
+    else
+        return IsLeaseOwner() && replicatedLog.IsMultiPaxosEnabled();
 }
 
 void ConfigQuorumContext::OnLearnLease()
