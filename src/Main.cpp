@@ -26,9 +26,6 @@ int main(int argc, char** argv)
     if (!configFile.Init(argv[1]))
         STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
 
-//    if (!Compressor::Init())
-//        STOP_FAIL(1, "Compressor::Init() failed");
-
     InitLog();
     ParseArgs(argc, argv);
     StartClock();
