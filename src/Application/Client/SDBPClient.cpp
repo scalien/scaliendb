@@ -1099,6 +1099,9 @@ void Client::SendQuorumRequests()
     int                     j;
 
     Log_Trace();
+    
+    if (shardConnections.GetCount() == 0)
+        return;
 
     // create an array for containing the connections in randomized order
     connArray = new ShardConnection*[shardConnections.GetCount()];

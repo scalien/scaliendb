@@ -1587,6 +1587,7 @@
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "";
+				GCC_VERSION = 4.2;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
@@ -1604,6 +1605,7 @@
 				);
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = ScalienDB;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -1614,6 +1616,7 @@
 				ARCHS = "$(NATIVE_ARCH_ACTUAL)";
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_MODEL_TUNING = G5;
+				GCC_VERSION = 4.2;
 				GCC_WARN_CHECK_SWITCH_STATEMENTS = YES;
 				GCC_WARN_SIGN_COMPARE = YES;
 				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = YES;
@@ -1630,6 +1633,7 @@
 				);
 				PRELINK_LIBS = "";
 				PRODUCT_NAME = ScalienDB;
+				SDKROOT = macosx10.6;
 			};
 			name = Release;
 		};
@@ -1654,6 +1658,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = src;
 				LIBRARY_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
@@ -1705,6 +1710,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = src;
 				LIBRARY_SEARCH_PATHS = "";
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
@@ -1725,6 +1731,7 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = /usr/local/bin;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
@@ -1733,6 +1740,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = TestMain;
+				SDKROOT = macosx10.6;
 			};
 			name = Debug;
 		};
@@ -1744,6 +1752,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_ENABLE_FIX_AND_CONTINUE = NO;
 				GCC_MODEL_TUNING = G5;
+				GCC_VERSION = com.apple.compilers.llvmgcc42;
 				INSTALL_PATH = /usr/local/bin;
 				OTHER_CPLUSPLUSFLAGS = (
 					"-DPLATFORM_DARWIN",
@@ -1752,6 +1761,7 @@
 				);
 				PREBINDING = NO;
 				PRODUCT_NAME = TestMain;
+				SDKROOT = macosx10.6;
 				ZERO_LINK = NO;
 			};
 			name = Release;

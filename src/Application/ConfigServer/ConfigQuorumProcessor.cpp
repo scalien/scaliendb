@@ -398,13 +398,13 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
         // update clients
         FOREACH (itRequest, listenRequests)
         {
-            if (configChanged || (itRequest->changeTimeout < now - itRequest->lastChangeTime))
+            if (configChanged || (itRequest->changeTimeout != 0 &&
+             itRequest->changeTimeout < now - itRequest->lastChangeTime))
             {
                 //Log_Debug("request: %p, changeTimeout: %U, diff: %U", itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime);
                 itRequest->response.ConfigStateResponse(*CONFIG_STATE);
                 itRequest->OnComplete(false);
-                if (itRequest->changeTimeout != 0)
-                    itRequest->lastChangeTime = now;
+                itRequest->lastChangeTime = now;
             }
         }
     }

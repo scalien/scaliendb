@@ -369,6 +369,7 @@ bool IOProcessor::Remove(IOOperation* ioop)
             epollOp->write = NULL;
         
         ioop->active = false;
+        ioop->pending = false;
         return true;
     }
     
@@ -533,11 +534,11 @@ bool IOProcessor::Complete(Callable* callable)
 }
 
 void ProcessIOOperation(IOOperation* ioop)
-{
-    ioop->active = false;
-    
+{    
     if (!ioop)
         return;
+ 
+    ioop->active = false;
 
     switch (ioop->type)
     {

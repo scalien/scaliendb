@@ -296,6 +296,7 @@ bool IOProcessor::Remove(IOOperation* ioop)
             writeOps[ioop->fd] = false;
 
         ioop->active = false;
+        ioop->pending = false;
         return true;
     }
     
