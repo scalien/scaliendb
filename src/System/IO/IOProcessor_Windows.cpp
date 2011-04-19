@@ -81,7 +81,7 @@ bool IOProcessorConnect(FD& fd, Endpoint& endpoint)
     // the socket must be bound so that ConnectEx works
     if (bind(fd.handle, (sockaddr*) &localAddr,  sizeof(sockaddr_in)) == SOCKET_ERROR)
     {
-        // WSAINVAL means it is already bound
+        // WSAEINVAL means it is already bound
         if (WSAGetLastError() != WSAEINVAL)
             return false;
     }
