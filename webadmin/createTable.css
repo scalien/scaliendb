@@ -69,3 +69,7 @@ button.create-table-button {
 	color: white;
 	width: 150px;
 }
+
+button.create-table-button[disabled] {
+	background-color: #ddd;
+}

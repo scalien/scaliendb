@@ -57,3 +57,7 @@ button.rename-table-button {
 	color: white;
 	width: 150px;
 }
+
+button.rename-table-button[disabled] {
+	background-color: #ddd;
+}

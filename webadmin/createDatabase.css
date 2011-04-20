@@ -57,3 +57,7 @@ button.create-database-button {
 	color: white;
 	width: 150px;
 }
+
+button.create-database-button[disabled] {
+	background-color: #ddd;
+}
