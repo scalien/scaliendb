@@ -75,6 +75,11 @@ void ShardQuorumProcessor::Shutdown()
     if (resumeAppend.IsActive())
         EventLoop::Remove(&resumeAppend);
     
+    if (catchupReader.IsActive())
+        catchupReader.Abort();
+    if (catchupWriter.IsActive())
+        catchupWriter.Abort();
+    
     CONTEXT_TRANSPORT->RemoveQuorumContext(&quorumContext);
     quorumContext.Shutdown();
 }
