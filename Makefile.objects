@@ -30,6 +30,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/HTTP/HTTPServer.o \
 	$(BUILD_DIR)/Application/HTTP/HTTPSession.o \
 	$(BUILD_DIR)/Application/HTTP/IMF.o \
+	$(BUILD_DIR)/Application/HTTP/JSONBufferWriter.o \
 	$(BUILD_DIR)/Application/HTTP/JSONSession.o \
 	$(BUILD_DIR)/Application/HTTP/Mime.o \
 	$(BUILD_DIR)/Application/HTTP/UrlParam.o \
