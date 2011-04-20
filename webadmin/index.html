@@ -15,6 +15,7 @@
 		<link rel="stylesheet" type="text/css" href="deleteTable.css"/>
 		<link rel="stylesheet" type="text/css" href="splitShard.css"/>
 		<link rel="stylesheet" type="text/css" href="migrateShard.css"/>
+		<link rel="stylesheet" type="text/css" href="error.css"/>
 		<link rel="stylesheet" type="text/css" href="main.css"/>
 		<script language="javascript" type="text/javascript" src="scaliendb.js"></script>
 		<script language="javascript" type="text/javascript" src="ui.js"></script>
@@ -149,7 +150,9 @@
 			<span class="create-table-name">Name:</span><br/><br/>
 			<input id="createTableName" class="create-table-input" type="text" value="" /><br/><br/><br/>
 			<span class="create-table-quorum">Place first shard in quorum:</span><br/><br/>
-			<input id="createTableQuorum" class="create-table-input" type="text" value="1" /><br/><br/><br/>
+			<select id="createTableQuorumSelector" class="create-table-selector">
+			</select>
+			<!--<input id="createTableQuorum" class="create-table-input" type="text" value="1" />--><br/><br/><br/>
 			<button type="submit" class="create-table-button">Create</button>
 			</form>
 		</div>
@@ -220,10 +223,29 @@
 			<br/><br/><br/>
 			<span class="migrate-shard-welcome">Migrate shard</span><br/>
 			<br/><br/><br/>
-			<span class="migrate-shard-quorumID">Migrate to quorum:</span><br/><br/>
+			<span id="migrateShardText" class="migrate-shard-quorumID">Migrate to quorum:</span><br/><br/>
 			<form action="javascript:migrateShard()">
-			<input id="migrateShardQuorum" class="migrate-shard-input" type="text" value="" /><br/><br/><br/>
-			<button type="submit" class="migrate-shard-button">Migrate</button>
+			<!--<input id="migrateShardQuorum" class="migrate-shard-input" type="text" value="" />
+			<br/>-->
+			<select id="migrateShardQuorumSelector" class="migrate-shard-selector">
+			</select>
+			<br/><br/><br/>
+			<button id="migrateShardButton" type="submit" class="migrate-shard-button">Migrate</button>
+			</form>
+		</div>
+		</div>
+		<!-- error -->
+		<div id="errorContainer">
+		<div class="error-overlay"></div>
+		<div class="error-content">
+			<a href="javascript:hideError()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span id="errorTitle" class="error-title">Error</span><br/>
+			<br/><br/><br/>
+			<span id="errorText" class="error-text">Error text</span><br/><br/>
+			<form action="javascript:hideError()">
+			<br/><br/><br/>
+			<button id="errorSubmitButton" type="submit" class="error-button">OK</button>
 			</form>
 		</div>
 		</div>

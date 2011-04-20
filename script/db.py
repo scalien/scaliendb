@@ -104,7 +104,7 @@ class StorageDataPage(StoragePage):
 			# 	if self.key_values.has_key(key):
 			# 		self.key_values.pop(key)
 			# print(key, value)
-			print(key)
+			# print(key)
 			i += 1
 		return i
 
@@ -168,4 +168,4 @@ def check_chunk_file(filename):
 
 if __name__ == "__main__":
 	signal.signal(signal.SIGPIPE, signal.SIG_DFL)
-	check_chunk_file(sys.argv[1])	
+	check_chunk_file(sys.argv[1])

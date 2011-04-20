@@ -1,3 +1,5 @@
+var $ = scaliendb.util.elem;
+var lastConfigState = null;
 
 function contains(arr, obj)
 {
@@ -50,6 +52,7 @@ function onLoad()
 	scaliendb.util.elem("deleteTableContainer").style.display = "none";
 	scaliendb.util.elem("splitShardContainer").style.display = "none";
 	scaliendb.util.elem("migrateShardContainer").style.display = "none";
+	scaliendb.util.elem("errorContainer").style.display = "none";
 	scaliendb.util.elem("loginCluster").focus();
 	removeOutline();
 	
@@ -221,6 +224,9 @@ function showCreateTable(databaseID, databaseName)
 	scaliendb.util.elem("createTableContainer").style.display = "block";
 	scaliendb.util.elem("createTableName").focus();
 	scaliendb.util.elem("createTableName").select();
+
+	populateQuorumSelector("createTableQuorumSelector", shardID);
+	
 	createTableDatabaseID = databaseID;
 	hideDialog = hideCreateTable;
 }
@@ -271,10 +277,81 @@ function showMigrateShard(shardID)
 {
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("migrateShardContainer").style.display = "block";
-	scaliendb.util.elem("migrateShardQuorum").focus();
-	scaliendb.util.elem("migrateShardQuorum").select();
+	// scaliendb.util.elem("migrateShardQuorum").focus();
+	// scaliendb.util.elem("migrateShardQuorum").select();
+	
+	var numQuorums = populateQuorumSelector("migrateShardQuorumSelector", shardID);
+	if (numQuorums == 0)
+	{
+		$("migrateShardText").innerHTML = "No available quorums!";
+		$("migrateShardButton").innerHTML = "OK";
+		$("migrateShardQuorumSelector").style.visibility = "hidden";
+	}
+	else
+	{
+		$("migrateShardText").innerHTML = "Migrate to quorum:";
+		$("migrateShardButton").innerHTML = "Migrate";
+		$("migrateShardQuorumSelector").style.visibility = "visible";
+	}
+	
 	migrateShardID = shardID;
 	hideDialog = hideMigrateShard;
+}
+
+function showError(title, text)
+{
+	$("mainContainer").style.display = "none";
+	$("errorContainer").style.display = "block";
+	$("errorTitle").innerHTML = title;
+	$("errorText").innerHTML = text;
+	hideDialog = hideError;
+}
+
+function populateQuorumSelector(name, shardID)
+{
+	var selector = $(name);	
+	if (selector == null || !lastConfigState.hasOwnProperty("quorums"))
+		return 0;
+
+	// delete child nodes
+	while (selector.hasChildNodes()) {
+	    selector.removeChild(selector.lastChild);
+	}		
+	
+	// populate quorumIDs
+	for (var q in lastConfigState["quorums"])
+	{
+		var quorum = lastConfigState["quorums"][q];
+		if (!quorum.hasOwnProperty("quorumID"))
+			continue;
+
+		// shardID is optional
+	    if (shardID != undefined)
+		{
+			var currentQuorum = false;
+			for (var qsID in quorum["shards"])
+			{
+				if (qsID == shardID)
+				{
+					currentQuorum = true;
+					break;
+				}
+			}
+			if (currentQuorum)
+				continue;
+		}
+		var quorumID = quorum["quorumID"];
+		var node = document.createElement("option");
+		node.innerHTML = quorumID;
+		node.setAttribute("value", "quorum_" + quorumID);
+		selector.appendChild(node);
+	}
+
+	// set the first selected
+	if (selector.options.length > 0)
+		selector.options[0].selected = true;
+	
+	return selector.options.length;
 }
 
 function hideCreateQuorum()
@@ -355,6 +432,12 @@ function hideMigrateShard()
 	scaliendb.util.elem("mainContainer").style.display = "block";
 }
 
+function hideError()
+{
+	scaliendb.util.elem("errorContainer").style.display = "none";
+	scaliendb.util.elem("mainContainer").style.display = "block";
+}
+
 function createQuorum()
 {
 	hideCreateQuorum();
@@ -428,7 +511,9 @@ function createTable()
 	hideCreateTable();
 	var name = scaliendb.util.elem("createTableName").value;
 	name = scaliendb.util.removeSpaces(name);
-	var quorumID = scaliendb.util.elem("createTableQuorum").value;
+	// var quorumID = scaliendb.util.elem("createTableQuorum").value;
+	var selector = $("createTableQuorumSelector");
+	var quorumID = selector.options[selector.selectedIndex].text;
 	quorumID = scaliendb.util.removeSpaces(quorumID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.createTable(createTableDatabaseID, quorumID, name);
@@ -480,14 +565,18 @@ function splitShard()
 function migrateShard()
 {
 	hideMigrateShard();
-	var quorumID = scaliendb.util.elem("migrateShardQuorum").value;
+	// var quorumID = scaliendb.util.elem("migrateShardQuorum").value;
+	var selector = $("migrateShardQuorumSelector");
+	var quorumID = selector.options[selector.selectedIndex].text;
 	quorumID = scaliendb.util.removeSpaces(quorumID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.migrateShard(migrateShardID, quorumID);
 }
 
-function onResponse()
+function onResponse(json)
 {
+	if (json.hasOwnProperty("response") && json["response"] == "FAILED")
+		showError("Error", "Something failed");
 	updateConfigState();
 }
 
@@ -507,6 +596,7 @@ function updateConfigState()
 var timer;
 function onConfigState(configState)
 {
+	lastConfigState = configState;
 	scaliendb.util.elem("controller").textContent = "Connected to " + scaliendb.controller;
 
 	createDashboard(configState);
@@ -940,6 +1030,14 @@ function createTableDiv(configState, table)
 
 function createShardDiv(configState, shard)
 {
+	var migrateShard = "";
+	if (configState["quorums"].length > 1)
+	{
+		migrateShard = '<a class="no-line" href="javascript:showMigrateShard(\'' +
+					shard["shardID"] +  '\')">															\
+					<span class="modify-button">migrate shard</span></a><br/><br/>';
+	}
+
 	var html =
 	'																									\
 		<table class="shard">																			\
@@ -965,11 +1063,9 @@ function createShardDiv(configState, shard)
 				<td class="shard-actions">																\
 					<a class="no-line" href="javascript:showSplitShard(\'' +
 					shard["shardID"] + '\')">								\
-					<span class="modify-button">split shard</span></a><br/><br/>						\
-					<a class="no-line" href="javascript:showMigrateShard(\'' +
-					shard["shardID"] +  '\')">															\
-					<span class="modify-button">migrate shard</span></a><br/><br/>						\
-				</td>																					\
+					<span class="modify-button">split shard</span></a><br/><br/>' + 
+					migrateShard +					
+				'</td>																					\
 			</tr>																						\
 		</table>																						\
 	';

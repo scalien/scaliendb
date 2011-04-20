@@ -39,7 +39,7 @@ void ShardCatchupReader::Begin()
     nextCommit = CATCHUP_COMMIT_GRANULARITY;
     EventLoop::Add(&onTimeout);
 
-    Log_Message("Disabeling database merge for the duration of catchup");
+    Log_Message("Disabling database merge for the duration of catchup");
     environment->SetMergeEnabled(false);
 }
 

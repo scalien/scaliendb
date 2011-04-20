@@ -47,6 +47,13 @@ input.migrate-shard-input {
 	color: #424242;
 }
 
+select.migrate-shard-selector {
+	font-size: 20px;
+	text-align: center;
+	width: 100px;
+	color: #424242;
+}
+
 button.migrate-shard-button {
 	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 3px 3px 4px #000;
