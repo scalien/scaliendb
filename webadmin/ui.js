@@ -182,6 +182,9 @@ function showAddNode(quorumID)
 {
 	$("mainContainer").style.display = "none";
 	$("addNodeContainer").style.display = "block";
+
+	populateSelector("addNodeShardServerSelector", shardServersNotInQuorum(quorumID));
+
 	addNodeQuorumID = quorumID;
 	hideDialog = hideAddNode;
 }
@@ -191,6 +194,9 @@ function showRemoveNode(quorumID)
 {
 	$("mainContainer").style.display = "none";
 	$("removeNodeContainer").style.display = "block";
+
+	populateSelector("removeNodeShardServerSelector", shardServersInQuorum(quorumID));
+
 	removeNodeQuorumID = quorumID;
 	hideDialog = hideRemoveNode;
 }
@@ -392,6 +398,93 @@ function populateQuorumSelector(name, shardID)
 	return selector.options.length;
 }
 
+function shardServersNotInQuorum(quorumID)
+{
+	var shardServers = [];
+	// populate quorumIDs
+	for (var s in lastConfigState["shardServers"])
+	{
+		var shardServer = lastConfigState["shardServers"][s];
+		if (!shardServer.hasOwnProperty("quorumInfos"))
+			continue;
+
+	    if (quorumID != undefined)
+		{
+			var found = false;
+			for (var qi in shardServer["quorumInfos"])
+			{
+				var quorumInfo = shardServer["quorumInfos"][qi];
+				if (quorumInfo["quorumID"] == quorumID)
+				{
+					// skip shardserver
+					found = true;
+					break;
+				}
+			}
+			if (found)
+				continue;
+		}
+		shardServers.push(shardServer["nodeID"]);
+	}
+
+	return shardServers;
+}
+
+function shardServersInQuorum(quorumID)
+{
+	var shardServers = [];
+	// populate quorumIDs
+	for (var s in lastConfigState["shardServers"])
+	{
+		var shardServer = lastConfigState["shardServers"][s];
+		if (!shardServer.hasOwnProperty("quorumInfos"))
+			continue;
+
+	    if (quorumID != undefined)
+		{
+			var found = false;
+			for (var qi in shardServer["quorumInfos"])
+			{
+				var quorumInfo = shardServer["quorumInfos"][qi];
+				if (quorumInfo["quorumID"] == quorumID)
+				{
+					// skip shardserver
+					shardServers.push(shardServer["nodeID"]);
+					break;
+				}
+			}
+		}
+	}
+
+	return shardServers;
+}
+
+function populateSelector(name, list)
+{
+	var selector = $(name);	
+	if (selector == null || !lastConfigState.hasOwnProperty("quorums"))
+		return 0;
+
+	// delete child nodes
+	while (selector.hasChildNodes()) {
+	    selector.removeChild(selector.lastChild);
+	}		
+	
+	for (var l in list)
+	{
+		var node = document.createElement("option");
+		node.innerHTML = list[l];
+		node.setAttribute("value", list[l]);
+		selector.appendChild(node);
+	}
+
+	// set the first selected
+	if (selector.options.length > 0)
+		selector.options[0].selected = true;
+	
+	return selector.options.length;	
+}
+
 function hideCreateQuorum()
 {
 	$("createQuorumContainer").style.display = "none";
@@ -497,7 +590,9 @@ function addNode()
 {
 	hideAddNode();
 
-	var nodeID = $("addNodeShardServer").value;
+	// var nodeID = $("addNodeShardServer").value;
+	var selector = $("addNodeShardServerSelector");
+	var nodeID = selector.options[selector.selectedIndex].text;
 	nodeID = scaliendb.util.removeSpaces(nodeID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.addNode(addNodeQuorumID, nodeID);
@@ -507,7 +602,9 @@ function removeNode()
 {
 	hideRemoveNode();
 
-	var nodeID = $("removeNodeShardServer").value;
+	// var nodeID = $("removeNodeShardServer").value;
+	var selector = $("removeNodeShardServerSelector");
+	var nodeID = selector.options[selector.selectedIndex].text;
 	nodeID = scaliendb.util.removeSpaces(nodeID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.removeNode(removeNodeQuorumID, nodeID);
@@ -893,6 +990,20 @@ function createQuorumDiv(configState, quorum)
 		shardID = quorum["shards"][i]
 		html += ' <span class="shard-number">' + shardID + '</span> ';
 	}
+
+	var addNode = "";
+	if (shardServersNotInQuorum(quorum["quorumID"]).length > 0)
+	{
+		addNode = '<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
+		')"><span class="create-button">add server</span></a><br/><br/>';
+	}	
+
+	var removeNode = "";
+	if (shardServersInQuorum(quorum["quorumID"]).length > 0)
+	{
+		removeNode = '<a class="no-line" href="javascript:showRemoveNode(' + quorum["quorumID"] +
+		')"><span class="modify-button">remove server</span></a><br/><br/>';
+	}
 	html +=
 	'																									\
 				<br/>																					\
@@ -900,12 +1011,10 @@ function createQuorumDiv(configState, quorum)
 				<!-- Size: 0GB -->																		\
 				<div class="explanation">Explanation: ' + explanation + '<br/>' + catchupText + '</span>						\
 			</td>																						\
-			<td class="table-actions">																	\
-				<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
-				')"><span class="create-button">add server</span></a><br/><br/>							\
-				<a class="no-line" href="javascript:showRemoveNode(' + quorum["quorumID"] +
-				')"><span class="modify-button">remove server</span></a><br/><br/>						\
-				<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
+			<td class="table-actions">' +
+				addNode +
+				removeNode +
+				'<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
 				')"><span class="delete-button">delete quorum</span></a>								\
 			</td>																						\
 		</tr>																							\

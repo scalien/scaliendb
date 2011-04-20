@@ -47,6 +47,13 @@ input.remove-node-input {
 	color: #424242;
 }
 
+select.remove-node-selector {
+	font-size: 20px;
+	text-align: center;
+	width: 100px;
+	color: #424242;
+}
+
 button.remove-node-button {
 	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 3px 3px 4px #000;
