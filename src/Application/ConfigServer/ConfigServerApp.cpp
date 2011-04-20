@@ -28,8 +28,11 @@ void ConfigServerApp::Init()
     sdbpServer.SetContext(&configServer);
     
     statTimer.SetDelay(configFile.GetIntValue("controller.logStatTime", 10*1000));
-    statTimer.SetCallable(MFUNC(ConfigServerApp, OnStatTimer));
-    EventLoop::Add(&statTimer);
+    if (statTimer.GetDelay() != 0)
+    {
+        statTimer.SetCallable(MFUNC(ConfigServerApp, OnStatTimer));
+        EventLoop::Add(&statTimer);
+    }
 }
 
 void ConfigServerApp::Shutdown()

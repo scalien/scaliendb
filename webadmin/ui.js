@@ -74,6 +74,7 @@ function logout()
 {
 	clearTimeout(timer);
 	onLoad();
+	scaliendb.util.elem("loginCluster").select();
 }
 
 function connect()
@@ -188,6 +189,7 @@ function showCreateDatabase()
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createDatabaseContainer").style.display = "block";
 	scaliendb.util.elem("createDatabaseName").focus();
+	scaliendb.util.elem("createDatabaseName").select();
 	hideDialog = hideCreateDatabase;
 }
 
@@ -198,6 +200,7 @@ function showRenameDatabase(databaseID, databaseName)
 	scaliendb.util.elem("renameDatabaseName").value = databaseName;
 	scaliendb.util.elem("renameDatabaseContainer").style.display = "block";
 	scaliendb.util.elem("renameDatabaseName").focus();
+	scaliendb.util.elem("renameDatabaseName").select();
 	renameDatabaseID = databaseID;
 	hideDialog = hideRenameDatabase;
 }
@@ -217,6 +220,7 @@ function showCreateTable(databaseID, databaseName)
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("createTableContainer").style.display = "block";
 	scaliendb.util.elem("createTableName").focus();
+	scaliendb.util.elem("createTableName").select();
 	createTableDatabaseID = databaseID;
 	hideDialog = hideCreateTable;
 }
@@ -228,6 +232,7 @@ function showRenameTable(tableID, tableName)
 	scaliendb.util.elem("renameTableName").value = tableName;
 	scaliendb.util.elem("renameTableContainer").style.display = "block";
 	scaliendb.util.elem("renameTableName").focus();
+	scaliendb.util.elem("renameTableName").select();
 	renameTableID = tableID;
 	hideDialog = hideRenameTable;
 }
@@ -255,6 +260,8 @@ function showSplitShard(shardID)
 {
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("splitShardContainer").style.display = "block";
+	scaliendb.util.elem("splitShardKey").focus();
+	scaliendb.util.elem("splitShardKey").select();	
 	splitShardID = shardID;
 	hideDialog = hideSplitShard;
 }
@@ -264,6 +271,8 @@ function showMigrateShard(shardID)
 {
 	scaliendb.util.elem("mainContainer").style.display = "none";
 	scaliendb.util.elem("migrateShardContainer").style.display = "block";
+	scaliendb.util.elem("migrateShardQuorum").focus();
+	scaliendb.util.elem("migrateShardQuorum").select();
 	migrateShardID = shardID;
 	hideDialog = hideMigrateShard;
 }

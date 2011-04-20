@@ -35,6 +35,11 @@ span.migrate-shard-welcome {
 	color: #424242;
 }
 
+span.migrate-shard-quorumID {
+	font-size: 20px;
+	color: #424242;
+}
+
 input.migrate-shard-input {
 	font-size: 20px;
 	text-align: center;
