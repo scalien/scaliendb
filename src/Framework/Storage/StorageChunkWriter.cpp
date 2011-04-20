@@ -67,7 +67,6 @@ bool StorageChunkWriter::WriteDataPages()
 {
     unsigned            i;
     StorageDataPage*    dataPage;
-    double              compressRatio;
 
     for (i = 0; i < file->numDataPages; i++)
     {
