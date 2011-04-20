@@ -1,7 +1,7 @@
 #ifndef CONFIGTABLE_H
 #define CONFIGTABLE_H
 
-#include "System/Common.h"
+#include "System/Platform.h"
 #include "System/Containers/List.h"
 #include "System/Buffers/Buffer.h"
 

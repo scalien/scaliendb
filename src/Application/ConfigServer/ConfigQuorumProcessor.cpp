@@ -117,7 +117,8 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        if (request->changeTimeout == 0)
+        if (request->changeTimeout == 0 || 
+         request->paxosID != 0 && request->paxosID < GetPaxosID())
         {
             // this is an immediate config state request
             request->response.ConfigStateResponse(*CONFIG_STATE);
@@ -454,6 +455,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     
     CONFIG_STATE->hasMaster = false;
     CONFIG_STATE->masterID = 0;
+    CONFIG_STATE->paxosID = 0;
     configServer->OnConfigStateChanged(false); // TODO: is this neccesary?
     // TODO: tell ActivationManager
 }
@@ -470,6 +472,7 @@ void ConfigQuorumProcessor::OnIsLeader()
 
     CONFIG_STATE->hasMaster = true;
     CONFIG_STATE->masterID = GetMaster();
+    CONFIG_STATE->paxosID = GetPaxosID();
 
     if (updateListeners && (uint64_t) GetMaster() == configServer->GetNodeID())
         UpdateListeners(true);
@@ -513,6 +516,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
         }
     }
     
+    CONFIG_STATE->paxosID = paxosID;
     CONFIG_STATE->OnMessage(message);
     configServer->GetDatabaseManager()->Write();
     configServer->OnConfigStateChanged(false); // UpdateActivationTimeout();

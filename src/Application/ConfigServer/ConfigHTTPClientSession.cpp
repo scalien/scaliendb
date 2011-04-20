@@ -569,6 +569,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessPollConfigState()
     request = new ClientRequest;
     request->GetConfigState(0, 5*1000);
     request->lastChangeTime = NowClock();
+
+    HTTP_GET_OPT_U64_PARAM(params, "paxosID", request->paxosID);
     
     return request;
 }

@@ -6,10 +6,10 @@
 #define JSON_STRING(obj, member) \
     json.PrintString(#member); \
     json.PrintColon(); \
-    json.PrintString(obj->member);
+    json.PrintString((obj)->member);
 
 #define JSON_STRING_PRINTABLE(obj, member) \
-    printable.Write(obj->member); \
+    printable.Write((obj)->member); \
     if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal(); } \
     json.PrintString(#member); \
     json.PrintColon(); \
@@ -18,17 +18,17 @@
 #define JSON_NUMBER(obj, member) \
     json.PrintString(#member); \
     json.PrintColon(); \
-    json.PrintNumber(obj->member);
+    json.PrintNumber((obj)->member);
 
 #define JSON_BOOL(obj, member) \
     json.PrintString(#member); \
     json.PrintColon(); \
-    json.PrintBool(obj->member);
+    json.PrintBool((obj)->member);
 
 #define JSON_IDLIST(obj, member) \
     json.PrintString(#member); \
     json.PrintColon(); \
-    WriteIDList(obj->member);
+    WriteIDList((obj)->member);
 
 
 JSONConfigState::JSONConfigState(InSortedList<Heartbeat>* heartbeats_, ConfigState& configState_, JSONBufferWriter& json_) :
@@ -40,6 +40,9 @@ JSONConfigState::JSONConfigState(InSortedList<Heartbeat>* heartbeats_, ConfigSta
 
 void JSONConfigState::Write()
 {
+    JSON_NUMBER(&configState, paxosID);
+    json.PrintComma();
+    
     WriteQuorums();
     json.PrintComma();
     WriteDatabases();
