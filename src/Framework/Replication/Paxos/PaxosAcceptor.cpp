@@ -142,8 +142,12 @@ void PaxosAcceptor::ReadState()
         state.acceptedRunID = db->GetAcceptedRunID();
         state.acceptedProposalID = db->GetAcceptedProposalID();
         db->GetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
-        ASSERT(state.acceptedValue.GetLength() > 0);
+//        ASSERT(state.acceptedValue.GetLength() > 0);
     }
+    
+    // TODO: temp fix
+    if (state.acceptedValue.GetLength() == 0)
+        state.OnNewPaxosRound();
 }
 
 void PaxosAcceptor::WriteState()
