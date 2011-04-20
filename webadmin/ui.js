@@ -729,7 +729,7 @@ function createQuorumDiv(configState, quorum)
 		}
 		if (nodeID == primaryID)
 		{
-		 	html += ' <span class="shardserver-number ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '"><b>Primary: ' + nodeID + infoText + '</b></span> ';
+		 	html += ' <span class="shardserver-number primary ' + (shardServer["hasHeartbeat"] ? "healthy" : "no-heartbeat") + '"><b>' + nodeID + infoText + '</b></span> ';
 			explanation = "The quorum has a primary (" + primaryID + "), it is writable. ";
 		}
 		else

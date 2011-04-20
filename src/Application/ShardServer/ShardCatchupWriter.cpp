@@ -216,7 +216,18 @@ void ShardCatchupWriter::SendCommit()
 
 void ShardCatchupWriter::OnWriteReadyness()
 {
+    uint64_t bytesBegin;
+
+    bytesBegin = bytesTotal;
+
     SendNext();
+
+    while (bytesTotal < bytesBegin + SHARD_CATCHUP_WRITER_GRAN)
+    {
+        if (!cursor)
+            break;
+        SendNext();
+    }
 }
 
 uint64_t* ShardCatchupWriter::NextShard()
