@@ -38,12 +38,18 @@ void ShardCatchupReader::Begin()
     prevBytesReceived = 0;
     nextCommit = CATCHUP_COMMIT_GRANULARITY;
     EventLoop::Add(&onTimeout);
+
+    Log_Message("Disabeling database merge for the duration of catchup");
+    environment->SetMergeEnabled(false);
 }
 
 void ShardCatchupReader::Abort()
 {
     Log_Message("Catchup aborted");
     Reset();
+
+    Log_Message("Enabling database merge");
+    environment->SetMergeEnabled(true);
 }
 
 void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
@@ -88,6 +94,9 @@ void ShardCatchupReader::OnCommit(CatchupMessage& message)
     Log_Message("Catchup complete, at paxosID = %U", message.paxosID);
     
     Reset();
+
+    Log_Message("Enabling database merge");
+    environment->SetMergeEnabled(true);
 }
 
 void ShardCatchupReader::OnAbort(CatchupMessage& /*message*/)
