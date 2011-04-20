@@ -28,11 +28,6 @@ static size_t Hash(uint64_t h)
     return h;
 }
 
-static bool LessThan(const ClientRequest& a, const ClientRequest& b)
-{
-    return Buffer::Cmp(a.key, b.key) < 0;
-}
-
 /*
 ===============================================================================================
 
