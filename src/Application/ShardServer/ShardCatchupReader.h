@@ -6,7 +6,7 @@
 
 class ShardQuorumProcessor;
 
-#define CATCHUP_COMMIT_GRANULARITY      64*KB
+#define CATCHUP_COMMIT_GRANULARITY      16*MiB
 #define SHARD_CATCHUP_READER_DELAY      10*1000 // msec
 
 
