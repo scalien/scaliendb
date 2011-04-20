@@ -48,7 +48,7 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     
     if (kv != NULL)
     {
-        ASSERT(kv->GetKey().GetBuffer()[0] != 0);
+        ASSERT(kv->GetKey().GetLength() > 0);
         return kv;
     }
     
