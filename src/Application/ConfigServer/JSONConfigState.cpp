@@ -31,8 +31,8 @@
     WriteIDList(obj->member);
 
 
-JSONConfigState::JSONConfigState(ConfigServer* configServer_, ConfigState& configState_, JSONSession& json_) :
- configServer(configServer_),
+JSONConfigState::JSONConfigState(InSortedList<Heartbeat>* heartbeats_, ConfigState& configState_, JSONBufferWriter& json_) :
+ heartbeats(heartbeats_),
  configState(configState_),
  json(json_)
 {
@@ -40,8 +40,6 @@ JSONConfigState::JSONConfigState(ConfigServer* configServer_, ConfigState& confi
 
 void JSONConfigState::Write()
 {
-    json.Start();
-    
     WriteQuorums();
     json.PrintComma();
     WriteDatabases();
@@ -51,8 +49,6 @@ void JSONConfigState::Write()
     WriteShards();
     json.PrintComma();
     WriteShardServers();
-    
-    // json.End() is called when the session is flushed
 }
     
 void JSONConfigState::WriteQuorums()
@@ -242,12 +238,11 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     json.PrintString(server->endpoint.ToReadBuffer());
     json.PrintComma();
 
-    // TODO: HACK: configServer should not be member of JSONConfigState
-    if (configServer)
+    if (heartbeats)
     {
         json.PrintString("hasHeartbeat");
         json.PrintColon();
-        json.PrintBool(configServer->GetHeartbeatManager()->HasHeartbeat(server->nodeID));
+        json.PrintBool(HasHeartbeat(server->nodeID));
         json.PrintComma();
     }
     
@@ -335,4 +330,17 @@ void JSONConfigState::WriteIDList(List& list)
         json.PrintNumber(*it);
     }
     json.PrintArrayEnd();
+}
+
+bool JSONConfigState::HasHeartbeat(uint64_t nodeID)
+{
+    Heartbeat* it;
+
+    FOREACH (it, *heartbeats)
+    {
+        if (it->nodeID == nodeID)
+            return true;
+    }
+
+    return false;
 }

@@ -49,6 +49,9 @@ class scaliendb_clientJNI {
   public final static native boolean SDBP_ResultIsEnd(long jarg1);
   public final static native int SDBP_ResultTransportStatus(long jarg1);
   public final static native int SDBP_ResultCommandStatus(long jarg1);
+  public final static native long SDBP_ResultNumNodes(long jarg1);
+  public final static native java.math.BigInteger SDBP_ResultNodeID(long jarg1, long jarg2);
+  public final static native long SDBP_ResultElapsedTime(long jarg1);
   public final static native long SDBP_Create();
   public final static native int SDBP_Init(long jarg1, long jarg2, SDBP_NodeParams jarg2_);
   public final static native void SDBP_Destroy(long jarg1);
@@ -59,6 +62,7 @@ class scaliendb_clientJNI {
   public final static native java.math.BigInteger SDBP_GetMasterTimeout(long jarg1);
   public final static native java.math.BigInteger SDBP_GetCurrentDatabaseID(long jarg1);
   public final static native java.math.BigInteger SDBP_GetCurrentTableID(long jarg1);
+  public final static native String SDBP_GetJSONConfigState(long jarg1);
   public final static native void SDBP_SetBatchLimit(long jarg1, java.math.BigInteger jarg2);
   public final static native void SDBP_SetBulkLoading(long jarg1, boolean jarg2);
   public final static native void SDBP_SetConsistencyLevel(long jarg1, int jarg2);

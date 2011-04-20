@@ -77,6 +77,18 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ResultCommandStatus(SWIGTYPE_p_void.getCPtr(result));
   }
 
+  public static long SDBP_ResultNumNodes(SWIGTYPE_p_void result) {
+    return scaliendb_clientJNI.SDBP_ResultNumNodes(SWIGTYPE_p_void.getCPtr(result));
+  }
+
+  public static java.math.BigInteger SDBP_ResultNodeID(SWIGTYPE_p_void result, long n) {
+    return scaliendb_clientJNI.SDBP_ResultNodeID(SWIGTYPE_p_void.getCPtr(result), n);
+  }
+
+  public static long SDBP_ResultElapsedTime(SWIGTYPE_p_void result) {
+    return scaliendb_clientJNI.SDBP_ResultElapsedTime(SWIGTYPE_p_void.getCPtr(result));
+  }
+
   public static SWIGTYPE_p_void SDBP_Create() {
     long cPtr = scaliendb_clientJNI.SDBP_Create();
     return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
@@ -117,6 +129,10 @@ public class scaliendb_client {
 
   public static java.math.BigInteger SDBP_GetCurrentTableID(SWIGTYPE_p_void client) {
     return scaliendb_clientJNI.SDBP_GetCurrentTableID(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static String SDBP_GetJSONConfigState(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_GetJSONConfigState(SWIGTYPE_p_void.getCPtr(client));
   }
 
   public static void SDBP_SetBatchLimit(SWIGTYPE_p_void client, java.math.BigInteger limit) {

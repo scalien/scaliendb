@@ -2,7 +2,8 @@
 #define JSONCONFIGSTATE_H
 
 #include "Application/ConfigState/ConfigState.h"
-#include "Application/HTTP/JSONSession.h"
+#include "Application/ConfigServer/ConfigHeartbeatManager.h"
+#include "Application/HTTP/JSONBufferWriter.h"
 
 class ConfigServer;
 class QuorumPaxosInfo;
@@ -18,7 +19,7 @@ class QuorumPaxosInfo;
 class JSONConfigState
 {
 public:
-    JSONConfigState(ConfigServer* configServer, ConfigState& configState, JSONSession& json);
+    JSONConfigState(InSortedList<Heartbeat>* heartbeats, ConfigState& configState, JSONBufferWriter& json);
     
     void                Write();
     
@@ -39,12 +40,14 @@ private:
     template<typename List>
     void                WriteIDList(List& list);
 
-    // this is not implemeted!
+    bool                HasHeartbeat(uint64_t nodeID);
+
+    // this is not implemented!
     JSONConfigState&    operator=(const JSONConfigState& other);
 
-    ConfigServer*       configServer;
-    ConfigState&        configState;
-    JSONSession&        json;
+    InSortedList<Heartbeat>*    heartbeats;
+    ConfigState&                configState;
+    JSONBufferWriter&           json;
 };
 
 #endif

@@ -1,6 +1,8 @@
 #include "SDBPClientWrapper.h"
 #include "SDBPClient.h"
 
+#include "Application/ConfigServer/JSONConfigState.h"
+
 using namespace SDBPClient;
 
 /*
@@ -353,6 +355,30 @@ uint64_t SDBP_GetCurrentTableID(ClientObj client_)
     Client* client = (Client*) client_;
 
     return client->GetCurrentTableID();
+}
+
+std::string SDBP_GetJSONConfigState(ClientObj client_)
+{
+    Client*             client = (Client*) client_;
+    ConfigState*        configState;
+    JSONBufferWriter    jsonWriter;
+    Buffer              buffer;
+    std::string         ret;
+    
+    configState = client->GetConfigState();
+    if (configState == NULL)
+        return "{}";    // empty
+    
+    jsonWriter.Init(&buffer);
+    jsonWriter.Start();
+
+    JSONConfigState     jsonConfigState(NULL, *configState, jsonWriter);
+    jsonConfigState.Write();
+
+    jsonWriter.End();
+    
+    ret.assign(buffer.GetBuffer(), buffer.GetLength());
+    return ret;
 }
 
 void SDBP_SetBatchLimit(ClientObj client_, uint64_t batchLimit)

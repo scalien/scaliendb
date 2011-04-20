@@ -60,7 +60,10 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         break;
     case CLIENTRESPONSE_CONFIG_STATE:
         {
-            JSONConfigState jsonConfigState(configServer, response->configState, session.json);
+            // TODO: HACK
+            session.json.Start();
+            JSONConfigState jsonConfigState(&configServer->GetHeartbeatManager()->GetHeartbeats(),
+             response->configState, session.json.GetBufferWriter());
             jsonConfigState.Write();
             session.Flush();
             return;
@@ -411,7 +414,11 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
 
 void ConfigHTTPClientSession::PrintConfigState()
 {
-    JSONConfigState jsonConfigState(configServer, *configServer->GetDatabaseManager()->GetConfigState(), session.json);
+    // TODO: HACK
+    
+    JSONConfigState jsonConfigState(&configServer->GetHeartbeatManager()->GetHeartbeats(),
+     *configServer->GetDatabaseManager()->GetConfigState(), session.json.GetBufferWriter());
+    session.json.Start();
     jsonConfigState.Write();
     session.Flush();
 }

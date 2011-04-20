@@ -157,6 +157,13 @@ public class Client
     public void setConsistencyLevel(int consistencyLevel) {
         scaliendb_client.SDBP_SetConsistencyLevel(cptr, consistencyLevel);
     }
+    
+    /**
+     * Returns the config state in a JSON-serialized string.
+     */
+    public String getJSONConfigState() {
+        return scaliendb_client.SDBP_GetJSONConfigState(cptr);
+    }
 
     /**
      * Returns the specified quorum.

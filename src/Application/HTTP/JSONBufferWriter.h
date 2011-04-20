@@ -1,23 +1,21 @@
-#ifndef JSON_SESSION_H
-#define JSON_SESSION_H
+#ifndef JSON_BUFFERWRITER_H
+#define JSON_BUFFERWRITER_H
 
 #include "System/Buffers/ReadBuffer.h"
-#include "JSONBufferWriter.h"
-
-class HTTPConnection;
+#include "System/Buffers/Buffer.h"
 
 /*
 ===============================================================================================
 
- JSONSession is able to serialize JSON messages on HTTPConnection.
+ JSONWriter is able to serialize JSON messages.
 
 ===============================================================================================
 */
 
-class JSONSession
+class JSONBufferWriter
 {
 public:
-    void            Init(HTTPConnection* conn);
+    void            Init(Buffer* output_);
     void            SetCallbackPrefix(const ReadBuffer& jsonCallback);
 
     void            Start();
@@ -45,11 +43,11 @@ public:
     bool            IsCommaNeeded();
     void            SetCommaNeeded(bool needed);
 
-    JSONBufferWriter&   GetBufferWriter();
-
 private:
-    HTTPConnection*     conn;
-    JSONBufferWriter    writer;
+    ReadBuffer      jsonCallback;
+    Buffer*         output;
+    unsigned        depth;
+    uint64_t        depthComma;
 };
 
 #endif

@@ -32,6 +32,7 @@ public:
 
     bool                HasHeartbeat(uint64_t nodeID);
     unsigned            GetNumHeartbeats();
+    HeartbeatList&      GetHeartbeats();
 
 private:
     void                RegisterHeartbeat(uint64_t nodeID);
