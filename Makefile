@@ -133,7 +133,8 @@ CLIENTLIBS = \
 
 EXECUTABLES = \
 	$(BUILD_DIR)/ScalienDB \
-	$(BUILD_DIR)/Test
+	$(BUILD_DIR)/Test \
+	$(BIN_DIR)/scaliendb
 	
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
 	$(CC) $(CFLAGS) -o $@ -c $<
@@ -309,6 +310,12 @@ $(BUILD_DIR)/TestMain: $(BUILD_DIR) $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/
 $(BUILD_DIR)/Test/TestMain.o: $(SRC_DIR)/Test/TestMain.cpp
 	$(CXX) $(CFLAGS) -o $@ -DTEST -c $(SRC_DIR)/Test/TestMain.cpp
 
+$(BIN_DIR)/scaliendb: $(BUILD_DIR)/ScalienDB
+	-cp -fr $< $@
+	-cp -fr $(SCRIPT_DIR)/cluster-exec.sh $(BIN_DIR)
+	-cp -fr $(SCRIPT_DIR)/scaliendb-env.sh $(BIN_DIR)
+	-cp -fr $(SCRIPT_DIR)/shell.py $(BIN_DIR)
+	-cp -fr $(SCRIPT_DIR)/cli $(BIN_DIR)
 
 ##############################################################################
 #
@@ -442,7 +449,7 @@ clean-perllib-swig:
 clean-swig: clean-pythonlib-swig clean-javalib-swig clean-phplib-swig clean-rubylib-swig clean-perllib-swig
 
 clean-executables:
-	-rm -f $(EXECUTABLES) 2>&1
+	-rm -rf $(EXECUTABLES) 2>&1
 
 clean-clientlib:
 	-rm -f $(TEST_OBJECTS) 2>&1
