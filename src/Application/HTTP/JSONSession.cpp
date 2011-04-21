@@ -7,192 +7,102 @@
 void JSONSession::Init(HTTPConnection* conn_)
 {
     conn = conn_;
-    jsonCallback.SetLength(0);
-    depth = 0;
-    depthComma = 0;
+    writer.Init(conn->GetWriteBuffer());
 }
 
 void JSONSession::SetCallbackPrefix(const ReadBuffer& jsonCallback_)
 {
-    jsonCallback = jsonCallback_;
+    writer.SetCallbackPrefix(jsonCallback_);
 }
 
 void JSONSession::Start()
 {
-    conn->WriteHeader(HTTP_STATUS_CODE_OK);
-    
-    if (jsonCallback.GetLength())
-    {
-        conn->Write(jsonCallback.GetBuffer(), jsonCallback.GetLength());
-        conn->Print("(");
-    }
-    
-    PrintObjectStart();
+    conn->WriteHeader(HTTP_STATUS_CODE_OK);    
+    writer.Start();
 }
 
 void JSONSession::End()
 {
-    PrintObjectEnd();
-    if (jsonCallback.GetLength())
-        conn->Print(")");
+    writer.End();
 }
 
 void JSONSession::PrintStatus(const char* status, const char* type_)
 {
-    Start();
-    
-    conn->Print("{\"status\":\"");
-    conn->Print(status);
-    if (type_)
-    {
-        conn->Print("\",\"type\":\"");
-        conn->Print(type_);
-    }
-    conn->Print("\"}");
-
-    End();
-    
+    writer.PrintStatus(status, type_);
     conn->Flush(true);
 }
 
 void JSONSession::PrintString(const ReadBuffer& str)
 {
-    const char* s;
-    
-    s = str.GetBuffer();
-    conn->Write("\"", 1);
-    for (unsigned i = 0; i < str.GetLength(); i++)
-    {
-        if (s[i] == '"')
-            conn->Write("\\", 1);
-        conn->Write(s + i, 1);
-    }
-    conn->Write("\"", 1);
-
-    SetCommaNeeded(true);
+    writer.PrintString(str);
 }
 
 void JSONSession::PrintNumber(int64_t number)
 {
-    char        buffer[32];
-    unsigned    len;
-    
-    len = snprintf(buffer, sizeof(buffer), "%" PRIi64, number);
-    conn->Write(buffer, len);
-
-    SetCommaNeeded(true);
+    writer.PrintNumber(number);
 }
 
 void JSONSession::PrintFloatNumber(double number)
 {
-    char        buffer[32];
-    unsigned    len;
-    
-    len = snprintf(buffer, sizeof(buffer), "%lf", number);
-    conn->Write(buffer, len);
-
-    SetCommaNeeded(true);
+    writer.PrintFloatNumber(number);
 }
 
 void JSONSession::PrintBool(bool b)
 {
-    if (b)
-        conn->Write("true", 4);
-    else
-        conn->Write("false", 5);
-
-    SetCommaNeeded(true);
+    writer.PrintBool(b);
 }
 
 void JSONSession::PrintNull()
 {
-    conn->Write("null", 4);
-
-    SetCommaNeeded(true);
+    writer.PrintNull();
 }
 
 void JSONSession::PrintObjectStart()
 {
-    if (IsCommaNeeded())
-        PrintComma();
-        
-    conn->Print("{");
-    depth++;
-    SetCommaNeeded(false);
+    writer.PrintObjectStart();
 }
 
 void JSONSession::PrintObjectEnd()
 {
-    if (depth > 0)
-    {
-        conn->Print("}");
-        depth--;
-    }
-    SetCommaNeeded(true);
+    writer.PrintObjectEnd();
 }
 
 void JSONSession::PrintArrayStart()
 {
-    if (IsCommaNeeded())
-        PrintComma();
-
-    conn->Print("[");
-    depth++;
-    SetCommaNeeded(false);
+    writer.PrintArrayStart();
 }
 
 void JSONSession::PrintArrayEnd()
 {
-    conn->Print("]");
-    depth--;
-    SetCommaNeeded(true);
+    writer.PrintArrayEnd();
 }
 
 void JSONSession::PrintColon()
 {
-    conn->Print(":");
-    SetCommaNeeded(false);
+    writer.PrintColon();
 }
 
 void JSONSession::PrintComma()
 {
-    conn->Print(",");
+    writer.PrintComma();
 }
 
 void JSONSession::PrintPair(const char* s, unsigned slen, const char* v, unsigned vlen)
 {
-    if (IsCommaNeeded())
-        PrintComma();
-
-    PrintString(ReadBuffer((char *) s, slen));
-    PrintColon();
-    PrintString(ReadBuffer((char *) v, vlen));
-    
-    SetCommaNeeded(true);
+    writer.PrintPair(s, slen, v, vlen);
 }
 
 bool JSONSession::IsCommaNeeded()
 {
-    uint64_t    mask;
-
-    // Since the info if you need a comma at a given depth is encoded into an uint64_t as a bitmask
-    // there can be only 64 depth of the JSON object, but is is reasonable.
-    mask = (uint64_t) 1 <<  depth;
-    if ((depthComma & mask) == mask)
-        return true;
-
-    return false;
+    return writer.IsCommaNeeded();
 }
 
 void JSONSession::SetCommaNeeded(bool needed)
 {
-    uint64_t    mask;
-    
-    ASSERT(depth < sizeof(depthComma) * 8);
-    
-    mask = (uint64_t) 1 << depth;
-    if (needed)
-        depthComma |= mask;
-    else
-        depthComma &= ~mask;
+    writer.SetCommaNeeded(needed);
+}
+
+JSONBufferWriter& JSONSession::GetBufferWriter()
+{
+    return writer;
 }

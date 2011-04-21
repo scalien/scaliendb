@@ -1,3 +1,5 @@
+var $ = scaliendb.util.elem;
+var lastConfigState = null;
 
 function contains(arr, obj)
 {
@@ -14,43 +16,44 @@ function init()
 {	
 	scaliendb.disconnect();
 
-	scaliendb.util.elem("controller").textContent = "Not connected...";
-	scaliendb.util.elem("clusterState").textContent = "Unable to connect!";
-	scaliendb.util.elem("clusterState").className = "status-message critical";
+	$("controller").textContent = "Not connected...";
+	$("clusterState").textContent = "Unable to connect!";
+	$("clusterState").className = "status-message critical";
 
-	scaliendb.util.elem("shardservers").innerHTML = "";
+	$("shardservers").innerHTML = "";
 
 	scaliendb.util.removeElement("quorums");
 	var quorumsDiv = document.createElement("div");
 	quorumsDiv.setAttribute("id", "quorums");
-	scaliendb.util.elem("tabPageQuorums").appendChild(quorumsDiv);
+	$("tabPageQuorums").appendChild(quorumsDiv);
 
 	scaliendb.util.removeElement("databases");
 	var databasesDiv = document.createElement("div");
 	databasesDiv.setAttribute("id", "databases");
-	scaliendb.util.elem("tabPageSchema").appendChild(databasesDiv);
+	$("tabPageSchema").appendChild(databasesDiv);
 }
 
 function onLoad()
 {
 	scaliendb.onDisconnect = onDisconnect;
 	init();
-	scaliendb.util.elem("loginContainer").style.display = "block";
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("createQuorumContainer").style.display = "none";
-	scaliendb.util.elem("deleteQuorumContainer").style.display = "none";
-	scaliendb.util.elem("addNodeContainer").style.display = "none";
-	scaliendb.util.elem("removeNodeContainer").style.display = "none";
-	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
-	scaliendb.util.elem("renameDatabaseContainer").style.display = "none";
-	scaliendb.util.elem("deleteDatabaseContainer").style.display = "none";
-	scaliendb.util.elem("createTableContainer").style.display = "none";
-	scaliendb.util.elem("renameTableContainer").style.display = "none";
-	scaliendb.util.elem("truncateTableContainer").style.display = "none";
-	scaliendb.util.elem("deleteTableContainer").style.display = "none";
-	scaliendb.util.elem("splitShardContainer").style.display = "none";
-	scaliendb.util.elem("migrateShardContainer").style.display = "none";
-	scaliendb.util.elem("loginCluster").focus();
+	$("loginContainer").style.display = "block";
+	$("mainContainer").style.display = "none";
+	$("createQuorumContainer").style.display = "none";
+	$("deleteQuorumContainer").style.display = "none";
+	$("addNodeContainer").style.display = "none";
+	$("removeNodeContainer").style.display = "none";
+	$("createDatabaseContainer").style.display = "none";
+	$("renameDatabaseContainer").style.display = "none";
+	$("deleteDatabaseContainer").style.display = "none";
+	$("createTableContainer").style.display = "none";
+	$("renameTableContainer").style.display = "none";
+	$("truncateTableContainer").style.display = "none";
+	$("deleteTableContainer").style.display = "none";
+	$("splitShardContainer").style.display = "none";
+	$("migrateShardContainer").style.display = "none";
+	$("errorContainer").style.display = "none";
+	$("loginCluster").focus();
 	removeOutline();
 	
 	activateDashboardTab();
@@ -70,19 +73,27 @@ function onMouseUp()
 	md = false;
 }
 
+function validateIfNotEmpty(node, button)
+{
+	if (node.value.length > 0)
+		button.disabled = false;
+	else
+		button.disabled = true;
+}
+
 function logout()
 {
 	clearTimeout(timer);
 	onLoad();
-	scaliendb.util.elem("loginCluster").select();
+	$("loginCluster").select();
 }
 
 function connect()
 {
-	scaliendb.util.elem("loginContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("loginContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 	
-	var controller = scaliendb.util.elem("loginCluster").value;
+	var controller = $("loginCluster").value;
 	if (!scaliendb.util.startsWith(controller, "http://"))
 		controller = "http://" + controller;
 	if (!scaliendb.util.endsWith("controller", "/json/"))
@@ -101,13 +112,13 @@ function activateTab(name)
 		var tab = tabs[t];
 		if (tab == name)
 		{
-			scaliendb.util.elem("tabHead" + tab).className = "tab-head tab-head-active";
-			scaliendb.util.elem("tabPage" + tab).className = "tab-page tab-page-active";
+			$("tabHead" + tab).className = "tab-head tab-head-active";
+			$("tabPage" + tab).className = "tab-page tab-page-active";
 		}
 		else
 		{
-			scaliendb.util.elem("tabHead" + tab).className = "tab-head tab-head-inactive";
-			scaliendb.util.elem("tabPage" + tab).className = "tab-page tab-page-inactive";			
+			$("tabHead" + tab).className = "tab-head tab-head-inactive";
+			$("tabPage" + tab).className = "tab-page tab-page-inactive";			
 		}
 	}
 }
@@ -138,30 +149,30 @@ function showhideShardsDiv(tableID)
 	if (tableShardsVisible[tableID])
 	{
 		tableShardsVisible[tableID] = false;
-		scaliendb.util.elem("shards_" + tableID).style.display = "none";
-		scaliendb.util.elem("showhideShardsButton_" + tableID).innerHTML = "show shards";
+		$("shards_" + tableID).style.display = "none";
+		$("showhideShardsButton_" + tableID).innerHTML = "show shards";
 	}
 	else
 	{
 		tableShardsVisible[tableID] = true;
-		scaliendb.util.elem("shards_" + tableID).style.display = "block";
-		scaliendb.util.elem("showhideShardsButton_" + tableID).innerHTML = "hide shards";
+		$("shards_" + tableID).style.display = "block";
+		$("showhideShardsButton_" + tableID).innerHTML = "hide shards";
 	}
 }
 
 function showCreateQuorum()
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("createQuorumContainer").style.display = "block";
-	scaliendb.util.elem("createQuorumShardServers").focus();
+	$("mainContainer").style.display = "none";
+	$("createQuorumContainer").style.display = "block";
+	$("createQuorumShardServers").focus();
 	hideDialog = hideCreateQuorum;
 }
 
 var deleteQuorumID;
 function showDeleteQuorum(quorumID)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("deleteQuorumContainer").style.display = "block";
+	$("mainContainer").style.display = "none";
+	$("deleteQuorumContainer").style.display = "block";
 	deleteQuorumID = quorumID;
 	hideDialog = hideDeleteQuorum;
 }
@@ -169,8 +180,11 @@ function showDeleteQuorum(quorumID)
 var addNodeQuorumID;
 function showAddNode(quorumID)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("addNodeContainer").style.display = "block";
+	$("mainContainer").style.display = "none";
+	$("addNodeContainer").style.display = "block";
+
+	populateSelector("addNodeShardServerSelector", shardServersNotInQuorum(quorumID));
+
 	addNodeQuorumID = quorumID;
 	hideDialog = hideAddNode;
 }
@@ -178,29 +192,48 @@ function showAddNode(quorumID)
 var removeNodeQuorumID;
 function showRemoveNode(quorumID)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("removeNodeContainer").style.display = "block";
+	$("mainContainer").style.display = "none";
+	$("removeNodeContainer").style.display = "block";
+
+	populateSelector("removeNodeShardServerSelector", shardServersInQuorum(quorumID));
+
 	removeNodeQuorumID = quorumID;
 	hideDialog = hideRemoveNode;
 }
 
 function showCreateDatabase()
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("createDatabaseContainer").style.display = "block";
-	scaliendb.util.elem("createDatabaseName").focus();
-	scaliendb.util.elem("createDatabaseName").select();
+	$("mainContainer").style.display = "none";
+	$("createDatabaseContainer").style.display = "block";
+
+	var button = $("createDatabaseButton");
+	var name = $("createDatabaseName");
+	name.focus();
+	name.select();
+	name.onchange = function() { validateIfNotEmpty(name, button); }
+	name.onkeyup = function() { validateIfNotEmpty(name, button); }
+
+	validateIfNotEmpty(name, button);
+
 	hideDialog = hideCreateDatabase;
 }
 
 var renameDatabaseID;
 function showRenameDatabase(databaseID, databaseName)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("renameDatabaseName").value = databaseName;
-	scaliendb.util.elem("renameDatabaseContainer").style.display = "block";
-	scaliendb.util.elem("renameDatabaseName").focus();
-	scaliendb.util.elem("renameDatabaseName").select();
+	$("mainContainer").style.display = "none";
+	$("renameDatabaseContainer").style.display = "block";
+
+	var button = $("renameDatabaseButton");
+	var name = $("renameDatabaseName");
+	name.value = databaseName;
+	name.focus();
+	name.select();
+	name.onchange = function() { validateIfNotEmpty(name, button); }
+	name.onkeyup = function() { validateIfNotEmpty(name, button); }
+
+	validateIfNotEmpty(name, button);
+	
 	renameDatabaseID = databaseID;
 	hideDialog = hideRenameDatabase;
 }
@@ -208,8 +241,8 @@ function showRenameDatabase(databaseID, databaseName)
 var deleteDatabaseID;
 function showDeleteDatabase(databaseID)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("deleteDatabaseContainer").style.display = "block";
+	$("mainContainer").style.display = "none";
+	$("deleteDatabaseContainer").style.display = "block";
 	deleteDatabaseID = databaseID;
 	hideDialog = hideDeleteDatabase;
 }
@@ -217,10 +250,19 @@ function showDeleteDatabase(databaseID)
 var createTableDatabaseID;
 function showCreateTable(databaseID, databaseName)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("createTableContainer").style.display = "block";
-	scaliendb.util.elem("createTableName").focus();
-	scaliendb.util.elem("createTableName").select();
+	$("mainContainer").style.display = "none";
+	$("createTableContainer").style.display = "block";
+
+	var button = $("createTableButton");
+	var name = $("createTableName");
+	name.focus();
+	name.select();
+	name.onchange = function() { validateIfNotEmpty(name, button); }
+	name.onkeyup = function() { validateIfNotEmpty(name, button); }
+
+	validateIfNotEmpty(name, button);
+	populateQuorumSelector("createTableQuorumSelector", shardID);
+	
 	createTableDatabaseID = databaseID;
 	hideDialog = hideCreateTable;
 }
@@ -228,11 +270,19 @@ function showCreateTable(databaseID, databaseName)
 var renameTableID;
 function showRenameTable(tableID, tableName)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("renameTableName").value = tableName;
-	scaliendb.util.elem("renameTableContainer").style.display = "block";
-	scaliendb.util.elem("renameTableName").focus();
-	scaliendb.util.elem("renameTableName").select();
+	$("mainContainer").style.display = "none";
+	$("renameTableContainer").style.display = "block";
+
+	var button = $("renameTableButton");
+	var name = $("renameTableName");
+	name.value = tableName;
+	name.focus();
+	name.select();
+	name.onchange = function() { validateIfNotEmpty(name, button); }
+	name.onkeyup = function() { validateIfNotEmpty(name, button); }
+
+	validateIfNotEmpty(name, button);
+
 	renameTableID = tableID;
 	hideDialog = hideRenameTable;
 }
@@ -240,8 +290,8 @@ function showRenameTable(tableID, tableName)
 var truncateTableID;
 function showTruncateTable(tableID)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("truncateTableContainer").style.display = "block";
+	$("mainContainer").style.display = "none";
+	$("truncateTableContainer").style.display = "block";
 	truncateTableID = tableID;
 	hideDialog = hideTruncateTable;
 }
@@ -249,8 +299,8 @@ function showTruncateTable(tableID)
 var deleteTableID;
 function showDeleteTable(tableID)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("deleteTableContainer").style.display = "block";
+	$("mainContainer").style.display = "none";
+	$("deleteTableContainer").style.display = "block";
 	deleteTableID = tableID;
 	hideDialog = hideDeleteTable;
 }
@@ -258,10 +308,10 @@ function showDeleteTable(tableID)
 var splitShardID;
 function showSplitShard(shardID)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("splitShardContainer").style.display = "block";
-	scaliendb.util.elem("splitShardKey").focus();
-	scaliendb.util.elem("splitShardKey").select();	
+	$("mainContainer").style.display = "none";
+	$("splitShardContainer").style.display = "block";
+	$("splitShardKey").focus();
+	$("splitShardKey").select();	
 	splitShardID = shardID;
 	hideDialog = hideSplitShard;
 }
@@ -269,97 +319,261 @@ function showSplitShard(shardID)
 var migrateShardID;
 function showMigrateShard(shardID)
 {
-	scaliendb.util.elem("mainContainer").style.display = "none";
-	scaliendb.util.elem("migrateShardContainer").style.display = "block";
-	scaliendb.util.elem("migrateShardQuorum").focus();
-	scaliendb.util.elem("migrateShardQuorum").select();
+	$("mainContainer").style.display = "none";
+	$("migrateShardContainer").style.display = "block";
+	// $("migrateShardQuorum").focus();
+	// $("migrateShardQuorum").select();
+	
+	var numQuorums = populateQuorumSelector("migrateShardQuorumSelector", shardID);
+	if (numQuorums == 0)
+	{
+		$("migrateShardText").innerHTML = "No available quorums!";
+		$("migrateShardButton").innerHTML = "OK";
+		$("migrateShardQuorumSelector").style.visibility = "hidden";
+	}
+	else
+	{
+		$("migrateShardText").innerHTML = "Migrate to quorum:";
+		$("migrateShardButton").innerHTML = "Migrate";
+		$("migrateShardQuorumSelector").style.visibility = "visible";
+	}
+	
 	migrateShardID = shardID;
 	hideDialog = hideMigrateShard;
 }
 
+function showError(title, text)
+{
+	$("mainContainer").style.display = "none";
+	$("errorContainer").style.display = "block";
+	$("errorTitle").innerHTML = title;
+	$("errorText").innerHTML = text;
+	hideDialog = hideError;
+}
+
+function populateQuorumSelector(name, shardID)
+{
+	var selector = $(name);	
+	if (selector == null || !lastConfigState.hasOwnProperty("quorums"))
+		return 0;
+
+	// delete child nodes
+	while (selector.hasChildNodes()) {
+	    selector.removeChild(selector.lastChild);
+	}		
+	
+	// populate quorumIDs
+	for (var q in lastConfigState["quorums"])
+	{
+		var quorum = lastConfigState["quorums"][q];
+		if (!quorum.hasOwnProperty("quorumID"))
+			continue;
+
+		// shardID is optional
+	    if (shardID != undefined)
+		{
+			var currentQuorum = false;
+			for (var qsID in quorum["shards"])
+			{
+				if (qsID == shardID)
+				{
+					currentQuorum = true;
+					break;
+				}
+			}
+			if (currentQuorum)
+				continue;
+		}
+		var quorumID = quorum["quorumID"];
+		var node = document.createElement("option");
+		node.innerHTML = quorumID;
+		node.setAttribute("value", "quorum_" + quorumID);
+		selector.appendChild(node);
+	}
+
+	// set the first selected
+	if (selector.options.length > 0)
+		selector.options[0].selected = true;
+	
+	return selector.options.length;
+}
+
+function shardServersNotInQuorum(quorumID)
+{
+	var shardServers = [];
+	// populate quorumIDs
+	for (var s in lastConfigState["shardServers"])
+	{
+		var shardServer = lastConfigState["shardServers"][s];
+		if (!shardServer.hasOwnProperty("quorumInfos"))
+			continue;
+
+	    if (quorumID != undefined)
+		{
+			var found = false;
+			for (var qi in shardServer["quorumInfos"])
+			{
+				var quorumInfo = shardServer["quorumInfos"][qi];
+				if (quorumInfo["quorumID"] == quorumID)
+				{
+					// skip shardserver
+					found = true;
+					break;
+				}
+			}
+			if (found)
+				continue;
+		}
+		shardServers.push(shardServer["nodeID"]);
+	}
+
+	return shardServers;
+}
+
+function shardServersInQuorum(quorumID)
+{
+	var shardServers = [];
+	// populate quorumIDs
+	for (var s in lastConfigState["shardServers"])
+	{
+		var shardServer = lastConfigState["shardServers"][s];
+		if (!shardServer.hasOwnProperty("quorumInfos"))
+			continue;
+
+	    if (quorumID != undefined)
+		{
+			var found = false;
+			for (var qi in shardServer["quorumInfos"])
+			{
+				var quorumInfo = shardServer["quorumInfos"][qi];
+				if (quorumInfo["quorumID"] == quorumID)
+				{
+					// skip shardserver
+					shardServers.push(shardServer["nodeID"]);
+					break;
+				}
+			}
+		}
+	}
+
+	return shardServers;
+}
+
+function populateSelector(name, list)
+{
+	var selector = $(name);	
+	if (selector == null || !lastConfigState.hasOwnProperty("quorums"))
+		return 0;
+
+	// delete child nodes
+	while (selector.hasChildNodes()) {
+	    selector.removeChild(selector.lastChild);
+	}		
+	
+	for (var l in list)
+	{
+		var node = document.createElement("option");
+		node.innerHTML = list[l];
+		node.setAttribute("value", list[l]);
+		selector.appendChild(node);
+	}
+
+	// set the first selected
+	if (selector.options.length > 0)
+		selector.options[0].selected = true;
+	
+	return selector.options.length;	
+}
+
 function hideCreateQuorum()
 {
-	scaliendb.util.elem("createQuorumContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("createQuorumContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideDeleteQuorum()
 {
-	scaliendb.util.elem("deleteQuorumContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("deleteQuorumContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideAddNode()
 {
-	scaliendb.util.elem("addNodeContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("addNodeContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideRemoveNode()
 {
-	scaliendb.util.elem("removeNodeContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("removeNodeContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideCreateDatabase()
 {
-	scaliendb.util.elem("createDatabaseContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("createDatabaseContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideRenameDatabase()
 {
-	scaliendb.util.elem("renameDatabaseContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("renameDatabaseContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideDeleteDatabase()
 {
-	scaliendb.util.elem("deleteDatabaseContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("deleteDatabaseContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideCreateTable()
 {
-	scaliendb.util.elem("createTableContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("createTableContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideRenameTable()
 {
-	scaliendb.util.elem("renameTableContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("renameTableContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideTruncateTable()
 {
-	scaliendb.util.elem("truncateTableContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("truncateTableContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideDeleteTable()
 {
-	scaliendb.util.elem("deleteTableContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("deleteTableContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideSplitShard()
 {
-	scaliendb.util.elem("splitShardContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("splitShardContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function hideMigrateShard()
 {
-	scaliendb.util.elem("migrateShardContainer").style.display = "none";
-	scaliendb.util.elem("mainContainer").style.display = "block";
+	$("migrateShardContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
+}
+
+function hideError()
+{
+	$("errorContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
 }
 
 function createQuorum()
 {
 	hideCreateQuorum();
 	
-	var nodes = scaliendb.util.elem("createQuorumShardServers").value;
+	var nodes = $("createQuorumShardServers").value;
 	nodes = scaliendb.util.removeSpaces(nodes);
 	scaliendb.onResponse = onResponse;
 	scaliendb.createQuorum(nodes);
@@ -376,7 +590,9 @@ function addNode()
 {
 	hideAddNode();
 
-	var nodeID = scaliendb.util.elem("addNodeShardServer").value;
+	// var nodeID = $("addNodeShardServer").value;
+	var selector = $("addNodeShardServerSelector");
+	var nodeID = selector.options[selector.selectedIndex].text;
 	nodeID = scaliendb.util.removeSpaces(nodeID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.addNode(addNodeQuorumID, nodeID);
@@ -386,7 +602,9 @@ function removeNode()
 {
 	hideRemoveNode();
 
-	var nodeID = scaliendb.util.elem("removeNodeShardServer").value;
+	// var nodeID = $("removeNodeShardServer").value;
+	var selector = $("removeNodeShardServerSelector");
+	var nodeID = selector.options[selector.selectedIndex].text;
 	nodeID = scaliendb.util.removeSpaces(nodeID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.removeNode(removeNodeQuorumID, nodeID);
@@ -401,7 +619,7 @@ function activateNode(quorumID, nodeID)
 function createDatabase()
 {
 	hideCreateDatabase();
-	var name = scaliendb.util.elem("createDatabaseName").value;
+	var name = $("createDatabaseName").value;
 	name = scaliendb.util.removeSpaces(name);
 	scaliendb.onResponse = onResponse;
 	scaliendb.createDatabase(name);
@@ -410,7 +628,7 @@ function createDatabase()
 function renameDatabase()
 {
 	hideRenameDatabase();
-	var name = scaliendb.util.elem("renameDatabaseName").value;
+	var name = $("renameDatabaseName").value;
 	name = scaliendb.util.removeSpaces(name);
 	scaliendb.onResponse = onResponse;
 	scaliendb.renameDatabase(renameDatabaseID, name);
@@ -426,9 +644,11 @@ function deleteDatabase()
 function createTable()
 {
 	hideCreateTable();
-	var name = scaliendb.util.elem("createTableName").value;
+	var name = $("createTableName").value;
 	name = scaliendb.util.removeSpaces(name);
-	var quorumID = scaliendb.util.elem("createTableQuorum").value;
+	// var quorumID = $("createTableQuorum").value;
+	var selector = $("createTableQuorumSelector");
+	var quorumID = selector.options[selector.selectedIndex].text;
 	quorumID = scaliendb.util.removeSpaces(quorumID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.createTable(createTableDatabaseID, quorumID, name);
@@ -437,7 +657,7 @@ function createTable()
 function renameTable()
 {
 	hideRenameTable();
-	var name = scaliendb.util.elem("renameTableName").value;
+	var name = $("renameTableName").value;
 	name = scaliendb.util.removeSpaces(name);
 	scaliendb.onResponse = onResponse;
 	scaliendb.renameTable(renameTableID, name);
@@ -472,7 +692,7 @@ function unfreezeTable(tableID)
 function splitShard()
 {
 	hideSplitShard();
-	var key = scaliendb.util.elem("splitShardKey").value;
+	var key = $("splitShardKey").value;
 	scaliendb.onResponse = onResponse;
 	scaliendb.splitShard(splitShardID, key);
 }
@@ -480,14 +700,18 @@ function splitShard()
 function migrateShard()
 {
 	hideMigrateShard();
-	var quorumID = scaliendb.util.elem("migrateShardQuorum").value;
+	// var quorumID = $("migrateShardQuorum").value;
+	var selector = $("migrateShardQuorumSelector");
+	var quorumID = selector.options[selector.selectedIndex].text;
 	quorumID = scaliendb.util.removeSpaces(quorumID);
 	scaliendb.onResponse = onResponse;
 	scaliendb.migrateShard(migrateShardID, quorumID);
 }
 
-function onResponse()
+function onResponse(json)
 {
+	if (json.hasOwnProperty("response") && json["response"] == "FAILED")
+		showError("Error", "Something failed");
 	updateConfigState();
 }
 
@@ -507,7 +731,8 @@ function updateConfigState()
 var timer;
 function onConfigState(configState)
 {
-	scaliendb.util.elem("controller").textContent = "Connected to " + scaliendb.controller;
+	lastConfigState = configState;
+	$("controller").textContent = "Connected to " + scaliendb.controller;
 
 	createDashboard(configState);
 	
@@ -521,8 +746,8 @@ function onConfigState(configState)
 			createMigrationDivs(configState, configState[key]);
 	}
 	
-	scaliendb.util.elem("clusterState").textContent = "The ScalienDB cluster is " + scaliendb.getClusterState(configState);
-	scaliendb.util.elem("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
+	$("clusterState").textContent = "The ScalienDB cluster is " + scaliendb.getClusterState(configState);
+	$("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
 	
 	// clearTimeout(timer);
 	// timer = setTimeout("onTimeout()", 1000);
@@ -631,28 +856,28 @@ function createDashboard(configState)
 	avgShards = Math.round(numShards / numTables * 10) / 10;
 	avgShardsText = cardinality(avgShards, "shard")
 	
-	scaliendb.util.elem("numDatabasesPrefix").textContent = numDatabasesPrefixText;
-	scaliendb.util.elem("numDatabases").textContent = numDatabasesText;
-	scaliendb.util.elem("numTables").textContent = numTablesText;
-	scaliendb.util.elem("numShards").textContent = numShardsText;
-	scaliendb.util.elem("numQuorums").textContent = numQuorumsText;
-	scaliendb.util.elem("numShardServers").textContent = numShardServersText;
+	$("numDatabasesPrefix").textContent = numDatabasesPrefixText;
+	$("numDatabases").textContent = numDatabasesText;
+	$("numTables").textContent = numTablesText;
+	$("numShards").textContent = numShardsText;
+	$("numQuorums").textContent = numQuorumsText;
+	$("numShardServers").textContent = numShardServersText;
 	
 
-	scaliendb.util.elem("minTables").textContent = minTablesText;
-	scaliendb.util.elem("maxTables").textContent = maxTablesText;
-	scaliendb.util.elem("avgTables").textContent = avgTablesText;
+	$("minTables").textContent = minTablesText;
+	$("maxTables").textContent = maxTablesText;
+	$("avgTables").textContent = avgTablesText;
 
-	scaliendb.util.elem("minShards").textContent = minShardsText;
-	scaliendb.util.elem("maxShards").textContent = maxShardsText;
-	scaliendb.util.elem("avgShards").textContent = avgShardsText;
+	$("minShards").textContent = minShardsText;
+	$("maxShards").textContent = maxShardsText;
+	$("avgShards").textContent = avgShardsText;
 	
 	if (numDatabases == 0 || numTables == 0)
-		scaliendb.util.elem("dashboardStats").style.display = "none";
+		$("dashboardStats").style.display = "none";
 	else
-		scaliendb.util.elem("dashboardStats").style.display = "inline";
+		$("dashboardStats").style.display = "inline";
 	
-	scaliendb.util.clear(scaliendb.util.elem("shardservers"));
+	scaliendb.util.clear($("shardservers"));
 	
 	var html = '';
 	for (var i in shardServerIDs)
@@ -664,7 +889,7 @@ function createDashboard(configState)
 		else
 			html += ' <span class="no-heartbeat shardserver-number">' + nodeID + '</span> ';
 	}
-	scaliendb.util.elem("shardservers").innerHTML = html;
+	$("shardservers").innerHTML = html;
 }
 
 function createQuorumDivs(configState, quorums)
@@ -680,7 +905,7 @@ function createQuorumDivs(configState, quorums)
 		quorumsDiv.appendChild(quorumDiv);
 	}
 	
-	scaliendb.util.elem("tabPageQuorums").appendChild(quorumsDiv);
+	$("tabPageQuorums").appendChild(quorumsDiv);
 }
 
 function createQuorumDiv(configState, quorum)
@@ -765,6 +990,20 @@ function createQuorumDiv(configState, quorum)
 		shardID = quorum["shards"][i]
 		html += ' <span class="shard-number">' + shardID + '</span> ';
 	}
+
+	var addNode = "";
+	if (shardServersNotInQuorum(quorum["quorumID"]).length > 0)
+	{
+		addNode = '<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
+		')"><span class="create-button">add server</span></a><br/><br/>';
+	}	
+
+	var removeNode = "";
+	if (shardServersInQuorum(quorum["quorumID"]).length > 0)
+	{
+		removeNode = '<a class="no-line" href="javascript:showRemoveNode(' + quorum["quorumID"] +
+		')"><span class="modify-button">remove server</span></a><br/><br/>';
+	}
 	html +=
 	'																									\
 				<br/>																					\
@@ -772,12 +1011,10 @@ function createQuorumDiv(configState, quorum)
 				<!-- Size: 0GB -->																		\
 				<div class="explanation">Explanation: ' + explanation + '<br/>' + catchupText + '</span>						\
 			</td>																						\
-			<td class="table-actions">																	\
-				<a class="no-line" href="javascript:showAddNode(' + quorum["quorumID"] +
-				')"><span class="create-button">add server</span></a><br/><br/>							\
-				<a class="no-line" href="javascript:showRemoveNode(' + quorum["quorumID"] +
-				')"><span class="modify-button">remove server</span></a><br/><br/>						\
-				<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
+			<td class="table-actions">' +
+				addNode +
+				removeNode +
+				'<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
 				')"><span class="delete-button">delete quorum</span></a>								\
 			</td>																						\
 		</tr>																							\
@@ -803,7 +1040,7 @@ function createDatabaseDivs(configState, databases)
 		databasesDiv.appendChild(databaseDiv);
 	}
 	
-	scaliendb.util.elem("tabPageSchema").appendChild(databasesDiv);
+	$("tabPageSchema").appendChild(databasesDiv);
 }
 
 function createDatabaseDiv(configState, database)
@@ -940,6 +1177,14 @@ function createTableDiv(configState, table)
 
 function createShardDiv(configState, shard)
 {
+	var migrateShard = "";
+	if (configState["quorums"].length > 1)
+	{
+		migrateShard = '<a class="no-line" href="javascript:showMigrateShard(\'' +
+					shard["shardID"] +  '\')">															\
+					<span class="modify-button">migrate shard</span></a><br/><br/>';
+	}
+
 	var html =
 	'																									\
 		<table class="shard">																			\
@@ -965,11 +1210,9 @@ function createShardDiv(configState, shard)
 				<td class="shard-actions">																\
 					<a class="no-line" href="javascript:showSplitShard(\'' +
 					shard["shardID"] + '\')">								\
-					<span class="modify-button">split shard</span></a><br/><br/>						\
-					<a class="no-line" href="javascript:showMigrateShard(\'' +
-					shard["shardID"] +  '\')">															\
-					<span class="modify-button">migrate shard</span></a><br/><br/>						\
-				</td>																					\
+					<span class="modify-button">split shard</span></a><br/><br/>' + 
+					migrateShard +					
+				'</td>																					\
 			</tr>																						\
 		</table>																						\
 	';
@@ -1001,10 +1244,10 @@ function createMigrationDivs(configState, shardServers)
 		}
 	}
 	
-	scaliendb.util.elem("tabPageMigration").appendChild(migrationsDiv);
-	scaliendb.util.elem("tabHeadMigration").innerHTML = "Shard migration";
+	$("tabPageMigration").appendChild(migrationsDiv);
+	$("tabHeadMigration").innerHTML = "Shard migration";
 	if (count > 0)
-		scaliendb.util.elem("tabHeadMigration").innerHTML += " (" + count + ")";
+		$("tabHeadMigration").innerHTML += " (" + count + ")";
 }
 
 function createMigrationDiv(configState, shardServer, quorumShardInfo)
@@ -1091,7 +1334,7 @@ function locateQuorum(configState, quorumID)
 
 function consoleEvalExpression()
 {
-	var consoleForm = scaliendb.util.elem("console-form");
+	var consoleForm = $("console-form");
 	var cmd = consoleForm.input.value;
 	consoleForm.output.value += "Executing " + cmd + "\n";
 	eval(cmd);

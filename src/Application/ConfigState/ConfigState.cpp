@@ -4,8 +4,8 @@
 
 #define CONFIG_MESSAGE_PREFIX   'C'
 
-#define READ_SEPARATOR()    \
-    read = buffer.Readf(":");       \
+#define READ_SEPARATOR()        \
+    read = buffer.Readf(":");   \
     if (read < 1) return false; \
     buffer.Advance(read);
 
@@ -56,6 +56,7 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     
     hasMaster = other.hasMaster;
     masterID = other.masterID;
+    paxosID = other.paxosID;
     
     isSplitting = other.isSplitting;
     
@@ -91,6 +92,7 @@ void ConfigState::Init()
     
     hasMaster = false;
     masterID = 0;
+    paxosID = 0;
     
     isSplitting = false;
     
@@ -117,6 +119,7 @@ void ConfigState::Transfer(ConfigState& other)
 
     other.hasMaster = hasMaster;
     other.masterID = masterID;
+    other.paxosID = paxosID;
     
     other.isSplitting = isSplitting;
     
@@ -227,6 +230,11 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
             read = buffer.Readf("%U", &masterID);
             CHECK_ADVANCE(1);
             hasMaster = true;
+
+            // paxosID is optional from version 0.9.8
+            read = buffer.Readf(":P%U", &paxosID);
+            if (read > 0)
+                CHECK_ADVANCE(3);
         }
         
         READ_SEPARATOR();
@@ -277,6 +285,9 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
             buffer.Appendf("%c:%U", YES, masterID);
         else
             buffer.Appendf("%c", NO);
+
+        // as paxosID is optional from 0.9.8, it is prefixed with P
+        buffer.Appendf(":P%U", paxosID);
 
         buffer.Appendf(":");        
         if (isMigrating)

@@ -796,7 +796,7 @@ void ShardQuorumProcessor::OnResumeAppend()
 
         if (message.type == SHARDMESSAGE_MIGRATION_BEGIN)
         {
-            Log_Message("Disabeling database merge for the duration of shard migration");
+            Log_Message("Disabling database merge for the duration of shard migration");
             shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(false);
         }
         if (message.type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)

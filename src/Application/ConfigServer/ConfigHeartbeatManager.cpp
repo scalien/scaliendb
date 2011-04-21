@@ -113,6 +113,11 @@ unsigned ConfigHeartbeatManager::GetNumHeartbeats()
     return heartbeats.GetLength();
 }
 
+ConfigHeartbeatManager::HeartbeatList& ConfigHeartbeatManager::GetHeartbeats()
+{
+    return heartbeats;
+}
+
 void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
 {
     Heartbeat       *it;

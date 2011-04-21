@@ -403,51 +403,51 @@ clean-release:
 	-rm -r -f $(BUILD_RELEASE_DIR) 2>&1
 	
 clean-libs: clean-pythonlib clean-phplib clean-javalib clean-rubylib clean-perllib
-	-rm $(CLIENTLIBS) 2>&1
+	-rm -f $(CLIENTLIBS) 2>&1
 
 clean-pythonlib:
-	-rm $(BIN_DIR)/$(PYTHON_DIR)/* 2>&1
+	-rm -f $(BIN_DIR)/$(PYTHON_DIR)/* 2>&1
 
 clean-javalib:
-	-rm $(BUILD_DIR)/$(JAVA_CLIENT_DIR)/* 2>&1
+	-rm -f $(BUILD_DIR)/$(JAVA_CLIENT_DIR)/* 2>&1
 	-rm -rf $(BIN_DIR)/$(JAVA_DIR)/* 2>&1
 
 clean-phplib:
-	-rm $(BUILD_DIR)/$(PHP_CLIENT_DIR)/* 2>&1
-	-rm $(BIN_DIR)/$(PHP_DIR)/* 2>&1
+	-rm -f $(BUILD_DIR)/$(PHP_CLIENT_DIR)/* 2>&1
+	-rm -f $(BIN_DIR)/$(PHP_DIR)/* 2>&1
 
 clean-rubylib:
-	-rm $(BUILD_DIR)/$(RUBY_CLIENT_DIR)/* 2>&1
-	-rm $(BIN_DIR)/$(RUBY_DIR)/* 2>&1
+	-rm -f $(BUILD_DIR)/$(RUBY_CLIENT_DIR)/* 2>&1
+	-rm -f $(BIN_DIR)/$(RUBY_DIR)/* 2>&1
 
 clean-perllib:
-	-rm $(BUILD_DIR)/$(PERL_CLIENT_DIR)/* 2>&1
-	-rm $(BIN_DIR)/$(PERL_DIR)/* 2>&1
+	-rm -f $(BUILD_DIR)/$(PERL_CLIENT_DIR)/* 2>&1
+	-rm -f $(BIN_DIR)/$(PERL_DIR)/* 2>&1
 
 clean-pythonlib-swig:
-	-rm $(SRC_DIR)/$(PYTHON_CLIENT_WRAPPER).cpp 2>&1
+	-rm -f $(SRC_DIR)/$(PYTHON_CLIENT_WRAPPER).cpp 2>&1
 	
 clean-javalib-swig:
-	-rm $(SRC_DIR)/$(JAVA_CLIENT_WRAPPER).cpp 2>&1
+	-rm -f $(SRC_DIR)/$(JAVA_CLIENT_WRAPPER).cpp 2>&1
 
 clean-phplib-swig:
-	-rm $(SRC_DIR)/$(PHP_CLIENT_WRAPPER).cpp 2>&1
+	-rm -f $(SRC_DIR)/$(PHP_CLIENT_WRAPPER).cpp 2>&1
 
 clean-rubylib-swig:
-	-rm $(SRC_DIR)/$(RUBY_CLIENT_WRAPPER).cpp 2>&1 
+	-rm -f $(SRC_DIR)/$(RUBY_CLIENT_WRAPPER).cpp 2>&1 
 
 clean-perllib-swig:
-	-rm $(SRC_DIR)/$(PERL_CLIENT_WRAPPER).cpp 2>&1
+	-rm -f $(SRC_DIR)/$(PERL_CLIENT_WRAPPER).cpp 2>&1
 
 clean-swig: clean-pythonlib-swig clean-javalib-swig clean-phplib-swig clean-rubylib-swig clean-perllib-swig
 
 clean-executables:
-	-rm $(EXECUTABLES) 2>&1
+	-rm -f $(EXECUTABLES) 2>&1
 
 clean-clientlib:
-	-rm $(TEST_OBJECTS) 2>&1
-	-rm $(BIN_DIR)/clienttest 2>&1 
-	-rm $(BIN_DIR)/clientlib.a 2>&1
+	-rm -f $(TEST_OBJECTS) 2>&1
+	-rm -f $(BIN_DIR)/clienttest 2>&1 
+	-rm -f $(BIN_DIR)/clientlib.a 2>&1
 
 distclean: clean distclean-libs
 

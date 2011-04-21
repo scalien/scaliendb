@@ -91,6 +91,7 @@ uint64_t        SDBP_GetMasterTimeout(ClientObj client);
 
 uint64_t        SDBP_GetCurrentDatabaseID(ClientObj client);
 uint64_t        SDBP_GetCurrentTableID(ClientObj client);
+std::string     SDBP_GetJSONConfigState(ClientObj client);
 
 void            SDBP_SetBatchLimit(ClientObj client, uint64_t limit);
 void            SDBP_SetBulkLoading(ClientObj client, bool bulk);

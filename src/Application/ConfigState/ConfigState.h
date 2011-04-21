@@ -41,6 +41,7 @@ public:
     // 
     bool                hasMaster;
     uint64_t            masterID;
+    uint64_t            paxosID;
     
     bool                isSplitting;    
 

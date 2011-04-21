@@ -45,6 +45,7 @@ public:
     
     uint64_t                GetCurrentDatabaseID();
     uint64_t                GetCurrentTableID();
+    ConfigState*            GetConfigState();
     
     void                    SetBatchLimit(uint64_t batchLimit);
     void                    SetBulkLoading(bool bulk);

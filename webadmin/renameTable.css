@@ -47,7 +47,7 @@ input.rename-table-input {
 	color: #424242;
 }
 
-button.raname-table-button {
+button.rename-table-button {
 	-webkit-border-radius: 10px;
 	-webkit-box-shadow: 3px 3px 4px #000;
 	-moz-border-radius: 10px;
@@ -56,4 +56,8 @@ button.raname-table-button {
 	background-color: #045FB4;
 	color: white;
 	width: 150px;
+}
+
+button.rename-table-button[disabled] {
+	background-color: #ddd;
 }

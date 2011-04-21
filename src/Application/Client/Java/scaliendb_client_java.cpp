@@ -919,6 +919,66 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Re
 }
 
 
+SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultNumNodes(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jlong jresult = 0 ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  unsigned int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ResultObj *)&jarg1; 
+  result = (unsigned int)SDBP_ResultNumNodes(arg1);
+  jresult = (jlong)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultNodeID(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
+  jobject jresult = 0 ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  unsigned int arg2 ;
+  uint64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ResultObj *)&jarg1; 
+  arg2 = (unsigned int)jarg2; 
+  result = (uint64_t)SDBP_ResultNodeID(arg1,arg2);
+  {
+    jbyteArray ba = jenv->NewByteArray(9);
+    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
+    jclass clazz = jenv->FindClass("java/math/BigInteger");
+    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
+    jobject bigint;
+    int i;
+    
+    bae[0] = 0;
+    for(i=1; i<9; i++ ) {
+      bae[i] = (jbyte)(result>>8*(8-i));
+    }
+    
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+    bigint = jenv->NewObject(clazz, mid, ba);
+    jresult = bigint;
+  }
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultElapsedTime(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jlong jresult = 0 ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  unsigned int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ResultObj *)&jarg1; 
+  result = (unsigned int)SDBP_ResultElapsedTime(arg1);
+  jresult = (jlong)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Create(JNIEnv *jenv, jclass jcls) {
   jlong jresult = 0 ;
   ClientObj result;
@@ -1160,6 +1220,20 @@ SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
     bigint = jenv->NewObject(clazz, mid, ba);
     jresult = bigint;
   }
+  return jresult;
+}
+
+
+SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetJSONConfigState(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jstring jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  result = SDBP_GetJSONConfigState(arg1);
+  jresult = jenv->NewStringUTF((&result)->c_str()); 
   return jresult;
 }
 

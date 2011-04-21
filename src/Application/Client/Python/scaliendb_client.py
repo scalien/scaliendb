@@ -177,6 +177,7 @@ SDBP_GetGlobalTimeout = _scaliendb_client.SDBP_GetGlobalTimeout
 SDBP_GetMasterTimeout = _scaliendb_client.SDBP_GetMasterTimeout
 SDBP_GetCurrentDatabaseID = _scaliendb_client.SDBP_GetCurrentDatabaseID
 SDBP_GetCurrentTableID = _scaliendb_client.SDBP_GetCurrentTableID
+SDBP_GetJSONConfigState = _scaliendb_client.SDBP_GetJSONConfigState
 SDBP_SetBatchLimit = _scaliendb_client.SDBP_SetBatchLimit
 SDBP_SetBulkLoading = _scaliendb_client.SDBP_SetBulkLoading
 SDBP_SetConsistencyLevel = _scaliendb_client.SDBP_SetConsistencyLevel

@@ -287,6 +287,11 @@ uint64_t Client::GetCurrentTableID()
     return tableID;
 }
 
+ConfigState* Client::GetConfigState()
+{
+    return configState;
+}
+
 void Client::SetBatchLimit(uint64_t batchLimit_)
 {
     batchLimit = batchLimit_;

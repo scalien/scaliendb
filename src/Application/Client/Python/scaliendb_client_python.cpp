@@ -5429,6 +5429,26 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_GetJSONConfigState(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if (!PyArg_ParseTuple(args,(char *)"O:SDBP_GetJSONConfigState",&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_GetJSONConfigState" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  result = SDBP_GetJSONConfigState(arg1);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_SetBatchLimit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -7548,6 +7568,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_GetMasterTimeout", _wrap_SDBP_GetMasterTimeout, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetCurrentDatabaseID", _wrap_SDBP_GetCurrentDatabaseID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetCurrentTableID", _wrap_SDBP_GetCurrentTableID, METH_VARARGS, NULL},
+	 { (char *)"SDBP_GetJSONConfigState", _wrap_SDBP_GetJSONConfigState, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetBatchLimit", _wrap_SDBP_SetBatchLimit, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetBulkLoading", _wrap_SDBP_SetBulkLoading, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetConsistencyLevel", _wrap_SDBP_SetConsistencyLevel, METH_VARARGS, NULL},

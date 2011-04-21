@@ -161,6 +161,9 @@ class Client:
     def set_consistency_level(self, consistency_level):
         SDBP_SetConsistencyLevel(self.cptr, consistency_level)
 
+    def get_json_config_state(self):
+        return SDBP_GetJSONConfigState(self.cptr)
+
     def create_quorum(self, nodes):
         node_params = SDBP_NodeParams(len(nodes))
         for node in nodes:
@@ -355,7 +358,7 @@ class Client:
     
     def is_batched(self):
         return SDBP_IsBatched(self.cptr)
-        
+    
     def _set_trace(self, trace):
         SDBP_SetTrace(trace)
     

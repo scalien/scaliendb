@@ -57,3 +57,8 @@ button.rename-database-button {
 	color: white;
 	width: 150px;
 }
+
+button.rename-database-button[disabled] {
+	background-color: #ddd;
+}
+
