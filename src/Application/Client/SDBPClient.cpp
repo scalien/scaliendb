@@ -681,7 +681,6 @@ void Client::EventLoop()
             break;
         }
         
-
         if (!IOProcessor::Poll(sleep))
         {
             GLOBAL_MUTEX_GUARD_UNLOCK();
