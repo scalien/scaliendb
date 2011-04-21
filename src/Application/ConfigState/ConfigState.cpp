@@ -234,7 +234,9 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
             // paxosID is optional from version 0.9.8
             read = buffer.Readf(":P%U", &paxosID);
             if (read > 0)
+            {
                 CHECK_ADVANCE(3);
+            }
         }
         
         READ_SEPARATOR();
