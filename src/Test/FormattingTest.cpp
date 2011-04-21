@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "System/Macros.h"
+#include "System/Buffers/Buffer.h"
 
 extern int UIntToBuffer(char* buf, size_t bufsize, unsigned value);
 
@@ -24,5 +25,18 @@ TEST_DEFINE(TestFormattingUnsigned)
             TEST_FAIL();
     }
 #endif
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestFormattingPadding)
+{
+    Buffer  tmp;
+    
+    tmp.Writef("%04d", 1);
+    TEST_ASSERT(tmp.Cmp("0001") == 0);
+
+    tmp.Writef("% 4d", 1);
+    TEST_ASSERT(tmp.Cmp("   1") == 0);
+    
     return TEST_SUCCESS;
 }

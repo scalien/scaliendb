@@ -376,6 +376,7 @@ int VWritef(char* buffer, unsigned size, const char* format, va_list ap)
     bool            ghost;
     bool            pad;
     unsigned        padlen;
+    char            padchar;
 
 #define ADVANCE(f, b)   { format += (f); length -= (f); if (!ghost) { buffer += (b); size -= (b); } }
 #define EXIT()          { return -1; }
@@ -390,7 +391,7 @@ if (pad)                                            \
         if (ghost) padlen = size;                   \
         for (unsigned z = 0; z < padlen; z++)       \
         {                                           \
-            *buffer = '0';                          \
+            *buffer = padchar;                      \
             ADVANCE(0, 1);                          \
         }                                           \
     }                                               \
@@ -409,13 +410,24 @@ if (pad)                                            \
         {
             if (format[1] == '\0')
                 EXIT(); // % cannot be at the end of the format string
-            if(format[1] == '0')
+            if (format[1] == '0')
             {
                 // pad with zeroes
                 ASSERT(format[2] != '\0');
                 padlen = BufferToInt64(format + 2, length - 2, &u);
                 ASSERT(u > 0);
                 pad = true;
+                padchar = '0';
+                ADVANCE(u + 1, 0);
+            }
+            else if (format[1] == ' ')
+            {
+                // pad with spaces
+                ASSERT(format[2] != '\0');
+                padlen = BufferToInt64(format + 2, length - 2, &u);
+                ASSERT(u > 0);
+                pad = true;
+                padchar = ' ';
                 ADVANCE(u + 1, 0);
             }
             
