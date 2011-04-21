@@ -30,6 +30,8 @@ public:
     void                        OnCatchupComplete();
     void                        WriteState();
     void                        Commit(bool sendReply = false);
+    
+    void                        ResetState();
 
 private:
     void                        OnPrepareRequest(PaxosMessage& msg);
