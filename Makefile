@@ -402,11 +402,9 @@ clean: clean-debug clean-release clean-libs clean-executables
 	-rm -rf $(DEB_DIR) 2>&1
 
 clean-debug:
-	-rm -f $(BASE_DIR)/scaliendb 2>&1
 	-rm -r -f $(BUILD_DEBUG_DIR) 2>&1
 	
 clean-release:
-	-rm -f $(BASE_DIR)/scaliendb 2>&1
 	-rm -r -f $(BUILD_RELEASE_DIR) 2>&1
 	
 clean-libs: clean-pythonlib clean-phplib clean-javalib clean-rubylib clean-perllib
