@@ -5,5 +5,14 @@ DIRNAME=$(dirname $0)
 
 export PYTHONSTARTUP=$SCALIENDB_PYTHONSTARTUP
 
+if [ ! -f $PYTHONSTARTUP ] || [ ! -f $SCALIENDB_HOME/bin/python/scaliendb.py ]; then
+	echo
+	echo "The shell needs Python library to be built first. Please issue"
+	echo 
+	echo " $ make pythonlib"
+	echo
+	exit 1
+fi
+
 cd bin/python
 python 

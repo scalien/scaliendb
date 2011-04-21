@@ -402,6 +402,7 @@ if (pad)                                            \
     required = 0;
     length = strlen(format);
     padlen = 0;
+    padchar = '0';
     
     while(format[0] != '\0')
     {
