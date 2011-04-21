@@ -316,6 +316,7 @@ $(BIN_DIR)/scaliendb: $(BUILD_DIR)/ScalienDB
 	-cp -fr $(SCRIPT_DIR)/scaliendb-env.sh $(BIN_DIR)
 	-cp -fr $(SCRIPT_DIR)/shell.py $(BIN_DIR)
 	-cp -fr $(SCRIPT_DIR)/cli $(BIN_DIR)
+	-cp -rf $(SCRIPT_DIR)/safe_scaliendb $(BIN_DIR)
 
 ##############################################################################
 #

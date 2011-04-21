@@ -1,0 +1,14 @@
+#!/bin/sh
+
+safe_scaliendb()
+{
+	while (:); do
+		$1 $2 2>&1 >> /dev/null
+		EXITSTATUS=$?
+		if [ "$EXITSTATUS" = "0" -o "$EXITSTATUS" = "1" -o "$EXITSTATUS" = "143" -o "$EXITSTATUS" = "127" ]; then
+			exit 0
+		fi
+	done
+}
+
+safe_scaliendb $1 $2 2>&1 >> /dev/null &
