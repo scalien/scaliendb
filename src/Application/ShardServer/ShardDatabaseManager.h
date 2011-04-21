@@ -70,7 +70,7 @@ public:
 class ShardDatabaseManager
 {
     typedef HashMap<uint64_t, StorageShardProxy*>   ShardMap;
-    typedef InList<ClientRequest>                   ClientSortedRequestList;
+    typedef InSortedList<ClientRequest>             ClientSortedRequestList;
     typedef InList<ClientRequest>                   ClientRequestList;
 
     friend class ShardDatabaseAsyncGet;
@@ -112,7 +112,7 @@ private:
     ShardMap                quorumPaxosShards;
     ShardMap                quorumLogShards;
     Countdown               yieldStorageThreadsTimer;
-    ClientSortedRequestList readRequests;
+    ClientRequestList       readRequests;
     ClientRequestList       blockingReadRequests;
     ClientRequestList       listRequests;
     YieldTimer              executeReads;

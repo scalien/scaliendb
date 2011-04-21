@@ -586,6 +586,8 @@ void ShardDatabaseManager::OnExecuteReads()
     ReadBuffer      key;
     ClientRequest*  itRequest;
 
+    Log_Trace("asyncGet: %b", asyncGet.active);
+
     if (asyncGet.active)
         return;
     
@@ -624,11 +626,14 @@ void ShardDatabaseManager::OnExecuteReads()
         if (!environment.TryNonblockingGet(contextID, shardID, &asyncGet))
         {
             // HACK store timestamp for later comparison in order to avoid duplicate memo chunk search
+            asyncGet.active = false;
             itRequest->changeTimeout = start;
             blockingReadRequests.Append(itRequest);
         }
     }
-    
+
+    Log_Trace("blocking");
+        
     FOREACH_FIRST (itRequest, blockingReadRequests)
     {
         // let other code run in the main thread every YIELD_TIME msec
@@ -682,7 +687,7 @@ void ShardDatabaseManager::OnExecuteLists()
     ClientRequest*  itRequest;
     ConfigShard*    configShard;
 
-    if (asyncGet.active)
+    if (asyncList.active)
         return;
     
     start = NowClock();
