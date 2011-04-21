@@ -225,6 +225,8 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 
 void ShardMigrationWriter::OnWriteReadyness()
 {
+    uint64_t bytesBegin;
+
     ASSERT(quorumProcessor != NULL);
     if (!quorumProcessor->IsPrimary()
      || !shardServer->GetConfigState()->isMigrating
@@ -235,7 +237,7 @@ void ShardMigrationWriter::OnWriteReadyness()
         Abort();
         return;
     }
-    
+
     if (sendFirst)
     {
         sendFirst = false;
@@ -243,7 +245,14 @@ void ShardMigrationWriter::OnWriteReadyness()
     }
     else
     {
-        SendNext();
+        bytesBegin = bytesSent;
+
+        while (bytesSent < bytesBegin + SHARD_MIGRATION_WRITER_GRAN)
+        {
+            if (!cursor)
+                break;
+            SendNext();
+        }
     }
 }
 
