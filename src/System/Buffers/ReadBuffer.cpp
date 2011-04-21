@@ -127,6 +127,19 @@ bool ReadBuffer::BeginsWith(ReadBuffer& other)
         return false;
 }
 
+bool ReadBuffer::IsAsciiPrintable()
+{
+    unsigned    i;
+    
+    for (i = 0; i < length; i++)
+    {
+        if ((unsigned char)buffer[i] < 32 || (unsigned char)buffer[i] > 127)
+            return false;
+    }
+    
+    return true;    
+}
+
 bool ReadBuffer::ReadChar(char& x)
 {
     if (length < sizeof(char))
