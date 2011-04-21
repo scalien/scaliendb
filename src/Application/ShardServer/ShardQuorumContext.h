@@ -65,6 +65,7 @@ public:
 
     virtual void                    StopReplication();
     virtual void                    ContinueReplication();
+    void                            ResetReplicationState();
 
     void                            RegisterPaxosID(uint64_t paxosID);
 

@@ -623,6 +623,9 @@ bool ConfigState::CompleteCreateDatabase(ConfigMessage& message)
     
     if (message.name.GetLength() > DATABASE_NAME_SIZE)
         return false;
+        
+    if (!message.name.IsAsciiPrintable())
+        return false;
     
     database = GetDatabase(message.name);
     if (database != NULL)
@@ -645,6 +648,9 @@ bool ConfigState::CompleteRenameDatabase(ConfigMessage& message)
     database = GetDatabase(message.name);
     if (database != NULL)
         return false; // database with name exists
+
+    if (!message.name.IsAsciiPrintable())
+        return false;
 
     return true;
 }
@@ -681,6 +687,9 @@ bool ConfigState::CompleteCreateTable(ConfigMessage& message)
     if (table != NULL)
         return false; // table with name exists in database
 
+    if (!message.name.IsAsciiPrintable())
+        return false;
+
     return true;
 }
 
@@ -697,6 +706,9 @@ bool ConfigState::CompleteRenameTable(ConfigMessage& message)
     table = GetTable(table->databaseID, message.name);
     if (table != NULL)
         return false; // table with name exists in database
+
+    if (!message.name.IsAsciiPrintable())
+        return false;
 
     return true;
 }

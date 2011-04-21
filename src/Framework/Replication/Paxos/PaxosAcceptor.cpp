@@ -37,15 +37,7 @@ void PaxosAcceptor::OnMessage(PaxosMessage& imsg)
 
 void PaxosAcceptor::OnCatchupComplete()
 {
-    bool ac;
-    
-    state.Init();
-
-    ac = asyncCommit;
-    asyncCommit = false; // force sync commit on catchup complete
-    WriteState();
-    Commit(false);
-    asyncCommit = ac;
+    ResetState();
 }
 
 void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
@@ -142,12 +134,8 @@ void PaxosAcceptor::ReadState()
         state.acceptedRunID = db->GetAcceptedRunID();
         state.acceptedProposalID = db->GetAcceptedProposalID();
         db->GetAcceptedValue(context->GetPaxosID(), state.acceptedValue);
-//        ASSERT(state.acceptedValue.GetLength() > 0);
-    }
-    
-    // TODO: temp fix
-    if (state.acceptedValue.GetLength() == 0)
-        state.OnNewPaxosRound();
+        ASSERT(state.acceptedValue.GetLength() > 0);
+    }    
 }
 
 void PaxosAcceptor::WriteState()
@@ -187,4 +175,18 @@ void PaxosAcceptor::Commit(bool sendReply_)
         db->Commit();
         OnStateWritten();
     }
+}
+
+void PaxosAcceptor::ResetState()
+{
+    bool ac;
+    
+    state.Init();
+
+    ac = asyncCommit;
+    asyncCommit = false; // force sync commit
+    WriteState();
+    Commit(false);
+    asyncCommit = ac;
+
 }

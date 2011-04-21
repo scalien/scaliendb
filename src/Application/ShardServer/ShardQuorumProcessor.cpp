@@ -205,6 +205,7 @@ void ShardQuorumProcessor::OnStartCatchup()
         return;
     
     quorumContext.StopReplication();
+    quorumContext.ResetReplicationState();
     
     msg.CatchupRequest(MY_NODEID, quorumContext.GetQuorumID());
     

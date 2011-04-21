@@ -214,6 +214,11 @@ void ShardQuorumContext::ContinueReplication()
     replicatedLog.Continue();
 }
 
+void ShardQuorumContext::ResetReplicationState()
+{
+    replicatedLog.ResetPaxosState();
+}
+
 void ShardQuorumContext::OnMessage(uint64_t /*nodeID*/, ReadBuffer buffer)
 {
     char proto;

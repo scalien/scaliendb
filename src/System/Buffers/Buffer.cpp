@@ -259,15 +259,7 @@ void Buffer::SetCharAt(unsigned i, char c)
 
 bool Buffer::IsAsciiPrintable()
 {
-    unsigned    i;
-    
-    for (i = 0; i < length; i++)
-    {
-        if ((unsigned char)buffer[i] < 32 || (unsigned char)buffer[i] > 127)
-            return false;
-    }
-    
-    return true;
+    return ReadBuffer(*this).IsAsciiPrintable();
 }
 
 void Buffer::ToHexadecimal()

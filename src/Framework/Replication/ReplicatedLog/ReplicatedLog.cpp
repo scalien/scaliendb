@@ -136,6 +136,11 @@ void ReplicatedLog::NewPaxosRound()
     lastRequestChosenTime = 0;
 }
 
+void ReplicatedLog::ResetPaxosState()
+{
+    acceptor.ResetState();
+}
+
 void ReplicatedLog::RegisterPaxosID(uint64_t paxosID, uint64_t nodeID)
 {
     Log_Trace();
