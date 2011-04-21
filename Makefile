@@ -17,12 +17,12 @@ KEYSPACE_DIR = .
 BIN_DIR = $(BASE_DIR)/bin
 
 SCRIPT_DIR = $(BASE_DIR)/script
-DIST_DIR = $(BASE_DIR)/dist
+DIST_DIR = $(BUILD_DIR)/dist
 VERSION = `$(BASE_DIR)/script/version.sh 3 $(SRC_DIR)/Version.h`
 VERSION_MAJOR = `$(BASE_DIR)/script/version.sh 1 $(SRC_DIR)/Version.h`
 VERSION_MAJMIN = `$(BASE_DIR)/script/version.sh 3 $(SRC_DIR)/Version.h`
 PACKAGE_NAME = scaliendb-server
-PACKAGE_DIR = $(BASE_DIR)/packages
+PACKAGE_DIR = $(BUILD_DIR)/packages
 PACKAGE_FILE = $(PACKAGE_NAME)-$(VERSION).deb
 PACKAGE_REPOSITORY = /var/www/debian.scalien.com/
 
