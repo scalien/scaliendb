@@ -1,0 +1,38 @@
+#!/bin/bash
+
+. /etc/default/scaliendb
+
+make_database_dir() {
+	mkdir -p $DATABASE_CONTROLLER_DIR
+	mkdir -p $DATABASE_SHARDSERVER_DIR
+	chown $SCALIENDB_USER $DATABASE_CONTROLLER_DIR
+	chown $SCALIENDB_USER $DATABASE_SHARDSERVER_DIR
+}
+
+create_logfile() {
+	touch $SCALIENDB_CONTROLLER_LOG
+	touch $SCALIENDB_SHARDSERVER_LOG
+	chown $SCALIENDB_USER $SCALIENDB_CONTROLLER_LOG
+	chown $SCALIENDB_USER $SCALIENDB_SHARDSERVER_LOG
+}
+
+start_if_needed() {
+	if [ "$START_SCALIENDB_CONTROLLER" = "YES" ];
+	then
+		/etc/init.d/scaliendbc start
+	fi
+	if [ "$START_SCALIENDB_SHARDSERVER" = "YES" ];
+	then
+		/etc/init.d/scaliendbs start
+	fi
+}
+
+echo "making database directory..."
+make_database_dir
+
+echo "creating log file..."
+create_logfile
+
+start_if_needed
+
+echo done

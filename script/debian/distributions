@@ -1,0 +1,8 @@
+Origin: Scalien Software
+Label: Scalien Software
+Suite: stable
+Codename: etch
+Version: 4.0
+Architectures: i386
+Components: main non-free contrib
+Description: Repository for ScalienDB
