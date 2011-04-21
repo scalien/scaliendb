@@ -532,6 +532,10 @@
 		78CD47B0130C26C30022BC9F /* StorageFileChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageFileChunkLister.h; sourceTree = "<group>"; };
 		78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageFileChunkLister.cpp; sourceTree = "<group>"; };
 		78CD47B4130C26D30022BC9F /* StorageChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageChunkLister.h; sourceTree = "<group>"; };
+		78CD55101360CE9A0022BC9F /* scaliendb.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = scaliendb.php; path = Client/PHP/scaliendb.php; sourceTree = "<group>"; };
+		78CD55111360D0370022BC9F /* php_scaliendb_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = php_scaliendb_client.h; path = Client/PHP/php_scaliendb_client.h; sourceTree = "<group>"; };
+		78CD55121360D0370022BC9F /* scaliendb_client_php.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_php.cpp; path = Client/PHP/scaliendb_client_php.cpp; sourceTree = "<group>"; };
+		78CD55131360D0370022BC9F /* scaliendb_client.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = scaliendb_client.php; path = Client/PHP/scaliendb_client.php; sourceTree = "<group>"; };
 		9A466D5E135F435300108B07 /* JSONBufferWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONBufferWriter.h; sourceTree = "<group>"; };
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
@@ -1169,6 +1173,17 @@
 			name = List;
 			sourceTree = "<group>";
 		};
+		78CD550F1360CE230022BC9F /* PHP */ = {
+			isa = PBXGroup;
+			children = (
+				78CD55111360D0370022BC9F /* php_scaliendb_client.h */,
+				78CD55121360D0370022BC9F /* scaliendb_client_php.cpp */,
+				78CD55131360D0370022BC9F /* scaliendb_client.php */,
+				78CD55101360CE9A0022BC9F /* scaliendb.php */,
+			);
+			name = PHP;
+			sourceTree = "<group>";
+		};
 		9AABB212123EA3AF003626AC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1181,6 +1196,7 @@
 		9AE8176712CE1E360038BDB1 /* Client */ = {
 			isa = PBXGroup;
 			children = (
+				78CD550F1360CE230022BC9F /* PHP */,
 				9AE8177612CE1E5A0038BDB1 /* Java */,
 				9AE8179212CE1EA40038BDB1 /* Python */,
 				9AE8176812CE1E550038BDB1 /* scaliendb_client.i */,

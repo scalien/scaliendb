@@ -155,8 +155,8 @@ class Client:
     def set_batch_limit(self, limit):
         SDBP_SetBatchLimit(self.cptr, long(limit))
 
-    def set_bulk_loading(self):
-        SDBP_SetBulkLoading(self.cptr)
+    def set_bulk_loading(self, bulk):
+        SDBP_SetBulkLoading(self.cptr, bulk)
 
     def set_consistency_level(self, consistency_level):
         SDBP_SetConsistencyLevel(self.cptr, consistency_level)
