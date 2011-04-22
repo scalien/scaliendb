@@ -486,7 +486,6 @@ deb: clean release
 	-cp -fr $(SCRIPT_DIR)/debian/controller.conf $(DEB_DIR)/etc/scaliendb
 	-cp -fr $(SCRIPT_DIR)/safe_scaliendb $(DEB_DIR)/usr/bin
 	-cp -fr $(BIN_DIR)/scaliendb $(DEB_DIR)/usr/bin
-	-rm -f $(BUILD_ROOT)/.*
 	-mkdir -p $(DIST_DIR)
 	-rm -f $(DIST_DIR)/$(PACKAGE_FILE)
 	-cd $(DIST_DIR)
