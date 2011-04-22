@@ -713,6 +713,7 @@ void ShardDatabaseManager::OnExecuteLists()
             continue;
         }
 
+        // find the exact shard based on what startKey is given in the request
         startKey.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
         shardID = FindNextShard(itRequest->tableID, startKey, minKey);
