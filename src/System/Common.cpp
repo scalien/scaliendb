@@ -10,6 +10,8 @@
 #include <sys/stat.h>
 #include <sys/statvfs.h>
 #include <sys/time.h>
+#include <sys/types.h>
+#include <sys/sysctl.h>
 #else // _WIN32
 #include <process.h>
 #include <windows.h>
@@ -461,6 +463,46 @@ uint64_t GetProcessID()
     return (uint64_t) _getpid();
 #else
     return (uint64_t) getpid();
+#endif
+}
+
+uint64_t GetTotalPhysicalMemory()
+{
+#ifdef _WIN32
+    MEMORYSTATUSEX  statex;
+
+    statex.dwLength = sizeof(statex);
+    GlobalMemoryStatusEx(&statex);
+    return (uin64_t) statex.ullTotalPhys;
+#else
+    int         mib[2];
+    uint64_t    mem;
+    size_t      len;
+    int         ret;
+    
+    mib[0] = CTL_HW;
+    mib[1] = HW_MEMSIZE;
+    len = sizeof(mem);
+    ret = sysctl(mib, SIZE(mib), &mem, &len, NULL, 0);
+    if (ret < 0)
+        mem = 0;
+
+    return mem;
+#endif
+}
+
+void SetMemoryLimit(uint64_t limit)
+{
+#ifdef _WIN32
+    // TODO
+#else
+    struct rlimit   rlim;
+    int             ret;
+    
+    rlim.rlim_cur = limit;
+    ret = setrlimit(RLIMIT_AS, &rlim);
+    if (ret < 0)
+        Log_Errno();
 #endif
 }
 

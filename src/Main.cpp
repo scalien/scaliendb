@@ -11,6 +11,7 @@
 
 void InitLog();
 void ParseArgs(int argc, char** argv);
+void ConfigureSystemSettings();
 bool IsController();
 void InitContextTransport();
 void LogPrintVersion(bool isController);
@@ -29,6 +30,8 @@ int main(int argc, char** argv)
     InitLog();
     ParseArgs(argc, argv);
     StartClock();
+    ConfigureSystemSettings();
+    
     IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024));
     InitContextTransport();
     BloomFilter::StaticInit();
@@ -103,6 +106,25 @@ void ParseArgs(int argc, char** argv)
             }
         }
     }
+}
+
+void ConfigureSystemSettings()
+{
+    int         memLimitPerc;
+    uint64_t    memLimit;
+
+    // percentage of physical memory can be used by the program
+    memLimitPerc = configFile.GetIntValue("system.memoryLimitPercentage", 90);
+    if (memLimitPerc < 0)
+        memLimitPerc = 90;
+    
+    // memoryLimit overrides memoryLimitPercentage
+    memLimit = configFile.GetInt64Value("system.memoryLimit", 0);
+    if (memLimit == 0)
+        memLimit = (uint64_t) (GetTotalPhysicalMemory() * memLimit / 100.0 + 0.5);
+
+    if (memLimit != 0)
+        SetMemoryLimit(memLimit);
 }
 
 bool IsController()
