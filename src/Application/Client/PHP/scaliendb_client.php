@@ -373,12 +373,12 @@ class SDBP_NodeParams {
 
 	function __set($var,$value) {
 		$func = 'SDBP_NodeParams_'.$var.'_set';
-		if (function_exists($func) call_user_func($func,$this->_cPtr,$value);
+		if (function_exists($func)) call_user_func($func,$this->_cPtr,$value);
 	}
 
 	function __get($var) {
 		$func = 'SDBP_NodeParams_'.$var.'_get';
-		if (function_exists($func) return call_user_func($func,$this->_cPtr);
+		if (function_exists($func)) return call_user_func($func,$this->_cPtr);
 		return null;
 	}
 

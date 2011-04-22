@@ -302,4 +302,8 @@ class ScalienClient {
         $status = call_user_func_array(array("scaliendb_client", $func), $funcargs);
         return $status;
     }
+    
+    public static function setTrace($trace) {
+        scaliendb_client::SDBP_SetTrace($trace);
+    }
 }

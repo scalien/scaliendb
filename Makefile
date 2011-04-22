@@ -169,7 +169,8 @@ PYTHONLIB = \
 	$(BIN_DIR)/$(PYTHON_DIR)/$(PYTHON_LIB)
 
 $(SRC_DIR)/$(PYTHON_CLIENT_WRAPPER).cpp: $(CLIENT_WRAPPER_FILES)
-	-swig -python -c++ -outdir $(SRC_DIR)/$(PYTHON_CLIENT_DIR) -DSWIG_PYTHON_SAFE_CSTRINGS -o $@ -I$(SRC_DIR)/$(PYTHON_CLIENT_DIR) $(SRC_DIR)/$(CLIENT_DIR)/scaliendb_client.i
+	-swig -python -modern -c++ -outdir $(SRC_DIR)/$(PYTHON_CLIENT_DIR) -DSWIG_PYTHON_SAFE_CSTRINGS -o $@ -I$(SRC_DIR)/$(PYTHON_CLIENT_DIR) $(SRC_DIR)/$(CLIENT_DIR)/scaliendb_client.i
+	-script/fix_swig_python.sh $(SRC_DIR)/$(PYTHON_CLIENT_DIR)
 
 $(BUILD_DIR)/$(PYTHON_CLIENT_WRAPPER).o: $(BUILD_DIR) $(SRC_DIR)/$(PYTHON_CLIENT_WRAPPER).cpp
 	$(CXX) $(CXXFLAGS) `$(PYTHON_CONFIG) --includes` -o $@ -c $(SRC_DIR)/$(PYTHON_CLIENT_WRAPPER).cpp

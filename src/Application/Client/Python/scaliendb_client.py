@@ -2,11 +2,10 @@
 # Version 1.3.31
 #
 # Don't modify this file, modify the SWIG interface instead.
-# This file is compatible with both classic and new-style classes.
 
 import _scaliendb_client
-import new
-new_instancemethod = new.instancemethod
+
+
 try:
     _swig_property = property
 except NameError:
@@ -48,11 +47,18 @@ except AttributeError:
 del types
 
 
-class PySwigIterator(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, PySwigIterator, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, PySwigIterator, name)
+def _swig_setattr_nondynamic_method(set):
+    def set_attr(self,name,value):
+        if (name == "thisown"): return self.this.own(value)
+        if hasattr(self,name) or (name == "this"):
+            set(self,name,value)
+        else:
+            raise AttributeError("You cannot add attributes to %s" % self)
+    return set_attr
+
+
+class PySwigIterator(object):
+    thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
     def __init__(self): raise AttributeError, "No constructor defined"
     __repr__ = _swig_repr
     __swig_destroy__ = _scaliendb_client.delete_PySwigIterator
@@ -66,7 +72,7 @@ class PySwigIterator(_object):
     def next(*args): return _scaliendb_client.PySwigIterator_next(*args)
     def previous(*args): return _scaliendb_client.PySwigIterator_previous(*args)
     def advance(*args): return _scaliendb_client.PySwigIterator_advance(*args)
-    def __eq__(*args): return _scaliendb_client.PySwigIterator___eq__(*args)
+
     def __ne__(*args): return _scaliendb_client.PySwigIterator___ne__(*args)
     def __iadd__(*args): return _scaliendb_client.PySwigIterator___iadd__(*args)
     def __isub__(*args): return _scaliendb_client.PySwigIterator___isub__(*args)
@@ -76,18 +82,11 @@ class PySwigIterator(_object):
 PySwigIterator_swigregister = _scaliendb_client.PySwigIterator_swigregister
 PySwigIterator_swigregister(PySwigIterator)
 
-class imaxdiv_t(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, imaxdiv_t, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, imaxdiv_t, name)
+class imaxdiv_t(object):
+    thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
     __repr__ = _swig_repr
-    __swig_setmethods__["quot"] = _scaliendb_client.imaxdiv_t_quot_set
-    __swig_getmethods__["quot"] = _scaliendb_client.imaxdiv_t_quot_get
-    if _newclass:quot = _swig_property(_scaliendb_client.imaxdiv_t_quot_get, _scaliendb_client.imaxdiv_t_quot_set)
-    __swig_setmethods__["rem"] = _scaliendb_client.imaxdiv_t_rem_set
-    __swig_getmethods__["rem"] = _scaliendb_client.imaxdiv_t_rem_get
-    if _newclass:rem = _swig_property(_scaliendb_client.imaxdiv_t_rem_get, _scaliendb_client.imaxdiv_t_rem_set)
+    quot = _swig_property(_scaliendb_client.imaxdiv_t_quot_get, _scaliendb_client.imaxdiv_t_quot_set)
+    rem = _swig_property(_scaliendb_client.imaxdiv_t_rem_get, _scaliendb_client.imaxdiv_t_rem_set)
     def __init__(self, *args): 
         this = _scaliendb_client.new_imaxdiv_t(*args)
         try: self.this.append(this)
@@ -103,11 +102,8 @@ strtoimax = _scaliendb_client.strtoimax
 strtoumax = _scaliendb_client.strtoumax
 wcstoimax = _scaliendb_client.wcstoimax
 wcstoumax = _scaliendb_client.wcstoumax
-class SDBP_NodeParams(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, SDBP_NodeParams, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, SDBP_NodeParams, name)
+class SDBP_NodeParams(object):
+    thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
     __repr__ = _swig_repr
     def __init__(self, *args): 
         this = _scaliendb_client.new_SDBP_NodeParams(*args)
@@ -117,35 +113,22 @@ class SDBP_NodeParams(_object):
     __del__ = lambda self : None;
     def Close(*args): return _scaliendb_client.SDBP_NodeParams_Close(*args)
     def AddNode(*args): return _scaliendb_client.SDBP_NodeParams_AddNode(*args)
-    __swig_setmethods__["nodec"] = _scaliendb_client.SDBP_NodeParams_nodec_set
-    __swig_getmethods__["nodec"] = _scaliendb_client.SDBP_NodeParams_nodec_get
-    if _newclass:nodec = _swig_property(_scaliendb_client.SDBP_NodeParams_nodec_get, _scaliendb_client.SDBP_NodeParams_nodec_set)
-    __swig_setmethods__["nodes"] = _scaliendb_client.SDBP_NodeParams_nodes_set
-    __swig_getmethods__["nodes"] = _scaliendb_client.SDBP_NodeParams_nodes_get
-    if _newclass:nodes = _swig_property(_scaliendb_client.SDBP_NodeParams_nodes_get, _scaliendb_client.SDBP_NodeParams_nodes_set)
-    __swig_setmethods__["num"] = _scaliendb_client.SDBP_NodeParams_num_set
-    __swig_getmethods__["num"] = _scaliendb_client.SDBP_NodeParams_num_get
-    if _newclass:num = _swig_property(_scaliendb_client.SDBP_NodeParams_num_get, _scaliendb_client.SDBP_NodeParams_num_set)
+    nodec = _swig_property(_scaliendb_client.SDBP_NodeParams_nodec_get, _scaliendb_client.SDBP_NodeParams_nodec_set)
+    nodes = _swig_property(_scaliendb_client.SDBP_NodeParams_nodes_get, _scaliendb_client.SDBP_NodeParams_nodes_set)
+    num = _swig_property(_scaliendb_client.SDBP_NodeParams_num_get, _scaliendb_client.SDBP_NodeParams_num_set)
 SDBP_NodeParams_swigregister = _scaliendb_client.SDBP_NodeParams_swigregister
 SDBP_NodeParams_swigregister(SDBP_NodeParams)
 
-class SDBP_Buffer(_object):
-    __swig_setmethods__ = {}
-    __setattr__ = lambda self, name, value: _swig_setattr(self, SDBP_Buffer, name, value)
-    __swig_getmethods__ = {}
-    __getattr__ = lambda self, name: _swig_getattr(self, SDBP_Buffer, name)
+class SDBP_Buffer(object):
+    thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
     __repr__ = _swig_repr
     def __init__(self, *args): 
         this = _scaliendb_client.new_SDBP_Buffer(*args)
         try: self.this.append(this)
         except: self.this = this
     def SetBuffer(*args): return _scaliendb_client.SDBP_Buffer_SetBuffer(*args)
-    __swig_setmethods__["data"] = _scaliendb_client.SDBP_Buffer_data_set
-    __swig_getmethods__["data"] = _scaliendb_client.SDBP_Buffer_data_get
-    if _newclass:data = _swig_property(_scaliendb_client.SDBP_Buffer_data_get, _scaliendb_client.SDBP_Buffer_data_set)
-    __swig_setmethods__["len"] = _scaliendb_client.SDBP_Buffer_len_set
-    __swig_getmethods__["len"] = _scaliendb_client.SDBP_Buffer_len_get
-    if _newclass:len = _swig_property(_scaliendb_client.SDBP_Buffer_len_get, _scaliendb_client.SDBP_Buffer_len_set)
+    data = _swig_property(_scaliendb_client.SDBP_Buffer_data_get, _scaliendb_client.SDBP_Buffer_data_set)
+    len = _swig_property(_scaliendb_client.SDBP_Buffer_len_get, _scaliendb_client.SDBP_Buffer_len_set)
     __swig_destroy__ = _scaliendb_client.delete_SDBP_Buffer
     __del__ = lambda self : None;
 SDBP_Buffer_swigregister = _scaliendb_client.SDBP_Buffer_swigregister
