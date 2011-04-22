@@ -12,6 +12,7 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <sys/sysctl.h>
+#include <sys/resource.h>
 #else // _WIN32
 #include <process.h>
 #include <windows.h>
@@ -475,6 +476,14 @@ uint64_t GetTotalPhysicalMemory()
     GlobalMemoryStatusEx(&statex);
     return (uin64_t) statex.ullTotalPhys;
 #else
+#ifdef PLATFORM_LINUX
+    uint64_t    pages;
+    uint64_t    pageSize;
+    
+    pages = sysconf(_SC_PHYS_PAGES);
+    pageSize = sysconf(_SC_PAGE_SIZE);
+    return pages * pageSize;
+#elif PLATFORM_DARWIN
     int         mib[2];
     uint64_t    mem;
     size_t      len;
@@ -489,12 +498,13 @@ uint64_t GetTotalPhysicalMemory()
 
     return mem;
 #endif
+#endif
 }
 
 void SetMemoryLimit(uint64_t limit)
 {
 #ifdef _WIN32
-    // TODO
+    // Windows does not have this feature
 #else
     struct rlimit   rlim;
     int             ret;
