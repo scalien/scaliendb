@@ -7498,6 +7498,32 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_GetVersion(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_GetVersion",0,0)) SWIG_fail;
+  result = SDBP_GetVersion();
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_GetDebugString(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  std::string result;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_GetDebugString",0,0)) SWIG_fail;
+  result = SDBP_GetDebugString();
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 static PyMethodDef SwigMethods[] = {
 	 { (char *)"delete_PySwigIterator", _wrap_delete_PySwigIterator, METH_VARARGS, NULL},
 	 { (char *)"PySwigIterator_value", _wrap_PySwigIterator_value, METH_VARARGS, NULL},
@@ -7623,6 +7649,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_Cancel", _wrap_SDBP_Cancel, METH_VARARGS, NULL},
 	 { (char *)"SDBP_IsBatched", _wrap_SDBP_IsBatched, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetTrace", _wrap_SDBP_SetTrace, METH_VARARGS, NULL},
+	 { (char *)"SDBP_GetVersion", _wrap_SDBP_GetVersion, METH_VARARGS, NULL},
+	 { (char *)"SDBP_GetDebugString", _wrap_SDBP_GetDebugString, METH_VARARGS, NULL},
 	 { NULL, NULL, 0, NULL }
 };
 

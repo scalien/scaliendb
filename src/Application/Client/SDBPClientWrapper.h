@@ -165,5 +165,7 @@ bool            SDBP_IsBatched(ClientObj client);
 */
 
 void            SDBP_SetTrace(bool trace);
+std::string     SDBP_GetVersion();
+std::string     SDBP_GetDebugString();
 
 #endif

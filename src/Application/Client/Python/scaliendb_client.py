@@ -209,5 +209,7 @@ SDBP_Submit = _scaliendb_client.SDBP_Submit
 SDBP_Cancel = _scaliendb_client.SDBP_Cancel
 SDBP_IsBatched = _scaliendb_client.SDBP_IsBatched
 SDBP_SetTrace = _scaliendb_client.SDBP_SetTrace
+SDBP_GetVersion = _scaliendb_client.SDBP_GetVersion
+SDBP_GetDebugString = _scaliendb_client.SDBP_GetDebugString
 
 

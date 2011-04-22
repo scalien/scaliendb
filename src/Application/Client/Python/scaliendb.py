@@ -130,11 +130,19 @@ class Client:
         self.result = None
         self.database_id = 0
         self.table_id = 0
-        node_params = SDBP_NodeParams(len(nodes))
-        for node in nodes:
-            node_params.AddNode(node)
-        SDBP_Init(self.cptr, node_params)
-        node_params.Close()
+        if isinstance(nodes, list):
+            node_params = SDBP_NodeParams(len(nodes))
+            for node in nodes:
+                node_params.AddNode(node)
+            SDBP_Init(self.cptr, node_params)
+            node_params.Close()
+        elif isinstance(nodes, str):
+            node_params = SDBP_NodeParams(1)
+            node_params.AddNode(nodes)
+            SDBP_Init(self.cptr, node_params)
+            node_params.Close()
+        else:
+            raise Error(SDBP_API_ERROR, "nodes argument must be int or list")
 
     def __del__(self):
         del self.result
@@ -358,10 +366,7 @@ class Client:
     
     def is_batched(self):
         return SDBP_IsBatched(self.cptr)
-    
-    def _set_trace(self, trace):
-        SDBP_SetTrace(trace)
-    
+        
     def _data_command(self, func, *args):
         status = func(self.cptr, *args)
         if status < 0:
@@ -381,6 +386,15 @@ class Client:
     def _check_status(self, status):
         if status < 0:
             raise Error(status)
+
+def set_trace(trace):
+    SDBP_SetTrace(trace)
+
+def get_version():
+    return SDBP_GetVersion()
+
+def get_debug_string():
+    return SDBP_GetDebugString()
 
 def human_bytes(num):
 	for x in ['bytes','KB','MB','GB','TB']:

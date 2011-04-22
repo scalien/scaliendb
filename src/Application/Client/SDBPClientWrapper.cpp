@@ -2,6 +2,7 @@
 #include "SDBPClient.h"
 
 #include "Application/ConfigServer/JSONConfigState.h"
+#include "Version.h"
 
 using namespace SDBPClient;
 
@@ -834,4 +835,14 @@ void SDBP_SetTrace(bool trace)
 		Log_SetTrace(false);
 		Log_SetTarget(LOG_TARGET_NOWHERE);
 	}
+}
+
+std::string SDBP_GetVersion()
+{
+    return VERSION_STRING;
+}
+
+std::string SDBP_GetDebugString()
+{
+    return "Build date: " __DATE__ " " __TIME__;
 }
