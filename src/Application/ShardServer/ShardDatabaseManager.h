@@ -49,7 +49,6 @@ class ShardDatabaseAsyncList : public StorageAsyncList
 public:
     ClientRequest*          request;
     ShardDatabaseManager*   manager;
-    Buffer                  shardLastKey;
     bool                    active;
     bool                    async;
     uint64_t                total;
@@ -104,7 +103,7 @@ private:
     void                    OnYieldStorageThreadsTimer();
     void                    OnExecuteReads();
     void                    OnExecuteLists();
-    uint64_t                FindNextShard(uint64_t tableID, ReadBuffer shardLastKey, ReadBuffer& startKey);
+    uint64_t                FindNextShard(uint64_t tableID, ReadBuffer firstKey);
 
     ShardServer*            shardServer;
     StorageEnvironment      environment;

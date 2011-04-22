@@ -83,9 +83,13 @@ void ShardDatabaseAsyncList::OnShardComplete()
     unsigned                numKeys;
     unsigned                i;
 
+    Log_Debug("OnShardComplete, final: %b", lastResult->final);
+    active = false;
+
     // possibly an error happened
     if ((completed && !ret) || !request->session->IsActive())
     {
+        Log_Debug("OnShardComplete error");
         OnRequestComplete();
         return;
     }
@@ -93,6 +97,7 @@ void ShardDatabaseAsyncList::OnShardComplete()
     // handle disconnected
     if (lastResult->final && !request->session->IsActive())
     {
+        Log_Debug("OnShardComplete disconnect");
         OnRequestComplete();
         return;
     }
@@ -102,9 +107,14 @@ void ShardDatabaseAsyncList::OnShardComplete()
     // create results
     if (numKeys > 0 && (type == KEY || type == KEYVALUE))
     {
+        Log_Debug("OnShardComplete results, numKeys: %u", numKeys);
 		CLIENTRESPONSE_ASSERT_NUMKEYS(numKeys);
-        ReadBuffer  keys[CLIENTRESPONSE_NUMKEYS(numKeys)];
-        ReadBuffer  values[CLIENTRESPONSE_NUMKEYS(numKeys)];
+//        ReadBuffer  keys[CLIENTRESPONSE_NUMKEYS(numKeys)];
+//        ReadBuffer  values[CLIENTRESPONSE_NUMKEYS(numKeys)];
+        ReadBuffer* keys;
+        ReadBuffer* values;
+        keys = new ReadBuffer[numKeys];
+        values = new ReadBuffer[numKeys];
         i = 0;
         FOREACH (it, lastResult->dataPage)
         {
@@ -116,17 +126,22 @@ void ShardDatabaseAsyncList::OnShardComplete()
             }
             i++;
         }
+        Log_Debug("OnShardComplete after stack magic");
 
         if (type == KEYVALUE)
             request->response.ListKeyValues(numKeys, keys, values);
         else
             request->response.ListKeys(numKeys, keys);
         request->OnComplete(false);
+        
+        delete[] keys;
+        delete[] values;
     }
 
     // found count items
     if (lastResult->final && request->count != 0 && total == request->count)
     {
+        Log_Debug("OnShardComplete count found");
         OnRequestComplete();
         return;
     }
@@ -143,7 +158,6 @@ void ShardDatabaseAsyncList::OnRequestComplete()
     
     total = 0;
     num = 0;
-    active = false;
 
     // handle error and disconnected
     if ((completed && !ret) || !request->session->IsActive())
@@ -175,6 +189,8 @@ void ShardDatabaseAsyncList::OnRequestComplete()
 
 void ShardDatabaseAsyncList::TryNextShard()
 {
+    Log_Debug("TryNextShard: shardLastKey: %B", &shardLastKey);
+    
     if (shardLastKey.GetLength() == 0)
     {
         // this was the last shard
@@ -687,6 +703,8 @@ void ShardDatabaseManager::OnExecuteLists()
     ClientRequest*  itRequest;
     ConfigShard*    configShard;
 
+    Log_Debug("OnExecuteLists, active: %b", asyncList.active);
+
     if (asyncList.active)
         return;
     
@@ -716,7 +734,7 @@ void ShardDatabaseManager::OnExecuteLists()
         // find the exact shard based on what startKey is given in the request
         startKey.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
-        shardID = FindNextShard(itRequest->tableID, startKey, minKey);
+        shardID = FindNextShard(itRequest->tableID, startKey);
         configShard = shardServer->GetConfigState()->GetShard(shardID);
         ASSERT(configShard != NULL);
 
@@ -740,7 +758,7 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.request = itRequest;
         asyncList.count = itRequest->count;
         asyncList.offset = itRequest->offset;
-        asyncList.shardFirstKey.Write(configShard->firstKey);
+        asyncList.shardFirstKey.Write(itRequest->key);
         asyncList.shardLastKey.Write(configShard->lastKey);
         Log_Debug("Listing shard: shardFirstKey: %B, shardLastKey: %B", &asyncList.shardFirstKey, &asyncList.shardLastKey);
         asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);
@@ -756,12 +774,15 @@ void ShardDatabaseManager::OnExecuteLists()
     }
 }
 
-uint64_t ShardDatabaseManager::FindNextShard(uint64_t tableID, ReadBuffer shardLastKey, ReadBuffer& minKey)
+uint64_t ShardDatabaseManager::FindNextShard(uint64_t tableID, ReadBuffer firstKey)
 {
     ConfigTable*    configTable;
     ConfigShard*    configShard;
     uint64_t*       itShard;
     uint64_t        nextShardID;
+    ReadBuffer      minKey;
+
+    Log_Debug("FindNextShard: firstKey: %R", &firstKey);
 
     configTable = GetConfigState()->GetTable(tableID);
     ASSERT(configTable != NULL);
@@ -773,15 +794,36 @@ uint64_t ShardDatabaseManager::FindNextShard(uint64_t tableID, ReadBuffer shardL
         if (!shardServer->GetQuorumProcessor(configShard->quorumID))
             continue; // not local shard
         
-        if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, shardLastKey))
+        Log_Debug("FindNextShard: shardID: %U, firstKey: %B, lastKey: %B, minKey: %R", configShard->shardID, &configShard->firstKey, &configShard->lastKey, &minKey);
+        
+        // TODO: fix this mess
+        if ((STORAGE_KEY_LESS_THAN(configShard->firstKey, firstKey) ||
+         ReadBuffer::Cmp(configShard->firstKey, firstKey) == 0)
+         &&
+         (configShard->lastKey.GetLength() == 0 ||
+         (STORAGE_KEY_GREATER_THAN(configShard->lastKey, firstKey) && 
+         ReadBuffer::Cmp(configShard->lastKey, firstKey) != 0)))
         {
-            if (minKey.GetLength() == 0 || STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey))
-            {
-                minKey = configShard->firstKey;
-                nextShardID = configShard->shardID;
-            }
+            nextShardID = configShard->shardID;
+            break;
+        }
+        
+        if (minKey.GetLength() == 0)
+            minKey = configShard->firstKey;
+        
+        // if there is no shard, that has shardFirstKey in its range
+        // then find the first shard, that has the smallest firstKey
+        // which is greater than shardFirstKey
+        if (STORAGE_KEY_GREATER_THAN(configShard->firstKey, firstKey) &&
+         STORAGE_KEY_LESS_THAN(configShard->firstKey, minKey) &&
+         STORAGE_KEY_GREATER_THAN(minKey, firstKey))
+        {
+            minKey = configShard->firstKey;
+            nextShardID = configShard->shardID;
         }
     }
+    
+    Log_Debug("FindNextShard: nextShardID: %U", nextShardID);
     
     return nextShardID;
 }
