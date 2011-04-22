@@ -16,8 +16,6 @@ BASE_DIR = .
 KEYSPACE_DIR = .
 BIN_DIR = $(BASE_DIR)/bin
 
-SCRIPT_DIR = $(BASE_DIR)/script
-DIST_DIR = $(BUILD_DIR)/dist
 VERSION = `$(BASE_DIR)/script/version.sh 3 $(SRC_DIR)/Version.h`
 VERSION_MAJOR = `$(BASE_DIR)/script/version.sh 1 $(SRC_DIR)/Version.h`
 VERSION_MAJMIN = `$(BASE_DIR)/script/version.sh 3 $(SRC_DIR)/Version.h`
@@ -28,7 +26,9 @@ PACKAGE_REPOSITORY = /var/www/debian.scalien.com/
 
 BUILD_ROOT = $(BASE_DIR)/build
 SRC_DIR = $(BASE_DIR)/src
+SCRIPT_DIR = $(BASE_DIR)/script
 DEB_DIR = $(BUILD_ROOT)/deb
+DIST_DIR = $(BUILD_ROOT)/dist
 
 BUILD_DEBUG_DIR = $(BUILD_ROOT)/Debug
 BUILD_RELEASE_DIR = $(BUILD_ROOT)/Release
