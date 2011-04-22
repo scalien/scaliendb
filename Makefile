@@ -470,14 +470,14 @@ distclean-scaliendb:
 #
 ##############################################################################
 
-
+# debian package
 deb: clean release
-	-$(SCRIPT_DIR)/debian/mkcontrol.sh $(SCRIPT_DIR)/debian/control $(PACKAGE_NAME) $(VERSION) $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 	-mkdir -p $(DEB_DIR)/etc/init.d
 	-mkdir -p $(DEB_DIR)/etc/default
 	-mkdir -p $(DEB_DIR)/etc/scaliendb
 	-mkdir -p $(DEB_DIR)/usr/bin
 	-mkdir -p $(DEB_DIR)/DEBIAN
+	-$(SCRIPT_DIR)/debian/mkcontrol.sh $(DEB_DIR)/DEBIAN/control $(PACKAGE_NAME) $(VERSION) $(shell dpkg-architecture -qDEB_BUILD_ARCH)
 	-cp -fr $(SCRIPT_DIR)/debian/conffiles $(DEB_DIR)/DEBIAN
 	-cp -fr $(SCRIPT_DIR)/debian/postinst $(DEB_DIR)/DEBIAN
 	-cp -fr $(SCRIPT_DIR)/debian/scaliendb $(DEB_DIR)/etc/init.d
