@@ -14,6 +14,7 @@
 #define CLIENTRESPONSE_FAILED           'F'
 #define CLIENTRESPONSE_NORESPONSE       ' '
 #define CLIENTRESPONSE_HELLO            '_'
+#define CLIENTRESPONSE_NEXT             'N'
 
 // this is needed on Visual C++ which cannot handle C99 type dynamic stack arrays
 #ifdef PLATFORM_WINDOWS
@@ -43,6 +44,7 @@ public:
     /* Variables */
     char            type;
     uint64_t        number;
+    uint64_t        offset;
     uint64_t        commandID;
     uint64_t        paxosID;
     ReadBuffer      value;
@@ -73,6 +75,7 @@ public:
     bool            Failed();
     bool            NoResponse();
     bool            Hello();
+    bool            Next(uint64_t offset, ReadBuffer& shardLastKey);
 };
 
 #endif

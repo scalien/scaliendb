@@ -242,7 +242,7 @@ TEST_DEFINE(TestClientListKeys)
     
     ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
 //    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(key, 0, 0);
+    ret = client.ListKeys(key, 100000000, 0);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 

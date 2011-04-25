@@ -141,6 +141,7 @@ private:
     void                    ClearQuorumRequests();
     void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
+    void                    NextRequest(Request* req, uint64_t offset, ReadBuffer shardLastKey);
 
     void                    ConfigureShardServers();
     ShardConnection*        GetShardConnection(uint64_t nodeID);

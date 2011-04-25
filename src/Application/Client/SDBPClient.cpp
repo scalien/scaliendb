@@ -1202,6 +1202,54 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
     requests.PrependList(*qrequests);
 }
 
+void Client::NextRequest(Request* req, uint64_t offset, ReadBuffer shardLastKey)
+{
+    ConfigTable*    configTable;
+    ConfigShard*    configShard;
+    uint64_t*       itShard;
+    uint64_t        nextShardID;
+    ReadBuffer      minKey;
+    unsigned        numResponses;
+    
+    numResponses = req->GetNumResponses();
+    if (req->count > 0)
+    {
+        if (req->count > numResponses)
+            req->count -= numResponses;
+        else
+            req->count = 0;
+    }
+    if (req->offset > 0)
+    {
+        if (req->offset > offset)
+            req->offset -= offset;
+        else
+            req->offset = 0;
+    }
+
+    configTable = configState->GetTable(req->tableID);
+    ASSERT(configTable != NULL);
+    
+    nextShardID = 0;
+    FOREACH (itShard, configTable->shards)
+    {
+        configShard = GetConfigState()->GetShard(*itShard);
+
+        // find the first shard, that has the smallest firstKey
+        // which is greater than shardLastKey
+        if (GREATER_THAN(configShard->firstKey, shardLastKey) &&
+         LESS_THAN(configShard->firstKey, minKey) &&
+         GREATER_THAN(minKey, shardLastKey))
+        {
+            minKey = configShard->firstKey;
+            nextShardID = configShard->shardID;
+        }
+    }
+
+    if (nextShardID != 0)
+        req->key.Write(minKey);
+}
+
 void Client::ConfigureShardServers()
 {
     ConfigShardServer*          ssit;

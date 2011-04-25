@@ -26,6 +26,8 @@ public:
 
     Request();
 
+    unsigned        GetNumResponses();
+
     TreeNode        treeNode;
     int             status;
     uint64_t        requestTime;

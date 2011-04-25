@@ -192,3 +192,11 @@ bool ClientResponse::Hello()
     type = CLIENTRESPONSE_HELLO;
     return true;
 }
+
+bool ClientResponse::Next(uint64_t offset_, ReadBuffer& shardLastKey)
+{
+    type = CLIENTRESPONSE_NEXT;
+    offset = offset_;
+    value = shardLastKey;
+    return true;
+}

@@ -11,3 +11,15 @@ Request::Request()
     multi = false;
     parent = NULL;
 }
+
+unsigned Request::GetNumResponses()
+{
+    ClientResponse**    itResponse;
+    unsigned            numResponses;
+    
+    numResponses = 0;
+    FOREACH (itResponse, responses)
+        numResponses += (*itResponse)->numKeys;
+    
+    return numResponses;
+}

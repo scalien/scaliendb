@@ -152,7 +152,15 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             {
                 client->AddRequestToQuorum(request, true);
                 return false;
-            }            
+            }
+            
+            if (response.type == CLIENTRESPONSE_NEXT)
+            {
+                client->NextRequest(request, response.offset, response.value);
+                client->AddRequestToQuorum(request, true);
+                return false;
+            }
+            
             break;
         }
     }

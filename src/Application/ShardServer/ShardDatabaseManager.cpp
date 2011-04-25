@@ -107,10 +107,7 @@ void ShardDatabaseAsyncList::OnShardComplete()
     // create results
     if (numKeys > 0 && (type == KEY || type == KEYVALUE))
     {
-        Log_Debug("OnShardComplete results, numKeys: %u", numKeys);
 		CLIENTRESPONSE_ASSERT_NUMKEYS(numKeys);
-//        ReadBuffer  keys[CLIENTRESPONSE_NUMKEYS(numKeys)];
-//        ReadBuffer  values[CLIENTRESPONSE_NUMKEYS(numKeys)];
         ReadBuffer* keys;
         ReadBuffer* values;
         keys = new ReadBuffer[numKeys];
@@ -126,7 +123,6 @@ void ShardDatabaseAsyncList::OnShardComplete()
             }
             i++;
         }
-        Log_Debug("OnShardComplete after stack magic");
 
         if (type == KEYVALUE)
             request->response.ListKeyValues(numKeys, keys, values);
@@ -557,7 +553,7 @@ void ShardDatabaseManager::ExecuteMessage(
                 environment.DeleteShard(contextID, *itShardID);
             environment.CreateShard(contextID, message.newShardID, message.tableID, "", "", 1, 0);
             break;
-         case SHARDMESSAGE_MIGRATION_BEGIN:
+        case SHARDMESSAGE_MIGRATION_BEGIN:
             Log_Debug("shardMigration BEGIN shardID = %U", message.shardID);
             configShard = shardServer->GetConfigState()->GetShard(message.shardID);
             ASSERT(configShard != NULL);
@@ -577,7 +573,11 @@ void ShardDatabaseManager::ExecuteMessage(
          case SHARDMESSAGE_MIGRATION_DELETE:
             environment.Delete(contextID, message.shardID, message.key);
             break;
-        default:
+         case SHARDMESSAGE_MIGRATION_COMPLETE:
+            // TODO: handle this message type
+            Log_Debug("TODO SHARDMESSAGE_MIGRATION_COMPLETE");
+            break;
+         default:
             ASSERT_FAIL();
             break;
     }
@@ -734,9 +734,17 @@ void ShardDatabaseManager::OnExecuteLists()
         // find the exact shard based on what startKey is given in the request
         startKey.Wrap(itRequest->key);
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
-        shardID = FindNextShard(itRequest->tableID, startKey);
+//        shardID = FindNextShard(itRequest->tableID, startKey);
+//        configShard = shardServer->GetConfigState()->GetShard(shardID);
+//        ASSERT(configShard != NULL);
+        shardID = environment.GetShardID(contextID, itRequest->tableID, startKey);
         configShard = shardServer->GetConfigState()->GetShard(shardID);
-        ASSERT(configShard != NULL);
+        if (configShard == NULL)
+        {
+            itRequest->response.Next(itRequest->offset, startKey);
+            itRequest->OnComplete();
+            continue;
+        }
 
         if (itRequest->type == CLIENTREQUEST_LIST_KEYS)
             asyncList.type = StorageAsyncList::KEY;
@@ -791,8 +799,11 @@ uint64_t ShardDatabaseManager::FindNextShard(uint64_t tableID, ReadBuffer firstK
     FOREACH (itShard, configTable->shards)
     {
         configShard = GetConfigState()->GetShard(*itShard);
+//        if (!shardServer->GetQuorumProcessor(configShard->quorumID))
+//            continue; // not local shard
+
         if (!shardServer->GetQuorumProcessor(configShard->quorumID))
-            continue; // not local shard
+            break; // not local shard
         
         Log_Debug("FindNextShard: shardID: %U, firstKey: %B, lastKey: %B, minKey: %R", configShard->shardID, &configShard->firstKey, &configShard->lastKey, &minKey);
         
