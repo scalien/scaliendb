@@ -118,7 +118,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     {
         listenRequests.Append(request);
         if (request->changeTimeout == 0 || 
-         (request->paxosID != 0 && request->paxosID < GetPaxosID()))
+         (request->paxosID != 0 && request->paxosID < CONFIG_STATE->paxosID))
         {
             // this is an immediate config state request
             request->response.ConfigStateResponse(*CONFIG_STATE);
@@ -404,10 +404,14 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
              itRequest->changeTimeout < now - itRequest->lastChangeTime) ||
              (itRequest->paxosID != 0 && itRequest->paxosID < CONFIG_STATE->paxosID))
             {
-                //Log_Debug("request: %p, changeTimeout: %U, diff: %U", itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime);
+                Log_Debug(
+                 "request: %p, changeTimeout: %U, diff: %U, paxosID: %U, configPaxosID: %U",
+                 itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime,
+                 itRequest->paxosID, CONFIG_STATE->paxosID);
                 itRequest->response.ConfigStateResponse(*CONFIG_STATE);
                 itRequest->OnComplete(false);
                 itRequest->lastChangeTime = now;
+                itRequest->paxosID = CONFIG_STATE->paxosID;
             }
         }
     }
