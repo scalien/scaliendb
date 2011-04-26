@@ -817,7 +817,6 @@ void ShardQuorumProcessor::OnResumeAppend()
             Log_Message("Enabling database merge");
             shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(true);
             return;
-
         }
         else
             ExecuteMessage(message, paxosID, commandID, ownAppend);
@@ -859,6 +858,7 @@ void ShardQuorumProcessor::LocalExecute()
     uint64_t        paxosID, commandID;
     ShardMessage*   itMessage, *nextMessage;
     ClientRequest*  itRequest, *nextRequest;
+    ClusterMessage  clusterMessage;
     
     if (shardServer->GetDatabaseManager()->GetEnvironment()->IsCommiting())
     {
@@ -892,8 +892,33 @@ void ShardQuorumProcessor::LocalExecute()
         if (itMessage->fromClient)
             clientRequests.Remove(itRequest);
 
-        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, 0, *itMessage,
-         (itMessage->fromClient ? itRequest : NULL));
+        if (itMessage->type == SHARDMESSAGE_MIGRATION_BEGIN)
+        {
+            Log_Message("Disabling database merge for the duration of shard migration");
+            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(false);
+        }
+        if (itMessage->type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)
+            migrateCache -= (itMessage->key.GetLength() + itMessage->value.GetLength());
+        else if (itMessage->type == SHARDMESSAGE_MIGRATION_DELETE && migrateCache > 0)
+            migrateCache -= itMessage->key.GetLength();
+        if (migrateCache < 0)
+            migrateCache = 0;
+        
+        if (itMessage->type == SHARDMESSAGE_MIGRATION_COMPLETE)
+        {
+            clusterMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
+            shardServer->BroadcastToControllers(clusterMessage);
+            Log_Message("Migration of shard %U complete...", clusterMessage.shardID);
+            migrateShardID = 0;
+            migrateNodeID = 0;
+            migrateCache = 0;
+            Log_Message("Enabling database merge");
+            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(true);
+            return;
+        }
+        else
+            shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, 0, *itMessage,
+             (itMessage->fromClient ? itRequest : NULL));
 
         if (itMessage->fromClient)
             itRequest->OnComplete(); // request deletes itself
