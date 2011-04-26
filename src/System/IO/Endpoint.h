@@ -43,7 +43,10 @@ public:
     
     bool            IsSet();
 
+    static bool     IsValidEndpoint(ReadBuffer ip_port);
+
 private:
+
     char            buffer[ENDPOINT_STRING_SIZE];
     char            saBuffer[ENDPOINT_SOCKADDR_SIZE];
 };

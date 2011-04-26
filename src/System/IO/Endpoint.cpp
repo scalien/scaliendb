@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <ctype.h>
 #ifdef _WIN32
 #include <winsock2.h>
 #define s_addr S_un.S_addr
@@ -20,6 +21,7 @@
 #ifdef _WIN32
 int inet_aton(const char *cp, struct in_addr *in)
 {
+    // TODO: IPv6
     if (strcmp(cp, "255.255.255.255") == 0)
     {
         in->s_addr = (u_long) 0xFFFFFFFF;
@@ -108,7 +110,7 @@ bool Endpoint::Set(const char* ip, int port, bool resolv)
     memset((char *) sa, 0, sizeof(sa));
     sa->sin_family = AF_INET;
     sa->sin_port = htons((uint16_t)port);
-    if (inet_aton(ip, &sa->sin_addr) == 0)
+    if (inet_pton(AF_INET, ip, &sa->sin_addr) == 0)
     {
         if (resolv)
         {
@@ -135,6 +137,9 @@ bool Endpoint::Set(const char* ip_port, bool resolv)
     Buffer          ipbuf;
 
     p = ip_port;
+
+    if (!IsValidEndpoint(ReadBuffer(ip_port)))
+        return false;
     
     while (*p != '\0' && *p != ':')
         p++;
@@ -171,6 +176,9 @@ bool Endpoint::Set(ReadBuffer ip_port, bool resolv)
     Buffer          ipbuf;
     Buffer          portbuf;
 
+    if (!IsValidEndpoint(ReadBuffer(ip_port)))
+        return false;
+    
     start = p = ip_port.GetBuffer();
     
     p = FindInBuffer(ip_port.GetBuffer(), ip_port.GetLength(), ':');
@@ -273,5 +281,87 @@ bool Endpoint::IsSet()
     sa = (struct sockaddr_in *) &saBuffer;
     if (sa->sin_port == 0)
         return false;
+    return true;
+}
+
+bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
+{
+    // Valid endpoint is either <IP-Address>:<port> or <Domain-Name>:<port>
+    // Valid IP-Address is when it is consists only from numbers and three dots between the numbers
+    // Valid domain names: http://en.wikipedia.org/wiki/Hostname#Restrictions_on_valid_host_names
+
+    const char  VALID_CHARS[] = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    unsigned    i;
+    bool        labelStart;
+    bool        isNumeric;
+    bool        isPort;
+    unsigned    numCommas;
+    unsigned    numPortChars;
+    char        c;
+    char        prev;
+
+    // assuming fully numeric names
+    isNumeric = true;
+    isPort = false;
+    numCommas = 0;
+    numPortChars = 0;
+    labelStart = true;
+    for (i = 0; i < ip_port.GetLength(); i++)
+    {
+        c = ip_port.GetCharAt(i);
+
+        if (c == '.' || c == ':')
+        {
+            // must not start with comma or colon
+            if (i == 0)
+                return false;
+
+            // labels must not end with hyphens
+            if (prev == VALID_CHARS[0])
+                return false;
+            
+            if (c == '.')
+            {
+                labelStart = true;
+                numCommas++;
+            }
+            
+            if (c == ':')
+            {
+                if (isPort)
+                    return false;
+                isPort = true;
+            }
+        }
+        else
+        {        
+            // labels must not start with hyphens
+            if (labelStart && c == VALID_CHARS[0])
+                return false;
+            
+            if (isPort)
+            {
+                if (!isdigit(c))
+                    return false;
+                numPortChars++;
+            }
+            
+            if (isNumeric && !isdigit(c))
+                isNumeric = false;
+            
+            if (strchr(VALID_CHARS, c) == NULL)
+                return false;
+
+            labelStart = false;
+        }
+        
+        prev = c;
+    }
+
+    if (isNumeric && numCommas != 3)
+        return false;
+    if (numPortChars == 0)
+        return false;
+    
     return true;
 }

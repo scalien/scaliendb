@@ -132,6 +132,9 @@ bool IsController()
     const char* role;
     
     role = configFile.GetValue("role", "");
+    if (role == NULL)
+        STOP_FAIL(1, "Missing \"role\" in config file!");
+        
     if (strcmp(role, "controller") == 0)
         return true;
     else
@@ -141,13 +144,16 @@ bool IsController()
 void InitContextTransport()
 {
     const char* str;
-    Endpoint endpoint;
+    Endpoint    endpoint;
 
     // set my endpoint
     str = configFile.GetValue("endpoint", "");
-    if (str == 0)
-        ASSERT_FAIL();
-    endpoint.Set(str, true);
+    if (str == NULL)
+        STOP_FAIL(1, "Missing \"endpoint\" in config file!");
+
+    if (!endpoint.Set(str, true))
+        STOP_FAIL(1, "Bad endpoint format in config file!");
+
     CONTEXT_TRANSPORT->Init(endpoint);
 }
 
