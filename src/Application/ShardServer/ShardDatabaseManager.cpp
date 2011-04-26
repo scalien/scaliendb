@@ -611,14 +611,7 @@ void ShardDatabaseManager::OnExecuteReads()
 
     FOREACH_FIRST (itRequest, readRequests)
     {
-        // let other code run in the main thread every YIELD_TIME msec
-        if (NowClock() - start >= YIELD_TIME)
-        {
-            if (executeReads.IsActive())
-                STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
-            EventLoop::Add(&executeReads);
-            return;
-        }
+        TRY_YIELD_RETURN(executeReads, start);
 
         readRequests.Remove(itRequest);
 
@@ -652,14 +645,7 @@ void ShardDatabaseManager::OnExecuteReads()
         
     FOREACH_FIRST (itRequest, blockingReadRequests)
     {
-        // let other code run in the main thread every YIELD_TIME msec
-        if (NowClock() - start >= YIELD_TIME)
-        {
-            if (executeReads.IsActive())
-                STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
-            EventLoop::Add(&executeReads);
-            return;
-        }
+        TRY_YIELD_RETURN(executeReads, start);
 
         blockingReadRequests.Remove(itRequest);
 
@@ -712,14 +698,7 @@ void ShardDatabaseManager::OnExecuteLists()
 
     FOREACH_FIRST (itRequest, listRequests)
     {
-        // let other code run in the main thread every YIELD_TIME msec
-        if (NowClock() - start >= YIELD_TIME)
-        {
-            if (executeLists.IsActive())
-                STOP_FAIL(1, "Program bug: resumeRead.IsActive() should be false.");
-            EventLoop::Add(&executeLists);
-            return;
-        }
+        TRY_YIELD_RETURN(executeLists, start);
 
         listRequests.Remove(itRequest);
 
