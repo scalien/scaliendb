@@ -36,6 +36,25 @@ struct ShardLeaseRequest
 /*
 ===============================================================================================
 
+ ShardAppendState
+
+===============================================================================================
+*/
+
+struct ShardAppendState
+{
+    bool                    ownAppend;
+    uint64_t                paxosID;
+    uint64_t                commandID;
+    Buffer                  valueBuffer;
+    ReadBuffer              value;
+    
+    void                    Reset();
+};
+
+/*
+===============================================================================================
+
  ShardQuorumProcessor
 
 ===============================================================================================
@@ -107,8 +126,8 @@ public:
 
 private:
     void                    TransformRequest(ClientRequest* request, ShardMessage* message);
-    void                    ExecuteMessage(ShardMessage& message, uint64_t paxosID,
-                             uint64_t commandID, bool ownAppend);
+    void                    ExecuteMessage(uint64_t paxosID, uint64_t commandID,
+                             ShardMessage* message, ClientRequest* request, bool ownCommand);
     void                    TryAppend();
     void                    OnResumeAppend();
     void                    LocalExecute();
@@ -117,12 +136,7 @@ private:
     uint64_t                highestProposalID;
     uint64_t                configID;
 
-    // for async OnAppend():
-    bool                    ownAppend;
-    uint64_t                paxosID;
-    uint64_t                commandID;
-    Buffer                  valueBuffer;
-    ReadBuffer              value;
+    ShardAppendState        appendState;
 
     ShardServer*            shardServer;
     ShardQuorumContext      quorumContext;

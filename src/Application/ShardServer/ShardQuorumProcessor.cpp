@@ -14,6 +14,15 @@ ShardLeaseRequest::ShardLeaseRequest()
     prev = next = this;
 }
 
+void ShardAppendState::Reset()
+{
+    ownAppend = false;
+    paxosID = 0;
+    commandID = 0;
+    valueBuffer.Reset();
+    value.Reset();
+}
+
 ShardQuorumProcessor::ShardQuorumProcessor()
 {
     prev = next = this;
@@ -38,12 +47,10 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     isPrimary = false;
     highestProposalID = 0;
     configID = 0;
-    ownAppend = false;
-    paxosID = 0;
-    commandID = 0;
     migrateShardID = 0;
     migrateNodeID = 0;
     migrateCache = 0;
+    appendState.Reset();
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
     EventLoop::Add(&requestLeaseTimeout);
@@ -185,14 +192,13 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     leaseRequests.Delete(lease);
 }
 
-void ShardQuorumProcessor::OnAppend(uint64_t paxosID_, Buffer& value_, bool ownAppend_)
+void ShardQuorumProcessor::OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend)
 {
-    paxosID = paxosID_;
-    commandID = 0;
-    
-    valueBuffer.Write(value_);
-    value.Wrap(valueBuffer);
-    ownAppend = ownAppend_;
+    appendState.paxosID = paxosID;
+    appendState.commandID = 0;
+    appendState.valueBuffer.Write(value);
+    appendState.value.Wrap(appendState.valueBuffer);
+    appendState.ownAppend = ownAppend;
 
     OnResumeAppend();
 }
@@ -680,55 +686,50 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
     }
 }
 
-void ShardQuorumProcessor::ExecuteMessage(ShardMessage& message,
- uint64_t paxosID, uint64_t commandID, bool ownAppend)
+void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
+ ShardMessage* shardMessage, ClientRequest* clientRequest, bool ownCommand)
 {
-    ClientRequest*  request;
-    ShardMessage*   itMessage;
-    bool            fromClient;
-
-    request = NULL;
-
-    // TODO: this is not a complete solution
-    if (shardMessages.GetLength() == 0)
+    ClusterMessage clusterMessage;
+    
+    if (shardMessage->type == SHARDMESSAGE_MIGRATION_BEGIN)
     {
-        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, message, request);
+        Log_Message("Disabling database merge for the duration of shard migration");
+        shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(false);
+    }
+
+    if (shardMessage->type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)
+        migrateCache -= (shardMessage->key.GetLength() + shardMessage->value.GetLength());
+    else if (shardMessage->type == SHARDMESSAGE_MIGRATION_DELETE && migrateCache > 0)
+        migrateCache -= shardMessage->key.GetLength();
+
+    ASSERT(migrateCache >= 0);
+    
+    if (shardMessage->type == SHARDMESSAGE_MIGRATION_COMPLETE)
+    {
+        Log_Message("Migration of shard %U complete...", migrateShardID);
+        Log_Message("Enabling database merge");
+        shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(true);
+
+        clusterMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
+        shardServer->BroadcastToControllers(clusterMessage);
+        migrateShardID = 0;
+        migrateNodeID = 0;
+        migrateCache = 0;
         return;
     }
 
-    if (ownAppend)
-    {
-        FOREACH (itMessage, shardMessages)
-        {
-            if (itMessage->isBulk == false)
-                break;
-        }
-        ASSERT(itMessage != NULL);
-        fromClient = itMessage->fromClient;
-    }
-    else
-        fromClient = false;
-
-    if (ownAppend && fromClient)
-    {
-        ASSERT(shardMessages.GetLength() > 0);
-        ASSERT(itMessage->type == message.type);
-        ASSERT(clientRequests.GetLength() > 0);
-        request = clientRequests.First();
-        request->response.OK();
-    }
+    shardServer->GetDatabaseManager()->ExecuteMessage(
+     paxosID, commandID, *shardMessage, clientRequest);
     
-    shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, message, request);
-
-    if (ownAppend)
+    if (!ownCommand)
+        return;
+        
+    if (shardMessage->fromClient)
     {
-        if (fromClient)
-        {
-            clientRequests.Remove(request);
-            request->OnComplete(); // request deletes itself
-        }
-        shardMessages.Delete(itMessage);
+        clientRequests.Remove(clientRequest);
+        clientRequest->OnComplete(); // request deletes itself
     }
+    shardMessages.Delete(shardMessage);
 }
 
 void ShardQuorumProcessor::TryAppend()
@@ -773,82 +774,64 @@ void ShardQuorumProcessor::TryAppend()
 
 void ShardQuorumProcessor::OnResumeAppend()
 {
+    bool            fromClient;
     int             read;
-    uint64_t        valueLength;
     uint64_t        start;
-    ShardMessage    message;
+    ShardMessage*   itShardMessage;
+    ClientRequest*  clientRequest;
+    ShardMessage    shardMessage;
     ClusterMessage  clusterMessage;
     
-    Log_Trace();
-
-//    Log_Debug("OnResumeAppend BEGIN");
-
-    valueLength = value.GetLength();
-
     start = NowClock();
-    while (value.GetLength() > 0)
+    while (appendState.value.GetLength() > 0)
     {
-        read = message.Read(value);
+        // parse message
+        read = shardMessage.Read(appendState.value);
         ASSERT(read > 0);
-        value.Advance(read);
-        ASSERT(value.GetCharAt(0) == ' ');
-        value.Advance(1);
+        appendState.value.Advance(read);
+        ASSERT(appendState.value.GetCharAt(0) == ' ');
+        appendState.value.Advance(1);
 
-        if (message.type == SHARDMESSAGE_MIGRATION_BEGIN)
+        if (appendState.ownAppend)
         {
-            Log_Message("Disabling database merge for the duration of shard migration");
-            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(false);
-        }
-        if (message.type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)
-            migrateCache -= (message.key.GetLength() + message.value.GetLength());
-        else if (message.type == SHARDMESSAGE_MIGRATION_DELETE && migrateCache > 0)
-            migrateCache -= message.key.GetLength();
-        if (migrateCache < 0)
-            migrateCache = 0;
-        
-        if (message.type == SHARDMESSAGE_MIGRATION_COMPLETE)
-        {
-            clusterMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
-            shardServer->BroadcastToControllers(clusterMessage);
-            Log_Message("Migration of shard %U complete...", clusterMessage.shardID);
-            migrateShardID = 0;
-            migrateNodeID = 0;
-            migrateCache = 0;
-            Log_Message("Enabling database merge");
-            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(true);
-            return;
+            // find this message in the shardMessages list
+            FOREACH (itShardMessage, shardMessages)
+                if (itShardMessage->isBulk == false)
+                    break;
+            ASSERT(itShardMessage != NULL);
+            fromClient = itShardMessage->fromClient;
         }
         else
-            ExecuteMessage(message, paxosID, commandID, ownAppend);
-        commandID++;
+            fromClient = false;
 
-        if (NowClock() - start >= YIELD_TIME)
+        if (appendState.ownAppend && fromClient)
         {
-            // let other code run every YIELD_TIME msec
-            if (resumeAppend.IsActive())
-                STOP_FAIL(1, "Program bug: resumeAppend.IsActive() should be false.");
-            EventLoop::Add(&resumeAppend);
-            return;
+            ASSERT(shardMessages.GetLength() > 0);
+            ASSERT(itShardMessage->type == shardMessage.type);
+            ASSERT(clientRequests.GetLength() > 0);
+            clientRequest = clientRequests.First();
         }
-    }
+        else
+            clientRequest = NULL;
+
+        ExecuteMessage(appendState.paxosID, appendState.commandID,
+         (appendState.ownAppend ? itShardMessage : &shardMessage),
+         clientRequest, appendState.ownAppend);
+
+        appendState.commandID++;
         
-    ownAppend = false;
-    paxosID = 0;
-    commandID = 0;
-    valueBuffer.Reset();
-    value.Reset();
+        TRY_YIELD_RETURN(resumeAppend, start);
+    }
+    
+    appendState.Reset();
 
     if (migrateCache <= DATABASE_REPLICATION_SIZE)
-    {
-//        Log_Debug("Resuming reads from node %U", migrateNodeID);
         CONTEXT_TRANSPORT->ResumeReads(migrateNodeID);
-    }
     
     if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
         EventLoop::Add(&tryAppend);
     
     quorumContext.OnAppendComplete();
-//    Log_Debug("OnResumeAppend END");
 }
 
 void ShardQuorumProcessor::LocalExecute()
@@ -888,53 +871,12 @@ void ShardQuorumProcessor::LocalExecute()
         
         if (!isSingle && !itMessage->isBulk)
             continue;
-        shardMessages.Remove(itMessage);
-        if (itMessage->fromClient)
-            clientRequests.Remove(itRequest);
 
-        if (itMessage->type == SHARDMESSAGE_MIGRATION_BEGIN)
-        {
-            Log_Message("Disabling database merge for the duration of shard migration");
-            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(false);
-        }
-        if (itMessage->type == SHARDMESSAGE_MIGRATION_SET && migrateCache > 0)
-            migrateCache -= (itMessage->key.GetLength() + itMessage->value.GetLength());
-        else if (itMessage->type == SHARDMESSAGE_MIGRATION_DELETE && migrateCache > 0)
-            migrateCache -= itMessage->key.GetLength();
-        if (migrateCache < 0)
-            migrateCache = 0;
-        
-        if (itMessage->type == SHARDMESSAGE_MIGRATION_COMPLETE)
-        {
-            clusterMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
-            shardServer->BroadcastToControllers(clusterMessage);
-            Log_Message("Migration of shard %U complete...", clusterMessage.shardID);
-            migrateShardID = 0;
-            migrateNodeID = 0;
-            migrateCache = 0;
-            Log_Message("Enabling database merge");
-            shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(true);
-            return;
-        }
-        else
-            shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, 0, *itMessage,
-             (itMessage->fromClient ? itRequest : NULL));
-
-        if (itMessage->fromClient)
-            itRequest->OnComplete(); // request deletes itself
-        delete itMessage;
+        ExecuteMessage(paxosID, 0, itMessage, (itMessage->fromClient ? itRequest : NULL), true);
+        // removes from shardMessages and clientRequests lists
         
         commandID++;
-
-        if (NowClock() - start >= YIELD_TIME)
-        {
-            // let other code run every YIELD_TIME msec
-            if (localExecute.IsActive())
-                STOP_FAIL(1, "Program bug: localExecute.IsActive() should be false.");
-            EventLoop::Add(&localExecute);
-            Log_Debug("ExecuteSingles YIELD");
-            break;
-        }
+        TRY_YIELD_BREAK(localExecute, start);
     }
 
     quorumContext.WriteReplicationState();
