@@ -78,7 +78,7 @@ int UrlParam::GetParamIndex(const char* name, int namelen)
 
         param = &buffer.GetBuffer()[offset];
         if (length > namelen && 
-            strncmp(name, param, namelen) == 0 &&
+            strncasecmp(name, param, namelen) == 0 &&
             param[namelen] == '=')
         {
             return i;

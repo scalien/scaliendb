@@ -315,9 +315,13 @@ $(BIN_DIR)/scaliendb: $(BUILD_DIR)/ScalienDB
 	-cp -fr $< $@
 	-cp -fr $(SCRIPT_DIR)/cluster-exec.sh $(BIN_DIR)
 	-cp -fr $(SCRIPT_DIR)/scaliendb-env.sh $(BIN_DIR)
+	-cp -rf $(SCRIPT_DIR)/safe_scaliendb $(BIN_DIR)
+
+$(BIN_DIR)/cli: pythonlib $(SCRIPT_DIR)/cli $(SCRIPT_DIR)/shell.py
+	-cp -fr $(SCRIPT_DIR)/scaliendb-env.sh $(BIN_DIR)
 	-cp -fr $(SCRIPT_DIR)/shell.py $(BIN_DIR)
 	-cp -fr $(SCRIPT_DIR)/cli $(BIN_DIR)
-	-cp -rf $(SCRIPT_DIR)/safe_scaliendb $(BIN_DIR)
+
 
 ##############################################################################
 #
@@ -368,6 +372,8 @@ testmain: $(BUILD_DIR) $(BUILD_DIR)/TestMain
 clientlibs: $(BUILD_DIR) $(CLIENTLIBS)
 
 executables: $(BUILD_DIR) $(EXECUTABLES)
+
+cli: $(BUILD_DIR) $(BIN_DIR)/cli
 
 javadoc: $(JAVA_SOURCE_FILES) 
 	-SRCDIR=`pwd`; cd $(SRC_DIR)/$(JAVA_CLIENT_DIR) && javadoc -d $$SRCDIR/javadoc -public *.java

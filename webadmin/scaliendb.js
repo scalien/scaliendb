@@ -79,9 +79,12 @@ var scaliendb =
 		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "getconfigstate");
 	},
 
-	pollConfigState: function(onConfigState)
-	{ 
-		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "pollconfigstate");
+	pollConfigState: function(onConfigState, paxosID, changeTimeout)
+	{                                                                                                       
+		var params = {};
+		params["paxosID"] = paxosID;
+		params["changeTimeout"] = changeTimeout;
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "pollconfigstate", params);
 	},
 
 	getTable: function(configState, tableID)

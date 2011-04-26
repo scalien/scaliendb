@@ -399,8 +399,10 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
         // update clients
         FOREACH (itRequest, listenRequests)
         {
-            if (configChanged || (itRequest->changeTimeout != 0 &&
-             itRequest->changeTimeout < now - itRequest->lastChangeTime))
+            if (configChanged || 
+             (itRequest->changeTimeout != 0 && 
+             itRequest->changeTimeout < now - itRequest->lastChangeTime) ||
+             (itRequest->paxosID != 0 && itRequest->paxosID < CONFIG_STATE->paxosID))
             {
                 //Log_Debug("request: %p, changeTimeout: %U, diff: %U", itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime);
                 itRequest->response.ConfigStateResponse(*CONFIG_STATE);

@@ -567,10 +567,11 @@ ClientRequest* ConfigHTTPClientSession::ProcessPollConfigState()
     ClientRequest*  request;
     
     request = new ClientRequest;
-    request->GetConfigState(0, 5*1000);
+    request->GetConfigState(0, 60*1000);    // default changeTimeout is 60 sec
     request->lastChangeTime = NowClock();
 
     HTTP_GET_OPT_U64_PARAM(params, "paxosID", request->paxosID);
+    HTTP_GET_OPT_U64_PARAM(params, "changeTimeout", request->changeTimeout);
     
     return request;
 }
