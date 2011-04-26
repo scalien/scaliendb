@@ -30,7 +30,7 @@ void ConfigServer::Init()
    
     nodeID = configFile.GetIntValue("nodeID", -1);
     if (nodeID < 0)
-        ASSERT_FAIL();
+        STOP_FAIL(1, "Missing \"nodeID\" in config file!");
     
     CONTEXT_TRANSPORT->SetSelfNodeID(nodeID);
     REPLICATION_CONFIG->SetNodeID(nodeID);
@@ -39,6 +39,8 @@ void ConfigServer::Init()
     CONTEXT_TRANSPORT->SetClusterID(REPLICATION_CONFIG->GetClusterID());
         
     // connect to the configServer nodes
+    if (configFile.GetValue("controllers", NULL) == NULL)
+        STOP_FAIL(1, "Missing \"controllers\" in config file!");
     numConfigServers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numConfigServers; nodeID++)
     {

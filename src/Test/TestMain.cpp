@@ -28,7 +28,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientGet);
 //TEST_ADD(TestClientGetAndSet);
 //TEST_ADD(TestClientGetLatency);
-TEST_ADD(TestClientListKeys);
+//TEST_ADD(TestClientListKeys);
 //TEST_ADD(TestClientMaro);
 //TEST_ADD(TestClientMixedReadWriteBatched);
 //TEST_ADD(TestClientMixedWriteReadBatched);
@@ -41,6 +41,7 @@ TEST_ADD(TestClientListKeys);
 //TEST_ADD(TestCommonRandomDistribution)
 //TEST_ADD(TestConfigStateJSON);
 //TEST_ADD(TestCrashStorage);
+TEST_ADD(TestEndpointValidity);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);
 //TEST_ADD(TestFormattingPadding);

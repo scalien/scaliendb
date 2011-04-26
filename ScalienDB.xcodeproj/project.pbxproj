@@ -130,6 +130,7 @@
 		78CD47B3130C26C30022BC9F /* StorageFileChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47B1130C26C30022BC9F /* StorageFileChunkLister.cpp */; };
 		9A466D60135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A466D61135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
+		9A4671891366FEDC00108B07 /* EndpointTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A4671881366FEDC00108B07 /* EndpointTest.cpp */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
@@ -539,6 +540,7 @@
 		9A466D5E135F435300108B07 /* JSONBufferWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONBufferWriter.h; sourceTree = "<group>"; };
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A466F431361906800108B07 /* test.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = test.php; path = Client/PHP/test.php; sourceTree = "<group>"; };
+		9A4671881366FEDC00108B07 /* EndpointTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EndpointTest.cpp; path = Test/EndpointTest.cpp; sourceTree = "<group>"; };
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
 		9A67257213007D5200C3E6F6 /* Quorum.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Quorum.java; path = Client/Java/Quorum.java; sourceTree = "<group>"; };
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
@@ -1262,6 +1264,7 @@
 				9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */,
 				9ADD104113433898002C5C66 /* ConfigStateTest.cpp */,
 				9AE8196912D4BFE80038BDB1 /* CrashTest.cpp */,
+				9A4671881366FEDC00108B07 /* EndpointTest.cpp */,
 				9AE8196A12D4BFE80038BDB1 /* FileSystemTest.cpp */,
 				9AE8196B12D4BFE80038BDB1 /* FormattingTest.cpp */,
 				9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */,
@@ -1596,6 +1599,7 @@
 				9ADD108013433E5C002C5C66 /* ClientRequestCache.cpp in Sources */,
 				9ADD18DE1353568A002C5C66 /* StorageAsyncBulkCursor.cpp in Sources */,
 				9A466D60135F435300108B07 /* JSONBufferWriter.cpp in Sources */,
+				9A4671891366FEDC00108B07 /* EndpointTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
