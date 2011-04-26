@@ -750,10 +750,10 @@ function onConfigState(configState)
 	$("clusterState").textContent = "The ScalienDB cluster is " + scaliendb.getClusterState(configState);
 	$("clusterState").className = "status-message " + scaliendb.getClusterState(configState);
 	
-	// clearTimeout(timer);
-	// timer = setTimeout("onTimeout()", 1000);
-	var timeout = 60 * 1000;
-	scaliendb.pollConfigState(onConfigState, configState["paxosID"], timeout);
+	clearTimeout(timer);
+	timer = setTimeout("onTimeout()", 1000);
+	// var timeout = 60 * 1000;
+	// scaliendb.pollConfigState(onConfigState, configState["paxosID"], timeout);
 }
 
 function onTimeout()
