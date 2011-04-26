@@ -373,9 +373,10 @@ function populateQuorumSelector(name, shardID)
 	    if (shardID != undefined)
 		{
 			var currentQuorum = false;
-			for (var qsID in quorum["shards"])
+			for (var qs in quorum["shards"])
 			{
-				if (qsID == shardID)
+				var quorumShardID = quorum["shards"][qs];
+				if (quorumShardID == shardID)
 				{
 					currentQuorum = true;
 					break;
