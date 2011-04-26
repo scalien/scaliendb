@@ -104,7 +104,8 @@ void ShardDatabaseAsyncList::OnShardComplete()
 
     numKeys = lastResult->dataPage.GetNumKeys();
     total += numKeys;
-    // create results
+
+    // create results if necessary
     if (numKeys > 0 && (type == KEY || type == KEYVALUE))
     {
 		CLIENTRESPONSE_ASSERT_NUMKEYS(numKeys);
@@ -134,7 +135,7 @@ void ShardDatabaseAsyncList::OnShardComplete()
         delete[] values;
     }
 
-    // found count items
+    // found all items given by 'count'
     if (lastResult->final && request->count != 0 && total == request->count)
     {
         Log_Debug("OnShardComplete count found");
@@ -152,6 +153,7 @@ void ShardDatabaseAsyncList::OnRequestComplete()
     
     number = total;
     
+    // reset async list variables
     total = 0;
     num = 0;
 
@@ -165,20 +167,24 @@ void ShardDatabaseAsyncList::OnRequestComplete()
             
         request->OnComplete();
         if (async && !manager->executeReads.IsActive())
-            EventLoop::Add(&manager->executeReads);
+            EventLoop::Add(&manager->executeLists);
         return;
     }
 
+    // send final message
     if (lastResult->final)
     {
         if (type == COUNT)
+        {
             request->response.Number(number);
-        else
-            request->response.OK();
-            
+            request->OnComplete(false);
+        }
+
+        request->response.OK();
         request->OnComplete(true);
     }
     
+    // activate async list executor
     if (async && lastResult->final && !manager->executeLists.IsActive())
         EventLoop::Add(&manager->executeLists);
 }
@@ -187,16 +193,29 @@ void ShardDatabaseAsyncList::TryNextShard()
 {
     Log_Debug("TryNextShard: shardLastKey: %B", &shardLastKey);
     
+    // check if this was the last shard
     if (shardLastKey.GetLength() == 0)
     {
-        // this was the last shard
         OnRequestComplete();
         return;
     }
+
+    // send COUNT partial result
+    if (request->type == CLIENTREQUEST_COUNT)
+    {
+        request->response.Number(total);
+        request->OnComplete(false);
+    }
     
-    // TODO: HACK update the request with the next shard's startKey
+    // update the request with the next shard's startKey
     request->key.Write(shardLastKey);
     request->offset = offset;
+    if (request->count > 0)
+        request->count -= total;
+
+    // reset async list variables
+    total = 0;
+    num = 0;
     
     // reschedule request
     manager->OnClientListRequest(request);
@@ -720,7 +739,8 @@ void ShardDatabaseManager::OnExecuteLists()
         configShard = shardServer->GetConfigState()->GetShard(shardID);
         if (configShard == NULL)
         {
-            itRequest->response.Next(itRequest->offset, startKey);
+            Log_Debug("sending Next");
+            itRequest->response.Next(startKey, itRequest->count, itRequest->offset);
             itRequest->OnComplete();
             continue;
         }
@@ -742,6 +762,8 @@ void ShardDatabaseManager::OnExecuteLists()
             itRequest->count = 1000;
         }
 
+        asyncList.total = 0;
+        asyncList.num = 0;
         asyncList.request = itRequest;
         asyncList.count = itRequest->count;
         asyncList.offset = itRequest->offset;

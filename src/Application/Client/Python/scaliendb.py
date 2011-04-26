@@ -318,7 +318,7 @@ class Client:
         if ret:
             return self.result.value()
 
-    def list_keys(self, key, count=0, offset=0):
+    def list_keys(self, key="", count=0, offset=0):
         status = SDBP_ListKeys(self.cptr, key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:
@@ -330,7 +330,7 @@ class Client:
             self.result.next()
         return keys
 
-    def list_key_values(self, key, count=0, offset=0):
+    def list_key_values(self, key="", count=0, offset=0):
         status = SDBP_ListKeyValues(self.cptr, key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:
@@ -342,7 +342,7 @@ class Client:
             self.result.next()
         return key_values
 
-    def count(self, key, count=0, offset=0):
+    def count(self, key="", count=0, offset=0):
         status = SDBP_Count(self.cptr, key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:

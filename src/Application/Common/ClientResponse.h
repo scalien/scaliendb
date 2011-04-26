@@ -75,7 +75,7 @@ public:
     bool            Failed();
     bool            NoResponse();
     bool            Hello();
-    bool            Next(uint64_t offset, ReadBuffer& shardLastKey);
+    bool            Next(ReadBuffer& nextShardKey, uint64_t count, uint64_t offset);
 };
 
 #endif

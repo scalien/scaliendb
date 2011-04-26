@@ -30,8 +30,8 @@ SCRIPT_DIR = $(BASE_DIR)/script
 DEB_DIR = $(BUILD_ROOT)/deb
 DIST_DIR = $(BUILD_ROOT)/dist
 
-BUILD_DEBUG_DIR = $(BUILD_ROOT)/Debug
-BUILD_RELEASE_DIR = $(BUILD_ROOT)/Release
+BUILD_DEBUG_DIR = $(BUILD_ROOT)/debug
+BUILD_RELEASE_DIR = $(BUILD_ROOT)/release
 
 INSTALL_BIN_DIR = /usr/local/bin
 INSTALL_LIB_DIR = /usr/local/lib

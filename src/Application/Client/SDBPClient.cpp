@@ -1202,30 +1202,21 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
     requests.PrependList(*qrequests);
 }
 
-void Client::NextRequest(Request* req, uint64_t offset, ReadBuffer shardLastKey)
+void Client::NextRequest(Request* req, ReadBuffer nextShardKey, uint64_t count, uint64_t offset)
 {
     ConfigTable*    configTable;
     ConfigShard*    configShard;
     uint64_t*       itShard;
     uint64_t        nextShardID;
     ReadBuffer      minKey;
-    unsigned        numResponses;
     
-    numResponses = req->GetNumResponses();
+    Log_Trace("count: %U, offset: %U, nextShardKey: %R", count, offset, &nextShardKey);
+    
     if (req->count > 0)
-    {
-        if (req->count > numResponses)
-            req->count -= numResponses;
-        else
-            req->count = 0;
-    }
+        req->count = count;
+
     if (req->offset > 0)
-    {
-        if (req->offset > offset)
-            req->offset -= offset;
-        else
-            req->offset = 0;
-    }
+        req->offset = offset;
 
     configTable = configState->GetTable(req->tableID);
     ASSERT(configTable != NULL);
@@ -1237,15 +1228,18 @@ void Client::NextRequest(Request* req, uint64_t offset, ReadBuffer shardLastKey)
 
         // find the first shard, that has the smallest firstKey
         // which is greater than shardLastKey
-        if (GREATER_THAN(configShard->firstKey, shardLastKey) &&
-         LESS_THAN(configShard->firstKey, minKey) &&
-         GREATER_THAN(minKey, shardLastKey))
+//        if (GREATER_THAN(configShard->firstKey, shardLastKey) &&
+//         LESS_THAN(configShard->firstKey, minKey) &&
+//         GREATER_THAN(minKey, shardLastKey))
+        if (ReadBuffer::Cmp(configShard->firstKey, nextShardKey) == 0)
         {
             minKey = configShard->firstKey;
             nextShardID = configShard->shardID;
+            break;
         }
     }
 
+    Log_Trace("nextShardID: %U, minKey: %R", nextShardID, &minKey);
     if (nextShardID != 0)
         req->key.Write(minKey);
 }
