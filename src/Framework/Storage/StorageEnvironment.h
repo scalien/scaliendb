@@ -5,13 +5,13 @@
 #include "System/Containers/InList.h"
 #include "System/Containers/ArrayList.h"
 #include "System/Events/Countdown.h"
-#include "System/ThreadPool.h"
+#include "System/Threading/ThreadPool.h"
 #include "StorageConfig.h"
 #include "StorageLogSegment.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 #include "StorageShard.h"
-#include "StorageJob.h"
+#include "StorageCommitJob.h"
 #include "StorageBulkCursor.h"
 #include "StorageAsyncBulkCursor.h"
 
@@ -69,6 +69,8 @@ public:
     bool                    DeleteShard(uint16_t contextID, uint64_t shardID);
     bool                    SplitShard(uint16_t contextID,  uint64_t shardID,
                              uint64_t newShardID, ReadBuffer splitKey);
+                             
+    bool                    PushMemoChunk(uint16_t contextID, uint64_t shardID);
 
     bool                    Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value);
     bool                    Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
@@ -96,8 +98,7 @@ public:
     void                    PrintState(uint16_t contextID, Buffer& buffer);
     StorageConfig&          GetConfig();
     
-private:
-    void                    OnCommit();
+    void                    OnCommit(StorageCommitJob* job);
     void                    TryFinalizeLogSegment();
     void                    TrySerializeChunks();
     void                    TryWriteChunks();
@@ -109,7 +110,7 @@ private:
     void                    OnLogArchive();
     void                    OnBackgroundTimer();
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
-    void                    StartJob(ThreadPool* thread, StorageJob* job);
+//    void                    StartJob(ThreadPool* thread, StorageJob* job);
     void                    WriteTOC();
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
@@ -119,7 +120,6 @@ private:
     Callable                onBackgroundTimer;
 
     Callable                onCommitCallback;
-    Callable                onCommit;
     Callable                onChunkSerialize;
     Callable                onChunkWrite;
     Callable                onChunkMerge;

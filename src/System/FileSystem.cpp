@@ -97,7 +97,7 @@ bool FS_RecDeleteDir(const char* path)
 #include "System/Containers/List.h"
 #include "System/Containers/ArrayList.h"
 #include "System/Mutex.h"
-#include "System/ThreadPool.h"
+#include "System/Threading/ThreadPool.h"
 
 #define MAX_FD  128*1024
 

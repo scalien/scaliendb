@@ -35,7 +35,6 @@ StorageEnvironment::StorageEnvironment()
     asyncThread = NULL;
     asyncGetThread = NULL;
 
-    onCommit = MFUNC(StorageEnvironment, OnCommit);
     onChunkSerialize = MFUNC(StorageEnvironment, OnChunkSerialize);
     onChunkWrite = MFUNC(StorageEnvironment, OnChunkWrite);
     onChunkMerge = MFUNC(StorageEnvironment, OnChunkMerge);
@@ -724,7 +723,7 @@ bool StorageEnvironment::Commit(Callable& onCommit_)
         return false;
     }
 
-    job = new StorageCommitJob(headLogSegment, &onCommit);
+    job = new StorageCommitJob(this, headLogSegment);
     commitThreadActive = true;
     StartJob(commitThread, job);
     
@@ -737,7 +736,7 @@ bool StorageEnvironment::Commit()
         return false;
 
     headLogSegment->Commit();
-    OnCommit();
+    OnCommit(NULL);
 
     return true;
 }
@@ -1103,10 +1102,48 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     return true;
 }
 
-void StorageEnvironment::OnCommit()
+bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)
+{
+    Buffer                      tmp;
+    StorageShard*               shard;
+    StorageMemoChunk*           memoChunk;
+    StorageJob*                 job;
+
+//    if (haveUncommitedWrites)
+//        return;
+    
+    shard = GetShard(contextID, shardID);
+    if (shard == NULL)
+        return false;
+
+    if (shard->IsLogStorage())
+        return false; // never serialize log storage shards
+    
+    memoChunk = shard->GetMemoChunk();
+    
+//    if (memoChunk->haveUncommitedWrites)
+//        return dalse;
+    
+    serializeChunk = memoChunk;
+    job = new StorageSerializeChunkJob(this, memoChunk, &onChunkSerialize);
+    serializerThreadActive = true;
+    StartJob(serializerThread, job);
+
+    memoChunk = new StorageMemoChunk;
+    memoChunk->SetChunkID(nextChunkID++);
+    memoChunk->SetUseBloomFilter(shard->UseBloomFilter());
+
+    shard->PushMemoChunk(memoChunk);
+    
+    return true;
+}
+
+void StorageEnvironment::OnCommit(StorageCommitJob* job)
 {
     bool            asyncCommit;
     StorageShard*   shard;
+    
+    delete job;
     
     asyncCommit = commitThreadActive;
     

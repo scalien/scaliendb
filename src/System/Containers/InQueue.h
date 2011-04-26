@@ -18,8 +18,8 @@ class InQueue
 public:
     InQueue();
 
-    void    Enqueue(T* elem);   
-    T*      Dequeue();
+    void    Enqueue(T* elem);       // add to tail/last
+    T*      Dequeue();              // remove from head/first
 
     void    Clear();
     
