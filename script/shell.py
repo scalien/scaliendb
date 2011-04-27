@@ -29,6 +29,7 @@ print("")
 try_import("json")
 del try_import
 
+# helper function for making closures easier
 def closure(func, *args):
     return lambda: func(*args)
 
@@ -37,24 +38,34 @@ def timer(func, *args):
     starttime = time.time()
     ret = func(*args)
     endtime = time.time()
-    print("Function took " + str(endtime-starttime) + " secs")
+    elapsed = "(%.02f secs)" % float(endtime-starttime)
+    print(elapsed)
     return ret
-
 
 # helper function for other connections
 def connect(nodes, database=None, table=None):
+    def timer_func(f):
+        def func(*args):
+            try:
+                return timer(f, *args)
+            except scaliendb.Error as e:
+                print(e)
+        return func
     client = scaliendb.Client(nodes)    
     # import client's member function to the global scope
     members = inspect.getmembers(client, inspect.ismethod)
     for k, v in members:
         if k[0] != "_":
-            globals()[k] = v
-    if database == None:
-        return
-    client.use_database(database)
-    if table == None:
-        return
-    client.use_table(table)
+            globals()[k] = timer_func(v)
+    try:
+        if database == None:
+            return
+        client.use_database(database)
+        if table == None:
+            return
+        client.use_table(table)
+    except scaliendb.Error as e:
+        print(e)
 
 # helper class for implementing 'shelp' command
 class SHelp:
