@@ -1,6 +1,7 @@
 import sys
 import scaliendb
 import inspect
+import time
 
 # enable syntax completion
 try:
@@ -27,6 +28,18 @@ def try_import(name):
 print("")
 try_import("json")
 del try_import
+
+def closure(func, *args):
+    return lambda: func(*args)
+
+# helper function for measure timing
+def timer(func, *args):
+    starttime = time.time()
+    ret = func(*args)
+    endtime = time.time()
+    print("Function took " + str(endtime-starttime) + " secs")
+    return ret
+
 
 # helper function for other connections
 def connect(nodes, database=None, table=None):
