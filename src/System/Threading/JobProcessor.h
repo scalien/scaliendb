@@ -18,7 +18,7 @@ class JobProcessor
 public:
     JobProcessor();
     
-    void                    Start(unsigned numThreads = 1);
+    void                    Start();
     void                    Execute(Job* job);
     void                    ThreadFunc();
     void                    OnComplete();

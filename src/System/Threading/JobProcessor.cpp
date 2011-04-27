@@ -7,9 +7,9 @@ JobProcessor::JobProcessor()
     onComplete = MFUNC(JobProcessor, OnComplete);
 }
 
-void JobProcessor::Start(unsigned numThreads)
+void JobProcessor::Start()
 {
-    threadPool = ThreadPool::Create(numThreads);
+    threadPool = ThreadPool::Create(1);
     threadPool->Start();
     active = false;
 }
