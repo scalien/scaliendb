@@ -24,7 +24,6 @@ public:
     void                Execute();
     void                OnComplete();
     
-private:
     void                EvalScriptVariables();
     const char*         GetVarValue(const char* var);
 

@@ -16,7 +16,7 @@ void StorageWriteChunkJob::Execute()
 
     Log_Debug("Writing chunk %U to file...", fileChunk->GetChunkID());
     sw.Start();
-    writer.Write(env, fileChunk);
+    ASSERT(writer.Write(env, fileChunk));
     sw.Stop();
     Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
      fileChunk->GetChunkID(),
@@ -26,5 +26,5 @@ void StorageWriteChunkJob::Execute()
 
 void StorageWriteChunkJob::OnComplete()
 {
-    env->OnWriteChunk(this);  // deletes this
+    env->OnChunkWrite(this);  // deletes this
 }

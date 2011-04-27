@@ -1,4 +1,4 @@
-#include "StorageDeleteMemoChunk.h"
+#include "StorageDeleteMemoChunkJob.h"
 #include "StorageMemoChunk.h"
 
 StorageDeleteMemoChunkJob::StorageDeleteMemoChunkJob(StorageMemoChunk* chunk_)

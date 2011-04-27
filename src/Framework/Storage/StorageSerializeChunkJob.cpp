@@ -16,7 +16,7 @@ void StorageSerializeChunkJob::Execute()
 
     Log_Debug("Serializing chunk %U in memory...", memoChunk->GetChunkID());
     sw.Start();
-    serializer.Serialize(env, memoChunk);
+    ASSERT(serializer.Serialize(env, memoChunk));
     sw.Stop();
     Log_Debug("Done serializing, elapsed: %U", (uint64_t) sw.Elapsed());
 }

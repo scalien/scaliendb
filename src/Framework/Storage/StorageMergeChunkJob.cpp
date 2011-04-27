@@ -4,6 +4,7 @@
 #include "StorageChunkMerger.h"
 
 StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
+ uint64_t contextID_, uint64_t shardID_,
  List<Buffer*>& filenames_, StorageFileChunk* mergeChunk_,
  ReadBuffer firstKey_, ReadBuffer lastKey_)
 {
@@ -11,6 +12,8 @@ StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
     Buffer*     filename;
     
     env = env_;
+    contextID_ = contextID;
+    shardID_ = shardID;
 
     FOREACH (itFilename, filenames_)
     {

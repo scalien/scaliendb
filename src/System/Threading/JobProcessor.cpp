@@ -14,6 +14,11 @@ void JobProcessor::Start()
     active = false;
 }
 
+void JobProcessor::Stop()
+{
+    threadPool->Stop();
+}
+
 void JobProcessor::Execute(Job* job)
 {
     // (runs in main thread)
@@ -27,6 +32,11 @@ void JobProcessor::Execute(Job* job)
         active = true;
         threadPool->Execute(threadFunc);
     }
+}
+
+bool JobProcessor::IsActive()
+{
+    return (jobs.GetLength() > 0);
 }
 
 void JobProcessor::ThreadFunc()

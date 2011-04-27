@@ -21,7 +21,6 @@ public:
     void                Execute();
     void                OnComplete();
 
-private:
     StorageMemoChunk*   chunk;
 };
 

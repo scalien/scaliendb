@@ -19,10 +19,14 @@ public:
     JobProcessor();
     
     void                    Start();
+    void                    Stop();
     void                    Execute(Job* job);
+    bool                    IsActive();
+    
+private:
     void                    ThreadFunc();
     void                    OnComplete();
-    
+
     bool                    active;
     InQueue<Job>            jobs;
     ThreadPool*             threadPool;

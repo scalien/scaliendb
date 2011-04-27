@@ -22,7 +22,6 @@ public:
     void                Execute();
     void                OnComplete();
     
-private:
     StorageEnvironment* env;
     StorageMemoChunk*   memoChunk;
 };
