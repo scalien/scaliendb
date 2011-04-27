@@ -3,13 +3,20 @@ import scaliendb
 import inspect
 import time
 
+# helper function for trying to import other useful modules
+def try_import(name):
+    try:
+        globals()[name] = __import__(name)
+        return True
+    except:
+        print("Module " + name + " not available.")
+        return False
+
+print("")
+
 # enable syntax completion
-try:
-    import readline
-except ImportError:
-    print("Module readline not available.")
-else:
-    import rlcompleter
+if try_import("readline"):
+    try_import("rlcompleter")
     if sys.platform == "darwin":
         # this works on Snow Leopard
         readline.parse_and_bind ("bind ^I rl_complete")
@@ -17,15 +24,6 @@ else:
         # this works on Linux    
         readline.parse_and_bind("tab: complete")
 
-# try importing other useful modules
-def try_import(name):
-    try:
-        globals()[name] = __import__(name)
-        print("Module " + name + " loaded.")
-    except:
-        pass
-
-print("")
 try_import("json")
 del try_import
 
@@ -52,7 +50,7 @@ def connect(nodes, database=None, table=None):
                 print(e)
         return func
     client = scaliendb.Client(nodes)    
-    # import client's member function to the global scope
+    # import client's member functions to the global scope
     members = inspect.getmembers(client, inspect.ismethod)
     for k, v in members:
         if k[0] != "_":
