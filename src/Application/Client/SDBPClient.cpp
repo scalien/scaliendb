@@ -289,6 +289,19 @@ uint64_t Client::GetCurrentTableID()
 
 ConfigState* Client::GetConfigState()
 {
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (numControllers == 0)
+        return NULL;
+    
+    if (configState == NULL)
+    {
+        result->Close();
+        CLIENT_MUTEX_UNLOCK();
+        EventLoop();
+        CLIENT_MUTEX_LOCK();
+    }
+
     return configState;
 }
 
