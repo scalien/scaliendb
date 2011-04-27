@@ -25,7 +25,9 @@ public:
                                      ShardQuorumProcessor* quorumProcessor_);
     void                            Shutdown();
     
-    void                            SetActiveNodes(SortedList<uint64_t>& activeNodes);
+//    void                            SetActiveNodes(SortedList<uint64_t>& activeNodes);
+    void                            SetQuorumNodes(SortedList<uint64_t>& activeNodes);
+    void                            RestartReplication();
     void                            TryReplicationCatchup();
     void                            AppendDummy();
     void                            Append(); // nextValue was filled up using GetNextValue()
@@ -55,7 +57,8 @@ public:
     virtual Quorum*                 GetQuorum();
     virtual QuorumDatabase*         GetDatabase();
     virtual QuorumTransport*        GetTransport();
-    
+
+    virtual void                    OnStartProposing();
     virtual void                    OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend);
     virtual bool                    IsPaxosBlocked();
     virtual Buffer&                 GetNextValue();
@@ -72,7 +75,7 @@ public:
 private:
     void                            OnPaxosMessage(ReadBuffer buffer);
     void                            OnCatchupMessage(ReadBuffer buffer);
-    void                            ReconfigureQuorum(SortedList<uint64_t>& activeNodes);
+//    void                            ReconfigureQuorum(SortedList<uint64_t>& activeNodes);
     
     bool                            isReplicationActive;
     uint64_t                        quorumID;

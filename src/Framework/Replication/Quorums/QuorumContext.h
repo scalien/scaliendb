@@ -41,6 +41,7 @@ public:
     virtual bool                IsPaxosBlocked()                                                = 0;
     virtual Buffer&             GetNextValue()                                                  = 0;
 
+    virtual void                OnStartProposing()                                              = 0;
     virtual void                OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend)       = 0;
     virtual void                OnMessage(uint64_t nodeID, ReadBuffer msg)                      = 0;
     virtual void                OnStartCatchup()                                                = 0;

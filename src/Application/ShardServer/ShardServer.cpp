@@ -457,7 +457,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
     else
     {
         configQuorum->GetVolatileActiveNodes(activeNodes);
-        quorumProcessor->SetActiveNodes(activeNodes);
+//        quorumProcessor->SetActiveNodes(activeNodes);
 
         // add nodes to CONTEXT_TRANSPORT
         FOREACH (itNodeID, configQuorum->activeNodes)

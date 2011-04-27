@@ -150,6 +150,10 @@ Buffer& ConfigQuorumContext::GetNextValue()
     return nextValue;
 }
 
+void ConfigQuorumContext::OnStartProposing()
+{
+}
+
 void ConfigQuorumContext::OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend)
 {
     bool            ret;

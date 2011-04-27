@@ -88,7 +88,7 @@ public:
     void                    OnReceiveLease(ClusterMessage& message);
     void                    OnClientRequest(ClientRequest* request);
     void                    OnClientClose(ClientSession* session);
-    void                    SetActiveNodes(SortedList<uint64_t>& activeNodes);
+//    void                    SetActiveNodes(SortedList<uint64_t>& activeNodes);
     void                    RegisterPaxosID(uint64_t paxosID);
     void                    TryReplicationCatchup();
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
@@ -112,6 +112,7 @@ public:
     // ========================================================================================
     // For ShardQuorumContext:
     //
+    void                    OnStartProposing();
     void                    OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend);
     void                    OnStartCatchup();
     void                    OnCatchupMessage(CatchupMessage& message);
@@ -141,6 +142,7 @@ private:
     ShardServer*            shardServer;
     ShardQuorumContext      quorumContext;
 
+    SortedList<uint64_t>    activeNodes;
     LeaseRequestList        leaseRequests;
     MessageList             shardMessages;
     RequestList             clientRequests;

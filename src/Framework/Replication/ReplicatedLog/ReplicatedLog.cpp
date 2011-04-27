@@ -110,6 +110,8 @@ void ReplicatedLog::TryCatchup()
 
 void ReplicatedLog::Restart()
 {
+    context->OnStartProposing();
+
     if (proposer.IsActive())
         proposer.Restart();
 }
@@ -227,6 +229,7 @@ void ReplicatedLog::Append(Buffer& value)
     if (proposer.IsActive())
         return;
     
+    context->OnStartProposing();
     proposer.Propose(value);
     
 #ifdef RLOG_DEBUG_MESSAGES

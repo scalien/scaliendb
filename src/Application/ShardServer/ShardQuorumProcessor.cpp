@@ -73,6 +73,9 @@ void ShardQuorumProcessor::Shutdown()
     if (requestLeaseTimeout.IsActive())
         EventLoop::Remove(&requestLeaseTimeout);
 
+    if (activationTimeout.IsActive())
+        EventLoop::Remove(&activationTimeout);
+
     if (leaseTimeout.IsActive())
         EventLoop::Remove(&leaseTimeout);
 
@@ -81,6 +84,9 @@ void ShardQuorumProcessor::Shutdown()
 
     if (resumeAppend.IsActive())
         EventLoop::Remove(&resumeAppend);
+
+    if (localExecute.IsActive())
+        EventLoop::Remove(&localExecute);
     
     if (catchupReader.IsActive())
         catchupReader.Abort();
@@ -123,7 +129,7 @@ ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
 
 void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
 {
-    SortedList<uint64_t>    activeNodes;
+    bool                    restartReplication;
     uint64_t*               it;
     ShardLeaseRequest*      lease;
     ShardLeaseRequest*      itLease;
@@ -164,9 +170,15 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     isPrimary = true;
     configID = message.configID;
     
+    if (message.activeNodes.GetLength() != activeNodes.GetLength())
+        restartReplication = true;
+    else
+        restartReplication = false;
+    
+    activeNodes.Clear();
     FOREACH (it, message.activeNodes)
         activeNodes.Add(*it);
-    quorumContext.SetActiveNodes(activeNodes);
+//    quorumContext.SetActiveNodes(activeNodes);
         
     shards = message.shards;
     
@@ -176,13 +188,17 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     quorumContext.OnLearnLease();
     
     if (message.watchingPaxosID)
-    {
             quorumContext.AppendDummy();
-//            Log_Debug("Appending dummy to increase paxosID");
-    }
     
-        
     leaseRequests.Delete(lease);
+    
+    if (restartReplication)
+        quorumContext.RestartReplication();
+}
+
+void ShardQuorumProcessor::OnStartProposing()
+{
+    quorumContext.SetQuorumNodes(activeNodes);
 }
 
 void ShardQuorumProcessor::OnAppend(uint64_t paxosID, Buffer& value, bool ownAppend)
@@ -273,7 +289,7 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), highestProposalID,
      GetPaxosID(), configID, PAXOSLEASE_MAX_LEASE_TIME);
     
-//    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), highestProposalID);
+//    Log_Debug("Requesting lease for qu    orum %U with proposalID %U", GetQuorumID(), highestProposalID);
     
     shardServer->BroadcastToControllers(msg);
 
@@ -401,20 +417,16 @@ void ShardQuorumProcessor::OnClientClose(ClientSession* /*session*/)
 {
 }
 
-void ShardQuorumProcessor::SetActiveNodes(SortedList<uint64_t>& activeNodes)
-{
-    quorumContext.SetActiveNodes(activeNodes);
-
-//    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
-//    {
-//        if (localExecute.IsActive())
-//        {
-//            EventLoop::Remove(&localExecute);
-//            if (!tryAppend.IsActive())
-//                EventLoop::Add(&tryAppend);
-//        }
-//    }
-}
+//void ShardQuorumProcessor::SetActiveNodes(SortedList<uint64_t>& activeNodes_)
+//{
+//    uint64_t* it;
+//    
+//    activeNodes.Clear();
+//    FOREACH(it, activeNodes_)
+//        activeNodes.Add(*it);
+//
+//    quorumContext.SetActiveNodes(activeNodes);
+//}
 
 void ShardQuorumProcessor::RegisterPaxosID(uint64_t paxosID)
 {
