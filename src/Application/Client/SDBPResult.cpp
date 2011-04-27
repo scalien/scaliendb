@@ -342,17 +342,29 @@ void Result::HandleRequestResponse(Request* req, ClientResponse* resp)
         if (resp->type == CLIENTRESPONSE_VALUE)
             resp->CopyValue();
 
-        if (!req->isBulk)
-        {
-            if (req->response.type == CLIENTRESPONSE_NORESPONSE)
-                numCompleted++;
-            resp->Transfer(req->response);
-        }
-        else
+        if (req->isBulk)
         {
             req->numBulkResponses++;
             if (req->numBulkResponses == req->shardConns.GetLength())
                 numCompleted++;
+        }
+        else
+        {
+            // COUNT is a special case, it needs an extra response
+            if (req->type == CLIENTREQUEST_COUNT)
+            {
+                if (resp->type == CLIENTRESPONSE_NUMBER)
+                    req->response.Number(req->response.number + resp->number);
+                else
+                    numCompleted++;
+            }
+            else
+            {
+                if (req->response.type == CLIENTRESPONSE_NORESPONSE)
+                    numCompleted++;
+            
+                resp->Transfer(req->response);
+            }
         }
     }
 

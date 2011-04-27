@@ -242,7 +242,7 @@ TEST_DEFINE(TestClientListKeys)
     
     ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
 //    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(key, 100000000, 0);
+    ret = client.ListKeys(key, 3000, 4000);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -1674,6 +1674,8 @@ TEST_DEFINE(TestClientCount)
     
     result = client.GetResult();
     TEST(result->GetNumber(number));
+    
+    TEST_LOG("%u", (unsigned) number);
     
     delete result;
 

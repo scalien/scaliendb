@@ -88,4 +88,4 @@ while limit == 0 or i < limit:
 	fmt = "%H:%M:%S"
 	endtimestamp = time.strftime(fmt, time.gmtime())
 	elapsed = (endtime - starttime)
-	print("%s: Sent bytes: %s (%s/s), num: %i, rps = %.0f" % (endtimestamp, human_bytes(sent), human_bytes(sent / elapsed) , i, (batch/((endtime - starttime) * 1000.0) * 1000.0)))
+	print("%s: Sent bytes: %s (%s/s), num: %i, rps = %.0f" % (endtimestamp, human_bytes(sent), human_bytes(sent / elapsed) , i, (i/((endtime - starttime) * 1000.0) * 1000.0)))

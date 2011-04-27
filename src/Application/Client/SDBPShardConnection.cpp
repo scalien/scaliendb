@@ -37,6 +37,9 @@ bool ShardConnection::SendRequest(Request* request)
 {
     SDBPRequestMessage  msg;
     
+    if (request->IsList())
+        Log_Trace("count: %u, offset: %u", request->count, request->offset);
+    
     if (!request->isBulk)
     {
         sentRequests.Append(request);
@@ -136,13 +139,21 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
         Log_Trace("SDBP version: %U, message: %R", response.number, &response.value);
         return false;
     }
+
+    if (response.type == CLIENTRESPONSE_NEXT)
+        Log_Trace("NEXT, %U", response.commandID);
     
     // find the request in sent requests by commandID
     FOREACH (request, sentRequests)
     {
         if (request->commandID == response.commandID)
         {
-            sentRequests.Remove(request);
+            if (response.type != CLIENTRESPONSE_LIST_KEYS && 
+             response.type != CLIENTRESPONSE_LIST_KEYVALUES &&
+             !(request->type == CLIENTREQUEST_COUNT && response.type == CLIENTRESPONSE_NUMBER))
+            {
+                sentRequests.Remove(request);
+            }
             
             // put back the request to the quorum queue
             // on next config state response the client 
@@ -151,13 +162,15 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             if (response.type == CLIENTRESPONSE_NOSERVICE)
             {
                 client->AddRequestToQuorum(request, true);
+                // TODO: Reassign request to other quorum (e.g. shard migration) like in NEXT
                 return false;
             }
             
             if (response.type == CLIENTRESPONSE_NEXT)
             {
-                client->NextRequest(request, response.offset, response.value);
-                client->AddRequestToQuorum(request, true);
+                client->NextRequest(request, response.value, response.number, response.offset);
+                client->ReassignRequest(request);
+                client->SendQuorumRequests();
                 return false;
             }
             

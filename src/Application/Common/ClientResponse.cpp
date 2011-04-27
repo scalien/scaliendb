@@ -21,6 +21,9 @@ void ClientResponse::Init()
     values = NULL;
     type = CLIENTRESPONSE_NORESPONSE;
     numKeys = 0;
+    number = 0;
+    offset = 0;
+    paxosID = 0;
     value.Reset();
 }
 
@@ -193,10 +196,11 @@ bool ClientResponse::Hello()
     return true;
 }
 
-bool ClientResponse::Next(uint64_t offset_, ReadBuffer& shardLastKey)
+bool ClientResponse::Next(ReadBuffer& nextShardKey, uint64_t count, uint64_t offset_)
 {
     type = CLIENTRESPONSE_NEXT;
+    value = nextShardKey;
+    number = count;
     offset = offset_;
-    value = shardLastKey;
     return true;
 }

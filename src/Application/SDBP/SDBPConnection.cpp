@@ -105,6 +105,9 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     if (last)
         numPending--;
 
+    if (request->response.type == CLIENTRESPONSE_OK)
+        Log_Debug("OK, commandID: %U", request->commandID);
+
     if (state == TCPConnection::CONNECTED &&
      request->response.type != CLIENTRESPONSE_NORESPONSE &&
      !(request->response.type == CLIENTRESPONSE_CONFIG_STATE &&

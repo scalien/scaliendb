@@ -168,8 +168,8 @@ public:
     uint64_t        nodeID;
     uint64_t        paxosID;
     int64_t         number;
-    unsigned        count;
-    unsigned        offset;
+    uint64_t        count;
+    uint64_t        offset;
     Buffer          name;
     Buffer          key;
     Buffer          value;
