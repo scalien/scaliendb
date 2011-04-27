@@ -378,9 +378,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, Buffer& 
 
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("Round completed for paxosID = %U", paxosID);
-
     Log_Trace("+++ Value for paxosID = %U: %B +++", paxosID, &learnedValue);
-
     if (context->GetHighestPaxosID() > 0 && paxosID < context->GetHighestPaxosID() && !IsLeaseOwner())
     {
         Log_Debug("Paxos-based catchup, highest seen paxosID is %U, currently at %U",
