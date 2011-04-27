@@ -16,6 +16,17 @@ else:
         # this works on Linux    
         readline.parse_and_bind("tab: complete")
 
+# try importing other useful modules
+def try_import(name):
+    try:
+        globals()[name] = __import__(name)
+        print("Module " + name + " loaded.")
+    except:
+        pass
+
+print("")
+try_import("json")
+del try_import
 
 # helper function for other connections
 def connect(nodes, database=None, table=None):
