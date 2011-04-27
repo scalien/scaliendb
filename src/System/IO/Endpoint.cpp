@@ -384,7 +384,7 @@ bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
             if (isNumeric && !isdigit(c))
                 isNumeric = false;
             
-            if (isHexnum && !ishexnumber(c))
+            if (isHexnum && !isxdigit(c))
             {
                 if (isIPv6)
                     return false;
