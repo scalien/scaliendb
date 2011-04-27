@@ -233,10 +233,21 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         nodeID = nodeID_;
         if (!endpoint.Set(buffer, true))
         {
-            Log_Message("[%B] Cluster invalid network address", &buffer);
+            Log_Message("[%R] Cluster invalid network address", &buffer);
             transport->DeleteConnection(this);
             return true;                
         }
+
+        // check if the other side is not sending its localhost address, when they are on 
+        // different nodes
+        if (endpoint.GetAddress() == Endpoint::GetLoopbackAddress() && 
+         transport->GetSelfEndpoint().GetAddress() != Endpoint::GetLoopbackAddress())
+        {
+            Log_Message("[%R] Cluster invalid network address", &buffer);
+            transport->DeleteConnection(this);
+            return true;
+        }
+        
         Log_Trace("Conn READY to node %U at %s", nodeID, endpoint.ToString());
         if (nodeID != transport->GetSelfNodeID())
         {
