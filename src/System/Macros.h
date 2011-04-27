@@ -49,7 +49,8 @@
 #define STOP_FAIL(code, ...) \
 { \
     Log_SetTarget(LOG_TARGET_STDERR|LOG_TARGET_FILE); \
-    Log_Message(__VA_ARGS__); \
+    const char* msg = StaticPrint("" __VA_ARGS__); \
+    Log_Message("Exiting (%d)%s%s", code, msg ? ": " : "...", msg ? msg : ""); \
     _exit(code); \
 }
 

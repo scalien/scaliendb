@@ -48,6 +48,7 @@ uint64_t        BufferToUInt64(const char* buffer, unsigned length, unsigned* nr
 int             UInt64ToBufferWithBase(char* buffer, unsigned length, uint64_t value, char base);
 
 char*           FindInBuffer(const char* buffer, unsigned length, char c);
+char*           RevFindInBuffer(const char* buffer, unsigned length, char c);
 char*           FindInCString(const char* s, char c);
 
 void            ReplaceInBuffer(char* buffer, unsigned length, char src, char dst);

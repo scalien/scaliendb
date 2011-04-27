@@ -141,10 +141,8 @@ bool Endpoint::Set(const char* ip_port, bool resolv)
     if (!IsValidEndpoint(ReadBuffer(ip_port)))
         return false;
     
-    while (*p != '\0' && *p != ':')
-        p++;
-    
-    if (*p == '\0')
+    p = strrchr(ip_port, ':');
+    if (p == NULL)
     {
         Log_Trace("No ':' in host specification");
         return false;
@@ -181,8 +179,8 @@ bool Endpoint::Set(ReadBuffer ip_port, bool resolv)
     
     start = p = ip_port.GetBuffer();
     
-    p = FindInBuffer(ip_port.GetBuffer(), ip_port.GetLength(), ':');
-    if (*p != ':')
+    p = RevFindInBuffer(ip_port.GetBuffer(), ip_port.GetLength(), ':');
+    if (p == NULL)
     {
         Log_Trace("No ':' in host specification");
         return false;
@@ -286,35 +284,50 @@ bool Endpoint::IsSet()
 
 bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
 {
-    // Valid endpoint is either <IP-Address>:<port> or <Domain-Name>:<port>
-    // Valid IP-Address is when it is consists only from numbers and three dots between the numbers
+    // Valid endpoint is either <IPv4-Address>:<port> or <IPv6-Address>:<port> or <Domain-Name>:<port>
+    // Valid IPv4-Address consists only from numbers and three dots between the numbers
+    // Valid IPv6-Adresses: http://en.wikipedia.org/wiki/IPv6#Addressing
     // Valid domain names: http://en.wikipedia.org/wiki/Hostname#Restrictions_on_valid_host_names
 
     const char  VALID_CHARS[] = "-0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
     unsigned    i;
     bool        labelStart;
     bool        isNumeric;
+    bool        isHexnum;
     bool        isPort;
+    bool        isIPv6;
     unsigned    numCommas;
     unsigned    numPortChars;
     char        c;
     char        prev;
+    char        sep;
+    char*       lastColon;
 
     // assuming fully numeric names
     isNumeric = true;
+    isHexnum = true;
     isPort = false;
     numCommas = 0;
     numPortChars = 0;
     labelStart = true;
+    isIPv6 = false;
+    sep = ' ';
+    lastColon = NULL;
     for (i = 0; i < ip_port.GetLength(); i++)
     {
         c = ip_port.GetCharAt(i);
 
         if (c == '.' || c == ':')
         {
-            // must not start with comma or colon
             if (i == 0)
-                return false;
+            {
+                // IPv4 and DNS must not start with comma or colon
+                if (c == '.')
+                    return false;
+
+                isIPv6 = true;
+                isHexnum = true;
+            }
 
             // labels must not end with hyphens
             if (prev == VALID_CHARS[0])
@@ -324,13 +337,29 @@ bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
             {
                 labelStart = true;
                 numCommas++;
+                sep = c;
             }
             
             if (c == ':')
             {
-                if (isPort)
-                    return false;
-                isPort = true;
+                // cannot mix IPv4 and IPv6 addresses this way
+                // this however is legal in IPv6: ::ffff:192.0.2.128
+                if (isHexnum && sep != '.')
+                {
+                    isIPv6 = true;
+                    sep = ':';
+                    isPort = true;
+                    numPortChars = 0;
+                }
+                else
+                {
+                    if (isPort && !isIPv6)
+                        return false;
+                    isPort = true;
+                    numPortChars = 0;
+                }
+
+                lastColon = ip_port.GetBuffer() + i;
             }
         }
         else
@@ -342,12 +371,25 @@ bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
             if (isPort)
             {
                 if (!isdigit(c))
-                    return false;
-                numPortChars++;
+                {
+                    if (isIPv6)
+                        isPort = false;
+                    else
+                        return false;
+                }
+                else
+                    numPortChars++;
             }
             
             if (isNumeric && !isdigit(c))
                 isNumeric = false;
+            
+            if (isHexnum && !ishexnumber(c))
+            {
+                if (isIPv6)
+                    return false;
+                isHexnum = false;
+            }
             
             if (strchr(VALID_CHARS, c) == NULL)
                 return false;
@@ -360,7 +402,9 @@ bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
 
     if (isNumeric && numCommas != 3)
         return false;
-    if (numPortChars == 0)
+    if (isIPv6 && numCommas != 0 && numCommas != 3)
+        return false;
+    if (numPortChars < 1 || numPortChars > 5)
         return false;
     
     return true;
