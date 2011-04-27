@@ -19,8 +19,12 @@ class QuorumPaxosInfo;
 class JSONConfigState
 {
 public:
-    JSONConfigState(InSortedList<Heartbeat>* heartbeats, ConfigState& configState, JSONBufferWriter& json);
-    
+    JSONConfigState();
+
+    void                SetHeartbeats(InSortedList<Heartbeat>* heartbeats);
+    void                SetConfigState(ConfigState* configState);
+    void                SetJSONBufferWriter(JSONBufferWriter* json);
+
     void                Write();
     
 private:
@@ -46,8 +50,8 @@ private:
     JSONConfigState&    operator=(const JSONConfigState& other);
 
     InSortedList<Heartbeat>*    heartbeats;
-    ConfigState&                configState;
-    JSONBufferWriter&           json;
+    ConfigState*                configState;
+    JSONBufferWriter*           json;
 };
 
 #endif

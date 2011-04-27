@@ -70,7 +70,7 @@ private:
     ConfigServer*       configServer;
     HTTPSession         session;
     UrlParam            params;
-    uint32_t            configStateCRC;
+    unsigned            numResponses;   // TODO: remove after testing
 };
 
 #endif

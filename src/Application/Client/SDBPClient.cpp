@@ -84,6 +84,7 @@ Mutex   globalMutex;
 
 #define CLIENT_SCHEMA_COMMAND(op, ...)              \
     Request*    req;                                \
+    int         status;                             \
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
     VALIDATE_CONTROLLER();                          \
@@ -109,7 +110,9 @@ Mutex   globalMutex;
                                                     \
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
-    return result->GetCommandStatus();              \
+    status = result->GetCommandStatus();            \
+    return status;                                  \
+
 
 
 using namespace SDBPClient;

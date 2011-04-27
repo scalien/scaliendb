@@ -4,53 +4,68 @@
 #include "Application/ConfigState/ConfigShardServer.h"
 
 #define JSON_STRING(obj, member) \
-    json.PrintString(#member); \
-    json.PrintColon(); \
-    json.PrintString((obj)->member);
+    json->PrintString(#member); \
+    json->PrintColon(); \
+    json->PrintString((obj)->member);
 
 #define JSON_STRING_PRINTABLE(obj, member) \
     printable.Write((obj)->member); \
     if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal(); } \
-    json.PrintString(#member); \
-    json.PrintColon(); \
-    json.PrintString(printable);
+    json->PrintString(#member); \
+    json->PrintColon(); \
+    json->PrintString(printable);
     
 #define JSON_NUMBER(obj, member) \
-    json.PrintString(#member); \
-    json.PrintColon(); \
-    json.PrintNumber((obj)->member);
+    json->PrintString(#member); \
+    json->PrintColon(); \
+    json->PrintNumber((obj)->member);
 
 #define JSON_BOOL(obj, member) \
-    json.PrintString(#member); \
-    json.PrintColon(); \
-    json.PrintBool((obj)->member);
+    json->PrintString(#member); \
+    json->PrintColon(); \
+    json->PrintBool((obj)->member);
 
 #define JSON_IDLIST(obj, member) \
-    json.PrintString(#member); \
-    json.PrintColon(); \
+    json->PrintString(#member); \
+    json->PrintColon(); \
     WriteIDList((obj)->member);
 
 
-JSONConfigState::JSONConfigState(InSortedList<Heartbeat>* heartbeats_, ConfigState& configState_, JSONBufferWriter& json_) :
- heartbeats(heartbeats_),
- configState(configState_),
- json(json_)
+JSONConfigState::JSONConfigState()
 {
+    heartbeats = NULL;
+    configState = NULL;
+    json = NULL;
+}
+
+void JSONConfigState::SetHeartbeats(InSortedList<Heartbeat>* heartbeats_)
+{
+    heartbeats = heartbeats_;
+}
+
+void JSONConfigState::SetConfigState(ConfigState* configState_)
+{
+    configState = configState_;
+}
+
+void JSONConfigState::SetJSONBufferWriter(JSONBufferWriter* json_)
+{
+    json = json_;
 }
 
 void JSONConfigState::Write()
 {
-    JSON_NUMBER(&configState, paxosID);
-    json.PrintComma();
+    JSON_NUMBER(configState, paxosID);
+    json->PrintComma();
     
     WriteQuorums();
-    json.PrintComma();
+    json->PrintComma();
     WriteDatabases();
-    json.PrintComma();
+    json->PrintComma();
     WriteTables();
-    json.PrintComma();
+    json->PrintComma();
     WriteShards();
-    json.PrintComma();
+    json->PrintComma();
     WriteShardServers();
 }
     
@@ -58,172 +73,172 @@ void JSONConfigState::WriteQuorums()
 {
     ConfigQuorum*   quorum;
     
-    json.PrintString("quorums");
-    json.PrintColon();
-    json.PrintArrayStart();
+    json->PrintString("quorums");
+    json->PrintColon();
+    json->PrintArrayStart();
 
-    FOREACH (quorum, configState.quorums)
+    FOREACH (quorum, configState->quorums)
         WriteQuorum(quorum);
 
-    json.PrintArrayEnd();
+    json->PrintArrayEnd();
 }
 
 void JSONConfigState::WriteQuorum(ConfigQuorum* quorum)
 {
-    json.PrintObjectStart();
+    json->PrintObjectStart();
     
-    json.PrintString("quorumID");
-    json.PrintColon();
-    json.PrintNumber(quorum->quorumID);
-    json.PrintComma();
+    json->PrintString("quorumID");
+    json->PrintColon();
+    json->PrintNumber(quorum->quorumID);
+    json->PrintComma();
 
-    json.PrintString("hasPrimary");
-    json.PrintColon();
+    json->PrintString("hasPrimary");
+    json->PrintColon();
     if (quorum->hasPrimary)
-        json.PrintString("true");
+        json->PrintString("true");
     else
-        json.PrintString("false");
-    json.PrintComma();
+        json->PrintString("false");
+    json->PrintComma();
 
     if (quorum->hasPrimary)
     {
-        json.PrintString("primaryID");
-        json.PrintColon();
-        json.PrintNumber(quorum->primaryID);
-        json.PrintComma();
+        json->PrintString("primaryID");
+        json->PrintColon();
+        json->PrintNumber(quorum->primaryID);
+        json->PrintComma();
     }
     
-    json.PrintString("paxosID");
-    json.PrintColon();
-    json.PrintNumber(quorum->paxosID);
-    json.PrintComma();
+    json->PrintString("paxosID");
+    json->PrintColon();
+    json->PrintNumber(quorum->paxosID);
+    json->PrintComma();
 
-    json.PrintString("activeNodes");
-    json.PrintColon();
+    json->PrintString("activeNodes");
+    json->PrintColon();
     WriteIDList(quorum->activeNodes);
-    json.PrintComma();
+    json->PrintComma();
 
-    json.PrintString("inactiveNodes");
-    json.PrintColon();
+    json->PrintString("inactiveNodes");
+    json->PrintColon();
     WriteIDList(quorum->inactiveNodes);
-    json.PrintComma();
+    json->PrintComma();
 
-    json.PrintString("shards");
-    json.PrintColon();
+    json->PrintString("shards");
+    json->PrintColon();
     WriteIDList(quorum->shards);
 
-    json.PrintObjectEnd();
+    json->PrintObjectEnd();
 }
 
 void JSONConfigState::WriteDatabases()
 {
     ConfigDatabase*   database;
     
-    json.PrintString("databases");
-    json.PrintColon();
-    json.PrintArrayStart();
+    json->PrintString("databases");
+    json->PrintColon();
+    json->PrintArrayStart();
 
-    FOREACH (database, configState.databases)
+    FOREACH (database, configState->databases)
         WriteDatabase(database);
 
-    json.PrintArrayEnd();
+    json->PrintArrayEnd();
 }
 
 void JSONConfigState::WriteDatabase(ConfigDatabase* database)
 {
-    json.PrintObjectStart();
+    json->PrintObjectStart();
     
     JSON_NUMBER(database, databaseID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_STRING(database, name);
-    json.PrintComma();
+    json->PrintComma();
     JSON_IDLIST(database, tables);
     
-    json.PrintObjectEnd();
+    json->PrintObjectEnd();
 }
 
 void JSONConfigState::WriteTables()
 {
     ConfigTable*   table;
     
-    json.PrintString("tables");
-    json.PrintColon();
-    json.PrintArrayStart();
+    json->PrintString("tables");
+    json->PrintColon();
+    json->PrintArrayStart();
 
-    FOREACH (table, configState.tables)
+    FOREACH (table, configState->tables)
         WriteTable(table);
 
-    json.PrintArrayEnd();
+    json->PrintArrayEnd();
 }
 
 void JSONConfigState::WriteTable(ConfigTable* table)
 {
-    json.PrintObjectStart();
+    json->PrintObjectStart();
     
     JSON_NUMBER(table, tableID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_NUMBER(table, databaseID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_STRING(table, name);
-    json.PrintComma();
+    json->PrintComma();
     JSON_BOOL(table, isFrozen);
-    json.PrintComma();
+    json->PrintComma();
     JSON_IDLIST(table, shards);
     
-    json.PrintObjectEnd();
+    json->PrintObjectEnd();
 }
 
 void JSONConfigState::WriteShards()
 {
     ConfigShard*   shard;
     
-    json.PrintString("shards");
-    json.PrintColon();
-    json.PrintArrayStart();
+    json->PrintString("shards");
+    json->PrintColon();
+    json->PrintArrayStart();
 
-    FOREACH (shard, configState.shards)
+    FOREACH (shard, configState->shards)
         WriteShard(shard);
 
-    json.PrintArrayEnd();
+    json->PrintArrayEnd();
 }
 
 void JSONConfigState::WriteShard(ConfigShard* shard)
 {
     Buffer printable;
     
-    json.PrintObjectStart();
+    json->PrintObjectStart();
     
     JSON_NUMBER(shard, shardID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_NUMBER(shard, quorumID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_NUMBER(shard, tableID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_STRING_PRINTABLE(shard, firstKey);
-    json.PrintComma();
+    json->PrintComma();
     JSON_STRING_PRINTABLE(shard, lastKey);
-    json.PrintComma();
+    json->PrintComma();
     JSON_NUMBER(shard, shardSize);
-    json.PrintComma();
+    json->PrintComma();
     JSON_STRING_PRINTABLE(shard, splitKey);
-    json.PrintComma();
+    json->PrintComma();
     JSON_BOOL(shard, isSplitable);
 
-    json.PrintObjectEnd();
+    json->PrintObjectEnd();
 }
 
 void JSONConfigState::WriteShardServers()
 {
     ConfigShardServer*   shardServer;
     
-    json.PrintString("shardServers");
-    json.PrintColon();
-    json.PrintArrayStart();
+    json->PrintString("shardServers");
+    json->PrintColon();
+    json->PrintArrayStart();
 
-    FOREACH (shardServer, configState.shardServers)
+    FOREACH (shardServer, configState->shardServers)
         WriteShardServer(shardServer);
 
-    json.PrintArrayEnd();
+    json->PrintArrayEnd();
 }
 
 void JSONConfigState::WriteShardServer(ConfigShardServer* server)
@@ -231,93 +246,93 @@ void JSONConfigState::WriteShardServer(ConfigShardServer* server)
     QuorumInfo*         quorumInfo;
     QuorumShardInfo*    quorumShardInfo;
     
-    json.PrintObjectStart();
+    json->PrintObjectStart();
 
     JSON_NUMBER(server, nodeID);
-    json.PrintComma();
+    json->PrintComma();
 
-    json.PrintString("endpoint");
-    json.PrintColon();
-    json.PrintString(server->endpoint.ToReadBuffer());
-    json.PrintComma();
+    json->PrintString("endpoint");
+    json->PrintColon();
+    json->PrintString(server->endpoint.ToReadBuffer());
+    json->PrintComma();
 
     if (heartbeats)
     {
-        json.PrintString("hasHeartbeat");
-        json.PrintColon();
-        json.PrintBool(HasHeartbeat(server->nodeID));
-        json.PrintComma();
+        json->PrintString("hasHeartbeat");
+        json->PrintColon();
+        json->PrintBool(HasHeartbeat(server->nodeID));
+        json->PrintComma();
     }
     
-    json.PrintString("quorumInfos");
-    json.PrintColon();
-    json.PrintArrayStart();
+    json->PrintString("quorumInfos");
+    json->PrintColon();
+    json->PrintArrayStart();
 
     FOREACH (quorumInfo, server->quorumInfos)
         WriteQuorumInfo(quorumInfo);
 
-    json.PrintArrayEnd();
+    json->PrintArrayEnd();
 
-    json.PrintComma();
+    json->PrintComma();
     
-    json.PrintString("quorumShardInfos");
-    json.PrintColon();
-    json.PrintArrayStart();
+    json->PrintString("quorumShardInfos");
+    json->PrintColon();
+    json->PrintArrayStart();
 
     FOREACH (quorumShardInfo, server->quorumShardInfos)
         WriteQuorumShardInfo(quorumShardInfo);
 
-    json.PrintArrayEnd();
+    json->PrintArrayEnd();
         
-    json.PrintObjectEnd();
+    json->PrintObjectEnd();
 }
 
 void JSONConfigState::WriteQuorumInfo(QuorumInfo* info)
 {
-    json.PrintObjectStart();
+    json->PrintObjectStart();
 
     JSON_NUMBER(info, quorumID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_NUMBER(info, paxosID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_BOOL(info, isSendingCatchup);
     
     if (info->isSendingCatchup)
     {
-        json.PrintComma();
+        json->PrintComma();
         JSON_NUMBER(info, catchupBytesSent);
-        json.PrintComma();
+        json->PrintComma();
         JSON_NUMBER(info, catchupBytesTotal);
-        json.PrintComma();
+        json->PrintComma();
         JSON_NUMBER(info, catchupThroughput);
     }
     
-    json.PrintObjectEnd();    
+    json->PrintObjectEnd();    
 }
 
 void JSONConfigState::WriteQuorumShardInfo(QuorumShardInfo* info)
 {
-    json.PrintObjectStart();
+    json->PrintObjectStart();
 
     JSON_NUMBER(info, shardID);
-    json.PrintComma();
+    json->PrintComma();
     JSON_BOOL(info, isSendingShard);
     
     if (info->isSendingShard)
     {
-        json.PrintComma();
+        json->PrintComma();
         JSON_NUMBER(info, migrationQuorumID);
-        json.PrintComma();
+        json->PrintComma();
         JSON_NUMBER(info, migrationNodeID);
-        json.PrintComma();
+        json->PrintComma();
         JSON_NUMBER(info, migrationBytesSent);
-        json.PrintComma();
+        json->PrintComma();
         JSON_NUMBER(info, migrationBytesTotal);
-        json.PrintComma();
+        json->PrintComma();
         JSON_NUMBER(info, migrationThroughput);
     }
     
-    json.PrintObjectEnd();    
+    json->PrintObjectEnd();    
 }
 
 template<typename List>
@@ -325,14 +340,14 @@ void JSONConfigState::WriteIDList(List& list)
 {
     uint64_t*   it;
     
-    json.PrintArrayStart();
+    json->PrintArrayStart();
     FOREACH (it, list)
     {
         if (it != list.First())
-            json.PrintComma();
-        json.PrintNumber(*it);
+            json->PrintComma();
+        json->PrintNumber(*it);
     }
-    json.PrintArrayEnd();
+    json->PrintArrayEnd();
 }
 
 bool JSONConfigState::HasHeartbeat(uint64_t nodeID)

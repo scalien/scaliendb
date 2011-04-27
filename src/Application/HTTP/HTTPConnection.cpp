@@ -201,6 +201,10 @@ void HTTPConnection::ResponseHeader(int code, bool close, const char* header)
 
 void HTTPConnection::Flush(bool closeAfterSend_)
 {
+    // already sent the response
+    if (closeAfterSend)
+        return;
+
     closeAfterSend = closeAfterSend_;
     if (writeBuffer == NULL)
         return;

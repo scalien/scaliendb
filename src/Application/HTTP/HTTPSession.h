@@ -75,10 +75,13 @@ public:
     void                Flush();
     void                SetType(Type type);
 
+    bool                IsFlushed();
+
     HTTPConnection*     conn;
     Type                type;
     JSONSession         json;
     bool                headerSent;
+    bool                isFlushed;
     ReadBuffer          uri;
 }; 
 

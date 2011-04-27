@@ -184,7 +184,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         CONFIG_STATE->migrateQuorumID = request->quorumID;
         CONFIG_STATE->migrateShardID = request->shardID;
         
-        UpdateListeners(true);
+        UpdateListeners();
 
         clusterMessage.ShardMigrationInitiate(
          dstNodeID, request->quorumID, request->shardID);
@@ -370,7 +370,7 @@ void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
     TryAppend();
 }
 
-void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
+void ConfigQuorumProcessor::UpdateListeners()
 {
     ClientRequest*                  itRequest;
     ConfigShardServer*              itShardServer;
@@ -389,30 +389,28 @@ void ConfigQuorumProcessor::UpdateListeners(bool updateClients)
         configChanged = true;
         configStateChecksum = checksum;
     }
-    //Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
+
+    if (configChanged)
+        Log_Debug("UpdateListeners: %b, %B", configChanged, &checksumBuffer);
 
     now = EventLoop::Now();
     
-    if (updateClients)
-    {        
-        
-        // update clients
-        FOREACH (itRequest, listenRequests)
+    // update clients
+    FOREACH (itRequest, listenRequests)
+    {
+        if (configChanged ||
+         (itRequest->changeTimeout != 0 && 
+         itRequest->changeTimeout < now - itRequest->lastChangeTime) ||
+         (itRequest->paxosID != 0 && itRequest->paxosID < CONFIG_STATE->paxosID))
         {
-            if (configChanged || 
-             (itRequest->changeTimeout != 0 && 
-             itRequest->changeTimeout < now - itRequest->lastChangeTime) ||
-             (itRequest->paxosID != 0 && itRequest->paxosID < CONFIG_STATE->paxosID))
-            {
-                Log_Debug(
-                 "request: %p, changeTimeout: %U, diff: %U, paxosID: %U, configPaxosID: %U",
-                 itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime,
-                 itRequest->paxosID, CONFIG_STATE->paxosID);
-                itRequest->response.ConfigStateResponse(*CONFIG_STATE);
-                itRequest->OnComplete(false);
-                itRequest->lastChangeTime = now;
-                itRequest->paxosID = CONFIG_STATE->paxosID;
-            }
+            Log_Debug(
+             "request: %p, changeTimeout: %U, diff: %U, paxosID: %U, configPaxosID: %U",
+             itRequest, itRequest->changeTimeout, now - itRequest->lastChangeTime,
+             itRequest->paxosID, CONFIG_STATE->paxosID);
+            itRequest->response.ConfigStateResponse(*CONFIG_STATE);
+            itRequest->OnComplete(false);
+            itRequest->lastChangeTime = now;
+            itRequest->paxosID = CONFIG_STATE->paxosID;
         }
     }
     
@@ -462,7 +460,7 @@ void ConfigQuorumProcessor::OnLeaseTimeout()
     CONFIG_STATE->hasMaster = false;
     CONFIG_STATE->masterID = 0;
     CONFIG_STATE->paxosID = 0;
-    configServer->OnConfigStateChanged(false); // TODO: is this neccesary?
+    configServer->OnConfigStateChanged(); // TODO: is this neccesary?
     // TODO: tell ActivationManager
 }
 
@@ -481,7 +479,7 @@ void ConfigQuorumProcessor::OnIsLeader()
     CONFIG_STATE->paxosID = GetPaxosID();
 
     if (updateListeners && (uint64_t) GetMaster() == configServer->GetNodeID())
-        UpdateListeners(true);
+        UpdateListeners();
 
     // check cluster ID
     clusterID = REPLICATION_CONFIG->GetClusterID();
@@ -525,7 +523,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     CONFIG_STATE->paxosID = paxosID;
     CONFIG_STATE->OnMessage(message);
     configServer->GetDatabaseManager()->Write();
-    configServer->OnConfigStateChanged(false); // UpdateActivationTimeout();
+    configServer->OnConfigStateChanged(); // UpdateActivationTimeout();
 
     if (message.type == CONFIGMESSAGE_SET_CLUSTER_ID)
     {
@@ -559,7 +557,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     }
     
     if (IsMaster())
-        UpdateListeners(true);
+        UpdateListeners();
 
     if (ownAppend)
     {

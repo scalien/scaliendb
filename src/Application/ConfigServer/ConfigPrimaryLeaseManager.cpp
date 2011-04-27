@@ -71,7 +71,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 
     UpdateTimer();
 
-    configServer->OnConfigStateChanged(true);
+    configServer->OnConfigStateChanged();
 }
 
 void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
