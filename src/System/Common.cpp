@@ -261,6 +261,19 @@ char* FindInBuffer(const char* buffer, unsigned length, char c)
     return NULL;
 }
 
+char* RevFindInBuffer(const char* buffer, unsigned length, char c)
+{
+    size_t  i;
+    
+    if (length == 0)
+        return NULL;
+
+    for (i = length; i > 0; i--)
+        if (buffer[i - 1] == c) return (char*) (buffer + i - 1);
+        
+    return NULL;
+}
+
 char* FindInCString(const char* s, char c)
 {
     return (char*) strchr(s, c);
@@ -329,7 +342,7 @@ const char* StaticPrint(const char* format, ...)
     va_list     ap;
     
     va_start(ap, format);
-    vsnprintf(buffer, sizeof(buffer), format, ap);
+    VWritef(buffer, sizeof(buffer), format, ap);
     va_end(ap);
     
     return buffer;
