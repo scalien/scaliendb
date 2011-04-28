@@ -116,6 +116,7 @@ public:
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
     void                    OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
+    unsigned                GetNumShards(StorageChunk* chunk);
 
     Countdown               backgroundTimer;
     Callable                onBackgroundTimer;

@@ -1338,85 +1338,47 @@ void StorageEnvironment::OnChunkWrite(StorageWriteChunkJob* job)
 
 void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
 {
-    StorageShard*       itShard;
-    StorageChunk**      itChunk;
-    StorageFileChunk**  itFileChunk;
-    StorageFileChunk*   fileChunk;
-    StorageChunk*       chunk;
-    bool                deleteOut;
+    StorageShard*       shard;
+    StorageFileChunk**  itInputChunk;
+    StorageFileChunk*   inputChunk;
     
-    if (!job->mergeChunk->written)
+    shard = GetShard(job->contextID, job->shardID);
+
+    if (shard != NULL && job->mergeChunk->written)
     {
-        deleteOut = true;
-        goto Delete;
+        // delete the input chunks from the shard
+        FOREACH (itInputChunk, job->inputChunks)
+            shard->GetChunks().Remove((StorageChunk*&)*itInputChunk);
+        // add the new chunk to the shard
+        shard->GetChunks().Add(job->mergeChunk);
+        WriteTOC(); // TODO: async
+    }
+    
+    // enqueue the input chunks for deleting
+    FOREACH (itInputChunk, job->inputChunks)
+    {
+        inputChunk = *itInputChunk;
+        // unless the input chunk belongs other shards
+        if (GetNumShards(inputChunk) > 0)
+            continue;
+
+        if (!(job->mergeChunk->written || inputChunk->deleted))
+            continue;
+        
+        inputChunk->RemovePagesFromCache();
+        if (!inputChunk->deleted)
+            fileChunks.Remove(inputChunk);
+
+        deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(inputChunk));
     }
 
-    itShard = GetShard(job->contextID, job->shardID);
-
-    deleteOut = false;
-    if (itShard == NULL)
-    {
-        // shard has been deleted
-        deleteOut = true;
-        goto Delete;
-    }
-
-    // delete the merged chunks from the shard
-    FOREACH (itFileChunk, job->inputChunks)
-    {
-        chunk = (StorageChunk*) *itFileChunk;
-        itShard->GetChunks().Remove(chunk);
-    }
-
-    itShard->GetChunks().Add(job->mergeChunk);
-
-    // TODO: async
-    WriteTOC();
-
-    // check if the merged chunks belong to other shards
-    FOREACH (itShard, shards)
-    {
-        FOREACH (itChunk, itShard->GetChunks())
-        {
-            FOREACH (itFileChunk, job->inputChunks)
-            {
-                if (*itChunk == *itFileChunk)
-                {
-                    job->inputChunks.Remove(*itFileChunk);
-                    break;  // foreach mergeChunks
-                }
-            }
-        }
-    }
-
-Delete:
-
-    // enqueue the remaining merged chunks for deleting
-    FOREACH_FIRST (itFileChunk, job->inputChunks)
-    {
-        fileChunk = *itFileChunk;
-
-        if (job->mergeChunk->written || fileChunk->deleted)
-        {
-            fileChunk->RemovePagesFromCache();
-            if (!fileChunk->deleted)
-                fileChunks.Remove(fileChunk);
-
-            deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(fileChunk));
-        }
-        job->inputChunks.Remove(*itFileChunk);
-    }
-
-    if (deleteOut)
-    {
-        // in case the shard was deleted while merging
-        deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->mergeChunk));
-    }
-    else
+    if (shard != NULL && job->mergeChunk->written)
     {
         fileChunks.Append(job->mergeChunk);
         job->mergeChunk->AddPagesToCache();
     }
+    else
+        deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->mergeChunk));
     
     TryMergeChunks();
     delete job;
@@ -1473,18 +1435,22 @@ StorageFileChunk* StorageEnvironment::GetFileChunk(uint64_t chunkID)
 
 void StorageEnvironment::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk)
 {
-    StorageShard*   shard;
-    StorageChunk**  chunk;
+    StorageShard* itShard;
     
-    FOREACH (shard, shards)
-    {
-        for (chunk = shard->GetChunks().First(); chunk != NULL; chunk = shard->GetChunks().Next(chunk))
-        {
-            if (*chunk == memoChunk)
-            {
-                shard->OnChunkSerialized(memoChunk, fileChunk);
-                break;
-            }
-        }
-    }
+    FOREACH (itShard, shards)
+        if (itShard->GetChunks().Contains((StorageChunk*&)memoChunk))
+            itShard->OnChunkSerialized(memoChunk, fileChunk);
+}
+
+unsigned StorageEnvironment::GetNumShards(StorageChunk* chunk)
+{
+    unsigned        count;
+    StorageShard*   itShard;
+    
+    count = 0;
+    FOREACH (itShard, shards)
+        if (itShard->GetChunks().Contains(chunk))
+            count++;
+    
+    return count;
 }
