@@ -433,10 +433,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     StorageMemoChunk*   memoChunk;
     
     if (commitJobs.IsActive())
-    {
         ASSERT_FAIL();
-        return false;
-    }
     
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
@@ -444,10 +441,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
 
     logCommandID = headLogSegment->AppendSet(contextID, shardID, key, value);
     if (logCommandID < 0)
-    {
         ASSERT_FAIL();
-        return false;
-    }
 
     memoChunk = shard->GetMemoChunk();
     ASSERT(memoChunk != NULL);
@@ -477,39 +471,29 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     StorageMemoChunk*   memoChunk;
 
     if (commitJobs.IsActive())
-    {
         ASSERT_FAIL();
-        return false;
-    }
     
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
 
-    if (!shard->IsLogStorage())
-    {
-        logCommandID = headLogSegment->AppendDelete(contextID, shardID, key);
-        if (logCommandID < 0)
-        {
-            ASSERT_FAIL();
-            return false;
-        }
-
-        memoChunk = shard->GetMemoChunk();
-        ASSERT(memoChunk != NULL);
-        if (!memoChunk->Delete(key))
-        {
-            headLogSegment->Undo();
-            return false;
-        }
-        memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
-
-//        haveUncommitedWrites = true;
-    }
-    else
-    {
+    if (shard->IsLogStorage())
         ASSERT_FAIL();
+
+    logCommandID = headLogSegment->AppendDelete(contextID, shardID, key);
+    if (logCommandID < 0)
+        ASSERT_FAIL();
+
+    memoChunk = shard->GetMemoChunk();
+    ASSERT(memoChunk != NULL);
+    if (!memoChunk->Delete(key))
+    {
+        headLogSegment->Undo();
+        return false;
     }
+    memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
+
+//  haveUncommitedWrites = true;
     
     return true;
 }
@@ -578,22 +562,16 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
         firstKey = chunk->GetFirstKey();
         lastKey = chunk->GetLastKey();
         
-        if (firstKey.GetLength() > 0)
+        if (firstKey.GetLength() > 0 && !shard->RangeContains(firstKey))
         {
-            if (!shard->RangeContains(firstKey))
-            {
-                size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
-                continue;
-            }
+            size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
+            continue;
         }
 
-        if (lastKey.GetLength() > 0)
+        if (lastKey.GetLength() > 0 && !shard->RangeContains(lastKey))
         {
-            if (!shard->RangeContains(lastKey))
-            {
-                size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
-                continue;
-            }
+            size += chunk->GetPartialSize(shard->GetFirstKey(), shard->GetLastKey());
+            continue;
         }
 
         size += chunk->GetSize();
@@ -627,17 +605,11 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
             lastKey = (*itChunk)->GetLastKey();
             
             // skip non-splitable chunks
-            if (firstKey.GetLength() > 0)
-            {
-                if (!shard->RangeContains(firstKey))
-                    continue;
-            }
+            if (firstKey.GetLength() > 0 && !shard->RangeContains(firstKey))
+                continue;
 
-            if (lastKey.GetLength() > 0)
-            {
-                if (!shard->RangeContains(lastKey))
-                    continue;
-            }
+            if (lastKey.GetLength() > 0 && !shard->RangeContains(lastKey))
+                continue;
             
             return (*itChunk)->GetMidpoint();
         }
@@ -662,17 +634,11 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
         firstKey = (*itChunk)->GetFirstKey();
         lastKey = (*itChunk)->GetLastKey();
         
-        if (firstKey.GetLength() > 0)
-        {
-            if (!shard->RangeContains(firstKey))
-                return false;
-        }
+        if (firstKey.GetLength() > 0 && !shard->RangeContains(firstKey))
+            return false;
 
-        if (lastKey.GetLength() > 0)
-        {
-            if (!shard->RangeContains(lastKey))
-                return false;
-        }
+        if (lastKey.GetLength() > 0 && !shard->RangeContains(lastKey))
+            return false;
     }
     
     return true;
@@ -683,10 +649,7 @@ bool StorageEnvironment::Commit(Callable& onCommit_)
     onCommit = onCommit_;
 
     if (commitJobs.IsActive())
-    {
         ASSERT_FAIL();
-        return false;
-    }
 
     commitJobs.Execute(new StorageCommitJob(this, headLogSegment));
 
@@ -835,9 +798,7 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
 {
     StorageShard*       shard;
 
-// TODO
-//    if (headLogSegment->HasUncommitted())
-//        return false;       // meta writes must occur in-between data writes (commits)
+    // TODO: check for uncommited stuff    
     
     shard = GetShard(contextID, shardID);
     if (shard != NULL)
@@ -855,13 +816,10 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shard->SetLogStorage(isLogStorage);
     shard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
     shard->SetLogCommandID(headLogSegment->GetLogCommandID());
-
     shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, useBloomFilter));
 
     shards.Append(shard);
-    
     WriteTOC();
-    
     return true;
 }
 
@@ -876,7 +834,7 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
 
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
-        return true;        // does not exists
+        return;        // does not exists
 
     Log_Debug("Deleting shard %u/%U", contextID, shardID);
 
@@ -924,7 +882,7 @@ void StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     delete shard;
     WriteTOC();
     deleteChunkJobs.Execute();    
-    return true;
+    return;
 }
 
 bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
