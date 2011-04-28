@@ -88,7 +88,13 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageFileKeyValue.o \
 	$(BUILD_DIR)/Framework/Storage/StorageHeaderPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
-	$(BUILD_DIR)/Framework/Storage/StorageJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageCommitJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageSerializeChunkJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageWriteChunkJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageMergeChunkJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageDeleteMemoChunkJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageDeleteFileChunkJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageArchiveLogSegmentJob.o \
 	$(BUILD_DIR)/Framework/Storage/StorageLogSegment.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunk.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunkLister.o \
@@ -118,11 +124,12 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/IO/IOProcessor_Windows.o \
 	$(BUILD_DIR)/System/IO/Socket_Posix.o \
 	$(BUILD_DIR)/System/IO/Socket_Windows.o \
+	$(BUILD_DIR)/System/Threading/Mutex_Posix.o \
+	$(BUILD_DIR)/System/Threading/ThreadPool_Posix.o \
+	$(BUILD_DIR)/System/Threading/ThreadPool_Windows.o \
+	$(BUILD_DIR)/System/Threading/JobProcessor.o \
 	$(BUILD_DIR)/System/Log.o \
-	$(BUILD_DIR)/System/Mutex_Posix.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
-	$(BUILD_DIR)/System/ThreadPool_Posix.o \
-	$(BUILD_DIR)/System/ThreadPool_Windows.o \
 	$(BUILD_DIR)/System/Time.o \
 
 

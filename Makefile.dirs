@@ -27,6 +27,7 @@ BUILD_DIRS = \
 		$(BUILD_DIR)/System/Containers \
 		$(BUILD_DIR)/System/Events \
 		$(BUILD_DIR)/System/IO \
+		$(BUILD_DIR)/System/Threading \
 		$(BUILD_DIR)/Test \
 
 
