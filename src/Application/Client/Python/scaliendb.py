@@ -234,7 +234,7 @@ class Client:
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database selected")
         table_id = self.get_table_id(database_id, src)
-        self.rename_table_by_id(self, table_id, dst)
+        self.rename_table_by_id(table_id, dst)
 
     def rename_table_by_id(self, table_id, name):
         status = SDBP_TruncateTable(self.cptr, table_id, name)
