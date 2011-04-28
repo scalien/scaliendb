@@ -21,19 +21,21 @@ class StorageMergeChunkJob : public Job
 public:
     StorageMergeChunkJob(StorageEnvironment* env,
      uint64_t contextID, uint64_t shardID,
+     List<StorageFileChunk*>& inputChunks,
      List<Buffer*>& filenames, StorageFileChunk* mergeChunk,
      ReadBuffer firstKey, ReadBuffer lastKey);
     
-    void                Execute();
-    void                OnComplete();
+    void                    Execute();
+    void                    OnComplete();
 
-    StorageEnvironment* env;
-    uint64_t            contextID;
-    uint64_t            shardID;
-    StorageFileChunk*   mergeChunk;
-    List<Buffer*>       filenames;
-    Buffer              firstKey;
-    Buffer              lastKey;
+    StorageEnvironment*     env;
+    uint64_t                contextID;
+    uint64_t                shardID;
+    StorageFileChunk*       mergeChunk;
+    List<StorageFileChunk*> inputChunks;
+    List<Buffer*>           filenames;
+    Buffer                  firstKey;
+    Buffer                  lastKey;
 };
 
 #endif

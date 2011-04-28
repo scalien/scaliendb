@@ -69,26 +69,6 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     archiveLogJobs.Start();
     deleteChunkJobs.Start();
 
-//    commitThread = ThreadPool::Create(1);
-//    commitThread->Start();
-//    commitThreadActive = false;
-//    
-//    serializerThread = ThreadPool::Create(1);
-//    serializerThread->Start();
-//    serializerThreadActive = false;
-//
-//    writerThread = ThreadPool::Create(1);
-//    writerThread->Start();
-//    writerThreadActive = false;
-//    
-//    mergerThread = ThreadPool::Create(1);
-//    mergerThread->Start();
-//    mergerThreadActive = false;
-//
-//    archiverThread = ThreadPool::Create(1);
-//    archiverThread->Start();
-//    archiverThreadActive = false;
-
     asyncThread = ThreadPool::Create(1);
     asyncThread->Start();
 
@@ -199,23 +179,6 @@ void StorageEnvironment::Close()
     mergeChunkJobs.Stop();
     archiveLogJobs.Stop();
     
-//    commitThread->Stop();
-//    commitThreadActive = false;
-//    serializerThread->Stop();
-//    serializerThreadActive = false;
-//    writerThread->Stop();
-//    writerThreadActive = false;
-//    mergerThread->Stop();
-//    mergerThreadActive = false;
-//    archiverThread->Stop();
-//    archiverThreadActive = false;
-//
-//    delete commitThread;
-//    delete serializerThread;
-//    delete writerThread;
-//    delete mergerThread;
-//    delete archiverThread;
-
     asyncGetThread->Stop();
     asyncThread->Stop();
     delete asyncThread;
@@ -939,7 +902,6 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
         memoChunk = shard->GetMemoChunk();
         Log_Debug("Deleting MemoChunk...");
         job = new StorageDeleteMemoChunkJob(memoChunk);
-        // StartJob(asyncThread, job);
         jobs.Append(job);
         shard->memoChunk = NULL; // TODO: private hack
     }
@@ -983,7 +945,6 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
             else
             {
                 job = new StorageDeleteMemoChunkJob(memoChunk);
-                // StartJob(asyncThread, job);
                 jobs.Append(job);
             }
         }
@@ -992,10 +953,9 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
             fileChunk = (StorageFileChunk*) *chunk;
             fileChunks.Remove(fileChunk);
 
-            StorageFileChunk**  mergeChunk;
-            FOREACH (mergeChunk, mergeChunks)
+            if (mergeChunkJobs.IsActive())
             {
-                if (fileChunk == *mergeChunk)
+                if (MERGECHUNKJOB->inputChunks.Contains(fileChunk))
                 {
                     fileChunk->deleted = true;
                     goto Advance;
@@ -1011,7 +971,6 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
             Log_Debug("Removing chunk %U from caches", fileChunk->GetChunkID());
             fileChunk->RemovePagesFromCache();
             job = new StorageDeleteFileChunkJob(fileChunk);
-            // StartJob(asyncThread, job);
             jobs.Append(job);
         }
 
@@ -1211,6 +1170,7 @@ void StorageEnvironment::TryMergeChunks()
     StorageFileChunk*       mergeChunk;
     StorageFileChunk*       fileChunk;
     StorageFileChunk**      itFileChunk;
+    List<StorageFileChunk*> inputChunks;
     List<Buffer*>           filenames;
     Buffer*                 filename;
     uint64_t                oldSize;
@@ -1237,30 +1197,30 @@ void StorageEnvironment::TryMergeChunks()
             if ((*itChunk)->GetChunkState() != StorageChunk::Written)
                 continue;
             fileChunk = (StorageFileChunk*) *itChunk;
-            mergeChunks.Append(fileChunk);
+            inputChunks.Append(fileChunk);
             totalSize += fileChunk->GetSize();
         }
 
-        while (mergeChunks.GetLength() >= 3)
+        while (inputChunks.GetLength() >= 3)
         {
-            itFileChunk = mergeChunks.First();
+            itFileChunk = inputChunks.First();
             oldSize = (*itFileChunk)->GetSize();
             youngSize = totalSize - oldSize;
             if (oldSize > youngSize * 1.1)
             {
-                mergeChunks.Remove(mergeChunks.First());
+                inputChunks.Remove(inputChunks.First());
                 totalSize -= oldSize;
             }
             else break;
         }
         
-        if (mergeChunks.GetLength() < 3)
+        if (inputChunks.GetLength() < 3)
         {
-            mergeChunks.Clear();
+            inputChunks.Clear();
             continue;   // on next shard
         }
         
-        FOREACH (itFileChunk, mergeChunks)
+        FOREACH (itFileChunk, inputChunks)
         {
             filename = &(*itFileChunk)->GetFilename();
             filenames.Add(filename);
@@ -1274,7 +1234,7 @@ void StorageEnvironment::TryMergeChunks()
         mergeChunk->SetFilename(ReadBuffer(tmp));
         job = new StorageMergeChunkJob(
          this, itShard->GetContextID(), itShard->GetShardID(),
-         filenames,
+         inputChunks, filenames,
          mergeChunk, itShard->GetFirstKey(), itShard->GetLastKey());
         mergeChunkJobs.Execute(job);
         return;
@@ -1402,7 +1362,7 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
     }
 
     // delete the merged chunks from the shard
-    FOREACH (itFileChunk, mergeChunks)
+    FOREACH (itFileChunk, job->inputChunks)
     {
         chunk = (StorageChunk*) *itFileChunk;
         itShard->GetChunks().Remove(chunk);
@@ -1418,11 +1378,11 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
     {
         FOREACH (itChunk, itShard->GetChunks())
         {
-            FOREACH (itFileChunk, mergeChunks)
+            FOREACH (itFileChunk, job->inputChunks)
             {
                 if (*itChunk == *itFileChunk)
                 {
-                    mergeChunks.Remove(*itFileChunk);
+                    job->inputChunks.Remove(*itFileChunk);
                     break;  // foreach mergeChunks
                 }
             }
@@ -1432,7 +1392,7 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
 Delete:
 
     // enqueue the remaining merged chunks for deleting
-    FOREACH_FIRST (itFileChunk, mergeChunks)
+    FOREACH_FIRST (itFileChunk, job->inputChunks)
     {
         fileChunk = *itFileChunk;
 
@@ -1444,7 +1404,7 @@ Delete:
 
             deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(fileChunk));
         }
-        mergeChunks.Remove(*itFileChunk);
+        job->inputChunks.Remove(*itFileChunk);
     }
 
     if (deleteOut)
@@ -1484,12 +1444,6 @@ void StorageEnvironment::OnBackgroundTimer()
     
     EventLoop::Add(&backgroundTimer);
 }
-
-//void StorageEnvironment::StartJob(ThreadPool* thread, StorageJob* job)
-//{
-//    MFunc<StorageJob, &StorageJob::Execute> callable(job);        
-//    thread->Execute(callable);
-//}
 
 void StorageEnvironment::WriteTOC()
 {

@@ -5,15 +5,20 @@
 
 StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
  uint64_t contextID_, uint64_t shardID_,
+ List<StorageFileChunk*>& inputChunks_,
  List<Buffer*>& filenames_, StorageFileChunk* mergeChunk_,
  ReadBuffer firstKey_, ReadBuffer lastKey_)
 {
-    Buffer**    itFilename;
-    Buffer*     filename;
+    Buffer**            itFilename;
+    Buffer*             filename;
+    StorageFileChunk**  itChunk;
     
     env = env_;
     contextID = contextID_;
     shardID = shardID_;
+    
+    FOREACH(itChunk, inputChunks_)
+        inputChunks.Append(*itChunk);
 
     FOREACH (itFilename, filenames_)
     {

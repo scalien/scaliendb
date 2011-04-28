@@ -121,7 +121,6 @@ public:
     Callable                onBackgroundTimer;
 
     StorageLogSegment*      headLogSegment;
-    List<StorageFileChunk*> mergeChunks;
     ShardList               shards;
     FileChunkList           fileChunks;
     LogSegmentList          logSegments;
