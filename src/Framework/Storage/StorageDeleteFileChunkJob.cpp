@@ -18,7 +18,6 @@ void StorageDeleteFileChunkJob::Execute()
     FS_Delete(chunk->GetFilename().GetBuffer());
 
     delete chunk;
-    delete this;
 
     sw.Stop();
     Log_Debug("Deleted, elapsed: %U", (uint64_t) sw.Elapsed());

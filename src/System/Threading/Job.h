@@ -15,10 +15,13 @@
 class Job
 {
 public:
+    
+    Job()               { next = this; }
+    virtual ~Job()      {};
+
+
     virtual void        Execute()      = 0;
     virtual void        OnComplete()   = 0;
-
-    virtual             ~Job();
 
     Job*                next;
 };

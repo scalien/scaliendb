@@ -127,11 +127,12 @@ public:
     LogSegmentList          logSegments;
     StorageConfig           config;
     
+    Callable                onCommit;
     JobProcessor            commitJobs;
-    JobProcessor            chunkSerializeJobs;
-    JobProcessor            chunkWriteJobs;
-    JobProcessor            chunkMergeJobs;
-    JobProcessor            logArchiveJobs;
+    JobProcessor            serializeChunkJobs;
+    JobProcessor            writeChunkJobs;
+    JobProcessor            mergeChunkJobs;
+    JobProcessor            archiveLogJobs;
     JobProcessor            deleteChunkJobs;
     ThreadPool*             asyncThread;
     ThreadPool*             asyncGetThread;
@@ -143,7 +144,6 @@ public:
 
     uint64_t                nextChunkID;
     uint64_t                nextLogSegmentID;
-    uint64_t                asyncLogSegmentID;
     uint64_t                lastWriteTime;
     unsigned                numCursors;
     const char*             archiveScript;

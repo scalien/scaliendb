@@ -17,6 +17,10 @@
 #include "StorageDeleteFileChunkJob.h"
 #include "StorageArchiveLogSegmentJob.h"
 
+#define SERIALIZECHUNKJOB ((StorageSerializeChunkJob*)(serializeChunkJobs.GetActiveJob()))
+#define WRITECHUNKJOB ((StorageWriteChunkJob*)(writeChunkJobs.GetActiveJob()))
+#define MERGECHUNKJOB ((StorageMergeChunkJob*)(mergeChunkJobs.GetActiveJob()))
+
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
     return ReadBuffer::Cmp(a, b);
@@ -42,10 +46,6 @@ StorageEnvironment::StorageEnvironment()
     
     nextChunkID = 1;
     nextLogSegmentID = 1;
-    asyncLogSegmentID = 0;
-    asyncWriteChunkID = 0;
-    mergeShardID = 0;
-    mergeContextID = 0;
     lastWriteTime = 0;
     yieldThreads = false;
     shuttingDown = false;
@@ -63,10 +63,10 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     config.Init();
 
     commitJobs.Start();
-    chunkSerializeJobs.Start();
-    chunkWriteJobs.Start();
-    chunkMergeJobs.Start();
-    logArchiveJobs.Start();
+    serializeChunkJobs.Start();
+    writeChunkJobs.Start();
+    mergeChunkJobs.Start();
+    archiveLogJobs.Start();
     deleteChunkJobs.Start();
 
 //    commitThread = ThreadPool::Create(1);
@@ -194,10 +194,10 @@ void StorageEnvironment::Close()
     shuttingDown = true;
 
     commitJobs.Stop();
-    chunkSerializeJobs.Stop();
-    chunkWriteJobs.Stop();
-    chunkMergeJobs.Stop();
-    logArchiveJobs.Stop();
+    serializeChunkJobs.Stop();
+    writeChunkJobs.Stop();
+    mergeChunkJobs.Stop();
+    archiveLogJobs.Stop();
     
 //    commitThread->Stop();
 //    commitThreadActive = false;
@@ -720,27 +720,22 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
 
 bool StorageEnvironment::Commit(Callable& onCommit_)
 {
-    StorageJob*     job;
+    onCommit = onCommit_;
 
-    
-    onCommitCallback = onCommit_;
-
-    if (commitThreadActive)
+    if (commitJobs.IsActive())
     {
         ASSERT_FAIL();
         return false;
     }
 
-    job = new StorageCommitJob(this, headLogSegment);
-    commitThreadActive = true;
-    StartJob(commitThread, job);
-    
+    commitJobs.Execute(new StorageCommitJob(this, headLogSegment));
+
     return true;
 }
 
 bool StorageEnvironment::Commit()
 {
-    if (commitThreadActive)
+    if (commitJobs.IsActive())
         return false;
 
     headLogSegment->Commit();
@@ -756,7 +751,7 @@ bool StorageEnvironment::GetCommitStatus()
 
 bool StorageEnvironment::IsCommiting()
 {
-    return commitThreadActive;
+    return commitJobs.IsActive();
 }
 
 bool StorageEnvironment::IsShuttingDown()
@@ -924,9 +919,9 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     StorageChunk**          itChunk;
     StorageMemoChunk*       memoChunk;
     StorageFileChunk*       fileChunk;
-    StorageJob*             job;
-    List<StorageJob*>       jobs;
-    StorageJob**            itJob;
+    Job*                    job;
+    List<Job*>              jobs;
+    Job**                   itJob;
 
 // TODO
 //    if (headLogSegment->HasUncommitted())
@@ -981,7 +976,7 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
         if ((*chunk)->GetChunkState() <= StorageChunk::Serialized)
         {
             memoChunk = (StorageMemoChunk*) *chunk;
-            if (serializeChunk == *chunk)
+            if (serializeChunkJobs.IsActive() && SERIALIZECHUNKJOB->memoChunk == memoChunk)
             {
                 memoChunk->deleted = true;
             }
@@ -1007,7 +1002,7 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
                 }
             }
             
-            if (fileChunk == writeChunk)
+            if (writeChunkJobs.IsActive() && WRITECHUNKJOB->fileChunk == fileChunk)
             {
                 fileChunk->deleted = true;
                 goto Advance;
@@ -1024,8 +1019,8 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
         chunk = shard->GetChunks().Remove(chunk);
     }
     
-    if (mergeContextID == contextID && mergeShardID == shardID)
-        mergeChunkOut->deleted = true;
+    if (mergeChunkJobs.IsActive() && MERGECHUNKJOB->contextID == contextID && MERGECHUNKJOB->shardID == shardID)
+        MERGECHUNKJOB->mergeChunk->deleted = true;
 
     shards.Remove(shard);
     delete shard;
@@ -1036,7 +1031,7 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
     {
         job = *itJob;
         jobs.Remove(itJob);
-        StartJob(asyncThread, job);
+        deleteChunkJobs.Execute(job);
     }
     
     return true;
@@ -1112,24 +1107,18 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
 void StorageEnvironment::OnCommit(StorageCommitJob* job)
 {
-    bool            asyncCommit;
-    StorageShard*   shard;
-    
-    delete job;
-    
-    asyncCommit = commitThreadActive;
-    
-    commitThreadActive = false;
-//    haveUncommitedWrites = false;
-    
+    StorageShard*   shard;    
+        
     FOREACH (shard, shards)
         shard->GetMemoChunk()->haveUncommitedWrites = false;
 
     TryFinalizeLogSegment();
     TrySerializeChunks();
     
-    if (asyncCommit)
-        Call(onCommitCallback);
+    if (job)
+        Call(onCommit);
+
+    delete job;
 }
 
 void StorageEnvironment::TryFinalizeLogSegment()
@@ -1157,7 +1146,7 @@ void StorageEnvironment::TrySerializeChunks()
     StorageShard*               itShard;
     StorageMemoChunk*           memoChunk;
 
-    if (chunkSerializeJobs.IsActive())
+    if (serializeChunkJobs.IsActive())
         return;
 
 //    if (haveUncommitedWrites)
@@ -1182,7 +1171,7 @@ void StorageEnvironment::TrySerializeChunks()
          ))
         {
             job = new StorageSerializeChunkJob(this, memoChunk);
-            chunkSerializeJobs.Execute(job);
+            serializeChunkJobs.Execute(job);
 
             memoChunk = new StorageMemoChunk;
             memoChunk->SetChunkID(nextChunkID++);
@@ -1199,7 +1188,7 @@ void StorageEnvironment::TryWriteChunks()
     StorageFileChunk*   it;
     Job*                job;
     
-    if (chunkWriteJobs.IsActive())
+    if (writeChunkJobs.IsActive())
         return;
 
     FOREACH (it, fileChunks)
@@ -1207,7 +1196,7 @@ void StorageEnvironment::TryWriteChunks()
         if (it->GetChunkState() == StorageChunk::Unwritten)
         {
             job = new StorageWriteChunkJob(this, it);
-            chunkWriteJobs.Execute(job);
+            writeChunkJobs.Execute(job);
             return;
         }
     }
@@ -1216,11 +1205,12 @@ void StorageEnvironment::TryWriteChunks()
 void StorageEnvironment::TryMergeChunks()
 {
     Buffer                  tmp;
+    StorageMergeChunkJob*   job;
     StorageShard*           itShard;
     StorageChunk**          itChunk;
+    StorageFileChunk*       mergeChunk;
     StorageFileChunk*       fileChunk;
     StorageFileChunk**      itFileChunk;
-    StorageJob*             job;
     List<Buffer*>           filenames;
     Buffer*                 filename;
     uint64_t                oldSize;
@@ -1230,7 +1220,7 @@ void StorageEnvironment::TryMergeChunks()
     if (!mergeEnabled)
         return;
 
-    if (chunkMergeJobs.IsActive())
+    if (mergeChunkJobs.IsActive())
         return;
 
     if (numCursors > 0)
@@ -1276,20 +1266,17 @@ void StorageEnvironment::TryMergeChunks()
             filenames.Add(filename);
         }
 
-        mergeChunkOut = new StorageFileChunk;
-        mergeChunkOut->headerPage.SetChunkID(nextChunkID++);
-        mergeChunkOut->headerPage.SetUseBloomFilter(itShard->UseBloomFilter());
+        mergeChunk = new StorageFileChunk;
+        mergeChunk->headerPage.SetChunkID(nextChunkID++);
+        mergeChunk->headerPage.SetUseBloomFilter(itShard->UseBloomFilter());
         tmp.Write(chunkPath);
-        tmp.Appendf("chunk.%020U", mergeChunkOut->GetChunkID());
-        mergeChunkOut->SetFilename(ReadBuffer(tmp));
+        tmp.Appendf("chunk.%020U", mergeChunk->GetChunkID());
+        mergeChunk->SetFilename(ReadBuffer(tmp));
         job = new StorageMergeChunkJob(
-         this,
+         this, itShard->GetContextID(), itShard->GetShardID(),
          filenames,
-         mergeChunkOut, itShard->GetFirstKey(), itShard->GetLastKey(), &onChunkMerge);
-        mergeShardID = itShard->GetShardID();
-        mergeContextID = itShard->GetContextID();
-        mergerThreadActive = true;
-        StartJob(mergerThread, job);
+         mergeChunk, itShard->GetFirstKey(), itShard->GetLastKey());
+        mergeChunkJobs.Execute(job);
         return;
     }
 }
@@ -1302,9 +1289,8 @@ void StorageEnvironment::TryArchiveLogSegments()
     StorageShard*       itShard;
     StorageMemoChunk*   memoChunk;
     StorageChunk**      itChunk;
-    StorageJob*         job;    
     
-    if (archiverThreadActive || logSegments.GetLength() == 0)
+    if (archiveLogJobs.IsActive() || logSegments.GetLength() == 0)
         return;
 
     logSegment = logSegments.First();
@@ -1336,10 +1322,7 @@ void StorageEnvironment::TryArchiveLogSegments()
     
     if (archive)
     {
-        asyncLogSegmentID = logSegmentID;
-        job = new StorageArchiveLogSegmentJob(this, logSegment, archiveScript, &onLogArchive);
-        archiverThreadActive = true;
-        StartJob(archiverThread, job);
+        archiveLogJobs.Execute(new StorageArchiveLogSegmentJob(this, logSegment, archiveScript));
         return;
     }
 }

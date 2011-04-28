@@ -22,12 +22,13 @@ public:
     void                    Stop();
     void                    Execute(Job* job);
     bool                    IsActive();
+    Job*                    GetActiveJob();
     
 private:
     void                    ThreadFunc();
     void                    OnComplete();
 
-    bool                    active;
+    Job*                    activeJob;
     InQueue<Job>            jobs;
     ThreadPool*             threadPool;
     Callable                threadFunc;

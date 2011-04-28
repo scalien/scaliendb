@@ -12,8 +12,8 @@ StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
     Buffer*     filename;
     
     env = env_;
-    contextID_ = contextID;
-    shardID_ = shardID;
+    contextID = contextID_;
+    shardID = shardID_;
 
     FOREACH (itFilename, filenames_)
     {
