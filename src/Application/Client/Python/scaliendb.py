@@ -268,6 +268,12 @@ class Client:
             raise Error(status)
 
     def truncate_table(self, name):
+        """
+        Truncates a table
+        
+        Args:
+            name (string): the name of the table
+        """
         database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database selected")
@@ -275,6 +281,12 @@ class Client:
         self.truncate_table_by_id(table_id)
 
     def truncate_table_by_id(self, table_id):
+        """
+        Truncates a table
+        
+        Args:
+            table_id (long): the id of the table
+        """
         status = SDBP_TruncateTable(self.cptr, table_id)
         if status < 0:
             if status == SDBP_FAILED:
