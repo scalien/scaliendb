@@ -237,7 +237,7 @@ class Client:
         self.rename_table_by_id(table_id, dst)
 
     def rename_table_by_id(self, table_id, name):
-        status = SDBP_TruncateTable(self.cptr, table_id, name)
+        status = SDBP_RenameTable(self.cptr, table_id, name)
         if status < 0:
             if status == SDBP_FAILED:
                 raise Error(status, "No table found")
