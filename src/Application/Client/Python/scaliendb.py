@@ -120,8 +120,8 @@ class Client:
         def num_nodes(self):
             return SDBP_ResultNumNodes(self.cptr)
         
-        def node_id(self):
-            return SDBP_ResultNodeID(self.cptr)
+        def node_id(self, node=0):
+            return SDBP_ResultNodeID(self.cptr, node)
         
         def elapsed_time(self):
             return SDBP_ResultElapsedTime(self.cptr)
