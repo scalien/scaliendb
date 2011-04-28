@@ -45,7 +45,9 @@ def connect(nodes, database=None, table=None):
     def timer_func(f):
         def func(*args):
             try:
-                return timer(f, *args)
+                ret = timer(f, *args)
+                globals()["result"] = client.result
+                return ret
             except scaliendb.Error as e:
                 print(e)
         return func
