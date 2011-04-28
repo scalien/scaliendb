@@ -283,6 +283,12 @@ class Client:
             raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))
         return table_id
     
+    def get_current_database_id(self):
+        return long(SDBP_GetCurrentDatabaseID(self.cptr))
+    
+    def get_current_table_id(self):
+        return long(SDBP_GetCurrentTableID(self.cptr))
+    
     def use_database(self, name):
         status = SDBP_UseDatabase(self.cptr, name)
         if status != SDBP_SUCCESS:

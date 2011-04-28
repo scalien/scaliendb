@@ -50,9 +50,16 @@ if try_import("readline"):
         # this works on Linux    
         readline.parse_and_bind("tab: complete")
 
-try_import("json")
-del try_import
+if try_import("json"):
+    def show_tables():
+        config = json.loads(client.get_json_config_state())
+        for table in config["tables"]:
+            if table["databaseID"] == client.get_current_database_id():
+                print("name: " + table["name"] + ", id: " + str(table["tableID"]))
+    globals()["show_tables"] = show_tables
 
+del try_import
+    
 # helper function for making closures easier
 def closure(func, *args):
     return lambda: func(*args)
