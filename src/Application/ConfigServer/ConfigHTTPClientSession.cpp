@@ -43,6 +43,9 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
     Buffer          tmp;
     ReadBuffer      rb;
     ClientResponse* response;
+    JSONConfigState jsonConfigState;
+
+    numResponses++;
 
     response = &request->response;
     switch (response->type)
@@ -61,9 +64,12 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
     case CLIENTRESPONSE_CONFIG_STATE:
         {
             // TODO: HACK
+            if (session.IsFlushed())
+                return;
             session.json.Start();
-            JSONConfigState jsonConfigState(&configServer->GetHeartbeatManager()->GetHeartbeats(),
-             response->configState, session.json.GetBufferWriter());
+            jsonConfigState.SetHeartbeats(&configServer->GetHeartbeatManager()->GetHeartbeats());
+            jsonConfigState.SetConfigState(&response->configState);
+            jsonConfigState.SetJSONBufferWriter(&session.json.GetBufferWriter());
             jsonConfigState.Write();
             session.Flush();
             return;
@@ -414,10 +420,12 @@ void ConfigHTTPClientSession::PrintShardMatrix(ConfigState* configState)
 
 void ConfigHTTPClientSession::PrintConfigState()
 {
-    // TODO: HACK
+    JSONConfigState     jsonConfigState;
     
-    JSONConfigState jsonConfigState(&configServer->GetHeartbeatManager()->GetHeartbeats(),
-     *configServer->GetDatabaseManager()->GetConfigState(), session.json.GetBufferWriter());
+    jsonConfigState.SetHeartbeats(&configServer->GetHeartbeatManager()->GetHeartbeats());
+    jsonConfigState.SetConfigState(configServer->GetDatabaseManager()->GetConfigState());
+    jsonConfigState.SetJSONBufferWriter(&session.json.GetBufferWriter());
+
     session.json.Start();
     jsonConfigState.Write();
     session.Flush();
@@ -565,6 +573,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessGetState()
 ClientRequest* ConfigHTTPClientSession::ProcessPollConfigState()
 {
     ClientRequest*  request;
+    
+    numResponses = 0;
     
     request = new ClientRequest;
     request->GetConfigState(0, 60*1000);    // default changeTimeout is 60 sec

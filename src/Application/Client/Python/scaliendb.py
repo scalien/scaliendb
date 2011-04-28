@@ -142,7 +142,7 @@ class Client:
             SDBP_Init(self.cptr, node_params)
             node_params.Close()
         else:
-            raise Error(SDBP_API_ERROR, "nodes argument must be int or list")
+            raise Error(SDBP_API_ERROR, "nodes argument must be string or list")
 
     def __del__(self):
         del self.result

@@ -282,6 +282,11 @@ bool Endpoint::IsSet()
     return true;
 }
 
+Address Endpoint::GetLoopbackAddress()
+{
+    return INADDR_LOOPBACK;
+}
+
 bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
 {
     // Valid endpoint is either <IPv4-Address>:<port> or <IPv6-Address>:<port> or <Domain-Name>:<port>

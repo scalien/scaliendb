@@ -54,7 +54,7 @@ public:
     
     void                    OnShardMigrationComplete(ClusterMessage& message);
        
-    void                    UpdateListeners(bool updateClients);
+    void                    UpdateListeners();
 
     // ========================================================================================
     // For ConfigQuorumContext:

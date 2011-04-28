@@ -84,6 +84,7 @@ Mutex   globalMutex;
 
 #define CLIENT_SCHEMA_COMMAND(op, ...)              \
     Request*    req;                                \
+    int         status;                             \
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
     VALIDATE_CONTROLLER();                          \
@@ -109,7 +110,9 @@ Mutex   globalMutex;
                                                     \
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
-    return result->GetCommandStatus();              \
+    status = result->GetCommandStatus();            \
+    return status;                                  \
+
 
 
 using namespace SDBPClient;
@@ -1237,7 +1240,7 @@ void Client::NextRequest(Request* req, ReadBuffer nextShardKey, uint64_t count, 
     nextShardID = 0;
     FOREACH (itShard, configTable->shards)
     {
-        configShard = GetConfigState()->GetShard(*itShard);
+        configShard = configState->GetShard(*itShard);
 
         // find the first shard, that has the smallest firstKey
         // which is greater than shardLastKey

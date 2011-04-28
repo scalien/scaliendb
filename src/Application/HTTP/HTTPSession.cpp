@@ -32,6 +32,9 @@ bool HTTPSession::ParseRequest(HTTPRequest& request, ReadBuffer& cmd, UrlParam& 
     ReadBuffer  mimeType;
     ReadBuffer  origin;
     
+    // TODO: when adding keep-alive HTTP sessions, move this to an Init() function
+    isFlushed = false;
+    
     uri = request.line.uri;
     rb = request.line.uri;
     if (rb.GetCharAt(0) == '/')
@@ -186,6 +189,7 @@ void HTTPSession::Flush()
         json.End();
     
     conn->Flush(true);
+    isFlushed = true;
 }
 
 void HTTPSession::SetType(Type type_)
@@ -215,4 +219,9 @@ void HTTPSession::SetType(Type type_)
         mimeType.Wrap(mime);
     
     conn->SetContentType(mimeType);
+}
+
+bool HTTPSession::IsFlushed()
+{
+    return isFlushed;
 }

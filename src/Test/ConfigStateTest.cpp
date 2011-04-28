@@ -10,6 +10,7 @@ TEST_DEFINE(TestConfigStateJSON)
 {
     ConfigState         configState;
     JSONBufferWriter    jsonWriter;
+    JSONConfigState     jsonConfigState;
     Buffer              jsonOutput;
 
     configState.Read(configStateBuffer, true);
@@ -17,7 +18,8 @@ TEST_DEFINE(TestConfigStateJSON)
     jsonWriter.Init(&jsonOutput);
     jsonWriter.Start();
 
-    JSONConfigState jsonConfigState(NULL, configState, jsonWriter);
+    jsonConfigState.SetConfigState(&configState);
+    jsonConfigState.SetJSONBufferWriter(&jsonWriter);
     jsonConfigState.Write();
 
     jsonWriter.End();

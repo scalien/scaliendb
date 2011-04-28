@@ -363,6 +363,7 @@ std::string SDBP_GetJSONConfigState(ClientObj client_)
     Client*             client = (Client*) client_;
     ConfigState*        configState;
     JSONBufferWriter    jsonWriter;
+    JSONConfigState     jsonConfigState;
     Buffer              buffer;
     std::string         ret;
     
@@ -373,7 +374,8 @@ std::string SDBP_GetJSONConfigState(ClientObj client_)
     jsonWriter.Init(&buffer);
     jsonWriter.Start();
 
-    JSONConfigState     jsonConfigState(NULL, *configState, jsonWriter);
+    jsonConfigState.SetConfigState(configState);
+    jsonConfigState.SetJSONBufferWriter(&jsonWriter);
     jsonConfigState.Write();
 
     jsonWriter.End();

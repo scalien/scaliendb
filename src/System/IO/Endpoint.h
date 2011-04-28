@@ -43,6 +43,7 @@ public:
     
     bool            IsSet();
 
+    static Address  GetLoopbackAddress();
     static bool     IsValidEndpoint(ReadBuffer ip_port);
 
 private:

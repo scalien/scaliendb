@@ -31,7 +31,7 @@ public:
     ConfigPrimaryLeaseManager*  GetPrimaryLeaseManager();
     ConfigActivationManager*    GetActivationManager();
 
-    void                        OnConfigStateChanged(bool updateClients);
+    void                        OnConfigStateChanged();
     
     // ========================================================================================
     // SDBPContext interface:

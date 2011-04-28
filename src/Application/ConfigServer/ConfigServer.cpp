@@ -96,10 +96,10 @@ ConfigActivationManager* ConfigServer::GetActivationManager()
     return &activationManager;
 }
 
-void ConfigServer::OnConfigStateChanged(bool updateClients)
+void ConfigServer::OnConfigStateChanged()
 {
     activationManager.UpdateTimeout();
-    quorumProcessor.UpdateListeners(updateClients);
+    quorumProcessor.UpdateListeners();
 }
 
 bool ConfigServer::IsValidClientRequest(ClientRequest* request)

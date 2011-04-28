@@ -1,14 +1,22 @@
 import sys
 import scaliendb
 import inspect
+import time
+
+# helper function for trying to import other useful modules
+def try_import(name):
+    try:
+        globals()[name] = __import__(name)
+        return True
+    except:
+        print("Module " + name + " not available.")
+        return False
+
+print("")
 
 # enable syntax completion
-try:
-    import readline
-except ImportError:
-    print("Module readline not available.")
-else:
-    import rlcompleter
+if try_import("readline"):
+    try_import("rlcompleter")
     if sys.platform == "darwin":
         # this works on Snow Leopard
         readline.parse_and_bind ("bind ^I rl_complete")
@@ -16,21 +24,46 @@ else:
         # this works on Linux    
         readline.parse_and_bind("tab: complete")
 
+try_import("json")
+del try_import
+
+# helper function for making closures easier
+def closure(func, *args):
+    return lambda: func(*args)
+
+# helper function for measure timing
+def timer(func, *args):
+    starttime = time.time()
+    ret = func(*args)
+    endtime = time.time()
+    elapsed = "(%.02f secs)" % float(endtime-starttime)
+    print(elapsed)
+    return ret
 
 # helper function for other connections
 def connect(nodes, database=None, table=None):
+    def timer_func(f):
+        def func(*args):
+            try:
+                return timer(f, *args)
+            except scaliendb.Error as e:
+                print(e)
+        return func
     client = scaliendb.Client(nodes)    
-    # import client's member function to the global scope
+    # import client's member functions to the global scope
     members = inspect.getmembers(client, inspect.ismethod)
     for k, v in members:
         if k[0] != "_":
-            globals()[k] = v
-    if database == None:
-        return
-    client.use_database(database)
-    if table == None:
-        return
-    client.use_table(table)
+            globals()[k] = timer_func(v)
+    try:
+        if database == None:
+            return
+        client.use_database(database)
+        if table == None:
+            return
+        client.use_table(table)
+    except scaliendb.Error as e:
+        print(e)
 
 # helper class for implementing 'shelp' command
 class SHelp:
