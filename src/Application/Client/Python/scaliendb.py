@@ -453,8 +453,7 @@ class Client:
     
     def use(self, database, table=None):
         """
-        Uses a database and table. All following operations will be executed on that database and
-        table.
+        Uses a database and table.
         
         Args:
             database (string): the name of the database
