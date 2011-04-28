@@ -232,6 +232,16 @@ bool SDBP_ResultIsEnd(ResultObj result_)
     return result->IsEnd();
 }
 
+bool SDBP_ResultIsFinished(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    
+    if (!result)
+        return true;
+    
+    return result->IsFinished();
+}
+
 int SDBP_ResultTransportStatus(ResultObj result_)
 {
     Result*     result = (Result*) result_;
@@ -778,6 +788,27 @@ int SDBP_CountCStr(ClientObj client_, char* key_, int len, unsigned count, unsig
     key.Wrap((char*) key_, len);
 
     return client->Count(key, count, offset);
+}
+
+uint64_t SDBP_Filter(ClientObj client_, const std::string& key_, unsigned count, unsigned offset)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+    uint64_t    commandID;
+    int         ret;
+
+    ret = client->Filter(key, count, offset, commandID);
+    if (ret < 0)
+        return 0;
+    
+    return commandID;
+}
+
+int SDBP_Receive(ClientObj client_, uint64_t commandID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->Receive(commandID);
 }
 
 /*

@@ -106,6 +106,11 @@ if try_import("json"):
     globals()["show_quorums"] = Func("show_quorums", show_quorums)
     globals()["show_databases"] = Func("show_databases", show_databases)
 
+if try_import("scaliendb_mapred"):
+    def map_reduce(mapred):
+        return scaliendb_mapred.map_reduce(client, mapred)
+    globals()["map_reduce"] = map_reduce
+
 del try_import
     
 

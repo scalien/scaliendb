@@ -5106,6 +5106,26 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_ResultIsFinished(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ResultObj arg1 = (ResultObj) 0 ;
+  bool result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ResultIsFinished",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultIsFinished" "', argument " "1"" of type '" "ResultObj""'"); 
+  }
+  result = (bool)SDBP_ResultIsFinished(arg1);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_ResultTransportStatus(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ResultObj arg1 = (ResultObj) 0 ;
@@ -7397,6 +7417,89 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_Filter(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  unsigned int arg3 ;
+  unsigned int arg4 ;
+  uint64_t result;
+  int res1 ;
+  int res2 = SWIG_OLDOBJ ;
+  unsigned int val3 ;
+  int ecode3 = 0 ;
+  unsigned int val4 ;
+  int ecode4 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_Filter",4,4,&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_Filter" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SDBP_Filter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_Filter" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  ecode3 = SWIG_AsVal_unsigned_SS_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_Filter" "', argument " "3"" of type '" "unsigned int""'");
+  } 
+  arg3 = static_cast< unsigned int >(val3);
+  ecode4 = SWIG_AsVal_unsigned_SS_int(obj3, &val4);
+  if (!SWIG_IsOK(ecode4)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SDBP_Filter" "', argument " "4"" of type '" "unsigned int""'");
+  } 
+  arg4 = static_cast< unsigned int >(val4);
+  result = (uint64_t)SDBP_Filter(arg1,(std::string const &)*arg2,arg3,arg4);
+  resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_Receive(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  int res1 ;
+  unsigned long long val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_Receive",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_Receive" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  ecode2 = SWIG_AsVal_unsigned_SS_long_SS_long(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_Receive" "', argument " "2"" of type '" "uint64_t""'");
+  } 
+  arg2 = static_cast< uint64_t >(val2);
+  result = (int)SDBP_Receive(arg1,arg2);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_Begin(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -7585,6 +7688,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_ResultBegin", _wrap_SDBP_ResultBegin, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultNext", _wrap_SDBP_ResultNext, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultIsEnd", _wrap_SDBP_ResultIsEnd, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultIsFinished", _wrap_SDBP_ResultIsFinished, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultTransportStatus", _wrap_SDBP_ResultTransportStatus, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultCommandStatus", _wrap_SDBP_ResultCommandStatus, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultNumNodes", _wrap_SDBP_ResultNumNodes, METH_VARARGS, NULL},
@@ -7644,6 +7748,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_ListKeyValuesCStr", _wrap_SDBP_ListKeyValuesCStr, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Count", _wrap_SDBP_Count, METH_VARARGS, NULL},
 	 { (char *)"SDBP_CountCStr", _wrap_SDBP_CountCStr, METH_VARARGS, NULL},
+	 { (char *)"SDBP_Filter", _wrap_SDBP_Filter, METH_VARARGS, NULL},
+	 { (char *)"SDBP_Receive", _wrap_SDBP_Receive, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Begin", _wrap_SDBP_Begin, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Submit", _wrap_SDBP_Submit, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Cancel", _wrap_SDBP_Cancel, METH_VARARGS, NULL},
