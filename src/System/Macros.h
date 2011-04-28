@@ -110,6 +110,7 @@
 #define FOREACH_BACK(it, cont)  for (it = (cont).Last(); it != NULL; it = (cont).Prev(it))
 #define FOREACH_FIRST(it, cont) for (it = (cont).First(); it != NULL; it = (cont).First())
 #define FOREACH_LAST(it, cont)  for (it = (cont).Last(); it != NULL; it = (cont).Last())
+#define FOREACH_REMOVE(it, cont)  for (it = (cont).First(); it != NULL; it = (cont).Remove(it))
 
 /*
 ===============================================================================================
