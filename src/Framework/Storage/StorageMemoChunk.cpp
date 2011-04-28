@@ -22,7 +22,7 @@ static inline const ReadBuffer Key(const StorageFileKeyValue* kv)
 
 StorageMemoChunk::StorageMemoChunk(uint64_t chunkID_, bool useBloomFilter_)
 {
-    chunkID = chunkID;
+    chunkID = chunkID_;
     useBloomFilter = useBloomFilter_;
 
     serialized = false;
