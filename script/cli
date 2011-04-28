@@ -15,4 +15,4 @@ if [ ! -f $PYTHONSTARTUP ] || [ ! -f $SCALIENDB_HOME/bin/python/scaliendb.py ]; 
 fi
 
 cd bin/python
-python 
+python - $*

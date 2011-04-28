@@ -3,6 +3,32 @@ import scaliendb
 import inspect
 import time
 
+class Defaults:
+    def __init__(self):
+        self.database = None
+        self.table = None
+        self.nodes = "localhost:7080"
+
+def parse_args(args):
+    defaults = Defaults()
+    skip = True
+    for x in xrange(len(args)):
+        if skip:
+            skip = False
+            continue
+        if args[x][0] == "-":
+            opt = args[x][1:]
+            if opt == "d":
+                defaults.database = args[x + 1]
+                skip = True
+            elif opt == "t":
+                defaults.table = args[x + 1]
+                skip = True
+            elif opt == "h":
+                defaults.nodes = args[x + 1]
+                skip = True
+    return defaults
+
 # helper function for trying to import other useful modules
 def try_import(name):
     try:
@@ -91,4 +117,5 @@ del welcome
 shelp = SHelp()
 
 # create default client
-connect("localhost:7080")
+defaults = parse_args(sys.argv)
+connect(defaults.nodes, defaults.database, defaults.table)
