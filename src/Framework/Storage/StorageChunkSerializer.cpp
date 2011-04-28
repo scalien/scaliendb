@@ -41,9 +41,7 @@ bool StorageChunkSerializer::Serialize(StorageEnvironment* env_, StorageMemoChun
     fileChunk->fileSize = offset;
     fileChunk->written = false;
     
-    filename.Write(env->chunkPath);
-    filename.Appendf("chunk.%020U", fileChunk->GetChunkID());
-    fileChunk->SetFilename(ReadBuffer(filename));
+    fileChunk->SetFilename(env->chunkPath, fileChunk->GetChunkID());
     
     memoChunk->fileChunk = fileGuard.Release();
     

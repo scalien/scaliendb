@@ -158,3 +158,43 @@ void StorageShard::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChu
     chunks.Remove(chunk);
     chunks.Add(fileChunk);
 }
+
+
+void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
+{
+    uint64_t                oldSize;
+    uint64_t                youngSize;
+    uint64_t                totalSize;
+    StorageFileChunk*       fileChunk;
+    StorageChunk**          itChunk;
+    StorageFileChunk**      itInputChunk;
+
+    if (IsLogStorage())
+        return;
+    
+    totalSize = 0;
+    FOREACH (itChunk, chunks)
+    {
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+            continue;
+        fileChunk = (StorageFileChunk*) *itChunk;
+        inputChunks.Append(fileChunk);
+        totalSize += fileChunk->GetSize();
+    }
+    
+    while (inputChunks.GetLength() >= 3)
+    {
+        itInputChunk = inputChunks.First();
+        oldSize = (*itInputChunk)->GetSize();
+        youngSize = totalSize - oldSize;
+        if (oldSize > youngSize * 1.1)
+        {
+            inputChunks.Remove(inputChunks.First());
+            totalSize -= oldSize;
+        }
+        else break;
+    }
+    
+    if (inputChunks.GetLength() < 3)
+        inputChunks.Clear();
+}

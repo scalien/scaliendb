@@ -27,6 +27,7 @@ public:
     void                ReadHeaderPage();
 
     void                SetFilename(ReadBuffer filename);
+    void                SetFilename(Buffer& chunkPath, uint64_t chunkID);
     Buffer&             GetFilename();
 
     bool                OpenForReading();

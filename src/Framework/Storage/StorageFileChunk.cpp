@@ -94,7 +94,13 @@ void StorageFileChunk::SetFilename(ReadBuffer filename_)
 {
     filename.Write(filename_);
     filename.NullTerminate();
+}
 
+void StorageFileChunk::SetFilename(Buffer& chunkPath, uint64_t chunkID)
+{
+    filename.Write(chunkPath);
+    filename.Appendf("chunk.%020U", chunkID);
+    filename.NullTerminate();
 }
 
 Buffer& StorageFileChunk::GetFilename()
@@ -358,6 +364,8 @@ void StorageFileChunk::AddPagesToCache()
 void StorageFileChunk::RemovePagesFromCache()
 {
     uint32_t i;
+    
+    Log_Debug("Removing chunk %U from caches", GetChunkID());
     
     if (UseBloomFilter() && bloomPage != NULL)
         StoragePageCache::RemovePage(bloomPage);

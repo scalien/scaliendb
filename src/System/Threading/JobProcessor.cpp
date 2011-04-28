@@ -19,6 +19,20 @@ void JobProcessor::Stop()
     threadPool->Stop();
 }
 
+void JobProcessor::Enqueue(Job* job)
+{
+    jobs.Enqueue(job);
+}
+
+void JobProcessor::Execute()
+{
+    if (!activeJob)
+    {
+        activeJob = jobs.First();
+        threadPool->Execute(threadFunc);
+    }
+}
+
 void JobProcessor::Execute(Job* job)
 {
     // (runs in main thread)

@@ -20,6 +20,8 @@ public:
     
     void                    Start();
     void                    Stop();
+    void                    Enqueue(Job* job);
+    void                    Execute();
     void                    Execute(Job* job);
     bool                    IsActive();
     Job*                    GetActiveJob();
