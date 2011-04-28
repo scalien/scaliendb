@@ -50,6 +50,7 @@ def connect(nodes, database=None, table=None):
                 print(e)
         return func
     client = scaliendb.Client(nodes)    
+    globals()["client"] = client
     # import client's member functions to the global scope
     members = inspect.getmembers(client, inspect.ismethod)
     for k, v in members:
