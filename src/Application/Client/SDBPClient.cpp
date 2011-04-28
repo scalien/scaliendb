@@ -3,7 +3,6 @@
 #include "SDBPShardConnection.h"
 #include "SDBPClientConsts.h"
 #include "System/IO/IOProcessor.h"
-#include "System/Mutex.h"
 #include "System/Threading/ThreadPool.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "Application/Common/ClientRequest.h"
