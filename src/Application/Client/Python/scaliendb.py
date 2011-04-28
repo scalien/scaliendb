@@ -117,6 +117,23 @@ class Client:
         def timeout_status(self):
             return SDBP_ResultTimeoutStatus(self.cptr)
         
+        def num_nodes(self):
+            return SDBP_ResultNumNodes(self.cptr)
+        
+        def node_id(self):
+            return SDBP_ResultNodeID(self.cptr)
+        
+        def elapsed_time(self):
+            return SDBP_ResultElapsedTime(self.cptr)
+        
+        def keys(self):
+            keys = []
+            self.begin()
+            while not self.is_end():
+                keys.append(self.key())
+                self.next()
+            return keys
+        
         def key_values(self):
             kv = {}
             self.begin()
