@@ -60,7 +60,6 @@ if try_import("json"):
     def show_quorums():
         """ Show quorums """
         config = json.loads(client.get_json_config_state())
-        for table in config["tables"]:
     globals()["show_tables"] = show_tables
 
 del try_import
