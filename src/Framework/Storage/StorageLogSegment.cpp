@@ -22,14 +22,20 @@ StorageLogSegment::StorageLogSegment()
         sw.Reset();             \
     } while (0)
 
-bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_, uint64_t syncGranularity_)
+bool StorageLogSegment::Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t syncGranularity_)
 {
     unsigned    length;
     Stopwatch   sw;
+
+    logSegmentID = logSegmentID_;
+    syncGranularity = syncGranularity_;
+    offset = 0;
+    lastSyncOffset = 0;
     
     sw.Start();
     
-    filename.Write(filename_);
+    filename.Write(logPath);
+    filename.Appendf("log.%020U", logSegmentID);
     filename.NullTerminate();
     fd = FS_Open(filename.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND);
     if (fd == INVALID_FD)
@@ -38,11 +44,6 @@ bool StorageLogSegment::Open(Buffer& filename_, uint64_t logSegmentID_, uint64_t
     sw.Stop();
     
     Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
-
-    logSegmentID = logSegmentID_;
-    syncGranularity = syncGranularity_;
-    offset = 0;
-    lastSyncOffset = 0;
 
     sw.Start();
     writeBuffer.AppendLittle64(logSegmentID);

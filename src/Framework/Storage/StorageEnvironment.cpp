@@ -150,9 +150,7 @@ bool StorageEnvironment::Open(Buffer& envPath_)
     }
 
     headLogSegment = new StorageLogSegment;
-    tmp.Write(logPath);
-    tmp.Appendf("log.%020U", nextLogSegmentID);
-    headLogSegment->Open(tmp, nextLogSegmentID, config.syncGranularity);
+    headLogSegment->Open(logPath, nextLogSegmentID, config.syncGranularity);
     nextLogSegmentID++;
 
     backgroundTimer.SetDelay(1000 * configFile.GetIntValue("database.backgroundTimerDelay",
@@ -1074,8 +1072,6 @@ void StorageEnvironment::OnCommit(StorageCommitJob* job)
 
 void StorageEnvironment::TryFinalizeLogSegment()
 {
-    Buffer tmp;
-
     if (headLogSegment->GetOffset() < config.logSegmentSize)
         return;
 
@@ -1084,9 +1080,7 @@ void StorageEnvironment::TryFinalizeLogSegment()
     logSegments.Append(headLogSegment);
 
     headLogSegment = new StorageLogSegment;
-    tmp.Write(logPath);
-    tmp.Appendf("log.%020U", nextLogSegmentID);
-    headLogSegment->Open(tmp, nextLogSegmentID, config.syncGranularity);
+    headLogSegment->Open(logPath, nextLogSegmentID, config.syncGranularity);
     nextLogSegmentID++;
 }
 
