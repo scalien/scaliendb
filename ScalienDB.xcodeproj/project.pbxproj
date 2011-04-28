@@ -140,6 +140,16 @@
 		9A466D60135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A466D61135F435300108B07 /* JSONBufferWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */; };
 		9A4671891366FEDC00108B07 /* EndpointTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A4671881366FEDC00108B07 /* EndpointTest.cpp */; };
+		9A4674161369B5DF00108B07 /* Mutex_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5431219A1366E52E0029D6A8 /* Mutex_Posix.cpp */; };
+		9A4674191369B5EA00108B07 /* ThreadPool_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543121361366DDC40029D6A8 /* ThreadPool_Posix.cpp */; };
+		9A46741C1369B5F800108B07 /* JobProcessor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543121331366DDC40029D6A8 /* JobProcessor.cpp */; };
+		9A46741F1369B60400108B07 /* StorageCommitJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5431208E1361B64A0029D6A8 /* StorageCommitJob.cpp */; };
+		9A4674201369B60A00108B07 /* StorageSerializeChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120991361B80C0029D6A8 /* StorageSerializeChunkJob.cpp */; };
+		9A4674211369B60F00108B07 /* StorageWriteChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120A21361B9B70029D6A8 /* StorageWriteChunkJob.cpp */; };
+		9A4674221369B61300108B07 /* StorageMergeChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120AD1361BB560029D6A8 /* StorageMergeChunkJob.cpp */; };
+		9A4674231369B61600108B07 /* StorageDeleteMemoChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54973F4913685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp */; };
+		9A4674241369B61A00108B07 /* StorageDeleteFileChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120BD1361BD160029D6A8 /* StorageDeleteFileChunkJob.cpp */; };
+		9A4674251369B61E00108B07 /* StorageArchiveLogSegmentJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120C41361BE610029D6A8 /* StorageArchiveLogSegmentJob.cpp */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
@@ -1654,6 +1664,16 @@
 				9ADD18DE1353568A002C5C66 /* StorageAsyncBulkCursor.cpp in Sources */,
 				9A466D60135F435300108B07 /* JSONBufferWriter.cpp in Sources */,
 				9A4671891366FEDC00108B07 /* EndpointTest.cpp in Sources */,
+				9A4674161369B5DF00108B07 /* Mutex_Posix.cpp in Sources */,
+				9A4674191369B5EA00108B07 /* ThreadPool_Posix.cpp in Sources */,
+				9A46741C1369B5F800108B07 /* JobProcessor.cpp in Sources */,
+				9A46741F1369B60400108B07 /* StorageCommitJob.cpp in Sources */,
+				9A4674201369B60A00108B07 /* StorageSerializeChunkJob.cpp in Sources */,
+				9A4674211369B60F00108B07 /* StorageWriteChunkJob.cpp in Sources */,
+				9A4674221369B61300108B07 /* StorageMergeChunkJob.cpp in Sources */,
+				9A4674231369B61600108B07 /* StorageDeleteMemoChunkJob.cpp in Sources */,
+				9A4674241369B61A00108B07 /* StorageDeleteFileChunkJob.cpp in Sources */,
+				9A4674251369B61E00108B07 /* StorageArchiveLogSegmentJob.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -316,6 +316,7 @@ bool Endpoint::IsValidEndpoint(ReadBuffer ip_port)
     numPortChars = 0;
     labelStart = true;
     isIPv6 = false;
+    prev = ' ';
     sep = ' ';
     lastColon = NULL;
     for (i = 0; i < ip_port.GetLength(); i++)

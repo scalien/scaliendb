@@ -3,6 +3,32 @@ import scaliendb
 import inspect
 import time
 
+class Defaults:
+    def __init__(self):
+        self.database = None
+        self.table = None
+        self.nodes = "localhost:7080"
+
+def parse_args(args):
+    defaults = Defaults()
+    skip = True
+    for x in xrange(len(args)):
+        if skip:
+            skip = False
+            continue
+        if args[x][0] == "-":
+            opt = args[x][1:]
+            if opt == "d":
+                defaults.database = args[x + 1]
+                skip = True
+            elif opt == "t":
+                defaults.table = args[x + 1]
+                skip = True
+            elif opt == "h":
+                defaults.nodes = args[x + 1]
+                skip = True
+    return defaults
+
 # helper function for trying to import other useful modules
 def try_import(name):
     try:
@@ -24,9 +50,24 @@ if try_import("readline"):
         # this works on Linux    
         readline.parse_and_bind("tab: complete")
 
-try_import("json")
-del try_import
+if try_import("json"):
+    def show_tables():
+        """ Show tables in current database """
+        config = json.loads(client.get_json_config_state())
+        for table in config["tables"]:
+            if table["databaseID"] == client.get_current_database_id():
+                print("name: " + table["name"] + ", id: " + str(table["tableID"]))
+    def show_quorums():
+        """ Show quorums """
+        config = json.loads(client.get_json_config_state())
+        for quorum in config["quorums"]:
+            print("id: " + str(quorum["quorumID"]) + ", primaryID: " + str(quorum["primaryID"]) + ", paxosID: " + str(quorum["paxosID"]) +
+             ", active nodes: " + str(quorum["activeNodes"]) + ", inactive nodes: " + str(quorum["inactiveNodes"]))
+    globals()["show_tables"] = show_tables
+    globals()["show_quorums"] = show_quorums
 
+del try_import
+    
 # helper function for making closures easier
 def closure(func, *args):
     return lambda: func(*args)
@@ -40,21 +81,44 @@ def timer(func, *args):
     print(elapsed)
     return ret
 
+class Func:
+    def __init__(self, name, function):
+        self.name = name
+        self.function = function
+        self.__doc__ = self.function.__doc__
+        
+    def __call__(self, *args):
+        try:
+            ret = timer(self.function, *args)
+            globals()["result"] = client.result
+            return ret
+        except scaliendb.Error as e:
+            print(e)
+    
+    def __repr__(self):
+        if self.__doc__ == None:
+            return "For more info on " + self.name + ", see http://scalien.com/documentation"
+        return self.__doc__
+
 # helper function for other connections
 def connect(nodes, database=None, table=None):
     def timer_func(f):
         def func(*args):
             try:
-                return timer(f, *args)
+                ret = timer(f, *args)
+                globals()["result"] = client.result
+                return ret
             except scaliendb.Error as e:
                 print(e)
         return func
     client = scaliendb.Client(nodes)    
+    globals()["client"] = client
     # import client's member functions to the global scope
     members = inspect.getmembers(client, inspect.ismethod)
-    for k, v in members:
-        if k[0] != "_":
-            globals()[k] = timer_func(v)
+    for name, func in members:
+        if name[0] != "_":
+            #globals()[k] = timer_func(v)
+            globals()[name] = Func(name, func)
     try:
         if database == None:
             return
@@ -88,4 +152,5 @@ del welcome
 shelp = SHelp()
 
 # create default client
-connect("localhost:7080")
+defaults = parse_args(sys.argv)
+connect(defaults.nodes, defaults.database, defaults.table)
