@@ -1143,18 +1143,16 @@ void StorageEnvironment::TrySerializeChunks()
 
 void StorageEnvironment::TryWriteChunks()
 {
-    StorageFileChunk*   it;
-    Job*                job;
+    StorageFileChunk*   itFileChunk;
     
     if (writeChunkJobs.IsActive())
         return;
 
-    FOREACH (it, fileChunks)
+    FOREACH (itFileChunk, fileChunks)
     {
-        if (it->GetChunkState() == StorageChunk::Unwritten)
+        if (itFileChunk->GetChunkState() == StorageChunk::Unwritten)
         {
-            job = new StorageWriteChunkJob(this, it);
-            writeChunkJobs.Execute(job);
+            writeChunkJobs.Execute(new StorageWriteChunkJob(this, itFileChunk));
             return;
         }
     }
