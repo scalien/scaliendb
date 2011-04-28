@@ -1162,79 +1162,29 @@ void StorageEnvironment::TryWriteChunks()
 
 void StorageEnvironment::TryMergeChunks()
 {
-    Buffer                  tmp;
     StorageMergeChunkJob*   job;
     StorageShard*           itShard;
-    StorageChunk**          itChunk;
     StorageFileChunk*       mergeChunk;
-    StorageFileChunk*       fileChunk;
-    StorageFileChunk**      itFileChunk;
     List<StorageFileChunk*> inputChunks;
-    List<Buffer*>           filenames;
-    Buffer*                 filename;
-    uint64_t                oldSize;
-    uint64_t                youngSize;
-    uint64_t                totalSize;
 
-    if (!mergeEnabled)
-        return;
-
-    if (mergeChunkJobs.IsActive())
-        return;
-
-    if (numCursors > 0)
+    if (!mergeEnabled || mergeChunkJobs.IsActive() || numCursors > 0)
         return;
 
     FOREACH (itShard, shards)
     {
-        if (itShard->IsLogStorage())
+        inputChunks.Clear();
+        itShard->GetMergeInputChunks(inputChunks);
+        if (inputChunks.GetLength() < 2)
             continue;
         
-        totalSize = 0;
-        FOREACH (itChunk, itShard->GetChunks())
-        {
-            if ((*itChunk)->GetChunkState() != StorageChunk::Written)
-                continue;
-            fileChunk = (StorageFileChunk*) *itChunk;
-            inputChunks.Append(fileChunk);
-            totalSize += fileChunk->GetSize();
-        }
-
-        while (inputChunks.GetLength() >= 3)
-        {
-            itFileChunk = inputChunks.First();
-            oldSize = (*itFileChunk)->GetSize();
-            youngSize = totalSize - oldSize;
-            if (oldSize > youngSize * 1.1)
-            {
-                inputChunks.Remove(inputChunks.First());
-                totalSize -= oldSize;
-            }
-            else break;
-        }
-        
-        if (inputChunks.GetLength() < 3)
-        {
-            inputChunks.Clear();
-            continue;   // on next shard
-        }
-        
-        FOREACH (itFileChunk, inputChunks)
-        {
-            filename = &(*itFileChunk)->GetFilename();
-            filenames.Add(filename);
-        }
-
         mergeChunk = new StorageFileChunk;
         mergeChunk->headerPage.SetChunkID(nextChunkID++);
         mergeChunk->headerPage.SetUseBloomFilter(itShard->UseBloomFilter());
-        tmp.Write(chunkPath);
-        tmp.Appendf("chunk.%020U", mergeChunk->GetChunkID());
-        mergeChunk->SetFilename(ReadBuffer(tmp));
+        mergeChunk->SetFilename(chunkPath, mergeChunk->GetChunkID());
         job = new StorageMergeChunkJob(
          this, itShard->GetContextID(), itShard->GetShardID(),
-         inputChunks, filenames,
-         mergeChunk, itShard->GetFirstKey(), itShard->GetLastKey());
+         inputChunks, mergeChunk,
+         itShard->GetFirstKey(), itShard->GetLastKey());
         mergeChunkJobs.Execute(job);
         return;
     }
@@ -1303,7 +1253,6 @@ void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
     
     TrySerializeChunks();
     TryWriteChunks();
-
     delete job;
 }
 

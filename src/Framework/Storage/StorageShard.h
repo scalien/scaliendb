@@ -55,6 +55,8 @@ public:
     StorageMemoChunk*   GetMemoChunk();
     ChunkList&          GetChunks();
     void                OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
+    void                GetMergeInputChunks(List<StorageFileChunk*>& inputChunks);
+
 
     StorageShard*       prev;
     StorageShard*       next;

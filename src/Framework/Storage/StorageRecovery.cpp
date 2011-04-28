@@ -119,7 +119,6 @@ bool StorageRecovery::ReadShard(ReadBuffer& parse)
     uint64_t            chunkID;
     StorageShard*       shard;
     StorageFileChunk*   fileChunk;
-    Buffer              tmp;
 
     PointerGuard<StorageShard> shardGuard(new StorageShard);
     
@@ -164,9 +163,7 @@ bool StorageRecovery::ReadShard(ReadBuffer& parse)
         {
             fileChunk = new StorageFileChunk;
             
-            tmp.Write(env->envPath);
-            tmp.Appendf("chunks/chunk.%020U", chunkID);
-            fileChunk->SetFilename(ReadBuffer(tmp));
+            fileChunk->SetFilename(env->chunkPath, chunkID);
             fileChunk->written = true;
             
             fileChunk->ReadHeaderPage();

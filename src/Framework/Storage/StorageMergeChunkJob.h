@@ -22,7 +22,7 @@ public:
     StorageMergeChunkJob(StorageEnvironment* env,
      uint64_t contextID, uint64_t shardID,
      List<StorageFileChunk*>& inputChunks,
-     List<Buffer*>& filenames, StorageFileChunk* mergeChunk,
+     StorageFileChunk* mergeChunk,
      ReadBuffer firstKey, ReadBuffer lastKey);
     
     void                    Execute();
@@ -33,7 +33,6 @@ public:
     uint64_t                shardID;
     StorageFileChunk*       mergeChunk;
     List<StorageFileChunk*> inputChunks;
-    List<Buffer*>           filenames;
     Buffer                  firstKey;
     Buffer                  lastKey;
 };

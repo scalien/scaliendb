@@ -6,11 +6,9 @@
 StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
  uint64_t contextID_, uint64_t shardID_,
  List<StorageFileChunk*>& inputChunks_,
- List<Buffer*>& filenames_, StorageFileChunk* mergeChunk_,
+ StorageFileChunk* mergeChunk_,
  ReadBuffer firstKey_, ReadBuffer lastKey_)
 {
-    Buffer**            itFilename;
-    Buffer*             filename;
     StorageFileChunk**  itChunk;
     
     env = env_;
@@ -20,12 +18,6 @@ StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
     FOREACH(itChunk, inputChunks_)
         inputChunks.Append(*itChunk);
 
-    FOREACH (itFilename, filenames_)
-    {
-        filename = new Buffer(**itFilename);
-        filenames.Append(filename);
-    }
-
     firstKey.Write(firstKey_);
     lastKey.Write(lastKey_);
     mergeChunk = mergeChunk_;
@@ -34,9 +26,17 @@ StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
 void StorageMergeChunkJob::Execute()
 {
     bool                ret;
+    Buffer*             filename;
+    StorageFileChunk**  itInputChunk;
     StorageChunkMerger  merger;
-    Buffer**            itFilename;
+    List<Buffer*>       filenames;
     Stopwatch           sw;
+
+    FOREACH (itInputChunk, inputChunks)
+    {
+        filename = &(*itInputChunk)->GetFilename();
+        filenames.Add(filename);
+    }
     
     Log_Debug("Merging %u chunks into chunk %U...",
      filenames.GetLength(),
@@ -50,12 +50,6 @@ void StorageMergeChunkJob::Execute()
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()), 
          HUMAN_BYTES(mergeChunk->GetSize() / (sw.Elapsed() / 1000.0)));
-    }
-
-    FOREACH_FIRST (itFilename, filenames)
-    {
-        delete *itFilename;
-        filenames.Remove(itFilename);
     }
 }
 
