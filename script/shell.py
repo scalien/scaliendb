@@ -57,6 +57,10 @@ if try_import("json"):
         for table in config["tables"]:
             if table["databaseID"] == client.get_current_database_id():
                 print("name: " + table["name"] + ", id: " + str(table["tableID"]))
+    def show_quorums():
+        """ Show quorums """
+        config = json.loads(client.get_json_config_state())
+        for table in config["tables"]:
     globals()["show_tables"] = show_tables
 
 del try_import
@@ -82,7 +86,7 @@ class Func:
         
     def __call__(self, *args):
         try:
-            ret = timer(f, *args)
+            ret = timer(self.function, *args)
             globals()["result"] = client.result
             return ret
         except scaliendb.Error as e:
