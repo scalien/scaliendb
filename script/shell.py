@@ -60,7 +60,11 @@ if try_import("json"):
     def show_quorums():
         """ Show quorums """
         config = json.loads(client.get_json_config_state())
+        for quorum in config["quorums"]:
+            print("id: " + str(quorum["quorumID"]) + ", primaryID: " + str(quorum["primaryID"]) + ", paxosID: " + str(quorum["paxosID"]) +
+             ", active nodes: " + str(quorum["activeNodes"]) + ", inactive nodes: " + str(quorum["inactiveNodes"]))
     globals()["show_tables"] = show_tables
+    globals()["show_quorums"] = show_quorums
 
 del try_import
     
