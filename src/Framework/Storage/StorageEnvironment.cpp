@@ -1296,11 +1296,6 @@ void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
         fileChunk = job->memoChunk->RemoveFileChunk();
         ASSERT(fileChunk);
         OnChunkSerialized(job->memoChunk, fileChunk);
-        Log_Debug("Deleting MemoChunk...");
-
-        tmp.Write(chunkPath);
-        tmp.Appendf("chunk.%020U", fileChunk->GetChunkID());
-        fileChunk->SetFilename(ReadBuffer(tmp));
         fileChunks.Append(fileChunk);        
     }
 

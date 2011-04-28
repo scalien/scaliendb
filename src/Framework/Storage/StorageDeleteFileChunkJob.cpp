@@ -12,7 +12,7 @@ void StorageDeleteFileChunkJob::Execute()
 {
     Stopwatch   sw;
     
-    Log_Debug("Deleting chunk %U", chunk->GetChunkID());
+    Log_Debug("Deleting file chunk %U from disk, starting", chunk->GetChunkID());
     sw.Start();
     
     FS_Delete(chunk->GetFilename().GetBuffer());

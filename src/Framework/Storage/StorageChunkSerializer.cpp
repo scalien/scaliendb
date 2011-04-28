@@ -6,6 +6,7 @@
 
 bool StorageChunkSerializer::Serialize(StorageEnvironment* env_, StorageMemoChunk* memoChunk_)
 {
+    Buffer filename;
     PointerGuard<StorageFileChunk> fileGuard(new StorageFileChunk);
     env = env_;
     
@@ -39,6 +40,10 @@ bool StorageChunkSerializer::Serialize(StorageEnvironment* env_, StorageMemoChun
 
     fileChunk->fileSize = offset;
     fileChunk->written = false;
+    
+    filename.Write(env->chunkPath);
+    filename.Appendf("chunk.%020U", fileChunk->GetChunkID());
+    fileChunk->SetFilename(ReadBuffer(filename));
     
     memoChunk->fileChunk = fileGuard.Release();
     
