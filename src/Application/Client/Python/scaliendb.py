@@ -224,6 +224,16 @@ class Client:
         self._check_status(status)
 
     def create_table(self, database_id, quorum_id, name):
+        """
+        Creates a table
+        
+        Args:
+            database_id (long): the ID of the database
+            
+            quorum_id (long): the ID of the quorum
+            
+            name (string): the name of the table
+        """
         status = SDBP_CreateTable(self.cptr, database_id, quorum_id, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
