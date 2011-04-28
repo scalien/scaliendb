@@ -5,21 +5,25 @@
 #include "System/Containers/InList.h"
 #include "System/Containers/ArrayList.h"
 #include "System/Events/Countdown.h"
-#include "System/ThreadPool.h"
+#include "System/Threading/ThreadPool.h"
+#include "System/Threading/JobProcessor.h"
 #include "StorageConfig.h"
 #include "StorageLogSegment.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
 #include "StorageShard.h"
-#include "StorageJob.h"
+#include "StorageCommitJob.h"
 #include "StorageBulkCursor.h"
 #include "StorageAsyncBulkCursor.h"
 
 class StorageRecovery;
-class StorageEnvironment;
 class StorageEnvironmentWriter;
 class StorageArchiveLogSegmentJob;
 class StorageAsyncList;
+class StorageSerializeChunkJob;
+class StorageWriteChunkJob;
+class StorageMergeChunkJob;
+class StorageArchiveLogSegmentJob;
 
 #define STORAGE_DEFAULT_MAX_UNBACKED_LOG_SEGMENT    10
 #define STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY      5  // sec
@@ -69,7 +73,7 @@ public:
     bool                    DeleteShard(uint16_t contextID, uint64_t shardID);
     bool                    SplitShard(uint16_t contextID,  uint64_t shardID,
                              uint64_t newShardID, ReadBuffer splitKey);
-
+                             
     bool                    Get(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer& value);
     bool                    Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
     bool                    Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key);
@@ -96,20 +100,18 @@ public:
     void                    PrintState(uint16_t contextID, Buffer& buffer);
     StorageConfig&          GetConfig();
     
-private:
-    void                    OnCommit();
+    void                    OnCommit(StorageCommitJob* job);
     void                    TryFinalizeLogSegment();
     void                    TrySerializeChunks();
     void                    TryWriteChunks();
     void                    TryMergeChunks();
     void                    TryArchiveLogSegments();
-    void                    OnChunkSerialize();
-    void                    OnChunkWrite();
-    void                    OnChunkMerge();
-    void                    OnLogArchive();
+    void                    OnChunkSerialize(StorageSerializeChunkJob* job);
+    void                    OnChunkWrite(StorageWriteChunkJob* job);
+    void                    OnChunkMerge(StorageMergeChunkJob* job);
+    void                    OnLogArchive(StorageArchiveLogSegmentJob* job);
     void                    OnBackgroundTimer();
     StorageShard*           GetShard(uint16_t contextID, uint64_t shardID);
-    void                    StartJob(ThreadPool* thread, StorageJob* job);
     void                    WriteTOC();
     StorageFileChunk*       GetFileChunk(uint64_t chunkID);
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
@@ -118,35 +120,19 @@ private:
     Countdown               backgroundTimer;
     Callable                onBackgroundTimer;
 
-    Callable                onCommitCallback;
-    Callable                onCommit;
-    Callable                onChunkSerialize;
-    Callable                onChunkWrite;
-    Callable                onChunkMerge;
-    Callable                onLogArchive;
-
     StorageLogSegment*      headLogSegment;
-    StorageMemoChunk*       serializeChunk;
-    StorageFileChunk*       writeChunk;
-    List<StorageFileChunk*> mergeChunks;
-    StorageFileChunk*       mergeChunkOut;
     ShardList               shards;
     FileChunkList           fileChunks;
     LogSegmentList          logSegments;
     StorageConfig           config;
     
-    ThreadPool*             commitThread;
-    bool                    commitThreadActive;
-    ThreadPool*             serializerThread;
-    bool                    serializerThreadActive;
-    bool                    serializerThreadReturnCode;
-    ThreadPool*             writerThread;
-    bool                    writerThreadActive;
-    bool                    writerThreadReturnCode;
-    ThreadPool*             mergerThread;
-    bool                    mergerThreadActive;
-    ThreadPool*             archiverThread;
-    bool                    archiverThreadActive;
+    Callable                onCommit;
+    JobProcessor            commitJobs;
+    JobProcessor            serializeChunkJobs;
+    JobProcessor            writeChunkJobs;
+    JobProcessor            mergeChunkJobs;
+    JobProcessor            archiveLogJobs;
+    JobProcessor            deleteChunkJobs;
     ThreadPool*             asyncThread;
     ThreadPool*             asyncGetThread;
 
@@ -157,10 +143,6 @@ private:
 
     uint64_t                nextChunkID;
     uint64_t                nextLogSegmentID;
-    uint64_t                asyncLogSegmentID;
-    uint64_t                asyncWriteChunkID;
-    uint16_t                mergeContextID;
-    uint64_t                mergeShardID;
     uint64_t                lastWriteTime;
     unsigned                numCursors;
     const char*             archiveScript;

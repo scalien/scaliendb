@@ -9,8 +9,6 @@ bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_
     env = env_;
     file = file_;
 
-    env->writerThreadReturnCode = false;
-
     if (fd.Open(file->GetFilename().GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND) == INVALID_FD)
         return false;
     
@@ -34,8 +32,6 @@ bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_
     FS_Sync(fd.GetFD());
 
     fd.Close();
-
-    env->writerThreadReturnCode = true;
 
     return true;
 }

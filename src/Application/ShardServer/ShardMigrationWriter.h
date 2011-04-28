@@ -63,7 +63,7 @@ private:
     ShardQuorumProcessor*   quorumProcessor;
     StorageEnvironment*     environment;
     StorageBulkCursor*      cursor;
-    StorageAsyncBulkCursor* asyncCursor;
+//    StorageAsyncBulkCursor* asyncCursor;
     StorageKeyValue*        kv;
     Countdown               onTimeout;
 };

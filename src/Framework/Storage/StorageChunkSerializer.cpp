@@ -9,8 +9,6 @@ bool StorageChunkSerializer::Serialize(StorageEnvironment* env_, StorageMemoChun
     PointerGuard<StorageFileChunk> fileGuard(new StorageFileChunk);
     env = env_;
     
-    env->serializerThreadReturnCode = false;
-    
     memoChunk = memoChunk_;
     fileChunk = P(fileGuard);
     
@@ -43,8 +41,6 @@ bool StorageChunkSerializer::Serialize(StorageEnvironment* env_, StorageMemoChun
     fileChunk->written = false;
     
     memoChunk->fileChunk = fileGuard.Release();
-    
-    env->serializerThreadReturnCode = true;
     
     return true;
 }
