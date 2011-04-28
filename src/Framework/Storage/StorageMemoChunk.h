@@ -28,16 +28,13 @@ class StorageMemoChunk : public StorageChunk
 public:
     typedef InTreeMap<StorageMemoKeyValue> KeyValueTree;
     
-    StorageMemoChunk();
+    StorageMemoChunk(uint64_t chunkID, bool useBloomFilter);
     ~StorageMemoChunk();
     
     ChunkState          GetChunkState();
     
     void                NextBunch(StorageBulkCursor& cursor, StorageShard* shard);
-    
-    void                SetChunkID(uint64_t chunkID);
-    void                SetUseBloomFilter(bool useBloomFilter);
-    
+        
     uint64_t            GetChunkID();
     bool                UseBloomFilter();
     

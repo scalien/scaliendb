@@ -836,7 +836,6 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
  ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter, bool isLogStorage)
 {
     StorageShard*       shard;
-    StorageMemoChunk*   memoChunk;
 
 // TODO
 //    if (headLogSegment->HasUncommitted())
@@ -859,11 +858,7 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
     shard->SetLogCommandID(headLogSegment->GetLogCommandID());
 
-    memoChunk = new StorageMemoChunk;
-    memoChunk->SetChunkID(nextChunkID++);
-    memoChunk->SetUseBloomFilter(useBloomFilter);
-
-    shard->PushMemoChunk(memoChunk);
+    shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, useBloomFilter));
 
     shards.Append(shard);
     
@@ -1032,12 +1027,10 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
     memoChunk = shard->GetMemoChunk();
 
-    newMemoChunk = new StorageMemoChunk;
-    newMemoChunk->chunkID = nextChunkID++;
+    newMemoChunk = new StorageMemoChunk(nextChunkID++, memoChunk->useBloomFilter);
     newMemoChunk->minLogSegmentID = memoChunk->minLogSegmentID;
     newMemoChunk->maxLogSegmentID = memoChunk->maxLogSegmentID;
     newMemoChunk->maxLogCommandID = memoChunk->maxLogCommandID;
-    newMemoChunk->useBloomFilter = memoChunk->useBloomFilter;
 
     FOREACH (itKeyValue, memoChunk->keyValues)
     {
@@ -1100,7 +1093,6 @@ void StorageEnvironment::TryFinalizeLogSegment()
 void StorageEnvironment::TrySerializeChunks()
 {
     Buffer                      tmp;
-    Job*                        job;
     StorageShard*               itShard;
     StorageMemoChunk*           memoChunk;
 
@@ -1128,14 +1120,8 @@ void StorageEnvironment::TrySerializeChunks()
          memoChunk->GetMinLogSegmentID() < (headLogSegment->GetLogSegmentID() - maxUnbackedLogSegments)
          ))
         {
-            job = new StorageSerializeChunkJob(this, memoChunk);
-            serializeChunkJobs.Execute(job);
-
-            memoChunk = new StorageMemoChunk;
-            memoChunk->SetChunkID(nextChunkID++);
-            memoChunk->SetUseBloomFilter(itShard->UseBloomFilter());
-            itShard->PushMemoChunk(memoChunk);
-
+            serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
+            itShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, itShard->UseBloomFilter()));
             return;
         }
     }
@@ -1179,6 +1165,7 @@ void StorageEnvironment::TryMergeChunks()
         mergeChunk->headerPage.SetChunkID(nextChunkID++);
         mergeChunk->headerPage.SetUseBloomFilter(itShard->UseBloomFilter());
         mergeChunk->SetFilename(chunkPath, mergeChunk->GetChunkID());
+
         job = new StorageMergeChunkJob(
          this, itShard->GetContextID(), itShard->GetShardID(),
          inputChunks, mergeChunk,

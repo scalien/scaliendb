@@ -20,14 +20,15 @@ static inline const ReadBuffer Key(const StorageFileKeyValue* kv)
     return kv->GetKey();
 }
 
-StorageMemoChunk::StorageMemoChunk()
+StorageMemoChunk::StorageMemoChunk(uint64_t chunkID_, bool useBloomFilter_)
 {
+    chunkID = chunkID;
+    useBloomFilter = useBloomFilter_;
+
     serialized = false;
-    chunkID = 0;
     minLogSegmentID = 0;
     maxLogSegmentID = 0;
     maxLogCommandID = 0;
-    useBloomFilter = false;
     size = 0;
     fileChunk = NULL;
     deleted = false;
@@ -98,15 +99,15 @@ void StorageMemoChunk::NextBunch(StorageBulkCursor& cursor, StorageShard* shard)
     }
 }
 
-void StorageMemoChunk::SetChunkID(uint64_t chunkID_)
-{
-    chunkID = chunkID_;
-}
-
-void StorageMemoChunk::SetUseBloomFilter(bool useBloomFilter_)
-{
-    useBloomFilter = useBloomFilter_;
-}
+//void StorageMemoChunk::SetChunkID(uint64_t chunkID_)
+//{
+//    chunkID = chunkID_;
+//}
+//
+//void StorageMemoChunk::SetUseBloomFilter(bool useBloomFilter_)
+//{
+//    useBloomFilter = useBloomFilter_;
+//}
 
 uint64_t StorageMemoChunk::GetChunkID()
 {
