@@ -337,6 +337,7 @@ void ShardQuorumProcessor::OnLeaseTimeout()
         }
     }
     
+    appendState.ownAppend = false;
     isPrimary = false;
     migrateShardID = 0;
     migrateNodeID = 0;
