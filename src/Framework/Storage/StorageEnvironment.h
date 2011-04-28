@@ -144,7 +144,6 @@ public:
 
     uint64_t                nextChunkID;
     uint64_t                nextLogSegmentID;
-    uint64_t                lastWriteTime;
     unsigned                numCursors;
     const char*             archiveScript;
     bool                    yieldThreads;

@@ -17,13 +17,13 @@ class StorageFileChunk;
 class StorageWriteChunkJob : public Job
 {
 public:
-    StorageWriteChunkJob(StorageEnvironment* env, StorageFileChunk* chunk);
+    StorageWriteChunkJob(StorageEnvironment* env, StorageFileChunk* writeChunk);
     
     void                Execute();
     void                OnComplete();
     
     StorageEnvironment* env;
-    StorageFileChunk*   fileChunk;
+    StorageFileChunk*   writeChunk;
 };
 
 #endif

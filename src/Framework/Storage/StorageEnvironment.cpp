@@ -46,7 +46,6 @@ StorageEnvironment::StorageEnvironment()
     
     nextChunkID = 1;
     nextLogSegmentID = 1;
-    lastWriteTime = 0;
     yieldThreads = false;
     shuttingDown = false;
     writingTOC = false;
@@ -962,7 +961,7 @@ bool StorageEnvironment::DeleteShard(uint16_t contextID, uint64_t shardID)
                 }
             }
             
-            if (writeChunkJobs.IsActive() && WRITECHUNKJOB->fileChunk == fileChunk)
+            if (writeChunkJobs.IsActive() && WRITECHUNKJOB->writeChunk == fileChunk)
             {
                 fileChunk->deleted = true;
                 goto Advance;
@@ -1316,23 +1315,18 @@ void StorageEnvironment::OnChunkSerialize(StorageSerializeChunkJob* job)
 
 void StorageEnvironment::OnChunkWrite(StorageWriteChunkJob* job)
 {
-    lastWriteTime = EventLoop::Now();
-
-    if (job->fileChunk->deleted)
+    if (!job->writeChunk->deleted)
     {
-        deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->fileChunk));
+        job->writeChunk->written = true;    
+        job->writeChunk->AddPagesToCache();
     }
     else
-    {
-        job->fileChunk->written = true;    
-        job->fileChunk->AddPagesToCache();
-    }
+        deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->writeChunk));
 
     WriteTOC();
     TryArchiveLogSegments();
     TryWriteChunks();
-    TryMergeChunks();
-    
+    TryMergeChunks();    
     delete job;
 }
 

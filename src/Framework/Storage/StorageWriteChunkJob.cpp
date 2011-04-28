@@ -3,10 +3,10 @@
 #include "StorageEnvironment.h"
 #include "StorageChunkWriter.h"
 
-StorageWriteChunkJob::StorageWriteChunkJob(StorageEnvironment* env_, StorageFileChunk* fileChunk_)
+StorageWriteChunkJob::StorageWriteChunkJob(StorageEnvironment* env_, StorageFileChunk* writeChunk_)
 {
     env = env_;
-    fileChunk = fileChunk_;
+    writeChunk = writeChunk_;
 }
 
 void StorageWriteChunkJob::Execute()
@@ -14,14 +14,14 @@ void StorageWriteChunkJob::Execute()
     StorageChunkWriter  writer;
     Stopwatch           sw;
 
-    Log_Debug("Writing chunk %U to file...", fileChunk->GetChunkID());
+    Log_Debug("Writing chunk %U to file...", writeChunk->GetChunkID());
     sw.Start();
-    ASSERT(writer.Write(env, fileChunk));
+    ASSERT(writer.Write(env, writeChunk));
     sw.Stop();
     Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
-     fileChunk->GetChunkID(),
-     (uint64_t) sw.Elapsed(), HUMAN_BYTES(fileChunk->GetSize()), 
-     HUMAN_BYTES(fileChunk->GetSize() / (sw.Elapsed() / 1000.0)));
+     writeChunk->GetChunkID(),
+     (uint64_t) sw.Elapsed(), HUMAN_BYTES(writeChunk->GetSize()), 
+     HUMAN_BYTES(writeChunk->GetSize() / (sw.Elapsed() / 1000.0)));
 }
 
 void StorageWriteChunkJob::OnComplete()
