@@ -295,6 +295,11 @@ class Client:
         if status != SDBP_SUCCESS:
             raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))            
     
+    def use(self, database, table=None):
+        self.use_database(database)
+        if table != None:
+            self.use_table(table)
+    
     def get(self, key):
         status, ret = self._data_command(SDBP_Get, key)
         if ret:
