@@ -111,4 +111,6 @@ class scaliendb_clientJNI {
   public final static native int SDBP_Cancel(long jarg1);
   public final static native boolean SDBP_IsBatched(long jarg1);
   public final static native void SDBP_SetTrace(boolean jarg1);
+  public final static native String SDBP_GetVersion();
+  public final static native String SDBP_GetDebugString();
 }
