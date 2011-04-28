@@ -29,6 +29,39 @@ def parse_args(args):
                 skip = True
     return defaults
 
+# helper function for measure timing
+def timer(func, *args):
+    starttime = time.time()
+    ret = func(*args)
+    endtime = time.time()
+    elapsed = "(%.02f secs)" % float(endtime-starttime)
+    print(elapsed)
+    return ret
+
+class Func:
+    def __init__(self, name, function):
+        self.name = name
+        self.function = function
+        self.__doc__ = self.function.__doc__
+        
+    def __call__(self, *args):
+        return self.function(*args)
+    
+    def __repr__(self):
+        if self.__doc__ == None:
+            return "For more info on " + self.name + ", see http://scalien.com/documentation"
+        return self.__doc__
+
+class TimerFunc(Func):
+    def __call__(self, *args):
+        try:
+            ret = timer(self.function, *args)
+            globals()["result"] = client.result
+            return ret
+        except scaliendb.Error as e:
+            print(e)    
+
+
 # helper function for trying to import other useful modules
 def try_import(name):
     try:
@@ -50,75 +83,57 @@ if try_import("readline"):
         # this works on Linux    
         readline.parse_and_bind("tab: complete")
 
+# import json module that is used with config state related functions
 if try_import("json"):
     def show_tables():
-        """ Show tables in current database """
+        """ Shows tables in current database """
         config = json.loads(client.get_json_config_state())
         for table in config["tables"]:
             if table["databaseID"] == client.get_current_database_id():
                 print("name: " + table["name"] + ", id: " + str(table["tableID"]))
     def show_quorums():
-        """ Show quorums """
+        """ Shows quorums """
         config = json.loads(client.get_json_config_state())
         for quorum in config["quorums"]:
             print("id: " + str(quorum["quorumID"]) + ", primaryID: " + str(quorum["primaryID"]) + ", paxosID: " + str(quorum["paxosID"]) +
              ", active nodes: " + str(quorum["activeNodes"]) + ", inactive nodes: " + str(quorum["inactiveNodes"]))
-    globals()["show_tables"] = show_tables
-    globals()["show_quorums"] = show_quorums
+    def show_databases():
+        """ Shows databases """
+        config = json.loads(client.get_json_config_state())
+        for database in config["databases"]:
+            print("name: " + database["name"] + ", id: " + str(database["databaseID"]))
+    globals()["show_tables"] = Func("show_tables", show_tables)
+    globals()["show_quorums"] = Func("show_quorums", show_quorums)
+    globals()["show_databases"] = Func("show_databases", show_databases)
 
 del try_import
     
+
 # helper function for making closures easier
 def closure(func, *args):
     return lambda: func(*args)
 
-# helper function for measure timing
-def timer(func, *args):
-    starttime = time.time()
-    ret = func(*args)
-    endtime = time.time()
-    elapsed = "(%.02f secs)" % float(endtime-starttime)
-    print(elapsed)
-    return ret
-
-class Func:
-    def __init__(self, name, function):
-        self.name = name
-        self.function = function
-        self.__doc__ = self.function.__doc__
-        
-    def __call__(self, *args):
-        try:
-            ret = timer(self.function, *args)
-            globals()["result"] = client.result
-            return ret
-        except scaliendb.Error as e:
-            print(e)
-    
-    def __repr__(self):
-        if self.__doc__ == None:
-            return "For more info on " + self.name + ", see http://scalien.com/documentation"
-        return self.__doc__
 
 # helper function for other connections
 def connect(nodes, database=None, table=None):
-    def timer_func(f):
-        def func(*args):
-            try:
-                ret = timer(f, *args)
-                globals()["result"] = client.result
-                return ret
-            except scaliendb.Error as e:
-                print(e)
-        return func
+    """
+    Connects to a cluster and optionally sets the database and table
+    to be used.
+    
+    Args:
+        nodes (string or list): the controller node(s) in "hostname:port" format
+        
+        database (string): the name of the database to be used (default=None)
+        
+        table (string): the name of the table to be used (default=None)
+    """
     client = scaliendb.Client(nodes)    
     globals()["client"] = client
     # import client's member functions to the global scope
     members = inspect.getmembers(client, inspect.ismethod)
     for name, func in members:
         if name[0] != "_":
-            #globals()[k] = timer_func(v)
-            globals()[name] = Func(name, func)
+            globals()[name] = TimerFunc(name, func)
     try:
         if database == None:
             return
@@ -129,10 +144,20 @@ def connect(nodes, database=None, table=None):
     except scaliendb.Error as e:
         print(e)
 
+
 # helper class for implementing 'shelp' command
 class SHelp:
     def __repr__(self):
-        output = "Use connect(nodes, database, table) to connect to the cluster\n"
+        output = "Client commands:\n\n"
+        members = inspect.getmembers(client, inspect.ismethod)
+        for name, func in members:
+            if name[0] != "_":
+                output += name + "\n"
+        output += "\n"
+        if globals().has_key("show_databases"):
+            output += "Use show_databases() to show databases\n"
+            output += "Use show_tables() to show tables in current database\n"            
+        output += "Use connect(nodes, database, table) to connect to the cluster\n"
         output += str(quit)
         return output
 
@@ -153,4 +178,5 @@ shelp = SHelp()
 
 # create default client
 defaults = parse_args(sys.argv)
+connect = Func("connect", connect)
 connect(defaults.nodes, defaults.database, defaults.table)
