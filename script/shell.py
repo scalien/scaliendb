@@ -52,6 +52,7 @@ if try_import("readline"):
 
 if try_import("json"):
     def show_tables():
+        """ Show tables in current database """
         config = json.loads(client.get_json_config_state())
         for table in config["tables"]:
             if table["databaseID"] == client.get_current_database_id():
@@ -73,6 +74,25 @@ def timer(func, *args):
     print(elapsed)
     return ret
 
+class Func:
+    def __init__(self, name, function):
+        self.name = name
+        self.function = function
+        self.__doc__ = self.function.__doc__
+        
+    def __call__(self, *args):
+        try:
+            ret = timer(f, *args)
+            globals()["result"] = client.result
+            return ret
+        except scaliendb.Error as e:
+            print(e)
+    
+    def __repr__(self):
+        if self.__doc__ == None:
+            return "For more info on " + self.name + ", see http://scalien.com/documentation"
+        return self.__doc__
+
 # helper function for other connections
 def connect(nodes, database=None, table=None):
     def timer_func(f):
@@ -88,9 +108,10 @@ def connect(nodes, database=None, table=None):
     globals()["client"] = client
     # import client's member functions to the global scope
     members = inspect.getmembers(client, inspect.ismethod)
-    for k, v in members:
-        if k[0] != "_":
-            globals()[k] = timer_func(v)
+    for name, func in members:
+        if name[0] != "_":
+            #globals()[k] = timer_func(v)
+            globals()[name] = Func(name, func)
     try:
         if database == None:
             return
