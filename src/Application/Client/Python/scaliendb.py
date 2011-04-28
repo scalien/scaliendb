@@ -166,30 +166,70 @@ class Client:
         SDBP_Destroy(self.cptr)
 
     def set_global_timeout(self, timeout):
+        """
+        Sets the global timeout
+        
+        Args:
+            timeout (long): the global timeout in milliseconds
+        """
         SDBP_SetGlobalTimeout(self.cptr, long(timeout))
     
     def get_global_timeout(self):
+        """ Returns the global timeout in milliseconds """
         return long(SDBP_GetGlobalTimeout(self.cptr))
     
     def set_master_timeout(self, timeout):
+        """
+        Sets the master timeout
+        
+        Args:
+            timeout (long): the master timeout in milliseconds
+        """
         SDBP_SetMasterTimeout(self.cptr, long(timeout))
     
     def get_master_timeout(self):
+        """ Returns the master timeout in milliseconds """
         return long(SDBP_GetMasterTimeout(self.cptr))
 
     def set_batch_limit(self, limit):
+        """
+        Sets batch limit
+        
+        Args:
+            limit (long): the maximum amount of bytes that could be put in a batch
+        """
         SDBP_SetBatchLimit(self.cptr, long(limit))
 
     def set_bulk_loading(self, bulk):
+        """
+        Turns bulk loading on or off
+        
+        Args:
+            bulk (bool): True on bulk loading, False otherwise
+        """    
         SDBP_SetBulkLoading(self.cptr, bulk)
 
     def set_consistency_level(self, consistency_level):
+        """
+        Sets the consistency level
+        
+        Args:
+            consistency_level (int): can be any of SDBP_CONSISTENCY_ANY, SDBP_CONSISTENCY_RYW,
+                                     or SDBP_CONSISTENCY_STRICT
+        """
         SDBP_SetConsistencyLevel(self.cptr, consistency_level)
 
     def get_json_config_state(self):
+        """ Returns the config state in JSON string """
         return SDBP_GetJSONConfigState(self.cptr)
 
     def create_quorum(self, nodes):
+        """
+        Creates a quorum
+        
+        Args:
+            nodes (list): the ids of the nodes that constitutes the quorum
+        """
         node_params = SDBP_NodeParams(len(nodes))
         for node in nodes:
             node_params.AddNode(str(node))
@@ -200,25 +240,57 @@ class Client:
         return self.result.number()
     
     def delete_quorum(self, quorum_id):
+        """
+        Deletes a quorum
+        
+        Args:
+            quorum_id (long): the id of the quorum
+        """
         status = SDBP_DeleteQuorum(self.cptr, quorum_id)
         self._check_status(status)
     
     def activate_node(self, node_id):
+        """
+        Activates a node
+        
+        Args:
+            node_id (long): the id of the node
+        """
         status = SDBP_ActivateNode(self.cptr, node_id)
         self._check_status(status)
     
     def create_database(self, name):
+        """
+        Creates a database
+        
+        Args:
+            name (string): the name of the database to be created
+        """
         status = SDBP_CreateDatabase(self.cptr, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         return self.result.number()
 
     def rename_database(self, src, dst):
+        """
+        Renames a database
+        
+        Args:
+            src (string): the name of the database to be renamed
+            
+            dst (string): the new name of the database
+        """
         database_id = self.get_database_id(src)
         status = SDBP_RenameDatabase(self.cptr, database_id, dst)
         self._check_status(status)
 
     def delete_database(self, name):
+        """
+        Deletes a database
+        
+        Args:
+            name (string): the name of the database
+        """
         database_id = self.get_database_id(name)
         status = SDBP_DeleteDatabase(self.cptr, database_id)
         self._check_status(status)
@@ -240,6 +312,14 @@ class Client:
         return self.result.number()
 
     def rename_table(self, src, dst):
+        """
+        Renames a table
+        
+        Args:
+            src (string): the name of the table to be renamed
+            
+            dst (string): the new name of the table
+        """
         database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database selected")
@@ -247,6 +327,14 @@ class Client:
         self.rename_table_by_id(table_id, dst)
 
     def rename_table_by_id(self, table_id, name):
+        """
+        Renames a table
+        
+        Args:
+            table_id (long): the id of the table to be renamed
+            
+            name (string): the new name of the table
+        """
         status = SDBP_RenameTable(self.cptr, table_id, name)
         if status < 0:
             if status == SDBP_FAILED:
@@ -254,6 +342,12 @@ class Client:
             raise Error(status)
 
     def delete_table(self, name):
+        """
+        Deletes a table
+        
+        Args:
+            name (string): the name of the table
+        """
         database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database selected")
@@ -261,6 +355,12 @@ class Client:
         self.delete_table_by_id(table_id)
 
     def delete_table_by_id(self, table_id):
+        """
+        Deletes a table
+        
+        Args:
+            table_id (long): the name of the table
+        """
         status = SDBP_DeleteTable(self.cptr, table_id)
         if status < 0:
             if status == SDBP_FAILED:
@@ -294,24 +394,46 @@ class Client:
             raise Error(status)
 
     def get_database_id(self, name):
+        """
+        Returns the id of a database
+        
+        Args:
+            name (string): the name of the database
+        """
         database_id = long(SDBP_GetDatabaseID(self.cptr, name))
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database found with name '%s'" % (name))
         return database_id
     
     def get_table_id(self, database_id, name):
+        """
+        Returns the id of a table
+        
+        Args:
+            database_id (long): the id of the database that contains the given table
+
+            name (string): the name of the table
+        """
         table_id = long(SDBP_GetTableID(self.cptr, database_id, name))
         if table_id == 0:
             raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))
         return table_id
     
     def get_current_database_id(self):
+        """ Returns the current database id """
         return long(SDBP_GetCurrentDatabaseID(self.cptr))
     
     def get_current_table_id(self):
+        """ Returns the current table id """
         return long(SDBP_GetCurrentTableID(self.cptr))
     
     def use_database(self, name):
+        """
+        Uses a database. All following operations will be executed on that database.
+        
+        Args:
+            name (string): the name of the database
+        """
         status = SDBP_UseDatabase(self.cptr, name)
         if status != SDBP_SUCCESS:
             if status == SDBP_NOSERVICE:
@@ -319,56 +441,141 @@ class Client:
             raise Error(status, "No database found with name '%s'" % (name))
     
     def use_table(self, name):
+        """
+        Uses a table. All following operations will be executed on that table.
+        
+        Args:
+            name (string): the name of the table
+        """
         status = SDBP_UseTable(self.cptr, name)
         if status != SDBP_SUCCESS:
             raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))            
     
     def use(self, database, table=None):
+        """
+        Uses a database and table. All following operations will be executed on that database and
+        table.
+        
+        Args:
+            database (string): the name of the database
+            
+            table (string): optional, the name of the table
+        """
         self.use_database(database)
         if table != None:
             self.use_table(table)
     
     def get(self, key):
+        """
+        Returns the value for a specified key
+        
+        Args:
+            key (string): the specified key
+        """
         status, ret = self._data_command(SDBP_Get, key)
         if ret:
             return self.result.value()
 
     def set(self, key, value):
+        """
+        Sets the value for a specified key
+        
+        Args:
+            key (string): the specified key
+            
+            value (string): the value to be set
+        """
         status, ret = self._data_command(SDBP_Set, key, value)
         if ret:
             return status
 
     def set_if_not_exists(self, key, value):
+        """
+        Sets the value for a specified key if the key did not exist previously
+        
+        Args:
+            key (string): the specified key
+            
+            value (string): the value to be set
+        """
         status, ret = self._data_command(SDBP_SetIfNotExists, key, value)
         if ret:
             return status
 
     def test_and_set(self, key, test, value):
+        """
+        Sets the value for a specified key if it matches a given test value
+        
+        Args:
+            key (string): the specified key
+            
+            test (string): the test value to be matched
+            
+            value (string): the value to be set
+        """
         status, ret = self._data_command(SDBP_TestAndSet, key, value)
         if ret:
             return status
 
     def get_and_set(self, key, value):
+        """
+        Returns the previous value for a specified key and sets a new value
+        
+        Args:
+            key (string): the specified key
+                        
+            value (string): the value to be set
+        """
         status, ret = self._data_command(SDBP_GetAndSet, key)
         if ret:
             return self.result.value()
         
     def add(self, key, value):
+        """
+        Adds a specified number to the given key and returns the new value
+        
+        Args:
+            key (string): the specified key
+                        
+            value (string): the value to be set
+        """
         status, ret = self._data_command(SDBP_Add, key)
         if ret:
             return self.result.number()
 
     def delete(self, key):
+        """
+        Deletes the specified key
+        
+        Args:
+            key (string): the specified key
+        """
         status, ret = self._data_command(SDBP_Delete, key)
         if ret:
             return status
 
     def remove(self, key):
+        """
+        Deletes the specified key and returns its previous value
+        
+        Args:
+            key (string): the specified key
+        """
         status, ret = self._data_command(SDBP_remove, key)
         if ret:
             return self.result.value()
 
     def list_keys(self, key="", count=0, offset=0):
+        """
+        Lists the keys of a table. Returns a list of strings.
+        
+        Args:
+            key (string): the key from where the listing starts (default="")
+            
+            count (long): the maximum number of keys to be returned (default=0)
+            
+            offset (long): start the listing at this offset (default=0)
+        """
         status = SDBP_ListKeys(self.cptr, key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:
@@ -381,6 +588,16 @@ class Client:
         return keys
 
     def list_key_values(self, key="", count=0, offset=0):
+        """
+        Lists the keys and values of a table. Returns a dict of key-value pairs.
+        
+        Args:
+            key (string): the key from where the listing starts (default="")
+            
+            count (long): the maximum number of keys to be returned (default=0)
+            
+            offset (long): start the listing at this offset (default=0)
+        """
         status = SDBP_ListKeyValues(self.cptr, key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:
@@ -393,6 +610,16 @@ class Client:
         return key_values
 
     def count(self, key="", count=0, offset=0):
+        """
+        Counts the number of items in a table. Returns the number of found items.
+        
+        Args:
+            key (string): the key from where the listing starts (default="")
+            
+            count (long): the maximum number of keys to be returned (default=0)
+            
+            offset (long): start the listing at this offset (default=0)
+        """
         status = SDBP_Count(self.cptr, key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:
@@ -400,9 +627,11 @@ class Client:
         return self.result.number()        
 
     def begin(self):
+        """ Starts batching operations """
         status = SDBP_Begin(self.cptr)
     
     def submit(self):
+        """ Sends the batched operations and waits until all is acknowledged """
         status = SDBP_Submit(self.cptr)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status == SDBP_PARTIAL:
@@ -412,9 +641,11 @@ class Client:
         return status
     
     def cancel(self):
+        """ Cancels the batching """
         return SDBP_Cancel(self.cptr)
     
     def is_batched(self):
+        """ Returns if batching is started """
         return SDBP_IsBatched(self.cptr)
         
     def _data_command(self, func, *args):
