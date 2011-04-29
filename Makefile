@@ -1,6 +1,6 @@
 ##############################################################################
 #
-# Keyspace Makefile
+# ScalienDB Makefile
 #
 ##############################################################################
 
@@ -13,16 +13,12 @@ all: release
 ##############################################################################
 
 BASE_DIR = .
-KEYSPACE_DIR = .
+SCALIENDB_DIR = .
 BIN_DIR = $(BASE_DIR)/bin
 
 VERSION = `$(BASE_DIR)/script/version.sh 3 $(SRC_DIR)/Version.h`
 VERSION_MAJOR = `$(BASE_DIR)/script/version.sh 1 $(SRC_DIR)/Version.h`
 VERSION_MAJMIN = `$(BASE_DIR)/script/version.sh 3 $(SRC_DIR)/Version.h`
-PACKAGE_NAME = scaliendb-server
-PACKAGE_DIR = $(BUILD_DIR)/packages
-PACKAGE_FILE = $(PACKAGE_NAME)-$(VERSION).deb
-PACKAGE_REPOSITORY = /var/www/debian.scalien.com/
 
 BUILD_ROOT = $(BASE_DIR)/build
 SRC_DIR = $(BASE_DIR)/src
@@ -30,8 +26,8 @@ SCRIPT_DIR = $(BASE_DIR)/script
 DEB_DIR = $(BUILD_ROOT)/deb
 DIST_DIR = $(BUILD_ROOT)/dist
 
-BUILD_DEBUG_DIR = $(BUILD_ROOT)/debug
-BUILD_RELEASE_DIR = $(BUILD_ROOT)/release
+BUILD_DEBUG_DIR = $(BUILD_ROOT)/mkdebug
+BUILD_RELEASE_DIR = $(BUILD_ROOT)/mkrelease
 
 INSTALL_BIN_DIR = /usr/local/bin
 INSTALL_LIB_DIR = /usr/local/lib
@@ -106,6 +102,7 @@ endif
 include Makefile.dirs
 include Makefile.objects
 include Makefile.clientlib
+include Makefile.packages
 
 OBJECTS = \
 	$(ALL_OBJECTS) \
@@ -467,37 +464,4 @@ distclean: clean distclean-libs
 distclean-libs: distclean-scaliendb
 
 distclean-scaliendb:
-	cd $(KEYSPACE_DIR); $(MAKE) distclean
-
-
-##############################################################################
-#
-# Build packages
-#
-##############################################################################
-
-# debian package
-deb: clean release
-	-mkdir -p $(DEB_DIR)/etc/init.d
-	-mkdir -p $(DEB_DIR)/etc/default
-	-mkdir -p $(DEB_DIR)/etc/scaliendb
-	-mkdir -p $(DEB_DIR)/usr/bin
-	-mkdir -p $(DEB_DIR)/DEBIAN
-	-$(SCRIPT_DIR)/debian/mkcontrol.sh $(DEB_DIR)/DEBIAN/control $(PACKAGE_NAME) $(VERSION) $(shell dpkg-architecture -qDEB_BUILD_ARCH)
-	-cp -fr $(SCRIPT_DIR)/debian/conffiles $(DEB_DIR)/DEBIAN
-	-cp -fr $(SCRIPT_DIR)/debian/postinst $(DEB_DIR)/DEBIAN
-	-cp -fr $(SCRIPT_DIR)/debian/scaliendb $(DEB_DIR)/etc/init.d
-	-cp -fr $(SCRIPT_DIR)/debian/default $(DEB_DIR)/etc/default/scaliendb
-	-cp -fr $(SCRIPT_DIR)/debian/shard.conf $(DEB_DIR)/etc/scaliendb
-	-cp -fr $(SCRIPT_DIR)/debian/controller.conf $(DEB_DIR)/etc/scaliendb
-	-cp -fr $(SCRIPT_DIR)/safe_scaliendb $(DEB_DIR)/usr/bin
-	-cp -fr $(BIN_DIR)/scaliendb $(DEB_DIR)/usr/bin
-	-mkdir -p $(DIST_DIR)
-	-rm -f $(DIST_DIR)/$(PACKAGE_FILE)
-	-cd $(DIST_DIR)
-	-fakeroot dpkg -b $(DEB_DIR) $(DIST_DIR)/$(PACKAGE_FILE)
-
-deb-install: deb
-	-mkdir -p $(PACKAGE_REPOSITORY)/conf
-	-cp -fr $(SCRIPT_DIR)/debian-distributions $(PACKAGE_REPOSITORY)/conf/distributions
-	-reprepro -Vb $(PACKAGE_REPOSITORY) includedeb etch $(DIST_DIR)/$(PACKAGE_FILE)
+	cd $(SCALIENDB_DIR); $(MAKE) distclean

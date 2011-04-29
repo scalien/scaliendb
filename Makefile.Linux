@@ -3,7 +3,7 @@
 #
 
 INCLUDE = \
-	-I$(KEYSPACE_DIR)/src \
+	-I$(SCALIENDB_DIR)/src \
 
 LDPATH = \
 
