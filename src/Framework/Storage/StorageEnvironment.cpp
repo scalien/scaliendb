@@ -1012,16 +1012,13 @@ void StorageEnvironment::TryWriteChunks()
 
     FOREACH (itFileChunk, fileChunks)
     {
-        if (itFileChunk->GetChunkState() == StorageChunk::Unwritten)
+        if ((itFileChunk->GetChunkState() == StorageChunk::Unwritten) &&
+            ((itFileChunk->GetMaxLogSegmentID() < headLogSegment->GetLogSegmentID()) ||
+             (itFileChunk->GetMaxLogSegmentID() == headLogSegment->GetLogSegmentID() &&
+              itFileChunk->GetMaxLogCommandID() <= headLogSegment->GetCommitedLogCommandID())))
         {
-            // only write if all writes in this chunk have been commited
-            if ((itFileChunk->GetMaxLogSegmentID() < headLogSegment->GetLogSegmentID()) ||
-                (itFileChunk->GetMaxLogSegmentID() == headLogSegment->GetLogSegmentID() &&
-                 itFileChunk->GetMaxLogCommandID() <= headLogSegment->GetCommitedLogCommandID()))
-            {
-                writeChunkJobs.Execute(new StorageWriteChunkJob(this, itFileChunk));
-                return;
-            }
+            writeChunkJobs.Execute(new StorageWriteChunkJob(this, itFileChunk));
+            return;
         }
     }
 }
