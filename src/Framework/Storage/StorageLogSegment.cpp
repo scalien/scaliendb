@@ -9,6 +9,7 @@ StorageLogSegment::StorageLogSegment()
     logSegmentID = 0;
     fd = INVALID_FD;
     logCommandID = 1;
+    commitedLogCommandID = 0;
     prevContextID = 0;
     prevShardID = 0;
     writeShardID = true;
@@ -216,6 +217,7 @@ void StorageLogSegment::Commit()
     FS_Sync(fd);
     
     NewRound();
+    commitedLogCommandID = logCommandID - 1;
     
     if (asyncCommit)
         IOProcessor::Complete(onCommit);
@@ -229,6 +231,11 @@ bool StorageLogSegment::GetCommitStatus()
 bool StorageLogSegment::HasUncommitted()
 {
     return (writeBuffer.GetLength() > STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+}
+
+uint32_t StorageLogSegment::GetCommitedLogCommandID()
+{
+    return commitedLogCommandID;
 }
 
 uint64_t StorageLogSegment::GetOffset()

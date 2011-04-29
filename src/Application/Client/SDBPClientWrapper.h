@@ -65,6 +65,7 @@ uint64_t        SDBP_ResultTableID(ResultObj result);
 void            SDBP_ResultBegin(ResultObj result);
 void            SDBP_ResultNext(ResultObj result);
 bool            SDBP_ResultIsEnd(ResultObj result);
+bool            SDBP_ResultIsFinished(ResultObj result);
 int             SDBP_ResultTransportStatus(ResultObj result);
 int             SDBP_ResultCommandStatus(ResultObj result);
 unsigned        SDBP_ResultNumNodes(ResultObj result);
@@ -166,6 +167,9 @@ int             SDBP_CountCStr(
                  ClientObj client,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen,
                  unsigned count, unsigned offset);
+
+uint64_t        SDBP_Filter(ClientObj client, const std::string& key, unsigned count, unsigned offset);
+int             SDBP_Receive(ClientObj client, uint64_t commandID);
 
 /*
 ===============================================================================================

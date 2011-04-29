@@ -150,7 +150,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     if (!req)
         return false;
 
-//    Log_Trace("%U", resp->commandID);    
+    Log_Trace("%c %U", resp->type, resp->commandID);    
 
     req->responseTime = EventLoop::Now();
 
@@ -330,6 +330,8 @@ void Result::HandleRequestResponse(Request* req, ClientResponse* resp)
         // HACK for enabling Filter to work
         if (req->async)
             numCompleted = requests.GetCount();
+
+        Log_Trace("async: %b, numCompleted: %u, requests: %u", req->async, numCompleted, requests.GetCount());
 
         // make a copy of the response as MessageConnection reuses the response object
         respCopy = new ClientResponse;

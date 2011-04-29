@@ -99,6 +99,9 @@ class Client:
         def is_end(self):
             return SDBP_ResultIsEnd(self.cptr)
         
+        def is_finished(self):
+            return SDBP_ResultIsFinished(self.cptr)
+        
         def next(self):
             if self.is_end():
                 raise StopIteration
@@ -141,6 +144,17 @@ class Client:
                 kv[self.key()] = self.value()
                 self.next()
             return kv
+            
+        def map(self, mapfunc):
+            num = 0
+            last_key = None
+            self.begin()
+            while not self.is_end():
+                last_key = self.key()
+                mapfunc(self.key(), self.value())
+                self.next()
+                num += 1
+            return num, last_key
     
     def __init__(self, nodes):
         self.cptr = SDBP_Create()
@@ -453,8 +467,7 @@ class Client:
     
     def use(self, database, table=None):
         """
-        Uses a database and table. All following operations will be executed on that database and
-        table.
+        Uses a database and table.
         
         Args:
             database (string): the name of the database
@@ -668,7 +681,7 @@ class Client:
         if status < 0:
             raise Error(status)
 
-def set_trace(trace):
+def set_trace(trace=True):
     SDBP_SetTrace(trace)
 
 def get_version():
@@ -718,4 +731,3 @@ class Loader:
         if self.bytes_batch > self.granularity:
             self.submit()
             self.begin()
-

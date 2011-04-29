@@ -148,7 +148,9 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     {
         if (request->commandID == response.commandID)
         {
-            if (response.type != CLIENTRESPONSE_LIST_KEYS && 
+            // TODO: async is broken here somehow
+            if (
+             response.type != CLIENTRESPONSE_LIST_KEYS && 
              response.type != CLIENTRESPONSE_LIST_KEYVALUES &&
              !(request->type == CLIENTREQUEST_COUNT && response.type == CLIENTRESPONSE_NUMBER))
             {

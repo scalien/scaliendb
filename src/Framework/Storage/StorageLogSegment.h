@@ -48,6 +48,7 @@ public:
     void                Commit();
     bool                GetCommitStatus();
     bool                HasUncommitted();
+    uint32_t            GetCommitedLogCommandID();
 
     uint64_t            GetOffset();
     
@@ -60,6 +61,7 @@ private:
     FD                  fd;
     uint64_t            logSegmentID;
     uint32_t            logCommandID;
+    uint32_t            commitedLogCommandID;
     uint64_t            syncGranularity;
     uint64_t            offset;
     uint64_t            lastSyncOffset;

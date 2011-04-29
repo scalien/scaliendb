@@ -106,6 +106,11 @@ if try_import("json"):
     globals()["show_quorums"] = Func("show_quorums", show_quorums)
     globals()["show_databases"] = Func("show_databases", show_databases)
 
+if try_import("scaliendb_mapred"):
+    def map_reduce(mapred):
+        return scaliendb_mapred.map_reduce(client, mapred)
+    globals()["map_reduce"] = map_reduce
+
 del try_import
     
 
@@ -152,7 +157,12 @@ class SHelp:
         members = inspect.getmembers(client, inspect.ismethod)
         for name, func in members:
             if name[0] != "_":
-                output += name + "\n"
+                if func.__doc__ != None:
+                    pad = "".join([" " for x in xrange(30 - len(name))])
+                    doc = func.__doc__.lstrip().split("\n")[0]
+                    output += name + pad + doc + "\n"
+                else:
+                    output += name + "\n"
         output += "\n"
         if globals().has_key("show_databases"):
             output += "Use show_databases() to show databases\n"

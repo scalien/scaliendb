@@ -50,7 +50,6 @@ void ControllerConnection::Send(ClientRequest* request)
 
     SDBPRequestMessage  msg;
 
-    // TODO: ClientRequest::nodeID is missing
     msg.request = request;
     Write(msg);
 }

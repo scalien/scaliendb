@@ -459,8 +459,6 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     }
     memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
 
-//    haveUncommitedWrites = true;
-
     return true;
 }
 
@@ -493,8 +491,6 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     }
     memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
 
-//  haveUncommitedWrites = true;
-    
     return true;
 }
 
@@ -953,11 +949,6 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
 void StorageEnvironment::OnCommit(StorageCommitJob* job)
 {
-    StorageShard*   shard;    
-        
-    FOREACH (shard, shards)
-        shard->GetMemoChunk()->haveUncommitedWrites = false;
-
     TryFinalizeLogSegment();
     TrySerializeChunks();
     
@@ -990,19 +981,13 @@ void StorageEnvironment::TrySerializeChunks()
     if (serializeChunkJobs.IsActive())
         return;
 
-//    if (haveUncommitedWrites)
-//        return;
-
     FOREACH (itShard, shards)
     {
         if (itShard->IsLogStorage())
             continue; // never serialize log storage shards
         
         memoChunk = itShard->GetMemoChunk();
-        
-        if (memoChunk->haveUncommitedWrites)
-            continue;
-        
+                
         if (
          memoChunk->GetSize() > config.chunkSize ||
          (
@@ -1027,7 +1012,10 @@ void StorageEnvironment::TryWriteChunks()
 
     FOREACH (itFileChunk, fileChunks)
     {
-        if (itFileChunk->GetChunkState() == StorageChunk::Unwritten)
+        if ((itFileChunk->GetChunkState() == StorageChunk::Unwritten) &&
+            ((itFileChunk->GetMaxLogSegmentID() < headLogSegment->GetLogSegmentID()) ||
+             (itFileChunk->GetMaxLogSegmentID() == headLogSegment->GetLogSegmentID() &&
+              itFileChunk->GetMaxLogCommandID() <= headLogSegment->GetCommitedLogCommandID())))
         {
             writeChunkJobs.Execute(new StorageWriteChunkJob(this, itFileChunk));
             return;
