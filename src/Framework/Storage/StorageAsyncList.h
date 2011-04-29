@@ -67,6 +67,7 @@ public:
 
     unsigned                count;
     unsigned                offset;
+    ReadBuffer              endKey;
     Type                    type;
     
     bool                    ret;

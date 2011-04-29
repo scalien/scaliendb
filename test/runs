@@ -1,14 +1,24 @@
 #!/bin/bash
 
+if [ $(uname) = "Darwin" ]; then
+	if [ "$SCALIENDB_RELEASE" = "1" ]; then
+		BIN=build/Release/ScalienDB
+	else
+		BIN=build/Debug/ScalienDB
+	fi
+else
+	if [ "$SCALIENDB_RELEASE" = "1" ]; then
+		BIN=build/mkrelease/scaliendb
+	else
+		BIN=build/mkdebug/scaliendb
+	fi	
+fi
+
 DIR=$1
 shift
 echo -n -e "\033]0;D$DIR\007"
-if [ "$SCALIENDB_RELEASE" = "1" ]; then
-	build/Release/ScalienDB test/shard/$DIR/scaliendb.conf $*
+if [ "$1" = "-g" ]; then
+	echo "r test/shard/$DIR/scaliendb.conf $*" | gdb $BIN
 else
-	if [ "$1" = "-g" ]; then
-		echo "r test/shard/$DIR/scaliendb.conf $*" | gdb build/Debug/ScalienDB 
-	else
-		build/Debug/ScalienDB test/shard/$DIR/scaliendb.conf $*		
-	fi
+	$BIN test/shard/$DIR/scaliendb.conf $*		
 fi

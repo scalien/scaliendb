@@ -369,36 +369,42 @@ bool ClientRequest::Remove(
 }
 
 bool ClientRequest::ListKeys(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& startKey_, unsigned count_, unsigned offset_)
+ uint64_t commandID_, uint64_t tableID_, 
+ ReadBuffer& startKey_, ReadBuffer& endKey_, unsigned count_, unsigned offset_)
 {
     type = CLIENTREQUEST_LIST_KEYS;
     commandID = commandID_;
     tableID = tableID_;
     key.Write(startKey_);
+    endKey.Write(endKey_);
     count = count_;
     offset = offset_;
     return true;
 }
 
 bool ClientRequest::ListKeyValues(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& startKey_, unsigned count_, unsigned offset_)
+ uint64_t commandID_, uint64_t tableID_,
+ ReadBuffer& startKey_, ReadBuffer& endKey_, unsigned count_, unsigned offset_)
 {
     type = CLIENTREQUEST_LIST_KEYVALUES;
     commandID = commandID_;
     tableID = tableID_;
     key.Write(startKey_);
+    endKey.Write(endKey_);
     count = count_;
     offset = offset_;
     return true;
 }
 
 bool ClientRequest::Count(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& startKey_, unsigned count_, unsigned offset_)
+ uint64_t commandID_, uint64_t tableID_,
+ ReadBuffer& startKey_, ReadBuffer& endKey_, unsigned count_, unsigned offset_)
 {
     type = CLIENTREQUEST_COUNT;
     commandID = commandID_;
     tableID = tableID_;
     key.Write(startKey_);
+    endKey.Write(endKey_);
     count = count_;
     offset = offset_;
     return true;

@@ -190,6 +190,9 @@ void StorageAsyncList::AsyncMergeResult()
         if (it == NULL)
             break;
         
+        if (STORAGE_KEY_GREATER_THAN(it->GetKey(), endKey))
+            break;
+        
         if (offset > 0)
         {
             offset--;

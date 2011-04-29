@@ -726,58 +726,73 @@ int SDBP_RemoveCStr(ClientObj client_, char* key_, int len)
     return client->Remove(key);
 }
 
-int SDBP_ListKeys(ClientObj client_, const std::string& key_, unsigned count, unsigned offset)
+int SDBP_ListKeys(ClientObj client_, 
+ const std::string& key_, const std::string& endKey_, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  endKey((char*) endKey_.c_str(), endKey_.length());
 
-    return client->ListKeys(key, count, offset);
+    return client->ListKeys(key, endKey, count, offset);
 }
 
-int SDBP_ListKeysCStr(ClientObj client_, char* key_, int len, unsigned count, unsigned offset)
+int SDBP_ListKeysCStr(ClientObj client_, 
+ char* key_, int keyLen, char* endKey_, int endKeyLen, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;
+    ReadBuffer  endKey;
 
-    key.Wrap((char*) key_, len);
+    key.Wrap((char*) key_, keyLen);
+    endKey.Wrap((char*) endKey_, endKeyLen);
 
-    return client->ListKeys(key, count, offset);
+    return client->ListKeys(key, endKey, count, offset);
 }
 
-int SDBP_ListKeyValues(ClientObj client_, const std::string& key_, unsigned count, unsigned offset)
+int SDBP_ListKeyValues(ClientObj client_, 
+ const std::string& key_, const std::string& endKey_, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  endKey((char*) endKey_.c_str(), endKey_.length());
 
-    return client->ListKeyValues(key, count, offset);
+    return client->ListKeyValues(key, endKey, count, offset);
 }
 
-int SDBP_ListKeyValuesCStr(ClientObj client_, char* key_, int len, unsigned count, unsigned offset)
+int SDBP_ListKeyValuesCStr(ClientObj client_, 
+ char* key_, int keyLen, char* endKey_, int endKeyLen, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;
+    ReadBuffer  endKey;
 
-    key.Wrap((char*) key_, len);
+    key.Wrap((char*) key_, keyLen);
+    endKey.Wrap((char*) endKey_, endKeyLen);
 
-    return client->ListKeyValues(key, count, offset);
+    return client->ListKeyValues(key, endKey, count, offset);
 }
 
-int SDBP_Count(ClientObj client_, const std::string& key_, unsigned count, unsigned offset)
+int SDBP_Count(ClientObj client_, 
+ const std::string& key_, const std::string& endKey_, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  endKey((char*) endKey_.c_str(), endKey_.length());
 
-    return client->Count(key, count, offset);
+    return client->Count(key, endKey, count, offset);
 }
 
-int SDBP_CountCStr(ClientObj client_, char* key_, int len, unsigned count, unsigned offset)
+int SDBP_CountCStr(ClientObj client_,
+ char* key_, int keyLen, char* endKey_, int endKeyLen, unsigned count, unsigned offset)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;
+    ReadBuffer  endKey;
 
-    key.Wrap((char*) key_, len);
+    key.Wrap((char*) key_, keyLen);
+    endKey.Wrap((char*) endKey_, endKeyLen);
 
-    return client->Count(key, count, offset);
+    return client->Count(key, endKey, count, offset);
 }
 
 /*

@@ -765,6 +765,7 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.total = 0;
         asyncList.num = 0;
         asyncList.request = itRequest;
+        asyncList.endKey = itRequest->endKey;
         asyncList.count = itRequest->count;
         asyncList.offset = itRequest->offset;
         asyncList.shardFirstKey.Write(itRequest->key);

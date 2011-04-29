@@ -224,6 +224,7 @@ TEST_DEFINE(TestClientListKeys)
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
+    ReadBuffer      endKey;
     char            keybuf[33];
     int             ret;
         
@@ -242,7 +243,7 @@ TEST_DEFINE(TestClientListKeys)
     
     ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
 //    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(key, 3000, 4000);
+    ret = client.ListKeys(key, endKey, 3000, 4000);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -1591,7 +1592,7 @@ TEST_DEFINE(TestClientFilter)
     TEST(SetupDefaultClient(client));
     
     // filter through all key-values in the database
-    TEST(client.Filter("", 1000*1000*1000, 0, commandID));
+    TEST(client.Filter("", "", 1000*1000*1000, 0, commandID));
 
     do
     {
@@ -1626,6 +1627,7 @@ TEST_DEFINE(TestClientFilter2)
     ReadBuffer      key;
     ReadBuffer      value;
     Buffer          lastKey;
+    Buffer          endKey;
     unsigned        offset;
     unsigned        num;
     
@@ -1639,7 +1641,7 @@ TEST_DEFINE(TestClientFilter2)
         else
             offset = 1;
 
-        TEST(client.ListKeys(lastKey, 1000, offset));
+        TEST(client.ListKeys(lastKey, endKey, 1000, offset));
         
         result = client.GetResult();
         num = 0;
@@ -1670,7 +1672,7 @@ TEST_DEFINE(TestClientCount)
     uint64_t        number;
     
     TEST(SetupDefaultClient(client));
-    TEST(client.Count("", 0, 0));
+    TEST(client.Count("", "", 0, 0));
     
     result = client.GetResult();
     TEST(result->GetNumber(number));

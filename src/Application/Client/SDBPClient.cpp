@@ -544,22 +544,27 @@ int Client::Remove(const ReadBuffer& key)
     CLIENT_DATA_COMMAND(Remove, (ReadBuffer&) key);
 }
 
-int Client::ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset)
+int Client::ListKeys(
+ const ReadBuffer& startKey, const ReadBuffer& endKey, unsigned count, unsigned offset)
 {
-    CLIENT_DATA_COMMAND(ListKeys, (ReadBuffer&) startKey, count, offset);
+    CLIENT_DATA_COMMAND(ListKeys, (ReadBuffer&) startKey, (ReadBuffer&) endKey, count, offset);
 }
 
-int Client::ListKeyValues(const ReadBuffer& startKey, unsigned count, unsigned offset)
+int Client::ListKeyValues(
+ const ReadBuffer& startKey, const ReadBuffer& endKey, unsigned count, unsigned offset)
 {
-    CLIENT_DATA_COMMAND(ListKeyValues, (ReadBuffer&) startKey, count, offset);
+    CLIENT_DATA_COMMAND(ListKeyValues, (ReadBuffer&) startKey, (ReadBuffer&) endKey, count, offset);
 }
 
-int Client::Count(const ReadBuffer& startKey, unsigned count, unsigned offset)
+int Client::Count(
+ const ReadBuffer& startKey, const ReadBuffer& endKey, unsigned count, unsigned offset)
 {
-    CLIENT_DATA_COMMAND(Count, (ReadBuffer&) startKey, count, offset);
+    CLIENT_DATA_COMMAND(Count, (ReadBuffer&) startKey, (ReadBuffer&) endKey, count, offset);
 }
 
-int Client::Filter(const ReadBuffer& startKey, unsigned count, unsigned offset, uint64_t& commandID)
+int Client::Filter(
+ const ReadBuffer& startKey, const ReadBuffer& endKey, 
+ unsigned count, unsigned offset, uint64_t& commandID)
 {
     Request*    req;                                
     
@@ -573,7 +578,8 @@ int Client::Filter(const ReadBuffer& startKey, unsigned count, unsigned offset, 
     
     commandID = NextCommandID();
     req = new Request;
-    req->ListKeyValues(commandID, tableID, (ReadBuffer&) startKey, count, offset);
+    req->ListKeyValues(commandID, tableID, 
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, count, offset);
     req->async = true;
     requests.Append(req);
         
@@ -589,6 +595,7 @@ int Client::Receive(uint64_t commandID)
 {
     Request*    req;
     ReadBuffer  key;
+    ReadBuffer  endKey;
     
     CLIENT_MUTEX_GUARD_DECLARE();                   
     
@@ -600,7 +607,7 @@ int Client::Receive(uint64_t commandID)
     
     // create dummy request
     req = new Request;
-    req->ListKeyValues(commandID, 0, key, 0, 0);
+    req->ListKeyValues(commandID, 0, key, endKey, 0, 0);
     req->async = true;
 
     result->Close();                                
@@ -751,7 +758,7 @@ Request* Client::CreateGetConfigState()
 
 void Client::SetMaster(int64_t master_, uint64_t nodeID)
 {
-    Log_Trace("known master: %d, set master: %d, nodeID: %d", (int) master, (int) master_, (int) nodeID);
+    Log_Trace("known master: %I, set master: %I, nodeID: %U", master, master_, nodeID);
     
     if (master_ == (int64_t) nodeID)
     {
@@ -1316,7 +1323,8 @@ void Client::OnControllerDisconnected(ControllerConnection* conn)
         SetMaster(-1, conn->GetNodeID());
 }
 
-unsigned Client::GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* conn, ConfigQuorum* quorum)
+unsigned Client::GetMaxQuorumRequests(
+ RequestList* qrequests, ShardConnection* conn, ConfigQuorum* quorum)
 {
     unsigned            maxRequests;
     unsigned            totalRequests;

@@ -7062,21 +7062,24 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeys(PyObject *SWIGUNUSEDPARM(self), PyObjec
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
-  unsigned int arg3 ;
+  std::string *arg3 = 0 ;
   unsigned int arg4 ;
+  unsigned int arg5 ;
   int result;
   int res1 ;
   int res2 = SWIG_OLDOBJ ;
-  unsigned int val3 ;
-  int ecode3 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
   unsigned int val4 ;
   int ecode4 = 0 ;
+  unsigned int val5 ;
+  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ListKeys",4,4,&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ListKeys",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ListKeys" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -7092,22 +7095,35 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeys(PyObject *SWIGUNUSEDPARM(self), PyObjec
     }
     arg2 = ptr;
   }
-  ecode3 = SWIG_AsVal_unsigned_SS_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_ListKeys" "', argument " "3"" of type '" "unsigned int""'");
-  } 
-  arg3 = static_cast< unsigned int >(val3);
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SDBP_ListKeys" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_ListKeys" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
   ecode4 = SWIG_AsVal_unsigned_SS_int(obj3, &val4);
   if (!SWIG_IsOK(ecode4)) {
     SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SDBP_ListKeys" "', argument " "4"" of type '" "unsigned int""'");
   } 
   arg4 = static_cast< unsigned int >(val4);
-  result = (int)SDBP_ListKeys(arg1,(std::string const &)*arg2,arg3,arg4);
+  ecode5 = SWIG_AsVal_unsigned_SS_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_ListKeys" "', argument " "5"" of type '" "unsigned int""'");
+  } 
+  arg5 = static_cast< unsigned int >(val5);
+  result = (int)SDBP_ListKeys(arg1,(std::string const &)*arg2,(std::string const &)*arg3,arg4,arg5);
   resultobj = SWIG_From_int(static_cast< int >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return NULL;
 }
 
@@ -7117,8 +7133,10 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeysCStr(PyObject *SWIGUNUSEDPARM(self), PyO
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
   int arg3 ;
-  unsigned int arg4 ;
-  unsigned int arg5 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  unsigned int arg6 ;
+  unsigned int arg7 ;
   int result;
   int res1 ;
   int res2 ;
@@ -7126,17 +7144,24 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeysCStr(PyObject *SWIGUNUSEDPARM(self), PyO
   int alloc2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
-  unsigned int val4 ;
-  int ecode4 = 0 ;
-  unsigned int val5 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int val5 ;
   int ecode5 = 0 ;
+  unsigned int val6 ;
+  int ecode6 = 0 ;
+  unsigned int val7 ;
+  int ecode7 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ListKeysCStr",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ListKeysCStr",7,7,&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ListKeysCStr" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -7151,22 +7176,34 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeysCStr(PyObject *SWIGUNUSEDPARM(self), PyO
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_ListKeysCStr" "', argument " "3"" of type '" "int""'");
   } 
   arg3 = static_cast< int >(val3);
-  ecode4 = SWIG_AsVal_unsigned_SS_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SDBP_ListKeysCStr" "', argument " "4"" of type '" "unsigned int""'");
-  } 
-  arg4 = static_cast< unsigned int >(val4);
-  ecode5 = SWIG_AsVal_unsigned_SS_int(obj4, &val5);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SDBP_ListKeysCStr" "', argument " "4"" of type '" "char *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_ListKeysCStr" "', argument " "5"" of type '" "unsigned int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_ListKeysCStr" "', argument " "5"" of type '" "int""'");
   } 
-  arg5 = static_cast< unsigned int >(val5);
-  result = (int)SDBP_ListKeysCStr(arg1,arg2,arg3,arg4,arg5);
+  arg5 = static_cast< int >(val5);
+  ecode6 = SWIG_AsVal_unsigned_SS_int(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "SDBP_ListKeysCStr" "', argument " "6"" of type '" "unsigned int""'");
+  } 
+  arg6 = static_cast< unsigned int >(val6);
+  ecode7 = SWIG_AsVal_unsigned_SS_int(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "SDBP_ListKeysCStr" "', argument " "7"" of type '" "unsigned int""'");
+  } 
+  arg7 = static_cast< unsigned int >(val7);
+  result = (int)SDBP_ListKeysCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   resultobj = SWIG_From_int(static_cast< int >(result));
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return resultobj;
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return NULL;
 }
 
@@ -7175,21 +7212,24 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeyValues(PyObject *SWIGUNUSEDPARM(self), Py
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
-  unsigned int arg3 ;
+  std::string *arg3 = 0 ;
   unsigned int arg4 ;
+  unsigned int arg5 ;
   int result;
   int res1 ;
   int res2 = SWIG_OLDOBJ ;
-  unsigned int val3 ;
-  int ecode3 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
   unsigned int val4 ;
   int ecode4 = 0 ;
+  unsigned int val5 ;
+  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ListKeyValues",4,4,&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ListKeyValues",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ListKeyValues" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -7205,22 +7245,35 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeyValues(PyObject *SWIGUNUSEDPARM(self), Py
     }
     arg2 = ptr;
   }
-  ecode3 = SWIG_AsVal_unsigned_SS_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_ListKeyValues" "', argument " "3"" of type '" "unsigned int""'");
-  } 
-  arg3 = static_cast< unsigned int >(val3);
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SDBP_ListKeyValues" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_ListKeyValues" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
   ecode4 = SWIG_AsVal_unsigned_SS_int(obj3, &val4);
   if (!SWIG_IsOK(ecode4)) {
     SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SDBP_ListKeyValues" "', argument " "4"" of type '" "unsigned int""'");
   } 
   arg4 = static_cast< unsigned int >(val4);
-  result = (int)SDBP_ListKeyValues(arg1,(std::string const &)*arg2,arg3,arg4);
+  ecode5 = SWIG_AsVal_unsigned_SS_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_ListKeyValues" "', argument " "5"" of type '" "unsigned int""'");
+  } 
+  arg5 = static_cast< unsigned int >(val5);
+  result = (int)SDBP_ListKeyValues(arg1,(std::string const &)*arg2,(std::string const &)*arg3,arg4,arg5);
   resultobj = SWIG_From_int(static_cast< int >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return NULL;
 }
 
@@ -7230,8 +7283,10 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeyValuesCStr(PyObject *SWIGUNUSEDPARM(self)
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
   int arg3 ;
-  unsigned int arg4 ;
-  unsigned int arg5 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  unsigned int arg6 ;
+  unsigned int arg7 ;
   int result;
   int res1 ;
   int res2 ;
@@ -7239,17 +7294,24 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeyValuesCStr(PyObject *SWIGUNUSEDPARM(self)
   int alloc2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
-  unsigned int val4 ;
-  int ecode4 = 0 ;
-  unsigned int val5 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int val5 ;
   int ecode5 = 0 ;
+  unsigned int val6 ;
+  int ecode6 = 0 ;
+  unsigned int val7 ;
+  int ecode7 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ListKeyValuesCStr",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ListKeyValuesCStr",7,7,&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ListKeyValuesCStr" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -7264,22 +7326,34 @@ SWIGINTERN PyObject *_wrap_SDBP_ListKeyValuesCStr(PyObject *SWIGUNUSEDPARM(self)
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_ListKeyValuesCStr" "', argument " "3"" of type '" "int""'");
   } 
   arg3 = static_cast< int >(val3);
-  ecode4 = SWIG_AsVal_unsigned_SS_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SDBP_ListKeyValuesCStr" "', argument " "4"" of type '" "unsigned int""'");
-  } 
-  arg4 = static_cast< unsigned int >(val4);
-  ecode5 = SWIG_AsVal_unsigned_SS_int(obj4, &val5);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SDBP_ListKeyValuesCStr" "', argument " "4"" of type '" "char *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_ListKeyValuesCStr" "', argument " "5"" of type '" "unsigned int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_ListKeyValuesCStr" "', argument " "5"" of type '" "int""'");
   } 
-  arg5 = static_cast< unsigned int >(val5);
-  result = (int)SDBP_ListKeyValuesCStr(arg1,arg2,arg3,arg4,arg5);
+  arg5 = static_cast< int >(val5);
+  ecode6 = SWIG_AsVal_unsigned_SS_int(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "SDBP_ListKeyValuesCStr" "', argument " "6"" of type '" "unsigned int""'");
+  } 
+  arg6 = static_cast< unsigned int >(val6);
+  ecode7 = SWIG_AsVal_unsigned_SS_int(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "SDBP_ListKeyValuesCStr" "', argument " "7"" of type '" "unsigned int""'");
+  } 
+  arg7 = static_cast< unsigned int >(val7);
+  result = (int)SDBP_ListKeyValuesCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   resultobj = SWIG_From_int(static_cast< int >(result));
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return resultobj;
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return NULL;
 }
 
@@ -7288,21 +7362,24 @@ SWIGINTERN PyObject *_wrap_SDBP_Count(PyObject *SWIGUNUSEDPARM(self), PyObject *
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
-  unsigned int arg3 ;
+  std::string *arg3 = 0 ;
   unsigned int arg4 ;
+  unsigned int arg5 ;
   int result;
   int res1 ;
   int res2 = SWIG_OLDOBJ ;
-  unsigned int val3 ;
-  int ecode3 = 0 ;
+  int res3 = SWIG_OLDOBJ ;
   unsigned int val4 ;
   int ecode4 = 0 ;
+  unsigned int val5 ;
+  int ecode5 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_Count",4,4,&obj0,&obj1,&obj2,&obj3)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_Count",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_Count" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -7318,22 +7395,35 @@ SWIGINTERN PyObject *_wrap_SDBP_Count(PyObject *SWIGUNUSEDPARM(self), PyObject *
     }
     arg2 = ptr;
   }
-  ecode3 = SWIG_AsVal_unsigned_SS_int(obj2, &val3);
-  if (!SWIG_IsOK(ecode3)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_Count" "', argument " "3"" of type '" "unsigned int""'");
-  } 
-  arg3 = static_cast< unsigned int >(val3);
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SDBP_Count" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_Count" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
   ecode4 = SWIG_AsVal_unsigned_SS_int(obj3, &val4);
   if (!SWIG_IsOK(ecode4)) {
     SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SDBP_Count" "', argument " "4"" of type '" "unsigned int""'");
   } 
   arg4 = static_cast< unsigned int >(val4);
-  result = (int)SDBP_Count(arg1,(std::string const &)*arg2,arg3,arg4);
+  ecode5 = SWIG_AsVal_unsigned_SS_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_Count" "', argument " "5"" of type '" "unsigned int""'");
+  } 
+  arg5 = static_cast< unsigned int >(val5);
+  result = (int)SDBP_Count(arg1,(std::string const &)*arg2,(std::string const &)*arg3,arg4,arg5);
   resultobj = SWIG_From_int(static_cast< int >(result));
   if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return resultobj;
 fail:
   if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
   return NULL;
 }
 
@@ -7343,8 +7433,10 @@ SWIGINTERN PyObject *_wrap_SDBP_CountCStr(PyObject *SWIGUNUSEDPARM(self), PyObje
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
   int arg3 ;
-  unsigned int arg4 ;
-  unsigned int arg5 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  unsigned int arg6 ;
+  unsigned int arg7 ;
   int result;
   int res1 ;
   int res2 ;
@@ -7352,17 +7444,24 @@ SWIGINTERN PyObject *_wrap_SDBP_CountCStr(PyObject *SWIGUNUSEDPARM(self), PyObje
   int alloc2 = 0 ;
   int val3 ;
   int ecode3 = 0 ;
-  unsigned int val4 ;
-  int ecode4 = 0 ;
-  unsigned int val5 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int val5 ;
   int ecode5 = 0 ;
+  unsigned int val6 ;
+  int ecode6 = 0 ;
+  unsigned int val7 ;
+  int ecode7 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   PyObject * obj2 = 0 ;
   PyObject * obj3 = 0 ;
   PyObject * obj4 = 0 ;
+  PyObject * obj5 = 0 ;
+  PyObject * obj6 = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_CountCStr",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_CountCStr",7,7,&obj0,&obj1,&obj2,&obj3,&obj4,&obj5,&obj6)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_CountCStr" "', argument " "1"" of type '" "ClientObj""'"); 
@@ -7377,22 +7476,34 @@ SWIGINTERN PyObject *_wrap_SDBP_CountCStr(PyObject *SWIGUNUSEDPARM(self), PyObje
     SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_CountCStr" "', argument " "3"" of type '" "int""'");
   } 
   arg3 = static_cast< int >(val3);
-  ecode4 = SWIG_AsVal_unsigned_SS_int(obj3, &val4);
-  if (!SWIG_IsOK(ecode4)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode4), "in method '" "SDBP_CountCStr" "', argument " "4"" of type '" "unsigned int""'");
-  } 
-  arg4 = static_cast< unsigned int >(val4);
-  ecode5 = SWIG_AsVal_unsigned_SS_int(obj4, &val5);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SDBP_CountCStr" "', argument " "4"" of type '" "char *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
   if (!SWIG_IsOK(ecode5)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_CountCStr" "', argument " "5"" of type '" "unsigned int""'");
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_CountCStr" "', argument " "5"" of type '" "int""'");
   } 
-  arg5 = static_cast< unsigned int >(val5);
-  result = (int)SDBP_CountCStr(arg1,arg2,arg3,arg4,arg5);
+  arg5 = static_cast< int >(val5);
+  ecode6 = SWIG_AsVal_unsigned_SS_int(obj5, &val6);
+  if (!SWIG_IsOK(ecode6)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode6), "in method '" "SDBP_CountCStr" "', argument " "6"" of type '" "unsigned int""'");
+  } 
+  arg6 = static_cast< unsigned int >(val6);
+  ecode7 = SWIG_AsVal_unsigned_SS_int(obj6, &val7);
+  if (!SWIG_IsOK(ecode7)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode7), "in method '" "SDBP_CountCStr" "', argument " "7"" of type '" "unsigned int""'");
+  } 
+  arg7 = static_cast< unsigned int >(val7);
+  result = (int)SDBP_CountCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   resultobj = SWIG_From_int(static_cast< int >(result));
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return resultobj;
 fail:
   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
   return NULL;
 }
 

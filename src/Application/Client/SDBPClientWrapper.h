@@ -122,12 +122,18 @@ int             SDBP_Get(ClientObj client, const std::string& key);
 int             SDBP_GetCStr(ClientObj client, char* key, int len);
 int             SDBP_Set(ClientObj client, const std::string& key, const std::string& value);
 int             SDBP_SetCStr(ClientObj client_, char* key, int lenKey, char* value, int lenValue);
-int             SDBP_SetIfNotExists(ClientObj client, const std::string& key, const std::string& value);
-int             SDBP_SetIfNotExistsCStr(ClientObj client, char* key, int lenKey, char* value, int lenValue);
-int             SDBP_TestAndSet(ClientObj client, const std::string& key, const std::string& test, const std::string& value);
-int             SDBP_TestAndSetCStr(ClientObj client, char* key, int lenKey, char* test, int lenTest, char* value, int lenValue);
+int             SDBP_SetIfNotExists(
+                 ClientObj client, const std::string& key, const std::string& value);
+int             SDBP_SetIfNotExistsCStr(
+                 ClientObj client, char* key, int lenKey, char* value, int lenValue);
+int             SDBP_TestAndSet(
+                 ClientObj client, 
+                 const std::string& key, const std::string& test, const std::string& value);
+int             SDBP_TestAndSetCStr(ClientObj client, 
+                 char* key, int lenKey, char* test, int lenTest, char* value, int lenValue);
 int             SDBP_GetAndSet(ClientObj client, const std::string& key, const std::string& value);
-int             SDBP_GetAndSetCStr(ClientObj client, char* key, int lenKey, char* value, int lenValue);
+int             SDBP_GetAndSetCStr(
+                 ClientObj client, char* key, int lenKey, char* value, int lenValue);
 int             SDBP_Add(ClientObj client, const std::string& key, int64_t number);
 int             SDBP_AddCStr(ClientObj client_, char* key, int len, int64_t number);
 int             SDBP_Append(ClientObj client, const std::string& key, const std::string& value);
@@ -136,12 +142,30 @@ int             SDBP_Delete(ClientObj client, const std::string& key);
 int             SDBP_DeleteCStr(ClientObj client_, char* key, int len);
 int             SDBP_Remove(ClientObj client, const std::string& key);
 int             SDBP_RemoveCStr(ClientObj client_, char* key, int len);
-int             SDBP_ListKeys(ClientObj client, const std::string& key, unsigned count, unsigned offset);
-int             SDBP_ListKeysCStr(ClientObj client, char* key, int len, unsigned count, unsigned offset);
-int             SDBP_ListKeyValues(ClientObj client, const std::string& key, unsigned count, unsigned offset);
-int             SDBP_ListKeyValuesCStr(ClientObj client, char* key, int len, unsigned count, unsigned offset);
-int             SDBP_Count(ClientObj client, const std::string& key, unsigned count, unsigned offset);
-int             SDBP_CountCStr(ClientObj client, char* key, int len, unsigned count, unsigned offset);
+int             SDBP_ListKeys(
+                 ClientObj client, 
+                 const std::string& startKey, const std::string& endKey, 
+                 unsigned count, unsigned offset);
+int             SDBP_ListKeysCStr(
+                 ClientObj client,
+                 char* startKey, int startKeyLen, char* endKey, int endKeyLen,
+                 unsigned count, unsigned offset);
+int             SDBP_ListKeyValues(
+                 ClientObj client, 
+                 const std::string& startKey, const std::string& endKey,
+                 unsigned count, unsigned offset);
+int             SDBP_ListKeyValuesCStr(
+                 ClientObj client,
+                 char* startKey, int startKeyLen, char* endKey, int endKeyLen,
+                 unsigned count, unsigned offset);
+int             SDBP_Count(
+                 ClientObj client,
+                 const std::string& startKey, const std::string& endKey,
+                 unsigned count, unsigned offset);
+int             SDBP_CountCStr(
+                 ClientObj client,
+                 char* startKey, int startKeyLen, char* endKey, int endKeyLen,
+                 unsigned count, unsigned offset);
 
 /*
 ===============================================================================================

@@ -140,13 +140,16 @@ public:
                      uint64_t tableID, ReadBuffer& key);
     bool            ListKeys(
                      uint64_t commandID,
-                     uint64_t tableID, ReadBuffer& startKey, unsigned count, unsigned offset);
+                     uint64_t tableID, 
+                     ReadBuffer& startKey, ReadBuffer& endKey, unsigned count, unsigned offset);
     bool            ListKeyValues(
                      uint64_t commandID,
-                     uint64_t tableID, ReadBuffer& startKey, unsigned count, unsigned offset);
+                     uint64_t tableID,
+                     ReadBuffer& startKey, ReadBuffer& endKey,unsigned count, unsigned offset);
     bool            Count(
                      uint64_t commandID,
-                     uint64_t tableID, ReadBuffer& startKey, unsigned count, unsigned offset);
+                     uint64_t tableID,
+                     ReadBuffer& startKey, ReadBuffer& endKey,unsigned count, unsigned offset);
 
 
     bool            Submit(
@@ -174,6 +177,7 @@ public:
     Buffer          key;
     Buffer          value;
     Buffer          test;
+    Buffer          endKey;
     List<uint64_t>  nodes;
     uint64_t        changeTimeout;
     uint64_t        lastChangeTime;

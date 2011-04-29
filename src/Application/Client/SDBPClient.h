@@ -37,7 +37,10 @@ public:
     int                     Init(int nodec, const char* nodev[]);
     void                    Shutdown();
 
+    // =============================================================================================
+    //
     // settings
+    //
     void                    SetGlobalTimeout(uint64_t timeout);
     void                    SetMasterTimeout(uint64_t timeout);
     uint64_t                GetGlobalTimeout();
@@ -54,18 +57,21 @@ public:
     
     void                    SetConsistencyLevel(int level);
     
-    // result
+    // =============================================================================================
+    //
+    // result & status
+    //
     Result*                 GetResult();
 
-    // status
     int                     TransportStatus();
     int                     ConnectivityStatus();
     int                     TimeoutStatus();
     int                     CommandStatus();
     
-    // config state
-    
+    // =============================================================================================
+    //
     // controller commands
+    //
     int                     CreateQuorum(List<uint64_t>& nodes);
     int                     DeleteQuorum(uint64_t quourumID);
     int                     AddNode(uint64_t quorumID, uint64_t nodeID);
@@ -83,7 +89,10 @@ public:
 
     int                     SplitShard(uint64_t shardID, ReadBuffer& splitKey);
     
+    // =============================================================================================
+    //
     // shard server commands
+    //
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
     int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
     int                     UseDatabase(ReadBuffer& name);
@@ -92,18 +101,23 @@ public:
     int                     Get(const ReadBuffer& key);
     int                     Set(const ReadBuffer& key, const ReadBuffer& value);
     int                     SetIfNotExists(const ReadBuffer& key, const ReadBuffer& value);
-    int                     TestAndSet(const ReadBuffer& key, const ReadBuffer& test, const ReadBuffer& value);
+    int                     TestAndSet(const ReadBuffer& key, const ReadBuffer& test, 
+                             const ReadBuffer& value);
     int                     GetAndSet(const ReadBuffer& key, const ReadBuffer& value);
     int                     Add(const ReadBuffer& key, int64_t number);
     int                     Append(const ReadBuffer& key, const ReadBuffer& value);
     int                     Delete(const ReadBuffer& key);
     int                     Remove(const ReadBuffer& key);
 
-    int                     ListKeys(const ReadBuffer& startKey, unsigned count, unsigned offset);
-    int                     ListKeyValues(const ReadBuffer& startKey, unsigned count, unsigned offset);    
-    int                     Count(const ReadBuffer& startKey, unsigned count, unsigned offset);    
+    int                     ListKeys(const ReadBuffer& startKey, const ReadBuffer& endKey, 
+                             unsigned count, unsigned offset);
+    int                     ListKeyValues(const ReadBuffer& startKey, const ReadBuffer& endKey, 
+                             unsigned count, unsigned offset);    
+    int                     Count(const ReadBuffer& startKey, const ReadBuffer& endKey, 
+                             unsigned count, unsigned offset);    
 
-    int                     Filter(const ReadBuffer& startKey, unsigned count, unsigned offset, uint64_t& commandID);
+    int                     Filter(const ReadBuffer& startKey, const ReadBuffer& endKey,
+                             unsigned count, unsigned offset, uint64_t& commandID);
     int                     Receive(uint64_t commandID);
     
     int                     Begin();
@@ -141,7 +155,8 @@ private:
     void                    ClearQuorumRequests();
     void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
-    void                    NextRequest(Request* req, ReadBuffer nextShardKey, uint64_t count, uint64_t offset);
+    void                    NextRequest(Request* req, ReadBuffer nextShardKey, 
+                             uint64_t count, uint64_t offset);
 
     void                    ConfigureShardServers();
     ShardConnection*        GetShardConnection(uint64_t nodeID);
@@ -149,7 +164,8 @@ private:
     void                    OnControllerConnected(ControllerConnection* conn);
     void                    OnControllerDisconnected(ControllerConnection* conn);
     
-    unsigned                GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* conn, ConfigQuorum* quorum);
+    unsigned                GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* conn, 
+                             ConfigQuorum* quorum);
     uint64_t                GetRequestPaxosID();
     
     int64_t                 master;
