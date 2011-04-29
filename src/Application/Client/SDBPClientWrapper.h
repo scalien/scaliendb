@@ -168,9 +168,6 @@ int             SDBP_CountCStr(
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen,
                  unsigned count, unsigned offset);
 
-uint64_t        SDBP_Filter(ClientObj client, const std::string& key, unsigned count, unsigned offset);
-int             SDBP_Receive(ClientObj client, uint64_t commandID);
-
 /*
 ===============================================================================================
 
