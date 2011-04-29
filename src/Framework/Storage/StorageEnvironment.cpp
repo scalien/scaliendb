@@ -459,8 +459,6 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     }
     memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
 
-//    haveUncommitedWrites = true;
-
     return true;
 }
 
@@ -493,8 +491,6 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     }
     memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
 
-//  haveUncommitedWrites = true;
-    
     return true;
 }
 
@@ -989,9 +985,6 @@ void StorageEnvironment::TrySerializeChunks()
 
     if (serializeChunkJobs.IsActive())
         return;
-
-//    if (haveUncommitedWrites)
-//        return;
 
     FOREACH (itShard, shards)
     {
