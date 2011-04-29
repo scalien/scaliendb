@@ -673,6 +673,26 @@ bool StorageEnvironment::IsCommiting()
     return commitJobs.IsActive();
 }
 
+bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)
+{
+    StorageShard*       shard;
+    StorageMemoChunk*   memoChunk;
+
+    shard = GetShard(contextID, shardID);
+    if (shard == NULL)
+        return false;
+
+    if (shard->IsLogStorage())
+        return false; // never serialize log storage shards
+    
+    memoChunk = shard->GetMemoChunk();            
+    shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, shard->UseBloomFilter()));
+
+    serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
+    
+    return true;
+}
+
 bool StorageEnvironment::IsShuttingDown()
 {
     return shuttingDown;
@@ -974,9 +994,8 @@ void StorageEnvironment::TryFinalizeLogSegment()
 
 void StorageEnvironment::TrySerializeChunks()
 {
-    Buffer                      tmp;
-    StorageShard*               itShard;
-    StorageMemoChunk*           memoChunk;
+    StorageShard*       itShard;
+    StorageMemoChunk*   memoChunk;
 
     if (serializeChunkJobs.IsActive())
         return;
@@ -996,8 +1015,8 @@ void StorageEnvironment::TrySerializeChunks()
          memoChunk->GetMinLogSegmentID() < (headLogSegment->GetLogSegmentID() - maxUnbackedLogSegments)
          ))
         {
-            serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
             itShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, itShard->UseBloomFilter()));
+            serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
             return;
         }
     }
@@ -1005,7 +1024,7 @@ void StorageEnvironment::TrySerializeChunks()
 
 void StorageEnvironment::TryWriteChunks()
 {
-    StorageFileChunk*   itFileChunk;
+    StorageFileChunk* itFileChunk;
     
     if (writeChunkJobs.IsActive())
         return;
@@ -1013,9 +1032,9 @@ void StorageEnvironment::TryWriteChunks()
     FOREACH (itFileChunk, fileChunks)
     {
         if ((itFileChunk->GetChunkState() == StorageChunk::Unwritten) &&
-            ((itFileChunk->GetMaxLogSegmentID() < headLogSegment->GetLogSegmentID()) ||
-             (itFileChunk->GetMaxLogSegmentID() == headLogSegment->GetLogSegmentID() &&
-              itFileChunk->GetMaxLogCommandID() <= headLogSegment->GetCommitedLogCommandID())))
+           ((itFileChunk->GetMaxLogSegmentID() < headLogSegment->GetLogSegmentID()) ||
+            (itFileChunk->GetMaxLogSegmentID() == headLogSegment->GetLogSegmentID() &&
+             itFileChunk->GetMaxLogCommandID() <= headLogSegment->GetCommitedLogCommandID())))
         {
             writeChunkJobs.Execute(new StorageWriteChunkJob(this, itFileChunk));
             return;

@@ -48,6 +48,7 @@ private:
     void                    SendCommit();
     void                    SendItem(StorageKeyValue* kv);
     void                    OnWriteReadyness();
+    void                    OnBlockShard();
     void                    OnTimeout();
 
     bool                    isActive;

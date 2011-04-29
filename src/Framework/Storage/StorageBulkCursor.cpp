@@ -2,20 +2,39 @@
 #include "StorageEnvironment.h"
 #include "StoragePageCache.h"
 
-StorageBulkCursor::StorageBulkCursor() :
- dataPage(NULL, 0)
+StorageBulkCursor::StorageBulkCursor(bool shardMigration_)
+ : dataPage(NULL, 0)
 {
+    shardMigration = shardMigration_;
+    shard = NULL;
+    isLast = false;
     contextID = 0;
     shardID = 0;
     chunkID = 0;
-    shard = NULL;
     env = NULL;
-    isLast = false;
 }
 
 StorageBulkCursor::~StorageBulkCursor()
 {
     env->DecreaseNumCursors();
+}
+
+void StorageBulkCursor::SetEnvironment(StorageEnvironment* env_)
+{
+    env = env_;
+}
+
+void StorageBulkCursor::SetOnBlockShard(Callable onBlockShard_)
+{
+    onBlockShard = onBlockShard_;
+}
+
+void StorageBulkCursor::SetShard(uint64_t contextID_, uint64_t shardID_)
+{
+    contextID = contextID_;
+    shardID = shardID_;
+    shard = env->GetShard(contextID, shardID);
+    ASSERT(shard);
 }
 
 StorageKeyValue* StorageBulkCursor::First()
@@ -56,18 +75,23 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
         return NULL;
         
     FOREACH (itChunk, shard->chunks)
-    {
         if ((*itChunk)->GetChunkID() == chunkID)
             break;
-    }
     
-    if (itChunk == NULL)
+    if (itChunk == NULL && shardMigration)
     {
-        chunk = shard->GetMemoChunk();
+        Log_Debug("Pushing memo chunk");
+        ASSERT(env->PushMemoChunk(contextID, shardID));
+        chunk = *(shard->chunks.Last());
+        if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
+            Call(onBlockShard);
     }
     else
-    {        
-        chunk = *itChunk;
+    {
+        if (itChunk == NULL)
+            chunk = shard->GetMemoChunk();
+        else
+            chunk = *itChunk;
     }
     ASSERT(chunk != NULL);
 
@@ -115,7 +139,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
             chunk->NextBunch(*this, shard);
             if (dataPage.First())
                 return dataPage.First();
-            else
+            else    
                 continue;
         }
         
@@ -151,17 +175,4 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         
         dataPage.Reset();
     }
-}
-
-void StorageBulkCursor::SetEnvironment(StorageEnvironment* env_)
-{
-    env = env_;
-}
-
-void StorageBulkCursor::SetShard(uint64_t contextID_, uint64_t shardID_)
-{
-    contextID = contextID_;
-    shardID = shardID_;
-    shard = env->GetShard(contextID, shardID);
-    ASSERT(shard);
 }
