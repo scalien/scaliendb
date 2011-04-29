@@ -32,7 +32,6 @@ StorageMemoChunk::StorageMemoChunk(uint64_t chunkID_, bool useBloomFilter_)
     size = 0;
     fileChunk = NULL;
     deleted = false;
-    haveUncommitedWrites = false;
 }
 
 StorageMemoChunk::~StorageMemoChunk()
@@ -205,8 +204,6 @@ bool StorageMemoChunk::Delete(ReadBuffer key)
 
 void StorageMemoChunk::RegisterLogCommand(uint64_t logSegmentID_, uint32_t logCommandID_)
 {
-    haveUncommitedWrites = true;
-    
     if (minLogSegmentID == 0)
         minLogSegmentID = logSegmentID_;
     

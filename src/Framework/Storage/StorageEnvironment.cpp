@@ -949,11 +949,6 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
 void StorageEnvironment::OnCommit(StorageCommitJob* job)
 {
-    StorageShard*   shard;    
-        
-    FOREACH (shard, shards)
-        shard->GetMemoChunk()->haveUncommitedWrites = false;
-
     TryFinalizeLogSegment();
     TrySerializeChunks();
     
@@ -992,10 +987,7 @@ void StorageEnvironment::TrySerializeChunks()
             continue; // never serialize log storage shards
         
         memoChunk = itShard->GetMemoChunk();
-        
-        if (memoChunk->haveUncommitedWrites)
-            continue;
-        
+                
         if (
          memoChunk->GetSize() > config.chunkSize ||
          (
@@ -1022,8 +1014,14 @@ void StorageEnvironment::TryWriteChunks()
     {
         if (itFileChunk->GetChunkState() == StorageChunk::Unwritten)
         {
-            writeChunkJobs.Execute(new StorageWriteChunkJob(this, itFileChunk));
-            return;
+            // only write if all writes in this chunk have been commited
+            if ((itFileChunk->GetMaxLogSegmentID() < headLogSegment->GetLogSegmentID()) ||
+                (itFileChunk->GetMaxLogSegmentID() == headLogSegment->GetLogSegmentID() &&
+                 itFileChunk->GetMaxLogCommandID() <= headLogSegment->GetCommitedLogCommandID()))
+            {
+                writeChunkJobs.Execute(new StorageWriteChunkJob(this, itFileChunk));
+                return;
+            }
         }
     }
 }

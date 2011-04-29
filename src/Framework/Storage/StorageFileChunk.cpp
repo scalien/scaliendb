@@ -20,7 +20,6 @@ StorageFileChunk::StorageFileChunk() : headerPage(this)
     isBloomPageLoading = false;
     isIndexPageLoading = false;
     fd = INVALID_FD;
-    haveUncommitedWrites = false;
 }
 
 StorageFileChunk::~StorageFileChunk()
