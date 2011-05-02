@@ -307,7 +307,7 @@ $(BUILD_DIR)/TestMain: $(BUILD_DIR) $(TEST_OBJECTS) $(ALL_OBJECTS) $(BUILD_DIR)/
 $(BUILD_DIR)/Test/TestMain.o: $(SRC_DIR)/Test/TestMain.cpp
 	$(CXX) $(CFLAGS) -o $@ -DTEST -c $(SRC_DIR)/Test/TestMain.cpp
 
-$(BIN_DIR)/scaliendb: $(BUILD_DIR)/ScalienDB
+$(BIN_DIR)/scaliendb: $(BUILD_DIR)/scaliendb
 	-cp -fr $< $@
 	-cp -fr $(SCRIPT_DIR)/cluster-exec.sh $(BIN_DIR)
 	-cp -fr $(SCRIPT_DIR)/scaliendb-env.sh $(BIN_DIR)
