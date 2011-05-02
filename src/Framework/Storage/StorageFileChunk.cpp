@@ -366,15 +366,15 @@ void StorageFileChunk::RemovePagesFromCache()
     
     Log_Debug("Removing chunk %U from caches", GetChunkID());
     
-    if (UseBloomFilter() && bloomPage != NULL)
+    if (UseBloomFilter() && bloomPage != NULL && bloomPage->IsCached())
         StoragePageCache::RemovePage(bloomPage);
 
-    if (indexPage != NULL)
+    if (indexPage != NULL && indexPage->IsCached())
         StoragePageCache::RemovePage(indexPage);
 
     for (i = 0; i < numDataPages; i++)
     {
-        if (dataPages[i] != NULL)
+        if (dataPages[i] != NULL && dataPages[i]->IsCached())
             StoragePageCache::RemovePage(dataPages[i]);
     }
 }
