@@ -296,15 +296,26 @@ ConfigState* Client::GetConfigState()
     if (numControllers == 0)
         return NULL;
     
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
+    result->Close();
+    CLIENT_MUTEX_UNLOCK();
+    EventLoop(0);
+    CLIENT_MUTEX_LOCK();
 
     return configState;
+}
+
+void Client::WaitConfigState()
+{
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (numControllers == 0)
+        return;
+
+    configState = NULL;
+    result->Close();
+    CLIENT_MUTEX_UNLOCK();
+    EventLoop();
+    CLIENT_MUTEX_LOCK();
 }
 
 void Client::SetBatchLimit(uint64_t batchLimit_)
@@ -364,14 +375,11 @@ int Client::GetDatabaseID(ReadBuffer& name, uint64_t& databaseID)
     CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
     
-    if (configState == NULL)
-    {
-        result->Close();
-        CLIENT_MUTEX_UNLOCK();
-        EventLoop();
-        CLIENT_MUTEX_LOCK();
-    }
-    
+    result->Close();
+    CLIENT_MUTEX_UNLOCK();
+    EventLoop(0);
+    CLIENT_MUTEX_LOCK();
+
     if (configState == NULL)
         return SDBP_NOSERVICE;
     
@@ -391,12 +399,29 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
     CLIENT_MUTEX_GUARD_DECLARE();
     VALIDATE_CONTROLLER();
     
-    ASSERT(configState != NULL);
+    result->Close();
+    CLIENT_MUTEX_UNLOCK();
+    EventLoop(0);
+    CLIENT_MUTEX_LOCK();
+
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+
     table = configState->GetTable(databaseID, name);
     if (!table)
         return SDBP_BADSCHEMA;
     
     tableID = table->tableID;
+    return SDBP_SUCCESS;
+}
+
+int Client::UseDatabaseID(uint64_t databaseID_)
+{
+    VALIDATE_CONTROLLER();
+
+    isDatabaseSet = true;
+    databaseID = databaseID_;
+    
     return SDBP_SUCCESS;
 }
 
@@ -413,6 +438,19 @@ int Client::UseDatabase(ReadBuffer& name)
         return ret;
     
     isDatabaseSet = true;
+    return SDBP_SUCCESS;
+}
+
+int Client::UseTableID(uint64_t tableID_)
+{
+    VALIDATE_CONTROLLER();
+
+    if (!isDatabaseSet)
+        return SDBP_BADSCHEMA;
+
+    isTableSet = true;
+    tableID = tableID_;
+    
     return SDBP_SUCCESS;
 }
 
@@ -667,8 +705,10 @@ bool Client::IsBatched()
     return isBatched;
 }
 
-void Client::EventLoop()
+void Client::EventLoop(long wait)
 {
+    long    startTime;
+    
     if (!controllerConnections)
     {
         result->SetTransportStatus(SDBP_API_ERROR);
@@ -690,14 +730,19 @@ void Client::EventLoop()
     EventLoop::Reset(&globalTimeout);
     EventLoop::Reset(&masterTimeout);
     timeoutStatus = SDBP_SUCCESS;
+    startTime = EventLoop::Now();
     
     GLOBAL_MUTEX_GUARD_UNLOCK();
     
-    while (!IsDone())
+    // TODO: HACK
+    while (!IsDone() || (wait >= 0 && EventLoop::Now() <= startTime + wait))
     {
+        Log_Trace("EventLoop main loop");
         GLOBAL_MUTEX_GUARD_LOCK();        
         long sleep = EventLoop::RunTimers();
-        if (IsDone())
+        if (wait >= 0 && wait < sleep)
+            sleep = wait;
+        if (IsDone() && wait != 0)
         {
             GLOBAL_MUTEX_GUARD_UNLOCK();
             break;

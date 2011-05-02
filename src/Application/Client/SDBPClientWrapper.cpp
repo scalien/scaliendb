@@ -394,6 +394,13 @@ std::string SDBP_GetJSONConfigState(ClientObj client_)
     return ret;
 }
 
+void SDBP_WaitConfigState(ClientObj client_)
+{
+    Client* client = (Client*) client_;
+
+    client->WaitConfigState();
+}
+
 void SDBP_SetBatchLimit(ClientObj client_, uint64_t batchLimit)
 {
     Client* client = (Client*) client_;
@@ -548,12 +555,26 @@ int SDBP_UseDatabase(ClientObj client_, const std::string& name_)
     return client->UseDatabase(name);
 }
 
+int SDBP_UseDatabaseID(ClientObj client_, uint64_t databaseID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->UseDatabaseID(databaseID);
+}
+
 int SDBP_UseTable(ClientObj client_, const std::string& name_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  name((char*) name_.c_str(), name_.length());
 
     return client->UseTable(name);
+}
+
+int SDBP_UseTableID(ClientObj client_, uint64_t tableID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->UseTableID(tableID);
 }
 
 int	SDBP_Get(ClientObj client_, const std::string& key_)

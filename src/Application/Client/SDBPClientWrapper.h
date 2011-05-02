@@ -93,6 +93,7 @@ uint64_t        SDBP_GetMasterTimeout(ClientObj client);
 uint64_t        SDBP_GetCurrentDatabaseID(ClientObj client);
 uint64_t        SDBP_GetCurrentTableID(ClientObj client);
 std::string     SDBP_GetJSONConfigState(ClientObj client);
+void            SDBP_WaitConfigState(ClientObj client);
 
 void            SDBP_SetBatchLimit(ClientObj client, uint64_t limit);
 void            SDBP_SetBulkLoading(ClientObj client, bool bulk);
@@ -117,7 +118,9 @@ uint64_t        SDBP_GetDatabaseID(ClientObj client, const std::string& name);
 uint64_t        SDBP_GetTableID(ClientObj client, uint64_t databaseID, const std::string& name);
 
 int             SDBP_UseDatabase(ClientObj client, const std::string& name);
+int             SDBP_UseDatabaseID(ClientObj client, uint64_t databaseID);
 int             SDBP_UseTable(ClientObj client, const std::string& name);
+int             SDBP_UseTableID(ClientObj client, uint64_t tableID);
 
 int             SDBP_Get(ClientObj client, const std::string& key);
 int             SDBP_GetCStr(ClientObj client, char* key, int len);

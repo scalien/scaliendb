@@ -237,6 +237,10 @@ class Client:
         """ Returns the config state in JSON string """
         return SDBP_GetJSONConfigState(self.cptr)
 
+    def wait_config_state(self):
+        """ Waits until config state is updated """
+        SDBP_WaitConfigState(self.cptr)
+
     def create_quorum(self, nodes):
         """
         Creates a quorum
@@ -453,6 +457,19 @@ class Client:
             if status == SDBP_NOSERVICE:
                 raise Error(status, "Cannot connect to controller!")
             raise Error(status, "No database found with name '%s'" % (name))
+
+    def use_database_id(self, id):
+        """
+        Uses a database. All following operations will be executed on that database.
+        
+        Args:
+            id (int): the id of the database
+        """
+        status = SDBP_UseDatabaseID(self.cptr, id)
+        if status != SDBP_SUCCESS:
+            if status == SDBP_NOSERVICE:
+                raise Error(status, "Cannot connect to controller!")
+            raise Error(status, "No database found with name '%s'" % (name))
     
     def use_table(self, name):
         """
@@ -464,6 +481,18 @@ class Client:
         status = SDBP_UseTable(self.cptr, name)
         if status != SDBP_SUCCESS:
             raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))            
+
+    def use_table_id(self, id):
+        """
+        Uses a table. All following operations will be executed on that table.
+        
+        Args:
+            id (int): the name of the table
+        """
+        status = SDBP_UseTableID(self.cptr, id)
+        if status != SDBP_SUCCESS:
+            raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))            
+    
     
     def use(self, database, table=None):
         """
@@ -526,9 +555,10 @@ class Client:
             
             value (string): the value to be set
         """
-        status, ret = self._data_command(SDBP_TestAndSet, key, value)
+        status, ret = self._data_command(SDBP_TestAndSet, key, test, value)
         if ret:
-            return status
+            return self.result.value()
+        return None
 
     def get_and_set(self, key, value):
         """
@@ -578,18 +608,20 @@ class Client:
         if ret:
             return self.result.value()
 
-    def list_keys(self, key="", count=0, offset=0):
+    def list_keys(self, start_key="", end_key="", count=0, offset=0):
         """
         Lists the keys of a table. Returns a list of strings.
         
         Args:
-            key (string): the key from where the listing starts (default="")
+            start_key (string): the key from where the listing starts (default="")
+
+            end_key (string): the key where the listing ends (default="")
             
             count (long): the maximum number of keys to be returned (default=0)
             
             offset (long): start the listing at this offset (default=0)
         """
-        status = SDBP_ListKeys(self.cptr, key, count, offset)
+        status = SDBP_ListKeys(self.cptr, start_key, end_key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:
             return
@@ -600,18 +632,20 @@ class Client:
             self.result.next()
         return keys
 
-    def list_key_values(self, key="", count=0, offset=0):
+    def list_key_values(self, start_key="", end_key="", count=0, offset=0):
         """
         Lists the keys and values of a table. Returns a dict of key-value pairs.
         
         Args:
-            key (string): the key from where the listing starts (default="")
+            start_key (string): the key from where the listing starts (default="")
+
+            end_key (string): the key where the listing ends (default="")
             
             count (long): the maximum number of keys to be returned (default=0)
             
             offset (long): start the listing at this offset (default=0)
         """
-        status = SDBP_ListKeyValues(self.cptr, key, count, offset)
+        status = SDBP_ListKeyValues(self.cptr, start_key, end_key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:
             return
@@ -622,18 +656,20 @@ class Client:
             self.result.next()
         return key_values
 
-    def count(self, key="", count=0, offset=0):
+    def count(self, start_key="", end_key="", count=0, offset=0):
         """
         Counts the number of items in a table. Returns the number of found items.
         
         Args:
-            key (string): the key from where the listing starts (default="")
+            start_key (string): the key from where the listing starts (default="")
+
+            end_key (string): the key where the listing ends (default="")
             
             count (long): the maximum number of keys to be returned (default=0)
             
             offset (long): start the listing at this offset (default=0)
         """
-        status = SDBP_Count(self.cptr, key, count, offset)
+        status = SDBP_Count(self.cptr, start_key, end_key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         if status < 0:
             return

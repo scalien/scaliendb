@@ -49,7 +49,7 @@ public:
     uint64_t                GetCurrentDatabaseID();
     uint64_t                GetCurrentTableID();
     ConfigState*            GetConfigState();
-    void                    UpdateConfigState();
+    void                    WaitConfigState();
     
     void                    SetBatchLimit(uint64_t batchLimit);
     void                    SetBulkLoading(bool bulk);
@@ -96,7 +96,9 @@ public:
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
     int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
     int                     UseDatabase(ReadBuffer& name);
+    int                     UseDatabaseID(uint64_t databaseID);
     int                     UseTable(ReadBuffer& name);
+    int                     UseTableID(uint64_t tableID);
     
     int                     Get(const ReadBuffer& key);
     int                     Set(const ReadBuffer& key, const ReadBuffer& value);
@@ -126,15 +128,15 @@ public:
     bool                    IsBatched();
 
 private:
-    typedef InList<Request>                 RequestList;
-    typedef InTreeMap<ShardConnection>      ShardConnectionMap;
-    typedef HashMap<uint64_t, RequestList*> RequestListMap;
+    typedef InList<Request>                     RequestList;
+    typedef InTreeMap<ShardConnection>          ShardConnectionMap;
+    typedef HashMap<uint64_t, RequestList*>     RequestListMap;
 
     friend class            ControllerConnection;
     friend class            ShardConnection;
     friend class            Table;
     
-    void                    EventLoop();
+    void                    EventLoop(long wait = -1);
     bool                    IsDone();
     uint64_t                NextCommandID();
     Request*                CreateGetConfigState();

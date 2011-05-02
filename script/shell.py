@@ -27,6 +27,8 @@ def parse_args(args):
             elif opt == "h":
                 defaults.nodes = args[x + 1]
                 skip = True
+            elif opt == "-trace":
+                scaliendb.set_trace(True)
     return defaults
 
 # helper function for measure timing
@@ -176,7 +178,7 @@ class SHelp:
 def welcome():
     header = "ScalienDB shell " + scaliendb.get_version()
     line = "".join(["=" for x in xrange(len(header))])
-    print("\n" + line + "\n" + header + "\n" + line + "\n")
+    print(line + "\n" + header + "\n" + line + "\n")
     print("This is a standard Python shell, enhanced with ScalienDB client library commands.")
     print("Type \"shelp\" for help.\n")
 

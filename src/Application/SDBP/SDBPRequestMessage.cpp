@@ -142,9 +142,9 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
         case CLIENTREQUEST_COUNT:
-            read = buffer.Readf("%c:%U:%U:%#B:%U:%U",
+            read = buffer.Readf("%c:%U:%U:%#B:%#B:%U:%U",
              &request->type, &request->commandID,
-             &request->tableID, &request->key,
+             &request->tableID, &request->key, &request->endKey,
              &request->count, &request->offset);
             break;
             
@@ -287,9 +287,9 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
         case CLIENTREQUEST_COUNT:
-            buffer.Appendf("%c:%U:%U:%#B:%U:%U",
+            buffer.Appendf("%c:%U:%U:%#B:%#B:%U:%U",
              request->type, request->commandID,
-             request->tableID, &request->key,
+             request->tableID, &request->key, &request->endKey,
              request->count, request->offset);
             return true;
             
