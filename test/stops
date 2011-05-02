@@ -14,4 +14,5 @@ else
 	fi	
 fi
 
+DIR=$1
 kill $(ps ax| grep "$BIN test/shard/$DIR/scaliendb.conf"| grep -v grep| awk '{printf $1 " "}')
