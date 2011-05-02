@@ -15,8 +15,11 @@ void JobProcessor::Start()
 }
 
 void JobProcessor::Stop()
-{
+{    
     threadPool->Stop();
+    delete threadPool;
+    threadPool = NULL;
+    jobs.DeleteQueue();
 }
 
 void JobProcessor::Enqueue(Job* job)

@@ -408,6 +408,15 @@ void StorageFileChunk::LoadBloomPage()
     if (fd == INVALID_FD)
         OpenForReading();
     
+    if (bloomPage)
+    {
+        // already loaded
+        if (useCache && !bloomPage->IsCached())
+            StoragePageCache::AddPage(bloomPage);
+            
+        return;
+    }
+    
     bloomPage = new StorageBloomPage(this);
     offset = headerPage.GetBloomPageOffset();
     bloomPage->SetOffset(offset);
@@ -440,6 +449,15 @@ void StorageFileChunk::LoadIndexPage()
 
     if (fd == INVALID_FD)
         OpenForReading();
+
+    if (indexPage)
+    {
+        // already loaded
+        if (useCache && !indexPage->IsCached())
+            StoragePageCache::AddPage(indexPage);
+            
+        return;
+    }
     
     indexPage = new StorageIndexPage(this);
     offset = headerPage.GetIndexPageOffset();
@@ -489,6 +507,15 @@ void StorageFileChunk::LoadDataPage(uint32_t index, uint64_t offset, bool bulk, 
     if (fd == INVALID_FD)
         OpenForReading();
     
+    if (dataPages[index])
+    {
+        // already loaded
+        if (useCache && !dataPages[index]->IsCached())
+            StoragePageCache::AddPage(dataPages[index]);
+            
+        return;
+    }
+
     dataPages[index] = new StorageDataPage(this, index);
     dataPages[index]->SetOffset(offset);
     if (!ReadPage(offset, buffer, keysOnly))

@@ -175,6 +175,7 @@ void StorageEnvironment::Close()
     writeChunkJobs.Stop();
     mergeChunkJobs.Stop();
     archiveLogJobs.Stop();
+    deleteChunkJobs.Stop();
     
     asyncGetThread->Stop();
     asyncThread->Stop();
@@ -1196,6 +1197,7 @@ void StorageEnvironment::OnLogArchive(StorageArchiveLogSegmentJob* job)
     logSegments.Delete(logSegment);
     
     TryArchiveLogSegments();
+    delete job;
 }
 
 void StorageEnvironment::OnBackgroundTimer()

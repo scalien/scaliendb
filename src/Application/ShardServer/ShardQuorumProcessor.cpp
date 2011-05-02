@@ -188,7 +188,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     quorumContext.OnLearnLease();
     
     if (message.watchingPaxosID)
-            quorumContext.AppendDummy();
+        quorumContext.AppendDummy();
     
     leaseRequests.Delete(lease);
     
@@ -302,7 +302,7 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     lease->expireTime = expireTime;
     leaseRequests.Append(lease);
     
-    while(leaseRequests.GetLength() > MAX_LEASE_REQUESTS)
+    while (leaseRequests.GetLength() > MAX_LEASE_REQUESTS)
         leaseRequests.Delete(leaseRequests.First());
 }
 

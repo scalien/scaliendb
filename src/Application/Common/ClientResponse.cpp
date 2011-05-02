@@ -141,6 +141,7 @@ bool ClientResponse::ListKeys(unsigned numKeys_, ReadBuffer* keys_)
     
     type = CLIENTRESPONSE_LIST_KEYS;
     numKeys = numKeys_;
+    delete[] keys;
     keys = new ReadBuffer[numKeys];
     for (i = 0; i < numKeys; i++)
         keys[i] = keys_[i];
@@ -154,7 +155,9 @@ bool ClientResponse::ListKeyValues(unsigned numKeys_, ReadBuffer* keys_, ReadBuf
     
     type = CLIENTRESPONSE_LIST_KEYVALUES;
     numKeys = numKeys_;
+    delete[] keys;
     keys = new ReadBuffer[numKeys];
+    delete[] values;
     values = new ReadBuffer[numKeys];
     for (i = 0; i < numKeys; i++)
     {

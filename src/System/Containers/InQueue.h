@@ -22,6 +22,7 @@ public:
     T*      Dequeue();              // remove from head/first
 
     void    Clear();
+    void    DeleteQueue();
     
     T*      First() const;  
     T*      Last() const;
@@ -89,6 +90,18 @@ void InQueue<T>::Clear()
 
     do elem = Dequeue();
     while (elem);
+}
+
+template<class T>
+void InQueue<T>::DeleteQueue()
+{
+    T*  elem;
+    
+    do
+    {
+        elem = Dequeue();
+        delete elem;
+    } while (elem);
 }
 
 template<class T>

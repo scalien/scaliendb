@@ -62,6 +62,8 @@ void StorageAsyncList::Init()
 void StorageAsyncList::Clear()
 {
     unsigned    i;
+
+    Log_Debug("StorageAsyncList cleared");
     
     for (i = 0; i < numListers; i++)
         delete listers[i];
