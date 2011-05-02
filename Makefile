@@ -130,7 +130,6 @@ CLIENTLIBS = \
 
 EXECUTABLES = \
 	$(BUILD_DIR)/scaliendb \
-	$(BUILD_DIR)/test \
 	$(BIN_DIR)/scaliendb
 	
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
