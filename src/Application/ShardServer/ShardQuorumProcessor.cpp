@@ -633,6 +633,10 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         EventLoop::Add(&tryAppend);
 }
 
+void ShardQuorumProcessor::OnBlockShard(uint64_t shardID)
+{
+}
+
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
     message->fromClient = true;

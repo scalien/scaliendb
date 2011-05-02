@@ -82,7 +82,7 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     {
         Log_Debug("Pushing memo chunk");
         ASSERT(env->PushMemoChunk(contextID, shardID));
-        chunk = *(shard->chunks.Last());
+        chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
         if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
             Call(onBlockShard);
     }

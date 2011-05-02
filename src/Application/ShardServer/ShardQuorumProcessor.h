@@ -105,9 +105,9 @@ public:
     uint64_t                GetCatchupBytesTotal();
     uint64_t                GetCatchupThroughput();
 
-//    bool                    IsShardMigrationActive();
     uint64_t                GetMigrateShardID();
     void                    OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& message);
+    void                    OnBlockShard(uint64_t shardID);
     
     // ========================================================================================
     // For ShardQuorumContext:
