@@ -21,7 +21,7 @@ class StorageFileChunk;
 class StorageBulkCursor
 {
 public:
-    StorageBulkCursor(bool shardMigration = false);
+    StorageBulkCursor();
     ~StorageBulkCursor();
 
     void                    SetEnvironment(StorageEnvironment* env);
@@ -40,7 +40,7 @@ public:
 private:
     StorageKeyValue*        FromNextBunch(StorageChunk* chunk);
 
-    bool                    shardMigration;
+    bool                    blockShard;
     bool                    isLast;
     uint64_t                contextID;
     uint64_t                shardID;

@@ -595,7 +595,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             migrateCache = 0;
             shardMessage->ShardMigrationBegin(clusterMessage.shardID);
             Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());    
-
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
             ASSERT(migrateShardID = clusterMessage.shardID);
@@ -610,6 +609,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
             ASSERT(migrateShardID = clusterMessage.shardID);
+            Log_Debug("Received shard migration COMMIT");
             shardMessage->ShardMigrationComplete(clusterMessage.shardID);
             break;
         default:
@@ -736,10 +736,9 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
         migrateShardID = 0;
         migrateNodeID = 0;
         migrateCache = 0;
-        return;
     }
-
-    shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, *shardMessage);
+    else
+        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, *shardMessage);
     
     if (!ownCommand)
         return;
@@ -892,6 +891,8 @@ void ShardQuorumProcessor::BlockShard()
 
     ASSERT(blockedShardID != 0);
     
+    Log_Debug("ShardQuorumProcessor::BlockShard()");
+    
     for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
     {
         nextMessage = shardMessages.Next(itMessage);
@@ -913,5 +914,6 @@ void ShardQuorumProcessor::BlockShard()
 
 void ShardQuorumProcessor::OnUnblockShardTimeout()
 {
+    Log_Debug("ShardQuorumProcessor::OnUnblockShardTimeout()");
     blockedShardID = 0;
 }

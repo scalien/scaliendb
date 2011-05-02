@@ -2,10 +2,10 @@
 #include "StorageEnvironment.h"
 #include "StoragePageCache.h"
 
-StorageBulkCursor::StorageBulkCursor(bool shardMigration_)
+StorageBulkCursor::StorageBulkCursor()
  : dataPage(NULL, 0)
 {
-    shardMigration = shardMigration_;
+    blockShard = false;
     shard = NULL;
     isLast = false;
     contextID = 0;
@@ -26,6 +26,7 @@ void StorageBulkCursor::SetEnvironment(StorageEnvironment* env_)
 
 void StorageBulkCursor::SetOnBlockShard(Callable onBlockShard_)
 {
+    blockShard = true;
     onBlockShard = onBlockShard_;
 }
 
@@ -78,13 +79,21 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
         if ((*itChunk)->GetChunkID() == chunkID)
             break;
     
-    if (itChunk == NULL && shardMigration)
+    if (itChunk == NULL && blockShard)
     {
-        Log_Debug("Pushing memo chunk");
-        ASSERT(env->PushMemoChunk(contextID, shardID));
-        chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
-        if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
+        if (shard->GetMemoChunk()->GetSize() > 0)
+        {
+            Log_Debug("Pushing memo chunk1");
+            ASSERT(env->PushMemoChunk(contextID, shardID));
+            chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
+            if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
+                Call(onBlockShard);
+        }
+        else
+        {
             Call(onBlockShard);
+            return NULL;
+        }
     }
     else
     {
@@ -157,21 +166,36 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         }
         
         if (itChunk)
-        {
             chunk = *itChunk;
-            chunkID = chunk->GetChunkID();
-//            Log_Message("Iterating chunk %U", chunkID);
-        }
         else
         {
             if (shard->GetMemoChunk()->GetChunkID() == chunkID)
+            {
+                if (blockShard)
+                    Call(onBlockShard);
                 return NULL; // end of iteration
-            
-            // iterate memoChunk
-            chunk = shard->GetMemoChunk();
-            chunkID = chunk->GetChunkID();
-//            Log_Message("Iterating chunk %U", chunkID);
+            }
+
+            if (blockShard)
+            {
+                if (shard->GetMemoChunk()->GetSize() > 0)
+                {
+                    Log_Debug("Pushing memo chunk2");
+                    ASSERT(env->PushMemoChunk(contextID, shardID));
+                    chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
+                    if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
+                        Call(onBlockShard);
+                }
+                else
+                {
+                    Call(onBlockShard);
+                    return NULL;
+                }
+            }
+            else
+                chunk = shard->GetMemoChunk();
         }
+        chunkID = chunk->GetChunkID();
         
         dataPage.Reset();
     }
