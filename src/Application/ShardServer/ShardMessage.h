@@ -18,6 +18,8 @@
 #define SHARDMESSAGE_MIGRATION_DELETE       '3'
 #define SHARDMESSAGE_MIGRATION_COMPLETE     '4'
 
+class ClientRequest;
+
 /*
 ===============================================================================================
 
@@ -30,7 +32,6 @@ class ShardMessage
 {
 public:
     // Variables
-    bool            fromClient;
     bool            isBulk;
     char            type;
     uint64_t        tableID;
@@ -43,9 +44,12 @@ public:
     Buffer          splitKey;
     Buffer          migrationKey;
     Buffer          migrationValue;
+    ClientRequest*  clientRequest;
 
     // Constructor
     ShardMessage();
+    
+    bool            IsClientWrite();
 
     // Data manipulation
     void            Set(uint64_t tableID, ReadBuffer& key, ReadBuffer& value);

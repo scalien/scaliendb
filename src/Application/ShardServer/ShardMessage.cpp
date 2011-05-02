@@ -3,6 +3,20 @@
 ShardMessage::ShardMessage()
 {
     prev = next = this;
+    clientRequest = NULL;
+}
+
+bool ShardMessage::IsClientWrite()
+{
+    return (type == SHARDMESSAGE_SET ||
+            type == SHARDMESSAGE_SET_IF_NOT_EXISTS ||
+            type == SHARDMESSAGE_TEST_AND_SET ||
+            type == SHARDMESSAGE_GET_AND_SET ||
+            type == SHARDMESSAGE_ADD ||
+            type == SHARDMESSAGE_APPEND ||
+            type == SHARDMESSAGE_DELETE ||
+            type == SHARDMESSAGE_REMOVE);
+
 }
 
 void ShardMessage::Set(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)

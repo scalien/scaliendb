@@ -13,6 +13,7 @@ class ShardServer;
 #define NORMAL_PRIMARYLEASE_REQUEST_TIMEOUT         500
 #define ACTIVATION_PRIMARYLEASE_REQUEST_TIMEOUT     100
 #define MAX_LEASE_REQUESTS                          50
+#define UNBLOCK_SHARD_TIMEOUT                       3000
 
 /*
 ===============================================================================================
@@ -88,7 +89,6 @@ public:
     void                    OnReceiveLease(ClusterMessage& message);
     void                    OnClientRequest(ClientRequest* request);
     void                    OnClientClose(ClientSession* session);
-//    void                    SetActiveNodes(SortedList<uint64_t>& activeNodes);
     void                    RegisterPaxosID(uint64_t paxosID);
     void                    TryReplicationCatchup();
     void                    TrySplitShard(uint64_t parentShardID, uint64_t shardID,
@@ -108,6 +108,7 @@ public:
     uint64_t                GetMigrateShardID();
     void                    OnShardMigrationClusterMessage(uint64_t nodeID, ClusterMessage& message);
     void                    OnBlockShard(uint64_t shardID);
+    uint64_t                GetBlockedShardID();
     
     // ========================================================================================
     // For ShardQuorumContext:
@@ -128,10 +129,12 @@ public:
 private:
     void                    TransformRequest(ClientRequest* request, ShardMessage* message);
     void                    ExecuteMessage(uint64_t paxosID, uint64_t commandID,
-                             ShardMessage* message, ClientRequest* request, bool ownCommand);
+                             ShardMessage* message, bool ownCommand);
     void                    TryAppend();
     void                    OnResumeAppend();
     void                    LocalExecute();
+    void                    BlockShard();
+    void                    OnUnblockShardTimeout();
 
     bool                    isPrimary;
     uint64_t                highestProposalID;
@@ -145,17 +148,18 @@ private:
     SortedList<uint64_t>    activeNodes;
     LeaseRequestList        leaseRequests;
     MessageList             shardMessages;
-    RequestList             clientRequests;
     
     uint64_t                migrateNodeID;
     uint64_t                migrateShardID;
     int64_t                 migrateCache; // in bytes
+    uint64_t                blockedShardID;
     
     ShardCatchupReader      catchupReader;
     ShardCatchupWriter      catchupWriter;
 
     Countdown               requestLeaseTimeout;
     Countdown               activationTimeout;
+    Countdown               unblockShardTimeout;
     Timer                   leaseTimeout;
     YieldTimer              tryAppend;
     YieldTimer              resumeAppend;
