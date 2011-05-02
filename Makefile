@@ -129,8 +129,8 @@ CLIENTLIBS = \
 
 
 EXECUTABLES = \
-	$(BUILD_DIR)/ScalienDB \
-	$(BUILD_DIR)/Test \
+	$(BUILD_DIR)/scaliendb \
+	$(BUILD_DIR)/test \
 	$(BIN_DIR)/scaliendb
 	
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c
@@ -293,7 +293,7 @@ $(BIN_DIR)/$(PERL_DIR)/$(PERL_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(
 	-cp -rf $(SRC_DIR)/$(PERL_CLIENT_DIR)/scaliendb_client.pm $(BIN_DIR)/$(PERL_DIR)
 
 # executables	
-$(BUILD_DIR)/ScalienDB: $(BUILD_DIR) $(LIBS) $(OBJECTS)
+$(BUILD_DIR)/scaliendb: $(BUILD_DIR) $(LIBS) $(OBJECTS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJECTS) $(LIBS)
 
 $(BIN_DIR)/clienttest: $(BUILD_DIR) $(TEST_OBJECTS) $(BIN_DIR)/$(ALIB)
