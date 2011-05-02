@@ -16,7 +16,6 @@ bool ShardMessage::IsClientWrite()
             type == SHARDMESSAGE_APPEND ||
             type == SHARDMESSAGE_DELETE ||
             type == SHARDMESSAGE_REMOVE);
-
 }
 
 void ShardMessage::Set(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
