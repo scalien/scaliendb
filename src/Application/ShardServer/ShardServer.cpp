@@ -179,6 +179,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
         return;
     }
     
+    request->shardID = shard->shardID;    
     quorumProcessor->OnClientRequest(request);
 }
 

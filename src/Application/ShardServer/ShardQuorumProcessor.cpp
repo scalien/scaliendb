@@ -402,13 +402,13 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     message->clientRequest = request;
     shardMessages.Append(message);
 
-    if (request->isBulk ||
-     (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0))
-    {
-        if (!localExecute.IsActive())
-            EventLoop::Add(&localExecute);
-        return;
-    }
+//    if (request->isBulk ||
+//     (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0))
+//    {
+//        if (!localExecute.IsActive())
+//            EventLoop::Add(&localExecute);
+//        return;
+//    }
     
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
@@ -471,16 +471,16 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     message->isBulk = false;
     shardMessages.Append(message);
 
-    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
-    {
+//    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
+//    {
         if (!tryAppend.IsActive())
             EventLoop::Add(&tryAppend);
-    }
-    else
-    {
-        if (!localExecute.IsActive())
-            EventLoop::Add(&localExecute);
-    }
+//    }
+//    else
+//    {
+//        if (!localExecute.IsActive())
+//            EventLoop::Add(&localExecute);
+//    }
 }
 
 void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardID)
@@ -505,16 +505,16 @@ void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardI
     message->isBulk = false;
     shardMessages.Append(message);
 
-    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
-    {
+//    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
+//    {
         if (!tryAppend.IsActive())
             EventLoop::Add(&tryAppend);
-    }
-    else
-    {
-        if (!localExecute.IsActive())
-            EventLoop::Add(&localExecute);
-    }
+//    }
+//    else
+//    {
+//        if (!localExecute.IsActive())
+//            EventLoop::Add(&localExecute);
+//    }
 }
 
 void ShardQuorumProcessor::OnActivation()
@@ -624,12 +624,12 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         CONTEXT_TRANSPORT->PauseReads(migrateNodeID);
     }
 
-    if (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0)
-    {
-        if (!localExecute.IsActive())
-            EventLoop::Add(&localExecute);
-        return;
-    }
+//    if (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0)
+//    {
+//        if (!localExecute.IsActive())
+//            EventLoop::Add(&localExecute);
+//        return;
+//    }
 
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
@@ -639,7 +639,7 @@ void ShardQuorumProcessor::OnBlockShard(uint64_t shardID)
 {
     // we could be in the middle of an async append loop
     blockedShardID = shardID;
-    if (!resumeAppend.IsActive())
+    if (!resumeAppend.IsActive() && !quorumContext.IsAppending())
         BlockShard();
 }
 
@@ -782,6 +782,10 @@ void ShardQuorumProcessor::TryAppend()
 
         if (message->type == SHARDMESSAGE_SPLIT_SHARD || nextValue.GetLength() >= DATABASE_REPLICATION_SIZE)
             break;
+        
+        if (message->clientRequest &&
+         shardServer->GetShardMigrationShardID() == message->clientRequest->shardID)
+            break;
     }
 
 //    Log_Debug("numMessages = %u", numMessages);
@@ -849,6 +853,8 @@ void ShardQuorumProcessor::LocalExecute()
     ShardMessage*   nextMessage;
     ClusterMessage  clusterMessage;
     
+    ASSERT_FAIL();
+    
     if (shardServer->GetDatabaseManager()->GetEnvironment()->IsCommiting())
     {
         EventLoop::Add(&localExecute);
@@ -874,6 +880,10 @@ void ShardQuorumProcessor::LocalExecute()
         ExecuteMessage(paxosID, 0, itMessage, true);
         // removes from shardMessages and clientRequests lists
         
+        if (itMessage->clientRequest &&
+         shardServer->GetShardMigrationShardID() == itMessage->clientRequest->shardID)
+            break;
+
         commandID++;
         TRY_YIELD_BREAK(localExecute, start);
     }
