@@ -163,8 +163,9 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             // the requests
             if (response.type == CLIENTRESPONSE_NOSERVICE)
             {
-                client->AddRequestToQuorum(request, true);
-                // TODO: Reassign request to other quorum (e.g. shard migration) like in NEXT
+                //client->AddRequestToQuorum(request, true);
+                client->ReassignRequest(request);
+                client->SendQuorumRequests();
                 return false;
             }
             
