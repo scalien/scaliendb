@@ -728,7 +728,8 @@ void Client::EventLoop(long wait)
     
     EventLoop::UpdateTime();
     EventLoop::Reset(&globalTimeout);
-    EventLoop::Reset(&masterTimeout);
+    if (master == -1)
+        EventLoop::Reset(&masterTimeout);
     timeoutStatus = SDBP_SUCCESS;
     startTime = EventLoop::Now();
     
@@ -813,12 +814,8 @@ void Client::SetMaster(int64_t master_, uint64_t nodeID)
             Log_Debug("Node %d is the master", nodeID);
             master = master_;
             connectivityStatus = SDBP_SUCCESS;
-            
-            // TODO: it is similar to ResendRequests
-            //SendRequest(nodeID, safeRequests);
+            EventLoop::Remove(&masterTimeout);
         }
-        // else node is still the master
-        EventLoop::Reset(&masterTimeout);
     }
     else if (master_ < 0 && master == (int64_t) nodeID)
     {
@@ -827,7 +824,7 @@ void Client::SetMaster(int64_t master_, uint64_t nodeID)
         master = -1;
         connectivityStatus = SDBP_NOMASTER;
 
-        // TODO: What's this? -> set master timeout (copy-paste from Keyspace)
+        EventLoop::Reset(&masterTimeout);
     }
 }
 

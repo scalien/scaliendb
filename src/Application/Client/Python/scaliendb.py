@@ -623,8 +623,7 @@ class Client:
         """
         status = SDBP_ListKeys(self.cptr, start_key, end_key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
-        if status < 0:
-            return
+        self._check_status(status)
         keys = []
         self.result.begin()
         while not self.result.is_end():
@@ -647,8 +646,7 @@ class Client:
         """
         status = SDBP_ListKeyValues(self.cptr, start_key, end_key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
-        if status < 0:
-            return
+        self._check_status(status)
         key_values = {}
         self.result.begin()
         while not self.result.is_end():
@@ -671,8 +669,7 @@ class Client:
         """
         status = SDBP_Count(self.cptr, start_key, end_key, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
-        if status < 0:
-            return
+        self._check_status(status)
         return self.result.number()        
 
     def begin(self):
