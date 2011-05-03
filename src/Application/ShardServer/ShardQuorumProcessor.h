@@ -44,7 +44,7 @@ struct ShardLeaseRequest
 
 struct ShardAppendState
 {
-    bool                    ownAppend;
+    bool                    currentAppend;
     uint64_t                paxosID;
     uint64_t                commandID;
     Buffer                  valueBuffer;

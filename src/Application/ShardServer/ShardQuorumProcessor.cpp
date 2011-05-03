@@ -18,7 +18,7 @@ ShardLeaseRequest::ShardLeaseRequest()
 
 void ShardAppendState::Reset()
 {
-    ownAppend = false;
+    currentAppend = false;
     paxosID = 0;
     commandID = 0;
     valueBuffer.Reset();
@@ -216,7 +216,7 @@ void ShardQuorumProcessor::OnAppend(uint64_t paxosID, Buffer& value, bool ownApp
     appendState.commandID = 0;
     appendState.valueBuffer.Write(value);
     appendState.value.Wrap(appendState.valueBuffer);
-    appendState.ownAppend = ownAppend;
+    appendState.currentAppend = ownAppend && quorumContext.IsLeaseOwner();
 
     OnResumeAppend();
 }
@@ -338,7 +338,7 @@ void ShardQuorumProcessor::OnLeaseTimeout()
         delete itMessage;
     }
     
-    appendState.ownAppend = false;
+    appendState.currentAppend = false;
     isPrimary = false;
     migrateShardID = 0;
     migrateNodeID = 0;
@@ -815,7 +815,7 @@ void ShardQuorumProcessor::OnResumeAppend()
         ASSERT(appendState.value.GetCharAt(0) == ' ');
         appendState.value.Advance(1);
 
-        if (appendState.ownAppend)
+        if (appendState.currentAppend)
         {
             // find this message in the shardMessages list
             FOREACH (itShardMessage, shardMessages)
@@ -825,7 +825,7 @@ void ShardQuorumProcessor::OnResumeAppend()
         }
 
         ExecuteMessage(appendState.paxosID, appendState.commandID,
-         (appendState.ownAppend ? itShardMessage : &shardMessage), appendState.ownAppend);
+         (appendState.currentAppend ? itShardMessage : &shardMessage), appendState.currentAppend);
 
         appendState.commandID++;
         
