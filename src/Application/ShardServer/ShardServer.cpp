@@ -83,6 +83,11 @@ ShardDatabaseManager* ShardServer::GetDatabaseManager()
     return &databaseManager;
 }
 
+ShardMigrationWriter* ShardServer::GetShardMigrationWriter()
+{
+    return &migrationWriter;
+}
+
 ConfigState* ShardServer::GetConfigState()
 {
     return &configState;
@@ -94,41 +99,6 @@ void ShardServer::BroadcastToControllers(Message& message)
 
     FOREACH (itNodeID, configServers)
         CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, message);
-}
-
-bool ShardServer::IsSendingShard()
-{
-    return migrationWriter.IsActive();
-}
-
-uint64_t ShardServer::GetShardMigrationShardID()
-{
-    return migrationWriter.GetShardID();
-}
-
-uint64_t ShardServer::GetShardMigrationQuorumID()
-{
-    return migrationWriter.GetQuorumID();
-}
-
-uint64_t ShardServer::GetShardMigrationNodeID()
-{
-    return migrationWriter.GetNodeID();
-}
-
-uint64_t ShardServer::GetShardMigrationBytesSent()
-{
-    return migrationWriter.GetBytesSent();
-}
-
-uint64_t ShardServer::GetShardMigrationBytesTotal()
-{
-    return migrationWriter.GetBytesTotal();
-}
-
-uint64_t ShardServer::GetShardMigrationThroughput()
-{
-    return migrationWriter.GetThroughput();
 }
 
 bool ShardServer::IsValidClientRequest(ClientRequest* request)

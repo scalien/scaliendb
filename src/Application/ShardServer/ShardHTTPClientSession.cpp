@@ -13,6 +13,8 @@
     ReadBuffer::Cmp((param), "on") == 0 ||            \
     ReadBuffer::Cmp((param), "1") == 0) ? true : false)
 
+#define SHARD_MIGRATION_WRITER (shardServer->GetShardMigrationWriter())
+
 void ShardHTTPClientSession::SetShardServer(ShardServer* shardServer_)
 {
     shardServer = shardServer_;
@@ -145,11 +147,11 @@ void ShardHTTPClientSession::PrintStatus()
     
     keybuf.Writef("Migrating shard (sending)");
     keybuf.NullTerminate();
-    if (shardServer->IsSendingShard())
+    if (SHARD_MIGRATION_WRITER->IsActive())
         valbuf.Writef("yes (sent: %s/%s, aggregate throughput: %s/s)",
-         HUMAN_BYTES(shardServer->GetShardMigrationBytesSent()),
-         HUMAN_BYTES(shardServer->GetShardMigrationBytesTotal()),
-         HUMAN_BYTES(shardServer->GetShardMigrationThroughput()));
+         HUMAN_BYTES(SHARD_MIGRATION_WRITER->GetBytesSent()),
+         HUMAN_BYTES(SHARD_MIGRATION_WRITER->GetBytesTotal()),
+         HUMAN_BYTES(SHARD_MIGRATION_WRITER->GetThroughput()));
     else
         valbuf.Writef("no");
     valbuf.NullTerminate();

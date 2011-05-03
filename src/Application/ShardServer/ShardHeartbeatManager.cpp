@@ -6,6 +6,8 @@
 #include "ShardServer.h"
 #include "System/Config.h"
 
+#define SHARD_MIGRATION_WRITER (shardServer->GetShardMigrationWriter())
+
 ShardHeartbeatManager::ShardHeartbeatManager()
 {
     heartbeatTimeout.SetCallable(MFUNC(ShardHeartbeatManager, OnHeartbeatTimeout));
@@ -84,14 +86,14 @@ void ShardHeartbeatManager::OnHeartbeatTimeout()
             quorumShardInfo.shardSize = env->GetSize(QUORUM_DATABASE_DATA_CONTEXT, *itShardID);
             quorumShardInfo.splitKey.Write(env->GetMidpoint(QUORUM_DATABASE_DATA_CONTEXT, *itShardID));
             
-            if (shardServer->IsSendingShard() && shardServer->GetShardMigrationShardID() == quorumShardInfo.shardID)
+            if (SHARD_MIGRATION_WRITER->IsActive() && SHARD_MIGRATION_WRITER->GetShardID() == quorumShardInfo.shardID)
             {
                 quorumShardInfo.isSendingShard = true;
-                quorumShardInfo.migrationQuorumID = shardServer->GetShardMigrationQuorumID();
-                quorumShardInfo.migrationNodeID = shardServer->GetShardMigrationNodeID();
-                quorumShardInfo.migrationBytesSent = shardServer->GetShardMigrationBytesSent();
-                quorumShardInfo.migrationBytesTotal = shardServer->GetShardMigrationBytesTotal();
-                quorumShardInfo.migrationThroughput = shardServer->GetShardMigrationThroughput();
+                quorumShardInfo.migrationQuorumID = SHARD_MIGRATION_WRITER->GetQuorumID();
+                quorumShardInfo.migrationNodeID = SHARD_MIGRATION_WRITER->GetNodeID();
+                quorumShardInfo.migrationBytesSent = SHARD_MIGRATION_WRITER->GetBytesSent();
+                quorumShardInfo.migrationBytesTotal = SHARD_MIGRATION_WRITER->GetBytesTotal();
+                quorumShardInfo.migrationThroughput = SHARD_MIGRATION_WRITER->GetThroughput();
             }
             else
             {

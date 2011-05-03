@@ -4,6 +4,8 @@
 #include "Application/Common/ContextTransport.h"
 #include "ShardServer.h"
 
+#define SHARD_MIGRATION_WRITER (shardServer->GetShardMigrationWriter())
+
 static bool LessThan(uint64_t a, uint64_t b)
 {
     return a < b;
@@ -783,8 +785,8 @@ void ShardQuorumProcessor::TryAppend()
         if (message->type == SHARDMESSAGE_SPLIT_SHARD || nextValue.GetLength() >= DATABASE_REPLICATION_SIZE)
             break;
         
-        if (message->clientRequest &&
-         shardServer->GetShardMigrationShardID() == message->clientRequest->shardID)
+        if (message->clientRequest && SHARD_MIGRATION_WRITER->IsActive() &&
+         SHARD_MIGRATION_WRITER->GetShardID() == message->clientRequest->shardID)
             break;
     }
 
@@ -880,8 +882,8 @@ void ShardQuorumProcessor::LocalExecute()
         ExecuteMessage(paxosID, 0, itMessage, true);
         // removes from shardMessages and clientRequests lists
         
-        if (itMessage->clientRequest &&
-         shardServer->GetShardMigrationShardID() == itMessage->clientRequest->shardID)
+        if (itMessage->clientRequest && SHARD_MIGRATION_WRITER->IsActive() &&
+         SHARD_MIGRATION_WRITER->GetShardID() == itMessage->clientRequest->shardID)
             break;
 
         commandID++;
