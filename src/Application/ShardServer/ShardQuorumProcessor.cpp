@@ -33,6 +33,9 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     activationTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnActivationTimeout));
     activationTimeout.SetDelay(ACTIVATION_TIMEOUT);
 
+    unblockShardTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnUnblockShardTimeout));
+    unblockShardTimeout.SetDelay(UNBLOCK_SHARD_TIMEOUT);
+
     leaseTimeout.SetCallable(MFUNC(ShardQuorumProcessor, OnLeaseTimeout));
     tryAppend.SetCallable(MFUNC(ShardQuorumProcessor, TryAppend));
     resumeAppend.SetCallable(MFUNC(ShardQuorumProcessor, OnResumeAppend));
@@ -50,6 +53,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     migrateShardID = 0;
     migrateNodeID = 0;
     migrateCache = 0;
+    blockedShardID = 0;
     appendState.Reset();
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
@@ -58,18 +62,21 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
 
 void ShardQuorumProcessor::Shutdown()
 {
-    ClientRequest*      request;
+    ShardMessage*       itMessage;
     
     leaseRequests.DeleteList();
+  
+    FOREACH(itMessage, shardMessages)
+    {
+        if (!itMessage->clientRequest)
+            continue;
+        
+        itMessage->clientRequest->response.NoService();
+        itMessage->clientRequest->OnComplete();
+        itMessage->clientRequest = NULL;
+    }
     shardMessages.DeleteList();
     
-    FOREACH_FIRST (request, clientRequests)
-    {
-        clientRequests.Remove(request);
-        request->response.NoService();
-        request->OnComplete();
-    }
-
     if (requestLeaseTimeout.IsActive())
         EventLoop::Remove(&requestLeaseTimeout);
 
@@ -308,33 +315,25 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
 
 void ShardQuorumProcessor::OnLeaseTimeout()
 {
-    ClientRequest*  itRequest, *nextRequest;
     ShardMessage*   itMessage, *nextMessage;
     
-    Log_Debug("Lease lost for quorum %U, dropping %u pending requests...",
-     GetQuorumID(), clientRequests.GetLength());
+    Log_Debug("Lease lost for quorum %U, dropping pending requests...", GetQuorumID());
     
-    for (itRequest = clientRequests.First(); itRequest != NULL; itRequest = nextRequest)
-    {
-        nextRequest = clientRequests.Next(itRequest);
-
-        if (!itRequest->isBulk)
-        {
-            clientRequests.Remove(itRequest);
-            itRequest->response.NoService();
-            itRequest->OnComplete();
-        }
-    }
-
     for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
     {
         nextMessage = shardMessages.Next(itMessage);
         
-        if (!itMessage->isBulk)
+        if (itMessage->isBulk)
+            continue;
+
+        if (itMessage->clientRequest)
         {
-            shardMessages.Remove(itMessage);
-            delete itMessage;
+            itMessage->clientRequest->response.NoService();
+            itMessage->clientRequest->OnComplete();
+            itMessage->clientRequest = NULL;
         }
+        shardMessages.Remove(itMessage);
+        delete itMessage;
     }
     
     appendState.ownAppend = false;
@@ -342,6 +341,7 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     migrateShardID = 0;
     migrateNodeID = 0;
     migrateCache = 0;
+    blockedShardID = 0;
     
     if (catchupWriter.IsActive())
         catchupWriter.Abort();
@@ -398,17 +398,17 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     TransformRequest(request, message);
     
     Log_Trace("message.type = %c, message.key = %R", message->type, &message->key);
-    
-    clientRequests.Append(request);
+
+    message->clientRequest = request;
     shardMessages.Append(message);
 
-    if (request->isBulk ||
-     (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0))
-    {
-        if (!localExecute.IsActive())
-            EventLoop::Add(&localExecute);
-        return;
-    }
+//    if (request->isBulk ||
+//     (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0))
+//    {
+//        if (!localExecute.IsActive())
+//            EventLoop::Add(&localExecute);
+//        return;
+//    }
     
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
@@ -451,11 +451,12 @@ uint64_t ShardQuorumProcessor::GetMigrateShardID()
 
 void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey)
 {
-    ShardMessage*   it;
+    ShardMessage* itMessage;
+    ShardMessage* message;
     
-    FOREACH (it, shardMessages)
+    FOREACH (itMessage, shardMessages)
     {
-        if (it->type == SHARDMESSAGE_SPLIT_SHARD && it->shardID == shardID)
+        if (itMessage->type == SHARDMESSAGE_SPLIT_SHARD && itMessage->shardID == shardID)
         {
             Log_Trace("Not appending shard split");
             return;
@@ -464,31 +465,32 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     
     Log_Trace("Appending shard split");
 
-    it = new ShardMessage;
-    it->SplitShard(shardID, newShardID, splitKey);
-    it->fromClient = false;
-    it->isBulk = false;
-    shardMessages.Append(it);
+    message = new ShardMessage;
+    message->SplitShard(shardID, newShardID, splitKey);
+    message->clientRequest = NULL;
+    message->isBulk = false;
+    shardMessages.Append(message);
 
-    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
-    {
+//    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
+//    {
         if (!tryAppend.IsActive())
             EventLoop::Add(&tryAppend);
-    }
-    else
-    {
-        if (!localExecute.IsActive())
-            EventLoop::Add(&localExecute);
-    }
+//    }
+//    else
+//    {
+//        if (!localExecute.IsActive())
+//            EventLoop::Add(&localExecute);
+//    }
 }
 
 void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardID)
 {
-    ShardMessage*   it;
+    ShardMessage* itMessage;
+    ShardMessage* message;
     
-    FOREACH (it, shardMessages)
+    FOREACH (itMessage, shardMessages)
     {
-        if (it->type == SHARDMESSAGE_TRUNCATE_TABLE && it->tableID == tableID)
+        if (itMessage->type == SHARDMESSAGE_TRUNCATE_TABLE && itMessage->tableID == tableID)
         {
             Log_Trace("Not appending truncate table");
             return;
@@ -497,22 +499,22 @@ void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardI
     
     Log_Trace("Appending truncate table");
 
-    it = new ShardMessage;
-    it->TruncateTable(tableID, newShardID);
-    it->fromClient = false;
-    it->isBulk = false;
-    shardMessages.Append(it);
+    message = new ShardMessage;
+    message->TruncateTable(tableID, newShardID);
+    message->clientRequest = NULL;
+    message->isBulk = false;
+    shardMessages.Append(message);
 
-    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
-    {
+//    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
+//    {
         if (!tryAppend.IsActive())
             EventLoop::Add(&tryAppend);
-    }
-    else
-    {
-        if (!localExecute.IsActive())
-            EventLoop::Add(&localExecute);
-    }
+//    }
+//    else
+//    {
+//        if (!localExecute.IsActive())
+//            EventLoop::Add(&localExecute);
+//    }
 }
 
 void ShardQuorumProcessor::OnActivation()
@@ -582,7 +584,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
     }
 
     shardMessage = new ShardMessage();
-    shardMessage->fromClient = false;
+    shardMessage->clientRequest = NULL;
     shardMessage->isBulk = false;
 
     switch (clusterMessage.type)
@@ -593,7 +595,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             migrateCache = 0;
             shardMessage->ShardMigrationBegin(clusterMessage.shardID);
             Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());    
-
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
             ASSERT(migrateShardID = clusterMessage.shardID);
@@ -608,6 +609,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_COMMIT:
             ASSERT(migrateShardID = clusterMessage.shardID);
+            Log_Debug("Received shard migration COMMIT");
             shardMessage->ShardMigrationComplete(clusterMessage.shardID);
             break;
         default:
@@ -622,20 +624,33 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         CONTEXT_TRANSPORT->PauseReads(migrateNodeID);
     }
 
-    if (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0)
-    {
-        if (!localExecute.IsActive())
-            EventLoop::Add(&localExecute);
-        return;
-    }
+//    if (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0)
+//    {
+//        if (!localExecute.IsActive())
+//            EventLoop::Add(&localExecute);
+//        return;
+//    }
 
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
 }
 
+void ShardQuorumProcessor::OnBlockShard(uint64_t shardID)
+{
+    // we could be in the middle of an async append loop
+    blockedShardID = shardID;
+    if (!resumeAppend.IsActive() && !quorumContext.IsAppending())
+        BlockShard();
+}
+
+uint64_t ShardQuorumProcessor::GetBlockedShardID()
+{
+    return blockedShardID;
+}
+
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
-    message->fromClient = true;
+    message->clientRequest = request;
     message->isBulk = request->isBulk;
     
     switch (request->type)
@@ -693,7 +708,7 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
 }
 
 void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
- ShardMessage* shardMessage, ClientRequest* clientRequest, bool ownCommand)
+ ShardMessage* shardMessage, bool ownCommand)
 {
     ClusterMessage clusterMessage;
     
@@ -721,19 +736,17 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
         migrateShardID = 0;
         migrateNodeID = 0;
         migrateCache = 0;
-        return;
     }
-
-    shardServer->GetDatabaseManager()->ExecuteMessage(
-     paxosID, commandID, *shardMessage, clientRequest);
+    else
+        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, *shardMessage);
     
     if (!ownCommand)
         return;
         
-    if (shardMessage->fromClient)
+    if (shardMessage->clientRequest)
     {
-        clientRequests.Remove(clientRequest);
-        clientRequest->OnComplete(); // request deletes itself
+        shardMessage->clientRequest->OnComplete(); // request deletes itself
+        shardMessage->clientRequest = NULL;
     }
     shardMessages.Delete(shardMessage);
 }
@@ -769,6 +782,10 @@ void ShardQuorumProcessor::TryAppend()
 
         if (message->type == SHARDMESSAGE_SPLIT_SHARD || nextValue.GetLength() >= DATABASE_REPLICATION_SIZE)
             break;
+        
+        if (message->clientRequest &&
+         shardServer->GetShardMigrationShardID() == message->clientRequest->shardID)
+            break;
     }
 
 //    Log_Debug("numMessages = %u", numMessages);
@@ -780,11 +797,9 @@ void ShardQuorumProcessor::TryAppend()
 
 void ShardQuorumProcessor::OnResumeAppend()
 {
-    bool            fromClient;
     int             read;
     uint64_t        start;
     ShardMessage*   itShardMessage;
-    ClientRequest*  clientRequest;
     ShardMessage    shardMessage;
     ClusterMessage  clusterMessage;
     
@@ -805,24 +820,10 @@ void ShardQuorumProcessor::OnResumeAppend()
                 if (itShardMessage->isBulk == false)
                     break;
             ASSERT(itShardMessage != NULL);
-            fromClient = itShardMessage->fromClient;
         }
-        else
-            fromClient = false;
-
-        if (appendState.ownAppend && fromClient)
-        {
-            ASSERT(shardMessages.GetLength() > 0);
-            ASSERT(itShardMessage->type == shardMessage.type);
-            ASSERT(clientRequests.GetLength() > 0);
-            clientRequest = clientRequests.First();
-        }
-        else
-            clientRequest = NULL;
 
         ExecuteMessage(appendState.paxosID, appendState.commandID,
-         (appendState.ownAppend ? itShardMessage : &shardMessage),
-         clientRequest, appendState.ownAppend);
+         (appendState.ownAppend ? itShardMessage : &shardMessage), appendState.ownAppend);
 
         appendState.commandID++;
         
@@ -836,8 +837,11 @@ void ShardQuorumProcessor::OnResumeAppend()
     
     if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
         EventLoop::Add(&tryAppend);
+
+    if (blockedShardID != 0)
+        BlockShard();
     
-    quorumContext.OnAppendComplete();
+    quorumContext.OnAppendComplete();    
 }
 
 void ShardQuorumProcessor::LocalExecute()
@@ -845,9 +849,11 @@ void ShardQuorumProcessor::LocalExecute()
     bool            isSingle;
     uint64_t        start;
     uint64_t        paxosID, commandID;
-    ShardMessage*   itMessage, *nextMessage;
-    ClientRequest*  itRequest, *nextRequest;
+    ShardMessage*   itMessage;
+    ShardMessage*   nextMessage;
     ClusterMessage  clusterMessage;
+    
+    ASSERT_FAIL();
     
     if (shardServer->GetDatabaseManager()->GetEnvironment()->IsCommiting())
     {
@@ -865,22 +871,19 @@ void ShardQuorumProcessor::LocalExecute()
     commandID = 0;
     
     start = NowClock();
-    for (itMessage = shardMessages.First(), itRequest = clientRequests.First();
-     itMessage != NULL;
-     itMessage = nextMessage, itRequest = nextRequest)
+    for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
     {
         nextMessage = shardMessages.Next(itMessage);
-        if (itMessage->fromClient)
-            nextRequest = clientRequests.Next(itRequest);
-        else
-            nextRequest = itRequest;
-        
         if (!isSingle && !itMessage->isBulk)
             continue;
 
-        ExecuteMessage(paxosID, 0, itMessage, (itMessage->fromClient ? itRequest : NULL), true);
+        ExecuteMessage(paxosID, 0, itMessage, true);
         // removes from shardMessages and clientRequests lists
         
+        if (itMessage->clientRequest &&
+         shardServer->GetShardMigrationShardID() == itMessage->clientRequest->shardID)
+            break;
+
         commandID++;
         TRY_YIELD_BREAK(localExecute, start);
     }
@@ -888,4 +891,39 @@ void ShardQuorumProcessor::LocalExecute()
     quorumContext.WriteReplicationState();
     
     shardServer->GetDatabaseManager()->GetEnvironment()->Commit();    
+}
+
+void ShardQuorumProcessor::BlockShard()
+{
+    ShardMessage*   itMessage;
+    ShardMessage*   nextMessage;
+    ConfigShard*    configShard;
+
+    ASSERT(blockedShardID != 0);
+    
+    Log_Debug("ShardQuorumProcessor::BlockShard()");
+    
+    for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
+    {
+        nextMessage = shardMessages.Next(itMessage);
+        if (!itMessage->clientRequest || !itMessage->IsClientWrite())
+            continue;
+        
+        configShard = shardServer->GetConfigState()->GetShard(itMessage->tableID, itMessage->key);
+        if (!configShard || configShard->shardID != blockedShardID)
+            continue;
+        
+        itMessage->clientRequest->response.NoService();
+        itMessage->clientRequest->OnComplete();
+        itMessage->clientRequest = NULL;
+        shardMessages.Delete(itMessage);
+    }
+    
+    EventLoop::Reset(&unblockShardTimeout);
+}
+
+void ShardQuorumProcessor::OnUnblockShardTimeout()
+{
+    Log_Debug("ShardQuorumProcessor::OnUnblockShardTimeout()");
+    blockedShardID = 0;
 }

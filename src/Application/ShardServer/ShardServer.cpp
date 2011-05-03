@@ -172,6 +172,14 @@ void ShardServer::OnClientRequest(ClientRequest* request)
         return;
     }
     
+    if (quorumProcessor->GetBlockedShardID() == shard->shardID)
+    {
+        request->response.NoService();
+        request->OnComplete();
+        return;
+    }
+    
+    request->shardID = shard->shardID;    
     quorumProcessor->OnClientRequest(request);
 }
 

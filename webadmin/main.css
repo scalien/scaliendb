@@ -331,7 +331,6 @@ hr.head {
 
 .healthy {
 	background: #D7E7F7;
-/*	background: #67E46F;*/
 }
 
 .unhealthy {
@@ -348,7 +347,7 @@ span.quorum-head {
 }
 
 span.primary {
-	background-color: #008209;
+	background: #7BA1C7;
 }
 
 span.secondary {

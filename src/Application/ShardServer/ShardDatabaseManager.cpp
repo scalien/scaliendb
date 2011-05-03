@@ -415,18 +415,6 @@ void ShardDatabaseManager::RemoveDeletedDataShards(SortedList<uint64_t>& myShard
     }
 }
 
-#define CHECK_CMD()                                             \
-	if (readPaxosID > paxosID ||                                \
-	(readPaxosID == paxosID && readCommandID >= commandID))     \
-		break;
-
-#define RESPONSE_FAIL()                                         \
-    {                                                           \
-    if (request)                                                \
-        request->response.Failed();                             \
-    break;                                                      \
-    }
-
 void ShardDatabaseManager::OnClientReadRequest(ClientRequest* request)
 {
 //    readRequests.Add(request);
@@ -448,9 +436,20 @@ void ShardDatabaseManager::OnClientListRequest(ClientRequest* request)
         EventLoop::Add(&executeLists);
 }
 
-void ShardDatabaseManager::ExecuteMessage(
- uint64_t paxosID, uint64_t commandID, ShardMessage& message, ClientRequest* request)
+void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, ShardMessage& message)
 {
+#define CHECK_CMD()                                             \
+	if (readPaxosID > paxosID ||                                \
+	(readPaxosID == paxosID && readCommandID >= commandID))     \
+		break;
+
+#define RESPONSE_FAIL()                                         \
+    {                                                           \
+    if (message.clientRequest)                                  \
+        message.clientRequest->response.Failed();               \
+    break;                                                      \
+    }
+
     uint64_t        readPaxosID;
     uint64_t        readCommandID;
     uint64_t        shardID;
@@ -469,10 +468,12 @@ void ShardDatabaseManager::ExecuteMessage(
     StorageEnvironment::ShardIDList     shards;
     
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
-    if (request)
+    shardID = environment.GetShardID(contextID, message.tableID, message.key);
+
+    if (message.clientRequest)
     {
-        request->response.OK();
-        request->response.paxosID = paxosID;
+        message.clientRequest->response.OK();
+        message.clientRequest->response.paxosID = paxosID;
     }
 
     // TODO: differentiate return status (FAILED, NOSERVICE)
@@ -500,31 +501,31 @@ void ShardDatabaseManager::ExecuteMessage(
             CHECK_CMD();
             if (ReadBuffer::Cmp(userValue, message.test) != 0)
             {
-                if (request)
-                    request->response.Value(userValue);
+                if (message.clientRequest)
+                    message.clientRequest->response.Value(userValue);
                 break;
             }
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
-            if (request)
-                request->response.Value(message.value);
+            if (message.clientRequest)
+                message.clientRequest->response.Value(message.value);
             break;
         case SHARDMESSAGE_GET_AND_SET:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
             if (environment.Get(contextID, shardID, message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
-                if (request)
+                if (message.clientRequest)
                 {
-                    request->response.Value(userValue);
-                    request->response.CopyValue();
+                    message.clientRequest->response.Value(userValue);
+                    message.clientRequest->response.CopyValue();
                 }
             }
             else
             {
-                if (request)
-                    request->response.Failed();
+                if (message.clientRequest)
+                    message.clientRequest->response.Failed();
             }
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!environment.Set(contextID, shardID, message.key, buffer))
@@ -544,8 +545,8 @@ void ShardDatabaseManager::ExecuteMessage(
             WriteValue(buffer, paxosID, commandID, ReadBuffer(numberBuffer));
             if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
-            if (request)
-                request->response.Number(number);
+            if (message.clientRequest)
+                message.clientRequest->response.Number(number);
             break;
         case SHARDMESSAGE_APPEND:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
@@ -569,7 +570,7 @@ void ShardDatabaseManager::ExecuteMessage(
             if (environment.Get(contextID, shardID, message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
-                request->response.Value(userValue);
+                message.clientRequest->response.Value(userValue);
             }
             if (!environment.Delete(contextID, shardID, message.key))
                 RESPONSE_FAIL();
@@ -613,6 +614,8 @@ void ShardDatabaseManager::ExecuteMessage(
             ASSERT_FAIL();
             break;
     }
+#undef CHECK_CMD
+#undef RESPONSE_FAIL
 }
 
 void ShardDatabaseManager::OnYieldStorageThreadsTimer()

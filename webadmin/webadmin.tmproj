@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>ui.js</string>
+	<string>scaliendb.js</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -26,9 +26,37 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
+				<integer>12</integer>
+				<key>line</key>
+				<integer>17</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>createQuorum.css</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
 				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>createTable.css</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>10</integer>
+				<key>line</key>
+				<integer>5</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -40,14 +68,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>22</integer>
+				<integer>1</integer>
 				<key>line</key>
-				<integer>42</integer>
+				<integer>29</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>2</integer>
+			<integer>3</integer>
 		</dict>
 		<key>deleteQuorum.css</key>
 		<dict>
@@ -84,14 +112,14 @@
 				<key>column</key>
 				<integer>27</integer>
 				<key>line</key>
-				<integer>202</integer>
+				<integer>23</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>178</integer>
+			<integer>121</integer>
 		</dict>
-		<key>main.css</key>
+		<key>login.css</key>
 		<dict>
 			<key>caret</key>
 			<dict>
@@ -104,6 +132,48 @@
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+		</dict>
+		<key>main.css</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>1</integer>
+				<key>line</key>
+				<integer>358</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>393</integer>
+		</dict>
+		<key>main.css.old</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>migrateShard.css</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>54</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>11</integer>
 		</dict>
 		<key>removeNode.css</key>
 		<dict>
@@ -138,9 +208,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>19</integer>
+				<integer>14</integer>
 				<key>line</key>
-				<integer>49</integer>
+				<integer>25</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -152,9 +222,39 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>14</integer>
+				<integer>5</integer>
 				<key>line</key>
-				<integer>2</integer>
+				<integer>353</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>327</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>353</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>354</integer>
+			</dict>
+		</dict>
+		<key>splitShard.css</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>13</integer>
+				<key>line</key>
+				<integer>5</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -166,9 +266,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>1</integer>
+				<integer>10</integer>
 				<key>line</key>
-				<integer>21</integer>
+				<integer>3</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -180,14 +280,30 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>87</integer>
+				<integer>32</integer>
 				<key>line</key>
-				<integer>394</integer>
+				<integer>711</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>370</integer>
+			<integer>679</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>29</integer>
+				<key>line</key>
+				<integer>711</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>42</integer>
+				<key>line</key>
+				<integer>711</integer>
+			</dict>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
@@ -197,17 +313,23 @@
 		<string>deleteQuorum.css</string>
 		<string>deleteTable.css</string>
 		<string>ui.js</string>
+		<string>main.css</string>
+		<string>login.css</string>
+		<string>splitShard.css</string>
+		<string>createQuorum.css</string>
+		<string>createTable.css</string>
 		<string>truncateTable.css</string>
+		<string>main.css.old</string>
 		<string>renameTable.css</string>
+		<string>migrateShard.css</string>
 		<string>renameDatabase.css</string>
 		<string>removeNode.css</string>
 		<string>createDatabase.css</string>
 		<string>scaliendb.js</string>
-		<string>main.css</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{376, 123}, {1368, 925}}</string>
+	<string>{{371, 239}, {1548, 939}}</string>
 </dict>
 </plist>

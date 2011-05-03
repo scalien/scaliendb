@@ -2,20 +2,40 @@
 #include "StorageEnvironment.h"
 #include "StoragePageCache.h"
 
-StorageBulkCursor::StorageBulkCursor() :
- dataPage(NULL, 0)
+StorageBulkCursor::StorageBulkCursor()
+ : dataPage(NULL, 0)
 {
+    blockShard = false;
+    shard = NULL;
+    isLast = false;
     contextID = 0;
     shardID = 0;
     chunkID = 0;
-    shard = NULL;
     env = NULL;
-    isLast = false;
 }
 
 StorageBulkCursor::~StorageBulkCursor()
 {
     env->DecreaseNumCursors();
+}
+
+void StorageBulkCursor::SetEnvironment(StorageEnvironment* env_)
+{
+    env = env_;
+}
+
+void StorageBulkCursor::SetOnBlockShard(Callable onBlockShard_)
+{
+    blockShard = true;
+    onBlockShard = onBlockShard_;
+}
+
+void StorageBulkCursor::SetShard(uint64_t contextID_, uint64_t shardID_)
+{
+    contextID = contextID_;
+    shardID = shardID_;
+    shard = env->GetShard(contextID, shardID);
+    ASSERT(shard);
 }
 
 StorageKeyValue* StorageBulkCursor::First()
@@ -56,18 +76,31 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
         return NULL;
         
     FOREACH (itChunk, shard->chunks)
-    {
         if ((*itChunk)->GetChunkID() == chunkID)
             break;
-    }
     
-    if (itChunk == NULL)
+    if (itChunk == NULL && blockShard)
     {
-        chunk = shard->GetMemoChunk();
+        if (shard->GetMemoChunk()->GetSize() > 0)
+        {
+            Log_Debug("Pushing memo chunk1");
+            ASSERT(env->PushMemoChunk(contextID, shardID));
+            chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
+            if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
+                Call(onBlockShard);
+        }
+        else
+        {
+            Call(onBlockShard);
+            return NULL;
+        }
     }
     else
-    {        
-        chunk = *itChunk;
+    {
+        if (itChunk == NULL)
+            chunk = shard->GetMemoChunk();
+        else
+            chunk = *itChunk;
     }
     ASSERT(chunk != NULL);
 
@@ -115,7 +148,7 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
             chunk->NextBunch(*this, shard);
             if (dataPage.First())
                 return dataPage.First();
-            else
+            else    
                 continue;
         }
         
@@ -133,35 +166,37 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
         }
         
         if (itChunk)
-        {
             chunk = *itChunk;
-            chunkID = chunk->GetChunkID();
-//            Log_Message("Iterating chunk %U", chunkID);
-        }
         else
         {
             if (shard->GetMemoChunk()->GetChunkID() == chunkID)
+            {
+                if (blockShard)
+                    Call(onBlockShard);
                 return NULL; // end of iteration
-            
-            // iterate memoChunk
-            chunk = shard->GetMemoChunk();
-            chunkID = chunk->GetChunkID();
-//            Log_Message("Iterating chunk %U", chunkID);
+            }
+
+            if (blockShard)
+            {
+                if (shard->GetMemoChunk()->GetSize() > 0)
+                {
+                    Log_Debug("Pushing memo chunk2");
+                    ASSERT(env->PushMemoChunk(contextID, shardID));
+                    chunk = *(shard->chunks.Last()); // this is the memo chunk we just pushed
+                    if (chunk->GetSize() < STORAGE_MEMO_BUNCH_GRAN)
+                        Call(onBlockShard);
+                }
+                else
+                {
+                    Call(onBlockShard);
+                    return NULL;
+                }
+            }
+            else
+                chunk = shard->GetMemoChunk();
         }
+        chunkID = chunk->GetChunkID();
         
         dataPage.Reset();
     }
-}
-
-void StorageBulkCursor::SetEnvironment(StorageEnvironment* env_)
-{
-    env = env_;
-}
-
-void StorageBulkCursor::SetShard(uint64_t contextID_, uint64_t shardID_)
-{
-    contextID = contextID_;
-    shardID = shardID_;
-    shard = env->GetShard(contextID, shardID);
-    ASSERT(shard);
 }

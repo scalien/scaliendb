@@ -121,7 +121,7 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
 
 void ShardMigrationWriter::Abort()
 {
-    Log_Message("Aborting shard migration...", shardID, quorumID);
+    Log_Message("Aborting shard migration...");
     
     CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
     Reset();
@@ -161,6 +161,7 @@ void ShardMigrationWriter::SendFirst()
 
     ASSERT(cursor == NULL);
     cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, shardID);
+    cursor->SetOnBlockShard(MFUNC(ShardMigrationWriter, OnBlockShard));
 
     msg.ShardMigrationBegin(quorumID, shardID);
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
@@ -254,6 +255,20 @@ void ShardMigrationWriter::OnWriteReadyness()
             SendNext();
         }
     }
+}
+
+void ShardMigrationWriter::OnBlockShard()
+{
+    ConfigState*            configState;
+    ConfigShard*            configShard;
+    ShardQuorumProcessor*   quorumProcessor;
+
+    configState = shardServer->GetConfigState();
+    configShard = configState->GetShard(shardID);
+    ASSERT(configShard);
+    quorumProcessor = shardServer->GetQuorumProcessor(configShard->quorumID);
+    ASSERT(quorumProcessor);
+    quorumProcessor->OnBlockShard(shardID);
 }
 
 void ShardMigrationWriter::OnTimeout()

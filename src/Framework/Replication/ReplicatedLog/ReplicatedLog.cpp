@@ -453,7 +453,7 @@ void ReplicatedLog::RequestChosen(uint64_t nodeID)
 {
     PaxosMessage omsg;
     
-    if (EventLoop::Now() - lastRequestChosenTime < REQUEST_CHOSEN_TIMEOUT)
+    if (context->IsLeaseOwner() || EventLoop::Now() - lastRequestChosenTime < REQUEST_CHOSEN_TIMEOUT)
         return;
 
     lastRequestChosenTime = EventLoop::Now();

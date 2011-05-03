@@ -39,9 +39,9 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientSetFailover);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
-//TEST_ADD(TestConfigStateJSON);
+TEST_ADD(TestConfigStateJSON);
 //TEST_ADD(TestCrashStorage);
-TEST_ADD(TestEndpointValidity);
+//TEST_ADD(TestEndpointValidity);
 //TEST_ADD(TestFileSystemDiskSpace);
 //TEST_ADD(TestFormattingUnsigned);
 //TEST_ADD(TestFormattingPadding);

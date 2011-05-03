@@ -90,10 +90,13 @@ public:
     ReadBuffer              GetMidpoint(uint16_t contextID, uint64_t shardID);
     bool                    IsSplitable(uint16_t contextID, uint64_t shardID);
     
+    
     bool                    Commit();
     bool                    Commit(Callable& onCommit_);
     bool                    GetCommitStatus();
     bool                    IsCommiting();
+    
+    bool                    PushMemoChunk(uint16_t contextID, uint64_t shardID);
 
     bool                    IsShuttingDown();
     
