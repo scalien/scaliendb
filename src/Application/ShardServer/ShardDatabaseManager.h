@@ -49,13 +49,12 @@ class ShardDatabaseAsyncList : public StorageAsyncList
 public:
     ClientRequest*          request;
     ShardDatabaseManager*   manager;
-    bool                    active;
-    bool                    async;
     uint64_t                total;
     
     void                    OnShardComplete();
     void                    OnRequestComplete();
     void                    TryNextShard();
+    bool                    IsActive();
 };
 
 /*

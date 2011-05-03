@@ -63,6 +63,12 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         for (unsigned i = 0; i < response->numKeys; i++)
             session.PrintPair(response->keys[i], response->values[i]);
         break;
+    case CLIENTRESPONSE_NEXT:
+        tmp.Writef("NEXT \"%R\" \"%R\" %U %U",
+         &response->value, &response->endKey, response->number, response->offset);
+        rb.Wrap(tmp);
+        session.Print(rb);
+        break;
     case CLIENTRESPONSE_NOSERVICE:
         if (GetRedirectedShardServer(request->tableID, request->key, location))
             session.Redirect(location);

@@ -22,7 +22,7 @@ void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_)
     keyLength = key_.GetLength();
     valueLength = value_.GetLength();
 
-    buffer = (char*) malloc(keyLength + valueLength);
+    buffer = (char*) malloc(GetLength());
     
     memcpy(buffer, key_.GetBuffer(), keyLength);
     memcpy(buffer + keyLength, value_.GetBuffer(), valueLength);
@@ -36,7 +36,7 @@ void StorageMemoKeyValue::Delete(ReadBuffer key_)
     keyLength = key_.GetLength();
     valueLength = DELETE_LENGTH_VALUE;
 
-    buffer = (char*) malloc(keyLength + valueLength);
+    buffer = (char*) malloc(GetLength());
     
     memcpy(buffer, key_.GetBuffer(), keyLength);
 }

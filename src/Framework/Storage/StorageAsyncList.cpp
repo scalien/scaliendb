@@ -21,6 +21,7 @@ void StorageAsyncListResult::OnComplete()
 {
     asyncList->lastResult = this;
     Call(onComplete);
+    asyncList->lastResult = NULL;
     if (final)
     {
         asyncList->env->DecreaseNumCursors();
@@ -50,6 +51,8 @@ void StorageAsyncList::Init()
 {    
     ret = false;
     completed = false;
+    aborted = false;
+    num = 0;
     stage = START;
     threadPool = NULL;
     iterators = NULL;
@@ -63,8 +66,6 @@ void StorageAsyncList::Clear()
 {
     unsigned    i;
 
-    Log_Debug("StorageAsyncList cleared");
-    
     for (i = 0; i < numListers; i++)
         delete listers[i];
     delete[] listers;
@@ -233,6 +234,9 @@ bool StorageAsyncList::IsDone()
     if (env->IsShuttingDown())
         return true;
 
+    if (IsAborted())
+        return true;
+
     numActive = 0;
     for (i = 0; i < numListers; i++)
     {
@@ -243,6 +247,16 @@ bool StorageAsyncList::IsDone()
         return true;
 
     return false;
+}
+
+bool StorageAsyncList::IsAborted()
+{
+    return aborted;
+}
+
+void StorageAsyncList::SetAborted(bool aborted_)
+{
+    aborted = aborted_;
 }
 
 StorageFileKeyValue* StorageAsyncList::Next()

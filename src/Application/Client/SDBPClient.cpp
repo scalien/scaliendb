@@ -735,7 +735,7 @@ void Client::EventLoop(long wait)
     GLOBAL_MUTEX_GUARD_UNLOCK();
     
     // TODO: HACK
-    while (!IsDone() || (wait >= 0 && EventLoop::Now() <= startTime + wait))
+    while (!IsDone() || (wait >= 0 && EventLoop::Now() <= (uint64_t)(startTime + wait)))
     {
         Log_Trace("EventLoop main loop");
         GLOBAL_MUTEX_GUARD_LOCK();        
@@ -1269,7 +1269,8 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
     requests.PrependList(*qrequests);
 }
 
-void Client::NextRequest(Request* req, ReadBuffer nextShardKey, uint64_t count, uint64_t offset)
+void Client::NextRequest(
+ Request* req, ReadBuffer nextShardKey, ReadBuffer endKey, uint64_t count, uint64_t offset)
 {
     ConfigTable*    configTable;
     ConfigShard*    configShard;
@@ -1307,6 +1308,7 @@ void Client::NextRequest(Request* req, ReadBuffer nextShardKey, uint64_t count, 
     }
 
     Log_Trace("nextShardID: %U, minKey: %R", nextShardID, &minKey);
+    req->endKey.Write(endKey);
     if (nextShardID != 0)
         req->key.Write(minKey);
 }
