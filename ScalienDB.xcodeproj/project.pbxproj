@@ -569,7 +569,7 @@
 		78CD55111360D0370022BC9F /* php_scaliendb_client.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = php_scaliendb_client.h; path = Client/PHP/php_scaliendb_client.h; sourceTree = "<group>"; };
 		78CD55121360D0370022BC9F /* scaliendb_client_php.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_php.cpp; path = Client/PHP/scaliendb_client_php.cpp; sourceTree = "<group>"; };
 		78CD55131360D0370022BC9F /* scaliendb_client.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = scaliendb_client.php; path = Client/PHP/scaliendb_client.php; sourceTree = "<group>"; };
-		78CD5868136A268D0022BC9F /* scaliendb_mapred.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_mapred.py; path = Client/Python/scaliendb_mapred.py; sourceTree = "<group>"; };
+		78CD5868136A268D0022BC9F /* scaliendb_mapreduce.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_mapreduce.py; path = Client/Python/scaliendb_mapreduce.py; sourceTree = "<group>"; };
 		9A466D5E135F435300108B07 /* JSONBufferWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONBufferWriter.h; sourceTree = "<group>"; };
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A466F431361906800108B07 /* test.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = test.php; path = Client/PHP/test.php; sourceTree = "<group>"; };
@@ -1312,7 +1312,7 @@
 				9AE8179512CE1EBB0038BDB1 /* scaliendb.py */,
 				9AE8179312CE1EBB0038BDB1 /* scaliendb_client_python.cpp */,
 				9AE8179412CE1EBB0038BDB1 /* scaliendb_client.py */,
-				78CD5868136A268D0022BC9F /* scaliendb_mapred.py */,
+				78CD5868136A268D0022BC9F /* scaliendb_mapreduce.py */,
 				9AE8179612CE1EBB0038BDB1 /* test.py */,
 			);
 			name = Python;

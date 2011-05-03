@@ -3,7 +3,7 @@ import json
 import time
 from scaliendb_client import *
 
-class MapReduce:
+class MapReduceBase:
     def __init__(self, client):
         self.client = client
         self.result_table_id = client.get_table_id(client.get_current_database_id(), "result")
@@ -30,7 +30,7 @@ class MapReduce:
     def reduce(self, ):
         pass
 
-class FindStartsWith(MapReduce):
+class FindStartsWith(MapReduceBase):
     def __init__(self, client, starts_with):
         MapReduce.__init__(self, client)
         self.results = []
@@ -50,7 +50,7 @@ class FindStartsWith(MapReduce):
             k, v = result
             print("key: " + k + ", value: " + v[:32])
 
-class Contains(MapReduce):
+class Contains(MapReduceBase):
     def __init__(self, client, word):
         MapReduce.__init__(self, client)
         self.results = []
@@ -143,6 +143,33 @@ def local_quorums(config_state, endpoint):
 
 def pad(id):
     return "%011d" % int(id)    
+
+def add_job(client, name, code_file, description, quorum_id, table_id):
+    config = json.loads(client.get_json_config_state())
+    database_name = "mapreduce_job_" + name
+    database_id = client.create_database(database_name)
+    client.use_database(database_name)
+    client.create_table(database_id, quorum_id, "meta")
+    client.create_table(database_id, quorum_id, "map_jobs")
+    client.create_table(database_id, quorum_id, "reduce")
+    client.create_table(database_id, quorum_id, "result")    
+    client.use_table("meta")
+    f = open(code_file)
+    client.set("code", f.read())
+    client.set("description", description)
+    client.use_table("map_jobs")
+    client.begin()
+    for shard in config["shards"]:
+        # TODO split ranges when there are multiple replicas
+        quorum_name = "active:" + pad(shard["quorumID"])
+        job = {}
+        job["firstKey"] = shard["firstKey"]
+        job["lastKey"] = shard["lastKey"]
+        job["tableID"] = table_id
+        client.set(quorum_name, json.dumps(job))
+    client.submit()
+    client.use("mapreduce", "jobs")
+    client.set(name, "")
 
 def daemon(client, endpoint):
     # mapreduce

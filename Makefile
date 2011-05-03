@@ -176,6 +176,7 @@ $(BIN_DIR)/$(PYTHON_DIR)/$(PYTHON_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT
 	$(CXX) $(SWIG_LDFLAGS) -o $@ $(BUILD_DIR)/$(PYTHON_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB)
 	-cp -rf $(SRC_DIR)/$(PYTHON_CLIENT_DIR)/scaliendb.py $(BIN_DIR)/$(PYTHON_DIR)
 	-cp -rf $(SRC_DIR)/$(PYTHON_CLIENT_DIR)/scaliendb_client.py $(BIN_DIR)/$(PYTHON_DIR)
+	-cp -rf $(SRC_DIR)/$(PYTHON_CLIENT_DIR)/scaliendb_mapreduce.py $(BIN_DIR)/$(PYTHON_DIR)
 
 # java wrapper
 JAVA_DIR = java
