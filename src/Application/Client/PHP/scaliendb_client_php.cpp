@@ -3317,6 +3317,165 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_SDBP_SplitShard) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  int result;
+  uint64_t *tmp2 ;
+  std::string temp3 ;
+  zval **args[3];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_SplitShard. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_SplitShard. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  {
+    convert_to_string_ex(args[2]);
+    temp3 = std::string(Z_STRVAL_PP(args[2]),Z_STRLEN_PP(args[2]));
+    arg3 = &temp3;
+  }
+  result = (int)SDBP_SplitShard(arg1,arg2,(std::string const &)*arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_FreezeTable) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  uint64_t *tmp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_FreezeTable. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_FreezeTable. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  result = (int)SDBP_FreezeTable(arg1,arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_UnfreezeTable) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  uint64_t *tmp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_UnfreezeTable. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_UnfreezeTable. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  result = (int)SDBP_UnfreezeTable(arg1,arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_MigrateShard) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  uint64_t arg3 ;
+  int result;
+  uint64_t *tmp2 ;
+  uint64_t *tmp3 ;
+  zval **args[3];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_MigrateShard. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_MigrateShard. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  {
+    if(SWIG_ConvertPtr(*args[2], (void **) &tmp3, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp3 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 3 of SDBP_MigrateShard. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg3 = *tmp3;
+  }
+  result = (int)SDBP_MigrateShard(arg1,arg2,arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_SDBP_GetDatabaseID) {
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
@@ -5054,6 +5213,10 @@ static function_entry scaliendb_client_functions[] = {
  ZEND_NAMED_FE(sdbp_renametable,_wrap_SDBP_RenameTable,NULL)
  ZEND_NAMED_FE(sdbp_deletetable,_wrap_SDBP_DeleteTable,NULL)
  ZEND_NAMED_FE(sdbp_truncatetable,_wrap_SDBP_TruncateTable,NULL)
+ ZEND_NAMED_FE(sdbp_splitshard,_wrap_SDBP_SplitShard,NULL)
+ ZEND_NAMED_FE(sdbp_freezetable,_wrap_SDBP_FreezeTable,NULL)
+ ZEND_NAMED_FE(sdbp_unfreezetable,_wrap_SDBP_UnfreezeTable,NULL)
+ ZEND_NAMED_FE(sdbp_migrateshard,_wrap_SDBP_MigrateShard,NULL)
  ZEND_NAMED_FE(sdbp_getdatabaseid,_wrap_SDBP_GetDatabaseID,NULL)
  ZEND_NAMED_FE(sdbp_gettableid,_wrap_SDBP_GetTableID,NULL)
  ZEND_NAMED_FE(sdbp_usedatabase,_wrap_SDBP_UseDatabase,NULL)

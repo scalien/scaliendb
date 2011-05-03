@@ -300,6 +300,7 @@ class ScalienClient {
             $funcargs[] = $args[$i];
         }
         $status = call_user_func_array(array("scaliendb_client", $func), $funcargs);
+        $this->result = new Result(scaliendb_client::SDBP_GetResult($this->cptr));
         return $status;
     }
     

@@ -223,6 +223,22 @@ abstract class scaliendb_client {
 		return SDBP_TruncateTable($client,$tableID);
 	}
 
+	static function SDBP_SplitShard($client,$shardID,$key) {
+		return SDBP_SplitShard($client,$shardID,$key);
+	}
+
+	static function SDBP_FreezeTable($client,$tableID) {
+		return SDBP_FreezeTable($client,$tableID);
+	}
+
+	static function SDBP_UnfreezeTable($client,$tableID) {
+		return SDBP_UnfreezeTable($client,$tableID);
+	}
+
+	static function SDBP_MigrateShard($client,$quorumID,$shardID) {
+		return SDBP_MigrateShard($client,$quorumID,$shardID);
+	}
+
 	static function SDBP_GetDatabaseID($client,$name) {
 		return SDBP_GetDatabaseID($client,$name);
 	}
