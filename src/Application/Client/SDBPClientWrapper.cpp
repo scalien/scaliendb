@@ -519,6 +519,35 @@ int SDBP_TruncateTable(ClientObj client_, uint64_t tableID)
     return client->TruncateTable(tableID);
 }
 
+int SDBP_SplitShard(ClientObj client_, uint64_t shardID, const std::string& key_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+
+    return client->SplitShard(shardID, key);
+}
+
+int SDBP_FreezeTable(ClientObj client_, uint64_t tableID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->FreezeTable(tableID);
+}
+
+int SDBP_UnfreezeTable(ClientObj client_, uint64_t tableID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->UnfreezeTable(tableID);
+}
+
+int SDBP_MigrateShard(ClientObj client_, uint64_t quorumID, uint64_t shardID)
+{
+    Client*     client = (Client*) client_;
+
+    return client->MigrateShard(quorumID, shardID);
+}
+
 uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)
 {
     Client*     client = (Client*) client_;

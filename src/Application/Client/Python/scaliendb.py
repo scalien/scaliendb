@@ -377,7 +377,7 @@ class Client:
         Deletes a table
         
         Args:
-            table_id (long): the name of the table
+            table_id (long): the id of the table
         """
         status = SDBP_DeleteTable(self.cptr, table_id)
         if status < 0:
@@ -409,6 +409,80 @@ class Client:
         if status < 0:
             if status == SDBP_FAILED:
                 raise Error(status, "No table found")
+            raise Error(status)
+
+    def split_shard(self, shard_id, key):
+        """
+        Splits a shard
+        
+        Args:
+            shard_id (long): the id of the shard
+            
+            key (string): the key where the shard is to be splitted
+        """
+        status = SDBP_SplitShard(self.cptr, shard_id, key)
+        if status < 0:
+            raise Error(status)
+    
+    def freeze_table(self, name):
+        """
+        Freezes a table
+        
+        Args:
+            name (string): the name of the table
+        """
+        database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
+        if database_id == 0:
+            raise Error(SDBP_BADSCHEMA, "No database selected")
+        table_id = self.get_table_id(database_id, name)
+        self.freeze_table_by_id(table_id)
+
+    def freeze_table_by_id(self, table_id):
+        """
+        Freezes a table
+        
+        Args:
+            table_id (long): the id of the table
+        """
+        status = SDBP_FreezeTable(self.cptr, table_id)
+        if status < 0:
+            raise Error(status)
+    
+    def unfreeze_table(self, name):
+        """
+        Unfreezes a table
+        
+        Args:
+            name (string): the name of the table
+        """
+        database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
+        if database_id == 0:
+            raise Error(SDBP_BADSCHEMA, "No database selected")
+        table_id = self.get_table_id(database_id, name)
+        self.unfreeze_table_by_id(table_id)
+
+    def unfreeze_table_by_id(self, table_id):
+        """
+        Unfreezes a table
+        
+        Args:
+            table_id (long): the id of the table
+        """
+        status = SDBP_UnfreezeTable(self.cptr, table_id)
+        if status < 0:
+            raise Error(status)
+    
+    def migrate_shard(self, quorum_id, shard_id):
+        """
+        Migrates a shard to a given quorum
+        
+        Args:
+            quorum_id (long): the id of the quorum
+            
+            shard_id (long): the id of the shard
+        """
+        status = SDBP_MigrateShard(self.cptr, quorum_id, shard_id)
+        if status < 0:
             raise Error(status)
 
     def get_database_id(self, name):
@@ -712,6 +786,10 @@ class Client:
     
     def _check_status(self, status):
         if status < 0:
+            if status == SDBP_BADSCHEMA:
+                raise Error(status, "No database or table is in use")
+            if status == SDBP_NOSERVICE:
+                raise Error(status, "No server in the cluster was able to serve the request")
             raise Error(status)
 
 def set_trace(trace=True):
