@@ -7,7 +7,7 @@
 #include "StorageShard.h"
 #include "StorageEnvironment.h"
 
-#define MAX_RESULT_SIZE     64*KiB
+#define MAX_RESULT_SIZE     1024*KiB
 
 StorageAsyncListResult::StorageAsyncListResult(StorageAsyncList* asyncList_) :
  dataPage(NULL, 0)
