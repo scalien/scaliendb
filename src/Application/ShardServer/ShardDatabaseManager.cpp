@@ -480,7 +480,6 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
     StorageEnvironment::ShardIDList     shards;
     
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
-    shardID = environment.GetShardID(contextID, message.tableID, message.key);
 
     if (message.clientRequest)
     {
@@ -492,8 +491,8 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
     switch (message.type)
     {
         case SHARDMESSAGE_SET:
-            WriteValue(buffer, paxosID, commandID, message.value);
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            WriteValue(buffer, paxosID, commandID, message.value);
             if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             break;
@@ -582,7 +581,8 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
             if (environment.Get(contextID, shardID, message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
-                message.clientRequest->response.Value(userValue);
+                if (message.clientRequest)
+                    message.clientRequest->response.Value(userValue);
             }
             if (!environment.Delete(contextID, shardID, message.key))
                 RESPONSE_FAIL();
