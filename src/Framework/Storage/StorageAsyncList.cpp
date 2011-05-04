@@ -89,6 +89,8 @@ void StorageAsyncList::ExecuteAsyncList()
     StorageChunk::ChunkState        chunkState;
     ReadBuffer                      firstKey;
     
+    
+    Log_Debug("StorageAsyncList START");
     firstKey.Wrap(shardFirstKey);
     
     if (stage == START)
@@ -132,11 +134,15 @@ void StorageAsyncList::ExecuteAsyncList()
         stage = MEMO_CHUNK;
     }
 
+    Log_Debug("StorageAsyncList MEMO_CHUNK");
+
     if (stage == MEMO_CHUNK)
     {
         LoadMemoChunk();
         stage = FILE_CHUNK;
     }
+    
+    Log_Debug("StorageAsyncList FILE_CHUNK");
     
     if (stage == FILE_CHUNK)
     {
