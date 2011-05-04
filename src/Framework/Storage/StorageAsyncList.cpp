@@ -80,6 +80,7 @@ void StorageAsyncList::Clear()
 void StorageAsyncList::ExecuteAsyncList()
 {
     unsigned                        numChunks;
+    uint64_t                        preloadBufferSize;
     StorageChunk**                  itChunk;
     StorageFileChunk*               fileChunk;
     StorageFileChunkLister*         fileLister;
@@ -88,7 +89,6 @@ void StorageAsyncList::ExecuteAsyncList()
     Buffer*                         filename;
     StorageChunk::ChunkState        chunkState;
     ReadBuffer                      firstKey;
-    
     
     Log_Debug("StorageAsyncList START");
     firstKey.Wrap(shardFirstKey);
@@ -101,6 +101,7 @@ void StorageAsyncList::ExecuteAsyncList()
         listers = new StorageChunkLister*[numChunks];
         iterators = new StorageFileKeyValue*[numChunks];
         numListers = 0;
+        preloadBufferSize = env->GetConfig().mergeBufferSize / numChunks;
 
         FOREACH (itChunk, shard->GetChunks())
         {
@@ -125,7 +126,8 @@ void StorageAsyncList::ExecuteAsyncList()
                 fileChunk = (StorageFileChunk*) *itChunk;
                 filename = &fileChunk->GetFilename();
                 fileLister = new StorageFileChunkLister;
-                fileLister->Init(fileChunk->GetFilename(), (type == KEY || type == COUNT));
+                fileLister->Init(
+                 fileChunk->GetFilename(), (type == KEY || type == COUNT), preloadBufferSize);
                 listers[numListers] = fileLister;
                 numListers++;
             }
