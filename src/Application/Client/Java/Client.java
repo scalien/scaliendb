@@ -393,6 +393,18 @@ public class Client
     }
 
     /**
+     * Use the specified database.
+     *
+     * @param   databaseID    the id of the database
+     */
+    public void useDatabase(long databaseID) throws SDBPException {
+        int status = scaliendb_client.SDBP_UseDatabaseID(cptr, BigInteger.valueOf(databaseID));
+        if (status < 0) {
+            throw new SDBPException(Status.toString(status));
+        }
+    }
+
+    /**
      * Returns the specified database.
      *
      * @param   name    the name of the database
@@ -409,6 +421,18 @@ public class Client
      */
     public void useTable(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_UseTable(cptr, name);
+        if (status < 0) {
+            throw new SDBPException(Status.toString(status));
+        }
+    }
+
+    /**
+     * Use the specified table.
+     *
+     * @param   tableID    the id of the table
+     */
+    public void useTable(long tableID) throws SDBPException {
+        int status = scaliendb_client.SDBP_UseTableID(cptr, BigInteger.valueOf(tableID));
         if (status < 0) {
             throw new SDBPException(Status.toString(status));
         }
@@ -604,9 +628,9 @@ public class Client
      * @param   key     key with which the specified value is to be associated
      * @param   test    the user specified value that is tested against the old value
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
+     * @return          the value that belongs to the key
      */
-	public int testAndSet(String key, String test, String value) throws SDBPException {
+	public String testAndSet(String key, String test, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -614,10 +638,10 @@ public class Client
 		}
 		
 		if (isBatched())
-			return status;
+			return null;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
+		return result.getValue();
 	}
 
     /**
@@ -629,9 +653,9 @@ public class Client
      * @param   key     key with which the specified value is to be associated
      * @param   test    the user specified value that is tested against the old value
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
+     * @return          the value that belongs to the key
      */
-	public int testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
+	public byte[] testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_TestAndSetCStr(cptr, key, key.length, test, test.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -639,10 +663,10 @@ public class Client
 		}
 		
 		if (isBatched())
-			return status;
+			return null;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
+		return result.getValueBytes();
 	}
 
     /**
@@ -861,12 +885,13 @@ public class Client
      * Returns the specified keys.
      *
      * @param   startKey    listing starts at this key
+     * @param   endKey      listing ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-	public List<String> listKeys(String startKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, count, offset);
+	public List<String> listKeys(String startKey, String endKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, count, offset);
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         if (status < 0)
 			throw new SDBPException(Status.toString(status));
@@ -882,12 +907,13 @@ public class Client
      * Returns the specified keys.
      *
      * @param   startKey    listing starts at this key
+     * @param   endKey      listing ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-	public List<byte[]> listKeys(byte[] startKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, count, offset);
+	public List<byte[]> listKeys(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         if (status < 0)
 			throw new SDBPException(Status.toString(status));
@@ -903,12 +929,13 @@ public class Client
      * Returns the specified key-value pairs.
      *
      * @param   startKey    listing starts at this key
+     * @param   endKey      listing ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<String, String> listKeyValues(String startKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, count, offset);
+    public Map<String, String> listKeyValues(String startKey, String endKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, count, offset);
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         if (status < 0)
 			throw new SDBPException(Status.toString(status));
@@ -924,12 +951,13 @@ public class Client
      * Returns the specified key-value pairs.
      *
      * @param   startKey    listing starts at this key
+     * @param   endKey      listing ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, count, offset);
+    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         if (status < 0)
 			throw new SDBPException(Status.toString(status));
@@ -945,12 +973,13 @@ public class Client
      * Returns the number of key-value pairs.
      *
      * @param   startKey    counting starts at this key
+     * @param   endKey      counting ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the maximum number of keys returned
      * @return              the number of key-value pairs
      */
-    public long count(String startKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_Count(cptr, startKey, count, offset);
+    public long count(String startKey, String endKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, count, offset);
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         if (status < 0)
 			throw new SDBPException(Status.toString(status));
@@ -962,12 +991,13 @@ public class Client
      * Returns the number of key-value pairs.
      *
      * @param   startKey    counting starts at this key
+     * @param   endKey      counting ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the maximum number of keys returned
      * @return              the number of key-value pairs
      */
-    public long count(byte[] startKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, count, offset);
+    public long count(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
+		int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         if (status < 0)
 			throw new SDBPException(Status.toString(status));
