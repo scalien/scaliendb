@@ -171,7 +171,8 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             
             if (response.type == CLIENTRESPONSE_NEXT)
             {
-                client->NextRequest(request, response.value, response.number, response.offset);
+                client->NextRequest(
+                 request, response.value, response.endKey, response.number, response.offset);
                 client->ReassignRequest(request);
                 client->SendQuorumRequests();
                 return false;

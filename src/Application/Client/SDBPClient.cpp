@@ -537,6 +537,21 @@ int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
     CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
 }
 
+int Client::FreezeTable(uint64_t tableID)
+{
+    CLIENT_SCHEMA_COMMAND(FreezeTable, tableID);
+}
+
+int Client::UnfreezeTable(uint64_t tableID)
+{
+    CLIENT_SCHEMA_COMMAND(UnfreezeTable, tableID);
+}
+
+int Client::MigrateShard(uint64_t quorumID, uint64_t shardID)
+{
+    CLIENT_SCHEMA_COMMAND(MigrateShard, quorumID, shardID);
+}
+
 int Client::Get(const ReadBuffer& key)
 {
     CLIENT_DATA_COMMAND(Get, (ReadBuffer&) key);
@@ -728,14 +743,15 @@ void Client::EventLoop(long wait)
     
     EventLoop::UpdateTime();
     EventLoop::Reset(&globalTimeout);
-    EventLoop::Reset(&masterTimeout);
+    if (master == -1)
+        EventLoop::Reset(&masterTimeout);
     timeoutStatus = SDBP_SUCCESS;
     startTime = EventLoop::Now();
     
     GLOBAL_MUTEX_GUARD_UNLOCK();
     
     // TODO: HACK
-    while (!IsDone() || (wait >= 0 && EventLoop::Now() <= startTime + wait))
+    while (!IsDone() || (wait >= 0 && EventLoop::Now() <= (uint64_t)(startTime + wait)))
     {
         Log_Trace("EventLoop main loop");
         GLOBAL_MUTEX_GUARD_LOCK();        
@@ -813,12 +829,8 @@ void Client::SetMaster(int64_t master_, uint64_t nodeID)
             Log_Debug("Node %d is the master", nodeID);
             master = master_;
             connectivityStatus = SDBP_SUCCESS;
-            
-            // TODO: it is similar to ResendRequests
-            //SendRequest(nodeID, safeRequests);
+            EventLoop::Remove(&masterTimeout);
         }
-        // else node is still the master
-        EventLoop::Reset(&masterTimeout);
     }
     else if (master_ < 0 && master == (int64_t) nodeID)
     {
@@ -827,7 +839,7 @@ void Client::SetMaster(int64_t master_, uint64_t nodeID)
         master = -1;
         connectivityStatus = SDBP_NOMASTER;
 
-        // TODO: What's this? -> set master timeout (copy-paste from Keyspace)
+        EventLoop::Reset(&masterTimeout);
     }
 }
 
@@ -1269,7 +1281,8 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
     requests.PrependList(*qrequests);
 }
 
-void Client::NextRequest(Request* req, ReadBuffer nextShardKey, uint64_t count, uint64_t offset)
+void Client::NextRequest(
+ Request* req, ReadBuffer nextShardKey, ReadBuffer endKey, uint64_t count, uint64_t offset)
 {
     ConfigTable*    configTable;
     ConfigShard*    configShard;
@@ -1307,6 +1320,7 @@ void Client::NextRequest(Request* req, ReadBuffer nextShardKey, uint64_t count, 
     }
 
     Log_Trace("nextShardID: %U, minKey: %R", nextShardID, &minKey);
+    req->endKey.Write(endKey);
     if (nextShardID != 0)
         req->key.Write(minKey);
 }

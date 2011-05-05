@@ -111,9 +111,9 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
              &response->number, &response->value);
             return true;
         case CLIENTRESPONSE_NEXT:
-            read = buffer.Readf("%c:%U:%U:%U:%#R",
+            read = buffer.Readf("%c:%U:%U:%U:%#R:%#R",
              &response->type, &response->commandID, 
-             &response->number, &response->offset, &response->value);
+             &response->number, &response->offset, &response->value, &response->endKey);
             break;
         default:
             return false;
@@ -182,9 +182,9 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
             return true;
         case CLIENTRESPONSE_NEXT:
             Log_Trace("Next");
-            buffer.Writef("%c:%U:%U:%U:%#R",
+            buffer.Writef("%c:%U:%U:%U:%#R:%#R",
              response->type, response->request->commandID, 
-             response->number, response->offset, &response->value);
+             response->number, response->offset, &response->value, &response->endKey);
             return true;        
         default:
             return false;

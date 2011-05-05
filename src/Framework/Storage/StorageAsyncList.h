@@ -72,6 +72,7 @@ public:
     
     bool                    ret;
     bool                    completed;
+    bool                    aborted;
     unsigned                num;
     Stage                   stage;
     Callable                onComplete;
@@ -95,6 +96,8 @@ public:
     void                    AsyncMergeResult();
     void                    OnResult(StorageAsyncListResult* result);
     bool                    IsDone();
+    bool                    IsAborted();
+    void                    SetAborted(bool aborted);
     StorageFileKeyValue*    Next();
 };
 

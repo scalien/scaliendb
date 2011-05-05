@@ -88,6 +88,9 @@ public:
     int                     TruncateTable(uint64_t tableID);
 
     int                     SplitShard(uint64_t shardID, ReadBuffer& splitKey);
+    int                     FreezeTable(uint64_t tableID);
+    int                     UnfreezeTable(uint64_t tableID);
+    int                     MigrateShard(uint64_t quorumID, uint64_t shardID);
     
     // =============================================================================================
     //
@@ -157,7 +160,7 @@ private:
     void                    ClearQuorumRequests();
     void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
-    void                    NextRequest(Request* req, ReadBuffer nextShardKey, 
+    void                    NextRequest(Request* req, ReadBuffer nextShardKey, ReadBuffer endKey,
                              uint64_t count, uint64_t offset);
 
     void                    ConfigureShardServers();

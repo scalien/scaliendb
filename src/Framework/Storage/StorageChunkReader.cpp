@@ -1,8 +1,6 @@
 #include "StorageChunkReader.h"
 #include "System/Time.h"
 
-#define NUM_PRELOAD_PAGES   16
-
 void StorageChunkReader::Open(ReadBuffer filename, uint64_t preloadThreshold_, bool keysOnly_)
 {
     fileChunk.useCache = false;

@@ -63,6 +63,7 @@ public:
     bool            IsSafeRequest();
     bool            IsReadRequest();
     bool            IsList();
+    bool            IsActive();
     
     // Master query
     bool            GetMaster(

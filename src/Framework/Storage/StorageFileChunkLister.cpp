@@ -1,16 +1,16 @@
 #include "StorageFileChunkLister.h"
 
-#define MAX_PRELOAD_THRESHOLD   1*MB
-
-void StorageFileChunkLister::Init(ReadBuffer filename_, bool keysOnly_)
+void StorageFileChunkLister::Init(ReadBuffer filename_, bool keysOnly_, uint64_t preloadBufferSize_)
 {
     filename.Write(filename_);
     keysOnly = keysOnly_;
+    preloadBufferSize = preloadBufferSize_;
+    Log_Debug("FileChunkLister preloadBufferSize: %s", HUMAN_BYTES(preloadBufferSize));
 }
 
 void StorageFileChunkLister::Load()
 {
-    reader.Open(filename, MAX_PRELOAD_THRESHOLD, keysOnly);
+    reader.Open(filename, preloadBufferSize, keysOnly);
 }
 
 StorageFileKeyValue* StorageFileChunkLister::First(ReadBuffer& firstKey)

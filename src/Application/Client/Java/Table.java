@@ -32,8 +32,8 @@ public class Table
     }
 
     private void useDefaults() throws SDBPException {
-        client.useDatabase(database.getName());
-        client.useTable(name);
+        client.useDatabase(database.getDatabaseID());
+        client.useTable(tableID);
     }
 
     /**
@@ -169,9 +169,9 @@ public class Table
      * @param   key     key with which the specified value is to be associated
      * @param   test    the user specified value that is tested against the old value
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
+     * @return          the value that belongs to the key
      */
-	public int testAndSet(String key, String test, String value) throws SDBPException {
+	public String testAndSet(String key, String test, String value) throws SDBPException {
         useDefaults();
         return client.testAndSet(key, test, value);
 	}
@@ -185,9 +185,9 @@ public class Table
      * @param   key     key with which the specified value is to be associated
      * @param   test    the user specified value that is tested against the old value
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
+     * @return          the value that belongs to the key
      */
-	public int testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
+	public byte[] testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
         useDefaults();
         return client.testAndSet(key, test, value);
 	}
@@ -318,65 +318,42 @@ public class Table
      * Returns the specified keys.
      *
      * @param   startKey    listing starts at this key
+     * @param   endKey      listing ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-	public List<String> listKeys(String startKey, int offset, int count) throws SDBPException {
+	public List<String> listKeys(String startKey, String endKey, int offset, int count) throws SDBPException {
         useDefaults();
-        return client.listKeys(startKey, offset, count);
+        return client.listKeys(startKey, endKey, offset, count);
     }
 
     /**
      * Returns the specified keys.
      *
      * @param   startKey    listing starts at this key
+     * @param   endKey      listing ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-	public List<byte[]> listKeys(byte[] startKey, int offset, int count) throws SDBPException {
+	public List<byte[]> listKeys(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
         useDefaults();
-        return client.listKeys(startKey, offset, count);
-    }
-
-    /**
-     * Returns the number of key-value pairs.
-     *
-     * @param   startKey    counting starts at this key
-     * @param   offset      specifies the offset of the first key to return
-     * @param   count       specifies the maximum number of keys returned
-     * @return              the number of key-value pairs
-     */
-    public long count(String startKey, int offset, int count) throws SDBPException {
-        useDefaults();
-		return client.count(startKey, offset, count);
-    }
-    
-    /**
-     * Returns the number of key-value pairs.
-     *
-     * @param   startKey    counting starts at this key
-     * @param   offset      specifies the offset of the first key to return
-     * @param   count       specifies the maximum number of keys returned
-     * @return              the number of key-value pairs
-     */
-    public long count(byte[] startKey, int offset, int count) throws SDBPException {
-        useDefaults();
-		return client.count(startKey, offset, count);    
+        return client.listKeys(startKey, endKey, offset, count);
     }
 
     /**
      * Returns the specified key-value pairs.
      *
      * @param   startKey    listing starts at this key
+     * @param   endKey      listing ends at this key
      * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<String, String> listKeyValues(String startKey, int offset, int count) throws SDBPException {
+    public Map<String, String> listKeyValues(String startKey, String endKey, int offset, int count) throws SDBPException {
         useDefaults();
-        return client.listKeyValues(startKey, offset, count);
+        return client.listKeyValues(startKey, endKey, offset, count);
     }
     
     /**
@@ -387,8 +364,36 @@ public class Table
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, int offset, int count) throws SDBPException {
+    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
         useDefaults();
-        return client.listKeyValues(startKey, offset, count);
+        return client.listKeyValues(startKey, endKey, offset, count);
+    }
+
+    /**
+     * Returns the number of key-value pairs.
+     *
+     * @param   startKey    counting starts at this key
+     * @param   endKey      counting ends at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the maximum number of keys returned
+     * @return              the number of key-value pairs
+     */
+    public long count(String startKey, String endKey, int offset, int count) throws SDBPException {
+        useDefaults();
+		return client.count(startKey, endKey, offset, count);
+    }
+    
+    /**
+     * Returns the number of key-value pairs.
+     *
+     * @param   startKey    counting starts at this key
+     * @param   endKey      counting ends at this key
+     * @param   offset      specifies the offset of the first key to return
+     * @param   count       specifies the maximum number of keys returned
+     * @return              the number of key-value pairs
+     */
+    public long count(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
+        useDefaults();
+		return client.count(startKey, endKey, offset, count);    
     }
 }

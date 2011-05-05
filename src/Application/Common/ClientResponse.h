@@ -48,6 +48,7 @@ public:
     uint64_t        commandID;
     uint64_t        paxosID;
     ReadBuffer      value;
+    ReadBuffer      endKey;
     unsigned        numKeys;
     ReadBuffer*     keys;
     ReadBuffer*     values;
@@ -75,7 +76,7 @@ public:
     bool            Failed();
     bool            NoResponse();
     bool            Hello();
-    bool            Next(ReadBuffer& nextShardKey, uint64_t count, uint64_t offset);
+    bool            Next(ReadBuffer& nextShardKey, ReadBuffer& endKey, uint64_t count, uint64_t offset);
 };
 
 #endif

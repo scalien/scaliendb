@@ -2230,6 +2230,34 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultIsFinished) {
+  ResultObj arg1 = (ResultObj) 0 ;
+  bool result;
+  zval **args[1];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_ResultIsFinished. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  result = (bool)SDBP_ResultIsFinished(arg1);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultTransportStatus) {
   ResultObj arg1 = (ResultObj) 0 ;
   int result;
@@ -2687,6 +2715,31 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_GetJSONConfigState) {
   {
     ZVAL_STRINGL(return_value,const_cast<char*>((&result)->data()),(&result)->length(),1);
   }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_WaitConfigState) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  zval **args[1];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_WaitConfigState. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  SDBP_WaitConfigState(arg1);
+  
   return;
 fail:
   zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
@@ -3264,6 +3317,165 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_SDBP_SplitShard) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  int result;
+  uint64_t *tmp2 ;
+  std::string temp3 ;
+  zval **args[3];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_SplitShard. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_SplitShard. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  {
+    convert_to_string_ex(args[2]);
+    temp3 = std::string(Z_STRVAL_PP(args[2]),Z_STRLEN_PP(args[2]));
+    arg3 = &temp3;
+  }
+  result = (int)SDBP_SplitShard(arg1,arg2,(std::string const &)*arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_FreezeTable) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  uint64_t *tmp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_FreezeTable. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_FreezeTable. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  result = (int)SDBP_FreezeTable(arg1,arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_UnfreezeTable) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  uint64_t *tmp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_UnfreezeTable. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_UnfreezeTable. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  result = (int)SDBP_UnfreezeTable(arg1,arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_MigrateShard) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  uint64_t arg3 ;
+  int result;
+  uint64_t *tmp2 ;
+  uint64_t *tmp3 ;
+  zval **args[3];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 3 || zend_get_parameters_array_ex(3, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_MigrateShard. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_MigrateShard. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  {
+    if(SWIG_ConvertPtr(*args[2], (void **) &tmp3, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp3 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 3 of SDBP_MigrateShard. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg3 = *tmp3;
+  }
+  result = (int)SDBP_MigrateShard(arg1,arg2,arg3);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_SDBP_GetDatabaseID) {
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
@@ -3379,6 +3591,42 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_SDBP_UseDatabaseID) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  uint64_t *tmp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_UseDatabaseID. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_UseDatabaseID. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  result = (int)SDBP_UseDatabaseID(arg1,arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_SDBP_UseTable) {
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
@@ -3405,6 +3653,42 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_UseTable) {
     arg2 = &temp2;
   }
   result = (int)SDBP_UseTable(arg1,(std::string const &)*arg2);
+  {
+    ZVAL_LONG(return_value,result);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_UseTableID) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  uint64_t *tmp2 ;
+  zval **args[2];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 2 || zend_get_parameters_array_ex(2, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_UseTableID. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  {
+    if(SWIG_ConvertPtr(*args[1], (void **) &tmp2, SWIGTYPE_p_unsigned_long_long, 0) < 0 || tmp2 == NULL) {
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 2 of SDBP_UseTableID. Expected SWIGTYPE_p_unsigned_long_long");
+    }
+    arg2 = *tmp2;
+  }
+  result = (int)SDBP_UseTableID(arg1,arg2);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -4252,14 +4536,16 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeys) {
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
-  unsigned int arg3 ;
+  std::string *arg3 = 0 ;
   unsigned int arg4 ;
+  unsigned int arg5 ;
   int result;
   std::string temp2 ;
-  zval **args[4];
+  std::string temp3 ;
+  zval **args[5];
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -4277,10 +4563,9 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeys) {
     arg2 = &temp2;
   }
   {
-    /*@SWIG:CONVERT_INT_IN@*/
-    convert_to_long_ex(args[2]);
-    arg3 = (unsigned int) Z_LVAL_PP(args[2]);
-    /*@SWIG@*/;
+    convert_to_string_ex(args[2]);
+    temp3 = std::string(Z_STRVAL_PP(args[2]),Z_STRLEN_PP(args[2]));
+    arg3 = &temp3;
   }
   {
     /*@SWIG:CONVERT_INT_IN@*/
@@ -4288,7 +4573,13 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeys) {
     arg4 = (unsigned int) Z_LVAL_PP(args[3]);
     /*@SWIG@*/;
   }
-  result = (int)SDBP_ListKeys(arg1,(std::string const &)*arg2,arg3,arg4);
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[4]);
+    arg5 = (unsigned int) Z_LVAL_PP(args[4]);
+    /*@SWIG@*/;
+  }
+  result = (int)SDBP_ListKeys(arg1,(std::string const &)*arg2,(std::string const &)*arg3,arg4,arg5);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -4302,13 +4593,15 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeysCStr) {
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
   int arg3 ;
-  unsigned int arg4 ;
-  unsigned int arg5 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  unsigned int arg6 ;
+  unsigned int arg7 ;
   int result;
-  zval **args[5];
+  zval **args[7];
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 7 || zend_get_parameters_array_ex(7, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -4333,18 +4626,30 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeysCStr) {
     /*@SWIG@*/;
   }
   {
-    /*@SWIG:CONVERT_INT_IN@*/
-    convert_to_long_ex(args[3]);
-    arg4 = (unsigned int) Z_LVAL_PP(args[3]);
+    /*@SWIG:CONVERT_STRING_IN@*/
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
     /*@SWIG@*/;
   }
   {
     /*@SWIG:CONVERT_INT_IN@*/
     convert_to_long_ex(args[4]);
-    arg5 = (unsigned int) Z_LVAL_PP(args[4]);
+    arg5 = (int) Z_LVAL_PP(args[4]);
     /*@SWIG@*/;
   }
-  result = (int)SDBP_ListKeysCStr(arg1,arg2,arg3,arg4,arg5);
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[5]);
+    arg6 = (unsigned int) Z_LVAL_PP(args[5]);
+    /*@SWIG@*/;
+  }
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[6]);
+    arg7 = (unsigned int) Z_LVAL_PP(args[6]);
+    /*@SWIG@*/;
+  }
+  result = (int)SDBP_ListKeysCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -4357,14 +4662,16 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeyValues) {
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
-  unsigned int arg3 ;
+  std::string *arg3 = 0 ;
   unsigned int arg4 ;
+  unsigned int arg5 ;
   int result;
   std::string temp2 ;
-  zval **args[4];
+  std::string temp3 ;
+  zval **args[5];
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -4382,10 +4689,9 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeyValues) {
     arg2 = &temp2;
   }
   {
-    /*@SWIG:CONVERT_INT_IN@*/
-    convert_to_long_ex(args[2]);
-    arg3 = (unsigned int) Z_LVAL_PP(args[2]);
-    /*@SWIG@*/;
+    convert_to_string_ex(args[2]);
+    temp3 = std::string(Z_STRVAL_PP(args[2]),Z_STRLEN_PP(args[2]));
+    arg3 = &temp3;
   }
   {
     /*@SWIG:CONVERT_INT_IN@*/
@@ -4393,7 +4699,13 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeyValues) {
     arg4 = (unsigned int) Z_LVAL_PP(args[3]);
     /*@SWIG@*/;
   }
-  result = (int)SDBP_ListKeyValues(arg1,(std::string const &)*arg2,arg3,arg4);
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[4]);
+    arg5 = (unsigned int) Z_LVAL_PP(args[4]);
+    /*@SWIG@*/;
+  }
+  result = (int)SDBP_ListKeyValues(arg1,(std::string const &)*arg2,(std::string const &)*arg3,arg4,arg5);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -4407,13 +4719,15 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeyValuesCStr) {
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
   int arg3 ;
-  unsigned int arg4 ;
-  unsigned int arg5 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  unsigned int arg6 ;
+  unsigned int arg7 ;
   int result;
-  zval **args[5];
+  zval **args[7];
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 7 || zend_get_parameters_array_ex(7, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -4438,18 +4752,30 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ListKeyValuesCStr) {
     /*@SWIG@*/;
   }
   {
-    /*@SWIG:CONVERT_INT_IN@*/
-    convert_to_long_ex(args[3]);
-    arg4 = (unsigned int) Z_LVAL_PP(args[3]);
+    /*@SWIG:CONVERT_STRING_IN@*/
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
     /*@SWIG@*/;
   }
   {
     /*@SWIG:CONVERT_INT_IN@*/
     convert_to_long_ex(args[4]);
-    arg5 = (unsigned int) Z_LVAL_PP(args[4]);
+    arg5 = (int) Z_LVAL_PP(args[4]);
     /*@SWIG@*/;
   }
-  result = (int)SDBP_ListKeyValuesCStr(arg1,arg2,arg3,arg4,arg5);
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[5]);
+    arg6 = (unsigned int) Z_LVAL_PP(args[5]);
+    /*@SWIG@*/;
+  }
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[6]);
+    arg7 = (unsigned int) Z_LVAL_PP(args[6]);
+    /*@SWIG@*/;
+  }
+  result = (int)SDBP_ListKeyValuesCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -4462,14 +4788,16 @@ fail:
 ZEND_NAMED_FUNCTION(_wrap_SDBP_Count) {
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
-  unsigned int arg3 ;
+  std::string *arg3 = 0 ;
   unsigned int arg4 ;
+  unsigned int arg5 ;
   int result;
   std::string temp2 ;
-  zval **args[4];
+  std::string temp3 ;
+  zval **args[5];
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 4 || zend_get_parameters_array_ex(4, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -4487,10 +4815,9 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_Count) {
     arg2 = &temp2;
   }
   {
-    /*@SWIG:CONVERT_INT_IN@*/
-    convert_to_long_ex(args[2]);
-    arg3 = (unsigned int) Z_LVAL_PP(args[2]);
-    /*@SWIG@*/;
+    convert_to_string_ex(args[2]);
+    temp3 = std::string(Z_STRVAL_PP(args[2]),Z_STRLEN_PP(args[2]));
+    arg3 = &temp3;
   }
   {
     /*@SWIG:CONVERT_INT_IN@*/
@@ -4498,7 +4825,13 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_Count) {
     arg4 = (unsigned int) Z_LVAL_PP(args[3]);
     /*@SWIG@*/;
   }
-  result = (int)SDBP_Count(arg1,(std::string const &)*arg2,arg3,arg4);
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[4]);
+    arg5 = (unsigned int) Z_LVAL_PP(args[4]);
+    /*@SWIG@*/;
+  }
+  result = (int)SDBP_Count(arg1,(std::string const &)*arg2,(std::string const &)*arg3,arg4,arg5);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -4512,13 +4845,15 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_CountCStr) {
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
   int arg3 ;
-  unsigned int arg4 ;
-  unsigned int arg5 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  unsigned int arg6 ;
+  unsigned int arg7 ;
   int result;
-  zval **args[5];
+  zval **args[7];
   
   SWIG_ResetError();
-  if(ZEND_NUM_ARGS() != 5 || zend_get_parameters_array_ex(5, args) != SUCCESS) {
+  if(ZEND_NUM_ARGS() != 7 || zend_get_parameters_array_ex(7, args) != SUCCESS) {
     WRONG_PARAM_COUNT;
   }
   
@@ -4543,18 +4878,30 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_CountCStr) {
     /*@SWIG@*/;
   }
   {
-    /*@SWIG:CONVERT_INT_IN@*/
-    convert_to_long_ex(args[3]);
-    arg4 = (unsigned int) Z_LVAL_PP(args[3]);
+    /*@SWIG:CONVERT_STRING_IN@*/
+    convert_to_string_ex(args[3]);
+    arg4 = (char *) Z_STRVAL_PP(args[3]);
     /*@SWIG@*/;
   }
   {
     /*@SWIG:CONVERT_INT_IN@*/
     convert_to_long_ex(args[4]);
-    arg5 = (unsigned int) Z_LVAL_PP(args[4]);
+    arg5 = (int) Z_LVAL_PP(args[4]);
     /*@SWIG@*/;
   }
-  result = (int)SDBP_CountCStr(arg1,arg2,arg3,arg4,arg5);
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[5]);
+    arg6 = (unsigned int) Z_LVAL_PP(args[5]);
+    /*@SWIG@*/;
+  }
+  {
+    /*@SWIG:CONVERT_INT_IN@*/
+    convert_to_long_ex(args[6]);
+    arg7 = (unsigned int) Z_LVAL_PP(args[6]);
+    /*@SWIG@*/;
+  }
+  result = (int)SDBP_CountCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   {
     ZVAL_LONG(return_value,result);
   }
@@ -4699,6 +5046,42 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_SDBP_GetVersion) {
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 0) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  result = SDBP_GetVersion();
+  {
+    ZVAL_STRINGL(return_value,const_cast<char*>((&result)->data()),(&result)->length(),1);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
+ZEND_NAMED_FUNCTION(_wrap_SDBP_GetDebugString) {
+  std::string result;
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 0) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  result = SDBP_GetDebugString();
+  {
+    ZVAL_STRINGL(return_value,const_cast<char*>((&result)->data()),(&result)->length(),1);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
 /* NEW Destructor style */
 static ZEND_RSRC_DTOR_FUNC(_wrap_destroy_p_SDBP_NodeParams) {
   __wrap_delete_SDBP_NodeParams(rsrc, SWIGTYPE_p_SDBP_NodeParams->name TSRMLS_CC);
@@ -4797,6 +5180,7 @@ static function_entry scaliendb_client_functions[] = {
  ZEND_NAMED_FE(sdbp_resultbegin,_wrap_SDBP_ResultBegin,NULL)
  ZEND_NAMED_FE(sdbp_resultnext,_wrap_SDBP_ResultNext,NULL)
  ZEND_NAMED_FE(sdbp_resultisend,_wrap_SDBP_ResultIsEnd,NULL)
+ ZEND_NAMED_FE(sdbp_resultisfinished,_wrap_SDBP_ResultIsFinished,NULL)
  ZEND_NAMED_FE(sdbp_resulttransportstatus,_wrap_SDBP_ResultTransportStatus,NULL)
  ZEND_NAMED_FE(sdbp_resultcommandstatus,_wrap_SDBP_ResultCommandStatus,NULL)
  ZEND_NAMED_FE(sdbp_resultnumnodes,_wrap_SDBP_ResultNumNodes,NULL)
@@ -4813,6 +5197,7 @@ static function_entry scaliendb_client_functions[] = {
  ZEND_NAMED_FE(sdbp_getcurrentdatabaseid,_wrap_SDBP_GetCurrentDatabaseID,NULL)
  ZEND_NAMED_FE(sdbp_getcurrenttableid,_wrap_SDBP_GetCurrentTableID,NULL)
  ZEND_NAMED_FE(sdbp_getjsonconfigstate,_wrap_SDBP_GetJSONConfigState,NULL)
+ ZEND_NAMED_FE(sdbp_waitconfigstate,_wrap_SDBP_WaitConfigState,NULL)
  ZEND_NAMED_FE(sdbp_setbatchlimit,_wrap_SDBP_SetBatchLimit,NULL)
  ZEND_NAMED_FE(sdbp_setbulkloading,_wrap_SDBP_SetBulkLoading,NULL)
  ZEND_NAMED_FE(sdbp_setconsistencylevel,_wrap_SDBP_SetConsistencyLevel,NULL)
@@ -4828,10 +5213,16 @@ static function_entry scaliendb_client_functions[] = {
  ZEND_NAMED_FE(sdbp_renametable,_wrap_SDBP_RenameTable,NULL)
  ZEND_NAMED_FE(sdbp_deletetable,_wrap_SDBP_DeleteTable,NULL)
  ZEND_NAMED_FE(sdbp_truncatetable,_wrap_SDBP_TruncateTable,NULL)
+ ZEND_NAMED_FE(sdbp_splitshard,_wrap_SDBP_SplitShard,NULL)
+ ZEND_NAMED_FE(sdbp_freezetable,_wrap_SDBP_FreezeTable,NULL)
+ ZEND_NAMED_FE(sdbp_unfreezetable,_wrap_SDBP_UnfreezeTable,NULL)
+ ZEND_NAMED_FE(sdbp_migrateshard,_wrap_SDBP_MigrateShard,NULL)
  ZEND_NAMED_FE(sdbp_getdatabaseid,_wrap_SDBP_GetDatabaseID,NULL)
  ZEND_NAMED_FE(sdbp_gettableid,_wrap_SDBP_GetTableID,NULL)
  ZEND_NAMED_FE(sdbp_usedatabase,_wrap_SDBP_UseDatabase,NULL)
+ ZEND_NAMED_FE(sdbp_usedatabaseid,_wrap_SDBP_UseDatabaseID,NULL)
  ZEND_NAMED_FE(sdbp_usetable,_wrap_SDBP_UseTable,NULL)
+ ZEND_NAMED_FE(sdbp_usetableid,_wrap_SDBP_UseTableID,NULL)
  ZEND_NAMED_FE(sdbp_get,_wrap_SDBP_Get,NULL)
  ZEND_NAMED_FE(sdbp_getcstr,_wrap_SDBP_GetCStr,NULL)
  ZEND_NAMED_FE(sdbp_set,_wrap_SDBP_Set,NULL)
@@ -4861,6 +5252,8 @@ static function_entry scaliendb_client_functions[] = {
  ZEND_NAMED_FE(sdbp_cancel,_wrap_SDBP_Cancel,NULL)
  ZEND_NAMED_FE(sdbp_isbatched,_wrap_SDBP_IsBatched,NULL)
  ZEND_NAMED_FE(sdbp_settrace,_wrap_SDBP_SetTrace,NULL)
+ ZEND_NAMED_FE(sdbp_getversion,_wrap_SDBP_GetVersion,NULL)
+ ZEND_NAMED_FE(sdbp_getdebugstring,_wrap_SDBP_GetDebugString,NULL)
 {NULL, NULL, NULL}
 };
 

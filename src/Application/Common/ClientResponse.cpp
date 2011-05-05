@@ -199,10 +199,12 @@ bool ClientResponse::Hello()
     return true;
 }
 
-bool ClientResponse::Next(ReadBuffer& nextShardKey, uint64_t count, uint64_t offset_)
+bool ClientResponse::Next(
+ ReadBuffer& nextShardKey, ReadBuffer& endKey_, uint64_t count, uint64_t offset_)
 {
     type = CLIENTRESPONSE_NEXT;
     value = nextShardKey;
+    endKey = endKey_;
     number = count;
     offset = offset_;
     return true;

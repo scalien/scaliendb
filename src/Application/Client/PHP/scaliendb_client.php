@@ -91,6 +91,10 @@ abstract class scaliendb_client {
 		return SDBP_ResultIsEnd($result);
 	}
 
+	static function SDBP_ResultIsFinished($result) {
+		return SDBP_ResultIsFinished($result);
+	}
+
 	static function SDBP_ResultTransportStatus($result) {
 		return SDBP_ResultTransportStatus($result);
 	}
@@ -155,6 +159,10 @@ abstract class scaliendb_client {
 		return SDBP_GetJSONConfigState($client);
 	}
 
+	static function SDBP_WaitConfigState($client) {
+		SDBP_WaitConfigState($client);
+	}
+
 	static function SDBP_SetBatchLimit($client,$limit) {
 		SDBP_SetBatchLimit($client,$limit);
 	}
@@ -215,6 +223,22 @@ abstract class scaliendb_client {
 		return SDBP_TruncateTable($client,$tableID);
 	}
 
+	static function SDBP_SplitShard($client,$shardID,$key) {
+		return SDBP_SplitShard($client,$shardID,$key);
+	}
+
+	static function SDBP_FreezeTable($client,$tableID) {
+		return SDBP_FreezeTable($client,$tableID);
+	}
+
+	static function SDBP_UnfreezeTable($client,$tableID) {
+		return SDBP_UnfreezeTable($client,$tableID);
+	}
+
+	static function SDBP_MigrateShard($client,$quorumID,$shardID) {
+		return SDBP_MigrateShard($client,$quorumID,$shardID);
+	}
+
 	static function SDBP_GetDatabaseID($client,$name) {
 		return SDBP_GetDatabaseID($client,$name);
 	}
@@ -227,8 +251,16 @@ abstract class scaliendb_client {
 		return SDBP_UseDatabase($client,$name);
 	}
 
+	static function SDBP_UseDatabaseID($client,$databaseID) {
+		return SDBP_UseDatabaseID($client,$databaseID);
+	}
+
 	static function SDBP_UseTable($client,$name) {
 		return SDBP_UseTable($client,$name);
+	}
+
+	static function SDBP_UseTableID($client,$tableID) {
+		return SDBP_UseTableID($client,$tableID);
 	}
 
 	static function SDBP_Get($client,$key) {
@@ -303,28 +335,28 @@ abstract class scaliendb_client {
 		return SDBP_RemoveCStr($client_,$key,$len);
 	}
 
-	static function SDBP_ListKeys($client,$key,$count,$offset) {
-		return SDBP_ListKeys($client,$key,$count,$offset);
+	static function SDBP_ListKeys($client,$startKey,$endKey,$count,$offset) {
+		return SDBP_ListKeys($client,$startKey,$endKey,$count,$offset);
 	}
 
-	static function SDBP_ListKeysCStr($client,$key,$len,$count,$offset) {
-		return SDBP_ListKeysCStr($client,$key,$len,$count,$offset);
+	static function SDBP_ListKeysCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset) {
+		return SDBP_ListKeysCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset);
 	}
 
-	static function SDBP_ListKeyValues($client,$key,$count,$offset) {
-		return SDBP_ListKeyValues($client,$key,$count,$offset);
+	static function SDBP_ListKeyValues($client,$startKey,$endKey,$count,$offset) {
+		return SDBP_ListKeyValues($client,$startKey,$endKey,$count,$offset);
 	}
 
-	static function SDBP_ListKeyValuesCStr($client,$key,$len,$count,$offset) {
-		return SDBP_ListKeyValuesCStr($client,$key,$len,$count,$offset);
+	static function SDBP_ListKeyValuesCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset) {
+		return SDBP_ListKeyValuesCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset);
 	}
 
-	static function SDBP_Count($client,$key,$count,$offset) {
-		return SDBP_Count($client,$key,$count,$offset);
+	static function SDBP_Count($client,$startKey,$endKey,$count,$offset) {
+		return SDBP_Count($client,$startKey,$endKey,$count,$offset);
 	}
 
-	static function SDBP_CountCStr($client,$key,$len,$count,$offset) {
-		return SDBP_CountCStr($client,$key,$len,$count,$offset);
+	static function SDBP_CountCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset) {
+		return SDBP_CountCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset);
 	}
 
 	static function SDBP_Begin($client) {
@@ -345,6 +377,14 @@ abstract class scaliendb_client {
 
 	static function SDBP_SetTrace($trace) {
 		SDBP_SetTrace($trace);
+	}
+
+	static function SDBP_GetVersion() {
+		return SDBP_GetVersion();
+	}
+
+	static function SDBP_GetDebugString() {
+		return SDBP_GetDebugString();
 	}
 }
 

@@ -106,6 +106,13 @@ bool ClientRequest::IsList()
     return false;
 }
 
+bool ClientRequest::IsActive()
+{
+    if (session && session->IsActive())
+        return true;
+    return false;
+}
+
 bool ClientRequest::GetMaster(uint64_t commandID_)
 {
     type = CLIENTREQUEST_GET_MASTER;

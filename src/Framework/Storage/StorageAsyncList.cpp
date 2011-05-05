@@ -7,7 +7,7 @@
 #include "StorageShard.h"
 #include "StorageEnvironment.h"
 
-#define MAX_RESULT_SIZE     64*KiB
+#define MAX_RESULT_SIZE     1024*KiB
 
 StorageAsyncListResult::StorageAsyncListResult(StorageAsyncList* asyncList_) :
  dataPage(NULL, 0)
@@ -21,6 +21,7 @@ void StorageAsyncListResult::OnComplete()
 {
     asyncList->lastResult = this;
     Call(onComplete);
+    asyncList->lastResult = NULL;
     if (final)
     {
         asyncList->env->DecreaseNumCursors();
@@ -50,6 +51,8 @@ void StorageAsyncList::Init()
 {    
     ret = false;
     completed = false;
+    aborted = false;
+    num = 0;
     stage = START;
     threadPool = NULL;
     iterators = NULL;
@@ -63,8 +66,6 @@ void StorageAsyncList::Clear()
 {
     unsigned    i;
 
-    Log_Debug("StorageAsyncList cleared");
-    
     for (i = 0; i < numListers; i++)
         delete listers[i];
     delete[] listers;
@@ -79,6 +80,7 @@ void StorageAsyncList::Clear()
 void StorageAsyncList::ExecuteAsyncList()
 {
     unsigned                        numChunks;
+    uint64_t                        preloadBufferSize;
     StorageChunk**                  itChunk;
     StorageFileChunk*               fileChunk;
     StorageFileChunkLister*         fileLister;
@@ -88,6 +90,7 @@ void StorageAsyncList::ExecuteAsyncList()
     StorageChunk::ChunkState        chunkState;
     ReadBuffer                      firstKey;
     
+    Log_Debug("StorageAsyncList START");
     firstKey.Wrap(shardFirstKey);
     
     if (stage == START)
@@ -98,6 +101,7 @@ void StorageAsyncList::ExecuteAsyncList()
         listers = new StorageChunkLister*[numChunks];
         iterators = new StorageFileKeyValue*[numChunks];
         numListers = 0;
+        preloadBufferSize = env->GetConfig().mergeBufferSize / numChunks;
 
         FOREACH (itChunk, shard->GetChunks())
         {
@@ -122,7 +126,8 @@ void StorageAsyncList::ExecuteAsyncList()
                 fileChunk = (StorageFileChunk*) *itChunk;
                 filename = &fileChunk->GetFilename();
                 fileLister = new StorageFileChunkLister;
-                fileLister->Init(fileChunk->GetFilename(), (type == KEY || type == COUNT));
+                fileLister->Init(
+                 fileChunk->GetFilename(), (type == KEY || type == COUNT), preloadBufferSize);
                 listers[numListers] = fileLister;
                 numListers++;
             }
@@ -131,11 +136,15 @@ void StorageAsyncList::ExecuteAsyncList()
         stage = MEMO_CHUNK;
     }
 
+    Log_Debug("StorageAsyncList MEMO_CHUNK");
+
     if (stage == MEMO_CHUNK)
     {
         LoadMemoChunk();
         stage = FILE_CHUNK;
     }
+    
+    Log_Debug("StorageAsyncList FILE_CHUNK");
     
     if (stage == FILE_CHUNK)
     {
@@ -233,6 +242,9 @@ bool StorageAsyncList::IsDone()
     if (env->IsShuttingDown())
         return true;
 
+    if (IsAborted())
+        return true;
+
     numActive = 0;
     for (i = 0; i < numListers; i++)
     {
@@ -243,6 +255,16 @@ bool StorageAsyncList::IsDone()
         return true;
 
     return false;
+}
+
+bool StorageAsyncList::IsAborted()
+{
+    return aborted;
+}
+
+void StorageAsyncList::SetAborted(bool aborted_)
+{
+    aborted = aborted_;
 }
 
 StorageFileKeyValue* StorageAsyncList::Next()
