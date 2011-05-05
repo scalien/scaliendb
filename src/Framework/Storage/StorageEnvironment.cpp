@@ -17,9 +17,9 @@
 #include "StorageDeleteFileChunkJob.h"
 #include "StorageArchiveLogSegmentJob.h"
 
-#define SERIALIZECHUNKJOB ((StorageSerializeChunkJob*)(serializeChunkJobs.GetActiveJob()))
-#define WRITECHUNKJOB ((StorageWriteChunkJob*)(writeChunkJobs.GetActiveJob()))
-#define MERGECHUNKJOB ((StorageMergeChunkJob*)(mergeChunkJobs.GetActiveJob()))
+#define SERIALIZECHUNKJOB   ((StorageSerializeChunkJob*)(serializeChunkJobs.GetActiveJob()))
+#define WRITECHUNKJOB       ((StorageWriteChunkJob*)(writeChunkJobs.GetActiveJob()))
+#define MERGECHUNKJOB       ((StorageMergeChunkJob*)(mergeChunkJobs.GetActiveJob()))
 
 static inline int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
