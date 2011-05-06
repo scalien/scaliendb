@@ -319,6 +319,8 @@ void ShardQuorumProcessor::OnLeaseTimeout()
 {
     ShardMessage*   itMessage, *nextMessage;
     
+    quorumContext.OnLeaseTimeout();
+    
     Log_Debug("Lease lost for quorum %U, dropping pending requests...", GetQuorumID());
     
     for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
