@@ -42,6 +42,7 @@ class scaliendb_clientJNI {
   public final static native byte[] SDBP_ResultKeyBuffer(long jarg1);
   public final static native byte[] SDBP_ResultValueBuffer(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultNumber(long jarg1);
+  public final static native boolean SDBP_ResultIsValueChanged(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultDatabaseID(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultTableID(long jarg1);
   public final static native void SDBP_ResultBegin(long jarg1);

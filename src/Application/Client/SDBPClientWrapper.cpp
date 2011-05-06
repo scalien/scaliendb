@@ -168,6 +168,22 @@ uint64_t SDBP_ResultNumber(ResultObj result_)
     return number;
 }
 
+bool SDBP_ResultIsValueChanged(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    int         status;
+    bool        ret;
+    
+    if (!result)
+        return 0;
+    
+    status = result->IsValueChanged(ret);
+    if (status < 0)
+        return false;
+    
+    return ret;
+}
+
 uint64_t SDBP_ResultDatabaseID(ResultObj result_)
 {
     Result*     result = (Result*) result_;

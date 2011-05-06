@@ -150,6 +150,12 @@
 		9A4674231369B61600108B07 /* StorageDeleteMemoChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54973F4913685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp */; };
 		9A4674241369B61A00108B07 /* StorageDeleteFileChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120BD1361BD160029D6A8 /* StorageDeleteFileChunkJob.cpp */; };
 		9A4674251369B61E00108B07 /* StorageArchiveLogSegmentJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543120C41361BE610029D6A8 /* StorageArchiveLogSegmentJob.cpp */; };
+		9A467A251373436D00108B07 /* DLL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A467A231373436D00108B07 /* DLL.cpp */; };
+		9A467A261373436D00108B07 /* DLL.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A467A231373436D00108B07 /* DLL.cpp */; };
+		9A467A4F1373450B00108B07 /* DLLTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A467A4E1373450B00108B07 /* DLLTest.cpp */; };
+		9A467AD1137350ED00108B07 /* ShardExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A467AD0137350ED00108B07 /* ShardExtension.cpp */; };
+		9A467AD2137350ED00108B07 /* ShardExtension.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A467AD0137350ED00108B07 /* ShardExtension.cpp */; };
+		9A467ADD1373541600108B07 /* ShardExtensionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A467ADC1373541600108B07 /* ShardExtensionTest.cpp */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
 		9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
@@ -574,6 +580,12 @@
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A466F431361906800108B07 /* test.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = test.php; path = Client/PHP/test.php; sourceTree = "<group>"; };
 		9A4671881366FEDC00108B07 /* EndpointTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = EndpointTest.cpp; path = Test/EndpointTest.cpp; sourceTree = "<group>"; };
+		9A467A231373436D00108B07 /* DLL.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DLL.cpp; sourceTree = "<group>"; };
+		9A467A241373436D00108B07 /* DLL.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DLL.h; sourceTree = "<group>"; };
+		9A467A4E1373450B00108B07 /* DLLTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = DLLTest.cpp; path = Test/DLLTest.cpp; sourceTree = "<group>"; };
+		9A467ACC13734CF500108B07 /* ShardExtension.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShardExtension.h; sourceTree = "<group>"; };
+		9A467AD0137350ED00108B07 /* ShardExtension.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ShardExtension.cpp; sourceTree = "<group>"; };
+		9A467ADC1373541600108B07 /* ShardExtensionTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = ShardExtensionTest.cpp; path = Test/ShardExtensionTest.cpp; sourceTree = "<group>"; };
 		9A46BE48120850FB00D453E0 /* HashMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HashMap.h; sourceTree = "<group>"; };
 		9A67257213007D5200C3E6F6 /* Quorum.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Quorum.java; path = Client/Java/Quorum.java; sourceTree = "<group>"; };
 		9A87370C1222DC77000B1319 /* InTreeMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap.h; sourceTree = "<group>"; };
@@ -1029,6 +1041,8 @@
 				543DE69B12BFBB420069786A /* ShardServer.cpp */,
 				543DE69E12BFBB420069786A /* ShardServerApp.h */,
 				543DE69D12BFBB420069786A /* ShardServerApp.cpp */,
+				9A467ACC13734CF500108B07 /* ShardExtension.h */,
+				9A467AD0137350ED00108B07 /* ShardExtension.cpp */,
 			);
 			path = ShardServer;
 			sourceTree = "<group>";
@@ -1146,6 +1160,8 @@
 				54B7F96011BE85950076BC62 /* Time.cpp */,
 				9ACF203D122E942900247703 /* FileSystem.h */,
 				9ACF203E122E942900247703 /* FileSystem.cpp */,
+				9A467A231373436D00108B07 /* DLL.cpp */,
+				9A467A241373436D00108B07 /* DLL.h */,
 			);
 			path = System;
 			sourceTree = "<group>";
@@ -1326,11 +1342,13 @@
 				9AE8196812D4BFE80038BDB1 /* CommonTest.cpp */,
 				9ADD104113433898002C5C66 /* ConfigStateTest.cpp */,
 				9AE8196912D4BFE80038BDB1 /* CrashTest.cpp */,
+				9A467A4E1373450B00108B07 /* DLLTest.cpp */,
 				9A4671881366FEDC00108B07 /* EndpointTest.cpp */,
 				9AE8196A12D4BFE80038BDB1 /* FileSystemTest.cpp */,
 				9AE8196B12D4BFE80038BDB1 /* FormattingTest.cpp */,
 				9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */,
 				9AE8196D12D4BFE80038BDB1 /* ManualTest.cpp */,
+				9A467ADC1373541600108B07 /* ShardExtensionTest.cpp */,
 				9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */,
 				9AE8196E12D4BFE80038BDB1 /* StorageOldTest.cpp */,
 				9AE8196F12D4BFE80038BDB1 /* Test.cpp */,
@@ -1544,6 +1562,8 @@
 				5431219D1366E52E0029D6A8 /* Mutex_Posix.cpp in Sources */,
 				5431219E1366E52E0029D6A8 /* Mutex_Windows.cpp in Sources */,
 				54973F4B13685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp in Sources */,
+				9A467A261373436D00108B07 /* DLL.cpp in Sources */,
+				9A467AD2137350ED00108B07 /* ShardExtension.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1676,6 +1696,10 @@
 				9A4674231369B61600108B07 /* StorageDeleteMemoChunkJob.cpp in Sources */,
 				9A4674241369B61A00108B07 /* StorageDeleteFileChunkJob.cpp in Sources */,
 				9A4674251369B61E00108B07 /* StorageArchiveLogSegmentJob.cpp in Sources */,
+				9A467A251373436D00108B07 /* DLL.cpp in Sources */,
+				9A467A4F1373450B00108B07 /* DLLTest.cpp in Sources */,
+				9A467AD1137350ED00108B07 /* ShardExtension.cpp in Sources */,
+				9A467ADD1373541600108B07 /* ShardExtensionTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

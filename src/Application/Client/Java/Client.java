@@ -628,9 +628,9 @@ public class Client
      * @param   key     key with which the specified value is to be associated
      * @param   test    the user specified value that is tested against the old value
      * @param   value   value to be associated with the specified key
-     * @return          the value that belongs to the key
+     * @return          true if the value was set
      */
-	public String testAndSet(String key, String test, String value) throws SDBPException {
+	public boolean testAndSet(String key, String test, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -638,10 +638,10 @@ public class Client
 		}
 		
 		if (isBatched())
-			return null;
+			return true;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValue();
+		return result.isValueChanged();
 	}
 
     /**
@@ -653,9 +653,9 @@ public class Client
      * @param   key     key with which the specified value is to be associated
      * @param   test    the user specified value that is tested against the old value
      * @param   value   value to be associated with the specified key
-     * @return          the value that belongs to the key
+     * @return          true if the value was set
      */
-	public byte[] testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
+	public boolean testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_TestAndSetCStr(cptr, key, key.length, test, test.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -663,10 +663,10 @@ public class Client
 		}
 		
 		if (isBatched())
-			return null;
+			return true;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValueBytes();
+		return result.isValueChanged();
 	}
 
     /**

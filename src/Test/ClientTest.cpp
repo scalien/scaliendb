@@ -1713,3 +1713,17 @@ TEST_DEFINE(TestClientMixedWriteReadBatched)
 
     return TEST_SUCCESS;
 }
+
+TEST_DEFINE(TestClientTestAndSet)
+{
+    Client          client;
+    
+    TEST(SetupDefaultClient(client));
+
+    // make sure there is a value
+    TEST(client.Set("key", "value"));
+    TEST(client.TestAndSet("key", "value", "value2"));
+    TEST(client.TestAndSet("key", "value", "value2"));
+    
+    return TEST_SUCCESS;
+}

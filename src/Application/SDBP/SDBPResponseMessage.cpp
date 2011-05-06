@@ -14,41 +14,17 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
         case CLIENTRESPONSE_OK:
             read = buffer.Readf("%c:%U",
              &response->type, &response->commandID);
-            // read optional paxosID
-            if ((int) buffer.GetLength() > read)
-            {
-                buffer.Advance(read);
-                read = buffer.Readf(":%U", &response->paxosID);
-                if (read == (int) buffer.GetLength())
-                    return true;
-                return false;
-            }
+            read = ReadOptionalParts(buffer, read);
             break;
         case CLIENTRESPONSE_NUMBER:
             read = buffer.Readf("%c:%U:%U",
              &response->type, &response->commandID, &response->number);
-            // read optional paxosID
-            if ((int) buffer.GetLength() > read)
-            {
-                buffer.Advance(read);
-                read = buffer.Readf(":%U", &response->paxosID);
-                if (read == (int) buffer.GetLength())
-                    return true;
-                return false;
-            }
+            read = ReadOptionalParts(buffer, read);
             break;
         case CLIENTRESPONSE_VALUE:
             read = buffer.Readf("%c:%U:%#R",
              &response->type, &response->commandID, &response->value);
-            // read optional paxosID
-            if ((int) buffer.GetLength() > read)
-            {
-                buffer.Advance(read);
-                read = buffer.Readf(":%U", &response->paxosID);
-                if (read == (int) buffer.GetLength())
-                    return true;
-                return false;
-            }
+            read = ReadOptionalParts(buffer, read);
             break;
         case CLIENTRESPONSE_LIST_KEYS:
             read = buffer.Readf("%c:%U:%u",
@@ -130,19 +106,21 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U",
              response->type, response->request->commandID);
             if (response->paxosID > 0)
-                buffer.Appendf(":%U", response->paxosID);
+                buffer.Appendf(":PU%U", response->paxosID);
             return true;
         case CLIENTRESPONSE_NUMBER:
             buffer.Writef("%c:%U:%U",
              response->type, response->request->commandID, response->number);
             if (response->paxosID > 0)
-                buffer.Appendf(":%U", response->paxosID);
+                buffer.Appendf(":PU%U", response->paxosID);
             return true;
         case CLIENTRESPONSE_VALUE:
             buffer.Writef("%c:%U:%#R",
              response->type, response->request->commandID, &response->value);
             if (response->paxosID > 0)
-                buffer.Appendf(":%U", response->paxosID);
+                buffer.Appendf(":%cU%U", CLIENTRESPONSE_OPT_PAXOSID, response->paxosID);
+            if (response->isValueChanged)
+                buffer.Appendf(":%cb%b", CLIENTRESPONSE_OPT_VALUE_CHANGED, response->isValueChanged);
             return true;
         case CLIENTRESPONSE_LIST_KEYS:
             buffer.Writef("%c:%U:%u",
@@ -189,4 +167,50 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         default:
             return false;
     }
+}
+
+int SDBPResponseMessage::ReadOptionalParts(ReadBuffer buffer, int offset)
+{
+    unsigned    length;
+    unsigned    pos;
+    char        opt;
+    int         read;
+    
+    length = buffer.GetLength();
+    pos = offset;
+    buffer.Advance(offset);
+    
+    while (length > pos)
+    {
+        // each optional command structured as follows:
+        // <1 byte COLON><1 byte OPT_COMMAND><1 byte type prefix><DATA>
+        // where the length of DATA depends on the type prefix
+        if (buffer.GetLength() < 2)
+            break;
+        read = buffer.Readf(":%c", &opt);
+        if (read != 2)
+            return read;
+
+        read = 0;
+        switch (opt)
+        {
+            case CLIENTRESPONSE_OPT_PAXOSID:
+                read = buffer.Readf(":%cU%U", &opt, &response->paxosID);
+                break;
+            case CLIENTRESPONSE_OPT_VALUE_CHANGED:
+                read = buffer.Readf(":%cb%b", &opt, &response->isValueChanged);
+                break;
+            default:
+                // TODO: read any other message based on the type prefix
+                read = -1;
+                break;
+        }
+        if (read < 0)
+            return read;
+        
+        buffer.Advance(read);
+        pos += read;
+    }
+    
+    return pos;
 }

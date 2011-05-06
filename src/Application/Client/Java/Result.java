@@ -67,6 +67,15 @@ public class Result
     }
     
     /**
+     * Returns true if the value changed, false otherwise. Useful for checking the
+     * result of testAndSet.
+     */
+    public boolean isValueChanged() {
+        return scaliendb_client.SDBP_ResultIsValueChanged(cptr);
+    }
+     
+    
+    /**
      * Jumps to the first elem in the result.
      */
 	public void begin() {

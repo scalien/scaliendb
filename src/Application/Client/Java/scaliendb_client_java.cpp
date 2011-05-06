@@ -797,6 +797,20 @@ SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
 }
 
 
+SWIGEXPORT jboolean JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultIsValueChanged(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jboolean jresult = 0 ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  bool result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ResultObj *)&jarg1; 
+  result = (bool)SDBP_ResultIsValueChanged(arg1);
+  jresult = (jboolean)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultDatabaseID(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   jobject jresult = 0 ;
   ResultObj arg1 = (ResultObj) 0 ;

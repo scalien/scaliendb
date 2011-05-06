@@ -16,6 +16,9 @@
 #define CLIENTRESPONSE_HELLO            '_'
 #define CLIENTRESPONSE_NEXT             'N'
 
+#define CLIENTRESPONSE_OPT_PAXOSID              'P'
+#define CLIENTRESPONSE_OPT_VALUE_CHANGED        'v'
+
 // this is needed on Visual C++ which cannot handle C99 type dynamic stack arrays
 #ifdef PLATFORM_WINDOWS
 #define CLIENTRESPONSE_MAX_LIST_ITEMS			65536
@@ -53,6 +56,7 @@ public:
     ReadBuffer*     keys;
     ReadBuffer*     values;
     Buffer*         valueBuffer;
+    bool            isValueChanged;
     ConfigState     configState;
 
     ClientResponse();
@@ -77,6 +81,8 @@ public:
     bool            NoResponse();
     bool            Hello();
     bool            Next(ReadBuffer& nextShardKey, ReadBuffer& endKey, uint64_t count, uint64_t offset);
+
+    void            SetValueChanged(bool isValueChanged);
 };
 
 #endif

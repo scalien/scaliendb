@@ -283,6 +283,15 @@ int Result::GetNumber(uint64_t& number)
     return request->status;
 }
 
+int Result::IsValueChanged(bool& isValueChanged)
+{
+    if (requestCursor == NULL)
+        return SDBP_API_ERROR;
+
+    isValueChanged = requestCursor->response.isValueChanged;
+    return requestCursor->status;
+}
+
 int Result::GetDatabaseID(uint64_t& databaseID)
 {
     if (requestCursor == NULL)

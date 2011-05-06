@@ -60,6 +60,7 @@ std::string     SDBP_ResultValue(ResultObj result);
 SDBP_Buffer     SDBP_ResultKeyBuffer(ResultObj result);
 SDBP_Buffer     SDBP_ResultValueBuffer(ResultObj result);
 uint64_t        SDBP_ResultNumber(ResultObj result);
+bool            SDBP_ResultIsValueChanged(ResultObj result);
 uint64_t        SDBP_ResultDatabaseID(ResultObj result);
 uint64_t        SDBP_ResultTableID(ResultObj result);
 void            SDBP_ResultBegin(ResultObj result);

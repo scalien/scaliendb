@@ -25,6 +25,7 @@ void ClientResponse::Init()
     offset = 0;
     paxosID = 0;
     value.Reset();
+    isValueChanged = false;
 }
 
 void ClientResponse::Clear()
@@ -208,4 +209,9 @@ bool ClientResponse::Next(
     number = count;
     offset = offset_;
     return true;
+}
+
+void ClientResponse::SetValueChanged(bool isValueChanged_)
+{
+    isValueChanged = isValueChanged_;
 }

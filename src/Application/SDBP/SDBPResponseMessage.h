@@ -11,6 +11,8 @@ public:
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);
+    
+    int             ReadOptionalParts(ReadBuffer buffer, int offset);
 };
 
 #endif

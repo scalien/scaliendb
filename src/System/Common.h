@@ -30,6 +30,10 @@ class ReadBuffer;
 #define YES     'Y'
 #define NO      'N'
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 unsigned        NumDigits(int n);
 unsigned        NumDigits64(uint64_t n);
 
@@ -83,5 +87,9 @@ uint32_t        FromLittle32(uint32_t num);
 uint32_t        FromLittle16(uint32_t num);
 
 uint32_t        NextPowerOfTwo(uint32_t x);
+
+#ifdef __cplusplus
+}
+#endif  // extern "C"
 
 #endif

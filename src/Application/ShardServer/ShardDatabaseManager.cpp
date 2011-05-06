@@ -80,6 +80,8 @@ void ShardDatabaseAsyncList::OnShardComplete()
     uint64_t                commandID;
     ReadBuffer              userValue;
     StorageFileKeyValue*    it;
+    ReadBuffer*             keys;
+    ReadBuffer*             values;
     unsigned                numKeys;
     unsigned                i;
 
@@ -105,9 +107,6 @@ void ShardDatabaseAsyncList::OnShardComplete()
     // create results if necessary
     if (numKeys > 0 && (type == KEY || type == KEYVALUE))
     {
-		CLIENTRESPONSE_ASSERT_NUMKEYS(numKeys);
-        ReadBuffer* keys;
-        ReadBuffer* values;
         keys = new ReadBuffer[numKeys];
         values = new ReadBuffer[numKeys];
         i = 0;
@@ -513,7 +512,10 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
             if (ReadBuffer::Cmp(userValue, message.test) != 0)
             {
                 if (message.clientRequest)
+                {
                     message.clientRequest->response.Value(userValue);
+                    message.clientRequest->response.SetValueChanged(true);
+                }
                 break;
             }
             WriteValue(buffer, paxosID, commandID, message.value);
