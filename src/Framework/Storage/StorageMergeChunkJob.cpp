@@ -54,7 +54,7 @@ void StorageMergeChunkJob::Execute()
     }
     else
     {
-        Log_Debug("Merge failed, chunk %U, elapsed: %U, size: %s, bps: %sB/s, free disk space: %s",
+        Log_Message("Merge failed, chunk %U, elapsed: %U, size: %s, bps: %sB/s, free disk space: %s",
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()),
          HUMAN_BYTES(mergeChunk->GetSize() / (sw.Elapsed() / 1000.0)),
