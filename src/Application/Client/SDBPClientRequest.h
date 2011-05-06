@@ -25,6 +25,7 @@ public:
     typedef ArrayList<uint64_t, 9>  ShardConnList;
 
     Request();
+    ~Request();
 
     unsigned        GetNumResponses();
 

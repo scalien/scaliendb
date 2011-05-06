@@ -12,6 +12,17 @@ Request::Request()
     parent = NULL;
 }
 
+Request::~Request()
+{
+    ClientResponse**    itResponse;
+
+    FOREACH_FIRST (itResponse, responses)
+    {
+        delete *itResponse;
+        responses.Remove(itResponse);
+    }
+}
+
 unsigned Request::GetNumResponses()
 {
     ClientResponse**    itResponse;
