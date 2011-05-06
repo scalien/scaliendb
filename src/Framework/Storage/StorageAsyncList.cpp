@@ -310,9 +310,14 @@ Restart:
             }
             
             // find the next smallest key
-            if (STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key) &&
-                iterators[i]->GetType() != STORAGE_KEYVALUE_TYPE_DELETE)
+            if (STORAGE_KEY_LESS_THAN(iterators[i]->GetKey(), key))
             {
+                if (iterators[i]->GetType() == STORAGE_KEYVALUE_TYPE_DELETE)
+                {
+                    iterators[i] = listers[i]->Next(iterators[i]);
+                    goto Restart;
+                }
+                
                 it = iterators[i];
                 key = it->GetKey();
                 smallest =  i;
