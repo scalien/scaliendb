@@ -174,7 +174,10 @@ int SDBPResponseMessage::ReadOptionalParts(ReadBuffer buffer, int offset)
     unsigned    length;
     unsigned    pos;
     char        opt;
+    char        type;
     int         read;
+    ReadBuffer  tmpBuffer;
+    uint64_t    tmpNumber;
     
     length = buffer.GetLength();
     pos = offset;
@@ -201,8 +204,24 @@ int SDBPResponseMessage::ReadOptionalParts(ReadBuffer buffer, int offset)
                 read = buffer.Readf(":%cb%b", &opt, &response->isValueChanged);
                 break;
             default:
-                // TODO: read any other message based on the type prefix
-                read = -1;
+                // read any other message based on the type prefix
+                buffer.Advance(2);
+                read = buffer.Readf("%c", type);
+                if (read < 0)
+                    return read;
+                switch (type) {
+                    case 'U':   // numeric
+                        read = buffer.Readf("%U", &tmpNumber);
+                        break;
+                    case 'b':   // bool
+                        read = 1;
+                        break;
+                    case 'B':   // buffer
+                        read = buffer.Readf("%#R", &tmpBuffer);
+                        break;
+                    default:
+                        return -1;
+                }
                 break;
         }
         if (read < 0)
