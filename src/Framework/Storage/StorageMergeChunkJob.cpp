@@ -1,5 +1,6 @@
 #include "StorageMergeChunkJob.h"
 #include "System/Stopwatch.h"
+#include "System/FileSystem.h"
 #include "StorageEnvironment.h"
 #include "StorageChunkMerger.h"
 
@@ -50,6 +51,14 @@ void StorageMergeChunkJob::Execute()
          mergeChunk->GetChunkID(),
          (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()), 
          HUMAN_BYTES(mergeChunk->GetSize() / (sw.Elapsed() / 1000.0)));
+    }
+    else
+    {
+        Log_Debug("Merge failed, chunk %U, elapsed: %U, size: %s, bps: %sB/s, free disk space: %s",
+         mergeChunk->GetChunkID(),
+         (uint64_t) sw.Elapsed(), HUMAN_BYTES(mergeChunk->GetSize()),
+         HUMAN_BYTES(mergeChunk->GetSize() / (sw.Elapsed() / 1000.0)),
+         HUMAN_BYTES(FS_FreeDiskSpace(mergeChunk->GetFilename().GetBuffer())));
     }
 }
 
