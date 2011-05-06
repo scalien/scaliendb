@@ -5008,6 +5008,26 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_ResultIsValueChanged(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ResultObj arg1 = (ResultObj) 0 ;
+  bool result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ResultIsValueChanged",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultIsValueChanged" "', argument " "1"" of type '" "ResultObj""'"); 
+  }
+  result = (bool)SDBP_ResultIsValueChanged(arg1);
+  resultobj = SWIG_From_bool(static_cast< bool >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_ResultDatabaseID(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ResultObj arg1 = (ResultObj) 0 ;
@@ -7929,6 +7949,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_ResultKeyBuffer", _wrap_SDBP_ResultKeyBuffer, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultValueBuffer", _wrap_SDBP_ResultValueBuffer, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultNumber", _wrap_SDBP_ResultNumber, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultIsValueChanged", _wrap_SDBP_ResultIsValueChanged, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultDatabaseID", _wrap_SDBP_ResultDatabaseID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultTableID", _wrap_SDBP_ResultTableID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultBegin", _wrap_SDBP_ResultBegin, METH_VARARGS, NULL},

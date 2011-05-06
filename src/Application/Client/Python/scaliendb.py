@@ -602,8 +602,8 @@ class Client:
             value (string): the value to be set
         """
         status, ret = self._data_command(SDBP_Set, key, value)
-        if ret:
-            return status
+        if status == SDBP_FAILURE:
+            raise Error(status, "Set failed")
 
     def set_if_not_exists(self, key, value):
         """
@@ -668,8 +668,6 @@ class Client:
             key (string): the specified key
         """
         status, ret = self._data_command(SDBP_Delete, key)
-        if ret:
-            return status
 
     def remove(self, key):
         """

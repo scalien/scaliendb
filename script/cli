@@ -9,7 +9,7 @@ if [ ! -f $PYTHONSTARTUP ] || [ ! -f $SCALIENDB_HOME/bin/python/scaliendb.py ]; 
 	echo
 	echo "The shell needs the Python library to be built first. Please issue"
 	echo 
-	echo " $ make pythonlib"
+	echo " $ make cli"
 	echo
 	exit 1
 fi

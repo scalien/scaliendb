@@ -140,6 +140,7 @@ SDBP_ResultValue = _scaliendb_client.SDBP_ResultValue
 SDBP_ResultKeyBuffer = _scaliendb_client.SDBP_ResultKeyBuffer
 SDBP_ResultValueBuffer = _scaliendb_client.SDBP_ResultValueBuffer
 SDBP_ResultNumber = _scaliendb_client.SDBP_ResultNumber
+SDBP_ResultIsValueChanged = _scaliendb_client.SDBP_ResultIsValueChanged
 SDBP_ResultDatabaseID = _scaliendb_client.SDBP_ResultDatabaseID
 SDBP_ResultTableID = _scaliendb_client.SDBP_ResultTableID
 SDBP_ResultBegin = _scaliendb_client.SDBP_ResultBegin
