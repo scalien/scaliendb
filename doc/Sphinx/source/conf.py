@@ -103,7 +103,7 @@ html_theme_path = ["."]
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
-html_title = "Keyspace documentation"
+html_title = "ScalienDB documentation"
 
 # A shorter title for the navigation bar.  Default is the same as html_title.
 html_short_title = "home"
@@ -158,7 +158,7 @@ html_show_sourcelink = False
 #html_file_suffix = ''
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'Keyspacedoc'
+htmlhelp_basename = 'ScaliendBdoc'
 
 
 # -- Options for LaTeX output --------------------------------------------------
@@ -172,7 +172,7 @@ htmlhelp_basename = 'Keyspacedoc'
 # Grouping the document tree into LaTeX files. List of tuples
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
-  ('index', 'Keyspace.tex', u'Keyspace Documentation',
+  ('index', 'ScalienDB.tex', u'ScalienDB Documentation',
    u'Scalien', 'manual'),
 ]
 
