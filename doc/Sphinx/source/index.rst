@@ -16,7 +16,7 @@ Contents:
    installation.rst
    configuration.rst
    running.rst
-   # understanding.rst
+   understanding.rst
    # http_api.rst
    # python_api.rst
 
