@@ -244,6 +244,8 @@ void ConfigServer::OnBroadcastHTTPEndpoint()
 
     FOREACH (itNodeID, configServers)
         CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, clusterMessage);
+    
+    EventLoop::Add(&broadcastHTTPEndpoint);
 }
 
 uint64_t Hash(uint64_t i)
