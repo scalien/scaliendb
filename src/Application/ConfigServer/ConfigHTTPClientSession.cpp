@@ -512,6 +512,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
 {
     if (HTTP_MATCH_COMMAND(cmd, "getmaster"))
         return ProcessGetMaster();
+    if (HTTP_MATCH_COMMAND(cmd, "getmasterhttp"))
+        return ProcessGetMasterHTTP();
     if (HTTP_MATCH_COMMAND(cmd, "getstate"))
         return ProcessGetState();
     if (HTTP_MATCH_COMMAND(cmd, "pollconfigstate"))
@@ -556,6 +558,16 @@ ClientRequest* ConfigHTTPClientSession::ProcessGetMaster()
     
     request = new ClientRequest;
     request->GetMaster(0);
+    
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessGetMasterHTTP()
+{
+    ClientRequest*  request;
+    
+    request = new ClientRequest;
+    request->GetMasterHTTP(0);
     
     return request;
 }

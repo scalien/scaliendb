@@ -143,6 +143,14 @@ bool ClusterMessage::Hello()
     return true;
 }
 
+bool ClusterMessage::HttpEndpoint(uint64_t nodeID_, ReadBuffer endpoint_)
+{
+    type = CLUSTERMESSAGE_HTTP_ENDPOINT;
+    nodeID = nodeID_;
+    endpoint = endpoint_;
+    return true;
+}
+
 bool ClusterMessage::Read(ReadBuffer& buffer)
 {
 #define READ_SEPARATOR() \
@@ -225,6 +233,10 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R",
              &type, &clusterID, &value);
             break;
+        case CLUSTERMESSAGE_HTTP_ENDPOINT:
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &nodeID, &endpoint);
+            break;
         default:
             return false;
     }
@@ -295,6 +307,10 @@ bool ClusterMessage::Write(Buffer& buffer)
             tempBuffer.Writef("ScalienDB cluster protocol, server version " VERSION_STRING);
             buffer.Writef("%c:%U:%#B",
              type, clusterID, &tempBuffer);
+            return true;
+        case CLUSTERMESSAGE_HTTP_ENDPOINT:
+            buffer.Writef("%c:%U:%#R",
+             type, nodeID, &endpoint);
             return true;
         default:
             return false;
