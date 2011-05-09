@@ -734,8 +734,11 @@ function findMaster()
 
 function onFindMaster(obj)
 {
-	// if (obj["response"] == "NOSERVICE")
-	// 	setTimeout("findMaster()", 1000);
+	if (obj["response"] == "NOSERVICE")
+	{
+		setTimeout("findMaster()", 1000);
+		return;
+	}
 	
 	var controller = obj["response"];
 	if (!scaliendb.util.startsWith(controller, "http://"))
