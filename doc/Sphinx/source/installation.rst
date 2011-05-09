@@ -38,7 +38,7 @@ This will create a directory called ``scaliendb``, which contains the source cod
   $ cd scaliendb
   $ make
 
-This will build the Keyspace executable appropriate for your system. ScalienDB has no outside dependencies, so you're ready to rock and roll at this point.
+This will build the ScalienDB executable appropriate for your system. ScalienDB has no outside dependencies, so you're ready to rock and roll at this point.
 
 To run ScalienDB::
 
