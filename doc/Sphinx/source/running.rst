@@ -31,10 +31,10 @@ First, start the controller(s). When the controllers start, they elect a master 
   ...
   2011-05-09 11:13:29.874038: Node 1 became the master
 
-Startint the web-based-management console
+Starting the web-based-management console
 =========================================
 
-Once the controllers are up and running, you can connect to the cluster using the web-based management console. The management console is a JSON app, so you can run it from anywhere. It is located in the ``webadmin`` directory of your ScalienDB distribution, so if you downloaded ScalienDB to ``/home/joe/scaliendb``, you should open::
+Once the controllers are up and running, you can connect to the cluster using the web-based management console. The management console is a Javascript application, so you can run it from anywhere. It is located in the ``webadmin`` directory of your ScalienDB distribution, so if you downloaded ScalienDB to ``/home/joe/scaliendb``, you should open::
 
   file:///home/joe/scaliendb/webadmin/index.html
 
