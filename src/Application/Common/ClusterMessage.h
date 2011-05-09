@@ -18,6 +18,7 @@
 #define CLUSTERMESSAGE_SHARDMIGRATION_COMMIT    '4' // shard server => shard server
 #define CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE  '5' // shard server => master
 #define CLUSTERMESSAGE_HELLO                    '_'
+#define CLUSTERMESSAGE_HTTP_ENDPOINT            'h' // controller => controllers
 
 /*
 ===============================================================================================
@@ -49,6 +50,7 @@ public:
     unsigned                sdbpPort;
     ReadBuffer              key;
     ReadBuffer              value;
+    ReadBuffer              endpoint;
     
     bool            IsShardMigrationMessage();
     
@@ -70,6 +72,7 @@ public:
     bool            ShardMigrationCommit(uint64_t quorumID, uint64_t shardID);
     bool            ShardMigrationComplete(uint64_t quorumID, uint64_t shardID);
     bool            Hello();
+    bool            HttpEndpoint(uint64_t nodeID, ReadBuffer endpoint);
     
     bool            Read(ReadBuffer& buffer);
     bool            Write(Buffer& buffer);

@@ -1,6 +1,7 @@
 #ifndef CONFIGSERVER_H
 #define CONFIGSERVER_H
 
+#include "System/Containers/HashMap.h"
 #include "Application/Common/ClusterContext.h"
 #include "Application/SDBP/SDBPContext.h"
 #include "ConfigDatabaseManager.h"
@@ -8,6 +9,8 @@
 #include "ConfigPrimaryLeaseManager.h"
 #include "ConfigHeartbeatManager.h"
 #include "ConfigActivationManager.h"
+
+#define BROADCAST_HTTP_ENDPOINT_DELAY        1000
 
 /*
 ===============================================================================================
@@ -20,6 +23,8 @@
 class ConfigServer : public ClusterContext, public SDBPContext
 {
 public:
+    ConfigServer();
+
     void                        Init();
     void                        Shutdown();
 
@@ -48,12 +53,20 @@ public:
     bool                        OnAwaitingNodeID(Endpoint endpoint);
     // ========================================================================================
 
+    bool                        GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint);
+
 private:
+    void                        OnBroadcastHTTPEndpoint();
+
     ConfigDatabaseManager       databaseManager;
     ConfigQuorumProcessor       quorumProcessor;
     ConfigHeartbeatManager      heartbeatManager;
     ConfigPrimaryLeaseManager   primaryLeaseManager;
     ConfigActivationManager     activationManager;
+    List<uint64_t>              configServers;
+    HashMap<uint64_t, Endpoint> httpEndpoints;
+    Endpoint                    httpEndpoint;
+    Countdown                   broadcastHTTPEndpoint;
 };
 
 #endif

@@ -103,6 +103,8 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     ConfigQuorum*   configQuorum;
     ConfigMessage*  configMessage;
     ClusterMessage  clusterMessage;
+    Endpoint        endpoint;
+    ReadBuffer      rb;
 
     if (request->type == CLIENTREQUEST_GET_MASTER)
     {
@@ -110,6 +112,22 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
             request->response.Number(quorumContext.GetLeaseOwner());
         else
             request->response.NoService();
+            
+        request->OnComplete();
+        return;
+    }
+    else if (request->type == CLIENTREQUEST_GET_MASTER_HTTP)
+    {
+        if (quorumContext.IsLeaseKnown())
+        {
+            configServer->GetControllerHTTPEndpoint(quorumContext.GetLeaseOwner(), endpoint);
+            rb.Wrap(endpoint.ToString());
+            request->response.Value(rb);
+        }
+        else
+        {
+            request->response.NoService();
+        }
             
         request->OnComplete();
         return;

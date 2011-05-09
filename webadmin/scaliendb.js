@@ -73,6 +73,11 @@ var scaliendb =
 		}
 		return state;
 	},
+
+	findMaster: function(onFindMaster)
+	{ 
+		this.json.rpc(scaliendb.controller, onFindMaster, scaliendb.onDisconnect, "getmasterhttp");
+	},
 	
 	getConfigState: function(onConfigState)
 	{ 

@@ -41,6 +41,7 @@ void ClientRequest::OnComplete(bool last)
 bool ClientRequest::IsControllerRequest()
 {
     if (type == CLIENTREQUEST_GET_MASTER        ||
+        type == CLIENTREQUEST_GET_MASTER_HTTP   ||
         type == CLIENTREQUEST_GET_CONFIG_STATE  ||
         type == CLIENTREQUEST_CREATE_QUORUM     ||
         type == CLIENTREQUEST_DELETE_QUORUM     ||
@@ -116,6 +117,13 @@ bool ClientRequest::IsActive()
 bool ClientRequest::GetMaster(uint64_t commandID_)
 {
     type = CLIENTREQUEST_GET_MASTER;
+    commandID = commandID_;
+    return true;
+}
+
+bool ClientRequest::GetMasterHTTP(uint64_t commandID_)
+{
+    type = CLIENTREQUEST_GET_MASTER_HTTP;
     commandID = commandID_;
     return true;
 }

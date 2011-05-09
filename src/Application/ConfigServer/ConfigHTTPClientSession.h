@@ -47,6 +47,7 @@ private:
     bool                ProcessCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessConfigCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessGetMaster();
+    ClientRequest*      ProcessGetMasterHTTP();
     ClientRequest*      ProcessGetState();
     ClientRequest*      ProcessPollConfigState();
     ClientRequest*      ProcessCreateQuorum();

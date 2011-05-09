@@ -9,11 +9,17 @@
 #include "Application/Common/ClientRequestCache.h"
 #include "ConfigQuorumProcessor.h"
 
+ConfigServer::ConfigServer()
+{
+    broadcastHTTPEndpoint.SetCallable(MFUNC(ConfigServer, OnBroadcastHTTPEndpoint));
+    broadcastHTTPEndpoint.SetDelay(BROADCAST_HTTP_ENDPOINT_DELAY);
+}
+
 void ConfigServer::Init()
 {
     unsigned        numConfigServers;
     int64_t         nodeID;
-    uint64_t        runID;
+    uint64_t        runID, nodeID_;
     const char*     str;
     Endpoint        endpoint;
 
@@ -44,6 +50,8 @@ void ConfigServer::Init()
     numConfigServers = (unsigned) configFile.GetListNum("controllers");
     for (nodeID = 0; nodeID < numConfigServers; nodeID++)
     {
+        nodeID_ = nodeID;
+        configServers.Append(nodeID_);
         str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str, true);
         CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
@@ -54,6 +62,10 @@ void ConfigServer::Init()
     heartbeatManager.Init(this);
     primaryLeaseManager.Init(this);
     activationManager.Init(this);
+    
+    httpEndpoint.Set(configFile.GetValue("endpoint", ""));
+    httpEndpoint.SetPort(configFile.GetIntValue("http.port", 8080));
+    EventLoop::Add(&broadcastHTTPEndpoint);
 }
 
 void ConfigServer::Shutdown()
@@ -119,8 +131,8 @@ void ConfigServer::OnClientClose(ClientSession* session)
 
 void ConfigServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
-//    heartbeatManager.RegisterHeartbeat(nodeID);
-
+    Endpoint endpoint;
+    
     switch (message.type)
     {
         case CLUSTERMESSAGE_SET_NODEID:
@@ -141,6 +153,10 @@ void ConfigServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message
             break;
         case CLUSTERMESSAGE_HELLO:
             // TODO:
+            break;
+        case CLUSTERMESSAGE_HTTP_ENDPOINT:
+            endpoint.Set(message.endpoint);
+            httpEndpoints.Set(message.nodeID, endpoint);
             break;
         default:
             ASSERT_FAIL();
@@ -212,4 +228,27 @@ bool ConfigServer::OnAwaitingNodeID(Endpoint endpoint)
 
     quorumProcessor.TryRegisterShardServer(endpoint);
     return false;
+}
+
+bool ConfigServer::GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint)
+{
+    return httpEndpoints.Get(nodeID, endpoint);
+}
+
+void ConfigServer::OnBroadcastHTTPEndpoint()
+{
+    uint64_t*       itNodeID;
+    ClusterMessage  clusterMessage;
+    
+    clusterMessage.HttpEndpoint(MY_NODEID, httpEndpoint.ToString());
+
+    FOREACH (itNodeID, configServers)
+        CONTEXT_TRANSPORT->SendClusterMessage(*itNodeID, clusterMessage);
+    
+    EventLoop::Add(&broadcastHTTPEndpoint);
+}
+
+uint64_t Hash(uint64_t i)
+{
+    return i;
 }

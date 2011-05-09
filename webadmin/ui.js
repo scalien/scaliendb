@@ -100,7 +100,10 @@ function connect()
 		controller = controller + "/json/";
 	if (controller !== scaliendb.controller)
 		scaliendb.controller = controller;
-	updateConfigState();
+
+	// updateConfigState();
+
+	findMaster();
 }
 
 tabs = ["Dashboard", "Quorums", "Schema", "Migration"];
@@ -722,6 +725,28 @@ function onDisconnect()
 	createDashboard({});
 	clearTimeout(timer);
 	timer = setTimeout("connect()", 1000);	
+}
+
+function findMaster()
+{
+	scaliendb.findMaster(onFindMaster);
+}
+
+function onFindMaster(obj)
+{
+	// if (obj["response"] == "NOSERVICE")
+	// 	setTimeout("findMaster()", 1000);
+	
+	var controller = obj["response"];
+	if (!scaliendb.util.startsWith(controller, "http://"))
+		controller = "http://" + controller;
+	if (!scaliendb.util.endsWith("controller", "/json/"))
+		controller = controller + "/json/";
+	if (controller !== scaliendb.controller)
+		scaliendb.controller = controller;
+
+	updateConfigState();
+
 }
 
 function updateConfigState()

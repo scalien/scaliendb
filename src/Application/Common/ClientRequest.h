@@ -7,6 +7,7 @@
 #include "ClientSession.h"
 
 #define CLIENTREQUEST_GET_MASTER        'm'
+#define CLIENTREQUEST_GET_MASTER_HTTP   'H'
 #define CLIENTREQUEST_GET_CONFIG_STATE  'A'
 #define CLIENTREQUEST_CREATE_QUORUM     'Q'
 #define CLIENTREQUEST_DELETE_QUORUM     'W'
@@ -67,6 +68,8 @@ public:
     
     // Master query
     bool            GetMaster(
+                     uint64_t commandID);
+    bool            GetMasterHTTP(
                      uint64_t commandID);
 
     // Get config state: databases, tables, shards, quora
