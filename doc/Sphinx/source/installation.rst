@@ -10,7 +10,7 @@ Installing from source on Linux and other UNIX platforms
 
 Download the latest tarball of ScalienDB from github at http://github.com/scalien/scaliendb::
 
-  $ git pull https://scalien@github.com/scalien/scaliendb.git scaliendb
+  $ git pull git://github.com/scalien/scaliendb.git scaliendb
 
 This will create a directory called ``scaliendb``, which contains the source code and make files::
 
