@@ -16,7 +16,7 @@ Starting the controllers
 
 First, start the controller(s). When the controllers start, they elect a master controller, which is shown on the console. Note that for master election to be successful a majority of controller nodes have to be up and running. You should see something like this::
 
-  2011-05-09 11:13:26.450566: ScalienDB v0.9.9 started as CONTROLLER -- DEBUG Build date: May  9 2011 10:53:04, Pid: 14753
+  2011-05-09 11:13:26.450566: ScalienDB v0.9.9 started as CONTROLLER
   2011-05-09 11:13:26.451811: Opening readonly: test/control/0/db/chunks/chunk.00000000000000000004
   ...
   2011-05-09 11:13:26.452144: Replaying log segments...
