@@ -1,7 +1,7 @@
 PACKAGE_NAME = scaliendb-server
 PACKAGE_DIR = $(BUILD_DIR)/packages
-PACKAGE_FILE = $(PACKAGE_NAME)-$(VERSION).deb
-PACKAGE_REPOSITORY = /var/www/debian.scalien.com/
+DEB_PACKAGE_FILE = $(PACKAGE_NAME)-$(VERSION)-$(shell dpkg-architecture -qDEB_BUILD_ARCH).deb
+DEB_PACKAGE_REPOSITORY = /var/www/debian.scalien.com/
 
 # debian package
 deb: clean release
@@ -20,11 +20,11 @@ deb: clean release
 	-cp -fr $(SCRIPT_DIR)/safe_scaliendb $(DEB_DIR)/usr/bin
 	-cp -fr $(BIN_DIR)/scaliendb $(DEB_DIR)/usr/bin
 	-mkdir -p $(DIST_DIR)
-	-rm -f $(DIST_DIR)/$(PACKAGE_FILE)
+	-rm -f $(DIST_DIR)/$(DEB_PACKAGE_FILE)
 	-cd $(DIST_DIR)
-	-fakeroot dpkg -b $(DEB_DIR) $(DIST_DIR)/$(PACKAGE_FILE)
+	-fakeroot dpkg -b $(DEB_DIR) $(DIST_DIR)/$(DEB_PACKAGE_FILE)
 
 deb-install: deb
-	-mkdir -p $(PACKAGE_REPOSITORY)/conf
-	-cp -fr $(SCRIPT_DIR)/debian-distributions $(PACKAGE_REPOSITORY)/conf/distributions
-	-reprepro -Vb $(PACKAGE_REPOSITORY) includedeb etch $(DIST_DIR)/$(PACKAGE_FILE)
+	-mkdir -p $(DEB_PACKAGE_REPOSITORY)/conf
+	-cp -fr $(SCRIPT_DIR)/debian-distributions $(DEB_PACKAGE_REPOSITORY)/conf/distributions
+	-reprepro -Vb $(DEB_PACKAGE_REPOSITORY) includedeb etch $(DIST_DIR)/$(DEB_PACKAGE_FILE)
