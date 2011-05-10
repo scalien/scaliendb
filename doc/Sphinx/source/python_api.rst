@@ -52,7 +52,7 @@ Then, create a client object by specifying the **controller nodes and their resp
 Return values
 =============
 
-All ScalienDB functions return ``None`` on failure.
+All ScalienDB functions throw exceptions on error.
 
 Setting timeout values
 ======================
