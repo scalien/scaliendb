@@ -27,7 +27,7 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     FS_Sync(fd.GetFD());
     
     writeSize = writeBuffer.GetLength();
-    if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != writeSize)
+    if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != (ssize_t) writeSize)
         return false;
 
     FS_Sync(fd.GetFD());

@@ -206,7 +206,7 @@ int SDBPResponseMessage::ReadOptionalParts(ReadBuffer buffer, int offset)
             default:
                 // read any other message based on the type prefix
                 buffer.Advance(2);
-                read = buffer.Readf("%c", type);
+                read = buffer.Readf("%c", &type);
                 if (read < 0)
                     return read;
                 switch (type) {

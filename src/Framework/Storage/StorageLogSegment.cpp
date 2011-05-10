@@ -50,7 +50,7 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t s
     writeBuffer.AppendLittle64(logSegmentID);
     length = writeBuffer.GetLength();
     
-    if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != length)
+    if (FS_FileWrite(fd, writeBuffer.GetBuffer(), length) != (ssize_t) length)
     {
         FS_FileClose(fd);
         fd = INVALID_FD;

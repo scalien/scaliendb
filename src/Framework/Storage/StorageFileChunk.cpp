@@ -738,7 +738,7 @@ bool StorageFileChunk::ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly)
     
     size = STORAGE_DEFAULT_PAGE_GRAN;
     buffer.Allocate(size);
-    if ((nread = FS_FileReadOffs(fd, buffer.GetBuffer(), size, offset)) != size)
+    if ((nread = FS_FileReadOffs(fd, buffer.GetBuffer(), size, offset)) != (ssize_t) size)
         return false;
     if (nread < 4)
         return false;
@@ -758,7 +758,7 @@ bool StorageFileChunk::ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly)
         size = 16 + keysSize;
     }
     
-    if (size <= nread)
+    if ((ssize_t) size <= nread)
     {
         buffer.SetLength(size);
         return true;
@@ -769,7 +769,7 @@ bool StorageFileChunk::ReadPage(uint64_t offset, Buffer& buffer, bool keysOnly)
     {
         // read rest
         buffer.Allocate(size);
-        if (FS_FileReadOffs(fd, buffer.GetPosition(), rest, offset + buffer.GetLength()) != rest)
+        if (FS_FileReadOffs(fd, buffer.GetPosition(), rest, offset + buffer.GetLength()) != (ssize_t) rest)
             return false;
         buffer.SetLength(size);
     }

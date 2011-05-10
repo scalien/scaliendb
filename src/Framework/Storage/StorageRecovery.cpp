@@ -61,7 +61,7 @@ bool StorageRecovery::TryReadTOC(Buffer& filename)
 
     size = 4;
     buffer.Allocate(size);
-    if (FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size) != size)
+    if (FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size) != (ssize_t) size)
         return false;
     buffer.SetLength(size);
         
@@ -76,7 +76,7 @@ bool StorageRecovery::TryReadTOC(Buffer& filename)
     rest = size - buffer.GetLength();
     // read rest
     buffer.Allocate(size);
-    if (FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest) != rest)
+    if (FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest) != (ssize_t) rest)
         return false;
     buffer.SetLength(size);
     

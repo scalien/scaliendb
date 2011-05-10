@@ -398,7 +398,6 @@
 		543DE5A412BFBB3D0069786A /* StorageRecovery.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageRecovery.h; sourceTree = "<group>"; };
 		543DE5A512BFBB3D0069786A /* StorageShard.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShard.cpp; sourceTree = "<group>"; };
 		543DE5A612BFBB3D0069786A /* StorageShard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShard.h; sourceTree = "<group>"; };
-		543DE5A712BFBB3D0069786A /* TODO.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = TODO.txt; sourceTree = "<group>"; };
 		543DE5CB12BFBB3D0069786A /* TCPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPConnection.cpp; sourceTree = "<group>"; };
 		543DE5CC12BFBB3D0069786A /* TCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPConnection.h; sourceTree = "<group>"; };
 		543DE5CD12BFBB3D0069786A /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
@@ -511,7 +510,6 @@
 		543DE73312C0B8730069786A /* StorageBulkCursor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageBulkCursor.cpp; sourceTree = "<group>"; };
 		543DE73B12C0B9350069786A /* StorageShardProxy.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageShardProxy.cpp; sourceTree = "<group>"; };
 		543DE73C12C0B9350069786A /* StorageShardProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageShardProxy.h; sourceTree = "<group>"; };
-		546E143B11DA0CF600867EE1 /* todo.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = todo.txt; sourceTree = "<group>"; };
 		546E190411E4D61300867EE1 /* InPriorityQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InPriorityQueue.h; sourceTree = "<group>"; };
 		546E1FC611EC81B200867EE1 /* InList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InList.h; sourceTree = "<group>"; };
 		546E254C11EF5CF700867EE1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
@@ -865,7 +863,6 @@
 				9AD104D41309970D00AB777B /* StorageAsyncList.cpp */,
 				9ADD18DC1353568A002C5C66 /* StorageAsyncBulkCursor.h */,
 				9ADD18DD1353568A002C5C66 /* StorageAsyncBulkCursor.cpp */,
-				543DE5A712BFBB3D0069786A /* TODO.txt */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -1131,7 +1128,6 @@
 				54B7F74211BE5EF30076BC62 /* System */,
 				54FA6B0711C26CAB00FF4EF6 /* Main.cpp */,
 				54B7F76D11BE5EF30076BC62 /* Version.h */,
-				546E143B11DA0CF600867EE1 /* todo.txt */,
 			);
 			path = src;
 			sourceTree = "<group>";

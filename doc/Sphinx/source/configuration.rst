@@ -47,7 +47,7 @@ Additional controllers provide additional fault-tolerance and high-availability.
 
 Next, specify the database directory where all data files will be stored::
 
-  database.dir = /var/scaliendb
+  database.dir = /var/lib/scaliendb
 
 Sample configuration for a single controller
 --------------------------------------------
@@ -58,7 +58,7 @@ Below we show a sample configuration file for a single ScalienDB controller::
   nodeID = 0
   endpoint = 192.168.1.1:10000
   controllers = 192.168.1.1:10000
-  database.dir = /var/scaliendb
+  database.dir = /var/lib/scaliendb
 
 Sample configuration for replicated controllers
 -----------------------------------------------
@@ -71,7 +71,7 @@ First controller (node 0)::
   nodeID = 0
   endpoint = 192.168.1.1:10000
   controllers = 192.168.1.1:10000, 192.168.1.2:10000, 192.168.1.3:10000
-  database.dir = /var/scaliendb
+  database.dir = /var/lib/scaliendb
 
 Second controller (node 1)::
 
@@ -79,7 +79,7 @@ Second controller (node 1)::
   nodeID = 1
   endpoint = 192.168.1.2:10000
   controllers = 192.168.1.1:10000, 192.168.1.2:10000, 192.168.1.3:10000
-  database.dir = /var/scaliendb
+  database.dir = /var/lib/scaliendb
 
 Third controller (node 2)::
 
@@ -87,7 +87,7 @@ Third controller (node 2)::
   nodeID = 2
   endpoint = 192.168.1.3:10000
   controllers = 192.168.1.1:10000, 192.168.1.2:10000, 192.168.1.3:10000
-  database.dir = /var/scaliendb
+  database.dir = /var/lib/scaliendb
 
 Note that only the ``nodeID`` and ``endpoint`` settings change.
 
@@ -108,7 +108,7 @@ Next, you must specify the cluster endpoint of the controller(s). This is the **
 
 Next, specify the database directory where all data files will be stored::
 
-  database.dir = /var/scaliendb
+  database.dir = /var/lib/scaliendb
 
 Note that the shard server configuration file does **not** require a node ID, as node IDs are automatically generated and assigned by the controllers to the shard servers!
 
@@ -120,14 +120,14 @@ Below we show a sample configuration file for a shard server connecting to a Sca
   role = shard
   endpoint = 192.168.1.5:10000
   controllers = 192.168.1.1:10000, 192.168.1.2:10000, 192.168.1.3:10000
-  database.dir = /var/scaliendb
+  database.dir = /var/lib/scaliendb
 
 To run another shard server on another machine, say 192.168.1.6, you would use the following configurationf file where only ``endpoint`` is changed::
 
   role = shard
   endpoint = 192.168.1.6:10000
   controllers = 192.168.1.1:10000, 192.168.1.2:10000, 192.168.1.3:10000
-  database.dir = /var/scaliendb
+  database.dir = /var/lib/scaliendb
 
 Comments
 ========
