@@ -60,7 +60,7 @@ uint64_t ShardCatchupWriter::GetThroughput()
     now = NowClock();
     
     if (now > startTime)
-        return bytesSent / ((now - startTime)/1000.0);
+        return (uint64_t)(bytesSent / ((now - startTime)/1000.0));
     else
         return 0;
 }

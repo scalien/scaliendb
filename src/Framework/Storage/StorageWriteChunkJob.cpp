@@ -21,7 +21,7 @@ void StorageWriteChunkJob::Execute()
     Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
      writeChunk->GetChunkID(),
      (uint64_t) sw.Elapsed(), HUMAN_BYTES(writeChunk->GetSize()), 
-     HUMAN_BYTES(writeChunk->GetSize() / (sw.Elapsed() / 1000.0)));
+     HUMAN_BYTES((uint64_t)(writeChunk->GetSize() / (sw.Elapsed() / 1000.0))));
 }
 
 void StorageWriteChunkJob::OnComplete()

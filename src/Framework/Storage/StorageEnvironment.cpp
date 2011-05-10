@@ -1257,10 +1257,13 @@ StorageFileChunk* StorageEnvironment::GetFileChunk(uint64_t chunkID)
 
 void StorageEnvironment::OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk)
 {
-    StorageShard* itShard;
+    StorageShard*   itShard;
+    StorageChunk*   pChunk;
+    
+    pChunk = (StorageChunk*) memoChunk;
     
     FOREACH (itShard, shards)
-        if (itShard->GetChunks().Contains((StorageChunk*&)memoChunk))
+        if (itShard->GetChunks().Contains(pChunk))
             itShard->OnChunkSerialized(memoChunk, fileChunk);
 }
 
