@@ -8,13 +8,9 @@ Installation
 Installing from source on Linux and other UNIX platforms
 ========================================================
 
-Download the latest tarball of ScalienDB from http://scalien.com/downloads or directly from the commnad line (replace XXX with the latest version of ScalienDB)::
+Download the latest tarball of ScalienDB from github at http://github.com/scalien/scaliendb::
 
-  $ wget http://scalien.com/releases/scaliendb/scaliendb-XXX.tgz
-
-Once you have downloaded the ``tgz`` file, issue the following command to extract it::
-
-  $ tar xvf scaliendb-XXX.tgz
+  $ git pull https://scalien@github.com/scalien/scaliendb.git scaliendb
 
 This will create a directory called ``scaliendb``, which contains the source code and make files::
 
