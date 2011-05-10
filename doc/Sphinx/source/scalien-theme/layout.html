@@ -1,0 +1,266 @@
+{%- block doctype -%}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+{%- endblock %}
+{%- set reldelim1 = reldelim1 is not defined and ' &raquo;' or reldelim1 %}
+{%- set reldelim2 = reldelim2 is not defined and ' |' or reldelim2 %}
+
+{%- macro relbar() %}
+    <div class="related">
+      <h3>{{ _('Navigation') }}</h3>
+      <ul>
+        {%- for rellink in rellinks %}
+        <li class="right" {% if loop.first %}style="margin-right: 10px"{% endif %}>
+          <a href="{{ pathto(rellink[0]) }}" title="{{ rellink[1]|striptags }}"
+             {{ accesskey(rellink[2]) }}>{{ rellink[3] }}</a>
+          {%- if not loop.first %}{{ reldelim2 }}{% endif %}</li>
+        {%- endfor %}
+        {%- block rootrellink %}
+        <li><a href="{{ pathto(master_doc) }}">{{ shorttitle|e }}</a>{{ reldelim1 }}</li>
+        {%- endblock %}
+        {%- for parent in parents %}
+          <li><a href="{{ parent.link|e }}" {% if loop.last %}{{ accesskey("U") }}{% endif %}>{{ parent.title }}</a>{{ reldelim1 }}</li>
+        {%- endfor %}
+        {%- block relbaritems %} {% endblock %}
+      </ul>
+    </div>
+{%- endmacro %}
+
+{%- macro sidebar() %}
+      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+          {%- block sidebarlogo %}
+          {%- if logo %}
+            <p class="logo"><a href="{{ pathto(master_doc) }}">
+              <img class="logo" src="{{ pathto('_static/' + logo, 1) }}" alt="Logo"/>
+            </a></p>
+          {%- endif %}
+          {%- endblock %}
+          {%- block sidebartoc %}
+          {%- if display_toc %}
+            <h3><a href="{{ pathto(master_doc) }}">{{ _('Table Of Contents') }}</a></h3>
+            {{ toc }}
+          {%- endif %}
+          {%- endblock %}
+          {%- block sidebarrel %}
+          {%- if prev %}
+            <h4>{{ _('Previous topic') }}</h4>
+            <p class="topless"><a href="{{ prev.link|e }}"
+                                  title="{{ _('previous chapter') }}">{{ prev.title }}</a></p>
+          {%- endif %}
+          {%- if next %}
+            <h4>{{ _('Next topic') }}</h4>
+            <p class="topless"><a href="{{ next.link|e }}"
+                                  title="{{ _('next chapter') }}">{{ next.title }}</a></p>
+          {%- endif %}
+          {%- endblock %}
+          {%- block sidebarsourcelink %}
+          {%- if show_source and has_source and sourcename %}
+            <h3>{{ _('This Page') }}</h3>
+            <ul class="this-page-menu">
+              <li><a href="{{ pathto('_sources/' + sourcename, true)|e }}"
+                     rel="nofollow">{{ _('Show Source') }}</a></li>
+            </ul>
+          {%- endif %}
+          {%- endblock %}
+          {%- if customsidebar %}
+          {% include customsidebar %}
+          {%- endif %}
+          {%- block sidebarsearch %}
+          {%- if pagename != "search" %}
+          <div id="searchbox" style="display: none">
+            <h3>{{ _('Quick search') }}</h3>
+              <form class="search" action="{{ pathto('search') }}" method="get">
+                <input type="text" name="q" size="18" />
+                <input type="submit" value="{{ _('Go') }}" />
+                <input type="hidden" name="check_keywords" value="yes" />
+                <input type="hidden" name="area" value="default" />
+              </form>
+              <p class="searchtip" style="font-size: 90%">
+              {{ _('Enter search terms or a module, class or function name.') }}
+              </p>
+          </div>
+          <script type="text/javascript">$('#searchbox').show(0);</script>
+          {%- endif %}
+          {%- endblock %}
+        </div>
+      </div>
+      {%- endif %}{% endif %}
+{%- endmacro %}
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    {{ metatags }}
+	{%- set titlesuffix = "" %}
+    <title>{{ title|striptags }}{{ titlesuffix }}</title>
+    <link rel="stylesheet" href="{{ pathto('_static/' + style, 1) }}" type="text/css" />
+    <link rel="stylesheet" href="{{ pathto('_static/pygments.css', 1) }}" type="text/css" />
+    {%- if not embedded %}
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '{{ pathto("", 1) }}',
+        VERSION:     '{{ release|e }}',
+        COLLAPSE_MODINDEX: false,
+        FILE_SUFFIX: '{{ file_suffix }}',
+        HAS_SOURCE:  {{ has_source|lower }}
+      };
+    </script>
+    {%- for scriptfile in script_files %}
+    <script type="text/javascript" src="{{ pathto(scriptfile, 1) }}"></script>
+    {%- endfor %}
+    {%- if use_opensearch %}
+    <link rel="search" type="application/opensearchdescription+xml"
+          title="{% trans docstitle=docstitle|e %}Search within {{ docstitle }}{% endtrans %}"
+          href="{{ pathto('_static/opensearch.xml', 1) }}"/>
+    {%- endif %}
+    {%- if favicon %}
+    <link rel="shortcut icon" href="{{ pathto('_static/' + favicon, 1) }}"/>
+    {%- endif %}
+    {%- endif %}
+{%- block linktags %}
+    {%- if hasdoc('about') %}
+    <link rel="author" title="{{ _('About these documents') }}" href="{{ pathto('about') }}" />
+    {%- endif %}
+    {%- if hasdoc('genindex') %}
+    <link rel="index" title="{{ _('Index') }}" href="{{ pathto('genindex') }}" />
+    {%- endif %}
+    {%- if hasdoc('search') %}
+    <link rel="search" title="{{ _('Search') }}" href="{{ pathto('search') }}" />
+    {%- endif %}
+    {%- if hasdoc('copyright') %}
+    <link rel="copyright" title="{{ _('Copyright') }}" href="{{ pathto('copyright') }}" />
+    {%- endif %}
+    <link rel="top" title="{{ docstitle|e }}" href="{{ pathto('index') }}" />
+    {%- if parents %}
+    <link rel="up" title="{{ parents[-1].title|striptags }}" href="{{ parents[-1].link|e }}" />
+    {%- endif %}
+    {%- if next %}
+    <link rel="next" title="{{ next.title|striptags }}" href="{{ next.link|e }}" />
+    {%- endif %}
+    {%- if prev %}
+    <link rel="prev" title="{{ prev.title|striptags }}" href="{{ prev.link|e }}" />
+    {%- endif %}
+{%- endblock %}
+{%- block extrahead %} {% endblock %}
+
+<link rel="stylesheet" type="text/css" href="http://scalien.com/common.css" />
+<link rel="shortcut icon" href="http://scalien.com/favicon.ico">
+
+  </head>
+  <body>
+
+	<div class="top-container-background">
+		<div class="top-container">
+			<a href="index.html"><img src="logo.png" style="float:left" border="0" /></a>
+			<div class="top-menu">
+				<a href="/products.html"><img border="0" src="/top-products-grey.png" onmouseover="changeImageOnMouseOver(this, '/top-products-white.png')" /></a>
+				<a href="/documentation/scaliendb"><img border="0" src="/top-documentation-grey.png" onmouseover="/changeImageOnMouseOver(this, 'top-documentation-white.png')" /></a>
+				<!-- <a href="#"><img border="0" src="top-customers-grey.png" onmouseover="changeImageOnMouseOver(this, 'top-customers-white.png')" /></a> -->
+				<!-- <a href="#"><img border="0" src="top-company-grey.png" onmouseover="changeImageOnMouseOver(this, 'top-company-white.png')" /></a> -->
+				<!-- <a href="#"><img border="0" src="top-blog-grey.png" onmouseover="changeImageOnMouseOver(this, 'top-blog-white.png')" /></a> -->
+			</div>
+		</div>
+	</div>
+
+	<div class="middle-container rounded-corners outside-glow content"><div class="middle-container-padding">
+
+{%- block header %}{% endblock %}
+
+{%- block relbar1 %}{{ relbar() }}{% endblock %}
+
+{%- block sidebar1 %} {# possible location for sidebar #} {% endblock %}
+
+    <div class="document">
+{%- block document %}
+      <div class="documentwrapper">
+      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
+        <div class="bodywrapper">
+      {%- endif %}{% endif %}
+          <div class="body">
+            {% block body %} {% endblock %}
+          </div>
+      {%- if not embedded %}{% if not theme_nosidebar|tobool %}
+        </div>
+      {%- endif %}{% endif %}
+      </div>
+{%- endblock %}
+
+{%- block sidebar2 %}{{ sidebar() }}{% endblock %}
+      <div class="clearer"></div>
+    </div>
+
+{%- block relbar2 %}{{ relbar() }}{% endblock %}
+
+	</div></div>
+
+	<div class="middle-container rounded-corners outside-glow bottom-bar"><div class="middle-container-padding">
+		<p>
+			<b><a href="/products.html" class="bottom-bar">Products</a> &nbsp;&nbsp;&raquo;&nbsp;&nbsp;</b>
+				<a href="/products.html" class="bottom-bar">Architecture</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<!-- <a href="#" class="bottom-bar">Benefits</a> &nbsp;&nbsp;&nbsp;&nbsp; -->
+				<a href="/opensource.html" class="bottom-bar">Open Source</a>  &nbsp;&nbsp;&nbsp;&nbsp;
+				<!-- <a href="#" class="bottom-bar">Licensing</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="#" class="bottom-bar">Support</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="#" class="bottom-bar">Pricing</a> &nbsp;&nbsp;&nbsp;&nbsp; -->
+				<a href="/downloads.html" class="bottom-bar">Downloads</a>
+		</p>
+
+		<p>
+			<b><a href="/documentation/scaliendb" class="bottom-bar">Documentation</a> &nbsp;&nbsp;&raquo;&nbsp;&nbsp;</b>
+				<!-- <a href="#" class="bottom-bar">Whitepapers</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="#" class="bottom-bar">Technical reports</a> &nbsp;&nbsp;&nbsp;&nbsp; -->
+				<a href="/documentation/scaliendb" class="bottom-bar">Developers</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="/documentation/scaliendb" class="bottom-bar">Administrators</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="http://groups.google.com/group/scaliendb" class="bottom-bar">Help</a>
+		</p>
+
+		<!-- <p>
+			<b><a href="#" class="bottom-bar">Customers</a> &nbsp;&nbsp;&nbsp;&nbsp;</b>
+				<a href="#" class="bottom-bar">Use Cases</a>
+		</p> -->
+
+		<!-- <p>
+			<b><a href="#" class="bottom-bar">Company</a> &nbsp;&nbsp;&raquo;&nbsp;&nbsp;</b>
+				<a href="#" class="bottom-bar">Founders</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="#" class="bottom-bar">History</a>  &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="#" class="bottom-bar">Social</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="#" class="bottom-bar">Contact</a>
+		</p> -->
+
+		<p>
+			<b><a href="http://blog.scalien.com" class="bottom-bar">Social</a> &nbsp;&nbsp;&raquo;&nbsp;&nbsp;</b>
+				<a href="http://blog.scalien.com" class="bottom-bar">Blog</a> &nbsp;&nbsp;&nbsp;&nbsp;
+				<a href="http://twitter.com/scalien" class="bottom-bar">Twitter</a>
+		</p>		
+	</div></div>
+
+	<div class="middle-container footer-line">
+		<div style="float:left">
+			<img src="blocks.png" style="height: 20px; vertical-align:middle; margin-right: 6px"/>Copyright © 2011 Scalien. All rights reserved.
+		</div>
+		<div style="float:right">
+			<a href="#">Contact Us</a>
+			&nbsp;&nbsp;|&nbsp;&nbsp;
+			<a href="#">Copyright</a>
+			&nbsp;&nbsp;|&nbsp;&nbsp;
+			<a href="#">Privacy Policy</a>
+			&nbsp;&nbsp;|&nbsp;&nbsp;
+			<a href="#">Legal</a>
+		</div>
+	</div>
+
+</body>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-9801399-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+</html>
