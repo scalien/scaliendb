@@ -313,17 +313,18 @@ class Client:
         status = SDBP_DeleteDatabase(self.cptr, database_id)
         self._check_status(status)
 
-    def create_table(self, database_id, quorum_id, name):
+    def create_table(self, quorum_id, name):
         """
         Creates a table
         
         Args:
-            database_id (long): the ID of the database
-            
             quorum_id (long): the ID of the quorum
             
             name (string): the name of the table
         """
+        database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
+        if database_id == 0:
+            raise Error(SDBP_BADSCHEMA, "No database selected")
         status = SDBP_CreateTable(self.cptr, database_id, quorum_id, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
