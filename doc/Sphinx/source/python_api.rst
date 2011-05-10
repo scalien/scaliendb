@@ -213,7 +213,7 @@ List commands
 There are two list commands: ``list_keys`` and ``list_key_values`` and one ``count`` command, all have the same set of parameters.
 
 client.list_keys(start key, end key, count, offset)
--------=======-------------------------------------
+---------------------------------------------------
 
 Listing starts at ``start key``, ends at ``end key`` (defaults to empty string). At most ``count`` elements are returned (default 0, which is infinity). Listing can be offset by ``offset`` elements.
 
