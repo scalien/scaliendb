@@ -8,11 +8,7 @@ Installation
 Installing on Debian Linux
 ==========================
 
-Download the latest Debian package of ScalienDB from http://scalien.com/downloads or directly from the command line (replace XXX with the latest version of ScalienDB)::
-
-  $ wget http://debian.scalien.com/pool/main/k/scaliendb-server/scaliendb-server_XXX_i386.deb 
-
-Once you have downloaded the ``.deb`` file, issue the following command to install ScalienDB::
+Download the latest Debian package of ScalienDB from http://scalien.com. Once you have downloaded the ``.deb`` file, issue the following command to install ScalienDB::
 
   $ dpkg -i scaliendb-server_XXX_i386.deb
 
