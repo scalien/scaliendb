@@ -10,15 +10,13 @@ Contents:
 
 .. toctree::
    :maxdepth: 2
-   :numbered:
 
    about.rst
    installation.rst
    configuration.rst
    running.rst
    understanding.rst
-   # http_api.rst
-   # python_api.rst
+   python_api.rst
 
 .. Indices and tables
    ==================
