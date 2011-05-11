@@ -1,6 +1,8 @@
 package com.scalien.scaliendb;
 
 import java.math.BigInteger;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Database
 {
@@ -37,6 +39,21 @@ public class Database
      */
     public String getName() {
         return name;
+    }
+
+    /**
+     * Returns all tables.
+     *
+     * @return              a list of table objects
+     */
+    public List<Table> getTables() throws SDBPException {
+        long numTables = scaliendb_client.SDBP_GetNumTables(client.getPtr());
+        ArrayList<Table> tables = new ArrayList<Table>();
+        for (long i = 0; i < numTables; i++) {
+            String name = scaliendb_client.SDBP_GetTableNameAt(client.getPtr(), i);
+            tables.add(new Table(client, this, name));
+        }
+        return tables;
     }
     
     /**

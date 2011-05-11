@@ -174,6 +174,22 @@ public class Client
     public Quorum getQuorum(long quorumID) throws SDBPException {
         return new Quorum(this, quorumID);
     }
+
+    /**
+     * Returns all quorums.
+     *
+     * @return              a list of quorum objects
+     */
+    public List<Quorum> getQuorums() throws SDBPException {
+        long numQuorums = scaliendb_client.SDBP_GetNumQuorums(cptr);
+        ArrayList<Quorum> quorums = new ArrayList<Quorum>();
+        for (long i = 0; i < numQuorums; i++) {
+            BigInteger bi = scaliendb_client.SDBP_GetQuorumIDAt(cptr, i);
+            long quorumID = bi.longValue();
+            quorums.add(new Quorum(this, quorumID));
+        }
+        return quorums;
+    }
     
     /**
      * Creates a quorum.
@@ -404,6 +420,21 @@ public class Client
         }
     }
 
+    /**
+     * Returns all databases.
+     *
+     * @return              a list of database objects
+     */
+    public List<Database> getDatabases() throws SDBPException {
+        long numDatabases = scaliendb_client.SDBP_GetNumDatabases(cptr);
+        ArrayList<Database> databases = new ArrayList<Database>();
+        for (long i = 0; i < numDatabases; i++) {
+            String name = scaliendb_client.SDBP_GetDatabaseNameAt(cptr, i);
+            databases.add(new Database(this, name));
+        }
+        return databases;
+    }
+    
     /**
      * Returns the specified database.
      *
