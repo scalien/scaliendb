@@ -80,6 +80,7 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultValue);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultKeyBuffer);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultValueBuffer);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultNumber);
+ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultIsValueChanged);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultDatabaseID);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultTableID);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultBegin);

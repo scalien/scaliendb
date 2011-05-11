@@ -248,6 +248,7 @@ $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o: $(BUILD_DIR) $(SRC_DIR)/$(PHP_CLIENT_WRAPP
 $(BIN_DIR)/$(PHP_DIR)/$(PHP_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php
 	-mkdir -p $(BIN_DIR)/$(PHP_DIR)
 	$(CXX) $(SWIG_LDFLAGS) -o $@ $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB)
+	php -l $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php
 	-cp -rf $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php $(BIN_DIR)/$(PHP_DIR)
 	-cp -rf $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb_client.php $(BIN_DIR)/$(PHP_DIR)
 
