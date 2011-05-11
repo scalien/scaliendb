@@ -45,7 +45,6 @@ StorageEnvironment::StorageEnvironment()
     backgroundTimer.SetCallable(onBackgroundTimer);
     
     nextChunkID = 1;
-    nextLogSegmentID = 1;
     yieldThreads = false;
     shuttingDown = false;
     writingTOC = false;
@@ -149,10 +148,6 @@ bool StorageEnvironment::Open(Buffer& envPath_)
         Log_Message("Existing environment opened.");
     }
 
-    headLogSegment = new StorageLogSegment;
-    headLogSegment->Open(logPath, nextLogSegmentID, config.syncGranularity);
-    nextLogSegmentID++;
-
     backgroundTimer.SetDelay(1000 * configFile.GetIntValue("database.backgroundTimerDelay",
      STORAGE_DEFAULT_BACKGROUND_TIMER_DELAY));
 
@@ -166,7 +161,8 @@ bool StorageEnvironment::Open(Buffer& envPath_)
 
 void StorageEnvironment::Close()
 {
-    StorageFileChunk* fileChunk;
+    StorageFileChunk*   fileChunk;
+    HashNode<uint64_t, StorageLogSegment*>* itLogSegment;
     
     shuttingDown = true;
 
@@ -183,7 +179,8 @@ void StorageEnvironment::Close()
     delete asyncGetThread;
     
     shards.DeleteList();
-    delete headLogSegment;
+    FOREACH(itLogSegment, logSegmentMap)
+        delete itLogSegment->Value();
     logSegments.DeleteList();
 
     FOREACH (fileChunk, fileChunks)
@@ -432,6 +429,7 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     int32_t             logCommandID;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
+    StorageLogSegment*  logSegment;
     
     if (commitJobs.IsActive())
         ASSERT_FAIL();
@@ -440,7 +438,11 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     if (shard == NULL)
         return false;
 
-    logCommandID = headLogSegment->AppendSet(contextID, shardID, key, value);
+    logSegment = GetLogSegment(shard->GetTrackID());
+    if (!logSegment)
+        ASSERT_FAIL();
+
+    logCommandID = logSegment->AppendSet(contextID, shardID, key, value);
     if (logCommandID < 0)
         ASSERT_FAIL();
 
@@ -455,10 +457,10 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     
     if (!memoChunk->Set(key, value))
     {
-        headLogSegment->Undo();
+        logSegment->Undo();
         return false;
     }
-    memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
+    memoChunk->RegisterLogCommand(logSegment->GetLogSegmentID(), logCommandID);
 
     return true;
 }
@@ -468,6 +470,7 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     int32_t             logCommandID;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
+    StorageLogSegment*  logSegment;
 
     if (commitJobs.IsActive())
         ASSERT_FAIL();
@@ -479,7 +482,11 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     if (shard->IsLogStorage())
         ASSERT_FAIL();
 
-    logCommandID = headLogSegment->AppendDelete(contextID, shardID, key);
+    logSegment = GetLogSegment(shard->GetTrackID());
+    if (!logSegment)
+        ASSERT_FAIL();
+
+    logCommandID = logSegment->AppendDelete(contextID, shardID, key);
     if (logCommandID < 0)
         ASSERT_FAIL();
 
@@ -487,10 +494,10 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     ASSERT(memoChunk != NULL);
     if (!memoChunk->Delete(key))
     {
-        headLogSegment->Undo();
+        logSegment->Undo();
         return false;
     }
-    memoChunk->RegisterLogCommand(headLogSegment->GetLogSegmentID(), logCommandID);
+    memoChunk->RegisterLogCommand(logSegment->GetLogSegmentID(), logCommandID);
 
     return true;
 }
@@ -641,32 +648,43 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
     return true;
 }
 
-bool StorageEnvironment::Commit(Callable& onCommit_)
+bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit_)
 {
+    StorageLogSegment*  logSegment;
+    
     onCommit = onCommit_;
 
-    if (commitJobs.IsActive())
+//    if (commitJobs.IsActive())
+//        ASSERT_FAIL();
+
+    // TODO: check it's not already commiting
+
+    logSegment = GetLogSegment(trackID);
+    if (!logSegment)
         ASSERT_FAIL();
 
-    commitJobs.Execute(new StorageCommitJob(this, headLogSegment));
+    commitJobs.Execute(new StorageCommitJob(this, logSegment));
 
     return true;
 }
 
-bool StorageEnvironment::Commit()
+bool StorageEnvironment::Commit(uint64_t trackID)
 {
-    if (commitJobs.IsActive())
-        return false;
+    StorageLogSegment*  logSegment;
 
-    headLogSegment->Commit();
+//    if (commitJobs.IsActive())
+//        return false;
+
+    // TODO: check it's not already commiting
+
+    logSegment = GetLogSegment(trackID);
+    if (!logSegment)
+        ASSERT_FAIL();
+
+    logSegment->Commit();
     OnCommit(NULL);
 
     return true;
-}
-
-bool StorageEnvironment::GetCommitStatus()
-{
-    return headLogSegment->GetCommitStatus();
 }
 
 bool StorageEnvironment::IsCommiting()
@@ -810,10 +828,14 @@ StorageShard* StorageEnvironment::GetShard(uint16_t contextID, uint64_t shardID)
     return NULL;
 }
 
-bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
+bool StorageEnvironment::CreateShard(uint64_t trackID,
+ uint16_t contextID, uint64_t shardID, uint64_t tableID,
  ReadBuffer firstKey, ReadBuffer lastKey, bool useBloomFilter, bool isLogStorage)
 {
+    bool                ret;
+    uint64_t            logSegmentID, nextLogSegmentID;
     StorageShard*       shard;
+    StorageLogSegment*  logSegment;
 
     // TODO: check for uncommited stuff    
     
@@ -821,9 +843,23 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     if (shard != NULL)
         return false;       // already exists
 
+    logSegment = GetLogSegment(trackID);
+    if (!logSegment)
+    {
+        ret = logSegmentIDMap.Get(trackID, logSegmentID);
+        if (!ret)
+            logSegmentID = 1;
+        nextLogSegmentID = logSegmentID++;
+        logSegmentIDMap.Set(trackID, nextLogSegmentID);
+        logSegment = new StorageLogSegment();
+        logSegment->Open(logPath, trackID, logSegmentID, config.syncGranularity);
+        logSegmentMap.Set(trackID, logSegment);
+    }
+
     Log_Debug("Creating shard %u/%U", contextID, shardID);
 
     shard = new StorageShard;
+    shard->SetTrackID(trackID);
     shard->SetContextID(contextID);
     shard->SetTableID(tableID);
     shard->SetShardID(shardID);
@@ -831,8 +867,8 @@ bool StorageEnvironment::CreateShard(uint16_t contextID, uint64_t shardID, uint6
     shard->SetLastKey(lastKey);
     shard->SetUseBloomFilter(useBloomFilter);
     shard->SetLogStorage(isLogStorage);
-    shard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
-    shard->SetLogCommandID(headLogSegment->GetLogCommandID());
+    shard->SetLogSegmentID(logSegment->GetLogSegmentID());
+    shard->SetLogCommandID(logSegment->GetLogCommandID());
     shard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, useBloomFilter));
 
     shards.Append(shard);
@@ -912,9 +948,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     StorageChunk**          itChunk;
     StorageMemoKeyValue*    itKeyValue;
     StorageMemoKeyValue*    kv;
-
-    if (headLogSegment->HasUncommitted())
-        Commit(); // TODO
+    StorageLogSegment*      logSegment;
 
     shard = GetShard(contextID, newShardID);
     if (shard != NULL)
@@ -924,6 +958,13 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     if (shard == NULL)
         return false;       // does not exist
 
+    logSegment = GetLogSegment(shard->GetTrackID());
+    if (!logSegment)
+        ASSERT_FAIL();
+    
+    if (logSegment->HasUncommitted())
+        Commit(shard->GetTrackID()); // TODO
+
     newShard = new StorageShard;
     newShard->SetContextID(contextID);
     newShard->SetTableID(shard->GetTableID());
@@ -931,8 +972,8 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     newShard->SetFirstKey(splitKey);
     newShard->SetLastKey(shard->GetLastKey());
     newShard->SetUseBloomFilter(shard->UseBloomFilter());
-    newShard->SetLogSegmentID(headLogSegment->GetLogSegmentID());
-    newShard->SetLogCommandID(headLogSegment->GetLogCommandID());
+    newShard->SetLogSegmentID(logSegment->GetLogSegmentID());
+    newShard->SetLogCommandID(logSegment->GetLogCommandID());
 
     FOREACH (itChunk, shard->GetChunks())
         newShard->PushChunk(*itChunk);
@@ -970,7 +1011,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
 void StorageEnvironment::OnCommit(StorageCommitJob* job)
 {
-    TryFinalizeLogSegment();
+    TryFinalizeLogSegments();
     TrySerializeChunks();
     
     if (job)
@@ -979,24 +1020,45 @@ void StorageEnvironment::OnCommit(StorageCommitJob* job)
     delete job;
 }
 
-void StorageEnvironment::TryFinalizeLogSegment()
+void StorageEnvironment::TryFinalizeLogSegments()
 {
-    if (headLogSegment->GetOffset() < config.logSegmentSize)
-        return;
+    bool                                    ret;
+    uint64_t                                trackID;
+    uint64_t                                logSegmentID, nextLogSegmentID;
+    HashNode<uint64_t, StorageLogSegment*>* itLogSegment;
+    StorageLogSegment*                      logSegment;
+    
+    FOREACH(itLogSegment, logSegmentMap)
+    {
+        trackID = itLogSegment->Key();
+        logSegment = itLogSegment->Value();
+        
+        if (logSegment->GetOffset() < config.logSegmentSize)
+            continue;
 
-    headLogSegment->Close();
+        logSegment->Close();
+        logSegmentID = logSegment->GetLogSegmentID();
 
-    logSegments.Append(headLogSegment);
+        logSegments.Append(logSegment);
 
-    headLogSegment = new StorageLogSegment;
-    headLogSegment->Open(logPath, nextLogSegmentID, config.syncGranularity);
-    nextLogSegmentID++;
+        ret = logSegmentIDMap.Get(trackID, logSegmentID);
+        if (!ret)
+            logSegmentID = 1;
+        nextLogSegmentID = logSegmentID++;
+        logSegmentIDMap.Set(trackID, nextLogSegmentID);
+
+        logSegment = new StorageLogSegment;
+        logSegment->Open(logPath, itLogSegment->Key(), logSegmentID, config.syncGranularity);
+        
+        itLogSegment->Value() = logSegment;
+    }
 }
 
 void StorageEnvironment::TrySerializeChunks()
 {
     StorageShard*       itShard;
     StorageMemoChunk*   memoChunk;
+    StorageLogSegment*  logSegment;
 
     if (serializeChunkJobs.IsActive())
         return;
@@ -1008,12 +1070,14 @@ void StorageEnvironment::TrySerializeChunks()
         
         memoChunk = itShard->GetMemoChunk();
                 
+        logSegment = GetLogSegment(itShard->GetTrackID());
+
         if (
          memoChunk->GetSize() > config.chunkSize ||
          (
-         headLogSegment->GetLogSegmentID() > maxUnbackedLogSegments &&
+         logSegment->GetLogSegmentID() > maxUnbackedLogSegments &&
          memoChunk->GetMinLogSegmentID() > 0 &&
-         memoChunk->GetMinLogSegmentID() < (headLogSegment->GetLogSegmentID() - maxUnbackedLogSegments)
+         memoChunk->GetMinLogSegmentID() < (logSegment->GetLogSegmentID() - maxUnbackedLogSegments)
          ))
         {
             itShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, itShard->UseBloomFilter()));
@@ -1025,17 +1089,19 @@ void StorageEnvironment::TrySerializeChunks()
 
 void StorageEnvironment::TryWriteChunks()
 {
-    StorageFileChunk* itFileChunk;
+    StorageFileChunk*   itFileChunk;
+    StorageLogSegment*  logSegment;
     
     if (writeChunkJobs.IsActive())
         return;
 
     FOREACH (itFileChunk, fileChunks)
     {
+        logSegment = GetLogSegment(GetFirstShard(itFileChunk)->GetTrackID());
         if ((itFileChunk->GetChunkState() == StorageChunk::Unwritten) &&
-           ((itFileChunk->GetMaxLogSegmentID() < headLogSegment->GetLogSegmentID()) ||
-            (itFileChunk->GetMaxLogSegmentID() == headLogSegment->GetLogSegmentID() &&
-             itFileChunk->GetMaxLogCommandID() <= headLogSegment->GetCommitedLogCommandID())))
+           ((itFileChunk->GetMaxLogSegmentID() < logSegment->GetLogSegmentID()) ||
+            (itFileChunk->GetMaxLogSegmentID() == logSegment->GetLogSegmentID() &&
+             itFileChunk->GetMaxLogCommandID() <= logSegment->GetCommitedLogCommandID())))
         {
             writeChunkJobs.Execute(new StorageWriteChunkJob(this, itFileChunk));
             return;
@@ -1278,4 +1344,35 @@ unsigned StorageEnvironment::GetNumShards(StorageChunk* chunk)
             count++;
     
     return count;
+}
+
+StorageShard* StorageEnvironment::GetFirstShard(StorageChunk* chunk)
+{
+    StorageShard*   itShard;
+    
+    FOREACH (itShard, shards)
+    {
+        if (itShard->GetMemoChunk() == chunk)
+            return itShard;
+        if (itShard->GetChunks().Contains(chunk))
+            return itShard;
+    }
+    
+    return NULL;
+}
+
+StorageLogSegment* StorageEnvironment::GetLogSegment(uint64_t trackID)
+{
+    bool                ret;
+    StorageLogSegment*  logSegment;
+    
+    ret = logSegmentMap.Get(trackID, logSegment);
+    if (!ret)
+        return NULL;
+    return logSegment;
+}
+
+static size_t Hash(uint64_t h)
+{
+    return h;
 }

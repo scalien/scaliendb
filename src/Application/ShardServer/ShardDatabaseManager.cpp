@@ -379,7 +379,7 @@ void ShardDatabaseManager::SetShards(SortedList<uint64_t>& shards)
         if (shard->state == CONFIG_SHARD_STATE_NORMAL)
         {
             Log_Trace("Calling CreateShard() for shardID = %U", *sit);
-            environment.CreateShard(QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
+            environment.CreateShard(shard->quorumID, QUORUM_DATABASE_DATA_CONTEXT, *sit, shard->tableID,
              shard->firstKey, shard->lastKey, true, false);
         }
     }
@@ -393,7 +393,7 @@ void ShardDatabaseManager::SetQuorumShards(uint64_t quorumID)
     if (!quorumShard)
     {
         // TODO: HACK
-        environment.CreateShard(QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, quorumID, 0,
+        environment.CreateShard(quorumID, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, quorumID, 0,
          "", "", true, false);
         quorumShard = new StorageShardProxy;
         quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, quorumID);
@@ -404,7 +404,7 @@ void ShardDatabaseManager::SetQuorumShards(uint64_t quorumID)
     if (!quorumShard)
     {
         // TODO: HACK
-        environment.CreateShard(QUORUM_DATABASE_QUORUM_LOG_CONTEXT, quorumID, 0,
+        environment.CreateShard(quorumID, QUORUM_DATABASE_QUORUM_LOG_CONTEXT, quorumID, 0,
          "", "", true, true);
         quorumShard = new StorageShardProxy;
         quorumShard->Init(&environment, QUORUM_DATABASE_QUORUM_LOG_CONTEXT, quorumID);
@@ -447,7 +447,8 @@ void ShardDatabaseManager::OnClientListRequest(ClientRequest* request)
         EventLoop::Add(&executeLists);
 }
 
-void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, ShardMessage& message)
+void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, uint64_t commandID,
+ ShardMessage& message)
 {
 #define CHECK_CMD()                                             \
 	if (readPaxosID > paxosID ||                                \
@@ -598,7 +599,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
             environment.GetShardIDs(contextID, message.tableID, shards);
             FOREACH (itShardID, shards)
                 environment.DeleteShard(contextID, *itShardID);
-            environment.CreateShard(contextID, message.newShardID, message.tableID, "", "", 1, 0);
+            environment.CreateShard(quorumID, contextID, message.newShardID, message.tableID, "", "", 1, 0);
             break;
         case SHARDMESSAGE_MIGRATION_BEGIN:
             Log_Debug("shardMigration BEGIN shardID = %U", message.shardID);
@@ -610,7 +611,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
              configQuorum->inactiveNodes.Contains(nodeID))
                 break;
                 environment.DeleteShard(contextID, message.shardID);
-            environment.CreateShard(
+            environment.CreateShard(quorumID, 
              contextID, configShard->shardID, configShard->tableID,
              configShard->firstKey, configShard->lastKey, true, false);
             break;

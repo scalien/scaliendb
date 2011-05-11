@@ -31,7 +31,7 @@ class StorageLogSegment
 public:
     StorageLogSegment();
     
-    bool                Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t syncGranularity_);
+    bool                Open(Buffer& logPath, uint64_t trackID, uint64_t logSegmentID, uint64_t syncGranularity);
     void                Close();
     void                DeleteFile();
 
@@ -46,7 +46,6 @@ public:
     void                Undo();
 
     void                Commit();
-    bool                GetCommitStatus();
     bool                HasUncommitted();
     uint32_t            GetCommitedLogCommandID();
 
@@ -59,6 +58,7 @@ private:
     void                NewRound();
 
     FD                  fd;
+    uint64_t            trackID;
     uint64_t            logSegmentID;
     uint32_t            logCommandID;
     uint32_t            commitedLogCommandID;

@@ -25,8 +25,8 @@ private:
     void                    CreateMemoChunks();
     void                    ReadFileChunks();
     void                    ComputeShardRecovery();
-    void                    ReplayLogSegments();
-    bool                    ReplayLogSegment(Buffer& filename);
+    void                    ReplayLogSegments(uint64_t trackID);
+    bool                    ReplayLogSegment(uint64_t trackID, Buffer& filename);
     void                    DeleteOrphanedChunks();
     
     void                    ExecuteSet(

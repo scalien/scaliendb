@@ -77,6 +77,7 @@ void StorageEnvironmentWriter::WriteShard(StorageShard* shard)
     firstKey = shard->GetFirstKey();
     lastKey = shard->GetLastKey();
     
+    writeBuffer.AppendLittle64(shard->GetTrackID());
     writeBuffer.AppendLittle16(shard->GetContextID());
     writeBuffer.AppendLittle64(shard->GetTableID());
     writeBuffer.AppendLittle64(shard->GetShardID());

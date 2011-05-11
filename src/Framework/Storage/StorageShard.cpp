@@ -3,6 +3,7 @@
 StorageShard::StorageShard()
 {
     prev = next = this;
+    trackID = 0;
     contextID = 0;
     tableID = 0;
     shardID = 0;
@@ -24,6 +25,11 @@ StorageShard::~StorageShard()
         if ((*itChunk)->GetChunkState() != StorageChunk::Written)
             delete *itChunk;
     }
+}
+
+void StorageShard::SetTrackID(uint64_t trackID_)
+{
+    trackID = trackID_;
 }
 
 void StorageShard::SetContextID(uint16_t contextID_)
@@ -69,6 +75,11 @@ void StorageShard::SetUseBloomFilter(bool useBloomFilter_)
 void StorageShard::SetLogStorage(bool isLogStorage_)
 {
     isLogStorage = isLogStorage_;
+}
+
+uint64_t StorageShard::GetTrackID()
+{
+    return trackID;
 }
 
 uint16_t StorageShard::GetContextID()

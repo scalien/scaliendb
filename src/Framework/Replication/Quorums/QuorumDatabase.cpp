@@ -129,12 +129,12 @@ bool QuorumDatabase::IsCommiting()
 
 void QuorumDatabase::Commit()
 {
-    paxosShard->GetEnvironment()->Commit();
+    paxosShard->GetEnvironment()->Commit(contextID);
 }
 
 void QuorumDatabase::Commit(Callable& onCommit)
 {
-    paxosShard->GetEnvironment()->Commit(onCommit);
+    paxosShard->GetEnvironment()->Commit(contextID, onCommit);
 }
 
 uint64_t QuorumDatabase::GetUint64(const char* name)

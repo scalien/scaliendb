@@ -6,6 +6,7 @@
 StorageLogSegment::StorageLogSegment()
 {
     prev = next = this;
+    trackID = 0;
     logSegmentID = 0;
     fd = INVALID_FD;
     logCommandID = 1;
@@ -23,11 +24,12 @@ StorageLogSegment::StorageLogSegment()
         sw.Reset();             \
     } while (0)
 
-bool StorageLogSegment::Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t syncGranularity_)
+bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSegmentID_, uint64_t syncGranularity_)
 {
     unsigned    length;
     Stopwatch   sw;
 
+    trackID = trackID_;
     logSegmentID = logSegmentID_;
     syncGranularity = syncGranularity_;
     offset = 0;
@@ -36,6 +38,7 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t s
     sw.Start();
     
     filename.Write(logPath);
+    filename.Appendf("%04U/", trackID);
     filename.Appendf("log.%020U", logSegmentID);
     filename.NullTerminate();
     fd = FS_Open(filename.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND);
@@ -221,11 +224,6 @@ void StorageLogSegment::Commit()
     
     if (asyncCommit)
         IOProcessor::Complete(onCommit);
-}
-
-bool StorageLogSegment::GetCommitStatus()
-{
-    return commitStatus;
 }
 
 bool StorageLogSegment::HasUncommitted()

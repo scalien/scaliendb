@@ -742,7 +742,7 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
         migrateCache = 0;
     }
     else
-        shardServer->GetDatabaseManager()->ExecuteMessage(paxosID, commandID, *shardMessage);
+        shardServer->GetDatabaseManager()->ExecuteMessage(GetQuorumID(), paxosID, commandID, *shardMessage);
     
     if (!ownCommand)
         return;
@@ -894,7 +894,7 @@ void ShardQuorumProcessor::LocalExecute()
 
     quorumContext.WriteReplicationState();
     
-    shardServer->GetDatabaseManager()->GetEnvironment()->Commit();    
+    shardServer->GetDatabaseManager()->GetEnvironment()->Commit(GetQuorumID());    
 }
 
 void ShardQuorumProcessor::BlockShard()

@@ -62,10 +62,11 @@ void ShardCatchupReader::OnBeginShard(CatchupMessage& msg)
     shard = quorumProcessor->GetShardServer()->GetConfigState()->GetShard(msg.shardID);
     ASSERT(shard != NULL);
 
-    environment->Commit();
+    environment->Commit(quorumProcessor->GetQuorumID());
     environment->DeleteShard(QUORUM_DATABASE_DATA_CONTEXT, shard->shardID);
-    environment->Commit();
-    environment->CreateShard(QUORUM_DATABASE_DATA_CONTEXT, shard->shardID,
+    environment->Commit(quorumProcessor->GetQuorumID());
+    environment->CreateShard(quorumProcessor->GetQuorumID(),
+     QUORUM_DATABASE_DATA_CONTEXT, shard->shardID,
      shard->tableID, shard->firstKey, shard->lastKey, true, false);
      
     shardID = shard->shardID;
@@ -108,7 +109,7 @@ void ShardCatchupReader::TryCommit()
 {
     if (bytesReceived >= nextCommit)
     {
-        environment->Commit();
+        environment->Commit(quorumProcessor->GetQuorumID());
         nextCommit = bytesReceived + CATCHUP_COMMIT_GRANULARITY;
     }
 }

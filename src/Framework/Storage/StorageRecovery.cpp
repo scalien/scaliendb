@@ -11,7 +11,12 @@ static bool LessThan(const Buffer* a, const Buffer* b)
 
 bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
 {
-    Buffer  toc, tocNew;
+    uint64_t            trackID;
+    const char*         filename;
+    Buffer              tmp;
+    Buffer              toc, tocNew;
+    FS_Dir              dir;
+    FS_DirEntry         entry;
     
     env = env_;
     
@@ -41,8 +46,32 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     // compute the max. (logSegmentID, commandID) for each shard's chunk
     // log entries smaller must not be applied to its memo chunk
     ComputeShardRecovery();
+
+    tmp.Write(env->logPath);
+    tmp.NullTerminate();
     
-    ReplayLogSegments();
+    dir = FS_OpenDir(tmp.GetBuffer());
+    if (dir == FS_INVALID_DIR)
+    {
+        Log_Message("Unable to open log directory: %s", tmp.GetBuffer());
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    
+    while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
+    {
+        filename = FS_DirEntryName(entry);
+        
+        if (FS_IsSpecial(filename))
+            continue;
+            
+        if (FS_IsDirectory(filename))
+            continue;
+
+        tmp.Write(filename);
+        tmp.Readf("%U", trackID);
+        ReplayLogSegments(trackID);
+    }
     
     DeleteOrphanedChunks();
     
@@ -124,6 +153,9 @@ bool StorageRecovery::ReadShard(ReadBuffer& parse)
     
     shard = shardGuard.Get();
     
+    if (!parse.ReadLittle64(shard->trackID))
+        return false;
+    parse.Advance(8);
     if (!parse.ReadLittle16(shard->contextID))
         return false;
     parse.Advance(2);
@@ -221,7 +253,7 @@ void StorageRecovery::ComputeShardRecovery()
     }
 }
 
-void StorageRecovery::ReplayLogSegments()
+void StorageRecovery::ReplayLogSegments(uint64_t trackID)
 {
     const char*         filename;
     Buffer              tmp;
@@ -231,9 +263,10 @@ void StorageRecovery::ReplayLogSegments()
     Buffer*             segmentName;
     Buffer**            itSegment;
     
-    Log_Message("Replaying log segments...");
+    Log_Message("Replaying log segments in track %U...", trackID);
     
     tmp.Write(env->logPath);
+    tmp.Appendf("%04U/", trackID);
     tmp.NullTerminate();
     
     dir = FS_OpenDir(tmp.GetBuffer());
@@ -267,7 +300,7 @@ void StorageRecovery::ReplayLogSegments()
     FOREACH (itSegment, segments)
     {
         segmentName = *itSegment;
-        ReplayLogSegment(*segmentName);
+        ReplayLogSegment(trackID, *segmentName);
         delete segmentName;
     }
     
@@ -276,18 +309,18 @@ void StorageRecovery::ReplayLogSegments()
     Log_Message("Replaying done.");
 }
 
-bool StorageRecovery::ReplayLogSegment(Buffer& filename)
+bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
 {
     // create a StorageLogSegment for each
     // and for each (logSegmentID, commandID) => (contextID, shardID)
     // look at that shard's computed max., if the log is bigger, then execute the command
     // against the MemoChunk
 
-    bool                usePrevious;
+    bool                r, usePrevious;
     char                type;
     uint16_t            contextID, klen;
     uint32_t            checksum, /*compChecksum,*/ vlen;
-    uint64_t            logSegmentID, shardID, logCommandID, size, rest;
+    uint64_t            logSegmentID, tmp, shardID, logCommandID, size, rest;
     ReadBuffer          parse, dataPart, key, value;
     Buffer              buffer;
     FDGuard             fd;
@@ -422,11 +455,13 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     }
     
     logSegment = new StorageLogSegment;
+    logSegment->trackID = trackID;
     logSegment->logSegmentID = logSegmentID;
     logSegment->filename.Write(filename);
     env->logSegments.Append(logSegment);
-    if (env->nextLogSegmentID <= logSegmentID)
-        env->nextLogSegmentID = logSegmentID + 1;
+    r = env->logSegmentIDMap.Get(trackID, tmp);
+    if (!ret || tmp <= logSegmentID)
+        env->logSegmentIDMap.Set(trackID, ++logSegmentID);
     
     fd.Close();
     
@@ -564,4 +599,9 @@ void StorageRecovery::ExecuteDelete(
         ASSERT_FAIL();
 
     memoChunk->RegisterLogCommand(logSegmentID, logCommandID);
+}
+
+static size_t Hash(uint64_t h)
+{
+    return h;
 }
