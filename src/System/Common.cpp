@@ -487,7 +487,7 @@ uint64_t GetTotalPhysicalMemory()
 
     statex.dwLength = sizeof(statex);
     GlobalMemoryStatusEx(&statex);
-    return (uin64_t) statex.ullTotalPhys;
+    return (uint64_t) statex.ullTotalPhys;
 #else
 #ifdef PLATFORM_LINUX
     uint64_t    pages;

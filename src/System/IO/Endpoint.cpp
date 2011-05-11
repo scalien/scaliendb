@@ -7,6 +7,7 @@
 #include <ctype.h>
 #ifdef _WIN32
 #include <winsock2.h>
+#include <ws2tcpip.h>
 #define s_addr S_un.S_addr
 #define in_addr_t unsigned long
 #undef SetPort
