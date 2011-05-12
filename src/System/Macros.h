@@ -31,6 +31,16 @@
 ===============================================================================================
  */
 
+#ifdef DEBUG
+#define IFDEBUG(expr)   expr
+#else
+#define IFDEBUG(expr)
+#endif
+
+/*
+===============================================================================================
+ */
+
 #define ASSERT(expr)            \
     do {                        \
         if (!(expr))            \
@@ -46,22 +56,23 @@
 ===============================================================================================
  */
 
-#define STOP_FAIL(code, ...) \
-{ \
-    Log_SetTarget(LOG_TARGET_STDERR|LOG_TARGET_FILE); \
-    const char* msg = StaticPrint("" __VA_ARGS__); \
-    Log_Message("Exiting (%d)%s%s", code, msg ? ": " : "...", msg ? msg : ""); \
-    _exit(code); \
-}
+#define STOP_FAIL(code, ...)                                                    \
+do {                                                                            \
+    IFDEBUG(PrintStackTrace());                                                 \
+    Log_SetTarget(LOG_TARGET_STDERR|LOG_TARGET_FILE);                           \
+    const char* msg = StaticPrint("" __VA_ARGS__);                              \
+    Log_Message("Exiting (%d)%s%s", code, msg ? ": " : "...", msg ? msg : "");  \
+    _exit(code);                                                                \
+} while (0)
 
 /*
 ===============================================================================================
  */
 
-#define RESTART(msg) \
-{ \
-    Log_Message(msg); \
-    _exit(2); \
+#define RESTART(msg)    \
+{                       \
+    Log_Message(msg);   \
+    _exit(2);           \
 }
 
 /*
