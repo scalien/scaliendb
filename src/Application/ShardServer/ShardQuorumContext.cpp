@@ -73,7 +73,7 @@ void ShardQuorumContext::SetQuorumNodes(SortedList<uint64_t>& activeNodes)
     quorum.ClearNodes();
     FOREACH (it, activeNodes)
     {
-        Log_Debug("New nodes: %U", *it);
+//        Log_Debug("New nodes: %U", *it);
         quorum.AddNode(*it);
     }
 }
