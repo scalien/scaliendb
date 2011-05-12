@@ -29,39 +29,19 @@ public class Client
      * @param   nodes   the addresses of controllers e.g. "localhost:7080"
      *
      */
-	public Client(String[] nodes) {
+	public Client(String... nodes) throws SDBPException {
 		cptr = scaliendb_client.SDBP_Create();
 		result = null;
 		
 		SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
-		for (int i = 0; i < nodes.length; i++) {
-			nodeParams.AddNode(nodes[i]);
+		for (String node : nodes) {
+			nodeParams.AddNode(node);
 		}
 		
 		int status = scaliendb_client.SDBP_Init(cptr, nodeParams);
+        checkStatus(status);
 		nodeParams.Close();
 	}
-    
-    /**
-     * Creates client object.
-     *
-     * @param   nodeString  the addresses of controllers separated by commas. 
-     *                      E.g. "localhost:7080, localhost:7081"
-     *
-     */
-	public Client(String nodeString) {
-        String[] nodes = nodeString.split(",");
-		cptr = scaliendb_client.SDBP_Create();
-		result = null;
-		
-		SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
-		for (int i = 0; i < nodes.length; i++) {
-			nodeParams.AddNode(nodes[i]);
-		}
-		
-		int status = scaliendb_client.SDBP_Init(cptr, nodeParams);
-		nodeParams.Close();
-	}    
     
     /**
      * Closes the client object.
