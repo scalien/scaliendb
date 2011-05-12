@@ -289,11 +289,17 @@ class ScalienClient {
     }
     
     public function set($key, $value) {
-        return $this->_dataCommand("SDBP_Set", $key, $value);
+        $status = $this->_dataCommand("SDBP_Set", $key, $value);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
+        return TRUE;
     }
     
     public function setIfNotExists($key, $value) {
-        return $this->_dataCommand("SDBP_SetIfNotExists", $key, $value);
+        $status = $this->_dataCommand("SDBP_SetIfNotExists", $key, $value);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
+        return TRUE;
     }
     
     public function testAndSet($key, $test, $value) {
