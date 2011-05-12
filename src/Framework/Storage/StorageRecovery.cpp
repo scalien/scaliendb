@@ -17,6 +17,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     Buffer              toc, tocNew;
     FS_Dir              dir;
     FS_DirEntry         entry;
+    List<uint64_t>      replayedTrackIDs;
     
     env = env_;
     
@@ -69,8 +70,12 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
             continue;
 
         tmp.Write(filename);
-        tmp.Readf("%U", trackID);
-        ReplayLogSegments(trackID);
+        tmp.Readf("log.%U.", &trackID);
+        if (!replayedTrackIDs.Contains(trackID))
+        {
+            ReplayLogSegments(trackID);
+            replayedTrackIDs.Add(trackID);
+        }
     }
     
     DeleteOrphanedChunks();
@@ -256,7 +261,7 @@ void StorageRecovery::ComputeShardRecovery()
 void StorageRecovery::ReplayLogSegments(uint64_t trackID)
 {
     const char*         filename;
-    Buffer              tmp;
+    Buffer              tmp, prefix;
     FS_Dir              dir;
     FS_DirEntry         entry;
     SortedList<Buffer*> segments;
@@ -266,7 +271,6 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
     Log_Message("Replaying log segments in track %U...", trackID);
     
     tmp.Write(env->logPath);
-    tmp.Appendf("%04U/", trackID);
     tmp.NullTerminate();
     
     dir = FS_OpenDir(tmp.GetBuffer());
@@ -276,6 +280,9 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
         Log_Message("Exiting...");
         ASSERT_FAIL();
     }
+
+    prefix.Writef("log.%020U", trackID);
+    prefix.NullTerminate();
     
     while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
     {
@@ -288,7 +295,7 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
             continue;
         
         tmp.Write(filename);
-        if (ReadBuffer(tmp).BeginsWith("log."))
+        if (ReadBuffer(tmp).BeginsWith(prefix.GetBuffer()))
         {
             tmp.Write(env->logPath);
             tmp.Append(filename);

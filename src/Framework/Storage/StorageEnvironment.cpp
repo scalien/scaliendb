@@ -840,8 +840,6 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
     // TODO: check for uncommited stuff    
     
     shard = GetShard(contextID, shardID);
-    if (shard != NULL)
-        return false;       // already exists
 
     logSegment = GetLogSegment(trackID);
     if (!logSegment)
@@ -849,12 +847,15 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
         ret = logSegmentIDMap.Get(trackID, logSegmentID);
         if (!ret)
             logSegmentID = 1;
-        nextLogSegmentID = logSegmentID++;
+        nextLogSegmentID = logSegmentID + 1;
         logSegmentIDMap.Set(trackID, nextLogSegmentID);
         logSegment = new StorageLogSegment();
         logSegment->Open(logPath, trackID, logSegmentID, config.syncGranularity);
         logSegmentMap.Set(trackID, logSegment);
     }
+
+    if (shard != NULL)
+        return false;       // already exists
 
     Log_Debug("Creating shard %u/%U", contextID, shardID);
 
@@ -1044,7 +1045,7 @@ void StorageEnvironment::TryFinalizeLogSegments()
         ret = logSegmentIDMap.Get(trackID, logSegmentID);
         if (!ret)
             logSegmentID = 1;
-        nextLogSegmentID = logSegmentID++;
+        nextLogSegmentID = logSegmentID + 1;
         logSegmentIDMap.Set(trackID, nextLogSegmentID);
 
         logSegment = new StorageLogSegment;
@@ -1071,6 +1072,8 @@ void StorageEnvironment::TrySerializeChunks()
         memoChunk = itShard->GetMemoChunk();
                 
         logSegment = GetLogSegment(itShard->GetTrackID());
+        if (!logSegment)
+            continue;
 
         if (
          memoChunk->GetSize() > config.chunkSize ||
@@ -1098,6 +1101,8 @@ void StorageEnvironment::TryWriteChunks()
     FOREACH (itFileChunk, fileChunks)
     {
         logSegment = GetLogSegment(GetFirstShard(itFileChunk)->GetTrackID());
+        if (!logSegment)
+            continue;
         if ((itFileChunk->GetChunkState() == StorageChunk::Unwritten) &&
            ((itFileChunk->GetMaxLogSegmentID() < logSegment->GetLogSegmentID()) ||
             (itFileChunk->GetMaxLogSegmentID() == logSegment->GetLogSegmentID() &&
@@ -1152,29 +1157,33 @@ void StorageEnvironment::TryArchiveLogSegments()
     if (archiveLogJobs.IsActive() || logSegments.GetLength() == 0)
         return;
 
-    logSegment = logSegments.First();
-    
-    // a log segment cannot be archived
-    // if there is a chunk which has not been written
-    // which includes (may include) a write that is
-    // stored in the log segment
-
-    archive = true;
-    logSegmentID = logSegment->GetLogSegmentID();
-    FOREACH (itShard, shards)
+    FOREACH(logSegment, logSegments)
     {
-        if (itShard->IsLogStorage())
-            continue; // log storage shards never hinder log segment archival
-        memoChunk = itShard->GetMemoChunk();
-        if (memoChunk->GetMinLogSegmentID() > 0 && memoChunk->GetMinLogSegmentID() <= logSegmentID)
-            archive = false;
-        FOREACH (itChunk, itShard->GetChunks())
+        // a log segment cannot be archived
+        // if there is a chunk which has not been written
+        // which includes (may include) a write that is
+        // stored in the log segment
+
+        archive = true;
+        logSegmentID = logSegment->GetLogSegmentID();
+        FOREACH (itShard, shards)
         {
-            if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
+            if (itShard->IsLogStorage())
+                continue; // log storage shards never hinder log segment archival
+            if (itShard->GetTrackID() != logSegment->GetTrackID())
+                continue;
+
+            memoChunk = itShard->GetMemoChunk();
+            if (memoChunk->GetMinLogSegmentID() > 0 && memoChunk->GetMinLogSegmentID() <= logSegmentID)
+                archive = false;
+            FOREACH (itChunk, itShard->GetChunks())
             {
-                ASSERT((*itChunk)->GetMinLogSegmentID() > 0);
-                if ((*itChunk)->GetMinLogSegmentID() <= logSegmentID)
-                    archive = false;
+                if ((*itChunk)->GetChunkState() <= StorageChunk::Unwritten)
+                {
+                    ASSERT((*itChunk)->GetMinLogSegmentID() > 0);
+                    if ((*itChunk)->GetMinLogSegmentID() <= logSegmentID)
+                        archive = false;
+                }
             }
         }
     }

@@ -38,8 +38,7 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     sw.Start();
     
     filename.Write(logPath);
-    filename.Appendf("%04U/", trackID);
-    filename.Appendf("log.%020U", logSegmentID);
+    filename.Appendf("log.%020U.%020U", trackID, logSegmentID);
     filename.NullTerminate();
     fd = FS_Open(filename.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND);
     if (fd == INVALID_FD)
@@ -88,6 +87,11 @@ void StorageLogSegment::Close()
 void StorageLogSegment::DeleteFile()
 {
     FS_Delete(filename.GetBuffer());
+}
+
+uint64_t StorageLogSegment::GetTrackID()
+{
+    return trackID;
 }
 
 uint64_t StorageLogSegment::GetLogSegmentID()
