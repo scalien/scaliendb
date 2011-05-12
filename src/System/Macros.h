@@ -128,8 +128,7 @@
 #define TRY_YIELD_RETURN(yieldTimer, start)                                     \
     if (NowClock() - start >= YIELD_TIME)                                       \
     {                                                                           \
-        if (yieldTimer.IsActive())                                              \
-            STOP_FAIL(1, "Program bug: yieldTimer should be inactive here.");   \
+        ASSERT(!yieldTimer.IsActive());                                         \
         EventLoop::Add(&yieldTimer);                                            \
         return;                                                                 \
     }
@@ -137,8 +136,7 @@
 #define TRY_YIELD_BREAK(yieldTimer, start)                                      \
     if (NowClock() - start >= YIELD_TIME)                                       \
     {                                                                           \
-        if (yieldTimer.IsActive())                                              \
-            STOP_FAIL(1, "Program bug: yieldTimer should be inactive here.");   \
+        ASSERT(!yieldTimer.IsActive());                                         \
         EventLoop::Add(&yieldTimer);                                            \
         break;                                                                  \
     }
