@@ -65,10 +65,10 @@ public class Table
      * @param   key     the specified key
      * @return          the value if found
      */
- 	public String get(String key) throws SDBPException {
+    public String get(String key) throws SDBPException {
         useDefaults();
         return client.get(key);
-	}
+    }
 
     /**
      * Returns the value for a specified key.
@@ -76,10 +76,10 @@ public class Table
      * @param   key     the specified key
      * @return          the value if found
      */
- 	public byte[] get(byte[] key) throws SDBPException {
+    public byte[] get(byte[] key) throws SDBPException {
         useDefaults();
         return client.get(key);
-	}
+    }
 
     /**
      * Returns the value for a specified key.
@@ -88,10 +88,10 @@ public class Table
      * @param   defval  the default value
      * @return          the value if found, the default value if not found
      */
- 	public String get(String key, String defval) throws SDBPException {
+    public String get(String key, String defval) throws SDBPException {
         useDefaults();
         return client.get(key, defval);
-	}
+    }
 
     /**
      * Returns the value for a specified key.
@@ -100,11 +100,11 @@ public class Table
      * @param   defval  the default value
      * @return          the value if found, the default value if not found
      */
- 	public byte[] get(byte[] key, byte[] defval) throws SDBPException {
+    public byte[] get(byte[] key, byte[] defval) throws SDBPException {
         useDefaults();
         return client.get(key, defval);
-	}
-		
+    }
+        
     /**
      * Associates the specified value with the specified key. If the database previously contained
      * a mapping for this key, the old value is replaced.
@@ -112,10 +112,10 @@ public class Table
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
      */
-	public void set(String key, String value) throws SDBPException {
+    public void set(String key, String value) throws SDBPException {
         useDefaults();
         client.set(key, value);
-	}
+    }
 
     /**
      * Associates the specified value with the specified key. If the database previously contained
@@ -124,10 +124,10 @@ public class Table
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
      */
-	public void set(byte[] key, byte[] value) throws SDBPException {
+    public void set(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
         client.set(key, value);
-	}
+    }
 
     /**
      * Associates the specified value with the specified key only if it did not exist previously.
@@ -136,10 +136,10 @@ public class Table
      * @param   value   value to be associated with the specified key
      * @return          the status of the operation
      */
-	public void setIfNotExists(String key, String value) throws SDBPException {
+    public void setIfNotExists(String key, String value) throws SDBPException {
         useDefaults();
         client.setIfNotExists(key, value);
-	}
+    }
 
     /**
      * Associates the specified value with the specified key only if it did not exist previously.
@@ -148,10 +148,10 @@ public class Table
      * @param   value   value to be associated with the specified key
      * @return          the status of the operation
      */
-	public void setIfNotExists(byte[] key, byte[] value) throws SDBPException {
+    public void setIfNotExists(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
         client.setIfNotExists(key, value);
-	}
+    }
 
     /**
      * Associates the specified value with the specified key only if it matches a specified test value.
@@ -164,10 +164,10 @@ public class Table
      * @param   value   value to be associated with the specified key
      * @return          true if the value was set
      */
-	public boolean testAndSet(String key, String test, String value) throws SDBPException {
+    public boolean testAndSet(String key, String test, String value) throws SDBPException {
         useDefaults();
         return client.testAndSet(key, test, value);
-	}
+    }
 
     /**
      * Associates the specified value with the specified key only if it matches a specified test value.
@@ -180,10 +180,10 @@ public class Table
      * @param   value   value to be associated with the specified key
      * @return          true if the value was set
      */
-	public boolean testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
+    public boolean testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
         useDefaults();
         return client.testAndSet(key, test, value);
-	}
+    }
 
     /**
      * Associates the specified value with the specified key. If the database previously contained
@@ -193,10 +193,10 @@ public class Table
      * @param   value   value to be associated with the specified key
      * @return          the old value
      */
-	public String getAndSet(String key, String value) throws SDBPException {
+    public String getAndSet(String key, String value) throws SDBPException {
         useDefaults();
         return client.getAndSet(key, value);
-	}
+    }
     
     /**
      * Associates the specified value with the specified key. If the database previously contained
@@ -206,10 +206,10 @@ public class Table
      * @param   value   value to be associated with the specified key
      * @return          the old value
      */
-	public byte[] getAndSet(byte[] key, byte[] value) throws SDBPException {
+    public byte[] getAndSet(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
         return client.getAndSet(key, value);
-	}
+    }
     
     /**
      * Adds a numeric value to the specified key. The key must contain a numeric value, otherwise
@@ -219,10 +219,10 @@ public class Table
      * @param   number  a numeric value
      * @return          the new value
      */
-	public long add(String key, long number) throws SDBPException {
+    public long add(String key, long number) throws SDBPException {
         useDefaults();
         return client.add(key, number);
-	}
+    }
 
     /**
      * Adds a numeric value to the specified key. The key must contain a numeric value, otherwise
@@ -232,10 +232,10 @@ public class Table
      * @param   number  a numeric value
      * @return          the new value
      */
-	public long add(byte[] key, long number) throws SDBPException {
+    public long add(byte[] key, long number) throws SDBPException {
         useDefaults();
         return client.add(key, number);
-	}
+    }
 
     /**
      * Appends the specified value to end of the value of the specified key. If the key did not
@@ -244,10 +244,10 @@ public class Table
      * @param   key     key to which the specified value is to be appended
      * @param   value   the specified value that is appended to end of the existing value
      */
-	public void append(String key, String value) throws SDBPException {
+    public void append(String key, String value) throws SDBPException {
         useDefaults();
         client.append(key, value);
-	}
+    }
 
     /**
      * Appends the specified value to end of the value of the specified key. If the key did not
@@ -256,30 +256,30 @@ public class Table
      * @param   key     key to which the specified value is to be appended
      * @param   value   the specified value that is appended to end of the existing value
      */
-	public void append(byte[] key, byte[] value) throws SDBPException {
+    public void append(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
         client.append(key, value);
-	}
-	
+    }
+    
     /**
      * Deletes the specified key.
      *
      * @param   key     key to be deleted
      */
-	public void delete(String key) throws SDBPException {
+    public void delete(String key) throws SDBPException {
         useDefaults();
         client.delete(key);
-	}
+    }
 
     /**
      * Deletes the specified key.
      *
      * @param   key     key to be deleted
      */
-	public void delete(byte[] key) throws SDBPException {
+    public void delete(byte[] key) throws SDBPException {
         useDefaults();
         client.delete(key);
-	}
+    }
 
     /**
      * Deletes the specified key and returns the old value.
@@ -287,10 +287,10 @@ public class Table
      * @param   key     key to be deleted
      * @return          the old value
      */
-	public String remove(String key) throws SDBPException {
+    public String remove(String key) throws SDBPException {
         useDefaults();
         return client.remove(key);
-	}
+    }
 
     /**
      * Deletes the specified key and returns the old value.
@@ -298,10 +298,10 @@ public class Table
      * @param   key     key to be deleted
      * @return          the old value
      */
-	public byte[] remove(byte[] key) throws SDBPException {
+    public byte[] remove(byte[] key) throws SDBPException {
         useDefaults();
         return client.remove(key);
-	}
+    }
     
     /**
      * Returns the specified keys.
@@ -312,7 +312,7 @@ public class Table
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-	public List<String> listKeys(String startKey, String endKey, int offset, int count) throws SDBPException {
+    public List<String> listKeys(String startKey, String endKey, int offset, int count) throws SDBPException {
         useDefaults();
         return client.listKeys(startKey, endKey, offset, count);
     }
@@ -326,7 +326,7 @@ public class Table
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-	public List<byte[]> listKeys(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
+    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
         useDefaults();
         return client.listKeys(startKey, endKey, offset, count);
     }
@@ -369,7 +369,7 @@ public class Table
      */
     public long count(String startKey, String endKey, int offset, int count) throws SDBPException {
         useDefaults();
-		return client.count(startKey, endKey, offset, count);
+        return client.count(startKey, endKey, offset, count);
     }
     
     /**
@@ -383,6 +383,6 @@ public class Table
      */
     public long count(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
         useDefaults();
-		return client.count(startKey, endKey, offset, count);    
+        return client.count(startKey, endKey, offset, count);    
     }
 }

@@ -11,17 +11,17 @@ import java.util.ArrayList;
 
 public class Client
 {
-	static {
-		System.loadLibrary("scaliendb_client");
-	}
+    static {
+        System.loadLibrary("scaliendb_client");
+    }
 
-	private SWIGTYPE_p_void cptr;
-	private Result result;
+    private SWIGTYPE_p_void cptr;
+    private Result result;
     private Result lastResult;
 
-	private static final int CONSISTENCY_ANY = 0;
-	private static final int CONSISTENCY_RYW = 1;
-	private static final int CONSISTENCY_STRICT = 2;
+    private static final int CONSISTENCY_ANY = 0;
+    private static final int CONSISTENCY_RYW = 1;
+    private static final int CONSISTENCY_STRICT = 2;
     
     /**
      * Creates client object.
@@ -29,19 +29,19 @@ public class Client
      * @param   nodes   the addresses of controllers e.g. "localhost:7080"
      *
      */
-	public Client(String... nodes) throws SDBPException {
-		cptr = scaliendb_client.SDBP_Create();
-		result = null;
-		
-		SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
-		for (String node : nodes) {
-			nodeParams.AddNode(node);
-		}
-		
-		int status = scaliendb_client.SDBP_Init(cptr, nodeParams);
+    public Client(String... nodes) throws SDBPException {
+        cptr = scaliendb_client.SDBP_Create();
+        result = null;
+        
+        SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
+        for (String node : nodes) {
+            nodeParams.AddNode(node);
+        }
+        
+        int status = scaliendb_client.SDBP_Init(cptr, nodeParams);
         checkStatus(status);
-		nodeParams.Close();
-	}
+        nodeParams.Close();
+    }
     
     /**
      * Closes the client object.
@@ -63,10 +63,10 @@ public class Client
         return cptr;
     }
 
-	protected void finalize() {
+    protected void finalize() {
         close();
-	}
-	
+    }
+    
     /**
      * Sets the global timeout.
      *
@@ -76,10 +76,10 @@ public class Client
      * @param   timeout   the global timeout in milliseconds
      * @see     #getGlobalTimeout()     getGlobalTimeout
      */
-	public void setGlobalTimeout(long timeout) {
-		scaliendb_client.SDBP_SetGlobalTimeout(cptr, BigInteger.valueOf(timeout));
-	}
-	
+    public void setGlobalTimeout(long timeout) {
+        scaliendb_client.SDBP_SetGlobalTimeout(cptr, BigInteger.valueOf(timeout));
+    }
+    
     /**
      * Sets the master timeout.
      *
@@ -89,31 +89,31 @@ public class Client
      * @param   timeout   the master timeout in milliseconds
      * @see     #getMasterTimeout()     getMasterTimeout
      */
-	public void setMasterTimeout(long timeout) {
-		scaliendb_client.SDBP_SetMasterTimeout(cptr, BigInteger.valueOf(timeout));
-	}
-	
+    public void setMasterTimeout(long timeout) {
+        scaliendb_client.SDBP_SetMasterTimeout(cptr, BigInteger.valueOf(timeout));
+    }
+    
     /**
      * Returns the global timeout.
      *
      * @return  the global timeout in milliseconds
      * @see     #setGlobalTimeout(long)   setGlobalTimeout
      */
-	public long getGlobalTimeout() {
-		BigInteger bi = scaliendb_client.SDBP_GetGlobalTimeout(cptr);
-		return bi.longValue();
-	}
-	
+    public long getGlobalTimeout() {
+        BigInteger bi = scaliendb_client.SDBP_GetGlobalTimeout(cptr);
+        return bi.longValue();
+    }
+    
     /**
      * Returns the master timeout.
      *
      * @return  the master timeout in milliseconds
      * @see     #setMasterTimeout(long)   setMasterTimeout
      */
-	public long getMasterTimeout() {
-		BigInteger bi = scaliendb_client.SDBP_GetMasterTimeout(cptr);
-		return bi.longValue();
-	}
+    public long getMasterTimeout() {
+        BigInteger bi = scaliendb_client.SDBP_GetMasterTimeout(cptr);
+        return bi.longValue();
+    }
     
     /**
      * Sets the batch limit.
@@ -124,18 +124,18 @@ public class Client
      *
      * @param   limit   the maximum allocated memory
      */
-	public void setBatchLimit(long limit) {
-		scaliendb_client.SDBP_SetBatchLimit(cptr, BigInteger.valueOf(limit));
-	}
+    public void setBatchLimit(long limit) {
+        scaliendb_client.SDBP_SetBatchLimit(cptr, BigInteger.valueOf(limit));
+    }
 
     /**
      * Turns bulk loading on or off.
      *
      * @param   bulk    true when bulk loading
      */
-	public void setBulkLoading(boolean bulk) {
-		scaliendb_client.SDBP_SetBulkLoading(cptr, bulk);
-	}
+    public void setBulkLoading(boolean bulk) {
+        scaliendb_client.SDBP_SetBulkLoading(cptr, bulk);
+    }
 
     /**
      * Sets the consistency level for read operations.
@@ -199,16 +199,16 @@ public class Client
      * @return          the ID of the created quorum
      */
     public long createQuorum(long[] nodes) throws SDBPException {
-		SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
-		for (int i = 0; i < nodes.length; i++) {
-			nodeParams.AddNode(Long.toString(nodes[i]));
-		}
+        SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
+        for (int i = 0; i < nodes.length; i++) {
+            nodeParams.AddNode(Long.toString(nodes[i]));
+        }
         
         int status = scaliendb_client.SDBP_CreateQuorum(cptr, nodeParams);
         nodeParams.Close();
 
         checkResultStatus(status, "Cannot create quorum");
-		return result.getNumber();
+        return result.getNumber();
     }
 
     /**
@@ -306,7 +306,7 @@ public class Client
         BigInteger biQuorumID = BigInteger.valueOf(quorumID);
         int status = scaliendb_client.SDBP_CreateTable(cptr, biDatabaseID, biQuorumID, name);
         checkResultStatus(status);    
-		return result.getNumber();
+        return result.getNumber();
     }
 
     /**
@@ -408,7 +408,7 @@ public class Client
         int status = scaliendb_client.SDBP_UseTableID(cptr, BigInteger.valueOf(tableID));
         checkStatus(status);
     }
-	
+    
     /**
      * Returns the result.
      *
@@ -417,30 +417,30 @@ public class Client
      * @return  the result object
      * @see     Result#close()
      */
-	public Result getResult() {
+    public Result getResult() {
         lastResult = result;
-		return result;
-	}
-	
+        return result;
+    }
+    
     /**
      * Returns the value for a specified key.
      *
      * @param   key     the specified key
      * @return          the value if found
      */
-	public String get(String key) throws SDBPException {
-		int status = scaliendb_client.SDBP_Get(cptr, key);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public String get(String key) throws SDBPException {
+        int status = scaliendb_client.SDBP_Get(cptr, key);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return null;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValue();
-	}
+        }
+        
+        if (isBatched())
+            return null;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getValue();
+    }
 
     /**
      * Returns the value for a specified key.
@@ -448,19 +448,19 @@ public class Client
      * @param   key     the specified key
      * @return          the value if found
      */
-	public byte[] get(byte[] key) throws SDBPException {
-		int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public byte[] get(byte[] key) throws SDBPException {
+        int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return null;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValueBytes();
-	}
+        }
+        
+        if (isBatched())
+            return null;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getValueBytes();
+    }
     
     /**
      * Returns the value for a specified key.
@@ -470,9 +470,9 @@ public class Client
      * @return          the value if found, the default value if not found
      */
     public String get(String key, String defval) {
-		int status = scaliendb_client.SDBP_Get(cptr, key);
+        int status = scaliendb_client.SDBP_Get(cptr, key);
         if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             return defval;
         }
         
@@ -491,9 +491,9 @@ public class Client
      * @return          the value if found, the default value if not found
      */
     public byte[] get(byte[] key, byte[] defval) {
-		int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
+        int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
         if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             return defval;
         }
         
@@ -503,7 +503,7 @@ public class Client
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getValueBytes();
     }
-		
+        
     /**
      * Associates the specified value with the specified key. If the database previously contained
      * a mapping for this key, the old value is replaced.
@@ -511,18 +511,18 @@ public class Client
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
      */
-	public void set(String key, String value) throws SDBPException {
-		int status = scaliendb_client.SDBP_Set(cptr, key, value);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public void set(String key, String value) throws SDBPException {
+        int status = scaliendb_client.SDBP_Set(cptr, key, value);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-	}
+        }
+        
+        if (isBatched())
+            return;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
 
     /**
      * Associates the specified value with the specified key. If the database previously contained
@@ -532,36 +532,36 @@ public class Client
      * @param   value   value to be associated with the specified key
      */
     public void set(byte[] key, byte[] value) throws SDBPException {
-		int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.length, value, value.length);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.length, value, value.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-	}
-	
+        }
+        
+        if (isBatched())
+            return;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
+    
     /**
      * Associates the specified value with the specified key only if it did not exist previously.
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
      */
-	public void setIfNotExists(String key, String value) throws SDBPException {
-		int status = scaliendb_client.SDBP_SetIfNotExists(cptr, key, value);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public void setIfNotExists(String key, String value) throws SDBPException {
+        int status = scaliendb_client.SDBP_SetIfNotExists(cptr, key, value);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-	}
+        }
+        
+        if (isBatched())
+            return;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
 
     /**
      * Associates the specified value with the specified key only if it did not exist previously.
@@ -570,18 +570,18 @@ public class Client
      * @param   value   value to be associated with the specified key
      */
     public void setIfNotExists(byte[] key, byte[] value) throws SDBPException {
-		int status = scaliendb_client.SDBP_SetIfNotExistsCStr(cptr, key, key.length, value, value.length);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        int status = scaliendb_client.SDBP_SetIfNotExistsCStr(cptr, key, key.length, value, value.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-	}
-	
+        }
+        
+        if (isBatched())
+            return;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
+    
     /**
      * Associates the specified value with the specified key only if it matches a specified test value.
      * 
@@ -593,19 +593,19 @@ public class Client
      * @param   value   value to be associated with the specified key
      * @return          true if the value was set
      */
-	public boolean testAndSet(String key, String test, String value) throws SDBPException {
-		int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public boolean testAndSet(String key, String test, String value) throws SDBPException {
+        int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return true;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.isValueChanged();
-	}
+        }
+        
+        if (isBatched())
+            return true;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.isValueChanged();
+    }
 
     /**
      * Associates the specified value with the specified key only if it matches a specified test value.
@@ -618,19 +618,19 @@ public class Client
      * @param   value   value to be associated with the specified key
      * @return          true if the value was set
      */
-	public boolean testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
-		int status = scaliendb_client.SDBP_TestAndSetCStr(cptr, key, key.length, test, test.length, value, value.length);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public boolean testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
+        int status = scaliendb_client.SDBP_TestAndSetCStr(cptr, key, key.length, test, test.length, value, value.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return true;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.isValueChanged();
-	}
+        }
+        
+        if (isBatched())
+            return true;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.isValueChanged();
+    }
 
     /**
      * Associates the specified value with the specified key. If the database previously contained
@@ -640,19 +640,19 @@ public class Client
      * @param   value   value to be associated with the specified key
      * @return          the old value
      */
-	public String getAndSet(String key, String value) throws SDBPException {
-		int status = scaliendb_client.SDBP_GetAndSet(cptr, key, value);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public String getAndSet(String key, String value) throws SDBPException {
+        int status = scaliendb_client.SDBP_GetAndSet(cptr, key, value);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return null;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValue();
-	}
+        }
+        
+        if (isBatched())
+            return null;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getValue();
+    }
 
     /**
      * Associates the specified value with the specified key. If the database previously contained
@@ -662,19 +662,19 @@ public class Client
      * @param   value   value to be associated with the specified key
      * @return          the old value
      */
-	public byte[] getAndSet(byte[] key, byte[] value) throws SDBPException {
-		int status = scaliendb_client.SDBP_GetAndSetCStr(cptr, key, key.length, value, value.length);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public byte[] getAndSet(byte[] key, byte[] value) throws SDBPException {
+        int status = scaliendb_client.SDBP_GetAndSetCStr(cptr, key, key.length, value, value.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return null;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValueBytes();
-	}
+        }
+        
+        if (isBatched())
+            return null;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getValueBytes();
+    }
     
     /**
      * Adds a numeric value to the specified key. The key must contain a numeric value, otherwise
@@ -684,19 +684,19 @@ public class Client
      * @param   number  a numeric value
      * @return          the new value
      */
-	public long add(String key, long number) throws SDBPException {
-		int status = scaliendb_client.SDBP_Add(cptr, key, number);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public long add(String key, long number) throws SDBPException {
+        int status = scaliendb_client.SDBP_Add(cptr, key, number);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return 0;
+        }
+        
+        if (isBatched())
+            return 0;
                     
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getNumber();
-	}
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getNumber();
+    }
 
     /**
      * Adds a numeric value to the specified key. The key must contain a numeric value, otherwise
@@ -706,19 +706,19 @@ public class Client
      * @param   number  a numeric value
      * @return          the new value
      */
-	public long add(byte[] key, long number) throws SDBPException {
-		int status = scaliendb_client.SDBP_AddCStr(cptr, key, key.length, number);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public long add(byte[] key, long number) throws SDBPException {
+        int status = scaliendb_client.SDBP_AddCStr(cptr, key, key.length, number);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return 0;
+        }
+        
+        if (isBatched())
+            return 0;
                     
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getNumber();
-	}
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getNumber();
+    }
 
     /**
      * Appends the specified value to end of the value of the specified key. If the key did not
@@ -727,18 +727,18 @@ public class Client
      * @param   key     key to which the specified value is to be appended
      * @param   value   the specified value that is appended to end of the existing value
      */
-	public void append(String key, String value) throws SDBPException {
-		int status = scaliendb_client.SDBP_Append(cptr, key, value);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public void append(String key, String value) throws SDBPException {
+        int status = scaliendb_client.SDBP_Append(cptr, key, value);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-	}
+        }
+        
+        if (isBatched())
+            return;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
 
     /**
      * Appends the specified value to end of the value of the specified key. If the key did not
@@ -748,73 +748,73 @@ public class Client
      * @param   value   the specified value that is appended to end of the existing value
      */
     public void append(byte[] key, byte[] value) throws SDBPException {
-		int status = scaliendb_client.SDBP_AppendCStr(cptr, key, key.length, value, value.length);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        int status = scaliendb_client.SDBP_AppendCStr(cptr, key, key.length, value, value.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return;
-				
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-	}
+        }
+        
+        if (isBatched())
+            return;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
     
     /**
      * Deletes the specified key.
      *
      * @param   key     key to be deleted
      */
-	public void delete(String key) throws SDBPException {
-		int status = scaliendb_client.SDBP_Delete(cptr, key);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public void delete(String key) throws SDBPException {
+        int status = scaliendb_client.SDBP_Delete(cptr, key);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return;
-		
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-	}
+        }
+        
+        if (isBatched())
+            return;
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
 
     /**
      * Deletes the specified key.
      *
      * @param   key     key to be deleted
      */
-	public void delete(byte[] key) throws SDBPException {
-		int status = scaliendb_client.SDBP_DeleteCStr(cptr, key, key.length);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public void delete(byte[] key) throws SDBPException {
+        int status = scaliendb_client.SDBP_DeleteCStr(cptr, key, key.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return;
-		
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-	}
-	
+        }
+        
+        if (isBatched())
+            return;
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
+    
     /**
      * Deletes the specified key and returns the old value.
      *
      * @param   key     key to be deleted
      * @return          the old value
      */
-	public String remove(String key) throws SDBPException {
-		int status = scaliendb_client.SDBP_Remove(cptr, key);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public String remove(String key) throws SDBPException {
+        int status = scaliendb_client.SDBP_Remove(cptr, key);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return null;
-		
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValue();
-	}
+        }
+        
+        if (isBatched())
+            return null;
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getValue();
+    }
 
     /**
      * Deletes the specified key and returns the old value.
@@ -822,19 +822,19 @@ public class Client
      * @param   key     key to be deleted
      * @return          the old value
      */
-	public byte[] remove(byte[] key) throws SDBPException {
-		int status = scaliendb_client.SDBP_RemoveCStr(cptr, key, key.length);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    public byte[] remove(byte[] key) throws SDBPException {
+        int status = scaliendb_client.SDBP_RemoveCStr(cptr, key, key.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
-		}
-		
-		if (isBatched())
-			return null;
-		
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getValueBytes();
-	}
+        }
+        
+        if (isBatched())
+            return null;
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.getValueBytes();
+    }
 
     /**
      * Returns the specified keys.
@@ -845,8 +845,8 @@ public class Client
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-	public List<String> listKeys(String startKey, String endKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, count, offset);
+    public List<String> listKeys(String startKey, String endKey, int offset, int count) throws SDBPException {
+        int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, count, offset);
         checkResultStatus(status);
 
         ArrayList<String> keys = new ArrayList<String>();
@@ -854,7 +854,7 @@ public class Client
             keys.add(result.getKey());
 
         return keys;
-	}
+    }
 
     /**
      * Returns the specified keys.
@@ -865,8 +865,8 @@ public class Client
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-	public List<byte[]> listKeys(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
+    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
+        int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
         checkResultStatus(status);
 
         ArrayList<byte[]> keys = new ArrayList<byte[]>();
@@ -874,7 +874,7 @@ public class Client
             keys.add(result.getKeyBytes());
 
         return keys;
-	}
+    }
 
     /**
      * Returns the specified key-value pairs.
@@ -886,7 +886,7 @@ public class Client
      * @return              the list of key-value pairs
      */
     public Map<String, String> listKeyValues(String startKey, String endKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, count, offset);
+        int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, count, offset);
         checkResultStatus(status);
             
         TreeMap<String, String> keyValues = new TreeMap<String, String>();
@@ -906,7 +906,7 @@ public class Client
      * @return              the list of key-value pairs
      */
     public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
+        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
         checkResultStatus(status);
             
         TreeMap<byte[], byte[]> keyValues = new TreeMap<byte[], byte[]>();
@@ -926,9 +926,9 @@ public class Client
      * @return              the number of key-value pairs
      */
     public long count(String startKey, String endKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, count, offset);
+        int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, count, offset);
         checkResultStatus(status);        
-		return result.getNumber();
+        return result.getNumber();
     }
     
     /**
@@ -941,9 +941,9 @@ public class Client
      * @return              the number of key-value pairs
      */
     public long count(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
-		int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
+        int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
         checkResultStatus(status);
-		return result.getNumber();
+        return result.getNumber();
     }
 
     /**
@@ -990,16 +990,16 @@ public class Client
      *
      * @return              true if batched
      */
-	public boolean isBatched() {
-		return scaliendb_client.SDBP_IsBatched(cptr);
-	}
-	
+    public boolean isBatched() {
+        return scaliendb_client.SDBP_IsBatched(cptr);
+    }
+    
     /**
      * Turns on or off the debug trace functionality.
      */
-	public static void setTrace(boolean trace) {
-		scaliendb_client.SDBP_SetTrace(trace);
-	}
+    public static void setTrace(boolean trace) {
+        scaliendb_client.SDBP_SetTrace(trace);
+    }
 
     /**
      * Checks the status of the operation and saves the result. Throws exception with the name of 
@@ -1051,12 +1051,12 @@ public class Client
             throw new SDBPException(status, msg);
         }
     }
-	
+    
     /**
      * Test program entry.
      */
-	static void main(String[] args) {
-		try {
+    static void main(String[] args) {
+        try {
             final String databaseName = "testdb";
             final String tableName = "testtable";
             String[] nodes = {"127.0.0.1:7080"};
@@ -1072,8 +1072,8 @@ public class Client
             String value = table.get("a");
 
             System.out.println(value);
-		} catch (SDBPException e) {
-			System.out.println(e.getMessage());
-		}
-	}
+        } catch (SDBPException e) {
+            System.out.println(e.getMessage());
+        }
+    }
 }
