@@ -35,6 +35,7 @@ public:
     void                Close();
     void                DeleteFile();
 
+    uint64_t            GetTrackID();
     uint64_t            GetLogSegmentID();
     uint32_t            GetLogCommandID();
     

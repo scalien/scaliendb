@@ -22,7 +22,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(
+    database.Init(this,
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumPaxosShard(quorumID),
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumLogShard(quorumID));
     

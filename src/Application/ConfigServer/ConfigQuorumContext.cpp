@@ -19,7 +19,7 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(quorumPaxosShard, quorumLogShard);
+    database.Init(this, quorumPaxosShard, quorumLogShard);
     
     replicatedLog.Init(this);
     replicatedLog.SetUseProposeTimeouts(true);

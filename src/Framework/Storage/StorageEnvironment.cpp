@@ -1186,12 +1186,11 @@ void StorageEnvironment::TryArchiveLogSegments()
                 }
             }
         }
-    }
-    
-    if (archive)
-    {
-        archiveLogJobs.Execute(new StorageArchiveLogSegmentJob(this, logSegment, archiveScript));
-        return;
+        if (archive)
+        {
+            archiveLogJobs.Execute(new StorageArchiveLogSegmentJob(this, logSegment, archiveScript));
+            return;
+        }
     }
 }
 
@@ -1282,13 +1281,7 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
 
 void StorageEnvironment::OnLogArchive(StorageArchiveLogSegmentJob* job)
 {
-    StorageLogSegment* logSegment;
-     
-    logSegment = logSegments.First();
-    
-    ASSERT(job->logSegment == logSegment);
-    
-    logSegments.Delete(logSegment);
+    logSegments.Delete(job->logSegment);
     
     TryArchiveLogSegments();
     delete job;
