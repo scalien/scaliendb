@@ -176,6 +176,9 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     if (shards != message.shards)
         return;
     
+    if (!isPrimary)
+        Log_Debug("Primary for quorum %U", quorumContext.GetQuorumID());
+    
     isPrimary = true;
     configID = message.configID;
     
