@@ -43,6 +43,27 @@ public class Client
 	}
     
     /**
+     * Creates client object.
+     *
+     * @param   nodeString  the addresses of controllers separated by commas. 
+     *                      E.g. "localhost:7080, localhost:7081"
+     *
+     */
+	public Client(String nodeString) {
+        String[] nodes = nodeString.split(",");
+		cptr = scaliendb_client.SDBP_Create();
+		result = null;
+		
+		SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
+		for (int i = 0; i < nodes.length; i++) {
+			nodeParams.AddNode(nodes[i]);
+		}
+		
+		int status = scaliendb_client.SDBP_Init(cptr, nodeParams);
+		nodeParams.Close();
+	}    
+    
+    /**
      * Closes the client object.
      *
      * This method may be called to release any resources associated with the client object. It is
@@ -206,12 +227,7 @@ public class Client
         int status = scaliendb_client.SDBP_CreateQuorum(cptr, nodeParams);
         nodeParams.Close();
 
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
-		}
-        
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        checkResultStatus(status, "Cannot create quorum");
 		return result.getNumber();
     }
 
@@ -219,12 +235,11 @@ public class Client
      * Deletes a quorum.
      *
      * @param   quorumID    the ID of the quorum to be deleted
-     * @return              the status of the operation
      */
-    public int deleteQuorum(long quorumID) throws SDBPException {
+    public void deleteQuorum(long quorumID) throws SDBPException {
         BigInteger biQuorumID = BigInteger.valueOf(quorumID);
         int status = scaliendb_client.SDBP_DeleteQuorum(cptr, biQuorumID);
-        return status;
+        checkResultStatus(status, "Cannot delete quorum");
     }
     
     /**
@@ -232,13 +247,12 @@ public class Client
      *
      * @param   quorumID    the ID of the quorum to which the node is added
      * @param   nodeID      the ID of the node to be added
-     * @return              the status of the operation
      */
-    public int addNode(long quorumID, long nodeID) throws SDBPException {
+    public void addNode(long quorumID, long nodeID) throws SDBPException {
         BigInteger biQuorumID = BigInteger.valueOf(quorumID);
         BigInteger biNodeID = BigInteger.valueOf(nodeID);
         int status = scaliendb_client.SDBP_AddNode(cptr, biQuorumID, biNodeID);
-        return status;
+        checkResultStatus(status, "Cannot add node");
     }
 
     /**
@@ -246,24 +260,22 @@ public class Client
      *
      * @param   quorumID    the ID of the quorum from which the node is removed
      * @param   nodeID      the ID of the node to be removed
-     * @return              the status of the operation
      */
-    public int removeNode(long quorumID, long nodeID) throws SDBPException {
+    public void removeNode(long quorumID, long nodeID) throws SDBPException {
         BigInteger biQuorumID = BigInteger.valueOf(quorumID);
         BigInteger biNodeID = BigInteger.valueOf(nodeID);
         int status = scaliendb_client.SDBP_RemoveNode(cptr, biQuorumID, biNodeID);
-        return status;
+        checkStatus(status);
     }
     
     /**
      * Activates a node.
      *
      * @param   nodeID  the ID of the node to be activated
-     * @return          the status of the operation
      */
-    public int activateNode(long nodeID) throws SDBPException {
+    public void activateNode(long nodeID) throws SDBPException {
         int status = scaliendb_client.SDBP_ActivateNode(cptr, BigInteger.valueOf(nodeID));
-        return status;
+        checkStatus(status);
     }
     
     /**
@@ -274,13 +286,8 @@ public class Client
      */
     public long createDatabase(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_CreateDatabase(cptr, name);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
-		}
-        
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return result.getNumber();
+        checkResultStatus(status);
+        return result.getNumber();
     }
 
     /**
@@ -288,36 +295,22 @@ public class Client
      *
      * @param   databaseID  the ID of the database to be renamed
      * @param   name        the new name of the database
-     * @return              the status of the operation
      */
-    public int renameDatabase(long databaseID, String name) throws SDBPException {
+    public void renameDatabase(long databaseID, String name) throws SDBPException {
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
         int status = scaliendb_client.SDBP_RenameDatabase(cptr, biDatabaseID, name);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
-		}
-
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return status;
+        checkResultStatus(status);    
     }
 
     /**
      * Deletes a database.
      *
      * @param   databaseID  the ID of the database to be deleted
-     * @return              the status of the operation
      */
-    public long deleteDatabase(long databaseID) throws SDBPException {
+    public void deleteDatabase(long databaseID) throws SDBPException {
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
         int status = scaliendb_client.SDBP_DeleteDatabase(cptr, biDatabaseID);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
-		}
-
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return status;
+        checkResultStatus(status);    
     }
     
     /**
@@ -332,12 +325,7 @@ public class Client
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
         BigInteger biQuorumID = BigInteger.valueOf(quorumID);
         int status = scaliendb_client.SDBP_CreateTable(cptr, biDatabaseID, biQuorumID, name);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
-		}
-        
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        checkResultStatus(status);    
 		return result.getNumber();
     }
 
@@ -346,18 +334,11 @@ public class Client
      *
      * @param   tableID     the ID of the table to be renamed
      * @param   name        the new name of the table
-     * @return              the status of the operation
      */
-    public long renameTable(long tableID, String name) throws SDBPException {
+    public void renameTable(long tableID, String name) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_RenameTable(cptr, biTableID, name);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
-		}
-        
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
+        checkResultStatus(status);    
     }
 
     /**
@@ -366,34 +347,21 @@ public class Client
      * @param   tableID     the ID of the table to be deleted
      * @return              the status of the operation
      */
-    public long deleteTable(long tableID) throws SDBPException {
+    public void deleteTable(long tableID) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_DeleteTable(cptr, biTableID);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
-		}
-        
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
+        checkResultStatus(status);    
     }
 
     /**
      * Truncates a table.
      *
      * @param   tableID     the ID of the table to be truncated
-     * @return              the status of the operation
      */
-    public long truncateTable(long tableID) throws SDBPException {
+    public void truncateTable(long tableID) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_TruncateTable(cptr, biTableID);
-		if (status < 0) {
-			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
-		}
-        
-		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
+        checkResultStatus(status);    
     }
 
     /**
@@ -403,9 +371,7 @@ public class Client
      */
     public void useDatabase(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_UseDatabase(cptr, name);
-        if (status < 0) {
-            throw new SDBPException(Status.toString(status));
-        }
+        checkStatus(status);
     }
 
     /**
@@ -415,9 +381,7 @@ public class Client
      */
     public void useDatabase(long databaseID) throws SDBPException {
         int status = scaliendb_client.SDBP_UseDatabaseID(cptr, BigInteger.valueOf(databaseID));
-        if (status < 0) {
-            throw new SDBPException(Status.toString(status));
-        }
+        checkStatus(status);
     }
 
     /**
@@ -452,9 +416,7 @@ public class Client
      */
     public void useTable(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_UseTable(cptr, name);
-        if (status < 0) {
-            throw new SDBPException(Status.toString(status));
-        }
+        checkStatus(status);
     }
 
     /**
@@ -464,9 +426,7 @@ public class Client
      */
     public void useTable(long tableID) throws SDBPException {
         int status = scaliendb_client.SDBP_UseTableID(cptr, BigInteger.valueOf(tableID));
-        if (status < 0) {
-            throw new SDBPException(Status.toString(status));
-        }
+        checkStatus(status);
     }
 	
     /**
@@ -492,7 +452,7 @@ public class Client
 		int status = scaliendb_client.SDBP_Get(cptr, key);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -512,7 +472,7 @@ public class Client
 		int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -570,20 +530,18 @@ public class Client
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
      */
-	public int set(String key, String value) throws SDBPException {
+	public void set(String key, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_Set(cptr, key, value);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
-			return status;
+			return;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
 	}
 
     /**
@@ -592,20 +550,18 @@ public class Client
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
      */
-    public int set(byte[] key, byte[] value) throws SDBPException {
+    public void set(byte[] key, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
-			return status;
+			return;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
 	}
 	
     /**
@@ -613,20 +569,18 @@ public class Client
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
      */
-	public int setIfNotExists(String key, String value) throws SDBPException {
+	public void setIfNotExists(String key, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_SetIfNotExists(cptr, key, value);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
-			return status;
+			return;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
 	}
 
     /**
@@ -634,20 +588,18 @@ public class Client
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
      */
-    public int setIfNotExists(byte[] key, byte[] value) throws SDBPException {
+    public void setIfNotExists(byte[] key, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_SetIfNotExistsCStr(cptr, key, key.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
-			return status;
+			return;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
 	}
 	
     /**
@@ -665,7 +617,7 @@ public class Client
 		int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -690,7 +642,7 @@ public class Client
 		int status = scaliendb_client.SDBP_TestAndSetCStr(cptr, key, key.length, test, test.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -712,7 +664,7 @@ public class Client
 		int status = scaliendb_client.SDBP_GetAndSet(cptr, key, value);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -734,7 +686,7 @@ public class Client
 		int status = scaliendb_client.SDBP_GetAndSetCStr(cptr, key, key.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -756,7 +708,7 @@ public class Client
 		int status = scaliendb_client.SDBP_Add(cptr, key, number);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -778,7 +730,7 @@ public class Client
 		int status = scaliendb_client.SDBP_AddCStr(cptr, key, key.length, number);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -794,20 +746,18 @@ public class Client
      *
      * @param   key     key to which the specified value is to be appended
      * @param   value   the specified value that is appended to end of the existing value
-     * @return          the status of the operation
      */
-	public int append(String key, String value) throws SDBPException {
+	public void append(String key, String value) throws SDBPException {
 		int status = scaliendb_client.SDBP_Append(cptr, key, value);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
-			return status;
+			return;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
 	}
 
     /**
@@ -816,60 +766,54 @@ public class Client
      *
      * @param   key     key to which the specified value is to be appended
      * @param   value   the specified value that is appended to end of the existing value
-     * @return          the status of the operation
      */
-    public int append(byte[] key, byte[] value) throws SDBPException {
+    public void append(byte[] key, byte[] value) throws SDBPException {
 		int status = scaliendb_client.SDBP_AppendCStr(cptr, key, key.length, value, value.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
-			return status;
+			return;
 				
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
 	}
     
     /**
      * Deletes the specified key.
      *
      * @param   key     key to be deleted
-     * @return          the status of the operation
      */
-	public int delete(String key) throws SDBPException {
+	public void delete(String key) throws SDBPException {
 		int status = scaliendb_client.SDBP_Delete(cptr, key);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
-			return status;
+			return;
 		
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
 	}
 
     /**
      * Deletes the specified key.
      *
      * @param   key     key to be deleted
-     * @return          the status of the operation
      */
-	public int delete(byte[] key) throws SDBPException {
+	public void delete(byte[] key) throws SDBPException {
 		int status = scaliendb_client.SDBP_DeleteCStr(cptr, key, key.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
-			return status;
+			return;
 		
 		result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-		return status;
 	}
 	
     /**
@@ -882,7 +826,7 @@ public class Client
 		int status = scaliendb_client.SDBP_Remove(cptr, key);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -902,7 +846,7 @@ public class Client
 		int status = scaliendb_client.SDBP_RemoveCStr(cptr, key, key.length);
 		if (status < 0) {
 			result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-			throw new SDBPException(Status.toString(status));
+            checkStatus(status);
 		}
 		
 		if (isBatched())
@@ -923,9 +867,7 @@ public class Client
      */
 	public List<String> listKeys(String startKey, String endKey, int offset, int count) throws SDBPException {
 		int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, count, offset);
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (status < 0)
-			throw new SDBPException(Status.toString(status));
+        checkResultStatus(status);
 
         ArrayList<String> keys = new ArrayList<String>();
         for (result.begin(); !result.isEnd(); result.next())
@@ -945,9 +887,7 @@ public class Client
      */
 	public List<byte[]> listKeys(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
 		int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (status < 0)
-			throw new SDBPException(Status.toString(status));
+        checkResultStatus(status);
 
         ArrayList<byte[]> keys = new ArrayList<byte[]>();
         for (result.begin(); !result.isEnd(); result.next())
@@ -967,9 +907,7 @@ public class Client
      */
     public Map<String, String> listKeyValues(String startKey, String endKey, int offset, int count) throws SDBPException {
 		int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, count, offset);
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (status < 0)
-			throw new SDBPException(Status.toString(status));
+        checkResultStatus(status);
             
         TreeMap<String, String> keyValues = new TreeMap<String, String>();
         for (result.begin(); !result.isEnd(); result.next())
@@ -989,9 +927,7 @@ public class Client
      */
     public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
 		int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (status < 0)
-			throw new SDBPException(Status.toString(status));
+        checkResultStatus(status);
             
         TreeMap<byte[], byte[]> keyValues = new TreeMap<byte[], byte[]>();
         for (result.begin(); !result.isEnd(); result.next())
@@ -1011,10 +947,7 @@ public class Client
      */
     public long count(String startKey, String endKey, int offset, int count) throws SDBPException {
 		int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, count, offset);
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (status < 0)
-			throw new SDBPException(Status.toString(status));
-        
+        checkResultStatus(status);        
 		return result.getNumber();
     }
     
@@ -1029,10 +962,7 @@ public class Client
      */
     public long count(byte[] startKey, byte[] endKey, int offset, int count) throws SDBPException {
 		int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, endKey, endKey.length, count, offset);
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (status < 0)
-			throw new SDBPException(Status.toString(status));
-        
+        checkResultStatus(status);
 		return result.getNumber();
     }
 
@@ -1040,44 +970,39 @@ public class Client
      * Begins a batch operation. After begin is called, each command will be batched and
      * submitted or cancelled together.
      *
-     * @return              the status of the operation
      * @see     #submit()   submit
      * @see     #cancel()   cancel
      */
-    public int begin() {
+    public void begin() throws SDBPException {
         if (lastResult != result) {
             result.close();
         }
         result = null;
         lastResult = null;
-        return scaliendb_client.SDBP_Begin(cptr);
+        int status = scaliendb_client.SDBP_Begin(cptr);
+        checkStatus(status);
     }
     
     /**
      * Submits a batch operation.
      *
-     * @return              the status of the operation
      * @see     #begin()    begin
      * @see     #cancel()   cancel
      */
-    public int submit() throws SDBPException {
+    public void submit() throws SDBPException {
         int status = scaliendb_client.SDBP_Submit(cptr);
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (status < 0) {
-            throw new SDBPException(Status.toString(status));
-        }
-        return status;
+        checkStatus(status);
     }
     
     /**
      * Cancels a batch operation.
      *
-     * @return              the status of the operation
      * @see     #begin()    begin
      * @see     #submit()   submit
      */
-    public int cancel() {
-        return scaliendb_client.SDBP_Cancel(cptr);
+    public void cancel() throws SDBPException {
+        int status = scaliendb_client.SDBP_Cancel(cptr);
+        checkStatus(status);        
     }
 
     /**
@@ -1095,6 +1020,57 @@ public class Client
 	public static void setTrace(boolean trace) {
 		scaliendb_client.SDBP_SetTrace(trace);
 	}
+
+    /**
+     * Checks the status of the operation and saves the result. Throws exception with the name of 
+     * the status in case of an error.
+     *
+     * @param   status      the status of the operation
+     */
+    private void checkResultStatus(int status) throws SDBPException {
+        checkResultStatus(status, null);
+    }
+
+    /**
+     * Checks the status of the operation and saves the result. Throws exception with the name of 
+     * the status in case of an error.
+     *
+     * @param   status      the status of the operation
+     * @param   msg         the default message given to the exception
+     */
+    private void checkResultStatus(int status, String msg) throws SDBPException {
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        checkStatus(status, msg);
+    }
+    
+    /**
+     * Checks the status of the operation. Throws exception with the name of the status in case of
+     * an error.
+     *
+     * @param   status      the status of the operation
+     */
+    private void checkStatus(int status) throws SDBPException {
+        checkStatus(status, null);
+    }
+
+    /**
+     * Checks the status of the operation. Throws exception with the name of the status in case of
+     * an error.
+     *
+     * @param   status      the status of the operation
+     * @param   msg         the default message given to the exception
+     */
+    private void checkStatus(int status, String msg) throws SDBPException {
+        if (status < 0) {
+            if (msg != null)
+                throw new SDBPException(status, msg);
+            if (status == Status.SDBP_BADSCHEMA)
+                throw new SDBPException(status, "No database or table is in use");
+            if (status == Status.SDBP_NOSERVICE)
+                throw new SDBPException(status, "No server in the cluster was able to serve the request");
+            throw new SDBPException(status, msg);
+        }
+    }
 	
     /**
      * Test program entry.

@@ -24,7 +24,7 @@ public class Database
         BigInteger bi = scaliendb_client.SDBP_GetDatabaseID(client.getPtr(), name);
         databaseID = bi.longValue();
         if (databaseID == 0)
-            throw new SDBPException(Status.toString(Status.SDBP_BADSCHEMA));
+            throw new SDBPException(Status.SDBP_BADSCHEMA);
     }
     
     /**
@@ -68,21 +68,37 @@ public class Database
     }
     
     /**
+     * Creates a table.
+     *
+     * @param   quorum      the quorum that will contain the table
+     * @param   name        the name of the table
+     * @return              the table object
+     */
+    public Table createTable(Quorum quorum, String name) throws SDBPException {
+        long createdTableID = client.createTable(databaseID, quorum.getQuorumID(), name);
+        long numTables = scaliendb_client.SDBP_GetNumTables(client.getPtr());
+        for (long i = 0; i < numTables; i++) {
+            BigInteger bi = scaliendb_client.SDBP_GetTableIDAt(client.getPtr(), i);
+            long tableID = bi.longValue();
+            if (tableID == createdTableID)
+                return new Table(client, this, name);
+        }
+        throw new SDBPException(Status.SDBP_API_ERROR, "Cannot find created table!");
+    }    
+    
+    /**
      * Renames the database.
      *
      * @param   newName     the new name of the database
-     * @return              the status of the operation
      */
-    public int renameDatabase(String newName) throws SDBPException {
-        return client.renameDatabase(databaseID, newName);
+    public void renameDatabase(String newName) throws SDBPException {
+        client.renameDatabase(databaseID, newName);
     }
 
     /**
      * Deletes the database.
-     *
-     * @return              the status of the operation
      */
-    public long deleteDatabase() throws SDBPException {
-        return client.deleteDatabase(databaseID);
+    public void deleteDatabase() throws SDBPException {
+        client.deleteDatabase(databaseID);
     }
 }

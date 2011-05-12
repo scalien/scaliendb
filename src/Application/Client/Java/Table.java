@@ -28,7 +28,7 @@ public class Table
         BigInteger bi = scaliendb_client.SDBP_GetTableID(client.getPtr(), databaseID, name);
         tableID = bi.longValue();
         if (tableID == 0)
-            throw new SDBPException(Status.toString(Status.SDBP_BADSCHEMA));
+            throw new SDBPException(Status.SDBP_BADSCHEMA);
     }
 
     private void useDefaults() throws SDBPException {
@@ -40,28 +40,23 @@ public class Table
      * Renames the table.
      *
      * @param   newName     the new name of the table
-     * @return              the status of the operation
      */
-    public long renameTable(String newName) throws SDBPException {
-        return client.renameTable(tableID, newName);
+    public void renameTable(String newName) throws SDBPException {
+        client.renameTable(tableID, newName);
     }
 
     /**
      * Deletes the table.
-     *
-     * @return              the status of the operation
      */
-    public long deleteTable() throws SDBPException {
-        return client.deleteTable(tableID);
+    public void deleteTable() throws SDBPException {
+        client.deleteTable(tableID);
     }
 
     /**
      * Truncates the table.
-     *
-     * @return              the status of the operation
      */
-    public long truncateTable() throws SDBPException {
-        return client.truncateTable(tableID);
+    public void truncateTable() throws SDBPException {
+        client.truncateTable(tableID);
     }
  
     /**
@@ -116,11 +111,10 @@ public class Table
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
      */
-	public int set(String key, String value) throws SDBPException {
+	public void set(String key, String value) throws SDBPException {
         useDefaults();
-        return client.set(key, value);
+        client.set(key, value);
 	}
 
     /**
@@ -129,11 +123,10 @@ public class Table
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
      */
-	public int set(byte[] key, byte[] value) throws SDBPException {
+	public void set(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
-        return client.set(key, value);
+        client.set(key, value);
 	}
 
     /**
@@ -143,9 +136,9 @@ public class Table
      * @param   value   value to be associated with the specified key
      * @return          the status of the operation
      */
-	public int setIfNotExists(String key, String value) throws SDBPException {
+	public void setIfNotExists(String key, String value) throws SDBPException {
         useDefaults();
-        return client.setIfNotExists(key, value);
+        client.setIfNotExists(key, value);
 	}
 
     /**
@@ -155,9 +148,9 @@ public class Table
      * @param   value   value to be associated with the specified key
      * @return          the status of the operation
      */
-	public int setIfNotExists(byte[] key, byte[] value) throws SDBPException {
+	public void setIfNotExists(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
-        return client.setIfNotExists(key, value);
+        client.setIfNotExists(key, value);
 	}
 
     /**
@@ -250,11 +243,10 @@ public class Table
      *
      * @param   key     key to which the specified value is to be appended
      * @param   value   the specified value that is appended to end of the existing value
-     * @return          the status of the operation
      */
-	public int append(String key, String value) throws SDBPException {
+	public void append(String key, String value) throws SDBPException {
         useDefaults();
-        return client.append(key, value);
+        client.append(key, value);
 	}
 
     /**
@@ -263,33 +255,30 @@ public class Table
      *
      * @param   key     key to which the specified value is to be appended
      * @param   value   the specified value that is appended to end of the existing value
-     * @return          the status of the operation
      */
-	public int append(byte[] key, byte[] value) throws SDBPException {
+	public void append(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
-        return client.append(key, value);
+        client.append(key, value);
 	}
 	
     /**
      * Deletes the specified key.
      *
      * @param   key     key to be deleted
-     * @return          the status of the operation
      */
-	public int delete(String key) throws SDBPException {
+	public void delete(String key) throws SDBPException {
         useDefaults();
-        return client.delete(key);
+        client.delete(key);
 	}
 
     /**
      * Deletes the specified key.
      *
      * @param   key     key to be deleted
-     * @return          the status of the operation
      */
-	public int delete(byte[] key) throws SDBPException {
+	public void delete(byte[] key) throws SDBPException {
         useDefaults();
-        return client.delete(key);
+        client.delete(key);
 	}
 
     /**
