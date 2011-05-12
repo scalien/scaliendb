@@ -22,7 +22,6 @@ struct PaxosAcceptorState
     uint64_t        acceptedProposalID;
     uint64_t        acceptedRunID;
     Buffer          acceptedValue;
-
 };
 
 /*
