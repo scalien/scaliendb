@@ -26,6 +26,9 @@ public:
     bool                    IsActive();
     Job*                    GetActiveJob();
     
+    Job*                    First();
+    Job*                    Next(Job*);
+    
 private:
     void                    ThreadFunc();
     void                    OnComplete();

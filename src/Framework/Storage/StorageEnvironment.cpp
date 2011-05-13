@@ -427,12 +427,10 @@ void StorageEnvironment::AsyncList(uint16_t contextID, uint64_t shardID, Storage
 bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer key, ReadBuffer value)
 {
     int32_t             logCommandID;
+    Job*                job;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
     StorageLogSegment*  logSegment;
-    
-    if (commitJobs.IsActive())
-        ASSERT_FAIL();
     
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
@@ -441,6 +439,9 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     logSegment = GetLogSegment(shard->GetTrackID());
     if (!logSegment)
         ASSERT_FAIL();
+
+    FOREACH(job, commitJobs)
+        ASSERT(((StorageCommitJob*)job)->logSegment->GetTrackID() != shard->GetTrackID());
 
     logCommandID = logSegment->AppendSet(contextID, shardID, key, value);
     if (logCommandID < 0)
@@ -468,13 +469,11 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
 bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer key)
 {
     int32_t             logCommandID;
+    Job*                job;
     StorageShard*       shard;
     StorageMemoChunk*   memoChunk;
     StorageLogSegment*  logSegment;
 
-    if (commitJobs.IsActive())
-        ASSERT_FAIL();
-    
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
@@ -485,6 +484,9 @@ bool StorageEnvironment::Delete(uint16_t contextID, uint64_t shardID, ReadBuffer
     logSegment = GetLogSegment(shard->GetTrackID());
     if (!logSegment)
         ASSERT_FAIL();
+
+    FOREACH(job, commitJobs)
+        ASSERT(((StorageCommitJob*)job)->logSegment->GetTrackID() != shard->GetTrackID());
 
     logCommandID = logSegment->AppendDelete(contextID, shardID, key);
     if (logCommandID < 0)
@@ -650,18 +652,17 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
 
 bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit_)
 {
+    Job*                job;
     StorageLogSegment*  logSegment;
     
     onCommit = onCommit_;
 
-//    if (commitJobs.IsActive())
-//        ASSERT_FAIL();
-
-    // TODO: check it's not already commiting
-
     logSegment = GetLogSegment(trackID);
     if (!logSegment)
         ASSERT_FAIL();
+
+    FOREACH(job, commitJobs)
+        ASSERT(((StorageCommitJob*)job)->logSegment->GetTrackID() != trackID);
 
     commitJobs.Execute(new StorageCommitJob(this, logSegment));
 
@@ -670,16 +671,15 @@ bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit_)
 
 bool StorageEnvironment::Commit(uint64_t trackID)
 {
+    Job*                job;
     StorageLogSegment*  logSegment;
-
-//    if (commitJobs.IsActive())
-//        return false;
-
-    // TODO: check it's not already commiting
 
     logSegment = GetLogSegment(trackID);
     if (!logSegment)
         ASSERT_FAIL();
+
+    FOREACH(job, commitJobs)
+        ASSERT(((StorageCommitJob*)job)->logSegment->GetTrackID() != trackID);
 
     logSegment->Commit();
     OnCommit(NULL);

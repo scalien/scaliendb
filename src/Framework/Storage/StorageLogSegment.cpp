@@ -15,6 +15,8 @@ StorageLogSegment::StorageLogSegment()
     prevShardID = 0;
     writeShardID = true;
     asyncCommit = false;
+    isCommiting = false;
+    commitStatus = false;
 }
 
 #define Log_DebugLong(sw, ...)  \

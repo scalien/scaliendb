@@ -62,6 +62,16 @@ Job* JobProcessor::GetActiveJob()
     return activeJob;
 }
 
+Job* JobProcessor::First()
+{
+    return jobs.First();
+}
+
+Job* JobProcessor::Next(Job* job)
+{
+    return jobs.Next(job);
+}
+
 void JobProcessor::ThreadFunc()
 {
     // (runs in another thread)

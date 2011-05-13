@@ -66,6 +66,7 @@ private:
     uint64_t            syncGranularity;
     uint64_t            offset;
     uint64_t            lastSyncOffset;
+    bool                isCommiting;
     bool                commitStatus;
     Buffer              filename;
     Buffer              writeBuffer;
