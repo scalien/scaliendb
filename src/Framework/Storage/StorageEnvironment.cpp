@@ -650,13 +650,13 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
     return true;
 }
 
-bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit_)
+bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit)
 {
     Job*                job;
     StorageLogSegment*  logSegment;
-    
-    onCommit = onCommit_;
 
+    Log_Debug("Commiting in track %U", trackID);
+    
     logSegment = GetLogSegment(trackID);
     if (!logSegment)
         ASSERT_FAIL();
@@ -664,7 +664,7 @@ bool StorageEnvironment::Commit(uint64_t trackID, Callable& onCommit_)
     FOREACH(job, commitJobs)
         ASSERT(((StorageCommitJob*)job)->logSegment->GetTrackID() != trackID);
 
-    commitJobs.Execute(new StorageCommitJob(this, logSegment));
+    commitJobs.Execute(new StorageCommitJob(this, logSegment, onCommit));
 
     return true;
 }
@@ -673,6 +673,8 @@ bool StorageEnvironment::Commit(uint64_t trackID)
 {
     Job*                job;
     StorageLogSegment*  logSegment;
+
+    Log_Debug("Commiting in track %U", trackID);
 
     logSegment = GetLogSegment(trackID);
     if (!logSegment)
@@ -1012,11 +1014,14 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
 
 void StorageEnvironment::OnCommit(StorageCommitJob* job)
 {
+    if (job)
+        Log_Debug("Commiting done in track %U", job->logSegment->GetTrackID());
+
     TryFinalizeLogSegments();
     TrySerializeChunks();
-    
+        
     if (job)
-        Call(onCommit);
+        Call(job->onCommit);
 
     delete job;
 }

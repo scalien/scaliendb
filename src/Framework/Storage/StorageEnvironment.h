@@ -133,7 +133,6 @@ public:
     LogSegmentList          logSegments;
     StorageConfig           config;
     
-    Callable                onCommit;
     JobProcessor            commitJobs;
     JobProcessor            serializeChunkJobs;
     JobProcessor            writeChunkJobs;
