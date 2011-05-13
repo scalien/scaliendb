@@ -689,9 +689,17 @@ bool StorageEnvironment::Commit(uint64_t trackID)
     return true;
 }
 
-bool StorageEnvironment::IsCommiting()
+bool StorageEnvironment::IsCommiting(uint64_t trackID)
 {
-    return commitJobs.IsActive();
+    Job* job;
+
+    FOREACH(job, commitJobs)
+    {
+        if (((StorageCommitJob*)job)->logSegment->GetTrackID() == trackID)
+            return true;
+    }
+    
+    return false;
 }
 
 bool StorageEnvironment::PushMemoChunk(uint16_t contextID, uint64_t shardID)

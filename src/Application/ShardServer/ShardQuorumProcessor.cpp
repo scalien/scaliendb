@@ -862,7 +862,7 @@ void ShardQuorumProcessor::LocalExecute()
     
     ASSERT_FAIL();
     
-    if (shardServer->GetDatabaseManager()->GetEnvironment()->IsCommiting())
+    if (shardServer->GetDatabaseManager()->GetEnvironment()->IsCommiting(GetQuorumID()))
     {
         EventLoop::Add(&localExecute);
         Log_Debug("ExecuteSingles YIELD because commit is active");

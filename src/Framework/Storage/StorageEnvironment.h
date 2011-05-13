@@ -96,7 +96,7 @@ public:
     
     bool                    Commit(uint64_t trackID);
     bool                    Commit(uint64_t trackID, Callable& onCommit_);
-    bool                    IsCommiting();
+    bool                    IsCommiting(uint64_t trackID);
     
     bool                    PushMemoChunk(uint16_t contextID, uint64_t shardID);
 
