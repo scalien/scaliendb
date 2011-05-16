@@ -36,6 +36,8 @@ public:
     uint64_t                nodeID;
     uint64_t                quorumID;
     uint64_t                shardID;
+    uint64_t                srcShardID;
+    uint64_t                dstShardID;
     uint64_t                proposalID;
     uint64_t                paxosID;
     uint64_t                configID;
@@ -65,8 +67,9 @@ public:
                      uint64_t proposalID, uint64_t configID, unsigned duration,
                      bool watchingPaxosID, SortedList<uint64_t>& activeNodes,
                      SortedList<uint64_t>& shards);
-    bool            ShardMigrationInitiate(uint64_t nodeID, uint64_t quorumID, uint64_t shardID);
-    bool            ShardMigrationBegin(uint64_t quorumID, uint64_t shardID);
+    bool            ShardMigrationInitiate(uint64_t nodeID, uint64_t quorumID,
+                     uint64_t srcShardID, uint64_t dstShardID);
+    bool            ShardMigrationBegin(uint64_t quorumID, uint64_t srcShardID, uint64_t dstShardID);
     bool            ShardMigrationSet(uint64_t quorumID, uint64_t shardID, ReadBuffer key, ReadBuffer value);
     bool            ShardMigrationDelete(uint64_t quorumID, uint64_t shardID, ReadBuffer key);
     bool            ShardMigrationCommit(uint64_t quorumID, uint64_t shardID);

@@ -37,6 +37,8 @@ public:
     uint64_t        tableID;
     uint64_t        shardID;
     uint64_t        newShardID;
+    uint64_t        srcShardID;
+    uint64_t        dstShardID;
     int64_t         number;
     ReadBuffer      key;
     ReadBuffer      value;
@@ -64,7 +66,7 @@ public:
     void            SplitShard(uint64_t shardID, uint64_t newShardID, ReadBuffer& splitKey);
     void            TruncateTable(uint64_t tableID, uint64_t newShardID);
 
-    void            ShardMigrationBegin(uint64_t shardID);
+    void            ShardMigrationBegin(uint64_t srcShardID, uint64_t dstShardID);
     void            ShardMigrationSet(uint64_t shardID, ReadBuffer& key, ReadBuffer& value);
     void            ShardMigrationDelete(uint64_t shardID, ReadBuffer& key);
     void            ShardMigrationComplete(uint64_t shardID);

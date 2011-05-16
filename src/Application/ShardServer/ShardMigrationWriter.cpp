@@ -45,7 +45,7 @@ bool ShardMigrationWriter::IsActive()
 
 uint64_t ShardMigrationWriter::GetShardID()
 {
-    return shardID;
+    return srcShardID;
 }
 
 uint64_t ShardMigrationWriter::GetQuorumID()
@@ -90,7 +90,7 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
     ASSERT(cursor == NULL);
 
     configState = shardServer->GetConfigState();
-    configShard = configState->GetShard(request.shardID);
+    configShard = configState->GetShard(request.srcShardID);
     ASSERT(configShard != NULL);
     configShardServer = configState->GetShardServer(request.nodeID);
     ASSERT(configShardServer != NULL);
@@ -101,18 +101,21 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
     isActive = true;
     nodeID = request.nodeID;
     quorumID = request.quorumID;
-    shardID = request.shardID;
+    srcShardID = request.srcShardID;
+    dstShardID = request.dstShardID;
     
-    bytesTotal = environment->GetSize(QUORUM_DATABASE_DATA_CONTEXT, shardID);
+    bytesTotal = environment->GetSize(QUORUM_DATABASE_DATA_CONTEXT, srcShardID);
     startTime = NowClock();
     
     CONTEXT_TRANSPORT->AddNode(nodeID, configShardServer->endpoint);
     
     Log_Debug("ShardMigrationWriter::Begin() nodeID = %U", nodeID);
     Log_Debug("ShardMigrationWriter::Begin() quorumID = %U", quorumID);
-    Log_Debug("ShardMigrationWriter::Begin() shardID = %U", shardID);
+    Log_Debug("ShardMigrationWriter::Begin() srcShardID = %U", srcShardID);
+    Log_Debug("ShardMigrationWriter::Begin() dstShardID = %U", dstShardID);
 
-    Log_Message("Migrating shard %U into quorum %U (sending)", shardID, quorumID);
+    Log_Message("Migrating shard %U into quorum %U as shard %U (sending)",
+     srcShardID, quorumID, dstShardID);
 
     sendFirst = true;
     EventLoop::Add(&onTimeout);
@@ -160,10 +163,10 @@ void ShardMigrationWriter::SendFirst()
     ReadBuffer          value;
 
     ASSERT(cursor == NULL);
-    cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, shardID);
+    cursor = environment->GetBulkCursor(QUORUM_DATABASE_DATA_CONTEXT, srcShardID);
     cursor->SetOnBlockShard(MFUNC(ShardMigrationWriter, OnBlockShard));
 
-    msg.ShardMigrationBegin(quorumID, shardID);
+    msg.ShardMigrationBegin(quorumID, srcShardID, dstShardID);
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
 
     Log_Debug("ShardMigrationWriter sending BEGIN");
@@ -190,10 +193,10 @@ void ShardMigrationWriter::SendCommit()
 {
     ClusterMessage msg;
     
-    msg.ShardMigrationCommit(quorumID, shardID);
+    msg.ShardMigrationCommit(quorumID, dstShardID);
     CONTEXT_TRANSPORT->SendClusterMessage(nodeID, msg);
 
-    Log_Message("Finished sending shard %U...", shardID);
+    Log_Message("Finished sending shard %U...", srcShardID);
 
     if (cursor != NULL)
     {
@@ -212,12 +215,12 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
     
     if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
     {
-        msg.ShardMigrationSet(quorumID, shardID, kv->GetKey(), kv->GetValue());
+        msg.ShardMigrationSet(quorumID, dstShardID, kv->GetKey(), kv->GetValue());
         bytesSent += kv->GetKey().GetLength() + kv->GetValue().GetLength();
     }
     else
     {
-        msg.ShardMigrationDelete(quorumID, shardID, kv->GetKey());
+        msg.ShardMigrationDelete(quorumID, dstShardID, kv->GetKey());
         bytesSent += kv->GetKey().GetLength();
     }
 
@@ -232,7 +235,8 @@ void ShardMigrationWriter::OnWriteReadyness()
     if (!quorumProcessor->IsPrimary()
      || !shardServer->GetConfigState()->isMigrating
      || (shardServer->GetConfigState()->isMigrating &&
-         (shardServer->GetConfigState()->migrateShardID != shardID ||
+         (shardServer->GetConfigState()->migrateSrcShardID != srcShardID ||
+          shardServer->GetConfigState()->migrateDstShardID != dstShardID ||
           shardServer->GetConfigState()->migrateQuorumID != quorumID)))
     {
         Abort();
@@ -264,11 +268,11 @@ void ShardMigrationWriter::OnBlockShard()
     ShardQuorumProcessor*   quorumProcessor;
 
     configState = shardServer->GetConfigState();
-    configShard = configState->GetShard(shardID);
+    configShard = configState->GetShard(srcShardID);
     ASSERT(configShard);
     quorumProcessor = shardServer->GetQuorumProcessor(configShard->quorumID);
     ASSERT(quorumProcessor);
-    quorumProcessor->OnBlockShard(shardID);
+    quorumProcessor->OnBlockShard(srcShardID);
 }
 
 void ShardMigrationWriter::OnTimeout()
@@ -280,7 +284,8 @@ void ShardMigrationWriter::OnTimeout()
     if (!quorumProcessor->IsPrimary()
      || !shardServer->GetConfigState()->isMigrating
      || (shardServer->GetConfigState()->isMigrating &&
-         (shardServer->GetConfigState()->migrateShardID != shardID ||
+         (shardServer->GetConfigState()->migrateSrcShardID != srcShardID ||
+          shardServer->GetConfigState()->migrateDstShardID != dstShardID ||
           shardServer->GetConfigState()->migrateQuorumID != quorumID)))
     {
         Abort();

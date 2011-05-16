@@ -465,7 +465,6 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
     uint64_t        readPaxosID;
     uint64_t        readCommandID;
     uint64_t        shardID;
-    uint64_t        nodeID;
     int16_t         contextID;
     int64_t         number;
     uint64_t*       itShardID;
@@ -476,7 +475,6 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
     Buffer          numberBuffer;
     Buffer          tmpBuffer;
     ConfigShard*    configShard;
-    ConfigQuorum*   configQuorum;
     StorageEnvironment::ShardIDList     shards;
     
     contextID = QUORUM_DATABASE_DATA_CONTEXT;
@@ -602,17 +600,11 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             environment.CreateShard(quorumID, contextID, message.newShardID, message.tableID, "", "", 1, 0);
             break;
         case SHARDMESSAGE_MIGRATION_BEGIN:
-            Log_Debug("shardMigration BEGIN shardID = %U", message.shardID);
-            configShard = shardServer->GetConfigState()->GetShard(message.shardID);
+            Log_Debug("shardMigration BEGIN shardID = %U", message.srcShardID);
+            configShard = shardServer->GetConfigState()->GetShard(message.srcShardID);
             ASSERT(configShard != NULL);
-            configQuorum = shardServer->GetConfigState()->GetQuorum(configShard->quorumID);
-            nodeID = MY_NODEID;
-            if (configQuorum->activeNodes.Contains(nodeID) ||
-             configQuorum->inactiveNodes.Contains(nodeID))
-                break;
-                environment.DeleteShard(contextID, message.shardID);
             environment.CreateShard(quorumID, 
-             contextID, configShard->shardID, configShard->tableID,
+             contextID, message.dstShardID, configShard->tableID,
              configShard->firstKey, configShard->lastKey, true, false);
             break;
          case SHARDMESSAGE_MIGRATION_SET:

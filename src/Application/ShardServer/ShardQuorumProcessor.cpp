@@ -199,6 +199,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     
     quorumContext.OnLearnLease();
     
+    // shard migration
     if (message.watchingPaxosID)
         quorumContext.AppendDummy();
     
@@ -597,11 +598,12 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
     switch (clusterMessage.type)
     {
         case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
-            migrateShardID = clusterMessage.shardID;
+            migrateShardID = clusterMessage.dstShardID;
             migrateNodeID = nodeID;
             migrateCache = 0;
-            shardMessage->ShardMigrationBegin(clusterMessage.shardID);
-            Log_Message("Migrating shard %U into quorum %U (receiving)", clusterMessage.shardID, GetQuorumID());    
+            shardMessage->ShardMigrationBegin(clusterMessage.srcShardID, clusterMessage.dstShardID);
+            Log_Message("Migrating shard %U into quorum %U (receiving) as %U",
+             clusterMessage.srcShardID, GetQuorumID(), clusterMessage.dstShardID);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
             ASSERT(migrateShardID = clusterMessage.shardID);
@@ -739,10 +741,12 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
         shardServer->GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(true);
 
         clusterMessage.ShardMigrationComplete(GetQuorumID(), migrateShardID);
-        shardServer->BroadcastToControllers(clusterMessage);
         migrateShardID = 0;
         migrateNodeID = 0;
         migrateCache = 0;
+
+        if (IsPrimary())
+            shardServer->BroadcastToControllers(clusterMessage);
     }
     else
         shardServer->GetDatabaseManager()->ExecuteMessage(GetQuorumID(), paxosID, commandID, *shardMessage);

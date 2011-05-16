@@ -55,7 +55,8 @@ private:
     bool                    sendFirst;
     uint64_t                nodeID;
     uint64_t                quorumID;
-    uint64_t                shardID;
+    uint64_t                srcShardID;
+    uint64_t                dstShardID;
     uint64_t                bytesSent;
     uint64_t                bytesTotal;
     uint64_t                startTime;

@@ -58,6 +58,8 @@ public:
     uint64_t        tableID;
     uint64_t        shardID;
     uint64_t        newShardID;
+    uint64_t        srcShardID;
+    uint64_t        dstShardID;
     ReadBuffer      name;
     ReadBuffer      firstKey;
     Buffer          splitKey;
@@ -113,7 +115,8 @@ public:
     bool            SplitShardBegin(uint64_t shardID, ReadBuffer& splitKey);
     bool            SplitShardComplete(uint64_t shardID);
     
-    bool            ShardMigrationComplete(uint64_t quorumID, uint64_t shardID);
+    bool            ShardMigrationComplete(uint64_t quorumID,
+                     uint64_t srcShardID, uint64_t dstShardID);
     
     // Serialization
     bool            Read(ReadBuffer& buffer);

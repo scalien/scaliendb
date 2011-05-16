@@ -97,10 +97,11 @@ void ShardMessage::TruncateTable(uint64_t tableID_, uint64_t newShardID_)
     newShardID = newShardID_;
 }
 
-void ShardMessage::ShardMigrationBegin(uint64_t shardID_)
+void ShardMessage::ShardMigrationBegin(uint64_t srcShardID_, uint64_t dstShardID_)
 {
     type = SHARDMESSAGE_MIGRATION_BEGIN;
-    shardID = shardID_;
+    srcShardID = srcShardID_;
+    dstShardID = dstShardID_;
 }
 
 void ShardMessage::ShardMigrationSet(uint64_t shardID_, ReadBuffer& key_, ReadBuffer& value_)
@@ -180,8 +181,8 @@ int ShardMessage::Read(ReadBuffer& buffer)
              &type, &tableID, &newShardID);
             break;
         case SHARDMESSAGE_MIGRATION_BEGIN:
-            read = buffer.Readf("%c:%U",
-             &type, &shardID);
+            read = buffer.Readf("%c:%U:%U",
+             &type, &srcShardID, &dstShardID);
             break;
         case SHARDMESSAGE_MIGRATION_SET:
             read = buffer.Readf("%c:%U:%#R:%#R",
@@ -250,8 +251,8 @@ bool ShardMessage::Append(Buffer& buffer)
              type, tableID, newShardID);
             break;
         case SHARDMESSAGE_MIGRATION_BEGIN:
-            buffer.Appendf("%c:%U",
-             type, shardID);
+            buffer.Appendf("%c:%U:%U",
+             type, srcShardID, dstShardID);
             break;
         case SHARDMESSAGE_MIGRATION_SET:
             buffer.Appendf("%c:%U:%#R:%#R",
