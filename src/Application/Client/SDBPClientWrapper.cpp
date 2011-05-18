@@ -1093,7 +1093,7 @@ void SDBP_SetTrace(bool trace)
 	{
 		Log_SetTrace(true);
         Log_SetTimestamping(true);
-		Log_SetTarget(LOG_TARGET_STDOUT);
+		Log_SetTarget(LOG_TARGET_STDERR);
 	}
 	else
 	{

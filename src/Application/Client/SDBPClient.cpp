@@ -291,6 +291,8 @@ uint64_t Client::GetCurrentTableID()
 
 ConfigState* Client::GetConfigState()
 {
+	Log_Trace();
+
     CLIENT_MUTEX_GUARD_DECLARE();
 
     if (numControllers == 0)
@@ -722,7 +724,7 @@ bool Client::IsBatched()
 
 void Client::EventLoop(long wait)
 {
-    long    startTime;
+    long		startTime;
     
     if (!controllerConnections)
     {
@@ -753,7 +755,7 @@ void Client::EventLoop(long wait)
     // TODO: HACK
     while (!IsDone() || (wait >= 0 && EventLoop::Now() <= (uint64_t)(startTime + wait)))
     {
-        Log_Trace("EventLoop main loop");
+		Log_Trace("EventLoop main loop, wait: %I", (int64_t)wait);
         GLOBAL_MUTEX_GUARD_LOCK();        
         long sleep = EventLoop::RunTimers();
         if (wait >= 0 && wait < sleep)
