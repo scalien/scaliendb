@@ -23,6 +23,7 @@ struct FD
 {
 	bool		operator==(const FD& other);
 	bool		operator!=(const FD& other);
+				operator int();
 
     int         index;
     intptr_t    handle;
@@ -38,6 +39,11 @@ inline bool FD::operator==(const FD& other)
 inline bool FD::operator!=(const FD& other)
 {
     return !operator==(other);
+}
+
+inline FD::operator int()
+{
+	return index;
 }
 
 extern const FD INVALID_FD;

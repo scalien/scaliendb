@@ -7,7 +7,6 @@
 #include <ctype.h>
 #ifdef _WIN32
 #include <winsock2.h>
-#include <ws2tcpip.h>
 #define s_addr S_un.S_addr
 #define in_addr_t unsigned long
 #undef SetPort
@@ -35,6 +34,13 @@ int inet_aton(const char *cp, struct in_addr *in)
 
     return 1;
 }
+
+int inet_pton(int /*af*/, const char* src, void* dst)
+{
+	// HACK: inet_pton is only supported from Vista
+	return inet_aton(src, (struct in_addr*) dst);
+}
+
 #endif
 
 // TODO this is temporary, we need a real DNS resolver

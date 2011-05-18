@@ -1,11 +1,10 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9,00"
-	Name="ScalienDB"
-	ProjectGUID="{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}"
-	RootNamespace="ScalienDB"
-	Keyword="Win32Proj"
+	Name="ScalienTest"
+	ProjectGUID="{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}"
+	RootNamespace="ScalienTest"
 	TargetFrameworkVersion="196613"
 	>
 	<Platforms>
@@ -18,10 +17,10 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="..\bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="0"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -42,13 +41,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\src"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="false"
 				DebugInformationFormat="4"
 			/>
 			<Tool
@@ -63,9 +60,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib mswsock.lib"
-				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				SubSystem="1"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -92,10 +87,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\bin"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="0"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -121,7 +116,6 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -137,9 +131,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="ws2_32.lib mswsock.lib"
-				LinkIncremental="2"
 				GenerateDebugInformation="true"
-				SubSystem="1"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -170,274 +162,6 @@
 	<References>
 	</References>
 	<Files>
-		<Filter
-			Name="System"
-			>
-			<File
-				RelativePath="..\src\System\Common.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Common.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Config.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Config.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\FileSystem.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\FileSystem.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Formatting.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Formatting.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Log.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Log.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Macros.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Platform.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Stopwatch.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Stopwatch.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Time.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Time.h"
-				>
-			</File>
-			<Filter
-				Name="Buffers"
-				>
-				<File
-					RelativePath="..\src\System\Buffers\Buffer.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Buffers\Buffer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Buffers\BufferPool.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Buffers\BufferPool.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Buffers\ReadBuffer.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Buffers\ReadBuffer.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Containers"
-				>
-				<File
-					RelativePath="..\src\System\Containers\ArrayList.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Containers\HashMap.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Containers\InList.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Containers\InPriorityQueue.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Containers\InQueue.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Containers\InSortedList.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Containers\InTreeMap.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Containers\List.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Containers\SortedList.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Events"
-				>
-				<File
-					RelativePath="..\src\System\Events\Callable.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\Countdown.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\Countdown.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\Deferred.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\EventLoop.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\EventLoop.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\Scheduler.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\Scheduler.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\Timer.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Events\Timer.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="IO"
-				>
-				<File
-					RelativePath="..\src\System\IO\Endpoint.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\Endpoint.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\FD.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\IOOperation.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\IOProcessor.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\IOProcessor_Darwin.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\IOProcessor_Linux.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\IOProcessor_Windows.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\Socket.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\Socket_Posix.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\IO\Socket_Windows.cpp"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="Threading"
-				>
-				<File
-					RelativePath="..\src\System\Threading\Job.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Threading\JobProcessor.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Threading\JobProcessor.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Threading\Mutex.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Threading\Mutex_Posix.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Threading\Mutex_Windows.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Threading\ThreadPool.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Threading\ThreadPool_Posix.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Threading\ThreadPool_Windows.cpp"
-					>
-				</File>
-			</Filter>
-		</Filter>
 		<Filter
 			Name="Application"
 			>
@@ -1506,10 +1230,342 @@
 				</File>
 			</Filter>
 		</Filter>
-		<File
-			RelativePath="..\src\Main.cpp"
+		<Filter
+			Name="System"
 			>
-		</File>
+			<File
+				RelativePath="..\src\System\Common.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Common.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Config.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Config.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\FileSystem.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\FileSystem.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Formatting.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Formatting.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Log.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Log.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Macros.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Platform.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Stopwatch.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Stopwatch.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Time.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\System\Time.h"
+				>
+			</File>
+			<Filter
+				Name="Buffers"
+				>
+				<File
+					RelativePath="..\src\System\Buffers\Buffer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Buffers\Buffer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Buffers\BufferPool.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Buffers\BufferPool.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Buffers\ReadBuffer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Buffers\ReadBuffer.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Containers"
+				>
+				<File
+					RelativePath="..\src\System\Containers\ArrayList.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\HashMap.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\InList.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\InPriorityQueue.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\InQueue.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\InSortedList.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\InTreeMap.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\List.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\SortedList.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Events"
+				>
+				<File
+					RelativePath="..\src\System\Events\Callable.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\Countdown.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\Countdown.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\Deferred.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\EventLoop.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\EventLoop.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\Scheduler.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\Scheduler.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\Timer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Events\Timer.h"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="IO"
+				>
+				<File
+					RelativePath="..\src\System\IO\Endpoint.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\Endpoint.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\FD.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\IOOperation.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\IOProcessor.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\IOProcessor_Darwin.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\IOProcessor_Linux.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\IOProcessor_Windows.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\Socket.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\Socket_Posix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\IO\Socket_Windows.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Threading"
+				>
+				<File
+					RelativePath="..\src\System\Threading\Job.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\JobProcessor.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\JobProcessor.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Mutex.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Mutex_Posix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Mutex_Windows.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\ThreadPool.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\ThreadPool_Posix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\ThreadPool_Windows.cpp"
+					>
+				</File>
+			</Filter>
+		</Filter>
+		<Filter
+			Name="Test"
+			>
+			<File
+				RelativePath="..\src\Test\ArrayListTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\ClientTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\CommonTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\ConfigStateTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\EndpointTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\FileSystemTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\FormattingTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\InTreeMapTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\ManualTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\StorageTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\Test.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\Test.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\TestFunction.h"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\TestMain.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\TimeTest.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\Test\Timings.cpp"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath="..\src\Version.h"
 			>

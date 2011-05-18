@@ -39,8 +39,9 @@ using namespace SDBPClient;
     
 static int SetupDefaultClient(Client& client)
 {
-    const char*     nodes[] = {"localhost:7080"};
+//    const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.51:7080"};
+    const char*     nodes[] = {"192.168.1.5:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     int             ret;
@@ -67,25 +68,16 @@ TEST_DEFINE(TestClientBasic)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key = "hol";
     ReadBuffer      resultKey;
     ReadBuffer      value = "peru";
     ReadBuffer      resultValue;
     int             ret;
-    
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(1000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
+	Log_SetTarget(LOG_TARGET_STDOUT|LOG_TARGET_FILE);
+	Log_SetOutputFile("test.log", true);
     
-    ret = client.UseTable(tableName);
+	ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     

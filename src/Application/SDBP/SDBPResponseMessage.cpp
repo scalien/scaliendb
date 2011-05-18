@@ -33,14 +33,15 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
 
             if (response->numKeys != 0)
             {
-				CLIENTRESPONSE_ASSERT_NUMKEYS(response->numKeys);
-                ReadBuffer  keys[CLIENTRESPONSE_NUMKEYS(response->numKeys)];
+                ReadBuffer*		keys;
+				keys = new ReadBuffer[response->numKeys];
                 for (unsigned i = 0; i < response->numKeys; i++)
                 {
                     read = buffer.Readf(":%#R", &keys[i]);
                     buffer.Advance(read);
                 }
                 response->ListKeys(response->numKeys, keys);
+				delete[] keys;
             }
             return true;
         case CLIENTRESPONSE_LIST_KEYVALUES:
@@ -50,15 +51,18 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             
             if (response->numKeys != 0)
             {
-				CLIENTRESPONSE_ASSERT_NUMKEYS(response->numKeys);
-				ReadBuffer  keys[CLIENTRESPONSE_NUMKEYS(response->numKeys)];
-                ReadBuffer  values[CLIENTRESPONSE_NUMKEYS(response->numKeys)];
+				ReadBuffer*		keys;
+                ReadBuffer*		values;
+				keys = new ReadBuffer[response->numKeys];
+				values = new ReadBuffer[response->numKeys];
                 for (unsigned i = 0; i < response->numKeys; i++)
                 {
                     read = buffer.Readf(":%#R:%#R", &keys[i], &values[i]);
                     buffer.Advance(read);
                 }
                 response->ListKeyValues(response->numKeys, keys, values);
+				delete[] keys;
+				delete[] values;
             }
             return true;
         case CLIENTRESPONSE_CONFIG_STATE:

@@ -23,10 +23,12 @@ Mutex::~Mutex()
 void Mutex::Lock()
 {
     EnterCriticalSection((CRITICAL_SECTION*) &mutex);
+    threadID = (uint64_t) GetCurrentThreadId();
 }
 
 void Mutex::Unlock()
 {
+    threadID = 0;
     LeaveCriticalSection((CRITICAL_SECTION*) &mutex);
 }
 
