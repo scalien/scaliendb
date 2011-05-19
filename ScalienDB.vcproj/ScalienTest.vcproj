@@ -59,7 +59,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib mswsock.lib"
+				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -130,7 +130,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib mswsock.lib"
+				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

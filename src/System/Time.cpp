@@ -18,7 +18,9 @@ static ThreadPool*          clockThread = NULL;
 #ifdef _WIN32
 static int                  winTimeInitialized = 0;
 static uint64_t             winBaseMillisec = 0;
-static uint32_t             winPrevMillisec = 0;
+static volatile uint64_t	winElapsed = 0;
+static volatile uint32_t    winPrevMillisec = 0;
+static CRITICAL_SECTION		timerCritSec;
 
 void InitializeWindowsTimer()
 {
@@ -45,8 +47,10 @@ void InitializeWindowsTimer()
     sec = (long) ((now.ns100 - 116444736000000000LL) / 10000000LL);
     
     // convert system start time to Unix timestamp
-    winBaseMillisec = (sec * 1000 + usec / 1000) - winPrevMillisec;
+    winBaseMillisec = (sec * 1000LL + usec / 1000) - winPrevMillisec;
     
+	InitializeCriticalSection(&timerCritSec);
+
     winTimeInitialized = 1;
 }
 
@@ -54,22 +58,32 @@ int gettimeofday (struct timeval *tv, void*)
 {
     uint64_t    elapsedTime;
     uint32_t    winMsec;
+	uint64_t	prevMsec;
     uint64_t    msec;
     
     if (!winTimeInitialized)
-        InititializeWindowsTimer();
+        InitializeWindowsTimer();
 
+	// avoid race conditions
+	prevMsec = winPrevMillisec;
     winMsec = timeGetTime();
-    // handle overflow
-    if (winMsec < winPrevMillisec)
-        elapsedTime = (uint64_t)(0x100000000LL - winPrevMillisec) + winMsec;
+
+	// handle overflow
+    if (winMsec < prevMsec)
+	{
+		Log_Trace("overflow");
+        elapsedTime = (uint64_t)(0x100000000LL - prevMsec) + winMsec;
+	}
     else
-        elapsedTime = winMsec - winPrevMillisec;
+        elapsedTime = winMsec - prevMsec;
 
+//	EnterCriticalSection(&timerCritSec);
     winPrevMillisec = winMsec;
+	winElapsed += elapsedTime;
+//	LeaveCriticalSection(&timerCritSec);
 
-    msec = winBaseMillisec + elapsedTime;
-    tv->tv_usec = msec % 1000 * 1000;
+    msec = winBaseMillisec + winElapsed;
+    tv->tv_usec = (msec % 1000) * 1000;
     tv->tv_sec = msec / 1000;
 
     return (0);
@@ -131,7 +145,7 @@ static inline void UpdateClock()
     gettimeofday(&tv, NULL);
     clockMsec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
     clockUsec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
-    
+
     if (prevMsec != 0 && clockMsec - prevMsec > 5 * CLOCK_RESOLUTION)
         Log_Debug("Softclock diff: %U", clockMsec - prevMsec);
 }

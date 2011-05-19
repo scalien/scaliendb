@@ -291,7 +291,7 @@ uint64_t Client::GetCurrentTableID()
 
 ConfigState* Client::GetConfigState()
 {
-	Log_Trace();
+    Log_Trace();
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
@@ -300,7 +300,10 @@ ConfigState* Client::GetConfigState()
     
     result->Close();
     CLIENT_MUTEX_UNLOCK();
-    EventLoop(0);
+    if (!configState)
+        EventLoop();
+    else
+        EventLoop(0);
     CLIENT_MUTEX_LOCK();
 
     return configState;
@@ -379,7 +382,10 @@ int Client::GetDatabaseID(ReadBuffer& name, uint64_t& databaseID)
     
     result->Close();
     CLIENT_MUTEX_UNLOCK();
-    EventLoop(0);
+    if (!configState)
+        EventLoop();
+    else
+        EventLoop(0);
     CLIENT_MUTEX_LOCK();
 
     if (configState == NULL)
@@ -403,7 +409,10 @@ int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
     
     result->Close();
     CLIENT_MUTEX_UNLOCK();
-    EventLoop(0);
+    if (!configState)
+        EventLoop();
+    else
+        EventLoop(0);
     CLIENT_MUTEX_LOCK();
 
     if (configState == NULL)
@@ -722,9 +731,14 @@ bool Client::IsBatched()
     return isBatched;
 }
 
+/*
+ * If wait is negative, EventLoop waits until all request is served or timeout happens.
+ * If wait is zero, EventLoop runs exactly once and handles timer and IO events.
+ * If wait is positive, EventLoop waits until all request is served ot timeout happens, but waits at most wait msecs.
+ */
 void Client::EventLoop(long wait)
 {
-    long		startTime;
+    uint64_t		startTime;
     
     if (!controllerConnections)
     {
@@ -752,10 +766,10 @@ void Client::EventLoop(long wait)
     
     GLOBAL_MUTEX_GUARD_UNLOCK();
     
-    // TODO: HACK
-    while (!IsDone() || (wait >= 0 && EventLoop::Now() <= (uint64_t)(startTime + wait)))
+    // TODO: simplify this condition
+    while ((!IsDone() && wait < 0) || (EventLoop::Now() <= (uint64_t)(startTime + wait)))
     {
-		Log_Trace("EventLoop main loop, wait: %I", (int64_t)wait);
+        Log_Trace("EventLoop main loop, wait: %I, startTime + wait: %U, now: %U", (int64_t)wait, (uint64_t)(startTime + wait), EventLoop::Now());
         GLOBAL_MUTEX_GUARD_LOCK();        
         long sleep = EventLoop::RunTimers();
         if (wait >= 0 && wait < sleep)
@@ -766,7 +780,7 @@ void Client::EventLoop(long wait)
             break;
         }
         
-        if (!IOProcessor::Poll(sleep))
+        if (!IOProcessor::Poll(sleep) || wait == 0)
         {
             GLOBAL_MUTEX_GUARD_UNLOCK();
             break;
