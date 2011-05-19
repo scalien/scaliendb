@@ -585,8 +585,10 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
                 if (message.clientRequest)
                     message.clientRequest->response.Value(userValue);
+                if (!environment.Delete(contextID, shardID, message.key))
+                    RESPONSE_FAIL();
             }
-            if (!environment.Delete(contextID, shardID, message.key))
+            else
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_SPLIT_SHARD:

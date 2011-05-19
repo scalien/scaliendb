@@ -85,8 +85,9 @@ public class Result
     /**
      * Moves to the next elem in the result.
      */
-    public void next() {
+    public boolean next() {
         scaliendb_client.SDBP_ResultNext(cptr);
+        return isEnd() ? false : true;
     }
     
     /**

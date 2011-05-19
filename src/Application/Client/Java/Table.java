@@ -134,11 +134,11 @@ public class Table
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
+     * @return          true if the value was set
      */
-    public void setIfNotExists(String key, String value) throws SDBPException {
+    public boolean setIfNotExists(String key, String value) throws SDBPException {
         useDefaults();
-        client.setIfNotExists(key, value);
+        return client.setIfNotExists(key, value);
     }
 
     /**
@@ -146,11 +146,11 @@ public class Table
      * 
      * @param   key     key with which the specified value is to be associated
      * @param   value   value to be associated with the specified key
-     * @return          the status of the operation
+     * @return          true if the value was set
      */
-    public void setIfNotExists(byte[] key, byte[] value) throws SDBPException {
+    public boolean setIfNotExists(byte[] key, byte[] value) throws SDBPException {
         useDefaults();
-        client.setIfNotExists(key, value);
+        return client.setIfNotExists(key, value);
     }
 
     /**

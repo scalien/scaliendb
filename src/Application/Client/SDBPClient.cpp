@@ -767,9 +767,9 @@ void Client::EventLoop(long wait)
     GLOBAL_MUTEX_GUARD_UNLOCK();
     
     // TODO: simplify this condition
-    while ((!IsDone() && wait < 0) || (EventLoop::Now() <= (uint64_t)(startTime + wait)))
+    while ((!IsDone() && wait < 0) || (EventLoop::Now() <= startTime + wait))
     {
-        Log_Trace("EventLoop main loop, wait: %I, startTime + wait: %U, now: %U", (int64_t)wait, (uint64_t)(startTime + wait), EventLoop::Now());
+        Log_Trace("EventLoop main loop, wait: %I", (int64_t) wait);
         GLOBAL_MUTEX_GUARD_LOCK();        
         long sleep = EventLoop::RunTimers();
         if (wait >= 0 && wait < sleep)
