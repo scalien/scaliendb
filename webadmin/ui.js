@@ -264,7 +264,7 @@ function showCreateTable(databaseID, databaseName)
 	name.onkeyup = function() { validateIfNotEmpty(name, button); }
 
 	validateIfNotEmpty(name, button);
-	populateQuorumSelector("createTableQuorumSelector", shardID);
+	populateQuorumSelector("createTableQuorumSelector");
 	
 	createTableDatabaseID = databaseID;
 	hideDialog = hideCreateTable;
@@ -1029,7 +1029,7 @@ function createQuorumDiv(configState, quorum)
 	}	
 
 	var removeNode = "";
-	if (shardServersInQuorum(quorum["quorumID"]).length > 0)
+	if (shardServersInQuorum(quorum["quorumID"]).length > 1)
 	{
 		removeNode = '<a class="no-line" href="javascript:showRemoveNode(' + quorum["quorumID"] +
 		')"><span class="modify-button">remove server</span></a><br/><br/>';
