@@ -1,21 +1,30 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Collections;
 
 namespace Scalien
 {
     public class SDBPException : ApplicationException
     {
-        public SDBPException(string msg)
+        private int status;
+
+        public SDBPException(int status)
         {
-            //base(msg);   
+            this.status = status;
+        }
+
+        public SDBPException(int status, string msg)
+        {
+            this.status = status;
         }
     }
 
     public class Client
     {
-        private SWIGTYPE_p_void cptr;
+        internal SWIGTYPE_p_void cptr;
         private Result result;
+        private Result lastResult;
 
         public Client(string[] nodes)
         {
@@ -60,15 +69,139 @@ namespace Scalien
             return result;
         }
 
-        public void UseDatabase(string name)
+        public void SetBulkLoading(bool bulk)
         {
-            scaliendb_client.SDBP_UseDatabase(cptr, name);
+            scaliendb_client.SDBP_SetBulkLoading(cptr, bulk);
         }
 
-        public void UseTable(string name)
+        public void SetConsistencyLevel(int consistencyLevel)
         {
-            scaliendb_client.SDBP_UseTable(cptr, name);
+            scaliendb_client.SDBP_SetConsistencyLevel(cptr, consistencyLevel);
         }
+
+        public string GetJSONConfigState()
+        {
+            return scaliendb_client.SDBP_GetJSONConfigState(cptr);
+        }
+
+        public Quorum GetQuorum(ulong quorumID)
+        {
+            return new Quorum(this, quorumID);
+        }
+
+        public List<Quorum> GetQuorums()
+        {
+            uint numQuorums = scaliendb_client.SDBP_GetNumQuorums(cptr);
+            List<Quorum> quorums = new List<Quorum>();
+            for (uint i = 0; i < numQuorums; i++)
+            {
+                ulong quorumID = scaliendb_client.SDBP_GetQuorumIDAt(cptr, i);
+                quorums.Add(new Quorum(this, quorumID));
+            }
+            return quorums;
+        }
+
+        public Quorum CreateQuorum(ulong[] nodes)
+        {
+            SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.Length);
+            for (int i = 0; i < nodes.Length; i++)
+            {
+                string nodeString = "" + nodes[i];
+                nodeParams.AddNode(nodeString);
+            }
+
+            int status = scaliendb_client.SDBP_CreateQuorum(cptr, nodeParams);
+            nodeParams.Close();
+
+            CheckResultStatus(status, "Cannot create quorum");
+            return new Quorum(this, result.GetNumber());
+        }
+
+        public void DeleteQuorum(ulong quorumID)
+        {
+            int status = scaliendb_client.SDBP_DeleteQuorum(cptr, quorumID);
+            CheckResultStatus(status, "Cannot delete quorum");
+        }
+
+        public void AddNode(ulong quorumID, ulong nodeID)
+        {
+            int status = scaliendb_client.SDBP_AddNode(cptr, quorumID, nodeID);
+            CheckResultStatus(status, "Cannot add node"); 
+        }
+
+        public void RemoveNode(ulong quorumID, ulong nodeID)
+        {
+            int status = scaliendb_client.SDBP_RemoveNode(cptr, quorumID, nodeID);
+            CheckResultStatus(status, "Cannot remove node");
+        }
+
+        public void ActivateNode(ulong nodeID)
+        {
+            int status = scaliendb_client.SDBP_ActivateNode(cptr, nodeID);
+            CheckResultStatus(status, "Cannot activate node");
+        }
+
+        public Database CreateDatabase(string name)
+        {
+            int status = scaliendb_client.SDBP_CreateDatabase(cptr, name);
+            CheckResultStatus(status);
+            return new Database(this, name);
+        }
+
+        public void RenameDatabase(ulong databaseID, string name)
+        {
+            int status = scaliendb_client.SDBP_RenameDatabase(cptr, databaseID, name);
+            CheckResultStatus(status);
+        }
+
+        public void DeleteDatabase(ulong databaseID)
+        {
+            int status = scaliendb_client.SDBP_DeleteDatabase(cptr, databaseID);
+            CheckResultStatus(status);
+        }
+
+        public void UseDatabase(string name)
+        {
+            int status = scaliendb_client.SDBP_UseDatabase(cptr, name);
+            CheckStatus(status);
+        }
+
+        public List<Database> GetDatabases()
+        {
+            uint numDatabases = scaliendb_client.SDBP_GetNumDatabases(cptr);
+            List<Database> databases = new List<Database>();
+            for (uint i = 0; i < numDatabases; i++)
+            {
+                string name = scaliendb_client.SDBP_GetDatabaseNameAt(cptr, i);
+                databases.Add(new Database(this, name));
+            }
+            return databases;
+        }
+
+        public Database GetDatabase(string name)
+        {
+            return new Database(this, name);
+        }
+
+        public void UseTable(String name)
+        {
+            int status = scaliendb_client.SDBP_UseTable(cptr, name);
+            CheckStatus(status);
+        }
+
+        public void UseTableID(ulong tableID)
+        {
+            int status = scaliendb_client.SDBP_UseTableID(cptr, tableID);
+            CheckStatus(status);
+        }
+
+        public Result GetResult()
+        {
+            lastResult = result;
+            return result;
+        }
+
+
 
         public string Get(string key)
         {
@@ -76,7 +209,7 @@ namespace Scalien
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                throw new Exception(Status.ToString(status));
+                CheckStatus(status);
             }
 
             if (IsBatched())
@@ -86,26 +219,91 @@ namespace Scalien
             return result.GetValue();
         }
 
-        public int Set(string key, string value)
+        public void Set(string key, string value)
         {
             int status = scaliendb_client.SDBP_Set(cptr, key, value);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                throw new Exception(Status.ToString(status));
+                CheckStatus(status);
             }
 
             if (IsBatched())
-                return status;
+                return;
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return status;
         }
 
+        public bool SetIfNotExists(string key, string value)
+        {
+            int status = scaliendb_client.SDBP_SetIfNotExists(cptr, key, value);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return false;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            if (result.GetCommandStatus() == Status.SDBP_SUCCESS)
+                return true;
+            return false;
+        }
+
+        public bool TestAndSet(string key, string test, string value)
+        {
+            int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return false;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            return result.IsValueChanged() ;
+        }
+
+        public ulong Add(string key, long number)
+        {
+            int status = scaliendb_client.SDBP_Add(cptr, key, number);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return 0;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            return result.GetNumber();
+        }
 
         public bool IsBatched()
         {
             return scaliendb_client.SDBP_IsBatched(cptr);
+        }
+
+        // TODO:
+        private void CheckResultStatus(int status, string msg)
+        {
+        }
+
+        private void CheckResultStatus(int status)
+        {
+        }
+
+        private void CheckStatus(int status, string msg)
+        {
+        }
+
+        private void CheckStatus(int status)
+        {
         }
 
         public static void SetTrace(bool trace)

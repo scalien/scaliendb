@@ -28,6 +28,16 @@ namespace Scalien
             return scaliendb_client.SDBP_ResultValue(cptr);
         }
 
+        public ulong GetNumber()
+        {
+            return scaliendb_client.SDBP_ResultNumber(cptr);
+        }
+
+        public bool IsValueChanged()
+        {
+            return scaliendb_client.SDBP_ResultIsValueChanged(cptr);
+        }
+
         public void Begin()
         {
             scaliendb_client.SDBP_ResultBegin(cptr);

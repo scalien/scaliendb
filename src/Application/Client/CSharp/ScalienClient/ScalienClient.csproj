@@ -94,7 +94,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client.cs" />
+    <Compile Include="Database.cs" />
     <Compile Include="imaxdiv_t.cs" />
+    <Compile Include="Quorum.cs" />
     <Compile Include="Result.cs" />
     <Compile Include="scaliendb_client.cs" />
     <Compile Include="scaliendb_clientPINVOKE.cs" />

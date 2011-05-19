@@ -7,7 +7,7 @@
         {
             
             Client.SetTrace(true);
-            string[] nodes = { "192.168.1.5:7080" };
+            string[] nodes = { "192.168.137.236:7080" };
             Client client = new Client(nodes);
             client.UseDatabase("testdb");
             client.UseTable("testtable");
