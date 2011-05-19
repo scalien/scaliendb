@@ -22,7 +22,7 @@ static volatile uint64_t	winElapsed = 0;
 static volatile uint32_t    winPrevMillisec = 0;
 static CRITICAL_SECTION		timerCritSec;
 
-void InitializeWindowsTimer()
+int gettimeofday_win(struct timeval* tv, void*)
 {
     union
     {
@@ -30,8 +30,19 @@ void InitializeWindowsTimer()
         FILETIME ft;
     } now;
 
-    long    usec;
-    long    sec;
+    // this has 15 msec resolution
+    GetSystemTimeAsFileTime(&now.ft);
+    
+    // convert it to Unix epoch
+    tv->tv_usec = (long) ((now.ns100 / 10LL) % 1000000LL);
+    tv->tv_sec = (long) ((now.ns100 - 116444736000000000LL) / 10000000LL);
+
+    return 0;
+}
+
+void InitializeWindowsTimer()
+{
+    struct timeval  tv;
 
     // set the resolution of the multimedia-timer to 1 msec
     timeBeginPeriod(1);
@@ -39,28 +50,27 @@ void InitializeWindowsTimer()
     // returns the number of milliseconds since system start
     winPrevMillisec = timeGetTime();
 
-    // this has 15 msec resolution
-    GetSystemTimeAsFileTime(&now.ft);
-    
-    // convert it to Unix epoch
-    usec = (long) ((now.ns100 / 10LL) % 1000000LL);
-    sec = (long) ((now.ns100 - 116444736000000000LL) / 10000000LL);
+    gettimeofday_win(&tv, NULL);
     
     // convert system start time to Unix timestamp
-    winBaseMillisec = (sec * 1000LL + usec / 1000) - winPrevMillisec;
+    winBaseMillisec = (tv.tv_sec * 1000LL + tv.tv_usec / 1000) - winPrevMillisec;
     
 	InitializeCriticalSection(&timerCritSec);
 
     winTimeInitialized = 1;
 }
 
-int gettimeofday (struct timeval *tv, void*)
+int gettimeofday(struct timeval *tv, void*)
 {
     uint64_t    elapsedTime;
     uint32_t    winMsec;
 	uint64_t	prevMsec;
     uint64_t    msec;
     
+    // by default gettimeofday uses the standard Windows clock, which has 15 msec resolution
+    // if more resolution needed, comment the following line
+    return gettimeofday_win(tv, NULL);
+
     if (!winTimeInitialized)
         InitializeWindowsTimer();
 
@@ -77,10 +87,8 @@ int gettimeofday (struct timeval *tv, void*)
     else
         elapsedTime = winMsec - prevMsec;
 
-//	EnterCriticalSection(&timerCritSec);
     winPrevMillisec = winMsec;
 	winElapsed += elapsedTime;
-//	LeaveCriticalSection(&timerCritSec);
 
     msec = winBaseMillisec + winElapsed;
     tv->tv_usec = (msec % 1000) * 1000;
@@ -181,6 +189,8 @@ void StopClock()
     clockThread->Stop();
     delete clockThread;
     clockThread = NULL;
+
+
 }
 
 #ifndef _WIN32

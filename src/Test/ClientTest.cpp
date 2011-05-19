@@ -39,9 +39,9 @@ using namespace SDBPClient;
     
 static int SetupDefaultClient(Client& client)
 {
-//    const char*     nodes[] = {"localhost:7080"};
+    const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.51:7080"};
-    const char*     nodes[] = {"192.168.1.5:7080"};
+//    const char*     nodes[] = {"192.168.1.5:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     int             ret;
@@ -50,7 +50,7 @@ static int SetupDefaultClient(Client& client)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(100000);
+    client.SetMasterTimeout(10000);
     client.SetGlobalTimeout(100000);
     
     ret = client.UseDatabase(databaseName);
