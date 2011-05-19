@@ -16,7 +16,11 @@ static volatile uint64_t    clockUsec = 0;
 static ThreadPool*          clockThread = NULL;
 
 #ifdef _WIN32
-int gettimeofday (struct timeval *tv, void*)
+static int                  winTimeInitialized = 0;
+static uint64_t             winBaseMillisec = 0;
+static uint32_t             winPrevMillisec = 0;
+
+void InitializeWindowsTimer()
 {
     union
     {
@@ -24,11 +28,53 @@ int gettimeofday (struct timeval *tv, void*)
         FILETIME ft;
     } now;
 
-    GetSystemTimeAsFileTime (&now.ft);
-    tv->tv_usec = (long) ((now.ns100 / 10LL) % 1000000LL);
-    tv->tv_sec = (long) ((now.ns100 - 116444736000000000LL) / 10000000LL);
+    long    usec;
+    long    sec;
+
+    // set the resolution of the multimedia-timer to 1 msec
+    timeBeginPeriod(1);
+    
+    // returns the number of milliseconds since system start
+    winPrevMillisec = timeGetTime();
+
+    // this has 15 msec resolution
+    GetSystemTimeAsFileTime(&now.ft);
+    
+    // convert it to Unix epoch
+    usec = (long) ((now.ns100 / 10LL) % 1000000LL);
+    sec = (long) ((now.ns100 - 116444736000000000LL) / 10000000LL);
+    
+    // convert system start time to Unix timestamp
+    winBaseMillisec = (sec * 1000 + usec / 1000) - winPrevMillisec;
+    
+    winTimeInitialized = 1;
+}
+
+int gettimeofday (struct timeval *tv, void*)
+{
+    uint64_t    elapsedTime;
+    uint32_t    winMsec;
+    uint64_t    msec;
+    
+    if (!winTimeInitialized)
+        InititializeWindowsTimer();
+
+    winMsec = timeGetTime();
+    // handle overflow
+    if (winMsec < winPrevMillisec)
+        elapsedTime = (uint64_t)(0x100000000LL - winPrevMillisec) + winMsec;
+    else
+        elapsedTime = winMsec - winPrevMillisec;
+
+    winPrevMillisec = winMsec;
+
+    msec = winBaseMillisec + elapsedTime;
+    tv->tv_usec = msec % 1000 * 1000;
+    tv->tv_sec = msec / 1000;
+
     return (0);
 }
+
 #endif
 
 uint64_t Now()
