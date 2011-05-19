@@ -74,9 +74,6 @@ TEST_DEFINE(TestClientBasic)
     ReadBuffer      resultValue;
     int             ret;
 
-	Log_SetTarget(LOG_TARGET_STDOUT|LOG_TARGET_FILE);
-	Log_SetOutputFile("test.log", true);
-    
 	ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
