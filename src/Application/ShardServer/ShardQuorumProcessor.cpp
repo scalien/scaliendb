@@ -678,6 +678,12 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
             message->test.Wrap(request->test);
             message->value.Wrap(request->value);
             break;
+        case CLIENTREQUEST_TEST_AND_DELETE:
+            message->type = SHARDMESSAGE_TEST_AND_DELETE;
+            message->tableID = request->tableID;
+            message->key.Wrap(request->key);
+            message->test.Wrap(request->test);
+            break;
         case CLIENTREQUEST_GET_AND_SET:
             message->type = SHARDMESSAGE_GET_AND_SET;
             message->tableID = request->tableID;

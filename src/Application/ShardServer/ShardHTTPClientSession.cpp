@@ -249,6 +249,8 @@ ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd
         return ProcessSetIfNotExists();
     if (HTTP_MATCH_COMMAND(cmd, "testandset"))
         return ProcessTestAndSet();
+    if (HTTP_MATCH_COMMAND(cmd, "testanddelete"))
+        return ProcessTestAndDelete();
     if (HTTP_MATCH_COMMAND(cmd, "getandset"))
         return ProcessGetAndSet();
     if (HTTP_MATCH_COMMAND(cmd, "add"))
@@ -331,6 +333,24 @@ ClientRequest* ShardHTTPClientSession::ProcessTestAndSet()
 
     request = new ClientRequest;
     request->TestAndSet(0, tableID, key, test, value);
+
+    return request;    
+}
+
+ClientRequest* ShardHTTPClientSession::ProcessTestAndDelete()
+{
+    ClientRequest*  request;
+    uint64_t        tableID;
+    ReadBuffer      key;
+    ReadBuffer      test;
+    ReadBuffer      value;
+    
+    HTTP_GET_U64_PARAM(params, "tableID", tableID);
+    HTTP_GET_PARAM(params, "key", key);
+    HTTP_GET_PARAM(params, "test", test);
+
+    request = new ClientRequest;
+    request->TestAndDelete(0, tableID, key, test);
 
     return request;    
 }

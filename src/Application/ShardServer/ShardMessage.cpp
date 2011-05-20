@@ -11,6 +11,7 @@ bool ShardMessage::IsClientWrite()
     return (type == SHARDMESSAGE_SET ||
             type == SHARDMESSAGE_SET_IF_NOT_EXISTS ||
             type == SHARDMESSAGE_TEST_AND_SET ||
+            type == SHARDMESSAGE_TEST_AND_DELETE ||
             type == SHARDMESSAGE_GET_AND_SET ||
             type == SHARDMESSAGE_ADD ||
             type == SHARDMESSAGE_APPEND ||
@@ -42,6 +43,15 @@ void ShardMessage::TestAndSet(uint64_t tableID_, ReadBuffer& key_,
     key = key_;
     test = test_;
     value = value_;
+}
+
+void ShardMessage::TestAndDelete(uint64_t tableID_, ReadBuffer& key_,
+ ReadBuffer& test_)
+{
+    type = SHARDMESSAGE_TEST_AND_DELETE;
+    tableID = tableID_;
+    key = key_;
+    test = test_;
 }
 
 void ShardMessage::GetAndSet(uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
@@ -149,6 +159,10 @@ int ShardMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%#R:%#R:%#R",
              &type, &tableID, &key, &test, &value);
             break;
+        case SHARDMESSAGE_TEST_AND_DELETE:
+            read = buffer.Readf("%c:%U:%#R:%#R",
+             &type, &tableID, &key, &test);
+            break;
         case SHARDMESSAGE_GET_AND_SET:
             read = buffer.Readf("%c:%U:%#R:%#R",
              &type, &tableID, &key, &value);
@@ -218,6 +232,10 @@ bool ShardMessage::Append(Buffer& buffer)
         case SHARDMESSAGE_TEST_AND_SET:
             buffer.Appendf("%c:%U:%#R:%#R:%#R",
              type, tableID, &key, &test, &value);
+            break;
+        case SHARDMESSAGE_TEST_AND_DELETE:
+            buffer.Appendf("%c:%U:%#R:%#R",
+             type, tableID, &key, &test);
             break;
         case SHARDMESSAGE_GET_AND_SET:
             buffer.Appendf("%c:%U:%#R:%#R",

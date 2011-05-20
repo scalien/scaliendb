@@ -122,6 +122,11 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->type, &request->commandID,
              &request->tableID, &request->key, &request->test, &request->value);
             break;
+        case CLIENTREQUEST_TEST_AND_DELETE:
+            read = buffer.Readf("%c:%U:%U:%#B:%#B",
+             &request->type, &request->commandID,
+             &request->tableID, &request->key, &request->test);
+            break;
         case CLIENTREQUEST_ADD:
             read = buffer.Readf("%c:%U:%U:%#B:%I",
              &request->type, &request->commandID,

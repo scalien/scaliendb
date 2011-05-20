@@ -514,7 +514,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
                 if (message.clientRequest)
                 {
                     message.clientRequest->response.Value(userValue);
-                    message.clientRequest->response.SetValueChanged(true);
+                    message.clientRequest->response.SetValueChanged(false);
                 }
                 break;
             }
@@ -522,7 +522,33 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
             if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             if (message.clientRequest)
+            {
                 message.clientRequest->response.Value(message.value);
+                message.clientRequest->response.SetValueChanged(true);
+            }
+            break;
+        case SHARDMESSAGE_TEST_AND_DELETE:
+            shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            if (!environment.Get(contextID, shardID, message.key, readBuffer))
+                RESPONSE_FAIL();
+            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+            CHECK_CMD();
+            if (ReadBuffer::Cmp(userValue, message.test) != 0)
+            {
+                if (message.clientRequest)
+                {
+                    message.clientRequest->response.Value(userValue);
+                    message.clientRequest->response.SetValueChanged(false);
+                }
+                break;
+            }
+            if (!environment.Delete(contextID, shardID, message.key))
+                RESPONSE_FAIL();
+            if (message.clientRequest)
+            {
+                message.clientRequest->response.OK();
+                message.clientRequest->response.SetValueChanged(true);
+            }
             break;
         case SHARDMESSAGE_GET_AND_SET:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
