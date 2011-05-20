@@ -16,7 +16,13 @@ static volatile uint64_t    clockUsec = 0;
 static ThreadPool*          clockThread = NULL;
 
 #ifdef _WIN32
-int gettimeofday (struct timeval *tv, void*)
+static int                  winTimeInitialized = 0;
+static uint64_t             winBaseMillisec = 0;
+static volatile uint64_t	winElapsed = 0;
+static volatile uint32_t    winPrevMillisec = 0;
+static CRITICAL_SECTION		timerCritSec;
+
+int gettimeofday_win(struct timeval* tv, void*)
 {
     union
     {
@@ -24,11 +30,73 @@ int gettimeofday (struct timeval *tv, void*)
         FILETIME ft;
     } now;
 
-    GetSystemTimeAsFileTime (&now.ft);
+    // this has 15 msec resolution
+    GetSystemTimeAsFileTime(&now.ft);
+    
+    // convert it to Unix epoch
     tv->tv_usec = (long) ((now.ns100 / 10LL) % 1000000LL);
     tv->tv_sec = (long) ((now.ns100 - 116444736000000000LL) / 10000000LL);
+
+    return 0;
+}
+
+void InitializeWindowsTimer()
+{
+    struct timeval  tv;
+
+    // set the resolution of the multimedia-timer to 1 msec
+    timeBeginPeriod(1);
+    
+    // returns the number of milliseconds since system start
+    winPrevMillisec = timeGetTime();
+
+    gettimeofday_win(&tv, NULL);
+    
+    // convert system start time to Unix timestamp
+    winBaseMillisec = (tv.tv_sec * 1000LL + tv.tv_usec / 1000) - winPrevMillisec;
+    
+	InitializeCriticalSection(&timerCritSec);
+
+    winTimeInitialized = 1;
+}
+
+int gettimeofday(struct timeval *tv, void*)
+{
+    uint64_t    elapsedTime;
+    uint32_t    winMsec;
+	uint64_t	prevMsec;
+    uint64_t    msec;
+    
+    // by default gettimeofday uses the standard Windows clock, which has 15 msec resolution
+    // if more resolution needed, comment the following line
+    return gettimeofday_win(tv, NULL);
+
+    if (!winTimeInitialized)
+        InitializeWindowsTimer();
+
+	// avoid race conditions
+	prevMsec = winPrevMillisec;
+    winMsec = timeGetTime();
+
+	// handle overflow
+    if (winMsec < prevMsec)
+	{
+		Log_Trace("overflow");
+        elapsedTime = (uint64_t)(0x100000000LL - prevMsec) + winMsec;
+	}
+    else
+        elapsedTime = winMsec - prevMsec;
+
+    winPrevMillisec = winMsec;
+	winElapsed += elapsedTime;
+
+    msec = winBaseMillisec + winElapsed;
+    tv->tv_usec = (msec % 1000) * 1000;
+    tv->tv_sec = msec / 1000;
+
     return (0);
 }
+
 #endif
 
 uint64_t Now()
@@ -85,7 +153,7 @@ static inline void UpdateClock()
     gettimeofday(&tv, NULL);
     clockMsec = (uint64_t)tv.tv_sec * 1000 + tv.tv_usec / 1000;
     clockUsec = (uint64_t)tv.tv_sec * 1000000 + tv.tv_usec;
-    
+
     if (prevMsec != 0 && clockMsec - prevMsec > 5 * CLOCK_RESOLUTION)
         Log_Debug("Softclock diff: %U", clockMsec - prevMsec);
 }
@@ -121,6 +189,8 @@ void StopClock()
     clockThread->Stop();
     delete clockThread;
     clockThread = NULL;
+
+
 }
 
 #ifndef _WIN32

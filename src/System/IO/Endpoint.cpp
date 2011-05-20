@@ -34,6 +34,13 @@ int inet_aton(const char *cp, struct in_addr *in)
 
     return 1;
 }
+
+int inet_pton(int /*af*/, const char* src, void* dst)
+{
+	// HACK: inet_pton is only supported from Vista
+	return inet_aton(src, (struct in_addr*) dst);
+}
+
 #endif
 
 // TODO this is temporary, we need a real DNS resolver
@@ -114,6 +121,7 @@ bool Endpoint::Set(const char* ip, int port, bool resolv)
     {
         if (resolv)
         {
+            Log_Debug("++++ resolving, ip: %s", ip);
             if (!DNS_ResolveIpv4(ip, &sa->sin_addr))
             {
                 Log_Trace("DNS resolv failed");

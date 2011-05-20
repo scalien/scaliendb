@@ -2094,6 +2094,34 @@ fail:
 }
 
 
+ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultIsValueChanged) {
+  ResultObj arg1 = (ResultObj) 0 ;
+  bool result;
+  zval **args[1];
+  
+  SWIG_ResetError();
+  if(ZEND_NUM_ARGS() != 1 || zend_get_parameters_array_ex(1, args) != SUCCESS) {
+    WRONG_PARAM_COUNT;
+  }
+  
+  {
+    if(SWIG_ConvertPtr(*args[0], (void **) &arg1, 0, 0) < 0) {
+      /* Allow NULL from php for void* */
+      if ((*args[0])->type==IS_NULL) arg1=0;
+      else
+      SWIG_PHP_Error(E_ERROR, "Type error in argument 1 of SDBP_ResultIsValueChanged. Expected SWIGTYPE_p_p_void");
+    }
+  }
+  result = (bool)SDBP_ResultIsValueChanged(arg1);
+  {
+    ZVAL_BOOL(return_value,(result)?1:0);
+  }
+  return;
+fail:
+  zend_error(SWIG_ErrorCode(),SWIG_ErrorMsg());
+}
+
+
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultDatabaseID) {
   ResultObj arg1 = (ResultObj) 0 ;
   uint64_t result;
@@ -5175,6 +5203,7 @@ static function_entry scaliendb_client_functions[] = {
  ZEND_NAMED_FE(sdbp_resultkeybuffer,_wrap_SDBP_ResultKeyBuffer,NULL)
  ZEND_NAMED_FE(sdbp_resultvaluebuffer,_wrap_SDBP_ResultValueBuffer,NULL)
  ZEND_NAMED_FE(sdbp_resultnumber,_wrap_SDBP_ResultNumber,NULL)
+ ZEND_NAMED_FE(sdbp_resultisvaluechanged,_wrap_SDBP_ResultIsValueChanged,NULL)
  ZEND_NAMED_FE(sdbp_resultdatabaseid,_wrap_SDBP_ResultDatabaseID,NULL)
  ZEND_NAMED_FE(sdbp_resulttableid,_wrap_SDBP_ResultTableID,NULL)
  ZEND_NAMED_FE(sdbp_resultbegin,_wrap_SDBP_ResultBegin,NULL)

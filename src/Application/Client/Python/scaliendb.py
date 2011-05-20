@@ -677,7 +677,7 @@ class Client:
         Args:
             key (string): the specified key
         """
-        status, ret = self._data_command(SDBP_remove, key)
+        status, ret = self._data_command(SDBP_Remove, key)
         if ret:
             return self.result.value()
 
@@ -841,3 +841,21 @@ class Loader:
         if self.bytes_batch > self.granularity:
             self.submit()
             self.begin()
+
+class Autosharding:
+    def __init__(self, client):
+        self.client = client
+    
+    def show_shardserver_stats(self):
+        import json
+        config = json.loads(self.client.get_json_config_state())
+        for shard_server in config["shardServers"]:
+            self.show_shardserver(config, shard_server)
+    
+    def show_shardserver(self, config, shard_server):
+        size = 0
+        for shard in config["shards"]:
+            for quorum_info in shard_server["quorumInfos"]:
+                if shard["quorumID"] == quorum_info["quorumID"]:
+                    size += shard["shardSize"]
+        print("Node: %d, size: %d" % (shard_server["nodeID"], size))

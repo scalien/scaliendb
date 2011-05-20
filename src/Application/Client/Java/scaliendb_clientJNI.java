@@ -91,6 +91,14 @@ class scaliendb_clientJNI {
   public final static native int SDBP_UseDatabaseID(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_UseTable(long jarg1, String jarg2);
   public final static native int SDBP_UseTableID(long jarg1, java.math.BigInteger jarg2);
+  public final static native long SDBP_GetNumQuorums(long jarg1);
+  public final static native java.math.BigInteger SDBP_GetQuorumIDAt(long jarg1, long jarg2);
+  public final static native long SDBP_GetNumDatabases(long jarg1);
+  public final static native java.math.BigInteger SDBP_GetDatabaseIDAt(long jarg1, long jarg2);
+  public final static native String SDBP_GetDatabaseNameAt(long jarg1, long jarg2);
+  public final static native long SDBP_GetNumTables(long jarg1);
+  public final static native java.math.BigInteger SDBP_GetTableIDAt(long jarg1, long jarg2);
+  public final static native String SDBP_GetTableNameAt(long jarg1, long jarg2);
   public final static native int SDBP_Get(long jarg1, String jarg2);
   public final static native int SDBP_GetCStr(long jarg1, byte[] jarg2, int jarg3);
   public final static native int SDBP_Set(long jarg1, String jarg2, String jarg3);

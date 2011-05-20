@@ -3,7 +3,14 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual C++ Express 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienDB", "ScalienDB.vcproj", "{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Test", "Test.vcproj", "{CAB32418-BC4A-4AF3-903C-205912910654}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienClientCSharpDLL", "ScalienClientCSharpDLL.vcproj", "{F715807D-757A-4A04-B010-D794D1A39E86}"
+	ProjectSection(ProjectDependencies) = postProject
+		{976E9A99-01CA-4A96-A801-6C7D1C17AAA2} = {976E9A99-01CA-4A96-A801-6C7D1C17AAA2}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienClientLib", "ScalienClientLib.vcproj", "{976E9A99-01CA-4A96-A801-6C7D1C17AAA2}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ScalienTest", "ScalienTest.vcproj", "{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,10 +22,18 @@ Global
 		{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}.Debug|Win32.Build.0 = Debug|Win32
 		{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}.Release|Win32.ActiveCfg = Release|Win32
 		{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}.Release|Win32.Build.0 = Release|Win32
-		{CAB32418-BC4A-4AF3-903C-205912910654}.Debug|Win32.ActiveCfg = Debug|Win32
-		{CAB32418-BC4A-4AF3-903C-205912910654}.Debug|Win32.Build.0 = Debug|Win32
-		{CAB32418-BC4A-4AF3-903C-205912910654}.Release|Win32.ActiveCfg = Release|Win32
-		{CAB32418-BC4A-4AF3-903C-205912910654}.Release|Win32.Build.0 = Release|Win32
+		{F715807D-757A-4A04-B010-D794D1A39E86}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F715807D-757A-4A04-B010-D794D1A39E86}.Debug|Win32.Build.0 = Debug|Win32
+		{F715807D-757A-4A04-B010-D794D1A39E86}.Release|Win32.ActiveCfg = Release|Win32
+		{F715807D-757A-4A04-B010-D794D1A39E86}.Release|Win32.Build.0 = Release|Win32
+		{976E9A99-01CA-4A96-A801-6C7D1C17AAA2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{976E9A99-01CA-4A96-A801-6C7D1C17AAA2}.Debug|Win32.Build.0 = Debug|Win32
+		{976E9A99-01CA-4A96-A801-6C7D1C17AAA2}.Release|Win32.ActiveCfg = Release|Win32
+		{976E9A99-01CA-4A96-A801-6C7D1C17AAA2}.Release|Win32.Build.0 = Release|Win32
+		{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}.Debug|Win32.Build.0 = Debug|Win32
+		{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}.Release|Win32.ActiveCfg = Release|Win32
+		{F9BB17C5-AFB8-4700-A75C-8AAF4A50A0A2}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

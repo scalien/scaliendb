@@ -1,7 +1,6 @@
 #include "UrlParam.h"
 #include "System/Buffers/Buffer.h"
-
-#include <stdarg.h>
+#include "System/Platform.h"
 
 #define PARAM_OFFSET(n)     *(int*)(params.GetBuffer() + (n) * sizeof(int) * 2)
 #define PARAM_LENGTH(n)     *(int*)(params.GetBuffer() + (n) * sizeof(int) * 2 + sizeof(int))

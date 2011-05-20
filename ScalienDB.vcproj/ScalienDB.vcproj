@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib mswsock.lib"
+				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -92,7 +92,7 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="..\bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="0"
@@ -136,7 +136,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib mswsock.lib"
+				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -218,18 +218,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\System\Mutex.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Mutex_Posix.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\Mutex_Windows.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\System\Platform.h"
 				>
 			</File>
@@ -239,18 +227,6 @@
 			</File>
 			<File
 				RelativePath="..\src\System\Stopwatch.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\ThreadPool.h"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\ThreadPool_Posix.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\System\ThreadPool_Windows.cpp"
 				>
 			</File>
 			<File
@@ -418,6 +394,46 @@
 				</File>
 				<File
 					RelativePath="..\src\System\IO\Socket_Windows.cpp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Threading"
+				>
+				<File
+					RelativePath="..\src\System\Threading\Job.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\JobProcessor.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\JobProcessor.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Mutex.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Mutex_Posix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Mutex_Windows.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\ThreadPool.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\ThreadPool_Posix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\ThreadPool_Windows.cpp"
 					>
 				</File>
 			</Filter>
@@ -761,6 +777,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Application\HTTP\JSONBufferWriter.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\HTTP\JSONBufferWriter.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Application\HTTP\JSONSession.cpp"
 					>
 				</File>
@@ -1092,14 +1116,6 @@
 					Name="Quorums"
 					>
 					<File
-						RelativePath="..\src\Framework\Replication\Quorums\DoubleMajorityQuorum.cpp"
-						>
-					</File>
-					<File
-						RelativePath="..\src\Framework\Replication\Quorums\DoubleMajorityQuorum.h"
-						>
-					</File>
-					<File
 						RelativePath="..\src\Framework\Replication\Quorums\MajorityQuorum.cpp"
 						>
 					</File>
@@ -1201,6 +1217,22 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Framework\Storage\StorageArchiveLogSegmentJob.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageArchiveLogSegmentJob.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageAsyncBulkCursor.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageAsyncBulkCursor.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Framework\Storage\StorageAsyncGet.cpp"
 					>
 				</File>
@@ -1269,6 +1301,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Framework\Storage\StorageCommitJob.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageCommitJob.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Framework\Storage\StorageConfig.cpp"
 					>
 				</File>
@@ -1282,6 +1322,22 @@
 				</File>
 				<File
 					RelativePath="..\src\Framework\Storage\StorageDataPage.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageDeleteFileChunkJob.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageDeleteFileChunkJob.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageDeleteMemoChunkJob.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageDeleteMemoChunkJob.h"
 					>
 				</File>
 				<File
@@ -1341,14 +1397,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\StorageJob.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\Storage\StorageJob.h"
-					>
-				</File>
-				<File
 					RelativePath="..\src\Framework\Storage\StorageKeyValue.h"
 					>
 				</File>
@@ -1385,6 +1433,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\Framework\Storage\StorageMergeChunkJob.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageMergeChunkJob.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\Framework\Storage\StoragePage.cpp"
 					>
 				</File>
@@ -1406,6 +1462,14 @@
 				</File>
 				<File
 					RelativePath="..\src\Framework\Storage\StorageRecovery.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageSerializeChunkJob.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageSerializeChunkJob.h"
 					>
 				</File>
 				<File
@@ -1433,7 +1497,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\Framework\Storage\TODO.txt"
+					RelativePath="..\src\Framework\Storage\StorageWriteChunkJob.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Framework\Storage\StorageWriteChunkJob.h"
 					>
 				</File>
 			</Filter>

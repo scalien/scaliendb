@@ -41,6 +41,7 @@ static int SetupDefaultClient(Client& client)
 {
     const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.51:7080"};
+//    const char*     nodes[] = {"192.168.1.5:7080"};
     ReadBuffer      databaseName = "testdb";
     ReadBuffer      tableName = "testtable";
     int             ret;
@@ -49,7 +50,7 @@ static int SetupDefaultClient(Client& client)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(100000);
+    client.SetMasterTimeout(10000);
     client.SetGlobalTimeout(100000);
     
     ret = client.UseDatabase(databaseName);
@@ -67,25 +68,13 @@ TEST_DEFINE(TestClientBasic)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key = "hol";
     ReadBuffer      resultKey;
     ReadBuffer      value = "peru";
     ReadBuffer      resultValue;
     int             ret;
-    
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(1000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
+	ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
@@ -134,25 +123,13 @@ TEST_DEFINE(TestClientBasic)
 TEST_DEFINE(TestClientSet)
 {
     Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
     unsigned        num = 500000;
         
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(1000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
@@ -175,29 +152,50 @@ TEST_DEFINE(TestClientGet)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     char            keybuf[33];
     int             ret;
-        
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(1000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
     ret = snprintf(keybuf, sizeof(keybuf), "UzXM3k7UGr");
     key.Wrap(keybuf, ret);
     ret = client.Get(key);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    result = client.GetResult();
+    for (result->Begin(); !result->IsEnd(); result->Next())
+    {
+        if (result->GetCommandStatus() != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+        TEST_LOG("Elapsed: %u", result->GetElapsedTime());
+    }
+    
+    delete result;
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientRemove)
+{
+    Client          client;
+    Result*         result;
+    ReadBuffer      key;
+    char            keybuf[33];
+    int             ret;
+
+    ret = SetupDefaultClient(client);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = snprintf(keybuf, sizeof(keybuf), "UzXM3k7UGr");
+    key.Wrap(keybuf, ret);
+    ret = client.Remove(key);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 

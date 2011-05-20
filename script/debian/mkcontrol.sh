@@ -12,12 +12,12 @@ Package: $PACKAGE
 Version: $VERSION
 Section: database
 Priority: optional
-Depends: libstdc++6, libdb4.4++|libdb4.5++|libdb4.6++
+Depends: libstdc++6
 Architecture: $ARCH
 Installed-Size: 1024
 Maintainer: Scalien Software (info@scalien.com)
 Source: $PACKAGE
-Description: Scalien Keyspace DB
-  Keyspace is a consistently replicated key-value database.
+Description: ScalienDB
+  ScalienDB is a consistently replicated, scalable key-value database.
 
 EOF

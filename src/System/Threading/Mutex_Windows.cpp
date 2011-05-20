@@ -1,6 +1,6 @@
 #ifdef PLATFORM_WINDOWS
 #include "Mutex.h"
-#include "Macros.h"
+#include "System/Macros.h"
 
 #include <windows.h>
 
@@ -23,10 +23,12 @@ Mutex::~Mutex()
 void Mutex::Lock()
 {
     EnterCriticalSection((CRITICAL_SECTION*) &mutex);
+    threadID = (uint64_t) GetCurrentThreadId();
 }
 
 void Mutex::Unlock()
 {
+    threadID = 0;
     LeaveCriticalSection((CRITICAL_SECTION*) &mutex);
 }
 

@@ -225,6 +225,7 @@ void IOProcessor::Shutdown()
     CloseHandle(iocp);
     iocp = NULL;
     SetConsoleCtrlHandler(ConsoleCtrlHandler, FALSE);
+    WSACleanup();
 }
 
 static bool RequestReadNotification(IOOperation* ioop)

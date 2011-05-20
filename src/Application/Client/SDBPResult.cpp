@@ -265,7 +265,11 @@ int Result::GetValue(ReadBuffer& value)
         value = (*responseCursor)->values[responsePos];
     }
     else
+    {
+        if (request->response.valueBuffer == NULL)
+            return SDBP_API_ERROR;
         value.Wrap(*request->response.valueBuffer);
+    }
     
     return request->status;
 }

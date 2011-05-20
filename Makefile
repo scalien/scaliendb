@@ -227,6 +227,21 @@ $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_JAR_FILE): $(SRC_DIR)/$(JAVA_CLIENT_WRAPPER).cpp $
 	cp -rf $(SRC_DIR)/$(JAVA_CLIENT_DIR)/*.java $(BIN_DIR)/$(JAVA_DIR)/$(JAVA_PACKAGE_DIR)
 	cd $(BIN_DIR)/$(JAVA_DIR) && javac $(JAVA_PACKAGE_DIR)/Client.java && jar cf $(JAVA_JAR_FILE) $(JAVA_PACKAGE_DIR)/*.class && rm -rf com
 	
+# csharp wrapper
+CSHARP_DIR = csharp
+CSHARP_NAMESPACE = Scalien
+
+CSHARPLIB=$(SRC_DIR)/$(CSHARP_CLIENT_WRAPPER).cpp
+
+CSHARP_CLIENT_DIR = \
+	$(CLIENT_DIR)/CSharp
+
+CSHARP_CLIENT_WRAPPER = \
+	$(CSHARP_CLIENT_DIR)/scaliendb_client_csharp
+
+$(SRC_DIR)/$(CSHARP_CLIENT_WRAPPER).cpp: $(CLIENT_WRAPPER_FILES)
+	-swig -csharp -c++ -namespace $(CSHARP_NAMESPACE) -outdir $(SRC_DIR)/$(CSHARP_CLIENT_DIR)/ScalienClient -o $@ -I$(SRC_DIR)/$(CSHARP_CLIENT_DIR) $(SRC_DIR)/$(CLIENT_DIR)/scaliendb_client.i
+
 
 # php wrapper
 PHP_DIR = php
@@ -248,6 +263,7 @@ $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o: $(BUILD_DIR) $(SRC_DIR)/$(PHP_CLIENT_WRAPP
 $(BIN_DIR)/$(PHP_DIR)/$(PHP_LIB): $(BIN_DIR)/$(ALIB) $(SWIG_WRAPPER_OBJECT) $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php
 	-mkdir -p $(BIN_DIR)/$(PHP_DIR)
 	$(CXX) $(SWIG_LDFLAGS) -o $@ $(BUILD_DIR)/$(PHP_CLIENT_WRAPPER).o $(SWIG_WRAPPER_OBJECT) $(BIN_DIR)/$(ALIB)
+	php -l $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php
 	-cp -rf $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb.php $(BIN_DIR)/$(PHP_DIR)
 	-cp -rf $(SRC_DIR)/$(PHP_CLIENT_DIR)/scaliendb_client.php $(BIN_DIR)/$(PHP_DIR)
 
@@ -354,6 +370,8 @@ pythonlib: $(BUILD_DIR) clientlib
 	$(MAKE) $(PYTHONLIB) BUILD="debug"
 
 javalib: $(BUILD_DIR) $(CLIENTLIBS) $(JAVALIB)
+
+csharplib: $(BUILD_DIR) $(CSHARPLIB)
 
 phplib: $(BUILD_DIR) $(CLIENTLIBS) $(PHPLIB)
 

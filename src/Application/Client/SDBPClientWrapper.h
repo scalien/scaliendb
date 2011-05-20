@@ -49,7 +49,7 @@ struct SDBP_Buffer
 /*
 ===============================================================================================
 
- SDBP Result functions
+ Result functions
 
 ===============================================================================================
 */
@@ -76,7 +76,7 @@ unsigned        SDBP_ResultElapsedTime(ResultObj result);
 /*
 ===============================================================================================
 
- SDBP Client functions
+ Client functions
 
 ===============================================================================================
 */
@@ -85,6 +85,14 @@ ClientObj       SDBP_Create();
 int             SDBP_Init(ClientObj client, const SDBP_NodeParams& params);
 void            SDBP_Destroy(ClientObj client);
 ResultObj       SDBP_GetResult(ClientObj client);
+
+/*
+===============================================================================================
+
+ Client settings
+
+===============================================================================================
+*/
 
 void            SDBP_SetGlobalTimeout(ClientObj client, uint64_t timeout);
 void            SDBP_SetMasterTimeout(ClientObj client, uint64_t timeout);
@@ -99,6 +107,14 @@ void            SDBP_WaitConfigState(ClientObj client);
 void            SDBP_SetBatchLimit(ClientObj client, uint64_t limit);
 void            SDBP_SetBulkLoading(ClientObj client, bool bulk);
 void            SDBP_SetConsistencyLevel(ClientObj client, int consistencyLevel);
+
+/*
+===============================================================================================
+
+ Schema commands
+
+===============================================================================================
+*/
 
 int             SDBP_CreateQuorum(ClientObj client, const SDBP_NodeParams& params);
 int             SDBP_DeleteQuorum(ClientObj client, uint64_t quorumID);
@@ -127,6 +143,26 @@ int             SDBP_UseDatabase(ClientObj client, const std::string& name);
 int             SDBP_UseDatabaseID(ClientObj client, uint64_t databaseID);
 int             SDBP_UseTable(ClientObj client, const std::string& name);
 int             SDBP_UseTableID(ClientObj client, uint64_t tableID);
+
+unsigned        SDBP_GetNumQuorums(ClientObj client);
+uint64_t        SDBP_GetQuorumIDAt(ClientObj client, unsigned n);
+
+unsigned        SDBP_GetNumDatabases(ClientObj client);
+uint64_t        SDBP_GetDatabaseIDAt(ClientObj client, unsigned n);
+std::string     SDBP_GetDatabaseNameAt(ClientObj client, unsigned n);
+
+unsigned        SDBP_GetNumTables(ClientObj client);
+uint64_t        SDBP_GetTableIDAt(ClientObj client, unsigned n);
+std::string     SDBP_GetTableNameAt(ClientObj client, unsigned n);
+
+
+/*
+===============================================================================================
+
+ Data commands
+
+===============================================================================================
+*/
 
 int             SDBP_Get(ClientObj client, const std::string& key);
 int             SDBP_GetCStr(ClientObj client, char* key, int len);

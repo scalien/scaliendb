@@ -5,12 +5,12 @@ import java.util.TreeMap;
 
 public class Result
 {
-	private SWIGTYPE_p_void cptr;
-	
-	Result(SWIGTYPE_p_void cptr) {
-		this.cptr = cptr;
-	}
-	
+    private SWIGTYPE_p_void cptr;
+    
+    Result(SWIGTYPE_p_void cptr) {
+        this.cptr = cptr;
+    }
+    
     /**
      * Closes the result object.
      *
@@ -26,23 +26,23 @@ public class Result
         }
     }
     
-	protected void finalize() {
+    protected void finalize() {
         close();
-	}
-	
+    }
+    
     /**
      * Returns the current key in result.
      */
-	public String getKey() {
-		return scaliendb_client.SDBP_ResultKey(cptr);
-	}
-	
+    public String getKey() {
+        return scaliendb_client.SDBP_ResultKey(cptr);
+    }
+    
     /**
      * Returns the current value in result.
      */
-	public String getValue() {
-		return scaliendb_client.SDBP_ResultValue(cptr);
-	}
+    public String getValue() {
+        return scaliendb_client.SDBP_ResultValue(cptr);
+    }
     
     /**
      * Returns the current key in result.
@@ -50,14 +50,14 @@ public class Result
     public byte[] getKeyBytes() {
         return scaliendb_client.SDBP_ResultKeyBuffer(cptr);
     }
-	
+    
     /**
      * Returns the current value in result.
      */
     public byte[] getValueBytes() {
         return scaliendb_client.SDBP_ResultValueBuffer(cptr);
     }
-	
+    
     /**
      * Returns the current numeric value in result.
      */
@@ -78,46 +78,47 @@ public class Result
     /**
      * Jumps to the first elem in the result.
      */
-	public void begin() {
-		scaliendb_client.SDBP_ResultBegin(cptr);
-	}
-	
+    public void begin() {
+        scaliendb_client.SDBP_ResultBegin(cptr);
+    }
+    
     /**
      * Moves to the next elem in the result.
      */
-	public void next() {
-		scaliendb_client.SDBP_ResultNext(cptr);
-	}
-	
+    public boolean next() {
+        scaliendb_client.SDBP_ResultNext(cptr);
+        return isEnd() ? false : true;
+    }
+    
     /**
      * Returns true, if the current elem is the last one.
      */
-	public boolean isEnd() {
-		return scaliendb_client.SDBP_ResultIsEnd(cptr);
-	}
-	
+    public boolean isEnd() {
+        return scaliendb_client.SDBP_ResultIsEnd(cptr);
+    }
+    
     /**
      * Returns the transport status.
      */
-	public int getTransportStatus() {
-		return scaliendb_client.SDBP_ResultTransportStatus(cptr);
-	}
-	
+    public int getTransportStatus() {
+        return scaliendb_client.SDBP_ResultTransportStatus(cptr);
+    }
+    
     /**
      * Returns the command status.
      */
-	public int getCommandStatus() {
-		return scaliendb_client.SDBP_ResultCommandStatus(cptr);
-	}	
-	
+    public int getCommandStatus() {
+        return scaliendb_client.SDBP_ResultCommandStatus(cptr);
+    }   
+    
     /**
      * Returns the key-value mappings in a TreeMap.
      */
-	public TreeMap<String, String> getKeyValues() {
-		TreeMap<String, String> keyvals = new TreeMap<String, String>();
-		for (begin(); !isEnd(); next())
-			keyvals.put(getKey(), getValue());
-			
-		return keyvals;
-	}
+    public TreeMap<String, String> getKeyValues() {
+        TreeMap<String, String> keyvals = new TreeMap<String, String>();
+        for (begin(); !isEnd(); next())
+            keyvals.put(getKey(), getValue());
+            
+        return keyvals;
+    }
 }

@@ -71,6 +71,10 @@ abstract class scaliendb_client {
 		return SDBP_ResultNumber($result);
 	}
 
+	static function SDBP_ResultIsValueChanged($result) {
+		return SDBP_ResultIsValueChanged($result);
+	}
+
 	static function SDBP_ResultDatabaseID($result) {
 		return SDBP_ResultDatabaseID($result);
 	}

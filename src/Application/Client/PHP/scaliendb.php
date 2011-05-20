@@ -52,6 +52,10 @@ class Result {
         return scaliendb_client::SDBP_ResultNumber($this->cptr);
     }
     
+    public function isValueChanged() {
+        return scaliendb_client::SDBP_ResultIsValueChanged($this->cptr);
+    }
+    
     public function getDatabaseID() {
         return scaliendb_client::SDBP_ResultDatabaseID($this->cptr);
     }
@@ -285,7 +289,73 @@ class ScalienClient {
     }
     
     public function set($key, $value) {
-        return $this->_dataCommand("SDBP_Set", $key, $value);
+        $status = $this->_dataCommand("SDBP_Set", $key, $value);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
+        return TRUE;
+    }
+    
+    public function setIfNotExists($key, $value) {
+        $status = $this->_dataCommand("SDBP_SetIfNotExists", $key, $value);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
+        return TRUE;
+    }
+    
+    public function testAndSet($key, $test, $value) {
+        $status = $this->_dataCommand("SDBP_TestAndSet", $key, $test, $value);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
+        return $this->result->isValueChanged();
+    }
+    
+    public function getAndSet($key, $value) {
+        $status = $this->_dataCommand("SDBP_GetAndSet", $key, $value);
+        if ($status != SDBP_SUCCESS)
+            return NULL;
+        return $this->result->getValue();
+    }
+    
+    public function add($key, $value) {
+        $status = $this->_dataCommand("SDBP_Add", $key, $value);
+        if ($status != SDBP_SUCCESS)
+            return NULL;
+        return $this->result->getNumber();
+    }
+    
+    public function delete($key) {
+        $status = $this->_dataCommand("SDBP_Delete", $key);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
+        return TRUE;
+    }
+    
+    public function remove($key) {
+        $status = $this->_dataCommand("SDBP_Remove", $key);
+        if ($status != SDBP_SUCCESS)
+            return NULL;
+        return $this->result->getValue();
+    }
+    
+    public function listKeys($start = "", $end = "", $count = 0, $offset = 0) {
+        $status = $this->_dataCommand("SDBP_ListKeys", $start, $end, $count, $offset);
+        if ($status != SDBP_SUCCESS)
+            return NULL;
+        return $this->result->getKeys();
+    }
+
+    public function listKeyValues($start = "", $end = "", $count = 0, $offset = 0) {
+        $status = $this->_dataCommand("SDBP_ListKeyValues", $start, $end, $count, $offset);
+        if ($status != SDBP_SUCCESS)
+            return NULL;
+        return $this->result->getKeyValues();
+    }
+
+    public function count($start = "", $end = "", $count = 0, $offset = 0) {
+        $status = $this->_dataCommand("SDBP_Count", $start, $end, $count, $offset);
+        if ($status != SDBP_SUCCESS)
+            return NULL;
+        return $this->result->getNumber();
     }
     
     private function _dataCommand() {

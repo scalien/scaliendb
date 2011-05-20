@@ -247,6 +247,38 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_UseTableID(SWIGTYPE_p_void.getCPtr(client), tableID);
   }
 
+  public static long SDBP_GetNumQuorums(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_GetNumQuorums(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static java.math.BigInteger SDBP_GetQuorumIDAt(SWIGTYPE_p_void client, long n) {
+    return scaliendb_clientJNI.SDBP_GetQuorumIDAt(SWIGTYPE_p_void.getCPtr(client), n);
+  }
+
+  public static long SDBP_GetNumDatabases(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_GetNumDatabases(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static java.math.BigInteger SDBP_GetDatabaseIDAt(SWIGTYPE_p_void client, long n) {
+    return scaliendb_clientJNI.SDBP_GetDatabaseIDAt(SWIGTYPE_p_void.getCPtr(client), n);
+  }
+
+  public static String SDBP_GetDatabaseNameAt(SWIGTYPE_p_void client, long n) {
+    return scaliendb_clientJNI.SDBP_GetDatabaseNameAt(SWIGTYPE_p_void.getCPtr(client), n);
+  }
+
+  public static long SDBP_GetNumTables(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_GetNumTables(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static java.math.BigInteger SDBP_GetTableIDAt(SWIGTYPE_p_void client, long n) {
+    return scaliendb_clientJNI.SDBP_GetTableIDAt(SWIGTYPE_p_void.getCPtr(client), n);
+  }
+
+  public static String SDBP_GetTableNameAt(SWIGTYPE_p_void client, long n) {
+    return scaliendb_clientJNI.SDBP_GetTableNameAt(SWIGTYPE_p_void.getCPtr(client), n);
+  }
+
   public static int SDBP_Get(SWIGTYPE_p_void client, String key) {
     return scaliendb_clientJNI.SDBP_Get(SWIGTYPE_p_void.getCPtr(client), key);
   }
