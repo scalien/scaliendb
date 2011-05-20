@@ -922,10 +922,11 @@ function createDashboard(configState)
 	{
 		nodeID = shardServerIDs[i];
 		shardServer = scaliendb.getShardServer(configState, nodeID);
+		var nodeString = nodeID + ' [' + shardServer["endpoint"] + ']';
 		if (shardServer["hasHeartbeat"])
-			html += ' <span class="healthy shardserver-number">' + nodeID + '</span> ';
+			html += ' <span class="healthy shardserver-number">' + nodeString + '</span> ';
 		else
-			html += ' <span class="no-heartbeat shardserver-number">' + nodeID + '</span> ';
+			html += ' <span class="no-heartbeat shardserver-number">' + nodeString + '</span> ';
 	}
 	$("shardservers").innerHTML = html;
 }
