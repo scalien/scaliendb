@@ -61,8 +61,8 @@ public class scaliendb_client {
     return ret;
   }
 
-  public static bool SDBP_ResultIsValueChanged(SWIGTYPE_p_void result) {
-    bool ret = scaliendb_clientPINVOKE.SDBP_ResultIsValueChanged(SWIGTYPE_p_void.getCPtr(result));
+  public static bool SDBP_ResultIsConditionalSuccess(SWIGTYPE_p_void result) {
+    bool ret = scaliendb_clientPINVOKE.SDBP_ResultIsConditionalSuccess(SWIGTYPE_p_void.getCPtr(result));
     return ret;
   }
 
@@ -435,6 +435,17 @@ public class scaliendb_client {
 
   public static int SDBP_DeleteCStr(SWIGTYPE_p_void client_, string key, int len) {
     int ret = scaliendb_clientPINVOKE.SDBP_DeleteCStr(SWIGTYPE_p_void.getCPtr(client_), key, len);
+    return ret;
+  }
+
+  public static int SDBP_TestAndDelete(SWIGTYPE_p_void client, string key, string test) {
+    int ret = scaliendb_clientPINVOKE.SDBP_TestAndDelete(SWIGTYPE_p_void.getCPtr(client), key, test);
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int SDBP_TestAndDeleteCStr(SWIGTYPE_p_void client_, string key, int arg2, string test, int arg4) {
+    int ret = scaliendb_clientPINVOKE.SDBP_TestAndDeleteCStr(SWIGTYPE_p_void.getCPtr(client_), key, arg2, test, arg4);
     return ret;
   }
 

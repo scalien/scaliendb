@@ -284,8 +284,8 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultNumber")]
   public static extern ulong SDBP_ResultNumber(HandleRef jarg1);
 
-  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultIsValueChanged")]
-  public static extern bool SDBP_ResultIsValueChanged(HandleRef jarg1);
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultIsConditionalSuccess")]
+  public static extern bool SDBP_ResultIsConditionalSuccess(HandleRef jarg1);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultDatabaseID")]
   public static extern ulong SDBP_ResultDatabaseID(HandleRef jarg1);
@@ -502,6 +502,12 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_DeleteCStr")]
   public static extern int SDBP_DeleteCStr(HandleRef jarg1, string jarg2, int jarg3);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_TestAndDelete")]
+  public static extern int SDBP_TestAndDelete(HandleRef jarg1, string jarg2, string jarg3);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_TestAndDeleteCStr")]
+  public static extern int SDBP_TestAndDeleteCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Remove")]
   public static extern int SDBP_Remove(HandleRef jarg1, string jarg2);

@@ -730,13 +730,13 @@ SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_ResultNumber(void * jarg1)
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_SDBP_ResultIsValueChanged(void * jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_SDBP_ResultIsConditionalSuccess(void * jarg1) {
   unsigned int jresult ;
   ResultObj arg1 = (ResultObj) 0 ;
   bool result;
   
   arg1 = (ResultObj)jarg1; 
-  result = (bool)SDBP_ResultIsValueChanged(arg1);
+  result = (bool)SDBP_ResultIsConditionalSuccess(arg1);
   jresult = result; 
   return jresult;
 }
@@ -1860,6 +1860,52 @@ SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_DeleteCStr(void * jarg1, char * jarg2, in
   arg2 = (char *)jarg2; 
   arg3 = (int)jarg3; 
   result = (int)SDBP_DeleteCStr(arg1,arg2,arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_TestAndDelete(void * jarg1, char * jarg2, char * jarg3) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (int)SDBP_TestAndDelete(arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_TestAndDeleteCStr(void * jarg1, char * jarg2, int jarg3, char * jarg4, int jarg5) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (char *)jarg2; 
+  arg3 = (int)jarg3; 
+  arg4 = (char *)jarg4; 
+  arg5 = (int)jarg5; 
+  result = (int)SDBP_TestAndDeleteCStr(arg1,arg2,arg3,arg4,arg5);
   jresult = result; 
   return jresult;
 }
