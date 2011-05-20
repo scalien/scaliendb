@@ -25,7 +25,7 @@ void ClientResponse::Init()
     offset = 0;
     paxosID = 0;
     value.Reset();
-    isValueChanged = false;
+    isConditionalSuccess = false;
 }
 
 void ClientResponse::Clear()
@@ -112,6 +112,7 @@ void ClientResponse::Transfer(ClientResponse& other)
     other.numKeys = numKeys;
     other.keys = keys;
     other.values = values;
+    other.isConditionalSuccess = isConditionalSuccess;
 
     Init();
 }
@@ -211,7 +212,7 @@ bool ClientResponse::Next(
     return true;
 }
 
-void ClientResponse::SetValueChanged(bool isValueChanged_)
+void ClientResponse::SetConditionalSuccess(bool isConditionalSuccess_)
 {
-    isValueChanged = isValueChanged_;
+    isConditionalSuccess = isConditionalSuccess_;
 }

@@ -112,6 +112,7 @@ public:
     int                     Add(const ReadBuffer& key, int64_t number);
     int                     Append(const ReadBuffer& key, const ReadBuffer& value);
     int                     Delete(const ReadBuffer& key);
+    int                     TestAndDelete(const ReadBuffer& key, const ReadBuffer& test);
     int                     Remove(const ReadBuffer& key);
 
     int                     ListKeys(const ReadBuffer& startKey, const ReadBuffer& endKey, 

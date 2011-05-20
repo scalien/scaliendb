@@ -288,6 +288,12 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->type, request->commandID,
              request->tableID, &request->key);
             return true;
+        
+        case CLIENTREQUEST_TEST_AND_DELETE:
+            buffer.Appendf("%c:%U:%U:%#B:%#B",
+             request->type, request->commandID,
+             request->tableID, &request->key, &request->test);
+            return true;
 
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:

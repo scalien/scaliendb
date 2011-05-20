@@ -181,6 +181,48 @@ TEST_DEFINE(TestClientGet)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientTestAndDelete)
+{
+    Client          client;
+    Result*         result;
+    ReadBuffer      key;
+    ReadBuffer      value;
+    int             ret;
+    bool            isConditionalSuccess;
+
+    ret = SetupDefaultClient(client);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    key.Wrap("x");
+    value.Wrap("x");
+    ret = client.Set(key, value);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.TestAndDelete(key, value);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    result = client.GetResult();
+    for (result->Begin(); !result->IsEnd(); result->Next())
+    {
+        if (result->GetCommandStatus() != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+        if (result->IsConditionalSuccess(isConditionalSuccess))
+            TEST_CLIENT_FAIL();
+        if (!isConditionalSuccess)
+            TEST_CLIENT_FAIL();
+        TEST_LOG("Elapsed: %u", result->GetElapsedTime());
+    }
+    
+    delete result;
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientRemove)
 {
     Client          client;

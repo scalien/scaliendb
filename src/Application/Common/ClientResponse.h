@@ -56,7 +56,7 @@ public:
     ReadBuffer*     keys;
     ReadBuffer*     values;
     Buffer*         valueBuffer;
-    bool            isValueChanged;
+    bool            isConditionalSuccess;
     ConfigState     configState;
 
     ClientResponse();
@@ -82,7 +82,7 @@ public:
     bool            Hello();
     bool            Next(ReadBuffer& nextShardKey, ReadBuffer& endKey, uint64_t count, uint64_t offset);
 
-    void            SetValueChanged(bool isValueChanged);
+    void            SetConditionalSuccess(bool isConditionalSuccess);
 };
 
 #endif

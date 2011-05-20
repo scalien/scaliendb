@@ -603,6 +603,11 @@ int Client::Delete(const ReadBuffer& key)
     CLIENT_DATA_COMMAND(Delete, (ReadBuffer&) key);
 }
 
+int Client::TestAndDelete(const ReadBuffer& key, const ReadBuffer& test)
+{
+    CLIENT_DATA_COMMAND(TestAndDelete, (ReadBuffer&) key, (ReadBuffer&) test);
+}
+
 int Client::Remove(const ReadBuffer& key)
 {
     CLIENT_DATA_COMMAND(Remove, (ReadBuffer&) key);

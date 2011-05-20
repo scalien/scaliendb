@@ -287,12 +287,12 @@ int Result::GetNumber(uint64_t& number)
     return request->status;
 }
 
-int Result::IsValueChanged(bool& isValueChanged)
+int Result::IsConditionalSuccess(bool& isConditionalSuccess)
 {
     if (requestCursor == NULL)
         return SDBP_API_ERROR;
 
-    isValueChanged = requestCursor->response.isValueChanged;
+    isConditionalSuccess = requestCursor->response.isConditionalSuccess;
     return requestCursor->status;
 }
 

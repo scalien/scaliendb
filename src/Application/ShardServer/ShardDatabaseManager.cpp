@@ -514,7 +514,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
                 if (message.clientRequest)
                 {
                     message.clientRequest->response.Value(userValue);
-                    message.clientRequest->response.SetValueChanged(false);
+                    message.clientRequest->response.SetConditionalSuccess(false);
                 }
                 break;
             }
@@ -524,7 +524,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
             if (message.clientRequest)
             {
                 message.clientRequest->response.Value(message.value);
-                message.clientRequest->response.SetValueChanged(true);
+                message.clientRequest->response.SetConditionalSuccess(true);
             }
             break;
         case SHARDMESSAGE_TEST_AND_DELETE:
@@ -538,7 +538,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
                 if (message.clientRequest)
                 {
                     message.clientRequest->response.Value(userValue);
-                    message.clientRequest->response.SetValueChanged(false);
+                    message.clientRequest->response.SetConditionalSuccess(false);
                 }
                 break;
             }
@@ -547,7 +547,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t paxosID, uint64_t commandID, 
             if (message.clientRequest)
             {
                 message.clientRequest->response.OK();
-                message.clientRequest->response.SetValueChanged(true);
+                message.clientRequest->response.SetConditionalSuccess(true);
             }
             break;
         case SHARDMESSAGE_GET_AND_SET:

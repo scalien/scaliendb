@@ -34,11 +34,12 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientMixedWriteReadBatched);
 //TEST_ADD(TestClientMultiThread);
 //TEST_ADD(TestClientMultiThreadMulti);
-TEST_ADD(TestClientRemove);
+//TEST_ADD(TestClientRemove);
 //TEST_ADD(TestClientSchemaSet);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestClientSetFailover);
 //TEST_ADD(TestClientTestAndSet);
+TEST_ADD(TestClientTestAndDelete);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
 //TEST_ADD(TestConfigStateJSON);

@@ -109,22 +109,17 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         case CLIENTRESPONSE_OK:
             buffer.Writef("%c:%U",
              response->type, response->request->commandID);
-            if (response->paxosID > 0)
-                buffer.Appendf(":PU%U", response->paxosID);
+            WriteOptionalParts(buffer);
             return true;
         case CLIENTRESPONSE_NUMBER:
             buffer.Writef("%c:%U:%U",
              response->type, response->request->commandID, response->number);
-            if (response->paxosID > 0)
-                buffer.Appendf(":PU%U", response->paxosID);
+            WriteOptionalParts(buffer);
             return true;
         case CLIENTRESPONSE_VALUE:
             buffer.Writef("%c:%U:%#R",
              response->type, response->request->commandID, &response->value);
-            if (response->paxosID > 0)
-                buffer.Appendf(":%cU%U", CLIENTRESPONSE_OPT_PAXOSID, response->paxosID);
-            if (response->isValueChanged)
-                buffer.Appendf(":%cb%b", CLIENTRESPONSE_OPT_VALUE_CHANGED, response->isValueChanged);
+            WriteOptionalParts(buffer);
             return true;
         case CLIENTRESPONSE_LIST_KEYS:
             buffer.Writef("%c:%U:%u",
@@ -205,7 +200,7 @@ int SDBPResponseMessage::ReadOptionalParts(ReadBuffer buffer, int offset)
                 read = buffer.Readf(":%cU%U", &opt, &response->paxosID);
                 break;
             case CLIENTRESPONSE_OPT_VALUE_CHANGED:
-                read = buffer.Readf(":%cb%b", &opt, &response->isValueChanged);
+                read = buffer.Readf(":%cb%b", &opt, &response->isConditionalSuccess);
                 break;
             default:
                 // read any other message based on the type prefix
@@ -236,4 +231,12 @@ int SDBPResponseMessage::ReadOptionalParts(ReadBuffer buffer, int offset)
     }
     
     return pos;
+}
+
+void SDBPResponseMessage::WriteOptionalParts(Buffer& buffer)
+{
+    if (response->paxosID > 0)
+        buffer.Appendf(":PU%U", response->paxosID);
+    if (response->isConditionalSuccess)
+        buffer.Appendf(":%cb%b", CLIENTRESPONSE_OPT_VALUE_CHANGED, response->isConditionalSuccess);
 }

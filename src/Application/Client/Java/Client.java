@@ -198,7 +198,7 @@ public class Client
      * @param   nodes   an array of node IDs that makes the quorum
      * @return          the ID of the created quorum
      */
-    public long createQuorum(long[] nodes) throws SDBPException {
+    public Quorum createQuorum(long[] nodes) throws SDBPException {
         SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
         for (int i = 0; i < nodes.length; i++) {
             nodeParams.AddNode(Long.toString(nodes[i]));
@@ -208,7 +208,7 @@ public class Client
         nodeParams.Close();
 
         checkResultStatus(status, "Cannot create quorum");
-        return result.getNumber();
+        return new Quorum(this, result.getNumber());
     }
 
     /**
@@ -612,7 +612,7 @@ public class Client
             return false;
                 
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.isValueChanged();
+        return result.isConditionalSuccess();
     }
 
     /**
@@ -637,9 +637,9 @@ public class Client
             return false;
                 
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.isValueChanged();
+        return result.isConditionalSuccess();
     }
-
+    
     /**
      * Associates the specified value with the specified key. If the database previously contained
      * a mapping for this key, the old value is replaced and returned.
@@ -802,6 +802,54 @@ public class Client
             return;
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
+
+    /**
+     * Deletes the specified key only if it matches a specified test value.
+     * 
+     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @return          true if the key was deleted
+     */
+    public boolean testAndDelete(String key, String test) throws SDBPException {
+        int status = scaliendb_client.SDBP_TestAndDelete(cptr, key, test);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+        
+        if (isBatched())
+            return false;
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.isConditionalSuccess();
+    }
+
+    /**
+     * Deletes the specified key only if it matches a specified test value.
+     * 
+     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @return          true if the key was deleted
+     */
+    public boolean testAndDelete(byte[] key, byte[] test) throws SDBPException {
+        int status = scaliendb_client.SDBP_TestAndDeleteCStr(cptr, key, key.length, test, test.length);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+        
+        if (isBatched())
+            return false;
+        
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        return result.isConditionalSuccess();
     }
     
     /**

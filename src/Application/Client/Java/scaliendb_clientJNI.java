@@ -42,7 +42,7 @@ class scaliendb_clientJNI {
   public final static native byte[] SDBP_ResultKeyBuffer(long jarg1);
   public final static native byte[] SDBP_ResultValueBuffer(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultNumber(long jarg1);
-  public final static native boolean SDBP_ResultIsValueChanged(long jarg1);
+  public final static native boolean SDBP_ResultIsConditionalSuccess(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultDatabaseID(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultTableID(long jarg1);
   public final static native void SDBP_ResultBegin(long jarg1);
@@ -115,6 +115,8 @@ class scaliendb_clientJNI {
   public final static native int SDBP_AppendCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
   public final static native int SDBP_Delete(long jarg1, String jarg2);
   public final static native int SDBP_DeleteCStr(long jarg1, byte[] jarg2, int jarg3);
+  public final static native int SDBP_TestAndDelete(long jarg1, String jarg2, String jarg3);
+  public final static native int SDBP_TestAndDeleteCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
   public final static native int SDBP_Remove(long jarg1, String jarg2);
   public final static native int SDBP_RemoveCStr(long jarg1, byte[] jarg2, int jarg3);
   public final static native int SDBP_ListKeys(long jarg1, String jarg2, String jarg3, long jarg4, long jarg5);

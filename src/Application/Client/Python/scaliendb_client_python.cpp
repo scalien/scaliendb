@@ -5008,19 +5008,19 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_SDBP_ResultIsValueChanged(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+SWIGINTERN PyObject *_wrap_SDBP_ResultIsConditionalSuccess(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ResultObj arg1 = (ResultObj) 0 ;
   bool result;
   int res1 ;
   PyObject * obj0 = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ResultIsValueChanged",1,1,&obj0)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ResultIsConditionalSuccess",1,1,&obj0)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultIsValueChanged" "', argument " "1"" of type '" "ResultObj""'"); 
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultIsConditionalSuccess" "', argument " "1"" of type '" "ResultObj""'"); 
   }
-  result = (bool)SDBP_ResultIsValueChanged(arg1);
+  result = (bool)SDBP_ResultIsConditionalSuccess(arg1);
   resultobj = SWIG_From_bool(static_cast< bool >(result));
   return resultobj;
 fail:
@@ -7444,6 +7444,120 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_TestAndDelete(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  std::string *arg2 = 0 ;
+  std::string *arg3 = 0 ;
+  int result;
+  int res1 ;
+  int res2 = SWIG_OLDOBJ ;
+  int res3 = SWIG_OLDOBJ ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_TestAndDelete",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_TestAndDelete" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SDBP_TestAndDelete" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_TestAndDelete" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
+  }
+  {
+    std::string *ptr = (std::string *)0;
+    res3 = SWIG_AsPtr_std_string(obj2, &ptr);
+    if (!SWIG_IsOK(res3)) {
+      SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SDBP_TestAndDelete" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_TestAndDelete" "', argument " "3"" of type '" "std::string const &""'"); 
+    }
+    arg3 = ptr;
+  }
+  result = (int)SDBP_TestAndDelete(arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return resultobj;
+fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
+  if (SWIG_IsNewObj(res3)) delete arg3;
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_TestAndDeleteCStr(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  char *arg2 = (char *) 0 ;
+  int arg3 ;
+  char *arg4 = (char *) 0 ;
+  int arg5 ;
+  int result;
+  int res1 ;
+  int res2 ;
+  char *buf2 = 0 ;
+  int alloc2 = 0 ;
+  int val3 ;
+  int ecode3 = 0 ;
+  int res4 ;
+  char *buf4 = 0 ;
+  int alloc4 = 0 ;
+  int val5 ;
+  int ecode5 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
+  PyObject * obj3 = 0 ;
+  PyObject * obj4 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_TestAndDeleteCStr",5,5,&obj0,&obj1,&obj2,&obj3,&obj4)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_TestAndDeleteCStr" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  res2 = SWIG_AsCharPtrAndSize(obj1, &buf2, NULL, &alloc2);
+  if (!SWIG_IsOK(res2)) {
+    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SDBP_TestAndDeleteCStr" "', argument " "2"" of type '" "char *""'");
+  }
+  arg2 = reinterpret_cast< char * >(buf2);
+  ecode3 = SWIG_AsVal_int(obj2, &val3);
+  if (!SWIG_IsOK(ecode3)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode3), "in method '" "SDBP_TestAndDeleteCStr" "', argument " "3"" of type '" "int""'");
+  } 
+  arg3 = static_cast< int >(val3);
+  res4 = SWIG_AsCharPtrAndSize(obj3, &buf4, NULL, &alloc4);
+  if (!SWIG_IsOK(res4)) {
+    SWIG_exception_fail(SWIG_ArgError(res4), "in method '" "SDBP_TestAndDeleteCStr" "', argument " "4"" of type '" "char *""'");
+  }
+  arg4 = reinterpret_cast< char * >(buf4);
+  ecode5 = SWIG_AsVal_int(obj4, &val5);
+  if (!SWIG_IsOK(ecode5)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode5), "in method '" "SDBP_TestAndDeleteCStr" "', argument " "5"" of type '" "int""'");
+  } 
+  arg5 = static_cast< int >(val5);
+  result = (int)SDBP_TestAndDeleteCStr(arg1,arg2,arg3,arg4,arg5);
+  resultobj = SWIG_From_int(static_cast< int >(result));
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return resultobj;
+fail:
+  if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+  if (alloc4 == SWIG_NEWOBJ) delete[] buf4;
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_Remove(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -8154,7 +8268,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_ResultKeyBuffer", _wrap_SDBP_ResultKeyBuffer, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultValueBuffer", _wrap_SDBP_ResultValueBuffer, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultNumber", _wrap_SDBP_ResultNumber, METH_VARARGS, NULL},
-	 { (char *)"SDBP_ResultIsValueChanged", _wrap_SDBP_ResultIsValueChanged, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultIsConditionalSuccess", _wrap_SDBP_ResultIsConditionalSuccess, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultDatabaseID", _wrap_SDBP_ResultDatabaseID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultTableID", _wrap_SDBP_ResultTableID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultBegin", _wrap_SDBP_ResultBegin, METH_VARARGS, NULL},
@@ -8227,6 +8341,8 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_AppendCStr", _wrap_SDBP_AppendCStr, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Delete", _wrap_SDBP_Delete, METH_VARARGS, NULL},
 	 { (char *)"SDBP_DeleteCStr", _wrap_SDBP_DeleteCStr, METH_VARARGS, NULL},
+	 { (char *)"SDBP_TestAndDelete", _wrap_SDBP_TestAndDelete, METH_VARARGS, NULL},
+	 { (char *)"SDBP_TestAndDeleteCStr", _wrap_SDBP_TestAndDeleteCStr, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Remove", _wrap_SDBP_Remove, METH_VARARGS, NULL},
 	 { (char *)"SDBP_RemoveCStr", _wrap_SDBP_RemoveCStr, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ListKeys", _wrap_SDBP_ListKeys, METH_VARARGS, NULL},

@@ -168,7 +168,7 @@ uint64_t SDBP_ResultNumber(ResultObj result_)
     return number;
 }
 
-bool SDBP_ResultIsValueChanged(ResultObj result_)
+bool SDBP_ResultIsConditionalSuccess(ResultObj result_)
 {
     Result*     result = (Result*) result_;
     int         status;
@@ -177,7 +177,7 @@ bool SDBP_ResultIsValueChanged(ResultObj result_)
     if (!result)
         return 0;
     
-    status = result->IsValueChanged(ret);
+    status = result->IsConditionalSuccess(ret);
     if (status < 0)
         return false;
     
@@ -954,6 +954,27 @@ int SDBP_DeleteCStr(ClientObj client_, char* key_, int len)
     key.Wrap((char*) key_, len);
 
     return client->Delete(key);
+}
+
+int SDBP_TestAndDelete(ClientObj client_, const std::string& key_, const std::string& test_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key((char*) key_.c_str(), key_.length());
+    ReadBuffer  test((char*) test_.c_str(), test_.length());
+
+    return client->TestAndDelete(key, test);
+}
+
+int SDBP_TestAndDeleteCStr(ClientObj client_, char* key_, int keylen, char* test_, int testlen)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  key;
+    ReadBuffer  test;
+
+    key.Wrap((char*) key_, keylen);
+    test.Wrap((char*) test_, testlen);
+
+    return client->TestAndDelete(key, test);
 }
 
 int SDBP_Remove(ClientObj client_, const std::string& key_)

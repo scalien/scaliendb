@@ -13,6 +13,7 @@ public:
     bool            Write(Buffer& buffer);
     
     int             ReadOptionalParts(ReadBuffer buffer, int offset);
+    void            WriteOptionalParts(Buffer& buffer);
 };
 
 #endif

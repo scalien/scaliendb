@@ -67,11 +67,10 @@ public class Result
     }
     
     /**
-     * Returns true if the value changed, false otherwise. Useful for checking the
-     * result of testAndSet.
+     * Returns true if the conditional command (testAndSet, testAndDelete) was successful.
      */
-    public boolean isValueChanged() {
-        return scaliendb_client.SDBP_ResultIsValueChanged(cptr);
+    public boolean isConditionalSuccess() {
+        return scaliendb_client.SDBP_ResultIsConditionalSuccess(cptr);
     }
      
     

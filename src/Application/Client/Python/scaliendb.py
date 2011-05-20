@@ -102,6 +102,9 @@ class Client:
         def is_finished(self):
             return SDBP_ResultIsFinished(self.cptr)
         
+        def is_conditional_success(self):
+            return SDBP_ResultIsConditionalSuccess(self.cptr)
+        
         def next(self):
             if self.is_end():
                 raise StopIteration
@@ -632,7 +635,7 @@ class Client:
         """
         status, ret = self._data_command(SDBP_TestAndSet, key, test, value)
         if ret:
-            return self.result.value()
+            return self.result.is_conditional_success()
         return None
 
     def get_and_set(self, key, value):
@@ -670,6 +673,22 @@ class Client:
         """
         status, ret = self._data_command(SDBP_Delete, key)
 
+    def test_and_delete(self, key, test):
+        """
+        Deletes the specified key if the value matches test
+        
+        Args:
+            key (string): the specified key
+            
+            test (string): the test value to be matched
+        
+        Return:
+            true if deleted
+        """
+        status, ret = self._data_command(SDBP_TestAndDelete, key, test)
+        if ret:
+            return self.result.is_conditional_success()
+    
     def remove(self, key):
         """
         Deletes the specified key and returns its previous value

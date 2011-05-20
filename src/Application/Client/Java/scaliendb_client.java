@@ -49,8 +49,8 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ResultNumber(SWIGTYPE_p_void.getCPtr(result));
   }
 
-  public static boolean SDBP_ResultIsValueChanged(SWIGTYPE_p_void result) {
-    return scaliendb_clientJNI.SDBP_ResultIsValueChanged(SWIGTYPE_p_void.getCPtr(result));
+  public static boolean SDBP_ResultIsConditionalSuccess(SWIGTYPE_p_void result) {
+    return scaliendb_clientJNI.SDBP_ResultIsConditionalSuccess(SWIGTYPE_p_void.getCPtr(result));
   }
 
   public static java.math.BigInteger SDBP_ResultDatabaseID(SWIGTYPE_p_void result) {
@@ -341,6 +341,14 @@ public class scaliendb_client {
 
   public static int SDBP_DeleteCStr(SWIGTYPE_p_void client_, byte[] key, int len) {
     return scaliendb_clientJNI.SDBP_DeleteCStr(SWIGTYPE_p_void.getCPtr(client_), key, len);
+  }
+
+  public static int SDBP_TestAndDelete(SWIGTYPE_p_void client, String key, String test) {
+    return scaliendb_clientJNI.SDBP_TestAndDelete(SWIGTYPE_p_void.getCPtr(client), key, test);
+  }
+
+  public static int SDBP_TestAndDeleteCStr(SWIGTYPE_p_void client_, byte[] key, int arg2, byte[] test, int arg4) {
+    return scaliendb_clientJNI.SDBP_TestAndDeleteCStr(SWIGTYPE_p_void.getCPtr(client_), key, arg2, test, arg4);
   }
 
   public static int SDBP_Remove(SWIGTYPE_p_void client, String key) {
