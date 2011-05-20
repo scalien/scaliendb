@@ -264,7 +264,7 @@ function showCreateTable(databaseID, databaseName)
 	name.onkeyup = function() { validateIfNotEmpty(name, button); }
 
 	validateIfNotEmpty(name, button);
-	populateQuorumSelector("createTableQuorumSelector", shardID);
+	populateQuorumSelector("createTableQuorumSelector");
 	
 	createTableDatabaseID = databaseID;
 	hideDialog = hideCreateTable;
@@ -356,14 +356,14 @@ function showError(title, text)
 
 function populateQuorumSelector(name, shardID)
 {
-	var selector = $(name);	
+	var selector = $(name);
 	if (selector == null || !lastConfigState.hasOwnProperty("quorums"))
 		return 0;
 
 	// delete child nodes
 	while (selector.hasChildNodes()) {
 	    selector.removeChild(selector.lastChild);
-	}		
+	}
 	
 	// populate quorumIDs
 	for (var q in lastConfigState["quorums"])
