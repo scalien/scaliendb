@@ -282,6 +282,36 @@ public class Table
     }
 
     /**
+     * Deletes the specified key only if it matches a specified test value.
+     * 
+     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @return          true if the key was deleted
+     */
+    public boolean testAndDelete(String key, String test) throws SDBPException {
+        useDefaults();
+        return client.testAndDelete(key, test);
+    }
+
+    /**
+     * Deletes the specified key only if it matches a specified test value.
+     * 
+     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @return          true if the key was deleted
+     */
+    public boolean testAndDelete(byte[] key, byte[] test) throws SDBPException {
+        useDefaults();
+        return client.testAndDelete(key, test);
+    }
+
+    /**
      * Deletes the specified key and returns the old value.
      *
      * @param   key     key to be deleted
