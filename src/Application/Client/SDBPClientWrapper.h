@@ -187,7 +187,7 @@ int             SDBP_AppendCStr(ClientObj client_, char* key, int lenKey, char* 
 int             SDBP_Delete(ClientObj client, const std::string& key);
 int             SDBP_DeleteCStr(ClientObj client_, char* key, int len);
 int             SDBP_TestAndDelete(ClientObj client, const std::string& key, const std::string& test);
-int             SDBP_TestAndDeleteCStr(ClientObj client_, char* key, int keylen, char* test, int keylen);
+int             SDBP_TestAndDeleteCStr(ClientObj client_, char* key, int keylen, char* test, int testlen);
 int             SDBP_Remove(ClientObj client, const std::string& key);
 int             SDBP_RemoveCStr(ClientObj client_, char* key, int len);
 int             SDBP_ListKeys(
