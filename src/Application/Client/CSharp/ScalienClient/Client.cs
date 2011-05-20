@@ -5,16 +5,23 @@ using System.Collections;
 
 namespace Scalien
 {
-    public class SDBPException : ApplicationException
+    public class SDBPException : Exception
     {
         private int status;
+        public int Status
+        {
+            get
+            {
+                return status;
+            }
+        }
 
-        public SDBPException(int status)
+        public SDBPException(int status) : base(Scalien.Status.ToString(status))
         {
             this.status = status;
         }
 
-        public SDBPException(int status, string msg)
+        public SDBPException(int status, string msg) : base(msg)
         {
             this.status = status;
         }
@@ -62,11 +69,6 @@ namespace Scalien
         public ulong GetMasterTimeout()
         {
             return scaliendb_client.SDBP_GetMasterTimeout(cptr);
-        }
-
-        public Result GetResult()
-        {
-            return result;
         }
 
         public void SetBulkLoading(bool bulk)
@@ -201,8 +203,6 @@ namespace Scalien
             return result;
         }
 
-
-
         public string Get(string key)
         {
             int status = scaliendb_client.SDBP_Get(cptr, key);
@@ -268,6 +268,22 @@ namespace Scalien
             return result.IsValueChanged() ;
         }
 
+        public string GetAndSet(string key, string value)
+        {
+            int status = scaliendb_client.SDBP_GetAndSet(cptr, key, value);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return null;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            return result.GetValue();
+        }
+
         public ulong Add(string key, long number)
         {
             int status = scaliendb_client.SDBP_Add(cptr, key, number);
@@ -284,6 +300,99 @@ namespace Scalien
             return result.GetNumber();
         }
 
+        public void Append(string key, string value)
+        {
+            int status = scaliendb_client.SDBP_Append(cptr, key, value);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        }
+
+        public void Delete(string key)
+        {
+            int status = scaliendb_client.SDBP_Delete(cptr, key);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        }
+
+        public string Remove(string key)
+        {
+            int status = scaliendb_client.SDBP_Delete(cptr, key);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return null;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            if (result.GetCommandStatus() == Status.SDBP_SUCCESS)
+                return result.GetValue();
+            return null;
+        }
+
+        public List<string> ListKeys(string startKey, string endKey, uint offset, uint count)
+        {
+            int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, count, offset);
+            CheckResultStatus(status);
+            return result.GetKeys();
+        }
+        
+        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, uint offset, uint count)
+        {
+            int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, count, offset);
+            CheckResultStatus(status);
+            return result.GetKeyValues();
+        }
+
+        public ulong Count(string startKey, string endKey, uint offset, uint count)
+        {
+            int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, count, offset);
+            CheckResultStatus(status);
+            return result.GetNumber();
+        }
+
+        public void Begin()
+        {
+            if (lastResult != result)
+                result.Close();
+
+            result = null;
+            lastResult = null;
+
+            int status = scaliendb_client.SDBP_Begin(cptr);
+            CheckStatus(status);
+        }
+
+        public void Submit()
+        {
+            int status = scaliendb_client.SDBP_Submit(cptr);
+            CheckStatus(status);
+        }
+
+        public void Cancel()
+        {
+            int status = scaliendb_client.SDBP_Cancel(cptr);
+            CheckStatus(status);
+        }
+
         public bool IsBatched()
         {
             return scaliendb_client.SDBP_IsBatched(cptr);
@@ -292,18 +401,32 @@ namespace Scalien
         // TODO:
         private void CheckResultStatus(int status, string msg)
         {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            CheckStatus(status, msg);
         }
 
         private void CheckResultStatus(int status)
         {
+            CheckStatus(status, null);
         }
 
         private void CheckStatus(int status, string msg)
         {
+            if (status < 0)
+            {
+                if (msg != null)
+                    throw new SDBPException(status, msg);
+                if (status == Status.SDBP_BADSCHEMA)
+                    throw new SDBPException(status, "No database or table is in use");
+                if (status == Status.SDBP_NOSERVICE)
+                    throw new SDBPException(status, "No server in the cluster was able to serve the request");
+                throw new SDBPException(status);
+            }
         }
 
         private void CheckStatus(int status)
         {
+            CheckStatus(status, null);
         }
 
         public static void SetTrace(bool trace)

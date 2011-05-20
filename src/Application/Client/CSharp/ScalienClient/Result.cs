@@ -15,7 +15,13 @@ namespace Scalien
 
         ~Result()
         {
+            Close();
+        }
+
+        public void Close()
+        {
             scaliendb_client.SDBP_ResultClose(cptr);
+            cptr = null;
         }
 
         public string GetKey()
@@ -61,6 +67,15 @@ namespace Scalien
         public int GetCommandStatus()
         {
             return scaliendb_client.SDBP_ResultCommandStatus(cptr);
+        }
+
+        public List<string> GetKeys()
+        {
+            List<string> keys = new List<string>();
+            for (Begin(); !IsEnd(); Next())
+                keys.Add(GetKey());
+
+            return keys;
         }
 
         public Dictionary<string, string> GetKeyValues()

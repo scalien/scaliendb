@@ -121,6 +121,7 @@ bool Endpoint::Set(const char* ip, int port, bool resolv)
     {
         if (resolv)
         {
+            Log_Debug("++++ resolving, ip: %s", ip);
             if (!DNS_ResolveIpv4(ip, &sa->sin_addr))
             {
                 Log_Trace("DNS resolv failed");

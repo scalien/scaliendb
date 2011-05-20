@@ -57,6 +57,30 @@ bool HTTPFileHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
 			path.GetBuffer()[i] = '/';
 	}
 
+    // fix Windows 7 IPv6 localhost name resolution issue
+    host = request.header.GetField(HTTP_HEADER_HOST);
+    if (host.BeginsWith("localhost"))
+    {
+        Buffer      newHost;
+        unsigned    i;
+        
+        newHost.Write("127.0.0.1");
+        for (i = 0; i < host.GetLength(); i++)
+        {
+            if (host.GetCharAt(i) == ':')
+            {
+                host.Advance(i);
+                newHost.Append(host);
+                break;
+            }
+        }
+        ha.Writef(HTTP_HEADER_LOCATION ": http://%B%R" HTTP_CS_CRLF, &newHost, &prefix);
+	    ha.NullTerminate();
+		conn->ResponseHeader(HTTP_STATUS_CODE_TEMPORARY_REDIRECT, true, ha.GetBuffer());
+        conn->Flush(true);
+		return true;
+    }
+
     // fix trailing slash issues
     uri = request.line.uri;
     if (uri.GetCharAt(uri.GetLength() - 1) == '/')

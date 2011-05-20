@@ -92,10 +92,18 @@ function connect()
 {
 	$("loginContainer").style.display = "none";
 	$("mainContainer").style.display = "block";
-	
+
 	var controller = $("loginCluster").value;
+	// HACK Windows 7 IPv6 localhost resolv bug fix
 	if (!scaliendb.util.startsWith(controller, "http://"))
+	{
+		if (scaliendb.util.startsWith(controller, "localhost"))
+			controller = controller.replace(/localhost/i, "127.0.0.1");
 		controller = "http://" + controller;
+	}
+	else
+		controller = controller.replace(/http:\/\/localhost/i, "http://127.0.0.1");
+	
 	if (!scaliendb.util.endsWith("controller", "/json/"))
 		controller = controller + "/json/";
 	if (controller !== scaliendb.controller)
