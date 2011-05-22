@@ -634,7 +634,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         Log_Debug("Pausing reads from node %U", migrateNodeID);
         pauseMessage.ShardMigrationPause();
         CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, pauseMessage);
-//        CONTEXT_TRANSPORT->PauseReads(migrateNodeID);        
     }
 
 //    if (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0)
@@ -855,7 +854,6 @@ void ShardQuorumProcessor::OnResumeAppend()
     {
         clusterMessage.ShardMigrationResume();
         CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, clusterMessage);
-//        CONTEXT_TRANSPORT->ResumeReads(migrateNodeID);
     }
     
     if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)

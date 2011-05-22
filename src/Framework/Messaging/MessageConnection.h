@@ -30,9 +30,6 @@ public:
     void                Connect(Endpoint& endpoint);
     virtual void        Close();
 
-    void                PauseReads();
-    void                ResumeReads();
-
     void                Write(Buffer& msg);
     void                Write(Message& msg);
     void                Write(Buffer& prefix, Buffer& msg);
