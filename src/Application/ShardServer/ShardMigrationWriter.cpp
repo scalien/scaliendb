@@ -38,6 +38,16 @@ void ShardMigrationWriter::Reset()
     EventLoop::Remove(&onTimeout);
 }
 
+void ShardMigrationWriter::Pause()
+{
+    CONTEXT_TRANSPORT->UnregisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+}
+
+void ShardMigrationWriter::Resume()
+{
+    CONTEXT_TRANSPORT->RegisterWriteReadyness(nodeID, MFUNC(ShardMigrationWriter, OnWriteReadyness));
+}
+
 bool ShardMigrationWriter::IsActive()
 {
     return isActive;
@@ -229,8 +239,10 @@ void ShardMigrationWriter::SendItem(StorageKeyValue* kv)
 
 void ShardMigrationWriter::OnWriteReadyness()
 {
+    Log_Debug("ShardMigrationWriter::OnWriteReadyness()");
+    
     uint64_t bytesBegin;
-
+    
     ASSERT(quorumProcessor != NULL);
     if (!quorumProcessor->IsPrimary()
      || !shardServer->GetConfigState()->isMigrating

@@ -207,6 +207,14 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
             
             migrationWriter.Begin(message);
             break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_PAUSE:
+            if (migrationWriter.IsActive())
+                migrationWriter.Pause();
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_RESUME:
+            if (migrationWriter.IsActive())
+                migrationWriter.Resume();
+            break;
         case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:

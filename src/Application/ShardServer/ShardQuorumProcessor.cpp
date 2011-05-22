@@ -581,6 +581,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
 {
     ShardMessage*   shardMessage;
     ConfigQuorum*   configQuorum;
+    ClusterMessage  pauseMessage;
 
     configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
     ASSERT(configQuorum);
@@ -609,6 +610,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
             ASSERT(migrateShardID = clusterMessage.shardID);
             shardMessage->ShardMigrationSet(clusterMessage.shardID, clusterMessage.key, clusterMessage.value);
             migrateCache += clusterMessage.key.GetLength() + clusterMessage.value.GetLength();
+            Log_Debug("migrateCache = %s", HUMAN_BYTES(migrateCache));
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_DELETE:
             ASSERT(migrateShardID = clusterMessage.shardID);
@@ -629,8 +631,10 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
     
     if (migrateCache > DATABASE_REPLICATION_SIZE)
     {
-//        Log_Debug("Pausing reads from node %U", migrateNodeID);
-        CONTEXT_TRANSPORT->PauseReads(migrateNodeID);
+        Log_Debug("Pausing reads from node %U", migrateNodeID);
+        pauseMessage.ShardMigrationPause();
+        CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, pauseMessage);
+//        CONTEXT_TRANSPORT->PauseReads(migrateNodeID);        
     }
 
 //    if (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0)
@@ -809,10 +813,13 @@ void ShardQuorumProcessor::TryAppend()
 void ShardQuorumProcessor::OnResumeAppend()
 {
     int             read;
+    int64_t         prevMigrateCache;
     uint64_t        start;
     ShardMessage*   itShardMessage;
     ShardMessage    shardMessage;
     ClusterMessage  clusterMessage;
+    
+    prevMigrateCache = migrateCache;
     
     start = NowClock();
     while (appendState.value.GetLength() > 0)
@@ -843,8 +850,13 @@ void ShardQuorumProcessor::OnResumeAppend()
     
     appendState.Reset();
 
-    if (migrateCache <= DATABASE_REPLICATION_SIZE)
-        CONTEXT_TRANSPORT->ResumeReads(migrateNodeID);
+    if (migrateCache <= DATABASE_REPLICATION_SIZE &&
+     prevMigrateCache != migrateCache && migrateNodeID > 0)
+    {
+        clusterMessage.ShardMigrationResume();
+        CONTEXT_TRANSPORT->SendClusterMessage(migrateNodeID, clusterMessage);
+//        CONTEXT_TRANSPORT->ResumeReads(migrateNodeID);
+    }
     
     if (!tryAppend.IsActive() && shardMessages.GetLength() > 0)
         EventLoop::Add(&tryAppend);

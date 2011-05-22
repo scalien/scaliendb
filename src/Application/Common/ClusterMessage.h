@@ -17,6 +17,8 @@
 #define CLUSTERMESSAGE_SHARDMIGRATION_DELETE    '3' // shard server => shard server
 #define CLUSTERMESSAGE_SHARDMIGRATION_COMMIT    '4' // shard server => shard server
 #define CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE  '5' // shard server => master
+#define CLUSTERMESSAGE_SHARDMIGRATION_PAUSE     '6' // shard server => master
+#define CLUSTERMESSAGE_SHARDMIGRATION_RESUME    '7' // shard server => master
 #define CLUSTERMESSAGE_HELLO                    '_'
 #define CLUSTERMESSAGE_HTTP_ENDPOINT            'h' // controller => controllers
 
@@ -54,8 +56,6 @@ public:
     ReadBuffer              value;
     ReadBuffer              endpoint;
     
-    bool            IsShardMigrationMessage();
-    
     bool            SetNodeID(uint64_t clusterID, uint64_t nodeID);
     bool            Heartbeat(uint64_t nodeID,
                      List<QuorumInfo>& quorumInfos, List<QuorumShardInfo>& quorumShardInfos,
@@ -74,6 +74,8 @@ public:
     bool            ShardMigrationDelete(uint64_t quorumID, uint64_t shardID, ReadBuffer key);
     bool            ShardMigrationCommit(uint64_t quorumID, uint64_t shardID);
     bool            ShardMigrationComplete(uint64_t quorumID, uint64_t shardID);
+    bool            ShardMigrationPause();
+    bool            ShardMigrationResume();
     bool            Hello();
     bool            HttpEndpoint(uint64_t nodeID, ReadBuffer endpoint);
     

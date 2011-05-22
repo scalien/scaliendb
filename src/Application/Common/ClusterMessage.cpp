@@ -7,21 +7,6 @@ static inline bool LessThan(uint64_t a, uint64_t b)
     return a < b;
 }
 
-bool ClusterMessage::IsShardMigrationMessage()
-{
-    if (
-     type == CLUSTERMESSAGE_SHARDMIGRATION_INITIATE     ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_BEGIN        ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_SET          ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_DELETE       ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT       ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE)
-        return true;
-    else
-        return false;
-}
-
-
 bool ClusterMessage::SetNodeID(uint64_t clusterID_, uint64_t nodeID_)
 {
     type = CLUSTERMESSAGE_SET_NODEID;
@@ -139,6 +124,18 @@ bool ClusterMessage::ShardMigrationComplete(
     return true;
 }
 
+bool ClusterMessage::ShardMigrationPause()
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_PAUSE;
+    return true;
+}
+
+bool ClusterMessage::ShardMigrationResume()
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_RESUME;
+    return true;
+}
+
 bool ClusterMessage::Hello()
 {
     type = CLUSTERMESSAGE_HELLO;
@@ -231,6 +228,14 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &shardID);
             break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_PAUSE:
+            read = buffer.Readf("%c",
+             &type);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_RESUME:
+            read = buffer.Readf("%c",
+             &type);
+            break;
         case CLUSTERMESSAGE_HELLO:
             read = buffer.Readf("%c:%U:%#R",
              &type, &clusterID, &value);
@@ -304,6 +309,14 @@ bool ClusterMessage::Write(Buffer& buffer)
         case CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE:
             buffer.Writef("%c:%U:%U",
              type, quorumID, shardID);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_PAUSE:
+            buffer.Writef("%c",
+             type);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_RESUME:
+            buffer.Writef("%c",
+             type);
             return true;
         case CLUSTERMESSAGE_HELLO:
             tempBuffer.Writef("ScalienDB cluster protocol, server version " VERSION_STRING);

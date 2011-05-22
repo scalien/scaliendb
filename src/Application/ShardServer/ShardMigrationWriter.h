@@ -29,6 +29,9 @@ public:
     void                    Init(ShardServer* shardServer);
     void                    Reset();
     
+    void                    Pause();
+    void                    Resume();
+    
     bool                    IsActive();
     uint64_t                GetShardID();
     uint64_t                GetQuorumID();

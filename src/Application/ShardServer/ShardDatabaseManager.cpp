@@ -608,6 +608,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
              configShard->firstKey, configShard->lastKey, true, false);
             break;
          case SHARDMESSAGE_MIGRATION_SET:
+            Log_Debug("shardMigration SET shardID = %U", message.shardID);
             environment.Set(contextID, message.shardID, message.key, message.value);
             break;
          case SHARDMESSAGE_MIGRATION_DELETE:
