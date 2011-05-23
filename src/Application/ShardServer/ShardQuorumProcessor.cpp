@@ -302,7 +302,7 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), highestProposalID,
      GetPaxosID(), configID, PAXOSLEASE_MAX_LEASE_TIME);
     
-//    Log_Debug("Requesting lease for qu    orum %U with proposalID %U", GetQuorumID(), highestProposalID);
+//    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), highestProposalID);
     
     shardServer->BroadcastToControllers(msg);
 
