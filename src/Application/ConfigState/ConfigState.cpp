@@ -474,8 +474,8 @@ ConfigShard* ConfigState::GetShard(uint64_t tableID, ReadBuffer key)
     
     FOREACH (itShard, shards)
     {
-        if (itShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
-            continue;
+//        if (itShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
+//            continue;
         
         if (itShard->tableID == tableID)
         {

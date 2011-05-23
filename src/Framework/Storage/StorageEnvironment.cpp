@@ -432,6 +432,8 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     StorageMemoChunk*   memoChunk;
     StorageLogSegment*  logSegment;
     
+    ASSERT(key.GetLength() > 0);
+    
     shard = GetShard(contextID, shardID);
     if (shard == NULL)
         return false;
@@ -1002,6 +1004,8 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     {
         if (newShard->RangeContains(itKeyValue->GetKey()))
         {
+            ReadBuffer r = itKeyValue->GetKey();
+            Log_Debug("Into new: %R", &r);
             kv = new StorageMemoKeyValue;
             if (itKeyValue->GetType() == STORAGE_KEYVALUE_TYPE_SET)
                 newMemoChunk->Set(itKeyValue->GetKey(), itKeyValue->GetValue());
@@ -1091,13 +1095,15 @@ void StorageEnvironment::TrySerializeChunks()
             continue;
 
         if (
-         memoChunk->GetSize() > config.chunkSize &&
+         memoChunk->GetSize() > config.chunkSize ||
          (
          logSegment->GetLogSegmentID() > maxUnbackedLogSegments &&
          memoChunk->GetMinLogSegmentID() > 0 &&
          memoChunk->GetMinLogSegmentID() < (logSegment->GetLogSegmentID() - maxUnbackedLogSegments)
          ))
         {
+            if (memoChunk->GetSize() == 0)
+                continue;
             itShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, itShard->UseBloomFilter()));
             serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
             return;
