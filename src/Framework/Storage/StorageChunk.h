@@ -43,6 +43,8 @@ public:
     virtual ReadBuffer          GetMidpoint() = 0;
     virtual ChunkState          GetChunkState() = 0;
     
+    virtual bool                IsEmpty() = 0;
+    
     virtual void                NextBunch(StorageBulkCursor& cursor, StorageShard* shard) = 0;
 
     bool                        deleted;

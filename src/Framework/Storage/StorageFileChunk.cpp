@@ -343,6 +343,11 @@ ReadBuffer StorageFileChunk::GetMidpoint()
     return headerPage.GetMidpoint();
 }
 
+bool StorageFileChunk::IsEmpty()
+{
+    return (numDataPages == 0);
+}
+
 void StorageFileChunk::AddPagesToCache()
 {
     uint32_t i;

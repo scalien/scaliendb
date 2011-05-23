@@ -55,6 +55,8 @@ public:
     uint64_t            GetSize();
     ReadBuffer          GetMidpoint();
     
+    bool                IsEmpty();
+    
     StorageFileChunk*   RemoveFileChunk();
 
     void                RemoveFirst(); // for logstorage
