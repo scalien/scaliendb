@@ -590,40 +590,34 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 
 ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
 {
-    unsigned        numChunks, i;
-    StorageShard*   shard;
-    StorageChunk**  itChunk;
-    ReadBuffer      firstKey;
-    ReadBuffer      lastKey;
+    unsigned            i;
+    StorageShard*       shard;
+    StorageChunk**      itChunk;
+    ReadBuffer          midpoint;
+    List<ReadBuffer>    midpoints;
+    ReadBuffer*         itMidpoint;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
         return ReadBuffer();
-    
-    numChunks = shard->GetChunks().GetLength();
-    
-    i = 0;
+
+    midpoint = shard->GetMemoChunk()->GetMidpoint();
+    midpoints.Append(midpoint);
+
     FOREACH (itChunk, shard->GetChunks())
     {
+        midpoint = shard->GetMemoChunk()->GetMidpoint();
+        midpoints.Append(midpoint);
+    }
+
+    FOREACH(itMidpoint, midpoints)
+    {
+        if (i >= (midpoints.GetLength() / 2))
+            return *itMidpoint;
         i++;
-
-        if (i >= ((numChunks + 1) / 2))
-        {
-            firstKey = (*itChunk)->GetFirstKey();
-            lastKey = (*itChunk)->GetLastKey();
-            
-            // skip non-splitable chunks
-            if (firstKey.GetLength() > 0 && !shard->RangeContains(firstKey))
-                continue;
-
-            if (lastKey.GetLength() > 0 && !shard->RangeContains(lastKey))
-                continue;
-            
-            return (*itChunk)->GetMidpoint();
-        }
     }
     
-    return shard->GetMemoChunk()->GetMidpoint();
+    ASSERT_FAIL();    
 }
 
 bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
@@ -1104,6 +1098,7 @@ void StorageEnvironment::TrySerializeChunks()
         {
             if (memoChunk->GetSize() == 0)
                 continue;
+
             itShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, itShard->UseBloomFilter()));
             serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
             return;
@@ -1267,7 +1262,8 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
         FOREACH (itInputChunk, job->inputChunks)
             shard->GetChunks().Remove((StorageChunk*&)*itInputChunk);
         // add the new chunk to the shard
-        shard->GetChunks().Add(job->mergeChunk);
+        if (!job->mergeChunk->IsEmpty())
+            shard->GetChunks().Add(job->mergeChunk);
         WriteTOC(); // TODO: async
     }
     
@@ -1289,7 +1285,7 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
         deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(inputChunk));
     }
 
-    if (shard != NULL && job->mergeChunk->written)
+    if (shard != NULL && job->mergeChunk->written && !job->mergeChunk->IsEmpty())
     {
         fileChunks.Append(job->mergeChunk);
         job->mergeChunk->AddPagesToCache();
