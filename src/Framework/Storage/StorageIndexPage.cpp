@@ -70,6 +70,7 @@ bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint64_t& offset
 
 ReadBuffer StorageIndexPage::GetFirstKey()
 {
+    ASSERT(indexTree.First() != NULL);
     return indexTree.First()->key;
 }
 

@@ -754,6 +754,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         isSplitable = IsSplitable(contextID, shard->GetShardID());
         
         buffer.Appendf("- shard %U (tableID = %U) \n", shard->GetShardID(), shard->GetTableID());
+        buffer.Appendf("   track: %U\n", shard->GetTrackID());
         buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(contextID, shard->GetShardID())));
         buffer.Appendf("   isSplitable: %b\n", isSplitable);
 
@@ -977,6 +978,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
         Commit(shard->GetTrackID()); // TODO
 
     newShard = new StorageShard;
+    newShard->SetTrackID(shard->GetTrackID());
     newShard->SetContextID(contextID);
     newShard->SetTableID(shard->GetTableID());
     newShard->SetShardID(newShardID);
@@ -1089,7 +1091,7 @@ void StorageEnvironment::TrySerializeChunks()
             continue;
 
         if (
-         memoChunk->GetSize() > config.chunkSize ||
+         memoChunk->GetSize() > config.chunkSize &&
          (
          logSegment->GetLogSegmentID() > maxUnbackedLogSegments &&
          memoChunk->GetMinLogSegmentID() > 0 &&
@@ -1187,7 +1189,8 @@ void StorageEnvironment::TryArchiveLogSegments()
                 continue;
 
             memoChunk = itShard->GetMemoChunk();
-            if (memoChunk->GetMinLogSegmentID() > 0 && memoChunk->GetMinLogSegmentID() <= logSegmentID)
+            if (memoChunk->GetSize() > 0 &&
+             memoChunk->GetMinLogSegmentID() > 0 && memoChunk->GetMinLogSegmentID() <= logSegmentID)
                 archive = false;
             FOREACH (itChunk, itShard->GetChunks())
             {
