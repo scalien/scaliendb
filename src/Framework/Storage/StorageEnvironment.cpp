@@ -556,8 +556,7 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
     if (!shard)
         return 0;
 
-//    size = shard->GetMemoChunk()->GetSize();
-    size = 0;
+    size = shard->GetMemoChunk()->GetSize();
     
     FOREACH (itChunk, shard->GetChunks())
     {
