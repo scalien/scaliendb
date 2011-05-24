@@ -51,6 +51,7 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
 
     sw.Start();
+    writeBuffer.AppendLittle32(STORAGE_LOGSEGMENT_VERSION);
     writeBuffer.AppendLittle64(logSegmentID);
     length = writeBuffer.GetLength();
     

@@ -2,6 +2,8 @@
 #include "System/FileSystem.h"
 #include "StorageEnvironment.h"
 
+#define STORAGE_TOC_VERSION     1
+
 bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
 {
     Buffer      newTOC;
@@ -49,6 +51,7 @@ void StorageEnvironmentWriter::WriteBuffer()
     writeBuffer.Allocate(4096);
     writeBuffer.AppendLittle32(0);  // dummy for size
     writeBuffer.AppendLittle32(0);  // dummy for CRC
+    writeBuffer.AppendLittle32(STORAGE_TOC_VERSION);
     
     numShards = env->shards.GetLength();
     writeBuffer.AppendLittle32(numShards);
@@ -64,7 +67,7 @@ void StorageEnvironmentWriter::WriteBuffer()
     writeBuffer.AppendLittle32(length);
     writeBuffer.AppendLittle32(checksum);
     writeBuffer.SetLength(length);
-    
+    // VERSION==0 ends here
 }
 
 void StorageEnvironmentWriter::WriteShard(StorageShard* shard)

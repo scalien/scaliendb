@@ -85,7 +85,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
 
 bool StorageRecovery::TryReadTOC(Buffer& filename)
 {
-    uint32_t    size, rest, checksum, compChecksum;
+    uint32_t    size, rest, checksum, compChecksum, version;
     Buffer      buffer;
     ReadBuffer  parse, dataPart;
     FDGuard     fd;
@@ -123,14 +123,17 @@ bool StorageRecovery::TryReadTOC(Buffer& filename)
         return false;
     parse.Advance(4);
 
-    ReadShards(parse);
+    parse.ReadLittle32(version);
+    parse.Advance(4);
+
+    ReadShards(version, parse);
     
     fd.Close();
     
     return true;
 }
 
-bool StorageRecovery::ReadShards(ReadBuffer& parse)
+bool StorageRecovery::ReadShards(uint32_t version, ReadBuffer& parse)
 {
     uint32_t    numShards, i;
     
@@ -140,14 +143,22 @@ bool StorageRecovery::ReadShards(ReadBuffer& parse)
     
     for (i = 0; i < numShards; i++)
     {
-        if (!ReadShard(parse))
-            return false;
+        switch (version)
+        {
+            case 0:
+                if (!ReadShardVersion0(parse))
+                    return false;
+                break;
+            default:
+                STOP_FAIL(1, "TOC file version is newer than current ScalienDB version!");
+                break;
+        }
     }
     
     return true;
 }
 
-bool StorageRecovery::ReadShard(ReadBuffer& parse)
+bool StorageRecovery::ReadShardVersion0(ReadBuffer& parse)
 {
     uint32_t            numChunks, i;
     uint64_t            chunkID;
@@ -326,7 +337,7 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     bool                r, usePrevious;
     char                type;
     uint16_t            contextID, klen;
-    uint32_t            checksum, /*compChecksum,*/ vlen;
+    uint32_t            checksum, /*compChecksum,*/ vlen, version;
     uint64_t            logSegmentID, tmp, shardID, logCommandID, size, rest;
     ReadBuffer          parse, dataPart, key, value;
     Buffer              buffer;
@@ -346,15 +357,20 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
         ASSERT_FAIL();
     }
     
-    size = 8;
+    size = 4 + 8;
     buffer.Allocate(size);
     ret = FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size);
     if (ret < 0 || (uint64_t) ret != size)
         return false;
     buffer.SetLength(size);
-        
-    // first 8 byte is the logSegmentID
     parse.Wrap(buffer);
+
+    // first 4 byte is the version
+    if (!parse.ReadLittle32(version))
+        return false;
+    parse.Advance(4);
+        
+    // next 8 byte is the logSegmentID
     if (!parse.ReadLittle64(logSegmentID))
         return false;
     parse.Advance(8);

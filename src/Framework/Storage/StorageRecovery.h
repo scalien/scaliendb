@@ -20,8 +20,8 @@ public:
     
 private:
     bool                    TryReadTOC(Buffer& filename);
-    bool                    ReadShards(ReadBuffer& parse);
-    bool                    ReadShard(ReadBuffer& parse);
+    bool                    ReadShards(uint32_t version, ReadBuffer& parse);
+    bool                    ReadShardVersion0(ReadBuffer& parse);
     void                    CreateMemoChunks();
     void                    ReadFileChunks();
     void                    ComputeShardRecovery();
