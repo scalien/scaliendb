@@ -547,7 +547,7 @@ class Client:
         if status != SDBP_SUCCESS:
             if status == SDBP_NOSERVICE:
                 raise Error(status, "Cannot connect to controller!")
-            raise Error(status, "No database found with name '%s'" % (name))
+            raise Error(status, "No database found with id '%s'" % (id))
     
     def use_table(self, name):
         """
@@ -569,7 +569,7 @@ class Client:
         """
         status = SDBP_UseTableID(self.cptr, id)
         if status != SDBP_SUCCESS:
-            raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))            
+            raise Error(SDBP_BADSCHEMA, "No table found with id '%s'" % (id))            
     
     
     def use(self, database, table=None):
