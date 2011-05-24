@@ -300,7 +300,7 @@ void StorageRecovery::ReplayLogSegments(uint64_t trackID)
             tmp.Write(env->logPath);
             tmp.Append(filename);
             segmentName = new Buffer(tmp);
-            segments.Add(segmentName, true);
+            segments.Add(segmentName);
         }
     }
 

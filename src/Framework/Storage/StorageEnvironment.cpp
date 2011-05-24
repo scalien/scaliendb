@@ -1397,12 +1397,7 @@ static size_t Hash(uint64_t h)
     return h;
 }
 
-inline bool LessThan(ReadBuffer& a, ReadBuffer& b)
+static inline bool LessThan(ReadBuffer& a, ReadBuffer& b)
 {
     return ReadBuffer::Cmp(a, b) < 0 ? true : false;
-}
-
-inline bool operator==(ReadBuffer& a, ReadBuffer& b)
-{
-    return ReadBuffer::Cmp(a, b) == 0 ? true : false;
 }
