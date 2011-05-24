@@ -1,3 +1,13 @@
+"""
+ScalienDB CLI shell
+
+Usage: cli [optinal args]
+
+Args:
+    -d <database>       Initial database to use
+    -t <table>          Initial table to use
+    -h <hostname>       Hostname to connect to
+"""
 import sys
 import scaliendb
 import inspect
@@ -29,6 +39,9 @@ def parse_args(args):
                 skip = True
             elif opt == "-trace":
                 scaliendb.set_trace(True)
+        else:
+            print(__doc__)
+            sys.exit(1)
     return defaults
 
 # helper function for measure timing
@@ -180,13 +193,14 @@ def welcome():
     print("This is a standard Python shell, enhanced with ScalienDB client library commands.")
     print("Type \"shelp\" for help.\n")
 
+# create default client
+defaults = parse_args(sys.argv)
+
 welcome()
 del welcome
 
 # register 'shelp' command
 shelp = SHelp()
 
-# create default client
-defaults = parse_args(sys.argv)
 connect = Func("connect", connect)
 connect(defaults.nodes, defaults.database, defaults.table)
