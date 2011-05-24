@@ -200,7 +200,8 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
             }
                 
             if (!isSplitCreating && itQuorumShardInfo->isSplitable &&
-             itQuorumShardInfo->shardSize > shardSplitSize)
+             itQuorumShardInfo->shardSize > shardSplitSize &&
+             itQuorumShardInfo->shardID != configState->migrateSrcShardID)
             {
                 // make sure another shard with the same splitKey doesn't already exist
                 configShard = configState->GetShard(itQuorumShardInfo->shardID);

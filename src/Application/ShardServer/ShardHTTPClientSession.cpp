@@ -45,12 +45,28 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
     switch (response->type)
     {
     case CLIENTRESPONSE_OK:
-        session.Print("OK");
+        if (request->type == CLIENTREQUEST_COUNT)
+        {
+            tmp.Writef("%U", response->numKeys);
+            rb.Wrap(tmp);
+            session.Print(rb);
+        }
+        else
+        {
+            session.Print("OK");
+        }
         break;
     case CLIENTRESPONSE_NUMBER:
-        tmp.Writef("%U", response->number);
-        rb.Wrap(tmp);
-        session.Print(rb);
+        if (request->type == CLIENTREQUEST_COUNT)
+        {
+            response->numKeys += response->number;
+        }
+        else
+        {
+            tmp.Writef("%U", response->number);
+            rb.Wrap(tmp);
+            session.Print(rb);
+        }
         break;
     case CLIENTRESPONSE_VALUE:
         session.Print(response->value);
