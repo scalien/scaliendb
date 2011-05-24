@@ -590,24 +590,24 @@ uint64_t StorageEnvironment::GetSize(uint16_t contextID, uint64_t shardID)
 
 ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
 {
-    unsigned            i;
-    StorageShard*       shard;
-    StorageChunk**      itChunk;
-    ReadBuffer          midpoint;
-    List<ReadBuffer>    midpoints;
-    ReadBuffer*         itMidpoint;
+    unsigned                i;
+    StorageShard*           shard;
+    StorageChunk**          itChunk;
+    ReadBuffer              midpoint;
+    SortedList<ReadBuffer>  midpoints;
+    ReadBuffer*             itMidpoint;
 
     shard = GetShard(contextID, shardID);
     if (!shard)
         return ReadBuffer();
 
     midpoint = shard->GetMemoChunk()->GetMidpoint();
-    midpoints.Append(midpoint);
+    midpoints.Add(midpoint);
 
     FOREACH (itChunk, shard->GetChunks())
     {
-        midpoint = shard->GetMemoChunk()->GetMidpoint();
-        midpoints.Append(midpoint);
+        midpoint = (*itChunk)->GetMidpoint();
+        midpoints.Add(midpoint);
     }
 
     FOREACH(itMidpoint, midpoints)
@@ -1395,4 +1395,14 @@ StorageLogSegment* StorageEnvironment::GetLogSegment(uint64_t trackID)
 static size_t Hash(uint64_t h)
 {
     return h;
+}
+
+inline bool LessThan(ReadBuffer& a, ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b) < 0 ? true : false;
+}
+
+inline bool operator==(ReadBuffer& a, ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b) == 0 ? true : false;
 }
