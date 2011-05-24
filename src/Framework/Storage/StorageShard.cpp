@@ -127,6 +127,27 @@ bool StorageShard::IsLogStorage()
     return isLogStorage;
 }
 
+bool StorageShard::IsSplitable()
+{
+    StorageChunk**  itChunk;
+    ReadBuffer      firstKey;
+    ReadBuffer      lastKey;
+
+    FOREACH (itChunk, GetChunks())
+    {
+        firstKey = (*itChunk)->GetFirstKey();
+        lastKey = (*itChunk)->GetLastKey();
+        
+        if (firstKey.GetLength() > 0 && !RangeContains(firstKey))
+            return false;
+
+        if (lastKey.GetLength() > 0 && !RangeContains(lastKey))
+            return false;
+    }
+    
+    return true;
+}
+
 bool StorageShard::RangeContains(ReadBuffer key)
 {
     ReadBuffer  firstKey, lastKey;
@@ -192,7 +213,10 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
         inputChunks.Append(fileChunk);
         totalSize += fileChunk->GetSize();
     }
-    
+
+    if (!IsSplitable())
+        return;
+
     while (inputChunks.GetLength() >= 3)
     {
         itInputChunk = inputChunks.First();

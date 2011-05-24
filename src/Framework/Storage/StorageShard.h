@@ -49,6 +49,7 @@ public:
     ReadBuffer          GetLastKey();
     bool                UseBloomFilter();
     bool                IsLogStorage();
+    bool                IsSplitable();
     
     bool                RangeContains(ReadBuffer key);
 

@@ -602,12 +602,14 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
         return ReadBuffer();
 
     midpoint = shard->GetMemoChunk()->GetMidpoint();
-    midpoints.Add(midpoint);
+    if (midpoint.GetLength() > 0)
+        midpoints.Add(midpoint);
 
     FOREACH (itChunk, shard->GetChunks())
     {
         midpoint = (*itChunk)->GetMidpoint();
-        midpoints.Add(midpoint);
+        if (midpoint.GetLength() > 0)
+            midpoints.Add(midpoint);
     }
 
     FOREACH(itMidpoint, midpoints)
@@ -629,7 +631,9 @@ bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
 
     shard = GetShard(contextID, shardID);
     if (!shard)
-        return 0;
+        return false;
+
+    return shard->IsSplitable();
     
     FOREACH (itChunk, shard->GetChunks())
     {
@@ -998,8 +1002,6 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     {
         if (newShard->RangeContains(itKeyValue->GetKey()))
         {
-            ReadBuffer r = itKeyValue->GetKey();
-            Log_Debug("Into new: %R", &r);
             kv = new StorageMemoKeyValue;
             if (itKeyValue->GetType() == STORAGE_KEYVALUE_TYPE_SET)
                 newMemoChunk->Set(itKeyValue->GetKey(), itKeyValue->GetValue());
@@ -1144,7 +1146,7 @@ void StorageEnvironment::TryMergeChunks()
     {
         inputChunks.Clear();
         itShard->GetMergeInputChunks(inputChunks);
-        if (inputChunks.GetLength() < 2)
+        if (inputChunks.GetLength() == 0)
             continue;
         
         mergeChunk = new StorageFileChunk;
