@@ -621,7 +621,7 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
         i++;
     }
     
-    ASSERT_FAIL();    
+    return ReadBuffer();
 }
 
 bool StorageEnvironment::IsSplitable(uint16_t contextID, uint64_t shardID)
