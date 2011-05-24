@@ -660,7 +660,7 @@ class Client:
                         
             value (string): the value to be set
         """
-        status, ret = self._data_command(SDBP_Add, key)
+        status, ret = self._data_command(SDBP_Add, key, value)
         if ret:
             return self.result.number()
 
