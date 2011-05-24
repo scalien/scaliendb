@@ -21,7 +21,7 @@ public:
     bool            operator==(const SortedList<T>& other) const;
     bool            operator!=(const SortedList<T>& other) const;
 
-    void            Add(T t);
+    bool            Add(T t, bool unique = false);
     T*              Remove(T* t);   
     bool            Remove(T &t);
     void            Clear();
@@ -67,7 +67,7 @@ bool SortedList<T>::operator!=(const SortedList<T>& other) const
 }
 
 template<class T>
-void SortedList<T>::Add(T t)
+bool SortedList<T>::Add(T t, bool unique)
 {
     ListNode<T>     *curr, *prev, *node;
     
@@ -96,10 +96,13 @@ void SortedList<T>::Add(T t)
                 prev->next = node;
 
             list.length++;
-            return;
+            return true;
         }
         else
         {
+            if (unique && curr->data == t)
+                return false;
+
             prev = curr;
             curr = curr->next;
         }

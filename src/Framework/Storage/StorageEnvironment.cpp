@@ -1405,3 +1405,8 @@ static inline bool LessThan(ReadBuffer& a, ReadBuffer& b)
 {
     return ReadBuffer::Cmp(a, b) < 0 ? true : false;
 }
+
+static inline bool operator==(const ReadBuffer& a, const ReadBuffer& b)
+{
+    return ReadBuffer::Cmp(a, b) == 0 ? true : false;
+}
