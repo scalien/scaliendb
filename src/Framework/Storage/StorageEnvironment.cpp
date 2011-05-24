@@ -610,7 +610,8 @@ ReadBuffer StorageEnvironment::GetMidpoint(uint16_t contextID, uint64_t shardID)
         midpoints.Add(midpoint);
     }
 
-    FOREACH(itMidpoint, midpoints)
+    i = 0;
+    FOREACH (itMidpoint, midpoints)
     {
         if (i >= (midpoints.GetLength() / 2))
             return *itMidpoint;
