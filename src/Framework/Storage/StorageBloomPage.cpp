@@ -1,6 +1,8 @@
 #include "StorageBloomPage.h"
 #include "StorageFileChunk.h"
 
+#define STORAGE_BLOOMPAGE_HEADER_SIZE   8
+
 StorageBloomPage::StorageBloomPage(StorageFileChunk* owner_)
 {
     size = 0;
@@ -18,7 +20,7 @@ void StorageBloomPage::SetNumKeys(uint64_t numKeys)
     
     size = RecommendNumBytes(numKeys);
     
-    numBytes = size - 8; // for pageSize + CRC
+    numBytes = size - STORAGE_BLOOMPAGE_HEADER_SIZE; // for pageSize + CRC
     
     bloomFilter.SetSize(numBytes);
 }
@@ -75,7 +77,7 @@ bool StorageBloomPage::Read(Buffer& buffer)
     
     // size
     parse.ReadLittle32(size);
-    if (size < 8)
+    if (size < STORAGE_BLOOMPAGE_HEADER_SIZE)
         goto Fail;
     if (buffer.GetLength() != size)
         goto Fail;
@@ -83,7 +85,8 @@ bool StorageBloomPage::Read(Buffer& buffer)
 
     // checksum
     parse.ReadLittle32(checksum);
-    dataPart.Wrap(buffer.GetBuffer() + 8, buffer.GetLength() - 8);
+    dataPart.Wrap(buffer.GetBuffer() + STORAGE_BLOOMPAGE_HEADER_SIZE, 
+     buffer.GetLength() - STORAGE_BLOOMPAGE_HEADER_SIZE);
     compChecksum = dataPart.GetChecksum();
     if (compChecksum != checksum)
         goto Fail;
@@ -101,13 +104,6 @@ Fail:
 void StorageBloomPage::Write(Buffer& buffer)
 {
     uint32_t    checksum;
-//    unsigned count = 0;
-//    for (unsigned i = 0; i < bloomFilter.GetBuffer().GetLength(); i++)
-//    {
-//        uint32_t x = *(unsigned char*)(bloomFilter.GetBuffer().GetBuffer() + i);
-//        count += bloomFilter.BitCount(x);
-//    }
-//    Log_Debug("bloom filter ratio: %s%%", StaticPrint("%.2f", count * 100.0 / (bloomFilter.GetBuffer().GetLength() * 8.0)));
 
     buffer.Allocate(size);
     buffer.Zero();

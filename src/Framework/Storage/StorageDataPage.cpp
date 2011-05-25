@@ -1,6 +1,8 @@
 #include "StorageDataPage.h"
 #include "StorageFileChunk.h"
 
+#define STORAGE_DATAPAGE_HEADER_SIZE        16
+
 StorageDataPage::StorageDataPage(StorageFileChunk* owner_, uint32_t index_)
 {
     size = 0;
@@ -67,7 +69,7 @@ uint32_t StorageDataPage::GetNumKeys()
 
 uint32_t StorageDataPage::GetLength()
 {
-    return 16 + keysBuffer.GetLength() + valuesBuffer.GetLength();
+    return STORAGE_DATAPAGE_HEADER_SIZE + keysBuffer.GetLength() + valuesBuffer.GetLength();
 }
 
 uint32_t StorageDataPage::GetIncrement(StorageKeyValue* kv)
@@ -145,8 +147,8 @@ void StorageDataPage::Finalize()
     buffer.SetLength(size);
     
     // set ReadBuffers in tree
-    kit = 16;
-    vit = 16 + keysBuffer.GetLength();
+    kit = STORAGE_DATAPAGE_HEADER_SIZE;
+    vit = STORAGE_DATAPAGE_HEADER_SIZE + keysBuffer.GetLength();
     for (unsigned i = 0; i < numKeys; i++)
     {
         it = GetIndexedKeyValue(i);

@@ -145,8 +145,8 @@ bool StorageRecovery::ReadShards(uint32_t version, ReadBuffer& parse)
     {
         switch (version)
         {
-            case 0:
-                if (!ReadShardVersion0(parse))
+            case 1:
+                if (!ReadShardVersion1(parse))
                     return false;
                 break;
             default:
@@ -158,7 +158,7 @@ bool StorageRecovery::ReadShards(uint32_t version, ReadBuffer& parse)
     return true;
 }
 
-bool StorageRecovery::ReadShardVersion0(ReadBuffer& parse)
+bool StorageRecovery::ReadShardVersion1(ReadBuffer& parse)
 {
     uint32_t            numChunks, i;
     uint64_t            chunkID;

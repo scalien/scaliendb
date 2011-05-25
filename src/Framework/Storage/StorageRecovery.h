@@ -21,7 +21,7 @@ public:
 private:
     bool                    TryReadTOC(Buffer& filename);
     bool                    ReadShards(uint32_t version, ReadBuffer& parse);
-    bool                    ReadShardVersion0(ReadBuffer& parse);
+    bool                    ReadShardVersion1(ReadBuffer& parse);
     void                    CreateMemoChunks();
     void                    ReadFileChunks();
     void                    ComputeShardRecovery();

@@ -1,6 +1,8 @@
 #include "StorageIndexPage.h"
 #include "StorageFileChunk.h"
 
+#define STORAGE_INDEXPAGE_HEADER_SIZE   12
+
 static int KeyCmp(const ReadBuffer& a, const ReadBuffer& b)
 {
     return ReadBuffer::Cmp(a, b);
@@ -133,7 +135,7 @@ void StorageIndexPage::Finalize()
     buffer.SetLength(size);
 
     // set ReadBuffers in tree
-    pos = 12;
+    pos = STORAGE_INDEXPAGE_HEADER_SIZE;
 
     i = 0;
     FOREACH (it, indexTree)
@@ -169,7 +171,7 @@ bool StorageIndexPage::Read(Buffer& buffer_)
     
     // size
     parse.ReadLittle32(size);
-    if (size < 12)
+    if (size < STORAGE_INDEXPAGE_HEADER_SIZE)
         goto Fail;
     if (buffer.GetLength() != size)
         goto Fail;
