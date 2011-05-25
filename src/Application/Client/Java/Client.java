@@ -325,7 +325,6 @@ public class Client
      * Deletes a table.
      *
      * @param   tableID     the ID of the table to be deleted
-     * @return              the status of the operation
      */
     public void deleteTable(long tableID) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
@@ -425,7 +424,7 @@ public class Client
      * When the returned result object is no longer used, close() must be called on it.
      *
      * @return  the result object
-     * @see     Result#close()
+     * @see     com.scalien.scaliendb.Result#close()
      */
     public Result getResult() {
         lastResult = result;

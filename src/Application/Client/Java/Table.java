@@ -18,7 +18,7 @@ public class Table
      * @param   client      the client object
      * @param   database    the database object
      * @param   name        the name of the table
-     * @see     Database#getTable(String name)  getTable
+     * @see     com.scalien.scaliendb.Database#getTable(String name)  getTable
      */
     public Table(Client client, Database database, String name) throws SDBPException {
         this.client = client;
