@@ -236,7 +236,7 @@ int SDBPResponseMessage::ReadOptionalParts(ReadBuffer buffer, int offset)
 void SDBPResponseMessage::WriteOptionalParts(Buffer& buffer)
 {
     if (response->paxosID > 0)
-        buffer.Appendf(":PU%U", response->paxosID);
+        buffer.Appendf(":%cU%U", CLIENTRESPONSE_OPT_PAXOSID, response->paxosID);
     if (response->isConditionalSuccess)
         buffer.Appendf(":%cb%b", CLIENTRESPONSE_OPT_VALUE_CHANGED, response->isConditionalSuccess);
 }
