@@ -351,7 +351,11 @@ public class Client
      */
     public void useDatabase(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_UseDatabase(cptr, name);
-        checkStatus(status);
+        if (status < 0) {
+            if (status == Status.SDBP_NOSERVICE)
+                throw new SDBPException(status, "Cannot connect to controller");
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "No database found with name '" + name + "'");
+        }
     }
 
     /**
@@ -361,7 +365,11 @@ public class Client
      */
     public void useDatabase(long databaseID) throws SDBPException {
         int status = scaliendb_client.SDBP_UseDatabaseID(cptr, BigInteger.valueOf(databaseID));
-        checkStatus(status);
+        if (status < 0) {
+            if (status == Status.SDBP_NOSERVICE)
+                throw new SDBPException(status, "Cannot connect to controller");
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "No database found with id '" + databaseID + "'");
+        }
     }
 
     /**
@@ -396,7 +404,8 @@ public class Client
      */
     public void useTable(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_UseTable(cptr, name);
-        checkStatus(status);
+        if (status < 0)
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "No table found with name '" + name + "'");
     }
 
     /**
@@ -406,7 +415,8 @@ public class Client
      */
     public void useTable(long tableID) throws SDBPException {
         int status = scaliendb_client.SDBP_UseTableID(cptr, BigInteger.valueOf(tableID));
-        checkStatus(status);
+        if (status < 0)
+            throw new SDBPException(Status.SDBP_BADSCHEMA, "No table found with id '" + tableID + "'");
     }
     
     /**
