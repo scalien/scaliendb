@@ -69,38 +69,78 @@ bool SortedList<T>::operator!=(const SortedList<T>& other) const
 template<class T>
 bool SortedList<T>::Add(T t, bool unique)
 {
-    ListNode<T>*  node;
-    ListNode<T>** curr = &(list.head);
-
+    ListNode<T>     *curr, *prev, *node;
+    
+    prev = NULL;
+    curr = list.head;
+    
     while(true)
     {
-        if (*curr == NULL || LessThan(t, (*curr)->data))
+        if (curr == NULL || LessThan(t, curr->data))
         {
             node = new ListNode<T>;
             node->data = t;
-            node->next = *curr;
-            if (curr != &(list.head))
-                node->prev =
-                 (ListNode<T>*) ((char*)curr - offsetof(ListNode<T>, next));
-            else
-                node->prev = NULL;
-            if (*curr != NULL)
-                (*curr)->prev = node;
-            if (*curr == NULL)
+            node->next = curr;
+
+            node->prev = prev;
+
+            if (curr != NULL)
+                curr->prev = node;
+
+            if (curr == NULL)
                 list.tail = node;
-            *curr = node;
-            list.length++;      
+
+            if (prev == NULL)
+                list.head = node;
+            else
+                prev->next = node;
+
+            list.length++;
             return true;
-        } 
+        }
         else
         {
-            if (unique && (*curr)->data == t)
+            if (unique && curr->data == t)
                 return false;
-            curr = &(*curr)->next;
+
+            prev = curr;
+            curr = curr->next;
         }
     }
+
     
     ASSERT_FAIL();
+
+//    ListNode<T>*  node;
+//    ListNode<T>** curr = &(list.head);
+//
+//    while(true)
+//    {
+//        if (*curr == NULL || LessThan(t, (*curr)->data))
+//        {
+//            node = new ListNode<T>;
+//            node->data = t;
+//            node->next = *curr;
+//            if (curr != &(list.head))
+//                node->prev =
+//                 (ListNode<T>*) ((char*)curr - offsetof(ListNode<T>, next));
+//            else
+//                node->prev = NULL;
+//            if (*curr != NULL)
+//                (*curr)->prev = node;
+//            if (*curr == NULL)
+//                list.tail = node;
+//            *curr = node;
+//            list.length++;      
+//            return true;
+//        } 
+//        else
+//        {
+//            curr = &(*curr)->next;
+//        }
+//    }
+//    
+//    ASSERT_FAIL();
 }
 
 template<class T>

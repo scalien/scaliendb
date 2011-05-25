@@ -29,7 +29,8 @@ void StorageArchiveLogSegmentJob::Execute()
     }
     else if (ReadBuffer::Cmp(script, "$delete") == 0)
     {
-        Log_Debug("Deleting archive log segment %U...", logSegment->GetLogSegmentID());
+        Log_Debug("Deleting archive log segment %U/%U...",
+         logSegment->GetTrackID(), logSegment->GetLogSegmentID());
         FS_Delete(logSegment->filename.GetBuffer());
     }
     else

@@ -7,21 +7,6 @@ static inline bool LessThan(uint64_t a, uint64_t b)
     return a < b;
 }
 
-bool ClusterMessage::IsShardMigrationMessage()
-{
-    if (
-     type == CLUSTERMESSAGE_SHARDMIGRATION_INITIATE     ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_BEGIN        ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_SET          ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_DELETE       ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_COMMIT       ||
-     type == CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE)
-        return true;
-    else
-        return false;
-}
-
-
 bool ClusterMessage::SetNodeID(uint64_t clusterID_, uint64_t nodeID_)
 {
     type = CLUSTERMESSAGE_SET_NODEID;
@@ -80,21 +65,23 @@ bool ClusterMessage::ReceiveLease(uint64_t nodeID_, uint64_t quorumID_,
 }
 
 bool ClusterMessage::ShardMigrationInitiate(uint64_t nodeID_,
- uint64_t quorumID_, uint64_t shardID_)
+ uint64_t quorumID_, uint64_t srcShardID_, uint64_t dstShardID_)
 {
     type = CLUSTERMESSAGE_SHARDMIGRATION_INITIATE;
     nodeID = nodeID_;
     quorumID = quorumID_;
-    shardID = shardID_;
+    srcShardID = srcShardID_;
+    dstShardID = dstShardID_;
     return true;
 }
 
 bool ClusterMessage::ShardMigrationBegin(
- uint64_t quorumID_, uint64_t shardID_)
+ uint64_t quorumID_, uint64_t srcShardID_, uint64_t dstShardID_)
 {
     type = CLUSTERMESSAGE_SHARDMIGRATION_BEGIN;
     quorumID = quorumID_;
-    shardID = shardID_;
+    srcShardID = srcShardID_;
+    dstShardID = dstShardID_;
     return true;
 }
 
@@ -134,6 +121,18 @@ bool ClusterMessage::ShardMigrationComplete(
     type = CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE;
     quorumID = quorumID_;
     shardID = shardID_;
+    return true;
+}
+
+bool ClusterMessage::ShardMigrationPause()
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_PAUSE;
+    return true;
+}
+
+bool ClusterMessage::ShardMigrationResume()
+{
+    type = CLUSTERMESSAGE_SHARDMIGRATION_RESUME;
     return true;
 }
 
@@ -206,12 +205,12 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
                 return false;
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
-            read = buffer.Readf("%c:%U:%U:%U",
-             &type, &nodeID, &quorumID, &shardID);
+            read = buffer.Readf("%c:%U:%U:%U:%U",
+             &type, &nodeID, &quorumID, &srcShardID, &dstShardID);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
-            read = buffer.Readf("%c:%U:%U",
-             &type, &quorumID, &shardID);
+            read = buffer.Readf("%c:%U:%U:%U",
+             &type, &quorumID, &srcShardID, &dstShardID);
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
             read = buffer.Readf("%c:%U:%U:%#R:%#R",
@@ -228,6 +227,14 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
         case CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE:
             read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &shardID);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_PAUSE:
+            read = buffer.Readf("%c",
+             &type);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_RESUME:
+            read = buffer.Readf("%c",
+             &type);
             break;
         case CLUSTERMESSAGE_HELLO:
             read = buffer.Readf("%c:%U:%#R",
@@ -280,12 +287,12 @@ bool ClusterMessage::Write(Buffer& buffer)
             MessageUtil::WriteIDList(shards, buffer);
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
-            buffer.Writef("%c:%U:%U:%U",
-             type, nodeID, quorumID, shardID);
+            buffer.Writef("%c:%U:%U:%U:%U",
+             type, nodeID, quorumID, srcShardID, dstShardID);
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
-            buffer.Writef("%c:%U:%U",
-             type, quorumID, shardID);
+            buffer.Writef("%c:%U:%U:%U",
+             type, quorumID, srcShardID, dstShardID);
             return true;
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
             buffer.Writef("%c:%U:%U:%#R:%#R",
@@ -302,6 +309,14 @@ bool ClusterMessage::Write(Buffer& buffer)
         case CLUSTERMESSAGE_SHARDMIGRATION_COMPLETE:
             buffer.Writef("%c:%U:%U",
              type, quorumID, shardID);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_PAUSE:
+            buffer.Writef("%c",
+             type);
+            return true;
+        case CLUSTERMESSAGE_SHARDMIGRATION_RESUME:
+            buffer.Writef("%c",
+             type);
             return true;
         case CLUSTERMESSAGE_HELLO:
             tempBuffer.Writef("ScalienDB cluster protocol, server version " VERSION_STRING);

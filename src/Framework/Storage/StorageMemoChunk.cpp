@@ -263,6 +263,11 @@ ReadBuffer StorageMemoChunk::GetMidpoint()
         return ReadBuffer();
 }
 
+bool StorageMemoChunk::IsEmpty()
+{
+    return (size == 0);
+}
+
 StorageFileChunk* StorageMemoChunk::RemoveFileChunk()
 {
     StorageFileChunk*   ret;

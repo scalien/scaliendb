@@ -20,13 +20,13 @@ public:
     
 private:
     bool                    TryReadTOC(Buffer& filename);
-    bool                    ReadShards(ReadBuffer& parse);
-    bool                    ReadShard(ReadBuffer& parse);
+    bool                    ReadShards(uint32_t version, ReadBuffer& parse);
+    bool                    ReadShardVersion1(ReadBuffer& parse);
     void                    CreateMemoChunks();
     void                    ReadFileChunks();
     void                    ComputeShardRecovery();
-    void                    ReplayLogSegments();
-    bool                    ReplayLogSegment(Buffer& filename);
+    void                    ReplayLogSegments(uint64_t trackID);
+    bool                    ReplayLogSegment(uint64_t trackID, Buffer& filename);
     void                    DeleteOrphanedChunks();
     
     void                    ExecuteSet(

@@ -46,7 +46,8 @@ public:
     bool                isSplitting;    
 
     bool                isMigrating;
-    uint64_t            migrateShardID;
+    uint64_t            migrateSrcShardID;
+    uint64_t            migrateDstShardID;
     uint64_t            migrateQuorumID;
     // ========================================================================================
     

@@ -62,7 +62,8 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     
     isMigrating = other.isMigrating;
     migrateQuorumID = other.migrateQuorumID;
-    migrateShardID = other.migrateShardID;
+    migrateSrcShardID = other.migrateSrcShardID;
+    migrateDstShardID = other.migrateDstShardID;
     
     FOREACH (quorum, other.quorums)
         quorums.Append(new ConfigQuorum(*quorum));
@@ -98,7 +99,8 @@ void ConfigState::Init()
     
     isMigrating = false;
     migrateQuorumID = 0;
-    migrateShardID = 0;
+    migrateSrcShardID = 0;
+    migrateDstShardID = 0;
     
     quorums.DeleteList();
     databases.DeleteList();
@@ -125,7 +127,8 @@ void ConfigState::Transfer(ConfigState& other)
     
     other.isMigrating = isMigrating;
     other.migrateQuorumID = migrateQuorumID;
-    other.migrateShardID = migrateShardID;
+    other.migrateSrcShardID = migrateSrcShardID;
+    other.migrateDstShardID = migrateDstShardID;
     
     other.quorums = quorums;
     quorums.ClearMembers();
@@ -246,7 +249,7 @@ bool ConfigState::Read(ReadBuffer& buffer_, bool withVolatile)
         if (c == YES)
         {
             READ_SEPARATOR();
-            read = buffer.Readf("%U:%U", &migrateShardID, &migrateQuorumID);
+            read = buffer.Readf("%U:%U:%U", &migrateSrcShardID, &migrateDstShardID, &migrateQuorumID);
             CHECK_ADVANCE(1);
             isMigrating = true;
         }
@@ -293,7 +296,7 @@ bool ConfigState::Write(Buffer& buffer, bool withVolatile)
 
         buffer.Appendf(":");        
         if (isMigrating)
-            buffer.Appendf("%c:%U:%U", YES, migrateShardID, migrateQuorumID);
+            buffer.Appendf("%c:%U:%U:%U", YES, migrateSrcShardID, migrateDstShardID, migrateQuorumID);
         else
             buffer.Appendf("%c", NO);
 
@@ -321,6 +324,11 @@ void ConfigState::OnAbortShardMigration()
 {
     ConfigShardServer*  shardServer;
     QuorumShardInfo*    info;
+
+    isMigrating = false;
+    migrateQuorumID = 0;
+    migrateSrcShardID = 0;
+    migrateDstShardID = 0;
     
     FOREACH (shardServer, shardServers)
     {
@@ -466,8 +474,8 @@ ConfigShard* ConfigState::GetShard(uint64_t tableID, ReadBuffer key)
     
     FOREACH (itShard, shards)
     {
-        if (itShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
-            continue;
+//        if (itShard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
+//            continue;
         
         if (itShard->tableID == tableID)
         {
@@ -804,17 +812,13 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
 
 bool ConfigState::CompleteShardMigrationComplete(ConfigMessage& message)
 {
-    ConfigShard* shard;
-    
-    shard = GetShard(message.shardID);
-    
     if (!isMigrating)
         return false;
         
     if (migrateQuorumID != message.quorumID)
         return false;
     
-    if (migrateShardID != message.shardID)
+    if (migrateSrcShardID != message.srcShardID)
         return false;
     
     return true;
@@ -1212,13 +1216,21 @@ void ConfigState::OnShardMigrationComplete(ConfigMessage& message)
 {
     ConfigQuorum*   quorum;
     ConfigShard*    shard;
+    ConfigTable*    table;
     
-    shard = GetShard(message.shardID);
+    shard = GetShard(message.srcShardID);
     ASSERT(shard != NULL);
     // quorum = old quorum
     quorum = GetQuorum(shard->quorumID);
     ASSERT(quorum != NULL);
     quorum->shards.Remove(shard->shardID);
+    // table
+    table = GetTable(shard->tableID);
+    ASSERT(table != NULL);
+    table->shards.Remove(message.srcShardID);
+    table->shards.Add(message.dstShardID);
+    // change shard ID
+    shard->shardID = message.dstShardID;
     // quorum = new quorum
     quorum = GetQuorum(message.quorumID);
     quorum->shards.Add(shard->shardID);

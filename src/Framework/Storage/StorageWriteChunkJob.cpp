@@ -16,7 +16,8 @@ void StorageWriteChunkJob::Execute()
 
     Log_Debug("Writing chunk %U to file...", writeChunk->GetChunkID());
     sw.Start();
-    ASSERT(writer.Write(env, writeChunk));
+    if (!env->shuttingDown)
+        ASSERT(writer.Write(env, writeChunk));
     sw.Stop();
     Log_Debug("Chunk %U written, elapsed: %U, size: %s, bps: %sB/s",
      writeChunk->GetChunkID(),

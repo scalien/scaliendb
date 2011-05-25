@@ -6,6 +6,7 @@
 StorageLogSegment::StorageLogSegment()
 {
     prev = next = this;
+    trackID = 0;
     logSegmentID = 0;
     fd = INVALID_FD;
     logCommandID = 1;
@@ -14,6 +15,8 @@ StorageLogSegment::StorageLogSegment()
     prevShardID = 0;
     writeShardID = true;
     asyncCommit = false;
+    isCommiting = false;
+    commitStatus = false;
 }
 
 #define Log_DebugLong(sw, ...)  \
@@ -23,11 +26,12 @@ StorageLogSegment::StorageLogSegment()
         sw.Reset();             \
     } while (0)
 
-bool StorageLogSegment::Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t syncGranularity_)
+bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSegmentID_, uint64_t syncGranularity_)
 {
     unsigned    length;
     Stopwatch   sw;
 
+    trackID = trackID_;
     logSegmentID = logSegmentID_;
     syncGranularity = syncGranularity_;
     offset = 0;
@@ -36,7 +40,7 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t s
     sw.Start();
     
     filename.Write(logPath);
-    filename.Appendf("log.%020U", logSegmentID);
+    filename.Appendf("log.%020U.%020U", trackID, logSegmentID);
     filename.NullTerminate();
     fd = FS_Open(filename.GetBuffer(), FS_CREATE | FS_WRITEONLY | FS_APPEND);
     if (fd == INVALID_FD)
@@ -47,6 +51,7 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t s
     Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
 
     sw.Start();
+    writeBuffer.AppendLittle32(STORAGE_LOGSEGMENT_VERSION);
     writeBuffer.AppendLittle64(logSegmentID);
     length = writeBuffer.GetLength();
     
@@ -85,6 +90,11 @@ void StorageLogSegment::Close()
 void StorageLogSegment::DeleteFile()
 {
     FS_Delete(filename.GetBuffer());
+}
+
+uint64_t StorageLogSegment::GetTrackID()
+{
+    return trackID;
 }
 
 uint64_t StorageLogSegment::GetLogSegmentID()
@@ -221,11 +231,6 @@ void StorageLogSegment::Commit()
     
     if (asyncCommit)
         IOProcessor::Complete(onCommit);
-}
-
-bool StorageLogSegment::GetCommitStatus()
-{
-    return commitStatus;
 }
 
 bool StorageLogSegment::HasUncommitted()

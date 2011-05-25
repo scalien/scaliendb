@@ -28,6 +28,7 @@ public:
     StorageShard();
     ~StorageShard();
 
+    void                SetTrackID(uint64_t trackID);
     void                SetContextID(uint16_t contextID);
     void                SetTableID(uint64_t tableID);
     void                SetShardID(uint64_t shardID);
@@ -38,6 +39,7 @@ public:
     void                SetUseBloomFilter(bool useBloomFilter);
     void                SetLogStorage(bool isLogStorage);
 
+    uint64_t            GetTrackID();
     uint16_t            GetContextID();
     uint64_t            GetTableID();
     uint64_t            GetShardID();
@@ -47,6 +49,7 @@ public:
     ReadBuffer          GetLastKey();
     bool                UseBloomFilter();
     bool                IsLogStorage();
+    bool                IsSplitable();
     
     bool                RangeContains(ReadBuffer key);
 
@@ -64,6 +67,7 @@ public:
     StorageMemoChunk*   memoChunk;
 
 private:
+    uint64_t            trackID;
     uint16_t            contextID;
     uint64_t            shardID;
     uint64_t            tableID;

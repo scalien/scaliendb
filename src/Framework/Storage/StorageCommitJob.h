@@ -17,13 +17,16 @@ class StorageEnvironment;
 class StorageCommitJob : public Job
 {
 public:
-    StorageCommitJob(StorageEnvironment* env_, StorageLogSegment* logSegment);
+    StorageCommitJob(StorageEnvironment* env_,
+     StorageLogSegment* logSegment,
+     Callable onCommit);
     
     void                Execute();
     void                OnComplete();
     
     StorageEnvironment* env;
     StorageLogSegment*  logSegment;
+    Callable            onCommit;
 };
 
 #endif

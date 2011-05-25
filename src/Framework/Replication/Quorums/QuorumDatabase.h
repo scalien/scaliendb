@@ -7,11 +7,12 @@
 #include "Framework/Storage/StorageShardProxy.h"
 
 #define RLOG_REACTIVATION_DIFF                  100
-
 #define QUORUM_DATABASE_SYSTEM_CONTEXT          1
 #define QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT    2
 #define QUORUM_DATABASE_QUORUM_LOG_CONTEXT      3
 #define QUORUM_DATABASE_DATA_CONTEXT            4
+
+class QuorumContext;
 
 /*
 ===============================================================================================
@@ -24,7 +25,9 @@
 class QuorumDatabase
 {
 public:
-    void                Init(StorageShardProxy* paxosShard, StorageShardProxy* logShard);
+    void                Init(QuorumContext* context,
+                         StorageShardProxy* paxosShard,
+                         StorageShardProxy* logShard);
 
     uint64_t            GetPaxosID();
     void                SetPaxosID(uint64_t paxosID);
@@ -53,9 +56,9 @@ private:
     uint64_t            GetUint64(const char* name);
     void                SetUint64(const char* name, uint64_t value);
     
+    QuorumContext*      context;
     StorageShardProxy*  paxosShard;
     StorageShardProxy*  logShard;
-    uint16_t            contextID;
     uint64_t            shardID;
 };
 

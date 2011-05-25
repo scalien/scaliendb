@@ -47,16 +47,6 @@ void MessageConnection::Close()
     TCPConnection::Close(); 
 }
 
-void MessageConnection::PauseReads()
-{
-    readActive = false;
-}
-
-void MessageConnection::ResumeReads()
-{
-    readActive = true;
-}
-
 void MessageConnection::Write(Buffer& msg)
 {
     AcquireBuffer();

@@ -22,7 +22,7 @@ void ShardQuorumContext::Init(ConfigQuorum* configQuorum,
     transport.SetQuorum(&quorum);
     transport.SetQuorumID(quorumID);
     
-    database.Init(
+    database.Init(this,
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumPaxosShard(quorumID),
      quorumProcessor->GetShardServer()->GetDatabaseManager()->GetQuorumLogShard(quorumID));
     
@@ -73,7 +73,7 @@ void ShardQuorumContext::SetQuorumNodes(SortedList<uint64_t>& activeNodes)
     quorum.ClearNodes();
     FOREACH (it, activeNodes)
     {
-        Log_Debug("New nodes: %U", *it);
+//        Log_Debug("New nodes: %U", *it);
         quorum.AddNode(*it);
     }
 }

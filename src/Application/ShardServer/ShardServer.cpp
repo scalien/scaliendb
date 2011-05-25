@@ -194,7 +194,7 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
 
         /* shard migration */
         case CLUSTERMESSAGE_SHARDMIGRATION_INITIATE:
-            configShard = configState.GetShard(message.shardID);
+            configShard = configState.GetShard(message.srcShardID);
             ASSERT(configShard != NULL);
             quorumProcessor = GetQuorumProcessor(configShard->quorumID);
             ASSERT(quorumProcessor != NULL);
@@ -206,6 +206,14 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
             }
             
             migrationWriter.Begin(message);
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_PAUSE:
+            if (migrationWriter.IsActive())
+                migrationWriter.Pause();
+            break;
+        case CLUSTERMESSAGE_SHARDMIGRATION_RESUME:
+            if (migrationWriter.IsActive())
+                migrationWriter.Resume();
             break;
         case CLUSTERMESSAGE_SHARDMIGRATION_BEGIN:
         case CLUSTERMESSAGE_SHARDMIGRATION_SET:
@@ -400,7 +408,10 @@ DeleteQuorum:
     }
     
     if (configState.isMigrating)
-        myShardIDs.Add(configState.migrateShardID);
+    {
+        myShardIDs.Add(configState.migrateSrcShardID);
+        myShardIDs.Add(configState.migrateDstShardID);
+    }
     
     databaseManager.RemoveDeletedDataShards(myShardIDs);
 }

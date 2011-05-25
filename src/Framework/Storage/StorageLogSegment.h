@@ -10,7 +10,7 @@
 #define STORAGE_LOGSEGMENT_COMMAND_DELETE       'd'
 
 #define STORAGE_LOGSEGMENT_WRITE_GRANULARITY    64*KiB
-
+#define STORAGE_LOGSEGMENT_VERSION              1
 
 class StorageRecovery;
 class StorageArchiveLogSegmentJob;
@@ -31,10 +31,11 @@ class StorageLogSegment
 public:
     StorageLogSegment();
     
-    bool                Open(Buffer& logPath, uint64_t logSegmentID_, uint64_t syncGranularity_);
+    bool                Open(Buffer& logPath, uint64_t trackID, uint64_t logSegmentID, uint64_t syncGranularity);
     void                Close();
     void                DeleteFile();
 
+    uint64_t            GetTrackID();
     uint64_t            GetLogSegmentID();
     uint32_t            GetLogCommandID();
     
@@ -46,7 +47,6 @@ public:
     void                Undo();
 
     void                Commit();
-    bool                GetCommitStatus();
     bool                HasUncommitted();
     uint32_t            GetCommitedLogCommandID();
 
@@ -59,12 +59,14 @@ private:
     void                NewRound();
 
     FD                  fd;
+    uint64_t            trackID;
     uint64_t            logSegmentID;
     uint32_t            logCommandID;
     uint32_t            commitedLogCommandID;
     uint64_t            syncGranularity;
     uint64_t            offset;
     uint64_t            lastSyncOffset;
+    bool                isCommiting;
     bool                commitStatus;
     Buffer              filename;
     Buffer              writeBuffer;

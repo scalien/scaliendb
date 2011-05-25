@@ -1,11 +1,16 @@
 #include "QuorumDatabase.h"
+#include "Framework/Replication/Quorums/QuorumContext.h"
 #include "Framework/Storage/StorageShardProxy.h"
 #include "Framework/Storage/StorageEnvironment.h"
 
-void QuorumDatabase::Init(StorageShardProxy* paxosShard_, StorageShardProxy* logShard_)
+void QuorumDatabase::Init(QuorumContext* context_,
+ StorageShardProxy* paxosShard_,
+ StorageShardProxy* logShard_)
 {
+    ASSERT(context_ != NULL);
     ASSERT(paxosShard_ != NULL);
     ASSERT(logShard_ != NULL);
+    context = context_;
     paxosShard = paxosShard_;
     logShard = logShard_;
 }
@@ -124,17 +129,17 @@ void QuorumDatabase::SetAcceptedValue(uint64_t paxosID, ReadBuffer value)
 
 bool QuorumDatabase::IsCommiting()
 {
-    return paxosShard->GetEnvironment()->IsCommiting();
+    return paxosShard->GetEnvironment()->IsCommiting(context->GetQuorumID());
 }
 
 void QuorumDatabase::Commit()
 {
-    paxosShard->GetEnvironment()->Commit();
+    paxosShard->GetEnvironment()->Commit(context->GetQuorumID());
 }
 
 void QuorumDatabase::Commit(Callable& onCommit)
 {
-    paxosShard->GetEnvironment()->Commit(onCommit);
+    paxosShard->GetEnvironment()->Commit(context->GetQuorumID(), onCommit);
 }
 
 uint64_t QuorumDatabase::GetUint64(const char* name)

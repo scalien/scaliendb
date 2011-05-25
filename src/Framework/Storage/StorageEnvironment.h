@@ -4,6 +4,7 @@
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InList.h"
 #include "System/Containers/ArrayList.h"
+#include "System/Containers/HashMap.h"
 #include "System/Events/Countdown.h"
 #include "System/Threading/ThreadPool.h"
 #include "System/Threading/JobProcessor.h"
@@ -47,9 +48,11 @@ class StorageEnvironment
     friend class StorageBulkCursor;
     friend class StorageAsyncBulkCursor;
     
-    typedef InList<StorageLogSegment>   LogSegmentList;
-    typedef InList<StorageShard>        ShardList;
-    typedef InList<StorageFileChunk>    FileChunkList;
+    typedef InList<StorageLogSegment>               LogSegmentList;
+    typedef InList<StorageShard>                    ShardList;
+    typedef InList<StorageFileChunk>                FileChunkList;
+    typedef HashMap<uint64_t, StorageLogSegment*>   LogSegmentMap;
+    typedef HashMap<uint64_t, uint64_t>             LogSegmentIDMap;
 
 public:
     typedef ArrayList<uint64_t, 64>     ShardIDList;
@@ -67,7 +70,8 @@ public:
     void                    GetShardIDs(uint64_t contextID, ShardIDList& shardIDs);
     void                    GetShardIDs(uint64_t contextID, uint64_t tableID, ShardIDList& shardIDs);
 
-    bool                    CreateShard(uint16_t contextID, uint64_t shardID, uint64_t tableID,
+    bool                    CreateShard(uint64_t trackID,
+                             uint16_t contextID, uint64_t shardID, uint64_t tableID,
                              ReadBuffer firstKey, ReadBuffer lastKey,
                              bool useBloomFilter, bool isLogStorage);
     void                    DeleteShard(uint16_t contextID, uint64_t shardID);
@@ -90,11 +94,9 @@ public:
     ReadBuffer              GetMidpoint(uint16_t contextID, uint64_t shardID);
     bool                    IsSplitable(uint16_t contextID, uint64_t shardID);
     
-    
-    bool                    Commit();
-    bool                    Commit(Callable& onCommit_);
-    bool                    GetCommitStatus();
-    bool                    IsCommiting();
+    bool                    Commit(uint64_t trackID);
+    bool                    Commit(uint64_t trackID, Callable& onCommit_);
+    bool                    IsCommiting(uint64_t trackID);
     
     bool                    PushMemoChunk(uint16_t contextID, uint64_t shardID);
 
@@ -104,7 +106,7 @@ public:
     StorageConfig&          GetConfig();
     
     void                    OnCommit(StorageCommitJob* job);
-    void                    TryFinalizeLogSegment();
+    void                    TryFinalizeLogSegments();
     void                    TrySerializeChunks();
     void                    TryWriteChunks();
     void                    TryMergeChunks();
@@ -120,17 +122,17 @@ public:
     void                    EnqueueAsyncGet(StorageAsyncGet* asyncGet);
     void                    OnChunkSerialized(StorageMemoChunk* memoChunk, StorageFileChunk* fileChunk);
     unsigned                GetNumShards(StorageChunk* chunk);
+    StorageShard*           GetFirstShard(StorageChunk* chunk);
+    StorageLogSegment*      GetLogSegment(uint64_t trackID);
 
     Countdown               backgroundTimer;
     Callable                onBackgroundTimer;
 
-    StorageLogSegment*      headLogSegment;
     ShardList               shards;
     FileChunkList           fileChunks;
     LogSegmentList          logSegments;
     StorageConfig           config;
     
-    Callable                onCommit;
     JobProcessor            commitJobs;
     JobProcessor            serializeChunkJobs;
     JobProcessor            writeChunkJobs;
@@ -146,7 +148,8 @@ public:
     Buffer                  archivePath;
 
     uint64_t                nextChunkID;
-    uint64_t                nextLogSegmentID;
+    LogSegmentMap           logSegmentMap;
+    LogSegmentIDMap         logSegmentIDMap;
     unsigned                numCursors;
     const char*             archiveScript;
     bool                    yieldThreads;

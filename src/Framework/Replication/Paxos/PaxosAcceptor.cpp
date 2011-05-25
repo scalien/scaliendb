@@ -54,6 +54,12 @@ void PaxosAcceptor::OnPrepareRequest(PaxosMessage& imsg)
      context->GetDatabase()->IsCommiting() ||
      context->IsPaxosBlocked())
     {
+        Log_Debug("imsg.paxosID = %U", imsg.paxosID);
+        Log_Debug("context->GetPaxosID() = %U", context->GetPaxosID());
+        Log_Debug("imsg.proposalID = %U", imsg.proposalID);
+        Log_Debug("state.promisedProposalID = %U", state.promisedProposalID);
+        Log_Debug("context->GetDatabase()->IsCommiting() = %b", context->GetDatabase()->IsCommiting());
+        Log_Debug("context->IsPaxosBlocked() = %b", context->IsPaxosBlocked());
         omsg.PrepareRejected(imsg.paxosID, MY_NODEID,
          imsg.proposalID, state.promisedProposalID);
         context->GetTransport()->SendMessage(senderID, omsg);

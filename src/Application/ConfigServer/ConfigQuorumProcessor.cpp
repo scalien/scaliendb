@@ -199,13 +199,16 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
             goto MigrationFailed;
 
         CONFIG_STATE->isMigrating = true;
-        CONFIG_STATE->migrateQuorumID = request->quorumID;
-        CONFIG_STATE->migrateShardID = request->shardID;
+        CONFIG_STATE->migrateQuorumID = dstQuorumID;
+        CONFIG_STATE->migrateSrcShardID = request->shardID;
+        CONFIG_STATE->migrateDstShardID = CONFIG_STATE->nextShardID++;
         
         UpdateListeners();
 
-        clusterMessage.ShardMigrationInitiate(
-         dstNodeID, request->quorumID, request->shardID);
+        clusterMessage.ShardMigrationInitiate(dstNodeID,
+         CONFIG_STATE->migrateQuorumID,
+         CONFIG_STATE->migrateSrcShardID,
+         CONFIG_STATE->migrateDstShardID);
         CONTEXT_TRANSPORT->SendClusterMessage(srcNodeID, clusterMessage);
 
         request->response.OK();
@@ -378,12 +381,13 @@ void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
 {
     ConfigMessage*  configMessage;
     
-    if (!quorumContext.IsLeader())
+    if (!quorumContext.IsLeader() || !CONFIG_STATE->isMigrating)
         return;
     
     configMessage = new ConfigMessage;
     configMessage->fromClient = false;
-    configMessage->ShardMigrationComplete(message.quorumID, message.shardID);
+    configMessage->ShardMigrationComplete(message.quorumID,
+     CONFIG_STATE->migrateSrcShardID, CONFIG_STATE->migrateDstShardID);
     configMessages.Append(configMessage);
     TryAppend();
 }
@@ -531,10 +535,12 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
         {
             ASSERT(CONFIG_STATE->isMigrating);
             ASSERT(CONFIG_STATE->migrateQuorumID == message.quorumID);
-            ASSERT(CONFIG_STATE->migrateShardID == message.shardID);
+            ASSERT(CONFIG_STATE->migrateSrcShardID == message.srcShardID);
+            ASSERT(CONFIG_STATE->migrateDstShardID == message.dstShardID);
             CONFIG_STATE->isMigrating = false;
             CONFIG_STATE->migrateQuorumID = 0;
-            CONFIG_STATE->migrateShardID = 0;
+            CONFIG_STATE->migrateSrcShardID = 0;
+            CONFIG_STATE->migrateDstShardID = 0;
         }
     }
     

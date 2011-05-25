@@ -64,7 +64,7 @@ private:
     void                    OnRequestChosen(PaxosMessage& msg);
     void                    OnStartCatchup(PaxosMessage& msg);
 
-    void                    ProcessLearnChosen(uint64_t nodeID, uint64_t runID, Buffer& value);
+    void                    ProcessLearnChosen(uint64_t nodeID, uint64_t runID);
 
     void                    OnRequest(PaxosMessage& msg);
     void                    RequestChosen(uint64_t nodeID);

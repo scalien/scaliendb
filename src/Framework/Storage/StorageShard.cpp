@@ -3,6 +3,7 @@
 StorageShard::StorageShard()
 {
     prev = next = this;
+    trackID = 0;
     contextID = 0;
     tableID = 0;
     shardID = 0;
@@ -24,6 +25,11 @@ StorageShard::~StorageShard()
         if ((*itChunk)->GetChunkState() != StorageChunk::Written)
             delete *itChunk;
     }
+}
+
+void StorageShard::SetTrackID(uint64_t trackID_)
+{
+    trackID = trackID_;
 }
 
 void StorageShard::SetContextID(uint16_t contextID_)
@@ -71,6 +77,11 @@ void StorageShard::SetLogStorage(bool isLogStorage_)
     isLogStorage = isLogStorage_;
 }
 
+uint64_t StorageShard::GetTrackID()
+{
+    return trackID;
+}
+
 uint16_t StorageShard::GetContextID()
 {
     return contextID;
@@ -114,6 +125,27 @@ bool StorageShard::UseBloomFilter()
 bool StorageShard::IsLogStorage()
 {
     return isLogStorage;
+}
+
+bool StorageShard::IsSplitable()
+{
+    StorageChunk**  itChunk;
+    ReadBuffer      firstKey;
+    ReadBuffer      lastKey;
+
+    FOREACH (itChunk, GetChunks())
+    {
+        firstKey = (*itChunk)->GetFirstKey();
+        lastKey = (*itChunk)->GetLastKey();
+        
+        if (firstKey.GetLength() > 0 && !RangeContains(firstKey))
+            return false;
+
+        if (lastKey.GetLength() > 0 && !RangeContains(lastKey))
+            return false;
+    }
+    
+    return true;
 }
 
 bool StorageShard::RangeContains(ReadBuffer key)
@@ -181,7 +213,10 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
         inputChunks.Append(fileChunk);
         totalSize += fileChunk->GetSize();
     }
-    
+
+    if (!IsSplitable())
+        return;
+
     while (inputChunks.GetLength() >= 3)
     {
         itInputChunk = inputChunks.First();

@@ -11,7 +11,13 @@ static bool LessThan(const Buffer* a, const Buffer* b)
 
 bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
 {
-    Buffer  toc, tocNew;
+    uint64_t            trackID;
+    const char*         filename;
+    Buffer              tmp;
+    Buffer              toc, tocNew;
+    FS_Dir              dir;
+    FS_DirEntry         entry;
+    List<uint64_t>      replayedTrackIDs;
     
     env = env_;
     
@@ -41,8 +47,36 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
     // compute the max. (logSegmentID, commandID) for each shard's chunk
     // log entries smaller must not be applied to its memo chunk
     ComputeShardRecovery();
+
+    tmp.Write(env->logPath);
+    tmp.NullTerminate();
     
-    ReplayLogSegments();
+    dir = FS_OpenDir(tmp.GetBuffer());
+    if (dir == FS_INVALID_DIR)
+    {
+        Log_Message("Unable to open log directory: %s", tmp.GetBuffer());
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    
+    while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
+    {
+        filename = FS_DirEntryName(entry);
+        
+        if (FS_IsSpecial(filename))
+            continue;
+            
+        if (FS_IsDirectory(filename))
+            continue;
+
+        tmp.Write(filename);
+        tmp.Readf("log.%U.", &trackID);
+        if (!replayedTrackIDs.Contains(trackID))
+        {
+            ReplayLogSegments(trackID);
+            replayedTrackIDs.Add(trackID);
+        }
+    }
     
     DeleteOrphanedChunks();
     
@@ -51,7 +85,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
 
 bool StorageRecovery::TryReadTOC(Buffer& filename)
 {
-    uint32_t    size, rest, checksum, compChecksum;
+    uint32_t    size, rest, checksum, compChecksum, version;
     Buffer      buffer;
     ReadBuffer  parse, dataPart;
     FDGuard     fd;
@@ -89,14 +123,17 @@ bool StorageRecovery::TryReadTOC(Buffer& filename)
         return false;
     parse.Advance(4);
 
-    ReadShards(parse);
+    parse.ReadLittle32(version);
+    parse.Advance(4);
+
+    ReadShards(version, parse);
     
     fd.Close();
     
     return true;
 }
 
-bool StorageRecovery::ReadShards(ReadBuffer& parse)
+bool StorageRecovery::ReadShards(uint32_t version, ReadBuffer& parse)
 {
     uint32_t    numShards, i;
     
@@ -106,14 +143,22 @@ bool StorageRecovery::ReadShards(ReadBuffer& parse)
     
     for (i = 0; i < numShards; i++)
     {
-        if (!ReadShard(parse))
-            return false;
+        switch (version)
+        {
+            case 1:
+                if (!ReadShardVersion1(parse))
+                    return false;
+                break;
+            default:
+                STOP_FAIL(1, "TOC file version is newer than current ScalienDB version!");
+                break;
+        }
     }
     
     return true;
 }
 
-bool StorageRecovery::ReadShard(ReadBuffer& parse)
+bool StorageRecovery::ReadShardVersion1(ReadBuffer& parse)
 {
     uint32_t            numChunks, i;
     uint64_t            chunkID;
@@ -124,6 +169,9 @@ bool StorageRecovery::ReadShard(ReadBuffer& parse)
     
     shard = shardGuard.Get();
     
+    if (!parse.ReadLittle64(shard->trackID))
+        return false;
+    parse.Advance(8);
     if (!parse.ReadLittle16(shard->contextID))
         return false;
     parse.Advance(2);
@@ -221,17 +269,17 @@ void StorageRecovery::ComputeShardRecovery()
     }
 }
 
-void StorageRecovery::ReplayLogSegments()
+void StorageRecovery::ReplayLogSegments(uint64_t trackID)
 {
     const char*         filename;
-    Buffer              tmp;
+    Buffer              tmp, prefix;
     FS_Dir              dir;
     FS_DirEntry         entry;
     SortedList<Buffer*> segments;
     Buffer*             segmentName;
     Buffer**            itSegment;
     
-    Log_Message("Replaying log segments...");
+    Log_Message("Replaying log segments in track %U...", trackID);
     
     tmp.Write(env->logPath);
     tmp.NullTerminate();
@@ -243,6 +291,9 @@ void StorageRecovery::ReplayLogSegments()
         Log_Message("Exiting...");
         ASSERT_FAIL();
     }
+
+    prefix.Writef("log.%020U", trackID);
+    prefix.NullTerminate();
     
     while ((entry = FS_ReadDir(dir)) != FS_INVALID_DIR_ENTRY)
     {
@@ -255,19 +306,19 @@ void StorageRecovery::ReplayLogSegments()
             continue;
         
         tmp.Write(filename);
-        if (ReadBuffer(tmp).BeginsWith("log."))
+        if (ReadBuffer(tmp).BeginsWith(prefix.GetBuffer()))
         {
             tmp.Write(env->logPath);
             tmp.Append(filename);
             segmentName = new Buffer(tmp);
-            segments.Add(segmentName, true);
+            segments.Add(segmentName);
         }
     }
 
     FOREACH (itSegment, segments)
     {
         segmentName = *itSegment;
-        ReplayLogSegment(*segmentName);
+        ReplayLogSegment(trackID, *segmentName);
         delete segmentName;
     }
     
@@ -276,18 +327,18 @@ void StorageRecovery::ReplayLogSegments()
     Log_Message("Replaying done.");
 }
 
-bool StorageRecovery::ReplayLogSegment(Buffer& filename)
+bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
 {
     // create a StorageLogSegment for each
     // and for each (logSegmentID, commandID) => (contextID, shardID)
     // look at that shard's computed max., if the log is bigger, then execute the command
     // against the MemoChunk
 
-    bool                usePrevious;
+    bool                r, usePrevious;
     char                type;
     uint16_t            contextID, klen;
-    uint32_t            checksum, /*compChecksum,*/ vlen;
-    uint64_t            logSegmentID, shardID, logCommandID, size, rest;
+    uint32_t            checksum, /*compChecksum,*/ vlen, version;
+    uint64_t            logSegmentID, tmp, shardID, logCommandID, size, rest;
     ReadBuffer          parse, dataPart, key, value;
     Buffer              buffer;
     FDGuard             fd;
@@ -306,15 +357,20 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
         ASSERT_FAIL();
     }
     
-    size = 8;
+    size = 4 + 8;
     buffer.Allocate(size);
     ret = FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size);
     if (ret < 0 || (uint64_t) ret != size)
         return false;
     buffer.SetLength(size);
-        
-    // first 8 byte is the logSegmentID
     parse.Wrap(buffer);
+
+    // first 4 byte is the version
+    if (!parse.ReadLittle32(version))
+        return false;
+    parse.Advance(4);
+        
+    // next 8 byte is the logSegmentID
     if (!parse.ReadLittle64(logSegmentID))
         return false;
     parse.Advance(8);
@@ -422,11 +478,13 @@ bool StorageRecovery::ReplayLogSegment(Buffer& filename)
     }
     
     logSegment = new StorageLogSegment;
+    logSegment->trackID = trackID;
     logSegment->logSegmentID = logSegmentID;
     logSegment->filename.Write(filename);
     env->logSegments.Append(logSegment);
-    if (env->nextLogSegmentID <= logSegmentID)
-        env->nextLogSegmentID = logSegmentID + 1;
+    r = env->logSegmentIDMap.Get(trackID, tmp);
+    if (!ret || tmp <= logSegmentID)
+        env->logSegmentIDMap.Set(trackID, ++logSegmentID);
     
     fd.Close();
     
@@ -564,4 +622,9 @@ void StorageRecovery::ExecuteDelete(
         ASSERT_FAIL();
 
     memoChunk->RegisterLogCommand(logSegmentID, logCommandID);
+}
+
+static size_t Hash(uint64_t h)
+{
+    return h;
 }

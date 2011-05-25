@@ -30,7 +30,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
 
     shard = NULL;
     if (configState->isMigrating)
-        shard = configState->GetShard(configState->migrateShardID);
+        shard = configState->GetShard(configState->migrateSrcShardID);
     
     for (itLease = primaryLeases.First(); itLease != NULL; /* advanced in body */)
     {
@@ -49,11 +49,7 @@ void ConfigPrimaryLeaseManager::OnPrimaryLeaseTimeout()
                 if (configState->migrateQuorumID == quorum->quorumID || // migration dst
                  shard->quorumID == quorum->quorumID)                   // migration src
                 {
-                    Log_Message("Aborting shard migration...");
-                    configState->isMigrating = false;
-                    configState->migrateQuorumID = 0;
-                    configState->migrateShardID = 0;
-                    
+                    Log_Message("Aborting shard migration...");                    
                     configState->OnAbortShardMigration();
                 }
             }

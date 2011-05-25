@@ -53,6 +53,8 @@ public:
     uint64_t            GetSize();
     uint64_t            GetPartialSize(ReadBuffer firstKey, ReadBuffer lastKey);
     ReadBuffer          GetMidpoint();
+
+    bool                IsEmpty();
     
     void                AddPagesToCache();
     void                RemovePagesFromCache();

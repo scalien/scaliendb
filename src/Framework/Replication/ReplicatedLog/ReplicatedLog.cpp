@@ -288,7 +288,6 @@ void ReplicatedLog::OnProposeResponse(PaxosMessage& imsg)
 void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
 {
     uint64_t        runID;
-    Buffer          learnedValue;
 
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("OnLearnChosen begin");
@@ -315,14 +314,13 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
     if (imsg.type == PAXOS_LEARN_VALUE)
     {
         runID = imsg.runID;
-        learnedValue.Write(imsg.value);
-        context->GetDatabase()->SetAcceptedValue(paxosID, learnedValue);
+        acceptor.state.accepted = true;
+        acceptor.state.acceptedValue.Write(imsg.value);
     }
     else if (imsg.type == PAXOS_LEARN_PROPOSAL && acceptor.state.accepted &&
      acceptor.state.acceptedProposalID == imsg.proposalID)
     {
         runID = acceptor.state.acceptedRunID;
-        learnedValue.Write(acceptor.state.acceptedValue);
     }
     else
     {
@@ -330,7 +328,7 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         return;
     }
         
-    ProcessLearnChosen(imsg.nodeID, runID, learnedValue);
+    ProcessLearnChosen(imsg.nodeID, runID);
 
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("OnLearnChosen end");
@@ -375,9 +373,12 @@ void ReplicatedLog::OnStartCatchup(PaxosMessage& imsg)
         context->OnStartCatchup();
 }
 
-void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID, Buffer& learnedValue)
+void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
 {
-    bool ownAppend;
+    bool    ownAppend;
+    Buffer  learnedValue;
+
+    learnedValue.Write(acceptor.state.acceptedValue);
 
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("Round completed for paxosID = %U", paxosID);

@@ -125,14 +125,14 @@ TEST_DEFINE(TestStorageSet)
         if (i % 1000 == 0)
         {
             TEST_LOG("Commiting at %u", i);
-            ret &= env.Commit();
+            ret &= env.Commit(0);
             EventLoop::RunOnce();
         }
         sw.Stop();
         TEST_ASSERT(ret);
     }
     sw.Start();
-    env.Commit();
+    env.Commit(0);
     elapsed = sw.Stop();
     TEST_LOG("%u sets took %ld msec", num, elapsed);
 
