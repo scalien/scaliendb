@@ -2,7 +2,8 @@
 #include "System/FileSystem.h"
 #include "StorageEnvironment.h"
 
-#define STORAGE_TOC_VERSION     1
+#define STORAGE_TOC_VERSION         1
+#define STORAGE_TOC_HEADER_SIZE     12
 
 bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
 {

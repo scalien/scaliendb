@@ -75,11 +75,11 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U",
              &request->type, &request->commandID, &request->databaseID);
             break;
-//        case CLIENTREQUEST_SPLIT_SHARD:
-//            read = buffer.Readf("%c:%U:%U:%#B",
-//             &request->type, &request->commandID,
-//             &request->shardID, &request->key);
-//            break;
+        case CLIENTREQUEST_SPLIT_SHARD:
+            read = buffer.Readf("%c:%U:%U:%#B",
+             &request->type, &request->commandID,
+             &request->shardID, &request->key);
+            break;
             
         /* Table management */
         case CLIENTREQUEST_CREATE_TABLE:
@@ -226,10 +226,10 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
             buffer.Appendf("%c:%U:%U",
              request->type, request->commandID, request->databaseID);
             return true;
-//        case CLIENTREQUEST_SPLIT_SHARD:
-//            buffer.Appendf("%c:%U:%U:%#B",
-//             request->type, request->commandID, request->shardID, &request->key);
-//            return true;
+        case CLIENTREQUEST_SPLIT_SHARD:
+            buffer.Appendf("%c:%U:%U:%#B",
+             request->type, request->commandID, request->shardID, &request->key);
+            return true;
 
         /* Table management */
         case CLIENTREQUEST_CREATE_TABLE:
