@@ -15,9 +15,13 @@ else
 fi
 
 DIR=$1
-kill $(ps ax| grep "$BIN test/shard/$DIR/scaliendb.conf"| grep -v grep| awk '{printf $1 " "}')
+SCALIEN_PID=$(ps ax| grep "$BIN test/shard/$DIR/scaliendb.conf"| grep -v grep| awk '{printf $1 " "}')
+if [ "$SCALIEN_PID" = "" ]; then 
+	exit 0
+fi
+kill $SCALIEN_PID
 sleep 1
 SCALIEN_PID=$(ps ax| grep "$BIN test/shard/$DIR/scaliendb.conf"| grep -v grep| awk '{printf $1 " "}')
-if [ "$SCALIEN_PID" != "" ]; then
+if [ "$SCALIEN_PID" != "" ]; then 
 	kill -9 $SCALIEN_PID
 fi
