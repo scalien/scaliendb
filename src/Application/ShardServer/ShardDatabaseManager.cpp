@@ -201,10 +201,20 @@ ActivateExecuteList:
 
 void ShardDatabaseAsyncList::TryNextShard()
 {
+    ReadBuffer  rbShardLastKey;
+    
     Log_Debug("TryNextShard: shardLastKey: %B", &shardLastKey);
     
     // check if this was the last shard
     if (shardLastKey.GetLength() == 0)
+    {
+        OnRequestComplete();
+        return;
+    }
+
+    // check if shardLastKey matches prefix
+    rbShardLastKey.Wrap(shardLastKey);
+    if (prefix.GetLength() > 0 && !rbShardLastKey.BeginsWith(prefix))
     {
         OnRequestComplete();
         return;
