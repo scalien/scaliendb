@@ -700,7 +700,7 @@ class Client:
         if ret:
             return self.result.value()
 
-    def list_keys(self, start_key="", end_key="" prefix="", count=0, offset=0):
+    def list_keys(self, start_key="", end_key="", prefix="", count=0, offset=0):
         """
         Lists the keys of a table. Returns a list of strings.
         
@@ -725,7 +725,7 @@ class Client:
             self.result.next()
         return keys
 
-    def list_key_values(self, start_key="", end_key="", count=0, offset=0):
+    def list_key_values(self, start_key="", end_key="", prefix="", count=0, offset=0):
         """
         Lists the keys and values of a table. Returns a dict of key-value pairs.
         
@@ -750,7 +750,7 @@ class Client:
             self.result.next()
         return key_values
 
-    def count(self, start_key="", end_key="", count=0, offset=0):
+    def count(self, start_key="", end_key="", prefix="", count=0, offset=0):
         """
         Counts the number of items in a table. Returns the number of found items.
         
