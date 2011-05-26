@@ -1039,7 +1039,7 @@ void ConfigState::OnCreateTable(ConfigMessage& message)
     table = new ConfigTable;
     table->databaseID = message.databaseID;
     table->tableID = nextTableID++;
-    table->isFrozen = true; // by default all tables are frozen
+    table->isFrozen = false; // by default all tables are UNfrozen
     table->name.Write(message.name);
     table->shards.Append(shard->shardID);
     tables.Append(table);

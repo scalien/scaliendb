@@ -12,7 +12,7 @@ public class Quorum
      *
      * @param   client  the client object
      * @param   name    the name of the database
-     * @see     Client#getDatabase(String name)  getDatabase
+     * @see     com.scalien.scaliendb.Client#getDatabase(String name)  getDatabase
      */
     Quorum(Client client, long quorumID) throws SDBPException {
         this.client = client;

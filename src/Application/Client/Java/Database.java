@@ -16,7 +16,7 @@ public class Database
      *
      * @param   client  the client object
      * @param   name    the name of the database
-     * @see     Client#getDatabase(String name)  getDatabase
+     * @see     com.scalien.scaliendb.Client#getDatabase(String name)
      */
     public Database(Client client, String name) throws SDBPException {
         this.client = client;
