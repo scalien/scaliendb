@@ -149,15 +149,18 @@ public:
     bool            ListKeys(
                      uint64_t commandID,
                      uint64_t tableID, 
-                     ReadBuffer& startKey, ReadBuffer& endKey, unsigned count, unsigned offset);
+                     ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
+                     unsigned count, unsigned offset);
     bool            ListKeyValues(
                      uint64_t commandID,
                      uint64_t tableID,
-                     ReadBuffer& startKey, ReadBuffer& endKey,unsigned count, unsigned offset);
+                     ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
+                     unsigned count, unsigned offset);
     bool            Count(
                      uint64_t commandID,
                      uint64_t tableID,
-                     ReadBuffer& startKey, ReadBuffer& endKey,unsigned count, unsigned offset);
+                     ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
+                     unsigned count, unsigned offset);
 
 
     bool            Submit(
@@ -183,6 +186,7 @@ public:
     uint64_t        offset;
     Buffer          name;
     Buffer          key;
+    Buffer          prefix;
     Buffer          value;
     Buffer          test;
     Buffer          endKey;

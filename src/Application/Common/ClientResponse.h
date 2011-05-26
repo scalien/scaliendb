@@ -52,6 +52,7 @@ public:
     uint64_t        paxosID;
     ReadBuffer      value;
     ReadBuffer      endKey;
+    ReadBuffer      prefix;
     unsigned        numKeys;
     ReadBuffer*     keys;
     ReadBuffer*     values;
@@ -80,7 +81,8 @@ public:
     bool            Failed();
     bool            NoResponse();
     bool            Hello();
-    bool            Next(ReadBuffer& nextShardKey, ReadBuffer& endKey, uint64_t count, uint64_t offset);
+    bool            Next(ReadBuffer& nextShardKey, ReadBuffer& endKey, ReadBuffer& prefix,
+                     uint64_t count, uint64_t offset);
 
     void            SetConditionalSuccess(bool isConditionalSuccess);
 };

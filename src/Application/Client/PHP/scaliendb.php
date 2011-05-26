@@ -337,22 +337,22 @@ class ScalienClient {
         return $this->result->getValue();
     }
     
-    public function listKeys($start = "", $end = "", $count = 0, $offset = 0) {
-        $status = $this->_dataCommand("SDBP_ListKeys", $start, $end, $count, $offset);
+    public function listKeys($start = "", $end = "", $prefix = "", $count = 0, $offset = 0) {
+        $status = $this->_dataCommand("SDBP_ListKeys", $start, $end, $prefix, $count, $offset);
         if ($status != SDBP_SUCCESS)
             return NULL;
         return $this->result->getKeys();
     }
 
-    public function listKeyValues($start = "", $end = "", $count = 0, $offset = 0) {
-        $status = $this->_dataCommand("SDBP_ListKeyValues", $start, $end, $count, $offset);
+    public function listKeyValues($start = "", $end = "", $prefix = "", $count = 0, $offset = 0) {
+        $status = $this->_dataCommand("SDBP_ListKeyValues", $start, $end, $prefix, $count, $offset);
         if ($status != SDBP_SUCCESS)
             return NULL;
         return $this->result->getKeyValues();
     }
 
-    public function count($start = "", $end = "", $count = 0, $offset = 0) {
-        $status = $this->_dataCommand("SDBP_Count", $start, $end, $count, $offset);
+    public function count($start = "", $end = "", $prefix = "", $count = 0, $offset = 0) {
+        $status = $this->_dataCommand("SDBP_Count", $start, $end, $prefix, $count, $offset);
         if ($status != SDBP_SUCCESS)
             return NULL;
         return $this->result->getNumber();

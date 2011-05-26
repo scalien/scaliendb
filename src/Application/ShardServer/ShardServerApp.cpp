@@ -3,9 +3,7 @@
 #include "Application/Common/ContextTransport.h"
 
 void ShardServerApp::Init()
-{
-    shardServer.Init();
-    
+{    
     httpContext.SetShardServer(&shardServer);
     httpServer.Init(configFile.GetIntValue("http.port", 8080));
     httpServer.RegisterHandler(&httpContext);
@@ -13,6 +11,8 @@ void ShardServerApp::Init()
     sdbpServer.Init(configFile.GetIntValue("sdbp.port", 7080));
     sdbpServer.SetContext(&shardServer);
 
+    // start shardServer only after network servers are started
+    shardServer.Init();
     shardServer.GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(
      configFile.GetBoolValue("database.merge", true));
 }

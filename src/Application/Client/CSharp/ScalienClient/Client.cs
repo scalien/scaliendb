@@ -348,23 +348,23 @@ namespace Scalien
             return null;
         }
 
-        public List<string> ListKeys(string startKey, string endKey, uint offset, uint count)
+        public List<string> ListKeys(string startKey, string endKey, string prefix, uint offset, uint count)
         {
-            int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, count, offset);
+            int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, offset);
             CheckResultStatus(status);
             return result.GetKeys();
         }
         
-        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, uint offset, uint count)
+        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint offset, uint count)
         {
-            int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, count, offset);
+            int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, offset);
             CheckResultStatus(status);
             return result.GetKeyValues();
         }
 
-        public ulong Count(string startKey, string endKey, uint offset, uint count)
+        public ulong Count(string startKey, string endKey, string prefix, uint offset, uint count)
         {
-            int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, count, offset);
+            int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, prefix, count, offset);
             CheckResultStatus(status);
             return result.GetNumber();
         }

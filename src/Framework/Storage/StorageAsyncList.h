@@ -68,6 +68,7 @@ public:
     unsigned                count;
     unsigned                offset;
     ReadBuffer              endKey;
+    ReadBuffer              prefix;
     Type                    type;
     
     bool                    ret;
@@ -79,6 +80,7 @@ public:
     StorageShard*           shard;
     Buffer                  shardFirstKey;
     Buffer                  shardLastKey;
+//    Buffer                  prefix;
     ThreadPool*             threadPool;
     StorageFileKeyValue**   iterators;
     StorageChunkLister**    listers;

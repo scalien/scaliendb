@@ -444,8 +444,8 @@ public class scaliendb_client {
     return ret;
   }
 
-  public static int SDBP_TestAndDeleteCStr(SWIGTYPE_p_void client_, string key, int arg2, string test, int arg4) {
-    int ret = scaliendb_clientPINVOKE.SDBP_TestAndDeleteCStr(SWIGTYPE_p_void.getCPtr(client_), key, arg2, test, arg4);
+  public static int SDBP_TestAndDeleteCStr(SWIGTYPE_p_void client_, string key, int keylen, string test, int testlen) {
+    int ret = scaliendb_clientPINVOKE.SDBP_TestAndDeleteCStr(SWIGTYPE_p_void.getCPtr(client_), key, keylen, test, testlen);
     return ret;
   }
 
@@ -460,36 +460,36 @@ public class scaliendb_client {
     return ret;
   }
 
-  public static int SDBP_ListKeys(SWIGTYPE_p_void client, string startKey, string endKey, uint count, uint offset) {
-    int ret = scaliendb_clientPINVOKE.SDBP_ListKeys(SWIGTYPE_p_void.getCPtr(client), startKey, endKey, count, offset);
+  public static int SDBP_ListKeys(SWIGTYPE_p_void client, string startKey, string endKey, string prefix, uint count, uint offset) {
+    int ret = scaliendb_clientPINVOKE.SDBP_ListKeys(SWIGTYPE_p_void.getCPtr(client), startKey, endKey, prefix, count, offset);
     if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public static int SDBP_ListKeysCStr(SWIGTYPE_p_void client, string startKey, int startKeyLen, string endKey, int endKeyLen, uint count, uint offset) {
-    int ret = scaliendb_clientPINVOKE.SDBP_ListKeysCStr(SWIGTYPE_p_void.getCPtr(client), startKey, startKeyLen, endKey, endKeyLen, count, offset);
+  public static int SDBP_ListKeysCStr(SWIGTYPE_p_void client, string startKey, int startKeyLen, string endKey, int endKeyLen, string prefix, int prefixLen, uint count, uint offset) {
+    int ret = scaliendb_clientPINVOKE.SDBP_ListKeysCStr(SWIGTYPE_p_void.getCPtr(client), startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, offset);
     return ret;
   }
 
-  public static int SDBP_ListKeyValues(SWIGTYPE_p_void client, string startKey, string endKey, uint count, uint offset) {
-    int ret = scaliendb_clientPINVOKE.SDBP_ListKeyValues(SWIGTYPE_p_void.getCPtr(client), startKey, endKey, count, offset);
+  public static int SDBP_ListKeyValues(SWIGTYPE_p_void client, string startKey, string endKey, string prefix, uint count, uint offset) {
+    int ret = scaliendb_clientPINVOKE.SDBP_ListKeyValues(SWIGTYPE_p_void.getCPtr(client), startKey, endKey, prefix, count, offset);
     if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public static int SDBP_ListKeyValuesCStr(SWIGTYPE_p_void client, string startKey, int startKeyLen, string endKey, int endKeyLen, uint count, uint offset) {
-    int ret = scaliendb_clientPINVOKE.SDBP_ListKeyValuesCStr(SWIGTYPE_p_void.getCPtr(client), startKey, startKeyLen, endKey, endKeyLen, count, offset);
+  public static int SDBP_ListKeyValuesCStr(SWIGTYPE_p_void client, string startKey, int startKeyLen, string endKey, int endKeyLen, string prefix, int prefixLen, uint count, uint offset) {
+    int ret = scaliendb_clientPINVOKE.SDBP_ListKeyValuesCStr(SWIGTYPE_p_void.getCPtr(client), startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, offset);
     return ret;
   }
 
-  public static int SDBP_Count(SWIGTYPE_p_void client, string startKey, string endKey, uint count, uint offset) {
-    int ret = scaliendb_clientPINVOKE.SDBP_Count(SWIGTYPE_p_void.getCPtr(client), startKey, endKey, count, offset);
+  public static int SDBP_Count(SWIGTYPE_p_void client, string startKey, string endKey, string prefix, uint count, uint offset) {
+    int ret = scaliendb_clientPINVOKE.SDBP_Count(SWIGTYPE_p_void.getCPtr(client), startKey, endKey, prefix, count, offset);
     if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
 
-  public static int SDBP_CountCStr(SWIGTYPE_p_void client, string startKey, int startKeyLen, string endKey, int endKeyLen, uint count, uint offset) {
-    int ret = scaliendb_clientPINVOKE.SDBP_CountCStr(SWIGTYPE_p_void.getCPtr(client), startKey, startKeyLen, endKey, endKeyLen, count, offset);
+  public static int SDBP_CountCStr(SWIGTYPE_p_void client, string startKey, int startKeyLen, string endKey, int endKeyLen, string prefix, int prefixLen, uint count, uint offset) {
+    int ret = scaliendb_clientPINVOKE.SDBP_CountCStr(SWIGTYPE_p_void.getCPtr(client), startKey, startKeyLen, endKey, endKeyLen, prefix, prefixLen, count, offset);
     return ret;
   }
 
