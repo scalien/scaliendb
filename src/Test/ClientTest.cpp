@@ -316,7 +316,7 @@ TEST_DEFINE(TestClientListKeysWithPrefix)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    ret = client.ListKeys("0", "a", "cc", 0, 0);
+    ret = client.ListKeys("cc0", "fff", "cc", 0, 0);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 

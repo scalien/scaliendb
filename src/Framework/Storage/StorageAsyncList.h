@@ -67,7 +67,7 @@ public:
 
     unsigned                count;
     unsigned                offset;
-    Buffer                  endKey;
+    ReadBuffer              endKey;
     ReadBuffer              prefix;
     Type                    type;
     

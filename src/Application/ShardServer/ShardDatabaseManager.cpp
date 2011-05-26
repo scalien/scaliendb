@@ -755,12 +755,9 @@ void ShardDatabaseManager::OnExecuteLists()
     uint64_t        start;
     uint64_t        shardID;
     int16_t         contextID;
-    Buffer          prefixedStartKey;
-    Buffer          prefixedEndKey;
     ReadBuffer      prefix;
     ReadBuffer      startKey;
     ReadBuffer      endKey;
-    ReadBuffer      rbPrefixedStartKey;
     ClientRequest*  itRequest;
     ConfigShard*    configShard;
 
@@ -784,24 +781,14 @@ void ShardDatabaseManager::OnExecuteLists()
             continue;
         }
 
-        // set the startKey with prefix if necessary
+        // set if prefix is set it is assumed that startKey and endKey is prefixed
         prefix = itRequest->prefix;
-        prefixedStartKey.Write(itRequest->prefix);
-        prefixedStartKey.Append(itRequest->key);
         startKey = itRequest->key;
-        rbPrefixedStartKey = prefixedStartKey;
-
-        // set the endKey with prefix if necessary
-        if (itRequest->endKey.GetLength() > 0)
-        {
-            prefixedEndKey.Write(itRequest->prefix);
-            prefixedEndKey.Append(itRequest->endKey);
-        }
         endKey = itRequest->endKey;
         
         // find the exact shard based on what startKey is given in the request
         contextID = QUORUM_DATABASE_DATA_CONTEXT;
-        shardID = environment.GetShardID(contextID, itRequest->tableID, rbPrefixedStartKey);
+        shardID = environment.GetShardID(contextID, itRequest->tableID, startKey);
         configShard = shardServer->GetConfigState()->GetShard(shardID);
         if (configShard == NULL)
         {
@@ -824,11 +811,11 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.total = 0;
         asyncList.num = 0;
         asyncList.request = itRequest;
-        asyncList.endKey = prefixedEndKey;
+        asyncList.endKey = endKey;
         asyncList.prefix = itRequest->prefix;
         asyncList.count = itRequest->count;
         asyncList.offset = itRequest->offset;
-        asyncList.shardFirstKey.Write(prefixedStartKey);
+        asyncList.shardFirstKey.Write(startKey);
         asyncList.shardLastKey.Write(configShard->lastKey);
         asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);
         Log_Debug("Listing shard: shardFirstKey: %B, shardLastKey: %B", &asyncList.shardFirstKey, &asyncList.shardLastKey);

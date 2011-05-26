@@ -9,9 +9,7 @@ void ConfigServerApp::Init()
     ReadBuffer  docroot;
     ReadBuffer  prefix;
     ReadBuffer  index;
-    
-    configServer.Init();
-    
+        
     httpHandler.SetConfigServer(&configServer);
     httpServer.Init(configFile.GetIntValue("http.port", 8080));
     httpServer.RegisterHandler(&httpHandler);
@@ -26,6 +24,9 @@ void ConfigServerApp::Init()
     
     sdbpServer.Init(configFile.GetIntValue("sdbp.port", 7080));
     sdbpServer.SetContext(&configServer);
+
+    // start configServer only after network servers are started
+    configServer.Init();
     
     statTimer.SetDelay(configFile.GetIntValue("controller.logStatTime", 10*1000));
     if (statTimer.GetDelay() != 0)
