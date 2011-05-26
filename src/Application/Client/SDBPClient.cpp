@@ -614,25 +614,34 @@ int Client::Remove(const ReadBuffer& key)
 }
 
 int Client::ListKeys(
- const ReadBuffer& startKey, const ReadBuffer& endKey, unsigned count, unsigned offset)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, 
+ unsigned count, unsigned offset)
 {
-    CLIENT_DATA_COMMAND(ListKeys, (ReadBuffer&) startKey, (ReadBuffer&) endKey, count, offset);
+    CLIENT_DATA_COMMAND(ListKeys, 
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, 
+     count, offset);
 }
 
 int Client::ListKeyValues(
- const ReadBuffer& startKey, const ReadBuffer& endKey, unsigned count, unsigned offset)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
+ unsigned count, unsigned offset)
 {
-    CLIENT_DATA_COMMAND(ListKeyValues, (ReadBuffer&) startKey, (ReadBuffer&) endKey, count, offset);
+    CLIENT_DATA_COMMAND(ListKeyValues, 
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix,
+     count, offset);
 }
 
 int Client::Count(
- const ReadBuffer& startKey, const ReadBuffer& endKey, unsigned count, unsigned offset)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
+ unsigned count, unsigned offset)
 {
-    CLIENT_DATA_COMMAND(Count, (ReadBuffer&) startKey, (ReadBuffer&) endKey, count, offset);
+    CLIENT_DATA_COMMAND(Count,
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix,
+     count, offset);
 }
 
 int Client::Filter(
- const ReadBuffer& startKey, const ReadBuffer& endKey, 
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
  unsigned count, unsigned offset, uint64_t& commandID)
 {
     Request*    req;                                
@@ -648,7 +657,7 @@ int Client::Filter(
     commandID = NextCommandID();
     req = new Request;
     req->ListKeyValues(commandID, tableID, 
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, count, offset);
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count, offset);
     req->async = true;
     requests.Append(req);
         
@@ -665,6 +674,7 @@ int Client::Receive(uint64_t commandID)
     Request*    req;
     ReadBuffer  key;
     ReadBuffer  endKey;
+    ReadBuffer  prefix;
     
     CLIENT_MUTEX_GUARD_DECLARE();                   
     
@@ -676,7 +686,7 @@ int Client::Receive(uint64_t commandID)
     
     // create dummy request
     req = new Request;
-    req->ListKeyValues(commandID, 0, key, endKey, 0, 0);
+    req->ListKeyValues(commandID, 0, key, endKey, prefix, 0, 0);
     req->async = true;
 
     result->Close();                                
@@ -1303,7 +1313,8 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
 }
 
 void Client::NextRequest(
- Request* req, ReadBuffer nextShardKey, ReadBuffer endKey, uint64_t count, uint64_t offset)
+ Request* req, ReadBuffer nextShardKey, ReadBuffer endKey, ReadBuffer prefix,
+ uint64_t count, uint64_t offset)
 {
     ConfigTable*    configTable;
     ConfigShard*    configShard;
@@ -1327,11 +1338,7 @@ void Client::NextRequest(
     {
         configShard = configState->GetShard(*itShard);
 
-        // find the first shard, that has the smallest firstKey
-        // which is greater than shardLastKey
-//        if (GREATER_THAN(configShard->firstKey, shardLastKey) &&
-//         LESS_THAN(configShard->firstKey, minKey) &&
-//         GREATER_THAN(minKey, shardLastKey))
+        // find the next shard that has the given nextShardKey as first key
         if (ReadBuffer::Cmp(configShard->firstKey, nextShardKey) == 0)
         {
             minKey = configShard->firstKey;
@@ -1342,6 +1349,7 @@ void Client::NextRequest(
 
     Log_Trace("nextShardID: %U, minKey: %R", nextShardID, &minKey);
     req->endKey.Write(endKey);
+    req->prefix.Write(prefix);
     if (nextShardID != 0)
         req->key.Write(minKey);
 }

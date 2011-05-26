@@ -574,6 +574,9 @@
 		78CD55121360D0370022BC9F /* scaliendb_client_php.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_php.cpp; path = Client/PHP/scaliendb_client_php.cpp; sourceTree = "<group>"; };
 		78CD55131360D0370022BC9F /* scaliendb_client.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = scaliendb_client.php; path = Client/PHP/scaliendb_client.php; sourceTree = "<group>"; };
 		78CD5868136A268D0022BC9F /* scaliendb_mapreduce.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_mapreduce.py; path = Client/Python/scaliendb_mapreduce.py; sourceTree = "<group>"; };
+		9A07FAA8138E848A00AED738 /* Client.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Client.cs; path = Client/CSharp/ScalienClient/Client.cs; sourceTree = "<group>"; };
+		9A07FAA9138E848A00AED738 /* Result.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Result.cs; path = Client/CSharp/ScalienClient/Result.cs; sourceTree = "<group>"; };
+		9A07FAAA138E848A00AED738 /* Status.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Status.cs; path = Client/CSharp/ScalienClient/Status.cs; sourceTree = "<group>"; };
 		9A466D5E135F435300108B07 /* JSONBufferWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONBufferWriter.h; sourceTree = "<group>"; };
 		9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONBufferWriter.cpp; sourceTree = "<group>"; };
 		9A466F431361906800108B07 /* test.php */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.php; name = test.php; path = Client/PHP/test.php; sourceTree = "<group>"; };
@@ -1261,6 +1264,16 @@
 			name = PHP;
 			sourceTree = "<group>";
 		};
+		9A07FAA7138E845100AED738 /* CSharp */ = {
+			isa = PBXGroup;
+			children = (
+				9A07FAA8138E848A00AED738 /* Client.cs */,
+				9A07FAA9138E848A00AED738 /* Result.cs */,
+				9A07FAAA138E848A00AED738 /* Status.cs */,
+			);
+			name = CSharp;
+			sourceTree = "<group>";
+		};
 		9AABB212123EA3AF003626AC /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -1273,6 +1286,7 @@
 		9AE8176712CE1E360038BDB1 /* Client */ = {
 			isa = PBXGroup;
 			children = (
+				9A07FAA7138E845100AED738 /* CSharp */,
 				78CD550F1360CE230022BC9F /* PHP */,
 				9AE8177612CE1E5A0038BDB1 /* Java */,
 				9AE8179212CE1EA40038BDB1 /* Python */,

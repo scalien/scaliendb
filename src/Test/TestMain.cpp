@@ -29,6 +29,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientGetAndSet);
 //TEST_ADD(TestClientGetLatency);
 //TEST_ADD(TestClientListKeys);
+TEST_ADD(TestClientListKeysWithPrefix);
 //TEST_ADD(TestClientMaro);
 //TEST_ADD(TestClientMixedReadWriteBatched);
 //TEST_ADD(TestClientMixedWriteReadBatched);
@@ -39,7 +40,7 @@ TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
 //TEST_ADD(TestClientSet);
 //TEST_ADD(TestClientSetFailover);
 //TEST_ADD(TestClientTestAndSet);
-TEST_ADD(TestClientTestAndDelete);
+//TEST_ADD(TestClientTestAndDelete);
 //TEST_ADD(TestCommonHumanBytes);
 //TEST_ADD(TestCommonRandomDistribution)
 //TEST_ADD(TestConfigStateJSON);

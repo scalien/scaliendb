@@ -265,6 +265,7 @@ TEST_DEFINE(TestClientListKeys)
     ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      endKey;
+    ReadBuffer      prefix;
     char            keybuf[33];
     int             ret;
         
@@ -283,7 +284,39 @@ TEST_DEFINE(TestClientListKeys)
     
     ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
 //    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(key, endKey, 3000, 4000);
+    ret = client.ListKeys(key, endKey, prefix, 3000, 4000);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+
+    result = client.GetResult();
+    for (result->Begin(); !result->IsEnd(); result->Next())
+    {
+        if (result->GetCommandStatus() != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+
+        result->GetKey(key);
+        TEST_LOG("%.*s", key.GetLength(), key.GetBuffer());
+    }
+    
+    delete result;
+
+    client.Shutdown();
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientListKeysWithPrefix)
+{
+    Client          client;
+    Result*         result;
+    ReadBuffer      key;
+    int             ret;
+        
+    ret = SetupDefaultClient(client);
+    if (ret != SDBP_SUCCESS)
+        TEST_CLIENT_FAIL();
+    
+    ret = client.ListKeys("0", "a", "cc", 0, 0);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -1632,7 +1665,7 @@ TEST_DEFINE(TestClientFilter)
     TEST(SetupDefaultClient(client));
     
     // filter through all key-values in the database
-    TEST(client.Filter("", "", 1000*1000*1000, 0, commandID));
+    TEST(client.Filter("", "", "", 1000*1000*1000, 0, commandID));
 
     do
     {
@@ -1668,6 +1701,7 @@ TEST_DEFINE(TestClientFilter2)
     ReadBuffer      value;
     Buffer          lastKey;
     Buffer          endKey;
+    Buffer          prefix;
     unsigned        offset;
     unsigned        num;
     
@@ -1681,7 +1715,7 @@ TEST_DEFINE(TestClientFilter2)
         else
             offset = 1;
 
-        TEST(client.ListKeys(lastKey, endKey, 1000, offset));
+        TEST(client.ListKeys(lastKey, endKey, prefix, 1000, offset));
         
         result = client.GetResult();
         num = 0;
@@ -1712,7 +1746,7 @@ TEST_DEFINE(TestClientCount)
     uint64_t        number;
     
     TEST(SetupDefaultClient(client));
-    TEST(client.Count("", "", 0, 0));
+    TEST(client.Count("", "", "", 0, 0));
     
     result = client.GetResult();
     TEST(result->GetNumber(number));

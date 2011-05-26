@@ -447,19 +447,21 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeys()
     uint64_t        tableID;
     ReadBuffer      startKey;
     ReadBuffer      endKey;
+    ReadBuffer      prefix;
     uint64_t        count;
     uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     HTTP_GET_OPT_PARAM(params, "endKey", endKey);
+    HTTP_GET_OPT_PARAM(params, "prefix", prefix);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
     offset = 0;
     HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->ListKeys(0, tableID, startKey, endKey, count, offset);
+    request->ListKeys(0, tableID, startKey, endKey, prefix, count, offset);
 
     return request;    
 }
@@ -470,19 +472,21 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
     uint64_t        tableID;
     ReadBuffer      startKey;
     ReadBuffer      endKey;
+    ReadBuffer      prefix;
     uint64_t        count;
     uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     HTTP_GET_OPT_PARAM(params, "endKey", endKey);
+    HTTP_GET_OPT_PARAM(params, "prefix", prefix);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
     offset = 0;
     HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->ListKeyValues(0, tableID, startKey, endKey, count, offset);
+    request->ListKeyValues(0, tableID, startKey, endKey, prefix, count, offset);
 
     return request;    
 }
@@ -493,19 +497,21 @@ ClientRequest* ShardHTTPClientSession::ProcessCount()
     uint64_t        tableID;
     ReadBuffer      startKey;
     ReadBuffer      endKey;
+    ReadBuffer      prefix;
     uint64_t        count;
     uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     HTTP_GET_OPT_PARAM(params, "endKey", endKey);
+    HTTP_GET_OPT_PARAM(params, "prefix", prefix);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
     offset = 0;
     HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->Count(0, tableID, startKey, endKey, count, offset);
+    request->Count(0, tableID, startKey, endKey, prefix, count, offset);
 
     return request;    
 }

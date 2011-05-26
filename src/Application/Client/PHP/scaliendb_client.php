@@ -71,8 +71,8 @@ abstract class scaliendb_client {
 		return SDBP_ResultNumber($result);
 	}
 
-	static function SDBP_ResultIsValueChanged($result) {
-		return SDBP_ResultIsValueChanged($result);
+	static function SDBP_ResultIsConditionalSuccess($result) {
+		return SDBP_ResultIsConditionalSuccess($result);
 	}
 
 	static function SDBP_ResultDatabaseID($result) {
@@ -267,6 +267,38 @@ abstract class scaliendb_client {
 		return SDBP_UseTableID($client,$tableID);
 	}
 
+	static function SDBP_GetNumQuorums($client) {
+		return SDBP_GetNumQuorums($client);
+	}
+
+	static function SDBP_GetQuorumIDAt($client,$n) {
+		return SDBP_GetQuorumIDAt($client,$n);
+	}
+
+	static function SDBP_GetNumDatabases($client) {
+		return SDBP_GetNumDatabases($client);
+	}
+
+	static function SDBP_GetDatabaseIDAt($client,$n) {
+		return SDBP_GetDatabaseIDAt($client,$n);
+	}
+
+	static function SDBP_GetDatabaseNameAt($client,$n) {
+		return SDBP_GetDatabaseNameAt($client,$n);
+	}
+
+	static function SDBP_GetNumTables($client) {
+		return SDBP_GetNumTables($client);
+	}
+
+	static function SDBP_GetTableIDAt($client,$n) {
+		return SDBP_GetTableIDAt($client,$n);
+	}
+
+	static function SDBP_GetTableNameAt($client,$n) {
+		return SDBP_GetTableNameAt($client,$n);
+	}
+
 	static function SDBP_Get($client,$key) {
 		return SDBP_Get($client,$key);
 	}
@@ -331,6 +363,14 @@ abstract class scaliendb_client {
 		return SDBP_DeleteCStr($client_,$key,$len);
 	}
 
+	static function SDBP_TestAndDelete($client,$key,$test) {
+		return SDBP_TestAndDelete($client,$key,$test);
+	}
+
+	static function SDBP_TestAndDeleteCStr($client_,$key,$keylen,$test,$testlen) {
+		return SDBP_TestAndDeleteCStr($client_,$key,$keylen,$test,$testlen);
+	}
+
 	static function SDBP_Remove($client,$key) {
 		return SDBP_Remove($client,$key);
 	}
@@ -339,28 +379,28 @@ abstract class scaliendb_client {
 		return SDBP_RemoveCStr($client_,$key,$len);
 	}
 
-	static function SDBP_ListKeys($client,$startKey,$endKey,$count,$offset) {
-		return SDBP_ListKeys($client,$startKey,$endKey,$count,$offset);
+	static function SDBP_ListKeys($client,$startKey,$endKey,$prefix,$count,$offset) {
+		return SDBP_ListKeys($client,$startKey,$endKey,$prefix,$count,$offset);
 	}
 
-	static function SDBP_ListKeysCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset) {
-		return SDBP_ListKeysCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset);
+	static function SDBP_ListKeysCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$prefix,$prefixLen,$count,$offset) {
+		return SDBP_ListKeysCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$prefix,$prefixLen,$count,$offset);
 	}
 
-	static function SDBP_ListKeyValues($client,$startKey,$endKey,$count,$offset) {
-		return SDBP_ListKeyValues($client,$startKey,$endKey,$count,$offset);
+	static function SDBP_ListKeyValues($client,$startKey,$endKey,$prefix,$count,$offset) {
+		return SDBP_ListKeyValues($client,$startKey,$endKey,$prefix,$count,$offset);
 	}
 
-	static function SDBP_ListKeyValuesCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset) {
-		return SDBP_ListKeyValuesCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset);
+	static function SDBP_ListKeyValuesCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$prefix,$prefixLen,$count,$offset) {
+		return SDBP_ListKeyValuesCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$prefix,$prefixLen,$count,$offset);
 	}
 
-	static function SDBP_Count($client,$startKey,$endKey,$count,$offset) {
-		return SDBP_Count($client,$startKey,$endKey,$count,$offset);
+	static function SDBP_Count($client,$startKey,$endKey,$prefix,$count,$offset) {
+		return SDBP_Count($client,$startKey,$endKey,$prefix,$count,$offset);
 	}
 
-	static function SDBP_CountCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset) {
-		return SDBP_CountCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$count,$offset);
+	static function SDBP_CountCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$prefix,$prefixLen,$count,$offset) {
+		return SDBP_CountCStr($client,$startKey,$startKeyLen,$endKey,$endKeyLen,$prefix,$prefixLen,$count,$offset);
 	}
 
 	static function SDBP_Begin($client) {

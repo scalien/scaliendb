@@ -204,6 +204,9 @@ void StorageAsyncList::AsyncMergeResult()
         if (endKey.GetLength() != 0 && STORAGE_KEY_GREATER_THAN(it->GetKey(), endKey))
             break;
         
+        if (prefix.GetLength() != 0 && !it->GetKey().BeginsWith(prefix))
+            break;
+        
         if (offset > 0)
         {
             offset--;

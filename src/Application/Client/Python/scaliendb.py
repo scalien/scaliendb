@@ -700,7 +700,7 @@ class Client:
         if ret:
             return self.result.value()
 
-    def list_keys(self, start_key="", end_key="", count=0, offset=0):
+    def list_keys(self, start_key="", end_key="" prefix="", count=0, offset=0):
         """
         Lists the keys of a table. Returns a list of strings.
         
@@ -709,11 +709,13 @@ class Client:
 
             end_key (string): the key where the listing ends (default="")
             
+            prefix (string): keys must start with prefix
+            
             count (long): the maximum number of keys to be returned (default=0)
             
             offset (long): start the listing at this offset (default=0)
         """
-        status = SDBP_ListKeys(self.cptr, start_key, end_key, count, offset)
+        status = SDBP_ListKeys(self.cptr, start_key, end_key, prefix, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         keys = []
@@ -731,12 +733,14 @@ class Client:
             start_key (string): the key from where the listing starts (default="")
 
             end_key (string): the key where the listing ends (default="")
+
+            prefix (string): keys must start with prefix
             
             count (long): the maximum number of keys to be returned (default=0)
             
             offset (long): start the listing at this offset (default=0)
         """
-        status = SDBP_ListKeyValues(self.cptr, start_key, end_key, count, offset)
+        status = SDBP_ListKeyValues(self.cptr, start_key, end_key, prefix, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         key_values = {}
@@ -754,12 +758,14 @@ class Client:
             start_key (string): the key from where the listing starts (default="")
 
             end_key (string): the key where the listing ends (default="")
+
+            prefix (string): keys must start with prefix
             
             count (long): the maximum number of keys to be returned (default=0)
             
             offset (long): start the listing at this offset (default=0)
         """
-        status = SDBP_Count(self.cptr, start_key, end_key, count, offset)
+        status = SDBP_Count(self.cptr, start_key, end_key, prefix, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         return self.result.number()        
