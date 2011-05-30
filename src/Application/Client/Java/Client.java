@@ -19,14 +19,14 @@ public class Client
     private Result result;
     private Result lastResult;
 
-    private static final int CONSISTENCY_ANY = 0;
-    private static final int CONSISTENCY_RYW = 1;
-    private static final int CONSISTENCY_STRICT = 2;
+    private static final int CONSISTENCY_ANY        = 0;
+    private static final int CONSISTENCY_RYW        = 1;
+    private static final int CONSISTENCY_STRICT     = 2;
     
     /**
      * Creates client object.
      *
-     * @param   nodes   the addresses of controllers e.g. "localhost:7080"
+     * @param   nodes   the addresses of controllers, e.g. "localhost:7080"
      *
      */
     public Client(String... nodes) throws SDBPException {
@@ -73,7 +73,7 @@ public class Client
      * The global timeout specifies the maximum time that a client call will block your application.
      * The default is 120 seconds.
      *
-     * @param   timeout   the global timeout in milliseconds
+     * @param   timeout                 the global timeout in milliseconds
      * @see     #getGlobalTimeout()     getGlobalTimeout
      */
     public void setGlobalTimeout(long timeout) {
@@ -86,7 +86,7 @@ public class Client
      * The master timeout specifies the maximum time that the client will spend trying to find the
      * master controller node. The default is 21 seconds.
      *
-     * @param   timeout   the master timeout in milliseconds
+     * @param   timeout                 the master timeout in milliseconds
      * @see     #getMasterTimeout()     getMasterTimeout
      */
     public void setMasterTimeout(long timeout) {
@@ -96,8 +96,8 @@ public class Client
     /**
      * Returns the global timeout.
      *
-     * @return  the global timeout in milliseconds
-     * @see     #setGlobalTimeout(long)   setGlobalTimeout
+     * @return                              the global timeout in milliseconds
+     * @see     #setGlobalTimeout(long)     setGlobalTimeout
      */
     public long getGlobalTimeout() {
         BigInteger bi = scaliendb_client.SDBP_GetGlobalTimeout(cptr);
@@ -107,8 +107,8 @@ public class Client
     /**
      * Returns the master timeout.
      *
-     * @return  the master timeout in milliseconds
-     * @see     #setMasterTimeout(long)   setMasterTimeout
+     * @return                              the master timeout in milliseconds
+     * @see     #setMasterTimeout(long)     setMasterTimeout
      */
     public long getMasterTimeout() {
         BigInteger bi = scaliendb_client.SDBP_GetMasterTimeout(cptr);
@@ -144,10 +144,10 @@ public class Client
      *
      * <li>CONSISTENCY_ANY means that any shard server can serve the read requests. Usually this
      * can be used for load-balancing between replicas, and due to total replication it will be
-     * consistent most of the time, but still there is a small chance of inconsistency when one of
+     * consistent most of the time, with a small chance of inconsistency when one of
      * the shard servers are failing.
      *
-     * <li>CONSISTENCY_RYW means "read your writes" consistency, so one client will always get
+     * <li>CONSISTENCY_RYW means "read your writes" consistency, clients will always get a
      * consistent view of their own writes.
      *
      * <li>CONSISTENCY_STRICT means that all read requests will be served by the primary shard server.
@@ -512,7 +512,50 @@ public class Client
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getValueBytes();
     }
+
+    /**
+     * Returns the value for a specified key.
+     *
+     * @param   key     the specified key
+     * @return          the value if found
+     */
+    public long getLong(String key) throws SDBPException {
+        int status = scaliendb_client.SDBP_Get(cptr, key);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
         
+        if (isBatched())
+            return 0;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        long num = Long.parseLong(result.getValue());
+        return num;
+    }
+
+    /**
+     * Returns the value for a specified key.
+     *
+     * @param   key     the specified key
+     * @param   defval  the default value
+     * @return          the value if found
+     */
+    public long getLong(String key, long defval) throws SDBPException {
+        int status = scaliendb_client.SDBP_Get(cptr, key);
+        if (status < 0) {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            checkStatus(status);
+        }
+        
+        if (isBatched())
+            return defval;
+                
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        long num = Long.parseLong(result.getValue());
+        return num;
+    }
+
     /**
      * Associates the specified value with the specified key. If the database previously contained
      * a mapping for this key, the old value is replaced.
@@ -571,6 +614,17 @@ public class Client
             return;
                 
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+    }
+
+    /**
+     * Associates the specified value with the specified key. If the database previously contained
+     * a mapping for this key, the old value is replaced.
+     * 
+     * @param   key     key with which the specified value is to be associated
+     * @param   value   value to be associated with the specified key
+     */
+    public void setLong(String key, long value) throws SDBPException {
+        set(key, (new Long(value)).toString());
     }
     
     /**

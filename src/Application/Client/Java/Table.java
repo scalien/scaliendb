@@ -142,6 +142,18 @@ public class Table
     }
 
     /**
+     * Associates the specified value with the specified key. If the database previously contained
+     * a mapping for this key, the old value is replaced.
+     * 
+     * @param   key     key with which the specified value is to be associated
+     * @param   value   value to be associated with the specified key
+     */
+    public void setLong(String key, long value) throws SDBPException {
+        useDefaults();
+        client.set(key, (new Long(value)).toString());
+    }
+
+    /**
      * Associates the specified value with the specified key only if it did not exist previously.
      * 
      * @param   key     key with which the specified value is to be associated
