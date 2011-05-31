@@ -520,18 +520,23 @@ public class Client
      * @return          the value if found
      */
     public long getLong(String key) throws SDBPException {
-        int status = scaliendb_client.SDBP_Get(cptr, key);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
+        String s = get(key);
+        if (s == null)
             return 0;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        long num = Long.parseLong(result.getValue());
-        return num;
+        return Long.parseLong(s);
+    }
+
+    /**
+     * Returns the value for a specified key.
+     *
+     * @param   key     the specified key
+     * @return          the value if found
+     */
+    public long getLong(byte[] key) throws SDBPException {
+        byte[] r = get(key);
+        if (r == null)
+            return 0;
+        return Long.parseLong(new String(r));
     }
 
     /**
@@ -542,18 +547,24 @@ public class Client
      * @return          the value if found
      */
     public long getLong(String key, long defval) throws SDBPException {
-        int status = scaliendb_client.SDBP_Get(cptr, key);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
+        String s = get(key);
+        if (s == null)
             return defval;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        long num = Long.parseLong(result.getValue());
-        return num;
+        return Long.parseLong(s);
+    }
+
+    /**
+     * Returns the value for a specified key.
+     *
+     * @param   key     the specified key
+     * @param   defval  the default value
+     * @return          the value if found
+     */
+    public long getLong(byte[] key, long defval) throws SDBPException {
+        byte[] r = get(key);
+        if (r == null)
+            return defval;
+        return Long.parseLong(new String(r));
     }
 
     /**
@@ -604,16 +615,7 @@ public class Client
      * @param   value   value to be associated with the specified key
      */
     public <K, V> void set(K key, V value) throws SDBPException {
-        int status = scaliendb_client.SDBP_Set(cptr, key.toString(), value.toString());
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        set(key.toString(), value.toString());
     }
 
     /**
@@ -624,7 +626,18 @@ public class Client
      * @param   value   value to be associated with the specified key
      */
     public void setLong(String key, long value) throws SDBPException {
-        set(key, (new Long(value)).toString());
+        set(key, Long.toString(value));
+    }
+
+    /**
+     * Associates the specified value with the specified key. If the database previously contained
+     * a mapping for this key, the old value is replaced.
+     * 
+     * @param   key     key with which the specified value is to be associated
+     * @param   value   value to be associated with the specified key
+     */
+    public void setLong(byte[] key, long value) throws SDBPException {
+        set(key, Long.toString(value));
     }
     
     /**
@@ -671,6 +684,39 @@ public class Client
         if (result.getCommandStatus() == Status.SDBP_SUCCESS)
             return true;
         return false;
+    }
+
+    /**
+     * Associates the specified value with the specified key only if it did not exist previously.
+     * 
+     * @param   key     key with which the specified value is to be associated
+     * @param   value   value to be associated with the specified key
+     * @return          true if the value was set
+     */
+    public <K, V> boolean setIfNotExists(K key, V value) throws SDBPException {
+        return setIfNotExists(key.toString(), value.toString());
+    }
+
+    /**
+     * Associates the specified value with the specified key only if it did not exist previously.
+     * 
+     * @param   key     key with which the specified value is to be associated
+     * @param   value   value to be associated with the specified key
+     * @return          true if the value was set
+     */
+    public boolean setIfNotExistsLong(String key, long value) throws SDBPException {
+        return setIfNotExists(key, Long.toString(value));
+    }
+
+    /**
+     * Associates the specified value with the specified key only if it did not exist previously.
+     * 
+     * @param   key     key with which the specified value is to be associated
+     * @param   value   value to be associated with the specified key
+     * @return          true if the value was set
+     */
+    public boolean setIfNotExistsLong(byte[] key, long value) throws SDBPException {
+        return setIfNotExists(key, Long.toString(value));
     }
     
     /**
@@ -722,6 +768,51 @@ public class Client
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.isConditionalSuccess();
     }
+
+    /**
+     * Associates the specified value with the specified key only if it matches a specified test value.
+     * 
+     * The testAndSet command conditionally and atomically associates a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @param   value   value to be associated with the specified key
+     * @return          true if the value was set
+     */
+    public <K, V> boolean testAndSet(K key, V test, V value) throws SDBPException {
+        return testAndSet(key.toString(), test.toString(), value.toString());
+    }
+
+    /**
+     * Associates the specified value with the specified key only if it matches a specified test value.
+     * 
+     * The testAndSet command conditionally and atomically associates a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @param   value   value to be associated with the specified key
+     * @return          true if the value was set
+     */
+    public boolean testAndSetLong(String key, long test, long value) throws SDBPException {
+        return testAndSet(key, Long.toString(test), Long.toString(value));
+    }
+
+    /**
+     * Associates the specified value with the specified key only if it matches a specified test value.
+     * 
+     * The testAndSet command conditionally and atomically associates a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @param   value   value to be associated with the specified key
+     * @return          true if the value was set
+     */
+    public boolean testAndSetLong(byte[] key, long test, long value) throws SDBPException {
+        return testAndSet(key, Long.toString(test), Long.toString(value));
+    }
     
     /**
      * Associates the specified value with the specified key. If the database previously contained
@@ -765,6 +856,32 @@ public class Client
                 
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getValueBytes();
+    }
+
+    /**
+     * Associates the specified value with the specified key. If the database previously contained
+     * a mapping for this key, the old value is replaced and returned.
+     * 
+     * @param   key     key with which the specified value is to be associated
+     * @param   value   value to be associated with the specified key
+     * @return          the old value
+     */
+    public long getAndSetLong(String key, long value) throws SDBPException {
+        String s = getAndSet(key, Long.toString(value));
+        return Long.parseLong(s);
+    }
+
+    /**
+     * Associates the specified value with the specified key. If the database previously contained
+     * a mapping for this key, the old value is replaced and returned.
+     * 
+     * @param   key     key with which the specified value is to be associated
+     * @param   value   value to be associated with the specified key
+     * @return          the old value
+     */
+    public long getAndSetLong(byte[] key, long value) throws SDBPException {
+        byte[] b = getAndSet(key, Long.toString(value).getBytes());
+        return Long.parseLong(new String(b));
     }
     
     /**
@@ -812,6 +929,18 @@ public class Client
     }
 
     /**
+     * Adds a numeric value to the specified key. The key must contain a numeric value, otherwise
+     * an exception is thrown. When the specified number is negative, a substraction will happen.
+     *
+     * @param   key     key to which the specified number is to be added
+     * @param   number  a numeric value
+     * @return          the new value
+     */
+    public <K> long add(K key, long number) throws SDBPException {
+        return add(key.toString(), number);
+    }
+    
+    /**
      * Appends the specified value to end of the value of the specified key. If the key did not
      * exist, it is created with the specified value.
      *
@@ -850,6 +979,17 @@ public class Client
                 
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
     }
+
+    /**
+     * Appends the specified value to end of the value of the specified key. If the key did not
+     * exist, it is created with the specified value.
+     *
+     * @param   key     key to which the specified value is to be appended
+     * @param   value   the specified value that is appended to end of the existing value
+     */
+    public <K, V> void append(K key, V value) throws SDBPException {
+        append(key.toString(), value.toString());
+    }
     
     /**
      * Deletes the specified key.
@@ -887,6 +1027,15 @@ public class Client
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
     }
 
+    /**
+     * Deletes the specified key.
+     *
+     * @param   key     key to be deleted
+     */
+    public <K> void delete(K key) throws SDBPException {
+        delete(key.toString());
+    }
+    
     /**
      * Deletes the specified key only if it matches a specified test value.
      * 
@@ -933,6 +1082,48 @@ public class Client
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.isConditionalSuccess();
+    }
+
+    /**
+     * Deletes the specified key only if it matches a specified test value.
+     * 
+     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @return          true if the key was deleted
+     */
+    public <K, V> boolean testAndDelete(K key, V test) throws SDBPException {
+        return testAndDelete(key.toString(), test.toString());
+    }
+
+    /**
+     * Deletes the specified key only if it matches a specified test value.
+     * 
+     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @return          true if the key was deleted
+     */
+    public boolean testAndDeleteLong(String key, long test) throws SDBPException {
+        return testAndDelete(key, Long.toString(test));
+    }
+
+    /**
+     * Deletes the specified key only if it matches a specified test value.
+     * 
+     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
+     * if the current value matches the user specified test value.
+     *
+     * @param   key     key with which the specified value is to be associated
+     * @param   test    the user specified value that is tested against the old value
+     * @return          true if the key was deleted
+     */
+    public boolean testAndDeleteLong(byte[] key, long test) throws SDBPException {
+        return testAndDelete(key, Long.toString(test).getBytes());
     }
     
     /**
