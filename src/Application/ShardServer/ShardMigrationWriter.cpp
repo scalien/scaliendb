@@ -146,26 +146,6 @@ void ShardMigrationWriter::Abort()
     }
 }
 
-//void ShardMigrationWriter::OnResult()
-//{
-//    StorageAsyncBulkResult* result;
-//    StorageFileKeyValue*    kv;
-//    
-//    result = asyncCursor->GetLastResult();
-//    if (!result)
-//    {
-//        // asyncCursor automatically deletes itself after the last result
-//        asyncCursor = NULL;
-//        SendCommit();
-//        return;
-//    }
-//    
-//    FOREACH (kv, result->dataPage)
-//    {
-//        SendItem(kv);
-//    }
-//}
-
 void ShardMigrationWriter::SendFirst()
 {
     ClusterMessage      msg;

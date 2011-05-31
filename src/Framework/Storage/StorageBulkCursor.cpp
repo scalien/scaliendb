@@ -11,6 +11,8 @@ StorageBulkCursor::StorageBulkCursor()
     contextID = 0;
     shardID = 0;
     chunkID = 0;
+    logSegmentID = 0;
+    logCommandID = 0;
     env = NULL;
 }
 
@@ -53,6 +55,8 @@ StorageKeyValue* StorageBulkCursor::First()
     ASSERT(chunk != NULL);
     
     chunkID = chunk->GetChunkID();
+    logSegmentID = chunk->GetMaxLogSegmentID();
+    logCommandID = chunk->GetMaxLogCommandID();
 //    Log_Debug("Iterating chunk %U", chunkID);
     
     return FromNextBunch(chunk);
@@ -76,8 +80,17 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
         return NULL;
         
     FOREACH (itChunk, shard->chunks)
+    {
         if ((*itChunk)->GetChunkID() == chunkID)
             break;
+        if (((*itChunk)->GetMaxLogSegmentID() == logSegmentID && (*itChunk)->GetMaxLogCommandID() > logCommandID) || (*itChunk)->GetMaxLogSegmentID() > logSegmentID)
+        {
+            // chunk has been deleted, clear nextKey to read the merged chunk from the beginning
+            Log_Debug("chunk has been deleted, clear nextKey to read the merged chunk from the beginning");
+            nextKey.Clear();
+            break;
+        }
+    }
     
     if (itChunk == NULL && blockShard)
     {
@@ -105,6 +118,8 @@ StorageKeyValue* StorageBulkCursor::Next(StorageKeyValue* it)
     ASSERT(chunk != NULL);
 
     chunkID = chunk->GetChunkID();
+    logSegmentID = chunk->GetMaxLogSegmentID();
+    logCommandID = chunk->GetMaxLogCommandID();
 //    Log_Debug("Iterating chunk %U", chunkID);
     
     kv = FromNextBunch(chunk);
@@ -163,6 +178,13 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
                 nextKey.Clear();
                 break;
             }
+            if (((*itChunk)->GetMaxLogSegmentID() == logSegmentID && (*itChunk)->GetMaxLogCommandID() > logCommandID) || (*itChunk)->GetMaxLogSegmentID() > logSegmentID)
+            {
+                Log_Debug("chunk has been deleted, clear nextKey to read the merged chunk from the beginning");
+                isLast = false;
+                nextKey.Clear();
+                break;
+            }
         }
         
         if (itChunk)
@@ -196,6 +218,8 @@ StorageKeyValue* StorageBulkCursor::FromNextBunch(StorageChunk* chunk)
                 chunk = shard->GetMemoChunk();
         }
         chunkID = chunk->GetChunkID();
+        logSegmentID = chunk->GetMaxLogSegmentID();
+        logCommandID = chunk->GetMaxLogCommandID();
         
         dataPage.Reset();
     }

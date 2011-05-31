@@ -45,6 +45,8 @@ private:
     uint64_t                contextID;
     uint64_t                shardID;
     uint64_t                chunkID;
+    uint64_t                logSegmentID;
+    uint64_t                logCommandID;
     Callable                onBlockShard;
     StorageShard*           shard;
     StorageEnvironment*     env;
