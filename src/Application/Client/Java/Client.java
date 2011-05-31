@@ -1315,6 +1315,7 @@ public class Client
      */
     public void submit() throws SDBPException {
         int status = scaliendb_client.SDBP_Submit(cptr);
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         checkStatus(status);
     }
     
