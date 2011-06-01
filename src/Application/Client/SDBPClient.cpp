@@ -110,6 +110,7 @@ Mutex   globalMutex;
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
     status = result->GetCommandStatus();            \
+    MSleep(20);                                     \
     return status;                                  \
 
 
