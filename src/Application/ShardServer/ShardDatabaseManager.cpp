@@ -477,8 +477,10 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
 #define CHECK_SHARDID()                                         \
 {                                                               \
     if (shardID == 0)                                           \
+    {                                                           \
         message.clientRequest->response.BadSchema();            \
-    break;                                                      \
+        break;                                                  \
+    }                                                           \
 }
 
     uint64_t        readPaxosID;
@@ -609,7 +611,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             if (message.clientRequest)
-                message.clientRequest->response.Number(number);
+                message.clientRequest->response.SignedNumber(number);
             break;
         case SHARDMESSAGE_APPEND:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
