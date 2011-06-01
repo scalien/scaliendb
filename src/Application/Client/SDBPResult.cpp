@@ -113,7 +113,10 @@ bool Result::IsFinished()
             return false;
 
         type = (*response)->type;
-        if (type == CLIENTRESPONSE_OK || type == CLIENTRESPONSE_FAILED || type == CLIENTRESPONSE_NOSERVICE)
+        if (type == CLIENTRESPONSE_OK ||
+         type == CLIENTRESPONSE_NOSERVICE ||
+         type == CLIENTRESPONSE_BADSCHEMA ||
+         type == CLIENTRESPONSE_FAILED)
             return true;
     }
     
@@ -156,6 +159,8 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
 
     if (resp->type == CLIENTRESPONSE_FAILED)
         req->status = SDBP_FAILED;
+    else if (resp->type == CLIENTRESPONSE_BADSCHEMA)
+        req->status = SDBP_BADSCHEMA;
     else if (req->status != SDBP_FAILED)
         req->status = SDBP_SUCCESS;
 

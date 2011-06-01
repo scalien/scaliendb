@@ -461,16 +461,25 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
  ShardMessage& message)
 {
 #define CHECK_CMD()                                             \
+{                                                               \
 	if (readPaxosID > paxosID ||                                \
-	(readPaxosID == paxosID && readCommandID >= commandID))     \
-		break;
+	 (readPaxosID == paxosID && readCommandID >= commandID))    \
+		break;                                                  \
+}
 
 #define RESPONSE_FAIL()                                         \
-    {                                                           \
+{                                                               \
     if (message.clientRequest)                                  \
         message.clientRequest->response.Failed();               \
     break;                                                      \
-    }
+}
+
+#define CHECK_SHARDID()                                         \
+{                                                               \
+    if (shardID == 0)                                           \
+        message.clientRequest->response.BadSchema();            \
+    break;                                                      \
+}
 
     uint64_t        readPaxosID;
     uint64_t        readCommandID;
@@ -500,12 +509,14 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
     {
         case SHARDMESSAGE_SET:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             WriteValue(buffer, paxosID, commandID, message.value);
             if (!environment.Set(contextID, shardID, message.key, buffer))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_SET_IF_NOT_EXISTS:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             if (environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             WriteValue(buffer, paxosID, commandID, message.value);
@@ -514,6 +525,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             break;
         case SHARDMESSAGE_TEST_AND_SET:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             if (!environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
@@ -538,6 +550,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             break;
         case SHARDMESSAGE_TEST_AND_DELETE:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             if (!environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
@@ -561,6 +574,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             break;
         case SHARDMESSAGE_GET_AND_SET:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             if (environment.Get(contextID, shardID, message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
@@ -581,6 +595,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             break;
         case SHARDMESSAGE_ADD:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             if (!environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
@@ -598,6 +613,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             break;
         case SHARDMESSAGE_APPEND:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             if (!environment.Get(contextID, shardID, message.key, readBuffer))
                 RESPONSE_FAIL();
             ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
@@ -610,11 +626,13 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             break;
         case SHARDMESSAGE_DELETE:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             if (!environment.Delete(contextID, shardID, message.key))
                 RESPONSE_FAIL();
             break;
         case SHARDMESSAGE_REMOVE:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
+            CHECK_SHARDID();
             if (environment.Get(contextID, shardID, message.key, readBuffer))
             {
                 ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
@@ -662,6 +680,7 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
     }
 #undef CHECK_CMD
 #undef RESPONSE_FAIL
+#undef CHECK_SHARDID
 }
 
 void ShardDatabaseManager::OnYieldStorageThreadsTimer()

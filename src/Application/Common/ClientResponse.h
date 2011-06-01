@@ -11,6 +11,7 @@
 #define CLIENTRESPONSE_LIST_KEYVALUES   'l'
 #define CLIENTRESPONSE_CONFIG_STATE     'C'
 #define CLIENTRESPONSE_NOSERVICE        'S'
+#define CLIENTRESPONSE_BADSCHEMA        'B'
 #define CLIENTRESPONSE_FAILED           'F'
 #define CLIENTRESPONSE_NORESPONSE       ' '
 #define CLIENTRESPONSE_HELLO            '_'
@@ -78,6 +79,7 @@ public:
     bool            ListKeyValues(unsigned numListKeys, ReadBuffer* keys, ReadBuffer* values);
     bool            ConfigStateResponse(ConfigState& configState);
     bool            NoService();
+    bool            BadSchema();
     bool            Failed();
     bool            NoResponse();
     bool            Hello();

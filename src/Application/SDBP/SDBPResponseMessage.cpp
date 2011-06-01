@@ -78,9 +78,7 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             }
             return true;
         case CLIENTRESPONSE_NOSERVICE:
-            read = buffer.Readf("%c:%U",
-             &response->type, &response->commandID);
-            break;
+        case CLIENTRESPONSE_BADSCHEMA:
         case CLIENTRESPONSE_FAILED:
             read = buffer.Readf("%c:%U",
              &response->type, &response->commandID);
@@ -138,9 +136,7 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
              response->type, response->request->commandID);
             return response->configState.Write(buffer, true);
         case CLIENTRESPONSE_NOSERVICE:
-            buffer.Writef("%c:%U",
-             response->type, response->request->commandID);
-            return true;
+        case CLIENTRESPONSE_BADSCHEMA:
         case CLIENTRESPONSE_FAILED:
             buffer.Writef("%c:%U",
              response->type, response->request->commandID);

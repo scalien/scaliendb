@@ -91,6 +91,12 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
         else
             session.Print("NOSERVICE");
         break;
+    case CLIENTRESPONSE_BADSCHEMA:
+        if (GetRedirectedShardServer(request->tableID, request->key, location))
+            session.Redirect(location);
+        else
+            session.Print("BADSCHEMA");
+        break;
     case CLIENTRESPONSE_FAILED:
         if (GetRedirectedShardServer(request->tableID, request->key, location))
             session.Redirect(location);

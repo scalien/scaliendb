@@ -129,7 +129,7 @@ void ShardServer::OnClientRequest(ClientRequest* request)
     if (!shard)
     {
         Log_Trace();
-        request->response.Failed();
+        request->response.BadSchema();
         request->OnComplete();
         return;
     }

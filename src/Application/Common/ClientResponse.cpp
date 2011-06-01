@@ -183,6 +183,12 @@ bool ClientResponse::NoService()
     return true;
 }
 
+bool ClientResponse::BadSchema()
+{
+    type = CLIENTRESPONSE_BADSCHEMA;
+    return true;
+}
+
 bool ClientResponse::Failed()
 {
     type = CLIENTRESPONSE_FAILED;
