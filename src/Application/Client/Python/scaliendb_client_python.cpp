@@ -4988,6 +4988,26 @@ fail:
 }
 
 
+SWIGINTERN PyObject *_wrap_SDBP_ResultSignedNumber(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ResultObj arg1 = (ResultObj) 0 ;
+  int64_t result;
+  int res1 ;
+  PyObject * obj0 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_ResultSignedNumber",1,1,&obj0)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_ResultSignedNumber" "', argument " "1"" of type '" "ResultObj""'"); 
+  }
+  result = (int64_t)SDBP_ResultSignedNumber(arg1);
+  resultobj = SWIG_From_long_SS_long(static_cast< long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
 SWIGINTERN PyObject *_wrap_SDBP_ResultNumber(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ResultObj arg1 = (ResultObj) 0 ;
@@ -8378,6 +8398,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_ResultValue", _wrap_SDBP_ResultValue, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultKeyBuffer", _wrap_SDBP_ResultKeyBuffer, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultValueBuffer", _wrap_SDBP_ResultValueBuffer, METH_VARARGS, NULL},
+	 { (char *)"SDBP_ResultSignedNumber", _wrap_SDBP_ResultSignedNumber, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultNumber", _wrap_SDBP_ResultNumber, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultIsConditionalSuccess", _wrap_SDBP_ResultIsConditionalSuccess, METH_VARARGS, NULL},
 	 { (char *)"SDBP_ResultDatabaseID", _wrap_SDBP_ResultDatabaseID, METH_VARARGS, NULL},

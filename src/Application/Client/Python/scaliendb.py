@@ -83,6 +83,9 @@ class Client:
         
         def value(self):
             return SDBP_ResultValue(self.cptr)
+
+        def signed_number(self):
+            return SDBP_ResultSignedNumber(self.cptr)
         
         def number(self):
             return SDBP_ResultNumber(self.cptr)
@@ -662,7 +665,7 @@ class Client:
         """
         status, ret = self._data_command(SDBP_Add, key, value)
         if ret:
-            return self.result.number()
+            return self.result.signed_number()
 
     def delete(self, key):
         """

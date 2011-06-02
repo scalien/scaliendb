@@ -103,6 +103,7 @@ void ClientResponse::CopyKeyValues()
 void ClientResponse::Transfer(ClientResponse& other)
 {
     other.type = type;
+    other.snumber = snumber;
     other.number = number;
     other.commandID = commandID;
     other.value = value;
@@ -120,6 +121,13 @@ void ClientResponse::Transfer(ClientResponse& other)
 bool ClientResponse::OK()
 {
     type = CLIENTRESPONSE_OK;
+    return true;
+}
+
+bool ClientResponse::SignedNumber(int64_t snumber_)
+{
+    type = CLIENTRESPONSE_SNUMBER;
+    snumber = snumber_;
     return true;
 }
 

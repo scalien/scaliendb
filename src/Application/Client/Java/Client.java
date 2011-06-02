@@ -903,7 +903,7 @@ public class Client
             return 0;
                     
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getNumber();
+        return result.getSignedNumber();
     }
 
     /**
@@ -925,7 +925,7 @@ public class Client
             return 0;
                     
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getNumber();
+        return result.getSignedNumber();
     }
 
     /**

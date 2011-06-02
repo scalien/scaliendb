@@ -151,6 +151,23 @@ SDBP_Buffer SDBP_ResultValueBuffer(ResultObj result_)
     return ret;
 }
 
+int64_t SDBP_ResultSignedNumber(ResultObj result_)
+{
+    Result*     result = (Result*) result_;
+    ReadBuffer  value;
+    int64_t    number;
+    int         status;
+    
+    if (!result)
+        return 0;
+    
+    status = result->GetSignedNumber(number);
+    if (status < 0)
+        return 0;
+    
+    return number;
+}
+
 uint64_t SDBP_ResultNumber(ResultObj result_)
 {
     Result*     result = (Result*) result_;

@@ -34,6 +34,11 @@ namespace Scalien
             return scaliendb_client.SDBP_ResultValue(cptr);
         }
 
+        public long GetSignedNumber()
+        {
+            return scaliendb_client.SDBP_ResultSignedNumber(cptr);
+        }
+
         public ulong GetNumber()
         {
             return scaliendb_client.SDBP_ResultNumber(cptr);

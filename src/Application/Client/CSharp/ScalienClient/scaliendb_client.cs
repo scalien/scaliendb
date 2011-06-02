@@ -56,6 +56,11 @@ public class scaliendb_client {
     return ret;
   }
 
+  public static long SDBP_ResultSignedNumber(SWIGTYPE_p_void result) {
+    long ret = scaliendb_clientPINVOKE.SDBP_ResultSignedNumber(SWIGTYPE_p_void.getCPtr(result));
+    return ret;
+  }
+
   public static ulong SDBP_ResultNumber(SWIGTYPE_p_void result) {
     ulong ret = scaliendb_clientPINVOKE.SDBP_ResultNumber(SWIGTYPE_p_void.getCPtr(result));
     return ret;

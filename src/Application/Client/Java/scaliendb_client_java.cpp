@@ -767,6 +767,20 @@ SWIGEXPORT jbyteArray JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SD
 }
 
 
+SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultSignedNumber(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jlong jresult = 0 ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  int64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ResultObj *)&jarg1; 
+  result = (int64_t)SDBP_ResultSignedNumber(arg1);
+  jresult = (jlong)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ResultNumber(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   jobject jresult = 0 ;
   ResultObj arg1 = (ResultObj) 0 ;

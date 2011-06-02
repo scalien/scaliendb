@@ -5,6 +5,7 @@
 #include "Application/ConfigState/ConfigState.h"
 
 #define CLIENTRESPONSE_OK               'O'
+#define CLIENTRESPONSE_SNUMBER          's'
 #define CLIENTRESPONSE_NUMBER           'n'
 #define CLIENTRESPONSE_VALUE            'V'
 #define CLIENTRESPONSE_LIST_KEYS        'L'
@@ -47,6 +48,7 @@ public:
     
     /* Variables */
     char            type;
+    int64_t         snumber;
     uint64_t        number;
     uint64_t        offset;
     uint64_t        commandID;
@@ -73,6 +75,7 @@ public:
             
     /* Responses */
     bool            OK();
+    bool            SignedNumber(int64_t snumber);
     bool            Number(uint64_t number);
     bool            Value(ReadBuffer& value);
     bool            ListKeys(unsigned numListKeys, ReadBuffer* keys);

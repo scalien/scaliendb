@@ -45,6 +45,10 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_ResultValueBuffer(SWIGTYPE_p_void.getCPtr(result));
 }
 
+  public static long SDBP_ResultSignedNumber(SWIGTYPE_p_void result) {
+    return scaliendb_clientJNI.SDBP_ResultSignedNumber(SWIGTYPE_p_void.getCPtr(result));
+  }
+
   public static java.math.BigInteger SDBP_ResultNumber(SWIGTYPE_p_void result) {
     return scaliendb_clientJNI.SDBP_ResultNumber(SWIGTYPE_p_void.getCPtr(result));
   }

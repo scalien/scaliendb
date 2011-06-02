@@ -281,6 +281,9 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultValueBuffer")]
   public static extern IntPtr SDBP_ResultValueBuffer(HandleRef jarg1);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultSignedNumber")]
+  public static extern long SDBP_ResultSignedNumber(HandleRef jarg1);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ResultNumber")]
   public static extern ulong SDBP_ResultNumber(HandleRef jarg1);
 

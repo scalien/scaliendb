@@ -297,7 +297,7 @@ namespace Scalien
                 return 0;
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return result.GetNumber();
+            return result.GetSignedNumber();
         }
 
         public void Append(string key, string value)

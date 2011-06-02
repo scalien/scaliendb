@@ -68,6 +68,11 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
             session.Print(rb);
         }
         break;
+    case CLIENTRESPONSE_SNUMBER:
+        tmp.Writef("%I", response->snumber);
+        rb.Wrap(tmp);
+        session.Print(rb);
+        break;
     case CLIENTRESPONSE_VALUE:
         session.Print(response->value);
         break;

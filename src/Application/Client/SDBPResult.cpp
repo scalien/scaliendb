@@ -292,6 +292,19 @@ int Result::GetNumber(uint64_t& number)
     return request->status;
 }
 
+int Result::GetSignedNumber(int64_t& number)
+{
+    Request*    request;
+    
+    if (requestCursor == NULL)
+        return SDBP_API_ERROR;
+    
+    request = requestCursor;
+    number = request->response.snumber;
+    
+    return request->status;
+}
+
 int Result::IsConditionalSuccess(bool& isConditionalSuccess)
 {
     if (requestCursor == NULL)

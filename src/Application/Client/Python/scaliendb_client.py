@@ -139,6 +139,7 @@ SDBP_ResultKey = _scaliendb_client.SDBP_ResultKey
 SDBP_ResultValue = _scaliendb_client.SDBP_ResultValue
 SDBP_ResultKeyBuffer = _scaliendb_client.SDBP_ResultKeyBuffer
 SDBP_ResultValueBuffer = _scaliendb_client.SDBP_ResultValueBuffer
+SDBP_ResultSignedNumber = _scaliendb_client.SDBP_ResultSignedNumber
 SDBP_ResultNumber = _scaliendb_client.SDBP_ResultNumber
 SDBP_ResultIsConditionalSuccess = _scaliendb_client.SDBP_ResultIsConditionalSuccess
 SDBP_ResultDatabaseID = _scaliendb_client.SDBP_ResultDatabaseID

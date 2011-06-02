@@ -59,6 +59,7 @@ std::string     SDBP_ResultKey(ResultObj result);
 std::string     SDBP_ResultValue(ResultObj result);
 SDBP_Buffer     SDBP_ResultKeyBuffer(ResultObj result);
 SDBP_Buffer     SDBP_ResultValueBuffer(ResultObj result);
+int64_t         SDBP_ResultSignedNumber(ResultObj result);
 uint64_t        SDBP_ResultNumber(ResultObj result);
 bool            SDBP_ResultIsConditionalSuccess(ResultObj result);
 uint64_t        SDBP_ResultDatabaseID(ResultObj result);

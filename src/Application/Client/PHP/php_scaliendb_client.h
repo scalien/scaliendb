@@ -79,6 +79,7 @@ ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultKey);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultValue);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultKeyBuffer);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultValueBuffer);
+ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultSignedNumber);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultNumber);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultIsConditionalSuccess);
 ZEND_NAMED_FUNCTION(_wrap_SDBP_ResultDatabaseID);

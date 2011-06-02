@@ -48,6 +48,10 @@ class Result {
         return scaliendb_client::SDBP_ResultValue($this->cptr);
     }
     
+    public function getSignedNumber() {
+        return scaliendb_client::SDBP_ResultSignedNumber($this->cptr);
+    }
+
     public function getNumber() {
         return scaliendb_client::SDBP_ResultNumber($this->cptr);
     }
@@ -121,7 +125,7 @@ class Result {
     }
 }
 
-class ScalienClient {
+class ScalienDBClient {
     private $cptr = NULL;
     private $result = NULL;
     
@@ -219,7 +223,8 @@ class ScalienClient {
         $status = scaliendb_client::SDBP_CreateQuorum($this->cptr, $nodeParams);
         $nodeParams->Close();
         $this->result = new Result(scaliendb_client::SDBP_GetResult($this->cptr));
-        $this->_checkStatus($status);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
         return $this->result->getNumber();
     }
     
@@ -228,7 +233,8 @@ class ScalienClient {
     public function createDatabase($name) {
         $status = scaliendb_client::SDBP_CreateDatabase($this->cptr, $name);
         $this->result = new Result(scaliendb_client::SDBP_GetResult($this->cptr));
-        $this->_checkStatus($status);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
         return $this->result->getNumber();
     }
     
@@ -237,7 +243,8 @@ class ScalienClient {
     public function createTable($databaseID, $quorumID, $name) {
         $status = scaliendb_client::SDBP_CreateTable($this->cptr, $databaseID, $quorumID, $name);
         $this->result = new Result(scaliendb_client::SDBP_GetResult($this->cptr));
-        $this->_checkStatus($status);
+        if ($status != SDBP_SUCCESS)
+            return FALSE;
         return $this->result->getNumber();        
     }
     
@@ -246,45 +253,37 @@ class ScalienClient {
     public function getDatabaseID($name) {
         $databaseID = scaliendb_client::SDBP_GetDatabaseID($this->cptr, $name);
         if ($databaseID == 0)
-        {
-            // TODO: set error
-            return NULL;
-        }
+            return FALSE;
         return $databaseID;
     }
 
     public function getTableID($databaseID, $name) {
         $tableID = scaliendb_client::SDBP_GetTableID($this->cptr, $databaseID, $name);
         if ($tableID == 0)
-        {
-            // TODO: set error
-            return NULL;
-        }
+            return FALSE;
         return $tableID;
     }
     
     public function useDatabase($name) {
         $status = scaliendb_client::SDBP_UseDatabase($this->cptr, $name);
         if ($status != SDBP_SUCCESS)
-        {
-            // TODO: set error
-            return NULL;
-        }
+            return FALSE;
+        else
+            return TRUE;
     }
 
     public function useTable($name) {
         $status = scaliendb_client::SDBP_UseTable($this->cptr, $name);
         if ($status != SDBP_SUCCESS)
-        {
-            // TODO: set error
-            return NULL;
-        }
+            return FALSE;
+        else
+            return TRUE;
     }
     
     public function get($key) {
         $status = $this->_dataCommand("SDBP_Get", $key);
         if ($status != SDBP_SUCCESS)
-            return NULL;
+            return FALSE;
         return $this->result->getValue();
     }
     
@@ -320,7 +319,7 @@ class ScalienClient {
         $status = $this->_dataCommand("SDBP_Add", $key, $value);
         if ($status != SDBP_SUCCESS)
             return NULL;
-        return $this->result->getNumber();
+        return $this->result->getSignedNumber();
     }
     
     public function delete($key) {

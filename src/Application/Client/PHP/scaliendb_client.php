@@ -67,6 +67,10 @@ abstract class scaliendb_client {
 		return is_resource($r) ? new SDBP_Buffer($r) : $r;
 	}
 
+	static function SDBP_ResultSignedNumber($result) {
+		return SDBP_ResultSignedNumber($result);
+	}
+
 	static function SDBP_ResultNumber($result) {
 		return SDBP_ResultNumber($result);
 	}

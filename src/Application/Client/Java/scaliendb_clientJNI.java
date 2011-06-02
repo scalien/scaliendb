@@ -41,6 +41,7 @@ class scaliendb_clientJNI {
   public final static native String SDBP_ResultValue(long jarg1);
   public final static native byte[] SDBP_ResultKeyBuffer(long jarg1);
   public final static native byte[] SDBP_ResultValueBuffer(long jarg1);
+  public final static native long SDBP_ResultSignedNumber(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultNumber(long jarg1);
   public final static native boolean SDBP_ResultIsConditionalSuccess(long jarg1);
   public final static native java.math.BigInteger SDBP_ResultDatabaseID(long jarg1);

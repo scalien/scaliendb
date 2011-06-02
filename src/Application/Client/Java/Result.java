@@ -57,6 +57,14 @@ public class Result
     public byte[] getValueBytes() {
         return scaliendb_client.SDBP_ResultValueBuffer(cptr);
     }
+
+    /**
+     * Returns the current numeric value in result.
+     */
+    public long getSignedNumber() {
+        long l = scaliendb_client.SDBP_ResultSignedNumber(cptr);
+        return l;
+    }
     
     /**
      * Returns the current numeric value in result.

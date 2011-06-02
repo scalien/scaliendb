@@ -21,6 +21,11 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
              &response->type, &response->commandID, &response->number);
             read = ReadOptionalParts(buffer, read);
             break;
+        case CLIENTRESPONSE_SNUMBER:
+            read = buffer.Readf("%c:%U:%I",
+             &response->type, &response->commandID, &response->snumber);
+            read = ReadOptionalParts(buffer, read);
+            break;
         case CLIENTRESPONSE_VALUE:
             read = buffer.Readf("%c:%U:%#R",
              &response->type, &response->commandID, &response->value);
@@ -112,6 +117,11 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         case CLIENTRESPONSE_NUMBER:
             buffer.Writef("%c:%U:%U",
              response->type, response->request->commandID, response->number);
+            WriteOptionalParts(buffer);
+            return true;
+        case CLIENTRESPONSE_SNUMBER:
+            buffer.Writef("%c:%U:%I",
+             response->type, response->request->commandID, response->snumber);
             WriteOptionalParts(buffer);
             return true;
         case CLIENTRESPONSE_VALUE:

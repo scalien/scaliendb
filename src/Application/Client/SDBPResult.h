@@ -49,6 +49,7 @@ public:
 
     int             GetKey(ReadBuffer& key);
     int             GetValue(ReadBuffer& value);
+    int             GetSignedNumber(int64_t& number);
     int             GetNumber(uint64_t& number);
     int             IsConditionalSuccess(bool& isConditionalSuccess);
     

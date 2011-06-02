@@ -718,6 +718,18 @@ SWIGEXPORT void * SWIGSTDCALL CSharp_SDBP_ResultValueBuffer(void * jarg1) {
 }
 
 
+SWIGEXPORT long long SWIGSTDCALL CSharp_SDBP_ResultSignedNumber(void * jarg1) {
+  long long jresult ;
+  ResultObj arg1 = (ResultObj) 0 ;
+  int64_t result;
+  
+  arg1 = (ResultObj)jarg1; 
+  result = (int64_t)SDBP_ResultSignedNumber(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_ResultNumber(void * jarg1) {
   unsigned long long jresult ;
   ResultObj arg1 = (ResultObj) 0 ;
