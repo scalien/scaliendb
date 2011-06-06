@@ -291,15 +291,29 @@ class Client:
             self.client.use_database(self.database_name)
             return self.client.create_table(table_name)
 
+        def create_table(self, table_name, quorum_id):
+            self.client.use_database(self.database_name)
+            return self.client.create_table(table_name, quorum_id)
+        
         def create_table_cond(self, table_name):
             self.client.use_database(self.database_name)
             if self.exists_table(table_name):
                 return True
             return self.client.create_table(table_name)
-
-        def create_table(self, table_name, quorum_id):
+        
+        def create_empty_table_cond(self, table_name):
             self.client.use_database(self.database_name)
-            return self.client.create_table(table_name, quorum_id)
+            if self.exists_table(table_name):
+                return self.truncate_table(table_name)
+            return self.client.create_table(table_name)
+
+        def delete_table(self, table_name):
+            self.client.use_database(self.database_name)
+            self.client.delete_table(table_name)
+
+        def truncate_table(self, table_name):
+            self.client.use_database(self.database_name)
+            self.client.truncate_table(table_name)
 
     def __del__(self):
         del self.result
