@@ -12,11 +12,11 @@ Contents:
    :maxdepth: 2
 
    about.rst
-   twitter_tutorial_python.rst
    installation.rst
    configuration.rst
    running.rst
    understanding.rst
+   twitter_tutorial_python.rst
    python_api.rst
 
 .. Indices and tables

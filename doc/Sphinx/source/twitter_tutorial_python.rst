@@ -1,5 +1,5 @@
-Tutorial: Twitter on ScalienDB with Python
-==========================================
+Python API Tutorial: Twitter
+============================
 
 Part I: Getting started
 -----------------------
@@ -263,15 +263,15 @@ We want to separate different users' tweets and sort them by datetime. So we wil
   # save tweet index by user_id/datetime
   index_tweets_datetime.set(scaliendb.composite(tweet["user_id"], tweet["datetime"]), tweet["tweet_id"])
 
-For example, if the ``user_id`` is 55, the datetime is ``2011-06-02 18:00:35.296616`` and `tweet_id`` is 33, this generates the key-value pair::
+For example, if the ``user_id`` is 55, the datetime is ``2011-06-02 18:00:35.296616`` and ``tweet_id`` is 33, this generates the key-value pair::
 
   /000000000000000000055/2011-06-02 18:00:35.296616 => 000000000000000000033
 
 in the ``index_tweets_datetime`` table. For example, if we want to print 1000 tweets by ``user_id = 55`` starting at ``2011-01-01 00:00:00``, we can issue::
 
-  tweet_ids = index_tweets_datetime.list_key_values(prefix=scaliendb.composite(55, "2011-01-01 00:00:00"), count=1000)
-  for tweet_id in tweet_ids:
+  kvs = index_tweets_datetime.list_key_values(prefix=scaliendb.composite(55, "2011-01-01 00:00:00"), count=1000)
+  for key, tweet_id in sorted(kvs.items()):
     tweet = loads(tweets.get(tweet_id))
     print(tweet)
-
+  
 That's it!
