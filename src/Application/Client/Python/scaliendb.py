@@ -1,5 +1,7 @@
 from scaliendb_client import *
 import time
+from datetime import datetime
+from datetime import date
 
 SDBP_SUCCESS = 0
 SDBP_API_ERROR = -1
@@ -23,6 +25,31 @@ SDBP_CONSISTENCY_ANY = 0
 SDBP_CONSISTENCY_RYW = 1
 SDBP_CONSISTENCY_STRICT = 2
 
+	def composite(*args):
+	    c = ""
+	    for a in args:
+	        i = Util.typemap(a)
+	        c = "%s/%s" %  (c, i)
+	    return c
+
+class Callable:
+    def __init__(self, anycallable):
+        self.__call__ = anycallable
+
+class Util:
+	def typemap(i):
+		if isinstance(i, (str)):
+			return i
+		elif isinstance(i, (int, long)):
+			return "%021d" % i
+		elif isinstance(i, (datetime)):
+			return i.strftime("%Y-%m-%d %H:%M:%S.%f")
+		elif isinstance(i, (date)):
+			return i.strftime("%Y-%m-%d")
+		else:
+			return str(i)
+	typemap = Callable(typemap)
+	        
 def str_status(status):
     if status == SDBP_SUCCESS:
         return "SDBP_SUCCESS"
@@ -181,6 +208,99 @@ class Client:
         else:
             raise Error(SDBP_API_ERROR, "nodes argument must be string or list")
 
+    class Table:
+        def __init__(self, client, database_name, table_name):
+            self.client = client
+            self.database_name = database_name
+            self.table_name = table_name
+        
+        def use_defaults(self):
+            self.client.use_database(self.database_name)
+            self.client.use_table(self.table_name)
+        
+        def truncate(self):
+            self.client.truncate_table(self.table_name)
+            
+        def get(self, key):
+            self.use_defaults()
+            return self.client.get(key)
+
+        def set(self, key, value):
+            self.use_defaults()
+            return self.client.set(key, value)
+
+        def set_if_not_exists(self, key, value):
+            self.use_defaults()
+            return self.client.set_if_not_exists(key, value)
+
+        def test_and_set(self, key, test, value):
+            self.use_defaults()
+            return self.client.test_and_set(key, test, value)
+
+        def get_and_set(self, key, value):
+            self.use_defaults()
+            return self.client.get_and_set(key, value)
+        
+        def add(self, key, num):
+            self.use_defaults()
+            return self.client.add(key, num)
+
+        def delete(self, key):
+            self.use_defaults()
+            return self.client.delete(key)
+
+        def test_and_delete(self, key, test):
+            self.use_defaults()
+            return self.client.test_and_delete(key, test)
+    
+        def remove(self, key):
+            self.use_defaults()
+            return self.client.remove(key)
+
+        def list_keys(self, start_key="", end_key="", prefix="", count=0, offset=0):
+            self.use_defaults()
+            return self.client.list_keys(start_key="", end_key="", prefix="", count=0, offset=0)
+
+        def list_key_values(self, start_key="", end_key="", prefix="", count=0, offset=0):
+            self.use_defaults()
+            return self.client.list_key_values(start_key="", end_key="", prefix="", count=0, offset=0)
+
+        def count(self, start_key="", end_key="", prefix="", count=0, offset=0):
+            self.use_defaults()
+            return self.client.count(start_key="", end_key="", prefix="", count=0, offset=0)
+
+    class Database:
+        def __init__(self, client, database_name):
+            self.client = client
+            self.database_name = database_name
+        
+        def get_tables(self):
+            return self.client.get_tables(self.database_name)
+        
+        def get_table(self, table_name):
+            return self.client.get_table(self.database_name, table_name)
+        
+        def exists_table(self, table_name):
+            table_names = self.get_tables()
+            if table_name in table_names:
+                return True
+            else:
+                return False
+        
+        def create_table(self, table_name):
+            self.client.use_database(self.database_name)
+            return self.client.create_table(table_name)
+
+        def create_table_cond(self, table_name):
+            self.client.use_database(self.database_name)
+            if self.exists_table(table_name):
+                return True
+            return self.client.create_table(table_name)
+
+        def create_table(self, table_name, quorum_id):
+            self.client.use_database(self.database_name)
+            return self.client.create_table(table_name, quorum_id)
+
     def __del__(self):
         del self.result
         SDBP_Destroy(self.cptr)
@@ -319,22 +439,27 @@ class Client:
         status = SDBP_DeleteDatabase(self.cptr, database_id)
         self._check_status(status)
 
-    def create_table(self, quorum_id, name):
+    def create_table(self, name, quorum_id=None):
         """
         Creates a table
         
         Args:
-            quorum_id (long): the ID of the quorum
-            
             name (string): the name of the table
+
+            quorum_id (long): the ID of the quorum (OPTIONAL)            
         """
+        if quorum_id is None:
+            quorums = self.get_quorums()
+            if len(quorums) < 1:
+                raise Error(SDBP_BADSCHEMA, "No quorums")
+            quorum_id = quorums[0]
         database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database selected")
         status = SDBP_CreateTable(self.cptr, database_id, quorum_id, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
-        return self.result.number()
+        return self.result.number()        
 
     def rename_table(self, src, dst):
         """
@@ -427,6 +552,7 @@ class Client:
             
             key (string): the key where the shard is to be splitted
         """
+        key = Util.typemap(key)
         status = SDBP_SplitShard(self.cptr, shard_id, key)
         if status < 0:
             raise Error(status)
@@ -525,6 +651,29 @@ class Client:
     def get_current_table_id(self):
         """ Returns the current table id """
         return long(SDBP_GetCurrentTableID(self.cptr))
+
+    def get_quorums(self):
+        num_quorums = SDBP_GetNumQuorums(self.cptr)
+        quorums = []
+        for i in xrange(num_quorums):
+            quorum = SDBP_GetQuorumIDAt(self.cptr, i)
+            quorums.append(quorum)
+        return quorums
+
+    def get_databases(self):
+        num_databases = SDBP_GetNumDatabases(self.cptr)
+        databases = []
+        for i in xrange(num_databases):
+            database = SDBP_GetDatabaseNameAt(self.cptr, i)
+            databases.append(database)
+        return databases
+        
+    def exists_database(self, database_name):
+        database_names = self.get_databases()
+        if database_name in database_names:
+            return True
+        else:
+            return False
     
     def use_database(self, name):
         """
@@ -551,6 +700,15 @@ class Client:
             if status == SDBP_NOSERVICE:
                 raise Error(status, "Cannot connect to controller!")
             raise Error(status, "No database found with id '%s'" % (id))
+
+    def get_tables(self, database_name):
+        self.use_database(database_name)
+        num_tables = SDBP_GetNumTables(self.cptr)
+        tables = []
+        for i in xrange(num_tables):
+            table = SDBP_GetTableNameAt(self.cptr, i)
+            tables.append(table)
+        return tables
     
     def use_table(self, name):
         """
@@ -595,6 +753,7 @@ class Client:
         Args:
             key (string): the specified key
         """
+        key = Util.typemap(key)
         status, ret = self._data_command(SDBP_Get, key)
         if ret:
             return self.result.value()
@@ -608,6 +767,8 @@ class Client:
             
             value (string): the value to be set
         """
+        key = Util.typemap(key)
+        value = Util.typemap(value)
         status, ret = self._data_command(SDBP_Set, key, value)
         if status == SDBP_FAILURE:
             raise Error(status, "Set failed")
@@ -621,6 +782,8 @@ class Client:
             
             value (string): the value to be set
         """
+        key = Util.typemap(key)
+        value = Util.typemap(value)
         status, ret = self._data_command(SDBP_SetIfNotExists, key, value)
         if ret:
             return status
@@ -636,6 +799,9 @@ class Client:
             
             value (string): the value to be set
         """
+        key = Util.typemap(key)
+        test = Util.typemap(test)
+        value = Util.typemap(value)
         status, ret = self._data_command(SDBP_TestAndSet, key, test, value)
         if ret:
             return self.result.is_conditional_success()
@@ -650,11 +816,13 @@ class Client:
                         
             value (string): the value to be set
         """
+        key = Util.typemap(key)
+        value = Util.typemap(value)
         status, ret = self._data_command(SDBP_GetAndSet, key)
         if ret:
             return self.result.value()
         
-    def add(self, key, value):
+    def add(self, key, num):
         """
         Adds a specified number to the given key and returns the new value
         
@@ -663,7 +831,8 @@ class Client:
                         
             value (string): the value to be set
         """
-        status, ret = self._data_command(SDBP_Add, key, value)
+        key = Util.typemap(key)
+        status, ret = self._data_command(SDBP_Add, key, num)
         if ret:
             return self.result.signed_number()
 
@@ -674,6 +843,7 @@ class Client:
         Args:
             key (string): the specified key
         """
+        key = Util.typemap(key)
         status, ret = self._data_command(SDBP_Delete, key)
 
     def test_and_delete(self, key, test):
@@ -688,6 +858,8 @@ class Client:
         Return:
             true if deleted
         """
+        key = Util.typemap(key)
+        test = Util.typemap(test)
         status, ret = self._data_command(SDBP_TestAndDelete, key, test)
         if ret:
             return self.result.is_conditional_success()
@@ -699,6 +871,7 @@ class Client:
         Args:
             key (string): the specified key
         """
+        key = Util.typemap(key)
         status, ret = self._data_command(SDBP_Remove, key)
         if ret:
             return self.result.value()
@@ -718,6 +891,8 @@ class Client:
             
             offset (long): start the listing at this offset (default=0)
         """
+        start_key = Util.typemap(start_key)
+        end_key = Util.typemap(end_key)
         status = SDBP_ListKeys(self.cptr, start_key, end_key, prefix, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
@@ -743,6 +918,8 @@ class Client:
             
             offset (long): start the listing at this offset (default=0)
         """
+        start_key = Util.typemap(start_key)
+        end_key = Util.typemap(end_key)
         status = SDBP_ListKeyValues(self.cptr, start_key, end_key, prefix, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
@@ -768,6 +945,8 @@ class Client:
             
             offset (long): start the listing at this offset (default=0)
         """
+        start_key = Util.typemap(start_key)
+        end_key = Util.typemap(end_key)
         status = SDBP_Count(self.cptr, start_key, end_key, prefix, count, offset)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
@@ -810,6 +989,12 @@ class Client:
             return status, False
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return status, True
+    
+    def get_table(self, database_name, table_name):
+        return self.Table(self, database_name, table_name)
+
+    def get_database(self, database_name):
+        return self.Database(self, database_name)
     
     def _check_status(self, status):
         if status < 0:
@@ -860,6 +1045,7 @@ class Loader:
             print("%s:\t total items: %s \t total bytes: %s \t aggregate thruput: %s/s" % (endtimestamp, self.items_total, human_bytes(self.bytes_total), human_bytes(self.bytes_total/((self.elapsed) * 1000.0) * 1000.0)))
 
     def set(self, key, value):
+        key = Util.typemap(key)
         l = len(key) + len(value)
         self.client.set(key, value)
         self.items_batch += 1
