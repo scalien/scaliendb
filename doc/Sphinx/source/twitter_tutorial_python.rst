@@ -96,18 +96,18 @@ We will use the ``indices`` table to keep track of our object id counters (like 
   def setup_schema():
     if not client.exists_database("twitter"): client.create_database("twitter")
     db = client.get_database("twitter")
-    db.create_table_cond("indices")
-    db.create_table_cond("users")
-    db.create_table_cond("tweets")
-    db.create_table_cond("followers")
-    db.create_table_cond("following")
-    db.create_table_cond("index_users_username")
-    db.create_table_cond("cached_tweets")
+    db.create_empty_table_cond("indices")
+    db.create_empty_table_cond("users")
+    db.create_empty_table_cond("tweets")
+    db.create_empty_table_cond("followers")
+    db.create_empty_table_cond("following")
+    db.create_empty_table_cond("index_users_username")
+    db.create_empty_table_cond("cached_tweets")
     indices = db.get_table("indices")
     indices.set("users", 0)    # init counter to 0
     indices.set("tweets", 0)   # init counter to 0
 
-``create_table_cond()`` creates the table if it does not exist, and leaves it alone if it does.
+``create_empty_table_cond()`` creates the table if it does not exist, and truncates it if it does.
 
 Going forward, it's going to be easier if we create global table objects for our ScalienDB tables::
 
@@ -252,7 +252,7 @@ ScalienDB does not support indexes out of the box, so we will create the index b
 
 Create a table ``index_tweets_datetime`` and add the appropriate line to the ``setup_schema()`` funtion::
 
-  db.create_table_cond("index_tweets_datetime")
+  db.create_empty_table_cond("index_tweets_datetime")
 
 Create a global object for the new table::
 
@@ -261,7 +261,7 @@ Create a global object for the new table::
 We want to separate different users' tweets and sort them by datetime. So we will use the ``/user_id/datetime => tweet_id`` scheme for the index, paying attention to prefix the user_id's with 0's to make sure lexicographical sorting works. Fortunately, the ScalienDB Python library has a special ``composite()`` function to generate such keys for index table. All we have to add to our ``tweet_message()`` function is::
 
   # save tweet index by user_id/datetime
-  index_tweets_datetime.set(composite(tweet["user_id"], tweet["datetime"]), tweet["tweet_id"])
+  index_tweets_datetime.set(scaliendb.composite(tweet["user_id"], tweet["datetime"]), tweet["tweet_id"])
 
 For example, if the ``user_id`` is 55, the datetime is ``2011-06-02 18:00:35.296616`` and `tweet_id`` is 33, this generates the key-value pair::
 
@@ -269,7 +269,7 @@ For example, if the ``user_id`` is 55, the datetime is ``2011-06-02 18:00:35.296
 
 in the ``index_tweets_datetime`` table. For example, if we want to print 1000 tweets by ``user_id = 55`` starting at ``2011-01-01 00:00:00``, we can issue::
 
-  tweet_ids = index_tweets_datetime.list_key_values(prefix=composite(55, "2011-01-01 00:00:00"), count=1000)
+  tweet_ids = index_tweets_datetime.list_key_values(prefix=scaliendb.composite(55, "2011-01-01 00:00:00"), count=1000)
   for tweet_id in tweet_ids:
     tweet = loads(tweets.get(tweet_id))
     print(tweet)
