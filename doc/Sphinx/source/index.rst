@@ -4,7 +4,7 @@
    contain the root `toctree` directive.
 
 ScalienDB documentation
-======================
+=======================
 
 Contents:
 
@@ -12,6 +12,7 @@ Contents:
    :maxdepth: 2
 
    about.rst
+   twitter_tutorial_python.rst
    installation.rst
    configuration.rst
    running.rst
