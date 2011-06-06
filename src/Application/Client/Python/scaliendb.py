@@ -25,12 +25,12 @@ SDBP_CONSISTENCY_ANY = 0
 SDBP_CONSISTENCY_RYW = 1
 SDBP_CONSISTENCY_STRICT = 2
 
-	def composite(*args):
-	    c = ""
-	    for a in args:
-	        i = Util.typemap(a)
-	        c = "%s/%s" %  (c, i)
-	    return c
+def composite(*args):
+    c = ""
+    for a in args:
+        i = Util.typemap(a)
+        c = "%s/%s" %  (c, i)
+    return c
 
 class Callable:
     def __init__(self, anycallable):
