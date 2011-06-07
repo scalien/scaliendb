@@ -9,11 +9,12 @@ void ConfigDatabaseManager::Init()
     
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath);
-    systemConfigShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
 
+    environment.CreateShard(1, QUORUM_DATABASE_SYSTEM_CONTEXT, 1, 0, "", "", true, false);
     environment.CreateShard(1, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1, 0, "", "", true, false);
     environment.CreateShard(1, QUORUM_DATABASE_QUORUM_LOG_CONTEXT, 1, 0, "", "", true, true);
 
+    systemConfigShard.Init(&environment, QUORUM_DATABASE_SYSTEM_CONTEXT, 1);
     quorumPaxosShard.Init(&environment, QUORUM_DATABASE_QUORUM_PAXOS_CONTEXT, 1);
     quorumLogShard.Init(&environment, QUORUM_DATABASE_QUORUM_LOG_CONTEXT, 1);
     

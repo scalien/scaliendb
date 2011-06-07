@@ -629,7 +629,7 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
     switch (imsg.type)
     {
         case CATCHUPMESSAGE_REQUEST:
-            if (!quorumContext.IsLeader())
+            if (!quorumContext.IsLeaseOwner())
                 return;
             ASSERT(imsg.quorumID == quorumContext.GetQuorumID());
             // send configState

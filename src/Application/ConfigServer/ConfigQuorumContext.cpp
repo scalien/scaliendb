@@ -12,7 +12,7 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
     
     quorumProcessor = quorumProcessor_;
     
-    quorumID = 0;
+    quorumID = 1;
     for (nodeID = 0; nodeID < numConfigServers; nodeID++)
         quorum.AddNode(nodeID);
 
