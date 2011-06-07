@@ -131,7 +131,7 @@ void ConfigServer::OnClientClose(ClientSession* session)
 
 void ConfigServer::OnClusterMessage(uint64_t /*nodeID*/, ClusterMessage& message)
 {
-    Endpoint endpoint;
+    Endpoint    endpoint;
     
     switch (message.type)
     {
@@ -169,21 +169,28 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
     ConfigShardServer*  shardServer;
     ConfigState*        configState;
     
+    if (!quorumProcessor.IsMaster())
+        return;
+
     configState = databaseManager.GetConfigState();
     
     // if it's a shard server, send the configState
     if (nodeID >= CONFIG_MIN_SHARD_NODE_ID)
     {
-        // TODO: send shutdown message in case of bad configuration
         shardServer = configState->GetShardServer(nodeID);
         if (shardServer == NULL)
+        {
+            Log_Message("Badly configured shard server trying to connect, no such nodeID: %U, endpoint: %s",
+             nodeID, endpoint.ToString());
             return;
+        }
         
         if (shardServer->endpoint != endpoint)
         {
-            Log_Message("Badly configured shard server trying to connect, nodeID: %U, endpoint: %s",
-             nodeID, endpoint.ToString());
-
+            Log_Debug("%s != ", shardServer->endpoint.ToString());
+            Log_Debug("!= %s", endpoint.ToString());
+            // shard server endpoint changed, update ConfigState
+            quorumProcessor.TryUpdateShardServer(nodeID, endpoint);
             return;
         }
         

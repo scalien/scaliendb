@@ -5,6 +5,8 @@
 #include "ConfigActivationManager.h"
 #include "ConfigServer.h"
 
+#define CONFIG_STATE (configServer->GetDatabaseManager()->GetConfigState())
+
 void ConfigHeartbeatManager::Init(ConfigServer* configServer_)
 {
     configServer = configServer_;
@@ -27,7 +29,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     ConfigQuorum*       quorum;
     ConfigShardServer*  shardServer;
     
-    shardServer = configServer->GetDatabaseManager()->GetConfigState()->GetShardServer(message.nodeID);
+    shardServer = CONFIG_STATE->GetShardServer(message.nodeID);
     if (!shardServer)
         return;
     
@@ -41,7 +43,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     
     FOREACH (it, message.quorumInfos)
     {
-        quorum = configServer->GetDatabaseManager()->GetConfigState()->GetQuorum(it->quorumID);
+        quorum = CONFIG_STATE->GetQuorum(it->quorumID);
         if (!quorum)
             continue;
             
@@ -51,6 +53,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     
     shardServer->httpPort = message.httpPort;
     shardServer->sdbpPort = message.sdbpPort;
+    shardServer->hasHeartbeat = true;
     
     configServer->OnConfigStateChanged();
     
@@ -61,7 +64,7 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
 
 void ConfigHeartbeatManager::OnHeartbeatTimeout()
 {
-    uint64_t            now;
+    uint64_t            now, num;
     Heartbeat*          itHeartbeat;
     ConfigShardServer*  itShardServer;
     
@@ -71,12 +74,16 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
 
     // first remove nodes from the heartbeats list which have
     // not sent a heartbeat in HEARTBEAT_EXPIRE_TIME
+    num = heartbeats.GetLength();
     for (itHeartbeat = heartbeats.First(); itHeartbeat != NULL; /* incremented in body */)
     {
         if (itHeartbeat->expireTime <= now)
         {
             CONTEXT_TRANSPORT->DropConnection(itHeartbeat->nodeID);
             Log_Trace("Removing node %U from heartbeats", itHeartbeat->nodeID);
+            itShardServer = CONFIG_STATE->GetShardServer(itHeartbeat->nodeID);
+            ASSERT(itShardServer != NULL);
+            itShardServer->hasHeartbeat = false;
             itHeartbeat = heartbeats.Delete(itHeartbeat);
         }
         else
@@ -85,12 +92,15 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
     
     if (configServer->GetQuorumProcessor()->IsMaster())
     {
-        FOREACH (itShardServer, configServer->GetDatabaseManager()->GetConfigState()->shardServers)
+        FOREACH (itShardServer, CONFIG_STATE->shardServers)
         {
             if (!HasHeartbeat(itShardServer->nodeID))
                 configServer->GetActivationManager()->TryDeactivateShardServer(itShardServer->nodeID);
         }
     }
+    
+    if (heartbeats.GetLength() != (signed) num)
+        configServer->OnConfigStateChanged();
     
     EventLoop::Add(&heartbeatTimeout);    
 }
@@ -142,13 +152,14 @@ void ConfigHeartbeatManager::RegisterHeartbeat(uint64_t nodeID)
     it->nodeID = nodeID;
     it->expireTime = now + HEARTBEAT_EXPIRE_TIME;
     heartbeats.Add(it);
+    
+    configServer->OnConfigStateChanged();
 }
 
 void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
 {
     bool                    isSplitCreating;
     uint64_t                newShardID;
-    ConfigState*            configState;
     ConfigShardServer*      configShardServer;
     ConfigQuorum*           itQuorum;
     ConfigShard*            configShard;
@@ -163,13 +174,11 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
     // then look for shards that are located in this quorum and should be split
     // but only one-at-a-time
     
-    configState = configServer->GetDatabaseManager()->GetConfigState();
-    
-    configShardServer = configState->GetShardServer(message.nodeID);
+    configShardServer = CONFIG_STATE->GetShardServer(message.nodeID);
     if (!configShardServer)
         return;
     
-    FOREACH (itQuorum, configState->quorums)
+    FOREACH (itQuorum, CONFIG_STATE->quorums)
     {
         if (itQuorum->primaryID != message.nodeID)
             continue;
@@ -187,12 +196,12 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
             if (itQuorumShardInfo->quorumID != itQuorum->quorumID)
                 continue;
                 
-            configTable = configState->GetTable(itQuorumShardInfo->shardID);
+            configTable = CONFIG_STATE->GetTable(itQuorumShardInfo->shardID);
             if (configTable != NULL)
             {
                 if (configTable->shards.GetLength() == 1)
                 {
-                    configShard = configState->GetShard(*(configTable->shards.First()));
+                    configShard = CONFIG_STATE->GetShard(*(configTable->shards.First()));
                     ASSERT(configShard);
                     if (configShard->state == CONFIG_SHARD_STATE_TRUNC_CREATING)
                         configServer->GetQuorumProcessor()->TryTruncateTableComplete(configTable->tableID);
@@ -201,13 +210,13 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
                 
             if (!isSplitCreating && itQuorumShardInfo->isSplitable &&
              itQuorumShardInfo->shardSize > shardSplitSize &&
-             itQuorumShardInfo->shardID != configState->migrateSrcShardID)
+             itQuorumShardInfo->shardID != CONFIG_STATE->migrateSrcShardID)
             {
                 // make sure another shard with the same splitKey doesn't already exist
-                configShard = configState->GetShard(itQuorumShardInfo->shardID);
+                configShard = CONFIG_STATE->GetShard(itQuorumShardInfo->shardID);
                 if (!configShard)
                     continue;
-                configTable = configState->GetTable(configShard->tableID);
+                configTable = CONFIG_STATE->GetTable(configShard->tableID);
                 ASSERT(configTable != NULL);
                 if (configTable->isFrozen)
                     continue;
@@ -231,10 +240,10 @@ void ConfigHeartbeatManager::TrySplitShardActions(ClusterMessage& message)
     
     FOREACH (itQuorumShardInfo, message.quorumShardInfos)
     {
-        itQuorum = configState->GetQuorum(itQuorumShardInfo->quorumID);
+        itQuorum = CONFIG_STATE->GetQuorum(itQuorumShardInfo->quorumID);
         if (itQuorum->primaryID == message.nodeID)
         {
-            ConfigShard* configShard = configState->GetShard(itQuorumShardInfo->shardID);
+            ConfigShard* configShard = CONFIG_STATE->GetShard(itQuorumShardInfo->shardID);
             if (!configShard)
                 continue;
             configShard->isSplitable = itQuorumShardInfo->isSplitable;

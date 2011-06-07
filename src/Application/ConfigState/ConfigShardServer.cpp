@@ -126,6 +126,7 @@ ConfigShardServer::ConfigShardServer()
     tryAutoActivation = true;
     httpPort = 0;
     sdbpPort = 0;
+    hasHeartbeat = false;
 }
 
 ConfigShardServer::ConfigShardServer(const ConfigShardServer& other)
@@ -139,6 +140,7 @@ ConfigShardServer& ConfigShardServer::operator=(const ConfigShardServer& other)
     endpoint = other.endpoint;
     httpPort = other.httpPort;
     sdbpPort = other.sdbpPort;
+    hasHeartbeat = other.hasHeartbeat;
     
     quorumInfos = other.quorumInfos;
     quorumShardInfos = other.quorumShardInfos;

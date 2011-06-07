@@ -301,6 +301,27 @@ void ConfigQuorumProcessor::TryRegisterShardServer(Endpoint& endpoint)
     TryAppend();
 }
 
+void ConfigQuorumProcessor::TryUpdateShardServer(uint64_t nodeID, Endpoint& endpoint)
+{
+    ConfigMessage*  it;
+    ConfigMessage*  msg;
+
+    FOREACH (it, configMessages)
+    {
+        if (it->type == CONFIGMESSAGE_REGISTER_SHARDSERVER && it->endpoint == endpoint)
+            return;
+        if (it->type == CONFIGMESSAGE_REGISTER_SHARDSERVER && it->nodeID == nodeID)
+            return;
+    }    
+
+    msg = new ConfigMessage;
+    msg->fromClient = false;
+    msg->RegisterShardServer(nodeID, endpoint);
+
+    configMessages.Append(msg);
+    TryAppend();
+}
+
 void ConfigQuorumProcessor::TrySplitShardBegin(uint64_t shardID, ReadBuffer splitKey)
 {
     ConfigMessage*  it;
@@ -436,6 +457,8 @@ void ConfigQuorumProcessor::UpdateListeners()
         }
     }
     
+    if (!IsMaster())
+        return;
     
     if (configChanged || lastConfigChangeTime <= now - 1000)
     {

@@ -828,16 +828,22 @@ void ConfigState::OnRegisterShardServer(ConfigMessage& message)
 {
     ConfigShardServer* shardServer;
     
-    // make sure nodeID is available
-    ASSERT(GetShardServer(message.nodeID) == NULL);
-    
-    shardServer = new ConfigShardServer;
-    shardServer->nodeID = nextNodeID++;
-    shardServer->endpoint = message.endpoint;
-    
-    shardServers.Append(shardServer); 
-    
-    message.nodeID = shardServer->nodeID;
+    shardServer = GetShardServer(message.nodeID);
+    if (shardServer == NULL)
+    {
+        // new node
+        shardServer = new ConfigShardServer;
+        shardServer->nodeID = nextNodeID++;
+        shardServer->endpoint = message.endpoint;
+        
+        shardServers.Append(shardServer); 
+        
+        message.nodeID = shardServer->nodeID;
+    }
+    else
+    {
+        shardServer->endpoint = message.endpoint;
+    }
 }
 
 void ConfigState::OnCreateQuorum(ConfigMessage& message)
@@ -1640,8 +1646,9 @@ bool ConfigState::ReadShardServer(ConfigShardServer& shardServer, ReadBuffer& bu
     
     if (withVolatile)
     {
-        read = buffer.Readf(":%u:%u", &shardServer.httpPort, &shardServer.sdbpPort);
-        CHECK_ADVANCE(4);
+        read = buffer.Readf(":%u:%u:%b",
+         &shardServer.httpPort, &shardServer.sdbpPort, &shardServer.hasHeartbeat);
+        CHECK_ADVANCE(6);
         READ_SEPARATOR();
         return QuorumInfo::ReadList(buffer, shardServer.quorumInfos);
     }
@@ -1658,7 +1665,8 @@ void ConfigState::WriteShardServer(ConfigShardServer& shardServer, Buffer& buffe
     
     if (withVolatile)
     {
-        buffer.Appendf(":%u:%u",shardServer.httpPort, shardServer.sdbpPort);
+        buffer.Appendf(":%u:%u:%b",
+         shardServer.httpPort, shardServer.sdbpPort, shardServer.hasHeartbeat);
         buffer.Appendf(":");
         QuorumInfo::WriteList(buffer, shardServer.quorumInfos);
     }

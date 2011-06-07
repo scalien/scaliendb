@@ -92,6 +92,7 @@ public:
     
     unsigned                httpPort;
     unsigned                sdbpPort;
+    bool                    hasHeartbeat;
     // ========================================================================================
     
     ConfigShardServer*      prev;

@@ -198,8 +198,8 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
              &type, &clusterID);
              break;
         case CONFIGMESSAGE_REGISTER_SHARDSERVER:
-            read = buffer.Readf("%c:%#R",
-             &type, &rb);
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &nodeID, &rb);
             endpoint.Set(rb);
             break;
         case CONFIGMESSAGE_CREATE_QUORUM:
@@ -322,8 +322,8 @@ bool ConfigMessage::Write(Buffer& buffer)
             return true;
         case CONFIGMESSAGE_REGISTER_SHARDSERVER:
             rb = endpoint.ToReadBuffer();
-            buffer.Writef("%c:%#R",
-             type, &rb);
+            buffer.Writef("%c:%U:%#R",
+             type, nodeID, &rb);
             return true;
         case CONFIGMESSAGE_CREATE_QUORUM:
             numNodes = nodes.GetLength();

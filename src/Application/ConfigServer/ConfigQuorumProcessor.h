@@ -47,6 +47,7 @@ public:
     void                    DeactivateNode(uint64_t quorumID, uint64_t nodeID);
  
     void                    TryRegisterShardServer(Endpoint& endpoint);
+    void                    TryUpdateShardServer(uint64_t nodeID, Endpoint& endpoint);
     void                    TrySplitShardBegin(uint64_t shardID, ReadBuffer splitKey);
     void                    TrySplitShardComplete(uint64_t shardID);
     void                    TryTruncateTableBegin(uint64_t tableID);
