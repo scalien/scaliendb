@@ -100,6 +100,7 @@ void ConfigHTTPClientSession::PrintStatus()
     Buffer          buf;
     ConfigState*    configState;
     char            hexbuf[64 + 1];
+    unsigned        num, i;
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
@@ -119,7 +120,15 @@ void ConfigHTTPClientSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
     
-    session.PrintPair("Controllers", configFile.GetValue("controllers", ""));
+    num = configFile.GetListNum("controllers");
+    buf.Clear();
+    for (i = 0; i < num; i++)
+    {
+        if (i > 0)
+            buf.Append(", ");
+        buf.Append(configFile.GetListValue("controllers", i, ""));
+    }
+    session.PrintPair("Controllers", buf);
     
     session.Print("\n--- Configuration State ---\n");
     
