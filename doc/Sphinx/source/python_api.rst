@@ -333,6 +333,8 @@ Sends the batched commands to the server. See previous example.
 client.set_bulk_loading(True)
 -----------------------------
 
+Bulk loading sends the data directly to all nodes in the cluster bypassing the built-in ScalienDB replication. It is much faster then normal, consistent operation, but use it with care::
+
   client.set_bulk_loading(True)
   client.begin()
   client.set("a1", "a1_value")
