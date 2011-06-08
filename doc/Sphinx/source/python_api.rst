@@ -297,6 +297,8 @@ Deletes ``key`` if it is ``key => test`` currently. Returns ``True`` if succeede
 client.remove(key)
 ------------------
 
+Returns then deletes::
+
   client.use_database("test_database")
   client.use_table("test_table")
   old_value = client.remove("key")
@@ -550,6 +552,8 @@ Deletes ``key`` if it is ``key => test`` currently. Returns ``True`` if succeede
 
 table.remove(key)
 ------------------
+
+Returns then deletes::
 
   old_value = table.remove("key")
 
