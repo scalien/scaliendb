@@ -95,7 +95,7 @@ Deletes database::
   client.delete_database("test_database")
 
 client.get_databases()
----------------------
+----------------------
 
 Get list of database names::
 
