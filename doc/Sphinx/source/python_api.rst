@@ -165,7 +165,7 @@ Freeze table. The shards making up this table will **not** be split automaticall
 By default, all tables are unfrozen.
 
 client.unfreeze_table(table name)
--------------------------------
+---------------------------------
 
 Unfreeze table. The shards making up this table will be split automatically as they grow in size::
 

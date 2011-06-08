@@ -33,14 +33,14 @@ Let's make sure it's running all right by taking a look at the Web-based managem
 .. image:: twitter_1.png
    :width: 1024 px
    :height: 768 px
-   :scale: 85 %
+   :scale: 85
 
 Before we go on, we need to create a quorum. Quorums are the units of replication in ScalienDB. If this sounds like rocket science, just ignore it for now, it will become clear later on. Click on the ``Quorums`` tab in the Web console and click ``Create new quorum``, enter ``100`` in the shard server list and press ``Create``. You should see:
 
 .. image:: twitter_2.png
    :width: 1024 px
    :height: 768 px
-   :scale: 85 %
+   :scale: 85
 
 Everything is running, time to get down to business! Let's write a simple Twitter test program for ScalienDB.
 
@@ -53,7 +53,7 @@ Let's use the Web console. Select the ``Schema`` tab and click ``Create new data
 .. image:: twitter_3.png
    :width: 1024 px
    :height: 768 px
-   :scale: 85 %
+   :scale: 85
 
 Let's get back to programming. We will be using Python for this tutorial, so you need the python libraries, which we have already built. Just copy all the files in ``bin/pythonlib`` to where your test Python script will be. Eg. if your Python program is in ``~/test`` and ScaliendB is in ``~/scaliendb``, then type::
 
