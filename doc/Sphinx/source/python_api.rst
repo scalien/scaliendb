@@ -94,6 +94,22 @@ Deletes database::
 
   client.delete_database("test_database")
 
+client.get_databases()
+---------------------
+
+Get list of database names::
+
+  database_names = client.get_databases()
+  for database_name in database_names:
+    print(database_name)
+
+client.exists_database(database name)
+-------------------------------------
+
+Returns ``True`` or ``False`` depending on whether the database exists::
+
+  print(client.exists_database("test_database"))
+  
 client.use_database(database name)
 ----------------------------------
 
@@ -102,6 +118,15 @@ Use the database. Table-related commands will operate in this database::
   client.use_database("test_database")
   client.use_table("test_table")
   client.set("key", "value")
+
+client.get_database()
+---------------------
+
+To obtain a ``Database`` object, use ``client.get_database()``::
+
+  db = client.get_database("test_database")
+  
+A database object is a convenience. It saves you from having to ``use_database()`` between different database calls.
 
 client.create_table(table name)
 ------------------------------------------
@@ -154,6 +179,15 @@ Use the table. Table-related commands will operate in this table::
   client.use_table("test_table")
   client.set("key", "value")
 
+client.get_tables(database name)
+--------------------------------
+
+Get a list of table names::
+
+  table_names = client.get_tables("test_database")
+  for table_name in table_names:
+    print(table_name)
+
 client.freeze_table(table name)
 -------------------------------
 
@@ -204,21 +238,21 @@ Sets ``key => value``::
 client.set_if_not_exists(key, value)
 ------------------------------------
 
-Sets ``key => value`` is ``key`` is not in the table::
+Sets ``key => value`` is ``key`` is not in the table. Returns ``True`` if succeeded::
 
   client.use_database("test_database")
   client.use_table("test_table")
-  client.set_if_not_exists("key", "value")
+  print(client.set_if_not_exists("key", "value"))
 
 client.test_and_set(key, test, value)
 -------------------------------------
 
-Sets ``key => value`` if ``key => test`` currently::
+Sets ``key => value`` if ``key => test`` currently. Returns ``True`` if succeeded::
 
   client.use_database("test_database")
   client.use_table("test_table")
-  client.set("key", "test", "value")
-  client.set("key", 55, "value")
+  print(client.test_and_set("key", "test", "value"))
+  print(client.test_and_set("key", 55, "value"))
 
 client.get_and_set(key, value)
 ------------------------------
@@ -250,6 +284,15 @@ Deletes ``key``::
   client.use_database("test_database")
   client.use_table("test_table")
   client.delete("key")
+
+client.test_and_delete(key, test)
+---------------------------------
+
+Deletes ``key`` if it is ``key => test`` currently. Returns ``True`` if succeeded::
+
+  client.use_database("test_database")
+  client.use_table("test_table")
+  print(client.test_and_delete("key", "test"))
 
 client.remove(key)
 ------------------
@@ -289,7 +332,9 @@ Same as before, but returns ``key => value`` pairs in a dictionary.
 
 Listing starts at ``start key``, ends at ``end key`` and only lists keys which start with ``prefix`` (all default to empty string). At most ``count`` elements are returned (default 0, which is infinity). Listing can be offset by ``offset`` elements::
 
-  kvs = index_tweets_datetime.list_key_values(prefix=scaliendb.composite(55, "2011-01-01 00:00:00"), count=1000)
+  client.use_database("twitter")
+  client.use_table("index_tweets_datetime")
+  kvs = client.list_key_values(prefix=scaliendb.composite(55, "2011-01-01 00:00:00"), count=1000)
   for key, tweet_id in sorted(kvs.items()):
     tweet = loads(tweets.get(tweet_id))
     print(tweet)
@@ -343,6 +388,201 @@ Bulk loading sends the data directly to all nodes in the cluster bypassing the b
   client.set("a99", "a99_value")
   client.submit() # commands are sent in batch
   client.set_bulk_loading(False)
+
+Database object
+===============
+
+To obtain a ``Database`` object, use ``client.get_database()``::
+
+  db = client.get_database("test_database")
+  
+A database object is a convenience. It saves you from having to ``use_database()`` between different database calls.
+
+database.get_tables()
+---------------------
+
+Returns the list of table names in the database::
+
+  table_names = db.get_tables()
+  for table_name in table_names:
+    print(table_name)
+
+database.get_table()
+--------------------
+
+Returns a ``Table`` object by table name::
+
+  table = db.get_table("test_table")
+
+database.exists_table(table name)
+---------------------------------
+
+Returns ``True`` or ``False`` depending on whether the table exists::
+
+  print(db.exists_table("test_table))
+  
+database.create_table(table name)
+---------------------------------
+
+Creates the table in the database::
+
+  db.create_table("test_table")
+  
+database.create_table(table name, quorum ID)
+--------------------------------------------
+
+Creates the table in the database, and places the first shard in the quorum::
+
+  db.create_table("test_table", 1)
+  
+database.create_table_cond(table name)
+--------------------------------------
+
+Creates the table if it does not exists, leaves it alone if it does::
+
+  db.create_table_cond("test_table")
+
+database.create_empty_table_cond(table name)
+--------------------------------------------
+
+Creates the table if it does not exists, truncates it if it does::
+
+  db.create_empty_table_cond("test_table")
+
+database.delete_table(table name)
+---------------------------------
+
+Deletes table::
+
+  db.delete_table("test_table")
+  
+database.truncate_table(table name)
+-----------------------------------
+
+Truncates table::
+
+  db.truncate_table("test_table")
+
+database.get_table(table name)
+------------------------------
+
+Retieve a ``Table`` object. See below.
+  
+Table object
+============
+
+To obtain a Table object, use ``database.get_table()``::
+
+  tb = client.get_database("test_database")
+  table = db.get_table("test_table")
+
+table.truncate()
+----------------
+
+Truncate the table::
+
+  table.truncate()
+  
+table.get(key)
+---------------
+
+Returns the value of ``key``::
+
+  table.set("foo", "bar")
+  value = table.get("foo")
+  print(value) # prints "bar"
+
+table.set(key, value)
+----------------------
+
+Sets ``key => value``::
+
+  table.set("key", "value")
+  table.set(5, 55)
+  table.set("now", datetime.now())
+
+table.set_if_not_exists(key, value)
+------------------------------------
+
+Sets ``key => value`` is ``key`` is not in the table. Returns ``True`` if succeeded::
+
+  print(table.set_if_not_exists("key", "value"))
+
+table.test_and_set(key, test, value)
+-------------------------------------
+
+Sets ``key => value`` if ``key => test`` currently. Returns ``True`` if succeeded::
+
+  print(table.test_and_set("key", "test", "value"))
+  print(table.test_and_set("key", 55, "value"))
+
+table.get_and_set(key, value)
+------------------------------
+
+Sets ``key => value`` but returns the previous value::
+
+  old_value = table.get_and_set("key", "new value")
+
+table.add(key, value)
+----------------------
+
+Interprets the old value of ``key`` as an integer and adds ``value`` to it. Use this to implement counters for indexing objects. ::
+
+  table.set("users", 0)
+  user_id = table.add("users", 1) # returns 1
+  user_id = table.add("users", 1) # returns 2
+  user_id = table.add("users", 1) # returns 3
+  ...
+  
+table.delete(key)
+------------------
+
+Deletes ``key``::
+
+  table.delete("key")
+
+table.test_and_delete(key, test)
+---------------------------------
+
+Deletes ``key`` if it is ``key => test`` currently. Returns ``True`` if succeeded::
+
+  print(table.test_and_delete("key", "test"))
+
+table.remove(key)
+------------------
+
+  old_value = table.remove("key")
+
+table.list_keys(start key, end key, prefix, count, offset)
+-----------------------------------------------------------
+
+Listing starts at ``start key``, ends at ``end key`` and only lists keys which start with ``prefix`` (all default to empty string). At most ``count`` elements are returned (default 0, which is infinity). Listing can be offset by ``offset`` elements::
+
+  keys = table.list_keys(prefix="/abc", start_key="/def", count=1000)
+  for key in keys:
+    print(key)
+
+table.list_keyvalues(start key, end key, prefix, count, offset)
+----------------------------------------------------------------
+
+Same as before, but returns ``key => value`` pairs in a dictionary.
+
+Listing starts at ``start key``, ends at ``end key`` and only lists keys which start with ``prefix`` (all default to empty string). At most ``count`` elements are returned (default 0, which is infinity). Listing can be offset by ``offset`` elements::
+
+  kvs = index_tweets_datetime.list_key_values(prefix=scaliendb.composite(55, "2011-01-01 00:00:00"), count=1000)
+  for key, tweet_id in sorted(kvs.items()):
+    tweet = loads(tweets.get(tweet_id))
+    print(tweet)
+
+table.count(start key, end key, prefix, count, offset)
+-------------------------------------------------------
+
+Same as before, but only returns the number of matching elements.
+
+Listing starts at ``start key``, ends at ``end key`` and only lists keys which start with ``prefix`` (all default to empty string). At most ``count`` elements are returned (default 0, which is infinity). Listing can be offset by ``offset`` elements::
+
+  count = table.count(prefix="/abc", start_key="/def", count=1000)
+  print(count)
 
 Header files
 ============
