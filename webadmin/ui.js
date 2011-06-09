@@ -972,9 +972,11 @@ function createQuorumDiv(configState, quorum)
 	<table class="quorum ' + state + '">																\
 		<tr>																							\
 			<td class="quorum-head">																	\
-				<span class="quorum-head">quorum ' + quorum["quorumID"] + '<br/>(' + scaliendb.getQuorumState(configState, quorum["quorumID"]) + ')</span>						\
+				<span class="quorum-head">' + quorum["name"] + '<br/>(' + scaliendb.getQuorumState(configState, quorum["quorumID"]) + ')</span>						\
 			</td>																						\
 			<td>																						\
+				<br/>																					\
+				Quorum number: ' + quorum["quorumID"] + '<br/>													\
 				Shardservers: 																			\
 	';
 	quorum["activeNodes"].sort();
