@@ -192,6 +192,7 @@ SDBP_UseTable = _scaliendb_client.SDBP_UseTable
 SDBP_UseTableID = _scaliendb_client.SDBP_UseTableID
 SDBP_GetNumQuorums = _scaliendb_client.SDBP_GetNumQuorums
 SDBP_GetQuorumIDAt = _scaliendb_client.SDBP_GetQuorumIDAt
+SDBP_GetQuorumNameAt = _scaliendb_client.SDBP_GetQuorumNameAt
 SDBP_GetNumDatabases = _scaliendb_client.SDBP_GetNumDatabases
 SDBP_GetDatabaseIDAt = _scaliendb_client.SDBP_GetDatabaseIDAt
 SDBP_GetDatabaseNameAt = _scaliendb_client.SDBP_GetDatabaseNameAt

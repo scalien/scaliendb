@@ -79,7 +79,7 @@ public:
 
     // Quorum management
     bool            CreateQuorum(
-                     uint64_t commandID, List<uint64_t>& nodes);
+                     uint64_t commandID, ReadBuffer& name, List<uint64_t>& nodes);
     bool            DeleteQuorum(
                      uint64_t commandID, uint64_t quorumID);
     bool            AddNode(

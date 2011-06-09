@@ -484,9 +484,9 @@ int Client::UseTable(ReadBuffer& name)
     return SDBP_SUCCESS;
 }
 
-int Client::CreateQuorum(List<uint64_t>& nodes)
+int Client::CreateQuorum(ReadBuffer& name, List<uint64_t>& nodes)
 {
-    CLIENT_SCHEMA_COMMAND(CreateQuorum, nodes);
+    CLIENT_SCHEMA_COMMAND(CreateQuorum, name, nodes);
 }
 
 int Client::DeleteQuorum(uint64_t quorumID)

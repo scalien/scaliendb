@@ -701,6 +701,7 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
     {
         case CLIENTREQUEST_CREATE_QUORUM:
             message->type = CONFIGMESSAGE_CREATE_QUORUM;
+            message->name = request->name;
             message->nodes = request->nodes;
             return;
         case CLIENTREQUEST_DELETE_QUORUM:

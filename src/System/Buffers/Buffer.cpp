@@ -188,14 +188,20 @@ void Buffer::Write(const char* str)
     Write(str, strlen(str));
 }
 
-void Buffer::Write(Buffer& other)
+void Buffer::Write(const Buffer& other)
+{
+    Write(const_cast<Buffer&>(other).GetBuffer(), const_cast<Buffer&>(other).GetLength());
+}
+
+void Buffer::Write(const ReadBuffer other)
 {
     Write(other.GetBuffer(), other.GetLength());
 }
 
-void Buffer::Write(ReadBuffer other)
+void Buffer::Write(char c, unsigned num)
 {
-    Write(other.GetBuffer(), other.GetLength());
+    Clear();
+    Append(c, num);
 }
 
 void Buffer::Append(char c)
@@ -224,6 +230,14 @@ void Buffer::Append(Buffer& other)
 void Buffer::Append(ReadBuffer other)
 {
     Append(other.GetBuffer(), other.GetLength());
+}
+
+void Buffer::Append(char c, unsigned num)
+{
+    unsigned i;
+    
+    for (i = 0; i < num; i++)
+        Append(c);
 }
 
 void Buffer::AppendLittle16(uint16_t x)

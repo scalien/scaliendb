@@ -5,6 +5,7 @@
 #include "System/Containers/List.h"
 #include "System/Containers/SortedList.h"
 #include "System/Containers/ArrayList.h"
+#include "System/Buffers/Buffer.h"
 
 /*
 ===============================================================================================
@@ -34,6 +35,7 @@ public:
     void                    GetVolatileActiveNodes(SortedList<uint64_t>& activeNodes);
     
     uint64_t                quorumID;
+    Buffer                  name;
     SortedList<uint64_t>    activeNodes;
     SortedList<uint64_t>    inactiveNodes;
     SortedList<uint64_t>    shards;

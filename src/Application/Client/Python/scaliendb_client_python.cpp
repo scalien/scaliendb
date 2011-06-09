@@ -5621,31 +5621,47 @@ fail:
 SWIGINTERN PyObject *_wrap_SDBP_CreateQuorum(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
-  SDBP_NodeParams *arg2 = 0 ;
+  std::string *arg2 = 0 ;
+  SDBP_NodeParams *arg3 = 0 ;
   int result;
   int res1 ;
-  void *argp2 = 0 ;
-  int res2 = 0 ;
+  int res2 = SWIG_OLDOBJ ;
+  void *argp3 = 0 ;
+  int res3 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
+  PyObject * obj2 = 0 ;
   
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_CreateQuorum",2,2,&obj0,&obj1)) SWIG_fail;
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_CreateQuorum",3,3,&obj0,&obj1,&obj2)) SWIG_fail;
   res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
   if (!SWIG_IsOK(res1)) {
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_CreateQuorum" "', argument " "1"" of type '" "ClientObj""'"); 
   }
-  res2 = SWIG_ConvertPtr(obj1, &argp2, SWIGTYPE_p_SDBP_NodeParams,  0  | 0);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SDBP_CreateQuorum" "', argument " "2"" of type '" "SDBP_NodeParams const &""'"); 
+  {
+    std::string *ptr = (std::string *)0;
+    res2 = SWIG_AsPtr_std_string(obj1, &ptr);
+    if (!SWIG_IsOK(res2)) {
+      SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SDBP_CreateQuorum" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    if (!ptr) {
+      SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_CreateQuorum" "', argument " "2"" of type '" "std::string const &""'"); 
+    }
+    arg2 = ptr;
   }
-  if (!argp2) {
-    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_CreateQuorum" "', argument " "2"" of type '" "SDBP_NodeParams const &""'"); 
+  res3 = SWIG_ConvertPtr(obj2, &argp3, SWIGTYPE_p_SDBP_NodeParams,  0  | 0);
+  if (!SWIG_IsOK(res3)) {
+    SWIG_exception_fail(SWIG_ArgError(res3), "in method '" "SDBP_CreateQuorum" "', argument " "3"" of type '" "SDBP_NodeParams const &""'"); 
   }
-  arg2 = reinterpret_cast< SDBP_NodeParams * >(argp2);
-  result = (int)SDBP_CreateQuorum(arg1,(SDBP_NodeParams const &)*arg2);
+  if (!argp3) {
+    SWIG_exception_fail(SWIG_ValueError, "invalid null reference " "in method '" "SDBP_CreateQuorum" "', argument " "3"" of type '" "SDBP_NodeParams const &""'"); 
+  }
+  arg3 = reinterpret_cast< SDBP_NodeParams * >(argp3);
+  result = (int)SDBP_CreateQuorum(arg1,(std::string const &)*arg2,(SDBP_NodeParams const &)*arg3);
   resultobj = SWIG_From_int(static_cast< int >(result));
+  if (SWIG_IsNewObj(res2)) delete arg2;
   return resultobj;
 fail:
+  if (SWIG_IsNewObj(res2)) delete arg2;
   return NULL;
 }
 
@@ -6446,6 +6462,35 @@ SWIGINTERN PyObject *_wrap_SDBP_GetQuorumIDAt(PyObject *SWIGUNUSEDPARM(self), Py
   arg2 = static_cast< unsigned int >(val2);
   result = (uint64_t)SDBP_GetQuorumIDAt(arg1,arg2);
   resultobj = SWIG_From_unsigned_SS_long_SS_long(static_cast< unsigned long long >(result));
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_GetQuorumNameAt(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  unsigned int arg2 ;
+  std::string result;
+  int res1 ;
+  unsigned int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_GetQuorumNameAt",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_GetQuorumNameAt" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  ecode2 = SWIG_AsVal_unsigned_SS_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_GetQuorumNameAt" "', argument " "2"" of type '" "unsigned int""'");
+  } 
+  arg2 = static_cast< unsigned int >(val2);
+  result = SDBP_GetQuorumNameAt(arg1,arg2);
+  resultobj = SWIG_From_std_string(static_cast< std::string >(result));
   return resultobj;
 fail:
   return NULL;
@@ -8451,6 +8496,7 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_UseTableID", _wrap_SDBP_UseTableID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetNumQuorums", _wrap_SDBP_GetNumQuorums, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetQuorumIDAt", _wrap_SDBP_GetQuorumIDAt, METH_VARARGS, NULL},
+	 { (char *)"SDBP_GetQuorumNameAt", _wrap_SDBP_GetQuorumNameAt, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetNumDatabases", _wrap_SDBP_GetNumDatabases, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetDatabaseIDAt", _wrap_SDBP_GetDatabaseIDAt, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetDatabaseNameAt", _wrap_SDBP_GetDatabaseNameAt, METH_VARARGS, NULL},

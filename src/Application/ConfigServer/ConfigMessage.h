@@ -75,7 +75,8 @@ public:
                      uint64_t clusterID);
     bool            RegisterShardServer(
                      uint64_t nodeID, Endpoint& endpoint);
-    bool            CreateQuorum(List<uint64_t>& nodes);
+    bool            CreateQuorum(
+                     ReadBuffer& name, List<uint64_t>& nodes);
     bool            DeleteQuorum(
                      uint64_t quorumID);
     bool            AddNode(

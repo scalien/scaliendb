@@ -20,9 +20,10 @@ bool ConfigMessage::RegisterShardServer(
 }
 
 bool ConfigMessage::CreateQuorum(
- List<uint64_t>& nodes_)
+ ReadBuffer& name_, List<uint64_t>& nodes_)
 {
     type = CONFIGMESSAGE_CREATE_QUORUM;
+    name = name_;
     nodes = nodes_;
     return true;
 }
@@ -203,8 +204,8 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             endpoint.Set(rb);
             break;
         case CONFIGMESSAGE_CREATE_QUORUM:
-            read = buffer.Readf("%c:%u",
-             &type, &numNodes);
+            read = buffer.Readf("%c:%#R:%u",
+             &type, &name, &numNodes);
              if (read < 0 || read == (signed)buffer.GetLength())
                 return false;
             buffer.Advance(read);
@@ -327,8 +328,8 @@ bool ConfigMessage::Write(Buffer& buffer)
             return true;
         case CONFIGMESSAGE_CREATE_QUORUM:
             numNodes = nodes.GetLength();
-            buffer.Writef("%c:%u",
-             type, numNodes);
+            buffer.Writef("%c:%#R:%u",
+             type, &name, numNodes);
             for (it = nodes.First(); it != NULL; it = nodes.Next(it))
                 buffer.Appendf(":%U", *it);
             break;

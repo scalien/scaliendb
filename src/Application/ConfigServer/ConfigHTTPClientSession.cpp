@@ -235,6 +235,7 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
     ConfigQuorum*           itQuorum;
     Buffer                  buffer;
     uint64_t                ssID;
+    unsigned                len;
     
     if (configState->shardServers.GetLength() == 0 || configState->quorums.GetLength() == 0)
         return;
@@ -243,7 +244,15 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
     ConfigState::ShardServerList& shardServers = configState->shardServers;
     ConfigState::QuorumList& quorums = configState->quorums;
 
-    buffer.Writef("       ");
+    len = 0;
+    for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = quorums.Next(itQuorum))
+    {
+        if (itQuorum->name.GetLength() > len)
+            len = itQuorum->name.GetLength();
+    }
+
+    buffer.Append(' ', len + 3);
+
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
     {
         ssID = itShardServer->nodeID; // - CONFIG_MIN_SHARD_NODE_ID;
@@ -259,7 +268,8 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
     }
     session.Print(buffer);
 
-    buffer.Writef("      +");
+    buffer.Write(' ', len + 2);
+    buffer.Appendf("+");
     for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
     {
         buffer.Appendf("------");
@@ -268,15 +278,8 @@ void ConfigHTTPClientSession::PrintQuorumMatrix(ConfigState* configState)
     
     for (itQuorum = quorums.First(); itQuorum != NULL; itQuorum = quorums.Next(itQuorum))
     {
-        if (itQuorum->quorumID < 10)
-            buffer.Writef("   ");
-        else if (itQuorum->quorumID < 100)
-            buffer.Writef("  ");
-        else if (itQuorum->quorumID < 1000)
-            buffer.Writef(" ");
-        else
-            buffer.Writef("");
-        buffer.Appendf("q%U |", itQuorum->quorumID);
+        buffer.Write(' ', len - itQuorum->name.GetLength());
+        buffer.Appendf(" %B |", &itQuorum->name);
         for (itShardServer = shardServers.First(); itShardServer != NULL; itShardServer = shardServers.Next(itShardServer))
         {
             found = false;
@@ -339,7 +342,7 @@ void ConfigHTTPClientSession::PrintDatabases(ConfigState* configState)
             for (itShardID = shards.First(); itShardID != NULL; itShardID = shards.Next(itShardID))
             {
                 shard = configState->GetShard(*itShardID);
-                buffer.Appendf("s%U => q%U", *itShardID, shard->quorumID);
+                buffer.Appendf("s%U => %B", *itShardID, &configState->GetQuorum(shard->quorumID)->name);
                 if (shards.Next(itShardID) != NULL)
                     buffer.Appendf(", ");
             }
@@ -616,13 +619,15 @@ ClientRequest* ConfigHTTPClientSession::ProcessCreateQuorum()
 {
     ClientRequest*  request;
     List<uint64_t>  nodes;
+    ReadBuffer      name;
     ReadBuffer      tmp;
     char*           next;
     unsigned        nread;
     uint64_t        nodeID;
     
     // parse comma separated nodeID values
-    HTTP_GET_PARAM(params, "nodes", tmp);
+    HTTP_GET_OPT_PARAM(params,  "name",  name);
+    HTTP_GET_PARAM(params,      "nodes", tmp);
     while ((next = FindInBuffer(tmp.GetBuffer(), tmp.GetLength(), ',')) != NULL)
     {
         nodeID = BufferToUInt64(tmp.GetBuffer(), tmp.GetLength(), &nread);
@@ -639,7 +644,7 @@ ClientRequest* ConfigHTTPClientSession::ProcessCreateQuorum()
     nodes.Append(nodeID);
 
     request = new ClientRequest;
-    request->CreateQuorum(0, nodes);
+    request->CreateQuorum(0, name, nodes);
     
     return request;
 }

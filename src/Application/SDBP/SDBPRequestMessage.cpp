@@ -26,8 +26,8 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 
         /* Quorum management */
         case CLIENTREQUEST_CREATE_QUORUM:
-            read = buffer.Readf("%c:%U:%u",
-             &request->type, &request->commandID, &numNodes);
+            read = buffer.Readf("%c:%U:%#B:%u",
+             &request->type, &request->commandID, &request->name, &numNodes);
             if (read < 0 || read == (signed)buffer.GetLength())
                 return false;
             buffer.Advance(read);
@@ -194,8 +194,8 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 
         /* Quorum management */
         case CLIENTREQUEST_CREATE_QUORUM:
-            buffer.Appendf("%c:%U:%u",
-             request->type, request->commandID, request->nodes.GetLength());
+            buffer.Appendf("%c:%U:%#B:%u",
+             request->type, request->commandID, &request->name, request->nodes.GetLength());
             for (it = request->nodes.First(); it != NULL; it = request->nodes.Next(it))
                 buffer.Appendf(":%U", *it);
             return true;

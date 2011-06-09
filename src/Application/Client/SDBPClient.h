@@ -72,7 +72,7 @@ public:
     //
     // controller commands
     //
-    int                     CreateQuorum(List<uint64_t>& nodes);
+    int                     CreateQuorum(ReadBuffer& name, List<uint64_t>& nodes);
     int                     DeleteQuorum(uint64_t quourumID);
     int                     AddNode(uint64_t quorumID, uint64_t nodeID);
     int                     RemoveNode(uint64_t quorumID, uint64_t nodeID);

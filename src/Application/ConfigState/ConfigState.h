@@ -73,6 +73,7 @@ public:
     void                Transfer(ConfigState& other);
     
     ConfigQuorum*       GetQuorum(uint64_t quorumID);
+    ConfigQuorum*       GetQuorum(ReadBuffer name);
     ConfigDatabase*     GetDatabase(uint64_t databaseID);
     ConfigDatabase*     GetDatabase(ReadBuffer name);
     ConfigTable*        GetTable(uint64_t tableID);

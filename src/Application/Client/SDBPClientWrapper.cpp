@@ -463,20 +463,21 @@ void SDBP_SetConsistencyLevel(ClientObj client_, int consistencyLevel)
 ===============================================================================================
 */
 
-int SDBP_CreateQuorum(ClientObj client_, const SDBP_NodeParams& params)
+int SDBP_CreateQuorum(ClientObj client_, const std::string& name_, const SDBP_NodeParams& params)
 {
     Client*                 client = (Client*) client_;
     List<uint64_t>          nodes;
     uint64_t                nodeID;
     unsigned                nread;
-    
+    ReadBuffer              name((char*) name_.c_str(), name_.length());
+
     for (int i = 0; i < params.nodec; i++)
     {
         nodeID = BufferToUInt64(params.nodes[i], strlen(params.nodes[i]), &nread);
         nodes.Append(nodeID);
     }
     
-    return client->CreateQuorum(nodes);
+    return client->CreateQuorum(name, nodes);
 }
 
 int SDBP_DeleteQuorum(ClientObj client_, uint64_t quorumID)
@@ -679,6 +680,32 @@ uint64_t SDBP_GetQuorumIDAt(ClientObj client_, unsigned n)
     }
     
     return 0;
+}
+
+std::string SDBP_GetQuorumNameAt(ClientObj client_, unsigned n)
+{
+    Client*             client = (Client*) client_;
+    ConfigState*        configState;
+    ConfigQuorum*       configQuorum;
+    std::string         ret;
+    unsigned            i;
+    
+    configState = client->GetConfigState();
+    if (configState == NULL)
+        return "";
+    
+    i = 0;
+    FOREACH (configQuorum, configState->quorums)
+    {
+        if (i == n)
+        {
+            ret.assign(configQuorum->name.GetBuffer(), configQuorum->name.GetLength());
+            return ret;
+        }
+        i++;
+    }
+    
+    return "";
 }
 
 unsigned SDBP_GetNumDatabases(ClientObj client_)

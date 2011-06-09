@@ -416,6 +416,19 @@ ConfigQuorum* ConfigState::GetQuorum(uint64_t quorumID)
     return NULL;
 }
 
+ConfigQuorum* ConfigState::GetQuorum(ReadBuffer name)
+{
+    ConfigQuorum* itQuorum;
+    
+    FOREACH (itQuorum, quorums)
+    {
+        if (ReadBuffer::Cmp(itQuorum->name, name) == 0)
+            return itQuorum;
+    }
+    
+    return NULL;
+}
+
 ConfigDatabase* ConfigState::GetDatabase(uint64_t databaseID)
 {
     ConfigDatabase* itDatabase;
@@ -525,12 +538,19 @@ bool ConfigState::CompleteRegisterShardServer(ConfigMessage&)
 
 bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 {
-    uint64_t* itNodeID;
+    uint64_t*       itNodeID;
+    ConfigQuorum*   itConfigQuorum;
     
     FOREACH (itNodeID, message.nodes)
     {
         if (GetShardServer(*itNodeID) == NULL)
             return false; // no such shard server
+    }
+    
+    FOREACH(itConfigQuorum, quorums)
+    {
+        if (ReadBuffer::Cmp(itConfigQuorum->name, message.name) == 0)
+            return false; // same name
     }
 
     return true;
@@ -856,6 +876,10 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
         
     quorum = new ConfigQuorum;
     quorum->quorumID = nextQuorumID++;
+    if (message.name.GetLength() > 0)
+        quorum->name.Write(message.name);
+    else
+        quorum->name.Writef("quorum %U", quorum->quorumID);
     quorum->activeNodes.Clear();
     FOREACH (it, message.nodes)
         quorum->activeNodes.Add(*it);
@@ -1468,8 +1492,8 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
     int     read;
     char    c;
     
-    read = buffer.Readf("%U", &quorum.quorumID);
-    CHECK_ADVANCE(1);
+    read = buffer.Readf("%U:%#B", &quorum.quorumID, &quorum.name);
+    CHECK_ADVANCE(4);
     READ_SEPARATOR();
     if (!ReadIDList(quorum.activeNodes, buffer))
         return false;
@@ -1522,7 +1546,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
 
 void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVolatile)
 {
-    buffer.Appendf("%U", quorum.quorumID);
+    buffer.Appendf("%U:%#B", quorum.quorumID, &quorum.name);
     buffer.Appendf(":");
     WriteIDList(quorum.activeNodes, buffer);
     buffer.Appendf(":");
