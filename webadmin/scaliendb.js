@@ -116,9 +116,10 @@ var scaliendb =
 		return null;
 	},
 	
-	createQuorum: function(nodes)
+	createQuorum: function(name, nodes)
 	{                                                                                 
 		var params = {};
+		params["name"] = name;
 		params["nodes"] = nodes;
 		this.rpc("createquorum", params);
 	},

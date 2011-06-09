@@ -35,6 +35,11 @@ span.create-quorum-welcome {
 	color: #424242;
 }
 
+span.create-quorum-name {
+	font-size: 20px;
+	color: #424242;
+}
+
 span.create-quorum-shardServers {
 	font-size: 20px;
 	color: #424242;

@@ -584,11 +584,12 @@ function hideError()
 function createQuorum()
 {
 	hideCreateQuorum();
-	
+
+	var name = $("createQuorumName").value;
 	var nodes = $("createQuorumShardServers").value;
 	nodes = scaliendb.util.removeSpaces(nodes);
 	scaliendb.onResponse = onResponse;
-	scaliendb.createQuorum(nodes);
+	scaliendb.createQuorum(name, nodes);
 }
 
 function deleteQuorum()
