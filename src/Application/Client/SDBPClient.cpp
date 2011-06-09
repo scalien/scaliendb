@@ -1363,11 +1363,14 @@ void Client::ConfigureShardServers()
     uint64_t*                   nit;
     Endpoint                    endpoint;
     
+    Log_Trace("1");
     FOREACH (ssit, configState->shardServers)
     {
         shardConn = shardConnections.Get(ssit->nodeID);
+        Log_Trace("%U", ssit->nodeID);
         if (shardConn == NULL)
         {
+            Log_Trace("connect");
             // connect to previously unknown shard server
             endpoint = ssit->endpoint;
             endpoint.SetPort(ssit->sdbpPort);
@@ -1385,6 +1388,7 @@ void Client::ConfigureShardServers()
             shardConn->ClearQuorumMemberships();
         }
     }
+    Log_Trace("2");
     
     // assign quorums to ShardConnections
     FOREACH (qit, configState->quorums)
@@ -1392,6 +1396,7 @@ void Client::ConfigureShardServers()
         Log_Trace("quorumID: %U, primary: %U", qit->quorumID, qit->hasPrimary ? qit->primaryID : 0);
         FOREACH (nit, qit->activeNodes)
         {
+            Log_Trace("%U", *nit);
             shardConn = shardConnections.Get(*nit);
             ASSERT(shardConn != NULL);
             shardConn->SetQuorumMembership(qit->quorumID);
