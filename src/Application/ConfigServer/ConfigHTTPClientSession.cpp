@@ -97,10 +97,12 @@ bool ConfigHTTPClientSession::IsActive()
 
 void ConfigHTTPClientSession::PrintStatus()
 {
+    ReadBuffer      rb;
     Buffer          buf;
     ConfigState*    configState;
     char            hexbuf[64 + 1];
-    unsigned        num, i;
+    unsigned        num;
+    uint64_t        nodeID;
 
     session.PrintPair("ScalienDB", "Controller");
     session.PrintPair("Version", VERSION_STRING);
@@ -120,16 +122,19 @@ void ConfigHTTPClientSession::PrintStatus()
     buf.NullTerminate();
     session.PrintPair("Round", buf.GetBuffer());
     
+    session.Print("\nControllers:\n");
     num = configFile.GetListNum("controllers");
-    buf.Clear();
-    for (i = 0; i < num; i++)
+    for (nodeID = 0; nodeID < num; nodeID++)
     {
-        if (i > 0)
-            buf.Append(", ");
-        buf.Append(configFile.GetListValue("controllers", i, ""));
+        if (CONTEXT_TRANSPORT->IsConnected(nodeID))
+            buf.Writef("+ ");
+        else
+            buf.Writef("- ");
+        rb = configFile.GetListValue("controllers", nodeID, "");
+        buf.Appendf("c%U (%R)", nodeID, &rb);
+        session.Print(buf);
     }
-    session.PrintPair("Controllers", buf);
-    
+
     session.Print("\n--- Configuration State ---\n");
     
     configState = configServer->GetDatabaseManager()->GetConfigState();
