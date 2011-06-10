@@ -59,7 +59,7 @@ unsigned ClusterTransport::GetNumWriteReadyness()
     return writeReadynessList.GetLength();
 }
 
-void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
+void ClusterTransport::AddConnection(uint64_t nodeID, Endpoint& endpoint)
 {
     ClusterConnection* conn;
     
@@ -76,6 +76,50 @@ void ClusterTransport::AddNode(uint64_t nodeID, Endpoint& endpoint)
 
     if (!awaitingNodeID && nodeID == this->nodeID)
         Log_Trace("connecting to self");
+}
+
+bool ClusterTransport::HasConnection(uint64_t nodeID)
+{
+    ClusterConnection* it;
+    
+    FOREACH (it, conns)
+    {
+        if (it->GetNodeID() == nodeID)
+            return true;
+    }
+    
+    return false;
+}
+
+bool ClusterTransport::IsConnected(uint64_t nodeID)
+{
+    ClusterConnection* it;
+    
+    FOREACH (it, conns)
+    {
+        if (it->GetNodeID() == nodeID)
+        {
+            if (it->GetProgress() == ClusterConnection::READY)
+                return true;
+            else
+                return false;
+        }
+    }
+    
+    return false;
+}
+
+Endpoint& ClusterTransport::GetEndpoint(uint64_t nodeID)
+{
+    ClusterConnection* it;
+    
+    FOREACH (it, conns)
+    {
+        if (it->GetNodeID() == nodeID)
+            return it->endpoint;
+    }
+    
+    ASSERT_FAIL();
 }
 
 bool ClusterTransport::SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID)
@@ -164,24 +208,6 @@ bool ClusterTransport::GetNextWaiting(Endpoint& endpoint)
         {
             endpoint = it->GetEndpoint();
             return true;
-        }
-    }
-    
-    return false;
-}
-
-bool ClusterTransport::IsConnected(uint64_t nodeID)
-{
-    ClusterConnection* it;
-    
-    FOREACH (it, conns)
-    {
-        if (it->GetNodeID() == nodeID)
-        {
-            if (it->GetProgress() == ClusterConnection::READY)
-                return true;
-            else
-                return false;
         }
     }
     

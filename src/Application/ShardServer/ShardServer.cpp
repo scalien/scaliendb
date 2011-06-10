@@ -41,7 +41,7 @@ void ShardServer::Init()
     {
         str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str, true);
-        CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
+        CONTEXT_TRANSPORT->AddConnection(nodeID, endpoint);
         configServers.Append(nodeID);
         // this will cause the node to connect to the controllers
         // and if my nodeID is not set the MASTER will automatically send
@@ -327,6 +327,18 @@ void ShardServer::OnSetConfigState(ClusterMessage& message)
 
     configState = message.configState;
     configShardServer = configState.GetShardServer(MY_NODEID);
+
+    FOREACH(configShardServer, configState.shardServers)
+    {
+        if (CONTEXT_TRANSPORT->HasConnection(configShardServer->nodeID))
+        {
+            if (CONTEXT_TRANSPORT->GetEndpoint(configShardServer->nodeID) != configShardServer->endpoint)
+            {
+                CONTEXT_TRANSPORT->DropConnection(configShardServer->nodeID);
+                CONTEXT_TRANSPORT->AddConnection(configShardServer->nodeID, configShardServer->endpoint);
+            }
+        }
+    }
     
     // look for removal
     for (quorumProcessor = quorumProcessors.First(); quorumProcessor != NULL; quorumProcessor = next)
@@ -440,7 +452,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
         {
             shardServer = configState.GetShardServer(*itNodeID);
             ASSERT(shardServer != NULL);
-            CONTEXT_TRANSPORT->AddNode(*itNodeID, shardServer->endpoint);
+            CONTEXT_TRANSPORT->AddConnection(*itNodeID, shardServer->endpoint);
         }
     }
     else
@@ -453,7 +465,7 @@ void ShardServer::ConfigureQuorum(ConfigQuorum* configQuorum)
         {
             shardServer = configState.GetShardServer(*itNodeID);
             ASSERT(shardServer != NULL);
-            CONTEXT_TRANSPORT->AddNode(*itNodeID, shardServer->endpoint);
+            CONTEXT_TRANSPORT->AddConnection(*itNodeID, shardServer->endpoint);
         }
     }
 

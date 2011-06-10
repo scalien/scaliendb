@@ -117,7 +117,7 @@ void ShardMigrationWriter::Begin(ClusterMessage& request)
     bytesTotal = environment->GetSize(QUORUM_DATABASE_DATA_CONTEXT, srcShardID);
     startTime = NowClock();
     
-    CONTEXT_TRANSPORT->AddNode(nodeID, configShardServer->endpoint);
+    CONTEXT_TRANSPORT->AddConnection(nodeID, configShardServer->endpoint);
     
     Log_Debug("ShardMigrationWriter::Begin() nodeID = %U", nodeID);
     Log_Debug("ShardMigrationWriter::Begin() quorumID = %U", quorumID);

@@ -54,7 +54,7 @@ void ConfigServer::Init()
         configServers.Append(nodeID_);
         str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str, true);
-        CONTEXT_TRANSPORT->AddNode(nodeID, endpoint);
+        CONTEXT_TRANSPORT->AddConnection(nodeID, endpoint);
     }
 
     quorumProcessor.Init(this, numConfigServers,

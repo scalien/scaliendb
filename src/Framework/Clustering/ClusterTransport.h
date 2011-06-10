@@ -35,7 +35,10 @@ public:
     unsigned                    GetNumConns();
     unsigned                    GetNumWriteReadyness();
 
-    void                        AddNode(uint64_t nodeID, Endpoint& endpoint);
+    void                        AddConnection(uint64_t nodeID, Endpoint& endpoint);
+    bool                        HasConnection(uint64_t nodeID);
+    bool                        IsConnected(uint64_t nodeID);
+    Endpoint&                   GetEndpoint(uint64_t nodeID);
     bool                        SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID);
     
     void                        SendMessage(uint64_t nodeID, Buffer& prefix, Message& msg);
@@ -49,8 +52,6 @@ public:
 
     bool                        GetNextWaiting(Endpoint& endpoint);
     
-    bool                        IsConnected(uint64_t nodeID);
-
     void                        RegisterWriteReadyness(uint64_t nodeID, Callable callable);
     void                        UnregisterWriteReadyness(uint64_t nodeID, Callable callable);
 
