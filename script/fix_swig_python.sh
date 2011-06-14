@@ -11,6 +11,6 @@ cat $DIR/scaliendb_client_swig.py \
 | sed 's/^import new$//' \
 | sed 's/^new_instancemethod = new.instancemethod$//' \
 | sed 's/^    def __eq__(\*args): return _scaliendb_client.PySwigIterator___eq__(\*args)$//' \
-| sed 's/^    raise AttributeError,name/    raise AttributeError(name)/' \
+| sed 's/raise AttributeError,\(.*\)$/raise AttributeError(\1)/' \
 > $DIR/scaliendb_client.py
 rm $DIR/scaliendb_client_swig.py

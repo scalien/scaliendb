@@ -59,7 +59,7 @@ def _swig_setattr_nondynamic_method(set):
 
 class PySwigIterator(object):
     thisown = _swig_property(lambda x: x.this.own(), lambda x, v: x.this.own(v), doc='The membership flag')
-    def __init__(self): raise AttributeError, "No constructor defined"
+    def __init__(self): raise AttributeError( "No constructor defined")
     __repr__ = _swig_repr
     __swig_destroy__ = _scaliendb_client.delete_PySwigIterator
     __del__ = lambda self : None;
