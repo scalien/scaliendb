@@ -106,6 +106,16 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->type, &request->commandID,
              &request->tableID);
             break;
+        case CLIENTREQUEST_FREEZE_TABLE:
+            read = buffer.Readf("%c:%U:%U",
+             &request->type, &request->commandID,
+             &request->tableID);
+            break;
+        case CLIENTREQUEST_UNFREEZE_TABLE:
+            read = buffer.Readf("%c:%U:%U",
+             &request->type, &request->commandID,
+             &request->tableID);
+            break;
             
         /* Data operations */
         case CLIENTREQUEST_GET:
@@ -256,6 +266,16 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->tableID);
             return true;
         case CLIENTREQUEST_TRUNCATE_TABLE:
+            buffer.Appendf("%c:%U:%U",
+             request->type, request->commandID,
+             request->tableID);
+            return true;
+        case CLIENTREQUEST_FREEZE_TABLE:
+            buffer.Appendf("%c:%U:%U",
+             request->type, request->commandID,
+             request->tableID);
+            return true;
+        case CLIENTREQUEST_UNFREEZE_TABLE:
             buffer.Appendf("%c:%U:%U",
              request->type, request->commandID,
              request->tableID);
