@@ -178,6 +178,7 @@ class SHelp:
                     output += name + "\n"
         output += "\n"
         if globals().has_key("show_databases"):
+            output += "Type the name of the command for help on usage\n"
             output += "Use show_databases() to show databases\n"
             output += "Use show_tables() to show tables in current database\n"            
         output += "Use connect(nodes, database, table) to connect to the cluster\n"
