@@ -56,6 +56,9 @@ bool HTTPFileHandler::HandleRequest(HTTPConnection* conn, HTTPRequest& request)
 		if (path.GetBuffer()[i] == '\\')
 			path.GetBuffer()[i] = '/';
 	}
+    
+    if (request.line.uri.Find("/../") >= 0)
+        return false;
 
     // fix Windows 7 IPv6 localhost name resolution issue
     host = request.header.GetField(HTTP_HEADER_HOST);

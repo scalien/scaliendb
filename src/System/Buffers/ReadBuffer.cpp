@@ -127,6 +127,29 @@ bool ReadBuffer::BeginsWith(ReadBuffer& other)
         return false;
 }
 
+int ReadBuffer::Find(const ReadBuffer& other)
+{
+    unsigned    rest;
+    unsigned    pos;
+    
+    pos = 0;
+    rest = length;
+    while (rest >= other.length)
+    {
+        if (memcmp(buffer + pos, other.buffer, other.length) == 0)
+            return pos;
+        
+        if (rest == 0)
+            return -1;
+
+        pos++;
+        rest--;
+    }
+    
+    // not found
+    return -1;
+}
+
 bool ReadBuffer::IsAsciiPrintable()
 {
     unsigned    i;

@@ -40,6 +40,8 @@ public:
     bool                BeginsWith(const char* s);
     bool                BeginsWith(ReadBuffer& other);
     
+    int                 Find(const ReadBuffer& other);
+    
     bool                IsAsciiPrintable();
     
     bool                ReadChar(char& x);
