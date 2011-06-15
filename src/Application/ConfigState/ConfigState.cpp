@@ -1215,6 +1215,7 @@ void ConfigState::OnSplitShardComplete(ConfigMessage& message)
     ConfigShard* shard;
     
     shard = GetShard(message.shardID);
+    ASSERT(shard != NULL);
     shard->state = CONFIG_SHARD_STATE_NORMAL;
 }
 
