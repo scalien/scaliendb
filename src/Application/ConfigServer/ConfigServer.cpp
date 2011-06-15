@@ -54,6 +54,12 @@ void ConfigServer::Init()
         configServers.Append(nodeID_);
         str = configFile.GetListValue("controllers", (int) nodeID, "");
         endpoint.Set(str, true);
+
+        // config file sanity check
+        if (nodeID_ == CONTEXT_TRANSPORT->GetSelfNodeID() && 
+         endpoint != CONTEXT_TRANSPORT->GetSelfEndpoint())
+            STOP_FAIL(1, "Invalid \"nodeID\" or \"endpoint\" in config file!");
+        
         CONTEXT_TRANSPORT->AddConnection(nodeID, endpoint);
     }
 
