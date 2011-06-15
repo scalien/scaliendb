@@ -94,6 +94,14 @@ function connect()
 	$("mainContainer").style.display = "block";
 
 	var controller = $("loginCluster").value;
+
+	var direct = false;
+	if (scaliendb.util.startsWith(controller, "direct://"))
+	{
+		controller = controller.replace("direct://", "");
+		direct = true;     
+	}
+	
 	// HACK Windows 7 IPv6 localhost resolv bug fix
 	if (!scaliendb.util.startsWith(controller, "http://"))
 	{
@@ -109,9 +117,10 @@ function connect()
 	if (controller !== scaliendb.controller)
 		scaliendb.controller = controller;
 
-	// updateConfigState();
-
-	findMaster();
+	if (direct)
+		updateConfigState();
+    else
+		findMaster();
 }
 
 tabs = ["Dashboard", "Quorums", "Schema", "Migration"];
@@ -757,7 +766,6 @@ function onFindMaster(obj)
 		scaliendb.controller = controller;
 
 	updateConfigState();
-
 }
 
 function updateConfigState()
