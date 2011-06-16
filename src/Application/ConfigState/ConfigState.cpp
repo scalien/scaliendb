@@ -851,9 +851,6 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     uint64_t*       it;
     ConfigQuorum*   quorum;
     
-    // make sure quorumID is available
-    ASSERT(GetQuorum(message.quorumID) == NULL);
-        
     quorum = new ConfigQuorum;
     quorum->quorumID = nextQuorumID++;
     quorum->activeNodes.Clear();

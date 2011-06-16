@@ -135,12 +135,15 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
     else if (request->type == CLIENTREQUEST_GET_CONFIG_STATE)
     {
         listenRequests.Append(request);
-        if (request->changeTimeout == 0 || 
-         (request->paxosID != 0 && request->paxosID < CONFIG_STATE->paxosID))
+        if (quorumContext.IsLeader())
         {
-            // this is an immediate config state request
-            request->response.ConfigStateResponse(*CONFIG_STATE);
-            request->OnComplete(false);
+            if (request->changeTimeout == 0 || 
+             (request->paxosID != 0 && request->paxosID < CONFIG_STATE->paxosID))
+            {
+                // this is an immediate config state request
+                request->response.ConfigStateResponse(*CONFIG_STATE);
+                request->OnComplete(false);
+            }
         }
         return;
     }
@@ -422,6 +425,9 @@ void ConfigQuorumProcessor::UpdateListeners()
     bool                            configChanged;
     uint64_t                        now;
     uint32_t                        checksum;
+
+    if (!quorumContext.IsLeader())
+        return;
 
     // check if the configState changed at all
     configChanged = false;
