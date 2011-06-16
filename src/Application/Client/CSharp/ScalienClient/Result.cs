@@ -44,9 +44,9 @@ namespace Scalien
             return scaliendb_client.SDBP_ResultNumber(cptr);
         }
 
-        public bool IsValueChanged()
+        public bool IsConditionalSuccess()
         {
-            return scaliendb_client.SDBP_ResultIsValueChanged(cptr);
+            return scaliendb_client.SDBP_ResultIsConditionalSuccess(cptr);
         }
 
         public void Begin()

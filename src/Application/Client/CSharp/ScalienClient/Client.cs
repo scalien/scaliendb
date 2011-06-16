@@ -162,6 +162,12 @@ namespace Scalien
             CheckResultStatus(status);
         }
 
+        public void UseDatabaseID(ulong databaseID)
+        {
+            int status = scaliendb_client.SDBP_UseDatabaseID(cptr, databaseID);
+            CheckStatus(status);
+        }
+
         public void UseDatabase(string name)
         {
             int status = scaliendb_client.SDBP_UseDatabase(cptr, name);
@@ -183,6 +189,31 @@ namespace Scalien
         public Database GetDatabase(string name)
         {
             return new Database(this, name);
+        }
+
+        public ulong CreateTable(ulong databaseID, ulong quorumID, string name)
+        {
+            int status = scaliendb_client.SDBP_CreateTable(cptr, databaseID, quorumID, name);
+            CheckResultStatus(status);
+            return result.GetNumber();
+        }
+
+        public void RenameTable(ulong tableID, string name)
+        {
+            int status = scaliendb_client.SDBP_RenameTable(cptr, tableID, name);
+            CheckResultStatus(status);
+        }
+
+        public void DeleteTable(ulong tableID)
+        {
+            int status = scaliendb_client.SDBP_DeleteTable(cptr, tableID);
+            CheckResultStatus(status);
+        }
+
+        public void TruncateTable(ulong tableID)
+        {
+            int status = scaliendb_client.SDBP_TruncateTable(cptr, tableID);
+            CheckResultStatus(status);
         }
 
         public void UseTable(String name)
@@ -265,7 +296,7 @@ namespace Scalien
                 return false;
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return result.IsValueChanged() ;
+            return result.IsConditionalSuccess() ;
         }
 
         public string GetAndSet(string key, string value)
@@ -284,7 +315,7 @@ namespace Scalien
             return result.GetValue();
         }
 
-        public ulong Add(string key, long number)
+        public long Add(string key, long number)
         {
             int status = scaliendb_client.SDBP_Add(cptr, key, number);
             if (status < 0)
@@ -330,6 +361,22 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
+        public bool TestAndDelete(string key, string test)
+        {
+            int status = scaliendb_client.SDBP_TestAndDelete(cptr, key, test);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return false;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            return result.IsConditionalSuccess();
+        }
+
         public string Remove(string key)
         {
             int status = scaliendb_client.SDBP_Delete(cptr, key);
@@ -354,7 +401,7 @@ namespace Scalien
             CheckResultStatus(status);
             return result.GetKeys();
         }
-        
+
         public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint offset, uint count)
         {
             int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, offset);
