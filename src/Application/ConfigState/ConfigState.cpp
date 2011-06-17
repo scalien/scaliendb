@@ -388,6 +388,7 @@ void ConfigState::OnMessage(ConfigMessage& message)
         case CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE:
             return OnTruncateTableComplete(message);
         
+        /* Shard management */
         case CONFIGMESSAGE_SPLIT_SHARD_BEGIN:
             return OnSplitShardBegin(message);
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:

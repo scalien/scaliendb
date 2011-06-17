@@ -558,9 +558,11 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     if (paxosID <= configServer->GetDatabaseManager()->GetPaxosID())
         return;
 
+    Log_Trace("paxosID: %U, message.type: %c", paxosID, message.type);
+
     if (message.type == CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE)
     {
-        if (CONFIG_STATE->masterID == MY_NODEID)
+        if (quorumContext.IsLeader())
         {
             ASSERT(CONFIG_STATE->isMigrating);
             ASSERT(CONFIG_STATE->migrateQuorumID == message.quorumID);
