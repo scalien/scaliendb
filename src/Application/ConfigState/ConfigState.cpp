@@ -804,7 +804,7 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
     ConfigShard* shard;
     
     shard = GetShard(message.shardID);
-    
+    ASSERT(shard != NULL);
     if (shard->state == CONFIG_SHARD_STATE_SPLIT_CREATING)
         return true;
     
