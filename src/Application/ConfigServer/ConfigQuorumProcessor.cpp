@@ -538,6 +538,7 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     uint64_t        clusterID;
     ClusterMessage  clusterMessage;
     char            hexbuf[64 + 1];
+    bool            success;
 
     // catchup:
     // if paxosID is smaller or equal to configStatePaxosID, that means
@@ -550,7 +551,8 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
     if (message.type == CONFIGMESSAGE_SHARD_MIGRATION_BEGIN)
     {
         // TODO: error handling
-        OnShardMigrationBegin(message);
+        success = OnShardMigrationBegin(message);
+        Log_Debug("shard migration begin, shardID: %U, success: %b", message.shardID, success);
     }
 
     if (message.type == CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE)
@@ -698,49 +700,50 @@ bool ConfigQuorumProcessor::OnShardMigrationBegin(ConfigMessage& message)
 {
     uint64_t        srcNodeID, dstNodeID;
     uint64_t        srcQuorumID, dstQuorumID;
+    uint64_t        nextShardID;
     ConfigShard*    configShard;
     ConfigQuorum*   configQuorum;
     ClusterMessage  clusterMessage;
 
-    if (CONFIG_STATE->isMigrating)
-        goto MigrationFailed;
-    configShard = CONFIG_STATE->GetShard(message.shardID);
-    if (!configShard)
-        goto MigrationFailed;
-    configQuorum = CONFIG_STATE->GetQuorum(configShard->quorumID);
-    srcQuorumID = configShard->quorumID;
-    if (!configQuorum)
-        goto MigrationFailed;
-    if (!configQuorum->hasPrimary)
-        goto MigrationFailed;
-    srcNodeID = configQuorum->primaryID;
-    configQuorum = CONFIG_STATE->GetQuorum(message.quorumID);
-    if (!configQuorum)
-        goto MigrationFailed;
-    if (!configQuorum->hasPrimary)
-        goto MigrationFailed;
-    dstNodeID = configQuorum->primaryID;
-    dstQuorumID = message.quorumID;
-    if (srcQuorumID == dstQuorumID)
-        goto MigrationFailed;
+    nextShardID = CONFIG_STATE->nextShardID++;
 
-    MigrationFailed:
-    {
-        return false;
+    if (quorumContext.IsLeader())
+    {    
+        if (CONFIG_STATE->isMigrating)
+            return false;
+        configShard = CONFIG_STATE->GetShard(message.shardID);
+        if (!configShard)
+            return false;
+        configQuorum = CONFIG_STATE->GetQuorum(configShard->quorumID);
+        srcQuorumID = configShard->quorumID;
+        if (!configQuorum)
+            return false;
+        if (!configQuorum->hasPrimary)
+            return false;
+        srcNodeID = configQuorum->primaryID;
+        configQuorum = CONFIG_STATE->GetQuorum(message.quorumID);
+        if (!configQuorum)
+            return false;
+        if (!configQuorum->hasPrimary)
+            return false;
+        dstNodeID = configQuorum->primaryID;
+        dstQuorumID = message.quorumID;
+        if (srcQuorumID == dstQuorumID)
+            return false;
+
+        CONFIG_STATE->isMigrating = true;
+        CONFIG_STATE->migrateQuorumID = message.quorumID;
+        CONFIG_STATE->migrateSrcShardID = message.shardID;
+        CONFIG_STATE->migrateDstShardID = nextShardID;
+
+        UpdateListeners();
+
+        clusterMessage.ShardMigrationInitiate(dstNodeID,
+         CONFIG_STATE->migrateQuorumID,
+         CONFIG_STATE->migrateSrcShardID,
+         CONFIG_STATE->migrateDstShardID);
+        CONTEXT_TRANSPORT->SendClusterMessage(srcNodeID, clusterMessage);
     }
-
-    CONFIG_STATE->isMigrating = true;
-    CONFIG_STATE->migrateQuorumID = message.quorumID;
-    CONFIG_STATE->migrateSrcShardID = message.shardID;
-    CONFIG_STATE->migrateDstShardID = CONFIG_STATE->nextShardID++;
-    
-    UpdateListeners();
-
-    clusterMessage.ShardMigrationInitiate(dstNodeID,
-     CONFIG_STATE->migrateQuorumID,
-     CONFIG_STATE->migrateSrcShardID,
-     CONFIG_STATE->migrateDstShardID);
-    CONTEXT_TRANSPORT->SendClusterMessage(srcNodeID, clusterMessage);
     
     return true;
 }
