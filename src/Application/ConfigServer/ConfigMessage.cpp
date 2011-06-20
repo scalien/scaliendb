@@ -295,6 +295,10 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &type, &shardID);
             break;
+        case CONFIGMESSAGE_SHARD_MIGRATION_BEGIN:
+            read = buffer.Readf("%c:%U:%U",
+             &type, &quorumID, &shardID);
+            break;
         case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
             read = buffer.Readf("%c:%U:%U:%U",
              &type, &quorumID, &srcShardID, &dstShardID);
@@ -406,6 +410,10 @@ bool ConfigMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U",
              type, shardID);
              break;
+        case CONFIGMESSAGE_SHARD_MIGRATION_BEGIN:
+            buffer.Writef("%c:%U:%U",
+             type, quorumID, shardID);
+            break;
         case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
             buffer.Writef("%c:%U:%U:%U",
              type, quorumID, srcShardID, dstShardID);

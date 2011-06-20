@@ -68,6 +68,7 @@ public:
     void                    OnCatchupMessage(CatchupMessage& message);
 
 private:
+    bool                    OnShardMigrationBegin(ConfigMessage& message);
     void                    ConstructMessage(ClientRequest* request, ConfigMessage* message);
     void                    ConstructResponse(ConfigMessage* message, ClientResponse* response);
     void                    SendClientResponse(ConfigMessage& message);

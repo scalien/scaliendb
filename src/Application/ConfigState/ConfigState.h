@@ -116,6 +116,7 @@ private:
     bool                CompleteTruncateTableComplete(ConfigMessage& message);
     bool                CompleteSplitShardBegin(ConfigMessage& message);
     bool                CompleteSplitShardComplete(ConfigMessage& message);
+    bool                CompleteShardMigrationBegin(ConfigMessage& message);
     bool                CompleteShardMigrationComplete(ConfigMessage& message);
 
     void                OnRegisterShardServer(ConfigMessage& message);
@@ -137,6 +138,7 @@ private:
     void                OnTruncateTableComplete(ConfigMessage& message);
     void                OnSplitShardBegin(ConfigMessage& message);
     void                OnSplitShardComplete(ConfigMessage& message);
+    void                OnShardMigrationBegin(ConfigMessage& message);
     void                OnShardMigrationComplete(ConfigMessage& message);
     
     bool                ReadQuorums(ReadBuffer& buffer, bool withVolatile);

@@ -177,6 +177,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         return;
     }
 
+    // TODO: clean up this mess!
     if (request->type == CLIENTREQUEST_MIGRATE_SHARD)
     {
         if (CONFIG_STATE->isMigrating)
@@ -201,22 +202,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         if (srcQuorumID == dstQuorumID)
             goto MigrationFailed;
 
-        CONFIG_STATE->isMigrating = true;
-        CONFIG_STATE->migrateQuorumID = dstQuorumID;
-        CONFIG_STATE->migrateSrcShardID = request->shardID;
-        CONFIG_STATE->migrateDstShardID = CONFIG_STATE->nextShardID++;
-        
-        UpdateListeners();
-
-        clusterMessage.ShardMigrationInitiate(dstNodeID,
-         CONFIG_STATE->migrateQuorumID,
-         CONFIG_STATE->migrateSrcShardID,
-         CONFIG_STATE->migrateDstShardID);
-        CONTEXT_TRANSPORT->SendClusterMessage(srcNodeID, clusterMessage);
-
-        request->response.OK();
-        request->OnComplete();
-        return;
+        goto MigrationOk;
 
         MigrationFailed:
         {
@@ -224,6 +210,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
             request->OnComplete();
             return; 
         }
+        MigrationOk:;
     }
     
     configMessage = new ConfigMessage;
@@ -560,6 +547,12 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
 
     Log_Trace("paxosID: %U, message.type: %c", paxosID, message.type);
 
+    if (message.type == CONFIGMESSAGE_SHARD_MIGRATION_BEGIN)
+    {
+        // TODO: error handling
+        OnShardMigrationBegin(message);
+    }
+
     if (message.type == CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE)
     {
         if (quorumContext.IsLeader())
@@ -701,6 +694,57 @@ void ConfigQuorumProcessor::OnCatchupMessage(CatchupMessage& imsg)
     }
 }
 
+bool ConfigQuorumProcessor::OnShardMigrationBegin(ConfigMessage& message)
+{
+    uint64_t        srcNodeID, dstNodeID;
+    uint64_t        srcQuorumID, dstQuorumID;
+    ConfigShard*    configShard;
+    ConfigQuorum*   configQuorum;
+    ClusterMessage  clusterMessage;
+
+    if (CONFIG_STATE->isMigrating)
+        goto MigrationFailed;
+    configShard = CONFIG_STATE->GetShard(message.shardID);
+    if (!configShard)
+        goto MigrationFailed;
+    configQuorum = CONFIG_STATE->GetQuorum(configShard->quorumID);
+    srcQuorumID = configShard->quorumID;
+    if (!configQuorum)
+        goto MigrationFailed;
+    if (!configQuorum->hasPrimary)
+        goto MigrationFailed;
+    srcNodeID = configQuorum->primaryID;
+    configQuorum = CONFIG_STATE->GetQuorum(message.quorumID);
+    if (!configQuorum)
+        goto MigrationFailed;
+    if (!configQuorum->hasPrimary)
+        goto MigrationFailed;
+    dstNodeID = configQuorum->primaryID;
+    dstQuorumID = message.quorumID;
+    if (srcQuorumID == dstQuorumID)
+        goto MigrationFailed;
+
+    MigrationFailed:
+    {
+        return false;
+    }
+
+    CONFIG_STATE->isMigrating = true;
+    CONFIG_STATE->migrateQuorumID = message.quorumID;
+    CONFIG_STATE->migrateSrcShardID = message.shardID;
+    CONFIG_STATE->migrateDstShardID = CONFIG_STATE->nextShardID++;
+    
+    UpdateListeners();
+
+    clusterMessage.ShardMigrationInitiate(dstNodeID,
+     CONFIG_STATE->migrateQuorumID,
+     CONFIG_STATE->migrateSrcShardID,
+     CONFIG_STATE->migrateDstShardID);
+    CONTEXT_TRANSPORT->SendClusterMessage(srcNodeID, clusterMessage);
+    
+    return true;
+}
+
 void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessage* message)
 {
     message->fromClient = true;
@@ -770,6 +814,11 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->shardID = request->shardID;
             message->splitKey = request->key;
             return;
+        case CLIENTREQUEST_MIGRATE_SHARD:
+            message->type = CONFIGMESSAGE_SHARD_MIGRATION_BEGIN;
+            message->shardID = request->shardID;
+            message->quorumID = request->quorumID;
+            return;
         default:
             ASSERT_FAIL();
     }
@@ -816,6 +865,9 @@ void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResp
             response->OK();
             return;
         case CLIENTREQUEST_UNFREEZE_TABLE:
+            response->OK();
+            return;
+        case CLIENTREQUEST_MIGRATE_SHARD:
             response->OK();
             return;
         case CLIENTREQUEST_SPLIT_SHARD:

@@ -178,7 +178,8 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteSplitShardBegin(message);
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
             return CompleteSplitShardComplete(message);
-
+        case CONFIGMESSAGE_SHARD_MIGRATION_BEGIN:
+            return CompleteShardMigrationBegin(message);
         case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
             return CompleteShardMigrationComplete(message);
 
@@ -393,6 +394,8 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnSplitShardBegin(message);
         case CONFIGMESSAGE_SPLIT_SHARD_COMPLETE:
             return OnSplitShardComplete(message);
+        case CONFIGMESSAGE_SHARD_MIGRATION_BEGIN:
+            return OnShardMigrationBegin(message);
         case CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE:
             return OnShardMigrationComplete(message);
      
@@ -811,6 +814,11 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
     return false;
 }
 
+bool ConfigState::CompleteShardMigrationBegin(ConfigMessage& /*message*/)
+{
+    return true;
+}
+
 bool ConfigState::CompleteShardMigrationComplete(ConfigMessage& message)
 {
     if (!isMigrating)
@@ -1196,7 +1204,7 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
     newShard->firstKey.Write(message.splitKey);
     newShard->lastKey.Write(parentShard->lastKey);
     shards.Append(newShard);
-    
+
     parentShard->lastKey.Write(newShard->firstKey);
 
     quorum = GetQuorum(newShard->quorumID);
@@ -1211,10 +1219,14 @@ void ConfigState::OnSplitShardBegin(ConfigMessage& message)
 void ConfigState::OnSplitShardComplete(ConfigMessage& message)
 {
     ConfigShard* shard;
-    
+
     shard = GetShard(message.shardID);
     ASSERT(shard != NULL);
     shard->state = CONFIG_SHARD_STATE_NORMAL;
+}
+
+void ConfigState::OnShardMigrationBegin(ConfigMessage& /*message*/)
+{
 }
 
 void ConfigState::OnShardMigrationComplete(ConfigMessage& message)
