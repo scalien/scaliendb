@@ -332,7 +332,8 @@ $(BIN_DIR)/scaliendb: $(BUILD_DIR)/scaliendb
 
 $(BIN_DIR)/cli: pythonlib $(SCRIPT_DIR)/cli $(SCRIPT_DIR)/shell.py
 	-cp -fr $(SCRIPT_DIR)/scaliendb-env.sh $(BIN_DIR)
-	-cp -fr $(SCRIPT_DIR)/shell.py $(BIN_DIR)
+	-rm -f $(BIN_DIR)/shell.py
+	-$(SCRIPT_DIR)/fix_python.sh $(SCRIPT_DIR)/shell.py > $(BIN_DIR)/shell.py
 	-cp -fr $(SCRIPT_DIR)/cli $(BIN_DIR)
 
 
