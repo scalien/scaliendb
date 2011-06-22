@@ -82,10 +82,13 @@ void ControllerConnection::OnGetConfigStateTimeout()
     {
         Log_Trace();
         
-        OnClose();
-        // TODO: HACK: Connect() will add this timer
-        EventLoop::Remove(&connectTimeout);
-        Connect();
+        if (client->GetMaster() < 0)
+        {
+            OnClose();
+            // TODO: HACK: Connect() will add this timer
+            EventLoop::Remove(&connectTimeout);
+            Connect();
+        }
         return;
     }
     

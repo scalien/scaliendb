@@ -145,6 +145,7 @@ private:
     bool                    IsDone();
     uint64_t                NextCommandID();
     Request*                CreateGetConfigState();
+    int64_t                 GetMaster();
     void                    SetMaster(int64_t master, uint64_t nodeID);
     void                    UpdateConnectivityStatus();
     void                    OnGlobalTimeout();
