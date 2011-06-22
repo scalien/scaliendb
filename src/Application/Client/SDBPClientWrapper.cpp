@@ -568,6 +568,26 @@ int SDBP_SplitShard(ClientObj client_, uint64_t shardID, const std::string& key_
     return client->SplitShard(shardID, key);
 }
 
+int SDBP_SplitShardAuto(ClientObj client_, uint64_t shardID)
+{
+    Client*         client = (Client*) client_;
+    ConfigState*    configState;
+    ConfigShard*    configShard;
+    ReadBuffer      splitKey;
+    
+    configState = client->GetConfigState();
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+
+    configShard = configState->GetShard(shardID);
+    if (configShard == NULL)
+        return SDBP_BADSCHEMA;
+
+    splitKey.Wrap(configShard->splitKey);
+
+    return client->SplitShard(shardID, splitKey);
+}
+
 int SDBP_FreezeTable(ClientObj client_, uint64_t tableID)
 {
     Client*     client = (Client*) client_;
@@ -582,11 +602,11 @@ int SDBP_UnfreezeTable(ClientObj client_, uint64_t tableID)
     return client->UnfreezeTable(tableID);
 }
 
-int SDBP_MigrateShard(ClientObj client_, uint64_t quorumID, uint64_t shardID)
+int SDBP_MigrateShard(ClientObj client_, uint64_t shardID, uint64_t quorumID)
 {
     Client*     client = (Client*) client_;
 
-    return client->MigrateShard(quorumID, shardID);
+    return client->MigrateShard(shardID, quorumID);
 }
 
 uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)
@@ -801,6 +821,41 @@ std::string SDBP_GetTableNameAt(ClientObj client_, unsigned n)
     }
     
     return "";
+}
+
+unsigned SDBP_GetNumShards(ClientObj client_)
+{
+    Client*             client = (Client*) client_;
+    ConfigState*        configState;
+    
+    configState = client->GetConfigState();
+    if (configState == NULL)
+        return 0;
+
+    return configState->shards.GetLength();
+}
+
+uint64_t SDBP_GetShardIDAt(ClientObj client_, unsigned n)
+{
+    Client*             client = (Client*) client_;
+    ConfigState*        configState;
+    ConfigShard*        configShard;
+    unsigned            i;
+    
+    configState = client->GetConfigState();
+    if (configState == NULL)
+        return 0;
+
+    i = 0;
+    FOREACH (configShard, configState->shards)
+    {
+        if (i == n)
+            return configShard->shardID;
+        
+        i++;
+    }
+    
+    return 0;
 }
 
 /*

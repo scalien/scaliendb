@@ -88,9 +88,9 @@ public:
     int                     TruncateTable(uint64_t tableID);
 
     int                     SplitShard(uint64_t shardID, ReadBuffer& splitKey);
+    int                     MigrateShard(uint64_t shardID, uint64_t quorumID);
     int                     FreezeTable(uint64_t tableID);
     int                     UnfreezeTable(uint64_t tableID);
-    int                     MigrateShard(uint64_t quorumID, uint64_t shardID);
     
     // =============================================================================================
     //

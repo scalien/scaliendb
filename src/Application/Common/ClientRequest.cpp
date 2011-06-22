@@ -275,7 +275,7 @@ bool ClientRequest::SplitShard(
 }
 
 bool ClientRequest::MigrateShard(
- uint64_t commandID_, uint64_t quorumID_, uint64_t shardID_)
+ uint64_t commandID_, uint64_t shardID_, uint64_t quorumID_)
 {
     type = CLIENTREQUEST_MIGRATE_SHARD;
     commandID = commandID_;

@@ -834,11 +834,11 @@ ClientRequest* ConfigHTTPClientSession::ProcessMigrateShard()
     uint64_t        quorumID;
     uint64_t        shardID;
     
-    HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
     HTTP_GET_U64_PARAM(params, "shardID", shardID);
+    HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
 
     request = new ClientRequest;
-    request->MigrateShard(0, quorumID, shardID);
+    request->MigrateShard(0, shardID, quorumID);
 
     return request;
 }

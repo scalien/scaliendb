@@ -133,9 +133,10 @@ int             SDBP_DeleteTable(ClientObj client, uint64_t tableID);
 int             SDBP_TruncateTable(ClientObj client, uint64_t tableID);
 
 int             SDBP_SplitShard(ClientObj client, uint64_t shardID, const std::string& key);
+int             SDBP_SplitShardAuto(ClientObj client, uint64_t shardID);
 int             SDBP_FreezeTable(ClientObj client, uint64_t tableID);
 int             SDBP_UnfreezeTable(ClientObj client, uint64_t tableID);
-int             SDBP_MigrateShard(ClientObj client, uint64_t quorumID, uint64_t shardID);
+int             SDBP_MigrateShard(ClientObj client, uint64_t shardID, uint64_t quorumID);
 
 uint64_t        SDBP_GetDatabaseID(ClientObj client, const std::string& name);
 uint64_t        SDBP_GetTableID(ClientObj client, uint64_t databaseID, const std::string& name);
@@ -156,6 +157,8 @@ unsigned        SDBP_GetNumTables(ClientObj client);
 uint64_t        SDBP_GetTableIDAt(ClientObj client, unsigned n);
 std::string     SDBP_GetTableNameAt(ClientObj client, unsigned n);
 
+unsigned        SDBP_GetNumShards(ClientObj client);
+uint64_t        SDBP_GetShardIDAt(ClientObj client, unsigned n);
 
 /*
 ===============================================================================================
