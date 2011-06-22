@@ -9,6 +9,8 @@
 #include "Application/Common/ClientRequestCache.h"
 #include "ConfigQuorumProcessor.h"
 
+#define CONFIG_STATE    (databaseManager.GetConfigState())
+
 ConfigServer::ConfigServer()
 {
     broadcastHTTPEndpoint.SetCallable(MFUNC(ConfigServer, OnBroadcastHTTPEndpoint));
@@ -173,34 +175,33 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
     ClusterMessage      clusterMessage;
     ConfigShardServer*  shardServer;
-    ConfigState*        configState;
-    
-    if (!quorumProcessor.IsMaster())
+
+    if (!IS_SHARD_SERVER(nodeID))
         return;
 
-    configState = databaseManager.GetConfigState();
-    
-    // if it's a shard server, send the configState
-    if (nodeID >= CONFIG_MIN_SHARD_NODE_ID)
+    shardServer = CONFIG_STATE->GetShardServer(nodeID);
+
+    if (shardServer == NULL)
     {
-        shardServer = configState->GetShardServer(nodeID);
-        if (shardServer == NULL)
-        {
-            Log_Message("Badly configured shard server trying to connect, no such nodeID: %U, endpoint: %s",
-             nodeID, endpoint.ToString());
-            return;
-        }
-        
-        if (shardServer->endpoint != endpoint)
-        {
-            Log_Debug("%s != ", shardServer->endpoint.ToString());
-            Log_Debug("!= %s", endpoint.ToString());
-            // shard server endpoint changed, update ConfigState
-            quorumProcessor.TryUpdateShardServer(nodeID, endpoint);
-            return;
-        }
-        
-        clusterMessage.SetConfigState(*configState);
+        Log_Message("Badly configured shard server trying to connect, no such nodeID: %U, endpoint: %s",
+         nodeID, endpoint.ToString());
+        CONTEXT_TRANSPORT->DropConnection(nodeID);
+        return;
+    }
+
+    if (shardServer->endpoint != endpoint)
+    {
+        Log_Debug("%s != ", shardServer->endpoint.ToString());
+        Log_Debug("!= %s", endpoint.ToString());
+        // shard server endpoint changed, update ConfigState
+        quorumProcessor.TryUpdateShardServer(nodeID, endpoint);
+        CONTEXT_TRANSPORT->DropConnection(nodeID);
+        return;
+    }
+    
+    if (quorumProcessor.IsMaster())
+    {
+        clusterMessage.SetConfigState(*CONFIG_STATE);
         CONTEXT_TRANSPORT->SendClusterMessage(nodeID, clusterMessage);
         
         Log_Message("[%s] Shard server connected (%U)", endpoint.ToString(), nodeID);
@@ -212,15 +213,12 @@ bool ConfigServer::OnAwaitingNodeID(Endpoint endpoint)
     ConfigShardServer*              shardServer;
     ConfigState::ShardServerList*   shardServers;
     ClusterMessage                  clusterMessage;
-    ConfigState*                    configState;
 
     if (!quorumProcessor.IsMaster())
         return true; // drop connection
-    
-    configState = databaseManager.GetConfigState();
-    
+        
     // look for existing endpoint
-    shardServers = &configState->shardServers;
+    shardServers = &CONFIG_STATE->shardServers;
     FOREACH (shardServer, *shardServers)
     {
         if (shardServer->endpoint == endpoint)
@@ -233,7 +231,7 @@ bool ConfigServer::OnAwaitingNodeID(Endpoint endpoint)
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             
             // send config state
-            clusterMessage.SetConfigState(*configState);
+            clusterMessage.SetConfigState(*CONFIG_STATE);
             CONTEXT_TRANSPORT->SendClusterMessage(shardServer->nodeID, clusterMessage);
             return false;
         }

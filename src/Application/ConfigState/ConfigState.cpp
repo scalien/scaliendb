@@ -9,9 +9,9 @@
     if (read < 1) return false; \
     buffer.Advance(read);
 
-#define CHECK_ADVANCE(n)    \
-    if (read < n)           \
-        return false;       \
+#define CHECK_ADVANCE(n)        \
+    if (read < n)               \
+        return false;           \
     buffer.Advance(read)
 
 inline bool LessThan(uint64_t a, uint64_t b)
