@@ -849,6 +849,11 @@ Request* Client::CreateGetConfigState()
     return  req;
 }
 
+int64_t Client::GetMaster()
+{
+    return master;
+}
+
 void Client::SetMaster(int64_t master_, uint64_t nodeID)
 {
     Log_Trace("known master: %I, set master: %I, nodeID: %U", master, master_, nodeID);
