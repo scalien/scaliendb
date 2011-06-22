@@ -406,6 +406,30 @@ class Client:
         """
         status = SDBP_DeleteQuorum(self.cptr, quorum_id)
         self._check_status(status)
+
+    def add_node(self, quorum_id, node_id):
+        """
+        Adds a node to a qourum
+        
+        Args:
+            quorum_id (long): the id of the quorum
+        
+            node_id (long): the id of the node
+        """
+        status = SDBP_AddNode(self.cptr, quorum_id, node_id)
+        self._check_status(status)
+
+    def remove_node(self, quorum_id, node_id):
+        """
+        Removes a node to a qourum
+        
+        Args:
+            quorum_id (long): the id of the quorum
+        
+            node_id (long): the id of the node
+        """
+        status = SDBP_RemoveNode(self.cptr, quorum_id, node_id)
+        self._check_status(status)
     
     def activate_node(self, node_id):
         """
