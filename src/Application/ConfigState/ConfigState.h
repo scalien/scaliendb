@@ -11,6 +11,7 @@
 #include "Application/ConfigServer/ConfigMessage.h"
 
 #define CONFIG_MIN_SHARD_NODE_ID    100
+#define IS_SHARD_SERVER(nodeID)     ((nodeID) >= CONFIG_MIN_SHARD_NODE_ID)
 
 #define LESS_THAN(a, b) \
     ((b).GetLength() == 0 || ReadBuffer::Cmp((a), (b)) < 0)
