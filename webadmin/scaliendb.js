@@ -124,6 +124,14 @@ var scaliendb =
 		this.rpc("createquorum", params);
 	},
 
+	renameQuorum: function(quorumID, name)
+	{                                                                                 
+		var params = {};
+		params["quorumID"] = quorumID;
+		params["name"] = name;
+		this.rpc("renamequorum", params);
+	},
+
 	deleteQuorum: function(quorumID)
 	{                                                                                 
 		var params = {};
