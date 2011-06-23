@@ -104,6 +104,18 @@ var scaliendb =
 		return null;
 	},
 	
+	getController: function(configState, nodeID)
+	{
+		for (var i in configState["controllers"])
+		{
+			var controller = configState["controllers"][i];
+			if (controller["nodeID"] == nodeID)
+				return controller;
+		}
+		
+		return null;
+	},
+
 	getShardServer: function(configState, nodeID)
 	{
 		for (var i in configState["shardServers"])

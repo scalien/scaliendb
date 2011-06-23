@@ -832,6 +832,7 @@ function createDashboard(configState)
 	var numQuorums = 0;
 	var numQuorumsText = "";
 	var shardServerIDs = new Array();
+	var controllerIDs = new Array();
 	var cardinality = scaliendb.util.cardinality;
 	for (var key in configState)
 	{
@@ -878,14 +879,24 @@ function createDashboard(configState)
 			var shards = configState[key]; 
 			numShards = shards.length;
 		}
+		else if (key == "controllers")
+		{
+			var controllers = configState[key];   
+			numControllers = controllers.length;
+			for (var c in controllers)
+			{
+				var controller = controllers[c];
+				controllerIDs.push(controller["nodeID"]);
+			}
+		}
 		else if (key == "shardServers")
 		{
 			var shardServers = configState[key];   
 			numShardServers = shardServers.length;
-			for (var shardServer in shardServers)
+			for (var ss in shardServers)
 			{
-				var ss = shardServers[shardServer];
-				shardServerIDs.push(ss["nodeID"]);
+				var shardServer = shardServers[ss];
+				shardServerIDs.push(shardServer["nodeID"]);
 			}
 		}
 	}
@@ -924,7 +935,25 @@ function createDashboard(configState)
 		$("dashboardStats").style.display = "inline";
 	
 	scaliendb.util.clear($("shardservers"));
-	
+
+	var html = '';
+	for (var i in controllerIDs)
+	{
+		nodeID = controllerIDs[i];
+		controller = scaliendb.getController(configState, nodeID);
+		var nodeString = nodeID + ' [' + controller["endpoint"] + ']';
+		if (controller["isConnected"])
+		{
+		    if (configState["master"] == nodeID)
+			    html += ' <span class="master healthy shardserver-number">' + nodeString + '</span> ';
+			else
+			    html += ' <span class="healthy shardserver-number">' + nodeString + '</span> ';
+		}
+		else
+			html += ' <span class="no-heartbeat shardserver-number">' + nodeString + '</span> ';
+	}
+	$("configservers").innerHTML = html;
+
 	var html = '';
 	for (var i in shardServerIDs)
 	{

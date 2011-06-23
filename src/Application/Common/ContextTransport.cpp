@@ -83,6 +83,12 @@ void ContextTransport::OnConnectionReady(uint64_t nodeID, Endpoint endpoint)
         clusterContext->OnIncomingConnectionReady(nodeID, endpoint);
 }
 
+void ContextTransport::OnConnectionEnd(uint64_t nodeID, Endpoint endpoint)
+{
+    if (clusterContext)
+        clusterContext->OnConnectionEnd(nodeID, endpoint);
+}
+
 bool ContextTransport::OnAwaitingNodeID(Endpoint endpoint)
 {
     if (clusterContext)

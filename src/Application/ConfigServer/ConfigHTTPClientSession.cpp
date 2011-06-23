@@ -134,9 +134,8 @@ void ConfigHTTPClientSession::PrintStatus()
         buf.Appendf("c%U (%R)", nodeID, &rb);
         session.Print(buf);
     }
+    session.Print("");
 
-    session.Print("\n--- Configuration State ---\n");
-    
     configState = configServer->GetDatabaseManager()->GetConfigState();
     PrintShardServers(configState);
     session.Print("");

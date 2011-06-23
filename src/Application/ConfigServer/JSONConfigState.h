@@ -28,6 +28,7 @@ public:
     void                Write();
     
 private:
+    void                WriteControllers();
     void                WriteQuorums();
     void                WriteQuorum(ConfigQuorum* quorum);
     void                WriteDatabases();

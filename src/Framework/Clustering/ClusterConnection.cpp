@@ -134,8 +134,9 @@ void ClusterConnection::OnClose()
     {
         // endpoint contains the other side, connect
         progress = OUTGOING;
-        
         EventLoop::Reset(&connectTimeout);
+        
+        transport->OnConnectionEnd(nodeID, endpoint);
     }
 }
 
