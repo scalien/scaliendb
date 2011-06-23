@@ -549,6 +549,11 @@ int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
     CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
 }
 
+int Client::MigrateShard(uint64_t shardID, uint64_t quorumID)
+{
+    CLIENT_SCHEMA_COMMAND(MigrateShard, shardID, quorumID);
+}
+
 int Client::FreezeTable(uint64_t tableID)
 {
     CLIENT_SCHEMA_COMMAND(FreezeTable, tableID);
@@ -557,11 +562,6 @@ int Client::FreezeTable(uint64_t tableID)
 int Client::UnfreezeTable(uint64_t tableID)
 {
     CLIENT_SCHEMA_COMMAND(UnfreezeTable, tableID);
-}
-
-int Client::MigrateShard(uint64_t quorumID, uint64_t shardID)
-{
-    CLIENT_SCHEMA_COMMAND(MigrateShard, quorumID, shardID);
 }
 
 int Client::Get(const ReadBuffer& key)

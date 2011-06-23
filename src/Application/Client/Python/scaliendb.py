@@ -581,17 +581,20 @@ class Client:
                 raise Error(status, "No table found")
             raise Error(status)
 
-    def split_shard(self, shard_id, key):
+    def split_shard(self, shard_id, key=None):
         """
         Splits a shard
         
         Args:
             shard_id (long): the id of the shard
             
-            key (string): the key where the shard is to be splitted
+            key (string): optional, the key where the shard is to be splitted
         """
         key = Util.typemap(key)
-        status = SDBP_SplitShard(self.cptr, shard_id, key)
+        if key == None:
+            status = SDBP_SplitShardAuto(self.cptr, shard_id)
+        else:
+            status = SDBP_SplitShard(self.cptr, shard_id, key)
         if status < 0:
             raise Error(status)
     
@@ -643,16 +646,16 @@ class Client:
         if status < 0:
             raise Error(status)
     
-    def migrate_shard(self, quorum_id, shard_id):
+    def migrate_shard(self, shard_id, quorum_id):
         """
         Migrates a shard to a given quorum
         
         Args:
-            quorum_id (long): the id of the quorum
-            
             shard_id (long): the id of the shard
+
+            quorum_id (long): the id of the quorum            
         """
-        status = SDBP_MigrateShard(self.cptr, quorum_id, shard_id)
+        status = SDBP_MigrateShard(self.cptr, shard_id, quorum_id)
         if status < 0:
             raise Error(status)
 

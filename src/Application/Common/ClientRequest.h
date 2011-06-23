@@ -113,7 +113,7 @@ public:
     bool            UnfreezeTable(
                      uint64_t commandID, uint64_t tableID);
     bool            MigrateShard(
-                     uint64_t commandID, uint64_t quorumID, uint64_t shardID);
+                     uint64_t commandID, uint64_t shardID, uint64_t quorumID);
     
     // Data manipulations
     bool            Get(
