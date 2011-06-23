@@ -135,8 +135,6 @@ void ConfigHTTPClientSession::PrintStatus()
         session.Print(buf);
     }
 
-    session.Print("\n--- Configuration State ---\n");
-    
     configState = configServer->GetDatabaseManager()->GetConfigState();
     PrintShardServers(configState);
     session.Print("");
