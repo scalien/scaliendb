@@ -655,6 +655,9 @@
 		9AE8197212D4BFE80038BDB1 /* TestMain.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TestMain.cpp; path = Test/TestMain.cpp; sourceTree = "<group>"; };
 		9AE8197312D4BFE80038BDB1 /* TimeTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = TimeTest.cpp; path = Test/TimeTest.cpp; sourceTree = "<group>"; };
 		9AE8197412D4BFE80038BDB1 /* Timings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Timings.cpp; path = Test/Timings.cpp; sourceTree = "<group>"; };
+		9AED117013B3595F0023F27E /* Database.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Database.cs; path = Client/CSharp/ScalienClient/Database.cs; sourceTree = "<group>"; };
+		9AED117113B3595F0023F27E /* Quorum.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Quorum.cs; path = Client/CSharp/ScalienClient/Quorum.cs; sourceTree = "<group>"; };
+		9AED117213B3595F0023F27E /* Table.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Table.cs; path = Client/CSharp/ScalienClient/Table.cs; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1267,6 +1270,9 @@
 		9A07FAA7138E845100AED738 /* CSharp */ = {
 			isa = PBXGroup;
 			children = (
+				9AED117013B3595F0023F27E /* Database.cs */,
+				9AED117113B3595F0023F27E /* Quorum.cs */,
+				9AED117213B3595F0023F27E /* Table.cs */,
 				9A07FAA8138E848A00AED738 /* Client.cs */,
 				9A07FAA9138E848A00AED738 /* Result.cs */,
 				9A07FAAA138E848A00AED738 /* Status.cs */,
