@@ -271,6 +271,8 @@
 		9AE819B112D4C4060038BDB1 /* ConfigDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65D12BFBB420069786A /* ConfigDatabase.cpp */; };
 		9AE819B412D4C4200038BDB1 /* ClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63612BFBB420069786A /* ClientRequest.cpp */; };
 		9AE819B712D4C4280038BDB1 /* TCPWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE5CE12BFBB3D0069786A /* TCPWriter.cpp */; };
+		9AED118E13B379DC0023F27E /* JSONReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AED118C13B379DC0023F27E /* JSONReader.cpp */; };
+		9AED119013B379F40023F27E /* JSONReaderTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AED118F13B379F40023F27E /* JSONReaderTest.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -658,6 +660,9 @@
 		9AED117013B3595F0023F27E /* Database.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Database.cs; path = Client/CSharp/ScalienClient/Database.cs; sourceTree = "<group>"; };
 		9AED117113B3595F0023F27E /* Quorum.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Quorum.cs; path = Client/CSharp/ScalienClient/Quorum.cs; sourceTree = "<group>"; };
 		9AED117213B3595F0023F27E /* Table.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Table.cs; path = Client/CSharp/ScalienClient/Table.cs; sourceTree = "<group>"; };
+		9AED118C13B379DC0023F27E /* JSONReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = JSONReader.cpp; sourceTree = "<group>"; };
+		9AED118D13B379DC0023F27E /* JSONReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONReader.h; sourceTree = "<group>"; };
+		9AED118F13B379F40023F27E /* JSONReaderTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = JSONReaderTest.cpp; path = Test/JSONReaderTest.cpp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -991,6 +996,8 @@
 				543DE67712BFBB420069786A /* IMF.h */,
 				9A466D5E135F435300108B07 /* JSONBufferWriter.h */,
 				9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */,
+				9AED118C13B379DC0023F27E /* JSONReader.cpp */,
+				9AED118D13B379DC0023F27E /* JSONReader.h */,
 				543DE67812BFBB420069786A /* JSONSession.cpp */,
 				543DE67912BFBB420069786A /* JSONSession.h */,
 				543DE67A12BFBB420069786A /* Mime.cpp */,
@@ -1363,6 +1370,7 @@
 				9AE8196A12D4BFE80038BDB1 /* FileSystemTest.cpp */,
 				9AE8196B12D4BFE80038BDB1 /* FormattingTest.cpp */,
 				9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */,
+				9AED118F13B379F40023F27E /* JSONReaderTest.cpp */,
 				9AE8196D12D4BFE80038BDB1 /* ManualTest.cpp */,
 				9A467ADC1373541600108B07 /* ShardExtensionTest.cpp */,
 				9AD5E4E612EF045600F4AF7B /* StorageTest.cpp */,
@@ -1716,6 +1724,8 @@
 				9A467A4F1373450B00108B07 /* DLLTest.cpp in Sources */,
 				9A467AD1137350ED00108B07 /* ShardExtension.cpp in Sources */,
 				9A467ADD1373541600108B07 /* ShardExtensionTest.cpp in Sources */,
+				9AED118E13B379DC0023F27E /* JSONReader.cpp in Sources */,
+				9AED119013B379F40023F27E /* JSONReaderTest.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
