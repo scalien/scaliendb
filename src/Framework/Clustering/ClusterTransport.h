@@ -47,6 +47,7 @@ public:
     void                        DropConnection(Endpoint endpoint);
     
     virtual void                OnConnectionReady(uint64_t nodeID, Endpoint endpoint)           = 0;
+    virtual void                OnConnectionEnd(uint64_t nodeID, Endpoint endpoint)             = 0;
     virtual bool                OnAwaitingNodeID(Endpoint endpoint)                             = 0;
     virtual void                OnMessage(uint64_t nodeID, ReadBuffer msg)                      = 0;
 

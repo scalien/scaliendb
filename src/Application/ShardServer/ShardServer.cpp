@@ -243,6 +243,11 @@ void ShardServer::OnIncomingConnectionReady(uint64_t /*nodeID*/, Endpoint /*endp
     // nothing
 }
 
+void ShardServer::OnConnectionEnd(uint64_t /*nodeID*/, Endpoint /*endpoint*/)
+{
+    // nothing
+}
+
 bool ShardServer::OnAwaitingNodeID(Endpoint /*endpoint*/)
 {
     // always drop

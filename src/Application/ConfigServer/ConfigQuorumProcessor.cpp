@@ -403,7 +403,7 @@ void ConfigQuorumProcessor::OnShardMigrationComplete(ClusterMessage& message)
     TryAppend();
 }
 
-void ConfigQuorumProcessor::UpdateListeners()
+void ConfigQuorumProcessor::UpdateListeners(bool force)
 {
     ClientRequest*                  itRequest;
     ConfigShardServer*              itShardServer;
@@ -417,7 +417,7 @@ void ConfigQuorumProcessor::UpdateListeners()
         return;
 
     // check if the configState changed at all
-    configChanged = false;
+    configChanged = force;
     CONFIG_STATE->Write(checksumBuffer, true);
     checksum = checksumBuffer.GetChecksum();
     if (checksum == 0 || checksum != configStateChecksum)

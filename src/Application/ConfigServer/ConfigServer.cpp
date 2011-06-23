@@ -176,9 +176,12 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
     ClusterMessage      clusterMessage;
     ConfigShardServer*  shardServer;
 
-    if (!IS_SHARD_SERVER(nodeID))
+    if (IS_CONTROLLER(nodeID))
+    {
+        quorumProcessor.UpdateListeners(/*force=*/true);
         return;
-
+    }
+    
     shardServer = CONFIG_STATE->GetShardServer(nodeID);
 
     if (shardServer == NULL)
@@ -205,6 +208,15 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
         CONTEXT_TRANSPORT->SendClusterMessage(nodeID, clusterMessage);
         
         Log_Message("[%s] Shard server connected (%U)", endpoint.ToString(), nodeID);
+    }
+}
+
+void ConfigServer::OnConnectionEnd(uint64_t nodeID, Endpoint /*endpoint*/)
+{
+    if (IS_CONTROLLER(nodeID))
+    {
+        quorumProcessor.UpdateListeners(/*force=*/true);
+        return;
     }
 }
 

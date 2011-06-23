@@ -47,6 +47,7 @@ private:
     // ClusterTransport interface:
     //
     void            OnConnectionReady(uint64_t nodeID, Endpoint endpoint);
+    void            OnConnectionEnd(uint64_t nodeID, Endpoint endpoint);
     bool            OnAwaitingNodeID(Endpoint endpoint);
     void            OnMessage(uint64_t nodeID, ReadBuffer msg);
     // ========================================================================================
