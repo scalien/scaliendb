@@ -135,6 +135,10 @@ div.explanation {
 	font-size: 14;
 }
 
+div.config-server-list {
+	margin-top: 10px;
+}
+
 div.shard-server-list {
 	margin-top: 10px;
 }
@@ -344,6 +348,10 @@ hr.head {
 span.quorum-head {
 	font-weight: bold;
 	font-size: 120%;			
+}
+
+span.master {
+	background: #7BA1C7;
 }
 
 span.primary {
