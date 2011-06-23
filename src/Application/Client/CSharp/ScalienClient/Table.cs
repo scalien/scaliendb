@@ -118,7 +118,7 @@ namespace Scalien
         public ulong Count(string startKey, string endKey, string prefix, uint offset, uint count)
         {
             UseDefaults();
-            return Count(startKey, endKey, prefix, offset, count);
+            return client.Count(startKey, endKey, prefix, offset, count);
         }
     }
 }

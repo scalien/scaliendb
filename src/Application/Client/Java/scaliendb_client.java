@@ -215,6 +215,10 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_SplitShard(SWIGTYPE_p_void.getCPtr(client), shardID, key);
   }
 
+  public static int SDBP_SplitShardAuto(SWIGTYPE_p_void client, java.math.BigInteger shardID) {
+    return scaliendb_clientJNI.SDBP_SplitShardAuto(SWIGTYPE_p_void.getCPtr(client), shardID);
+  }
+
   public static int SDBP_FreezeTable(SWIGTYPE_p_void client, java.math.BigInteger tableID) {
     return scaliendb_clientJNI.SDBP_FreezeTable(SWIGTYPE_p_void.getCPtr(client), tableID);
   }
@@ -223,8 +227,8 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_UnfreezeTable(SWIGTYPE_p_void.getCPtr(client), tableID);
   }
 
-  public static int SDBP_MigrateShard(SWIGTYPE_p_void client, java.math.BigInteger quorumID, java.math.BigInteger shardID) {
-    return scaliendb_clientJNI.SDBP_MigrateShard(SWIGTYPE_p_void.getCPtr(client), quorumID, shardID);
+  public static int SDBP_MigrateShard(SWIGTYPE_p_void client, java.math.BigInteger shardID, java.math.BigInteger quorumID) {
+    return scaliendb_clientJNI.SDBP_MigrateShard(SWIGTYPE_p_void.getCPtr(client), shardID, quorumID);
   }
 
   public static java.math.BigInteger SDBP_GetDatabaseID(SWIGTYPE_p_void client, String name) {
@@ -281,6 +285,14 @@ public class scaliendb_client {
 
   public static String SDBP_GetTableNameAt(SWIGTYPE_p_void client, long n) {
     return scaliendb_clientJNI.SDBP_GetTableNameAt(SWIGTYPE_p_void.getCPtr(client), n);
+  }
+
+  public static long SDBP_GetNumShards(SWIGTYPE_p_void client) {
+    return scaliendb_clientJNI.SDBP_GetNumShards(SWIGTYPE_p_void.getCPtr(client));
+  }
+
+  public static java.math.BigInteger SDBP_GetShardIDAt(SWIGTYPE_p_void client, long n) {
+    return scaliendb_clientJNI.SDBP_GetShardIDAt(SWIGTYPE_p_void.getCPtr(client), n);
   }
 
   public static int SDBP_Get(SWIGTYPE_p_void client, String key) {

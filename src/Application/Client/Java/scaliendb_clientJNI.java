@@ -83,6 +83,7 @@ class scaliendb_clientJNI {
   public final static native int SDBP_DeleteTable(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_TruncateTable(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_SplitShard(long jarg1, java.math.BigInteger jarg2, String jarg3);
+  public final static native int SDBP_SplitShardAuto(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_FreezeTable(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_UnfreezeTable(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_MigrateShard(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3);
@@ -100,6 +101,8 @@ class scaliendb_clientJNI {
   public final static native long SDBP_GetNumTables(long jarg1);
   public final static native java.math.BigInteger SDBP_GetTableIDAt(long jarg1, long jarg2);
   public final static native String SDBP_GetTableNameAt(long jarg1, long jarg2);
+  public final static native long SDBP_GetNumShards(long jarg1);
+  public final static native java.math.BigInteger SDBP_GetShardIDAt(long jarg1, long jarg2);
   public final static native int SDBP_Get(long jarg1, String jarg2);
   public final static native int SDBP_GetCStr(long jarg1, byte[] jarg2, int jarg3);
   public final static native int SDBP_Set(long jarg1, String jarg2, String jarg3);

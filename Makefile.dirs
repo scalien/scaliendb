@@ -1,6 +1,10 @@
 BUILD_DIRS = \
 		$(BUILD_DIR)/Application \
 		$(BUILD_DIR)/Application/Client \
+		$(BUILD_DIR)/Application/Client/CSharp \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClient \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClient/Properties \
+		$(BUILD_DIR)/Application/Client/CSharp/ScalienClientTest \
 		$(BUILD_DIR)/Application/Client/Java \
 		$(BUILD_DIR)/Application/Client/PHP \
 		$(BUILD_DIR)/Application/Client/Python \
