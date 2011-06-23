@@ -100,6 +100,7 @@ private:
     bool                CompleteSetClusterID(ConfigMessage& message);
     bool                CompleteRegisterShardServer(ConfigMessage& message);
     bool                CompleteCreateQuorum(ConfigMessage& message);
+    bool                CompleteRenameQuorum(ConfigMessage& message);
     bool                CompleteDeleteQuorum(ConfigMessage& message);
     bool                CompleteAddNode(ConfigMessage& message);
     bool                CompleteRemoveNode(ConfigMessage& message);
@@ -121,6 +122,7 @@ private:
 
     void                OnRegisterShardServer(ConfigMessage& message);
     void                OnCreateQuorum(ConfigMessage& message);
+    void                OnRenameQuorum(ConfigMessage& message);
     void                OnDeleteQuorum(ConfigMessage& message);
     void                OnAddNode(ConfigMessage& message);
     void                OnRemoveNode(ConfigMessage& message);

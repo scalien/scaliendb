@@ -537,6 +537,8 @@ ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
         return ProcessPollConfigState();
     if (HTTP_MATCH_COMMAND(cmd, "createquorum"))
         return ProcessCreateQuorum();
+    if (HTTP_MATCH_COMMAND(cmd, "renamequorum"))
+        return ProcessRenameQuorum();
     if (HTTP_MATCH_COMMAND(cmd, "deletequorum"))
         return ProcessDeleteQuorum();
     if (HTTP_MATCH_COMMAND(cmd, "addnode"))
@@ -649,47 +651,62 @@ ClientRequest* ConfigHTTPClientSession::ProcessCreateQuorum()
     return request;
 }
 
+ClientRequest* ConfigHTTPClientSession::ProcessRenameQuorum()
+{
+    ClientRequest*  request;
+    uint64_t        quorumID;
+    ReadBuffer      name;
+
+    HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+    HTTP_GET_PARAM(params, "name", name);
+
+    request = new ClientRequest;
+    request->RenameQuorum(0, quorumID, name);
+
+    return request;    
+}
+
 ClientRequest* ConfigHTTPClientSession::ProcessDeleteQuorum()
 {
-  ClientRequest*  request;
-  uint64_t        quorumID;
-  
-  HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+    ClientRequest*  request;
+    uint64_t        quorumID;
 
-  request = new ClientRequest;
-  request->DeleteQuorum(0, quorumID);
+    HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
 
-  return request;
+    request = new ClientRequest;
+    request->DeleteQuorum(0, quorumID);
+
+    return request;
 }
 
 ClientRequest* ConfigHTTPClientSession::ProcessAddNode()
 {
-  ClientRequest*  request;
-  uint64_t        quorumID;
-  uint64_t        nodeID;
-  
-  HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
-  HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
+    ClientRequest*  request;
+    uint64_t        quorumID;
+    uint64_t        nodeID;
 
-  request = new ClientRequest;
-  request->AddNode(0, quorumID, nodeID);
+    HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+    HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
 
-  return request;
+    request = new ClientRequest;
+    request->AddNode(0, quorumID, nodeID);
+
+    return request;
 }
 
 ClientRequest* ConfigHTTPClientSession::ProcessRemoveNode()
 {
-  ClientRequest*  request;
-  uint64_t        quorumID;
-  uint64_t        nodeID;
-  
-  HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
-  HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
+    ClientRequest*  request;
+    uint64_t        quorumID;
+    uint64_t        nodeID;
 
-  request = new ClientRequest;
-  request->RemoveNode(0, quorumID, nodeID);
+    HTTP_GET_U64_PARAM(params, "quorumID", quorumID);
+    HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
 
-  return request;
+    request = new ClientRequest;
+    request->RemoveNode(0, quorumID, nodeID);
+
+    return request;
 }
 
 ClientRequest* ConfigHTTPClientSession::ProcessCreateDatabase()

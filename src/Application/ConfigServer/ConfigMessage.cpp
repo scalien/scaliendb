@@ -28,6 +28,15 @@ bool ConfigMessage::CreateQuorum(
     return true;
 }
 
+bool ConfigMessage::RenameQuorum(
+ uint64_t quorumID_, ReadBuffer& name_)
+{
+    type = CONFIGMESSAGE_RENAME_QUORUM;
+    quorumID = quorumID_;
+    name = name_;
+    return true;
+}
+
 bool ConfigMessage::DeleteQuorum(
  uint64_t quorumID_)
 {
@@ -222,6 +231,10 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             else
                 return false;
             break;
+        case CONFIGMESSAGE_RENAME_QUORUM:
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &quorumID, &name);
+            break;
         case CONFIGMESSAGE_DELETE_QUORUM:
             read = buffer.Readf("%c:%U",
              &type, &quorumID);
@@ -332,6 +345,10 @@ bool ConfigMessage::Write(Buffer& buffer)
              type, &name, numNodes);
             for (it = nodes.First(); it != NULL; it = nodes.Next(it))
                 buffer.Appendf(":%U", *it);
+            break;
+        case CONFIGMESSAGE_RENAME_QUORUM:
+            buffer.Writef("%c:%U:%#R",
+             type, quorumID, &name);
             break;
         case CONFIGMESSAGE_DELETE_QUORUM:
             buffer.Writef("%c:%U",

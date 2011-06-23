@@ -45,6 +45,7 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_GET_CONFIG_STATE  ||
         type == CLIENTREQUEST_CREATE_QUORUM     ||
         type == CLIENTREQUEST_DELETE_QUORUM     ||
+        type == CLIENTREQUEST_DELETE_QUORUM     ||
         type == CLIENTREQUEST_ADD_NODE          ||
         type == CLIENTREQUEST_REMOVE_NODE       ||
         type == CLIENTREQUEST_ACTIVATE_NODE     ||
@@ -84,11 +85,6 @@ bool ClientRequest::IsShardServerRequest()
             return true;
     
     return false;
-}
-
-bool ClientRequest::IsSafeRequest()
-{
-    return true;
 }
 
 bool ClientRequest::IsReadRequest()
@@ -143,6 +139,15 @@ bool ClientRequest::CreateQuorum(uint64_t commandID_, ReadBuffer& name_, List<ui
     commandID = commandID_;
     name.Write(name_);
     nodes = nodes_;
+    return true;
+}
+
+bool ClientRequest::RenameQuorum(uint64_t commandID_, uint64_t quorumID_, ReadBuffer& name_)
+{
+    type = CLIENTREQUEST_RENAME_QUORUM;
+    commandID = commandID_;
+    quorumID = quorumID_;
+    name.Write(name_);
     return true;
 }
 

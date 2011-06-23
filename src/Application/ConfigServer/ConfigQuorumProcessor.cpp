@@ -704,6 +704,11 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->name = request->name;
             message->nodes = request->nodes;
             return;
+        case CLIENTREQUEST_RENAME_QUORUM:
+            message->type = CONFIGMESSAGE_RENAME_QUORUM;
+            message->quorumID = request->quorumID;
+            message->name = request->name;
+            return;
         case CLIENTREQUEST_DELETE_QUORUM:
             message->type = CONFIGMESSAGE_DELETE_QUORUM;
             message->quorumID = request->quorumID;
@@ -774,6 +779,9 @@ void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResp
     {
         case CLIENTREQUEST_CREATE_QUORUM:
             response->Number(message->quorumID);
+            return;
+        case CLIENTREQUEST_RENAME_QUORUM:
+            response->OK();
             return;
         case CLIENTREQUEST_DELETE_QUORUM:
             response->OK();

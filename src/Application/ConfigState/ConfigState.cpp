@@ -155,6 +155,8 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteRegisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
             return CompleteCreateQuorum(message);
+        case CONFIGMESSAGE_RENAME_QUORUM:
+            return CompleteRenameQuorum(message);
         case CONFIGMESSAGE_DELETE_QUORUM:
             return CompleteDeleteQuorum(message);
         case CONFIGMESSAGE_ADD_NODE:
@@ -353,6 +355,8 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnRegisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
             return OnCreateQuorum(message);
+        case CONFIGMESSAGE_RENAME_QUORUM:
+            return OnRenameQuorum(message);
         case CONFIGMESSAGE_DELETE_QUORUM:
             return OnDeleteQuorum(message);
         case CONFIGMESSAGE_ADD_NODE:
@@ -539,19 +543,44 @@ bool ConfigState::CompleteRegisterShardServer(ConfigMessage&)
 bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 {
     uint64_t*       itNodeID;
-    ConfigQuorum*   itConfigQuorum;
+    ConfigQuorum*   quorum;
     
+    if (message.name.GetLength() > DATABASE_NAME_SIZE)
+        return false;
+        
+    if (!message.name.IsAsciiPrintable())
+        return false;
+
     FOREACH (itNodeID, message.nodes)
     {
         if (GetShardServer(*itNodeID) == NULL)
             return false; // no such shard server
     }
+
+    quorum = GetQuorum(message.name);
+    if (quorum != NULL)
+        return false; // quorum with name exists
+
+    return true;
+}
+
+bool ConfigState::CompleteRenameQuorum(ConfigMessage& message)
+{
+    ConfigQuorum* quorum;
     
-    FOREACH(itConfigQuorum, quorums)
-    {
-        if (ReadBuffer::Cmp(itConfigQuorum->name, message.name) == 0)
-            return false; // same name
-    }
+    if (message.name.GetLength() > DATABASE_NAME_SIZE)
+        return false;
+
+    quorum = GetQuorum(message.quorumID);
+    if (quorum == NULL)
+        return false; // no such quorum
+
+    quorum = GetQuorum(message.name);
+    if (quorum != NULL)
+        return false; // database with name exists
+
+    if (!message.name.IsAsciiPrintable())
+        return false;
 
     return true;
 }
@@ -889,6 +918,21 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     message.quorumID = quorum->quorumID;
 }
 
+void ConfigState::OnRenameQuorum(ConfigMessage& message)
+{
+    ConfigQuorum*    quorum;
+
+    quorum = GetQuorum(message.name);
+    // make sure quorum with name does not exist
+    ASSERT(quorum == NULL);
+
+    quorum = GetQuorum(message.quorumID);
+    // make sure quorum with ID exists
+    ASSERT(quorum != NULL);
+        
+    quorum->name.Write(message.name);
+}
+
 void ConfigState::OnDeleteQuorum(ConfigMessage& message)
 {
     ConfigQuorum* quorum;
@@ -1093,10 +1137,7 @@ void ConfigState::OnRenameTable(ConfigMessage& message)
     // make sure table with name does not exist
     ASSERT(table == NULL);
 
-    table = GetTable(message.tableID);
-    // make sure table with ID exists
-    ASSERT(table != NULL);
-    
+    table = GetTable(message.tableID);    
     table->name.Write(message.name);
 }
 
