@@ -41,6 +41,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/ShardServer/ShardCatchupReader.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardCatchupWriter.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardDatabaseManager.o \
+	$(BUILD_DIR)/Application/ShardServer/ShardExtension.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardHTTPClientSession.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardHTTPHandler.o \
 	$(BUILD_DIR)/Application/ShardServer/ShardHeartbeatManager.o \
@@ -70,6 +71,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Replication/ReplicationConfig.o \
 	$(BUILD_DIR)/Framework/Storage/BloomFilter.o \
 	$(BUILD_DIR)/Framework/Storage/FDGuard.o \
+	$(BUILD_DIR)/Framework/Storage/StorageArchiveLogSegmentJob.o \
 	$(BUILD_DIR)/Framework/Storage/StorageAsyncBulkCursor.o \
 	$(BUILD_DIR)/Framework/Storage/StorageAsyncGet.o \
 	$(BUILD_DIR)/Framework/Storage/StorageAsyncList.o \
@@ -79,8 +81,11 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageChunkReader.o \
 	$(BUILD_DIR)/Framework/Storage/StorageChunkSerializer.o \
 	$(BUILD_DIR)/Framework/Storage/StorageChunkWriter.o \
+	$(BUILD_DIR)/Framework/Storage/StorageCommitJob.o \
 	$(BUILD_DIR)/Framework/Storage/StorageConfig.o \
 	$(BUILD_DIR)/Framework/Storage/StorageDataPage.o \
+	$(BUILD_DIR)/Framework/Storage/StorageDeleteFileChunkJob.o \
+	$(BUILD_DIR)/Framework/Storage/StorageDeleteMemoChunkJob.o \
 	$(BUILD_DIR)/Framework/Storage/StorageEnvironment.o \
 	$(BUILD_DIR)/Framework/Storage/StorageEnvironmentWriter.o \
 	$(BUILD_DIR)/Framework/Storage/StorageFileChunk.o \
@@ -88,23 +93,19 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageFileKeyValue.o \
 	$(BUILD_DIR)/Framework/Storage/StorageHeaderPage.o \
 	$(BUILD_DIR)/Framework/Storage/StorageIndexPage.o \
-	$(BUILD_DIR)/Framework/Storage/StorageCommitJob.o \
-	$(BUILD_DIR)/Framework/Storage/StorageSerializeChunkJob.o \
-	$(BUILD_DIR)/Framework/Storage/StorageWriteChunkJob.o \
-	$(BUILD_DIR)/Framework/Storage/StorageMergeChunkJob.o \
-	$(BUILD_DIR)/Framework/Storage/StorageDeleteMemoChunkJob.o \
-	$(BUILD_DIR)/Framework/Storage/StorageDeleteFileChunkJob.o \
-	$(BUILD_DIR)/Framework/Storage/StorageArchiveLogSegmentJob.o \
 	$(BUILD_DIR)/Framework/Storage/StorageLogSegment.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunk.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoChunkLister.o \
 	$(BUILD_DIR)/Framework/Storage/StorageMemoKeyValue.o \
+	$(BUILD_DIR)/Framework/Storage/StorageMergeChunkJob.o \
 	$(BUILD_DIR)/Framework/Storage/StoragePage.o \
 	$(BUILD_DIR)/Framework/Storage/StoragePageCache.o \
 	$(BUILD_DIR)/Framework/Storage/StorageRecovery.o \
+	$(BUILD_DIR)/Framework/Storage/StorageSerializeChunkJob.o \
 	$(BUILD_DIR)/Framework/Storage/StorageShard.o \
 	$(BUILD_DIR)/Framework/Storage/StorageShardProxy.o \
 	$(BUILD_DIR)/Framework/Storage/StorageUnwrittenChunkLister.o \
+	$(BUILD_DIR)/Framework/Storage/StorageWriteChunkJob.o \
 	$(BUILD_DIR)/Framework/TCP/TCPConnection.o \
 	$(BUILD_DIR)/Framework/TCP/TCPWriter.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
@@ -112,6 +113,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Common.o \
 	$(BUILD_DIR)/System/Config.o \
+	$(BUILD_DIR)/System/DLL.o \
 	$(BUILD_DIR)/System/Events/Countdown.o \
 	$(BUILD_DIR)/System/Events/EventLoop.o \
 	$(BUILD_DIR)/System/Events/Scheduler.o \
@@ -124,12 +126,13 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/System/IO/IOProcessor_Windows.o \
 	$(BUILD_DIR)/System/IO/Socket_Posix.o \
 	$(BUILD_DIR)/System/IO/Socket_Windows.o \
-	$(BUILD_DIR)/System/Threading/Mutex_Posix.o \
-	$(BUILD_DIR)/System/Threading/ThreadPool_Posix.o \
-	$(BUILD_DIR)/System/Threading/ThreadPool_Windows.o \
-	$(BUILD_DIR)/System/Threading/JobProcessor.o \
 	$(BUILD_DIR)/System/Log.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
+	$(BUILD_DIR)/System/Threading/JobProcessor.o \
+	$(BUILD_DIR)/System/Threading/Mutex_Posix.o \
+	$(BUILD_DIR)/System/Threading/Mutex_Windows.o \
+	$(BUILD_DIR)/System/Threading/ThreadPool_Posix.o \
+	$(BUILD_DIR)/System/Threading/ThreadPool_Windows.o \
 	$(BUILD_DIR)/System/Time.o \
 
 

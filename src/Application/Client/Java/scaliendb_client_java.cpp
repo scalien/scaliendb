@@ -1923,6 +1923,44 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Sp
 }
 
 
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SplitShardAuto(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
+  result = (int)SDBP_SplitShardAuto(arg1,arg2);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
 SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1FreezeTable(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -2455,6 +2493,52 @@ SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
   arg2 = (unsigned int)jarg2; 
   result = SDBP_GetTableNameAt(arg1,arg2);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetNumShards(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+  jlong jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  unsigned int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  result = (unsigned int)SDBP_GetNumShards(arg1);
+  jresult = (jlong)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetShardIDAt(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
+  jobject jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  unsigned int arg2 ;
+  uint64_t result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  arg2 = (unsigned int)jarg2; 
+  result = (uint64_t)SDBP_GetShardIDAt(arg1,arg2);
+  {
+    jbyteArray ba = jenv->NewByteArray(9);
+    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
+    jclass clazz = jenv->FindClass("java/math/BigInteger");
+    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
+    jobject bigint;
+    int i;
+    
+    bae[0] = 0;
+    for(i=1; i<9; i++ ) {
+      bae[i] = (jbyte)(result>>8*(8-i));
+    }
+    
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+    bigint = jenv->NewObject(clazz, mid, ba);
+    jresult = bigint;
+  }
   return jresult;
 }
 
