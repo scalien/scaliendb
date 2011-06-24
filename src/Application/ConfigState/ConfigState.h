@@ -75,6 +75,7 @@ public:
     void                Transfer(ConfigState& other);
     
     ConfigQuorum*       GetQuorum(uint64_t quorumID);
+    ConfigQuorum*       GetQuorum(ReadBuffer name);
     ConfigDatabase*     GetDatabase(uint64_t databaseID);
     ConfigDatabase*     GetDatabase(ReadBuffer name);
     ConfigTable*        GetTable(uint64_t tableID);
@@ -101,6 +102,7 @@ private:
     bool                CompleteSetClusterID(ConfigMessage& message);
     bool                CompleteRegisterShardServer(ConfigMessage& message);
     bool                CompleteCreateQuorum(ConfigMessage& message);
+    bool                CompleteRenameQuorum(ConfigMessage& message);
     bool                CompleteDeleteQuorum(ConfigMessage& message);
     bool                CompleteAddNode(ConfigMessage& message);
     bool                CompleteRemoveNode(ConfigMessage& message);
@@ -123,6 +125,7 @@ private:
 
     void                OnRegisterShardServer(ConfigMessage& message);
     void                OnCreateQuorum(ConfigMessage& message);
+    void                OnRenameQuorum(ConfigMessage& message);
     void                OnDeleteQuorum(ConfigMessage& message);
     void                OnAddNode(ConfigMessage& message);
     void                OnRemoveNode(ConfigMessage& message);

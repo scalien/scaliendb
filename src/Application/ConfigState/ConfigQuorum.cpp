@@ -24,6 +24,7 @@ ConfigQuorum::ConfigQuorum(const ConfigQuorum& other)
 ConfigQuorum& ConfigQuorum::operator=(const ConfigQuorum& other)
 {
     quorumID = other.quorumID;
+    name.Write(other.name);
     configID = other.configID;
     isActivatingNode = other.isActivatingNode;
     isWatchingPaxosID = other.isWatchingPaxosID;

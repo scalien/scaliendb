@@ -11,6 +11,7 @@
 #define CONFIGMESSAGE_SET_CLUSTER_ID            's'
 #define CONFIGMESSAGE_REGISTER_SHARDSERVER      'S'
 #define CONFIGMESSAGE_CREATE_QUORUM             'Q'
+#define CONFIGMESSAGE_RENAME_QUORUM             'q'
 #define CONFIGMESSAGE_DELETE_QUORUM             'W'
 #define CONFIGMESSAGE_ADD_NODE                  'n'
 #define CONFIGMESSAGE_REMOVE_NODE               'b'
@@ -76,7 +77,10 @@ public:
                      uint64_t clusterID);
     bool            RegisterShardServer(
                      uint64_t nodeID, Endpoint& endpoint);
-    bool            CreateQuorum(List<uint64_t>& nodes);
+    bool            CreateQuorum(
+                     ReadBuffer& name, List<uint64_t>& nodes);
+    bool            RenameQuorum(
+                     uint64_t quorumID, ReadBuffer& name);
     bool            DeleteQuorum(
                      uint64_t quorumID);
     bool            AddNode(

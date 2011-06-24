@@ -128,11 +128,20 @@ var scaliendb =
 		return null;
 	},
 	
-	createQuorum: function(nodes)
+	createQuorum: function(name, nodes)
 	{                                                                                 
 		var params = {};
+		params["name"] = name;
 		params["nodes"] = nodes;
 		this.rpc("createquorum", params);
+	},
+
+	renameQuorum: function(quorumID, name)
+	{                                                                                 
+		var params = {};
+		params["quorumID"] = quorumID;
+		params["name"] = name;
+		this.rpc("renamequorum", params);
 	},
 
 	deleteQuorum: function(quorumID)

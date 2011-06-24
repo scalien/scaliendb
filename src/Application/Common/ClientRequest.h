@@ -10,6 +10,7 @@
 #define CLIENTREQUEST_GET_MASTER_HTTP   'H'
 #define CLIENTREQUEST_GET_CONFIG_STATE  'A'
 #define CLIENTREQUEST_CREATE_QUORUM     'Q'
+#define CLIENTREQUEST_RENAME_QUORUM     'q'
 #define CLIENTREQUEST_DELETE_QUORUM     'W'
 #define CLIENTREQUEST_ADD_NODE          'n'
 #define CLIENTREQUEST_REMOVE_NODE       'b'
@@ -62,7 +63,6 @@ public:
 
     bool            IsControllerRequest();
     bool            IsShardServerRequest();
-    bool            IsSafeRequest();
     bool            IsReadRequest();
     bool            IsList();
     bool            IsActive();
@@ -79,7 +79,9 @@ public:
 
     // Quorum management
     bool            CreateQuorum(
-                     uint64_t commandID, List<uint64_t>& nodes);
+                     uint64_t commandID, ReadBuffer& name, List<uint64_t>& nodes);
+    bool            RenameQuorum(
+                     uint64_t commandID, uint64_t quorumID, ReadBuffer& name);
     bool            DeleteQuorum(
                      uint64_t commandID, uint64_t quorumID);
     bool            AddNode(

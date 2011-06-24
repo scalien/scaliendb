@@ -40,6 +40,7 @@ function onLoad()
 	$("loginContainer").style.display = "block";
 	$("mainContainer").style.display = "none";
 	$("createQuorumContainer").style.display = "none";
+	$("renameQuorumContainer").style.display = "none";
 	$("deleteQuorumContainer").style.display = "none";
 	$("addNodeContainer").style.display = "none";
 	$("removeNodeContainer").style.display = "none";
@@ -186,6 +187,15 @@ function showCreateQuorum()
 	$("createQuorumContainer").style.display = "block";
 	$("createQuorumShardServers").focus();
 	hideDialog = hideCreateQuorum;
+}
+
+var renameQuorumID;
+function showRenameQuorum(quorumID)
+{
+	$("mainContainer").style.display = "none";
+	$("renameQuorumContainer").style.display = "block";
+	renameQuorumID = quorumID;
+	hideDialog = hideRenameQuorum;
 }
 
 var deleteQuorumID;
@@ -512,6 +522,12 @@ function hideCreateQuorum()
 	$("mainContainer").style.display = "block";
 }
 
+function hideRenameQuorum()
+{
+	$("renameQuorumContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
+}
+
 function hideDeleteQuorum()
 {
 	$("deleteQuorumContainer").style.display = "none";
@@ -593,11 +609,20 @@ function hideError()
 function createQuorum()
 {
 	hideCreateQuorum();
-	
+
+	var name = $("createQuorumName").value;
 	var nodes = $("createQuorumShardServers").value;
 	nodes = scaliendb.util.removeSpaces(nodes);
 	scaliendb.onResponse = onResponse;
-	scaliendb.createQuorum(nodes);
+	scaliendb.createQuorum(name, nodes);
+}
+
+function renameQuorum()
+{
+	hideRenameQuorum();
+	var name = $("renameQuorumName").value;
+	scaliendb.onResponse = onResponse;
+	scaliendb.renameQuorum(renameQuorumID, name);
 }
 
 function deleteQuorum()
@@ -1009,9 +1034,11 @@ function createQuorumDiv(configState, quorum)
 	<table class="quorum ' + state + '">																\
 		<tr>																							\
 			<td class="quorum-head">																	\
-				<span class="quorum-head">quorum ' + quorum["quorumID"] + '<br/>(' + scaliendb.getQuorumState(configState, quorum["quorumID"]) + ')</span>						\
+				<span class="quorum-head">' + quorum["name"] + '<br/>(' + scaliendb.getQuorumState(configState, quorum["quorumID"]) + ')</span>						\
 			</td>																						\
 			<td>																						\
+				<br/>																					\
+				Quorum number: ' + quorum["quorumID"] + '<br/>													\
 				Shardservers: 																			\
 	';
 	quorum["activeNodes"].sort();
@@ -1085,12 +1112,14 @@ function createQuorumDiv(configState, quorum)
 				<br/>																					\
 				Replication round: ' + paxosID + '<br/>													\
 				<!-- Size: 0GB -->																		\
-				<div class="explanation">Explanation: ' + explanation + '<br/>' + catchupText + '</span>						\
+				<div class="explanation">Explanation: ' + explanation + '<br/>' + catchupText + '</span>\
 			</td>																						\
 			<td class="table-actions">' +
 				addNode +
 				removeNode +
-				'<a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
+				'<a class="no-line" href="javascript:showRenameQuorum(' + quorum["quorumID"] +
+				')"><span class="modify-button">rename quorum</span></a><br/><br/>  					\
+				 <a class="no-line" href="javascript:showDeleteQuorum(' + quorum["quorumID"] +
 				')"><span class="delete-button">delete quorum</span></a>								\
 			</td>																						\
 		</tr>																							\

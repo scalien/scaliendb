@@ -117,7 +117,8 @@ void            SDBP_SetConsistencyLevel(ClientObj client, int consistencyLevel)
 ===============================================================================================
 */
 
-int             SDBP_CreateQuorum(ClientObj client, const SDBP_NodeParams& params);
+int             SDBP_CreateQuorum(ClientObj client, const std::string& name, const SDBP_NodeParams& params);
+int             SDBP_RenameQuorum(ClientObj client, uint64_t quorumID, const std::string& name);
 int             SDBP_DeleteQuorum(ClientObj client, uint64_t quorumID);
 int             SDBP_AddNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);
 int             SDBP_RemoveNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);
@@ -139,6 +140,7 @@ int             SDBP_UnfreezeTable(ClientObj client, uint64_t tableID);
 int             SDBP_MigrateShard(ClientObj client, uint64_t shardID, uint64_t quorumID);
 
 uint64_t        SDBP_GetDatabaseID(ClientObj client, const std::string& name);
+std::string     SDBP_GetDatabaseName(ClientObj client, uint64_t databaseID);
 uint64_t        SDBP_GetTableID(ClientObj client, uint64_t databaseID, const std::string& name);
 
 int             SDBP_UseDatabase(ClientObj client, const std::string& name);
@@ -148,6 +150,7 @@ int             SDBP_UseTableID(ClientObj client, uint64_t tableID);
 
 unsigned        SDBP_GetNumQuorums(ClientObj client);
 uint64_t        SDBP_GetQuorumIDAt(ClientObj client, unsigned n);
+std::string     SDBP_GetQuorumNameAt(ClientObj client, unsigned n);
 
 unsigned        SDBP_GetNumDatabases(ClientObj client);
 uint64_t        SDBP_GetDatabaseIDAt(ClientObj client, unsigned n);

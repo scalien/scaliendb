@@ -140,6 +140,11 @@ void JSONConfigState::WriteQuorum(ConfigQuorum* quorum)
     json->PrintNumber(quorum->quorumID);
     json->PrintComma();
 
+    json->PrintString("name");
+    json->PrintColon();
+    json->PrintString(quorum->name);
+    json->PrintComma();
+
     json->PrintString("hasPrimary");
     json->PrintColon();
     if (quorum->hasPrimary)

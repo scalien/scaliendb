@@ -72,7 +72,8 @@ public:
     //
     // controller commands
     //
-    int                     CreateQuorum(List<uint64_t>& nodes);
+    int                     CreateQuorum(ReadBuffer& name, List<uint64_t>& nodes);
+    int                     RenameQuorum(uint64_t quourumID, ReadBuffer& name);
     int                     DeleteQuorum(uint64_t quourumID);
     int                     AddNode(uint64_t quorumID, uint64_t nodeID);
     int                     RemoveNode(uint64_t quorumID, uint64_t nodeID);
@@ -97,6 +98,7 @@ public:
     // shard server commands
     //
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
+    int                     GetDatabaseName(uint64_t& databaseID, ReadBuffer& name);
     int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
     int                     UseDatabase(ReadBuffer& name);
     int                     UseDatabaseID(uint64_t databaseID);

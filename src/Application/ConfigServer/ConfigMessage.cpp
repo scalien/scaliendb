@@ -20,10 +20,20 @@ bool ConfigMessage::RegisterShardServer(
 }
 
 bool ConfigMessage::CreateQuorum(
- List<uint64_t>& nodes_)
+ ReadBuffer& name_, List<uint64_t>& nodes_)
 {
     type = CONFIGMESSAGE_CREATE_QUORUM;
+    name = name_;
     nodes = nodes_;
+    return true;
+}
+
+bool ConfigMessage::RenameQuorum(
+ uint64_t quorumID_, ReadBuffer& name_)
+{
+    type = CONFIGMESSAGE_RENAME_QUORUM;
+    quorumID = quorumID_;
+    name = name_;
     return true;
 }
 
@@ -203,8 +213,8 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             endpoint.Set(rb);
             break;
         case CONFIGMESSAGE_CREATE_QUORUM:
-            read = buffer.Readf("%c:%u",
-             &type, &numNodes);
+            read = buffer.Readf("%c:%#R:%u",
+             &type, &name, &numNodes);
              if (read < 0 || read == (signed)buffer.GetLength())
                 return false;
             buffer.Advance(read);
@@ -220,6 +230,10 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
                 return true;
             else
                 return false;
+            break;
+        case CONFIGMESSAGE_RENAME_QUORUM:
+            read = buffer.Readf("%c:%U:%#R",
+             &type, &quorumID, &name);
             break;
         case CONFIGMESSAGE_DELETE_QUORUM:
             read = buffer.Readf("%c:%U",
@@ -331,10 +345,14 @@ bool ConfigMessage::Write(Buffer& buffer)
             return true;
         case CONFIGMESSAGE_CREATE_QUORUM:
             numNodes = nodes.GetLength();
-            buffer.Writef("%c:%u",
-             type, numNodes);
+            buffer.Writef("%c:%#R:%u",
+             type, &name, numNodes);
             for (it = nodes.First(); it != NULL; it = nodes.Next(it))
                 buffer.Appendf(":%U", *it);
+            break;
+        case CONFIGMESSAGE_RENAME_QUORUM:
+            buffer.Writef("%c:%U:%#R",
+             type, quorumID, &name);
             break;
         case CONFIGMESSAGE_DELETE_QUORUM:
             buffer.Writef("%c:%U",

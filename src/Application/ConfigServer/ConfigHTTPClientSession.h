@@ -51,6 +51,7 @@ private:
     ClientRequest*      ProcessGetState();
     ClientRequest*      ProcessPollConfigState();
     ClientRequest*      ProcessCreateQuorum();
+    ClientRequest*      ProcessRenameQuorum();
     ClientRequest*      ProcessDeleteQuorum();
     ClientRequest*      ProcessAddNode();
     ClientRequest*      ProcessRemoveNode();

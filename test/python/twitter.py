@@ -9,9 +9,7 @@ client = scaliendb.Client(["localhost:7080"])
 # scaliendb.set_trace(True)
 
 def setup_schema():
-	if not client.exists_database("twitter"):
-		client.create_database("twitter")
-	db = client.get_database("twitter")
+	db = client.create_database_cond("twitter")
 	db.create_table_cond("indices")
 	db.create_table_cond("users")
 	db.create_table_cond("tweets")

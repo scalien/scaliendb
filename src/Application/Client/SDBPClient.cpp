@@ -400,6 +400,32 @@ int Client::GetDatabaseID(ReadBuffer& name, uint64_t& databaseID)
     return SDBP_SUCCESS;
 }
 
+int Client::GetDatabaseName(uint64_t& databaseID, ReadBuffer& name)
+{
+    ConfigDatabase* database;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+    VALIDATE_CONTROLLER();
+    
+    result->Close();
+    CLIENT_MUTEX_UNLOCK();
+    if (!configState)
+        EventLoop();
+    else
+        EventLoop(0);
+    CLIENT_MUTEX_LOCK();
+
+    if (configState == NULL)
+        return SDBP_NOSERVICE;
+    
+    database = configState->GetDatabase(databaseID);
+    if (!database)
+        return SDBP_BADSCHEMA;
+    
+    name = database->name;
+    return SDBP_SUCCESS;
+}
+
 // return Command status
 int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
 {
@@ -484,9 +510,14 @@ int Client::UseTable(ReadBuffer& name)
     return SDBP_SUCCESS;
 }
 
-int Client::CreateQuorum(List<uint64_t>& nodes)
+int Client::CreateQuorum(ReadBuffer& name, List<uint64_t>& nodes)
 {
-    CLIENT_SCHEMA_COMMAND(CreateQuorum, nodes);
+    CLIENT_SCHEMA_COMMAND(CreateQuorum, name, nodes);
+}
+
+int Client::RenameQuorum(uint64_t quorumID, ReadBuffer& name)
+{
+    CLIENT_SCHEMA_COMMAND(RenameQuorum, quorumID, name);
 }
 
 int Client::DeleteQuorum(uint64_t quorumID)

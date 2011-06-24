@@ -155,6 +155,8 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteRegisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
             return CompleteCreateQuorum(message);
+        case CONFIGMESSAGE_RENAME_QUORUM:
+            return CompleteRenameQuorum(message);
         case CONFIGMESSAGE_DELETE_QUORUM:
             return CompleteDeleteQuorum(message);
         case CONFIGMESSAGE_ADD_NODE:
@@ -354,6 +356,8 @@ void ConfigState::OnMessage(ConfigMessage& message)
             return OnRegisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
             return OnCreateQuorum(message);
+        case CONFIGMESSAGE_RENAME_QUORUM:
+            return OnRenameQuorum(message);
         case CONFIGMESSAGE_DELETE_QUORUM:
             return OnDeleteQuorum(message);
         case CONFIGMESSAGE_ADD_NODE:
@@ -414,6 +418,19 @@ ConfigQuorum* ConfigState::GetQuorum(uint64_t quorumID)
     FOREACH (itQuorum, quorums)
     {
         if (itQuorum->quorumID == quorumID)
+            return itQuorum;
+    }
+    
+    return NULL;
+}
+
+ConfigQuorum* ConfigState::GetQuorum(ReadBuffer name)
+{
+    ConfigQuorum* itQuorum;
+    
+    FOREACH (itQuorum, quorums)
+    {
+        if (ReadBuffer::Cmp(itQuorum->name, name) == 0)
             return itQuorum;
     }
     
@@ -529,13 +546,45 @@ bool ConfigState::CompleteRegisterShardServer(ConfigMessage&)
 
 bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 {
-    uint64_t* itNodeID;
+    uint64_t*       itNodeID;
+    ConfigQuorum*   quorum;
     
+    if (message.name.GetLength() > DATABASE_NAME_SIZE)
+        return false;
+        
+    if (!message.name.IsAsciiPrintable())
+        return false;
+
     FOREACH (itNodeID, message.nodes)
     {
         if (GetShardServer(*itNodeID) == NULL)
             return false; // no such shard server
     }
+
+    quorum = GetQuorum(message.name);
+    if (quorum != NULL)
+        return false; // quorum with name exists
+
+    return true;
+}
+
+bool ConfigState::CompleteRenameQuorum(ConfigMessage& message)
+{
+    ConfigQuorum* quorum;
+    
+    if (message.name.GetLength() > DATABASE_NAME_SIZE)
+        return false;
+
+    quorum = GetQuorum(message.quorumID);
+    if (quorum == NULL)
+        return false; // no such quorum
+
+    quorum = GetQuorum(message.name);
+    if (quorum != NULL)
+        return false; // database with name exists
+
+    if (!message.name.IsAsciiPrintable())
+        return false;
 
     return true;
 }
@@ -862,6 +911,10 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     
     quorum = new ConfigQuorum;
     quorum->quorumID = nextQuorumID++;
+    if (message.name.GetLength() > 0)
+        quorum->name.Write(message.name);
+    else
+        quorum->name.Writef("quorum %U", quorum->quorumID);
     quorum->activeNodes.Clear();
     FOREACH (it, message.nodes)
         quorum->activeNodes.Add(*it);
@@ -869,6 +922,21 @@ void ConfigState::OnCreateQuorum(ConfigMessage& message)
     quorums.Append(quorum);
     
     message.quorumID = quorum->quorumID;
+}
+
+void ConfigState::OnRenameQuorum(ConfigMessage& message)
+{
+    ConfigQuorum*    quorum;
+
+    quorum = GetQuorum(message.name);
+    // make sure quorum with name does not exist
+    ASSERT(quorum == NULL);
+
+    quorum = GetQuorum(message.quorumID);
+    // make sure quorum with ID exists
+    ASSERT(quorum != NULL);
+        
+    quorum->name.Write(message.name);
 }
 
 void ConfigState::OnDeleteQuorum(ConfigMessage& message)
@@ -1075,10 +1143,7 @@ void ConfigState::OnRenameTable(ConfigMessage& message)
     // make sure table with name does not exist
     ASSERT(table == NULL);
 
-    table = GetTable(message.tableID);
-    // make sure table with ID exists
-    ASSERT(table != NULL);
-    
+    table = GetTable(message.tableID);    
     table->name.Write(message.name);
 }
 
@@ -1479,8 +1544,8 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
     int     read;
     char    c;
     
-    read = buffer.Readf("%U", &quorum.quorumID);
-    CHECK_ADVANCE(1);
+    read = buffer.Readf("%U:%#B", &quorum.quorumID, &quorum.name);
+    CHECK_ADVANCE(4);
     READ_SEPARATOR();
     if (!ReadIDList(quorum.activeNodes, buffer))
         return false;
@@ -1533,7 +1598,7 @@ bool ConfigState::ReadQuorum(ConfigQuorum& quorum, ReadBuffer& buffer, bool with
 
 void ConfigState::WriteQuorum(ConfigQuorum& quorum, Buffer& buffer, bool withVolatile)
 {
-    buffer.Appendf("%U", quorum.quorumID);
+    buffer.Appendf("%U:%#B", quorum.quorumID, &quorum.name);
     buffer.Appendf(":");
     WriteIDList(quorum.activeNodes, buffer);
     buffer.Appendf(":");
