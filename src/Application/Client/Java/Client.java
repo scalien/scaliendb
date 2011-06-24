@@ -193,7 +193,7 @@ public class Client
     }
     
     /**
-     * Creates a quorum.
+     * Creates a quorum with a default name.
      *
      * @param   nodes   an array of node IDs that makes the quorum
      * @return          the ID of the created quorum
