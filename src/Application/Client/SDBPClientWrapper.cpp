@@ -480,6 +480,14 @@ int SDBP_CreateQuorum(ClientObj client_, const std::string& name_, const SDBP_No
     return client->CreateQuorum(name, nodes);
 }
 
+int SDBP_RenameQuorum(ClientObj client_, uint64_t quorumID, const std::string& name_)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  name((char*) name_.c_str(), name_.length());
+    
+    return client->RenameQuorum(quorumID, name);
+}
+
 int SDBP_DeleteQuorum(ClientObj client_, uint64_t quorumID)
 {
     Client*     client = (Client*) client_;

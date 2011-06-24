@@ -489,6 +489,11 @@ int Client::CreateQuorum(ReadBuffer& name, List<uint64_t>& nodes)
     CLIENT_SCHEMA_COMMAND(CreateQuorum, name, nodes);
 }
 
+int Client::RenameQuorum(uint64_t quorumID, ReadBuffer& name)
+{
+    CLIENT_SCHEMA_COMMAND(RenameQuorum, quorumID, name);
+}
+
 int Client::DeleteQuorum(uint64_t quorumID)
 {
     CLIENT_SCHEMA_COMMAND(DeleteQuorum, quorumID);

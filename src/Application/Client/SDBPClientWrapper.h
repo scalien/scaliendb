@@ -118,6 +118,7 @@ void            SDBP_SetConsistencyLevel(ClientObj client, int consistencyLevel)
 */
 
 int             SDBP_CreateQuorum(ClientObj client, const std::string& name, const SDBP_NodeParams& params);
+int             SDBP_RenameQuorum(ClientObj client, uint64_t quorumID, const std::string& name);
 int             SDBP_DeleteQuorum(ClientObj client, uint64_t quorumID);
 int             SDBP_AddNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);
 int             SDBP_RemoveNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);
