@@ -7,7 +7,7 @@
     #ifdef PLATFORM_DARWIN
         const char *DLLExtension = ".dylib";
     #else
-        const char *DllExtension = ".so";
+        const char *DLLExtension = ".so";
     #endif
 #endif
 
