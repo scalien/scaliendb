@@ -90,6 +90,7 @@ class Error(Exception):
         return str_status(self.status)
 
 class Client:
+
     class Result:
         def __init__(self, cptr):
             self.cptr = cptr
@@ -208,6 +209,11 @@ class Client:
         else:
             raise Error(SDBP_API_ERROR, "nodes argument must be string or list")
 
+    class Quorum:
+        def __init__(self, client, quorum_name):
+            self.client = client
+            self.quorum_name = quorum_name
+
     class Table:
         def __init__(self, client, database_name, table_name):
             self.client = client
@@ -291,17 +297,17 @@ class Client:
             self.client.use_database(self.database_name)
             return self.client.create_table(table_name, quorum_name)
         
-        def create_table_cond(self, table_name):
+        def create_table_cond(self, table_name, quorum_name=None):
             self.client.use_database(self.database_name)
             if self.exists_table(table_name):
-                return True
-            return self.client.create_table(table_name)
+                return self.get_table(table_name)
+            return self.client.create_table(table_name, quorum_name)
         
-        def create_empty_table_cond(self, table_name):
+        def create_empty_table_cond(self, table_name, quorum_name=None):
             self.client.use_database(self.database_name)
             if self.exists_table(table_name):
                 return self.truncate_table(table_name)
-            return self.client.create_table(table_name)
+            return self.client.create_table(table_name, quorum_name)
 
         def delete_table(self, table_name):
             self.client.use_database(self.database_name)
@@ -383,6 +389,7 @@ class Client:
         
         Args:
             nodes (list): the ids of the nodes that constitutes the quorum
+            name (string): the name of the quorum
         """
         node_params = SDBP_NodeParams(len(nodes))
         for node in nodes:
@@ -391,16 +398,48 @@ class Client:
         node_params.Close()
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
-        return self.result.number()
+        quorum_id = self.result.number();
+        quorum_name = self.get_quorum_name(quorum_id)
+        return self.get_quorum(quorum_name)
+
+    def create_quorum_cond(self, nodes, name=""):
+        """
+        Creates a quorum if it does not exists
+        
+        Args:
+            nodes (list): the ids of the nodes that constitutes the quorum
+            name (string): the name of the quorum
+        """
+        if self.exists_quorum(name):
+           return self.get_quorum(name)
+        return self.create_quorum(nodes, name)
     
-    def delete_quorum(self, name):
+    def rename_quorum(self, quorum, new_name):
         """
         Deletes a quorum
         
         Args:
-            name (string): the name of the quorum
+            quorum (string or Quorum): the quorum to be renamed
+            new_name (string): the new name of the quorum
         """
-        quorum_id = self.get_quorum_id(name)
+        if isinstance(quorum, (str)):
+            quorum_id = self.get_quorum_id(quorum)
+        else:
+            quorum_id = self.get_quorum_id(quorum.quorum_name)
+        status = SDBP_RenameQuorum(self.cptr, quorum_id, new_name)
+        self._check_status(status)    
+    
+    def delete_quorum(self, quorum):
+        """
+        Deletes a quorum
+        
+        Args:
+            quorum (string or Quorum): the quorum
+        """
+        if isinstance(quorum, (str)):
+            quorum_id = self.get_quorum_id(quorum)
+        else:
+            quorum_id = self.get_quorum_id(quorum.quorum_name)
         status = SDBP_DeleteQuorum(self.cptr, quorum_id)
         self._check_status(status)
     
@@ -424,7 +463,7 @@ class Client:
         status = SDBP_CreateDatabase(self.cptr, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
-        return self.result.number()
+        return self.get_database(name)
 
     def create_database_cond(self, name):
         """
@@ -434,7 +473,7 @@ class Client:
             name (string): the name of the database to be created
         """
         if self.exists_database(name):
-           return True
+           return self.get_database(name)
         return self.create_database(name)
 
     def rename_database(self, src, dst):
@@ -461,29 +500,33 @@ class Client:
         status = SDBP_DeleteDatabase(self.cptr, database_id)
         self._check_status(status)
 
-    def create_table(self, name, quorum_name=None):
+    def create_table(self, name, quorum=None):
         """
         Creates a table
         
         Args:
             name (string): the name of the table
 
-            quorum_name (string): the name of the quorum (OPTIONAL)            
+            quorum (string or Quorum): the quorum to put the first shard (OPTIONAL)            
         """
-        if quorum_name is None:
+        if quorum is None:
             quorum_ids = self.get_quorum_ids()
             if len(quorum_ids) < 1:
                 raise Error(SDBP_BADSCHEMA, "No quorums")
             quorum_id = quorum_ids[0]
         else:
-            quorum_id = self.get_quorum_id(quorum_name)
+            if isinstance(quorum, (str)):
+                quorum_id = self.get_quorum_id(quorum)
+            else:
+                quorum_id = self.get_quorum_id(quorum.quorum_name)
         database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database selected")
         status = SDBP_CreateTable(self.cptr, database_id, quorum_id, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
-        return self.result.number()        
+        database_name = self.get_database_name(database_id)
+        return self.get_table(database_name, name)
 
     def rename_table(self, src, dst):
         """
@@ -629,16 +672,20 @@ class Client:
         if status < 0:
             raise Error(status)
     
-    def migrate_shard(self, quorum_name, shard_id):
+    def migrate_shard(self, quorum, shard_id):
         """
         Migrates a shard to a given quorum
         
         Args:
-            quorum_name (string): the name of the quorum
+            quorum (string or Quorum): the quorum to migrate to
             
             shard_id (long): the id of the shard
         """
-        quorum_id = self.get_quorum_id(quorum_name)
+
+        if isinstance(quorum, (str)):
+            quorum_id = self.get_quorum_id(quorum)
+        else:
+            quorum_id = self.get_quorum_id(quorum.quorum_name)
         status = SDBP_MigrateShard(self.cptr, quorum_id, shard_id)
         if status < 0:
             raise Error(status)
@@ -654,6 +701,18 @@ class Client:
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database found with name '%s'" % (name))
         return database_id
+
+    def get_database_name(self, database_id):
+        """
+        Returns the name of a database
+        
+        Args:
+            database_id (long): the id of the database
+        """
+        database_name = SDBP_GetDatabaseName(self.cptr, database_id)
+        if database_name == "":
+            raise Error(SDBP_BADSCHEMA, "No database found with id '%s'" % (database_id))
+        return database_name
     
     def get_table_id(self, database_id, name):
         """
@@ -677,15 +736,34 @@ class Client:
         """ Returns the current table id """
         return long(SDBP_GetCurrentTableID(self.cptr))
 
+    def exists_quorum(self, quorum_name):
+        quorum_names = self.get_quorums()
+        if quorum_name in quorum_names:
+            return True
+        else:
+            return False
+
     def get_quorum_ids(self):
         num_quorums = SDBP_GetNumQuorums(self.cptr)
-        quorum_ids = []
+        quorums = []
         for i in xrange(num_quorums):
             quorum_id = SDBP_GetQuorumIDAt(self.cptr, i)
-            quorum_ids.append(quorum_id)
-        return quorum_ids
+            quorum_name = SDBP_GetQuorumNameAt(self.cptr, i)
+            quorum = {"quorum_id": quorum_id, "name": quorum_name}
+            quorums.append(quorum)
+        return quorums
 
-    def get_quorum_names(self):
+    def get_quorum_name(self, quorum_id):
+        num_quorums = SDBP_GetNumQuorums(self.cptr)
+        quorum_names = []
+        for i in xrange(num_quorums):
+            id = SDBP_GetQuorumIDAt(self.cptr, i)
+            quorum_name = SDBP_GetQuorumNameAt(self.cptr, i)
+            if id == quorum_id:
+                return quorum_name
+        raise Error(status, "No such quorum id!")
+
+    def get_quorums(self):
         num_quorums = SDBP_GetNumQuorums(self.cptr)
         quorum_names = []
         for i in xrange(num_quorums):
@@ -708,6 +786,16 @@ class Client:
         databases = []
         for i in xrange(num_databases):
             database = SDBP_GetDatabaseNameAt(self.cptr, i)
+            databases.append(database)
+        return databases
+
+    def get_database_ids(self):
+        num_databases = SDBP_GetNumDatabases(self.cptr)
+        databases = []
+        for i in xrange(num_databases):
+            database_id = SDBP_GetDatabaseIDAt(self.cptr, i)
+            database_name = SDBP_GetDatabaseNameAt(self.cptr, i)
+            database = {"database_id": database_id, "name": database_name}
             databases.append(database)
         return databases
         
@@ -1032,6 +1120,9 @@ class Client:
             return status, False
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return status, True
+    
+    def get_quorum(self, quorum_name):
+        return self.Quorum(self, quorum_name)
     
     def get_table(self, database_name, table_name):
         return self.Table(self, database_name, table_name)
