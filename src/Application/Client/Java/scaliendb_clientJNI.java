@@ -70,7 +70,8 @@ class scaliendb_clientJNI {
   public final static native void SDBP_SetBatchLimit(long jarg1, java.math.BigInteger jarg2);
   public final static native void SDBP_SetBulkLoading(long jarg1, boolean jarg2);
   public final static native void SDBP_SetConsistencyLevel(long jarg1, int jarg2);
-  public final static native int SDBP_CreateQuorum(long jarg1, long jarg2, SDBP_NodeParams jarg2_);
+  public final static native int SDBP_CreateQuorum(long jarg1, String jarg2, long jarg3, SDBP_NodeParams jarg3_);
+  public final static native int SDBP_RenameQuorum(long jarg1, java.math.BigInteger jarg2, String jarg3);
   public final static native int SDBP_DeleteQuorum(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_AddNode(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3);
   public final static native int SDBP_RemoveNode(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3);
@@ -94,6 +95,7 @@ class scaliendb_clientJNI {
   public final static native int SDBP_UseTableID(long jarg1, java.math.BigInteger jarg2);
   public final static native long SDBP_GetNumQuorums(long jarg1);
   public final static native java.math.BigInteger SDBP_GetQuorumIDAt(long jarg1, long jarg2);
+  public final static native String SDBP_GetQuorumNameAt(long jarg1, long jarg2);
   public final static native long SDBP_GetNumDatabases(long jarg1);
   public final static native java.math.BigInteger SDBP_GetDatabaseIDAt(long jarg1, long jarg2);
   public final static native String SDBP_GetDatabaseNameAt(long jarg1, long jarg2);

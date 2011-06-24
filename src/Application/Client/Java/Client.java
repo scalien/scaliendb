@@ -204,11 +204,43 @@ public class Client
             nodeParams.AddNode(Long.toString(nodes[i]));
         }
         
-        int status = scaliendb_client.SDBP_CreateQuorum(cptr, nodeParams);
+        int status = scaliendb_client.SDBP_CreateQuorum(cptr, "", nodeParams);
         nodeParams.Close();
 
         checkResultStatus(status, "Cannot create quorum");
         return new Quorum(this, result.getNumber());
+    }
+
+    /**
+     * Creates a quorum.
+     *
+     * @param   nodes   an array of node IDs that makes the quorum
+     * @param   name    name of quorum
+     * @return          the ID of the created quorum
+     */
+    public Quorum createQuorum(String name, long[] nodes) throws SDBPException {
+        SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.length);
+        for (int i = 0; i < nodes.length; i++) {
+            nodeParams.AddNode(Long.toString(nodes[i]));
+        }
+        
+        int status = scaliendb_client.SDBP_CreateQuorum(cptr, name, nodeParams);
+        nodeParams.Close();
+
+        checkResultStatus(status, "Cannot create quorum");
+        return new Quorum(this, result.getNumber());
+    }
+
+    /**
+     * Renames a quorum.
+     *
+     * @param   quorumID    the ID of the quorum to be renamed
+     * @param   name    name of quorum
+     */
+    public void renameQuorum(long quorumID, String name) throws SDBPException {
+        BigInteger biQuorumID = BigInteger.valueOf(quorumID);
+        int status = scaliendb_client.SDBP_RenameQuorum(cptr, biQuorumID, name);
+        checkResultStatus(status, "Cannot rename quorum");
     }
 
     /**
