@@ -98,6 +98,7 @@ public:
     // shard server commands
     //
     int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
+    int                     GetDatabaseName(uint64_t& databaseID, ReadBuffer& name);
     int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
     int                     UseDatabase(ReadBuffer& name);
     int                     UseDatabaseID(uint64_t databaseID);

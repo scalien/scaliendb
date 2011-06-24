@@ -139,6 +139,7 @@ int             SDBP_UnfreezeTable(ClientObj client, uint64_t tableID);
 int             SDBP_MigrateShard(ClientObj client, uint64_t quorumID, uint64_t shardID);
 
 uint64_t        SDBP_GetDatabaseID(ClientObj client, const std::string& name);
+std::string     SDBP_GetDatabaseName(ClientObj client, uint64_t databaseID);
 uint64_t        SDBP_GetTableID(ClientObj client, uint64_t databaseID, const std::string& name);
 
 int             SDBP_UseDatabase(ClientObj client, const std::string& name);

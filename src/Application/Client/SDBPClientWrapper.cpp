@@ -612,6 +612,19 @@ uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)
     return databaseID;
 }
 
+std::string SDBP_GetDatabaseName(ClientObj client_, uint64_t databaseID)
+{
+    Client*     client = (Client*) client_;
+    ReadBuffer  name;
+    int         ret;
+
+    ret = client->GetDatabaseName(databaseID, name);
+    if (ret != SDBP_SUCCESS)
+        return 0;
+    
+    return std::string(name.GetBuffer(), name.GetLength());
+}
+
 uint64_t SDBP_GetTableID(ClientObj client_, uint64_t databaseID, const std::string& name_)
 {
     Client*     client = (Client*) client_;

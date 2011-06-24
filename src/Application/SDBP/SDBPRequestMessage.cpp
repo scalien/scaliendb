@@ -44,6 +44,10 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
             else
                 return false;
             break;
+        case CLIENTREQUEST_RENAME_QUORUM:
+            read = buffer.Readf("%c:%U:%U:%#B",
+             &request->type, &request->commandID, &request->quorumID, &request->name);
+            break;
         case CLIENTREQUEST_DELETE_QUORUM:
             read = buffer.Readf("%c:%U:%U",
              &request->type, &request->commandID, &request->quorumID);
@@ -198,6 +202,10 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->type, request->commandID, &request->name, request->nodes.GetLength());
             for (it = request->nodes.First(); it != NULL; it = request->nodes.Next(it))
                 buffer.Appendf(":%U", *it);
+            return true;
+        case CLIENTREQUEST_RENAME_QUORUM:
+            buffer.Appendf("%c:%U:%U:%#B",
+             request->type, request->commandID, request->quorumID, &request->name);
             return true;
         case CLIENTREQUEST_DELETE_QUORUM:
             buffer.Appendf("%c:%U:%U",

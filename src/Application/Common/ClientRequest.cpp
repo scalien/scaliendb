@@ -44,7 +44,7 @@ bool ClientRequest::IsControllerRequest()
         type == CLIENTREQUEST_GET_MASTER_HTTP   ||
         type == CLIENTREQUEST_GET_CONFIG_STATE  ||
         type == CLIENTREQUEST_CREATE_QUORUM     ||
-        type == CLIENTREQUEST_DELETE_QUORUM     ||
+        type == CLIENTREQUEST_RENAME_QUORUM     ||
         type == CLIENTREQUEST_DELETE_QUORUM     ||
         type == CLIENTREQUEST_ADD_NODE          ||
         type == CLIENTREQUEST_REMOVE_NODE       ||
