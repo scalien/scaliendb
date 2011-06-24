@@ -235,6 +235,10 @@ public class scaliendb_client {
     return scaliendb_clientJNI.SDBP_GetDatabaseID(SWIGTYPE_p_void.getCPtr(client), name);
   }
 
+  public static String SDBP_GetDatabaseName(SWIGTYPE_p_void client, java.math.BigInteger databaseID) {
+    return scaliendb_clientJNI.SDBP_GetDatabaseName(SWIGTYPE_p_void.getCPtr(client), databaseID);
+  }
+
   public static java.math.BigInteger SDBP_GetTableID(SWIGTYPE_p_void client, java.math.BigInteger databaseID, String name) {
     return scaliendb_clientJNI.SDBP_GetTableID(SWIGTYPE_p_void.getCPtr(client), databaseID, name);
   }

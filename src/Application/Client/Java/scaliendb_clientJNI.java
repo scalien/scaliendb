@@ -88,6 +88,7 @@ class scaliendb_clientJNI {
   public final static native int SDBP_UnfreezeTable(long jarg1, java.math.BigInteger jarg2);
   public final static native int SDBP_MigrateShard(long jarg1, java.math.BigInteger jarg2, java.math.BigInteger jarg3);
   public final static native java.math.BigInteger SDBP_GetDatabaseID(long jarg1, String jarg2);
+  public final static native String SDBP_GetDatabaseName(long jarg1, java.math.BigInteger jarg2);
   public final static native java.math.BigInteger SDBP_GetTableID(long jarg1, java.math.BigInteger jarg2, String jarg3);
   public final static native int SDBP_UseDatabase(long jarg1, String jarg2);
   public final static native int SDBP_UseDatabaseID(long jarg1, java.math.BigInteger jarg2);
