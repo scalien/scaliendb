@@ -815,6 +815,8 @@ void ShardDatabaseManager::OnExecuteLists()
         // set if prefix is set it is assumed that startKey and endKey is prefixed
         prefix = itRequest->prefix;
         startKey = itRequest->key;
+        if (startKey.GetLength() == 0)
+            startKey = itRequest->prefix;
         endKey = itRequest->endKey;
         
         // find the exact shard based on what startKey is given in the request
