@@ -12,6 +12,7 @@ CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/Application/ConfigState/ConfigTable.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigShard.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigShardServer.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigController.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigState.o \
 	$(BUILD_DIR)/Application/ConfigServer/JSONConfigState.o \
 	$(BUILD_DIR)/Application/HTTP/JSONBufferWriter.o \
