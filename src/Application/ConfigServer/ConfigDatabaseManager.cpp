@@ -5,7 +5,11 @@
 
 void ConfigDatabaseManager::Init()
 {
-    Buffer  envpath;
+    unsigned            num;
+    uint64_t            nodeID;
+    Buffer              envpath;
+    ReadBuffer          rb;
+    ConfigController*   controller;
     
     envpath.Writef("%s", configFile.GetValue("database.dir", "db"));
     environment.Open(envpath);
@@ -21,6 +25,17 @@ void ConfigDatabaseManager::Init()
     paxosID = 0;
     configState.Init();
     Read();
+    
+    num = configFile.GetListNum("controllers");
+    for (nodeID = 0; nodeID < num; nodeID++)
+    {
+        controller = new ConfigController;
+        controller->nodeID = nodeID;
+        rb = configFile.GetListValue("controllers", nodeID, "");
+        controller->endpoint.Set(rb);
+        configState.controllers.Append(controller);
+    }
+
 }
 
 void ConfigDatabaseManager::Shutdown()

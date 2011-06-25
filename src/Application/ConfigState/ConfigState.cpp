@@ -36,6 +36,7 @@ ConfigState::~ConfigState()
     tables.DeleteList();
     shards.DeleteList();
     shardServers.DeleteList();
+    controllers.DeleteList();
 }
 
 ConfigState& ConfigState::operator=(const ConfigState& other)
@@ -45,6 +46,7 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     ConfigTable*        table;
     ConfigShard*        shard;
     ConfigShardServer*  shardServer;
+    ConfigController*   controller;
     
     Init();
     
@@ -79,6 +81,9 @@ ConfigState& ConfigState::operator=(const ConfigState& other)
     
     FOREACH (shardServer, other.shardServers)
         shardServers.Append(new ConfigShardServer(*shardServer));
+
+    FOREACH (controller, other.controllers)
+        controllers.Append(new ConfigController(*controller));
         
     return *this;
 }
@@ -107,6 +112,7 @@ void ConfigState::Init()
     tables.DeleteList();
     shards.DeleteList();
     shardServers.DeleteList();
+    controllers.DeleteList();
 }
 
 void ConfigState::Transfer(ConfigState& other)
@@ -140,6 +146,8 @@ void ConfigState::Transfer(ConfigState& other)
     shards.ClearMembers();
     other.shardServers = shardServers;
     shardServers.ClearMembers();
+    other.controllers = controllers;
+    controllers.ClearMembers();
 
     Init();
 }

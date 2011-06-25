@@ -175,9 +175,14 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 {
     ClusterMessage      clusterMessage;
     ConfigShardServer*  shardServer;
+    ConfigController*   controller;
 
     if (IS_CONTROLLER(nodeID))
     {
+        controller = CONFIG_STATE->controllers.Get(nodeID);
+        ASSERT(controller);
+        controller->isConnected = true;
+
         quorumProcessor.UpdateListeners(/*force=*/true);
         return;
     }
@@ -213,8 +218,14 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 
 void ConfigServer::OnConnectionEnd(uint64_t nodeID, Endpoint /*endpoint*/)
 {
+    ConfigController* controller;
+    
     if (IS_CONTROLLER(nodeID))
     {
+        controller = CONFIG_STATE->controllers.Get(nodeID);
+        ASSERT(controller);
+        controller->isConnected = false;
+        
         quorumProcessor.UpdateListeners(/*force=*/true);
         return;
     }

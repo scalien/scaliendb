@@ -8,6 +8,7 @@
 #include "ConfigTable.h"
 #include "ConfigShard.h"
 #include "ConfigShardServer.h"
+#include "ConfigController.h"
 #include "Application/ConfigServer/ConfigMessage.h"
 
 #define CONFIG_MIN_SHARD_NODE_ID    100
@@ -31,6 +32,7 @@
 class ConfigState
 {
 public:
+    typedef InList<ConfigController>    Controllers;
     typedef InList<ConfigQuorum>        QuorumList;
     typedef InList<ConfigDatabase>      DatabaseList;
     typedef InList<ConfigTable>         TableList;
@@ -53,6 +55,7 @@ public:
     uint64_t            migrateQuorumID;
     // ========================================================================================
     
+    Controllers         controllers;
     QuorumList          quorums;
     DatabaseList        databases;
     TableList           tables;

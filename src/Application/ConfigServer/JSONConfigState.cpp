@@ -1,7 +1,6 @@
 #include "JSONConfigState.h"
 #include "System/Macros.h"
 #include "System/Config.h"
-#include "Application/Common/ContextTransport.h"
 #include "Application/ConfigState/ConfigShardServer.h"
 #include "ConfigServer.h"
 
@@ -75,9 +74,7 @@ void JSONConfigState::Write()
 
 void JSONConfigState::WriteControllers()
 {
-    unsigned    num;
-    uint64_t    nodeID;
-    ReadBuffer  rb;
+    ConfigController*   controller;
 
     json->PrintString("master");
     json->PrintColon();
@@ -91,25 +88,23 @@ void JSONConfigState::WriteControllers()
     json->PrintColon();
     json->PrintArrayStart();
 
-    num = configFile.GetListNum("controllers");
-    for (nodeID = 0; nodeID < num; nodeID++)
+    FOREACH(controller, configState->controllers)
     {
         json->PrintObjectStart();
 
         json->PrintString("nodeID");
         json->PrintColon();
-        json->PrintNumber(nodeID);
+        json->PrintNumber(controller->nodeID);
         json->PrintComma();
 
-        rb = configFile.GetListValue("controllers", nodeID, "");
         json->PrintString("endpoint");
         json->PrintColon();
-        json->PrintString(rb);
+        json->PrintString(controller->endpoint.ToString());
         json->PrintComma();
 
         json->PrintString("isConnected");
         json->PrintColon();
-        json->PrintBool(CONTEXT_TRANSPORT->IsConnected(nodeID));
+        json->PrintBool(controller->isConnected);
 
         json->PrintObjectEnd();
     }

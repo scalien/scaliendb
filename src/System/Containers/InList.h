@@ -25,7 +25,7 @@ public:
     InList();
     ~InList();
 
-    T&              Get(int i);
+    T*              Get(int i);
     
     void            Prepend(T* t);
     void            PrependList(InList<T>& list);
@@ -73,14 +73,14 @@ InList<T>::~InList()
 }
 
 template<class T>
-T& InList<T>::Get(int i)
+T* InList<T>::Get(int i)
 {
     T* it;
     
     for (it = First(); it != NULL; it = Next(it))
     {
         if (i == 0)
-            return *it;
+            return it;
         i--;
     }
     
