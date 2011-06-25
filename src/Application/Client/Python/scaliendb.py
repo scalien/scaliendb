@@ -265,15 +265,15 @@ class Client:
 
         def list_keys(self, start_key="", end_key="", prefix="", count=0, offset=0):
             self.use_defaults()
-            return self.client.list_keys(start_key="", end_key="", prefix="", count=0, offset=0)
+            return self.client.list_keys(start_key, end_key, prefix, count, offset)
 
         def list_key_values(self, start_key="", end_key="", prefix="", count=0, offset=0):
             self.use_defaults()
-            return self.client.list_key_values(start_key="", end_key="", prefix="", count=0, offset=0)
+            return self.client.list_key_values(start_key, end_key, prefix, count, offset)
 
         def count(self, start_key="", end_key="", prefix="", count=0, offset=0):
             self.use_defaults()
-            return self.client.count(start_key="", end_key="", prefix="", count=0, offset=0)
+            return self.client.count(start_key, end_key, prefix, count, offset)
 
     class Database:
         def __init__(self, client, database_name):
@@ -306,7 +306,8 @@ class Client:
         def create_empty_table_cond(self, table_name, quorum_name=None):
             self.client.use_database(self.database_name)
             if self.exists_table(table_name):
-                return self.truncate_table(table_name)
+                self.truncate_table(table_name)
+                return self.get_table(table_name)
             return self.client.create_table(table_name, quorum_name)
 
         def delete_table(self, table_name):
