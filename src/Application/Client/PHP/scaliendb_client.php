@@ -183,8 +183,12 @@ abstract class scaliendb_client {
 		SDBP_SetConsistencyLevel($client,$consistencyLevel);
 	}
 
-	static function SDBP_CreateQuorum($client,$params) {
-		return SDBP_CreateQuorum($client,$params);
+	static function SDBP_CreateQuorum($client,$name,$params) {
+		return SDBP_CreateQuorum($client,$name,$params);
+	}
+
+	static function SDBP_RenameQuorum($client,$quorumID,$name) {
+		return SDBP_RenameQuorum($client,$quorumID,$name);
 	}
 
 	static function SDBP_DeleteQuorum($client,$quorumID) {
@@ -235,6 +239,10 @@ abstract class scaliendb_client {
 		return SDBP_SplitShard($client,$shardID,$key);
 	}
 
+	static function SDBP_SplitShardAuto($client,$shardID) {
+		return SDBP_SplitShardAuto($client,$shardID);
+	}
+
 	static function SDBP_FreezeTable($client,$tableID) {
 		return SDBP_FreezeTable($client,$tableID);
 	}
@@ -243,12 +251,16 @@ abstract class scaliendb_client {
 		return SDBP_UnfreezeTable($client,$tableID);
 	}
 
-	static function SDBP_MigrateShard($client,$quorumID,$shardID) {
-		return SDBP_MigrateShard($client,$quorumID,$shardID);
+	static function SDBP_MigrateShard($client,$shardID,$quorumID) {
+		return SDBP_MigrateShard($client,$shardID,$quorumID);
 	}
 
 	static function SDBP_GetDatabaseID($client,$name) {
 		return SDBP_GetDatabaseID($client,$name);
+	}
+
+	static function SDBP_GetDatabaseName($client,$databaseID) {
+		return SDBP_GetDatabaseName($client,$databaseID);
 	}
 
 	static function SDBP_GetTableID($client,$databaseID,$name) {
@@ -279,6 +291,10 @@ abstract class scaliendb_client {
 		return SDBP_GetQuorumIDAt($client,$n);
 	}
 
+	static function SDBP_GetQuorumNameAt($client,$n) {
+		return SDBP_GetQuorumNameAt($client,$n);
+	}
+
 	static function SDBP_GetNumDatabases($client) {
 		return SDBP_GetNumDatabases($client);
 	}
@@ -301,6 +317,14 @@ abstract class scaliendb_client {
 
 	static function SDBP_GetTableNameAt($client,$n) {
 		return SDBP_GetTableNameAt($client,$n);
+	}
+
+	static function SDBP_GetNumShards($client) {
+		return SDBP_GetNumShards($client);
+	}
+
+	static function SDBP_GetShardIDAt($client,$n) {
+		return SDBP_GetShardIDAt($client,$n);
 	}
 
 	static function SDBP_Get($client,$key) {
