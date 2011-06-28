@@ -651,6 +651,9 @@ void ShardQuorumProcessor::OnBlockShard(uint64_t shardID)
 {
     // we could be in the middle of an async append loop
     blockedShardID = shardID;
+    
+    EventLoop::Reset(&unblockShardTimeout);
+
     if (!resumeAppend.IsActive() && !quorumContext.IsAppending())
         BlockShard();
 }
@@ -945,8 +948,6 @@ void ShardQuorumProcessor::BlockShard()
         itMessage->clientRequest = NULL;
         shardMessages.Delete(itMessage);
     }
-    
-    EventLoop::Reset(&unblockShardTimeout);
 }
 
 void ShardQuorumProcessor::OnUnblockShardTimeout()
