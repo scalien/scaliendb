@@ -210,9 +210,10 @@ class Client:
             raise Error(SDBP_API_ERROR, "nodes argument must be string or list")
 
     class Quorum:
-        def __init__(self, client, quorum_name):
+        def __init__(self, client, quorum_name, quorum_id):
             self.client = client
             self.quorum_name = quorum_name
+            self.quorum_id = quorum_id
 
     class Table:
         def __init__(self, client, database_name, table_name):
@@ -401,7 +402,7 @@ class Client:
         self._check_status(status)
         quorum_id = self.result.number();
         quorum_name = self.get_quorum_name(quorum_id)
-        return self.get_quorum(quorum_name)
+        return self.Quorum(self, quorum_name, quorum_id)
 
     def create_quorum_cond(self, nodes, name=""):
         """
@@ -409,6 +410,7 @@ class Client:
         
         Args:
             nodes (list): the ids of the nodes that constitutes the quorum
+
             name (string): the name of the quorum
         """
         if self.exists_quorum(name):
@@ -421,6 +423,7 @@ class Client:
         
         Args:
             quorum (string or Quorum): the quorum to be renamed
+
             new_name (string): the new name of the quorum
         """
         if isinstance(quorum, (str)):
@@ -535,10 +538,10 @@ class Client:
             quorum (string or Quorum): the quorum to put the first shard (OPTIONAL)            
         """
         if quorum is None:
-            quorum_ids = self.get_quorum_ids()
-            if len(quorum_ids) < 1:
+            quorums = self.get_quorums()
+            if len(quorums) < 1:
                 raise Error(SDBP_BADSCHEMA, "No quorums")
-            quorum_id = quorum_ids[0]
+            quorum_id = quorums[0].quorum_id
         else:
             if isinstance(quorum, (str)):
                 quorum_id = self.get_quorum_id(quorum)
@@ -547,6 +550,7 @@ class Client:
         database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database selected")
+        print(quorum_id)
         status = SDBP_CreateTable(self.cptr, database_id, quorum_id, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
@@ -763,19 +767,19 @@ class Client:
         return long(SDBP_GetCurrentTableID(self.cptr))
 
     def exists_quorum(self, quorum_name):
-        quorum_names = self.get_quorums()
-        if quorum_name in quorum_names:
-            return True
-        else:
-            return False
+        quorums = self.get_quorums()
+        for quorum in quorums:
+            if quorum.name == quorum_name:
+                return True
+        return False
 
-    def get_quorum_ids(self):
+    def get_quorums(self):
         num_quorums = SDBP_GetNumQuorums(self.cptr)
         quorums = []
         for i in xrange(num_quorums):
             quorum_id = SDBP_GetQuorumIDAt(self.cptr, i)
             quorum_name = SDBP_GetQuorumNameAt(self.cptr, i)
-            quorum = {"quorum_id": quorum_id, "name": quorum_name}
+            quorum = self.Quorum(self, quorum_name, quorum_id)
             quorums.append(quorum)
         return quorums
 
@@ -788,14 +792,6 @@ class Client:
             if id == quorum_id:
                 return quorum_name
         raise Error(status, "No such quorum id!")
-
-    def get_quorums(self):
-        num_quorums = SDBP_GetNumQuorums(self.cptr)
-        quorum_names = []
-        for i in xrange(num_quorums):
-            quorum_name = SDBP_GetQuorumNameAt(self.cptr, i)
-            quorum_names.append(quorum_name)
-        return quorum_names
 
     def get_quorum_id(self, name):
         num_quorums = SDBP_GetNumQuorums(self.cptr)
@@ -1148,7 +1144,7 @@ class Client:
         return status, True
     
     def get_quorum(self, quorum_name):
-        return self.Quorum(self, quorum_name)
+        return self.Quorum(self, quorum_name, self.get_quorum_id(quorum_name))
     
     def get_table(self, database_name, table_name):
         return self.Table(self, database_name, table_name)
