@@ -192,7 +192,9 @@ JAVA_INCLUDE = \
 	-I/Developer/SDKs/MacOSX10.5.sdk/System/Library/Frameworks/JavaVM.framework/Versions/1.5.0/Headers/ \
 	-I/usr/java/jdk/include/ \
 	-I/usr/lib/jvm/java-6-sun/include/ \
-	-I/usr/lib/jvm/java-6-sun/include/linux
+	-I/usr/lib/jvm/java-6-sun/include/linux \
+	-I/usr/lib/jvm/java-6-openjdk/include
+	
 
 JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Client.java \
