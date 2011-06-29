@@ -852,9 +852,11 @@ void ShardQuorumProcessor::OnResumeAppend()
          (appendState.currentAppend ? itShardMessage : &shardMessage), appendState.currentAppend);
 
         appendState.commandID++;
-        
+
         TRY_YIELD_RETURN(resumeAppend, start);
     }
+    
+    Log_Debug("numOps: %U", appendState.commandID);
     
     appendState.Reset();
 
@@ -871,7 +873,7 @@ void ShardQuorumProcessor::OnResumeAppend()
     if (blockedShardID != 0)
         BlockShard();
     
-    quorumContext.OnAppendComplete();    
+    quorumContext.OnAppendComplete();
 }
 
 void ShardQuorumProcessor::LocalExecute()
