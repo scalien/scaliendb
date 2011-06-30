@@ -396,7 +396,7 @@ cli: $(BUILD_DIR) $(BIN_DIR)/cli
 javadoc: $(JAVA_SOURCE_FILES) 
 	-SRCDIR=`pwd`; cd $(SRC_DIR)/$(JAVA_CLIENT_DIR) && javadoc -d $$SRCDIR/javadoc -public Client.java Database.java ListParams.java Quorum.java Result.java SDBPException.java Status.java Table.java
 
-install: release
+install: release clientlib
 	-cp -fr $(BIN_DIR)/$(ALIB) $(INSTALL_LIB_DIR)
 	-cp -fr $(BIN_DIR)/$(SOLIB) $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION)
 	-ln -sf $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION) $(INSTALL_LIB_DIR)/$(LIBNAME).$(SOEXT).$(VERSION_MAJOR)
@@ -407,6 +407,7 @@ install: release
 uninstall:
 	-rm $(INSTALL_LIB_DIR)/$(ALIB)
 	-rm $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION)
+	-rm $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION_MAJOR)
 	-rm $(INSTALL_LIB_DIR)/$(SOLIB)
 	-rm $(INSTALL_BIN_DIR)/scaliendb
 	-rm $(INSTALL_BIN_DIR)/safe_scaliendb
