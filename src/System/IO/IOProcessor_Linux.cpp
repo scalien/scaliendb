@@ -21,6 +21,13 @@
 #define MAX_EVENTS          1024
 #define PIPEOP              IOOperation::UNKNOWN
 
+/*
+===============================================================================================
+
+ PipeOp -- a pipe is used for notifying the IOProcessor in main thread from other threads
+
+===============================================================================================
+*/
 
 class PipeOp : public IOOperation
 {
@@ -54,6 +61,14 @@ public:
     Callable    callback;
 };
 
+/*
+===============================================================================================
+
+ EpollOp -- this class is used for simulating kqueue behaviour with epoll
+
+===============================================================================================
+*/
+
 class EpollOp
 {
 public:
@@ -67,6 +82,7 @@ public:
     IOOperation*    write;
 };
 
+
 static int              epollfd = 0;
 static int              maxfd;
 static PipeOp           asyncPipeOp;
@@ -74,9 +90,9 @@ static EpollOp*         epollOps;
 static volatile bool    terminated = false;
 static volatile int     numClient = 0;
 static volatile bool	running = false;
+static IOProcessorStat  stat;
 
 static bool             AddEvent(int fd, uint32_t filter, IOOperation* ioop);
-
 static void             ProcessAsyncOp();
 static void             ProcessIOOperation(IOOperation* ioop);
 static void             ProcessTCPRead(TCPRead* tcpread);
@@ -142,6 +158,7 @@ void SetupSignals()
     sigemptyset(&mask);
     pthread_sigmask(SIG_SETMASK, &mask, NULL);
 }
+
 void IOProcessor::BlockSignals(int blockMode)
 {
     struct sigaction    sa;
@@ -256,6 +273,8 @@ bool IOProcessor::Init(int maxfd_)
     
     if (!InitPipe(asyncPipeOp, CFunc(ProcessAsyncOp)))
         return false;
+
+    memset(&stat, 0, sizeof(stat));
 
     return true;
 }
@@ -423,11 +442,18 @@ bool IOProcessor::Poll(int sleep)
     static struct epoll_event   newev;
     IOOperation*                ioop;
     EpollOp*                    epollOp;
+    uint64_t                    startTime;
         
+    stat.numPolls++;    
+    
+    startTime = EventLoop::Now();
     running = false;
     nevents = epoll_wait(epollfd, events, SIZE(events), sleep);
     running = true;
     EventLoop::UpdateTime();
+    
+    stat.lastPollTime = EventLoop::Now();
+    stat.totalPollTime += stat.lastPollTime - startTime;
     
     if (nevents < 0 || terminated)
     {
@@ -435,6 +461,7 @@ bool IOProcessor::Poll(int sleep)
         return false;
     }
     
+    stat.lastNumEvents += (unsiged) nevents;
     for (i = 0; i < nevents; i++)
     {
         currentev = events[i].events;
@@ -522,6 +549,8 @@ bool IOProcessor::Complete(Callable* callable)
     Log_Trace();
     
     int nwrite;
+
+    stat.numCompletions++;
     
     nwrite = write(asyncPipeOp.pipe[1], callable, sizeof(Callable));
     if (nwrite < 0)
@@ -587,6 +616,7 @@ void ProcessTCPRead(TCPRead* tcpread)
 {
     int readlen, nread;
 
+    stat.numTCPReads++;
     if (tcpread->listening)
     {
         Call(tcpread->onComplete);
@@ -635,6 +665,8 @@ void ProcessTCPRead(TCPRead* tcpread)
 void ProcessTCPWrite(TCPWrite* tcpwrite)
 {
     int writelen, nwrite;
+
+    stat.numTCPWrites++;
 
     // this indicates check for connect() readyness
     if (tcpwrite->buffer == NULL)
@@ -694,6 +726,8 @@ void ProcessUDPRead(UDPRead* udpread)
 {
     int         nread;
     socklen_t   salen = ENDPOINT_SOCKADDR_SIZE;
+
+    stat.numUDPReads++;
     
     do
     {
@@ -732,6 +766,8 @@ void ProcessUDPWrite(UDPWrite* udpwrite)
 {
     int         nwrite;
     socklen_t   salen = ENDPOINT_SOCKADDR_SIZE;
+
+    stat.numUDPWrites++;
 
     nwrite = sendto(udpwrite->fd,
                     udpwrite->buffer->GetBuffer() + udpwrite->offset,

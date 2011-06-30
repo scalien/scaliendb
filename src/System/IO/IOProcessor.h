@@ -12,6 +12,28 @@ class Callable; // forward
 /*
 ===============================================================================================
 
+ IOProcessorStat
+
+===============================================================================================
+*/
+
+class IOProcessorStat
+{
+public:
+    uint64_t    numPolls;
+    uint64_t    numTCPReads;
+    uint64_t    numTCPWrites;
+    uint64_t    numUDPReads;
+    uint64_t    numUDPWrites;
+    uint64_t    numCompletions;
+    uint64_t    lastPollTime;
+    uint64_t    totalPollTime;
+    unsigned    lastNumEvents;
+};
+
+/*
+===============================================================================================
+
  IOProcessor
 
 ===============================================================================================
@@ -33,6 +55,8 @@ public:
     static void BlockSignals(int blockMode);
 
     static bool IsRunning();
+    
+    static void GetStats(IOProcessorStat* stat);
 };
 
 #endif

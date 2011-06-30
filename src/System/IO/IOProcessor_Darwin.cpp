@@ -28,6 +28,7 @@ static bool*            writeOps;
 static int              numOps;
 static volatile bool    terminated;
 static volatile int     numClient = 0;
+static IOProcessorStat  stat;
 
 static bool AddKq(int ident, short filter, IOOperation* ioop);
 
@@ -207,6 +208,8 @@ bool IOProcessor::Init(int maxfd_)
         writeOps[i] = false;
     }
     
+    memset(&stat, 0, sizeof(stat));
+    
     return true;
 }
 
@@ -342,14 +345,20 @@ bool IOProcessor::Poll(int sleep)
     static struct kevent    events[MAX_KEVENTS];
     struct timespec         timeout;
     IOOperation*            ioop;
+    uint64_t                startTime;
+    
+    stat.numPolls++;
     
     timeout.tv_sec = (time_t) floor(sleep / 1000.0);
     timeout.tv_nsec = (sleep - 1000 * timeout.tv_sec) * 1000000;
     
     Log_Trace("threadID: %U, sleep: %d", ThreadPool::GetThreadID(), sleep);
 
+    startTime = EventLoop::Now();
     nevents = kevent(kq, NULL, 0, events, SIZE(events), &timeout);
     EventLoop::UpdateTime();
+    stat.lastPollTime = EventLoop::Now();
+    stat.totalPollTime += stat.lastPollTime - startTime;
 
     Log_Trace("threadID: %U, sleep: %d, nevents: %d", ThreadPool::GetThreadID(), sleep, nevents);
 
@@ -363,6 +372,7 @@ bool IOProcessor::Poll(int sleep)
             return true;
     }
         
+    stat.lastNumEvents = (unsigned) nevents;
     for (i = 0; i < nevents; i++)
     {
         if (events[i].flags & EV_ERROR)
@@ -438,6 +448,8 @@ bool IOProcessor::Complete(Callable* callable)
 
     int nwrite;
     
+    stat.numCompletions++;
+    
     nwrite = write(asyncOpPipe[1], callable, sizeof(Callable));
     if (nwrite < 0)
         Log_Errno();
@@ -456,7 +468,7 @@ void ProcessAsyncOp()
     int nread;
     int count;
     int i;
-    
+
     while (1)
     {
         nread = read(asyncOpPipe[0], callables, SIZE(callables));
@@ -477,6 +489,7 @@ void ProcessTCPRead(struct kevent* ev)
     
     Log_Trace();
     
+    stat.numTCPReads++;
     tcpread = (TCPRead*) ev->udata;
 
     if (tcpread->listening)
@@ -525,6 +538,7 @@ void ProcessTCPWrite(struct kevent* ev)
 
     Log_Trace();
 
+    stat.numTCPWrites++;
     tcpwrite = (TCPWrite*) ev->udata;
     
     if (ev->flags & EV_EOF)
@@ -575,6 +589,7 @@ void ProcessUDPRead(struct kevent* ev)
     int         salen, nread;
     UDPRead*    udpread;
 
+    stat.numUDPReads++;
     udpread = (UDPRead*) ev->udata;
     
     salen = ENDPOINT_SOCKADDR_SIZE;
@@ -607,6 +622,7 @@ void ProcessUDPWrite(struct kevent* ev)
     int         nwrite;
     UDPWrite*   udpwrite;
 
+    stat.numUDPWrites++;
     udpwrite = (UDPWrite*) ev->udata;
 
     if (ev->data >= (int) udpwrite->buffer->GetLength())
@@ -641,6 +657,11 @@ void ProcessUDPWrite(struct kevent* ev)
     
     if (ev->flags & EV_EOF)
         Call(udpwrite->onClose);
+}
+
+void IOProcessor::GetStats(IOProcessorStat* stat_)
+{
+    *stat_ = stat;
 }
 
 #endif // PLATFORM_DARWIN

@@ -209,6 +209,7 @@ bool IOProcessor::Init(int maxfd)
     freeIods = iods;
 
     numIOProcClients++;
+    memset(&stat, 0, sizeof(stat));
 
     return true;
 }
@@ -447,14 +448,22 @@ bool IOProcessor::Poll(int msec)
     DWORD           flags;
     IODesc*         iod;
     IOOperation*    ioop;
+    uint64_t        startTime;
+
+    stat.numPolls++;
 
     timeout = (msec >= 0) ? msec : INFINITE;
 
+    startTime = EventLoop::Now();
     ret = GetQueuedCompletionStatus(iocp, &numBytes, (PULONG_PTR)&iod, &overlapped, timeout);
     if (terminated)
         return false;
 
     EventLoop::UpdateTime();
+    stat.lastPollTime = EventLoop::Now();
+    stat.totalPollTime += stat.lastPollTime - startTime;
+    stat.lastNumEvents = 1;
+    
     ioop = NULL;
     flags = 0;
     // ret == TRUE: a completion packet for a successful I/O operation was dequeued
@@ -538,6 +547,8 @@ bool IOProcessor::Complete(Callable* callable)
     BOOL    ret;
     DWORD   error;
 
+    stat.numCompletion++;
+
     ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) callable);
     if (!ret)
     {
@@ -557,6 +568,8 @@ bool ProcessTCPRead(TCPRead* tcpread)
     WSABUF      wsabuf;
     Callable    callable;
     DWORD       numBytes;
+
+    stat.numTCPReads++;
 
     if (tcpread->listening)
     {
@@ -610,6 +623,8 @@ bool ProcessUDPRead(UDPRead* udpread)
     Callable    callable;
     DWORD       numBytes;
 
+    stat.numUDPReads++;
+
     wsabuf.buf = (char*) udpread->buffer->GetBuffer();
     wsabuf.len = udpread->buffer->GetSize();
 
@@ -651,6 +666,8 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
     Callable    callable;
     DWORD       numBytes;
     DWORD       error;
+
+    stat.numTCPWrites++;
 
     if (tcpwrite->buffer == NULL)
         callable = tcpwrite->onComplete; // tcp connect case
@@ -702,6 +719,9 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
 bool ProcessUDPWrite(UDPWrite*)
 {
     ASSERT_FAIL();
+    
+    stat.numUDPWrites++;
+    
     return false;
 }
 

@@ -2,6 +2,7 @@
 #include "ShardServer.h"
 #include "System/Config.h"
 #include "System/FileSystem.h"
+#include "System/IO/IOProcessor.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
@@ -195,13 +196,35 @@ void ShardHTTPClientSession::PrintStatus()
 
 void ShardHTTPClientSession::PrintStorage()
 {
-    Buffer buffer;
+    Buffer  buffer;
     
     shardServer->GetDatabaseManager()->GetEnvironment()->PrintState(
      QUORUM_DATABASE_DATA_CONTEXT, buffer);
 
     session.Print(buffer);
 
+    session.Flush();
+}
+
+void ShardHTTPClientSession::PrintStatistics()
+{
+    Buffer          buffer;
+    IOProcessorStat iostat;
+    
+    IOProcessor::GetStats(&iostat);
+    
+    buffer.Append("IOProcessor stats\n");
+    buffer.Appendf("numPolls: %U\n", iostat.numPolls);
+    buffer.Appendf("numTCPReads: %U\n", iostat.numTCPReads);
+    buffer.Appendf("numTCPWrites: %U\n", iostat.numTCPWrites);
+    buffer.Appendf("numUDPReads: %U\n", iostat.numUDPReads);
+    buffer.Appendf("numUDPWrites: %U\n", iostat.numUDPWrites);
+    buffer.Appendf("numCompletions: %U\n", iostat.numCompletions);
+    buffer.Appendf("lastPollTime: %U\n", iostat.lastPollTime);
+    buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
+    buffer.Appendf("lastNumEvents: %U\n", iostat.lastNumEvents);
+
+    session.Print(buffer);
     session.Flush();
 }
 
@@ -229,6 +252,11 @@ bool ShardHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         StoragePageCache::Clear();
         session.Print("Cache cleared");
         session.Flush();
+        return true;
+    }
+    else if (HTTP_MATCH_COMMAND(cmd, "stats"))
+    {
+        PrintStatistics();
         return true;
     }
 
