@@ -90,7 +90,7 @@ static EpollOp*         epollOps;
 static volatile bool    terminated = false;
 static volatile int     numClient = 0;
 static volatile bool	running = false;
-static IOProcessorStat  stat;
+static IOProcessorStat  iostat;
 
 static bool             AddEvent(int fd, uint32_t filter, IOOperation* ioop);
 static void             ProcessAsyncOp();
@@ -274,7 +274,7 @@ bool IOProcessor::Init(int maxfd_)
     if (!InitPipe(asyncPipeOp, CFunc(ProcessAsyncOp)))
         return false;
 
-    memset(&stat, 0, sizeof(stat));
+    memset(&iostat, 0, sizeof(iostat));
 
     return true;
 }
@@ -444,7 +444,7 @@ bool IOProcessor::Poll(int sleep)
     EpollOp*                    epollOp;
     uint64_t                    startTime;
         
-    stat.numPolls++;    
+    iostat.numPolls++;    
     
     startTime = EventLoop::Now();
     running = false;
@@ -452,8 +452,8 @@ bool IOProcessor::Poll(int sleep)
     running = true;
     EventLoop::UpdateTime();
     
-    stat.lastPollTime = EventLoop::Now();
-    stat.totalPollTime += stat.lastPollTime - startTime;
+    iostat.lastPollTime = EventLoop::Now();
+    iostat.totalPollTime += iostat.lastPollTime - startTime;
     
     if (nevents < 0 || terminated)
     {
@@ -461,7 +461,7 @@ bool IOProcessor::Poll(int sleep)
         return false;
     }
     
-    stat.lastNumEvents += (unsiged) nevents;
+    iostat.lastNumEvents += (unsiged) nevents;
     for (i = 0; i < nevents; i++)
     {
         currentev = events[i].events;
@@ -550,7 +550,7 @@ bool IOProcessor::Complete(Callable* callable)
     
     int nwrite;
 
-    stat.numCompletions++;
+    iostat.numCompletions++;
     
     nwrite = write(asyncPipeOp.pipe[1], callable, sizeof(Callable));
     if (nwrite < 0)
@@ -616,7 +616,7 @@ void ProcessTCPRead(TCPRead* tcpread)
 {
     int readlen, nread;
 
-    stat.numTCPReads++;
+    iostat.numTCPReads++;
     if (tcpread->listening)
     {
         Call(tcpread->onComplete);
@@ -666,7 +666,7 @@ void ProcessTCPWrite(TCPWrite* tcpwrite)
 {
     int writelen, nwrite;
 
-    stat.numTCPWrites++;
+    iostat.numTCPWrites++;
 
     // this indicates check for connect() readyness
     if (tcpwrite->buffer == NULL)
@@ -727,7 +727,7 @@ void ProcessUDPRead(UDPRead* udpread)
     int         nread;
     socklen_t   salen = ENDPOINT_SOCKADDR_SIZE;
 
-    stat.numUDPReads++;
+    iostat.numUDPReads++;
     
     do
     {
@@ -767,7 +767,7 @@ void ProcessUDPWrite(UDPWrite* udpwrite)
     int         nwrite;
     socklen_t   salen = ENDPOINT_SOCKADDR_SIZE;
 
-    stat.numUDPWrites++;
+    iostat.numUDPWrites++;
 
     nwrite = sendto(udpwrite->fd,
                     udpwrite->buffer->GetBuffer() + udpwrite->offset,
