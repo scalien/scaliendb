@@ -814,7 +814,7 @@ bool IOProcessor::IsRunning()
 
 void IOProcessor::GetStats(IOProcessorStat* stat_)
 {
-    *stat_ = stat;
+    *stat_ = iostat;
 }
 
 
