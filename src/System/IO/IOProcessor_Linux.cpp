@@ -812,4 +812,10 @@ bool IOProcessor::IsRunning()
   return running;
 }
 
+void IOProcessor::GetStats(IOProcessorStat* stat_)
+{
+    *stat_ = stat;
+}
+
+
 #endif // PLATFORM_LINUX

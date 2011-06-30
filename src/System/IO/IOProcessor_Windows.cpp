@@ -725,4 +725,9 @@ bool ProcessUDPWrite(UDPWrite*)
     return false;
 }
 
+void IOProcessor::GetStats(IOProcessorStat* stat_)
+{
+    *stat_ = stat;
+}
+
 #endif
