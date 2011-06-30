@@ -401,15 +401,13 @@ install: release
 	-cp -fr $(BIN_DIR)/$(SOLIB) $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION)
 	-ln -sf $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION) $(INSTALL_LIB_DIR)/$(LIBNAME).$(SOEXT).$(VERSION_MAJOR)
 	-ln -sf $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION) $(INSTALL_LIB_DIR)/$(LIBNAME).$(SOEXT)
-	-cp -fr $(SRC_DIR)/Application/ScalienDB/Client/scaliendb_client.h $(INSTALL_INCLUDE_DIR)
-	-cp -fr $(BIN_DIR)/scaliend $(INSTALL_BIN_DIR)
-	-cp -fr $(SCRIPT_DIR)/safe_scaliend $(INSTALL_BIN_DIR)
+	-cp -fr $(BIN_DIR)/scaliendb $(INSTALL_BIN_DIR)
+	-cp -fr $(SCRIPT_DIR)/safe_scaliendb $(INSTALL_BIN_DIR)
 
 uninstall:
 	-rm $(INSTALL_LIB_DIR)/$(ALIB)
 	-rm $(INSTALL_LIB_DIR)/$(SOLIB).$(VERSION)
 	-rm $(INSTALL_LIB_DIR)/$(SOLIB)
-	-rm $(INSTALL_INCLUDE_DIR)/Application/ScalienDB/Client/scaliendb_client.h
 	-rm $(INSTALL_BIN_DIR)/scaliendb
 	-rm $(INSTALL_BIN_DIR)/safe_scaliendb
 
