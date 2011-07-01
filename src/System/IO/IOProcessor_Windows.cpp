@@ -549,7 +549,7 @@ bool IOProcessor::Complete(Callable* callable)
     BOOL    ret;
     DWORD   error;
 
-    iostat.numCompletion++;
+    iostat.numCompletions++;
 
     ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) callable);
     if (!ret)
