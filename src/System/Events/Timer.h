@@ -60,7 +60,7 @@ private:
 
 inline bool LessThan(Timer& a, Timer& b)
 {
-    return (a.GetExpireTime() < b.GetExpireTime());
+    return (a.GetExpireTime() <= b.GetExpireTime());
 }
 
 #endif
