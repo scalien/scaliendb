@@ -195,8 +195,14 @@ public class scaliendb_client {
     scaliendb_clientPINVOKE.SDBP_SetConsistencyLevel(SWIGTYPE_p_void.getCPtr(client), consistencyLevel);
   }
 
-  public static int SDBP_CreateQuorum(SWIGTYPE_p_void client, SDBP_NodeParams arg1) {
-    int ret = scaliendb_clientPINVOKE.SDBP_CreateQuorum(SWIGTYPE_p_void.getCPtr(client), SDBP_NodeParams.getCPtr(arg1));
+  public static int SDBP_CreateQuorum(SWIGTYPE_p_void client, string name, SDBP_NodeParams arg2) {
+    int ret = scaliendb_clientPINVOKE.SDBP_CreateQuorum(SWIGTYPE_p_void.getCPtr(client), name, SDBP_NodeParams.getCPtr(arg2));
+    if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static int SDBP_RenameQuorum(SWIGTYPE_p_void client, ulong quorumID, string name) {
+    int ret = scaliendb_clientPINVOKE.SDBP_RenameQuorum(SWIGTYPE_p_void.getCPtr(client), quorumID, name);
     if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
     return ret;
   }
@@ -266,6 +272,11 @@ public class scaliendb_client {
     return ret;
   }
 
+  public static int SDBP_SplitShardAuto(SWIGTYPE_p_void client, ulong shardID) {
+    int ret = scaliendb_clientPINVOKE.SDBP_SplitShardAuto(SWIGTYPE_p_void.getCPtr(client), shardID);
+    return ret;
+  }
+
   public static int SDBP_FreezeTable(SWIGTYPE_p_void client, ulong tableID) {
     int ret = scaliendb_clientPINVOKE.SDBP_FreezeTable(SWIGTYPE_p_void.getCPtr(client), tableID);
     return ret;
@@ -276,14 +287,19 @@ public class scaliendb_client {
     return ret;
   }
 
-  public static int SDBP_MigrateShard(SWIGTYPE_p_void client, ulong quorumID, ulong shardID) {
-    int ret = scaliendb_clientPINVOKE.SDBP_MigrateShard(SWIGTYPE_p_void.getCPtr(client), quorumID, shardID);
+  public static int SDBP_MigrateShard(SWIGTYPE_p_void client, ulong shardID, ulong quorumID) {
+    int ret = scaliendb_clientPINVOKE.SDBP_MigrateShard(SWIGTYPE_p_void.getCPtr(client), shardID, quorumID);
     return ret;
   }
 
   public static ulong SDBP_GetDatabaseID(SWIGTYPE_p_void client, string name) {
     ulong ret = scaliendb_clientPINVOKE.SDBP_GetDatabaseID(SWIGTYPE_p_void.getCPtr(client), name);
     if (scaliendb_clientPINVOKE.SWIGPendingException.Pending) throw scaliendb_clientPINVOKE.SWIGPendingException.Retrieve();
+    return ret;
+  }
+
+  public static string SDBP_GetDatabaseName(SWIGTYPE_p_void client, ulong databaseID) {
+    string ret = scaliendb_clientPINVOKE.SDBP_GetDatabaseName(SWIGTYPE_p_void.getCPtr(client), databaseID);
     return ret;
   }
 
@@ -325,6 +341,11 @@ public class scaliendb_client {
     return ret;
   }
 
+  public static string SDBP_GetQuorumNameAt(SWIGTYPE_p_void client, uint n) {
+    string ret = scaliendb_clientPINVOKE.SDBP_GetQuorumNameAt(SWIGTYPE_p_void.getCPtr(client), n);
+    return ret;
+  }
+
   public static uint SDBP_GetNumDatabases(SWIGTYPE_p_void client) {
     uint ret = scaliendb_clientPINVOKE.SDBP_GetNumDatabases(SWIGTYPE_p_void.getCPtr(client));
     return ret;
@@ -352,6 +373,16 @@ public class scaliendb_client {
 
   public static string SDBP_GetTableNameAt(SWIGTYPE_p_void client, uint n) {
     string ret = scaliendb_clientPINVOKE.SDBP_GetTableNameAt(SWIGTYPE_p_void.getCPtr(client), n);
+    return ret;
+  }
+
+  public static uint SDBP_GetNumShards(SWIGTYPE_p_void client) {
+    uint ret = scaliendb_clientPINVOKE.SDBP_GetNumShards(SWIGTYPE_p_void.getCPtr(client));
+    return ret;
+  }
+
+  public static ulong SDBP_GetShardIDAt(SWIGTYPE_p_void client, uint n) {
+    ulong ret = scaliendb_clientPINVOKE.SDBP_GetShardIDAt(SWIGTYPE_p_void.getCPtr(client), n);
     return ret;
   }
 

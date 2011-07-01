@@ -1046,19 +1046,47 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_SetConsistencyLevel(void * jarg1, int ja
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_CreateQuorum(void * jarg1, void * jarg2) {
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_CreateQuorum(void * jarg1, char * jarg2, void * jarg3) {
   int jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
-  SDBP_NodeParams *arg2 = 0 ;
+  std::string *arg2 = 0 ;
+  SDBP_NodeParams *arg3 = 0 ;
   int result;
   
   arg1 = (ClientObj)jarg1; 
-  arg2 = (SDBP_NodeParams *)jarg2;
-  if(!arg2) {
+  if (!jarg2) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg2_str(jarg2);
+  arg2 = &arg2_str; 
+  arg3 = (SDBP_NodeParams *)jarg3;
+  if(!arg3) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "SDBP_NodeParams const & type is null", 0);
     return 0;
   } 
-  result = (int)SDBP_CreateQuorum(arg1,(SDBP_NodeParams const &)*arg2);
+  result = (int)SDBP_CreateQuorum(arg1,(std::string const &)*arg2,(SDBP_NodeParams const &)*arg3);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_RenameQuorum(void * jarg1, unsigned long long jarg2, char * jarg3) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  if (!jarg3) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg3_str(jarg3);
+  arg3 = &arg3_str; 
+  result = (int)SDBP_RenameQuorum(arg1,arg2,(std::string const &)*arg3);
   jresult = result; 
   return jresult;
 }
@@ -1271,6 +1299,20 @@ SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_SplitShard(void * jarg1, unsigned long lo
 }
 
 
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_SplitShardAuto(void * jarg1, unsigned long long jarg2) {
+  int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  result = (int)SDBP_SplitShardAuto(arg1,arg2);
+  jresult = result; 
+  return jresult;
+}
+
+
 SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_FreezeTable(void * jarg1, unsigned long long jarg2) {
   int jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -1330,6 +1372,20 @@ SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetDatabaseID(void * jarg1
   arg2 = &arg2_str; 
   result = (uint64_t)SDBP_GetDatabaseID(arg1,(std::string const &)*arg2);
   jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetDatabaseName(void * jarg1, unsigned long long jarg2) {
+  char * jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (uint64_t)jarg2; 
+  result = SDBP_GetDatabaseName(arg1,arg2);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }
 
@@ -1447,6 +1503,20 @@ SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetQuorumIDAt(void * jarg1
 }
 
 
+SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetQuorumNameAt(void * jarg1, unsigned int jarg2) {
+  char * jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  unsigned int arg2 ;
+  std::string result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (unsigned int)jarg2; 
+  result = SDBP_GetQuorumNameAt(arg1,arg2);
+  jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
 SWIGEXPORT unsigned int SWIGSTDCALL CSharp_SDBP_GetNumDatabases(void * jarg1) {
   unsigned int jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -1523,6 +1593,32 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetTableNameAt(void * jarg1, unsigned 
   arg2 = (unsigned int)jarg2; 
   result = SDBP_GetTableNameAt(arg1,arg2);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_SDBP_GetNumShards(void * jarg1) {
+  unsigned int jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  unsigned int result;
+  
+  arg1 = (ClientObj)jarg1; 
+  result = (unsigned int)SDBP_GetNumShards(arg1);
+  jresult = result; 
+  return jresult;
+}
+
+
+SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetShardIDAt(void * jarg1, unsigned int jarg2) {
+  unsigned long long jresult ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  unsigned int arg2 ;
+  uint64_t result;
+  
+  arg1 = (ClientObj)jarg1; 
+  arg2 = (unsigned int)jarg2; 
+  result = (uint64_t)SDBP_GetShardIDAt(arg1,arg2);
+  jresult = result; 
   return jresult;
 }
 

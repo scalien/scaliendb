@@ -369,7 +369,10 @@ class scaliendb_clientPINVOKE {
   public static extern void SDBP_SetConsistencyLevel(HandleRef jarg1, int jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_CreateQuorum")]
-  public static extern int SDBP_CreateQuorum(HandleRef jarg1, HandleRef jarg2);
+  public static extern int SDBP_CreateQuorum(HandleRef jarg1, string jarg2, HandleRef jarg3);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_RenameQuorum")]
+  public static extern int SDBP_RenameQuorum(HandleRef jarg1, ulong jarg2, string jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_DeleteQuorum")]
   public static extern int SDBP_DeleteQuorum(HandleRef jarg1, ulong jarg2);
@@ -407,6 +410,9 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SplitShard")]
   public static extern int SDBP_SplitShard(HandleRef jarg1, ulong jarg2, string jarg3);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SplitShardAuto")]
+  public static extern int SDBP_SplitShardAuto(HandleRef jarg1, ulong jarg2);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_FreezeTable")]
   public static extern int SDBP_FreezeTable(HandleRef jarg1, ulong jarg2);
 
@@ -418,6 +424,9 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetDatabaseID")]
   public static extern ulong SDBP_GetDatabaseID(HandleRef jarg1, string jarg2);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetDatabaseName")]
+  public static extern string SDBP_GetDatabaseName(HandleRef jarg1, ulong jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetTableID")]
   public static extern ulong SDBP_GetTableID(HandleRef jarg1, ulong jarg2, string jarg3);
@@ -440,6 +449,9 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetQuorumIDAt")]
   public static extern ulong SDBP_GetQuorumIDAt(HandleRef jarg1, uint jarg2);
 
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetQuorumNameAt")]
+  public static extern string SDBP_GetQuorumNameAt(HandleRef jarg1, uint jarg2);
+
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetNumDatabases")]
   public static extern uint SDBP_GetNumDatabases(HandleRef jarg1);
 
@@ -457,6 +469,12 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetTableNameAt")]
   public static extern string SDBP_GetTableNameAt(HandleRef jarg1, uint jarg2);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetNumShards")]
+  public static extern uint SDBP_GetNumShards(HandleRef jarg1);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetShardIDAt")]
+  public static extern ulong SDBP_GetShardIDAt(HandleRef jarg1, uint jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Get")]
   public static extern int SDBP_Get(HandleRef jarg1, string jarg2);
