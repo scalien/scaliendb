@@ -373,6 +373,7 @@ bool IOProcessor::Poll(int sleep)
     }
         
     stat.lastNumEvents = (unsigned) nevents;
+    stat.totalNumEvents += nevents;
     for (i = 0; i < nevents; i++)
     {
         if (events[i].flags & EV_ERROR)

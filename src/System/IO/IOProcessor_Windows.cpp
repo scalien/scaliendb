@@ -463,6 +463,7 @@ bool IOProcessor::Poll(int msec)
     stat.lastPollTime = EventLoop::Now();
     stat.totalPollTime += stat.lastPollTime - startTime;
     stat.lastNumEvents = 1;
+    stat.totalNumEvents++;
     
     ioop = NULL;
     flags = 0;

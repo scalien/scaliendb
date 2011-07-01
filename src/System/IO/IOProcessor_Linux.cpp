@@ -461,7 +461,8 @@ bool IOProcessor::Poll(int sleep)
         return false;
     }
     
-    iostat.lastNumEvents += (unsigned) nevents;
+    iostat.lastNumEvents = (unsigned) nevents;
+    iostat.totalNumEvents += nevents;
     for (i = 0; i < nevents; i++)
     {
         currentev = events[i].events;

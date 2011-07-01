@@ -29,6 +29,7 @@ public:
     uint64_t    lastPollTime;
     uint64_t    totalPollTime;
     unsigned    lastNumEvents;
+    uint64_t    totalNumEvents;
 };
 
 /*
