@@ -103,7 +103,7 @@ namespace Scalien
             return quorums;
         }
 
-        public Quorum CreateQuorum(ulong[] nodes)
+        public Quorum CreateQuorum(string name, ulong[] nodes)
         {
             SDBP_NodeParams nodeParams = new SDBP_NodeParams(nodes.Length);
             for (int i = 0; i < nodes.Length; i++)
@@ -112,7 +112,7 @@ namespace Scalien
                 nodeParams.AddNode(nodeString);
             }
 
-            int status = scaliendb_client.SDBP_CreateQuorum(cptr, nodeParams);
+            int status = scaliendb_client.SDBP_CreateQuorum(cptr, name, nodeParams);
             nodeParams.Close();
 
             CheckResultStatus(status, "Cannot create quorum");

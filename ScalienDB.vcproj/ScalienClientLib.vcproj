@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ScalienClientLib"
 	ProjectGUID="{976E9A99-01CA-4A96-A801-6C7D1C17AAA2}"
 	RootNamespace="ScalienClientLib"
@@ -266,6 +266,14 @@
 			<Filter
 				Name="ConfigState"
 				>
+				<File
+					RelativePath="..\src\Application\ConfigState\ConfigController.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\Application\ConfigState\ConfigController.h"
+					>
+				</File>
 				<File
 					RelativePath="..\src\Application\ConfigState\ConfigDatabase.cpp"
 					>
