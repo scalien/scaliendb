@@ -223,6 +223,7 @@ void ShardHTTPClientSession::PrintStatistics()
     buffer.Appendf("lastPollTime: %U\n", iostat.lastPollTime);
     buffer.Appendf("totalPollTime: %U\n", iostat.totalPollTime);
     buffer.Appendf("lastNumEvents: %U\n", iostat.lastNumEvents);
+    buffer.Appendf("totalNumEvents: %U\n", iostat.totalNumEvents);
 
     session.Print(buffer);
     session.Flush();
