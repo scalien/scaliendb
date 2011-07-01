@@ -33,6 +33,8 @@ public:
     Timer*          next;
     Timer*          prev;
 
+    bool            ran;
+
 protected:
     bool            active;
     uint64_t        expireTime;

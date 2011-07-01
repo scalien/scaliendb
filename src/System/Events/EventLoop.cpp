@@ -3,7 +3,6 @@
 
 static volatile uint64_t        now;
 static bool                     running;
-static ArrayList<Timer*, 1024>  ran;
 
 long EventLoop::RunTimers()
 {
@@ -11,13 +10,16 @@ long EventLoop::RunTimers()
     long    wait;
     
     wait = -1;
-    ran.Clear();
+
+    FOREACH (timer, timers)
+        timer->ran = false;
+
     for (timer = timers.First(); timer != NULL; )
     {
         UpdateTime();
         if (timer->GetExpireTime() <= now)
         {
-            if (ran.Contains(timer))
+            if (timer->ran)
             {
                 timer = timers.Next(timer);
                 wait = 0;
@@ -25,7 +27,7 @@ long EventLoop::RunTimers()
             }
             Remove(timer);
             timer->Execute();
-            ran.Append(timer);
+            timer->ran = true;
             timer = timers.First();
         }
         else

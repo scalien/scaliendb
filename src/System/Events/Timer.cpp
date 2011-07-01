@@ -4,6 +4,7 @@ Timer::Timer()
 {
     expireTime = 0;
     active = false;
+    ran = false;
 
     next = this;
     prev = this;
