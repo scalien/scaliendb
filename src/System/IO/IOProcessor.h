@@ -23,8 +23,12 @@ public:
     uint64_t    numPolls;
     uint64_t    numTCPReads;
     uint64_t    numTCPWrites;
+    uint64_t    numTCPBytesSent;
+    uint64_t    numTCPBytesReceived;
     uint64_t    numUDPReads;
     uint64_t    numUDPWrites;
+    uint64_t    numUDPBytesSent;
+    uint64_t    numUDPBytesReceived;
     uint64_t    numCompletions;
     uint64_t    lastPollTime;
     uint64_t    totalPollTime;

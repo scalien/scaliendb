@@ -654,6 +654,7 @@ void ProcessTCPRead(TCPRead* tcpread)
     }
     else
     {
+        iostat.numTCPBytesReceived += nread;
         tcpread->buffer->Lengthen(nread);
         if (tcpread->requested == IO_READ_ANY || 
             tcpread->buffer->GetLength() == (unsigned)tcpread->requested)
@@ -715,6 +716,7 @@ void ProcessTCPWrite(TCPWrite* tcpwrite)
     }
     else
     {
+        iostat.numTCPBytesSent += nwrite;
         tcpwrite->transferred += nwrite;
         if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
             Call(tcpwrite->onComplete);
@@ -757,6 +759,7 @@ void ProcessUDPRead(UDPRead* udpread)
         }
         else
         {
+            iostat.numUDPBytesReceived += nread;
             udpread->buffer->SetLength(nread);
             Call(udpread->onComplete);
         }
@@ -795,6 +798,7 @@ void ProcessUDPWrite(UDPWrite* udpwrite)
     }
     else
     {
+        iostat.numUDPBytesSent += nwrite;
         if (nwrite == (int)udpwrite->buffer->GetLength() - udpwrite->offset)
         {
             Call(udpwrite->onComplete);

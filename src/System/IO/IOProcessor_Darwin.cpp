@@ -28,7 +28,7 @@ static bool*            writeOps;
 static int              numOps;
 static volatile bool    terminated;
 static volatile int     numClient = 0;
-static IOProcessorStat  stat;
+static IOProcessorStat  iostat;
 
 static bool AddKq(int ident, short filter, IOOperation* ioop);
 
@@ -208,7 +208,7 @@ bool IOProcessor::Init(int maxfd_)
         writeOps[i] = false;
     }
     
-    memset(&stat, 0, sizeof(stat));
+    memset(&iostat, 0, sizeof(iostat));
     
     return true;
 }
@@ -347,7 +347,7 @@ bool IOProcessor::Poll(int sleep)
     IOOperation*            ioop;
     uint64_t                startTime;
     
-    stat.numPolls++;
+    iostat.numPolls++;
     
     timeout.tv_sec = (time_t) floor(sleep / 1000.0);
     timeout.tv_nsec = (sleep - 1000 * timeout.tv_sec) * 1000000;
@@ -357,8 +357,8 @@ bool IOProcessor::Poll(int sleep)
     startTime = EventLoop::Now();
     nevents = kevent(kq, NULL, 0, events, SIZE(events), &timeout);
     EventLoop::UpdateTime();
-    stat.lastPollTime = EventLoop::Now();
-    stat.totalPollTime += stat.lastPollTime - startTime;
+    iostat.lastPollTime = EventLoop::Now();
+    iostat.totalPollTime += iostat.lastPollTime - startTime;
 
     Log_Trace("threadID: %U, sleep: %d, nevents: %d", ThreadPool::GetThreadID(), sleep, nevents);
 
@@ -372,8 +372,8 @@ bool IOProcessor::Poll(int sleep)
             return true;
     }
         
-    stat.lastNumEvents = (unsigned) nevents;
-    stat.totalNumEvents += nevents;
+    iostat.lastNumEvents = (unsigned) nevents;
+    iostat.totalNumEvents += nevents;
     for (i = 0; i < nevents; i++)
     {
         if (events[i].flags & EV_ERROR)
@@ -449,7 +449,7 @@ bool IOProcessor::Complete(Callable* callable)
 
     int nwrite;
     
-    stat.numCompletions++;
+    iostat.numCompletions++;
     
     nwrite = write(asyncOpPipe[1], callable, sizeof(Callable));
     if (nwrite < 0)
@@ -490,7 +490,7 @@ void ProcessTCPRead(struct kevent* ev)
     
     Log_Trace();
     
-    stat.numTCPReads++;
+    iostat.numTCPReads++;
     tcpread = (TCPRead*) ev->udata;
 
     if (tcpread->listening)
@@ -519,6 +519,7 @@ void ProcessTCPRead(struct kevent* ev)
             }
             else
             {
+                iostat.numTCPBytesReceived += nread;
                 tcpread->buffer->Lengthen(nread);
                 if (tcpread->requested == IO_READ_ANY ||
                 (int) tcpread->buffer->GetLength() == tcpread->requested)
@@ -539,7 +540,7 @@ void ProcessTCPWrite(struct kevent* ev)
 
     Log_Trace();
 
-    stat.numTCPWrites++;
+    iostat.numTCPWrites++;
     tcpwrite = (TCPWrite*) ev->udata;
     
     if (ev->flags & EV_EOF)
@@ -576,6 +577,7 @@ void ProcessTCPWrite(struct kevent* ev)
         }
         else
         {
+            iostat.numTCPBytesSent += nwrite;
             tcpwrite->transferred += nwrite;
             if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
                 Call(tcpwrite->onComplete);
@@ -590,7 +592,7 @@ void ProcessUDPRead(struct kevent* ev)
     int         salen, nread;
     UDPRead*    udpread;
 
-    stat.numUDPReads++;
+    iostat.numUDPReads++;
     udpread = (UDPRead*) ev->udata;
     
     salen = ENDPOINT_SOCKADDR_SIZE;
@@ -610,6 +612,7 @@ void ProcessUDPRead(struct kevent* ev)
     }
     else
     {
+        iostat.numUDPBytesReceived += nread;
         udpread->buffer->SetLength(nread);
         Call(udpread->onComplete);
     }
@@ -623,7 +626,7 @@ void ProcessUDPWrite(struct kevent* ev)
     int         nwrite;
     UDPWrite*   udpwrite;
 
-    stat.numUDPWrites++;
+    iostat.numUDPWrites++;
     udpwrite = (UDPWrite*) ev->udata;
 
     if (ev->data >= (int) udpwrite->buffer->GetLength())
@@ -644,6 +647,7 @@ void ProcessUDPWrite(struct kevent* ev)
         }
         else
         {
+            iostat.numUDPBytesSent += nwrite;
             if (nwrite == (int) udpwrite->buffer->GetLength())
             {
                 Call(udpwrite->onComplete);
@@ -662,7 +666,7 @@ void ProcessUDPWrite(struct kevent* ev)
 
 void IOProcessor::GetStats(IOProcessorStat* stat_)
 {
-    *stat_ = stat;
+    *stat_ = iostat;
 }
 
 #endif // PLATFORM_DARWIN

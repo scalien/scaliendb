@@ -39,6 +39,7 @@ const FD                INVALID_FD = {-1, INVALID_SOCKET};  // special FD to ind
 unsigned                SEND_BUFFER_SIZE = 8001;
 static volatile bool    terminated = false;
 static unsigned         numIOProcClients = 0;
+static IOProcessorStat  iostat;
 
 static LPFN_CONNECTEX   ConnectEx;
 
@@ -209,7 +210,7 @@ bool IOProcessor::Init(int maxfd)
     freeIods = iods;
 
     numIOProcClients++;
-    memset(&stat, 0, sizeof(stat));
+    memset(&iostat, 0, sizeof(iostat));
 
     return true;
 }
@@ -450,7 +451,7 @@ bool IOProcessor::Poll(int msec)
     IOOperation*    ioop;
     uint64_t        startTime;
 
-    stat.numPolls++;
+    iostat.numPolls++;
 
     timeout = (msec >= 0) ? msec : INFINITE;
 
@@ -460,10 +461,10 @@ bool IOProcessor::Poll(int msec)
         return false;
 
     EventLoop::UpdateTime();
-    stat.lastPollTime = EventLoop::Now();
-    stat.totalPollTime += stat.lastPollTime - startTime;
-    stat.lastNumEvents = 1;
-    stat.totalNumEvents++;
+    iostat.lastPollTime = EventLoop::Now();
+    iostat.totalPollTime += iostat.lastPollTime - startTime;
+    iostat.lastNumEvents = 1;
+    iostat.totalNumEvents++;
     
     ioop = NULL;
     flags = 0;
@@ -548,7 +549,7 @@ bool IOProcessor::Complete(Callable* callable)
     BOOL    ret;
     DWORD   error;
 
-    stat.numCompletion++;
+    iostat.numCompletion++;
 
     ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) callable);
     if (!ret)
@@ -570,7 +571,7 @@ bool ProcessTCPRead(TCPRead* tcpread)
     Callable    callable;
     DWORD       numBytes;
 
-    stat.numTCPReads++;
+    iostat.numTCPReads++;
 
     if (tcpread->listening)
     {
@@ -600,6 +601,7 @@ bool ProcessTCPRead(TCPRead* tcpread)
             callable = tcpread->onClose;
         else
         {
+            iostat.numTCPBytesReceived += numBytes;
             tcpread->buffer->Lengthen(numBytes);
             ASSERT(tcpread->buffer->GetLength() <= tcpread->buffer->GetSize());
             callable = tcpread->onComplete;
@@ -624,7 +626,7 @@ bool ProcessUDPRead(UDPRead* udpread)
     Callable    callable;
     DWORD       numBytes;
 
-    stat.numUDPReads++;
+    iostat.numUDPReads++;
 
     wsabuf.buf = (char*) udpread->buffer->GetBuffer();
     wsabuf.len = udpread->buffer->GetSize();
@@ -646,6 +648,7 @@ bool ProcessUDPRead(UDPRead* udpread)
         callable = udpread->onClose;
     else
     {
+        iostat.numUDPBytesReceived += numBytes;
         udpread->buffer->SetLength(numBytes);
         ASSERT(udpread->buffer->GetLength() <= udpread->buffer->GetSize());
         callable = udpread->onComplete;
@@ -668,7 +671,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
     DWORD       numBytes;
     DWORD       error;
 
-    stat.numTCPWrites++;
+    iostat.numTCPWrites++;
 
     if (tcpwrite->buffer == NULL)
         callable = tcpwrite->onComplete; // tcp connect case
@@ -697,6 +700,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
             callable = tcpwrite->onClose;
         else
         {
+            iostat.numTCPBytesSent += numBytes;
             tcpwrite->transferred += numBytes;
             if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
                 callable = tcpwrite->onComplete;
@@ -721,14 +725,16 @@ bool ProcessUDPWrite(UDPWrite*)
 {
     ASSERT_FAIL();
     
-    stat.numUDPWrites++;
+    // TODO
+    //iostat.numUDPBytesSent += numBytes;
+    iostat.numUDPWrites++;
     
     return false;
 }
 
 void IOProcessor::GetStats(IOProcessorStat* stat_)
 {
-    *stat_ = stat;
+    *stat_ = iostat;
 }
 
 #endif
