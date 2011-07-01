@@ -529,7 +529,7 @@ FD FS_Open(const char* filename, int flags)
         DWORD   error;
 
         error = GetLastError();
-        Log_Message("error = %u", error);
+        Log_Debug("error = %u", error);
         fd = INVALID_FD;
         return fd;
     }

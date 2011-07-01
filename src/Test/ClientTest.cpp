@@ -1021,7 +1021,7 @@ TEST_DEFINE(TestClientCreateTable)
     
     // quorum
     quorumNodes.Append(defaultQuorumNodeID);
-    ret = client.CreateQuorum(quorumNodes);
+    ret = client.CreateQuorum("", quorumNodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
@@ -1465,7 +1465,7 @@ TEST_DEFINE(TestClientSchemaSet)
         List<uint64_t> quorumNodes;
         uint64_t nodeID = 100;
         quorumNodes.Append(nodeID);
-        ret = client.CreateQuorum(quorumNodes);
+        ret = client.CreateQuorum("", quorumNodes);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
         

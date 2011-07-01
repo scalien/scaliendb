@@ -86,6 +86,7 @@ T* InList<T>::Get(int i)
     
     
     ASSERT_FAIL();
+    return NULL;
 }
 
 template<class T>

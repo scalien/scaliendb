@@ -6,6 +6,8 @@
 
 void ConfigServerApp::Init()
 {
+    int         sdbpPort;
+    Endpoint    httpEndpoint;
     ReadBuffer  docroot;
     ReadBuffer  prefix;
     ReadBuffer  index;
@@ -22,11 +24,16 @@ void ConfigServerApp::Init()
     httpFileHandler.SetDirectoryIndex(index);
     httpServer.RegisterHandler(&httpFileHandler);
     
-    sdbpServer.Init(configFile.GetIntValue("sdbp.port", 7080));
+    sdbpPort = configFile.GetIntValue("sdbp.port", 7080);
+    sdbpServer.Init(sdbpPort);
     sdbpServer.SetContext(&configServer);
 
     // start configServer only after network servers are started
     configServer.Init();
+
+    configServer.GetHTTPEndpoint(httpEndpoint);
+    Log_Message("Web admin is started at http://%s%R", httpEndpoint.ToString(), &prefix);
+    Log_Message("Waiting for connections on port %d", sdbpPort);
     
     statTimer.SetDelay(configFile.GetIntValue("controller.logStatTime", 10*1000));
     if (statTimer.GetDelay() != 0)
