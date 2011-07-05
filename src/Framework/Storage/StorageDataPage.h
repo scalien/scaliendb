@@ -50,7 +50,7 @@ public:
     void                    Unload();
 
 private:
-    void                    AppendKeyValue(StorageFileKeyValue* kv);
+    void                    AppendKeyValue(StorageFileKeyValue& kv);
 
     uint32_t                size;
     uint32_t                compressedSize;
@@ -59,7 +59,8 @@ private:
     Buffer                  keysBuffer;
     Buffer                  valuesBuffer;
     StorageFileChunk*       owner;
-    Buffer                  keyValueIndexBuffer;
+    Buffer                  storageFileKeyValueBuffer;
+//    Buffer                  keyValueIndexBuffer;
 };
 
 #endif
