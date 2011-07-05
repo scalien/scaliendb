@@ -1,6 +1,7 @@
 #ifndef SHARDQUORUMPROCESSOR_H
 #define SHARDQUORUMPROCESSOR_H
 
+#include "System/Containers/InCache.h"
 #include "Application/Common/ClusterMessage.h"
 #include "Application/Common/ClientRequest.h"
 #include "ShardMessage.h"
@@ -63,6 +64,7 @@ struct ShardAppendState
 
 class ShardQuorumProcessor
 {
+    typedef InCache<ShardMessage>       MessageCache;
     typedef InList<ShardMessage>        MessageList;
     typedef InList<ClientRequest>       RequestList;
     typedef InList<ShardLeaseRequest>   LeaseRequestList;
@@ -147,6 +149,7 @@ private:
 
     SortedList<uint64_t>    activeNodes;
     LeaseRequestList        leaseRequests;
+    MessageCache            messageCache;
     MessageList             shardMessages;
     
     uint64_t                migrateNodeID;

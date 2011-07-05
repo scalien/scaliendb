@@ -59,6 +59,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     appendState.Reset();
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
+    messageCache.Init(10*1000);
     EventLoop::Add(&requestLeaseTimeout);
 }
 
@@ -104,6 +105,7 @@ void ShardQuorumProcessor::Shutdown()
     
     CONTEXT_TRANSPORT->RemoveQuorumContext(&quorumContext);
     quorumContext.Shutdown();
+    messageCache.Shutdown();
 }
 
 ShardServer* ShardQuorumProcessor::GetShardServer()
@@ -341,7 +343,8 @@ void ShardQuorumProcessor::OnLeaseTimeout()
             itMessage->clientRequest = NULL;
         }
         shardMessages.Remove(itMessage);
-        delete itMessage;
+//        delete itMessage;
+        messageCache.Release(itMessage);
     }
     
     appendState.currentAppend = false;
@@ -402,7 +405,8 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
         return;
     }
     
-    message = new ShardMessage;
+//    message = new ShardMessage;
+    message = messageCache.Acquire();
     TransformRequest(request, message);
     
     Log_Trace("message.type = %c, message.key = %R", message->type, &message->key);
@@ -473,7 +477,8 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     
     Log_Trace("Appending shard split");
 
-    message = new ShardMessage;
+//    message = new ShardMessage;
+    message = messageCache.Acquire();
     message->SplitShard(shardID, newShardID, splitKey);
     message->clientRequest = NULL;
     message->isBulk = false;
@@ -507,7 +512,8 @@ void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardI
     
     Log_Trace("Appending truncate table");
 
-    message = new ShardMessage;
+//    message = new ShardMessage;
+    message = messageCache.Acquire();
     message->TruncateTable(tableID, newShardID);
     message->clientRequest = NULL;
     message->isBulk = false;
@@ -592,7 +598,8 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
         return;
     }
 
-    shardMessage = new ShardMessage();
+//    shardMessage = new ShardMessage;
+    shardMessage = messageCache.Acquire();
     shardMessage->clientRequest = NULL;
     shardMessage->isBulk = false;
 
@@ -771,7 +778,9 @@ void ShardQuorumProcessor::ExecuteMessage(uint64_t paxosID, uint64_t commandID,
         shardMessage->clientRequest->OnComplete(); // request deletes itself
         shardMessage->clientRequest = NULL;
     }
-    shardMessages.Delete(shardMessage);
+//    shardMessages.Delete(shardMessage);
+    shardMessages.Remove(shardMessage);
+    messageCache.Release(shardMessage);
 }
 
 void ShardQuorumProcessor::TryAppend()
@@ -948,7 +957,9 @@ void ShardQuorumProcessor::BlockShard()
         itMessage->clientRequest->response.NoService();
         itMessage->clientRequest->OnComplete();
         itMessage->clientRequest = NULL;
-        shardMessages.Delete(itMessage);
+        //shardMessages.Delete(itMessage);
+        shardMessages.Remove(itMessage);
+        messageCache.Release(itMessage);
     }
 }
 
