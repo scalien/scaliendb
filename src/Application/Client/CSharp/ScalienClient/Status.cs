@@ -1,6 +1,6 @@
 ﻿namespace Scalien
 {
-    class Status
+    public class Status
     {
         public const int SDBP_SUCCESS = 0;
         public const int SDBP_API_ERROR = -1;

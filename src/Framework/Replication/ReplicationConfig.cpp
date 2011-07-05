@@ -52,7 +52,7 @@ void ReplicationConfig::Init(StorageShardProxy* shard_)
     runID = BufferToUInt64(value.GetBuffer(), value.GetLength(), &nread);
     if (!ret || nread != value.GetLength())
     {
-        Log_Message("No runID read from database");
+        Log_Debug("No runID read from database");
         runID = 0;
     }
     
@@ -61,7 +61,7 @@ void ReplicationConfig::Init(StorageShardProxy* shard_)
     clusterID = BufferToUInt64(value.GetBuffer(), value.GetLength(), &nread);
     if (!ret || nread != value.GetLength())
     {
-        Log_Message("No clusterID read from database");
+        Log_Debug("No clusterID read from database");
         clusterID = 0;
     }
 }

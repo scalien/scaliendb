@@ -55,6 +55,7 @@ public:
     // ========================================================================================
 
     bool                        GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint);
+    void                        GetHTTPEndpoint(Endpoint& endpoint);
 
 private:
     void                        OnBroadcastHTTPEndpoint();

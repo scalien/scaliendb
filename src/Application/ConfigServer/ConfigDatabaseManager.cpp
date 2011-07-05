@@ -32,7 +32,7 @@ void ConfigDatabaseManager::Init()
         controller = new ConfigController;
         controller->nodeID = nodeID;
         rb = configFile.GetListValue("controllers", nodeID, "");
-        controller->endpoint.Set(rb);
+        controller->endpoint.Set(rb, true);
         configState.controllers.Append(controller);
     }
 

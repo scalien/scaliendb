@@ -269,6 +269,11 @@ bool ConfigServer::GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint
     return httpEndpoints.Get(nodeID, endpoint);
 }
 
+void ConfigServer::GetHTTPEndpoint(Endpoint& endpoint)
+{
+    endpoint = httpEndpoint;
+}
+
 void ConfigServer::OnBroadcastHTTPEndpoint()
 {
     uint64_t*       itNodeID;

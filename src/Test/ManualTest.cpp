@@ -47,7 +47,7 @@ TEST_DEFINE(test1)
     if (client.CreateDatabase(databaseName) != SDBP_SUCCESS)
         return -1;
 
-    if (client.CreateQuorum(quorumNodes) != SDBP_SUCCESS)
+    if (client.CreateQuorum("", quorumNodes) != SDBP_SUCCESS)
         return -1;
 
     client.GetDatabaseID(databaseName, databaseID);
@@ -138,7 +138,7 @@ TEST_DEFINE(test2)
     if (client.CreateDatabase(databaseName) != SDBP_SUCCESS)
         return -1;
 
-    if (client.CreateQuorum(quorumNodes) != SDBP_SUCCESS)
+    if (client.CreateQuorum("", quorumNodes) != SDBP_SUCCESS)
         return -1;
 
     client.GetDatabaseID(databaseName, databaseID);
