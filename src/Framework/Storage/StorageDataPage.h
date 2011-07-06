@@ -60,7 +60,6 @@ private:
     Buffer                  valuesBuffer;
     StorageFileChunk*       owner;
     Buffer                  storageFileKeyValueBuffer;
-//    Buffer                  keyValueIndexBuffer;
 };
 
 #endif
