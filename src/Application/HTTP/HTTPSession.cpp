@@ -5,9 +5,10 @@
 #include "Application/HTTP/HTTPConsts.h"
 #include "Application/HTTP/Mime.h"
 
-#define MSG_FAIL            "Unable to process your request at this time"
-#define CONTENT_TYPE_PLAIN  HTTP_HEADER_CONTENT_TYPE ": " MIME_TYPE_TEXT_PLAIN HTTP_CS_CRLF
-#define CONTENT_TYPE_HTML   HTTP_HEADER_CONTENT_TYPE ": " MIME_TYPE_TEXT_HTML HTTP_CS_CRLF
+#define MSG_FAIL                "Unable to process your request at this time"
+#define CONTENT_TYPE_PLAIN      HTTP_HEADER_CONTENT_TYPE ": " MIME_TYPE_TEXT_PLAIN HTTP_CS_CRLF
+#define CONTENT_TYPE_HTML       HTTP_HEADER_CONTENT_TYPE ": " MIME_TYPE_TEXT_HTML HTTP_CS_CRLF
+#define WINDOWS_NT_USER_AGENT   "Windows NT "
 
 HTTPSession::HTTPSession()
 {
@@ -234,10 +235,17 @@ bool HTTPSession::RedirectLocalhost(HTTPConnection *conn, HTTPRequest &request)
     host = request.header.GetField(HTTP_HEADER_HOST);
     if (host.BeginsWith("localhost"))
     {
+        ReadBuffer  userAgent;
         Buffer      newHost;
         Buffer      ha;
         unsigned    i;
+        int         pos;
         
+        userAgent = request.header.GetField(HTTP_HEADER_USER_AGENT);
+        pos = userAgent.Find(WINDOWS_NT_USER_AGENT);
+        if (pos < 0)
+            return false;
+
         newHost.Write("127.0.0.1");
         for (i = 0; i < host.GetLength(); i++)
         {
