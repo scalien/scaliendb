@@ -514,13 +514,19 @@ FD FS_Open(const char* filename, int flags)
     if ((flags & FS_READONLY) == FS_READONLY)
         dwDesiredAccess = GENERIC_READ;
     if ((flags & FS_WRITEONLY) == FS_WRITEONLY)
+    {
         dwDesiredAccess = GENERIC_WRITE;
+        //if ((flags & FS_APPEND) == FS_APPEND)
+        //    dwDesiredAccess =  FILE_APPEND_DATA;
+    }
     if ((flags & FS_READWRITE) == FS_READWRITE)
         dwDesiredAccess = GENERIC_READ | GENERIC_WRITE;
-    
+
     // TODO: unbuffered file IO
-    dwFlagsAndAttributes = FILE_ATTRIBUTE_ARCHIVE /* | FILE_FLAG_NO_BUFFERING */;
-    
+    dwFlagsAndAttributes = FILE_ATTRIBUTE_ARCHIVE/* | FILE_FLAG_NO_BUFFERING */;
+    if ((flags & FS_WRITEONLY) == FS_WRITEONLY)
+        dwFlagsAndAttributes |= FILE_FLAG_WRITE_THROUGH;    // do not cache writes
+
     handle = CreateFile(filename, dwDesiredAccess, FILE_SHARE_READ, NULL, 
      dwCreationDisposition, dwFlagsAndAttributes, NULL);
     
