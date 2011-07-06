@@ -73,6 +73,7 @@ public:
     typedef SortedList<uint64_t>    ShardList;
     
     ShardQuorumProcessor();
+    ~ShardQuorumProcessor();
 
     void                    Init(ConfigQuorum* configQuorum, ShardServer* shardServer);
     void                    Shutdown();

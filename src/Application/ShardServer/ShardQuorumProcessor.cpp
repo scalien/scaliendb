@@ -44,6 +44,11 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     localExecute.SetCallable(MFUNC(ShardQuorumProcessor, LocalExecute));
 }
 
+ShardQuorumProcessor::~ShardQuorumProcessor()
+{
+    Shutdown();
+}
+
 void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardServer_)
 {
     shardServer = shardServer_;
