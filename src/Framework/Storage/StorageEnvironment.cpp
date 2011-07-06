@@ -862,7 +862,9 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
         nextLogSegmentID = logSegmentID + 1;
         logSegmentIDMap.Set(trackID, nextLogSegmentID);
         logSegment = new StorageLogSegment();
-        logSegment->Open(logPath, trackID, logSegmentID, config.syncGranularity);
+        ret = logSegment->Open(logPath, trackID, logSegmentID, config.syncGranularity);
+        if (!ret)
+            STOP_FAIL(1, "Cannot open database log file: %Blog.%020U.%020U", &logPath, trackID, logSegmentID);
         logSegmentMap.Set(trackID, logSegment);
     }
 
