@@ -228,6 +228,8 @@ bool HTTPSession::IsFlushed()
 
 bool HTTPSession::RedirectLocalhost(HTTPConnection *conn, HTTPRequest &request)
 {
+#ifdef PLATFORM_WINDOWS
+    
     ReadBuffer  host;
 
     // fix Windows 7 IPv6 localhost name resolution issue
@@ -254,6 +256,8 @@ bool HTTPSession::RedirectLocalhost(HTTPConnection *conn, HTTPRequest &request)
         conn->Flush(true);
 		return true;
     }
+
+#endif
 
     return false;
 }
