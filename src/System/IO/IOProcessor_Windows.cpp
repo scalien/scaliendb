@@ -1,11 +1,12 @@
 #ifdef _WIN32
 
 #include "IOProcessor.h"
+#include "System/Containers/InQueue.h"
+#include "System/Events/EventLoop.h"
+#include "System/Threading/Mutex.h"
 #include "System/Platform.h"
-#include "System/Containers/List.h"
 #include "System/Common.h"
 #include "System/Log.h"
-#include "System/Events/EventLoop.h"
 
 #include <winsock2.h>
 #include <mswsock.h>
@@ -30,6 +31,15 @@ struct IODesc
     IODesc*         next;               // pointer for free list handling
 };
 
+// this structure is used for storing completion callables
+struct CallableItem
+{
+    Callable        callable;
+    CallableItem*   next;
+};
+
+typedef InQueue<CallableItem> CallableQueue;
+
 // globals
 static HANDLE           iocp = NULL;        // global completion port handle
 static IODesc*          iods;               // pointer to allocated array of IODesc's
@@ -40,6 +50,8 @@ unsigned                SEND_BUFFER_SIZE = 8001;
 static volatile bool    terminated = false;
 static unsigned         numIOProcClients = 0;
 static IOProcessorStat  iostat;
+static Mutex            callableMutex;
+static CallableQueue    callableQueue;
 
 static LPFN_CONNECTEX   ConnectEx;
 
@@ -47,6 +59,7 @@ bool ProcessTCPRead(TCPRead* tcpread);
 bool ProcessUDPRead(UDPRead* udpread);
 bool ProcessTCPWrite(TCPWrite* tcpwrite);
 bool ProcessUDPWrite(UDPWrite* udpwrite);
+void ProcessCompletionCallbacks();
 
 
 // helper function for FD -> IODesc mapping
@@ -442,7 +455,7 @@ bool IOProcessor::Poll(int msec)
 {
     DWORD           numBytes;
     DWORD           timeout;
-    OVERLAPPED*     overlapped;
+    LPOVERLAPPED    overlapped;
     BOOL            ret;
     BOOL            result;
     DWORD           error;
@@ -473,9 +486,8 @@ bool IOProcessor::Poll(int msec)
     if (ret || overlapped)
     {
         if (iod == &callback)
-        {
-            Call(*(Callable*) overlapped);
-        }
+            ProcessCompletionCallbacks();
+        
         // sometimes we get this after closesocket, so check first
         // if iod is in the freelist
         // TODO: clarify which circumstances lead to this issue
@@ -546,12 +558,22 @@ bool IOProcessor::Poll(int msec)
 
 bool IOProcessor::Complete(Callable* callable)
 {
-    BOOL    ret;
-    DWORD   error;
+    BOOL            ret;
+    DWORD           error;
+    CallableItem*   item;
+
+    item = new CallableItem;
+    item->callable = *callable;
+    item->next = item;
+
+    callableMutex.Lock();
+    callableQueue.Enqueue(item);
+    callableMutex.Unlock();
 
     iostat.numCompletions++;
 
-    ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) callable);
+    // notify IOCP that there is a new completion callback
+    ret = PostQueuedCompletionStatus(iocp, 0, (ULONG_PTR) &callback, (LPOVERLAPPED) NULL);
     if (!ret)
     {
         error = GetLastError();
@@ -560,6 +582,25 @@ bool IOProcessor::Complete(Callable* callable)
     }
 
     return true;
+}
+
+void ProcessCompletionCallbacks()
+{
+    CallableItem*   item;
+    CallableItem*   next;
+
+    callableMutex.Lock();
+    item = callableQueue.First();
+    callableQueue.ClearMembers();
+    callableMutex.Unlock();
+
+    while (item)
+    {
+        Call(item->callable);
+        next = item->next;
+        delete item;
+        item = next;
+    }
 }
 
 bool ProcessTCPRead(TCPRead* tcpread)
