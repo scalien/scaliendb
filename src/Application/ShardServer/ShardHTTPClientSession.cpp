@@ -48,7 +48,7 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
     case CLIENTRESPONSE_OK:
         if (request->type == CLIENTREQUEST_COUNT)
         {
-            tmp.Writef("%U", response->numKeys);
+            tmp.Writef("%u", response->numKeys);
             rb.Wrap(tmp);
             session.Print(rb);
         }

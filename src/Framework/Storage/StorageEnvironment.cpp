@@ -777,7 +777,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         else
             buffer.Appendf("   midpoint: %B\n", &printable);
         buffer.Appendf("   logSegmentID: %U\n", shard->GetLogSegmentID());
-        buffer.Appendf("   logCommandID: %U\n", shard->GetLogCommandID());
+        buffer.Appendf("   logCommandID: %u\n", shard->GetLogCommandID());
         
         memoChunk = shard->GetMemoChunk();
         firstKey = memoChunk->GetFirstKey();
@@ -787,7 +787,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         buffer.Appendf("       state: %d {0=Tree, 1=Serialized, 2=Unwritten, 3=Written}\n",
          memoChunk->GetChunkState());
         buffer.Appendf("       size: %s\n", HUMAN_BYTES(memoChunk->GetSize()));
-        buffer.Appendf("       count: %U\n", memoChunk->keyValues.GetCount());
+        buffer.Appendf("       count: %u\n", memoChunk->keyValues.GetCount());
         MAKE_PRINTABLE(firstKey);
         buffer.Appendf("       firstKey: %B\n", &printable);
         MAKE_PRINTABLE(lastKey);
@@ -796,7 +796,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         buffer.Appendf("       midpoint: %B\n", &printable);
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
         buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
-        buffer.Appendf("       maxLogCommandID: %U\n", memoChunk->GetMaxLogCommandID());
+        buffer.Appendf("       maxLogCommandID: %u\n", memoChunk->GetMaxLogCommandID());
 
         FOREACH (itChunk, shard->GetChunks())
         {
@@ -815,7 +815,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
             buffer.Appendf("       midpoint: %B\n", &printable);
             buffer.Appendf("       minLogSegmentID: %U\n", (*itChunk)->GetMinLogSegmentID());
             buffer.Appendf("       maxLogSegmentID: %U\n", (*itChunk)->GetMaxLogSegmentID());
-            buffer.Appendf("       maxLogCommandID: %U\n", (*itChunk)->GetMaxLogCommandID());
+            buffer.Appendf("       maxLogCommandID: %u\n", (*itChunk)->GetMaxLogCommandID());
         }
 
         buffer.Appendf("\n");
