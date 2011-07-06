@@ -77,6 +77,8 @@ public:
 
     bool                IsFlushed();
 
+    static bool         RedirectLocalhost(HTTPConnection* conn, HTTPRequest& request);
+
     HTTPConnection*     conn;
     Type                type;
     JSONSession         json;
