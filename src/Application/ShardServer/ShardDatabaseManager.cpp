@@ -478,7 +478,8 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
 {                                                               \
     if (shardID == 0)                                           \
     {                                                           \
-        message.clientRequest->response.BadSchema();            \
+        if (message.clientRequest)                              \
+            message.clientRequest->response.BadSchema();        \
         break;                                                  \
     }                                                           \
 }

@@ -21,6 +21,11 @@ uint32_t StorageHeaderPage::GetSize()
     return STORAGE_HEADER_PAGE_SIZE;
 }
 
+uint32_t StorageHeaderPage::GetMemorySize()
+{
+    return STORAGE_HEADER_PAGE_SIZE;
+}
+
 uint64_t StorageHeaderPage::GetChunkID()
 {
     return chunkID;

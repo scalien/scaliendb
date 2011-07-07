@@ -741,22 +741,24 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     StorageChunk**      itChunk;
     StorageMemoChunk*   memoChunk;
     Buffer              printable;
+    uint64_t            totalSize;
     
     buffer.Clear();
+    totalSize = 0;
     
     FOREACH (shard, shards)
     {
-        if (shard->GetContextID() != contextID)
-            continue;
+        //if (shard->GetContextID() != contextID)
+        //    continue;
         
         firstKey = shard->GetFirstKey();
         lastKey = shard->GetLastKey();
         midpoint = GetMidpoint(contextID, shard->GetShardID());
         isSplitable = IsSplitable(contextID, shard->GetShardID());
-        
+
         buffer.Appendf("- shard %U (tableID = %U) \n", shard->GetShardID(), shard->GetTableID());
         buffer.Appendf("   track: %U\n", shard->GetTrackID());
-        buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(contextID, shard->GetShardID())));
+        buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(shard->GetContextID(), shard->GetShardID())));
         buffer.Appendf("   isSplitable: %b\n", isSplitable);
 
         MAKE_PRINTABLE(firstKey);
@@ -797,6 +799,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
         buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
         buffer.Appendf("       maxLogCommandID: %u\n", memoChunk->GetMaxLogCommandID());
+        totalSize += memoChunk->GetSize();
 
         FOREACH (itChunk, shard->GetChunks())
         {
@@ -820,6 +823,32 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
 
         buffer.Appendf("\n");
     }
+
+    buffer.Appendf("\nCache size: %s\n", HUMAN_BYTES(StoragePageCache::GetSize()));
+    totalSize += StoragePageCache::GetSize();
+    buffer.Appendf("Total memory size: %s", HUMAN_BYTES(totalSize));
+}
+
+uint64_t StorageEnvironment::GetShardMemoryUsage()
+{
+    uint64_t            totalSize;
+    StorageShard*       shard;
+    StorageChunk**      itChunk;
+
+    totalSize = 0;
+    
+    FOREACH (shard, shards)
+    {
+        totalSize += shard->memoChunk->GetSize();
+
+        FOREACH (itChunk, shard->GetChunks())
+        {
+            if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+                totalSize += (*itChunk)->GetSize();
+        }
+    }
+
+    return totalSize;
 }
 
 StorageConfig& StorageEnvironment::GetConfig()

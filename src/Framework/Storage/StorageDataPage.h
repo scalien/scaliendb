@@ -26,6 +26,7 @@ public:
     ~StorageDataPage();
 
     uint32_t                GetSize();
+    uint32_t                GetMemorySize();
     uint32_t                GetCompressedSize();
     uint32_t                GetPageBufferSize();
 

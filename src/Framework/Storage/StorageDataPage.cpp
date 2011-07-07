@@ -29,6 +29,12 @@ uint32_t StorageDataPage::GetSize()
     return size;
 }
 
+uint32_t StorageDataPage::GetMemorySize()
+{
+    return buffer.GetLength() + keysBuffer.GetLength() + 
+        valuesBuffer.GetLength() + storageFileKeyValueBuffer.GetLength();
+}
+
 uint32_t StorageDataPage::GetCompressedSize()
 {
     return compressedSize;

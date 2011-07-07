@@ -113,6 +113,8 @@ public:
     void                    OnBlockShard(uint64_t shardID);
     uint64_t                GetBlockedShardID();
     
+    uint64_t                GetMessageCacheSize();
+
     // ========================================================================================
     // For ShardQuorumContext:
     //

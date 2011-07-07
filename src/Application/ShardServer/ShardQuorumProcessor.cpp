@@ -675,6 +675,11 @@ uint64_t ShardQuorumProcessor::GetBlockedShardID()
     return blockedShardID;
 }
 
+uint64_t ShardQuorumProcessor::GetMessageCacheSize()
+{
+    return messageCache.GetMemorySize();
+}
+
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
     message->clientRequest = request;

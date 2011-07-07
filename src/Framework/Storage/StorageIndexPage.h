@@ -44,6 +44,7 @@ public:
     ~StorageIndexPage();
 
     uint32_t            GetSize();
+    uint32_t            GetMemorySize();
     uint32_t            GetNumDataPages();
 
     bool                Locate(ReadBuffer& key, uint32_t& index, uint64_t& offset);

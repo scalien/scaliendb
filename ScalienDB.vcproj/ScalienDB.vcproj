@@ -301,6 +301,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\System\Containers\InTreeMap2.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\System\Containers\List.h"
 					>
 				</File>

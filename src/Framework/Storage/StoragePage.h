@@ -27,6 +27,7 @@ public:
     bool                IsCached();
     
     virtual uint32_t    GetSize() = 0;
+    virtual uint32_t    GetMemorySize() = 0;
     virtual void        Write(Buffer& writeBuffer) = 0;
 
     virtual void        Unload() = 0;

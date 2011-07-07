@@ -20,7 +20,8 @@ public:
     StorageBloomPage(StorageFileChunk* owner);
 
     uint32_t            GetSize();
-    
+    uint32_t            GetMemorySize();
+
     void                SetNumKeys(uint64_t numKeys);
     void                Add(ReadBuffer key);
     
