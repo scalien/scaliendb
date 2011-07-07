@@ -171,7 +171,7 @@ bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
 
     it = new StorageMemoKeyValue;
     it->Set(key, value);
-    keyValues.Insert(it);
+    keyValues.Insert<const ReadBuffer>(it);
     size += it->GetLength();
     
     return true;
@@ -196,7 +196,7 @@ bool StorageMemoChunk::Delete(ReadBuffer key)
 
     it = new StorageMemoKeyValue;
     it->Delete(key);
-    keyValues.Insert(it);
+    keyValues.Insert<const ReadBuffer>(it);
     size += it->GetLength();
     
     return true;

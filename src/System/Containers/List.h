@@ -33,6 +33,7 @@ public:
     void            Prepend(T &t);
     void            Append(T &t);
     void            Add(T &t);
+    T*              Pop();
     T*              Remove(T* t);   
     bool            Remove(T &t);
     void            Copy(List<T>& other) const;
@@ -151,6 +152,19 @@ template<class T>
 void List<T>::Add(T &t)
 {
     Append(t);
+}
+
+template<class T>
+T* List<T>::Pop()
+{
+    T* h;
+    
+    if (length == 0)
+        return NULL;
+    
+    h = head;
+    Remove(h);
+    return h;
 }
 
 template<class T>

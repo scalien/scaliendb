@@ -117,23 +117,38 @@ Mutex   globalMutex;
 
 using namespace SDBPClient;
 
-static uint64_t Hash(uint64_t h)
+static inline uint64_t Hash(uint64_t h)
 {
     return h;
 }
 
-static uint64_t Key(const ShardConnection* conn)
+static inline uint64_t Key(const ShardConnection* conn)
 {
     return conn->GetNodeID();
 }
 
-static int KeyCmp(uint64_t a, uint64_t b)
+static inline const Request* Key(const Request* req)
+{
+    return req;
+}
+
+static inline int KeyCmp(uint64_t a, uint64_t b)
 {
     if (a < b)
         return -1;
     if (a > b)
         return 1;
     return 0;
+}
+
+static int KeyCmp(const Request* a, const Request* b)
+{
+    if (a->tableID < b->tableID)
+        return -1;
+    if (a->tableID > b->tableID)
+        return 1;
+    
+    return Buffer::Cmp(a->key, b->key);
 }
 
 Client::Client()
@@ -597,12 +612,69 @@ int Client::UnfreezeTable(uint64_t tableID)
 
 int Client::Get(const ReadBuffer& key)
 {
-    CLIENT_DATA_COMMAND(Get, (ReadBuffer&) key);
+    int         cmpres, status;
+    Request*    req;
+    Request*    it;
+    
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+
+    req = new Request;
+    req->Get(NextCommandID(), tableID, (ReadBuffer&) key);
+
+    // find
+    it = proxiedRequests.Locate(req, cmpres);
+    if (cmpres == 0 && it != NULL)
+    {
+        delete req;
+        if (it->type == CLIENTREQUEST_SET)
+        {
+            result->proxied = true;
+            result->proxiedValue.Wrap(it->value);
+            return SDBP_SUCCESS;
+        }
+        else if (it->type == CLIENTREQUEST_DELETE)
+        {
+            return SDBP_FAILED;
+        }
+        else
+            ASSERT_FAIL();
+    }
+        
+    if (AppendDataRequest(req, status))
+        return status;
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+    return result->GetCommandStatus();
 }
 
 int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
 {
-    CLIENT_DATA_COMMAND(Set, (ReadBuffer&) key, (ReadBuffer&) value);
+    int         cmpres;
+    Request*    req;
+    Request*    it;
+    
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+
+    req = new Request;
+    req->Set(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
+
+    // delete previous command if exists
+    it = proxiedRequests.Locate(req, cmpres);
+    if (cmpres == 0 && it != NULL)
+        proxiedRequests.Delete(it);
+
+    proxiedRequests.Insert<const Request*>(req);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    
+    return SDBP_SUCCESS;
 }
 
 int Client::SetIfNotExists(const ReadBuffer& key, const ReadBuffer& value)
@@ -632,7 +704,28 @@ int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
 
 int Client::Delete(const ReadBuffer& key)
 {
-    CLIENT_DATA_COMMAND(Delete, (ReadBuffer&) key);
+    int         cmpres;
+    Request*    req;
+    Request*    it;
+    
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+
+    req = new Request;
+    req->Delete(NextCommandID(), tableID, (ReadBuffer&) key);
+
+    // delete previous command if exists
+    it = proxiedRequests.Locate(req, cmpres);
+    if (cmpres == 0 && it != NULL)
+        proxiedRequests.Delete(it);
+
+    proxiedRequests.Insert<const Request*>(req);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    
+    return SDBP_SUCCESS;
 }
 
 int Client::TestAndDelete(const ReadBuffer& key, const ReadBuffer& test)
@@ -745,8 +838,15 @@ int Client::Begin()
 
 int Client::Submit()
 {
+    int         status;
+    Request*    it;
+    
     Log_Trace();
 
+    Begin();
+    FOREACH_POP(it, proxiedRequests)
+        AppendDataRequest(it, status);
+    
     EventLoop();
     isBatched = false;
 
@@ -1411,7 +1511,7 @@ void Client::ConfigureShardServers()
             endpoint = ssit->endpoint;
             endpoint.SetPort(ssit->sdbpPort);
             shardConn = new ShardConnection(this, ssit->nodeID, endpoint);
-            shardConnections.Insert(shardConn);
+            shardConnections.Insert<uint64_t>(shardConn);
         }
         else
         {

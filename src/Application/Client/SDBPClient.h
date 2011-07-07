@@ -136,6 +136,7 @@ public:
 
 private:
     typedef InList<Request>                     RequestList;
+    typedef InTreeMap<Request>                  RequestMap;
     typedef InTreeMap<ShardConnection>          ShardConnectionMap;
     typedef HashMap<uint64_t, RequestList*>     RequestListMap;
 
@@ -189,6 +190,7 @@ private:
     ConfigState*            configState;
     Result*                 result;
     RequestList             requests;
+    RequestMap              proxiedRequests;
     ShardConnectionMap      shardConnections;
     ControllerConnection**  controllerConnections;
     int                     numControllers;

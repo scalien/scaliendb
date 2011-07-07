@@ -104,7 +104,7 @@ TEST_DEFINE(TestInTreeMap)
         kv->SetValue(rv, false);
         
         sw.Start();
-        kvs.Insert(kv);
+        kvs.Insert<const ReadBuffer&>(kv);
         TEST_ASSERT(kv->treeNode.IsInTree());
         //bufmap.insert(std::pair<ReadBuffer, ReadBuffer>(rk, rv));
         sw.Stop();
@@ -251,7 +251,7 @@ TEST_DEFINE(TestInTreeMapInsert)
         kv = (KeyValue*) (kvarea + i * sizeof(KeyValue));
         kv->SetKey(rk, false);
         kv->SetValue(rv, false);
-        it = kvs.Insert(kv);
+        it = kvs.Insert<const ReadBuffer&>(kv);
         if (i == 0 && it != NULL)
             TEST_FAIL();
         if (i > 0 && it == NULL)
@@ -301,7 +301,7 @@ TEST_DEFINE(TestInTreeMapMidpoint)
         kv = (KeyValue*) (kvarea + i * sizeof(KeyValue));
         kv->SetKey(rk, false);
         kv->SetValue(rv, false);
-        it = kvs.Insert(kv);
+        it = kvs.Insert<const ReadBuffer&>(kv);
         if (it != NULL)
             TEST_FAIL();
         TEST_ASSERT(kvs.CheckConstraints());
@@ -390,7 +390,7 @@ TEST_DEFINE(TestInTreeMapInsertRandom)
         kv->SetKey(rk, true);
         kv->SetValue(rv, true);
         sw.Start();
-        it = kvs.Insert(kv);
+        it = kvs.Insert<const ReadBuffer&>(kv);
         sw.Stop();
     }
     
@@ -441,7 +441,7 @@ TEST_DEFINE(TestInTreeMapRemoveRandom)
         kv->SetKey(rk, true);
         kv->SetValue(rv, true);
         sw.Start();
-        it = kvs.Insert(kv);
+        it = kvs.Insert<const ReadBuffer&>(kv);
         sw.Stop();
     }
     

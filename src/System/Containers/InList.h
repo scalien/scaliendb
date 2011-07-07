@@ -33,6 +33,7 @@ public:
     void            InsertAfter(T* before, T* t);
 
     T*              Delete(T* t);
+    T*              Pop();
     T*              Remove(T* t);   
     bool            Remove(T &t);
     void            Clear();
@@ -174,6 +175,19 @@ T* InList<T>::Delete(T* t)
     next = Remove(t);
     delete t;
     return next;
+}
+
+template<class T>
+T* InList<T>::Pop()
+{
+    T* h;
+    
+    if (length == 0)
+        return NULL;
+    
+    h = head;
+    Remove(h);
+    return h;
 }
 
 template<class T>

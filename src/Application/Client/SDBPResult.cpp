@@ -44,6 +44,7 @@ void Result::Close()
     requestCursor = NULL;
     batchLimit = 100*MB;
     batchSize = 0;
+    proxied = false;
 }
 
 void Result::Begin()
@@ -138,7 +139,7 @@ bool Result::AppendRequest(Request* req)
     req->numTry = 0;
     req->status = SDBP_NOSERVICE;
     req->response.NoResponse();
-    requests.Insert(req);
+    requests.Insert<uint64_t>(req);
     if (numCompleted > 0)
         transportStatus = SDBP_PARTIAL;
     
@@ -152,7 +153,6 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     req = requests.Get(resp->commandID);
     if (!req)
         return false;
-
     Log_Trace("%c %U", resp->type, resp->commandID);    
 
     req->responseTime = EventLoop::Now();
@@ -258,6 +258,12 @@ int Result::GetKey(ReadBuffer& key)
 int Result::GetValue(ReadBuffer& value)
 {
     Request*    request;
+
+    if (proxied)
+    {
+        value = proxiedValue;
+        return SDBP_SUCCESS;
+    }
     
     if (requestCursor == NULL)
         return SDBP_API_ERROR;
