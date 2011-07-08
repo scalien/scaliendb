@@ -228,8 +228,10 @@ void Client::Shutdown()
 {
     RequestListMap::Node*   requestNode;
     RequestList*            requestList;
-//    Request*                request;
-    
+
+	if (proxiedRequests.GetCount() > 0)
+		Submit();
+
     GLOBAL_MUTEX_GUARD_DECLARE();
 
     if (!controllerConnections)
