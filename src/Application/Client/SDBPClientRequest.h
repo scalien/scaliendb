@@ -9,6 +9,12 @@
 namespace SDBPClient
 {
 
+#define BUFFER_LENGTH(buflen)        (buflen > ARRAY_SIZE ? buflen : 0)
+#define REQUEST_SIZE(req)                                                           \
+    BUFFER_LENGTH(req->name.GetLength()) + BUFFER_LENGTH(req->key.GetLength()) +    \
+    BUFFER_LENGTH(req->value.GetLength()) + BUFFER_LENGTH(req->test.GetLength()) +  \
+    sizeof(Request)
+
 /*
 ===============================================================================================
 

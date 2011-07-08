@@ -74,7 +74,6 @@ private:
     ClientResponse**    responseCursor;
     unsigned            responsePos;
     uint64_t            batchLimit;
-    uint64_t            batchSize;
 
 public:
     bool                proxied;

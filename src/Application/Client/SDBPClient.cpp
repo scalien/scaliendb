@@ -9,7 +9,7 @@
 #include "Application/Common/ClientResponse.h"
 
 #define MAX_IO_CONNECTION               1024
-#define DEFAULT_BATCH_LIMIT             (100*MB)
+#define DEFAULT_BATCH_LIMIT             (1*MB)
 
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
@@ -167,6 +167,7 @@ Client::Client()
     result = NULL;
     batchLimit = DEFAULT_BATCH_LIMIT;
     isBulkLoading = false;
+	proxySize = 0;
 
     globalMutex.SetName("ClientGlobalMutex");
     mutexName.Writef("Client_%p", this);
@@ -670,12 +671,19 @@ int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
     // delete previous command if exists
     it = proxiedRequests.Locate(req, cmpres);
     if (cmpres == 0 && it != NULL)
+	{
         proxiedRequests.Delete(it);
-
+		proxySize -= REQUEST_SIZE(it);
+		ASSERT(proxySize >= 0);
+	}
     proxiedRequests.Insert<const Request*>(req);
+	proxySize += REQUEST_SIZE(req);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
-    
+
+	if (proxySize > batchLimit)
+		return Submit();
+
     return SDBP_SUCCESS;
 }
 
@@ -721,12 +729,20 @@ int Client::Delete(const ReadBuffer& key)
     // delete previous command if exists
     it = proxiedRequests.Locate(req, cmpres);
     if (cmpres == 0 && it != NULL)
+	{
         proxiedRequests.Delete(it);
+		proxySize -= REQUEST_SIZE(it);
+		ASSERT(proxySize >= 0);
+	}
 
     proxiedRequests.Insert<const Request*>(req);
+	proxySize += REQUEST_SIZE(req);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
-    
+
+	if (proxySize > batchLimit)
+		return Submit();
+
     return SDBP_SUCCESS;
 }
 
@@ -847,8 +863,12 @@ int Client::Submit()
 
     Begin();
     FOREACH_POP(it, proxiedRequests)
+	{
         AppendDataRequest(it, status);
-    
+		proxySize -= REQUEST_SIZE(it);
+	}
+	ASSERT(proxySize == 0);
+
     EventLoop();
     isBatched = false;
 
@@ -864,7 +884,9 @@ int Client::Cancel()
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    requests.Clear();
+	proxiedRequests.Clear();
+	proxySize = 0;
+	requests.Clear();
 
     result->Close();
     isBatched = false;

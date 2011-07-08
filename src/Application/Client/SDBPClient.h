@@ -191,6 +191,7 @@ private:
     Result*                 result;
     RequestList             requests;
     RequestMap              proxiedRequests;
+	unsigned				proxySize;
     ShardConnectionMap      shardConnections;
     ControllerConnection**  controllerConnections;
     int                     numControllers;
