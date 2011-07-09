@@ -434,25 +434,25 @@ void SDBP_WaitConfigState(ClientObj client_)
     client->WaitConfigState();
 }
 
-void SDBP_SetBatchLimit(ClientObj client_, uint64_t batchLimit)
-{
-    Client* client = (Client*) client_;
-
-    return client->SetBatchLimit(batchLimit);
-}
-
-void SDBP_SetBulkLoading(ClientObj client_, bool bulk)
-{
-    Client* client = (Client*) client_;
-
-    return client->SetBulkLoading(bulk);
-}
-
 void SDBP_SetConsistencyLevel(ClientObj client_, int consistencyLevel)
 {
     Client* client = (Client*) client_;
 
     return client->SetConsistencyLevel(consistencyLevel);
+}
+
+void SDBP_SetBatchMode(ClientObj client_, int batchMode)
+{
+    Client* client = (Client*) client_;
+
+    return client->SetBatchMode(batchMode);
+}
+
+void SDBP_SetBatchLimit(ClientObj client_, uint64_t proxyLimit)
+{
+    Client* client = (Client*) client_;
+
+    return client->SetBatchLimit(proxyLimit);
 }
 
 /*
@@ -1226,13 +1226,6 @@ int SDBP_Cancel(ClientObj client_)
     Client*     client = (Client*) client_;
     
     return client->Cancel();
-}
-
-bool SDBP_IsBatched(ClientObj client_)
-{
-    Client*     client = (Client*) client_;
-    
-    return client->IsBatched();
 }
 
 /*

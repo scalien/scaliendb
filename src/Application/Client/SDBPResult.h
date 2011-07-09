@@ -30,8 +30,6 @@ public:
 
     bool            IsFinished();
 
-    void            SetBatchLimit(uint64_t limit);
-    
     bool            AppendRequest(Request* req);
     bool            AppendRequestResponse(ClientResponse* resp);
     void            RemoveRequest(Request* req);
@@ -73,7 +71,6 @@ private:
     Request*            requestCursor;
     ClientResponse**    responseCursor;
     unsigned            responsePos;
-    uint64_t            batchLimit;
 
 public:
     bool                proxied;

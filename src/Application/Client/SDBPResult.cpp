@@ -36,7 +36,6 @@ void Result::Close()
     requests.DeleteTree();
     numCompleted = 0;
     requestCursor = NULL;
-    batchLimit = 100*MB;
     proxied = false;
 }
 
@@ -115,11 +114,6 @@ bool Result::IsFinished()
     }
     
     return false;
-}
-
-void Result::SetBatchLimit(uint64_t batchLimit_)
-{
-    batchLimit = batchLimit_;
 }
 
 bool Result::AppendRequest(Request* req)

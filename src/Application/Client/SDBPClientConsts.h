@@ -1,6 +1,12 @@
 #ifndef SDBPCLIENTCONSTS_H
 #define SDBPCLIENTCONSTS_H
 
+#define SDBP_DEFAULT_TIMEOUT    120*1000 // msec
+
+//
+// BASIC RETURN CODES
+//
+
 #define SDBP_SUCCESS            0
 #define SDBP_API_ERROR          -1
 
@@ -46,10 +52,20 @@
 // the command was not executed, because of bad schema specification
 #define SDBP_BADSCHEMA          -403
 
-#define SDBP_DEFAULT_TIMEOUT    120*1000 // msec
+//
+// CONSISTENCY LEVELS
+//
 
 #define SDBP_CONSISTENCY_ANY    0
 #define SDBP_CONSISTENCY_RYW    1
 #define SDBP_CONSISTENCY_STRICT 2
+
+//
+// BATCH MODES
+//
+
+#define SDBP_BATCH_DEFAULT		0
+#define SDBP_BATCH_NOAUTOSUBMIT	1
+#define SDBP_BATCH_SINGLE		2
 
 #endif

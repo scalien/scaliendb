@@ -41,32 +41,30 @@ public:
     //
     // settings
     //
+    void                    SetConsistencyLevel(int consistencyLevel);
+    void					SetBatchMode(int batchMode);
+    void                    SetBatchLimit(uint64_t batchLimit);
+
     void                    SetGlobalTimeout(uint64_t timeout);
     void                    SetMasterTimeout(uint64_t timeout);
     uint64_t                GetGlobalTimeout();
     uint64_t                GetMasterTimeout();
-    
+
     uint64_t                GetCurrentDatabaseID();
     uint64_t                GetCurrentTableID();
     ConfigState*            GetConfigState();
     void                    WaitConfigState();
-    
-    void                    SetBatchLimit(uint64_t batchLimit);
-    void                    SetBulkLoading(bool bulk);
-    bool                    IsBulkLoading();
-    
-    void                    SetConsistencyLevel(int level);
-    
+        
     // =============================================================================================
     //
     // result & status
     //
     Result*                 GetResult();
 
-    int                     TransportStatus();
-    int                     ConnectivityStatus();
-    int                     TimeoutStatus();
-    int                     CommandStatus();
+    int                     GetTransportStatus();
+    int                     GetConnectivityStatus();
+    int                     GetTimeoutStatus();
+    int                     GetCommandStatus();
     
     // =============================================================================================
     //
@@ -132,7 +130,6 @@ public:
     int                     Begin();
     int                     Submit();
     int                     Cancel();
-    bool                    IsBatched();
 
 private:
     typedef InList<Request>                     RequestList;
@@ -191,7 +188,8 @@ private:
     Result*                 result;
     RequestList             requests;
     RequestMap              proxiedRequests;
-	unsigned				proxySize;
+    uint64_t                batchLimit;
+    unsigned				proxySize;
     ShardConnectionMap      shardConnections;
     ControllerConnection**  controllerConnections;
     int                     numControllers;
@@ -200,11 +198,9 @@ private:
     uint64_t                databaseID;
     bool                    isTableSet;
     uint64_t                tableID;
-    bool                    isBatched;
-    uint64_t                batchLimit;
-    bool                    isBulkLoading;
     bool                    isReading;
     int                     consistencyLevel;
+    int						batchMode;
     uint64_t                highestSeenPaxosID;
 
 //#ifdef CLIENT_MULTITHREAD    

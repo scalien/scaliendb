@@ -9,7 +9,7 @@
 #include "Application/Common/ClientResponse.h"
 
 #define MAX_IO_CONNECTION               1024
-#define DEFAULT_BATCH_LIMIT             (1*MB)
+#define DEFAULT_PROXY_LIMIT             (1*MB)
 
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
@@ -79,6 +79,48 @@ Mutex   globalMutex;
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
     return result->GetCommandStatus();              \
+
+
+#define CLIENT_DATA_PROXIED_COMMAND(op, ...)        \
+    int         cmpres;                             \
+    Request*    req;                                \
+    Request*    it;                                 \
+                                                    \
+    CLIENT_MUTEX_GUARD_DECLARE();                   \
+                                                    \
+    if (!isDatabaseSet || !isTableSet)              \
+        return SDBP_BADSCHEMA;                      \
+                                                    \
+    req = new Request;                              \
+    req->op(NextCommandID(), tableID, __VA_ARGS__); \
+                                                    \
+    if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&     \
+     proxySize + REQUEST_SIZE(req) >= batchLimit)   \
+    {                                               \
+        delete req;                                 \
+        return SDBP_API_ERROR;                      \
+    }                                               \
+                                                    \
+    it = proxiedRequests.Locate(req, cmpres);       \
+    if (cmpres == 0 && it != NULL)                  \
+    {                                               \
+        proxiedRequests.Delete(it);                 \
+        proxySize -= REQUEST_SIZE(it);              \
+        ASSERT(proxySize >= 0);                     \
+    }                                               \
+    proxiedRequests.Insert<const Request*>(req);    \
+    proxySize += REQUEST_SIZE(req);                 \
+                                                    \
+    CLIENT_MUTEX_GUARD_UNLOCK();                    \
+                                                    \
+    if (batchMode == SDBP_BATCH_SINGLE)             \
+        return Submit();                            \
+                                                    \
+    if (batchMode == SDBP_BATCH_DEFAULT &&          \
+     proxySize >= batchLimit)                       \
+        return Submit();                            \
+                                                    \
+    return SDBP_SUCCESS;                            \
 
 
 #define CLIENT_SCHEMA_COMMAND(op, ...)              \
@@ -165,9 +207,8 @@ Client::Client()
     globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
     result = NULL;
-    batchLimit = DEFAULT_BATCH_LIMIT;
-    isBulkLoading = false;
-	proxySize = 0;
+    batchLimit = DEFAULT_PROXY_LIMIT;
+    proxySize = 0;
 
     globalMutex.SetName("ClientGlobalMutex");
     mutexName.Writef("Client_%p", this);
@@ -220,8 +261,6 @@ int Client::Init(int nodec, const char* nodev[])
     consistencyLevel = SDBP_CONSISTENCY_STRICT;
     highestSeenPaxosID = 0;
         
-    isBatched = false;
-    
     return SDBP_SUCCESS;
 }
 
@@ -230,8 +269,8 @@ void Client::Shutdown()
     RequestListMap::Node*   requestNode;
     RequestList*            requestList;
 
-	if (proxiedRequests.GetCount() > 0)
-		Submit();
+    if (proxiedRequests.GetCount() > 0)
+        Submit();
 
     GLOBAL_MUTEX_GUARD_DECLARE();
 
@@ -258,6 +297,21 @@ void Client::Shutdown()
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
     IOProcessor::Shutdown();
+}
+
+void Client::SetBatchLimit(uint64_t batchLimit_)
+{
+    batchLimit = batchLimit_;
+}
+
+void Client::SetConsistencyLevel(int consistencyLevel_)
+{
+    consistencyLevel = consistencyLevel_;
+}
+
+void Client::SetBatchMode(int batchMode_)
+{
+    batchMode = batchMode_;
 }
 
 void Client::SetGlobalTimeout(uint64_t timeout)
@@ -342,26 +396,6 @@ void Client::WaitConfigState()
     CLIENT_MUTEX_LOCK();
 }
 
-void Client::SetBatchLimit(uint64_t batchLimit_)
-{
-    batchLimit = batchLimit_;
-}
-
-void Client::SetBulkLoading(bool bulk)
-{
-    isBulkLoading = bulk;
-}
-
-bool Client::IsBulkLoading()
-{
-    return isBulkLoading;
-}
-
-void Client::SetConsistencyLevel(int level)
-{
-    consistencyLevel = level;
-}
-
 Result* Client::GetResult()
 {
     Result* tmp;
@@ -371,22 +405,22 @@ Result* Client::GetResult()
     return tmp;
 }
 
-int Client::TransportStatus()
+int Client::GetTransportStatus()
 {
     return result->GetTransportStatus();
 }
 
-int Client::ConnectivityStatus()
+int Client::GetConnectivityStatus()
 {
     return connectivityStatus;
 }
 
-int Client::TimeoutStatus()
+int Client::GetTimeoutStatus()
 {
     return timeoutStatus;
 }
 
-int Client::CommandStatus()
+int Client::GetCommandStatus()
 {
     return result->GetCommandStatus();
 }
@@ -656,35 +690,7 @@ int Client::Get(const ReadBuffer& key)
 
 int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
 {
-    int         cmpres;
-    Request*    req;
-    Request*    it;
-    
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-
-    req = new Request;
-    req->Set(NextCommandID(), tableID, (ReadBuffer&) key, (ReadBuffer&) value);
-
-    // delete previous command if exists
-    it = proxiedRequests.Locate(req, cmpres);
-    if (cmpres == 0 && it != NULL)
-	{
-        proxiedRequests.Delete(it);
-		proxySize -= REQUEST_SIZE(it);
-		ASSERT(proxySize >= 0);
-	}
-    proxiedRequests.Insert<const Request*>(req);
-	proxySize += REQUEST_SIZE(req);
-
-    CLIENT_MUTEX_GUARD_UNLOCK();
-
-	if (proxySize > batchLimit)
-		return Submit();
-
-    return SDBP_SUCCESS;
+    CLIENT_DATA_PROXIED_COMMAND(Set, (ReadBuffer&) key, (ReadBuffer&) value);
 }
 
 int Client::SetIfNotExists(const ReadBuffer& key, const ReadBuffer& value)
@@ -714,36 +720,7 @@ int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
 
 int Client::Delete(const ReadBuffer& key)
 {
-    int         cmpres;
-    Request*    req;
-    Request*    it;
-    
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-
-    req = new Request;
-    req->Delete(NextCommandID(), tableID, (ReadBuffer&) key);
-
-    // delete previous command if exists
-    it = proxiedRequests.Locate(req, cmpres);
-    if (cmpres == 0 && it != NULL)
-	{
-        proxiedRequests.Delete(it);
-		proxySize -= REQUEST_SIZE(it);
-		ASSERT(proxySize >= 0);
-	}
-
-    proxiedRequests.Insert<const Request*>(req);
-	proxySize += REQUEST_SIZE(req);
-
-    CLIENT_MUTEX_GUARD_UNLOCK();
-
-	if (proxySize > batchLimit)
-		return Submit();
-
-    return SDBP_SUCCESS;
+    CLIENT_DATA_PROXIED_COMMAND(Delete, (ReadBuffer&) key);
 }
 
 int Client::TestAndDelete(const ReadBuffer& key, const ReadBuffer& test)
@@ -787,57 +764,12 @@ int Client::Filter(
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
  unsigned count, unsigned offset, uint64_t& commandID)
 {
-    Request*    req;                                
-    
-    CLIENT_MUTEX_GUARD_DECLARE();                   
-    
-    if (!isDatabaseSet || !isTableSet)              
-        return SDBP_BADSCHEMA;                      
-
-    if (isBatched)
-        return SDBP_API_ERROR;
-    
-    commandID = NextCommandID();
-    req = new Request;
-    req->ListKeyValues(commandID, tableID, 
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count, offset);
-    req->async = true;
-    requests.Append(req);
-        
-    result->Close();                                
-    result->AppendRequest(req);                     
-    
-    CLIENT_MUTEX_GUARD_UNLOCK();                    
-    EventLoop();                                    
-    return result->GetCommandStatus();                 
+    return SDBP_API_ERROR;
 }
 
 int Client::Receive(uint64_t commandID)
 {
-    Request*    req;
-    ReadBuffer  key;
-    ReadBuffer  endKey;
-    ReadBuffer  prefix;
-    
-    CLIENT_MUTEX_GUARD_DECLARE();                   
-    
-    if (!isDatabaseSet || !isTableSet)              
-        return SDBP_BADSCHEMA;                      
-
-    if (isBatched)
-        return SDBP_API_ERROR;
-    
-    // create dummy request
-    req = new Request;
-    req->ListKeyValues(commandID, 0, key, endKey, prefix, 0, 0);
-    req->async = true;
-
-    result->Close();                                
-    result->AppendRequest(req);                     
-    
-    CLIENT_MUTEX_GUARD_UNLOCK();                    
-    EventLoop();                                    
-    return result->GetCommandStatus();                 
+    return SDBP_API_ERROR;
 }
 
 int Client::Begin()
@@ -847,8 +779,6 @@ int Client::Begin()
     CLIENT_MUTEX_GUARD_DECLARE();
 
     result->Close();
-    result->SetBatchLimit(batchLimit);
-    isBatched = true;
     isReading = false;
     
     return SDBP_SUCCESS;
@@ -863,14 +793,13 @@ int Client::Submit()
 
     Begin();
     FOREACH_POP(it, proxiedRequests)
-	{
+    {
         AppendDataRequest(it, status);
-		proxySize -= REQUEST_SIZE(it);
-	}
-	ASSERT(proxySize == 0);
+        proxySize -= REQUEST_SIZE(it);
+    }
+    ASSERT(proxySize == 0);
 
     EventLoop();
-    isBatched = false;
 
     ClearQuorumRequests();
     requests.ClearMembers();
@@ -884,22 +813,16 @@ int Client::Cancel()
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-	proxiedRequests.Clear();
-	proxySize = 0;
-	requests.Clear();
+    proxiedRequests.Clear();
+    proxySize = 0;
+    requests.Clear();
 
     result->Close();
-    isBatched = false;
 
     ClearQuorumRequests();
     requests.ClearMembers();
     
     return SDBP_SUCCESS;
-}
-
-bool Client::IsBatched()
-{
-    return isBatched;
 }
 
 /*
@@ -1077,30 +1000,26 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
 
 bool Client::AppendDataRequest(Request* req, int &status)
 {
-    req->isBulk = isBulkLoading;
+    req->isBulk = false;
     requests.Append(req);
 
-    if (isBatched)
+    if (!result->AppendRequest(req) ||
+        (requests.GetLength() > 1 && isReading && !req->IsReadRequest()) ||
+        (requests.GetLength() > 1 && !isReading && req->IsReadRequest()))
     {
-        if (!result->AppendRequest(req) ||
-         (requests.GetLength() > 1 && isReading && !req->IsReadRequest()) ||
-         (requests.GetLength() > 1 && !isReading && req->IsReadRequest()))
-        {
-            requests.Clear();
-            result->Close();
-            isBatched = false;
-            status = SDBP_API_ERROR;
-            return true;
-        }
-
-        if (req->IsReadRequest())
-            isReading = true;
-        else
-            isReading = false;
-
-        status = SDBP_SUCCESS;
+        requests.Clear();
+        result->Close();
+        status = SDBP_API_ERROR;
         return true;
     }
+
+    if (req->IsReadRequest())
+        isReading = true;
+    else
+        isReading = false;
+
+    status = SDBP_SUCCESS;
+    return true;
 
     if (req->IsReadRequest())
         isReading = true;
@@ -1284,8 +1203,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         ASSERT_FAIL();
     
     // with consistency level set to STRICT, send requests only to primary shard server
-    if (!isBulkLoading && consistencyLevel == SDBP_CONSISTENCY_STRICT && 
-     quorum->primaryID != conn->GetNodeID())
+    if (consistencyLevel == SDBP_CONSISTENCY_STRICT && quorum->primaryID != conn->GetNodeID())
         return;
     
     // load balancing in relaxed consistency levels
@@ -1349,9 +1267,6 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     if (qrequests->GetLength() == 0)
         flushNeeded = true;
 
-    if (isBulkLoading && bulkRequests.GetLength() == 0)
-        flushNeeded = true;
-    
     if (flushNeeded)
         conn->Flush();
     
