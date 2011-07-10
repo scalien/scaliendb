@@ -5534,62 +5534,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_SDBP_SetBatchLimit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  int res1 ;
-  unsigned long long val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_SetBatchLimit",2,2,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_SetBatchLimit" "', argument " "1"" of type '" "ClientObj""'"); 
-  }
-  ecode2 = SWIG_AsVal_unsigned_SS_long_SS_long(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_SetBatchLimit" "', argument " "2"" of type '" "uint64_t""'");
-  } 
-  arg2 = static_cast< uint64_t >(val2);
-  SDBP_SetBatchLimit(arg1,arg2);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
-SWIGINTERN PyObject *_wrap_SDBP_SetBulkLoading(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  ClientObj arg1 = (ClientObj) 0 ;
-  bool arg2 ;
-  int res1 ;
-  bool val2 ;
-  int ecode2 = 0 ;
-  PyObject * obj0 = 0 ;
-  PyObject * obj1 = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_SetBulkLoading",2,2,&obj0,&obj1)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_SetBulkLoading" "', argument " "1"" of type '" "ClientObj""'"); 
-  }
-  ecode2 = SWIG_AsVal_bool(obj1, &val2);
-  if (!SWIG_IsOK(ecode2)) {
-    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_SetBulkLoading" "', argument " "2"" of type '" "bool""'");
-  } 
-  arg2 = static_cast< bool >(val2);
-  SDBP_SetBulkLoading(arg1,arg2);
-  resultobj = SWIG_Py_Void();
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_SDBP_SetConsistencyLevel(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -5611,6 +5555,62 @@ SWIGINTERN PyObject *_wrap_SDBP_SetConsistencyLevel(PyObject *SWIGUNUSEDPARM(sel
   } 
   arg2 = static_cast< int >(val2);
   SDBP_SetConsistencyLevel(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_SetBatchMode(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  int arg2 ;
+  int res1 ;
+  int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_SetBatchMode",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_SetBatchMode" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_SetBatchMode" "', argument " "2"" of type '" "int""'");
+  } 
+  arg2 = static_cast< int >(val2);
+  SDBP_SetBatchMode(arg1,arg2);
+  resultobj = SWIG_Py_Void();
+  return resultobj;
+fail:
+  return NULL;
+}
+
+
+SWIGINTERN PyObject *_wrap_SDBP_SetBatchLimit(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
+  PyObject *resultobj = 0;
+  ClientObj arg1 = (ClientObj) 0 ;
+  unsigned int arg2 ;
+  int res1 ;
+  unsigned int val2 ;
+  int ecode2 = 0 ;
+  PyObject * obj0 = 0 ;
+  PyObject * obj1 = 0 ;
+  
+  if(!PyArg_UnpackTuple(args,(char *)"SDBP_SetBatchLimit",2,2,&obj0,&obj1)) SWIG_fail;
+  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
+  if (!SWIG_IsOK(res1)) {
+    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_SetBatchLimit" "', argument " "1"" of type '" "ClientObj""'"); 
+  }
+  ecode2 = SWIG_AsVal_unsigned_SS_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_SetBatchLimit" "', argument " "2"" of type '" "unsigned int""'");
+  } 
+  arg2 = static_cast< unsigned int >(val2);
+  SDBP_SetBatchLimit(arg1,arg2);
   resultobj = SWIG_Py_Void();
   return resultobj;
 fail:
@@ -8473,26 +8473,6 @@ fail:
 }
 
 
-SWIGINTERN PyObject *_wrap_SDBP_IsBatched(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
-  PyObject *resultobj = 0;
-  ClientObj arg1 = (ClientObj) 0 ;
-  bool result;
-  int res1 ;
-  PyObject * obj0 = 0 ;
-  
-  if(!PyArg_UnpackTuple(args,(char *)"SDBP_IsBatched",1,1,&obj0)) SWIG_fail;
-  res1 = SWIG_ConvertPtr(obj0,SWIG_as_voidptrptr(&arg1), 0, 0);
-  if (!SWIG_IsOK(res1)) {
-    SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_IsBatched" "', argument " "1"" of type '" "ClientObj""'"); 
-  }
-  result = (bool)SDBP_IsBatched(arg1);
-  resultobj = SWIG_From_bool(static_cast< bool >(result));
-  return resultobj;
-fail:
-  return NULL;
-}
-
-
 SWIGINTERN PyObject *_wrap_SDBP_SetTrace(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   bool arg1 ;
@@ -8621,9 +8601,9 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_GetCurrentTableID", _wrap_SDBP_GetCurrentTableID, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetJSONConfigState", _wrap_SDBP_GetJSONConfigState, METH_VARARGS, NULL},
 	 { (char *)"SDBP_WaitConfigState", _wrap_SDBP_WaitConfigState, METH_VARARGS, NULL},
-	 { (char *)"SDBP_SetBatchLimit", _wrap_SDBP_SetBatchLimit, METH_VARARGS, NULL},
-	 { (char *)"SDBP_SetBulkLoading", _wrap_SDBP_SetBulkLoading, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetConsistencyLevel", _wrap_SDBP_SetConsistencyLevel, METH_VARARGS, NULL},
+	 { (char *)"SDBP_SetBatchMode", _wrap_SDBP_SetBatchMode, METH_VARARGS, NULL},
+	 { (char *)"SDBP_SetBatchLimit", _wrap_SDBP_SetBatchLimit, METH_VARARGS, NULL},
 	 { (char *)"SDBP_CreateQuorum", _wrap_SDBP_CreateQuorum, METH_VARARGS, NULL},
 	 { (char *)"SDBP_RenameQuorum", _wrap_SDBP_RenameQuorum, METH_VARARGS, NULL},
 	 { (char *)"SDBP_DeleteQuorum", _wrap_SDBP_DeleteQuorum, METH_VARARGS, NULL},
@@ -8689,7 +8669,6 @@ static PyMethodDef SwigMethods[] = {
 	 { (char *)"SDBP_Begin", _wrap_SDBP_Begin, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Submit", _wrap_SDBP_Submit, METH_VARARGS, NULL},
 	 { (char *)"SDBP_Cancel", _wrap_SDBP_Cancel, METH_VARARGS, NULL},
-	 { (char *)"SDBP_IsBatched", _wrap_SDBP_IsBatched, METH_VARARGS, NULL},
 	 { (char *)"SDBP_SetTrace", _wrap_SDBP_SetTrace, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetVersion", _wrap_SDBP_GetVersion, METH_VARARGS, NULL},
 	 { (char *)"SDBP_GetDebugString", _wrap_SDBP_GetDebugString, METH_VARARGS, NULL},
