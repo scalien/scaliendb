@@ -19,9 +19,13 @@ public class Client
     private Result result;
     private Result lastResult;
 
-    private static final int CONSISTENCY_ANY        = 0;
-    private static final int CONSISTENCY_RYW        = 1;
-    private static final int CONSISTENCY_STRICT     = 2;
+    public static final int CONSISTENCY_ANY     = 0;
+    public static final int CONSISTENCY_RYW     = 1;
+    public static final int CONSISTENCY_STRICT  = 2;
+
+    public static final int BATCH_DEFAULT       = 0;
+    public static final int BATCH_NOAUTOSUBMIT  = 1;
+    public static final int BATCH_SINGLE        = 2;
     
     /**
      * Creates client object.
@@ -116,28 +120,6 @@ public class Client
     }
     
     /**
-     * Sets the batch limit.
-     *
-     * The batch limit is the maximum allocated memory the client will allocate for batched
-     * requests. If the requests exceed that limit, the client will throw an exception with
-     * SDBP_API_ERROR.
-     *
-     * @param   limit   the maximum allocated memory
-     */
-    public void setBatchLimit(long limit) {
-        scaliendb_client.SDBP_SetBatchLimit(cptr, BigInteger.valueOf(limit));
-    }
-
-    /**
-     * Turns bulk loading on or off.
-     *
-     * @param   bulk    true when bulk loading
-     */
-    public void setBulkLoading(boolean bulk) {
-        scaliendb_client.SDBP_SetBulkLoading(cptr, bulk);
-    }
-
-    /**
      * Sets the consistency level for read operations.
      *
      * <p>There are separate consistency levels the client can operate at.
@@ -158,7 +140,41 @@ public class Client
     public void setConsistencyLevel(int consistencyLevel) {
         scaliendb_client.SDBP_SetConsistencyLevel(cptr, consistencyLevel);
     }
+
+    /**
+     * Sets the batch mode for write operations.
+     *
+     * <p>This determines when the client library actually sends commands to the server.
+     *    Note that calling Submit() always sends the currently batched commands, irrespective
+     *    of the batch mode.
+     *
+     * <li>BATCH_DEAULT means that commands are sent when the batch limit (default 1MB) is reached.
+     *
+     * <li>BATCH_NOAUTOSUBMIT means that commands are never send automatically, only when Submit()
+     *     is called explicitly. Once the batch limit is reached an exception is thrown.
+     *
+     * <li>BATCH_SINGLE means that commands are sent right after they are issued. Since the client
+     *     library waits for the command to complete and return, this can be slow.
+     *
+     * @param   consistencyLevel    can be BATCH_DEFAULT, BATCH_NOAUTOSUBMIT and BATCH_SINGLE
+     */    
+    public void setBatchMode(int batchMode) {
+        scaliendb_client.SDBP_SetBatchMode(cptr, batchMode);
+    }
     
+    /**
+     * Sets the batch limit.
+     *
+     * The batch limit is the maximum allocated memory the client will allocate for batched
+     * requests. If the requests exceed that limit, the client will throw an exception with
+     * SDBP_API_ERROR.
+     *
+     * @param   limit   the maximum allocated memory
+     */
+    public void setBatchLimit(long limit) {
+        scaliendb_client.SDBP_SetBatchLimit(cptr, limit);
+    }
+
     /**
      * Returns the config state in a JSON-serialized string.
      */
@@ -475,10 +491,7 @@ public class Client
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
         }
-        
-        if (isBatched())
-            return null;
-                
+                        
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getValue();
     }
@@ -496,9 +509,6 @@ public class Client
             checkStatus(status);
         }
         
-        if (isBatched())
-            return null;
-                
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getValueBytes();
     }
@@ -517,9 +527,6 @@ public class Client
             return defval;
         }
         
-        if (isBatched())
-            return defval;
-        
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getValue();
     }
@@ -537,9 +544,6 @@ public class Client
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             return defval;
         }
-        
-        if (isBatched())
-            return defval;
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getValueBytes();
@@ -613,9 +617,6 @@ public class Client
             checkStatus(status);
         }
         
-        if (isBatched())
-            return;
-                
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
     }
 
@@ -633,21 +634,7 @@ public class Client
             checkStatus(status);
         }
         
-        if (isBatched())
-            return;
-                
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-    }
-
-    /**
-     * Associates the specified value with the specified key. If the database previously contained
-     * a mapping for this key, the old value is replaced.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     */
-    public <K, V> void set(K key, V value) throws SDBPException {
-        set(key.toString(), value.toString());
     }
 
     /**
@@ -669,253 +656,9 @@ public class Client
      * @param   value   value to be associated with the specified key
      */
     public void setLong(byte[] key, long value) throws SDBPException {
-        set(key, Long.toString(value));
-    }
-    
-    /**
-     * Associates the specified value with the specified key only if it did not exist previously.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public boolean setIfNotExists(String key, String value) throws SDBPException {
-        int status = scaliendb_client.SDBP_SetIfNotExists(cptr, key, value);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return false;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (result.getCommandStatus() == Status.SDBP_SUCCESS)
-            return true;
-        return false;
+        set(key, Long.toString(value).getBytes());
     }
 
-    /**
-     * Associates the specified value with the specified key only if it did not exist previously.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public boolean setIfNotExists(byte[] key, byte[] value) throws SDBPException {
-        int status = scaliendb_client.SDBP_SetIfNotExistsCStr(cptr, key, key.length, value, value.length);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return false;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (result.getCommandStatus() == Status.SDBP_SUCCESS)
-            return true;
-        return false;
-    }
-
-    /**
-     * Associates the specified value with the specified key only if it did not exist previously.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public <K, V> boolean setIfNotExists(K key, V value) throws SDBPException {
-        return setIfNotExists(key.toString(), value.toString());
-    }
-
-    /**
-     * Associates the specified value with the specified key only if it did not exist previously.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public boolean setIfNotExistsLong(String key, long value) throws SDBPException {
-        return setIfNotExists(key, Long.toString(value));
-    }
-
-    /**
-     * Associates the specified value with the specified key only if it did not exist previously.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public boolean setIfNotExistsLong(byte[] key, long value) throws SDBPException {
-        return setIfNotExists(key, Long.toString(value));
-    }
-    
-    /**
-     * Associates the specified value with the specified key only if it matches a specified test value.
-     * 
-     * The testAndSet command conditionally and atomically associates a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public boolean testAndSet(String key, String test, String value) throws SDBPException {
-        int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return false;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.isConditionalSuccess();
-    }
-
-    /**
-     * Associates the specified value with the specified key only if it matches a specified test value.
-     * 
-     * The testAndSet command conditionally and atomically associates a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public boolean testAndSet(byte[] key, byte[] test, byte[] value) throws SDBPException {
-        int status = scaliendb_client.SDBP_TestAndSetCStr(cptr, key, key.length, test, test.length, value, value.length);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return false;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.isConditionalSuccess();
-    }
-
-    /**
-     * Associates the specified value with the specified key only if it matches a specified test value.
-     * 
-     * The testAndSet command conditionally and atomically associates a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public <K, V> boolean testAndSet(K key, V test, V value) throws SDBPException {
-        return testAndSet(key.toString(), test.toString(), value.toString());
-    }
-
-    /**
-     * Associates the specified value with the specified key only if it matches a specified test value.
-     * 
-     * The testAndSet command conditionally and atomically associates a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public boolean testAndSetLong(String key, long test, long value) throws SDBPException {
-        return testAndSet(key, Long.toString(test), Long.toString(value));
-    }
-
-    /**
-     * Associates the specified value with the specified key only if it matches a specified test value.
-     * 
-     * The testAndSet command conditionally and atomically associates a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @param   value   value to be associated with the specified key
-     * @return          true if the value was set
-     */
-    public boolean testAndSetLong(byte[] key, long test, long value) throws SDBPException {
-        return testAndSet(key, Long.toString(test), Long.toString(value));
-    }
-    
-    /**
-     * Associates the specified value with the specified key. If the database previously contained
-     * a mapping for this key, the old value is replaced and returned.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          the old value
-     */
-    public String getAndSet(String key, String value) throws SDBPException {
-        int status = scaliendb_client.SDBP_GetAndSet(cptr, key, value);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return null;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getValue();
-    }
-
-    /**
-     * Associates the specified value with the specified key. If the database previously contained
-     * a mapping for this key, the old value is replaced and returned.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          the old value
-     */
-    public byte[] getAndSet(byte[] key, byte[] value) throws SDBPException {
-        int status = scaliendb_client.SDBP_GetAndSetCStr(cptr, key, key.length, value, value.length);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return null;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getValueBytes();
-    }
-
-    /**
-     * Associates the specified value with the specified key. If the database previously contained
-     * a mapping for this key, the old value is replaced and returned.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          the old value
-     */
-    public long getAndSetLong(String key, long value) throws SDBPException {
-        String s = getAndSet(key, Long.toString(value));
-        return Long.parseLong(s);
-    }
-
-    /**
-     * Associates the specified value with the specified key. If the database previously contained
-     * a mapping for this key, the old value is replaced and returned.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
-     * @return          the old value
-     */
-    public long getAndSetLong(byte[] key, long value) throws SDBPException {
-        byte[] b = getAndSet(key, Long.toString(value).getBytes());
-        return Long.parseLong(new String(b));
-    }
-    
     /**
      * Adds a numeric value to the specified key. The key must contain a numeric value, otherwise
      * an exception is thrown. When the specified number is negative, a substraction will happen.
@@ -931,9 +674,6 @@ public class Client
             checkStatus(status);
         }
         
-        if (isBatched())
-            return 0;
-                    
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getSignedNumber();
     }
@@ -953,76 +693,10 @@ public class Client
             checkStatus(status);
         }
         
-        if (isBatched())
-            return 0;
-                    
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         return result.getSignedNumber();
     }
-
-    /**
-     * Adds a numeric value to the specified key. The key must contain a numeric value, otherwise
-     * an exception is thrown. When the specified number is negative, a substraction will happen.
-     *
-     * @param   key     key to which the specified number is to be added
-     * @param   number  a numeric value
-     * @return          the new value
-     */
-    public <K> long add(K key, long number) throws SDBPException {
-        return add(key.toString(), number);
-    }
-    
-    /**
-     * Appends the specified value to end of the value of the specified key. If the key did not
-     * exist, it is created with the specified value.
-     *
-     * @param   key     key to which the specified value is to be appended
-     * @param   value   the specified value that is appended to end of the existing value
-     */
-    public void append(String key, String value) throws SDBPException {
-        int status = scaliendb_client.SDBP_Append(cptr, key, value);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
         
-        if (isBatched())
-            return;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-    }
-
-    /**
-     * Appends the specified value to end of the value of the specified key. If the key did not
-     * exist, it is created with the specified value.
-     *
-     * @param   key     key to which the specified value is to be appended
-     * @param   value   the specified value that is appended to end of the existing value
-     */
-    public void append(byte[] key, byte[] value) throws SDBPException {
-        int status = scaliendb_client.SDBP_AppendCStr(cptr, key, key.length, value, value.length);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return;
-                
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-    }
-
-    /**
-     * Appends the specified value to end of the value of the specified key. If the key did not
-     * exist, it is created with the specified value.
-     *
-     * @param   key     key to which the specified value is to be appended
-     * @param   value   the specified value that is appended to end of the existing value
-     */
-    public <K, V> void append(K key, V value) throws SDBPException {
-        append(key.toString(), value.toString());
-    }
-    
     /**
      * Deletes the specified key.
      *
@@ -1034,9 +708,6 @@ public class Client
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
         }
-        
-        if (isBatched())
-            return;
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
     }
@@ -1053,155 +724,9 @@ public class Client
             checkStatus(status);
         }
         
-        if (isBatched())
-            return;
-        
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-    }
-
-    /**
-     * Deletes the specified key.
-     *
-     * @param   key     key to be deleted
-     */
-    public <K> void delete(K key) throws SDBPException {
-        delete(key.toString());
     }
     
-    /**
-     * Deletes the specified key only if it matches a specified test value.
-     * 
-     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @return          true if the key was deleted
-     */
-    public boolean testAndDelete(String key, String test) throws SDBPException {
-        int status = scaliendb_client.SDBP_TestAndDelete(cptr, key, test);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return false;
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.isConditionalSuccess();
-    }
-
-    /**
-     * Deletes the specified key only if it matches a specified test value.
-     * 
-     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @return          true if the key was deleted
-     */
-    public boolean testAndDelete(byte[] key, byte[] test) throws SDBPException {
-        int status = scaliendb_client.SDBP_TestAndDeleteCStr(cptr, key, key.length, test, test.length);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return false;
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.isConditionalSuccess();
-    }
-
-    /**
-     * Deletes the specified key only if it matches a specified test value.
-     * 
-     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @return          true if the key was deleted
-     */
-    public <K, V> boolean testAndDelete(K key, V test) throws SDBPException {
-        return testAndDelete(key.toString(), test.toString());
-    }
-
-    /**
-     * Deletes the specified key only if it matches a specified test value.
-     * 
-     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @return          true if the key was deleted
-     */
-    public boolean testAndDeleteLong(String key, long test) throws SDBPException {
-        return testAndDelete(key, Long.toString(test));
-    }
-
-    /**
-     * Deletes the specified key only if it matches a specified test value.
-     * 
-     * The testAndDelete command conditionally and atomically deletes a key => value pair, but only 
-     * if the current value matches the user specified test value.
-     *
-     * @param   key     key with which the specified value is to be associated
-     * @param   test    the user specified value that is tested against the old value
-     * @return          true if the key was deleted
-     */
-    public boolean testAndDeleteLong(byte[] key, long test) throws SDBPException {
-        return testAndDelete(key, Long.toString(test).getBytes());
-    }
-    
-    /**
-     * Deletes the specified key and returns the old value.
-     *
-     * @param   key     key to be deleted
-     * @return          the old value or null if not found
-     */
-    public String remove(String key) throws SDBPException {
-        int status = scaliendb_client.SDBP_Remove(cptr, key);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return null;
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (result.getCommandStatus() == Status.SDBP_SUCCESS)
-            return result.getValue();
-        return null;
-    }
-
-    /**
-     * Deletes the specified key and returns the old value.
-     *
-     * @param   key     key to be deleted
-     * @return          the old value or null if not found
-     */
-    public byte[] remove(byte[] key) throws SDBPException {
-        int status = scaliendb_client.SDBP_RemoveCStr(cptr, key, key.length);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
-        }
-        
-        if (isBatched())
-            return null;
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        if (result.getCommandStatus() == Status.SDBP_SUCCESS)
-            return result.getValueBytes();
-        return null;
-    }
-
     /**
      * Returns the specified keys.
      *
@@ -1390,15 +915,6 @@ public class Client
         checkStatus(status);        
     }
 
-    /**
-     * Returns if the client is batched mode or not.
-     *
-     * @return              true if batched
-     */
-    public boolean isBatched() {
-        return scaliendb_client.SDBP_IsBatched(cptr);
-    }
-    
     /**
      * Turns on or off the debug trace functionality.
      */

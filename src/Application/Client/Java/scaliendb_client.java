@@ -151,16 +151,16 @@ public class scaliendb_client {
     scaliendb_clientJNI.SDBP_WaitConfigState(SWIGTYPE_p_void.getCPtr(client));
   }
 
-  public static void SDBP_SetBatchLimit(SWIGTYPE_p_void client, java.math.BigInteger limit) {
-    scaliendb_clientJNI.SDBP_SetBatchLimit(SWIGTYPE_p_void.getCPtr(client), limit);
-  }
-
-  public static void SDBP_SetBulkLoading(SWIGTYPE_p_void client, boolean bulk) {
-    scaliendb_clientJNI.SDBP_SetBulkLoading(SWIGTYPE_p_void.getCPtr(client), bulk);
-  }
-
   public static void SDBP_SetConsistencyLevel(SWIGTYPE_p_void client, int consistencyLevel) {
     scaliendb_clientJNI.SDBP_SetConsistencyLevel(SWIGTYPE_p_void.getCPtr(client), consistencyLevel);
+  }
+
+  public static void SDBP_SetBatchMode(SWIGTYPE_p_void client, int batchMode) {
+    scaliendb_clientJNI.SDBP_SetBatchMode(SWIGTYPE_p_void.getCPtr(client), batchMode);
+  }
+
+  public static void SDBP_SetBatchLimit(SWIGTYPE_p_void client, long batchLimit) {
+    scaliendb_clientJNI.SDBP_SetBatchLimit(SWIGTYPE_p_void.getCPtr(client), batchLimit);
   }
 
   public static int SDBP_CreateQuorum(SWIGTYPE_p_void client, String name, SDBP_NodeParams params) {
@@ -421,10 +421,6 @@ public class scaliendb_client {
 
   public static int SDBP_Cancel(SWIGTYPE_p_void client) {
     return scaliendb_clientJNI.SDBP_Cancel(SWIGTYPE_p_void.getCPtr(client));
-  }
-
-  public static boolean SDBP_IsBatched(SWIGTYPE_p_void client) {
-    return scaliendb_clientJNI.SDBP_IsBatched(SWIGTYPE_p_void.getCPtr(client));
   }
 
   public static void SDBP_SetTrace(boolean trace) {
