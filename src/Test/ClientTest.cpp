@@ -42,8 +42,8 @@ static int SetupDefaultClient(Client& client)
     const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.51:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
+    ReadBuffer      databaseName = "bulk";
+    ReadBuffer      tableName = "pics";
     int             ret;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -1167,103 +1167,31 @@ TEST_DEFINE(TestClientMaro)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
-    ReadBuffer      key;
-    Buffer          keyBuffer;
-    ReadBuffer      resultKey;
-    ReadBuffer      value;
-    Buffer          valueBuffer;
-    ReadBuffer      resultValue;
+    ReadBuffer      rk, rv, r;
+    Buffer          k, v;
     int             ret;
-    unsigned        i;
-    
-    Log_SetTimestamping(true);
-    Log_SetTarget(LOG_TARGET_STDOUT);
-    Log_SetTrace(false);
-    
-    ret = client.Init(SIZE(nodes), nodes);
+
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(10000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
     
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    client.Begin();
-    for (i = 0; i < 10000; i++)
+
+    for (int i = 0; i < 11; i++)
     {
-        keyBuffer.Writef("key%u", i);
-        key.Wrap(keyBuffer);
-        valueBuffer.Writef("value%u", i);
-        value.Wrap(valueBuffer);
-        ret = client.Set(key, value);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
+        k.Writef("%d", i);
+        v.Writef("%d", i*i);
+        rk.Wrap(k);
+        rv.Wrap(v);
+        client.Set(rk, rv);
+
+        result = client.GetResult();
+        result->Begin();
+        result->GetValue(r);
+        delete result;
         
-//        ret = client.Get(key);
-//        if (ret != SDBP_SUCCESS)
-//            TEST_CLIENT_FAIL();
-//        
-//        result = client.GetResult();
-//        if (result == NULL)
-//            TEST_CLIENT_FAIL();
-//        
-//        if (result->GetRequestCount() != 1)
-//            TEST_CLIENT_FAIL();
-//        
-//        for (result->Begin(); !result->IsEnd(); result->Next())
-//        {
-//            ret = result->GetKey(resultKey);
-//            if (ret != SDBP_SUCCESS)
-//                TEST_CLIENT_FAIL();
-//            
-//            if (ReadBuffer::Cmp(key, resultKey) != 0)
-//                TEST_CLIENT_FAIL();
-//            
-//            ret = result->GetValue(resultValue);
-//            if (ret != SDBP_SUCCESS)
-//                TEST_CLIENT_FAIL();
-//                
-//            if (ReadBuffer::Cmp(value, resultValue) != 0)
-//                TEST_CLIENT_FAIL();
-//                
-//            TEST_LOG("key: %.*s, value: %.*s", P(&resultKey), P(&resultValue));
-//        }
-//        
-//        delete result;
     }
-
-    Stopwatch sw;
-    unsigned elapsed;
-    sw.Start();
-    ret = client.Submit();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    sw.Stop();
-    elapsed = sw.Elapsed();
-    TEST_LOG("elapsed %u", elapsed);
-    
-    result = client.GetResult();
-    if (result == NULL)
-        TEST_CLIENT_FAIL();
-
-    for (result->Begin(); !result->IsEnd(); result->Next())
-    {
-        ret = result->GetTransportStatus();
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-    }
-
-    delete result;
-
-    client.Shutdown();
+    client.Submit();
     
     return TEST_SUCCESS;
 }
