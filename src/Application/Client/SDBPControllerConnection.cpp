@@ -185,14 +185,14 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
 {
     ClientRequest*  req;
     
-    ASSERT(resp->configState.masterID == nodeID);
+    ASSERT(resp->configState.Get()->masterID == nodeID);
     EventLoop::Remove(&getConfigStateTimeout);
     
     req = RemoveRequest(resp->commandID);
     delete req;
     
     // copy the config state created on stack in OnMessage
-    resp->configState.Transfer(configState);
+    resp->configState.Get()->Transfer(configState);
     
     if (configState.hasMaster)
         client->SetMaster(configState.masterID, nodeID);

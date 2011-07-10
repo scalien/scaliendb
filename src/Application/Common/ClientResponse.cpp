@@ -4,6 +4,7 @@
 ClientResponse::ClientResponse()
 {
     Init();
+    configState.SetAutoCreate(true);
 }
 
 ClientResponse::~ClientResponse()
@@ -42,7 +43,7 @@ void ClientResponse::Clear()
         delete[] values;
     values = NULL;
 
-    configState.Init();
+    configState.Free();
     Init();
 }
 
@@ -108,8 +109,7 @@ void ClientResponse::Transfer(ClientResponse& other)
     other.commandID = commandID;
     other.value = value;
     other.valueBuffer = valueBuffer;
-    other.configState = configState;
-//    configState.Transfer(other.configState);
+    configState.Transfer(other.configState);
     other.numKeys = numKeys;
     other.keys = keys;
     other.values = values;
@@ -181,7 +181,8 @@ bool ClientResponse::ListKeyValues(unsigned numKeys_, ReadBuffer* keys_, ReadBuf
 bool ClientResponse::ConfigStateResponse(ConfigState& configState_)
 {
     type = CLIENTRESPONSE_CONFIG_STATE;
-    configState = configState_;
+    configState.Set(new ConfigState);
+    *configState.Get() = configState_;
     return true;
 }
 

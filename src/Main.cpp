@@ -18,6 +18,9 @@ void LogPrintVersion(bool isController);
 
 int main(int argc, char** argv)
 {
+
+    unsigned u = sizeof(Buffer);
+
     Application* app;
     bool isController;
 

@@ -1,6 +1,8 @@
 #ifndef POINTERGUARD_H
 #define POINTERGUARD_H
 
+#include "Platform.h"
+
 /*
 ===============================================================================================
 
@@ -19,13 +21,16 @@ public:
     PointerGuard(T* ptr);
     ~PointerGuard();
     
+    void    SetAutoCreate(bool autoCreate);
+    
     void    Set(T* ptr);
     T*      Get();
     T*      Release();
-    
     void    Free();
+    void    Transfer(PointerGuard<T>& other);
 
 private:
+    bool    autoCreate;
     T*      ptr;
 };
 
@@ -36,6 +41,7 @@ private:
 template<class T>
 PointerGuard<T>::PointerGuard()
 {
+    autoCreate = false;
     ptr = NULL;
 }
 
@@ -53,6 +59,13 @@ PointerGuard<T>::~PointerGuard()
 }
 
 template<class T>
+void PointerGuard<T>::SetAutoCreate(bool autoCreate_)
+{
+    autoCreate = autoCreate_;
+}
+
+
+template<class T>
 void PointerGuard<T>::Set(T* ptr_)
 {
     delete ptr;
@@ -62,6 +75,8 @@ void PointerGuard<T>::Set(T* ptr_)
 template<class T>
 T* PointerGuard<T>::Get()
 {
+    if (ptr == NULL)
+        ptr = new T;
     return ptr;
 }
 
@@ -77,10 +92,15 @@ T* PointerGuard<T>::Release()
 template<class T>
 void PointerGuard<T>::Free()
 {
-    if (ptr != NULL)
-        delete ptr;
-    
+    delete ptr;
     ptr = NULL;
+}
+
+template<class T>
+void PointerGuard<T>::Transfer(PointerGuard<T>& other)
+{
+    other.Free();
+    other.Set(Release());
 }
 
 

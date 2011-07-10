@@ -2,7 +2,7 @@
 #include "StorageEnvironment.h"
 #include "StorageMemoChunk.h"
 #include "StorageFileChunk.h"
-#include "PointerGuard.h"
+#include "System/PointerGuard.h"
 
 bool StorageChunkSerializer::Serialize(StorageEnvironment* env_, StorageMemoChunk* memoChunk_)
 {

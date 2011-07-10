@@ -2,7 +2,7 @@
 #include "StorageKeyValue.h"
 #include "StorageEnvironment.h"
 #include "StorageConfig.h"
-#include "PointerGuard.h"
+#include "System/PointerGuard.h"
 #include "System/FileSystem.h"
 #include "System/Events/EventLoop.h"
 #include "System/Events/Deferred.h"

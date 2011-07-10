@@ -68,7 +68,7 @@ void ConfigHTTPClientSession::OnComplete(ClientRequest* request, bool last)
                 return;
             session.json.Start();
             jsonConfigState.SetHeartbeats(&configServer->GetHeartbeatManager()->GetHeartbeats());
-            jsonConfigState.SetConfigState(&response->configState);
+            jsonConfigState.SetConfigState(response->configState.Get());
             jsonConfigState.SetJSONBufferWriter(&session.json.GetBufferWriter());
             jsonConfigState.Write();
             session.Flush();

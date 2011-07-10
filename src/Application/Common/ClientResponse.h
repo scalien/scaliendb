@@ -1,6 +1,7 @@
 #ifndef CLIENTRESPONSE_H
 #define CLIENTRESPONSE_H
 
+#include "System/PointerGuard.h"
 #include "System/Buffers/ReadBuffer.h"
 #include "Application/ConfigState/ConfigState.h"
 
@@ -43,6 +44,7 @@ class ClientRequest; // forward
 
 class ClientResponse
 {
+    typedef PointerGuard<ConfigState>   ConfigStateGuard;
 public:
     ClientRequest*  request;
     
@@ -61,7 +63,7 @@ public:
     ReadBuffer*     values;
     Buffer*         valueBuffer;
     bool            isConditionalSuccess;
-    ConfigState     configState;
+    ConfigStateGuard configState;
 
     ClientResponse();
     ~ClientResponse();
