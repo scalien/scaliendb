@@ -35,10 +35,26 @@ def composite(*args):
         i = Util.typemap(a)
         c = "%s/%s" %  (c, i)
     return c
+    
+#
+# =============================================================================================
+#
+# Callable
+#
+# =============================================================================================
+#
 
 class Callable:
     def __init__(self, anycallable):
         self.__call__ = anycallable
+
+#
+# =============================================================================================
+#
+# Util
+#
+# =============================================================================================
+#
 
 class Util:
 	def typemap(i):
@@ -83,6 +99,14 @@ def str_status(status):
         return "SDBP_BADSCHEMA"
     return "<UNKNOWN>"
 
+#
+# =============================================================================================
+#
+# Error
+#
+# =============================================================================================
+#
+
 class Error(Exception):
     def __init__(self, status, strerror=None):
         self.status = status
@@ -93,7 +117,23 @@ class Error(Exception):
             return str_status(self.status) + ": " + self.strerror
         return str_status(self.status)
 
+#
+# =============================================================================================
+#
+# Client
+#
+# =============================================================================================
+#
+
 class Client:
+
+    #
+    # =========================================================================================
+    #
+    # Result
+    #
+    # =========================================================================================
+    #
 
     class Result:
         def __init__(self, cptr):
@@ -194,30 +234,27 @@ class Client:
                 num += 1
             return num, last_key
     
-    def __init__(self, nodes):
-        self.cptr = SDBP_Create()
-        self.result = None
-        self.database_id = 0
-        self.table_id = 0
-        if isinstance(nodes, list):
-            node_params = SDBP_NodeParams(len(nodes))
-            for node in nodes:
-                node_params.AddNode(node)
-            SDBP_Init(self.cptr, node_params)
-            node_params.Close()
-        elif isinstance(nodes, str):
-            node_params = SDBP_NodeParams(1)
-            node_params.AddNode(nodes)
-            SDBP_Init(self.cptr, node_params)
-            node_params.Close()
-        else:
-            raise Error(SDBP_API_ERROR, "nodes argument must be string or list")
+    #
+    # =========================================================================================
+    #
+    # Quorum
+    #
+    # =========================================================================================
+    #
 
     class Quorum:
         def __init__(self, client, quorum_name, quorum_id):
             self.client = client
             self.quorum_name = quorum_name
             self.quorum_id = quorum_id
+
+    #
+    # =========================================================================================
+    #
+    # Database
+    #
+    # =========================================================================================
+    #
 
     class Database:
         def __init__(self, client, database_name):
@@ -264,6 +301,14 @@ class Client:
             self.client.use_database_id(self.database_id)
             self.client.truncate_table(table_name)
 
+    #
+    # =========================================================================================
+    #
+    # Table
+    #
+    # =========================================================================================
+    #
+
     class Table:
         def __init__(self, client, database_name, table_name):
             self.client = client
@@ -304,6 +349,26 @@ class Client:
         def count(self, start_key="", end_key="", prefix="", count=0, offset=0):
             self.use_defaults()
             return self.client.count(start_key, end_key, prefix, count, offset)
+
+    def __init__(self, nodes):
+        self.cptr = SDBP_Create()
+        self.result = None
+        self.database_id = 0
+        self.database_id = 0
+        self.table_id = 0
+        if isinstance(nodes, list):
+            node_params = SDBP_NodeParams(len(nodes))
+            for node in nodes:
+                node_params.AddNode(node)
+            SDBP_Init(self.cptr, node_params)
+            node_params.Close()
+        elif isinstance(nodes, str):
+            node_params = SDBP_NodeParams(1)
+            node_params.AddNode(nodes)
+            SDBP_Init(self.cptr, node_params)
+            node_params.Close()
+        else:
+            raise Error(SDBP_API_ERROR, "nodes argument must be string or list")
 
     def __del__(self):
         del self.result
@@ -823,6 +888,8 @@ class Client:
             name (string): the name of the database
         """
         status = SDBP_UseDatabase(self.cptr, name)
+        self.database_id = SDBP_GetCurrentDatabaseID(self.cptr)
+        self.table_id = SDBP_GetCurrentTableID(self.cptr)
         if status != SDBP_SUCCESS:
             if status == SDBP_NOSERVICE:
                 raise Error(status, "Cannot connect to controller!")
@@ -835,7 +902,10 @@ class Client:
         Args:
             id (int): the id of the database
         """
+        if self.database_id == id: return
         status = SDBP_UseDatabaseID(self.cptr, id)
+        self.database_id = SDBP_GetCurrentDatabaseID(self.cptr)
+        self.table_id = SDBP_GetCurrentTableID(self.cptr)
         if status != SDBP_SUCCESS:
             if status == SDBP_NOSERVICE:
                 raise Error(status, "Cannot connect to controller!")
@@ -858,6 +928,8 @@ class Client:
             name (string): the name of the table
         """
         status = SDBP_UseTable(self.cptr, name)
+        self.database_id = SDBP_GetCurrentDatabaseID(self.cptr)
+        self.table_id = SDBP_GetCurrentTableID(self.cptr)
         if status != SDBP_SUCCESS:
             raise Error(SDBP_BADSCHEMA, "No table found with name '%s'" % (name))            
 
@@ -868,7 +940,10 @@ class Client:
         Args:
             id (int): the name of the table
         """
+        if self.table_id == id: return
         status = SDBP_UseTableID(self.cptr, id)
+        self.database_id = SDBP_GetCurrentDatabaseID(self.cptr)
+        self.table_id = SDBP_GetCurrentTableID(self.cptr)
         if status != SDBP_SUCCESS:
             raise Error(SDBP_BADSCHEMA, "No table found with id '%s'" % (id))            
     
