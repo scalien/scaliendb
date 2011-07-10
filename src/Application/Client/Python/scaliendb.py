@@ -219,15 +219,60 @@ class Client:
             self.quorum_name = quorum_name
             self.quorum_id = quorum_id
 
+    class Database:
+        def __init__(self, client, database_name):
+            self.client = client
+            self.database_id = self.client.get_database_id(database_name)
+        
+        def get_tables(self):
+            database_name = self.client.get_database_name(self.database_id)
+            return self.client.get_tables(database_name)
+        
+        def get_table(self, table_name):
+            database_name = self.client.get_database_name(self.database_id)
+            return self.client.get_table(database_name, table_name)
+        
+        def exists_table(self, table_name):
+            table_names = self.get_tables()
+            if table_name in table_names:
+                return True
+            else:
+                return False
+        
+        def create_table(self, table_name, quorum_name=None):
+            self.client.use_database_id(self.database_id)
+            return self.client.create_table(table_name, quorum_name)
+        
+        def create_table_cond(self, table_name, quorum_name=None):
+            self.client.use_database_id(self.database_id)
+            if self.exists_table(table_name):
+                return self.get_table(table_name)
+            return self.client.create_table(table_name, quorum_name)
+        
+        def create_empty_table_cond(self, table_name, quorum_name=None):
+            self.client.use_database_id(self.database_id)
+            if self.exists_table(table_name):
+                self.truncate_table(table_name)
+                return self.get_table(table_name)
+            return self.client.create_table(table_name, quorum_name)
+
+        def delete_table(self, table_name):
+            self.client.use_database_id(self.database_id)
+            self.client.delete_table(table_name)
+
+        def truncate_table(self, table_name):
+            self.client.use_database_id(self.database_id)
+            self.client.truncate_table(table_name)
+
     class Table:
         def __init__(self, client, database_name, table_name):
             self.client = client
-            self.database_name = database_name
-            self.table_name = table_name
+            self.database_id = self.client.get_database_id(database_name)
+            self.table_id = self.client.get_table_id(self.database_id, table_name)
         
         def use_defaults(self):
-            self.client.use_database(self.database_name)
-            self.client.use_table(self.table_name)
+            self.client.use_database_id(self.database_id)
+            self.client.use_table_id(self.table_id)
         
         def truncate(self):
             self.client.truncate_table(self.table_name)
@@ -259,49 +304,6 @@ class Client:
         def count(self, start_key="", end_key="", prefix="", count=0, offset=0):
             self.use_defaults()
             return self.client.count(start_key, end_key, prefix, count, offset)
-
-    class Database:
-        def __init__(self, client, database_name):
-            self.client = client
-            self.database_name = database_name
-        
-        def get_tables(self):
-            return self.client.get_tables(self.database_name)
-        
-        def get_table(self, table_name):
-            return self.client.get_table(self.database_name, table_name)
-        
-        def exists_table(self, table_name):
-            table_names = self.get_tables()
-            if table_name in table_names:
-                return True
-            else:
-                return False
-        
-        def create_table(self, table_name, quorum_name=None):
-            self.client.use_database(self.database_name)
-            return self.client.create_table(table_name, quorum_name)
-        
-        def create_table_cond(self, table_name, quorum_name=None):
-            self.client.use_database(self.database_name)
-            if self.exists_table(table_name):
-                return self.get_table(table_name)
-            return self.client.create_table(table_name, quorum_name)
-        
-        def create_empty_table_cond(self, table_name, quorum_name=None):
-            self.client.use_database(self.database_name)
-            if self.exists_table(table_name):
-                self.truncate_table(table_name)
-                return self.get_table(table_name)
-            return self.client.create_table(table_name, quorum_name)
-
-        def delete_table(self, table_name):
-            self.client.use_database(self.database_name)
-            self.client.delete_table(table_name)
-
-        def truncate_table(self, table_name):
-            self.client.use_database(self.database_name)
-            self.client.truncate_table(table_name)
 
     def __del__(self):
         del self.result
