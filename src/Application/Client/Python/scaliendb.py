@@ -235,18 +235,6 @@ class Client:
         def set(self, key, value):
             self.use_defaults()
             return self.client.set(key, value)
-
-        def set_if_not_exists(self, key, value):
-            self.use_defaults()
-            return self.client.set_if_not_exists(key, value)
-
-        def test_and_set(self, key, test, value):
-            self.use_defaults()
-            return self.client.test_and_set(key, test, value)
-
-        def get_and_set(self, key, value):
-            self.use_defaults()
-            return self.client.get_and_set(key, value)
         
         def add(self, key, num):
             self.use_defaults()
@@ -255,14 +243,6 @@ class Client:
         def delete(self, key):
             self.use_defaults()
             return self.client.delete(key)
-
-        def test_and_delete(self, key, test):
-            self.use_defaults()
-            return self.client.test_and_delete(key, test)
-    
-        def remove(self, key):
-            self.use_defaults()
-            return self.client.remove(key)
 
         def list_keys(self, start_key="", end_key="", prefix="", count=0, offset=0):
             self.use_defaults()
@@ -349,24 +329,6 @@ class Client:
         """ Returns the master timeout in milliseconds """
         return long(SDBP_GetMasterTimeout(self.cptr))
 
-    def set_batch_limit(self, limit):
-        """
-        Sets batch limit
-        
-        Args:
-            limit (long): the maximum amount of bytes that could be put in a batch
-        """
-        SDBP_SetBatchLimit(self.cptr, long(limit))
-
-    def set_bulk_loading(self, bulk):
-        """
-        Turns bulk loading on or off
-        
-        Args:
-            bulk (bool): True on bulk loading, False otherwise
-        """    
-        SDBP_SetBulkLoading(self.cptr, bulk)
-
     def set_consistency_level(self, consistency_level):
         """
         Sets the consistency level
@@ -376,6 +338,25 @@ class Client:
                                      or SDBP_CONSISTENCY_STRICT
         """
         SDBP_SetConsistencyLevel(self.cptr, consistency_level)
+
+    def set_batch_mode(self, batch_mode):
+        """
+        Sets batch mode
+        
+        Args:
+            mode (int): can be any of SDBP_BATCH_DEFAULT, SDBP_BATCH_NOAUTOSUBMIT,
+                        or SDBP_BATCH_SINGLE
+        """
+        SDBP_SetBatchMode(self.cptr, batch_mode)
+
+    def set_batch_limit(self, limit):
+        """
+        Sets batch limit
+        
+        Args:
+            limit (long): the maximum amount of bytes that could be put in a batch
+        """
+        SDBP_SetBatchLimit(self.cptr, long(limit))
 
     def get_json_config_state(self):
         """ Returns the config state in JSON string """
@@ -925,55 +906,6 @@ class Client:
         status, ret = self._data_command(SDBP_Set, key, value)
         if status == SDBP_FAILURE:
             raise Error(status, "Set failed")
-
-    def set_if_not_exists(self, key, value):
-        """
-        Sets the value for a specified key if the key did not exist previously
-        
-        Args:
-            key (string): the specified key
-            
-            value (string): the value to be set
-        """
-        key = Util.typemap(key)
-        value = Util.typemap(value)
-        status, ret = self._data_command(SDBP_SetIfNotExists, key, value)
-        if ret:
-            return status
-
-    def test_and_set(self, key, test, value):
-        """
-        Sets the value for a specified key if it matches a given test value
-        
-        Args:
-            key (string): the specified key
-            
-            test (string): the test value to be matched
-            
-            value (string): the value to be set
-        """
-        key = Util.typemap(key)
-        test = Util.typemap(test)
-        value = Util.typemap(value)
-        status, ret = self._data_command(SDBP_TestAndSet, key, test, value)
-        if ret:
-            return self.result.is_conditional_success()
-        return None
-
-    def get_and_set(self, key, value):
-        """
-        Returns the previous value for a specified key and sets a new value
-        
-        Args:
-            key (string): the specified key
-                        
-            value (string): the value to be set
-        """
-        key = Util.typemap(key)
-        value = Util.typemap(value)
-        status, ret = self._data_command(SDBP_GetAndSet, key)
-        if ret:
-            return self.result.value()
         
     def add(self, key, num):
         """
@@ -998,36 +930,6 @@ class Client:
         """
         key = Util.typemap(key)
         status, ret = self._data_command(SDBP_Delete, key)
-
-    def test_and_delete(self, key, test):
-        """
-        Deletes the specified key if the value matches test
-        
-        Args:
-            key (string): the specified key
-            
-            test (string): the test value to be matched
-        
-        Return:
-            true if deleted
-        """
-        key = Util.typemap(key)
-        test = Util.typemap(test)
-        status, ret = self._data_command(SDBP_TestAndDelete, key, test)
-        if ret:
-            return self.result.is_conditional_success()
-    
-    def remove(self, key):
-        """
-        Deletes the specified key and returns its previous value
-        
-        Args:
-            key (string): the specified key
-        """
-        key = Util.typemap(key)
-        status, ret = self._data_command(SDBP_Remove, key)
-        if ret:
-            return self.result.value()
 
     def list_keys(self, start_key="", end_key="", prefix="", count=0, offset=0):
         """
@@ -1104,10 +1006,6 @@ class Client:
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         return self.result.number()        
-
-    def begin(self):
-        """ Starts batching operations """
-        status = SDBP_Begin(self.cptr)
     
     def submit(self):
         """ Sends the batched operations and waits until all is acknowledged """
@@ -1123,10 +1021,6 @@ class Client:
         """ Cancels the batching """
         return SDBP_Cancel(self.cptr)
     
-    def is_batched(self):
-        """ Returns if batching is started """
-        return SDBP_IsBatched(self.cptr)
-        
     def _data_command(self, func, *args):
         status = func(self.cptr, *args)
         if status < 0:
@@ -1137,8 +1031,6 @@ class Client:
                 raise Error(status, "No database or table is in use")
             if status == SDBP_NOSERVICE:
                 raise Error(status, "No server in the cluster was able to serve the request")
-            return status, False
-        if SDBP_IsBatched(self.cptr):
             return status, False
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         return status, True
@@ -1174,43 +1066,6 @@ def human_bytes(num):
 		if num < 1024.0:
 			return "%3.1f%s" % (num, x)
 		num /= 1024.0
-
-class Loader:        
-    def __init__(self, client, granularity = 1000*1000, print_stats = False):
-        self.client = client
-        self.granularity = granularity
-        self.print_stats = print_stats
-        self.items_batch = 0
-        self.items_total = 0
-        self.bytes_batch = 0
-        self.bytes_total = 0
-        self.elapsed = 0
-    
-    def begin(self):
-        self.client.begin()
-        self.items_batch = 0
-        self.bytes_batch = 0
-    
-    def submit(self):
-        starttime = time.time()
-        self.client.submit()
-        endtime = time.time()
-        self.elapsed += (endtime - starttime)
-        if self.print_stats:
-            endtimestamp = time.strftime("%H:%M:%S", time.gmtime())
-            print("%s:\t total items: %s \t total bytes: %s \t aggregate thruput: %s/s" % (endtimestamp, self.items_total, human_bytes(self.bytes_total), human_bytes(self.bytes_total/((self.elapsed) * 1000.0) * 1000.0)))
-
-    def set(self, key, value):
-        key = Util.typemap(key)
-        l = len(key) + len(value)
-        self.client.set(key, value)
-        self.items_batch += 1
-        self.items_total += 1
-        self.bytes_batch += l
-        self.bytes_total += l
-        if self.bytes_batch > self.granularity:
-            self.submit()
-            self.begin()
 
 class Autosharding:
     def __init__(self, client):
