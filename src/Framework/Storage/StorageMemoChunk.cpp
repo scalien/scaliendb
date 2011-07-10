@@ -36,7 +36,15 @@ StorageMemoChunk::StorageMemoChunk(uint64_t chunkID_, bool useBloomFilter_)
 
 StorageMemoChunk::~StorageMemoChunk()
 {
-    keyValues.DeleteTree();
+    StorageMemoKeyValueBlock*   block;
+    //keyValues.DeleteTree();
+
+    while (keyValueBlocks.GetLength() > 0)
+    {
+        block = keyValueBlocks.Dequeue();
+        delete block;
+    }
+
     if (fileChunk != NULL)
         delete fileChunk;
 }
@@ -169,7 +177,8 @@ bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
         }
     }   
 
-    it = new StorageMemoKeyValue;
+    //it = new StorageMemoKeyValue;
+    it = NewStorageMemoKeyValue();
     it->Set(key, value);
     keyValues.Insert<const ReadBuffer>(it);
     size += it->GetLength();
@@ -194,7 +203,8 @@ bool StorageMemoChunk::Delete(ReadBuffer key)
         }
     }   
 
-    it = new StorageMemoKeyValue;
+    //it = new StorageMemoKeyValue;
+    it = NewStorageMemoKeyValue();
     it->Delete(key);
     keyValues.Insert<const ReadBuffer>(it);
     size += it->GetLength();
@@ -279,11 +289,58 @@ StorageFileChunk* StorageMemoChunk::RemoveFileChunk()
 
 void StorageMemoChunk::RemoveFirst()
 {
-    StorageMemoKeyValue* first;
-    
+    StorageMemoKeyValueBlock*   block;
+    StorageMemoKeyValue*        first;
+
     first = keyValues.First();
     size -= first->GetLength();
     keyValues.Remove(first);
-    delete first;
+    
+    // TODO: memleak!!!
+    
+    //delete first;
+
+    // assuming first is on the first block
+    block = keyValueBlocks.First();
+    ASSERT(first >= block->keyValues && first < (block->keyValues + STORAGE_BLOCK_NUM_KEY_VALUE));
+    block->last++;
+    if (block->last == STORAGE_BLOCK_NUM_KEY_VALUE)
+    {
+        keyValueBlocks.Dequeue();
+        delete block;
+        size -= sizeof(StorageMemoKeyValueBlock);
+    }
 }
 
+StorageMemoKeyValue* StorageMemoChunk::NewStorageMemoKeyValue()
+{
+    StorageMemoKeyValueBlock*   block;
+    StorageMemoKeyValue*        keyValue;
+    bool                        isNewBlockNeeded;
+
+    isNewBlockNeeded = false;
+    
+    if (keyValueBlocks.GetLength() == 0)
+        isNewBlockNeeded = true;
+    else
+    {
+        block = keyValueBlocks.Last();
+        if (block->first == STORAGE_BLOCK_NUM_KEY_VALUE)
+            isNewBlockNeeded = true;
+    }
+
+    if (isNewBlockNeeded)
+    {
+        block = new StorageMemoKeyValueBlock;
+        block->next = block;
+        block->first = 0;
+        block->last = 0;
+        keyValueBlocks.Enqueue(block);
+        size += sizeof(StorageMemoKeyValueBlock);
+    }
+
+    keyValue = &block->keyValues[block->first];
+    block->first++;
+
+    return keyValue;
+}

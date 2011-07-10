@@ -63,3 +63,12 @@ unsigned ClientRequestCache::GetNumFreeRequests()
     return freeRequests.GetLength();
 }
 
+unsigned ClientRequestCache::GetMaxFreeRequests()
+{
+    return maxSize;
+}
+
+uint64_t ClientRequestCache::GetMemorySize()
+{
+    return GetNumFreeRequests() * sizeof(ClientRequest);
+}

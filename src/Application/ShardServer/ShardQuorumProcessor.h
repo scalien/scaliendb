@@ -73,6 +73,7 @@ public:
     typedef SortedList<uint64_t>    ShardList;
     
     ShardQuorumProcessor();
+    ~ShardQuorumProcessor();
 
     void                    Init(ConfigQuorum* configQuorum, ShardServer* shardServer);
     void                    Shutdown();
@@ -112,6 +113,8 @@ public:
     void                    OnBlockShard(uint64_t shardID);
     uint64_t                GetBlockedShardID();
     
+    uint64_t                GetMessageCacheSize();
+
     // ========================================================================================
     // For ShardQuorumContext:
     //

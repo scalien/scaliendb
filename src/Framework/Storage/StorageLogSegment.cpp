@@ -217,14 +217,18 @@ void StorageLogSegment::Commit()
         
         if (syncGranularity > 0 && writeOffset - lastSyncOffset > syncGranularity)
         {
+#ifndef PLATFORM_WINDOWS
             FS_Sync(fd);
+#endif
             lastSyncOffset = writeOffset;
         }
     }
 
     offset += length;
 
+#ifndef PLATFORM_WINDOWS
     FS_Sync(fd);
+#endif
     
     NewRound();
     commitedLogCommandID = logCommandID - 1;

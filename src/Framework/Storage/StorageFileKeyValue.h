@@ -25,14 +25,10 @@ public:
     ReadBuffer      GetKey() const;
     ReadBuffer      GetValue() const;
 
-    uint32_t        GetNextIndex();
-    void            SetNextIndex(uint32_t nextIndex);
-
 private:
     char            type;
     ReadBuffer      key;
     ReadBuffer      value;
-    uint32_t        nextIndex;
 };
 
 #endif

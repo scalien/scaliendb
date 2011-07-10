@@ -23,6 +23,7 @@ public:
     StorageHeaderPage(StorageFileChunk* owner);
 
     uint32_t            GetSize();
+    uint32_t            GetMemorySize();
 
     uint64_t            GetChunkID();
     uint64_t            GetMinLogSegmentID();

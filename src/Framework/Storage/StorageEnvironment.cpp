@@ -741,22 +741,24 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
     StorageChunk**      itChunk;
     StorageMemoChunk*   memoChunk;
     Buffer              printable;
+    uint64_t            totalSize;
     
     buffer.Clear();
+    totalSize = 0;
     
     FOREACH (shard, shards)
     {
-        if (shard->GetContextID() != contextID)
-            continue;
+        //if (shard->GetContextID() != contextID)
+        //    continue;
         
         firstKey = shard->GetFirstKey();
         lastKey = shard->GetLastKey();
         midpoint = GetMidpoint(contextID, shard->GetShardID());
         isSplitable = IsSplitable(contextID, shard->GetShardID());
-        
+
         buffer.Appendf("- shard %U (tableID = %U) \n", shard->GetShardID(), shard->GetTableID());
         buffer.Appendf("   track: %U\n", shard->GetTrackID());
-        buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(contextID, shard->GetShardID())));
+        buffer.Appendf("   size: %s\n", HUMAN_BYTES(GetSize(shard->GetContextID(), shard->GetShardID())));
         buffer.Appendf("   isSplitable: %b\n", isSplitable);
 
         MAKE_PRINTABLE(firstKey);
@@ -777,7 +779,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         else
             buffer.Appendf("   midpoint: %B\n", &printable);
         buffer.Appendf("   logSegmentID: %U\n", shard->GetLogSegmentID());
-        buffer.Appendf("   logCommandID: %U\n", shard->GetLogCommandID());
+        buffer.Appendf("   logCommandID: %u\n", shard->GetLogCommandID());
         
         memoChunk = shard->GetMemoChunk();
         firstKey = memoChunk->GetFirstKey();
@@ -787,7 +789,7 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         buffer.Appendf("       state: %d {0=Tree, 1=Serialized, 2=Unwritten, 3=Written}\n",
          memoChunk->GetChunkState());
         buffer.Appendf("       size: %s\n", HUMAN_BYTES(memoChunk->GetSize()));
-        buffer.Appendf("       count: %U\n", memoChunk->keyValues.GetCount());
+        buffer.Appendf("       count: %u\n", memoChunk->keyValues.GetCount());
         MAKE_PRINTABLE(firstKey);
         buffer.Appendf("       firstKey: %B\n", &printable);
         MAKE_PRINTABLE(lastKey);
@@ -796,7 +798,8 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
         buffer.Appendf("       midpoint: %B\n", &printable);
         buffer.Appendf("       minLogSegmentID: %U\n", memoChunk->GetMinLogSegmentID());
         buffer.Appendf("       maxLogSegmentID: %U\n", memoChunk->GetMaxLogSegmentID());
-        buffer.Appendf("       maxLogCommandID: %U\n", memoChunk->GetMaxLogCommandID());
+        buffer.Appendf("       maxLogCommandID: %u\n", memoChunk->GetMaxLogCommandID());
+        totalSize += memoChunk->GetSize();
 
         FOREACH (itChunk, shard->GetChunks())
         {
@@ -815,11 +818,37 @@ printable.Write(a); if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal
             buffer.Appendf("       midpoint: %B\n", &printable);
             buffer.Appendf("       minLogSegmentID: %U\n", (*itChunk)->GetMinLogSegmentID());
             buffer.Appendf("       maxLogSegmentID: %U\n", (*itChunk)->GetMaxLogSegmentID());
-            buffer.Appendf("       maxLogCommandID: %U\n", (*itChunk)->GetMaxLogCommandID());
+            buffer.Appendf("       maxLogCommandID: %u\n", (*itChunk)->GetMaxLogCommandID());
         }
 
         buffer.Appendf("\n");
     }
+
+    buffer.Appendf("\nCache size: %s\n", HUMAN_BYTES(StoragePageCache::GetSize()));
+    totalSize += StoragePageCache::GetSize();
+    buffer.Appendf("Total memory size: %s", HUMAN_BYTES(totalSize));
+}
+
+uint64_t StorageEnvironment::GetShardMemoryUsage()
+{
+    uint64_t            totalSize;
+    StorageShard*       shard;
+    StorageChunk**      itChunk;
+
+    totalSize = 0;
+    
+    FOREACH (shard, shards)
+    {
+        totalSize += shard->memoChunk->GetSize();
+
+        FOREACH (itChunk, shard->GetChunks())
+        {
+            if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+                totalSize += (*itChunk)->GetSize();
+        }
+    }
+
+    return totalSize;
 }
 
 StorageConfig& StorageEnvironment::GetConfig()
@@ -862,7 +891,9 @@ bool StorageEnvironment::CreateShard(uint64_t trackID,
         nextLogSegmentID = logSegmentID + 1;
         logSegmentIDMap.Set(trackID, nextLogSegmentID);
         logSegment = new StorageLogSegment();
-        logSegment->Open(logPath, trackID, logSegmentID, config.syncGranularity);
+        ret = logSegment->Open(logPath, trackID, logSegmentID, config.syncGranularity);
+        if (!ret)
+            STOP_FAIL(1, "Cannot open database log file: %Blog.%020U.%020U", &logPath, trackID, logSegmentID);
         logSegmentMap.Set(trackID, logSegment);
     }
 

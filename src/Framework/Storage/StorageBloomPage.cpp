@@ -14,6 +14,11 @@ uint32_t StorageBloomPage::GetSize()
     return size;
 }
 
+uint32_t StorageBloomPage::GetMemorySize()
+{
+    return size;
+}
+
 void StorageBloomPage::SetNumKeys(uint64_t numKeys)
 {
     uint32_t    numBytes;

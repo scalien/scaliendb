@@ -15,6 +15,8 @@ public:
     T*                          Acquire();
     void                        Release(T* t);
 
+    uint64_t                    GetMemorySize();
+
 private:
 
     unsigned                    maxSize;
@@ -59,6 +61,12 @@ void InCache<T>::Release(T* t)
     }
 
     delete t;
+}
+
+template<class T>
+uint64_t InCache<T>::GetMemorySize()
+{
+    return (uint64_t)freeList.GetLength() * sizeof(T);
 }
 
 #endif

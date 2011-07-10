@@ -282,6 +282,13 @@ Restart:
     it = NULL;
     smallest = 0;
     
+    // special case when there is only one chunk
+    if (numListers == 1)
+    {
+        it = iterators[0];
+        goto Done;
+    }
+
     // listers are sorted by relevance, first is the oldest, last is the latest
     for (i = 0; i < numListers; i++)
     {
@@ -327,7 +334,8 @@ Restart:
             }
         }
     }
-    
+
+Done:
     // make progress in the lister that contained the smallest key
     if (it != NULL)
         iterators[smallest] = listers[smallest]->Next(iterators[smallest]);

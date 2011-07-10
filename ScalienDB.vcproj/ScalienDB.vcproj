@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\src"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -277,6 +277,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\System\Containers\InCache.h"
+					>
+				</File>
+				<File
 					RelativePath="..\src\System\Containers\InList.h"
 					>
 				</File>
@@ -294,6 +298,10 @@
 				</File>
 				<File
 					RelativePath="..\src\System\Containers\InTreeMap.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Containers\InTreeMap2.h"
 					>
 				</File>
 				<File

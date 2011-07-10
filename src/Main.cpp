@@ -60,6 +60,8 @@ int main(int argc, char** argv)
     StopClock();
     configFile.Shutdown();
     Log_Shutdown();
+
+    return 0;
 }
 
 void InitLog()

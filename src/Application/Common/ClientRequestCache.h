@@ -18,6 +18,8 @@ public:
     void                        DeleteRequest(ClientRequest* request);
 
     unsigned                    GetNumFreeRequests();
+    unsigned                    GetMaxFreeRequests();
+    uint64_t                    GetMemorySize();
 
 private:
     ClientRequestCache();

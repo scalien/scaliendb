@@ -44,6 +44,11 @@ ShardQuorumProcessor::ShardQuorumProcessor()
     localExecute.SetCallable(MFUNC(ShardQuorumProcessor, LocalExecute));
 }
 
+ShardQuorumProcessor::~ShardQuorumProcessor()
+{
+    Shutdown();
+}
+
 void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardServer_)
 {
     shardServer = shardServer_;
@@ -668,6 +673,11 @@ void ShardQuorumProcessor::OnBlockShard(uint64_t shardID)
 uint64_t ShardQuorumProcessor::GetBlockedShardID()
 {
     return blockedShardID;
+}
+
+uint64_t ShardQuorumProcessor::GetMessageCacheSize()
+{
+    return messageCache.GetMemorySize();
 }
 
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)

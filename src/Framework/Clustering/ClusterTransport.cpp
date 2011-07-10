@@ -120,6 +120,8 @@ Endpoint& ClusterTransport::GetEndpoint(uint64_t nodeID)
     }
     
     ASSERT_FAIL();
+    // never gets here, this is only here for suppressing VC++ warning
+    STOP_FAIL(1, "Program error in ClusterTransport::GetEndpoint");
 }
 
 bool ClusterTransport::SetConnectionNodeID(Endpoint& endpoint, uint64_t nodeID)

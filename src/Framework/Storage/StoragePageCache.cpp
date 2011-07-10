@@ -45,15 +45,15 @@ void StoragePageCache::AddPage(StoragePage* page, bool bulk)
 {
     StoragePage*    it;
 
-    while (size + page->GetSize() > maxSize)
+    while (size + page->GetMemorySize() > maxSize)
     {
         it = pages.First();
-        size -= it->GetSize();
+        size -= it->GetMemorySize();
         pages.Remove(it);
         it->Unload();        
     }
     
-    size += page->GetSize();
+    size += page->GetMemorySize();
 
     if (bulk)
         pages.Prepend(page);
@@ -63,7 +63,7 @@ void StoragePageCache::AddPage(StoragePage* page, bool bulk)
 
 void StoragePageCache::RemovePage(StoragePage* page)
 {
-    size -= page->GetSize();
+    size -= page->GetMemorySize();
     pages.Remove(page);
 }
 

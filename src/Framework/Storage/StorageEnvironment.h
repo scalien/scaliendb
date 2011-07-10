@@ -103,6 +103,7 @@ public:
     bool                    IsShuttingDown();
     
     void                    PrintState(uint16_t contextID, Buffer& buffer);
+    uint64_t                GetShardMemoryUsage();
     StorageConfig&          GetConfig();
     
     void                    OnCommit(StorageCommitJob* job);

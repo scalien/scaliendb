@@ -37,6 +37,11 @@ uint32_t StorageIndexPage::GetSize()
     return size;
 }
 
+uint32_t StorageIndexPage::GetMemorySize()
+{
+    return size + indexTree.GetCount() * sizeof(StorageIndexRecord);
+}
+
 uint32_t StorageIndexPage::GetNumDataPages()
 {
     return indexTree.GetCount();
