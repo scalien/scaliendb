@@ -43,7 +43,7 @@ public:
     //
     void                    SetConsistencyLevel(int consistencyLevel);
     void					SetBatchMode(int batchMode);
-    void                    SetBatchLimit(uint64_t batchLimit);
+    void                    SetBatchLimit(unsigned batchLimit);
 
     void                    SetGlobalTimeout(uint64_t timeout);
     void                    SetMasterTimeout(uint64_t timeout);
@@ -188,7 +188,7 @@ private:
     Result*                 result;
     RequestList             requests;
     RequestMap              proxiedRequests;
-    uint64_t                batchLimit;
+    unsigned                batchLimit;
     unsigned				proxySize;
     ShardConnectionMap      shardConnections;
     ControllerConnection**  controllerConnections;

@@ -448,11 +448,11 @@ void SDBP_SetBatchMode(ClientObj client_, int batchMode)
     return client->SetBatchMode(batchMode);
 }
 
-void SDBP_SetBatchLimit(ClientObj client_, uint64_t proxyLimit)
+void SDBP_SetBatchLimit(ClientObj client_, unsigned batchLimit)
 {
     Client* client = (Client*) client_;
 
-    return client->SetBatchLimit(proxyLimit);
+    return client->SetBatchLimit(batchLimit);
 }
 
 /*

@@ -9,7 +9,7 @@
 #include "Application/Common/ClientResponse.h"
 
 #define MAX_IO_CONNECTION               1024
-#define DEFAULT_PROXY_LIMIT             (1*MB)
+#define DEFAULT_BATCH_LIMIT             (1*MB)
 
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
@@ -207,7 +207,8 @@ Client::Client()
     globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
     result = NULL;
-    batchLimit = DEFAULT_PROXY_LIMIT;
+    batchMode = SDBP_BATCH_DEFAULT;
+    batchLimit = DEFAULT_BATCH_LIMIT;
     proxySize = 0;
 
     globalMutex.SetName("ClientGlobalMutex");
@@ -299,7 +300,7 @@ void Client::Shutdown()
     IOProcessor::Shutdown();
 }
 
-void Client::SetBatchLimit(uint64_t batchLimit_)
+void Client::SetBatchLimit(unsigned batchLimit_)
 {
     batchLimit = batchLimit_;
 }

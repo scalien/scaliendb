@@ -106,8 +106,8 @@ std::string     SDBP_GetJSONConfigState(ClientObj client);
 void            SDBP_WaitConfigState(ClientObj client);
 
 void            SDBP_SetConsistencyLevel(ClientObj client, int consistencyLevel);
-void            SDBP_SetBulkMode(ClientObj client, int bulkMode);
-void            SDBP_SetBatchLimit(ClientObj client, uint64_t limit);
+void            SDBP_SetBatchMode(ClientObj client, int batchMode);
+void            SDBP_SetBatchLimit(ClientObj client, unsigned batchLimit);
 
 /*
 ===============================================================================================
