@@ -156,7 +156,7 @@ public class Client
      * <li>BATCH_SINGLE means that commands are sent right after they are issued. Since the client
      *     library waits for the command to complete and return, this can be slow.
      *
-     * @param   consistencyLevel    can be BATCH_DEFAULT, BATCH_NOAUTOSUBMIT and BATCH_SINGLE
+     * @param   batchMode   can be BATCH_DEFAULT, BATCH_NOAUTOSUBMIT and BATCH_SINGLE
      */    
     public void setBatchMode(int batchMode) {
         scaliendb_client.SDBP_SetBatchMode(cptr, batchMode);
