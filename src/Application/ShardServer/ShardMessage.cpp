@@ -4,6 +4,7 @@ ShardMessage::ShardMessage()
 {
     prev = next = this;
     clientRequest = NULL;
+    configPaxosID = 0;
 }
 
 bool ShardMessage::IsClientWrite()

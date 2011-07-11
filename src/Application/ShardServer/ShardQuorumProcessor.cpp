@@ -4,7 +4,8 @@
 #include "Application/Common/ContextTransport.h"
 #include "ShardServer.h"
 
-#define SHARD_MIGRATION_WRITER (shardServer->GetShardMigrationWriter())
+#define CONFIG_STATE            (shardServer->GetConfigState())
+#define SHARD_MIGRATION_WRITER  (shardServer->GetShardMigrationWriter())
 
 static bool LessThan(uint64_t a, uint64_t b)
 {
@@ -140,7 +141,7 @@ void ShardQuorumProcessor::SetPaxosID(uint64_t paxosID)
 
 ConfigQuorum* ShardQuorumProcessor::GetConfigQuorum()
 {
-    return shardServer->GetConfigState()->GetQuorum(GetQuorumID());
+    return CONFIG_STATE->GetQuorum(GetQuorumID());
 }
 
 void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
@@ -179,7 +180,7 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
         return;
     }
 
-    SortedList<uint64_t>& shards = shardServer->GetConfigState()->GetQuorum(GetQuorumID())->shards;
+    SortedList<uint64_t>& shards = CONFIG_STATE->GetQuorum(GetQuorumID())->shards;
     if (shards != message.shards)
         return;
     
@@ -368,7 +369,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     ShardMessage*   message;
     ConfigQuorum*   configQuorum;
 
-    configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
+    configQuorum = CONFIG_STATE->GetQuorum(GetQuorumID());
     ASSERT(configQuorum);
 
     // strictly consistent messages can only be served by the leader
@@ -594,7 +595,7 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
     ConfigQuorum*   configQuorum;
     ClusterMessage  pauseMessage;
 
-    configQuorum = shardServer->GetConfigState()->GetQuorum(GetQuorumID());
+    configQuorum = CONFIG_STATE->GetQuorum(GetQuorumID());
     ASSERT(configQuorum);
 
     if (!quorumContext.IsLeader())
@@ -683,6 +684,7 @@ uint64_t ShardQuorumProcessor::GetMessageCacheSize()
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
     message->clientRequest = request;
+    message->configPaxosID = request->configPaxosID;
     message->isBulk = request->isBulk;
     
     switch (request->type)
@@ -811,6 +813,9 @@ void ShardQuorumProcessor::TryAppend()
     Buffer& nextValue = quorumContext.GetNextValue();
     FOREACH (message, shardMessages)
     {
+        if (message->configPaxosID > CONFIG_STATE->paxosID)
+            break;
+        
         if (message->isBulk)
             continue;
         
@@ -832,9 +837,11 @@ void ShardQuorumProcessor::TryAppend()
 
 //    Log_Debug("numMessages = %u", numMessages);
 //    Log_Debug("length = %s", HUMAN_BYTES(appendValue.GetLength()));
-            
-    ASSERT(nextValue.GetLength() > 0);
-    quorumContext.Append();
+    
+    if (nextValue.GetLength() > 0)
+        quorumContext.Append();
+    else
+        EventLoop::Add(&tryAppend);
 }
 
 void ShardQuorumProcessor::OnResumeAppend()
@@ -960,7 +967,7 @@ void ShardQuorumProcessor::BlockShard()
         if (!itMessage->clientRequest || !itMessage->IsClientWrite())
             continue;
         
-        configShard = shardServer->GetConfigState()->GetShard(itMessage->tableID, itMessage->key);
+        configShard = CONFIG_STATE->GetShard(itMessage->tableID, itMessage->key);
         if (!configShard || configShard->shardID != blockedShardID)
             continue;
         

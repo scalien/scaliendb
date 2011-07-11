@@ -373,7 +373,7 @@ ClientRequest* ShardHTTPClientSession::ProcessGet()
     HTTP_GET_PARAM(params, "key", key);
 
     request = new ClientRequest;
-    request->Get(0, tableID, key);
+    request->Get(0, 0, tableID, key);
 
     return request;    
 }
@@ -390,7 +390,7 @@ ClientRequest* ShardHTTPClientSession::ProcessSet()
     HTTP_GET_PARAM(params, "value", value);
 
     request = new ClientRequest;
-    request->Set(0, tableID, key, value);
+    request->Set(0, 0, tableID, key, value);
 
     return request;    
 }
@@ -407,7 +407,7 @@ ClientRequest* ShardHTTPClientSession::ProcessSetIfNotExists()
     HTTP_GET_PARAM(params, "value", value);
 
     request = new ClientRequest;
-    request->SetIfNotExists(0, tableID, key, value);
+    request->SetIfNotExists(0, 0, tableID, key, value);
 
     return request;    
 }
@@ -426,7 +426,7 @@ ClientRequest* ShardHTTPClientSession::ProcessTestAndSet()
     HTTP_GET_PARAM(params, "value", value);
 
     request = new ClientRequest;
-    request->TestAndSet(0, tableID, key, test, value);
+    request->TestAndSet(0, 0, tableID, key, test, value);
 
     return request;    
 }
@@ -444,7 +444,7 @@ ClientRequest* ShardHTTPClientSession::ProcessTestAndDelete()
     HTTP_GET_PARAM(params, "test", test);
 
     request = new ClientRequest;
-    request->TestAndDelete(0, tableID, key, test);
+    request->TestAndDelete(0, 0, tableID, key, test);
 
     return request;    
 }
@@ -461,7 +461,7 @@ ClientRequest* ShardHTTPClientSession::ProcessGetAndSet()
     HTTP_GET_PARAM(params, "value", value);
 
     request = new ClientRequest;
-    request->GetAndSet(0, tableID, key, value);
+    request->GetAndSet(0, 0, tableID, key, value);
 
     return request;    
 }
@@ -484,7 +484,7 @@ ClientRequest* ShardHTTPClientSession::ProcessAdd()
         return NULL;
 
     request = new ClientRequest;
-    request->Add(0, tableID, key, number);
+    request->Add(0, 0, tableID, key, number);
 
     return request;    
 }
@@ -499,7 +499,7 @@ ClientRequest* ShardHTTPClientSession::ProcessDelete()
     HTTP_GET_PARAM(params, "key", key);
 
     request = new ClientRequest;
-    request->Delete(0, tableID, key);
+    request->Delete(0, 0, tableID, key);
 
     return request;    
 }
@@ -514,7 +514,7 @@ ClientRequest* ShardHTTPClientSession::ProcessRemove()
     HTTP_GET_PARAM(params, "key", key);
 
     request = new ClientRequest;
-    request->Remove(0, tableID, key);
+    request->Remove(0, 0, tableID, key);
 
     return request;    
 }
@@ -539,7 +539,7 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeys()
     HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->ListKeys(0, tableID, startKey, endKey, prefix, count, offset);
+    request->ListKeys(0, 0, tableID, startKey, endKey, prefix, count, offset);
 
     return request;    
 }
@@ -564,7 +564,7 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
     HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->ListKeyValues(0, tableID, startKey, endKey, prefix, count, offset);
+    request->ListKeyValues(0, 0, tableID, startKey, endKey, prefix, count, offset);
 
     return request;    
 }
@@ -589,7 +589,7 @@ ClientRequest* ShardHTTPClientSession::ProcessCount()
     HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->Count(0, tableID, startKey, endKey, prefix, count, offset);
+    request->Count(0, 0, tableID, startKey, endKey, prefix, count, offset);
 
     return request;    
 }

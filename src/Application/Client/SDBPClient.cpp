@@ -72,7 +72,9 @@ Mutex   globalMutex;
         return SDBP_BADSCHEMA;                      \
                                                     \
     req = new Request;                              \
-    req->op(NextCommandID(), tableID, __VA_ARGS__); \
+    ASSERT(configState != NULL);                    \
+    req->op(NextCommandID(), configState->paxosID,  \
+     tableID, __VA_ARGS__);                         \
     if (AppendDataRequest(req, status))             \
         return status;                              \
                                                     \
@@ -110,9 +112,7 @@ Mutex   globalMutex;
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
     status = result->GetCommandStatus();            \
-    MSleep(20);                                     \
-    return status;                                  \
-
+    return status;
 
 
 using namespace SDBPClient;
@@ -317,6 +317,7 @@ void Client::WaitConfigState()
     if (numControllers == 0)
         return;
 
+    // delete configState, so EventLoop() will wait for a new one
     configState = NULL;
     result->Close();
     CLIENT_MUTEX_UNLOCK();
@@ -688,7 +689,8 @@ int Client::Filter(
     
     commandID = NextCommandID();
     req = new Request;
-    req->ListKeyValues(commandID, tableID, 
+    ASSERT(configState != NULL);
+    req->ListKeyValues(commandID, configState->paxosID, tableID, 
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count, offset);
     req->async = true;
     requests.Append(req);
@@ -718,7 +720,8 @@ int Client::Receive(uint64_t commandID)
     
     // create dummy request
     req = new Request;
-    req->ListKeyValues(commandID, 0, key, endKey, prefix, 0, 0);
+    ASSERT(configState != NULL);
+    req->ListKeyValues(commandID, configState->paxosID, 0, key, endKey, prefix, 0, 0);
     req->async = true;
 
     result->Close();                                

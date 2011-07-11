@@ -119,47 +119,47 @@ public:
     
     // Data manipulations
     bool            Get(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key);
     bool            Set(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            SetIfNotExists(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            TestAndSet(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& test, ReadBuffer& value);
     bool            TestAndDelete(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& test);
     bool            GetAndSet(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            Add(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key, int64_t number);
     bool            Append(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key, ReadBuffer& value);
     bool            Delete(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key);    
     bool            Remove(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, ReadBuffer& key);
     bool            ListKeys(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, 
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
                      unsigned count, unsigned offset);
     bool            ListKeyValues(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID,
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
                      unsigned count, unsigned offset);
     bool            Count(
-                     uint64_t commandID,
+                     uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID,
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
                      unsigned count, unsigned offset);
@@ -183,6 +183,7 @@ public:
     uint64_t        shardID;
     uint64_t        nodeID;
     uint64_t        paxosID;
+    uint64_t        configPaxosID;
     int64_t         number;
     uint64_t        count;
     uint64_t        offset;
