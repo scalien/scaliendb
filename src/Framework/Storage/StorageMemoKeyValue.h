@@ -5,6 +5,8 @@
 #include "System/Containers/InTreeMap.h"
 #include "StorageKeyValue.h"
 
+class StorageMemoChunk;
+
 /*
 ===============================================================================================
 
@@ -21,8 +23,8 @@ public:
     StorageMemoKeyValue();
     ~StorageMemoKeyValue();
 
-    void            Set(ReadBuffer key, ReadBuffer value);
-    void            Delete(ReadBuffer key);
+    void            Set(ReadBuffer key, ReadBuffer value, StorageMemoChunk* memoChunk);
+    void            Delete(ReadBuffer key, StorageMemoChunk* memoChunk);
     
     char            GetType();
     ReadBuffer      GetKey() const;

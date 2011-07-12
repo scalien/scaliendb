@@ -16,6 +16,7 @@
 #else // _WIN32
 #include <process.h>
 #include <windows.h>
+#include <psapi.h>
 #endif
 #include "Macros.h"
 #include "Time.h"
@@ -511,6 +512,18 @@ uint64_t GetTotalPhysicalMemory()
 
     return mem;
 #endif
+#endif
+}
+
+uint64_t GetProcessMemoryUsage()
+{
+#ifdef _WIN32
+    PROCESS_MEMORY_COUNTERS     memCounters;
+
+    GetProcessMemoryInfo(GetCurrentProcess(), &memCounters, sizeof(memCounters));
+    return (uint64_t) memCounters.WorkingSetSize;
+#else
+    return 0;
 #endif
 }
 

@@ -40,6 +40,8 @@ public:
     void                        Stop();
     bool                        IsActive(); 
 
+    uint64_t                    GetMemoryUsage();
+
 private:
     void                        OnPrepareResponse(PaxosMessage& msg);
     void                        OnProposeResponse(PaxosMessage& msg);

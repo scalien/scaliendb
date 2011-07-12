@@ -94,6 +94,10 @@ void HTTPConnection::OnWrite()
         OnClose();
 }
 
+uint64_t HTTPConnection::GetMemoryUsage()
+{
+    return TCPConnection::GetMemoryUsage() + (writeBuffer ? writeBuffer->GetSize() : 0);
+}
 
 void HTTPConnection::Print(const char* s)
 {

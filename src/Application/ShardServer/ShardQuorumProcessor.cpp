@@ -680,6 +680,21 @@ uint64_t ShardQuorumProcessor::GetMessageCacheSize()
     return messageCache.GetMemorySize();
 }
 
+uint64_t ShardQuorumProcessor::GetMessageListSize()
+{
+    return shardMessages.GetLength() * sizeof(ShardMessage);
+}
+
+uint64_t ShardQuorumProcessor::GetShardAppendStateSize()
+{
+    return appendState.valueBuffer.GetSize();
+}
+
+uint64_t ShardQuorumProcessor::GetQuorumContextSize()
+{
+    return quorumContext.GetMemoryUsage();
+}
+
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)
 {
     message->clientRequest = request;

@@ -5,6 +5,7 @@
 #include "System/IO/IOProcessor.h"
 #include "Application/HTTP/HTTPConnection.h"
 #include "Application/Common/ClientRequestCache.h"
+#include "Application/ShardServer/ShardServerApp.h"
 #include "Framework/Replication/ReplicationConfig.h"
 #include "Framework/Storage/StoragePageCache.h"
 #include "Version.h"
@@ -231,32 +232,8 @@ void ShardHTTPClientSession::PrintStatistics()
 void ShardHTTPClientSession::PrintMemoryState()
 {
     Buffer                  buffer;
-    uint64_t                shardMemoryUsage;
-    uint64_t                totalMemory;
-    uint64_t                quorumMessageCacheSize;
-    ShardQuorumProcessor*   quorumProcessor;
 
-    totalMemory = 0;
-
-    shardMemoryUsage = shardServer->GetDatabaseManager()->GetEnvironment()->GetShardMemoryUsage();
-    buffer.Appendf("Shard memory usage: %s\n", HUMAN_BYTES(shardMemoryUsage));
-    totalMemory += shardMemoryUsage;
-
-    buffer.Appendf("Storage cache usage: %s\n", HUMAN_BYTES(StoragePageCache::GetSize()));
-    totalMemory += StoragePageCache::GetSize();
-
-    buffer.Appendf("Client request cache usage: %s\n", HUMAN_BYTES(REQUEST_CACHE->GetMemorySize()));
-    totalMemory += REQUEST_CACHE->GetMemorySize();
-
-    quorumMessageCacheSize = 0;
-    FOREACH (quorumProcessor, *shardServer->GetQuorumProcessors())
-    {
-        quorumMessageCacheSize += quorumProcessor->GetMessageCacheSize();
-    }
-    buffer.Appendf("Message cache usage: %s\n", HUMAN_BYTES(quorumMessageCacheSize));
-    totalMemory += quorumMessageCacheSize;
-
-    buffer.Appendf("Total memory usage: %s\n", HUMAN_BYTES(totalMemory));
+    shardServer->GetMemoryUsageBuffer(buffer);
 
     session.Print(buffer);
     session.Flush();

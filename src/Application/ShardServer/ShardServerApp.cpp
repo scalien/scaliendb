@@ -17,7 +17,7 @@ void ShardServerApp::Init()
     sdbpServer.SetContext(&shardServer);
 
     // start shardServer only after network servers are started
-    shardServer.Init();
+    shardServer.Init(this);
     shardServer.GetDatabaseManager()->GetEnvironment()->SetMergeEnabled(
      configFile.GetBoolValue("database.merge", true));
 
@@ -30,4 +30,9 @@ void ShardServerApp::Shutdown()
     sdbpServer.Shutdown();
     httpServer.Shutdown();
     shardServer.Shutdown();
+}
+
+uint64_t ShardServerApp::GetMemoryUsage()
+{
+    return sdbpServer.GetMemoryUsage() + httpServer.GetMemoryUsage();
 }

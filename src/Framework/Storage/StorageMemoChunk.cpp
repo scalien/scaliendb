@@ -20,6 +20,11 @@ static inline const ReadBuffer Key(const StorageFileKeyValue* kv)
     return kv->GetKey();
 }
 
+uint32_t StorageMemoKeyValueAllocator::GetFreeSize()
+{
+    return size - pos;
+}
+
 StorageMemoChunk::StorageMemoChunk(uint64_t chunkID_, bool useBloomFilter_)
 {
     chunkID = chunkID_;
@@ -31,18 +36,19 @@ StorageMemoChunk::StorageMemoChunk(uint64_t chunkID_, bool useBloomFilter_)
     maxLogCommandID = 0;
     size = 0;
     fileChunk = NULL;
-    deleted = false;
+    deleted = false;    
 }
 
 StorageMemoChunk::~StorageMemoChunk()
 {
-    StorageMemoKeyValueBlock*   block;
-    //keyValues.DeleteTree();
+    StorageMemoKeyValueAllocator*   allocator;
 
-    while (keyValueBlocks.GetLength() > 0)
+    keyValueBlocks.DeleteQueue();
+    
+    FOREACH_FIRST (allocator, allocators)
     {
-        block = keyValueBlocks.Dequeue();
-        delete block;
+        allocators.Remove(allocator);
+        free((void*) allocator);
     }
 
     if (fileChunk != NULL)
@@ -167,21 +173,20 @@ bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
     
     if (keyValues.GetCount() != 0)
     {
-        it = keyValues.Locate<ReadBuffer&>(key, cmpres);
+        it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
         if (cmpres == 0)
         {
-            size -= it->GetLength();
-            it->Set(key, value);
-            size += it->GetLength();
+            //size -= it->GetLength();
+            it->Set(key, value, this);
+            //size += it->GetLength();
             return true;
         }
     }   
 
-    //it = new StorageMemoKeyValue;
     it = NewStorageMemoKeyValue();
-    it->Set(key, value);
+    it->Set(key, value, this);
     keyValues.Insert(it);
-    size += it->GetLength();
+    //size += it->GetLength();
     
     return true;
 }
@@ -193,21 +198,20 @@ bool StorageMemoChunk::Delete(ReadBuffer key)
     
     if (keyValues.GetCount() != 0)
     {
-        it = keyValues.Locate<ReadBuffer&>(key, cmpres);
+        it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
         if (cmpres == 0)
         {
-            size -= it->GetLength();
-            it->Delete(key);
-            size += it->GetLength();
+            //size -= it->GetLength();
+            it->Delete(key, this);
+            //size += it->GetLength();
             return true;
         }
     }   
 
-    //it = new StorageMemoKeyValue;
     it = NewStorageMemoKeyValue();
-    it->Delete(key);
+    it->Delete(key, this);
     keyValues.Insert(it);
-    size += it->GetLength();
+    //size += it->GetLength();
     
     return true;
 }
@@ -296,11 +300,6 @@ void StorageMemoChunk::RemoveFirst()
     size -= first->GetLength();
     keyValues.Remove(first);
     
-    // TODO: memleak!!!
-    
-    //delete first;
-
-    // assuming first is on the first block
     block = keyValueBlocks.First();
     ASSERT(first >= block->keyValues && first < (block->keyValues + STORAGE_BLOCK_NUM_KEY_VALUE));
     block->last++;
@@ -337,10 +336,83 @@ StorageMemoKeyValue* StorageMemoChunk::NewStorageMemoKeyValue()
         block->last = 0;
         keyValueBlocks.Enqueue(block);
         size += sizeof(StorageMemoKeyValueBlock);
+        Log_Debug("Memory usage: %U, memochunk size: %U", 
+         GetProcessMemoryUsage(), size);
     }
 
     keyValue = &block->keyValues[block->first];
     block->first++;
 
     return keyValue;
+}
+
+char* StorageMemoChunk::Alloc(StorageMemoKeyValue* keyValue, size_t size_)
+{
+    StorageMemoKeyValueAllocator*   allocator;
+    StorageMemoKeyValueAllocator*   prevAllocator;
+    char*                           memory;
+    uint32_t                        allocatedSize;
+
+    prevAllocator = allocator = allocators.Last();
+    if (allocator == NULL || allocator->GetFreeSize() < size_ + sizeof(uint32_t))
+    {
+        allocatedSize = MAX(size_ + sizeof(uint32_t), STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE);
+        // avoid calling malloc twice by allocating memory and setting the pointers
+        memory = (char*) malloc(sizeof(StorageMemoKeyValueAllocator) + allocatedSize);
+
+        allocator = (StorageMemoKeyValueAllocator*) memory;
+        allocator->buffer = memory + sizeof(StorageMemoKeyValueAllocator);
+        allocator->size = allocatedSize;
+        allocator->pos = 0;
+        allocator->num = 0;
+        allocator->next = allocator;
+        allocator->prev = allocator;
+        if (prevAllocator != NULL && 
+         prevAllocator->GetFreeSize() > STORAGE_MEMO_ALLOCATOR_MIN_SIZE &&
+         allocatedSize == STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE)
+        {
+            allocators.Remove(prevAllocator);
+            allocators.Append(allocator);
+            allocators.Append(prevAllocator);
+        }
+        else
+            allocators.Append(allocator);
+
+        size += sizeof(StorageMemoKeyValueAllocator) + allocator->size;
+    }
+
+    //
+    // +---------------------
+    // | pos (4 bytes)
+    // +---------------------
+    // | memory (size_ bytes)
+    // +---------------------
+    // 
+    memory = allocator->buffer + allocator->pos;
+    allocator->pos += sizeof(uint32_t);
+    *(uint32_t*) memory = (uint32_t) allocator->pos;
+    memory += sizeof(uint32_t);
+    allocator->pos += size_;
+    allocator->num++;
+    return memory;
+}
+
+void StorageMemoChunk::Free(StorageMemoKeyValue* keyValue, char* buffer)
+{
+    ReadBuffer                      key;
+    uint32_t                        pos;
+    StorageMemoKeyValueAllocator*   allocator;
+
+    pos = *(uint32_t*)(buffer - sizeof(uint32_t));
+    allocator = (StorageMemoKeyValueAllocator*)(buffer - pos - sizeof(StorageMemoKeyValueAllocator));
+    allocator->num--;
+
+    if (allocator->num == 0)
+    {
+        allocators.Remove(allocator);
+        free(allocator);
+    }
+
+    key = keyValue->GetKey();
+    Log_Message("StorageMemoChunk::Free, key: %R", &key);
 }
