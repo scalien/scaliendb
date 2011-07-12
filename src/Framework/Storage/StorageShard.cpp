@@ -22,8 +22,11 @@ StorageShard::~StorageShard()
     FOREACH (itChunk, chunks)
     {
         // StorageFileChunks are deleted in StorageEnvironment
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written &&
+          (*itChunk)->GetChunkState() != StorageChunk::Unwritten)
+        {
             delete *itChunk;
+        }
     }
 }
 

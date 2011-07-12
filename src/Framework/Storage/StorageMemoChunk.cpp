@@ -403,6 +403,9 @@ void StorageMemoChunk::Free(StorageMemoKeyValue* keyValue, char* buffer)
     uint32_t                        pos;
     StorageMemoKeyValueAllocator*   allocator;
 
+    key = keyValue->GetKey();
+    Log_Message("StorageMemoChunk::Free, key: %R", &key);
+
     pos = *(uint32_t*)(buffer - sizeof(uint32_t));
     allocator = (StorageMemoKeyValueAllocator*)(buffer - pos - sizeof(StorageMemoKeyValueAllocator));
     allocator->num--;
@@ -412,7 +415,4 @@ void StorageMemoChunk::Free(StorageMemoKeyValue* keyValue, char* buffer)
         allocators.Remove(allocator);
         free(allocator);
     }
-
-    key = keyValue->GetKey();
-    Log_Message("StorageMemoChunk::Free, key: %R", &key);
 }

@@ -189,7 +189,8 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     isPrimary = true;
     configID = message.configID;
     
-    if (message.activeNodes.GetLength() != activeNodes.GetLength())
+    if (message.activeNodes.GetLength() != activeNodes.GetLength() &&
+     activeNodes.GetLength() > 0)
         restartReplication = true;
     else
         restartReplication = false;
