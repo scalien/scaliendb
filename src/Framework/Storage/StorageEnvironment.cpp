@@ -851,6 +851,18 @@ uint64_t StorageEnvironment::GetShardMemoryUsage()
     return totalSize;
 }
 
+uint64_t StorageEnvironment::GetLogSegmentMemoryUsage()
+{
+    uint64_t            totalSize;
+    StorageLogSegment*  logSegment;
+
+    totalSize = 0;
+    FOREACH (logSegment, logSegments)
+        totalSize += logSegment->GetWriteBufferSize();
+
+    return totalSize;
+}
+
 StorageConfig& StorageEnvironment::GetConfig()
 {
     return config;

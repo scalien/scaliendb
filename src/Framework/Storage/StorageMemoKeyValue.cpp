@@ -15,6 +15,15 @@ StorageMemoKeyValue::~StorageMemoKeyValue()
     // NOTE: buffer is deallocated in StorageMemoChunk!
 }
 
+void StorageMemoKeyValue::Free(StorageMemoChunk* memoChunk)
+{
+    if (buffer != NULL)
+    {
+        memoChunk->Free(this, buffer);
+        buffer = NULL;
+    }
+}
+
 void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_, StorageMemoChunk* memoChunk)
 {
     if (buffer != NULL && GetLength() < key_.GetLength() + value_.GetLength())

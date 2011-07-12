@@ -748,7 +748,12 @@ void StorageRecovery::ExecuteSet(
         return; // shard was deleted
     
     if (shard->IsLogStorage())
+    {
+        //memoChunk = shard->GetMemoChunk();
+        //while (memoChunk->GetSize() > env->GetConfig().chunkSize)
+        //    memoChunk->RemoveFirst();
         goto Execute;
+    }
     
     if (shard->logSegmentID > logSegmentID)
         return; // shard was deleted and re-created

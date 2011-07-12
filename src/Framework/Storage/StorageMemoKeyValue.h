@@ -23,6 +23,8 @@ public:
     StorageMemoKeyValue();
     ~StorageMemoKeyValue();
 
+    void            Free(StorageMemoChunk* memoChunk);
+
     void            Set(ReadBuffer key, ReadBuffer value, StorageMemoChunk* memoChunk);
     void            Delete(ReadBuffer key, StorageMemoChunk* memoChunk);
     

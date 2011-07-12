@@ -10,7 +10,7 @@
 #include "StorageFileChunk.h"
 
 #define STORAGE_MEMO_BUNCH_GRAN             1*MB
-#define STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE 16*KiB
+#define STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE 64*KiB
 #define STORAGE_MEMO_ALLOCATOR_MIN_SIZE     128
 #define STORAGE_BLOCK_NUM_KEY_VALUE     \
     ((128*KiB-sizeof(void*)-2*sizeof(unsigned))/sizeof(StorageMemoKeyValue))

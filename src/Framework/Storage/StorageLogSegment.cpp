@@ -252,6 +252,11 @@ uint64_t StorageLogSegment::GetOffset()
     return offset;
 }
 
+uint64_t StorageLogSegment::GetWriteBufferSize()
+{
+    return writeBuffer.GetSize();
+}
+
 void StorageLogSegment::NewRound()
 {
     // reserve:

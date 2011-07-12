@@ -297,9 +297,10 @@ void StorageMemoChunk::RemoveFirst()
     StorageMemoKeyValue*        first;
 
     first = keyValues.First();
-    size -= first->GetLength();
     keyValues.Remove(first);
     
+    first->Free(this);
+
     block = keyValueBlocks.First();
     ASSERT(first >= block->keyValues && first < (block->keyValues + STORAGE_BLOCK_NUM_KEY_VALUE));
     block->last++;
@@ -412,6 +413,7 @@ void StorageMemoChunk::Free(StorageMemoKeyValue* keyValue, char* buffer)
 
     if (allocator->num == 0)
     {
+        size -= sizeof(StorageMemoKeyValueAllocator) + allocator->size;
         allocators.Remove(allocator);
         free(allocator);
     }

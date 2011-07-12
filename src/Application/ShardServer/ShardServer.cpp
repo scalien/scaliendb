@@ -509,6 +509,7 @@ unsigned ShardServer::GetSDBPPort()
 void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
 {
     uint64_t                shardMemoryUsage;
+    uint64_t                logSegmentMemoryUsage;
     uint64_t                totalMemory;
     uint64_t                quorumMessageCacheSize;
     uint64_t                quorumMessageListSize;
@@ -523,6 +524,10 @@ void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
     shardMemoryUsage = GetDatabaseManager()->GetEnvironment()->GetShardMemoryUsage();
     buffer.Appendf("Shard memory usage: %s\n", HUMAN_BYTES(shardMemoryUsage));
     totalMemory += shardMemoryUsage;
+
+    logSegmentMemoryUsage = GetDatabaseManager()->GetEnvironment()->GetLogSegmentMemoryUsage();
+    buffer.Appendf("Log segment memory usage: %s\n", HUMAN_BYTES(logSegmentMemoryUsage));
+    totalMemory += logSegmentMemoryUsage;
 
     buffer.Appendf("Storage cache usage: %s\n", HUMAN_BYTES(StoragePageCache::GetSize()));
     totalMemory += StoragePageCache::GetSize();
