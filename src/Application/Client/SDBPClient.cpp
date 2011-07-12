@@ -270,9 +270,6 @@ void Client::Shutdown()
     RequestListMap::Node*   requestNode;
     RequestList*            requestList;
 
-    if (proxiedRequests.GetCount() > 0)
-        Submit();
-
     GLOBAL_MUTEX_GUARD_DECLARE();
 
     if (!controllerConnections)
@@ -789,6 +786,9 @@ int Client::Submit()
 {
     int         status;
     Request*    it;
+
+    if (proxiedRequests.GetCount() == 0)
+        return SDBP_SUCCESS;
     
     Log_Trace();
 
