@@ -64,7 +64,6 @@ Mutex   globalMutex;
 
 #define CLIENT_DATA_COMMAND(op, ...)                \
     Request*    req;                                \
-    int         status;                             \
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
@@ -73,8 +72,7 @@ Mutex   globalMutex;
                                                     \
     req = new Request;                              \
     req->op(NextCommandID(), tableID, __VA_ARGS__); \
-    if (AppendDataRequest(req, status))             \
-        return status;                              \
+    AppendDataRequest(req);                         \
                                                     \
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
@@ -270,6 +268,8 @@ void Client::Shutdown()
     RequestListMap::Node*   requestNode;
     RequestList*            requestList;
 
+    Submit();
+    
     GLOBAL_MUTEX_GUARD_DECLARE();
 
     if (!controllerConnections)
@@ -647,7 +647,7 @@ int Client::UnfreezeTable(uint64_t tableID)
 
 int Client::Get(const ReadBuffer& key)
 {
-    int         cmpres, status;
+    int         cmpres;
     Request*    req;
     Request*    it;
     
@@ -678,8 +678,7 @@ int Client::Get(const ReadBuffer& key)
             ASSERT_FAIL();
     }
         
-    if (AppendDataRequest(req, status))
-        return status;
+    AppendDataRequest(req);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
@@ -736,7 +735,6 @@ int Client::ListKeys(
  unsigned count, unsigned offset)
 {
     Request*    req;
-    int         status;
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
@@ -747,12 +745,11 @@ int Client::ListKeys(
     req->ListKeys(NextCommandID(), tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, 
      count, offset);
-    if (AppendDataRequest(req, status))
-        return status;
+    AppendDataRequest(req);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
-//    AppendProxyListResponse();
+    AppendProxyListResponse();
     return result->GetCommandStatus();
 }
 
@@ -760,9 +757,23 @@ int Client::ListKeyValues(
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
  unsigned count, unsigned offset)
 {
-    CLIENT_DATA_COMMAND(ListKeyValues, 
+    Request*    req;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+
+    req = new Request;
+    req->ListKeyValues(NextCommandID(), tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix,
      count, offset);
+    AppendDataRequest(req);
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+    AppendProxyListResponse();
+    return result->GetCommandStatus();
 }
 
 int Client::Count(
@@ -800,7 +811,6 @@ int Client::Begin()
 
 int Client::Submit()
 {
-    int         status;
     Request*    it;
 
     if (proxiedRequests.GetCount() == 0)
@@ -811,7 +821,7 @@ int Client::Submit()
     Begin();
     FOREACH_POP(it, proxiedRequests)
     {
-        AppendDataRequest(it, status);
+        AppendDataRequest(it);
         proxySize -= REQUEST_SIZE(it);
     }
     ASSERT(proxySize == 0);
@@ -1015,38 +1025,13 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
     }
 }
 
-bool Client::AppendDataRequest(Request* req, int &status)
+void Client::AppendDataRequest(Request* req)
 {
     req->isBulk = false;
     requests.Append(req);
 
-    if (!result->AppendRequest(req) ||
-        (requests.GetLength() > 1 && isReading && !req->IsReadRequest()) ||
-        (requests.GetLength() > 1 && !isReading && req->IsReadRequest()))
-    {
-        requests.Clear();
-        result->Close();
-        status = SDBP_API_ERROR;
-        return true;
-    }
-
-    if (req->IsReadRequest())
-        isReading = true;
-    else
-        isReading = false;
-
-    status = SDBP_SUCCESS;
-    return true;
-
-    if (req->IsReadRequest())
-        isReading = true;
-    else                                            
-        isReading = false;
-
     result->Close();
     result->AppendRequest(req);
-
-    return false;
 }
 
 void Client::ReassignRequest(Request* req)
@@ -1557,16 +1542,26 @@ uint64_t Client::GetRequestPaxosID()
 void Client::AppendProxyListResponse()
 {
     unsigned                i;
+    unsigned                len;
     int                     cmp;
-    List<ReadBuffer>        keys;
-    List<ReadBuffer>        values;
+    List<ReadBuffer>        proxyKeys;
+    List<ReadBuffer>        proxyValues;
+    List<ReadBuffer>        serverKeys;
+    List<ReadBuffer>        serverValues;
+    List<ReadBuffer>        mergedKeys;
+    List<ReadBuffer>        mergedValues;
     Request*                request;
     Request*                itProxyRequest;
     ClientResponse*         response;
     ReadBuffer              key;
     ReadBuffer              value;
+    ReadBuffer*             itProxyKey;
+    ReadBuffer*             itProxyValue;
+    ReadBuffer*             itServerKey;
+    ReadBuffer*             itServerValue;
     ReadBuffer*             itKey;
     ReadBuffer*             itValue;
+    ClientResponse**        itResponse;
  
     if (result->GetRequestCount() == 0)
         return;
@@ -1575,18 +1570,10 @@ void Client::AppendProxyListResponse()
     
     request = result->GetRequestCursor();
 
-    response = new ClientResponse;
-    response->commandID = request->commandID;
-    if (request->type == CLIENTREQUEST_LIST_KEYS)
-        response->type = CLIENTRESPONSE_LIST_KEYS;
-    else
-        response->type = CLIENTRESPONSE_LIST_KEYVALUES;
-
-    request->responses.Append(response);
-
+    // compute proxied result into proxyKeys/proxyValues
     FOREACH(itProxyRequest, proxiedRequests)
     {
-        if (request->count > 0 && keys.GetLength() == request->count)
+        if (request->count > 0 && proxyKeys.GetLength() == request->count)
             break;
         if (itProxyRequest->tableID < request->tableID)
             continue;
@@ -1605,25 +1592,131 @@ void Client::AppendProxyListResponse()
             if (cmp >= 0)
             {
                 key.Wrap(itProxyRequest->key);
-                keys.Append(key);
+                proxyKeys.Append(key);
                 if (request->type == CLIENTREQUEST_LIST_KEYVALUES)
                 {
                     value.Wrap(itProxyRequest->value);
-                    values.Append(value);
+                    proxyValues.Append(value);
                 }
             }
         }
     }
-    i = 0;
-    response->keys = new ReadBuffer[keys.GetLength()];
-    response->values = new ReadBuffer[values.GetLength()];
-    FOREACH(itKey, keys)
+
+    // fetch result returned by servers into serverKeys/serverValues
+    for (result->Begin(); !result->IsEnd(); result->Next())
     {
-        response->keys[i] = *itKey;
+        result->GetKey(key);
+        serverKeys.Append(key);
         if (request->type == CLIENTREQUEST_LIST_KEYVALUES)
-            response->values[i] = *itValue;
-        i++;
+        {
+            result->GetValue(value);
+            serverValues.Append(value);
+        }
+    }
+    result->Begin(); // to reset Result requestCursor
+    
+    // merge
+#define ADVANCE_PROXY()                                 \
+    itProxyKey = proxyKeys.Next(itProxyKey);            \
+    if (request->type == CLIENTREQUEST_LIST_KEYVALUES)  \
+        itProxyValue = proxyValues.Next(itProxyValue);
+#define ADVANCE_SERVER()                                \
+    itServerKey = serverKeys.Next(itServerKey);         \
+    if (request->type == CLIENTREQUEST_LIST_KEYVALUES)  \
+        itServerValue = serverValues.Next(itServerValue);
+#define APPEND_PROXY()                                  \
+    mergedKeys.Append(*itProxyKey);                     \
+    len += itProxyKey->GetLength();                     \
+    if (request->type == CLIENTREQUEST_LIST_KEYVALUES)  \
+    {                                                   \
+        mergedValues.Append(*itProxyValue);             \
+        len += itProxyValue->GetLength();               \
+    }
+#define APPEND_SERVER()                                 \
+    mergedKeys.Append(*itServerKey);                    \
+    len += itServerKey->GetLength();                    \
+    if (request->type == CLIENTREQUEST_LIST_KEYVALUES)  \
+    {                                                   \
+        mergedValues.Append(*itServerValue);            \
+        len += itServerValue->GetLength();              \
+    }
+    itProxyKey = proxyKeys.First();
+    itProxyValue = proxyValues.First();
+    itServerKey = serverKeys.First();
+    itServerValue = serverValues.First();
+    len = 0;
+    while(true)
+    {
+        if (request->count > 0 && mergedKeys.GetLength() == request->count)
+            break;
+        if (itProxyKey == NULL && itServerKey == NULL)
+            break;
+        if (itProxyKey == NULL)
+        {
+            APPEND_SERVER();
+            ADVANCE_SERVER();
+            continue;
+        }
+        else if (itServerKey == NULL)
+        {
+            APPEND_PROXY();
+            ADVANCE_PROXY();
+            continue;
+        }
+        cmp = ReadBuffer::Cmp(*itProxyKey, *itServerKey);
+        if (cmp == 0)
+        {
+            APPEND_PROXY();
+            ADVANCE_PROXY();
+            ADVANCE_SERVER();
+        }
+        else if (cmp < 0)
+        {
+            APPEND_PROXY();
+            ADVANCE_PROXY();
+        }
+        else
+        {
+            APPEND_SERVER();
+            ADVANCE_SERVER();
+        }
+    }
+    
+    // construct new response
+    request->responses.Clear();
+    response = new ClientResponse;
+    response->commandID = request->commandID;
+    response->valueBuffer = new Buffer();
+    response->valueBuffer->Allocate(len);
+    if (request->type == CLIENTREQUEST_LIST_KEYS)
+        response->type = CLIENTRESPONSE_LIST_KEYS;
+    else
+        response->type = CLIENTRESPONSE_LIST_KEYVALUES;
+
+    response->keys = new ReadBuffer[mergedKeys.GetLength()];
+    response->values = new ReadBuffer[mergedValues.GetLength()];
+    response->numKeys = mergedKeys.GetLength();
+    for (i = 0, itKey = mergedKeys.First(), itValue = mergedValues.First();
+     itKey != NULL;
+     itKey = mergedKeys.Next(itKey), i++)
+    {
+        key.Wrap(response->valueBuffer->GetPosition(), itKey->GetLength());
+        response->valueBuffer->Append(*itKey);
+        response->keys[i] = key;
+        if (request->type == CLIENTREQUEST_LIST_KEYVALUES)
+        {
+            value.Wrap(response->valueBuffer->GetPosition(), itValue->GetLength());
+            response->valueBuffer->Append(*itValue);
+            response->values[i] = value;
+            itValue = mergedValues.Next(itValue);
+        }
     }    
+
+    // delete server responses
+    FOREACH(itResponse, request->responses)
+        delete *itResponse;
+
+    request->responses.Append(response);
 }
 
 void Client::Lock()

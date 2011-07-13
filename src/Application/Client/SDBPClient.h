@@ -153,7 +153,7 @@ private:
     bool                    IsReading();
     void                    SetConfigState(ControllerConnection* conn, ConfigState* configState);
 
-    bool                    AppendDataRequest(Request* req, int& status);
+    void                    AppendDataRequest(Request* req);
     void                    ReassignRequest(Request* req);
     void                    AssignRequestsToQuorums();
     bool                    GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID);
