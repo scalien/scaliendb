@@ -90,8 +90,10 @@ public:
     void                    RemoveFirst(); // for logstorage
 
     StorageMemoKeyValue*    NewStorageMemoKeyValue();
-    char*                   Alloc(StorageMemoKeyValue* keyValue, size_t size);
-    void                    Free(StorageMemoKeyValue* keyValue, char* buffer);
+    
+    // StorageMemoKeyValue buffer allocator
+    char*                   Alloc(size_t size);
+    void                    Free(char* buffer);
 
 private:
     bool                    serialized;

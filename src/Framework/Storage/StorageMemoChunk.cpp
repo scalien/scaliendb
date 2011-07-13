@@ -176,9 +176,7 @@ bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
         it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
         if (cmpres == 0)
         {
-            //size -= it->GetLength();
             it->Set(key, value, this);
-            //size += it->GetLength();
             return true;
         }
     }   
@@ -186,7 +184,6 @@ bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
     it = NewStorageMemoKeyValue();
     it->Set(key, value, this);
     keyValues.Insert(it);
-    //size += it->GetLength();
     
     return true;
 }
@@ -201,9 +198,7 @@ bool StorageMemoChunk::Delete(ReadBuffer key)
         it = keyValues.Locate<const ReadBuffer&>(key, cmpres);
         if (cmpres == 0)
         {
-            //size -= it->GetLength();
             it->Delete(key, this);
-            //size += it->GetLength();
             return true;
         }
     }   
@@ -211,7 +206,6 @@ bool StorageMemoChunk::Delete(ReadBuffer key)
     it = NewStorageMemoKeyValue();
     it->Delete(key, this);
     keyValues.Insert(it);
-    //size += it->GetLength();
     
     return true;
 }
@@ -337,8 +331,6 @@ StorageMemoKeyValue* StorageMemoChunk::NewStorageMemoKeyValue()
         block->last = 0;
         keyValueBlocks.Enqueue(block);
         size += sizeof(StorageMemoKeyValueBlock);
-        Log_Debug("Memory usage: %U, memochunk size: %U", 
-         GetProcessMemoryUsage(), size);
     }
 
     keyValue = &block->keyValues[block->first];
@@ -347,17 +339,25 @@ StorageMemoKeyValue* StorageMemoChunk::NewStorageMemoKeyValue()
     return keyValue;
 }
 
-char* StorageMemoChunk::Alloc(StorageMemoKeyValue* keyValue, size_t size_)
+char* StorageMemoChunk::Alloc(size_t size_)
 {
     StorageMemoKeyValueAllocator*   allocator;
     StorageMemoKeyValueAllocator*   prevAllocator;
     char*                           memory;
     uint32_t                        allocatedSize;
+    size_t                          requiredSize;
 
+    // Each allocated piece of memory is prefixed with an uint32_t offset
+    // from the start of the buffer of the allocator. Therefore it is
+    // possible to find the allocator object of a given pointer.
+    requiredSize = size_ + sizeof(uint32_t);
+
+    // save the last allocator to avoid fragmentation
     prevAllocator = allocator = allocators.Last();
-    if (allocator == NULL || allocator->GetFreeSize() < size_ + sizeof(uint32_t))
+    
+    if (allocator == NULL || allocator->GetFreeSize() < requiredSize)
     {
-        allocatedSize = MAX(size_ + sizeof(uint32_t), STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE);
+        allocatedSize = MAX(requiredSize, STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE);
         // avoid calling malloc twice by allocating memory and setting the pointers
         memory = (char*) malloc(sizeof(StorageMemoKeyValueAllocator) + allocatedSize);
 
@@ -368,6 +368,8 @@ char* StorageMemoChunk::Alloc(StorageMemoKeyValue* keyValue, size_t size_)
         allocator->num = 0;
         allocator->next = allocator;
         allocator->prev = allocator;
+
+        // TODO: better strategy to avoid fragmentation
         if (prevAllocator != NULL && 
          prevAllocator->GetFreeSize() > STORAGE_MEMO_ALLOCATOR_MIN_SIZE &&
          allocatedSize == STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE)
@@ -382,6 +384,7 @@ char* StorageMemoChunk::Alloc(StorageMemoKeyValue* keyValue, size_t size_)
         size += sizeof(StorageMemoKeyValueAllocator) + allocator->size;
     }
 
+    // The memory layout is the following:
     //
     // +---------------------
     // | pos (4 bytes)
@@ -395,17 +398,15 @@ char* StorageMemoChunk::Alloc(StorageMemoKeyValue* keyValue, size_t size_)
     memory += sizeof(uint32_t);
     allocator->pos += size_;
     allocator->num++;
+
     return memory;
 }
 
-void StorageMemoChunk::Free(StorageMemoKeyValue* keyValue, char* buffer)
+void StorageMemoChunk::Free(char* buffer)
 {
     ReadBuffer                      key;
     uint32_t                        pos;
     StorageMemoKeyValueAllocator*   allocator;
-
-    key = keyValue->GetKey();
-    Log_Message("StorageMemoChunk::Free, key: %R", &key);
 
     pos = *(uint32_t*)(buffer - sizeof(uint32_t));
     allocator = (StorageMemoKeyValueAllocator*)(buffer - pos - sizeof(StorageMemoKeyValueAllocator));

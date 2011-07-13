@@ -24,13 +24,7 @@ void ShardServer::Init(ShardServerApp* app)
 
     shardServerApp = app;
 
-    GetMemoryUsageBuffer(buffer);
-    Log_Debug("%B", &buffer);
-
-    databaseManager.Init(this);
-    GetMemoryUsageBuffer(buffer);
-    Log_Debug("%B", &buffer);
- 
+    databaseManager.Init(this); 
     heartbeatManager.Init(this);
     migrationWriter.Init(this);
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 10000));
@@ -59,10 +53,7 @@ void ShardServer::Init(ShardServerApp* app)
         // me a SetNodeID cluster message
     }
 
-    CONTEXT_TRANSPORT->SetClusterContext(this);    
-
-    GetMemoryUsageBuffer(buffer);
-    Log_Debug("%B", &buffer);
+    CONTEXT_TRANSPORT->SetClusterContext(this);
 }
 
 void ShardServer::Shutdown()

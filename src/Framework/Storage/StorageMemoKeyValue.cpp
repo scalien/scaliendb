@@ -19,7 +19,7 @@ void StorageMemoKeyValue::Free(StorageMemoChunk* memoChunk)
 {
     if (buffer != NULL)
     {
-        memoChunk->Free(this, buffer);
+        memoChunk->Free(buffer);
         buffer = NULL;
     }
 }
@@ -28,7 +28,7 @@ void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_, StorageMemoChu
 {
     if (buffer != NULL && GetLength() < key_.GetLength() + value_.GetLength())
     {
-        memoChunk->Free(this, buffer);
+        memoChunk->Free(buffer);
         buffer = NULL;
     }
     
@@ -36,7 +36,7 @@ void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_, StorageMemoChu
     valueLength = value_.GetLength();
 
     if (buffer == NULL)
-        buffer = (char*) memoChunk->Alloc(this, GetLength());
+        buffer = (char*) memoChunk->Alloc(GetLength());
     
     memcpy(buffer, key_.GetBuffer(), keyLength);
     memcpy(buffer + keyLength, value_.GetBuffer(), valueLength);
@@ -44,18 +44,12 @@ void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_, StorageMemoChu
 
 void StorageMemoKeyValue::Delete(ReadBuffer key_, StorageMemoChunk* memoChunk)
 {
-    //if (buffer != NULL)
-    //    memoChunk->Free(this, buffer);
-
-
     keyLength = key_.GetLength();
     valueLength = DELETE_LENGTH_VALUE;
 
-    //buffer = (char*) memoChunk->Alloc(this, GetLength());
-    
     if (buffer == NULL)
     {
-        buffer = (char*) memoChunk->Alloc(this, GetLength());
+        buffer = (char*) memoChunk->Alloc(GetLength());
         memcpy(buffer, key_.GetBuffer(), keyLength);
     }
 }

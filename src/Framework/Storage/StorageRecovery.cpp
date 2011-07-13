@@ -502,9 +502,6 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
     fileBuffer.Reset();
     fd.Close();
     
-    Log_Message("XXX Memory usage: %s, total memochunk size: %U", 
-        HUMAN_BYTES(GetProcessMemoryUsage()), env->GetShardMemoryUsage());
-
     return true;
 }
 
