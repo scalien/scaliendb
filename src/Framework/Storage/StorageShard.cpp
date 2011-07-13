@@ -206,6 +206,9 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
 
     if (IsLogStorage())
         return;
+
+    if (!IsSplitable())
+        return;
     
     totalSize = 0;
     FOREACH (itChunk, chunks)
@@ -216,9 +219,6 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
         inputChunks.Append(fileChunk);
         totalSize += fileChunk->GetSize();
     }
-
-    if (!IsSplitable())
-        return;
 
     while (inputChunks.GetLength() >= 3)
     {
