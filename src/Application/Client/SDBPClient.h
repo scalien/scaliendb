@@ -177,6 +177,7 @@ private:
     uint64_t                GetRequestPaxosID();
     
     void                    AppendProxyListResponse();
+    uint64_t                NumProxiedDeletes(Request* request);
     
     int64_t                 master;
     uint64_t                commandID;

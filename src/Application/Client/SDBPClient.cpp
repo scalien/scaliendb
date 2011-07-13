@@ -794,13 +794,24 @@ int Client::ListKeys(
         return SDBP_BADSCHEMA;
 
     req = new Request;
+    req->userCount = count;
     req->ListKeys(NextCommandID(), tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, 
      count, offset);
+    if (req->userCount > 0)
+    {
+        // fetch more from server in case proxied deletes override
+        req->count += NumProxiedDeletes(req);
+        
+    }
     AppendDataRequest(req);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
+
+    // only keep as many keyvalues as the user asked for
+    req->count = req->userCount;
+
     AppendProxyListResponse();
     return result->GetCommandStatus();
 }
@@ -817,13 +828,24 @@ int Client::ListKeyValues(
         return SDBP_BADSCHEMA;
 
     req = new Request;
+    req->userCount = count;
     req->ListKeyValues(NextCommandID(), tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix,
      count, offset);
+    if (req->userCount > 0)
+    {
+        // fetch more from server in case proxied deletes override
+        req->count += NumProxiedDeletes(req);
+        
+    }
     AppendDataRequest(req);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
+
+    // only keep as many keyvalues as the user asked for
+    req->count = req->userCount;
+
     AppendProxyListResponse();
     return result->GetCommandStatus();
 }
@@ -1592,11 +1614,13 @@ uint64_t Client::GetRequestPaxosID()
 
 void Client::AppendProxyListResponse()
 {
+    bool                    isDelete;
     unsigned                i;
     unsigned                len;
     int                     cmp;
     List<ReadBuffer>        proxyKeys;
     List<ReadBuffer>        proxyValues;
+    List<bool>              proxyDeletes;
     List<ReadBuffer>        serverKeys;
     List<ReadBuffer>        serverValues;
     List<ReadBuffer>        mergedKeys;
@@ -1608,6 +1632,7 @@ void Client::AppendProxyListResponse()
     ReadBuffer              value;
     ReadBuffer*             itProxyKey;
     ReadBuffer*             itProxyValue;
+    bool*                   itProxyDelete;
     ReadBuffer*             itServerKey;
     ReadBuffer*             itServerValue;
     ReadBuffer*             itKey;
@@ -1644,7 +1669,9 @@ void Client::AppendProxyListResponse()
             {
                 key.Wrap(itProxyRequest->key);
                 proxyKeys.Append(key);
-                if (request->type == CLIENTREQUEST_LIST_KEYVALUES)
+                isDelete = (itProxyRequest->type == CLIENTREQUEST_DELETE);
+                proxyDeletes.Append(isDelete);
+                if (request->type == CLIENTREQUEST_LIST_KEYVALUES && !isDelete)
                 {
                     value.Wrap(itProxyRequest->value);
                     proxyValues.Append(value);
@@ -1667,32 +1694,44 @@ void Client::AppendProxyListResponse()
     result->Begin(); // to reset Result requestCursor
     
     // merge
-#define ADVANCE_PROXY()                                 \
-    itProxyKey = proxyKeys.Next(itProxyKey);            \
-    if (request->type == CLIENTREQUEST_LIST_KEYVALUES)  \
-        itProxyValue = proxyValues.Next(itProxyValue);
-#define ADVANCE_SERVER()                                \
-    itServerKey = serverKeys.Next(itServerKey);         \
-    if (request->type == CLIENTREQUEST_LIST_KEYVALUES)  \
-        itServerValue = serverValues.Next(itServerValue);
-#define APPEND_PROXY()                                  \
-    mergedKeys.Append(*itProxyKey);                     \
-    len += itProxyKey->GetLength();                     \
-    if (request->type == CLIENTREQUEST_LIST_KEYVALUES)  \
-    {                                                   \
-        mergedValues.Append(*itProxyValue);             \
-        len += itProxyValue->GetLength();               \
+#define ADVANCE_PROXY()                                         \
+    {                                                           \
+        itProxyKey = proxyKeys.Next(itProxyKey);                \
+        if (request->type == CLIENTREQUEST_LIST_KEYVALUES &&    \
+         *itProxyDelete == false)                               \
+            itProxyValue = proxyValues.Next(itProxyValue);      \
+        itProxyDelete = proxyDeletes.Next(itProxyDelete);       \
     }
-#define APPEND_SERVER()                                 \
-    mergedKeys.Append(*itServerKey);                    \
-    len += itServerKey->GetLength();                    \
-    if (request->type == CLIENTREQUEST_LIST_KEYVALUES)  \
-    {                                                   \
-        mergedValues.Append(*itServerValue);            \
-        len += itServerValue->GetLength();              \
+#define ADVANCE_SERVER()                                        \
+    {                                                           \
+        itServerKey = serverKeys.Next(itServerKey);             \
+        if (request->type == CLIENTREQUEST_LIST_KEYVALUES)      \
+            itServerValue = serverValues.Next(itServerValue);   \
     }
+#define APPEND_PROXY()                                          \
+    {                                                           \
+        mergedKeys.Append(*itProxyKey);                         \
+        len += itProxyKey->GetLength();                         \
+        if (request->type == CLIENTREQUEST_LIST_KEYVALUES)      \
+        {                                                       \
+            mergedValues.Append(*itProxyValue);                 \
+            len += itProxyValue->GetLength();                   \
+        }                                                       \
+    }
+#define APPEND_SERVER()                                         \
+    {                                                           \
+        mergedKeys.Append(*itServerKey);                        \
+        len += itServerKey->GetLength();                        \
+        if (request->type == CLIENTREQUEST_LIST_KEYVALUES)      \
+        {                                                       \
+            mergedValues.Append(*itServerValue);                \
+            len += itServerValue->GetLength();                  \
+        }                                                       \
+    }
+
     itProxyKey = proxyKeys.First();
     itProxyValue = proxyValues.First();
+    itProxyDelete = proxyDeletes.First();
     itServerKey = serverKeys.First();
     itServerValue = serverValues.First();
     len = 0;
@@ -1710,14 +1749,17 @@ void Client::AppendProxyListResponse()
         }
         else if (itServerKey == NULL)
         {
-            APPEND_PROXY();
+            if (*itProxyDelete == false)
+                APPEND_PROXY();
             ADVANCE_PROXY();
             continue;
         }
+        Log_Trace("%.*s", itProxyKey->GetLength(), itProxyKey->GetBuffer());
         cmp = ReadBuffer::Cmp(*itProxyKey, *itServerKey);
         if (cmp == 0)
         {
-            APPEND_PROXY();
+            if (*itProxyDelete == false)
+                APPEND_PROXY();
             ADVANCE_PROXY();
             ADVANCE_SERVER();
         }
@@ -1768,6 +1810,37 @@ void Client::AppendProxyListResponse()
         delete *itResponse;
 
     request->responses.Append(response);
+}
+
+uint64_t Client::NumProxiedDeletes(Request* request)
+{
+    int         cmp;
+    uint64_t    count;
+    Request*    itProxyRequest;
+    
+    count = 0;
+    FOREACH(itProxyRequest, proxiedRequests)
+    {
+        if (itProxyRequest->tableID < request->tableID)
+            continue;
+        if (itProxyRequest->tableID > request->tableID)
+            break;
+        if (request->endKey.GetLength() > 0)
+        {
+            cmp = Buffer::Cmp(itProxyRequest->key, request->endKey);
+            if (cmp >= 0)
+                break;
+        }
+        
+        if (itProxyRequest->key.BeginsWith(request->prefix))
+        {
+            cmp = Buffer::Cmp(itProxyRequest->key, request->key /*startKey*/);
+            if (cmp >= 0)
+                count++;
+        }
+    }
+    
+    return count;
 }
 
 void Client::Lock()
