@@ -190,7 +190,8 @@ void ShardQuorumProcessor::OnReceiveLease(ClusterMessage& message)
     isPrimary = true;
     configID = message.configID;
     
-    if (message.activeNodes.GetLength() != activeNodes.GetLength())
+    if (message.activeNodes.GetLength() != activeNodes.GetLength() &&
+     activeNodes.GetLength() > 0)
         restartReplication = true;
     else
         restartReplication = false;
@@ -679,6 +680,21 @@ uint64_t ShardQuorumProcessor::GetBlockedShardID()
 uint64_t ShardQuorumProcessor::GetMessageCacheSize()
 {
     return messageCache.GetMemorySize();
+}
+
+uint64_t ShardQuorumProcessor::GetMessageListSize()
+{
+    return shardMessages.GetLength() * sizeof(ShardMessage);
+}
+
+uint64_t ShardQuorumProcessor::GetShardAppendStateSize()
+{
+    return appendState.valueBuffer.GetSize();
+}
+
+uint64_t ShardQuorumProcessor::GetQuorumContextSize()
+{
+    return quorumContext.GetMemoryUsage();
 }
 
 void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage* message)

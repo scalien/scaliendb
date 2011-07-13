@@ -38,6 +38,8 @@ public:
     unsigned                GetNumActiveConns();
     unsigned                GetNumInactiveConns();
 
+    uint64_t                GetMemoryUsage();
+
 protected:
     void                    OnConnect();
     Conn*                   GetConn();
@@ -157,6 +159,22 @@ template<class T, class Conn>
 unsigned TCPServer<T, Conn>::GetNumInactiveConns()
 {
     return inactiveConns.GetLength();
+}
+
+template<class T, class Conn>
+uint64_t TCPServer<T, Conn>::GetMemoryUsage()
+{
+    uint64_t    memoryUsage;
+    Conn*       conn;
+
+    memoryUsage = 0;
+    FOREACH (conn, activeConns)
+        memoryUsage += conn->GetMemoryUsage();
+
+    FOREACH (conn, inactiveConns)
+        memoryUsage += conn->GetMemoryUsage();
+
+    return memoryUsage;
 }
 
 template<class T, class Conn>

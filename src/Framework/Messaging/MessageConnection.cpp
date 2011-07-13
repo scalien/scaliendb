@@ -118,6 +118,11 @@ void MessageConnection::OnWrite()
     } 
 }
 
+uint64_t MessageConnection::GetMemoryUsage()
+{
+    return TCPConnection::GetMemoryUsage() + (writeBuffer ? writeBuffer->GetSize() : 0);
+}
+
 void MessageConnection::OnRead()
 {
     bool            yield, closed;

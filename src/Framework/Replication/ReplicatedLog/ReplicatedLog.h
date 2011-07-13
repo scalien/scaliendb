@@ -53,6 +53,8 @@ public:
     void                    OnAppendComplete();
     void                    WriteState();
 
+    uint64_t                GetMemoryUsage();
+
 private:
     void                    Append(Buffer& value);
 

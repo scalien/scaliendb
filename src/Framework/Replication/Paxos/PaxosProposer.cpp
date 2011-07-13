@@ -141,6 +141,11 @@ bool PaxosProposer::IsActive()
     return (state.preparing || state.proposing);
 }
 
+uint64_t PaxosProposer::GetMemoryUsage()
+{
+    return sizeof(PaxosProposer) + state.proposedValue.GetSize();
+}
+
 void PaxosProposer::OnPrepareResponse(PaxosMessage& imsg)
 {
     Log_Trace("msg.nodeID = %u", imsg.nodeID);

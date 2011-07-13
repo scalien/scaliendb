@@ -74,6 +74,7 @@ void            PrintStackTrace();
 int             ShellExec(const char *cmdline);
 uint64_t        GetProcessID();
 uint64_t        GetTotalPhysicalMemory();
+uint64_t        GetProcessMemoryUsage();
 void            SetMemoryLimit(uint64_t limit);
 
 uint32_t        ChecksumBuffer(const char* buffer, unsigned length);

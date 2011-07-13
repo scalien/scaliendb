@@ -153,3 +153,9 @@ void TCPConnection::OnConnectTimeout()
     Log_Trace();
 }
 
+uint64_t TCPConnection::GetMemoryUsage()
+{
+    return sizeof(*this) + readBuffer.GetSize() + 
+        (writer ? writer->GetQueuedBytes() : 0);
+}
+

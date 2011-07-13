@@ -1,4 +1,5 @@
 #include "StorageMemoKeyValue.h"
+#include "StorageMemoChunk.h"
 
 #define DELETE_LENGTH_VALUE     ((uint32_t)-1)
 
@@ -11,34 +12,46 @@ StorageMemoKeyValue::StorageMemoKeyValue()
 
 StorageMemoKeyValue::~StorageMemoKeyValue()
 {
-    free(buffer);
+    // NOTE: buffer is deallocated in StorageMemoChunk!
 }
 
-void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_)
+void StorageMemoKeyValue::Free(StorageMemoChunk* memoChunk)
 {
     if (buffer != NULL)
-        free(buffer);
+    {
+        memoChunk->Free(buffer);
+        buffer = NULL;
+    }
+}
+
+void StorageMemoKeyValue::Set(ReadBuffer key_, ReadBuffer value_, StorageMemoChunk* memoChunk)
+{
+    if (buffer != NULL && GetLength() < key_.GetLength() + value_.GetLength())
+    {
+        memoChunk->Free(buffer);
+        buffer = NULL;
+    }
     
     keyLength = key_.GetLength();
     valueLength = value_.GetLength();
 
-    buffer = (char*) malloc(GetLength());
+    if (buffer == NULL)
+        buffer = (char*) memoChunk->Alloc(GetLength());
     
     memcpy(buffer, key_.GetBuffer(), keyLength);
     memcpy(buffer + keyLength, value_.GetBuffer(), valueLength);
 }
 
-void StorageMemoKeyValue::Delete(ReadBuffer key_)
+void StorageMemoKeyValue::Delete(ReadBuffer key_, StorageMemoChunk* memoChunk)
 {
-    if (buffer != NULL)
-        free(buffer);
-    
     keyLength = key_.GetLength();
     valueLength = DELETE_LENGTH_VALUE;
 
-    buffer = (char*) malloc(GetLength());
-    
-    memcpy(buffer, key_.GetBuffer(), keyLength);
+    if (buffer == NULL)
+    {
+        buffer = (char*) memoChunk->Alloc(GetLength());
+        memcpy(buffer, key_.GetBuffer(), keyLength);
+    }
 }
 
 char StorageMemoKeyValue::GetType()

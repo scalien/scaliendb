@@ -121,6 +121,11 @@ void ShardQuorumContext::WriteReplicationState()
     replicatedLog.WriteState();
 }
 
+uint64_t ShardQuorumContext::GetMemoryUsage()
+{
+    return nextValue.GetSize() + replicatedLog.GetMemoryUsage();
+}
+
 bool ShardQuorumContext::IsLeaseOwner()
 {
     return quorumProcessor->IsPrimary();

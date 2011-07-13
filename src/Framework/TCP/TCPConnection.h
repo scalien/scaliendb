@@ -49,6 +49,8 @@ protected:
     virtual void        OnClose() = 0;
     virtual void        OnConnect();
     virtual void        OnConnectTimeout();
+    virtual uint64_t    GetMemoryUsage();
+
 
     State               state;
     Socket              socket;

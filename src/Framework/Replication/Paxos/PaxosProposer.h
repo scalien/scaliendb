@@ -10,7 +10,7 @@
 
 class ReplicatedLog; // forward
 
-#define PAXOS_TIMEOUT       1*1000
+#define PAXOS_TIMEOUT       5*1000
 
 /*
 ===============================================================================================
@@ -39,6 +39,8 @@ public:
 
     void                        Stop();
     bool                        IsActive(); 
+
+    uint64_t                    GetMemoryUsage();
 
 private:
     void                        OnPrepareResponse(PaxosMessage& msg);
