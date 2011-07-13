@@ -282,12 +282,7 @@ Restart:
     it = NULL;
     smallest = 0;
     
-    // special case when there is only one chunk
-    if (numListers == 1)
-    {
-        it = iterators[0];
-        goto Done;
-    }
+    // TODO: special case when there is only one chunk
 
     // listers are sorted by relevance, first is the oldest, last is the latest
     for (i = 0; i < numListers; i++)
