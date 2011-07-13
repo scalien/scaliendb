@@ -707,7 +707,59 @@ int Client::GetAndSet(const ReadBuffer& key, const ReadBuffer& value)
 
 int Client::Add(const ReadBuffer& key, int64_t number)
 {
-    CLIENT_DATA_COMMAND(Add, (ReadBuffer&) key, number);
+    Request*    req;
+    Request*    itRequest;
+    ReadBuffer  requestKey;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+
+    result->Close();
+    FOREACH(itRequest, proxiedRequests)
+    {
+        if (itRequest->tableID != tableID)
+            continue;
+        requestKey.Wrap(itRequest->key);
+        if (ReadBuffer::Cmp(key, requestKey) == 0)
+        {
+            if (itRequest->type == CLIENTREQUEST_SET)
+            {
+                proxiedRequests.Remove(itRequest);
+                itRequest->isBulk = false;
+                requests.Append(itRequest);
+                result->AppendRequest(itRequest);
+                proxySize -= REQUEST_SIZE(itRequest);
+                ASSERT(proxySize >= 0);
+                break;
+            }
+            else // delete
+            {
+                return SDBP_FAILED;
+            }
+        }
+    }
+
+    req = new Request;
+    req->Add(NextCommandID(), tableID, (ReadBuffer&) key, number);
+    req->isBulk = false;
+    requests.Append(req);
+    result->AppendRequest(req);
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+    if (result->GetCommandStatus() == SDBP_SUCCESS)
+    {
+        for (itRequest = result->requests.First(); itRequest != NULL; /* advanced in body */)
+        {
+            if (itRequest->commandID != req->commandID)
+                itRequest = result->requests.Remove(itRequest);
+            else
+                itRequest = result->requests.Next(itRequest);
+        }
+    }
+    result->Begin();
+    return result->GetCommandStatus();
 }
 
 int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
@@ -1029,7 +1081,6 @@ void Client::AppendDataRequest(Request* req)
 {
     req->isBulk = false;
     requests.Append(req);
-
     result->Close();
     result->AppendRequest(req);
 }

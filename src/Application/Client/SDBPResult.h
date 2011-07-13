@@ -60,10 +60,10 @@ public:
     void            HandleRequestResponse(Request* req, ClientResponse* resp);
     void            HandleMultiRequestResponse(Request* req);
 
-private:
     typedef InTreeMap<Request> RequestMap;
     
     RequestMap          requests;
+private:
     int                 transportStatus;
     int                 timeoutStatus;
     int                 connectivityStatus;
