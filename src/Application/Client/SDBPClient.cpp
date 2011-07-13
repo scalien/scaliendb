@@ -735,9 +735,25 @@ int Client::ListKeys(
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, 
  unsigned count, unsigned offset)
 {
-    CLIENT_DATA_COMMAND(ListKeys, 
+    Request*    req;
+    int         status;
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (!isDatabaseSet || !isTableSet)
+        return SDBP_BADSCHEMA;
+
+    req = new Request;
+    req->ListKeys(NextCommandID(), tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, 
      count, offset);
+    if (AppendDataRequest(req, status))
+        return status;
+
+    CLIENT_MUTEX_GUARD_UNLOCK();
+    EventLoop();
+//    AppendProxyListResponse();
+    return result->GetCommandStatus();
 }
 
 int Client::ListKeyValues(
@@ -1536,6 +1552,78 @@ uint64_t Client::GetRequestPaxosID()
         ASSERT_FAIL();
     
     return 0;
+}
+
+void Client::AppendProxyListResponse()
+{
+    unsigned                i;
+    int                     cmp;
+    List<ReadBuffer>        keys;
+    List<ReadBuffer>        values;
+    Request*                request;
+    Request*                itProxyRequest;
+    ClientResponse*         response;
+    ReadBuffer              key;
+    ReadBuffer              value;
+    ReadBuffer*             itKey;
+    ReadBuffer*             itValue;
+ 
+    if (result->GetRequestCount() == 0)
+        return;
+    if (proxiedRequests.GetCount() == 0)
+        return;
+    
+    request = result->GetRequestCursor();
+
+    response = new ClientResponse;
+    response->commandID = request->commandID;
+    if (request->type == CLIENTREQUEST_LIST_KEYS)
+        response->type = CLIENTRESPONSE_LIST_KEYS;
+    else
+        response->type = CLIENTRESPONSE_LIST_KEYVALUES;
+
+    request->responses.Append(response);
+
+    FOREACH(itProxyRequest, proxiedRequests)
+    {
+        if (request->count > 0 && keys.GetLength() == request->count)
+            break;
+        if (itProxyRequest->tableID < request->tableID)
+            continue;
+        if (itProxyRequest->tableID > request->tableID)
+            break;
+        if (request->endKey.GetLength() > 0)
+        {
+            cmp = Buffer::Cmp(itProxyRequest->key, request->endKey);
+            if (cmp >= 0)
+                break;
+        }
+        
+        if (itProxyRequest->key.BeginsWith(request->prefix))
+        {
+            cmp = Buffer::Cmp(itProxyRequest->key, request->key /*startKey*/);
+            if (cmp >= 0)
+            {
+                key.Wrap(itProxyRequest->key);
+                keys.Append(key);
+                if (request->type == CLIENTREQUEST_LIST_KEYVALUES)
+                {
+                    value.Wrap(itProxyRequest->value);
+                    values.Append(value);
+                }
+            }
+        }
+    }
+    i = 0;
+    response->keys = new ReadBuffer[keys.GetLength()];
+    response->values = new ReadBuffer[values.GetLength()];
+    FOREACH(itKey, keys)
+    {
+        response->keys[i] = *itKey;
+        if (request->type == CLIENTREQUEST_LIST_KEYVALUES)
+            response->values[i] = *itValue;
+        i++;
+    }    
 }
 
 void Client::Lock()

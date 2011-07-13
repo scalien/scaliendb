@@ -176,6 +176,8 @@ private:
                              ConfigQuorum* quorum);
     uint64_t                GetRequestPaxosID();
     
+    void                    AppendProxyListResponse();
+    
     int64_t                 master;
     uint64_t                commandID;
     uint64_t                masterCommandID;
