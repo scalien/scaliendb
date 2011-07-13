@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1250"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="ScalienClientCSharpDLL"
 	ProjectGUID="{F715807D-757A-4A04-B010-D794D1A39E86}"
 	RootNamespace="ScalienClientDLL"
@@ -135,7 +135,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib ..\bin\scaliendb_client.lib"
+				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib psapi.lib ..\bin\scaliendb_client.lib"
 				OutputFile="$(OutDir)\scaliendb_client.dll"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"
