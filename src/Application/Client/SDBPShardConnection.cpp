@@ -37,7 +37,7 @@ bool ShardConnection::SendRequest(Request* request)
     SDBPRequestMessage  msg;
     
     if (request->IsList())
-        Log_Trace("count: %u, offset: %u", request->count, request->offset);
+        Log_Trace("count: %u", request->count);
     
     if (!request->isBulk)
     {
@@ -172,7 +172,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             {
                 client->NextRequest(
                  request, response.value, response.endKey, response.prefix,
-                 response.number, response.offset);
+                 response.number);
                 client->ReassignRequest(request);
                 client->SendQuorumRequests();
                 return false;

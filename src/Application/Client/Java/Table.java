@@ -249,13 +249,12 @@ public class Table
      * @param   startKey    listing starts at this key
      * @param   endKey      listing ends at this key
      * @param   prefix      list only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-    public List<String> listKeys(String startKey, String endKey, String prefix, int offset, int count) throws SDBPException {
+    public List<String> listKeys(String startKey, String endKey, String prefix, int count) throws SDBPException {
         useDefaults();
-        return client.listKeys(startKey, endKey, prefix, offset, count);
+        return client.listKeys(startKey, endKey, prefix, count);
     }
 
     /**
@@ -264,13 +263,12 @@ public class Table
      * @param   startKey    listing starts at this key
      * @param   endKey      listing ends at this key
      * @param   prefix      list only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int offset, int count) throws SDBPException {
+    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count) throws SDBPException {
         useDefaults();
-        return client.listKeys(startKey, endKey, prefix, offset, count);
+        return client.listKeys(startKey, endKey, prefix, count);
     }
 
     /**
@@ -279,13 +277,12 @@ public class Table
      * @param   startKey    listing starts at this key
      * @param   endKey      listing ends at this key
      * @param   prefix      list only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int offset, int count) throws SDBPException {
+    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count) throws SDBPException {
         useDefaults();
-        return client.listKeyValues(startKey, endKey, prefix, offset, count);
+        return client.listKeyValues(startKey, endKey, prefix, count);
     }
     
     /**
@@ -294,13 +291,12 @@ public class Table
      * @param   startKey    listing starts at this key
      * @param   endKey      listing ends at this key
      * @param   prefix      list only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int offset, int count) throws SDBPException {
+    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count) throws SDBPException {
         useDefaults();
-        return client.listKeyValues(startKey, endKey, prefix, offset, count);
+        return client.listKeyValues(startKey, endKey, prefix, count);
     }
 
     /**
@@ -309,13 +305,11 @@ public class Table
      * @param   startKey    counting starts at this key
      * @param   endKey      counting ends at this key
      * @param   prefix      count only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
-     * @param   count       specifies the maximum number of keys returned
      * @return              the number of key-value pairs
      */
-    public long count(String startKey, String endKey, String prefix, int offset, int count) throws SDBPException {
+    public long count(String startKey, String endKey, String prefix) throws SDBPException {
         useDefaults();
-        return client.count(startKey, endKey, prefix, offset, count);
+        return client.count(startKey, endKey, prefix);
     }
     
     /**
@@ -324,12 +318,10 @@ public class Table
      * @param   startKey    counting starts at this key
      * @param   endKey      counting ends at this key
      * @param   prefix      count only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
-     * @param   count       specifies the maximum number of keys returned
      * @return              the number of key-value pairs
      */
-    public long count(byte[] startKey, byte[] endKey, byte[] prefix, int offset, int count) throws SDBPException {
+    public long count(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
         useDefaults();
-        return client.count(startKey, endKey, prefix, offset, count);    
+        return client.count(startKey, endKey, prefix);    
     }
 }

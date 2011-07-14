@@ -783,8 +783,7 @@ int Client::Remove(const ReadBuffer& key)
 }
 
 int Client::ListKeys(
- const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, 
- unsigned count, unsigned offset)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, unsigned count)
 {
     Request*    req;
 
@@ -796,8 +795,7 @@ int Client::ListKeys(
     req = new Request;
     req->userCount = count;
     req->ListKeys(NextCommandID(), tableID,
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, 
-     count, offset);
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
     if (req->userCount > 0)
     {
         // fetch more from server in case proxied deletes override
@@ -817,8 +815,7 @@ int Client::ListKeys(
 }
 
 int Client::ListKeyValues(
- const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
- unsigned count, unsigned offset)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, unsigned count)
 {
     Request*    req;
 
@@ -830,8 +827,7 @@ int Client::ListKeyValues(
     req = new Request;
     req->userCount = count;
     req->ListKeyValues(NextCommandID(), tableID,
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix,
-     count, offset);
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
     if (req->userCount > 0)
     {
         // fetch more from server in case proxied deletes override
@@ -851,17 +847,15 @@ int Client::ListKeyValues(
 }
 
 int Client::Count(
- const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
- unsigned count, unsigned offset)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix)
 {
     CLIENT_DATA_COMMAND(Count,
-     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix,
-     count, offset);
+     (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix);
 }
 
 int Client::Filter(
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
- unsigned count, unsigned offset, uint64_t& commandID)
+ unsigned count, uint64_t& commandID)
 {
     return SDBP_API_ERROR;
 }
@@ -1465,7 +1459,7 @@ void Client::InvalidateQuorumRequests(uint64_t quorumID)
 
 void Client::NextRequest(
  Request* req, ReadBuffer nextShardKey, ReadBuffer endKey, ReadBuffer prefix,
- uint64_t count, uint64_t offset)
+ uint64_t count)
 {
     ConfigTable*    configTable;
     ConfigShard*    configShard;
@@ -1473,13 +1467,10 @@ void Client::NextRequest(
     uint64_t        nextShardID;
     ReadBuffer      minKey;
     
-    Log_Trace("count: %U, offset: %U, nextShardKey: %R", count, offset, &nextShardKey);
+    Log_Trace("count: %U, nextShardKey: %R", count, &nextShardKey);
     
     if (req->count > 0)
         req->count = count;
-
-    if (req->offset > 0)
-        req->offset = offset;
 
     configTable = configState->GetTable(req->tableID);
     ASSERT(configTable != NULL);

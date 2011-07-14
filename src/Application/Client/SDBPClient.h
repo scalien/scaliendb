@@ -116,15 +116,14 @@ public:
     int                     Remove(const ReadBuffer& key);
 
     int                     ListKeys(const ReadBuffer& startKey, const ReadBuffer& endKey,
-                             const ReadBuffer& prefix, unsigned count, unsigned offset);
+                             const ReadBuffer& prefix, unsigned count);
     int                     ListKeyValues(const ReadBuffer& startKey, const ReadBuffer& endKey, 
-                             const ReadBuffer& prefix, unsigned count, unsigned offset);    
+                             const ReadBuffer& prefix, unsigned count);
     int                     Count(const ReadBuffer& startKey, const ReadBuffer& endKey, 
-                             const ReadBuffer& prefix, unsigned count, unsigned offset);    
+                             const ReadBuffer& prefix);    
 
     int                     Filter(const ReadBuffer& startKey, const ReadBuffer& endKey,
-                             const ReadBuffer& prefix, unsigned count, unsigned offset, 
-                             uint64_t& commandID);
+                             const ReadBuffer& prefix, unsigned count, uint64_t& commandID);
     int                     Receive(uint64_t commandID);
     
     int                     Begin();
@@ -164,7 +163,7 @@ private:
     void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
     void                    NextRequest(Request* req, ReadBuffer nextShardKey, ReadBuffer endKey,
-                             ReadBuffer prefix, uint64_t count, uint64_t offset);
+                             ReadBuffer prefix, uint64_t count);
 
     void                    ConfigureShardServers();
     ShardConnection*        GetShardConnection(uint64_t nodeID);

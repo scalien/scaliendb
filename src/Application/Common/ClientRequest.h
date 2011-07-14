@@ -152,17 +152,16 @@ public:
                      uint64_t commandID,
                      uint64_t tableID, 
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
-                     unsigned count, unsigned offset);
+                     unsigned count);
     bool            ListKeyValues(
                      uint64_t commandID,
                      uint64_t tableID,
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
-                     unsigned count, unsigned offset);
+                     unsigned count);
     bool            Count(
                      uint64_t commandID,
                      uint64_t tableID,
-                     ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
-                     unsigned count, unsigned offset);
+                     ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix);
 
 
     bool            Submit(
@@ -185,7 +184,6 @@ public:
     uint64_t        paxosID;
     int64_t         number;
     uint64_t        count;
-    uint64_t        offset;
     Buffer          name;
     Buffer          key;
     Buffer          prefix;

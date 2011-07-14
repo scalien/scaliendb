@@ -18,7 +18,7 @@ public:
     StorageUnwrittenChunkLister();
     
     void                    Init(StorageFileChunk* chunk, ReadBuffer& startKey, 
-                             unsigned count, unsigned offset);
+                             unsigned count);
 
     void                    Load();
     

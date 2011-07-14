@@ -23,7 +23,6 @@ void ClientResponse::Init()
     type = CLIENTRESPONSE_NORESPONSE;
     numKeys = 0;
     number = 0;
-    offset = 0;
     paxosID = 0;
     value.Reset();
     isConditionalSuccess = false;
@@ -218,14 +217,13 @@ bool ClientResponse::Hello()
 
 bool ClientResponse::Next(
  ReadBuffer& nextShardKey, ReadBuffer& endKey_, ReadBuffer& prefix_,
- uint64_t count, uint64_t offset_)
+ uint64_t count)
 {
     type = CLIENTRESPONSE_NEXT;
     value = nextShardKey;
     endKey = endKey_;
     prefix = prefix_;
     number = count;
-    offset = offset_;
     return true;
 }
 

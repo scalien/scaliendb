@@ -338,17 +338,17 @@ class Client:
             self.use_defaults()
             return self.client.delete(key)
 
-        def list_keys(self, start_key="", end_key="", prefix="", count=0, offset=0):
+        def list_keys(self, start_key="", end_key="", prefix="", count=0):
             self.use_defaults()
-            return self.client.list_keys(start_key, end_key, prefix, count, offset)
+            return self.client.list_keys(start_key, end_key, prefix, count)
 
-        def list_key_values(self, start_key="", end_key="", prefix="", count=0, offset=0):
+        def list_key_values(self, start_key="", end_key="", prefix="", count=0):
             self.use_defaults()
-            return self.client.list_key_values(start_key, end_key, prefix, count, offset)
+            return self.client.list_key_values(start_key, end_key, prefix, count)
 
-        def count(self, start_key="", end_key="", prefix="", count=0, offset=0):
+        def count(self, start_key="", end_key="", prefix=""):
             self.use_defaults()
-            return self.client.count(start_key, end_key, prefix, count, offset)
+            return self.client.count(start_key, end_key, prefix)
 
     def __init__(self, nodes):
         self.cptr = SDBP_Create()
@@ -1012,7 +1012,7 @@ class Client:
         key = Util.typemap(key)
         status, ret = self._data_command(SDBP_Delete, key)
 
-    def list_keys(self, start_key="", end_key="", prefix="", count=0, offset=0):
+    def list_keys(self, start_key="", end_key="", prefix="", count=0):
         """
         Lists the keys of a table. Returns a list of strings.
         
@@ -1024,12 +1024,10 @@ class Client:
             prefix (string): keys must start with prefix
             
             count (long): the maximum number of keys to be returned (default=0)
-            
-            offset (long): start the listing at this offset (default=0)
         """
         start_key = Util.typemap(start_key)
         end_key = Util.typemap(end_key)
-        status = SDBP_ListKeys(self.cptr, start_key, end_key, prefix, count, offset)
+        status = SDBP_ListKeys(self.cptr, start_key, end_key, prefix, count)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         keys = []
@@ -1039,7 +1037,7 @@ class Client:
             self.result.next()
         return keys
 
-    def list_key_values(self, start_key="", end_key="", prefix="", count=0, offset=0):
+    def list_key_values(self, start_key="", end_key="", prefix="", count=0):
         """
         Lists the keys and values of a table. Returns a dict of key-value pairs.
         
@@ -1051,12 +1049,10 @@ class Client:
             prefix (string): keys must start with prefix
             
             count (long): the maximum number of keys to be returned (default=0)
-            
-            offset (long): start the listing at this offset (default=0)
         """
         start_key = Util.typemap(start_key)
         end_key = Util.typemap(end_key)
-        status = SDBP_ListKeyValues(self.cptr, start_key, end_key, prefix, count, offset)
+        status = SDBP_ListKeyValues(self.cptr, start_key, end_key, prefix, count)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         key_values = {}
@@ -1066,9 +1062,9 @@ class Client:
             self.result.next()
         return key_values
 
-    def count(self, start_key="", end_key="", prefix="", count=0, offset=0):
+    def count(self, start_key="", end_key="", prefix=""):
         """
-        Counts the number of items in a table. Returns the number of found items.
+        Approximates the number of matching items in a table.
         
         Args:
             start_key (string): the key from where the listing starts (default="")
@@ -1076,14 +1072,10 @@ class Client:
             end_key (string): the key where the listing ends (default="")
 
             prefix (string): keys must start with prefix
-            
-            count (long): the maximum number of keys to be returned (default=0)
-            
-            offset (long): start the listing at this offset (default=0)
         """
         start_key = Util.typemap(start_key)
         end_key = Util.typemap(end_key)
-        status = SDBP_Count(self.cptr, start_key, end_key, prefix, count, offset)
+        status = SDBP_Count(self.cptr, start_key, end_key, prefix)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         return self.result.number()        

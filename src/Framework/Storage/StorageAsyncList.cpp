@@ -43,7 +43,6 @@ uint32_t StorageAsyncListResult::GetSize()
 StorageAsyncList::StorageAsyncList()
 {
     count = 0;
-    offset = 0;
     Init();
 }
 
@@ -110,14 +109,14 @@ void StorageAsyncList::ExecuteAsyncList()
             if (chunkState == StorageChunk::Serialized)
             {
                 memoLister = new StorageMemoChunkLister;
-                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, count, offset);
+                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, count);
                 listers[numListers] = memoLister;
                 numListers++;
             }
             else if (chunkState == StorageChunk::Unwritten)
             {
                 unwrittenLister = new StorageUnwrittenChunkLister;
-                unwrittenLister->Init((StorageFileChunk*) *itChunk, firstKey, count, offset);
+                unwrittenLister->Init((StorageFileChunk*) *itChunk, firstKey, count);
                 listers[numListers] = unwrittenLister;
                 numListers++;
             }
@@ -160,7 +159,7 @@ void StorageAsyncList::LoadMemoChunk()
     firstKey.Wrap(shardFirstKey);
     
     memoLister = new StorageMemoChunkLister;
-    memoLister->Init(shard->GetMemoChunk(), firstKey, count, offset);
+    memoLister->Init(shard->GetMemoChunk(), firstKey, count);
 
     // memochunk is always on the last position, because it is the most current
     listers[numListers] = memoLister;
@@ -206,13 +205,7 @@ void StorageAsyncList::AsyncMergeResult()
         
         if (prefix.GetLength() != 0 && !it->GetKey().BeginsWith(prefix))
             break;
-        
-        if (offset > 0)
-        {
-            offset--;
-            continue;
-        }
-        
+                
         result->Append(it);
         num++;
                 
@@ -330,7 +323,6 @@ Restart:
         }
     }
 
-Done:
     // make progress in the lister that contained the smallest key
     if (it != NULL)
         iterators[smallest] = listers[smallest]->Next(iterators[smallest]);

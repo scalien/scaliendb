@@ -405,7 +405,7 @@ bool ClientRequest::Remove(
 bool ClientRequest::ListKeys(
  uint64_t commandID_, uint64_t tableID_, 
  ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_,
- unsigned count_, unsigned offset_)
+ unsigned count_)
 {
     type = CLIENTREQUEST_LIST_KEYS;
     commandID = commandID_;
@@ -414,14 +414,13 @@ bool ClientRequest::ListKeys(
     endKey.Write(endKey_);
     prefix.Write(prefix_);
     count = count_;
-    offset = offset_;
     return true;
 }
 
 bool ClientRequest::ListKeyValues(
  uint64_t commandID_, uint64_t tableID_,
  ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_,
- unsigned count_, unsigned offset_)
+ unsigned count_)
 {
     type = CLIENTREQUEST_LIST_KEYVALUES;
     commandID = commandID_;
@@ -430,14 +429,12 @@ bool ClientRequest::ListKeyValues(
     endKey.Write(endKey_);
     prefix.Write(prefix_);
     count = count_;
-    offset = offset_;
     return true;
 }
 
 bool ClientRequest::Count(
  uint64_t commandID_, uint64_t tableID_,
- ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_,
- unsigned count_, unsigned offset_)
+ ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_)
 {
     type = CLIENTREQUEST_COUNT;
     commandID = commandID_;
@@ -445,8 +442,6 @@ bool ClientRequest::Count(
     key.Write(startKey_);
     endKey.Write(endKey_);
     prefix.Write(prefix_);
-    count = count_;
-    offset = offset_;
     return true;
 }
 

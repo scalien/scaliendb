@@ -200,27 +200,25 @@ int             SDBP_RemoveCStr(ClientObj client_, char* key, int len);
 int             SDBP_ListKeys(
                  ClientObj client, 
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
-                 unsigned count, unsigned offset);
+                 unsigned count);
 int             SDBP_ListKeysCStr(
                  ClientObj client,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
-                 unsigned count, unsigned offset);
+                 unsigned count);
 int             SDBP_ListKeyValues(
                  ClientObj client, 
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
-                 unsigned count, unsigned offset);
+                 unsigned count);
 int             SDBP_ListKeyValuesCStr(
                  ClientObj client,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
-                 unsigned count, unsigned offset);
+                 unsigned count);
 int             SDBP_Count(
                  ClientObj client,
-                 const std::string& startKey, const std::string& endKey, const std::string& prefix,
-                 unsigned count, unsigned offset);
+                 const std::string& startKey, const std::string& endKey, const std::string& prefix);
 int             SDBP_CountCStr(
                  ClientObj client,
-                 char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
-                 unsigned count, unsigned offset);
+                 char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen);
 
 /*
 ===============================================================================================

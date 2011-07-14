@@ -733,13 +733,12 @@ public class Client
      * @param   startKey    listing starts at this key
      * @param   endKey      listing ends at this key
      * @param   prefix      list only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-    public List<String> listKeys(String startKey, String endKey, String prefix, int offset, int count)
+    public List<String> listKeys(String startKey, String endKey, String prefix, int count)
     throws SDBPException {
-        int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, offset);
+        int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count);
         checkResultStatus(status);
 
         ArrayList<String> keys = new ArrayList<String>();
@@ -755,14 +754,13 @@ public class Client
      * @param   startKey    listing starts at this key
      * @param   endKey      listing ends at this key
      * @param   prefix      list only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int offset, int count)
+    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count)
     throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, 
-        endKey, endKey.length, prefix, prefix.length, count, offset);
+        endKey, endKey.length, prefix, prefix.length, count);
         checkResultStatus(status);
 
         ArrayList<byte[]> keys = new ArrayList<byte[]>();
@@ -778,13 +776,12 @@ public class Client
      * @param   startKey    listing starts at this key
      * @param   endKey      listing ends at this key
      * @param   prefix      list only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int offset, int count)
+    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count)
     throws SDBPException {
-        int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, offset);
+        int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count);
         checkResultStatus(status);
             
         TreeMap<String, String> keyValues = new TreeMap<String, String>();
@@ -828,12 +825,11 @@ public class Client
      * @param   startKey    listing starts at this key
      * @param   endKey      listing ends at this key
      * @param   prefix      list only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int offset, int count) throws SDBPException {
-        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length, count, offset);
+    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count) throws SDBPException {
+        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length, count);
         checkResultStatus(status);
             
         TreeMap<byte[], byte[]> keyValues = new TreeMap<byte[], byte[]>(new ByteArrayComparator());
@@ -849,12 +845,10 @@ public class Client
      * @param   startKey    counting starts at this key
      * @param   endKey      counting ends at this key
      * @param   prefix      count only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
-     * @param   count       specifies the maximum number of keys returned
      * @return              the number of key-value pairs
      */
-    public long count(String startKey, String endKey, String prefix, int offset, int count) throws SDBPException {
-        int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, prefix, count, offset);
+    public long count(String startKey, String endKey, String prefix) throws SDBPException {
+        int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, prefix);
         checkResultStatus(status);        
         return result.getNumber();
     }
@@ -865,12 +859,10 @@ public class Client
      * @param   startKey    counting starts at this key
      * @param   endKey      counting ends at this key
      * @param   prefix      count only those keys that starts with prefix
-     * @param   offset      specifies the offset of the first key to return
-     * @param   count       specifies the maximum number of keys returned
      * @return              the number of key-value pairs
      */
-    public long count(byte[] startKey, byte[] endKey, byte[] prefix, int offset, int count) throws SDBPException {
-        int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length, count, offset);
+    public long count(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
+        int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length);
         checkResultStatus(status);
         return result.getNumber();
     }
