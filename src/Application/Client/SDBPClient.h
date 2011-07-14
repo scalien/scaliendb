@@ -116,9 +116,9 @@ public:
     int                     Remove(const ReadBuffer& key);
 
     int                     ListKeys(const ReadBuffer& startKey, const ReadBuffer& endKey,
-                             const ReadBuffer& prefix, unsigned count);
+                             const ReadBuffer& prefix, unsigned count, bool skip);
     int                     ListKeyValues(const ReadBuffer& startKey, const ReadBuffer& endKey, 
-                             const ReadBuffer& prefix, unsigned count);
+                             const ReadBuffer& prefix, unsigned count, bool skip);
     int                     Count(const ReadBuffer& startKey, const ReadBuffer& endKey, 
                              const ReadBuffer& prefix);    
 
@@ -175,7 +175,7 @@ private:
                              ConfigQuorum* quorum);
     uint64_t                GetRequestPaxosID();
     
-    void                    AppendProxyListResponse();
+    void                    ComputeListResponse();
     uint64_t                NumProxiedDeletes(Request* request);
     
     int64_t                 master;
@@ -191,7 +191,7 @@ private:
     RequestList             requests;
     RequestMap              proxiedRequests;
     unsigned                batchLimit;
-    unsigned				proxySize;
+    int64_t                 proxySize;
     ShardConnectionMap      shardConnections;
     ControllerConnection**  controllerConnections;
     int                     numControllers;

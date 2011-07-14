@@ -126,10 +126,10 @@ class scaliendb_clientJNI {
   public final static native int SDBP_TestAndDeleteCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
   public final static native int SDBP_Remove(long jarg1, String jarg2);
   public final static native int SDBP_RemoveCStr(long jarg1, byte[] jarg2, int jarg3);
-  public final static native int SDBP_ListKeys(long jarg1, String jarg2, String jarg3, String jarg4, long jarg5);
-  public final static native int SDBP_ListKeysCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7, long jarg8);
-  public final static native int SDBP_ListKeyValues(long jarg1, String jarg2, String jarg3, String jarg4, long jarg5);
-  public final static native int SDBP_ListKeyValuesCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7, long jarg8);
+  public final static native int SDBP_ListKeys(long jarg1, String jarg2, String jarg3, String jarg4, long jarg5, boolean jarg6);
+  public final static native int SDBP_ListKeysCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7, long jarg8, boolean jarg9);
+  public final static native int SDBP_ListKeyValues(long jarg1, String jarg2, String jarg3, String jarg4, long jarg5, boolean jarg6);
+  public final static native int SDBP_ListKeyValuesCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7, long jarg8, boolean jarg9);
   public final static native int SDBP_Count(long jarg1, String jarg2, String jarg3, String jarg4);
   public final static native int SDBP_CountCStr(long jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7);
   public final static native int SDBP_Begin(long jarg1);

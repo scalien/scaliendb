@@ -1176,7 +1176,7 @@ TEST_DEFINE(TestClientMaro)
 
     for (int i = 0; i < 10; i++)
     {
-        k.Writef("%04d", i);
+        k.Writef("/test/%04d", i);
         v.Writef("%04d", i);
         rk.Wrap(k);
         rv.Wrap(v);
@@ -1186,7 +1186,7 @@ TEST_DEFINE(TestClientMaro)
 
     for (int i = 5; i < 15; i++)
     {
-        k.Writef("%04d", i);
+        k.Writef("/test/%04d", i);
         v.Writef("%04d", i*i);
         rk.Wrap(k);
         rv.Wrap(v);
@@ -1195,12 +1195,12 @@ TEST_DEFINE(TestClientMaro)
 
     for (int i = 5; i < 10; i++)
     {
-        k.Writef("%04d", i);
+        k.Writef("/test/%04d", i);
         rk.Wrap(k);
         client.Delete(rk);
     }
 
-    client.ListKeyValues("", "", "", 0, 0);
+    client.ListKeyValues("/test/0002", "", "", 3, true);
 
     result = client.GetResult();
     for (result->Begin(); !result->IsEnd(); result->Next())
@@ -1213,7 +1213,6 @@ TEST_DEFINE(TestClientMaro)
         TEST_LOG("%.*s => %.*s",
          rk.GetLength(), rk.GetBuffer(), rv.GetLength(), rv.GetBuffer());
     }
-
     
     return TEST_SUCCESS;
 }
@@ -1606,40 +1605,40 @@ TEST_DEFINE(TestClientActivateNode)
 
 TEST_DEFINE(TestClientFilter)
 {
-    uint64_t        commandID;
-    Client          client;
-    Result*         result;
-    ReadBuffer      key;
-    ReadBuffer      value;
-    
-    TEST(SetupDefaultClient(client));
-    
-    // filter through all key-values in the database
-    TEST(client.Filter("", "", "", 1000*1000*1000, 0, commandID));
-
-    do
-    {
-        result = client.GetResult();
-        for (result->Begin(); !result->IsEnd(); result->Next())
-        {
-            TEST(result->GetKey(key));
-            TEST(result->GetValue(value));
-            if (ReadBuffer::Cmp(value, "1111") > 0 && ReadBuffer::Cmp(value, "11112") < 0)
-                TEST_LOG("%.*s => %.*s", key.GetLength(), key.GetBuffer(), value.GetLength(), value.GetBuffer());
-        }
-
-        if (result->IsFinished())
-        {
-            delete result;
-            break;
-        }
-        
-        delete result;
-        TEST(client.Receive(commandID));
-    }
-    while (true);
-    
-    return TEST_SUCCESS;
+//    uint64_t        commandID;
+//    Client          client;
+//    Result*         result;
+//    ReadBuffer      key;
+//    ReadBuffer      value;
+//    
+//    TEST(SetupDefaultClient(client));
+//    
+//    // filter through all key-values in the database
+//    TEST(client.Filter("", "", "", 1000*1000*1000, 0, commandID));
+//
+//    do
+//    {
+//        result = client.GetResult();
+//        for (result->Begin(); !result->IsEnd(); result->Next())
+//        {
+//            TEST(result->GetKey(key));
+//            TEST(result->GetValue(value));
+//            if (ReadBuffer::Cmp(value, "1111") > 0 && ReadBuffer::Cmp(value, "11112") < 0)
+//                TEST_LOG("%.*s => %.*s", key.GetLength(), key.GetBuffer(), value.GetLength(), value.GetBuffer());
+//        }
+//
+//        if (result->IsFinished())
+//        {
+//            delete result;
+//            break;
+//        }
+//        
+//        delete result;
+//        TEST(client.Receive(commandID));
+//    }
+//    while (true);
+//    
+//    return TEST_SUCCESS;
 }
 
 // emulate Filter with ListKeyValues
@@ -1696,7 +1695,7 @@ TEST_DEFINE(TestClientCount)
     uint64_t        number;
     
     TEST(SetupDefaultClient(client));
-    TEST(client.Count("", "", "", 0, 0));
+    TEST(client.Count("", "", ""));
     
     result = client.GetResult();
     TEST(result->GetNumber(number));

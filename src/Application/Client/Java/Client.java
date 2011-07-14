@@ -736,9 +736,9 @@ public class Client
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-    public List<String> listKeys(String startKey, String endKey, String prefix, int count)
+    public List<String> listKeys(String startKey, String endKey, String prefix, int count, boolean skip)
     throws SDBPException {
-        int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count);
+        int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, skip);
         checkResultStatus(status);
 
         ArrayList<String> keys = new ArrayList<String>();
@@ -757,10 +757,10 @@ public class Client
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count)
+    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip)
     throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, 
-        endKey, endKey.length, prefix, prefix.length, count);
+        endKey, endKey.length, prefix, prefix.length, count, skip);
         checkResultStatus(status);
 
         ArrayList<byte[]> keys = new ArrayList<byte[]>();
@@ -779,9 +779,9 @@ public class Client
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count)
+    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count, boolean skip)
     throws SDBPException {
-        int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count);
+        int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, skip);
         checkResultStatus(status);
             
         TreeMap<String, String> keyValues = new TreeMap<String, String>();
@@ -828,8 +828,8 @@ public class Client
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count) throws SDBPException {
-        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length, count);
+    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
+        int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length, count, skip);
         checkResultStatus(status);
             
         TreeMap<byte[], byte[]> keyValues = new TreeMap<byte[], byte[]>(new ByteArrayComparator());

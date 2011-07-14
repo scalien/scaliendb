@@ -252,9 +252,9 @@ public class Table
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-    public List<String> listKeys(String startKey, String endKey, String prefix, int count) throws SDBPException {
+    public List<String> listKeys(String startKey, String endKey, String prefix, int count, boolean skip) throws SDBPException {
         useDefaults();
-        return client.listKeys(startKey, endKey, prefix, count);
+        return client.listKeys(startKey, endKey, prefix, count, skip);
     }
 
     /**
@@ -266,9 +266,9 @@ public class Table
      * @param   count       specifies the number of keys returned
      * @return              the list of keys
      */
-    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count) throws SDBPException {
+    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
         useDefaults();
-        return client.listKeys(startKey, endKey, prefix, count);
+        return client.listKeys(startKey, endKey, prefix, count, skip);
     }
 
     /**
@@ -280,9 +280,9 @@ public class Table
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count) throws SDBPException {
+    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count, boolean skip) throws SDBPException {
         useDefaults();
-        return client.listKeyValues(startKey, endKey, prefix, count);
+        return client.listKeyValues(startKey, endKey, prefix, count, skip);
     }
     
     /**
@@ -294,9 +294,9 @@ public class Table
      * @param   count       specifies the number of keys returned
      * @return              the list of key-value pairs
      */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count) throws SDBPException {
+    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
         useDefaults();
-        return client.listKeyValues(startKey, endKey, prefix, count);
+        return client.listKeyValues(startKey, endKey, prefix, count, skip);
     }
 
     /**

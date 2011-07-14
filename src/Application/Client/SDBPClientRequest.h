@@ -47,6 +47,7 @@ public:
     ShardConnList   shardConns;
     Request*        parent;
     uint64_t        userCount;
+    bool            skip;
 };
 
 };  // namespace

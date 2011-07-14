@@ -781,7 +781,8 @@ int Client::Remove(const ReadBuffer& key)
 }
 
 int Client::ListKeys(
- const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, unsigned count)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
+ unsigned count, bool skip)
 {
     Request*    req;
 
@@ -792,28 +793,32 @@ int Client::ListKeys(
 
     req = new Request;
     req->userCount = count;
+    req->skip = skip;
     req->ListKeys(NextCommandID(), tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
+
     if (req->userCount > 0)
     {
         // fetch more from server in case proxied deletes override
         req->count += NumProxiedDeletes(req);
-        
+        if (skip)
+            req->count++; // fetch one more from server in case of skip
     }
+
     AppendDataRequest(req);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
 
-    // only keep as many keyvalues as the user asked for
     req->count = req->userCount;
+    ComputeListResponse();
 
-    AppendProxyListResponse();
     return result->GetCommandStatus();
 }
 
 int Client::ListKeyValues(
- const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix, unsigned count)
+ const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
+ unsigned count, bool skip)
 {
     Request*    req;
 
@@ -824,23 +829,26 @@ int Client::ListKeyValues(
 
     req = new Request;
     req->userCount = count;
+    req->skip = skip;
     req->ListKeyValues(NextCommandID(), tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
+
     if (req->userCount > 0)
     {
         // fetch more from server in case proxied deletes override
         req->count += NumProxiedDeletes(req);
-        
+        if (skip)
+            req->count++; // fetch one more from server in case of skip
     }
+
     AppendDataRequest(req);
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
 
-    // only keep as many keyvalues as the user asked for
     req->count = req->userCount;
+    ComputeListResponse();
 
-    AppendProxyListResponse();
     return result->GetCommandStatus();
 }
 
@@ -1568,7 +1576,7 @@ uint64_t Client::GetRequestPaxosID()
     return 0;
 }
 
-void Client::AppendProxyListResponse()
+void Client::ComputeListResponse()
 {
     bool                    isDelete;
     unsigned                i;
@@ -1605,8 +1613,6 @@ void Client::AppendProxyListResponse()
     // compute proxied result into proxyKeys/proxyValues
     FOREACH(itProxyRequest, proxiedRequests)
     {
-        if (request->count > 0 && proxyKeys.GetLength() == request->count)
-            break;
         if (itProxyRequest->tableID < request->tableID)
             continue;
         if (itProxyRequest->tableID > request->tableID)
@@ -1621,7 +1627,9 @@ void Client::AppendProxyListResponse()
         if (itProxyRequest->key.BeginsWith(request->prefix))
         {
             cmp = Buffer::Cmp(itProxyRequest->key, request->key /*startKey*/);
-            if (cmp >= 0)
+            if (cmp == 0 && request->skip)
+                continue;
+            else if (cmp >= 0)
             {
                 key.Wrap(itProxyRequest->key);
                 proxyKeys.Append(key);
@@ -1640,6 +1648,11 @@ void Client::AppendProxyListResponse()
     for (result->Begin(); !result->IsEnd(); result->Next())
     {
         result->GetKey(key);
+
+        cmp = ReadBuffer::Cmp(key, request->key /*startKey*/);
+        if (cmp == 0 && request->skip)
+            continue;
+
         serverKeys.Append(key);
         if (request->type == CLIENTREQUEST_LIST_KEYVALUES)
         {

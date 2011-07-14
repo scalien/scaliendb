@@ -338,13 +338,13 @@ class Client:
             self.use_defaults()
             return self.client.delete(key)
 
-        def list_keys(self, start_key="", end_key="", prefix="", count=0):
+        def list_keys(self, start_key="", end_key="", prefix="", count=0, skip=False):
             self.use_defaults()
-            return self.client.list_keys(start_key, end_key, prefix, count)
+            return self.client.list_keys(start_key, end_key, prefix, count, skip)
 
-        def list_key_values(self, start_key="", end_key="", prefix="", count=0):
+        def list_key_values(self, start_key="", end_key="", prefix="", count=0, skip=False):
             self.use_defaults()
-            return self.client.list_key_values(start_key, end_key, prefix, count)
+            return self.client.list_key_values(start_key, end_key, prefix, count, skip)
 
         def count(self, start_key="", end_key="", prefix=""):
             self.use_defaults()
@@ -1012,7 +1012,7 @@ class Client:
         key = Util.typemap(key)
         status, ret = self._data_command(SDBP_Delete, key)
 
-    def list_keys(self, start_key="", end_key="", prefix="", count=0):
+    def list_keys(self, start_key="", end_key="", prefix="", count=0, skip=False):
         """
         Lists the keys of a table. Returns a list of strings.
         
@@ -1024,10 +1024,12 @@ class Client:
             prefix (string): keys must start with prefix
             
             count (long): the maximum number of keys to be returned (default=0)
+            
+            skip (skip): skip start_key if found (default=False)
         """
         start_key = Util.typemap(start_key)
         end_key = Util.typemap(end_key)
-        status = SDBP_ListKeys(self.cptr, start_key, end_key, prefix, count)
+        status = SDBP_ListKeys(self.cptr, start_key, end_key, prefix, count, skip)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         keys = []
@@ -1037,7 +1039,7 @@ class Client:
             self.result.next()
         return keys
 
-    def list_key_values(self, start_key="", end_key="", prefix="", count=0):
+    def list_key_values(self, start_key="", end_key="", prefix="", count=0, skip=False):
         """
         Lists the keys and values of a table. Returns a dict of key-value pairs.
         
@@ -1049,10 +1051,12 @@ class Client:
             prefix (string): keys must start with prefix
             
             count (long): the maximum number of keys to be returned (default=0)
+            
+            skip (skip): skip start_key if found (default=False)
         """
         start_key = Util.typemap(start_key)
         end_key = Util.typemap(end_key)
-        status = SDBP_ListKeyValues(self.cptr, start_key, end_key, prefix, count)
+        status = SDBP_ListKeyValues(self.cptr, start_key, end_key, prefix, count, skip)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
         key_values = {}

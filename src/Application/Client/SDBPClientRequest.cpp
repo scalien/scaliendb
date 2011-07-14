@@ -8,6 +8,7 @@ Request::Request()
     numShardServers = 0;
     async = false;
     multi = false;
+    skip = false;
     parent = NULL;
 }
 
