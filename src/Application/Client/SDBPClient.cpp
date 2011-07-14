@@ -727,7 +727,6 @@ int Client::Add(const ReadBuffer& key, int64_t number)
             if (itRequest->type == CLIENTREQUEST_SET)
             {
                 proxiedRequests.Remove(itRequest);
-                itRequest->isBulk = false;
                 requests.Append(itRequest);
                 result->AppendRequest(itRequest);
                 proxySize -= REQUEST_SIZE(itRequest);
@@ -743,7 +742,6 @@ int Client::Add(const ReadBuffer& key, int64_t number)
 
     req = new Request;
     req->Add(NextCommandID(), tableID, (ReadBuffer&) key, number);
-    req->isBulk = false;
     requests.Append(req);
     result->AppendRequest(req);
     CLIENT_MUTEX_GUARD_UNLOCK();
@@ -1095,7 +1093,6 @@ void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState
 
 void Client::AppendDataRequest(Request* req)
 {
-    req->isBulk = false;
     requests.Append(req);
     result->Close();
     result->AppendRequest(req);
@@ -1248,7 +1245,6 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     RequestList*        qrequests;
     Request*            req;
     ConfigQuorum*       quorum;
-    RequestList         bulkRequests;
     Request*            itRequest;
     uint64_t*           itNode;
     uint64_t            nodeID;
@@ -1285,32 +1281,9 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         req = qrequests->First();
         qrequests->Remove(req);
         
-        // handle bulk requests
-        if (req->isBulk && quorum->activeNodes.GetLength() > 1)
-        {
-            // send to all shardservers before removing from quorum requests
-            FOREACH (itNode, req->shardConns)
-            {
-                if (*itNode == conn->GetNodeID())
-                    break;
-            }
-
-            if (itNode == NULL)
-            {
-                // send
-                bulkRequests.Append(req);
-                nodeID = conn->GetNodeID();
-                req->shardConns.Append(nodeID);
-            }
-            else
-                continue;   // don't send the request because it is already sent
-        }
-        else
-        {
-            req->shardConns.Clear();
-            nodeID = conn->GetNodeID();
-            req->shardConns.Append(nodeID);
-        }
+        req->shardConns.Clear();
+        nodeID = conn->GetNodeID();
+        req->shardConns.Append(nodeID);
         
         // set paxosID by consistency level
         req->paxosID = GetRequestPaxosID();
@@ -1337,15 +1310,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         flushNeeded = true;
 
     if (flushNeeded)
-        conn->Flush();
-    
-    // put back those requests to the quorum requests list that have not been sent to all
-    // shardservers in bulk mode
-    FOREACH_LAST (itRequest, bulkRequests)
-    {
-        bulkRequests.Remove(itRequest);
-        qrequests->Prepend(itRequest);
-    }
+        conn->Flush();    
 }
 
 void Client::SendQuorumRequests()

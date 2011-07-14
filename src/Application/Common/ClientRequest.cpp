@@ -13,7 +13,6 @@ void ClientRequest::Init()
     response.request = this;
     prev = next = this;
     paxosID = 0;
-    isBulk = false;
     changeTimeout = 0;
     lastChangeTime = 0;
 
@@ -67,8 +66,7 @@ bool ClientRequest::IsControllerRequest()
 
 bool ClientRequest::IsShardServerRequest()
 {
-    if (type == CLIENTREQUEST_BULK_LOADING      ||
-        type == CLIENTREQUEST_GET               ||
+    if (type == CLIENTREQUEST_GET               ||
         type == CLIENTREQUEST_SET               ||
         type == CLIENTREQUEST_SET_IF_NOT_EXISTS ||
         type == CLIENTREQUEST_TEST_AND_SET      ||
@@ -450,13 +448,5 @@ bool ClientRequest::Submit(
 {
     type = CLIENTREQUEST_SUBMIT;
     quorumID = quorumID_;
-    return true;
-}
-
-bool ClientRequest::BulkLoading(uint64_t commandID_)
-{
-    type = CLIENTREQUEST_BULK_LOADING;
-    commandID = commandID_;
-    isBulk = true;
     return true;
 }

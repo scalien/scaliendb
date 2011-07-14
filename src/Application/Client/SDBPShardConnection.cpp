@@ -39,12 +39,9 @@ bool ShardConnection::SendRequest(Request* request)
     if (request->IsList())
         Log_Trace("count: %u", request->count);
     
-    if (!request->isBulk)
-    {
-        sentRequests.Append(request);
-        request->numTry++;
-        request->requestTime = EventLoop::Now();
-    }
+    sentRequests.Append(request);
+    request->numTry++;
+    request->requestTime = EventLoop::Now();
 
     msg.request = request;
     Write(msg);

@@ -41,7 +41,6 @@ public:
     uint64_t        responseTime;
     unsigned        numTry;
     unsigned        numShardServers;
-    unsigned        numBulkResponses;
     ResponseList    responses;
     bool            async;
     bool            multi;              // multirequests are those that sent to multiple servers

@@ -12,10 +12,10 @@ using namespace SDBPClient;
 
 #define TEST_CLIENT_FAIL() \
     { \
-        PRINT_CLIENT_STATUS("Transport", client.TransportStatus()); \
-        PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus()); \
-        PRINT_CLIENT_STATUS("Timeout", client.TimeoutStatus()); \
-        PRINT_CLIENT_STATUS("Command", client.CommandStatus()); \
+        PRINT_CLIENT_STATUS("Transport", client.GetTransportStatus()); \
+        PRINT_CLIENT_STATUS("Connectivity", client.GetConnectivityStatus()); \
+        PRINT_CLIENT_STATUS("Timeout", client.GetTimeoutStatus()); \
+        PRINT_CLIENT_STATUS("Command", client.GetCommandStatus()); \
         TEST_FAIL(); \
     }
 
@@ -42,8 +42,8 @@ static int SetupDefaultClient(Client& client)
     const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.51:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
-    ReadBuffer      databaseName = "bulk";
-    ReadBuffer      tableName = "pics";
+    ReadBuffer      databaseName = "test";
+    ReadBuffer      tableName = "test";
     int             ret;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -531,7 +531,6 @@ TEST_DEFINE(TestClientBatchedSetBulk)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetBulkLoading(true);
     client.SetMasterTimeout(100000);
     client.SetGlobalTimeout(100000);
     ret = client.UseDatabase(databaseName);
@@ -656,10 +655,10 @@ TEST_DEFINE(TestClientBatchedSetRandom)
 
         if ((batchNum / (sw.Elapsed() / 1000.0)) > 100*1000)
         {
-            PRINT_CLIENT_STATUS("Transport", client.TransportStatus());
-            PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus());
-            PRINT_CLIENT_STATUS("Timeout", client.TimeoutStatus());
-            PRINT_CLIENT_STATUS(" Command", client.CommandStatus());
+            PRINT_CLIENT_STATUS("Transport", client.GetTransportStatus());
+            PRINT_CLIENT_STATUS("Connectivity", client.GetConnectivityStatus());
+            PRINT_CLIENT_STATUS("Timeout", client.GetTimeoutStatus());
+            PRINT_CLIENT_STATUS(" Command", client.GetCommandStatus());
         }
         
     }
@@ -1175,23 +1174,46 @@ TEST_DEFINE(TestClientMaro)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    
-
-    for (int i = 0; i < 11; i++)
+    for (int i = 0; i < 10; i++)
     {
-        k.Writef("%d", i);
-        v.Writef("%d", i*i);
+        k.Writef("%04d", i);
+        v.Writef("%04d", i);
         rk.Wrap(k);
         rv.Wrap(v);
         client.Set(rk, rv);
-
-        result = client.GetResult();
-        result->Begin();
-        result->GetValue(r);
-        delete result;
-        
     }
     client.Submit();
+
+    for (int i = 5; i < 15; i++)
+    {
+        k.Writef("%04d", i);
+        v.Writef("%04d", i*i);
+        rk.Wrap(k);
+        rv.Wrap(v);
+        client.Set(rk, rv);
+    }
+
+    for (int i = 5; i < 10; i++)
+    {
+        k.Writef("%04d", i);
+        rk.Wrap(k);
+        client.Delete(rk);
+    }
+
+    client.ListKeyValues("", "", "", 0, 0);
+
+    result = client.GetResult();
+    for (result->Begin(); !result->IsEnd(); result->Next())
+    {
+        if (result->GetCommandStatus() != SDBP_SUCCESS)
+            TEST_CLIENT_FAIL();
+
+        result->GetKey(rk);
+        result->GetValue(rv);
+        TEST_LOG("%.*s => %.*s",
+         rk.GetLength(), rk.GetBuffer(), rv.GetLength(), rv.GetBuffer());
+    }
+
     
     return TEST_SUCCESS;
 }
