@@ -324,4 +324,48 @@ public class Table
         useDefaults();
         return client.count(startKey, endKey, prefix);    
     }
+
+    /**
+     * Returns a key iterator over keys.
+     *
+     * @param   startKey    iterations starts at this key
+     * @param   endKey      iterations ends at this key
+     * @param   prefix      iterate only those keys that starts with prefix
+     */
+    public StringKeyIterator getKeyIterator(String startKey, String endKey, String prefix) throws SDBPException {
+        return new StringKeyIterator(this, startKey, endKey, prefix);
+    }
+
+    /**
+     * Returns a key iterator over keys.
+     *
+     * @param   startKey    iterations starts at this key
+     * @param   endKey      iterations ends at this key
+     * @param   prefix      iterate only those keys that starts with prefix
+     */
+    public ByteKeyIterator getKeyIterator(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
+        return new ByteKeyIterator(this, startKey, endKey, prefix);
+    }
+
+    /**
+     * Returns a key-value iterator over keys.
+     *
+     * @param   startKey    iterations starts at this key
+     * @param   endKey      iterations ends at this key
+     * @param   prefix      iterate only those keys that starts with prefix
+     */
+    public StringKeyValueIterator getKeyValueIterator(String startKey, String endKey, String prefix) throws SDBPException {
+        return new StringKeyValueIterator(this, startKey, endKey, prefix);
+    }
+
+    /**
+     * Returns a key-value iterator over keys.
+     *
+     * @param   startKey    iterations starts at this key
+     * @param   endKey      iterations ends at this key
+     * @param   prefix      iterate only those keys that starts with prefix
+     */
+    public ByteKeyValueIterator getKeyValueIterator(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
+        return new ByteKeyValueIterator(this, startKey, endKey, prefix);
+    }
 }

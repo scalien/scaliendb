@@ -791,34 +791,6 @@ public class Client
         return keyValues;
     }
 
-    class ByteArrayComparator implements java.util.Comparator<byte[]>
-    {
-        public int compare(byte[] o1, byte[] o2)
-        {
-            int len = Math.min(o1.length, o2.length);
-            for (int i = 0; i < len; i++)
-            {
-                if (o1[i] > o2[i])
-                    return 1;
-                else if (o1[i] < o2[i])
-                    return -1;
-                else
-                    return 0;
-             }
-             if (o1.length > o2.length)
-                return 1;
-            else if (o1.length < o2.length)
-                return -1;
-            else
-                return 0;
-        }
-        
-        public boolean equals(byte[] o1, byte[] o2)
-        {
-            return compare(o1, o2) == 0;
-        }
-    };
-
     /**
      * Returns the specified key-value pairs.
      *
@@ -865,6 +837,50 @@ public class Client
         int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length);
         checkResultStatus(status);
         return result.getNumber();
+    }
+    
+    /**
+     * Returns a key iterator over keys.
+     *
+     * @param   startKey    iterations starts at this key
+     * @param   endKey      iterations ends at this key
+     * @param   prefix      iterate only those keys that starts with prefix
+     */
+    public StringKeyIterator getKeyIterator(String startKey, String endKey, String prefix) throws SDBPException {
+        return new StringKeyIterator(this, startKey, endKey, prefix);
+    }
+
+    /**
+     * Returns a key iterator over keys.
+     *
+     * @param   startKey    iterations starts at this key
+     * @param   endKey      iterations ends at this key
+     * @param   prefix      iterate only those keys that starts with prefix
+     */
+    public ByteKeyIterator getKeyIterator(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
+        return new ByteKeyIterator(this, startKey, endKey, prefix);
+    }
+
+    /**
+     * Returns a key-value iterator over keys.
+     *
+     * @param   startKey    iterations starts at this key
+     * @param   endKey      iterations ends at this key
+     * @param   prefix      iterate only those keys that starts with prefix
+     */
+    public StringKeyValueIterator getKeyValueIterator(String startKey, String endKey, String prefix) throws SDBPException {
+        return new StringKeyValueIterator(this, startKey, endKey, prefix);
+    }
+
+    /**
+     * Returns a key-value iterator over keys.
+     *
+     * @param   startKey    iterations starts at this key
+     * @param   endKey      iterations ends at this key
+     * @param   prefix      iterate only those keys that starts with prefix
+     */
+    public ByteKeyValueIterator getKeyValueIterator(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
+        return new ByteKeyValueIterator(this, startKey, endKey, prefix);
     }
 
     /**
