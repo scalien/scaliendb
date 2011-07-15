@@ -36,25 +36,21 @@ def composite(*args):
         c = "%s/%s" %  (c, i)
     return c
     
-#
 # =============================================================================================
 #
 # Callable
 #
 # =============================================================================================
-#
 
 class Callable:
     def __init__(self, anycallable):
         self.__call__ = anycallable
 
-#
 # =============================================================================================
 #
 # Util
 #
 # =============================================================================================
-#
 
 class Util:
 	def typemap(i):
@@ -99,13 +95,11 @@ def str_status(status):
         return "SDBP_BADSCHEMA"
     return "<UNKNOWN>"
 
-#
 # =============================================================================================
 #
 # Error
 #
 # =============================================================================================
-#
 
 class Error(Exception):
     def __init__(self, status, strerror=None):
@@ -117,23 +111,19 @@ class Error(Exception):
             return str_status(self.status) + ": " + self.strerror
         return str_status(self.status)
 
-#
 # =============================================================================================
 #
 # Client
 #
 # =============================================================================================
-#
 
 class Client:
 
-    #
     # =========================================================================================
     #
     # Result
     #
     # =========================================================================================
-    #
 
     class Result:
         def __init__(self, cptr):
@@ -234,13 +224,11 @@ class Client:
                 num += 1
             return num, last_key
     
-    #
     # =========================================================================================
     #
     # Quorum
     #
     # =========================================================================================
-    #
 
     class Quorum:
         def __init__(self, client, quorum_name, quorum_id):
@@ -248,13 +236,11 @@ class Client:
             self.quorum_name = quorum_name
             self.quorum_id = quorum_id
 
-    #
     # =========================================================================================
     #
     # Database
     #
     # =========================================================================================
-    #
 
     class Database:
         def __init__(self, client, database_name):
@@ -301,13 +287,11 @@ class Client:
             self.client.use_database_id(self.database_id)
             self.client.truncate_table(table_name)
 
-    #
     # =========================================================================================
     #
     # Table
     #
     # =========================================================================================
-    #
 
     class Table:
         def __init__(self, client, database_name, table_name):
@@ -349,6 +333,64 @@ class Client:
         def count(self, start_key="", end_key="", prefix=""):
             self.use_defaults()
             return self.client.count(start_key, end_key, prefix)
+        
+        def submit(self):
+            return self.client.submit()
+
+        def iterate_keys(self, start_key="", end_key="", prefix=""):
+            return self.client.Iterator(self, start_key, end_key, prefix, False)
+    
+        def iterate_key_values(self, start_key="", end_key="", prefix=""):
+            return self.client.Iterator(self, start_key, end_key, prefix, True)
+            
+
+    # =========================================================================================
+    #
+    # Iterator
+    #
+    # =========================================================================================
+
+    class Iterator:
+        def __init__(self, base, start_key, end_key, prefix, values):
+            self.base = base
+            self.start_key = start_key
+            self.end_key = end_key
+            self.prefix = prefix
+            self.values = values
+            self.count = 100
+            self.result = []
+            self.pos = 0
+            self.len = 0
+
+        def query(self, skip):
+            if self.values:
+                self.result = self.base.list_key_values(self.start_key, self.end_key, self.prefix, self.count, skip).items()
+            else:
+                self.result = self.base.list_keys(self.start_key, self.end_key, self.prefix, self.count, skip)
+            self.result.sort()
+            self.len = len(self.result)
+            self.pos = 0
+        
+        def __iter__(self):
+            return self
+
+        def next(self):
+            if self.len == 0:
+                self.query(False)
+            else:
+                self.pos += 1
+                if self.pos == self.len:
+                    if self.len < self.count:
+                        raise StopIteration
+                    if self.values:
+                        self.start_key = self.result[self.len-1][0]
+                    else:
+                        self.start_key = self.result[self.len-1]
+                    self.query(True)                        
+            if self.len == 0:
+                raise StopIteration
+            return self.result[self.pos]
+
 
     def __init__(self, nodes):
         self.cptr = SDBP_Create()
@@ -1082,7 +1124,13 @@ class Client:
         status = SDBP_Count(self.cptr, start_key, end_key, prefix)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
-        return self.result.number()        
+        return self.result.number()
+
+    def iterate_keys(self, start_key="", end_key="", prefix=""):
+        return self.Iterator(self, start_key, end_key, prefix, False)
+    
+    def iterate_key_values(self, start_key="", end_key="", prefix=""):
+        return self.Iterator(self, start_key, end_key, prefix, True)
     
     def submit(self):
         """ Sends the batched operations and waits until all is acknowledged """
