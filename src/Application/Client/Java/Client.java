@@ -807,7 +807,6 @@ public class Client
         TreeMap<byte[], byte[]> keyValues = new TreeMap<byte[], byte[]>(new ByteArrayComparator());
         for (result.begin(); !result.isEnd(); result.next())
             keyValues.put(result.getKeyBytes(), result.getValueBytes());
-        
         return keyValues;
     }
 

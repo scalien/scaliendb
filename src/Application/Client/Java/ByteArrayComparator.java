@@ -11,10 +11,8 @@ public class ByteArrayComparator implements java.util.Comparator<byte[]>
                 return 1;
             else if (o1[i] < o2[i])
                 return -1;
-            else
-                return 0;
-         }
-         if (o1.length > o2.length)
+        }
+        if (o1.length > o2.length)
             return 1;
         else if (o1.length < o2.length)
             return -1;

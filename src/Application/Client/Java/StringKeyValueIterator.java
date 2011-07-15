@@ -82,12 +82,14 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
             result = table.listKeyValues(startKey, endKey, prefix, count, skip);
         keys = new LinkedList<String>();
         values = new LinkedList<String>();
-        TreeSet<String> ts = new TreeSet<String>(result.keySet());
-        for (String key : ts) { 
-           String value = result.get(key);
-           keys.add(key);
-           values.add(value);
+
+        for (Map.Entry<String, String> entry : result.entrySet()) {
+            String key = entry.getKey();
+            String value = entry.getValue();
+            keys.add(key);
+            values.add(value);
         }
+
         pos = 0;
     }    
 }

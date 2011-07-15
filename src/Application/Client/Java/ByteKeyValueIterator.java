@@ -3,7 +3,7 @@ package com.scalien.scaliendb;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.TreeSet;
+import java.util.TreeMap;
 
 public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[], byte[]>>, java.util.Iterator<KeyValue<byte[], byte[]>>
 {
@@ -83,12 +83,14 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
             result = table.listKeyValues(startKey, endKey, prefix, count, skip);
         keys = new LinkedList<byte[]>();
         values = new LinkedList<byte[]>();
-        TreeSet<byte[]> ts = new TreeSet<byte[]>(result.keySet());
-        for (byte[] key : ts) { 
-           byte[] value = result.get(key);
-           keys.add(key);
-           values.add(value);
+
+        for (Map.Entry<byte[], byte[]> entry : result.entrySet()) {
+            byte[] key = entry.getKey();
+            byte[] value = entry.getValue();
+            keys.add(key);
+            values.add(value);
         }
+
         pos = 0;
     }    
 }
