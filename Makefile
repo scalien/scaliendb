@@ -203,7 +203,13 @@ JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Result.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Status.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Database.java \
-	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Table.java
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Table.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringKeyIterator.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringKeyValueIterator.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteKeyIterator.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteKeyValueIterator.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteArrayComparator.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/KeyValue.java
 
 JAVA_CLIENT_DIR = \
 	$(CLIENT_DIR)/Java
