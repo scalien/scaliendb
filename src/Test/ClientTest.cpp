@@ -1603,44 +1603,6 @@ TEST_DEFINE(TestClientActivateNode)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestClientFilter)
-{
-//    uint64_t        commandID;
-//    Client          client;
-//    Result*         result;
-//    ReadBuffer      key;
-//    ReadBuffer      value;
-//    
-//    TEST(SetupDefaultClient(client));
-//    
-//    // filter through all key-values in the database
-//    TEST(client.Filter("", "", "", 1000*1000*1000, 0, commandID));
-//
-//    do
-//    {
-//        result = client.GetResult();
-//        for (result->Begin(); !result->IsEnd(); result->Next())
-//        {
-//            TEST(result->GetKey(key));
-//            TEST(result->GetValue(value));
-//            if (ReadBuffer::Cmp(value, "1111") > 0 && ReadBuffer::Cmp(value, "11112") < 0)
-//                TEST_LOG("%.*s => %.*s", key.GetLength(), key.GetBuffer(), value.GetLength(), value.GetBuffer());
-//        }
-//
-//        if (result->IsFinished())
-//        {
-//            delete result;
-//            break;
-//        }
-//        
-//        delete result;
-//        TEST(client.Receive(commandID));
-//    }
-//    while (true);
-//    
-//    return TEST_SUCCESS;
-}
-
 // emulate Filter with ListKeyValues
 TEST_DEFINE(TestClientFilter2)
 {

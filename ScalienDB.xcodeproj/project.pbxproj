@@ -174,6 +174,7 @@
 		9AABB05A123E55DE003626AC /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
+		9AB1EECD13D5D05A00A463EF /* ConfigController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A6AB4813B5D76F00DDB15B /* ConfigController.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
 		9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
@@ -1734,6 +1735,7 @@
 				9A467ADD1373541600108B07 /* ShardExtensionTest.cpp in Sources */,
 				9AED118E13B379DC0023F27E /* JSONReader.cpp in Sources */,
 				9AED119013B379F40023F27E /* JSONReaderTest.cpp in Sources */,
+				9AB1EECD13D5D05A00A463EF /* ConfigController.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -859,18 +859,6 @@ int Client::Count(
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix);
 }
 
-int Client::Filter(
- const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
- unsigned count, uint64_t& commandID)
-{
-    return SDBP_API_ERROR;
-}
-
-int Client::Receive(uint64_t commandID)
-{
-    return SDBP_API_ERROR;
-}
-
 int Client::Begin()
 {
     Log_Trace();
@@ -895,7 +883,8 @@ int Client::Submit()
     Begin();
     FOREACH_POP(it, proxiedRequests)
     {
-        AppendDataRequest(it);
+        requests.Append(it);
+        result->AppendRequest(it);
         proxySize -= REQUEST_SIZE(it);
     }
     ASSERT(proxySize == 0);
@@ -1253,8 +1242,6 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     RequestList*        qrequests;
     Request*            req;
     ConfigQuorum*       quorum;
-    Request*            itRequest;
-    uint64_t*           itNode;
     uint64_t            nodeID;
     unsigned            maxRequests;
     unsigned            numServed;
