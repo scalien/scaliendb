@@ -24,6 +24,11 @@ StorageMergeChunkJob::StorageMergeChunkJob(StorageEnvironment* env_,
     mergeChunk = mergeChunk_;
 }
 
+StorageMergeChunkJob::~StorageMergeChunkJob()
+{
+    delete mergeChunk;
+}
+
 void StorageMergeChunkJob::Execute()
 {
     bool                ret;
@@ -65,5 +70,4 @@ void StorageMergeChunkJob::Execute()
 void StorageMergeChunkJob::OnComplete()
 {
     env->OnChunkMerge(this); // deletes this
-    // delete this;
 }

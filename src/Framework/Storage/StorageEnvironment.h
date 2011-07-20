@@ -104,6 +104,7 @@ public:
     
     void                    PrintState(uint16_t contextID, Buffer& buffer);
     uint64_t                GetShardMemoryUsage();
+    uint64_t                GetLogSegmentMemoryUsage();
     StorageConfig&          GetConfig();
     
     void                    OnCommit(StorageCommitJob* job);

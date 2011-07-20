@@ -114,6 +114,9 @@ public:
     uint64_t                GetBlockedShardID();
     
     uint64_t                GetMessageCacheSize();
+    uint64_t                GetMessageListSize();
+    uint64_t                GetShardAppendStateSize();
+    uint64_t                GetQuorumContextSize();
 
     // ========================================================================================
     // For ShardQuorumContext:

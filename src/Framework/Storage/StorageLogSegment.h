@@ -51,7 +51,8 @@ public:
     uint32_t            GetCommitedLogCommandID();
 
     uint64_t            GetOffset();
-    
+    uint64_t            GetWriteBufferSize();
+
     StorageLogSegment*  prev;
     StorageLogSegment*  next;
 

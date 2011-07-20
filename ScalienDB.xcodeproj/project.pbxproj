@@ -112,12 +112,6 @@
 		546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
-		54731C1F13D0367400125619 /* StringKeyIterator.java in Sources */ = {isa = PBXBuildFile; fileRef = 54731C1E13D0367400125619 /* StringKeyIterator.java */; };
-		54731C9213D048F000125619 /* ByteKeyIterator.java in Sources */ = {isa = PBXBuildFile; fileRef = 54731C9113D048F000125619 /* ByteKeyIterator.java */; };
-		54731C9F13D04A4000125619 /* ByteArrayComparator.java in Sources */ = {isa = PBXBuildFile; fileRef = 54731C9E13D04A4000125619 /* ByteArrayComparator.java */; };
-		54731CAB13D04AE200125619 /* StringKeyValueIterator.java in Sources */ = {isa = PBXBuildFile; fileRef = 54731CAA13D04AE200125619 /* StringKeyValueIterator.java */; };
-		54731CC613D0516D00125619 /* KeyValue.java in Sources */ = {isa = PBXBuildFile; fileRef = 54731CC513D0516D00125619 /* KeyValue.java */; };
-		54731CD013D0527F00125619 /* ByteKeyValueIterator.java in Sources */ = {isa = PBXBuildFile; fileRef = 54731CCF13D0527F00125619 /* ByteKeyValueIterator.java */; };
 		548DEBD6130E8B7E00E3A86A /* ShardMigrationWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548DEBD5130E8B7E00E3A86A /* ShardMigrationWriter.cpp */; };
 		548F50A012157A050035ADDB /* Formatting.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548F509F12157A050035ADDB /* Formatting.cpp */; };
 		54973F4B13685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54973F4913685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp */; };
@@ -1615,12 +1609,6 @@
 				9A467A261373436D00108B07 /* DLL.cpp in Sources */,
 				9A467AD2137350ED00108B07 /* ShardExtension.cpp in Sources */,
 				54A6AB4913B5D76F00DDB15B /* ConfigController.cpp in Sources */,
-				54731C1F13D0367400125619 /* StringKeyIterator.java in Sources */,
-				54731C9213D048F000125619 /* ByteKeyIterator.java in Sources */,
-				54731C9F13D04A4000125619 /* ByteArrayComparator.java in Sources */,
-				54731CAB13D04AE200125619 /* StringKeyValueIterator.java in Sources */,
-				54731CC613D0516D00125619 /* KeyValue.java in Sources */,
-				54731CD013D0527F00125619 /* ByteKeyValueIterator.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

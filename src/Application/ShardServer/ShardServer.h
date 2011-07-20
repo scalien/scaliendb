@@ -9,6 +9,8 @@
 #include "ShardHeartbeatManager.h"
 #include "ShardMigrationWriter.h"
 
+class ShardServerApp;
+
 /*
 ===============================================================================================
 
@@ -22,7 +24,7 @@ class ShardServer : public ClusterContext, public SDBPContext
 public:
     typedef InList<ShardQuorumProcessor> QuorumProcessorList;
 
-    void                    Init();
+    void                    Init(ShardServerApp* app);
     void                    Shutdown();
 
     ShardQuorumProcessor*   GetQuorumProcessor(uint64_t quorumID);
@@ -30,6 +32,7 @@ public:
     ShardDatabaseManager*   GetDatabaseManager();
     ShardMigrationWriter*   GetShardMigrationWriter();
     ConfigState*            GetConfigState();
+    ShardServerApp*         GetShardServerApp();
 
     void                    BroadcastToControllers(Message& message);
     
@@ -55,6 +58,7 @@ public:
 
     unsigned                GetHTTPPort();
     unsigned                GetSDBPPort();
+    void                    GetMemoryUsageBuffer(Buffer& buffer);
 
 private:
     void                    OnSetConfigState(ClusterMessage& message);
@@ -66,6 +70,7 @@ private:
     ShardHeartbeatManager   heartbeatManager;
     ShardDatabaseManager    databaseManager;
     ShardMigrationWriter    migrationWriter;
+    ShardServerApp*         shardServerApp;
 };
 
 #endif

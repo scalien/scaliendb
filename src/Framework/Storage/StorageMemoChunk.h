@@ -4,12 +4,16 @@
 #include "System/Buffers/Buffer.h"
 #include "System/Containers/InTreeMap.h"
 #include "System/Containers/InQueue.h"
+#include "System/Containers/InList.h"
 #include "StorageChunk.h"
 #include "StorageMemoKeyValue.h"
 #include "StorageFileChunk.h"
 
-#define STORAGE_MEMO_BUNCH_GRAN     1*MB
-#define STORAGE_BLOCK_NUM_KEY_VALUE ((128*KiB)/sizeof(StorageMemoKeyValue))
+#define STORAGE_MEMO_BUNCH_GRAN             1*MB
+#define STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE 64*KiB
+#define STORAGE_MEMO_ALLOCATOR_MIN_SIZE     128
+#define STORAGE_BLOCK_NUM_KEY_VALUE     \
+    ((128*KiB-sizeof(void*)-2*sizeof(unsigned))/sizeof(StorageMemoKeyValue))
 
 class StorageFileChunk;
 
@@ -19,6 +23,18 @@ struct StorageMemoKeyValueBlock
     StorageMemoKeyValueBlock*   next;
     unsigned                    first;
     unsigned                    last;
+};
+
+struct StorageMemoKeyValueAllocator
+{
+    uint32_t                        GetFreeSize();                        
+
+    char*                           buffer;
+    uint32_t                        pos;
+    uint32_t                        size;
+    uint16_t                        num;
+    StorageMemoKeyValueAllocator*   next;
+    StorageMemoKeyValueAllocator*   prev;
 };
 
 /*
@@ -38,6 +54,7 @@ class StorageMemoChunk : public StorageChunk
 public:
     typedef InTreeMap<StorageMemoKeyValue> KeyValueTree;
     typedef InQueue<StorageMemoKeyValueBlock> KeyValueBlockQueue;
+    typedef InList<StorageMemoKeyValueAllocator> AllocatorList;
     
     StorageMemoChunk(uint64_t chunkID, bool useBloomFilter);
     ~StorageMemoChunk();
@@ -73,6 +90,10 @@ public:
     void                    RemoveFirst(); // for logstorage
 
     StorageMemoKeyValue*    NewStorageMemoKeyValue();
+    
+    // StorageMemoKeyValue buffer allocator
+    char*                   Alloc(size_t size);
+    void                    Free(char* buffer);
 
 private:
     bool                    serialized;
@@ -86,6 +107,7 @@ private:
     
     StorageFileChunk*       fileChunk; // for serialization
     KeyValueBlockQueue      keyValueBlocks;
+    AllocatorList           allocators;
 };
 
 #endif

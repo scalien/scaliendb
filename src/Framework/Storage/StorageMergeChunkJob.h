@@ -24,6 +24,8 @@ public:
      List<StorageFileChunk*>& inputChunks,
      StorageFileChunk* mergeChunk,
      ReadBuffer firstKey, ReadBuffer lastKey);
+
+    ~StorageMergeChunkJob();
     
     void                    Execute();
     void                    OnComplete();

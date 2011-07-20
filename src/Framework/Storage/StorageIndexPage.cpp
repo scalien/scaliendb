@@ -59,7 +59,7 @@ bool StorageIndexPage::Locate(ReadBuffer& key, uint32_t& index, uint64_t& offset
     if (ReadBuffer::LessThan(key, indexTree.First()->key))
         return false;
     
-    it = indexTree.Locate<ReadBuffer&>(key, cmpres);
+    it = indexTree.Locate(key, cmpres);
     if (cmpres >= 0)
     {
         index = it->index;

@@ -644,7 +644,6 @@ class Client:
         database_id = long(SDBP_GetCurrentDatabaseID(self.cptr))
         if database_id == 0:
             raise Error(SDBP_BADSCHEMA, "No database selected")
-        print(quorum_id)
         status = SDBP_CreateTable(self.cptr, database_id, quorum_id, name)
         self.result = Client.Result(SDBP_GetResult(self.cptr))
         self._check_status(status)
