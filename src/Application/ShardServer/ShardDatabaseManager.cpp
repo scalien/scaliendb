@@ -229,7 +229,6 @@ void ShardDatabaseAsyncList::TryNextShard()
     
     // update the request with the next shard's startKey
     request->key.Write(shardLastKey);
-    request->offset = offset;
     if (request->count > 0)
         request->count -= total;
 
@@ -827,7 +826,7 @@ void ShardDatabaseManager::OnExecuteLists()
         if (configShard == NULL)
         {
             Log_Debug("sending Next");
-            itRequest->response.Next(startKey, endKey, prefix, itRequest->count, itRequest->offset);
+            itRequest->response.Next(startKey, endKey, prefix, itRequest->count);
             itRequest->OnComplete();
             continue;
         }
@@ -848,7 +847,6 @@ void ShardDatabaseManager::OnExecuteLists()
         asyncList.endKey = endKey;
         asyncList.prefix = itRequest->prefix;
         asyncList.count = itRequest->count;
-        asyncList.offset = itRequest->offset;
         asyncList.shardFirstKey.Write(startKey);
         asyncList.shardLastKey.Write(configShard->lastKey);
         asyncList.onComplete = MFunc<ShardDatabaseAsyncList, &ShardDatabaseAsyncList::OnShardComplete>(&asyncList);

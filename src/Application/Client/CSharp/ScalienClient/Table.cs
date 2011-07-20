@@ -55,6 +55,12 @@ namespace Scalien
             client.Set(key, value);
         }
 
+        public void Set(byte[] key, byte[] value)
+        {
+            UseDefaults();
+            client.Set(key, value);
+        }
+
         public bool SetIfNotExists(string key, string value)
         {
             UseDefaults();

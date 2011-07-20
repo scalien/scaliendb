@@ -30,8 +30,6 @@ public:
 
     bool            IsFinished();
 
-    void            SetBatchLimit(uint64_t limit);
-    
     bool            AppendRequest(Request* req);
     bool            AppendRequestResponse(ClientResponse* resp);
     void            RemoveRequest(Request* req);
@@ -62,10 +60,10 @@ public:
     void            HandleRequestResponse(Request* req, ClientResponse* resp);
     void            HandleMultiRequestResponse(Request* req);
 
-private:
     typedef InTreeMap<Request> RequestMap;
     
     RequestMap          requests;
+private:
     int                 transportStatus;
     int                 timeoutStatus;
     int                 connectivityStatus;
@@ -73,8 +71,10 @@ private:
     Request*            requestCursor;
     ClientResponse**    responseCursor;
     unsigned            responsePos;
-    uint64_t            batchLimit;
-    uint64_t            batchSize;
+
+public:
+    bool                proxied;
+    ReadBuffer          proxiedValue;
 };
 
 };  // namespace

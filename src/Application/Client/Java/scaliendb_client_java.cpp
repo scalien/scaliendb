@@ -1290,52 +1290,6 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Wa
 }
 
 
-SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetBatchLimit(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return ;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  SDBP_SetBatchLimit(arg1,arg2);
-}
-
-
-SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetBulkLoading(JNIEnv *jenv, jclass jcls, jlong jarg1, jboolean jarg2) {
-  ClientObj arg1 = (ClientObj) 0 ;
-  bool arg2 ;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  arg2 = jarg2 ? true : false; 
-  SDBP_SetBulkLoading(arg1,arg2);
-}
-
-
 SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetConsistencyLevel(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2) {
   ClientObj arg1 = (ClientObj) 0 ;
   int arg2 ;
@@ -1345,6 +1299,30 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Se
   arg1 = *(ClientObj *)&jarg1; 
   arg2 = (int)jarg2; 
   SDBP_SetConsistencyLevel(arg1,arg2);
+}
+
+
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetBatchMode(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  int arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  arg2 = (int)jarg2; 
+  SDBP_SetBatchMode(arg1,arg2);
+}
+
+
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetBatchLimit(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
+  ClientObj arg1 = (ClientObj) 0 ;
+  unsigned int arg2 ;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  arg2 = (unsigned int)jarg2; 
+  SDBP_SetBatchLimit(arg1,arg2);
 }
 
 
@@ -3279,14 +3257,14 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Re
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeys(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jlong jarg5, jlong jarg6) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeys(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jlong jarg5, jboolean jarg6) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
   unsigned int arg5 ;
-  unsigned int arg6 ;
+  bool arg6 ;
   int result;
   
   (void)jenv;
@@ -3320,14 +3298,14 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
   arg4 = &arg4_str;
   jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
   arg5 = (unsigned int)jarg5; 
-  arg6 = (unsigned int)jarg6; 
+  arg6 = jarg6 ? true : false; 
   result = (int)SDBP_ListKeys(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,arg6);
   jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeysCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7, jlong jarg8, jlong jarg9) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeysCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7, jlong jarg8, jboolean jarg9) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
@@ -3337,7 +3315,7 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
   char *arg6 = (char *) 0 ;
   int arg7 ;
   unsigned int arg8 ;
-  unsigned int arg9 ;
+  bool arg9 ;
   int result;
   
   (void)jenv;
@@ -3356,7 +3334,7 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
   }
   arg7 = (int)jarg7; 
   arg8 = (unsigned int)jarg8; 
-  arg9 = (unsigned int)jarg9; 
+  arg9 = jarg9 ? true : false; 
   result = (int)SDBP_ListKeysCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   jresult = (jint)result; 
   {
@@ -3375,14 +3353,14 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValues(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jlong jarg5, jlong jarg6) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValues(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jlong jarg5, jboolean jarg6) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
   unsigned int arg5 ;
-  unsigned int arg6 ;
+  bool arg6 ;
   int result;
   
   (void)jenv;
@@ -3416,14 +3394,14 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
   arg4 = &arg4_str;
   jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
   arg5 = (unsigned int)jarg5; 
-  arg6 = (unsigned int)jarg6; 
+  arg6 = jarg6 ? true : false; 
   result = (int)SDBP_ListKeyValues(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,arg6);
   jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValuesCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7, jlong jarg8, jlong jarg9) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValuesCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7, jlong jarg8, jboolean jarg9) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
@@ -3433,7 +3411,7 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
   char *arg6 = (char *) 0 ;
   int arg7 ;
   unsigned int arg8 ;
-  unsigned int arg9 ;
+  bool arg9 ;
   int result;
   
   (void)jenv;
@@ -3452,7 +3430,7 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
   }
   arg7 = (int)jarg7; 
   arg8 = (unsigned int)jarg8; 
-  arg9 = (unsigned int)jarg9; 
+  arg9 = jarg9 ? true : false; 
   result = (int)SDBP_ListKeyValuesCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
   jresult = (jint)result; 
   {
@@ -3471,14 +3449,12 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Count(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jlong jarg5, jlong jarg6) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Count(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
   std::string *arg2 = 0 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  unsigned int arg5 ;
-  unsigned int arg6 ;
   int result;
   
   (void)jenv;
@@ -3511,15 +3487,13 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Co
   std::string arg4_str(arg4_pstr);
   arg4 = &arg4_str;
   jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  arg5 = (unsigned int)jarg5; 
-  arg6 = (unsigned int)jarg6; 
-  result = (int)SDBP_Count(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,arg6);
+  result = (int)SDBP_Count(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1CountCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7, jlong jarg8, jlong jarg9) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1CountCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
   char *arg2 = (char *) 0 ;
@@ -3528,8 +3502,6 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Co
   int arg5 ;
   char *arg6 = (char *) 0 ;
   int arg7 ;
-  unsigned int arg8 ;
-  unsigned int arg9 ;
   int result;
   
   (void)jenv;
@@ -3547,9 +3519,7 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Co
     arg6 = (char*) jenv->GetByteArrayElements(jarg6, 0);
   }
   arg7 = (int)jarg7; 
-  arg8 = (unsigned int)jarg8; 
-  arg9 = (unsigned int)jarg9; 
-  result = (int)SDBP_CountCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
+  result = (int)SDBP_CountCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
   jresult = (jint)result; 
   {
     jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
@@ -3605,20 +3575,6 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Ca
   arg1 = *(ClientObj *)&jarg1; 
   result = (int)SDBP_Cancel(arg1);
   jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jboolean JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1IsBatched(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  jboolean jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  bool result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  result = (bool)SDBP_IsBatched(arg1);
-  jresult = (jboolean)result; 
   return jresult;
 }
 

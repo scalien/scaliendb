@@ -387,3 +387,30 @@ Buffer& Buffer::operator=(const Buffer& other)
 
     return *this;
 }
+
+bool Buffer::BeginsWith(const char* s)
+{
+    unsigned len;
+    
+    len = strlen(s);
+    
+    if (length < len)
+        return false;
+
+    if (strncmp(s, buffer, len) == 0)
+        return true;
+    else
+        return false;
+}
+
+bool Buffer::BeginsWith(Buffer& other)
+{
+    if (length < other.length)
+        return false;
+
+    if (MEMCMP(buffer, other.length, other.buffer, other.length))
+        return true;
+    else
+        return false;
+}
+

@@ -105,9 +105,9 @@ uint64_t        SDBP_GetCurrentTableID(ClientObj client);
 std::string     SDBP_GetJSONConfigState(ClientObj client);
 void            SDBP_WaitConfigState(ClientObj client);
 
-void            SDBP_SetBatchLimit(ClientObj client, uint64_t limit);
-void            SDBP_SetBulkLoading(ClientObj client, bool bulk);
 void            SDBP_SetConsistencyLevel(ClientObj client, int consistencyLevel);
+void            SDBP_SetBatchMode(ClientObj client, int batchMode);
+void            SDBP_SetBatchLimit(ClientObj client, unsigned batchLimit);
 
 /*
 ===============================================================================================
@@ -200,27 +200,25 @@ int             SDBP_RemoveCStr(ClientObj client_, char* key, int len);
 int             SDBP_ListKeys(
                  ClientObj client, 
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
-                 unsigned count, unsigned offset);
+                 unsigned count, bool skip);
 int             SDBP_ListKeysCStr(
                  ClientObj client,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
-                 unsigned count, unsigned offset);
+                 unsigned count, bool skip);
 int             SDBP_ListKeyValues(
                  ClientObj client, 
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
-                 unsigned count, unsigned offset);
+                 unsigned count, bool skip);
 int             SDBP_ListKeyValuesCStr(
                  ClientObj client,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
-                 unsigned count, unsigned offset);
+                 unsigned count, bool skip);
 int             SDBP_Count(
                  ClientObj client,
-                 const std::string& startKey, const std::string& endKey, const std::string& prefix,
-                 unsigned count, unsigned offset);
+                 const std::string& startKey, const std::string& endKey, const std::string& prefix);
 int             SDBP_CountCStr(
                  ClientObj client,
-                 char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
-                 unsigned count, unsigned offset);
+                 char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen);
 
 /*
 ===============================================================================================
@@ -233,7 +231,6 @@ int             SDBP_CountCStr(
 int             SDBP_Begin(ClientObj client);
 int             SDBP_Submit(ClientObj client);
 int             SDBP_Cancel(ClientObj client);
-bool            SDBP_IsBatched(ClientObj client);
 
 /*
 ===============================================================================================

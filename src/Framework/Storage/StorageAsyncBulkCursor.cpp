@@ -115,7 +115,7 @@ void StorageAsyncBulkCursor::OnNextChunk()
     else if ((*itChunk)->GetChunkState() == StorageChunk::Unwritten)
     {
         fileChunk = (StorageFileChunk*) (*itChunk);
-        unwrittenLister.Init(fileChunk, startKey, 0, 0);
+        unwrittenLister.Init(fileChunk, startKey, 0);
         result = new StorageAsyncBulkResult(this);
         result->dataPage = *unwrittenLister.GetDataPage();
         result->onComplete = onComplete;
@@ -126,7 +126,7 @@ void StorageAsyncBulkCursor::OnNextChunk()
     else if ((*itChunk)->GetChunkState() == StorageChunk::Serialized)
     {
         memoChunk = (StorageMemoChunk*) (*itChunk);
-        memoLister.Init(memoChunk, startKey, 0, 0);
+        memoLister.Init(memoChunk, startKey, 0);
         result = new StorageAsyncBulkResult(this);
         result->dataPage = *memoLister.GetDataPage();
         result->onComplete = onComplete;

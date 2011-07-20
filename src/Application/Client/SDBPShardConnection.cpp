@@ -23,7 +23,6 @@ ShardConnection::ShardConnection(Client* client_, uint64_t nodeID_, Endpoint& en
     nodeID = nodeID_;
     endpoint = endpoint_;
     autoFlush = false;
-    isBulkSent = false;
     Connect();
 }
 
@@ -38,14 +37,11 @@ bool ShardConnection::SendRequest(Request* request)
     SDBPRequestMessage  msg;
     
     if (request->IsList())
-        Log_Trace("count: %u, offset: %u", request->count, request->offset);
+        Log_Trace("count: %u", request->count);
     
-    if (!request->isBulk)
-    {
-        sentRequests.Append(request);
-        request->numTry++;
-        request->requestTime = EventLoop::Now();
-    }
+    sentRequests.Append(request);
+    request->numTry++;
+    request->requestTime = EventLoop::Now();
 
     msg.request = request;
     Write(msg);
@@ -173,7 +169,7 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
             {
                 client->NextRequest(
                  request, response.value, response.endKey, response.prefix,
-                 response.number, response.offset);
+                 response.number);
                 client->ReassignRequest(request);
                 client->SendQuorumRequests();
                 return false;
@@ -196,8 +192,6 @@ void ShardConnection::OnWrite()
     CLIENT_MUTEX_GUARD_DECLARE();
     
     MessageConnection::OnWrite();
-    if (client->IsBulkLoading() && !isBulkSent)
-        isBulkSent = true;
 
     SendQuorumRequests();
 }
@@ -210,11 +204,6 @@ void ShardConnection::OnConnect()
     CLIENT_MUTEX_GUARD_DECLARE();
 
     MessageConnection::OnConnect();
-    if (client->IsBulkLoading() && !isBulkSent)
-    {
-        SendBulkLoadingRequest();
-        return;
-    }
     
     SendQuorumRequests();
 }
@@ -229,9 +218,7 @@ void ShardConnection::OnClose()
     uint64_t*   itNext;
     
     CLIENT_MUTEX_GUARD_DECLARE();
-    
-    isBulkSent = false;
-    
+       
     // close the socket and try reconnecting
     MessageConnection::OnClose();
 
@@ -280,13 +267,4 @@ void ShardConnection::SendQuorumRequests()
     // notify the client so that it can assign the requests to the connection
     FOREACH (qit, quorums)
         client->SendQuorumRequest(this, *qit);
-}
-
-void ShardConnection::SendBulkLoadingRequest()
-{
-    Request req;
-
-    req.BulkLoading(0);    
-    SendRequest(&req);
-    Flush();
 }

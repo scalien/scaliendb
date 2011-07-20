@@ -76,9 +76,9 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
             if (read <= 0)
                 return false;
             buffer.Advance(read);
-            if (!response->configState.Read(buffer, true))
+            if (!response->configState.Get()->Read(buffer, true))
             {
-                response->configState.Init();
+                response->configState.Free();
                 return false;
             }
             return true;
@@ -94,9 +94,9 @@ bool SDBPResponseMessage::Read(ReadBuffer& buffer)
              &response->number, &response->value);
             return true;
         case CLIENTRESPONSE_NEXT:
-            read = buffer.Readf("%c:%U:%U:%U:%#R:%#R",
+            read = buffer.Readf("%c:%U:%U:%#R:%#R",
              &response->type, &response->commandID, 
-             &response->number, &response->offset, &response->value, &response->endKey);
+             &response->number, &response->value, &response->endKey);
             break;
         default:
             return false;
@@ -144,7 +144,7 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
         case CLIENTRESPONSE_CONFIG_STATE:
             buffer.Writef("%c:%U:",
              response->type, response->request->commandID);
-            return response->configState.Write(buffer, true);
+            return response->configState.Get()->Write(buffer, true);
         case CLIENTRESPONSE_NOSERVICE:
         case CLIENTRESPONSE_BADSCHEMA:
         case CLIENTRESPONSE_FAILED:
@@ -165,9 +165,9 @@ bool SDBPResponseMessage::Write(Buffer& buffer)
             return true;
         case CLIENTRESPONSE_NEXT:
             Log_Trace("Next");
-            buffer.Writef("%c:%U:%U:%U:%#R:%#R",
+            buffer.Writef("%c:%U:%U:%#R:%#R",
              response->type, response->request->commandID, 
-             response->number, response->offset, &response->value, &response->endKey);
+             response->number, &response->value, &response->endKey);
             return true;        
         default:
             return false;

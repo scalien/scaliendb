@@ -88,8 +88,8 @@ void ShardHTTPClientSession::OnComplete(ClientRequest* request, bool last)
             session.PrintPair(response->keys[i], response->values[i]);
         break;
     case CLIENTRESPONSE_NEXT:
-        tmp.Writef("NEXT \"%R\" \"%R\" %U %U",
-         &response->value, &response->endKey, response->number, response->offset);
+        tmp.Writef("NEXT \"%R\" \"%R\" %U",
+         &response->value, &response->endKey, response->number);
         rb.Wrap(tmp);
         session.Print(rb);
         break;
@@ -504,7 +504,6 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeys()
     ReadBuffer      endKey;
     ReadBuffer      prefix;
     uint64_t        count;
-    uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
@@ -512,11 +511,9 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeys()
     HTTP_GET_OPT_PARAM(params, "prefix", prefix);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
-    offset = 0;
-    HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->ListKeys(0, 0, tableID, startKey, endKey, prefix, count, offset);
+    request->ListKeys(0, 0, tableID, startKey, endKey, prefix, count);
 
     return request;    
 }
@@ -529,7 +526,6 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
     ReadBuffer      endKey;
     ReadBuffer      prefix;
     uint64_t        count;
-    uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
@@ -537,11 +533,9 @@ ClientRequest* ShardHTTPClientSession::ProcessListKeyValues()
     HTTP_GET_OPT_PARAM(params, "prefix", prefix);
     count = 0;
     HTTP_GET_OPT_U64_PARAM(params, "count", count);
-    offset = 0;
-    HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->ListKeyValues(0, 0, tableID, startKey, endKey, prefix, count, offset);
+    request->ListKeyValues(0, 0, tableID, startKey, endKey, prefix, count);
 
     return request;    
 }
@@ -553,20 +547,14 @@ ClientRequest* ShardHTTPClientSession::ProcessCount()
     ReadBuffer      startKey;
     ReadBuffer      endKey;
     ReadBuffer      prefix;
-    uint64_t        count;
-    uint64_t        offset;
     
     HTTP_GET_U64_PARAM(params, "tableID", tableID);
     HTTP_GET_OPT_PARAM(params, "startKey", startKey);
     HTTP_GET_OPT_PARAM(params, "endKey", endKey);
     HTTP_GET_OPT_PARAM(params, "prefix", prefix);
-    count = 0;
-    HTTP_GET_OPT_U64_PARAM(params, "count", count);
-    offset = 0;
-    HTTP_GET_OPT_U64_PARAM(params, "offset", offset);
 
     request = new ClientRequest;
-    request->Count(0, 0, tableID, startKey, endKey, prefix, count, offset);
+    request->Count(0, 0, tableID, startKey, endKey, prefix);
 
     return request;    
 }

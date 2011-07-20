@@ -340,9 +340,6 @@ void ShardQuorumProcessor::OnLeaseTimeout()
     {
         nextMessage = shardMessages.Next(itMessage);
         
-        if (itMessage->isBulk)
-            continue;
-
         if (itMessage->clientRequest)
         {
             itMessage->clientRequest->response.NoService();
@@ -374,7 +371,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     ASSERT(configQuorum);
 
     // strictly consistent messages can only be served by the leader
-    if (request->paxosID == 1 && !quorumContext.IsLeader() && !request->isBulk)
+    if (request->paxosID == 1 && !quorumContext.IsLeader())
     {
         Log_Trace();
         request->response.NoService();
@@ -421,14 +418,6 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     message->clientRequest = request;
     shardMessages.Append(message);
 
-//    if (request->isBulk ||
-//     (configQuorum->activeNodes.GetLength() == 1 && configQuorum->inactiveNodes.GetLength() == 0))
-//    {
-//        if (!localExecute.IsActive())
-//            EventLoop::Add(&localExecute);
-//        return;
-//    }
-    
     if (!tryAppend.IsActive())
         EventLoop::Add(&tryAppend);
 }
@@ -488,7 +477,6 @@ void ShardQuorumProcessor::TrySplitShard(uint64_t shardID, uint64_t newShardID, 
     message = messageCache.Acquire();
     message->SplitShard(shardID, newShardID, splitKey);
     message->clientRequest = NULL;
-    message->isBulk = false;
     shardMessages.Append(message);
 
 //    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
@@ -523,7 +511,6 @@ void ShardQuorumProcessor::TryTruncateTable(uint64_t tableID, uint64_t newShardI
     message = messageCache.Acquire();
     message->TruncateTable(tableID, newShardID);
     message->clientRequest = NULL;
-    message->isBulk = false;
     shardMessages.Append(message);
 
 //    if (quorumContext.GetQuorum()->GetNumNodes() > 1)
@@ -608,7 +595,6 @@ void ShardQuorumProcessor::OnShardMigrationClusterMessage(uint64_t nodeID, Clust
 //    shardMessage = new ShardMessage;
     shardMessage = messageCache.Acquire();
     shardMessage->clientRequest = NULL;
-    shardMessage->isBulk = false;
 
     switch (clusterMessage.type)
     {
@@ -701,7 +687,6 @@ void ShardQuorumProcessor::TransformRequest(ClientRequest* request, ShardMessage
 {
     message->clientRequest = request;
     message->configPaxosID = request->configPaxosID;
-    message->isBulk = request->isBulk;
     
     switch (request->type)
     {
@@ -831,10 +816,7 @@ void ShardQuorumProcessor::TryAppend()
     {
         if (message->configPaxosID > CONFIG_STATE->paxosID)
             break;
-        
-        if (message->isBulk)
-            continue;
-        
+
         // make sure split shard messages are replicated by themselves
         if (numMessages != 0 && message->type == SHARDMESSAGE_SPLIT_SHARD)
             break;
@@ -884,9 +866,7 @@ void ShardQuorumProcessor::OnResumeAppend()
         if (appendState.currentAppend)
         {
             // find this message in the shardMessages list
-            FOREACH (itShardMessage, shardMessages)
-                if (itShardMessage->isBulk == false)
-                    break;
+            itShardMessage = shardMessages.First();
             ASSERT(itShardMessage != NULL);
         }
 
@@ -948,7 +928,7 @@ void ShardQuorumProcessor::LocalExecute()
     for (itMessage = shardMessages.First(); itMessage != NULL; itMessage = nextMessage)
     {
         nextMessage = shardMessages.Next(itMessage);
-        if (!isSingle && !itMessage->isBulk)
+        if (!isSingle)
             continue;
 
         ExecuteMessage(paxosID, 0, itMessage, true);

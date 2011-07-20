@@ -23,7 +23,6 @@ void SDBPConnection::Init(SDBPServer* server_)
     numCompleted = 0;
     connectTimestamp = NowClock();
     server = server_;
-    isBulkLoading = false;
     
     socket.GetEndpoint(remoteEndpoint);
     Log_Message("[%s] Client connected", remoteEndpoint.ToString());
@@ -46,21 +45,12 @@ bool SDBPConnection::OnMessage(ReadBuffer& msg)
 
     request = REQUEST_CACHE->CreateRequest();
     request->session = this;
-    request->isBulk = isBulkLoading;
     sdbpRequest.request = request;
     if (!sdbpRequest.Read(msg) || !context->IsValidClientRequest(request))
     {
         REQUEST_CACHE->DeleteRequest(request);
         OnClose();
         return true;
-    }
-
-    if (request->type == CLIENTREQUEST_BULK_LOADING)
-    {
-        Log_Debug("[%s] Bulk loading activated", remoteEndpoint.ToString());
-        REQUEST_CACHE->DeleteRequest(request);
-        isBulkLoading = true;
-        return false;
     }
 
     numPending++;

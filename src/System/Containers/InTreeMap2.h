@@ -128,9 +128,12 @@ public:
     template<typename K>
     T*                      Locate(K key, int& cmpres);
     
+    template<typename K>
     T*                      Insert(T* t);
     void                    InsertAt(T* t, T* pos, int cmpres);
     
+    T*                      Delete(T* t);
+    T*                      Pop();
     T*                      Remove(T* t);
     
     void                    Clear();
@@ -372,6 +375,7 @@ void InTreeMap<T, pnode>::InsertAt(T* t, T* pos, int cmpres)
 }
 
 template<typename T, InTreeNode<T> T::*pnode>
+template<typename K>
 T* InTreeMap<T, pnode>::Insert(T* t)
 {
     T*      curr;
@@ -396,7 +400,9 @@ T* InTreeMap<T, pnode>::Insert(T* t)
     curr = root;
     while (true)
     {
-        result = KeyCmp(Key(t), Key(curr));
+        K a = Key(t);
+        K b = Key(curr);
+        result = KeyCmp(a, b);
         if (result == 0)
         {
             // replace the old node with the new one
@@ -433,6 +439,29 @@ T* InTreeMap<T, pnode>::Insert(T* t)
     FixColors(elem);
     
     return NULL;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Delete(T* t)
+{
+    T* next;
+    
+    next = Remove(t);
+    delete t;
+    return next;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+T* InTreeMap<T, pnode>::Pop()
+{
+    T* h;
+    
+    if (GetCount() == 0)
+        return NULL;
+    
+    h = First();
+    Remove(h);
+    return h;
 }
 
 template<typename T, InTreeNode<T> T::*pnode>

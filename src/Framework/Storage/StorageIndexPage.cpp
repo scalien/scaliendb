@@ -102,7 +102,7 @@ void StorageIndexPage::Append(ReadBuffer key, uint32_t index, uint64_t offset)
     record->index = index;
     record->offset = offset;
     
-    indexTree.Insert(record);
+    indexTree.Insert<const ReadBuffer&>(record);
 }
 
 void StorageIndexPage::Finalize()
@@ -217,7 +217,7 @@ bool StorageIndexPage::Read(Buffer& buffer_)
         it->key = key;
         it->index = i;
         it->offset = offset;
-        indexTree.Insert(it);
+        indexTree.Insert<const ReadBuffer&>(it);
         
         if (i == numKeys / 2)
             midpoint = key;

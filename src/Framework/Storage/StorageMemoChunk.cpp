@@ -183,7 +183,7 @@ bool StorageMemoChunk::Set(ReadBuffer key, ReadBuffer value)
 
     it = NewStorageMemoKeyValue();
     it->Set(key, value, this);
-    keyValues.Insert(it);
+    keyValues.Insert<const ReadBuffer>(it);
     
     return true;
 }
@@ -205,7 +205,7 @@ bool StorageMemoChunk::Delete(ReadBuffer key)
 
     it = NewStorageMemoKeyValue();
     it->Delete(key, this);
-    keyValues.Insert(it);
+    keyValues.Insert<const ReadBuffer>(it);
     
     return true;
 }

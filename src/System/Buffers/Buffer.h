@@ -79,6 +79,9 @@ public:
     void                Clear();
     void                Reset();
 
+    bool                BeginsWith(const char* s);
+    bool                BeginsWith(Buffer& other);
+
     Buffer*             next;
     Buffer*             prev;
         

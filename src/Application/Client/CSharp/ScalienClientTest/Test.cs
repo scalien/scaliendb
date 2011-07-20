@@ -1,4 +1,5 @@
-﻿namespace Scalien
+﻿using System.Collections.Generic;
+namespace Scalien
 {
     public class Test
     {
@@ -6,15 +7,22 @@
         public static void Main(string[] args)
         {
             
-            Client.SetTrace(true);
-            string[] nodes = { "192.168.137.236:7080" };
+            //Client.SetTrace(true);
+            //string[] nodes = { "192.168.137.236:7080" };
+            //Client client = new Client(nodes);
+            //client.SetMasterTimeout(3 * 1000);
+            //client.SetGlobalTimeout(10 * 1000);
+            //client.UseDatabase("testdb");
+            //client.UseTable("testtable");
+            //client.Set("key", "value");
+            //string value = client.Get("key");
+
+            string[] nodes = { "localhost:7080" };
             Client client = new Client(nodes);
-            client.SetMasterTimeout(3 * 1000);
-            client.SetGlobalTimeout(10 * 1000);
-            client.UseDatabase("testdb");
-            client.UseTable("testtable");
-            client.Set("key", "value");
-            string value = client.Get("key");
+            Database database = client.GetDatabase("Storage");
+            List<Quorum> quorums = client.GetQuorums();
+            Quorum quorum = quorums.ToArray()[0];
+            Table table = database.CreateTable(quorum, "sequence");
         }
     }
 }

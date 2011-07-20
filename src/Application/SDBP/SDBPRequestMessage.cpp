@@ -164,21 +164,20 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
 
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
+            read = buffer.Readf("%c:%U:%U:%#B:%#B:%#B:%U",
+             &request->type, &request->commandID,
+             &request->tableID, &request->key, &request->endKey, &request->prefix, &request->count);
+            break;
+
         case CLIENTREQUEST_COUNT:
-            read = buffer.Readf("%c:%U:%U:%U:%#B:%#B:%#B:%U:%U",
+            read = buffer.Readf("%c:%U:%U:%U:%#B:%#B:%#B",
              &request->type, &request->commandID, &request->configPaxosID,
-             &request->tableID, &request->key, &request->endKey, &request->prefix,
-             &request->count, &request->offset);
+             &request->tableID, &request->key, &request->endKey, &request->prefix);
             break;
             
         case CLIENTREQUEST_SUBMIT:
             read = buffer.Readf("%c:%U",
              &request->type, &request->quorumID);
-            break;
-        
-        case CLIENTREQUEST_BULK_LOADING:
-            read = buffer.Readf("%c:%U",
-             &request->type, &request->commandID);
             break;
         
         default:
@@ -333,19 +332,18 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
 
         case CLIENTREQUEST_LIST_KEYS:
         case CLIENTREQUEST_LIST_KEYVALUES:
+            buffer.Appendf("%c:%U:%U:%#B:%#B:%#B:%U",
+             request->type, request->commandID,
+             request->tableID, &request->key, &request->endKey, &request->prefix, request->count);
+            return true;
         case CLIENTREQUEST_COUNT:
-            buffer.Appendf("%c:%U:%U:%U:%#B:%#B:%#B:%U:%U",
+            buffer.Appendf("%c:%U:%U:%U:%#B:%#B:%#B",
              request->type, request->commandID, request->configPaxosID,
-             request->tableID, &request->key, &request->endKey, &request->prefix,
-             request->count, request->offset);
+             request->tableID, &request->key, &request->endKey, &request->prefix);
             return true;
             
         case CLIENTREQUEST_SUBMIT:
             buffer.Appendf("%c:%U", request->type, request->quorumID);
-            return true;
-
-        case CLIENTREQUEST_BULK_LOADING:
-            buffer.Appendf("%c:%U", request->type, request->commandID);
             return true;
 
         default:

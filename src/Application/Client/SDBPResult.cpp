@@ -5,12 +5,6 @@
 
 using namespace SDBPClient;
 
-#define BUFFER_LENGTH(buflen)        (buflen > ARRAY_SIZE ? buflen : 0)
-#define REQUEST_SIZE(req)                                                           \
-    BUFFER_LENGTH(req->name.GetLength()) + BUFFER_LENGTH(req->key.GetLength()) +    \
-    BUFFER_LENGTH(req->value.GetLength()) + BUFFER_LENGTH(req->test.GetLength()) +  \
-    sizeof(Request)
-
 static inline uint64_t Key(const Request* req)
 {
     return req->commandID;
@@ -42,8 +36,7 @@ void Result::Close()
     requests.DeleteTree();
     numCompleted = 0;
     requestCursor = NULL;
-    batchLimit = 100*MB;
-    batchSize = 0;
+    proxied = false;
 }
 
 void Result::Begin()
@@ -123,22 +116,12 @@ bool Result::IsFinished()
     return false;
 }
 
-void Result::SetBatchLimit(uint64_t batchLimit_)
-{
-    batchLimit = batchLimit_;
-}
-
 bool Result::AppendRequest(Request* req)
 {
-    batchSize += REQUEST_SIZE(req);
-    
-    if (batchSize > batchLimit)
-        return false;
-
     req->numTry = 0;
     req->status = SDBP_NOSERVICE;
     req->response.NoResponse();
-    requests.Insert(req);
+    requests.Insert<uint64_t>(req);
     if (numCompleted > 0)
         transportStatus = SDBP_PARTIAL;
     
@@ -152,7 +135,6 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     req = requests.Get(resp->commandID);
     if (!req)
         return false;
-
     Log_Trace("%c %U", resp->type, resp->commandID);    
 
     req->responseTime = EventLoop::Now();
@@ -258,6 +240,12 @@ int Result::GetKey(ReadBuffer& key)
 int Result::GetValue(ReadBuffer& value)
 {
     Request*    request;
+
+    if (proxied)
+    {
+        value = proxiedValue;
+        return SDBP_SUCCESS;
+    }
     
     if (requestCursor == NULL)
         return SDBP_API_ERROR;
@@ -375,29 +363,20 @@ void Result::HandleRequestResponse(Request* req, ClientResponse* resp)
         if (resp->type == CLIENTRESPONSE_VALUE)
             resp->CopyValue();
 
-        if (req->isBulk)
+        // COUNT is a special case, it needs an extra response
+        if (req->type == CLIENTREQUEST_COUNT)
         {
-            req->numBulkResponses++;
-            if (req->numBulkResponses == req->shardConns.GetLength())
+            if (resp->type == CLIENTRESPONSE_NUMBER)
+                req->response.Number(req->response.number + resp->number);
+            else
                 numCompleted++;
         }
         else
         {
-            // COUNT is a special case, it needs an extra response
-            if (req->type == CLIENTREQUEST_COUNT)
-            {
-                if (resp->type == CLIENTRESPONSE_NUMBER)
-                    req->response.Number(req->response.number + resp->number);
-                else
-                    numCompleted++;
-            }
-            else
-            {
-                if (req->response.type == CLIENTRESPONSE_NORESPONSE)
-                    numCompleted++;
-            
-                resp->Transfer(req->response);
-            }
+            if (req->response.type == CLIENTRESPONSE_NORESPONSE)
+                numCompleted++;
+        
+            resp->Transfer(req->response);
         }
     }
 

@@ -117,11 +117,12 @@ do {                                                                            
 ===============================================================================================
  */
 
-#define FOREACH(it, cont)       for (it = (cont).First(); it != NULL; it = (cont).Next(it))
-#define FOREACH_BACK(it, cont)  for (it = (cont).Last(); it != NULL; it = (cont).Prev(it))
-#define FOREACH_FIRST(it, cont) for (it = (cont).First(); it != NULL; it = (cont).First())
-#define FOREACH_LAST(it, cont)  for (it = (cont).Last(); it != NULL; it = (cont).Last())
-#define FOREACH_REMOVE(it, cont)  for (it = (cont).First(); it != NULL; it = (cont).Remove(it))
+#define FOREACH(it, cont)           for (it = (cont).First(); it != NULL; it = (cont).Next(it))
+#define FOREACH_BACK(it, cont)      for (it = (cont).Last(); it != NULL; it = (cont).Prev(it))
+#define FOREACH_FIRST(it, cont)     for (it = (cont).First(); it != NULL; it = (cont).First())
+#define FOREACH_LAST(it, cont)      for (it = (cont).Last(); it != NULL; it = (cont).Last())
+#define FOREACH_REMOVE(it, cont)    for (it = (cont).First(); it != NULL; it = (cont).Remove(it))
+#define FOREACH_POP(it, cont)       while((it = (cont).Pop()) != NULL)
 
 /*
 ===============================================================================================

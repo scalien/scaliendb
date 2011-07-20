@@ -40,7 +40,6 @@
 #define CLIENTREQUEST_SPLIT_SHARD       'h'
 #define CLIENTREQUEST_MIGRATE_SHARD     'M'
 #define CLIENTREQUEST_SUBMIT            '*'
-#define CLIENTREQUEST_BULK_LOADING      'B'
 
 class ClientSession; // forward
 
@@ -152,24 +151,20 @@ public:
                      uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID, 
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
-                     unsigned count, unsigned offset);
+                     unsigned count);
     bool            ListKeyValues(
                      uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID,
                      ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
-                     unsigned count, unsigned offset);
+                     unsigned count);
     bool            Count(
                      uint64_t commandID, uint64_t configPaxosID_,
                      uint64_t tableID,
-                     ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix,
-                     unsigned count, unsigned offset);
+                     ReadBuffer& startKey, ReadBuffer& endKey, ReadBuffer& prefix);
 
 
     bool            Submit(
                      uint64_t quorumID);
-                     
-    bool            BulkLoading(
-                     uint64_t commandID);
 
     // Variables
     ClientResponse  response;
@@ -186,7 +181,6 @@ public:
     uint64_t        configPaxosID;
     int64_t         number;
     uint64_t        count;
-    uint64_t        offset;
     Buffer          name;
     Buffer          key;
     Buffer          prefix;
@@ -196,7 +190,6 @@ public:
     List<uint64_t>  nodes;
     uint64_t        changeTimeout;
     uint64_t        lastChangeTime;
-    bool            isBulk;
     
     ClientRequest*  prev;
     ClientRequest*  next;

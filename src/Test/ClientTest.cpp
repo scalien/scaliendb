@@ -12,10 +12,10 @@ using namespace SDBPClient;
 
 #define TEST_CLIENT_FAIL() \
     { \
-        PRINT_CLIENT_STATUS("Transport", client.TransportStatus()); \
-        PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus()); \
-        PRINT_CLIENT_STATUS("Timeout", client.TimeoutStatus()); \
-        PRINT_CLIENT_STATUS("Command", client.CommandStatus()); \
+        PRINT_CLIENT_STATUS("Transport", client.GetTransportStatus()); \
+        PRINT_CLIENT_STATUS("Connectivity", client.GetConnectivityStatus()); \
+        PRINT_CLIENT_STATUS("Timeout", client.GetTimeoutStatus()); \
+        PRINT_CLIENT_STATUS("Command", client.GetCommandStatus()); \
         TEST_FAIL(); \
     }
 
@@ -42,8 +42,8 @@ static int SetupDefaultClient(Client& client)
     const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.51:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
+    ReadBuffer      databaseName = "test";
+    ReadBuffer      tableName = "test";
     int             ret;
         
     ret = client.Init(SIZE(nodes), nodes);
@@ -531,7 +531,6 @@ TEST_DEFINE(TestClientBatchedSetBulk)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetBulkLoading(true);
     client.SetMasterTimeout(100000);
     client.SetGlobalTimeout(100000);
     ret = client.UseDatabase(databaseName);
@@ -656,10 +655,10 @@ TEST_DEFINE(TestClientBatchedSetRandom)
 
         if ((batchNum / (sw.Elapsed() / 1000.0)) > 100*1000)
         {
-            PRINT_CLIENT_STATUS("Transport", client.TransportStatus());
-            PRINT_CLIENT_STATUS("Connectivity", client.ConnectivityStatus());
-            PRINT_CLIENT_STATUS("Timeout", client.TimeoutStatus());
-            PRINT_CLIENT_STATUS(" Command", client.CommandStatus());
+            PRINT_CLIENT_STATUS("Transport", client.GetTransportStatus());
+            PRINT_CLIENT_STATUS("Connectivity", client.GetConnectivityStatus());
+            PRINT_CLIENT_STATUS("Timeout", client.GetTimeoutStatus());
+            PRINT_CLIENT_STATUS(" Command", client.GetCommandStatus());
         }
         
     }
@@ -1167,103 +1166,53 @@ TEST_DEFINE(TestClientMaro)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
-    ReadBuffer      key;
-    Buffer          keyBuffer;
-    ReadBuffer      resultKey;
-    ReadBuffer      value;
-    Buffer          valueBuffer;
-    ReadBuffer      resultValue;
+    ReadBuffer      rk, rv, r;
+    Buffer          k, v;
     int             ret;
-    unsigned        i;
-    
-    Log_SetTimestamping(true);
-    Log_SetTarget(LOG_TARGET_STDOUT);
-    Log_SetTrace(false);
-    
-    ret = client.Init(SIZE(nodes), nodes);
+
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(10000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    client.Begin();
-    for (i = 0; i < 10000; i++)
-    {
-        keyBuffer.Writef("key%u", i);
-        key.Wrap(keyBuffer);
-        valueBuffer.Writef("value%u", i);
-        value.Wrap(valueBuffer);
-        ret = client.Set(key, value);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-        
-//        ret = client.Get(key);
-//        if (ret != SDBP_SUCCESS)
-//            TEST_CLIENT_FAIL();
-//        
-//        result = client.GetResult();
-//        if (result == NULL)
-//            TEST_CLIENT_FAIL();
-//        
-//        if (result->GetRequestCount() != 1)
-//            TEST_CLIENT_FAIL();
-//        
-//        for (result->Begin(); !result->IsEnd(); result->Next())
-//        {
-//            ret = result->GetKey(resultKey);
-//            if (ret != SDBP_SUCCESS)
-//                TEST_CLIENT_FAIL();
-//            
-//            if (ReadBuffer::Cmp(key, resultKey) != 0)
-//                TEST_CLIENT_FAIL();
-//            
-//            ret = result->GetValue(resultValue);
-//            if (ret != SDBP_SUCCESS)
-//                TEST_CLIENT_FAIL();
-//                
-//            if (ReadBuffer::Cmp(value, resultValue) != 0)
-//                TEST_CLIENT_FAIL();
-//                
-//            TEST_LOG("key: %.*s, value: %.*s", P(&resultKey), P(&resultValue));
-//        }
-//        
-//        delete result;
-    }
+//    for (int i = 0; i < 10; i++)
+//    {
+//        k.Writef("/test/%04d", i);
+//        v.Writef("%04d", i);
+//        rk.Wrap(k);
+//        rv.Wrap(v);
+//        client.Set(rk, rv);
+//    }
+//    client.Submit();
+//
+//    for (int i = 5; i < 15; i++)
+//    {
+//        k.Writef("/test/%04d", i);
+//        v.Writef("%04d", i*i);
+//        rk.Wrap(k);
+//        rv.Wrap(v);
+//        client.Set(rk, rv);
+//    }
+//
+//    for (int i = 5; i < 10; i++)
+//    {
+//        k.Writef("/test/%04d", i);
+//        rk.Wrap(k);
+//        client.Delete(rk);
+//    }
 
-    Stopwatch sw;
-    unsigned elapsed;
-    sw.Start();
-    ret = client.Submit();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    sw.Stop();
-    elapsed = sw.Elapsed();
-    TEST_LOG("elapsed %u", elapsed);
-    
+    client.ListKeyValues("/test/0009", "", "", 100, true);
+
     result = client.GetResult();
-    if (result == NULL)
-        TEST_CLIENT_FAIL();
-
     for (result->Begin(); !result->IsEnd(); result->Next())
     {
-        ret = result->GetTransportStatus();
-        if (ret != SDBP_SUCCESS)
+        if (result->GetCommandStatus() != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
+
+        result->GetKey(rk);
+        result->GetValue(rv);
+        TEST_LOG("%.*s => %.*s",
+         rk.GetLength(), rk.GetBuffer(), rv.GetLength(), rv.GetBuffer());
     }
-
-    delete result;
-
-    client.Shutdown();
     
     return TEST_SUCCESS;
 }
@@ -1654,44 +1603,6 @@ TEST_DEFINE(TestClientActivateNode)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestClientFilter)
-{
-    uint64_t        commandID;
-    Client          client;
-    Result*         result;
-    ReadBuffer      key;
-    ReadBuffer      value;
-    
-    TEST(SetupDefaultClient(client));
-    
-    // filter through all key-values in the database
-    TEST(client.Filter("", "", "", 1000*1000*1000, 0, commandID));
-
-    do
-    {
-        result = client.GetResult();
-        for (result->Begin(); !result->IsEnd(); result->Next())
-        {
-            TEST(result->GetKey(key));
-            TEST(result->GetValue(value));
-            if (ReadBuffer::Cmp(value, "1111") > 0 && ReadBuffer::Cmp(value, "11112") < 0)
-                TEST_LOG("%.*s => %.*s", key.GetLength(), key.GetBuffer(), value.GetLength(), value.GetBuffer());
-        }
-
-        if (result->IsFinished())
-        {
-            delete result;
-            break;
-        }
-        
-        delete result;
-        TEST(client.Receive(commandID));
-    }
-    while (true);
-    
-    return TEST_SUCCESS;
-}
-
 // emulate Filter with ListKeyValues
 TEST_DEFINE(TestClientFilter2)
 {
@@ -1746,7 +1657,7 @@ TEST_DEFINE(TestClientCount)
     uint64_t        number;
     
     TEST(SetupDefaultClient(client));
-    TEST(client.Count("", "", "", 0, 0));
+    TEST(client.Count("", "", ""));
     
     result = client.GetResult();
     TEST(result->GetNumber(number));

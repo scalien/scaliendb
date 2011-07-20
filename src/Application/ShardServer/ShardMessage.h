@@ -33,7 +33,6 @@ class ShardMessage
 {
 public:
     // Variables
-    bool            isBulk;
     char            type;
     uint64_t        configPaxosID;
     uint64_t        tableID;

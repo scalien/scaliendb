@@ -9,6 +9,12 @@
 namespace SDBPClient
 {
 
+#define BUFFER_LENGTH(buflen)        (buflen > ARRAY_SIZE ? buflen : 0)
+#define REQUEST_SIZE(req)                                                           \
+    BUFFER_LENGTH(req->name.GetLength()) + BUFFER_LENGTH(req->key.GetLength()) +    \
+    BUFFER_LENGTH(req->value.GetLength()) + BUFFER_LENGTH(req->test.GetLength()) +  \
+    sizeof(Request)
+
 /*
 ===============================================================================================
 
@@ -35,12 +41,13 @@ public:
     uint64_t        responseTime;
     unsigned        numTry;
     unsigned        numShardServers;
-    unsigned        numBulkResponses;
     ResponseList    responses;
     bool            async;
     bool            multi;              // multirequests are those that sent to multiple servers
     ShardConnList   shardConns;
     Request*        parent;
+    uint64_t        userCount;
+    bool            skip;
 };
 
 };  // namespace

@@ -41,32 +41,30 @@ public:
     //
     // settings
     //
+    void                    SetConsistencyLevel(int consistencyLevel);
+    void					SetBatchMode(int batchMode);
+    void                    SetBatchLimit(unsigned batchLimit);
+
     void                    SetGlobalTimeout(uint64_t timeout);
     void                    SetMasterTimeout(uint64_t timeout);
     uint64_t                GetGlobalTimeout();
     uint64_t                GetMasterTimeout();
-    
+
     uint64_t                GetCurrentDatabaseID();
     uint64_t                GetCurrentTableID();
     ConfigState*            GetConfigState();
     void                    WaitConfigState();
-    
-    void                    SetBatchLimit(uint64_t batchLimit);
-    void                    SetBulkLoading(bool bulk);
-    bool                    IsBulkLoading();
-    
-    void                    SetConsistencyLevel(int level);
-    
+        
     // =============================================================================================
     //
     // result & status
     //
     Result*                 GetResult();
 
-    int                     TransportStatus();
-    int                     ConnectivityStatus();
-    int                     TimeoutStatus();
-    int                     CommandStatus();
+    int                     GetTransportStatus();
+    int                     GetConnectivityStatus();
+    int                     GetTimeoutStatus();
+    int                     GetCommandStatus();
     
     // =============================================================================================
     //
@@ -118,24 +116,23 @@ public:
     int                     Remove(const ReadBuffer& key);
 
     int                     ListKeys(const ReadBuffer& startKey, const ReadBuffer& endKey,
-                             const ReadBuffer& prefix, unsigned count, unsigned offset);
+                             const ReadBuffer& prefix, unsigned count, bool skip);
     int                     ListKeyValues(const ReadBuffer& startKey, const ReadBuffer& endKey, 
-                             const ReadBuffer& prefix, unsigned count, unsigned offset);    
+                             const ReadBuffer& prefix, unsigned count, bool skip);
     int                     Count(const ReadBuffer& startKey, const ReadBuffer& endKey, 
-                             const ReadBuffer& prefix, unsigned count, unsigned offset);    
+                             const ReadBuffer& prefix);    
 
     int                     Filter(const ReadBuffer& startKey, const ReadBuffer& endKey,
-                             const ReadBuffer& prefix, unsigned count, unsigned offset, 
-                             uint64_t& commandID);
+                             const ReadBuffer& prefix, unsigned count, uint64_t& commandID);
     int                     Receive(uint64_t commandID);
     
     int                     Begin();
     int                     Submit();
     int                     Cancel();
-    bool                    IsBatched();
 
 private:
     typedef InList<Request>                     RequestList;
+    typedef InTreeMap<Request>                  RequestMap;
     typedef InTreeMap<ShardConnection>          ShardConnectionMap;
     typedef HashMap<uint64_t, RequestList*>     RequestListMap;
 
@@ -155,7 +152,7 @@ private:
     bool                    IsReading();
     void                    SetConfigState(ControllerConnection* conn, ConfigState* configState);
 
-    bool                    AppendDataRequest(Request* req, int& status);
+    void                    AppendDataRequest(Request* req);
     void                    ReassignRequest(Request* req);
     void                    AssignRequestsToQuorums();
     bool                    GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID);
@@ -166,7 +163,7 @@ private:
     void                    InvalidateQuorum(uint64_t quorumID, uint64_t nodeID);
     void                    InvalidateQuorumRequests(uint64_t quorumID);
     void                    NextRequest(Request* req, ReadBuffer nextShardKey, ReadBuffer endKey,
-                             ReadBuffer prefix, uint64_t count, uint64_t offset);
+                             ReadBuffer prefix, uint64_t count);
 
     void                    ConfigureShardServers();
     ShardConnection*        GetShardConnection(uint64_t nodeID);
@@ -177,6 +174,9 @@ private:
     unsigned                GetMaxQuorumRequests(RequestList* qrequests, ShardConnection* conn, 
                              ConfigQuorum* quorum);
     uint64_t                GetRequestPaxosID();
+    
+    void                    ComputeListResponse();
+    uint64_t                NumProxiedDeletes(Request* request);
     
     int64_t                 master;
     uint64_t                commandID;
@@ -189,6 +189,9 @@ private:
     ConfigState*            configState;
     Result*                 result;
     RequestList             requests;
+    RequestMap              proxiedRequests;
+    unsigned                batchLimit;
+    int64_t                 proxySize;
     ShardConnectionMap      shardConnections;
     ControllerConnection**  controllerConnections;
     int                     numControllers;
@@ -197,11 +200,9 @@ private:
     uint64_t                databaseID;
     bool                    isTableSet;
     uint64_t                tableID;
-    bool                    isBatched;
-    uint64_t                batchLimit;
-    bool                    isBulkLoading;
     bool                    isReading;
     int                     consistencyLevel;
+    int						batchMode;
     uint64_t                highestSeenPaxosID;
 
 //#ifdef CLIENT_MULTITHREAD    

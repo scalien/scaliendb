@@ -56,7 +56,6 @@ public:
 private:
     void                    InvalidateQuorum(uint64_t quorumID);
     void                    SendQuorumRequests();
-    void                    SendBulkLoadingRequest();
 
     Client*                 client;
     uint64_t                nodeID;
@@ -64,7 +63,6 @@ private:
     SortedList<uint64_t>    quorums;
     InList<Request>         sentRequests;
     ClientResponse          response;
-    bool                    isBulkSent;
 };
 
 }; // namespace

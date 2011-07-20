@@ -7,7 +7,7 @@ StorageUnwrittenChunkLister::StorageUnwrittenChunkLister() : dataPage(NULL, 0)
 
 // copy key-values from file chunk to a temporary data page, that will be used for listing
 void StorageUnwrittenChunkLister::Init(StorageFileChunk* chunk, ReadBuffer& startKey,
- unsigned count, unsigned offset)
+ unsigned count)
 {
     StorageFileKeyValue*    kv;
     int                     cmpres;
@@ -35,7 +35,7 @@ void StorageUnwrittenChunkLister::Init(StorageFileChunk* chunk, ReadBuffer& star
         if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         {
             num++;
-            if (count != 0 && num == count + offset)
+            if (count != 0 && num == count)
                 break;
         }
         kv = NextChunkKeyValue(chunk, index, kv);
