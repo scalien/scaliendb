@@ -601,6 +601,8 @@
 		9AABB211123EA3AF003626AC /* ScalienDB */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ScalienDB; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABB214123EA3AF003626AC /* TestMain */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = TestMain; sourceTree = BUILT_PRODUCTS_DIR; };
 		9AABC18D124EA494003626AC /* ArrayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayList.h; sourceTree = "<group>"; };
+		9AB1EEDE13D6F2F200A463EF /* scaliendb_client.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = scaliendb_client.cs; path = Client/CSharp/ScalienClient/scaliendb_client.cs; sourceTree = "<group>"; };
+		9AB1EEDF13D6F31700A463EF /* scaliendb_clientPINVOKE.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = scaliendb_clientPINVOKE.cs; path = Client/CSharp/ScalienClient/scaliendb_clientPINVOKE.cs; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9AD104D31309970D00AB777B /* StorageAsyncList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncList.h; sourceTree = "<group>"; };
@@ -1285,6 +1287,8 @@
 		9A07FAA7138E845100AED738 /* CSharp */ = {
 			isa = PBXGroup;
 			children = (
+				9AB1EEDE13D6F2F200A463EF /* scaliendb_client.cs */,
+				9AB1EEDF13D6F31700A463EF /* scaliendb_clientPINVOKE.cs */,
 				9AED117013B3595F0023F27E /* Database.cs */,
 				9AED117113B3595F0023F27E /* Quorum.cs */,
 				9AED117213B3595F0023F27E /* Table.cs */,
