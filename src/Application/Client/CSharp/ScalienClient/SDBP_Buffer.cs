@@ -42,7 +42,7 @@ public class SDBP_Buffer : IDisposable {
   public SDBP_Buffer() : this(scaliendb_clientPINVOKE.new_SDBP_Buffer(), true) {
   }
 
-  public void SetBuffer(string data_, int len_) {
+  public void SetBuffer(byte[] data_, int len_) {
     scaliendb_clientPINVOKE.SDBP_Buffer_SetBuffer(swigCPtr, data_, len_);
   }
 

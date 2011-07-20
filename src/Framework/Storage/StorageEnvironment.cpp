@@ -1056,7 +1056,7 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
                 newMemoChunk->Set(itKeyValue->GetKey(), itKeyValue->GetValue());
             else
                 newMemoChunk->Delete(itKeyValue->GetKey());
-            newMemoChunk->keyValues.Insert(kv);
+            newMemoChunk->keyValues.Insert<ReadBuffer>(kv);
         }
     }
 

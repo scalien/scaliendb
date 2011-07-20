@@ -2,7 +2,7 @@
 #include "System/FileSystem.h"
 #include "StorageEnvironment.h"
 #include "FDGuard.h"
-#include "PointerGuard.h"
+#include "System/PointerGuard.h"
 
 static bool LessThan(const Buffer* a, const Buffer* b)
 {

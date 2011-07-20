@@ -249,7 +249,7 @@ class scaliendb_clientPINVOKE {
   public static extern IntPtr new_SDBP_Buffer();
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Buffer_SetBuffer")]
-  public static extern void SDBP_Buffer_SetBuffer(HandleRef jarg1, string jarg2, int jarg3);
+  public static extern void SDBP_Buffer_SetBuffer(HandleRef jarg1, byte[] jarg2, int jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Buffer_data_set")]
   public static extern void SDBP_Buffer_data_set(HandleRef jarg1, HandleRef jarg2);
@@ -359,14 +359,14 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_WaitConfigState")]
   public static extern void SDBP_WaitConfigState(HandleRef jarg1);
 
-  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetBatchLimit")]
-  public static extern void SDBP_SetBatchLimit(HandleRef jarg1, ulong jarg2);
-
-  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetBulkLoading")]
-  public static extern void SDBP_SetBulkLoading(HandleRef jarg1, bool jarg2);
-
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetConsistencyLevel")]
   public static extern void SDBP_SetConsistencyLevel(HandleRef jarg1, int jarg2);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetBatchMode")]
+  public static extern void SDBP_SetBatchMode(HandleRef jarg1, int jarg2);
+
+  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetBatchLimit")]
+  public static extern void SDBP_SetBatchLimit(HandleRef jarg1, uint jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_CreateQuorum")]
   public static extern int SDBP_CreateQuorum(HandleRef jarg1, string jarg2, HandleRef jarg3);
@@ -480,79 +480,79 @@ class scaliendb_clientPINVOKE {
   public static extern int SDBP_Get(HandleRef jarg1, string jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetCStr")]
-  public static extern int SDBP_GetCStr(HandleRef jarg1, string jarg2, int jarg3);
+  public static extern int SDBP_GetCStr(HandleRef jarg1, byte[] jarg2, int jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Set")]
   public static extern int SDBP_Set(HandleRef jarg1, string jarg2, string jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetCStr")]
-  public static extern int SDBP_SetCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5);
+  public static extern int SDBP_SetCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetIfNotExists")]
   public static extern int SDBP_SetIfNotExists(HandleRef jarg1, string jarg2, string jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetIfNotExistsCStr")]
-  public static extern int SDBP_SetIfNotExistsCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5);
+  public static extern int SDBP_SetIfNotExistsCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_TestAndSet")]
   public static extern int SDBP_TestAndSet(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_TestAndSetCStr")]
-  public static extern int SDBP_TestAndSetCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5, string jarg6, int jarg7);
+  public static extern int SDBP_TestAndSetCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetAndSet")]
   public static extern int SDBP_GetAndSet(HandleRef jarg1, string jarg2, string jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetAndSetCStr")]
-  public static extern int SDBP_GetAndSetCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5);
+  public static extern int SDBP_GetAndSetCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Add")]
   public static extern int SDBP_Add(HandleRef jarg1, string jarg2, long jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_AddCStr")]
-  public static extern int SDBP_AddCStr(HandleRef jarg1, string jarg2, int jarg3, long jarg4);
+  public static extern int SDBP_AddCStr(HandleRef jarg1, byte[] jarg2, int jarg3, long jarg4);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Append")]
   public static extern int SDBP_Append(HandleRef jarg1, string jarg2, string jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_AppendCStr")]
-  public static extern int SDBP_AppendCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5);
+  public static extern int SDBP_AppendCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Delete")]
   public static extern int SDBP_Delete(HandleRef jarg1, string jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_DeleteCStr")]
-  public static extern int SDBP_DeleteCStr(HandleRef jarg1, string jarg2, int jarg3);
+  public static extern int SDBP_DeleteCStr(HandleRef jarg1, byte[] jarg2, int jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_TestAndDelete")]
   public static extern int SDBP_TestAndDelete(HandleRef jarg1, string jarg2, string jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_TestAndDeleteCStr")]
-  public static extern int SDBP_TestAndDeleteCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5);
+  public static extern int SDBP_TestAndDeleteCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Remove")]
   public static extern int SDBP_Remove(HandleRef jarg1, string jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_RemoveCStr")]
-  public static extern int SDBP_RemoveCStr(HandleRef jarg1, string jarg2, int jarg3);
+  public static extern int SDBP_RemoveCStr(HandleRef jarg1, byte[] jarg2, int jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ListKeys")]
-  public static extern int SDBP_ListKeys(HandleRef jarg1, string jarg2, string jarg3, string jarg4, uint jarg5, uint jarg6);
+  public static extern int SDBP_ListKeys(HandleRef jarg1, string jarg2, string jarg3, string jarg4, uint jarg5, bool jarg6);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ListKeysCStr")]
-  public static extern int SDBP_ListKeysCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5, string jarg6, int jarg7, uint jarg8, uint jarg9);
+  public static extern int SDBP_ListKeysCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7, uint jarg8, bool jarg9);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ListKeyValues")]
-  public static extern int SDBP_ListKeyValues(HandleRef jarg1, string jarg2, string jarg3, string jarg4, uint jarg5, uint jarg6);
+  public static extern int SDBP_ListKeyValues(HandleRef jarg1, string jarg2, string jarg3, string jarg4, uint jarg5, bool jarg6);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_ListKeyValuesCStr")]
-  public static extern int SDBP_ListKeyValuesCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5, string jarg6, int jarg7, uint jarg8, uint jarg9);
+  public static extern int SDBP_ListKeyValuesCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7, uint jarg8, bool jarg9);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Count")]
-  public static extern int SDBP_Count(HandleRef jarg1, string jarg2, string jarg3, string jarg4, uint jarg5, uint jarg6);
+  public static extern int SDBP_Count(HandleRef jarg1, string jarg2, string jarg3, string jarg4);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_CountCStr")]
-  public static extern int SDBP_CountCStr(HandleRef jarg1, string jarg2, int jarg3, string jarg4, int jarg5, string jarg6, int jarg7, uint jarg8, uint jarg9);
+  public static extern int SDBP_CountCStr(HandleRef jarg1, byte[] jarg2, int jarg3, byte[] jarg4, int jarg5, byte[] jarg6, int jarg7);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Begin")]
   public static extern int SDBP_Begin(HandleRef jarg1);
@@ -562,9 +562,6 @@ class scaliendb_clientPINVOKE {
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Cancel")]
   public static extern int SDBP_Cancel(HandleRef jarg1);
-
-  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_IsBatched")]
-  public static extern bool SDBP_IsBatched(HandleRef jarg1);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetTrace")]
   public static extern void SDBP_SetTrace(bool jarg1);

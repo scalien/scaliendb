@@ -44,6 +44,14 @@
 
 #endif /* SWIGJAVA */
 
+/* C# specific byte array typemaps */
+#ifdef SWIGCSHARP
+%typemap(imtype) char* "byte[]"
+%typemap(cstype) char* "byte[]"
+
+#endif /* SWIGCSHARP */
+
+
 %{
 /* Includes the header in the wrapper code */
 #define SWIG_FILE_WITH_INIT
