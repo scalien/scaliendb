@@ -36,6 +36,8 @@ public:
     void                            NewPaxosRound();
     void                            WriteReplicationState();
     
+    uint64_t                        GetMemoryUsage();
+
     // ========================================================================================
     // QuorumContext interface:
     //

@@ -13,6 +13,7 @@ void ClientRequest::Init()
     response.request = this;
     prev = next = this;
     paxosID = 0;
+    configPaxosID = 0;
     changeTimeout = 0;
     lastChangeTime = 0;
 
@@ -289,20 +290,22 @@ bool ClientRequest::MigrateShard(
 }
 
 bool ClientRequest::Get(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_)
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_)
 {
     type = CLIENTREQUEST_GET;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     return true;
 }
 
 bool ClientRequest::Set(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_SET;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
@@ -310,10 +313,11 @@ bool ClientRequest::Set(
 }
 
 bool ClientRequest::SetIfNotExists(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_SET_IF_NOT_EXISTS;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
@@ -321,11 +325,12 @@ bool ClientRequest::SetIfNotExists(
 }
 
 bool ClientRequest::TestAndSet(
- uint64_t commandID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_,
  ReadBuffer& key_, ReadBuffer& test_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_TEST_AND_SET;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     test.Write(test_);
@@ -334,11 +339,12 @@ bool ClientRequest::TestAndSet(
 }
 
 bool ClientRequest::TestAndDelete(
- uint64_t commandID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_,
  ReadBuffer& key_, ReadBuffer& test_)
 {
     type = CLIENTREQUEST_TEST_AND_DELETE;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     test.Write(test_);
@@ -346,11 +352,12 @@ bool ClientRequest::TestAndDelete(
 }
 
 bool ClientRequest::GetAndSet(
- uint64_t commandID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_,
  ReadBuffer& key_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_GET_AND_SET;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
@@ -358,11 +365,12 @@ bool ClientRequest::GetAndSet(
 }
 
 bool ClientRequest::Add(
- uint64_t commandID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_,
  ReadBuffer& key_, int64_t number_)
 {
     type = CLIENTREQUEST_ADD;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     number = number_;
@@ -370,10 +378,11 @@ bool ClientRequest::Add(
 }
 
 bool ClientRequest::Append(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_, ReadBuffer& value_)
 {
     type = CLIENTREQUEST_APPEND;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     value.Write(value_);
@@ -381,32 +390,35 @@ bool ClientRequest::Append(
 }
 
 bool ClientRequest::Delete(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_)
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_)
 {
     type = CLIENTREQUEST_DELETE;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     return true;
 }
 
 bool ClientRequest::Remove(
- uint64_t commandID_, uint64_t tableID_, ReadBuffer& key_)
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, ReadBuffer& key_)
 {
     type = CLIENTREQUEST_REMOVE;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(key_);
     return true;
 }
 
 bool ClientRequest::ListKeys(
- uint64_t commandID_, uint64_t tableID_, 
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_, 
  ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_,
  unsigned count_)
 {
     type = CLIENTREQUEST_LIST_KEYS;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(startKey_);
     endKey.Write(endKey_);
@@ -416,12 +428,13 @@ bool ClientRequest::ListKeys(
 }
 
 bool ClientRequest::ListKeyValues(
- uint64_t commandID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_,
  ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_,
  unsigned count_)
 {
     type = CLIENTREQUEST_LIST_KEYVALUES;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(startKey_);
     endKey.Write(endKey_);
@@ -431,11 +444,12 @@ bool ClientRequest::ListKeyValues(
 }
 
 bool ClientRequest::Count(
- uint64_t commandID_, uint64_t tableID_,
+ uint64_t commandID_, uint64_t configPaxosID_, uint64_t tableID_,
  ReadBuffer& startKey_, ReadBuffer& endKey_, ReadBuffer& prefix_)
 {
     type = CLIENTREQUEST_COUNT;
     commandID = commandID_;
+    configPaxosID = configPaxosID_;
     tableID = tableID_;
     key.Write(startKey_);
     endKey.Write(endKey_);

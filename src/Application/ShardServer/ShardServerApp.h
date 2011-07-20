@@ -24,6 +24,8 @@ public:
     void                    Init();
     void                    Shutdown();
 
+    uint64_t                GetMemoryUsage();
+
 private:
     ShardServer             shardServer;
 

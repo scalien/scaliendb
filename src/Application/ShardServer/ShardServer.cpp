@@ -1,25 +1,30 @@
 #include "ShardServer.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
+#include "Framework/Storage/StoragePageCache.h"
 #include "Application/Common/ContextTransport.h"
 #include "Application/Common/DatabaseConsts.h"
 #include "Application/Common/CatchupMessage.h"
 #include "Application/Common/ClientRequestCache.h"
+#include "Application/ShardServer/ShardServerApp.h"
 
 static inline bool LessThan(const uint64_t& a, const uint64_t& b)
 {
     return a < b;
 }
 
-void ShardServer::Init()
+void ShardServer::Init(ShardServerApp* app)
 {
     unsigned        numControllers;
     uint64_t        nodeID;
     uint64_t        runID;
     const char*     str;
     Endpoint        endpoint;
+    Buffer          buffer;
 
-    databaseManager.Init(this);
+    shardServerApp = app;
+
+    databaseManager.Init(this); 
     heartbeatManager.Init(this);
     migrationWriter.Init(this);
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 10000));
@@ -48,7 +53,7 @@ void ShardServer::Init()
         // me a SetNodeID cluster message
     }
 
-    CONTEXT_TRANSPORT->SetClusterContext(this);    
+    CONTEXT_TRANSPORT->SetClusterContext(this);
 }
 
 void ShardServer::Shutdown()
@@ -91,6 +96,11 @@ ShardMigrationWriter* ShardServer::GetShardMigrationWriter()
 ConfigState* ShardServer::GetConfigState()
 {
     return &configState;
+}
+
+ShardServerApp* ShardServer::GetShardServerApp()
+{
+    return shardServerApp;
 }
 
 void ShardServer::BroadcastToControllers(Message& message)
@@ -482,7 +492,67 @@ unsigned ShardServer::GetHTTPPort()
     return configFile.GetIntValue("http.port", 8080);
 }
 
-unsigned  ShardServer::GetSDBPPort()
+unsigned ShardServer::GetSDBPPort()
 {
     return configFile.GetIntValue("sdbp.port", 7080);
+}
+
+void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
+{
+    uint64_t                shardMemoryUsage;
+    uint64_t                logSegmentMemoryUsage;
+    uint64_t                totalMemory;
+    uint64_t                quorumMessageCacheSize;
+    uint64_t                quorumMessageListSize;
+    uint64_t                quorumAppendStateSize;
+    uint64_t                quorumContextSize;
+    uint64_t                connectionMemoryUsage;
+    ShardQuorumProcessor*   quorumProcessor;
+
+    buffer.Clear();
+    totalMemory = 0;
+
+    shardMemoryUsage = GetDatabaseManager()->GetEnvironment()->GetShardMemoryUsage();
+    buffer.Appendf("Shard memory usage: %s\n", HUMAN_BYTES(shardMemoryUsage));
+    totalMemory += shardMemoryUsage;
+
+    logSegmentMemoryUsage = GetDatabaseManager()->GetEnvironment()->GetLogSegmentMemoryUsage();
+    buffer.Appendf("Log segment memory usage: %s\n", HUMAN_BYTES(logSegmentMemoryUsage));
+    totalMemory += logSegmentMemoryUsage;
+
+    buffer.Appendf("Storage cache usage: %s\n", HUMAN_BYTES(StoragePageCache::GetSize()));
+    totalMemory += StoragePageCache::GetSize();
+
+    buffer.Appendf("Client request cache usage: %s\n", HUMAN_BYTES(REQUEST_CACHE->GetMemorySize()));
+    totalMemory += REQUEST_CACHE->GetMemorySize();
+
+    quorumMessageCacheSize = 0;
+    quorumMessageListSize = 0;
+    quorumAppendStateSize = 0;
+    quorumContextSize = 0;
+    FOREACH (quorumProcessor, quorumProcessors)
+    {
+        quorumMessageCacheSize += quorumProcessor->GetMessageCacheSize();
+        quorumMessageListSize += quorumProcessor->GetMessageListSize();
+        quorumAppendStateSize += quorumProcessor->GetShardAppendStateSize();
+        quorumContextSize += quorumProcessor->GetQuorumContextSize();
+    }
+    buffer.Appendf("Message cache usage: %s\n", HUMAN_BYTES(quorumMessageCacheSize));
+    totalMemory += quorumMessageCacheSize;
+
+    buffer.Appendf("Message list usage: %s\n", HUMAN_BYTES(quorumMessageListSize));
+    totalMemory += quorumMessageListSize;
+
+    buffer.Appendf("Shard append state usage: %s\n", HUMAN_BYTES(quorumAppendStateSize));
+    totalMemory += quorumAppendStateSize;
+
+    buffer.Appendf("Shard quorum context usage: %s\n", HUMAN_BYTES(quorumContextSize));
+    totalMemory += quorumContextSize;
+
+    connectionMemoryUsage = GetShardServerApp()->GetMemoryUsage();
+    buffer.Appendf("Connection memory usage: %s\n", HUMAN_BYTES(connectionMemoryUsage));
+    totalMemory += connectionMemoryUsage;
+
+    buffer.Appendf("Total memory usage: %s\n", HUMAN_BYTES(totalMemory));
+    buffer.Appendf("Total memory usage reported by system: %s\n", HUMAN_BYTES(GetProcessMemoryUsage()));
 }

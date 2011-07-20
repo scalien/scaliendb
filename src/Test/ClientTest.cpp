@@ -1174,33 +1174,33 @@ TEST_DEFINE(TestClientMaro)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    for (int i = 0; i < 10; i++)
-    {
-        k.Writef("/test/%04d", i);
-        v.Writef("%04d", i);
-        rk.Wrap(k);
-        rv.Wrap(v);
-        client.Set(rk, rv);
-    }
-    client.Submit();
+//    for (int i = 0; i < 10; i++)
+//    {
+//        k.Writef("/test/%04d", i);
+//        v.Writef("%04d", i);
+//        rk.Wrap(k);
+//        rv.Wrap(v);
+//        client.Set(rk, rv);
+//    }
+//    client.Submit();
+//
+//    for (int i = 5; i < 15; i++)
+//    {
+//        k.Writef("/test/%04d", i);
+//        v.Writef("%04d", i*i);
+//        rk.Wrap(k);
+//        rv.Wrap(v);
+//        client.Set(rk, rv);
+//    }
+//
+//    for (int i = 5; i < 10; i++)
+//    {
+//        k.Writef("/test/%04d", i);
+//        rk.Wrap(k);
+//        client.Delete(rk);
+//    }
 
-    for (int i = 5; i < 15; i++)
-    {
-        k.Writef("/test/%04d", i);
-        v.Writef("%04d", i*i);
-        rk.Wrap(k);
-        rv.Wrap(v);
-        client.Set(rk, rv);
-    }
-
-    for (int i = 5; i < 10; i++)
-    {
-        k.Writef("/test/%04d", i);
-        rk.Wrap(k);
-        client.Delete(rk);
-    }
-
-    client.ListKeyValues("/test/0002", "", "", 3, true);
+    client.ListKeyValues("/test/0009", "", "", 100, true);
 
     result = client.GetResult();
     for (result->Begin(); !result->IsEnd(); result->Next())

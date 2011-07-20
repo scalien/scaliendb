@@ -33,6 +33,8 @@ public:
     
     void                        ResetState();
 
+    uint64_t                    GetMemoryUsage();
+
 private:
     void                        OnPrepareRequest(PaxosMessage& msg);
     void                        OnProposeRequest(PaxosMessage& msg);

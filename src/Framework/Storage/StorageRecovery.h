@@ -3,6 +3,8 @@
 
 #include "StorageEnvironment.h"
 
+#define STORAGE_RECOVERY_PRELOAD_SIZE   (1024*1024)
+
 class StorageEnvironment;
 
 /*
@@ -25,6 +27,7 @@ private:
     void                    CreateMemoChunks();
     void                    ReadFileChunks();
     void                    ComputeShardRecovery();
+    ReadBuffer              ReadFromFileBuffer(FD fd, uint64_t len);
     void                    ReplayLogSegments(uint64_t trackID);
     bool                    ReplayLogSegment(uint64_t trackID, Buffer& filename);
     void                    DeleteOrphanedChunks();
@@ -40,6 +43,8 @@ private:
                              ReadBuffer& key);
 
     StorageEnvironment*     env;
+    Buffer                  fileBuffer;
+    uint64_t                fileBufferPos;
 };
 
 #endif

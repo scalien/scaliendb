@@ -22,8 +22,11 @@ StorageShard::~StorageShard()
     FOREACH (itChunk, chunks)
     {
         // StorageFileChunks are deleted in StorageEnvironment
-        if ((*itChunk)->GetChunkState() != StorageChunk::Written)
+        if ((*itChunk)->GetChunkState() != StorageChunk::Written &&
+          (*itChunk)->GetChunkState() != StorageChunk::Unwritten)
+        {
             delete *itChunk;
+        }
     }
 }
 
@@ -203,6 +206,9 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
 
     if (IsLogStorage())
         return;
+
+    if (!IsSplitable())
+        return;
     
     totalSize = 0;
     FOREACH (itChunk, chunks)
@@ -213,9 +219,6 @@ void StorageShard::GetMergeInputChunks(List<StorageFileChunk*>& inputChunks)
         inputChunks.Append(fileChunk);
         totalSize += fileChunk->GetSize();
     }
-
-    if (!IsSplitable())
-        return;
 
     while (inputChunks.GetLength() >= 3)
     {

@@ -851,6 +851,18 @@ uint64_t StorageEnvironment::GetShardMemoryUsage()
     return totalSize;
 }
 
+uint64_t StorageEnvironment::GetLogSegmentMemoryUsage()
+{
+    uint64_t            totalSize;
+    StorageLogSegment*  logSegment;
+
+    totalSize = 0;
+    FOREACH (logSegment, logSegments)
+        totalSize += logSegment->GetWriteBufferSize();
+
+    return totalSize;
+}
+
 StorageConfig& StorageEnvironment::GetConfig()
 {
     return config;
@@ -1034,7 +1046,8 @@ bool StorageEnvironment::SplitShard(uint16_t contextID,  uint64_t shardID,
     {
         if (newShard->RangeContains(itKeyValue->GetKey()))
         {
-            kv = new StorageMemoKeyValue;
+//            kv = new StorageMemoKeyValue;
+            kv = newMemoChunk->NewStorageMemoKeyValue();
             if (itKeyValue->GetType() == STORAGE_KEYVALUE_TYPE_SET)
                 newMemoChunk->Set(itKeyValue->GetKey(), itKeyValue->GetValue());
             else
@@ -1328,6 +1341,9 @@ void StorageEnvironment::OnChunkMerge(StorageMergeChunkJob* job)
         deleteChunkJobs.Execute(new StorageDeleteFileChunkJob(job->mergeChunk));
     
     TryMergeChunks();
+
+    // mergeChunk is either cached or queued for deletion
+    job->mergeChunk = NULL;    
     delete job;
 }
 

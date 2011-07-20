@@ -194,5 +194,9 @@ void PaxosAcceptor::ResetState()
     WriteState();
     Commit(false);
     asyncCommit = ac;
+}
 
+uint64_t PaxosAcceptor::GetMemoryUsage()
+{
+    return sizeof(PaxosAcceptor) + state.acceptedValue.GetSize();
 }

@@ -222,6 +222,13 @@ void ReplicatedLog::WriteState()
     acceptor.WriteState();
 }
 
+uint64_t ReplicatedLog::GetMemoryUsage()
+{
+    return sizeof(ReplicatedLog) - 
+        sizeof(PaxosAcceptor) + acceptor.GetMemoryUsage() -
+        sizeof(PaxosProposer) + proposer.GetMemoryUsage();
+}
+
 void ReplicatedLog::Append(Buffer& value)
 {
     Log_Trace();

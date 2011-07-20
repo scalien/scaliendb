@@ -41,6 +41,7 @@ public:
     virtual void        OnConnect();
     virtual void        OnClose();
     virtual void        OnWrite();
+    virtual uint64_t    GetMemoryUsage();
     
 protected:
     void                OnRead();

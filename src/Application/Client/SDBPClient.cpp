@@ -70,8 +70,10 @@ Mutex   globalMutex;
     if (!isDatabaseSet || !isTableSet)              \
         return SDBP_BADSCHEMA;                      \
                                                     \
+    ASSERT(configState != NULL);                    \
     req = new Request;                              \
-    req->op(NextCommandID(), tableID, __VA_ARGS__); \
+    req->op(NextCommandID(), configState->paxosID,  \
+     tableID, __VA_ARGS__);                         \
     AppendDataRequest(req);                         \
                                                     \
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
@@ -89,8 +91,10 @@ Mutex   globalMutex;
     if (!isDatabaseSet || !isTableSet)              \
         return SDBP_BADSCHEMA;                      \
                                                     \
+    ASSERT(configState != NULL);                    \
     req = new Request;                              \
-    req->op(NextCommandID(), tableID, __VA_ARGS__); \
+    req->op(NextCommandID(), configState->paxosID,  \
+     tableID, __VA_ARGS__);                         \
                                                     \
     if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&     \
      proxySize + REQUEST_SIZE(req) >= batchLimit)   \
@@ -150,9 +154,7 @@ Mutex   globalMutex;
     CLIENT_MUTEX_GUARD_UNLOCK();                    \
     EventLoop();                                    \
     status = result->GetCommandStatus();            \
-    MSleep(20);                                     \
-    return status;                                  \
-
+    return status;
 
 
 using namespace SDBPClient;
@@ -387,6 +389,7 @@ void Client::WaitConfigState()
     if (numControllers == 0)
         return;
 
+    // delete configState, so EventLoop() will wait for a new one
     configState = NULL;
     result->Close();
     CLIENT_MUTEX_UNLOCK();
@@ -657,7 +660,7 @@ int Client::Get(const ReadBuffer& key)
         return SDBP_BADSCHEMA;
 
     req = new Request;
-    req->Get(NextCommandID(), tableID, (ReadBuffer&) key);
+    req->Get(NextCommandID(), configState->paxosID, tableID, (ReadBuffer&) key);
 
     // find
     it = proxiedRequests.Locate(req, cmpres);
@@ -741,7 +744,7 @@ int Client::Add(const ReadBuffer& key, int64_t number)
     }
 
     req = new Request;
-    req->Add(NextCommandID(), tableID, (ReadBuffer&) key, number);
+    req->Add(NextCommandID(), configState->paxosID, tableID, (ReadBuffer&) key, number);
     requests.Append(req);
     result->AppendRequest(req);
     CLIENT_MUTEX_GUARD_UNLOCK();
@@ -791,10 +794,12 @@ int Client::ListKeys(
     if (!isDatabaseSet || !isTableSet)
         return SDBP_BADSCHEMA;
 
+    ASSERT(configState != NULL);
+
     req = new Request;
     req->userCount = count;
     req->skip = skip;
-    req->ListKeys(NextCommandID(), tableID,
+    req->ListKeys(NextCommandID(), configState->paxosID, tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
 
     if (req->userCount > 0)
@@ -827,10 +832,11 @@ int Client::ListKeyValues(
     if (!isDatabaseSet || !isTableSet)
         return SDBP_BADSCHEMA;
 
+    ASSERT(configState != NULL);
     req = new Request;
     req->userCount = count;
     req->skip = skip;
-    req->ListKeyValues(NextCommandID(), tableID,
+    req->ListKeyValues(NextCommandID(), configState->paxosID, tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
 
     if (req->userCount > 0)

@@ -16,7 +16,12 @@
 #else // _WIN32
 #include <process.h>
 #include <windows.h>
+#include <psapi.h>
 #endif
+#ifdef PLATFORM_DARWIN
+#include <mach/mach.h>
+#endif
+
 #include "Macros.h"
 #include "Time.h"
 #include "Buffers/Buffer.h"
@@ -510,6 +515,28 @@ uint64_t GetTotalPhysicalMemory()
         mem = 0;
 
     return mem;
+#endif
+#endif
+}
+
+uint64_t GetProcessMemoryUsage()
+{
+#ifdef _WIN32
+    PROCESS_MEMORY_COUNTERS     memCounters;
+
+    GetProcessMemoryInfo(GetCurrentProcess(), &memCounters, sizeof(memCounters));
+    return (uint64_t) memCounters.WorkingSetSize;
+#else
+#ifdef PLATFORM_DARWIN
+    task_t targetTask = mach_task_self();
+    struct task_basic_info ti;
+    mach_msg_type_number_t count = TASK_BASIC_INFO_64_COUNT;
+
+    task_info(targetTask, TASK_BASIC_INFO_64, (task_info_t) &ti, &count);
+    
+    return ti.resident_size;
+#else
+    return 0;
 #endif
 #endif
 }
