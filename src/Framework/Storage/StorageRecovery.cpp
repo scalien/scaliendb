@@ -745,12 +745,7 @@ void StorageRecovery::ExecuteSet(
         return; // shard was deleted
     
     if (shard->IsLogStorage())
-    {
-        //memoChunk = shard->GetMemoChunk();
-        //while (memoChunk->GetSize() > env->GetConfig().chunkSize)
-        //    memoChunk->RemoveFirst();
         goto Execute;
-    }
     
     if (shard->logSegmentID > logSegmentID)
         return; // shard was deleted and re-created
@@ -770,6 +765,13 @@ Execute:
     ASSERT(memoChunk != NULL);
     if (!memoChunk->Set(key, value))
         ASSERT_FAIL();
+
+    // remove old entries from the head of the log if its size exceeds chunkSize
+    if (shard->IsLogStorage())
+    {
+        while (memoChunk->GetSize() > env->GetConfig().chunkSize)
+            memoChunk->RemoveFirst();
+    }
 
     memoChunk->RegisterLogCommand(logSegmentID, logCommandID);
 }
