@@ -284,7 +284,7 @@ TEST_DEFINE(TestClientListKeys)
     
     ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
 //    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(key, endKey, prefix, 3000, 4000);
+    ret = client.ListKeys(key, endKey, prefix, 3000, false);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -1165,54 +1165,29 @@ TEST_DEFINE(TestClientGetAndSet)
 TEST_DEFINE(TestClientMaro)
 {
     Client          client;
-    Result*         result;
     ReadBuffer      rk, rv, r;
     Buffer          k, v;
     int             ret;
+    Stopwatch       sw;
 
     ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
+   
+    k.Write("key");
+    v.Write("value");
+    rk.Wrap(k);
+    rv.Wrap(v);
 
-//    for (int i = 0; i < 10; i++)
-//    {
-//        k.Writef("/test/%04d", i);
-//        v.Writef("%04d", i);
-//        rk.Wrap(k);
-//        rv.Wrap(v);
-//        client.Set(rk, rv);
-//    }
-//    client.Submit();
-//
-//    for (int i = 5; i < 15; i++)
-//    {
-//        k.Writef("/test/%04d", i);
-//        v.Writef("%04d", i*i);
-//        rk.Wrap(k);
-//        rv.Wrap(v);
-//        client.Set(rk, rv);
-//    }
-//
-//    for (int i = 5; i < 10; i++)
-//    {
-//        k.Writef("/test/%04d", i);
-//        rk.Wrap(k);
-//        client.Delete(rk);
-//    }
-
-    client.ListKeyValues("/test/0009", "", "", 100, true);
-
-    result = client.GetResult();
-    for (result->Begin(); !result->IsEnd(); result->Next())
+    sw.Start();
+    for (int i = 0; i < 10*1000; i++)
     {
-        if (result->GetCommandStatus() != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-
-        result->GetKey(rk);
-        result->GetValue(rv);
-        TEST_LOG("%.*s => %.*s",
-         rk.GetLength(), rk.GetBuffer(), rv.GetLength(), rv.GetBuffer());
+        client.Set(rk, rv);
+        client.Submit();
     }
+    sw.Stop();
+
+    Log_Message("Elapsed: %U", sw.Elapsed());
     
     return TEST_SUCCESS;
 }
