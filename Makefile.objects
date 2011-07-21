@@ -18,11 +18,11 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Application/ConfigServer/ConfigServer.o \
 	$(BUILD_DIR)/Application/ConfigServer/ConfigServerApp.o \
 	$(BUILD_DIR)/Application/ConfigServer/JSONConfigState.o \
+	$(BUILD_DIR)/Application/ConfigState/ConfigController.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigDatabase.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigQuorum.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigShard.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigShardServer.o \
-	$(BUILD_DIR)/Application/ConfigState/ConfigController.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigState.o \
 	$(BUILD_DIR)/Application/ConfigState/ConfigTable.o \
 	$(BUILD_DIR)/Application/HTTP/HTTPConnection.o \
@@ -108,9 +108,7 @@ ALL_OBJECTS = \
 	$(BUILD_DIR)/Framework/Storage/StorageUnwrittenChunkLister.o \
 	$(BUILD_DIR)/Framework/Storage/StorageWriteChunkJob.o \
 	$(BUILD_DIR)/Framework/TCP/TCPConnection.o \
-	$(BUILD_DIR)/Framework/TCP/TCPWriter.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
-	$(BUILD_DIR)/System/Buffers/BufferPool.o \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Common.o \
 	$(BUILD_DIR)/System/Config.o \

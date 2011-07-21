@@ -7,7 +7,7 @@
 void JSONSession::Init(HTTPConnection* conn_)
 {
     conn = conn_;
-    writer.Init(conn->GetWriteBuffer());
+    writer.Init(&conn->GetWriteBuffer());
 }
 
 void JSONSession::SetCallbackPrefix(const ReadBuffer& jsonCallback_)
