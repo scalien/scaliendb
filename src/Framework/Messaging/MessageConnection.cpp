@@ -4,31 +4,27 @@ MessageConnection::MessageConnection()
 {
     resumeRead.SetCallable(MFUNC(MessageConnection, OnResumeRead));
     flushWrites.SetCallable(MFUNC(MessageConnection, OnFlushWrites));
-    writeBuffer = NULL;
+    writeBuffers[0].Allocate(MESSAGING_BUFFER_THRESHOLD);
+    writeBuffers[1].Allocate(MESSAGING_BUFFER_THRESHOLD);
     autoFlush = true;
     readActive = true;
 }
 
 MessageConnection::~MessageConnection()
 {
-    // TODO: it would be better to make Close virtual in TCPConnection
     Close();
 }
 
 void MessageConnection::InitConnected(bool startRead)
 {
-    writeBuffer = NULL;
     readBuffer.Allocate(MESSAGING_BUFFER_THRESHOLD * 2);    
-    TCPConnection::InitConnected(startRead);
-    
+    TCPConnection::InitConnected(startRead);    
     Log_Trace();
 }
 
 void MessageConnection::Connect(Endpoint& endpoint_)
 {
-    Log_Trace();
-    
-    ASSERT(writeBuffer == NULL);
+    Log_Trace();    
     endpoint = endpoint_;
     readBuffer.Allocate(MESSAGING_BUFFER_THRESHOLD * 2);    
     TCPConnection::Connect(endpoint, MESSAGING_CONNECT_TIMEOUT);
@@ -36,12 +32,6 @@ void MessageConnection::Connect(Endpoint& endpoint_)
 
 void MessageConnection::Close()
 {
-    if (writeBuffer != NULL)
-    {
-        writer->ReleaseBuffer(writeBuffer);
-        writeBuffer = NULL;
-    }
-    
     EventLoop::Remove(&resumeRead);
     EventLoop::Remove(&flushWrites);
     TCPConnection::Close(); 
@@ -49,45 +39,52 @@ void MessageConnection::Close()
 
 void MessageConnection::Write(Buffer& msg)
 {
-    AcquireBuffer();
-    writeBuffer->Appendf("%#B", &msg);
+    GetWriteBuffer().Appendf("%#B", &msg);
+
     if (autoFlush)
-        FlushWriteBuffer();
+        Flush();
 }
 
 void MessageConnection::Write(Message& msg)
 {
-    Buffer      tmpBuffer;
+    // TODO: optimize
+    
+    Buffer tmpBuffer;
 
     msg.Write(tmpBuffer);
-    AcquireBuffer();
-    writeBuffer->Appendf("%#B", &tmpBuffer);
+
+    GetWriteBuffer().Appendf("%#B", &tmpBuffer);
+
     if (autoFlush)
-        FlushWriteBuffer();
+        Flush();
 }
 
 void MessageConnection::Write(Buffer& prefix, Buffer& msg)
 {
-    unsigned    length;
+    unsigned length;
 
-    AcquireBuffer();
     length = prefix.GetLength() + 1 + msg.GetLength();
-    writeBuffer->Appendf("%u:%B:%B", length, &prefix, &msg);
+
+    GetWriteBuffer().Appendf("%u:%B:%B", length, &prefix, &msg);
+
     if (autoFlush)
-        FlushWriteBuffer();
+        Flush();
 }
 
 void MessageConnection::Write(Buffer& prefix, Message& msg)
 {
+    // TODO: optimize
+
     unsigned    length;
     Buffer      tmpBuffer;
 
     msg.Write(tmpBuffer);
-    AcquireBuffer();
     length = prefix.GetLength() + 1 + tmpBuffer.GetLength();
-    writeBuffer->Appendf("%u:%B:%B", length, &prefix, &tmpBuffer);
+
+    GetWriteBuffer().Appendf("%u:%B:%B", length, &prefix, &tmpBuffer);
+
     if (autoFlush)
-        FlushWriteBuffer();
+        Flush();
 }
 
 void MessageConnection::OnConnect()
@@ -105,22 +102,6 @@ void MessageConnection::OnClose()
         return;
     
     Close();    
-}
-
-void MessageConnection::OnWrite()
-{
-    TCPConnection::OnWrite();
-
-    if (writer->GetQueueLength() == 0 && writeBuffer != NULL)
-    {
-        writer->WritePooled(writeBuffer);
-        writeBuffer = NULL;
-    } 
-}
-
-uint64_t MessageConnection::GetMemoryUsage()
-{
-    return TCPConnection::GetMemoryUsage() + (writeBuffer ? writeBuffer->GetSize() : 0);
 }
 
 void MessageConnection::OnRead()
@@ -141,7 +122,6 @@ void MessageConnection::OnRead()
 
     sw.Start();
     
-//    printf("-------- OnMessage: %u, %.*s\n", tcpread.buffer->GetLength(), MIN(tcpread.buffer->GetLength(), 20), tcpread.buffer->GetBuffer());
     Log_Trace("Read buffer: %B", tcpread.buffer);
     
     tcpread.requested = IO_READ_ANY;
@@ -236,17 +216,6 @@ void MessageConnection::OnResumeRead()
     OnRead();
 }
 
-void MessageConnection::OnFlushWrites()
-{
-    if (writeBuffer)
-    {
-        writer->WritePooled(writeBuffer);
-        writeBuffer = NULL;
-    }
-    
-    writer->Flush();    
-}
-
 void MessageConnection::OnConnectTimeout()
 {
     TCPConnection::OnConnectTimeout();
@@ -258,23 +227,17 @@ void MessageConnection::OnConnectTimeout()
     TCPConnection::Connect(endpoint, MESSAGING_CONNECT_TIMEOUT);
 }
 
-Buffer* MessageConnection::AcquireBuffer()
+void MessageConnection::OnFlushWrites()
 {
-    if (writeBuffer != NULL)
-        return writeBuffer;
+    // flushWrites YieldTimer arrived
     
-    writeBuffer = writer->AcquireBuffer(MESSAGING_BUFFER_THRESHOLD);
-    return writeBuffer;
+    TCPConnection::TryFlush();
 }
 
-void MessageConnection::FlushWriteBuffer()
+void MessageConnection::Flush()
 {
-    if (writeBuffer != NULL && writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
-    {
-        writer->WritePooled(writeBuffer);
-        writeBuffer = NULL;
-    }
-
+    // this just adds the flushWrites YieldTimer
+    
     if (flushWrites.IsActive())
         return;
     

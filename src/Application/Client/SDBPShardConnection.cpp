@@ -52,7 +52,7 @@ bool ShardConnection::SendRequest(Request* request)
     //Log_Debug("Sending conn: %s, writeBuffer = %B", endpoint.ToString(), writeBuffer);
     
     // buffer is saturated
-    if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD)
+    if (GetWriteBuffer().GetLength() >= MESSAGING_BUFFER_THRESHOLD)
         return false;
     
     return true;
@@ -65,12 +65,12 @@ void ShardConnection::SendSubmit(uint64_t /*quorumID*/)
 
 void ShardConnection::Flush()
 {
-    FlushWriteBuffer();
+    TCPConnection::TryFlush();
 }
 
 bool ShardConnection::HasRequestBuffered()
 {
-    if (writeBuffer && writeBuffer->GetLength() > 0)
+    if (GetWriteBuffer().GetLength() > 0)
         return true;
     return false;
 }

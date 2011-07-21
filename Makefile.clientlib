@@ -20,7 +20,6 @@ CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/Application/SDBP/SDBPResponseMessage.o \
 	$(BUILD_DIR)/Framework/Messaging/MessageConnection.o \
 	$(BUILD_DIR)/Framework/TCP/TCPConnection.o \
-	$(BUILD_DIR)/Framework/TCP/TCPWriter.o \
 	$(BUILD_DIR)/System/Common.o \
 	$(BUILD_DIR)/System/Formatting.o \
 	$(BUILD_DIR)/System/Config.o \
@@ -28,7 +27,6 @@ CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/System/Time.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
-	$(BUILD_DIR)/System/Buffers/BufferPool.o \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Events/EventLoop.o \
 	$(BUILD_DIR)/System/Events/Scheduler.o \

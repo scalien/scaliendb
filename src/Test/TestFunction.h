@@ -4,7 +4,6 @@
 #include "Test.h"
 #include "System/Containers/InList.h"
 #include "System/Time.h"
-#include "System/Buffers/BufferPool.h"
 
 #define TEST_MAKENAME(f) #f
 #define TEST_CONCAT2(a, b) a ## b
@@ -21,22 +20,22 @@ public:
     TestFunction*   prev;    
 };
 
-#define TEST_START(name) \
-    TEST_DEFINE(name) \
-    { \
-        InList<TestFunction>    tests; \
-        TestFunction*           testit; \
+#define TEST_START(name)                    \
+    TEST_DEFINE(name)                       \
+    {                                       \
+        InList<TestFunction>    tests;      \
+        TestFunction*           testit;     \
         int                     ret;
 
-#define TEST_LOG_INIT(trace, targets) \
-    Log_SetTimestamping(true); \
-    Log_SetTarget(targets); \
+#define TEST_LOG_INIT(trace, targets)       \
+    Log_SetTimestamping(true);              \
+    Log_SetTarget(targets);                 \
     Log_SetTrace(trace); 
 
 
-#define TEST_EXECUTE() \
-    ret = TEST_SUCCESS; \
-    StartClock(); \
+#define TEST_EXECUTE()                      \
+    ret = TEST_SUCCESS;                     \
+    StartClock();                           \
     FOREACH (testit, tests) \
     { \
         ret = test_time(testit->function, testit->name); \
@@ -44,7 +43,6 @@ public:
             break; \
     } \
     StopClock(); \
-    DEFAULT_BUFFERPOOL->Shutdown(); \
     return test_eval(TEST_NAME, ret); \
 }
 

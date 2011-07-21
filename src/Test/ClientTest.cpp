@@ -1165,7 +1165,7 @@ TEST_DEFINE(TestClientGetAndSet)
 TEST_DEFINE(TestClientMaro)
 {
     Client          client;
-    ReadBuffer      rk, rv, r;
+    ReadBuffer      rk, rv;
     Buffer          k, v;
     int             ret;
     Stopwatch       sw;
@@ -1179,6 +1179,11 @@ TEST_DEFINE(TestClientMaro)
     rk.Wrap(k);
     rv.Wrap(v);
 
+    k.Writef("key");
+    v.Writef("value");
+    rk.Wrap(k);
+    rv.Wrap(v);
+
     sw.Start();
     for (int i = 0; i < 10*1000; i++)
     {
@@ -1188,7 +1193,7 @@ TEST_DEFINE(TestClientMaro)
     sw.Stop();
 
     Log_Message("Elapsed: %U", sw.Elapsed());
-    
+        
     return TEST_SUCCESS;
 }
 

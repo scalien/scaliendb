@@ -20,7 +20,6 @@ void HTTPConnection::Init(HTTPServer* server_)
     
     request.Init();
     socket.GetEndpoint(endpoint);
-    writeBuffer = NULL;
     onCloseCallback.Unset();
     contentType.Reset();
     origin.Reset();
@@ -94,11 +93,6 @@ void HTTPConnection::OnWrite()
         OnClose();
 }
 
-uint64_t HTTPConnection::GetMemoryUsage()
-{
-    return TCPConnection::GetMemoryUsage() + (writeBuffer ? writeBuffer->GetSize() : 0);
-}
-
 void HTTPConnection::Print(const char* s)
 {
     Write(s, (unsigned) strlen(s));
@@ -106,21 +100,15 @@ void HTTPConnection::Print(const char* s)
 
 void HTTPConnection::Write(const char* s, unsigned length)
 {
-    Buffer*     buffer;
-
-    buffer = GetWriteBuffer();
-    buffer->Append(s, length);
+    GetWriteBuffer().Append(s, length);
 }
 
 void HTTPConnection::WriteHeader(int code, const char* extraHeader)
 {
-    Buffer*     buffer;
-
-    buffer = GetWriteBuffer();
-    WriteHeaderBuffer(*buffer, code);
+    WriteHeaderBuffer(GetWriteBuffer(), code);
     if (extraHeader)
-        buffer->Append(extraHeader);
-    buffer->Append(CS_CRLF);
+        GetWriteBuffer().Append(extraHeader);
+    GetWriteBuffer().Append(CS_CRLF);
 }
 
 int HTTPConnection::Parse(char* buf, int len)
@@ -158,32 +146,26 @@ const char* HTTPConnection::Status(int code)
 void HTTPConnection::Response(int code, const char* data,
  int len, bool close, const char* header)
 {   
-    Buffer*     buffer;
-    
     Log_Message("[%s] HTTP: %.*s %.*s %d %d", endpoint.ToString(),
                 request.line.method.GetLength(), request.line.method.GetBuffer(), 
                 request.line.uri.GetLength(), request.line.uri.GetBuffer(),
                 code, len);
 
-    buffer = GetWriteBuffer();
-    WriteHeaderBuffer(*buffer, code);
-    buffer->Appendf("Content-Length: %d" CS_CRLF, len);
+    WriteHeaderBuffer(GetWriteBuffer(), code);
+    GetWriteBuffer().Appendf("Content-Length: %d" CS_CRLF, len);
     if (close)
-        buffer->Append("Connection: close" CS_CRLF);
+        GetWriteBuffer().Append("Connection: close" CS_CRLF);
     if (header)
-        buffer->Append(header);
-    buffer->Append(CS_CRLF);
+        GetWriteBuffer().Append(header);
+    GetWriteBuffer().Append(CS_CRLF);
 
-    buffer->Append(data, len);
+    GetWriteBuffer().Append(data, len);
     
-    Log_Trace("buffer = %B", buffer);
     Flush(true);
 }
 
 void HTTPConnection::ResponseHeader(int code, bool close, const char* header)
 {
-    Buffer*     buffer;
-
     if (!request.line.uri.BeginsWith("/json/getconfigstate"))
     {
         Log_Message("[%s] HTTP: %.*s %.*s %d ?",
@@ -193,14 +175,12 @@ void HTTPConnection::ResponseHeader(int code, bool close, const char* header)
                     code);
     }
 
-    buffer = GetWriteBuffer();
-    buffer = GetWriteBuffer();
-    WriteHeaderBuffer(*buffer, code);
+    WriteHeaderBuffer(GetWriteBuffer(), code);
     if (close)
-        buffer->Append("Connection: close" CS_CRLF);
+        GetWriteBuffer().Append("Connection: close" CS_CRLF);
     if (header)
-        buffer->Append(header);
-    buffer->Append(CS_CRLF);
+        GetWriteBuffer().Append(header);
+    GetWriteBuffer().Append(CS_CRLF);
 }
 
 void HTTPConnection::Flush(bool closeAfterSend_)
@@ -210,21 +190,8 @@ void HTTPConnection::Flush(bool closeAfterSend_)
         return;
 
     closeAfterSend = closeAfterSend_;
-    if (writeBuffer == NULL)
-        return;
-
-    writer->WritePooled(writeBuffer);
-    writer->Flush();
-    writeBuffer = NULL;
-}
-
-Buffer* HTTPConnection::GetWriteBuffer()
-{
-    if (writeBuffer != NULL)
-        return writeBuffer;
     
-    writeBuffer = writer->AcquireBuffer();
-    return writeBuffer;
+    TryFlush();
 }
 
 void HTTPConnection::WriteHeaderBuffer(Buffer& buffer, int code)
