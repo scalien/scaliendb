@@ -19,7 +19,7 @@
 
 // see http://wiki.netbsd.se/index.php/kqueue_tutorial
 
-#define MAX_KEVENTS 1024
+#define MAX_KEVENTS     1024
 
 static int              kq = 0;         // the kqueue
 static int              asyncOpPipe[2];
@@ -31,7 +31,6 @@ static volatile int     numClient = 0;
 static IOProcessorStat  iostat;
 
 static bool AddKq(int ident, short filter, IOOperation* ioop);
-
 static void ProcessAsyncOp();
 static void ProcessTCPRead(struct kevent* ev);
 static void ProcessTCPWrite(struct kevent* ev);
@@ -71,17 +70,6 @@ void SetupSignals()
 
     sigemptyset(&mask);
     pthread_sigmask(SIG_SETMASK, &mask, NULL);
-
-//  AddKq(SIGINT, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGTERM, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGBUS, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGINT, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGFPE, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGILL, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGSEGV, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGSYS, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGXCPU, EVFILT_SIGNAL, NULL);
-//  AddKq(SIGXFSZ, EVFILT_SIGNAL, NULL);
 }
 
 void IOProcessor::BlockSignals(int blockMode)
