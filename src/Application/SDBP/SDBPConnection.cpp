@@ -30,7 +30,7 @@ void SDBPConnection::Init(SDBPServer* server_)
     resp.Hello();
     sdbpResponse.response = &resp;
     Write(sdbpResponse);
-    FlushWriteBuffer();
+    Flush();
 }
 
 void SDBPConnection::SetContext(SDBPContext* context_)
@@ -101,14 +101,14 @@ void SDBPConnection::OnComplete(ClientRequest* request, bool last)
     if (state == TCPConnection::CONNECTED &&
      request->response.type != CLIENTRESPONSE_NORESPONSE &&
      !(request->response.type == CLIENTRESPONSE_CONFIG_STATE &&
-      writer->GetQueueLength() > SDBP_MAX_QUEUED_BYTES))
+      TCPConnection::GetWriteBuffer().GetLength() > SDBP_MAX_QUEUED_BYTES))
     {
         sdbpResponse.response = &request->response;
         Write(sdbpResponse);
         // TODO: HACK
-        if (writeBuffer->GetLength() >= MESSAGING_BUFFER_THRESHOLD || last ||
+        if (TCPConnection::GetWriteBuffer().GetLength() >= MESSAGING_BUFFER_THRESHOLD || last ||
          request->type == CLIENTREQUEST_GET_CONFIG_STATE)
-            FlushWriteBuffer();
+            Flush();
     }
 
     if (last)

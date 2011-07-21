@@ -5,14 +5,13 @@ TCPConnection::TCPConnection()
 {
     state = DISCONNECTED;
     connectTimeout.SetCallable(MFUNC(TCPConnection, OnConnectTimeout));
-    writer = new TCPWriter(this);
+    writeIndex = 0;
     prev = next = this;
 }
 
 TCPConnection::~TCPConnection()
 {   
     Close();
-    delete writer;
 }
 
 void TCPConnection::InitConnected(bool startRead)
@@ -23,7 +22,7 @@ void TCPConnection::InitConnected(bool startRead)
 
 void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
 {
-    Log_Trace("endpoint_ = %s", endpoint.ToString());
+    Log_Trace("endpoint = %s", endpoint.ToString());
 
     bool ret;
 
@@ -56,6 +55,9 @@ void TCPConnection::Close()
 {
     Log_Trace();
 
+    writeBuffers[0].Reset();
+    writeBuffers[1].Reset();
+
     EventLoop::Remove(&connectTimeout);
 
     IOProcessor::Remove(&tcpread);
@@ -63,9 +65,17 @@ void TCPConnection::Close()
 
     socket.Close();
     state = DISCONNECTED;
-    
-    if (writer)
-        writer->OnClose();
+}
+
+
+Buffer& TCPConnection::GetWriteBuffer()
+{
+    return writeBuffers[writeIndex];
+}
+
+uint64_t TCPConnection::GetMemoryUsage()
+{
+    return sizeof(*this) + readBuffer.GetSize() + writeBuffers[0].GetSize() + writeBuffers[1].GetSize();
 }
 
 void TCPConnection::AsyncRead(bool start)
@@ -82,28 +92,16 @@ void TCPConnection::AsyncRead(bool start)
         Log_Trace("not posting read");
 }
 
-TCPWriter* TCPConnection::GetWriter()
+void TCPConnection::TryFlush()
 {
-    return writer;
-}
-
-void TCPConnection::OnWritePending()
-{
-    Log_Trace("fd = %d", (int)socket.fd);
-
-    Buffer* buffer;
-
-    if (state == DISCONNECTED || tcpwrite.active)
+    if (state == DISCONNECTED || tcpwrite.active || writeBuffers[writeIndex].GetLength() == 0)
         return;
-
-    ASSERT(writer != NULL);
-    buffer = writer->GetNext();
     
-    if (buffer == NULL)
-        return;
+    writeIndex = 1 - writeIndex;
+    
+    writeBuffers[writeIndex].SetLength(0);
 
-//    Log_Message("OnWritePending: %u", buffer->GetLength());
-    tcpwrite.SetBuffer(buffer);
+    tcpwrite.SetBuffer(&writeBuffers[1 - writeIndex]);
     tcpwrite.transferred = 0;
     IOProcessor::Add(&tcpwrite);
 }
@@ -126,11 +124,13 @@ void TCPConnection::Init(bool startRead)
 
 void TCPConnection::OnWrite()
 {
-    Log_Trace("Written %d bytes on %d", tcpwrite.buffer->GetLength(), (int)socket.fd);
-    Log_Trace("Written on %d: %B", (int)socket.fd, tcpwrite.buffer);
+    Log_Trace("Written %d bytes on fd %d, bytes: %B",
+     tcpwrite.buffer->GetLength(), (int)socket.fd, tcpwrite.buffer);
 
-    ASSERT(writer != NULL);
-    writer->OnNextWritten();
+    TryFlush();
+    
+    if (state != DISCONNECTED || !tcpwrite.active)
+        OnWriteReadyness();
 }
 
 void TCPConnection::OnConnect()
@@ -143,19 +143,14 @@ void TCPConnection::OnConnect()
     tcpwrite.onComplete = MFUNC(TCPConnection, OnWrite);
     
     EventLoop::Remove(&connectTimeout);
-    OnWritePending();
+
+    TryFlush();
     
-    OnWriteReadyness();
+    if (state != DISCONNECTED && !tcpwrite.active)
+        OnWriteReadyness();
 }
 
 void TCPConnection::OnConnectTimeout()
 {
     Log_Trace();
 }
-
-uint64_t TCPConnection::GetMemoryUsage()
-{
-    return sizeof(*this) + readBuffer.GetSize() + 
-        (writer ? writer->GetQueuedBytes() : 0);
-}
-

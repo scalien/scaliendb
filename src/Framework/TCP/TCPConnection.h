@@ -7,7 +7,6 @@
 #include "System/Containers/InQueue.h"
 #include "System/IO/Socket.h"
 #include "System/IO/IOOperation.h"
-#include "TCPWriter.h"
 
 /*
 ===============================================================================================
@@ -31,33 +30,33 @@ public:
 
     Socket&             GetSocket() { return socket; }
     State               GetState() { return state; }
+    Buffer&             GetWriteBuffer();
+    virtual uint64_t    GetMemoryUsage();
     
     void                AsyncRead(bool start = true);
-
-    TCPWriter*          GetWriter();
-    void                OnWritePending(); // for TCPWriter
     
     TCPConnection*      next;
     TCPConnection*      prev;
-    
+
     virtual void        OnWriteReadyness() {} // called when the write queue is empty
 
 protected:
+    void                TryFlush();
     void                Init(bool startRead = true);
     virtual void        OnRead() = 0;
     virtual void        OnWrite();
     virtual void        OnClose() = 0;
     virtual void        OnConnect();
     virtual void        OnConnectTimeout();
-    virtual uint64_t    GetMemoryUsage();
 
 
     State               state;
     Socket              socket;
     TCPRead             tcpread;
     TCPWrite            tcpwrite;
-    TCPWriter*          writer;
     Buffer              readBuffer;
+    Buffer              writeBuffers[2];
+    unsigned            writeIndex;
     Countdown           connectTimeout;
 };
 

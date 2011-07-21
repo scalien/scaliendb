@@ -1,6 +1,6 @@
 #include "TestFunction.h"
 
-#define TEST_LOG_TRACE   true
+#define TEST_LOG_TRACE   false
 
 TEST_START(TestMain);
 TEST_LOG_INIT(TEST_LOG_TRACE, LOG_TARGET_STDOUT);
