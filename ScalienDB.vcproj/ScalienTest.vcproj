@@ -59,7 +59,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib"
+				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib psapi.lib"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -1306,14 +1306,6 @@
 				</File>
 				<File
 					RelativePath="..\src\System\Buffers\Buffer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Buffers\BufferPool.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Buffers\BufferPool.h"
 					>
 				</File>
 				<File
