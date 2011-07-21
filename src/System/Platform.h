@@ -76,7 +76,7 @@ typedef intptr_t            ssize_t;
 #include <stdint.h>
 #include <inttypes.h>
 #include <unistd.h>
-#include <alloca.h>
+#include <stdlib.h>
 
 #endif // end Unix
 
