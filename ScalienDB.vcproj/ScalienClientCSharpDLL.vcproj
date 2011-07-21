@@ -60,7 +60,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib ..\bin\scaliendb_clientd.lib"
+				AdditionalDependencies="ws2_32.lib mswsock.lib winmm.lib psapi.lib ..\bin\scaliendb_clientd.lib"
 				OutputFile="$(OutDir)\scaliendb_client_debug.dll"
 				AdditionalLibraryDirectories=""
 				GenerateDebugInformation="true"

@@ -250,9 +250,40 @@ namespace Scalien
             return result.GetValue();
         }
 
+        public string Get(byte[] key)
+        {
+            int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.Length);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return null;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            return result.GetValue();
+        }
+
         public void Set(string key, string value)
         {
             int status = scaliendb_client.SDBP_Set(cptr, key, value);
+            if (status < 0)
+            {
+                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+                CheckStatus(status);
+            }
+
+            if (IsBatched())
+                return;
+
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        }
+
+        public void Set(byte[] key, byte[] value)
+        {
+            int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.Length, value, value.Length);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -454,6 +485,7 @@ namespace Scalien
 
         private void CheckResultStatus(int status)
         {
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             CheckStatus(status, null);
         }
 

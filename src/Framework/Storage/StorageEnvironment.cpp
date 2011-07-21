@@ -454,7 +454,11 @@ bool StorageEnvironment::Set(uint16_t contextID, uint64_t shardID, ReadBuffer ke
     
     if (shard->IsLogStorage())
     {
-        while (memoChunk->GetSize() > config.chunkSize)
+        uint64_t    keyValueSize;
+
+        // approximate size
+        keyValueSize = key.GetLength() + value.GetLength();
+        while (memoChunk->GetSize() + keyValueSize > config.chunkSize)
             memoChunk->RemoveFirst();
     }
     

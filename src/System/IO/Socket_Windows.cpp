@@ -174,7 +174,11 @@ bool Socket::Accept(Socket *newSocket)
     }
 
     // register the newly created socket
-    IOProcessorRegisterSocket(newSocket->fd);
+    if (!IOProcessorRegisterSocket(newSocket->fd))
+    {
+        Log_Message("Ran out of IO connections, please increase io.maxfd in config file!");
+        return false;
+    }
     
     return true;
 }

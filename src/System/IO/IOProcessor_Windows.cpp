@@ -116,7 +116,8 @@ bool IOProcessorRegisterSocket(FD& fd)
 {
     IODesc*     iod;
 
-    ASSERT(freeIods != NULL);
+    if (freeIods == NULL)
+        return false;
 
     iod = freeIods;
     // unlink iod from free list
@@ -469,6 +470,7 @@ bool IOProcessor::Poll(int msec)
     timeout = (msec >= 0) ? msec : INFINITE;
 
     startTime = EventLoop::Now();
+Again:
     ret = GetQueuedCompletionStatus(iocp, &numBytes, (PULONG_PTR)&iod, &overlapped, timeout);
     if (terminated)
         return false;
@@ -542,6 +544,7 @@ bool IOProcessor::Poll(int msec)
             }
         }
         timeout = 0;
+        //goto Again;
     }
     else
     {
