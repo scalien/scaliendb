@@ -27,7 +27,6 @@ CLIENTLIB_OBJECTS = \
 	$(BUILD_DIR)/System/Time.o \
 	$(BUILD_DIR)/System/Stopwatch.o \
 	$(BUILD_DIR)/System/Buffers/Buffer.o \
-	$(BUILD_DIR)/System/Buffers/BufferPool.o \
 	$(BUILD_DIR)/System/Buffers/ReadBuffer.o \
 	$(BUILD_DIR)/System/Events/EventLoop.o \
 	$(BUILD_DIR)/System/Events/Scheduler.o \
