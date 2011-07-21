@@ -377,11 +377,11 @@ bool IOProcessor::Add(IOOperation* ioop)
 //      return true;
     }
 
-    // empty buffer indicates that we are waiting for accept event
+    // listening flag indicates that we are waiting for accept event
     if (ioop->type == IOOperation::TCP_READ && ((TCPRead*) ioop)->listening)
         return StartAsyncAccept(ioop);
 
-    // zero length indicates that we are waiting for connect event
+    // NULL buffer indicates that we are waiting for connect event
     if (ioop->type == IOOperation::TCP_WRITE && ioop->buffer == NULL)
         return StartAsyncConnect(ioop);
 
