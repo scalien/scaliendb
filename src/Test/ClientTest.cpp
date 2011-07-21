@@ -284,7 +284,7 @@ TEST_DEFINE(TestClientListKeys)
     
     ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
 //    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(key, endKey, prefix, 3000, 4000);
+    ret = client.ListKeys(key, endKey, prefix, 3000, false);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -1173,6 +1173,11 @@ TEST_DEFINE(TestClientMaro)
     ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
+   
+    k.Write("key");
+    v.Write("value");
+    rk.Wrap(k);
+    rv.Wrap(v);
 
     k.Writef("key");
     v.Writef("value");
@@ -1182,13 +1187,12 @@ TEST_DEFINE(TestClientMaro)
     sw.Start();
     for (int i = 0; i < 10*1000; i++)
     {
-//        for (int j = 0; j < 16; j++)
-            client.Set(rk, rv);
+        client.Set(rk, rv);
         client.Submit();
     }
     sw.Stop();
-    
-    Log_Message("elapsed: %U", sw.Elapsed());
+
+    Log_Message("Elapsed: %U", sw.Elapsed());
         
     return TEST_SUCCESS;
 }

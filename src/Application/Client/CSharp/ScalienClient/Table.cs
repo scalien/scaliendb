@@ -49,6 +49,12 @@ namespace Scalien
             return client.Get(key);
         }
 
+        public byte[] Get(byte[] key)
+        {
+            UseDefaults();
+            return client.Get(key);
+        }
+
         public void Set(string key, string value)
         {
             UseDefaults();
@@ -61,34 +67,16 @@ namespace Scalien
             client.Set(key, value);
         }
 
-        public bool SetIfNotExists(string key, string value)
+        public long Add(string key, long value)
         {
             UseDefaults();
-            return client.SetIfNotExists(key, value);
+            return client.Add(key, value);
         }
 
-        public bool TestAndSet(string key, string test, string value)
+        public long Add(byte[] key, long value)
         {
             UseDefaults();
-            return client.TestAndSet(key, test, value);
-        }
-
-        public string GetAndSet(string key, string value)
-        {
-            UseDefaults();
-            return client.GetAndSet(key, value);
-        }
-
-        public long Add(string key, long number)
-        {
-            UseDefaults();
-            return client.Add(key, number);
-        }
-
-        public void Append(string key, string value)
-        {
-            UseDefaults();
-            client.Append(key, value);
+            return client.Add(key, value);
         }
 
         public void Delete(string key)
@@ -97,34 +85,28 @@ namespace Scalien
             client.Delete(key);
         }
 
-        public bool TestAndDelete(string key, string test)
+        public void Delete(byte[] key)
         {
             UseDefaults();
-            return client.TestAndDelete(key, test);
+            client.Delete(key);
         }
 
-        public string Remove(string key)
+        public List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             UseDefaults();
-            return client.Remove(key);
+            return client.ListKeys(startKey, endKey, prefix, count, skip);
         }
 
-        public List<string> ListKeys(string startKey, string endKey, string prefix, uint offset, uint count)
+        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             UseDefaults();
-            return client.ListKeys(startKey, endKey, prefix, offset, count);
+            return client.ListKeyValues(startKey, endKey, prefix, count, skip);
         }
 
-        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint offset, uint count)
+        public ulong Count(string startKey, string endKey, string prefix)
         {
             UseDefaults();
-            return client.ListKeyValues(startKey, endKey, prefix, offset, count);
-        }
-
-        public ulong Count(string startKey, string endKey, string prefix, uint offset, uint count)
-        {
-            UseDefaults();
-            return client.Count(startKey, endKey, prefix, offset, count);
+            return client.Count(startKey, endKey, prefix);
         }
     }
 }

@@ -71,11 +71,6 @@ namespace Scalien
             return scaliendb_client.SDBP_GetMasterTimeout(cptr);
         }
 
-        public void SetBulkLoading(bool bulk)
-        {
-            scaliendb_client.SDBP_SetBulkLoading(cptr, bulk);
-        }
-
         public void SetConsistencyLevel(int consistencyLevel)
         {
             scaliendb_client.SDBP_SetConsistencyLevel(cptr, consistencyLevel);
@@ -243,14 +238,11 @@ namespace Scalien
                 CheckStatus(status);
             }
 
-            if (IsBatched())
-                return null;
-
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             return result.GetValue();
         }
 
-        public string Get(byte[] key)
+        public byte[] Get(byte[] key)
         {
             int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.Length);
             if (status < 0)
@@ -259,11 +251,9 @@ namespace Scalien
                 CheckStatus(status);
             }
 
-            if (IsBatched())
-                return null;
-
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return result.GetValue();
+            // TODO: fix SWIG wrapper and use GetValueBytes instead
+            return StringToByteArray(result.GetValue());
         }
 
         public void Set(string key, string value)
@@ -274,9 +264,6 @@ namespace Scalien
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
             }
-
-            if (IsBatched())
-                return;
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
@@ -290,91 +277,33 @@ namespace Scalien
                 CheckStatus(status);
             }
 
-            if (IsBatched())
-                return;
-
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        public bool SetIfNotExists(string key, string value)
+        public long Add(string key, long value)
         {
-            int status = scaliendb_client.SDBP_SetIfNotExists(cptr, key, value);
+            int status = scaliendb_client.SDBP_Add(cptr, key, value);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
             }
-
-            if (IsBatched())
-                return false;
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            if (result.GetCommandStatus() == Status.SDBP_SUCCESS)
-                return true;
-            return false;
-        }
-
-        public bool TestAndSet(string key, string test, string value)
-        {
-            int status = scaliendb_client.SDBP_TestAndSet(cptr, key, test, value);
-            if (status < 0)
-            {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
-            }
-
-            if (IsBatched())
-                return false;
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return result.IsConditionalSuccess() ;
-        }
-
-        public string GetAndSet(string key, string value)
-        {
-            int status = scaliendb_client.SDBP_GetAndSet(cptr, key, value);
-            if (status < 0)
-            {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
-            }
-
-            if (IsBatched())
-                return null;
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return result.GetValue();
-        }
-
-        public long Add(string key, long number)
-        {
-            int status = scaliendb_client.SDBP_Add(cptr, key, number);
-            if (status < 0)
-            {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
-            }
-
-            if (IsBatched())
-                return 0;
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             return result.GetSignedNumber();
         }
 
-        public void Append(string key, string value)
+        public long Add(byte[] key, long value)
         {
-            int status = scaliendb_client.SDBP_Append(cptr, key, value);
+            int status = scaliendb_client.SDBP_AddCStr(cptr, key, key.Length, value);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
             }
 
-            if (IsBatched())
-                return;
-
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+            return result.GetSignedNumber();
         }
 
         public void Delete(string key)
@@ -386,63 +315,38 @@ namespace Scalien
                 CheckStatus(status);
             }
 
-            if (IsBatched())
-                return;
-
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        public bool TestAndDelete(string key, string test)
+        public void Delete(byte[] key)
         {
-            int status = scaliendb_client.SDBP_TestAndDelete(cptr, key, test);
+            int status = scaliendb_client.SDBP_DeleteCStr(cptr, key, key.Length);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
             }
 
-            if (IsBatched())
-                return false;
-
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return result.IsConditionalSuccess();
         }
 
-        public string Remove(string key)
+        public List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
         {
-            int status = scaliendb_client.SDBP_Delete(cptr, key);
-            if (status < 0)
-            {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
-            }
-
-            if (IsBatched())
-                return null;
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            if (result.GetCommandStatus() == Status.SDBP_SUCCESS)
-                return result.GetValue();
-            return null;
-        }
-
-        public List<string> ListKeys(string startKey, string endKey, string prefix, uint offset, uint count)
-        {
-            int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, offset);
+            int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, skip);
             CheckResultStatus(status);
             return result.GetKeys();
         }
 
-        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint offset, uint count)
+        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
         {
-            int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, offset);
+            int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, skip);
             CheckResultStatus(status);
             return result.GetKeyValues();
         }
 
-        public ulong Count(string startKey, string endKey, string prefix, uint offset, uint count)
+        public ulong Count(string startKey, string endKey, string prefix)
         {
-            int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, prefix, count, offset);
+            int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, prefix);
             CheckResultStatus(status);
             return result.GetNumber();
         }
@@ -469,11 +373,6 @@ namespace Scalien
         {
             int status = scaliendb_client.SDBP_Cancel(cptr);
             CheckStatus(status);
-        }
-
-        public bool IsBatched()
-        {
-            return scaliendb_client.SDBP_IsBatched(cptr);
         }
 
         // TODO:
@@ -506,6 +405,12 @@ namespace Scalien
         private void CheckStatus(int status)
         {
             CheckStatus(status, null);
+        }
+
+        private static byte[] StringToByteArray(string str)
+        {
+            System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
+            return encoding.GetBytes(str);
         }
 
         public static void SetTrace(bool trace)
