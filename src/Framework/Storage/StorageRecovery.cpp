@@ -354,157 +354,6 @@ ReadBuffer StorageRecovery::ReadFromFileBuffer(FD fd, uint64_t len)
     return rb;
 }
 
-bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
-{
-    // create a StorageLogSegment for each
-    // and for each (logSegmentID, commandID) => (contextID, shardID)
-    // look at that shard's computed max., if the log is bigger, then execute the command
-    // against the MemoChunk
-
-    bool                r, usePrevious;
-    char                type;
-    uint16_t            contextID, klen;
-    uint32_t            checksum, /*compChecksum,*/ vlen, version;
-    uint64_t            logSegmentID, tmp, shardID, logCommandID, size, rest;
-    ReadBuffer          parse, dataPart, key, value;
-    Buffer              buffer;
-    FDGuard             fd;
-    StorageLogSegment*  logSegment;
-    uint64_t            uncompressedLength;
-    
-    Log_Message("Replaying log segment %B...", &filename);
-    
-    filename.NullTerminate();
-    
-    if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
-    {
-        Log_Message("Unable to open log file: %s", filename.GetBuffer());
-        Log_Message("Exiting...");
-        ASSERT_FAIL();
-    }
-    
-    fileBuffer.Allocate(STORAGE_RECOVERY_PRELOAD_SIZE);
-    fileBuffer.Clear();
-    fileBufferPos = 0;
-    size = 4 + 8;
-
-    parse = ReadFromFileBuffer(fd.GetFD(), size);
-    if (parse.GetLength() != size)
-        return false;
-
-    // first 4 byte is the version
-    if (!parse.ReadLittle32(version))
-        return false;
-    parse.Advance(4);
-        
-    // next 8 byte is the logSegmentID
-    if (!parse.ReadLittle64(logSegmentID))
-        return false;
-    parse.Advance(8);
-    
-    logCommandID = 1;
-
-    while (true)
-    {
-        // read header that contains the size of the file
-        size = sizeof(uint64_t);
-        parse = ReadFromFileBuffer(fd.GetFD(), size);
-        if (parse.GetLength() != size)
-            break;
-
-        // parse actual file size
-        if (!parse.ReadLittle64(size))
-            break;
-
-        rest = size - parse.GetLength();
-        parse = ReadFromFileBuffer(fd.GetFD(), rest);
-        if (parse.GetLength() != rest)
-            break;
-
-        if (!parse.ReadLittle64(uncompressedLength))
-            break;
-        parse.Advance(sizeof(uint64_t));
-        
-        if (!parse.ReadLittle32(checksum))
-            break;
-        parse.Advance(sizeof(uint32_t));
-
-        while (parse.GetLength() > 0)
-        {            
-            if (parse.GetLength() < 1)
-                break;
-            parse.ReadChar(type);
-            parse.Advance(1);
-            
-            if (parse.GetLength() < 1)
-                break;
-            parse.Readf("%b", &usePrevious);
-            parse.Advance(1);
-            
-            if (!usePrevious)
-            {
-                if (parse.GetLength() < 2)
-                    break;
-                parse.ReadLittle16(contextID);
-                parse.Advance(2);
-
-                if (parse.GetLength() < 8)
-                    break;
-                parse.ReadLittle64(shardID);
-                parse.Advance(8);
-            }
-            
-            if (parse.GetLength() < 2)
-                break;
-            if (!parse.ReadLittle16(klen))
-                break;
-            parse.Advance(2);
-            
-            if (parse.GetLength() < klen)
-                break;
-            key.Wrap(parse.GetBuffer(), klen);
-            parse.Advance(klen);
-
-            if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
-            {
-                if (parse.GetLength() < 4)
-                    break;
-                if (!parse.ReadLittle32(vlen))
-                    break;
-                parse.Advance(4);
-                
-                if (parse.GetLength() < vlen)
-                    break;
-                value.Wrap(parse.GetBuffer(), vlen);
-                parse.Advance(vlen);
-            }
-            
-            if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
-                ExecuteSet(logSegmentID, logCommandID, contextID, shardID, key, value);
-            else if (type == STORAGE_LOGSEGMENT_COMMAND_DELETE)
-                ExecuteDelete(logSegmentID, logCommandID, contextID, shardID, key);
-            else
-                ASSERT_FAIL();
-            
-            logCommandID++;
-        }
-    }
-    
-    logSegment = new StorageLogSegment;
-    logSegment->trackID = trackID;
-    logSegment->logSegmentID = logSegmentID;
-    logSegment->filename.Write(filename);
-    env->logSegments.Append(logSegment);
-    r = env->logSegmentIDMap.Get(trackID, tmp);
-    if (!r || tmp <= logSegmentID)
-        env->logSegmentIDMap.Set(trackID, ++logSegmentID);
-    
-    fileBuffer.Reset();
-    fd.Close();
-    
-    return true;
-}
-
 //bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
 //{
 //    // create a StorageLogSegment for each
@@ -522,7 +371,6 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
 //    FDGuard             fd;
 //    StorageLogSegment*  logSegment;
 //    uint64_t            uncompressedLength;
-//    ssize_t             ret;
 //    
 //    Log_Message("Replaying log segment %B...", &filename);
 //    
@@ -535,13 +383,14 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
 //        ASSERT_FAIL();
 //    }
 //    
+//    fileBuffer.Allocate(STORAGE_RECOVERY_PRELOAD_SIZE);
+//    fileBuffer.Clear();
+//    fileBufferPos = 0;
 //    size = 4 + 8;
-//    buffer.Allocate(size);
-//    ret = FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size);
-//    if (ret < 0 || (uint64_t) ret != size)
+//
+//    parse = ReadFromFileBuffer(fd.GetFD(), size);
+//    if (parse.GetLength() != size)
 //        return false;
-//    buffer.SetLength(size);
-//    parse.Wrap(buffer);
 //
 //    // first 4 byte is the version
 //    if (!parse.ReadLittle32(version))
@@ -555,47 +404,31 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
 //    
 //    logCommandID = 1;
 //
-//    buffer.Allocate(1024 * 1024);
-//
 //    while (true)
 //    {
 //        // read header that contains the size of the file
 //        size = sizeof(uint64_t);
-//        buffer.Allocate(size);
-//        ret = FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size);
-//        if (ret < 0 || (uint64_t) ret != size)
+//        parse = ReadFromFileBuffer(fd.GetFD(), size);
+//        if (parse.GetLength() != size)
 //            break;
-//        buffer.SetLength(size);
-//        
+//
 //        // parse actual file size
-//        parse.Wrap(buffer);
 //        if (!parse.ReadLittle64(size))
 //            break;
-//        buffer.Allocate(size);
-//        
-//        rest = size - buffer.GetLength();
-//        if (rest < sizeof(uint64_t) + sizeof(uint32_t)) // size of uncompressed + checksum
+//
+//        rest = size - parse.GetLength();
+//        parse = ReadFromFileBuffer(fd.GetFD(), rest);
+//        if (parse.GetLength() != rest)
 //            break;
-//        ret = FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest);
-//        if (ret < 0 || (uint64_t) ret != rest)
-//            break;
-//        buffer.SetLength(size);
-//     
-//        parse.Wrap(buffer.GetBuffer() + sizeof(uint64_t), sizeof(uint64_t) + sizeof(uint32_t));
+//
 //        if (!parse.ReadLittle64(uncompressedLength))
 //            break;
 //        parse.Advance(sizeof(uint64_t));
 //        
 //        if (!parse.ReadLittle32(checksum))
 //            break;
-//        dataPart.Wrap(buffer.GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE,
-//         buffer.GetLength() - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+//        parse.Advance(sizeof(uint32_t));
 //
-////        compChecksum = dataPart.GetChecksum();
-////        if (checksum != compChecksum)
-////            break;
-//
-//        parse = dataPart;
 //        while (parse.GetLength() > 0)
 //        {            
 //            if (parse.GetLength() < 1)
@@ -663,13 +496,180 @@ bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
 //    logSegment->filename.Write(filename);
 //    env->logSegments.Append(logSegment);
 //    r = env->logSegmentIDMap.Get(trackID, tmp);
-//    if (!ret || tmp <= logSegmentID)
+//    if (!r || tmp <= logSegmentID)
 //        env->logSegmentIDMap.Set(trackID, ++logSegmentID);
 //    
+//    fileBuffer.Reset();
 //    fd.Close();
 //    
 //    return true;
 //}
+
+bool StorageRecovery::ReplayLogSegment(uint64_t trackID, Buffer& filename)
+{
+    // create a StorageLogSegment for each
+    // and for each (logSegmentID, commandID) => (contextID, shardID)
+    // look at that shard's computed max., if the log is bigger, then execute the command
+    // against the MemoChunk
+
+    bool                r, usePrevious;
+    char                type;
+    uint16_t            contextID, klen;
+    uint32_t            checksum, /*compChecksum,*/ vlen, version;
+    uint64_t            logSegmentID, tmp, shardID, logCommandID, size, rest;
+    ReadBuffer          parse, dataPart, key, value;
+    Buffer              buffer;
+    FDGuard             fd;
+    StorageLogSegment*  logSegment;
+    uint64_t            uncompressedLength;
+    ssize_t             ret;
+    
+    Log_Message("Replaying log segment %B...", &filename);
+    
+    filename.NullTerminate();
+    
+    if (fd.Open(filename.GetBuffer(), FS_READONLY) == INVALID_FD)
+    {
+        Log_Message("Unable to open log file: %s", filename.GetBuffer());
+        Log_Message("Exiting...");
+        ASSERT_FAIL();
+    }
+    
+    size = 4 + 8;
+    buffer.Allocate(size);
+    ret = FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size);
+    if (ret < 0 || (uint64_t) ret != size)
+        return false;
+    buffer.SetLength(size);
+    parse.Wrap(buffer);
+
+    // first 4 byte is the version
+    if (!parse.ReadLittle32(version))
+        return false;
+    parse.Advance(4);
+        
+    // next 8 byte is the logSegmentID
+    if (!parse.ReadLittle64(logSegmentID))
+        return false;
+    parse.Advance(8);
+    
+    logCommandID = 1;
+
+    buffer.Allocate(1024 * 1024);
+
+    while (true)
+    {
+        // read header that contains the size of the file
+        size = sizeof(uint64_t);
+        buffer.Allocate(size);
+        ret = FS_FileRead(fd.GetFD(), buffer.GetBuffer(), size);
+        if (ret < 0 || (uint64_t) ret != size)
+            break;
+        buffer.SetLength(size);
+        
+        // parse actual file size
+        parse.Wrap(buffer);
+        if (!parse.ReadLittle64(size))
+            break;
+        buffer.Allocate(size);
+        
+        rest = size - buffer.GetLength();
+        if (rest < sizeof(uint64_t) + sizeof(uint32_t)) // size of uncompressed + checksum
+            break;
+        ret = FS_FileRead(fd.GetFD(), buffer.GetPosition(), rest);
+        if (ret < 0 || (uint64_t) ret != rest)
+            break;
+        buffer.SetLength(size);
+     
+        parse.Wrap(buffer.GetBuffer() + sizeof(uint64_t), sizeof(uint64_t) + sizeof(uint32_t));
+        if (!parse.ReadLittle64(uncompressedLength))
+            break;
+        parse.Advance(sizeof(uint64_t));
+        
+        if (!parse.ReadLittle32(checksum))
+            break;
+        dataPart.Wrap(buffer.GetBuffer() + STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE,
+         buffer.GetLength() - STORAGE_LOGSEGMENT_BLOCK_HEAD_SIZE);
+
+//        compChecksum = dataPart.GetChecksum();
+//        if (checksum != compChecksum)
+//            break;
+
+        parse = dataPart;
+        while (parse.GetLength() > 0)
+        {            
+            if (parse.GetLength() < 1)
+                break;
+            parse.ReadChar(type);
+            parse.Advance(1);
+            
+            if (parse.GetLength() < 1)
+                break;
+            parse.Readf("%b", &usePrevious);
+            parse.Advance(1);
+            
+            if (!usePrevious)
+            {
+                if (parse.GetLength() < 2)
+                    break;
+                parse.ReadLittle16(contextID);
+                parse.Advance(2);
+
+                if (parse.GetLength() < 8)
+                    break;
+                parse.ReadLittle64(shardID);
+                parse.Advance(8);
+            }
+            
+            if (parse.GetLength() < 2)
+                break;
+            if (!parse.ReadLittle16(klen))
+                break;
+            parse.Advance(2);
+            
+            if (parse.GetLength() < klen)
+                break;
+            key.Wrap(parse.GetBuffer(), klen);
+            parse.Advance(klen);
+
+            if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
+            {
+                if (parse.GetLength() < 4)
+                    break;
+                if (!parse.ReadLittle32(vlen))
+                    break;
+                parse.Advance(4);
+                
+                if (parse.GetLength() < vlen)
+                    break;
+                value.Wrap(parse.GetBuffer(), vlen);
+                parse.Advance(vlen);
+            }
+            
+            if (type == STORAGE_LOGSEGMENT_COMMAND_SET)
+                ExecuteSet(logSegmentID, logCommandID, contextID, shardID, key, value);
+            else if (type == STORAGE_LOGSEGMENT_COMMAND_DELETE)
+                ExecuteDelete(logSegmentID, logCommandID, contextID, shardID, key);
+            else
+                ASSERT_FAIL();
+            
+            logCommandID++;
+        }
+    }
+    
+    logSegment = new StorageLogSegment;
+    logSegment->trackID = trackID;
+    logSegment->logSegmentID = logSegmentID;
+    logSegment->filename.Write(filename);
+    env->logSegments.Append(logSegment);
+    r = env->logSegmentIDMap.Get(trackID, tmp);
+    if (!ret || tmp <= logSegmentID)
+        env->logSegmentIDMap.Set(trackID, ++logSegmentID);
+    
+    fd.Close();
+    
+    return true;
+}
 
 void StorageRecovery::DeleteOrphanedChunks()
 {
