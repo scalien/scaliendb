@@ -32,7 +32,7 @@ int main(int argc, char** argv)
     StartClock();
     ConfigureSystemSettings();
     
-    IOProcessor::Init(configFile.GetIntValue("io.maxfd", 1024));
+    IOProcessor::Init(configFile.GetIntValue("io.maxfd", 32768));
     InitContextTransport();
     BloomFilter::StaticInit();
     
