@@ -27,7 +27,7 @@ import os
 LDPATH=["/opt/local/lib/db46"]
 LDLIBS=["pthread"]
 #BUILD_DIR="build/Release"
-BUILD_DIR="build/Debug"
+BUILD_DIR="build/mkdebug"
 SRC_DIR="src"
 TEST_DIR="Test/"
 DEBUGGER="gdb -ex r"

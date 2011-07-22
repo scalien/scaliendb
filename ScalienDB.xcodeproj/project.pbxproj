@@ -58,7 +58,6 @@
 		543DE5F812BFBB3D0069786A /* StorageRecovery.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE5A312BFBB3D0069786A /* StorageRecovery.cpp */; };
 		543DE5F912BFBB3D0069786A /* StorageShard.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE5A512BFBB3D0069786A /* StorageShard.cpp */; };
 		543DE60A12BFBB3D0069786A /* TCPConnection.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE5CB12BFBB3D0069786A /* TCPConnection.cpp */; };
-		543DE60B12BFBB3D0069786A /* TCPWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE5CE12BFBB3D0069786A /* TCPWriter.cpp */; };
 		543DE6B712BFBB420069786A /* CatchupMessage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63412BFBB420069786A /* CatchupMessage.cpp */; };
 		543DE6B812BFBB420069786A /* ClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63612BFBB420069786A /* ClientRequest.cpp */; };
 		543DE6B912BFBB420069786A /* ClientRequestCache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63812BFBB420069786A /* ClientRequestCache.cpp */; };
@@ -109,7 +108,6 @@
 		543DE8C512C113770069786A /* StorageShardProxy.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE73B12C0B9350069786A /* StorageShardProxy.cpp */; };
 		5452866613C5F17600B6A374 /* ConfigController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A6AB4813B5D76F00DDB15B /* ConfigController.cpp */; };
 		546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
-		546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
 		546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		548DEBD6130E8B7E00E3A86A /* ShardMigrationWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 548DEBD5130E8B7E00E3A86A /* ShardMigrationWriter.cpp */; };
@@ -160,7 +158,6 @@
 		9A467ADD1373541600108B07 /* ShardExtensionTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9A467ADC1373541600108B07 /* ShardExtensionTest.cpp */; };
 		9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E255011EF5CF700867EE1 /* ReadBuffer.cpp */; };
 		9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254C11EF5CF700867EE1 /* Buffer.cpp */; };
-		9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E254E11EF5CF700867EE1 /* BufferPool.cpp */; };
 		9AABB04F123E55DE003626AC /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		9AABB050123E55DE003626AC /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
 		9AABB051123E55DE003626AC /* Timer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA690A11C2435300FF4EF6 /* Timer.cpp */; };
@@ -272,7 +269,6 @@
 		9AE819B012D4C4030038BDB1 /* ConfigQuorum.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65F12BFBB420069786A /* ConfigQuorum.cpp */; };
 		9AE819B112D4C4060038BDB1 /* ConfigDatabase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE65D12BFBB420069786A /* ConfigDatabase.cpp */; };
 		9AE819B412D4C4200038BDB1 /* ClientRequest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE63612BFBB420069786A /* ClientRequest.cpp */; };
-		9AE819B712D4C4280038BDB1 /* TCPWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE5CE12BFBB3D0069786A /* TCPWriter.cpp */; };
 		9AED118E13B379DC0023F27E /* JSONReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AED118C13B379DC0023F27E /* JSONReader.cpp */; };
 		9AED119013B379F40023F27E /* JSONReaderTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AED118F13B379F40023F27E /* JSONReaderTest.cpp */; };
 /* End PBXBuildFile section */
@@ -404,8 +400,6 @@
 		543DE5CB12BFBB3D0069786A /* TCPConnection.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPConnection.cpp; sourceTree = "<group>"; };
 		543DE5CC12BFBB3D0069786A /* TCPConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPConnection.h; sourceTree = "<group>"; };
 		543DE5CD12BFBB3D0069786A /* TCPServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPServer.h; sourceTree = "<group>"; };
-		543DE5CE12BFBB3D0069786A /* TCPWriter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TCPWriter.cpp; sourceTree = "<group>"; };
-		543DE5CF12BFBB3D0069786A /* TCPWriter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TCPWriter.h; sourceTree = "<group>"; };
 		543DE63312BFBB420069786A /* Application.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Application.h; sourceTree = "<group>"; };
 		543DE63412BFBB420069786A /* CatchupMessage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CatchupMessage.cpp; sourceTree = "<group>"; };
 		543DE63512BFBB420069786A /* CatchupMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CatchupMessage.h; sourceTree = "<group>"; };
@@ -518,8 +512,6 @@
 		546E1FC611EC81B200867EE1 /* InList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InList.h; sourceTree = "<group>"; };
 		546E254C11EF5CF700867EE1 /* Buffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Buffer.cpp; sourceTree = "<group>"; };
 		546E254D11EF5CF700867EE1 /* Buffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Buffer.h; sourceTree = "<group>"; };
-		546E254E11EF5CF700867EE1 /* BufferPool.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BufferPool.cpp; sourceTree = "<group>"; };
-		546E254F11EF5CF700867EE1 /* BufferPool.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BufferPool.h; sourceTree = "<group>"; };
 		546E255011EF5CF700867EE1 /* ReadBuffer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ReadBuffer.cpp; sourceTree = "<group>"; };
 		546E255111EF5CF700867EE1 /* ReadBuffer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ReadBuffer.h; sourceTree = "<group>"; };
 		546E269811EF712900867EE1 /* Stopwatch.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Stopwatch.cpp; sourceTree = "<group>"; };
@@ -748,8 +740,8 @@
 				543DE54112BFBB3D0069786A /* ClusterServer.cpp */,
 				543DE54012BFBB3D0069786A /* ClusterConnection.h */,
 				543DE53F12BFBB3D0069786A /* ClusterConnection.cpp */,
-				543DE54312BFBB3D0069786A /* ClusterTransport.cpp */,
 				543DE54412BFBB3D0069786A /* ClusterTransport.h */,
+				543DE54312BFBB3D0069786A /* ClusterTransport.cpp */,
 			);
 			path = Clustering;
 			sourceTree = "<group>";
@@ -758,8 +750,8 @@
 			isa = PBXGroup;
 			children = (
 				543DE54612BFBB3D0069786A /* Message.h */,
-				543DE54712BFBB3D0069786A /* MessageConnection.cpp */,
 				543DE54812BFBB3D0069786A /* MessageConnection.h */,
+				543DE54712BFBB3D0069786A /* MessageConnection.cpp */,
 				543DE54912BFBB3D0069786A /* MessageUtil.h */,
 			);
 			path = Messaging;
@@ -772,8 +764,8 @@
 				543DE55512BFBB3D0069786A /* PaxosLease */,
 				543DE56412BFBB3D0069786A /* Quorums */,
 				543DE57112BFBB3D0069786A /* ReplicatedLog */,
-				543DE57412BFBB3D0069786A /* ReplicationConfig.cpp */,
 				543DE57512BFBB3D0069786A /* ReplicationConfig.h */,
+				543DE57412BFBB3D0069786A /* ReplicationConfig.cpp */,
 			);
 			path = Replication;
 			sourceTree = "<group>";
@@ -849,8 +841,8 @@
 		543DE57112BFBB3D0069786A /* ReplicatedLog */ = {
 			isa = PBXGroup;
 			children = (
-				543DE57212BFBB3D0069786A /* ReplicatedLog.cpp */,
 				543DE57312BFBB3D0069786A /* ReplicatedLog.h */,
+				543DE57212BFBB3D0069786A /* ReplicatedLog.cpp */,
 			);
 			path = ReplicatedLog;
 			sourceTree = "<group>";
@@ -896,8 +888,6 @@
 				543DE5CD12BFBB3D0069786A /* TCPServer.h */,
 				543DE5CC12BFBB3D0069786A /* TCPConnection.h */,
 				543DE5CB12BFBB3D0069786A /* TCPConnection.cpp */,
-				543DE5CF12BFBB3D0069786A /* TCPWriter.h */,
-				543DE5CE12BFBB3D0069786A /* TCPWriter.cpp */,
 			);
 			path = TCP;
 			sourceTree = "<group>";
@@ -942,30 +932,30 @@
 		543DE64312BFBB420069786A /* ConfigServer */ = {
 			isa = PBXGroup;
 			children = (
-				543DE64412BFBB420069786A /* ConfigActivationManager.cpp */,
 				543DE64512BFBB420069786A /* ConfigActivationManager.h */,
-				543DE64612BFBB420069786A /* ConfigDatabaseManager.cpp */,
+				543DE64412BFBB420069786A /* ConfigActivationManager.cpp */,
 				543DE64712BFBB420069786A /* ConfigDatabaseManager.h */,
-				543DE64812BFBB420069786A /* ConfigHeartbeatManager.cpp */,
+				543DE64612BFBB420069786A /* ConfigDatabaseManager.cpp */,
 				543DE64912BFBB420069786A /* ConfigHeartbeatManager.h */,
-				543DE64A12BFBB420069786A /* ConfigHTTPClientSession.cpp */,
+				543DE64812BFBB420069786A /* ConfigHeartbeatManager.cpp */,
 				543DE64B12BFBB420069786A /* ConfigHTTPClientSession.h */,
-				543DE64C12BFBB420069786A /* ConfigHTTPHandler.cpp */,
+				543DE64A12BFBB420069786A /* ConfigHTTPClientSession.cpp */,
 				543DE64D12BFBB420069786A /* ConfigHTTPHandler.h */,
-				543DE64E12BFBB420069786A /* ConfigMessage.cpp */,
+				543DE64C12BFBB420069786A /* ConfigHTTPHandler.cpp */,
 				543DE64F12BFBB420069786A /* ConfigMessage.h */,
-				543DE65012BFBB420069786A /* ConfigPrimaryLeaseManager.cpp */,
+				543DE64E12BFBB420069786A /* ConfigMessage.cpp */,
 				543DE65112BFBB420069786A /* ConfigPrimaryLeaseManager.h */,
-				543DE65212BFBB420069786A /* ConfigQuorumContext.cpp */,
+				543DE65012BFBB420069786A /* ConfigPrimaryLeaseManager.cpp */,
 				543DE65312BFBB420069786A /* ConfigQuorumContext.h */,
-				543DE65412BFBB420069786A /* ConfigQuorumProcessor.cpp */,
+				543DE65212BFBB420069786A /* ConfigQuorumContext.cpp */,
 				543DE65512BFBB420069786A /* ConfigQuorumProcessor.h */,
-				543DE65612BFBB420069786A /* ConfigServer.cpp */,
+				543DE65412BFBB420069786A /* ConfigQuorumProcessor.cpp */,
 				543DE65712BFBB420069786A /* ConfigServer.h */,
-				543DE65812BFBB420069786A /* ConfigServerApp.cpp */,
+				543DE65612BFBB420069786A /* ConfigServer.cpp */,
 				543DE65912BFBB420069786A /* ConfigServerApp.h */,
-				543DE65A12BFBB420069786A /* JSONConfigState.cpp */,
+				543DE65812BFBB420069786A /* ConfigServerApp.cpp */,
 				543DE65B12BFBB420069786A /* JSONConfigState.h */,
+				543DE65A12BFBB420069786A /* JSONConfigState.cpp */,
 			);
 			path = ConfigServer;
 			sourceTree = "<group>";
@@ -973,20 +963,20 @@
 		543DE65C12BFBB420069786A /* ConfigState */ = {
 			isa = PBXGroup;
 			children = (
-				543DE65D12BFBB420069786A /* ConfigDatabase.cpp */,
 				543DE65E12BFBB420069786A /* ConfigDatabase.h */,
-				543DE65F12BFBB420069786A /* ConfigQuorum.cpp */,
+				543DE65D12BFBB420069786A /* ConfigDatabase.cpp */,
 				543DE66012BFBB420069786A /* ConfigQuorum.h */,
-				543DE66112BFBB420069786A /* ConfigShard.cpp */,
+				543DE65F12BFBB420069786A /* ConfigQuorum.cpp */,
 				543DE66212BFBB420069786A /* ConfigShard.h */,
-				543DE66312BFBB420069786A /* ConfigShardServer.cpp */,
+				543DE66112BFBB420069786A /* ConfigShard.cpp */,
 				543DE66412BFBB420069786A /* ConfigShardServer.h */,
-				54A6AB4813B5D76F00DDB15B /* ConfigController.cpp */,
+				543DE66312BFBB420069786A /* ConfigShardServer.cpp */,
 				54A6AB4713B5D76F00DDB15B /* ConfigController.h */,
-				543DE66512BFBB420069786A /* ConfigState.cpp */,
+				54A6AB4813B5D76F00DDB15B /* ConfigController.cpp */,
 				543DE66612BFBB420069786A /* ConfigState.h */,
-				543DE66712BFBB420069786A /* ConfigTable.cpp */,
+				543DE66512BFBB420069786A /* ConfigState.cpp */,
 				543DE66812BFBB420069786A /* ConfigTable.h */,
+				543DE66712BFBB420069786A /* ConfigTable.cpp */,
 			);
 			path = ConfigState;
 			sourceTree = "<group>";
@@ -994,30 +984,30 @@
 		543DE66912BFBB420069786A /* HTTP */ = {
 			isa = PBXGroup;
 			children = (
-				543DE66A12BFBB420069786A /* HTTPConnection.cpp */,
 				543DE66B12BFBB420069786A /* HTTPConnection.h */,
+				543DE66A12BFBB420069786A /* HTTPConnection.cpp */,
 				543DE66C12BFBB420069786A /* HTTPConsts.h */,
-				543DE66D12BFBB420069786A /* HTTPFileHandler.cpp */,
 				543DE66E12BFBB420069786A /* HTTPFileHandler.h */,
+				543DE66D12BFBB420069786A /* HTTPFileHandler.cpp */,
 				543DE66F12BFBB420069786A /* HTTPHandler.h */,
-				543DE67012BFBB420069786A /* HTTPRequest.cpp */,
 				543DE67112BFBB420069786A /* HTTPRequest.h */,
-				543DE67212BFBB420069786A /* HTTPServer.cpp */,
+				543DE67012BFBB420069786A /* HTTPRequest.cpp */,
 				543DE67312BFBB420069786A /* HTTPServer.h */,
-				543DE67412BFBB420069786A /* HTTPSession.cpp */,
+				543DE67212BFBB420069786A /* HTTPServer.cpp */,
 				543DE67512BFBB420069786A /* HTTPSession.h */,
-				543DE67612BFBB420069786A /* IMF.cpp */,
+				543DE67412BFBB420069786A /* HTTPSession.cpp */,
 				543DE67712BFBB420069786A /* IMF.h */,
+				543DE67612BFBB420069786A /* IMF.cpp */,
 				9A466D5E135F435300108B07 /* JSONBufferWriter.h */,
 				9A466D5F135F435300108B07 /* JSONBufferWriter.cpp */,
-				9AED118C13B379DC0023F27E /* JSONReader.cpp */,
 				9AED118D13B379DC0023F27E /* JSONReader.h */,
-				543DE67812BFBB420069786A /* JSONSession.cpp */,
+				9AED118C13B379DC0023F27E /* JSONReader.cpp */,
 				543DE67912BFBB420069786A /* JSONSession.h */,
-				543DE67A12BFBB420069786A /* Mime.cpp */,
+				543DE67812BFBB420069786A /* JSONSession.cpp */,
 				543DE67B12BFBB420069786A /* Mime.h */,
-				543DE67C12BFBB420069786A /* UrlParam.cpp */,
+				543DE67A12BFBB420069786A /* Mime.cpp */,
 				543DE67D12BFBB420069786A /* UrlParam.h */,
+				543DE67C12BFBB420069786A /* UrlParam.cpp */,
 			);
 			path = HTTP;
 			sourceTree = "<group>";
@@ -1025,15 +1015,15 @@
 		543DE67E12BFBB420069786A /* SDBP */ = {
 			isa = PBXGroup;
 			children = (
-				543DE67F12BFBB420069786A /* SDBPConnection.cpp */,
 				543DE68012BFBB420069786A /* SDBPConnection.h */,
+				543DE67F12BFBB420069786A /* SDBPConnection.cpp */,
 				543DE68112BFBB420069786A /* SDBPContext.h */,
-				543DE68212BFBB420069786A /* SDBPRequestMessage.cpp */,
 				543DE68312BFBB420069786A /* SDBPRequestMessage.h */,
-				543DE68412BFBB420069786A /* SDBPResponseMessage.cpp */,
+				543DE68212BFBB420069786A /* SDBPRequestMessage.cpp */,
 				543DE68512BFBB420069786A /* SDBPResponseMessage.h */,
-				543DE68612BFBB420069786A /* SDBPServer.cpp */,
+				543DE68412BFBB420069786A /* SDBPResponseMessage.cpp */,
 				543DE68712BFBB420069786A /* SDBPServer.h */,
+				543DE68612BFBB420069786A /* SDBPServer.cpp */,
 			);
 			path = SDBP;
 			sourceTree = "<group>";
@@ -1140,8 +1130,6 @@
 				546E255011EF5CF700867EE1 /* ReadBuffer.cpp */,
 				546E254D11EF5CF700867EE1 /* Buffer.h */,
 				546E254C11EF5CF700867EE1 /* Buffer.cpp */,
-				546E254F11EF5CF700867EE1 /* BufferPool.h */,
-				546E254E11EF5CF700867EE1 /* BufferPool.cpp */,
 			);
 			path = Buffers;
 			sourceTree = "<group>";
@@ -1493,7 +1481,6 @@
 				54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */,
 				54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */,
 				546E255211EF5CF700867EE1 /* Buffer.cpp in Sources */,
-				546E255311EF5CF700867EE1 /* BufferPool.cpp in Sources */,
 				546E255411EF5CF700867EE1 /* ReadBuffer.cpp in Sources */,
 				546E269911EF712900867EE1 /* Stopwatch.cpp in Sources */,
 				548F50A012157A050035ADDB /* Formatting.cpp in Sources */,
@@ -1536,7 +1523,6 @@
 				543DE5F812BFBB3D0069786A /* StorageRecovery.cpp in Sources */,
 				543DE5F912BFBB3D0069786A /* StorageShard.cpp in Sources */,
 				543DE60A12BFBB3D0069786A /* TCPConnection.cpp in Sources */,
-				543DE60B12BFBB3D0069786A /* TCPWriter.cpp in Sources */,
 				543DE6B712BFBB420069786A /* CatchupMessage.cpp in Sources */,
 				543DE6B812BFBB420069786A /* ClientRequest.cpp in Sources */,
 				543DE6B912BFBB420069786A /* ClientRequestCache.cpp in Sources */,
@@ -1622,7 +1608,6 @@
 			files = (
 				9AABB04C123E55DE003626AC /* ReadBuffer.cpp in Sources */,
 				9AABB04D123E55DE003626AC /* Buffer.cpp in Sources */,
-				9AABB04E123E55DE003626AC /* BufferPool.cpp in Sources */,
 				9AABB04F123E55DE003626AC /* Scheduler.cpp in Sources */,
 				9AABB050123E55DE003626AC /* EventLoop.cpp in Sources */,
 				9AABB051123E55DE003626AC /* Timer.cpp in Sources */,
@@ -1665,7 +1650,6 @@
 				9AE819B012D4C4030038BDB1 /* ConfigQuorum.cpp in Sources */,
 				9AE819B112D4C4060038BDB1 /* ConfigDatabase.cpp in Sources */,
 				9AE819B412D4C4200038BDB1 /* ClientRequest.cpp in Sources */,
-				9AE819B712D4C4280038BDB1 /* TCPWriter.cpp in Sources */,
 				78BCDFF812DA111800438DA5 /* InTreeMapTest.cpp in Sources */,
 				9AD5E4E712EF045600F4AF7B /* StorageTest.cpp in Sources */,
 				9AD5E4FE12EF08DA00F4AF7B /* StorageEnvironment.cpp in Sources */,

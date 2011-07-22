@@ -369,7 +369,7 @@ void StorageFileChunk::RemovePagesFromCache()
 {
     uint32_t i;
     
-    Log_Debug("Removing chunk %U from cache", GetChunkID());
+//    Log_Debug("Removing chunk %U from cache", GetChunkID());
     
     if (UseBloomFilter() && bloomPage != NULL && bloomPage->IsCached())
         StoragePageCache::RemovePage(bloomPage);

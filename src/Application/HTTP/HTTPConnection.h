@@ -35,13 +35,11 @@ public:
 
     HTTPServer*         GetServer() { return server; }
     Buffer&             GetReadBuffer() { return readBuffer; }
-    Buffer*             GetWriteBuffer();
 
     // TCPConnection interface
     virtual void        OnRead();
     virtual void        OnClose();
     virtual void        OnWrite();
-    virtual uint64_t    GetMemoryUsage();   
 
 protected:
     Callable            onCloseCallback;
@@ -49,7 +47,6 @@ protected:
     HTTPRequest         request;
     Endpoint            endpoint;
     bool                closeAfterSend;
-    Buffer*             writeBuffer;
     ReadBuffer          contentType;
     ReadBuffer          origin;
 

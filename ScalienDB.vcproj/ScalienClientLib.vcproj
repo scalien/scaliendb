@@ -547,14 +547,6 @@
 					>
 				</File>
 				<File
-					RelativePath="..\src\System\Buffers\BufferPool.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\System\Buffers\BufferPool.h"
-					>
-				</File>
-				<File
 					RelativePath="..\src\System\Buffers\ReadBuffer.cpp"
 					>
 				</File>
@@ -772,14 +764,6 @@
 				</File>
 				<File
 					RelativePath="..\src\Framework\TCP\TCPServer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\TCP\TCPWriter.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Framework\TCP\TCPWriter.h"
 					>
 				</File>
 			</Filter>

@@ -64,7 +64,6 @@ void ConfigServerApp::OnStatTimer()
     Log_Debug("Listen requests: %u", configServer.GetQuorumProcessor()->GetNumListenRequests());
     Log_Debug("Timers: %u", EventLoop::GetNumTimers());
     Log_Debug("Page cache size: %s, num. pages: %u", HUMAN_BYTES(StoragePageCache::GetSize()), StoragePageCache::GetNumPages());
-    Log_Debug("Bufferpool available size: %s", HUMAN_BYTES(DEFAULT_BUFFERPOOL->GetAvailableSize()));
     Log_Debug("Request cache free list size: %u", REQUEST_CACHE->GetNumFreeRequests());
     EventLoop::Add(&statTimer);
 }
