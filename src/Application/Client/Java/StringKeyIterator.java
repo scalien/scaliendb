@@ -20,7 +20,6 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
         this.endKey = endKey;
         this.prefix = prefix;
         this.count = 100;
-        this.pos = 0;
         
         query(false);
     }
@@ -31,7 +30,6 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
         this.endKey = endKey;
         this.prefix = prefix;
         this.count = 100;
-        this.pos = 0;
         
         query(false);
     }

@@ -1184,11 +1184,18 @@ TEST_DEFINE(TestClientMaro)
     rk.Wrap(k);
     rv.Wrap(v);
 
+    client.Set("index", "0");
+    
     sw.Start();
     for (int i = 0; i < 10*1000; i++)
     {
+        client.Add("index", 1);
+
+        k.Writef("%d", i);
+        v.Writef("%d", i*i);
+        rk.Wrap(k);
+        rv.Wrap(v);
         client.Set(rk, rv);
-        client.Submit();
     }
     sw.Stop();
 

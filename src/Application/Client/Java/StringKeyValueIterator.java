@@ -23,7 +23,6 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
         this.endKey = endKey;
         this.prefix = prefix;
         this.count = 100;
-        this.pos = 0;
         
         query(false);
     }
@@ -34,7 +33,6 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
         this.endKey = endKey;
         this.prefix = prefix;
         this.count = 100;
-        this.pos = 0;
         
         query(false);
     }

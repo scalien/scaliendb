@@ -20,7 +20,6 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
         this.endKey = endKey;
         this.prefix = prefix;
         this.count = 100;
-        this.pos = 0;
         
         query(false);
     }
@@ -31,7 +30,6 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
         this.endKey = endKey;
         this.prefix = prefix;
         this.count = 100;
-        this.pos = 0;
         
         query(false);
     }
