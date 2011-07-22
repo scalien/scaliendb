@@ -24,7 +24,6 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
         this.endKey = endKey;
         this.prefix = prefix;
         this.count = 100;
-        this.pos = 0;
         
         query(false);
     }
@@ -35,7 +34,6 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
         this.endKey = endKey;
         this.prefix = prefix;
         this.count = 100;
-        this.pos = 0;
         
         query(false);
     }
