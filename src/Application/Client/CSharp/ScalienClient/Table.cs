@@ -108,5 +108,28 @@ namespace Scalien
             UseDefaults();
             return client.Count(startKey, endKey, prefix);
         }
+
+        public StringKeyIterator GetKeyIterator(string startKey = "", string endKey = "", string prefix = "")
+        {
+            return new StringKeyIterator(this, startKey, endKey, prefix);
+        }
+
+        public StringKeyValueIterator GetKeyValueIterator(string startKey = "", string endKey = "", string prefix = "")
+        {
+            return new StringKeyValueIterator(this, startKey, endKey, prefix);
+        }
+
+        public Index GetIndex(string key)
+        {
+            return new Index(this, key);
+        }
+
+        public Client Client
+        {
+            get
+            {
+                return client;
+            }
+        }
     }
 }
