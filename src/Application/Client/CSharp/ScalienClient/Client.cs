@@ -340,21 +340,21 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        public List<string> ListKeys(string startKey = "", string endKey = "", string prefix = "", uint count = 0, bool skip = false)
+        public List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, skip);
             CheckResultStatus(status);
             return result.GetKeys();
         }
 
-        public Dictionary<string, string> ListKeyValues(string startKey = "", string endKey = "", string prefix = "", uint count = 0, bool skip = false)
+        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, skip);
             CheckResultStatus(status);
             return result.GetKeyValues();
         }
 
-        public ulong Count(string startKey = "", string endKey = "", string prefix = "")
+        public ulong Count(string startKey, string endKey, string prefix)
         {
             int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, prefix);
             CheckResultStatus(status);
@@ -363,14 +363,14 @@ namespace Scalien
 
         // foreach (string k in client.GetKeyIterator())
         //      System.Console.WriteLine(k);
-        public StringKeyIterator GetKeyIterator(string startKey = "", string endKey = "", string prefix = "")
+        public StringKeyIterator GetKeyIterator(string startKey, string endKey, string prefix)
         {
             return new StringKeyIterator(this, startKey, endKey, prefix);
         }
 
         // foreach (KeyValuePair<string, string> kv in client.GetKeyValueIterator())
         //     System.Console.WriteLine(kv.Key + " => " + kv.Value);
-        public StringKeyValueIterator GetKeyValueIterator(string startKey = "", string endKey = "", string prefix = "")
+        public StringKeyValueIterator GetKeyValueIterator(string startKey, string endKey, string prefix)
         {
             return new StringKeyValueIterator(this, startKey, endKey, prefix);
         }
