@@ -598,13 +598,20 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
         case SHARDMESSAGE_ADD:
             shardID = environment.GetShardID(contextID, message.tableID, message.key);
             CHECK_SHARDID();
-            if (!environment.Get(contextID, shardID, message.key, readBuffer))
-                RESPONSE_FAIL();
-            ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
-            CHECK_CMD();
-            number = BufferToInt64(userValue.GetBuffer(), userValue.GetLength(), &nread);
-            if (nread != userValue.GetLength())
-                RESPONSE_FAIL();
+            if (environment.Get(contextID, shardID, message.key, readBuffer))
+            {
+                // GET succeeded, key exists, try to parse number
+                ReadValue(readBuffer, readPaxosID, readCommandID, userValue);
+                CHECK_CMD();
+                number = BufferToInt64(userValue.GetBuffer(), userValue.GetLength(), &nread);
+                if (nread != userValue.GetLength())
+                    RESPONSE_FAIL();
+            }
+            else
+            {
+                // GET failed, key does not exist; assume value is 0
+                number = 0;
+            }
             number += message.number;
             numberBuffer.Writef("%I", number);
             WriteValue(buffer, paxosID, commandID, ReadBuffer(numberBuffer));
