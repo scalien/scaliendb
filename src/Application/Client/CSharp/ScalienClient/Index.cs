@@ -35,30 +35,6 @@ namespace Scalien
             this.num = 0;
         }
 
-        public void Create()
-        {
-            Client client = GetClient();
-
-            ulong oldDatabaseID = client.GetDatabaseID();
-            ulong oldTableID = client.GetTableID();
-
-            if (table != null)
-            {
-                table.Set(key, "0");
-            }
-            else
-            {
-                client.UseDatabaseID(databaseID);
-                client.UseTableID(tableID);
-                client.Set(key, "0");
-            }
-            
-            num = 0;
-
-            client.UseDatabaseID(oldDatabaseID);
-            client.UseTableID(oldTableID);
-        }
-
         public ulong Get
         {
             get
