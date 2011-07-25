@@ -109,14 +109,14 @@ namespace Scalien
             return client.Count(startKey, endKey, prefix);
         }
 
-        public StringKeyIterator GetKeyIterator(string startKey, string endKey, string prefix)
+        public StringKeyIterator GetKeyIterator(StringIterParams ps)
         {
-            return new StringKeyIterator(this, startKey, endKey, prefix);
+            return new StringKeyIterator(this, ps);
         }
 
-        public StringKeyValueIterator GetKeyValueIterator(string startKey, string endKey, string prefix)
+        public StringKeyValueIterator GetKeyValueIterator(StringIterParams ps)
         {
-            return new StringKeyValueIterator(this, startKey, endKey, prefix);
+            return new StringKeyValueIterator(this, ps);
         }
 
         public Index GetIndex(string key)

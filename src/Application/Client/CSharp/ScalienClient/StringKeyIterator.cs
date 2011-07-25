@@ -15,23 +15,23 @@ namespace Scalien
         int pos;
         List<string> keys;
 
-        public StringKeyIterator(Client client, string startKey, string endKey, string prefix)
+        public StringKeyIterator(Client client, StringIterParams ps)
         {
             this.client = client;
-            this.startKey = startKey;
-            this.endKey = endKey;
-            this.prefix = prefix;
+            this.startKey = ps.startKey;
+            this.endKey = ps.endKey;
+            this.prefix = ps.prefix;
             this.count = 100;
 
             Query(false);
         }
 
-        public StringKeyIterator(Table table, string startKey, string endKey, string prefix)
+        public StringKeyIterator(Table table, StringIterParams ps)
         {
             this.table = table;
-            this.startKey = startKey;
-            this.endKey = endKey;
-            this.prefix = prefix;
+            this.startKey = ps.startKey;
+            this.endKey = ps.endKey;
+            this.prefix = ps.prefix;
             this.count = 100;
 
             Query(false);

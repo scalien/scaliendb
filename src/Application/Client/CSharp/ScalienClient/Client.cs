@@ -363,16 +363,16 @@ namespace Scalien
 
         // foreach (string k in client.GetKeyIterator())
         //      System.Console.WriteLine(k);
-        public StringKeyIterator GetKeyIterator(string startKey, string endKey, string prefix)
+        public StringKeyIterator GetKeyIterator(StringIterParams ps)
         {
-            return new StringKeyIterator(this, startKey, endKey, prefix);
+            return new StringKeyIterator(this, ps);
         }
 
         // foreach (KeyValuePair<string, string> kv in client.GetKeyValueIterator())
         //     System.Console.WriteLine(kv.Key + " => " + kv.Value);
-        public StringKeyValueIterator GetKeyValueIterator(string startKey, string endKey, string prefix)
+        public StringKeyValueIterator GetKeyValueIterator(StringIterParams ps)
         {
-            return new StringKeyValueIterator(this, startKey, endKey, prefix);
+            return new StringKeyValueIterator(this, ps);
         }
 
         // Index ind = client.GetIndex("ind");
