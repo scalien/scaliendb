@@ -16,7 +16,7 @@ StorageMemoChunkLister::StorageMemoChunkLister() : dataPage(NULL, 0)
 }
 
 void StorageMemoChunkLister::Init(StorageMemoChunk* chunk, ReadBuffer& startKey, 
- unsigned count)
+ unsigned count, bool keysOnly)
 {
     StorageMemoKeyValue*    kv;
     int                     cmpres;
@@ -30,7 +30,7 @@ void StorageMemoChunkLister::Init(StorageMemoChunk* chunk, ReadBuffer& startKey,
 
     while (kv != NULL)
     {
-        dataPage.Append(kv);
+        dataPage.Append(kv, keysOnly);
         if (kv->GetType() == STORAGE_KEYVALUE_TYPE_SET)
         {
             num++;

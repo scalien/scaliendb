@@ -454,6 +454,7 @@ bool ClientRequest::Count(
     key.Write(startKey_);
     endKey.Write(endKey_);
     prefix.Write(prefix_);
+    count = 0;
     return true;
 }
 

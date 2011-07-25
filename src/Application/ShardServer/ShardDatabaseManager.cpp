@@ -95,10 +95,10 @@ void ShardDatabaseAsyncList::OnShardComplete()
         return;
     }
 
-    numKeys = lastResult->dataPage.GetNumKeys();
+    numKeys = lastResult->numKeys;
     total += numKeys;
 
-    if (numKeys > 0)
+    if (numKeys > 0 && (type == KEY || type == KEYVALUE))
     {
         ReadBuffer fk = lastResult->dataPage.First()->GetKey();
         Log_Debug("numKeys: %u, firstKey: %R", numKeys, &fk);

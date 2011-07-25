@@ -29,13 +29,14 @@ class StorageAsyncListResult
 public:
     StorageAsyncList*   asyncList;
     StorageDataPage     dataPage;
+    unsigned            numKeys;
     bool                final;
     Callable            onComplete;
 
     StorageAsyncListResult(StorageAsyncList* asyncList);
     
     void                OnComplete();
-    void                Append(StorageFileKeyValue* kv);
+    void                Append(StorageFileKeyValue* kv, bool countOnly);
     uint32_t            GetSize();
 };
 
@@ -91,7 +92,7 @@ public:
     void                    Init();
     void                    Clear();
     void                    ExecuteAsyncList();
-    void                    LoadMemoChunk();
+    void                    LoadMemoChunk(bool keysOnly);
     void                    AsyncLoadChunks();
     void                    AsyncMergeResult();
     void                    OnResult(StorageAsyncListResult* result);

@@ -35,7 +35,7 @@ void ConfigServerApp::Init()
     Log_Message("Web admin is started at http://%s%R", httpEndpoint.ToString(), &prefix);
     Log_Message("Waiting for connections on port %d", sdbpPort);
     
-    statTimer.SetDelay(configFile.GetIntValue("controller.logStatTime", 10*1000));
+    statTimer.SetDelay(configFile.GetIntValue("controller.logStatTime", 0));
     if (statTimer.GetDelay() != 0)
     {
         statTimer.SetCallable(MFUNC(ConfigServerApp, OnStatTimer));
