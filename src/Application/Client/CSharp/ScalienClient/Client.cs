@@ -169,6 +169,16 @@ namespace Scalien
             CheckStatus(status);
         }
 
+        public ulong GetDatabaseID()
+        {
+            return scaliendb_client.SDBP_GetCurrentDatabaseID(cptr);
+        }
+
+        public ulong GetTableID()
+        {
+            return scaliendb_client.SDBP_GetCurrentTableID(cptr);
+        }
+
         public List<Database> GetDatabases()
         {
             uint numDatabases = scaliendb_client.SDBP_GetNumDatabases(cptr);
@@ -351,16 +361,31 @@ namespace Scalien
             return result.GetNumber();
         }
 
-        public void Begin()
+        // foreach (string k in client.GetKeyIterator())
+        //      System.Console.WriteLine(k);
+        public StringKeyIterator GetKeyIterator(string startKey, string endKey, string prefix)
         {
-            if (lastResult != result)
-                result.Close();
+            return new StringKeyIterator(this, startKey, endKey, prefix);
+        }
 
-            result = null;
-            lastResult = null;
+        // foreach (KeyValuePair<string, string> kv in client.GetKeyValueIterator())
+        //     System.Console.WriteLine(kv.Key + " => " + kv.Value);
+        public StringKeyValueIterator GetKeyValueIterator(string startKey, string endKey, string prefix)
+        {
+            return new StringKeyValueIterator(this, startKey, endKey, prefix);
+        }
 
-            int status = scaliendb_client.SDBP_Begin(cptr);
-            CheckStatus(status);
+        // Index ind = client.GetIndex("ind");
+        // personIndex.Create();
+        // ulong i = personIndex.Get
+        public Index GetIndex(string key)
+        {
+            return new Index(this, GetDatabaseID(), GetTableID(), key);
+        }
+
+        public SubmitGuard Begin()
+        {
+            return new SubmitGuard(this);
         }
 
         public void Submit()
