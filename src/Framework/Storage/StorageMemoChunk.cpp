@@ -331,6 +331,7 @@ StorageMemoKeyValue* StorageMemoChunk::NewStorageMemoKeyValue()
         block->last = 0;
         keyValueBlocks.Enqueue(block);
         size += sizeof(StorageMemoKeyValueBlock);
+        Log_Debug("MemoChunk %U, size: %s, keyValues: %u", chunkID, HUMAN_BYTES(size), keyValues.GetCount());
     }
 
     keyValue = &block->keyValues[block->first];
@@ -372,7 +373,7 @@ char* StorageMemoChunk::Alloc(size_t size_)
         // TODO: better strategy to avoid fragmentation
         if (prevAllocator != NULL && 
          prevAllocator->GetFreeSize() > STORAGE_MEMO_ALLOCATOR_MIN_SIZE &&
-         allocatedSize == STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE)
+         prevAllocator->GetFreeSize() * 2 >= requiredSize)
         {
             allocators.Remove(prevAllocator);
             allocators.Append(allocator);
@@ -382,6 +383,7 @@ char* StorageMemoChunk::Alloc(size_t size_)
             allocators.Append(allocator);
 
         size += sizeof(StorageMemoKeyValueAllocator) + allocator->size;
+        Log_Debug("MemoChunk %U, size: %s, keyValues: %u", chunkID, HUMAN_BYTES(size), keyValues.GetCount());
     }
 
     // The memory layout is the following:

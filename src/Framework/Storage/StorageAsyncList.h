@@ -79,7 +79,6 @@ public:
     StorageShard*           shard;
     Buffer                  shardFirstKey;
     Buffer                  shardLastKey;
-//    Buffer                  prefix;
     ThreadPool*             threadPool;
     StorageFileKeyValue**   iterators;
     StorageChunkLister**    listers;
