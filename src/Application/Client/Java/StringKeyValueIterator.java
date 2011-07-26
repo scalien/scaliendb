@@ -17,7 +17,7 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
     private LinkedList<String> values;
     private int pos;
  
-    public StringKeyValueIterator(Client client, StringIterParams ps) throws SDBPException {
+    public StringKeyValueIterator(Client client, StringRangeParams ps) throws SDBPException {
         this.client = client;
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;
@@ -27,7 +27,7 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
         query(false);
     }
     
-    public StringKeyValueIterator(Table table, StringIterParams ps) throws SDBPException {
+    public StringKeyValueIterator(Table table, StringRangeParams ps) throws SDBPException {
         this.table = table;
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;

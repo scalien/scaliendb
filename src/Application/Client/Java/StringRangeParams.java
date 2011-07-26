@@ -1,24 +1,24 @@
 package com.scalien.scaliendb;
 
-public class StringIterParams
+public class StringRangeParams
 {
     public String prefix = "";
     public String startKey = "";
     public String endKey = "";
     
-    public StringIterParams prefix(String prefix)
+    public StringRangeParams prefix(String prefix)
     {
         this.prefix = prefix;
         return this;
     }
     
-    public StringIterParams startKey(String startKey)
+    public StringRangeParams startKey(String startKey)
     {
         this.startKey = startKey;
         return this;
     }
     
-    public StringIterParams endKey(String endKey)
+    public StringRangeParams endKey(String endKey)
     {
         this.endKey = endKey;
         return this;
