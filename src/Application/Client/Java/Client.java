@@ -841,45 +841,37 @@ public class Client
     /**
      * Returns a key iterator over keys.
      *
-     * @param   startKey    iterations starts at this key
-     * @param   endKey      iterations ends at this key
-     * @param   prefix      iterate only those keys that starts with prefix
+     * @param   ps          the iterations params, usage: (new StringIterParams()).prefix("foo").startKey("bar").endKey("acme")
      */
-    public StringKeyIterator getKeyIterator(String startKey, String endKey, String prefix) throws SDBPException {
-        return new StringKeyIterator(this, startKey, endKey, prefix);
+    public StringKeyIterator getKeyIterator(StringIterParams ps) throws SDBPException {
+        return new StringKeyIterator(this, ps);
     }
 
     /**
      * Returns a key iterator over keys.
      *
-     * @param   startKey    iterations starts at this key
-     * @param   endKey      iterations ends at this key
-     * @param   prefix      iterate only those keys that starts with prefix
+     * @param   ps          the iterations params, usage: (new ByteIterParams()).prefix("foo").startKey("bar").endKey("acme")
      */
-    public ByteKeyIterator getKeyIterator(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
-        return new ByteKeyIterator(this, startKey, endKey, prefix);
+    public ByteKeyIterator getKeyIterator(ByteIterParams ps) throws SDBPException {
+        return new ByteKeyIterator(this, ps);
     }
 
     /**
      * Returns a key-value iterator over keys.
      *
-     * @param   startKey    iterations starts at this key
-     * @param   endKey      iterations ends at this key
-     * @param   prefix      iterate only those keys that starts with prefix
+     * @param   ps          the iterations params, usage: (new StringIterParams()).prefix("foo").startKey("bar").endKey("acme")
      */
-    public StringKeyValueIterator getKeyValueIterator(String startKey, String endKey, String prefix) throws SDBPException {
-        return new StringKeyValueIterator(this, startKey, endKey, prefix);
+    public StringKeyValueIterator getKeyValueIterator(StringIterParams ps) throws SDBPException {
+        return new StringKeyValueIterator(this, ps);
     }
 
     /**
      * Returns a key-value iterator over keys.
      *
-     * @param   startKey    iterations starts at this key
-     * @param   endKey      iterations ends at this key
-     * @param   prefix      iterate only those keys that starts with prefix
+     * @param   ps          the iterations params, usage: (new ByteIterParams()).prefix("foo").startKey("bar").endKey("acme")
      */
-    public ByteKeyValueIterator getKeyValueIterator(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
-        return new ByteKeyValueIterator(this, startKey, endKey, prefix);
+    public ByteKeyValueIterator getKeyValueIterator(ByteIterParams ps) throws SDBPException {
+        return new ByteKeyValueIterator(this, ps);
     }
 
     /**
