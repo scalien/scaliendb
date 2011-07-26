@@ -372,7 +372,7 @@ char* StorageMemoChunk::Alloc(size_t size_)
         // TODO: better strategy to avoid fragmentation
         if (prevAllocator != NULL && 
          prevAllocator->GetFreeSize() > STORAGE_MEMO_ALLOCATOR_MIN_SIZE &&
-         allocatedSize == STORAGE_MEMO_ALLOCATOR_DEFAULT_SIZE)
+         prevAllocator->GetFreeSize() * 2 >= requiredSize)
         {
             allocators.Remove(prevAllocator);
             allocators.Append(allocator);

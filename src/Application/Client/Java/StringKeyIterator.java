@@ -14,21 +14,21 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
     private List<String> keys;
     private int pos;
  
-    public StringKeyIterator(Client client, String startKey, String endKey, String prefix) throws SDBPException {
+    public StringKeyIterator(Client client, StringIterParams ps) throws SDBPException {
         this.client = client;
-        this.startKey = startKey;
-        this.endKey = endKey;
-        this.prefix = prefix;
+        this.startKey = ps.startKey;
+        this.endKey = ps.endKey;
+        this.prefix = ps.prefix;
         this.count = 100;
         
         query(false);
     }
     
-    public StringKeyIterator(Table table, String startKey, String endKey, String prefix) throws SDBPException {
+    public StringKeyIterator(Table table, StringIterParams ps) throws SDBPException {
         this.table = table;
-        this.startKey = startKey;
-        this.endKey = endKey;
-        this.prefix = prefix;
+        this.startKey = ps.startKey;
+        this.endKey = ps.endKey;
+        this.prefix = ps.prefix;
         this.count = 100;
         
         query(false);

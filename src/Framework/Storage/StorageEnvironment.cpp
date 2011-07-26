@@ -1150,6 +1150,9 @@ void StorageEnvironment::TrySerializeChunks()
             if (memoChunk->GetSize() == 0)
                 continue;
 
+            Log_Debug("Serializing chunk %U, size: %s", memoChunk->GetChunkID(),
+             HUMAN_BYTES(memoChunk->GetSize()));
+
             itShard->PushMemoChunk(new StorageMemoChunk(nextChunkID++, itShard->UseBloomFilter()));
             serializeChunkJobs.Execute(new StorageSerializeChunkJob(this, memoChunk));
             return;

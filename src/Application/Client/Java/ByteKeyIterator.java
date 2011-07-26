@@ -14,21 +14,21 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     private List<byte[]> keys;
     private int pos;
  
-    public ByteKeyIterator(Client client, byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
+    public ByteKeyIterator(Client client, ByteIterParams ps) throws SDBPException {
         this.client = client;
-        this.startKey = startKey;
-        this.endKey = endKey;
-        this.prefix = prefix;
+        this.startKey = ps.startKey;
+        this.endKey = ps.endKey;
+        this.prefix = ps.prefix;
         this.count = 100;
         
         query(false);
     }
     
-    public ByteKeyIterator(Table table, byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
+    public ByteKeyIterator(Table table, ByteIterParams ps) throws SDBPException {
         this.table = table;
-        this.startKey = startKey;
-        this.endKey = endKey;
-        this.prefix = prefix;
+        this.startKey = ps.startKey;
+        this.endKey = ps.endKey;
+        this.prefix = ps.prefix;
         this.count = 100;
         
         query(false);
