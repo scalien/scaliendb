@@ -76,6 +76,11 @@ namespace Scalien
             scaliendb_client.SDBP_SetConsistencyLevel(cptr, consistencyLevel);
         }
 
+        public void SetBatchLimit(uint batchLimit)
+        {
+            scaliendb_client.SDBP_SetBatchLimit(cptr, batchLimit);
+        }
+
         public string GetJSONConfigState()
         {
             return scaliendb_client.SDBP_GetJSONConfigState(cptr);

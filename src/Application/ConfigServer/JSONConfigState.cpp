@@ -11,7 +11,16 @@
 
 #define JSON_STRING_PRINTABLE(obj, member) \
     printable.Write((obj)->member); \
-    if (!printable.IsAsciiPrintable()) { printable.ToHexadecimal(); } \
+    { \
+        bool isPrintable = true; \
+        if (!printable.IsAsciiPrintable()) \
+            isPrintable = false; \
+        for (unsigned i = 0; i < printable.GetLength(); i++) \
+            if (printable.GetCharAt(i) == '\\') \
+                isPrintable = false; \
+        if (!isPrintable) \
+            printable.ToHexadecimal(); \
+    } \
     json->PrintString(#member); \
     json->PrintColon(); \
     json->PrintString(printable);
