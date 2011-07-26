@@ -103,6 +103,7 @@ private:
     uint32_t                maxLogCommandID;
     bool                    useBloomFilter;
     uint64_t                size;
+    double                  avgSize;
     KeyValueTree            keyValues;
     
     StorageFileChunk*       fileChunk; // for serialization

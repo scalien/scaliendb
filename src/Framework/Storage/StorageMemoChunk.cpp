@@ -35,6 +35,7 @@ StorageMemoChunk::StorageMemoChunk(uint64_t chunkID_, bool useBloomFilter_)
     maxLogSegmentID = 0;
     maxLogCommandID = 0;
     size = 0;
+    avgSize = 0.0;
     fileChunk = NULL;
     deleted = false;    
 }
@@ -351,6 +352,7 @@ char* StorageMemoChunk::Alloc(size_t size_)
     // from the start of the buffer of the allocator. Therefore it is
     // possible to find the allocator object of a given pointer.
     requiredSize = size_ + sizeof(uint32_t);
+    avgSize = (avgSize * keyValues.GetCount() + requiredSize) / (keyValues.GetCount() + 1);
 
     // save the last allocator to avoid fragmentation
     prevAllocator = allocator = allocators.Last();
@@ -371,8 +373,7 @@ char* StorageMemoChunk::Alloc(size_t size_)
 
         // TODO: better strategy to avoid fragmentation
         if (prevAllocator != NULL && 
-         prevAllocator->GetFreeSize() > STORAGE_MEMO_ALLOCATOR_MIN_SIZE &&
-         prevAllocator->GetFreeSize() * 2 >= requiredSize)
+         prevAllocator->GetFreeSize() > (uint32_t)(avgSize + 0.5))
         {
             allocators.Remove(prevAllocator);
             allocators.Append(allocator);
@@ -417,5 +418,8 @@ void StorageMemoChunk::Free(char* buffer)
         size -= sizeof(StorageMemoKeyValueAllocator) + allocator->size;
         allocators.Remove(allocator);
         free(allocator);
+        
+        // adjust the average size
+        avgSize = (double) size / keyValues.GetCount();
     }
 }
