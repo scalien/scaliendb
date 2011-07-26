@@ -14,7 +14,7 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     private List<byte[]> keys;
     private int pos;
  
-    public ByteKeyIterator(Client client, ByteIterParams ps) throws SDBPException {
+    public ByteKeyIterator(Client client, ByteRangeParams ps) throws SDBPException {
         this.client = client;
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;
@@ -24,7 +24,7 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
         query(false);
     }
     
-    public ByteKeyIterator(Table table, ByteIterParams ps) throws SDBPException {
+    public ByteKeyIterator(Table table, ByteRangeParams ps) throws SDBPException {
         this.table = table;
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;

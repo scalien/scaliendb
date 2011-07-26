@@ -302,62 +302,61 @@ public class Table
     /**
      * Returns the number of key-value pairs.
      *
-     * @param   startKey    counting starts at this key
-     * @param   endKey      counting ends at this key
-     * @param   prefix      count only those keys that starts with prefix
+     * @param   ps          the count parameters, a StringRangeParams object
+     *                      eg. (new StringRangeParams()).prefix("p").startKey("s").endKey("e")
      * @return              the number of key-value pairs
      */
-    public long count(String startKey, String endKey, String prefix) throws SDBPException {
+    public long count(StringRangeParams ps) throws SDBPException {
         useDefaults();
-        return client.count(startKey, endKey, prefix);
+        return client.count(ps);
     }
     
     /**
      * Returns the number of key-value pairs.
      *
-     * @param   startKey    counting starts at this key
-     * @param   endKey      counting ends at this key
-     * @param   prefix      count only those keys that starts with prefix
+     * @param   ps          the count params, a ByteRangeParams object 
      * @return              the number of key-value pairs
      */
-    public long count(byte[] startKey, byte[] endKey, byte[] prefix) throws SDBPException {
+    public long count(ByteRangeParams ps) throws SDBPException {
         useDefaults();
-        return client.count(startKey, endKey, prefix);    
+        return client.count(ps);
     }
 
     /**
      * Returns a key iterator over keys.
      *
-     * @param   ps          the iterations params, usage: (new StringIterParams()).prefix("foo").startKey("bar").endKey("acme")
+     * @param   ps          the iteration parameters, a StringRangeParams object
+     *                      eg. (new StringRangeParams()).prefix("p").startKey("s").endKey("e")
      */
-    public StringKeyIterator getKeyIterator(StringIterParams ps) throws SDBPException {
+    public StringKeyIterator getKeyIterator(StringRangeParams ps) throws SDBPException {
         return new StringKeyIterator(this, ps);
     }
 
     /**
      * Returns a key iterator over keys.
      *
-     * @param   ps          the iterations params, usage: (new ByteIterParams()).prefix("foo").startKey("bar").endKey("acme")
+     * @param   ps          the iteration params, a ByteRangeParams object 
      */
-    public ByteKeyIterator getKeyIterator(ByteIterParams ps) throws SDBPException {
+    public ByteKeyIterator getKeyIterator(ByteRangeParams ps) throws SDBPException {
         return new ByteKeyIterator(this, ps);
     }
 
     /**
      * Returns a key-value iterator over keys.
      *
-     * @param   ps          the iterations params, usage: (new StringIterParams()).prefix("foo").startKey("bar").endKey("acme")
+     * @param   ps          the iteration parameters, a StringRangeParams object
+     *                      eg. (new StringRangeParams()).prefix("p").startKey("s").endKey("e")
      */
-    public StringKeyValueIterator getKeyValueIterator(StringIterParams ps) throws SDBPException {
+    public StringKeyValueIterator getKeyValueIterator(StringRangeParams ps) throws SDBPException {
         return new StringKeyValueIterator(this, ps);
     }
 
     /**
      * Returns a key-value iterator over keys.
      *
-     * @param   ps          the iterations params, usage: (new ByteIterParams()).prefix("foo").startKey("bar").endKey("acme")
+     * @param   ps          the iteration params, a ByteRangeParams object
      */
-    public ByteKeyValueIterator getKeyValueIterator(ByteIterParams ps) throws SDBPException {
+    public ByteKeyValueIterator getKeyValueIterator(ByteRangeParams ps) throws SDBPException {
         return new ByteKeyValueIterator(this, ps);
     }
 }

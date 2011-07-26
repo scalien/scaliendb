@@ -18,7 +18,7 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
     private LinkedList<byte[]> keys;
     private LinkedList<byte[]> values;
  
-    public ByteKeyValueIterator(Client client, ByteIterParams ps) throws SDBPException {
+    public ByteKeyValueIterator(Client client, ByteRangeParams ps) throws SDBPException {
         this.client = client;
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;
@@ -28,7 +28,7 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
         query(false);
     }
     
-    public ByteKeyValueIterator(Table table, ByteIterParams ps) throws SDBPException {
+    public ByteKeyValueIterator(Table table, ByteRangeParams ps) throws SDBPException {
         this.table = table;
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;

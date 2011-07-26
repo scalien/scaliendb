@@ -14,7 +14,7 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
     private List<String> keys;
     private int pos;
  
-    public StringKeyIterator(Client client, StringIterParams ps) throws SDBPException {
+    public StringKeyIterator(Client client, StringRangeParams ps) throws SDBPException {
         this.client = client;
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;
@@ -24,7 +24,7 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
         query(false);
     }
     
-    public StringKeyIterator(Table table, StringIterParams ps) throws SDBPException {
+    public StringKeyIterator(Table table, StringRangeParams ps) throws SDBPException {
         this.table = table;
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;
