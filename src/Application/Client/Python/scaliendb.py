@@ -797,19 +797,19 @@ class Client:
         if status < 0:
             raise Error(status)
     
-    def migrate_shard(self, quorum, shard_id):
+    def migrate_shard(self, shard_id, quorum):
         """
         Migrates a shard to a given quorum
         
         Args:
-            quorum (string or Quorum): the quorum to migrate to            
             shard_id (long): the id of the shard
+            quorum (string or Quorum): the quorum to migrate to            
         """
         if isinstance(quorum, (str)):
             quorum_id = self.get_quorum_id(quorum)
         else:
             quorum_id = self.get_quorum_id(quorum.quorum_name)
-        status = SDBP_MigrateShard(self.cptr, quorum_id, shard_id)
+        status = SDBP_MigrateShard(self.cptr, shard_id, quorum_id)
         if status < 0:
             raise Error(status)
 
