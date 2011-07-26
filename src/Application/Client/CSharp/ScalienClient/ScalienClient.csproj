@@ -111,6 +111,7 @@
     <Compile Include="SDBP_Buffer.cs" />
     <Compile Include="SDBP_NodeParams.cs" />
     <Compile Include="Status.cs" />
+    <Compile Include="StringIterParams.cs" />
     <Compile Include="StringKeyIterator.cs" />
     <Compile Include="StringKeyValueIterator.cs" />
     <Compile Include="SubmitGuard.cs" />

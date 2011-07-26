@@ -35,7 +35,7 @@ namespace Scalien
             this.num = 0;
         }
 
-        public ulong Get
+        public long Get
         {
             get
             {
@@ -68,7 +68,7 @@ namespace Scalien
                     throw new Exception("ScalienDB: index error");
                 
                 num--;
-                return (ulong)index++;
+                return index++;
             }
         }
 
