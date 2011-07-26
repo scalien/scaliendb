@@ -2,9 +2,9 @@ package com.scalien.scaliendb;
 
 public class ByteIterParams
 {
-    public byte[] prefix = new byte[];
-    public byte[] startKey = new byte[];
-    public byte[] endKey = new byte[];
+    public byte[] prefix = new byte[0];
+    public byte[] startKey = new byte[0];
+    public byte[] endKey = new byte[0];
     
     public ByteIterParams prefix(byte[] prefix)
     {
