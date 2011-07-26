@@ -127,6 +127,9 @@ public:
     
     template<typename K>
     T*                      Locate(K key, int& cmpres);
+
+    template<typename K>
+    T*                      FindGreaterOrEqual(K key);
     
     template<typename K>
     T*                      Insert(T* t);
@@ -324,6 +327,20 @@ T* InTreeMap<T, pnode>::Locate(K key, int& cmpres)
         else
             break;
     }
+    
+    return elem;
+}
+
+template<typename T, InTreeNode<T> T::*pnode>
+template<typename K>
+T* InTreeMap<T, pnode>::FindGreaterOrEqual(K key)
+{
+    T*      elem;
+    int     cmpres;
+    
+    elem = Locate(key, cmpres);
+    if (elem != NULL && cmpres > 0)
+        elem = Next(elem);
     
     return elem;
 }

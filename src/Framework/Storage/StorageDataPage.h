@@ -36,7 +36,7 @@ public:
     uint32_t                GetLength();
     uint32_t                GetIncrement(StorageKeyValue* kv);
     
-    void                    Append(StorageKeyValue* kv);
+    void                    Append(StorageKeyValue* kv, bool keysOnly = false);
     void                    Finalize();
     void                    Reset();
     

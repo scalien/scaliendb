@@ -13,6 +13,7 @@ StorageAsyncListResult::StorageAsyncListResult(StorageAsyncList* asyncList_) :
  dataPage(NULL, 0)
 {
     asyncList = asyncList_;
+    numKeys = 0;
     final = false;
 }
 
@@ -30,9 +31,11 @@ void StorageAsyncListResult::OnComplete()
     delete this;
 }
 
-void StorageAsyncListResult::Append(StorageFileKeyValue* kv)
+void StorageAsyncListResult::Append(StorageFileKeyValue* kv, bool countOnly)
 {
-    dataPage.Append(kv);
+    numKeys++;
+    if (!countOnly)
+        dataPage.Append(kv);
 }
 
 uint32_t StorageAsyncListResult::GetSize()
@@ -88,10 +91,12 @@ void StorageAsyncList::ExecuteAsyncList()
     Buffer*                         filename;
     StorageChunk::ChunkState        chunkState;
     ReadBuffer                      firstKey;
+    bool                            keysOnly;
     
     Log_Debug("StorageAsyncList START");
     firstKey.Wrap(shardFirstKey);
-    
+    keysOnly = (type == KEY || type == COUNT);
+
     if (stage == START)
     {
         shardLastKey.Write(shard->GetLastKey());
@@ -109,7 +114,7 @@ void StorageAsyncList::ExecuteAsyncList()
             if (chunkState == StorageChunk::Serialized)
             {
                 memoLister = new StorageMemoChunkLister;
-                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, count);
+                memoLister->Init((StorageMemoChunk*) *itChunk, firstKey, count, keysOnly);
                 listers[numListers] = memoLister;
                 numListers++;
             }
@@ -126,7 +131,7 @@ void StorageAsyncList::ExecuteAsyncList()
                 filename = &fileChunk->GetFilename();
                 fileLister = new StorageFileChunkLister;
                 fileLister->Init(
-                 fileChunk->GetFilename(), (type == KEY || type == COUNT), preloadBufferSize);
+                 fileChunk->GetFilename(), keysOnly, preloadBufferSize);
                 listers[numListers] = fileLister;
                 numListers++;
             }
@@ -139,7 +144,7 @@ void StorageAsyncList::ExecuteAsyncList()
 
     if (stage == MEMO_CHUNK)
     {
-        LoadMemoChunk();
+        LoadMemoChunk(keysOnly);
         stage = FILE_CHUNK;
     }
     
@@ -151,7 +156,7 @@ void StorageAsyncList::ExecuteAsyncList()
     }
 }
 
-void StorageAsyncList::LoadMemoChunk()
+void StorageAsyncList::LoadMemoChunk(bool keysOnly)
 {
     StorageMemoChunkLister* memoLister;
     ReadBuffer              firstKey;
@@ -159,7 +164,7 @@ void StorageAsyncList::LoadMemoChunk()
     firstKey.Wrap(shardFirstKey);
     
     memoLister = new StorageMemoChunkLister;
-    memoLister->Init(shard->GetMemoChunk(), firstKey, count);
+    memoLister->Init(shard->GetMemoChunk(), firstKey, count, keysOnly);
 
     // memochunk is always on the last position, because it is the most current
     listers[numListers] = memoLister;
@@ -187,7 +192,9 @@ void StorageAsyncList::AsyncMergeResult()
 {
     StorageFileKeyValue*    it;
     StorageAsyncListResult* result;
-    
+
+    Log_Message("starting AsyncMergeResult");
+
     result = new StorageAsyncListResult(this);
     
     while(!IsDone())
@@ -206,7 +213,7 @@ void StorageAsyncList::AsyncMergeResult()
         if (prefix.GetLength() != 0 && !it->GetKey().BeginsWith(prefix))
             break;
                 
-        result->Append(it);
+        result->Append(it, type == COUNT);
         num++;
                 
         if (result->GetSize() > MAX_RESULT_SIZE)
@@ -215,6 +222,8 @@ void StorageAsyncList::AsyncMergeResult()
             result = new StorageAsyncListResult(this);
         }
     }
+    
+    Log_Message("finished AsyncMergeResult");
     
     result->final = true;
     OnResult(result);
@@ -232,22 +241,10 @@ void StorageAsyncList::OnResult(StorageAsyncListResult* result)
 
 bool StorageAsyncList::IsDone()
 {
-    unsigned    i;
-    unsigned    numActive;
-    
     if (env->IsShuttingDown())
         return true;
 
     if (IsAborted())
-        return true;
-
-    numActive = 0;
-    for (i = 0; i < numListers; i++)
-    {
-        if (iterators[i] != NULL)
-            numActive++;
-    }
-    if (numActive == 0)
         return true;
 
     return false;
