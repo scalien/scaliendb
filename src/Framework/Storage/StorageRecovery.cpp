@@ -78,6 +78,7 @@ bool StorageRecovery::TryRecovery(StorageEnvironment* env_)
         }
     }
     
+    FS_CloseDir(dir);
     DeleteOrphanedChunks();
     
     return true;
