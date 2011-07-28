@@ -323,6 +323,16 @@ public class Table
     }
 
     /**
+     * Returns an Index object for the given key. Then use Index::Get() to retrieve new index values.
+     *
+     * @param   key         the index key
+     * @return              the Index object
+     */
+    public Index getIndex(String key) throws SDBPException {
+        return new Index(this.client, database.getDatabaseID(), tableID, key);
+    }
+
+    /**
      * Returns a key iterator over keys.
      *
      * @param   ps          the iteration parameters, a StringRangeParams object
