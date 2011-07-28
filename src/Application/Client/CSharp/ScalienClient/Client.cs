@@ -381,7 +381,6 @@ namespace Scalien
         }
 
         // Index ind = client.GetIndex("ind");
-        // personIndex.Create();
         // ulong i = personIndex.Get
         public Index GetIndex(string key)
         {
