@@ -862,6 +862,16 @@ public class Client
     public Index getIndex(String key) throws SDBPException {
         return new Index(this, getDatabaseID(), getTableID(), key);
     }
+
+    /**
+     * Returns an Index object for the given key. Then use Index::Get() to retrieve new index values.
+     *
+     * @param   key         the index key
+     * @return              the Index object
+     */
+    public Index getIndex(byte[] key) throws SDBPException {
+        return new Index(this, getDatabaseID(), getTableID(), key);
+    }
     
     /**
      * Returns a key iterator over keys.
