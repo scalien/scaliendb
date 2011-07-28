@@ -11,20 +11,45 @@ namespace Scalien
         private string name;
         private ulong tableID;
 
+        public Client Client
+        {
+            get
+            {
+                return client;
+            }
+        }
+
+        public Database Database
+        {
+            get
+            {
+                return database;
+            }
+        }
+
+
+        public ulong TableID
+        {
+            get
+            {
+                return tableID;
+            }
+        }
+
         public Table(Client client, Database database, string name)
         {
             this.client = client;
             this.database = database;
             this.name = name;
 
-            tableID = scaliendb_client.SDBP_GetTableID(client.cptr, database.GetDatabaseID(), name);
+            tableID = scaliendb_client.SDBP_GetTableID(client.cptr, database.DatabaseID, name);
             if (tableID == 0)
                 throw new SDBPException(Status.SDBP_BADSCHEMA);
         }
 
         private void UseDefaults()
         {
-            client.UseDatabaseID(database.GetDatabaseID());
+            client.UseDatabaseID(database.DatabaseID);
             client.UseTableID(tableID);
         }
 
@@ -121,15 +146,7 @@ namespace Scalien
 
         public Index GetIndex(string key)
         {
-            return new Index(this, key);
-        }
-
-        public Client Client
-        {
-            get
-            {
-                return client;
-            }
+            return new Index(this.client, database.DatabaseID, this.tableID, key);
         }
     }
 }
