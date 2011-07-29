@@ -25,13 +25,54 @@ public class Index
         this.tableID = tableID;
         this.byteKey = key;
     }
+    
+    /**
+     * Sets the granularity for this index proxy.
+     *
+     * @param   ps          granularity, default 1000
+     */
+    public void setGranularity(long count)
+    {
+        this.count = count;
+    }
 
-    public long Get()  throws SDBPException {
+    /**
+     * Retrieves the next unique index value.
+     *
+     * @return              the next unique index value
+     */
+    public long get()  throws SDBPException {
         if (num == 0)
             AllocateIndexRange();
         
         num--;
         return index++;
+    }
+
+    /**
+     * Resets the index to 0 (on the server).
+     * WARNING: use with care, the index will no longer be unique!
+     *
+     */
+    public void reset()  throws SDBPException {
+        long oldDatabaseID = client.getDatabaseID();
+        long oldTableID = client.getTableID();
+
+        if (oldDatabaseID != databaseID)
+            client.useDatabase(databaseID);
+        if (oldTableID != tableID)
+            client.useTable(tableID);
+
+        if (stringKey != null)
+            client.set(stringKey, "0");
+        else
+            client.set(byteKey, "0".getBytes());
+        num = 0;
+
+        if (oldDatabaseID != databaseID)
+            client.useDatabase(oldDatabaseID);
+        if (oldTableID != tableID)
+            client.useTable(oldTableID);
     }
 
     private void AllocateIndexRange() throws SDBPException {
