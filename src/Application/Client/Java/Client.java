@@ -614,7 +614,10 @@ public class Client
         int status = scaliendb_client.SDBP_Set(cptr, key, value);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
+            if (status == Status.SDBP_API_ERROR)
+                checkStatus(status, "Batch limit exceeded");
+            else
+                checkStatus(status);
         }
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
