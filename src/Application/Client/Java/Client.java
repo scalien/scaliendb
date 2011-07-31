@@ -727,16 +727,7 @@ public class Client
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
     }
     
-    /**
-     * Returns the specified keys.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of keys
-     */
-    public List<String> listKeys(String startKey, String endKey, String prefix, int count, boolean skip)
+    protected List<String> listKeys(String startKey, String endKey, String prefix, int count, boolean skip)
     throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, skip);
         checkResultStatus(status);
@@ -748,16 +739,7 @@ public class Client
         return keys;
     }
 
-    /**
-     * Returns the specified keys.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of keys
-     */
-    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip)
+    protected List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip)
     throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, 
         endKey, endKey.length, prefix, prefix.length, count, skip);
@@ -770,16 +752,7 @@ public class Client
         return keys;
     }
 
-    /**
-     * Returns the specified key-value pairs.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of key-value pairs
-     */
-    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count, boolean skip)
+    protected Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count, boolean skip)
     throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, skip);
         checkResultStatus(status);
@@ -791,16 +764,7 @@ public class Client
         return keyValues;
     }
 
-    /**
-     * Returns the specified key-value pairs.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of key-value pairs
-     */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
+    protected Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length, count, skip);
         checkResultStatus(status);
             
