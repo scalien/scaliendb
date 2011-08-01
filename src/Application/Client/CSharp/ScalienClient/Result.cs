@@ -74,7 +74,7 @@ namespace Scalien
             return scaliendb_client.SDBP_ResultCommandStatus(cptr);
         }
 
-        public List<string> GetKeys()
+        public List<string> GetStringKeys()
         {
             List<string> keys = new List<string>();
             for (Begin(); !IsEnd(); Next())
@@ -83,11 +83,28 @@ namespace Scalien
             return keys;
         }
 
-        public Dictionary<string, string> GetKeyValues()
+        public List<byte[]> GetByteKeys()
+        {
+            List<byte[]> keys = new List<byte[]>();
+            for (Begin(); !IsEnd(); Next())
+                keys.Add(Client.StringToByteArray(GetKey()));
+
+            return keys;
+        }
+
+        public Dictionary<string, string> GetStringKeyValues()
         {
             Dictionary<string, string> keyvals = new Dictionary<string, string>();
             for (Begin(); !IsEnd(); Next())
                 keyvals.Add(GetKey(), GetValue());
+
+            return keyvals;
+        }
+        public Dictionary<byte[], byte[]> GetByteKeyValues()
+        {
+            Dictionary<byte[], byte[]> keyvals = new Dictionary<byte[], byte[]>(new Client.ByteArrayComparer());
+            for (Begin(); !IsEnd(); Next())
+                keyvals.Add(Client.StringToByteArray(GetKey()), Client.StringToByteArray(GetValue()));
 
             return keyvals;
         }

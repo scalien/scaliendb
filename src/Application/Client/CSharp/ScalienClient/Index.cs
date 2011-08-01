@@ -8,7 +8,8 @@ namespace Scalien
         Client client;
         ulong databaseID;
         ulong tableID;
-        string key;
+        string stringKey;
+        byte[] byteKey;
 
         long count = 1000;
         long index = 0;
@@ -19,7 +20,20 @@ namespace Scalien
             this.client = client;
             this.databaseID = databaseID;
             this.tableID = tableID;
-            this.key = key;
+            this.stringKey = key;
+        }
+
+        public Index(Client client, ulong databaseID, ulong tableID, byte[] key)
+        {
+            this.client = client;
+            this.databaseID = databaseID;
+            this.tableID = tableID;
+            this.byteKey = key;
+        }
+
+        public void SetGranularity(long count)
+        {
+            this.count = count;
         }
 
         public long Get
@@ -44,7 +58,10 @@ namespace Scalien
             if (oldTableID != tableID)
                 client.UseTableID(tableID);
 
-            index = client.Add(key, count) - count;
+            if (stringKey != null)
+                index = client.Add(stringKey, count) - count;
+            else
+                index = client.Add(byteKey, count) - count;
             num = count;
 
             if (oldDatabaseID != databaseID)

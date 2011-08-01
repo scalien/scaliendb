@@ -116,19 +116,37 @@ namespace Scalien
             client.Delete(key);
         }
 
-        public List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
+        internal List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             UseDefaults();
             return client.ListKeys(startKey, endKey, prefix, count, skip);
         }
 
-        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
+        internal List<byte[]> ListKeys(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        {
+            UseDefaults();
+            return client.ListKeys(startKey, endKey, prefix, count, skip);
+        }
+
+        internal Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             UseDefaults();
             return client.ListKeyValues(startKey, endKey, prefix, count, skip);
         }
 
+        internal Dictionary<byte[], byte[]> ListKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        {
+            UseDefaults();
+            return client.ListKeyValues(startKey, endKey, prefix, count, skip);
+        }
+        
         public ulong Count(string startKey, string endKey, string prefix)
+        {
+            UseDefaults();
+            return client.Count(startKey, endKey, prefix);
+        }
+
+        public ulong Count(byte[] startKey, byte[] endKey, byte[] prefix)
         {
             UseDefaults();
             return client.Count(startKey, endKey, prefix);
@@ -139,12 +157,27 @@ namespace Scalien
             return new StringKeyIterator(this, ps);
         }
 
+        public ByteKeyIterator GetKeyIterator(ByteIterParams ps)
+        {
+            return new ByteKeyIterator(this, ps);
+        }
+
         public StringKeyValueIterator GetKeyValueIterator(StringIterParams ps)
         {
             return new StringKeyValueIterator(this, ps);
         }
 
+        public ByteKeyValueIterator GetKeyValueIterator(ByteIterParams ps)
+        {
+            return new ByteKeyValueIterator(this, ps);
+        }
+        
         public Index GetIndex(string key)
+        {
+            return new Index(this.client, database.DatabaseID, this.tableID, key);
+        }
+
+        public Index GetIndex(byte[] key)
         {
             return new Index(this.client, database.DatabaseID, this.tableID, key);
         }
