@@ -31,7 +31,6 @@ if [ $? != 0 ]; then
 	exit 1
 fi
 
-#CONTROLLERS=127.0.0.1:7080,127.0.0.1:7081,127.0.0.1:7082
 CONTROLLERS=$(sed -n "s/^[^#[:space:]]*controllers[[:space:]]*=[[:space:]]*\(.*\)$/\1/p" $TEMP_CONFIG_FILE | tail -n 1)
 if [ "$CONTROLLERS" = "" ]; then
 	echo "Cannot find controllers in config file!"
@@ -39,7 +38,17 @@ if [ "$CONTROLLERS" = "" ]; then
 fi
 
 NODEID=$(echo | awk "BEGIN { controllers=\"$CONTROLLERS\"; endpoint=\"$ENDPOINT\" }"\
-'END { n = split(controllers, c, ","); for (i = 1; i <= n; i++) if (c[i] == endpoint) { print i-1; break } }')
+'END { 
+	gsub(/[[:space:]]*/, "", controllers);
+	n = split(controllers, c, ","); 
+	for (i = 1; i <= n; i++) { 
+		if (c[i] == endpoint) { 
+			print i-1; 
+			break;
+		}
+	}
+}')
+
 if [ "$NODEID" = "" ]; then
 	echo "Cannot find the given endpoint in config file!"
 	exit 1
