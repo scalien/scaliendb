@@ -1,10 +1,11 @@
 #!/bin/sh
 
-if [ "$1" = "" ]; then
+if [ "$1" = "" -o "$2" = "" ]; then
 	echo
 	echo "Usage:"
 	echo
 	echo "    getconfig.sh <endpoint> <config-url>"
+	echo
 	echo
 	exit 1
 fi
