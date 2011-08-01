@@ -402,9 +402,20 @@ namespace Scalien
 
         internal List<byte[]> ListKeys(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
         {
-            int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.Length, endKey, endKey.Length, prefix, prefix.Length, count, skip);
+            int status;
+
+            unsafe
+            {
+                fixed (byte* pStartKey = startKey, pEndKey = endKey, pPrefix = prefix)
+                {
+                    IntPtr ipStartKey = new IntPtr(pStartKey);
+                    IntPtr ipEndKey = new IntPtr(pEndKey);
+                    IntPtr ipPrefix = new IntPtr(pPrefix);
+                    status = scaliendb_client.SDBP_ListKeysCStr(cptr, ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, skip);
+                }
+            }
             CheckResultStatus(status);
-            return result.GetByteKeys();
+            return result.GetByteArrayKeys();
         }
 
         internal Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
@@ -416,9 +427,20 @@ namespace Scalien
 
         internal Dictionary<byte[], byte[]> ListKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
         {
-            int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.Length, endKey, endKey.Length, prefix, prefix.Length, count, skip);
+            int status;
+
+            unsafe
+            {
+                fixed (byte* pStartKey = startKey, pEndKey = endKey, pPrefix = prefix)
+                {
+                    IntPtr ipStartKey = new IntPtr(pStartKey);
+                    IntPtr ipEndKey = new IntPtr(pEndKey);
+                    IntPtr ipPrefix = new IntPtr(pPrefix);
+                    status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, skip);
+                }
+            }
             CheckResultStatus(status);
-            return result.GetByteKeyValues();
+            return result.GetByteArrayKeyValues();
         }
         
         public ulong Count(string startKey, string endKey, string prefix)
@@ -430,7 +452,18 @@ namespace Scalien
 
         public ulong Count(byte[] startKey, byte[] endKey, byte[] prefix)
         {
-            int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.Length, endKey, endKey.Length, prefix, prefix.Length);
+            int status;
+
+            unsafe
+            {
+                fixed (byte* pStartKey = startKey, pEndKey = endKey, pPrefix = prefix)
+                {
+                    IntPtr ipStartKey = new IntPtr(pStartKey);
+                    IntPtr ipEndKey = new IntPtr(pEndKey);
+                    IntPtr ipPrefix = new IntPtr(pPrefix);
+                    status = scaliendb_client.SDBP_CountCStr(cptr, ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length);
+                }
+            }
             CheckResultStatus(status);
             return result.GetNumber();
         }
