@@ -1,9 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace Scalien
 {
+    class ByteArrayComparer : IEqualityComparer<byte[]>
+    {
+        public bool Equals(byte[] left, byte[] right)
+        {
+            if (left == null || right == null)
+                return left == right;
+
+            if (left.Length != right.Length) 
+                return false;
+
+            for (int i= 0; i < left.Length; i++) {
+                if (left[i] != right[i])
+                    return false;
+
+            }
+            return true;
+        }
+        public int GetHashCode(byte[] key)
+        {
+            if (key == null)
+                throw new ArgumentNullException("key");
+        
+            int sum = 0;
+            foreach (byte cur in key)
+                sum = sum * 37 + cur;
+            return sum;
+        }
+    }
+
     public class Result
     {
         private SWIGTYPE_p_void cptr;
@@ -29,9 +59,19 @@ namespace Scalien
             return scaliendb_client.SDBP_ResultKey(cptr);
         }
 
+        public byte[] GetKeyBytes()
+        {
+            return GetBytes(scaliendb_client.SDBP_ResultKeyBuffer(cptr));
+        }
+
         public string GetValue()
         {
             return scaliendb_client.SDBP_ResultValue(cptr);
+        }
+
+        public byte[] GetValueBytes()
+        {
+            return GetBytes(scaliendb_client.SDBP_ResultValueBuffer(cptr));
         }
 
         public long GetSignedNumber()
@@ -83,6 +123,15 @@ namespace Scalien
             return keys;
         }
 
+        public List<byte[]> GetByteArrayKeys()
+        {
+            List<byte[]> keys = new List<byte[]>();
+            for (Begin(); !IsEnd(); Next())
+                keys.Add(GetKeyBytes());
+
+            return keys;
+        }
+
         public Dictionary<string, string> GetKeyValues()
         {
             Dictionary<string, string> keyvals = new Dictionary<string, string>();
@@ -90,6 +139,26 @@ namespace Scalien
                 keyvals.Add(GetKey(), GetValue());
 
             return keyvals;
+        }
+
+        public Dictionary<byte[], byte[]> GetByteArrayKeyValues()
+        {
+            // TODO: we should return a sorted dictionary
+            Dictionary<byte[], byte[]> keyvals = new Dictionary<byte[], byte[]>(new ByteArrayComparer());
+            for (Begin(); !IsEnd(); Next())
+                keyvals.Add(GetKeyBytes(), GetValueBytes());
+
+            return keyvals;
+        }
+
+        private byte[] GetBytes(SDBP_Buffer buffer)
+        {
+            unsafe
+            {
+                byte[] result = new byte[buffer.len];
+                Marshal.Copy(buffer.data, result, 0, result.Length);
+                return result;
+            }
         }
     }
 }

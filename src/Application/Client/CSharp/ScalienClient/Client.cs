@@ -259,7 +259,15 @@ namespace Scalien
 
         public byte[] Get(byte[] key)
         {
-            int status = scaliendb_client.SDBP_GetCStr(cptr, key, key.Length);
+            int status;
+            unsafe
+            {
+                fixed (byte* pKey = key)
+                {
+                    IntPtr ipKey = new IntPtr(pKey);
+                    status = scaliendb_client.SDBP_GetCStr(cptr, ipKey, key.Length);
+                }
+            }
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -267,8 +275,7 @@ namespace Scalien
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            // TODO: fix SWIG wrapper and use GetValueBytes instead
-            return StringToByteArray(result.GetValue());
+            return result.GetValueBytes();
         }
 
         public void Set(string key, string value)
@@ -285,7 +292,16 @@ namespace Scalien
 
         public void Set(byte[] key, byte[] value)
         {
-            int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.Length, value, value.Length);
+            int status;
+            unsafe
+            {
+                fixed (byte* pKey = key, pValue = value)
+                {
+                    IntPtr ipKey = new IntPtr(pKey);
+                    IntPtr ipValue = new IntPtr(pValue);
+                    status = scaliendb_client.SDBP_SetCStr(cptr, ipKey, key.Length, ipValue, value.Length);
+                }
+            }
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -310,7 +326,15 @@ namespace Scalien
 
         public long Add(byte[] key, long value)
         {
-            int status = scaliendb_client.SDBP_AddCStr(cptr, key, key.Length, value);
+            int status;
+            unsafe
+            {
+                fixed (byte* pKey = key)
+                {
+                    IntPtr ipKey = new IntPtr(pKey);
+                    status = scaliendb_client.SDBP_AddCStr(cptr, ipKey, key.Length, value);
+                }
+            }
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -335,7 +359,15 @@ namespace Scalien
 
         public void Delete(byte[] key)
         {
-            int status = scaliendb_client.SDBP_DeleteCStr(cptr, key, key.Length);
+            int status;
+            unsafe
+            {
+                fixed (byte* pKey = key)
+                {
+                    IntPtr ipKey = new IntPtr(pKey);
+                    status = scaliendb_client.SDBP_DeleteCStr(cptr, ipKey, key.Length);
+                }
+            }
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
