@@ -10,6 +10,14 @@ namespace Scalien
         private string name;
         private ulong databaseID;
 
+        public ulong DatabaseID
+        {
+            get
+            {
+                return databaseID;
+            }
+        }
+
         public Database(Client client, string name)
         {
             this.client = client;
@@ -18,11 +26,6 @@ namespace Scalien
             databaseID = scaliendb_client.SDBP_GetDatabaseID(client.cptr, name);
             if (databaseID == 0)
                 throw new SDBPException(Status.SDBP_BADSCHEMA);
-        }
-
-        public ulong GetDatabaseID()
-        {
-            return databaseID;
         }
 
         public string GetName()

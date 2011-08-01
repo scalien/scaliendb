@@ -115,8 +115,6 @@
 		54973F4B13685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54973F4913685AFB00A54A90 /* StorageDeleteMemoChunkJob.cpp */; };
 		5499B82E12D72EB000ECEF7F /* BloomFilter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5499B82C12D72EB000ECEF7F /* BloomFilter.cpp */; };
 		54A6AB4913B5D76F00DDB15B /* ConfigController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54A6AB4813B5D76F00DDB15B /* ConfigController.cpp */; };
-		54B313E113DEB569000338C2 /* ByteRangeParams.java in Sources */ = {isa = PBXBuildFile; fileRef = 54B313DF13DEB569000338C2 /* ByteRangeParams.java */; };
-		54B313E213DEB569000338C2 /* StringRangeParams.java in Sources */ = {isa = PBXBuildFile; fileRef = 54B313E013DEB569000338C2 /* StringRangeParams.java */; };
 		54B7F76E11BE5EF30076BC62 /* Common.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74411BE5EF30076BC62 /* Common.cpp */; };
 		54B7F77111BE5EF30076BC62 /* Scheduler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75111BE5EF30076BC62 /* Scheduler.cpp */; };
 		54B7F77411BE5EF30076BC62 /* IOProcessor_Linux.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75B11BE5EF30076BC62 /* IOProcessor_Linux.cpp */; };
@@ -134,6 +132,7 @@
 		54FA694511C2458A00FF4EF6 /* Socket_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F75F11BE5EF30076BC62 /* Socket_Posix.cpp */; };
 		54FA695F11C259DF00FF4EF6 /* Config.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74611BE5EF30076BC62 /* Config.cpp */; };
 		54FA6B0811C26CAB00FF4EF6 /* Main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54FA6B0711C26CAB00FF4EF6 /* Main.cpp */; };
+		54FC965613E1CF8300940C40 /* Index.java in Sources */ = {isa = PBXBuildFile; fileRef = 54FC965513E1CF8300940C40 /* Index.java */; };
 		78BCDFF812DA111800438DA5 /* InTreeMapTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AE8196C12D4BFE80038BDB1 /* InTreeMapTest.cpp */; };
 		78CD47AE130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */; };
 		78CD47AF130C26B40022BC9F /* StorageMemoChunkLister.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */; };
@@ -572,6 +571,7 @@
 		54FA68F811C2429A00FF4EF6 /* Countdown.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Countdown.cpp; sourceTree = "<group>"; };
 		54FA690A11C2435300FF4EF6 /* Timer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Timer.cpp; sourceTree = "<group>"; };
 		54FA6B0711C26CAB00FF4EF6 /* Main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cpp; sourceTree = "<group>"; };
+		54FC965513E1CF8300940C40 /* Index.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Index.java; path = Client/Java/Index.java; sourceTree = "<group>"; };
 		78BCDFEE12D9EF5500438DA5 /* InTreeMap2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = InTreeMap2.h; sourceTree = "<group>"; };
 		78CD47AC130C26B40022BC9F /* StorageMemoChunkLister.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageMemoChunkLister.h; sourceTree = "<group>"; };
 		78CD47AD130C26B40022BC9F /* StorageMemoChunkLister.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StorageMemoChunkLister.cpp; sourceTree = "<group>"; };
@@ -645,7 +645,6 @@
 		9AE8178E12CE1E9B0038BDB1 /* SWIGTYPE_p_p_char.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SWIGTYPE_p_p_char.java; path = Client/Java/SWIGTYPE_p_p_char.java; sourceTree = "<group>"; };
 		9AE8178F12CE1E9B0038BDB1 /* SWIGTYPE_p_void.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = SWIGTYPE_p_void.java; path = Client/Java/SWIGTYPE_p_void.java; sourceTree = "<group>"; };
 		9AE8179012CE1E9B0038BDB1 /* Table.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Table.java; path = Client/Java/Table.java; sourceTree = "<group>"; };
-		9AE8179112CE1E9B0038BDB1 /* Test.java */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.java; name = Test.java; path = Client/Java/Test.java; sourceTree = "<group>"; };
 		9AE8179312CE1EBB0038BDB1 /* scaliendb_client_python.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_python.cpp; path = Client/Python/scaliendb_client_python.cpp; sourceTree = "<group>"; };
 		9AE8179412CE1EBB0038BDB1 /* scaliendb_client.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb_client.py; path = Client/Python/scaliendb_client.py; sourceTree = "<group>"; };
 		9AE8179512CE1EBB0038BDB1 /* scaliendb.py */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.python; name = scaliendb.py; path = Client/Python/scaliendb.py; sourceTree = "<group>"; };
@@ -1333,6 +1332,7 @@
 		9AE8177612CE1E5A0038BDB1 /* Java */ = {
 			isa = PBXGroup;
 			children = (
+				54FC965513E1CF8300940C40 /* Index.java */,
 				54B313E013DEB569000338C2 /* StringRangeParams.java */,
 				54731C1E13D0367400125619 /* StringKeyIterator.java */,
 				54731CAA13D04AE200125619 /* StringKeyValueIterator.java */,
@@ -1346,7 +1346,6 @@
 				9A67257213007D5200C3E6F6 /* Quorum.java */,
 				9AE8178D12CE1E9B0038BDB1 /* Status.java */,
 				9AE8178C12CE1E9B0038BDB1 /* SDBPException.java */,
-				9AE8179112CE1E9B0038BDB1 /* Test.java */,
 				54731CC513D0516D00125619 /* KeyValue.java */,
 				54731C9E13D04A4000125619 /* ByteArrayComparator.java */,
 				9AE8178812CE1E9B0038BDB1 /* scaliendb_client.java */,
@@ -1603,8 +1602,7 @@
 				9A467A261373436D00108B07 /* DLL.cpp in Sources */,
 				9A467AD2137350ED00108B07 /* ShardExtension.cpp in Sources */,
 				54A6AB4913B5D76F00DDB15B /* ConfigController.cpp in Sources */,
-				54B313E113DEB569000338C2 /* ByteRangeParams.java in Sources */,
-				54B313E213DEB569000338C2 /* StringRangeParams.java in Sources */,
+				54FC965613E1CF8300940C40 /* Index.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -614,7 +614,10 @@ public class Client
         int status = scaliendb_client.SDBP_Set(cptr, key, value);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
+            if (status == Status.SDBP_API_ERROR)
+                checkStatus(status, "Batch limit exceeded");
+            else
+                checkStatus(status);
         }
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -631,7 +634,10 @@ public class Client
         int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.length, value, value.length);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
+            if (status == Status.SDBP_API_ERROR)
+                checkStatus(status, "Batch limit exceeded");
+            else
+                checkStatus(status);
         }
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -706,7 +712,10 @@ public class Client
         int status = scaliendb_client.SDBP_Delete(cptr, key);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
+            if (status == Status.SDBP_API_ERROR)
+                checkStatus(status, "Batch limit exceeded");
+            else
+                checkStatus(status);
         }
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -721,22 +730,16 @@ public class Client
         int status = scaliendb_client.SDBP_DeleteCStr(cptr, key, key.length);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
+            if (status == Status.SDBP_API_ERROR)
+                checkStatus(status, "Batch limit exceeded");
+            else
+                checkStatus(status);
         }
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
     }
     
-    /**
-     * Returns the specified keys.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of keys
-     */
-    public List<String> listKeys(String startKey, String endKey, String prefix, int count, boolean skip)
+    protected List<String> listKeys(String startKey, String endKey, String prefix, int count, boolean skip)
     throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, skip);
         checkResultStatus(status);
@@ -748,16 +751,7 @@ public class Client
         return keys;
     }
 
-    /**
-     * Returns the specified keys.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of keys
-     */
-    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip)
+    protected List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip)
     throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.length, 
         endKey, endKey.length, prefix, prefix.length, count, skip);
@@ -770,16 +764,7 @@ public class Client
         return keys;
     }
 
-    /**
-     * Returns the specified key-value pairs.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of key-value pairs
-     */
-    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count, boolean skip)
+    protected Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count, boolean skip)
     throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, skip);
         checkResultStatus(status);
@@ -791,16 +776,7 @@ public class Client
         return keyValues;
     }
 
-    /**
-     * Returns the specified key-value pairs.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of key-value pairs
-     */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
+    protected Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
         int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.length, endKey, endKey.length, prefix, prefix.length, count, skip);
         checkResultStatus(status);
             
@@ -833,6 +809,44 @@ public class Client
         int status = scaliendb_client.SDBP_CountCStr(cptr, ps.startKey, ps.startKey.length, ps.endKey, ps.endKey.length, ps.prefix, ps.prefix.length);
         checkResultStatus(status);
         return result.getNumber();
+    }
+    
+    /**
+     * Returns the current databaseID.
+     *
+     * @return              the databaseID
+     */
+    public long getDatabaseID() throws SDBPException {
+        return scaliendb_client.SDBP_GetCurrentDatabaseID(cptr).longValue();
+    }
+
+    /**
+     * Returns the current tableID.
+     *
+     * @return              the tableID
+     */
+    public long getTableID() throws SDBPException {
+        return scaliendb_client.SDBP_GetCurrentTableID(cptr).longValue();
+    }
+
+    /**
+     * Returns an Index object for the given key. Then use Index::Get() to retrieve new index values.
+     *
+     * @param   key         the index key
+     * @return              the Index object
+     */
+    public Index getIndex(String key) throws SDBPException {
+        return new Index(this, getDatabaseID(), getTableID(), key);
+    }
+
+    /**
+     * Returns an Index object for the given key. Then use Index::Get() to retrieve new index values.
+     *
+     * @param   key         the index key
+     * @return              the Index object
+     */
+    public Index getIndex(byte[] key) throws SDBPException {
+        return new Index(this, getDatabaseID(), getTableID(), key);
     }
     
     /**

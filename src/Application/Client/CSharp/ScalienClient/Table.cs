@@ -11,20 +11,45 @@ namespace Scalien
         private string name;
         private ulong tableID;
 
+        public Client Client
+        {
+            get
+            {
+                return client;
+            }
+        }
+
+        public Database Database
+        {
+            get
+            {
+                return database;
+            }
+        }
+
+
+        public ulong TableID
+        {
+            get
+            {
+                return tableID;
+            }
+        }
+
         public Table(Client client, Database database, string name)
         {
             this.client = client;
             this.database = database;
             this.name = name;
 
-            tableID = scaliendb_client.SDBP_GetTableID(client.cptr, database.GetDatabaseID(), name);
+            tableID = scaliendb_client.SDBP_GetTableID(client.cptr, database.DatabaseID, name);
             if (tableID == 0)
                 throw new SDBPException(Status.SDBP_BADSCHEMA);
         }
 
         private void UseDefaults()
         {
-            client.UseDatabaseID(database.GetDatabaseID());
+            client.UseDatabaseID(database.DatabaseID);
             client.UseTableID(tableID);
         }
 
@@ -91,19 +116,37 @@ namespace Scalien
             client.Delete(key);
         }
 
-        public List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
+        internal List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             UseDefaults();
             return client.ListKeys(startKey, endKey, prefix, count, skip);
         }
 
-        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
+        internal List<byte[]> ListKeys(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        {
+            UseDefaults();
+            return client.ListKeys(startKey, endKey, prefix, count, skip);
+        }
+
+        internal Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             UseDefaults();
             return client.ListKeyValues(startKey, endKey, prefix, count, skip);
         }
 
+        internal Dictionary<byte[], byte[]> ListKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        {
+            UseDefaults();
+            return client.ListKeyValues(startKey, endKey, prefix, count, skip);
+        }
+        
         public ulong Count(string startKey, string endKey, string prefix)
+        {
+            UseDefaults();
+            return client.Count(startKey, endKey, prefix);
+        }
+
+        public ulong Count(byte[] startKey, byte[] endKey, byte[] prefix)
         {
             UseDefaults();
             return client.Count(startKey, endKey, prefix);
@@ -114,22 +157,29 @@ namespace Scalien
             return new StringKeyIterator(this, ps);
         }
 
+        public ByteKeyIterator GetKeyIterator(ByteIterParams ps)
+        {
+            return new ByteKeyIterator(this, ps);
+        }
+
         public StringKeyValueIterator GetKeyValueIterator(StringIterParams ps)
         {
             return new StringKeyValueIterator(this, ps);
         }
 
+        public ByteKeyValueIterator GetKeyValueIterator(ByteIterParams ps)
+        {
+            return new ByteKeyValueIterator(this, ps);
+        }
+        
         public Index GetIndex(string key)
         {
-            return new Index(this, key);
+            return new Index(this.client, database.DatabaseID, this.tableID, key);
         }
 
-        public Client Client
+        public Index GetIndex(byte[] key)
         {
-            get
-            {
-                return client;
-            }
+            return new Index(this.client, database.DatabaseID, this.tableID, key);
         }
     }
 }

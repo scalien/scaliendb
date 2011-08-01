@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Collections;
+using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace Scalien
 {
@@ -16,12 +18,14 @@ namespace Scalien
             }
         }
 
-        public SDBPException(int status) : base(Scalien.Status.ToString(status))
+        public SDBPException(int status)
+            : base(Scalien.Status.ToString(status) + " (code " + status + ")")
         {
             this.status = status;
         }
 
-        public SDBPException(int status, string msg) : base(msg)
+        public SDBPException(int status, string txt)
+            : base(Scalien.Status.ToString(status) + " (code " + status + "): " + txt)
         {
             this.status = status;
         }
@@ -284,7 +288,10 @@ namespace Scalien
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
+                if (status == Status.SDBP_BADSCHEMA)
+                    CheckStatus(status, "Batch limit exceeded");
+                else
+                    CheckStatus(status);
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -305,7 +312,10 @@ namespace Scalien
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
+                if (status == Status.SDBP_BADSCHEMA)
+                    CheckStatus(status, "Batch limit exceeded");
+                else
+                    CheckStatus(status);
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -351,7 +361,10 @@ namespace Scalien
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
+                if (status == Status.SDBP_BADSCHEMA)
+                    CheckStatus(status, "Batch limit exceeded");
+                else
+                    CheckStatus(status);
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -371,29 +384,53 @@ namespace Scalien
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-                CheckStatus(status);
+                if (status == Status.SDBP_BADSCHEMA)
+                    CheckStatus(status, "Batch limit exceeded");
+                else
+                    CheckStatus(status);
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        public List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
+        internal List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, skip);
             CheckResultStatus(status);
-            return result.GetKeys();
+            return result.GetStringKeys();
         }
 
-        public Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
+        internal List<byte[]> ListKeys(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        {
+            int status = scaliendb_client.SDBP_ListKeysCStr(cptr, startKey, startKey.Length, endKey, endKey.Length, prefix, prefix.Length, count, skip);
+            CheckResultStatus(status);
+            return result.GetByteKeys();
+        }
+
+        internal Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
         {
             int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, skip);
             CheckResultStatus(status);
-            return result.GetKeyValues();
+            return result.GetStringKeyValues();
         }
 
+        internal Dictionary<byte[], byte[]> ListKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        {
+            int status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, startKey, startKey.Length, endKey, endKey.Length, prefix, prefix.Length, count, skip);
+            CheckResultStatus(status);
+            return result.GetByteKeyValues();
+        }
+        
         public ulong Count(string startKey, string endKey, string prefix)
         {
             int status = scaliendb_client.SDBP_Count(cptr, startKey, endKey, prefix);
+            CheckResultStatus(status);
+            return result.GetNumber();
+        }
+
+        public ulong Count(byte[] startKey, byte[] endKey, byte[] prefix)
+        {
+            int status = scaliendb_client.SDBP_CountCStr(cptr, startKey, startKey.Length, endKey, endKey.Length, prefix, prefix.Length);
             CheckResultStatus(status);
             return result.GetNumber();
         }
@@ -405,6 +442,11 @@ namespace Scalien
             return new StringKeyIterator(this, ps);
         }
 
+        public ByteKeyIterator GetKeyIterator(ByteIterParams ps)
+        {
+            return new ByteKeyIterator(this, ps);
+        }
+
         // foreach (KeyValuePair<string, string> kv in client.GetKeyValueIterator())
         //     System.Console.WriteLine(kv.Key + " => " + kv.Value);
         public StringKeyValueIterator GetKeyValueIterator(StringIterParams ps)
@@ -412,8 +454,12 @@ namespace Scalien
             return new StringKeyValueIterator(this, ps);
         }
 
+        public ByteKeyValueIterator GetKeyValueIterator(ByteIterParams ps)
+        {
+            return new ByteKeyValueIterator(this, ps);
+        }
+
         // Index ind = client.GetIndex("ind");
-        // personIndex.Create();
         // ulong i = personIndex.Get
         public Index GetIndex(string key)
         {
@@ -469,15 +515,42 @@ namespace Scalien
             CheckStatus(status, null);
         }
 
-        private static byte[] StringToByteArray(string str)
+        public static void SetTrace(bool trace)
+        {
+            scaliendb_client.SDBP_SetTrace(trace);
+        }
+
+        internal static byte[] StringToByteArray(string str)
         {
             System.Text.UTF8Encoding encoding = new System.Text.UTF8Encoding();
             return encoding.GetBytes(str);
         }
 
-        public static void SetTrace(bool trace)
+        internal class ByteArrayComparer : IEqualityComparer<byte[]>
         {
-            scaliendb_client.SDBP_SetTrace(trace);
+            public bool Equals(byte[] b1, byte[] b2)
+            {
+                return ByteArrayCompare(b1, b2);
+            }
+
+            public int GetHashCode(byte[] key)
+            {
+                if (key == null)
+                    throw new ArgumentNullException("key");
+                return key.Sum(i => i);
+            }
         }
+
+        [DllImport("msvcrt.dll")]
+        internal static extern int memcmp(byte[] b1, byte[] b2, long count);
+
+        internal static bool ByteArrayCompare(byte[] b1, byte[] b2)
+        {
+            // Validate buffers are the same length.
+            // This also ensures that the count does not exceed the length of either buffer.  
+            return b1.Length == b2.Length && memcmp(b1, b2, b1.Length) == 0;
+        }
+
+
     }
 }

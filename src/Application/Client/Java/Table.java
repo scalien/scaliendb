@@ -243,58 +243,22 @@ public class Table
         client.delete(key);
     }
     
-    /**
-     * Returns the specified keys.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of keys
-     */
-    public List<String> listKeys(String startKey, String endKey, String prefix, int count, boolean skip) throws SDBPException {
+    protected List<String> listKeys(String startKey, String endKey, String prefix, int count, boolean skip) throws SDBPException {
         useDefaults();
         return client.listKeys(startKey, endKey, prefix, count, skip);
     }
 
-    /**
-     * Returns the specified keys.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of keys
-     */
-    public List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
+    protected List<byte[]> listKeys(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
         useDefaults();
         return client.listKeys(startKey, endKey, prefix, count, skip);
     }
 
-    /**
-     * Returns the specified key-value pairs.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of key-value pairs
-     */
-    public Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count, boolean skip) throws SDBPException {
+    protected Map<String, String> listKeyValues(String startKey, String endKey, String prefix, int count, boolean skip) throws SDBPException {
         useDefaults();
         return client.listKeyValues(startKey, endKey, prefix, count, skip);
     }
     
-    /**
-     * Returns the specified key-value pairs.
-     *
-     * @param   startKey    listing starts at this key
-     * @param   endKey      listing ends at this key
-     * @param   prefix      list only those keys that starts with prefix
-     * @param   count       specifies the number of keys returned
-     * @return              the list of key-value pairs
-     */
-    public Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
+    protected Map<byte[], byte[]> listKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, int count, boolean skip) throws SDBPException {
         useDefaults();
         return client.listKeyValues(startKey, endKey, prefix, count, skip);
     }
@@ -320,6 +284,26 @@ public class Table
     public long count(ByteRangeParams ps) throws SDBPException {
         useDefaults();
         return client.count(ps);
+    }
+
+    /**
+     * Returns an Index object for the given key. Then use Index::Get() to retrieve new index values.
+     *
+     * @param   key         the index key
+     * @return              the Index object
+     */
+    public Index getIndex(String key) throws SDBPException {
+        return new Index(this.client, database.getDatabaseID(), tableID, key);
+    }
+
+    /**
+     * Returns an Index object for the given key. Then use Index::Get() to retrieve new index values.
+     *
+     * @param   key         the index key
+     * @return              the Index object
+     */
+    public Index getIndex(byte[] key) throws SDBPException {
+        return new Index(this.client, database.getDatabaseID(), tableID, key);
     }
 
     /**

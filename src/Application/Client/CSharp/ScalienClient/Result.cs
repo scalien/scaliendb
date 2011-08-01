@@ -114,7 +114,7 @@ namespace Scalien
             return scaliendb_client.SDBP_ResultCommandStatus(cptr);
         }
 
-        public List<string> GetKeys()
+        public List<string> GetStringKeys()
         {
             List<string> keys = new List<string>();
             for (Begin(); !IsEnd(); Next())
@@ -128,11 +128,10 @@ namespace Scalien
             List<byte[]> keys = new List<byte[]>();
             for (Begin(); !IsEnd(); Next())
                 keys.Add(GetKeyBytes());
-
             return keys;
         }
 
-        public Dictionary<string, string> GetKeyValues()
+        public Dictionary<string, string> GetStringKeyValues()
         {
             Dictionary<string, string> keyvals = new Dictionary<string, string>();
             for (Begin(); !IsEnd(); Next())
