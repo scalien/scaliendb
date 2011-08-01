@@ -31,8 +31,8 @@ class scaliendb_clientJNI {
   public final static native int SDBP_NodeParams_num_get(long jarg1, SDBP_NodeParams jarg1_);
   public final static native long new_SDBP_Buffer();
   public final static native void SDBP_Buffer_SetBuffer(long jarg1, SDBP_Buffer jarg1_, byte[] jarg2, int jarg3);
-  public final static native void SDBP_Buffer_data_set(long jarg1, SDBP_Buffer jarg1_, long jarg2);
-  public final static native long SDBP_Buffer_data_get(long jarg1, SDBP_Buffer jarg1_);
+  public final static native void SDBP_Buffer_data_set(long jarg1, SDBP_Buffer jarg1_, int jarg2);
+  public final static native int SDBP_Buffer_data_get(long jarg1, SDBP_Buffer jarg1_);
   public final static native void SDBP_Buffer_len_set(long jarg1, SDBP_Buffer jarg1_, int jarg2);
   public final static native int SDBP_Buffer_len_get(long jarg1, SDBP_Buffer jarg1_);
   public final static native void delete_SDBP_Buffer(long jarg1);
