@@ -195,6 +195,7 @@ static int KeyCmp(const Request* a, const Request* b)
 
 Client::Client()
 {
+    controllerConnections = NULL;
     master = -1;
     commandID = 0;
     masterCommandID = 0;
@@ -270,13 +271,13 @@ void Client::Shutdown()
     RequestListMap::Node*   requestNode;
     RequestList*            requestList;
 
+    if (!controllerConnections)
+        return;
+    
     Submit();
     
     GLOBAL_MUTEX_GUARD_DECLARE();
 
-    if (!controllerConnections)
-        return;
-    
     for (int i = 0; i < numControllers; i++)
         delete controllerConnections[i];
     
@@ -882,12 +883,17 @@ int Client::Submit()
 {
     Request*    it;
 
+    CLIENT_MUTEX_GUARD_DECLARE();
+
     if (proxiedRequests.GetCount() == 0)
         return SDBP_SUCCESS;
     
     Log_Trace();
 
+    CLIENT_MUTEX_UNLOCK();
     Begin();
+    CLIENT_MUTEX_LOCK();
+    
     FOREACH_POP(it, proxiedRequests)
     {
         requests.Append(it);
@@ -896,7 +902,9 @@ int Client::Submit()
     }
     ASSERT(proxySize == 0);
 
+    CLIENT_MUTEX_UNLOCK();
     EventLoop();
+    CLIENT_MUTEX_LOCK();
 
     ClearQuorumRequests();
     requests.ClearMembers();

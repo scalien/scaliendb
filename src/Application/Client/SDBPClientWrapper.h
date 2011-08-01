@@ -40,10 +40,10 @@ struct SDBP_Buffer
 {
     SDBP_Buffer();
     
-    void        SetBuffer(char* data_, int len_);
+    void      SetBuffer(char* data_, int len_);
     
-    void*       data;
-    int         len;
+    intptr_t  data;
+    int       len;
 };
 
 /*

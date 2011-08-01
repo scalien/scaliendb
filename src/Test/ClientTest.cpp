@@ -45,7 +45,7 @@ static int SetupDefaultClient(Client& client)
     ReadBuffer      databaseName = "test";
     ReadBuffer      tableName = "test";
     int             ret;
-        
+
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -584,16 +584,12 @@ TEST_DEFINE(TestClientBatchedSetBulk)
 TEST_DEFINE(TestClientBatchedSetRandom)
 {
     Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    //const char*     nodes[] = {"192.168.137.51:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            valbuf[50];
     char            keybuf[10];
     int             ret;
-    unsigned        totalNum = 10000;
+    unsigned        totalNum = 10*1000;
     unsigned        batchNum = 5000;
     unsigned        count;
     Stopwatch       sw;
@@ -607,61 +603,30 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     RandomBuffer(keybuf, sizeof(keybuf));
     RandomBuffer(valbuf, sizeof(valbuf));
     
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(10000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
+    //TEST_LOG("Generating random data...");
     
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    for (unsigned x = 0; x < totalNum / batchNum; x++)
+    sw.Start();
+    for (unsigned i = 0; i < totalNum; i++)
     {
-        ret = client.Begin();
+        RandomBuffer(keybuf, sizeof(keybuf));
+        key.Wrap(keybuf, sizeof(keybuf));
+        value.Wrap(valbuf, sizeof(valbuf));
+        ret = client.Set(key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
-        
-        //TEST_LOG("Generating random data...");
-        
-        for (unsigned i = 0; i < batchNum; i++)
+
+        count++;
+        if (i > 0 && (i % 1000) == 0)
         {
-    //        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
-    //        key.Wrap(keybuf, ret);
-//            RandomBuffer(keybuf, sizeof(keybuf));
-            key.Wrap(keybuf, sizeof(keybuf));
-//            RandomBuffer(valbuf, sizeof(valbuf));
-            value.Wrap(valbuf, sizeof(valbuf));
-            ret = client.Set(key, value);
-            count++;
-            if (ret != SDBP_SUCCESS)
-                TEST_CLIENT_FAIL();
+            Log_Debug("XXX %u: i: %u", (unsigned) ThreadPool::GetThreadID(), i);
         }
-
-        //TEST_LOG("Generated data, start Submit");
-        //Log_Message("start id = %d", id);
-
-        sw.Start();
-        ret = client.Submit();
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-        sw.Stop();
-
-        //Log_Message("stop id = %d", id);
-
-        if ((batchNum / (sw.Elapsed() / 1000.0)) > 100*1000)
-        {
-            PRINT_CLIENT_STATUS("Transport", client.GetTransportStatus());
-            PRINT_CLIENT_STATUS("Connectivity", client.GetConnectivityStatus());
-            PRINT_CLIENT_STATUS("Timeout", client.GetTimeoutStatus());
-            PRINT_CLIENT_STATUS(" Command", client.GetCommandStatus());
-        }
-        
     }
+    sw.Stop();
+    Log_Debug("XXX %u: i: %u", (unsigned) ThreadPool::GetThreadID(), totalNum);
 
     TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), count / (sw.Elapsed() / 1000.0));
     
@@ -1548,14 +1513,14 @@ TEST_DEFINE(TestClientSetFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 10;
+    unsigned        numThread = 16;
     
     threadPool = ThreadPool::Create(numThread);
     
     for (unsigned i = 0; i < numThread; i++)
     {  
-//        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
-        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
+        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
+//        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
     }
     
     threadPool->Start();
@@ -1613,7 +1578,7 @@ TEST_DEFINE(TestClientFilter2)
         else
             offset = 1;
 
-        TEST(client.ListKeys(lastKey, endKey, prefix, 1000, offset));
+        TEST(client.ListKeys(lastKey, endKey, prefix, 1000, false));
         
         result = client.GetResult();
         num = 0;

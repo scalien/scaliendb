@@ -46,8 +46,26 @@
 
 /* C# specific byte array typemaps */
 #ifdef SWIGCSHARP
-%typemap(imtype) char* "byte[]"
-%typemap(cstype) char* "byte[]"
+%include "typemaps.i"
+
+%typemap(imtype) char* "IntPtr"
+%typemap(cstype) char* "IntPtr"
+
+%clear intptr_t;
+%typemap(imtype) intptr_t "IntPtr"
+%typemap(cstype) intptr_t "IntPtr"
+%typemap(csout) intptr_t "IntPtr"
+%typemap(directorout) intptr_t "IntPtr"
+
+%typemap(csvarout, excode=SWIGEXCODE2) intptr_t %{
+    /* HACKED SWIG csvarout typemap in scaliendb_client.i  */
+    get {
+		return $imcall;
+    } %}
+
+
+%csmethodmodifiers "public unsafe";
+
 
 #endif /* SWIGCSHARP */
 

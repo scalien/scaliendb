@@ -135,7 +135,7 @@ bool Result::AppendRequestResponse(ClientResponse* resp)
     req = requests.Get(resp->commandID);
     if (!req)
         return false;
-    Log_Trace("%c %U", resp->type, resp->commandID);    
+    //Log_Trace("%c %U", resp->type, resp->commandID);    
 
     req->responseTime = EventLoop::Now();
 
