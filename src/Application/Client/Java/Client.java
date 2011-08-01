@@ -634,7 +634,10 @@ public class Client
         int status = scaliendb_client.SDBP_SetCStr(cptr, key, key.length, value, value.length);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
+            if (status == Status.SDBP_API_ERROR)
+                checkStatus(status, "Batch limit exceeded");
+            else
+                checkStatus(status);
         }
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -709,7 +712,10 @@ public class Client
         int status = scaliendb_client.SDBP_Delete(cptr, key);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
+            if (status == Status.SDBP_API_ERROR)
+                checkStatus(status, "Batch limit exceeded");
+            else
+                checkStatus(status);
         }
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -724,7 +730,10 @@ public class Client
         int status = scaliendb_client.SDBP_DeleteCStr(cptr, key, key.length);
         if (status < 0) {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            checkStatus(status);
+            if (status == Status.SDBP_API_ERROR)
+                checkStatus(status, "Batch limit exceeded");
+            else
+                checkStatus(status);
         }
         
         result = new Result(scaliendb_client.SDBP_GetResult(cptr));
