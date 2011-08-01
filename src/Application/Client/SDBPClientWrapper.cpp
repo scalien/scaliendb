@@ -48,7 +48,7 @@ void SDBP_NodeParams::AddNode(const std::string& node)
 
 SDBP_Buffer::SDBP_Buffer()
 {
-    data = (intptr_t) NULL;
+    data = (intptr_t)(void*)NULL;
     len = 0;
 }
 

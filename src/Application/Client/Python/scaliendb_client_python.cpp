@@ -4759,10 +4759,11 @@ fail:
 SWIGINTERN PyObject *_wrap_SDBP_Buffer_data_set(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
-  void *arg2 = (void *) 0 ;
+  intptr_t arg2 ;
   void *argp1 = 0 ;
   int res1 = 0 ;
-  int res2 ;
+  int val2 ;
+  int ecode2 = 0 ;
   PyObject * obj0 = 0 ;
   PyObject * obj1 = 0 ;
   
@@ -4772,10 +4773,11 @@ SWIGINTERN PyObject *_wrap_SDBP_Buffer_data_set(PyObject *SWIGUNUSEDPARM(self), 
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_Buffer_data_set" "', argument " "1"" of type '" "SDBP_Buffer *""'"); 
   }
   arg1 = reinterpret_cast< SDBP_Buffer * >(argp1);
-  res2 = SWIG_ConvertPtr(obj1,SWIG_as_voidptrptr(&arg2), 0, SWIG_POINTER_DISOWN);
-  if (!SWIG_IsOK(res2)) {
-    SWIG_exception_fail(SWIG_ArgError(res2), "in method '" "SDBP_Buffer_data_set" "', argument " "2"" of type '" "void *""'"); 
-  }
+  ecode2 = SWIG_AsVal_int(obj1, &val2);
+  if (!SWIG_IsOK(ecode2)) {
+    SWIG_exception_fail(SWIG_ArgError(ecode2), "in method '" "SDBP_Buffer_data_set" "', argument " "2"" of type '" "intptr_t""'");
+  } 
+  arg2 = static_cast< intptr_t >(val2);
   if (arg1) (arg1)->data = arg2;
   
   resultobj = SWIG_Py_Void();
@@ -4788,7 +4790,7 @@ fail:
 SWIGINTERN PyObject *_wrap_SDBP_Buffer_data_get(PyObject *SWIGUNUSEDPARM(self), PyObject *args) {
   PyObject *resultobj = 0;
   SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
-  void *result = 0 ;
+  intptr_t result;
   void *argp1 = 0 ;
   int res1 = 0 ;
   PyObject * obj0 = 0 ;
@@ -4799,8 +4801,8 @@ SWIGINTERN PyObject *_wrap_SDBP_Buffer_data_get(PyObject *SWIGUNUSEDPARM(self), 
     SWIG_exception_fail(SWIG_ArgError(res1), "in method '" "SDBP_Buffer_data_get" "', argument " "1"" of type '" "SDBP_Buffer *""'"); 
   }
   arg1 = reinterpret_cast< SDBP_Buffer * >(argp1);
-  result = (void *) ((arg1)->data);
-  resultobj = SWIG_NewPointerObj(SWIG_as_voidptr(result), SWIGTYPE_p_void, 0 |  0 );
+  result = (intptr_t) ((arg1)->data);
+  resultobj = SWIG_From_int(static_cast< int >(result));
   return resultobj;
 fail:
   return NULL;
