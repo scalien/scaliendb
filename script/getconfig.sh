@@ -55,12 +55,12 @@ fi
 # find out nodeID by endpoints
 NODEID_ENDPOINT=$(echo | awk "BEGIN { controllers=\"$CONTROLLERS\"; endpoints=\"$ENDPOINTS\" }"\
 'END { 
-	gsub(/[[:space:]]*/, "", controllers);
+	gsub(/[ \t]+/, "", controllers);
 	nc = split(controllers, c, ",");
 	ne = split(endpoints, e, " ");
 	for (i = 1; i <= nc; i++) { 
 		for (j = 1; j < ne; j++) {
-			gsub(/[[:space:]]*/, "", e[j]);
+			gsub(/[ \t]+/, "", e[j]);
 			if (c[i] == e[j]) { 
 				print i-1, e[j]; 
 				exit;
