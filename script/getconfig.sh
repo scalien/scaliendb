@@ -59,7 +59,7 @@ NODEID_ENDPOINT=$(echo | awk "BEGIN { controllers=\"$CONTROLLERS\"; endpoints=\"
 	nc = split(controllers, c, ",");
 	ne = split(endpoints, e, " ");
 	for (i = 1; i <= nc; i++) { 
-		for (j = 1; j < ne; j++) {
+		for (j = 1; j <= ne; j++) {
 			gsub(/[ \t]+/, "", e[j]);
 			if (c[i] == e[j]) { 
 				print i-1, e[j]; 
