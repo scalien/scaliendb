@@ -53,7 +53,7 @@ if [ "$CONTROLLERS" = "" ]; then
 fi
 
 # find out nodeID by endpoints
-NODEID=$(echo | awk "BEGIN { controllers=\"$CONTROLLERS\"; endpoints=\"$ENDPOINTS\" }"\
+NODEID_ENDPOINT=$(echo | awk "BEGIN { controllers=\"$CONTROLLERS\"; endpoints=\"$ENDPOINTS\" }"\
 'END { 
 	gsub(/[[:space:]]*/, "", controllers);
 	nc = split(controllers, c, ",");
@@ -62,18 +62,31 @@ NODEID=$(echo | awk "BEGIN { controllers=\"$CONTROLLERS\"; endpoints=\"$ENDPOINT
 		for (j = 1; j < ne; j++) {
 			gsub(/[[:space:]]*/, "", e[j]);
 			if (c[i] == e[j]) { 
-				print i-1; 
+				print i-1, e[j]; 
 				exit;
 			}
 		}
 	}
 }')
 
-if [ "$NODEID" = "" ]; then
+if [ "$NODEID_ENDPOINT" = "" ]; then
 	echo "Cannot find the given endpoint in config file!"
 	exit 1
 fi
 
-# replace nodeID in config file
+NODEID=$(echo $NODEID_ENDPOINT | sed 's/\([[:digit:]]*\) \(.*\)/\1/')
+if [ "$NODEID" = "" ]; then
+	echo "Cannot find the nodeID in config file!"
+	exit 1
+fi
+
+ENDPOINT=$(echo $NODEID_ENDPOINT | sed 's/\([[:digit:]]*\) \(.*\)/\2/')
+if [ "$ENDPOINT" = "" ]; then
+	echo "Cannot find the endpoint in config file!"
+	exit 1
+fi
+
+# replace nodeID and endpoint in config file
 cat $TEMP_CONFIG_FILE \
-| sed "s/^[^#[:space:]]*nodeID[[:space:]]*=[[:space:]]*[[:digit:]]*/nodeID = $NODEID/"
+| sed "s/^[^#[:space:]]*nodeID[[:space:]]*=[[:space:]]*[[:digit:]]*.*/nodeID = $NODEID/" \
+| sed "s/^[^#[:space:]]*endpoint[[:space:]]*=[[:space:]].*$/endpoint = $ENDPOINT/"
