@@ -59,8 +59,8 @@ public:
 
 private:
     Node**                  buckets;
-    int                     bucketSize;
-    int                     num;
+    size_t                  bucketSize;
+    size_t                  num;
     
     size_t                  GetHash(K& key);
 };
@@ -88,7 +88,7 @@ HashMap<K, V>::~HashMap()
 template<class K, class V>
 void HashMap<K, V>::Clear()
 {
-    int     i;
+    size_t	i;
     Node*   node;
     Node*   next;
     
@@ -205,7 +205,7 @@ void HashMap<K, V>::Remove(K& key)
 template<class K, class V>
 HashNode<K, V>* HashMap<K, V>::First()
 {
-    int     i;
+    size_t  i;
     
     for (i = 0; i < bucketSize; i++)
     {
@@ -219,7 +219,7 @@ HashNode<K, V>* HashMap<K, V>::First()
 template<class K, class V>
 HashNode<K, V>* HashMap<K, V>::Next(Node* it)
 {
-    int     i;
+    size_t  i;
     size_t  hash;
     
     if (it->next)
