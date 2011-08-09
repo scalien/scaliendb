@@ -408,13 +408,13 @@ class scaliendb_clientPINVOKE {
   public static extern string SDBP_GetDatabaseNameAt(HandleRef jarg1, uint jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetNumTables")]
-  public static extern uint SDBP_GetNumTables(HandleRef jarg1);
+  public static extern uint SDBP_GetNumTables(HandleRef jarg1, ulong jarg2);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetTableIDAt")]
-  public static extern ulong SDBP_GetTableIDAt(HandleRef jarg1, uint jarg2);
+  public static extern ulong SDBP_GetTableIDAt(HandleRef jarg1, ulong jarg2, uint jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetTableNameAt")]
-  public static extern string SDBP_GetTableNameAt(HandleRef jarg1, uint jarg2);
+  public static extern string SDBP_GetTableNameAt(HandleRef jarg1, ulong jarg2, uint jarg3);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Get")]
   public static extern int SDBP_Get(HandleRef jarg1, ulong jarg2, string jarg3);

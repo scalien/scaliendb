@@ -1252,41 +1252,47 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetDatabaseNameAt(void * jarg1, unsign
 }
 
 
-SWIGEXPORT unsigned int SWIGSTDCALL CSharp_SDBP_GetNumTables(void * jarg1) {
+SWIGEXPORT unsigned int SWIGSTDCALL CSharp_SDBP_GetNumTables(void * jarg1, unsigned long long jarg2) {
   unsigned int jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
   unsigned int result;
   
   arg1 = (ClientObj)jarg1; 
-  result = (unsigned int)SDBP_GetNumTables(arg1);
+  arg2 = (uint64_t)jarg2; 
+  result = (unsigned int)SDBP_GetNumTables(arg1,arg2);
   jresult = result; 
   return jresult;
 }
 
 
-SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetTableIDAt(void * jarg1, unsigned int jarg2) {
+SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetTableIDAt(void * jarg1, unsigned long long jarg2, unsigned int jarg3) {
   unsigned long long jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
-  unsigned int arg2 ;
+  uint64_t arg2 ;
+  unsigned int arg3 ;
   uint64_t result;
   
   arg1 = (ClientObj)jarg1; 
-  arg2 = (unsigned int)jarg2; 
-  result = (uint64_t)SDBP_GetTableIDAt(arg1,arg2);
+  arg2 = (uint64_t)jarg2; 
+  arg3 = (unsigned int)jarg3; 
+  result = (uint64_t)SDBP_GetTableIDAt(arg1,arg2,arg3);
   jresult = result; 
   return jresult;
 }
 
 
-SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetTableNameAt(void * jarg1, unsigned int jarg2) {
+SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetTableNameAt(void * jarg1, unsigned long long jarg2, unsigned int jarg3) {
   char * jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
-  unsigned int arg2 ;
+  uint64_t arg2 ;
+  unsigned int arg3 ;
   std::string result;
   
   arg1 = (ClientObj)jarg1; 
-  arg2 = (unsigned int)jarg2; 
-  result = SDBP_GetTableNameAt(arg1,arg2);
+  arg2 = (uint64_t)jarg2; 
+  arg3 = (unsigned int)jarg3; 
+  result = SDBP_GetTableNameAt(arg1,arg2,arg3);
   jresult = SWIG_csharp_string_callback((&result)->c_str()); 
   return jresult;
 }

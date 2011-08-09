@@ -134,9 +134,9 @@ unsigned        SDBP_GetNumDatabases(ClientObj client);
 uint64_t        SDBP_GetDatabaseIDAt(ClientObj client, unsigned n);
 std::string     SDBP_GetDatabaseNameAt(ClientObj client, unsigned n);
 
-unsigned        SDBP_GetNumTables(ClientObj client);
-uint64_t        SDBP_GetTableIDAt(ClientObj client, unsigned n);
-std::string     SDBP_GetTableNameAt(ClientObj client, unsigned n);
+unsigned        SDBP_GetNumTables(ClientObj client, uint64_t databaseID);
+uint64_t        SDBP_GetTableIDAt(ClientObj client, uint64_t databaseID, unsigned n);
+std::string     SDBP_GetTableNameAt(ClientObj client, uint64_t databaseID, unsigned n);
 
 /*
 ===============================================================================================

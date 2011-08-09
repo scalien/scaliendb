@@ -676,58 +676,72 @@ std::string SDBP_GetDatabaseNameAt(ClientObj client_, unsigned n)
     return "";
 }
 
-unsigned SDBP_GetNumTables(ClientObj client_)
+unsigned SDBP_GetNumTables(ClientObj client_, uint64_t databaseID)
 {
     Client*             client = (Client*) client_;
     ConfigState*        configState;
+    ConfigDatabase*     configDatabase;
     
     configState = client->GetConfigState();
     if (configState == NULL)
         return 0;
     
-    return configState->tables.GetLength();
+    configDatabase = configState->GetDatabase(databaseID);
+    
+    return configDatabase->tables.GetLength();
 }
 
-uint64_t SDBP_GetTableIDAt(ClientObj client_, unsigned n)
+uint64_t SDBP_GetTableIDAt(ClientObj client_, uint64_t databaseID, unsigned n)
 {
     Client*             client = (Client*) client_;
     ConfigState*        configState;
+    ConfigDatabase*     configDatabase;
     ConfigTable*        configTable;
     unsigned            i;
+    uint64_t*           it;
     
     configState = client->GetConfigState();
     if (configState == NULL)
         return 0;
 
+    configDatabase = configState->GetDatabase(databaseID);
+
     i = 0;
-    FOREACH (configTable, configState->tables) 
+    FOREACH (it, configDatabase->tables) 
     {
         if (i == n)
+        {
+            configTable = configState->GetTable(*it);
             return configTable->tableID;
-
+        }
         i++;
     }
     
     return 0;
 }
 
-std::string SDBP_GetTableNameAt(ClientObj client_, unsigned n)
+std::string SDBP_GetTableNameAt(ClientObj client_, uint64_t databaseID, unsigned n)
 {
     Client*             client = (Client*) client_;
     ConfigState*        configState;
+    ConfigDatabase*     configDatabase;
     ConfigTable*        configTable;
     std::string         ret;
     unsigned            i;
+    uint64_t*           it;
     
     configState = client->GetConfigState();
     if (configState == NULL)
         return "";
     
+    configDatabase = configState->GetDatabase(databaseID);
+
     i = 0;
-    FOREACH (configTable, configState->tables) 
+    FOREACH (it, configDatabase->tables) 
     {
         if (i == n)
         {
+            configTable = configState->GetTable(*it);
             ret.assign(configTable->name.GetBuffer(), configTable->name.GetLength());
             return ret;
         }

@@ -264,18 +264,18 @@ public class scaliendb_client {
     return ret;
   }
 
-  public unsafe static uint SDBP_GetNumTables(SWIGTYPE_p_void client) {
-    uint ret = scaliendb_clientPINVOKE.SDBP_GetNumTables(SWIGTYPE_p_void.getCPtr(client));
+  public unsafe static uint SDBP_GetNumTables(SWIGTYPE_p_void client, ulong databaseID) {
+    uint ret = scaliendb_clientPINVOKE.SDBP_GetNumTables(SWIGTYPE_p_void.getCPtr(client), databaseID);
     return ret;
   }
 
-  public unsafe static ulong SDBP_GetTableIDAt(SWIGTYPE_p_void client, uint n) {
-    ulong ret = scaliendb_clientPINVOKE.SDBP_GetTableIDAt(SWIGTYPE_p_void.getCPtr(client), n);
+  public unsafe static ulong SDBP_GetTableIDAt(SWIGTYPE_p_void client, ulong databaseID, uint n) {
+    ulong ret = scaliendb_clientPINVOKE.SDBP_GetTableIDAt(SWIGTYPE_p_void.getCPtr(client), databaseID, n);
     return ret;
   }
 
-  public unsafe static string SDBP_GetTableNameAt(SWIGTYPE_p_void client, uint n) {
-    string ret = scaliendb_clientPINVOKE.SDBP_GetTableNameAt(SWIGTYPE_p_void.getCPtr(client), n);
+  public unsafe static string SDBP_GetTableNameAt(SWIGTYPE_p_void client, ulong databaseID, uint n) {
+    string ret = scaliendb_clientPINVOKE.SDBP_GetTableNameAt(SWIGTYPE_p_void.getCPtr(client), databaseID, n);
     return ret;
   }
 
