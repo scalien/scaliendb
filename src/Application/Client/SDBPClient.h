@@ -41,7 +41,7 @@ public:
     //
     // settings
     //
-    void                    SetConsistencyLevel(int consistencyLevel);
+    void                    SetConsistencyMode(int consistencyMode);
     void					SetBatchMode(int batchMode);
     void                    SetBatchLimit(unsigned batchLimit);
 
@@ -201,7 +201,7 @@ private:
     bool                    isTableSet;
     uint64_t                tableID;
     bool                    isReading;
-    int                     consistencyLevel;
+    int                     consistencyMode;
     int						batchMode;
     uint64_t                highestSeenPaxosID;
 

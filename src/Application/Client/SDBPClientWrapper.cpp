@@ -434,11 +434,11 @@ void SDBP_WaitConfigState(ClientObj client_)
     client->WaitConfigState();
 }
 
-void SDBP_SetConsistencyLevel(ClientObj client_, int consistencyLevel)
+void SDBP_SetConsistencyMode(ClientObj client_, int consistencyMode)
 {
     Client* client = (Client*) client_;
 
-    return client->SetConsistencyLevel(consistencyLevel);
+    return client->SetConsistencyMode(consistencyMode);
 }
 
 void SDBP_SetBatchMode(ClientObj client_, int batchMode)

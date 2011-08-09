@@ -259,7 +259,7 @@ int Client::Init(int nodec, const char* nodev[])
     masterTime = 0;
     commandID = 0;
     masterCommandID = 0;
-    consistencyLevel = SDBP_CONSISTENCY_STRICT;
+    consistencyMode = SDBP_CONSISTENCY_STRICT;
     highestSeenPaxosID = 0;
         
     return SDBP_SUCCESS;
@@ -304,9 +304,9 @@ void Client::SetBatchLimit(unsigned batchLimit_)
     batchLimit = batchLimit_;
 }
 
-void Client::SetConsistencyLevel(int consistencyLevel_)
+void Client::SetConsistencyMode(int consistencyMode_)
 {
-    consistencyLevel = consistencyLevel_;
+    consistencyMode = consistencyMode_;
 }
 
 void Client::SetBatchMode(int batchMode_)
@@ -1270,7 +1270,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
         ASSERT_FAIL();
     
     // with consistency level set to STRICT, send requests only to primary shard server
-    if (consistencyLevel == SDBP_CONSISTENCY_STRICT && quorum->primaryID != conn->GetNodeID())
+    if (consistencyMode == SDBP_CONSISTENCY_STRICT && quorum->primaryID != conn->GetNodeID())
         return;
     
     // load balancing in relaxed consistency levels
@@ -1339,7 +1339,7 @@ void Client::SendQuorumRequests()
         i++;
     }
     
-    if (consistencyLevel != SDBP_CONSISTENCY_STRICT)
+    if (consistencyMode != SDBP_CONSISTENCY_STRICT)
     {
         // Fisher–Yates shuffle, modern version
         for (i = shardConnections.GetCount() - 1; i >= 1; i--)
@@ -1536,7 +1536,7 @@ unsigned Client::GetMaxQuorumRequests(
     // load balancing in relaxed consistency levels
     maxRequests = 0;
     totalRequests = 0;
-    if (consistencyLevel == SDBP_CONSISTENCY_ANY || consistencyLevel == SDBP_CONSISTENCY_RYW)
+    if (consistencyMode == SDBP_CONSISTENCY_ANY || consistencyMode == SDBP_CONSISTENCY_RYW)
     {
         totalRequests = qrequests->GetLength();
         
@@ -1558,11 +1558,11 @@ unsigned Client::GetMaxQuorumRequests(
 
 uint64_t Client::GetRequestPaxosID()
 {
-    if (consistencyLevel == SDBP_CONSISTENCY_ANY)
+    if (consistencyMode == SDBP_CONSISTENCY_ANY)
         return 0;
-    else if (consistencyLevel == SDBP_CONSISTENCY_RYW)
+    else if (consistencyMode == SDBP_CONSISTENCY_RYW)
         return highestSeenPaxosID;
-    else if (consistencyLevel == SDBP_CONSISTENCY_STRICT)
+    else if (consistencyMode == SDBP_CONSISTENCY_STRICT)
         return 1;
     else
         ASSERT_FAIL();

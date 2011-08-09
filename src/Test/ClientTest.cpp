@@ -781,7 +781,7 @@ TEST_DEFINE(TestClientBatchedGet)
         TEST_CLIENT_FAIL();
 
     client.SetMasterTimeout(120000);
-    client.SetConsistencyLevel(SDBP_CONSISTENCY_ANY);
+    client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
     ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
@@ -880,7 +880,7 @@ TEST_DEFINE(TestClientBatchedGet2)
         TEST_CLIENT_FAIL();
 
     client.SetMasterTimeout(10000);
-    client.SetConsistencyLevel(SDBP_CONSISTENCY_RYW);
+    client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
     ret = client.UseDatabase(databaseName);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
