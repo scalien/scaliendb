@@ -155,7 +155,7 @@ int             SDBP_AddCStr(ClientObj client_, uint64_t tableID, char* key, int
 int             SDBP_Delete(ClientObj client, uint64_t tableID, const std::string& key);
 int             SDBP_DeleteCStr(ClientObj client_, uint64_t tableID, char* key, int len);
 int             SDBP_ListKeys(
-                 ClientObj client, 
+                 ClientObj client, uint64_t tableID,
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
                  unsigned count, bool skip);
 int             SDBP_ListKeysCStr(

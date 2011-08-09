@@ -607,25 +607,25 @@ SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_Buffer_SetBuffer(void * jarg1, char * ja
 }
 
 
-SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_Buffer_data_set(void * jarg1, void * jarg2) {
+SWIGEXPORT void SWIGSTDCALL CSharp_SDBP_Buffer_data_set(void * jarg1, int jarg2) {
   SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
-  void *arg2 = (void *) 0 ;
+  intptr_t arg2 ;
   
   arg1 = (SDBP_Buffer *)jarg1; 
-  arg2 = (void *)jarg2; 
+  arg2 = (intptr_t)jarg2; 
   if (arg1) (arg1)->data = arg2;
   
 }
 
 
-SWIGEXPORT void * SWIGSTDCALL CSharp_SDBP_Buffer_data_get(void * jarg1) {
-  void * jresult ;
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_Buffer_data_get(void * jarg1) {
+  int jresult ;
   SDBP_Buffer *arg1 = (SDBP_Buffer *) 0 ;
-  void *result = 0 ;
+  intptr_t result;
   
   arg1 = (SDBP_Buffer *)jarg1; 
-  result = (void *) ((arg1)->data);
-  jresult = (void *)result; 
+  result = (intptr_t) ((arg1)->data);
+  jresult = result; 
   return jresult;
 }
 
@@ -1465,23 +1465,19 @@ SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_DeleteCStr(void * jarg1, unsigned long lo
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_ListKeys(void * jarg1, char * jarg2, char * jarg3, char * jarg4, unsigned int jarg5, unsigned int jarg6) {
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_ListKeys(void * jarg1, unsigned long long jarg2, char * jarg3, char * jarg4, char * jarg5, unsigned int jarg6, unsigned int jarg7) {
   int jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
+  uint64_t arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  unsigned int arg5 ;
-  bool arg6 ;
+  std::string *arg5 = 0 ;
+  unsigned int arg6 ;
+  bool arg7 ;
   int result;
   
   arg1 = (ClientObj)jarg1; 
-  if (!jarg2) {
-    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
-    return 0;
-  }
-  std::string arg2_str(jarg2);
-  arg2 = &arg2_str; 
+  arg2 = (uint64_t)jarg2; 
   if (!jarg3) {
     SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
     return 0;
@@ -1494,9 +1490,15 @@ SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_ListKeys(void * jarg1, char * jarg2, char
   }
   std::string arg4_str(jarg4);
   arg4 = &arg4_str; 
-  arg5 = (unsigned int)jarg5; 
-  arg6 = jarg6 ? true : false; 
-  result = (int)SDBP_ListKeys(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,arg6);
+  if (!jarg5) {
+    SWIG_CSharpSetPendingExceptionArgument(SWIG_CSharpArgumentNullException, "null string", 0);
+    return 0;
+  }
+  std::string arg5_str(jarg5);
+  arg5 = &arg5_str; 
+  arg6 = (unsigned int)jarg6; 
+  arg7 = jarg7 ? true : false; 
+  result = (int)SDBP_ListKeys(arg1,arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,arg6,arg7);
   jresult = result; 
   return jresult;
 }
@@ -1729,3 +1731,4 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetDebugString() {
 #ifdef __cplusplus
 }
 #endif
+
