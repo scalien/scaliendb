@@ -426,7 +426,7 @@ class scaliendb_clientPINVOKE {
   public static extern int SDBP_Set(HandleRef jarg1, ulong jarg2, string jarg3, string jarg4);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_SetCStr")]
-  public static extern int SDBP_SetCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, ulong jarg4, int jarg5, IntPtr jarg6, int jarg7);
+  public static extern int SDBP_SetCStr(HandleRef jarg1, ulong jarg2, IntPtr jarg3, int jarg4, IntPtr jarg5, int jarg6);
 
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_Add")]
   public static extern int SDBP_Add(HandleRef jarg1, ulong jarg2, string jarg3, long jarg4);

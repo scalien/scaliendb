@@ -149,7 +149,7 @@ std::string     SDBP_GetTableNameAt(ClientObj client, uint64_t databaseID, unsig
 int             SDBP_Get(ClientObj client, uint64_t tableID, const std::string& key);
 int             SDBP_GetCStr(ClientObj client, uint64_t tableID, char* key, int len);
 int             SDBP_Set(ClientObj client, uint64_t tableID, const std::string& key, const std::string& value);
-int             SDBP_SetCStr(ClientObj client_, uint64_t tableID, char* key, uint64_t tableID, int lenKey, char* value, int lenValue);
+int             SDBP_SetCStr(ClientObj client_, uint64_t tableID, char* key, int lenKey, char* value, int lenValue);
 int             SDBP_Add(ClientObj client, uint64_t tableID, const std::string& key, int64_t number);
 int             SDBP_AddCStr(ClientObj client_, uint64_t tableID, char* key, int len, int64_t number);
 int             SDBP_Delete(ClientObj client, uint64_t tableID, const std::string& key);

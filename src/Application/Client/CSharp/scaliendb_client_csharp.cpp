@@ -1365,25 +1365,23 @@ SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_Set(void * jarg1, unsigned long long jarg
 }
 
 
-SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_SetCStr(void * jarg1, unsigned long long jarg2, char * jarg3, unsigned long long jarg4, int jarg5, char * jarg6, int jarg7) {
+SWIGEXPORT int SWIGSTDCALL CSharp_SDBP_SetCStr(void * jarg1, unsigned long long jarg2, char * jarg3, int jarg4, char * jarg5, int jarg6) {
   int jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
   uint64_t arg2 ;
   char *arg3 = (char *) 0 ;
-  uint64_t arg4 ;
-  int arg5 ;
-  char *arg6 = (char *) 0 ;
-  int arg7 ;
+  int arg4 ;
+  char *arg5 = (char *) 0 ;
+  int arg6 ;
   int result;
   
   arg1 = (ClientObj)jarg1; 
   arg2 = (uint64_t)jarg2; 
   arg3 = (char *)jarg3; 
-  arg4 = (uint64_t)jarg4; 
-  arg5 = (int)jarg5; 
-  arg6 = (char *)jarg6; 
-  arg7 = (int)jarg7; 
-  result = (int)SDBP_SetCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  arg4 = (int)jarg4; 
+  arg5 = (char *)jarg5; 
+  arg6 = (int)jarg6; 
+  result = (int)SDBP_SetCStr(arg1,arg2,arg3,arg4,arg5,arg6);
   jresult = result; 
   return jresult;
 }

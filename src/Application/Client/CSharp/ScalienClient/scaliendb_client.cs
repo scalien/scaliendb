@@ -296,8 +296,8 @@ public class scaliendb_client {
     return ret;
   }
 
-  public unsafe static int SDBP_SetCStr(SWIGTYPE_p_void client_, ulong arg1, IntPtr key, ulong arg3, int lenKey, IntPtr value, int lenValue) {
-    int ret = scaliendb_clientPINVOKE.SDBP_SetCStr(SWIGTYPE_p_void.getCPtr(client_), arg1, key, arg3, lenKey, value, lenValue);
+  public unsafe static int SDBP_SetCStr(SWIGTYPE_p_void client_, ulong tableID, IntPtr key, int lenKey, IntPtr value, int lenValue) {
+    int ret = scaliendb_clientPINVOKE.SDBP_SetCStr(SWIGTYPE_p_void.getCPtr(client_), tableID, key, lenKey, value, lenValue);
     return ret;
   }
 
