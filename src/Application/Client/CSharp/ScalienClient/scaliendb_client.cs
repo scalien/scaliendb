@@ -164,16 +164,6 @@ public class scaliendb_client {
     return ret;
   }
 
-  public unsafe static ulong SDBP_GetCurrentDatabaseID(SWIGTYPE_p_void client) {
-    ulong ret = scaliendb_clientPINVOKE.SDBP_GetCurrentDatabaseID(SWIGTYPE_p_void.getCPtr(client));
-    return ret;
-  }
-
-  public unsafe static ulong SDBP_GetCurrentTableID(SWIGTYPE_p_void client) {
-    ulong ret = scaliendb_clientPINVOKE.SDBP_GetCurrentTableID(SWIGTYPE_p_void.getCPtr(client));
-    return ret;
-  }
-
   public unsafe static string SDBP_GetJSONConfigState(SWIGTYPE_p_void client) {
     string ret = scaliendb_clientPINVOKE.SDBP_GetJSONConfigState(SWIGTYPE_p_void.getCPtr(client));
     return ret;

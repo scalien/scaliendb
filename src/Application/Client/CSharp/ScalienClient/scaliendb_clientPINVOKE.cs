@@ -347,12 +347,6 @@ class scaliendb_clientPINVOKE {
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetMasterTimeout")]
   public static extern ulong SDBP_GetMasterTimeout(HandleRef jarg1);
 
-  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetCurrentDatabaseID")]
-  public static extern ulong SDBP_GetCurrentDatabaseID(HandleRef jarg1);
-
-  [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetCurrentTableID")]
-  public static extern ulong SDBP_GetCurrentTableID(HandleRef jarg1);
-
   [DllImport("scaliendb_client", EntryPoint="CSharp_SDBP_GetJSONConfigState")]
   public static extern string SDBP_GetJSONConfigState(HandleRef jarg1);
 

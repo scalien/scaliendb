@@ -100,8 +100,6 @@ void            SDBP_SetMasterTimeout(ClientObj client, uint64_t timeout);
 uint64_t        SDBP_GetGlobalTimeout(ClientObj client);
 uint64_t        SDBP_GetMasterTimeout(ClientObj client);
 
-uint64_t        SDBP_GetCurrentDatabaseID(ClientObj client);
-uint64_t        SDBP_GetCurrentTableID(ClientObj client);
 std::string     SDBP_GetJSONConfigState(ClientObj client);
 void            SDBP_WaitConfigState(ClientObj client);
 
