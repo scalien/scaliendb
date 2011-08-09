@@ -670,14 +670,14 @@ namespace Scalien
         /// Begin a client-side transaction.
         /// </summary>
         /// <remarks>
-        /// Return a <see cref="SubmitGuard"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.
+        /// Return a <see cref="Submitter"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.
         /// </remarks>
-        /// <returns>A <see cref="SubmitGuard"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.</returns>
+        /// <returns>A <see cref="Submitter"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.</returns>
         /// <seealso cref="Submit()"/>
         /// <seealso cref="Rollback()"/>
-        public SubmitGuard Begin()
+        public Submitter Begin()
         {
-            return new SubmitGuard(this);
+            return new Submitter(this);
         }
 
         /// <summary>

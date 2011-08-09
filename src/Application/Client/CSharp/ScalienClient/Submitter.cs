@@ -3,8 +3,8 @@
 namespace Scalien
 {
     /// <summary>
-    /// SubmitGuard is a conveniance class returned by <see cref="Client.Begin()"/>
-    /// to ensure that <see cref="Client.Submit()"/> is called when the SubmitGuard goes
+    /// Submitter is a convenience class returned by <see cref="Client.Begin()"/>
+    /// to ensure that <see cref="Client.Submit()"/> is called when the Submitter goes
     /// out of scope.
     /// </summary>
     /// <remarks>
@@ -15,7 +15,7 @@ namespace Scalien
     /// be called explicitly to make sure the commands sent and executed on the server.
     /// </para>
     /// <para>
-    /// In cases like this, use a SubmitGuard to make sure that <see cref="Client.Submit()"/>
+    /// In cases like this, use a Submitter to make sure that <see cref="Client.Submit()"/>
     /// is automatically called when it goes out of scope.
     /// </para>
     /// </remarks>
@@ -30,12 +30,12 @@ namespace Scalien
     /// <seealso cref="Client.Begin()"/>
     /// <seealso cref="Client.Submit()"/>
     /// <seealso cref="Client.Rollback()"/>
-    public class SubmitGuard : IDisposable
+    public class Submitter : IDisposable
     {
         Client client;
         bool cancelled = false;
 
-        internal SubmitGuard(Client client)
+        internal Submitter(Client client)
         {
             this.client = client;
         }

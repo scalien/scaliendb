@@ -315,7 +315,7 @@ namespace Scalien
 
         #endregion
 
-        #region Retrieve helpers: Sequence, SubmitGuard
+        #region Retrieve helpers: Sequence, Submitter
 
         /// <summary>
         /// Retrieve a <see cref="Scalien.Sequence"/> backed by a key-value in this table.
