@@ -972,30 +972,6 @@ SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetMasterTimeout(void * ja
 }
 
 
-SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetCurrentDatabaseID(void * jarg1) {
-  unsigned long long jresult ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t result;
-  
-  arg1 = (ClientObj)jarg1; 
-  result = (uint64_t)SDBP_GetCurrentDatabaseID(arg1);
-  jresult = result; 
-  return jresult;
-}
-
-
-SWIGEXPORT unsigned long long SWIGSTDCALL CSharp_SDBP_GetCurrentTableID(void * jarg1) {
-  unsigned long long jresult ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t result;
-  
-  arg1 = (ClientObj)jarg1; 
-  result = (uint64_t)SDBP_GetCurrentTableID(arg1);
-  jresult = result; 
-  return jresult;
-}
-
-
 SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetJSONConfigState(void * jarg1) {
   char * jresult ;
   ClientObj arg1 = (ClientObj) 0 ;
