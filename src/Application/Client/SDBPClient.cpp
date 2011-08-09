@@ -67,9 +67,6 @@ Mutex   globalMutex;
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
-    if (!isDatabaseSet || !isTableSet)              \
-        return SDBP_BADSCHEMA;                      \
-                                                    \
     ASSERT(configState != NULL);                    \
     req = new Request;                              \
     req->op(NextCommandID(), configState->paxosID,  \
@@ -87,9 +84,6 @@ Mutex   globalMutex;
     Request*    it;                                 \
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
-                                                    \
-    if (!isDatabaseSet || !isTableSet)              \
-        return SDBP_BADSCHEMA;                      \
                                                     \
     ASSERT(configState != NULL);                    \
     req = new Request;                              \
@@ -199,10 +193,7 @@ Client::Client()
     commandID = 0;
     masterCommandID = 0;
     configState = NULL;
-    isDatabaseSet = false;
     databaseID = 0;
-    isTableSet = false;
-    tableID = 0;
     numControllers = 0;
     globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
@@ -352,16 +343,6 @@ uint64_t Client::GetMasterTimeout()
     return masterTimeout.GetDelay();
 }
 
-uint64_t Client::GetCurrentDatabaseID()
-{
-    return databaseID;
-}
-
-uint64_t Client::GetCurrentTableID()
-{
-    return tableID;
-}
-
 ConfigState* Client::GetConfigState()
 {
     Log_Trace();
@@ -426,173 +407,6 @@ int Client::GetCommandStatus()
     return result->GetCommandStatus();
 }
 
-// return Command status
-int Client::GetDatabaseID(ReadBuffer& name, uint64_t& databaseID)
-{
-    ConfigDatabase* database;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-    
-    result->Close();
-    CLIENT_MUTEX_UNLOCK();
-    if (!configState)
-        EventLoop();
-    else
-        EventLoop(0);
-    CLIENT_MUTEX_LOCK();
-
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    database = configState->GetDatabase(name);
-    if (!database)
-        return SDBP_BADSCHEMA;
-    
-    databaseID = database->databaseID;
-    return SDBP_SUCCESS;
-}
-
-int Client::GetDatabaseName(uint64_t& databaseID, ReadBuffer& name)
-{
-    ConfigDatabase* database;
-
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-    
-    result->Close();
-    CLIENT_MUTEX_UNLOCK();
-    if (!configState)
-        EventLoop();
-    else
-        EventLoop(0);
-    CLIENT_MUTEX_LOCK();
-
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-    
-    database = configState->GetDatabase(databaseID);
-    if (!database)
-        return SDBP_BADSCHEMA;
-    
-    name = database->name;
-    return SDBP_SUCCESS;
-}
-
-// return Command status
-int Client::GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID)
-{
-    ConfigTable*    table;
-    
-    CLIENT_MUTEX_GUARD_DECLARE();
-    VALIDATE_CONTROLLER();
-    
-    result->Close();
-    CLIENT_MUTEX_UNLOCK();
-    if (!configState)
-        EventLoop();
-    else
-        EventLoop(0);
-    CLIENT_MUTEX_LOCK();
-
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-
-    table = configState->GetTable(databaseID, name);
-    if (!table)
-        return SDBP_BADSCHEMA;
-    
-    tableID = table->tableID;
-    return SDBP_SUCCESS;
-}
-
-int Client::UseDatabaseID(uint64_t databaseID_)
-{
-    VALIDATE_CONTROLLER();
-
-    isDatabaseSet = true;
-    databaseID = databaseID_;
-    
-    return SDBP_SUCCESS;
-}
-
-int Client::UseDatabase(ReadBuffer& name)
-{
-    int         ret;
-
-    VALIDATE_CONTROLLER();
-    
-    isDatabaseSet = false;
-    isTableSet = false;
-    ret = GetDatabaseID(name, databaseID);
-    if (ret != SDBP_SUCCESS)
-        return ret;
-    
-    isDatabaseSet = true;
-    return SDBP_SUCCESS;
-}
-
-int Client::UseTableID(uint64_t tableID_)
-{
-    VALIDATE_CONTROLLER();
-
-    if (!isDatabaseSet)
-        return SDBP_BADSCHEMA;
-
-    isTableSet = true;
-    tableID = tableID_;
-    
-    return SDBP_SUCCESS;
-}
-
-int Client::UseTable(ReadBuffer& name)
-{
-    int         ret;
-
-    VALIDATE_CONTROLLER();
-
-    if (!isDatabaseSet)
-        return SDBP_BADSCHEMA;
-
-    isTableSet = false;
-    ret = GetTableID(name, databaseID, tableID);
-    if (ret != SDBP_SUCCESS)
-        return ret;
-
-    isTableSet = true;
-    return SDBP_SUCCESS;
-}
-
-int Client::CreateQuorum(const ReadBuffer& name, List<uint64_t>& nodes)
-{
-    CLIENT_SCHEMA_COMMAND(CreateQuorum, (ReadBuffer&) name, nodes);
-}
-
-int Client::RenameQuorum(uint64_t quorumID, ReadBuffer& name)
-{
-    CLIENT_SCHEMA_COMMAND(RenameQuorum, quorumID, name);
-}
-
-int Client::DeleteQuorum(uint64_t quorumID)
-{
-    CLIENT_SCHEMA_COMMAND(DeleteQuorum, quorumID);
-}
-
-int Client::AddNode(uint64_t quorumID, uint64_t nodeID)
-{
-    CLIENT_SCHEMA_COMMAND(AddNode, quorumID, nodeID);
-}
-
-int Client::RemoveNode(uint64_t quorumID, uint64_t nodeID)
-{
-    CLIENT_SCHEMA_COMMAND(RemoveNode, quorumID, nodeID);
-}
-
-int Client::ActivateNode(uint64_t nodeID)
-{
-    CLIENT_SCHEMA_COMMAND(ActivateNode, nodeID);
-}
-
 int Client::CreateDatabase(ReadBuffer& name)
 {
     CLIENT_SCHEMA_COMMAND(CreateDatabase, name);
@@ -628,27 +442,7 @@ int Client::TruncateTable(uint64_t tableID)
     CLIENT_SCHEMA_COMMAND(TruncateTable, tableID);
 }
 
-int Client::SplitShard(uint64_t shardID, ReadBuffer& splitKey)
-{
-    CLIENT_SCHEMA_COMMAND(SplitShard, shardID, splitKey);
-}
-
-int Client::MigrateShard(uint64_t shardID, uint64_t quorumID)
-{
-    CLIENT_SCHEMA_COMMAND(MigrateShard, shardID, quorumID);
-}
-
-int Client::FreezeTable(uint64_t tableID)
-{
-    CLIENT_SCHEMA_COMMAND(FreezeTable, tableID);
-}
-
-int Client::UnfreezeTable(uint64_t tableID)
-{
-    CLIENT_SCHEMA_COMMAND(UnfreezeTable, tableID);
-}
-
-int Client::Get(const ReadBuffer& key)
+int Client::Get(uint64_t tableID, const ReadBuffer& key)
 {
     int         cmpres;
     Request*    req;
@@ -656,9 +450,6 @@ int Client::Get(const ReadBuffer& key)
     
     CLIENT_MUTEX_GUARD_DECLARE();
     
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
-
     req = new Request;
     req->Get(NextCommandID(), configState->paxosID, tableID, (ReadBuffer&) key);
 
@@ -688,36 +479,18 @@ int Client::Get(const ReadBuffer& key)
     return result->GetCommandStatus();
 }
 
-int Client::Set(const ReadBuffer& key, const ReadBuffer& value)
+int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value)
 {
     CLIENT_DATA_PROXIED_COMMAND(Set, (ReadBuffer&) key, (ReadBuffer&) value);
 }
 
-int Client::SetIfNotExists(const ReadBuffer& key, const ReadBuffer& value)
-{
-    CLIENT_DATA_COMMAND(SetIfNotExists, (ReadBuffer&) key, (ReadBuffer&) value);
-}
-
-int Client::TestAndSet(const ReadBuffer& key, const ReadBuffer& test, const ReadBuffer& value)
-{
-    CLIENT_DATA_COMMAND(TestAndSet, (ReadBuffer&) key, (ReadBuffer&) test, (ReadBuffer&) value);
-}
-
-int Client::GetAndSet(const ReadBuffer& key, const ReadBuffer& value)
-{
-    CLIENT_DATA_COMMAND(GetAndSet, (ReadBuffer&) key, (ReadBuffer&) value);
-}
-
-int Client::Add(const ReadBuffer& key, int64_t number)
+int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
 {
     Request*    req;
     Request*    itRequest;
     ReadBuffer  requestKey;
 
     CLIENT_MUTEX_GUARD_DECLARE();
-
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
 
     result->Close();
     FOREACH(itRequest, proxiedRequests)
@@ -764,36 +537,19 @@ int Client::Add(const ReadBuffer& key, int64_t number)
     return result->GetCommandStatus();
 }
 
-int Client::Append(const ReadBuffer& key, const ReadBuffer& value)
-{
-    CLIENT_DATA_COMMAND(Append, (ReadBuffer&) key, (ReadBuffer&) value);
-}
-
-int Client::Delete(const ReadBuffer& key)
+int Client::Delete(uint64_t tableID, const ReadBuffer& key)
 {
     CLIENT_DATA_PROXIED_COMMAND(Delete, (ReadBuffer&) key);
 }
 
-int Client::TestAndDelete(const ReadBuffer& key, const ReadBuffer& test)
-{
-    CLIENT_DATA_COMMAND(TestAndDelete, (ReadBuffer&) key, (ReadBuffer&) test);
-}
-
-int Client::Remove(const ReadBuffer& key)
-{
-    CLIENT_DATA_COMMAND(Remove, (ReadBuffer&) key);
-}
-
 int Client::ListKeys(
+ uint64_t tableID,
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
  unsigned count, bool skip)
 {
     Request*    req;
 
     CLIENT_MUTEX_GUARD_DECLARE();
-
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
 
     ASSERT(configState != NULL);
 
@@ -823,15 +579,13 @@ int Client::ListKeys(
 }
 
 int Client::ListKeyValues(
+ uint64_t tableID,
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix,
  unsigned count, bool skip)
 {
     Request*    req;
 
     CLIENT_MUTEX_GUARD_DECLARE();
-
-    if (!isDatabaseSet || !isTableSet)
-        return SDBP_BADSCHEMA;
 
     ASSERT(configState != NULL);
     req = new Request;
@@ -860,6 +614,7 @@ int Client::ListKeyValues(
 }
 
 int Client::Count(
+ uint64_t tableID,
  const ReadBuffer& startKey, const ReadBuffer& endKey, const ReadBuffer& prefix)
 {
     CLIENT_DATA_COMMAND(Count,

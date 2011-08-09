@@ -50,8 +50,6 @@ public:
     uint64_t                GetGlobalTimeout();
     uint64_t                GetMasterTimeout();
 
-    uint64_t                GetCurrentDatabaseID();
-    uint64_t                GetCurrentTableID();
     ConfigState*            GetConfigState();
     void                    WaitConfigState();
         
@@ -70,13 +68,6 @@ public:
     //
     // controller commands
     //
-    int                     CreateQuorum(const ReadBuffer& name, List<uint64_t>& nodes);
-    int                     RenameQuorum(uint64_t quourumID, ReadBuffer& name);
-    int                     DeleteQuorum(uint64_t quourumID);
-    int                     AddNode(uint64_t quorumID, uint64_t nodeID);
-    int                     RemoveNode(uint64_t quorumID, uint64_t nodeID);
-    int                     ActivateNode(uint64_t nodeID);
-
     int                     CreateDatabase(ReadBuffer& name);
     int                     RenameDatabase(uint64_t databaseID, const ReadBuffer& name);
     int                     DeleteDatabase(uint64_t databaseID);
@@ -85,44 +76,24 @@ public:
     int                     RenameTable(uint64_t tableID, ReadBuffer& name);
     int                     DeleteTable(uint64_t tableID);
     int                     TruncateTable(uint64_t tableID);
-
-    int                     SplitShard(uint64_t shardID, ReadBuffer& splitKey);
-    int                     MigrateShard(uint64_t shardID, uint64_t quorumID);
-    int                     FreezeTable(uint64_t tableID);
-    int                     UnfreezeTable(uint64_t tableID);
     
     // =============================================================================================
     //
     // shard server commands
-    //
-    int                     GetDatabaseID(ReadBuffer& name, uint64_t& databaseID);
-    int                     GetDatabaseName(uint64_t& databaseID, ReadBuffer& name);
-    int                     GetTableID(ReadBuffer& name, uint64_t databaseID, uint64_t& tableID);
-    int                     UseDatabase(ReadBuffer& name);
-    int                     UseDatabaseID(uint64_t databaseID);
-    int                     UseTable(ReadBuffer& name);
-    int                     UseTableID(uint64_t tableID);
-    
-    int                     Get(const ReadBuffer& key);
-    int                     Set(const ReadBuffer& key, const ReadBuffer& value);
-    int                     SetIfNotExists(const ReadBuffer& key, const ReadBuffer& value);
-    int                     TestAndSet(const ReadBuffer& key, const ReadBuffer& test, 
-                             const ReadBuffer& value);
-    int                     GetAndSet(const ReadBuffer& key, const ReadBuffer& value);
-    int                     Add(const ReadBuffer& key, int64_t number);
-    int                     Append(const ReadBuffer& key, const ReadBuffer& value);
-    int                     Delete(const ReadBuffer& key);
-    int                     TestAndDelete(const ReadBuffer& key, const ReadBuffer& test);
-    int                     Remove(const ReadBuffer& key);
+    //    
+    int                     Get(uint64_t tableID, const ReadBuffer& key);
+    int                     Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value);
+    int                     Add(uint64_t tableID, const ReadBuffer& key, int64_t number);
+    int                     Delete(uint64_t tableID, const ReadBuffer& key);
 
-    int                     ListKeys(const ReadBuffer& startKey, const ReadBuffer& endKey,
+    int                     ListKeys(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey,
                              const ReadBuffer& prefix, unsigned count, bool skip);
-    int                     ListKeyValues(const ReadBuffer& startKey, const ReadBuffer& endKey, 
+    int                     ListKeyValues(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey, 
                              const ReadBuffer& prefix, unsigned count, bool skip);
-    int                     Count(const ReadBuffer& startKey, const ReadBuffer& endKey, 
+    int                     Count(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey, 
                              const ReadBuffer& prefix);    
 
-    int                     Filter(const ReadBuffer& startKey, const ReadBuffer& endKey,
+    int                     Filter(uint64_t tableID, const ReadBuffer& startKey, const ReadBuffer& endKey,
                              const ReadBuffer& prefix, unsigned count, uint64_t& commandID);
     int                     Receive(uint64_t commandID);
     
@@ -196,10 +167,7 @@ private:
     ControllerConnection**  controllerConnections;
     int                     numControllers;
     RequestListMap          quorumRequests;
-    bool                    isDatabaseSet;
     uint64_t                databaseID;
-    bool                    isTableSet;
-    uint64_t                tableID;
     bool                    isReading;
     int                     consistencyMode;
     int						batchMode;

@@ -117,13 +117,6 @@ void            SDBP_SetBatchLimit(ClientObj client, unsigned batchLimit);
 ===============================================================================================
 */
 
-int             SDBP_CreateQuorum(ClientObj client, const std::string& name, const SDBP_NodeParams& params);
-int             SDBP_RenameQuorum(ClientObj client, uint64_t quorumID, const std::string& name);
-int             SDBP_DeleteQuorum(ClientObj client, uint64_t quorumID);
-int             SDBP_AddNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);
-int             SDBP_RemoveNode(ClientObj client, uint64_t quorumID, uint64_t nodeID);
-int             SDBP_ActivateNode(ClientObj client, uint64_t nodeID);
-
 int             SDBP_CreateDatabase(ClientObj client, const std::string& name);
 int             SDBP_RenameDatabase(ClientObj client, uint64_t databaseID, const std::string& name);
 int             SDBP_DeleteDatabase(ClientObj client, uint64_t databaseID);
@@ -132,21 +125,6 @@ int             SDBP_CreateTable(ClientObj client, uint64_t databaseID, uint64_t
 int             SDBP_RenameTable(ClientObj client, uint64_t tableID, const std::string& name);
 int             SDBP_DeleteTable(ClientObj client, uint64_t tableID);
 int             SDBP_TruncateTable(ClientObj client, uint64_t tableID);
-
-int             SDBP_SplitShard(ClientObj client, uint64_t shardID, const std::string& key);
-int             SDBP_SplitShardAuto(ClientObj client, uint64_t shardID);
-int             SDBP_FreezeTable(ClientObj client, uint64_t tableID);
-int             SDBP_UnfreezeTable(ClientObj client, uint64_t tableID);
-int             SDBP_MigrateShard(ClientObj client, uint64_t shardID, uint64_t quorumID);
-
-uint64_t        SDBP_GetDatabaseID(ClientObj client, const std::string& name);
-std::string     SDBP_GetDatabaseName(ClientObj client, uint64_t databaseID);
-uint64_t        SDBP_GetTableID(ClientObj client, uint64_t databaseID, const std::string& name);
-
-int             SDBP_UseDatabase(ClientObj client, const std::string& name);
-int             SDBP_UseDatabaseID(ClientObj client, uint64_t databaseID);
-int             SDBP_UseTable(ClientObj client, const std::string& name);
-int             SDBP_UseTableID(ClientObj client, uint64_t tableID);
 
 unsigned        SDBP_GetNumQuorums(ClientObj client);
 uint64_t        SDBP_GetQuorumIDAt(ClientObj client, unsigned n);
@@ -160,9 +138,6 @@ unsigned        SDBP_GetNumTables(ClientObj client);
 uint64_t        SDBP_GetTableIDAt(ClientObj client, unsigned n);
 std::string     SDBP_GetTableNameAt(ClientObj client, unsigned n);
 
-unsigned        SDBP_GetNumShards(ClientObj client);
-uint64_t        SDBP_GetShardIDAt(ClientObj client, unsigned n);
-
 /*
 ===============================================================================================
 
@@ -171,53 +146,35 @@ uint64_t        SDBP_GetShardIDAt(ClientObj client, unsigned n);
 ===============================================================================================
 */
 
-int             SDBP_Get(ClientObj client, const std::string& key);
-int             SDBP_GetCStr(ClientObj client, char* key, int len);
-int             SDBP_Set(ClientObj client, const std::string& key, const std::string& value);
-int             SDBP_SetCStr(ClientObj client_, char* key, int lenKey, char* value, int lenValue);
-int             SDBP_SetIfNotExists(
-                 ClientObj client, const std::string& key, const std::string& value);
-int             SDBP_SetIfNotExistsCStr(
-                 ClientObj client, char* key, int lenKey, char* value, int lenValue);
-int             SDBP_TestAndSet(
-                 ClientObj client, 
-                 const std::string& key, const std::string& test, const std::string& value);
-int             SDBP_TestAndSetCStr(ClientObj client, 
-                 char* key, int lenKey, char* test, int lenTest, char* value, int lenValue);
-int             SDBP_GetAndSet(ClientObj client, const std::string& key, const std::string& value);
-int             SDBP_GetAndSetCStr(
-                 ClientObj client, char* key, int lenKey, char* value, int lenValue);
-int             SDBP_Add(ClientObj client, const std::string& key, int64_t number);
-int             SDBP_AddCStr(ClientObj client_, char* key, int len, int64_t number);
-int             SDBP_Append(ClientObj client, const std::string& key, const std::string& value);
-int             SDBP_AppendCStr(ClientObj client_, char* key, int lenKey, char* value, int lenValue);
-int             SDBP_Delete(ClientObj client, const std::string& key);
-int             SDBP_DeleteCStr(ClientObj client_, char* key, int len);
-int             SDBP_TestAndDelete(ClientObj client, const std::string& key, const std::string& test);
-int             SDBP_TestAndDeleteCStr(ClientObj client_, char* key, int keylen, char* test, int testlen);
-int             SDBP_Remove(ClientObj client, const std::string& key);
-int             SDBP_RemoveCStr(ClientObj client_, char* key, int len);
+int             SDBP_Get(ClientObj client, uint64_t tableID, const std::string& key);
+int             SDBP_GetCStr(ClientObj client, uint64_t tableID, char* key, int len);
+int             SDBP_Set(ClientObj client, uint64_t tableID, const std::string& key, const std::string& value);
+int             SDBP_SetCStr(ClientObj client_, uint64_t tableID, char* key, uint64_t tableID, int lenKey, char* value, int lenValue);
+int             SDBP_Add(ClientObj client, uint64_t tableID, const std::string& key, int64_t number);
+int             SDBP_AddCStr(ClientObj client_, uint64_t tableID, char* key, int len, int64_t number);
+int             SDBP_Delete(ClientObj client, uint64_t tableID, const std::string& key);
+int             SDBP_DeleteCStr(ClientObj client_, uint64_t tableID, char* key, int len);
 int             SDBP_ListKeys(
                  ClientObj client, 
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
                  unsigned count, bool skip);
 int             SDBP_ListKeysCStr(
-                 ClientObj client,
+                 ClientObj client, uint64_t tableID,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
                  unsigned count, bool skip);
 int             SDBP_ListKeyValues(
-                 ClientObj client, 
+                 ClientObj client, uint64_t tableID,
                  const std::string& startKey, const std::string& endKey, const std::string& prefix,
                  unsigned count, bool skip);
 int             SDBP_ListKeyValuesCStr(
-                 ClientObj client,
+                 ClientObj client, uint64_t tableID,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen,
                  unsigned count, bool skip);
 int             SDBP_Count(
-                 ClientObj client,
+                 ClientObj client, uint64_t tableID,
                  const std::string& startKey, const std::string& endKey, const std::string& prefix);
 int             SDBP_CountCStr(
-                 ClientObj client,
+                 ClientObj client, uint64_t tableID,
                  char* startKey, int startKeyLen, char* endKey, int endKeyLen, char* prefix, int prefixLen);
 
 /*

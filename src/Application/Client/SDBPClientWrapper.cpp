@@ -387,20 +387,6 @@ uint64_t SDBP_GetMasterTimeout(ClientObj client_)
     return client->GetMasterTimeout();
 }
 
-uint64_t SDBP_GetCurrentDatabaseID(ClientObj client_)
-{
-    Client* client = (Client*) client_;
-
-    return client->GetCurrentDatabaseID();
-}
-
-uint64_t SDBP_GetCurrentTableID(ClientObj client_)
-{
-    Client* client = (Client*) client_;
-
-    return client->GetCurrentTableID();
-}
-
 std::string SDBP_GetJSONConfigState(ClientObj client_)
 {
     Client*             client = (Client*) client_;
@@ -463,58 +449,58 @@ void SDBP_SetBatchLimit(ClientObj client_, unsigned batchLimit)
 ===============================================================================================
 */
 
-int SDBP_CreateQuorum(ClientObj client_, const std::string& name_, const SDBP_NodeParams& params)
-{
-    Client*                 client = (Client*) client_;
-    List<uint64_t>          nodes;
-    uint64_t                nodeID;
-    unsigned                nread;
-    ReadBuffer              name((char*) name_.c_str(), name_.length());
-
-    for (int i = 0; i < params.nodec; i++)
-    {
-        nodeID = BufferToUInt64(params.nodes[i], strlen(params.nodes[i]), &nread);
-        nodes.Append(nodeID);
-    }
-    
-    return client->CreateQuorum(name, nodes);
-}
-
-int SDBP_RenameQuorum(ClientObj client_, uint64_t quorumID, const std::string& name_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  name((char*) name_.c_str(), name_.length());
-    
-    return client->RenameQuorum(quorumID, name);
-}
-
-int SDBP_DeleteQuorum(ClientObj client_, uint64_t quorumID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->DeleteQuorum(quorumID);
-}
-
-int SDBP_AddNode(ClientObj client_, uint64_t quorumID, uint64_t nodeID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->AddNode(quorumID, nodeID);
-}
-
-int SDBP_RemoveNode(ClientObj client_, uint64_t quorumID, uint64_t nodeID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->RemoveNode(quorumID, nodeID);
-}
-
-int SDBP_ActivateNode(ClientObj client_, uint64_t nodeID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->ActivateNode(nodeID);
-}
+//int SDBP_CreateQuorum(ClientObj client_, const std::string& name_, const SDBP_NodeParams& params)
+//{
+//    Client*                 client = (Client*) client_;
+//    List<uint64_t>          nodes;
+//    uint64_t                nodeID;
+//    unsigned                nread;
+//    ReadBuffer              name((char*) name_.c_str(), name_.length());
+//
+//    for (int i = 0; i < params.nodec; i++)
+//    {
+//        nodeID = BufferToUInt64(params.nodes[i], strlen(params.nodes[i]), &nread);
+//        nodes.Append(nodeID);
+//    }
+//    
+//    return client->CreateQuorum(name, nodes);
+//}
+//
+//int SDBP_RenameQuorum(ClientObj client_, uint64_t quorumID, const std::string& name_)
+//{
+//    Client*     client = (Client*) client_;
+//    ReadBuffer  name((char*) name_.c_str(), name_.length());
+//    
+//    return client->RenameQuorum(quorumID, name);
+//}
+//
+//int SDBP_DeleteQuorum(ClientObj client_, uint64_t quorumID)
+//{
+//    Client*     client = (Client*) client_;
+//
+//    return client->DeleteQuorum(quorumID);
+//}
+//
+//int SDBP_AddNode(ClientObj client_, uint64_t quorumID, uint64_t nodeID)
+//{
+//    Client*     client = (Client*) client_;
+//
+//    return client->AddNode(quorumID, nodeID);
+//}
+//
+//int SDBP_RemoveNode(ClientObj client_, uint64_t quorumID, uint64_t nodeID)
+//{
+//    Client*     client = (Client*) client_;
+//
+//    return client->RemoveNode(quorumID, nodeID);
+//}
+//
+//int SDBP_ActivateNode(ClientObj client_, uint64_t nodeID)
+//{
+//    Client*     client = (Client*) client_;
+//
+//    return client->ActivateNode(nodeID);
+//}
 
 int SDBP_CreateDatabase(ClientObj client_, const std::string& name_)
 {
@@ -567,126 +553,6 @@ int SDBP_TruncateTable(ClientObj client_, uint64_t tableID)
     Client*     client = (Client*) client_;
 
     return client->TruncateTable(tableID);
-}
-
-int SDBP_SplitShard(ClientObj client_, uint64_t shardID, const std::string& key_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key((char*) key_.c_str(), key_.length());
-
-    return client->SplitShard(shardID, key);
-}
-
-int SDBP_SplitShardAuto(ClientObj client_, uint64_t shardID)
-{
-    Client*         client = (Client*) client_;
-    ConfigState*    configState;
-    ConfigShard*    configShard;
-    ReadBuffer      splitKey;
-    
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return SDBP_NOSERVICE;
-
-    configShard = configState->GetShard(shardID);
-    if (configShard == NULL)
-        return SDBP_BADSCHEMA;
-
-    splitKey.Wrap(configShard->splitKey);
-
-    return client->SplitShard(shardID, splitKey);
-}
-
-int SDBP_FreezeTable(ClientObj client_, uint64_t tableID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->FreezeTable(tableID);
-}
-
-int SDBP_UnfreezeTable(ClientObj client_, uint64_t tableID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->UnfreezeTable(tableID);
-}
-
-int SDBP_MigrateShard(ClientObj client_, uint64_t shardID, uint64_t quorumID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->MigrateShard(shardID, quorumID);
-}
-
-uint64_t SDBP_GetDatabaseID(ClientObj client_, const std::string& name_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  name((char*) name_.c_str(), name_.length());
-    uint64_t    databaseID;
-    int         ret;
-
-    ret = client->GetDatabaseID(name, databaseID);
-    if (ret != SDBP_SUCCESS)
-        return 0;
-    
-    return databaseID;
-}
-
-std::string SDBP_GetDatabaseName(ClientObj client_, uint64_t databaseID)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  name;
-    int         ret;
-
-    ret = client->GetDatabaseName(databaseID, name);
-    if (ret != SDBP_SUCCESS)
-        return 0;
-    
-    return std::string(name.GetBuffer(), name.GetLength());
-}
-
-uint64_t SDBP_GetTableID(ClientObj client_, uint64_t databaseID, const std::string& name_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  name((char*) name_.c_str(), name_.length());
-    uint64_t    tableID;
-    int         ret;
-
-    ret = client->GetTableID(name, databaseID, tableID);
-    if (ret != SDBP_SUCCESS)
-        return 0;
-    
-    return tableID;
-}
-
-int SDBP_UseDatabase(ClientObj client_, const std::string& name_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  name((char*) name_.c_str(), name_.length());
-
-    return client->UseDatabase(name);
-}
-
-int SDBP_UseDatabaseID(ClientObj client_, uint64_t databaseID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->UseDatabaseID(databaseID);
-}
-
-int SDBP_UseTable(ClientObj client_, const std::string& name_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  name((char*) name_.c_str(), name_.length());
-
-    return client->UseTable(name);
-}
-
-int SDBP_UseTableID(ClientObj client_, uint64_t tableID)
-{
-    Client*     client = (Client*) client_;
-
-    return client->UseTableID(tableID);
 }
 
 unsigned SDBP_GetNumQuorums(ClientObj client_)
@@ -871,40 +737,40 @@ std::string SDBP_GetTableNameAt(ClientObj client_, unsigned n)
     return "";
 }
 
-unsigned SDBP_GetNumShards(ClientObj client_)
-{
-    Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return 0;
-
-    return configState->shards.GetLength();
-}
-
-uint64_t SDBP_GetShardIDAt(ClientObj client_, unsigned n)
-{
-    Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    ConfigShard*        configShard;
-    unsigned            i;
-    
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return 0;
-
-    i = 0;
-    FOREACH (configShard, configState->shards)
-    {
-        if (i == n)
-            return configShard->shardID;
-        
-        i++;
-    }
-    
-    return 0;
-}
+//unsigned SDBP_GetNumShards(ClientObj client_)
+//{
+//    Client*             client = (Client*) client_;
+//    ConfigState*        configState;
+//    
+//    configState = client->GetConfigState();
+//    if (configState == NULL)
+//        return 0;
+//
+//    return configState->shards.GetLength();
+//}
+//
+//uint64_t SDBP_GetShardIDAt(ClientObj client_, unsigned n)
+//{
+//    Client*             client = (Client*) client_;
+//    ConfigState*        configState;
+//    ConfigShard*        configShard;
+//    unsigned            i;
+//    
+//    configState = client->GetConfigState();
+//    if (configState == NULL)
+//        return 0;
+//
+//    i = 0;
+//    FOREACH (configShard, configState->shards)
+//    {
+//        if (i == n)
+//            return configShard->shardID;
+//        
+//        i++;
+//    }
+//    
+//    return 0;
+//}
 
 /*
 ===============================================================================================
@@ -914,34 +780,34 @@ uint64_t SDBP_GetShardIDAt(ClientObj client_, unsigned n)
 ===============================================================================================
 */
 
-int	SDBP_Get(ClientObj client_, const std::string& key_)
+int	SDBP_Get(ClientObj client_, uint64_t tableID, const std::string& key_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key((char*) key_.c_str(), key_.length());
 
-    return client->Get(key);
+    return client->Get(tableID, key);
 }
 
-int	SDBP_GetCStr(ClientObj client_, char* key_, int len)
+int	SDBP_GetCStr(ClientObj client_, uint64_t tableID, char* key_, int len)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;
 
     key.Wrap((char*) key_, len);
 
-    return client->Get(key);
+    return client->Get(tableID, key);
 }
 
-int	SDBP_Set(ClientObj client_, const std::string& key_, const std::string& value_)
+int	SDBP_Set(ClientObj client_, uint64_t tableID, const std::string& key_, const std::string& value_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key((char*) key_.c_str(), key_.length());
     ReadBuffer  value((char*) value_.c_str(), value_.length());
 
-    return client->Set(key, value);
+    return client->Set(tableID, key, value);
 }
 
-int	SDBP_SetCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue)
+int	SDBP_SetCStr(ClientObj client_, uint64_t tableID, char* key_, int lenKey, char* value_, int lenValue)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;
@@ -950,172 +816,46 @@ int	SDBP_SetCStr(ClientObj client_, char* key_, int lenKey, char* value_, int le
     key.Wrap((char*) key_, lenKey);
     value.Wrap((char*) value_, lenValue);
 
-    return client->Set(key, value);
+    return client->Set(tableID, key, value);
 }
 
-int	SDBP_SetIfNotExists(ClientObj client_, const std::string& key_, const std::string& value_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key((char*) key_.c_str(), key_.length());
-    ReadBuffer  value((char*) value_.c_str(), value_.length());
-
-    return client->SetIfNotExists(key, value);
-}
-
-int	SDBP_SetIfNotExistsCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key;
-    ReadBuffer  value;
-
-    key.Wrap((char*) key_, lenKey);
-    value.Wrap((char*) value_, lenValue);
-
-    return client->SetIfNotExists(key, value);
-}
-
-int	SDBP_TestAndSet(ClientObj client_, const std::string& key_, const std::string& test_, const std::string& value_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key((char*) key_.c_str(), key_.length());
-    ReadBuffer  test((char*) test_.c_str(), test_.length());
-    ReadBuffer  value((char*) value_.c_str(), value_.length());
-
-    return client->TestAndSet(key, test, value);
-}
-
-int	SDBP_TestAndSetCStr(ClientObj client_, char* key_, int lenKey, char* test_, int lenTest, char* value_, int lenValue)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key;
-    ReadBuffer  test;
-    ReadBuffer  value;
-
-    key.Wrap((char*) key_, lenKey);
-    test.Wrap((char*) test_, lenTest);
-    value.Wrap((char*) value_, lenValue);
-
-    return client->TestAndSet(key, test, value);
-}
-
-int	SDBP_GetAndSet(ClientObj client_, const std::string& key_, const std::string& value_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key((char*) key_.c_str(), key_.length());
-    ReadBuffer  value((char*) value_.c_str(), value_.length());
-
-    return client->GetAndSet(key, value);
-}
-
-int	SDBP_GetAndSetCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key;
-    ReadBuffer  value;
-
-    key.Wrap((char*) key_, lenKey);
-    value.Wrap((char*) value_, lenValue);
-
-    return client->GetAndSet(key, value);
-}
-
-int SDBP_Add(ClientObj client_, const std::string& key_, int64_t number)
+int SDBP_Add(ClientObj client_, uint64_t tableID, const std::string& key_, int64_t number)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key((char*) key_.c_str(), key_.length());
 
-    return client->Add(key, number);
+    return client->Add(tableID, key, number);
 }
 
-int SDBP_AddCStr(ClientObj client_, char* key_, int len, int64_t number)
+int SDBP_AddCStr(ClientObj client_, uint64_t tableID, char* key_, int len, int64_t number)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;
 
     key.Wrap((char*) key_, len);
 
-    return client->Add(key, number);
+    return client->Add(tableID, key, number);
 }
 
-int SDBP_Append(ClientObj client_, const std::string& key_, const std::string& value_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key((char*) key_.c_str(), key_.length());
-    ReadBuffer  value((char*) value_.c_str(), value_.length());
-
-    return client->Append(key, value);
-}
-
-int SDBP_AppendCStr(ClientObj client_, char* key_, int lenKey, char* value_, int lenValue)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key;
-    ReadBuffer  value;
-
-    key.Wrap((char*) key_, lenKey);
-    value.Wrap((char*) value_, lenValue);
-
-    return client->Append(key, value);
-}
-
-int SDBP_Delete(ClientObj client_, const std::string& key_)
+int SDBP_Delete(ClientObj client_, uint64_t tableID, const std::string& key_)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key((char*) key_.c_str(), key_.length());
 
-    return client->Delete(key);
+    return client->Delete(tableID, key);
 }
 
-int SDBP_DeleteCStr(ClientObj client_, char* key_, int len)
+int SDBP_DeleteCStr(ClientObj client_, uint64_t tableID, char* key_, int len)
 {
     Client*     client = (Client*) client_;
     ReadBuffer  key;
 
     key.Wrap((char*) key_, len);
 
-    return client->Delete(key);
+    return client->Delete(tableID, key);
 }
 
-int SDBP_TestAndDelete(ClientObj client_, const std::string& key_, const std::string& test_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key((char*) key_.c_str(), key_.length());
-    ReadBuffer  test((char*) test_.c_str(), test_.length());
-
-    return client->TestAndDelete(key, test);
-}
-
-int SDBP_TestAndDeleteCStr(ClientObj client_, char* key_, int keylen, char* test_, int testlen)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key;
-    ReadBuffer  test;
-
-    key.Wrap((char*) key_, keylen);
-    test.Wrap((char*) test_, testlen);
-
-    return client->TestAndDelete(key, test);
-}
-
-int SDBP_Remove(ClientObj client_, const std::string& key_)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key((char*) key_.c_str(), key_.length());
-
-    return client->Remove(key);
-}
-
-int SDBP_RemoveCStr(ClientObj client_, char* key_, int len)
-{
-    Client*     client = (Client*) client_;
-    ReadBuffer  key;
-
-    key.Wrap((char*) key_, len);
-
-    return client->Remove(key);
-}
-
-int SDBP_ListKeys(ClientObj client_, 
+int SDBP_ListKeys(ClientObj client_, uint64_t tableID, 
  const std::string& key_, const std::string& endKey_, const std::string& prefix_, 
  unsigned count, bool skip)
 {
@@ -1124,10 +864,10 @@ int SDBP_ListKeys(ClientObj client_,
     ReadBuffer  endKey((char*) endKey_.c_str(), endKey_.length());
     ReadBuffer  prefix((char*) prefix_.c_str(), prefix_.length());
 
-    return client->ListKeys(key, endKey, prefix, count, skip);
+    return client->ListKeys(tableID, key, endKey, prefix, count, skip);
 }
 
-int SDBP_ListKeysCStr(ClientObj client_, 
+int SDBP_ListKeysCStr(ClientObj client_, uint64_t tableID, 
  char* key_, int keyLen, char* endKey_, int endKeyLen, char* prefix_, int prefixLen,
  unsigned count, bool skip)
 {
@@ -1140,10 +880,10 @@ int SDBP_ListKeysCStr(ClientObj client_,
     endKey.Wrap((char*) endKey_, endKeyLen);
     prefix.Wrap((char*) prefix_, prefixLen);
 
-    return client->ListKeys(key, endKey, prefix, count, skip);
+    return client->ListKeys(tableID, key, endKey, prefix, count, skip);
 }
 
-int SDBP_ListKeyValues(ClientObj client_, 
+int SDBP_ListKeyValues(ClientObj client_, uint64_t tableID, 
  const std::string& key_, const std::string& endKey_, const std::string& prefix_,
  unsigned count, bool skip)
 {
@@ -1152,10 +892,10 @@ int SDBP_ListKeyValues(ClientObj client_,
     ReadBuffer  endKey((char*) endKey_.c_str(), endKey_.length());
     ReadBuffer  prefix((char*) prefix_.c_str(), prefix_.length());
 
-    return client->ListKeyValues(key, endKey, prefix, count, skip);
+    return client->ListKeyValues(tableID, key, endKey, prefix, count, skip);
 }
 
-int SDBP_ListKeyValuesCStr(ClientObj client_, 
+int SDBP_ListKeyValuesCStr(ClientObj client_, uint64_t tableID, 
  char* key_, int keyLen, char* endKey_, int endKeyLen, char* prefix_, int prefixLen,
  unsigned count, bool skip)
 {
@@ -1168,10 +908,10 @@ int SDBP_ListKeyValuesCStr(ClientObj client_,
     endKey.Wrap((char*) endKey_, endKeyLen);
     prefix.Wrap((char*) prefix_, prefixLen);
 
-    return client->ListKeyValues(key, endKey, prefix, count, skip);
+    return client->ListKeyValues(tableID, key, endKey, prefix, count, skip);
 }
 
-int SDBP_Count(ClientObj client_, 
+int SDBP_Count(ClientObj client_, uint64_t tableID, 
  const std::string& key_, const std::string& endKey_, const std::string& prefix_)
 {
     Client*     client = (Client*) client_;
@@ -1179,10 +919,10 @@ int SDBP_Count(ClientObj client_,
     ReadBuffer  endKey((char*) endKey_.c_str(), endKey_.length());
     ReadBuffer  prefix((char*) prefix_.c_str(), prefix_.length());
 
-    return client->Count(key, endKey, prefix);
+    return client->Count(tableID, key, endKey, prefix);
 }
 
-int SDBP_CountCStr(ClientObj client_,
+int SDBP_CountCStr(ClientObj client_, uint64_t tableID, 
  char* key_, int keyLen, char* endKey_, int endKeyLen, char* prefix_, int prefixLen)
 {
     Client*     client = (Client*) client_;
@@ -1194,7 +934,7 @@ int SDBP_CountCStr(ClientObj client_,
     endKey.Wrap((char*) endKey_, endKeyLen);
     prefix.Wrap((char*) prefix_, prefixLen);
 
-    return client->Count(key, endKey, prefix);
+    return client->Count(tableID, key, endKey, prefix);
 }
 
 /*

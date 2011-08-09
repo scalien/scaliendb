@@ -52,15 +52,7 @@ static int SetupDefaultClient(Client& client)
 
     client.SetMasterTimeout(10000);
     client.SetGlobalTimeout(100000);
-    
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-        
+            
     return TEST_SUCCESS;
 }
 
@@ -163,81 +155,6 @@ TEST_DEFINE(TestClientGet)
     ret = snprintf(keybuf, sizeof(keybuf), "UzXM3k7UGr");
     key.Wrap(keybuf, ret);
     ret = client.Get(key);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    result = client.GetResult();
-    for (result->Begin(); !result->IsEnd(); result->Next())
-    {
-        if (result->GetCommandStatus() != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-        TEST_LOG("Elapsed: %u", result->GetElapsedTime());
-    }
-    
-    delete result;
-
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientTestAndDelete)
-{
-    Client          client;
-    Result*         result;
-    ReadBuffer      key;
-    ReadBuffer      value;
-    int             ret;
-    bool            isConditionalSuccess;
-
-    ret = SetupDefaultClient(client);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    key.Wrap("x");
-    value.Wrap("x");
-    ret = client.Set(key, value);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.TestAndDelete(key, value);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    result = client.GetResult();
-    for (result->Begin(); !result->IsEnd(); result->Next())
-    {
-        if (result->GetCommandStatus() != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-        if (result->IsConditionalSuccess(isConditionalSuccess))
-            TEST_CLIENT_FAIL();
-        if (!isConditionalSuccess)
-            TEST_CLIENT_FAIL();
-        TEST_LOG("Elapsed: %u", result->GetElapsedTime());
-    }
-    
-    delete result;
-
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientRemove)
-{
-    Client          client;
-    Result*         result;
-    ReadBuffer      key;
-    char            keybuf[33];
-    int             ret;
-
-    ret = SetupDefaultClient(client);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = snprintf(keybuf, sizeof(keybuf), "UzXM3k7UGr");
-    key.Wrap(keybuf, ret);
-    ret = client.Remove(key);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
