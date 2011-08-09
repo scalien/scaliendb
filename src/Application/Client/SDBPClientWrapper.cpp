@@ -48,13 +48,13 @@ void SDBP_NodeParams::AddNode(const std::string& node)
 
 SDBP_Buffer::SDBP_Buffer()
 {
-    data = NULL;
+    data = (intptr_t)(void*)NULL;
     len = 0;
 }
 
 void SDBP_Buffer::SetBuffer(char* data_, int len_)
 {
-    data = data_;
+    data = (intptr_t) data_;
     len = len_;
 }
 
@@ -125,7 +125,7 @@ SDBP_Buffer SDBP_ResultKeyBuffer(ResultObj result_)
     if (status < 0)
         return ret;
     
-    ret.data = key.GetBuffer();
+    ret.data = (intptr_t) key.GetBuffer();
     ret.len = key.GetLength();
     
     return ret;
@@ -145,7 +145,7 @@ SDBP_Buffer SDBP_ResultValueBuffer(ResultObj result_)
     if (status < 0)
         return ret;
     
-    ret.data = value.GetBuffer();
+    ret.data = (intptr_t) value.GetBuffer();
     ret.len = value.GetLength();
     
     return ret;

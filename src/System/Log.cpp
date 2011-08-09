@@ -239,6 +239,18 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
         }
         else
                 ret = -1;
+#elif _WIN32
+        DWORD lastError = GetLastError();
+        ret = FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
+            FORMAT_MESSAGE_IGNORE_INSERTS |
+            (FORMAT_MESSAGE_MAX_WIDTH_MASK & remaining - 2),
+            NULL,
+            lastError,
+            MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+            (LPTSTR) p,
+            remaining - 2,
+            NULL);
+
 #else
         ret = strerror_r(errno, p, remaining - 1);
         if (ret >= 0)

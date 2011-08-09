@@ -9,7 +9,8 @@ ClusterTransport::~ClusterTransport()
 void ClusterTransport::Init(Endpoint& endpoint_)
 {
     endpoint = endpoint_;
-    server.Init(endpoint.GetPort());
+    if (!server.Init(endpoint.GetPort()))
+        STOP_FAIL(1, "Cannot bind on cluster port: %s", endpoint.ToString());
     server.SetTransport(this);
     awaitingNodeID = true;
     nodeID = UNDEFINED_NODEID;

@@ -1729,4 +1729,3 @@ SWIGEXPORT char * SWIGSTDCALL CSharp_SDBP_GetDebugString() {
 #ifdef __cplusplus
 }
 #endif
-

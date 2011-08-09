@@ -41,13 +41,12 @@ public class SDBP_Buffer {
     scaliendb_clientJNI.SDBP_Buffer_SetBuffer(swigCPtr, this, data_, len_);
   }
 
-  public void setData(SWIGTYPE_p_void value) {
-    scaliendb_clientJNI.SDBP_Buffer_data_set(swigCPtr, this, SWIGTYPE_p_void.getCPtr(value));
+  public void setData(int value) {
+    scaliendb_clientJNI.SDBP_Buffer_data_set(swigCPtr, this, value);
   }
 
-  public SWIGTYPE_p_void getData() {
-    long cPtr = scaliendb_clientJNI.SDBP_Buffer_data_get(swigCPtr, this);
-    return (cPtr == 0) ? null : new SWIGTYPE_p_void(cPtr, false);
+  public int getData() {
+    return scaliendb_clientJNI.SDBP_Buffer_data_get(swigCPtr, this);
   }
 
   public void setLen(int value) {

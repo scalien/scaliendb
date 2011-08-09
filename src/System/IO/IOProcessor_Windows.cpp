@@ -65,6 +65,7 @@ void ProcessCompletionCallbacks();
 // helper function for FD -> IODesc mapping
 static IODesc* GetIODesc(const FD& fd)
 {
+    ASSERT(fd.index != -1);
     return &iods[fd.index];
 }
 
@@ -187,6 +188,7 @@ bool IOProcessor::Init(int maxfd)
     DWORD       bytesReturned;
 
     terminated = false;
+    numIOProcClients++;
 
     if (iocp)
         return true;
@@ -223,7 +225,6 @@ bool IOProcessor::Init(int maxfd)
     iods[maxfd - 1].next = NULL;
     freeIods = iods;
 
-    numIOProcClients++;
     memset(&iostat, 0, sizeof(iostat));
 
     return true;
@@ -406,6 +407,9 @@ bool IOProcessor::Remove(IOOperation *ioop)
     IODesc*     iod;
     TCPRead*    tcpread;
 
+    if (!ioop->active)
+        return true;
+
     if (ioop->type == IOOperation::TCP_READ)
     {
         tcpread = (TCPRead*) ioop;
@@ -419,8 +423,7 @@ bool IOProcessor::Remove(IOOperation *ioop)
     ret = CancelIo((HANDLE)ioop->fd.handle);
     if (ret == 0)
     {
-        ret = WSAGetLastError();
-        Log_Trace("ret = %d", ret);
+        Log_Errno();
         return false;
     }
 

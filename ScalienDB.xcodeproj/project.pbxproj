@@ -605,6 +605,8 @@
 		9AABC18D124EA494003626AC /* ArrayList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ArrayList.h; sourceTree = "<group>"; };
 		9AB1EEDE13D6F2F200A463EF /* scaliendb_client.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = scaliendb_client.cs; path = Client/CSharp/ScalienClient/scaliendb_client.cs; sourceTree = "<group>"; };
 		9AB1EEDF13D6F31700A463EF /* scaliendb_clientPINVOKE.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = scaliendb_clientPINVOKE.cs; path = Client/CSharp/ScalienClient/scaliendb_clientPINVOKE.cs; sourceTree = "<group>"; };
+		9AB1F00213DDF72A00A463EF /* ContextSwitchTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ContextSwitchTest.cpp; sourceTree = "<group>"; };
+		9AB1F17613E0754100A463EF /* scaliendb_client_csharp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_csharp.cpp; path = Client/CSharp/scaliendb_client_csharp.cpp; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9AD104D31309970D00AB777B /* StorageAsyncList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncList.h; sourceTree = "<group>"; };
@@ -1283,6 +1285,7 @@
 		9A07FAA7138E845100AED738 /* CSharp */ = {
 			isa = PBXGroup;
 			children = (
+				9AB1F17613E0754100A463EF /* scaliendb_client_csharp.cpp */,
 				9AB1EEDE13D6F2F200A463EF /* scaliendb_client.cs */,
 				9AB1EEDF13D6F31700A463EF /* scaliendb_clientPINVOKE.cs */,
 				9AED117013B3595F0023F27E /* Database.cs */,
@@ -1396,6 +1399,7 @@
 				9AE8197212D4BFE80038BDB1 /* TestMain.cpp */,
 				9AE8197312D4BFE80038BDB1 /* TimeTest.cpp */,
 				9AE8197412D4BFE80038BDB1 /* Timings.cpp */,
+				9AB1F00213DDF72A00A463EF /* ContextSwitchTest.cpp */,
 			);
 			name = Test;
 			sourceTree = "<group>";
