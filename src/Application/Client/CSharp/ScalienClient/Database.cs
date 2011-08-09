@@ -55,14 +55,11 @@ namespace Scalien
 
         #region Constructors, destructors
 
-        internal Database(Client client, string name)
+        internal Database(Client client, ulong databaseID, string name)
         {
             this.client = client;
+            this.databaseID = databaseID;
             this.name = name;
-
-            databaseID = scaliendb_client.SDBP_GetDatabaseID(client.cptr, name);
-            if (databaseID == 0)
-                throw new SDBPException(Status.SDBP_BADSCHEMA);
         }
 
         #endregion
@@ -76,12 +73,13 @@ namespace Scalien
         /// <exception cref="SDBPException"/>
         public List<Table> GetTables()
         {
-            ulong numTables = scaliendb_client.SDBP_GetNumTables(client.cptr);
+            ulong numTables = scaliendb_client.SDBP_GetNumTables(client.cptr, databaseID);
             List<Table> tables = new List<Table>();
             for (uint i = 0; i < numTables; i++)
             {
-                string name = scaliendb_client.SDBP_GetTableNameAt(client.cptr, i);
-                tables.Add(new Table(client, this, name));
+                string name = scaliendb_client.SDBP_GetTableNameAt(client.cptr, databaseID, i);
+                ulong tableID = scaliendb_client.SDBP_GetTableIDAt(client.cptr, databaseID, i);
+                tables.Add(new Table(client, this, tableID, name));
             }
             return tables;
         }
@@ -95,7 +93,14 @@ namespace Scalien
         /// <seealso cref="Scalien.Table"/>
         public Table GetTable(string name)
         {
-            return new Table(client, this, name);
+            List<Table> tables = GetTables();
+            foreach (Table table in tables)
+            {
+                if (table.Name == name)
+                    return table;
+            }
+
+            throw new SDBPException(Status.SDBP_BADSCHEMA);
         }
 
         /// <summary>
@@ -106,15 +111,13 @@ namespace Scalien
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Scalien.Table"/>
         /// <seealso cref="CreateTable(string, Quorum)"/>
-        /// <seealso cref="Scalien.Client.CreateTable(string)"/>
-        /// <seealso cref="Scalien.Client.CreateTable(string, string)"/>
         public Table CreateTable(string name)
         {
-            ulong prevDatabaseID = client.GetDatabaseID();
-            client.UseDatabaseID(this.DatabaseID);
-            Table table = client.CreateTable(name);
-            client.UseDatabaseID(prevDatabaseID);
-            return table;
+            List<Quorum> quorums = client.GetQuorums();
+            if (quorums.Count == 0)
+                throw new SDBPException(Status.SDBP_BADSCHEMA, "No quorums found");
+            Quorum quorum = quorums[0];
+            return CreateTable(name, quorum);
         }
 
         /// <summary>
@@ -125,15 +128,11 @@ namespace Scalien
         /// <returns>The <see cref="Scalien.Table"/> object corresponding to the created table.</returns>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="CreateTable(string)"/>
-        /// <seealso cref="Scalien.Client.CreateTable(string)"/>
-        /// <seealso cref="Scalien.Client.CreateTable(string, string)"/>
         public Table CreateTable(string name, Quorum quorum)
         {
-            ulong prevDatabaseID = client.GetDatabaseID();
-            client.UseDatabaseID(this.DatabaseID);
-            Table table = client.CreateTable(name, quorum.Name);
-            client.UseDatabaseID(prevDatabaseID);
-            return table;
+            int status = scaliendb_client.SDBP_CreateTable(client.cptr, databaseID, quorum.QuorumID, name);
+            client.CheckResultStatus(status);
+            return GetTable(name);
         }
 
         /// <summary>
@@ -141,10 +140,10 @@ namespace Scalien
         /// </summary>
         /// <param name="newName">The new database name.</param>
         /// <exception cref="SDBPException"/>
-        /// <seealso cref="Scalien.Client.RenameDatabase(string, string)"/>
         public void RenameDatabase(string newName)
         {
-            client.RenameDatabase(this.Name, newName);
+            int status = scaliendb_client.SDBP_RenameDatabase(client.cptr, databaseID, newName);
+            client.CheckResultStatus(status);
         }
 
         /// <summary>
@@ -152,10 +151,10 @@ namespace Scalien
         /// </summary>
         /// <remarks>Do not use the database object after calling DeleteDatabase().</remarks>
         /// <exception cref="SDBPException"/>
-        /// <seealso cref="Scalien.Client.DeleteDatabase(string)"/>
         public void DeleteDatabase()
         {
-            client.DeleteDatabase(this.Name);
+            int status = scaliendb_client.SDBP_DeleteDatabase(client.cptr, databaseID);
+            client.CheckResultStatus(status);
         }
     }
 }

@@ -6,7 +6,6 @@ namespace Scalien
 {
     public class StringKeyValueIterator : IEnumerable<KeyValuePair<string, string>>, IEnumerator<KeyValuePair<string, string>>
     {
-        Client client;
         Table table;
         string startKey;
         string endKey;
@@ -15,17 +14,6 @@ namespace Scalien
         int pos;
         List<string> keys;
         List<string> values;
-
-        public StringKeyValueIterator(Client client, StringIterParams ps)
-        {
-            this.client = client;
-            this.startKey = ps.startKey;
-            this.endKey = ps.endKey;
-            this.prefix = ps.prefix;
-            this.count = 100;
-
-            Query(false);
-        }
 
         public StringKeyValueIterator(Table table, StringIterParams ps)
         {
@@ -41,10 +29,7 @@ namespace Scalien
         private void Query(bool skip)
         {
             Dictionary<string, string> result;
-            if (client != null)
-                result = client.ListKeyValues(startKey, endKey, prefix, count, skip);
-            else
-                result = table.ListKeyValues(startKey, endKey, prefix, count, skip);
+            result = table.Client.ListKeyValues(table.TableID, startKey, endKey, prefix, count, skip);
 
             keys = new List<string>();
             values = new List<string>();

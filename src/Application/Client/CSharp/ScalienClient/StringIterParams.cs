@@ -3,7 +3,6 @@
     /// <summary>
     /// StringIterParams is a convenient way to specify the string parameters
     /// for iteration when using
-    /// <see cref="Client.Count(StringIterParams)"/>,
     /// <see cref="Table.KeyIterator(StringIterParams)"/>,
     /// <see cref="Table.KeyValueIterator(StringIterParams)"/> and
     /// <see cref="Table.Count(StringIterParams)"/>.
@@ -31,7 +30,6 @@
     /// foreach (string key in client.KeyIterator(new StringIterParams().Prefix("foo").StartKey("foobar")))
     ///     System.Console.WriteLine(key);
     /// </code></example>
-    /// <seealso cref="Client.Count(StringIterParams)"/>
     /// <seealso cref="Table.KeyIterator(StringIterParams)"/>
     /// <seealso cref="Table.KeyValueIterator(StringIterParams)"/>
     /// <seealso cref="Table.Count(StringIterParams)"/>

@@ -3,9 +3,8 @@
     /// <summary>
     /// ByteIterParams is a convenient way to specify the byte[] parameters
     /// for iteration when using
-    /// <see cref="Client.Count(ByteIterParams)"/>,
     /// <see cref="Table.KeyIterator(ByteIterParams)"/>,
-    /// <see cref="Table.KeyValueIterator(ByteIterParams)"/> and
+    /// <see cref="Table.KeyValueIterator(ByteIterParams)"/>,
     /// <see cref="Table.Count(ByteIterParams)"/>.
     /// </summary>
     /// <remarks>
@@ -26,7 +25,6 @@
     /// The default values are empty byte arrays.
     /// </para>
     /// </remarks>
-    /// <seealso cref="Client.Count(ByteIterParams)"/>
     /// <seealso cref="Table.KeyIterator(ByteIterParams)"/>
     /// <seealso cref="Table.KeyValueIterator(ByteIterParams)"/>
     /// <seealso cref="Table.Count(ByteIterParams)"/>

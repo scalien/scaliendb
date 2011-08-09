@@ -49,12 +49,12 @@ namespace Scalien
     /// db = client.GetDatabase("testDatabase");
     /// table = db.GetTable("testTable");
     /// // some sets
-    /// using (table.Begin())
+    /// using (client.Begin())
     /// {
     ///     for (i = 0; i &lt; 1000; i++) 
     ///         table.Set("foo" + i, "foo" + i);
     /// }
-    /// using (table.Begin())
+    /// using (client.Begin())
     /// {
     ///     for (i = 0; i &lt; 1000; i++) 
     ///         table.Set("bar" + i, "bar" + i);
@@ -62,6 +62,7 @@ namespace Scalien
     /// // some deletes
     /// table.Delete("foo0");
     /// table.Delete("foo10");
+    /// client.Submit();
     /// // count
     /// System.Console.WriteLine("number of keys starting with foo: " + table.Count(new StringIterParams().Prefix("foo")));
     /// // iterate
@@ -81,20 +82,20 @@ namespace Scalien
         /// <summary>
         /// Get operations are served by any quorum member. May return stale data.
         /// </summary>
-        /// <seealso cref="SetConsistencyLevel(int)"/>
+        /// <seealso cref="SetConsistencyMode(int)"/>
         public const int CONSISTENCY_ANY     = 0;
 
         /// <summary>
         /// Get operations are served using read-your-writes semantics.
         /// </summary>
-        /// <seealso cref="SetConsistencyLevel(int)"/>
+        /// <seealso cref="SetConsistencyMode(int)"/>
         public const int CONSISTENCY_RYW     = 1;
 
         /// <summary>
         /// Get operations are always served from the primary of each quorum.
         /// This is the default consistency level.
         /// </summary>
-        /// <seealso cref="SetConsistencyLevel(int)"/>
+        /// <seealso cref="SetConsistencyMode(int)"/>
         public const int CONSISTENCY_STRICT = 2;
 
         /// <summary>
@@ -154,59 +155,14 @@ namespace Scalien
 
         #region Internal and private helpers
 
-        internal ulong GetQuorumID(string name)
+        internal List<string> ListKeys(ulong tableID, string startKey, string endKey, string prefix, uint count, bool skip)
         {
-            uint numQuorums = scaliendb_client.SDBP_GetNumQuorums(cptr);
-            for (uint i = 0; i < numQuorums; i++)
-            {
-                ulong quorumID = scaliendb_client.SDBP_GetQuorumIDAt(cptr, i);
-                string quorumName = scaliendb_client.SDBP_GetQuorumNameAt(cptr, i);
-                if (quorumName == name)
-                    return quorumID;
-            }
-            return 0;
-        }
-
-        internal ulong GetDatabaseID()
-        {
-            return scaliendb_client.SDBP_GetCurrentDatabaseID(cptr);
-        }
-
-        internal ulong GetDatabaseID(string name)
-        {
-            return scaliendb_client.SDBP_GetDatabaseID(cptr, name);
-        }
-        
-        internal ulong GetTableID()
-        {
-            return scaliendb_client.SDBP_GetCurrentTableID(cptr);
-        }
-
-        internal ulong GetTableID(string name)
-        {
-            return scaliendb_client.SDBP_GetTableID(cptr, GetDatabaseID(), name);
-        }
-
-        internal void UseDatabaseID(ulong databaseID)
-        {
-            int status = scaliendb_client.SDBP_UseDatabaseID(cptr, databaseID);
-            CheckStatus(status);
-        }
-
-        internal void UseTableID(ulong tableID)
-        {
-            int status = scaliendb_client.SDBP_UseTableID(cptr, tableID);
-            CheckStatus(status);
-        }
-
-        internal List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
-        {
-            int status = scaliendb_client.SDBP_ListKeys(cptr, startKey, endKey, prefix, count, skip);
+            int status = scaliendb_client.SDBP_ListKeys(cptr, tableID, startKey, endKey, prefix, count, skip);
             CheckResultStatus(status);
             return result.GetStringKeys();
         }
 
-        internal List<byte[]> ListKeys(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        internal List<byte[]> ListKeys(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
         {
             int status;
 
@@ -217,21 +173,21 @@ namespace Scalien
                     IntPtr ipStartKey = new IntPtr(pStartKey);
                     IntPtr ipEndKey = new IntPtr(pEndKey);
                     IntPtr ipPrefix = new IntPtr(pPrefix);
-                    status = scaliendb_client.SDBP_ListKeysCStr(cptr, ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, skip);
+                    status = scaliendb_client.SDBP_ListKeysCStr(cptr, tableID,  ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, skip);
                 }
             }
             CheckResultStatus(status);
             return result.GetByteArrayKeys();
         }
 
-        internal Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
+        internal Dictionary<string, string> ListKeyValues(ulong tableID, string startKey, string endKey, string prefix, uint count, bool skip)
         {
-            int status = scaliendb_client.SDBP_ListKeyValues(cptr, startKey, endKey, prefix, count, skip);
+            int status = scaliendb_client.SDBP_ListKeyValues(cptr, tableID, startKey, endKey, prefix, count, skip);
             CheckResultStatus(status);
             return result.GetStringKeyValues();
         }
 
-        internal Dictionary<byte[], byte[]> ListKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
+        internal Dictionary<byte[], byte[]> ListKeyValues(ulong tableID, byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
         {
             int status;
 
@@ -242,7 +198,7 @@ namespace Scalien
                     IntPtr ipStartKey = new IntPtr(pStartKey);
                     IntPtr ipEndKey = new IntPtr(pEndKey);
                     IntPtr ipPrefix = new IntPtr(pPrefix);
-                    status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, skip);
+                    status = scaliendb_client.SDBP_ListKeyValuesCStr(cptr, tableID, ipStartKey, startKey.Length, ipEndKey, endKey.Length, ipPrefix, prefix.Length, count, skip);
                 }
             }
             CheckResultStatus(status);
@@ -255,19 +211,19 @@ namespace Scalien
             return result;
         }
 
-        private void CheckResultStatus(int status, string msg)
+        internal void CheckResultStatus(int status, string msg)
         {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             CheckStatus(status, msg);
         }
 
-        private void CheckResultStatus(int status)
+        internal void CheckResultStatus(int status)
         {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             CheckStatus(status, null);
         }
 
-        private void CheckStatus(int status, string msg)
+        internal void CheckStatus(int status, string msg)
         {
             if (status < 0)
             {
@@ -281,7 +237,7 @@ namespace Scalien
             }
         }
 
-        private void CheckStatus(int status)
+        internal void CheckStatus(int status)
         {
             CheckStatus(status, null);
         }
@@ -367,7 +323,7 @@ namespace Scalien
         }
 
         /// <summary>
-        /// Set the consistency level for Get operations.
+        /// Set the consistency mode for Get operations.
         /// </summary>
         /// <remarks>
         /// Possible values are:
@@ -380,10 +336,10 @@ namespace Scalien
         /// </list>
         /// The default is Client.CONSISTENCY_STRICT.
         /// </remarks>
-        /// <param name="consistencyLevel">Client.CONSISTENCY_STRICT or Client.CONSISTENCY_RYW or Client.CONSISTENCY_ANY</param>
-        public void SetConsistencyLevel(int consistencyLevel)
+        /// <param name="consistencyMode">Client.CONSISTENCY_STRICT or Client.CONSISTENCY_RYW or Client.CONSISTENCY_ANY</param>
+        public void SetConsistencyMode(int consistencyMode)
         {
-            scaliendb_client.SDBP_SetConsistencyLevel(cptr, consistencyLevel);
+            scaliendb_client.SDBP_SetConsistencyMode(cptr, consistencyMode);
         }
 
         /// <summary>
@@ -481,7 +437,7 @@ namespace Scalien
 
         #endregion
 
-        #region Get databases
+        #region Database management
 
         /// <summary>
         /// Get a <see cref="Scalien.Database"/> by name
@@ -491,7 +447,14 @@ namespace Scalien
         /// <seealso cref="Scalien.Database"/>
         public Database GetDatabase(string name)
         {
-            return new Database(this, name);
+            List<Database> databases = GetDatabases();
+            foreach (Database database in databases)
+            {
+                if (database.Name == name)
+                    return database;
+            }
+
+            throw new SDBPException(Status.SDBP_BADSCHEMA);
         }
 
         /// <summary>
@@ -505,15 +468,12 @@ namespace Scalien
             List<Database> databases = new List<Database>();
             for (uint i = 0; i < numDatabases; i++)
             {
+                ulong databaseID = scaliendb_client.SDBP_GetDatabaseIDAt(cptr, i);
                 string name = scaliendb_client.SDBP_GetDatabaseNameAt(cptr, i);
-                databases.Add(new Database(this, name));
+                databases.Add(new Database(this, databaseID, name));
             }
             return databases;
         }
-
-        #endregion
-
-        #region Database and table management
 
         /// <summary>
         /// Create a database and return the corresponding <see cref="Database"/> object.
@@ -525,91 +485,16 @@ namespace Scalien
         {
             int status = scaliendb_client.SDBP_CreateDatabase(cptr, name);
             CheckResultStatus(status);
-            return new Database(this, name);
-        }
-
-        /// <summary>
-        /// Rename a database.
-        /// </summary>
-        /// <param name="oldName">The old name.</param>
-        /// <param name="newName">the new name.</param>
-        public void RenameDatabase(string oldName, string newName)
-        {
-            int status = scaliendb_client.SDBP_RenameDatabase(cptr, GetDatabaseID(oldName), newName);
-            CheckResultStatus(status);
-        }
-
-        /// <summary>
-        /// Delete a database.
-        /// </summary>
-        /// <param name="name">The name of the database to delete.</param>
-        public void DeleteDatabase(string name)
-        {
-            int status = scaliendb_client.SDBP_DeleteDatabase(cptr, GetDatabaseID(name));
-            CheckResultStatus(status);
-        }
-
-        internal Table CreateTable(string tableName)
-        {
-            List<Quorum> quorums = GetQuorums();
-            if (quorums.Count == 0)
-                throw new SDBPException(Status.SDBP_BADSCHEMA);
-            Quorum quorum = quorums[0];
-            int status = scaliendb_client.SDBP_CreateTable(cptr, GetDatabaseID(), quorum.QuorumID, tableName);
-            CheckResultStatus(status);
-            String databaseName = scaliendb_client.SDBP_GetDatabaseName(cptr, GetDatabaseID());
-            return new Table(this, new Database(this, databaseName), tableName);
-        }
-
-        internal Table CreateTable(string tableName, string quorumName)
-        {
-            int status = scaliendb_client.SDBP_CreateTable(cptr, GetDatabaseID(), GetQuorumID(quorumName), tableName);
-            CheckResultStatus(status);
-            String databaseName = scaliendb_client.SDBP_GetDatabaseName(cptr, GetDatabaseID());
-            return new Table(this, new Database(this, databaseName), tableName);
-        }
-
-        internal void RenameTable(string oldName, string newName)
-        {
-            int status = scaliendb_client.SDBP_RenameTable(cptr, GetTableID(oldName), newName);
-            CheckResultStatus(status);
-        }
-
-        internal void DeleteTable(string name)
-        {
-            int status = scaliendb_client.SDBP_DeleteTable(cptr, GetTableID(name));
-            CheckResultStatus(status);
-        }
-
-        internal void TruncateTable(string name)
-        {
-            int status = scaliendb_client.SDBP_TruncateTable(cptr, GetTableID(name));
-            CheckResultStatus(status);
-        }
-
-        #endregion
-
-        #region Using... functions
-
-        internal void UseDatabase(string name)
-        {
-            int status = scaliendb_client.SDBP_UseDatabase(cptr, name);
-            CheckStatus(status);
-        }
-        
-        internal void UseTable(string name)
-        {
-            int status = scaliendb_client.SDBP_UseTable(cptr, name);
-            CheckStatus(status);
+            return GetDatabase(name);
         }
 
         #endregion
 
         #region Data commands
 
-        internal string Get(string key)
+        internal string Get(ulong tableID, string key)
         {
-            int status = scaliendb_client.SDBP_Get(cptr, key);
+            int status = scaliendb_client.SDBP_Get(cptr, tableID, key);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -620,7 +505,7 @@ namespace Scalien
             return result.GetValue();
         }
 
-        internal byte[] Get(byte[] key)
+        internal byte[] Get(ulong tableID, byte[] key)
         {
             int status;
             unsafe
@@ -628,7 +513,7 @@ namespace Scalien
                 fixed (byte* pKey = key)
                 {
                     IntPtr ipKey = new IntPtr(pKey);
-                    status = scaliendb_client.SDBP_GetCStr(cptr, ipKey, key.Length);
+                    status = scaliendb_client.SDBP_GetCStr(cptr, tableID, ipKey, key.Length);
                 }
             }
             if (status < 0)
@@ -641,9 +526,9 @@ namespace Scalien
             return result.GetValueBytes();
         }
 
-        internal void Set(string key, string value)
+        internal void Set(ulong tableID, string key, string value)
         {
-            int status = scaliendb_client.SDBP_Set(cptr, key, value);
+            int status = scaliendb_client.SDBP_Set(cptr, tableID, key, value);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -656,7 +541,7 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        internal void Set(byte[] key, byte[] value)
+        internal void Set(ulong tableID, byte[] key, byte[] value)
         {
             int status;
             unsafe
@@ -665,7 +550,7 @@ namespace Scalien
                 {
                     IntPtr ipKey = new IntPtr(pKey);
                     IntPtr ipValue = new IntPtr(pValue);
-                    status = scaliendb_client.SDBP_SetCStr(cptr, ipKey, key.Length, ipValue, value.Length);
+                    status = scaliendb_client.SDBP_SetCStr(cptr, tableID, ipKey, key.Length, ipValue, value.Length);
                 }
             }
             if (status < 0)
@@ -680,9 +565,9 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        internal long Add(string key, long value)
+        internal long Add(ulong tableID, string key, long value)
         {
-            int status = scaliendb_client.SDBP_Add(cptr, key, value);
+            int status = scaliendb_client.SDBP_Add(cptr, tableID, key, value);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -693,7 +578,7 @@ namespace Scalien
             return result.GetSignedNumber();
         }
 
-        internal long Add(byte[] key, long value)
+        internal long Add(ulong tableID, byte[] key, long value)
         {
             int status;
             unsafe
@@ -701,7 +586,7 @@ namespace Scalien
                 fixed (byte* pKey = key)
                 {
                     IntPtr ipKey = new IntPtr(pKey);
-                    status = scaliendb_client.SDBP_AddCStr(cptr, ipKey, key.Length, value);
+                    status = scaliendb_client.SDBP_AddCStr(cptr, tableID, ipKey, key.Length, value);
                 }
             }
             if (status < 0)
@@ -714,9 +599,9 @@ namespace Scalien
             return result.GetSignedNumber();
         }
 
-        internal void Delete(string key)
+        internal void Delete(ulong tableID, string key)
         {
-            int status = scaliendb_client.SDBP_Delete(cptr, key);
+            int status = scaliendb_client.SDBP_Delete(cptr, tableID, key);
             if (status < 0)
             {
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -729,7 +614,7 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        internal void Delete(byte[] key)
+        internal void Delete(ulong tableID, byte[] key)
         {
             int status;
             unsafe
@@ -737,7 +622,7 @@ namespace Scalien
                 fixed (byte* pKey = key)
                 {
                     IntPtr ipKey = new IntPtr(pKey);
-                    status = scaliendb_client.SDBP_DeleteCStr(cptr, ipKey, key.Length);
+                    status = scaliendb_client.SDBP_DeleteCStr(cptr, tableID, ipKey, key.Length);
                 }
             }
             if (status < 0)
@@ -752,14 +637,14 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        internal ulong Count(StringIterParams ps)
+        internal ulong Count(ulong tableID, StringIterParams ps)
         {
-            int status = scaliendb_client.SDBP_Count(cptr, ps.startKey, ps.endKey, ps.prefix);
+            int status = scaliendb_client.SDBP_Count(cptr, tableID, ps.startKey, ps.endKey, ps.prefix);
             CheckResultStatus(status);
             return result.GetNumber();
         }
 
-        internal ulong Count(ByteIterParams ps)
+        internal ulong Count(ulong tableID, ByteIterParams ps)
         {
             int status;
 
@@ -770,7 +655,7 @@ namespace Scalien
                     IntPtr ipStartKey = new IntPtr(pStartKey);
                     IntPtr ipEndKey = new IntPtr(pEndKey);
                     IntPtr ipPrefix = new IntPtr(pPrefix);
-                    status = scaliendb_client.SDBP_CountCStr(cptr, ipStartKey, ps.startKey.Length, ipEndKey, ps.endKey.Length, ipPrefix, ps.prefix.Length);
+                    status = scaliendb_client.SDBP_CountCStr(cptr, tableID, ipStartKey, ps.startKey.Length, ipEndKey, ps.endKey.Length, ipPrefix, ps.prefix.Length);
                 }
             }
             CheckResultStatus(status);
@@ -781,18 +666,33 @@ namespace Scalien
 
         #region Submit, Cancel
 
-        internal SubmitGuard Begin()
+        /// <summary>
+        /// Begin a client-side transaction.
+        /// </summary>
+        /// <remarks>
+        /// Return a <see cref="SubmitGuard"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.
+        /// </remarks>
+        /// <returns>A <see cref="SubmitGuard"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.</returns>
+        /// <seealso cref="Submit()"/>
+        /// <seealso cref="Rollback()"/>
+        public SubmitGuard Begin()
         {
             return new SubmitGuard(this);
         }
 
-        internal void Submit()
+        /// <summary>
+        /// Send the batched operations to the ScalienDB server.
+        /// </summary>
+        public void Submit()
         {
             int status = scaliendb_client.SDBP_Submit(cptr);
             CheckStatus(status);
         }
 
-        internal void Cancel()
+        /// <summary>
+        /// Discard all batched operations.
+        /// </summary>
+        public void Rollback()
         {
             int status = scaliendb_client.SDBP_Cancel(cptr);
             CheckStatus(status);

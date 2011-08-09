@@ -47,7 +47,6 @@ namespace Scalien
     public class Sequence
     {
         Client client;
-        ulong databaseID;
         ulong tableID;
         string stringKey;
         byte[] byteKey;
@@ -58,18 +57,16 @@ namespace Scalien
 
         #region Constructors, destructors
 
-        internal Sequence(Client client, ulong databaseID, ulong tableID, string key)
+        internal Sequence(Client client, ulong tableID, string key)
         {
             this.client = client;
-            this.databaseID = databaseID;
             this.tableID = tableID;
             this.stringKey = key;
         }
 
-        internal Sequence(Client client, ulong databaseID, ulong tableID, byte[] key)
+        internal Sequence(Client client, ulong tableID, byte[] key)
         {
             this.client = client;
-            this.databaseID = databaseID;
             this.tableID = tableID;
             this.byteKey = key;
         }
@@ -80,24 +77,11 @@ namespace Scalien
 
         private void AllocateRange()
         {
-            ulong oldDatabaseID = client.GetDatabaseID();
-            ulong oldTableID = client.GetTableID();
-
-            if (oldDatabaseID != databaseID)
-                client.UseDatabaseID(databaseID);
-            if (oldTableID != tableID)
-                client.UseTableID(tableID);
-
             if (stringKey != null)
-                seq = client.Add(stringKey, granularity) - granularity;
+                seq = client.Add(tableID, stringKey, granularity) - granularity;
             else
-                seq = client.Add(byteKey, granularity) - granularity;
+                seq = client.Add(tableID, byteKey, granularity) - granularity;
             num = granularity;
-
-            if (oldDatabaseID != databaseID)
-                client.UseDatabaseID(oldDatabaseID);
-            if (oldTableID != tableID)
-                client.UseTableID(oldTableID);
         }
 
         #endregion
@@ -122,24 +106,11 @@ namespace Scalien
         /// </remarks>
         public void Reset()
         {
-            ulong oldDatabaseID = client.GetDatabaseID();
-            ulong oldTableID = client.GetTableID();
-
-            if (oldDatabaseID != databaseID)
-                client.UseDatabaseID(databaseID);
-            if (oldTableID != tableID)
-                client.UseTableID(tableID);
-
             if (stringKey != null)
-                client.Set(stringKey, "0");
+                client.Set(tableID, stringKey, "0");
             else
-                client.Set(byteKey, Client.StringToByteArray("0"));
+                client.Set(tableID, byteKey, Client.StringToByteArray("0"));
             num = 0;
-
-            if (oldDatabaseID != databaseID)
-                client.UseDatabaseID(oldDatabaseID);
-            if (oldTableID != tableID)
-                client.UseTableID(oldTableID);
         }
 
         /// <summary>

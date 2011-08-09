@@ -6,7 +6,6 @@ namespace Scalien
 {
     public class StringKeyIterator : IEnumerable<string>, IEnumerator<string>
     {
-        Client client;
         Table table;
         string startKey;
         string endKey;
@@ -14,17 +13,6 @@ namespace Scalien
         uint count;
         int pos;
         List<string> keys;
-
-        public StringKeyIterator(Client client, StringIterParams ps)
-        {
-            this.client = client;
-            this.startKey = ps.startKey;
-            this.endKey = ps.endKey;
-            this.prefix = ps.prefix;
-            this.count = 100;
-
-            Query(false);
-        }
 
         public StringKeyIterator(Table table, StringIterParams ps)
         {
@@ -39,10 +27,7 @@ namespace Scalien
 
         private void Query(bool skip)
         {
-            if (client != null)
-                keys = client.ListKeys(startKey, endKey, prefix, count, skip);
-            else
-                keys = table.ListKeys(startKey, endKey, prefix, count, skip);
+            keys = table.Client.ListKeys(table.TableID, startKey, endKey, prefix, count, skip);
             keys.Sort();
             pos = 0;
         }

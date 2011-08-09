@@ -6,7 +6,6 @@ namespace Scalien
 {
     public class ByteKeyIterator : IEnumerable<byte[]>, IEnumerator<byte[]>
     {
-        Client client;
         Table table;
         byte[] startKey;
         byte[] endKey;
@@ -14,17 +13,6 @@ namespace Scalien
         uint count;
         int pos;
         List<byte[]> keys;
-
-        public ByteKeyIterator(Client client, ByteIterParams ps)
-        {
-            this.client = client;
-            this.startKey = ps.startKey;
-            this.endKey = ps.endKey;
-            this.prefix = ps.prefix;
-            this.count = 100;
-
-            Query(false);
-        }
 
         public ByteKeyIterator(Table table, ByteIterParams ps)
         {
@@ -39,10 +27,7 @@ namespace Scalien
 
         private void Query(bool skip)
         {
-            if (client != null)
-                keys = client.ListKeys(startKey, endKey, prefix, count, skip);
-            else
-                keys = table.ListKeys(startKey, endKey, prefix, count, skip);
+            keys = table.Client.ListKeys(table.TableID, startKey, endKey, prefix, count, skip);
             keys.Sort();
             pos = 0;
         }

@@ -18,12 +18,12 @@ namespace Scalien
     /// db = client.GetDatabase("testDatabase");
     /// table = db.GetTable("testTable");
     /// // some sets
-    /// using (table.Begin())
+    /// using (client.Begin())
     /// {
     ///     for (i = 0; i &lt; 1000; i++) 
     ///         table.Set("foo" + i, "foo" + i);
     /// }
-    /// using (table.Begin())
+    /// using (client.Begin())
     /// {
     ///     for (i = 0; i &lt; 1000; i++) 
     ///         table.Set("bar" + i, "bar" + i);
@@ -31,6 +31,7 @@ namespace Scalien
     /// // some deletes
     /// table.Delete("foo0");
     /// table.Delete("foo10");
+    /// client.Submit();
     /// // count
     /// System.Console.WriteLine("number of keys starting with foo: " + table.Count(new StringIterParams().Prefix("foo")));
     /// // iterate
@@ -95,61 +96,12 @@ namespace Scalien
 
         #region Constructors, destructors
 
-        internal Table(Client client, Database database, string name)
+        internal Table(Client client, Database database, ulong tableID, string name)
         {
             this.client = client;
             this.database = database;
+            this.tableID = tableID;
             this.name = name;
-
-            tableID = scaliendb_client.SDBP_GetTableID(client.cptr, database.DatabaseID, name);
-            if (tableID == 0)
-                throw new SDBPException(Status.SDBP_BADSCHEMA);
-        }
-
-        #endregion
-
-        #region Internal and private helpers
-
-        private void UseDefaults()
-        {
-            client.UseDatabaseID(database.DatabaseID);
-            client.UseTableID(tableID);
-        }
-
-        internal long Add(string key, long value)
-        {
-            UseDefaults();
-            return client.Add(key, value);
-        }
-
-        internal long Add(byte[] key, long value)
-        {
-            UseDefaults();
-            return client.Add(key, value);
-        }
-
-        internal List<string> ListKeys(string startKey, string endKey, string prefix, uint count, bool skip)
-        {
-            UseDefaults();
-            return client.ListKeys(startKey, endKey, prefix, count, skip);
-        }
-
-        internal List<byte[]> ListKeys(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
-        {
-            UseDefaults();
-            return client.ListKeys(startKey, endKey, prefix, count, skip);
-        }
-
-        internal Dictionary<string, string> ListKeyValues(string startKey, string endKey, string prefix, uint count, bool skip)
-        {
-            UseDefaults();
-            return client.ListKeyValues(startKey, endKey, prefix, count, skip);
-        }
-
-        internal Dictionary<byte[], byte[]> ListKeyValues(byte[] startKey, byte[] endKey, byte[] prefix, uint count, bool skip)
-        {
-            UseDefaults();
-            return client.ListKeyValues(startKey, endKey, prefix, count, skip);
         }
 
         #endregion
@@ -161,33 +113,30 @@ namespace Scalien
         /// </summary>
         /// <param name="newName">The new name of the table.</param>
         /// <exception cref="SDBPException"/>
-        /// <seealso cref="Scalien.Client.RenameTable(string, string)"/>
         public void RenameTable(string newName)
         {
-            UseDefaults();
-            client.RenameTable(this.Name, newName);
+            int status = scaliendb_client.SDBP_RenameTable(client.cptr, tableID, newName);
+            client.CheckResultStatus(status);
         }
 
         /// <summary>
-        /// Delete the table (all key-values in the table).
+        /// Delete the table.
         /// </summary>
         /// <exception cref="SDBPException"/>
-        /// <seealso cref="Scalien.Client.DeleteTable(string)"/>
         public void DeleteTable()
         {
-            UseDefaults();
-            client.DeleteTable(this.Name);
+            int status = scaliendb_client.SDBP_DeleteTable(client.cptr, tableID);
+            client.CheckResultStatus(status);
         }
 
         /// <summary>
         /// Truncate the table. This means all key-values in the table are dropped.
         /// </summary>
         /// <exception cref="SDBPException"/>
-        /// <seealso cref="Scalien.Client.TruncateTable"/>
         public void TruncateTable()
         {
-            UseDefaults();
-            client.TruncateTable(this.Name);
+            int status = scaliendb_client.SDBP_TruncateTable(client.cptr, tableID);
+            client.CheckResultStatus(status);
         }
 
         #endregion
@@ -203,8 +152,7 @@ namespace Scalien
         /// <seealso cref="Get(byte[])"/>
         public string Get(string key)
         {
-            UseDefaults();
-            return client.Get(key);
+            return client.Get(tableID, key);
         }
 
         /// <summary>
@@ -216,8 +164,7 @@ namespace Scalien
         /// <seealso cref="Get(string)"/>
         public byte[] Get(byte[] key)
         {
-            UseDefaults();
-            return client.Get(key);
+            return client.Get(tableID, key);
         }
 
         /// <summary>
@@ -229,8 +176,7 @@ namespace Scalien
         /// <seealso cref="Set(byte[], byte[])"/>
         public void Set(string key, string value)
         {
-            UseDefaults();
-            client.Set(key, value);
+            client.Set(tableID, key, value);
         }
 
         /// <summary>
@@ -242,8 +188,7 @@ namespace Scalien
         /// <seealso cref="Set(string, string)"/>
         public void Set(byte[] key, byte[] value)
         {
-            UseDefaults();
-            client.Set(key, value);
+            client.Set(tableID, key, value);
         }
 
         /// <summary>
@@ -254,8 +199,7 @@ namespace Scalien
         /// <seealso cref="Delete(byte[])"/>
         public void Delete(string key)
         {
-            UseDefaults();
-            client.Delete(key);
+            client.Delete(tableID, key);
         }
 
         /// <summary>
@@ -266,8 +210,7 @@ namespace Scalien
         /// <seealso cref="Delete(string)"/>
         public void Delete(byte[] key)
         {
-            UseDefaults();
-            client.Delete(key);
+            client.Delete(tableID, key);
         }
 
         /// <summary>
@@ -280,8 +223,7 @@ namespace Scalien
         /// <seealso cref="Count(ByteIterParams)"/>
         public ulong Count(StringIterParams ps)
         {
-            UseDefaults();
-            return client.Count(ps);
+            return client.Count(tableID, ps);
         }
 
         /// <summary>
@@ -294,8 +236,7 @@ namespace Scalien
         /// <seealso cref="Count(StringIterParams)"/>
         public ulong Count(ByteIterParams ps)
         {
-            UseDefaults();
-            return client.Count(ps);
+            return client.Count(tableID, ps);
         }
 
         #endregion
@@ -384,7 +325,7 @@ namespace Scalien
         /// <seealso cref="Scalien.Sequence"/>
         public Sequence GetSequence(string key)
         {
-            return new Sequence(this.client, database.DatabaseID, this.tableID, key);
+            return new Sequence(this.client, this.tableID, key);
         }
 
         /// <summary>
@@ -395,39 +336,7 @@ namespace Scalien
         /// <seealso cref="Scalien.Sequence"/>
         public Sequence GetSequence(byte[] key)
         {
-            return new Sequence(this.client, database.DatabaseID, this.tableID, key);
-        }
-
-        /// <summary>
-        /// Return a new <see cref="Scalien.SubmitGuard"/> object.
-        /// </summary>
-        /// <returns>The <see cref="Scalien.SubmitGuard"/> object.</returns>
-        /// <seealso cref="Scalien.SubmitGuard"/>
-        public SubmitGuard Begin()
-        {
-            return new SubmitGuard(this.client);
-        }
-
-        #endregion
-
-        #region Submit, Cancel
-
-        /// <summary>
-        /// Send all batched commands to the database server.
-        /// </summary>
-        /// <seealso cref="Scalien.Client.Submit()"/>
-        public void Submit()
-        {
-            this.Client.Submit();
-        }
-
-        /// <summary>
-        /// Discard all batched commands.
-        /// </summary>
-        /// <seealso cref="Scalien.Client.Cancel()"/>
-        public void Cancel()
-        {
-            this.Client.Cancel();
+            return new Sequence(this.client, this.tableID, key);
         }
 
         #endregion

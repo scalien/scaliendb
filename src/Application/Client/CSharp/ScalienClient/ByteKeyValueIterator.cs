@@ -6,7 +6,6 @@ namespace Scalien
 {
     public class ByteKeyValueIterator : IEnumerable<KeyValuePair<byte[], byte[]>>, IEnumerator<KeyValuePair<byte[], byte[]>>
     {
-        Client client;
         Table table;
         byte[] startKey;
         byte[] endKey;
@@ -15,17 +14,6 @@ namespace Scalien
         int pos;
         List<byte[]> keys;
         List<byte[]> values;
-
-        public ByteKeyValueIterator(Client client, ByteIterParams ps)
-        {
-            this.client = client;
-            this.startKey = ps.startKey;
-            this.endKey = ps.endKey;
-            this.prefix = ps.prefix;
-            this.count = 100;
-
-            Query(false);
-        }
 
         public ByteKeyValueIterator(Table table, ByteIterParams ps)
         {
@@ -41,10 +29,7 @@ namespace Scalien
         private void Query(bool skip)
         {
             Dictionary<byte[], byte[]> result;
-            if (client != null)
-                result = client.ListKeyValues(startKey, endKey, prefix, count, skip);
-            else
-                result = table.ListKeyValues(startKey, endKey, prefix, count, skip);
+            result = table.Client.ListKeyValues(table.TableID, startKey, endKey, prefix, count, skip);
 
             keys = new List<byte[]>();
             values = new List<byte[]>();
