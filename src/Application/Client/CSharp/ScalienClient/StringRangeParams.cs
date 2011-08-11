@@ -3,8 +3,8 @@
     /// <summary>
     /// StringRangeParams is a convenient way to specify the string parameters
     /// for iteration when using
-    /// <see cref="Table.KeyIterator(StringRangeParams)"/>,
-    /// <see cref="Table.KeyValueIterator(StringRangeParams)"/> and
+    /// <see cref="Table.GetKeyIterator(StringRangeParams)"/>,
+    /// <see cref="Table.GetKeyValueIterator(StringRangeParams)"/> and
     /// <see cref="Table.Count(StringRangeParams)"/>.
     /// </summary>
     /// <remarks>
@@ -27,11 +27,11 @@
     /// </remarks>
     /// <example><code>
     /// // print keys that start with "foo", starting at "foobar"
-    /// foreach (string key in client.KeyIterator(new StringRangeParams().Prefix("foo").StartKey("foobar")))
+    /// foreach (string key in client.GetKeyIterator(new StringRangeParams().Prefix("foo").StartKey("foobar")))
     ///     System.Console.WriteLine(key);
     /// </code></example>
-    /// <seealso cref="Table.KeyIterator(StringRangeParams)"/>
-    /// <seealso cref="Table.KeyValueIterator(StringRangeParams)"/>
+    /// <seealso cref="Table.GetKeyIterator(StringRangeParams)"/>
+    /// <seealso cref="Table.GetKeyValueIterator(StringRangeParams)"/>
     /// <seealso cref="Table.Count(StringRangeParams)"/>
     public class StringRangeParams
     {

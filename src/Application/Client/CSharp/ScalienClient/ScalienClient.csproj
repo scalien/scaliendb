@@ -102,9 +102,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ByteIterParams.cs" />
     <Compile Include="ByteKeyIterator.cs" />
     <Compile Include="ByteKeyValueIterator.cs" />
+    <Compile Include="ByteRangeParams.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Database.cs" />
     <Compile Include="imaxdiv_t.cs" />
@@ -117,9 +117,9 @@
     <Compile Include="SDBP_NodeParams.cs" />
     <Compile Include="Sequence.cs" />
     <Compile Include="Status.cs" />
-    <Compile Include="StringIterParams.cs" />
     <Compile Include="StringKeyIterator.cs" />
     <Compile Include="StringKeyValueIterator.cs" />
+    <Compile Include="StringRangeParams.cs" />
     <Compile Include="Submitter.cs" />
     <Compile Include="SWIGTYPE_p_p_char.cs" />
     <Compile Include="SWIGTYPE_p_void.cs" />

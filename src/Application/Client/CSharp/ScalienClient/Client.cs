@@ -66,7 +66,7 @@ namespace Scalien
     /// // count
     /// System.Console.WriteLine("number of keys starting with foo: " + table.Count(new StringRangeParams().Prefix("foo")));
     /// // iterate
-    /// foreach(KeyValuePair&lt;string, string&gt; kv in table.KeyValueIterator(new StringRangeParams().Prefix("bar")))
+    /// foreach(KeyValuePair&lt;string, string&gt; kv in table.GetKeyValueIterator(new StringRangeParams().Prefix("bar")))
     ///     System.Console.WriteLine(kv.Key + " => " + kv.Value);
     /// // truncate
     /// table.Truncate();

@@ -3,8 +3,8 @@
     /// <summary>
     /// ByteRangeParams is a convenient way to specify the byte[] parameters
     /// for iteration when using
-    /// <see cref="Table.KeyIterator(ByteRangeParams)"/>,
-    /// <see cref="Table.KeyValueIterator(ByteRangeParams)"/>,
+    /// <see cref="Table.GetKeyIterator(ByteRangeParams)"/>,
+    /// <see cref="Table.GetKeyValueIterator(ByteRangeParams)"/>,
     /// <see cref="Table.Count(ByteRangeParams)"/>.
     /// </summary>
     /// <remarks>
@@ -25,8 +25,8 @@
     /// The default values are empty byte arrays.
     /// </para>
     /// </remarks>
-    /// <seealso cref="Table.KeyIterator(ByteRangeParams)"/>
-    /// <seealso cref="Table.KeyValueIterator(ByteRangeParams)"/>
+    /// <seealso cref="Table.GetKeyIterator(ByteRangeParams)"/>
+    /// <seealso cref="Table.GetKeyValueIterator(ByteRangeParams)"/>
     /// <seealso cref="Table.Count(ByteRangeParams)"/>
     public class ByteRangeParams
     {
