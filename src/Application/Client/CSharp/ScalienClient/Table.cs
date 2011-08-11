@@ -49,8 +49,8 @@ namespace Scalien
     {
         private Client client;
         private Database database;
-        private string name;
         private ulong tableID;
+        private string name;
 
         #region Properties
 

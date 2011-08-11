@@ -5,7 +5,6 @@ import java.util.Collections;
 
 public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.Iterator<byte[]>
 {
-    private Client client;
     private Table table;
     private byte[] startKey;
     private byte[] endKey;
@@ -14,16 +13,6 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     private List<byte[]> keys;
     private int pos;
  
-    public ByteKeyIterator(Client client, ByteRangeParams ps) throws SDBPException {
-        this.client = client;
-        this.startKey = ps.startKey;
-        this.endKey = ps.endKey;
-        this.prefix = ps.prefix;
-        this.count = 100;
-        
-        query(false);
-    }
-    
     public ByteKeyIterator(Table table, ByteRangeParams ps) throws SDBPException {
         this.table = table;
         this.startKey = ps.startKey;
@@ -70,10 +59,7 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     }
     
     private void query(boolean skip) throws SDBPException {
-        if (client != null)
-            keys = client.listKeys(startKey, endKey, prefix, count, skip);
-        else
-            keys = table.listKeys(startKey, endKey, prefix, count, skip);
+        keys = table.getClient().listKeys(table.getTableID(), startKey, endKey, prefix, count, skip);
         Collections.sort(keys, new ByteArrayComparator());
         pos = 0;
     }

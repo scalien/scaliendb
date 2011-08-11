@@ -5,25 +5,14 @@ import java.util.Collections;
 
 public class StringKeyIterator implements java.lang.Iterable<String>, java.util.Iterator<String>
 {
-    private Client client;
     private Table table;
     private String startKey;
     private String endKey;
     private String prefix;
     private int count;
-    private List<String> keys;
     private int pos;
+    private List<String> keys;
  
-    public StringKeyIterator(Client client, StringRangeParams ps) throws SDBPException {
-        this.client = client;
-        this.startKey = ps.startKey;
-        this.endKey = ps.endKey;
-        this.prefix = ps.prefix;
-        this.count = 100;
-        
-        query(false);
-    }
-    
     public StringKeyIterator(Table table, StringRangeParams ps) throws SDBPException {
         this.table = table;
         this.startKey = ps.startKey;
@@ -70,10 +59,7 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
     }
     
     private void query(boolean skip) throws SDBPException {
-        if (client != null)
-            keys = client.listKeys(startKey, endKey, prefix, count, skip);
-        else
-            keys = table.listKeys(startKey, endKey, prefix, count, skip);
+        keys = table.getClient().listKeys(table.getTableID(), startKey, endKey, prefix, count, skip);
         Collections.sort(keys);
         pos = 0;
     }    

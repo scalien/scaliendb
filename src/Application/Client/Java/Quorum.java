@@ -6,48 +6,26 @@ public class Quorum
 {
     private Client client;
     private long quorumID;
+    private String name;
     
-    /**
-     * Package constructor.
-     *
-     * @param   client  the client object
-     * @param   name    the name of the database
-     * @see     com.scalien.scaliendb.Client#getDatabase(String name)  getDatabase
-     */
-    Quorum(Client client, long quorumID) throws SDBPException {
+    Quorum(Client client, long quorumID, String name) throws SDBPException {
         this.client = client;
         this.quorumID = quorumID;
+        this.name = name;
     }
     
     /**
      * Returns the ID of the quorum.
      */
-    public long getQuorumID() {
+    long getQuorumID() {
         return quorumID;
     }
-    
-    /**
-     * Deletes the quorum.
-     */
-    public void deleteQuorum() throws SDBPException {
-        client.deleteQuorum(quorumID);
-    }
 
     /**
-     * Adds node to the quorum.
-     *
-     * @param   nodeID  the ID of node to be added to the quorum
+     * The name of the quorum.
      */
-    public void addNode(long nodeID) throws SDBPException {
-        client.addNode(quorumID, nodeID);
-    }
-
-    /**
-     * Removes node from the quorum.
-     *
-     * @param   nodeID  the ID of node to be removed to the quorum
-     */
-    public void removeNode(long nodeID) throws SDBPException {
-        client.removeNode(quorumID, nodeID);
+    public String getName()
+    {
+        return name;
     }
 }

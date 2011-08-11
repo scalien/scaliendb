@@ -18,7 +18,7 @@ namespace Scalien
     /// ScalienDB has a special <c>ADD</c> command which parses the value as a number
     /// and increments it by a user specified value.
     /// The Index class wraps this functionality, and increments the number by a
-    /// user-defined <c>granularity</c> (default 1000). This way, the server is contacted
+    /// user-defined <c>gran</c> (default 1000). This way, the server is contacted
     /// only every 1000th time the sequence is incremented, which is an important
     /// optimization since sending and waiting for commands to execute on the server
     /// is slow.
@@ -51,7 +51,7 @@ namespace Scalien
         string stringKey;
         byte[] byteKey;
 
-        long granularity = 1000;
+        long gran = 1000;
         long seq = 0;
         long num = 0;
 
@@ -78,21 +78,21 @@ namespace Scalien
         private void AllocateRange()
         {
             if (stringKey != null)
-                seq = client.Add(tableID, stringKey, granularity) - granularity;
+                seq = client.Add(tableID, stringKey, gran) - gran;
             else
-                seq = client.Add(tableID, byteKey, granularity) - granularity;
-            num = granularity;
+                seq = client.Add(tableID, byteKey, gran) - gran;
+            num = gran;
         }
 
         #endregion
         
         /// <summary>
-        /// Set the granularity of the seqeunce increments (default 1000).
+        /// Set the gran of the seqeunce increments (default 1000).
         /// </summary>
-        /// <param name="granularity">The granularity of the sequence.</param>
-        public void SetGranularity(long granularity)
+        /// <param name="gran">The gran of the sequence.</param>
+        public void SetGranularity(long gran)
         {
-            this.granularity = granularity;
+            this.gran = gran;
         }
 
         /// <summary>

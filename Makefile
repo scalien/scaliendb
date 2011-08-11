@@ -203,7 +203,7 @@ JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Status.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Database.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Table.java \
-	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Index.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Sequence.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringKeyIterator.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringKeyValueIterator.java \
     $(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringRangeParams.java \
@@ -402,7 +402,7 @@ executables: $(BUILD_DIR) $(EXECUTABLES)
 cli: $(BUILD_DIR) $(BIN_DIR)/cli
 
 javadoc: $(JAVA_SOURCE_FILES) 
-	-SRCDIR=`pwd`; cd $(SRC_DIR)/$(JAVA_CLIENT_DIR) && javadoc -d $$SRCDIR/javadoc -public Client.java Database.java ListParams.java Quorum.java Result.java SDBPException.java Status.java Table.java Index.java StringRangeParams.java ByteRangeParams.java
+	-SRCDIR=`pwd`; cd $(SRC_DIR)/$(JAVA_CLIENT_DIR) && javadoc -d $$SRCDIR/javadoc -public Client.java Database.java ListParams.java Quorum.java Result.java SDBPException.java Status.java Table.java Sequence.java StringRangeParams.java ByteRangeParams.java
 
 install: release clientlib
 	-cp -fr $(BIN_DIR)/$(ALIB) $(INSTALL_LIB_DIR)

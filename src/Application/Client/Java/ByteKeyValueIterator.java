@@ -7,27 +7,15 @@ import java.util.TreeMap;
 
 public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[], byte[]>>, java.util.Iterator<KeyValue<byte[], byte[]>>
 {
-    private Client client;
     private Table table;
     private byte[] startKey;
     private byte[] endKey;
     private byte[] prefix;
-
     private int count;
     private int pos;
     private LinkedList<byte[]> keys;
     private LinkedList<byte[]> values;
  
-    public ByteKeyValueIterator(Client client, ByteRangeParams ps) throws SDBPException {
-        this.client = client;
-        this.startKey = ps.startKey;
-        this.endKey = ps.endKey;
-        this.prefix = ps.prefix;
-        this.count = 100;
-        
-        query(false);
-    }
-    
     public ByteKeyValueIterator(Table table, ByteRangeParams ps) throws SDBPException {
         this.table = table;
         this.startKey = ps.startKey;
@@ -75,10 +63,7 @@ public class ByteKeyValueIterator implements java.lang.Iterable<KeyValue<byte[],
     
     private void query(boolean skip) throws SDBPException {
         Map<byte[], byte[]> result;
-        if (client != null)
-            result = client.listKeyValues(startKey, endKey, prefix, count, skip);
-        else
-            result = table.listKeyValues(startKey, endKey, prefix, count, skip);
+        result = table.getClient().listKeyValues(table.getTableID(), startKey, endKey, prefix, count, skip);
         keys = new LinkedList<byte[]>();
         values = new LinkedList<byte[]>();
 

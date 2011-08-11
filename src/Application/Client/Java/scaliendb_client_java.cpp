@@ -1206,66 +1206,6 @@ SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
 }
 
 
-SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetCurrentDatabaseID(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  jobject jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  result = (uint64_t)SDBP_GetCurrentDatabaseID(arg1);
-  {
-    jbyteArray ba = jenv->NewByteArray(9);
-    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
-    jclass clazz = jenv->FindClass("java/math/BigInteger");
-    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
-    jobject bigint;
-    int i;
-    
-    bae[0] = 0;
-    for(i=1; i<9; i++ ) {
-      bae[i] = (jbyte)(result>>8*(8-i));
-    }
-    
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-    bigint = jenv->NewObject(clazz, mid, ba);
-    jresult = bigint;
-  }
-  return jresult;
-}
-
-
-SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetCurrentTableID(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  jobject jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  result = (uint64_t)SDBP_GetCurrentTableID(arg1);
-  {
-    jbyteArray ba = jenv->NewByteArray(9);
-    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
-    jclass clazz = jenv->FindClass("java/math/BigInteger");
-    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
-    jobject bigint;
-    int i;
-    
-    bae[0] = 0;
-    for(i=1; i<9; i++ ) {
-      bae[i] = (jbyte)(result>>8*(8-i));
-    }
-    
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-    bigint = jenv->NewObject(clazz, mid, ba);
-    jresult = bigint;
-  }
-  return jresult;
-}
-
-
 SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetJSONConfigState(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   jstring jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -1290,7 +1230,7 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Wa
 }
 
 
-SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetConsistencyLevel(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2) {
+SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetConsistencyMode(JNIEnv *jenv, jclass jcls, jlong jarg1, jint jarg2) {
   ClientObj arg1 = (ClientObj) 0 ;
   int arg2 ;
   
@@ -1298,7 +1238,7 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Se
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
   arg2 = (int)jarg2; 
-  SDBP_SetConsistencyLevel(arg1,arg2);
+  SDBP_SetConsistencyMode(arg1,arg2);
 }
 
 
@@ -1323,285 +1263,6 @@ SWIGEXPORT void JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Se
   arg1 = *(ClientObj *)&jarg1; 
   arg2 = (unsigned int)jarg2; 
   SDBP_SetBatchLimit(arg1,arg2);
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1CreateQuorum(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jlong jarg3, jobject jarg3_) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  SDBP_NodeParams *arg3 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  (void)jarg3_;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  arg3 = *(SDBP_NodeParams **)&jarg3;
-  if(!arg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "SDBP_NodeParams const & reference is null");
-    return 0;
-  } 
-  result = (int)SDBP_CreateQuorum(arg1,(std::string const &)*arg2,(SDBP_NodeParams const &)*arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1RenameQuorum(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  std::string *arg3 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  std::string arg3_str(arg3_pstr);
-  arg3 = &arg3_str;
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (int)SDBP_RenameQuorum(arg1,arg2,(std::string const &)*arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1DeleteQuorum(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_DeleteQuorum(arg1,arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1AddNode(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jobject jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  uint64_t arg3 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg3) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg3);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg3, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg3 = 0;
-    for(i=0; i<sz; i++) {
-      arg3 = (arg3 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_AddNode(arg1,arg2,arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1RemoveNode(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jobject jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  uint64_t arg3 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg3) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg3);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg3, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg3 = 0;
-    for(i=0; i<sz; i++) {
-      arg3 = (arg3 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_RemoveNode(arg1,arg2,arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ActivateNode(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_ActivateNode(arg1,arg2);
-  jresult = (jint)result; 
-  return jresult;
 }
 
 
@@ -1911,496 +1572,6 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Tr
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SplitShard(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  std::string *arg3 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  std::string arg3_str(arg3_pstr);
-  arg3 = &arg3_str;
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (int)SDBP_SplitShard(arg1,arg2,(std::string const &)*arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SplitShardAuto(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_SplitShardAuto(arg1,arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1FreezeTable(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_FreezeTable(arg1,arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1UnfreezeTable(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_UnfreezeTable(arg1,arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1MigrateShard(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jobject jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  uint64_t arg3 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg3) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg3);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg3, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg3 = 0;
-    for(i=0; i<sz; i++) {
-      arg3 = (arg3 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_MigrateShard(arg1,arg2,arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetDatabaseID(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2) {
-  jobject jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  uint64_t result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  result = (uint64_t)SDBP_GetDatabaseID(arg1,(std::string const &)*arg2);
-  {
-    jbyteArray ba = jenv->NewByteArray(9);
-    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
-    jclass clazz = jenv->FindClass("java/math/BigInteger");
-    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
-    jobject bigint;
-    int i;
-    
-    bae[0] = 0;
-    for(i=1; i<9; i++ ) {
-      bae[i] = (jbyte)(result>>8*(8-i));
-    }
-    
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-    bigint = jenv->NewObject(clazz, mid, ba);
-    jresult = bigint;
-  }
-  return jresult;
-}
-
-
-SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetDatabaseName(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jstring jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  std::string result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = SDBP_GetDatabaseName(arg1,arg2);
-  jresult = jenv->NewStringUTF((&result)->c_str()); 
-  return jresult;
-}
-
-
-SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetTableID(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3) {
-  jobject jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  std::string *arg3 = 0 ;
-  uint64_t result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  std::string arg3_str(arg3_pstr);
-  arg3 = &arg3_str;
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (uint64_t)SDBP_GetTableID(arg1,arg2,(std::string const &)*arg3);
-  {
-    jbyteArray ba = jenv->NewByteArray(9);
-    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
-    jclass clazz = jenv->FindClass("java/math/BigInteger");
-    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
-    jobject bigint;
-    int i;
-    
-    bae[0] = 0;
-    for(i=1; i<9; i++ ) {
-      bae[i] = (jbyte)(result>>8*(8-i));
-    }
-    
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-    bigint = jenv->NewObject(clazz, mid, ba);
-    jresult = bigint;
-  }
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1UseDatabase(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  result = (int)SDBP_UseDatabase(arg1,(std::string const &)*arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1UseDatabaseID(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_UseDatabaseID(arg1,arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1UseTable(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  result = (int)SDBP_UseTable(arg1,(std::string const &)*arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1UseTableID(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  uint64_t arg2 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    jclass clazz;
-    jmethodID mid;
-    jbyteArray ba;
-    jbyte* bae;
-    jsize sz;
-    int i;
-    
-    if (!jarg2) {
-      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
-      return 0;
-    }
-    clazz = jenv->GetObjectClass(jarg2);
-    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
-    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
-    bae = jenv->GetByteArrayElements(ba, 0);
-    sz = jenv->GetArrayLength(ba);
-    arg2 = 0;
-    for(i=0; i<sz; i++) {
-      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
-    }
-    jenv->ReleaseByteArrayElements(ba, bae, 0);
-  }
-  result = (int)SDBP_UseTableID(arg1,arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
 SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetNumQuorums(JNIEnv *jenv, jclass jcls, jlong jarg1) {
   jlong jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
@@ -2525,31 +1696,79 @@ SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetNumTables(JNIEnv *jenv, jclass jcls, jlong jarg1) {
+SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetNumTables(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2) {
   jlong jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
   unsigned int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
-  result = (unsigned int)SDBP_GetNumTables(arg1);
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
+  result = (unsigned int)SDBP_GetNumTables(arg1,arg2);
   jresult = (jlong)result; 
   return jresult;
 }
 
 
-SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetTableIDAt(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
+SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetTableIDAt(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jlong jarg3) {
   jobject jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  unsigned int arg2 ;
+  uint64_t arg2 ;
+  unsigned int arg3 ;
   uint64_t result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
-  arg2 = (unsigned int)jarg2; 
-  result = (uint64_t)SDBP_GetTableIDAt(arg1,arg2);
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
+  arg3 = (unsigned int)jarg3; 
+  result = (uint64_t)SDBP_GetTableIDAt(arg1,arg2,arg3);
   {
     jbyteArray ba = jenv->NewByteArray(9);
     jbyte* bae = jenv->GetByteArrayElements(ba, 0);
@@ -2571,135 +1790,79 @@ SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_
 }
 
 
-SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetTableNameAt(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
+SWIGEXPORT jstring JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetTableNameAt(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jlong jarg3) {
   jstring jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  unsigned int arg2 ;
+  uint64_t arg2 ;
+  unsigned int arg3 ;
   std::string result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
-  arg2 = (unsigned int)jarg2; 
-  result = SDBP_GetTableNameAt(arg1,arg2);
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
+  arg3 = (unsigned int)jarg3; 
+  result = SDBP_GetTableNameAt(arg1,arg2,arg3);
   jresult = jenv->NewStringUTF((&result)->c_str()); 
   return jresult;
 }
 
 
-SWIGEXPORT jlong JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetNumShards(JNIEnv *jenv, jclass jcls, jlong jarg1) {
-  jlong jresult = 0 ;
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Get(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3) {
+  jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  unsigned int result;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
-  result = (unsigned int)SDBP_GetNumShards(arg1);
-  jresult = (jlong)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jobject JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetShardIDAt(JNIEnv *jenv, jclass jcls, jlong jarg1, jlong jarg2) {
-  jobject jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  unsigned int arg2 ;
-  uint64_t result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  arg2 = (unsigned int)jarg2; 
-  result = (uint64_t)SDBP_GetShardIDAt(arg1,arg2);
   {
-    jbyteArray ba = jenv->NewByteArray(9);
-    jbyte* bae = jenv->GetByteArrayElements(ba, 0);
-    jclass clazz = jenv->FindClass("java/math/BigInteger");
-    jmethodID mid = jenv->GetMethodID(clazz, "<init>", "([B)V");
-    jobject bigint;
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
     int i;
     
-    bae[0] = 0;
-    for(i=1; i<9; i++ ) {
-      bae[i] = (jbyte)(result>>8*(8-i));
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
     }
-    
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
     jenv->ReleaseByteArrayElements(ba, bae, 0);
-    bigint = jenv->NewObject(clazz, mid, ba);
-    jresult = bigint;
   }
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Get(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  result = (int)SDBP_Get(arg1,(std::string const &)*arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
-  }
-  arg3 = (int)jarg3; 
-  result = (int)SDBP_GetCStr(arg1,arg2,arg3);
-  jresult = (jint)result; 
-  {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
-  }
-  
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Set(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  std::string *arg3 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
   if(!jarg3) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
     return 0;
@@ -2709,118 +1872,64 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Se
   std::string arg3_str(arg3_pstr);
   arg3 = &arg3_str;
   jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (int)SDBP_Set(arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  result = (int)SDBP_Get(arg1,arg2,(std::string const &)*arg3);
   jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jbyteArray jarg3, jint jarg4) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
   int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
   {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
   }
-  arg3 = (int)jarg3; 
   {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
+    arg3 = (char*) jenv->GetByteArrayElements(jarg3, 0);
   }
-  arg5 = (int)jarg5; 
-  result = (int)SDBP_SetCStr(arg1,arg2,arg3,arg4,arg5);
+  arg4 = (int)jarg4; 
+  result = (int)SDBP_GetCStr(arg1,arg2,arg3,arg4);
   jresult = (jint)result; 
   {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+    jenv->ReleaseByteArrayElements(jarg3, (jbyte*) arg3, 0);
   }
-  {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
-  }
-  
   
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetIfNotExists(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Set(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3, jstring jarg4) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  std::string *arg3 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  std::string arg3_str(arg3_pstr);
-  arg3 = &arg3_str;
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (int)SDBP_SetIfNotExists(arg1,(std::string const &)*arg2,(std::string const &)*arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetIfNotExistsCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
-  }
-  arg3 = (int)jarg3; 
-  {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
-  }
-  arg5 = (int)jarg5; 
-  result = (int)SDBP_SetIfNotExistsCStr(arg1,arg2,arg3,arg4,arg5);
-  jresult = (jint)result; 
-  {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
-  }
-  {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
-  }
-  
-  
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1TestAndSet(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
+  uint64_t arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
   int result;
@@ -2828,15 +1937,29 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Te
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
   }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
   if(!jarg3) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
     return 0;
@@ -2855,155 +1978,75 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Te
   std::string arg4_str(arg4_pstr);
   arg4 = &arg4_str;
   jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  result = (int)SDBP_TestAndSet(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  result = (int)SDBP_Set(arg1,arg2,(std::string const &)*arg3,(std::string const &)*arg4);
   jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1TestAndSetCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1SetCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jbyteArray jarg3, jint jarg4, jbyteArray jarg5, jint jarg6) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
-  char *arg6 = (char *) 0 ;
-  int arg7 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char *arg5 = (char *) 0 ;
+  int arg6 ;
   int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
   {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
   }
-  arg3 = (int)jarg3; 
   {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
+    arg3 = (char*) jenv->GetByteArrayElements(jarg3, 0);
   }
-  arg5 = (int)jarg5; 
+  arg4 = (int)jarg4; 
   {
-    arg6 = (char*) jenv->GetByteArrayElements(jarg6, 0);
+    arg5 = (char*) jenv->GetByteArrayElements(jarg5, 0);
   }
-  arg7 = (int)jarg7; 
-  result = (int)SDBP_TestAndSetCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  arg6 = (int)jarg6; 
+  result = (int)SDBP_SetCStr(arg1,arg2,arg3,arg4,arg5,arg6);
   jresult = (jint)result; 
   {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+    jenv->ReleaseByteArrayElements(jarg3, (jbyte*) arg3, 0);
   }
   {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
+    jenv->ReleaseByteArrayElements(jarg5, (jbyte*) arg5, 0);
   }
-  {
-    jenv->ReleaseByteArrayElements(jarg6, (jbyte*) arg6, 0);
-  }
-  
   
   
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetAndSet(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Add(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3, jlong jarg4) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
+  uint64_t arg2 ;
   std::string *arg3 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  std::string arg3_str(arg3_pstr);
-  arg3 = &arg3_str;
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (int)SDBP_GetAndSet(arg1,(std::string const &)*arg2,(std::string const &)*arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1GetAndSetCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
-  }
-  arg3 = (int)jarg3; 
-  {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
-  }
-  arg5 = (int)jarg5; 
-  result = (int)SDBP_GetAndSetCStr(arg1,arg2,arg3,arg4,arg5);
-  jresult = (jint)result; 
-  {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
-  }
-  {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
-  }
-  
-  
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Add(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jlong jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  int64_t arg3 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  arg3 = (int64_t)jarg3; 
-  result = (int)SDBP_Add(arg1,(std::string const &)*arg2,arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1AddCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jlong jarg4) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
   int64_t arg4 ;
   int result;
   
@@ -3011,39 +2054,127 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Ad
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
   {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
   }
-  arg3 = (int)jarg3; 
+  if(!jarg3) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  }
+  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
+  if (!arg3_pstr) return 0;
+  std::string arg3_str(arg3_pstr);
+  arg3 = &arg3_str;
+  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
   arg4 = (int64_t)jarg4; 
-  result = (int)SDBP_AddCStr(arg1,arg2,arg3,arg4);
+  result = (int)SDBP_Add(arg1,arg2,(std::string const &)*arg3,arg4);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1AddCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jbyteArray jarg3, jint jarg4, jlong jarg5) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  int64_t arg5 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
+  {
+    arg3 = (char*) jenv->GetByteArrayElements(jarg3, 0);
+  }
+  arg4 = (int)jarg4; 
+  arg5 = (int64_t)jarg5; 
+  result = (int)SDBP_AddCStr(arg1,arg2,arg3,arg4,arg5);
   jresult = (jint)result; 
   {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+    jenv->ReleaseByteArrayElements(jarg3, (jbyte*) arg3, 0);
   }
   
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Append(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Delete(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
+  uint64_t arg2 ;
   std::string *arg3 = 0 ;
   int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
   }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
   if(!jarg3) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
     return 0;
@@ -3053,232 +2184,97 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Ap
   std::string arg3_str(arg3_pstr);
   arg3 = &arg3_str;
   jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (int)SDBP_Append(arg1,(std::string const &)*arg2,(std::string const &)*arg3);
+  result = (int)SDBP_Delete(arg1,arg2,(std::string const &)*arg3);
   jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1AppendCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1DeleteCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jbyteArray jarg3, jint jarg4) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
   int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
   {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
   }
-  arg3 = (int)jarg3; 
   {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
+    arg3 = (char*) jenv->GetByteArrayElements(jarg3, 0);
   }
-  arg5 = (int)jarg5; 
-  result = (int)SDBP_AppendCStr(arg1,arg2,arg3,arg4,arg5);
+  arg4 = (int)jarg4; 
+  result = (int)SDBP_DeleteCStr(arg1,arg2,arg3,arg4);
   jresult = (jint)result; 
   {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
-  }
-  {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
-  }
-  
-  
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Delete(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  result = (int)SDBP_Delete(arg1,(std::string const &)*arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1DeleteCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
-  }
-  arg3 = (int)jarg3; 
-  result = (int)SDBP_DeleteCStr(arg1,arg2,arg3);
-  jresult = (jint)result; 
-  {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+    jenv->ReleaseByteArrayElements(jarg3, (jbyte*) arg3, 0);
   }
   
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1TestAndDelete(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeys(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jlong jarg6, jboolean jarg7) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  std::string *arg3 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  if(!jarg3) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg3_pstr = (const char *)jenv->GetStringUTFChars(jarg3, 0); 
-  if (!arg3_pstr) return 0;
-  std::string arg3_str(arg3_pstr);
-  arg3 = &arg3_str;
-  jenv->ReleaseStringUTFChars(jarg3, arg3_pstr); 
-  result = (int)SDBP_TestAndDelete(arg1,(std::string const &)*arg2,(std::string const &)*arg3);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1TestAndDeleteCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
-  }
-  arg3 = (int)jarg3; 
-  {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
-  }
-  arg5 = (int)jarg5; 
-  result = (int)SDBP_TestAndDeleteCStr(arg1,arg2,arg3,arg4,arg5);
-  jresult = (jint)result; 
-  {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
-  }
-  {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
-  }
-  
-  
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Remove(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
-  }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
-  result = (int)SDBP_Remove(arg1,(std::string const &)*arg2);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1RemoveCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
-  }
-  arg3 = (int)jarg3; 
-  result = (int)SDBP_RemoveCStr(arg1,arg2,arg3);
-  jresult = (jint)result; 
-  {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
-  }
-  
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeys(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jlong jarg5, jboolean jarg6) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
+  uint64_t arg2 ;
   std::string *arg3 = 0 ;
   std::string *arg4 = 0 ;
-  unsigned int arg5 ;
-  bool arg6 ;
+  std::string *arg5 = 0 ;
+  unsigned int arg6 ;
+  bool arg7 ;
   int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
-    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
-    return 0;
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
   }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
   if(!jarg3) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
     return 0;
@@ -3297,84 +2293,132 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
   std::string arg4_str(arg4_pstr);
   arg4 = &arg4_str;
   jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  arg5 = (unsigned int)jarg5; 
-  arg6 = jarg6 ? true : false; 
-  result = (int)SDBP_ListKeys(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,arg6);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeysCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7, jlong jarg8, jboolean jarg9) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
-  char *arg6 = (char *) 0 ;
-  int arg7 ;
-  unsigned int arg8 ;
-  bool arg9 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
-  }
-  arg3 = (int)jarg3; 
-  {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
-  }
-  arg5 = (int)jarg5; 
-  {
-    arg6 = (char*) jenv->GetByteArrayElements(jarg6, 0);
-  }
-  arg7 = (int)jarg7; 
-  arg8 = (unsigned int)jarg8; 
-  arg9 = jarg9 ? true : false; 
-  result = (int)SDBP_ListKeysCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
-  jresult = (jint)result; 
-  {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
-  }
-  {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
-  }
-  {
-    jenv->ReleaseByteArrayElements(jarg6, (jbyte*) arg6, 0);
-  }
-  
-  
-  
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValues(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4, jlong jarg5, jboolean jarg6) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  std::string *arg3 = 0 ;
-  std::string *arg4 = 0 ;
-  unsigned int arg5 ;
-  bool arg6 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
+  if(!jarg5) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
     return 0;
   }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
+  if (!arg5_pstr) return 0;
+  std::string arg5_str(arg5_pstr);
+  arg5 = &arg5_str;
+  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
+  arg6 = (unsigned int)jarg6; 
+  arg7 = jarg7 ? true : false; 
+  result = (int)SDBP_ListKeys(arg1,arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,arg6,arg7);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeysCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jbyteArray jarg3, jint jarg4, jbyteArray jarg5, jint jarg6, jbyteArray jarg7, jint jarg8, jlong jarg9, jboolean jarg10) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char *arg5 = (char *) 0 ;
+  int arg6 ;
+  char *arg7 = (char *) 0 ;
+  int arg8 ;
+  unsigned int arg9 ;
+  bool arg10 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
+  {
+    arg3 = (char*) jenv->GetByteArrayElements(jarg3, 0);
+  }
+  arg4 = (int)jarg4; 
+  {
+    arg5 = (char*) jenv->GetByteArrayElements(jarg5, 0);
+  }
+  arg6 = (int)jarg6; 
+  {
+    arg7 = (char*) jenv->GetByteArrayElements(jarg7, 0);
+  }
+  arg8 = (int)jarg8; 
+  arg9 = (unsigned int)jarg9; 
+  arg10 = jarg10 ? true : false; 
+  result = (int)SDBP_ListKeysCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
+  jresult = (jint)result; 
+  {
+    jenv->ReleaseByteArrayElements(jarg3, (jbyte*) arg3, 0);
+  }
+  {
+    jenv->ReleaseByteArrayElements(jarg5, (jbyte*) arg5, 0);
+  }
+  {
+    jenv->ReleaseByteArrayElements(jarg7, (jbyte*) arg7, 0);
+  }
+  
+  
+  
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValues(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3, jstring jarg4, jstring jarg5, jlong jarg6, jboolean jarg7) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  unsigned int arg6 ;
+  bool arg7 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
   if(!jarg3) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
     return 0;
@@ -3393,82 +2437,130 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Li
   std::string arg4_str(arg4_pstr);
   arg4 = &arg4_str;
   jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  arg5 = (unsigned int)jarg5; 
-  arg6 = jarg6 ? true : false; 
-  result = (int)SDBP_ListKeyValues(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4,arg5,arg6);
-  jresult = (jint)result; 
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValuesCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7, jlong jarg8, jboolean jarg9) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
-  char *arg6 = (char *) 0 ;
-  int arg7 ;
-  unsigned int arg8 ;
-  bool arg9 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
-  }
-  arg3 = (int)jarg3; 
-  {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
-  }
-  arg5 = (int)jarg5; 
-  {
-    arg6 = (char*) jenv->GetByteArrayElements(jarg6, 0);
-  }
-  arg7 = (int)jarg7; 
-  arg8 = (unsigned int)jarg8; 
-  arg9 = jarg9 ? true : false; 
-  result = (int)SDBP_ListKeyValuesCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9);
-  jresult = (jint)result; 
-  {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
-  }
-  {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
-  }
-  {
-    jenv->ReleaseByteArrayElements(jarg6, (jbyte*) arg6, 0);
-  }
-  
-  
-  
-  return jresult;
-}
-
-
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Count(JNIEnv *jenv, jclass jcls, jlong jarg1, jstring jarg2, jstring jarg3, jstring jarg4) {
-  jint jresult = 0 ;
-  ClientObj arg1 = (ClientObj) 0 ;
-  std::string *arg2 = 0 ;
-  std::string *arg3 = 0 ;
-  std::string *arg4 = 0 ;
-  int result;
-  
-  (void)jenv;
-  (void)jcls;
-  arg1 = *(ClientObj *)&jarg1; 
-  if(!jarg2) {
+  if(!jarg5) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
     return 0;
   }
-  const char *arg2_pstr = (const char *)jenv->GetStringUTFChars(jarg2, 0); 
-  if (!arg2_pstr) return 0;
-  std::string arg2_str(arg2_pstr);
-  arg2 = &arg2_str;
-  jenv->ReleaseStringUTFChars(jarg2, arg2_pstr); 
+  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
+  if (!arg5_pstr) return 0;
+  std::string arg5_str(arg5_pstr);
+  arg5 = &arg5_str;
+  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
+  arg6 = (unsigned int)jarg6; 
+  arg7 = jarg7 ? true : false; 
+  result = (int)SDBP_ListKeyValues(arg1,arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5,arg6,arg7);
+  jresult = (jint)result; 
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1ListKeyValuesCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jbyteArray jarg3, jint jarg4, jbyteArray jarg5, jint jarg6, jbyteArray jarg7, jint jarg8, jlong jarg9, jboolean jarg10) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char *arg5 = (char *) 0 ;
+  int arg6 ;
+  char *arg7 = (char *) 0 ;
+  int arg8 ;
+  unsigned int arg9 ;
+  bool arg10 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
+  {
+    arg3 = (char*) jenv->GetByteArrayElements(jarg3, 0);
+  }
+  arg4 = (int)jarg4; 
+  {
+    arg5 = (char*) jenv->GetByteArrayElements(jarg5, 0);
+  }
+  arg6 = (int)jarg6; 
+  {
+    arg7 = (char*) jenv->GetByteArrayElements(jarg7, 0);
+  }
+  arg8 = (int)jarg8; 
+  arg9 = (unsigned int)jarg9; 
+  arg10 = jarg10 ? true : false; 
+  result = (int)SDBP_ListKeyValuesCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8,arg9,arg10);
+  jresult = (jint)result; 
+  {
+    jenv->ReleaseByteArrayElements(jarg3, (jbyte*) arg3, 0);
+  }
+  {
+    jenv->ReleaseByteArrayElements(jarg5, (jbyte*) arg5, 0);
+  }
+  {
+    jenv->ReleaseByteArrayElements(jarg7, (jbyte*) arg7, 0);
+  }
+  
+  
+  
+  return jresult;
+}
+
+
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Count(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jstring jarg3, jstring jarg4, jstring jarg5) {
+  jint jresult = 0 ;
+  ClientObj arg1 = (ClientObj) 0 ;
+  uint64_t arg2 ;
+  std::string *arg3 = 0 ;
+  std::string *arg4 = 0 ;
+  std::string *arg5 = 0 ;
+  int result;
+  
+  (void)jenv;
+  (void)jcls;
+  arg1 = *(ClientObj *)&jarg1; 
+  {
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
+  }
   if(!jarg3) {
     SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
     return 0;
@@ -3487,48 +2579,81 @@ SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1Co
   std::string arg4_str(arg4_pstr);
   arg4 = &arg4_str;
   jenv->ReleaseStringUTFChars(jarg4, arg4_pstr); 
-  result = (int)SDBP_Count(arg1,(std::string const &)*arg2,(std::string const &)*arg3,(std::string const &)*arg4);
+  if(!jarg5) {
+    SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "null std::string");
+    return 0;
+  }
+  const char *arg5_pstr = (const char *)jenv->GetStringUTFChars(jarg5, 0); 
+  if (!arg5_pstr) return 0;
+  std::string arg5_str(arg5_pstr);
+  arg5 = &arg5_str;
+  jenv->ReleaseStringUTFChars(jarg5, arg5_pstr); 
+  result = (int)SDBP_Count(arg1,arg2,(std::string const &)*arg3,(std::string const &)*arg4,(std::string const &)*arg5);
   jresult = (jint)result; 
   return jresult;
 }
 
 
-SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1CountCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jbyteArray jarg2, jint jarg3, jbyteArray jarg4, jint jarg5, jbyteArray jarg6, jint jarg7) {
+SWIGEXPORT jint JNICALL Java_com_scalien_scaliendb_scaliendb_1clientJNI_SDBP_1CountCStr(JNIEnv *jenv, jclass jcls, jlong jarg1, jobject jarg2, jbyteArray jarg3, jint jarg4, jbyteArray jarg5, jint jarg6, jbyteArray jarg7, jint jarg8) {
   jint jresult = 0 ;
   ClientObj arg1 = (ClientObj) 0 ;
-  char *arg2 = (char *) 0 ;
-  int arg3 ;
-  char *arg4 = (char *) 0 ;
-  int arg5 ;
-  char *arg6 = (char *) 0 ;
-  int arg7 ;
+  uint64_t arg2 ;
+  char *arg3 = (char *) 0 ;
+  int arg4 ;
+  char *arg5 = (char *) 0 ;
+  int arg6 ;
+  char *arg7 = (char *) 0 ;
+  int arg8 ;
   int result;
   
   (void)jenv;
   (void)jcls;
   arg1 = *(ClientObj *)&jarg1; 
   {
-    arg2 = (char*) jenv->GetByteArrayElements(jarg2, 0);
+    jclass clazz;
+    jmethodID mid;
+    jbyteArray ba;
+    jbyte* bae;
+    jsize sz;
+    int i;
+    
+    if (!jarg2) {
+      SWIG_JavaThrowException(jenv, SWIG_JavaNullPointerException, "BigInteger null");
+      return 0;
+    }
+    clazz = jenv->GetObjectClass(jarg2);
+    mid = jenv->GetMethodID(clazz, "toByteArray", "()[B");
+    ba = (jbyteArray)jenv->CallObjectMethod(jarg2, mid);
+    bae = jenv->GetByteArrayElements(ba, 0);
+    sz = jenv->GetArrayLength(ba);
+    arg2 = 0;
+    for(i=0; i<sz; i++) {
+      arg2 = (arg2 << 8) | (uint64_t)(unsigned char)bae[i];
+    }
+    jenv->ReleaseByteArrayElements(ba, bae, 0);
   }
-  arg3 = (int)jarg3; 
   {
-    arg4 = (char*) jenv->GetByteArrayElements(jarg4, 0);
+    arg3 = (char*) jenv->GetByteArrayElements(jarg3, 0);
   }
-  arg5 = (int)jarg5; 
+  arg4 = (int)jarg4; 
   {
-    arg6 = (char*) jenv->GetByteArrayElements(jarg6, 0);
+    arg5 = (char*) jenv->GetByteArrayElements(jarg5, 0);
   }
-  arg7 = (int)jarg7; 
-  result = (int)SDBP_CountCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7);
+  arg6 = (int)jarg6; 
+  {
+    arg7 = (char*) jenv->GetByteArrayElements(jarg7, 0);
+  }
+  arg8 = (int)jarg8; 
+  result = (int)SDBP_CountCStr(arg1,arg2,arg3,arg4,arg5,arg6,arg7,arg8);
   jresult = (jint)result; 
   {
-    jenv->ReleaseByteArrayElements(jarg2, (jbyte*) arg2, 0);
+    jenv->ReleaseByteArrayElements(jarg3, (jbyte*) arg3, 0);
   }
   {
-    jenv->ReleaseByteArrayElements(jarg4, (jbyte*) arg4, 0);
+    jenv->ReleaseByteArrayElements(jarg5, (jbyte*) arg5, 0);
   }
   {
-    jenv->ReleaseByteArrayElements(jarg6, (jbyte*) arg6, 0);
+    jenv->ReleaseByteArrayElements(jarg7, (jbyte*) arg7, 0);
   }
   
   

@@ -205,12 +205,6 @@ namespace Scalien
             return result.GetByteArrayKeyValues();
         }
 
-        internal Result GetResult()
-        {
-            lastResult = result;
-            return result;
-        }
-
         internal void CheckResultStatus(int status, string msg)
         {
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -406,13 +400,11 @@ namespace Scalien
         /// <seealso cref="Quorum"/>
         public Quorum GetQuorum(string name)
         {
-            uint numQuorums = scaliendb_client.SDBP_GetNumQuorums(cptr);
-            for (uint i = 0; i < numQuorums; i++)
+            List<Quorum> quorums = GetQuorums();
+            foreach (Quorum quorum in quorums)
             {
-                ulong quorumID = scaliendb_client.SDBP_GetQuorumIDAt(cptr, i);
-                string quorumName = scaliendb_client.SDBP_GetQuorumNameAt(cptr, i);
-                if (name == quorumName)
-                    return new Quorum(this, quorumID, quorumName);
+                if (quorum.Name == name)
+                    return quorum;
             }
             throw new SDBPException(Status.SDBP_BADSCHEMA, "Quorum not found"); ;
         }

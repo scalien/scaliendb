@@ -77,8 +77,8 @@ namespace Scalien
             List<Table> tables = new List<Table>();
             for (uint i = 0; i < numTables; i++)
             {
-                string name = scaliendb_client.SDBP_GetTableNameAt(client.cptr, databaseID, i);
                 ulong tableID = scaliendb_client.SDBP_GetTableIDAt(client.cptr, databaseID, i);
+                string name = scaliendb_client.SDBP_GetTableNameAt(client.cptr, databaseID, i);
                 tables.Add(new Table(client, this, tableID, name));
             }
             return tables;

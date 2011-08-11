@@ -7,26 +7,15 @@ import java.util.TreeSet;
 
 public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<String,String>>, java.util.Iterator<KeyValue<String,String>>
 {
-    private Client client;
     private Table table;
     private String startKey;
     private String endKey;
     private String prefix;
     private int count;
+    private int pos;
     private LinkedList<String> keys;
     private LinkedList<String> values;
-    private int pos;
  
-    public StringKeyValueIterator(Client client, StringRangeParams ps) throws SDBPException {
-        this.client = client;
-        this.startKey = ps.startKey;
-        this.endKey = ps.endKey;
-        this.prefix = ps.prefix;
-        this.count = 100;
-        
-        query(false);
-    }
-    
     public StringKeyValueIterator(Table table, StringRangeParams ps) throws SDBPException {
         this.table = table;
         this.startKey = ps.startKey;
@@ -74,10 +63,7 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
     
     private void query(boolean skip) throws SDBPException {
         Map<String, String> result;
-        if (client != null)
-            result = client.listKeyValues(startKey, endKey, prefix, count, skip);
-        else
-            result = table.listKeyValues(startKey, endKey, prefix, count, skip);
+        result = table.getClient().listKeyValues(table.getTableID(), startKey, endKey, prefix, count, skip);
         keys = new LinkedList<String>();
         values = new LinkedList<String>();
 
