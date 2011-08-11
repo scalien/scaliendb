@@ -19,7 +19,7 @@
     /// <para>
     /// StringRangeParams is convenient because is uses chaining, so you can write
     /// expressions like <c>new StringRangeParams().Prefix(prefix).StartKey(startKey).EndKey(endKey)</c>
-    /// and it returns the StringIterParam instance.
+    /// and it returns the StringRangeParams instance.
     /// </para>
     /// <para>
     /// The default values are empty strings.

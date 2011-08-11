@@ -19,7 +19,7 @@
     /// <para>
     /// ByteRangeParams is convenient because is uses chaining, so you can write
     /// expressions like <c>new ByteRangeParams().Prefix(prefix).StartKey(startKey).EndKey(endKey)</c>
-    /// and it returns the ByteIterParam instance.
+    /// and it returns the ByteRangeParam instance.
     /// </para>
     /// <para>
     /// The default values are empty byte arrays.
