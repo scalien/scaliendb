@@ -14,7 +14,7 @@ namespace Scalien
         int pos;
         List<string> keys;
 
-        public StringKeyIterator(Table table, StringIterParams ps)
+        public StringKeyIterator(Table table, StringRangeParams ps)
         {
             this.table = table;
             this.startKey = ps.startKey;

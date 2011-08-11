@@ -15,7 +15,7 @@ namespace Scalien
         List<string> keys;
         List<string> values;
 
-        public StringKeyValueIterator(Table table, StringIterParams ps)
+        public StringKeyValueIterator(Table table, StringRangeParams ps)
         {
             this.table = table;
             this.startKey = ps.startKey;

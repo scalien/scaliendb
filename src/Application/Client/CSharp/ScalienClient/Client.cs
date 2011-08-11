@@ -64,9 +64,9 @@ namespace Scalien
     /// table.Delete("foo10");
     /// client.Submit();
     /// // count
-    /// System.Console.WriteLine("number of keys starting with foo: " + table.Count(new StringIterParams().Prefix("foo")));
+    /// System.Console.WriteLine("number of keys starting with foo: " + table.Count(new StringRangeParams().Prefix("foo")));
     /// // iterate
-    /// foreach(KeyValuePair&lt;string, string&gt; kv in table.KeyValueIterator(new StringIterParams().Prefix("bar")))
+    /// foreach(KeyValuePair&lt;string, string&gt; kv in table.KeyValueIterator(new StringRangeParams().Prefix("bar")))
     ///     System.Console.WriteLine(kv.Key + " => " + kv.Value);
     /// // truncate
     /// table.Truncate();
@@ -629,14 +629,14 @@ namespace Scalien
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
-        internal ulong Count(ulong tableID, StringIterParams ps)
+        internal ulong Count(ulong tableID, StringRangeParams ps)
         {
             int status = scaliendb_client.SDBP_Count(cptr, tableID, ps.startKey, ps.endKey, ps.prefix);
             CheckResultStatus(status);
             return result.GetNumber();
         }
 
-        internal ulong Count(ulong tableID, ByteIterParams ps)
+        internal ulong Count(ulong tableID, ByteRangeParams ps)
         {
             int status;
 

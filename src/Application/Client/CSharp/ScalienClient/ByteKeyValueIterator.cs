@@ -15,7 +15,7 @@ namespace Scalien
         List<byte[]> keys;
         List<byte[]> values;
 
-        public ByteKeyValueIterator(Table table, ByteIterParams ps)
+        public ByteKeyValueIterator(Table table, ByteRangeParams ps)
         {
             this.table = table;
             this.startKey = ps.startKey;

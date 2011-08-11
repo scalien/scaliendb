@@ -33,9 +33,9 @@ namespace Scalien
     /// table.Delete("foo10");
     /// client.Submit();
     /// // count
-    /// System.Console.WriteLine("number of keys starting with foo: " + table.Count(new StringIterParams().Prefix("foo")));
+    /// System.Console.WriteLine("number of keys starting with foo: " + table.Count(new StringRangeParams().Prefix("foo")));
     /// // iterate
-    /// foreach(KeyValuePair&lt;string, string&gt; kv in table.KeyValueIterator(new StringIterParams().Prefix("bar")))
+    /// foreach(KeyValuePair&lt;string, string&gt; kv in table.KeyValueIterator(new StringRangeParams().Prefix("bar")))
     ///     System.Console.WriteLine(kv.Key + " => " + kv.Value);
     /// // truncate
     /// table.Truncate();
@@ -219,9 +219,9 @@ namespace Scalien
         /// <param name="ps">The parameters of iteration.</param>
         /// <returns>The number of matching keys in the table.</returns>
         /// <exception cref="SDBPException"/>
-        /// <seealso cref="Scalien.StringIterParams"/>
-        /// <seealso cref="Count(ByteIterParams)"/>
-        public ulong Count(StringIterParams ps)
+        /// <seealso cref="Scalien.StringRangeParams"/>
+        /// <seealso cref="Count(ByteRangeParams)"/>
+        public ulong Count(StringRangeParams ps)
         {
             return client.Count(tableID, ps);
         }
@@ -232,9 +232,9 @@ namespace Scalien
         /// <param name="ps">The parameters of iteration.</param>
         /// <returns>The number of matching keys in the table.</returns>
         /// <exception cref="SDBPException"/>
-        /// <seealso cref="Scalien.ByteIterParams"/>
-        /// <seealso cref="Count(StringIterParams)"/>
-        public ulong Count(ByteIterParams ps)
+        /// <seealso cref="Scalien.ByteRangeParams"/>
+        /// <seealso cref="Count(StringRangeParams)"/>
+        public ulong Count(ByteRangeParams ps)
         {
             return client.Count(tableID, ps);
         }
@@ -246,19 +246,19 @@ namespace Scalien
         /// <summary>
         /// Return an iterator that will return only keys.
         /// </summary>
-        /// <param name="ps">The parameters of iteration, as a <see cref="Scalien.StringIterParams"/>.</param>
+        /// <param name="ps">The parameters of iteration, as a <see cref="Scalien.StringRangeParams"/>.</param>
         /// <returns>The iterator.</returns>
         /// <example><code>
         /// db = client.GetDatabase("testDatabase");
         /// table = db.GetTable("testTable");
-        /// foreach (string s in table.KeyIterator(new StringIterParams().Prefix("foo")))
+        /// foreach (string s in table.KeyIterator(new StringRangeParams().Prefix("foo")))
         ///     System.Console.WriteLine(s);
         /// </code></example>
-        /// <seealso cref="Scalien.StringIterParams"/>
-        /// <seealso cref="KeyIterator(ByteIterParams)"/>
-        /// <seealso cref="KeyValueIterator(StringIterParams)"/>
-        /// <seealso cref="KeyValueIterator(ByteIterParams)"/>
-        public StringKeyIterator KeyIterator(StringIterParams ps)
+        /// <seealso cref="Scalien.StringRangeParams"/>
+        /// <seealso cref="KeyIterator(ByteRangeParams)"/>
+        /// <seealso cref="KeyValueIterator(StringRangeParams)"/>
+        /// <seealso cref="KeyValueIterator(ByteRangeParams)"/>
+        public StringKeyIterator KeyIterator(StringRangeParams ps)
         {
             return new StringKeyIterator(this, ps);
         }
@@ -266,13 +266,13 @@ namespace Scalien
         /// <summary>
         /// Return an iterator that will return only keys.
         /// </summary>
-        /// <param name="ps">The parameters of iteration, as a <see cref="Scalien.ByteIterParams"/>.</param>
+        /// <param name="ps">The parameters of iteration, as a <see cref="Scalien.ByteRangeParams"/>.</param>
         /// <returns>The iterator.</returns>
-        /// <seealso cref="Scalien.ByteIterParams"/>
-        /// <seealso cref="KeyIterator(ByteIterParams)"/>
-        /// <seealso cref="KeyValueIterator(StringIterParams)"/>
-        /// <seealso cref="KeyValueIterator(ByteIterParams)"/>
-        public ByteKeyIterator KeyIterator(ByteIterParams ps)
+        /// <seealso cref="Scalien.ByteRangeParams"/>
+        /// <seealso cref="KeyIterator(ByteRangeParams)"/>
+        /// <seealso cref="KeyValueIterator(StringRangeParams)"/>
+        /// <seealso cref="KeyValueIterator(ByteRangeParams)"/>
+        public ByteKeyIterator KeyIterator(ByteRangeParams ps)
         {
             return new ByteKeyIterator(this, ps);
         }
@@ -280,20 +280,20 @@ namespace Scalien
         /// <summary>
         /// Return an iterator that will return keys and values as a <see cref="System.Collections.Generic.KeyValuePair{T, T}"/>.
         /// </summary>
-        /// <param name="ps">The parameters of iteration, as a <see cref="Scalien.StringIterParams"/>.</param>
+        /// <param name="ps">The parameters of iteration, as a <see cref="Scalien.StringRangeParams"/>.</param>
         /// <returns>The iterator.</returns>
         /// <example><code>
         /// db = client.GetDatabase("testDatabase");
         /// table = db.GetTable("testTable");
-        /// foreach (KeyValuePair&lt;string, string&gt; kv in table.KeyValueIterator(new StringIterParams().Prefix("foo")))
+        /// foreach (KeyValuePair&lt;string, string&gt; kv in table.KeyValueIterator(new StringRangeParams().Prefix("foo")))
         ///     System.Console.WriteLine(kv.Key + " => " + kv.Value);
         /// </code></example>
         /// <seealso cref="System.Collections.Generic.KeyValuePair{T, T}"/>
-        /// <seealso cref="Scalien.StringIterParams"/>
-        /// <seealso cref="KeyValueIterator(ByteIterParams)"/>
-        /// <seealso cref="KeyIterator(StringIterParams)"/>
-        /// <seealso cref="KeyIterator(ByteIterParams)"/>
-        public StringKeyValueIterator KeyValueIterator(StringIterParams ps)
+        /// <seealso cref="Scalien.StringRangeParams"/>
+        /// <seealso cref="KeyValueIterator(ByteRangeParams)"/>
+        /// <seealso cref="KeyIterator(StringRangeParams)"/>
+        /// <seealso cref="KeyIterator(ByteRangeParams)"/>
+        public StringKeyValueIterator KeyValueIterator(StringRangeParams ps)
         {
             return new StringKeyValueIterator(this, ps);
         }
@@ -301,14 +301,14 @@ namespace Scalien
         /// <summary>
         /// Return an iterator that will return keys and values as a <see cref="System.Collections.Generic.KeyValuePair{T, T}"/>.
         /// </summary>
-        /// <param name="ps">The parameters of iteration, as a <see cref="Scalien.ByteIterParams"/>.</param>
+        /// <param name="ps">The parameters of iteration, as a <see cref="Scalien.ByteRangeParams"/>.</param>
         /// <returns>The iterator.</returns>
         /// <seealso cref="System.Collections.Generic.KeyValuePair{T, T}"/>
-        /// <seealso cref="Scalien.ByteIterParams"/>
-        /// <seealso cref="KeyValueIterator(StringIterParams)"/>
-        /// <seealso cref="KeyIterator(StringIterParams)"/>
-        /// <seealso cref="KeyIterator(ByteIterParams)"/>
-        public ByteKeyValueIterator KeyValueIterator(ByteIterParams ps)
+        /// <seealso cref="Scalien.ByteRangeParams"/>
+        /// <seealso cref="KeyValueIterator(StringRangeParams)"/>
+        /// <seealso cref="KeyIterator(StringRangeParams)"/>
+        /// <seealso cref="KeyIterator(ByteRangeParams)"/>
+        public ByteKeyValueIterator KeyValueIterator(ByteRangeParams ps)
         {
             return new ByteKeyValueIterator(this, ps);
         }

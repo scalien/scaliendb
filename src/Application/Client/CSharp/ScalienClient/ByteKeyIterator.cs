@@ -14,7 +14,7 @@ namespace Scalien
         int pos;
         List<byte[]> keys;
 
-        public ByteKeyIterator(Table table, ByteIterParams ps)
+        public ByteKeyIterator(Table table, ByteRangeParams ps)
         {
             this.table = table;
             this.startKey = ps.startKey;

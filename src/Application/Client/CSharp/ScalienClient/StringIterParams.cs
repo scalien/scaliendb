@@ -1,11 +1,11 @@
 ﻿namespace Scalien
 {
     /// <summary>
-    /// StringIterParams is a convenient way to specify the string parameters
+    /// StringRangeParams is a convenient way to specify the string parameters
     /// for iteration when using
-    /// <see cref="Table.KeyIterator(StringIterParams)"/>,
-    /// <see cref="Table.KeyValueIterator(StringIterParams)"/> and
-    /// <see cref="Table.Count(StringIterParams)"/>.
+    /// <see cref="Table.KeyIterator(StringRangeParams)"/>,
+    /// <see cref="Table.KeyValueIterator(StringRangeParams)"/> and
+    /// <see cref="Table.Count(StringRangeParams)"/>.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -17,8 +17,8 @@
     /// </list>
     /// </para>
     /// <para>
-    /// StringIterParams is convenient because is uses chaining, so you can write
-    /// expressions like <c>new StringIterParams().Prefix(prefix).StartKey(startKey).EndKey(endKey)</c>
+    /// StringRangeParams is convenient because is uses chaining, so you can write
+    /// expressions like <c>new StringRangeParams().Prefix(prefix).StartKey(startKey).EndKey(endKey)</c>
     /// and it returns the StringIterParam instance.
     /// </para>
     /// <para>
@@ -27,13 +27,13 @@
     /// </remarks>
     /// <example><code>
     /// // print keys that start with "foo", starting at "foobar"
-    /// foreach (string key in client.KeyIterator(new StringIterParams().Prefix("foo").StartKey("foobar")))
+    /// foreach (string key in client.KeyIterator(new StringRangeParams().Prefix("foo").StartKey("foobar")))
     ///     System.Console.WriteLine(key);
     /// </code></example>
-    /// <seealso cref="Table.KeyIterator(StringIterParams)"/>
-    /// <seealso cref="Table.KeyValueIterator(StringIterParams)"/>
-    /// <seealso cref="Table.Count(StringIterParams)"/>
-    public class StringIterParams
+    /// <seealso cref="Table.KeyIterator(StringRangeParams)"/>
+    /// <seealso cref="Table.KeyValueIterator(StringRangeParams)"/>
+    /// <seealso cref="Table.Count(StringRangeParams)"/>
+    public class StringRangeParams
     {
         internal string prefix = "";
         internal string startKey = "";
@@ -42,8 +42,8 @@
         /// <summary>Specify the prefix parameter for iteration.</summary>
         /// <remarks>Only keys starting with prefix will be returned by the iteration.</remarks>
         /// <param name="prefix">The prefix parameter as a string.</param>
-        /// <returns>The StringIterParams instance, useful for chaining.</returns>
-        public StringIterParams Prefix(string prefix)
+        /// <returns>The StringRangeParams instance, useful for chaining.</returns>
+        public StringRangeParams Prefix(string prefix)
         {
             this.prefix = prefix;
             return this;
@@ -52,8 +52,8 @@
         /// <summary>Specify the start key parameter for iteration.</summary>
         /// <remarks>Iteration will start at start key, or the first key greater than start key.</remarks>
         /// <param name="startKey">The start key parameter as a string.</param>
-        /// <returns>The StringIterParams instance, useful for chaining.</returns>
-        public StringIterParams StartKey(string startKey)
+        /// <returns>The StringRangeParams instance, useful for chaining.</returns>
+        public StringRangeParams StartKey(string startKey)
         {
             this.startKey = startKey;
             return this;
@@ -62,8 +62,8 @@
         /// <summary>Specify the end key parameter for iteration</summary>
         /// <remarks>Iteration will stop at end key, or the first key greater than end key.</remarks>
         /// <param name="endKey">The end key parameter as a string.</param>
-        /// <returns>The StringIterParams instance, useful for chaining.</returns>
-        public StringIterParams EndKey(string endKey)
+        /// <returns>The StringRangeParams instance, useful for chaining.</returns>
+        public StringRangeParams EndKey(string endKey)
         {
             this.endKey = endKey;
             return this;
