@@ -4,22 +4,46 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
-public class Table
+/**
+ * Table is a convenience class for encapsulating table related operations.
+ * <p>
+ * ScalienDB uses databases and tables to manage key value namespaces.
+ * <p>
+ * Example:
+ * <pre>
+ * db = client.getDatabase("testDatabase");
+ * table = db.getTable("testTable");
+ * // some sets
+ * for (i = 0; i < 1000; i++) 
+ *     table.set("foo" + i, "foo" + i);
+ * client.submit();
+ * for (i = 0; i < 1000; i++) 
+ *     table.set("bar" + i, "bar" + i);
+ * client.submit()
+ * // some deletes
+ * table.delete("foo0");
+ * table.delete("foo10");
+ * client.submit();
+ * // count
+ * System.out.println("number of keys starting with foo: " + table.count(new StringRangeParams().prefix("foo")));
+ * // iterate
+ * for (KeyValue&lt;String, String&gt; kv : table.getKeyValueIterator(new StringRangeParams().prefix("bar")))
+ *     System.out.println(kv.getKey() + " => " + kv.getValue());
+ * // truncate
+ * table.truncate();
+ * </pre>
+ * @see Database#createTable(String) 
+ * @see Database#createTable(String, Quorum)
+ * @see Database#getTable(String) 
+ * @see Database
+ */
+ public class Table
 {
     Client client;
     private Database database;
     private long tableID;
     private String name;
     
-    /**
-     * Creates a table object. Usually this is not used, instead request the table object from the 
-     * database object with getTable.
-     *
-     * @param   client      the client object
-     * @param   database    the database object
-     * @param   name        the name of the table
-     * @see     com.scalien.scaliendb.Database#getTable(String name)  getTable
-     */
     Table(Client client, Database database, long tableID, String name) throws SDBPException {
         this.client = client;
         this.database = database;
@@ -37,15 +61,26 @@ public class Table
         return tableID;
     }
     
+    /** 
+     * The database this table is in.
+     */
+    public Database getDatabase()
+    {
+        return database;
+    }
+    
+    /**
+     * The name of the table.
+     */
     public String getName()
     {
         return name;
     }
 
     /**
-     * Renames the table.
-     *
-     * @param   newName     the new name of the table
+     * Rename the table.
+     * @param newName The new name of the table.
+     * @exception SDBPException 
      */
     public void renameTable(String newName) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
@@ -54,7 +89,8 @@ public class Table
     }
 
     /**
-     * Deletes the table.
+     * Delete the table. This means all key-values in the table are dropped.
+     * @exception SDBPException 
      */
     public void deleteTable() throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
@@ -63,7 +99,8 @@ public class Table
     }
 
     /**
-     * Truncates the table.
+     * Truncate the table.
+     * @exception SDBPException 
      */
     public void truncateTable() throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
@@ -72,161 +109,202 @@ public class Table
     }
  
     /**
-     * Returns the value for a specified key.
-     *
-     * @param   key     the specified key
-     * @return          the value if found
+     * Retrieve a value by key from the table. Throws exception if not found.
+     * @param key The key to look for.
+     * @return The retrieved value.
+     * @exception SDBPException 
+     * @see get(byte[]) 
      */
     public String get(String key) throws SDBPException {
         return client.get(tableID, key);
     }
 
     /**
-     * Returns the value for a specified key.
-     *
-     * @param   key     the specified key
-     * @return          the value if found
+     * Retrieve a value by key from the table. Throws exception if not found.
+     * @param key The key to look for.
+     * @return The retrieved value.
+     * @exception SDBPException 
+     * @see get(String) 
      */
     public byte[] get(byte[] key) throws SDBPException {
         return client.get(tableID, key);
     }
 
     /**
-     * Returns the value for a specified key.
-     *
-     * @param   key     the specified key
-     * @param   defval  the default value
-     * @return          the value if found, the default value if not found
+     * Retrieve a value by key from the table or <code>defval</code> if not found.
+     * @param key The key to look for.
+     * @param defval The default return value
+     * @return The retrieved value.
+     * @exception SDBPException 
+     * @see get(byte[], byte[]) 
      */
     public String get(String key, String defval) throws SDBPException {
         return client.get(tableID, key, defval);
     }
 
     /**
-     * Returns the value for a specified key.
-     *
-     * @param   key     the specified key
-     * @param   defval  the default value
-     * @return          the value if found, the default value if not found
+     * Retrieve a value by key from the table or <code>defval</code> if not found.
+     * @param key The key to look for.
+     * @param defval The default return value
+     * @return The retrieved value.
+     * @exception SDBPException 
+     * @see get(String, String) 
      */
     public byte[] get(byte[] key, byte[] defval) throws SDBPException {
         return client.get(tableID, key, defval);
     }
     
     /**
-     * Associates the specified value with the specified key. If the database previously contained
-     * a mapping for this key, the old value is replaced.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
+     * Set a key-value in the table.
+     * @param key The key.
+     * @param value The value.
+     * @exception SDBPException 
+     * @see set(byte[], byte[]) 
      */
     public void set(String key, String value) throws SDBPException {
         client.set(tableID, key, value);
     }
 
     /**
-     * Associates the specified value with the specified key. If the database previously contained
-     * a mapping for this key, the old value is replaced.
-     * 
-     * @param   key     key with which the specified value is to be associated
-     * @param   value   value to be associated with the specified key
+     * Set a key-value in the table.
+     * @param key The key.
+     * @param value The value.
+     * @exception SDBPException 
+     * @see set(String, String) 
      */
     public void set(byte[] key, byte[] value) throws SDBPException {
         client.set(tableID, key, value);
     }
     
     /**
-     * Deletes the specified key.
-     *
-     * @param   key     key to be deleted
+     * Delete a key-value pair by key in the table.
+     * @param key The key.
+     * @exception SDBPException 
+     * @see delete(byte[]) 
      */
     public void delete(String key) throws SDBPException {
         client.delete(tableID, key);
     }
 
     /**
-     * Deletes the specified key.
-     *
-     * @param   key     key to be deleted
+     * Delete a key-value pair by key in the table.
+     * @param key The key.
+     * @exception SDBPException 
+     * @see delete(String) 
      */
     public void delete(byte[] key) throws SDBPException {
         client.delete(tableID, key);
     }
     
     /**
-     * Returns the number of key-value pairs.
-     *
-     * @param   ps          the count parameters, a StringRangeParams object
-     *                      eg. (new StringRangeParams()).prefix("p").startKey("s").endKey("e")
-     * @return              the number of key-value pairs
+     * Return the number of matching keys in the table.
+     * @param ps The filter parameters.
+     * @return The number of matching keys in the table.
+     * @exception SDBPException 
+     * @see StringRangeParams 
+     * @see count(ByteRangeParams) 
      */
     public long count(StringRangeParams ps) throws SDBPException {
         return client.count(tableID, ps);
     }
     
     /**
-     * Returns the number of key-value pairs.
-     *
-     * @param   ps          the count params, a ByteRangeParams object 
-     * @return              the number of key-value pairs
+     * Return the number of matching keys in the table.
+     * @param ps The filter parameters.
+     * @return The number of matching keys in the table.
+     * @exception SDBPException 
+     * @see ByteRangeParams 
+     * @see count(StringRangeParams) 
      */
     public long count(ByteRangeParams ps) throws SDBPException {
         return client.count(tableID, ps);
     }
 
     /**
-     * Returns a key iterator over keys.
-     *
-     * @param   ps          the iteration parameters, a StringRangeParams object
-     *                      eg. (new StringRangeParams()).prefix("p").startKey("s").endKey("e")
+     * Return an iterator that will return only keys.
+     * @param ps The parameters of iteration, as a <a href="StringRangeParams.html">StringRangeParams</a>.
+     * <p>
+     * Example:
+     * <pre>
+     * db = client.getDatabase("testDatabase");
+     * table = db.getTable("testTable");
+     * for (String s : table.getKeyIterator(new StringRangeParams().prefix("foo")))
+     *     System.out.println(s);
+     * </pre>
+     * @return The iterator.
+     * @see StringRangeParams 
+     * @see getKeyIterator(ByteRangeParams) 
+     * @see getKeyValueIterator(StringRangeParams) 
+     * @see getKeyValueIterator(ByteRangeParams) 
      */
     public StringKeyIterator getKeyIterator(StringRangeParams ps) throws SDBPException {
         return new StringKeyIterator(this, ps);
     }
 
     /**
-     * Returns a key iterator over keys.
-     *
-     * @param   ps          the iteration params, a ByteRangeParams object 
+     * Return an iterator that will return only keys.
+     * @param ps The parameters of iteration, as a <a href="ByteRangeParams.html">ByteRangeParams</a>.
+     * @return The iterator.
+     * @see ByteRangeParams 
+     * @see getKeyIterator(StringRangeParams) 
+     * @see getKeyValueIterator(StringRangeParams) 
+     * @see getKeyValueIterator(ByteRangeParams) 
      */
     public ByteKeyIterator getKeyIterator(ByteRangeParams ps) throws SDBPException {
         return new ByteKeyIterator(this, ps);
     }
 
     /**
-     * Returns a key-value iterator over keys.
-     *
-     * @param   ps          the iteration parameters, a StringRangeParams object
-     *                      eg. (new StringRangeParams()).prefix("p").startKey("s").endKey("e")
+     * Return an iterator that will return keys and values as a <code>KeyValue&lt;String, String&gt;</code>.
+     * @param ps The parameters of iteration, as a <a href="StringRangeParams.html">StringRangeParams</a>.
+     * <p>
+     * Example:
+     * <pre>
+     * db = client.getDatabase("testDatabase");
+     * table = db.getTable("testTable");
+     * for (KeyValue&lt;String, String&gt; kv in table.getKeyValueIterator(new StringRangeParams().prefix("foo")))
+     *     System.out.println(kv.getKey() + " => " + kv.getValue());
+     * </pre>
+     * @return The iterator.
+     * @see StringRangeParams 
+     * @see getKeyValueIterator(ByteRangeParams) 
+     * @see getKeyIterator(StringRangeParams) 
+     * @see getKeyIterator(ByteRangeParams) 
      */
     public StringKeyValueIterator getKeyValueIterator(StringRangeParams ps) throws SDBPException {
         return new StringKeyValueIterator(this, ps);
     }
 
     /**
-     * Returns a key-value iterator over keys.
-     *
-     * @param   ps          the iteration params, a ByteRangeParams object
+     * Return an iterator that will return keys and values as a <code>KeyValue&lt;byte[], byte[]&gt;</code>.
+     * @param ps The parameters of iteration, as a <a href="ByteRangeParams.html">ByteRangeParams</a>.
+     * @return The iterator.
+     * @see ByteRangeParams 
+     * @see getKeyValueIterator(StringRangeParams) 
+     * @see getKeyIterator(StringRangeParams) 
+     * @see getKeyIterator(ByteRangeParams) 
      */
     public ByteKeyValueIterator getKeyValueIterator(ByteRangeParams ps) throws SDBPException {
         return new ByteKeyValueIterator(this, ps);
     }
 
     /**
-     * Returns a Sequence object for the given key. Then use Sequence::Get() to retrieve new sequence values.
-     *
-     * @param   key         the index key
-     * @return              the Index object
+     * Retrieve a <a href="Sequence.html">Sequence</a> backed by a key-value in this table.
+     * @param key The key backing the sequence.
+     * @return The corresponding <a href="Sequence.html">Sequence</a> object.
+     * @see getSequence(byte[])
+     * @see Sequence 
      */
     public Sequence getSequence(String key) throws SDBPException {
         return new Sequence(this.client, tableID, key);
     }
 
     /**
-     * Returns an Sequence object for the given key. Then use Sequence::Get() to retrieve new sequence values.
-     *
-     * @param   key         the index key
-     * @return              the Index object
+     * Retrieve a <a href="Sequence.html">Sequence</a> backed by a key-value in this table.
+     * @param key The key backing the sequence.
+     * @return The corresponding <a href="Sequence.html">Sequence</a> object.
+     * @see getSequence(String)
+     * @see Sequence 
      */
     public Sequence getSequence(byte[] key) throws SDBPException {
         return new Sequence(this.client, tableID, key);

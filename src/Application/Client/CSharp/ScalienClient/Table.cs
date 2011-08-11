@@ -7,13 +7,11 @@ namespace Scalien
     /// <summary>
     /// Table is a convenience class for encapsulating table related operations.
     /// </summary>
-    ///
     /// <remarks>
     /// <para>
     /// ScalienDB uses databases and tables to manage key value namespaces.
     /// </para>
     /// </remarks>
-    /// 
     /// <example><code>
     /// db = client.GetDatabase("testDatabase");
     /// table = db.GetTable("testTable");
@@ -40,11 +38,10 @@ namespace Scalien
     /// // truncate
     /// table.Truncate();
     /// </code></example>
-    /// 
-    /// <seealso cref="Scalien.Client.CreateDatabase(string)"/>
-    /// <seealso cref="Scalien.Client.GetDatabase(string)"/>
-    /// <seealso cref="Table"/>
-    /// <seealso cref="Quorum"/>
+    /// <seealso cref="Scalien.Database.CreateTable(string)"/>
+    /// <seealso cref="Scalien.Database.CreateTable(string, Quorum)"/>
+    /// <seealso cref="Scalien.Database.GetTable(string)"/>
+    /// <seealso cref="Database"/>
     public class Table
     {
         private Client client;
@@ -71,7 +68,7 @@ namespace Scalien
         }
 
         /// <summary>
-        /// Return the database this table is in.
+        /// The database this table is in.
         /// </summary>
         public Database Database
         {
@@ -82,7 +79,7 @@ namespace Scalien
         }
 
         /// <summary>
-        /// The name of the database.
+        /// The name of the table.
         /// </summary>
         public string Name
         {
@@ -216,7 +213,7 @@ namespace Scalien
         /// <summary>
         /// Return the number of matching keys in the table.
         /// </summary>
-        /// <param name="ps">The parameters of iteration.</param>
+        /// <param name="ps">The filter parameters.</param>
         /// <returns>The number of matching keys in the table.</returns>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Scalien.StringRangeParams"/>
@@ -229,7 +226,7 @@ namespace Scalien
         /// <summary>
         /// Return the number of matching keys in the table.
         /// </summary>
-        /// <param name="ps">The parameters of iteration.</param>
+        /// <param name="ps">The filter parameters.</param>
         /// <returns>The number of matching keys in the table.</returns>
         /// <exception cref="SDBPException"/>
         /// <seealso cref="Scalien.ByteRangeParams"/>
@@ -322,6 +319,7 @@ namespace Scalien
         /// </summary>
         /// <param name="key">The key backing the sequence.</param>
         /// <returns>The corresponding <see cref="Scalien.Sequence"/> object.</returns>
+        /// <seealso cref="GetSequence(byte[])"/>
         /// <seealso cref="Scalien.Sequence"/>
         public Sequence GetSequence(string key)
         {
@@ -333,6 +331,7 @@ namespace Scalien
         /// </summary>
         /// <param name="key">The key backing the sequence.</param>
         /// <returns>The corresponding <see cref="Scalien.Sequence"/> object.</returns>
+        /// <seealso cref="GetSequence(string)"/>
         /// <seealso cref="Scalien.Sequence"/>
         public Sequence GetSequence(byte[] key)
         {

@@ -7,19 +7,16 @@ namespace Scalien
     /// <summary>
     /// Database is a convenience class for encapsulating database related operations.
     /// </summary>
-    ///
     /// <remarks>
     /// <para>
     /// ScalienDB uses databases and tables to manage key value namespaces.
     /// </para>
     /// </remarks>
-    /// 
     /// <example><code>
     /// db = client.GetDatabase("testDatabase");
     /// table = db.GetTable("testTable");
     /// table.Set("foo", "bar");
     /// </code></example>
-    /// 
     /// <seealso cref="Client.CreateDatabase(string)"/>
     /// <seealso cref="Client.GetDatabase(string)"/>
     /// <seealso cref="Table"/>
@@ -67,7 +64,6 @@ namespace Scalien
         /// <summary>
         /// Retrieve the tables in the database as a list of <see cref="Scalien.Table"/> objects.
         /// </summary>
-        /// 
         /// <returns>The list of table objects.</returns>
         /// <seealso cref="Table"/>
         /// <exception cref="SDBPException"/>

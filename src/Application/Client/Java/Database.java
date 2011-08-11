@@ -4,6 +4,22 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * Database is a convenience class for encapsulating database related operations.
+ * <p>
+ * ScalienDB uses databases and tables to manage key value namespaces.
+ * <p>
+ * Example:
+ * <pre>
+ * db = client.getDatabase("testDatabase");
+ * table = db.getTable("testTable");
+ * table.set("foo", "bar");
+ * </pre>
+ * @see Client#createDatabase(String)
+ * @see Client#getDatabase(String)
+ * @see Table
+ * @see Quorum
+ */
 public class Database
 {
     private Client client;
@@ -21,16 +37,17 @@ public class Database
     }
     
     /**
-     * Returns the name of the database.
+     * Return the name of the database.
      */
     public String getName() {
         return name;
     }
 
     /**
-     * Returns all tables.
-     *
-     * @return              a list of table objects
+     * Retrieve the tables in the database as a list of <a href="Table.html">Table</a> objects.
+     * @return The list of table objects.
+     * @exception SDBPException 
+     * @see Table 
      */
     public List<Table> getTables() throws SDBPException {
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
@@ -45,11 +62,11 @@ public class Database
     }
     
     /**
-     * Returns a table object with the specified name from the database. If the table is not found
-     * an exception is thrown.
-     *
-     * @param   name    the name of the table
-     * @return          the table object
+     * Retrieve a <a href="Table.html">Table</a> in this database by name.
+     * @param name The name of the table.
+     * @return The corresponding <a href="Table.html">Scalien.Table</a> object.
+     * @exception SDBPException 
+     * @see Table 
      */
     public Table getTable(String name) throws SDBPException {
         List<Table> tables = getTables();
@@ -64,9 +81,11 @@ public class Database
     
     /**
      * Create a table in this database, with the first shard placed in the first available quorum.
-     *
-     * @param   name        the name of the table
-     * @return              the table object
+     * @param name The name of the table.
+     * @return The <a href="Table.html">Table</a> object corresponding to the created table.
+     * @exception SDBPException 
+     * @see Table 
+     * @see createTable(String, Quorum) 
      */
     public Table createTable(String name) throws SDBPException {
         List<Quorum> quorums = client.getQuorums();
@@ -75,13 +94,14 @@ public class Database
         Quorum quorum = quorums.get(0);
         return createTable(name, quorum);
     }
-    
+
     /**
      * Create a table in this database.
-     *
-     * @param   quorum      the quorum that will contain the table
-     * @param   name        the name of the table
-     * @return              the table object
+     * @param quorum The first shard of the table is placed inside the <a href="Quorum.html">Quorum</a>.
+     * @param name The name of the table.
+     * @return The <a href="Table.html">Table</a> object corresponding to the created table.
+     * @exception SDBPException 
+     * @see createTable(String) 
      */
     public Table createTable(String name, Quorum quorum) throws SDBPException {
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
@@ -92,9 +112,9 @@ public class Database
     }    
     
     /**
-     * Renames the database.
-     *
-     * @param   newName     the new name of the database
+     * Rename the database.
+     * @param newName The new database name.
+     * @exception SDBPException 
      */
     public void renameDatabase(String newName) throws SDBPException {
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);
@@ -103,7 +123,8 @@ public class Database
     }
 
     /**
-     * Deletes the database.
+     * Delete the database.
+     * @exception SDBPException 
      */
     public void deleteDatabase() throws SDBPException {
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);

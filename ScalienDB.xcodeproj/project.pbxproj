@@ -1334,13 +1334,13 @@
 		9AE8177612CE1E5A0038BDB1 /* Java */ = {
 			isa = PBXGroup;
 			children = (
-				54D53B0713F4019C00311381 /* Sequence.java */,
 				54B313E013DEB569000338C2 /* StringRangeParams.java */,
 				54731C1E13D0367400125619 /* StringKeyIterator.java */,
 				54731CAA13D04AE200125619 /* StringKeyValueIterator.java */,
 				54B313DF13DEB569000338C2 /* ByteRangeParams.java */,
 				54731C9113D048F000125619 /* ByteKeyIterator.java */,
 				54731CCF13D0527F00125619 /* ByteKeyValueIterator.java */,
+				54D53B0713F4019C00311381 /* Sequence.java */,
 				9AE8178212CE1E9B0038BDB1 /* Client.java */,
 				9AE8178312CE1E9B0038BDB1 /* Database.java */,
 				9AE8179012CE1E9B0038BDB1 /* Table.java */,
