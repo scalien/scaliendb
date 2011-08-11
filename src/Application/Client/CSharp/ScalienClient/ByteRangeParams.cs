@@ -4,7 +4,7 @@
     /// ByteRangeParams is a convenient way to specify the byte[] parameters
     /// for iteration when using
     /// <see cref="Table.GetKeyIterator(ByteRangeParams)"/>,
-    /// <see cref="Table.GetKeyValueIterator(ByteRangeParams)"/>,
+    /// <see cref="Table.GetKeyValueIterator(ByteRangeParams)"/> and
     /// <see cref="Table.Count(ByteRangeParams)"/>.
     /// </summary>
     /// <remarks>
