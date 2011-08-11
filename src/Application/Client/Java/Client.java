@@ -9,6 +9,34 @@ import java.util.TreeMap;
 import java.util.List;
 import java.util.ArrayList;
 
+/**
+ * The ScalienDB client represents a connection to a ScalienDB cluster.
+ * <p>
+ * Example:
+ * <pre>
+ * Client client = new Client("localhost:7080");
+ * db = client.getDatabase("testDatabase");
+ * table = db.getTable("testTable");
+ * // some sets
+ * for (i = 0; i < 1000; i++) 
+ *    table.set("foo" + i, "foo" + i);
+ * for (i = 0; i < 1000; i++) 
+ *    table.set("bar" + i, "bar" + i);
+ * // some deletes
+ * table.delete("foo0");
+ * table.delete("foo10");
+ * client.submit();
+ * // count
+ * System.out.println("number of keys starting with foo: " + table.count(new StringRangeParams().prefix("foo")));
+ * // iterate
+ * for (KeyValue&lt;String, String&gt; kv : table.getKeyValueIterator(new StringRangeParams().prefix("bar")))
+ *     System.out.println(kv.getKey() + " => " + kv.getValue());
+ * // truncate
+ * table.truncate();
+ * // don't forge to close() at the end, it sends off any batched commands!
+ * client.close();
+ * </pre>
+ */
 public class Client
 {
     static {
