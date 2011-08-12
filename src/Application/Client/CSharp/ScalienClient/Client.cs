@@ -125,11 +125,11 @@ namespace Scalien
         #region Constructors, destructors
 
         /// <summary>
-        /// To construct a Client object, pass in the list of controllers as strings in the form "name:port" or "IP:port".
+        /// Construct a Client object. Pass in the list of controllers as strings in the form "host:port".
         /// </summary>
-        /// <param name="nodes">The controllers as a list of strings in the form "name:port" or "IP:port".</param>
+        /// <param name="nodes">The controllers as a list of strings in the form "host:port".</param>
         /// <example><code>
-        /// Client client = new Client({"localhost:7080"});
+        /// Client client = new Client({"192.168.1.1:7080", "192.168.1.2:7080"});
         /// </code></example>
         public Client(string[] nodes)
         {
@@ -283,7 +283,10 @@ namespace Scalien
         /// <summary>
         /// The maximum time the client library will wait to complete operations, in miliseconds. Default 120 seconds.
         /// </summary>
-        /// <param name="timeout"></param>
+        /// <param name="timeout">The global timeout in miliseconds.</param>
+        /// <seealso cref="SetMasterTimeout(ulong)"/>
+        /// <seealso cref="GetGlobalTimeout()"/>
+        /// <seealso cref="GetMasterTimeout()"/>
         public void SetGlobalTimeout(ulong timeout)
         {
             scaliendb_client.SDBP_SetGlobalTimeout(cptr, timeout);
@@ -292,7 +295,10 @@ namespace Scalien
         /// <summary>
         /// The maximum time the client library will wait to find the master node, in miliseconds. Default 21 seconds.
         /// </summary>
-        /// <param name="timeout"></param>
+        /// <param name="timeout">The master timeout in miliseconds. </param>
+        /// <seealso cref="SetGlobalTimeout(ulong)"/>
+        /// <seealso cref="GetGlobalTimeout()"/>
+        /// <seealso cref="GetMasterTimeout()"/>
         public void SetMasterTimeout(ulong timeout)
         {
             scaliendb_client.SDBP_SetMasterTimeout(cptr, timeout);
@@ -302,6 +308,9 @@ namespace Scalien
         /// Get the global timeout in miliseconds. The global timeout is the maximum time the client library will wait to complete operations.
         /// </summary>
         /// <returns>The global timeout in miliseconds.</returns>
+        /// <seealso cref="GetMasterTimeout()"/>
+        /// <seealso cref="SetGlobalTimeout(ulong)"/>
+        /// <seealso cref="SetMasterTimeout(ulong)"/>
         public ulong GetGlobalTimeout()
         {
             return scaliendb_client.SDBP_GetGlobalTimeout(cptr);
@@ -311,6 +320,9 @@ namespace Scalien
         /// Get the master timeout in miliseconds. The master timeout is the maximum time the client library will wait to find the master node.
         /// </summary>
         /// <returns>The master timeout in miliseconds.</returns>
+        /// <seealso cref="GetGlobalTimeout()"/>
+        /// <seealso cref="SetGlobalTimeout(ulong)"/>
+        /// <seealso cref="SetMasterTimeout(ulong)"/>
         public ulong GetMasterTimeout()
         {
             return scaliendb_client.SDBP_GetMasterTimeout(cptr);
@@ -343,7 +355,7 @@ namespace Scalien
         /// <para>
         /// As a performance optimization, the ScalienDB can collect write operations in client memory and send them
         /// off in batches to the servers. This will drastically improve the performance of the database.
-        /// To send off writes excplicitly, use <see cref="Client.Submit()"/> and <see cref="Table.Submit()"/>.
+        /// To send off writes excplicitly, use <see cref="Client.Submit()"/>.
         /// </para>
         /// <para>
         /// The modes are:
@@ -369,7 +381,7 @@ namespace Scalien
         /// <para>
         /// When running with batchMode = Client.BATCH_DEFAULT and Client.BATCH_NOAUTOSUBMIT, the client collects writes
         /// and sends them off to the ScalienDB server in batches.
-        /// To send off writes excplicitly, use <see cref="Client.Submit()"/> and <see cref="Table.Submit()"/>.
+        /// To send off writes excplicitly, use <see cref="Client.Submit()"/>.
         /// </para>
         /// <para>SetBatchLimit() lets you specify the exact amount to store in memory before:
         /// <list type="bullet">
@@ -398,6 +410,7 @@ namespace Scalien
         /// <param name="name">The quorum name.</param>
         /// <returns>The <see cref="Quorum"/> object.</returns>
         /// <seealso cref="Quorum"/>
+        /// <seealso cref="GetQuorums()"/>
         public Quorum GetQuorum(string name)
         {
             List<Quorum> quorums = GetQuorums();
@@ -414,6 +427,7 @@ namespace Scalien
         /// </summary>
         /// <returns>The list of <see cref="Quorum"/> objects.</returns>
         /// <seealso cref="Quorum"/>
+        /// <seealso cref="GetQuorum(string)"/>
         public List<Quorum> GetQuorums()
         {
             uint numQuorums = scaliendb_client.SDBP_GetNumQuorums(cptr);
@@ -432,11 +446,13 @@ namespace Scalien
         #region Database management
 
         /// <summary>
-        /// Get a <see cref="Scalien.Database"/> by name
+        /// Get a <see cref="Scalien.Database"/> by name.
         /// </summary>
         /// <param name="name">The name of the database.</param>
         /// <returns>The <see cref="Database"/> object.</returns>
         /// <seealso cref="Scalien.Database"/>
+        /// <seealso cref="GetDatabases()"/>
+        /// <seealso cref="CreateDatabase(string)"/>
         public Database GetDatabase(string name)
         {
             List<Database> databases = GetDatabases();
@@ -450,10 +466,12 @@ namespace Scalien
         }
 
         /// <summary>
-        /// Get all databases as a list of <see cref="Database"/> objects
+        /// Get all databases as a list of <see cref="Database"/> objects.
         /// </summary>
         /// <returns>A list of <see cref="Database"/> objects.</returns>
         /// <seealso cref="Scalien.Database"/>
+        /// <seealso cref="GetDatabase(string)"/>
+        /// <seealso cref="CreateDatabase(string)"/>
         public List<Database> GetDatabases()
         {
             uint numDatabases = scaliendb_client.SDBP_GetNumDatabases(cptr);
@@ -473,6 +491,8 @@ namespace Scalien
         /// <param name="name">The name of the database to create.</param>
         /// <returns>The new <see cref="Database"/> object.</returns>
         /// <seealso cref="Scalien.Database"/>
+        /// <seealso cref="GetDatabase(string)"/>
+        /// <seealso cref="GetDatabases()"/>
         public Database CreateDatabase(string name)
         {
             int status = scaliendb_client.SDBP_CreateDatabase(cptr, name);
@@ -662,9 +682,9 @@ namespace Scalien
         /// Begin a client-side transaction.
         /// </summary>
         /// <remarks>
-        /// Return a <see cref="Submitter"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.
+        /// Return a <see cref="Scalien.Submitter"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.
         /// </remarks>
-        /// <returns>A <see cref="Submitter"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.</returns>
+        /// <returns>A <see cref="Scalien.Submitter"/> object that will automatically call <see cref="Submit()"/> when it goes out of scope.</returns>
         /// <seealso cref="Submit()"/>
         /// <seealso cref="Rollback()"/>
         public Submitter Begin()
@@ -675,6 +695,8 @@ namespace Scalien
         /// <summary>
         /// Send the batched operations to the ScalienDB server.
         /// </summary>
+        /// <seealso cref="Begin()"/>
+        /// <seealso cref="Rollback()"/>
         public void Submit()
         {
             int status = scaliendb_client.SDBP_Submit(cptr);
@@ -684,6 +706,8 @@ namespace Scalien
         /// <summary>
         /// Discard all batched operations.
         /// </summary>
+        /// <seealso cref="Begin()"/>
+        /// <seealso cref="Submit()"/>
         public void Rollback()
         {
             int status = scaliendb_client.SDBP_Cancel(cptr);

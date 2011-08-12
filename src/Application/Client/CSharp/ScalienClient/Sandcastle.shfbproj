@@ -26,15 +26,15 @@
     <VisibleItems>InheritedMembers</VisibleItems>
     <ApiFilter>
       <Filter entryType="Namespace" fullName="Scalien" isExposed="False">
-  <Filter entryType="Class" fullName="Scalien.ByteIterParams" filterName="ByteIterParams" isExposed="True" />
+  <Filter entryType="Class" fullName="Scalien.ByteRangeParams" filterName="ByteRangeParams" isExposed="True" />
   <Filter entryType="Class" fullName="Scalien.Client" filterName="Client" isExposed="True" />
   <Filter entryType="Class" fullName="Scalien.Database" filterName="Database" isExposed="True" />
   <Filter entryType="Class" fullName="Scalien.Quorum" filterName="Quorum" isExposed="True" />
   <Filter entryType="Class" fullName="Scalien.SDBPException" filterName="SDBPException" isExposed="True" />
   <Filter entryType="Class" fullName="Scalien.Sequence" filterName="Sequence" isExposed="True" />
   <Filter entryType="Class" fullName="Scalien.Status" filterName="Status" isExposed="True" />
-  <Filter entryType="Class" fullName="Scalien.StringIterParams" filterName="StringIterParams" isExposed="True" />
-  <Filter entryType="Class" fullName="Scalien.SubmitGuard" filterName="SubmitGuard" isExposed="True" />
+  <Filter entryType="Class" fullName="Scalien.StringRangeParams" filterName="StringRangeParams" isExposed="True" />
+  <Filter entryType="Class" fullName="Scalien.Submitter" filterName="Submitter" isExposed="True" />
   <Filter entryType="Class" fullName="Scalien.Table" filterName="Table" isExposed="True" />
 </Filter>
     </ApiFilter>
