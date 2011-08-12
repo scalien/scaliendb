@@ -113,7 +113,7 @@ import java.util.Map;
      * @param key The key to look for.
      * @return The retrieved value.
      * @exception SDBPException 
-     * @see get(byte[]) 
+     * @see #get(byte[]) 
      */
     public String get(String key) throws SDBPException {
         return client.get(tableID, key);
@@ -124,7 +124,7 @@ import java.util.Map;
      * @param key The key to look for.
      * @return The retrieved value.
      * @exception SDBPException 
-     * @see get(String) 
+     * @see #get(String) 
      */
     public byte[] get(byte[] key) throws SDBPException {
         return client.get(tableID, key);
@@ -136,7 +136,7 @@ import java.util.Map;
      * @param defval The default return value
      * @return The retrieved value.
      * @exception SDBPException 
-     * @see get(byte[], byte[]) 
+     * @see #get(byte[], byte[]) 
      */
     public String get(String key, String defval) throws SDBPException {
         return client.get(tableID, key, defval);
@@ -148,7 +148,7 @@ import java.util.Map;
      * @param defval The default return value
      * @return The retrieved value.
      * @exception SDBPException 
-     * @see get(String, String) 
+     * @see #get(String, String) 
      */
     public byte[] get(byte[] key, byte[] defval) throws SDBPException {
         return client.get(tableID, key, defval);
@@ -159,7 +159,7 @@ import java.util.Map;
      * @param key The key.
      * @param value The value.
      * @exception SDBPException 
-     * @see set(byte[], byte[]) 
+     * @see #set(byte[], byte[]) 
      */
     public void set(String key, String value) throws SDBPException {
         client.set(tableID, key, value);
@@ -170,7 +170,7 @@ import java.util.Map;
      * @param key The key.
      * @param value The value.
      * @exception SDBPException 
-     * @see set(String, String) 
+     * @see #set(String, String) 
      */
     public void set(byte[] key, byte[] value) throws SDBPException {
         client.set(tableID, key, value);
@@ -180,7 +180,7 @@ import java.util.Map;
      * Delete a key-value pair by key in the table.
      * @param key The key.
      * @exception SDBPException 
-     * @see delete(byte[]) 
+     * @see #delete(byte[]) 
      */
     public void delete(String key) throws SDBPException {
         client.delete(tableID, key);
@@ -190,7 +190,7 @@ import java.util.Map;
      * Delete a key-value pair by key in the table.
      * @param key The key.
      * @exception SDBPException 
-     * @see delete(String) 
+     * @see #delete(String) 
      */
     public void delete(byte[] key) throws SDBPException {
         client.delete(tableID, key);
@@ -202,7 +202,7 @@ import java.util.Map;
      * @return The number of matching keys in the table.
      * @exception SDBPException 
      * @see StringRangeParams 
-     * @see count(ByteRangeParams) 
+     * @see #count(ByteRangeParams) 
      */
     public long count(StringRangeParams ps) throws SDBPException {
         return client.count(tableID, ps);
@@ -214,7 +214,7 @@ import java.util.Map;
      * @return The number of matching keys in the table.
      * @exception SDBPException 
      * @see ByteRangeParams 
-     * @see count(StringRangeParams) 
+     * @see #count(StringRangeParams) 
      */
     public long count(ByteRangeParams ps) throws SDBPException {
         return client.count(tableID, ps);
@@ -233,9 +233,9 @@ import java.util.Map;
      * </pre>
      * @return The iterator.
      * @see StringRangeParams 
-     * @see getKeyIterator(ByteRangeParams) 
-     * @see getKeyValueIterator(StringRangeParams) 
-     * @see getKeyValueIterator(ByteRangeParams) 
+     * @see #getKeyIterator(ByteRangeParams) 
+     * @see #getKeyValueIterator(StringRangeParams) 
+     * @see #getKeyValueIterator(ByteRangeParams) 
      */
     public StringKeyIterator getKeyIterator(StringRangeParams ps) throws SDBPException {
         return new StringKeyIterator(this, ps);
@@ -246,9 +246,9 @@ import java.util.Map;
      * @param ps The parameters of iteration, as a <a href="ByteRangeParams.html">ByteRangeParams</a>.
      * @return The iterator.
      * @see ByteRangeParams 
-     * @see getKeyIterator(StringRangeParams) 
-     * @see getKeyValueIterator(StringRangeParams) 
-     * @see getKeyValueIterator(ByteRangeParams) 
+     * @see #getKeyIterator(StringRangeParams) 
+     * @see #getKeyValueIterator(StringRangeParams) 
+     * @see #getKeyValueIterator(ByteRangeParams) 
      */
     public ByteKeyIterator getKeyIterator(ByteRangeParams ps) throws SDBPException {
         return new ByteKeyIterator(this, ps);
@@ -267,9 +267,9 @@ import java.util.Map;
      * </pre>
      * @return The iterator.
      * @see StringRangeParams 
-     * @see getKeyValueIterator(ByteRangeParams) 
-     * @see getKeyIterator(StringRangeParams) 
-     * @see getKeyIterator(ByteRangeParams) 
+     * @see #getKeyValueIterator(ByteRangeParams) 
+     * @see #getKeyIterator(StringRangeParams) 
+     * @see #getKeyIterator(ByteRangeParams) 
      */
     public StringKeyValueIterator getKeyValueIterator(StringRangeParams ps) throws SDBPException {
         return new StringKeyValueIterator(this, ps);
@@ -280,9 +280,9 @@ import java.util.Map;
      * @param ps The parameters of iteration, as a <a href="ByteRangeParams.html">ByteRangeParams</a>.
      * @return The iterator.
      * @see ByteRangeParams 
-     * @see getKeyValueIterator(StringRangeParams) 
-     * @see getKeyIterator(StringRangeParams) 
-     * @see getKeyIterator(ByteRangeParams) 
+     * @see #getKeyValueIterator(StringRangeParams) 
+     * @see #getKeyIterator(StringRangeParams) 
+     * @see #getKeyIterator(ByteRangeParams) 
      */
     public ByteKeyValueIterator getKeyValueIterator(ByteRangeParams ps) throws SDBPException {
         return new ByteKeyValueIterator(this, ps);
@@ -292,8 +292,8 @@ import java.util.Map;
      * Retrieve a <a href="Sequence.html">Sequence</a> backed by a key-value in this table.
      * @param key The key backing the sequence.
      * @return The corresponding <a href="Sequence.html">Sequence</a> object.
-     * @see getSequence(byte[])
      * @see Sequence 
+     * @see #getSequence(byte[])
      */
     public Sequence getSequence(String key) throws SDBPException {
         return new Sequence(this.client, tableID, key);
@@ -303,8 +303,8 @@ import java.util.Map;
      * Retrieve a <a href="Sequence.html">Sequence</a> backed by a key-value in this table.
      * @param key The key backing the sequence.
      * @return The corresponding <a href="Sequence.html">Sequence</a> object.
-     * @see getSequence(String)
      * @see Sequence 
+     * @see #getSequence(String)
      */
     public Sequence getSequence(byte[] key) throws SDBPException {
         return new Sequence(this.client, tableID, key);

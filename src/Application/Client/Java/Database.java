@@ -85,7 +85,7 @@ public class Database
      * @return The <a href="Table.html">Table</a> object corresponding to the created table.
      * @exception SDBPException 
      * @see Table 
-     * @see createTable(String, Quorum) 
+     * @see #createTable(String, Quorum) 
      */
     public Table createTable(String name) throws SDBPException {
         List<Quorum> quorums = client.getQuorums();
@@ -101,7 +101,7 @@ public class Database
      * @param name The name of the table.
      * @return The <a href="Table.html">Table</a> object corresponding to the created table.
      * @exception SDBPException 
-     * @see createTable(String) 
+     * @see #createTable(String) 
      */
     public Table createTable(String name, Quorum quorum) throws SDBPException {
         BigInteger biDatabaseID = BigInteger.valueOf(databaseID);

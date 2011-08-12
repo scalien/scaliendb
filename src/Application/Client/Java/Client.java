@@ -49,41 +49,41 @@ public class Client
 
     /**
      * Get operations are served by any quorum member. May return stale data.
-     * @see setConsistencyMode(int) 
+     * @see #setConsistencyMode(int) 
      */
     public static final int CONSISTENCY_ANY     = 0;
     
     /**
      * Get operations are served using read-your-writes semantics.
-     * @see setConsistencyMode(int) 
+     * @see #setConsistencyMode(int) 
      */
     public static final int CONSISTENCY_RYW     = 1;
 
     /**
      * Get operations are always served from the primary of each quorum.
      * This is the default consistency level.
-     * @see setConsistencyMode(int) 
+     * @see #setConsistencyMode(int) 
      */
     public static final int CONSISTENCY_STRICT  = 2;
 
     /**
      * Default batch mode. Writes are batched, then sent off to the ScalienDB server.
-     * @see setBatchMode(int) 
-     * @see setBatchLimit(long) 
+     * @see #setBatchMode(int) 
+     * @see #setBatchLimit(long) 
      */
     public static final int BATCH_DEFAULT       = 0;
 
     /**
      * Writes are batched, and if the batch limit is reached an exception is thrown.
-     * @see setBatchMode(int) 
-     * @see setBatchLimit(long) 
+     * @see #setBatchMode(int) 
+     * @see #setBatchLimit(long) 
      */
     public static final int BATCH_NOAUTOSUBMIT  = 1;
 
     /**
      * Writes are sent one by one. This will be much slower than the default mode.
-     * @see setBatchMode(int) 
-     * @see setBatchLimit(long) 
+     * @see #setBatchMode(int) 
+     * @see #setBatchLimit(long) 
      */
     public static final int BATCH_SINGLE        = 2;
     
@@ -116,8 +116,8 @@ public class Client
      * <p>
      * You must call close() at the end of the program to clean up after the client instance.
      * Also, close() automatically calls <a href="#submit()">submit()</a> to send off any batched commands.
-     * @see submit()
-     * @see cancel()
+     * @see #submit()
+     * @see #rollback()
      */
     public void close() {
         if (cptr != null) {
@@ -173,9 +173,9 @@ public class Client
      * The maximum time the client library will wait to complete operations, in miliseconds.
      * Default 120 seconds.
      * @param timeout The global timeout in miliseconds.
-     * @see setMasterTimeout(long) 
-     * @see getGlobalTimeout() 
-     * @see getMasterTimeout() 
+     * @see #setMasterTimeout(long) 
+     * @see #getGlobalTimeout() 
+     * @see #getMasterTimeout() 
      */
     public void setGlobalTimeout(long timeout) {
         scaliendb_client.SDBP_SetGlobalTimeout(cptr, BigInteger.valueOf(timeout));
@@ -185,9 +185,9 @@ public class Client
      * The maximum time the client library will wait to find the master node, in miliseconds.
      * Default 21 seconds.
      * @param timeout The master timeout in miliseconds. 
-     * @see setGlobalTimeout(long) 
-     * @see getGlobalTimeout() 
-     * @see getMasterTimeout() 
+     * @see #setGlobalTimeout(long) 
+     * @see #getGlobalTimeout() 
+     * @see #getMasterTimeout() 
      */
     public void setMasterTimeout(long timeout) {
         scaliendb_client.SDBP_SetMasterTimeout(cptr, BigInteger.valueOf(timeout));
@@ -197,9 +197,9 @@ public class Client
      * Get the global timeout in miliseconds. The global timeout is the maximum time
      * the client library will wait to complete operations.
      * @return The global timeout in miliseconds.
-     * @see getMasterTimeout() 
-     * @see setGlobalTimeout(long) 
-     * @see setMasterTimeout(long) 
+     * @see #getMasterTimeout() 
+     * @see #setGlobalTimeout(long) 
+     * @see #setMasterTimeout(long) 
      */
     public long getGlobalTimeout() {
         BigInteger bi = scaliendb_client.SDBP_GetGlobalTimeout(cptr);
@@ -210,9 +210,9 @@ public class Client
      * Get the master timeout in miliseconds. The master timeout is the maximum time
      * the client library will wait to find the master node.
      * @return The master timeout in miliseconds.
-     * @see getGlobalTimeout() 
-     * @see setGlobalTimeout(long) 
-     * @see setMasterTimeout(long) 
+     * @see #getGlobalTimeout() 
+     * @see #setGlobalTimeout(long) 
+     * @see #setMasterTimeout(long) 
      */
     public long getMasterTimeout() {
         BigInteger bi = scaliendb_client.SDBP_GetMasterTimeout(cptr);
@@ -258,7 +258,7 @@ public class Client
      * @param batchMode <a href="#">BATCH_DEFAULT</a> or
      * <a href="#BATCH_NOAUTOSUBMIT">BATCH_NOAUTOSUBMIT</a> or
      * <a href="#BATCH_SINGLE">BATCH_SINGLE</a>
-     * @see setBatchLimit(long) 
+     * @see #setBatchLimit(long) 
      */
     public void setBatchMode(int batchMode) {
         scaliendb_client.SDBP_SetBatchMode(cptr, batchMode);
@@ -280,7 +280,7 @@ public class Client
      * <p>
      * The default 1MB.
      * @param batchLimit The batch limit in bytes.
-     * @see setBatchMode(int) 
+     * @see #setBatchMode(int) 
      */
     public void setBatchLimit(long limit) {
         scaliendb_client.SDBP_SetBatchLimit(cptr, limit);
@@ -298,7 +298,7 @@ public class Client
      * @param name The quorum name.
      * @return The <a href="Quorum.html">Quorum</a> object.
      * @see Quorum
-     * @see getQuorums()
+     * @see #getQuorums()
      */
     public Quorum getQuorum(String name) throws SDBPException {
         List<Quorum> quorums = getQuorums();
@@ -314,7 +314,7 @@ public class Client
      * Return all quorums in the database as a list of <a href="Quorum.html">Quorum</a> objects.
      * @return The list of <a href="Quorum.html">Quorum</a> objects.
      * @see Quorum 
-     * @see getQuorum(String) 
+     * @see #getQuorum(String) 
      */
     public List<Quorum> getQuorums() throws SDBPException {
         long numQuorums = scaliendb_client.SDBP_GetNumQuorums(cptr);
@@ -333,8 +333,8 @@ public class Client
      * @param name The name of the database.
      * @return The <a href="Database.html">Database</a> object.
      * @see Database
-     * @see getDatabases()
-     * @see createDatabase(String)
+     * @see #getDatabases()
+     * @see #createDatabase(String)
      */
     public Database getDatabase(String name) throws SDBPException {
         List<Database> databases = getDatabases();
@@ -350,8 +350,8 @@ public class Client
      * Get all databases as a list of <a href="Database.html">Database</a> objects.
      * @return A list of <a href="Database.html">Database</a> objects.
      * @see Database 
-     * @see getDatabase(String) 
-     * @see createDatabase(String) 
+     * @see #getDatabase(String) 
+     * @see #createDatabase(String) 
      */
     public List<Database> getDatabases() throws SDBPException {
         long numDatabases = scaliendb_client.SDBP_GetNumDatabases(cptr);
@@ -370,8 +370,8 @@ public class Client
      * @param name The name of the database to create.
      * @return The new <a href="Database.html">Database</a> object.
      * @see Database 
-     * @see getDatabase(String) 
-     * @see getDatabases() 
+     * @see #getDatabase(String) 
+     * @see #getDatabases() 
      */    
     public Database createDatabase(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_CreateDatabase(cptr, name);
@@ -574,7 +574,7 @@ public class Client
     
     /**
      * Send the batched operations to the ScalienDB server.
-     * @see cancel()
+     * @see #rollback()
      */
     public void submit() throws SDBPException {
         int status = scaliendb_client.SDBP_Submit(cptr);
@@ -584,7 +584,7 @@ public class Client
     
     /**
      * Discard all batched operations.
-     * @see submit()
+     * @see #submit()
      */
     public void rollback() throws SDBPException {
         int status = scaliendb_client.SDBP_Cancel(cptr);
