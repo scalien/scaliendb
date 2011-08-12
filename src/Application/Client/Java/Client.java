@@ -47,19 +47,55 @@ public class Client
     private Result result;
     private Result lastResult;
 
+    /**
+     * Get operations are served by any quorum member. May return stale data.
+     * @see setConsistencyMode(int) 
+     */
     public static final int CONSISTENCY_ANY     = 0;
+    
+    /**
+     * Get operations are served using read-your-writes semantics.
+     * @see setConsistencyMode(int) 
+     */
     public static final int CONSISTENCY_RYW     = 1;
+
+    /**
+     * Get operations are always served from the primary of each quorum.
+     * This is the default consistency level.
+     * @see setConsistencyMode(int) 
+     */
     public static final int CONSISTENCY_STRICT  = 2;
 
+    /**
+     * Default batch mode. Writes are batched, then sent off to the ScalienDB server.
+     * @see setBatchMode(int) 
+     * @see setBatchLimit(long) 
+     */
     public static final int BATCH_DEFAULT       = 0;
+
+    /**
+     * Writes are batched, and if the batch limit is reached an exception is thrown.
+     * @see setBatchMode(int) 
+     * @see setBatchLimit(long) 
+     */
     public static final int BATCH_NOAUTOSUBMIT  = 1;
+
+    /**
+     * Writes are sent one by one. This will be much slower than the default mode.
+     * @see setBatchMode(int) 
+     * @see setBatchLimit(long) 
+     */
     public static final int BATCH_SINGLE        = 2;
     
     /**
-     * Creates client object.
-     *
-     * @param   nodes   the addresses of controllers, e.g. "localhost:7080"
-     *
+     * Construct a Client object. Pass in the list of controllers
+     * as ellipsed strings in the form "host:port".
+     * <p>
+     * Example:
+     * <pre>
+     * Client client = new Client("192.168.1.1:7080", "192.168.1.2:7080", "192.168.1.3:7080");
+     * </pre>
+     * @param nodes The controllers as ellipsed list of strings in the form "host:port".
      */
     public Client(String... nodes) throws SDBPException {
         cptr = scaliendb_client.SDBP_Create();
@@ -77,10 +113,11 @@ public class Client
     
     /**
      * Closes the client object.
-     *
-     * This method may be called to release any resources associated with the client object. It is
-     * also called from finalize automatically, but calling this method is deterministic unlike the 
-     * call of finalize.
+     * <p>
+     * You must call close() at the end of the program to clean up after the client instance.
+     * Also, close() automatically calls <a href="#submit()">submit()</a> to send off any batched commands.
+     * @see submit()
+     * @see cancel()
      */
     public void close() {
         if (cptr != null) {
@@ -99,44 +136,70 @@ public class Client
         close();
     }
     
+        void checkResultStatus(int status) throws SDBPException {
+        checkResultStatus(status, null);
+    }
+
+    void checkResultStatus(int status, String msg) throws SDBPException {
+        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
+        checkStatus(status, msg);
+    }
+    
+    void checkStatus(int status) throws SDBPException {
+        checkStatus(status, null);
+    }
+
+    void checkStatus(int status, String msg) throws SDBPException {
+        if (status < 0) {
+            if (msg != null)
+                throw new SDBPException(status, msg);
+            if (status == Status.SDBP_BADSCHEMA)
+                throw new SDBPException(status, "No database or table is in use");
+            if (status == Status.SDBP_NOSERVICE)
+                throw new SDBPException(status, "No server in the cluster was able to serve the request");
+            throw new SDBPException(status, msg);
+        }
+    }
+    
     /**
-     * Turns on or off the debug trace functionality.
+     * Turn on additional log trace output in the underlying C++ client library. Off by default.
+     * @param trace true or false.
      */
     public static void setTrace(boolean trace) {
         scaliendb_client.SDBP_SetTrace(trace);
     }
 
     /**
-     * Sets the global timeout.
-     *
-     * The global timeout specifies the maximum time that a client call will block your application.
-     * The default is 120 seconds.
-     *
-     * @param   timeout                 the global timeout in milliseconds
-     * @see     #getGlobalTimeout()     getGlobalTimeout
+     * The maximum time the client library will wait to complete operations, in miliseconds.
+     * Default 120 seconds.
+     * @param timeout The global timeout in miliseconds.
+     * @see setMasterTimeout(long) 
+     * @see getGlobalTimeout() 
+     * @see getMasterTimeout() 
      */
     public void setGlobalTimeout(long timeout) {
         scaliendb_client.SDBP_SetGlobalTimeout(cptr, BigInteger.valueOf(timeout));
     }
     
     /**
-     * Sets the master timeout.
-     *
-     * The master timeout specifies the maximum time that the client will spend trying to find the
-     * master controller node. The default is 21 seconds.
-     *
-     * @param   timeout                 the master timeout in milliseconds
-     * @see     #getMasterTimeout()     getMasterTimeout
+     * The maximum time the client library will wait to find the master node, in miliseconds.
+     * Default 21 seconds.
+     * @param timeout The master timeout in miliseconds. 
+     * @see setGlobalTimeout(long) 
+     * @see getGlobalTimeout() 
+     * @see getMasterTimeout() 
      */
     public void setMasterTimeout(long timeout) {
         scaliendb_client.SDBP_SetMasterTimeout(cptr, BigInteger.valueOf(timeout));
     }
     
     /**
-     * Returns the global timeout.
-     *
-     * @return                              the global timeout in milliseconds
-     * @see     #setGlobalTimeout(long)     setGlobalTimeout
+     * Get the global timeout in miliseconds. The global timeout is the maximum time
+     * the client library will wait to complete operations.
+     * @return The global timeout in miliseconds.
+     * @see getMasterTimeout() 
+     * @see setGlobalTimeout(long) 
+     * @see setMasterTimeout(long) 
      */
     public long getGlobalTimeout() {
         BigInteger bi = scaliendb_client.SDBP_GetGlobalTimeout(cptr);
@@ -144,10 +207,12 @@ public class Client
     }
     
     /**
-     * Returns the master timeout.
-     *
-     * @return                              the master timeout in milliseconds
-     * @see     #setMasterTimeout(long)     setMasterTimeout
+     * Get the master timeout in miliseconds. The master timeout is the maximum time
+     * the client library will wait to find the master node.
+     * @return The master timeout in miliseconds.
+     * @see getGlobalTimeout() 
+     * @see setGlobalTimeout(long) 
+     * @see setMasterTimeout(long) 
      */
     public long getMasterTimeout() {
         BigInteger bi = scaliendb_client.SDBP_GetMasterTimeout(cptr);
@@ -155,56 +220,67 @@ public class Client
     }
     
     /**
-     * Sets the consistency mode for read operations.
-     *
-     * <p>There are separate consistency modes the client can operate at.
-     *
-     * <li>CONSISTENCY_ANY means that any shard server can serve the read requests. Usually this
-     * can be used for load-balancing between replicas, and due to total replication it will be
-     * consistent most of the time, with a small chance of inconsistency when one of
-     * the shard servers are failing.
-     *
-     * <li>CONSISTENCY_RYW means "read your writes" consistency, clients will always get a
-     * consistent view of their own writes.
-     *
-     * <li>CONSISTENCY_STRICT means that all read requests will be served by the primary shard server.
-     * Therefore it is always consistent.
-     *
-     * @param   consistencyMode    can be CONSISTENCY_ANY, CONSISTENCY_RYW or CONSISTENCY_STRICT
+     * Set the consistency mode for Get operations.
+     * <p>
+     * Possible values are:
+     * <ul>
+     * <li><a href="#CONSISTENCY_STRICT">CONSISTENCY_STRICT</a>: Get operations are sent to the primary of the quorum.</li>
+     * <li><a href="#CONSISTENCY_RYW">CONSISTENCY_RYW</a>: RYW is short for Read Your Writers. Get operations may be
+     * sent to slaves, but the internal replication number is used as a sequencer to make sure
+     * the slave has seen the last write issued by the client.</li>
+     * <li><a href="#CONSISTENCY_ANY">CONSISTENCY_ANY</a>: Get operations may be sent to slaves, which may return stale data.</li>
+     * </ul>
+     * <p>
+     * The default is <a href="#CONSISTENCY_STRICT">CONSISTENCY_STRICT</a>.
+     * @param consistencyMode <a href="#CONSISTENCY_STRICT">CONSISTENCY_STRICT</a> or
+     * <a href="#CONSISTENCY_RYW">CONSISTENCY_RYW</a> or
+     * <a href="#CONSISTENCY_ANY">CONSISTENCY_ANY</a>
      */
     public void setConsistencyMode(int consistencyMode) {
         scaliendb_client.SDBP_SetConsistencyMode(cptr, consistencyMode);
     }
 
     /**
-     * Sets the batch mode for write operations.
-     *
-     * <p>This determines when the client library actually sends commands to the server.
-     *    Note that calling Submit() always sends the currently batched commands, irrespective
-     *    of the batch mode.
-     *
-     * <li>BATCH_DEAULT means that commands are sent when the batch limit (default 1MB) is reached.
-     *
-     * <li>BATCH_NOAUTOSUBMIT means that commands are never send automatically, only when Submit()
-     *     is called explicitly. Once the batch limit is reached an exception is thrown.
-     *
-     * <li>BATCH_SINGLE means that commands are sent right after they are issued. Since the client
-     *     library waits for the command to complete and return, this can be slow.
-     *
-     * @param   batchMode   can be BATCH_DEFAULT, BATCH_NOAUTOSUBMIT and BATCH_SINGLE
-     */    
+     * Set the batch mode for write operations (Set and Delete).
+     * <p>
+     * As a performance optimization, the ScalienDB can collect write operations in client memory and send them
+     * off in batches to the servers. This will drastically improve the performance of the database.
+     * To send off writes excplicitly, use <a href="#submit()">submit()</a>.
+     * <p>
+     * The modes are:
+     * <ul>
+     * <li><a href="#BATCH_DEFAULT">BATCH_DEFAULT</a>: collect writes until the batch limit is reached, then send them off to the servers</li>
+     * <li><a href="#BATCH_NOAUTOSUBMIT">BATCH_NOAUTOSUBMIT</a>: collect writes until the batch limit is reached, then throw an <a href="SDBPException.html">SDBPException</a></li>
+     * <li><a href="#BATCH_SINGLE">BATCH_SINGLE</a>: send writes one by one, as they are issued</li>
+     * </ul>
+     * <p>
+     * The default is <a href="#BATCH_DEFAULT">BATCH_DEFAULT</a>.
+     * @param batchMode <a href="#">BATCH_DEFAULT</a> or
+     * <a href="#BATCH_NOAUTOSUBMIT">BATCH_NOAUTOSUBMIT</a> or
+     * <a href="#BATCH_SINGLE">BATCH_SINGLE</a>
+     * @see setBatchLimit(long) 
+     */
     public void setBatchMode(int batchMode) {
         scaliendb_client.SDBP_SetBatchMode(cptr, batchMode);
     }
     
     /**
-     * Sets the batch limit.
-     *
-     * The batch limit is the maximum allocated memory the client will allocate for batched
-     * requests. If the requests exceed that limit, the client will throw an exception with
-     * SDBP_API_ERROR.
-     *
-     * @param   limit   the maximum allocated memory
+     * The the batch limit for write operations (Set and Delete) in bytes.
+     * <p>
+     * When running with batchMode = <a href="#BATCH_DEFAULT">BATCH_DEFAULT</a> and
+     * <a href="#BATCH_NOAUTOSUBMIT">BATCH_NOAUTOSUBMIT</a>, the client collects writes
+     * and sends them off to the ScalienDB server in batches.
+     * To send off writes excplicitly, use <a href="#submit()">submit()</a>.
+     * <p>setBatchLimit() lets you specify the exact amount to store in memory before:
+     * <ul>
+     * <li>submiting the operations in <a href="#BATCH_DEFAULT">BATCH_DEFAULT</a> mode</li>
+     * <li>throwing an <a href="SDBPException.html">SDBPException</a> in
+     * <a href="#BATCH_NOAUTOSUBMIT">BATCH_NOAUTOSUBMIT</a> mode</li>
+     * </ul>
+     * <p>
+     * The default 1MB.
+     * @param batchLimit The batch limit in bytes.
+     * @see setBatchMode(int) 
      */
     public void setBatchLimit(long limit) {
         scaliendb_client.SDBP_SetBatchLimit(cptr, limit);
@@ -218,10 +294,11 @@ public class Client
     }
 
     /**
-     * Returns the specified quorum.
-     *
-     * @param   quorumID    the ID of the specified quorum
-     * @return              the quorum object
+     * Return a <a href="Quorum.html">Quorum</a> by name.
+     * @param name The quorum name.
+     * @return The <a href="Quorum.html">Quorum</a> object.
+     * @see Quorum
+     * @see getQuorums()
      */
     public Quorum getQuorum(String name) throws SDBPException {
         List<Quorum> quorums = getQuorums();
@@ -234,9 +311,10 @@ public class Client
     }
 
     /**
-     * Returns all quorums.
-     *
-     * @return              a list of quorum objects
+     * Return all quorums in the database as a list of <a href="Quorum.html">Quorum</a> objects.
+     * @return The list of <a href="Quorum.html">Quorum</a> objects.
+     * @see Quorum 
+     * @see getQuorum(String) 
      */
     public List<Quorum> getQuorums() throws SDBPException {
         long numQuorums = scaliendb_client.SDBP_GetNumQuorums(cptr);
@@ -251,11 +329,13 @@ public class Client
     }
     
     /**
-     * Returns the specified database.
-     *
-     * @param   name    the name of the database
-     * @return          the specified database
-     */    
+     * Get a <a href="Database.html">Database</a> by name.
+     * @param name The name of the database.
+     * @return The <a href="Database.html">Database</a> object.
+     * @see Database
+     * @see getDatabases()
+     * @see createDatabase(String)
+     */
     public Database getDatabase(String name) throws SDBPException {
         List<Database> databases = getDatabases();
         for (Database database : databases)
@@ -267,9 +347,11 @@ public class Client
     }
 
     /**
-     * Returns all databases.
-     *
-     * @return              a list of database objects
+     * Get all databases as a list of <a href="Database.html">Database</a> objects.
+     * @return A list of <a href="Database.html">Database</a> objects.
+     * @see Database 
+     * @see getDatabase(String) 
+     * @see createDatabase(String) 
      */
     public List<Database> getDatabases() throws SDBPException {
         long numDatabases = scaliendb_client.SDBP_GetNumDatabases(cptr);
@@ -282,13 +364,15 @@ public class Client
         }
         return databases;
     }
-    
+
     /**
-     * Creates a database.
-     *
-     * @param   name    the name of the database
-     * @return          the database object
-     */
+     * Create a database and return the corresponding <a href="Database.html">Database</a> object.
+     * @param name The name of the database to create.
+     * @return The new <a href="Database.html">Database</a> object.
+     * @see Database 
+     * @see getDatabase(String) 
+     * @see getDatabases() 
+     */    
     public Database createDatabase(String name) throws SDBPException {
         int status = scaliendb_client.SDBP_CreateDatabase(cptr, name);
         checkResultStatus(status);
@@ -489,27 +573,8 @@ public class Client
     }
     
     /**
-     * Begins a batch operation. After begin is called, each command will be batched and
-     * submitted or cancelled together.
-     *
-     * @see     #submit()   submit
-     * @see     #cancel()   cancel
-     */
-    public void begin() throws SDBPException {
-        if (lastResult != result) {
-            result.close();
-        }
-        result = null;
-        lastResult = null;
-        int status = scaliendb_client.SDBP_Begin(cptr);
-        checkStatus(status);
-    }
-    
-    /**
-     * Submits a batch operation.
-     *
-     * @see     #begin()    begin
-     * @see     #cancel()   cancel
+     * Send the batched operations to the ScalienDB server.
+     * @see cancel()
      */
     public void submit() throws SDBPException {
         int status = scaliendb_client.SDBP_Submit(cptr);
@@ -518,38 +583,11 @@ public class Client
     }
     
     /**
-     * Cancels a batch operation.
-     *
-     * @see     #begin()    begin
-     * @see     #submit()   submit
+     * Discard all batched operations.
+     * @see submit()
      */
     public void rollback() throws SDBPException {
         int status = scaliendb_client.SDBP_Cancel(cptr);
         checkStatus(status);        
     }
-
-    void checkResultStatus(int status) throws SDBPException {
-        checkResultStatus(status, null);
-    }
-
-    void checkResultStatus(int status, String msg) throws SDBPException {
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        checkStatus(status, msg);
-    }
-    
-    void checkStatus(int status) throws SDBPException {
-        checkStatus(status, null);
-    }
-
-    void checkStatus(int status, String msg) throws SDBPException {
-        if (status < 0) {
-            if (msg != null)
-                throw new SDBPException(status, msg);
-            if (status == Status.SDBP_BADSCHEMA)
-                throw new SDBPException(status, "No database or table is in use");
-            if (status == Status.SDBP_NOSERVICE)
-                throw new SDBPException(status, "No server in the cluster was able to serve the request");
-            throw new SDBPException(status, msg);
-        }
-    }    
 }
