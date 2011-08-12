@@ -1,8 +1,13 @@
 package com.scalien.scaliendb;
 
+/**
+ * Collection of ScalienDB client status codes.
+ */
 public class Status
 {
+    /** The operation succeeded. */
     public final static int SDBP_SUCCESS        = 0;
+    /** The operation failed because of a client-side error. */
     public final static int SDBP_API_ERROR      = -1;
 
     /**
@@ -11,42 +16,45 @@ public class Status
 
     /** Only a portion of the commands could be sent before a timeout occured */
     public final static int SDBP_PARTIAL        = -101;
-    /** No commands could be sent */
+    /** A number of batched operations failed. */
     public final static int SDBP_FAILURE        = -102;
 
     /** 
      * CONNECTIVITY STATUS
      */
     
-    /** Some controllers were reachable, but there was no master or it went down */
+    /** No master was found in the ScalienDB cluster. */
     public final static int SDBP_NOMASTER       = -201;
-    /** The entire grid was unreachable within timeouts */
+    /** Connectivity error. */
     public final static int SDBP_NOCONNECTION   = -202;
-    /** The primary could not be found */
+    /** No primary was found for one of the quorums. */
     public final static int SDBP_NOPRIMARY      = -203;
 
     /**
      * TIMEOUT STATUS
      */
     
-    /** The master could not be found within the master timeout */
+    /** Master timeout occured. */
     public final static int SDBP_MASTER_TIMEOUT = -301;
-    /** The blocking client library call returned because the global timeout has expired */
+    /** Global timeout occured. */
     public final static int SDBP_GLOBAL_TIMEOUT = -302;
-    /** The primary could not be found within the primary timeout */
+    /** Primary timeout occured. */
     public final static int SDBP_PRIMARY_TIMEOUT= -303;
 
     /**
      * COMMAND STATUS
      */
     
-    /** The command was not executed */
+    /** The ScalienDB server returned no service. */
     public final static int SDBP_NOSERVICE      = -401;
-    /** The command was executed, but its return value was FAILED */
+    /** Key not found. */
     public final static int SDBP_FAILED         = -402;
-    /** The command was not executed, because of bad schema specification */
+    /** There was a schema error. */
     public final static int SDBP_BADSCHEMA      = -403;
     
+    /**
+     * 	Return a textual presentation of a status code. 
+     */
     public static String toString(int status)
     {
         switch (status) {

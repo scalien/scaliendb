@@ -41,9 +41,6 @@ namespace Scalien
     /// <summary>
     /// The ScalienDB client represents a connection to a ScalienDB cluster.
     /// </summary>
-    /// <remarks>
-    /// TODO.
-    /// </remarks>
     /// <example><code>
     /// Client client = new Client({"localhost:7080"});
     /// db = client.GetDatabase("testDatabase");
