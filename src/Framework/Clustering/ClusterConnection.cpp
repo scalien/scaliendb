@@ -259,8 +259,8 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         }
         
         transport->AddConnection(this);
-        transport->OnConnectionReady(nodeID, endpoint);
         transport->OnWriteReadyness(this);
+        transport->OnConnectionReady(nodeID, endpoint);
     }
     else if (progress == ClusterConnection::OUTGOING)
         ASSERT_FAIL();
