@@ -141,27 +141,69 @@ namespace Scalien
         #region Data commands
 
         /// <summary>
-        /// Retrieve a value by key from the table. Throws exception if not found.
+        /// Retrieve a value by key from the table. Returns <code>null</code> if not found.
         /// </summary>
         /// <param name="key">The key to look for.</param>
         /// <returns>The retrieved value.</returns>
         /// <exception cref="SDBPException"/>
+        /// <seealso cref="Get(string, string)"/>
         /// <seealso cref="Get(byte[])"/>
+        /// <seealso cref="Get(byte[], byte[])"/>
         public string Get(string key)
         {
             return client.Get(tableID, key);
         }
 
         /// <summary>
-        /// Retrieve a value by key from the table. Throws exception if not found.
+        /// Retrieve a value by key from the table. Returns <code>defval</code> if not found.
+        /// </summary>
+        /// <param name="key">The key to look for.</param>
+        /// <param name="defval">The default return value.</param>
+        /// <returns>The retrieved value.</returns>
+        /// <exception cref="SDBPException"/>
+        /// <seealso cref="Get(string)"/>
+        /// <seealso cref="Get(byte[])"/>
+        /// <seealso cref="Get(string, string)"/>
+        public string Get(string key, string defval)
+        {
+            String value = client.Get(tableID, key);
+            if (value != null)
+                return value;
+            else
+                return defval;
+        }
+
+        /// <summary>
+        /// Retrieve a value by key from the table. Returns <code>null</code> if not found.
         /// </summary>
         /// <param name="key">The key to look for.</param>
         /// <returns>The retrieved value.</returns>
         /// <exception cref="SDBPException"/>
+        /// <seealso cref="Get(byte[], byte[])"/>
         /// <seealso cref="Get(string)"/>
+        /// <seealso cref="Get(string, string)"/>
         public byte[] Get(byte[] key)
         {
             return client.Get(tableID, key);
+        }
+
+        /// <summary>
+        /// Retrieve a value by key from the table. Returns <code>defval</code> if not found.
+        /// </summary>
+        /// <param name="key">The key to look for.</param>
+        /// <param name="defval">The default return value.</param>
+        /// <returns>The retrieved value.</returns>
+        /// <exception cref="SDBPException"/>
+        /// <seealso cref="Get(byte[])"/>
+        /// <seealso cref="Get(string)"/>
+        /// <seealso cref="Get(string, string)"/>
+        public byte[] Get(byte[] key, byte[] defval)
+        {
+            byte[] value = client.Get(tableID, key);
+            if (value != null)
+                return value;
+            else
+                return defval;
         }
 
         /// <summary>
