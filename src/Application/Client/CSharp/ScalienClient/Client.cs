@@ -506,6 +506,8 @@ namespace Scalien
             int status = scaliendb_client.SDBP_Get(cptr, tableID, key);
             if (status < 0)
             {
+                if (status == Status.SDBP_FAILED)
+                    return null;
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
             }
@@ -527,6 +529,8 @@ namespace Scalien
             }
             if (status < 0)
             {
+                if (status == Status.SDBP_FAILED)
+                    return null;
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
             }

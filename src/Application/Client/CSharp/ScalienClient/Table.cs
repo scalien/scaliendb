@@ -141,7 +141,7 @@ namespace Scalien
         #region Data commands
 
         /// <summary>
-        /// Retrieve a value by key from the table. Throws exception if not found.
+        /// Retrieve a value by key from the table. Returns null if not found.
         /// </summary>
         /// <param name="key">The key to look for.</param>
         /// <returns>The retrieved value.</returns>
@@ -153,7 +153,7 @@ namespace Scalien
         }
 
         /// <summary>
-        /// Retrieve a value by key from the table. Throws exception if not found.
+        /// Retrieve a value by key from the table. Returns null if not found.
         /// </summary>
         /// <param name="key">The key to look for.</param>
         /// <returns>The retrieved value.</returns>
