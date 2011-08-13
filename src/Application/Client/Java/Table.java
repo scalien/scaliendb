@@ -109,7 +109,7 @@ import java.util.Map;
     }
  
     /**
-     * Retrieve a value by key from the table. Throws exception if not found.
+     * Retrieve a value by key from the table. Returns <code>null</code> if not found.
      * @param key The key to look for.
      * @return The retrieved value.
      * @exception SDBPException 
@@ -120,7 +120,23 @@ import java.util.Map;
     }
 
     /**
-     * Retrieve a value by key from the table. Throws exception if not found.
+     * Retrieve a value by key from the table. Returns <code>defval</code> if not found.
+     * @param key The key to look for.
+     * @param defval The default return value.
+     * @return The retrieved value.
+     * @exception SDBPException 
+     * @see #get(byte[], byte[]) 
+     */
+    public String get(String key, String defval) throws SDBPException {
+        String value = client.get(tableID, key);
+        if (value != null)
+            return value;
+        else
+            return defval;
+    }
+
+    /**
+     * Retrieve a value by key from the table. Returns <code>null</code> if not found.
      * @param key The key to look for.
      * @return The retrieved value.
      * @exception SDBPException 
@@ -131,27 +147,19 @@ import java.util.Map;
     }
 
     /**
-     * Retrieve a value by key from the table or <code>defval</code> if not found.
+     * Retrieve a value by key from the table. Returns <code>defval</code> if not found.
      * @param key The key to look for.
-     * @param defval The default return value
-     * @return The retrieved value.
-     * @exception SDBPException 
-     * @see #get(byte[], byte[]) 
-     */
-    public String get(String key, String defval) throws SDBPException {
-        return client.get(tableID, key, defval);
-    }
-
-    /**
-     * Retrieve a value by key from the table or <code>defval</code> if not found.
-     * @param key The key to look for.
-     * @param defval The default return value
+     * @param defval The default return value.
      * @return The retrieved value.
      * @exception SDBPException 
      * @see #get(String, String) 
      */
     public byte[] get(byte[] key, byte[] defval) throws SDBPException {
-        return client.get(tableID, key, defval);
+        byte[] value = client.get(tableID, key);
+        if (value != null)
+            return value;
+        else
+            return defval;
     }
     
     /**

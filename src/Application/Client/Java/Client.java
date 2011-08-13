@@ -282,8 +282,8 @@ public class Client
      * @param batchLimit The batch limit in bytes.
      * @see #setBatchMode(int) 
      */
-    public void setBatchLimit(long limit) {
-        scaliendb_client.SDBP_SetBatchLimit(cptr, limit);
+    public void setBatchLimit(long batchLimit) {
+        scaliendb_client.SDBP_SetBatchLimit(cptr, batchLimit);
     }
 
     /**
@@ -383,6 +383,8 @@ public class Client
         BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_Get(cptr, biTableID, key);
         if (status < 0) {
+            if (status == Status.SDBP_FAILED)
+                return null;
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
         }
@@ -395,6 +397,8 @@ public class Client
         BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_GetCStr(cptr, biTableID, key, key.length);
         if (status < 0) {
+            if (status == Status.SDBP_FAILED)
+                return null;
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             checkStatus(status);
         }
@@ -403,30 +407,6 @@ public class Client
         return result.getValueBytes();
     }
     
-    String get(long tableID, String key, String defval) {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_Get(cptr, biTableID, key);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return defval;
-        }
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getValue();
-    }
-
-    byte[] get(long tableID, byte[] key, byte[] defval) {
-        BigInteger biTableID = BigInteger.valueOf(tableID);
-        int status = scaliendb_client.SDBP_GetCStr(cptr, biTableID, key, key.length);
-        if (status < 0) {
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-            return defval;
-        }
-        
-        result = new Result(scaliendb_client.SDBP_GetResult(cptr));
-        return result.getValueBytes();
-    }
-
     void set(long tableID, String key, String value) throws SDBPException {
         BigInteger biTableID = BigInteger.valueOf(tableID);
         int status = scaliendb_client.SDBP_Set(cptr, biTableID, key, value);
