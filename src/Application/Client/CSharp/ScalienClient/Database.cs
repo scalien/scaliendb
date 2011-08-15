@@ -62,6 +62,25 @@ namespace Scalien
         #endregion
 
         /// <summary>
+        /// Retrieve a <see cref="Scalien.Table"/> in this database by name.
+        /// </summary>
+        /// <param name="name">The name of the table.</param>
+        /// <returns>The corresponding <see cref="Scalien.Table"/> object or <code>null</code>.</returns>
+        /// <exception cref="SDBPException"/>
+        /// <seealso cref="Scalien.Table"/>
+        public Table GetTable(string name)
+        {
+            List<Table> tables = GetTables();
+            foreach (Table table in tables)
+            {
+                if (table.Name == name)
+                    return table;
+            }
+
+            return null;
+        }
+        
+        /// <summary>
         /// Retrieve the tables in the database as a list of <see cref="Scalien.Table"/> objects.
         /// </summary>
         /// <returns>The list of table objects.</returns>
@@ -78,25 +97,6 @@ namespace Scalien
                 tables.Add(new Table(client, this, tableID, name));
             }
             return tables;
-        }
-
-        /// <summary>
-        /// Retrieve a <see cref="Scalien.Table"/> in this database by name.
-        /// </summary>
-        /// <param name="name">The name of the table.</param>
-        /// <returns>The corresponding <see cref="Scalien.Table"/> object.</returns>
-        /// <exception cref="SDBPException"/>
-        /// <seealso cref="Scalien.Table"/>
-        public Table GetTable(string name)
-        {
-            List<Table> tables = GetTables();
-            foreach (Table table in tables)
-            {
-                if (table.Name == name)
-                    return table;
-            }
-
-            throw new SDBPException(Status.SDBP_BADSCHEMA);
         }
 
         /// <summary>

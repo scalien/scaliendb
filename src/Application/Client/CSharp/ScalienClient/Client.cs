@@ -446,7 +446,7 @@ namespace Scalien
         /// Get a <see cref="Scalien.Database"/> by name.
         /// </summary>
         /// <param name="name">The name of the database.</param>
-        /// <returns>The <see cref="Database"/> object.</returns>
+        /// <returns>The <see cref="Database"/> object or <code>null</code>.</returns>
         /// <seealso cref="Scalien.Database"/>
         /// <seealso cref="GetDatabases()"/>
         /// <seealso cref="CreateDatabase(string)"/>
@@ -459,7 +459,7 @@ namespace Scalien
                     return database;
             }
 
-            throw new SDBPException(Status.SDBP_BADSCHEMA);
+            return null;
         }
 
         /// <summary>
