@@ -503,19 +503,12 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
         if (ReadBuffer::Cmp(key, requestKey) != 0)
             continue;
             
-        if (itRequest->type == CLIENTREQUEST_SET)
-        {
-            proxiedRequests.Remove(itRequest);
-            requests.Append(itRequest);
-            result->AppendRequest(itRequest);
-            proxySize -= REQUEST_SIZE(itRequest);
-            ASSERT(proxySize >= 0);
-            break;
-        }
-        else // delete
-        {
-            return SDBP_FAILED;
-        }
+        proxiedRequests.Remove(itRequest);
+        requests.Append(itRequest);
+        result->AppendRequest(itRequest);
+        proxySize -= REQUEST_SIZE(itRequest);
+        ASSERT(proxySize >= 0);
+        break;
     }
 
     req = new Request;
