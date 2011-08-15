@@ -29,29 +29,18 @@ namespace Scalien
     /// </code></example>
     /// <seealso cref="Client.Begin()"/>
     /// <seealso cref="Client.Submit()"/>
-    /// <seealso cref="Client.Rollback()"/>
     public class Submitter : IDisposable
     {
         Client client;
-        bool cancelled = false;
 
         internal Submitter(Client client)
         {
             this.client = client;
         }
 
-        /// <summary>
-        /// Submit will not be called when the object goes out of scope. 
-        /// </summary>
-        public void Cancel()
-        {
-            cancelled = true;
-        }
-
         public void Dispose()
         {
-            if (!cancelled)
-                client.Submit();
+            client.Submit();
         }
     }
 }
