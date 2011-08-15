@@ -361,7 +361,22 @@ class Client:
         def _allocate_range(self):
             self._seq = self._table._client._add(self._table._table_id, self._key, self._gran) - self._gran
             self._num = self._gran
-        
+
+    # =============================================================================================
+    #
+    # Submitter
+    #
+    # =============================================================================================
+
+    class Submitter:
+        def __init__(self, client):
+            self._client = client
+                
+        def __enter__(self):
+            return self
+
+        def __exit__(self, type, value, traceback):
+            self._client.submit()
 
     # =============================================================================================
     #
@@ -511,6 +526,9 @@ class Client:
             key_values[self._result.key()] = self._result.value()
             self._result.next()
         return key_values
+    
+    def begin(self):
+        return Client.Submitter(self)
     
     def submit(self):
         status = SDBP_Submit(self._cptr)
