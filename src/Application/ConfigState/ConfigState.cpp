@@ -717,7 +717,7 @@ bool ConfigState::CompleteRenameDatabase(ConfigMessage& message)
         return false; // no such database
 
     database = GetDatabase(message.name);
-    if (database != NULL)
+    if (database != NULL && database->databaseID != message.databaseID)
         return false; // database with name exists
 
     if (!message.name.IsAsciiPrintable())
@@ -775,7 +775,7 @@ bool ConfigState::CompleteRenameTable(ConfigMessage& message)
     if (table == NULL)
         return false; // no such table
     table = GetTable(table->databaseID, message.name);
-    if (table != NULL)
+    if (table != NULL && table->tableID != message.tableID)
         return false; // table with name exists in database
 
     if (!message.name.IsAsciiPrintable())
@@ -1068,7 +1068,8 @@ void ConfigState::OnRenameDatabase(ConfigMessage& message)
 
     database = GetDatabase(message.name);
     // make sure database with name does not exist
-    ASSERT(database == NULL);
+    if (database != NULL)
+        ASSERT(database->databaseID == message.databaseID);
 
     database = GetDatabase(message.databaseID);
     // make sure database with ID exists
@@ -1149,7 +1150,8 @@ void ConfigState::OnRenameTable(ConfigMessage& message)
     
     table = GetTable(table->databaseID, message.name);
     // make sure table with name does not exist
-    ASSERT(table == NULL);
+    if (table != NULL)
+        ASSERT(table->tableID == message.tableID);
 
     table = GetTable(message.tableID);    
     table->name.Write(message.name);
