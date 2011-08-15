@@ -44,6 +44,24 @@ public class Database
     }
 
     /**
+     * Retrieve a <a href="Table.html">Table</a> in this database by name.
+     * @param name The name of the table.
+     * @return The corresponding <a href="Table.html">Scalien.Table</a> object or <code>null</code>.
+     * @exception SDBPException 
+     * @see Table 
+     */
+    public Table getTable(String name) throws SDBPException {
+        List<Table> tables = getTables();
+        for (Table table : tables)
+        {
+            if (table.getName().equals(name))
+                return table;
+        }
+
+        return null;    
+    }
+
+    /**
      * Retrieve the tables in the database as a list of <a href="Table.html">Table</a> objects.
      * @return The list of table objects.
      * @exception SDBPException 
@@ -60,25 +78,7 @@ public class Database
         }
         return tables;
     }
-    
-    /**
-     * Retrieve a <a href="Table.html">Table</a> in this database by name.
-     * @param name The name of the table.
-     * @return The corresponding <a href="Table.html">Scalien.Table</a> object.
-     * @exception SDBPException 
-     * @see Table 
-     */
-    public Table getTable(String name) throws SDBPException {
-        List<Table> tables = getTables();
-        for (Table table : tables)
-        {
-            if (table.getName().equals(name))
-                return table;
-        }
-
-        throw new SDBPException(Status.SDBP_BADSCHEMA);    
-    }
-    
+        
     /**
      * Create a table in this database, with the first shard placed in the first available quorum.
      * @param name The name of the table.

@@ -296,7 +296,7 @@ public class Client
     /**
      * Return a <a href="Quorum.html">Quorum</a> by name.
      * @param name The quorum name.
-     * @return The <a href="Quorum.html">Quorum</a> object.
+     * @return The <a href="Quorum.html">Quorum</a> object or <code>null</code>.
      * @see Quorum
      * @see #getQuorums()
      */
@@ -307,7 +307,7 @@ public class Client
             if (quorum.getName().equals(name))
                 return quorum;
         }
-        throw new SDBPException(Status.SDBP_BADSCHEMA, "Quorum not found");
+        return null;
     }
 
     /**
@@ -322,8 +322,8 @@ public class Client
         for (long i = 0; i < numQuorums; i++) {
             BigInteger bi = scaliendb_client.SDBP_GetQuorumIDAt(cptr, i);
             long quorumID = bi.longValue();
-            String quorumName = scaliendb_client.SDBP_GetQuorumNameAt(cptr, i);
-            quorums.add(new Quorum(this, quorumID, quorumName));
+            String name = scaliendb_client.SDBP_GetQuorumNameAt(cptr, i);
+            quorums.add(new Quorum(this, quorumID, name));
         }
         return quorums;
     }
@@ -331,7 +331,7 @@ public class Client
     /**
      * Get a <a href="Database.html">Database</a> by name.
      * @param name The name of the database.
-     * @return The <a href="Database.html">Database</a> object.
+     * @return The <a href="Database.html">Database</a> object or <code>null</code>.
      * @see Database
      * @see #getDatabases()
      * @see #createDatabase(String)
@@ -343,7 +343,7 @@ public class Client
             if (database.getName().equals(name))
                 return database;
         }
-        throw new SDBPException(Status.SDBP_BADSCHEMA);
+        return null;
     }
 
     /**
