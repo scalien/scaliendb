@@ -249,9 +249,12 @@ public class Client
      * <p>
      * The modes are:
      * <ul>
-     * <li><a href="#BATCH_DEFAULT">BATCH_DEFAULT</a>: collect writes until the batch limit is reached, then send them off to the servers</li>
-     * <li><a href="#BATCH_NOAUTOSUBMIT">BATCH_NOAUTOSUBMIT</a>: collect writes until the batch limit is reached, then throw an <a href="SDBPException.html">SDBPException</a></li>
-     * <li><a href="#BATCH_SINGLE">BATCH_SINGLE</a>: send writes one by one, as they are issued</li>
+     * <li><a href="#BATCH_DEFAULT">BATCH_DEFAULT</a>:
+     *     collect writes until the batch limit is reached, then send them off to the servers</li>
+     * <li><a href="#BATCH_NOAUTOSUBMIT">BATCH_NOAUTOSUBMIT</a>:
+     *     collect writes until the batch limit is reached, then throw an <a href="SDBPException.html">SDBPException</a></li>
+     * <li><a href="#BATCH_SINGLE">BATCH_SINGLE</a>:
+    *      send writes one by one, as they are issued</li>
      * </ul>
      * <p>
      * The default is <a href="#BATCH_DEFAULT">BATCH_DEFAULT</a>.
