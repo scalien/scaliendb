@@ -142,8 +142,8 @@ void ClusterConnection::OnClose()
 
 bool ClusterConnection::OnMessage(ReadBuffer& msg)
 {
-    uint64_t            nodeID_;
-    uint64_t            clusterID_;
+    uint64_t            otherNodeID;
+    uint64_t            otherClusterID;
     ReadBuffer          buffer;
     ClusterConnection*  dup;
     int                 read;
@@ -191,7 +191,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
         }
         
         // both ends have nodeIDs
-        read = msg.Readf("%U:%U:%#R", &clusterID_, &nodeID_, &buffer);
+        read = msg.Readf("%U:%U:%#R", &otherClusterID, &otherNodeID, &buffer);
         if (read != (int) msg.GetLength())
         {
             // protocol error
@@ -201,14 +201,16 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             return true;
         }
         
-        if (clusterID_ > 0 && clusterID_ != transport->GetClusterID())
+        if (otherClusterID > 0 && otherClusterID != transport->GetClusterID())
         {
             Log_Message("[%R] Cluster invalid configuration, disconnecting...", &buffer);
+            Log_Debug("mine: %U != controller %U", transport->GetClusterID(), otherClusterID);
+            
             transport->DeleteConnection(this);      // drop this
             return true;            
         }
         
-        dup = transport->GetConnection(nodeID_);
+        dup = transport->GetConnection(otherNodeID);
         if (dup)
         {
             // if the other connections isn't ready yet, drop it
@@ -218,12 +220,12 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             // in other words, since this is an incoming connection:
             // if nodeID[of initiator] > transport->GetSelfNodeID(): drop
 
-            if (dup->progress != READY || nodeID_ > transport->GetSelfNodeID())
+            if (dup->progress != READY || otherNodeID > transport->GetSelfNodeID())
             {
                 Log_Trace("delete dup");
                 transport->DeleteConnection(dup);       // drop dup
             }
-            else if (nodeID_ != transport->GetSelfNodeID())
+            else if (otherNodeID != transport->GetSelfNodeID())
             {
                 Log_Trace("delete this");
                 transport->DeleteConnection(this);      // drop this
@@ -231,7 +233,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             }
         }
         progress = ClusterConnection::READY;
-        nodeID = nodeID_;
+        nodeID = otherNodeID;
         if (!endpoint.Set(buffer, true))
         {
             Log_Message("[%R] Cluster invalid network address", &buffer);
