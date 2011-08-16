@@ -39,6 +39,7 @@ void ConfigQuorumContext::Init(ConfigQuorumProcessor* quorumProcessor_, unsigned
     {
         replicatedLog.OnLearnLease();
         quorumProcessor->OnLearnLease();
+        quorumProcessor->OnIsLeader();
     }
 
 }
