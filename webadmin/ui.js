@@ -1007,7 +1007,7 @@ function createDashboard(configState)
 	{
 		nodeID = shardServerIDs[i];
 		shardServer = scaliendb.getShardServer(configState, nodeID);
-		var nodeString = nodeID + ' [' + shardServer["endpoint"] + '] &nbsp; <a alt="Remove from cluster" class="no-line" style="color:gray;" href="javascript:showUnregisterShardServer(' + nodeID + ')">X</a>';
+		var nodeString = nodeID + ' [' + shardServer["endpoint"] + '] &nbsp; <a title="Remove from cluster" class="no-line" style="color:gray;" href="javascript:showUnregisterShardServer(' + nodeID + ')">X</a>';
 		if (shardServer["hasHeartbeat"])
 			html += ' <span class="healthy shardserver-number">' + nodeString + '</span> ';
 		else
