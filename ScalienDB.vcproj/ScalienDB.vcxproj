@@ -1,0 +1,501 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{F4DD91C3-235A-46A2-A61A-FCD79A6BA2A3}</ProjectGuid>
+    <RootNamespace>ScalienDB</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>NotSet</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</LinkIncremental>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\bin\$(Platform)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\bin\$(Platform)</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)\</IntDir>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</LinkIncremental>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</GenerateManifest>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</GenerateManifest>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <TargetMachine>MachineX86</TargetMachine>
+    </Link>
+    <PostBuildEvent />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <AdditionalDependencies>ws2_32.lib;mswsock.lib;winmm.lib;psapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <SubSystem>Console</SubSystem>
+      <OptimizeReferences>true</OptimizeReferences>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+    </Link>
+    <PostBuildEvent>
+      <Command>echo "Copying $(OutDir)$(ProjectName).exe to $(OutDir)$(ProjectName)Test.exe"
+
+COPY /B /Y $(OutDir)$(ProjectName).exe $(OutDir)$(ProjectName)Test.exe</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\System\Common.cpp" />
+    <ClCompile Include="..\src\System\Config.cpp" />
+    <ClCompile Include="..\src\System\FileSystem.cpp" />
+    <ClCompile Include="..\src\System\Formatting.cpp" />
+    <ClCompile Include="..\src\System\Log.cpp" />
+    <ClCompile Include="..\src\System\Stopwatch.cpp" />
+    <ClCompile Include="..\src\System\Time.cpp" />
+    <ClCompile Include="..\src\System\Buffers\Buffer.cpp" />
+    <ClCompile Include="..\src\System\Buffers\ReadBuffer.cpp" />
+    <ClCompile Include="..\src\System\Events\Countdown.cpp" />
+    <ClCompile Include="..\src\System\Events\EventLoop.cpp" />
+    <ClCompile Include="..\src\System\Events\Scheduler.cpp" />
+    <ClCompile Include="..\src\System\Events\Timer.cpp" />
+    <ClCompile Include="..\src\System\IO\Endpoint.cpp" />
+    <ClCompile Include="..\src\System\IO\IOProcessor_Darwin.cpp" />
+    <ClCompile Include="..\src\System\IO\IOProcessor_Linux.cpp" />
+    <ClCompile Include="..\src\System\IO\IOProcessor_Windows.cpp" />
+    <ClCompile Include="..\src\System\IO\Socket_Posix.cpp" />
+    <ClCompile Include="..\src\System\IO\Socket_Windows.cpp" />
+    <ClCompile Include="..\src\System\Threading\JobProcessor.cpp" />
+    <ClCompile Include="..\src\System\Threading\Mutex_Posix.cpp" />
+    <ClCompile Include="..\src\System\Threading\Mutex_Windows.cpp" />
+    <ClCompile Include="..\src\System\Threading\ThreadPool_Posix.cpp" />
+    <ClCompile Include="..\src\System\Threading\ThreadPool_Windows.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPClient.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPClientRequest.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPClientWrapper.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPControllerConnection.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPResult.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp" />
+    <ClCompile Include="..\src\Application\Common\CatchupMessage.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClientRequest.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClientRequestCache.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClientResponse.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClusterMessage.cpp" />
+    <ClCompile Include="..\src\Application\Common\ContextTransport.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigController.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigDatabase.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigQuorum.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigShard.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigShardServer.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigState.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigTable.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigActivationManager.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigDatabaseManager.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigHeartbeatManager.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigHTTPClientSession.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigHTTPHandler.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigMessage.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigPrimaryLeaseManager.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigQuorumContext.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigQuorumProcessor.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigServer.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigServerApp.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\JSONConfigState.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPConnection.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPFileHandler.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPRequest.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPServer.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPSession.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\IMF.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\JSONBufferWriter.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\JSONSession.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\Mime.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\UrlParam.cpp" />
+    <ClCompile Include="..\src\Application\SDBP\SDBPConnection.cpp" />
+    <ClCompile Include="..\src\Application\SDBP\SDBPRequestMessage.cpp" />
+    <ClCompile Include="..\src\Application\SDBP\SDBPResponseMessage.cpp" />
+    <ClCompile Include="..\src\Application\SDBP\SDBPServer.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardCatchupReader.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardCatchupWriter.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardDatabaseManager.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardHeartbeatManager.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardHTTPClientSession.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardHTTPHandler.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardMessage.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardMigrationWriter.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardQuorumContext.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardQuorumProcessor.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardServer.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardServerApp.cpp" />
+    <ClCompile Include="..\src\Framework\Clustering\ClusterConnection.cpp" />
+    <ClCompile Include="..\src\Framework\Clustering\ClusterServer.cpp" />
+    <ClCompile Include="..\src\Framework\Clustering\ClusterTransport.cpp" />
+    <ClCompile Include="..\src\Framework\Messaging\MessageConnection.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\ReplicationConfig.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\Paxos\PaxosAcceptor.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\Paxos\PaxosMessage.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\Paxos\PaxosProposer.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLease.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseAcceptor.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseLearner.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseMessage.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseProposer.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\Quorums\MajorityQuorum.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\Quorums\QuorumDatabase.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\Quorums\QuorumTransport.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\Quorums\TotalQuorum.cpp" />
+    <ClCompile Include="..\src\Framework\Replication\ReplicatedLog\ReplicatedLog.cpp" />
+    <ClCompile Include="..\src\Framework\TCP\TCPConnection.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\BloomFilter.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\FDGuard.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageArchiveLogSegmentJob.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageAsyncBulkCursor.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageAsyncGet.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageAsyncList.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageBloomPage.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageBulkCursor.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageChunkMerger.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageChunkReader.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageChunkSerializer.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageChunkWriter.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageCommitJob.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageConfig.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageDataPage.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageDeleteFileChunkJob.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageDeleteMemoChunkJob.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageEnvironment.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageEnvironmentWriter.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageFileChunk.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageFileChunkLister.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageFileKeyValue.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageHeaderPage.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageIndexPage.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageLogSegment.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageMemoChunk.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageMemoChunkLister.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageMemoKeyValue.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageMergeChunkJob.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StoragePage.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StoragePageCache.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageRecovery.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageSerializeChunkJob.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageShard.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageShardProxy.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.cpp" />
+    <ClCompile Include="..\src\Framework\Storage\StorageWriteChunkJob.cpp" />
+    <ClCompile Include="..\src\Main.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\System\Common.h" />
+    <ClInclude Include="..\src\System\Config.h" />
+    <ClInclude Include="..\src\System\FileSystem.h" />
+    <ClInclude Include="..\src\System\Formatting.h" />
+    <ClInclude Include="..\src\System\Log.h" />
+    <ClInclude Include="..\src\System\Macros.h" />
+    <ClInclude Include="..\src\System\Platform.h" />
+    <ClInclude Include="..\src\System\Stopwatch.h" />
+    <ClInclude Include="..\src\System\Time.h" />
+    <ClInclude Include="..\src\System\Buffers\Buffer.h" />
+    <ClInclude Include="..\src\System\Buffers\ReadBuffer.h" />
+    <ClInclude Include="..\src\System\Containers\ArrayList.h" />
+    <ClInclude Include="..\src\System\Containers\HashMap.h" />
+    <ClInclude Include="..\src\System\Containers\InCache.h" />
+    <ClInclude Include="..\src\System\Containers\InList.h" />
+    <ClInclude Include="..\src\System\Containers\InPriorityQueue.h" />
+    <ClInclude Include="..\src\System\Containers\InQueue.h" />
+    <ClInclude Include="..\src\System\Containers\InSortedList.h" />
+    <ClInclude Include="..\src\System\Containers\InTreeMap.h" />
+    <ClInclude Include="..\src\System\Containers\InTreeMap2.h" />
+    <ClInclude Include="..\src\System\Containers\List.h" />
+    <ClInclude Include="..\src\System\Containers\SortedList.h" />
+    <ClInclude Include="..\src\System\Events\Callable.h" />
+    <ClInclude Include="..\src\System\Events\Countdown.h" />
+    <ClInclude Include="..\src\System\Events\Deferred.h" />
+    <ClInclude Include="..\src\System\Events\EventLoop.h" />
+    <ClInclude Include="..\src\System\Events\Scheduler.h" />
+    <ClInclude Include="..\src\System\Events\Timer.h" />
+    <ClInclude Include="..\src\System\IO\Endpoint.h" />
+    <ClInclude Include="..\src\System\IO\FD.h" />
+    <ClInclude Include="..\src\System\IO\IOOperation.h" />
+    <ClInclude Include="..\src\System\IO\IOProcessor.h" />
+    <ClInclude Include="..\src\System\IO\Socket.h" />
+    <ClInclude Include="..\src\System\Threading\Job.h" />
+    <ClInclude Include="..\src\System\Threading\JobProcessor.h" />
+    <ClInclude Include="..\src\System\Threading\Mutex.h" />
+    <ClInclude Include="..\src\System\Threading\ThreadPool.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPClient.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPClientConsts.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPClientRequest.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPClientWrapper.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPControllerConnection.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPResult.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h" />
+    <ClInclude Include="..\src\Application\Common\Application.h" />
+    <ClInclude Include="..\src\Application\Common\CatchupMessage.h" />
+    <ClInclude Include="..\src\Application\Common\ClientRequest.h" />
+    <ClInclude Include="..\src\Application\Common\ClientRequestCache.h" />
+    <ClInclude Include="..\src\Application\Common\ClientResponse.h" />
+    <ClInclude Include="..\src\Application\Common\ClientSession.h" />
+    <ClInclude Include="..\src\Application\Common\ClusterContext.h" />
+    <ClInclude Include="..\src\Application\Common\ClusterMessage.h" />
+    <ClInclude Include="..\src\Application\Common\ContextTransport.h" />
+    <ClInclude Include="..\src\Application\Common\DatabaseConsts.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigController.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigDatabase.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigQuorum.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigShard.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigShardServer.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigState.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigTable.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigActivationManager.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigDatabaseManager.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigHeartbeatManager.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigHTTPClientSession.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigHTTPHandler.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigMessage.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigPrimaryLeaseManager.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigQuorumContext.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigQuorumProcessor.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigServer.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigServerApp.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\JSONConfigState.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPConnection.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPConsts.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPFileHandler.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPHandler.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPRequest.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPServer.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPSession.h" />
+    <ClInclude Include="..\src\Application\HTTP\IMF.h" />
+    <ClInclude Include="..\src\Application\HTTP\JSONBufferWriter.h" />
+    <ClInclude Include="..\src\Application\HTTP\JSONSession.h" />
+    <ClInclude Include="..\src\Application\HTTP\Mime.h" />
+    <ClInclude Include="..\src\Application\HTTP\UrlParam.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPConnection.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPContext.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPRequestMessage.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPResponseMessage.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPServer.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardCatchupReader.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardCatchupWriter.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardDatabaseManager.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardHeartbeatManager.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardHTTPClientSession.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardHTTPHandler.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardMessage.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardMigrationWriter.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardQuorumContext.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardQuorumProcessor.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardServer.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardServerApp.h" />
+    <ClInclude Include="..\src\Framework\Clustering\ClusterConnection.h" />
+    <ClInclude Include="..\src\Framework\Clustering\ClusterServer.h" />
+    <ClInclude Include="..\src\Framework\Clustering\ClusterTransport.h" />
+    <ClInclude Include="..\src\Framework\Messaging\Message.h" />
+    <ClInclude Include="..\src\Framework\Messaging\MessageConnection.h" />
+    <ClInclude Include="..\src\Framework\Messaging\MessageUtil.h" />
+    <ClInclude Include="..\src\Framework\Replication\ReplicationConfig.h" />
+    <ClInclude Include="..\src\Framework\Replication\Paxos\PaxosAcceptor.h" />
+    <ClInclude Include="..\src\Framework\Replication\Paxos\PaxosMessage.h" />
+    <ClInclude Include="..\src\Framework\Replication\Paxos\PaxosProposer.h" />
+    <ClInclude Include="..\src\Framework\Replication\Paxos\States\PaxosAcceptorState.h" />
+    <ClInclude Include="..\src\Framework\Replication\Paxos\States\PaxosProposerState.h" />
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLease.h" />
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseAcceptor.h" />
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseLearner.h" />
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseMessage.h" />
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseProposer.h" />
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\States\PaxosLeaseAcceptorState.h" />
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\States\PaxosLeaseLearnerState.h" />
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\States\PaxosLeaseProposerState.h" />
+    <ClInclude Include="..\src\Framework\Replication\Quorums\MajorityQuorum.h" />
+    <ClInclude Include="..\src\Framework\Replication\Quorums\Quorum.h" />
+    <ClInclude Include="..\src\Framework\Replication\Quorums\QuorumContext.h" />
+    <ClInclude Include="..\src\Framework\Replication\Quorums\QuorumDatabase.h" />
+    <ClInclude Include="..\src\Framework\Replication\Quorums\QuorumTransport.h" />
+    <ClInclude Include="..\src\Framework\Replication\Quorums\TotalQuorum.h" />
+    <ClInclude Include="..\src\Framework\Replication\ReplicatedLog\ReplicatedLog.h" />
+    <ClInclude Include="..\src\Framework\TCP\TCPConnection.h" />
+    <ClInclude Include="..\src\Framework\TCP\TCPServer.h" />
+    <ClInclude Include="..\src\Framework\Storage\BloomFilter.h" />
+    <ClInclude Include="..\src\Framework\Storage\FDGuard.h" />
+    <ClInclude Include="..\src\Framework\Storage\PointerGuard.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageArchiveLogSegmentJob.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageAsyncBulkCursor.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageAsyncGet.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageAsyncList.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageBloomPage.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageBulkCursor.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageChunk.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkMerger.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkReader.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkSerializer.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkWriter.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageCommitJob.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageConfig.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageDataPage.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageDeleteFileChunkJob.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageDeleteMemoChunkJob.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageEnvironment.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageEnvironmentWriter.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageFileChunk.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageFileChunkLister.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageFileKeyValue.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageHeaderPage.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageIndexPage.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageKeyValue.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageLogSegment.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageMemoChunk.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageMemoChunkLister.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageMemoKeyValue.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageMergeChunkJob.h" />
+    <ClInclude Include="..\src\Framework\Storage\StoragePage.h" />
+    <ClInclude Include="..\src\Framework\Storage\StoragePageCache.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageRecovery.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageSerializeChunkJob.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageShard.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageShardProxy.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.h" />
+    <ClInclude Include="..\src\Framework\Storage\StorageWriteChunkJob.h" />
+    <ClInclude Include="..\src\Version.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
