@@ -191,7 +191,7 @@ void ConfigServer::OnIncomingConnectionReady(uint64_t nodeID, Endpoint endpoint)
 
     if (shardServer == NULL)
     {
-        Log_Message("Badly configured shard server trying to connect, no such nodeID: %U, endpoint: %s",
+        Log_Message("Badly configured or unregistered shard server trying to connect, no such nodeID: %U, endpoint: %s",
          nodeID, endpoint.ToString());
         CONTEXT_TRANSPORT->DropConnection(nodeID);
         return;

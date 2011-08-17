@@ -6,35 +6,36 @@
 #include "System/Containers/List.h"
 #include "Framework/Messaging/Message.h"
 
-#define CONFIGMESSAGE_MAX_NODES                 7
+#define CONFIGMESSAGE_MAX_NODES                          7
 
-#define CONFIGMESSAGE_SET_CLUSTER_ID            's'
-#define CONFIGMESSAGE_REGISTER_SHARDSERVER      'S'
-#define CONFIGMESSAGE_CREATE_QUORUM             'Q'
-#define CONFIGMESSAGE_RENAME_QUORUM             'q'
-#define CONFIGMESSAGE_DELETE_QUORUM             'W'
-#define CONFIGMESSAGE_ADD_NODE                  'n'
-#define CONFIGMESSAGE_REMOVE_NODE               'b'
-#define CONFIGMESSAGE_ACTIVATE_SHARDSERVER      'p'
-#define CONFIGMESSAGE_DEACTIVATE_SHARDSERVER    'm'
+#define CONFIGMESSAGE_SET_CLUSTER_ID                    's'
+#define CONFIGMESSAGE_REGISTER_SHARDSERVER              'S'
+#define CONFIGMESSAGE_UNREGISTER_SHARDSERVER            'w'
+#define CONFIGMESSAGE_CREATE_QUORUM                     'Q'
+#define CONFIGMESSAGE_RENAME_QUORUM                     'q'
+#define CONFIGMESSAGE_DELETE_QUORUM                     'W'
+#define CONFIGMESSAGE_ADD_SHARDSERVER_TO_QUORUM         'n'
+#define CONFIGMESSAGE_REMOVE_SHARDSERVER_FROM_QUORUM    'b'
+#define CONFIGMESSAGE_ACTIVATE_SHARDSERVER              'p'
+#define CONFIGMESSAGE_DEACTIVATE_SHARDSERVER            'm'
 
-#define CONFIGMESSAGE_CREATE_DATABASE           'C'
-#define CONFIGMESSAGE_RENAME_DATABASE           'R'
-#define CONFIGMESSAGE_DELETE_DATABASE           'D'
+#define CONFIGMESSAGE_CREATE_DATABASE                   'C'
+#define CONFIGMESSAGE_RENAME_DATABASE                   'R'
+#define CONFIGMESSAGE_DELETE_DATABASE                   'D'
 
-#define CONFIGMESSAGE_CREATE_TABLE              'c'
-#define CONFIGMESSAGE_RENAME_TABLE              'r'
-#define CONFIGMESSAGE_DELETE_TABLE              'd'
-#define CONFIGMESSAGE_FREEZE_TABLE              'F'
-#define CONFIGMESSAGE_UNFREEZE_TABLE            'f'
-#define CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN      't'
-#define CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE   'T'
+#define CONFIGMESSAGE_CREATE_TABLE                      'c'
+#define CONFIGMESSAGE_RENAME_TABLE                      'r'
+#define CONFIGMESSAGE_DELETE_TABLE                      'd'
+#define CONFIGMESSAGE_FREEZE_TABLE                      'F'
+#define CONFIGMESSAGE_UNFREEZE_TABLE                    'f'
+#define CONFIGMESSAGE_TRUNCATE_TABLE_BEGIN              't'
+#define CONFIGMESSAGE_TRUNCATE_TABLE_COMPLETE           'T'
 
-#define CONFIGMESSAGE_SPLIT_SHARD_BEGIN         '1'
-#define CONFIGMESSAGE_SPLIT_SHARD_COMPLETE      '2'
+#define CONFIGMESSAGE_SPLIT_SHARD_BEGIN                 '1'
+#define CONFIGMESSAGE_SPLIT_SHARD_COMPLETE              '2'
 
-#define CONFIGMESSAGE_SHARD_MIGRATION_BEGIN     'N'
-#define CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE  'M'
+#define CONFIGMESSAGE_SHARD_MIGRATION_BEGIN             'N'
+#define CONFIGMESSAGE_SHARD_MIGRATION_COMPLETE          'M'
 
 /*
 ===============================================================================================
@@ -77,15 +78,17 @@ public:
                      uint64_t clusterID);
     bool            RegisterShardServer(
                      uint64_t nodeID, Endpoint& endpoint);
+    bool            UnregisterShardServer(
+                     uint64_t nodeID);
     bool            CreateQuorum(
                      ReadBuffer& name, List<uint64_t>& nodes);
     bool            RenameQuorum(
                      uint64_t quorumID, ReadBuffer& name);
     bool            DeleteQuorum(
                      uint64_t quorumID);
-    bool            AddNode(
+    bool            AddShardServerToQuorum(
                      uint64_t quorumID, uint64_t nodeID);
-    bool            RemoveNode(
+    bool            RemoveShardServerFromQuorum(
                      uint64_t quorumID, uint64_t nodeID);    
     bool            ActivateShardServer(
                      uint64_t quorumID, uint64_t nodeID);

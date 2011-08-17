@@ -42,7 +42,7 @@ private:
     void                PrintDatabases(ConfigState* configState);
     void                PrintShardMatrix(ConfigState* configState);
     void                PrintConfigState();
-    void                ProcessActivateNode();
+    void                ProcessActivateShardServer();
     void                ProcessSettings();
     bool                ProcessCommand(ReadBuffer& cmd);
     ClientRequest*      ProcessConfigCommand(ReadBuffer& cmd);
@@ -50,11 +50,12 @@ private:
     ClientRequest*      ProcessGetMasterHTTP();
     ClientRequest*      ProcessGetState();
     ClientRequest*      ProcessPollConfigState();
+    ClientRequest*      ProcessUnregisterShardServer();
     ClientRequest*      ProcessCreateQuorum();
     ClientRequest*      ProcessRenameQuorum();
     ClientRequest*      ProcessDeleteQuorum();
-    ClientRequest*      ProcessAddNode();
-    ClientRequest*      ProcessRemoveNode();
+    ClientRequest*      ProcessAddShardServerToQuorum();
+    ClientRequest*      ProcessRemoveShardServerFromQuorum();
     ClientRequest*      ProcessCreateDatabase();
     ClientRequest*      ProcessRenameDatabase();
     ClientRequest*      ProcessDeleteDatabase();

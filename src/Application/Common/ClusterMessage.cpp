@@ -15,6 +15,12 @@ bool ClusterMessage::SetNodeID(uint64_t clusterID_, uint64_t nodeID_)
     return true;
 }
 
+bool ClusterMessage::UnregisterStop()
+{
+    type = CLUSTERMESSAGE_UNREGISTER_STOP;
+    return true;
+}
+
 bool ClusterMessage::Heartbeat(uint64_t nodeID_,
  List<QuorumInfo>& quorumInfos_, List<QuorumShardInfo>& quorumShardInfos_,
  unsigned httpPort_, unsigned sdbpPort_)
@@ -170,6 +176,10 @@ bool ClusterMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U",
              &type, &clusterID, &nodeID);
             break;
+        case CLUSTERMESSAGE_UNREGISTER_STOP:
+            read = buffer.Readf("%c",
+             &type);
+            break;
         case CLUSTERMESSAGE_HEARTBEAT:
             read = buffer.Readf("%c:%U:%u:%u",
              &type, &nodeID, &httpPort, &sdbpPort);
@@ -262,6 +272,10 @@ bool ClusterMessage::Write(Buffer& buffer)
         case CLUSTERMESSAGE_SET_NODEID:
             buffer.Writef("%c:%U:%U",
              type, clusterID, nodeID);
+            return true;
+        case CLUSTERMESSAGE_UNREGISTER_STOP:
+            buffer.Writef("%c",
+             type);
             return true;
         case CLUSTERMESSAGE_HEARTBEAT:
             buffer.Writef("%c:%U:%u:%u",

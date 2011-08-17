@@ -189,6 +189,17 @@ void ShardServer::OnClusterMessage(uint64_t nodeID, ClusterMessage& message)
             Log_Trace("My nodeID is %U", message.nodeID);
             Log_Message("NodeID set to %U", message.nodeID);
             break;
+        case CLUSTERMESSAGE_UNREGISTER_STOP:
+            Log_Message();
+            Log_Message("*****************************************************************");
+            Log_Message("*                                                               *");
+            Log_Message("*  This shard server has been unregistered on the controllers!  *");
+            Log_Message("*  ScalienDB will now exit...                                   *");
+            Log_Message("*                                                               *");
+            Log_Message("*****************************************************************");
+            Log_Message();
+            STOP_FAIL(0, "Abording due to shard server unregistration...");
+            break;
         case CLUSTERMESSAGE_SET_CONFIG_STATE:
             OnSetConfigState(message);
             Log_Trace("Got new configState, master is %d", 

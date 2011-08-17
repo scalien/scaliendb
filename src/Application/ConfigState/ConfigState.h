@@ -104,11 +104,12 @@ public:
 private:
     bool                CompleteSetClusterID(ConfigMessage& message);
     bool                CompleteRegisterShardServer(ConfigMessage& message);
+    bool                CompleteUnregisterShardServer(ConfigMessage& message);
     bool                CompleteCreateQuorum(ConfigMessage& message);
     bool                CompleteRenameQuorum(ConfigMessage& message);
     bool                CompleteDeleteQuorum(ConfigMessage& message);
-    bool                CompleteAddNode(ConfigMessage& message);
-    bool                CompleteRemoveNode(ConfigMessage& message);
+    bool                CompleteAddShardServerToQuorum(ConfigMessage& message);
+    bool                CompleteRemoveShardServerFromQuorum(ConfigMessage& message);
     bool                CompleteActivateShardServer(ConfigMessage& message);
     bool                CompleteDeactivateShardServer(ConfigMessage& message);
     bool                CompleteCreateDatabase(ConfigMessage& message);
@@ -127,6 +128,7 @@ private:
     bool                CompleteShardMigrationComplete(ConfigMessage& message);
 
     void                OnRegisterShardServer(ConfigMessage& message);
+    void                OnUnregisterShardServer(ConfigMessage& message);
     void                OnCreateQuorum(ConfigMessage& message);
     void                OnRenameQuorum(ConfigMessage& message);
     void                OnDeleteQuorum(ConfigMessage& message);

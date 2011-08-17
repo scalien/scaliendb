@@ -6,40 +6,41 @@
 #include "ClientResponse.h"
 #include "ClientSession.h"
 
-#define CLIENTREQUEST_GET_MASTER        'm'
-#define CLIENTREQUEST_GET_MASTER_HTTP   'H'
-#define CLIENTREQUEST_GET_CONFIG_STATE  'A'
-#define CLIENTREQUEST_CREATE_QUORUM     'Q'
-#define CLIENTREQUEST_RENAME_QUORUM     'q'
-#define CLIENTREQUEST_DELETE_QUORUM     'W'
-#define CLIENTREQUEST_ADD_NODE          'n'
-#define CLIENTREQUEST_REMOVE_NODE       'b'
-#define CLIENTREQUEST_ACTIVATE_NODE     'N'
-#define CLIENTREQUEST_CREATE_DATABASE   'C'
-#define CLIENTREQUEST_RENAME_DATABASE   'R'
-#define CLIENTREQUEST_DELETE_DATABASE   'D'
-#define CLIENTREQUEST_CREATE_TABLE      'c'
-#define CLIENTREQUEST_RENAME_TABLE      'r'
-#define CLIENTREQUEST_DELETE_TABLE      'd'
-#define CLIENTREQUEST_TRUNCATE_TABLE    't'
-#define CLIENTREQUEST_FREEZE_TABLE      'F'
-#define CLIENTREQUEST_UNFREEZE_TABLE    'f'
-#define CLIENTREQUEST_GET               'G'
-#define CLIENTREQUEST_SET               'S'
-#define CLIENTREQUEST_SET_IF_NOT_EXISTS 'I'
-#define CLIENTREQUEST_TEST_AND_SET      's'
-#define CLIENTREQUEST_TEST_AND_DELETE   'i'
-#define CLIENTREQUEST_GET_AND_SET       'g'
-#define CLIENTREQUEST_ADD               'a'
-#define CLIENTREQUEST_APPEND            'p'
-#define CLIENTREQUEST_DELETE            'X'
-#define CLIENTREQUEST_REMOVE            'x'
-#define CLIENTREQUEST_LIST_KEYS         'L'
-#define CLIENTREQUEST_LIST_KEYVALUES    'l'
-#define CLIENTREQUEST_COUNT             'O'
-#define CLIENTREQUEST_SPLIT_SHARD       'h'
-#define CLIENTREQUEST_MIGRATE_SHARD     'M'
-#define CLIENTREQUEST_SUBMIT            '*'
+#define CLIENTREQUEST_GET_MASTER                        'm'
+#define CLIENTREQUEST_GET_MASTER_HTTP                   'H'
+#define CLIENTREQUEST_GET_CONFIG_STATE                  'A'
+#define CLIENTREQUEST_UNREGISTER_SHARDSERVER            'w'
+#define CLIENTREQUEST_CREATE_QUORUM                     'Q'
+#define CLIENTREQUEST_RENAME_QUORUM                     'q'
+#define CLIENTREQUEST_DELETE_QUORUM                     'W'
+#define CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM         'n'
+#define CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM    'b'
+#define CLIENTREQUEST_ACTIVATE_SHARDSERVER              'N'
+#define CLIENTREQUEST_CREATE_DATABASE                   'C'
+#define CLIENTREQUEST_RENAME_DATABASE                   'R'
+#define CLIENTREQUEST_DELETE_DATABASE                   'D'
+#define CLIENTREQUEST_CREATE_TABLE                      'c'
+#define CLIENTREQUEST_RENAME_TABLE                      'r'
+#define CLIENTREQUEST_DELETE_TABLE                      'd'
+#define CLIENTREQUEST_TRUNCATE_TABLE                    't'
+#define CLIENTREQUEST_FREEZE_TABLE                      'F'
+#define CLIENTREQUEST_UNFREEZE_TABLE                    'f'
+#define CLIENTREQUEST_GET                               'G'
+#define CLIENTREQUEST_SET                               'S'
+#define CLIENTREQUEST_SET_IF_NOT_EXISTS                 'I'
+#define CLIENTREQUEST_TEST_AND_SET                      's'
+#define CLIENTREQUEST_TEST_AND_DELETE                   'i'
+#define CLIENTREQUEST_GET_AND_SET                       'g'
+#define CLIENTREQUEST_ADD                               'a'
+#define CLIENTREQUEST_APPEND                            'p'
+#define CLIENTREQUEST_DELETE                            'X'
+#define CLIENTREQUEST_REMOVE                            'x'
+#define CLIENTREQUEST_LIST_KEYS                         'L'
+#define CLIENTREQUEST_LIST_KEYVALUES                    'l'
+#define CLIENTREQUEST_COUNT                             'O'
+#define CLIENTREQUEST_SPLIT_SHARD                       'h'
+#define CLIENTREQUEST_MIGRATE_SHARD                     'M'
+#define CLIENTREQUEST_SUBMIT                            '*'
 
 class ClientSession; // forward
 
@@ -76,6 +77,10 @@ public:
     bool            GetConfigState(
                      uint64_t commandID, uint64_t changeTimeout = 0);
 
+    // Shard servers
+    bool            UnregisterShardServer(
+                     uint64_t commandID, uint64_t nodeID);
+
     // Quorum management
     bool            CreateQuorum(
                      uint64_t commandID, ReadBuffer& name, List<uint64_t>& nodes);
@@ -83,11 +88,11 @@ public:
                      uint64_t commandID, uint64_t quorumID, ReadBuffer& name);
     bool            DeleteQuorum(
                      uint64_t commandID, uint64_t quorumID);
-    bool            AddNode(
+    bool            AddShardServerToQuorum(
                      uint64_t commandID, uint64_t quorumID, uint64_t nodeID);
-    bool            RemoveNode(
+    bool            RemoveShardServerFromQuorum(
                      uint64_t commandID, uint64_t quorumID, uint64_t nodeID);
-    bool            ActivateNode(
+    bool            ActivateShardServer(
                      uint64_t commandID, uint64_t nodeID);
     
     // Database management

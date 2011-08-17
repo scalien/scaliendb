@@ -24,6 +24,12 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
              &request->type, &request->commandID);
             break;
 
+        /* Shard servers */
+        case CLIENTREQUEST_UNREGISTER_SHARDSERVER:
+            read = buffer.Readf("%c:%U:%U",
+             &request->type, &request->commandID, &request->nodeID);
+            break;        
+
         /* Quorum management */
         case CLIENTREQUEST_CREATE_QUORUM:
             read = buffer.Readf("%c:%U:%#B:%u",
@@ -52,15 +58,15 @@ bool SDBPRequestMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U:%U",
              &request->type, &request->commandID, &request->quorumID);
             break;
-        case CLIENTREQUEST_ADD_NODE:
+        case CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM:
             read = buffer.Readf("%c:%U:%U:%U",
              &request->type, &request->commandID, &request->quorumID, &request->nodeID);
             break;
-        case CLIENTREQUEST_REMOVE_NODE:
+        case CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM:
             read = buffer.Readf("%c:%U:%U:%U",
              &request->type, &request->commandID, &request->quorumID, &request->nodeID);
             break;
-        case CLIENTREQUEST_ACTIVATE_NODE:
+        case CLIENTREQUEST_ACTIVATE_SHARDSERVER:
             read = buffer.Readf("%c:%U:%U",
              &request->type, &request->commandID, &request->nodeID);
             break;
@@ -205,6 +211,12 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
              request->type, request->commandID);
             return true;
 
+        /* Shard servers */
+        case CLIENTREQUEST_UNREGISTER_SHARDSERVER:
+            buffer.Appendf("%c:%U:%U",
+             request->type, request->commandID, request->nodeID);
+            return true;
+
         /* Quorum management */
         case CLIENTREQUEST_CREATE_QUORUM:
             buffer.Appendf("%c:%U:%#B:%u",
@@ -220,15 +232,15 @@ bool SDBPRequestMessage::Write(Buffer& buffer)
             buffer.Appendf("%c:%U:%U",
              request->type, request->commandID, request->quorumID);
             return true;
-        case CLIENTREQUEST_ADD_NODE:
+        case CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM:
             buffer.Appendf("%c:%U:%U:%U",
              request->type, request->commandID, request->quorumID, request->nodeID);
             return true;
-        case CLIENTREQUEST_REMOVE_NODE:
+        case CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM:
             buffer.Appendf("%c:%U:%U:%U",
              request->type, request->commandID, request->quorumID, request->nodeID);
             return true;
-        case CLIENTREQUEST_ACTIVATE_NODE:
+        case CLIENTREQUEST_ACTIVATE_SHARDSERVER:
             buffer.Appendf("%c:%U:%U",
              request->type, request->commandID, request->nodeID);
             return true;
