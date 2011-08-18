@@ -348,7 +348,7 @@ class Client:
             self._gran = 1000
         
         def reset():
-            client._set(self._table._table_id, self._key, 0)
+            client._delete(self._table._table_id, self._key)
         
         def get(self):
             if self._num == 0:

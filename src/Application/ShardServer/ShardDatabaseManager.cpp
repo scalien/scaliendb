@@ -609,8 +609,8 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
             }
             else
             {
-                // GET failed, key does not exist; assume value is 0
-                number = 0;
+                // GET failed, key does not exist; assume value is 1
+                number = 1;
             }
             number += message.number;
             numberBuffer.Writef("%I", number);
