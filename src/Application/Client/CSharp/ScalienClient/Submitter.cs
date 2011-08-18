@@ -38,6 +38,9 @@ namespace Scalien
             this.client = client;
         }
 
+        /// <summary>
+        /// Send batched commands to the server.
+        /// </summary>
         public void Dispose()
         {
             client.Submit();
