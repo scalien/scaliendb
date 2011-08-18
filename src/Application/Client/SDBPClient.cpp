@@ -100,8 +100,8 @@ Mutex   globalMutex;
     it = proxiedRequests.Locate(req, cmpres);       \
     if (cmpres == 0 && it != NULL)                  \
     {                                               \
-        proxiedRequests.Delete(it);                 \
         proxySize -= REQUEST_SIZE(it);              \
+        proxiedRequests.Delete(it);                 \
         ASSERT(proxySize >= 0);                     \
     }                                               \
     proxiedRequests.Insert<const Request*>(req);    \
