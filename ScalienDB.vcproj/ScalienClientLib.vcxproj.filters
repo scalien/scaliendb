@@ -1,0 +1,472 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Application">
+      <UniqueIdentifier>{5e2f24a7-9dde-4650-8d3d-cbac1fcc1fcc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Client">
+      <UniqueIdentifier>{4a9e6dbf-b506-4bf2-b2b5-8cb3fac10cbe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Common">
+      <UniqueIdentifier>{f0c72ab9-ac1e-424b-9a9d-301283928351}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ConfigState">
+      <UniqueIdentifier>{ce643970-f934-4182-be95-5bf1752c8922}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\HTTP">
+      <UniqueIdentifier>{0eaf994c-e2dd-4a01-ba4d-d4472da25fb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\SDBP">
+      <UniqueIdentifier>{086b6f59-f841-4235-8a55-320f3c6e70d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ConfigServer">
+      <UniqueIdentifier>{e8d33029-be2f-465a-8bef-6d8a826d6be8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System">
+      <UniqueIdentifier>{29c8a1d4-2b5f-4e37-98b4-f779a9fb857a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Buffers">
+      <UniqueIdentifier>{16fd37f5-bc06-45bd-ab71-061dbe03ee73}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Containers">
+      <UniqueIdentifier>{0b992ea8-2687-41a6-997b-fd8a63c1dc1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Events">
+      <UniqueIdentifier>{7414f4b9-9b90-42be-9351-fc9d04a4f400}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\IO">
+      <UniqueIdentifier>{c95fbd5b-f30c-4afa-955b-ce8f04630e99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Threading">
+      <UniqueIdentifier>{ddebe5db-6e87-446e-9f2f-5dd72426f4d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{d197f5f6-2419-44a3-aadc-492d6aeaed27}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Messaging">
+      <UniqueIdentifier>{b364d37a-4dea-4ebe-809e-ed24e6b448b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\TCP">
+      <UniqueIdentifier>{6d58ca3a-9b69-497a-9791-c92f1ad53128}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Application\Client\SDBPClient.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPClientRequest.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPControllerConnection.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPResult.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\CatchupMessage.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientRequest.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientRequestCache.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientResponse.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClusterMessage.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigController.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigDatabase.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigQuorum.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigShard.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigShardServer.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigState.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigTable.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPConnection.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPFileHandler.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPRequest.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPServer.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPSession.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\IMF.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\JSONBufferWriter.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\JSONSession.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\Mime.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\UrlParam.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\SDBP\SDBPConnection.cpp">
+      <Filter>Application\SDBP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\SDBP\SDBPRequestMessage.cpp">
+      <Filter>Application\SDBP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\SDBP\SDBPResponseMessage.cpp">
+      <Filter>Application\SDBP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\SDBP\SDBPServer.cpp">
+      <Filter>Application\SDBP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\JSONConfigState.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Common.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Config.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\FileSystem.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Formatting.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Log.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Stopwatch.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Time.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Buffers\Buffer.cpp">
+      <Filter>System\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Buffers\ReadBuffer.cpp">
+      <Filter>System\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Events\Countdown.cpp">
+      <Filter>System\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Events\EventLoop.cpp">
+      <Filter>System\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Events\Scheduler.cpp">
+      <Filter>System\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Events\Timer.cpp">
+      <Filter>System\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\Endpoint.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\IOProcessor_Darwin.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\IOProcessor_Linux.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\IOProcessor_Windows.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\Socket_Posix.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\Socket_Windows.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\JobProcessor.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\Mutex_Posix.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\Mutex_Windows.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\ThreadPool_Posix.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\ThreadPool_Windows.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Messaging\MessageConnection.cpp">
+      <Filter>Framework\Messaging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\TCP\TCPConnection.cpp">
+      <Filter>Framework\TCP</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Application\Client\SDBPClient.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPClientConsts.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPClientRequest.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPControllerConnection.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPResult.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\Application.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\CatchupMessage.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClientRequest.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClientRequestCache.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClientResponse.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClientSession.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClusterContext.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClusterMessage.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\DatabaseConsts.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigController.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigDatabase.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigQuorum.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigShard.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigShardServer.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigState.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigTable.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPConnection.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPConsts.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPFileHandler.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPHandler.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPRequest.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPServer.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPSession.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\IMF.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\JSONBufferWriter.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\JSONSession.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\Mime.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\UrlParam.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPConnection.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPContext.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPRequestMessage.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPResponseMessage.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPServer.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\JSONConfigState.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Common.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Config.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\FileSystem.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Formatting.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Log.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Macros.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Platform.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Stopwatch.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Time.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Buffers\Buffer.h">
+      <Filter>System\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Buffers\ReadBuffer.h">
+      <Filter>System\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\ArrayList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\HashMap.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InPriorityQueue.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InQueue.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InSortedList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InTreeMap.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\List.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\SortedList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Callable.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Countdown.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Deferred.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\EventLoop.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Scheduler.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Timer.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\Endpoint.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\FD.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\IOOperation.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\IOProcessor.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\Socket.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\Job.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\JobProcessor.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\Mutex.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\ThreadPool.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Messaging\Message.h">
+      <Filter>Framework\Messaging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Messaging\MessageConnection.h">
+      <Filter>Framework\Messaging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Messaging\MessageUtil.h">
+      <Filter>Framework\Messaging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\TCP\TCPConnection.h">
+      <Filter>Framework\TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\TCP\TCPServer.h">
+      <Filter>Framework\TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Version.h" />
+  </ItemGroup>
+</Project>
