@@ -6,6 +6,7 @@ namespace Scalien
     /// <summary>
     /// Sequence is a class for atomically retrieving unique integer IDs
     /// using a key whose value stores the next ID as a piece of text.
+    /// The first returned ID is 1.
     /// </summary>
     /// <remarks>
     /// <para>
@@ -29,10 +30,10 @@ namespace Scalien
     /// be a hole in the sequence. 
     /// </para>
     /// <para>
-    /// Use <see cref="Reset()"/> to reset the sequence to 0. This sets:
+    /// Use <see cref="Reset()"/> to reset the sequence to 1. This sets:
     /// </para>
     /// <para><c>
-    /// key => 0
+    /// key => 1
     /// </c></para>
     /// </remarks>
     /// <example><code>
@@ -96,20 +97,20 @@ namespace Scalien
         }
 
         /// <summary>
-        /// Reset the sequence to 0. The next time <see cref="GetNext"/> is called, 0 will be returned.
+        /// Reset the sequence to 1. The next time <see cref="GetNext"/> is called, 1 will be returned.
         /// </summary>
         /// <remarks>
         /// This sets:
         /// <para><c>
-        /// key => 0
+        /// key => 1
         /// </c></para>
         /// </remarks>
         public void Reset()
         {
             if (stringKey != null)
-                client.Set(tableID, stringKey, "0");
+                client.Delete(tableID, stringKey);
             else
-                client.Set(tableID, byteKey, Client.StringToByteArray("0"));
+                client.Delete(tableID, byteKey);
             num = 0;
         }
 
