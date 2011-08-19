@@ -12,6 +12,7 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
     private String endKey;
     private String prefix;
     private int count;
+    private int gran = 100;
     private int pos;
     private LinkedList<String> keys;
     private LinkedList<String> values;
@@ -21,7 +22,7 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;
         this.prefix = ps.prefix;
-        this.count = 100;
+        this.count = ps.count;
         
         query(false);
     }
@@ -34,8 +35,10 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
     // for Iterator
     public boolean hasNext() {
         try {
+            if (count == 0)
+                return false;
             if (pos == keys.size()) {
-                if (keys.size() < count)
+                if (keys.size() < gran)
                     return false;
                 startKey = keys.get(keys.size()-1);
                 query(true);
@@ -53,6 +56,8 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
     public KeyValue<String,String> next() {
         KeyValue<String, String> e = new KeyValue<String, String>(keys.get(pos), values.get(pos));
         pos++;
+        if (count > 0)
+            count--;
         return e;
     }
     
@@ -62,8 +67,14 @@ public class StringKeyValueIterator implements java.lang.Iterable<KeyValue<Strin
     }
     
     private void query(boolean skip) throws SDBPException {
+        int num;
         Map<String, String> result;
-        result = table.getClient().listKeyValues(table.getTableID(), startKey, endKey, prefix, count, skip);
+
+        num = gran;
+        if (count > 0 && count < gran)
+            num = count;
+
+        result = table.getClient().listKeyValues(table.getTableID(), startKey, endKey, prefix, num, skip);
         keys = new LinkedList<String>();
         values = new LinkedList<String>();
 

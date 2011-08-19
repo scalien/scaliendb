@@ -10,6 +10,7 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
     private String endKey;
     private String prefix;
     private int count;
+    private int gran = 100;
     private int pos;
     private List<String> keys;
  
@@ -18,7 +19,7 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;
         this.prefix = ps.prefix;
-        this.count = 100;
+        this.count = ps.count;
         
         query(false);
     }
@@ -31,8 +32,10 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
     // for Iterator
     public boolean hasNext() {
         try {
+            if (count == 0)
+                return false;
             if (pos == keys.size()) {
-                if (keys.size() < count)
+                if (keys.size() < gran)
                     return false;
                 startKey = keys.get(keys.size()-1);
                 query(true);
@@ -50,6 +53,8 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
     public String next() {
         String e = keys.get(pos);
         pos++;
+        if (count > 0)
+            count--;
         return e;
     }
     
@@ -59,7 +64,13 @@ public class StringKeyIterator implements java.lang.Iterable<String>, java.util.
     }
     
     private void query(boolean skip) throws SDBPException {
-        keys = table.getClient().listKeys(table.getTableID(), startKey, endKey, prefix, count, skip);
+        int num;
+
+        num = gran;
+        if (count > 0 && count < gran)
+            num = count;
+
+        keys = table.getClient().listKeys(table.getTableID(), startKey, endKey, prefix, num, skip);
         Collections.sort(keys);
         pos = 0;
     }    

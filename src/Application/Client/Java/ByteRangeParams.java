@@ -12,10 +12,11 @@ package com.scalien.scaliendb;
  * <li>prefix</li>
  * <li>start key</li>
  * <li>end key</li>
+ * <li>count</li>
  * </ul>
  * <p>
  * ByteRangeParams is convenient because is uses chaining, so you can write
- * expressions like <code>new ByteRangeParams().Prefix(prefix).StartKey(startKey).EndKey(endKey)</code>
+ * expressions like <code>new ByteRangeParams().prefix(prefix).startKey(startKey).endKey(endKey).count(count)</code>
  * and it returns the ByteIterParam instance.
  * <p>
  * The default values are empty byte arrays.
@@ -28,6 +29,7 @@ package com.scalien.scaliendb;
     public byte[] prefix = new byte[0];
     public byte[] startKey = new byte[0];
     public byte[] endKey = new byte[0];
+    public int count = -1;
 
     /**
      * Specify the prefix parameter for iteration.
@@ -62,6 +64,18 @@ package com.scalien.scaliendb;
     public ByteRangeParams endKey(byte[] endKey)
     {
         this.endKey = endKey;
+        return this;
+    }
+
+    /**
+     * Specify the count parameter for iteration
+     * <p>Iteration will stop after count elements.
+     * @param count The count parameter.
+     * @return The ByteRangeParams instance, useful for chaining.
+     */    
+    public ByteRangeParams count(int count)
+    {
+        this.count = count;
         return this;
     }
 }

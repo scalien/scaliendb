@@ -10,7 +10,8 @@ namespace Scalien
         string startKey;
         string endKey;
         string prefix;
-        uint count;
+        long count;
+        uint gran;
         int pos;
         List<string> keys;
         List<string> values;
@@ -21,15 +22,21 @@ namespace Scalien
             this.startKey = ps.startKey;
             this.endKey = ps.endKey;
             this.prefix = ps.prefix;
-            this.count = 100;
+            this.count = ps.count;
 
             Query(false);
         }
 
         private void Query(bool skip)
         {
+            uint num;
             Dictionary<string, string> result;
-            result = table.Client.ListKeyValues(table.TableID, startKey, endKey, prefix, count, skip);
+
+            num = gran;
+            if (count > 0 && count < gran)
+                num = (uint)count;
+
+            result = table.Client.ListKeyValues(table.TableID, startKey, endKey, prefix, num, skip);
 
             keys = new List<string>();
             values = new List<string>();
@@ -61,9 +68,11 @@ namespace Scalien
 
         public bool MoveNext()
         {
+            if (count == 0)
+                return false;
             if (pos == keys.Count)
             {
-                if (keys.Count < count)
+                if (keys.Count < gran)
                     return false;
                 startKey = keys[keys.Count - 1];
                 Query(true);
@@ -72,6 +81,8 @@ namespace Scalien
                 return false;
 
             pos++;
+            if (count > 0)
+                count--;
             return true;
         }
 
