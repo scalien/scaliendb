@@ -1198,7 +1198,7 @@ void StorageEnvironment::TryMergeChunks()
     {
         inputChunks.Clear();
         itShard->GetMergeInputChunks(inputChunks);
-        if (inputChunks.GetLength() == 0)
+        if (inputChunks.GetLength() < 2)
             continue;
         
         mergeChunk = new StorageFileChunk;
