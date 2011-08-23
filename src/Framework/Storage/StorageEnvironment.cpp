@@ -192,7 +192,7 @@ void StorageEnvironment::Sync(FD fd)
 {
     // On Windows we use write-through files, so there is no need for syncing
 #ifndef PLATFORM_WINDOWS
-    FS_Sync(FD fd);
+    FS_Sync(fd);
 #endif
 }
 
