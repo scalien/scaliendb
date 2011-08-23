@@ -474,11 +474,8 @@
       <Filter>Framework\TCP</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Version.h" />
-<<<<<<< HEAD
-=======
     <ClInclude Include="..\src\System\Threading\Signal.h">
       <Filter>System\Threading</Filter>
     </ClInclude>
->>>>>>> 3d03df516b9dc5ec50b1e3df2654add0903fcc87
   </ItemGroup>
 </Project>
