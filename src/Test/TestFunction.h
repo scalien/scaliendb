@@ -25,6 +25,7 @@ public:
     {                                       \
         InList<TestFunction>    tests;      \
         TestFunction*           testit;     \
+        unsigned                numSuccess; \
         int                     ret;
 
 #define TEST_LOG_INIT(trace, targets)       \
@@ -33,17 +34,20 @@ public:
     Log_SetTrace(trace); 
 
 
-#define TEST_EXECUTE()                      \
-    ret = TEST_SUCCESS;                     \
-    StartClock();                           \
-    FOREACH (testit, tests) \
-    { \
-        ret = test_time(testit->function, testit->name); \
-        if (ret != TEST_SUCCESS) \
-            break; \
-    } \
-    StopClock(); \
-    return test_eval(TEST_NAME, ret); \
+#define TEST_EXECUTE()                                      \
+    ret = TEST_SUCCESS;                                     \
+    StartClock();                                           \
+    numSuccess = 0;                                         \
+    FOREACH (testit, tests)                                 \
+    {                                                       \
+        ret = test_time(testit->function, testit->name);    \
+        if (ret != TEST_SUCCESS)                            \
+            break;                                          \
+        numSuccess++;                                       \
+    }                                                       \
+    StopClock();                                            \
+    printf("test: Summary: %u/%u test%s succeeded\n", numSuccess, tests.GetLength(), numSuccess > 1 ? "s" : ""); \
+    return test_eval(TEST_NAME, ret);                       \
 }
 
 #define TEST_ADD(testfn) \

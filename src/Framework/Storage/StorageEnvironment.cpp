@@ -188,6 +188,14 @@ void StorageEnvironment::Close()
     fileChunks.DeleteList();
 }
 
+void StorageEnvironment::Sync(FD fd)
+{
+    // On Windows we use write-through files, so there is no need for syncing
+#ifndef PLATFORM_WINDOWS
+    FS_Sync(FD fd);
+#endif
+}
+
 void StorageEnvironment::SetYieldThreads(bool yieldThreads_)
 {
     yieldThreads = yieldThreads_;
@@ -1198,7 +1206,7 @@ void StorageEnvironment::TryMergeChunks()
     {
         inputChunks.Clear();
         itShard->GetMergeInputChunks(inputChunks);
-        if (inputChunks.GetLength() == 0)
+        if (inputChunks.GetLength() < 2)
             continue;
         
         mergeChunk = new StorageFileChunk;

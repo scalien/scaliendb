@@ -4,8 +4,7 @@
 bool ConfigMessage::SetClusterID(uint64_t clusterID_)
 {
     type = CONFIGMESSAGE_SET_CLUSTER_ID;
-    clusterID = clusterID_;
-    
+    clusterID = clusterID_;    
     return true;
 }
 
@@ -15,7 +14,14 @@ bool ConfigMessage::RegisterShardServer(
     type = CONFIGMESSAGE_REGISTER_SHARDSERVER;
     nodeID = nodeID_;
     endpoint = endpoint_;
+    return true;
+}
 
+bool ConfigMessage::UnregisterShardServer(
+ uint64_t nodeID_)
+{
+    type = CONFIGMESSAGE_UNREGISTER_SHARDSERVER;
+    nodeID = nodeID_;
     return true;
 }
 
@@ -45,19 +51,19 @@ bool ConfigMessage::DeleteQuorum(
     return true;
 }
 
-bool ConfigMessage::AddNode(
+bool ConfigMessage::AddShardServerToQuorum(
  uint64_t quorumID_, uint64_t nodeID_)
 {
-    type = CONFIGMESSAGE_ADD_NODE;
+    type = CONFIGMESSAGE_ADD_SHARDSERVER_TO_QUORUM;
     quorumID = quorumID_;
     nodeID = nodeID_;
     return true;
 }
 
-bool ConfigMessage::RemoveNode(
+bool ConfigMessage::RemoveShardServerFromQuorum(
  uint64_t quorumID_, uint64_t nodeID_)
 {
-    type = CONFIGMESSAGE_REMOVE_NODE;
+    type = CONFIGMESSAGE_REMOVE_SHARDSERVER_FROM_QUORUM;
     quorumID = quorumID_;
     nodeID = nodeID_;
     return true;
@@ -212,6 +218,10 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
              &type, &nodeID, &rb);
             endpoint.Set(rb);
             break;
+        case CONFIGMESSAGE_UNREGISTER_SHARDSERVER:
+            read = buffer.Readf("%c:%U",
+             &type, &nodeID);
+            break;
         case CONFIGMESSAGE_CREATE_QUORUM:
             read = buffer.Readf("%c:%#R:%u",
              &type, &name, &numNodes);
@@ -239,11 +249,11 @@ bool ConfigMessage::Read(ReadBuffer& buffer)
             read = buffer.Readf("%c:%U",
              &type, &quorumID);
             break;
-        case CONFIGMESSAGE_ADD_NODE:
+        case CONFIGMESSAGE_ADD_SHARDSERVER_TO_QUORUM:
             read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &nodeID);
             break;
-        case CONFIGMESSAGE_REMOVE_NODE:
+        case CONFIGMESSAGE_REMOVE_SHARDSERVER_FROM_QUORUM:
             read = buffer.Readf("%c:%U:%U",
              &type, &quorumID, &nodeID);
             break;
@@ -343,6 +353,10 @@ bool ConfigMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U:%#R",
              type, nodeID, &rb);
             return true;
+        case CONFIGMESSAGE_UNREGISTER_SHARDSERVER:
+            buffer.Writef("%c:%U",
+             type, nodeID);
+            return true;
         case CONFIGMESSAGE_CREATE_QUORUM:
             numNodes = nodes.GetLength();
             buffer.Writef("%c:%#R:%u",
@@ -358,11 +372,11 @@ bool ConfigMessage::Write(Buffer& buffer)
             buffer.Writef("%c:%U",
              type, quorumID);
             break;
-        case CONFIGMESSAGE_ADD_NODE:
+        case CONFIGMESSAGE_ADD_SHARDSERVER_TO_QUORUM:
             buffer.Writef("%c:%U:%U",
              type, quorumID, nodeID);
             break;
-        case CONFIGMESSAGE_REMOVE_NODE:
+        case CONFIGMESSAGE_REMOVE_SHARDSERVER_FROM_QUORUM:
             buffer.Writef("%c:%U:%U",
              type, quorumID, nodeID);
             break;

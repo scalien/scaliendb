@@ -155,6 +155,20 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         return;
     }
     
+    if (request->type == CLIENTREQUEST_UNREGISTER_SHARDSERVER)
+    {
+        // make sure it's not part of any quorums
+        FOREACH(configQuorum, CONFIG_STATE->quorums)
+        {
+            if (configQuorum->IsMember(request->nodeID))
+            {
+                request->response.Failed();
+                request->OnComplete();
+                return;
+            }
+        }
+    }
+    
     if (request->type == CLIENTREQUEST_CREATE_QUORUM)
     {
         // make sure all nodes are currently active
@@ -169,7 +183,7 @@ void ConfigQuorumProcessor::OnClientRequest(ClientRequest* request)
         }
     }
     
-    if (request->type == CLIENTREQUEST_ACTIVATE_NODE)
+    if (request->type == CLIENTREQUEST_ACTIVATE_SHARDSERVER)
     {
         configServer->GetActivationManager()->TryActivateShardServer(request->nodeID);
         request->response.OK();
@@ -587,7 +601,12 @@ void ConfigQuorumProcessor::OnAppend(uint64_t paxosID, ConfigMessage& message, b
         CONTEXT_TRANSPORT->SetClusterID(message.clusterID);
         REPLICATION_CONFIG->Commit();
     }
-    
+    else if (message.type == CONFIGMESSAGE_UNREGISTER_SHARDSERVER)
+    {
+        // tell shard sherver to stop itself
+        clusterMessage.UnregisterStop();
+        CONTEXT_TRANSPORT->SendClusterMessage(message.nodeID, clusterMessage);
+    }    
     if (message.type == CONFIGMESSAGE_REGISTER_SHARDSERVER)
     {
         // tell ContextTransport that this connection has a new nodeID
@@ -754,6 +773,10 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
     
     switch (request->type)
     {
+        case CLIENTREQUEST_UNREGISTER_SHARDSERVER:
+            message->type = CONFIGMESSAGE_UNREGISTER_SHARDSERVER;
+            message->nodeID = request->nodeID;
+            return;
         case CLIENTREQUEST_CREATE_QUORUM:
             message->type = CONFIGMESSAGE_CREATE_QUORUM;
             message->name = request->name;
@@ -768,13 +791,13 @@ void ConfigQuorumProcessor::ConstructMessage(ClientRequest* request, ConfigMessa
             message->type = CONFIGMESSAGE_DELETE_QUORUM;
             message->quorumID = request->quorumID;
             return;
-        case CLIENTREQUEST_ADD_NODE:
-            message->type = CONFIGMESSAGE_ADD_NODE;
+        case CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM:
+            message->type = CONFIGMESSAGE_ADD_SHARDSERVER_TO_QUORUM;
             message->quorumID = request->quorumID;
             message->nodeID = request->nodeID;
             return;
-        case CLIENTREQUEST_REMOVE_NODE:
-            message->type = CONFIGMESSAGE_REMOVE_NODE;
+        case CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM:
+            message->type = CONFIGMESSAGE_REMOVE_SHARDSERVER_FROM_QUORUM;
             message->quorumID = request->quorumID;
             message->nodeID = request->nodeID;
             return;
@@ -837,6 +860,9 @@ void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResp
 {
     switch (response->request->type)
     {
+        case CLIENTREQUEST_UNREGISTER_SHARDSERVER:
+            response->OK();
+            return;
         case CLIENTREQUEST_CREATE_QUORUM:
             response->Number(message->quorumID);
             return;
@@ -846,10 +872,10 @@ void ConfigQuorumProcessor::ConstructResponse(ConfigMessage* message, ClientResp
         case CLIENTREQUEST_DELETE_QUORUM:
             response->OK();
             return;
-        case CLIENTREQUEST_ADD_NODE:
+        case CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM:
             response->OK();
             return;
-        case CLIENTREQUEST_REMOVE_NODE:
+        case CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM:
             response->OK();
             return;
         case CLIENTREQUEST_CREATE_DATABASE:

@@ -6,6 +6,7 @@
 #include "Application/ConfigState/ConfigState.h"
 
 #define CLUSTERMESSAGE_SET_NODEID               'N' // master => shard server
+#define CLUSTERMESSAGE_UNREGISTER_STOP          'S' // master => shard server
 #define CLUSTERMESSAGE_HEARTBEAT                'H' // shard server => controllers
 #define CLUSTERMESSAGE_SET_CONFIG_STATE         'C' // master => shard server
 #define CLUSTERMESSAGE_REQUEST_LEASE            'R' // shard server => master, also serves as heartbeat
@@ -57,6 +58,7 @@ public:
     ReadBuffer              endpoint;
     
     bool            SetNodeID(uint64_t clusterID, uint64_t nodeID);
+    bool            UnregisterStop();
     bool            Heartbeat(uint64_t nodeID,
                      List<QuorumInfo>& quorumInfos, List<QuorumShardInfo>& quorumShardInfos,
                      unsigned httpPort, unsigned sdbpPort);

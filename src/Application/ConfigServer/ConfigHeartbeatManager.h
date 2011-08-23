@@ -9,7 +9,7 @@ class Heartbeat;        // forward
 class ConfigServer;     // forward
 
 #define HEARTBEAT_EXPIRE_TIME           3000        // msec
-#define DEFAULT_SHARD_SPLIT_SIZE        1000*MB
+#define DEFAULT_SHARD_SPLIT_SIZE        500*MB
 
 /*
 ===============================================================================================

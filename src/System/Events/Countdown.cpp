@@ -1,4 +1,5 @@
 #include "Countdown.h"
+#include "EventLoop.h"
 
 Countdown::Countdown()
 {
@@ -18,5 +19,5 @@ uint64_t Countdown::GetDelay() const
 
 void Countdown::OnAdd()
 {
-    expireTime = Now() + delay;
+    expireTime = EventLoop::Now() + delay;
 }

@@ -12,14 +12,14 @@ package com.scalien.scaliendb;
  * <li>prefix</li>
  * <li>start key</li>
  * <li>end key</li>
+ * <li>count</li>
  * </ul>
  * <p>
  * StringRangeParams is convenient because is uses chaining, so you can write
- * expressions like <code>new StringRangeParams().prefix(prefix).startKey(startKey).endKey(endKey)</code>
+ * expressions like <code>new StringRangeParams().prefix(prefix).startKey(startKey).endKey(endKey).count(count)</code>
  * and it returns the StringRangeParams instance.
  * <p>
  * The default values are empty strings.
- * <p>
  * <p>
  * Example:
  * <pre>
@@ -36,6 +36,7 @@ public class StringRangeParams
     public String prefix = "";
     public String startKey = "";
     public String endKey = "";
+    public int count = -1;
     
     /**
      * Specify the prefix parameter for iteration.
@@ -70,6 +71,18 @@ public class StringRangeParams
     public StringRangeParams endKey(String endKey)
     {
         this.endKey = endKey;
+        return this;
+    }
+
+    /**
+     * Specify the count parameter for iteration
+     * <p>Iteration will stop after count elements.
+     * @param count The count parameter.
+     * @return The StringRangeParams instance, useful for chaining.
+     */    
+    public StringRangeParams count(int count)
+    {
+        this.count = count;
         return this;
     }
 }

@@ -1,0 +1,285 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{976E9A99-01CA-4A96-A801-6C7D1C17AAA2}</ProjectGuid>
+    <RootNamespace>ScalienClientLib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\bin\$(Platform)</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(Configuration)\</IntDir>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" />
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Release|x64'">AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" />
+    <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='Release|x64'" />
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;IOPROCESSOR_MULTITHREADED;EVENTLOOP_MULTITHREADED;CLIENT_MULTITHREADED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;IOPROCESSOR_MULTITHREADED;EVENTLOOP_MULTITHREADED;CLIENT_MULTITHREADED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <ProjectReference>
+      <LinkLibraryDependencies>true</LinkLibraryDependencies>
+    </ProjectReference>
+    <Lib />
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\Application\Client\SDBPClient.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPClientRequest.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPControllerConnection.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPResult.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp" />
+    <ClCompile Include="..\src\Application\Common\CatchupMessage.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClientRequest.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClientRequestCache.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClientResponse.cpp" />
+    <ClCompile Include="..\src\Application\Common\ClusterMessage.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigController.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigDatabase.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigQuorum.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigShard.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigShardServer.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigState.cpp" />
+    <ClCompile Include="..\src\Application\ConfigState\ConfigTable.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPConnection.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPFileHandler.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPRequest.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPServer.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\HTTPSession.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\IMF.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\JSONBufferWriter.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\JSONSession.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\Mime.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\UrlParam.cpp" />
+    <ClCompile Include="..\src\Application\SDBP\SDBPConnection.cpp" />
+    <ClCompile Include="..\src\Application\SDBP\SDBPRequestMessage.cpp" />
+    <ClCompile Include="..\src\Application\SDBP\SDBPResponseMessage.cpp" />
+    <ClCompile Include="..\src\Application\SDBP\SDBPServer.cpp" />
+    <ClCompile Include="..\src\Application\ConfigServer\JSONConfigState.cpp" />
+    <ClCompile Include="..\src\System\Common.cpp" />
+    <ClCompile Include="..\src\System\Config.cpp" />
+    <ClCompile Include="..\src\System\FileSystem.cpp" />
+    <ClCompile Include="..\src\System\Formatting.cpp" />
+    <ClCompile Include="..\src\System\Log.cpp" />
+    <ClCompile Include="..\src\System\Stopwatch.cpp" />
+    <ClCompile Include="..\src\System\Threading\Signal_Posix.cpp" />
+    <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp" />
+    <ClCompile Include="..\src\System\Time.cpp" />
+    <ClCompile Include="..\src\System\Buffers\Buffer.cpp" />
+    <ClCompile Include="..\src\System\Buffers\ReadBuffer.cpp" />
+    <ClCompile Include="..\src\System\Events\Countdown.cpp" />
+    <ClCompile Include="..\src\System\Events\EventLoop.cpp" />
+    <ClCompile Include="..\src\System\Events\Scheduler.cpp" />
+    <ClCompile Include="..\src\System\Events\Timer.cpp" />
+    <ClCompile Include="..\src\System\IO\Endpoint.cpp" />
+    <ClCompile Include="..\src\System\IO\IOProcessor_Darwin.cpp" />
+    <ClCompile Include="..\src\System\IO\IOProcessor_Linux.cpp" />
+    <ClCompile Include="..\src\System\IO\IOProcessor_Windows.cpp" />
+    <ClCompile Include="..\src\System\IO\Socket_Posix.cpp" />
+    <ClCompile Include="..\src\System\IO\Socket_Windows.cpp" />
+    <ClCompile Include="..\src\System\Threading\JobProcessor.cpp" />
+    <ClCompile Include="..\src\System\Threading\Mutex_Posix.cpp" />
+    <ClCompile Include="..\src\System\Threading\Mutex_Windows.cpp" />
+    <ClCompile Include="..\src\System\Threading\ThreadPool_Posix.cpp" />
+    <ClCompile Include="..\src\System\Threading\ThreadPool_Windows.cpp" />
+    <ClCompile Include="..\src\Framework\Messaging\MessageConnection.cpp" />
+    <ClCompile Include="..\src\Framework\TCP\TCPConnection.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\Application\Client\SDBPClient.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPClientConsts.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPClientRequest.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPControllerConnection.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPResult.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h" />
+    <ClInclude Include="..\src\Application\Common\Application.h" />
+    <ClInclude Include="..\src\Application\Common\CatchupMessage.h" />
+    <ClInclude Include="..\src\Application\Common\ClientRequest.h" />
+    <ClInclude Include="..\src\Application\Common\ClientRequestCache.h" />
+    <ClInclude Include="..\src\Application\Common\ClientResponse.h" />
+    <ClInclude Include="..\src\Application\Common\ClientSession.h" />
+    <ClInclude Include="..\src\Application\Common\ClusterContext.h" />
+    <ClInclude Include="..\src\Application\Common\ClusterMessage.h" />
+    <ClInclude Include="..\src\Application\Common\DatabaseConsts.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigController.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigDatabase.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigQuorum.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigShard.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigShardServer.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigState.h" />
+    <ClInclude Include="..\src\Application\ConfigState\ConfigTable.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPConnection.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPConsts.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPFileHandler.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPHandler.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPRequest.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPServer.h" />
+    <ClInclude Include="..\src\Application\HTTP\HTTPSession.h" />
+    <ClInclude Include="..\src\Application\HTTP\IMF.h" />
+    <ClInclude Include="..\src\Application\HTTP\JSONBufferWriter.h" />
+    <ClInclude Include="..\src\Application\HTTP\JSONSession.h" />
+    <ClInclude Include="..\src\Application\HTTP\Mime.h" />
+    <ClInclude Include="..\src\Application\HTTP\UrlParam.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPConnection.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPContext.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPRequestMessage.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPResponseMessage.h" />
+    <ClInclude Include="..\src\Application\SDBP\SDBPServer.h" />
+    <ClInclude Include="..\src\Application\ConfigServer\JSONConfigState.h" />
+    <ClInclude Include="..\src\System\Common.h" />
+    <ClInclude Include="..\src\System\Config.h" />
+    <ClInclude Include="..\src\System\FileSystem.h" />
+    <ClInclude Include="..\src\System\Formatting.h" />
+    <ClInclude Include="..\src\System\Log.h" />
+    <ClInclude Include="..\src\System\Macros.h" />
+    <ClInclude Include="..\src\System\Platform.h" />
+    <ClInclude Include="..\src\System\Stopwatch.h" />
+    <ClInclude Include="..\src\System\Threading\Signal.h" />
+    <ClInclude Include="..\src\System\Time.h" />
+    <ClInclude Include="..\src\System\Buffers\Buffer.h" />
+    <ClInclude Include="..\src\System\Buffers\ReadBuffer.h" />
+    <ClInclude Include="..\src\System\Containers\ArrayList.h" />
+    <ClInclude Include="..\src\System\Containers\HashMap.h" />
+    <ClInclude Include="..\src\System\Containers\InList.h" />
+    <ClInclude Include="..\src\System\Containers\InPriorityQueue.h" />
+    <ClInclude Include="..\src\System\Containers\InQueue.h" />
+    <ClInclude Include="..\src\System\Containers\InSortedList.h" />
+    <ClInclude Include="..\src\System\Containers\InTreeMap.h" />
+    <ClInclude Include="..\src\System\Containers\List.h" />
+    <ClInclude Include="..\src\System\Containers\SortedList.h" />
+    <ClInclude Include="..\src\System\Events\Callable.h" />
+    <ClInclude Include="..\src\System\Events\Countdown.h" />
+    <ClInclude Include="..\src\System\Events\Deferred.h" />
+    <ClInclude Include="..\src\System\Events\EventLoop.h" />
+    <ClInclude Include="..\src\System\Events\Scheduler.h" />
+    <ClInclude Include="..\src\System\Events\Timer.h" />
+    <ClInclude Include="..\src\System\IO\Endpoint.h" />
+    <ClInclude Include="..\src\System\IO\FD.h" />
+    <ClInclude Include="..\src\System\IO\IOOperation.h" />
+    <ClInclude Include="..\src\System\IO\IOProcessor.h" />
+    <ClInclude Include="..\src\System\IO\Socket.h" />
+    <ClInclude Include="..\src\System\Threading\Job.h" />
+    <ClInclude Include="..\src\System\Threading\JobProcessor.h" />
+    <ClInclude Include="..\src\System\Threading\Mutex.h" />
+    <ClInclude Include="..\src\System\Threading\ThreadPool.h" />
+    <ClInclude Include="..\src\Framework\Messaging\Message.h" />
+    <ClInclude Include="..\src\Framework\Messaging\MessageConnection.h" />
+    <ClInclude Include="..\src\Framework\Messaging\MessageUtil.h" />
+    <ClInclude Include="..\src\Framework\TCP\TCPConnection.h" />
+    <ClInclude Include="..\src\Framework\TCP\TCPServer.h" />
+    <ClInclude Include="..\src\Version.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

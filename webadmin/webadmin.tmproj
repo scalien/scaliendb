@@ -42,7 +42,7 @@
 				<key>column</key>
 				<integer>23</integer>
 				<key>line</key>
-				<integer>37</integer>
+				<integer>24</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -86,10 +86,26 @@
 				<key>line</key>
 				<integer>10</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>52</integer>
+			</dict>
 		</dict>
 		<key>deleteTable.css</key>
 		<dict>
@@ -110,29 +126,29 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>35</integer>
+				<integer>40</integer>
 				<key>line</key>
-				<integer>64</integer>
+				<integer>132</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>19</integer>
+			<integer>92</integer>
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
 				<integer>28</integer>
 				<key>line</key>
-				<integer>64</integer>
+				<integer>132</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>40</integer>
+				<integer>49</integer>
 				<key>line</key>
-				<integer>64</integer>
+				<integer>132</integer>
 			</dict>
 		</dict>
 		<key>login.css</key>
@@ -154,28 +170,30 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>21</integer>
+				<integer>20</integer>
 				<key>line</key>
-				<integer>340</integer>
+				<integer>213</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>322</integer>
-		</dict>
-		<key>main.css.old</key>
-		<dict>
-			<key>caret</key>
+			<integer>177</integer>
+			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>13</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>213</integer>
 			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>20</integer>
+				<key>line</key>
+				<integer>213</integer>
+			</dict>
 		</dict>
 		<key>migrateShard.css</key>
 		<dict>
@@ -252,29 +270,29 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>6</integer>
+				<integer>12</integer>
 				<key>line</key>
-				<integer>126</integer>
+				<integer>130</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>92</integer>
+			<integer>118</integer>
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
 				<integer>1</integer>
 				<key>line</key>
-				<integer>126</integer>
+				<integer>130</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>13</integer>
+				<integer>22</integer>
 				<key>line</key>
-				<integer>126</integer>
+				<integer>130</integer>
 			</dict>
 		</dict>
 		<key>splitShard.css</key>
@@ -310,14 +328,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>30</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>624</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>580</integer>
+			<integer>594</integer>
+		</dict>
+		<key>unregisterShardServer.css</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>30</integer>
+				<key>line</key>
+				<integer>42</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
@@ -325,6 +357,7 @@
 		<string>deleteDatabase.css</string>
 		<string>index.html</string>
 		<string>deleteQuorum.css</string>
+		<string>unregisterShardServer.css</string>
 		<string>deleteTable.css</string>
 		<string>ui.js</string>
 		<string>main.css</string>
@@ -333,7 +366,6 @@
 		<string>createQuorum.css</string>
 		<string>createTable.css</string>
 		<string>truncateTable.css</string>
-		<string>main.css.old</string>
 		<string>renameTable.css</string>
 		<string>renameQuorum.css</string>
 		<string>migrateShard.css</string>
@@ -345,6 +377,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{371, 244}, {616, 934}}</string>
+	<string>{{371, 60}, {1473, 1118}}</string>
 </dict>
 </plist>

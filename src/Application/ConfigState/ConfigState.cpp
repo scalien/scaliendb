@@ -161,16 +161,18 @@ bool ConfigState::CompleteMessage(ConfigMessage& message)
             return CompleteSetClusterID(message);
         case CONFIGMESSAGE_REGISTER_SHARDSERVER:
             return CompleteRegisterShardServer(message);
+        case CONFIGMESSAGE_UNREGISTER_SHARDSERVER:
+            return CompleteUnregisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
             return CompleteCreateQuorum(message);
         case CONFIGMESSAGE_RENAME_QUORUM:
             return CompleteRenameQuorum(message);
         case CONFIGMESSAGE_DELETE_QUORUM:
             return CompleteDeleteQuorum(message);
-        case CONFIGMESSAGE_ADD_NODE:
-            return CompleteAddNode(message);
-        case CONFIGMESSAGE_REMOVE_NODE:
-            return CompleteRemoveNode(message);
+        case CONFIGMESSAGE_ADD_SHARDSERVER_TO_QUORUM:
+            return CompleteAddShardServerToQuorum(message);
+        case CONFIGMESSAGE_REMOVE_SHARDSERVER_FROM_QUORUM:
+            return CompleteRemoveShardServerFromQuorum(message);
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
             return CompleteActivateShardServer(message);
         case CONFIGMESSAGE_DEACTIVATE_SHARDSERVER:
@@ -362,15 +364,17 @@ void ConfigState::OnMessage(ConfigMessage& message)
         /* Cluster management */
         case CONFIGMESSAGE_REGISTER_SHARDSERVER:
             return OnRegisterShardServer(message);
+        case CONFIGMESSAGE_UNREGISTER_SHARDSERVER:
+            return OnUnregisterShardServer(message);
         case CONFIGMESSAGE_CREATE_QUORUM:
             return OnCreateQuorum(message);
         case CONFIGMESSAGE_RENAME_QUORUM:
             return OnRenameQuorum(message);
         case CONFIGMESSAGE_DELETE_QUORUM:
             return OnDeleteQuorum(message);
-        case CONFIGMESSAGE_ADD_NODE:
+        case CONFIGMESSAGE_ADD_SHARDSERVER_TO_QUORUM:
             return OnAddNode(message);
-        case CONFIGMESSAGE_REMOVE_NODE:
+        case CONFIGMESSAGE_REMOVE_SHARDSERVER_FROM_QUORUM:
             return OnRemoveNode(message);
         case CONFIGMESSAGE_ACTIVATE_SHARDSERVER:
             return OnActivateShardServer(message);
@@ -552,6 +556,22 @@ bool ConfigState::CompleteRegisterShardServer(ConfigMessage&)
     return true;
 }
 
+bool ConfigState::CompleteUnregisterShardServer(ConfigMessage& message)
+{
+    ConfigQuorum* quorum;
+    
+    if (GetShardServer(message.nodeID) == NULL)
+        return false;
+    
+    FOREACH(quorum, quorums)
+    {
+        if (quorum->IsMember(message.nodeID))
+            return false;
+    }
+    
+    return true;
+}
+
 bool ConfigState::CompleteCreateQuorum(ConfigMessage& message)
 {
     uint64_t*       itNodeID;
@@ -611,7 +631,7 @@ bool ConfigState::CompleteDeleteQuorum(ConfigMessage& message)
     return true;
 }
 
-bool ConfigState::CompleteAddNode(ConfigMessage& message)
+bool ConfigState::CompleteAddShardServerToQuorum(ConfigMessage& message)
 {
     ConfigQuorum* quorum;
     
@@ -625,7 +645,7 @@ bool ConfigState::CompleteAddNode(ConfigMessage& message)
     return true;
 }
 
-bool ConfigState::CompleteRemoveNode(ConfigMessage& message)
+bool ConfigState::CompleteRemoveShardServerFromQuorum(ConfigMessage& message)
 {
     ConfigQuorum*   quorum;
     bool            activeNode;
@@ -871,8 +891,16 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
     return false;
 }
 
-bool ConfigState::CompleteShardMigrationBegin(ConfigMessage& /*message*/)
+bool ConfigState::CompleteShardMigrationBegin(ConfigMessage& message)
 {
+    ConfigQuorum* quorum;
+    
+    quorum = GetQuorum(message.quorumID);
+    if (quorum == NULL)
+        return false;
+    if (quorum->inactiveNodes.GetLength() > 0)
+        return false;
+    
     return true;
 }
 
@@ -909,6 +937,18 @@ void ConfigState::OnRegisterShardServer(ConfigMessage& message)
     else
     {
         shardServer->endpoint = message.endpoint;
+    }
+}
+
+void ConfigState::OnUnregisterShardServer(ConfigMessage& message)
+{
+    ConfigShardServer* shardServer;
+    
+    shardServer = GetShardServer(message.nodeID);
+    if (shardServer != NULL)
+    {
+        shardServers.Remove(shardServer);
+        delete shardServer;
     }
 }
 

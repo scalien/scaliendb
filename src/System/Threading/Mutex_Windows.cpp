@@ -26,6 +26,17 @@ void Mutex::Lock()
     threadID = (uint64_t) GetCurrentThreadId();
 }
 
+bool Mutex::TryLock()
+{
+    BOOL    ret;
+    
+    ret = TryEnterCriticalSection((CRITICAL_SECTION*) &mutex);
+    if (ret)
+        threadID = (uint64_t) GetCurrentThreadId();
+    
+    return ret ? true : false;
+} 
+
 void Mutex::Unlock()
 {
     threadID = 0;

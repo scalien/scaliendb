@@ -10,6 +10,7 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     private byte[] endKey;
     private byte[] prefix;
     private int count;
+    private int gran = 100;
     private List<byte[]> keys;
     private int pos;
  
@@ -18,7 +19,7 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
         this.startKey = ps.startKey;
         this.endKey = ps.endKey;
         this.prefix = ps.prefix;
-        this.count = 100;
+        this.count = ps.count;
         
         query(false);
     }
@@ -31,8 +32,10 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     // for Iterator
     public boolean hasNext() {
         try {
+            if (count == 0)
+                return false;
             if (pos == keys.size()) {
-                if (keys.size() < count)
+                if (keys.size() < gran)
                     return false;
                 startKey = keys.get(keys.size()-1);
                 query(true);
@@ -50,6 +53,8 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     public byte[] next() {
         byte[] e = keys.get(pos);
         pos++;
+        if (count > 0)
+            count--;
         return e;
     }
     
@@ -59,7 +64,13 @@ public class ByteKeyIterator implements java.lang.Iterable<byte[]>, java.util.It
     }
     
     private void query(boolean skip) throws SDBPException {
-        keys = table.getClient().listKeys(table.getTableID(), startKey, endKey, prefix, count, skip);
+        int num;
+
+        num = gran;
+        if (count > 0 && count < gran)
+            num = count;
+
+        keys = table.getClient().listKeys(table.getTableID(), startKey, endKey, prefix, num, skip);
         Collections.sort(keys, new ByteArrayComparator());
         pos = 0;
     }

@@ -38,6 +38,7 @@
         internal string prefix = "";
         internal string startKey = "";
         internal string endKey = "";
+        internal long count = -1;
 
         /// <summary>Specify the prefix parameter for iteration.</summary>
         /// <remarks>Only keys starting with prefix will be returned by the iteration.</remarks>
@@ -66,6 +67,16 @@
         public StringRangeParams EndKey(string endKey)
         {
             this.endKey = endKey;
+            return this;
+        }
+
+        /// <summary>Specify the count parameter for iteration</summary>
+        /// <remarks>Iteration will stop after count elements.</remarks>
+        /// <param name="count">The count parameter.</param>
+        /// <returns>The StringRangeParams instance, useful for chaining.</returns>
+        public StringRangeParams Count(uint count)
+        {
+            this.count = count;
             return this;
         }
     }

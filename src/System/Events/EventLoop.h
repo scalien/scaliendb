@@ -25,7 +25,9 @@ public:
     static void         Shutdown();
     static uint64_t     Now();
     static void         UpdateTime();
+    static void         Start();
     static void         Stop();
+    static bool         IsRunning();
 };
 
 #endif

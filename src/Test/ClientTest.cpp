@@ -1,5 +1,6 @@
 #include "Test.h"
 #include "Application/Client/SDBPClient.h"
+#include "Application/Client/SDBPClientWrapper.h"
 #include "System/Common.h"
 #include "System/Threading/ThreadPool.h"
 
@@ -36,15 +37,20 @@ using namespace SDBPClient;
     case SDBP_FAILED: TEST_LOG("%s status: SDBP_FAILED", which); break; \
     case SDBP_BADSCHEMA: TEST_LOG("%s status: SDBP_BADSCHEMA", which); break; \
     }
-    
+
+static uint64_t defaultTableID;
+static uint64_t defaultDatabaseID;
 static int SetupDefaultClient(Client& client)
 {
-    const char*     nodes[] = {"localhost:7080"};
-//    const char*     nodes[] = {"192.168.137.51:7080"};
+//    const char*     nodes[] = {"localhost:7080"};
+    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
-    ReadBuffer      databaseName = "test";
-    ReadBuffer      tableName = "test";
+    std::string     databaseName = "test";
+    std::string     tableName = "test";
+    uint64_t        databaseID;
+    uint64_t        tableID;
     int             ret;
+    ClientObj       clientObj;
 
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
@@ -52,7 +58,36 @@ static int SetupDefaultClient(Client& client)
 
     client.SetMasterTimeout(10000);
     client.SetGlobalTimeout(100000);
-            
+
+    clientObj = (ClientObj) &client;
+    databaseID = 0;
+    for (unsigned i = 0; i < SDBP_GetNumDatabases(clientObj); i++)
+    {
+        if (SDBP_GetDatabaseNameAt(clientObj, i) == databaseName)
+        {
+            databaseID = SDBP_GetDatabaseIDAt(clientObj, i);
+            break;
+        }
+    }
+
+    if (databaseID == 0)
+        return TEST_FAILURE;
+    defaultDatabaseID = databaseID;
+
+    tableID = 0;
+    for (unsigned i = 0; i < SDBP_GetNumTables(clientObj, defaultDatabaseID); i++)
+    {
+        if (SDBP_GetTableNameAt(clientObj, defaultDatabaseID, i) == tableName)
+        {
+            tableID = SDBP_GetTableIDAt(clientObj, defaultDatabaseID, i);
+            break;
+        }
+    }
+
+    if (tableID == 0)
+        return TEST_FAILURE;
+    defaultTableID = tableID;
+
     return TEST_SUCCESS;
 }
 
@@ -70,11 +105,11 @@ TEST_DEFINE(TestClientBasic)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    ret = client.Set(key, value);
+    ret = client.Set(defaultTableID, key, value);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    ret = client.Get(key);
+    ret = client.Get(defaultTableID, key);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
@@ -130,7 +165,7 @@ TEST_DEFINE(TestClientSet)
         ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
-        ret = client.Set(key, value);
+        ret = client.Set(defaultTableID, key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
     }
@@ -154,7 +189,7 @@ TEST_DEFINE(TestClientGet)
     
     ret = snprintf(keybuf, sizeof(keybuf), "UzXM3k7UGr");
     key.Wrap(keybuf, ret);
-    ret = client.Get(key);
+    ret = client.Get(defaultTableID, key);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -177,31 +212,19 @@ TEST_DEFINE(TestClientListKeys)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      endKey;
     ReadBuffer      prefix;
     char            keybuf[33];
     int             ret;
         
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(7000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
     ret = snprintf(keybuf, sizeof(keybuf), "cfcd208495d565ef66e7dff9f98764da");
 //    key.Wrap(keybuf, ret);
-    ret = client.ListKeys(key, endKey, prefix, 3000, false);
+    ret = client.ListKeys(defaultTableID, key, endKey, prefix, 3000, false);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -233,7 +256,7 @@ TEST_DEFINE(TestClientListKeysWithPrefix)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
-    ret = client.ListKeys("aa1", "", "aa1", 0, 0);
+    ret = client.ListKeys(defaultTableID, "aa1", "", "aa1", 0, 0);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
@@ -267,29 +290,16 @@ TEST_DEFINE(TestClientBatchLimit)
     unsigned        num = 1000000000;
     Stopwatch       sw;
         
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(10000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Begin();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
     for (unsigned i = 0; i < num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
-        ret = client.Set(key, value);
+        ret = client.Set(defaultTableID, key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
     }
@@ -310,9 +320,6 @@ TEST_DEFINE(TestClientBatchLimit)
 TEST_DEFINE(TestClientBatchedSet)
 {
     Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
@@ -320,29 +327,16 @@ TEST_DEFINE(TestClientBatchedSet)
     unsigned        num = 100000;
     Stopwatch       sw;
         
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(10000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Begin();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
+   
     for (unsigned i = 0; i < num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
-        ret = client.Set(key, value);
+        ret = client.Set(defaultTableID, key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
     }
@@ -363,9 +357,6 @@ TEST_DEFINE(TestClientBatchedSet)
 TEST_DEFINE(TestClientBatchedSet2)
 {
     Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
@@ -375,30 +366,16 @@ TEST_DEFINE(TestClientBatchedSet2)
     unsigned        num = 100*1000;
     Stopwatch       sw;
         
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(100000);
-    client.SetGlobalTimeout(100000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Begin();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
     for (unsigned i = 0; i < num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
-        ret = client.Set(key, value);
+        ret = client.Set(defaultTableID, key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
 
@@ -432,9 +409,6 @@ TEST_DEFINE(TestClientBatchedSet2)
 TEST_DEFINE(TestClientBatchedSetBulk)
 {
     Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
@@ -444,30 +418,16 @@ TEST_DEFINE(TestClientBatchedSetBulk)
     unsigned        num = 100*1000;
     Stopwatch       sw;
         
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(100000);
-    client.SetGlobalTimeout(100000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Begin();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
     for (unsigned i = 0; i < num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(valbuf, ret);
-        ret = client.Set(key, value);
+        ret = client.Set(defaultTableID, key, value);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
 
@@ -506,7 +466,7 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     char            valbuf[50];
     char            keybuf[10];
     int             ret;
-    unsigned        totalNum = 10*1000;
+    unsigned        totalNum = 1;
     unsigned        batchNum = 5000;
     unsigned        count;
     Stopwatch       sw;
@@ -526,27 +486,39 @@ TEST_DEFINE(TestClientBatchedSetRandom)
 
     //TEST_LOG("Generating random data...");
     
-    sw.Start();
-    for (unsigned i = 0; i < totalNum; i++)
+    while (true)
     {
-        RandomBuffer(keybuf, sizeof(keybuf));
-        key.Wrap(keybuf, sizeof(keybuf));
-        value.Wrap(valbuf, sizeof(valbuf));
-        ret = client.Set(key, value);
+        sw.Start();
+        for (unsigned i = 0; i < totalNum; i++)
+        {
+            RandomBuffer(keybuf, sizeof(keybuf));
+            key.Wrap(keybuf, sizeof(keybuf));
+            value.Wrap(valbuf, sizeof(valbuf));
+            TEST_ASSERT(defaultTableID != 0);
+            ret = client.Set(defaultTableID, key, value);
+            if (ret != SDBP_SUCCESS)
+            {
+                ;
+                TEST_CLIENT_FAIL();
+                ASSERT_FAIL();
+                return TEST_FAILURE;
+            }
+
+            count++;
+            if (i > 0 && (i % 1000) == 0)
+            {
+                Log_Debug("XXX %u: i: %u", (unsigned) ThreadPool::GetThreadID(), i);
+            }
+        }
+        ret = client.Submit();
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
+            
+        sw.Stop();
+        Log_Debug("XXX %u: i: %u", (unsigned) ThreadPool::GetThreadID(), totalNum);
 
-        count++;
-        if (i > 0 && (i % 1000) == 0)
-        {
-            Log_Debug("XXX %u: i: %u", (unsigned) ThreadPool::GetThreadID(), i);
-        }
+        TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), count / (sw.Elapsed() / 1000.0));
     }
-    sw.Stop();
-    Log_Debug("XXX %u: i: %u", (unsigned) ThreadPool::GetThreadID(), totalNum);
-
-    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), count / (sw.Elapsed() / 1000.0));
-    
     client.Shutdown();
     return TEST_SUCCESS;
 }
@@ -554,37 +526,21 @@ TEST_DEFINE(TestClientBatchedSetRandom)
 TEST_DEFINE(TestClientBatchedDelete)
 {
     Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     char            keybuf[32];
     int             ret;
     unsigned        num = 10*1000*1000;
     Stopwatch       sw;
         
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(10000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Begin();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
     for (unsigned i = 0; i < num; i++)
     {
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
-        ret = client.Delete(key);
+        ret = client.Delete(defaultTableID, key);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
 
@@ -615,201 +571,12 @@ TEST_DEFINE(TestClientBatchedDelete)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestClientBatchedDummy)
-{
-    Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    int             ret;
-
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    ret = client.Begin();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    ret = client.Submit();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-        
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientBatchedGet)
-{
-    Client          client;
-    Result*         result;
-    Request*        request;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
-    ReadBuffer      key;
-    ReadBuffer      value;
-    char            keybuf[32];
-    int             ret;
-    unsigned        num = 100000;
-    double          minLatency;
-    double          maxLatency;
-    double          avgLatency;
-    double          latency;
-    uint64_t        firstRequestTime;
-    uint64_t        firstResponseTime;
-    Stopwatch       sw;
-    unsigned        nread;
-        
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(120000);
-    client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Begin();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    for (unsigned i = 0; i < num; i++)
-    {
-        ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
-        key.Wrap(keybuf, ret);
-        value.Wrap(keybuf, ret);
-        ret = client.Get(key);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-    }
-
-    TEST_LOG("Sending requests");
-
-    sw.Start();
-    ret = client.Submit();
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    sw.Stop();
-
-    TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), num / (sw.Elapsed() / 1000.0));
-
-    result = client.GetResult();
-    if (result == NULL)
-        TEST_CLIENT_FAIL();
-    
-    minLatency = (double)(uint64_t) -1;
-    maxLatency = 0;
-    avgLatency = 0;
-    unsigned i;
-    for (i = 0, result->Begin(); !result->IsEnd(); i++, result->Next())
-    {
-        request = result->GetRequestCursor();
-        latency = request->responseTime - request->requestTime;
-        if (latency < minLatency)
-            minLatency = latency;
-        if (latency > maxLatency)
-            maxLatency = latency;
-        if (i == 0)
-            avgLatency = latency;
-        else
-            avgLatency = ((avgLatency * (i - 1)) + latency) / (double) i;
-        if (i == 0)
-        {
-            firstRequestTime = request->requestTime;
-            firstResponseTime = request->responseTime;
-        }
-        
-        if (request->response.type != CLIENTRESPONSE_VALUE)
-            TEST_CLIENT_FAIL();
-        
-        if (BufferToUInt64(
-         request->response.value.GetBuffer(), 
-         request->response.value.GetLength(),
-         &nread) != i)
-            TEST_CLIENT_FAIL();
-        
-
-        //TEST_LOG("%u: value = %.*s", i, P(&request->response.value));
-    }
-    TEST_LOG("latency avg, min, max: %lf, %lf, %lf", avgLatency, minLatency, maxLatency);
-    TEST_LOG("last-first request time: %" PRIu64, (request->requestTime - firstRequestTime));
-    TEST_LOG("last-first response time: %" PRIu64, (request->responseTime - firstResponseTime));
-
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientBatchedGet2)
-{
-    Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
-    ReadBuffer      key;
-    ReadBuffer      value;
-    char            keybuf[32];
-    int             ret;
-    unsigned        num = 10*1000;
-    unsigned        batch = 100;
-    Stopwatch       sw;
-        
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(10000);
-    client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    for (unsigned i = 0; i < num / batch; i++)
-    {
-        ret = client.Begin();
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-
-        for (unsigned j = 0; j < batch; j++)
-        {
-            ret = snprintf(keybuf, sizeof(keybuf), "%010u", i * batch + j);
-            key.Wrap(keybuf, ret);
-            value.Wrap(keybuf, ret);
-            ret = client.Get(key);
-            if (ret != SDBP_SUCCESS)
-                TEST_CLIENT_FAIL();
-        }
-        TEST_LOG("Sending requests");
-
-        sw.Restart();
-        ret = client.Submit();
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-        sw.Stop();
-
-        TEST_LOG("elapsed: %ld, req/s = %f", (long) sw.Elapsed(), batch / (sw.Elapsed() / 1000.0));
-    }
-
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-}
 
 TEST_DEFINE(TestClientGetLatency)
 {
     Client          client;
     Result*         result;
     Request*        request;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
@@ -822,16 +589,7 @@ TEST_DEFINE(TestClientGetLatency)
     Stopwatch       sw;
     unsigned        nread;
         
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(10000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
@@ -844,7 +602,7 @@ TEST_DEFINE(TestClientGetLatency)
         ret = snprintf(keybuf, sizeof(keybuf), "%010u", i);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
-        ret = client.Get(key);
+        ret = client.Get(defaultTableID, key);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
 
@@ -877,173 +635,6 @@ TEST_DEFINE(TestClientGetLatency)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestClientCreateTable)
-{
-    Client          client;
-    Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "mediafilter";
-    ReadBuffer      tableName = "users";
-    ReadBuffer      key;
-    ReadBuffer      value;
-    int             ret;
-    Stopwatch       sw;
-    List<uint64_t>  quorumNodes;
-    uint64_t        quorumID;
-    uint64_t        databaseID;
-//    uint64_t        tableID;
-    uint64_t        defaultQuorumNodeID = 100;
-        
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(10000);
-    
-    // quorum
-    quorumNodes.Append(defaultQuorumNodeID);
-    ret = client.CreateQuorum("", quorumNodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    result = client.GetResult();
-    if (result == NULL)
-        TEST_CLIENT_FAIL();
-    
-    ret = result->GetNumber(quorumID);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    delete result;
-    
-    // database
-    ret = client.CreateDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    result = client.GetResult();
-    if (result == NULL)
-        TEST_CLIENT_FAIL();
-    
-    ret = result->GetNumber(databaseID);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    delete result;
-    
-    // table
-    ret = client.CreateTable(databaseID, quorumID, tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientGetAndSet)
-{
-    Client          client;
-//    Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "test";
-    ReadBuffer      tableName = "tabla";
-    ReadBuffer      key;
-    ReadBuffer      value;
-    ReadBuffer      newVal;
-    ReadBuffer      retBuf;
-    int             ret;
-    Stopwatch       sw;
-    List<uint64_t>  quorumNodes;
-//    uint64_t        quorumID;
-//    uint64_t        databaseID;
-//    uint64_t        tableID;
-//    uint64_t        defaultQuorumNodeID = 100;
-    unsigned        num = 25;
-/*        
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(10000);
-    
-    // quorum
-    quorumNodes.Append(defaultQuorumNodeID);
-    ret = client.CreateQuorum(quorumNodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    result = client.GetResult();
-    if (result == NULL)
-        TEST_CLIENT_FAIL();
-    
-    ret = result->GetNumber(quorumID);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    delete result;
-    
-    // database
-    ret = client.CreateDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    result = client.GetResult();
-    if (result == NULL)
-        TEST_CLIENT_FAIL();
-    
-    ret = result->GetNumber(databaseID);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    delete result;
-    
-    // table
-    ret = client.CreateTable(databaseID, quorumID, tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    */
-    //set & getandset
-
-   ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(1000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    key.SetBuffer((char*) "1234567890123456789012345");
-    value.SetBuffer((char*) "1234567890123456789012345");
-    newVal.SetBuffer((char*) "abcdefghijabcdefghijabcde");
-
-    for (unsigned i = 0; i < num; i++)
-    {
-        key.SetLength(i+1);
-        value.SetLength(i+1);
-
-        ret = client.Set(key, value);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-
-        newVal.SetLength(i+1);
-        
-        ret = client.GetAndSet(key, newVal);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-    }
-
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-
-}
-
 TEST_DEFINE(TestClientMaro)
 {
     Client          client;
@@ -1066,18 +657,18 @@ TEST_DEFINE(TestClientMaro)
     rk.Wrap(k);
     rv.Wrap(v);
 
-    client.Set("index", "0");
+    client.Set(defaultTableID, "index", "0");
     
     sw.Start();
     for (int i = 0; i < 10*1000; i++)
     {
-        client.Add("index", 1);
+        client.Add(defaultTableID, "index", 1);
 
         k.Writef("%d", i);
         v.Writef("%d", i*i);
         rk.Wrap(k);
         rv.Wrap(v);
-        client.Set(rk, rv);
+        client.Set(defaultTableID, rk, rv);
     }
     sw.Stop();
 
@@ -1090,9 +681,6 @@ TEST_DEFINE(TestClientAdd)
 {
     Client          client;
     Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     Buffer          key;
     ReadBuffer      value;
     int             ret;
@@ -1102,31 +690,22 @@ TEST_DEFINE(TestClientAdd)
     Log_SetTarget(LOG_TARGET_STDOUT);
     Log_SetTrace(true);
     
-    ret = client.Init(SIZE(nodes), nodes);
+    ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(1000);
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Set("user_id", "0");
+    ret = client.Set(defaultTableID, "user_id", "0");
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
     for (unsigned i = 0; i < num; i++)
     {
-        ret = client.Add("user_id", 1);
+        ret = client.Add(defaultTableID, "user_id", 1);
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
     }
     
-    ret = client.Get("user_id");
+    ret = client.Get(defaultTableID, "user_id");
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
     
@@ -1137,224 +716,6 @@ TEST_DEFINE(TestClientAdd)
     result->GetValue(value);
     TEST_LOG("value: %.*s", value.GetLength(), value.GetBuffer());
 
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientAppend)
-{
-    Client          client;
-    Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
-    Buffer          key;
-    ReadBuffer      value;
-    int             ret;
-    unsigned        num = 10;
-    Stopwatch       sw;
-    List<uint64_t>  quorumNodes;
-//    uint64_t        quorumID;
-//    uint64_t        databaseID;
-//    uint64_t        defaultQuorumNodeID = 100;
-
-    Log_SetTimestamping(true);
-    Log_SetTarget(LOG_TARGET_STDOUT);
-    Log_SetTrace(true);
- 
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(1000);
-
-    //// quorum
-    //quorumNodes.Append(defaultQuorumNodeID);
-    //ret = client.CreateQuorum(quorumNodes);
-    //if (ret != SDBP_SUCCESS)
-    //    TEST_CLIENT_FAIL();
-    //
-    //result = client.GetResult();
-    //if (result == NULL)
-    //    TEST_CLIENT_FAIL();
-    //
-    //ret = result->GetNumber(quorumID);
-    //if (ret != SDBP_SUCCESS)
-    //    TEST_CLIENT_FAIL();
-    //
-    //delete result;
-
-    // database
-    //ret = client.CreateDatabase(databaseName);
-    //if (ret != SDBP_SUCCESS)
-    //    TEST_CLIENT_FAIL();
-
-    //result = client.GetResult();
-    //if (result == NULL)
-    //    TEST_CLIENT_FAIL();
-    //
-    //ret = result->GetNumber(databaseID);
-    //if (ret != SDBP_SUCCESS)
-    //    TEST_CLIENT_FAIL();
-
-    //delete result;
-    
-    // table
-    //ret = client.CreateTable(databaseID, quorumID, tableName);
-    //if (ret != SDBP_SUCCESS)
-    //    TEST_CLIENT_FAIL();
-
-
-    // set and append
-
-     ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.Set("user2_id", "0");
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    for (unsigned i = 0; i < num; i++)
-    {
-        ret = client.Append("user2_id", "a");
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-    }
-    
-    ret = client.Get("user2_id");
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    result = client.GetResult();
-    if (result == NULL)
-        TEST_CLIENT_FAIL();
-    
-    result->GetValue(value);
-    TEST_LOG("value: %.*s", value.GetLength(), value.GetBuffer());
-
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientSchemaSet)
-{
-    Client          client;
-    Result*         result;
-    const char*     nodes[] = {"localhost:7080"};
-    //const char*     nodes[] = {"192.168.137.51:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
-    Buffer          key;
-    ReadBuffer      value;
-    int             ret;
-    uint64_t        quorumID;
-    uint64_t        databaseID;
-    uint64_t        tableID;
-    
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-  
-    ret = client.GetDatabaseID(databaseName, databaseID);
-    if (ret != SDBP_SUCCESS && ret != SDBP_BADSCHEMA)
-        TEST_CLIENT_FAIL();
-
-    if (ret == SDBP_BADSCHEMA)
-    {
-        ret = client.CreateDatabase(databaseName);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-
-        result = client.GetResult();
-        ret = result->GetNumber(databaseID);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-        
-        delete result;
-
-        List<uint64_t> quorumNodes;
-        uint64_t nodeID = 100;
-        quorumNodes.Append(nodeID);
-        ret = client.CreateQuorum("", quorumNodes);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-        
-        result = client.GetResult();
-        ret = result->GetNumber(quorumID);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-        
-        delete result;
-    }
-    else
-        quorumID = 1;   // TODO:
-
-    ret = client.GetTableID(tableName, databaseID, tableID);
-    if (ret != SDBP_SUCCESS && ret != SDBP_BADSCHEMA)
-        TEST_CLIENT_FAIL();
-
-    if (ret == SDBP_BADSCHEMA)
-    {
-        ret = client.CreateTable(databaseID, quorumID, tableName);
-        if (ret != SDBP_SUCCESS)
-            TEST_CLIENT_FAIL();
-    }
-    
-    ret = client.UseDatabase(databaseName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    ret = client.UseTable(tableName);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
-    //ret = client.Set("user_id", "0");
-    //if (ret != SDBP_SUCCESS)
-    //    TEST_CLIENT_FAIL();
-    
-    client.Shutdown();
-    
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientGetFailover)
-{
-    Client          client;
-    Result*         result;
-    ReadBuffer      value;
-    unsigned        i;
-    uint64_t        start;
-    uint64_t        end;
-    int             ret;
-    
-    TEST(SetupDefaultClient(client));
-    ret = client.SetIfNotExists("index", "1");
-    TEST_ASSERT(ret == SDBP_SUCCESS || ret == SDBP_FAILED);
-
-    i = 0;
-    while (true)
-    {
-        i++;
-        start = Now();
-        TEST(client.Get("index"));
-        end = Now();
-        result = client.GetResult();
-        
-        TEST(result->GetValue(value));
-        TEST_LOG("%u: value = %.*s, diff = %u", i, value.GetLength(), value.GetBuffer(), (unsigned) (end - start));
-        
-        delete result;
-        
-        MSleep(500);
-    }
     client.Shutdown();
     
     return TEST_SUCCESS;
@@ -1372,15 +733,15 @@ TEST_DEFINE(TestClientAddFailover)
     int             ret;
     
     TEST(SetupDefaultClient(client));
-    ret = client.SetIfNotExists("index", "1");
-    TEST_ASSERT(ret == SDBP_SUCCESS || ret == SDBP_FAILED);
+    ret = client.Set(defaultTableID, "index", "1");
+    TEST_ASSERT(ret == SDBP_SUCCESS);
 
     i = 0;
     while (true)
     {
         i++;
         start = Now();
-        TEST(client.Add("index", 1));
+        TEST(client.Add(defaultTableID, "index", 1));
         end = Now();
         result = client.GetResult();
         
@@ -1407,7 +768,7 @@ TEST_DEFINE(TestClientSetFailover)
     Buffer          tmp;
     
     TEST(SetupDefaultClient(client));
-    ret = client.Set("index", "0");
+    ret = client.Set(defaultTableID, "index", "0");
     TEST_ASSERT(ret == SDBP_SUCCESS || ret == SDBP_FAILED);
 
     i = 0;
@@ -1416,7 +777,7 @@ TEST_DEFINE(TestClientSetFailover)
         i++;
         tmp.Writef("%d", i);
         start = Now();
-        TEST(client.Set("index", tmp));
+        TEST(client.Set(defaultTableID, "index", tmp));
         end = Now();
         TEST_LOG("%i: diff = %u", i, (unsigned) (end - start));
         
@@ -1430,9 +791,10 @@ TEST_DEFINE(TestClientSetFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 16;
+    unsigned        numThread = 500;
     
     threadPool = ThreadPool::Create(numThread);
+    threadPool->SetStackSize(256*KiB);
     
     for (unsigned i = 0; i < numThread; i++)
     {  
@@ -1452,23 +814,6 @@ TEST_DEFINE(TestClientMultiThreadMulti)
 {
     for (int i = 0; i < 10; i++)
         TestClientBatchedSetRandom();
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientActivateNode)
-{
-    Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    int             ret;
-
-    ret = client.Init(SIZE(nodes), nodes);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-
-    ret = client.ActivateNode(101);
-    if (ret != SDBP_SUCCESS)
-        TEST_CLIENT_FAIL();
-    
     return TEST_SUCCESS;
 }
 
@@ -1495,7 +840,7 @@ TEST_DEFINE(TestClientFilter2)
         else
             offset = 1;
 
-        TEST(client.ListKeys(lastKey, endKey, prefix, 1000, false));
+        TEST(client.ListKeys(defaultTableID, lastKey, endKey, prefix, 1000, false));
         
         result = client.GetResult();
         num = 0;
@@ -1526,7 +871,7 @@ TEST_DEFINE(TestClientCount)
     uint64_t        number;
     
     TEST(SetupDefaultClient(client));
-    TEST(client.Count("", "", ""));
+    TEST(client.Count(defaultTableID, "", "", ""));
     
     result = client.GetResult();
     TEST(result->GetNumber(number));
@@ -1546,8 +891,8 @@ TEST_DEFINE(TestClientMixedReadWriteBatched)
     TEST(SetupDefaultClient(client));
     TEST(client.Begin());
 
-    TEST(client.Get("key"));
-    ret = client.Set("key", "value");
+    TEST(client.Get(defaultTableID, "key"));
+    ret = client.Set(defaultTableID, "key", "value");
     TEST_ASSERT(ret == SDBP_API_ERROR);
 
     return TEST_SUCCESS;
@@ -1561,23 +906,62 @@ TEST_DEFINE(TestClientMixedWriteReadBatched)
     TEST(SetupDefaultClient(client));
     TEST(client.Begin());
 
-    TEST(client.Set("key", "value"));
-    ret = client.Get("key");
+    TEST(client.Set(defaultTableID, "key", "value"));
+    ret = client.Get(defaultTableID, "key");
     TEST_ASSERT(ret == SDBP_API_ERROR);
 
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestClientTestAndSet)
+TEST_DEFINE(TestClientCreateSchema)
 {
     Client          client;
+    ClientObj       clientObj;
+    const char*     databaseName = "Storage";
+    const char*     tableName = "transaction";
+    ReadBuffer      rbName;
+    unsigned        numDatabases;
+    uint64_t        databaseID = 0;
+    uint64_t        quorumID = 0;
     
     TEST(SetupDefaultClient(client));
+    clientObj = (ClientObj) &client;
 
-    // make sure there is a value
-    TEST(client.Set("key", "value"));
-    TEST(client.TestAndSet("key", "value", "value2"));
-    TEST(client.TestAndSet("key", "value", "value2"));
-    
+    // make sure there is no database under this name
+    numDatabases = SDBP_GetNumDatabases(clientObj);
+    for (unsigned i = 0; i < numDatabases; i++)
+    {
+        std::string name = SDBP_GetDatabaseNameAt(clientObj, i);
+        if (name == databaseName)
+        {
+            databaseID = SDBP_GetDatabaseIDAt(clientObj, i);
+            break;
+        }
+    }
+    if (databaseID != 0)
+        TEST(client.DeleteDatabase(databaseID));
+
+    // create the database with the given name
+    rbName.Wrap(databaseName);
+    TEST(client.CreateDatabase(rbName));
+    numDatabases = SDBP_GetNumDatabases(clientObj);
+    for (unsigned i = 0; i < numDatabases; i++)
+    {
+        std::string name = SDBP_GetDatabaseNameAt(clientObj, i);
+        if (name == databaseName)
+        {
+            databaseID = SDBP_GetDatabaseIDAt(clientObj, i);
+            break;
+        }
+    }
+    TEST_ASSERT(databaseID != 0);
+
+    TEST_ASSERT(SDBP_GetNumQuorums(clientObj) > 0);
+    quorumID = SDBP_GetQuorumIDAt(clientObj, 0);
+    TEST_ASSERT(quorumID != 0);
+
+    rbName.Wrap(tableName);
+    TEST(client.CreateTable(databaseID, quorumID, rbName));
+
     return TEST_SUCCESS;
 }

@@ -14,11 +14,12 @@
     /// <item>prefix</item>
     /// <item>start key</item>
     /// <item>end key</item>
+    /// <item>count</item>
     /// </list>
     /// </para>
     /// <para>
     /// ByteRangeParams is convenient because is uses chaining, so you can write
-    /// expressions like <c>new ByteRangeParams().Prefix(prefix).StartKey(startKey).EndKey(endKey)</c>
+    /// expressions like <c>new ByteRangeParams().Prefix(prefix).StartKey(startKey).EndKey(endKey).Count(count)</c>
     /// and it returns the ByteRangeParam instance.
     /// </para>
     /// <para>
@@ -33,6 +34,7 @@
         internal byte[] prefix = new byte[0];
         internal byte[] startKey = new byte[0];
         internal byte[] endKey = new byte[0];
+        internal long count = -1;
 
         /// <summary>Specify the prefix parameter for iteration.</summary>
         /// <remarks>Only keys starting with prefix will be returned by the iteration.</remarks>
@@ -61,6 +63,16 @@
         public ByteRangeParams EndKey(byte[] endKey)
         {
             this.endKey = endKey;
+            return this;
+        }
+
+        /// <summary>Specify the count parameter for iteration</summary>
+        /// <remarks>Iteration will stop after count elements.</remarks>
+        /// <param name="count">The count parameter.</param>
+        /// <returns>The ByteRangeParams instance, useful for chaining.</returns>
+        public ByteRangeParams Count(uint count)
+        {
+            this.count = count;
             return this;
         }
     }

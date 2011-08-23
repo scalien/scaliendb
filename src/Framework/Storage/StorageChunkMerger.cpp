@@ -86,15 +86,13 @@ bool StorageChunkMerger::Merge(
 
     mergeChunk->fileSize = offset;
 
-//    FS_Sync(fd.GetFD());
-    
     FS_FileSeek(fd.GetFD(), 0, FS_SEEK_SET);
     offset = 0;
 
     if (!WriteHeaderPage())
         return false;
 
-    FS_Sync(fd.GetFD());
+    StorageEnvironment::Sync(fd.GetFD());
 
     fd.Close();
     
@@ -143,7 +141,7 @@ bool StorageChunkMerger::WriteBuffer()
     syncGranularity = env->GetConfig().syncGranularity;
     if (syncGranularity != 0 && offset - lastSyncOffset > syncGranularity)
     {
-        FS_Sync(fd.GetFD());
+        StorageEnvironment::Sync(fd.GetFD());
         lastSyncOffset = offset;
     }
 

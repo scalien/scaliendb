@@ -1,6 +1,8 @@
 #include "Test.h"
 #include "System/DLL.h"
 #include "System/Platform.h"
+#include "System/Common.h"
+#include "System/Macros.h"
 
 TEST_DEFINE(TestDLLLoad)
 {

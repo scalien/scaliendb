@@ -8,14 +8,16 @@
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
 
-#define MAX_IO_CONNECTION               1024
+#define MAX_IO_CONNECTION               32768
 #define DEFAULT_BATCH_LIMIT             (1*MB)
 
 #define CLIENT_MULTITHREAD 
 #ifdef CLIENT_MULTITHREAD
 
 // globalMutex protects the underlying single threaded IO and Event handling layer
-Mutex   globalMutex;                    
+Mutex       globalMutex;                    
+unsigned    numClients;
+ThreadPool* ioThread;
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(mutex)
 #define CLIENT_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
@@ -27,8 +29,6 @@ Mutex   globalMutex;
 #define GLOBAL_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(globalMutex)
 #define GLOBAL_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()     mutexGuard.Unlock()
-
-#define YIELD()                         ThreadPool::YieldThread()
 
 #else // CLIENT_MULTITHREAD
 
@@ -43,19 +43,7 @@ Mutex   globalMutex;
 #define GLOBAL_MUTEX_GUARD_LOCK()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()
 
-#define YIELD()
-
 #endif // CLIENT_MULTITHREAD
-
-#define VALIDATE_CONFIG_STATE()     \
-    if (configState == NULL)        \
-    {                               \
-        result->Close();            \
-        EventLoop();                \
-    }                               \
-    if (configState == NULL)        \
-        return SDBP_NOSERVICE;      \
-
 
 #define VALIDATE_CONTROLLER()       \
     if (numControllers == 0)        \
@@ -100,8 +88,8 @@ Mutex   globalMutex;
     it = proxiedRequests.Locate(req, cmpres);       \
     if (cmpres == 0 && it != NULL)                  \
     {                                               \
-        proxiedRequests.Delete(it);                 \
         proxySize -= REQUEST_SIZE(it);              \
+        proxiedRequests.Delete(it);                 \
         ASSERT(proxySize >= 0);                     \
     }                                               \
     proxiedRequests.Insert<const Request*>(req);    \
@@ -216,15 +204,23 @@ Client::~Client()
 
 int Client::Init(int nodec, const char* nodev[])
 {
-    GLOBAL_MUTEX_GUARD_DECLARE();
-
     // sanity check on parameters
     if (nodec <= 0 || nodev == NULL)
         return SDBP_API_ERROR;
 
+    GLOBAL_MUTEX_GUARD_DECLARE();
     // TODO: find out the optimal size of MAX_SERVER_NUM
     if (!IOProcessor::Init(MAX_IO_CONNECTION))
         return SDBP_API_ERROR;
+
+    numClients++;
+    if (numClients == 1)
+    {
+        ioThread = ThreadPool::Create(1);
+        ioThread->Execute(MFUNC(Client, IOThreadFunc));
+        ioThread->Start();
+    }
+    GLOBAL_MUTEX_GUARD_UNLOCK();
 
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_INTERACTIVE);
 
@@ -268,6 +264,15 @@ void Client::Shutdown()
     Submit();
     
     GLOBAL_MUTEX_GUARD_DECLARE();
+    numClients--;
+    if (numClients == 0)
+    {
+        EventLoop::Stop();
+        ioThread->WaitStop();
+        delete ioThread;
+        ioThread = NULL;
+    }
+    GLOBAL_MUTEX_GUARD_UNLOCK();
 
     for (int i = 0; i < numControllers; i++)
         delete controllerConnections[i];
@@ -289,6 +294,8 @@ void Client::Shutdown()
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
     IOProcessor::Shutdown();
+    
+    // TODO: if I am the last thread, kill the event loop?
 }
 
 void Client::SetBatchLimit(unsigned batchLimit_)
@@ -308,8 +315,6 @@ void Client::SetBatchMode(int batchMode_)
 
 void Client::SetGlobalTimeout(uint64_t timeout)
 {
-    GLOBAL_MUTEX_GUARD_DECLARE();
-
     if (globalTimeout.IsActive())
     {
         EventLoop::Remove(&globalTimeout);
@@ -322,8 +327,6 @@ void Client::SetGlobalTimeout(uint64_t timeout)
 
 void Client::SetMasterTimeout(uint64_t timeout)
 {
-    GLOBAL_MUTEX_GUARD_DECLARE();
-    
     if (masterTimeout.IsActive())
     {
         EventLoop::Remove(&masterTimeout);
@@ -353,13 +356,13 @@ ConfigState* Client::GetConfigState()
     if (numControllers == 0)
         return NULL;
     
-    result->Close();
-    CLIENT_MUTEX_UNLOCK();
     if (!configState)
+    {
+        result->Close();
+        CLIENT_MUTEX_UNLOCK();
         EventLoop();
-    else
-        EventLoop(0);
-    CLIENT_MUTEX_LOCK();
+        CLIENT_MUTEX_LOCK();
+    }
 
     return configState;
 }
@@ -482,7 +485,45 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
 
 int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value)
 {
-    CLIENT_DATA_PROXIED_COMMAND(Set, (ReadBuffer&) key, (ReadBuffer&) value);
+//    CLIENT_DATA_PROXIED_COMMAND(Set, (ReadBuffer&) key, (ReadBuffer&) value);
+    int         cmpres;                             
+    Request*    req;                                
+    Request*    it;                                 
+                                                    
+    CLIENT_MUTEX_GUARD_DECLARE();                   
+                                                    
+    ASSERT(configState != NULL);                    
+    req = new Request;                              
+    req->Set(NextCommandID(), configState->paxosID,  
+     tableID, (ReadBuffer&) key, (ReadBuffer&) value);                         
+                                                    
+    if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&     
+     proxySize + REQUEST_SIZE(req) >= batchLimit)   
+    {                                               
+        delete req;                                 
+        return SDBP_API_ERROR;                      
+    }                                               
+                                                    
+    it = proxiedRequests.Locate(req, cmpres);       
+    if (cmpres == 0 && it != NULL)                  
+    {                                               
+        proxiedRequests.Delete(it);                 
+        proxySize -= REQUEST_SIZE(it);              
+        ASSERT(proxySize >= 0);                     
+    }                                               
+    proxiedRequests.Insert<const Request*>(req);    
+    proxySize += REQUEST_SIZE(req);                 
+                                                    
+    CLIENT_MUTEX_GUARD_UNLOCK();                    
+                                                    
+    if (batchMode == SDBP_BATCH_SINGLE)             
+        return Submit();                            
+                                                    
+    if (batchMode == SDBP_BATCH_DEFAULT &&          
+     proxySize >= batchLimit)                       
+        return Submit();
+                                                    
+    return SDBP_SUCCESS;                            
 }
 
 int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
@@ -630,6 +671,7 @@ int Client::Begin()
 int Client::Submit()
 {
     Request*    it;
+    int         transportStatus;
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
@@ -657,7 +699,10 @@ int Client::Submit()
     ClearQuorumRequests();
     requests.ClearMembers();
     
-    return result->GetTransportStatus();
+    Log_Trace("Submit returning");
+    
+    transportStatus = result->GetTransportStatus();
+    return transportStatus;
 }
 
 int Client::Cancel()
@@ -692,75 +737,52 @@ void Client::EventLoop(long wait)
         result->SetTransportStatus(SDBP_API_ERROR);
         return;
     }
-    
-    GLOBAL_MUTEX_GUARD_DECLARE();
-    
-    EventLoop::UpdateTime();
 
-    // TODO: HACK this is here for enable async requests to receive the rest of response
+    CLIENT_MUTEX_LOCK();
+    // avoid race conditions
+    isDone.SetWaiting(true);
     if (requests.GetLength() > 0)
     {
         AssignRequestsToQuorums();
         SendQuorumRequests();
     }
+    timeoutStatus = SDBP_SUCCESS;
+    CLIENT_MUTEX_UNLOCK();
     
-    EventLoop::UpdateTime();
     EventLoop::Reset(&globalTimeout);
     if (master == -1)
         EventLoop::Reset(&masterTimeout);
-    timeoutStatus = SDBP_SUCCESS;
     startTime = EventLoop::Now();
     
-    GLOBAL_MUTEX_GUARD_UNLOCK();
+    isDone.Wait(); // wait for IO thread to process ops
     
-    // TODO: simplify this condition
-    while ((!IsDone() && wait < 0) || (EventLoop::Now() <= startTime + wait))
-    {
-        Log_Trace("EventLoop main loop, wait: %I", (int64_t) wait);
-        GLOBAL_MUTEX_GUARD_LOCK();        
-        long sleep = EventLoop::RunTimers();
-        if (wait >= 0 && wait < sleep)
-            sleep = wait;
-        if (IsDone() && wait != 0)
-        {
-            GLOBAL_MUTEX_GUARD_UNLOCK();
-            break;
-        }
-        
-        if (!IOProcessor::Poll(sleep) || wait == 0)
-        {
-            GLOBAL_MUTEX_GUARD_UNLOCK();
-            break;
-        }
-
-        // let other threads enter IOProcessor and complete requests
-        GLOBAL_MUTEX_GUARD_UNLOCK();
-        YIELD();
-    }
-
-    CLIENT_MUTEX_LOCK();
-    
+    CLIENT_MUTEX_LOCK();    
     requests.Clear();
-    
     result->SetConnectivityStatus(connectivityStatus);
     result->SetTimeoutStatus(timeoutStatus);
     result->Begin();
-    
     CLIENT_MUTEX_UNLOCK();
+    
+    Log_Trace("EventLoop() returning");
 }
 
+// This should only be called with client mutex locked!
 bool Client::IsDone()
 {
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
     if (result->GetRequestCount() == 0 && configState != NULL)
+    {
         return true;
+    }
     
     if (result->GetTransportStatus() == SDBP_SUCCESS)
+    {
         return true;
+    }
     
     if (timeoutStatus != SDBP_SUCCESS)
+    {
         return true;
+    }
     
     return false;
 }
@@ -821,13 +843,23 @@ void Client::UpdateConnectivityStatus()
 void Client::OnGlobalTimeout()
 {
     Log_Trace();
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+
     timeoutStatus = SDBP_GLOBAL_TIMEOUT;
+    
+    TryWake();
 }
 
 void Client::OnMasterTimeout()
 {
     Log_Trace();
+
+    CLIENT_MUTEX_GUARD_DECLARE();
+    
     timeoutStatus = SDBP_MASTER_TIMEOUT;
+    
+    TryWake();
 }
 
 bool Client::IsReading()
@@ -1558,6 +1590,35 @@ uint64_t Client::NumProxiedDeletes(Request* request)
     }
     
     return count;
+}
+
+void Client::TryWake()
+{
+    if (!isDone.IsWaiting())
+        return;
+    
+    if (IsDone())
+        isDone.Wake();
+}
+
+void Client::IOThreadFunc()
+{
+    long    sleep;
+    
+    EventLoop::Start();
+
+    while(EventLoop::IsRunning())
+    {
+        sleep = EventLoop::RunTimers();
+    
+        if (sleep < 0 || sleep > SLEEP_MSEC)
+            sleep = SLEEP_MSEC;
+    
+        if (!IOProcessor::Poll(sleep))
+            break;
+    }
+
+    Log_Debug("IOThreadFunc finished");
 }
 
 void Client::Lock()

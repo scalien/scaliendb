@@ -273,11 +273,11 @@ class Client:
         def count(self, prefix="", start_key="", end_key=""):
             return self._client._count(self._table_id, prefix, start_key, end_key)
         
-        def get_key_iterator(self, prefix="", start_key="", end_key=""):
-            return self._client.Iterator(self, prefix, start_key, end_key, False)
+        def get_key_iterator(self, prefix="", start_key="", end_key="", count=-1):
+            return self._client.Iterator(self, prefix, start_key, end_key, count, False)
     
-        def get_key_value_iterator(self, prefix="", start_key="", end_key=""):
-            return self._client.Iterator(self, prefix, start_key, end_key, True)
+        def get_key_value_iterator(self, prefix="", start_key="", end_key="", count=-1):
+            return self._client.Iterator(self, prefix, start_key, end_key, count, True)
             
         def get_sequence(self, key):
             return self._client.Sequence(self, key)
@@ -290,22 +290,26 @@ class Client:
     # =========================================================================================
 
     class Iterator:
-        def __init__(self, table, prefix, start_key, end_key, values):
+        def __init__(self, table, prefix, start_key, end_key, count, values):
             self._table = table
             self._start_key = start_key
             self._end_key = end_key
             self._prefix = prefix
+            self._count = count
             self._values = values
-            self._count = 100
+            self._gran = 100
             self._result = []
             self._pos = 0
             self._len = 0
 
         def _query(self, skip):
+            num = self._gran
+            if self._count > 0 and self._count < self._gran:
+                num = self._count
             if self._values:
-                self._result = self._table._client._list_key_values(self._table._table_id, self._prefix, self._start_key, self._end_key, self._count, skip).items()
+                self._result = self._table._client._list_key_values(self._table._table_id, self._prefix, self._start_key, self._end_key, num, skip).items()
             else:
-                self._result = self._table._client._list_keys(self._table._table_id, self._prefix, self._start_key, self._end_key, self._count, skip)
+                self._result = self._table._client._list_keys(self._table._table_id, self._prefix, self._start_key, self._end_key, num, skip)
             self._result.sort()
             self._len = len(self._result)
             self._pos = 0
@@ -314,12 +318,14 @@ class Client:
             return self
 
         def next(self):
+            if self._count == 0:
+                raise StopIteration
             if self._len == 0:
                 self._query(False)
             else:
                 self._pos += 1
                 if self._pos == self._len:
-                    if self._len < self._count:
+                    if self._len < self._gran:
                         raise StopIteration
                     if self._values:
                         self._start_key = self._result[self._len-1][0]
@@ -328,6 +334,7 @@ class Client:
                     self._query(True)                        
             if self._len == 0:
                 raise StopIteration
+            self._count -= 1
             return self._result[self._pos]
 
     # =============================================================================================
@@ -348,7 +355,7 @@ class Client:
             self._gran = 1000
         
         def reset():
-            client._set(self._table._table_id, self._key, 0)
+            client._delete(self._table._table_id, self._key)
         
         def get(self):
             if self._num == 0:

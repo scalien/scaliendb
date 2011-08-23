@@ -29,6 +29,7 @@ public:
     int                 GetNumPending();
     int                 GetNumActive();
     int                 GetNumTotal();
+    void                SetStackSize(unsigned stackSize);
     
     static uint64_t     GetThreadID();
     static void         YieldThread();
@@ -39,6 +40,7 @@ protected:
     int                 numActive;
     int                 numThread;
     bool                running;
+    unsigned            stackSize;
 };
 
 /*
@@ -60,5 +62,9 @@ inline int ThreadPool::GetNumTotal()
     return numPending + numActive; /* atomicity */
 }
 
+inline void ThreadPool::SetStackSize(unsigned stackSize_)
+{
+    stackSize = stackSize_;
+}
 
 #endif

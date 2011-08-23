@@ -82,8 +82,9 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
             CONTEXT_TRANSPORT->DropConnection(itHeartbeat->nodeID);
             Log_Trace("Removing node %U from heartbeats", itHeartbeat->nodeID);
             itShardServer = CONFIG_STATE->GetShardServer(itHeartbeat->nodeID);
-            ASSERT(itShardServer != NULL);
-            itShardServer->hasHeartbeat = false;
+            // if the shard server was unregistered, itShardServer is NULL here
+            if (itShardServer != NULL)
+                itShardServer->hasHeartbeat = false;
             itHeartbeat = heartbeats.Delete(itHeartbeat);
         }
         else

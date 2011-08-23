@@ -182,6 +182,8 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     client->result->AppendRequestResponse(&response);
     response.Init();
 
+    client->TryWake();
+
     return false;
 }
 

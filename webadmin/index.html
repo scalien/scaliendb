@@ -3,6 +3,7 @@
 	<head>
 		<title>ScalienDB Management Console</title>
 		<link rel="stylesheet" type="text/css" href="login.css"/>
+		<link rel="stylesheet" type="text/css" href="unregisterShardServer.css"/>
 		<link rel="stylesheet" type="text/css" href="createQuorum.css"/>
 		<link rel="stylesheet" type="text/css" href="renameQuorum.css"/>
 		<link rel="stylesheet" type="text/css" href="deleteQuorum.css"/>
@@ -117,6 +118,20 @@
 			<span class="delete-quorum-question">Are you sure you want to delete the quorum?</span><br/><br/><br/><br/>
 			<form action="javascript:deleteQuorum()">
 			<button type="submit" class="delete-quorum-button">Delete</button>
+			</form>
+		</div>
+		</div>
+		<!-- delete-quorum -->
+		<div id="unregisterShardServerContainer">
+		<div class="unregister-shard-server-overlay"></div>
+		<div class="unregister-shard-server-content">
+			<a href="javascript:hideUnregisterShardServer()"><img border="0" class="close" src="close.png"/></a>
+			<br/><br/><br/>
+			<span class="unregister-shard-server-welcome">Unregister shard server</span><br/>
+			<br/><br/><br/>
+			<span class="delete-quorum-question">Are you sure you want to permanently unregister<br/> the shard server from the ScalienDB cluster?</span><br/><br/><br/><br/>
+			<form action="javascript:unregisterShardServer()">
+			<button type="submit" class="unregister-shard-server-button">Unregister</button>
 			</form>
 		</div>
 		</div>

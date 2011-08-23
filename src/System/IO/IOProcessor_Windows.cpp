@@ -11,10 +11,40 @@
 #include <winsock2.h>
 #include <mswsock.h>
 
+// support for multithreaded IOProcessor
+#ifdef IOPROCESSOR_MULTITHREADED
+
+#define UNLOCKED_CALL(callable)     \
+do                                  \
+{                                   \
+    mutex.Unlock();                 \
+    Call(callable);                 \
+    mutex.Lock();                   \
+} while (0)
+
+#define UNLOCKED_ADD(ioop)          \
+do                                  \
+{                                   \
+    mutex.Unlock();                 \
+    IOProcessor::Add(ioop);         \
+    mutex.Lock();                   \
+} while (0)
+
+#else // IOPROCESSOR_MULTITHREADED
+
+#define UNLOCKED_CALL(callable)     \
+    Call(callable)
+
+#define UNLOCKED_ADD(ioop)          \
+    IOProcessor::Add(ioop)
+
+#endif // IOPROCESSOR_MULTITHREADED
+
 // the address buffer passed to AcceptEx() must be 16 more than the max address length (see MSDN)
 // http://msdn.microsoft.com/en-us/library/ms737524(VS.85).aspx
 #define ACCEPT_ADDR_LEN     (sizeof(sockaddr_in) + 16)
 #define MAX_TCP_READ        8192
+
 
 // this structure is used for storing Windows/IOCP specific data
 struct IODesc
@@ -52,6 +82,7 @@ static unsigned         numIOProcClients = 0;
 static IOProcessorStat  iostat;
 static Mutex            callableMutex;
 static CallableQueue    callableQueue;
+static Mutex            mutex;
 
 static LPFN_CONNECTEX   ConnectEx;
 
@@ -65,7 +96,7 @@ void ProcessCompletionCallbacks();
 // helper function for FD -> IODesc mapping
 static IODesc* GetIODesc(const FD& fd)
 {
-    ASSERT(fd.index != -1);
+    ASSERT(fd.index >= 0);
     return &iods[fd.index];
 }
 
@@ -117,6 +148,10 @@ bool IOProcessorRegisterSocket(FD& fd)
 {
     IODesc*     iod;
 
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard  guard(mutex);
+#endif
+
     if (freeIods == NULL)
         return false;
 
@@ -143,6 +178,10 @@ bool IOProcessorUnregisterSocket(FD& fd)
     BOOL        ret;
 
     Log_Trace("fd = %d", fd.index);
+
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard  guard(mutex);
+#endif
 
     iod = &iods[fd.index];
     iod->next = freeIods;
@@ -372,6 +411,10 @@ bool StartAsyncConnect(IOOperation* ioop)
 
 bool IOProcessor::Add(IOOperation* ioop)
 {
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard  guard(mutex);
+#endif
+
     if (ioop->active)
     {
         ASSERT_FAIL();
@@ -407,6 +450,10 @@ bool IOProcessor::Remove(IOOperation *ioop)
     IODesc*     iod;
     TCPRead*    tcpread;
 
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard  guard(mutex);
+#endif
+
     if (!ioop->active)
         return true;
 
@@ -436,7 +483,7 @@ bool IOProcessor::Remove(IOOperation *ioop)
             ioop = iod->write;
             iod->write = NULL;
             ioop->active = false;
-            IOProcessor::Add(ioop);
+            UNLOCKED_ADD(ioop);
         }
     }
     else
@@ -448,7 +495,7 @@ bool IOProcessor::Remove(IOOperation *ioop)
             ioop = iod->read;
             iod->read = NULL;
             ioop->active = false;
-            IOProcessor::Add(ioop);
+            UNLOCKED_ADD(ioop);
         }
     }
 
@@ -472,8 +519,8 @@ bool IOProcessor::Poll(int msec)
 
     timeout = (msec >= 0) ? msec : INFINITE;
 
-    startTime = EventLoop::Now();
 Again:
+    startTime = EventLoop::Now();
     ret = GetQueuedCompletionStatus(iocp, &numBytes, (PULONG_PTR)&iod, &overlapped, timeout);
     if (terminated)
         return false;
@@ -483,16 +530,20 @@ Again:
     iostat.totalPollTime += iostat.lastPollTime - startTime;
     iostat.lastNumEvents = 1;
     iostat.totalNumEvents++;
-    
+
     ioop = NULL;
     flags = 0;
     // ret == TRUE: a completion packet for a successful I/O operation was dequeued
     // ret == FALSE && overlapped != NULL: a completion packet for a failed I/O operation was dequeued
     if (ret || overlapped)
     {
+#ifdef IOPROCESSOR_MULTITHREADED
+        MutexGuard  guard(mutex);
+#endif
         if (iod == &callback)
+        {
             ProcessCompletionCallbacks();
-        
+        }
         // sometimes we get this after closesocket, so check first
         // if iod is in the freelist
         // TODO: clarify which circumstances lead to this issue
@@ -517,7 +568,7 @@ Again:
                     {
                         Log_Trace("last error = %d", error);
                         ioop->active = false;
-                        Call(ioop->onClose);
+                        UNLOCKED_CALL(ioop->onClose);
                     }
 
                 }
@@ -541,20 +592,20 @@ Again:
                     {
                         Log_Trace("last error = %d", error);
                         ioop->active = false;
-                        Call(ioop->onClose);
+                        UNLOCKED_CALL(ioop->onClose);
                     }
                 }
             }
         }
         timeout = 0;
-        //goto Again;
+        goto Again;
     }
     else
     {
         // no completion packet was dequeued
         error = GetLastError();
         if (error != WAIT_TIMEOUT)
-            Log_Trace("last error = %d", error);
+            Log_Errno();
 
         return true;
     }
@@ -595,6 +646,8 @@ void ProcessCompletionCallbacks()
     CallableItem*   item;
     CallableItem*   next;
 
+    mutex.Unlock();
+
     callableMutex.Lock();
     item = callableQueue.First();
     callableQueue.ClearMembers();
@@ -607,6 +660,8 @@ void ProcessCompletionCallbacks()
         delete item;
         item = next;
     }
+
+    mutex.Lock();
 }
 
 bool ProcessTCPRead(TCPRead* tcpread)
@@ -639,7 +694,7 @@ bool ProcessTCPRead(TCPRead* tcpread)
             if (error == WSAEWOULDBLOCK)
             {
                 tcpread->active = false; // otherwise Add() returns
-                IOProcessor::Add(tcpread);
+                UNLOCKED_ADD(tcpread);
             }
             else
                 callable = tcpread->onClose;
@@ -658,7 +713,7 @@ bool ProcessTCPRead(TCPRead* tcpread)
     if (callable.IsSet())
     {
         tcpread->active = false;
-        Call(callable);
+        UNLOCKED_CALL(callable);
     }
 
     return true;
@@ -686,7 +741,7 @@ bool ProcessUDPRead(UDPRead* udpread)
         if (error == WSAEWOULDBLOCK)
         {
             udpread->active = false; // otherwise Add() returns
-            IOProcessor::Add(udpread);
+            UNLOCKED_ADD(udpread);
         }
         else
             callable = udpread->onClose;
@@ -704,7 +759,7 @@ bool ProcessUDPRead(UDPRead* udpread)
     if (callable.IsSet())
     {
         udpread->active = false;
-        Call(callable);
+        UNLOCKED_CALL(callable);
     }
 
     return true;
@@ -738,7 +793,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
             if (error == WSAEWOULDBLOCK)
             {
                 tcpwrite->active = false; // otherwise Add() returns
-                IOProcessor::Add(tcpwrite);
+                UNLOCKED_ADD(tcpwrite);
             }
             else
                 callable = tcpwrite->onClose;
@@ -754,7 +809,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
             else
             {
                 tcpwrite->active = false; // otherwise Add() returns
-                IOProcessor::Add(tcpwrite);
+                UNLOCKED_ADD(tcpwrite);
             }
         }
     }
@@ -762,7 +817,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
     if (callable.IsSet())
     {
         tcpwrite->active = false;
-        Call(callable);
+        UNLOCKED_CALL(callable);
     }
 
     return true;

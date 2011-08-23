@@ -76,12 +76,12 @@ var scaliendb =
 
 	findMaster: function(onFindMaster)
 	{ 
-		this.json.rpc(scaliendb.controller, onFindMaster, scaliendb.onDisconnect, "getmasterhttp");
+		this.json.rpc(scaliendb.controller, onFindMaster, scaliendb.onDisconnect, "getMasterHttp");
 	},
 	
 	getConfigState: function(onConfigState)
 	{ 
-		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "getconfigstate");
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "getConfigState");
 	},
 
 	pollConfigState: function(onConfigState, paxosID, changeTimeout)
@@ -89,7 +89,7 @@ var scaliendb =
 		var params = {};
 		params["paxosID"] = paxosID;
 		params["changeTimeout"] = changeTimeout;
-		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "pollconfigstate", params);
+		this.json.rpc(scaliendb.controller, onConfigState, scaliendb.onDisconnect, "pollConfigState", params);
 	},
 
 	getTable: function(configState, tableID)
@@ -127,13 +127,20 @@ var scaliendb =
 		
 		return null;
 	},
+
+	unregisterShardServer: function(nodeID)
+	{                                                                                 
+		var params = {};
+		params["nodeID"] = nodeID;
+		this.rpc("unregisterShardserver", params);
+	},
 	
 	createQuorum: function(name, nodes)
 	{                                                                                 
 		var params = {};
 		params["name"] = name;
 		params["nodes"] = nodes;
-		this.rpc("createquorum", params);
+		this.rpc("createQuorum", params);
 	},
 
 	renameQuorum: function(quorumID, name)
@@ -141,14 +148,14 @@ var scaliendb =
 		var params = {};
 		params["quorumID"] = quorumID;
 		params["name"] = name;
-		this.rpc("renamequorum", params);
+		this.rpc("renameQuorum", params);
 	},
 
 	deleteQuorum: function(quorumID)
 	{                                                                                 
 		var params = {};
 		params["quorumID"] = quorumID;
-		this.rpc("deletequorum", params);
+		this.rpc("deleteQuorum", params);
 	},
 
 	addNode: function(quorumID, nodeID)
@@ -156,7 +163,7 @@ var scaliendb =
 		var params = {};
 		params["quorumID"] = quorumID;
 		params["nodeID"] = nodeID;
-		this.rpc("addnode", params);
+		this.rpc("addShardserverToQuorum", params);
 	},
 
 	removeNode: function(quorumID, nodeID)
@@ -164,7 +171,7 @@ var scaliendb =
 		var params = {};
 		params["quorumID"] = quorumID;
 		params["nodeID"] = nodeID;
-		this.rpc("removenode", params);
+		this.rpc("removeShardserverFromQuorum", params);
 	},
 
 	activateNode: function(quorumID, nodeID)
@@ -172,21 +179,21 @@ var scaliendb =
 		var params = {};
 		params["quorumID"] = quorumID;
 		params["nodeID"] = nodeID;
-		this.rpc("activatenode", params);
+		this.rpc("activateShardServer", params);
 	},
 
 	createDatabase: function(name)
 	{ 
 		var params = {};
 		params["name"] = name;
-		this.rpc("createdatabase", params);
+		this.rpc("createDatabase", params);
 	},
 
 	deleteDatabase: function(name)
 	{ 
 		var params = {};
 		params["name"] = name;
-		this.rpc("deletedatabase", params);
+		this.rpc("deleteDatabase", params);
 	},
 	
 	renameDatabase: function(databaseID, name)
@@ -194,14 +201,14 @@ var scaliendb =
 		var params = {};
 		params["databaseID"] = databaseID;
 		params["name"] = name;
-		this.rpc("renamedatabase", params);
+		this.rpc("renameDatabase", params);
 	},
 	
 	deleteDatabase: function(databaseID)
 	{ 
 		var params = {};
 		params["databaseID"] = databaseID;
-		this.rpc("deletedatabase", params);
+		this.rpc("deleteDatabase", params);
 	},
 		
 	createTable: function(databaseID, quorumID, name)
@@ -210,7 +217,7 @@ var scaliendb =
 		params["databaseID"] = databaseID;
 		params["quorumID"] = quorumID;
 		params["name"] = name;
-		this.rpc("createtable", params);
+		this.rpc("createTable", params);
 	},
 
 	renameTable: function(tableID, name)
@@ -218,35 +225,35 @@ var scaliendb =
 		var params = {};
 		params["tableID"] = tableID;
 		params["name"] = name;
-		this.rpc("renametable", params);
+		this.rpc("renameTable", params);
 	},
 
 	deleteTable: function(tableID)
 	{
 		var params = {};
 		params["tableID"] = tableID;
-		this.rpc("deletetable", params);
+		this.rpc("deleteTable", params);
 	},
 
 	truncateTable: function(tableID)
 	{
 		var params = {};
 		params["tableID"] = tableID;
-		this.rpc("truncatetable", params);
+		this.rpc("truncateTable", params);
 	},
 
 	freezeTable: function(tableID)
 	{
 		var params = {};
 		params["tableID"] = tableID;
-		this.rpc("freezetable", params);
+		this.rpc("freezeTable", params);
 	},
 
 	unfreezeTable: function(tableID)
 	{
 		var params = {};
 		params["tableID"] = tableID;
-		this.rpc("unfreezetable", params);
+		this.rpc("unfreezeTable", params);
 	},
 
 	splitShard: function(shardID, key)
@@ -254,7 +261,7 @@ var scaliendb =
 		var params = {};
 		params["shardID"] = shardID;
 		params["key"] = key;
-		this.rpc("splitshard", params);
+		this.rpc("splitShard", params);
 	},
 
 	migrateShard: function(shardID, quorumID)
@@ -262,7 +269,7 @@ var scaliendb =
 		var params = {};
 		params["shardID"] = shardID;
 		params["quorumID"] = quorumID;
-		this.rpc("migrateshard", params);
+		this.rpc("migrateShard", params);
 	},
 	
 	showResult: function(data)

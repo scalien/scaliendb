@@ -447,7 +447,7 @@ void ConfigHTTPClientSession::PrintConfigState()
     session.Flush();
 }
 
-void ConfigHTTPClientSession::ProcessActivateNode()
+void ConfigHTTPClientSession::ProcessActivateShardServer()
 {
     uint64_t    nodeID;    
     ReadBuffer  rb;
@@ -498,14 +498,14 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
         PrintStatus();
         return true;
     }
-    if (HTTP_MATCH_COMMAND(cmd, "getconfigstate"))
+    if (HTTP_MATCH_COMMAND(cmd, "getConfigState"))
     {
         PrintConfigState();
         return true;
     }
-    if (HTTP_MATCH_COMMAND(cmd, "activatenode"))
+    if (HTTP_MATCH_COMMAND(cmd, "activateShardserver"))
     {
-        ProcessActivateNode();
+        ProcessActivateShardServer();
         return true;
     }
     if (HTTP_MATCH_COMMAND(cmd, "settings"))
@@ -526,45 +526,47 @@ bool ConfigHTTPClientSession::ProcessCommand(ReadBuffer& cmd)
 
 ClientRequest* ConfigHTTPClientSession::ProcessConfigCommand(ReadBuffer& cmd)
 {
-    if (HTTP_MATCH_COMMAND(cmd, "getmaster"))
+    if (HTTP_MATCH_COMMAND(cmd, "getMaster"))
         return ProcessGetMaster();
-    if (HTTP_MATCH_COMMAND(cmd, "getmasterhttp"))
+    if (HTTP_MATCH_COMMAND(cmd, "getMasterHttp"))
         return ProcessGetMasterHTTP();
-    if (HTTP_MATCH_COMMAND(cmd, "getstate"))
+    if (HTTP_MATCH_COMMAND(cmd, "getState"))
         return ProcessGetState();
-    if (HTTP_MATCH_COMMAND(cmd, "pollconfigstate"))
+    if (HTTP_MATCH_COMMAND(cmd, "pollConfigState"))
         return ProcessPollConfigState();
-    if (HTTP_MATCH_COMMAND(cmd, "createquorum"))
+    if (HTTP_MATCH_COMMAND(cmd, "unregisterShardserver"))
+        return ProcessUnregisterShardServer();
+    if (HTTP_MATCH_COMMAND(cmd, "createQuorum"))
         return ProcessCreateQuorum();
-    if (HTTP_MATCH_COMMAND(cmd, "renamequorum"))
+    if (HTTP_MATCH_COMMAND(cmd, "renameQuorum"))
         return ProcessRenameQuorum();
-    if (HTTP_MATCH_COMMAND(cmd, "deletequorum"))
+    if (HTTP_MATCH_COMMAND(cmd, "deleteQuorum"))
         return ProcessDeleteQuorum();
-    if (HTTP_MATCH_COMMAND(cmd, "addnode"))
-        return ProcessAddNode();
-    if (HTTP_MATCH_COMMAND(cmd, "removenode"))
-        return ProcessRemoveNode();
-    if (HTTP_MATCH_COMMAND(cmd, "createdatabase"))
+    if (HTTP_MATCH_COMMAND(cmd, "addShardserverToQuorum"))
+        return ProcessAddShardServerToQuorum();
+    if (HTTP_MATCH_COMMAND(cmd, "removeShardserverFromQuorum"))
+        return ProcessRemoveShardServerFromQuorum();
+    if (HTTP_MATCH_COMMAND(cmd, "createDatabase"))
         return ProcessCreateDatabase();
-    if (HTTP_MATCH_COMMAND(cmd, "renamedatabase"))
+    if (HTTP_MATCH_COMMAND(cmd, "renameDatabase"))
         return ProcessRenameDatabase();
-    if (HTTP_MATCH_COMMAND(cmd, "deletedatabase"))
+    if (HTTP_MATCH_COMMAND(cmd, "deleteDatabase"))
         return ProcessDeleteDatabase();
-    if (HTTP_MATCH_COMMAND(cmd, "createtable"))
+    if (HTTP_MATCH_COMMAND(cmd, "createTable"))
         return ProcessCreateTable();
-    if (HTTP_MATCH_COMMAND(cmd, "renametable"))
+    if (HTTP_MATCH_COMMAND(cmd, "renameTable"))
         return ProcessRenameTable();
-    if (HTTP_MATCH_COMMAND(cmd, "deletetable"))
+    if (HTTP_MATCH_COMMAND(cmd, "deleteTable"))
         return ProcessDeleteTable();
-    if (HTTP_MATCH_COMMAND(cmd, "truncatetable"))
+    if (HTTP_MATCH_COMMAND(cmd, "truncateTable"))
         return ProcessTruncateTable();    
-    if (HTTP_MATCH_COMMAND(cmd, "freezetable"))
+    if (HTTP_MATCH_COMMAND(cmd, "freezeTable"))
         return ProcessFreezeTable();    
-    if (HTTP_MATCH_COMMAND(cmd, "unfreezetable"))
+    if (HTTP_MATCH_COMMAND(cmd, "unfreezeTable"))
         return ProcessUnfreezeTable();    
-    if (HTTP_MATCH_COMMAND(cmd, "splitshard"))
+    if (HTTP_MATCH_COMMAND(cmd, "splitShard"))
         return ProcessSplitShard();
-    if (HTTP_MATCH_COMMAND(cmd, "migrateshard"))
+    if (HTTP_MATCH_COMMAND(cmd, "migrateShard"))
         return ProcessMigrateShard();
     
     return NULL;
@@ -612,6 +614,19 @@ ClientRequest* ConfigHTTPClientSession::ProcessPollConfigState()
 
     HTTP_GET_OPT_U64_PARAM(params, "paxosID", request->paxosID);
     HTTP_GET_OPT_U64_PARAM(params, "changeTimeout", request->changeTimeout);
+    
+    return request;
+}
+
+ClientRequest* ConfigHTTPClientSession::ProcessUnregisterShardServer()
+{
+    ClientRequest*  request;
+    uint64_t        nodeID;
+    
+    HTTP_GET_OPT_U64_PARAM(params, "nodeID", nodeID);
+
+    request = new ClientRequest;
+    request->UnregisterShardServer(0, nodeID);
     
     return request;
 }
@@ -678,7 +693,7 @@ ClientRequest* ConfigHTTPClientSession::ProcessDeleteQuorum()
     return request;
 }
 
-ClientRequest* ConfigHTTPClientSession::ProcessAddNode()
+ClientRequest* ConfigHTTPClientSession::ProcessAddShardServerToQuorum()
 {
     ClientRequest*  request;
     uint64_t        quorumID;
@@ -688,12 +703,12 @@ ClientRequest* ConfigHTTPClientSession::ProcessAddNode()
     HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
 
     request = new ClientRequest;
-    request->AddNode(0, quorumID, nodeID);
+    request->AddShardServerToQuorum(0, quorumID, nodeID);
 
     return request;
 }
 
-ClientRequest* ConfigHTTPClientSession::ProcessRemoveNode()
+ClientRequest* ConfigHTTPClientSession::ProcessRemoveShardServerFromQuorum()
 {
     ClientRequest*  request;
     uint64_t        quorumID;
@@ -703,7 +718,7 @@ ClientRequest* ConfigHTTPClientSession::ProcessRemoveNode()
     HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
 
     request = new ClientRequest;
-    request->RemoveNode(0, quorumID, nodeID);
+    request->RemoveShardServerFromQuorum(0, quorumID, nodeID);
 
     return request;
 }

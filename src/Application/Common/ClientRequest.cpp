@@ -40,25 +40,26 @@ void ClientRequest::OnComplete(bool last)
 
 bool ClientRequest::IsControllerRequest()
 {
-    if (type == CLIENTREQUEST_GET_MASTER        ||
-        type == CLIENTREQUEST_GET_MASTER_HTTP   ||
-        type == CLIENTREQUEST_GET_CONFIG_STATE  ||
-        type == CLIENTREQUEST_CREATE_QUORUM     ||
-        type == CLIENTREQUEST_RENAME_QUORUM     ||
-        type == CLIENTREQUEST_DELETE_QUORUM     ||
-        type == CLIENTREQUEST_ADD_NODE          ||
-        type == CLIENTREQUEST_REMOVE_NODE       ||
-        type == CLIENTREQUEST_ACTIVATE_NODE     ||
-        type == CLIENTREQUEST_CREATE_DATABASE   ||
-        type == CLIENTREQUEST_RENAME_DATABASE   ||
-        type == CLIENTREQUEST_DELETE_DATABASE   ||
-        type == CLIENTREQUEST_CREATE_TABLE      ||
-        type == CLIENTREQUEST_RENAME_TABLE      ||
-        type == CLIENTREQUEST_DELETE_TABLE      ||
-        type == CLIENTREQUEST_TRUNCATE_TABLE    ||
-        type == CLIENTREQUEST_FREEZE_TABLE      ||
-        type == CLIENTREQUEST_UNFREEZE_TABLE    ||
-        type == CLIENTREQUEST_SPLIT_SHARD       ||
+    if (type == CLIENTREQUEST_GET_MASTER                        ||
+        type == CLIENTREQUEST_GET_MASTER_HTTP                   ||
+        type == CLIENTREQUEST_GET_CONFIG_STATE                  ||
+        type == CLIENTREQUEST_UNREGISTER_SHARDSERVER            ||
+        type == CLIENTREQUEST_CREATE_QUORUM                     ||
+        type == CLIENTREQUEST_RENAME_QUORUM                     ||
+        type == CLIENTREQUEST_DELETE_QUORUM                     ||
+        type == CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM         ||
+        type == CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM    ||
+        type == CLIENTREQUEST_ACTIVATE_SHARDSERVER              ||
+        type == CLIENTREQUEST_CREATE_DATABASE                   ||
+        type == CLIENTREQUEST_RENAME_DATABASE                   ||
+        type == CLIENTREQUEST_DELETE_DATABASE                   ||
+        type == CLIENTREQUEST_CREATE_TABLE                      ||
+        type == CLIENTREQUEST_RENAME_TABLE                      ||
+        type == CLIENTREQUEST_DELETE_TABLE                      ||
+        type == CLIENTREQUEST_TRUNCATE_TABLE                    ||
+        type == CLIENTREQUEST_FREEZE_TABLE                      ||
+        type == CLIENTREQUEST_UNFREEZE_TABLE                    ||
+        type == CLIENTREQUEST_SPLIT_SHARD                       ||
         type == CLIENTREQUEST_MIGRATE_SHARD)
             return true;
 
@@ -132,6 +133,14 @@ bool ClientRequest::GetConfigState(uint64_t commandID_, uint64_t changeTimeout_)
     return true;
 }
 
+bool ClientRequest::UnregisterShardServer(uint64_t commandID_, uint64_t nodeID_)
+{
+    type = CLIENTREQUEST_UNREGISTER_SHARDSERVER;
+    commandID = commandID_;
+    nodeID = nodeID_;
+    return true;
+}
+
 bool ClientRequest::CreateQuorum(uint64_t commandID_, ReadBuffer& name_, List<uint64_t>& nodes_)
 {
     type = CLIENTREQUEST_CREATE_QUORUM;
@@ -158,27 +167,27 @@ bool ClientRequest::DeleteQuorum(uint64_t commandID_, uint64_t quorumID_)
     return true;
 }
 
-bool ClientRequest::AddNode(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_)
+bool ClientRequest::AddShardServerToQuorum(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_)
 {
-    type = CLIENTREQUEST_ADD_NODE;
+    type = CLIENTREQUEST_ADD_SHARDSERVER_TO_QUORUM;
     commandID = commandID_;
     quorumID = quorumID_;
     nodeID = nodeID_;
     return true;
 }
 
-bool ClientRequest::RemoveNode(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_)
+bool ClientRequest::RemoveShardServerFromQuorum(uint64_t commandID_, uint64_t quorumID_, uint64_t nodeID_)
 {
-    type = CLIENTREQUEST_REMOVE_NODE;
+    type = CLIENTREQUEST_REMOVE_SHARDSERVER_FROM_QUORUM;
     commandID = commandID_;
     quorumID = quorumID_;
     nodeID = nodeID_;
     return true;
 }
 
-bool ClientRequest::ActivateNode(uint64_t commandID_, uint64_t nodeID_)
+bool ClientRequest::ActivateShardServer(uint64_t commandID_, uint64_t nodeID_)
 {
-    type = CLIENTREQUEST_ACTIVATE_NODE;
+    type = CLIENTREQUEST_ACTIVATE_SHARDSERVER;
     commandID = commandID_;
     nodeID = nodeID_;
     return true;

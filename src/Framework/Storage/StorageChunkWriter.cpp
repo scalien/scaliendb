@@ -29,7 +29,7 @@ bool StorageChunkWriter::Write(StorageEnvironment* env_, StorageFileChunk* file_
             return false;
     }
 
-    FS_Sync(fd.GetFD());
+    StorageEnvironment::Sync(fd.GetFD());
 
     fd.Close();
 

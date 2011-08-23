@@ -425,6 +425,18 @@
 					>
 				</File>
 				<File
+					RelativePath="..\src\System\Threading\Signal.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Signal_Posix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Signal_Windows.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\src\System\Threading\ThreadPool.h"
 					>
 				</File>

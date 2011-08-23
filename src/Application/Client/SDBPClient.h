@@ -8,6 +8,7 @@
 #include "System/Containers/HashMap.h"
 #include "System/Events/Countdown.h"
 #include "System/Threading/Mutex.h"
+#include "System/Threading/Signal.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/ConfigState/ConfigState.h"
 #include "SDBPShardConnection.h"
@@ -148,6 +149,8 @@ private:
     
     void                    ComputeListResponse();
     uint64_t                NumProxiedDeletes(Request* request);
+    void                    TryWake();
+    void                    IOThreadFunc();
     
     int64_t                 master;
     uint64_t                commandID;
@@ -173,7 +176,8 @@ private:
     int						batchMode;
     uint64_t                highestSeenPaxosID;
 
-//#ifdef CLIENT_MULTITHREAD    
+//#ifdef CLIENT_MULTITHREAD
+    Signal                  isDone;
     Mutex                   mutex;
     Buffer                  mutexName;
     void                    Lock();

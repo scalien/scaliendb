@@ -16,10 +16,39 @@
 #include "System/Log.h"
 #include "System/Time.h"
 #include "System/Events/EventLoop.h"
+#include "System/Threading/Mutex.h"
 
 // see http://wiki.netbsd.se/index.php/kqueue_tutorial
 
 #define MAX_KEVENTS     1024
+
+#ifdef IOPROCESSOR_MULTITHREADED
+
+#define UNLOCKED_CALL(callable)     \
+do                                  \
+{                                   \
+    mutex.Unlock();                 \
+    Call(callable);                 \
+    mutex.Lock();                   \
+} while (0)
+
+#define UNLOCKED_ADD(ioop)          \
+do                                  \
+{                                   \
+    mutex.Unlock();                 \
+    IOProcessor::Add(ioop);         \
+    mutex.Lock();                   \
+} while (0)
+
+#else // IOPROCESSOR_MULTITHREADED
+
+#define UNLOCKED_CALL(callable)     \
+    Call(callable)
+
+#define UNLOCKED_ADD(ioop)          \
+    IOProcessor::Add(ioop)
+
+#endif // IOPROCESSOR_MULTITHREADED
 
 static int              kq = 0;         // the kqueue
 static int              asyncOpPipe[2];
@@ -29,6 +58,7 @@ static int              numOps;
 static volatile bool    terminated;
 static volatile int     numClient = 0;
 static IOProcessorStat  iostat;
+static Mutex            mutex;
 
 static bool AddKq(int ident, short filter, IOOperation* ioop);
 static void ProcessAsyncOp();
@@ -226,6 +256,10 @@ bool IOProcessor::Add(IOOperation* ioop)
     if (ioop->pending)
         return true;
     
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard guard(mutex);
+#endif
+    
     if (ioop->type == IOOperation::TCP_READ
      || ioop->type == IOOperation::UDP_READ)
     {
@@ -278,7 +312,11 @@ bool IOProcessor::Remove(IOOperation* ioop)
 
     if (!ioop->active)
         return true;
-        
+
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard guard(mutex);
+#endif
+
     if (ioop->pending)
     {
         if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
@@ -326,7 +364,6 @@ bool IOProcessor::Remove(IOOperation* ioop)
     return true;
 }
 
-#include "System/Threading/ThreadPool.h"
 bool IOProcessor::Poll(int sleep)
 {
     int                     i, nevents;
@@ -340,15 +377,11 @@ bool IOProcessor::Poll(int sleep)
     timeout.tv_sec = (time_t) floor(sleep / 1000.0);
     timeout.tv_nsec = (sleep - 1000 * timeout.tv_sec) * 1000000;
     
-    Log_Trace("threadID: %U, sleep: %d", ThreadPool::GetThreadID(), sleep);
-
     startTime = EventLoop::Now();
     nevents = kevent(kq, NULL, 0, events, SIZE(events), &timeout);
     EventLoop::UpdateTime();
     iostat.lastPollTime = EventLoop::Now();
     iostat.totalPollTime += iostat.lastPollTime - startTime;
-
-    Log_Trace("threadID: %U, sleep: %d, nevents: %d", ThreadPool::GetThreadID(), sleep, nevents);
 
     if (nevents < 0 || terminated)
     {
@@ -359,6 +392,10 @@ bool IOProcessor::Poll(int sleep)
         else
             return true;
     }
+    
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard guard(mutex);
+#endif
         
     iostat.lastNumEvents = (unsigned) nevents;
     iostat.totalNumEvents += nevents;
@@ -463,8 +500,11 @@ void ProcessAsyncOp()
         nread = read(asyncOpPipe[0], callables, SIZE(callables));
         count = nread / sizeof(Callable);
         
+        // TODO: optimization: unlock before for-loop and lock after it only once
         for (i = 0; i < count; i++)
-            Call(callables[i]);
+        {
+            UNLOCKED_CALL(callables[i]);
+        }
         
         if (count < (int) SIZE(callables))
             break;
@@ -483,7 +523,7 @@ void ProcessTCPRead(struct kevent* ev)
 
     if (tcpread->listening)
     {
-        Call(tcpread->onComplete);
+        UNLOCKED_CALL(tcpread->onComplete);
     }
     else
     {
@@ -501,7 +541,7 @@ void ProcessTCPRead(struct kevent* ev)
             if (nread < 0)
             {
                 if (errno == EWOULDBLOCK || errno == EAGAIN)
-                    IOProcessor::Add(tcpread);
+                    UNLOCKED_ADD(tcpread);
                 else if (!(ev->flags & EV_EOF))
                     Log_Errno();
             }
@@ -511,13 +551,13 @@ void ProcessTCPRead(struct kevent* ev)
                 tcpread->buffer->Lengthen(nread);
                 if (tcpread->requested == IO_READ_ANY ||
                 (int) tcpread->buffer->GetLength() == tcpread->requested)
-                    Call(tcpread->onComplete);
+                    UNLOCKED_CALL(tcpread->onComplete);
                 else
-                    IOProcessor::Add(tcpread);
+                    UNLOCKED_ADD(tcpread);
             }
         }
         else if (ev->flags & EV_EOF)
-            Call(tcpread->onClose);
+            UNLOCKED_CALL(tcpread->onClose);
     }
 }
 
@@ -533,16 +573,16 @@ void ProcessTCPWrite(struct kevent* ev)
     
     if (ev->flags & EV_EOF)
     {
-        Call(tcpwrite->onClose);
+        UNLOCKED_CALL(tcpwrite->onClose);
         return;
     }
     
     if (tcpwrite->buffer == NULL)
     {
         if (ev->flags & EV_EOF)
-            Call(tcpwrite->onClose);
+            UNLOCKED_CALL(tcpwrite->onClose);
         else
-            Call(tcpwrite->onComplete);
+            UNLOCKED_CALL(tcpwrite->onComplete);
 
         return;
     }
@@ -559,7 +599,7 @@ void ProcessTCPWrite(struct kevent* ev)
         if (nwrite < 0)
         {
             if (errno == EWOULDBLOCK || errno == EAGAIN)
-                IOProcessor::Add(tcpwrite);
+                UNLOCKED_ADD(tcpwrite);
             else if (!(ev->flags & EV_EOF))
                 Log_Errno();
         }
@@ -568,9 +608,9 @@ void ProcessTCPWrite(struct kevent* ev)
             iostat.numTCPBytesSent += nwrite;
             tcpwrite->transferred += nwrite;
             if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
-                Call(tcpwrite->onComplete);
+                UNLOCKED_CALL(tcpwrite->onComplete);
             else
-                IOProcessor::Add(tcpwrite);
+                UNLOCKED_ADD(tcpwrite);
         }
     }
 }
@@ -594,7 +634,7 @@ void ProcessUDPRead(struct kevent* ev)
     if (nread < 0)
     {
         if (errno == EWOULDBLOCK || errno == EAGAIN)
-            IOProcessor::Add(udpread); // try again
+            UNLOCKED_ADD(udpread); // try again
         else
             Log_Errno();
     }
@@ -602,11 +642,11 @@ void ProcessUDPRead(struct kevent* ev)
     {
         iostat.numUDPBytesReceived += nread;
         udpread->buffer->SetLength(nread);
-        Call(udpread->onComplete);
+        UNLOCKED_CALL(udpread->onComplete);
     }
                     
     if (ev->flags & EV_EOF)
-        Call(udpread->onClose);
+        UNLOCKED_CALL(udpread->onClose);
 }
 
 void ProcessUDPWrite(struct kevent* ev)
@@ -629,7 +669,7 @@ void ProcessUDPWrite(struct kevent* ev)
         if (nwrite < 0)
         {
             if (errno == EWOULDBLOCK || errno == EAGAIN)
-                IOProcessor::Add(udpwrite); // try again
+                UNLOCKED_ADD(udpwrite); // try again
             else
                 Log_Errno();
         }
@@ -638,18 +678,18 @@ void ProcessUDPWrite(struct kevent* ev)
             iostat.numUDPBytesSent += nwrite;
             if (nwrite == (int) udpwrite->buffer->GetLength())
             {
-                Call(udpwrite->onComplete);
+                UNLOCKED_CALL(udpwrite->onComplete);
             }
             else
             {
                 Log_Trace("sendto() datagram fragmentation");
-                IOProcessor::Add(udpwrite); // try again
+                UNLOCKED_ADD(udpwrite); // try again
             }
         }
     }
     
     if (ev->flags & EV_EOF)
-        Call(udpwrite->onClose);
+        UNLOCKED_CALL(udpwrite->onClose);
 }
 
 void IOProcessor::GetStats(IOProcessorStat* stat_)

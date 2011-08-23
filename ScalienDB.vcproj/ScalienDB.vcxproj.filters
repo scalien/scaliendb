@@ -1,0 +1,1022 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="System">
+      <UniqueIdentifier>{dd0aaf6f-5ff1-4213-af5d-6ab75104da32}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Buffers">
+      <UniqueIdentifier>{2fe43e52-256e-4f2f-8216-6346da770d45}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Containers">
+      <UniqueIdentifier>{d8bf099b-c1ce-40e8-8d7d-f31bcc7c4cb2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Events">
+      <UniqueIdentifier>{c22a1d35-313c-4adf-a981-fdd4acd69226}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\IO">
+      <UniqueIdentifier>{35401a90-846c-4d55-933b-119ee6c2d182}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="System\Threading">
+      <UniqueIdentifier>{5898d01d-6a3a-4c3c-ab89-8e90a03abc6e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application">
+      <UniqueIdentifier>{9b726ee4-2de1-4260-8ea2-66bccd5d65f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Client">
+      <UniqueIdentifier>{30bc6f78-20d2-4c66-95dc-cb9bed9ed3a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\Common">
+      <UniqueIdentifier>{c3512335-af50-494d-bc5c-56d07a494953}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ConfigState">
+      <UniqueIdentifier>{c0f147b3-bf49-47b1-8dbc-6981dacfac97}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ConfigServer">
+      <UniqueIdentifier>{8c1e77e8-e253-4d43-83c5-3d074bb5217c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\HTTP">
+      <UniqueIdentifier>{518fa241-66a7-4c1f-931b-e397fb40692a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\SDBP">
+      <UniqueIdentifier>{d506d491-ed40-4603-8a52-10391353e96e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Application\ShardServer">
+      <UniqueIdentifier>{7351f6ca-0e06-4fe6-8df2-1ffaa62b0c99}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework">
+      <UniqueIdentifier>{b5e570cc-4224-4a77-a017-c6a1441e6de5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Clustering">
+      <UniqueIdentifier>{87836d39-390e-4762-a841-a06e3592efef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Messaging">
+      <UniqueIdentifier>{cd539919-ac2a-447d-93b6-b4a1e7b03c18}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Replication">
+      <UniqueIdentifier>{cc9d5056-1a31-4a9e-baf2-ddd27fc264f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Replication\Paxos">
+      <UniqueIdentifier>{e68476bd-547e-4d03-bbe3-efc8b7434cb4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Replication\Paxos\States">
+      <UniqueIdentifier>{92b404c0-3149-4f20-b352-24440db2b28c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Replication\PaxosLease">
+      <UniqueIdentifier>{f50487f6-94ec-4d73-912f-dab767c887a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Replication\PaxosLease\States">
+      <UniqueIdentifier>{c66472d0-fa66-409d-b052-a2fb128c43ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Replication\Quorums">
+      <UniqueIdentifier>{99b5d4ed-de9e-404f-8e90-90da3ee7f60a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Replication\ReplicatedLog">
+      <UniqueIdentifier>{a3ae0c06-b675-4e0e-bd2f-be6dcaa2a8e4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\TCP">
+      <UniqueIdentifier>{a3aaad86-2fd8-4cee-a636-c80d6f71102f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Framework\Storage">
+      <UniqueIdentifier>{57bf3195-21fe-4988-8cea-5a624c1e4511}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\System\Common.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Config.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\FileSystem.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Formatting.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Log.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Stopwatch.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Time.cpp">
+      <Filter>System</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Buffers\Buffer.cpp">
+      <Filter>System\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Buffers\ReadBuffer.cpp">
+      <Filter>System\Buffers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Events\Countdown.cpp">
+      <Filter>System\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Events\EventLoop.cpp">
+      <Filter>System\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Events\Scheduler.cpp">
+      <Filter>System\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Events\Timer.cpp">
+      <Filter>System\Events</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\Endpoint.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\IOProcessor_Darwin.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\IOProcessor_Linux.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\IOProcessor_Windows.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\Socket_Posix.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\IO\Socket_Windows.cpp">
+      <Filter>System\IO</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\JobProcessor.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\Mutex_Posix.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\Mutex_Windows.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\ThreadPool_Posix.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\ThreadPool_Windows.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPClient.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPClientRequest.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPClientWrapper.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPControllerConnection.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPResult.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\CatchupMessage.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientRequest.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientRequestCache.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClientResponse.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ClusterMessage.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Common\ContextTransport.cpp">
+      <Filter>Application\Common</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigController.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigDatabase.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigQuorum.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigShard.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigShardServer.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigState.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigState\ConfigTable.cpp">
+      <Filter>Application\ConfigState</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigActivationManager.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigDatabaseManager.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigHeartbeatManager.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigHTTPClientSession.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigHTTPHandler.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigMessage.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigPrimaryLeaseManager.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigQuorumContext.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigQuorumProcessor.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigServer.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\ConfigServerApp.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ConfigServer\JSONConfigState.cpp">
+      <Filter>Application\ConfigServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPConnection.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPFileHandler.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPRequest.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPServer.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPSession.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\IMF.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\JSONBufferWriter.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\JSONSession.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\Mime.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\UrlParam.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\SDBP\SDBPConnection.cpp">
+      <Filter>Application\SDBP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\SDBP\SDBPRequestMessage.cpp">
+      <Filter>Application\SDBP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\SDBP\SDBPResponseMessage.cpp">
+      <Filter>Application\SDBP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\SDBP\SDBPServer.cpp">
+      <Filter>Application\SDBP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardCatchupReader.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardCatchupWriter.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardDatabaseManager.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardHeartbeatManager.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardHTTPClientSession.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardHTTPHandler.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardMessage.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardMigrationWriter.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardQuorumContext.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardQuorumProcessor.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardServer.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardServerApp.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Clustering\ClusterConnection.cpp">
+      <Filter>Framework\Clustering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Clustering\ClusterServer.cpp">
+      <Filter>Framework\Clustering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Clustering\ClusterTransport.cpp">
+      <Filter>Framework\Clustering</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Messaging\MessageConnection.cpp">
+      <Filter>Framework\Messaging</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\ReplicationConfig.cpp">
+      <Filter>Framework\Replication</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\Paxos\PaxosAcceptor.cpp">
+      <Filter>Framework\Replication\Paxos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\Paxos\PaxosMessage.cpp">
+      <Filter>Framework\Replication\Paxos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\Paxos\PaxosProposer.cpp">
+      <Filter>Framework\Replication\Paxos</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLease.cpp">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseAcceptor.cpp">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseLearner.cpp">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseMessage.cpp">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseProposer.cpp">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\Quorums\MajorityQuorum.cpp">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\Quorums\QuorumDatabase.cpp">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\Quorums\QuorumTransport.cpp">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\Quorums\TotalQuorum.cpp">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Replication\ReplicatedLog\ReplicatedLog.cpp">
+      <Filter>Framework\Replication\ReplicatedLog</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\TCP\TCPConnection.cpp">
+      <Filter>Framework\TCP</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\BloomFilter.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\FDGuard.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageArchiveLogSegmentJob.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageAsyncBulkCursor.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageAsyncGet.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageAsyncList.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageBloomPage.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageBulkCursor.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageChunkMerger.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageChunkReader.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageChunkSerializer.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageChunkWriter.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageCommitJob.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageConfig.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageDataPage.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageDeleteFileChunkJob.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageDeleteMemoChunkJob.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageEnvironment.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageEnvironmentWriter.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageFileChunk.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageFileChunkLister.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageFileKeyValue.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageHeaderPage.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageIndexPage.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageLogSegment.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageMemoChunk.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageMemoChunkLister.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageMemoKeyValue.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageMergeChunkJob.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StoragePage.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StoragePageCache.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageRecovery.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageSerializeChunkJob.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageShard.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageShardProxy.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Framework\Storage\StorageWriteChunkJob.cpp">
+      <Filter>Framework\Storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Main.cpp" />
+    <ClCompile Include="..\src\System\Threading\Signal_Posix.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\System\Common.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Config.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\FileSystem.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Formatting.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Log.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Macros.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Platform.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Stopwatch.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Time.h">
+      <Filter>System</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Buffers\Buffer.h">
+      <Filter>System\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Buffers\ReadBuffer.h">
+      <Filter>System\Buffers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\ArrayList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\HashMap.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InCache.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InPriorityQueue.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InQueue.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InSortedList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InTreeMap.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\InTreeMap2.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\List.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Containers\SortedList.h">
+      <Filter>System\Containers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Callable.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Countdown.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Deferred.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\EventLoop.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Scheduler.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Events\Timer.h">
+      <Filter>System\Events</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\Endpoint.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\FD.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\IOOperation.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\IOProcessor.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\IO\Socket.h">
+      <Filter>System\IO</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\Job.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\JobProcessor.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\Mutex.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\ThreadPool.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPClient.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPClientConsts.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPClientRequest.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPClientWrapper.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPControllerConnection.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPResult.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\Application.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\CatchupMessage.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClientRequest.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClientRequestCache.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClientResponse.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClientSession.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClusterContext.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ClusterMessage.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\ContextTransport.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Common\DatabaseConsts.h">
+      <Filter>Application\Common</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigController.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigDatabase.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigQuorum.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigShard.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigShardServer.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigState.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigState\ConfigTable.h">
+      <Filter>Application\ConfigState</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigActivationManager.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigDatabaseManager.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigHeartbeatManager.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigHTTPClientSession.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigHTTPHandler.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigMessage.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigPrimaryLeaseManager.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigQuorumContext.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigQuorumProcessor.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigServer.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\ConfigServerApp.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ConfigServer\JSONConfigState.h">
+      <Filter>Application\ConfigServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPConnection.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPConsts.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPFileHandler.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPHandler.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPRequest.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPServer.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPSession.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\IMF.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\JSONBufferWriter.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\JSONSession.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\Mime.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\UrlParam.h">
+      <Filter>Application\HTTP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPConnection.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPContext.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPRequestMessage.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPResponseMessage.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\SDBP\SDBPServer.h">
+      <Filter>Application\SDBP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardCatchupReader.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardCatchupWriter.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardDatabaseManager.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardHeartbeatManager.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardHTTPClientSession.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardHTTPHandler.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardMessage.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardMigrationWriter.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardQuorumContext.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardQuorumProcessor.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardServer.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardServerApp.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Clustering\ClusterConnection.h">
+      <Filter>Framework\Clustering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Clustering\ClusterServer.h">
+      <Filter>Framework\Clustering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Clustering\ClusterTransport.h">
+      <Filter>Framework\Clustering</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Messaging\Message.h">
+      <Filter>Framework\Messaging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Messaging\MessageConnection.h">
+      <Filter>Framework\Messaging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Messaging\MessageUtil.h">
+      <Filter>Framework\Messaging</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\ReplicationConfig.h">
+      <Filter>Framework\Replication</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Paxos\PaxosAcceptor.h">
+      <Filter>Framework\Replication\Paxos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Paxos\PaxosMessage.h">
+      <Filter>Framework\Replication\Paxos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Paxos\PaxosProposer.h">
+      <Filter>Framework\Replication\Paxos</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Paxos\States\PaxosAcceptorState.h">
+      <Filter>Framework\Replication\Paxos\States</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Paxos\States\PaxosProposerState.h">
+      <Filter>Framework\Replication\Paxos\States</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLease.h">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseAcceptor.h">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseLearner.h">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseMessage.h">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\PaxosLeaseProposer.h">
+      <Filter>Framework\Replication\PaxosLease</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\States\PaxosLeaseAcceptorState.h">
+      <Filter>Framework\Replication\PaxosLease\States</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\States\PaxosLeaseLearnerState.h">
+      <Filter>Framework\Replication\PaxosLease\States</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\PaxosLease\States\PaxosLeaseProposerState.h">
+      <Filter>Framework\Replication\PaxosLease\States</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Quorums\MajorityQuorum.h">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Quorums\Quorum.h">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Quorums\QuorumContext.h">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Quorums\QuorumDatabase.h">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Quorums\QuorumTransport.h">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\Quorums\TotalQuorum.h">
+      <Filter>Framework\Replication\Quorums</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Replication\ReplicatedLog\ReplicatedLog.h">
+      <Filter>Framework\Replication\ReplicatedLog</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\TCP\TCPConnection.h">
+      <Filter>Framework\TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\TCP\TCPServer.h">
+      <Filter>Framework\TCP</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\BloomFilter.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\FDGuard.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\PointerGuard.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageArchiveLogSegmentJob.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageAsyncBulkCursor.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageAsyncGet.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageAsyncList.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageBloomPage.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageBulkCursor.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageChunk.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkMerger.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkReader.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkSerializer.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageChunkWriter.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageCommitJob.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageConfig.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageDataPage.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageDeleteFileChunkJob.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageDeleteMemoChunkJob.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageEnvironment.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageEnvironmentWriter.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageFileChunk.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageFileChunkLister.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageFileKeyValue.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageHeaderPage.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageIndexPage.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageKeyValue.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageLogSegment.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageMemoChunk.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageMemoChunkLister.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageMemoKeyValue.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageMergeChunkJob.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StoragePage.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StoragePageCache.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageRecovery.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageSerializeChunkJob.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageShard.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageShardProxy.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageUnwrittenChunkLister.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Framework\Storage\StorageWriteChunkJob.h">
+      <Filter>Framework\Storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Version.h" />
+    <ClInclude Include="..\src\System\Threading\Signal.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

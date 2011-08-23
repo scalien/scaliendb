@@ -3,6 +3,7 @@ package com.scalien.scaliendb;
 /**
  * Sequence is a class for atomically retrieving unique integer IDs
  * using a key whose value stores the next ID as a piece of text.
+ * The first returned ID is 1.
  * <p>
  * ScalienDB is a key value store, so unique IDs have to be maintained
  * in a separate key in a seperate table. For example:
@@ -23,10 +24,10 @@ package com.scalien.scaliendb;
  * by the last <code>ADD</code> command, those will not be passed out, and there will
  * be a hole in the sequence. 
  * <p>
- * Use <code>Reset()</code> to reset the sequence to 0. This sets:
+ * Use <code>Reset()</code> to reset the sequence to 1. This sets:
  * <p>
  * <code>
- * key => 0
+ * key => 1
  * </code>
  * <p>
  * Example:
@@ -73,7 +74,7 @@ public class Sequence
     }
 
     /**
-     * Reset the sequence to 0. The next time getNext() is called, 0 will be returned.
+     * Reset the sequence to 1. The next time getNext() is called, 1 will be returned.
      * <p>
      * This sets:
      * <p>
@@ -83,9 +84,9 @@ public class Sequence
      */
      public void reset()  throws SDBPException {
             if (stringKey != null)
-                client.set(tableID, stringKey, "0");
+                client.delete(tableID, stringKey);
             else
-                client.set(tableID, byteKey, "0".getBytes());
+                client.delete(tableID, byteKey);
             num = 0;
     }
 

@@ -1,6 +1,23 @@
 #include "EventLoop.h"
 #include "System/Containers/ArrayList.h"
 
+#ifdef EVENTLOOP_MULTITHREADED
+
+#define UNLOCKED_EXECUTE(timer)                 \
+do                                              \
+{                                               \
+    mutex.Unlock();                             \
+    timer->Execute();                           \
+    mutex.Lock();                               \
+} while (0)
+
+#else // EVENTLOOP_MULTITHREADED
+
+#define UNLOCKED_EXECUTE(timer)                 \
+    timer->Execute()
+
+#endif // EVENTLOOP_MULTITHREADED
+
 static volatile uint64_t        now;
 static bool                     running;
 
@@ -10,6 +27,10 @@ long EventLoop::RunTimers()
     long    wait;
     
     wait = -1;
+
+#ifdef EVENTLOOP_MULTITHREADED
+    MutexGuard guard(mutex);
+#endif
 
     FOREACH (timer, timers)
         timer->ran = false;
@@ -25,8 +46,8 @@ long EventLoop::RunTimers()
                 wait = 0;
                 continue;
             }
-            Remove(timer);
-            timer->Execute();
+            UnprotectedRemove(timer);
+            UNLOCKED_EXECUTE(timer);
             timer->ran = true;
             timer = timers.First();
         }
@@ -79,7 +100,17 @@ void EventLoop::UpdateTime()
     now = ::Now();
 }
 
+void EventLoop::Start()
+{
+    running = true;
+}
+
 void EventLoop::Stop()
 {
     running = false;
+}
+
+bool EventLoop::IsRunning()
+{
+    return running;
 }

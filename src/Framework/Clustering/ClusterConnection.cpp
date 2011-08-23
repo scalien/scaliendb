@@ -100,6 +100,8 @@ void ClusterConnection::OnConnect()
     
     Log_Trace("Conn READY to node %U at %s", nodeID, endpoint.ToString());
 
+    transport->OnConnectionReady(nodeID, endpoint);
+
     if (nodeID != transport->GetSelfNodeID())
     {
         if (nodeID == UNDEFINED_NODEID)
@@ -206,7 +208,7 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
             Log_Message("[%R] Cluster invalid configuration, disconnecting...", &buffer);
             Log_Debug("mine: %U != controller %U", transport->GetClusterID(), otherClusterID);
             
-            transport->DeleteConnection(this);      // drop this
+            transport->DeleteConnection(this);          // drop this
             return true;            
         }
         

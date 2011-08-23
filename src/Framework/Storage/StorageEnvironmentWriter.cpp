@@ -26,14 +26,15 @@ bool StorageEnvironmentWriter::Write(StorageEnvironment* env_)
     if (fd.Open(newTOC.GetBuffer(), FS_CREATE | FS_READWRITE) == INVALID_FD)
         return false;
     
+    // TODO: open with FS_TRUNCATE flag
     FS_FileTruncate(fd.GetFD(), 0);
-    FS_Sync(fd.GetFD());
+    StorageEnvironment::Sync(fd.GetFD());
     
     writeSize = writeBuffer.GetLength();
     if (FS_FileWrite(fd.GetFD(), writeBuffer.GetBuffer(), writeSize) != (ssize_t) writeSize)
         return false;
 
-    FS_Sync(fd.GetFD());
+    StorageEnvironment::Sync(fd.GetFD());
     fd.Close();
 
     FS_Delete(TOC.GetBuffer());

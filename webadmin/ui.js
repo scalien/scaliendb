@@ -39,6 +39,7 @@ function onLoad()
 	init();
 	$("loginContainer").style.display = "block";
 	$("mainContainer").style.display = "none";
+	$("unregisterShardServerContainer").style.display = "none";
 	$("createQuorumContainer").style.display = "none";
 	$("renameQuorumContainer").style.display = "none";
 	$("deleteQuorumContainer").style.display = "none";
@@ -162,6 +163,15 @@ function activateSchemaTab()
 function activateMigrationTab()
 {
 	activateTab("Migration");
+}
+
+var unregisterShardServerID;
+function showUnregisterShardServer(nodeID)
+{
+	$("mainContainer").style.display = "none";
+	$("unregisterShardServerContainer").style.display = "block";
+	unregisterShardServerID = nodeID;
+	hideDialog = hideUnregisterShardServer;
 }
 
 var tableShardsVisible = new Array();
@@ -516,6 +526,12 @@ function populateSelector(name, list)
 	return selector.options.length;	
 }
 
+function hideUnregisterShardServer()
+{
+	$("unregisterShardServerContainer").style.display = "none";
+	$("mainContainer").style.display = "block";
+}
+
 function hideCreateQuorum()
 {
 	$("createQuorumContainer").style.display = "none";
@@ -604,6 +620,13 @@ function hideError()
 {
 	$("errorContainer").style.display = "none";
 	$("mainContainer").style.display = "block";
+}
+
+function unregisterShardServer()
+{
+	hideUnregisterShardServer();
+	scaliendb.onResponse = onResponse;
+	scaliendb.unregisterShardServer(unregisterShardServerID);
 }
 
 function createQuorum()
@@ -757,7 +780,7 @@ function migrateShard()
 function onResponse(json)
 {
 	if (json.hasOwnProperty("response") && json["response"] == "FAILED")
-		showError("Error", "Something failed");
+		showError("Error", "Something went wrong!");
 	updateConfigState();
 }
 
@@ -776,7 +799,7 @@ function findMaster()
 
 function onFindMaster(obj)
 {
-	if (obj["response"] == "NOSERVICE")
+	if (obj["response"] == "NOSERVICE" || obj["response"] == "0.0.0.0:0")
 	{
 		setTimeout("findMaster()", 1000);
 		return;
@@ -984,7 +1007,7 @@ function createDashboard(configState)
 	{
 		nodeID = shardServerIDs[i];
 		shardServer = scaliendb.getShardServer(configState, nodeID);
-		var nodeString = nodeID + ' [' + shardServer["endpoint"] + ']';
+		var nodeString = nodeID + ' [' + shardServer["endpoint"] + '] &nbsp; <a title="Remove from cluster" class="no-line" style="color:gray;" href="javascript:showUnregisterShardServer(' + nodeID + ')">X</a>';
 		if (shardServer["hasHeartbeat"])
 			html += ' <span class="healthy shardserver-number">' + nodeString + '</span> ';
 		else
