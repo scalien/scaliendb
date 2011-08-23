@@ -799,7 +799,7 @@ function findMaster()
 
 function onFindMaster(obj)
 {
-	if (obj["response"] == "NOSERVICE")
+	if (obj["response"] == "NOSERVICE" || obj["response"] == "0.0.0.0:0")
 	{
 		setTimeout("findMaster()", 1000);
 		return;
