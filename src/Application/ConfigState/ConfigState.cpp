@@ -891,8 +891,16 @@ bool ConfigState::CompleteSplitShardComplete(ConfigMessage& message)
     return false;
 }
 
-bool ConfigState::CompleteShardMigrationBegin(ConfigMessage& /*message*/)
+bool ConfigState::CompleteShardMigrationBegin(ConfigMessage& message)
 {
+    ConfigQuorum* quorum;
+    
+    quorum = GetQuorum(message.quorumID);
+    if (quorum == NULL)
+        return false;
+    if (quorum->inactiveNodes.GetLength() > 0)
+        return false;
+    
     return true;
 }
 

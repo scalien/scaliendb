@@ -667,10 +667,18 @@ void ShardDatabaseManager::ExecuteMessage(uint64_t quorumID, uint64_t paxosID, u
         case SHARDMESSAGE_MIGRATION_BEGIN:
             Log_Debug("shardMigration BEGIN shardID = %U", message.srcShardID);
             configShard = shardServer->GetConfigState()->GetShard(message.srcShardID);
-            ASSERT(configShard != NULL);
-            environment.CreateShard(quorumID, 
-             contextID, message.dstShardID, configShard->tableID,
-             configShard->firstKey, configShard->lastKey, true, false);
+            if (configShard)
+            {
+                // this is not completely right
+                // we can only split the shard here if
+                // 1) our configState has the previous shard
+                // 2) the storage engine has the previous shard
+                // problems occur if after restart the node re-executes the last
+                // paxos message, but the the shard has already been split
+                environment.CreateShard(quorumID, 
+                 contextID, message.dstShardID, configShard->tableID,
+                 configShard->firstKey, configShard->lastKey, true, false);
+            }
             break;
          case SHARDMESSAGE_MIGRATION_SET:
             Log_Debug("shardMigration SET shardID = %U", message.shardID);
