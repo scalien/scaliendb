@@ -62,6 +62,8 @@ public:
     bool                    Open(Buffer& envPath);
     void                    Close();
 
+    static void             Sync(FD fd);
+
     void                    SetYieldThreads(bool yieldThreads);
     void                    SetMergeEnabled(bool mergeEnabled);
 

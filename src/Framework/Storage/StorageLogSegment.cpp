@@ -2,6 +2,7 @@
 #include "System/FileSystem.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Stopwatch.h"
+#include "StorageEnvironment.h"
 
 StorageLogSegment::StorageLogSegment()
 {
@@ -68,7 +69,7 @@ bool StorageLogSegment::Open(Buffer& logPath, uint64_t trackID_, uint64_t logSeg
     Log_DebugLong(sw, "log segment Open() took %U msec, length = %u", (uint64_t) sw.Elapsed(), length);
 
     sw.Start();
-    FS_Sync(fd);
+    StorageEnvironment::Sync(fd);
     sw.Stop();
 
     Log_DebugLong(sw, "log segment Open() took %U msec", (uint64_t) sw.Elapsed());
@@ -217,18 +218,14 @@ void StorageLogSegment::Commit()
         
         if (syncGranularity > 0 && writeOffset - lastSyncOffset > syncGranularity)
         {
-#ifndef PLATFORM_WINDOWS
-            FS_Sync(fd);
-#endif
+            StorageEnvironment::Sync(fd);
             lastSyncOffset = writeOffset;
         }
     }
 
     offset += length;
 
-#ifndef PLATFORM_WINDOWS
-    FS_Sync(fd);
-#endif
+    StorageEnvironment::Sync(fd);
     
     NewRound();
     commitedLogCommandID = logCommandID - 1;

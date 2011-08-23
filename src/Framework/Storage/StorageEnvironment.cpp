@@ -188,6 +188,14 @@ void StorageEnvironment::Close()
     fileChunks.DeleteList();
 }
 
+void StorageEnvironment::Sync(FD fd)
+{
+    // On Windows we use write-through files, so there is no need for syncing
+#ifndef PLATFORM_WINDOWS
+    FS_Sync(FD fd);
+#endif
+}
+
 void StorageEnvironment::SetYieldThreads(bool yieldThreads_)
 {
     yieldThreads = yieldThreads_;
