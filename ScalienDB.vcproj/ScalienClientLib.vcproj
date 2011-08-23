@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\src"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS"
+				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;EVENTLOOP_MULTITHREADED;IOPROCESSOR_MULTITHREADED;CLIENT_MULTITHREADED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -712,6 +712,18 @@
 				</File>
 				<File
 					RelativePath="..\src\System\Threading\Mutex_Windows.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Signal.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Signal_Posix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Signal_Windows.cpp"
 					>
 				</File>
 				<File

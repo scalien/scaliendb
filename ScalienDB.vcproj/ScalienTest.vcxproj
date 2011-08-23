@@ -83,7 +83,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG;IOPROCESSOR_MULTITHREADED;EVENTLOOP_MULTITHREADED;CLIENT_MULTITHREADED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
@@ -116,7 +116,7 @@
       <Optimization>MaxSpeed</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <AdditionalIncludeDirectories>..\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;IOPROCESSOR_MULTITHREADED;EVENTLOOP_MULTITHREADED;CLIENT_MULTITHREADED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <WarningLevel>Level3</WarningLevel>
@@ -268,6 +268,8 @@
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
     <ClCompile Include="..\src\System\Stopwatch.cpp" />
+    <ClCompile Include="..\src\System\Threading\Signal_Posix.cpp" />
+    <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp" />
     <ClCompile Include="..\src\System\Time.cpp" />
     <ClCompile Include="..\src\System\Buffers\Buffer.cpp" />
     <ClCompile Include="..\src\System\Buffers\ReadBuffer.cpp" />
@@ -444,6 +446,7 @@
     <ClInclude Include="..\src\System\Macros.h" />
     <ClInclude Include="..\src\System\Platform.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
+    <ClInclude Include="..\src\System\Threading\Signal.h" />
     <ClInclude Include="..\src\System\Time.h" />
     <ClInclude Include="..\src\System\Buffers\Buffer.h" />
     <ClInclude Include="..\src\System\Buffers\ReadBuffer.h" />

@@ -55,13 +55,13 @@ void TCPConnection::Close()
 {
     Log_Trace();
 
-    writeBuffers[0].Reset();
-    writeBuffers[1].Reset();
-
     EventLoop::Remove(&connectTimeout);
 
     IOProcessor::Remove(&tcpread);
     IOProcessor::Remove(&tcpwrite);
+
+    writeBuffers[0].Reset();
+    writeBuffers[1].Reset();
 
     socket.Close();
     state = DISCONNECTED;

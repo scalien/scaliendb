@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #ifdef _MSC_VER
 #define __func__ __FUNCTION__
@@ -48,7 +49,8 @@ extern "C" {
 
 #define TEST_DEFINE(testfn) extern "C" int testfn()
 #define TEST_DECLARE(testfn) extern "C" int testfn()
-#define TEST_FAIL() do {TEST_LOG("FAILURE!"); return TEST_FAILURE;} while(0)
+#define TEST_ABORT() ASSERT(false)
+#define TEST_FAIL() do {TEST_LOG("FAILURE!"); TEST_ABORT();} while(0)
 #define TEST_ASSERT(expr) do {if (!(expr)) TEST_FAIL();} while (0)
 
 #define TEST_SUCCESS 0

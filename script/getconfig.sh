@@ -11,6 +11,8 @@ if [ "$1" = "" ]; then
 	exit 1
 fi
 
+CONFIG_URL=$1
+
 # check if dependencies are installed
 DEPENDENCIES="awk sed curl mktemp /sbin/ifconfig uname"
 for dep in $DEPENDENCIES; do
@@ -21,7 +23,6 @@ for dep in $DEPENDENCIES; do
 	fi
 done
 
-CONFIG_URL=$1
 
 # create temp file and delete it on exit
 TEMP_CONFIG_FILE=$(mktemp /tmp/scaliendb-controller-config.XXXXXX)

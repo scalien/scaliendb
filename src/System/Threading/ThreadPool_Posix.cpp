@@ -136,6 +136,7 @@ ThreadPool_Pthread::ThreadPool_Pthread(int numThread_)
     numStarted = 0;
     running = false;
     finished = false;
+    stackSize = 0;
     
     pthread_mutex_init(&mutex, NULL);
     pthread_cond_init(&cond, NULL);
@@ -151,7 +152,9 @@ ThreadPool_Pthread::~ThreadPool_Pthread()
 
 void ThreadPool_Pthread::Start()
 {
-    int i;
+    int             i;
+    int             ret;
+    pthread_attr_t  attr;
     
     if (running)
         return;
@@ -159,8 +162,21 @@ void ThreadPool_Pthread::Start()
     running = true;
     numActive = numThread;
     
+    pthread_attr_init(&attr);
+    if (stackSize != 0)
+        pthread_attr_setstacksize(&attr, stackSize);
+    
     for (i = 0; i < numThread; i++)
-        pthread_create(&threads[i], NULL, thread_function, this);
+    {
+        ret = pthread_create(&threads[i], &attr, thread_function, this);
+        if (ret < 0)
+        {
+            Log_Errno("Could not start thread!");
+            numThread = i;
+        }
+    }
+        
+    pthread_attr_destroy(&attr);
 }
 
 void ThreadPool_Pthread::Stop()

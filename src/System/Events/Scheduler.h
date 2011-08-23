@@ -2,6 +2,7 @@
 #define SCHEDULER_H
 
 #include "System/Containers/InSortedList.h"
+#include "System/Threading/Mutex.h"
 #include "Timer.h"
 
 /*
@@ -24,6 +25,12 @@ public:
 
 protected:
     static InSortedList<Timer>  timers;
+#ifdef EVENTLOOP_MULTITHREADED
+    static Mutex                mutex;
+#endif
+
+    static void                 UnprotectedAdd(Timer* timer);
+    static void                 UnprotectedRemove(Timer* timer);
 };
 
 #endif

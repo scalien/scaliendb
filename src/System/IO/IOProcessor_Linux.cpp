@@ -16,10 +16,39 @@
 #include "System/Log.h"
 #include "System/Time.h"
 #include "System/Events/EventLoop.h"
+#include "System/Threading/Mutex.h"
 #include "System/Stopwatch.h"
 
 #define MAX_EVENTS          1024
 #define PIPEOP              IOOperation::UNKNOWN
+
+#ifdef IOPROCESSOR_MULTITHREADED
+
+#define UNLOCKED_CALL(callable)     \
+do                                  \
+{                                   \
+    mutex.Unlock();                 \
+    Call(callable);                 \
+    mutex.Lock();                   \
+} while (0)
+
+#define UNLOCKED_ADD(ioop)          \
+do                                  \
+{                                   \
+    mutex.Unlock();                 \
+    IOProcessor::Add(ioop);         \
+    mutex.Lock();                   \
+} while (0)
+
+#else // IOPROCESSOR_MULTITHREADED
+
+#define UNLOCKED_CALL(callable)     \
+    Call(callable)
+
+#define UNLOCKED_ADD(ioop)          \
+    IOProcessor::Add(ioop)
+
+#endif // IOPROCESSOR_MULTITHREADED
 
 /*
 ===============================================================================================
@@ -91,6 +120,7 @@ static volatile bool    terminated = false;
 static volatile int     numClient = 0;
 static volatile bool	running = false;
 static IOProcessorStat  iostat;
+static Mutex            mutex;
 
 static bool             AddEvent(int fd, uint32_t filter, IOOperation* ioop);
 static void             ProcessAsyncOp();
@@ -302,6 +332,10 @@ bool IOProcessor::Add(IOOperation* ioop)
     if (ioop->pending)
         return true;
     
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard guard(mutex);
+#endif
+
     filter = EPOLLONESHOT;
     if (ioop->type == IOOperation::TCP_READ || ioop->type == IOOperation::UDP_READ)
         filter |= EPOLLIN;
@@ -376,6 +410,10 @@ bool IOProcessor::Remove(IOOperation* ioop)
     
     if (!ioop->active)
         return true;
+
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard guard(mutex);
+#endif
         
     if (ioop->pending)
     {
@@ -460,6 +498,10 @@ bool IOProcessor::Poll(int sleep)
         Log_Errno();
         return false;
     }
+
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard guard(mutex);
+#endif
     
     iostat.lastNumEvents = (unsigned) nevents;
     iostat.totalNumEvents += nevents;
@@ -521,7 +563,7 @@ bool IOProcessor::Poll(int sleep)
             {
                 // we never set pipeOps' read to NULL, they're special
                 PipeOp* pipeop = (PipeOp*) ioop;
-                Call(pipeop->callback);
+                UNLOCKED_CALL(pipeop->callback);
             }
             else if (ioop->active)
             {
@@ -605,8 +647,9 @@ void ProcessAsyncOp()
         nread = read(asyncPipeOp.pipe[0], callables, SIZE(callables));
         count = nread / sizeof(Callable);
         
+        // TODO: optimization: unlock before for-loop and lock after it only once
         for (i = 0; i < count; i++)
-            Call(callables[i]);
+            UNLOCKED_CALL(callables[i]);
         
         if (count < (int) SIZE(callables))
             break;
@@ -620,7 +663,7 @@ void ProcessTCPRead(TCPRead* tcpread)
     iostat.numTCPReads++;
     if (tcpread->listening)
     {
-        Call(tcpread->onComplete);
+        UNLOCKED_CALL(tcpread->onComplete);
         return;
     }
     
@@ -640,17 +683,17 @@ void ProcessTCPRead(TCPRead* tcpread)
     {
         if (errno == EWOULDBLOCK || errno == EAGAIN)
         {
-            IOProcessor::Add(tcpread);
+            UNLOCKED_ADD(tcpread);
         }
         else
         {
             Log_Errno();
-            Call(tcpread->onClose);
+            UNLOCKED_CALL(tcpread->onClose);
         }
     }
     else if (nread == 0)
     {
-        Call(tcpread->onClose);
+        UNLOCKED_CALL(tcpread->onClose);
     }
     else
     {
@@ -658,9 +701,9 @@ void ProcessTCPRead(TCPRead* tcpread)
         tcpread->buffer->Lengthen(nread);
         if (tcpread->requested == IO_READ_ANY || 
             tcpread->buffer->GetLength() == (unsigned)tcpread->requested)
-            Call(tcpread->onComplete);
+            UNLOCKED_CALL(tcpread->onComplete);
         else
-            IOProcessor::Add(tcpread);
+            UNLOCKED_ADD(tcpread);
     }
 }
 
@@ -680,10 +723,10 @@ void ProcessTCPWrite(TCPWrite* tcpwrite)
         if (nwrite < 0)
         {
             Log_Errno();
-            Call(tcpwrite->onClose);
+            UNLOCKED_CALL(tcpwrite->onClose);
         }
         else
-            Call(tcpwrite->onComplete);
+            UNLOCKED_CALL(tcpwrite->onComplete);
     
         return;
     }
@@ -702,26 +745,26 @@ void ProcessTCPWrite(TCPWrite* tcpwrite)
     {
         if (errno == EWOULDBLOCK || errno == EAGAIN)
         {
-            IOProcessor::Add(tcpwrite);
+            UNLOCKED_ADD(tcpwrite);
         }
         else
         {
             Log_Errno();
-            Call(tcpwrite->onClose);
+            UNLOCKED_CALL(tcpwrite->onClose);
         }
     } 
     else if (nwrite == 0)
     {
-        Call(tcpwrite->onClose);
+        UNLOCKED_CALL(tcpwrite->onClose);
     }
     else
     {
         iostat.numTCPBytesSent += nwrite;
         tcpwrite->transferred += nwrite;
         if (tcpwrite->transferred == tcpwrite->buffer->GetLength())
-            Call(tcpwrite->onComplete);
+            UNLOCKED_CALL(tcpwrite->onComplete);
         else
-            IOProcessor::Add(tcpwrite);
+            UNLOCKED_ADD(tcpwrite);
     }
 }
 
@@ -745,23 +788,23 @@ void ProcessUDPRead(UDPRead* udpread)
         {
             if (errno == EWOULDBLOCK || errno == EAGAIN)
             {
-                IOProcessor::Add(udpread); // try again
+                UNLOCKED_ADD(udpread); // try again
             }
             else
             {
                 Log_Errno();
-                Call(udpread->onClose);
+                UNLOCKED_CALL(udpread->onClose);
             }
         } 
         else if (nread == 0)
         {
-            Call(udpread->onClose);
+            UNLOCKED_CALL(udpread->onClose);
         }
         else
         {
             iostat.numUDPBytesReceived += nread;
             udpread->buffer->SetLength(nread);
-            Call(udpread->onComplete);
+            UNLOCKED_CALL(udpread->onComplete);
         }
     } while (nread > 0);
 }
@@ -784,30 +827,30 @@ void ProcessUDPWrite(UDPWrite* udpwrite)
     {
         if (errno == EWOULDBLOCK || errno == EAGAIN)
         {
-            IOProcessor::Add(udpwrite); // try again
+            UNLOCKED_ADD(udpwrite); // try again
         }
         else
         {
             Log_Errno();
-            Call(udpwrite->onClose);
+            UNLOCKED_CALL(udpwrite->onClose);
         }
     }
     else if (nwrite == 0)
     {
-        Call(udpwrite->onClose);
+        UNLOCKED_CALL(udpwrite->onClose);
     }
     else
     {
         iostat.numUDPBytesSent += nwrite;
         if (nwrite == (int)udpwrite->buffer->GetLength() - udpwrite->offset)
         {
-            Call(udpwrite->onComplete);
+            UNLOCKED_CALL(udpwrite->onComplete);
         }
         else
         {
             udpwrite->offset += nwrite;
             Log_Trace("sendto() datagram fragmentation");
-            IOProcessor::Add(udpwrite); // try again
+            UNLOCKED_ADD(udpwrite); // try again
         }
     }
 }

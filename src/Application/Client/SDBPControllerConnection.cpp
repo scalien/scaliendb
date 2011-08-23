@@ -14,11 +14,6 @@
 #define CLIENT_MUTEX_LOCK()             mutexGuard.Lock()
 #define CLIENT_MUTEX_UNLOCK()           mutexGuard.Unlock()
 
-#define GLOBAL_MUTEX_LOCK()             client->LockGlobal()
-#define GLOBAL_MUTEX_UNLOCK()           client->UnlockGlobal()
-
-#define ASSERT_GLOBAL_LOCKED()          ASSERT(client->IsGlobalLocked())
-
 using namespace SDBPClient;
 
 ControllerConnection::ControllerConnection(Client* client_, uint64_t nodeID_, Endpoint& endpoint_)
@@ -37,16 +32,12 @@ void ControllerConnection::Connect()
     // TODO: MessageConnection::Connect does not support timeout parameter
     //MessageConnection::Connect(endpoint, RECONNECT_TIMEOUT);
     
-    ASSERT_GLOBAL_LOCKED();
-    
     MessageConnection::Connect(endpoint);
 }
 
 void ControllerConnection::Send(ClientRequest* request)
 {
     Log_Trace("type = %c, nodeID = %u", request->type, (unsigned) nodeID);
-
-    ASSERT_GLOBAL_LOCKED();
 
     SDBPRequestMessage  msg;
 
@@ -110,9 +101,6 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     msg.response = resp;
     if (msg.Read(rbuf))
     {
-//        if (resp->type == CLIENTRESPONSE_CONFIG_STATE)
-//            Log_Debug("Config state: %R", &rbuf);
-        
         if (resp->type == CLIENTRESPONSE_HELLO)
             delete resp;
         else if (!ProcessResponse(resp))
@@ -120,12 +108,16 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     }
     else
         delete resp;
-        
+    
+    client->TryWake();
+    
     return false;
 }
 
 void ControllerConnection::OnWrite()
 {
+    Log_Trace();
+
     MessageConnection::OnWrite();
 }
 

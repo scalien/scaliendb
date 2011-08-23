@@ -299,7 +299,7 @@ void Socket::Close()
             Log_Errno();
 
         fd.handle = INVALID_SOCKET;
-        fd.index = 0;
+        fd.index = -1;
     }
 }
 

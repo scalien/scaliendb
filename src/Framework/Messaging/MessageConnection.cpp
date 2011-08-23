@@ -230,6 +230,7 @@ void MessageConnection::OnConnectTimeout()
 void MessageConnection::OnFlushWrites()
 {
     // flushWrites YieldTimer arrived
+    Log_Trace();
     
     TCPConnection::TryFlush();
 }

@@ -25,9 +25,9 @@ import os
 
 #LDPATH=["/opt/local/lib/db46", "/usr/local/lib/db4"]
 LDPATH=["/opt/local/lib/db46"]
-LDLIBS=["pthread"]
+LDLIBS=["pthread", "dl"]
 #BUILD_DIR="build/Release"
-BUILD_DIR="build/mkdebug"
+BUILD_DIR="build/mkrelease/client"
 SRC_DIR="src"
 TEST_DIR="Test/"
 DEBUGGER="gdb -ex r"

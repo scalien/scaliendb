@@ -24,18 +24,26 @@ public:
     ThreadPool_Windows(int numThread);
     ~ThreadPool_Windows();
 
+    void                        Shutdown();
+
     virtual void                Start();
     virtual void                Stop();
     virtual void                WaitStop();
-
     virtual void                Execute(const Callable& callable);
     
 private:
     HANDLE*                     threads;
     CRITICAL_SECTION            critsec;
-    HANDLE                      event;  
-    static unsigned __stdcall   ThreadFunc(void* arg);
+    HANDLE                      startEvent;
+    HANDLE                      messageEvent;
+    HANDLE                      stopEvent;
+    int                         numStarted;
+    int                         numStopped;
+    bool                        finished;
+
+    static DWORD __stdcall      ThreadFunc(void* arg);
     void                        ThreadPoolFunc();
+    bool                        IsFinished();
 };
 
 /*
@@ -59,7 +67,20 @@ void ThreadPool::YieldThread()
 
 ThreadPool_Windows::ThreadPool_Windows(int numThread_)
 {
+    InitializeCriticalSection(&critsec);
     numThread = numThread_;
+    numPending = 0;
+    numStarted = 0;
+    numStopped = 0;
+    running = false;
+    finished = false;
+    threads = NULL;
+    stackSize = 0;
+
+    // create the event as an auto-reset event object, set to nonsignaled state
+    startEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    messageEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
+    stopEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
 }
 
 ThreadPool_Windows::~ThreadPool_Windows()
@@ -67,72 +88,100 @@ ThreadPool_Windows::~ThreadPool_Windows()
     Stop();
 }
 
-void ThreadPool_Windows::Start()
+void ThreadPool_Windows::Shutdown()
 {
     int     i;
 
-    numPending = 0;
-    numActive = 0;
-    running = false;
-
-    InitializeCriticalSection(&critsec);
-    // create the event as an auto-reset event object, set to nonsignaled state
-    event = CreateEvent(NULL, FALSE, FALSE, NULL);
-    threads = new HANDLE[numThread];
-
-    for (i = 0; i < numThread; i++)
-        threads[i] = (HANDLE)_beginthreadex(NULL, 0, ThreadFunc, this, 0, NULL);
-    
-    running = true;
-}
-
-void ThreadPool_Windows::Stop()
-{
-    int     i;
-
-    if (!running)
-        return;
-
-    running = false;
     if (threads)
     {
         // the finished thread will call SetEvent again, see ThreadPoolFunc
-        SetEvent(event);
+        SetEvent(messageEvent);
 
-        WaitForMultipleObjects(numThread, threads, TRUE, INFINITE);
+        // XXX: this is a workaround as WaitForMultipleObjects cannot handle more than 64 handles
+        // wait for all thread is stopped
+        EnterCriticalSection(&critsec);
+        while (numStopped < numThread)
+        {
+            LeaveCriticalSection(&critsec);
+            WaitForSingleObject(stopEvent, INFINITE);
+            EnterCriticalSection(&critsec);
+        }
+        LeaveCriticalSection(&critsec);
+
         for (i = 0; i < numThread; i++)
             CloseHandle(threads[i]);
         
         delete[] threads;
     }
 
-    if (event)
-        CloseHandle(event);
+    if (messageEvent)
+        CloseHandle(messageEvent);
+    if (startEvent)
+        CloseHandle(startEvent);
+    if (stopEvent)
+        CloseHandle(stopEvent);
 
     DeleteCriticalSection(&critsec);
 }
 
-void ThreadPool_Windows::WaitStop()
+void ThreadPool_Windows::Start()
 {
-/*
-    //TODO: write this function properly
-    bool    isStarted;
+    int         i;
+    HANDLE      ret;
 
+    if (running)
+        return;
+
+    running = true;
+    numActive = numThread;
+
+    threads = new HANDLE[numThread];
+    for (i = 0; i < numThread; i++)
+    {
+        ret = CreateThread(NULL, stackSize, ThreadFunc, this, STACK_SIZE_PARAM_IS_A_RESERVATION, NULL);
+        if (ret == 0)
+        {
+            Log_SetTrace(true);
+            Log_Errno("Cannot create thread! (errno = %d)", errno);
+            numThread = i;
+            break;
+        }
+
+        threads[i] = (HANDLE)ret;
+    }
+}
+
+void ThreadPool_Windows::Stop()
+{
     if (!running)
         return;
 
-WaitStarted:
-    while(true)
-       WaitForSingleObject(event, INFINITE);
+    running = false;
+    Shutdown();
+}
 
-    isStarted = false;
-    EnterCriticalSection (&critsec);
-    if (numStarted == numThread)
-        isStarted = true;
-    LeaveCriticalSection (&critsec);
-    if (!isStarted)
-        goto WaitStarted; 
-*/
+void ThreadPool_Windows::WaitStop()
+{
+    //TODO: write this function properly
+    if (!running)
+        return;
+
+    // wait for all thread is started
+    EnterCriticalSection(&critsec);
+    while (numStarted < numThread)
+    {
+        LeaveCriticalSection(&critsec);
+        WaitForSingleObject(startEvent, INFINITE);
+        EnterCriticalSection(&critsec);
+    }
+
+    Log_Debug("All threads started");
+
+    finished = true;
+    LeaveCriticalSection(&critsec);
+
+    Shutdown();
+    running = false;
 }
 
 void ThreadPool_Windows::Execute(const Callable& callable)
@@ -143,26 +192,40 @@ void ThreadPool_Windows::Execute(const Callable& callable)
     numPending++;
 
     LeaveCriticalSection(&critsec);
-    SetEvent(event);
-
+    SetEvent(messageEvent);
 }
 
 void ThreadPool_Windows::ThreadPoolFunc()
 {
     Callable    callable;
     Callable*   it;
+    bool        notifyNext;
+
+    if (running)
+    {
+        EnterCriticalSection(&critsec);
+        numStarted++;
+        LeaveCriticalSection(&critsec);
+        SetEvent(startEvent);
+    }
 
     while (running)
     {
         // TODO: simplify the logic here & make it similar to Posix implementation
         if (running)
-            WaitForSingleObject(event, INFINITE);
+            WaitForSingleObject(messageEvent, INFINITE);
 
         while (true)
         {
             EnterCriticalSection(&critsec);
 
             numActive--;
+
+            if (!running || IsFinished())
+            {
+                LeaveCriticalSection(&critsec);
+                goto End;
+            }
             
             it = callables.First();
             if (it)
@@ -178,18 +241,30 @@ void ThreadPool_Windows::ThreadPoolFunc()
                 break;
             }
 
+            notifyNext = false;
+            if (numPending > 0)
+                notifyNext = true;
             numActive++;
             LeaveCriticalSection(&critsec);
+
+            if (notifyNext)
+                SetEvent(messageEvent);
 
             Call(callable);
         }
     }
 
+End:
     // wake up next sleeping thread
-    SetEvent(event);
+    SetEvent(messageEvent);
+
+    EnterCriticalSection(&critsec);
+    numStopped++;
+    LeaveCriticalSection(&critsec);
+    SetEvent(stopEvent);
 }
 
-unsigned ThreadPool_Windows::ThreadFunc(void *arg)
+DWORD ThreadPool_Windows::ThreadFunc(void *arg)
 {
     ThreadPool_Windows *tp = (ThreadPool_Windows *) arg;
     tp->ThreadPoolFunc();
@@ -197,4 +272,9 @@ unsigned ThreadPool_Windows::ThreadFunc(void *arg)
     return 0;
 }
 
-#endif
+bool ThreadPool_Windows::IsFinished()
+{
+    return finished && numPending == 0;
+}
+
+#endif 

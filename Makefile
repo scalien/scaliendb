@@ -93,6 +93,7 @@ CXXFLAGS = $(BASE_CXXFLAGS) $(RELEASE_CFLAGS) $(EXTRA_CFLAGS)
 LDFLAGS = $(BASE_LDFLAGS) $(RELEASE_LDFLAGS)
 endif
 
+
 ##############################################################################
 #
 # Build rules
@@ -143,11 +144,11 @@ $(BIN_DIR)/%.so: $(BIN_DIR)/%.a
 
 
 # libraries
-$(BIN_DIR)/$(ALIB): $(BUILD_DIR) $(CLIENTLIB_OBJECTS)
+$(BIN_DIR)/$(ALIB): $(CLIENT_BUILD_DIR) $(CLIENTLIB_OBJECTS)
 	$(AR) -r $@ $(CLIENTLIB_OBJECTS)
 	$(RANLIB) $@
 
-$(BIN_DIR)/$(SOLIB): $(BUILD_DIR) $(CLIENTLIB_OBJECTS)
+$(BIN_DIR)/$(SOLIB): $(CLIENT_BUILD_DIR) $(CLIENTLIB_OBJECTS)
 	$(CC) $(SOLINK) -o $@ $(CLIENTLIB_OBJECTS) $(LDFLAGS)
 
 # python wrapper
@@ -206,10 +207,10 @@ JAVA_SOURCE_FILES = \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/Sequence.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringKeyIterator.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringKeyValueIterator.java \
-    $(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringRangeParams.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/StringRangeParams.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteKeyIterator.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteKeyValueIterator.java \
-    $(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteRangeParams.java \
+	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteRangeParams.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/ByteArrayComparator.java \
 	$(SRC_DIR)/$(JAVA_CLIENT_DIR)/KeyValue.java
 
@@ -373,24 +374,29 @@ objects: $(BUILD_DIR) $(ALL_OBJECTS) $(TEST_OBJECTS) $(CLIENTLIB_OBJECTS)
 clienttest:
 	$(MAKE) targets BUILD="release"
 
-clientlib:
-	$(MAKE) clientlibs BUILD="debug"
+clientlib-target:
+	$(MAKE) $(CLIENTLIB_TARGET) BUILD_DIR=$(BUILD_DIR)/client EXTRA_CFLAGS="-DCLIENT_MULTITHREADED -DIOPROCESSOR_MULTITHREADED -DEVENTLOOP_MULTITHREADED"
 
-#pythonlib: $(BUILD_DIR) $(CLIENTLIBS) $(PYTHONLIB)
+clientlib: 
+	$(MAKE) clientlib-target CLIENTLIB_TARGET=clientlibs
+
+clientlib-debug:
+	$(MAKE) clientlib BUILD="debug"
+
 pythonlib: $(BUILD_DIR) clientlib
-	$(MAKE) $(PYTHONLIB) BUILD="debug"
+	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(PYTHONLIB)"
 
-javalib: $(BUILD_DIR) $(CLIENTLIBS) $(JAVALIB)
+javalib: $(BUILD_DIR) clientlib
+	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(JAVALIB)"
 
 csharplib: $(BUILD_DIR) $(CSHARPLIB)
 
-phplib: $(BUILD_DIR) $(CLIENTLIBS) $(PHPLIB)
+phplib: $(BUILD_DIR) clientlib
+	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(PHPLIB)"
 
-rubylib: $(BUILD_DIR) $(CLIENTLIBS) $(RUBYLIB)
+testlib: $(BUILD_DIR)
+	$(MAKE) clientlib-target CLIENTLIB_TARGET="objects"
 
-perllib: $(BUILD_DIR) $(CLIENTLIBS) $(PERLLIB)
-
-#targets: $(BUILD_DIR) executables clientlibs
 targets: $(BUILD_DIR) executables
 
 testmain: $(BUILD_DIR) $(BUILD_DIR)/TestMain

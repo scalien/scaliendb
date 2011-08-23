@@ -188,6 +188,8 @@ COPY /B /Y $(OutDir)$(ProjectName).exe $(OutDir)$(ProjectName)Test.exe</Command>
     <ClCompile Include="..\src\System\Formatting.cpp" />
     <ClCompile Include="..\src\System\Log.cpp" />
     <ClCompile Include="..\src\System\Stopwatch.cpp" />
+    <ClCompile Include="..\src\System\Threading\Signal_Posix.cpp" />
+    <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp" />
     <ClCompile Include="..\src\System\Time.cpp" />
     <ClCompile Include="..\src\System\Buffers\Buffer.cpp" />
     <ClCompile Include="..\src\System\Buffers\ReadBuffer.cpp" />
@@ -330,6 +332,7 @@ COPY /B /Y $(OutDir)$(ProjectName).exe $(OutDir)$(ProjectName)Test.exe</Command>
     <ClInclude Include="..\src\System\Macros.h" />
     <ClInclude Include="..\src\System\Platform.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
+    <ClInclude Include="..\src\System\Threading\Signal.h" />
     <ClInclude Include="..\src\System\Time.h" />
     <ClInclude Include="..\src\System\Buffers\Buffer.h" />
     <ClInclude Include="..\src\System\Buffers\ReadBuffer.h" />

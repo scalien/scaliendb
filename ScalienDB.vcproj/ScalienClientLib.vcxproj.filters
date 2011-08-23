@@ -225,6 +225,12 @@
     <ClCompile Include="..\src\Framework\TCP\TCPConnection.cpp">
       <Filter>Framework\TCP</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\System\Threading\Signal_Posix.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp">
+      <Filter>System\Threading</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -468,5 +474,11 @@
       <Filter>Framework\TCP</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Version.h" />
+<<<<<<< HEAD
+=======
+    <ClInclude Include="..\src\System\Threading\Signal.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+>>>>>>> 3d03df516b9dc5ec50b1e3df2654add0903fcc87
   </ItemGroup>
 </Project>

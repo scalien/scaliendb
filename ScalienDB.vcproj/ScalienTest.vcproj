@@ -41,7 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="..\src"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG"
+				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;PLATFORM_WINDOWS;DEBUG;EVENTLOOP_MULTITHREADED;IOPROCESSOR_MULTITHREADED;CLIENT_MULTITHREADED"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -290,66 +290,6 @@
 				</File>
 			</Filter>
 			<Filter
-				Name="ConfigState"
-				>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigController.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigController.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigDatabase.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigDatabase.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigQuorum.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigQuorum.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigShard.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigShard.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigShardServer.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigShardServer.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigState.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigState.h"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigTable.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\src\Application\ConfigState\ConfigTable.h"
-					>
-				</File>
-			</Filter>
-			<Filter
 				Name="ConfigServer"
 				>
 				<File
@@ -540,6 +480,66 @@
 					RelativePath="..\src\Application\HTTP\UrlParam.h"
 					>
 				</File>
+				<Filter
+					Name="ConfigState"
+					>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigController.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigController.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigDatabase.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigDatabase.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigQuorum.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigQuorum.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigShard.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigShard.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigShardServer.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigShardServer.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigState.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigState.h"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigTable.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\src\Application\ConfigState\ConfigTable.h"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="SDBP"
@@ -1474,6 +1474,18 @@
 				</File>
 				<File
 					RelativePath="..\src\System\Threading\Mutex_Windows.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Signal.h"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Signal_Posix.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\System\Threading\Signal_Windows.cpp"
 					>
 				</File>
 				<File
