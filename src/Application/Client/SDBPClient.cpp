@@ -1065,7 +1065,7 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     // with consistency level set to STRICT, send requests only to primary shard server
     if (consistencyMode == SDBP_CONSISTENCY_STRICT && quorum->primaryID != conn->GetNodeID())
         return;
-    
+
     // load balancing in relaxed consistency levels
     maxRequests = GetMaxQuorumRequests(qrequests, conn, quorum);
 
@@ -1074,6 +1074,8 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     while (qrequests->GetLength() > 0)
     {   
         req = qrequests->First();
+		if (req->IsShardServerRequest() && !req->IsReadRequest() && quorum->primaryID != conn->GetNodeID())
+			break;
         qrequests->Remove(req);
         
         req->shardConns.Clear();
