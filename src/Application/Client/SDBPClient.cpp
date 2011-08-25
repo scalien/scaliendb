@@ -11,8 +11,8 @@
 #define MAX_IO_CONNECTION               32768
 #define DEFAULT_BATCH_LIMIT             (1*MB)
 
-#define CLIENT_MULTITHREAD 
-#ifdef CLIENT_MULTITHREAD
+#define CLIENT_MULTITHREADED 
+#ifdef CLIENT_MULTITHREADED
 
 // globalMutex protects the underlying single threaded IO and Event handling layer
 Mutex       globalMutex;                    
@@ -30,7 +30,7 @@ ThreadPool* ioThread;
 #define GLOBAL_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()     mutexGuard.Unlock()
 
-#else // CLIENT_MULTITHREAD
+#else // CLIENT_MULTITHREADED
 
 #define CLIENT_MUTEX_GUARD_DECLARE()
 #define CLIENT_MUTEX_GUARD_LOCK()
@@ -43,7 +43,7 @@ ThreadPool* ioThread;
 #define GLOBAL_MUTEX_GUARD_LOCK()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()
 
-#endif // CLIENT_MULTITHREAD
+#endif // CLIENT_MULTITHREADED
 
 #define VALIDATE_CONTROLLER()       \
     if (numControllers == 0)        \
@@ -507,8 +507,8 @@ int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value
     it = proxiedRequests.Locate(req, cmpres);       
     if (cmpres == 0 && it != NULL)                  
     {                                               
-        proxiedRequests.Delete(it);                 
         proxySize -= REQUEST_SIZE(it);              
+        proxiedRequests.Delete(it);
         ASSERT(proxySize >= 0);                     
     }                                               
     proxiedRequests.Insert<const Request*>(req);    
@@ -558,6 +558,7 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
     result->AppendRequest(req);
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
+	CLIENT_MUTEX_GUARD_LOCK();
     if (result->GetCommandStatus() == SDBP_SUCCESS)
     {
         for (itRequest = result->requests.First(); itRequest != NULL; /* advanced in body */)
@@ -606,6 +607,7 @@ int Client::ListKeys(
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
+	CLIENT_MUTEX_GUARD_LOCK();
 
     req->count = req->userCount;
     ComputeListResponse();
@@ -641,6 +643,7 @@ int Client::ListKeyValues(
 
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
+	CLIENT_MUTEX_GUARD_LOCK();
 
     req->count = req->userCount;
     ComputeListResponse();
@@ -690,7 +693,7 @@ int Client::Submit()
         result->AppendRequest(it);
         proxySize -= REQUEST_SIZE(it);
     }
-    ASSERT(proxySize == 0);
+	ASSERT(proxySize == 0);
 
     CLIENT_MUTEX_UNLOCK();
     EventLoop();
