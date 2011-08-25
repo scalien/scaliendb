@@ -384,6 +384,8 @@ void Client::WaitConfigState()
 
 Result* Client::GetResult()
 {
+	CLIENT_MUTEX_GUARD_DECLARE();
+
     Result* tmp;
     
     tmp = result;
