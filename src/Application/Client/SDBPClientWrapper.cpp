@@ -558,197 +558,79 @@ int SDBP_TruncateTable(ClientObj client_, uint64_t tableID)
 unsigned SDBP_GetNumQuorums(ClientObj client_)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
     
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return 0;
-    
-    return configState->quorums.GetLength();
+    return client->GetNumQuorums();
 }
 
 uint64_t SDBP_GetQuorumIDAt(ClientObj client_, unsigned n)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    ConfigQuorum*       configQuorum;
-    unsigned            i;
     
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return 0;
-    
-    i = 0;
-    FOREACH (configQuorum, configState->quorums)
-    {
-        if (i == n)
-            return configQuorum->quorumID;
-        i++;
-    }
-    
-    return 0;
+    return client->GetQuorumIDAt(n);
 }
 
 std::string SDBP_GetQuorumNameAt(ClientObj client_, unsigned n)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    ConfigQuorum*       configQuorum;
+    Buffer              name;
     std::string         ret;
-    unsigned            i;
     
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return "";
+    client->GetQuorumNameAt(n, name);
+    ret.assign(name.GetBuffer(), name.GetLength());
     
-    i = 0;
-    FOREACH (configQuorum, configState->quorums)
-    {
-        if (i == n)
-        {
-            ret.assign(configQuorum->name.GetBuffer(), configQuorum->name.GetLength());
-            return ret;
-        }
-        i++;
-    }
-    
-    return "";
+    return ret;
 }
 
 unsigned SDBP_GetNumDatabases(ClientObj client_)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
     
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return 0;
-    
-    return configState->databases.GetLength();
+    return client->GetNumDatabases();
 }
 
 uint64_t SDBP_GetDatabaseIDAt(ClientObj client_, unsigned n)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    ConfigDatabase*     configDatabase;
-    unsigned            i;
-    
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return 0;
 
-    i = 0;
-    FOREACH (configDatabase, configState->databases) 
-    {
-        if (i == n)
-            return configDatabase->databaseID;
-
-        i++;
-    }
-    
-    return 0;
+    return client->GetDatabaseIDAt(n);
 }
 
 std::string SDBP_GetDatabaseNameAt(ClientObj client_, unsigned n)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    ConfigDatabase*     configDatabase;
+    Buffer              name;
     std::string         ret;
-    unsigned            i;
+
+    client->GetDatabaseNameAt(n, name);
+    ret.assign(name.GetBuffer(), name.GetLength());
     
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return "";
-    
-    i = 0;
-    FOREACH (configDatabase, configState->databases) 
-    {
-        if (i == n)
-        {
-            ret.assign(configDatabase->name.GetBuffer(), configDatabase->name.GetLength());
-            return ret;
-        }
-        i++;
-    }
-    
-    return "";
+    return ret;
 }
 
 unsigned SDBP_GetNumTables(ClientObj client_, uint64_t databaseID)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    ConfigDatabase*     configDatabase;
-    
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return 0;
-    
-    configDatabase = configState->GetDatabase(databaseID);
-    
-    return configDatabase->tables.GetLength();
+
+    return client->GetNumTables(databaseID);
 }
 
 uint64_t SDBP_GetTableIDAt(ClientObj client_, uint64_t databaseID, unsigned n)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    ConfigDatabase*     configDatabase;
-    ConfigTable*        configTable;
-    unsigned            i;
-    uint64_t*           it;
-    
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return 0;
 
-    configDatabase = configState->GetDatabase(databaseID);
-
-    i = 0;
-    FOREACH (it, configDatabase->tables) 
-    {
-        if (i == n)
-        {
-            configTable = configState->GetTable(*it);
-            return configTable->tableID;
-        }
-        i++;
-    }
-    
-    return 0;
+    return client->GetTableIDAt(databaseID, n);
 }
 
 std::string SDBP_GetTableNameAt(ClientObj client_, uint64_t databaseID, unsigned n)
 {
     Client*             client = (Client*) client_;
-    ConfigState*        configState;
-    ConfigDatabase*     configDatabase;
-    ConfigTable*        configTable;
+    Buffer              name;
     std::string         ret;
-    unsigned            i;
-    uint64_t*           it;
     
-    configState = client->GetConfigState();
-    if (configState == NULL)
-        return "";
+    client->GetTableNameAt(databaseID, n, name);    
+    ret.assign(name.GetBuffer(), name.GetLength());
     
-    configDatabase = configState->GetDatabase(databaseID);
-
-    i = 0;
-    FOREACH (it, configDatabase->tables) 
-    {
-        if (i == n)
-        {
-            configTable = configState->GetTable(*it);
-            ret.assign(configTable->name.GetBuffer(), configTable->name.GetLength());
-            return ret;
-        }
-        i++;
-    }
-    
-    return "";
+    return ret;
 }
 
 //unsigned SDBP_GetNumShards(ClientObj client_)

@@ -77,6 +77,18 @@ public:
     int                     RenameTable(uint64_t tableID, ReadBuffer& name);
     int                     DeleteTable(uint64_t tableID);
     int                     TruncateTable(uint64_t tableID);
+
+    unsigned                GetNumQuorums();
+    uint64_t                GetQuorumIDAt(unsigned n);
+    void                    GetQuorumNameAt(unsigned n, Buffer& name);
+
+    unsigned                GetNumDatabases();
+    uint64_t                GetDatabaseIDAt(unsigned n);
+    void                    GetDatabaseNameAt(unsigned n, Buffer& name);
+
+    unsigned                GetNumTables(uint64_t databaseID);
+    uint64_t                GetTableIDAt(uint64_t databaseID, unsigned n);
+    void                    GetTableNameAt(uint64_t databaseID, unsigned n, Buffer& name);
     
     // =============================================================================================
     //
