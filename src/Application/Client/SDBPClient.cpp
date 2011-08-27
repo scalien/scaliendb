@@ -448,6 +448,200 @@ int Client::TruncateTable(uint64_t tableID)
     CLIENT_SCHEMA_COMMAND(TruncateTable, tableID);
 }
 
+#define GET_CONFIG_STATE_OR_RETURN(...) \
+    CLIENT_MUTEX_GUARD_DECLARE();       \
+                                        \
+    if (numControllers == 0)            \
+        return __VA_ARGS__;             \
+                                        \
+    if (!configState)                   \
+    {                                   \
+        result->Close();                \
+        CLIENT_MUTEX_UNLOCK();          \
+        EventLoop();                    \
+        CLIENT_MUTEX_LOCK();            \
+    }                                   \
+    if (!configState)                   \
+        return __VA_ARGS__;
+
+unsigned Client::GetNumQuorums()
+{
+    GET_CONFIG_STATE_OR_RETURN(0);
+    
+    return configState->quorums.GetLength();
+}
+
+uint64_t Client::GetQuorumIDAt(unsigned n)
+{
+    ConfigQuorum*   quorum;
+    unsigned        i;
+
+    GET_CONFIG_STATE_OR_RETURN(0);
+    
+    i = 0;
+    FOREACH (quorum, configState->quorums)
+    {
+        if (i == n)
+            return quorum->quorumID;
+            
+        i++;
+    }
+
+    return 0;
+}
+
+void Client::GetQuorumNameAt(unsigned n, Buffer& name)
+{
+    ConfigQuorum*   quorum;
+    unsigned        i;
+
+    GET_CONFIG_STATE_OR_RETURN();
+    
+    i = 0;
+    FOREACH (quorum, configState->quorums)
+    {
+        if (i == n)
+        {
+            name.Write(quorum->name);
+            return;
+        }
+            
+        i++;
+    }
+}
+
+unsigned Client::GetNumDatabases()
+{
+    GET_CONFIG_STATE_OR_RETURN(0);
+    
+    return configState->databases.GetLength();
+}
+
+uint64_t Client::GetDatabaseIDAt(unsigned n)
+{
+    ConfigDatabase* database;
+    unsigned        i;
+
+    GET_CONFIG_STATE_OR_RETURN(0);
+    
+    i = 0;
+    FOREACH (database, configState->databases)
+    {
+        if (i == n)
+            return database->databaseID;
+            
+        i++;
+    }
+
+    return 0;
+}
+
+void Client::GetDatabaseNameAt(unsigned n, Buffer& name)
+{
+    ConfigDatabase* database;
+    unsigned        i;
+
+    GET_CONFIG_STATE_OR_RETURN();
+
+    i = 0;
+    FOREACH (database, configState->databases)
+    {
+        if (i == n)
+        {
+            name.Write(database->name);
+            return;
+        }
+            
+        i++;
+    }
+}
+
+unsigned Client::GetNumTables(uint64_t databaseID)
+{
+    ConfigDatabase*     database;
+    
+    GET_CONFIG_STATE_OR_RETURN(0);
+
+    database = NULL;
+    FOREACH (database, configState->databases)
+    {
+        if (database->databaseID == databaseID)
+            break;
+    }
+
+    if (!database)
+        return 0;
+    
+    return database->tables.GetLength();
+}
+
+uint64_t Client::GetTableIDAt(uint64_t databaseID, unsigned n)
+{
+    ConfigDatabase* database;
+    uint64_t*       itTableID;
+    unsigned        i;
+
+    GET_CONFIG_STATE_OR_RETURN(0);
+    
+    database = NULL;
+    FOREACH (database, configState->databases)
+    {
+        if (database->databaseID == databaseID)
+            break;
+    }
+
+    if (!database)
+        return 0;
+
+    i = 0;
+    FOREACH (itTableID, database->tables)
+    {
+        if (i == n)
+            return *itTableID;
+    }
+    
+    return 0;
+}
+
+void Client::GetTableNameAt(uint64_t databaseID, unsigned n, Buffer& name)
+{
+    ConfigDatabase* database;
+    ConfigTable*    table;
+    uint64_t*       itTableID;
+    unsigned        i;
+
+    GET_CONFIG_STATE_OR_RETURN();
+    
+    database = NULL;
+    FOREACH (database, configState->databases)
+    {
+        if (database->databaseID == databaseID)
+            break;
+    }
+
+    if (!database)
+        return;
+    
+    i = 0;
+    FOREACH (itTableID, database->tables)
+    {
+        if (i == n)
+            break;
+    }
+    
+    if (!itTableID)
+        return;
+    
+    FOREACH (table, configState->tables)
+    {
+        if (table->tableID == *itTableID)
+        {
+            name.Write(table->name);
+            return;
+        }
+    }
+}    
+
 int Client::Get(uint64_t tableID, const ReadBuffer& key)
 {
     int         cmpres;

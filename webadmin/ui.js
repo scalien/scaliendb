@@ -15,6 +15,7 @@ function contains(arr, obj)
 function init()
 {	
 	scaliendb.disconnect();
+	setConnectionLocation();
 
 	$("controller").textContent = "Not connected...";
 	$("clusterState").textContent = "Unable to connect!";
@@ -89,6 +90,17 @@ function logout()
 	onLoad();
 	$("loginCluster").select();
 }
+                                      
+function setConnectionLocation()
+{
+	var match = /^\w+:\/\/([\w.]+:[0-9]+)\/.*$/.exec(window.location);
+	if (match == null)
+		return;
+	controller = match[1];
+	if (!scaliendb.util.endsWith(controller, "/json/"))
+		controller = controller + "/json/";
+	$("loginCluster").value = scaliendb.controller = controller;
+}
 
 function connect()
 {
@@ -114,7 +126,7 @@ function connect()
 	else
 		controller = controller.replace(/http:\/\/localhost/i, "http://127.0.0.1");
 	
-	if (!scaliendb.util.endsWith("controller", "/json/"))
+	if (!scaliendb.util.endsWith(controller, "/json/"))
 		controller = controller + "/json/";
 	if (controller !== scaliendb.controller)
 		scaliendb.controller = controller;
