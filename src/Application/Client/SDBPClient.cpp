@@ -453,11 +453,11 @@ int Client::TruncateTable(uint64_t tableID)
     CLIENT_SCHEMA_COMMAND(TruncateTable, tableID);
 }
 
-#define GET_CONFIG_STATE_OR_RETURN(default) \
+#define GET_CONFIG_STATE_OR_RETURN(...) \
     CLIENT_MUTEX_GUARD_DECLARE();       \
                                         \
     if (numControllers == 0)            \
-        return default;                 \
+        return __VA_ARGS__;             \
                                         \
     if (!configState)                   \
     {                                   \
@@ -467,7 +467,7 @@ int Client::TruncateTable(uint64_t tableID)
         CLIENT_MUTEX_LOCK();            \
     }                                   \
     if (!configState)                   \
-        return default;
+        return __VA_ARGS__;
 
 unsigned Client::GetNumQuorums()
 {
