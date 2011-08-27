@@ -70,13 +70,14 @@ namespace Scalien
         /// <seealso cref="Scalien.Table"/>
         public Table GetTable(string name)
         {
-            List<Table> tables = GetTables();
-            foreach (Table table in tables)
+            ulong numTables = scaliendb_client.SDBP_GetNumTables(client.cptr, databaseID);
+            for (uint i = 0; i < numTables; i++)
             {
-                if (table.Name == name)
-                    return table;
+                ulong tableID = scaliendb_client.SDBP_GetTableIDAt(client.cptr, databaseID, i);
+                string tableName = scaliendb_client.SDBP_GetTableNameAt(client.cptr, databaseID, i);
+                if (name == tableName)
+                    return new Table(client, this, tableID, name);
             }
-
             return null;
         }
         

@@ -146,7 +146,17 @@ namespace Scalien
         /// </summary>
         ~Client()
         {
+            if (cptr != null)
+                scaliendb_client.SDBP_Destroy(cptr);
+        }
+
+        /// <summary>
+        /// Close the client object.
+        /// </summary>
+        public void Close()
+        {
             scaliendb_client.SDBP_Destroy(cptr);
+            cptr = null;
         }
 
         #endregion
@@ -453,13 +463,14 @@ namespace Scalien
         /// <seealso cref="CreateDatabase(string)"/>
         public Database GetDatabase(string name)
         {
-            List<Database> databases = GetDatabases();
-            foreach (Database database in databases)
+            uint numDatabases = scaliendb_client.SDBP_GetNumDatabases(cptr);
+            for (uint i = 0; i < numDatabases; i++)
             {
-                if (database.Name == name)
-                    return database;
+                ulong databaseID = scaliendb_client.SDBP_GetDatabaseIDAt(cptr, i);
+                string databaseName = scaliendb_client.SDBP_GetDatabaseNameAt(cptr, i);
+                if (name == databaseName)
+                    return new Database(this, databaseID, name);
             }
-
             return null;
         }
 
