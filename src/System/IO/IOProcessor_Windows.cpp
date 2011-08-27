@@ -409,12 +409,8 @@ bool StartAsyncConnect(IOOperation* ioop)
     return true;
 }
 
-bool IOProcessor::Add(IOOperation* ioop)
+bool IOProcessor_UnprotectedAdd(IOOperation* ioop)
 {
-#ifdef IOPROCESSOR_MULTITHREADED
-    MutexGuard  guard(mutex);
-#endif
-
     if (ioop->active)
     {
         ASSERT_FAIL();
@@ -444,15 +440,20 @@ bool IOProcessor::Add(IOOperation* ioop)
     return false;
 }
 
-bool IOProcessor::Remove(IOOperation *ioop)
+
+bool IOProcessor::Add(IOOperation* ioop)
+{
+#ifdef IOPROCESSOR_MULTITHREADED
+    MutexGuard  guard(mutex);
+#endif
+	return IOProcessor_UnprotectedAdd(ioop);
+}
+
+bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
 {
     int         ret;
     IODesc*     iod;
     TCPRead*    tcpread;
-
-#ifdef IOPROCESSOR_MULTITHREADED
-    MutexGuard  guard(mutex);
-#endif
 
     if (!ioop->active)
         return true;
@@ -483,7 +484,7 @@ bool IOProcessor::Remove(IOOperation *ioop)
             ioop = iod->write;
             iod->write = NULL;
             ioop->active = false;
-            UNLOCKED_ADD(ioop);
+            IOProcessor_UnprotectedAdd(ioop);
         }
     }
     else
@@ -495,11 +496,20 @@ bool IOProcessor::Remove(IOOperation *ioop)
             ioop = iod->read;
             iod->read = NULL;
             ioop->active = false;
-            UNLOCKED_ADD(ioop);
+            IOProcessor_UnprotectedAdd(ioop);
         }
     }
 
     return true;
+}
+
+bool IOProcessor::Remove(IOOperation* ioop)
+{
+#ifdef IOPROCESSOR_MULTITHREADED
+		MutexGuard  guard(mutex);
+#endif
+
+	return IOProcessor_UnprotectedRemove(ioop);
 }
 
 bool IOProcessor::Poll(int msec)
@@ -694,7 +704,7 @@ bool ProcessTCPRead(TCPRead* tcpread)
             if (error == WSAEWOULDBLOCK)
             {
                 tcpread->active = false; // otherwise Add() returns
-                UNLOCKED_ADD(tcpread);
+                IOProcessor_UnprotectedAdd(tcpread);
             }
             else
                 callable = tcpread->onClose;
@@ -741,7 +751,7 @@ bool ProcessUDPRead(UDPRead* udpread)
         if (error == WSAEWOULDBLOCK)
         {
             udpread->active = false; // otherwise Add() returns
-            UNLOCKED_ADD(udpread);
+            IOProcessor_UnprotectedAdd(udpread);
         }
         else
             callable = udpread->onClose;
@@ -793,7 +803,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
             if (error == WSAEWOULDBLOCK)
             {
                 tcpwrite->active = false; // otherwise Add() returns
-                UNLOCKED_ADD(tcpwrite);
+                IOProcessor_UnprotectedAdd(tcpwrite);
             }
             else
                 callable = tcpwrite->onClose;
@@ -809,7 +819,7 @@ bool ProcessTCPWrite(TCPWrite* tcpwrite)
             else
             {
                 tcpwrite->active = false; // otherwise Add() returns
-                UNLOCKED_ADD(tcpwrite);
+                IOProcessor_UnprotectedAdd(tcpwrite);
             }
         }
     }
