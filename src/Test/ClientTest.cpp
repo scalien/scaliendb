@@ -42,8 +42,8 @@ static uint64_t defaultTableID;
 static uint64_t defaultDatabaseID;
 static int SetupDefaultClient(Client& client)
 {
-//    const char*     nodes[] = {"localhost:7080"};
-    const char*     nodes[] = {"192.168.137.52:7080"};
+    const char*     nodes[] = {"localhost:7080"};
+//    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
     std::string     databaseName = "test";
     std::string     tableName = "test";
@@ -56,8 +56,8 @@ static int SetupDefaultClient(Client& client)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
 
-    client.SetMasterTimeout(10000);
-    client.SetGlobalTimeout(100000);
+    client.SetMasterTimeout(100*10000);
+    client.SetGlobalTimeout(100*100000);
 
     clientObj = (ClientObj) &client;
     databaseID = 0;
@@ -154,7 +154,7 @@ TEST_DEFINE(TestClientSet)
     ReadBuffer      value;
     char            keybuf[32];
     int             ret;
-    unsigned        num = 500000;
+    unsigned        num = 3;
         
     ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
@@ -169,6 +169,8 @@ TEST_DEFINE(TestClientSet)
         if (ret != SDBP_SUCCESS)
             TEST_CLIENT_FAIL();
     }
+
+	client.Submit();
 
     client.Shutdown();
     
@@ -791,21 +793,24 @@ TEST_DEFINE(TestClientSetFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 500;
+    unsigned        numThread = 100;
     
-    threadPool = ThreadPool::Create(numThread);
-    threadPool->SetStackSize(256*KiB);
     
-    for (unsigned i = 0; i < numThread; i++)
-    {  
-        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedSetRandom));
-//        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
-    }
+	while(true)
+	{
+		threadPool = ThreadPool::Create(numThread);
+		threadPool->SetStackSize(256*KiB);
+
+		for (unsigned i = 0; i < numThread; i++)
+		{  
+			threadPool->Execute(CFunc((void (*)(void)) TestClientSet));
+	//        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
+		}
     
-    threadPool->Start();
-    threadPool->WaitStop();
-    
-    delete threadPool;
+		threadPool->Start();
+		threadPool->WaitStop();
+	    delete threadPool;
+	}
     
     return TEST_SUCCESS;
 }
