@@ -19,16 +19,16 @@ Mutex       globalMutex;
 unsigned    numClients;
 ThreadPool* ioThread;
 
-#define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(mutex)
-#define CLIENT_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
-#define CLIENT_MUTEX_GUARD_UNLOCK()     mutexGuard.Unlock()
+#define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard clientMutexGuard(mutex)
+#define CLIENT_MUTEX_GUARD_LOCK()       clientMutexGuard.Lock()
+#define CLIENT_MUTEX_GUARD_UNLOCK()     clientMutexGuard.Unlock()
 
 #define CLIENT_MUTEX_LOCK()             Lock()
 #define CLIENT_MUTEX_UNLOCK()           Unlock()
 
-#define GLOBAL_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(globalMutex)
-#define GLOBAL_MUTEX_GUARD_LOCK()       mutexGuard.Lock()
-#define GLOBAL_MUTEX_GUARD_UNLOCK()     mutexGuard.Unlock()
+#define GLOBAL_MUTEX_GUARD_DECLARE()    MutexGuard globalMutexGuard(globalMutex)
+#define GLOBAL_MUTEX_GUARD_LOCK()       globalMutexGuard.Lock()
+#define GLOBAL_MUTEX_GUARD_UNLOCK()     globalMutexGuard.Unlock()
 
 #else // CLIENT_MULTITHREADED
 
@@ -55,8 +55,10 @@ ThreadPool* ioThread;
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
-    ASSERT(configState != NULL);                    \
-    req = new Request;                              \
+    if (configState == NULL)						\
+		return SDBP_API_ERROR;						\
+													\
+	req = new Request;                              \
     req->op(NextCommandID(), configState->paxosID,  \
      tableID, __VA_ARGS__);                         \
     AppendDataRequest(req);                         \
@@ -73,7 +75,9 @@ ThreadPool* ioThread;
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
-    ASSERT(configState != NULL);                    \
+    if (configState == NULL)						\
+		return SDBP_API_ERROR;						\
+													\
     req = new Request;                              \
     req->op(NextCommandID(), configState->paxosID,  \
      tableID, __VA_ARGS__);                         \
@@ -274,6 +278,7 @@ void Client::Shutdown()
     }
     GLOBAL_MUTEX_GUARD_UNLOCK();
 
+	CLIENT_MUTEX_GUARD_DECLARE();
     for (int i = 0; i < numControllers; i++)
         delete controllerConnections[i];
     
@@ -687,8 +692,10 @@ int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value
     Request*    it;                                 
                                                     
     CLIENT_MUTEX_GUARD_DECLARE();                   
-                                                    
-    ASSERT(configState != NULL);                    
+    
+	if (configState == NULL)
+		return SDBP_API_ERROR;
+
     req = new Request;                              
     req->Set(NextCommandID(), configState->paxosID,  
      tableID, (ReadBuffer&) key, (ReadBuffer&) value);                         
@@ -783,7 +790,8 @@ int Client::ListKeys(
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    ASSERT(configState != NULL);
+	if (configState == NULL)
+		return SDBP_API_ERROR;
 
     req = new Request;
     req->userCount = count;
@@ -820,7 +828,9 @@ int Client::ListKeyValues(
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    ASSERT(configState != NULL);
+    if (configState == NULL)
+		return SDBP_API_ERROR;
+
     req = new Request;
     req->userCount = count;
     req->skip = skip;
@@ -931,13 +941,14 @@ void Client::EventLoop(long wait)
 {
     uint64_t		startTime;
     
-    if (!controllerConnections)
+    CLIENT_MUTEX_LOCK();
+
+	if (!controllerConnections)
     {
         result->SetTransportStatus(SDBP_API_ERROR);
         return;
     }
 
-    CLIENT_MUTEX_LOCK();
     // avoid race conditions
     isDone.SetWaiting(true);
     if (requests.GetLength() > 0)
@@ -1190,6 +1201,7 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     uint64_t*       it;
     
     ASSERT(configState != NULL);
+
     table = configState->GetTable(tableID);
     //Log_Trace("%U", tableID);
     ASSERT(table != NULL);
