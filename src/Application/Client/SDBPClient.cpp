@@ -267,10 +267,10 @@ void Client::Shutdown()
     
     Submit();
 
-    //Log_Message("Client shutting down, trying to lock");
+#ifdef IOPROCESSOR_MULTITHREADED
     IOProcessor::Lock();
-    //Log_Message("Client got the lock");
-    
+#endif
+
 	CLIENT_MUTEX_GUARD_DECLARE();
     for (int i = 0; i < numControllers; i++)
         delete controllerConnections[i];
@@ -291,7 +291,9 @@ void Client::Shutdown()
     
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
+#ifdef IOPROCESSOR_MULTITHREADED
     IOProcessor::Unlock();
+#endif
     
     GLOBAL_MUTEX_GUARD_DECLARE();
     numClients--;
