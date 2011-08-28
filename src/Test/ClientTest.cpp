@@ -55,9 +55,9 @@ static int SetupDefaultClient(Client& client)
     ret = client.Init(SIZE(nodes), nodes);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
-
-    client.SetMasterTimeout(100*10000);
-    client.SetGlobalTimeout(100*100000);
+   
+    client.SetMasterTimeout(60*1000);
+    client.SetGlobalTimeout(60*1000);
 
     clientObj = (ClientObj) &client;
     databaseID = 0;
@@ -167,7 +167,10 @@ TEST_DEFINE(TestClientSet)
         value.Wrap(keybuf, ret);
         ret = client.Set(defaultTableID, key, value);
         if (ret != SDBP_SUCCESS)
+        {
+            Log_Debug("Something went wrong");
             TEST_CLIENT_FAIL();
+        }
     }
 
 	client.Submit();
@@ -793,7 +796,7 @@ TEST_DEFINE(TestClientSetFailover)
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 100;
+    unsigned        numThread = 500;
     
     
 	while(true)
