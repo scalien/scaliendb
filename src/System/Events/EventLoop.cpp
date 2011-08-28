@@ -12,6 +12,7 @@ long EventLoop::RunTimers()
     wait = -1;
 
 #ifdef EVENTLOOP_MULTITHREADED
+    MutexGuard pollGuard(IOProcessor::pollLock);
     MutexGuard guard(mutex);
 #endif
 
@@ -31,12 +32,14 @@ long EventLoop::RunTimers()
             }
             UnprotectedRemove(timer);
             
+#ifdef EVENTLOOP_MULTITHREADED
             mutex.Unlock();
-            IOProcessor::Lock();
+#endif
             timer->Execute();
-            IOProcessor::Unlock();
+#ifdef EVENTLOOP_MULTITHREADED
             mutex.Lock();
-            
+#endif
+
             timer->ran = true;
             timer = timers.First();
         }

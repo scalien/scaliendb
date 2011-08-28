@@ -2,6 +2,7 @@
 #define IOPROCESSOR_H
 
 #include "IOOperation.h"
+#include "System/Threading/Mutex.h"
 
 #define IOPROCESSOR_NO_BLOCK            0
 #define IOPROCESSOR_BLOCK_ALL           1
@@ -50,8 +51,6 @@ public:
     static bool Init(int maxfd);
     static void Shutdown();
 
-    static void Lock();
-    static void Unlock();
 
     static bool Add(IOOperation* ioop);
     static bool Remove(IOOperation* ioop);
@@ -65,6 +64,13 @@ public:
     static bool IsRunning();
     
     static void GetStats(IOProcessorStat* stat);
+
+#ifdef IOPROCESSOR_MULTITHREADED
+    static void Lock();
+    static void Unlock();
+
+    static Mutex pollLock;
+#endif
 };
 
 #endif
