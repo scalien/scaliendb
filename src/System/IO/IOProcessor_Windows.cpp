@@ -284,6 +284,18 @@ void IOProcessor::Shutdown()
     WSACleanup();
 }
 
+Mutex pollLock;
+
+void IOProcessor::Lock()
+{
+    pollLock.Lock();
+}
+
+void IOProcessor::Unlock()
+{
+    pollLock.Unlock();
+}
+
 static bool RequestReadNotification(IOOperation* ioop)
 {
     DWORD   numBytes, flags;
@@ -529,9 +541,15 @@ bool IOProcessor::Poll(int msec)
 
     timeout = (msec >= 0) ? msec : INFINITE;
 
-Again:
+//Again:
+    MutexGuard pollGuard(pollLock);
+    //Log_Message("Poll got the lock");
+    if (timeout > 20)
+        timeout = 20;
+
     startTime = EventLoop::Now();
     ret = GetQueuedCompletionStatus(iocp, &numBytes, (PULONG_PTR)&iod, &overlapped, timeout);
+    //Log_Message("Poll finished");
     if (terminated)
         return false;
 
@@ -608,7 +626,7 @@ Again:
             }
         }
         timeout = 0;
-        goto Again;
+        //goto Again;
     }
     else
     {

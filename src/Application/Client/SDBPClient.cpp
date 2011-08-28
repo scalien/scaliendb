@@ -266,18 +266,11 @@ void Client::Shutdown()
         return;
     
     Submit();
-    
-    GLOBAL_MUTEX_GUARD_DECLARE();
-    numClients--;
-    if (numClients == 0)
-    {
-        EventLoop::Stop();
-        ioThread->WaitStop();
-        delete ioThread;
-        ioThread = NULL;
-    }
-    GLOBAL_MUTEX_GUARD_UNLOCK();
 
+    //Log_Message("Client shutting down, trying to lock");
+    IOProcessor::Lock();
+    //Log_Message("Client got the lock");
+    
 	CLIENT_MUTEX_GUARD_DECLARE();
     for (int i = 0; i < numControllers; i++)
         delete controllerConnections[i];
@@ -298,6 +291,19 @@ void Client::Shutdown()
     
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
+    IOProcessor::Unlock();
+    
+    GLOBAL_MUTEX_GUARD_DECLARE();
+    numClients--;
+    if (numClients == 0)
+    {
+        EventLoop::Stop();
+        ioThread->WaitStop();
+        delete ioThread;
+        ioThread = NULL;
+    }
+    GLOBAL_MUTEX_GUARD_UNLOCK();
+
     IOProcessor::Shutdown();
     
     // TODO: if I am the last thread, kill the event loop?

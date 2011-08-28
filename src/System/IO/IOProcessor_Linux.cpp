@@ -322,6 +322,16 @@ void IOProcessor::Shutdown()
     asyncPipeOp.Close();
 }
 
+void IOProcessor::Lock()
+{
+    // TODO
+}
+
+void IOProcessor::Unlock()
+{
+    // TODO
+}
+
 bool IOProcessor::Add(IOOperation* ioop)
 {
     uint32_t    filter;

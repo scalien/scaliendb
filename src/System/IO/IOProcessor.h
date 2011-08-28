@@ -50,6 +50,9 @@ public:
     static bool Init(int maxfd);
     static void Shutdown();
 
+    static void Lock();
+    static void Unlock();
+
     static bool Add(IOOperation* ioop);
     static bool Remove(IOOperation* ioop);
 

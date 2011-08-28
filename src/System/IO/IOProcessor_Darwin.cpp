@@ -246,6 +246,16 @@ void IOProcessor::Shutdown()
     delete[] writeOps;
 }
 
+void IOProcessor::Lock()
+{
+    // TODO
+}
+
+void IOProcessor::Unlock()
+{
+    // TODO
+}
+
 bool IOProcessor::Add(IOOperation* ioop)
 {
     short   filter;
