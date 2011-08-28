@@ -30,13 +30,17 @@ long EventLoop::RunTimers()
                 continue;
             }
             UnprotectedRemove(timer);
-            
+
+#ifdef EVENTLOOP_MULTITHREADED            
             mutex.Unlock();
             IOProcessor::Lock();
+#endif
             timer->Execute();
+
+#ifdef EVENTLOOP_MULTITHREADED
             IOProcessor::Unlock();
             mutex.Lock();
-            
+#endif            
             timer->ran = true;
             timer = timers.First();
         }
