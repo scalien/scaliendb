@@ -264,32 +264,6 @@ void Client::Shutdown()
     
     Submit();
 
-//#ifdef IOPROCESSOR_MULTITHREADED
-//    IOProcessor::Lock();
-//#endif
-
-	//CLIENT_MUTEX_GUARD_DECLARE();
-    //for (int i = 0; i < numControllers; i++)
-    //    delete controllerConnections[i];
-    //
-    //delete[] controllerConnections;
-    //controllerConnections = NULL;
-    //    
-    //shardConnections.DeleteTree();
-
-    //ClearQuorumRequests();
-    //FOREACH (requestNode, quorumRequests)
-    //{
-    //    requestList = requestNode->Value();
-    //    delete requestList;
-    //}
-
-    //delete result;
-
-//#ifdef IOPROCESSOR_MULTITHREADED
-//    IOProcessor::Unlock();
-//#endif
-    
     isDone.SetWaiting(true);
     onClientShutdown.SetCallable(MFUNC(Client, OnClientShutdown));
     EventLoop::Add(&onClientShutdown);
