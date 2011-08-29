@@ -645,6 +645,7 @@ uint64_t Client::GetTableIDAt(uint64_t databaseID, unsigned n)
     {
         if (i == n)
             return *itTableID;
+        i++;
     }
     
     return 0;
@@ -674,6 +675,7 @@ void Client::GetTableNameAt(uint64_t databaseID, unsigned n, Buffer& name)
     {
         if (i == n)
             break;
+        i++;
     }
     
     if (!itTableID)
