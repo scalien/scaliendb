@@ -264,10 +264,10 @@ void Client::Shutdown()
     
     Submit();
 
-    isDone.SetWaiting(true);
+    isShutdown.SetWaiting(true);
     onClientShutdown.SetCallable(MFUNC(Client, OnClientShutdown));
     EventLoop::Add(&onClientShutdown);
-    isDone.Wait();
+    isShutdown.Wait();
 
     GLOBAL_MUTEX_GUARD_DECLARE();
     numClients--;
@@ -316,7 +316,7 @@ void Client::OnClientShutdown()
 
     delete result;
 
-    isDone.Wake();
+    isShutdown.Wake();
 }
 
 void Client::SetBatchLimit(unsigned batchLimit_)

@@ -192,6 +192,7 @@ private:
 
 //#ifdef CLIENT_MULTITHREAD
     Signal                  isDone;
+    Signal                  isShutdown;
     Mutex                   mutex;
     Buffer                  mutexName;
     void                    Lock();
