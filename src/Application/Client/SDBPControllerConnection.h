@@ -22,6 +22,7 @@ class ControllerConnection : public MessageConnection
 {
 public:
     ControllerConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
+    ~ControllerConnection();
     
     void            Connect();
     void            Send(ClientRequest* request);
