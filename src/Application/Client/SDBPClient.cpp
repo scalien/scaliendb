@@ -955,7 +955,7 @@ int Client::Cancel()
  * If wait is zero, EventLoop runs exactly once and handles timer and IO events.
  * If wait is positive, EventLoop waits until all request is served ot timeout happens, but waits at most wait msecs.
  */
-void Client::EventLoop(long wait)
+void Client::EventLoop()
 {
     uint64_t		startTime;
     

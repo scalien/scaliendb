@@ -24,8 +24,6 @@
 
 #ifdef IOPROCESSOR_MULTITHREADED
 
-Mutex IOProcessor::pollLock;
-
 #define UNLOCKED_CALL(callable)     \
 do                                  \
 {                                   \
@@ -323,20 +321,6 @@ void IOProcessor::Shutdown()
     delete[] epollOps;
     asyncPipeOp.Close();
 }
-
-#ifdef IOPROCESSOR_MULTITHREADED
-
-void IOProcessor::Lock()
-{
-    // TODO
-}
-
-void IOProcessor::Unlock()
-{
-    // TODO
-}
-
-#endif
 
 bool IOProcessor::Add(IOOperation* ioop)
 {

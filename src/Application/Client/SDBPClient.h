@@ -125,7 +125,7 @@ private:
     friend class            ShardConnection;
     friend class            Table;
     
-    void                    EventLoop(long wait = -1);
+    void                    EventLoop();
     bool                    IsDone();
     uint64_t                NextCommandID();
     Request*                CreateGetConfigState();
