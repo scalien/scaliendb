@@ -12,7 +12,7 @@ Timer::Timer()
 
 Timer::~Timer()
 {
-//    ASSERT(active == false);
+    ASSERT(active == false);
 //    ASSERT(next == prev && next == this);
 }
 
