@@ -7,7 +7,7 @@
 #include "Application/SDBP/SDBPResponseMessage.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 
-#define GETMASTER_TIMEOUT   1000
+#define GETMASTER_TIMEOUT   3000
 #define RECONNECT_TIMEOUT   2000
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(client->mutex)
@@ -69,7 +69,7 @@ void ControllerConnection::OnGetConfigStateTimeout()
 {
     Log_Trace();
         
-    if (EventLoop::Now() - getConfigStateTime > PAXOSLEASE_MAX_LEASE_TIME)
+    if (EventLoop::Now() - getConfigStateTime > PAXOSLEASE_MAX_LEASE_TIME * 3)
     {
         Log_Trace();
         

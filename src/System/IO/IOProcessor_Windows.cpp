@@ -14,8 +14,6 @@
 // support for multithreaded IOProcessor
 #ifdef IOPROCESSOR_MULTITHREADED
 
-Mutex IOProcessor::pollLock;
-
 #define UNLOCKED_CALL(callable)     \
 do                                  \
 {                                   \
@@ -286,20 +284,6 @@ void IOProcessor::Shutdown()
     WSACleanup();
 }
 
-#ifdef IOPROCESSOR_MULTITHREADED
-
-void IOProcessor::Lock()
-{
-    pollLock.Lock();
-}
-
-void IOProcessor::Unlock()
-{
-    pollLock.Unlock();
-}
-
-#endif
-
 static bool RequestReadNotification(IOOperation* ioop)
 {
     DWORD   numBytes, flags;
@@ -546,11 +530,6 @@ bool IOProcessor::Poll(int msec)
     timeout = (msec >= 0) ? msec : INFINITE;
 
 //Again:
-#ifdef IOPROCESSOR_MULTITHREADED
-    MutexGuard pollGuard(pollLock);
-    if (timeout > 20)
-        timeout = 20;
-#endif
 
     startTime = EventLoop::Now();
     ret = GetQueuedCompletionStatus(iocp, &numBytes, (PULONG_PTR)&iod, &overlapped, timeout);

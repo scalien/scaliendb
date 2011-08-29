@@ -259,19 +259,72 @@ int Client::Init(int nodec, const char* nodev[])
 
 void Client::Shutdown()
 {
-    RequestListMap::Node*   requestNode;
-    RequestList*            requestList;
-
     if (!controllerConnections)
         return;
     
     Submit();
 
-#ifdef IOPROCESSOR_MULTITHREADED
-    IOProcessor::Lock();
-#endif
+//#ifdef IOPROCESSOR_MULTITHREADED
+//    IOProcessor::Lock();
+//#endif
 
-	CLIENT_MUTEX_GUARD_DECLARE();
+	//CLIENT_MUTEX_GUARD_DECLARE();
+    //for (int i = 0; i < numControllers; i++)
+    //    delete controllerConnections[i];
+    //
+    //delete[] controllerConnections;
+    //controllerConnections = NULL;
+    //    
+    //shardConnections.DeleteTree();
+
+    //ClearQuorumRequests();
+    //FOREACH (requestNode, quorumRequests)
+    //{
+    //    requestList = requestNode->Value();
+    //    delete requestList;
+    //}
+
+    //delete result;
+
+//#ifdef IOPROCESSOR_MULTITHREADED
+//    IOProcessor::Unlock();
+//#endif
+    
+    isDone.SetWaiting(true);
+    onClientShutdown.SetCallable(MFUNC(Client, OnClientShutdown));
+    EventLoop::Add(&onClientShutdown);
+    isDone.Wait();
+
+    GLOBAL_MUTEX_GUARD_DECLARE();
+    numClients--;
+    if (numClients == 0)
+    {
+        EventLoop::Stop();
+        ioThread->WaitStop();
+        delete ioThread;
+        ioThread = NULL;
+    }
+    GLOBAL_MUTEX_GUARD_UNLOCK();
+
+    IOProcessor::Shutdown();    
+}
+
+void Client::OnClientShutdown()
+{
+    RequestListMap::Node*   requestNode;
+    RequestList*            requestList;
+    ShardConnection*        shardConnection;
+
+    for (int i = 0; i < numControllers; i++)
+        controllerConnections[i]->Close();
+
+    FOREACH (shardConnection, shardConnections)
+        shardConnection->Close();
+    
+    EventLoop::Remove(&masterTimeout);
+    EventLoop::Remove(&globalTimeout);
+
+
     for (int i = 0; i < numControllers; i++)
         delete controllerConnections[i];
     
@@ -288,27 +341,8 @@ void Client::Shutdown()
     }
 
     delete result;
-    
-    EventLoop::Remove(&masterTimeout);
-    EventLoop::Remove(&globalTimeout);
-#ifdef IOPROCESSOR_MULTITHREADED
-    IOProcessor::Unlock();
-#endif
-    
-    GLOBAL_MUTEX_GUARD_DECLARE();
-    numClients--;
-    if (numClients == 0)
-    {
-        EventLoop::Stop();
-        ioThread->WaitStop();
-        delete ioThread;
-        ioThread = NULL;
-    }
-    GLOBAL_MUTEX_GUARD_UNLOCK();
 
-    IOProcessor::Shutdown();
-    
-    // TODO: if I am the last thread, kill the event loop?
+    isDone.Wake();
 }
 
 void Client::SetBatchLimit(unsigned batchLimit_)

@@ -37,6 +37,7 @@ public:
 
     int                     Init(int nodec, const char* nodev[]);
     void                    Shutdown();
+    void                    OnClientShutdown();
 
     // =============================================================================================
     //
@@ -187,6 +188,7 @@ private:
     int                     consistencyMode;
     int						batchMode;
     uint64_t                highestSeenPaxosID;
+    YieldTimer              onClientShutdown;
 
 //#ifdef CLIENT_MULTITHREAD
     Signal                  isDone;

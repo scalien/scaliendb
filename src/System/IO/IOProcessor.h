@@ -64,13 +64,6 @@ public:
     static bool IsRunning();
     
     static void GetStats(IOProcessorStat* stat);
-
-#ifdef IOPROCESSOR_MULTITHREADED
-    static void Lock();
-    static void Unlock();
-
-    static Mutex pollLock;
-#endif
 };
 
 #endif
