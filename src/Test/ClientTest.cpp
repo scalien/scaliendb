@@ -783,6 +783,7 @@ TEST_DEFINE(TestClientSetFailover)
         tmp.Writef("%d", i);
         start = Now();
         TEST(client.Set(defaultTableID, "index", tmp));
+        TEST(client.Submit());
         end = Now();
         TEST_LOG("%i: diff = %u", i, (unsigned) (end - start));
         
