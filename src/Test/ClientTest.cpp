@@ -798,10 +798,12 @@ TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
     unsigned        numThread = 500;
-    
+    Stopwatch       sw;
     
 	while(true)
 	{
+        TEST_LOG("Starting %u threads", numThread);
+        sw.Restart();
 		threadPool = ThreadPool::Create(numThread);
 		threadPool->SetStackSize(256*KiB);
 
@@ -814,6 +816,8 @@ TEST_DEFINE(TestClientMultiThread)
 		threadPool->Start();
 		threadPool->WaitStop();
 	    delete threadPool;
+        sw.Stop();
+        TEST_LOG("Elapsed: %ld", (long) sw.Elapsed());
 	}
     
     return TEST_SUCCESS;
