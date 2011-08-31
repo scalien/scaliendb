@@ -7,7 +7,7 @@
 #include "Application/ConfigServer/ConfigServerApp.h"
 #include "Application/ShardServer/ShardServerApp.h"
 
-#define PRODUCT_STRING      "ScalienDB v" VERSION_STRING 
+#define PRODUCT_STRING      "ScalienDB v" VERSION_STRING " " PLATFORM_STRING
 
 void InitLog();
 void ParseArgs(int argc, char** argv);
