@@ -27,6 +27,11 @@ ControllerConnection::ControllerConnection(Client* client_, uint64_t nodeID_, En
     Connect();
 }
 
+ControllerConnection::~ControllerConnection()
+{
+    EventLoop::Remove(&getConfigStateTimeout);
+}
+
 void ControllerConnection::Connect()
 {
     // TODO: MessageConnection::Connect does not support timeout parameter
