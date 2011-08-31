@@ -1499,19 +1499,25 @@ void Client::ConfigureShardServers()
         {
             Log_Trace("connect");
             // connect to previously unknown shard server
-            endpoint = ssit->endpoint;
-            endpoint.SetPort(ssit->sdbpPort);
-            shardConn = new ShardConnection(this, ssit->nodeID, endpoint);
-            shardConnections.Insert<uint64_t>(shardConn);
+            if (ssit->sdbpPort != 0)
+            {
+                endpoint = ssit->endpoint;
+                endpoint.SetPort(ssit->sdbpPort);
+                shardConn = new ShardConnection(this, ssit->nodeID, endpoint);
+                shardConnections.Insert<uint64_t>(shardConn);
+            }
         }
         else
         {
             // clear shard server quorum info
             Log_Trace("ssit: %s, shardConn: %s", ssit->endpoint.ToString(), shardConn->GetEndpoint().ToString());
-            // TODO: remove this hack when shardserver's endpoint will be sent correctly in configState
-            endpoint = ssit->endpoint;
-            endpoint.SetPort(ssit->sdbpPort);
-            ASSERT(endpoint == shardConn->GetEndpoint());
+            if (ssit->sdbpPort != 0)
+            {
+                endpoint = ssit->endpoint;
+                endpoint.SetPort(ssit->sdbpPort);
+                endpoint.ToString();
+                ASSERT(endpoint == shardConn->GetEndpoint());
+            }
             shardConn->ClearQuorumMemberships();
         }
     }
@@ -1525,8 +1531,11 @@ void Client::ConfigureShardServers()
         {
             Log_Trace("%U", *nit);
             shardConn = shardConnections.Get(*nit);
-            ASSERT(shardConn != NULL);
-            shardConn->SetQuorumMembership(qit->quorumID);
+            //ASSERT(shardConn != NULL);
+            // the controller always reports the last shard server in a quorum as active,
+            // but that doesn't mean it is up and running
+            if (shardConn != NULL)
+                shardConn->SetQuorumMembership(qit->quorumID);
         }        
     }
 }
