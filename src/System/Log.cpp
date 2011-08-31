@@ -149,24 +149,27 @@ static void Log_Append(char*& p, int& remaining, const char* s, int len)
     remaining -= len;
 }
 
-static void Log_Flush(const char* buf, int /*size*/)
+static void Log_Write(const char* buf, int /*size*/, int flush)
 {
     if ((target & LOG_TARGET_STDOUT) == LOG_TARGET_STDOUT)
     {
         fputs(buf, stdout);
-        fflush(stdout);
+        if (flush)
+			fflush(stdout);
     }
     
     if ((target & LOG_TARGET_STDERR) == LOG_TARGET_STDERR)
     {
         fputs(buf, stderr);
-        fflush(stderr);
+		if (flush)
+			fflush(stderr);
     }
     
     if ((target & LOG_TARGET_FILE) == LOG_TARGET_FILE && logfile)
     {
         fputs(buf, logfile);
-        fflush(logfile);
+		if (flush)
+			fflush(logfile);
     }
 }
 
@@ -277,5 +280,5 @@ void Log(const char* file, int line, const char* func, int type, const char* fmt
     }
 
     Log_Append(p, remaining, "\n", 2);
-    Log_Flush(buf, maxLine - remaining);
+    Log_Write(buf, maxLine - remaining, type != LOG_TYPE_TRACE);
 }

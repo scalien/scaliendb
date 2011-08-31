@@ -532,10 +532,7 @@ FD FS_Open(const char* filename, int flags)
     
     if (handle == INVALID_HANDLE_VALUE)
     {
-        DWORD   error;
-
-        error = GetLastError();
-        Log_Debug("error = %u", error);
+        Log_Errno("filename: %s", filename);
         fd = INVALID_FD;
         return fd;
     }

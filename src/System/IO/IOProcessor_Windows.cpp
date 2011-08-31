@@ -83,6 +83,7 @@ static IOProcessorStat  iostat;
 static Mutex            callableMutex;
 static CallableQueue    callableQueue;
 static Mutex            mutex;
+static int				numIods;
 
 static LPFN_CONNECTEX   ConnectEx;
 
@@ -96,7 +97,7 @@ void ProcessCompletionCallbacks();
 // helper function for FD -> IODesc mapping
 static IODesc* GetIODesc(const FD& fd)
 {
-    ASSERT(fd.index >= 0);
+    ASSERT(fd.index >= 0 && fd.index < numIods);
     return &iods[fd.index];
 }
 
@@ -104,12 +105,15 @@ static IODesc* GetIODesc(const FD& fd)
 bool IOProcessorAccept(const FD& listeningFd, FD& fd)
 {
     IODesc*     iod;
+	int			ret;
 
     iod = GetIODesc(listeningFd);
     fd = iod->acceptFd;
 
     // this need to be called so that getpeername works
-    setsockopt(fd.handle, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (const char *)&listeningFd.handle, sizeof(SOCKET));
+    ret = setsockopt(fd.handle, SOL_SOCKET, SO_UPDATE_ACCEPT_CONTEXT, (const char *)&listeningFd.handle, sizeof(SOCKET));
+	if (ret < 0)
+		return false;
 
     return true;
 }
@@ -257,11 +261,12 @@ bool IOProcessor::Init(int maxfd)
     closesocket(s);
 
     // create an array for IODesc indexing
-    iods = new IODesc[maxfd];
-    for (int i = 0; i < maxfd - 1; i++)
+	numIods = maxfd;
+    iods = new IODesc[numIods];
+    for (int i = 0; i < numIods - 1; i++)
         iods[i].next = &iods[i + 1];
 
-    iods[maxfd - 1].next = NULL;
+    iods[numIods - 1].next = NULL;
     freeIods = iods;
 
     memset(&iostat, 0, sizeof(iostat));
@@ -372,7 +377,9 @@ static bool StartAsyncAccept(IOOperation* ioop)
     // create an accepting socket with WSA_FLAG_OVERLAPPED to support async operations
     iod->acceptFd.handle = WSASocket(AF_INET, SOCK_STREAM, IPPROTO_TCP, NULL, 0, WSA_FLAG_OVERLAPPED);
     if (iod->acceptFd.handle == INVALID_SOCKET)
+	{
         return false;
+	}
 
     if (setsockopt(iod->acceptFd.handle, SOL_SOCKET, SO_REUSEADDR, (char *)&trueval, sizeof(BOOL)))
     {
@@ -458,12 +465,12 @@ bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
     if (!ioop->active)
         return true;
 
-    if (ioop->type == IOOperation::TCP_READ)
-    {
-        tcpread = (TCPRead*) ioop;
-        if (tcpread->listening)
-            ASSERT_FAIL(); // Remove() not supported for listening sockets
-    }
+    //if (ioop->type == IOOperation::TCP_READ)
+    //{
+    //    tcpread = (TCPRead*) ioop;
+    //    if (tcpread->listening)
+    //        ASSERT_FAIL(); // Remove() not supported for listening sockets
+    //}
 
     ioop->active = false;
     iod = GetIODesc(ioop->fd);
@@ -577,6 +584,15 @@ bool IOProcessor::Poll(int msec)
                     error = GetLastError();
                     if (error != WSA_IO_INCOMPLETE)
                     {
+						// special case for listening sockets
+						if (ioop->type == IOOperation::TCP_READ && ((TCPRead*)ioop)->listening == true)
+						{
+							// the error happened on the accepted socket and async accept failed so we close it
+							closesocket(iod->acceptFd.handle);
+							iod->acceptFd.handle = INVALID_SOCKET;
+							Log_Debug("Async accept failed");
+						}
+
                         Log_Trace("last error = %d", error);
                         ioop->active = false;
                         UNLOCKED_CALL(ioop->onClose);

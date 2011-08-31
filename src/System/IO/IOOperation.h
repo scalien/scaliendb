@@ -32,6 +32,7 @@ struct IOOperation
         active = false;
         pending = false;
         offset = 0;
+		buffer = NULL;
     }
     
     void SetFD(FD fd_)

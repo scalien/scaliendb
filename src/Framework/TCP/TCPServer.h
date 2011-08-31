@@ -42,6 +42,7 @@ public:
 
 protected:
     void                    OnConnect();
+	void					OnClose();
     Conn*                   GetConn();
     void                    InitConn(Conn* conn);
     bool                    IsManaged();
@@ -74,6 +75,8 @@ TCPServer<T, Conn>::~TCPServer()
         while ((conn = inactiveConns.Dequeue()) != NULL)
             delete conn;
     }
+
+	IOProcessor::Remove(&tcpread);
 }
 
 template<class T, class Conn>
@@ -95,7 +98,8 @@ bool TCPServer<T, Conn>::Init(int port_, bool listen, int backlog_)
         return false;
 
     tcpread.Listen(listener.fd, MFUNC(TCPServer, OnConnect));
-    
+	tcpread.onClose = MFUNC(TCPServer, OnClose);
+
     if (listen)
         return IOProcessor::Add(&tcpread);
     else
@@ -199,6 +203,13 @@ void TCPServer<T, Conn>::OnConnect()
     }
     
     IOProcessor::Add(&tcpread);     
+}
+
+template<class T, class Conn>
+void TCPServer<T, Conn>::OnClose()
+{
+	// there was an error while accepting the socket and it was closed
+    IOProcessor::Add(&tcpread);
 }
 
 template<class T, class Conn>
