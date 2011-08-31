@@ -193,7 +193,7 @@ void StorageAsyncList::AsyncMergeResult()
     StorageFileKeyValue*    it;
     StorageAsyncListResult* result;
 
-    Log_Message("starting AsyncMergeResult");
+    Log_Debug("starting AsyncMergeResult");
 
     result = new StorageAsyncListResult(this);
     
@@ -223,7 +223,7 @@ void StorageAsyncList::AsyncMergeResult()
         }
     }
     
-    Log_Message("finished AsyncMergeResult");
+    Log_Debug("finished AsyncMergeResult");
     
     result->final = true;
     OnResult(result);
