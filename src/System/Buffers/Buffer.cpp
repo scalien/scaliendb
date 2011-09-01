@@ -2,6 +2,7 @@
 #include "System/Common.h"
 #include <stdarg.h>
 #include <stdlib.h>
+#include <new>
 
 Buffer::Buffer()
 {
@@ -105,7 +106,12 @@ void Buffer::Allocate(unsigned size_, bool keepold)
     else
         newbuffer = (char*) realloc(buffer, size_);
 
-    ASSERT(newbuffer != NULL);
+    if (newbuffer == NULL)
+    {
+        throw std::bad_alloc();
+        // in case of exceptions are disabled
+        STOP_FAIL(1, "Out of memory error");
+    }
 
     if (keepold && length > 0)
     {

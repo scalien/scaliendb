@@ -11,6 +11,7 @@
 
 void InitLog();
 void ParseArgs(int argc, char** argv);
+void RunServer(int argc, char** argv);
 void ConfigureSystemSettings();
 bool IsController();
 void InitContextTransport();
@@ -18,11 +19,33 @@ void LogPrintVersion(bool isController);
 
 int main(int argc, char** argv)
 {
+    try
+    {
+        RunServer(argc, argv);
+    }
+    catch (std::bad_alloc&)
+    {
+        STOP_FAIL(1, "Out of memory error");
+    }
+    catch (std::exception& e)
+    {
+        STOP_FAIL(1, "Unexpected exception happened (%s)", e.what());
+    }
+    catch (...)
+    {
+        STOP_FAIL(1, "Unexpected exception happened");
+    }
+
+    return 0;
+}
+
+void RunServer(int argc, char** argv)
+{
     Application* app;
     bool isController;
 
     if (argc < 2)
-        STOP_FAIL(1, "Config file argument not given, exiting");
+        STOP_FAIL(1, "Config file argument not given");
         
     if (!configFile.Init(argv[1]))
         STOP_FAIL(1, "Invalid config file (%s)", argv[1]);
@@ -59,8 +82,6 @@ int main(int argc, char** argv)
     StopClock();
     configFile.Shutdown();
     Log_Shutdown();
-
-    return 0;
 }
 
 void InitLog()

@@ -543,6 +543,9 @@
     <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp">
       <Filter>System\Threading</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Test\MemoryTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">

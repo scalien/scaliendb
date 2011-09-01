@@ -58,10 +58,10 @@
 
 #define STOP_FAIL(code, ...)                                                    \
 do {                                                                            \
-    IFDEBUG(PrintStackTrace());                                                 \
     Log_SetTarget(LOG_TARGET_STDERR|LOG_TARGET_FILE);                           \
     const char* msg = StaticPrint("" __VA_ARGS__);                              \
     Log_Message("Exiting (%d)%s%s", code, msg ? ": " : "...", msg ? msg : "");  \
+    IFDEBUG(ASSERT_FAIL());                                                 \
     _exit(code);                                                                \
 } while (0)
 

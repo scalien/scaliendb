@@ -297,6 +297,7 @@
     <ClCompile Include="..\src\Test\FormattingTest.cpp" />
     <ClCompile Include="..\src\Test\InTreeMapTest.cpp" />
     <ClCompile Include="..\src\Test\ManualTest.cpp" />
+    <ClCompile Include="..\src\Test\MemoryTest.cpp" />
     <ClCompile Include="..\src\Test\StorageTest.cpp" />
     <ClCompile Include="..\src\Test\Test.cpp" />
     <ClCompile Include="..\src\Test\TestMain.cpp" />
