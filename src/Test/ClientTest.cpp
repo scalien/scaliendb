@@ -289,9 +289,6 @@ TEST_DEFINE(TestClientListKeysWithPrefix)
 TEST_DEFINE(TestClientBatchLimit)
 {
     Client          client;
-    const char*     nodes[] = {"localhost:7080"};
-    ReadBuffer      databaseName = "testdb";
-    ReadBuffer      tableName = "testtable";
     ReadBuffer      key;
     ReadBuffer      value;
     char            keybuf[32];
@@ -476,7 +473,6 @@ TEST_DEFINE(TestClientBatchedSetRandom)
     char            keybuf[10];
     int             ret;
     unsigned        totalNum = 1;
-    unsigned        batchNum = 5000;
     unsigned        count;
     Stopwatch       sw;
     static int      counter = 0;

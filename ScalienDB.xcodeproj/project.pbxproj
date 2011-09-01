@@ -123,7 +123,6 @@
 		54B7F77911BE5EF30076BC62 /* Log.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F76111BE5EF30076BC62 /* Log.cpp */; };
 		54B7F96111BE85950076BC62 /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		54D53AD813F323E000311381 /* Signal_Posix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54D53AD713F323E000311381 /* Signal_Posix.cpp */; };
-		54D53B0813F4019C00311381 /* Sequence.java in Sources */ = {isa = PBXBuildFile; fileRef = 54D53B0713F4019C00311381 /* Sequence.java */; };
 		54E59F0012E5A84F002222A4 /* ShardCatchupWriter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE68B12BFBB420069786A /* ShardCatchupWriter.cpp */; };
 		54E59F3B12E5AD20002222A4 /* ShardCatchupReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 543DE68912BFBB420069786A /* ShardCatchupReader.cpp */; };
 		54FA68EC11C241EF00FF4EF6 /* EventLoop.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F74F11BE5EF30076BC62 /* EventLoop.cpp */; };
@@ -1749,7 +1748,6 @@
 				9AED119013B379F40023F27E /* JSONReaderTest.cpp in Sources */,
 				5452866613C5F17600B6A374 /* ConfigController.cpp in Sources */,
 				54D53AD813F323E000311381 /* Signal_Posix.cpp in Sources */,
-				54D53B0813F4019C00311381 /* Sequence.java in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
