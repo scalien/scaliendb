@@ -1062,5 +1062,8 @@
     <ClInclude Include="..\src\System\Threading\Signal.h">
       <Filter>System\Threading</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\System\Threading\Atomic.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

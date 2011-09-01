@@ -3,6 +3,7 @@
 #include "Application/Client/SDBPClientWrapper.h"
 #include "System/Common.h"
 #include "System/Threading/ThreadPool.h"
+#include "System/Threading/Atomic.h"
 
 using namespace SDBPClient;
 
@@ -17,7 +18,7 @@ using namespace SDBPClient;
         PRINT_CLIENT_STATUS("Connectivity", client.GetConnectivityStatus()); \
         PRINT_CLIENT_STATUS("Timeout", client.GetTimeoutStatus()); \
         PRINT_CLIENT_STATUS("Command", client.GetCommandStatus()); \
-        TEST_FAIL(); \
+        /*TEST_FAIL();*/ \
     }
 
 #define PRINT_CLIENT_STATUS(which, status) \
@@ -155,6 +156,8 @@ TEST_DEFINE(TestClientSet)
     char            keybuf[32];
     int             ret;
     unsigned        num = 3;
+    static unsigned counter;
+    unsigned        counterValue;
         
     ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
@@ -162,7 +165,8 @@ TEST_DEFINE(TestClientSet)
     
     for (unsigned i = 0; i < num; i++)
     {
-        ret = snprintf(keybuf, sizeof(keybuf), "%u", i);
+        counterValue = AtomicIncrement32(counter);
+        ret = snprintf(keybuf, sizeof(keybuf), "%u", counterValue);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
         ret = client.Set(defaultTableID, key, value);

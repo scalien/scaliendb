@@ -446,6 +446,7 @@
     <ClInclude Include="..\src\System\Macros.h" />
     <ClInclude Include="..\src\System\Platform.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
+    <ClInclude Include="..\src\System\Threading\Atomic.h" />
     <ClInclude Include="..\src\System\Threading\Signal.h" />
     <ClInclude Include="..\src\System\Time.h" />
     <ClInclude Include="..\src\System\Buffers\Buffer.h" />
