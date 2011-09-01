@@ -175,11 +175,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
     </Link>
-    <PostBuildEvent>
-      <Command>echo "Copying $(OutDir)$(ProjectName).exe to $(OutDir)$(ProjectName)Test.exe"
-
-COPY /B /Y $(OutDir)$(ProjectName).exe $(OutDir)$(ProjectName)Test.exe</Command>
-    </PostBuildEvent>
+    <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\System\Common.cpp" />
