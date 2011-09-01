@@ -316,23 +316,23 @@ ClientRequest* ShardHTTPClientSession::ProcessShardServerCommand(ReadBuffer& cmd
         return ProcessGet();
     if (HTTP_MATCH_COMMAND(cmd, "set"))
         return ProcessSet();
-    if (HTTP_MATCH_COMMAND(cmd, "setifnex"))
-        return ProcessSetIfNotExists();
-    if (HTTP_MATCH_COMMAND(cmd, "testandset"))
-        return ProcessTestAndSet();
-    if (HTTP_MATCH_COMMAND(cmd, "testanddelete"))
-        return ProcessTestAndDelete();
-    if (HTTP_MATCH_COMMAND(cmd, "getandset"))
-        return ProcessGetAndSet();
+//    if (HTTP_MATCH_COMMAND(cmd, "setifnex"))
+//        return ProcessSetIfNotExists();
+//    if (HTTP_MATCH_COMMAND(cmd, "testandset"))
+//        return ProcessTestAndSet();
+//    if (HTTP_MATCH_COMMAND(cmd, "testanddelete"))
+//        return ProcessTestAndDelete();
+//    if (HTTP_MATCH_COMMAND(cmd, "getandset"))
+//        return ProcessGetAndSet();
     if (HTTP_MATCH_COMMAND(cmd, "add"))
         return ProcessAdd();
     if (HTTP_MATCH_COMMAND(cmd, "delete"))
         return ProcessDelete();
-    if (HTTP_MATCH_COMMAND(cmd, "remove"))
-        return ProcessRemove();
-    if (HTTP_MATCH_COMMAND(cmd, "listkeys"))
+//    if (HTTP_MATCH_COMMAND(cmd, "remove"))
+//        return ProcessRemove();
+    if (HTTP_MATCH_COMMAND(cmd, "listKeys"))
         return ProcessListKeys();
-    if (HTTP_MATCH_COMMAND(cmd, "listkeyvalues"))
+    if (HTTP_MATCH_COMMAND(cmd, "listKeyValues"))
         return ProcessListKeyValues();
     if (HTTP_MATCH_COMMAND(cmd, "count"))
         return ProcessCount();
