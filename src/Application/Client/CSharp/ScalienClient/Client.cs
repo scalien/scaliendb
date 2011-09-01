@@ -522,6 +522,7 @@ namespace Scalien
                     return null;
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
+                return result.GetValue();
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -545,6 +546,7 @@ namespace Scalien
                     return null;
                 result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
+                return result.GetValueBytes();
             }
 
             result = new Result(scaliendb_client.SDBP_GetResult(cptr));
@@ -554,16 +556,14 @@ namespace Scalien
         internal void Set(ulong tableID, string key, string value)
         {
             int status = scaliendb_client.SDBP_Set(cptr, tableID, key, value);
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 if (status == Status.SDBP_BADSCHEMA)
                     CheckStatus(status, "Batch limit exceeded");
                 else
                     CheckStatus(status);
             }
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
         internal void Set(ulong tableID, byte[] key, byte[] value)
@@ -578,28 +578,25 @@ namespace Scalien
                     status = scaliendb_client.SDBP_SetCStr(cptr, tableID, ipKey, key.Length, ipValue, value.Length);
                 }
             }
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 if (status == Status.SDBP_BADSCHEMA)
                     CheckStatus(status, "Batch limit exceeded");
                 else
                     CheckStatus(status);
             }
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
         internal long Add(ulong tableID, string key, long value)
         {
             int status = scaliendb_client.SDBP_Add(cptr, tableID, key, value);
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
             }
 
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             return result.GetSignedNumber();
         }
 
@@ -614,29 +611,26 @@ namespace Scalien
                     status = scaliendb_client.SDBP_AddCStr(cptr, tableID, ipKey, key.Length, value);
                 }
             }
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 CheckStatus(status);
             }
 
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             return result.GetSignedNumber();
         }
 
         internal void Delete(ulong tableID, string key)
         {
             int status = scaliendb_client.SDBP_Delete(cptr, tableID, key);
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 if (status == Status.SDBP_BADSCHEMA)
                     CheckStatus(status, "Batch limit exceeded");
                 else
                     CheckStatus(status);
             }
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
         internal void Delete(ulong tableID, byte[] key)
@@ -650,16 +644,14 @@ namespace Scalien
                     status = scaliendb_client.SDBP_DeleteCStr(cptr, tableID, ipKey, key.Length);
                 }
             }
+            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
             if (status < 0)
             {
-                result = new Result(scaliendb_client.SDBP_GetResult(cptr));
                 if (status == Status.SDBP_BADSCHEMA)
                     CheckStatus(status, "Batch limit exceeded");
                 else
                     CheckStatus(status);
             }
-
-            result = new Result(scaliendb_client.SDBP_GetResult(cptr));
         }
 
         internal ulong Count(ulong tableID, StringRangeParams ps)
