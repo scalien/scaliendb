@@ -609,6 +609,7 @@
 		9AB1EEDE13D6F2F200A463EF /* scaliendb_client.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = scaliendb_client.cs; path = Client/CSharp/ScalienClient/scaliendb_client.cs; sourceTree = "<group>"; };
 		9AB1EEDF13D6F31700A463EF /* scaliendb_clientPINVOKE.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = scaliendb_clientPINVOKE.cs; path = Client/CSharp/ScalienClient/scaliendb_clientPINVOKE.cs; sourceTree = "<group>"; };
 		9AB1F17613E0754100A463EF /* scaliendb_client_csharp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_csharp.cpp; path = Client/CSharp/scaliendb_client_csharp.cpp; sourceTree = "<group>"; };
+		9ACBF164140FFB3F00297EE1 /* Atomic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Atomic.h; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9AD104D31309970D00AB777B /* StorageAsyncList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncList.h; sourceTree = "<group>"; };
@@ -714,6 +715,7 @@
 		543121301366DDC40029D6A8 /* Threading */ = {
 			isa = PBXGroup;
 			children = (
+				9ACBF164140FFB3F00297EE1 /* Atomic.h */,
 				5431219A1366E52E0029D6A8 /* Mutex_Posix.cpp */,
 				5431219B1366E52E0029D6A8 /* Mutex_Windows.cpp */,
 				5431219C1366E52E0029D6A8 /* Mutex.h */,
