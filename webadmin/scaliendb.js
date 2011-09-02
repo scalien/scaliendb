@@ -179,7 +179,7 @@ var scaliendb =
 		var params = {};
 		params["quorumID"] = quorumID;
 		params["nodeID"] = nodeID;
-		this.rpc("activateShardServer", params);
+		this.rpc("activateShardserver", params);
 	},
 
 	createDatabase: function(name)
