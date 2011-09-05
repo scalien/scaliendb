@@ -30,6 +30,7 @@ public:
     ShardConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
     
     void                    Connect();
+    void                    ClearRequests();
     bool                    SendRequest(Request* request);
     void                    SendSubmit(uint64_t quorumID);
     void                    Flush();

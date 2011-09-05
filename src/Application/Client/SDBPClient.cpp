@@ -890,7 +890,7 @@ int Client::Begin()
     CLIENT_MUTEX_GUARD_DECLARE();
 
     result->Close();
-    
+   
     return SDBP_SUCCESS;
 }
 
@@ -949,6 +949,17 @@ int Client::Cancel()
     return SDBP_SUCCESS;
 }
 
+void Client::ClearRequests()
+{
+    ShardConnection*    shardConnection;
+
+    requests.Clear();
+    ClearQuorumRequests();
+
+    FOREACH (shardConnection, shardConnections)
+        shardConnection->ClearRequests();
+}
+
 /*
  * If wait is negative, EventLoop waits until all request is served or timeout happens.
  * If wait is zero, EventLoop runs exactly once and handles timer and IO events.
@@ -984,7 +995,7 @@ void Client::EventLoop()
     isDone.Wait(); // wait for IO thread to process ops
     
     CLIENT_MUTEX_LOCK();    
-    requests.Clear();
+    ClearRequests();
     result->SetConnectivityStatus(connectivityStatus);
     result->SetTimeoutStatus(timeoutStatus);
     result->Begin();

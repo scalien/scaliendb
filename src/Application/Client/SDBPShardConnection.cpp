@@ -32,6 +32,11 @@ void ShardConnection::Connect()
     MessageConnection::Connect(endpoint);
 }
 
+void ShardConnection::ClearRequests()
+{
+    sentRequests.Clear();
+}
+
 bool ShardConnection::SendRequest(Request* request)
 {
     SDBPRequestMessage  msg;

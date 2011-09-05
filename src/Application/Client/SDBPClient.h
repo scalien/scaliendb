@@ -125,6 +125,7 @@ private:
     friend class            ShardConnection;
     friend class            Table;
     
+    void                    ClearRequests();
     void                    EventLoop();
     bool                    IsDone();
     uint64_t                NextCommandID();
@@ -134,7 +135,6 @@ private:
     void                    UpdateConnectivityStatus();
     void                    OnGlobalTimeout();
     void                    OnMasterTimeout();
-    bool                    IsReading();
     void                    SetConfigState(ControllerConnection* conn, ConfigState* configState);
 
     void                    AppendDataRequest(Request* req);
@@ -184,7 +184,6 @@ private:
     int                     numControllers;
     RequestListMap          quorumRequests;
     uint64_t                databaseID;
-    bool                    isReading;
     int                     consistencyMode;
     int						batchMode;
     uint64_t                highestSeenPaxosID;

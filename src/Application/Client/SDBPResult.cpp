@@ -79,6 +79,9 @@ bool Result::IsEnd()
     if (requestCursor == NULL)
         return true;
 
+    if (responseCursor == NULL)
+        return true;
+
     if (requestCursor->IsList())
     {
         if (responsePos == (*responseCursor)->numKeys && 
