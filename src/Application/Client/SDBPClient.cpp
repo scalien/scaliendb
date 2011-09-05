@@ -890,7 +890,6 @@ int Client::Begin()
     CLIENT_MUTEX_GUARD_DECLARE();
 
     result->Close();
-    isReading = false;
     
     return SDBP_SUCCESS;
 }
@@ -1090,11 +1089,6 @@ void Client::OnMasterTimeout()
     TryWake();
 }
 
-bool Client::IsReading()
-{
-    return isReading;
-}
-
 void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
 {
     if (master < 0 || (uint64_t) master == conn->GetNodeID())
@@ -1180,7 +1174,7 @@ void Client::ReassignRequest(Request* req)
         req->quorumID = quorumID;
 
         quorum = configState->GetQuorum(quorumID);
-        if (!IsReading() && quorum->hasPrimary == false)
+        if (!req->IsReadRequest() && quorum && quorum->hasPrimary == false)
             requests.Append(req);
         else
             AddRequestToQuorum(req);
