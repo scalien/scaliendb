@@ -46,8 +46,8 @@ static int SetupDefaultClient(Client& client)
     const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
-    std::string     databaseName = "test";
-    std::string     tableName = "test";
+    std::string     databaseName = "Storage2";
+    std::string     tableName = "transactionNetworkTransaction";
     uint64_t        databaseID;
     uint64_t        tableID;
     int             ret;
@@ -794,44 +794,8 @@ TEST_DEFINE(TestClientSetFailover)
     return TEST_SUCCESS;
 }
 
-TEST_DEFINE(TestClientMultiThread)
-{
-    ThreadPool*     threadPool;
-    unsigned        numThread = 500;
-    Stopwatch       sw;
-    
-	while(true)
-	{
-        TEST_LOG("Starting %u threads", numThread);
-        sw.Restart();
-		threadPool = ThreadPool::Create(numThread);
-		threadPool->SetStackSize(256*KiB);
 
-		for (unsigned i = 0; i < numThread; i++)
-		{  
-			threadPool->Execute(CFunc((void (*)(void)) TestClientSet));
-	//        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
-		}
-    
-		threadPool->Start();
-		threadPool->WaitStop();
-	    delete threadPool;
-        sw.Stop();
-        TEST_LOG("Elapsed: %ld", (long) sw.Elapsed());
-	}
-    
-    return TEST_SUCCESS;
-}
-
-TEST_DEFINE(TestClientMultiThreadMulti)
-{
-    for (int i = 0; i < 10; i++)
-        TestClientBatchedSetRandom();
-    return TEST_SUCCESS;
-}
-
-// emulate Filter with ListKeyValues
-TEST_DEFINE(TestClientFilter2)
+TEST_DEFINE(TestClientListKeyValues)
 {
     Client          client;
     Result*         result;
@@ -845,7 +809,10 @@ TEST_DEFINE(TestClientFilter2)
     
     TEST(SetupDefaultClient(client));
     
-    // filter through all key-values in the database
+    //prefix.Write("N:0000000000000");
+    SeedRandom();
+    prefix.Writef("N:%013d", RandomInt(0, RAND_MAX));
+
     do
     {
         if (lastKey.GetLength() == 0)
@@ -853,7 +820,7 @@ TEST_DEFINE(TestClientFilter2)
         else
             offset = 1;
 
-        TEST(client.ListKeys(defaultTableID, lastKey, endKey, prefix, 1000, false));
+        TEST(client.ListKeyValues(defaultTableID, lastKey, endKey, prefix, 1000, false));
         
         result = client.GetResult();
         num = 0;
@@ -861,16 +828,16 @@ TEST_DEFINE(TestClientFilter2)
         {
             num++;
             TEST(result->GetKey(key));
-//            TEST(result->GetValue(value));
-            if (ReadBuffer::Cmp(key, "1111") > 0 && ReadBuffer::Cmp(key, "11112") < 0)
-                TEST_LOG("%.*s => %.*s", key.GetLength(), key.GetBuffer(), value.GetLength(), value.GetBuffer());
+            TEST(result->GetValue(value));
+            //if (ReadBuffer::Cmp(key, "1111") > 0 && ReadBuffer::Cmp(key, "11112") < 0)
+            //    TEST_LOG("%.*s => %.*s", key.GetLength(), key.GetBuffer(), value.GetLength(), value.GetBuffer());
         }
+
+        lastKey.Write(key);
 
         delete result;
         if (num == 0)
             break;
-
-        lastKey.Write(key);
     }
     while (true);
     
@@ -976,5 +943,41 @@ TEST_DEFINE(TestClientCreateSchema)
     rbName.Wrap(tableName);
     TEST(client.CreateTable(databaseID, quorumID, rbName));
 
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientMultiThread)
+{
+    ThreadPool*     threadPool;
+    unsigned        numThread = 1;
+    Stopwatch       sw;
+    
+	while(true)
+	{
+        TEST_LOG("Starting %u threads", numThread);
+        sw.Restart();
+		threadPool = ThreadPool::Create(numThread);
+		threadPool->SetStackSize(256*KiB);
+
+		for (unsigned i = 0; i < numThread; i++)
+		{  
+            threadPool->Execute(CFunc((void (*)(void)) TestClientListKeyValues));
+	//        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
+		}
+    
+		threadPool->Start();
+		threadPool->WaitStop();
+	    delete threadPool;
+        sw.Stop();
+        TEST_LOG("Elapsed: %ld", (long) sw.Elapsed());
+	}
+    
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientMultiThreadMulti)
+{
+    for (int i = 0; i < 10; i++)
+        TestClientBatchedSetRandom();
     return TEST_SUCCESS;
 }
