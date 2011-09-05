@@ -62,7 +62,8 @@ TEST_DEFINE(TestCommonRandomDistribution)
     
     for (i = 0; i < num; i++)
     {
-        rnd = RandomInt(0, sizeof(count) - 1);
+        rnd = RandomInt(0, SIZE(count) - 1);
+        TEST_ASSERT(rnd >= 0 && rnd < SIZE(count));
         count[rnd % SIZE(count)]++;
     }
     
