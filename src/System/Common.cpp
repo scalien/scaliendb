@@ -1,8 +1,4 @@
 #include "Common.h"
-#include <stdio.h>
-#include <string>
-#include <stdlib.h>
-#include <math.h>
 #ifndef _WIN32
 #include <pwd.h>
 #include <signal.h>
@@ -21,6 +17,11 @@
 #ifdef PLATFORM_DARWIN
 #include <mach/mach.h>
 #endif
+
+#include <stdio.h>
+#include <string>
+#include <stdlib.h>
+#include <math.h>
 
 #include "Macros.h"
 #include "Time.h"
@@ -377,11 +378,13 @@ uint64_t GenerateGUID()
 
 #ifdef _WIN32
 #define srandom srand
+#define random  rand
 #endif
 
 void SeedRandom()
 {
-    srandom((unsigned)Now());
+    unsigned seed = (unsigned)(Now() & 0xFFFFFFFF);
+    srandom(seed);
 }
 
 void SeedRandomWith(uint64_t seed)
@@ -397,10 +400,8 @@ int RandomInt(int min, int max)
     ASSERT(min < max);
 
     interval = max - min;
-#ifdef _WIN32
-#define random rand
-#endif
-    rnd = (int)(random() / (float) RAND_MAX * interval + 0.5);
+    rnd = random(); 
+    rnd = (int)(((float) rnd) / RAND_MAX * interval + 0.5);
     return rnd + min;
 }
 
