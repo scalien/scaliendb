@@ -1,9 +1,6 @@
 #ifndef COMMON_H
 #define COMMON_H
 
-#include <string.h>
-#include <stdarg.h>
-#include <math.h>
 #include "Platform.h"
 #include "Macros.h"
 #include "Formatting.h"
