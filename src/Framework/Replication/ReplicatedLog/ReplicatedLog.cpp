@@ -13,6 +13,7 @@ void ReplicatedLog::Init(QuorumContext* context_)
     context = context_;
 
     paxosID = 0;
+    waitingOnAppend = false;
     
     proposer.Init(context);
     acceptor.Init(context);
@@ -204,6 +205,8 @@ void ReplicatedLog::OnLeaseTimeout()
 
 void ReplicatedLog::OnAppendComplete()
 {
+    waitingOnAppend = false;
+
     // TODO: this is not a complete solution
     if (paxosID < context->GetHighestPaxosID())
         context->GetDatabase()->Commit();
@@ -308,6 +311,14 @@ void ReplicatedLog::OnLearnChosen(PaxosMessage& imsg)
         return;
     }
 
+    if (waitingOnAppend)
+    {
+#ifdef RLOG_DEBUG_MESSAGES
+        Log_Debug("Waiting OnAppend, dropping Paxos message");
+#endif
+        return;
+    }
+
     Log_Trace();
 
     if (imsg.paxosID > paxosID)
@@ -390,7 +401,7 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
 #ifdef RLOG_DEBUG_MESSAGES
     Log_Debug("Round completed for paxosID = %U", paxosID);
     Log_Trace("+++ Value for paxosID = %U: %B +++", paxosID, &learnedValue);
-    if (context->GetHighestPaxosID() > 0 && paxosID < context->GetHighestPaxosID() && !IsLeaseOwner())
+    if (context->GetHighestPaxosID() > 0 && paxosID < context->GetHighestPaxosID())
     {
         Log_Debug("Paxos-based catchup, highest seen paxosID is %U, currently at %U",
          context->GetHighestPaxosID(), paxosID);
@@ -427,11 +438,11 @@ void ReplicatedLog::ProcessLearnChosen(uint64_t nodeID, uint64_t runID)
     if (BUFCMP(&learnedValue, &dummy))
         OnAppendComplete();
     else
+    {
+        waitingOnAppend = true;
         context->OnAppend(paxosID - 1, learnedValue, ownAppend);
-
-    // new convention: QuorumContext::OnAppend() must call
-    // ReplicatedLog::OnAppendComplete()
-    // when it's done!
+        // QuorumContext::OnAppend() must call ReplicatedLog::OnAppendComplete()
+    }
 }
 
 void ReplicatedLog::OnRequest(PaxosMessage& imsg)
@@ -461,7 +472,11 @@ void ReplicatedLog::RequestChosen(uint64_t nodeID)
 {
     PaxosMessage omsg;
     
-    if (context->IsLeaseOwner() || EventLoop::Now() - lastRequestChosenTime < REQUEST_CHOSEN_TIMEOUT)
+    if (context->IsLeaseOwner())
+        return;
+    if (EventLoop::Now() - lastRequestChosenTime < REQUEST_CHOSEN_TIMEOUT)
+        return;
+    if (waitingOnAppend)
         return;
 
     lastRequestChosenTime = EventLoop::Now();

@@ -77,6 +77,7 @@ private:
     PaxosProposer           proposer;
     PaxosAcceptor           acceptor;
     
+    bool                    waitingOnAppend;
     bool                    useProposeTimeouts;
     bool                    commitChaining;
     uint64_t                lastRequestChosenTime;
