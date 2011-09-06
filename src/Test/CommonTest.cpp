@@ -48,7 +48,7 @@ TEST_DEFINE(TestCommonRandomDistribution)
 {
     unsigned    num;
     unsigned    i;
-    unsigned    count[3];
+    unsigned    count[11];
     unsigned    min;
     unsigned    max;
     unsigned    maxdev;
@@ -87,6 +87,7 @@ TEST_DEFINE(TestCommonRandomDistribution)
             if ((float)num / SIZE(count) - count[i] > maxdev)
                 maxdev = (float)num / SIZE(count) - count[i];
         }
+        TEST_LOG("i: % 3d percentage: %2.2f%%", i, (float)count[i] / num * 100.0);
     }
     
     // more than 10% error considered bad discrete uniform distribution

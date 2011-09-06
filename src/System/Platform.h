@@ -47,6 +47,10 @@ typedef intptr_t            ssize_t;
 #define PRIu64              "I64i"
 #define PRIi64              "I64i"
 
+// This needs to be defined so that random becomes more random
+// http://msdn.microsoft.com/en-us/library/sxtz2fa8%28VS.80%29.aspx
+#define _CRT_RAND_S
+
 #define snprintf            _snprintf
 #define strdup              _strdup
 #define strncasecmp         _strnicmp
@@ -79,5 +83,7 @@ typedef intptr_t            ssize_t;
 #include <stdlib.h>
 
 #endif // end Unix
+
+#include <math.h>
 
 #endif

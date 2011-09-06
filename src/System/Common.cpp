@@ -378,7 +378,6 @@ uint64_t GenerateGUID()
 
 #ifdef _WIN32
 #define srandom srand
-#define random  rand
 #endif
 
 void SeedRandom()
@@ -399,9 +398,14 @@ int RandomInt(int min, int max)
     
     ASSERT(min < max);
 
-    interval = max - min;
+    interval = (max - min) + 1;
+    
+#ifndef _WIN32
     rnd = random(); 
-    rnd = (int)(((float) rnd) / RAND_MAX * interval + 0.5);
+#else
+    rnd = rand();
+#endif
+    rnd = (int)(((float) rnd) / (RAND_MAX+1) * interval);
     return rnd + min;
 }
 

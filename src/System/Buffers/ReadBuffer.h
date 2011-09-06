@@ -2,6 +2,7 @@
 #define READBUFFER_H
 
 #include "System/Common.h"
+#include <string.h>
 
 class Buffer; // forward
 
