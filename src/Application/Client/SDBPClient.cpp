@@ -937,15 +937,9 @@ int Client::Cancel()
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    proxiedRequests.Clear();
-    proxySize = 0;
-    requests.Clear();
-
+    ClearRequests();
     result->Close();
 
-    ClearQuorumRequests();
-    requests.ClearMembers();
-    
     return SDBP_SUCCESS;
 }
 
@@ -953,11 +947,17 @@ void Client::ClearRequests()
 {
     ShardConnection*    shardConnection;
 
+    proxiedRequests.Clear();
+    proxySize = 0;
+
     requests.Clear();
     ClearQuorumRequests();
 
     FOREACH (shardConnection, shardConnections)
         shardConnection->ClearRequests();
+
+    for (int i = 0; i < numControllers; i++)
+        controllerConnections[i]->ClearRequests();
 }
 
 /*

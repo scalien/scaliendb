@@ -40,6 +40,11 @@ void ControllerConnection::Connect()
     MessageConnection::Connect(endpoint);
 }
 
+void ControllerConnection::ClearRequests()
+{
+    requests.Clear();
+}
+
 void ControllerConnection::Send(ClientRequest* request)
 {
     Log_Trace("type = %c, nodeID = %u", request->type, (unsigned) nodeID);
@@ -54,6 +59,8 @@ void ControllerConnection::SendGetConfigState()
 {
     Request*    request;
     
+    ClearRequests();
+
     if (state == CONNECTED)
     {
         request = client->CreateGetConfigState();

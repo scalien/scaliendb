@@ -25,6 +25,7 @@ public:
     ~ControllerConnection();
     
     void            Connect();
+    void            ClearRequests();
     void            Send(ClientRequest* request);
     void            SendGetConfigState();
 
