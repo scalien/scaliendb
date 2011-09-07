@@ -12,13 +12,16 @@ using namespace SDBPClient;
 #endif
 #define TEST(x) if (x != SDBP_SUCCESS) TEST_CLIENT_FAIL();
 
-#define TEST_CLIENT_FAIL() \
-    { \
-        PRINT_CLIENT_STATUS("Transport", client.GetTransportStatus()); \
-        PRINT_CLIENT_STATUS("Connectivity", client.GetConnectivityStatus()); \
-        PRINT_CLIENT_STATUS("Timeout", client.GetTimeoutStatus()); \
-        PRINT_CLIENT_STATUS("Command", client.GetCommandStatus()); \
-        /*TEST_FAIL();*/ \
+#define TEST_CLIENT_FAIL()                                                      \
+    {                                                                           \
+        PRINT_CLIENT_STATUS("Transport", client.GetTransportStatus());          \
+        PRINT_CLIENT_STATUS("Connectivity", client.GetConnectivityStatus());    \
+        PRINT_CLIENT_STATUS("Timeout", client.GetTimeoutStatus());              \
+        PRINT_CLIENT_STATUS("Command", client.GetCommandStatus());              \
+        if (stopOnTestFailure)                                                  \
+            TEST_FAIL();                                                        \
+        else                                                                    \
+            AtomicIncrement32(failCount);                                       \
     }
 
 #define PRINT_CLIENT_STATUS(which, status) \
@@ -39,10 +42,15 @@ using namespace SDBPClient;
     case SDBP_BADSCHEMA: TEST_LOG("%s status: SDBP_BADSCHEMA", which); break; \
     }
 
-static uint64_t defaultTableID;
-static uint64_t defaultDatabaseID;
+// module global variables
+static uint64_t     defaultTableID;
+static uint64_t     defaultDatabaseID;
+static bool         stopOnTestFailure = true;
+static uint32_t     failCount;
+
 static int SetupDefaultClient(Client& client)
 {
+    //const char*     nodes[] = {"localhost"};
     const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
@@ -57,8 +65,9 @@ static int SetupDefaultClient(Client& client)
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
    
-    client.SetMasterTimeout(60*1000);
-    client.SetGlobalTimeout(60*1000);
+    client.SetMasterTimeout(10*1000);
+    client.SetGlobalTimeout(20*1000);
+    client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
 
     clientObj = (ClientObj) &client;
     databaseID = 0;
@@ -946,13 +955,49 @@ TEST_DEFINE(TestClientCreateSchema)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientDistributeList)
+{
+    Client          client;
+    Result*         result;
+    ReadBuffer      key;
+    int             count;
+    int             num = 100;
+
+    TEST(SetupDefaultClient(client));
+
+    client.SetConsistencyMode(SDBP_CONSISTENCY_ANY);
+    for (int i = 0; i < num; i++)
+    {
+        TEST(client.ListKeys(defaultTableID, "", "", "", 100, false));
+        result = client.GetResult();
+        count = 0;
+        for (result->Begin(); !result->IsEnd(); result->Next())
+        {
+            TEST(result->GetKey(key));
+            count++;
+        }
+        TEST_LOG("%d", count);
+        delete result;
+    }
+
+    client.Shutdown();
+
+    return TEST_SUCCESS;
+}
+
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;
-    unsigned        numThread = 1;
+    unsigned        numThread = 1000;
+    uint32_t        runCount;
     Stopwatch       sw;
-    
-	while(true)
+
+    // parallel tests may fail, but that should not affect the main program
+    stopOnTestFailure = false;
+	
+    runCount = 0;
+
+    while(true)
 	{
         TEST_LOG("Starting %u threads", numThread);
         sw.Restart();
@@ -969,7 +1014,8 @@ TEST_DEFINE(TestClientMultiThread)
 		threadPool->WaitStop();
 	    delete threadPool;
         sw.Stop();
-        TEST_LOG("Elapsed: %ld", (long) sw.Elapsed());
+        runCount += numThread;
+        TEST_LOG("Elapsed: %ld, fail/run = %u/%u = %2.1f%%", (long) sw.Elapsed(), failCount, runCount, (float)failCount / runCount * 100.0);
 	}
     
     return TEST_SUCCESS;
