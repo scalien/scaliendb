@@ -277,4 +277,4 @@ bool ThreadPool_Windows::IsFinished()
     return finished && numPending == 0;
 }
 
-#endif 
+#endif
