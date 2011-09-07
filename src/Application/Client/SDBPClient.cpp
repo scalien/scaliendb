@@ -4,10 +4,12 @@
 #include "SDBPClientConsts.h"
 #include "System/IO/IOProcessor.h"
 #include "System/Threading/ThreadPool.h"
+#include "System/Threading/LockGuard.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 #include "Application/Common/ClientRequest.h"
 #include "Application/Common/ClientResponse.h"
 
+// TODO: find out the optimal size
 #define MAX_IO_CONNECTION               32768
 #define DEFAULT_BATCH_LIMIT             (1*MB)
 
@@ -45,10 +47,13 @@ ThreadPool* ioThread;
 
 #endif // CLIENT_MULTITHREADED
 
-#define VALIDATE_CONTROLLER()       \
+#define VALIDATE_CONTROLLERS()       \
     if (numControllers == 0)        \
         return SDBP_API_ERROR;
 
+#define VALIDATE_CONFIG_STATE()     \
+    if (configState == NULL)        \
+        return SDBP_API_ERROR;
 
 #define CLIENT_DATA_COMMAND(op, ...)                \
     Request*    req;                                \
@@ -116,7 +121,7 @@ ThreadPool* ioThread;
     int         status;                             \
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
-    VALIDATE_CONTROLLER();                          \
+    VALIDATE_CONTROLLERS();                         \
                                                     \
     if (configState == NULL)                        \
     {                                               \
@@ -212,8 +217,8 @@ int Client::Init(int nodec, const char* nodev[])
     if (nodec <= 0 || nodev == NULL)
         return SDBP_API_ERROR;
 
+    // set up IO thread, IOProcessor and EventLoop
     GLOBAL_MUTEX_GUARD_DECLARE();
-    // TODO: find out the optimal size of MAX_SERVER_NUM
     if (!IOProcessor::Init(MAX_IO_CONNECTION))
         return SDBP_API_ERROR;
 
@@ -235,25 +240,33 @@ int Client::Init(int nodec, const char* nodev[])
     connectivityStatus = SDBP_NOCONNECTION;
     timeoutStatus = SDBP_SUCCESS;
     
-    result = new Result;
-    
+    // start controller connections 
+    numControllers = 0;
     controllerConnections = new ControllerConnection*[nodec];
     for (int i = 0; i < nodec; i++)
     {
         Endpoint    endpoint;
         
-        endpoint.Set(nodev[i], true);
+        if (!endpoint.Set(nodev[i], true))
+            break;
         controllerConnections[i] = new ControllerConnection(this, (uint64_t) i, endpoint);
+        numControllers = nodec;
     }
-    numControllers = nodec;
-    
+
+    // check for controller connection errors 
+    if (numControllers != nodec)
+    {
+        Shutdown();
+        return SDBP_API_ERROR;
+    }
+
     master = -1;
-    masterTime = 0;
     commandID = 0;
     masterCommandID = 0;
     consistencyMode = SDBP_CONSISTENCY_STRICT;
     highestSeenPaxosID = 0;
-        
+    result = new Result;
+       
     return SDBP_SUCCESS;
 }
 
@@ -278,9 +291,10 @@ void Client::Shutdown()
         delete ioThread;
         ioThread = NULL;
     }
-    GLOBAL_MUTEX_GUARD_UNLOCK();
 
-    IOProcessor::Shutdown();    
+    IOProcessor::Shutdown();
+
+    GLOBAL_MUTEX_GUARD_UNLOCK();
 }
 
 void Client::OnClientShutdown()
@@ -304,6 +318,7 @@ void Client::OnClientShutdown()
     
     delete[] controllerConnections;
     controllerConnections = NULL;
+    numControllers = 0;
         
     shardConnections.DeleteTree();
 
@@ -407,6 +422,9 @@ Result* Client::GetResult()
 {
 	CLIENT_MUTEX_GUARD_DECLARE();
 
+    if (numControllers == 0)
+        return NULL;
+
     Result* tmp;
     
     tmp = result;
@@ -416,6 +434,7 @@ Result* Client::GetResult()
 
 int Client::GetTransportStatus()
 {
+    VALIDATE_CONTROLLERS();
     return result->GetTransportStatus();
 }
 
@@ -431,6 +450,7 @@ int Client::GetTimeoutStatus()
 
 int Client::GetCommandStatus()
 {
+    VALIDATE_CONTROLLERS();
     return result->GetCommandStatus();
 }
 
@@ -671,7 +691,11 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     Request*    req;
     Request*    it;
     
+    VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
+    
+    if (configState == NULL)
+        return SDBP_API_ERROR;
     
     req = new Request;
     req->Get(NextCommandID(), configState->paxosID, tableID, (ReadBuffer&) key);
@@ -709,6 +733,7 @@ int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value
     Request*    req;                                
     Request*    it;                                 
                                                     
+    VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();                   
     
 	if (configState == NULL)
@@ -753,7 +778,11 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
     Request*    itRequest;
     ReadBuffer  requestKey;
 
+    VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
+	
+    if (configState == NULL)
+        return SDBP_API_ERROR;
 
     result->Close();
     FOREACH(itRequest, proxiedRequests)
@@ -806,6 +835,7 @@ int Client::ListKeys(
 {
     Request*    req;
 
+    VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
 	if (configState == NULL)
@@ -844,6 +874,7 @@ int Client::ListKeyValues(
 {
     Request*    req;
 
+    VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
     if (configState == NULL)
@@ -887,6 +918,7 @@ int Client::Begin()
 {
     Log_Trace();
 
+    VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
     result->Close();
@@ -899,6 +931,7 @@ int Client::Submit()
     Request*    it;
     int         transportStatus;
 
+    VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
     if (proxiedRequests.GetCount() == 0)
@@ -935,6 +968,7 @@ int Client::Cancel()
 {
     Log_Trace();
 
+    VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
     ClearRequests();
@@ -942,6 +976,12 @@ int Client::Cancel()
 
     return SDBP_SUCCESS;
 }
+
+// =============================================================================================
+//
+// Client public interface ends here
+//    
+// =============================================================================================
 
 void Client::ClearRequests()
 {
@@ -1842,11 +1882,13 @@ uint64_t Client::NumProxiedDeletes(Request* request)
 
 void Client::TryWake()
 {
+    LockGuard<Signal>   signalGuard(isDone);
+
     if (!isDone.IsWaiting())
         return;
-    
+
     if (IsDone())
-        isDone.Wake();
+        isDone.UnprotectedWake();
 }
 
 void Client::IOThreadFunc()
