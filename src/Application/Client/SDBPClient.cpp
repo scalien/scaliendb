@@ -13,7 +13,10 @@
 #define MAX_IO_CONNECTION               32768
 #define DEFAULT_BATCH_LIMIT             (1*MB)
 
-#define CLIENT_MULTITHREADED 
+#ifndef CLIENT_MULTITHREADED
+#define CLIENT_MULTITHREADED
+#endif
+
 #ifdef CLIENT_MULTITHREADED
 
 // globalMutex protects the underlying single threaded IO and Event handling layer
