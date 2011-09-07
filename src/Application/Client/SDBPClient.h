@@ -167,7 +167,6 @@ private:
     
     int64_t                 master;
     uint64_t                commandID;
-    uint64_t                masterCommandID;
     int                     connectivityStatus;
     int                     timeoutStatus;
     Countdown               globalTimeout;

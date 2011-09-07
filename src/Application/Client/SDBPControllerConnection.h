@@ -44,7 +44,6 @@ private:
 
     bool            ProcessResponse(ClientResponse* resp);
     bool            ProcessGetConfigState(ClientResponse* resp);
-    bool            ProcessGetMaster(ClientResponse* resp);
     bool            ProcessCommandResponse(ClientResponse* resp);
     Request*        RemoveRequest(uint64_t commandID);
 

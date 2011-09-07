@@ -138,6 +138,7 @@ void ControllerConnection::OnConnect()
     Log_Trace();
 
     MessageConnection::OnConnect();
+    SendGetConfigState();
 
     CLIENT_MUTEX_GUARD_DECLARE();
     client->OnControllerConnected(this);
@@ -207,30 +208,6 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
     return false;
 }
 
-bool ControllerConnection::ProcessGetMaster(ClientResponse* resp)
-{
-    Log_Trace();
-
-    ClientRequest*  req;
-    
-    req = RemoveRequest(resp->commandID);
-    if (req == NULL)
-        return false;   // not found
-        
-    ASSERT(req->type == CLIENTREQUEST_GET_MASTER);
-    delete req;
-
-    getConfigStateTime = EventLoop::Now();
-    Log_Trace("getConfigStateTime = %U", getConfigStateTime);
-    
-    if (resp->type == CLIENTRESPONSE_OK)
-        client->SetMaster((int64_t) resp->number, nodeID);
-    else
-        client->SetMaster(-1, nodeID);
-        
-    return false;
-}
-
 bool ControllerConnection::ProcessCommandResponse(ClientResponse* resp)
 {
     Log_Trace();
@@ -258,12 +235,9 @@ Request* ControllerConnection::RemoveRequest(uint64_t commandID)
         if (it->commandID == commandID)
         {
             requests.Remove(it);
-            break;
+            return it;
         }
     }
 
-    if (it != NULL)
-        return it;
-        
     return NULL;
 }

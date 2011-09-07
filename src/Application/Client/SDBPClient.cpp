@@ -189,20 +189,6 @@ static int KeyCmp(const Request* a, const Request* b)
 
 Client::Client()
 {
-    controllerConnections = NULL;
-    master = -1;
-    commandID = 0;
-    masterCommandID = 0;
-    configState = NULL;
-    databaseID = 0;
-    numControllers = 0;
-    globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
-    masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
-    result = NULL;
-    batchMode = SDBP_BATCH_DEFAULT;
-    batchLimit = DEFAULT_BATCH_LIMIT;
-    proxySize = 0;
-
     globalMutex.SetName("ClientGlobalMutex");
     mutexName.Writef("Client_%p", this);
     mutexName.NullTerminate();
@@ -237,12 +223,27 @@ int Client::Init(int nodec, const char* nodev[])
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_INTERACTIVE);
 
     // set default timeouts
+    masterTimeout.SetCallable(MFUNC(Client, OnMasterTimeout));
     masterTimeout.SetDelay(3 * PAXOSLEASE_MAX_LEASE_TIME);
+    globalTimeout.SetCallable(MFUNC(Client, OnGlobalTimeout));
     globalTimeout.SetDelay(SDBP_DEFAULT_TIMEOUT);
-    
+
+    // set defaults
+    controllerConnections = NULL;
+    master = -1;
+    commandID = 0;
+    configState = NULL;
+    databaseID = 0;
+    numControllers = 0;
+    result = NULL;
+    batchMode = SDBP_BATCH_DEFAULT;
+    batchLimit = DEFAULT_BATCH_LIMIT;
+    proxySize = 0;
+    consistencyMode = SDBP_CONSISTENCY_STRICT;
+    highestSeenPaxosID = 0;
     connectivityStatus = SDBP_NOCONNECTION;
     timeoutStatus = SDBP_SUCCESS;
-    
+
     // start controller connections 
     numControllers = 0;
     controllerConnections = new ControllerConnection*[nodec];
@@ -263,11 +264,7 @@ int Client::Init(int nodec, const char* nodev[])
         return SDBP_API_ERROR;
     }
 
-    master = -1;
-    commandID = 0;
-    masterCommandID = 0;
-    consistencyMode = SDBP_CONSISTENCY_STRICT;
-    highestSeenPaxosID = 0;
+    // create the first result object
     result = new Result;
        
     return SDBP_SUCCESS;
@@ -1590,7 +1587,6 @@ void Client::ConfigureShardServers()
 
 void Client::OnControllerConnected(ControllerConnection* conn)
 {
-    conn->SendGetConfigState();
     if (connectivityStatus == SDBP_NOCONNECTION)
         connectivityStatus = SDBP_NOMASTER;
 }
