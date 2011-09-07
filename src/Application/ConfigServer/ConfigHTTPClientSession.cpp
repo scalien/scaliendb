@@ -623,7 +623,7 @@ ClientRequest* ConfigHTTPClientSession::ProcessUnregisterShardServer()
     ClientRequest*  request;
     uint64_t        nodeID;
     
-    HTTP_GET_OPT_U64_PARAM(params, "nodeID", nodeID);
+    HTTP_GET_U64_PARAM(params, "nodeID", nodeID);
 
     request = new ClientRequest;
     request->UnregisterShardServer(0, nodeID);
