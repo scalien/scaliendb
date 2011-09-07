@@ -28,8 +28,7 @@ void Signal::SetWaiting(bool waiting_)
 void Signal::Wake()
 {
     pthread_mutex_lock(&impl.mutex);
-    signaled = true;
-    pthread_cond_signal(&impl.cond);
+    UnprotectedWake();
     pthread_mutex_unlock(&impl.mutex);
 }
 
@@ -42,6 +41,22 @@ void Signal::Wait()
     waiting = false;
     signaled = false;
     pthread_mutex_unlock(&impl.mutex);
+}
+
+void Signal::Lock()
+{
+    pthread_mutex_lock(&impl.mutex);
+}
+
+void Signal::Unlock()
+{
+    pthread_mutex_unlock(&impl.mutex);
+}
+
+void Signal::UnprotectedWake()
+{
+    signaled = true;
+    pthread_cond_signal(&impl.cond);
 }
 
 #endif

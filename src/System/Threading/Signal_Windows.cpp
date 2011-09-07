@@ -41,12 +41,8 @@ void Signal::Wake()
 {
     EnterCriticalSection((CRITICAL_SECTION*) &impl.mutex);
     
-    if (waiting && !signaled)
-    {
-        SetEvent((HANDLE) impl.event);
-        signaled = true;
-    }
-
+    UnprotectedWake();
+    
     LeaveCriticalSection((CRITICAL_SECTION*) &impl.mutex);
 }
 
@@ -63,3 +59,21 @@ void Signal::Wait()
     SetWaiting(false);
 }
 
+void Signal::Lock()
+{
+    EnterCriticalSection((CRITICAL_SECTION*) &impl.mutex);
+}
+
+void Signal::Unlock()
+{
+    LeaveCriticalSection((CRITICAL_SECTION*) &impl.mutex);
+}
+
+void Signal::UnprotectedWake()
+{
+    if (waiting && !signaled)
+    {
+        SetEvent((HANDLE) impl.event);
+        signaled = true;
+    }
+}

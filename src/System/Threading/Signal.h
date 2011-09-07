@@ -49,6 +49,13 @@ public:
     void                Wake();
     void                Wait();
     
+    // concurrency control
+    void                Lock();
+    void                Unlock();
+    
+    // this should only be called when Locked
+    void                UnprotectedWake();
+    
 private:
     bool                signaled;
     bool                waiting;
