@@ -18,12 +18,14 @@
 
 #define LOG_MSG_SIZE    1024
 
-static bool     timestamping = false;
-static bool     trace = false;
-static int      maxLine = LOG_MSG_SIZE;
-static int      target = LOG_TARGET_NOWHERE;
-static FILE*    logfile = NULL;
-static char*    logfilename = NULL;
+static bool             timestamping = false;
+static bool             trace = false;
+static int              maxLine = LOG_MSG_SIZE;
+static int              target = LOG_TARGET_NOWHERE;
+static FILE*            logfile = NULL;
+static char*            logfilename = NULL;
+static LoggerFunction   loggerFunction = NULL;
+static void*            functionData = NULL;
 
 #ifdef _WIN32
 typedef char log_timestamp_t[24];
@@ -116,6 +118,12 @@ bool Log_SetOutputFile(const char* filename, bool truncate)
     return true;
 }
 
+void Log_SetFunction(LoggerFunction func, void *data)
+{
+    loggerFunction = func;
+    functionData = data;
+}
+
 void Log_Shutdown()
 {
     if (logfilename)
@@ -149,7 +157,7 @@ static void Log_Append(char*& p, int& remaining, const char* s, int len)
     remaining -= len;
 }
 
-static void Log_Write(const char* buf, int /*size*/, int flush)
+static void Log_Write(const char* buf, int size, int flush)
 {
     if ((target & LOG_TARGET_STDOUT) == LOG_TARGET_STDOUT)
     {
@@ -170,6 +178,11 @@ static void Log_Write(const char* buf, int /*size*/, int flush)
         fputs(buf, logfile);
 		if (flush)
 			fflush(logfile);
+    }
+
+    if ((target & LOG_TARGET_FUNCTION) == LOG_TARGET_FUNCTION && loggerFunction)
+    {
+        loggerFunction(functionData, buf, size, flush);
     }
 }
 

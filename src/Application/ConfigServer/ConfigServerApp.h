@@ -6,6 +6,7 @@
 #include "Application/Common/Application.h"
 #include "Application/HTTP/HTTPServer.h"
 #include "Application/HTTP/HTTPFileHandler.h"
+#include "Application/HTTP/HTTPLogHandler.h"
 #include "Application/SDBP/SDBPServer.h"
 
 /*
@@ -33,6 +34,7 @@ private:
     HTTPServer              httpServer;
     ConfigHTTPHandler       httpHandler;
     HTTPFileHandler         httpFileHandler;
+    HTTPLogHandler          httpLogHandler;
 
     SDBPServer              sdbpServer;
 

@@ -499,6 +499,9 @@
     <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp">
       <Filter>System\Threading</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\HTTPLogHandler.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\System\Common.h">
@@ -1017,6 +1020,9 @@
     <ClInclude Include="..\src\Version.h" />
     <ClInclude Include="..\src\System\Threading\Signal.h">
       <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\HTTPLogHandler.h">
+      <Filter>Application\HTTP</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

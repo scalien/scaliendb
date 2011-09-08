@@ -18,6 +18,7 @@
 #define LOG_TARGET_STDERR   2
 #define LOG_TARGET_FILE     4
 #define LOG_TARGET_SYSLOG   8
+#define LOG_TARGET_FUNCTION 16
 
 #ifdef NO_LOGGING // start NO_LOGGING
 
@@ -62,6 +63,8 @@
 extern "C" {
 #endif
 
+typedef void (*LoggerFunction)(void* data, const char* buf, int size, int flush);
+
 void Log(const char* file, int line, const char* func,
  int type, const char* fmt, ...);
 bool Log_SetTrace(bool trace);
@@ -69,6 +72,7 @@ void Log_SetTimestamping(bool ts);
 void Log_SetMaxLine(int maxLine);
 void Log_SetTarget(int target);
 bool Log_SetOutputFile(const char* file, bool truncate);
+void Log_SetFunction(LoggerFunction func, void* data);
 void Log_Shutdown();
 
 #ifdef __cplusplus

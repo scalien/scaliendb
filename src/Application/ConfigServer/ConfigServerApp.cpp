@@ -11,6 +11,7 @@ void ConfigServerApp::Init()
     ReadBuffer  docroot;
     ReadBuffer  prefix;
     ReadBuffer  index;
+    ReadBuffer  httpLogName;
         
     httpHandler.SetConfigServer(&configServer);
     httpServer.Init(configFile.GetIntValue("http.port", 8080));
@@ -23,6 +24,10 @@ void ConfigServerApp::Init()
     httpFileHandler.Init(docroot, prefix);
     httpFileHandler.SetDirectoryIndex(index);
     httpServer.RegisterHandler(&httpFileHandler);
+
+    httpLogName.Wrap(configFile.GetValue("http.log.name", "log"));
+    httpLogHandler.Init(httpLogName, configFile.GetIntValue("http.log.size", 25));
+    httpServer.RegisterHandler(&httpLogHandler);
     
     sdbpPort = configFile.GetIntValue("sdbp.port", 7080);
     sdbpServer.Init(sdbpPort);

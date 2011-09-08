@@ -83,6 +83,8 @@ void InitLog()
             logTargets |= LOG_TARGET_STDOUT;
         if (strcmp(configFile.GetListValue("log.targets", i, NULL), "stderr") == 0)
             logTargets |= LOG_TARGET_STDERR;
+        if (strcmp(configFile.GetListValue("log.targets", i, NULL), "http") == 0)
+            logTargets |= LOG_TARGET_FUNCTION;
     }
     Log_SetTarget(logTargets);
 

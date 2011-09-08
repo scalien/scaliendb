@@ -178,6 +178,7 @@
     <PostBuildEvent />
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\Application\HTTP\HTTPLogHandler.cpp" />
     <ClCompile Include="..\src\System\Common.cpp" />
     <ClCompile Include="..\src\System\Config.cpp" />
     <ClCompile Include="..\src\System\FileSystem.cpp" />
@@ -320,6 +321,7 @@
     <ClCompile Include="..\src\Main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\Application\HTTP\HTTPLogHandler.h" />
     <ClInclude Include="..\src\System\Common.h" />
     <ClInclude Include="..\src\System\Config.h" />
     <ClInclude Include="..\src\System\FileSystem.h" />

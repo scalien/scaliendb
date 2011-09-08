@@ -143,6 +143,12 @@ void HTTPSession::Print(const ReadBuffer& line)
         json.PrintColon();
         json.PrintString(line);
     }
+    else if (type == HTML)
+    {
+        // TODO: htmlescape
+        conn->Write(line.GetBuffer(), line.GetLength());
+        conn->Print("<br/>");
+    }
     else
     {
         conn->Write(line.GetBuffer(), line.GetLength());
@@ -172,7 +178,10 @@ void HTTPSession::PrintPair(const ReadBuffer& key, const ReadBuffer& value)
         conn->Write(key.GetBuffer(), key.GetLength());
         conn->Print(": ");
         conn->Write(value.GetBuffer(), value.GetLength());
-        conn->Print("\n");
+        if (type == PLAIN)
+            conn->Print("\n");
+        else if (type == HTML)
+            conn->Print("<br/>");
     }
 }
 
