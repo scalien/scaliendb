@@ -939,9 +939,9 @@ int Client::Submit()
     
     Log_Trace();
 
-    CLIENT_MUTEX_UNLOCK();
+    CLIENT_MUTEX_GUARD_UNLOCK();
     Begin();
-    CLIENT_MUTEX_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
     
     FOREACH_POP(it, proxiedRequests)
     {
@@ -951,9 +951,9 @@ int Client::Submit()
     }
 	ASSERT(proxySize == 0);
 
-    CLIENT_MUTEX_UNLOCK();
+    CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
-    CLIENT_MUTEX_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
 
     ClearQuorumRequests();
     requests.ClearMembers();
