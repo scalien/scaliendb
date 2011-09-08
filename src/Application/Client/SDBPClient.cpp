@@ -254,7 +254,7 @@ int Client::Init(int nodec, const char* nodev[])
         if (!endpoint.Set(nodev[i], true))
             break;
         controllerConnections[i] = new ControllerConnection(this, (uint64_t) i, endpoint);
-        numControllers = i;
+        numControllers = i + 1;
     }
 
     // check for controller connection errors 
