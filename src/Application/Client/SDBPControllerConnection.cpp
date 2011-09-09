@@ -1,4 +1,5 @@
 #include "SDBPControllerConnection.h"
+#include "SDBPController.h"
 #include "SDBPClient.h"
 #include "SDBPClientConsts.h"
 #include "Application/Common/ClientRequest.h"
@@ -16,9 +17,17 @@
 
 using namespace SDBPClient;
 
-ControllerConnection::ControllerConnection(Client* client_, uint64_t nodeID_, Endpoint& endpoint_)
+// =============================================================================================
+//
+// Private & ControllerPool interface
+//
+// Per connection mutex should NOT be locked here, and pool provides locking
+//    
+// =============================================================================================
+
+ControllerConnection::ControllerConnection(Controller* controller_, uint64_t nodeID_, Endpoint& endpoint_)
 {
-    client = client_;
+    controller = controller_;
     nodeID = nodeID_;
     endpoint = endpoint_;
     getConfigStateTime = 0;
@@ -32,71 +41,72 @@ ControllerConnection::~ControllerConnection()
     EventLoop::Remove(&getConfigStateTimeout);
 }
 
-void ControllerConnection::Connect()
+// =============================================================================================
+//
+// Client interface -- mutex should be locked
+//    
+// =============================================================================================
+
+void ControllerConnection::ClearRequests(Client* client)
 {
-    // TODO: MessageConnection::Connect does not support timeout parameter
-    //MessageConnection::Connect(endpoint, RECONNECT_TIMEOUT);
+    Request*    request;
+    Request*    next;
+
+    MutexGuard  mutexGuard(mutex);
     
-    MessageConnection::Connect(endpoint);
+    for (request = requests.First(); request; request = next)
+    {
+        if (request->client == client)
+            next = requests.Remove(request);
+        else
+            next = requests.Next(request);
+    }
 }
 
-void ControllerConnection::ClearRequests()
-{
-    requests.Clear();
-}
-
-void ControllerConnection::Send(ClientRequest* request)
+void ControllerConnection::SendRequest(Request* request)
 {
     Log_Trace("type = %c, nodeID = %u", request->type, (unsigned) nodeID);
 
     SDBPRequestMessage  msg;
+    MutexGuard          mutexGuard(mutex);
 
     msg.request = request;
     Write(msg);
+
+    requests.Append(request);
 }
 
-void ControllerConnection::SendGetConfigState()
-{
-    Request*    request;
-    
-    ClearRequests();
-
-    if (state == CONNECTED)
-    {
-        request = client->CreateGetConfigState();
-        requests.Append(request);
-        Send(request);
-        EventLoop::Reset(&getConfigStateTimeout);
-    }
-    else
-        ASSERT_FAIL();
-}
-
-uint64_t ControllerConnection::GetNodeID()
+uint64_t ControllerConnection::GetNodeID() const
 {
     return nodeID;
 }
+
+// =============================================================================================
+//
+// Callback interface -- mutex should be locked
+//    
+// =============================================================================================
 
 void ControllerConnection::OnGetConfigStateTimeout()
 {
     Log_Trace();
         
+    MutexGuard  mutexGuard(mutex);
+
     if (EventLoop::Now() - getConfigStateTime > PAXOSLEASE_MAX_LEASE_TIME * 3)
     {
-        Log_Trace();
+        Log_Debug("ConfigStateTimeout");
         
-        if (client->GetMaster() < 0)
+        if (!controller->HasMaster())
         {
             OnClose();
-            // TODO: HACK: Connect() will add this timer
+            // We need to remove connectTimeout, because Connect() will add it back later
             EventLoop::Remove(&connectTimeout);
             Connect();
         }
         return;
     }
     
-    CLIENT_MUTEX_GUARD_DECLARE();
-
     SendGetConfigState();
 }
 
@@ -105,9 +115,9 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     SDBPResponseMessage msg;
     ClientResponse*     resp;
     
+    MutexGuard  mutexGuard(mutex);
+
     Log_Trace();
-    
-    CLIENT_MUTEX_GUARD_DECLARE();
     
     resp = new ClientResponse;
     msg.response = resp;
@@ -120,15 +130,15 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     }
     else
         delete resp;
-    
-    client->TryWake();
-    
+
     return false;
 }
 
 void ControllerConnection::OnWrite()
 {
     Log_Trace();
+
+    MutexGuard  mutexGuard(mutex);
 
     MessageConnection::OnWrite();
 }
@@ -137,34 +147,26 @@ void ControllerConnection::OnConnect()
 {
     Log_Trace();
 
+    MutexGuard  mutexGuard(mutex);
+
     MessageConnection::OnConnect();
     SendGetConfigState();
 
-    CLIENT_MUTEX_GUARD_DECLARE();
-    client->OnControllerConnected(this);
+    controller->OnConnected(this);
 }
 
 void ControllerConnection::OnClose()
 {
     Log_Trace();
     
-    CLIENT_MUTEX_GUARD_DECLARE();
-    
-    Request*    it;
-    Request*    next;
-    
+    MutexGuard      mutexGuard(mutex);
+
     // TODO: resend requests without response
     if (state == CONNECTED)
     {
-        for (it = requests.First(); it != NULL; it = next)
-        {
-            next = requests.Remove(it);
-            // TODO:
-            //client->ReassignRequest(it);
-        }
+        requests.Clear();
     }
-    
-    
+        
     // close socket
     MessageConnection::OnClose();
     
@@ -174,9 +176,15 @@ void ControllerConnection::OnClose()
     // clear timers
     EventLoop::Remove(&getConfigStateTimeout);
     
-    // update the client connectivity status
-    client->OnControllerDisconnected(this);
+    // update the controller connectivity status
+    controller->OnDisconnected(this);
 }
+
+// =============================================================================================
+//
+// Private implementation, no mutex should be locked
+//    
+// =============================================================================================
 
 bool ControllerConnection::ProcessResponse(ClientResponse* resp)
 {
@@ -188,22 +196,13 @@ bool ControllerConnection::ProcessResponse(ClientResponse* resp)
 
 bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
 {
-    ClientRequest*  req;
-    
     ASSERT(resp->configState.Get()->masterID == nodeID);
     EventLoop::Remove(&getConfigStateTimeout);
-    
-    req = RemoveRequest(resp->commandID);
-    delete req;
     
     // copy the config state created on stack in OnMessage
     resp->configState.Get()->Transfer(configState);
     
-    if (configState.hasMaster)
-        client->SetMaster(configState.masterID, nodeID);
-    else
-        client->SetMaster(-1, nodeID);
-    client->SetConfigState(this, &configState);
+    controller->SetConfigState(this, &configState);
 
     return false;
 }
@@ -211,16 +210,22 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
 bool ControllerConnection::ProcessCommandResponse(ClientResponse* resp)
 {
     Log_Trace();
-    
+
+    Request*    req;
+
+    req = RemoveRequest(resp->commandID);
+
     if (resp->type == CLIENTRESPONSE_NOSERVICE)
     {
-        Log_Trace("NOSERVICE");
-        client->SetMaster(-1, nodeID);
+        Log_Debug("NOSERVICE");
+
+        controller->OnNoService(this);
         return false;
     }
     
-    // TODO: pair commands to results
-    client->result->AppendRequestResponse(resp);
+    // pair commands to results
+    if (req && req->client)
+        controller->OnRequestResponse(req, resp);
     
     return false;
 }
@@ -228,7 +233,7 @@ bool ControllerConnection::ProcessCommandResponse(ClientResponse* resp)
 Request* ControllerConnection::RemoveRequest(uint64_t commandID)
 {
     Request*    it;
-    
+
     // find the request by commandID
     FOREACH (it, requests)
     {
@@ -241,3 +246,37 @@ Request* ControllerConnection::RemoveRequest(uint64_t commandID)
 
     return NULL;
 }
+
+void ControllerConnection::Connect()
+{
+    // TODO: MessageConnection::Connect does not support timeout parameter
+    //MessageConnection::Connect(endpoint, RECONNECT_TIMEOUT);
+    
+    MessageConnection::Connect(endpoint);
+}
+
+void ControllerConnection::SendGetConfigState()
+{
+    Request*            request;
+    SDBPRequestMessage  msg;
+    
+    //ClearRequests();
+
+    if (state == CONNECTED)
+    {
+        request = new Request;
+        request->GetConfigState(controller->NextCommandID());
+        
+        // send request but don't append to the request queue
+        msg.request = request;
+        
+        Write(msg);
+
+        delete request;
+
+        EventLoop::Reset(&getConfigStateTimeout);
+    }
+    else
+        ASSERT_FAIL();
+}
+

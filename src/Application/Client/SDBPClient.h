@@ -13,6 +13,7 @@
 #include "Application/ConfigState/ConfigState.h"
 #include "SDBPShardConnection.h"
 #include "SDBPControllerConnection.h"
+#include "SDBPController.h"
 #include "SDBPResult.h"
 #include "SDBPClientConsts.h"
 
@@ -115,13 +116,16 @@ public:
     int                     Submit();
     int                     Cancel();
 
+    Client*                 next;
+    Client*                 prev;
+
 private:
     typedef InList<Request>                     RequestList;
     typedef InTreeMap<Request>                  RequestMap;
     typedef InTreeMap<ShardConnection>          ShardConnectionMap;
     typedef HashMap<uint64_t, RequestList*>     RequestListMap;
 
-    friend class            ControllerConnection;
+    friend class            Controller;
     friend class            ShardConnection;
     friend class            Table;
     
@@ -131,11 +135,11 @@ private:
     uint64_t                NextCommandID();
     Request*                CreateGetConfigState();
     int64_t                 GetMaster();
-    void                    SetMaster(int64_t master, uint64_t nodeID);
+    void                    SetMaster(int64_t master);
     void                    UpdateConnectivityStatus();
     void                    OnGlobalTimeout();
     void                    OnMasterTimeout();
-    void                    SetConfigState(ControllerConnection* conn, ConfigState* configState);
+    void                    SetConfigState(ConfigState* configState);
 
     void                    AppendDataRequest(Request* req);
     void                    ReassignRequest(Request* req);
@@ -172,16 +176,15 @@ private:
     Countdown               globalTimeout;
     Countdown               masterTimeout;
     ConfigState*            configState;
+    ConfigState             configStateCopy;
     Result*                 result;
     RequestList             requests;
     RequestMap              proxiedRequests;
     unsigned                batchLimit;
     int64_t                 proxySize;
     ShardConnectionMap      shardConnections;
-    ControllerConnection**  controllerConnections;
-    int                     numControllers;
+    Controller*             controller;
     RequestListMap          quorumRequests;
-    uint64_t                databaseID;
     int                     consistencyMode;
     int						batchMode;
     uint64_t                highestSeenPaxosID;
@@ -197,6 +200,7 @@ private:
     void                    LockGlobal();
     void                    UnlockGlobal();
     bool                    IsGlobalLocked();
+    static Mutex&           GetGlobalMutex();
 //#endif
 };
 

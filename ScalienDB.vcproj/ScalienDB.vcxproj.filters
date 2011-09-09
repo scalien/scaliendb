@@ -22,9 +22,6 @@
     <Filter Include="Application">
       <UniqueIdentifier>{9b726ee4-2de1-4260-8ea2-66bccd5d65f2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Application\Client">
-      <UniqueIdentifier>{30bc6f78-20d2-4c66-95dc-cb9bed9ed3a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Application\Common">
       <UniqueIdentifier>{c3512335-af50-494d-bc5c-56d07a494953}</UniqueIdentifier>
     </Filter>
@@ -152,24 +149,6 @@
     </ClCompile>
     <ClCompile Include="..\src\System\Threading\ThreadPool_Windows.cpp">
       <Filter>System\Threading</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\Client\SDBPClient.cpp">
-      <Filter>Application\Client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\Client\SDBPClientRequest.cpp">
-      <Filter>Application\Client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\Client\SDBPClientWrapper.cpp">
-      <Filter>Application\Client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\Client\SDBPControllerConnection.cpp">
-      <Filter>Application\Client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\Client\SDBPResult.cpp">
-      <Filter>Application\Client</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp">
-      <Filter>Application\Client</Filter>
     </ClCompile>
     <ClCompile Include="..\src\Application\Common\CatchupMessage.cpp">
       <Filter>Application\Common</Filter>
@@ -611,27 +590,6 @@
     </ClInclude>
     <ClInclude Include="..\src\System\Threading\ThreadPool.h">
       <Filter>System\Threading</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Application\Client\SDBPClient.h">
-      <Filter>Application\Client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Application\Client\SDBPClientConsts.h">
-      <Filter>Application\Client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Application\Client\SDBPClientRequest.h">
-      <Filter>Application\Client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Application\Client\SDBPClientWrapper.h">
-      <Filter>Application\Client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Application\Client\SDBPControllerConnection.h">
-      <Filter>Application\Client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Application\Client\SDBPResult.h">
-      <Filter>Application\Client</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h">
-      <Filter>Application\Client</Filter>
     </ClInclude>
     <ClInclude Include="..\src\Application\Common\Application.h">
       <Filter>Application\Common</Filter>

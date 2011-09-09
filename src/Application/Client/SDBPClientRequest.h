@@ -15,6 +15,8 @@ namespace SDBPClient
     BUFFER_LENGTH(req->value.GetLength()) + BUFFER_LENGTH(req->test.GetLength()) +  \
     sizeof(Request)
 
+class Client;
+
 /*
 ===============================================================================================
 
@@ -48,6 +50,7 @@ public:
     Request*        parent;
     uint64_t        userCount;
     bool            skip;
+    Client*         client;
 };
 
 };  // namespace

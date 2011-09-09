@@ -1,5 +1,6 @@
 #include "SDBPClient.h"
 #include "SDBPControllerConnection.h"
+#include "SDBPController.h"
 #include "SDBPShardConnection.h"
 #include "SDBPClientConsts.h"
 #include "System/IO/IOProcessor.h"
@@ -35,6 +36,9 @@ ThreadPool* ioThread;
 #define GLOBAL_MUTEX_GUARD_LOCK()       globalMutexGuard.Lock()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()     globalMutexGuard.Unlock()
 
+#define GLOBAL_MUTEX_LOCK()             globalMutex.Lock()
+#define GLOBAL_MUTEX_UNLOCK()           globalMutex.Unlock()
+
 #else // CLIENT_MULTITHREADED
 
 #define CLIENT_MUTEX_GUARD_DECLARE()
@@ -48,10 +52,13 @@ ThreadPool* ioThread;
 #define GLOBAL_MUTEX_GUARD_LOCK()
 #define GLOBAL_MUTEX_GUARD_UNLOCK()
 
+#define GLOBAL_MUTEX_LOCK()
+#define GLOBAL_MUTEX_UNLOCK()
+
 #endif // CLIENT_MULTITHREADED
 
 #define VALIDATE_CONTROLLERS()       \
-    if (numControllers == 0)        \
+    if (controller == 0)             \
         return SDBP_API_ERROR;
 
 #define VALIDATE_CONFIG_STATE()     \
@@ -138,7 +145,8 @@ ThreadPool* ioThread;
         return SDBP_NOSERVICE;                      \
                                                     \
     req = new Request;                              \
-    req->op(NextCommandID(), __VA_ARGS__);          \
+    req->op(controller->NextCommandID(), __VA_ARGS__);          \
+    req->client = this;                             \
                                                     \
     requests.Append(req);                           \
                                                     \
@@ -229,12 +237,9 @@ int Client::Init(int nodec, const char* nodev[])
     globalTimeout.SetDelay(SDBP_DEFAULT_TIMEOUT);
 
     // set defaults
-    controllerConnections = NULL;
     master = -1;
     commandID = 0;
     configState = NULL;
-    databaseID = 0;
-    numControllers = 0;
     result = NULL;
     batchMode = SDBP_BATCH_DEFAULT;
     batchLimit = DEFAULT_BATCH_LIMIT;
@@ -243,36 +248,28 @@ int Client::Init(int nodec, const char* nodev[])
     highestSeenPaxosID = 0;
     connectivityStatus = SDBP_NOCONNECTION;
     timeoutStatus = SDBP_SUCCESS;
+    next = prev = this;
 
-    // start controller connections 
-    numControllers = 0;
-    controllerConnections = new ControllerConnection*[nodec];
-    for (int i = 0; i < nodec; i++)
-    {
-        Endpoint    endpoint;
-        
-        if (!endpoint.Set(nodev[i], true))
-            break;
-        controllerConnections[i] = new ControllerConnection(this, (uint64_t) i, endpoint);
-        numControllers = nodec;
-    }
+    // create the first result object
+    result = new Result;
 
-    // check for controller connection errors 
-    if (numControllers != nodec)
+    // wait for starting properly
+    GLOBAL_MUTEX_GUARD_LOCK();
+    controller = Controller::GetController(this, nodec, nodev);
+    GLOBAL_MUTEX_GUARD_UNLOCK();
+    
+    if (!controller)
     {
         Shutdown();
         return SDBP_API_ERROR;
     }
-
-    // create the first result object
-    result = new Result;
        
     return SDBP_SUCCESS;
 }
 
 void Client::Shutdown()
 {
-    if (!controllerConnections)
+    if (controller == NULL)
         return;
     
     Submit();
@@ -303,23 +300,16 @@ void Client::OnClientShutdown()
     RequestList*            requestList;
     ShardConnection*        shardConnection;
 
-    for (int i = 0; i < numControllers; i++)
-        controllerConnections[i]->Close();
-
     FOREACH (shardConnection, shardConnections)
         shardConnection->Close();
     
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
 
-
-    for (int i = 0; i < numControllers; i++)
-        delete controllerConnections[i];
+    GLOBAL_MUTEX_LOCK();
+    Controller::CloseController(this, controller);
+    GLOBAL_MUTEX_UNLOCK();
     
-    delete[] controllerConnections;
-    controllerConnections = NULL;
-    numControllers = 0;
-        
     shardConnections.DeleteTree();
 
     ClearQuorumRequests();
@@ -389,15 +379,15 @@ ConfigState* Client::GetConfigState()
 
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    if (numControllers == 0)
+    if (controller == NULL)
         return NULL;
     
     if (!configState)
     {
         result->Close();
-        CLIENT_MUTEX_UNLOCK();
+        CLIENT_MUTEX_GUARD_UNLOCK();
         EventLoop();
-        CLIENT_MUTEX_LOCK();
+        CLIENT_MUTEX_GUARD_LOCK();
     }
 
     return configState;
@@ -407,22 +397,22 @@ void Client::WaitConfigState()
 {
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    if (numControllers == 0)
+    if (controller == NULL)
         return;
 
     // delete configState, so EventLoop() will wait for a new one
     configState = NULL;
     result->Close();
-    CLIENT_MUTEX_UNLOCK();
+    CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
-    CLIENT_MUTEX_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
 }
 
 Result* Client::GetResult()
 {
 	CLIENT_MUTEX_GUARD_DECLARE();
 
-    if (numControllers == 0)
+    if (controller == NULL)
         return NULL;
 
     Result* tmp;
@@ -492,15 +482,15 @@ int Client::TruncateTable(uint64_t tableID)
 #define GET_CONFIG_STATE_OR_RETURN(...) \
     CLIENT_MUTEX_GUARD_DECLARE();       \
                                         \
-    if (numControllers == 0)            \
+    if (controller == NULL)             \
         return __VA_ARGS__;             \
                                         \
     if (!configState)                   \
     {                                   \
         result->Close();                \
-        CLIENT_MUTEX_UNLOCK();          \
+        CLIENT_MUTEX_GUARD_UNLOCK();    \
         EventLoop();                    \
-        CLIENT_MUTEX_LOCK();            \
+        CLIENT_MUTEX_GUARD_LOCK();      \
     }                                   \
     if (!configState)                   \
         return __VA_ARGS__;
@@ -939,9 +929,9 @@ int Client::Submit()
     
     Log_Trace();
 
-    CLIENT_MUTEX_UNLOCK();
+    CLIENT_MUTEX_GUARD_UNLOCK();
     Begin();
-    CLIENT_MUTEX_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
     
     FOREACH_POP(it, proxiedRequests)
     {
@@ -951,9 +941,9 @@ int Client::Submit()
     }
 	ASSERT(proxySize == 0);
 
-    CLIENT_MUTEX_UNLOCK();
+    CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
-    CLIENT_MUTEX_LOCK();
+    CLIENT_MUTEX_GUARD_LOCK();
 
     ClearQuorumRequests();
     requests.ClearMembers();
@@ -996,8 +986,7 @@ void Client::ClearRequests()
     FOREACH (shardConnection, shardConnections)
         shardConnection->ClearRequests();
 
-    for (int i = 0; i < numControllers; i++)
-        controllerConnections[i]->ClearRequests();
+    controller->ClearRequests(this);
 }
 
 /*
@@ -1007,11 +996,9 @@ void Client::ClearRequests()
  */
 void Client::EventLoop()
 {
-    uint64_t		startTime;
-    
     CLIENT_MUTEX_LOCK();
 
-	if (!controllerConnections)
+	if (!controller)
     {
         result->SetTransportStatus(SDBP_API_ERROR);
         return;
@@ -1030,8 +1017,8 @@ void Client::EventLoop()
     EventLoop::Reset(&globalTimeout);
     if (master == -1)
         EventLoop::Reset(&masterTimeout);
-    startTime = EventLoop::Now();
     
+    //Log_Debug("%p => %U", &isDone, ThreadPool::GetThreadID());
     isDone.Wait(); // wait for IO thread to process ops
     
     CLIENT_MUTEX_LOCK();    
@@ -1085,25 +1072,22 @@ int64_t Client::GetMaster()
     return master;
 }
 
-void Client::SetMaster(int64_t master_, uint64_t nodeID)
+void Client::SetMaster(int64_t master_)
 {
-    Log_Trace("known master: %I, set master: %I, nodeID: %U", master, master_, nodeID);
+    Log_Trace("known master: %I, set master: %I", master, master_);
     
-    if (master_ == (int64_t) nodeID)
+    if (master != master_)
     {
-        if (master != master_)
-        {
-            // node became the master
-            Log_Debug("Node %d is the master", nodeID);
-            master = master_;
-            connectivityStatus = SDBP_SUCCESS;
-            EventLoop::Remove(&masterTimeout);
-        }
+        // node became the master
+        Log_Debug("Node %I is the master", master_);
+        master = master_;
+        connectivityStatus = SDBP_SUCCESS;
+        EventLoop::Remove(&masterTimeout);
     }
-    else if (master_ < 0 && master == (int64_t) nodeID)
+    else if (master_ < 0 && master >= 0)
     {
         // node lost its mastership
-        Log_Debug("Node %d lost its mastership", nodeID);
+        Log_Debug("Node %I lost its mastership", master);
         master = -1;
         connectivityStatus = SDBP_NOMASTER;
 
@@ -1140,12 +1124,17 @@ void Client::OnMasterTimeout()
     TryWake();
 }
 
-void Client::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
+void Client::SetConfigState(ConfigState* configState_)
 {
-    if (master < 0 || (uint64_t) master == conn->GetNodeID())
-        configState = configState_;
+    if (configState_ == NULL)
+    {
+        configState = NULL;
+    }
     else
-        return;
+    {
+        configStateCopy = *configState_;
+        configState = &configStateCopy;
+    }
 
     // we know the state of the system, so we can start sending requests
     if (configState)
@@ -1177,7 +1166,7 @@ void Client::ReassignRequest(Request* req)
     if (req->IsControllerRequest())
     {
         if (master >= 0)
-            controllerConnections[master]->Send(req);
+            controller->SendRequest(req);
         else
             requests.Append(req);
 
@@ -1593,8 +1582,8 @@ void Client::OnControllerConnected(ControllerConnection* conn)
 
 void Client::OnControllerDisconnected(ControllerConnection* conn)
 {
-    if (master == (int64_t) conn->GetNodeID())
-        SetMaster(-1, conn->GetNodeID());
+    //if (master == (int64_t) conn->GetNodeID())
+    //    SetMaster(-1, conn->GetNodeID());
 }
 
 unsigned Client::GetMaxQuorumRequests(
@@ -1881,6 +1870,7 @@ uint64_t Client::NumProxiedDeletes(Request* request)
 
 void Client::TryWake()
 {
+    //Log_Debug("TryWake: %U => %p", ThreadPool::GetThreadID(), &isDone);
     LockGuard<Signal>   signalGuard(isDone);
 
     if (!isDone.IsWaiting())
@@ -1893,7 +1883,9 @@ void Client::TryWake()
 void Client::IOThreadFunc()
 {
     long    sleep;
-    
+
+    Log_Debug("IOThreadFunc started: %U", ThreadPool::GetThreadID());
+
     EventLoop::Start();
 
     while(EventLoop::IsRunning())
@@ -1907,7 +1899,7 @@ void Client::IOThreadFunc()
             break;
     }
 
-    Log_Debug("IOThreadFunc finished");
+    Log_Debug("IOThreadFunc finished: %U", ThreadPool::GetThreadID());
 }
 
 void Client::Lock()
@@ -1935,4 +1927,9 @@ bool Client::IsGlobalLocked()
     if (globalMutex.GetThreadID() == ThreadPool::GetThreadID())
         return true;
     return false;
+}
+
+Mutex& Client::GetGlobalMutex()
+{
+    return globalMutex;
 }

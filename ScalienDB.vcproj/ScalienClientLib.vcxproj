@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="..\src\Application\Client\SDBPClient.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPClientRequest.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPController.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPControllerConnection.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPResult.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp" />
@@ -200,6 +201,7 @@
     <ClInclude Include="..\src\Application\Client\SDBPClient.h" />
     <ClInclude Include="..\src\Application\Client\SDBPClientConsts.h" />
     <ClInclude Include="..\src\Application\Client\SDBPClientRequest.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPController.h" />
     <ClInclude Include="..\src\Application\Client\SDBPControllerConnection.h" />
     <ClInclude Include="..\src\Application\Client\SDBPResult.h" />
     <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h" />

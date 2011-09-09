@@ -66,8 +66,8 @@ static int SetupDefaultClient(Client& client)
         TEST_CLIENT_FAIL();
    
     client.SetMasterTimeout(10*1000);
-    client.SetGlobalTimeout(20*1000);
-    client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
+    client.SetGlobalTimeout(30*1000);
+    //client.SetConsistencyMode(SDBP_CONSISTENCY_RYW);
 
     clientObj = (ClientObj) &client;
     databaseID = 0;

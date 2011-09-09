@@ -546,6 +546,12 @@
     <ClCompile Include="..\src\Test\MemoryTest.cpp">
       <Filter>Test</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPControllerPool.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPController.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -1067,6 +1073,15 @@
     </ClInclude>
     <ClInclude Include="..\src\System\Threading\Atomic.h">
       <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\System\Threading\LockGuard.h">
+      <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPControllerPool.h">
+      <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPController.h">
+      <Filter>Application\Client</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

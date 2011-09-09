@@ -10,6 +10,7 @@ Request::Request()
     multi = false;
     skip = false;
     parent = NULL;
+    client = NULL;
 }
 
 Request::~Request()

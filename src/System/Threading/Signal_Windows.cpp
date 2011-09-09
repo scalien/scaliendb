@@ -1,4 +1,5 @@
 #include "Signal.h"
+#include "ThreadPool.h"
 #include "System/Common.h"
 #include "System/Macros.h"
 
@@ -49,13 +50,32 @@ void Signal::Wake()
 void Signal::Wait()
 {
     DWORD   ret;
+    bool    stuck;
 
     SetWaiting(true);
-    ret = WaitForSingleObject((HANDLE) impl.event, INFINITE);
-    if (ret == WAIT_FAILED)
-        Log_Errno();
-    if (ret != WAIT_OBJECT_0)
-        Log_Debug("WaitForSingleObject: ret %d", ret);
+    stuck = false;
+
+    while (true)
+    {
+        DWORD timeout = 10000;
+        //ret = WaitForSingleObject((HANDLE) impl.event, INFINITE);
+        ret = WaitForSingleObject((HANDLE) impl.event, timeout);
+        if (ret == WAIT_FAILED)
+            Log_Errno();
+        if (ret != WAIT_OBJECT_0)
+            Log_Debug("WaitForSingleObject: ret %d", ret);
+
+        if (ret == WAIT_TIMEOUT)
+        {
+            if (stuck == false)
+            {
+                Log_Debug("Waiting for long: %p in %U", this, ThreadPool::GetThreadID());
+                stuck = true;
+            }
+            continue;
+        }
+        break;
+    }
     SetWaiting(false);
 }
 

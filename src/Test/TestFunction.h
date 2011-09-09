@@ -29,6 +29,7 @@ public:
         int                     ret;
 
 #define TEST_LOG_INIT(trace, targets)       \
+    Log_SetOutputFile("__Test.log", true);  \
     Log_SetTimestamping(true);              \
     Log_SetTarget(targets);                 \
     Log_SetTrace(trace); 

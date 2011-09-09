@@ -152,7 +152,9 @@
     <ClCompile Include="..\src\Application\Client\SDBPClient.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPClientRequest.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPClientWrapper.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPController.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPControllerConnection.cpp" />
+    <ClCompile Include="..\src\Application\Client\SDBPControllerPool.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPResult.cpp" />
     <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp" />
     <ClCompile Include="..\src\Application\Common\CatchupMessage.cpp" />
@@ -309,7 +311,9 @@
     <ClInclude Include="..\src\Application\Client\SDBPClientConsts.h" />
     <ClInclude Include="..\src\Application\Client\SDBPClientRequest.h" />
     <ClInclude Include="..\src\Application\Client\SDBPClientWrapper.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPController.h" />
     <ClInclude Include="..\src\Application\Client\SDBPControllerConnection.h" />
+    <ClInclude Include="..\src\Application\Client\SDBPControllerPool.h" />
     <ClInclude Include="..\src\Application\Client\SDBPResult.h" />
     <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h" />
     <ClInclude Include="..\src\Application\Common\Application.h" />
@@ -448,6 +452,7 @@
     <ClInclude Include="..\src\System\Platform.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
     <ClInclude Include="..\src\System\Threading\Atomic.h" />
+    <ClInclude Include="..\src\System\Threading\LockGuard.h" />
     <ClInclude Include="..\src\System\Threading\Signal.h" />
     <ClInclude Include="..\src\System\Time.h" />
     <ClInclude Include="..\src\System\Buffers\Buffer.h" />

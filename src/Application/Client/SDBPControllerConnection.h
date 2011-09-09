@@ -1,7 +1,8 @@
-#ifndef SDBPCLIENTCONNECTION_H
-#define SDBPCLIENTCONNECTION_H
+#ifndef SDBPCONTROLLERCONNECTION_H
+#define SDBPCONTROLLERCONNECTION_H
 
 #include "System/Containers/List.h"
+#include "System/Containers/InTreeMap.h"
 #include "System/Platform.h"
 #include "Framework/Messaging/MessageConnection.h"
 #include "Application/Common/ClientResponse.h"
@@ -9,6 +10,8 @@
 
 namespace SDBPClient
 {
+
+class Controller;
 
 /*
 ===============================================================================================
@@ -20,17 +23,15 @@ namespace SDBPClient
 
 class ControllerConnection : public MessageConnection
 {
+    friend class Controller;
+    typedef InList<Request> RequestList;
 public:
-    ControllerConnection(Client* client, uint64_t nodeID, Endpoint& endpoint);
-    ~ControllerConnection();
-    
-    void            Connect();
-    void            ClearRequests();
-    void            Send(ClientRequest* request);
-    void            SendGetConfigState();
+    // client interface
+    void            ClearRequests(Client* client);
+    void            SendRequest(Request* request);
+    uint64_t        GetNodeID() const;
 
-    uint64_t        GetNodeID();
-
+    // internal timeout callback
     void            OnGetConfigStateTimeout();  
 
     // MessageConnection interface
@@ -38,16 +39,19 @@ public:
     virtual void    OnWrite();
     virtual void    OnConnect();
     virtual void    OnClose();
-    
+
 private:
-    typedef InList<Request> RequestList;
+    ControllerConnection(Controller* controller, uint64_t nodeID, Endpoint& endpoint);
+    ~ControllerConnection();
 
     bool            ProcessResponse(ClientResponse* resp);
     bool            ProcessGetConfigState(ClientResponse* resp);
     bool            ProcessCommandResponse(ClientResponse* resp);
     Request*        RemoveRequest(uint64_t commandID);
+    void            Connect();
+    void            SendGetConfigState();
 
-    Client*         client;
+    Controller*     controller;
     uint64_t        nodeID;
     Endpoint        endpoint;
     ConfigState     configState;
@@ -55,6 +59,7 @@ private:
     Countdown       getConfigStateTimeout;
     bool            getConfigStateSent;
     RequestList     requests;
+    Mutex           mutex;
 };
 
 }; // namespace

@@ -204,12 +204,6 @@
     <ClCompile Include="..\src\System\Threading\Mutex_Windows.cpp" />
     <ClCompile Include="..\src\System\Threading\ThreadPool_Posix.cpp" />
     <ClCompile Include="..\src\System\Threading\ThreadPool_Windows.cpp" />
-    <ClCompile Include="..\src\Application\Client\SDBPClient.cpp" />
-    <ClCompile Include="..\src\Application\Client\SDBPClientRequest.cpp" />
-    <ClCompile Include="..\src\Application\Client\SDBPClientWrapper.cpp" />
-    <ClCompile Include="..\src\Application\Client\SDBPControllerConnection.cpp" />
-    <ClCompile Include="..\src\Application\Client\SDBPResult.cpp" />
-    <ClCompile Include="..\src\Application\Client\SDBPShardConnection.cpp" />
     <ClCompile Include="..\src\Application\Common\CatchupMessage.cpp" />
     <ClCompile Include="..\src\Application\Common\ClientRequest.cpp" />
     <ClCompile Include="..\src\Application\Common\ClientRequestCache.cpp" />
@@ -358,13 +352,6 @@
     <ClInclude Include="..\src\System\Threading\JobProcessor.h" />
     <ClInclude Include="..\src\System\Threading\Mutex.h" />
     <ClInclude Include="..\src\System\Threading\ThreadPool.h" />
-    <ClInclude Include="..\src\Application\Client\SDBPClient.h" />
-    <ClInclude Include="..\src\Application\Client\SDBPClientConsts.h" />
-    <ClInclude Include="..\src\Application\Client\SDBPClientRequest.h" />
-    <ClInclude Include="..\src\Application\Client\SDBPClientWrapper.h" />
-    <ClInclude Include="..\src\Application\Client\SDBPControllerConnection.h" />
-    <ClInclude Include="..\src\Application\Client\SDBPResult.h" />
-    <ClInclude Include="..\src\Application\Client\SDBPShardConnection.h" />
     <ClInclude Include="..\src\Application\Common\Application.h" />
     <ClInclude Include="..\src\Application\Common\CatchupMessage.h" />
     <ClInclude Include="..\src\Application\Common\ClientRequest.h" />

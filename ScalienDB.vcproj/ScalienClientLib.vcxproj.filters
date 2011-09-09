@@ -231,6 +231,9 @@
     <ClCompile Include="..\src\System\Threading\Signal_Windows.cpp">
       <Filter>System\Threading</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\Client\SDBPController.cpp">
+      <Filter>Application\Client</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -476,6 +479,9 @@
     <ClInclude Include="..\src\Version.h" />
     <ClInclude Include="..\src\System\Threading\Signal.h">
       <Filter>System\Threading</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\Client\SDBPController.h">
+      <Filter>Application\Client</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
