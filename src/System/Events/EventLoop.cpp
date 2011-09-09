@@ -67,6 +67,7 @@ void EventLoop::Run()
     while(running)
         if (!RunOnce())
             break;
+    running = false;
 }
 
 void EventLoop::Init()

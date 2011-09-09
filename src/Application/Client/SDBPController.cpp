@@ -63,6 +63,21 @@ void Controller::CloseController(Client* client, Controller* controller)
     }
 }
 
+<<<<<<< HEAD
+=======
+void Controller::WakeClients()
+{
+    Controller*     controller;
+
+    MutexGuard      guard(Client::GetGlobalMutex());
+
+    FOREACH (controller, controllers)
+    {
+        controller->OnConfigStateChanged();
+    }
+}
+
+>>>>>>> 20c9fc0e6c5aa2fbea472dbfe8820856f4615341
 void Controller::ClearRequests(Client* client)
 {
     requests.Clear();
@@ -103,13 +118,20 @@ const Buffer& Controller::GetName() const
 
 void Controller::OnConnected(ControllerConnection* conn)
 {
+<<<<<<< HEAD
     UNUSED(conn);
+=======
+>>>>>>> 20c9fc0e6c5aa2fbea472dbfe8820856f4615341
     // TODO:
 }
 
 void Controller::OnDisconnected(ControllerConnection* conn)
 {
+<<<<<<< HEAD
     if (configState.hasMaster && configState.masterID == conn->GetNodeID())
+=======
+    if (configState.hasMaster && configState.masterID == (int64_t) conn->GetNodeID())
+>>>>>>> 20c9fc0e6c5aa2fbea472dbfe8820856f4615341
     {
         configState.hasMaster = false;
         configState.masterID = -1;
@@ -142,7 +164,8 @@ void Controller::OnNoService(ControllerConnection* conn)
 void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
 {
     uint64_t    nodeID;
-    
+    Callable    onConfigStateChanged;
+
     Log_Debug("configState");
     nodeID = conn->GetNodeID();
 
@@ -151,6 +174,9 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
         mutex.Lock();
         configState = *configState_;
         mutex.Unlock();
+
+        //onConfigStateChanged = MFUNC(Controller, OnConfigStateChanged); 
+        //IOProcessor::Complete(&onConfigStateChanged);
         OnConfigStateChanged();
     }
 }
