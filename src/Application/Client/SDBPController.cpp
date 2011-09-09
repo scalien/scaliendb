@@ -63,8 +63,6 @@ void Controller::CloseController(Client* client, Controller* controller)
     }
 }
 
-<<<<<<< HEAD
-=======
 void Controller::WakeClients()
 {
     Controller*     controller;
@@ -77,7 +75,6 @@ void Controller::WakeClients()
     }
 }
 
->>>>>>> 20c9fc0e6c5aa2fbea472dbfe8820856f4615341
 void Controller::ClearRequests(Client* client)
 {
     requests.Clear();
@@ -118,20 +115,13 @@ const Buffer& Controller::GetName() const
 
 void Controller::OnConnected(ControllerConnection* conn)
 {
-<<<<<<< HEAD
     UNUSED(conn);
-=======
->>>>>>> 20c9fc0e6c5aa2fbea472dbfe8820856f4615341
     // TODO:
 }
 
 void Controller::OnDisconnected(ControllerConnection* conn)
 {
-<<<<<<< HEAD
     if (configState.hasMaster && configState.masterID == conn->GetNodeID())
-=======
-    if (configState.hasMaster && configState.masterID == (int64_t) conn->GetNodeID())
->>>>>>> 20c9fc0e6c5aa2fbea472dbfe8820856f4615341
     {
         configState.hasMaster = false;
         configState.masterID = -1;
