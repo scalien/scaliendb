@@ -103,12 +103,13 @@ const Buffer& Controller::GetName() const
 
 void Controller::OnConnected(ControllerConnection* conn)
 {
+    UNUSED(conn);
     // TODO:
 }
 
 void Controller::OnDisconnected(ControllerConnection* conn)
 {
-    if (configState.hasMaster && configState.masterID == (int64_t) conn->GetNodeID())
+    if (configState.hasMaster && configState.masterID == conn->GetNodeID())
     {
         configState.hasMaster = false;
         configState.masterID = -1;
@@ -145,7 +146,7 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
     Log_Debug("configState");
     nodeID = conn->GetNodeID();
 
-    if (!configState.hasMaster || configState.masterID == (int64_t) nodeID)
+    if (!configState.hasMaster || configState.masterID == nodeID)
     {
         mutex.Lock();
         configState = *configState_;
