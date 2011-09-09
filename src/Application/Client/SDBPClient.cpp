@@ -996,7 +996,7 @@ void Client::ClearRequests()
  */
 void Client::EventLoop()
 {
-    CLIENT_MUTEX_LOCK();
+    CLIENT_MUTEX_GUARD_DECLARE();
 
 	if (!controller)
     {
@@ -1012,21 +1012,24 @@ void Client::EventLoop()
         SendQuorumRequests();
     }
     timeoutStatus = SDBP_SUCCESS;
-    CLIENT_MUTEX_UNLOCK();
+    if (!IsDone())
+    {
+        CLIENT_MUTEX_GUARD_UNLOCK();
     
-    EventLoop::Reset(&globalTimeout);
-    if (master == -1)
-        EventLoop::Reset(&masterTimeout);
+        EventLoop::Reset(&globalTimeout);
+        if (master == -1)
+            EventLoop::Reset(&masterTimeout);
     
-    //Log_Debug("%p => %U", &isDone, ThreadPool::GetThreadID());
-    isDone.Wait(); // wait for IO thread to process ops
+        //Log_Debug("%p => %U", &isDone, ThreadPool::GetThreadID());
+        isDone.Wait(); // wait for IO thread to process ops
     
-    CLIENT_MUTEX_LOCK();    
+        CLIENT_MUTEX_GUARD_LOCK();
+    }
     ClearRequests();
     result->SetConnectivityStatus(connectivityStatus);
     result->SetTimeoutStatus(timeoutStatus);
     result->Begin();
-    CLIENT_MUTEX_UNLOCK();
+    CLIENT_MUTEX_GUARD_UNLOCK();
     
     Log_Trace("EventLoop() returning");
 }
@@ -1045,6 +1048,11 @@ bool Client::IsDone()
     }
     
     if (timeoutStatus != SDBP_SUCCESS)
+    {
+        return true;
+    }
+
+    if (!EventLoop::IsRunning())
     {
         return true;
     }
@@ -1888,7 +1896,7 @@ void Client::IOThreadFunc()
 
     EventLoop::Start();
 
-    while(EventLoop::IsRunning())
+    while (EventLoop::IsRunning())
     {
         sleep = EventLoop::RunTimers();
     
@@ -1896,8 +1904,19 @@ void Client::IOThreadFunc()
             sleep = SLEEP_MSEC;
     
         if (!IOProcessor::Poll(sleep))
+        {
+            STOP_FAIL(0, "Ctrl-C was pressed");
             break;
+        }
     }
+
+    EventLoop::Stop();
+
+    // TODO: HACK
+    // When IOProcessor is terminated (e.g. with Ctrl-C from console) no network/timer
+    // event will ever delivered. That means clients waiting for isDone would be stuck
+    // forever. Therefore we wake up all clients here.
+    //Controller::WakeClients();
 
     Log_Debug("IOThreadFunc finished: %U", ThreadPool::GetThreadID());
 }

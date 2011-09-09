@@ -22,6 +22,9 @@ class Controller
 public:
     static Controller*      GetController(Client* client, int nodec, const char* argv[]);
     static void             CloseController(Client* client, Controller* conn);
+
+    // call this when IOThread terminates
+    static void             WakeClients();
     
     // client interface
     void                    ClearRequests(Client* client);

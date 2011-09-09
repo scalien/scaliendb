@@ -63,6 +63,18 @@ void Controller::CloseController(Client* client, Controller* controller)
     }
 }
 
+void Controller::WakeClients()
+{
+    Controller*     controller;
+
+    MutexGuard      guard(Client::GetGlobalMutex());
+
+    FOREACH (controller, controllers)
+    {
+        controller->OnConfigStateChanged();
+    }
+}
+
 void Controller::ClearRequests(Client* client)
 {
     requests.Clear();
@@ -141,6 +153,7 @@ void Controller::OnNoService(ControllerConnection* conn)
 void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
 {
     uint64_t    nodeID;
+    Callable    onConfigStateChanged;
     
     Log_Debug("configState");
     nodeID = conn->GetNodeID();
@@ -150,6 +163,9 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
         mutex.Lock();
         configState = *configState_;
         mutex.Unlock();
+
+        //onConfigStateChanged = MFUNC(Controller, OnConfigStateChanged); 
+        //IOProcessor::Complete(&onConfigStateChanged);
         OnConfigStateChanged();
     }
 }
