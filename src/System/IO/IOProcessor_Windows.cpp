@@ -460,17 +460,9 @@ bool IOProcessor_UnprotectedRemove(IOOperation *ioop)
 {
     int         ret;
     IODesc*     iod;
-    TCPRead*    tcpread;
 
     if (!ioop->active)
         return true;
-
-    //if (ioop->type == IOOperation::TCP_READ)
-    //{
-    //    tcpread = (TCPRead*) ioop;
-    //    if (tcpread->listening)
-    //        ASSERT_FAIL(); // Remove() not supported for listening sockets
-    //}
 
     ioop->active = false;
     iod = GetIODesc(ioop->fd);
