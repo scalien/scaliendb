@@ -28,6 +28,7 @@ public:
     static void         Start();
     static void         Stop();
     static bool         IsRunning();
+    static bool         IsStarted();
 };
 
 #endif
