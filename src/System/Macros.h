@@ -153,5 +153,14 @@ do {                                                                            
         break;                                                                  \
     }
 
+/*
+===============================================================================================
+
+  This can be used to mark variables that are not used in order to prevent compiler warning
+
+===============================================================================================
+ */
+
+#define UNUSED(var)     (void) var
 
 #endif

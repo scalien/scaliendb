@@ -1584,12 +1584,16 @@ void Client::ConfigureShardServers()
 
 void Client::OnControllerConnected(ControllerConnection* conn)
 {
+    UNUSED(conn);
+    
     if (connectivityStatus == SDBP_NOCONNECTION)
         connectivityStatus = SDBP_NOMASTER;
 }
 
 void Client::OnControllerDisconnected(ControllerConnection* conn)
 {
+    UNUSED(conn);
+    
     //if (master == (int64_t) conn->GetNodeID())
     //    SetMaster(-1, conn->GetNodeID());
 }

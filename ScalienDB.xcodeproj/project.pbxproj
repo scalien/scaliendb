@@ -173,6 +173,7 @@
 		9AABB05A123E55DE003626AC /* Stopwatch.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 546E269811EF712900867EE1 /* Stopwatch.cpp */; };
 		9AABB05C123E55DE003626AC /* Time.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 54B7F96011BE85950076BC62 /* Time.cpp */; };
 		9AABB05D123E55DE003626AC /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
+		9ACBF1BD141A4C9E00297EE1 /* SDBPController.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACBF1BB141A4C9E00297EE1 /* SDBPController.cpp */; };
 		9ACF203F122E942900247703 /* FileSystem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9ACF203E122E942900247703 /* FileSystem.cpp */; };
 		9AD104D51309970D00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
 		9AD10590130D725A00AB777B /* StorageAsyncList.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 9AD104D41309970D00AB777B /* StorageAsyncList.cpp */; };
@@ -610,6 +611,9 @@
 		9AB1EEDF13D6F31700A463EF /* scaliendb_clientPINVOKE.cs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = scaliendb_clientPINVOKE.cs; path = Client/CSharp/ScalienClient/scaliendb_clientPINVOKE.cs; sourceTree = "<group>"; };
 		9AB1F17613E0754100A463EF /* scaliendb_client_csharp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = scaliendb_client_csharp.cpp; path = Client/CSharp/scaliendb_client_csharp.cpp; sourceTree = "<group>"; };
 		9ACBF164140FFB3F00297EE1 /* Atomic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Atomic.h; sourceTree = "<group>"; };
+		9ACBF1B3141A491E00297EE1 /* LockGuard.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LockGuard.h; sourceTree = "<group>"; };
+		9ACBF1BB141A4C9E00297EE1 /* SDBPController.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = SDBPController.cpp; path = Client/SDBPController.cpp; sourceTree = "<group>"; };
+		9ACBF1BC141A4C9E00297EE1 /* SDBPController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SDBPController.h; path = Client/SDBPController.h; sourceTree = "<group>"; };
 		9ACF203D122E942900247703 /* FileSystem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileSystem.h; sourceTree = "<group>"; };
 		9ACF203E122E942900247703 /* FileSystem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileSystem.cpp; sourceTree = "<group>"; };
 		9AD104D31309970D00AB777B /* StorageAsyncList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = StorageAsyncList.h; sourceTree = "<group>"; };
@@ -716,12 +720,13 @@
 			isa = PBXGroup;
 			children = (
 				9ACBF164140FFB3F00297EE1 /* Atomic.h */,
-				5431219A1366E52E0029D6A8 /* Mutex_Posix.cpp */,
-				5431219B1366E52E0029D6A8 /* Mutex_Windows.cpp */,
-				5431219C1366E52E0029D6A8 /* Mutex.h */,
 				543121321366DDC40029D6A8 /* Job.h */,
 				543121341366DDC40029D6A8 /* JobProcessor.h */,
 				543121331366DDC40029D6A8 /* JobProcessor.cpp */,
+				9ACBF1B3141A491E00297EE1 /* LockGuard.h */,
+				5431219A1366E52E0029D6A8 /* Mutex_Posix.cpp */,
+				5431219B1366E52E0029D6A8 /* Mutex_Windows.cpp */,
+				5431219C1366E52E0029D6A8 /* Mutex.h */,
 				543121351366DDC40029D6A8 /* ThreadPool.h */,
 				543121361366DDC40029D6A8 /* ThreadPool_Posix.cpp */,
 				543121371366DDC40029D6A8 /* ThreadPool_Windows.cpp */,
@@ -1329,6 +1334,8 @@
 				9AE8176D12CE1E550038BDB1 /* SDBPClientRequest.h */,
 				9AE8176E12CE1E550038BDB1 /* SDBPClientWrapper.cpp */,
 				9AE8176F12CE1E550038BDB1 /* SDBPClientWrapper.h */,
+				9ACBF1BB141A4C9E00297EE1 /* SDBPController.cpp */,
+				9ACBF1BC141A4C9E00297EE1 /* SDBPController.h */,
 				9AE8177012CE1E550038BDB1 /* SDBPControllerConnection.cpp */,
 				9AE8177112CE1E550038BDB1 /* SDBPControllerConnection.h */,
 				9AE8177212CE1E550038BDB1 /* SDBPResult.cpp */,
@@ -1750,6 +1757,7 @@
 				9AED119013B379F40023F27E /* JSONReaderTest.cpp in Sources */,
 				5452866613C5F17600B6A374 /* ConfigController.cpp in Sources */,
 				54D53AD813F323E000311381 /* Signal_Posix.cpp in Sources */,
+				9ACBF1BD141A4C9E00297EE1 /* SDBPController.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
