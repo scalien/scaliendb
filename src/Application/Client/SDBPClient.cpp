@@ -1909,7 +1909,7 @@ void Client::IOThreadFunc()
     
         if (!IOProcessor::Poll(sleep))
         {
-            STOP_FAIL(0, "Ctrl-C was pressed");
+            //STOP_FAIL(0, "Ctrl-C was pressed");
             break;
         }
     }
@@ -1920,7 +1920,7 @@ void Client::IOThreadFunc()
     // When IOProcessor is terminated (e.g. with Ctrl-C from console) no network/timer
     // event will ever delivered. That means clients waiting for isDone would be stuck
     // forever. Therefore we wake up all clients here.
-    //Controller::WakeClients();
+    Controller::WakeClients();
 
     Log_Debug("IOThreadFunc finished: %U", ThreadPool::GetThreadID());
 }
