@@ -153,7 +153,6 @@ void Controller::OnNoService(ControllerConnection* conn)
 void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
 {
     uint64_t    nodeID;
-    Callable    onConfigStateChanged;
     
     Log_Debug("configState");
     nodeID = conn->GetNodeID();
@@ -164,9 +163,10 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
         configState = *configState_;
         mutex.Unlock();
 
-        //onConfigStateChanged = MFUNC(Controller, OnConfigStateChanged); 
-        //IOProcessor::Complete(&onConfigStateChanged);
-        OnConfigStateChanged();
+        // Avoid potential deadlock by calling OnConfigStateChanged from YieldTimer
+        //OnConfigStateChanged();
+        if (!onConfigStateChanged.IsActive())
+            EventLoop::Add(&onConfigStateChanged);
     }
 }
 
@@ -195,6 +195,7 @@ void Controller::OnConfigStateChanged()
 Controller::Controller(int nodec, const char* nodev[])
 {
     nextCommandID = 0;
+    onConfigStateChanged.SetCallable(MFUNC(Controller, OnConfigStateChanged));
 
     numControllers = 0;
     controllerConnections = new ControllerConnection*[nodec];
@@ -231,6 +232,9 @@ void Controller::Shutdown()
 
     delete[] controllerConnections;
     controllerConnections = NULL;
+
+    if (onConfigStateChanged.IsActive())
+        EventLoop::Remove(&onConfigStateChanged);
 
     Log_Debug("Controller Shutdown finished");
 }

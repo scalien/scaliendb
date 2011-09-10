@@ -1052,7 +1052,7 @@ bool Client::IsDone()
         return true;
     }
 
-    if (!EventLoop::IsRunning())
+    if (EventLoop::IsStarted() && !EventLoop::IsRunning())
     {
         return true;
     }
