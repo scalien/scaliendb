@@ -3,6 +3,7 @@
 
 static volatile uint64_t        now;
 static bool                     running;
+static bool                     started;
 
 long EventLoop::RunTimers()
 {
@@ -72,6 +73,8 @@ void EventLoop::Run()
 
 void EventLoop::Init()
 {
+    running = false;
+    started = false;
 }
 
 void EventLoop::Shutdown()
@@ -95,6 +98,7 @@ void EventLoop::UpdateTime()
 void EventLoop::Start()
 {
     running = true;
+    started = true;
 }
 
 void EventLoop::Stop()
@@ -105,4 +109,9 @@ void EventLoop::Stop()
 bool EventLoop::IsRunning()
 {
     return running;
+}
+
+bool EventLoop::IsStarted()
+{
+    return started;
 }

@@ -4,6 +4,7 @@
 #include "System/Containers/InList.h"
 #include "System/Containers/InTreeMap.h"
 #include "System/Threading/Mutex.h"
+#include "System/Events/Timer.h"
 #include "SDBPClientRequest.h"
 
 namespace SDBPClient
@@ -66,6 +67,7 @@ private:
     Buffer                  name;
     ConfigState             configState;
     Mutex                   mutex;
+    YieldTimer              onConfigStateChanged;
 };
 
 };
