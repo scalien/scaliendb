@@ -54,8 +54,8 @@ static int SetupDefaultClient(Client& client)
     const char*     nodes[] = {"localhost:7080"};
 //    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
-    std::string     databaseName = "Storage2";
-    std::string     tableName = "transactionNetworkTransaction";
+    std::string     databaseName = "test";
+    std::string     tableName = "test";
     uint64_t        databaseID;
     uint64_t        tableID;
     int             ret;
@@ -981,6 +981,32 @@ TEST_DEFINE(TestClientDistributeList)
     }
 
     client.Shutdown();
+
+    return TEST_SUCCESS;
+}
+
+TEST_DEFINE(TestClientGetSetGetSetSubmit)
+{
+    Client          client;
+    Result*         result;
+    uint64_t        count;
+
+    TEST(SetupDefaultClient(client));
+
+    TEST(client.TruncateTable(defaultTableID));
+
+    TEST_ASSERT(client.Get(defaultTableID, "0000000000001") == SDBP_FAILED);
+    TEST(client.Set(defaultTableID, "0000000000001", "test"));
+    TEST_ASSERT(client.Get(defaultTableID, "0000000000002") == SDBP_FAILED);
+    TEST(client.Set(defaultTableID, "0000000000002", "test"));
+
+    TEST(client.Submit());
+
+    TEST(client.Count(defaultTableID, "", "", ""));
+    result = client.GetResult();
+    TEST_ASSERT(result != NULL);
+    TEST(result->GetNumber(count));
+    TEST_ASSERT(count == 2);
 
     return TEST_SUCCESS;
 }
