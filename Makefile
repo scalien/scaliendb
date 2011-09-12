@@ -386,6 +386,9 @@ clientlib-debug:
 pythonlib: $(BUILD_DIR) clientlib
 	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(PYTHONLIB)"
 
+pythonlib-testdeploy: pythonlib
+	cp bin/python/* test/python
+
 javalib: $(BUILD_DIR) clientlib
 	$(MAKE) clientlib-target CLIENTLIB_TARGET="$(JAVALIB)"
 
