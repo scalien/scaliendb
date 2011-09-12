@@ -16,6 +16,7 @@ function init()
 {	
 	scaliendb.disconnect();
 	setConnectionLocation();
+	setDeveloperMode();
 
 	$("controller").textContent = "Not connected...";
 	$("clusterState").textContent = "Unable to connect!";
@@ -89,6 +90,15 @@ function logout()
 	clearTimeout(timer);
 	onLoad();
 	$("loginCluster").select();
+}
+
+function setDeveloperMode()
+{
+	var match = /[\?&]dev($|&)/.exec(window.location);
+	if (match == null)
+		scaliendb.developer = false;
+	else
+		scaliendb.developer = true;
 }
                                       
 function setConnectionLocation()
