@@ -20,8 +20,35 @@ public:
     TestFunction*   prev;    
 };
 
+inline int TestMatchName(int argc, char* argv[], TestFunction& testFunction)
+{
+
+    for (int i = 1; i < argc; i++)
+    {
+        char* prefix = NULL;
+        size_t len = strlen(argv[i]);
+        // prefix matching
+        if (len > 0 && argv[i][len - 1] == '*')
+        {
+            prefix = strdup(argv[i]);
+            prefix[len - 1] = '\0';
+            if (strncmp(prefix, testFunction.name, len - 1) == 0)
+            {                
+                free(prefix);
+                return 1;
+            }
+            free(prefix);
+        }
+        else if (strcmp(argv[i], testFunction.name) == 0)
+        {
+            return 1;
+        }
+    }
+    return 0;
+}
+
 #define TEST_START(name)                    \
-    TEST_DEFINE(name)                       \
+    extern "C" int name(int argc, char* argv[])        \
     {                                       \
         InList<TestFunction>    tests;      \
         TestFunction*           testit;     \
@@ -52,9 +79,16 @@ public:
     return test_eval(TEST_NAME, ret);                       \
 }
 
-#define TEST_ADD(testfn) \
-    extern int testfn(); \
-    TestFunction TEST_CONCAT(testfn, Function)(testfn, TEST_MAKENAME(testfn)); \
-    tests.Append(&TEST_CONCAT(testfn, Function));
+#define TEST_ADD(testfn)                                                        \
+    extern int testfn();                                                        \
+    TestFunction TEST_CONCAT(testfn, Function)(testfn, TEST_MAKENAME(testfn));  \
+    for (int i = 1; i < argc; i++)                                              \
+    {                                                                           \
+        if (TestMatchName(argc, argv, TEST_CONCAT(testfn, Function)))           \
+        {                                                                       \
+            tests.Append(&TEST_CONCAT(testfn, Function));                       \
+            break;                                                              \
+        }                                                                       \
+    }
     
 #endif

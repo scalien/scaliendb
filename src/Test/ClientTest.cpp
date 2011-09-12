@@ -269,7 +269,7 @@ TEST_DEFINE(TestClientListKeysWithPrefix)
     Result*         result;
     ReadBuffer      key;
     int             ret;
-        
+
     ret = SetupDefaultClient(client);
     if (ret != SDBP_SUCCESS)
         TEST_CLIENT_FAIL();
