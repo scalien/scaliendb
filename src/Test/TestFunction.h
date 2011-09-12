@@ -28,10 +28,11 @@ public:
         unsigned                numSuccess; \
         int                     ret;
 
-#define TEST_LOG_INIT(trace, targets)       \
-    Log_SetOutputFile("__Test.log", true);  \
-    Log_SetTimestamping(true);              \
-    Log_SetTarget(targets);                 \
+#define TEST_LOG_INIT(trace, targets)                   \
+    if ((targets & LOG_TARGET_FILE) == LOG_TARGET_FILE) \
+        Log_SetOutputFile("__Test.log", true);          \
+    Log_SetTimestamping(true);                          \
+    Log_SetTarget(targets);                             \
     Log_SetTrace(trace); 
 
 
