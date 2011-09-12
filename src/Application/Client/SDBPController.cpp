@@ -6,6 +6,7 @@
 using namespace SDBPClient;
 
 static InTreeMap<Controller>    controllers;
+static Mutex                    globalMutex;
 
 static inline const Buffer& Key(const Controller* controller)
 {
@@ -22,6 +23,7 @@ Controller* Controller::GetController(Client* client, int nodec, const char* nod
     Controller*     controller;
     Buffer          controllerName;
 
+    // create a unique controller name from the given endpoints
     for (int i = 0; i < nodec; i++)
     {
         Endpoint    endpoint;
@@ -29,9 +31,14 @@ Controller* Controller::GetController(Client* client, int nodec, const char* nod
         if (!endpoint.Set(nodev[i], true))
             return NULL;
 
-        // FIXME: this logic is duplicated in Controller
         controllerName.Appendf("/%s", endpoint.ToString());
     }        
+
+    // The number of clients acts as a reference counter on a Controller
+    // object.  When either the number of clients is changed or the global
+    // treemap holding the controllers is changed, the globalMutex should
+    // be locked.
+    MutexGuard      guard(globalMutex);
 
     controller = controllers.Get(controllerName);
     if (controller)
@@ -55,6 +62,8 @@ Controller* Controller::GetController(Client* client, int nodec, const char* nod
 
 void Controller::CloseController(Client* client, Controller* controller)
 {
+    MutexGuard      guard(globalMutex);
+
     controller->RemoveClient(client);
     if (controller->GetNumClients() == 0)
     {
@@ -67,7 +76,7 @@ void Controller::WakeClients()
 {
     Controller*     controller;
 
-    MutexGuard      guard(Client::GetGlobalMutex());
+    MutexGuard      guard(globalMutex);
 
     FOREACH (controller, controllers)
     {

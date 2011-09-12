@@ -254,10 +254,7 @@ int Client::Init(int nodec, const char* nodev[])
     result = new Result;
 
     // wait for starting properly
-    GLOBAL_MUTEX_GUARD_LOCK();
     controller = Controller::GetController(this, nodec, nodev);
-    GLOBAL_MUTEX_GUARD_UNLOCK();
-    
     if (!controller)
     {
         Shutdown();
@@ -306,9 +303,7 @@ void Client::OnClientShutdown()
     EventLoop::Remove(&masterTimeout);
     EventLoop::Remove(&globalTimeout);
 
-    GLOBAL_MUTEX_LOCK();
     Controller::CloseController(this, controller);
-    GLOBAL_MUTEX_UNLOCK();
     
     shardConnections.DeleteTree();
 
