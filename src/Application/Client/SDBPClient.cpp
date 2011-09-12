@@ -984,11 +984,6 @@ void Client::ClearRequests()
     controller->ClearRequests(this);
 }
 
-/*
- * If wait is negative, EventLoop waits until all request is served or timeout happens.
- * If wait is zero, EventLoop runs exactly once and handles timer and IO events.
- * If wait is positive, EventLoop waits until all request is served ot timeout happens, but waits at most wait msecs.
- */
 void Client::EventLoop()
 {
     CLIENT_MUTEX_GUARD_DECLARE();
