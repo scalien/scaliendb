@@ -549,6 +549,18 @@
     <ClCompile Include="..\src\Application\Client\SDBPController.cpp">
       <Filter>Application\Client</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\Application\ShardServer\ShardExtension.cpp">
+      <Filter>Application\ShardServer</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Test\ShardExtensionTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Test\JSONReaderTest.cpp">
+      <Filter>Test</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp">
+      <Filter>Application\HTTP</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\Application\Client\SDBPClient.h">
@@ -1076,6 +1088,12 @@
     </ClInclude>
     <ClInclude Include="..\src\Application\Client\SDBPController.h">
       <Filter>Application\Client</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\ShardServer\ShardExtension.h">
+      <Filter>Application\ShardServer</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\Application\HTTP\JSONReader.h">
+      <Filter>Application\HTTP</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

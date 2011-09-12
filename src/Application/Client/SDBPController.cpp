@@ -72,14 +72,17 @@ void Controller::CloseController(Client* client, Controller* controller)
     }
 }
 
-void Controller::WakeClients()
+void Controller::TerminateClients()
 {
     Controller*     controller;
+
+    Log_Debug("Controller::TerminateClients");
 
     MutexGuard      guard(globalMutex);
 
     FOREACH (controller, controllers)
     {
+        controller->isShuttingDown = true;
         controller->OnConfigStateChanged();
     }
 }
@@ -196,6 +199,9 @@ void Controller::OnConfigStateChanged()
         else
             client->SetMaster(-1);
         client->TryWake();
+        
+        if (isShuttingDown)
+            client->OnClientShutdown();
 
         client->Unlock();
     }
@@ -203,6 +209,7 @@ void Controller::OnConfigStateChanged()
 
 Controller::Controller(int nodec, const char* nodev[])
 {
+    isShuttingDown = false;
     nextCommandID = 0;
     onConfigStateChanged.SetCallable(MFUNC(Controller, OnConfigStateChanged));
 

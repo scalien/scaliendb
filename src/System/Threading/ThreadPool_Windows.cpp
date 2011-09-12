@@ -112,14 +112,25 @@ void ThreadPool_Windows::Shutdown()
             CloseHandle(threads[i]);
         
         delete[] threads;
+        threads = NULL;
+        Log_Debug("All threads are stopped");
     }
 
     if (messageEvent)
+    {
         CloseHandle(messageEvent);
+        messageEvent = NULL;
+    }
     if (startEvent)
+    {
         CloseHandle(startEvent);
+        startEvent = NULL;
+    }
     if (stopEvent)
+    {
         CloseHandle(stopEvent);
+        stopEvent = NULL;
+    }
 
     DeleteCriticalSection(&critsec);
 }
@@ -175,7 +186,7 @@ void ThreadPool_Windows::WaitStop()
         EnterCriticalSection(&critsec);
     }
 
-    Log_Debug("All threads started");
+    Log_Debug("Stopping threads");
 
     finished = true;
     LeaveCriticalSection(&critsec);

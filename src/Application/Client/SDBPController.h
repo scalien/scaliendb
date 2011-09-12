@@ -25,7 +25,7 @@ public:
     static void             CloseController(Client* client, Controller* conn);
 
     // call this when IOThread terminates
-    static void             WakeClients();
+    static void             TerminateClients();
     
     // client interface
     void                    ClearRequests(Client* client);
@@ -68,6 +68,7 @@ private:
     ConfigState             configState;
     Mutex                   mutex;
     YieldTimer              onConfigStateChanged;
+    bool                    isShuttingDown;
 };
 
 };

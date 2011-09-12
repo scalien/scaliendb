@@ -167,6 +167,7 @@ private:
     void                    ComputeListResponse();
     uint64_t                NumProxiedDeletes(Request* request);
     void                    TryWake();
+    bool                    IsShuttingDown();
     void                    IOThreadFunc();
     
     int64_t                 master;

@@ -272,9 +272,12 @@ void Client::Shutdown()
     Submit();
 
     isShutdown.SetWaiting(true);
-    onClientShutdown.SetCallable(MFUNC(Client, OnClientShutdown));
-    EventLoop::Add(&onClientShutdown);
-    isShutdown.Wait();
+    if (EventLoop::IsRunning())
+    {
+        onClientShutdown.SetCallable(MFUNC(Client, OnClientShutdown));
+        EventLoop::Add(&onClientShutdown);
+        isShutdown.Wait();
+    }
 
     GLOBAL_MUTEX_GUARD_DECLARE();
     numClients--;
@@ -289,6 +292,8 @@ void Client::Shutdown()
     IOProcessor::Shutdown();
 
     GLOBAL_MUTEX_GUARD_UNLOCK();
+
+    delete result;
 }
 
 void Client::OnClientShutdown()
@@ -304,6 +309,7 @@ void Client::OnClientShutdown()
     EventLoop::Remove(&globalTimeout);
 
     Controller::CloseController(this, controller);
+    controller = NULL;
     
     shardConnections.DeleteTree();
 
@@ -313,8 +319,6 @@ void Client::OnClientShutdown()
         requestList = requestNode->Value();
         delete requestList;
     }
-
-    delete result;
 
     isShutdown.Wake();
 }
@@ -984,11 +988,6 @@ void Client::ClearRequests()
     controller->ClearRequests(this);
 }
 
-/*
- * If wait is negative, EventLoop waits until all request is served or timeout happens.
- * If wait is zero, EventLoop runs exactly once and handles timer and IO events.
- * If wait is positive, EventLoop waits until all request is served ot timeout happens, but waits at most wait msecs.
- */
 void Client::EventLoop()
 {
     CLIENT_MUTEX_GUARD_DECLARE();
@@ -1887,6 +1886,13 @@ void Client::TryWake()
         isDone.UnprotectedWake();
 }
 
+bool Client::IsShuttingDown()
+{
+    LockGuard<Signal>   signalGuard(isShutdown);
+
+    return isShutdown.IsWaiting();
+}
+
 void Client::IOThreadFunc()
 {
     long    sleep;
@@ -1910,12 +1916,13 @@ void Client::IOThreadFunc()
     }
 
     EventLoop::Stop();
+    Log_Debug("EventLoop stopped");
 
     // TODO: HACK
     // When IOProcessor is terminated (e.g. with Ctrl-C from console) no network/timer
-    // event will ever delivered. That means clients waiting for isDone would be stuck
+    // event will ever delivered. That means clients waiting for signals would be stuck
     // forever. Therefore we wake up all clients here.
-    Controller::WakeClients();
+    Controller::TerminateClients();
 
     Log_Debug("IOThreadFunc finished: %U", ThreadPool::GetThreadID());
 }

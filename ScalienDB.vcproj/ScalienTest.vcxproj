@@ -188,6 +188,7 @@
     <ClCompile Include="..\src\Application\HTTP\HTTPSession.cpp" />
     <ClCompile Include="..\src\Application\HTTP\IMF.cpp" />
     <ClCompile Include="..\src\Application\HTTP\JSONBufferWriter.cpp" />
+    <ClCompile Include="..\src\Application\HTTP\JSONReader.cpp" />
     <ClCompile Include="..\src\Application\HTTP\JSONSession.cpp" />
     <ClCompile Include="..\src\Application\HTTP\Mime.cpp" />
     <ClCompile Include="..\src\Application\HTTP\UrlParam.cpp" />
@@ -198,6 +199,7 @@
     <ClCompile Include="..\src\Application\ShardServer\ShardCatchupReader.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardCatchupWriter.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardDatabaseManager.cpp" />
+    <ClCompile Include="..\src\Application\ShardServer\ShardExtension.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardHeartbeatManager.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardHTTPClientSession.cpp" />
     <ClCompile Include="..\src\Application\ShardServer\ShardHTTPHandler.cpp" />
@@ -297,8 +299,10 @@
     <ClCompile Include="..\src\Test\FileSystemTest.cpp" />
     <ClCompile Include="..\src\Test\FormattingTest.cpp" />
     <ClCompile Include="..\src\Test\InTreeMapTest.cpp" />
+    <ClCompile Include="..\src\Test\JSONReaderTest.cpp" />
     <ClCompile Include="..\src\Test\ManualTest.cpp" />
     <ClCompile Include="..\src\Test\MemoryTest.cpp" />
+    <ClCompile Include="..\src\Test\ShardExtensionTest.cpp" />
     <ClCompile Include="..\src\Test\StorageTest.cpp" />
     <ClCompile Include="..\src\Test\Test.cpp" />
     <ClCompile Include="..\src\Test\TestMain.cpp" />
@@ -352,6 +356,7 @@
     <ClInclude Include="..\src\Application\HTTP\HTTPSession.h" />
     <ClInclude Include="..\src\Application\HTTP\IMF.h" />
     <ClInclude Include="..\src\Application\HTTP\JSONBufferWriter.h" />
+    <ClInclude Include="..\src\Application\HTTP\JSONReader.h" />
     <ClInclude Include="..\src\Application\HTTP\JSONSession.h" />
     <ClInclude Include="..\src\Application\HTTP\Mime.h" />
     <ClInclude Include="..\src\Application\HTTP\UrlParam.h" />
@@ -363,6 +368,7 @@
     <ClInclude Include="..\src\Application\ShardServer\ShardCatchupReader.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardCatchupWriter.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardDatabaseManager.h" />
+    <ClInclude Include="..\src\Application\ShardServer\ShardExtension.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardHeartbeatManager.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardHTTPClientSession.h" />
     <ClInclude Include="..\src\Application\ShardServer\ShardHTTPHandler.h" />
