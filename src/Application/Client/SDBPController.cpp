@@ -242,8 +242,9 @@ void Controller::OnSendRequest()
     {
         MutexGuard  guard(mutex);
 
-        FOREACH (request, requests)
+        FOREACH_FIRST (request, requests)
         {
+            requests.Remove(request);
             controllerConnections[configState.masterID]->SendRequest(request);
         }
     }
