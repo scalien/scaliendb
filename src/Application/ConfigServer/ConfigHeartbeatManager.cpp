@@ -60,6 +60,8 @@ void ConfigHeartbeatManager::OnHeartbeatMessage(ClusterMessage& message)
     TrySplitShardActions(message);
     
     configServer->GetActivationManager()->TryActivateShardServer(message.nodeID, false);
+
+    Log_Debug("Received heartbeat from node %U", message.nodeID);
 }
 
 void ConfigHeartbeatManager::OnHeartbeatTimeout()
@@ -80,7 +82,7 @@ void ConfigHeartbeatManager::OnHeartbeatTimeout()
         if (itHeartbeat->expireTime <= now)
         {
             CONTEXT_TRANSPORT->DropConnection(itHeartbeat->nodeID);
-            Log_Trace("Removing node %U from heartbeats", itHeartbeat->nodeID);
+            Log_Debug("Removing node %U from heartbeats list", itHeartbeat->nodeID);
             itShardServer = CONFIG_STATE->GetShardServer(itHeartbeat->nodeID);
             // if the shard server was unregistered, itShardServer is NULL here
             if (itShardServer != NULL)

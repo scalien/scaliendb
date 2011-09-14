@@ -27,10 +27,12 @@ struct IOOperation
 
     IOOperation()
     {
+        prev = next = this;
         fd = INVALID_FD;
         type = UNKNOWN;
         active = false;
         pending = false;
+        priority = false;
         offset = 0;
 		buffer = NULL;
     }
@@ -65,9 +67,13 @@ struct IOOperation
     
     bool            active;
     bool            pending;
+    bool            priority;
 
     Callable        onComplete;
     Callable        onClose;
+
+    IOOperation*    prev;
+    IOOperation*    next;
 };
 
 struct UDPWrite : public IOOperation

@@ -3,7 +3,7 @@
 
 #include "Platform.h"
 
-#define CLOCK_RESOLUTION    20
+#define CLOCK_RESOLUTION    5
 
 /*
 ===============================================================================================

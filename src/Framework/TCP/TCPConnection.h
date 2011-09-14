@@ -28,6 +28,7 @@ public:
     void                Connect(Endpoint &endpoint, unsigned timeout);
     void                Close();
 
+    void                SetPriority(bool priority);
     Socket&             GetSocket() { return socket; }
     State               GetState() { return state; }
     Buffer&             GetWriteBuffer();

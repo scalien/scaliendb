@@ -1,6 +1,6 @@
 #include "SDBPServer.h"
 
-#define CONN_BACKLOG    10
+#define CONN_BACKLOG    1000
 
 void SDBPServer::Init(int port)
 {

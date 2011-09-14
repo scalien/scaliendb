@@ -67,6 +67,11 @@ void TCPConnection::Close()
     state = DISCONNECTED;
 }
 
+void TCPConnection::SetPriority(bool priority)
+{
+    tcpread.priority = priority;
+    tcpwrite.priority = priority;
+}
 
 Buffer& TCPConnection::GetWriteBuffer()
 {
@@ -95,8 +100,11 @@ void TCPConnection::AsyncRead(bool start)
 void TCPConnection::TryFlush()
 {
     if (state == DISCONNECTED || tcpwrite.active || writeBuffers[writeIndex].GetLength() == 0)
+    {
+        Log_Trace("Not flushing, fd = %d", tcpwrite.fd.index);
         return;
-    
+    }
+
     writeIndex = 1 - writeIndex;
     
     writeBuffers[writeIndex].SetLength(0);
@@ -104,6 +112,7 @@ void TCPConnection::TryFlush()
     tcpwrite.SetBuffer(&writeBuffers[1 - writeIndex]);
     tcpwrite.transferred = 0;
     IOProcessor::Add(&tcpwrite);
+    Log_Trace("Flushing, added tcpwrite, fd = %d", tcpwrite.fd.index);
 }
 
 void TCPConnection::Init(bool startRead)

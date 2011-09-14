@@ -74,6 +74,7 @@ T* InQueue<T>::Dequeue()
     elem = head;
     if (elem)
     {
+        ASSERT(elem->next != elem);
         head = dynamic_cast<T*>(elem->next);
         if (tail == elem)
             tail = NULL;

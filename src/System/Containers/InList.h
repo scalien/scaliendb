@@ -195,7 +195,7 @@ T* InList<T>::Remove(T* t)
 {
     T*  ret;
     
-    ASSERT(t->next != t || t->prev != t);
+    ASSERT(t->next != t && t->prev != t);
         
     if (head == t)
         head = static_cast<T*>(t->next);

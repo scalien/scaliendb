@@ -8,7 +8,7 @@
 #include "Application/SDBP/SDBPResponseMessage.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 
-#define GETMASTER_TIMEOUT   3000
+#define GETMASTER_TIMEOUT   10*1000
 #define RECONNECT_TIMEOUT   2000
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(client->mutex)
@@ -33,6 +33,7 @@ ControllerConnection::ControllerConnection(Controller* controller_, uint64_t nod
     getConfigStateTime = 0;
     getConfigStateTimeout.SetDelay(GETMASTER_TIMEOUT);
     getConfigStateTimeout.SetCallable(MFUNC(ControllerConnection, OnGetConfigStateTimeout));
+    SetPriority(true);
     Connect();
 }
 

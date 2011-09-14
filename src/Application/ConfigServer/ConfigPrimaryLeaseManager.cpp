@@ -74,6 +74,9 @@ void ConfigPrimaryLeaseManager::OnRequestPrimaryLease(ClusterMessage& message)
 {
     ConfigQuorum*   quorum;
 
+    Log_Debug("nodeID %U requesting lease %U for quorum %U",
+        message.nodeID, message.proposalID, message.quorumID);
+
     if (!configServer->GetQuorumProcessor()->IsMaster())
         return;
 

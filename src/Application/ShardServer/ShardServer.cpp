@@ -27,7 +27,7 @@ void ShardServer::Init(ShardServerApp* app)
     databaseManager.Init(this); 
     heartbeatManager.Init(this);
     migrationWriter.Init(this);
-    REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 10000));
+    REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100*1000));
 
     runID = REPLICATION_CONFIG->GetRunID();
     runID += 1;

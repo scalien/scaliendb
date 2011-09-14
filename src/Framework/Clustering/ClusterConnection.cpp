@@ -2,6 +2,11 @@
 #include "ClusterTransport.h"
 #include "Version.h"
 
+ClusterConnection::ClusterConnection()
+{
+    SetPriority(true);
+}
+
 void ClusterConnection::InitConnected(bool startRead)
 {
 //    Buffer      buffer;
@@ -149,6 +154,8 @@ bool ClusterConnection::OnMessage(ReadBuffer& msg)
     ReadBuffer          buffer;
     ClusterConnection*  dup;
     int                 read;
+
+    //Log_Debug("ClusterConnection::OnMessage");
 
     if (progress == ClusterConnection::INCOMING)
     {

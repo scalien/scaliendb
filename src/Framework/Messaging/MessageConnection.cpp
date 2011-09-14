@@ -206,7 +206,7 @@ void MessageConnection::OnRead()
         IOProcessor::Add(&tcpread);
 
     sw.Stop();
-    Log_Trace("time spent in OnRead(): %U", sw.Elapsed());
+    //Log_Debug("time spent in OnRead(): %U", sw.Elapsed());
 }
 
 void MessageConnection::OnResumeRead()
@@ -230,8 +230,8 @@ void MessageConnection::OnConnectTimeout()
 void MessageConnection::OnFlushWrites()
 {
     // flushWrites YieldTimer arrived
-    Log_Trace();
-    
+    Log_Trace("fd = %d", tcpwrite.fd.index);
+
     TCPConnection::TryFlush();
 }
 

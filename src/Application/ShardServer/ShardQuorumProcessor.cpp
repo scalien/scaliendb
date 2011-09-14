@@ -65,7 +65,7 @@ void ShardQuorumProcessor::Init(ConfigQuorum* configQuorum, ShardServer* shardSe
     appendState.Reset();
     quorumContext.Init(configQuorum, this);
     CONTEXT_TRANSPORT->AddQuorumContext(&quorumContext);
-    messageCache.Init(10*1000);
+    messageCache.Init(100*1000);
     EventLoop::Add(&requestLeaseTimeout);
 }
 
@@ -311,7 +311,7 @@ void ShardQuorumProcessor::OnRequestLeaseTimeout()
     msg.RequestLease(MY_NODEID, quorumContext.GetQuorumID(), highestProposalID,
      GetPaxosID(), configID, PAXOSLEASE_MAX_LEASE_TIME);
     
-//    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), highestProposalID);
+    Log_Debug("Requesting lease for quorum %U with proposalID %U", GetQuorumID(), highestProposalID);
     
     shardServer->BroadcastToControllers(msg);
 
@@ -413,7 +413,7 @@ void ShardQuorumProcessor::OnClientRequest(ClientRequest* request)
     message = messageCache.Acquire();
     TransformRequest(request, message);
     
-    Log_Trace("message.type = %c, message.key = %R", message->type, &message->key);
+    //Log_Trace("message.type = %c, message.key = %R", message->type, &message->key);
 
     message->clientRequest = request;
     shardMessages.Append(message);
