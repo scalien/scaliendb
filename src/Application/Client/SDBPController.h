@@ -28,11 +28,15 @@ public:
     static void             TerminateClients();
     
     // client interface
+    void                    AddClient(Client* client);
+
     void                    ClearRequests(Client* client);
     void                    SendRequest(Request* request);
 
-    ConfigState*            GetConfigState();
+    void                    GetConfigState(ConfigState& configState, bool useLock);
     bool                    HasMaster();
+    bool                    IsMaster(uint64_t nodeID);
+    int64_t                 GetMaster();
     uint64_t                NextCommandID();
     const Buffer&           GetName() const;
 
@@ -52,22 +56,23 @@ private:
 
     void                    Shutdown();
 
-    void                    AddClient(Client* client);
     void                    RemoveClient(Client* client);
     unsigned                GetNumClients();
     int                     GetNumControllers();
 
+    // YieldTimer callbacks
     void                    OnConfigStateChanged();
+    void                    OnSendRequest();
 
     ControllerConnection**  controllerConnections;
     int                     numControllers;
     ClientList              clients;
     RequestList             requests;
-    int64_t                 nextCommandID;
+    uint32_t                nextCommandID;
     Buffer                  name;
     ConfigState             configState;
     Mutex                   mutex;
-    YieldTimer              onConfigStateChanged;
+    YieldTimer              onSendRequest;
     bool                    isShuttingDown;
 };
 

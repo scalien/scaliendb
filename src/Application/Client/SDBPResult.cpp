@@ -349,11 +349,7 @@ void Result::HandleRequestResponse(Request* req, ClientResponse* resp)
         if (resp->type != CLIENTRESPONSE_LIST_KEYS && resp->type != CLIENTRESPONSE_LIST_KEYVALUES)
             numCompleted++;
         
-        // HACK for enabling Filter to work
-        if (req->async)
-            numCompleted = requests.GetCount();
-
-        Log_Trace("async: %b, numCompleted: %u, requests: %u", req->async, numCompleted, requests.GetCount());
+        Log_Trace("numCompleted: %u, requests: %u", numCompleted, requests.GetCount());
 
         // make a copy of the response as MessageConnection reuses the response object
         respCopy = new ClientResponse;

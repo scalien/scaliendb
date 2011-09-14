@@ -217,7 +217,7 @@ void ShardConnection::OnConnect()
 
 void ShardConnection::OnClose()
 {
-    Log_Trace("Shard connection closing: %s", endpoint.ToString());
+    Log_Debug("Shard connection closing: %s", endpoint.ToString());
     
     Request*    it;
     Request*    prev;

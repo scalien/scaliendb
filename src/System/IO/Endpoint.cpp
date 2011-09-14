@@ -18,6 +18,9 @@
 #include <netdb.h>
 #endif
 
+// global mutex for gethostbyname
+static Mutex    mutex;
+
 #ifdef _WIN32
 int inet_aton(const char *cp, struct in_addr *in)
 {
@@ -43,12 +46,13 @@ int inet_pton(int /*af*/, const char* src, void* dst)
 
 #endif
 
+
 // TODO this is temporary, we need a real DNS resolver
 static bool DNS_ResolveIpv4(const char* name, struct in_addr* addr)
 {
     // FIXME gethostbyname is not multithread-safe!
     struct hostent* hostent;
-    static Mutex    mutex;
+
     MutexGuard      mutexGuard(mutex);
 
     hostent = gethostbyname(name);

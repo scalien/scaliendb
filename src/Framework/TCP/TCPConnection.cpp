@@ -32,15 +32,37 @@ void TCPConnection::Connect(Endpoint &endpoint, unsigned timeout)
     Init(false);
     state = CONNECTING;
 
-    socket.Create(Socket::TCP);
-    socket.SetNonblocking();
-    ret = socket.Connect(endpoint);
 
+    ret = socket.Create(Socket::TCP);
+    if (ret == false)
+    {
+        Log_Debug("Socket creation failed");
+        // HACK: make sure connectTimeout is called eventually
+        connectTimeout.SetDelay(timeout);
+        EventLoop::Reset(&connectTimeout);
+        return;
+    }
+
+    socket.SetNonblocking();
+
+    // tcpwrite needs to be added to IOProcessor before Socket::Connect, because
+    // in multithreaded mode it might happen, that the async connect is finished
+    // on the iothread, but the IOOperation is not yet added
     tcpwrite.SetFD(socket.fd);
     tcpwrite.SetOnComplete(MFUNC(TCPConnection, OnConnect));
     tcpwrite.SetOnClose(MFUNC(TCPConnection, OnClose));
     tcpwrite.AsyncConnect();
     IOProcessor::Add(&tcpwrite);
+    
+    ret = socket.Connect(endpoint);
+    if (ret == false)
+    {
+        Log_Debug("Connect failed");
+        // HACK: make sure connectTimeout is called eventually
+        connectTimeout.SetDelay(timeout);
+        EventLoop::Reset(&connectTimeout);
+        return;
+    }
 
     if (timeout > 0)
     {

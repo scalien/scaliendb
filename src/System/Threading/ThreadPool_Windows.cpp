@@ -113,7 +113,7 @@ void ThreadPool_Windows::Shutdown()
         
         delete[] threads;
         threads = NULL;
-        Log_Debug("All threads are stopped");
+        Log_Debug("All threads are stopped, %p", this);
     }
 
     if (messageEvent)
@@ -186,7 +186,7 @@ void ThreadPool_Windows::WaitStop()
         EnterCriticalSection(&critsec);
     }
 
-    Log_Debug("Stopping threads");
+    Log_Debug("All threads started, waiting for threads to stop, numThread: %u, %p", numThread, this);
 
     finished = true;
     LeaveCriticalSection(&critsec);

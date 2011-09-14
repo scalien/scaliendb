@@ -43,7 +43,7 @@ Controller* Controller::GetController(Client* client, int nodec, const char* nod
     controller = controllers.Get(controllerName);
     if (controller)
     {
-        controller->AddClient(client);
+        //controller->AddClient(client);
         return controller;
     }
 
@@ -55,7 +55,7 @@ Controller* Controller::GetController(Client* client, int nodec, const char* nod
     }
 
     controllers.Insert<const Buffer&>(controller);
-    controller->AddClient(client);
+    //controller->AddClient(client);
 
     return controller;
 }
@@ -89,6 +89,8 @@ void Controller::TerminateClients()
 
 void Controller::ClearRequests(Client* client)
 {
+    MutexGuard  mutexGuard(mutex);
+
     requests.Clear();
 
     for (int i = 0; i < numControllers; i++)
@@ -99,15 +101,21 @@ void Controller::ClearRequests(Client* client)
 
 void Controller::SendRequest(Request* request)
 {
-    if (HasMaster())
-        controllerConnections[configState.masterID]->SendRequest(request);
-    else
-        requests.Append(request);
+    MutexGuard  mutexGuard(mutex);
+
+    requests.Append(request);
+    EventLoop::Add(&onSendRequest);
 }
 
-ConfigState* Controller::GetConfigState()
+void Controller::GetConfigState(ConfigState& configState_, bool useLock)
 {
-    return &configState;
+    if (useLock)
+        mutex.Lock();
+
+    configState_ = configState;
+
+    if (useLock)
+        mutex.Unlock();
 }
 
 bool Controller::HasMaster()
@@ -115,9 +123,25 @@ bool Controller::HasMaster()
     return configState.hasMaster;
 }
 
+bool Controller::IsMaster(uint64_t nodeID)
+{
+    return (configState.hasMaster && configState.masterID == nodeID);
+}
+
+int64_t Controller::GetMaster()
+{
+    // FIXME: this is not thread-safe!
+    if (!configState.hasMaster)
+        return -1;
+    return configState.masterID;
+}
+
 uint64_t Controller::NextCommandID()
 {
-    return AtomicIncrement64(nextCommandID);
+    // TODO: workaround for compatibility with Windows XP as 64bit atomic operations are not supported on it
+    //return AtomicIncrement64(nextCommandID);
+
+    return (uint64_t) AtomicIncrement32(nextCommandID);
 }
 
 const Buffer& Controller::GetName() const
@@ -133,7 +157,7 @@ void Controller::OnConnected(ControllerConnection* conn)
 
 void Controller::OnDisconnected(ControllerConnection* conn)
 {
-    if (configState.hasMaster && configState.masterID == conn->GetNodeID())
+    if (IsMaster(conn->GetNodeID()))
     {
         configState.hasMaster = false;
         configState.masterID = -1;
@@ -148,8 +172,8 @@ void Controller::OnRequestResponse(Request* request, ClientResponse* resp)
     if (request && request->client)
     {
         client = request->client;
-        
-        // TODO: YieldTimer
+
+        // TODO: if client is waiting for isDone signal then no locking is necessary
         client->Lock();
         client->result->AppendRequestResponse(resp);
         client->TryWake();
@@ -166,20 +190,28 @@ void Controller::OnNoService(ControllerConnection* conn)
 void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configState_)
 {
     uint64_t    nodeID;
-    Log_Debug("configState");
+    bool        updateClients;
+    
+    Log_Debug("SetConfigState started");
     nodeID = conn->GetNodeID();
 
+    updateClients = false;
     if (!configState.hasMaster || configState.masterID == nodeID)
     {
+        if (!configState.hasMaster || configState.masterID != nodeID)
+            Log_Debug("Node %U became the master", nodeID);
+
+        if (configState_->paxosID > configState.paxosID)
+            updateClients = true;
+
         mutex.Lock();
         configState = *configState_;
         mutex.Unlock();
 
-        // Avoid potential deadlock by calling OnConfigStateChanged from YieldTimer
-        //OnConfigStateChanged();
-        if (!onConfigStateChanged.IsActive())
-            EventLoop::Add(&onConfigStateChanged);
+        if (updateClients)
+            OnConfigStateChanged();
     }
+    Log_Debug("SetConfigState finished, updateClients = %s", updateClients ? "true" : "false");
 }
 
 void Controller::OnConfigStateChanged()
@@ -192,12 +224,7 @@ void Controller::OnConfigStateChanged()
     {
         client->Lock();
         
-        client->SetConfigState(&configState);
-
-        if (configState.hasMaster)
-            client->SetMaster(configState.masterID);
-        else
-            client->SetMaster(-1);
+        client->SetConfigState(configState);
         client->TryWake();
         
         if (isShuttingDown)
@@ -207,11 +234,26 @@ void Controller::OnConfigStateChanged()
     }
 }
 
+void Controller::OnSendRequest()
+{
+    Request*    request;
+
+    if (HasMaster())
+    {
+        MutexGuard  guard(mutex);
+
+        FOREACH (request, requests)
+        {
+            controllerConnections[configState.masterID]->SendRequest(request);
+        }
+    }
+}
+
 Controller::Controller(int nodec, const char* nodev[])
 {
     isShuttingDown = false;
     nextCommandID = 0;
-    onConfigStateChanged.SetCallable(MFUNC(Controller, OnConfigStateChanged));
+    onSendRequest.SetCallable(MFUNC(Controller, OnSendRequest));
 
     numControllers = 0;
     controllerConnections = new ControllerConnection*[nodec];
@@ -249,8 +291,7 @@ void Controller::Shutdown()
     delete[] controllerConnections;
     controllerConnections = NULL;
 
-    if (onConfigStateChanged.IsActive())
-        EventLoop::Remove(&onConfigStateChanged);
+    EventLoop::Remove(&onSendRequest);
 
     Log_Debug("Controller Shutdown finished");
 }
@@ -261,13 +302,7 @@ void Controller::AddClient(Client* client)
     clients.Append(client);
 
     if (configState.hasMaster)
-    {
-        client->Lock();
-        client->SetMaster(configState.masterID);
-        client->SetConfigState(&configState);
-        client->TryWake();
-        client->Unlock();
-    }
+        client->SetConfigState(configState);
 
     mutex.Unlock();
 }

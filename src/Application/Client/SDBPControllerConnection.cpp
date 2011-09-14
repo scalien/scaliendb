@@ -8,12 +8,8 @@
 #include "Application/SDBP/SDBPResponseMessage.h"
 #include "Framework/Replication/PaxosLease/PaxosLease.h"
 
-#define GETMASTER_TIMEOUT   10*1000
-#define RECONNECT_TIMEOUT   2000
-
-#define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard mutexGuard(client->mutex)
-#define CLIENT_MUTEX_LOCK()             mutexGuard.Lock()
-#define CLIENT_MUTEX_UNLOCK()           mutexGuard.Unlock()
+#define GETCONFIGSTATE_TIMEOUT  (3*1000)
+#define RECONNECT_TIMEOUT       2000
 
 using namespace SDBPClient;
 
@@ -27,11 +23,12 @@ using namespace SDBPClient;
 
 ControllerConnection::ControllerConnection(Controller* controller_, uint64_t nodeID_, Endpoint& endpoint_)
 {
+    Log_Debug("Creating ControllerConnection: %s", endpoint_.ToString());
     controller = controller_;
     nodeID = nodeID_;
     endpoint = endpoint_;
     getConfigStateTime = 0;
-    getConfigStateTimeout.SetDelay(GETMASTER_TIMEOUT);
+    getConfigStateTimeout.SetDelay(GETCONFIGSTATE_TIMEOUT);
     getConfigStateTimeout.SetCallable(MFUNC(ControllerConnection, OnGetConfigStateTimeout));
     SetPriority(true);
     Connect();
@@ -44,7 +41,7 @@ ControllerConnection::~ControllerConnection()
 
 // =============================================================================================
 //
-// Client interface -- mutex should be locked
+// Client interface
 //    
 // =============================================================================================
 
@@ -53,8 +50,6 @@ void ControllerConnection::ClearRequests(Client* client)
     Request*    request;
     Request*    next;
 
-    MutexGuard  mutexGuard(mutex);
-    
     for (request = requests.First(); request; request = next)
     {
         if (request->client == client)
@@ -69,7 +64,6 @@ void ControllerConnection::SendRequest(Request* request)
     Log_Trace("type = %c, nodeID = %u", request->type, (unsigned) nodeID);
 
     SDBPRequestMessage  msg;
-    MutexGuard          mutexGuard(mutex);
 
     msg.request = request;
     Write(msg);
@@ -92,8 +86,6 @@ void ControllerConnection::OnGetConfigStateTimeout()
 {
     Log_Trace();
         
-    MutexGuard  mutexGuard(mutex);
-
     if (EventLoop::Now() - getConfigStateTime > PAXOSLEASE_MAX_LEASE_TIME * 3)
     {
         Log_Debug("ConfigStateTimeout");
@@ -116,8 +108,6 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
     SDBPResponseMessage msg;
     ClientResponse*     resp;
     
-    MutexGuard  mutexGuard(mutex);
-
     Log_Trace();
     
     resp = new ClientResponse;
@@ -139,29 +129,24 @@ void ControllerConnection::OnWrite()
 {
     Log_Trace();
 
-    MutexGuard  mutexGuard(mutex);
-
     MessageConnection::OnWrite();
 }
 
 void ControllerConnection::OnConnect()
 {
-    Log_Trace();
-
-    MutexGuard  mutexGuard(mutex);
+    Log_Debug("Controller OnConnect started");
 
     MessageConnection::OnConnect();
     SendGetConfigState();
 
     controller->OnConnected(this);
+    Log_Debug("Controller OnConnect finished");
 }
 
 void ControllerConnection::OnClose()
 {
-    Log_Trace();
+    Log_Debug("ControllerConnection::OnClose");
     
-    MutexGuard      mutexGuard(mutex);
-
     // TODO: resend requests without response
     if (state == CONNECTED)
     {

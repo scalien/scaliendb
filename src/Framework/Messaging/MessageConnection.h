@@ -7,7 +7,7 @@
 #include "Framework/TCP/TCPConnection.h"
 #include "Message.h"
 
-#define MESSAGING_CONNECT_TIMEOUT       2000
+#define MESSAGING_CONNECT_TIMEOUT       (10*1000)
 #define MESSAGING_BUFFER_THRESHOLD      (10*1360)              // tuned to work well with Ethernet
 #define MESSAGING_MAX_SIZE              128*MB
 

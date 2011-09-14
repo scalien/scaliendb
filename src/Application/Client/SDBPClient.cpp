@@ -24,6 +24,7 @@
 Mutex       globalMutex;                    
 unsigned    numClients;
 ThreadPool* ioThread;
+Signal      ioThreadSignal;
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard clientMutexGuard(mutex)
 #define CLIENT_MUTEX_GUARD_LOCK()       clientMutexGuard.Lock()
@@ -70,11 +71,11 @@ ThreadPool* ioThread;
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
-    if (configState == NULL)						\
+    if (configStateVersion == 0)					\
 		return SDBP_API_ERROR;						\
 													\
 	req = new Request;                              \
-    req->op(NextCommandID(), configState->paxosID,  \
+    req->op(NextCommandID(), configState.paxosID,   \
      tableID, __VA_ARGS__);                         \
     AppendDataRequest(req);                         \
                                                     \
@@ -90,11 +91,11 @@ ThreadPool* ioThread;
                                                     \
     CLIENT_MUTEX_GUARD_DECLARE();                   \
                                                     \
-    if (configState == NULL)						\
+    if (configStateVersion == 0)    				\
 		return SDBP_API_ERROR;						\
 													\
     req = new Request;                              \
-    req->op(NextCommandID(), configState->paxosID,  \
+    req->op(NextCommandID(), configState.paxosID,   \
      tableID, __VA_ARGS__);                         \
                                                     \
     if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&     \
@@ -133,7 +134,7 @@ ThreadPool* ioThread;
     CLIENT_MUTEX_GUARD_DECLARE();                   \
     VALIDATE_CONTROLLERS();                         \
                                                     \
-    if (configState == NULL)                        \
+    if (configStateVersion == 0)                    \
     {                                               \
         result->Close();                            \
         CLIENT_MUTEX_GUARD_UNLOCK();                \
@@ -141,7 +142,7 @@ ThreadPool* ioThread;
         CLIENT_MUTEX_GUARD_LOCK();                  \
     }                                               \
                                                     \
-    if (configState == NULL)                        \
+    if (configStateVersion == 0)                    \
         return SDBP_NOSERVICE;                      \
                                                     \
     req = new Request;                              \
@@ -149,6 +150,7 @@ ThreadPool* ioThread;
     req->client = this;                             \
                                                     \
     requests.Append(req);                           \
+    numControllerRequests++;                        \
                                                     \
     result->Close();                                \
     result->AppendRequest(req);                     \
@@ -222,9 +224,13 @@ int Client::Init(int nodec, const char* nodev[])
     numClients++;
     if (numClients == 1)
     {
+        Log_Debug("Creating IOThread");
+        ioThreadSignal.SetWaiting(true);
         ioThread = ThreadPool::Create(1);
         ioThread->Execute(MFUNC(Client, IOThreadFunc));
         ioThread->Start();
+        ioThreadSignal.Wait();
+        Log_Debug("IOThread started");
     }
     GLOBAL_MUTEX_GUARD_UNLOCK();
 
@@ -239,7 +245,7 @@ int Client::Init(int nodec, const char* nodev[])
     // set defaults
     master = -1;
     commandID = 0;
-    configState = NULL;
+    configStateVersion = 0;
     result = NULL;
     batchMode = SDBP_BATCH_DEFAULT;
     batchLimit = DEFAULT_BATCH_LIMIT;
@@ -248,6 +254,7 @@ int Client::Init(int nodec, const char* nodev[])
     highestSeenPaxosID = 0;
     connectivityStatus = SDBP_NOCONNECTION;
     timeoutStatus = SDBP_SUCCESS;
+    numControllerRequests = 0;
     next = prev = this;
 
     // create the first result object
@@ -260,6 +267,7 @@ int Client::Init(int nodec, const char* nodev[])
         Shutdown();
         return SDBP_API_ERROR;
     }
+    controller->AddClient(this);
        
     return SDBP_SUCCESS;
 }
@@ -283,10 +291,12 @@ void Client::Shutdown()
     numClients--;
     if (numClients == 0)
     {
+        Log_Debug("Stopping IOThread");
         EventLoop::Stop();
         ioThread->WaitStop();
         delete ioThread;
         ioThread = NULL;
+        Log_Debug("IOThread destroyed");
     }
 
     IOProcessor::Shutdown();
@@ -381,7 +391,7 @@ ConfigState* Client::GetConfigState()
     if (controller == NULL)
         return NULL;
     
-    if (!configState)
+    if (configStateVersion == 0)
     {
         result->Close();
         CLIENT_MUTEX_GUARD_UNLOCK();
@@ -389,7 +399,12 @@ ConfigState* Client::GetConfigState()
         CLIENT_MUTEX_GUARD_LOCK();
     }
 
-    return configState;
+    if (configStateVersion != configState.paxosID)
+    {
+        controller->GetConfigState(configState, true);
+    }
+
+    return &configState;
 }
 
 void Client::WaitConfigState()
@@ -400,7 +415,7 @@ void Client::WaitConfigState()
         return;
 
     // delete configState, so EventLoop() will wait for a new one
-    configState = NULL;
+    configStateVersion = 0;
     result->Close();
     CLIENT_MUTEX_GUARD_UNLOCK();
     EventLoop();
@@ -484,21 +499,21 @@ int Client::TruncateTable(uint64_t tableID)
     if (controller == NULL)             \
         return __VA_ARGS__;             \
                                         \
-    if (!configState)                   \
+    if (configStateVersion == 0)        \
     {                                   \
         result->Close();                \
         CLIENT_MUTEX_GUARD_UNLOCK();    \
         EventLoop();                    \
         CLIENT_MUTEX_GUARD_LOCK();      \
     }                                   \
-    if (!configState)                   \
+    if (configStateVersion == 0)        \
         return __VA_ARGS__;
 
 unsigned Client::GetNumQuorums()
 {
     GET_CONFIG_STATE_OR_RETURN(0);
     
-    return configState->quorums.GetLength();
+    return configState.quorums.GetLength();
 }
 
 uint64_t Client::GetQuorumIDAt(unsigned n)
@@ -509,7 +524,7 @@ uint64_t Client::GetQuorumIDAt(unsigned n)
     GET_CONFIG_STATE_OR_RETURN(0);
     
     i = 0;
-    FOREACH (quorum, configState->quorums)
+    FOREACH (quorum, configState.quorums)
     {
         if (i == n)
             return quorum->quorumID;
@@ -528,7 +543,7 @@ void Client::GetQuorumNameAt(unsigned n, Buffer& name)
     GET_CONFIG_STATE_OR_RETURN();
     
     i = 0;
-    FOREACH (quorum, configState->quorums)
+    FOREACH (quorum, configState.quorums)
     {
         if (i == n)
         {
@@ -544,7 +559,7 @@ unsigned Client::GetNumDatabases()
 {
     GET_CONFIG_STATE_OR_RETURN(0);
     
-    return configState->databases.GetLength();
+    return configState.databases.GetLength();
 }
 
 uint64_t Client::GetDatabaseIDAt(unsigned n)
@@ -555,7 +570,7 @@ uint64_t Client::GetDatabaseIDAt(unsigned n)
     GET_CONFIG_STATE_OR_RETURN(0);
     
     i = 0;
-    FOREACH (database, configState->databases)
+    FOREACH (database, configState.databases)
     {
         if (i == n)
             return database->databaseID;
@@ -574,7 +589,7 @@ void Client::GetDatabaseNameAt(unsigned n, Buffer& name)
     GET_CONFIG_STATE_OR_RETURN();
 
     i = 0;
-    FOREACH (database, configState->databases)
+    FOREACH (database, configState.databases)
     {
         if (i == n)
         {
@@ -593,7 +608,7 @@ unsigned Client::GetNumTables(uint64_t databaseID)
     GET_CONFIG_STATE_OR_RETURN(0);
 
     database = NULL;
-    FOREACH (database, configState->databases)
+    FOREACH (database, configState.databases)
     {
         if (database->databaseID == databaseID)
             break;
@@ -614,7 +629,7 @@ uint64_t Client::GetTableIDAt(uint64_t databaseID, unsigned n)
     GET_CONFIG_STATE_OR_RETURN(0);
     
     database = NULL;
-    FOREACH (database, configState->databases)
+    FOREACH (database, configState.databases)
     {
         if (database->databaseID == databaseID)
             break;
@@ -644,7 +659,7 @@ void Client::GetTableNameAt(uint64_t databaseID, unsigned n, Buffer& name)
     GET_CONFIG_STATE_OR_RETURN();
     
     database = NULL;
-    FOREACH (database, configState->databases)
+    FOREACH (database, configState.databases)
     {
         if (database->databaseID == databaseID)
             break;
@@ -664,7 +679,7 @@ void Client::GetTableNameAt(uint64_t databaseID, unsigned n, Buffer& name)
     if (!itTableID)
         return;
     
-    FOREACH (table, configState->tables)
+    FOREACH (table, configState.tables)
     {
         if (table->tableID == *itTableID)
         {
@@ -683,11 +698,11 @@ int Client::Get(uint64_t tableID, const ReadBuffer& key)
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
     
-    if (configState == NULL)
+    if (configStateVersion == 0)
         return SDBP_API_ERROR;
     
     req = new Request;
-    req->Get(NextCommandID(), configState->paxosID, tableID, (ReadBuffer&) key);
+    req->Get(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key);
 
     // find
     it = proxiedRequests.Locate(req, cmpres);
@@ -725,11 +740,11 @@ int Client::Set(uint64_t tableID, const ReadBuffer& key, const ReadBuffer& value
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();                   
     
-	if (configState == NULL)
+	if (configStateVersion == 0)
 		return SDBP_API_ERROR;
 
     req = new Request;                              
-    req->Set(NextCommandID(), configState->paxosID,  
+    req->Set(NextCommandID(), configState.paxosID,  
      tableID, (ReadBuffer&) key, (ReadBuffer&) value);                         
                                                     
     if (batchMode == SDBP_BATCH_NOAUTOSUBMIT &&     
@@ -770,7 +785,7 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 	
-    if (configState == NULL)
+    if (configStateVersion == 0)
         return SDBP_API_ERROR;
 
     result->Close();
@@ -792,7 +807,7 @@ int Client::Add(uint64_t tableID, const ReadBuffer& key, int64_t number)
     }
 
     req = new Request;
-    req->Add(NextCommandID(), configState->paxosID, tableID, (ReadBuffer&) key, number);
+    req->Add(NextCommandID(), configState.paxosID, tableID, (ReadBuffer&) key, number);
     requests.Append(req);
     result->AppendRequest(req);
     CLIENT_MUTEX_GUARD_UNLOCK();
@@ -827,13 +842,13 @@ int Client::ListKeys(
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
-	if (configState == NULL)
+	if (configStateVersion == 0)
 		return SDBP_API_ERROR;
 
     req = new Request;
     req->userCount = count;
     req->skip = skip;
-    req->ListKeys(NextCommandID(), configState->paxosID, tableID,
+    req->ListKeys(NextCommandID(), configState.paxosID, tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
 
     if (req->userCount > 0)
@@ -866,13 +881,13 @@ int Client::ListKeyValues(
     VALIDATE_CONTROLLERS();
     CLIENT_MUTEX_GUARD_DECLARE();
 
-    if (configState == NULL)
+    if (configStateVersion == 0)
 		return SDBP_API_ERROR;
 
     req = new Request;
     req->userCount = count;
     req->skip = skip;
-    req->ListKeyValues(NextCommandID(), configState->paxosID, tableID,
+    req->ListKeyValues(NextCommandID(), configState.paxosID, tableID,
      (ReadBuffer&) startKey, (ReadBuffer&) endKey, (ReadBuffer&) prefix, count);
 
     if (req->userCount > 0)
@@ -984,8 +999,12 @@ void Client::ClearRequests()
 
     FOREACH (shardConnection, shardConnections)
         shardConnection->ClearRequests();
-
-    controller->ClearRequests(this);
+    
+    if (numControllerRequests > 0)
+    {
+        controller->ClearRequests(this);
+        numControllerRequests = 0;
+    }
 }
 
 void Client::EventLoop()
@@ -1031,7 +1050,7 @@ void Client::EventLoop()
 // This should only be called with client mutex locked!
 bool Client::IsDone()
 {
-    if (result->GetRequestCount() == 0 && configState != NULL)
+    if (result->GetRequestCount() == 0 && configState.paxosID != 0)
     {
         return true;
     }
@@ -1046,7 +1065,7 @@ bool Client::IsDone()
         return true;
     }
 
-    if (EventLoop::IsStarted() && !EventLoop::IsRunning())
+    if (!EventLoop::IsRunning() && EventLoop::IsStarted())
     {
         return true;
     }
@@ -1071,7 +1090,7 @@ Request* Client::CreateGetConfigState()
 
 int64_t Client::GetMaster()
 {
-    return master;
+    return controller->GetMaster();
 }
 
 void Client::SetMaster(int64_t master_)
@@ -1080,19 +1099,14 @@ void Client::SetMaster(int64_t master_)
     
     if (master != master_)
     {
-        // node became the master
-        Log_Debug("Node %I is the master", master_);
         master = master_;
         connectivityStatus = SDBP_SUCCESS;
         EventLoop::Remove(&masterTimeout);
     }
     else if (master_ < 0 && master >= 0)
     {
-        // node lost its mastership
-        Log_Debug("Node %I lost its mastership", master);
         master = -1;
         connectivityStatus = SDBP_NOMASTER;
-
         EventLoop::Reset(&masterTimeout);
     }
 }
@@ -1126,24 +1140,22 @@ void Client::OnMasterTimeout()
     TryWake();
 }
 
-void Client::SetConfigState(ConfigState* configState_)
+void Client::SetConfigState(ConfigState& configState_)
 {
-    if (configState_ == NULL)
+    if (configStateVersion != configState_.paxosID)
     {
-        configState = NULL;
-    }
-    else
-    {
-        configStateCopy = *configState_;
-        configState = &configStateCopy;
-    }
+        configStateVersion = configState_.paxosID;
+        configState = configState_;
 
-    // we know the state of the system, so we can start sending requests
-    if (configState)
-    {
-        ConfigureShardServers();
-        AssignRequestsToQuorums();
-        SendQuorumRequests();
+        // we know the state of the system, so we can start sending requests
+        if (configState.paxosID != 0)
+        {
+            if (configState.hasMaster)
+                SetMaster(configState.masterID);
+            ConfigureShardServers();
+            AssignRequestsToQuorums();
+            SendQuorumRequests();
+        }
     }
 }
 
@@ -1159,68 +1171,30 @@ void Client::ReassignRequest(Request* req)
     uint64_t        quorumID;
     ConfigQuorum*   quorum;
     ReadBuffer      key;
-    Request*        subRequest;
     
-    if (!configState)
+    if (configState.paxosID == 0)
         return;
     
     // handle controller requests
     if (req->IsControllerRequest())
     {
-        if (master >= 0)
-            controller->SendRequest(req);
-        else
-            requests.Append(req);
-
+        controller->SendRequest(req);
         return;
     }
 
-    // multi requests won't be reassigned again, because they are not assigned to quorums
-    // instead subRequests created as a clone of the multi request and subRequests are sent
-    // to all quorums
-    if (req->multi)
-    {
-        ClientResponse  resp;
-        
-        FOREACH (quorum, configState->quorums)
-        {
-            subRequest = new Request;
-            // TODO: HACK copy the parent request ClientRequest part
-            *((ClientRequest*) subRequest) = *((ClientRequest*) req);
-            subRequest->next = subRequest->prev = subRequest;
-            subRequest->commandID = NextCommandID();
-            subRequest->quorumID = quorum->quorumID;
-            subRequest->parent = req;
-            result->AppendRequest(subRequest);
+    // find quorum by key
+    key.Wrap(req->key);
+    if (!GetQuorumID(req->tableID, key, quorumID))
+        ASSERT_FAIL();
 
-            AddRequestToQuorum(subRequest);
-        }
+    // reassign the request to the new quorum
+    req->quorumID = quorumID;
 
-        // simulate completion of the multi request with a fake response
-        resp.commandID = req->commandID;
-        if (req->type == CLIENTREQUEST_COUNT)
-            resp.Number(0);
-        else
-            resp.OK();
-
-        result->AppendRequestResponse(&resp);        
-    }
+    quorum = configState.GetQuorum(quorumID);
+    if (!req->IsReadRequest() && quorum && quorum->hasPrimary == false)
+        requests.Append(req);
     else
-    {
-        // find quorum by key
-        key.Wrap(req->key);
-        if (!GetQuorumID(req->tableID, key, quorumID))
-            ASSERT_FAIL();
-
-        // reassign the request to the new quorum
-        req->quorumID = quorumID;
-
-        quorum = configState->GetQuorum(quorumID);
-        if (!req->IsReadRequest() && quorum && quorum->hasPrimary == false)
-            requests.Append(req);
-        else
-            AddRequestToQuorum(req);
-    }
+        AddRequestToQuorum(req);
 }
 
 void Client::AssignRequestsToQuorums()
@@ -1254,14 +1228,13 @@ bool Client::GetQuorumID(uint64_t tableID, ReadBuffer& key, uint64_t& quorumID)
     ReadBuffer      lastKey;
     uint64_t*       it;
     
-    ASSERT(configState != NULL);
+    ASSERT(configState.paxosID != 0);
 
-    table = configState->GetTable(tableID);
-    //Log_Trace("%U", tableID);
+    table = configState.GetTable(tableID);
     ASSERT(table != NULL);
     FOREACH (it, table->shards)
     {
-        shard = configState->GetShard(*it);
+        shard = configState.GetShard(*it);
         if (shard == NULL)
             continue;
 
@@ -1311,14 +1284,14 @@ void Client::SendQuorumRequest(ShardConnection* conn, uint64_t quorumID)
     if (conn->GetState() != TCPConnection::CONNECTED)
         return;
 
-    if (!configState)
+    if (configState.paxosID == 0)
         return;
 
     // check quorums
     if (!quorumRequests.Get(quorumID, qrequests))
         return;
     
-    quorum = configState->GetQuorum(quorumID);
+    quorum = configState.GetQuorum(quorumID);
     if (!quorum)
         ASSERT_FAIL();
     
@@ -1429,13 +1402,11 @@ void Client::ClearQuorumRequests()
 {
     RequestListMap::Node*   requestNode;
     RequestList*            requestList;
-    Request*                request;
 
     FOREACH (requestNode, quorumRequests)
     {
         requestList = requestNode->Value();
-        FOREACH_FIRST (request, *requestList)
-            requestList->Remove(request);
+        requestList->Clear();
     }
 }
 
@@ -1445,7 +1416,7 @@ void Client::InvalidateQuorum(uint64_t quorumID, uint64_t nodeID)
     ShardConnection*    shardConn;
     uint64_t*           nit;
     
-    quorum = configState->GetQuorum(quorumID);
+    quorum = configState.GetQuorum(quorumID);
     if (!quorum)
         ASSERT_FAIL();
         
@@ -1494,13 +1465,13 @@ void Client::NextRequest(
     if (req->count > 0)
         req->count = count;
 
-    configTable = configState->GetTable(req->tableID);
+    configTable = configState.GetTable(req->tableID);
     ASSERT(configTable != NULL);
     
     nextShardID = 0;
     FOREACH (itShard, configTable->shards)
     {
-        configShard = configState->GetShard(*itShard);
+        configShard = configState.GetShard(*itShard);
 
         // find the next shard that has the given nextShardKey as first key
         if (ReadBuffer::Cmp(configShard->firstKey, nextShardKey) == 0)
@@ -1527,7 +1498,7 @@ void Client::ConfigureShardServers()
     Endpoint                    endpoint;
     
     Log_Trace("1");
-    FOREACH (ssit, configState->shardServers)
+    FOREACH (ssit, configState.shardServers)
     {
         shardConn = shardConnections.Get(ssit->nodeID);
         Log_Trace("%U", ssit->nodeID);
@@ -1560,7 +1531,7 @@ void Client::ConfigureShardServers()
     Log_Trace("2");
     
     // assign quorums to ShardConnections
-    FOREACH (qit, configState->quorums)
+    FOREACH (qit, configState.quorums)
     {
         Log_Trace("quorumID: %U, primary: %U", qit->quorumID, qit->hasPrimary ? qit->primaryID : 0);
         FOREACH (nit, qit->activeNodes)
@@ -1900,12 +1871,14 @@ void Client::IOThreadFunc()
     Log_Debug("IOThreadFunc started: %U", ThreadPool::GetThreadID());
 
     EventLoop::Start();
+    ioThreadSignal.Wake();
 
     while (EventLoop::IsRunning())
     {
         sleep = EventLoop::RunTimers();
     
-        if (sleep < 0 || sleep > SLEEP_MSEC)
+        //if (sleep < 0 || sleep > SLEEP_MSEC)
+        if (sleep < 0)
             sleep = SLEEP_MSEC;
     
         if (!IOProcessor::Poll(sleep))
@@ -1920,7 +1893,7 @@ void Client::IOThreadFunc()
 
     // TODO: HACK
     // When IOProcessor is terminated (e.g. with Ctrl-C from console) no network/timer
-    // event will ever delivered. That means clients waiting for signals would be stuck
+    // event will be ever delivered. That means clients waiting for signals would be stuck
     // forever. Therefore we wake up all clients here.
     Controller::TerminateClients();
 

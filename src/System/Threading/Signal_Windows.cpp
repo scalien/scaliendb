@@ -62,14 +62,14 @@ void Signal::Wait()
         ret = WaitForSingleObject((HANDLE) impl.event, timeout);
         if (ret == WAIT_FAILED)
             Log_Errno();
-        if (ret != WAIT_OBJECT_0)
+        if (ret != WAIT_OBJECT_0 && ret != WAIT_TIMEOUT)
             Log_Debug("WaitForSingleObject: ret %d", ret);
 
         if (ret == WAIT_TIMEOUT)
         {
             if (stuck == false)
             {
-                Log_Debug("Waiting for long: %p in %U", this, ThreadPool::GetThreadID());
+                //Log_Debug("Waiting for long: %p in %U", this, ThreadPool::GetThreadID());
                 stuck = true;
             }
             continue;

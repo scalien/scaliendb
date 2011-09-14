@@ -50,8 +50,9 @@ static uint32_t     failCount;
 
 static int SetupDefaultClient(Client& client)
 {
-    //const char*     nodes[] = {"localhost"};
-    const char*     nodes[] = {"localhost:7080"};
+    // XXX: Warning! Don't use localhost on Windows, because if IPv6 is installed
+    // resolution of localhost is at least 1 second. Instead use 127.0.0.1
+    const char*     nodes[] = {"192.168.137.50:7080"};
 //    const char*     nodes[] = {"192.168.137.52:7080"};
 //    const char*     nodes[] = {"192.168.1.5:7080"};
     std::string     databaseName = "test";
@@ -175,7 +176,7 @@ TEST_DEFINE(TestClientSet)
     for (unsigned i = 0; i < num; i++)
     {
         counterValue = AtomicIncrement32(counter);
-        ret = snprintf(keybuf, sizeof(keybuf), "%u", counterValue);
+        ret = snprintf(keybuf, sizeof(keybuf), "%010u", counterValue);
         key.Wrap(keybuf, ret);
         value.Wrap(keybuf, ret);
         ret = client.Set(defaultTableID, key, value);
@@ -1032,8 +1033,9 @@ TEST_DEFINE(TestClientMultiThread)
 
 		for (unsigned i = 0; i < numThread; i++)
 		{  
-            threadPool->Execute(CFunc((void (*)(void)) TestClientListKeyValues));
-	//        threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
+            //threadPool->Execute(CFunc((void (*)(void)) TestClientListKeyValues));
+	        //threadPool->Execute(CFunc((void (*)(void)) TestClientBatchedGet));
+            threadPool->Execute(CFunc((void (*)(void)) TestClientSet));
 		}
     
 		threadPool->Start();

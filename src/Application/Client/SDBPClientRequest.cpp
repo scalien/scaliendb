@@ -6,8 +6,6 @@ Request::Request()
 {
     numTry = 0;
     numShardServers = 0;
-    async = false;
-    multi = false;
     skip = false;
     parent = NULL;
     client = NULL;

@@ -139,7 +139,7 @@ private:
     void                    UpdateConnectivityStatus();
     void                    OnGlobalTimeout();
     void                    OnMasterTimeout();
-    void                    SetConfigState(ConfigState* configState);
+    void                    SetConfigState(ConfigState& configState);
 
     void                    AppendDataRequest(Request* req);
     void                    ReassignRequest(Request* req);
@@ -176,8 +176,8 @@ private:
     int                     timeoutStatus;
     Countdown               globalTimeout;
     Countdown               masterTimeout;
-    ConfigState*            configState;
-    ConfigState             configStateCopy;
+    ConfigState             configState;
+    uint64_t                configStateVersion;
     Result*                 result;
     RequestList             requests;
     RequestMap              proxiedRequests;
@@ -190,6 +190,7 @@ private:
     int						batchMode;
     uint64_t                highestSeenPaxosID;
     YieldTimer              onClientShutdown;
+    unsigned                numControllerRequests;
 
 //#ifdef CLIENT_MULTITHREAD
     Signal                  isDone;

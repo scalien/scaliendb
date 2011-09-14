@@ -44,8 +44,6 @@ public:
     unsigned        numTry;
     unsigned        numShardServers;
     ResponseList    responses;
-    bool            async;
-    bool            multi;              // multirequests are those that sent to multiple servers
     ShardConnList   shardConns;
     Request*        parent;
     uint64_t        userCount;

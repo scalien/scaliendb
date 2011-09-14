@@ -59,7 +59,6 @@ private:
     Countdown       getConfigStateTimeout;
     bool            getConfigStateSent;
     RequestList     requests;
-    Mutex           mutex;
 };
 
 }; // namespace

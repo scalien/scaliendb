@@ -1,5 +1,6 @@
 #include "Scheduler.h"
 #include "System/Macros.h"
+#include "System/IO/IOProcessor.h"
 
 InSortedList<Timer> Scheduler::timers;
 #ifdef EVENTLOOP_MULTITHREADED
@@ -50,6 +51,17 @@ void Scheduler::UnprotectedAdd(Timer* timer)
     ASSERT(timer->next == timer->prev && timer->next == timer);
     timer->OnAdd();
     timer->active = true;
+
+#ifdef EVENTLOOP_MULTITHREADED
+    if (timers.GetLength() > 0 && timer->expireTime < timers.First()->expireTime)
+    {
+        Callable    empty;
+
+        // wake up the IOProcessor
+        IOProcessor::Complete(&empty);
+    }
+#endif
+
     timers.Add(timer);
 }
 
