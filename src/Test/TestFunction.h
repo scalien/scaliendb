@@ -75,6 +75,7 @@ inline int TestMatchName(int argc, char* argv[], TestFunction& testFunction)
         numSuccess++;                                       \
     }                                                       \
     StopClock();                                            \
+    Log_Shutdown();                                         \
     printf("test: Summary: %u/%u test%s succeeded\n", numSuccess, tests.GetLength(), numSuccess > 1 ? "s" : ""); \
     return test_eval(TEST_NAME, ret);                       \
 }
