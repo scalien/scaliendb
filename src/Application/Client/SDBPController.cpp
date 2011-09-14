@@ -192,7 +192,6 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
     uint64_t    nodeID;
     bool        updateClients;
     
-    Log_Debug("SetConfigState started");
     nodeID = conn->GetNodeID();
 
     updateClients = false;
@@ -211,12 +210,13 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
         if (updateClients)
             OnConfigStateChanged();
     }
-    Log_Debug("SetConfigState finished, updateClients = %s", updateClients ? "true" : "false");
 }
 
 void Controller::OnConfigStateChanged()
 {
     Client*     client;
+
+    Log_Debug("OnConfigStateChanged, shutdown = %s", isShuttingDown ? "true" : "false");
 
     MutexGuard  mutexGuard(mutex);
 

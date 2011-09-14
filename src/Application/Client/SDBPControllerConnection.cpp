@@ -134,13 +134,10 @@ void ControllerConnection::OnWrite()
 
 void ControllerConnection::OnConnect()
 {
-    Log_Debug("Controller OnConnect started");
-
     MessageConnection::OnConnect();
     SendGetConfigState();
 
     controller->OnConnected(this);
-    Log_Debug("Controller OnConnect finished");
 }
 
 void ControllerConnection::OnClose()
