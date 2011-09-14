@@ -11,7 +11,7 @@ namespace Scalien
         string endKey;
         string prefix;
         long count;
-        uint gran;
+        uint gran = 100;
         int pos;
         List<string> keys;
         List<string> values;
