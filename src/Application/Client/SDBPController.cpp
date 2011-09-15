@@ -64,6 +64,10 @@ void Controller::CloseController(Client* client, Controller* controller)
 {
     MutexGuard      guard(globalMutex);
 
+    // TerminateClients will take care of destroying the controller
+    if (controller->isShuttingDown)
+        return;
+
     controller->RemoveClient(client);
     if (controller->GetNumClients() == 0)
     {
@@ -80,10 +84,12 @@ void Controller::TerminateClients()
 
     MutexGuard      guard(globalMutex);
 
-    FOREACH (controller, controllers)
+    FOREACH_FIRST (controller, controllers)
     {
         controller->isShuttingDown = true;
         controller->OnConfigStateChanged();
+        controllers.Remove(controller);
+        delete controller;
     }
 }
 
@@ -204,7 +210,7 @@ void Controller::SetConfigState(ControllerConnection* conn, ConfigState* configS
             updateClients = true;
 
         mutex.Lock();
-        configState = *configState_;
+        configState_->Transfer(configState);
         mutex.Unlock();
 
         if (updateClients)

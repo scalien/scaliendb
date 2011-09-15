@@ -54,6 +54,7 @@ public:
     uint64_t                GetMasterTimeout();
 
     ConfigState*            GetConfigState();
+    void                    CloneConfigState(ConfigState& configState);
     void                    WaitConfigState();
         
     // =============================================================================================

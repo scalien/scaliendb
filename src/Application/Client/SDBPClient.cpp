@@ -22,8 +22,8 @@
 
 // globalMutex protects the underlying single threaded IO and Event handling layer
 Mutex       globalMutex;                    
-unsigned    numClients;
-ThreadPool* ioThread;
+unsigned    numClients = 0;
+ThreadPool* ioThread = NULL;
 Signal      ioThreadSignal;
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard clientMutexGuard(mutex)
@@ -145,6 +145,9 @@ Signal      ioThreadSignal;
     if (configStateVersion == 0)                    \
         return SDBP_NOSERVICE;                      \
                                                     \
+    if (proxySize > 0)                              \
+        return SDBP_API_ERROR;                      \
+                                                    \
     req = new Request;                              \
     req->op(controller->NextCommandID(), __VA_ARGS__);          \
     req->client = this;                             \
@@ -199,6 +202,7 @@ static int KeyCmp(const Request* a, const Request* b)
 
 Client::Client()
 {
+    controller = NULL;
     globalMutex.SetName("ClientGlobalMutex");
     mutexName.Writef("Client_%p", this);
     mutexName.NullTerminate();
@@ -221,8 +225,7 @@ int Client::Init(int nodec, const char* nodev[])
     if (!IOProcessor::Init(MAX_IO_CONNECTION))
         return SDBP_API_ERROR;
 
-    numClients++;
-    if (numClients == 1)
+    if (numClients == 0)
     {
         Log_Debug("Creating IOThread");
         ioThreadSignal.SetWaiting(true);
@@ -232,6 +235,7 @@ int Client::Init(int nodec, const char* nodev[])
         ioThreadSignal.Wait();
         Log_Debug("IOThread started");
     }
+    numClients++;
     GLOBAL_MUTEX_GUARD_UNLOCK();
 
     IOProcessor::BlockSignals(IOPROCESSOR_BLOCK_INTERACTIVE);
@@ -288,6 +292,7 @@ void Client::Shutdown()
     }
 
     GLOBAL_MUTEX_GUARD_DECLARE();
+    ASSERT(numClients != 0);
     numClients--;
     if (numClients == 0)
     {
@@ -405,6 +410,29 @@ ConfigState* Client::GetConfigState()
     }
 
     return &configState;
+}
+
+void Client::CloneConfigState(ConfigState& configState_)
+{
+    CLIENT_MUTEX_GUARD_DECLARE();
+
+    if (controller == NULL)
+        return;
+    
+    if (configStateVersion == 0)
+    {
+        result->Close();
+        CLIENT_MUTEX_GUARD_UNLOCK();
+        EventLoop();
+        CLIENT_MUTEX_GUARD_LOCK();
+    }
+
+    if (configStateVersion != configState.paxosID)
+    {
+        controller->GetConfigState(configState, true);
+    }
+
+    configState_ = configState;
 }
 
 void Client::WaitConfigState()

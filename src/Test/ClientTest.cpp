@@ -1012,6 +1012,78 @@ TEST_DEFINE(TestClientGetSetGetSetSubmit)
     return TEST_SUCCESS;
 }
 
+TEST_DEFINE(TestClientTruncateTable)
+{
+    Result*         result;
+    const unsigned  num = 1000;
+    uint64_t        table[num];
+    char            name[100];
+    ReadBuffer      rbName;
+    uint64_t        truncateDatabaseID;
+    
+
+    //CreateTablesForTruncating:
+    {
+        Client          client;
+        ConfigState     configState;
+        ConfigDatabase* configDatabase;
+
+        TEST(SetupDefaultClient(client));
+        client.CloneConfigState(configState);
+        configDatabase = configState.GetDatabase("TruncateDatabase");
+        if (configDatabase != NULL)
+        {
+            truncateDatabaseID = configDatabase->databaseID;
+            uint64_t    *it;
+            unsigned    i;
+            i = 0;
+            FOREACH (it, configDatabase->tables)
+            {
+                table[i] = *it;
+                if (i > SIZE(table))
+                    break;
+                i++;                
+            }
+            goto TruncateTables;
+            TEST(client.DeleteDatabase(configDatabase->databaseID));
+        }
+
+        snprintf(name, sizeof(name), "TruncateDatabase");
+        rbName.Wrap(name);
+        TEST(client.CreateDatabase(rbName));
+
+        client.CloneConfigState(configState);
+        configDatabase = configState.GetDatabase("TruncateDatabase");
+        TEST_ASSERT(configDatabase != NULL);
+        
+        truncateDatabaseID = configDatabase->databaseID;
+        for (unsigned i = 0; i < num; i++)
+        {
+            snprintf(name, sizeof(name), "TestClientTruncate_Table%u", i);
+            rbName.Wrap(name);
+            TEST(client.CreateTable(truncateDatabaseID, 1, rbName));
+            result = client.GetResult();
+            TEST(result->GetNumber(table[i]));
+            delete result;
+        }
+    }
+
+    TruncateTables:
+    {
+        Client  client;
+        TEST(SetupDefaultClient(client));
+
+        for (unsigned i = 0; i < num; i++)
+        {
+            TEST_LOG("i = %d", i);
+            TEST(client.TruncateTable(table[i]));
+        }
+    }
+
+    return TEST_SUCCESS;
+}
+
+
 TEST_DEFINE(TestClientMultiThread)
 {
     ThreadPool*     threadPool;

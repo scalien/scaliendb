@@ -107,13 +107,18 @@ bool ControllerConnection::OnMessage(ReadBuffer& rbuf)
 {
     SDBPResponseMessage msg;
     ClientResponse*     resp;
-    
+    Stopwatch           sw;
+
     Log_Trace();
     
     resp = new ClientResponse;
     msg.response = resp;
+    sw.Start();
     if (msg.Read(rbuf))
     {
+        sw.Stop();
+        if (sw.Elapsed() > 500)
+            Log_Debug("ControllerConnection::OnMessage took %U msecs", sw.Elapsed());
         if (resp->type == CLIENTRESPONSE_HELLO)
             delete resp;
         else if (!ProcessResponse(resp))
@@ -183,9 +188,7 @@ bool ControllerConnection::ProcessGetConfigState(ClientResponse* resp)
     EventLoop::Remove(&getConfigStateTimeout);
     
     // copy the config state created on stack in OnMessage
-    resp->configState.Get()->Transfer(configState);
-    
-    controller->SetConfigState(this, &configState);
+    controller->SetConfigState(this, resp->configState.Get());
 
     return false;
 }

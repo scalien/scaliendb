@@ -29,6 +29,7 @@ TEST_ADD(TestClientMultiThread);
 TEST_ADD(TestClientMultiThreadMulti);
 TEST_ADD(TestClientSet);
 TEST_ADD(TestClientSetFailover);
+TEST_ADD(TestClientTruncateTable);
 TEST_ADD(TestCommonHumanBytes);
 TEST_ADD(TestCommonRandomDistribution)
 TEST_ADD(TestConfigStateJSON);
