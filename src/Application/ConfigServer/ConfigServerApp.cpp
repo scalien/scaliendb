@@ -29,7 +29,7 @@ void ConfigServerApp::Init()
     sdbpServer.SetContext(&configServer);
 
     // start configServer only after network servers are started
-    configServer.Init();
+    configServer.Init(this);
 
     configServer.GetHTTPEndpoint(httpEndpoint);
     Log_Message("Web admin is started at http://%s%R", httpEndpoint.ToString(), &prefix);
@@ -66,4 +66,9 @@ void ConfigServerApp::OnStatTimer()
     Log_Debug("Page cache size: %s, num. pages: %u", HUMAN_BYTES(StoragePageCache::GetSize()), StoragePageCache::GetNumPages());
     Log_Debug("Request cache free list size: %u", REQUEST_CACHE->GetNumFreeRequests());
     EventLoop::Add(&statTimer);
+}
+
+unsigned ConfigServerApp::GetNumSDBPClients()
+{
+    return sdbpServer.GetNumActiveConns();
 }

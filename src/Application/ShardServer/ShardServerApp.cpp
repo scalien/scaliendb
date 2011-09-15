@@ -36,3 +36,8 @@ uint64_t ShardServerApp::GetMemoryUsage()
 {
     return sdbpServer.GetMemoryUsage() + httpServer.GetMemoryUsage();
 }
+
+unsigned ShardServerApp::GetNumSDBPClients()
+{
+    return sdbpServer.GetNumActiveConns();
+}

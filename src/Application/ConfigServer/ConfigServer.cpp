@@ -1,4 +1,5 @@
 #include "ConfigServer.h"
+#include "ConfigServerApp.h"
 #include "ConfigMessage.h"
 #include "System/Config.h"
 #include "Framework/Replication/ReplicationConfig.h"
@@ -17,13 +18,15 @@ ConfigServer::ConfigServer()
     broadcastHTTPEndpoint.SetDelay(BROADCAST_HTTP_ENDPOINT_DELAY);
 }
 
-void ConfigServer::Init()
+void ConfigServer::Init(ConfigServerApp* app)
 {
     unsigned        numConfigServers;
     int64_t         nodeID;
     uint64_t        runID, nodeID_;
     const char*     str;
     Endpoint        endpoint;
+
+    configServerApp = app;
 
     REQUEST_CACHE->Init(configFile.GetIntValue("requestCache.size", 100));
  
@@ -272,6 +275,11 @@ bool ConfigServer::GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint
 void ConfigServer::GetHTTPEndpoint(Endpoint& endpoint)
 {
     endpoint = httpEndpoint;
+}
+
+unsigned ConfigServer::GetNumSDBPClients()
+{
+    return configServerApp->GetNumSDBPClients();
 }
 
 void ConfigServer::OnBroadcastHTTPEndpoint()

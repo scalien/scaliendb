@@ -26,6 +26,7 @@ public:
     void                    Shutdown();
 
     void                    OnStatTimer();
+    unsigned                GetNumSDBPClients();
 
 private:
     ConfigServer            configServer;

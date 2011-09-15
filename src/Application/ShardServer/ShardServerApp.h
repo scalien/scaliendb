@@ -25,6 +25,7 @@ public:
     void                    Shutdown();
 
     uint64_t                GetMemoryUsage();
+    unsigned                GetNumSDBPClients();
 
 private:
     ShardServer             shardServer;

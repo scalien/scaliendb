@@ -12,6 +12,8 @@
 
 #define BROADCAST_HTTP_ENDPOINT_DELAY        1000
 
+class ConfigServerApp;
+
 /*
 ===============================================================================================
 
@@ -25,7 +27,7 @@ class ConfigServer : public ClusterContext, public SDBPContext
 public:
     ConfigServer();
 
-    void                        Init();
+    void                        Init(ConfigServerApp* app);
     void                        Shutdown();
 
     uint64_t                    GetNodeID();
@@ -56,6 +58,7 @@ public:
 
     bool                        GetControllerHTTPEndpoint(uint64_t nodeID, Endpoint& endpoint);
     void                        GetHTTPEndpoint(Endpoint& endpoint);
+    unsigned                    GetNumSDBPClients();
 
 private:
     void                        OnBroadcastHTTPEndpoint();
@@ -69,6 +72,7 @@ private:
     HashMap<uint64_t, Endpoint> httpEndpoints;
     Endpoint                    httpEndpoint;
     Countdown                   broadcastHTTPEndpoint;
+    ConfigServerApp*            configServerApp;
 };
 
 #endif

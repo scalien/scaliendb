@@ -567,3 +567,8 @@ void ShardServer::GetMemoryUsageBuffer(Buffer& buffer)
     buffer.Appendf("Total memory usage: %s\n", HUMAN_BYTES(totalMemory));
     buffer.Appendf("Total memory usage reported by system: %s\n", HUMAN_BYTES(GetProcessMemoryUsage()));
 }
+
+unsigned ShardServer::GetNumSDBPClients()
+{
+    return shardServerApp->GetNumSDBPClients();
+}
