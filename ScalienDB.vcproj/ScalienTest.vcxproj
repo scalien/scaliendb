@@ -454,6 +454,7 @@
     <ClInclude Include="..\src\System\Log.h" />
     <ClInclude Include="..\src\System\Macros.h" />
     <ClInclude Include="..\src\System\Platform.h" />
+    <ClInclude Include="..\src\System\PointerGuard.h" />
     <ClInclude Include="..\src\System\Stopwatch.h" />
     <ClInclude Include="..\src\System\Threading\Atomic.h" />
     <ClInclude Include="..\src\System\Threading\LockGuard.h" />
