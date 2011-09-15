@@ -32,6 +32,10 @@ do                                  \
     mutex.Lock();                   \
 } while (0)
 
+#define MUTEX_GUARD_DECLARE()       MutexGuard guard(mutex)
+#define MUTEX_GUARD_LOCK()          guard.Lock()
+#define MUTEX_GUARD_UNLOCK()        guard.Unlock()
+
 #else // IOPROCESSOR_MULTITHREADED
 
 #define UNLOCKED_CALL(callable)     \
@@ -39,6 +43,10 @@ do                                  \
 
 #define UNLOCKED_ADD(ioop)          \
     IOProcessor::Add(ioop)
+
+#define MUTEX_GUARD_DECLARE()
+#define MUTEX_GUARD_LOCK()
+#define MUTEX_GUARD_UNLOCK()
 
 #endif // IOPROCESSOR_MULTITHREADED
 
@@ -612,10 +620,10 @@ bool IOProcessor::Poll(int msec)
         startTime = EventLoop::Now();
         
         // make sure we don't hold the lock while waiting for completion events
-        guard.Unlock();
+        MUTEX_GUARD_UNLOCK();
         ret = GetQueuedCompletionStatus(iocp, &numBytes, (PULONG_PTR)&iod, &overlapped, timeout);
-        guard.Lock();
-        
+        MUTEX_GUARD_LOCK();
+
         // this happens when CTRL-C is pressed or the console window is closed
         if (terminated)
             return false;
