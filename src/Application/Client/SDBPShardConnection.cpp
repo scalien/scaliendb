@@ -40,10 +40,7 @@ void ShardConnection::ClearRequests()
 bool ShardConnection::SendRequest(Request* request)
 {
     SDBPRequestMessage  msg;
-    
-    if (request->IsList())
-        Log_Trace("count: %u", request->count);
-    
+
     sentRequests.Append(request);
     request->numTry++;
     request->requestTime = EventLoop::Now();
@@ -51,11 +48,6 @@ bool ShardConnection::SendRequest(Request* request)
     msg.request = request;
     Write(msg);
 
-//    if (request->numTry > 1)
-//        Log_Debug("Resending, commandID: %U, conn: %s", request->commandID, endpoint.ToString());
-    
-    //Log_Debug("Sending conn: %s, writeBuffer = %B", endpoint.ToString(), writeBuffer);
-    
     // buffer is saturated
     if (GetWriteBuffer().GetLength() >= MESSAGING_BUFFER_THRESHOLD)
         return false;
@@ -149,7 +141,6 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
     {
         if (request->commandID == response.commandID)
         {
-            // TODO: async is broken here somehow
             if (
              response.type != CLIENTRESPONSE_LIST_KEYS && 
              response.type != CLIENTRESPONSE_LIST_KEYVALUES &&
@@ -158,8 +149,8 @@ bool ShardConnection::OnMessage(ReadBuffer& rbuf)
                 sentRequests.Remove(request);
             }
             
-            // put back the request to the quorum queue
-            // on next config state response the client 
+            // put back the request to the quorum queue and
+            // on the next config state response the client 
             // will reconfigure the quorums and will resend
             // the requests
             if (response.type == CLIENTRESPONSE_NOSERVICE)
