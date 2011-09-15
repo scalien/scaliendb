@@ -21,10 +21,10 @@
 #ifdef CLIENT_MULTITHREADED
 
 // globalMutex protects the underlying single threaded IO and Event handling layer
-Mutex       globalMutex;                    
-unsigned    numClients = 0;
-ThreadPool* ioThread = NULL;
-Signal      ioThreadSignal;
+Mutex                                   globalMutex;                    
+unsigned                                numClients = 0;
+ThreadPool*                             ioThread = NULL;
+Signal                                  ioThreadSignal;
 
 #define CLIENT_MUTEX_GUARD_DECLARE()    MutexGuard clientMutexGuard(mutex)
 #define CLIENT_MUTEX_GUARD_LOCK()       clientMutexGuard.Lock()

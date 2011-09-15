@@ -114,17 +114,13 @@ namespace TestClientUnitTest
             Table tblSeq = db.CreateTable(tableNameSeq);
             Table tblTrunc = db.CreateTable(tableNameTrunc);
 
-            //
+            Sequence testSeq = tblSeq.GetSequence("seqIDs");
 
-            tbl.Set("0000000000001", "test");
-            tbl.Set("0000000000002", "test");
+            testSeq.Reset();
 
-            tbl.TruncateTable();
+            tblTrunc.TruncateTable();
 
             client.Submit();
-
-            var i = tbl.Count(new ByteRangeParams());
-            Assert.IsTrue(i == 0);
         }
         
 /*
