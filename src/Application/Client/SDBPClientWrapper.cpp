@@ -887,7 +887,7 @@ void SDBP_SetTrace(bool trace)
 
 std::string SDBP_GetVersion()
 {
-    return VERSION_STRING;
+    return "ScalienDB Client v" VERSION_STRING " " PLATFORM_STRING;
 }
 
 std::string SDBP_GetDebugString()
